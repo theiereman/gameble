@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forge Report — gameble</title>
+<style>
+  :root {
+    --bg: #f6f1e7; --paper: #fffdf8; --ink: #2b2420; --muted: #6f6359;
+    --line: #e2d8c8; --seal: #9e1b1b; --seal-dark: #6e1010; --accent: #b7791f;
+    --kill: #8a8178;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #17140f; --paper: #211d17; --ink: #efe6d8; --muted: #b3a797;
+      --line: #3a3229; --seal: #c43a3a; --seal-dark: #8e2020; --accent: #e0a64a; --kill: #8f857a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.55 Georgia, "Iowan Old Style", "Times New Roman", serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 32px 16px 64px; }
+  .sheet { background: var(--paper); border: 1px solid var(--line); border-radius: 6px;
+    padding: 40px clamp(16px, 5vw, 48px); position: relative; }
+  header { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; border-bottom: 2px solid var(--line); padding-bottom: 24px; }
+  header .titles { flex: 1 1 320px; }
+  .kicker { font: 600 12px/1 system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  h1 { margin: 8px 0 6px; font-size: clamp(28px, 5vw, 40px); line-height: 1.1; }
+  .lede { color: var(--muted); margin: 0; }
+  h2 { font-size: 20px; margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  ul { padding-left: 20px; margin: 0; }
+  li { margin: 6px 0; }
+  li b { color: var(--ink); }
+  .killed li { color: var(--kill); }
+  .killed li::marker { content: "✕  "; color: var(--seal); }
+  .risk li::marker { content: "⚠  "; }
+  .deferred li::marker { content: "⏸  "; }
+  .personas { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .p { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; }
+  .p .n { font-weight: 700; }
+  .p .r { font: 12px/1.3 system-ui, sans-serif; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .p q { display: block; margin-top: 6px; font-style: italic; color: var(--muted); font-size: 14px; }
+  .tag { font: 600 10px/1 system-ui, sans-serif; color: var(--accent); border: 1px solid var(--accent); border-radius: 3px; padding: 2px 4px; margin-left: 4px; vertical-align: middle; }
+  footer { margin-top: 32px; color: var(--muted); font-size: 13px; text-align: center; }
+  .seal { flex: 0 0 auto; width: 170px; height: 170px; transform: rotate(-9deg); }
+</style>
+</head>
+<body>
+<main>
+<div class="sheet">
+  <header>
+    <svg class="seal" viewBox="0 0 200 200" role="img" aria-label="Wax seal: Hardened">
+      <defs>
+        <radialGradient id="wax" cx="40%" cy="35%" r="70%">
+          <stop offset="0%" stop-color="#d04848"/>
+          <stop offset="60%" stop-color="var(--seal)"/>
+          <stop offset="100%" stop-color="var(--seal-dark)"/>
+        </radialGradient>
+        <path id="ring" d="M100,100 m-62,0 a62,62 0 1,1 124,0 a62,62 0 1,1 -124,0"/>
+      </defs>
+      <path fill="url(#wax)" d="M100 8 C122 10 130 22 148 24 C166 28 172 44 182 58 C194 76 186 92 192 108 C196 128 182 140 176 156 C166 176 146 176 130 186 C112 196 96 188 78 192 C58 194 46 180 32 168 C16 154 18 136 10 120 C4 100 14 86 12 68 C12 48 28 38 42 26 C58 12 78 8 100 8 Z"/>
+      <circle cx="100" cy="100" r="74" fill="none" stroke="#f3d4d4" stroke-opacity=".55" stroke-width="2"/>
+      <circle cx="100" cy="100" r="50" fill="none" stroke="#f3d4d4" stroke-opacity=".55" stroke-width="1.5"/>
+      <text font-family="system-ui, sans-serif" font-size="12" font-weight="700" letter-spacing="3" fill="#fbe9e9">
+        <textPath href="#ring" startOffset="2%">FORGED · GAMEBLE · 2026 · FORGED · GAMEBLE ·</textPath>
+      </text>
+      <text x="100" y="96" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#fff4f4" letter-spacing="1">HARD</text>
+      <text x="100" y="118" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#fff4f4" letter-spacing="1">ENED</text>
+    </svg>
+    <div class="titles">
+      <div class="kicker">BMad Forge · 2026-10-01 · initiative-gameble</div>
+      <h1>gameble — a Steam catalog TCG</h1>
+      <p class="lede">A web TCG where every card is a Steam game: free boosters, prestige-based rarity, an auction market and a mock-solemn Gamblers' Brotherhood. Fully free-to-play.</p>
+    </div>
+  </header>
+
+  <h2>Outcome</h2>
+  <p>Both founding assumptions held up after the needed changes. The Steam API exposes enough data to rank games. The idea becomes a real game once cards come from boosters drawn from the whole catalog rather than from a player's own library.</p>
+
+  <h2>Locked decisions</h2>
+  <ul>
+    <li><b>Card source:</b> the whole Steam catalog via boosters, not the player's library.</li>
+    <li><b>Catalog:</b> games only (no DLC, soundtracks, demos or tools) with ≥ 500 reviews, grouped into sets by genre, decade and publisher.</li>
+    <li><b>Rarity = prestige:</b> review score, Metacritic and review volume. A player can guess it in one sentence.</li>
+    <li><b>Stability:</b> each copy keeps its minted rarity and season forever, and the catalog and rarities are recomputed each season.</li>
+    <li><b>Loop:</b> 1 free booster per 10 min. Destroy cards for a little currency, then bid at auction for rarer ones.</li>
+    <li><b>No real money</b> anywhere.</li>
+    <li><b>Sinks:</b> <i>Gambler's Tax Stamp</i> (listing fee) and <i>Brotherhood Effort</i> (~10% sale commission), destroyed and shown upfront.</li>
+    <li><b>Season goal:</b> a parody <i>Brotherhood Pass</i>. Tiers are advanced by everyone's fees and reward contributors with rarer boosters, never currency.</li>
+    <li><b>Tone:</b> <i>The Grand Gamblers' Brotherhood</i>, with mock-patriotic copy. Bilingual FR/EN UI.</li>
+    <li><b>Art:</b> official Steam images from Steam's CDN, with publisher and copyright credited and a non-affiliation notice in the site terms.</li>
+    <li><b>Accounts:</b> Steam OpenID login only. Market access is gated by gameble seniority.</li>
+  </ul>
+
+  <h2>Rejected, and why</h2>
+  <ul class="killed">
+    <li><b>Library-as-collection:</b> nothing to obtain, so rarity is meaningless.</li>
+    <li><b>Obscurity-based rarity:</b> famous games common, shovelware legendary.</li>
+    <li><b>Live rarity recomputation:</b> destabilizes the market and owned value.</li>
+    <li><b>Any real money:</b> loot-box/gambling regulatory exposure.</li>
+    <li><b>Email/password or generic OAuth login:</b> trivially farmable.</li>
+    <li><b>Generated-only card art:</b> less desirable to collect.</li>
+    <li><b>"Players are shareholders" theme:</b> too heavy for a light joke.</li>
+    <li><b>Battle mode:</b> not wanted.</li>
+  </ul>
+
+  <h2>Deferred</h2>
+  <ul class="deferred">
+    <li>Exotic editions (delisted games, old classics), likely hand-curated.</li>
+    <li>Personal library layer: achievement and playtime badges on owned cards.</li>
+    <li>Daily bonus, premium boosters, crafting.</li>
+  </ul>
+
+  <h2>Weak points that survived</h2>
+  <ul class="risk">
+    <li>No fallback if a publisher asks to take down its art.</li>
+    <li>Steam API rate limits are unmeasured for a seasonal recompute of 10k–20k games.</li>
+    <li>Bot farming is still possible for collection and prestige; only the market is gated.</li>
+    <li>The market-access threshold is not chosen yet.</li>
+  </ul>
+
+  <h2>Who pressure-tested it</h2>
+  <div class="personas">
+    <div class="p"><div class="n">📋 John</div><div class="r">Product Manager</div><q>"If everyone with Hollow Knight has the same card, why play?"</q></div>
+    <div class="p"><div class="n">📊 Mary</div><div class="r">Business Analyst</div><q>"Steam stats measure popularity, not prestige."</q></div>
+    <div class="p"><div class="n">🎨 Sally</div><div class="r">UX Designer</div><q>"Rarity has to match the emotion."</q></div>
+    <div class="p"><div class="n">🏗️ Winston</div><div class="r">System Architect</div><q>"100k apps: the problem is quality, not volume."</q></div>
+    <div class="p"><div class="n">🔒 Vex</div><div class="r">Security Engineer</div><q>"500 accounts in an afternoon makes your rate limit pointless."</q></div>
+    <div class="p"><div class="n">🃏 Lucie <span class="tag">GUEST</span></div><div class="r">Veteran TCG collector</div><q>"Rare means hard to get."</q></div>
+    <div class="p"><div class="n">💰 Karim <span class="tag">GUEST</span></div><div class="r">F2P economy designer</div><q>"Faucets and sinks, or your prices explode."</q></div>
+    <div class="p"><div class="n">⚖️ Ines Darrow <span class="tag">GUEST</span></div><div class="r">Gambling-law attorney</div><q>"Random draw, tradable item, real money: loot box."</q></div>
+    <div class="p"><div class="n">🛡️ Nora Valdez <span class="tag">GUEST</span></div><div class="r">IP counsel</div><q>"Displaying art is not the same as making it a tradable collectible."</q></div>
+  </div>
+
+  <footer>Forged idea: <code>forge-steam-tcg.md</code> · Session log: <code>.memlog.md</code></footer>
+</div>
+</main>
+</body>
+</html>
