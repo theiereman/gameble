@@ -1,0 +1,49 @@
+# tickets.toml — the initiative's epics, in build order. tickets.py reads it.
+
+[[epic]]
+id = 1
+slug = "epic-foundation-and-steam-sign-in"
+title = "Foundation and Steam sign-in"
+covers = ["CAP-1", "CAP-18"]
+
+[[epic]]
+id = 2
+slug = "epic-steam-catalog"
+title = "Steam catalog"
+covers = ["CAP-2", "CAP-3"]
+after = [{ epic = 1, needs = "the deployed app, the operations and events wiring, and the administrator role" }]
+
+[[epic]]
+id = 3
+slug = "epic-packs-and-reveal"
+title = "Packs and reveal"
+covers = ["CAP-4", "CAP-5", "CAP-16"]
+after = [{ epic = 1, needs = "player accounts, the layout shell and the front-end toolchain" }, { epic = 2, needs = "a published season to draw from" }]
+
+[[epic]]
+id = 4
+slug = "epic-collection-and-sharing"
+title = "Collection and sharing"
+covers = ["CAP-6", "CAP-7", "CAP-8", "CAP-9", "CAP-18"]
+after = [{ epic = 2, needs = "the sets of the published season" }, { epic = 3, needs = "owned cards and the card component" }]
+
+[[epic]]
+id = 5
+slug = "epic-friends-and-trades"
+title = "Friends and trades"
+covers = ["CAP-10", "CAP-11"]
+after = [{ epic = 3, needs = "owned cards, with their reserved count, and the card component" }]
+
+[[epic]]
+id = 6
+slug = "epic-brotherhood"
+title = "The Brotherhood"
+covers = ["CAP-12", "CAP-13", "CAP-17"]
+after = [{ epic = 3, needs = "the pack-opened event and reward packs" }, { epic = 5, needs = "the trade-accepted event" }]
+
+[[epic]]
+id = 7
+slug = "epic-public-launch-readiness"
+title = "Ready for the public"
+covers = ["CAP-14", "CAP-15"]
+after = [{ epic = 1, needs = "player accounts, staff roles and the back-office shell" }]

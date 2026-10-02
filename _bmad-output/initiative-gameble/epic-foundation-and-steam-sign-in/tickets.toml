@@ -1,0 +1,116 @@
+# tickets.toml — the stories of epic 1, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Walking skeleton live in production"
+description = "Creates the Rails 8.1 application with PostgreSQL, Vite and the four empty packs, and deploys one placeholder page with Kamal 2 behind Cloudflare."
+verify = "The production URL serves the placeholder page and `/up` answers healthy."
+covers = ["R2", "R7"]
+after = []
+hitl = true
+risk = "medium"
+unknown = "Whether every pinned gem runs on Ruby 4.0.7; the spine's fallback is Ruby 3.4.11."
+references = ["architecture-gameble/architecture-gameble.md#ad-21--one-image-three-processes-adopted", "architecture-gameble/architecture-gameble.md#stack"]
+
+[[entry]]
+id = 2
+type = "story"
+title = "CI gates"
+description = "Adds the GitHub Actions workflow that runs Minitest, Packwerk, strong_migrations, i18n-tasks and RuboCop on every pull request."
+verify = "A pull request that crosses a pack boundary or drops a translation key fails CI; a clean one passes."
+covers = ["R2", "R8"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Operations and events wiring"
+description = "Adds the dry-operation base class with its ActiveRecord transaction, configures Rails Event Store, and sets the failure-code-to-locale-key convention with one sample operation."
+verify = "A test shows the sample operation commits its change and its event together, and rolls both back on a Failure."
+covers = ["R3"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Locales and layout shell"
+description = "Adds French and English with the locale in the URL, the page layout with its status band placeholder, the DESIGN.md tokens as CSS custom properties, the Jost typeface, and the text plate and button view components."
+verify = "`/fr` and `/en` render the shell in each language, and a first visit follows the browser language."
+covers = ["R5", "R6"]
+after = [3]
+hitl = false
+risk = "low"
+references = ["ux-gameble/DESIGN.md"]
+
+[[entry]]
+id = 5
+type = "story"
+title = "Front-end toolchain"
+description = "Sets up TypeScript, Stimulus and Turbo Mount under Vite, with one sample React component that receives its data and its translated strings as props."
+verify = "The sample component renders in both locales and the type check runs in CI."
+covers = ["R5"]
+after = [4]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Steam sign-in"
+description = "Adds sign-in through OmniAuth and omniauth-openid: `Steam` verifies the response, `Accounts::SignIn` creates or reuses the player and publishes `Accounts::PlayerRegistered` (the event that later fills a new player's pack bank), and the session is an encrypted cookie holding the player id."
+verify = "On production, signing in with a Steam account creates a player and signing in again reuses it; no password is stored."
+covers = ["R1", "R4"]
+after = [3, 4]
+hitl = true
+risk = "medium"
+unknown = "omniauth-openid 2.0.2 is not verified on Rails 8.1; if it fails, the OpenID check is written inside the Steam pack, as the spine allows."
+
+[[entry]]
+id = 7
+type = "story"
+title = "Roles, policies and ban check"
+description = "Adds Pundit with the roles visitor, player, moderator and administrator, a ban check on every request, and the rule that a Game operation requires a player."
+verify = "Tests show a signed-out request to a mutating action is refused, and a banned player loses access at the next request."
+covers = ["R4"]
+after = [6]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Attic page shell"
+description = "Adds the attic page as the landing after sign-in, the same page for a signed-out visitor with the Steam sign-in button, and an empty back-office shell for staff."
+verify = "Signed in, a player lands on the attic page; signed out, the page shows the sign-in button; only staff open the back-office."
+covers = ["R9", "R4"]
+after = [7]
+hitl = false
+risk = "low"
+references = ["ux-gameble/EXPERIENCE.md", "ux-gameble/mockups/attic.html"]
+
+[[entry]]
+id = 9
+type = "story"
+title = "Error tracking and operations"
+description = "Adds Sentry, a rate limit on the sign-in endpoints, and Mission Control Jobs reachable by administrators only."
+verify = "A forced error in production appears in Sentry, and the jobs dashboard refuses a non-administrator."
+covers = ["R7"]
+after = [8]
+hitl = true
+risk = "low"
+
+[[entry]]
+id = 10
+type = "story"
+title = "Refactor sweep"
+description = "Cleans up the epic's code from the build records and the review findings deferred during the epic; its scope is set when it starts."
+verify = "CI is green and every deferred review finding of the epic is fixed or recorded."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+hitl = false
+risk = "low"
