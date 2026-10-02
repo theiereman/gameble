@@ -1,0 +1,106 @@
+# tickets.toml — the stories of epic 2, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Import run tracer"
+description = "Adds the `Steam` import run record (step, cursor, counts, errors), the import queue served by its own throttled worker process, the Steam Web API client, and a back-office page where an administrator starts a run whose first step lists Steam's games into `steam_apps` and resumes from its cursor after an interruption."
+verify = "An administrator starts a run from the back-office and watches its step and app count grow; stopping the worker mid-step and restarting it continues the count without duplicate `steam_apps` rows."
+covers = ["R1", "R2"]
+after = ["1.3", "1.8"]
+hitl = true
+risk = "medium"
+unknown = "Whether `IStoreService/GetAppList` pages are stable enough to resume from a `last_appid` cursor."
+references = ["architecture-gameble/architecture-gameble.md#ad-19--the-import-is-a-separate-resumable-process-adopted", "architecture-gameble/architecture-gameble.md#ad-21--one-image-three-processes-adopted", "spec-gameble/catalog-and-rarity.md#import"]
+
+[[entry]]
+id = 2
+type = "story"
+title = "Catalog schema and draft season"
+description = "Adds the `Catalog` models of the spine (card, card text per locale, season, card-season, set, set membership), the rarity tiers 1 to 5 defined once, generic card fields with no Steam name (source key, publisher, credit, release date, tags, image and store addresses, prestige score, rating), and the `Catalog::UpsertDraftCard` operation that `Steam` will call to write a card into the draft season idempotently."
+verify = "Tests show `Catalog::UpsertDraftCard` called twice with the same source key leaves one card and one card-season in the draft season, and Packwerk passes with no Steam reference in `Catalog`."
+covers = ["R4", "R5", "R6"]
+after = ["1.3"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Review pass and the 500-review filter"
+description = "Adds the run step that fetches each listed game's review score and review count under the store rate limit, keeps the raw response in `Steam`, and marks games under 500 reviews as excluded, resuming from its cursor like story 1's step."
+verify = "A run on a recorded sample of apps keeps only those with 500 reviews or more, and the run page shows the step's progress, its excluded count and its errors."
+covers = ["R2", "R3", "R5"]
+after = [1]
+hitl = false
+risk = "high"
+unknown = "Which endpoint gives review counts cheapest (`IStoreBrowseService/GetItems` batched, or `appreviews` one app per call); settled before code."
+
+[[entry]]
+id = 4
+type = "story"
+title = "Store details in both languages"
+description = "Adds the run step that fetches, for each game kept by story 3, its type, title and short description in French and English, release date, genres, publisher, copyright credit, store tags and vertical library image, excluding DLC, soundtracks, demos, tools and games without a vertical image."
+verify = "On a recorded sample, a DLC, a soundtrack and a game without a vertical image are excluded, and a kept game has its French and English text, tags and image address stored in `Steam`."
+covers = ["R2", "R3", "R4"]
+after = [3]
+hitl = false
+risk = "high"
+unknown = "Store tags and the vertical image are not in `appdetails`; which endpoint or CDN check gives them is settled before code."
+
+[[entry]]
+id = 5
+type = "story"
+title = "Prestige score and cards in the draft season"
+description = "Adds the run step where `Steam` computes each kept game's prestige score from review score and review count only, then writes the card into the draft season through `Catalog::UpsertDraftCard` from story 2, ending the run."
+verify = "A full run on a recorded sample leaves one draft card per kept game with both texts, tags, publisher, release date, image address and a prestige score, and a second run changes no row count."
+covers = ["R2", "R4", "R5"]
+after = [2, 4]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Publish a season with its tiers"
+description = "Adds `Catalog::PublishSeason`, started by an administrator from the back-office, which cuts prestige scores into the five tiers by percentile thresholds held in one place, sets each card-season's dust tier from the game's age, publishes the season at once, and adds the query that reads only the published season."
+verify = "Tests show publishing fixes every card-season's rarity and dust tier, a draft season is never returned by the published-season query, and a second publish of the same season is refused."
+covers = ["R6"]
+after = [5]
+hitl = false
+risk = "medium"
+references = ["ux-gameble/DESIGN.md"]
+
+[[entry]]
+id = 7
+type = "story"
+title = "Sets of the season"
+description = "Extends `Catalog::PublishSeason` to build the season's publisher sets, genre tomes and best-rated-of-the-year sets in the same transaction."
+verify = "On fixtures, a publisher with 5 games gets a set and one with 4 does not, each genre's tomes hold about thirty games by release date, and each year's best-rated set holds its 10 highest-rated games."
+covers = ["R7"]
+after = [6]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 8
+type = "story"
+title = "First real import and calibration"
+description = "The author runs a full import against Steam on the deployed test server; the run's duration and catalog size are recorded, the prestige formula and tier thresholds are calibrated on the real scores, and season 1 is published."
+verify = "Season 1 is published with every card carrying a rarity, a release date, French and English text and its sets, no card under 500 reviews or without a vertical image, and the measured duration and tier sizes recorded in the epic's Notes."
+covers = ["R1", "R2", "R3", "R5", "R6", "R7"]
+after = [7]
+hitl = true
+risk = "high"
+unknown = "The duration of a full pass under the rate limit, and whether the catalog lands in the 10k–20k target."
+
+[[entry]]
+id = 9
+type = "story"
+title = "Refactor sweep"
+description = "Cleans up the epic's code from the build records and the review findings deferred during the epic; its scope is set when it starts."
+verify = "CI is green and every deferred review finding of the epic is fixed or recorded."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7, 8]
+hitl = false
+risk = "low"
