@@ -9,6 +9,11 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  # Defines the root path route ("/")
-  root "pages#home"
+  # Every page lives under its locale, the first segment of the URL (AD-18).
+  scope ":locale", locale: /en|fr/ do
+    root "pages#home", as: :home
+  end
+
+  # "/" sends a first visit to the locale its browser prefers.
+  root "locales#redirect"
 end

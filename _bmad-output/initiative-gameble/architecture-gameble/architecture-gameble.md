@@ -263,6 +263,7 @@ Verified against the RubyGems and npm registries on 2026-10-02. If a gem lags be
 | faraday-retry | 2.4.0 |
 | strong_migrations | 2.8.0 |
 | i18n-tasks | 1.1.2 |
+| http_accept_language | 2.1.1 |
 | sentry-rails | 7.1.0 |
 
 ## Structural Seed
