@@ -12,6 +12,8 @@ search:
   paths:
     - app/
     - packs/
+    # The sign-in throttle's 429 body (rack_attack.rb).
+    - config/initializers/
 
 # Failure keys are built from failure codes at runtime (Steam::SignInIdentity.failure_key,
 # Accounts::SignIn.failure_key, Game::Operation), which the static search cannot see.

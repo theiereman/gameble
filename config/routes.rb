@@ -17,6 +17,10 @@ Rails.application.routes.draw do
     get "back-office" => "back_office/dashboard#show", as: :back_office
   end
 
+  # The job queue (R7), administrators only: Mission Control Jobs behind
+  # BackOffice::JobsBaseController. Engine routes, outside the locale scope.
+  mount MissionControl::Jobs::Engine, at: "/back-office/jobs"
+
   # Steam sign-in (AD-14). OmniAuth answers POST /auth/steam itself; Steam
   # comes back to the callback, and any failure lands on /auth/failure.
   get "auth/steam/callback" => "sessions#create", as: :steam_callback

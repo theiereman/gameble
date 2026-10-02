@@ -34,3 +34,26 @@ Every state change is an operation (AD-3). Inherit `ApplicationOperation`, name 
 bin/rails test
 bin/rails zeitwerk:check
 ```
+
+## Production checks
+
+### Sentry (AD-21)
+
+Sentry receives production errors only (no tracing, no profiling, no personal data; the player id is the only thing attached about a player). It starts only when `SENTRY_DSN` is set, so development and test send nothing.
+
+1. Create the Sentry project (platform: Rails) and copy its DSN.
+2. Export it in the shell you deploy from: `export SENTRY_DSN=https://…` (`.kamal/secrets` reads it from there; never commit it).
+3. Deploy: `bin/kamal deploy`. The release is the deployed `KAMAL_VERSION`.
+4. Send a test event and check it appears in the Sentry project, tagged `production` and the release:
+
+   ```sh
+   bin/kamal app exec --reuse 'bin/rails runner "Sentry.capture_message(%(gameble test event))"'
+   ```
+
+### Sign-in throttle
+
+`POST /auth/steam`, `GET /auth/steam/callback` and `GET /auth/failure` accept 10 requests a minute per client IP (Rack::Attack, counts in `Rails.cache`); the 11th gets 429. Page reads are never throttled. Behind Cloudflare, the client IP must be the visitor's real IP, not Cloudflare's: that is deployment work.
+
+### Job queue
+
+Administrators open Mission Control Jobs at `/back-office/jobs` (linked from the back-office). Anyone else is refused.
