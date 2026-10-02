@@ -12,7 +12,8 @@ module Steam
   # (details_run_id) and its verdict, details_exclusion (one of
   # Steam::DetailsPolicy::EXCLUSIONS, NULL when the game can become a card).
   # Steam::ImportGenresPage then adds their genres and credit (genres_run_id,
-  # genres_exclusion).
+  # genres_exclusion). Steam::ImportCardsPage writes the apps ready by the
+  # run into the draft season as cards (Steam::CardMapping).
   class App < ApplicationRecord
     self.table_name = "steam_apps"
 
@@ -36,9 +37,10 @@ module Steam
     # needs (English title, release date, image and store URL).
     scope :ready_by, ->(run) { detailed_by(run).where(genres_run_id: run.id, genres_exclusion: nil) }
 
-    # The app's page on the Steam store.
+    # The app's page on the Steam store: its store path, or app/<appid>/
+    # when it has none.
     def store_url
-      STORE_URL_BASE + store_url_path if store_url_path.present?
+      STORE_URL_BASE + (store_url_path.present? ? store_url_path.delete_prefix("/") : "app/#{appid}/")
     end
   end
 end

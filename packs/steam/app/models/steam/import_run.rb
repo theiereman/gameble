@@ -10,10 +10,13 @@ module Steam
     self.table_name = "steam_import_runs"
 
     # The steps of a run, in order: the app list, the review pass, the tag
-    # names, the store details of the kept games, then their genres.
-    STEPS = %w[app_list reviews tags details genres].freeze
+    # names, the store details of the kept games, their genres, then the
+    # cards written into the draft season.
+    STEPS = %w[app_list reviews tags details genres cards].freeze
     # The errors kept on a run, the latest last.
     ERROR_LIMIT = 20
+    # The length an error message is cut to.
+    MESSAGE_LIMIT = 500
 
     has_secure_token :token
 
@@ -104,12 +107,29 @@ module Steam
       count_of("apps_excluded_genres")
     end
 
+    # Cards the cards step wrote into the draft season, and those it refused.
+    def cards_written
+      count_of("cards_written")
+    end
+
+    def cards_refused
+      count_of("cards_refused")
+    end
+
     def count_of(name)
       counts.fetch(name, 0).to_i
     end
 
     # An error of the run: when it happened and its (key-free) message.
     Error = Data.define(:at, :message)
+
+    # Appends `messages` to the run's errors, each cut to MESSAGE_LIMIT and
+    # stamped `at`; only the latest ERROR_LIMIT are kept. Does not save.
+    def append_errors(messages, at: Time.current)
+      stamp = at.utc.iso8601
+      self.error_messages = (error_messages + messages.map { |message| { "at" => stamp, "message" => message.to_s.truncate(MESSAGE_LIMIT) } })
+        .last(ERROR_LIMIT)
+    end
 
     # The latest errors, the most recent first.
     def latest_errors(limit = 5)
