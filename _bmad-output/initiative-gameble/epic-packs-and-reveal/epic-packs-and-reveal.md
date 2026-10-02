@@ -24,7 +24,15 @@ For a player: ten packs waiting at sign-up, one more every ten minutes, and a re
 
 ## Requirements
 
-Completed at this epic's inception. The source lines are CAP-4, CAP-5 and CAP-16 of the spec.
+- R1 (CAP-4; architecture AD-7): a player's bank holds ten pre-drawn packs of five cards, each with an availability time; pack credit is read from those times, and no task runs per player. Bonus and reward packs are rows of the same table, outside the cap of ten.
+- R2 (CAP-4; `catalog-and-rarity.md`, Draw; AD-7; conventions, Randomness): a draw picks a rarity tier by the fixed per-card odds (steel 76 %, emerald 19 %, sapphire 4.3 %, amethyst 0.65 %, gold 0.05 %), then a card uniformly within that tier of the published season, with `SecureRandom`, from an in-memory list of the published season; a statistical test checks the odds (AD-22).
+- R3 (CAP-4; AD-7, AD-10): a new player's bank is filled by a `Game` handler reacting to `Accounts::PlayerRegistered`: ten packs available at once, with at least one sapphire or better among the first ten packs, invisibly.
+- R4 (CAP-4; AD-6, AD-7, AD-3): `Game::OpenPack` locks the player's bank, consumes one available pack, credits its five cards as counted holdings (one row per player and card-season with `quantity` and `reserved`, `quantity >= reserved >= 0`), publishes `Game::PackOpened`, and enqueues the draw of the replacement; a replacement is available ten minutes after the latest availability time in the bank, or ten minutes after the opening when the bank was full; a missing due pack is drawn by the operation itself; opening without an available pack is refused whatever the client does; opening answers within 200 ms at the 95th percentile.
+- R5 (CAP-5; AD-16; EXPERIENCE.md, Component Patterns, Interaction Primitives, Responsive): the reveal is a React island mounted with Turbo Mount: five face-down cards covered in dust by the game's age; wiping (hover, finger, focus) reveals the rarity seal, flipping (click, tap, Enter) reveals the game; reveal length grows with rarity; "flip all" never skips a legendary's full reveal; on phone one card at a time with a progress mark; leaving mid-reveal loses nothing and resumes nothing; the accessibility floor applies (keyboard, seal shapes, titles as text, reduced motion).
+- R6 (AD-17; CAP-5): card art is the game's vertical Steam image, loaded from Steam's CDN, pixelated and reduced to 16 colours in the browser by `packages/pixel-art-filter`, a standalone TypeScript package with no dependency on gameble, used by the card view component and the React components; a missing image still shows the frame and title.
+- R7 (DESIGN.md, Components; EXPERIENCE.md): one card component, server-rendered (ViewComponent) and in React with the same look: face (art, title), back (frame, strap, medallion, the rarity seal by shape, dust by level).
+- R8 (CAP-16; AD-9): once per UTC day a player collects a small bonus booster with better odds; a second collection the same day is refused by the database (one row per player and UTC day); the attic shows the panel while it is collectable.
+- R9 (EXPERIENCE.md, Attic; CAP-18): the attic's chest shows the packs banked and opens one at a time; the timer counts down to the next pack and is hidden when the bank is full; signed out, the chest and the bonus panel are visible and acting on them leads to Steam sign-in.
 
 ## Done when
 
@@ -48,5 +56,10 @@ The pack bank, draws and holdings in `Game`, the attic screen, the reveal React 
 
 ## Notes
 
-- Open question: odds of the daily bonus booster (spec).
+- Open question: odds of the daily bonus booster (spec). Assumption until the author decides: 3 cards, no steel, emerald 70 %, sapphire 24 %, amethyst 5 %, gold 1 % (`pending-approvals.md`).
+- Decision (2026-10-02): breakdown of ten stories drafted by the orchestrator under the author's standing instruction to slice and build the following epics the same way, pending the author's review.
+- Decision (2026-10-02): tracer bullet is story 1: a signed-in player finds ten packs in the chest, opens one, and sees its five cards listed — bank, draw, opening and holdings through every layer, without the reveal, timer or guarantee.
+- Decision (2026-10-02): two lanes after the tracer: the game rules (2, 3, 7, 9) and the art (4, 5, 6); the reveal (6) joins both.
+- Decision (2026-10-02): a JavaScript test runner (Vitest) is added with the image filter (story 4), recorded in the Stack table per AD-20.
+- Decision (2026-10-02): a closing refactor sweep (story 10) follows every other story.
 - Unknown: the final art of the attic; the author generates it from `ux-gameble/art-prompts.md`.

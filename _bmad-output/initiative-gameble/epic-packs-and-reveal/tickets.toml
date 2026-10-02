@@ -1,0 +1,116 @@
+# tickets.toml — the stories of epic 3, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Open a pack, end to end"
+description = "Adds the Game pack bank (packs with their five pre-drawn cards and an availability time), the draw from the published season by tier odds, the handler that fills a new player's bank with ten packs, Game::OpenPack crediting counted holdings, a development seed of a small published season, and an attic chest that opens a pack and lists its five cards."
+verify = "In development, a newly signed-in player sees ten packs in the chest, opens one, and sees five card titles listed; the chest then shows nine, and a test shows opening with no pack is refused."
+covers = ["R1", "R2", "R3", "R4", "R9"]
+after = ["1.8", "2.6"]
+hitl = false
+risk = "high"
+references = ["architecture-gameble/architecture-gameble.md#ad-6--owned-cards-are-counted-not-listed-adopted", "architecture-gameble/architecture-gameble.md#ad-7--packs-are-pre-drawn-adopted", "spec-gameble/catalog-and-rarity.md#draw"]
+
+[[entry]]
+id = 2
+type = "story"
+title = "Replacement packs and the timer"
+description = "Adds the replacement rule (ten minutes after the latest availability time, or after the opening when the bank was full), the job that draws the replacement after an opening, the operation drawing a missing due pack itself, and the attic timer counting down to the next pack, hidden when the bank is full."
+verify = "Tests show a pack reappears ten minutes after the rule says, never beyond ten banked, and the attic timer shows the next availability time."
+covers = ["R1", "R4", "R9"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "First-session guarantee"
+description = "Makes the first fill of a new player's bank hold at least one sapphire or better among its ten packs, without any visible sign."
+verify = "A test over many new players shows every first ten packs hold a sapphire or better, and the draw odds test still passes."
+covers = ["R3"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Pixel-art image filter package"
+description = "Creates packages/pixel-art-filter, a standalone TypeScript package that pixelates an image and reduces it to 16 colours in the browser, with Vitest tests, and records Vitest in the Stack table."
+verify = "The package's tests pass in CI on a sample image, and the package imports nothing from gameble."
+covers = ["R6"]
+after = ["1.5"]
+hitl = false
+risk = "medium"
+references = ["architecture-gameble/architecture-gameble.md#ad-17--the-image-filter-is-a-standalone-package-adopted"]
+
+[[entry]]
+id = 5
+type = "story"
+title = "Card component"
+description = "Adds the card component as a ViewComponent and a React component with the same look: face with the filtered Steam art and title, back with frame, strap, medallion, the rarity seal by shape and the dust by level, and a missing image falling back to frame and title."
+verify = "A component preview page shows every rarity seal and dust level on both versions, and tests show titles as text and seal names for screen readers."
+covers = ["R6", "R7"]
+after = [4]
+hitl = false
+risk = "medium"
+references = ["ux-gameble/DESIGN.md"]
+
+[[entry]]
+id = 6
+type = "story"
+title = "Pack reveal island"
+description = "Replaces the listed result of an opening with the React reveal mounted by Turbo Mount: five dusty face-down cards, wipe to see the seal, flip to see the game, length growing with rarity, flip all that never skips a legendary, one card at a time on phone, keyboard and reduced motion."
+verify = "A system test opens a pack, wipes and flips each card with the keyboard and with flip all, and a legendary always plays its full reveal; on a phone-sized window the cards come one at a time."
+covers = ["R5"]
+after = [1, 5]
+hitl = false
+risk = "high"
+references = ["ux-gameble/EXPERIENCE.md", "ux-gameble/DESIGN.md"]
+
+[[entry]]
+id = 7
+type = "story"
+title = "Daily bonus booster"
+description = "Adds the daily bonus: once per UTC day a player collects a small booster with better odds into the bank, outside the cap of ten; a second collection the same day is refused by a unique row; the attic shows the panel while it is collectable."
+verify = "A player collects the bonus once, a second attempt the same UTC day is refused, and the next UTC day it is offered again."
+covers = ["R8", "R9"]
+after = [2]
+hitl = false
+risk = "medium"
+unknown = "The booster's odds and size are an open product question; the assumption is recorded in the epic Notes and pending-approvals.md."
+
+[[entry]]
+id = 8
+type = "story"
+title = "Signed-out attic"
+description = "Shows the chest and the bonus panel to a signed-out visitor, and sends any attempt to open a pack or collect the bonus to Steam sign-in, the server refusing it whatever the client does."
+verify = "Signed out, the attic shows the chest and the panel, and opening or collecting leads to sign-in; tests show both server endpoints refuse a visitor."
+covers = ["R9"]
+after = [7]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 9
+type = "story"
+title = "Pack opening at 200 ms"
+description = "Measures Game::OpenPack under load against a season of catalog size and makes it answer within 200 ms at the 95th percentile, with the indexes and query shape it needs."
+verify = "A benchmark task run on a 15,000-card season reports a 95th percentile under 200 ms for opening, recorded in the epic Notes."
+covers = ["R4"]
+after = [2, 3]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 10
+type = "story"
+title = "Refactor sweep"
+description = "Cleans up the epic's code from the build records and the review findings deferred during the epic; its scope is set when it starts."
+verify = "CI is green and every deferred review finding of the epic is fixed or recorded."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+hitl = false
+risk = "low"
