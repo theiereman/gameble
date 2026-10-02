@@ -2,8 +2,9 @@ module BackOffice
   # The Steam import runs (R1, R2, AD-19), administrators only: the list of
   # runs, starting one, watching one, and resuming a failed one from its
   # cursor, or rescoring the latest completed one (its cards step again,
-  # after a change of the prestige formula). A run's page reloads its frame every few seconds while the run is
-  # active (poller_controller.ts). Runs are addressed by their token (AD-15).
+  # after a change of the prestige formula). A run's page reloads its frame
+  # every few seconds while the run is active (poller_controller.ts). Runs
+  # are addressed by their token (AD-15).
   class ImportRunsController < ApplicationController
     rate_limit to: 10, within: 1.minute, only: %i[create resume rescore]
 
@@ -16,6 +17,7 @@ module BackOffice
 
     def show
       authorize [ :back_office, :import_runs ], :show?
+      @resumable = Steam::ResumeImport.refusal(@import_run).nil?
       @rescorable = Steam::RescoreCards.refusal(@import_run).nil?
     end
 

@@ -115,7 +115,7 @@ module BackOffice
       assert_select "section[data-preview] h2", "La saison 2, si elle était publiée maintenant"
       assert_select "[data-preview-verdict=empty_tier]", I18n.t("errors.catalog.empty_tier", locale: :fr)
       assert_select "[data-preview-tier]", false
-      assert_select "[data-preview-percentile=p50]", /\A10.000\z/
+      assert_select "[data-preview-percentile=p50]", "10,000"
       assert_select "tr[data-preview-top]", 10
     end
 

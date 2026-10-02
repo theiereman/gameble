@@ -16,9 +16,15 @@ module Steam
   # A Steam failure raises Steam::WebApi::Error (key redacted), for the job to
   # retry and, once retries are spent, fail the run.
   #
+  # `cursor`, when given, is the cursor the caller expects the page to start
+  # from; a run that has moved on fails with cursor_moved before the page is
+  # read.
+  #
   #   Steam::ImportDetailsPage.new.call(import_run_id: run.id, cursor: run.cursor)
   #   # => Success(run) | Failure(:not_found) | Failure(:not_running) | Failure(:cursor_moved)
   class ImportDetailsPage < ApplicationOperation
+    include PageSteps
+
     STEP = "details".freeze
     PAGE_SIZE = 100
     ENGLISH = { language: "english", country_code: "US" }.freeze
@@ -35,6 +41,7 @@ module Steam
       run = step find_run(import_run_id)
       step require_on_step(run)
       step require_expected_cursor(run, cursor)
+      expected_cursor = run.cursor
       last_appid = run.last_appid
 
       appids = page_appids(run, last_appid)
@@ -46,43 +53,22 @@ module Steam
       transaction do
         run = step lock_run(import_run_id)
         step require_on_step(run)
-        step require_cursor_at(run, last_appid)
+        step require_cursor_unchanged(run, expected_cursor)
         if appids.empty?
           step FinishImportStep.new.call(import_run: run)
         else
           verdicts = appids.index_with { |appid| DetailsPolicy.verdict(appid, english[appid], french[appid]) }
           step update_apps(run, verdicts)
-          step advance(run, verdicts)
-          step publish(DetailsPageImported.new(data: { import_run_id: run.id, last_appid: run.last_appid }), stream_name: ImportRun.stream_name(run.id))
+          excluded = verdicts.values.count { |verdict| !verdict.kept? }
+          step advance_page(run, last_appid: verdicts.keys.max,
+            add: { "apps_detailed" => verdicts.size, "apps_excluded_details" => excluded })
+          step publish_page(DetailsPageImported, run)
         end
         run
       end
     end
 
     private
-
-    def find_run(import_run_id)
-      run = ImportRun.find_by(id: import_run_id)
-      run ? Success(run) : Failure(:not_found)
-    end
-
-    def lock_run(import_run_id)
-      run = ImportRun.lock.find_by(id: import_run_id)
-      run ? Success(run) : Failure(:not_found)
-    end
-
-    def require_on_step(run)
-      run.running? && run.step == STEP ? Success(run) : Failure(:not_running)
-    end
-
-    def require_expected_cursor(run, cursor)
-      cursor.nil? || run.cursor == cursor ? Success(run) : Failure(:cursor_moved)
-    end
-
-    # Another job detailed this page meanwhile: nothing to do twice.
-    def require_cursor_at(run, last_appid)
-      run.last_appid == last_appid ? Success(run) : Failure(:cursor_moved)
-    end
 
     def page_appids(run, last_appid)
       App.kept_by(run).where("appid > ?", last_appid).order(:appid).limit(@page_size).pluck(:appid)
@@ -94,18 +80,6 @@ module Steam
         App.kept_by(run).where(appid: appid).update_all(verdict.attributes.merge(details_run_id: run.id, updated_at: now))
       end
       Success(verdicts.size)
-    end
-
-    def advance(run, verdicts)
-      excluded = verdicts.values.count { |verdict| !verdict.kept? }
-      run.update!(
-        cursor: run.cursor.merge("last_appid" => verdicts.keys.max),
-        counts: run.counts.merge(
-          "apps_detailed" => run.apps_detailed + verdicts.size,
-          "apps_excluded_details" => run.apps_excluded_details + excluded
-        )
-      )
-      Success(run)
     end
   end
 end

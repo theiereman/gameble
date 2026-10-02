@@ -279,6 +279,17 @@ module BackOffice
       assert_select "form[action$='/resume']", false
     end
 
+    test "an older failed run's page does not offer to resume" do
+      sign_in(accounts_players(:administrator))
+      older = Steam::ImportRun.create!(status: :failed, step: "app_list", cursor: { "last_appid" => 42 }, created_at: 2.days.ago, started_at: 2.days.ago, finished_at: 2.days.ago)
+      Steam::ImportRun.create!(status: :completed, step: "cards", finished_at: 1.minute.ago)
+
+      get back_office_import_run_path(older, locale: :en)
+
+      assert_select "[data-import-run-status=failed]"
+      assert_select "form[action$='/resume']", false
+    end
+
     test "an unknown run is not found" do
       sign_in(accounts_players(:administrator))
 
@@ -308,6 +319,18 @@ module BackOffice
 
       assert_redirected_to back_office_import_run_path(run, locale: :en)
       assert_equal I18n.t("errors.steam.not_resumable", locale: :en), flash[:alert]
+    end
+
+    test "resuming a failed run that is not the latest is refused with not_latest" do
+      sign_in(accounts_players(:administrator))
+      older = Steam::ImportRun.create!(status: :failed, step: "app_list", cursor: { "last_appid" => 42 }, created_at: 2.days.ago, started_at: 2.days.ago, finished_at: 2.days.ago)
+      Steam::ImportRun.create!(status: :completed, step: "cards", finished_at: 1.minute.ago)
+
+      assert_no_enqueued_jobs { post resume_back_office_import_run_path(older, locale: :en) }
+
+      assert_redirected_to back_office_import_run_path(older, locale: :en)
+      assert_equal I18n.t("errors.steam.not_latest", locale: :en), flash[:alert]
+      assert_predicate older.reload, :failed?
     end
 
     test "the latest completed run's page offers to rescore its cards; an older or unfinished run's does not" do

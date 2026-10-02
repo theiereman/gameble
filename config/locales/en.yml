@@ -167,6 +167,19 @@ en:
     forbidden: "That order is above your rank, Brother. The vaults stay shut."
   rate_limit:
     throttled: "Too many enlistment attempts, Brother. Catch your breath and try again in a minute."
+  # Number formats (number_with_delimiter, number_with_precision,
+  # number_to_percentage), as Rails' own defaults; the twin of fr.yml's.
+  number:
+    format:
+      separator: "."
+      delimiter: ","
+    precision:
+      format:
+        delimiter: ""
+    percentage:
+      format:
+        delimiter: ""
+        format: "%n%"
   activerecord:
     errors:
       messages:
@@ -193,6 +206,6 @@ en:
       not_resumable: "Only a halted import can be resumed, officer."
       not_running: "That import is not under way."
       cursor_moved: "That page of the import was already copied."
-      not_latest: "Only the latest import run can be rescored, officer."
+      not_latest: "Only the latest import run can be resumed or rescored, officer."
       not_completed: "Only a completed import run can be rescored, officer."
       already_published: "The cards of that run are already published in a season, officer. Start a new import to fill the next draft."

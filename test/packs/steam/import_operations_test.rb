@@ -304,6 +304,40 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
     assert_predicate run.reload, :failed?
   end
 
+  test "resuming a failed run that is not the latest fails with not_latest" do
+    older = failed_run
+    older.update!(created_at: 2.days.ago)
+    Steam::ImportRun.create!(status: :completed, step: "cards", finished_at: 1.minute.ago)
+
+    assert_no_enqueued_jobs do
+      assert_equal :not_latest, Steam::ResumeImport.new.call(import_run_id: older.id).failure
+    end
+    assert_predicate older.reload, :failed?
+    assert_empty events_of(older)
+  end
+
+  test "resuming an older failed run while the latest is running fails with run_in_progress" do
+    older = failed_run
+    older.update!(created_at: 2.days.ago)
+    running_run
+
+    assert_equal :run_in_progress, Steam::ResumeImport.new.call(import_run_id: older.id).failure
+  end
+
+  test "ResumeImport.refusal says why a run cannot be resumed, leaving out the active-run check" do
+    older = failed_run
+    older.update!(created_at: 2.days.ago)
+    assert_nil Steam::ResumeImport.refusal(older)
+
+    latest = Steam::ImportRun.create!(status: :completed, step: "cards", finished_at: 1.minute.ago)
+    assert_equal :not_latest, Steam::ResumeImport.refusal(older)
+    assert_equal :not_resumable, Steam::ResumeImport.refusal(latest)
+
+    latest.update!(status: :running, finished_at: nil)
+    assert_equal :not_resumable, Steam::ResumeImport.refusal(latest)
+    assert_equal :not_latest, Steam::ResumeImport.refusal(older)
+  end
+
   test "every failure code has a message in both locales" do
     codes = {
       Steam::StartImport => %i[run_in_progress],
@@ -312,10 +346,12 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
       Steam::ImportTagsPage => %i[not_found not_running cursor_moved],
       Steam::ImportDetailsPage => %i[not_found not_running cursor_moved],
       Steam::ImportGenresPage => %i[not_found not_running cursor_moved],
+      Steam::ImportCardsPage => %i[not_found not_running cursor_moved],
       Steam::FinishImportStep => %i[not_running],
       Steam::CompleteImport => %i[not_running],
       Steam::FailImport => %i[not_found not_running],
-      Steam::ResumeImport => %i[not_found not_resumable run_in_progress]
+      Steam::ResumeImport => %i[not_found not_resumable run_in_progress not_latest],
+      Steam::RescoreCards => %i[not_found not_latest not_completed already_published run_in_progress]
     }
     %i[en fr].each do |locale|
       I18n.with_locale(locale) do
