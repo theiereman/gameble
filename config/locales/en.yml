@@ -188,6 +188,15 @@ en:
     show:
       heading: "Your pack, Brother"
       heading_bonus: "Your daily bonus"
+      cards: "The cards of your pack"
+      flip_all: "Flip all"
+      next: "Next card"
+      progress: "Card %{position} of %{count}"
+      all_flipped: "Every card is turned, Brother."
+      open_next_pack: "Open the next pack"
+      back_to_attic: "Back to the attic"
+      failed: "The reveal stumbled, Brother. Your cards are safe in your collection."
+      reload: "Show my cards"
   daily_bonuses:
     create:
       collected: "The daily booster is in the chest, Brother. Open it when you will."

@@ -29,7 +29,19 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     css_select(".attic__object--chest .attic__chest-action button").sole
   end
 
-  test "a new player finds ten packs in the chest, opens one, sees its five cards with their rarity, then nine" do
+  REVEAL = "[data-turbo-mount-pack-reveal-component-value=PackReveal]".freeze
+
+  # The reveal island's props, or nil when the page has none.
+  def reveal_props
+    element = css_select(REVEAL).first
+    element && JSON.parse(element["data-turbo-mount-pack-reveal-props-value"])
+  end
+
+  def end_buttons
+    css_select(".pack-end .button").map { |button| button.text.strip }
+  end
+
+  test "a new player opens a pack: the reveal comes once, with the cards in order, then the faces on every later visit" do
     sign_in(NEW_STEAM_ID)
     player = Accounts::Player.find_by!(steam_id: NEW_STEAM_ID)
 
@@ -44,17 +56,37 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
     assert_select "h1", "Your pack, Brother"
-    assert_select ".pack-result__card", 5
-    rarity_names = Catalog::Rarity::TIERS.values.map { |name| I18n.t("catalog.rarity.#{name}", locale: :en) }
-    css_select(".pack-result__rarity").each { |element| assert_includes rarity_names, element.text }
-    titles = Catalog::CardSeasonLabels.call(pack.card_season_ids, locale: :en)
-    assert_equal pack.card_season_ids.map { |id| titles.fetch(id)[:title] }, css_select(".pack-result__title").map(&:text)
+    assert_select ".card", 0
+    assert_select ".flash", 0
+    assert_not_includes response.body, pack.token
+    assert_equal "no-store", response.headers["Cache-Control"]
+    assert_select "meta[name=turbo-cache-control][content=no-cache]"
+
+    props = reveal_props
+    views = Catalog::CardViews.call(pack.card_season_ids, locale: :en)
+    assert_equal pack.card_season_ids.map { |id| views.fetch(id).to_props.as_json }, props["cards"]
+    assert_equal CardStrings.for(views.values).to_props.as_json, props["cardStrings"]
+    assert_equal "Flip all", props.dig("strings", "flipAll")
+    assert_equal (1..5).map { |n| "Card #{n} of 5" }, props.dig("strings", "progress")
+    assert_equal "/en/packs", props["openPackUrl"]
+    assert_equal "/en", props["atticUrl"]
+    assert_select ".pack-reveal__fallback a[href='/en']", "Back to the attic"
+    assert_equal "Show my cards", props.dig("strings", "reload")
+
+    get pack_path(pack.token, locale: :en)
+
+    assert_response :success
+    assert_nil reveal_props
+    assert_not_equal "no-store", response.headers["Cache-Control"]
+    assert_select "meta[name=turbo-cache-control]", 0
+    assert_equal pack.card_season_ids.map { |id| views.fetch(id).title }, css_select(".pack-result__card .card--face .card__title").map(&:text)
+    assert_equal [ "Open the next pack", "Back to the attic" ], end_buttons
 
     get home_path(locale: :en)
     assert_equal "Open a pack (9)", chest_button.text
   end
 
-  test "the result page names the cards in the locale of its URL" do
+  test "the faces are named in the locale of the URL" do
     player = accounts_players(:player)
     gold = catalog_card_seasons(:gold_card_one).id
     pack = create_pack(player, cards: [ gold ] * 5, opened_at: 1.minute.ago)
@@ -63,8 +95,59 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     get pack_path(pack.token, locale: :fr)
 
     assert_select "h1", "Ton paquet, Confrère"
-    assert_equal [ "Couronne d'or" ] * 5, css_select(".pack-result__title").map(&:text)
-    assert_equal [ "Or" ] * 5, css_select(".pack-result__rarity").map(&:text)
+    assert_equal [ "Couronne d'or" ] * 5, css_select(".card__title").map(&:text)
+    assert_equal [ "Or" ] * 5, css_select(".card--face .card__plate > .visually-hidden").map(&:text)
+  end
+
+  test "the reveal of a pack whose card appears five times keeps the five, in French" do
+    player = accounts_players(:player)
+    gold = catalog_card_seasons(:gold_card_one).id
+    create_pack(player, cards: [ gold ] * 5, available_at: 1.day.ago)
+    sign_in(player.steam_id)
+
+    post packs_path(locale: :fr)
+    follow_redirect!
+
+    props = reveal_props
+    assert_equal [ "Couronne d'or" ] * 5, props["cards"].map { it["title"] }
+    assert_equal [ "golden-crown" ] * 5, props["cards"].map { it["id"] }
+    assert_equal "Tout retourner", props.dig("strings", "flipAll")
+    assert_equal "Carte 1 sur 5", props.dig("strings", "progress").first
+  end
+
+  test "with no pack left, both branches end on the attic alone" do
+    player = accounts_players(:player)
+    pack = create_pack(player, available_at: 1.day.ago)
+    sign_in(player.steam_id)
+
+    post packs_path(locale: :en)
+    follow_redirect!
+    assert_nil reveal_props["openPackUrl"]
+
+    get pack_path(pack.token, locale: :en)
+    assert_equal [ "Back to the attic" ], end_buttons
+  end
+
+  test "a daily bonus pack reveals its three cards" do
+    player = accounts_players(:player)
+    create_pack(player, kind: :bonus, cards: fixture_tier_ids.last(3), available_at: 1.day.ago)
+    sign_in(player.steam_id)
+
+    post packs_path(locale: :en)
+    follow_redirect!
+
+    assert_select "h1", "Your daily bonus"
+    props = reveal_props
+    assert_equal %w[sapphire amethyst gold], props["cards"].map { it["rarity"] }
+    assert_equal [ "Card 1 of 3", "Card 2 of 3", "Card 3 of 3" ], props.dig("strings", "progress")
+  end
+
+  test "the flash's notices and alerts still show, and nothing else of it" do
+    sign_in(NEW_STEAM_ID)
+    follow_redirect!
+
+    assert_select ".flash__message", 1
+    assert_select ".flash__message--notice", I18n.t("sessions.create.welcome", locale: :en)
   end
 
   test "another player's pack, an unopened pack and an unknown token are not found" do
