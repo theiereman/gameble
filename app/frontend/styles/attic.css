@@ -1,0 +1,350 @@
+/*
+ * The attic (DESIGN.md "The attic"; composition from mockups/attic.html).
+ * A 1000 x 440 room drawn in plain CSS on the 2px grid: every shape is a solid
+ * colour layer with hard edges, outlined in ink by four unblurred shadows.
+ * Placeholder art: the final art is generated later on the same layout.
+ */
+
+.attic {
+  /* Scenery colours DESIGN.md does not list, taken from the mock's proposal. */
+  --attic-brick: #9c6a48;
+  --attic-brick-dark: #8a5a3c;
+  --attic-brick-light: #ad7a56;
+  --attic-mortar: var(--color-dust-light);
+  --attic-parquet-dark: #6b4a2a;
+  --attic-parquet: #7d5833;
+  --attic-parquet-light: #a37a50;
+  --attic-sky: #6aa3f2;
+  --attic-sky-pale: #cfe2ff;
+  --attic-haze: #a9b6d6;
+  --attic-haze-dark: #7d8fb8;
+  --attic-iron: #4a505a;
+  --attic-iron-light: #7d8a99;
+  --attic-glass: #b9c4cf;
+  --attic-outline:
+    drop-shadow(var(--space-unit) 0 0 var(--color-ink))
+    drop-shadow(calc(-1 * var(--space-unit)) 0 0 var(--color-ink))
+    drop-shadow(0 var(--space-unit) 0 var(--color-ink))
+    drop-shadow(0 calc(-1 * var(--space-unit)) 0 var(--color-ink));
+
+  max-width: calc(1000px + 2 * var(--space-unit));
+  margin: 0 auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: var(--space-unit) solid var(--color-ink);
+  box-shadow: var(--shadow-hard);
+  background: var(--color-bg);
+}
+
+.attic__room {
+  position: relative;
+  width: 1000px;
+  height: 440px;
+}
+
+/* Back wall: old bricks (40 x 16, offset rows), a few worn or patched ones. */
+.attic__wall {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 344px;
+  background:
+    /* skirting board */
+    linear-gradient(var(--color-brass-highlight) 0 0) 0 334px / 100% 2px no-repeat,
+    linear-gradient(var(--color-brass-dark) 0 0) 0 336px / 100% 6px no-repeat,
+    linear-gradient(var(--color-ink) 0 0) 0 332px / 100% 2px no-repeat,
+    linear-gradient(var(--color-ink) 0 0) 0 342px / 100% 2px no-repeat,
+    /* horizontal joints */
+    repeating-linear-gradient(to bottom, var(--attic-mortar) 0 2px, transparent 2px 16px),
+    /* worn, pale and patched bricks */
+    linear-gradient(var(--attic-brick-dark) 0 0) 62px 18px / 38px 14px no-repeat,
+    linear-gradient(var(--attic-brick-light) 0 0) 162px 50px / 38px 14px no-repeat,
+    linear-gradient(var(--color-dust) 0 0) 322px 2px / 38px 14px no-repeat,
+    linear-gradient(var(--attic-brick-dark) 0 0) 582px 82px / 38px 14px no-repeat,
+    linear-gradient(var(--attic-brick-light) 0 0) 642px 18px / 38px 14px no-repeat,
+    linear-gradient(var(--attic-brick-dark) 0 0) 722px 130px / 38px 14px no-repeat,
+    linear-gradient(var(--color-dust) 0 0) 882px 98px / 38px 14px no-repeat,
+    linear-gradient(var(--attic-brick-light) 0 0) 402px 290px / 38px 14px no-repeat,
+    linear-gradient(var(--attic-brick-dark) 0 0) 202px 258px / 38px 14px no-repeat,
+    linear-gradient(var(--attic-brick-light) 0 0) 842px 226px / 38px 14px no-repeat,
+    linear-gradient(var(--attic-brick-dark) 0 0) 942px 290px / 38px 14px no-repeat,
+    linear-gradient(var(--attic-brick-light) 0 0) 482px 162px / 38px 14px no-repeat,
+    /* vertical joints, offset by half a brick every other row */
+    conic-gradient(from 90deg at 22px 16px, var(--attic-brick) 0 90deg, transparent 0) 0 0 / 40px 32px,
+    conic-gradient(from 90deg at 20px 16px, var(--attic-mortar) 0 90deg, transparent 0) 0 0 / 40px 32px,
+    conic-gradient(from 270deg at 2px 16px, var(--attic-mortar) 0 90deg, transparent 0) 0 0 / 40px 32px,
+    var(--attic-brick);
+}
+
+/* Floor: chevron parquet, planks alternating direction every 32px column. */
+.attic__floor {
+  --attic-planks: var(--attic-parquet) 0 12px, var(--attic-parquet-dark) 12px 14px,
+    var(--attic-parquet-light) 14px 26px, var(--attic-parquet-dark) 26px 28px;
+
+  position: absolute;
+  inset: 344px 0 0 0;
+  background: repeating-linear-gradient(45deg, var(--attic-planks));
+}
+
+.attic__floor::before,
+.attic__floor::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.attic__floor::before {
+  background: repeating-linear-gradient(-45deg, var(--attic-planks));
+  mask-image: repeating-linear-gradient(to right, transparent 0 32px, #000 32px 64px);
+}
+
+.attic__floor::after {
+  background: repeating-linear-gradient(to right, var(--attic-parquet-dark) 0 2px, transparent 2px 32px);
+}
+
+/* Window: a lancet at the very left edge, half cut; sky and mountains only. */
+.attic__window {
+  position: absolute;
+  left: -70px;
+  top: 26px;
+  width: 140px;
+  height: 224px;
+  filter: var(--attic-outline);
+  background:
+    /* sill */
+    linear-gradient(var(--color-dust-light) 0 0) 0 208px / 140px 14px no-repeat,
+    /* near mountains */
+    linear-gradient(to bottom right, transparent 50%, var(--attic-haze-dark) 50%) 18px 172px / 26px 36px no-repeat,
+    linear-gradient(to bottom left, transparent 50%, var(--attic-haze-dark) 50%) 44px 172px / 40px 36px no-repeat,
+    linear-gradient(to bottom right, transparent 50%, var(--attic-haze-dark) 50%) 84px 164px / 16px 44px no-repeat,
+    linear-gradient(to bottom left, transparent 50%, var(--attic-haze-dark) 50%) 100px 164px / 22px 44px no-repeat,
+    /* far mountain */
+    linear-gradient(to bottom right, transparent 50%, var(--attic-haze) 50%) 18px 136px / 52px 72px no-repeat,
+    linear-gradient(to bottom left, transparent 50%, var(--attic-haze) 50%) 70px 136px / 52px 72px no-repeat,
+    /* sky, paler toward the horizon */
+    linear-gradient(var(--attic-sky-pale) 0 0) 18px 140px / 104px 68px no-repeat,
+    linear-gradient(var(--attic-sky) 0 0) 18px 62px / 104px 146px no-repeat,
+    radial-gradient(52px 50px at 70px 64px, var(--attic-sky) 100%, transparent 100%),
+    /* stone frame */
+    linear-gradient(var(--color-dust) 0 0) 0 66px / 140px 142px no-repeat,
+    radial-gradient(70px 66px at 70px 68px, var(--color-dust) 100%, transparent 100%);
+}
+
+/* Scenery objects: the art above, the name always shown below. */
+.attic__object {
+  position: absolute;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.attic__art {
+  filter: var(--attic-outline);
+}
+
+.attic__name {
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border: var(--space-unit) solid var(--color-ink);
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+  white-space: nowrap;
+}
+
+/* Lectern with an open grimoire: the library. */
+.attic__object--lectern {
+  left: 96px;
+  bottom: 44px;
+}
+
+.attic__object--lectern .attic__art {
+  width: 132px;
+  height: 160px;
+  background:
+    linear-gradient(var(--color-danger) 0 0) 88px 62px / 6px 30px no-repeat,
+    linear-gradient(var(--color-ink-muted) 0 0) 20px 30px / 38px 2px no-repeat,
+    linear-gradient(var(--color-ink-muted) 0 0) 20px 38px / 38px 2px no-repeat,
+    linear-gradient(var(--color-ink-muted) 0 0) 20px 46px / 28px 2px no-repeat,
+    linear-gradient(var(--color-ink-muted) 0 0) 74px 30px / 38px 2px no-repeat,
+    linear-gradient(var(--color-ink-muted) 0 0) 74px 38px / 30px 2px no-repeat,
+    linear-gradient(var(--color-leather) 0 0) 64px 22px / 4px 40px no-repeat,
+    linear-gradient(var(--color-surface) 0 0) 12px 20px / 52px 42px no-repeat,
+    linear-gradient(var(--color-surface) 0 0) 68px 20px / 52px 42px no-repeat,
+    linear-gradient(var(--color-leather) 0 0) 8px 60px / 116px 10px no-repeat,
+    linear-gradient(var(--color-brass-dark) 0 0) 24px 70px / 84px 18px no-repeat,
+    linear-gradient(var(--color-brass) 0 0) 58px 88px / 16px 52px no-repeat,
+    linear-gradient(var(--color-brass-dark) 0 0) 40px 140px / 52px 16px no-repeat;
+}
+
+/* Notice board hung on the wall: the Brotherhood feed. */
+.attic__object--notice-board {
+  left: 252px;
+  top: 32px;
+}
+
+.attic__object--notice-board .attic__art {
+  width: 132px;
+  height: 124px;
+  background:
+    linear-gradient(var(--color-danger) 0 0) 30px 40px / 4px 4px no-repeat,
+    linear-gradient(var(--color-danger) 0 0) 66px 50px / 6px 6px no-repeat,
+    linear-gradient(var(--attic-iron-light) 0 0) 100px 40px / 4px 4px no-repeat,
+    linear-gradient(var(--color-ink-muted) 0 0) 20px 54px / 24px 2px no-repeat,
+    linear-gradient(var(--color-ink-muted) 0 0) 20px 62px / 24px 2px no-repeat,
+    linear-gradient(var(--color-ink-muted) 0 0) 20px 70px / 18px 2px no-repeat,
+    linear-gradient(var(--color-ink-muted) 0 0) 92px 54px / 20px 2px no-repeat,
+    linear-gradient(var(--color-ink-muted) 0 0) 92px 62px / 20px 2px no-repeat,
+    linear-gradient(var(--color-ink-muted) 0 0) 92px 70px / 20px 2px no-repeat,
+    linear-gradient(var(--color-ink-muted) 0 0) 92px 78px / 14px 2px no-repeat,
+    linear-gradient(var(--color-surface) 0 0) 16px 40px / 32px 42px no-repeat,
+    linear-gradient(var(--color-surface) 0 0) 56px 48px / 26px 28px no-repeat,
+    linear-gradient(var(--color-surface) 0 0) 88px 38px / 28px 56px no-repeat,
+    linear-gradient(var(--color-surface) 0 0) 24px 88px / 32px 20px no-repeat,
+    linear-gradient(var(--color-brass-highlight) 0 0) 62px 84px / 20px 24px no-repeat,
+    linear-gradient(var(--color-brass) 0 0) 10px 34px / 112px 80px no-repeat,
+    linear-gradient(var(--color-brass-dark) 0 0) 4px 28px / 124px 92px no-repeat,
+    linear-gradient(var(--attic-iron-light) 0 0) 62px 0 / 8px 8px no-repeat,
+    linear-gradient(var(--color-brass-dark) 0 0) 64px 8px / 4px 20px no-repeat;
+}
+
+/* Framed medal display on the wall: achievements. */
+.attic__object--medal-display {
+  left: 446px;
+  top: 12px;
+}
+
+.attic__object--medal-display .attic__art {
+  width: 108px;
+  height: 140px;
+  background:
+    linear-gradient(var(--color-surface) 0 0) 28px 104px / 52px 14px no-repeat,
+    radial-gradient(circle at 30px 66px, var(--color-brass-light) 12px, transparent 12px),
+    radial-gradient(circle at 54px 76px, var(--color-brass-highlight) 14px, transparent 14px),
+    radial-gradient(circle at 78px 66px, var(--color-brass) 12px, transparent 12px),
+    linear-gradient(var(--color-leather) 0 0) 24px 22px / 12px 36px no-repeat,
+    linear-gradient(var(--color-accent) 0 0) 48px 22px / 12px 44px no-repeat,
+    linear-gradient(var(--color-ink-muted) 0 0) 72px 22px / 12px 36px no-repeat,
+    linear-gradient(var(--color-danger) 0 0) 14px 14px / 80px 112px no-repeat,
+    linear-gradient(var(--color-brass) 0 0) 8px 8px / 92px 124px no-repeat,
+    linear-gradient(var(--color-brass-dark) 0 0) 2px 2px / 104px 136px no-repeat;
+}
+
+/* Standing mirror: profile and settings. */
+.attic__object--mirror {
+  left: 646px;
+  bottom: 44px;
+}
+
+.attic__object--mirror .attic__art {
+  width: 96px;
+  height: 184px;
+  background:
+    linear-gradient(var(--color-brass-highlight) 0 0) 34px 34px / 4px 40px no-repeat,
+    radial-gradient(32px 52px at 48px 74px, var(--attic-glass) 100%, transparent 100%),
+    radial-gradient(42px 62px at 48px 74px, var(--color-brass-light) 100%, transparent 100%),
+    radial-gradient(12px 8px at 48px 10px, var(--color-brass-light) 100%, transparent 100%),
+    linear-gradient(var(--color-brass) 0 0) 44px 134px / 8px 30px no-repeat,
+    linear-gradient(var(--color-brass-light) 0 0) 38px 160px / 20px 12px no-repeat,
+    linear-gradient(var(--color-brass) 0 0) 16px 172px / 64px 10px no-repeat;
+}
+
+/* Carved table with a cloth runner, a brass balance and two decks: trades and friends. */
+.attic__object--trade-table {
+  left: 782px;
+  bottom: 34px;
+}
+
+.attic__object--trade-table .attic__art {
+  width: 196px;
+  height: 132px;
+  background:
+    /* decks */
+    linear-gradient(var(--color-leather) 0 0) 20px 46px / 24px 8px no-repeat,
+    linear-gradient(var(--color-surface) 0 0) 16px 52px / 24px 12px no-repeat,
+    linear-gradient(var(--color-leather) 0 0) 152px 46px / 24px 8px no-repeat,
+    linear-gradient(var(--color-surface) 0 0) 156px 52px / 24px 12px no-repeat,
+    /* balance */
+    linear-gradient(var(--color-brass-light) 0 0) 88px 56px / 20px 8px no-repeat,
+    linear-gradient(var(--color-brass) 0 0) 44px 42px / 36px 6px no-repeat,
+    linear-gradient(var(--color-brass) 0 0) 116px 42px / 36px 6px no-repeat,
+    linear-gradient(var(--attic-iron-light) 0 0) 60px 24px / 2px 18px no-repeat,
+    linear-gradient(var(--attic-iron-light) 0 0) 134px 24px / 2px 18px no-repeat,
+    linear-gradient(var(--color-brass-light) 0 0) 54px 18px / 88px 6px no-repeat,
+    radial-gradient(circle at 98px 12px, var(--color-brass-light) 6px, transparent 6px),
+    linear-gradient(var(--color-brass) 0 0) 94px 14px / 8px 44px no-repeat,
+    /* runner */
+    linear-gradient(var(--color-brass-light) 0 0) 62px 96px / 72px 6px no-repeat,
+    linear-gradient(var(--color-danger) 0 0) 62px 64px / 72px 40px no-repeat,
+    /* table */
+    linear-gradient(var(--color-brass) 0 0) 4px 64px / 188px 14px no-repeat,
+    linear-gradient(var(--color-brass-dark) 0 0) 32px 96px / 132px 8px no-repeat,
+    linear-gradient(var(--color-brass-dark) 0 0) 6px 120px / 32px 8px no-repeat,
+    linear-gradient(var(--color-brass-dark) 0 0) 158px 120px / 32px 8px no-repeat,
+    linear-gradient(var(--color-leather-dark) 0 0) 12px 78px / 20px 42px no-repeat,
+    linear-gradient(var(--color-leather-dark) 0 0) 164px 78px / 20px 42px no-repeat;
+}
+
+/* Iron-bound chest, on the floor in the middle of the room: pack opening. */
+.attic__object--chest {
+  left: 426px;
+  bottom: 30px;
+}
+
+.attic__object--chest .attic__art {
+  width: 148px;
+  height: 108px;
+  background:
+    linear-gradient(var(--color-ink) 0 0) 72px 46px / 4px 10px no-repeat,
+    linear-gradient(var(--color-brass-light) 0 0) 64px 36px / 20px 26px no-repeat,
+    linear-gradient(var(--attic-iron-light) 0 0) 26px 10px / 14px 92px no-repeat,
+    linear-gradient(var(--attic-iron-light) 0 0) 108px 10px / 14px 92px no-repeat,
+    linear-gradient(var(--attic-iron) 0 0) 10px 46px / 128px 6px no-repeat,
+    linear-gradient(var(--color-brass-dark) 0 0) 10px 66px / 128px 2px no-repeat,
+    linear-gradient(var(--color-brass-dark) 0 0) 10px 82px / 128px 2px no-repeat,
+    linear-gradient(var(--color-brass) 0 0) 10px 46px / 128px 56px no-repeat,
+    linear-gradient(var(--color-brass-dark) 0 0) 10px 26px / 128px 22px no-repeat,
+    radial-gradient(64px 22px at 74px 28px, var(--color-brass-dark) 100%, transparent 100%);
+}
+
+/* Signed out: an invitation on the wall above the chest. */
+.attic__invitation {
+  position: absolute;
+  left: 366px;
+  top: 200px;
+  width: 270px;
+  text-align: center;
+}
+
+.attic__invitation .text-plate {
+  box-shadow: var(--shadow-hard);
+}
+
+/* The season plaque on the wall (the sample React island). */
+.attic__plaque {
+  position: absolute;
+  left: 784px;
+  top: 40px;
+  width: 192px;
+}
+
+.attic__plaque .sample-island {
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  background: var(--color-surface);
+  border: var(--space-unit) solid var(--color-ink);
+  box-shadow: var(--shadow-hard);
+  text-align: center;
+}
+
+.attic__plaque .sample-island h2,
+.attic__plaque .sample-island p {
+  margin: 0;
+  font-size: var(--font-size-label);
+}
+
+.attic__plaque .sample-island h2 {
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+}

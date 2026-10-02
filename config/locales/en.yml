@@ -11,15 +11,27 @@ en:
         counters: "Packs and cards"
         sign_in: "Enlist through Steam"
         sign_out: "Stand down"
+        back_office: "Back-office"
+        back: "Back to the attic"
   pages:
     home:
-      heading: "Welcome to the archives, Brother"
-      intro: "The vaults of the Grand Gamblers' Brotherhood stand open to you. The scribes are still dusting the shelves; the cards arrive soon. Stand ready."
-      enlist: "Report for duty"
-      linger: "Linger in the archives"
+      heading: "The attic of the Brotherhood"
+      objects:
+        lectern: "Library"
+        notice_board: "Brotherhood feed"
+        medal_display: "Achievements"
+        mirror: "My profile"
+        trade_table: "Trades and friends"
+        chest: "The chest"
+      invitation: "Enlist through Steam, Brother, and the chest will open for you."
       island:
         heading: "The Brotherhood muster board"
         season: "Current season of service:"
+  back_office:
+    dashboard:
+      show:
+        heading: "The Brotherhood's back-office"
+        empty: "Nothing awaits the officers yet. The ledgers lie blank."
   sessions:
     create:
       welcome: "Welcome to the ranks, Brother. The Brotherhood has entered your name in the great ledger."

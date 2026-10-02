@@ -12,6 +12,9 @@ Rails.application.routes.draw do
   # Every page lives under its locale, the first segment of the URL (AD-18).
   scope ":locale", locale: /en|fr/ do
     root "pages#home", as: :home
+
+    # Staff only (R9): moderators and administrators.
+    get "back-office" => "back_office/dashboard#show", as: :back_office
   end
 
   # Steam sign-in (AD-14). OmniAuth answers POST /auth/steam itself; Steam

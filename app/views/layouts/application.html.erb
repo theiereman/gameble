@@ -26,8 +26,14 @@
 
   <body>
     <header class="status-band" aria-label="<%= t(".status_band.label") %>">
+      <% if content_for?(:back_button) %>
+        <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t(".status_band.back") %><% end %>
+      <% end %>
       <section class="status-band__gauge" aria-label="<%= t(".status_band.gauge") %>"></section>
       <section class="status-band__counters" aria-label="<%= t(".status_band.counters") %>">
+        <% if policy([ :back_office, :dashboard ]).show? && !current_page?(back_office_path) %>
+          <%= render ButtonComponent.new(variant: :secondary, href: back_office_path) do %><%= t(".status_band.back_office") %><% end %>
+        <% end %>
         <% if current_player %>
           <%= render ButtonComponent.new(variant: :secondary, href: session_path, method: :delete) do %><%= t(".status_band.sign_out") %><% end %>
         <% else %>

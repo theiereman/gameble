@@ -1,6 +1,7 @@
 /* Application stylesheet, served by Vite. Values come from the tokens, never raw (AD-16). */
 @import "../styles/tokens.css";
 @import "../styles/fonts.css";
+@import "../styles/attic.css";
 
 *,
 *::before,
@@ -54,10 +55,25 @@ h1 {
 
 .status-band__counters {
   flex: 0 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 .main {
   padding: var(--space-6) var(--space-5);
+}
+
+/* Read by screen readers, not shown. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .stack > * + * {
@@ -109,6 +125,7 @@ h1 {
   margin: 0;
 }
 
+.status-band > .button,
 .status-band__counters .button {
   margin: 0;
 }
