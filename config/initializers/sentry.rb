@@ -11,7 +11,8 @@ if ENV["SENTRY_DSN"].present?
     config.release = ENV["KAMAL_VERSION"] if ENV["KAMAL_VERSION"].present?
     config.send_default_pii = false
     config.traces_sample_rate = 0.0
-    config.profiles_sample_rate = 0.0
+    # Profiling stays off by leaving profiles_sample_rate unset (nil): any
+    # number, even 0.0, makes Sentry warn that the stackprof gem is missing.
 
     config.before_send = lambda do |event, _hint|
       if (request = event.request)
