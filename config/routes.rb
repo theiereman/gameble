@@ -21,6 +21,11 @@ Rails.application.routes.draw do
       resources :import_runs, path: "import-runs", only: %i[index show create] do
         post :resume, on: :member
       end
+
+      # The catalog seasons (AD-5), administrators only.
+      resources :seasons, only: :index do
+        post :publish, on: :collection
+      end
     end
   end
 

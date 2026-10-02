@@ -13,6 +13,12 @@
     </p>
   <% end %>
 
+  <% if policy([ :back_office, :seasons ]).index? %>
+    <p>
+      <%= render ButtonComponent.new(variant: :secondary, href: back_office_seasons_path) do %><%= t(".seasons") %><% end %>
+    </p>
+  <% end %>
+
   <% if policy([ :back_office, :jobs ]).show? %>
     <p>
       <%= render ButtonComponent.new(variant: :secondary, href: mission_control_jobs.root_path(locale: nil), turbo: false) do %><%= t(".jobs") %><% end %>
