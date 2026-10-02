@@ -1,0 +1,15 @@
+# i18n-tasks finds translation keys used in code but missing from the locale files (AD-18).
+# https://github.com/glebm/i18n-tasks
+
+base_locale: en
+# Story 1.4 adds fr.
+locales: [en]
+
+data:
+  read:
+    - config/locales/**/*%{locale}.yml
+
+search:
+  paths:
+    - app/
+    - packs/

@@ -1,0 +1,7 @@
+# Packwerk checks the dependency direction of AD-2 in CI.
+# https://github.com/Shopify/packwerk/blob/main/USAGE.md#configuring-packwerk
+
+exclude:
+  - "{bin,node_modules,script,tmp,vendor,_bmad,_bmad-output}/**/*"
+
+cache: true

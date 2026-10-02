@@ -1,0 +1,4 @@
+# AD-2: Steam -> Catalog.
+enforce_dependencies: true
+dependencies:
+  - packs/catalog

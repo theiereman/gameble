@@ -40,6 +40,9 @@ gem "vite_rails", "~> 3.11.1"
 # Load domain code from packs/ [https://github.com/rubyatscale/packs-rails]
 gem "packs-rails", "~> 0.1.0"
 
+# Refuse migrations that would block the database [https://github.com/ankane/strong_migrations]
+gem "strong_migrations", "~> 2.8.0"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
@@ -52,6 +55,12 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Check the pack dependency direction [https://github.com/Shopify/packwerk]
+  gem "packwerk", "~> 3.3.1", require: false
+
+  # Find missing translations [https://github.com/glebm/i18n-tasks]
+  gem "i18n-tasks", "~> 1.1.2", require: false
 end
 
 group :development do
