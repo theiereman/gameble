@@ -23,7 +23,7 @@ class Game::FillEmptyBanksJobTest < ActiveSupport::TestCase
     assert_no_enqueued_jobs { Catalog::PublishSeason.new.call(number: 99) }
   end
 
-  test "players without any pack get ten; a player with a bank and a banned player get none" do
+  test "players without any pack get ten; a short bank is topped up to ten; a banned player gets none" do
     create_pack(accounts_players(:moderator), opened_at: 1.minute.ago)
     season = seed_card_seasons(distinct_scores(150))
 
@@ -31,7 +31,8 @@ class Game::FillEmptyBanksJobTest < ActiveSupport::TestCase
 
     assert_equal 10, Game::Pack.where(player_id: accounts_players(:player).id, season_id: season.id).count
     assert_equal 10, Game::Pack.where(player_id: accounts_players(:administrator).id).count
-    assert_equal 1, Game::Pack.where(player_id: accounts_players(:moderator).id).count
+    assert_equal 10, Game::Pack.bank(accounts_players(:moderator).id).count
+    assert_equal 11, Game::Pack.where(player_id: accounts_players(:moderator).id).count
     assert_equal 0, Game::Pack.where(player_id: accounts_players(:banned).id).count
   end
 
@@ -56,5 +57,29 @@ class Game::FillEmptyBanksJobTest < ActiveSupport::TestCase
     assert_equal 0, Game::Pack.where(player_id: failing_id).count
     assert_equal 10, Game::Pack.where(player_id: accounts_players(:moderator).id).count
     assert_equal 10, Game::Pack.where(player_id: accounts_players(:administrator).id).count
+  end
+
+  test "a bank emptied while no season is published is refilled when one is published" do
+    player = accounts_players(:player)
+    create_pack(player)
+    now = Time.current.change(usec: 0)
+
+    # No season published at the opening: the pool is empty.
+    current = Game::DrawPool.method(:current)
+    Game::DrawPool.define_singleton_method(:current) { nil }
+    begin
+      travel_to(now) { Game::OpenPack.new.call(player:).value! }
+    ensure
+      Game::DrawPool.define_singleton_method(:current, current)
+    end
+    assert_equal 0, Game::Pack.bank(player.id).count
+
+    season = seed_card_seasons(distinct_scores(150))
+    travel_to(now) { perform_enqueued_jobs { Catalog::PublishSeason.new.call(number: season.number).value! } }
+
+    bank = Game::Pack.bank(player.id)
+    assert_equal 10, bank.count
+    assert_equal [ season.id ], bank.distinct.pluck(:season_id)
+    assert_equal (1..10).map { |step| now + (step * 10).minutes }, bank.order(:available_at).pluck(:available_at)
   end
 end

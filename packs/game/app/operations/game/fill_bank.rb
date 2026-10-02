@@ -13,7 +13,7 @@ module Game
   #   # => Success(packs inserted, 0 or BANK_SIZE) | Failure(:player_required)
   class FillBank < Operation
     # Packs in a full bank.
-    BANK_SIZE = 10
+    BANK_SIZE = Pack::BANK_SIZE
 
     def initialize(random: SecureRandom)
       super()

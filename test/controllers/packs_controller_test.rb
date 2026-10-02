@@ -142,4 +142,77 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("packs.create.throttled", locale: :en), flash[:alert]
     assert_equal 1, Game::BankSummary.call(player)[:available]
   end
+
+  def countdown
+    css_select(".attic__object--chest .attic__countdown[data-controller=countdown]")
+  end
+
+  test "opening a full bank leaves nine packs and a countdown of ten minutes, read as a time to screen readers" do
+    player = accounts_players(:player)
+    now = Time.utc(2026, 10, 2, 14, 22)
+    travel_to(now) { Game::FillBank.new.call(player:).value! }
+    sign_in(player.steam_id)
+
+    travel_to(now) do
+      post packs_path(locale: :en)
+      get home_path(locale: :en)
+    end
+
+    assert_equal "Open a pack (9)", chest_button.text
+    assert_equal "600", countdown.sole["data-countdown-seconds-value"]
+    assert_select ".attic__countdown [aria-hidden=true]", text: /Next pack in\s+10:00/
+    assert_select ".attic__countdown [data-countdown-target=clock]", "10:00"
+    assert_select ".attic__countdown .visually-hidden", "Next pack at 14:32 (UTC)"
+    assert_select "meta[name=turbo-refresh-method][content=morph]"
+    assert_select "meta[name=turbo-refresh-scroll][content=preserve]"
+    assert_select "meta[name=turbo-cache-control][content=no-cache]"
+  end
+
+  test "back 35 minutes after opening all ten packs, the chest shows three and the countdown points to 40 minutes" do
+    player = accounts_players(:player)
+    now = Time.utc(2026, 10, 2, 9, 0)
+    travel_to(now) { Game::FillBank.new.call(player:).value! }
+    sign_in(player.steam_id)
+    travel_to(now) { 10.times { post packs_path(locale: :fr) } }
+
+    travel_to(now + 35.minutes) { get home_path(locale: :fr) }
+
+    assert_equal "Ouvrir un paquet (3)", chest_button.text
+    assert_equal "300", countdown.sole["data-countdown-seconds-value"]
+    assert_select ".attic__countdown [aria-hidden=true]", text: /Prochain paquet dans\s+05:00/
+    assert_select ".attic__countdown .visually-hidden", "Prochain paquet à 09:40 (UTC)"
+  end
+
+  test "with no pack available now, the chest is disabled and the countdown shows" do
+    player = accounts_players(:player)
+    create_pack(player, available_at: 4.minutes.from_now)
+    sign_in(player.steam_id)
+
+    get home_path(locale: :en)
+
+    assert_equal "No pack", chest_button.text
+    assert chest_button["disabled"]
+    assert_equal 1, countdown.size
+  end
+
+  test "a full bank with bonus packs shows no countdown" do
+    player = accounts_players(:player)
+    Game::FillBank.new.call(player:).value!
+    create_pack(player, kind: :bonus)
+    create_pack(player, kind: :bonus, available_at: 5.minutes.from_now)
+    sign_in(player.steam_id)
+
+    get home_path(locale: :en)
+
+    assert_equal "Open a pack (11)", chest_button.text
+    assert_empty countdown
+  end
+
+  test "a visitor sees no countdown" do
+    create_pack(accounts_players(:player), available_at: 4.minutes.from_now)
+
+    get home_path(locale: :en)
+
+    assert_empty countdown
+  end
 end

@@ -3,11 +3,18 @@ module Game
   # oldest available pack of any kind (by availability time, then id) is
   # marked opened, its cards are credited to the player's holdings in one
   # upsert, ascending card-season, and Game::PackOpened is published.
-  # A pack that is not available yet is never opened.
+  # A pack that is not available yet is never opened. Opening a regular pack
+  # tops the bank back up to ten in the same transaction (Game::TopUpBank);
+  # a bonus or reward pack tops up nothing.
   #
   #   Game::OpenPack.new.call(player:)
   #   # => Success(pack) | Failure(:player_required) | Failure(:no_pack_available)
   class OpenPack < Operation
+    def initialize(random: SecureRandom)
+      super()
+      @random = random
+    end
+
     def call(player:)
       player = step require_player(player)
 
@@ -17,6 +24,7 @@ module Game
         pack = step next_pack(player, now)
         pack.update!(opened_at: now)
         step credit(player, pack, now)
+        TopUpBank.call(player_id: player.id, now:, random: @random) if pack.regular?
         step publish(PackOpened.new(data: { player_id: player.id, pack_id: pack.id }), stream_name: stream_name(player.id))
         pack
       end

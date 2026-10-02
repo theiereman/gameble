@@ -316,8 +316,26 @@
   top: calc(100% + var(--space-2));
   left: 50%;
   transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   text-align: center;
   white-space: nowrap;
+}
+
+/* Beside the button, so it fits on the floor: the time to the next pack,
+   on a plate like the objects' names. */
+.attic__countdown {
+  margin: 0;
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border: var(--space-unit) solid var(--color-ink);
+  box-shadow: var(--shadow-hard);
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+  font-variant-numeric: tabular-nums;
 }
 
 .attic__chest-action .button {

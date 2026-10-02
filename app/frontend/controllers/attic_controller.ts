@@ -21,4 +21,10 @@ export default class extends Controller<HTMLElement> {
     const chestCentre = chestBox.left - frameBox.left - frame.clientLeft + frame.scrollLeft + chestBox.width / 2
     frame.scrollLeft = Math.round(chestCentre - frame.clientWidth / 2)
   }
+
+  // A page refresh morphs the attic in place (the countdown), keeping its
+  // pan; the tab stop set above is not in the server's markup, so it is kept.
+  keepTabStop(event: CustomEvent<{ attributeName: string }>): void {
+    if (event.target === this.element && event.detail.attributeName === "tabindex") event.preventDefault()
+  }
 }

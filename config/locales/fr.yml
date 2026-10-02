@@ -28,6 +28,9 @@ fr:
         open: "Ouvrir un paquet (%{count})"
         open_visitor: "Ouvrir un paquet"
         empty: "Aucun paquet"
+      countdown:
+        label: "Prochain paquet dans"
+        at: "Prochain paquet à %{time} (UTC)"
       island:
         heading: "Le tableau de rassemblement de la Confrérie"
         season: "Saison de service en cours :"

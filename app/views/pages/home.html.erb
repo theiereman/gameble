@@ -1,9 +1,13 @@
 <%# The attic (DESIGN.md "The attic", mockups/attic.html): one wide room drawn in
     CSS, its furniture named. Objects lead nowhere yet, so they are not links;
-    the chest holds the button that opens a pack. %>
+    the chest holds the button that opens a pack, and the countdown to the
+    next one. The page is never served from Turbo's cache, and the countdown
+    refreshes it by morphing, keeping the scroll. %>
+<% turbo_exempts_page_from_cache %>
+<% turbo_refreshes_with method: :morph, scroll: :preserve %>
 <h1 id="attic-heading" class="visually-hidden"><%= t(".heading") %></h1>
 
-<div class="attic" data-controller="attic" role="region" aria-labelledby="attic-heading">
+<div class="attic" data-controller="attic" data-action="turbo:before-morph-attribute->attic#keepTabStop" role="region" aria-labelledby="attic-heading">
   <div class="attic__room">
     <div class="attic__wall" aria-hidden="true"></div>
     <div class="attic__floor" aria-hidden="true"></div>
@@ -33,6 +37,15 @@
           <%= render ButtonComponent.new(href: packs_path, method: :post) do %><%= t(".chest.open", count: @bank[:available]) %><% end %>
         <% else %>
           <%= tag.button t(".chest.empty"), type: :button, class: "button button--secondary", disabled: true %>
+        <% end %>
+        <% if @next_pack_in %>
+          <%# The ticking text is hidden from screen readers, which read the
+              static time instead. At zero the page refreshes. %>
+          <p class="attic__countdown" data-controller="countdown" data-countdown-seconds-value="<%= @next_pack_in %>">
+            <span aria-hidden="true"><%= t(".countdown.label") %>
+              <span data-countdown-target="clock"><%= format("%02d:%02d", *@next_pack_in.divmod(60)) %></span></span>
+            <span class="visually-hidden"><%= t(".countdown.at", time: @bank[:next_available_at].utc.strftime("%H:%M")) %></span>
+          </p>
         <% end %>
       </div>
     </figure>

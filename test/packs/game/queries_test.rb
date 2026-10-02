@@ -8,15 +8,19 @@ class Game::QueriesTest < ActiveSupport::TestCase
 
   setup { @player = accounts_players(:player) }
 
-  test "the bank summary counts the packs available now, of every kind" do
+  test "the bank summary counts the packs available now, of every kind, and the next regular one" do
+    now = Time.current.change(usec: 0)
     create_pack(@player)
     create_pack(@player, kind: :bonus)
     create_pack(@player, kind: :reward)
-    create_pack(@player, available_at: 1.hour.from_now)
+    create_pack(@player, available_at: now + 2.hours)
+    create_pack(@player, available_at: now + 1.hour)
+    create_pack(@player, available_at: now + 30.minutes, kind: :bonus)
+    create_pack(@player, available_at: now + 20.minutes, opened_at: 1.minute.ago)
     create_pack(@player, opened_at: 1.minute.ago)
-    create_pack(accounts_players(:moderator))
+    create_pack(accounts_players(:moderator), available_at: now + 10.minutes)
 
-    assert_equal({ available: 3 }, Game::BankSummary.call(@player))
+    assert_equal({ available: 3, next_available_at: now + 1.hour }, Game::BankSummary.call(@player, now:))
   end
 
   test "an opened pack is found by its token for its owner only" do
