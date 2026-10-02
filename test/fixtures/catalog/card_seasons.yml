@@ -1,0 +1,10 @@
+_fixture:
+  model_class: Catalog::CardSeason
+
+portal_one:
+  card: portal
+  season: one
+  prestige_score: 0.9
+  rating: 95.5
+  rarity: amethyst
+  dust_tier: thick

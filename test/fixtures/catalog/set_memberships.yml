@@ -1,0 +1,7 @@
+_fixture:
+  model_class: Catalog::SetMembership
+
+portal_valve_one:
+  set: valve_one
+  card_season: portal_one
+  position: 1

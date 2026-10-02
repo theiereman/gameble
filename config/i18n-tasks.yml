@@ -19,3 +19,5 @@ search:
 # Accounts::SignIn.failure_key, Game::Operation), which the static search cannot see.
 ignore_unused:
   - "errors.*"
+  # Model validation messages, looked up by Active Record from errors.add symbols.
+  - "activerecord.errors.messages.*"
