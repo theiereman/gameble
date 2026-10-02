@@ -1,21 +1,44 @@
-<div class="stack">
-  <h1><%= t(".heading") %></h1>
+<%# The attic (DESIGN.md "The attic", mockups/attic.html): one wide room drawn in
+    CSS, its furniture named. Objects lead nowhere yet, so they are not links. %>
+<h1 id="attic-heading" class="visually-hidden"><%= t(".heading") %></h1>
 
-  <%= render TextPlateComponent.new(tag: :p) do %>
-    <%= t(".intro") %>
-  <% end %>
+<div class="attic" data-controller="attic" role="region" aria-labelledby="attic-heading">
+  <div class="attic__room">
+    <div class="attic__wall" aria-hidden="true"></div>
+    <div class="attic__floor" aria-hidden="true"></div>
+    <div class="attic__window" aria-hidden="true"></div>
 
-  <div>
-    <%= render ButtonComponent.new(variant: :primary, href: home_path) do %>
-      <%= t(".enlist") %>
+    <% [
+         [ :lectern, t(".objects.lectern") ],
+         [ :notice_board, t(".objects.notice_board") ],
+         [ :medal_display, t(".objects.medal_display") ],
+         [ :mirror, t(".objects.mirror") ],
+         [ :trade_table, t(".objects.trade_table") ]
+       ].each do |object, name| %>
+      <figure class="attic__object attic__object--<%= object.to_s.dasherize %>">
+        <div class="attic__art" aria-hidden="true"></div>
+        <figcaption class="attic__name"><%= name %></figcaption>
+      </figure>
     <% end %>
-    <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %>
-      <%= t(".linger") %>
+
+    <figure class="attic__object attic__object--chest" data-attic-target="chest">
+      <div class="attic__art" aria-hidden="true"></div>
+      <figcaption class="attic__name"><%= t(".objects.chest") %></figcaption>
+    </figure>
+
+    <% unless current_player %>
+      <div class="attic__invitation">
+        <%= render TextPlateComponent.new(tag: :p) do %>
+          <%= t(".invitation") %>
+        <% end %>
+      </div>
     <% end %>
+
+    <div class="attic__plaque">
+      <%= turbo_mount("SampleIsland", props: {
+        data: { season: 1 },
+        strings: { heading: t(".island.heading"), season: t(".island.season") }
+      }) %>
+    </div>
   </div>
-
-  <%= turbo_mount("SampleIsland", props: {
-    data: { season: 1 },
-    strings: { heading: t(".island.heading"), season: t(".island.season") }
-  }) %>
 </div>

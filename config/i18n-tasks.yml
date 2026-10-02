@@ -12,3 +12,8 @@ search:
   paths:
     - app/
     - packs/
+
+# Failure keys are built from failure codes at runtime (Steam::SignInIdentity.failure_key,
+# Accounts::SignIn.failure_key, Game::Operation), which the static search cannot see.
+ignore_unused:
+  - "errors.*"

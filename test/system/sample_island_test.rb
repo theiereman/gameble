@@ -19,7 +19,7 @@ class SampleIslandTest < ApplicationSystemTestCase
     end
   end
 
-  test "a Turbo visit from the home page's own button leaves the island mounted once" do
+  test "a Turbo visit to the attic leaves the island mounted once" do
     visit home_path(locale: :en)
     assert_selector ".sample-island", count: 1
 
@@ -31,10 +31,10 @@ class SampleIslandTest < ApplicationSystemTestCase
         document.body.dataset.turboLoads = window.turboLoads
       })
     JS
-    click_on "Report for duty"
+    page.execute_script("Turbo.visit(location.href)")
 
     assert_selector "body[data-turbo-loads='1']"
     assert_selector ".sample-island", count: 1
-    assert page.evaluate_script("window.turboVisitMarker"), "the button should navigate through Turbo, not a full page load"
+    assert page.evaluate_script("window.turboVisitMarker"), "the visit should go through Turbo, not a full page load"
   end
 end

@@ -11,15 +11,27 @@ fr:
         counters: "Paquets et cartes"
         sign_in: "S'enrôler via Steam"
         sign_out: "Quitter les rangs"
+        back_office: "Back-office"
+        back: "Retour au grenier"
   pages:
     home:
-      heading: "Bienvenue aux archives, Confrère"
-      intro: "Les coffres de la Grande Confrérie des Gamblers te sont ouverts. Les scribes dépoussièrent encore les rayonnages ; les cartes arrivent bientôt. Tiens-toi prêt."
-      enlist: "Rejoindre les rangs"
-      linger: "Flâner dans les archives"
+      heading: "Le grenier de la Confrérie"
+      objects:
+        lectern: "Bibliothèque"
+        notice_board: "Le fil de la Confrérie"
+        medal_display: "Succès"
+        mirror: "Mon profil"
+        trade_table: "Échanges et amis"
+        chest: "Le coffre"
+      invitation: "Enrôle-toi via Steam, Confrère, et le coffre s'ouvrira pour toi."
       island:
         heading: "Le tableau de rassemblement de la Confrérie"
         season: "Saison de service en cours :"
+  back_office:
+    dashboard:
+      show:
+        heading: "Le back-office de la Confrérie"
+        empty: "Rien n'attend encore les officiers. Les registres sont vierges."
   sessions:
     create:
       welcome: "Bienvenue dans les rangs, Confrère. La Confrérie a inscrit ton nom au grand registre."
