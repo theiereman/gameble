@@ -35,6 +35,15 @@ class Catalog::SeasonShelfTest < ActiveSupport::TestCase
     assert_equal 1, relation.count
   end
 
+  test "a season given is not looked up again, and none given as nil answers nothing" do
+    season = seed_published_sets([ [ "publisher", "valve", { "publisher" => "Valve" } ] ])
+
+    relation = nil
+    assert_queries_count(0) { relation = Catalog::SeasonShelf.relation(kind: "publisher", season:) }
+    assert_equal %w[valve], relation.map(&:key)
+    assert_queries_count(0) { assert_nil Catalog::SeasonShelf.relation(kind: "publisher", season: nil) }
+  end
+
   test "a season with no set of that kind gives an empty relation" do
     seed_published_sets([ [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
 

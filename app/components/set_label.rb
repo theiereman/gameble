@@ -6,6 +6,11 @@
 # malformed set (unknown kind, tome without genre) raises ArgumentError.
 #
 #   SetLabel.for(set) # => "Action · Tome 2"
+#
+# A tome's heading adds the release-year range of its cards, one year when
+# they are all of the same: SetLabel.heading(set, [ 2012, 2011 ]) # =>
+# "Action · Tome 2 · 2011–2012". Any other set's heading is its name. `set`
+# is anything with `kind` and `params` (a Catalog::Set, a SetSlots::SetRef).
 module SetLabel
   def self.for(set)
     params = set.params
@@ -18,6 +23,14 @@ module SetLabel
     when "best_of_year" then I18n.t("catalog.sets.best_of_year", year: params["year"])
     else raise ArgumentError, "unknown set kind: #{set.kind.inspect}"
     end
+  end
+
+  def self.heading(set, years)
+    label = self.for(set)
+    return label unless set.kind == "tome" && years.any?
+
+    first, last = years.minmax
+    I18n.t("catalog.sets.with_years", label:, years: first == last ? first.to_s : "#{first}–#{last}")
   end
 
   def self.genre(key)

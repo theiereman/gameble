@@ -215,6 +215,14 @@ en:
         best_of_year: "No year has had its best bound this season, Brother."
       past_the_end: "This shelf stands empty, Brother. The tomes end on an earlier one."
       no_season: "The shelves are bare, Brother: the Brotherhood has published no season of cards yet."
+    set:
+      back_to_shelf: "Back to the shelf"
+    tome:
+      slots: "The slots of the tome"
+      missing: "Missing card"
+      copies:
+        one: "%{count} copy"
+        other: "%{count} copies"
   daily_bonuses:
     create:
       collected: "The daily booster is in the chest, Brother. Open it when you will."
@@ -233,6 +241,7 @@ en:
     sets:
       tome: "%{genre} · Tome %{volume}"
       best_of_year: "Best rated of %{year}"
+      with_years: "%{label} · %{years}"
     # Steam's genres, by key (Steam::GenresPolicy); SetLabel humanises any other.
     genres:
       action: "Action"

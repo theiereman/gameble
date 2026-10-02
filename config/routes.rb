@@ -18,6 +18,8 @@ Rails.application.routes.draw do
 
     # The library, reached from the attic's lectern: the season's sets (CAP-6).
     resource :library, controller: :library, only: :show
+    # One set of the library, opened beside the shelf, by kind and key (AD-15).
+    get "library/:kind/:key" => "library#set", as: :library_set, constraints: { kind: /tome|publisher|best_of_year/ }
 
     # Collecting the daily bonus from the attic (CAP-16).
     resource :daily_bonus, path: "daily-bonus", only: :create

@@ -1,10 +1,14 @@
 <%# A shelf of sets (CAP-6): the tabs of the three kinds, the tomes of one
-    page with their name and owned / total, and the links to the other pages.
-    Spines are not links yet. Locals:
+    page with their name and owned / total, each opening its set, and the
+    links to the other pages. The owner's data and paths come as locals, so
+    another player's library renders it too:
     - kind: the open tab, one of LibraryController::KINDS;
     - spines: LibraryController::Spine list, nil when no season is published;
     - pagy: the page (nil without a season);
-    - tab_url: a lambda giving a tab's URL from its kind. %>
+    - tab_url: a lambda giving a tab's URL from its kind;
+    - set_url: a lambda giving a set's URL from its kind, key and shelf page;
+    - current_set: the open set (kind and key), or nil; its spine, when on
+      this page, is marked current. %>
 <div class="library__room">
   <% if spines.nil? %>
     <%= render TextPlateComponent.new(tag: :p) do %><%= t("library.show.no_season") %><% end %>
@@ -22,10 +26,13 @@
     <% else %>
       <ol class="shelf" aria-label="<%= t("library.show.tabs.#{kind}") %>">
         <% spines.each do |spine| %>
-          <li class="tome">
-            <span class="tome__name"><%= spine.label %></span>
-            <span class="tome__count" aria-hidden="true"><%= spine.owned %> / <%= spine.total %></span>
-            <span class="visually-hidden"><%= t("library.show.progress", count: spine.owned, total: spine.total) %></span>
+          <% current = current_set && current_set.kind == kind && current_set.key == spine.key %>
+          <li>
+            <%= link_to set_url.call(kind, spine.key, pagy.page), class: "tome", aria: { current: ("page" if current) } do %>
+              <span class="tome__name"><%= spine.label %></span>
+              <span class="tome__count" aria-hidden="true"><%= spine.owned %> / <%= spine.total %></span>
+              <span class="visually-hidden"><%= t("library.show.progress", count: spine.owned, total: spine.total) %></span>
+            <% end %>
           </li>
         <% end %>
       </ol>
