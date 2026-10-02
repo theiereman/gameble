@@ -172,3 +172,10 @@ Over OpenID, Steam returns only the claimed id (the OmniAuth `uid`); it sends no
 - `config/initializers/omniauth.rb` prepends onto `OpenID::Consumer::AssociationManager`, an internal of ruby-openid 2.9.2.
 - Nonce replay protection via `Rails.cache` with `unless_exist` is not strictly atomic under a race of milliseconds.
 - A running `bin/dev` must be restarted.
+
+## Post-build fix (2026-10-02)
+
+A real Steam sign-in in development (author's test) failed at the callback; OmniAuth test mode had hidden both causes:
+- `ruby-openid` calls `CGI.parse` when it verifies `return_to`, and Ruby 4 keeps only `cgi/escape`: `undefined method 'parse' for class CGI`. Fixed by adding the `cgi` gem (0.5.2, Stack row added).
+- `omniauth-openid` asks for `method: "post"`, so `rack-openid` adds `_method=post` to `return_to` and relabels Steam's GET as a POST on the way back; the GET-only callback route answered 404, and Rails would have demanded an authenticity token. The route now takes GET and POST, and `SessionsController#create` skips forgery protection (login CSRF stays guarded by the one-time sign-in marker).
+- New `test/integration/steam_open_id_test.rb` runs the real OmniAuth/ruby-openid flow against a stand-in Steam (stubbed `OpenID.fetcher`), with forgery protection on: discovery, `return_to` check, `check_authentication` valid and invalid. It reproduced the `CGI.parse` error before the fix.

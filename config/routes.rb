@@ -23,7 +23,9 @@ Rails.application.routes.draw do
 
   # Steam sign-in (AD-14). OmniAuth answers POST /auth/steam itself; Steam
   # comes back to the callback, and any failure lands on /auth/failure.
-  get "auth/steam/callback" => "sessions#create", as: :steam_callback
+  # rack-openid turns Steam's GET back into the POST that omniauth-openid
+  # asked for (`_method=post` in return_to), so the callback takes both.
+  match "auth/steam/callback" => "sessions#create", as: :steam_callback, via: %i[get post]
   get "auth/failure" => "sessions#failure", as: :auth_failure
   resource :session, only: :destroy
 

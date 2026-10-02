@@ -264,6 +264,7 @@ Verified against the RubyGems and npm registries on 2026-10-02. If a gem lags be
 | omniauth-openid | 2.0.2 |
 | omniauth-rails_csrf_protection | 2.0.1 |
 | rexml (needed by ruby-openid; Ruby 4 no longer bundles it) | 3.4.4 |
+| cgi (needed by ruby-openid for `CGI.parse`; Ruby 4 keeps only `cgi/escape`) | 0.5.2 |
 | Pundit | 2.5.2 |
 | FriendlyId | 5.7.0 |
 | Pagy | 43.6.3 |
