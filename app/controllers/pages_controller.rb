@@ -1,6 +1,9 @@
 class PagesController < ApplicationController
   def home
     authorize :page, :show?
+    # A visitor sees the bonus panel whenever a player could collect one
+    # (CAP-18): when a season is published.
+    @season_published = Catalog::PublishedSeason.call.present? unless current_player
     return unless current_player
 
     now = Time.current

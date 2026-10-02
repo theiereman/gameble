@@ -74,9 +74,11 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".attic__bonus button", "Le prendre"
   end
 
-  test "a visitor sees no panel, and a visitor's POST is refused with the sign-in message; nothing written" do
+  test "a visitor sees the panel with a Steam sign-in button, and a visitor's POST is refused with the sign-in message; nothing written" do
     get home_path(locale: :en)
-    assert_empty panel
+    assert_select ".attic__bonus h2", "Daily bonus"
+    assert_select ".attic__bonus form[action='/auth/steam'][method=post] button", "Enlist through Steam to take it"
+    assert_select ".attic__bonus form[action='/auth/steam'] input[name=origin][value='/en']"
 
     assert_no_difference -> { Game::Pack.count } do
       assert_no_difference -> { Game::DailyBonusClaim.count } do
@@ -141,5 +143,21 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     get pack_path(bonus.token, locale: :fr)
     assert_select "h1", "Ton bonus du jour"
     assert_select ".pack-result__card .card--face", 3
+  end
+
+  test "a visitor sees no panel when no season is published" do
+    catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
+
+    get home_path(locale: :en)
+
+    assert_empty panel
+    assert_select ".attic__chest-action form[action='/auth/steam'] button", "Enlist through Steam to open a pack"
+  end
+
+  test "in French, a visitor's chest and panel buttons say they enlist through Steam" do
+    get home_path(locale: :fr)
+
+    assert_select ".attic__chest-action form[action='/auth/steam'] button", "S'enrôler via Steam pour ouvrir un paquet"
+    assert_select ".attic__bonus form[action='/auth/steam'] button", "S'enrôler via Steam pour le prendre"
   end
 end
