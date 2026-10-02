@@ -53,8 +53,9 @@ RUN bundle install && \
     # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
     bundle exec bootsnap precompile -j 1 --gemfile
 
-# Install JavaScript packages
+# Install JavaScript packages, with the manifest of each workspace package
 COPY package.json package-lock.json ./
+COPY packages/pixel-art-filter/package.json ./packages/pixel-art-filter/
 RUN npm ci
 
 # Copy application code

@@ -99,6 +99,9 @@ jobs:
       - name: Type-check TypeScript
         run: npm run typecheck
 
+      - name: Run JavaScript tests
+        run: npm run test:js
+
       - name: Check migrations are safe
         env:
           RAILS_ENV: test
