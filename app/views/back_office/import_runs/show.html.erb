@@ -53,7 +53,7 @@
         <dd><%= render "back_office/import_runs/time", time: @import_run.finished_at %></dd>
       </dl>
 
-      <% if @import_run.failed? %>
+      <% if @resumable %>
         <p>
           <%= render ButtonComponent.new(variant: :primary, href: resume_back_office_import_run_path(@import_run), method: :post, turbo: false) do %><%= t(".resume") %><% end %>
         </p>

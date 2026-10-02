@@ -25,9 +25,15 @@ module Steam
   # The upsert locks the draft season FOR SHARE, and the lock is held until
   # the page commits: a season publish waits up to one page.
   #
+  # `cursor`, when given, is the cursor the caller expects the page to start
+  # from; a run that has moved on fails with cursor_moved before the page is
+  # read.
+  #
   #   Steam::ImportCardsPage.new.call(import_run_id: run.id, cursor: run.cursor)
   #   # => Success(run) | Failure(:not_found) | Failure(:not_running) | Failure(:cursor_moved)
   class ImportCardsPage < ApplicationOperation
+    include PageSteps
+
     STEP = "cards".freeze
     PAGE_SIZE = 100
 
@@ -41,48 +47,28 @@ module Steam
       run = step find_run(import_run_id)
       step require_on_step(run)
       step require_expected_cursor(run, cursor)
+      expected_cursor = run.cursor
       last_appid = run.last_appid
 
       transaction do
         run = step lock_run(import_run_id)
         step require_on_step(run)
-        step require_cursor_at(run, last_appid)
+        step require_cursor_unchanged(run, expected_cursor)
         apps = page_apps(run, last_appid)
         if apps.empty?
           step FinishImportStep.new.call(import_run: run)
         else
           refusals = write_cards(apps)
-          step advance(run, apps, refusals)
-          step publish(CardsPageImported.new(data: { import_run_id: run.id, last_appid: run.last_appid }), stream_name: ImportRun.stream_name(run.id))
+          run.append_errors(refusals) if refusals.any?
+          step advance_page(run, last_appid: apps.map(&:appid).max,
+            add: { "cards_written" => apps.size - refusals.size, "cards_refused" => refusals.size })
+          step publish_page(CardsPageImported, run)
         end
         run
       end
     end
 
     private
-
-    def find_run(import_run_id)
-      run = ImportRun.find_by(id: import_run_id)
-      run ? Success(run) : Failure(:not_found)
-    end
-
-    def lock_run(import_run_id)
-      run = ImportRun.lock.find_by(id: import_run_id)
-      run ? Success(run) : Failure(:not_found)
-    end
-
-    def require_on_step(run)
-      run.running? && run.step == STEP ? Success(run) : Failure(:not_running)
-    end
-
-    def require_expected_cursor(run, cursor)
-      cursor.nil? || run.cursor == cursor ? Success(run) : Failure(:cursor_moved)
-    end
-
-    # Another job wrote this page meanwhile: nothing to do twice.
-    def require_cursor_at(run, last_appid)
-      run.last_appid == last_appid ? Success(run) : Failure(:cursor_moved)
-    end
 
     def page_apps(run, last_appid)
       App.ready_by(run).where("appid > ?", last_appid).order(:appid).limit(@page_size).to_a
@@ -108,18 +94,6 @@ module Steam
         raise ActiveRecord::Rollback if result.failure?
       end
       result.failure? ? result.failure : nil
-    end
-
-    def advance(run, apps, refusals)
-      run.append_errors(refusals) if refusals.any?
-      run.update!(
-        cursor: run.cursor.merge("last_appid" => apps.map(&:appid).max),
-        counts: run.counts.merge(
-          "cards_written" => run.cards_written + apps.size - refusals.size,
-          "cards_refused" => run.cards_refused + refusals.size
-        )
-      )
-      Success(run)
     end
   end
 end

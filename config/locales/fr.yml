@@ -167,6 +167,21 @@ fr:
     forbidden: "Cet ordre dépasse ton grade, Confrère. Les coffres restent fermés."
   rate_limit:
     throttled: "Trop de tentatives d'enrôlement, Confrère. Reprends ton souffle et réessaie dans une minute."
+  # Number formats (number_with_delimiter, number_with_precision,
+  # number_to_percentage). Defined here so test and production render the
+  # same (production falls back to en). The delimiter is a no-break space
+  # (U+00A0): Jost has no narrow no-break space (U+202F).
+  number:
+    format:
+      separator: ","
+      delimiter: "\u00A0"
+    precision:
+      format:
+        delimiter: ""
+    percentage:
+      format:
+        delimiter: ""
+        format: "%n\u00A0%"
   activerecord:
     errors:
       messages:
@@ -193,6 +208,6 @@ fr:
       not_resumable: "Seul un import interrompu peut être repris, officier."
       not_running: "Cet import n'est pas en cours."
       cursor_moved: "Cette page de l'import a déjà été recopiée."
-      not_latest: "Seule la dernière passe d'import peut être recalculée, officier."
+      not_latest: "Seule la dernière passe d'import peut être reprise ou recalculée, officier."
       not_completed: "Seule une passe d'import terminée peut être recalculée, officier."
       already_published: "Les cartes de cette passe sont déjà publiées dans une saison, officier. Lance un nouvel import pour remplir le prochain brouillon."

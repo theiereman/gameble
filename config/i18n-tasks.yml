@@ -21,3 +21,5 @@ ignore_unused:
   - "errors.*"
   # Model validation messages, looked up by Active Record from errors.add symbols.
   - "activerecord.errors.messages.*"
+  # Number formats, read by the number helpers (number_with_delimiter, …).
+  - "number.*"

@@ -30,3 +30,27 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-foundation-and-steam-sign-in/story-refactor-sweep-plan.md`
   summary: Cloudflare's cache ignores `Vary: Accept-Language`, so the `/` redirect must never be cached at the edge (keep it out of cache rules, or send `Cache-Control: private, no-store` from `LocalesController#redirect`) when Cloudflare is configured.
   evidence: Story 1.10 review; Rails sends `Cache-Control: max-age=0, private, must-revalidate` on the redirect today, which standard caches respect.
+- source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-refactor-sweep-plan.md`
+  summary: The seasons page's import check (`Steam::UnfinishedImportRun`) and the publish lock can race: a run started or resumed between the check and `Catalog::PublishSeason`'s lock could write cards after the publication.
+  evidence: Story 2.6 review finding 2, rejected (low). It needs two administrator actions in the same instant; closing it needs a lock across `Steam` and `Catalog`, which AD-2 forbids.
+- source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-refactor-sweep-plan.md`
+  summary: On a run's page, the "Rescore the cards" button reappears only after a full reload once the rescore completes: the polled frame does not hold it.
+  evidence: Story 2.8 review finding 4, rejected (low, cosmetic). The run page is reloaded after a calibration anyway.
+- source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-refactor-sweep-plan.md`
+  summary: In the calibration preview, a genre literally keyed `none` would share the "no genre" row (`_preview.html.erb` keys a nil genre as `none`).
+  evidence: Story 2.8 review finding 5, rejected (low). Steam's genre keys never produce `none`; the row is only read by the author during calibration.
+- source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-refactor-sweep-plan.md`
+  summary: The first real Steam import and the calibration are not done: the full run's duration per step, the kept count (story 2.3), the details and genres steps against real Steam (story 2.4), the real prestige scores and `Steam::PrestigeScore::COUNT_WEIGHT` (story 2.5), and the tier shares, tome size and the author's approval of the calibration (story 2.8). Story 2.1's manual check (kill the import worker mid-run, restart, no duplicate app) belongs to the same real run.
+  evidence: Story 2.3 review finding 4 (deferred) and its Implementation Notes; story 2.4 Implementation Notes ("Manual check (real Steam) not done"); story 2.8's hitl check. Both runs wait in `pending-approvals.md` (full real import in development; deploy to the test LXC and import there).
+- source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-refactor-sweep-plan.md`
+  summary: `Catalog::UpsertDraftCard`'s slug-index race (two new cards taking the same slug at once) has no test of its own.
+  evidence: Story 2.2 review finding 6, rejected (low). Handled by the shared `RecordNotUnique` retry loop; a concurrent slug collision is unlikely with one import writer, and the test needs plumbing only.
+- source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-refactor-sweep-plan.md`
+  summary: `Catalog::UpsertDraftCard` given texts under both `"en"` and `:en` keeps one silently.
+  evidence: Story 2.2 review finding 7, rejected (low). `Steam::CardMapping`, the only caller, builds string keys; a guard would add a branch for no current caller.
+- source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-refactor-sweep-plan.md`
+  summary: No test makes the real `Catalog::UpsertDraftCard` fail inside its own transaction under `Steam::ImportCardsPage`'s per-card savepoint; the refused-card test uses a double that fails after a real upsert.
+  evidence: Story 2.5 review note, rejected (low). The path is covered by the double's rollback and by the reading of dry-operation's ActiveRecord `transaction`.
+- source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-refactor-sweep-plan.md`
+  summary: Findings of epic 2 rejected as false, kept for the record, no action: `bin/packwerk` has no binstub (story 2.1, finding 6: CI runs `bundle exec packwerk check`); no index on `(import_run_id, appid)` for the review pages (story 2.3, finding 5: the page walks the unique `appid` index from the cursor); a later run's exclusion makes `ready_by(earlier_run)` lose an app (story 2.4, finding 5: rows hold the latest run's results by design, and `ready_by` is only read for the run in progress).
+  evidence: The Review Triage Logs of stories 2.1, 2.3 and 2.4.

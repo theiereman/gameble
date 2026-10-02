@@ -7,8 +7,9 @@ module Steam
   # The Wilson lower bound of the positive share at 95 % (z = 1.96), plus
   # COUNT_WEIGHT × log10(review_count). Acclaim dominates; the count only
   # nudges, so a little-known game is never rare for being little known.
-  # Strictly increasing in each input. A starting formula: story 2.8
-  # calibrates COUNT_WEIGHT on the first real import.
+  # Strictly increasing in each input. A starting formula: COUNT_WEIGHT is
+  # calibrated on the first real import, with the draft season's preview
+  # (Catalog::DraftPreview) and a rescore (Steam::RescoreCards).
   #
   #   Steam::PrestigeScore.call(percent_positive: 95, review_count: 1_000) # => 0.9647…
   module PrestigeScore

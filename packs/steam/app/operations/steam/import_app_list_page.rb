@@ -13,11 +13,14 @@ module Steam
   # retry and, once retries are spent, fail the run.
   #
   # `cursor`, when given, is the cursor the caller expects the page to start
-  # from; a run that has moved on fails with cursor_moved before calling Steam.
+  # from; a run that has moved on fails with cursor_moved before the page is
+  # read.
   #
   #   Steam::ImportAppListPage.new.call(import_run_id: run.id, cursor: run.cursor)
   #   # => Success(run) | Failure(:not_found) | Failure(:not_running) | Failure(:cursor_moved)
   class ImportAppListPage < ApplicationOperation
+    include PageSteps
+
     STEP = "app_list".freeze
     PAGE_SIZE = 10_000
 
@@ -31,6 +34,7 @@ module Steam
       run = step find_run(import_run_id)
       step require_on_step(run)
       step require_expected_cursor(run, cursor)
+      expected_cursor = run.cursor
       last_appid = run.last_appid
 
       page = @client.get_app_list(last_appid: last_appid, max_results: @page_size)
@@ -38,39 +42,16 @@ module Steam
       transaction do
         run = step lock_run(import_run_id)
         step require_on_step(run)
-        step require_cursor_at(run, last_appid)
+        step require_cursor_unchanged(run, expected_cursor)
         step upsert_apps(run, page.apps)
-        next_appid = step advance(run, page, last_appid)
-        step publish(AppListPageImported.new(data: { import_run_id: run.id, last_appid: next_appid }), stream_name: ImportRun.stream_name(run.id))
-        step FinishImportStep.new.call(import_run: run) unless more_pages?(page, next_appid, last_appid)
+        step advance(run, page, last_appid)
+        step publish_page(AppListPageImported, run)
+        step FinishImportStep.new.call(import_run: run) unless more_pages?(page, run.last_appid, last_appid)
         run
       end
     end
 
     private
-
-    def find_run(import_run_id)
-      run = ImportRun.find_by(id: import_run_id)
-      run ? Success(run) : Failure(:not_found)
-    end
-
-    def lock_run(import_run_id)
-      run = ImportRun.lock.find_by(id: import_run_id)
-      run ? Success(run) : Failure(:not_found)
-    end
-
-    def require_on_step(run)
-      run.running? && run.step == STEP ? Success(run) : Failure(:not_running)
-    end
-
-    def require_expected_cursor(run, cursor)
-      cursor.nil? || run.cursor == cursor ? Success(run) : Failure(:cursor_moved)
-    end
-
-    # Another job imported this page meanwhile: nothing to do twice.
-    def require_cursor_at(run, last_appid)
-      run.last_appid == last_appid ? Success(run) : Failure(:cursor_moved)
-    end
 
     def upsert_apps(run, apps)
       return Success(0) if apps.empty?
@@ -84,11 +65,7 @@ module Steam
     # leaves it out); it never moves back.
     def advance(run, page, last_appid)
       next_appid = [ page.last_appid.to_i, *page.apps.map { |app| app[:appid] }, last_appid ].max
-      run.update!(
-        cursor: run.cursor.merge("last_appid" => next_appid),
-        counts: run.counts.merge("apps_listed" => run.apps_listed + page.apps.size)
-      )
-      Success(next_appid)
+      advance_page(run, last_appid: next_appid, add: { "apps_listed" => page.apps.size })
     end
 
     # Steam says there is more, and the cursor moved: a page that does not

@@ -1,8 +1,9 @@
 module Steam
   # Fails a running import run (AD-19): the error is appended to the run's
-  # errors (ImportRun#append_errors: the latest ImportRun::ERROR_LIMIT are kept) and the run stops
-  # where its cursor is, ready to be resumed. The message must already be
-  # free of the API key; Steam::WebApi redacts it from its errors.
+  # errors (ImportRun#append_errors: the latest ImportRun::ERROR_LIMIT are
+  # kept) and the run stops where its cursor is, ready to be resumed
+  # (Steam::ResumeImport) while it is the latest run. The message must
+  # already be free of the API key; Steam::WebApi redacts it from its errors.
   #
   #   Steam::FailImport.new.call(import_run_id: run.id, error: "Steam::WebApi::Error: ...")
   #   # => Success(run) | Failure(:not_found) | Failure(:not_running)
