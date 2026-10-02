@@ -1,0 +1,3 @@
+# Shared infrastructure base classes (ApplicationOperation) that every pack may
+# inherit without depending on the web layer (AD-2). Depends on no package.
+enforce_dependencies: true

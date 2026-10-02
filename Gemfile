@@ -43,6 +43,12 @@ gem "packs-rails", "~> 0.1.0"
 # Refuse migrations that would block the database [https://github.com/ankane/strong_migrations]
 gem "strong_migrations", "~> 2.8.0"
 
+# Write every state change as an operation returning Success or Failure (AD-3) [https://github.com/dry-rb/dry-operation]
+gem "dry-operation", "~> 1.1.0"
+
+# Publish domain events inside the operation's transaction (AD-10) [https://railseventstore.org]
+gem "rails_event_store", "~> 3.2.0"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"

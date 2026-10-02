@@ -24,6 +24,10 @@ bin/dev                       # Rails on http://localhost:3000 and the Vite dev 
 
 Set `PORT` to use another port for Rails.
 
+## Writing an operation
+
+Every state change is an operation (AD-3). Inherit `ApplicationOperation`, name it `Pack::VerbNoun`, and wrap its writes and its `publish(event, stream_name:)` call in `transaction do ... end`, so the rows and the event (identifiers only) commit or roll back together. Call another operation of the pack only through `step`: the inner `transaction` joins the outer one, so an inner `Failure` handled without `step` would keep the inner rows and event, while `step` halts the outer flow and rolls back the whole transaction. Return `Success(value)`, or `Failure(:code)` with a message under the locale key `errors.<pack>.<code>` (`Game::OpenPack.failure_message(:no_pack)` reads `errors.game.no_pack`). `test/lib/application_operation_test.rb` shows a complete example.
+
 ## Test
 
 ```sh
