@@ -28,6 +28,9 @@ en:
         open: "Open a pack (%{count})"
         open_visitor: "Open a pack"
         empty: "No pack"
+      countdown:
+        label: "Next pack in"
+        at: "Next pack at %{time} (UTC)"
       island:
         heading: "The Brotherhood muster board"
         season: "Current season of service:"

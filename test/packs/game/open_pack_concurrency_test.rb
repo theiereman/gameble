@@ -47,6 +47,18 @@ class Game::OpenPackConcurrencyTest < ActiveSupport::TestCase
     assert_equal [ 10 ], Game::Holding.where(player_id: @player.id).pluck(:quantity)
   end
 
+  test "two openings of a full bank at once: replacements ten and twenty minutes after the opening" do
+    now = Time.current.change(usec: 0)
+    10.times { |index| create_pack(@player, available_at: now - (index + 1).minutes) }
+
+    results = travel_to(now) { open_twice }
+
+    assert results.all?(&:success?)
+    bank = Game::Pack.bank(@player.id)
+    assert_equal 10, bank.count
+    assert_equal [ now + 10.minutes, now + 20.minutes ], bank.where(available_at: now..).order(:available_at).pluck(:available_at)
+  end
+
   test "two openings racing on the last pack: one succeeds, the other is refused" do
     create_pack(@player)
 

@@ -13,11 +13,20 @@ module Game
     # Cards in a pack.
     SIZE = 5
 
+    # Unopened regular packs a player's bank holds (CAP-4, AD-7): bonus and
+    # reward packs are outside it.
+    BANK_SIZE = 10
+
+    # Time between two packs of the bank's schedule.
+    INTERVAL = 10.minutes
+
     has_secure_token :token
 
     enum :kind, { regular: "regular", bonus: "bonus", reward: "reward" }, validate: true
 
     scope :unopened, -> { where(opened_at: nil) }
+    # The bank: the player's unopened regular packs, available or scheduled.
+    scope :bank, ->(player_id) { regular.unopened.where(player_id:) }
     # Unopened and available at `now`, the next one to open first.
     scope :available, ->(now = Time.current) { unopened.where(available_at: ..now).order(:available_at, :id) }
 
