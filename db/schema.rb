@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_02_154023) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_02_154025) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -19,8 +19,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_154023) do
     t.string "token", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "role", default: "player", null: false
+    t.datetime "banned_at"
     t.index ["steam_id"], name: "index_accounts_players_on_steam_id", unique: true
     t.index ["token"], name: "index_accounts_players_on_token", unique: true
+    t.check_constraint "role::text = 'player'::text OR role::text = 'moderator'::text OR role::text = 'administrator'::text", name: "accounts_players_role_check"
   end
 
   create_table "event_store_events", force: :cascade do |t|

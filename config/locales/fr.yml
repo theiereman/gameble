@@ -25,9 +25,15 @@ fr:
       welcome: "Bienvenue dans les rangs, Confrère. La Confrérie a inscrit ton nom au grand registre."
     destroy:
       farewell: "Tu as quitté les rangs, Confrère. Les coffres te gardent ta place au chaud."
+  authorization:
+    sign_in_required: "Seuls les Confrères enrôlés peuvent faire cela. Enrôle-toi d'abord via Steam."
+    forbidden: "Cet ordre dépasse ton grade, Confrère. Les coffres restent fermés."
   errors:
     accounts:
       invalid_steam_id: "Les scribes n'ont pas pu lire cette identité, Confrère. Enrôle-toi à nouveau."
+      banned: "La Confrérie a rayé ton nom du registre. Les coffres te restent fermés."
+    game:
+      player_required: "Seul un Confrère enrôlé et en règle peut faire cela."
     steam:
       invalid_claimed_id: "Les scribes ne reconnaissent pas les papiers que tu rapportes, Confrère. Enrôle-toi à nouveau."
       sign_in_failed: "L'enrôlement a échoué, Confrère. Tes papiers n'ont pas été tamponnés ; réessaie."

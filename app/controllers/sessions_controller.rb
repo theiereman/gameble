@@ -15,6 +15,7 @@ class SessionsController < ApplicationController
 
   # GET /auth/steam/callback, after OmniAuth has verified the response.
   def create
+    authorize :session
     return fail_sign_in("errors.steam.sign_in_failed") unless session.delete(SIGN_IN_STARTED)
 
     result = Steam::SignInIdentity.steam_id_from(request.env["omniauth.auth"])
@@ -31,12 +32,14 @@ class SessionsController < ApplicationController
   # GET /auth/failure: Steam refused, the visitor cancelled, or the response
   # did not verify.
   def failure
+    authorize :session
     session.delete(SIGN_IN_STARTED)
     fail_sign_in("errors.steam.sign_in_failed")
   end
 
   # DELETE /session
   def destroy
+    authorize :session
     reset_session
     redirect_to home_path, notice: t(".farewell")
   end

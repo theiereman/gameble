@@ -24,6 +24,11 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
   end
 
+  # The players created by these tests, beside the fixture players.
+  def new_players
+    Accounts::Player.where.not(id: accounts_players.map(&:id))
+  end
+
   def registered_events
     Rails.configuration.event_store.read.of_type(Accounts::PlayerRegistered).to_a
   end
@@ -35,7 +40,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "a first sign-in creates the player, publishes PlayerRegistered and keeps the player id in the session" do
     sign_in_with_steam
 
-    player = Accounts::Player.sole
+    player = new_players.sole
     assert_equal STEAM_ID, player.steam_id
     assert_predicate player.token, :present?
     assert_equal [ { player_id: player.id } ], registered_events.map(&:data)
@@ -54,10 +59,10 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     delete session_path(locale: :en)
     sign_in_with_steam
 
-    assert_equal 1, Accounts::Player.count
+    assert_equal 1, new_players.count
     assert_equal 1, registered_events.size
     assert_equal first_id, signed_in_player_id
-    assert_equal Accounts::Player.sole.id, signed_in_player_id
+    assert_equal new_players.sole.id, signed_in_player_id
   end
 
   test "signing in resets the session against fixation and keeps only the player id" do
@@ -83,7 +88,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     sign_in_with_steam
 
-    assert_equal 0, Accounts::Player.count
+    assert_equal 0, new_players.count
     assert_empty registered_events
     assert_nil signed_in_player_id
     assert_redirected_to home_path(locale: :en)
@@ -98,7 +103,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to %r{\A/auth/failure\?message=invalid_credentials}
     follow_redirect!
 
-    assert_equal 0, Accounts::Player.count
+    assert_equal 0, new_players.count
     assert_nil signed_in_player_id
     assert_redirected_to home_path(locale: :fr)
     assert_equal I18n.t("errors.steam.sign_in_failed", locale: :fr), flash[:alert]
@@ -120,7 +125,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "a callback this browser did not start is refused" do
     get steam_callback_path
 
-    assert_equal 0, Accounts::Player.count
+    assert_equal 0, new_players.count
     assert_empty registered_events
     assert_nil signed_in_player_id
     assert_redirected_to home_path(locale: I18n.default_locale)
@@ -135,7 +140,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     get steam_callback_path
 
     assert_nil signed_in_player_id
-    assert_equal 1, Accounts::Player.count
+    assert_equal 1, new_players.count
   end
 
   test "a signed-in player stays signed in after a failure" do
@@ -190,7 +195,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     post "/auth/steam", params: { origin: "/en" }
 
     assert_redirected_to %r{/auth/failure\?message=ActionController%3A%3AInvalidAuthenticityToken}
-    assert_equal 0, Accounts::Player.count
+    assert_equal 0, new_players.count
   ensure
     ActionController::Base.allow_forgery_protection = false
   end
@@ -199,7 +204,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     get "/auth/steam"
 
     assert_response :not_found
-    assert_equal 0, Accounts::Player.count
+    assert_equal 0, new_players.count
   end
 
   test "signing out resets the session and shows the sign-in button again" do
@@ -223,6 +228,20 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       assert_select "input[name=origin][value='/fr']"
       assert_select "button.button--primary", "S'enrôler via Steam"
     end
+  end
+
+  test "a banned player's sign-in is refused and leaves the session as it was" do
+    mock_steam("https://steamcommunity.com/openid/id/#{accounts_players(:banned).steam_id}")
+    post "/auth/steam", params: { origin: "/fr" }
+    session_id_before = session[:session_id]
+
+    follow_redirect!
+
+    assert_equal session_id_before, session[:session_id]
+    assert_nil signed_in_player_id
+    assert_empty registered_events
+    assert_redirected_to home_path(locale: :fr)
+    assert_equal I18n.t("errors.accounts.banned", locale: :fr), flash[:alert]
   end
 
   test "a signed-in player sees the sign-out button" do

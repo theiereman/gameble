@@ -25,9 +25,15 @@ en:
       welcome: "Welcome to the ranks, Brother. The Brotherhood has entered your name in the great ledger."
     destroy:
       farewell: "You have stood down, Brother. The vaults will keep your seat warm."
+  authorization:
+    sign_in_required: "Only enlisted Brothers may do that. Enlist through Steam first."
+    forbidden: "That order is above your rank, Brother. The vaults stay shut."
   errors:
     accounts:
       invalid_steam_id: "The scribes could not read that identity, Brother. Enlist again."
+      banned: "The Brotherhood has struck your name from the ledger. The vaults stay shut to you."
+    game:
+      player_required: "Only an enlisted Brother in good standing may do that."
     steam:
       invalid_claimed_id: "The scribes could not recognise the papers you brought back, Brother. Enlist again."
       sign_in_failed: "The enlistment did not go through, Brother. Your papers were not stamped; try again."
