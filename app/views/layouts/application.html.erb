@@ -27,8 +27,22 @@
   <body>
     <header class="status-band" aria-label="<%= t(".status_band.label") %>">
       <section class="status-band__gauge" aria-label="<%= t(".status_band.gauge") %>"></section>
-      <section class="status-band__counters" aria-label="<%= t(".status_band.counters") %>"></section>
+      <section class="status-band__counters" aria-label="<%= t(".status_band.counters") %>">
+        <% if current_player %>
+          <%= render ButtonComponent.new(variant: :secondary, href: session_path, method: :delete) do %><%= t(".status_band.sign_out") %><% end %>
+        <% else %>
+          <%= render ButtonComponent.new(variant: :primary, href: "/auth/steam", method: :post, params: { origin: request.path }, turbo: false) do %><%= t(".status_band.sign_in") %><% end %>
+        <% end %>
+      </section>
     </header>
+
+    <% if flash.any? %>
+      <div class="flash" role="status">
+        <% flash.each do |type, message| %>
+          <p class="flash__message flash__message--<%= type %>"><%= message %></p>
+        <% end %>
+      </div>
+    <% end %>
 
     <main class="main">
       <%= yield %>

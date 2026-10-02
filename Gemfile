@@ -62,6 +62,13 @@ gem "view_component", "~> 4.15.0"
 # Pick the first-visit locale from the browser's Accept-Language (AD-18) [https://github.com/iain/http_accept_language]
 gem "http_accept_language", "~> 2.1.1"
 
+# Sign in with Steam over OpenID 2.0, POST-only and CSRF-protected (AD-14) [https://github.com/omniauth/omniauth]
+gem "omniauth", "~> 2.1.4"
+gem "omniauth-openid", "~> 2.0.2"
+gem "omniauth-rails_csrf_protection", "~> 2.0.1"
+# ruby-openid needs REXML, which Ruby 4 no longer bundles
+gem "rexml", "~> 3.4.4"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"

@@ -1,0 +1,235 @@
+require "test_helper"
+
+class SessionsControllerTest < ActionDispatch::IntegrationTest
+  STEAM_ID = "76561197960287930".freeze
+  CLAIMED_ID = "https://steamcommunity.com/openid/id/#{STEAM_ID}".freeze
+
+  setup do
+    OmniAuth.config.test_mode = true
+    mock_steam(CLAIMED_ID)
+  end
+
+  teardown do
+    OmniAuth.config.mock_auth.delete(:steam)
+    OmniAuth.config.test_mode = false
+  end
+
+  def mock_steam(uid)
+    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: uid)
+  end
+
+  def sign_in_with_steam(origin: "/en")
+    post "/auth/steam", params: { origin: origin }
+    assert_redirected_to "http://www.example.com/auth/steam/callback"
+    follow_redirect!
+  end
+
+  def registered_events
+    Rails.configuration.event_store.read.of_type(Accounts::PlayerRegistered).to_a
+  end
+
+  def signed_in_player_id
+    session[:player_id]
+  end
+
+  test "a first sign-in creates the player, publishes PlayerRegistered and keeps the player id in the session" do
+    sign_in_with_steam
+
+    player = Accounts::Player.sole
+    assert_equal STEAM_ID, player.steam_id
+    assert_predicate player.token, :present?
+    assert_equal [ { player_id: player.id } ], registered_events.map(&:data)
+    assert_equal player.id, signed_in_player_id
+    assert_redirected_to home_path(locale: :en)
+    assert_equal "Welcome to the ranks, Brother. The Brotherhood has entered your name in the great ledger.", flash[:notice]
+
+    follow_redirect!
+    assert_select ".flash .flash__message--notice", flash[:notice]
+  end
+
+  test "signing in twice with the same Steam id keeps one player and the same session id" do
+    sign_in_with_steam
+    first_id = signed_in_player_id
+
+    delete session_path(locale: :en)
+    sign_in_with_steam
+
+    assert_equal 1, Accounts::Player.count
+    assert_equal 1, registered_events.size
+    assert_equal first_id, signed_in_player_id
+    assert_equal Accounts::Player.sole.id, signed_in_player_id
+  end
+
+  test "signing in resets the session against fixation and keeps only the player id" do
+    post "/auth/steam", params: { origin: "/en" }
+    session_id_before = session[:session_id]
+    assert session_id_before
+
+    follow_redirect!
+
+    assert_not_equal session_id_before, session[:session_id]
+    assert_equal %w[flash player_id session_id], session.to_hash.keys.sort
+  end
+
+  test "the welcome follows the locale the sign-in started from" do
+    sign_in_with_steam(origin: "/fr")
+
+    assert_redirected_to home_path(locale: :fr)
+    assert_equal "Bienvenue dans les rangs, Confrère. La Confrérie a inscrit ton nom au grand registre.", flash[:notice]
+  end
+
+  test "a malformed claimed id signs nobody in" do
+    mock_steam("https://evil.example/openid/id/123")
+
+    sign_in_with_steam
+
+    assert_equal 0, Accounts::Player.count
+    assert_empty registered_events
+    assert_nil signed_in_player_id
+    assert_redirected_to home_path(locale: :en)
+    assert_equal I18n.t("errors.steam.invalid_claimed_id", locale: :en), flash[:alert]
+  end
+
+  test "an OpenID failure lands on the failure endpoint and signs nobody in" do
+    OmniAuth.config.mock_auth[:steam] = :invalid_credentials
+
+    post "/auth/steam", params: { origin: "/fr" }
+    follow_redirect!
+    assert_redirected_to %r{\A/auth/failure\?message=invalid_credentials}
+    follow_redirect!
+
+    assert_equal 0, Accounts::Player.count
+    assert_nil signed_in_player_id
+    assert_redirected_to home_path(locale: :fr)
+    assert_equal I18n.t("errors.steam.sign_in_failed", locale: :fr), flash[:alert]
+  end
+
+  test "the failure endpoint without an origin answers in the default locale" do
+    get auth_failure_path(message: "invalid_credentials")
+
+    assert_redirected_to home_path(locale: I18n.default_locale)
+    assert_equal I18n.t("errors.steam.sign_in_failed", locale: I18n.default_locale), flash[:alert]
+  end
+
+  test "the failure endpoint ignores a foreign origin" do
+    get auth_failure_path(message: "invalid_credentials", origin: "https://evil.example/fr")
+
+    assert_redirected_to home_path(locale: I18n.default_locale)
+  end
+
+  test "a callback this browser did not start is refused" do
+    get steam_callback_path
+
+    assert_equal 0, Accounts::Player.count
+    assert_empty registered_events
+    assert_nil signed_in_player_id
+    assert_redirected_to home_path(locale: I18n.default_locale)
+    assert_equal I18n.t("errors.steam.sign_in_failed", locale: I18n.default_locale), flash[:alert]
+  end
+
+  test "the sign-in marker is consumed by the callback" do
+    sign_in_with_steam
+    delete session_path(locale: :en)
+    mock_steam("https://steamcommunity.com/openid/id/76561197960287931")
+
+    get steam_callback_path
+
+    assert_nil signed_in_player_id
+    assert_equal 1, Accounts::Player.count
+  end
+
+  test "a signed-in player stays signed in after a failure" do
+    sign_in_with_steam
+    player_id = signed_in_player_id
+
+    get auth_failure_path(message: "invalid_credentials")
+
+    assert_equal player_id, signed_in_player_id
+    assert_equal I18n.t("errors.steam.sign_in_failed", locale: I18n.default_locale), flash[:alert]
+  end
+
+  test "a signed-in player stays signed in after a refused callback" do
+    sign_in_with_steam
+    player_id = signed_in_player_id
+    mock_steam("https://evil.example/openid/id/123")
+
+    sign_in_with_steam
+
+    assert_equal player_id, signed_in_player_id
+  end
+
+  test "a sign-in returns to the local page it started on" do
+    sign_in_with_steam(origin: "/fr/some/page")
+
+    assert_redirected_to "/fr/some/page"
+    assert_equal I18n.t("sessions.create.welcome", locale: :fr), flash[:notice]
+  end
+
+  test "a refused sign-in returns to the local page it started on" do
+    OmniAuth.config.mock_auth[:steam] = :invalid_credentials
+
+    post "/auth/steam", params: { origin: "/fr/some/page" }
+    follow_redirect!
+    follow_redirect!
+
+    assert_redirected_to "/fr/some/page"
+    assert_equal I18n.t("errors.steam.sign_in_failed", locale: :fr), flash[:alert]
+  end
+
+  [ "https://evil.example/fr", "//evil.example/fr", "/\\evil.example", "/de/page", "fr/page", "/frx" ].each do |origin|
+    test "a sign-in started from #{origin.inspect} returns home" do
+      sign_in_with_steam(origin: origin)
+
+      assert_redirected_to home_path(locale: I18n.default_locale)
+    end
+  end
+
+  test "the sign-in POST without a CSRF token is refused" do
+    ActionController::Base.allow_forgery_protection = true
+
+    post "/auth/steam", params: { origin: "/en" }
+
+    assert_redirected_to %r{/auth/failure\?message=ActionController%3A%3AInvalidAuthenticityToken}
+    assert_equal 0, Accounts::Player.count
+  ensure
+    ActionController::Base.allow_forgery_protection = false
+  end
+
+  test "the sign-in does not start by GET" do
+    get "/auth/steam"
+
+    assert_response :not_found
+    assert_equal 0, Accounts::Player.count
+  end
+
+  test "signing out resets the session and shows the sign-in button again" do
+    sign_in_with_steam
+    follow_redirect!
+    assert_select ".status-band__counters form[action=?] input[name=_method][value=delete]", "/session?locale=en"
+
+    delete session_path(locale: :en)
+
+    assert_nil signed_in_player_id
+    assert_redirected_to home_path(locale: :en)
+    follow_redirect!
+    assert_select ".status-band__counters form[action='/auth/steam'][method=post] button", "Enlist through Steam"
+    assert_select ".status-band__counters form[action^='/session']", false
+  end
+
+  test "a signed-out visitor sees the Steam sign-in button as a POST form" do
+    get home_path(locale: :fr)
+
+    assert_select ".status-band__counters form[action='/auth/steam'][method=post][data-turbo=false]" do
+      assert_select "input[name=origin][value='/fr']"
+      assert_select "button.button--primary", "S'enrôler via Steam"
+    end
+  end
+
+  test "a signed-in player sees the sign-out button" do
+    sign_in_with_steam
+    get home_path(locale: :fr)
+
+    assert_select ".status-band__counters form[action=?] button.button--secondary", "/session?locale=fr", text: "Quitter les rangs"
+    assert_select ".status-band__counters form[action='/auth/steam']", false
+  end
+end

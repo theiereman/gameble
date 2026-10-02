@@ -102,3 +102,34 @@ h1 {
   background: var(--color-surface);
   color: var(--color-ink);
 }
+
+/* A one-button form (sign-in, sign-out) sits inline like a link button. */
+.button-form {
+  display: inline-block;
+  margin: 0;
+}
+
+.status-band__counters .button {
+  margin: 0;
+}
+
+/* Flash messages, between the status band and the main region. */
+.flash {
+  padding: var(--space-3) var(--space-5) 0;
+}
+
+.flash__message {
+  margin: 0;
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border: var(--space-unit) solid var(--color-ink);
+}
+
+.flash__message--alert {
+  border-color: var(--color-danger);
+}
+
+.flash__message--notice {
+  border-color: var(--color-success);
+}
