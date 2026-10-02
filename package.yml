@@ -2,6 +2,7 @@
 # no pack may reference it (AD-2).
 enforce_dependencies: true
 dependencies:
+  - lib
   - packs/accounts
   - packs/catalog
   - packs/game

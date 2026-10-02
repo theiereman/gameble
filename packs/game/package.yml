@@ -1,5 +1,6 @@
 # AD-2: Game -> Catalog, Accounts.
 enforce_dependencies: true
 dependencies:
+  - lib
   - packs/accounts
   - packs/catalog
