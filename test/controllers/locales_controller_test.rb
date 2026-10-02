@@ -7,6 +7,12 @@ class LocalesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/fr"
   end
 
+  test "the redirect tells caches it depends on the browser language" do
+    get "/", headers: { "Accept-Language" => "fr-FR" }
+
+    assert_includes response.headers["Vary"].to_s.split(/,\s*/), "Accept-Language"
+  end
+
   test "a browser preferring English goes to the English pages" do
     get "/", headers: { "Accept-Language" => "en-US,en;q=0.9,fr;q=0.5" }
 

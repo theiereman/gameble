@@ -3,6 +3,9 @@ class LocalesController < ApplicationController
   def redirect
     authorize :page, :show?
     locale = http_accept_language.compatible_language_from(I18n.available_locales) || I18n.default_locale
+    # The target depends on the browser's language: tell shared caches that
+    # honour Vary. Cloudflare does not key on it (deferred-work.md).
+    response.headers["Vary"] = [ response.headers["Vary"], "Accept-Language" ].compact_blank.join(", ")
     redirect_to home_path(locale: locale)
   end
 end
