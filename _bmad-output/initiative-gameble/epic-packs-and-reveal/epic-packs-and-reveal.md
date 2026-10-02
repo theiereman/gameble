@@ -62,4 +62,5 @@ The pack bank, draws and holdings in `Game`, the attic screen, the reveal React 
 - Decision (2026-10-02): two lanes after the tracer: the game rules (2, 3, 7, 9) and the art (4, 5, 6); the reveal (6) joins both.
 - Decision (2026-10-02): a JavaScript test runner (Vitest) is added with the image filter (story 4), recorded in the Stack table per AD-20.
 - Decision (2026-10-02): a closing refactor sweep (story 10) follows every other story.
+- Decision (2026-10-02): the reveal (story 6) takes its card count from the pack: a daily bonus pack has three cards (story 7).
 - Unknown: the final art of the attic; the author generates it from `ux-gameble/art-prompts.md`.
