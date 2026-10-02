@@ -69,6 +69,7 @@ production:
   primary: &primary_production
     <<: *default
     database: gameble_production
+    host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
     username: gameble
     password: <%= ENV["GAMEBLE_DATABASE_PASSWORD"] %>
   cache:
