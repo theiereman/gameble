@@ -1,0 +1,8 @@
+# The root package is the web layer (AD-1). It may reference every pack;
+# no pack may reference it (AD-2).
+enforce_dependencies: true
+dependencies:
+  - packs/accounts
+  - packs/catalog
+  - packs/game
+  - packs/steam

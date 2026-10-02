@@ -4,9 +4,12 @@ CI.run do
   step "Setup", "bin/setup --skip-server"
 
   step "Style: Ruby", "bin/rubocop"
+  step "Boundaries: Packwerk", "bundle exec packwerk validate && bundle exec packwerk check"
+  step "Translations: missing keys", "bundle exec i18n-tasks missing"
 
   step "Security: Gem audit", "bin/bundler-audit"
   step "Security: Brakeman code analysis", "bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error"
+  step "Migrations: safety", "env RAILS_ENV=test bin/rails db:drop db:create db:migrate && git diff --exit-code -- db/schema.rb"
   step "Tests: Rails", "bin/rails test"
   step "Tests: Seeds", "env RAILS_ENV=test bin/rails db:seed:replant"
 
