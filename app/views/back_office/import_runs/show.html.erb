@@ -23,6 +23,22 @@
           <dt><%= t(".apps_excluded") %></dt>
           <dd data-import-run-apps-excluded="<%= @import_run.apps_excluded %>"><%= number_with_delimiter(@import_run.apps_excluded) %></dd>
         <% end %>
+        <% if @import_run.reached?("tags") %>
+          <dt><%= t(".tags_named") %></dt>
+          <dd data-import-run-tags-named="<%= @import_run.tags_named %>"><%= number_with_delimiter(@import_run.tags_named) %></dd>
+        <% end %>
+        <% if @import_run.reached?("details") %>
+          <dt><%= t(".apps_detailed") %></dt>
+          <dd data-import-run-apps-detailed="<%= @import_run.apps_detailed %>"><%= number_with_delimiter(@import_run.apps_detailed) %></dd>
+          <dt><%= t(".apps_excluded_details") %></dt>
+          <dd data-import-run-apps-excluded-details="<%= @import_run.apps_excluded_details %>"><%= number_with_delimiter(@import_run.apps_excluded_details) %></dd>
+        <% end %>
+        <% if @import_run.reached?("genres") %>
+          <dt><%= t(".apps_genred") %></dt>
+          <dd data-import-run-apps-genred="<%= @import_run.apps_genred %>"><%= number_with_delimiter(@import_run.apps_genred) %></dd>
+          <dt><%= t(".apps_excluded_genres") %></dt>
+          <dd data-import-run-apps-excluded-genres="<%= @import_run.apps_excluded_genres %>"><%= number_with_delimiter(@import_run.apps_excluded_genres) %></dd>
+        <% end %>
         <dt><%= t(".cursor") %></dt>
         <dd><%= @import_run.last_appid %></dd>
         <dt><%= t(".started_at") %></dt>

@@ -2,8 +2,8 @@ require "test_helper"
 require_relative "../support/steam_api_stubs"
 
 # The import job (AD-19): one page per job, the next page enqueued after the
-# commit, the app list handing over to the review pass, the run failed once
-# retries are spent, and a resumed run going on from its cursor without
+# commit, each step handing over to the next, the run failed once retries are
+# spent, the store's rate limit retried minutes apart, and a resumed run going on from its cursor without
 # duplicates.
 class SteamImportStepJobTest < ActiveJob::TestCase
   include SteamApiStubs
@@ -33,7 +33,8 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_equal 2, run.apps_listed
   end
 
-  test "the pages follow one another, the app list hands over to the review pass, and its last page completes the run" do
+  test "the pages follow one another, the app list hands over to the review pass, and the run goes through every step to the end" do
+    stub_get_tag_list
     stub_app_list_page(after: 0, appids: [ 10, 20 ], more: true)
     stub_app_list_page(after: 20, appids: [ 30, 40 ], more: true)
     stub_app_list_page(after: 40, appids: [ 50 ], more: false)
@@ -43,13 +44,14 @@ class SteamImportStepJobTest < ActiveJob::TestCase
 
     run.reload
     assert_predicate run, :completed?
-    assert_equal "reviews", run.step
+    assert_equal "genres", run.step
     assert_equal 5, run.apps_listed
     assert_equal 5, run.apps_reviewed
     assert_equal 2, run.apps_kept
     assert_equal 3, run.apps_excluded
-    assert_equal 50, run.last_appid
-    assert_equal 1, calls.size
+    assert_equal({ "step" => "genres", "last_appid" => 0 }, run.cursor, "review items carry no type: no game reached the genres")
+    assert_equal [ 2, 2 ], [ run.apps_detailed, run.apps_excluded_details ]
+    assert_equal 3, calls.size, "one review page, then one details page in English and in French"
     assert_equal [ 10, 20, 30, 40, 50 ], Steam::App.order(:appid).pluck(:appid)
     assert_equal [ 10, 50 ], Steam::App.kept_by(run).order(:appid).pluck(:appid)
     assert_no_enqueued_jobs
@@ -70,7 +72,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_equal "reviews", run.step
   end
 
-  test "a reviews page reviews 100 apps and enqueues the next; an empty page completes the run" do
+  test "a reviews page reviews 100 apps and enqueues the next; an empty page hands over to the tags" do
     run = start_run
     clear_enqueued_jobs
     appids = (1..150).to_a
@@ -89,10 +91,14 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_equal (101..150).to_a, calls.last["ids"].map { |id| id["appid"] }
     assert_equal 150, run.reload.last_appid
 
-    assert_no_enqueued_jobs { Steam::ImportStepJob.perform_now(run.id, run.reload.cursor) }
+    clear_enqueued_jobs
+    assert_enqueued_with(job: Steam::ImportStepJob, args: [ run.id, { "step" => "tags", "last_appid" => 0 } ]) do
+      Steam::ImportStepJob.perform_now(run.id, run.reload.cursor)
+    end
     assert_equal 2, calls.size
     run.reload
-    assert_predicate run, :completed?
+    assert_predicate run, :running?
+    assert_equal "tags", run.step
     assert_equal 150, run.apps_reviewed
     assert_equal 75, run.apps_kept
     assert_equal 75, run.apps_excluded
@@ -149,6 +155,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
 
     # Resumed, the run asks again for the page after its committed cursor.
     steam_stubs.clear
+    stub_get_tag_list
     stub_app_list_page(after: 20, appids: [ 30, 40 ], more: true)
     stub_app_list_page(after: 40, appids: [ 50 ], more: false)
     stub_get_items([ 10, 20, 30, 40, 50 ].index_with { |appid| reviewed_item(appid, 1000) })
@@ -226,11 +233,97 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_not_includes run.latest_errors.first.message, API_KEY
 
     steam_stubs.clear
+    stub_get_tag_list
     stub_get_items(10 => reviewed_item(10, 800), 20 => reviewed_item(20, 12))
     perform_enqueued_jobs { Steam::ResumeImport.new.call(import_run_id: run.id) }
 
     run.reload
     assert_predicate run, :completed?
     assert_equal [ 10 ], Steam::App.kept_by(run).pluck(:appid)
+  end
+
+  def genres_run_with(*appids)
+    run = Steam::ImportRun.create!(status: :running, step: "genres", cursor: { "step" => "genres", "last_appid" => 0 }, started_at: 1.minute.ago)
+    Steam::App.insert_all(appids.map { |appid| { appid: appid, name: "Game #{appid}", import_run_id: run.id, reviewed_run_id: run.id, details_run_id: run.id } })
+    run
+  end
+
+  test "the store's rate limit is retried three minutes later, and fails the run after three attempts" do
+    run = genres_run_with(10)
+    calls = 0
+    steam_stubs.get(SteamApiStubs::APP_DETAILS_PATH) do
+      calls += 1
+      [ 429, {}, "" ]
+    end
+
+    freeze_time do
+      Steam::ImportStepJob.perform_now(run.id, run.cursor)
+
+      retry_at = Time.zone.at(enqueued_jobs.sole.fetch(:at))
+      assert_operator retry_at, :>=, 3.minutes.from_now
+      assert_operator retry_at, :<, 4.minutes.from_now
+    end
+    assert_predicate run.reload, :running?
+
+    2.times { perform_enqueued_jobs }
+
+    run.reload
+    assert_predicate run, :failed?
+    assert_equal 3, calls, "three attempts, none retried inside the client"
+    assert_includes run.latest_errors.first.message, "Steam::StoreApi::RateLimited"
+    assert_equal({ "step" => "genres", "last_appid" => 0 }, run.cursor)
+    assert_no_enqueued_jobs
+  end
+
+  test "a malformed store answer is retried like any error, then fails the run" do
+    run = genres_run_with(10)
+    stub_app_details(10 => :null)
+
+    perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
+
+    assert_predicate run.reload, :failed?
+    assert_includes run.latest_errors.first.message, "Steam::StoreApi::Error"
+  end
+
+  test "a stale reviews job once the run is on the tags does nothing" do
+    run = Steam::ImportRun.create!(status: :running, step: "tags", cursor: { "step" => "tags", "last_appid" => 0 }, started_at: 1.minute.ago)
+    calls = stub_get_tag_list
+
+    assert_no_enqueued_jobs { Steam::ImportStepJob.perform_now(run.id, { "step" => "reviews", "last_appid" => 0 }) }
+
+    assert_empty calls
+    assert_equal "tags", run.reload.step
+  end
+
+  test "the tags page enqueues the first details page, which enqueues the first genres page once no game is left" do
+    run = Steam::ImportRun.create!(status: :running, step: "tags", cursor: { "step" => "tags", "last_appid" => 0 }, started_at: 1.minute.ago)
+    stub_get_tag_list
+
+    assert_enqueued_with(job: Steam::ImportStepJob, args: [ run.id, { "step" => "details", "last_appid" => 0 } ]) do
+      Steam::ImportStepJob.perform_now(run.id, run.cursor)
+    end
+    clear_enqueued_jobs
+    assert_enqueued_with(job: Steam::ImportStepJob, args: [ run.id, { "step" => "genres", "last_appid" => 0 } ]) do
+      Steam::ImportStepJob.perform_now(run.id, run.reload.cursor)
+    end
+  end
+
+  test "a full stubbed run keeps only the normal game ready, with all its card fields" do
+    stub_app_list_page(after: 0, appids: [ 10, 20, 30 ], more: false)
+    stub_get_tag_list
+    english = { 10 => detailed_item(10, reviews: 9_000), 20 => detailed_item(20, type: 4, reviews: 9_000), 30 => detailed_item(30, capsule: nil, reviews: 9_000) }
+    stub_get_items_by_language("english" => english, "french" => { 10 => french_item(10) })
+    stub_app_details(10 => app_details_entry(10))
+
+    run = perform_enqueued_jobs { start_run }
+
+    run.reload
+    assert_predicate run, :completed?
+    assert_equal [ 3, 3, 2, 1, 0 ], [ run.tags_named, run.apps_detailed, run.apps_excluded_details, run.apps_genred, run.apps_excluded_genres ]
+    app = Steam::App.ready_by(run).sole
+    assert_equal 10, app.appid
+    assert_equal [ "The best game 10.", "Le meilleur jeu 10." ], [ app.short_description_en, app.short_description_fr ]
+    assert_equal [ [ "Publisher 10" ], [ 492, 19 ], %w[action free_to_play] ], [ app.publishers, app.tag_ids, app.genres ]
+    assert [ app.name_en, app.name_fr, app.release_on, app.credit, app.store_url, app.image_url ].all?(&:present?)
   end
 end

@@ -16,6 +16,9 @@ module Steam
   #
   #   Steam::WebApi.new.get_items(appids: [ 10, 20 ], context: { language: "english", country_code: "US" }, data_request: { include_reviews: true })
   #   # => { 10 => { "appid" => 10, "success" => 1, "reviews" => { ... }, ... } }
+  #
+  #   Steam::WebApi.new.get_tag_list(language: "english")
+  #   # => [{ tagid: 19, name: "Action" }, ...]
   class WebApi
     BASE_URL = "https://api.steampowered.com".freeze
     REDACTED = "[FILTERED]".freeze
@@ -75,6 +78,25 @@ module Steam
         appid = (item["appid"] || item["id"]).to_i
         by_appid[appid] = item if requested.include?(appid)
       end
+    end
+
+    # Steam's store tags named in `language`, from IStoreService/GetTagList.
+    # An answer without a response object, without a tag list, or whose
+    # list names no tag raises.
+    def get_tag_list(language:)
+      body = get("/IStoreService/GetTagList/v1/", language: language)
+      response = body["response"] if body.is_a?(Hash)
+      raise Error, "GetTagList answered without a response object" unless response.is_a?(Hash)
+      raise Error, "GetTagList answered tags that are not a list" unless response["tags"].is_a?(Array)
+
+      tags = response["tags"].filter_map do |tag|
+        next unless tag.is_a?(Hash) && tag["tagid"].is_a?(Integer) && tag["name"].is_a?(String) && tag["name"].present?
+
+        { tagid: tag["tagid"], name: tag["name"].strip }
+      end
+      raise Error, "GetTagList answered no tag" if tags.empty?
+
+      tags
     end
 
     # Keeps the key out of inspections (consoles, error reports).

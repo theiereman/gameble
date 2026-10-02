@@ -9,8 +9,9 @@ module Steam
   class ImportRun < ApplicationRecord
     self.table_name = "steam_import_runs"
 
-    # The steps of a run, in order: the app list, then the review pass.
-    STEPS = %w[app_list reviews].freeze
+    # The steps of a run, in order: the app list, the review pass, the tag
+    # names, the store details of the kept games, then their genres.
+    STEPS = %w[app_list reviews tags details genres].freeze
     # The errors kept on a run, the latest last.
     ERROR_LIMIT = 20
 
@@ -78,6 +79,29 @@ module Steam
 
     def apps_excluded
       count_of("apps_excluded")
+    end
+
+    # Tags named by the tags step.
+    def tags_named
+      count_of("tags_named")
+    end
+
+    # Apps the details step looked at, and those it excluded.
+    def apps_detailed
+      count_of("apps_detailed")
+    end
+
+    def apps_excluded_details
+      count_of("apps_excluded_details")
+    end
+
+    # Apps the genres step looked at, and those it excluded.
+    def apps_genred
+      count_of("apps_genred")
+    end
+
+    def apps_excluded_genres
+      count_of("apps_excluded_genres")
     end
 
     def count_of(name)

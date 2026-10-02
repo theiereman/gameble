@@ -162,4 +162,25 @@ class Steam::WebApiTest < ActiveSupport::TestCase
       assert_not_includes error.message, API_KEY
     end
   end
+
+  # GetTagList
+
+  test "get_tag_list asks for the tags in the language, with the key, and returns them named" do
+    calls = stub_get_tag_list(19 => "Action", 492 => " Indie ")
+
+    tags = Steam::WebApi.new.get_tag_list(language: "english")
+
+    assert_equal [ { "language" => "english", "key" => API_KEY } ], calls
+    assert_equal [ { tagid: 19, name: "Action" }, { tagid: 492, name: "Indie" } ], tags
+  end
+
+  [ "not json", "{}", { "response" => [] }.to_json, { "response" => {} }.to_json, { "response" => { "tags" => {} } }.to_json,
+    { "response" => { "tags" => [] } }.to_json, { "response" => { "tags" => [ { "tagid" => "x" }, { "name" => "Action" } ] } }.to_json ].each do |body|
+    test "get_tag_list raises on a malformed or empty answer (#{body})" do
+      steam_stubs.get(TAG_LIST_PATH) { [ 200, { "Content-Type" => "application/json" }, body ] }
+
+      error = assert_raises(Steam::WebApi::Error) { Steam::WebApi.new.get_tag_list(language: "english") }
+      assert_not_includes error.message, API_KEY
+    end
+  end
 end
