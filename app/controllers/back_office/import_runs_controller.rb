@@ -1,12 +1,13 @@
 module BackOffice
   # The Steam import runs (R1, R2, AD-19), administrators only: the list of
   # runs, starting one, watching one, and resuming a failed one from its
-  # cursor. A run's page reloads its frame every few seconds while the run is
+  # cursor, or rescoring the latest completed one (its cards step again,
+  # after a change of the prestige formula). A run's page reloads its frame every few seconds while the run is
   # active (poller_controller.ts). Runs are addressed by their token (AD-15).
   class ImportRunsController < ApplicationController
-    rate_limit to: 10, within: 1.minute, only: %i[create resume]
+    rate_limit to: 10, within: 1.minute, only: %i[create resume rescore]
 
-    before_action :set_import_run, only: %i[show resume]
+    before_action :set_import_run, only: %i[show resume rescore]
 
     def index
       authorize [ :back_office, :import_runs ], :index?
@@ -15,6 +16,7 @@ module BackOffice
 
     def show
       authorize [ :back_office, :import_runs ], :show?
+      @rescorable = Steam::RescoreCards.refusal(@import_run).nil?
     end
 
     def create
@@ -36,6 +38,18 @@ module BackOffice
         redirect_to back_office_import_run_path(@import_run), notice: t(".resumed")
       else
         redirect_to back_office_import_run_path(@import_run), alert: Steam::ResumeImport.failure_message(result.failure)
+      end
+    end
+
+    def rescore
+      authorize [ :back_office, :import_runs ], :rescore?
+
+      result = Steam::RescoreCards.new.call(import_run_id: @import_run.id)
+      if result.success?
+        redirect_to back_office_import_run_path(@import_run), notice: t(".rescoring")
+      else
+        alert = result.failure == :run_in_progress ? t(".run_in_progress") : Steam::RescoreCards.failure_message(result.failure)
+        redirect_to back_office_import_run_path(@import_run), alert:
       end
     end
 

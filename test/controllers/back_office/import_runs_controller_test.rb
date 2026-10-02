@@ -310,6 +310,78 @@ module BackOffice
       assert_equal I18n.t("errors.steam.not_resumable", locale: :en), flash[:alert]
     end
 
+    test "the latest completed run's page offers to rescore its cards; an older or unfinished run's does not" do
+      sign_in(accounts_players(:administrator))
+      Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+      older = Steam::ImportRun.create!(status: :completed, step: "cards", created_at: 2.days.ago, finished_at: 2.days.ago)
+      latest = Steam::ImportRun.create!(status: :completed, step: "cards", finished_at: 1.minute.ago)
+
+      get back_office_import_run_path(latest, locale: :fr)
+
+      assert_select "form[action='/fr/back-office/import-runs/#{latest.token}/rescore'][data-turbo-confirm] button", "Recalculer les cartes"
+      assert_select "turbo-frame form[action$='/rescore']", false
+
+      get back_office_import_run_path(older, locale: :fr)
+      assert_select "form[action$='/rescore']", false
+
+      get back_office_import_run_path(failed_run, locale: :fr)
+      assert_select "form[action$='/rescore']", false
+    end
+
+    test "once the draft is published the latest run's page no longer offers to rescore" do
+      sign_in(accounts_players(:administrator))
+      run = Steam::ImportRun.create!(status: :completed, step: "cards", finished_at: 1.hour.ago)
+      Catalog::Season.create!(status: :published, number: Catalog::Season.next_number, published_at: 1.minute.ago)
+
+      get back_office_import_run_path(run, locale: :en)
+      assert_select "form[action$='/rescore']", false
+
+      Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+      get back_office_import_run_path(run, locale: :en)
+      assert_select "form[action$='/rescore']", false
+
+      assert_no_enqueued_jobs { post rescore_back_office_import_run_path(run, locale: :en) }
+      assert_equal I18n.t("errors.steam.already_published", locale: :en), flash[:alert]
+      assert_predicate run.reload, :completed?
+    end
+
+    test "rescoring while another run is unfinished has its own message" do
+      sign_in(accounts_players(:administrator))
+      Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+      Steam::ImportRun.create!(status: :running, step: "app_list", started_at: 1.day.ago, created_at: 1.day.ago)
+      run = Steam::ImportRun.create!(status: :completed, step: "cards", finished_at: 1.minute.ago)
+
+      assert_no_enqueued_jobs { post rescore_back_office_import_run_path(run, locale: :en) }
+
+      assert_equal I18n.t("back_office.import_runs.rescore.run_in_progress", locale: :en), flash[:alert]
+    end
+
+    test "an administrator rescores the latest completed run: it goes back on its cards step" do
+      sign_in(accounts_players(:administrator))
+      Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+      run = Steam::ImportRun.create!(status: :completed, step: "cards", cursor: { "step" => "cards", "last_appid" => 99 }, finished_at: 1.minute.ago)
+
+      assert_enqueued_with(job: Steam::ImportStepJob, args: [ run.id, { "step" => "cards", "last_appid" => 0 } ], queue: "import") do
+        post rescore_back_office_import_run_path(run, locale: :en)
+      end
+
+      assert_redirected_to back_office_import_run_path(run, locale: :en)
+      assert_equal I18n.t("back_office.import_runs.rescore.rescoring", locale: :en), flash[:notice]
+      assert_predicate run.reload, :running?
+      assert_equal "cards", run.step
+    end
+
+    test "rescoring a run that is not the latest completed one is refused" do
+      sign_in(accounts_players(:administrator))
+      run = failed_run
+
+      assert_no_enqueued_jobs { post rescore_back_office_import_run_path(run, locale: :en) }
+
+      assert_redirected_to back_office_import_run_path(run, locale: :en)
+      assert_equal I18n.t("errors.steam.not_completed", locale: :en), flash[:alert]
+      assert_predicate run.reload, :failed?
+    end
+
     test "the back-office links to the import for an administrator only" do
       sign_in(accounts_players(:administrator))
       get back_office_path(locale: :fr)
@@ -327,6 +399,7 @@ module BackOffice
       yield :get, back_office_import_run_path(run, locale: :fr)
       yield :post, back_office_import_runs_path(locale: :fr)
       yield :post, resume_back_office_import_run_path(run, locale: :fr)
+      yield :post, rescore_back_office_import_run_path(run, locale: :fr)
     end
 
     [ :player, :moderator ].each do |role|

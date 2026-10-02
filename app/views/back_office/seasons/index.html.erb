@@ -7,14 +7,6 @@
     <%= t(".intro") %>
   <% end %>
 
-  <% draft = @seasons.find(&:draft?) %>
-  <% if draft %>
-    <p>
-      <%= render ButtonComponent.new(variant: :primary, href: publish_back_office_seasons_path, method: :post, params: { number: draft.number },
-            confirm: t(".confirm", number: draft.number, count: draft.card_count)) do %><%= t(".publish", number: draft.number) %><% end %>
-    </p>
-  <% end %>
-
   <% if @seasons.empty? %>
     <%= render TextPlateComponent.new(tag: :p) do %>
       <%= t(".empty") %>
@@ -61,5 +53,22 @@
         <% end %>
       </tbody>
     </table>
+  <% end %>
+
+  <% draft = @seasons.find(&:draft?) %>
+  <% if draft %>
+    <% if @preview %>
+      <%= render "preview", preview: @preview, number: draft.number %>
+    <% end %>
+
+    <% if @import_unfinished %>
+      <%= render TextPlateComponent.new(tag: :p) do %>
+        <%= t("back_office.seasons.publish.import_active") %>
+      <% end %>
+    <% end %>
+    <p>
+      <%= render ButtonComponent.new(variant: :primary, href: publish_back_office_seasons_path, method: :post, params: { number: draft.number },
+            confirm: t(".confirm", number: draft.number, count: draft.card_count)) do %><%= t(".publish", number: draft.number) %><% end %>
+    </p>
   <% end %>
 </div>

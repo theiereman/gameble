@@ -1,0 +1,158 @@
+<%# What publishing the draft now would produce (Catalog::DraftPreview), for calibration. %>
+<section class="stack" aria-labelledby="draft-preview" data-preview>
+  <h2 id="draft-preview"><%= t(".heading", number:) %></h2>
+
+  <%= render TextPlateComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <% if preview.empty_season? %>
+    <%= render TextPlateComponent.new(tag: :p) do %>
+      <span data-preview-verdict="empty_season"><%= Catalog::PublishSeason.failure_message(:empty_season) %></span>
+    <% end %>
+  <% else %>
+    <h3><%= t(".scores") %></h3>
+    <p data-preview-card-count="<%= preview.card_count %>"><%= t(".card_count", count: preview.card_count, formatted: number_with_delimiter(preview.card_count)) %></p>
+    <table class="ledger">
+      <caption class="visually-hidden"><%= t(".scores_caption") %></caption>
+      <thead>
+        <tr>
+          <th scope="col"><%= t(".min") %></th>
+          <% preview.percentiles.each_key do |p| %>
+            <th scope="col"><%= t(".percentile", p:) %></th>
+          <% end %>
+          <th scope="col"><%= t(".max") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-preview-percentile="min"><%= number_with_precision(preview.min, precision: 3) %></td>
+          <% preview.percentiles.each do |p, score| %>
+            <td data-preview-percentile="p<%= p %>"><%= number_with_precision(score, precision: 3) %></td>
+          <% end %>
+          <td data-preview-percentile="max"><%= number_with_precision(preview.max, precision: 3) %></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3><%= t(".tiers") %></h3>
+    <% if preview.tiers %>
+      <table class="ledger">
+        <caption class="visually-hidden"><%= t(".tiers") %></caption>
+        <thead>
+          <tr>
+            <th scope="col"><%= t(".tier") %></th>
+            <th scope="col"><%= t(".cards") %></th>
+            <th scope="col"><%= t(".threshold") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% preview.tiers.each do |tier| %>
+            <% name = Catalog::Rarity::TIERS.fetch(tier.tier) %>
+            <tr>
+              <th scope="row"><%= t("catalog.rarity.#{name}") %></th>
+              <td data-preview-tier="<%= name %>"><%= number_with_delimiter(tier.card_count) %></td>
+              <% if tier.threshold %>
+                <td data-preview-threshold="<%= name %>"><%= number_with_precision(tier.threshold, precision: 3) %></td>
+              <% else %>
+                <td>—</td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <%= render TextPlateComponent.new(tag: :p) do %>
+        <span data-preview-verdict="empty_tier"><%= Catalog::PublishSeason.failure_message(:empty_tier) %></span>
+      <% end %>
+    <% end %>
+
+    <h3><%= t(".dust") %></h3>
+    <table class="ledger">
+      <caption class="visually-hidden"><%= t(".dust") %></caption>
+      <thead>
+        <tr>
+          <th scope="col"><%= t(".dust_level") %></th>
+          <th scope="col"><%= t(".share") %></th>
+          <th scope="col"><%= t(".cards") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% preview.dust.each do |level, count| %>
+          <% name = Catalog::Dust::LEVELS.fetch(level) %>
+          <tr>
+            <th scope="row"><%= t(".dust_levels.#{name}") %></th>
+            <td data-preview-dust="<%= name %>"><%= number_to_percentage(count * 100.0 / preview.card_count, precision: 1) %></td>
+            <td><%= number_with_delimiter(count) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% [ [ :top, preview.top, t(".top", count: preview.top.size) ], [ :bottom, preview.bottom, t(".bottom", count: preview.bottom.size) ] ].each do |end_name, entries, heading| %>
+      <h3><%= heading %></h3>
+      <table class="ledger">
+        <caption class="visually-hidden"><%= heading %></caption>
+        <thead>
+          <tr>
+            <th scope="col"><%= t(".rank") %></th>
+            <th scope="col"><%= t(".title") %></th>
+            <th scope="col"><%= t(".rating") %></th>
+            <th scope="col"><%= t(".prestige_score") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% entries.each.with_index(1) do |entry, rank| %>
+            <tr data-preview-<%= end_name %>="<%= rank %>">
+              <td><%= rank %></td>
+              <td><%= entry.title || "—" %></td>
+              <td><%= number_to_percentage(entry.rating, precision: 0) %></td>
+              <td><%= number_with_precision(entry.prestige_score, precision: 3) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
+    <h3><%= t(".genres") %></h3>
+    <table class="ledger">
+      <caption class="visually-hidden"><%= t(".genres") %></caption>
+      <thead>
+        <tr>
+          <th scope="col"><%= t(".genre") %></th>
+          <th scope="col"><%= t(".cards") %></th>
+          <th scope="col"><%= t(".tomes") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% preview.genres.each do |genre| %>
+          <% key = genre.genre || "none" %>
+          <tr data-preview-genre="<%= key %>">
+            <th scope="row"><code><%= key %></code></th>
+            <td><%= number_with_delimiter(genre.card_count) %></td>
+            <td><%= number_with_delimiter(genre.tome_count) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <h3><%= t(".sets") %></h3>
+    <table class="ledger">
+      <caption class="visually-hidden"><%= t(".sets") %></caption>
+      <thead>
+        <tr>
+          <% preview.set_counts.each_key do |kind| %>
+            <th scope="col"><%= t("back_office.seasons.index.sets.#{kind}") %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <% preview.set_counts.each do |kind, count| %>
+            <td data-preview-set-kind="<%= kind.dasherize %>"><%= number_with_delimiter(count) %></td>
+          <% end %>
+        </tr>
+      </tbody>
+    </table>
+  <% end %>
+</section>
