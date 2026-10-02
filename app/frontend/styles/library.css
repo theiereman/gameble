@@ -1,0 +1,129 @@
+/*
+ * The library (DESIGN.md: a decorated room; composition from
+ * mockups/key-screens.html, library()): a panelled wall of brass wood, the
+ * tabs of the three kinds of sets on parchment, the tomes standing on a
+ * dark wooden shelf in leather bindings, and the page links below. Hard
+ * edges and ink shadows on the 2px grid.
+ */
+
+.library {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: calc(1000px + 2 * var(--space-unit));
+  margin: 0 auto;
+}
+
+.library__heading {
+  margin: 0;
+}
+
+/* The room: wood panels, a plank every 64px, a skirting at the bottom. */
+.library__room {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: var(--space-unit) solid var(--color-ink);
+  box-shadow: var(--shadow-hard);
+  background:
+    linear-gradient(var(--color-brass-dark) 0 0) bottom / 100% var(--space-4) no-repeat,
+    repeating-linear-gradient(to right, var(--color-brass) 0 62px, var(--color-brass-dark) 62px 64px),
+    var(--color-brass);
+}
+
+/* Tabs: parchment plates, the open one in rust. */
+.library__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.library__tab {
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  border: var(--space-unit) solid var(--color-ink);
+  box-shadow: var(--shadow-hard);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+  text-decoration: none;
+}
+
+.library__tab[aria-current="page"] {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+/* The shelf: dark wood holding the tomes, a plank under every row. */
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-3) var(--space-2);
+  margin: 0;
+  padding: var(--space-3);
+  list-style: none;
+  border: var(--space-unit) solid var(--color-ink);
+  background: var(--color-brass-dark);
+}
+
+/* A tome: a leather binding, its name and owned / total on it. */
+.tome {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  border: var(--space-unit) solid var(--color-ink);
+  border-bottom-width: calc(3 * var(--space-unit));
+  background: var(--color-leather);
+  color: var(--color-on-accent);
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+}
+
+.tome__name {
+  overflow-wrap: anywhere;
+}
+
+.tome__count {
+  flex: none;
+  padding: 0 var(--space-2);
+  background: var(--color-leather-dark);
+}
+
+/* Pagy's page links, as small parchment plates. */
+.library .series-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.library .series-nav a {
+  min-width: 32px;
+  padding: var(--plate-padding-y) var(--space-3);
+  border: var(--space-unit) solid var(--color-ink);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+  text-align: center;
+  text-decoration: none;
+}
+
+.library .series-nav a[href] {
+  box-shadow: var(--shadow-hard);
+}
+
+.library .series-nav a[aria-current="page"] {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.library .series-nav a[aria-disabled="true"]:not([aria-current]) {
+  color: var(--color-ink-muted);
+}

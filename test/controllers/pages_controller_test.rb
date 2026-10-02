@@ -28,8 +28,16 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".attic__object", 6
     assert_equal OBJECT_NAMES.fetch(locale), css_select(".attic__object .attic__name").map(&:text)
     assert_select ".attic__object--chest[data-attic-target=chest]"
-    # Only the chest acts: its one button opens a pack.
-    assert_select ".attic__object:not(.attic__object--chest) a, .attic__object:not(.attic__object--chest) button", false
+    # Only the lectern holds a link, its art and name, to the library; the
+    # chest's one button opens a pack; no other object acts.
+    lectern = css_select(".attic__object--lectern a").sole
+    assert_equal "/#{locale}/library", lectern["href"]
+    assert_equal [ "attic__link" ], lectern.classes
+    assert_equal "false", lectern["data-turbo-prefetch"]
+    assert_equal OBJECT_NAMES.fetch(locale).first, lectern.at_css(".attic__name").text
+    assert lectern.at_css(".attic__art[aria-hidden=true]")
+    assert_select ".attic__object a", 1
+    assert_select ".attic__object:not(.attic__object--chest) button", false
     assert_select ".attic__object--chest .attic__chest-action button", 1
   end
 

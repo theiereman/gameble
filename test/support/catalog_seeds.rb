@@ -41,6 +41,25 @@ module CatalogSeeds
     seed_card_seasons(distinct_scores(150), release_dates:, publishers:, genres:, ratings:)
   end
 
+  # The sets acceptance draft, published (the newest published season): its
+  # sets are built by Catalog::PublishSeason. Returns the season.
+  def publish_sets_draft
+    season = seed_sets_draft
+    assert Catalog::PublishSeason.new.call(number: season.number).success?
+    season.reload
+  end
+
+  # A new published season (the next number) holding exactly these sets,
+  # without members: `sets` is [ [ kind, key, params ], … ]. Written with
+  # insert_all, as a published season's sets can no longer be created.
+  # Returns the season.
+  def seed_published_sets(sets)
+    season = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    season.update!(status: :published, published_at: Time.current)
+    Catalog::Set.insert_all!(sets.map { |kind, key, params| { season_id: season.id, kind:, key:, params: } }) if sets.any?
+    season
+  end
+
   # `count` distinct scores, the highest first: count, count - 1, … 1.
   def distinct_scores(count)
     Array.new(count) { |index| (count - index).to_f }

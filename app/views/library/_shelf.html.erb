@@ -1,0 +1,39 @@
+<%# A shelf of sets (CAP-6): the tabs of the three kinds, the tomes of one
+    page with their name and owned / total, and the links to the other pages.
+    Spines are not links yet. Locals:
+    - kind: the open tab, one of LibraryController::KINDS;
+    - spines: LibraryController::Spine list, nil when no season is published;
+    - pagy: the page (nil without a season);
+    - tab_url: a lambda giving a tab's URL from its kind. %>
+<div class="library__room">
+  <% if spines.nil? %>
+    <%= render TextPlateComponent.new(tag: :p) do %><%= t("library.show.no_season") %><% end %>
+  <% else %>
+    <nav class="library__tabs" aria-label="<%= t("library.show.tabs.label") %>">
+      <% LibraryController::KINDS.each do |tab| %>
+        <%= link_to t("library.show.tabs.#{tab}"), tab_url.call(tab), class: "library__tab", aria: { current: ("page" if tab == kind) } %>
+      <% end %>
+    </nav>
+
+    <% if spines.empty? %>
+      <%= render TextPlateComponent.new(tag: :p) do %>
+        <%= pagy.count.zero? ? t("library.show.empty.#{kind}") : t("library.show.past_the_end") %>
+      <% end %>
+    <% else %>
+      <ol class="shelf" aria-label="<%= t("library.show.tabs.#{kind}") %>">
+        <% spines.each do |spine| %>
+          <li class="tome">
+            <span class="tome__name"><%= spine.label %></span>
+            <span class="tome__count" aria-hidden="true"><%= spine.owned %> / <%= spine.total %></span>
+            <span class="visually-hidden"><%= t("library.show.progress", count: spine.owned, total: spine.total) %></span>
+          </li>
+        <% end %>
+      </ol>
+    <% end %>
+
+    <% if pagy.count.positive? && (pagy.last > 1 || spines.empty?) %>
+      <%# Pagy writes its links escaped, from its own dictionary (the pagy keys of the locale files). %>
+      <%= pagy.series_nav.html_safe %>
+    <% end %>
+  <% end %>
+</div>

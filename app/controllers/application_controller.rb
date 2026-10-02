@@ -16,9 +16,12 @@ class ApplicationController < ActionController::Base
   helper_method :current_player
 
   private
-    # Each request runs in the locale of its URL (AD-18).
+    # Each request runs in the locale of its URL (AD-18), Pagy's links
+    # included: its locale is per thread, so it is set on every request.
     def switch_locale(&action)
-      I18n.with_locale(current_locale, &action)
+      locale = current_locale
+      Pagy::I18n.locale = locale
+      I18n.with_locale(locale, &action)
     end
 
     def current_locale

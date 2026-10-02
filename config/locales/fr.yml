@@ -198,6 +198,25 @@ fr:
       back_to_attic: "Retour au grenier"
       failed: "La révélation a trébuché, Confrère. Tes cartes sont à l'abri dans ta collection."
       reload: "Voir mes cartes"
+  library:
+    show:
+      heading: "La bibliothèque de la Confrérie"
+      tabs:
+        label: "Les sortes de collections"
+        tome: "Tomes"
+        publisher: "Éditeurs"
+        best_of_year: "Les mieux notés de l'année"
+      # French keeps the singular for 0, which the plural rule here does not.
+      progress:
+        zero: "%{count} carte possédée sur %{total}"
+        one: "%{count} carte possédée sur %{total}"
+        other: "%{count} cartes possédées sur %{total}"
+      empty:
+        tome: "Aucun tome ne se dresse encore sur ces étagères, Confrère. Cette saison n'en relie aucun."
+        publisher: "Aucun éditeur n'a mérité sa collection cette saison, Confrère."
+        best_of_year: "Aucune année n'a vu ses meilleurs reliés cette saison, Confrère."
+      past_the_end: "Cette étagère est vide, Confrère. Les tomes s'arrêtent sur une étagère précédente."
+      no_season: "Les étagères sont nues, Confrère : la Confrérie n'a encore publié aucune saison de cartes."
   daily_bonuses:
     create:
       collected: "Le booster du jour est dans le coffre, Confrère. Ouvre-le quand tu veux."
@@ -213,6 +232,44 @@ fr:
       sapphire: "Saphir"
       amethyst: "Améthyste"
       gold: "Or"
+    sets:
+      tome: "%{genre} · Tome %{volume}"
+      best_of_year: "Les mieux notés de %{year}"
+    # Steam's genres, by key (Steam::GenresPolicy); SetLabel humanises any other.
+    genres:
+      action: "Action"
+      adventure: "Aventure"
+      casual: "Occasionnel"
+      indie: "Indépendant"
+      massively_multiplayer: "Massivement multijoueur"
+      racing: "Course"
+      rpg: "RPG"
+      simulation: "Simulation"
+      sports: "Sport"
+      strategy: "Stratégie"
+      free_to_play: "Gratuit"
+      early_access: "Accès anticipé"
+      violent: "Violent"
+      gore: "Gore"
+      nudity: "Nudité"
+      sexual_content: "Contenu sexuel"
+      utilities: "Utilitaires"
+      education: "Éducation"
+      design_illustration: "Design et illustration"
+      animation_modeling: "Animation et modélisation"
+      audio_production: "Production audio"
+      video_production: "Production vidéo"
+      photo_editing: "Retouche photo"
+      software_training: "Formation aux logiciels"
+      web_publishing: "Publication web"
+      game_development: "Développement de jeux"
+      accounting: "Comptabilité"
+      movie: "Film"
+      documentary: "Documentaire"
+      episodic: "Épisodique"
+      short: "Court métrage"
+      tutorial: "Tutoriel"
+      "360_video": "Vidéo 360"
   sessions:
     create:
       welcome: "Bienvenue dans les rangs, Confrère. La Confrérie a inscrit ton nom au grand registre."
