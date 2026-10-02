@@ -111,29 +111,90 @@ module BackOffice
       assert_select "[data-import-run-apps-excluded]", false
     end
 
-    test "a run of five games goes to the end, sets aside those under 500 reviews, and its page shows the review counts" do
+    test "a run goes through every step, keeps only the games that can become cards, and its page shows the counts" do
       sign_in(accounts_players(:administrator))
       stub_app_list_page(after: 0, appids: [ 10, 20, 30 ], more: true)
-      stub_app_list_page(after: 30, appids: [ 40, 50 ], more: false)
-      stub_get_items(10 => reviewed_item(10, 12_000), 20 => reviewed_item(20, 499), 30 => reviewed_item(30, 500), 40 => unreviewed_item(40), 50 => nil)
+      stub_app_list_page(after: 30, appids: [ 40, 50, 60 ], more: false)
+      stub_get_tag_list
+      english = {
+        10 => detailed_item(10, name: "Portal 2", description: "The <b>sequel</b> &amp; more.", reviews: 12_000,
+          release: { "steam_release_date" => 1_303_171_200 }, publishers: [ "Valve", " " ]),
+        20 => detailed_item(20, reviews: 499),
+        30 => detailed_item(30, type: 4, reviews: 500),
+        40 => unreviewed_item(40),
+        50 => nil,
+        60 => detailed_item(60, capsule: nil, reviews: 800)
+      }
+      french = { 10 => french_item(10, name: "Portal 2", description: "La <i>suite</i>.") }
+      items_calls = stub_get_items_by_language("english" => english, "french" => french)
+      details_calls = stub_app_details(10 => app_details_entry(10, genres: [ "Action", "Adventure" ], legal_notice: "&copy; Valve<br>All rights reserved."))
 
       perform_enqueued_jobs { post back_office_import_runs_path(locale: :fr) }
 
       run = Steam::ImportRun.sole
       assert_predicate run, :completed?
-      assert_equal [ 10, 30 ], Steam::App.kept_by(run).order(:appid).pluck(:appid)
+      assert_equal [ 10, 30, 60 ], Steam::App.kept_by(run).order(:appid).pluck(:appid)
       assert_equal({ 20 => "too_few_reviews", 40 => "too_few_reviews", 50 => "unavailable" },
         Steam::App.where.not(review_exclusion: nil).order(:appid).pluck(:appid, :review_exclusion).to_h)
+      assert_equal({ 30 => "not_a_game", 60 => "no_vertical_image" },
+        Steam::App.where.not(details_exclusion: nil).order(:appid).pluck(:appid, :details_exclusion).to_h)
+      assert_equal 3, items_calls.size
+      assert_equal [ "10" ], details_calls.map { |params| params["appids"] }
+
+      app = Steam::App.ready_by(run).sole
+      assert_equal 10, app.appid
+      assert_equal [ "Portal 2", "Portal 2" ], [ app.name_en, app.name_fr ]
+      assert_equal [ "The sequel & more.", "La suite." ], [ app.short_description_en, app.short_description_fr ]
+      assert_equal Date.new(2011, 4, 19), app.release_on
+      assert_equal [ "Valve" ], app.publishers
+      assert_equal [ 492, 19 ], app.tag_ids
+      assert_equal %w[Indie Action], app.tag_ids.map { |tagid| Steam::Tag.find_by!(tagid: tagid).name }
+      assert_equal "© Valve All rights reserved.", app.credit
+      assert_equal %w[action adventure], app.genres
+      assert_equal "https://store.steampowered.com/app/10/Portal_2/", app.store_url
+      assert_equal "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/10/library_600x900.jpg?t=1745363004", app.image_url
 
       get back_office_import_run_path(run, locale: :fr)
 
       assert_select "[data-import-run-status=completed]", "Terminé"
-      assert_select "[data-import-run-step=reviews]", /Décompte des évaluations/
-      assert_select "[data-import-run-apps-listed='5']", "5"
-      assert_select "[data-import-run-apps-reviewed='5']", "5"
-      assert_select "[data-import-run-apps-kept='2']", "2"
+      assert_select "[data-import-run-step=genres]", /Classement par genre/
+      assert_select "[data-import-run-apps-listed='6']", "6"
+      assert_select "[data-import-run-apps-reviewed='6']", "6"
+      assert_select "[data-import-run-apps-kept='3']", "3"
       assert_select "[data-import-run-apps-excluded='3']", "3"
+      assert_select "[data-import-run-tags-named='3']", "3"
+      assert_select "[data-import-run-apps-detailed='3']", "3"
+      assert_select "[data-import-run-apps-excluded-details='2']", "2"
+      assert_select "[data-import-run-apps-genred='1']", "1"
+      assert_select "[data-import-run-apps-excluded-genres='0']", "0"
       assert_select "dt", "Jeux retenus"
+      assert_select "dt", "Étiquettes nommées"
+    end
+
+    test "a run on the review pass does not show the counts of the later steps" do
+      sign_in(accounts_players(:administrator))
+      run = Steam::ImportRun.create!(status: :running, step: "reviews", cursor: { "step" => "reviews", "last_appid" => 0 }, started_at: 1.minute.ago)
+
+      get back_office_import_run_path(run, locale: :en)
+
+      assert_select "[data-import-run-apps-reviewed]"
+      assert_select "[data-import-run-tags-named]", false
+      assert_select "[data-import-run-apps-detailed]", false
+      assert_select "[data-import-run-apps-genred]", false
+    end
+
+    test "a run on the details step shows the tags and details counts, not the genres" do
+      sign_in(accounts_players(:administrator))
+      run = Steam::ImportRun.create!(status: :running, step: "details", cursor: { "step" => "details", "last_appid" => 0 }, started_at: 1.minute.ago,
+        counts: { "tags_named" => 450, "apps_detailed" => 1200, "apps_excluded_details" => 30 })
+
+      get back_office_import_run_path(run, locale: :en)
+
+      assert_select "[data-import-run-step=details]", /Copying the store pages/
+      assert_select "[data-import-run-tags-named='450']", "450"
+      assert_select "[data-import-run-apps-detailed='1200']", "1,200"
+      assert_select "[data-import-run-apps-excluded-details='30']", "30"
+      assert_select "[data-import-run-apps-genred]", false
     end
 
     test "a failed run's page shows its errors and offers to resume, without polling" do

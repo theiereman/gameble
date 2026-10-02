@@ -43,8 +43,19 @@ class Steam::ReviewPassTest < ActiveSupport::TestCase
     assert_equal({ import_run_id: run.id, step: "app_list" }, events_of(run).first.data)
   end
 
-  test "finishing the last step completes the run" do
+  test "finishing the review pass moves the run to the tags" do
     run = reviews_run(last_appid: 70)
+
+    Steam::FinishImportStep.new.call(import_run: run)
+
+    run.reload
+    assert_predicate run, :running?
+    assert_equal({ "step" => "tags", "last_appid" => 0 }, run.cursor)
+    assert_equal "tags", run.step
+  end
+
+  test "finishing the last step completes the run" do
+    run = Steam::ImportRun.create!(status: :running, step: "genres", cursor: { "step" => "genres", "last_appid" => 70 }, started_at: 1.minute.ago)
 
     result = Steam::FinishImportStep.new.call(import_run: run)
 
@@ -52,9 +63,9 @@ class Steam::ReviewPassTest < ActiveSupport::TestCase
     run.reload
     assert_predicate run, :completed?
     assert_predicate run.finished_at, :present?
-    assert_equal "reviews", run.step
+    assert_equal "genres", run.step
     assert_equal [ Steam::ImportStepFinished, Steam::ImportRunFinished ], events_of(run).map(&:class)
-    assert_equal({ import_run_id: run.id, step: "reviews" }, events_of(run).first.data)
+    assert_equal({ import_run_id: run.id, step: "genres" }, events_of(run).first.data)
     assert_equal({ import_run_id: run.id, status: "completed" }, events_of(run).last.data)
   end
 
@@ -138,7 +149,7 @@ class Steam::ReviewPassTest < ActiveSupport::TestCase
     assert_equal [ [ 20 ] ], calls.map { |input| input["ids"].map { |id| id["appid"] } }
     assert_equal [ 20 ], Steam::App.kept_by(run).pluck(:appid)
     assert_nil Steam::App.find_by!(appid: 10).reviewed_run_id
-    assert_predicate run.reload, :completed?
+    assert_equal "tags", run.reload.step
   end
 
   test "an app excluded by an earlier run that now has 600 reviews is kept by the new run" do
@@ -157,7 +168,7 @@ class Steam::ReviewPassTest < ActiveSupport::TestCase
     assert_empty Steam::App.kept_by(earlier)
   end
 
-  test "with no app of this run after the cursor, the step finishes without calling Steam and the run completes" do
+  test "with no app of this run after the cursor, the step finishes without calling Steam and the run moves to the tags" do
     run = reviews_run(last_appid: 20)
     list(run, 10, 20)
     calls = stub_get_items({})
@@ -167,8 +178,9 @@ class Steam::ReviewPassTest < ActiveSupport::TestCase
     assert result.success?
     assert_empty calls
     run.reload
-    assert_predicate run, :completed?
-    assert_equal [ Steam::ImportStepFinished, Steam::ImportRunFinished ], events_of(run).map(&:class)
+    assert_predicate run, :running?
+    assert_equal({ "step" => "tags", "last_appid" => 0 }, run.cursor)
+    assert_equal [ Steam::ImportStepFinished ], events_of(run).map(&:class)
   end
 
   test "a page of an app-list cursor once the run is on reviews fails with cursor_moved and calls nothing" do

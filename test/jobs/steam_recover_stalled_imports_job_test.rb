@@ -44,6 +44,7 @@ class SteamRecoverStalledImportsJobTest < ActiveJob::TestCase
     Steam::App.insert_all([ 10, 20 ].map { |appid| { appid: appid, name: "Game #{appid}", import_run_id: run.id } })
     stub_app_list_page(after: 20, appids: [ 30 ], more: false)
     stub_get_items([ 10, 20, 30 ].index_with { |appid| reviewed_item(appid, 1000) })
+    stub_get_tag_list
 
     perform_enqueued_jobs { Steam::RecoverStalledImportsJob.perform_now }
 
@@ -59,6 +60,7 @@ class SteamRecoverStalledImportsJobTest < ActiveJob::TestCase
     stub_app_list_page(after: 20, appids: [ 30 ], more: true)
     stub_app_list_page(after: 30, appids: [ 40 ], more: false)
     stub_get_items(30 => reviewed_item(30, 1000), 40 => reviewed_item(40, 1000))
+    stub_get_tag_list
     lost_cursor = run.cursor
 
     perform_enqueued_jobs { Steam::RecoverStalledImportsJob.perform_now }
