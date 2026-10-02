@@ -6,6 +6,7 @@ CI.run do
   step "Style: Ruby", "bin/rubocop"
   step "Boundaries: Packwerk", "bundle exec packwerk validate && bundle exec packwerk check"
   step "Translations: missing keys", "bundle exec i18n-tasks missing"
+  step "Types: TypeScript", "npm run typecheck"
 
   step "Security: Gem audit", "bin/bundler-audit"
   step "Security: Brakeman code analysis", "bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error"

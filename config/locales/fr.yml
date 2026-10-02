@@ -15,3 +15,6 @@ fr:
       intro: "Les coffres de la Grande Confrérie des Gamblers te sont ouverts. Les scribes dépoussièrent encore les rayonnages ; les cartes arrivent bientôt. Tiens-toi prêt."
       enlist: "Rejoindre les rangs"
       linger: "Flâner dans les archives"
+      island:
+        heading: "Le tableau de rassemblement de la Confrérie"
+        season: "Saison de service en cours :"
