@@ -188,11 +188,13 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, Game::Holding.where(player_id: player.id).count
   end
 
-  test "a visitor sees the chest's button and is sent to sign in when pressing it; nothing changes" do
+  test "a visitor's chest button starts the Steam sign-in, and a visitor's opening is refused; nothing changes" do
     get home_path(locale: :en)
-    assert_select ".attic__object--chest form[action='/en/packs'][method=post] button", "Open a pack"
+    assert_select ".attic__object--chest form[action='/auth/steam'][method=post] button", "Enlist through Steam to open a pack"
+    assert_select ".attic__object--chest form[action='/auth/steam'] input[name=origin][value='/en']"
+    assert_select ".attic__countdown", count: 0
 
-    assert_no_difference -> { Game::Pack.where.not(opened_at: nil).count } do
+    assert_no_difference [ -> { Game::Pack.count }, -> { Game::Pack.where.not(opened_at: nil).count }, -> { Game::Holding.count } ] do
       post packs_path(locale: :en)
     end
 

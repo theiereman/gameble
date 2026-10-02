@@ -26,7 +26,7 @@ en:
       invitation: "Enlist through Steam, Brother, and the chest will open for you."
       chest:
         open: "Open a pack (%{count})"
-        open_visitor: "Open a pack"
+        open_visitor: "Enlist through Steam to open a pack"
         empty: "No pack"
       countdown:
         label: "Next pack in"
@@ -35,6 +35,7 @@ en:
         heading: "Daily bonus"
         text: "A small booster awaits you, Brother."
         collect: "Take it"
+        collect_visitor: "Enlist through Steam to take it"
       island:
         heading: "The Brotherhood muster board"
         season: "Current season of service:"

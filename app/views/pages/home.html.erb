@@ -32,7 +32,8 @@
       <%# Opens one pack at a time. A visitor's press leads to the sign-in (CAP-18). %>
       <div class="attic__chest-action">
         <% if @bank.nil? %>
-          <%= render ButtonComponent.new(href: packs_path, method: :post) do %><%= t(".chest.open_visitor") %><% end %>
+          <%# A visitor's press starts the Steam sign-in and comes back here. %>
+          <%= render ButtonComponent.new(href: "/auth/steam", method: :post, params: { origin: request.path }, turbo: false) do %><%= t(".chest.open_visitor") %><% end %>
         <% elsif @bank[:available].positive? %>
           <%= render ButtonComponent.new(href: packs_path, method: :post) do %><%= t(".chest.open", count: @bank[:available]) %><% end %>
         <% else %>
@@ -51,16 +52,22 @@
     </figure>
 
     <%# The daily bonus panel (CAP-16): beside the chest, once per UTC day,
-        gone once collected until a page load after midnight UTC. Its
-        condition lives in this local alone. %>
-    <% bonus_panel = @bank.present? && @bank[:bonus_collectable] %>
+        gone once collected until a page load after midnight UTC. A visitor
+        sees it whenever a season is published, its button starting the
+        Steam sign-in. The view decides it in this local, from the bank
+        summary (a player) or @season_published (a visitor). %>
+    <% bonus_panel = @bank.present? ? @bank[:bonus_collectable] : @season_published %>
     <% if bonus_panel %>
       <section class="attic__bonus" aria-labelledby="attic-bonus-heading">
         <%= render TextPlateComponent.new do %>
           <h2 id="attic-bonus-heading" class="attic__bonus-heading"><%= t(".bonus.heading") %></h2>
           <p class="attic__bonus-text"><%= t(".bonus.text") %></p>
         <% end %>
-        <%= render ButtonComponent.new(href: daily_bonus_path, method: :post) do %><%= t(".bonus.collect") %><% end %>
+        <% if @bank %>
+          <%= render ButtonComponent.new(href: daily_bonus_path, method: :post) do %><%= t(".bonus.collect") %><% end %>
+        <% else %>
+          <%= render ButtonComponent.new(href: "/auth/steam", method: :post, params: { origin: request.path }, turbo: false) do %><%= t(".bonus.collect_visitor") %><% end %>
+        <% end %>
       </section>
     <% end %>
 
