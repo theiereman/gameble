@@ -55,7 +55,7 @@ class Steam::ReviewPassTest < ActiveSupport::TestCase
   end
 
   test "finishing the last step completes the run" do
-    run = Steam::ImportRun.create!(status: :running, step: "genres", cursor: { "step" => "genres", "last_appid" => 70 }, started_at: 1.minute.ago)
+    run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 70 }, started_at: 1.minute.ago)
 
     result = Steam::FinishImportStep.new.call(import_run: run)
 
@@ -63,9 +63,9 @@ class Steam::ReviewPassTest < ActiveSupport::TestCase
     run.reload
     assert_predicate run, :completed?
     assert_predicate run.finished_at, :present?
-    assert_equal "genres", run.step
+    assert_equal "cards", run.step
     assert_equal [ Steam::ImportStepFinished, Steam::ImportRunFinished ], events_of(run).map(&:class)
-    assert_equal({ import_run_id: run.id, step: "genres" }, events_of(run).first.data)
+    assert_equal({ import_run_id: run.id, step: "cards" }, events_of(run).first.data)
     assert_equal({ import_run_id: run.id, status: "completed" }, events_of(run).last.data)
   end
 

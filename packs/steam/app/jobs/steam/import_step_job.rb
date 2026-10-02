@@ -26,7 +26,8 @@ module Steam
       "reviews" => "Steam::ImportReviewsPage",
       "tags" => "Steam::ImportTagsPage",
       "details" => "Steam::ImportDetailsPage",
-      "genres" => "Steam::ImportGenresPage"
+      "genres" => "Steam::ImportGenresPage",
+      "cards" => "Steam::ImportCardsPage"
     }.freeze
     ATTEMPTS = 3
     RATE_LIMIT_WAIT = 3.minutes

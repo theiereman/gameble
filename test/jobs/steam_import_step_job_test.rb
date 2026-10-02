@@ -44,12 +44,13 @@ class SteamImportStepJobTest < ActiveJob::TestCase
 
     run.reload
     assert_predicate run, :completed?
-    assert_equal "genres", run.step
+    assert_equal "cards", run.step
     assert_equal 5, run.apps_listed
     assert_equal 5, run.apps_reviewed
     assert_equal 2, run.apps_kept
     assert_equal 3, run.apps_excluded
-    assert_equal({ "step" => "genres", "last_appid" => 0 }, run.cursor, "review items carry no type: no game reached the genres")
+    assert_equal({ "step" => "cards", "last_appid" => 0 }, run.cursor, "review items carry no type: no game reached the genres nor the cards")
+    assert_equal [ 0, 0 ], [ run.cards_written, run.cards_refused ]
     assert_equal [ 2, 2 ], [ run.apps_detailed, run.apps_excluded_details ]
     assert_equal 3, calls.size, "one review page, then one details page in English and in French"
     assert_equal [ 10, 20, 30, 40, 50 ], Steam::App.order(:appid).pluck(:appid)
@@ -325,5 +326,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_equal [ "The best game 10.", "Le meilleur jeu 10." ], [ app.short_description_en, app.short_description_fr ]
     assert_equal [ [ "Publisher 10" ], [ 492, 19 ], %w[action free_to_play] ], [ app.publishers, app.tag_ids, app.genres ]
     assert [ app.name_en, app.name_fr, app.release_on, app.credit, app.store_url, app.image_url ].all?(&:present?)
+    assert_equal [ 1, 0 ], [ run.cards_written, run.cards_refused ]
+    assert_equal [ "steam:10" ], Catalog::DraftSeason.call.card_seasons.map { |card_season| card_season.card.source_key }
   end
 end

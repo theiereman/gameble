@@ -157,7 +157,7 @@ module BackOffice
       get back_office_import_run_path(run, locale: :fr)
 
       assert_select "[data-import-run-status=completed]", "Terminé"
-      assert_select "[data-import-run-step=genres]", /Classement par genre/
+      assert_select "[data-import-run-step=cards]", /Inscription des cartes/
       assert_select "[data-import-run-apps-listed='6']", "6"
       assert_select "[data-import-run-apps-reviewed='6']", "6"
       assert_select "[data-import-run-apps-kept='3']", "3"
@@ -167,8 +167,67 @@ module BackOffice
       assert_select "[data-import-run-apps-excluded-details='2']", "2"
       assert_select "[data-import-run-apps-genred='1']", "1"
       assert_select "[data-import-run-apps-excluded-genres='0']", "0"
+      assert_select "[data-import-run-cards-written='1']", "1"
+      assert_select "[data-import-run-cards-refused='0']", "0"
       assert_select "dt", "Jeux retenus"
       assert_select "dt", "Étiquettes nommées"
+    end
+
+    test "a full run writes the three ready games as cards into the draft season, a second identical run leaves three, and the page shows them" do
+      sign_in(accounts_players(:administrator))
+      stub_app_list_page(after: 0, appids: [ 10, 20, 30, 40, 50 ], more: false)
+      stub_get_tag_list(19 => "Action", 492 => "Indie")
+      english = {
+        10 => detailed_item(10, name: "Portal 2", reviews: 12_000),
+        20 => detailed_item(20, reviews: 499),
+        30 => detailed_item(30, capsule: nil, reviews: 800),
+        40 => detailed_item(40, reviews: 600),
+        50 => detailed_item(50, publishers: [], reviews: 90_000)
+      }
+      french = { 10 => french_item(10, name: "Portal 2"), 40 => french_item(40), 50 => french_item(50) }
+      stub_get_items_by_language("english" => english, "french" => french)
+      stub_app_details([ 10, 40, 50 ].index_with { |appid| app_details_entry(appid) })
+
+      perform_enqueued_jobs { post back_office_import_runs_path(locale: :en) }
+
+      run = Steam::ImportRun.sole
+      assert_predicate run, :completed?
+      assert_equal "cards", run.step
+      assert_equal [ 3, 0 ], [ run.cards_written, run.cards_refused ]
+      draft = Catalog::DraftSeason.call
+      cards = Catalog::Card.where(source_key: %w[steam:10 steam:40 steam:50]).index_by(&:source_key)
+      assert_equal 3, cards.size
+      assert_equal cards.values.map(&:id).sort, draft.card_seasons.pluck(:card_id).sort
+      portal = cards.fetch("steam:10")
+      assert_equal "portal-2", portal.slug
+      assert_equal [ Date.new(2011, 4, 19), "Publisher 10", "© Studio 10 All rights reserved.", %w[action free_to_play], %w[indie action] ],
+        [ portal.release_date, portal.publisher, portal.credit, portal.genres, portal.tags ]
+      assert_equal "https://store.steampowered.com/app/10/Portal_2/", portal.store_url
+      assert_equal "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/10/library_600x900.jpg?t=1745363004", portal.image_url
+      assert_equal({ "en" => [ "Portal 2", "The best game 10." ], "fr" => [ "Portal 2", "Le meilleur jeu 10." ] },
+        portal.texts.to_h { |text| [ text.locale, [ text.title, text.short_description ] ] })
+      assert_nil cards.fetch("steam:50").publisher
+      draft.card_seasons.each do |card_season|
+        assert_operator card_season.prestige_score, :>, 0
+        assert_equal BigDecimal("90"), card_season.rating
+      end
+      assert_operator cards.fetch("steam:50").card_seasons.sole.prestige_score, :>, cards.fetch("steam:40").card_seasons.sole.prestige_score
+
+      perform_enqueued_jobs { post back_office_import_runs_path(locale: :en) }
+
+      second = Steam::ImportRun.latest_first.first
+      assert_not_equal run, second
+      assert_predicate second, :completed?
+      assert_equal 3, second.cards_written
+      assert_equal 3, Catalog::Card.where("source_key LIKE 'steam:%'").count
+      assert_equal 3, Catalog::DraftSeason.call.card_seasons.count
+
+      get back_office_import_run_path(second, locale: :en)
+
+      assert_select "[data-import-run-step=cards]", /Writing the cards/
+      assert_select "[data-import-run-cards-written='3']", "3"
+      assert_select "[data-import-run-cards-refused='0']", "0"
+      assert_select "dt", "Cards written"
     end
 
     test "a run on the review pass does not show the counts of the later steps" do
@@ -195,6 +254,7 @@ module BackOffice
       assert_select "[data-import-run-apps-detailed='1200']", "1,200"
       assert_select "[data-import-run-apps-excluded-details='30']", "30"
       assert_select "[data-import-run-apps-genred]", false
+      assert_select "[data-import-run-cards-written]", false
     end
 
     test "a failed run's page shows its errors and offers to resume, without polling" do

@@ -393,7 +393,7 @@ class Steam::StoreDetailsTest < ActiveSupport::TestCase
     assert_equal 6, run.reload.last_appid
   end
 
-  test "with no detailed game after the cursor, the genres step completes the run without calling the store" do
+  test "with no detailed game after the cursor, the genres step hands over to the cards without calling the store" do
     run = run_on("genres", last_appid: 10)
     detail(run, 10)
     calls = stub_app_details({})
@@ -401,8 +401,10 @@ class Steam::StoreDetailsTest < ActiveSupport::TestCase
     assert genres_page(run).success?
 
     assert_empty calls
-    assert_predicate run.reload, :completed?
-    assert_equal [ Steam::ImportStepFinished, Steam::ImportRunFinished ], events_of(run).map(&:class)
+    run.reload
+    assert_predicate run, :running?
+    assert_equal({ "step" => "cards", "last_appid" => 0 }, run.cursor)
+    assert_equal [ Steam::ImportStepFinished ], events_of(run).map(&:class)
   end
 
   test "a stale details job once the run is on the genres does nothing" do

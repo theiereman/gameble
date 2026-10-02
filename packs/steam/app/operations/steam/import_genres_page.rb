@@ -9,8 +9,8 @@ module Steam
   # outside the transaction; then, in one transaction, the page's rows are
   # updated (never created) and the cursor and the counts move past the page.
   # When no app is left after the cursor, the step finishes
-  # (Steam::FinishImportStep) without calling Steam; after this last step, the
-  # run completes.
+  # (Steam::FinishImportStep) without calling Steam and hands over to the
+  # cards (Steam::ImportCardsPage).
   #
   # A store failure raises Steam::StoreApi::Error; a rate limit that outlasts
   # the client's retries raises Steam::StoreApi::RateLimited, which the job
