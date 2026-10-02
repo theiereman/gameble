@@ -6,8 +6,9 @@ module Game
   # Game::BankFilled. Idempotent: a player who ever had a pack, or a game
   # with no published season, gets nothing and publishes nothing.
   #
-  # Called on sign-up (Game::Handlers::PlayerRegistered) and, for the players
-  # left without a bank, when a season is published (Game::FillEmptyBanksJob).
+  # Called on sign-up (Game::Handlers::PlayerRegistered), for the players
+  # left without a bank when a season is published (Game::HealBanksJob), and
+  # before a daily bonus for a player without a bank (Game::CollectDailyBonus).
   #
   #   Game::FillBank.new.call(player:)
   #   # => Success(packs inserted, 0 or BANK_SIZE) | Failure(:player_required)

@@ -57,3 +57,28 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-packs-and-reveal/story-pack-reveal-island-plan.md`
   summary: Re-run `game:benchmark_open_pack` and update the epic Notes, since the result page now builds CardViews, CardStrings and BankSummary.
   evidence: Story 3.6 review row 8; the 3.9 GET figure (p95 ~4.7 ms) predates the reveal page.
+  resolved: Re-run in story 3.10: POST p95 8.8 ms, result page GET p95 7.5–8.1 ms; recorded in the epic Notes.
+- source_plan: `_bmad-output/initiative-gameble/epic-packs-and-reveal/story-open-a-pack-end-to-end-plan.md`
+  summary: A signed-out owner opening their own pack link gets a 404 rather than a sign-in prompt.
+  evidence: Story 3.1 review row 4, rejected as deliberate (unknown, foreign or unopened tokens are 404); revisit if pack links are ever shared or bookmarked.
+- source_plan: `_bmad-output/initiative-gameble/epic-packs-and-reveal/story-card-component-plan.md`
+  summary: The large card back is the 80 × 120 back drawn at ×3 (3 CSS px per art pixel) until the author decides on a redrawn 120 × 180 back.
+  evidence: Story 3.5 assumption, listed in pending-approvals.md.
+- source_plan: `_bmad-output/initiative-gameble/epic-packs-and-reveal/story-pack-reveal-island-plan.md`
+  summary: The reveal is lost (faces shown) when another request of the same session consumes the flash between the opening and the result page.
+  evidence: Story 3.6 review row 7, accepted known edge.
+- source_plan: `_bmad-output/initiative-gameble/epic-packs-and-reveal/story-pack-reveal-island-plan.md`
+  summary: The "leave during flip all" system test cannot observe live timers; the guarantee rests on the Vitest cancel test and the unmount cleanup.
+  evidence: Story 3.6 review row 6, rejected (React ignores state updates on an unmounted root without an error).
+- source_plan: `_bmad-output/initiative-gameble/epic-packs-and-reveal/story-pack-reveal-island-plan.md`
+  summary: Wiping by sliding a finger on a real phone is not covered by an automated test.
+  evidence: Story 3.6 matrix row "Touch slide", a manual check; Selenium cannot drive touch pointer events.
+- source_plan: `_bmad-output/initiative-gameble/epic-packs-and-reveal/story-replacement-packs-and-the-timer-plan.md`
+  summary: The attic countdown shows mm:ss only; a pack scheduled more than an hour ahead (test-built or odd data) would read like "1440:00".
+  evidence: `app/views/pages/home.html.erb` formats `"%02d:%02d", *@next_pack_in.divmod(60)`; packs made by the replacement rule are never more than ten minutes away (story 3.2 plan, Boundaries).
+- source_plan: `_bmad-output/initiative-gameble/epic-packs-and-reveal/story-first-session-guarantee-plan.md`
+  summary: Kept for the record, no action: the forced card's position uses `tenth.size` rather than `Pack::SIZE`.
+  evidence: Story 3.3 review, judged false — equal for every bank pack.
+- source_plan: `_bmad-output/initiative-gameble/epic-packs-and-reveal/story-signed-out-attic-plan.md`
+  summary: Kept for the record, no action: the visitor tests live in the packs, daily-bonus and a new system test file rather than the Code Map's files.
+  evidence: Story 3.8 review, rejected — coverage complete.

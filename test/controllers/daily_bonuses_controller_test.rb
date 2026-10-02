@@ -1,9 +1,11 @@
 require "test_helper"
+require_relative "../support/counting_rate_limit"
 require_relative "../support/game_packs"
 
 # The daily bonus panel in the attic and its collection (CAP-16, R8): end to
 # end, the result page of a bonus pack, and every refusal.
 class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
+  include CountingRateLimit
   include GamePacks
 
   setup do
@@ -106,12 +108,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
 
   test "more than 5 collections a minute by one player are sent back with their own message" do
     sign_in(@player)
-    # The test cache store counts nothing: the rate limit's store counts in
-    # memory for this test.
-    memory = ActiveSupport::Cache::MemoryStore.new
-    store = DailyBonusesController.cache_store
-    store.define_singleton_method(:increment) { |*args, **options| memory.increment(*args, **options) }
-    begin
+    with_counting_rate_limit(DailyBonusesController) do
       5.times do
         post daily_bonus_path(locale: :en)
         assert_response :see_other
@@ -119,8 +116,6 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       end
 
       post daily_bonus_path(locale: :en)
-    ensure
-      store.singleton_class.remove_method(:increment)
     end
 
     assert_redirected_to home_path(locale: :en)
