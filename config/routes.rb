@@ -16,6 +16,9 @@ Rails.application.routes.draw do
     # Opening a pack from the chest, and the list of its cards (AD-15: by token).
     resources :packs, only: %i[create show], param: :token
 
+    # The library, reached from the attic's lectern: the season's sets (CAP-6).
+    resource :library, controller: :library, only: :show
+
     # Collecting the daily bonus from the attic (CAP-16).
     resource :daily_bonus, path: "daily-bonus", only: :create
 

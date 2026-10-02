@@ -1,8 +1,9 @@
 <%# The attic (DESIGN.md "The attic", mockups/attic.html): one wide room drawn in
-    CSS, its furniture named. Objects lead nowhere yet, so they are not links;
-    the chest holds the button that opens a pack, and the countdown to the
-    next one. The page is never served from Turbo's cache, and the countdown
-    refreshes it by morphing, keeping the scroll. %>
+    CSS, its furniture named. The lectern leads to the library; the other
+    objects lead nowhere yet, so they are not links. The chest holds the
+    button that opens a pack, and the countdown to the next one. The page is
+    never served from Turbo's cache, and the countdown refreshes it by
+    morphing, keeping the scroll. %>
 <% turbo_exempts_page_from_cache %>
 <% turbo_refreshes_with method: :morph, scroll: :preserve %>
 <h1 id="attic-heading" class="visually-hidden"><%= t(".heading") %></h1>
@@ -13,8 +14,15 @@
     <div class="attic__floor" aria-hidden="true"></div>
     <div class="attic__window" aria-hidden="true"></div>
 
+    <%# The lectern: its art and name are one link to the library. %>
+    <figure class="attic__object attic__object--lectern">
+      <a class="attic__link" href="<%= library_path %>" data-turbo-prefetch="false">
+        <div class="attic__art" aria-hidden="true"></div>
+        <span class="attic__name"><%= t(".objects.lectern") %></span>
+      </a>
+    </figure>
+
     <% [
-         [ :lectern, t(".objects.lectern") ],
          [ :notice_board, t(".objects.notice_board") ],
          [ :medal_display, t(".objects.medal_display") ],
          [ :mirror, t(".objects.mirror") ],

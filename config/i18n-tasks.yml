@@ -23,3 +23,7 @@ ignore_unused:
   - "activerecord.errors.messages.*"
   # Number formats, read by the number helpers (number_with_delimiter, …).
   - "number.*"
+  # Genre labels, looked up by the genre key a tome's params carry (SetLabel).
+  - "catalog.genres.*"
+  # Pagy's dictionary, read by Pagy::I18n, not by the I18n gem.
+  - "pagy.*"

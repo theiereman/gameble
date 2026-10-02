@@ -62,6 +62,9 @@ gem "view_component", "~> 4.15.0"
 # Pick the first-visit locale from the browser's Accept-Language (AD-18) [https://github.com/iain/http_accept_language]
 gem "http_accept_language", "~> 2.1.1"
 
+# Page long lists, such as the library's shelves (Consistency Conventions: Pagination) [https://github.com/ddnexus/pagy]
+gem "pagy", "~> 43.6.3"
+
 # Sign in with Steam over OpenID 2.0, POST-only and CSRF-protected (AD-14) [https://github.com/omniauth/omniauth]
 gem "omniauth", "~> 2.1.4"
 gem "omniauth-openid", "~> 2.0.2"
