@@ -1,0 +1,28 @@
+module Game
+  # A pack in a player's bank (CAP-4, AD-7): its cards pre-drawn in order
+  # (`card_season_ids`, ids of the season's card-seasons), the time it becomes
+  # available and, once opened, the time it was. Bonus and reward packs are
+  # rows of the same table. Addressed in URLs by its token (AD-15).
+  #
+  # No association to Catalog: the database keys suffice, and the catalog is
+  # read through its queries. Written only through the operations of this
+  # pack (AD-3).
+  class Pack < ApplicationRecord
+    self.table_name = "game_packs"
+
+    # Cards in a pack.
+    SIZE = 5
+
+    has_secure_token :token
+
+    enum :kind, { regular: "regular", bonus: "bonus", reward: "reward" }, validate: true
+
+    scope :unopened, -> { where(opened_at: nil) }
+    # Unopened and available at `now`, the next one to open first.
+    scope :available, ->(now = Time.current) { unopened.where(available_at: ..now).order(:available_at, :id) }
+
+    def opened?
+      opened_at.present?
+    end
+  end
+end

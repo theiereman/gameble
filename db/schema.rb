@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -127,6 +127,35 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_000000) do
     t.index ["stream", "position"], name: "index_event_store_events_in_streams_on_stream_and_position", unique: true
   end
 
+  create_table "game_holdings", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "card_season_id", null: false
+    t.integer "quantity", default: 0, null: false
+    t.integer "reserved", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["card_season_id"], name: "index_game_holdings_on_card_season_id"
+    t.index ["player_id", "card_season_id"], name: "index_game_holdings_on_player_id_and_card_season_id", unique: true
+    t.check_constraint "quantity >= reserved AND reserved >= 0", name: "game_holdings_quantity_check"
+  end
+
+  create_table "game_packs", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.string "token", null: false
+    t.string "kind", null: false
+    t.bigint "season_id", null: false
+    t.bigint "card_season_ids", null: false, array: true
+    t.datetime "available_at", null: false
+    t.datetime "opened_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "available_at", "id"], name: "index_game_packs_unopened", where: "(opened_at IS NULL)"
+    t.index ["player_id"], name: "index_game_packs_on_player_id"
+    t.index ["season_id"], name: "index_game_packs_on_season_id"
+    t.index ["token"], name: "index_game_packs_on_token", unique: true
+    t.check_constraint "kind::text = 'regular'::text OR kind::text = 'bonus'::text OR kind::text = 'reward'::text", name: "game_packs_kind_check"
+  end
+
   create_table "steam_apps", force: :cascade do |t|
     t.bigint "appid", null: false
     t.string "name", null: false
@@ -198,6 +227,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_000000) do
   add_foreign_key "catalog_set_memberships", "catalog_sets", column: "set_id"
   add_foreign_key "catalog_sets", "catalog_seasons", column: "season_id"
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
+  add_foreign_key "game_holdings", "accounts_players", column: "player_id"
+  add_foreign_key "game_holdings", "catalog_card_seasons", column: "card_season_id"
+  add_foreign_key "game_packs", "accounts_players", column: "player_id"
+  add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "details_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "genres_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "import_run_id"

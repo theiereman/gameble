@@ -1,5 +1,6 @@
 <%# The attic (DESIGN.md "The attic", mockups/attic.html): one wide room drawn in
-    CSS, its furniture named. Objects lead nowhere yet, so they are not links. %>
+    CSS, its furniture named. Objects lead nowhere yet, so they are not links;
+    the chest holds the button that opens a pack. %>
 <h1 id="attic-heading" class="visually-hidden"><%= t(".heading") %></h1>
 
 <div class="attic" data-controller="attic" role="region" aria-labelledby="attic-heading">
@@ -24,6 +25,16 @@
     <figure class="attic__object attic__object--chest" data-attic-target="chest">
       <div class="attic__art" aria-hidden="true"></div>
       <figcaption class="attic__name"><%= t(".objects.chest") %></figcaption>
+      <%# Opens one pack at a time. A visitor's press leads to the sign-in (CAP-18). %>
+      <div class="attic__chest-action">
+        <% if @bank.nil? %>
+          <%= render ButtonComponent.new(href: packs_path, method: :post) do %><%= t(".chest.open_visitor") %><% end %>
+        <% elsif @bank[:available].positive? %>
+          <%= render ButtonComponent.new(href: packs_path, method: :post) do %><%= t(".chest.open", count: @bank[:available]) %><% end %>
+        <% else %>
+          <%= tag.button t(".chest.empty"), type: :button, class: "button button--secondary", disabled: true %>
+        <% end %>
+      </div>
     </figure>
 
     <% unless current_player %>

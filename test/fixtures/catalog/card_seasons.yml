@@ -8,3 +8,37 @@ portal_one:
   rating: 95.5
   rarity: amethyst
   dust_tier: thick
+
+# One card-season per other tier, so the published season can be drawn from.
+
+steel_card_one:
+  card: steel_card
+  season: one
+  prestige_score: 0.2
+  rating: 80.0
+  rarity: steel
+  dust_tier: none
+
+emerald_card_one:
+  card: emerald_card
+  season: one
+  prestige_score: 0.5
+  rating: 80.0
+  rarity: emerald
+  dust_tier: light
+
+sapphire_card_one:
+  card: sapphire_card
+  season: one
+  prestige_score: 0.7
+  rating: 80.0
+  rarity: sapphire
+  dust_tier: marked
+
+gold_card_one:
+  card: gold_card
+  season: one
+  prestige_score: 0.99
+  rating: 80.0
+  rarity: gold
+  dust_tier: buried

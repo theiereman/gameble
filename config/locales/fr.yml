@@ -24,6 +24,10 @@ fr:
         trade_table: "Échanges et amis"
         chest: "Le coffre"
       invitation: "Enrôle-toi via Steam, Confrère, et le coffre s'ouvrira pour toi."
+      chest:
+        open: "Ouvrir un paquet (%{count})"
+        open_visitor: "Ouvrir un paquet"
+        empty: "Aucun paquet"
       island:
         heading: "Le tableau de rassemblement de la Confrérie"
         season: "Saison de service en cours :"
@@ -150,6 +154,11 @@ fr:
       publish:
         published: "La saison %{number} est publiée, officier. Ses cartes sont prêtes pour le tirage."
         import_active: "Le dernier import Steam n'est pas terminé, officier. Laisse-le finir, ou lance une nouvelle passe et laisse-la aboutir, avant de publier la saison."
+  packs:
+    create:
+      throttled: "Doucement, Confrère. Le coffre a besoin d'un instant entre deux ouvertures ; réessaie dans une minute."
+    show:
+      heading: "Ton paquet, Confrère"
   catalog:
     rarity:
       steel: "Acier"
@@ -191,6 +200,7 @@ fr:
     accounts:
       invalid_steam_id: "Les scribes n'ont pas pu lire cette identité, Confrère. Enrôle-toi à nouveau."
       banned: "La Confrérie a rayé ton nom du registre. Les coffres te restent fermés."
+      sign_in_failed: "L'enrôlement a échoué, Confrère. Les scribes ont trébuché sur le registre ; réessaie."
     catalog:
       missing_text: "Les scribes ont besoin du titre de la carte dans chaque langue de la Confrérie avant de l'inscrire au registre."
       invalid_card: "Les scribes ne peuvent pas inscrire cette carte au registre : ses particularités sont incomplètes ou en désordre."
@@ -200,6 +210,7 @@ fr:
       empty_tier: "La saison en brouillon est trop petite pour remplir les cinq raretés, officier. Importe d'abord plus de jeux."
     game:
       player_required: "Seul un Confrère enrôlé et en règle peut faire cela."
+      no_pack_available: "Le coffre est vide, Confrère. Attends le prochain paquet."
     steam:
       invalid_claimed_id: "Les scribes ne reconnaissent pas les papiers que tu rapportes, Confrère. Enrôle-toi à nouveau."
       sign_in_failed: "L'enrôlement a échoué, Confrère. Tes papiers n'ont pas été tamponnés ; réessaie."

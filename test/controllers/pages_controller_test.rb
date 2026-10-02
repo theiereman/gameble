@@ -28,7 +28,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".attic__object", 6
     assert_equal OBJECT_NAMES.fetch(locale), css_select(".attic__object .attic__name").map(&:text)
     assert_select ".attic__object--chest[data-attic-target=chest]"
-    assert_select ".attic__object a, .attic__object button", false
+    # Only the chest acts: its one button opens a pack.
+    assert_select ".attic__object:not(.attic__object--chest) a, .attic__object:not(.attic__object--chest) button", false
+    assert_select ".attic__object--chest .attic__chest-action button", 1
   end
 
   test "the French shell renders in French with the status band above the main region" do
