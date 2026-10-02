@@ -1,0 +1,75 @@
+/*
+ * Design tokens of DESIGN.md as custom properties (AD-16).
+ * Each property is named after its token path; components use these, never raw values.
+ */
+:root {
+  /* Colors */
+  --color-bg: #e9dcc0;
+  --color-surface: #f4ead2;
+  --color-surface-sunken: #e2d1ad;
+  --color-ink: #2b1d10;
+  --color-ink-muted: #6b5640;
+  --color-accent: #8a3b12;
+  --color-on-accent: #f4ead2;
+  --color-danger: #a3241c;
+  --color-success: #3f6b2a;
+  --color-leather: #7a3410;
+  --color-leather-dark: #64290c;
+  --color-brass-dark: #5c4026;
+  --color-brass: #8f6a43;
+  --color-brass-light: #c4a173;
+  --color-brass-highlight: #ecdcb8;
+  --color-gold-dark: #a8741a;
+  --color-gold: #f0b429;
+  --color-gold-light: #ffe08a;
+  --color-dust: #a89676;
+  --color-dust-light: #c9b994;
+  --color-rarity-steel: #7d8a99;
+  --color-rarity-steel-dark: #56616e;
+  --color-rarity-steel-light: #aab6c2;
+  --color-rarity-emerald: #2e9e4f;
+  --color-rarity-emerald-dark: #1d6e36;
+  --color-rarity-emerald-light: #63cf7e;
+  --color-rarity-sapphire: #2b6fd6;
+  --color-rarity-sapphire-dark: #1c4a99;
+  --color-rarity-sapphire-light: #6aa3f2;
+  --color-rarity-amethyst: #8e44c9;
+  --color-rarity-amethyst-dark: #612b8f;
+  --color-rarity-amethyst-light: #b97be8;
+
+  /* Typography */
+  --font-family-base: "Jost", system-ui, sans-serif;
+  --font-family-title: var(--font-family-base);
+  --font-weight-title: 700;
+  --font-size-title: 20px;
+
+  --font-family-body: var(--font-family-base);
+  --font-weight-body: 400;
+  --font-size-body: 15px;
+  --line-height-body: 1.3;
+
+  --font-family-label: var(--font-family-base);
+  --font-weight-label: 700;
+  --font-size-label: 13px;
+
+  --font-family-card-title: var(--font-family-base);
+  --font-weight-card-title: 700;
+
+  /* Shape */
+  --rounded: 0px;
+
+  /* Spacing: one art pixel is one unit */
+  --space-unit: 2px;
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 8px;
+  --space-4: 12px;
+  --space-5: 16px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --plate-padding-y: 4px;
+  --plate-padding-x: 12px;
+
+  /* Elevation: a hard ink shadow, one unit down and right, never blurred */
+  --shadow-hard: var(--space-unit) var(--space-unit) 0 0 var(--color-ink);
+}

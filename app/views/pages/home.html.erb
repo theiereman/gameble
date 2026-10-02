@@ -1,4 +1,16 @@
-<main>
-  <h1>gameble</h1>
-  <p>The walking skeleton is up. The game comes next.</p>
-</main>
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render TextPlateComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <div>
+    <%= render ButtonComponent.new(variant: :primary, href: home_path) do %>
+      <%= t(".enlist") %>
+    <% end %>
+    <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %>
+      <%= t(".linger") %>
+    <% end %>
+  </div>
+</div>

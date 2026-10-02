@@ -23,5 +23,9 @@ module Gameble
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Every page exists in French and English; English is the fallback (AD-18).
+    config.i18n.available_locales = %i[en fr]
+    config.i18n.default_locale = :en
   end
 end

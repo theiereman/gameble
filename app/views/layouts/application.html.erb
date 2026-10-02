@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="<%= I18n.locale %>">
   <head>
-    <title><%= content_for(:title) || "Gameble" %></title>
+    <title><%= content_for(:title) || t(".title") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Gameble">
+    <meta name="application-name" content="<%= t(".application_name") %>">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -24,6 +24,13 @@
   </head>
 
   <body>
-    <%= yield %>
+    <header class="status-band" aria-label="<%= t(".status_band.label") %>">
+      <section class="status-band__gauge" aria-label="<%= t(".status_band.gauge") %>"></section>
+      <section class="status-band__counters" aria-label="<%= t(".status_band.counters") %>"></section>
+    </header>
+
+    <main class="main">
+      <%= yield %>
+    </main>
   </body>
 </html>

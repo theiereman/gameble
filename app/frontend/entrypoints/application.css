@@ -1,5 +1,104 @@
-/* Application stylesheet, served by Vite. */
+/* Application stylesheet, served by Vite. Values come from the tokens, never raw (AD-16). */
+@import "../styles/tokens.css";
+@import "../styles/fonts.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-radius: var(--rounded);
+}
+
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-body);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+}
+
+h1 {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-family-title);
+  font-weight: var(--font-weight-title);
+  font-size: var(--font-size-title);
+}
+
+/* Accessibility floor: a visible ink focus outline on everything focusable. */
+:focus-visible {
+  outline: var(--space-unit) solid var(--color-ink);
+  outline-offset: var(--space-unit);
+}
+
+/* Status band: gauge at top left, counters at top right; filled by later stories. */
+.status-band {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-surface);
+  border-bottom: var(--space-unit) solid var(--color-ink);
+}
+
+.status-band__gauge,
+.status-band__counters {
+  min-height: var(--space-7);
+}
+
+.status-band__gauge {
+  flex: 1 1 auto;
+}
+
+.status-band__counters {
+  flex: 0 1 auto;
+}
+
+.main {
+  padding: var(--space-6) var(--space-5);
+}
+
+.stack > * + * {
+  margin-top: var(--space-5);
+}
+
+/* Text plate (DESIGN.md: Other components). */
+.text-plate {
+  margin: 0;
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border: var(--space-unit) solid var(--color-ink);
+}
+
+/* Buttons: primary on rust, secondary on parchment; ink border, hard shadow. */
+.button {
+  display: inline-block;
+  margin: 0 var(--space-3) var(--space-3) 0;
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  border: var(--space-unit) solid var(--color-ink);
+  box-shadow: var(--shadow-hard);
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+  line-height: var(--line-height-body);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button:active {
+  box-shadow: none;
+  transform: translate(var(--space-unit), var(--space-unit));
+}
+
+.button--primary {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.button--secondary {
+  background: var(--color-surface);
+  color: var(--color-ink);
 }

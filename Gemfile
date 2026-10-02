@@ -49,6 +49,12 @@ gem "dry-operation", "~> 1.1.0"
 # Publish domain events inside the operation's transaction (AD-10) [https://railseventstore.org]
 gem "rails_event_store", "~> 3.2.0"
 
+# Build the shared view parts as tested components (AD-16) [https://viewcomponent.org]
+gem "view_component", "~> 4.15.0"
+
+# Pick the first-visit locale from the browser's Accept-Language (AD-18) [https://github.com/iain/http_accept_language]
+gem "http_accept_language", "~> 2.1.1"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
