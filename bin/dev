@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+# Runs the Rails server and the Vite dev server listed in Procfile.dev.
+if ! gem list foreman -i --silent; then
+  echo "Installing foreman..."
+  gem install foreman
+fi
+
+# Foreman gives the first process (web) $PORT; it would otherwise pick 5000.
+export PORT="${PORT:-3000}"
+
+exec foreman start -f Procfile.dev "$@"

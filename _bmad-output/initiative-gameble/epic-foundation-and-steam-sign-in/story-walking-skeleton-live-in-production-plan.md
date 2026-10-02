@@ -3,13 +3,13 @@ title: 'Walking skeleton running locally'
 type: 'feature'
 ticket: '1'
 created: '2026-10-02'
-status: 'ready-for-dev'
-baseline_revision: ''
+status: 'built'
+baseline_revision: '311fd22bd289df0266c439a85fd1f80cc1b68ccb'
 route: 'full'
 route_source: 'auto'
-review: ''
-review_source: ''
-lenses_ran: []
+review: 'quick'
+review_source: 'pinned'
+lenses_ran: ['quick']
 review_loop_iteration: 0
 context:
   - '{project-root}/_bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md'
@@ -67,19 +67,19 @@ Greenfield: the repository root holds only `.agents/`, `.claude/`, `_bmad/`, `_b
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `.tool-versions` -- pin `ruby 4.0.7` and `nodejs 24.15.0`; run `asdf plugin update ruby`, install that Ruby, then `gem install rails -v 8.1.4` -- one toolchain for every session
-- [ ] repository root -- run `rails new . --name=gameble --database=postgresql --skip-javascript` with Rails 8.1.4 -- the application skeleton
-- [ ] `Gemfile` -- add `vite_rails` (`~> 3.11.1`) and `packs-rails` (`~> 0.1.0`) -- bundling and packs
-- [ ] `vite.config.ts`, `config/vite.json`, `app/frontend/entrypoints/application.js`, `package.json` -- run `bundle exec vite install` -- Vite serves the page's assets
-- [ ] `packs/catalog/package.yml`, `packs/steam/package.yml`, `packs/accounts/package.yml`, `packs/game/package.yml` -- create the four empty packs, each with `app/models/.keep` -- AD-1
-- [ ] `compose.yaml` -- PostgreSQL 18 for development and test, published on port 5433 -- a local database that does not collide with port 5432
-- [ ] `config/database.yml` -- development and test read `DB_HOST` (default `localhost`), `DB_PORT` (`5433`), `DB_USER` and `DB_PASSWORD` (both `postgres`), matching `compose.yaml` -- runs with no manual setup
-- [ ] `bin/setup` -- run `npm install` after `bundle install` -- tests and Vite need `node_modules`
-- [ ] `bin/dev` -- run `Procfile.dev` (Rails server and Vite dev server) through foreman, installing it if missing -- live reload in development
-- [ ] `app/frontend/entrypoints/application.css`, `app/views/layouts/application.html.erb` -- add a Vite stylesheet entrypoint with `vite_stylesheet_tag`, and remove the Propshaft `stylesheet_link_tag` -- one home for CSS
-- [ ] `config/routes.rb`, `app/controllers/pages_controller.rb`, `app/views/pages/home.html.erb` -- root route to a placeholder page -- the tracer's visible end
-- [ ] `test/controllers/pages_controller_test.rb`, `test/packs_test.rb` -- test the tested rows of the I/O matrix, and that `Packs.all` names `packs/catalog`, `packs/steam`, `packs/accounts`, `packs/game` -- proof the skeleton holds
-- [ ] `README.md` -- local setup, run and test in a few lines -- the next session starts without guessing
+- [x] `.tool-versions` -- pin `ruby 4.0.7` and `nodejs 24.15.0`; run `asdf plugin update ruby`, install that Ruby, then `gem install rails -v 8.1.4` -- one toolchain for every session
+- [x] repository root -- run `rails new . --name=gameble --database=postgresql --skip-javascript` with Rails 8.1.4 -- the application skeleton
+- [x] `Gemfile` -- add `vite_rails` (`~> 3.11.1`) and `packs-rails` (`~> 0.1.0`) -- bundling and packs
+- [x] `vite.config.ts`, `config/vite.json`, `app/frontend/entrypoints/application.js`, `package.json` -- run `bundle exec vite install` -- Vite serves the page's assets
+- [x] `packs/catalog/package.yml`, `packs/steam/package.yml`, `packs/accounts/package.yml`, `packs/game/package.yml` -- create the four empty packs, each with `app/models/.keep` -- AD-1
+- [x] `compose.yaml` -- PostgreSQL 18 for development and test, published on port 5433 -- a local database that does not collide with port 5432
+- [x] `config/database.yml` -- development and test read `DB_HOST` (default `localhost`), `DB_PORT` (`5433`), `DB_USER` and `DB_PASSWORD` (both `postgres`), matching `compose.yaml` -- runs with no manual setup
+- [x] `bin/setup` -- run `npm install` after `bundle install` -- tests and Vite need `node_modules`
+- [x] `bin/dev` -- run `Procfile.dev` (Rails server and Vite dev server) through foreman, installing it if missing -- live reload in development
+- [x] `app/frontend/entrypoints/application.css`, `app/views/layouts/application.html.erb` -- add a Vite stylesheet entrypoint with `vite_stylesheet_tag`, and remove the Propshaft `stylesheet_link_tag` -- one home for CSS
+- [x] `config/routes.rb`, `app/controllers/pages_controller.rb`, `app/views/pages/home.html.erb` -- root route to a placeholder page -- the tracer's visible end
+- [x] `test/controllers/pages_controller_test.rb`, `test/packs_test.rb` -- test the tested rows of the I/O matrix, and that `Packs.all` names `packs/catalog`, `packs/steam`, `packs/accounts`, `packs/game` -- proof the skeleton holds
+- [x] `README.md` -- local setup, run and test in a few lines -- the next session starts without guessing
 
 **Acceptance Criteria:**
 - Given a clone with the pinned Ruby and Node and `docker compose up -d`, when `bin/setup --skip-server` then `bin/rails test` run, then every test passes.
@@ -88,9 +88,22 @@ Greenfield: the repository root holds only `.agents/`, `.claude/`, `_bmad/`, `_b
 
 ## Implementation Notes
 
+- Ruby 4.0.7 boots and passes the tests; no fallback to 3.4.11 was needed, and the Rails 58069 `FrozenError` did not appear.
+- `rails new` ran with `--skip` so the existing `.gitignore` was kept; the Rails and Vite entries were then merged into it.
+- `Procfile.dev` lists `web` first and `bin/dev` exports `PORT` (default 3000): foreman gives `$PORT` to the first process only and offsets the others by 100.
+- `bundle exec vite install` left mis-indented comments in `config/initializers/content_security_policy.rb`; they were re-indented so the generated RuboCop config passes.
+- Built assets in tests have hashed names (`/vite-test/assets/application-*.js`), so the page test matches that path rather than `/entrypoints/`.
+
 ## Plan Change Log
 
 ## Review Triage Log
+
+| Finding | Verdict | Route | Evidence |
+|---|---|---|---|
+| Dockerfile has no Node; `assets:precompile` fails | medium | defer | vite_ruby hooks its build into `assets:precompile`; the intent keeps Docker and Kamal files as generated, so this belongs to the deployment work. |
+| CI test job has no Node or `npm install`; root-page test fails | medium | defer | `autoBuild: true` in test needs `node_modules`; the intent leaves the generated CI to story 1.2. |
+| `config/vite.json` `skipProxy: true` in development | low | patch | Written by `vite install` (vite_rails 3.11.1), not by the vite_ruby template, and not recorded in the plan; it hard-codes `http://localhost:3036` in asset tags, which breaks pages opened from another host. Fix: delete the line. |
+| README omits `asdf plugin update ruby` | low | patch | An older asdf Ruby plugin lists versions only up to 4.0.6, so `asdf install` fails on 4.0.7; the README must say to update the plugin first. |
 
 ## Verification
 

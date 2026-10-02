@@ -1,3 +1,9 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-foundation-and-steam-sign-in/story-walking-skeleton-live-in-production-plan.md`
   summary: Deploy gameble to production with Kamal 2 — Dockerfile changes for the Vite build, `config/deploy.yml` and `.kamal/secrets`, the PostgreSQL 18 accessory with its four databases, HTTPS through the Kamal proxy with Let's Encrypt, and the first `bin/kamal setup`, run by the author.
   evidence: Split from story 1.1 on 2026-10-02 at the author's request. There is no production server, no domain and no Cloudflare setup yet; the author will deploy once a working version exists. Story 1.1's Verify and the epic's Done when checks 1, 4 and 6 name production and wait on this work.
+- source_plan: `_bmad-output/initiative-gameble/epic-foundation-and-steam-sign-in/story-walking-skeleton-live-in-production-plan.md`
+  summary: The generated Dockerfile installs no Node, so `assets:precompile` (which vite_ruby extends with `vite:install_dependencies` and `vite:build_all`) fails and no production image can be built until Node is added.
+  evidence: The app was generated with `--skip-javascript`; vite_ruby-3.11.1 `lib/tasks/vite.rake` lines 57–70 hook the Vite build into `assets:precompile`. Story 1.1 keeps the Docker and Kamal files as generated.
+- source_plan: `_bmad-output/initiative-gameble/epic-foundation-and-steam-sign-in/story-walking-skeleton-live-in-production-plan.md`
+  summary: The generated `.github/workflows/ci.yml` test job sets up no Node and runs no `npm install`, so the root-page test fails in CI (Vite `autoBuild` in test needs `node_modules`); story 1.2 must add Node to CI, not just adapt it.
+  evidence: `config/vite.json` sets `autoBuild: true` for test and the layout's Vite tags trigger a build; the CI job runs only `bin/rails db:test:prepare test`. Story 1.1 leaves the generated CI files for story 1.2.
