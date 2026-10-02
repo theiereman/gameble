@@ -1,14 +1,27 @@
 <% content_for :back_button, true %>
 <%# The cards of an opened pack, in their drawn order (five, or three for
-    the daily bonus). A plain list until the reveal (story 3.6). %>
+    the daily bonus). Right after the opening, the reveal island; on any
+    other visit, the faces. Both end on the same way out. %>
+<% turbo_exempts_page_from_cache if @reveal %>
 <section class="pack-result" aria-labelledby="pack-result-heading">
   <h1 id="pack-result-heading"><%= @pack.bonus? ? t(".heading_bonus") : t(".heading") %></h1>
-  <ol class="pack-result__cards">
-    <% @cards.each do |card| %>
-      <li class="pack-result__card pack-result__card--<%= card[:rarity] %>">
-        <span class="pack-result__title"><%= card[:title] %></span>
-        <span class="pack-result__rarity"><%= t("catalog.rarity.#{card[:rarity]}") %></span>
-      </li>
-    <% end %>
-  </ol>
+  <% if @reveal %>
+    <%= turbo_mount("PackReveal", props: reveal_props, class: "pack-reveal-island") %>
+    <%# Always a way out, shown while the island has not drawn its own. %>
+    <div class="pack-end pack-reveal__fallback">
+      <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t(".back_to_attic") %><% end %>
+    </div>
+  <% else %>
+    <ol class="pack-result__cards" aria-label="<%= t(".cards") %>">
+      <% @cards.each do |card| %>
+        <li class="pack-result__card"><%= render CardComponent.new(card:, size: :small, side: :face, strings: @strings) %></li>
+      <% end %>
+    </ol>
+    <div class="pack-end">
+      <% if @next_pack %>
+        <%= render ButtonComponent.new(href: packs_path, method: :post) do %><%= t(".open_next_pack") %><% end %>
+      <% end %>
+      <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t(".back_to_attic") %><% end %>
+    </div>
+  <% end %>
 </section>

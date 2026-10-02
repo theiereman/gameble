@@ -7,7 +7,9 @@ import { registerComponent } from "turbo-mount/react"
 import { createElement, lazy, Suspense, type ComponentType } from "react"
 
 import SampleIsland from "../components/SampleIsland"
+import RevealErrorBoundary from "../components/RevealErrorBoundary"
 import type { CardPreviewProps } from "../components/CardPreview"
+import type { PackRevealProps } from "../components/PackReveal"
 
 const application = Application.start()
 registerControllers(application, import.meta.glob("../controllers/**/*_controller.ts", { eager: true }))
@@ -24,3 +26,10 @@ registerComponent(turboMount, "SampleIsland", island(SampleIsland))
 const CardPreview = lazy(() => import("../components/CardPreview"))
 const LazyCardPreview = (props: CardPreviewProps) => createElement(Suspense, { fallback: null }, createElement(CardPreview, props))
 registerComponent(turboMount, "CardPreview", island(LazyCardPreview))
+
+// The pack reveal (AD-16), mounted once right after an opening: its code
+// loads on that page only.
+const PackReveal = lazy(() => import("../components/PackReveal"))
+const LazyPackReveal = (props: PackRevealProps) =>
+  createElement(RevealErrorBoundary, { strings: props.strings }, createElement(Suspense, { fallback: null }, createElement(PackReveal, props)))
+registerComponent(turboMount, "PackReveal", island(LazyPackReveal))

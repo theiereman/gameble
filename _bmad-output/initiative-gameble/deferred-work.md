@@ -54,3 +54,6 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-refactor-sweep-plan.md`
   summary: Findings of epic 2 rejected as false, kept for the record, no action: `bin/packwerk` has no binstub (story 2.1, finding 6: CI runs `bundle exec packwerk check`); no index on `(import_run_id, appid)` for the review pages (story 2.3, finding 5: the page walks the unique `appid` index from the cursor); a later run's exclusion makes `ready_by(earlier_run)` lose an app (story 2.4, finding 5: rows hold the latest run's results by design, and `ready_by` is only read for the run in progress).
   evidence: The Review Triage Logs of stories 2.1, 2.3 and 2.4.
+- source_plan: `_bmad-output/initiative-gameble/epic-packs-and-reveal/story-pack-reveal-island-plan.md`
+  summary: Re-run `game:benchmark_open_pack` and update the epic Notes, since the result page now builds CardViews, CardStrings and BankSummary.
+  evidence: Story 3.6 review row 8; the 3.9 GET figure (p95 ~4.7 ms) predates the reveal page.

@@ -42,9 +42,12 @@
       </section>
     </header>
 
-    <% if flash.any? %>
+    <%# Only these two are messages; the flash carries other data, such as
+        the pack to reveal, that never reaches the page. %>
+    <% messages = flash.to_hash.slice("notice", "alert").compact_blank %>
+    <% if messages.any? %>
       <div class="flash" role="status">
-        <% flash.each do |type, message| %>
+        <% messages.each do |type, message| %>
           <p class="flash__message flash__message--<%= type %>"><%= message %></p>
         <% end %>
       </div>

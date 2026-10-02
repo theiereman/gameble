@@ -188,6 +188,15 @@ fr:
     show:
       heading: "Ton paquet, Confrère"
       heading_bonus: "Ton bonus du jour"
+      cards: "Les cartes de ton paquet"
+      flip_all: "Tout retourner"
+      next: "Carte suivante"
+      progress: "Carte %{position} sur %{count}"
+      all_flipped: "Toutes les cartes sont retournées, Confrère."
+      open_next_pack: "Ouvrir le paquet suivant"
+      back_to_attic: "Retour au grenier"
+      failed: "La révélation a trébuché, Confrère. Tes cartes sont à l'abri dans ta collection."
+      reload: "Voir mes cartes"
   daily_bonuses:
     create:
       collected: "Le booster du jour est dans le coffre, Confrère. Ouvre-le quand tu veux."

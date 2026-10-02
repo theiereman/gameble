@@ -3,6 +3,7 @@
 @import "../styles/fonts.css";
 @import "../styles/attic.css";
 @import "../styles/card.css";
+@import "../styles/reveal.css";
 
 *,
 *::before,
@@ -244,22 +245,22 @@ h2 {
   font-size: var(--font-size-label);
 }
 
-/* The cards of an opened pack: a plain list until the reveal (story 3.6). */
+/* The cards of an opened pack, face up: every visit after the reveal. */
 .pack-result {
-  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.pack-result h1 {
+  margin: 0;
 }
 
 .pack-result__cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
   margin: 0;
-  padding-left: var(--space-5);
-}
-
-.pack-result__card {
-  margin-bottom: var(--space-3);
-}
-
-.pack-result__rarity {
-  margin-left: var(--space-3);
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
+  padding: var(--space-3);
+  list-style: none;
 }
