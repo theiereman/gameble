@@ -72,9 +72,10 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
   end
 
   test "the database refuses a set key twice in a season and kind, but not across kinds" do
-    refused(ActiveRecord::RecordNotUnique) { Catalog::Set.create!(season: catalog_seasons(:one), kind: :publisher, key: "valve") }
+    season_id = catalog_seasons(:one).id
+    refused(ActiveRecord::RecordNotUnique) { Catalog::Set.insert_all!([ { season_id:, kind: "publisher", key: "valve" } ]) }
 
-    assert Catalog::Set.create!(season: catalog_seasons(:one), kind: :tome, key: "valve")
+    assert Catalog::Set.insert_all!([ { season_id:, kind: "tome", key: "valve" } ])
   end
 
   test "the database refuses a card-season twice for the same card and season" do
@@ -102,7 +103,7 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
   end
 
   test "a set key is URL-safe" do
-    set = Catalog::Set.new(season: catalog_seasons(:one), kind: :tome, key: "Action Vol 1")
+    set = Catalog::Set.new(season: draft, kind: :tome, key: "Action Vol 1")
 
     assert_not set.valid?
     set.key = "action-1"
@@ -141,6 +142,15 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
     assert_raises(ActiveRecord::ReadonlyAttributeError) { card_season.card_id = card_season.card_id + 1 }
   end
 
+  test "a set never moves to another season, and a membership never moves to another set or card-season" do
+    set = catalog_sets(:valve_one)
+    membership = Catalog::SetMembership.where(set: set).first!
+
+    assert_raises(ActiveRecord::ReadonlyAttributeError) { set.season_id = draft.id }
+    assert_raises(ActiveRecord::ReadonlyAttributeError) { membership.set_id = set.id + 1 }
+    assert_raises(ActiveRecord::ReadonlyAttributeError) { membership.card_season_id = membership.card_season_id + 1 }
+  end
+
   test "a card-season of a published season is never destroyed" do
     Catalog::SetMembership.where(card_season: card_season).delete_all
 
@@ -160,6 +170,38 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
     draft_card_season = Catalog::CardSeason.create!(card: catalog_cards(:portal), season: draft, prestige_score: 1, rating: 50)
 
     assert draft_card_season.update(rating: 60, prestige_score: 2)
+  end
+
+  test "a set of a published season is frozen" do
+    set = catalog_sets(:valve_one)
+
+    assert_not set.update(key: "valve-2")
+    assert_includes set.errors.details[:base], { error: :frozen_once_published }
+    assert_not set.update(params: { "publisher" => "Other" })
+    assert_not Catalog::Set.new(season: catalog_seasons(:one), kind: :tome, key: "action-1").valid?
+  end
+
+  test "a set of a published season is never destroyed" do
+    set = catalog_sets(:valve_one)
+
+    assert_not set.destroy
+    assert_includes set.errors.details[:base], { error: :frozen_once_published }
+    assert Catalog::Set.exists?(set.id)
+  end
+
+  test "a set of a draft season can change" do
+    set = Catalog::Set.create!(season: draft, kind: :tome, key: "action-1")
+
+    assert set.update(key: "action-2", params: { "genre" => "action" })
+    assert set.destroy
+  end
+
+  test "params default to an empty object, never NULL" do
+    Catalog::Set.insert_all!([ { season_id: draft.id, kind: "tome", key: "action-1" } ])
+
+    assert_equal({}, Catalog::Set.find_by!(key: "action-1").params)
+    assert_equal({ "publisher" => "Valve" }, catalog_sets(:valve_one).params)
+    refused(ActiveRecord::NotNullViolation) { Catalog::Set.where(id: catalog_sets(:valve_one).id).update_all(params: nil) }
   end
 
   test "a membership of a published season is frozen" do

@@ -31,6 +31,9 @@
           <% Catalog::Rarity::TIERS.each_value do |name| %>
             <th scope="col"><%= t("catalog.rarity.#{name}") %></th>
           <% end %>
+          <% Catalog::Set.kinds.each_key do |kind| %>
+            <th scope="col"><%= t(".sets.#{kind}") %></th>
+          <% end %>
         </tr>
       </thead>
       <tbody>
@@ -43,6 +46,13 @@
             <% Catalog::Rarity::TIERS.each do |tier, name| %>
               <% if season.tier_counts %>
                 <td data-season-tier="<%= name %>"><%= number_with_delimiter(season.tier_counts.fetch(tier)) %></td>
+              <% else %>
+                <td>—</td>
+              <% end %>
+            <% end %>
+            <% Catalog::Set.kinds.each_key do |kind| %>
+              <% if season.set_counts %>
+                <td data-season-sets-<%= kind.dasherize %>="<%= season.set_counts.fetch(kind) %>"><%= number_with_delimiter(season.set_counts.fetch(kind)) %></td>
               <% else %>
                 <td>—</td>
               <% end %>

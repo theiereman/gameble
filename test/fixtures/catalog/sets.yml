@@ -5,3 +5,4 @@ valve_one:
   season: one
   kind: publisher
   key: "valve"
+  params: { "publisher": "Valve" }

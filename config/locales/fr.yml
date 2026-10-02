@@ -89,13 +89,17 @@ fr:
         published: "Publiée"
       index:
         heading: "Les saisons du catalogue"
-        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, dépose la poussière sur leur dos et l'ouvre au tirage, d'un seul coup. Une saison publiée ne change plus jamais."
+        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, dépose la poussière sur leur dos, les relie en éditeurs, en tomes de genre et en meilleurs de chaque année, et l'ouvre au tirage, d'un seul coup. Une saison publiée ne change plus jamais."
         empty: "Aucune saison pour l'instant. Le premier import ouvrira le brouillon."
         caption: "Saisons du catalogue, par numéro"
         number: "Saison"
         status: "État"
         card_count: "Cartes"
         published_at: "Publiée"
+        sets:
+          publisher: "Éditeurs"
+          tome: "Tomes"
+          best_of_year: "Meilleurs de l'année"
         publish: "Publier la saison %{number}"
         confirm:
           one: "Publier la saison %{number} et sa seule carte ? Ses raretés et sa poussière ne changeront plus jamais."
