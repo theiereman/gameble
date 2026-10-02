@@ -31,6 +31,10 @@ en:
       countdown:
         label: "Next pack in"
         at: "Next pack at %{time} (UTC)"
+      bonus:
+        heading: "Daily bonus"
+        text: "A small booster awaits you, Brother."
+        collect: "Take it"
       island:
         heading: "The Brotherhood muster board"
         season: "Current season of service:"
@@ -183,6 +187,11 @@ en:
       throttled: "Easy, Brother. The chest needs a moment between openings; try again in a minute."
     show:
       heading: "Your pack, Brother"
+      heading_bonus: "Your daily bonus"
+  daily_bonuses:
+    create:
+      collected: "The daily booster is in the chest, Brother. Open it when you will."
+      throttled: "Easy, Brother. The bonus will not run away; try again in a minute."
   cards:
     face_down: "Face-down card"
     face_down_with_rarity: "Face-down card, %{rarity}"
@@ -237,6 +246,8 @@ en:
     game:
       player_required: "Only an enlisted Brother in good standing may do that."
       no_pack_available: "The chest is empty, Brother. Wait for the next pack."
+      already_collected: "You have already taken today's bonus, Brother. The next one comes after midnight (UTC)."
+      no_season: "The Brotherhood has no season of cards yet, Brother. Come back later today for your bonus."
     steam:
       invalid_claimed_id: "The scribes could not recognise the papers you brought back, Brother. Enlist again."
       sign_in_failed: "The enlistment did not go through, Brother. Your papers were not stamped; try again."

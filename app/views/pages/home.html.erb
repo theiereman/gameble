@@ -50,6 +50,20 @@
       </div>
     </figure>
 
+    <%# The daily bonus panel (CAP-16): beside the chest, once per UTC day,
+        gone once collected until a page load after midnight UTC. Its
+        condition lives in this local alone. %>
+    <% bonus_panel = @bank.present? && @bank[:bonus_collectable] %>
+    <% if bonus_panel %>
+      <section class="attic__bonus" aria-labelledby="attic-bonus-heading">
+        <%= render TextPlateComponent.new do %>
+          <h2 id="attic-bonus-heading" class="attic__bonus-heading"><%= t(".bonus.heading") %></h2>
+          <p class="attic__bonus-text"><%= t(".bonus.text") %></p>
+        <% end %>
+        <%= render ButtonComponent.new(href: daily_bonus_path, method: :post) do %><%= t(".bonus.collect") %><% end %>
+      </section>
+    <% end %>
+
     <% unless current_player %>
       <div class="attic__invitation">
         <%= render TextPlateComponent.new(tag: :p) do %>

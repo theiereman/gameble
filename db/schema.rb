@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_010000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_020000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -127,6 +127,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_010000) do
     t.index ["stream", "position"], name: "index_event_store_events_in_streams_on_stream_and_position", unique: true
   end
 
+  create_table "game_daily_bonus_claims", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.date "day", null: false
+    t.bigint "pack_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["pack_id"], name: "index_game_daily_bonus_claims_on_pack_id"
+    t.index ["player_id", "day"], name: "index_game_daily_bonus_claims_on_player_id_and_day", unique: true
+  end
+
   create_table "game_holdings", force: :cascade do |t|
     t.bigint "player_id", null: false
     t.bigint "card_season_id", null: false
@@ -227,6 +237,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_010000) do
   add_foreign_key "catalog_set_memberships", "catalog_sets", column: "set_id"
   add_foreign_key "catalog_sets", "catalog_seasons", column: "season_id"
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
+  add_foreign_key "game_daily_bonus_claims", "accounts_players", column: "player_id"
+  add_foreign_key "game_daily_bonus_claims", "game_packs", column: "pack_id"
   add_foreign_key "game_holdings", "accounts_players", column: "player_id"
   add_foreign_key "game_holdings", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_packs", "accounts_players", column: "player_id"

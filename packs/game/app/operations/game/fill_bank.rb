@@ -20,7 +20,9 @@ module Game
       @random = random
     end
 
-    def call(player:)
+    # `now`: the packs' availability time; a caller holding its own `now`
+    # (Game::CollectDailyBonus) passes it so its later packs open after these.
+    def call(player:, now: Time.current)
       player = step require_player(player)
 
       transaction do
@@ -30,7 +32,7 @@ module Game
         pool = DrawPool.current
         next 0 if pool.nil?
 
-        step insert_packs(player, pool)
+        step insert_packs(player, pool, now)
         step publish(BankFilled.new(data: { player_id: player.id }), stream_name: stream_name(player.id))
         BANK_SIZE
       end
@@ -38,8 +40,7 @@ module Game
 
     private
 
-    def insert_packs(player, pool)
-      now = Time.current
+    def insert_packs(player, pool, now)
       draws = Array.new(BANK_SIZE) { Draw.pack(odds: DrawOdds::REGULAR, size: Pack::SIZE, random: @random, pool:) }
       # Rows keep their order, and insert_all! numbers them in that order:
       # the opening order (available_at, id) is the order of `draws`.
