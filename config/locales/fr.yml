@@ -32,6 +32,7 @@ fr:
       show:
         heading: "Le back-office de la Confrérie"
         empty: "Rien n'attend encore les officiers. Les registres sont vierges."
+        jobs: "La file des tâches"
   sessions:
     create:
       welcome: "Bienvenue dans les rangs, Confrère. La Confrérie a inscrit ton nom au grand registre."
@@ -40,6 +41,8 @@ fr:
   authorization:
     sign_in_required: "Seuls les Confrères enrôlés peuvent faire cela. Enrôle-toi d'abord via Steam."
     forbidden: "Cet ordre dépasse ton grade, Confrère. Les coffres restent fermés."
+  rate_limit:
+    throttled: "Trop de tentatives d'enrôlement, Confrère. Reprends ton souffle et réessaie dans une minute."
   errors:
     accounts:
       invalid_steam_id: "Les scribes n'ont pas pu lire cette identité, Confrère. Enrôle-toi à nouveau."

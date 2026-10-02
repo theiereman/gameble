@@ -15,6 +15,12 @@ class ButtonComponentTest < ViewComponent::TestCase
     assert_no_selector "button"
   end
 
+  test "a link with turbo off is a full-page load" do
+    render_inline(ButtonComponent.new(variant: :secondary, href: "/back-office/jobs", turbo: false)) { "Jobs" }
+
+    assert_selector "a.button.button--secondary[href='/back-office/jobs'][data-turbo=false]", text: "Jobs"
+  end
+
   test "a button takes the submit type" do
     render_inline(ButtonComponent.new(type: :submit)) { "Send" }
 

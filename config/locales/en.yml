@@ -32,6 +32,7 @@ en:
       show:
         heading: "The Brotherhood's back-office"
         empty: "Nothing awaits the officers yet. The ledgers lie blank."
+        jobs: "The job queue"
   sessions:
     create:
       welcome: "Welcome to the ranks, Brother. The Brotherhood has entered your name in the great ledger."
@@ -40,6 +41,8 @@ en:
   authorization:
     sign_in_required: "Only enlisted Brothers may do that. Enlist through Steam first."
     forbidden: "That order is above your rank, Brother. The vaults stay shut."
+  rate_limit:
+    throttled: "Too many enlistment attempts, Brother. Catch your breath and try again in a minute."
   errors:
     accounts:
       invalid_steam_id: "The scribes could not read that identity, Brother. Enlist again."

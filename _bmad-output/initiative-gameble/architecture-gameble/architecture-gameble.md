@@ -273,6 +273,7 @@ Verified against the RubyGems and npm registries on 2026-10-02. If a gem lags be
 | i18n-tasks | 1.1.2 |
 | http_accept_language | 2.1.1 |
 | sentry-rails | 7.1.0 |
+| rack-attack | 6.8.0 |
 
 ## Structural Seed
 

@@ -72,6 +72,15 @@ gem "rexml", "~> 3.4.4"
 # A policy on every controller action, deny by default (AD-14) [https://github.com/varvet/pundit]
 gem "pundit", "~> 2.5.2"
 
+# Report production errors, without personal data (AD-21) [https://github.com/getsentry/sentry-ruby]
+gem "sentry-rails", "~> 7.1.0"
+
+# Watch and retry jobs from the back-office, administrators only [https://github.com/rails/mission_control-jobs]
+gem "mission_control-jobs", "~> 1.3.1"
+
+# Throttle the sign-in endpoints per client IP, before the OmniAuth middleware [https://github.com/rack/rack-attack]
+gem "rack-attack", "~> 6.8.0"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"

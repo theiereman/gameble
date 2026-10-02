@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
 
   around_action :switch_locale
+  before_action :set_sentry_user
 
   # Every action takes a policy decision (AD-14); one that skipped `authorize`
   # raises Pundit::AuthorizationNotPerformedError.
@@ -42,6 +43,12 @@ class ApplicationController < ActionController::Base
         player = nil
       end
       @current_player = player
+    end
+
+    # Errors reported to Sentry carry the player id, and nothing else about
+    # the player (AD-21). Sentry runs only where SENTRY_DSN is set.
+    def set_sentry_user
+      Sentry.set_user(id: current_player.id) if Sentry.initialized? && current_player
     end
 
     def pundit_user

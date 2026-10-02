@@ -1,8 +1,9 @@
 # Primary (rust) or secondary (parchment) button with a hard ink shadow (DESIGN.md: buttons).
 # Renders a link when given an href, a one-button form when given an href and
 # a method (POST, DELETE…, with the CSRF token and any extra params), else a
-# <button>. `turbo: false` makes the form a full-page submission, for a form
-# whose response leaves the site (Steam sign-in).
+# <button>. `turbo: false` makes the form or link a full-page load, for a
+# response that leaves the site (Steam sign-in) or the app's pages (the
+# job queue).
 class ButtonComponent < ViewComponent::Base
   VARIANTS = %i[primary secondary].freeze
 
