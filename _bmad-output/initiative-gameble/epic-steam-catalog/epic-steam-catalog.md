@@ -24,7 +24,13 @@ For players: a catalog of established Steam games to draw from, whose rarity any
 
 ## Requirements
 
-Completed at this epic's inception. The source lines are CAP-2 and CAP-3 of the spec and `catalog-and-rarity.md`.
+- R1 (CAP-2; architecture AD-19): an administrator starts an import run by hand from the back-office; each run has a record with its step, counts and errors, shown in the back-office while it runs.
+- R2 (architecture AD-19, AD-21; `catalog-and-rarity.md`, Import): import jobs run on their own queue, in the import worker process, with one throttled worker that stays under Steam's limits (store endpoints about 200 requests per 5 minutes; Web API 100,000 calls per day per key); a run resumes after an interruption from where it stopped, and every write is idempotent.
+- R3 (CAP-2; `catalog-and-rarity.md`, Inclusion): one card per Steam app of type `game`; DLC, soundtracks, demos and tools are excluded; a game without a vertical Steam library image is excluded; a game with fewer than 500 Steam reviews is excluded.
+- R4 (CAP-2; `catalog-and-rarity.md`, Card identity; architecture AD-18; spec CAP-7): each card has a title and a short description in French and English taken from Steam's localized store text, a release date, its store tags, its publisher and copyright credit, its image address on Steam's CDN (the image is never copied) and a link to its store page.
+- R5 (CAP-3; architecture AD-4): `Steam` keeps the raw Steam responses in its own tables and computes each game's prestige score from its review score and review count only; Metacritic is not used. `Catalog` and `Game` never reference a Steam-specific field.
+- R6 (CAP-3; architecture AD-5; DESIGN.md, Dust): an import fills a draft season. `Catalog::PublishSeason` turns prestige scores into the five tiers (integers 1 to 5, steel, emerald, sapphire, amethyst, gold, defined once in `Catalog`), sets each card-season's dust tier from the game's age, and makes the season visible at once; rarity and dust tier never change after publication; draws read only the published season.
+- R7 (CAP-2; `catalog-and-rarity.md`, Sets): publishing builds the sets of the season: one publisher set per publisher with at least 5 games; tomes, each Steam genre split into volumes of about thirty games by release date, a game sitting in one tome by its first-listed genre; and for each release year the 10 games with the highest review score.
 
 ## Done when
 
@@ -49,3 +55,12 @@ The `Steam` and `Catalog` packs and the import pages of the back-office. Not the
 
 - Open question: prestige formula and tier thresholds; calibrated on the first real import.
 - Unknown: the duration of a full import pass under Steam's rate limit; measured on the first run.
+- Unknown: which Steam endpoint gives review counts, tags and the vertical image cheapest; `IStoreBrowseService/GetItems` may batch them, `appdetails` and `appreviews` are one app per call. The review pass and the store-details entries settle it before they write code.
+- Decision (2026-10-02): breakdown of nine stories drafted by the facilitator at the author's request ("découpe l'épic 2 en stories"), pending the author's approval.
+- Decision (2026-10-02): tracer bullet is story 1: an administrator starts a run from the back-office, a job on the import queue lists Steam's games, and the run's step and counts update on the page.
+- Decision (2026-10-02): stories 1 and 2 run side by side (back-office and `Steam` against `Catalog`); everything after story 2 is one lane, because each step feeds the next.
+- Decision (2026-10-02): resumability is built into story 1 (a run's step and cursor) and every later step honours it; it is not a story of its own.
+- Assumption: tiers are cut by prestige-score percentile with thresholds held in one place in `Catalog`; story 6 sets starting values and story 8 calibrates them on real data.
+- Decision (2026-10-02): hitl on story 1 (a Steam Web API key in the credentials) and story 8 (the author runs the full import and approves the calibration).
+- Decision (2026-10-02): a closing refactor sweep (story 9) follows every other story.
+- Assumption: the set check was run by the facilitator in this conversation, not by independent agents.
