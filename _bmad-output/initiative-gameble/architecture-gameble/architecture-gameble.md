@@ -248,6 +248,7 @@ Verified against the RubyGems and npm registries on 2026-10-02. If a gem lags be
 | Vite | 8.3.2 |
 | React | 19.3.0 |
 | TypeScript | 7.0.2 |
+| Vitest | 5.0.3 |
 | Turbo Mount | 0.4.4 |
 | @hotwired/turbo-rails (npm) | 8.0.23 |
 | @hotwired/stimulus (npm) | 3.2.2 |
