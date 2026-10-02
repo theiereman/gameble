@@ -1,0 +1,7 @@
+# Pending approvals
+
+Operations set aside while the author was away (2026-10-02): each waits for an explicit go-ahead. Nothing here has been run.
+
+- **Close the GitHub issues of epic 1 (#1–#11).** Optional since tracking moved to the repo store; the issues are still open with the `backlog` label. Command: `for n in 2 3 4 5 6 7 8 9 10 11 1; do gh issue edit $n --remove-label backlog && gh issue close $n --reason completed; done`.
+- **Full real Steam import in development (story 2.3's manual check, story 2.8).** About 1,900 `GetItems` calls for the review pass, plus the details and roughly one `appdetails` call per kept game at 2 s each (several hours) on the author's API key. Measures the duration, the kept count and the real prestige scores for calibration.
+- **Deploy to the test LXC (`bin/kamal deploy`) and run the first real import there (story 2.8).** Needs `config/steam_api.key` on the deploying machine (`.kamal/secrets` reads it) and adds the `import` role.
