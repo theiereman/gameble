@@ -25,7 +25,8 @@ class SessionsController < ApplicationController
     result = Steam::SignInIdentity.steam_id_from(request.env["omniauth.auth"])
     return fail_sign_in(Steam::SignInIdentity.failure_key(result.failure)) if result.failure?
 
-    result = Accounts::SignIn.new.call(steam_id: result.value!)
+    result = sign_in(result.value!)
+    return fail_sign_in(Accounts::SignIn.failure_key(:sign_in_failed)) if result.nil?
     return fail_sign_in(Accounts::SignIn.failure_key(result.failure)) if result.failure?
 
     reset_session
@@ -49,6 +50,16 @@ class SessionsController < ApplicationController
   end
 
   private
+    # The result of Accounts::SignIn, or nil when it raised: a handler of the
+    # sign-up (the bank fill, Game::Handlers::PlayerRegistered) that raises
+    # rolls the new player back. The error is reported.
+    def sign_in(steam_id)
+      Accounts::SignIn.new.call(steam_id:)
+    rescue StandardError => error
+      Rails.error.report(error)
+      nil
+    end
+
     def fail_sign_in(key)
       redirect_to return_path, alert: t(key)
     end

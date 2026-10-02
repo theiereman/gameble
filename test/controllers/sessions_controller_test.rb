@@ -52,6 +52,63 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".flash .flash__message--notice", flash[:notice]
   end
 
+  def bank_of(player)
+    Game::Pack.where(player_id: player.id)
+  end
+
+  def bank_filled_events
+    Rails.configuration.event_store.read.of_type(Game::BankFilled).to_a
+  end
+
+  test "a first sign-in fills the new player's bank with ten available packs of five cards" do
+    Game::DrawPool.reset!
+
+    sign_in_with_steam
+
+    player = new_players.sole
+    assert_equal 10, bank_of(player).count
+    assert bank_of(player).all? { |pack| pack.card_season_ids.size == 5 && pack.available_at <= Time.current }
+    assert_equal [ { player_id: player.id } ], bank_filled_events.map(&:data)
+  end
+
+  test "a returning sign-in adds no pack" do
+    sign_in_with_steam
+    delete session_path(locale: :en)
+
+    sign_in_with_steam
+
+    assert_equal 10, bank_of(new_players.sole).count
+    assert_equal 1, bank_filled_events.size
+  end
+
+  test "a sign-up with no published season succeeds with an empty bank and no BankFilled" do
+    catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
+
+    sign_in_with_steam
+
+    player = new_players.sole
+    assert_equal player.id, signed_in_player_id
+    assert_equal 0, bank_of(player).count
+    assert_empty bank_filled_events
+  end
+
+  test "a sign-up whose bank fill raises creates no player, reports the error and fails the sign-in" do
+    failing = Object.new
+    failing.define_singleton_method(:call) { |**| raise "the bank fill failed" }
+    Game::FillBank.define_singleton_method(:new) { failing }
+    begin
+      assert_error_reported(RuntimeError) { sign_in_with_steam }
+    ensure
+      Game::FillBank.singleton_class.remove_method(:new)
+    end
+
+    assert_equal 0, new_players.count
+    assert_empty registered_events
+    assert_nil signed_in_player_id
+    assert_redirected_to home_path(locale: :en)
+    assert_equal I18n.t("errors.accounts.sign_in_failed", locale: :en), flash[:alert]
+  end
+
   test "signing in twice with the same Steam id keeps one player and the same session id" do
     sign_in_with_steam
     first_id = signed_in_player_id

@@ -1,0 +1,14 @@
+<% content_for :back_button, true %>
+<%# The cards of an opened pack, in their drawn order. A plain list until the
+    reveal (story 3.6). %>
+<section class="pack-result" aria-labelledby="pack-result-heading">
+  <h1 id="pack-result-heading"><%= t(".heading") %></h1>
+  <ol class="pack-result__cards">
+    <% @cards.each do |card| %>
+      <li class="pack-result__card pack-result__card--<%= card[:rarity] %>">
+        <span class="pack-result__title"><%= card[:title] %></span>
+        <span class="pack-result__rarity"><%= t("catalog.rarity.#{card[:rarity]}") %></span>
+      </li>
+    <% end %>
+  </ol>
+</section>

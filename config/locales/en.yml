@@ -24,6 +24,10 @@ en:
         trade_table: "Trades and friends"
         chest: "The chest"
       invitation: "Enlist through Steam, Brother, and the chest will open for you."
+      chest:
+        open: "Open a pack (%{count})"
+        open_visitor: "Open a pack"
+        empty: "No pack"
       island:
         heading: "The Brotherhood muster board"
         season: "Current season of service:"
@@ -150,6 +154,11 @@ en:
       publish:
         published: "Season %{number} is published, officer. Its cards are ready for the draw."
         import_active: "The latest Steam import has not completed, officer. Let it finish, or start a new run and let it complete, before publishing the season."
+  packs:
+    create:
+      throttled: "Easy, Brother. The chest needs a moment between openings; try again in a minute."
+    show:
+      heading: "Your pack, Brother"
   catalog:
     rarity:
       steel: "Steel"
@@ -189,6 +198,7 @@ en:
     accounts:
       invalid_steam_id: "The scribes could not read that identity, Brother. Enlist again."
       banned: "The Brotherhood has struck your name from the ledger. The vaults stay shut to you."
+      sign_in_failed: "The enlistment did not go through, Brother. The scribes stumbled over the ledger; try again."
     catalog:
       missing_text: "The scribes need the card's title in every tongue of the Brotherhood before it can enter the ledger."
       invalid_card: "The scribes cannot enter that card in the ledger: its particulars are incomplete or out of order."
@@ -198,6 +208,7 @@ en:
       empty_tier: "The draft season is too small to fill all five rarities, officer. Import more games first."
     game:
       player_required: "Only an enlisted Brother in good standing may do that."
+      no_pack_available: "The chest is empty, Brother. Wait for the next pack."
     steam:
       invalid_claimed_id: "The scribes could not recognise the papers you brought back, Brother. Enlist again."
       sign_in_failed: "The enlistment did not go through, Brother. Your papers were not stamped; try again."

@@ -290,7 +290,7 @@
 /* Iron-bound chest, on the floor in the middle of the room: pack opening. */
 .attic__object--chest {
   left: 426px;
-  bottom: 30px;
+  bottom: 40px;
 }
 
 .attic__object--chest .attic__art {
@@ -307,6 +307,21 @@
     linear-gradient(var(--color-brass) 0 0) 10px 46px / 128px 56px no-repeat,
     linear-gradient(var(--color-brass-dark) 0 0) 10px 26px / 128px 22px no-repeat,
     radial-gradient(64px 22px at 74px 28px, var(--color-brass-dark) 100%, transparent 100%);
+}
+
+/* The chest's button, hung under its name on the floor, so the chest keeps
+   its place under the invitation: opens one pack. */
+.attic__chest-action {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.attic__chest-action .button {
+  margin: 0;
 }
 
 /* Signed out: an invitation on the wall above the chest. */

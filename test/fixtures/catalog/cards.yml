@@ -10,3 +10,42 @@ portal:
   publisher: "Valve"
   genres: ["action"]
   tags: ["puzzle", "first-person"]
+
+# One card-season per other tier in the published season, so a draw works
+# in every test (with portal_one, amethyst).
+
+steel_card:
+  source_key: "src:401"
+  slug: "tin-soldier"
+  release_date: 2024-06-01
+  image_url: "https://images.example.test/401.jpg"
+  store_url: "https://store.example.test/401"
+  genres: []
+  tags: []
+
+emerald_card:
+  source_key: "src:402"
+  slug: "green-hills"
+  release_date: 2019-06-01
+  image_url: "https://images.example.test/402.jpg"
+  store_url: "https://store.example.test/402"
+  genres: []
+  tags: []
+
+sapphire_card:
+  source_key: "src:403"
+  slug: "blue-depths"
+  release_date: 2014-06-01
+  image_url: "https://images.example.test/403.jpg"
+  store_url: "https://store.example.test/403"
+  genres: []
+  tags: []
+
+gold_card:
+  source_key: "src:405"
+  slug: "golden-crown"
+  release_date: 1998-06-01
+  image_url: "https://images.example.test/405.jpg"
+  store_url: "https://store.example.test/405"
+  genres: []
+  tags: []

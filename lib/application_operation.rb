@@ -3,11 +3,13 @@ require "dry/operation/extensions/active_record"
 # Base class of every operation (AD-3). An operation wraps its writes and its
 # event in `transaction`, and returns Success(value) or Failure(:code).
 #
-#   class Game::OpenPack < ApplicationOperation
+#   class Game::OpenPack < Game::Operation
 #     def call(player:)
+#       player = step require_player(player)
 #       transaction do
-#         pack = step consume_pack(player)
-#         step publish(Game::PackOpened.new(data: { pack_id: pack.id }), stream_name: "Game::Pack$#{pack.id}")
+#         pack = step next_pack(player) # Failure(:no_pack_available) rolls back
+#         step publish(Game::PackOpened.new(data: { player_id: player.id, pack_id: pack.id }),
+#           stream_name: Game::Operation.stream_name(player.id)) # "Game::Player$<id>"
 #         pack
 #       end
 #     end

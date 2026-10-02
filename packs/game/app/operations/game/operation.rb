@@ -25,7 +25,16 @@ module Game
       super
     end
 
+    # The event stream of a player's game (AD-10).
+    def self.stream_name(player_id)
+      "Game::Player$#{player_id}"
+    end
+
     private
+
+    def stream_name(player_id)
+      Operation.stream_name(player_id)
+    end
 
     def require_player(player)
       if player.is_a?(Accounts::Player) && player.persisted? && !player.banned?

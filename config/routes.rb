@@ -13,6 +13,9 @@ Rails.application.routes.draw do
   scope ":locale", locale: /en|fr/ do
     root "pages#home", as: :home
 
+    # Opening a pack from the chest, and the list of its cards (AD-15: by token).
+    resources :packs, only: %i[create show], param: :token
+
     # Staff only (R9): moderators and administrators.
     get "back-office" => "back_office/dashboard#show", as: :back_office
 

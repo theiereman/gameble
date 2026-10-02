@@ -32,7 +32,7 @@ module BackOffice
 
       assert_response :success
       assert_select "h1", "Les saisons du catalogue"
-      assert_select "tr[data-season-number='1'][data-season-status=published] td[data-season-card-count='1']"
+      assert_select "tr[data-season-number='1'][data-season-status=published] td[data-season-card-count='5']"
       assert_select "tr[data-season-number='1'] td[data-season-tier=amethyst]", "1"
       assert_select "tr[data-season-number='2'][data-season-status=draft] td", /Brouillon/
       assert_select "tr[data-season-number='2'] td[data-season-card-count='150']"

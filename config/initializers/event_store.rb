@@ -1,5 +1,15 @@
 # One Rails Event Store client for the whole app (AD-10). Operations publish
 # through ApplicationOperation#publish, inside their own transaction.
+#
+# Handlers subscribed here run synchronously, inside the publishing
+# transaction: a handler that raises rolls the operation back.
 Rails.configuration.to_prepare do
-  Rails.configuration.event_store = RailsEventStore::JSONClient.new
+  event_store = RailsEventStore::JSONClient.new
+
+  # A new player's bank is filled within the sign-up (AD-7).
+  event_store.subscribe(Game::Handlers::PlayerRegistered, to: [ Accounts::PlayerRegistered ])
+  # Players left without a bank get one when a season is published.
+  event_store.subscribe(Game::Handlers::SeasonPublished, to: [ Catalog::SeasonPublished ])
+
+  Rails.configuration.event_store = event_store
 end
