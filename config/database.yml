@@ -28,9 +28,15 @@ local: &local
   username: <%= ENV.fetch("DB_USER") { "postgres" } %>
   password: <%= ENV.fetch("DB_PASSWORD") { "postgres" } %>
 
+# Development runs Solid Queue, as production does, on its own queue database.
 development:
-  <<: *local
-  database: gameble_development
+  primary:
+    <<: *local
+    database: gameble_development
+  queue:
+    <<: *local
+    database: gameble_development_queue
+    migrations_paths: db/queue_migrate
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".

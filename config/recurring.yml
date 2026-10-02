@@ -9,7 +9,18 @@
 #     priority: 2
 #     schedule: at 5am every day
 
+# The import worker killed outright loses its page job: put stalled runs
+# back on the import queue (AD-19).
+recover_stalled_imports: &recover_stalled_imports
+  class: Steam::RecoverStalledImportsJob
+  queue: default
+  schedule: every 5 minutes
+
+development:
+  recover_stalled_imports: *recover_stalled_imports
+
 production:
+  recover_stalled_imports: *recover_stalled_imports
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12

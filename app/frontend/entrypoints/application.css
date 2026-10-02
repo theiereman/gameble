@@ -150,3 +150,60 @@ h1 {
 .flash__message--notice {
   border-color: var(--color-success);
 }
+
+h2 {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-family-title);
+  font-weight: var(--font-weight-title);
+  font-size: var(--font-size-body);
+}
+
+/* Back-office ledgers: a table of records and the fields of one record, on
+   parchment, ink-ruled. */
+.ledger {
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border: var(--space-unit) solid var(--color-ink);
+}
+
+.ledger th,
+.ledger td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--space-unit) solid var(--color-ink);
+  text-align: left;
+}
+
+.ledger th {
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+}
+
+.ledger-entry {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-3) var(--space-5);
+  margin: 0;
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  background: var(--color-surface);
+  border: var(--space-unit) solid var(--color-ink);
+}
+
+.ledger-entry dt {
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+}
+
+.ledger-entry dd {
+  margin: 0;
+}
+
+.ledger-errors {
+  margin: 0;
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  list-style: none;
+  background: var(--color-surface);
+  border: var(--space-unit) solid var(--color-danger);
+  overflow-wrap: anywhere;
+}

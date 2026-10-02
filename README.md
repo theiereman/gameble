@@ -19,10 +19,10 @@ The database connection reads `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`,
 ## Run
 
 ```sh
-bin/dev                       # Rails on http://localhost:3000 and the Vite dev server
+bin/dev                       # Rails on http://localhost:3000, the Vite dev server, the jobs and the import worker
 ```
 
-Set `PORT` to use another port for Rails.
+Set `PORT` to use another port for Rails. The Steam import reads its API key from `STEAM_API_KEY`, or, outside production, from the git-ignored `config/steam_api.key`.
 
 ## Writing an operation
 
@@ -57,3 +57,9 @@ Sentry receives production errors only (no tracing, no profiling, no personal da
 ### Job queue
 
 Administrators open Mission Control Jobs at `/back-office/jobs` (linked from the back-office). Anyone else is refused.
+
+### Steam import (AD-19)
+
+Administrators start and watch import runs at `/<locale>/back-office/import-runs`. The `import` queue has its own process, one thread (`bin/jobs -c config/queue_import.yml --skip-recurring`, the `import` role of `config/deploy.yml`); the key comes from `config/steam_api.key` through `.kamal/secrets`. A run that fails after its retries can be resumed from its cursor on its page.
+
+Stopping the import worker gracefully (`TERM`) hands its job back, and the run goes on from its cursor when the worker restarts. A worker killed outright (`KILL`, out of memory) loses its job: every 5 minutes `Steam::RecoverStalledImportsJob` (`config/recurring.yml`) puts a running run that has not moved for 10 minutes back on the import queue, and it goes on from its cursor, without duplicates.

@@ -15,6 +15,13 @@ Rails.application.routes.draw do
 
     # Staff only (R9): moderators and administrators.
     get "back-office" => "back_office/dashboard#show", as: :back_office
+
+    # The Steam import runs (AD-19), administrators only.
+    scope "back-office", module: :back_office, as: :back_office do
+      resources :import_runs, path: "import-runs", only: %i[index show create] do
+        post :resume, on: :member
+      end
+    end
   end
 
   # The job queue (R7), administrators only: Mission Control Jobs behind

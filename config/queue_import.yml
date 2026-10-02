@@ -1,0 +1,19 @@
+# The import worker (AD-19): one process, one thread, the `import` queue only,
+# so Steam is called one page at a time. Run with
+# `bin/jobs -c config/queue_import.yml --skip-recurring`. It has no dispatcher:
+# the jobs process (config/queue.yml) dispatches scheduled retries.
+default: &default
+  workers:
+    - queues: [ import ]
+      threads: 1
+      processes: 1
+      polling_interval: 1
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
