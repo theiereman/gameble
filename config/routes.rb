@@ -20,6 +20,7 @@ Rails.application.routes.draw do
     scope "back-office", module: :back_office, as: :back_office do
       resources :import_runs, path: "import-runs", only: %i[index show create] do
         post :resume, on: :member
+        post :rescore, on: :member
       end
 
       # The catalog seasons (AD-5), administrators only.

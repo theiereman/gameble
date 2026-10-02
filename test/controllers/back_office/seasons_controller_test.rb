@@ -73,6 +73,82 @@ module BackOffice
       assert_select "tr[data-season-number='1'] td[data-season-sets-publisher='1']"
     end
 
+    test "the draft's preview follows the seasons, the publish form below it, and publishing gives what it showed" do
+      sign_in(accounts_players(:administrator))
+      draft = seed_sets_draft
+
+      get back_office_seasons_path(locale: :en)
+
+      assert_response :success
+      assert_select "section[data-preview] h2", "Season 2, if published now"
+      assert_select "table.ledger ~ section[data-preview] ~ form[action='/en/back-office/seasons/publish']"
+      assert_select "section[data-preview] ~ table.ledger", false
+      assert_equal %w[2 6 15 37 90], %w[gold amethyst sapphire emerald steel].map { |name| css_select("[data-preview-tier=#{name}]").sole.text }
+      assert_equal %w[149.000 143.000 128.000 91.000], %w[gold amethyst sapphire emerald].map { |name| css_select("[data-preview-threshold=#{name}]").sole.text }
+      assert_select "[data-preview-threshold=steel]", false
+      assert_equal %w[1.000 15.000 75.000 135.000 149.000 150.000], %w[min p10 p50 p90 p99 max].map { |p| css_select("[data-preview-percentile=#{p}]").sole.text }
+      assert_select "[data-preview-dust=thick]", "100.0%"
+      assert_select "[data-preview-dust=none]", "0.0%"
+      assert_select "tr[data-preview-top]", 10
+      assert_select "tr[data-preview-top='1'] td", "Seed 0"
+      assert_select "tr[data-preview-top='10'] td", "Seed 9"
+      assert_select "tr[data-preview-bottom='1'] td", "Seed 149"
+      assert_select "th", "Rating"
+      assert_equal [ %w[action 75 3], %w[rpg 44 1], %w[none 31 0] ],
+        css_select("tr[data-preview-genre]").map { |row| [ row["data-preview-genre"], *row.css("td").map(&:text) ] }
+      assert_equal %w[1 4 3], %w[publisher tome best-of-year].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
+
+      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
+      follow_redirect!
+
+      assert_equal %w[2 6 15 37 90], tier_cells
+      assert_select "tr[data-season-number='2'] td[data-season-sets-tome='4']", "4"
+      assert_select "section[data-preview]", false
+    end
+
+    test "the preview shows the empty_tier verdict in place of the tiers of a draft too small" do
+      sign_in(accounts_players(:administrator))
+      seed_card_seasons(distinct_scores(20))
+
+      get back_office_seasons_path(locale: :fr)
+
+      assert_select "section[data-preview] h2", "La saison 2, si elle était publiée maintenant"
+      assert_select "[data-preview-verdict=empty_tier]", I18n.t("errors.catalog.empty_tier", locale: :fr)
+      assert_select "[data-preview-tier]", false
+      assert_select "[data-preview-percentile=p50]", /\A10.000\z/
+      assert_select "tr[data-preview-top]", 10
+    end
+
+    test "the preview of a draft without card shows the empty_season verdict and no number" do
+      sign_in(accounts_players(:administrator))
+      Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+
+      get back_office_seasons_path(locale: :en)
+
+      assert_select "[data-preview-verdict=empty_season]", I18n.t("errors.catalog.empty_season", locale: :en)
+      assert_select "[data-preview-percentile], [data-preview-tier], [data-preview-top], [data-preview-genre]", false
+    end
+
+    test "with no draft there is no preview" do
+      sign_in(accounts_players(:administrator))
+
+      get back_office_seasons_path(locale: :en)
+
+      assert_select "section[data-preview]", false
+    end
+
+    test "the preview and the publish form show while an import is unfinished, with the notice" do
+      sign_in(accounts_players(:administrator))
+      seed_card_seasons(distinct_scores(21))
+      Steam::ImportRun.create!(status: :running, step: "cards", started_at: 1.minute.ago)
+
+      get back_office_seasons_path(locale: :en)
+
+      assert_select "[data-preview-tier=gold]", "1"
+      assert_select ".text-plate", I18n.t("back_office.seasons.publish.import_active", locale: :en)
+      assert_select "form[action$='/seasons/publish']"
+    end
+
     test "publishing while a Steam import is active is refused" do
       sign_in(accounts_players(:administrator))
       draft = seed_card_seasons(distinct_scores(21))

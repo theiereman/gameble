@@ -78,11 +78,16 @@ en:
         started_at: "Started"
         finished_at: "Finished"
         resume: "Resume from where it stopped"
+        rescore: "Rescore the cards"
+        rescore_confirm: "Write every card of this run into the draft season again, with the prestige formula as it now stands? No call is made to Steam."
         errors: "Latest errors"
       create:
         started: "The import is under way, officer. The scribes are copying the first page."
       resume:
         resumed: "The import resumes from where it stopped, officer."
+      rescore:
+        rescoring: "The scribes are writing the cards again with the new formula, officer. The season cannot be published until they finish."
+        run_in_progress: "An import is under way, officer. Let it finish, or wait for it to halt, before rescoring the cards."
     seasons:
       statuses:
         draft: "Draft"
@@ -104,6 +109,44 @@ en:
         confirm:
           one: "Publish season %{number} and its %{count} card? Its rarities and dust will never change again."
           other: "Publish season %{number} and its %{count} cards? Its rarities and dust will never change again."
+      preview:
+        heading: "Season %{number}, if published now"
+        intro: "What publishing the draft would give today, read from its cards as they stand. Nothing here is written. The prestige formula, the tier shares and the tome size live in the code: change them, rescore the latest import if the formula changed, then read this again."
+        scores: "Prestige scores"
+        scores_caption: "Prestige scores of the draft: lowest, percentiles, highest"
+        card_count:
+          one: "%{formatted} card"
+          other: "%{formatted} cards"
+        min: "Lowest"
+        max: "Highest"
+        percentile: "p%{p}"
+        tiers: "Rarities"
+        tier: "Rarity"
+        cards: "Cards"
+        threshold: "Lowest score"
+        dust: "Dust"
+        dust_level: "Dust"
+        share: "Share"
+        dust_levels:
+          none: "None"
+          light: "Light"
+          marked: "Marked"
+          thick: "Thick"
+          buried: "Buried"
+        top:
+          one: "The highest-scored card"
+          other: "The %{count} highest-scored cards"
+        bottom:
+          one: "The lowest-scored card"
+          other: "The %{count} lowest-scored cards"
+        rank: "Rank"
+        title: "Title"
+        rating: "Rating"
+        prestige_score: "Prestige score"
+        genres: "Cards by first genre"
+        genre: "Genre"
+        tomes: "Tomes"
+        sets: "Sets"
       publish:
         published: "Season %{number} is published, officer. Its cards are ready for the draw."
         import_active: "The latest Steam import has not completed, officer. Let it finish, or start a new run and let it complete, before publishing the season."
@@ -150,3 +193,6 @@ en:
       not_resumable: "Only a halted import can be resumed, officer."
       not_running: "That import is not under way."
       cursor_moved: "That page of the import was already copied."
+      not_latest: "Only the latest import run can be rescored, officer."
+      not_completed: "Only a completed import run can be rescored, officer."
+      already_published: "The cards of that run are already published in a season, officer. Start a new import to fill the next draft."

@@ -72,4 +72,12 @@
       <% end %>
     </div>
   <% end %>
+
+  <%# Outside the frame: a whole-page form, so Turbo can ask for confirmation and show the notice. %>
+  <% if @rescorable %>
+    <p>
+      <%= render ButtonComponent.new(variant: :secondary, href: rescore_back_office_import_run_path(@import_run), method: :post,
+            confirm: t(".rescore_confirm")) do %><%= t(".rescore") %><% end %>
+    </p>
+  <% end %>
 </div>

@@ -78,11 +78,16 @@ fr:
         started_at: "Lancé"
         finished_at: "Terminé"
         resume: "Reprendre là où il s'est arrêté"
+        rescore: "Recalculer les cartes"
+        rescore_confirm: "Réinscrire chaque carte de cette passe dans la saison en brouillon, avec la formule de prestige telle qu'elle est désormais ? Aucun appel n'est fait à Steam."
         errors: "Dernières erreurs"
       create:
         started: "L'import est lancé, officier. Les scribes recopient la première page."
       resume:
         resumed: "L'import reprend là où il s'était arrêté, officier."
+      rescore:
+        rescoring: "Les scribes réinscrivent les cartes avec la nouvelle formule, officier. La saison ne peut pas être publiée avant qu'ils aient fini."
+        run_in_progress: "Un import est en cours, officier. Laisse-le finir, ou attends qu'il s'interrompe, avant de recalculer les cartes."
     seasons:
       statuses:
         draft: "Brouillon"
@@ -104,6 +109,44 @@ fr:
         confirm:
           one: "Publier la saison %{number} et sa seule carte ? Ses raretés et sa poussière ne changeront plus jamais."
           other: "Publier la saison %{number} et ses %{count} cartes ? Ses raretés et sa poussière ne changeront plus jamais."
+      preview:
+        heading: "La saison %{number}, si elle était publiée maintenant"
+        intro: "Ce que donnerait la publication du brouillon aujourd'hui, lu sur ses cartes telles qu'elles sont. Rien n'est écrit ici. La formule de prestige, les parts des raretés et la taille des tomes vivent dans le code : change-les, recalcule le dernier import si la formule a changé, puis relis ceci."
+        scores: "Scores de prestige"
+        scores_caption: "Scores de prestige du brouillon : le plus bas, les centiles, le plus haut"
+        card_count:
+          one: "%{formatted} carte"
+          other: "%{formatted} cartes"
+        min: "Le plus bas"
+        max: "Le plus haut"
+        percentile: "p%{p}"
+        tiers: "Raretés"
+        tier: "Rareté"
+        cards: "Cartes"
+        threshold: "Score minimal"
+        dust: "Poussière"
+        dust_level: "Poussière"
+        share: "Part"
+        dust_levels:
+          none: "Aucune"
+          light: "Légère"
+          marked: "Marquée"
+          thick: "Épaisse"
+          buried: "Ensevelie"
+        top:
+          one: "La carte au score le plus haut"
+          other: "Les %{count} cartes aux scores les plus hauts"
+        bottom:
+          one: "La carte au score le plus bas"
+          other: "Les %{count} cartes aux scores les plus bas"
+        rank: "Rang"
+        title: "Titre"
+        rating: "Note"
+        prestige_score: "Score de prestige"
+        genres: "Cartes par premier genre"
+        genre: "Genre"
+        tomes: "Tomes"
+        sets: "Collections"
       publish:
         published: "La saison %{number} est publiée, officier. Ses cartes sont prêtes pour le tirage."
         import_active: "Le dernier import Steam n'est pas terminé, officier. Laisse-le finir, ou lance une nouvelle passe et laisse-la aboutir, avant de publier la saison."
@@ -150,3 +193,6 @@ fr:
       not_resumable: "Seul un import interrompu peut être repris, officier."
       not_running: "Cet import n'est pas en cours."
       cursor_moved: "Cette page de l'import a déjà été recopiée."
+      not_latest: "Seule la dernière passe d'import peut être recalculée, officier."
+      not_completed: "Seule une passe d'import terminée peut être recalculée, officier."
+      already_published: "Les cartes de cette passe sont déjà publiées dans une saison, officier. Lance un nouvel import pour remplir le prochain brouillon."

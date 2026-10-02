@@ -63,3 +63,16 @@ Administrators open Mission Control Jobs at `/back-office/jobs` (linked from the
 Administrators start and watch import runs at `/<locale>/back-office/import-runs`. The `import` queue has its own process, one thread (`bin/jobs -c config/queue_import.yml --skip-recurring`, the `import` role of `config/deploy.yml`); the key comes from `config/steam_api.key` through `.kamal/secrets`. A run that fails after its retries can be resumed from its cursor on its page.
 
 Stopping the import worker gracefully (`TERM`) hands its job back, and the run goes on from its cursor when the worker restarts. A worker killed outright (`KILL`, out of memory) loses its job: every 5 minutes `Steam::RecoverStalledImportsJob` (`config/recurring.yml`) puts a running run that has not moved for 10 minutes back on the import queue, and it goes on from its cursor, without duplicates.
+
+### Calibrating a season
+
+The prestige formula, the tier shares and the tome size are starting values; they are checked against the real catalog before a season is published.
+
+1. **Run the import where it will be published.** The first real import runs on the test server, after `bin/kamal deploy`; start it at `/<locale>/back-office/import-runs` and let it complete. The constants below live in the code, so a change made for that server needs a commit and another `bin/kamal deploy` before it takes effect there.
+2. **Read the preview.** `/<locale>/back-office/seasons` shows, under the seasons, what publishing the draft now would produce (`Catalog::DraftPreview`): the prestige score percentiles, each rarity's size and lowest score, the dust shares, the ten highest and ten lowest cards, the cards and tomes per first genre, and the sets per kind. Nothing is written; the page computes it on every load, even while an import is unfinished.
+3. **Change the constant that is off:**
+   - `Steam::PrestigeScore` (`packs/steam/app/models/steam/prestige_score.rb`): the formula, a function of the rating and the rating count only (`COUNT_WEIGHT` weighs the count);
+   - `Catalog::RarityThresholds::SHARES` (`packs/catalog/app/models/catalog/rarity_thresholds.rb`): each rarity's share of the season, in basis points from the top;
+   - `Catalog::SetBuilder::TOME_SIZE` (`packs/catalog/app/models/catalog/set_builder.rb`): the cards per tome volume.
+4. **Rescore after a formula change.** The scores are written into the draft by the import, so a new formula needs them written again: on the latest completed run's page, "Rescore the cards" (`Steam::RescoreCards`) runs its cards step again from the start, without calling Steam, and the run completes again. The rescore publishes the cards step's `ImportStepFinished` and the run's `ImportRunFinished` a second time and rewrites `finished_at`, so record the step durations of the import before any rescore (the `Steam::CardsRescoreStarted` event marks the boundary). Once the draft is published, its run can no longer be rescored. A change of `SHARES` or `TOME_SIZE` needs no rescore: the preview shows it on the next page load.
+5. **Publish.** Once the preview reads right and the latest run has completed, publish the draft from the same page. A published season never changes again.

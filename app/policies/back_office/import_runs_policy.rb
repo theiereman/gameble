@@ -8,5 +8,6 @@ module BackOffice
     def show? = administrator?
     def create? = administrator?
     def resume? = administrator?
+    def rescore? = administrator?
   end
 end
