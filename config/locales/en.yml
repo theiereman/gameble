@@ -42,9 +42,10 @@ en:
         failed: "Halted"
       steps:
         app_list: "Listing the Steam games"
+        reviews: "Counting the reviews"
       index:
         heading: "The Steam import"
-        intro: "Each run copies the list of Steam games into the Brotherhood's ledgers, page by page. One run at a time."
+        intro: "Each run copies the list of Steam games into the Brotherhood's ledgers, then counts their reviews and sets aside the games with fewer than 500, page by page. One run at a time."
         start: "Start an import"
         empty: "No import has run yet. The ledgers wait for their first page."
         caption: "Import runs, the latest first"
@@ -58,6 +59,9 @@ en:
         status: "Status"
         step: "Step"
         apps_listed: "Games listed"
+        apps_reviewed: "Games reviewed"
+        apps_kept: "Games kept"
+        apps_excluded: "Games set aside"
         cursor: "Last appid"
         started_at: "Started"
         finished_at: "Finished"

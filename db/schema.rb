@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_02_210000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_02_220002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -134,8 +134,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_210000) do
     t.bigint "import_run_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "review_count"
+    t.integer "review_percent_positive"
+    t.jsonb "reviews"
+    t.bigint "reviewed_run_id"
+    t.string "review_exclusion"
     t.index ["appid"], name: "index_steam_apps_on_appid", unique: true
     t.index ["import_run_id"], name: "index_steam_apps_on_import_run_id"
+    t.index ["reviewed_run_id", "appid"], name: "index_steam_apps_kept_by_run", where: "(review_exclusion IS NULL)"
+    t.check_constraint "review_exclusion IS NULL OR review_exclusion::text = 'too_few_reviews'::text OR review_exclusion::text = 'unavailable'::text", name: "steam_apps_review_exclusion_check"
   end
 
   create_table "steam_import_runs", force: :cascade do |t|
@@ -163,4 +170,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_210000) do
   add_foreign_key "catalog_sets", "catalog_seasons", column: "season_id"
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "import_run_id"
+  add_foreign_key "steam_apps", "steam_import_runs", column: "reviewed_run_id"
 end

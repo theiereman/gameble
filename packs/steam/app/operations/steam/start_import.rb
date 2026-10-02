@@ -1,6 +1,8 @@
 module Steam
   # Starts an import run (CAP-2, AD-19): a running run on the first step,
-  # with an empty cursor, then enqueues its first page on the import queue
+  # with that step's cursor (`{ "step" => "app_list", "last_appid" => 0 }`:
+  # the step name lets the job's cursor guard drop a stale job of another
+  # step), then enqueues its first page on the import queue
   # once the run is committed. One active run at a time: the database refuses
   # a second, so two administrators starting at once get one run.
   #
@@ -32,7 +34,7 @@ module Steam
         ImportRun.create!(
           status: :running,
           step: ImportRun::STEPS.first,
-          cursor: { "last_appid" => 0 },
+          cursor: ImportRun.cursor_for(ImportRun::STEPS.first),
           counts: { "apps_listed" => 0 },
           started_at: Time.current
         )

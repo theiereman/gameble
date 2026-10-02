@@ -1,15 +1,19 @@
 require "test_helper"
+require_relative "../../support/steam_api_stubs"
 
 module BackOffice
   # The Steam import page of the back-office (AD-19), administrators only.
   class ImportRunsControllerTest < ActionDispatch::IntegrationTest
     include ActiveJob::TestHelper
+    include SteamApiStubs
 
     setup do
       OmniAuth.config.test_mode = true
+      stub_steam_api
     end
 
     teardown do
+      unstub_steam_api
       OmniAuth.config.mock_auth.delete(:steam)
       OmniAuth.config.test_mode = false
     end
@@ -94,6 +98,42 @@ module BackOffice
       assert_response :success
       assert_select "[data-import-run-apps-listed='12345']", "12,345"
       assert_select "[data-controller=poller]"
+    end
+
+    test "a run on the app list does not show the review counts" do
+      sign_in(accounts_players(:administrator))
+      run = running_run
+
+      get back_office_import_run_path(run, locale: :en)
+
+      assert_select "[data-import-run-apps-reviewed]", false
+      assert_select "[data-import-run-apps-kept]", false
+      assert_select "[data-import-run-apps-excluded]", false
+    end
+
+    test "a run of five games goes to the end, sets aside those under 500 reviews, and its page shows the review counts" do
+      sign_in(accounts_players(:administrator))
+      stub_app_list_page(after: 0, appids: [ 10, 20, 30 ], more: true)
+      stub_app_list_page(after: 30, appids: [ 40, 50 ], more: false)
+      stub_get_items(10 => reviewed_item(10, 12_000), 20 => reviewed_item(20, 499), 30 => reviewed_item(30, 500), 40 => unreviewed_item(40), 50 => nil)
+
+      perform_enqueued_jobs { post back_office_import_runs_path(locale: :fr) }
+
+      run = Steam::ImportRun.sole
+      assert_predicate run, :completed?
+      assert_equal [ 10, 30 ], Steam::App.kept_by(run).order(:appid).pluck(:appid)
+      assert_equal({ 20 => "too_few_reviews", 40 => "too_few_reviews", 50 => "unavailable" },
+        Steam::App.where.not(review_exclusion: nil).order(:appid).pluck(:appid, :review_exclusion).to_h)
+
+      get back_office_import_run_path(run, locale: :fr)
+
+      assert_select "[data-import-run-status=completed]", "Terminé"
+      assert_select "[data-import-run-step=reviews]", /Décompte des évaluations/
+      assert_select "[data-import-run-apps-listed='5']", "5"
+      assert_select "[data-import-run-apps-reviewed='5']", "5"
+      assert_select "[data-import-run-apps-kept='2']", "2"
+      assert_select "[data-import-run-apps-excluded='3']", "3"
+      assert_select "dt", "Jeux retenus"
     end
 
     test "a failed run's page shows its errors and offers to resume, without polling" do

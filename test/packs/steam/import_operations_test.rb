@@ -15,11 +15,11 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
   end
 
   def running_run(last_appid: 0, apps_listed: 0)
-    Steam::ImportRun.create!(status: :running, step: "app_list", cursor: { "last_appid" => last_appid }, counts: { "apps_listed" => apps_listed }, started_at: 1.minute.ago)
+    Steam::ImportRun.create!(status: :running, step: "app_list", cursor: { "step" => "app_list", "last_appid" => last_appid }, counts: { "apps_listed" => apps_listed }, started_at: 1.minute.ago)
   end
 
   def failed_run(last_appid: 0)
-    Steam::ImportRun.create!(status: :failed, step: "app_list", cursor: { "last_appid" => last_appid }, counts: { "apps_listed" => 0 }, started_at: 1.hour.ago, finished_at: 1.minute.ago,
+    Steam::ImportRun.create!(status: :failed, step: "app_list", cursor: { "step" => "app_list", "last_appid" => last_appid }, counts: { "apps_listed" => 0 }, started_at: 1.hour.ago, finished_at: 1.minute.ago,
       error_messages: [ { "at" => 1.minute.ago.utc.iso8601, "message" => "Steam::WebApi::Error: boom" } ])
   end
 
@@ -37,7 +37,8 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
     assert_equal 0, run.apps_listed
     assert_predicate run.started_at, :present?
     assert_predicate run.token, :present?
-    assert_enqueued_with(job: Steam::ImportStepJob, args: [ run.id, { "last_appid" => 0 } ])
+    assert_equal({ "step" => "app_list", "last_appid" => 0 }, run.cursor)
+    assert_enqueued_with(job: Steam::ImportStepJob, args: [ run.id, { "step" => "app_list", "last_appid" => 0 } ])
 
     events = events_of(run)
     assert_equal [ Steam::ImportRunStarted ], events.map(&:class)
@@ -121,7 +122,7 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
     assert_equal run, app.import_run
   end
 
-  test "the last page completes the run" do
+  test "the last page hands the run over to the review pass, its cursor at the start" do
     run = running_run(last_appid: 200)
     stub_app_list_page(after: 200, appids: [ 201, 202 ], more: false)
 
@@ -129,23 +130,26 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
 
     assert result.success?
     run.reload
-    assert_predicate run, :completed?
-    assert_predicate run.finished_at, :present?
-    assert_equal 202, run.last_appid
+    assert_predicate run, :running?
+    assert_nil run.finished_at
+    assert_equal "reviews", run.step
+    assert_equal({ "step" => "reviews", "last_appid" => 0 }, run.cursor)
     assert_equal 2, run.apps_listed
-    assert_equal [ Steam::AppListPageImported, Steam::ImportRunFinished ], events_of(run).map(&:class)
-    assert_equal({ import_run_id: run.id, status: "completed" }, events_of(run).last.data)
+    assert_equal [ Steam::AppListPageImported, Steam::ImportStepFinished ], events_of(run).map(&:class)
+    assert_equal({ import_run_id: run.id, last_appid: 202 }, events_of(run).first.data)
+    assert_equal({ import_run_id: run.id, step: "app_list" }, events_of(run).last.data)
   end
 
-  test "an empty last page completes the run where its cursor is" do
+  test "an empty last page hands over to the review pass" do
     run = running_run(last_appid: 300, apps_listed: 3)
     stub_app_list_page(after: 300, appids: [], more: false)
 
     Steam::ImportAppListPage.new.call(import_run_id: run.id)
 
     run.reload
-    assert_predicate run, :completed?
-    assert_equal 300, run.last_appid
+    assert_predicate run, :running?
+    assert_equal "reviews", run.step
+    assert_equal 0, run.last_appid
     assert_equal 3, run.apps_listed
   end
 
@@ -157,7 +161,7 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
 
     Steam::ImportAppListPage.new.call(import_run_id: run.id)
 
-    assert_predicate run.reload, :completed?
+    assert_equal "reviews", run.reload.step
   end
 
   test "a page for an unknown run fails with not_found" do
@@ -267,7 +271,7 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
     run = failed_run(last_appid: 900)
 
     result = nil
-    assert_enqueued_with(job: Steam::ImportStepJob, args: [ run.id, { "last_appid" => 900 } ], queue: "import") { result = Steam::ResumeImport.new.call(import_run_id: run.id) }
+    assert_enqueued_with(job: Steam::ImportStepJob, args: [ run.id, { "step" => "app_list", "last_appid" => 900 } ], queue: "import") { result = Steam::ResumeImport.new.call(import_run_id: run.id) }
 
     assert result.success?
     run.reload
@@ -304,6 +308,8 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
     codes = {
       Steam::StartImport => %i[run_in_progress],
       Steam::ImportAppListPage => %i[not_found not_running cursor_moved],
+      Steam::ImportReviewsPage => %i[not_found not_running cursor_moved],
+      Steam::FinishImportStep => %i[not_running],
       Steam::CompleteImport => %i[not_running],
       Steam::FailImport => %i[not_found not_running],
       Steam::ResumeImport => %i[not_found not_resumable run_in_progress]

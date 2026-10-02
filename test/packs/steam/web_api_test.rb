@@ -106,4 +106,60 @@ class Steam::WebApiTest < ActiveSupport::TestCase
       assert_raises(Steam::WebApi::Error) { Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 100) }
     end
   end
+
+  # GetItems
+
+  def get_items(appids = [ 10, 20 ])
+    Steam::WebApi.new.get_items(appids: appids, context: { language: "english", country_code: "US" }, data_request: { include_reviews: true })
+  end
+
+  test "get_items asks for the appids with the context and the data request, with the key" do
+    seen = nil
+    steam_stubs.get(ITEMS_PATH) do |env|
+      seen = env.params
+      [ 200, { "Content-Type" => "application/json" }, { "response" => { "store_items" => [ reviewed_item(10, 812) ] } }.to_json ]
+    end
+
+    get_items
+
+    assert_equal %w[input_json key], seen.keys.sort
+    assert_equal API_KEY, seen["key"]
+    assert_equal({ "ids" => [ { "appid" => 10 }, { "appid" => 20 } ], "context" => { "language" => "english", "country_code" => "US" }, "data_request" => { "include_reviews" => true } },
+      JSON.parse(seen["input_json"]))
+  end
+
+  test "get_items returns the raw store items keyed by the requested appids" do
+    stub_get_items(10 => reviewed_item(10, 812), 20 => unavailable_item(20), 30 => reviewed_item(30, 1))
+
+    items = get_items([ 10, 20, 40 ])
+
+    assert_equal [ 10, 20 ], items.keys
+    assert_equal reviewed_item(10, 812), items[10]
+    assert_equal 2, items[20]["success"]
+  end
+
+  test "get_items is retried on a 429 and raises without the key once retries are spent" do
+    calls = 0
+    steam_stubs.get(ITEMS_PATH) do
+      calls += 1
+      [ 429, {}, "" ]
+    end
+
+    error = assert_raises(Steam::WebApi::Error) { get_items }
+
+    assert_equal 5, calls
+    assert_includes error.message, "429"
+    assert_not_includes error.message, API_KEY
+    assert_nil error.cause
+  end
+
+  [ "not json", "{}", { "response" => [] }.to_json, { "response" => {} }.to_json, { "response" => { "store_items" => {} } }.to_json,
+    { "response" => { "store_items" => [] } }.to_json ].each do |body|
+    test "get_items raises on a malformed or empty answer (#{body})" do
+      steam_stubs.get(ITEMS_PATH) { [ 200, { "Content-Type" => "application/json" }, body ] }
+
+      error = assert_raises(Steam::WebApi::Error) { get_items }
+      assert_not_includes error.message, API_KEY
+    end
+  end
 end

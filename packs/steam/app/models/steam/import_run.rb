@@ -9,8 +9,8 @@ module Steam
   class ImportRun < ApplicationRecord
     self.table_name = "steam_import_runs"
 
-    # The steps of a run, in order. The app list is the only one for now.
-    STEPS = %w[app_list].freeze
+    # The steps of a run, in order: the app list, then the review pass.
+    STEPS = %w[app_list reviews].freeze
     # The errors kept on a run, the latest last.
     ERROR_LIMIT = 20
 
@@ -39,13 +39,49 @@ module Steam
       pending? || running?
     end
 
-    # The appid the next page of the app list starts after.
+    # The step after `step`, nil after the last one.
+    def self.next_step(step)
+      index = STEPS.index(step)
+      index && STEPS[index + 1]
+    end
+
+    # The cursor a step starts from. The cursor names its step, so a job
+    # enqueued for an earlier step never matches the run's cursor again.
+    def self.cursor_for(step, last_appid: 0)
+      { "step" => step, "last_appid" => last_appid }
+    end
+
+    # The appid the next page of the current step starts after.
     def last_appid
       cursor.fetch("last_appid", 0).to_i
     end
 
+    # Whether the run is on `step` or went past it.
+    def reached?(step)
+      current = STEPS.index(self.step)
+      target = STEPS.index(step)
+      current.present? && target.present? && current >= target
+    end
+
     def apps_listed
-      counts.fetch("apps_listed", 0).to_i
+      count_of("apps_listed")
+    end
+
+    # Apps the review pass looked at, kept and excluded.
+    def apps_reviewed
+      count_of("apps_reviewed")
+    end
+
+    def apps_kept
+      count_of("apps_kept")
+    end
+
+    def apps_excluded
+      count_of("apps_excluded")
+    end
+
+    def count_of(name)
+      counts.fetch(name, 0).to_i
     end
 
     # An error of the run: when it happened and its (key-free) message.

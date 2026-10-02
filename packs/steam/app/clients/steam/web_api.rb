@@ -13,6 +13,9 @@ module Steam
   #
   #   Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 10_000)
   #   # => #<Steam::WebApi::AppListPage apps: [{ appid:, name:, last_modified:, price_change_number: }], have_more_results:, last_appid:>
+  #
+  #   Steam::WebApi.new.get_items(appids: [ 10, 20 ], context: { language: "english", country_code: "US" }, data_request: { include_reviews: true })
+  #   # => { 10 => { "appid" => 10, "success" => 1, "reviews" => { ... }, ... } }
   class WebApi
     BASE_URL = "https://api.steampowered.com".freeze
     REDACTED = "[FILTERED]".freeze
@@ -48,6 +51,30 @@ module Steam
         have_more_results: response["have_more_results"] == true,
         last_appid: response["last_appid"]&.to_i
       )
+    end
+
+    # The store items of IStoreBrowseService/GetItems for `appids` (at most
+    # 100 a call), raw, keyed by appid. Only the requested appids are keys:
+    # Steam answers an unknown appid as `id: 0, success: 15`, which matches
+    # none, so an appid missing from the hash got no answer. What each item
+    # holds depends on `data_request`; the caller reads it.
+    def get_items(appids:, context:, data_request:)
+      input = { ids: appids.map { |appid| { appid: appid } }, context: context, data_request: data_request }
+      body = get("/IStoreBrowseService/GetItems/v1/", input_json: input.to_json)
+      response = body["response"] if body.is_a?(Hash)
+      raise Error, "GetItems answered without a response object" unless response.is_a?(Hash)
+
+      items = response["store_items"]
+      raise Error, "GetItems answered store items that are not a list" unless items.is_a?(Array)
+      raise Error, "GetItems answered no store item for #{appids.size} appids" if items.empty? && appids.any?
+
+      requested = appids.to_set
+      items.each_with_object({}) do |item, by_appid|
+        next unless item.is_a?(Hash)
+
+        appid = (item["appid"] || item["id"]).to_i
+        by_appid[appid] = item if requested.include?(appid)
+      end
     end
 
     # Keeps the key out of inspections (consoles, error reports).

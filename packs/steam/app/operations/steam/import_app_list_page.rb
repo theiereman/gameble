@@ -6,7 +6,8 @@ module Steam
   # apps are upserted on appid and the cursor and the apps_listed count move
   # past the page. A worker killed before the commit leaves the cursor where
   # it was: the page is fetched again and the upsert absorbs it. On the last
-  # page the run completes (Steam::CompleteImport).
+  # page the step finishes (Steam::FinishImportStep) and the run moves on to
+  # the review pass.
   #
   # A Steam failure raises Steam::WebApi::Error (key redacted), for the job to
   # retry and, once retries are spent, fail the run.
@@ -41,7 +42,7 @@ module Steam
         step upsert_apps(run, page.apps)
         next_appid = step advance(run, page, last_appid)
         step publish(AppListPageImported.new(data: { import_run_id: run.id, last_appid: next_appid }), stream_name: ImportRun.stream_name(run.id))
-        step CompleteImport.new.call(import_run: run) unless more_pages?(page, next_appid, last_appid)
+        step FinishImportStep.new.call(import_run: run) unless more_pages?(page, next_appid, last_appid)
         run
       end
     end

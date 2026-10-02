@@ -4,7 +4,8 @@ module Steam
   #
   # A page is one job: the step's operation imports the page and commits the
   # cursor with it, then the job enqueues the next page while the run is still
-  # running. Each job carries the cursor its page starts from: a job whose
+  # running; when a page finishes its step, the next step's first page is
+  # enqueued the same way. Each job carries the cursor its page starts from: a job whose
   # cursor is no longer the run's (a duplicate, an old retry) stops without
   # calling Steam, so a run has one chain of page jobs. A worker stopped
   # gracefully hands its job back, which runs again from the committed
@@ -16,7 +17,7 @@ module Steam
   class ImportStepJob < ActiveJob::Base
     queue_as :import
 
-    STEP_OPERATIONS = { "app_list" => "Steam::ImportAppListPage" }.freeze
+    STEP_OPERATIONS = { "app_list" => "Steam::ImportAppListPage", "reviews" => "Steam::ImportReviewsPage" }.freeze
     ATTEMPTS = 3
 
     retry_on StandardError, wait: :polynomially_longer, attempts: ATTEMPTS do |job, error|

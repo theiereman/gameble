@@ -42,9 +42,10 @@ fr:
         failed: "Interrompu"
       steps:
         app_list: "Liste des jeux Steam"
+        reviews: "Décompte des évaluations"
       index:
         heading: "L'import Steam"
-        intro: "Chaque passe recopie la liste des jeux Steam dans les registres de la Confrérie, page après page. Une passe à la fois."
+        intro: "Chaque passe recopie la liste des jeux Steam dans les registres de la Confrérie, puis compte leurs évaluations et écarte les jeux qui en ont moins de 500, page après page. Une passe à la fois."
         start: "Lancer un import"
         empty: "Aucun import n'a encore tourné. Les registres attendent leur première page."
         caption: "Passes d'import, la plus récente en premier"
@@ -58,6 +59,9 @@ fr:
         status: "État"
         step: "Étape"
         apps_listed: "Jeux listés"
+        apps_reviewed: "Jeux évalués"
+        apps_kept: "Jeux retenus"
+        apps_excluded: "Jeux écartés"
         cursor: "Dernier appid"
         started_at: "Lancé"
         finished_at: "Terminé"
