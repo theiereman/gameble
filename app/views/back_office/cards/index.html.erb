@@ -1,0 +1,31 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render TextPlateComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <div class="card-preview">
+    <section class="card-preview__column" aria-labelledby="card-preview-server">
+      <h2 id="card-preview-server"><%= t(".server") %></h2>
+      <div class="card-preview__cards">
+        <% @pairs.each do |pair| %>
+          <figure class="card-preview__item" data-pair="<%= pair[:pair] %>" data-renderer="server">
+            <figcaption class="card-preview__label"><%= pair[:label] %></figcaption>
+            <%= render CardComponent.new(card: pair[:card], size: pair[:size], side: pair[:side], strings: @strings) %>
+          </figure>
+        <% end %>
+      </div>
+    </section>
+
+    <section class="card-preview__column" aria-labelledby="card-preview-react">
+      <h2 id="card-preview-react"><%= t(".react") %></h2>
+      <%= turbo_mount("CardPreview", props: {
+        pairs: @pairs.map { |pair| pair.merge(card: pair[:card].to_props) },
+        strings: @strings.to_props
+      }) %>
+    </section>
+  </div>
+</div>

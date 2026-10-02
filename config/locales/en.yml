@@ -39,6 +39,7 @@ en:
         jobs: "The job queue"
         import_runs: "The Steam import"
         seasons: "The catalog seasons"
+        cards: "The card press"
     import_runs:
       statuses:
         pending: "Waiting"
@@ -92,6 +93,26 @@ en:
       rescore:
         rescoring: "The scribes are writing the cards again with the new formula, officer. The season cannot be published until they finish."
         run_in_progress: "An import is under way, officer. Let it finish, or wait for it to halt, before rescoring the cards."
+    cards:
+      index:
+        heading: "The card press"
+        intro: "Every rarity's face and back at both sizes, then one back under each level of dust: on the left as the pages draw them, on the right as the reveal will. The two must match line for line. The art is a sample from the Brotherhood's own chest; the emerald's art is missing on purpose, to show a card without it."
+        server: "The pages"
+        react: "The reveal"
+        label: "%{rarity}, %{side}, %{size}"
+        dust_label: "%{rarity}, %{side}, %{size}, dust %{level}"
+        sides:
+          face: "face"
+          back: "back"
+        sizes:
+          small: "small"
+          large: "large"
+        samples:
+          steel: "Tin Soldier"
+          emerald: "Green Hills"
+          sapphire: "Blue Depths"
+          amethyst: "The Long Chronicles of the Amethyst Archive and the Keys Its Keepers Lost at Sea"
+          gold: "Golden Crown"
     seasons:
       statuses:
         draft: "Draft"
@@ -159,6 +180,10 @@ en:
       throttled: "Easy, Brother. The chest needs a moment between openings; try again in a minute."
     show:
       heading: "Your pack, Brother"
+  cards:
+    face_down: "Face-down card"
+    face_down_with_rarity: "Face-down card, %{rarity}"
+    season: "Season %{number}"
   catalog:
     rarity:
       steel: "Steel"

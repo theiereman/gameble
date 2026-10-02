@@ -1,0 +1,51 @@
+<%# The element tree and classes are mirrored by app/frontend/components/Card.tsx. %>
+<% if face? %>
+<span class="<%= classes %>">
+  <span class="card__frame" aria-hidden="true"></span>
+  <span class="card__piping" aria-hidden="true"></span>
+  <span class="card__window">
+    <span class="card__art" data-controller="card-art" data-card-art-url-value="<%= card.image_url %>" data-card-art-width-value="<%= art[:width] %>" data-card-art-height-value="<%= art[:height] %>">
+      <canvas class="card__canvas" width="<%= art[:width] %>" height="<%= art[:height] %>" aria-hidden="true" data-card-art-target="canvas"></canvas>
+    </span>
+    <span class="card__year">
+      <span class="card__marks" aria-hidden="true">
+        <% glyphs(card.year).each do |glyph| %>
+          <svg class="card__glyph"><use href="<%= sprite("glyph-#{glyph}") %>"></use></svg>
+        <% end %>
+      </span>
+      <span class="visually-hidden"><%= card.year %></span>
+    </span>
+    <span class="card__plate">
+      <span class="card__title"><%= card.title %></span>
+      <% if large? && card.publisher.present? %>
+        <span class="card__publisher">© <%= card.publisher %></span>
+      <% end %>
+      <span class="visually-hidden"><%= strings.rarity_name(card.rarity) %></span>
+      <span class="<%= season_classes %>">
+        <svg class="card__season-seal" aria-hidden="true"><use href="<%= sprite(season_seal) %>"></use></svg>
+        <span class="card__marks" aria-hidden="true">
+          <% glyphs("S#{card.season_number}").each do |glyph| %>
+            <svg class="card__glyph"><use href="<%= sprite("glyph-#{glyph}") %>"></use></svg>
+          <% end %>
+        </span>
+        <span class="visually-hidden"><%= strings.season(card.season_number) %></span>
+      </span>
+    </span>
+  </span>
+  <% if legendary? %>
+    <span class="card__shine" aria-hidden="true">
+      <span class="card__sweep"></span>
+      <% SPARKLES.times do %>
+        <span class="card__sparkle"></span>
+      <% end %>
+    </span>
+  <% end %>
+</span>
+<% else %>
+<span class="<%= classes %>" role="img" aria-label="<%= strings.face_down(card.rarity) %>">
+  <svg class="card__seal" aria-hidden="true"><use href="<%= sprite("seal-#{card.rarity}") %>"></use></svg>
+  <% if card.dust.positive? %>
+    <span class="card__dust" aria-hidden="true"></span>
+  <% end %>
+</span>
+<% end %>
