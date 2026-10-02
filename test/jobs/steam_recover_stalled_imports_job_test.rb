@@ -12,7 +12,7 @@ class SteamRecoverStalledImportsJobTest < ActiveJob::TestCase
 
   def stalled_run(last_appid: 20, apps_listed: 2)
     Steam::ImportRun.create!(status: :running, step: "app_list", started_at: 1.hour.ago,
-      cursor: { "last_appid" => last_appid }, counts: { "apps_listed" => apps_listed }).tap do |run|
+      cursor: { "step" => "app_list", "last_appid" => last_appid }, counts: { "apps_listed" => apps_listed }).tap do |run|
       run.update_columns(updated_at: (Steam::StalledImportRuns::STALL_AFTER + 1.minute).ago)
     end
   end
@@ -32,7 +32,7 @@ class SteamRecoverStalledImportsJobTest < ActiveJob::TestCase
     assert_enqueued_jobs 1, only: Steam::ImportStepJob do
       Steam::RecoverStalledImportsJob.perform_now
     end
-    assert_enqueued_with(job: Steam::ImportStepJob, args: [ stalled.id, { "last_appid" => 20 } ], queue: "import")
+    assert_enqueued_with(job: Steam::ImportStepJob, args: [ stalled.id, { "step" => "app_list", "last_appid" => 20 } ], queue: "import")
 
     clear_enqueued_jobs
     stalled.touch
@@ -43,12 +43,14 @@ class SteamRecoverStalledImportsJobTest < ActiveJob::TestCase
     run = stalled_run
     Steam::App.insert_all([ 10, 20 ].map { |appid| { appid: appid, name: "Game #{appid}", import_run_id: run.id } })
     stub_app_list_page(after: 20, appids: [ 30 ], more: false)
+    stub_get_items([ 10, 20, 30 ].index_with { |appid| reviewed_item(appid, 1000) })
 
     perform_enqueued_jobs { Steam::RecoverStalledImportsJob.perform_now }
 
     run.reload
     assert_predicate run, :completed?
     assert_equal 3, run.apps_listed
+    assert_equal 3, run.apps_kept
     assert_equal [ 10, 20, 30 ], Steam::App.order(:appid).pluck(:appid)
   end
 
@@ -56,11 +58,13 @@ class SteamRecoverStalledImportsJobTest < ActiveJob::TestCase
     run = stalled_run
     stub_app_list_page(after: 20, appids: [ 30 ], more: true)
     stub_app_list_page(after: 30, appids: [ 40 ], more: false)
+    stub_get_items(30 => reviewed_item(30, 1000), 40 => reviewed_item(40, 1000))
+    lost_cursor = run.cursor
 
     perform_enqueued_jobs { Steam::RecoverStalledImportsJob.perform_now }
     assert_predicate run.reload, :completed?
 
-    assert_no_enqueued_jobs { Steam::ImportStepJob.perform_now(run.id) }
+    assert_no_enqueued_jobs { Steam::ImportStepJob.perform_now(run.id, lost_cursor) }
     assert_equal 2 + 2, run.reload.apps_listed
   end
 
@@ -79,9 +83,11 @@ class SteamRecoverStalledImportsJobTest < ActiveJob::TestCase
 
     perform_enqueued_jobs(only: Steam::ImportStepJob)
 
+    # The last app-list page hands over to the review pass.
     run.reload
-    assert_predicate run, :completed?
+    assert_predicate run, :running?
+    assert_equal "reviews", run.step
     assert_equal 2 + 2, run.apps_listed
-    assert_no_enqueued_jobs only: Steam::ImportStepJob
+    assert_enqueued_jobs 1, only: Steam::ImportStepJob
   end
 end

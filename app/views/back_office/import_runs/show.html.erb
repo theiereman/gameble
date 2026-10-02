@@ -15,6 +15,14 @@
         <dd data-import-run-step="<%= @import_run.step %>"><%= @import_run.step ? t("back_office.import_runs.steps.#{@import_run.step}") : "—" %> <% if @import_run.step %><code><%= @import_run.step %></code><% end %></dd>
         <dt><%= t(".apps_listed") %></dt>
         <dd data-import-run-apps-listed="<%= @import_run.apps_listed %>"><%= number_with_delimiter(@import_run.apps_listed) %></dd>
+        <% if @import_run.reached?("reviews") %>
+          <dt><%= t(".apps_reviewed") %></dt>
+          <dd data-import-run-apps-reviewed="<%= @import_run.apps_reviewed %>"><%= number_with_delimiter(@import_run.apps_reviewed) %></dd>
+          <dt><%= t(".apps_kept") %></dt>
+          <dd data-import-run-apps-kept="<%= @import_run.apps_kept %>"><%= number_with_delimiter(@import_run.apps_kept) %></dd>
+          <dt><%= t(".apps_excluded") %></dt>
+          <dd data-import-run-apps-excluded="<%= @import_run.apps_excluded %>"><%= number_with_delimiter(@import_run.apps_excluded) %></dd>
+        <% end %>
         <dt><%= t(".cursor") %></dt>
         <dd><%= @import_run.last_appid %></dd>
         <dt><%= t(".started_at") %></dt>
