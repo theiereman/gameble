@@ -3,5 +3,6 @@
     library()): the published season's sets on a shelf, by kind. %>
 <section class="library" aria-labelledby="library-heading">
   <h1 id="library-heading" class="library__heading"><%= t(".heading") %></h1>
-  <%= render "library/shelf", kind: @kind, spines: @spines, pagy: @pagy, tab_url: ->(kind) { library_path(kind:) } %>
+  <%= render "library/shelf", kind: @kind, spines: @spines, pagy: @pagy, tab_url: ->(kind) { library_path(kind:) },
+    set_url: ->(kind, key, page) { library_set_path(kind:, key:, page:) }, current_set: nil %>
 </section>

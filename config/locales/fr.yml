@@ -217,6 +217,14 @@ fr:
         best_of_year: "Aucune année n'a vu ses meilleurs reliés cette saison, Confrère."
       past_the_end: "Cette étagère est vide, Confrère. Les tomes s'arrêtent sur une étagère précédente."
       no_season: "Les étagères sont nues, Confrère : la Confrérie n'a encore publié aucune saison de cartes."
+    set:
+      back_to_shelf: "Retour à l'étagère"
+    tome:
+      slots: "Les cases du tome"
+      missing: "Carte manquante"
+      copies:
+        one: "%{count} exemplaire"
+        other: "%{count} exemplaires"
   daily_bonuses:
     create:
       collected: "Le booster du jour est dans le coffre, Confrère. Ouvre-le quand tu veux."
@@ -235,6 +243,7 @@ fr:
     sets:
       tome: "%{genre} · Tome %{volume}"
       best_of_year: "Les mieux notés de %{year}"
+      with_years: "%{label} · %{years}"
     # Steam's genres, by key (Steam::GenresPolicy); SetLabel humanises any other.
     genres:
       action: "Action"

@@ -27,9 +27,15 @@
 }
 
 /* Small: 80 × 120 art pixels, 1 pixel of metal. Large: 120 × 180, 3 pixels. */
+:root {
+  /* The small card's size, shared with the library's empty slots. */
+  --card-small-width: 160px;
+  --card-small-height: 240px;
+}
+
 .card--small {
-  --card-width: 160px;
-  --card-height: 240px;
+  --card-width: var(--card-small-width);
+  --card-height: var(--card-small-height);
   --card-title-size: 12px;
   --card-title-line: 14px;
   --card-sweep-duration: 5.22s;

@@ -46,6 +46,13 @@ class CardPreviewTest < ApplicationSystemTestCase
   def visit_preview
     visit back_office_cards_path(locale: :en)
     assert_selector "[data-renderer=react] .card", count: PAIRS.size
+    # The server's faces draw their art only near the viewport: each is
+    # brought into view until it starts, then the page goes back to the top.
+    page.all("[data-renderer=server] .card--face .card__art", visible: :all).each do |art|
+      scroll_to(art, align: :center)
+      art.assert_matches_selector("[data-art]", visible: :all)
+    end
+    page.execute_script("window.scrollTo(0, 0)")
     # Every face's art has settled, on both sides.
     assert_no_selector ".card--face .card__art:not([data-art])"
   end

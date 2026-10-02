@@ -2,7 +2,8 @@
  * The library (DESIGN.md: a decorated room; composition from
  * mockups/key-screens.html, library()): a panelled wall of brass wood, the
  * tabs of the three kinds of sets on parchment, the tomes standing on a
- * dark wooden shelf in leather bindings, and the page links below. Hard
+ * dark wooden shelf in leather bindings, and the page links below; an open
+ * tome beside the shelf, its slots filled with cards or left empty. Hard
  * edges and ink shadows on the 2px grid.
  */
 
@@ -69,6 +70,15 @@
 }
 
 /* A tome: a leather binding, its name and owned / total on it. */
+.shelf > li {
+  /* The spine fills its grid cell, so a row's bindings share one height. */
+  display: flex;
+}
+
+.shelf > li > .tome {
+  flex: 1;
+}
+
 .tome {
   display: flex;
   justify-content: space-between;
@@ -83,6 +93,14 @@
   font-family: var(--font-family-label);
   font-weight: var(--font-weight-label);
   font-size: var(--font-size-label);
+  text-decoration: none;
+}
+
+/* The open tome's spine, pulled out of the row in rust. */
+.tome[aria-current="page"] {
+  background: var(--color-accent);
+  box-shadow: var(--shadow-hard);
+  transform: translateX(var(--space-3));
 }
 
 .tome__name {
@@ -126,4 +144,158 @@
 
 .library .series-nav a[aria-disabled="true"]:not([aria-current]) {
   color: var(--color-ink-muted);
+}
+
+/* An open tome: the shelf on the left, the tome on the right; on a phone
+   the tome alone, with its way back to the shelf. */
+.library--open {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-4);
+}
+
+.library--open .shelf {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.library__open {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.library__back {
+  display: none;
+  align-self: flex-start;
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  border: var(--space-unit) solid var(--color-ink);
+  box-shadow: var(--shadow-hard);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+  text-decoration: none;
+}
+
+/* The open tome: a parchment page holding its slots. */
+.open-tome {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: var(--space-unit) solid var(--color-ink);
+  box-shadow: var(--shadow-hard);
+  background: var(--color-surface);
+}
+
+.open-tome__header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.open-tome__heading {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.open-tome__progress {
+  margin: 0;
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+}
+
+.open-tome__slots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.open-tome__slot {
+  position: relative;
+  flex: none;
+}
+
+/* "×n" on an owned card's corner, a small rust plate. */
+.open-tome__copies {
+  position: absolute;
+  top: calc(-1 * var(--space-3));
+  right: calc(-1 * var(--space-3));
+  padding: 0 var(--space-3);
+  border: var(--space-unit) solid var(--color-ink);
+  box-shadow: var(--shadow-hard);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+}
+
+/* An empty slot (DESIGN.md, Empty slot): the small card's size, a dashed
+   muted border on the sunken surface, naming the missing game. */
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  /* The small card's size (card.css), so empty slots line up with faces. */
+  width: var(--card-small-width);
+  height: var(--card-small-height);
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  border: var(--space-unit) dashed var(--color-ink-muted);
+  background: var(--color-surface-sunken);
+  color: var(--color-ink);
+  text-align: center;
+}
+
+.slot__title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow-wrap: anywhere;
+  font-family: var(--font-family-card-title);
+  font-weight: var(--font-weight-card-title);
+}
+
+.slot__year,
+.slot__missing {
+  color: var(--color-ink-muted);
+  font-size: var(--font-size-label);
+}
+
+/* On a phone the tome stands alone. */
+@media (max-width: 720px) {
+  .library--open {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .library--open .library__aside {
+    display: none;
+  }
+
+  .library__back {
+    display: inline-block;
+  }
+
+  /* Two small cards side by side on a phone. */
+  .open-tome {
+    padding: var(--space-2);
+  }
+
+  .open-tome__slots {
+    gap: var(--space-3);
+  }
 }
