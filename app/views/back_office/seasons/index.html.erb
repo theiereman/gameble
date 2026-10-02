@@ -1,0 +1,55 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render TextPlateComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <% draft = @seasons.find(&:draft?) %>
+  <% if draft %>
+    <p>
+      <%= render ButtonComponent.new(variant: :primary, href: publish_back_office_seasons_path, method: :post, params: { number: draft.number },
+            confirm: t(".confirm", number: draft.number, count: draft.card_count)) do %><%= t(".publish", number: draft.number) %><% end %>
+    </p>
+  <% end %>
+
+  <% if @seasons.empty? %>
+    <%= render TextPlateComponent.new(tag: :p) do %>
+      <%= t(".empty") %>
+    <% end %>
+  <% else %>
+    <table class="ledger">
+      <caption class="visually-hidden"><%= t(".caption") %></caption>
+      <thead>
+        <tr>
+          <th scope="col"><%= t(".number") %></th>
+          <th scope="col"><%= t(".status") %></th>
+          <th scope="col"><%= t(".card_count") %></th>
+          <th scope="col"><%= t(".published_at") %></th>
+          <% Catalog::Rarity::TIERS.each_value do |name| %>
+            <th scope="col"><%= t("catalog.rarity.#{name}") %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @seasons.each do |season| %>
+          <tr data-season-number="<%= season.number %>" data-season-status="<%= season.status %>">
+            <td><%= season.number %></td>
+            <td><%= t("back_office.seasons.statuses.#{season.status}") %></td>
+            <td data-season-card-count="<%= season.card_count %>"><%= number_with_delimiter(season.card_count) %></td>
+            <td><%= render "back_office/import_runs/time", time: season.published_at %></td>
+            <% Catalog::Rarity::TIERS.each do |tier, name| %>
+              <% if season.tier_counts %>
+                <td data-season-tier="<%= name %>"><%= number_with_delimiter(season.tier_counts.fetch(tier)) %></td>
+              <% else %>
+                <td>—</td>
+              <% end %>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>

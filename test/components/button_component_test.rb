@@ -45,6 +45,24 @@ class ButtonComponentTest < ViewComponent::TestCase
     assert_selector "form button.button--secondary", text: "Stand down"
   end
 
+  test "a form button with confirm asks Turbo to confirm before sending" do
+    render_inline(ButtonComponent.new(href: "/seasons/publish", method: :post, confirm: "Sure?")) { "Publish" }
+
+    assert_selector "form.button-form[action='/seasons/publish'][data-turbo-confirm='Sure?']"
+    assert_no_selector "form[data-turbo]"
+    assert_selector "form button.button--primary", text: "Publish"
+  end
+
+  test "confirm and turbo off combine on the form" do
+    render_inline(ButtonComponent.new(href: "/x", method: :post, confirm: "Sure?", turbo: false)) { "Go" }
+
+    assert_selector "form[data-turbo-confirm='Sure?'][data-turbo=false]"
+  end
+
+  test "only a form button can ask for confirmation" do
+    assert_raises(ArgumentError) { ButtonComponent.new(href: "/en", confirm: "Sure?") }
+  end
+
   test "a form button needs an href" do
     assert_raises(ArgumentError) { ButtonComponent.new(method: :post) }
   end

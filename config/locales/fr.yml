@@ -34,6 +34,7 @@ fr:
         empty: "Rien n'attend encore les officiers. Les registres sont vierges."
         jobs: "La file des tâches"
         import_runs: "L'import Steam"
+        seasons: "Les saisons du catalogue"
     import_runs:
       statuses:
         pending: "En attente"
@@ -71,6 +72,33 @@ fr:
         started: "L'import est lancé, officier. Les scribes recopient la première page."
       resume:
         resumed: "L'import reprend là où il s'était arrêté, officier."
+    seasons:
+      statuses:
+        draft: "Brouillon"
+        published: "Publiée"
+      index:
+        heading: "Les saisons du catalogue"
+        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, dépose la poussière sur leur dos et l'ouvre au tirage, d'un seul coup. Une saison publiée ne change plus jamais."
+        empty: "Aucune saison pour l'instant. Le premier import ouvrira le brouillon."
+        caption: "Saisons du catalogue, par numéro"
+        number: "Saison"
+        status: "État"
+        card_count: "Cartes"
+        published_at: "Publiée"
+        publish: "Publier la saison %{number}"
+        confirm:
+          one: "Publier la saison %{number} et sa seule carte ? Ses raretés et sa poussière ne changeront plus jamais."
+          other: "Publier la saison %{number} et ses %{count} cartes ? Ses raretés et sa poussière ne changeront plus jamais."
+      publish:
+        published: "La saison %{number} est publiée, officier. Ses cartes sont prêtes pour le tirage."
+        import_active: "Le dernier import Steam n'est pas terminé, officier. Laisse-le finir, ou lance une nouvelle passe et laisse-la aboutir, avant de publier la saison."
+  catalog:
+    rarity:
+      steel: "Acier"
+      emerald: "Émeraude"
+      sapphire: "Saphir"
+      amethyst: "Améthyste"
+      gold: "Or"
   sessions:
     create:
       welcome: "Bienvenue dans les rangs, Confrère. La Confrérie a inscrit ton nom au grand registre."
@@ -93,6 +121,10 @@ fr:
     catalog:
       missing_text: "Les scribes ont besoin du titre de la carte dans chaque langue de la Confrérie avant de l'inscrire au registre."
       invalid_card: "Les scribes ne peuvent pas inscrire cette carte au registre : ses particularités sont incomplètes ou en désordre."
+      no_draft: "Il n'y a aucune saison en brouillon à publier, officier."
+      stale_draft: "Ce brouillon n'est plus celui des registres, officier. Recharge la page et regarde à nouveau."
+      empty_season: "La saison en brouillon ne contient encore aucune carte, officier. Lance d'abord un import."
+      empty_tier: "La saison en brouillon est trop petite pour remplir les cinq raretés, officier. Importe d'abord plus de jeux."
     game:
       player_required: "Seul un Confrère enrôlé et en règle peut faire cela."
     steam:

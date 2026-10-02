@@ -34,6 +34,7 @@ en:
         empty: "Nothing awaits the officers yet. The ledgers lie blank."
         jobs: "The job queue"
         import_runs: "The Steam import"
+        seasons: "The catalog seasons"
     import_runs:
       statuses:
         pending: "Waiting"
@@ -71,6 +72,33 @@ en:
         started: "The import is under way, officer. The scribes are copying the first page."
       resume:
         resumed: "The import resumes from where it stopped, officer."
+    seasons:
+      statuses:
+        draft: "Draft"
+        published: "Published"
+      index:
+        heading: "The catalog seasons"
+        intro: "Imports fill the draft season. Publishing it cuts its cards into the five rarities, settles the dust on their backs and opens it to the draw, all at once. A published season never changes again."
+        empty: "No season yet. The first import will open the draft."
+        caption: "Catalog seasons, by number"
+        number: "Season"
+        status: "Status"
+        card_count: "Cards"
+        published_at: "Published"
+        publish: "Publish season %{number}"
+        confirm:
+          one: "Publish season %{number} and its %{count} card? Its rarities and dust will never change again."
+          other: "Publish season %{number} and its %{count} cards? Its rarities and dust will never change again."
+      publish:
+        published: "Season %{number} is published, officer. Its cards are ready for the draw."
+        import_active: "The latest Steam import has not completed, officer. Let it finish, or start a new run and let it complete, before publishing the season."
+  catalog:
+    rarity:
+      steel: "Steel"
+      emerald: "Emerald"
+      sapphire: "Sapphire"
+      amethyst: "Amethyst"
+      gold: "Gold"
   sessions:
     create:
       welcome: "Welcome to the ranks, Brother. The Brotherhood has entered your name in the great ledger."
@@ -93,6 +121,10 @@ en:
     catalog:
       missing_text: "The scribes need the card's title in every tongue of the Brotherhood before it can enter the ledger."
       invalid_card: "The scribes cannot enter that card in the ledger: its particulars are incomplete or out of order."
+      no_draft: "There is no draft season to publish, officer."
+      stale_draft: "That draft is no longer the one in the ledgers, officer. Reload the page and look again."
+      empty_season: "The draft season holds no card yet, officer. Run an import first."
+      empty_tier: "The draft season is too small to fill all five rarities, officer. Import more games first."
     game:
       player_required: "Only an enlisted Brother in good standing may do that."
     steam:
