@@ -18,9 +18,9 @@ Depth that belongs downstream (PRD, architecture) or does not fit the brief.
   - Steam is one catalog adapter: source, prestige score, image and sets.
   - A fork should be able to plug in another catalog (Wikipedia, another store, etc.) without touching the engine.
 - **Scaling rule:** start simple and modular. Each infrastructure component (queues, caches, streaming, e.g. Kafka) is introduced only when measured load justifies it, never ahead of it.
-- **Stack:** Ruby on Rails, chosen on 2026-10-02. The author knows it well, and it has built-in pieces for translation, background jobs, live updates and deployment. Highly interactive parts, such as the pack opening, can be React components embedded in Rails pages, to keep that code readable instead of one large JavaScript file. Rust and TypeScript were considered earlier for their strict types and dropped. Details belong to the spec and architecture.
+- **Stack:** Ruby on Rails, chosen on 2026-10-02. The author knows it well, and it has built-in pieces for translation, background jobs, live updates and deployment. React components, in TypeScript, are embedded for the pack reveal and the trade board. Rust, a full TypeScript stack and Hanami were considered and set aside. The binding decisions are in `../architecture-gameble/architecture-gameble.md`.
 - **Content in a back-office:** themed sets and community content are managed through a back-office, not code changes.
-- **Card copy model:** each copy stores its minted rarity and season from day one, so V2/V3 need no painful migration.
+- **Card copy model:** copies are counted per card and season, so each keeps the rarity and season it was minted with and V2/V3 need no painful migration.
 
 ## Economy and naming carried over from the forge session (V2/V3)
 
@@ -52,28 +52,25 @@ From `forge-steam-tcg`:
 
 ## UX intent (moved from the brief)
 
-- **Pack opening:**
-  - 5 cards land face down. Each glow is always visible and coloured by rarity, which works on mobile.
-  - On desktop, hovering intensifies the glow with a slight 3D tilt.
-  - Clicking a card flips it. Animation length scales with rarity: commons flip in a blink, a legendary gets an over-the-top reveal.
-  - "Flip all" never skips a legendary's reveal.
-- **Card frame:**
-  - A gameble-designed frame (rarity effect, Brotherhood style) carries the identity.
-  - The game's official Steam art is inset, with the publisher and copyright shown.
-- **Sets:** genre, decade and publisher. A game can belong to several sets.
-- **Art direction:** the 16-bit pixel-art style is kept. Interface art will be AI-generated, and realistic AI images quickly look like slop, while pixel art holds up. To settle in the UX work: how untouched, full-colour Steam art sits inside that style. Images are loaded as-is from Steam's CDN, so any treatment that transforms them at import (such as sepia dithering) is no longer possible.
+The UX work of 2026-10-02 replaced the intent first noted here. The binding documents are `../ux-gameble/DESIGN.md` and `../ux-gameble/EXPERIENCE.md`. In short:
+
+- **Style:** 16-bit pixel art on a light parchment theme, one pixel size everywhere, text in a modern sans-serif. Interface art is AI-generated in pixel style.
+- **Card art:** the vertical Steam image, pixelated and reduced to 16 colours in the browser. Images are never copied.
+- **Reveal:** dust by the age of the game, a rarity seal under the dust, then the flip. This replaces the rarity glow.
+- **Sets:** publisher sets, tomes per genre, and the ten best-rated games of each year. This replaces sets by genre, decade and publisher.
+- **Navigation:** the furniture of a room, furnished as the chapter hall of a Brotherhood.
 
 ## Catalog import (moved from the brief)
 
 - **Card identity:** one card per Steam app of type `game`.
 - **Card text:** a title and a short description, shown in every language the app supports. Steam store tags are imported too; sets may later be created from them, probably in a second phase.
 - **Exclusions:** DLC, soundtracks, demos and tools.
-- **Inclusion:** at least 500 Steam reviews. The estimate is 10k–20k cards, to confirm on real data.
+- **Inclusion:** at least 500 Steam reviews and a vertical Steam library image. The estimate is 10k–20k cards, to confirm on real data.
 - **Rarity:**
   - Prestige, computed from Steam review score and review volume only. Metacritic is not used. The exact formula is calibrated on real data.
   - A player must be able to guess a card's rarity in one sentence.
 - **Stability:** each card copy keeps the rarity and season it was minted with. The catalog and rarities are recomputed once per season (V3), and new games enter only at season start.
-- **Draw:** pick the rarity tier first (fixed odds), then a card within it, so catalog size never dilutes legendaries. Example starting odds: ~70% common, ~20% rare, with higher tiers taking the remainder. To be tuned during design.
+- **Draw:** pick the rarity tier first (fixed odds), then a card within it, so catalog size never dilutes legendaries. Target: about one legendary every 400 packs. Starting odds per card: 76% common, 19% emerald, 4.3% sapphire, 0.65% amethyst, 0.05% legendary, tuned in playtests.
 - **Data source:** the Steam API, read by offline import scripts, never at play time.
   - The scripts copy the data into gameble's own database, which is the reference at play time. A card keeps its data even if Steam later changes or removes the game.
   - Images are never copied, because storing them would cost too much. They are always loaded from Steam's CDN, so a card may lose its image if Steam removes the game.
@@ -89,3 +86,23 @@ From `forge-steam-tcg`:
 - **Player library data (later):** reading a player's library may depend on their Steam profile privacy settings. Verify before designing library bonuses.
 - **App stores:** review may object to third-party art and to random rewards. iOS sign-in rules may also apply. Reassess all three at the store phase.
 - **Bot protection:** edge protection (e.g. Cloudflare) in front of the app, with the pack limit enforced server-side.
+
+## Parked idea: knowledge battles (future version)
+
+Proposed by a friend of the author on 2026-10-02, to make the game more interactive. Not in the MVP, and not scheduled. It reopens "Combat", which the brief lists as out.
+
+- **Match:** three rounds, each with a theme drawn from Steam data. Examples: the game released closest to 2014, a game in the RPG category, the game with the best Steam rating.
+- **Hand:** 20 cards are drawn at random from the player's collection. The player picks 3 of them within one minute.
+- **Play:** the player places one card per round.
+- **Power:** cards get attack and defence values, probably from their rarity, with power multipliers from their seals.
+- **Format:** live, fast matches of 5 minutes at most.
+- **Principle:** battles reward knowledge of Steam games, not collection size or time played.
+- **Reward:** battles are optional and give credits for the market.
+- **Challenge market:** an alternative market page where a player opens a challenge by staking a card, for example an epic Portal 2. An opponent accepts by staking a card of the same rarity. The winner takes both cards.
+
+Points to settle before this is planned:
+
+- The forge session rejected a battle mode, and the brief rejects trivia-style combat whose answers can be looked up online.
+- Battle credits would be a second source of currency. The V2 economy earns currency only by destroying cards.
+- Live matches need both players connected at once; the MVP has no live play.
+
