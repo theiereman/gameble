@@ -31,6 +31,10 @@ fr:
       countdown:
         label: "Prochain paquet dans"
         at: "Prochain paquet à %{time} (UTC)"
+      bonus:
+        heading: "Bonus du jour"
+        text: "Un petit booster t'attend, Confrère."
+        collect: "Le prendre"
       island:
         heading: "Le tableau de rassemblement de la Confrérie"
         season: "Saison de service en cours :"
@@ -183,6 +187,11 @@ fr:
       throttled: "Doucement, Confrère. Le coffre a besoin d'un instant entre deux ouvertures ; réessaie dans une minute."
     show:
       heading: "Ton paquet, Confrère"
+      heading_bonus: "Ton bonus du jour"
+  daily_bonuses:
+    create:
+      collected: "Le booster du jour est dans le coffre, Confrère. Ouvre-le quand tu veux."
+      throttled: "Doucement, Confrère. Le bonus ne s'envolera pas ; réessaie dans une minute."
   cards:
     face_down: "Carte face cachée"
     face_down_with_rarity: "Carte face cachée, %{rarity}"
@@ -239,6 +248,8 @@ fr:
     game:
       player_required: "Seul un Confrère enrôlé et en règle peut faire cela."
       no_pack_available: "Le coffre est vide, Confrère. Attends le prochain paquet."
+      already_collected: "Tu as déjà pris le bonus du jour, Confrère. Le prochain vient après minuit (UTC)."
+      no_season: "La Confrérie n'a pas encore de saison de cartes, Confrère. Reviens plus tard dans la journée pour ton bonus."
     steam:
       invalid_claimed_id: "Les scribes ne reconnaissent pas les papiers que tu rapportes, Confrère. Enrôle-toi à nouveau."
       sign_in_failed: "L'enrôlement a échoué, Confrère. Tes papiers n'ont pas été tamponnés ; réessaie."

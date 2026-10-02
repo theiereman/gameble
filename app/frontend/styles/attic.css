@@ -342,6 +342,41 @@
   margin: 0;
 }
 
+/* The daily bonus panel: an interface panel beside the chest (DESIGN.md),
+   on the floor between the lectern and the chest, above the chest's button
+   row. */
+.attic__bonus {
+  position: absolute;
+  left: 236px;
+  bottom: 56px;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.attic__bonus .text-plate {
+  box-shadow: var(--shadow-hard);
+}
+
+.attic__bonus-heading {
+  margin: 0;
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+}
+
+.attic__bonus-text {
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-label);
+}
+
+.attic__bonus .button {
+  margin: 0;
+}
+
 /* Signed out: an invitation on the wall above the chest. */
 .attic__invitation {
   position: absolute;

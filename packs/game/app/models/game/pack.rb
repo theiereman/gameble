@@ -10,8 +10,11 @@ module Game
   class Pack < ApplicationRecord
     self.table_name = "game_packs"
 
-    # Cards in a pack.
+    # Cards in a regular pack.
     SIZE = 5
+
+    # Cards in a daily bonus pack (CAP-16), drawn with DrawOdds::BONUS.
+    BONUS_SIZE = 3
 
     # Unopened regular packs a player's bank holds (CAP-4, AD-7): bonus and
     # reward packs are outside it.

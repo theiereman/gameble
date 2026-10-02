@@ -1,8 +1,8 @@
 <% content_for :back_button, true %>
-<%# The cards of an opened pack, in their drawn order. A plain list until the
-    reveal (story 3.6). %>
+<%# The cards of an opened pack, in their drawn order (five, or three for
+    the daily bonus). A plain list until the reveal (story 3.6). %>
 <section class="pack-result" aria-labelledby="pack-result-heading">
-  <h1 id="pack-result-heading"><%= t(".heading") %></h1>
+  <h1 id="pack-result-heading"><%= @pack.bonus? ? t(".heading_bonus") : t(".heading") %></h1>
   <ol class="pack-result__cards">
     <% @cards.each do |card| %>
       <li class="pack-result__card pack-result__card--<%= card[:rarity] %>">

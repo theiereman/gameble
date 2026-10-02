@@ -14,3 +14,8 @@
 # ActiveSupport::Inflector.inflections(:en) do |inflect|
 #   inflect.acronym "RESTful"
 # end
+
+# "bonus" is singular: `resource :daily_bonus` routes to DailyBonusesController.
+ActiveSupport::Inflector.inflections(:en) do |inflect|
+  inflect.irregular "bonus", "bonuses"
+end

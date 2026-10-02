@@ -12,5 +12,11 @@ module Game
     # The card forced by the first-session guarantee: sapphire or better, in
     # the regular odds' proportions (430 : 65 : 5).
     GUARANTEE = { 3 => 8_600, 4 => 1_300, 5 => 100 }.freeze
+
+    # A daily bonus pack (CAP-16): better odds and no steel, emerald 70 %,
+    # sapphire 24 %, amethyst 5 %, gold 1 %. The booster odds are an open
+    # product question (spec); this is the assumption recorded in the epic
+    # Notes and pending-approvals.md, held here and nowhere else.
+    BONUS = { 2 => 7_000, 3 => 2_400, 4 => 500, 5 => 100 }.freeze
   end
 end
