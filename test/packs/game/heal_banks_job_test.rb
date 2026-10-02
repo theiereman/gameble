@@ -2,9 +2,10 @@ require "test_helper"
 require_relative "../../support/catalog_seeds"
 require_relative "../../support/game_packs"
 
-# Game::FillEmptyBanksJob (R3): a season published later fills the banks of
-# the players who never had a pack.
-class Game::FillEmptyBanksJobTest < ActiveSupport::TestCase
+# Game::HealBanksJob (R3): a season published later fills the banks of the
+# players who never had a pack, and tops up those left short of ten (an
+# emptied bank included).
+class Game::HealBanksJobTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include CatalogSeeds
   include GamePacks
@@ -14,7 +15,7 @@ class Game::FillEmptyBanksJobTest < ActiveSupport::TestCase
   test "publishing a season enqueues the job once the publication commits" do
     season = seed_card_seasons(distinct_scores(150))
 
-    assert_enqueued_with(job: Game::FillEmptyBanksJob) do
+    assert_enqueued_with(job: Game::HealBanksJob) do
       Catalog::PublishSeason.new.call(number: season.number).value!
     end
   end
@@ -49,7 +50,7 @@ class Game::FillEmptyBanksJobTest < ActiveSupport::TestCase
       end
     end
     begin
-      assert_error_reported(RuntimeError) { Game::FillEmptyBanksJob.perform_now }
+      assert_error_reported(RuntimeError) { Game::HealBanksJob.perform_now }
     ensure
       Game::FillBank.singleton_class.remove_method(:new)
     end

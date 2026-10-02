@@ -1,9 +1,11 @@
 require "test_helper"
+require_relative "../support/counting_rate_limit"
 require_relative "../support/game_packs"
 
 # The attic chest and the pack result page (R9, CAP-4): opening a pack end to
 # end, the result page, and every refusal.
 class PacksControllerTest < ActionDispatch::IntegrationTest
+  include CountingRateLimit
   include GamePacks
 
   NEW_STEAM_ID = "76561197960287930".freeze
@@ -206,12 +208,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     player = accounts_players(:player)
     31.times { |index| create_pack(player, available_at: (index + 1).minutes.ago) }
     sign_in(player.steam_id)
-    # The test cache store counts nothing: the rate limit's store counts in
-    # memory for this test.
-    memory = ActiveSupport::Cache::MemoryStore.new
-    store = PacksController.cache_store
-    store.define_singleton_method(:increment) { |*args, **options| memory.increment(*args, **options) }
-    begin
+    with_counting_rate_limit(PacksController) do
       30.times do
         post packs_path(locale: :en)
         assert_response :see_other
@@ -219,8 +216,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
       end
 
       post packs_path(locale: :en)
-    ensure
-      store.singleton_class.remove_method(:increment)
     end
 
     assert_redirected_to home_path(locale: :en)

@@ -6,7 +6,7 @@ module Game
   # (Game::HealBank). Each player is served in their own transaction; both
   # operations do nothing for a bank served meanwhile. A player whose fill
   # fails is reported and skipped, so the others still get their bank.
-  class FillEmptyBanksJob < ActiveJob::Base
+  class HealBanksJob < ActiveJob::Base
     queue_as :default
 
     def perform
