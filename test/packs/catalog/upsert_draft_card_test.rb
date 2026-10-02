@@ -208,6 +208,7 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     "a third locale" => { texts: { "en" => { title: "Portal 2" }, "fr" => { title: "Portal 2" }, "de" => { title: "Portal 2" } } },
     "texts that are not a hash" => { texts: [ "Portal 2" ] },
     "genres that are not strings" => { genres: [ :action ] },
+    "a genre that is not a set key" => { genres: [ "Free To Play" ] },
     "nil tags" => { tags: nil },
     "a numeric title" => { texts: { "en" => { title: 2 }, "fr" => { title: "Portal 2" } } },
     "an array title" => { texts: { "en" => { title: "Portal 2" }, "fr" => { title: [] } } }

@@ -54,6 +54,79 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_equal({ season_id: season.id }, events.first.data)
   end
 
+  def sets_of(season)
+    Catalog::Set.where(season_id: season.id).includes(memberships: { card_season: :card }).order(:kind, :key)
+  end
+
+  def member_rows(set)
+    set.memberships.sort_by(&:position).map(&:card_season)
+  end
+
+  test "publishing builds the season's publisher sets, tomes and best-of-years, members in order" do
+    season = seed_sets_draft
+
+    assert publish(season.number).success?
+
+    sets = sets_of(season).group_by(&:kind)
+    assert_equal({ "publisher" => 1, "tome" => 4, "best_of_year" => 3 }, sets.transform_values(&:size))
+
+    publisher = sets["publisher"].sole
+    assert_equal [ "p", { "publisher" => "P" } ], [ publisher.key, publisher.params ]
+    assert_equal 5, publisher.memberships.size
+
+    tomes = sets["tome"].sort_by { |set| [ set.params["genre"], set.params["volume"] ] }
+    assert_equal %w[action-1 action-2 action-3 rpg-1], tomes.map(&:key)
+    assert_equal [ 25, 25, 25, 44 ], tomes.map { |set| set.memberships.size }
+    assert_equal({ "genre" => "action", "volume" => 2, "volumes" => 3 }, tomes[1].params)
+
+    best = sets["best_of_year"].sort_by(&:key)
+    assert_equal [ [ "2011", 10 ], [ "2012", 9 ], [ "2015", 10 ] ], best.map { |set| [ set.key, set.memberships.size ] }
+    assert_equal [ { "year" => 2011 }, { "year" => 2012 }, { "year" => 2015 } ], best.map(&:params)
+
+    sets.values.flatten.each do |set|
+      assert_equal (1..set.memberships.size).to_a, set.memberships.map(&:position).sort, set.key
+    end
+    (sets["publisher"] + tomes).each do |set|
+      cards = member_rows(set).map(&:card)
+      assert_equal cards.sort_by { |card| [ card.release_date, card.id ] }, cards, set.key
+    end
+    best.each do |set|
+      ranked = member_rows(set)
+      assert_equal ranked.sort_by { |cs| [ -cs.rating, -cs.prestige_score, cs.card_id ] }, ranked, set.key
+    end
+    action = Catalog::CardSeason.where(season_id: season.id).joins(:card).where("catalog_cards.genres[1] = 'action'").ids.sort
+    assert_equal action, tomes.first(3).flat_map { |set| set.memberships.map(&:card_season_id) }.sort
+  end
+
+  test "a draft that yields no publisher set and no tome still publishes, with its years' best" do
+    season = seed_card_seasons(distinct_scores(21), release_dates: Array.new(21) { |i| Date.new(2010 + i % 2, 1, 1) })
+
+    assert publish(season.number).success?
+
+    assert_predicate season.reload, :published?
+    assert_equal [ [ "best_of_year", "2010" ], [ "best_of_year", "2011" ] ], sets_of(season).map { |set| [ set.kind, set.key ] }
+  end
+
+  test "a set key outside KEY_FORMAT raises and nothing is published" do
+    season = seed_card_seasons(distinct_scores(21), genres: Array.new(21) { [ "Free To Play" ] })
+
+    assert_nothing_written(season) do
+      assert_raises(ArgumentError) { publish(season.number) }
+    end
+    assert_predicate season.reload, :draft?
+    assert_equal 0, Catalog::Set.where(season_id: season.id).count
+  end
+
+  test "the sets of a published season are frozen" do
+    season = seed_sets_draft
+    publish(season.number)
+
+    set = Catalog::Set.find_by!(season_id: season.id, kind: :tome, key: "rpg-1")
+    assert_not set.update(key: "rpg-2")
+    assert_not set.destroy
+    assert_not set.memberships.first.destroy
+  end
+
   test "the publication date is the UTC date of the publication" do
     season = seed_card_seasons(distinct_scores(21), release_dates: Array.new(21, Date.new(2025, 10, 3)))
 

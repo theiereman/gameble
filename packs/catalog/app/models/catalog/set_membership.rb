@@ -5,6 +5,9 @@ module Catalog
   class SetMembership < ApplicationRecord
     self.table_name = "catalog_set_memberships"
 
+    # A membership never moves to another set or card-season.
+    attr_readonly :set_id, :card_season_id
+
     belongs_to :set, class_name: "Catalog::Set", inverse_of: :memberships
     belongs_to :card_season, class_name: "Catalog::CardSeason", inverse_of: :set_memberships
 

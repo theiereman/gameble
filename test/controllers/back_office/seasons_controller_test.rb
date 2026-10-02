@@ -56,6 +56,23 @@ module BackOffice
       assert_equal Catalog::CardSeason.where(season_id: draft.id).order(:id).ids, by_tier[:tiers].values.flatten.sort
     end
 
+    test "the page shows a published season's sets per kind" do
+      sign_in(accounts_players(:administrator))
+      draft = seed_sets_draft
+
+      get back_office_seasons_path(locale: :en)
+      assert_select "tr[data-season-number='2'] td[data-season-sets-publisher]", false
+      assert_select "th", "Publisher sets"
+
+      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
+      follow_redirect!
+
+      assert_select "tr[data-season-number='2'] td[data-season-sets-publisher='1']", "1"
+      assert_select "tr[data-season-number='2'] td[data-season-sets-tome='4']", "4"
+      assert_select "tr[data-season-number='2'] td[data-season-sets-best-of-year='3']", "3"
+      assert_select "tr[data-season-number='1'] td[data-season-sets-publisher='1']"
+    end
+
     test "publishing while a Steam import is active is refused" do
       sign_in(accounts_players(:administrator))
       draft = seed_card_seasons(distinct_scores(21))

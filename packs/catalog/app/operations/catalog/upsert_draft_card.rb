@@ -46,11 +46,14 @@ module Catalog
 
     private
 
+    # Genres name tomes (SetBuilder), so each must be a valid set key:
+    # one malformed genre would otherwise stop the season's publication.
     def validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, credit:, genres:, tags:)
       valid = [ source_key, image_url, store_url ].all? { |value| present_string?(value) } &&
         release_date.is_a?(Date) &&
         [ publisher, credit ].all? { |value| value.nil? || value.is_a?(String) } &&
-        [ genres, tags ].all? { |list| list.is_a?(Array) && list.all? { |item| present_string?(item) } }
+        [ genres, tags ].all? { |list| list.is_a?(Array) && list.all? { |item| present_string?(item) } } &&
+        genres.all? { |genre| Set::KEY_FORMAT.match?(genre) }
       return Failure(:invalid_card) unless valid
 
       Success(source_key:, release_date:, image_url:, store_url:, publisher: publisher.presence, credit: credit.presence, genres:, tags:)

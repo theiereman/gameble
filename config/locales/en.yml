@@ -89,13 +89,17 @@ en:
         published: "Published"
       index:
         heading: "The catalog seasons"
-        intro: "Imports fill the draft season. Publishing it cuts its cards into the five rarities, settles the dust on their backs and opens it to the draw, all at once. A published season never changes again."
+        intro: "Imports fill the draft season. Publishing it cuts its cards into the five rarities, settles the dust on their backs, binds them into publisher sets, genre tomes and the best of each year, and opens it to the draw, all at once. A published season never changes again."
         empty: "No season yet. The first import will open the draft."
         caption: "Catalog seasons, by number"
         number: "Season"
         status: "Status"
         card_count: "Cards"
         published_at: "Published"
+        sets:
+          publisher: "Publisher sets"
+          tome: "Tomes"
+          best_of_year: "Best of the year"
         publish: "Publish season %{number}"
         confirm:
           one: "Publish season %{number} and its %{count} card? Its rarities and dust will never change again."
