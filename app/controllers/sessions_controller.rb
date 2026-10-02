@@ -11,6 +11,10 @@ class SessionsController < ApplicationController
   # refused (login CSRF).
   SIGN_IN_STARTED = "steam_sign_in_started".freeze
 
+  # Steam's return is a browser GET that rack-openid relabels as POST, so it
+  # carries no authenticity token. Login CSRF is guarded by SIGN_IN_STARTED.
+  skip_forgery_protection only: :create
+
   ORIGIN_PATH = %r{\A/(?:#{I18n.available_locales.join("|")})(?:/[^\\\s]*)?\z}
 
   # GET /auth/steam/callback, after OmniAuth has verified the response.

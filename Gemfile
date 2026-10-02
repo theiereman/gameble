@@ -68,6 +68,8 @@ gem "omniauth-openid", "~> 2.0.2"
 gem "omniauth-rails_csrf_protection", "~> 2.0.1"
 # ruby-openid needs REXML, which Ruby 4 no longer bundles
 gem "rexml", "~> 3.4.4"
+# ruby-openid calls CGI.parse when it checks return_to; Ruby 4 keeps only cgi/escape
+gem "cgi", "~> 0.5.2"
 
 # A policy on every controller action, deny by default (AD-14) [https://github.com/varvet/pundit]
 gem "pundit", "~> 2.5.2"
