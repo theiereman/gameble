@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gameble — navigation façon jeu</title>
+<style>
+/* Palette « Parchemin au grand jour » : bg #e9dcc0 · surface #f4ead2 · surface-2 #e2d1ad · ink #2b1d10 · muted #6b5640 · accent #8a3b12
+   Bois (schématique) : #7a3410 · #64290c — laiton #c4a173 — or #f0b429 */
+:root{--bg:#e9dcc0;--surface:#f4ead2;--surface2:#e2d1ad;--ink:#2b1d10;--muted:#6b5640;--accent:#8a3b12;--wood:#9a6a3c;--woodD:#7a4f2a;--brass:#c4a173;--gold:#f0b429}
+*{box-sizing:border-box}
+body{margin:0;padding:24px 16px 64px;background:var(--bg);color:var(--ink);font-family:ui-monospace,"DejaVu Sans Mono",Menlo,Consolas,monospace;font-size:14px;line-height:1.5}
+h1{font-size:20px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px}
+h2{font-size:16px;margin:44px 0 4px;text-transform:uppercase;border-bottom:4px solid var(--ink);padding-bottom:4px}
+p{margin:4px 0 12px;max-width:84ch;color:var(--muted)}
+ul{margin:4px 0 12px;padding-left:20px;max-width:84ch;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:28px;margin:12px 0 8px;align-items:flex-end}
+.lab{font-size:11px;margin:0 0 6px;color:var(--accent);font-weight:700;text-transform:uppercase}
+.screen,.phone{position:relative;border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);overflow:hidden;font-size:9px;font-weight:700;text-transform:uppercase;line-height:1.25;
+  background:linear-gradient(var(--surface2) 0 62%,var(--wood) 62% 100%)}
+.screen{width:500px;height:300px}
+.phone{width:176px;height:330px;border-width:4px}
+.el{position:absolute;border:2px solid var(--ink);background:var(--surface);padding:3px 4px;display:flex;align-items:center;justify-content:center;text-align:center}
+.chest{background:var(--woodD);color:var(--surface)}
+.gauge{background:var(--surface);justify-content:flex-start;padding:0}
+.gauge i{display:block;height:100%;width:62%;background:var(--accent)}
+.gauge span{position:absolute;left:6px;color:var(--ink);mix-blend-mode:normal;background:var(--surface);padding:0 3px}
+.bonus{background:var(--gold)}
+.nav{background:var(--brass)}
+.on{background:var(--accent);color:var(--surface)}
+.obj{background:var(--wood);color:var(--surface)}
+.bar{position:absolute;left:0;right:0;bottom:0;display:flex;border-top:2px solid var(--ink);background:var(--woodD)}
+.bar div{flex:1;border-right:2px solid var(--ink);padding:5px 2px;text-align:center;background:var(--brass)}
+.bar div:last-child{border-right:0}
+.bar .on{background:var(--accent);color:var(--surface)}
+.map{position:absolute;display:flex;flex-direction:column;border:2px solid var(--ink);background:var(--ink);gap:2px}
+.map div{background:var(--brass);padding:3px 4px;text-align:center}
+.map .on{background:var(--accent);color:var(--surface)}
+.map .roof{background:var(--woodD);color:var(--surface)}
+.full{background:var(--surface2)}
+</style>
+</head>
+<body>
+<h1>Navigation façon jeu</h1>
+<p>Trois façons de se déplacer sans barre latérale. Ce sont des schémas : ils montrent où sont les choses, pas le dessin final. Chaque schéma présente le grenier, l'écran d'arrivée, sur ordinateur et sur téléphone.</p>
+<p>La jauge hebdomadaire et le bonus du jour n'avaient pas encore de place : je leur en propose une dans chaque schéma, à valider.</p>
+
+<h2>A — Le plan de la maison</h2>
+<ul>
+<li>Une petite coupe de la maison reste dans un coin : on touche une pièce pour y aller.</li>
+<li>Chaque écran est une pièce : grenier, bibliothèque, salon (fil et échanges), vitrine (succès).</li>
+<li>Sur téléphone, le plan s'ouvre en plein écran depuis un bouton.</li>
+</ul>
+<div class="row">
+  <div><div class="lab">Ordinateur</div>
+    <div class="screen">
+      <div class="el gauge" style="left:10px;top:8px;width:300px;height:16px"><i></i><span>Objectif de la Confrérie 62 %</span></div>
+      <div class="el" style="right:10px;top:8px;width:70px;height:16px">Profil</div>
+      <div class="el chest" style="left:170px;top:120px;width:160px;height:90px">Coffre<br>10 packs</div>
+      <div class="el" style="left:185px;top:216px;width:130px;height:16px">Prochain pack 07:42</div>
+      <div class="el bonus" style="left:70px;top:176px;width:70px;height:40px">Bonus<br>du jour</div>
+      <div class="map" style="right:10px;bottom:10px;width:112px">
+        <div class="roof">La maison</div><div class="on">Grenier</div><div>Bibliothèque</div><div>Salon · fil, échanges</div><div>Vitrine · succès</div>
+      </div>
+    </div></div>
+  <div><div class="lab">Téléphone</div>
+    <div class="phone">
+      <div class="el gauge" style="left:6px;top:6px;width:156px;height:16px"><i></i><span>Objectif 62 %</span></div>
+      <div class="el chest" style="left:24px;top:110px;width:120px;height:80px">Coffre<br>10 packs</div>
+      <div class="el" style="left:20px;top:196px;width:128px;height:16px">Prochain pack 07:42</div>
+      <div class="el bonus" style="left:8px;top:250px;width:62px;height:34px">Bonus<br>du jour</div>
+      <div class="el nav" style="right:6px;bottom:8px;width:62px;height:34px">Plan de la maison</div>
+    </div></div>
+  <div><div class="lab">Téléphone — plan ouvert</div>
+    <div class="phone full">
+      <div class="map" style="left:16px;right:16px;top:40px">
+        <div class="roof" style="padding:10px">La maison</div><div class="on" style="padding:16px">Grenier</div><div style="padding:16px">Bibliothèque</div><div style="padding:16px">Salon · fil, échanges</div><div style="padding:16px">Vitrine · succès</div><div style="padding:10px">Profil</div>
+      </div>
+    </div></div>
+</div>
+
+<h2>B — La barre d'objets</h2>
+<ul>
+<li>Cinq objets en bas de l'écran, comme une ceinture d'inventaire : coffre, livre, lettre, cloche, médaille.</li>
+<li>Toujours visible, au même endroit sur ordinateur et sur téléphone, sous le pouce.</li>
+<li>La jauge de la Confrérie est un bandeau en haut de tous les écrans.</li>
+</ul>
+<div class="row">
+  <div><div class="lab">Ordinateur</div>
+    <div class="screen">
+      <div class="el gauge" style="left:10px;top:8px;width:300px;height:16px"><i></i><span>Objectif de la Confrérie 62 %</span></div>
+      <div class="el" style="right:10px;top:8px;width:70px;height:16px">Profil</div>
+      <div class="el chest" style="left:170px;top:92px;width:160px;height:90px">Coffre<br>10 packs</div>
+      <div class="el" style="left:185px;top:188px;width:130px;height:16px">Prochain pack 07:42</div>
+      <div class="el bonus" style="left:70px;top:150px;width:70px;height:40px">Bonus<br>du jour</div>
+      <div class="bar"><div class="on">Coffre<br>grenier</div><div>Livre<br>bibliothèque</div><div>Lettre<br>échanges, amis</div><div>Cloche<br>fil</div><div>Médaille<br>succès</div></div>
+    </div></div>
+  <div><div class="lab">Téléphone</div>
+    <div class="phone">
+      <div class="el gauge" style="left:6px;top:6px;width:156px;height:16px"><i></i><span>Objectif 62 %</span></div>
+      <div class="el chest" style="left:24px;top:96px;width:120px;height:80px">Coffre<br>10 packs</div>
+      <div class="el" style="left:20px;top:182px;width:128px;height:16px">Prochain pack 07:42</div>
+      <div class="el bonus" style="left:54px;top:224px;width:62px;height:34px">Bonus<br>du jour</div>
+      <div class="bar"><div class="on">Coffre</div><div>Livre</div><div>Lettre</div><div>Cloche</div><div>Méd.</div></div>
+    </div></div>
+</div>
+
+<h2>C — Les objets du décor</h2>
+<ul>
+<li>Pas de menu : les meubles du grenier sont les portes. L'étagère mène à la bibliothèque, le bureau aux échanges, la fenêtre au fil, la vitrine aux succès.</li>
+<li>La jauge est une bannière au mur ; le bonus du jour est un colis posé au sol.</li>
+<li>C'est le plus immersif, mais il faut deviner que les meubles se touchent, et sur téléphone les cibles sont petites. Depuis une autre pièce, il faut un moyen de revenir.</li>
+</ul>
+<div class="row">
+  <div><div class="lab">Ordinateur</div>
+    <div class="screen">
+      <div class="el gauge" style="left:150px;top:10px;width:200px;height:16px"><i></i><span>Bannière · objectif 62 %</span></div>
+      <div class="el obj" style="left:10px;top:60px;width:86px;height:130px">Étagère<br>→ bibliothèque</div>
+      <div class="el obj" style="right:10px;top:110px;width:96px;height:80px">Bureau<br>→ échanges, amis</div>
+      <div class="el obj" style="right:20px;top:36px;width:76px;height:54px">Fenêtre<br>→ fil</div>
+      <div class="el obj" style="left:112px;top:52px;width:70px;height:56px">Vitrine<br>→ succès</div>
+      <div class="el chest" style="left:180px;top:140px;width:150px;height:84px">Coffre<br>10 packs</div>
+      <div class="el" style="left:190px;top:230px;width:130px;height:16px">Prochain pack 07:42</div>
+      <div class="el bonus" style="left:110px;top:226px;width:60px;height:36px">Colis<br>du jour</div>
+      <div class="el obj" style="left:200px;top:36px;width:60px;height:30px">Portrait<br>→ profil</div>
+    </div></div>
+  <div><div class="lab">Téléphone</div>
+    <div class="phone">
+      <div class="el gauge" style="left:6px;top:6px;width:156px;height:16px"><i></i><span>Bannière 62 %</span></div>
+      <div class="el obj" style="left:6px;top:34px;width:70px;height:56px">Étagère<br>→ biblio.</div>
+      <div class="el obj" style="right:6px;top:34px;width:70px;height:40px">Fenêtre<br>→ fil</div>
+      <div class="el obj" style="right:6px;top:82px;width:70px;height:44px">Bureau<br>→ échanges</div>
+      <div class="el obj" style="left:6px;top:98px;width:70px;height:36px">Vitrine<br>→ succès</div>
+      <div class="el chest" style="left:24px;top:156px;width:120px;height:74px">Coffre<br>10 packs</div>
+      <div class="el" style="left:20px;top:236px;width:128px;height:16px">Prochain pack 07:42</div>
+      <div class="el bonus" style="left:54px;top:270px;width:62px;height:34px">Colis<br>du jour</div>
+    </div></div>
+</div>
+</body>
+</html>

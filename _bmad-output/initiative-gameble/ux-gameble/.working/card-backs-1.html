@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gameble — dos de carte détaillés</title>
+<style>
+/* Palette « Parchemin au grand jour » : bg #e9dcc0 · surface #f4ead2 · ink #2b1d10 · muted #6b5640 · accent #8a3b12
+   Rampe sépia : #2b1d10 · #5c4026 · #8f6a43 · #c4a173 · #ecdcb8 — cire #a3241c — or (provisoire) #d9a441 */
+:root{--bg:#e9dcc0;--surface:#f4ead2;--ink:#2b1d10;--muted:#6b5640;--accent:#8a3b12}
+*{box-sizing:border-box}
+body{margin:0;padding:24px 16px 64px;background:var(--bg);color:var(--ink);font-family:ui-monospace,"DejaVu Sans Mono",Menlo,Consolas,monospace;font-size:14px;line-height:1.5}
+h1{font-size:20px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px}
+h2{font-size:16px;margin:44px 0 4px;text-transform:uppercase;border-bottom:4px solid var(--ink);padding-bottom:4px}
+p{margin:4px 0 12px;max-width:82ch;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:28px;margin:12px 0 28px;align-items:flex-end}
+.lab{font-size:11px;margin:0 0 6px;color:var(--accent);font-weight:700;text-transform:uppercase;max-width:330px}
+canvas{display:block;image-rendering:pixelated;box-shadow:2px 2px 0 var(--ink)}
+.pair{display:flex;gap:16px;align-items:flex-end}
+.ref{max-width:min(100%,460px);border:2px solid var(--ink);display:block}
+.pick{display:flex;gap:8px;margin:8px 0 16px}
+.pick button{font:inherit;font-weight:700;text-transform:uppercase;padding:6px 12px;border:2px solid var(--ink);background:var(--surface);color:var(--ink);box-shadow:2px 2px 0 var(--ink);cursor:pointer}
+.pick button[aria-pressed="true"]{background:var(--accent);color:var(--surface)}
+</style>
+</head>
+<body>
+<h1>Dos de carte détaillés</h1>
+<p>Trois dos dessinés en pixel art à l'échelle ×2 choisie pour toute l'application (80 × 120 pixels d'art, affichés en 160 × 240). Ce sont des maquettes de composition : elles fixent ce qu'on trouve sur le dos et où, pas le dessin final.</p>
+
+<h2>Référence fournie</h2>
+<p>De cette image, les maquettes reprennent la construction : cadre épais, sangle en travers, médaillon central, ornements en haut et en bas, sablier. Le motif et l'emblème du jeu d'origine ne sont pas repris.</p>
+<img class="ref" src="../imports/hearthstone-card-back-reference.png" alt="Dos de carte de référence fourni par l'auteur">
+
+<h2>1 — Trois compositions</h2>
+<p>À gauche la taille réelle, à droite un agrandissement pour lire le détail. Le sceau de cire rouge sert d'exemple dans le médaillon.</p>
+<div class="row" id="designs"></div>
+
+<h2>2 — Les cinq sceaux de rareté</h2>
+<p>Le médaillon central accueille le sceau. Choisis la composition à afficher pour les sections 2 et 3.</p>
+<div class="pick" id="pick"></div>
+<div class="row" id="seals"></div>
+
+<h2>3 — Les cinq paliers de poussière</h2>
+<p>La poussière indique l'âge du jeu et se pose par-dessus le dos. Au dernier palier le sceau est enseveli : il faut l'essuyer pour le voir.</p>
+<div class="row" id="dust"></div>
+
+<script>
+const W = 80, H = 120, CX = 39.5, CY = 59.5;
+const C = {ink:"#2b1d10", brassD:"#5c4026", brass:"#8f6a43", brassL:"#c4a173", hi:"#ecdcb8",
+  leather:"#7a3410", leatherD:"#64290c", paper:"#e2d1ad", glass:"#3a2a1c", sand:"#c4a173",
+  dust:"#a89676", dustL:"#c9b994", wax:"#a3241c", waxD:"#7a1712", waxL:"#c8473a",
+  gold:"#d9a441", goldL:"#f3d27a", goldD:"#9c6f1f", stamp:"#6b5640", stampF:"#b3a183"};
+const G = [".####","#....","#..##","#...#",".####"];
+const FONT = {A:[".###.","#...#","#####","#...#","#...#"],R:["####.","#...#","####.","#.#..","#..#."],
+  C:[".####","#....","#....","#....",".####"],H:["#...#","#...#","#####","#...#","#...#"],I:["###",".#.",".#.",".#.","###"],
+  V:["#...#","#...#","#...#",".#.#.","..#.."],E:["#####","#....","####.","#....","#####"],
+  S:[".####","#....",".###.","....#","####."],L:["#....","#....","#....","#....","#####"]};
+const hash = (x, y) => { const s = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453; return s - Math.floor(s); };
+
+function tools(ctx){
+  const px = (x, y, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, 1, 1); };
+  const rect = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+  const frame = (x, y, w, h, c) => { rect(x, y, w, 1, c); rect(x, y + h - 1, w, 1, c); rect(x, y, 1, h, c); rect(x + w - 1, y, 1, h, c); };
+  const each = (fn) => { for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) fn(x, y); };
+  const disc = (cx, cy, r, c) => each((x, y) => { if ((x - cx) ** 2 + (y - cy) ** 2 <= r * r) px(x, y, c); });
+  const sym = (x, y, c) => { px(x, y, c); px(W - 1 - x, y, c); px(x, H - 1 - y, c); px(W - 1 - x, H - 1 - y, c); };
+  const text = (str, x, y, c) => { for (const ch of str){ const g = FONT[ch]; if (!g){ x += 3; continue; }
+    g.forEach((r, j) => { for (let i = 0; i < r.length; i++) if (r[i] === "#") px(x + i, y + j, c); }); x += g[0].length + 1; } };
+  return {px, rect, frame, each, disc, sym, text};
+}
+
+function base(t){
+  t.rect(0, 0, W, H, C.ink);
+  t.rect(1, 1, W - 2, H - 2, C.brass);
+  t.rect(1, 1, W - 2, 1, C.brassL); t.rect(1, 1, 1, H - 2, C.brassL);
+  t.rect(1, H - 2, W - 2, 1, C.brassD); t.rect(W - 2, 1, 1, H - 2, C.brassD);
+  t.rect(4, 4, W - 8, H - 8, C.ink);
+  t.rect(5, 5, W - 10, H - 10, C.leather);
+  for (let y = 5; y < H - 5; y++) for (let x = 5; x < W - 5; x++)
+    if ((x + y) % 8 === 0 || (x - y + 800) % 8 === 0) t.px(x, y, C.leatherD);
+  t.frame(8, 8, W - 16, H - 16, C.brass);
+}
+function corners(t){
+  for (let i = 0; i <= 12; i++) for (let j = 0; j <= 12 - i; j++){
+    const edge = j === 12 - i, lit = i === 0 || j === 0;
+    t.sym(5 + j, 5 + i, edge ? C.ink : lit ? C.brassL : C.brass);
+  }
+  t.sym(7, 7, C.hi); t.sym(8, 7, C.hi); t.sym(7, 8, C.hi); t.sym(8, 8, C.brassD);
+}
+function studs(t){
+  for (let x = 16; x < W / 2; x += 8){ t.sym(x, 8, C.hi); }
+  for (let y = 16; y < H / 2 - 12; y += 8){ t.sym(8, y, C.hi); }
+}
+function arches(t){
+  for (const [cy, up] of [[31, true], [H - 1 - 31, false]]){
+    t.each((x, y) => {
+      const d = Math.hypot(x - CX, y - cy), inHalf = up ? y <= cy : y >= cy;
+      if (!inHalf) return;
+      if (d >= 11.5 && d <= 18.5) t.px(x, y, C.ink);
+      if (d >= 12.5 && d <= 17.5) t.px(x, y, d > 16.3 ? (up ? C.brassL : C.brassD) : d < 13.5 ? (up ? C.brassD : C.brassL) : C.brass);
+    });
+    const gy = up ? cy - 6 : cy + 6;
+    t.each((x, y) => { const m = Math.abs(x - CX) + Math.abs(y - gy); if (m <= 4.5) t.px(x, y, m > 3.2 ? C.ink : (x < CX && y < gy) ? C.hi : C.brassL); });
+  }
+}
+function hourglass(t){
+  const half = (k) => 2 + 16 * Math.pow(Math.cos(k * Math.PI / 2), 0.8);
+  for (let y = 15; y <= 46; y++){
+    const hw = half((y - 15) / 31);
+    for (const yy of [y, H - 1 - y]){
+      const top = yy === y;
+      for (let x = 0; x < W; x++){
+        const dx = Math.abs(x - CX);
+        if (dx > hw + 1) continue;
+        if (dx > hw) { t.px(x, yy, C.ink); continue; }
+        const sandTop = top && y >= 32, sandBottom = !top && y <= 26;
+        let col = C.glass;
+        if (sandTop || sandBottom) col = C.sand;
+        if (top && y === 32) col = C.hi;
+        if (!top && y === 26 && dx < hw - 1) col = C.hi;
+        if (!top && !sandBottom && dx < 1) col = C.sand;
+        if (x - CX < -hw + 2.5 && x - CX > -hw + 1 && !sandTop && !sandBottom) col = C.brassD;
+        t.px(x, yy, col);
+      }
+    }
+  }
+  for (const y of [11, H - 15]){
+    t.rect(17, y, 46, 4, C.ink); t.rect(18, y + 1, 44, 2, C.brass); t.rect(18, y + 1, 44, 1, C.brassL);
+  }
+}
+function strap(t){
+  t.rect(1, 52, W - 2, 16, C.ink);
+  t.rect(1, 53, W - 2, 14, C.brass);
+  t.rect(1, 53, W - 2, 1, C.brassL); t.rect(1, 66, W - 2, 1, C.brassD);
+  for (let x = 6; x < W - 6; x += 8) if (Math.abs(x - CX) > 21){ t.rect(x, 59, 2, 2, C.hi); t.px(x + 1, 60, C.brassD); }
+}
+function medallion(t){
+  t.disc(CX, CY, 19.5, C.ink);
+  t.each((x, y) => { const dx = x - CX, dy = y - CY, d = Math.hypot(dx, dy);
+    if (d <= 18.5) t.px(x, y, d > 16.8 ? (dx + dy < 0 ? C.brassL : C.brassD) : C.brass); });
+  t.disc(CX, CY, 14.6, C.ink);
+  t.disc(CX, CY, 13.6, C.paper);
+}
+function letterG(t, scale, colour, lit, faded){
+  const ox = Math.round(CX - 2.5 * scale + 0.5), oy = Math.round(CY - 2.5 * scale + 0.5);
+  G.forEach((r, j) => { for (let i = 0; i < 5; i++) if (r[i] === "#")
+    for (let a = 0; a < scale; a++) for (let b = 0; b < scale; b++){
+      const x = ox + i * scale + a, y = oy + j * scale + b;
+      if (faded && hash(x, y) < faded) continue;
+      if (lit) t.px(x + 1, y + 1, lit);
+      t.px(x, y, colour);
+    } });
+}
+function blob(t, r, main, dark, light, scallop){
+  t.each((x, y) => { const dx = x - CX, dy = y - CY, d = Math.hypot(dx, dy);
+    const a = Math.atan2(dy, dx), rr = r + (scallop ? Math.cos(a * scallop) * 1.2 : Math.sin(a * 5) * 0.8 + Math.cos(a * 3) * 0.6);
+    if (d <= rr) t.px(x, y, d > rr - 1.6 ? (dx + dy < 0 ? light : dark) : main); });
+}
+function seal(t, tier){
+  if (tier === 0){ // tampon d'encre délavé
+    t.each((x, y) => { const d = Math.hypot(x - CX, y - CY); if (d >= 9.5 && d <= 11.2 && hash(x, y) > 0.35) t.px(x, y, C.stampF); });
+    letterG(t, 2, C.stampF, null, 0.3);
+  } else if (tier === 1){ // tampon daté
+    t.each((x, y) => { const d = Math.hypot(x - CX, y - CY); if (d >= 9.5 && d <= 11.2) t.px(x, y, C.stamp); });
+    t.rect(30, 56, 20, 8, C.paper); t.rect(29, 56, 22, 1, C.stamp); t.rect(29, 63, 22, 1, C.stamp);
+    for (let i = 0; i < 4; i++){ t.rect(32 + i * 4, 58, 3, 1, C.stamp); t.rect(32 + i * 4, 61, 3, 1, C.stamp); t.px(32 + i * 4 + (i % 2 ? 0 : 2), 59, C.stamp); t.px(32 + i * 4 + (i % 2 ? 2 : 0), 60, C.stamp); }
+  } else if (tier === 2 || tier === 3){ // cire rouge, puis cire + ruban
+    if (tier === 3) for (let k = 0; k < 26; k++) for (const s of [-1, 1]) for (let w = 0; w < 7; w++){
+      const x = Math.round(CX + s * (3 + k * 0.45 + w)), y = 70 + k;
+      if (k > 22 && Math.abs(w - 3) < k - 22) continue;
+      t.px(x, y, w === 0 || w === 6 ? C.waxD : C.wax);
+    }
+    blob(t, 11.5, C.wax, C.waxD, C.waxL, 0);
+    letterG(t, 2, C.waxD, C.waxL, 0);
+  } else { // sceau doré
+    blob(t, 12.5, C.gold, C.goldD, C.goldL, 12);
+    letterG(t, 2, C.goldD, C.goldL, 0);
+    t.rect(13, 84, 54, 17, C.ink); t.rect(14, 85, 52, 15, C.paper);
+    t.text("ARCHIVES", 18, 87, C.ink); t.text("SCELLEES", 17, 94, C.ink);
+    for (const [x, y] of [[20, 44], [58, 40], [62, 76], [17, 72], [39, 37]]){ t.px(x, y, C.goldL); t.px(x + 1, y, C.gold); t.px(x, y + 1, C.gold); }
+  }
+}
+function dust(t, tier){
+  const density = [0, 0.12, 0.3, 0.55, 0.9][tier];
+  if (!density) return;
+  t.each((x, y) => { if (hash(x + 7, y + 3) < density * (0.75 + 0.45 * y / H)) t.px(x, y, hash(y, x) < 0.35 ? C.dustL : C.dust); });
+}
+
+const DESIGNS = {
+  A: {name: "A — Reliure sobre", parts: [base, corners, strap, medallion]},
+  B: {name: "B — Reliure ornée", parts: [base, corners, studs, arches, strap, medallion]},
+  C: {name: "C — Sablier", parts: [base, corners, studs, hourglass, strap, medallion]},
+};
+function back(design, tier, dustTier, scale){
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  cv.style.width = W * scale + "px"; cv.style.height = H * scale + "px";
+  const t = tools(cv.getContext("2d"));
+  for (const part of DESIGNS[design].parts) part(t);
+  seal(t, tier); dust(t, dustTier);
+  return cv;
+}
+function labelled(label, ...nodes){
+  const wrap = document.createElement("div"), lab = document.createElement("div"), pair = document.createElement("div");
+  lab.className = "lab"; lab.textContent = label; pair.className = "pair"; pair.append(...nodes); wrap.append(lab, pair); return wrap;
+}
+
+const designs = document.getElementById("designs");
+for (const k of Object.keys(DESIGNS)) designs.appendChild(labelled(DESIGNS[k].name, back(k, 2, 0, 2), back(k, 2, 0, 4)));
+
+const SEALS = ["Commune — tampon d'encre délavé", "Tampon daté", "Cire rouge", "Cire et ruban", "Légendaire — sceau doré"];
+const DUST = ["Moins d'1 an — aucune", "1 à 5 ans — légère", "5 à 10 ans — marquée", "10 à 20 ans — épaisse", "Plus de 20 ans — ensevelie"];
+let current = "B";
+function renderChosen(){
+  const seals = document.getElementById("seals"), dustRow = document.getElementById("dust");
+  seals.replaceChildren(...SEALS.map((s, i) => labelled(s, back(current, i, 0, 3))));
+  dustRow.replaceChildren(...DUST.map((s, i) => labelled(s, back(current, 2, i, 3))));
+  for (const b of document.querySelectorAll("#pick button")) b.setAttribute("aria-pressed", String(b.dataset.k === current));
+}
+const pick = document.getElementById("pick");
+for (const k of Object.keys(DESIGNS)){
+  const b = document.createElement("button"); b.type = "button"; b.dataset.k = k; b.textContent = DESIGNS[k].name;
+  b.onclick = () => { current = k; renderChosen(); }; pick.appendChild(b);
+}
+renderChosen();
+</script>
+</body>
+</html>

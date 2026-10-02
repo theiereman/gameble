@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gameble — couleurs réduites et taille de pixel unique</title>
+<style>
+/* Palette « Parchemin au grand jour » (color-themes-1.html)
+   bg #e9dcc0 · surface #f4ead2 · surface-2 #e2d1ad · ink #2b1d10 · muted #6b5640 · accent #8a3b12 */
+:root{--bg:#e9dcc0;--surface:#f4ead2;--surface2:#e2d1ad;--ink:#2b1d10;--muted:#6b5640;--accent:#8a3b12}
+*{box-sizing:border-box}
+body{margin:0;padding:24px 16px 64px;background:var(--bg);color:var(--ink);font-family:ui-monospace,"DejaVu Sans Mono",Menlo,Consolas,monospace;font-size:14px;line-height:1.5}
+h1{font-size:20px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px}
+h2{font-size:16px;margin:44px 0 4px;text-transform:uppercase;border-bottom:4px solid var(--ink);padding-bottom:4px}
+p{margin:4px 0 12px;max-width:82ch;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:20px;margin:12px 0 28px;align-items:flex-start}
+.lab{font-size:11px;margin:0 0 6px;color:var(--accent);font-weight:700;text-transform:uppercase;max-width:260px}
+.game{margin-top:20px;font-weight:700}
+canvas{display:block;image-rendering:pixelated}
+.card{background:var(--surface);border:var(--u) solid var(--ink);box-shadow:var(--u) var(--u) 0 var(--ink);padding:calc(var(--u)*2);display:inline-block}
+.card .art{border:var(--u) solid var(--ink);background:var(--surface2);width:fit-content}
+.card .title{margin-top:calc(var(--u)*2)}
+.card .credit{margin-top:var(--u)}
+.btn{display:inline-block;margin-top:16px;background:var(--accent);border:var(--u) solid var(--ink);box-shadow:var(--u) var(--u) 0 var(--ink);padding:calc(var(--u)*2) calc(var(--u)*3)}
+.combo{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.miss{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px;text-align:center}
+</style>
+</head>
+<body>
+<h1>Couleurs réduites et taille de pixel unique</h1>
+<p>Suite de la première planche. Les images viennent du CDN Steam et sont traitées dans le navigateur, à l'affichage. Ici les couleurs sont réduites à une petite palette calculée pour chaque image, sans trame de points, ce qui garde des aplats nets.</p>
+
+<h2>1 — Couleurs réduites, mais lisibles ?</h2>
+<p>Pixelisation légère (×2) avec de moins en moins de couleurs, puis ×3 pour comparer. À regarder : jusqu'où le logo reste lisible, et à partir de quand l'image prend l'allure « 16 bits ».</p>
+<div id="s1-landscape"></div>
+<p style="margin-top:28px">Les mêmes réglages sur la jaquette verticale.</p>
+<div id="s1-portrait"></div>
+
+<h2>2 — Une seule taille de pixel partout</h2>
+<p>La même carte et le même bouton, dessinés avec quatre réglages. Le cadre, le texte et l'image partagent la même taille de pixel, sauf dans le mélange. À regarder : plus le pixel est gros, moins il tient de texte et de détail dans la même place.</p>
+<div id="s2"></div>
+
+<script>
+const CDN = "https://cdn.akamai.steamstatic.com/steam/apps/";
+const GAMES = [
+  {id: 620, title: "Portal 2", credit: "Valve"},
+  {id: 220, title: "Half-Life 2", credit: "Valve"},
+  {id: 1145360, title: "Hades", credit: "Supergiant Games"},
+  {id: 413150, title: "Stardew Valley", credit: "ConcernedApe"},
+];
+const FORMATS = {
+  landscape: {file: "header.jpg", w: 232, h: 108},
+  portrait: {file: "library_600x900.jpg", w: 160, h: 240},
+};
+
+/* Police bitmap 5 pixels de haut, pour que le texte suive la taille de pixel. */
+const FONT = {
+  A:[".###.","#...#","#####","#...#","#...#"], B:["####.","#...#","####.","#...#","####."],
+  C:[".####","#....","#....","#....",".####"], D:["####.","#...#","#...#","#...#","####."],
+  E:["#####","#....","####.","#....","#####"], F:["#####","#....","####.","#....","#...."],
+  G:[".####","#....","#..##","#...#",".####"], H:["#...#","#...#","#####","#...#","#...#"],
+  I:["###",".#.",".#.",".#.","###"], J:["..###","...#.","...#.","#..#.",".##.."],
+  K:["#..#","#.#.","##..","#.#.","#..#"], L:["#....","#....","#....","#....","#####"],
+  M:["#...#","##.##","#.#.#","#...#","#...#"], N:["#...#","##..#","#.#.#","#..##","#...#"],
+  O:[".###.","#...#","#...#","#...#",".###."], P:["####.","#...#","####.","#....","#...."],
+  Q:[".###.","#...#","#.#.#","#..#.",".##.#"], R:["####.","#...#","####.","#.#..","#..#."],
+  S:[".####","#....",".###.","....#","####."], T:["#####","..#..","..#..","..#..","..#.."],
+  U:["#...#","#...#","#...#","#...#",".###."], V:["#...#","#...#","#...#",".#.#.","..#.."],
+  W:["#...#","#...#","#.#.#","##.##","#...#"], X:["#...#",".#.#.","..#..",".#.#.","#...#"],
+  Y:["#...#",".#.#.","..#..","..#..","..#.."], Z:["#####","...#.","..#..",".#...","#####"],
+  0:[".###.","#..##","#.#.#","##..#",".###."], 1:[".#.","##.",".#.",".#.","###"],
+  2:["####.","....#",".###.","#....","#####"], 3:["####.","....#",".###.","....#","####."],
+  4:["#..#.","#..#.","#####","...#.","...#."], 5:["#####","#....","####.","....#","####."],
+  6:[".###.","#....","####.","#...#",".###."], 7:["#####","....#","...#.","..#..","..#.."],
+  8:[".###.","#...#",".###.","#...#",".###."], 9:[".###.","#...#",".####","....#",".###."],
+  "-":["...","...","###","...","..."], " ":["..","..","..","..",".."],
+};
+function glyph(ch){ return FONT[ch] || FONT[" "]; }
+function wordWidth(w){ let n = 0; for (const ch of w) n += glyph(ch)[0].length + 1; return n - 1; }
+function pixelText(str, unit, colour, maxW){
+  const words = str.toUpperCase().normalize("NFD").replace(/[̀-ͯ]/g, "").split(" ");
+  const lines = []; let cur = "";
+  for (const w of words){
+    const next = cur ? cur + " " + w : w;
+    if (cur && wordWidth(next) > maxW){ lines.push(cur); cur = w; } else cur = next;
+  }
+  lines.push(cur);
+  const W = Math.max(...lines.map(wordWidth)), H = lines.length * 5 + (lines.length - 1) * 2;
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  cv.style.width = W * unit + "px"; cv.style.height = H * unit + "px";
+  const ctx = cv.getContext("2d"); ctx.fillStyle = colour;
+  lines.forEach((line, li) => {
+    let x = 0;
+    for (const ch of line){
+      const g = glyph(ch);
+      g.forEach((rowStr, y) => { for (let i = 0; i < rowStr.length; i++) if (rowStr[i] === "#") ctx.fillRect(x + i, li * 7 + y, 1, 1); });
+      x += g[0].length + 1;
+    }
+  });
+  return cv;
+}
+
+/* Palette adaptée à l'image (coupe médiane), sans trame. */
+function reduceColours(ctx, w, h, n){
+  const img = ctx.getImageData(0, 0, w, h), d = img.data, px = [];
+  for (let i = 0; i < d.length; i += 4) px.push([d[i], d[i + 1], d[i + 2]]);
+  let boxes = [px.slice()];
+  while (boxes.length < n){
+    let best = -1, bestRange = 0, bestCh = 0;
+    boxes.forEach((b, bi) => {
+      if (b.length < 2) return;
+      for (let c = 0; c < 3; c++){
+        let lo = 255, hi = 0;
+        for (const p of b){ if (p[c] < lo) lo = p[c]; if (p[c] > hi) hi = p[c]; }
+        if (hi - lo > bestRange){ bestRange = hi - lo; best = bi; bestCh = c; }
+      }
+    });
+    if (best < 0) break;
+    const b = boxes[best].sort((p, q) => p[bestCh] - q[bestCh]), mid = b.length >> 1;
+    boxes.splice(best, 1, b.slice(0, mid), b.slice(mid));
+  }
+  const pal = boxes.map(b => { const s = [0, 0, 0]; for (const p of b){ s[0] += p[0]; s[1] += p[1]; s[2] += p[2]; } return s.map(v => v / b.length); });
+  for (let i = 0; i < d.length; i += 4){
+    let bi = 0, bd = Infinity;
+    for (let k = 0; k < pal.length; k++){
+      const dr = d[i] - pal[k][0], dg = d[i + 1] - pal[k][1], db = d[i + 2] - pal[k][2], dist = dr * dr + dg * dg + db * db;
+      if (dist < bd){ bd = dist; bi = k; }
+    }
+    d[i] = pal[bi][0]; d[i + 1] = pal[bi][1]; d[i + 2] = pal[bi][2];
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+const cache = {};
+function loadImage(game, formatKey){
+  const key = game.id + formatKey;
+  if (!cache[key]) cache[key] = new Promise(res => {
+    const img = new Image(); img.crossOrigin = "anonymous";
+    img.onload = () => res(img); img.onerror = () => res(null);
+    img.src = CDN + game.id + "/" + FORMATS[formatKey].file;
+  });
+  return cache[key];
+}
+function art(game, formatKey, unit, colours){
+  const f = FORMATS[formatKey], cv = document.createElement("canvas");
+  cv.width = Math.round(f.w / unit); cv.height = Math.round(f.h / unit);
+  cv.style.width = f.w + "px"; cv.style.height = f.h + "px";
+  loadImage(game, formatKey).then(img => {
+    if (!img){
+      const miss = document.createElement("div"); miss.className = "miss";
+      miss.style.width = f.w + "px"; miss.style.height = f.h + "px"; miss.textContent = "pas d'image dans ce format";
+      cv.replaceWith(miss); return;
+    }
+    const ctx = cv.getContext("2d", {willReadFrequently: true});
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
+    const ratio = cv.width / cv.height, ir = img.width / img.height;
+    let sw = img.width, sh = img.height;
+    if (ir > ratio) sw = img.height * ratio; else sh = img.width / ratio;
+    ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 0, 0, cv.width, cv.height);
+    if (colours) reduceColours(ctx, cv.width, cv.height, colours);
+  });
+  return cv;
+}
+function card(game, formatKey, frameUnit, imgUnit, colours){
+  const f = FORMATS[formatKey], el = document.createElement("div");
+  el.className = "card"; el.style.setProperty("--u", frameUnit + "px");
+  const a = document.createElement("div"); a.className = "art"; a.appendChild(art(game, formatKey, imgUnit, colours));
+  const t = document.createElement("div"); t.className = "title"; t.appendChild(pixelText(game.title, frameUnit, "#2b1d10", Math.floor(f.w / frameUnit)));
+  const c = document.createElement("div"); c.className = "credit"; c.appendChild(pixelText(game.credit, frameUnit, "#6b5640", Math.floor(f.w / frameUnit)));
+  el.append(a, t, c);
+  return el;
+}
+function labelled(label, node){
+  const wrap = document.createElement("div"), lab = document.createElement("div");
+  lab.className = "lab"; lab.textContent = label; wrap.append(lab, node); return wrap;
+}
+
+/* Section 1 */
+const S1 = [
+  {label: "×2 · couleurs d'origine", unit: 2, colours: 0},
+  {label: "×2 · 64 couleurs", unit: 2, colours: 64},
+  {label: "×2 · 32 couleurs", unit: 2, colours: 32},
+  {label: "×2 · 16 couleurs", unit: 2, colours: 16},
+  {label: "×3 · 32 couleurs", unit: 3, colours: 32},
+];
+for (const formatKey of ["landscape", "portrait"]){
+  const host = document.getElementById("s1-" + formatKey);
+  for (const g of GAMES){
+    const name = document.createElement("div"); name.className = "game"; name.textContent = g.title; host.appendChild(name);
+    const row = document.createElement("div"); row.className = "row"; host.appendChild(row);
+    for (const v of S1) row.appendChild(labelled(v.label, card(g, formatKey, v.unit, v.unit, v.colours)));
+  }
+}
+
+/* Section 2 */
+const S2 = [
+  {label: "A — tout en ×4 (gros pixels), 32 couleurs", frame: 4, img: 4},
+  {label: "B — mélange : cadre ×4, image ×2, 32 couleurs", frame: 4, img: 2},
+  {label: "C — tout en ×3, 32 couleurs", frame: 3, img: 3},
+  {label: "D — tout en ×2 (pixels fins), 32 couleurs", frame: 2, img: 2},
+];
+const s2 = document.getElementById("s2");
+for (const v of S2){
+  const combo = document.createElement("div"); combo.className = "combo";
+  combo.appendChild(card(GAMES[1], "landscape", v.frame, v.img, 32));
+  combo.appendChild(card(GAMES[2], "portrait", v.frame, v.img, 32));
+  const btn = document.createElement("div"); btn.className = "btn"; btn.style.setProperty("--u", v.frame + "px");
+  btn.appendChild(pixelText("Ouvrir le coffre", v.frame, "#f4ead2", 200));
+  combo.appendChild(btn);
+  const wrap = labelled(v.label, combo); wrap.style.margin = "20px 0 36px"; wrap.querySelector(".lab").style.maxWidth = "none";
+  s2.appendChild(wrap);
+}
+</script>
+</body>
+</html>

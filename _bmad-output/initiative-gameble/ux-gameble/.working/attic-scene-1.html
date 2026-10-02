@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gameble — la salle du chapitre</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Jost:wght@400;500;700&family=Barlow+Semi+Condensed:wght@400;500;700&family=Chakra+Petch:wght@400;500;700&family=Rubik:wght@400;500;700&display=swap">
+<style>
+/* Palette « Parchemin au grand jour » : bg #e9dcc0 · surface #f4ead2 · ink #2b1d10 · muted #6b5640 · accent #8a3b12
+   Briques (proposition) : #8a5a3c · #9c6a48 · #ad7a56 · #bd8b66, joints #cdb892 — parquet : #6b4a2a · #7d5833 · #8f6a43 · #a37a50 */
+:root{--bg:#e9dcc0;--surface:#f4ead2;--ink:#2b1d10;--muted:#6b5640;--accent:#8a3b12;--ft:"Space Grotesk",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;padding:24px 16px 80px;background:var(--bg);color:var(--ink);font-family:ui-monospace,"DejaVu Sans Mono",Menlo,Consolas,monospace;font-size:14px;line-height:1.5}
+h1{font-size:20px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px}
+h2{font-size:16px;margin:44px 0 4px;text-transform:uppercase;border-bottom:4px solid var(--ink);padding-bottom:4px}
+p{margin:4px 0 12px;max-width:86ch;color:var(--muted)}
+canvas{display:block;image-rendering:pixelated}
+.picker{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+.picker button{font:inherit;font-weight:700;padding:5px 10px;border:2px solid var(--ink);background:var(--surface);color:var(--ink);box-shadow:2px 2px 0 var(--ink);cursor:pointer}
+.picker button[aria-pressed="true"]{background:var(--accent);color:var(--surface)}
+.screen,.phone{border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);font-family:var(--ft);font-size:15px;line-height:1.3;background:var(--bg)}
+.screen{width:1004px;max-width:100%;overflow:hidden}
+.phone{width:372px;border-width:4px}
+.view{overflow-x:auto;overflow-y:hidden}
+.band{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border-bottom:2px solid var(--ink);flex-wrap:wrap}
+.gauge{position:relative;width:340px;max-width:100%;height:26px;border:2px solid var(--ink);background:var(--bg)}
+.gauge i{position:absolute;inset:0 auto 0 0;width:62%;background:var(--accent)}
+.gauge span{position:absolute;inset:0;display:flex;align-items:center;padding:0 8px;font-weight:700;font-size:14px;color:var(--surface);text-shadow:1px 1px 0 var(--ink),-1px 0 0 var(--ink),0 -1px 0 var(--ink)}
+.status{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px}
+.status .packs{border:2px solid var(--ink);background:var(--accent);color:var(--surface);padding:2px 8px}
+.cnt{display:inline-flex;align-items:center;gap:3px}
+.dot{width:10px;height:10px;border:2px solid var(--ink);display:inline-block}
+.room{position:relative;width:1000px;height:440px}
+.room>canvas{position:absolute;inset:0}
+.obj{position:absolute;display:flex;flex-direction:column;align-items:center;gap:4px}
+.cap,.timer{font-weight:700;font-size:13px;background:var(--surface);border:2px solid var(--ink);padding:0 6px;white-space:nowrap}
+.btn{display:inline-block;font-weight:700;background:var(--accent);color:var(--surface);border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);padding:4px 10px}
+.bonus{position:absolute;width:178px;background:var(--surface);border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);padding:8px 10px}
+.bonus b{font-size:16px}
+.row{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.lab{font-size:11px;margin:12px 0 6px;color:var(--accent);font-weight:700;text-transform:uppercase}
+</style>
+</head>
+<body>
+<h1>La salle du chapitre</h1>
+<p>La direction retenue, avec tes changements : parquet en chevrons, mur de vieilles briques, une ouverture sur l'extérieur, le panneau du fil accroché au mur, un miroir pour le profil, le coffre sans estrade, le lutrin sans chaîne, et une nouvelle table d'échange.</p>
+<p>Toujours un croquis dessiné par programme : il fixe la composition et les objets, pas le dessin final. Ce que l'on voit par l'ouverture (lune, île flottante, tour) est une proposition.</p>
+<div class="picker" id="picker"><span>Police :</span></div>
+
+<h2>Sur ordinateur</h2>
+<div class="screen" id="desk"></div>
+
+<h2>Sur téléphone</h2>
+<p>Proposition : la même salle, plus large que l'écran. On la parcourt en glissant le doigt de gauche à droite ; elle s'ouvre centrée sur le coffre. Fais défiler la maquette pour essayer.</p>
+<div class="row"><div><div class="lab">Téléphone — la salle défile</div><div class="phone" id="phone"></div></div></div>
+
+<h2>Les objets seuls</h2>
+<div class="row" id="solo"></div>
+
+<script>
+
+const INK = "#2b1d10";
+const RAMP = {
+  wood:["#3d2817","#5c4026","#8f6a43","#c4a173"], dark:["#1d130a","#2b1d10","#3d2817","#5c4026"],
+  stone:["#6f6552","#8f8266","#b9ab8e","#d6cbb0"], iron:["#2d3138","#4a505a","#7d8a99","#aab6c2"],
+  gold:["#7a5512","#a8741a","#f0b429","#ffe08a"], paper:["#b89f72","#e2d1ad","#f4ead2","#fff8e6"],
+  red:["#5a120f","#7a1712","#a3241c","#c8473a"], leather:["#4a1d06","#64290c","#7a3410","#9a4a1c"],
+  blue:["#1c4a99","#2b6fd6","#6aa3f2","#cfe2ff"], green:["#1d4a1c","#2f6b2a","#3f8f3a","#7fcf6a"],
+  purple:["#3e1a5e","#612b8f","#8e44c9","#b97be8"], flame:["#a8741a","#f0b429","#ffe08a","#fff6d0"],
+  bone:["#8f8266","#c9bc9c","#ecdcb8","#fff8e6"], black:["#0c0806","#1d130a","#2b1d10","#4a3a2a"],
+};
+const hash = (x, y) => { const s = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453; return s - Math.floor(s); };
+/* Formes */
+const R = (x, y, w, h) => (px, py) => px >= x && px < x + w && py >= y && py < y + h;
+const E = (cx, cy, rx, ry) => (px, py) => ((px + .5 - cx) / rx) ** 2 + ((py + .5 - cy) / ry) ** 2 <= 1;
+const U = (...f) => (x, y) => f.some(g => g(x, y));
+const AND = (a, b) => (x, y) => a(x, y) && b(x, y);
+const NOT = (a, b) => (x, y) => a(x, y) && !b(x, y);
+const PG = (pts) => (px, py) => { let inside = false; const x = px + .5, y = py + .5;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++){ const [xi, yi] = pts[i], [xj, yj] = pts[j];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside; } return inside; };
+const LANCET = (x, y, w, h) => { const by = y + w * 0.87; return U(R(x, Math.floor(by), w, Math.ceil(h - (by - y))),
+  (px, py) => py < by && py >= y && Math.hypot(px + .5 - x, py + .5 - by) <= w && Math.hypot(px + .5 - (x + w), py + .5 - by) <= w); };
+/* Matières : renvoient un décalage de ton (-1, 0, +1) */
+const T = {
+  planks: (n) => (x, y) => y % n === 0 ? -1 : hash(x >> 2, y) < 0.07 ? -1 : 0,
+  vplanks: (n) => (x, y) => x % n === 0 ? -1 : hash(x, y >> 2) < 0.07 ? -1 : 0,
+  blocks: (bw, bh) => (x, y) => (y % bh === 0 || (x + (Math.floor(y / bh) % 2) * (bw >> 1)) % bw === 0) ? -1 : hash(x, y) < 0.05 ? 1 : 0,
+  folds: (p) => (x, y) => { const s = Math.sin(x / p * 6.283); return s > 0.6 ? 1 : s < -0.6 ? -1 : 0; },
+  shine: (x, y) => ((x - y + 400) % 9 === 0 || (x - y + 400) % 9 === 1) ? 1 : 0,
+  grain: (x, y) => hash(x, y) < 0.1 ? -1 : 0,
+  lines: (n) => (x, y) => y % n === 1 ? -1 : 0,
+  none: () => 0,
+};
+function sprite(w, h, layers){
+  const id = new Int16Array(w * h).fill(-1);
+  layers.forEach(([f], i) => { for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (f(x, y)) id[y * w + x] = i; });
+  const cv = document.createElement("canvas"); cv.width = w; cv.height = h; cv.style.width = w * 2 + "px"; cv.style.height = h * 2 + "px";
+  const ctx = cv.getContext("2d"), at = (x, y) => (x < 0 || y < 0 || x >= w || y >= h) ? -1 : id[y * w + x];
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++){
+    const i = at(x, y);
+    if (i < 0){ if (at(x - 1, y) >= 0 || at(x + 1, y) >= 0 || at(x, y - 1) >= 0 || at(x, y + 1) >= 0){ ctx.fillStyle = INK; ctx.fillRect(x, y, 1, 1); } continue; }
+    const [, ramp, tex] = layers[i], lit = at(x - 1, y) !== i || at(x, y - 1) !== i, sh = at(x + 1, y) !== i || at(x, y + 1) !== i;
+    let tone = (lit && !sh ? 2 : sh && !lit ? 0 : 1) + (tex ? tex(x, y) : 0);
+    ctx.fillStyle = RAMP[ramp][Math.max(0, Math.min(3, tone))]; ctx.fillRect(x, y, 1, 1);
+  }
+  return cv;
+}
+const books = (x0, x1, base, seed) => { const out = [], cols = ["leather", "red", "green", "blue", "purple", "wood", "bone"]; let x = x0, k = seed;
+  while (x < x1 - 2){ const bw = 3 + (k * 7) % 3, bh = 11 + (k * 5) % 6; if (x + bw > x1) break; out.push([R(x, base - bh, bw, bh), cols[(k * 3) % cols.length], T.lines(5)]); x += bw; k++; } return out; };
+const chestAt = (ox, oy, band, lock) => { const body = R(ox + 4, oy + 22, 64, 28), lid = AND(U(R(ox + 4, oy + 12, 64, 12), E(ox + 36, oy + 12, 32, 11)), R(0, 0, 200, oy + 24)), all = U(body, lid);
+  return [[lid, "wood", T.planks(5)], [body, "wood", T.planks(7)], [AND(R(ox + 4, oy + 22, 64, 3), all), band, T.none],
+    [AND(R(ox + 13, 0, 7, 200), all), band, T.shine], [AND(R(ox + 52, 0, 7, 200), all), band, T.shine],
+    [R(ox + 31, oy + 18, 10, 13), lock, T.none], [R(ox + 35, oy + 23, 2, 5), "black", T.none]]; };
+
+
+Object.assign(RAMP, {
+  sky:["#6aa3f2","#9cc3f5","#cfe2ff","#ffffff"], haze:["#5b6f9c","#7d8fb8","#a9b6d6","#cfd6ea"],
+  brick:["#8a5a3c","#9c6a48","#ad7a56","#bd8b66"], parquet:["#6b4a2a","#7d5833","#8f6a43","#a37a50"],
+});
+/* Fond : mur de vieilles briques et parquet en chevrons */
+function backdrop(W, H, wallH){
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H; cv.style.width = W * 2 + "px"; cv.style.height = H * 2 + "px";
+  const ctx = cv.getContext("2d"), put = (x, y, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, 1, 1); };
+  for (let y = 0; y < wallH; y++) for (let x = 0; x < W; x++){
+    const row = Math.floor(y / 8), off = (row % 2) * 10, bx = Math.floor((x + off) / 20), u = (x + off) % 20, v = y % 8, h = hash(bx + 3, row + 7);
+    if (u === 0 || v === 0){ put(x, y, hash(x, y) < 0.25 ? "#b9a47c" : "#cdb892"); continue; }
+    if (h < 0.07){ put(x, y, RAMP.stone[(v === 1 ? 3 : v === 7 ? 1 : 2) - (hash(x, y) < 0.12 ? 1 : 0)]); continue; }
+    let tone = 1 + (h > 0.7 ? 1 : 0) - (h > 0.2 && h < 0.32 ? 1 : 0);
+    if (v === 1 || u === 1) tone += 1; if (v === 7 || u === 19) tone -= 1; if (hash(x, y) < 0.09) tone -= 1;
+    if (h > 0.9 && Math.abs(u - 10 - (v - 4)) < 1) tone = 0;
+    put(x, y, RAMP.brick[Math.max(0, Math.min(3, tone))]);
+  }
+  for (let x = 0; x < W; x++){ put(x, wallH - 5, "#2b1d10"); for (let k = 4; k >= 1; k--) put(x, wallH - k, k === 4 ? "#8f6a43" : k === 1 ? "#3d2817" : "#5c4026"); }
+  for (let y = wallH; y < H; y++) for (let x = 0; x < W; x++){
+    const col = Math.floor(x / 16), v = (col % 2) ? (x + (y - wallH)) : (x - (y - wallH) + 1000), plank = Math.floor(v / 5), h = hash(plank + 1, col + 2);
+    let tone = 1 + (h > 0.66 ? 1 : 0) + (h > 0.92 ? 1 : 0) - (h < 0.18 ? 1 : 0);
+    if (v % 5 === 0 || x % 16 === 0) tone = 0; else if (hash(x, y) < 0.06) tone -= 1;
+    if (y === wallH) tone = 0;
+    put(x, y, RAMP.parquet[Math.max(0, Math.min(3, tone))]);
+  }
+  return cv;
+}
+/* Objets */
+const view = LANCET(9, 12, 52, 94), IN = (f) => AND(view, f);
+const OBJS = {
+  library: ["Bibliothèque", () => sprite(66, 80, [[R(20, 70, 26, 8), "dark", T.none], [R(29, 42, 8, 28), "wood", T.vplanks(4)], [PG([[6, 34], [60, 34], [54, 44], [12, 44]]), "dark", T.none],
+    [PG([[4, 30], [62, 30], [62, 35], [4, 35]]), "leather", T.none], [PG([[6, 10], [32, 15], [32, 32], [6, 28]]), "paper", T.lines(4)], [PG([[60, 10], [34, 15], [34, 32], [60, 28]]), "paper", T.lines(4)],
+    [R(32, 14, 2, 19), "leather", T.none], [R(40, 19, 4, 4), "red", T.none], [PG([[44, 32], [47, 32], [46, 46], [44, 44]]), "red", T.none]])],
+  opening: ["", () => sprite(70, 112, [[LANCET(2, 2, 66, 104), "stone", T.blocks(12, 7)], [view, "sky", (x, y) => y < 38 ? -1 : y < 64 ? ((x + y) % 2 && y < 42 ? -1 : 0) : ((x + y) % 2 && y < 68 ? 0 : 1)],
+    [IN(E(44, 34, 12, 12)), "bone", T.none], [IN(E(40, 30, 3, 3)), "bone", (x, y) => -1], [IN(E(48, 38, 2, 2)), "bone", (x, y) => -1],
+    [IN(PG([[9, 106], [9, 92], [20, 82], [32, 94], [44, 80], [61, 96], [61, 106]])), "haze", T.none],
+    [IN(PG([[13, 62], [41, 62], [35, 71], [27, 78], [19, 71]])), "stone", T.grain], [IN(R(13, 59, 28, 4)), "green", T.none],
+    [IN(R(24, 45, 7, 15)), "stone", T.blocks(4, 4)], [IN(PG([[22, 46], [33, 46], [27.5, 36]])), "red", T.none], [IN(R(27, 50, 2, 3)), "dark", T.none],
+    [IN(E(22, 26, 6, 2)), "sky", (x, y) => 2], [IN(E(50, 58, 7, 2)), "sky", (x, y) => 2], [R(0, 104, 70, 7), "stone", T.none]])],
+  feed: ["Le fil", () => sprite(66, 62, [[PG([[10, 16], [32, 3], [34, 5], [12, 18]]), "wood", T.none], [PG([[56, 16], [34, 3], [32, 5], [54, 18]]), "wood", T.none], [E(33, 4, 2.5, 2.5), "iron", T.none],
+    [R(2, 14, 62, 46), "dark", T.none], [R(5, 17, 56, 40), "wood", T.planks(8)],
+    [PG([[8, 20], [24, 19], [25, 40], [9, 41]]), "paper", T.lines(4)], [R(15, 20, 2, 2), "red", T.none], [R(28, 24, 13, 14), "paper", T.lines(3)], [R(33, 35, 3, 3), "red", T.none],
+    [PG([[44, 18], [58, 20], [57, 48], [43, 46]]), "paper", T.lines(4)], [R(50, 20, 2, 2), "iron", T.none], [R(12, 44, 16, 10), "paper", T.lines(3)], [R(30, 42, 10, 12), "bone", T.lines(4)]])],
+  medals: ["Succès", () => sprite(54, 70, [[R(2, 2, 50, 66), "dark", T.none], [R(4, 4, 46, 62), "gold", T.shine], [R(7, 7, 40, 56), "red", T.folds(13)],
+    [R(13, 12, 5, 16), "blue", T.none], [E(15.5, 32, 6, 6), "gold", T.shine], [R(25, 12, 5, 20), "purple", T.none], [E(27.5, 37, 7, 7), "iron", T.shine],
+    [R(37, 12, 5, 16), "green", T.none], [E(39.5, 32, 6, 6), "wood", T.shine], [R(14, 50, 26, 7), "paper", T.lines(3)]])],
+  mirror: ["Mon profil", () => sprite(48, 92, [[E(24, 36, 21, 31), "gold", T.shine], [E(24, 36, 16, 26), "iron", T.shine], [E(24, 4, 6, 3.5), "gold", T.none], [E(3.5, 36, 3, 6), "gold", T.none], [E(44.5, 36, 3, 6), "gold", T.none],
+    [R(22, 66, 4, 16), "gold", T.none], [PG([[8, 90], [24, 80], [40, 90], [36, 91], [24, 85], [12, 91]]), "gold", T.none], [E(24, 82, 4, 3), "gold", T.none]])],
+  trade: ["Échanges et amis", () => sprite(98, 66, [[R(6, 38, 10, 24), "dark", T.vplanks(5)], [R(82, 38, 10, 24), "dark", T.vplanks(5)], [R(3, 60, 16, 4), "wood", T.none], [R(79, 60, 16, 4), "wood", T.none],
+    [R(16, 48, 66, 4), "wood", T.none], [R(2, 32, 94, 7), "wood", T.planks(3)],
+    [PG([[31, 32], [67, 32], [67, 54], [49, 61], [31, 54]]), "red", T.folds(9)], [PG([[31, 49], [67, 49], [67, 52], [49, 59], [31, 52]]), "gold", T.none], [NOT(E(49, 42, 5.5, 5.5), E(49, 42, 3, 3)), "gold", T.none],
+    [R(47, 7, 4, 25), "gold", T.none], [R(27, 9, 44, 3), "gold", T.shine], [E(49, 7, 3.5, 3.5), "gold", T.none], [R(30, 12, 1, 10), "iron", T.none], [R(67, 12, 1, 10), "iron", T.none],
+    [NOT(E(30.5, 22, 10, 7), R(0, 0, 98, 22)), "gold", T.none], [NOT(E(67.5, 22, 10, 7), R(0, 0, 98, 22)), "gold", T.none], [R(44, 29, 10, 3), "gold", T.none],
+    [R(8, 26, 12, 6), "paper", T.lines(2)], [R(10, 23, 12, 4), "leather", T.none], [R(78, 26, 12, 6), "paper", T.lines(2)], [R(76, 23, 12, 4), "leather", T.none],
+    [R(27, 17, 6, 5), "paper", T.none], [R(65, 18, 6, 4), "paper", T.none]])],
+  chest: ["", () => sprite(74, 54, chestAt(1, 1, "iron", "gold"))],
+};
+const SPOTS = {library: "left:36px;bottom:44px", opening: "left:196px;top:22px", feed: "left:372px;top:56px", medals: "left:540px;top:44px", mirror: "left:690px;bottom:44px", trade: "left:790px;bottom:34px", chest: "left:426px;bottom:30px"};
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const band = (short) => `<div class="band"><div class="gauge"><i></i><span>${short ? "Objectif · 62 %" : "Objectif de la Confrérie · 62 %"}</span></div><div class="status"><span class="packs">10 packs</span>${[["#7d8a99", 41], ["#2e9e4f", 9], ["#2b6fd6", 3], ["#8e44c9", 0], ["#f0b429", 0]].map(([c, n]) => `<span class="cnt"><b class="dot" style="background:${c}"></b>${n}</span>`).join("")}</div></div>`;
+function room(){
+  const r = el("div", "room"); r.appendChild(backdrop(500, 220, 172));
+  for (const k of Object.keys(OBJS)){ const [name, make] = OBJS[k], o = el("div", "obj"); o.style.cssText = SPOTS[k]; o.appendChild(make());
+    if (k === "chest") o.appendChild(el("span", "timer", "Prochain pack dans 07:42")); else if (name) o.appendChild(el("span", "cap", name)); r.appendChild(o); }
+  const b = el("div", "bonus", `<b>Bonus du jour</b><div>Un petit booster vous attend, Confrère.</div><div style="margin-top:6px"><span class="btn">Le prendre</span></div>`);
+  b.style.cssText = "left:224px;bottom:14px"; r.appendChild(b); return r;
+}
+const desk = document.getElementById("desk"); desk.innerHTML = band(false); desk.appendChild(room());
+const phone = document.getElementById("phone"); phone.innerHTML = band(true); const v = el("div", "view"); v.appendChild(room()); phone.appendChild(v); v.scrollLeft = 320;
+const solo = document.getElementById("solo");
+for (const k of Object.keys(OBJS)){ const [name, make] = OBJS[k], w = el("div"); w.append(el("div", "lab", name || (k === "chest" ? "Coffre" : "Ouverture sur l'extérieur")), make()); solo.appendChild(w); }
+const FONTS = [["Space Grotesk", '"Space Grotesk",sans-serif'], ["Jost", '"Jost",sans-serif'], ["Barlow Semi Condensed", '"Barlow Semi Condensed",sans-serif'], ["Chakra Petch", '"Chakra Petch",sans-serif'], ["Rubik", '"Rubik",sans-serif']];
+const picker = document.getElementById("picker");
+FONTS.forEach(([name, stack], i) => { const b = el("button", "", name); b.type = "button"; b.setAttribute("aria-pressed", String(i === 0));
+  b.onclick = () => { document.documentElement.style.setProperty("--ft", stack); for (const x of picker.querySelectorAll("button")) x.setAttribute("aria-pressed", String(x === b)); };
+  picker.appendChild(b); });
+</script>
+</body>
+</html>
