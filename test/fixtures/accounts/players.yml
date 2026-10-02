@@ -1,0 +1,21 @@
+_fixture:
+  model_class: Accounts::Player
+
+player:
+  steam_id: "76561197960287001"
+  token: "player-token-0000000000001"
+
+moderator:
+  steam_id: "76561197960287002"
+  token: "moderator-token-0000000002"
+  role: moderator
+
+administrator:
+  steam_id: "76561197960287003"
+  token: "administrator-token-000003"
+  role: administrator
+
+banned:
+  steam_id: "76561197960287004"
+  token: "banned-token-0000000000004"
+  banned_at: <%= 1.day.ago.to_fs(:db) %>

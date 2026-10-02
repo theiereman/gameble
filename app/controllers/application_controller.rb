@@ -1,17 +1,28 @@
 class ApplicationController < ActionController::Base
+  include Pundit::Authorization
+
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
 
   around_action :switch_locale
+
+  # Every action takes a policy decision (AD-14); one that skipped `authorize`
+  # raises Pundit::AuthorizationNotPerformedError.
+  after_action :verify_authorized
+
+  rescue_from Pundit::NotAuthorizedError, with: :refuse
 
   helper_method :current_player
 
   private
     # Each request runs in the locale of its URL (AD-18).
     def switch_locale(&action)
+      I18n.with_locale(current_locale, &action)
+    end
+
+    def current_locale
       locale = requested_locale
-      locale = I18n.default_locale unless locale.is_a?(String) && I18n.available_locales.map(&:to_s).include?(locale)
-      I18n.with_locale(locale, &action)
+      locale.is_a?(String) && I18n.available_locales.map(&:to_s).include?(locale) ? locale : I18n.default_locale
     end
 
     def requested_locale
@@ -19,11 +30,49 @@ class ApplicationController < ActionController::Base
     end
 
     # The signed-in player, reloaded on each request from the player id the
-    # encrypted session cookie holds (AD-14); nil when signed out.
+    # encrypted session cookie holds (AD-14); nil when signed out. A banned
+    # player is signed out and the request goes on as a visitor's. Only the
+    # player id leaves the session: a sign-in in progress keeps its marker.
     def current_player
       return @current_player if defined?(@current_player)
 
-      @current_player = Accounts::PlayerById.call(session[:player_id])
+      player = Accounts::PlayerById.call(session[:player_id])
+      if player&.banned?
+        session.delete(:player_id)
+        player = nil
+      end
+      @current_player = player
+    end
+
+    def pundit_user
+      current_player
+    end
+
+    # A refused visitor is sent home and asked to sign in (401 outside HTML);
+    # a refused player is forbidden (403). Nothing the action would have done
+    # happens. A rescue runs outside the around_action, hence its own locale.
+    def refuse
+      I18n.with_locale(current_locale) { refuse_in_locale }
+    end
+
+    def refuse_in_locale
+      if current_player.nil?
+        message = t("authorization.sign_in_required")
+        refuse_with(:unauthorized, "sign_in_required", message) { redirect_to home_path, alert: message }
+      else
+        message = t("authorization.forbidden")
+        refuse_with(:forbidden, "forbidden", message) do
+          render html: helpers.tag.p(message, class: "refusal"), layout: "application", status: :forbidden
+        end
+      end
+    end
+
+    def refuse_with(status, code, message, &html)
+      respond_to do |format|
+        format.html(&html)
+        format.json { render json: { error: { code: code, message: message } }, status: status }
+        format.any { head status }
+      end
     end
 
     # Links built with route helpers keep the current locale.

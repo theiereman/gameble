@@ -3,6 +3,11 @@ require "test_helper"
 class Accounts::SignInTest < ActiveSupport::TestCase
   STEAM_ID = "76561197960287930".freeze
 
+  # Fixture players exist; a failed sign-in adds none.
+  def assert_no_new_player
+    assert_equal 0, Accounts::Player.where.not(id: accounts_players.map(&:id)).count
+  end
+
   def registered_events
     Rails.configuration.event_store.read.of_type(Accounts::PlayerRegistered).to_a
   end
@@ -28,7 +33,7 @@ class Accounts::SignInTest < ActiveSupport::TestCase
 
     assert result.success?
     assert_equal first.id, result.value!.id
-    assert_equal 1, Accounts::Player.count
+    assert_equal 1, Accounts::Player.where(steam_id: STEAM_ID).count
     assert_equal 1, registered_events.size
   end
 
@@ -45,7 +50,7 @@ class Accounts::SignInTest < ActiveSupport::TestCase
     assert result.success?
     assert_not result.value!.previously_new_record?
 
-    assert_equal 1, Accounts::Player.count
+    assert_equal 1, Accounts::Player.where(steam_id: STEAM_ID).count
     assert_empty registered_events
   end
 
@@ -55,14 +60,26 @@ class Accounts::SignInTest < ActiveSupport::TestCase
 
       assert result.failure?
       assert_equal :invalid_steam_id, result.failure
-      assert_equal 0, Accounts::Player.count
+      assert_no_new_player
       assert_empty registered_events
     end
   end
 
+  test "a banned player is refused with banned and nothing is published" do
+    banned = accounts_players(:banned)
+
+    result = Accounts::SignIn.new.call(steam_id: banned.steam_id)
+
+    assert result.failure?
+    assert_equal :banned, result.failure
+    assert_empty registered_events
+  end
+
   test "every failure code has a message in both locales" do
     %i[en fr].each do |locale|
-      I18n.with_locale(locale) { assert_predicate Accounts::SignIn.failure_message(:invalid_steam_id), :present? }
+      I18n.with_locale(locale) do
+        %i[invalid_steam_id banned].each { |code| assert_predicate Accounts::SignIn.failure_message(code), :present? }
+      end
     end
   end
 end

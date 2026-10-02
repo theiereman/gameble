@@ -69,6 +69,9 @@ gem "omniauth-rails_csrf_protection", "~> 2.0.1"
 # ruby-openid needs REXML, which Ruby 4 no longer bundles
 gem "rexml", "~> 3.4.4"
 
+# A policy on every controller action, deny by default (AD-14) [https://github.com/varvet/pundit]
+gem "pundit", "~> 2.5.2"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
