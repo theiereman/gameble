@@ -9,6 +9,8 @@ fr:
         label: "État de la Confrérie"
         gauge: "Objectif de la semaine"
         counters: "Paquets et cartes"
+        sign_in: "S'enrôler via Steam"
+        sign_out: "Quitter les rangs"
   pages:
     home:
       heading: "Bienvenue aux archives, Confrère"
@@ -18,3 +20,14 @@ fr:
       island:
         heading: "Le tableau de rassemblement de la Confrérie"
         season: "Saison de service en cours :"
+  sessions:
+    create:
+      welcome: "Bienvenue dans les rangs, Confrère. La Confrérie a inscrit ton nom au grand registre."
+    destroy:
+      farewell: "Tu as quitté les rangs, Confrère. Les coffres te gardent ta place au chaud."
+  errors:
+    accounts:
+      invalid_steam_id: "Les scribes n'ont pas pu lire cette identité, Confrère. Enrôle-toi à nouveau."
+    steam:
+      invalid_claimed_id: "Les scribes ne reconnaissent pas les papiers que tu rapportes, Confrère. Enrôle-toi à nouveau."
+      sign_in_failed: "L'enrôlement a échoué, Confrère. Tes papiers n'ont pas été tamponnés ; réessaie."

@@ -10,9 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_02_154022) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_02_154023) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "accounts_players", force: :cascade do |t|
+    t.string "steam_id", null: false
+    t.string "token", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["steam_id"], name: "index_accounts_players_on_steam_id", unique: true
+    t.index ["token"], name: "index_accounts_players_on_token", unique: true
+  end
 
   create_table "event_store_events", force: :cascade do |t|
     t.uuid "event_id", null: false

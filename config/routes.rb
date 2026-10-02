@@ -14,6 +14,12 @@ Rails.application.routes.draw do
     root "pages#home", as: :home
   end
 
+  # Steam sign-in (AD-14). OmniAuth answers POST /auth/steam itself; Steam
+  # comes back to the callback, and any failure lands on /auth/failure.
+  get "auth/steam/callback" => "sessions#create", as: :steam_callback
+  get "auth/failure" => "sessions#failure", as: :auth_failure
+  resource :session, only: :destroy
+
   # "/" sends a first visit to the locale its browser prefers.
   root "locales#redirect"
 end

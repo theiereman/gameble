@@ -9,6 +9,8 @@ en:
         label: "Brotherhood status"
         gauge: "Weekly goal"
         counters: "Packs and cards"
+        sign_in: "Enlist through Steam"
+        sign_out: "Stand down"
   pages:
     home:
       heading: "Welcome to the archives, Brother"
@@ -18,3 +20,14 @@ en:
       island:
         heading: "The Brotherhood muster board"
         season: "Current season of service:"
+  sessions:
+    create:
+      welcome: "Welcome to the ranks, Brother. The Brotherhood has entered your name in the great ledger."
+    destroy:
+      farewell: "You have stood down, Brother. The vaults will keep your seat warm."
+  errors:
+    accounts:
+      invalid_steam_id: "The scribes could not read that identity, Brother. Enlist again."
+    steam:
+      invalid_claimed_id: "The scribes could not recognise the papers you brought back, Brother. Enlist again."
+      sign_in_failed: "The enlistment did not go through, Brother. Your papers were not stamped; try again."
