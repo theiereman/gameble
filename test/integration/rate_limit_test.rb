@@ -8,6 +8,10 @@ class RateLimitTest < ActionDispatch::IntegrationTest
   OTHER_IP = "203.0.113.8"
 
   setup do
+    # Rack::Attack counts in windows aligned on the clock minute: a test that
+    # crossed a minute boundary would start a fresh count. Freeze the clock
+    # just after a minute starts.
+    travel_to Time.current.beginning_of_minute + 5.seconds
     @cache_store = Rack::Attack.cache.store
     Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
     Rack::Attack.reset!

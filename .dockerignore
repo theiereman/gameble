@@ -35,6 +35,13 @@
 /app/assets/builds/*
 !/app/assets/builds/.keep
 /public/assets
+/public/vite*
+
+# Ignore planning documents and agent tooling.
+/_bmad/
+/_bmad-output/
+/.agents/
+/.claude/
 
 # Ignore CI service files.
 /.github

@@ -32,8 +32,17 @@ FROM base AS build
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev libvips libyaml-dev pkg-config && \
+    apt-get install --no-install-recommends -y build-essential git libpq-dev libvips libyaml-dev pkg-config xz-utils && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Install Node for the Vite build, at the nodejs version of .tool-versions (as CI does)
+COPY .tool-versions ./
+ENV PATH=/usr/local/node/bin:$PATH
+RUN NODE_VERSION=$(awk '$1 == "nodejs" { print $2 }' .tool-versions) && \
+    ARCH=$(uname -m | sed -e 's/x86_64/x64/' -e 's/aarch64/arm64/') && \
+    mkdir -p /usr/local/node && \
+    curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.xz" | \
+    tar -xJ -C /usr/local/node --strip-components=1
 
 # Install application gems
 COPY vendor/* ./vendor/
@@ -44,6 +53,10 @@ RUN bundle install && \
     # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
     bundle exec bootsnap precompile -j 1 --gemfile
 
+# Install JavaScript packages
+COPY package.json package-lock.json ./
+RUN npm ci
+
 # Copy application code
 COPY . .
 
@@ -51,8 +64,11 @@ COPY . .
 # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
 RUN bundle exec bootsnap precompile -j 1 app/ lib/
 
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# Precompiling assets for production without requiring secret RAILS_MASTER_KEY.
+# vite_ruby runs the Vite build as part of it; its own `npm ci` is skipped, the
+# layer above installed the packages. node_modules is not needed at runtime.
+RUN SECRET_KEY_BASE_DUMMY=1 VITE_RUBY_SKIP_ASSETS_PRECOMPILE_INSTALL=true ./bin/rails assets:precompile && \
+    rm -rf node_modules
 
 
 
