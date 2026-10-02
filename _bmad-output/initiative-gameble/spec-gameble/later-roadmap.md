@@ -14,11 +14,11 @@ Context for MVP design decisions that must not block these. Nothing here is buil
 ## V3 — Seasons and community content
 
 - ***Pass de la Confrérie* / Brotherhood Pass:** a collective parody battle pass whose tiers are advanced by market fees. Each tier rewards contributors with packs, never currency.
-- **Seasons:** the catalog and rarities are recomputed per season (e.g. quarterly), and new subjects enter only at season start. Owned copies keep their minted rarity and season.
+- **Seasons:** the catalog and rarities are recomputed per season (e.g. quarterly), and new games enter only at season start. Owned copies keep their minted rarity and season.
 - **Themed sets:** community-proposed and voted (20–100 cards each, with rewards), created in a back-office without code changes.
-- **Foil variants** for "Article de qualité" and "Bon article".
 
 ## Later
 
-- **Native apps:** App Store and Play Store. Sign in with Apple becomes mandatory on iOS, and random-reward rules need reassessing.
-- **English UI.**
+- **Steam library bonuses:** bonuses on the cards of games a player owns, from playtime and achievements. They are bonuses only; the library never grants a card. Reading a player's library may depend on their Steam profile privacy settings; verify before designing.
+- **Delisted games:** manual curation, since the store API returns little for them.
+- **Native apps:** App Store and Play Store. Store review may object to third-party art and random rewards, and iOS sign-in rules may apply. Reassess then.
