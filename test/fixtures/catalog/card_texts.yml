@@ -1,0 +1,14 @@
+_fixture:
+  model_class: Catalog::CardText
+
+portal_en:
+  card: portal
+  locale: en
+  title: "Portal"
+  short_description: "A puzzle game of portals."
+
+portal_fr:
+  card: portal
+  locale: fr
+  title: "Portal"
+  short_description: "Un jeu de casse-tête à portails."

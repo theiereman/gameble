@@ -1,0 +1,7 @@
+_fixture:
+  model_class: Catalog::Season
+
+one:
+  number: 1
+  status: published
+  published_at: <%= 1.week.ago.to_fs(:db) %>

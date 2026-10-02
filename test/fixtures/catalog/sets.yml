@@ -1,0 +1,7 @@
+_fixture:
+  model_class: Catalog::Set
+
+valve_one:
+  season: one
+  kind: publisher
+  key: "valve"

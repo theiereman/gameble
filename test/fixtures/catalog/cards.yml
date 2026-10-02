@@ -1,0 +1,12 @@
+_fixture:
+  model_class: Catalog::Card
+
+portal:
+  source_key: "src:400"
+  slug: "portal"
+  release_date: 2007-10-10
+  image_url: "https://images.example.test/400.jpg"
+  store_url: "https://store.example.test/400"
+  publisher: "Valve"
+  genres: ["action"]
+  tags: ["puzzle", "first-person"]

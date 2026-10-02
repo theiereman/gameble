@@ -74,6 +74,9 @@ gem "cgi", "~> 0.5.2"
 # A policy on every controller action, deny by default (AD-14) [https://github.com/varvet/pundit]
 gem "pundit", "~> 2.5.2"
 
+# Address cards by a stable slug, never by their id (AD-15) [https://github.com/norman/friendly_id]
+gem "friendly_id", "~> 5.7.0"
+
 # Report production errors, without personal data (AD-21) [https://github.com/getsentry/sentry-ruby]
 gem "sentry-rails", "~> 7.1.0"
 

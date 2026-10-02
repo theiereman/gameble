@@ -77,10 +77,18 @@ en:
     forbidden: "That order is above your rank, Brother. The vaults stay shut."
   rate_limit:
     throttled: "Too many enlistment attempts, Brother. Catch your breath and try again in a minute."
+  activerecord:
+    errors:
+      messages:
+        frozen_once_published: "belongs to a published season and can no longer change"
+        other_season: "belongs to another season"
   errors:
     accounts:
       invalid_steam_id: "The scribes could not read that identity, Brother. Enlist again."
       banned: "The Brotherhood has struck your name from the ledger. The vaults stay shut to you."
+    catalog:
+      missing_text: "The scribes need the card's title in every tongue of the Brotherhood before it can enter the ledger."
+      invalid_card: "The scribes cannot enter that card in the ledger: its particulars are incomplete or out of order."
     game:
       player_required: "Only an enlisted Brother in good standing may do that."
     steam:
