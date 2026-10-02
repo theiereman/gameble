@@ -39,6 +39,7 @@ fr:
         jobs: "La file des tâches"
         import_runs: "L'import Steam"
         seasons: "Les saisons du catalogue"
+        cards: "La presse à cartes"
     import_runs:
       statuses:
         pending: "En attente"
@@ -92,6 +93,26 @@ fr:
       rescore:
         rescoring: "Les scribes réinscrivent les cartes avec la nouvelle formule, officier. La saison ne peut pas être publiée avant qu'ils aient fini."
         run_in_progress: "Un import est en cours, officier. Laisse-le finir, ou attends qu'il s'interrompe, avant de recalculer les cartes."
+    cards:
+      index:
+        heading: "La presse à cartes"
+        intro: "La face et le dos de chaque rareté aux deux tailles, puis un dos sous chaque niveau de poussière : à gauche tels que les pages les dessinent, à droite tels que la révélation les dessinera. Les deux doivent concorder trait pour trait. L'image est un échantillon du coffre de la Confrérie ; celle de l'émeraude manque exprès, pour montrer une carte sans image."
+        server: "Les pages"
+        react: "La révélation"
+        label: "%{rarity}, %{side}, %{size}"
+        dust_label: "%{rarity}, %{side}, %{size}, poussière %{level}"
+        sides:
+          face: "face"
+          back: "dos"
+        sizes:
+          small: "petite"
+          large: "grande"
+        samples:
+          steel: "Soldat de plomb"
+          emerald: "Collines vertes"
+          sapphire: "Profondeurs bleues"
+          amethyst: "La longue chronique des archives d'améthyste et des clés perdues par leurs gardiens"
+          gold: "Couronne d'or"
     seasons:
       statuses:
         draft: "Brouillon"
@@ -159,6 +180,10 @@ fr:
       throttled: "Doucement, Confrère. Le coffre a besoin d'un instant entre deux ouvertures ; réessaie dans une minute."
     show:
       heading: "Ton paquet, Confrère"
+  cards:
+    face_down: "Carte face cachée"
+    face_down_with_rarity: "Carte face cachée, %{rarity}"
+    season: "Saison %{number}"
   catalog:
     rarity:
       steel: "Acier"

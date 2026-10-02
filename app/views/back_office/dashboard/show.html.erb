@@ -19,6 +19,12 @@
     </p>
   <% end %>
 
+  <% if policy([ :back_office, :cards ]).index? %>
+    <p>
+      <%= render ButtonComponent.new(variant: :secondary, href: back_office_cards_path) do %><%= t(".cards") %><% end %>
+    </p>
+  <% end %>
+
   <% if policy([ :back_office, :jobs ]).show? %>
     <p>
       <%= render ButtonComponent.new(variant: :secondary, href: mission_control_jobs.root_path(locale: nil), turbo: false) do %><%= t(".jobs") %><% end %>

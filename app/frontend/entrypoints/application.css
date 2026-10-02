@@ -2,6 +2,7 @@
 @import "../styles/tokens.css";
 @import "../styles/fonts.css";
 @import "../styles/attic.css";
+@import "../styles/card.css";
 
 *,
 *::before,
@@ -217,6 +218,30 @@ h2 {
   background: var(--color-surface);
   border: var(--space-unit) solid var(--color-danger);
   overflow-wrap: anywhere;
+}
+
+/* Back-office card preview: the server's cards beside the React twins. */
+.card-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+}
+
+.card-preview__cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.card-preview__item {
+  margin: 0;
+}
+
+.card-preview__label {
+  margin-bottom: var(--space-3);
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
 }
 
 /* The cards of an opened pack: a plain list until the reveal (story 3.6). */

@@ -30,6 +30,9 @@ Rails.application.routes.draw do
       resources :seasons, only: :index do
         post :publish, on: :collection
       end
+
+      # The card preview, both renderers side by side, administrators only.
+      resources :cards, only: :index
     end
   end
 
