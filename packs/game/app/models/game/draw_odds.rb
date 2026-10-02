@@ -8,5 +8,9 @@ module Game
     # A regular pack: steel 76 %, emerald 19 %, sapphire 4.3 %,
     # amethyst 0.65 %, gold 0.05 %.
     REGULAR = { 1 => 7_600, 2 => 1_900, 3 => 430, 4 => 65, 5 => 5 }.freeze
+
+    # The card forced by the first-session guarantee: sapphire or better, in
+    # the regular odds' proportions (430 : 65 : 5).
+    GUARANTEE = { 3 => 8_600, 4 => 1_300, 5 => 100 }.freeze
   end
 end

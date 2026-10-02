@@ -8,8 +8,11 @@ module Game
   #
   #   Game::DrawPool.current # => Snapshot | nil (no season published)
   module DrawPool
-    # `tiers`: { 1 => [card_season_id, …], …, 5 => […] }, frozen.
-    Snapshot = Data.define(:key, :season_id, :tiers)
+    # `tiers`: { 1 => [card_season_id, …], …, 5 => […] }, frozen;
+    # `tier_by_id`: the reverse, { card_season_id => tier }.
+    Snapshot = Data.define(:key, :season_id, :tiers, :tier_by_id) do
+      def tier_of(card_season_id) = tier_by_id.fetch(card_season_id)
+    end
 
     # A published season with a tier holding no card cannot be drawn from.
     class EmptyTier < StandardError; end
@@ -54,7 +57,9 @@ module Game
       empty = tiers.select { |_, ids| ids.empty? }.keys
       raise EmptyTier, "season #{key.first} has no card in tier(s) #{empty.join(", ")}" if empty.any?
 
-      Snapshot.new(key:, season_id: key.first, tiers: tiers.transform_values { |ids| ids.dup.freeze }.freeze)
+      tiers = tiers.transform_values { |ids| ids.dup.freeze }.freeze
+      tier_by_id = tiers.flat_map { |tier, ids| ids.map { |id| [ id, tier ] } }.to_h.freeze
+      Snapshot.new(key:, season_id: key.first, tiers:, tier_by_id:)
     end
 
     private_class_method :build
