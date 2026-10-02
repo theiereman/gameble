@@ -7,6 +7,12 @@
     <%= t(".empty") %>
   <% end %>
 
+  <% if policy([ :back_office, :import_runs ]).index? %>
+    <p>
+      <%= render ButtonComponent.new(variant: :secondary, href: back_office_import_runs_path) do %><%= t(".import_runs") %><% end %>
+    </p>
+  <% end %>
+
   <% if policy([ :back_office, :jobs ]).show? %>
     <p>
       <%= render ButtonComponent.new(variant: :secondary, href: mission_control_jobs.root_path(locale: nil), turbo: false) do %><%= t(".jobs") %><% end %>

@@ -33,6 +33,40 @@ en:
         heading: "The Brotherhood's back-office"
         empty: "Nothing awaits the officers yet. The ledgers lie blank."
         jobs: "The job queue"
+        import_runs: "The Steam import"
+    import_runs:
+      statuses:
+        pending: "Waiting"
+        running: "Under way"
+        completed: "Done"
+        failed: "Halted"
+      steps:
+        app_list: "Listing the Steam games"
+      index:
+        heading: "The Steam import"
+        intro: "Each run copies the list of Steam games into the Brotherhood's ledgers, page by page. One run at a time."
+        start: "Start an import"
+        empty: "No import has run yet. The ledgers wait for their first page."
+        caption: "Import runs, the latest first"
+        started_at: "Started"
+        status: "Status"
+        apps_listed: "Games listed"
+        open: "Open"
+      show:
+        heading: "An import run"
+        all_runs: "All import runs"
+        status: "Status"
+        step: "Step"
+        apps_listed: "Games listed"
+        cursor: "Last appid"
+        started_at: "Started"
+        finished_at: "Finished"
+        resume: "Resume from where it stopped"
+        errors: "Latest errors"
+      create:
+        started: "The import is under way, officer. The scribes are copying the first page."
+      resume:
+        resumed: "The import resumes from where it stopped, officer."
   sessions:
     create:
       welcome: "Welcome to the ranks, Brother. The Brotherhood has entered your name in the great ledger."
@@ -52,3 +86,8 @@ en:
     steam:
       invalid_claimed_id: "The scribes could not recognise the papers you brought back, Brother. Enlist again."
       sign_in_failed: "The enlistment did not go through, Brother. Your papers were not stamped; try again."
+      run_in_progress: "An import is already under way, officer. Let it finish, or wait for it to halt, before starting another."
+      not_found: "The scribes find no such import run in the ledgers."
+      not_resumable: "Only a halted import can be resumed, officer."
+      not_running: "That import is not under way."
+      cursor_moved: "That page of the import was already copied."

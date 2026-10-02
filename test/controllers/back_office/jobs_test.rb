@@ -2,8 +2,8 @@ require "test_helper"
 
 module BackOffice
   # Mission Control Jobs at /back-office/jobs, administrators only (R7).
-  # Development and test run without Solid Queue, so the engine reads the
-  # default (async) adapter: its dashboard renders, with no job in it.
+  # Tests run without Solid Queue, so the engine reads the test environment's
+  # adapter: its dashboard renders, with no job in it.
   class JobsTest < ActionDispatch::IntegrationTest
     setup do
       OmniAuth.config.test_mode = true

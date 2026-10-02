@@ -1,0 +1,45 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <p><%= link_to t(".all_runs"), back_office_import_runs_path %></p>
+
+  <%= turbo_frame_tag "import_run", aria: { live: "polite" } do %>
+    <%# While the run is active, the poller reloads this frame every few seconds. %>
+    <div class="stack" <% if @import_run.active? %>data-controller="poller" data-poller-url-value="<%= back_office_import_run_path(@import_run) %>" data-poller-interval-value="3000"<% end %>>
+      <dl class="ledger-entry">
+        <dt><%= t(".status") %></dt>
+        <dd data-import-run-status="<%= @import_run.status %>"><%= t("back_office.import_runs.statuses.#{@import_run.status}") %></dd>
+        <dt><%= t(".step") %></dt>
+        <dd data-import-run-step="<%= @import_run.step %>"><%= @import_run.step ? t("back_office.import_runs.steps.#{@import_run.step}") : "—" %> <% if @import_run.step %><code><%= @import_run.step %></code><% end %></dd>
+        <dt><%= t(".apps_listed") %></dt>
+        <dd data-import-run-apps-listed="<%= @import_run.apps_listed %>"><%= number_with_delimiter(@import_run.apps_listed) %></dd>
+        <dt><%= t(".cursor") %></dt>
+        <dd><%= @import_run.last_appid %></dd>
+        <dt><%= t(".started_at") %></dt>
+        <dd><%= render "back_office/import_runs/time", time: @import_run.started_at %></dd>
+        <dt><%= t(".finished_at") %></dt>
+        <dd><%= render "back_office/import_runs/time", time: @import_run.finished_at %></dd>
+      </dl>
+
+      <% if @import_run.failed? %>
+        <p>
+          <%= render ButtonComponent.new(variant: :primary, href: resume_back_office_import_run_path(@import_run), method: :post, turbo: false) do %><%= t(".resume") %><% end %>
+        </p>
+      <% end %>
+
+      <% errors = @import_run.latest_errors %>
+      <% if errors.any? %>
+        <section class="stack" aria-labelledby="import-run-errors">
+          <h2 id="import-run-errors"><%= t(".errors") %></h2>
+          <ul class="ledger-errors">
+            <% errors.each do |error| %>
+              <li><%= render "back_office/import_runs/time", time: error.at %> — <%= error.message %></li>
+            <% end %>
+          </ul>
+        </section>
+      <% end %>
+    </div>
+  <% end %>
+</div>

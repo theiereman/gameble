@@ -1,0 +1,109 @@
+require "test_helper"
+require_relative "../../support/steam_api_stubs"
+
+class Steam::WebApiTest < ActiveSupport::TestCase
+  include SteamApiStubs
+
+  setup { stub_steam_api }
+  teardown { unstub_steam_api }
+
+  test "a page of the app list asks for games only, with the key, after the cursor" do
+    seen = nil
+    steam_stubs.get(APP_LIST_PATH) do |env|
+      seen = env.params
+      [ 200, { "Content-Type" => "application/json" }, { "response" => { "apps" => [ { "appid" => 10, "name" => "Counter-Strike", "last_modified" => 1_700_000_000, "price_change_number" => 7 } ], "have_more_results" => true, "last_appid" => 10 } }.to_json ]
+    end
+
+    page = Steam::WebApi.new.get_app_list(last_appid: 5, max_results: 100)
+
+    assert_equal({ "include_games" => "true", "last_appid" => "5", "max_results" => "100", "key" => API_KEY }, seen)
+    assert_equal [ { appid: 10, name: "Counter-Strike", last_modified: Time.at(1_700_000_000).utc, price_change_number: 7 } ], page.apps
+    assert page.have_more_results
+    assert_equal 10, page.last_appid
+  end
+
+  test "the last page has no more results" do
+    stub_app_list_page(after: 0, appids: [ 1, 2 ], more: false)
+
+    page = Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 100)
+
+    assert_equal [ 1, 2 ], page.apps.map { |app| app[:appid] }
+    assert_not page.have_more_results
+    assert_nil page.last_appid
+  end
+
+  test "a 429 then a 503 are retried until the page comes" do
+    stub_app_list_status(429, after: 0)
+    stub_app_list_status(503, after: 0)
+    stub_app_list_page(after: 0, appids: [ 3 ], more: false)
+
+    page = Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 100)
+
+    assert_equal [ 3 ], page.apps.map { |app| app[:appid] }
+  end
+
+  [ 429, 500, 502 ].each do |status|
+    test "a #{status} that outlasts the retries raises an error without the key" do
+      calls = 0
+      steam_stubs.get(APP_LIST_PATH) do
+        calls += 1
+        [ status, {}, "" ]
+      end
+
+      error = assert_raises(Steam::WebApi::Error) { Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 100) }
+
+      assert_equal 5, calls
+      assert_includes error.message, status.to_s
+      assert_includes error.message, Steam::WebApi::REDACTED
+      assert_not_includes error.message, API_KEY
+      assert_nil error.cause
+      assert_not_includes error.full_message, API_KEY
+    end
+  end
+
+  test "a 403 is not retried and raises an error without the key" do
+    calls = 0
+    steam_stubs.get(APP_LIST_PATH) do
+      calls += 1
+      [ 403, {}, "" ]
+    end
+
+    error = assert_raises(Steam::WebApi::Error) { Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 100) }
+
+    assert_equal 1, calls
+    assert_not_includes error.message, API_KEY
+  end
+
+  test "a connection failure raises an error without the key" do
+    steam_stubs.get(APP_LIST_PATH) { raise Faraday::ConnectionFailed, "failed to open https://api.steampowered.com/?key=#{API_KEY}" }
+
+    error = assert_raises(Steam::WebApi::Error) { Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 100) }
+
+    assert_not_includes error.message, API_KEY
+    assert_nil error.cause
+  end
+
+  test "a missing key raises before any call" do
+    error = assert_raises(Steam::WebApi::Error) { Steam::WebApi.new(api_key: nil).get_app_list(last_appid: 0, max_results: 100) }
+
+    assert_equal "STEAM_API_KEY is not set", error.message
+  end
+
+  test "the key does not show in an inspection" do
+    assert_not_includes Steam::WebApi.new.inspect, API_KEY
+  end
+
+  test "redact replaces the key in plain and URL-encoded forms" do
+    api = Steam::WebApi.new(api_key: "a+b/c")
+
+    assert_equal "x [FILTERED] y [FILTERED]", api.redact("x a+b/c y a%2Bb%2Fc")
+  end
+
+  [ "not json", "{}", { "response" => [] }.to_json, { "response" => { "apps" => {} } }.to_json ].each do |body|
+    test "an answer without a response object or an app list raises (#{body})" do
+      steam_stubs.get(APP_LIST_PATH) { [ 200, { "Content-Type" => "application/json" }, body ] }
+
+      assert_raises(Steam::WebApi::Error) { Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 100) }
+    end
+  end
+end

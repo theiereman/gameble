@@ -1,0 +1,41 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render TextPlateComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <p>
+    <%= render ButtonComponent.new(variant: :primary, href: back_office_import_runs_path, method: :post) do %><%= t(".start") %><% end %>
+  </p>
+
+  <% if @import_runs.empty? %>
+    <%= render TextPlateComponent.new(tag: :p) do %>
+      <%= t(".empty") %>
+    <% end %>
+  <% else %>
+    <table class="ledger">
+      <caption class="visually-hidden"><%= t(".caption") %></caption>
+      <thead>
+        <tr>
+          <th scope="col"><%= t(".started_at") %></th>
+          <th scope="col"><%= t(".status") %></th>
+          <th scope="col"><%= t(".apps_listed") %></th>
+          <th scope="col"><span class="visually-hidden"><%= t(".open") %></span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @import_runs.each do |import_run| %>
+          <tr>
+            <td><%= render "back_office/import_runs/time", time: import_run.started_at || import_run.created_at %></td>
+            <td><%= t("back_office.import_runs.statuses.#{import_run.status}") %></td>
+            <td><%= number_with_delimiter(import_run.apps_listed) %></td>
+            <td><%= link_to t(".open"), back_office_import_run_path(import_run) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>

@@ -33,6 +33,40 @@ fr:
         heading: "Le back-office de la Confrérie"
         empty: "Rien n'attend encore les officiers. Les registres sont vierges."
         jobs: "La file des tâches"
+        import_runs: "L'import Steam"
+    import_runs:
+      statuses:
+        pending: "En attente"
+        running: "En cours"
+        completed: "Terminé"
+        failed: "Interrompu"
+      steps:
+        app_list: "Liste des jeux Steam"
+      index:
+        heading: "L'import Steam"
+        intro: "Chaque passe recopie la liste des jeux Steam dans les registres de la Confrérie, page après page. Une passe à la fois."
+        start: "Lancer un import"
+        empty: "Aucun import n'a encore tourné. Les registres attendent leur première page."
+        caption: "Passes d'import, la plus récente en premier"
+        started_at: "Lancé"
+        status: "État"
+        apps_listed: "Jeux listés"
+        open: "Ouvrir"
+      show:
+        heading: "Une passe d'import"
+        all_runs: "Toutes les passes d'import"
+        status: "État"
+        step: "Étape"
+        apps_listed: "Jeux listés"
+        cursor: "Dernier appid"
+        started_at: "Lancé"
+        finished_at: "Terminé"
+        resume: "Reprendre là où il s'est arrêté"
+        errors: "Dernières erreurs"
+      create:
+        started: "L'import est lancé, officier. Les scribes recopient la première page."
+      resume:
+        resumed: "L'import reprend là où il s'était arrêté, officier."
   sessions:
     create:
       welcome: "Bienvenue dans les rangs, Confrère. La Confrérie a inscrit ton nom au grand registre."
@@ -52,3 +86,8 @@ fr:
     steam:
       invalid_claimed_id: "Les scribes ne reconnaissent pas les papiers que tu rapportes, Confrère. Enrôle-toi à nouveau."
       sign_in_failed: "L'enrôlement a échoué, Confrère. Tes papiers n'ont pas été tamponnés ; réessaie."
+      run_in_progress: "Un import est déjà en cours, officier. Laisse-le finir, ou attends qu'il s'interrompe, avant d'en lancer un autre."
+      not_found: "Les scribes ne trouvent pas cette passe d'import dans les registres."
+      not_resumable: "Seul un import interrompu peut être repris, officier."
+      not_running: "Cet import n'est pas en cours."
+      cursor_moved: "Cette page de l'import a déjà été recopiée."

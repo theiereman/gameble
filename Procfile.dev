@@ -1,2 +1,4 @@
 web: bin/rails server
 vite: bin/vite dev
+jobs: bin/jobs
+import: bin/jobs -c config/queue_import.yml --skip-recurring

@@ -1,9 +1,12 @@
+# The jobs process (bin/jobs): every queue but `import`, which has its own
+# process (config/queue_import.yml, AD-19). Solid Queue cannot exclude a
+# queue, so the queues are listed: add a new queue here.
 default: &default
   dispatchers:
     - polling_interval: 1
       batch_size: 500
   workers:
-    - queues: "*"
+    - queues: [ default ]
       threads: 3
       processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
       polling_interval: 1
