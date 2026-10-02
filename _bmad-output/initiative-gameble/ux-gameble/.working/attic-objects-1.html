@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gameble — meubles du grenier, trois directions</title>
+<style>
+/* Palette « Parchemin au grand jour » : bg #e9dcc0 · surface #f4ead2 · ink #2b1d10 · muted #6b5640 · accent #8a3b12 */
+:root{--bg:#e9dcc0;--surface:#f4ead2;--ink:#2b1d10;--muted:#6b5640;--accent:#8a3b12}
+*{box-sizing:border-box}
+body{margin:0;padding:24px 16px 80px;background:var(--bg);color:var(--ink);font-family:ui-monospace,"DejaVu Sans Mono",Menlo,Consolas,monospace;font-size:14px;line-height:1.5}
+h1{font-size:20px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px}
+h2{font-size:16px;margin:48px 0 4px;text-transform:uppercase;border-bottom:4px solid var(--ink);padding-bottom:4px}
+p{margin:4px 0 12px;max-width:86ch;color:var(--muted)}
+canvas{display:block;image-rendering:pixelated}
+.scene{position:relative;width:1000px;max-width:100%;height:330px;border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);overflow:hidden}
+.floor{position:absolute;left:0;right:0;bottom:0;height:70px;border-top:2px solid var(--ink)}
+.obj{position:absolute;bottom:34px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.cap{font-size:11px;font-weight:700;text-transform:uppercase;background:var(--surface);border:2px solid var(--ink);padding:0 5px;white-space:nowrap}
+pre{white-space:pre-wrap;background:var(--surface);border:2px solid var(--ink);padding:8px 10px;max-width:1000px;font-size:12px;margin:10px 0 0}
+.lab{font-size:11px;margin:12px 0 4px;color:var(--accent);font-weight:700;text-transform:uppercase}
+</style>
+</head>
+<body>
+<h1>Meubles du grenier — trois directions</h1>
+<p>Les mêmes six fonctions, habillées de trois façons : bibliothèque, fil de la Confrérie, profil, succès, échanges, et le coffre. Chaque objet est plus grand et plus travaillé que sur la planche précédente : volumes éclairés, matières, contours.</p>
+<p>Ce sont encore des croquis dessinés par programme. Ils servent à choisir une direction et la liste des objets. Sous chaque direction, une consigne prête à donner à un générateur d'images pour produire le vrai dessin.</p>
+
+<h2>1 — Le donjon</h2>
+<p>Pierre taillée, fer forgé, vitrail. Une confrérie installée dans un vieux château.</p>
+<div class="scene" id="s1"></div>
+<div class="lab">Consigne pour un générateur d'images</div>
+<pre>16-bit pixel art game asset sheet, light parchment background, hard dark-brown outlines, no anti-aliasing, 2px pixel grid, top-left lighting. Old castle keep of a secret brotherhood: a stone alcove with shelves of leather books and a candle; a gothic stained-glass lancet window; a heraldic shield with crossed swords; a golden chalice on a stone pedestal; an oak table with a brass balance scale and a scroll; an iron-bound wooden chest with a rounded lid. Warm sepia, brass and rust palette with small jewel-colour accents. Each object separate, front view.</pre>
+
+<h2>2 — Le cabinet de l'alchimiste</h2>
+<p>Fioles, boule de cristal, corbeau messager. Une confrérie mystique et un peu inquiétante.</p>
+<div class="scene" id="s2"></div>
+<div class="lab">Consigne pour un générateur d'images</div>
+<pre>16-bit pixel art game asset sheet, light parchment background, hard dark-brown outlines, no anti-aliasing, 2px pixel grid, top-left lighting. Alchemist's study of a secret brotherhood: a tall dark bookcase with a skull and a potion among the books; a crystal ball on a brass claw stand with a purple swirl inside; an ornate oval brass mirror; a cabinet of glowing potion flasks; a raven on a wooden perch holding a sealed letter; a wooden chest with brass bands and a glowing purple lock. Warm sepia and brass palette with emerald, sapphire and amethyst accents. Each object separate, front view.</pre>
+
+<h2>3 — La salle du chapitre</h2>
+<p>Bannières, grimoire enchaîné, table ronde. Le lieu de réunion solennel de la Confrérie.</p>
+<div class="scene" id="s3"></div>
+<div class="lab">Consigne pour un générateur d'images</div>
+<pre>16-bit pixel art game asset sheet, light parchment background, hard dark-brown outlines, no anti-aliasing, 2px pixel grid, top-left lighting. Chapter hall of a secret brotherhood: a wooden lectern holding a huge open grimoire fastened by a chain; a wooden notice board with pinned parchments and wax seals, a small bell on top; a red heraldic banner with a gold ring emblem; a framed display of three medals on red cloth; a round oak table with two chairs facing each other and cards on it; an iron-bound chest standing on a stone dais. Warm sepia, brass and rust palette. Each object separate, front view.</pre>
+
+<script>
+const INK = "#2b1d10";
+const RAMP = {
+  wood:["#3d2817","#5c4026","#8f6a43","#c4a173"], dark:["#1d130a","#2b1d10","#3d2817","#5c4026"],
+  stone:["#6f6552","#8f8266","#b9ab8e","#d6cbb0"], iron:["#2d3138","#4a505a","#7d8a99","#aab6c2"],
+  gold:["#7a5512","#a8741a","#f0b429","#ffe08a"], paper:["#b89f72","#e2d1ad","#f4ead2","#fff8e6"],
+  red:["#5a120f","#7a1712","#a3241c","#c8473a"], leather:["#4a1d06","#64290c","#7a3410","#9a4a1c"],
+  blue:["#1c4a99","#2b6fd6","#6aa3f2","#cfe2ff"], green:["#1d4a1c","#2f6b2a","#3f8f3a","#7fcf6a"],
+  purple:["#3e1a5e","#612b8f","#8e44c9","#b97be8"], flame:["#a8741a","#f0b429","#ffe08a","#fff6d0"],
+  bone:["#8f8266","#c9bc9c","#ecdcb8","#fff8e6"], black:["#0c0806","#1d130a","#2b1d10","#4a3a2a"],
+};
+const hash = (x, y) => { const s = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453; return s - Math.floor(s); };
+/* Formes */
+const R = (x, y, w, h) => (px, py) => px >= x && px < x + w && py >= y && py < y + h;
+const E = (cx, cy, rx, ry) => (px, py) => ((px + .5 - cx) / rx) ** 2 + ((py + .5 - cy) / ry) ** 2 <= 1;
+const U = (...f) => (x, y) => f.some(g => g(x, y));
+const AND = (a, b) => (x, y) => a(x, y) && b(x, y);
+const NOT = (a, b) => (x, y) => a(x, y) && !b(x, y);
+const PG = (pts) => (px, py) => { let inside = false; const x = px + .5, y = py + .5;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++){ const [xi, yi] = pts[i], [xj, yj] = pts[j];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside; } return inside; };
+const LANCET = (x, y, w, h) => { const by = y + w * 0.87; return U(R(x, Math.floor(by), w, Math.ceil(h - (by - y))),
+  (px, py) => py < by && py >= y && Math.hypot(px + .5 - x, py + .5 - by) <= w && Math.hypot(px + .5 - (x + w), py + .5 - by) <= w); };
+/* Matières : renvoient un décalage de ton (-1, 0, +1) */
+const T = {
+  planks: (n) => (x, y) => y % n === 0 ? -1 : hash(x >> 2, y) < 0.07 ? -1 : 0,
+  vplanks: (n) => (x, y) => x % n === 0 ? -1 : hash(x, y >> 2) < 0.07 ? -1 : 0,
+  blocks: (bw, bh) => (x, y) => (y % bh === 0 || (x + (Math.floor(y / bh) % 2) * (bw >> 1)) % bw === 0) ? -1 : hash(x, y) < 0.05 ? 1 : 0,
+  folds: (p) => (x, y) => { const s = Math.sin(x / p * 6.283); return s > 0.6 ? 1 : s < -0.6 ? -1 : 0; },
+  shine: (x, y) => ((x - y + 400) % 9 === 0 || (x - y + 400) % 9 === 1) ? 1 : 0,
+  grain: (x, y) => hash(x, y) < 0.1 ? -1 : 0,
+  lines: (n) => (x, y) => y % n === 1 ? -1 : 0,
+  none: () => 0,
+};
+function sprite(w, h, layers){
+  const id = new Int16Array(w * h).fill(-1);
+  layers.forEach(([f], i) => { for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (f(x, y)) id[y * w + x] = i; });
+  const cv = document.createElement("canvas"); cv.width = w; cv.height = h; cv.style.width = w * 2 + "px"; cv.style.height = h * 2 + "px";
+  const ctx = cv.getContext("2d"), at = (x, y) => (x < 0 || y < 0 || x >= w || y >= h) ? -1 : id[y * w + x];
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++){
+    const i = at(x, y);
+    if (i < 0){ if (at(x - 1, y) >= 0 || at(x + 1, y) >= 0 || at(x, y - 1) >= 0 || at(x, y + 1) >= 0){ ctx.fillStyle = INK; ctx.fillRect(x, y, 1, 1); } continue; }
+    const [, ramp, tex] = layers[i], lit = at(x - 1, y) !== i || at(x, y - 1) !== i, sh = at(x + 1, y) !== i || at(x, y + 1) !== i;
+    let tone = (lit && !sh ? 2 : sh && !lit ? 0 : 1) + (tex ? tex(x, y) : 0);
+    ctx.fillStyle = RAMP[ramp][Math.max(0, Math.min(3, tone))]; ctx.fillRect(x, y, 1, 1);
+  }
+  return cv;
+}
+const books = (x0, x1, base, seed) => { const out = [], cols = ["leather", "red", "green", "blue", "purple", "wood", "bone"]; let x = x0, k = seed;
+  while (x < x1 - 2){ const bw = 3 + (k * 7) % 3, bh = 11 + (k * 5) % 6; if (x + bw > x1) break; out.push([R(x, base - bh, bw, bh), cols[(k * 3) % cols.length], T.lines(5)]); x += bw; k++; } return out; };
+const chestAt = (ox, oy, band, lock) => { const body = R(ox + 4, oy + 22, 64, 28), lid = AND(U(R(ox + 4, oy + 12, 64, 12), E(ox + 36, oy + 12, 32, 11)), R(0, 0, 200, oy + 24)), all = U(body, lid);
+  return [[lid, "wood", T.planks(5)], [body, "wood", T.planks(7)], [AND(R(ox + 4, oy + 22, 64, 3), all), band, T.none],
+    [AND(R(ox + 13, 0, 7, 200), all), band, T.shine], [AND(R(ox + 52, 0, 7, 200), all), band, T.shine],
+    [R(ox + 31, oy + 18, 10, 13), lock, T.none], [R(ox + 35, oy + 23, 2, 5), "black", T.none]]; };
+
+const D1 = [
+  ["Bibliothèque", sprite(62, 88, [[LANCET(2, 2, 58, 84), "stone", T.blocks(12, 7)], [LANCET(9, 12, 44, 74), "dark", T.none],
+    [R(9, 40, 44, 3), "wood", T.none], [R(9, 60, 44, 3), "wood", T.none], [R(9, 80, 44, 3), "wood", T.none],
+    ...books(11, 51, 40, 1), ...books(11, 42, 60, 4), ...books(11, 51, 80, 8), [R(46, 52, 3, 8), "bone", T.none], [E(47.5, 49, 1.8, 3), "flame", T.none]])],
+  ["Le fil", sprite(50, 88, [[LANCET(2, 2, 46, 80), "stone", T.blocks(10, 7)], [LANCET(8, 11, 34, 66), "blue", T.shine],
+    [AND(LANCET(8, 11, 34, 66), R(8, 58, 34, 30)), "green", T.shine], [PG([[25, 26], [35, 42], [25, 58], [15, 42]]), "red", T.shine], [E(25, 42, 4, 4), "gold", T.none],
+    [AND(LANCET(8, 11, 34, 66), U(R(24, 0, 2, 100), R(0, 57, 60, 2))), "iron", T.none], [R(0, 82, 50, 5), "stone", T.none]])],
+  ["Mon profil", sprite(50, 62, [[PG([[2, 58], [44, 6], [48, 10], [6, 61]]), "iron", T.shine], [PG([[48, 58], [6, 6], [2, 10], [44, 61]]), "iron", T.shine],
+    [PG([[5, 8], [45, 8], [45, 34], [25, 58], [5, 34]]), "iron", T.none], [PG([[8, 11], [42, 11], [42, 33], [25, 54], [8, 33]]), "red", T.folds(11)],
+    [PG([[8, 26], [25, 16], [42, 26], [42, 32], [25, 22], [8, 32]]), "gold", T.none], [E(25, 38, 4, 4), "gold", T.none]])],
+  ["Succès", sprite(44, 76, [[R(6, 44, 32, 30), "stone", T.blocks(10, 6)], [R(2, 40, 40, 6), "stone", T.none], [R(4, 70, 36, 5), "stone", T.none],
+    [NOT(E(22, 16, 13, 14), R(0, 0, 44, 13)), "gold", T.shine], [R(9, 12, 26, 3), "gold", T.none], [R(20, 28, 4, 8), "gold", T.none], [E(22, 37, 9, 3), "gold", T.none], [E(22, 20, 2.5, 2.5), "red", T.none]])],
+  ["Échanges et amis", sprite(80, 66, [[R(38, 8, 3, 30), "gold", T.none], [R(16, 10, 47, 3), "gold", T.shine], [E(39.5, 8, 3, 3), "gold", T.none],
+    [R(20, 13, 1, 12), "iron", T.none], [R(58, 13, 1, 12), "iron", T.none], [NOT(E(20.5, 24, 10, 7), R(0, 0, 80, 24)), "gold", T.none], [NOT(E(58.5, 24, 10, 7), R(0, 0, 80, 24)), "gold", T.none],
+    [R(2, 38, 76, 6), "wood", T.planks(3)], [R(8, 44, 7, 20), "dark", T.none], [R(65, 44, 7, 20), "dark", T.none], [R(15, 52, 50, 4), "wood", T.none],
+    [R(48, 33, 18, 5), "paper", T.none], [E(48, 35.5, 2.5, 2.5), "paper", T.none], [R(58, 34, 3, 3), "red", T.none]])],
+  ["Coffre", sprite(74, 54, chestAt(1, 1, "iron", "gold"))],
+];
+const D2 = [
+  ["Bibliothèque", sprite(60, 88, [[PG([[6, 4], [56, 2], [54, 86], [4, 86]]), "dark", T.vplanks(9)], [R(10, 9, 40, 74), "black", T.none],
+    [R(8, 28, 44, 3), "wood", T.none], [R(8, 48, 44, 3), "wood", T.none], [R(8, 68, 44, 3), "wood", T.none], [R(8, 83, 44, 3), "wood", T.none],
+    ...books(11, 49, 28, 2), ...books(11, 36, 48, 6), ...books(24, 49, 68, 3), ...books(11, 49, 83, 9),
+    [E(42, 41, 5, 5), "bone", T.none], [R(39, 44, 6, 4), "bone", T.none], [R(40, 40, 2, 2), "black", T.none], [R(44, 40, 2, 2), "black", T.none],
+    [E(16, 62, 5, 5), "green", T.shine], [R(15, 53, 3, 5), "green", T.none], [R(14, 51, 5, 2), "wood", T.none]])],
+  ["Le fil", sprite(50, 70, [[PG([[14, 54], [36, 54], [42, 67], [8, 67]]), "gold", T.shine], [R(10, 44, 4, 12), "gold", T.none], [R(36, 44, 4, 12), "gold", T.none], [R(23, 46, 4, 10), "gold", T.none],
+    [E(25, 28, 20, 20), "blue", T.none], [E(26, 31, 11, 9), "purple", T.folds(7)], [E(27, 33, 5, 4), "blue", T.none], [E(16, 18, 5, 4), "paper", T.none], [E(33, 14, 2, 2), "paper", T.none]])],
+  ["Mon profil", sprite(44, 72, [[E(22, 30, 19, 27), "gold", T.shine], [E(22, 30, 14, 22), "iron", T.shine], [E(22, 4, 5, 3), "gold", T.none], [E(4, 30, 3, 5), "gold", T.none], [E(40, 30, 3, 5), "gold", T.none],
+    [R(20, 56, 4, 9), "gold", T.none], [E(22, 67, 12, 3.5), "gold", T.none]])],
+  ["Succès", sprite(56, 78, [[R(3, 8, 50, 66), "dark", T.vplanks(10)], [PG([[3, 8], [28, 1], [53, 8]]), "dark", T.none], [R(8, 13, 40, 56), "paper", T.none],
+    [R(8, 32, 40, 3), "wood", T.none], [R(8, 52, 40, 3), "wood", T.none],
+    [E(17, 25, 5, 6), "green", T.shine], [R(15, 15, 4, 5), "green", T.none], [E(31, 25, 5, 6), "purple", T.shine], [R(29, 15, 4, 5), "purple", T.none], [E(42, 26, 4, 5), "red", T.shine], [R(40, 17, 4, 5), "red", T.none],
+    [E(18, 45, 6, 6), "blue", T.shine], [R(16, 36, 4, 4), "blue", T.none], [E(36, 46, 7, 5), "flame", T.none], [R(34, 37, 4, 5), "gold", T.none],
+    [R(13, 58, 30, 10), "gold", T.shine], [E(28, 63, 3, 3), "red", T.none]])],
+  ["Échanges et amis", sprite(56, 80, [[R(26, 34, 4, 40), "wood", T.none], [R(14, 74, 28, 5), "dark", T.none], [R(8, 31, 40, 4), "wood", T.planks(2)],
+    [PG([[10, 22], [2, 34], [16, 29]]), "black", T.none], [E(22, 22, 11, 9), "black", T.grain], [E(32, 13, 6, 6), "black", T.none], [PG([[37, 11], [46, 14], [37, 17]]), "gold", T.none], [R(33, 11, 2, 2), "paper", T.none],
+    [R(18, 30, 2, 3), "gold", T.none], [R(24, 30, 2, 3), "gold", T.none], [R(36, 38, 14, 10), "paper", T.none], [E(43, 43, 2.5, 2.5), "red", T.none], [R(42, 34, 1, 5), "iron", T.none]])],
+  ["Coffre", sprite(74, 54, [...chestAt(1, 1, "gold", "purple"), [E(37, 26, 2, 2), "blue", T.none], [R(10, 30, 2, 2), "purple", T.none], [R(26, 40, 2, 2), "purple", T.none], [R(46, 34, 2, 2), "purple", T.none], [R(63, 42, 2, 2), "purple", T.none]])],
+];
+const D3 = [
+  ["Bibliothèque", sprite(66, 80, [[R(20, 70, 26, 8), "dark", T.none], [R(29, 42, 8, 28), "wood", T.vplanks(4)], [PG([[6, 34], [60, 34], [54, 44], [12, 44]]), "dark", T.none],
+    [PG([[4, 30], [62, 30], [62, 35], [4, 35]]), "leather", T.none], [PG([[6, 10], [32, 15], [32, 32], [6, 28]]), "paper", T.lines(4)], [PG([[60, 10], [34, 15], [34, 32], [60, 28]]), "paper", T.lines(4)],
+    [R(32, 14, 2, 19), "leather", T.none], [R(40, 19, 4, 4), "red", T.none],
+    ...[0, 1, 2, 3, 4, 5].map(i => [E(57 - i * 3.5, 38 + i * 5, 2.2, 2.2), "iron", T.none])])],
+  ["Le fil", sprite(66, 76, [[E(33, 5, 4, 4), "gold", T.none], [R(31, 8, 4, 3), "gold", T.none], [R(8, 54, 5, 21), "dark", T.none], [R(53, 54, 5, 21), "dark", T.none],
+    [R(2, 10, 62, 46), "dark", T.none], [R(5, 13, 56, 40), "wood", T.planks(8)],
+    [PG([[8, 16], [24, 15], [25, 36], [9, 37]]), "paper", T.lines(4)], [R(15, 16, 2, 2), "red", T.none], [R(28, 20, 13, 14), "paper", T.lines(3)], [R(33, 31, 3, 3), "red", T.none],
+    [PG([[44, 14], [58, 16], [57, 44], [43, 42]]), "paper", T.lines(4)], [R(50, 16, 2, 2), "iron", T.none], [R(12, 40, 16, 10), "paper", T.lines(3)], [R(30, 38, 10, 12), "bone", T.lines(4)]])],
+  ["Mon profil", sprite(44, 88, [[R(2, 3, 40, 4), "gold", T.shine], [E(3, 5, 3, 3), "gold", T.none], [E(41, 5, 3, 3), "gold", T.none],
+    [PG([[6, 7], [38, 7], [38, 68], [22, 84], [6, 68]]), "red", T.folds(10)], [PG([[6, 60], [38, 60], [38, 64], [6, 64]]), "gold", T.none],
+    [NOT(E(22, 34, 11, 11), E(22, 34, 7, 7)), "gold", T.shine], [R(22, 33, 8, 3), "gold", T.none], [E(22, 34, 2.5, 2.5), "gold", T.none]])],
+  ["Succès", sprite(54, 70, [[R(2, 2, 50, 66), "dark", T.none], [R(4, 4, 46, 62), "gold", T.shine], [R(7, 7, 40, 56), "red", T.folds(13)],
+    [R(13, 12, 5, 16), "blue", T.none], [E(15.5, 32, 6, 6), "gold", T.shine], [R(25, 12, 5, 20), "purple", T.none], [E(27.5, 37, 7, 7), "iron", T.shine],
+    [R(37, 12, 5, 16), "green", T.none], [E(39.5, 32, 6, 6), "wood", T.shine], [R(14, 50, 26, 7), "paper", T.lines(3)]])],
+  ["Échanges et amis", sprite(92, 62, [[R(2, 10, 9, 40), "dark", T.vplanks(4)], [R(2, 36, 16, 5), "wood", T.none], [R(4, 41, 3, 19), "dark", T.none], [R(13, 41, 3, 19), "dark", T.none],
+    [R(81, 10, 9, 40), "dark", T.vplanks(4)], [R(74, 36, 16, 5), "wood", T.none], [R(76, 41, 3, 19), "dark", T.none], [R(85, 41, 3, 19), "dark", T.none],
+    [R(42, 34, 8, 20), "wood", T.vplanks(4)], [E(46, 57, 16, 4), "dark", T.none], [E(46, 31, 30, 9), "dark", T.none], [E(46, 27, 30, 9), "wood", T.planks(4)],
+    [R(34, 23, 6, 5), "paper", T.none], [R(41, 25, 6, 5), "paper", T.none], [R(52, 24, 6, 5), "paper", T.none], [R(36, 24, 2, 2), "blue", T.none], [R(54, 25, 2, 2), "red", T.none]])],
+  ["Coffre", sprite(92, 70, [[R(2, 60, 88, 8), "stone", T.blocks(14, 8)], [R(8, 53, 76, 8), "stone", T.blocks(12, 8)], ...chestAt(10, 3, "iron", "gold")])],
+];
+
+const WALLS = {
+  s1: "repeating-linear-gradient(0deg,#0000 0 30px,#8f8266 30px 32px),repeating-linear-gradient(90deg,#b9ab8e 0 62px,#8f8266 62px 64px)",
+  s2: "repeating-linear-gradient(90deg,#c9b994 0 46px,#a89676 46px 48px)",
+  s3: "linear-gradient(#8a3b12 0 26px,#2b1d10 26px 28px,#f0b429 28px 32px,#2b1d10 32px 34px,#d6cbb0 34px 100%)",
+};
+const FLOORS = {s1: "repeating-linear-gradient(90deg,#8f6a43 0 78px,#5c4026 78px 80px)", s2: "repeating-linear-gradient(90deg,#5c4026 0 38px,#3d2817 38px 40px)", s3: "repeating-conic-gradient(#b9ab8e 0 25%,#8f8266 0 50%) 0 0/40px 40px"};
+function scene(id, objs){
+  const host = document.getElementById(id); host.style.background = WALLS[id];
+  const floor = document.createElement("div"); floor.className = "floor"; floor.style.background = FLOORS[id]; host.appendChild(floor);
+  const widths = objs.map(([, cv]) => cv.width * 2), total = widths.reduce((a, b) => a + b, 0), gap = (1000 - total) / (objs.length + 1);
+  let x = gap;
+  objs.forEach(([name, cv], i) => { const o = document.createElement("div"); o.className = "obj"; o.style.left = Math.round(x) + "px";
+    const cap = document.createElement("span"); cap.className = "cap"; cap.textContent = name; o.append(cv, cap); host.appendChild(o); x += widths[i] + gap; });
+}
+scene("s1", D1); scene("s2", D2); scene("s3", D3);
+</script>
+</body>
+</html>

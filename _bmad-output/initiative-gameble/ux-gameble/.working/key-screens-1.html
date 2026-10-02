@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gameble — écrans clés</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&family=Almendra:wght@400;700&family=Cinzel:wght@500;700&family=Grenze+Gotisch:wght@500;700&family=IM+Fell+English&family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Palette « Parchemin au grand jour » : bg #e9dcc0 · surface #f4ead2 · surface-sunken #e2d1ad · ink #2b1d10 · muted #6b5640 · accent #8a3b12
+   Pierre (proposition) : #b9ab8e · #8f8266 — bois : #5c4026 · #8f6a43 · #c4a173 */
+:root{--bg:#e9dcc0;--surface:#f4ead2;--sunken:#e2d1ad;--ink:#2b1d10;--muted:#6b5640;--accent:#8a3b12;--ft:"IM Fell English",serif;--fb:"Alegreya",serif}
+*{box-sizing:border-box}
+body{margin:0;padding:24px 16px 80px;background:var(--bg);color:var(--ink);font-family:ui-monospace,"DejaVu Sans Mono",Menlo,Consolas,monospace;font-size:14px;line-height:1.5}
+h1{font-size:20px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px}
+h2{font-size:16px;margin:48px 0 4px;text-transform:uppercase;border-bottom:4px solid var(--ink);padding-bottom:4px}
+p.note{margin:4px 0 12px;max-width:86ch;color:var(--muted)}
+.lab{font-size:11px;margin:14px 0 6px;color:var(--accent);font-weight:700;text-transform:uppercase}
+.picker{position:sticky;top:0;z-index:20;background:var(--bg);padding:8px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-bottom:2px solid var(--ink)}
+.picker button{font:inherit;font-weight:700;padding:5px 10px;border:2px solid var(--ink);background:var(--surface);color:var(--ink);box-shadow:2px 2px 0 var(--ink);cursor:pointer}
+.picker button[aria-pressed="true"]{background:var(--accent);color:var(--surface)}
+canvas{display:block;image-rendering:pixelated}
+svg{display:block}
+.row{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+
+/* Écrans */
+.screen,.phone{position:relative;border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);background:var(--bg);font-family:var(--fb);font-size:15px;line-height:1.3;overflow:hidden}
+.screen{width:960px;max-width:100%}
+.phone{width:364px;border-width:4px}
+.t{font-family:var(--ft);font-weight:700}
+.band{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 10px;background:var(--surface);border-bottom:2px solid var(--ink);flex-wrap:wrap}
+.gauge{position:relative;width:340px;max-width:100%;height:26px;border:2px solid var(--ink);background:var(--bg)}
+.gauge i{position:absolute;inset:0 auto 0 0;width:62%;background:var(--accent)}
+.gauge span{position:absolute;inset:0;display:flex;align-items:center;padding:0 8px;font-family:var(--ft);font-weight:700;font-size:14px;color:var(--surface);text-shadow:1px 1px 0 var(--ink),-1px 0 0 var(--ink),0 -1px 0 var(--ink)}
+.status{display:flex;align-items:center;gap:10px;font-family:var(--ft);font-weight:700;font-size:14px}
+.status .packs{border:2px solid var(--ink);background:var(--accent);color:var(--surface);padding:2px 8px}
+.cnt{display:inline-flex;align-items:center;gap:3px}
+.dot{width:10px;height:10px;border:2px solid var(--ink);display:inline-block}
+.btn{display:inline-block;font-family:var(--ft);font-weight:700;font-size:15px;background:var(--accent);color:var(--surface);border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);padding:5px 12px}
+.btn.alt{background:var(--surface);color:var(--ink)}
+.panel{background:var(--surface);border:2px solid var(--ink);box-shadow:2px 2px 0 var(--ink);padding:10px 12px}
+
+/* Grenier */
+.room{position:relative;height:440px;background:
+  linear-gradient(#0000 0 0) , repeating-linear-gradient(0deg,#0000 0 30px,#8f8266 30px 32px), repeating-linear-gradient(90deg,#b9ab8e 0 62px,#8f8266 62px 64px);background-color:#b9ab8e}
+.floor{position:absolute;left:0;right:0;bottom:0;height:130px;border-top:2px solid var(--ink);background:repeating-linear-gradient(90deg,#8f6a43 0 78px,#5c4026 78px 80px)}
+.obj{position:absolute;display:flex;flex-direction:column;align-items:center;gap:4px}
+.obj .cap{font-family:var(--ft);font-weight:700;font-size:13px;background:var(--surface);border:2px solid var(--ink);padding:0 6px;white-space:nowrap}
+.timer{font-family:var(--ft);font-weight:700;font-size:14px;background:var(--surface);border:2px solid var(--ink);padding:1px 8px}
+.bonus{position:absolute;width:190px}
+.bonus .t{font-size:16px}
+
+/* Cartes */
+.cardbox{position:relative;box-shadow:2px 2px 0 var(--ink);flex:none}
+.cardtxt{position:absolute;overflow:hidden;font-family:var(--ft);color:var(--ink);line-height:1.05;display:flex;flex-direction:column;justify-content:center}
+.cardtxt b{font-weight:700}
+.cardtxt small{color:var(--muted);font-size:.8em}
+.cards{display:flex;flex-wrap:wrap;gap:12px}
+.slot{width:160px;height:240px;border:2px dashed var(--muted);background:var(--sunken);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px;gap:4px;flex:none}
+.slot .t{font-size:15px}
+.slot small{color:var(--muted)}
+
+/* Bibliothèque */
+.lib{display:grid;grid-template-columns:170px 1fr;gap:14px;padding:12px}
+.shelf{background:#5c4026;border:2px solid var(--ink);padding:6px;display:flex;flex-direction:column;gap:5px}
+.tome{font-family:var(--ft);font-weight:700;font-size:13px;background:#7a3410;color:var(--surface);border:2px solid var(--ink);padding:3px 6px}
+.tome.open{background:var(--accent);box-shadow:2px 2px 0 var(--ink)}
+.tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.tab{font-family:var(--ft);font-weight:700;font-size:14px;border:2px solid var(--ink);background:var(--surface);padding:2px 10px}
+.tab.on{background:var(--accent);color:var(--surface)}
+
+/* Échange */
+.side{padding:10px 12px}
+.side.them{background:var(--sunken)}
+.mid{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface);border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+
+/* Page partagée */
+.shared{display:grid;grid-template-columns:auto 1fr 250px;gap:16px;padding:14px}
+.shared h3,.side h3{font-family:var(--ft);font-size:20px;margin:0 0 6px}
+.feed{font-size:14px;margin:6px 0 0;padding:0;list-style:none}
+.feed li{border-top:2px solid var(--sunken);padding:4px 0}
+.phone .shared,.phone .lib{grid-template-columns:1fr}
+.dots{display:flex;gap:6px;justify-content:center;margin:8px 0}
+.dots i{width:10px;height:10px;border:2px solid var(--ink);background:var(--surface)}
+.dots i.on{background:var(--accent)}
+</style>
+</head>
+<body>
+<h1>Écrans clés</h1>
+<p class="note">Maquettes de placement et de ton, pas le dessin final : les meubles, le coffre et les décors sont des croquis en pixels. Les cartes viennent des planches déjà validées. Les noms de tomes, les compteurs et les lignes du fil sont des exemples.</p>
+<div class="picker" id="picker"><span>Police des titres :</span></div>
+<p class="note">Le sélecteur change la police de tous les écrans, y compris le titre des cartes. « Pixelify Sans » est la police pixel de référence ; les quatre autres sont lisses. Toutes sont sous licence libre (OFL) et couvrent les accents français. Le texte courant est en Alegreya.</p>
+
+<h2>1 — Le grenier (écran d'arrivée)</h2>
+<p class="note">Les meubles sont les portes : leur nom s'affiche au survol ou au focus, et reste affiché ici pour la lecture. La jauge est en haut à gauche ; en haut à droite, les packs disponibles et les cartes possédées par rareté. Le bonus du jour est un encart d'interface à côté du coffre. Les murs de pierre sont une proposition pour le côté « château ».</p>
+<div class="screen" id="attic"></div>
+
+<h2>2 — L'ouverture d'un pack</h2>
+<p class="note">Cinq cartes face cachée. De gauche à droite : deux cartes retournées, une carte essuyée dont on voit le sceau saphir, deux cartes encore sous la poussière.</p>
+<div class="screen" id="reveal"></div>
+
+<h2>3 — La bibliothèque, un tome ouvert</h2>
+<p class="note">À gauche l'étagère et ses tomes ; à droite le tome ouvert, avec ses cartes et ses cases vides qui nomment le jeu manquant.</p>
+<div class="screen" id="library"></div>
+
+<h2>4 — Le plateau d'échange (en différé)</h2>
+<p class="note">Hugo rouvre l'échange : Léa a posé ses cartes en réponse aux siennes. Il accepte ou fait une contre-proposition.</p>
+<div class="screen" id="trade"></div>
+
+<h2>5 — La carte partagée, sans compte</h2>
+<p class="note">Ce que voit Léa en cliquant sur le lien de Hugo : la carte, ses infos, l'appel à l'action et un extrait du fil.</p>
+<div class="screen" id="shared"></div>
+
+<h2>6 — Sur téléphone : propositions</h2>
+<p class="note">Rien n'est décidé pour le téléphone. Avec la règle du pixel ×2, une carte fait au moins 160 px de large : deux tiennent de front. Deux options pour l'ouverture d'un pack, puis le grenier et l'échange.</p>
+<div class="row" id="phones"></div>
+
+<script>
+const makeBack = (() => { 
+const W = 80, H = 120, CX = 39.5, CY = 59.5;
+const C = {ink:"#2b1d10", leather:"#7a3410", leatherD:"#64290c", paper:"#e2d1ad", dust:"#a89676", dustL:"#c9b994"};
+const BRASS = {D:"#5c4026", M:"#8f6a43", L:"#c4a173", H:"#ecdcb8"};
+const GOLD = {D:"#a8741a", M:"#f0b429", L:"#ffe08a", H:"#fff6d0"};
+const STEEL = {m:"#7d8a99", d:"#56616e", l:"#aab6c2"}, PURPLE = {m:"#8e44c9", d:"#612b8f", l:"#b97be8"},
+  GOLDS = {m:"#f0b429", d:"#a8741a", l:"#ffe08a"};
+const SETS = [
+  [STEEL, {m:"#2e9e4f", d:"#1d6e36", l:"#63cf7e"}, {m:"#2b6fd6", d:"#1c4a99", l:"#6aa3f2"}, PURPLE, GOLDS],
+  [STEEL, {m:"#1fa39a", d:"#13706a", l:"#5fd6cc"}, {m:"#d42b2b", d:"#8f1818", l:"#f26d5e"}, PURPLE, GOLDS],
+];
+const G = [".####","#....","#..##","#...#",".####"];
+const hash = (x, y) => { const s = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453; return s - Math.floor(s); };
+
+function tools(ctx){
+  const px = (x, y, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, 1, 1); };
+  const rect = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+  const frame = (x, y, w, h, c) => { rect(x, y, w, 1, c); rect(x, y + h - 1, w, 1, c); rect(x, y, 1, h, c); rect(x + w - 1, y, 1, h, c); };
+  const each = (fn) => { for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) fn(x, y); };
+  const sym = (x, y, c) => { px(x, y, c); px(W - 1 - x, y, c); px(x, H - 1 - y, c); px(W - 1 - x, H - 1 - y, c); };
+  const tb = (x, y, c) => { px(x, y, c); px(x, H - 1 - y, c); };
+  const blend = (x, y, c, a) => { ctx.globalAlpha = a; px(x, y, c); ctx.globalAlpha = 1; };
+  return {px, rect, frame, each, sym, tb, blend};
+}
+function lozenge(put, cx, cy, half, fill, light){
+  for (let y = Math.floor(cy - half - 1); y <= cy + half + 1; y++) for (let x = Math.floor(cx - half - 1); x <= cx + half + 1; x++){
+    const m = Math.abs(x - cx) + Math.abs(y - cy);
+    if (m <= half + 0.5) put(x, y, m > half - 0.8 ? C.ink : (x < cx && y < cy) ? light : fill);
+  }
+}
+
+function base(t, M, pat, legendary){
+  t.rect(0, 0, W, H, C.ink);
+  t.rect(1, 1, W - 2, H - 2, M.M);
+  t.rect(1, 1, W - 2, 1, M.L); t.rect(1, 1, 1, H - 2, M.L);
+  t.rect(1, H - 2, W - 2, 1, M.D); t.rect(W - 2, 1, 1, H - 2, M.D);
+  t.rect(4, 4, W - 8, H - 8, C.ink);
+  t.rect(5, 5, W - 10, H - 10, C.leather);
+  for (let y = 5; y < H - 5; y++) for (let x = 5; x < W - 5; x++){
+    const on = pat === 0 ? ((x + y) % 8 === 0 || (x - y + 800) % 8 === 0)
+      : pat === 1 ? (x % 5 === 0)
+      : (x % 4 === 1 && y % 4 === 1);
+    if (on) t.px(x, y, C.leatherD);
+  }
+  t.frame(8, 8, W - 16, H - 16, M.M);
+  if (legendary) t.frame(10, 10, W - 20, H - 20, M.D);
+  for (let x = 16; x < W / 2; x += 8) t.sym(x, 8, M.H);
+  for (let y = 16; y < H / 2 - 12; y += 8) t.sym(8, y, M.H);
+}
+function corners(t, M, type){
+  for (let i = 0; i <= 13; i++) for (let j = 0; j <= 13; j++){
+    let c = null;
+    if (type === 0){ if (j <= 12 - i) c = j === 12 - i ? C.ink : (i === 0 || j === 0) ? M.L : M.M; }
+    else if (type === 1){ const d = Math.hypot(i, j); if (d <= 13) c = d > 11.8 ? C.ink : (i === 0 || j === 0) ? M.L : d > 9 && d < 10 ? M.D : M.M; }
+    else { if (i <= 9 && j <= 9) c = (i === 9 || j === 9) ? C.ink : (i === 0 || j === 0) ? M.L : (i >= 3 && i <= 6 && j >= 3 && j <= 6) ? ((i === 3 || j === 3) ? M.D : M.H) : M.M; }
+    if (c) t.sym(5 + j, 5 + i, c);
+  }
+  if (type !== 2){ t.sym(7, 7, M.H); t.sym(8, 7, M.H); t.sym(7, 8, M.H); t.sym(8, 8, M.D); }
+}
+function topBottom(t, M, type, gem){
+  if (type === 0 || type === 1){
+    const cy = type === 0 ? 31 : 17;
+    for (let y = 9; y <= 38; y++) for (let x = 9; x <= 70; x++){
+      const d = Math.hypot(x - CX, y - cy), keep = type === 0 ? y <= cy : y >= cy;
+      if (!keep) continue;
+      if (d >= 11.5 && d <= 18.5) t.tb(x, y, C.ink);
+      if (d >= 12.5 && d <= 17.5) t.tb(x, y, d > 16.3 ? M.L : d < 13.5 ? M.D : M.M);
+    }
+    lozenge(t.tb, CX, type === 0 ? cy - 6 : cy + 7, 4, gem.m, gem.l);
+  } else if (type === 2){
+    for (let x = 18; x <= 61; x++){ t.tb(x, 26, C.ink); t.tb(x, 27, M.L); t.tb(x, 28, C.ink); }
+    lozenge(t.tb, CX - 15, 27, 4, M.M, M.L); lozenge(t.tb, CX + 15, 27, 4, M.M, M.L);
+    lozenge(t.tb, CX, 27, 9, M.M, M.L); lozenge(t.tb, CX, 27, 4, gem.m, gem.l);
+  } else {
+    for (const [apex, hw] of [[34, 17], [24, 10]]) for (let x = Math.ceil(CX - hw); x <= CX + hw; x++){
+      const y0 = Math.round(apex - Math.abs(x - CX) * 0.75);
+      t.tb(x, y0 - 4, C.ink); t.tb(x, y0 - 3, M.L); t.tb(x, y0 - 2, M.M); t.tb(x, y0 - 1, M.D); t.tb(x, y0, C.ink);
+    }
+    lozenge(t.tb, CX, 14, 3, gem.m, gem.l);
+  }
+}
+function strap(t, M, type){
+  if (type === 2){
+    for (const y of [52, 61]){ t.rect(1, y, W - 2, 7, C.ink); t.rect(1, y + 1, W - 2, 5, M.M); t.rect(1, y + 1, W - 2, 1, M.L); t.rect(1, y + 5, W - 2, 1, M.D); }
+    return;
+  }
+  t.rect(1, 52, W - 2, 16, C.ink); t.rect(1, 53, W - 2, 14, M.M);
+  t.rect(1, 53, W - 2, 1, M.L); t.rect(1, 66, W - 2, 1, M.D);
+  for (let x = 4; x < W - 6; x += (type === 0 ? 8 : 7)){
+    if (Math.abs(x + 2 - CX) < 22) continue;
+    if (type === 0){ t.rect(x + 2, 59, 2, 2, M.H); t.px(x + 3, 60, M.D); }
+    else { t.frame(x, 57, 6, 6, M.D); t.px(x, 57, M.H); t.px(x + 1, 57, M.H); }
+  }
+}
+function medallion(t, M, legendary){
+  if (legendary) for (let k = 0; k < 16; k++){
+    const a = k * Math.PI / 8 + Math.PI / 16, far = k % 2 ? 27 : 32;
+    for (let r = 21; r <= far; r++){ const x = Math.round(CX + Math.cos(a) * r), y = Math.round(CY + Math.sin(a) * r); if (y < 51 || y > 68) t.px(x, y, r % 3 ? GOLD.M : GOLD.L); }
+  }
+  t.each((x, y) => { const dx = x - CX, dy = y - CY, d = Math.hypot(dx, dy);
+    if (d <= 19.5) t.px(x, y, d > 18.5 ? C.ink : d > 16.8 ? (dx + dy < 0 ? M.L : M.D) : d > 14.6 ? M.M : d > 13.6 ? C.ink : C.paper); });
+}
+function letterG(t, colour, lit){
+  const ox = 35, oy = 55;
+  G.forEach((r, j) => { for (let i = 0; i < 5; i++) if (r[i] === "#") for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++){
+    const x = ox + i * 2 + a, y = oy + j * 2 + b; if (lit) t.px(x + 1, y + 1, lit); t.px(x, y, colour); } });
+}
+function blob(t, r, S, scallop){
+  t.each((x, y) => { const dx = x - CX, dy = y - CY, d = Math.hypot(dx, dy), a = Math.atan2(dy, dx);
+    const rr = r + (scallop ? Math.cos(a * scallop) * 1.2 : Math.sin(a * 5) * 0.8 + Math.cos(a * 3) * 0.6);
+    if (d <= rr) t.px(x, y, d > rr - 1.6 ? (dx + dy < 0 ? S.l : S.d) : S.m); });
+}
+function seal(t, tier, S){
+  const ring = (r1, r2, c) => t.each((x, y) => { const d = Math.hypot(x - CX, y - CY); if (d >= r1 && d <= r2) t.px(x, y, c); });
+  if (tier === 0){ ring(9.6, 11.4, S.m); ring(7.4, 8.1, S.l); letterG(t, S.d, null); }
+  else if (tier === 1){ ring(9.6, 11.6, S.m); ring(7.2, 8.0, S.d); letterG(t, S.d, null);
+  } else if (tier === 2 || tier === 3){
+    if (tier === 3) for (let k = 0; k < 26; k++) for (const s of [-1, 1]) for (let w = 0; w < 7; w++){
+      if (k > 22 && Math.abs(w - 3) < k - 22) continue;
+      t.px(Math.round(CX + s * (3 + k * 0.45 + w)), 70 + k, w === 0 || w === 6 ? S.d : w === 2 ? S.l : S.m);
+    }
+    blob(t, 11.5, S, 0); letterG(t, S.d, S.l);
+  } else {
+    blob(t, 12.5, S, 12); letterG(t, S.d, S.l);
+    for (const [x, y] of [[20, 44], [58, 40], [62, 78], [17, 74], [28, 96], [52, 22], [24, 20], [56, 99]]){ t.px(x, y, GOLD.H); t.px(x + 1, y, GOLD.L); t.px(x, y + 1, GOLD.L); t.px(x - 1, y, GOLD.L); t.px(x, y - 1, GOLD.L); }
+  }
+}
+function dust(t, tier){
+  const reach = [0, 0.24, 0.48, 0.8, 1.6][tier], maxA = [0, 0.62, 0.74, 0.84, 0.93][tier];
+  if (!reach) return;
+  t.each((x, y) => {
+    const ex = Math.min(x, W - 1 - x) / (W / 2), ey = Math.min(y, H - 1 - y) / (H / 2);
+    const d = 0.6 * Math.min(ex, ey) + 0.4 * (1 - Math.hypot(1 - ex, 1 - ey) / Math.SQRT2);
+    const clump = 0.75 + 0.5 * hash((x >> 2) + 11, (y >> 2) + 5);
+    const a = Math.max(0, Math.min(1, (reach * clump - d) / 0.3)) * maxA * (0.72 + 0.28 * hash(x + 7, y + 3));
+    if (a > 0.03) t.blend(x, y, hash(y, x) < 0.3 ? C.dustL : C.dust, a);
+  });
+}
+
+function back(o){
+  const scale = o.scale || 3, legendary = o.tier === 4, M = legendary ? GOLD : BRASS, S = SETS[o.set || 0][o.tier];
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  cv.style.width = W * scale + "px"; cv.style.height = H * scale + "px";
+  const t = tools(cv.getContext("2d"));
+  base(t, M, o.pat || 0, legendary); corners(t, M, o.corner || 0); topBottom(t, M, o.top || 0, S);
+  strap(t, M, o.strap || 0); medallion(t, M, legendary); seal(t, o.tier, S); dust(t, o.dust || 0);
+  return cv;
+}
+function add(hostId, label, o){
+  const wrap = document.createElement("div"), lab = document.createElement("div");
+  lab.className = "lab"; lab.textContent = label; wrap.append(lab, back(o)); document.getElementById(hostId).appendChild(wrap);
+}
+
+ return back; })();
+const FACE = (() => { 
+const CDN = "https://cdn.akamai.steamstatic.com/steam/apps/";
+const C = {ink:"#2b1d10", surface:"#f4ead2", paperD:"#e2d1ad", muted:"#6b5640", rust:"#8a3b12"};
+const BRASS = {D:"#5c4026", M:"#8f6a43", L:"#c4a173"}, GOLD = {D:"#a8741a", M:"#f0b429", L:"#ffe08a"};
+const RARITY = [
+  {name: "Commune — acier", m:"#7d8a99", d:"#56616e", l:"#aab6c2"},
+  {name: "Émeraude", m:"#2e9e4f", d:"#1d6e36", l:"#63cf7e"},
+  {name: "Saphir", m:"#2b6fd6", d:"#1c4a99", l:"#6aa3f2"},
+  {name: "Améthyste", m:"#8e44c9", d:"#612b8f", l:"#b97be8"},
+  {name: "Légendaire — or", m:"#f0b429", d:"#a8741a", l:"#ffe08a"},
+];
+const GAMES = [
+  {id: 105600, title: "Terraria", pub: "Re-Logic", year: 2011},
+  {id: 413150, title: "Stardew Valley", pub: "ConcernedApe", year: 2016},
+  {id: 1145360, title: "Hades", pub: "Supergiant Games", year: 2020},
+  {id: 620, title: "Portal 2", pub: "Valve", year: 2011},
+  {id: 220, title: "Half-Life 2", pub: "Valve", year: 2004},
+];
+const SIZES = {big: {W: 120, H: 180, F: 6}, small: {W: 80, H: 120, F: 4}};
+const FONT = {
+  A:[".###.","#...#","#####","#...#","#...#"], B:["####.","#...#","####.","#...#","####."],
+  C:[".####","#....","#....","#....",".####"], D:["####.","#...#","#...#","#...#","####."],
+  E:["#####","#....","####.","#....","#####"], F:["#####","#....","####.","#....","#...."],
+  G:[".####","#....","#..##","#...#",".####"], H:["#...#","#...#","#####","#...#","#...#"],
+  I:["###",".#.",".#.",".#.","###"], J:["..###","...#.","...#.","#..#.",".##.."],
+  K:["#..#","#.#.","##..","#.#.","#..#"], L:["#....","#....","#....","#....","#####"],
+  M:["#...#","##.##","#.#.#","#...#","#...#"], N:["#...#","##..#","#.#.#","#..##","#...#"],
+  O:[".###.","#...#","#...#","#...#",".###."], P:["####.","#...#","####.","#....","#...."],
+  Q:[".###.","#...#","#.#.#","#..#.",".##.#"], R:["####.","#...#","####.","#.#..","#..#."],
+  S:[".####","#....",".###.","....#","####."], T:["#####","..#..","..#..","..#..","..#.."],
+  U:["#...#","#...#","#...#","#...#",".###."], V:["#...#","#...#","#...#",".#.#.","..#.."],
+  W:["#...#","#...#","#.#.#","##.##","#...#"], X:["#...#",".#.#.","..#..",".#.#.","#...#"],
+  Y:["#...#",".#.#.","..#..","..#..","..#.."], Z:["#####","...#.","..#..",".#...","#####"],
+  0:[".###.","#..##","#.#.#","##..#",".###."], 1:[".#.","##.",".#.",".#.","###"],
+  2:["####.","....#",".###.","#....","#####"], 3:["####.","....#",".###.","....#","####."],
+  4:["#..#.","#..#.","#####","...#.","...#."], 5:["#####","#....","####.","....#","####."],
+  6:[".###.","#....","####.","#...#",".###."], 7:["#####","....#","...#.","..#..","..#.."],
+  8:[".###.","#...#",".###.","#...#",".###."], 9:[".###.","#...#",".####","....#",".###."],
+  "-":["...","...","###","...","..."], " ":["..","..","..","..",".."],
+  "©":[".####.","#.##.#","#.#..#","#.##.#",".####."],
+};
+const norm = (s) => s.toUpperCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+const glyph = (ch) => FONT[ch] || FONT[" "];
+const width = (s) => { let n = 0; for (const ch of s) n += glyph(ch)[0].length + 1; return n - 1; };
+function wrap(str, maxW){
+  const lines = []; let cur = "";
+  for (const w of norm(str).split(" ")){ const next = cur ? cur + " " + w : w; if (cur && width(next) > maxW){ lines.push(cur); cur = w; } else cur = next; }
+  lines.push(cur); return lines;
+}
+
+function reduceColours(ctx, x0, y0, w, h, n){
+  const img = ctx.getImageData(x0, y0, w, h), d = img.data, px = [];
+  for (let i = 0; i < d.length; i += 4) px.push([d[i], d[i + 1], d[i + 2]]);
+  let boxes = [px.slice()];
+  while (boxes.length < n){
+    let best = -1, bestRange = 0, bestCh = 0;
+    boxes.forEach((b, bi) => { if (b.length < 2) return;
+      for (let c = 0; c < 3; c++){ let lo = 255, hi = 0; for (const p of b){ if (p[c] < lo) lo = p[c]; if (p[c] > hi) hi = p[c]; }
+        if (hi - lo > bestRange){ bestRange = hi - lo; best = bi; bestCh = c; } } });
+    if (best < 0) break;
+    const b = boxes[best].sort((p, q) => p[bestCh] - q[bestCh]), mid = b.length >> 1;
+    boxes.splice(best, 1, b.slice(0, mid), b.slice(mid));
+  }
+  const pal = boxes.map(b => { const s = [0, 0, 0]; for (const p of b){ s[0] += p[0]; s[1] += p[1]; s[2] += p[2]; } return s.map(v => v / b.length); });
+  for (let i = 0; i < d.length; i += 4){
+    let bi = 0, bd = Infinity;
+    for (let k = 0; k < pal.length; k++){ const dr = d[i] - pal[k][0], dg = d[i + 1] - pal[k][1], db = d[i + 2] - pal[k][2], dist = dr * dr + dg * dg + db * db; if (dist < bd){ bd = dist; bi = k; } }
+    d[i] = pal[bi][0]; d[i + 1] = pal[bi][1]; d[i + 2] = pal[bi][2];
+  }
+  ctx.putImageData(img, x0, y0);
+}
+
+function drawFace(ctx, o, img){
+  const {W, H, F} = SIZES[o.size], big = o.size === "big", S = RARITY[o.tier], M = o.tier === 4 ? GOLD : BRASS, g = o.game;
+  const rect = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+  const text = (str, x, y, c) => { for (const ch of str){ const gl = glyph(ch);
+    gl.forEach((r, j) => { for (let i = 0; i < r.length; i++) if (r[i] === "#") rect(x + i, y + j, 1, 1, c); }); x += gl[0].length + 1; } };
+  // Reliure : métal, filet d'encre, liseré de rareté, filet d'encre.
+  rect(0, 0, W, H, C.ink);
+  rect(1, 1, W - 2, H - 2, M.M); rect(1, 1, W - 2, 1, M.L); rect(1, 1, 1, H - 2, M.L); rect(1, H - 2, W - 2, 1, M.D); rect(W - 2, 1, 1, H - 2, M.D);
+  rect(F - 2, F - 2, W - 2 * (F - 2), H - 2 * (F - 2), C.ink);
+  rect(F - 1, F - 1, W - 2 * (F - 1), H - 2 * (F - 1), S.m);
+  rect(F - 1, F - 1, W - 2 * (F - 1), 1, S.l); rect(F - 1, F - 1, 1, H - 2 * (F - 1), S.l);
+  rect(F + 1, F + 1, W - 2 * (F + 1), H - 2 * (F + 1), C.ink);
+  const ix = F + 2, iy = F + 2, iw = W - 2 * (F + 2), ih = H - 2 * (F + 2);
+  rect(ix, iy, iw, ih, C.surface);
+  // Fenêtre de l'image.
+  let ax = ix, ay = iy, aw = iw, ah = ih;
+  if (o.variant === "B"){ aw = iw - (big ? 16 : 10); ah = Math.round(aw * 1.5); ax = ix + (iw - aw) / 2; ay = iy + (big ? 4 : 3);
+    rect(ax - 1, ay - 1, aw + 2, ah + 2, C.ink); }
+  rect(ax, ay, aw, ah, C.paperD);
+  if (img){
+    const ratio = aw / ah, ir = img.width / img.height; let sw = img.width, sh = img.height;
+    if (ir > ratio) sw = img.height * ratio; else sh = img.width / ratio;
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, ax, ay, aw, ah);
+    reduceColours(ctx, ax, ay, aw, ah, 16);
+  }
+  // Texte : titre, puis éditeur sur la grande taille.
+  const pad = 3, lines = wrap(g.title, iw - 2 * pad).slice(0, 2).map(l => [l, C.ink]);
+  if (big) for (const l of wrap("© " + g.pub, iw - 2 * pad).slice(0, 2)) lines.push([l, C.muted]);
+  const blockH = lines.length * 7 - 2;
+  let ty, stampY;
+  if (o.variant === "A"){
+    const ph = blockH + 6, py = iy + ih - ph;
+    rect(ix, py - 2, iw, 1, C.ink); rect(ix, py - 1, iw, 1, S.m); rect(ix, py, iw, ph, C.surface); rect(ix, py, iw, 1, C.ink);
+    ty = py + 4; stampY = py - 2 - (big ? 10 : 8); o._plate = {y: py, h: ph};
+  } else { ty = ay + ah + (big ? 5 : 3); stampY = ay + ah - (big ? 10 : 8); }
+  if (!o.htmlText) lines.forEach(([l, c], i) => text(l, ix + pad, ty + i * 7, c));
+  // Étiquette de l'année, en haut à gauche de l'image.
+  const yr = String(g.year), yw = width(yr) + 4;
+  rect(ax + 2, ay + 2, yw + 2, 11, C.ink); rect(ax + 3, ay + 3, yw, 9, C.surface); text(yr, ax + 5, ay + 5, C.ink);
+  // Sceau de saison, en bas à droite de l'image.
+  const r = big ? 8 : 7, cx = ax + aw - r - 3 + 0.5, cy = stampY + 0.5;
+  for (let y = Math.floor(cy - r - 1); y <= cy + r + 1; y++) for (let x = Math.floor(cx - r - 1); x <= cx + r + 1; x++){
+    const d = Math.hypot(x - cx, y - cy);
+    if (d <= r + 0.6) rect(x, y, 1, 1, d > r - 0.4 ? C.ink : d > r - 2 ? C.rust : C.surface);
+  }
+  text("S1", Math.round(cx - 4.5), Math.round(cy - 2.5), C.rust);
+}
+
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const SPARKS = [[0.2, 0.15], [0.75, 0.1], [0.85, 0.45], [0.15, 0.55], [0.6, 0.7], [0.35, 0.33], [0.9, 0.8]];
+function shimmer(cv, o){
+  const {W, H} = SIZES[o.size], ctx = cv.getContext("2d"), snap = ctx.getImageData(0, 0, W, H);
+  let tick = 0;
+  const frame = () => {
+    ctx.putImageData(snap, 0, 0);
+    const pos = (tick * 4) % (W + H * 0.5 + 90) - 20;
+    if (!reduceMotion) for (let y = 1; y < H - 1; y++){
+      const x0 = Math.round(pos - (H - y) * 0.5);
+      for (const [dx, w, a] of [[0, 9, 0.22], [2, 5, 0.25], [4, 1, 0.35]]){
+        const xs = Math.max(1, x0 + dx), xe = Math.min(W - 1, x0 + dx + w);
+        if (xe > xs){ ctx.globalAlpha = a; ctx.fillStyle = "#fff6d0"; ctx.fillRect(xs, y, xe - xs, 1); }
+      }
+    }
+    ctx.globalAlpha = 1;
+    SPARKS.forEach(([fx, fy], i) => {
+      if (!reduceMotion && (tick + i * 5) % 18 > 5) return;
+      const x = Math.round(fx * W), y = Math.round(fy * H);
+      ctx.fillStyle = "#ffe08a"; ctx.fillRect(x - 1, y, 3, 1); ctx.fillRect(x, y - 1, 1, 3);
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(x, y, 1, 1);
+    });
+    tick++;
+  };
+  frame();
+  if (!reduceMotion) setInterval(frame, 90);
+}
+
+const cache = {};
+function loadImage(id){
+  if (!cache[id]) cache[id] = new Promise(res => { const img = new Image(); img.crossOrigin = "anonymous";
+    img.onload = () => res(img); img.onerror = () => res(null); img.src = CDN + id + "/library_600x900.jpg"; });
+  return cache[id];
+}
+function face(o){
+  const {W, H} = SIZES[o.size], cv = document.createElement("canvas");
+  cv.width = W; cv.height = H; cv.style.width = W * 2 + "px"; cv.style.height = H * 2 + "px";
+  const ctx = cv.getContext("2d", {willReadFrequently: true});
+  drawFace(ctx, o, null);
+  loadImage(o.game.id).then(img => { drawFace(ctx, o, img); if (o.tier === 4) shimmer(cv, o); });
+  const wrapEl = document.createElement("div"), lab = document.createElement("div");
+  lab.className = "lab"; lab.textContent = RARITY[o.tier].name; wrapEl.append(lab, cv);
+  return wrapEl;
+}
+ return {drawFace, shimmer, loadImage, SIZES, GAMES}; })();
+const [TERRARIA, STARDEW, HADES, PORTAL, HL2] = FACE.GAMES;
+const RAR = ["#7d8a99", "#2e9e4f", "#2b6fd6", "#8e44c9", "#f0b429"];
+
+function el(tag, cls, html){ const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+function cardFace(game, tier, size){
+  const o = {game, tier, variant: "A", size, htmlText: true}, {W, H, F} = FACE.SIZES[size], big = size === "big";
+  const box = el("div", "cardbox"); box.style.width = W * 2 + "px"; box.style.height = H * 2 + "px";
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H; cv.style.width = W * 2 + "px"; cv.style.height = H * 2 + "px";
+  const ctx = cv.getContext("2d", {willReadFrequently: true});
+  FACE.drawFace(ctx, o, null);
+  FACE.loadImage(game.id).then(img => { FACE.drawFace(ctx, o, img); if (tier === 4) FACE.shimmer(cv, o); });
+  const txt = el("div", "cardtxt", `<b>${game.title}</b>` + (big ? `<small>© ${game.pub}</small>` : ""));
+  txt.style.left = txt.style.right = (F + 4) * 2 + "px"; txt.style.top = (o._plate.y + 1) * 2 + "px"; txt.style.height = (o._plate.h - 1) * 2 + "px";
+  txt.style.fontSize = big ? "15px" : "12px";
+  box.append(cv, txt); return box;
+}
+function cardBack(tier, dustTier, scale){
+  const o = tier === 4 ? {tier, top: 2, corner: 1, strap: 0, pat: 0} : {tier, top: 2, corner: 2, strap: 2, pat: 0};
+  const cv = makeBack({...o, dust: dustTier, scale: scale || 2}); const box = el("div", "cardbox"); box.append(cv); return box;
+}
+const P = {ink:"#2b1d10",wd:"#5c4026",w:"#8f6a43",wl:"#c4a173",hi:"#ecdcb8",le:"#7a3410",led:"#64290c",pa:"#f4ead2",pas:"#e2d1ad",ru:"#8a3b12",go:"#f0b429",gol:"#ffe08a",st:"#b9ab8e",std:"#8f8266",sky:"#aab6c2",gr:"#3f6b2a",sa:"#1c4a99",am:"#612b8f"};
+function svg(w, h, rects, s){ s = s || 2; return `<svg width="${w * s}" height="${h * s}" viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges">` + rects.map(([x, y, rw, rh, c]) => `<rect x="${x}" y="${y}" width="${rw}" height="${rh}" fill="${c}"/>`).join("") + `</svg>`; }
+function bookshelf(){
+  const r = [[0,0,48,80,P.ink],[2,2,44,76,P.wd],[4,6,40,70,P.led],[0,0,48,5,P.w],[0,0,48,1,P.wl]], cols = [P.le,P.ru,P.gr,P.sa,P.am,P.w,P.wl];
+  for (let i = 0; i < 4; i++){ const base = 21 + i * 18; r.push([4, base, 40, 3, P.w]);
+    let x = 5, k = i * 3; while (x < 41){ const bw = 3 + (k * 7) % 3, bh = 10 + (k * 5) % 5; if (x + bw > 43) break; r.push([x, base - bh, bw, bh, cols[k % cols.length]]); r.push([x, base - bh + 2, bw, 1, P.hi]); x += bw + 1; k++; } }
+  return svg(48, 80, r);
+}
+const windowSvg = () => svg(40, 56, [[14,0,12,4,P.std],[8,2,24,6,P.std],[4,6,32,6,P.std],[0,10,40,46,P.std],[16,4,8,4,P.sky],[12,6,16,6,P.sky],[8,10,24,6,P.sky],[6,14,28,36,P.sky],[10,18,8,3,P.pa],[22,24,10,3,P.pa],[19,4,2,46,P.ink],[6,30,28,2,P.ink],[0,52,40,4,P.wd],[0,52,40,1,P.wl]]);
+const lectern = () => svg(40, 48, [[8,44,24,4,P.ink],[9,45,22,2,P.wd],[18,20,4,24,P.w],[17,20,1,24,P.ink],[22,20,1,24,P.ink],[4,16,32,5,P.ink],[5,17,30,3,P.wd],[5,4,30,13,P.ink],[6,5,13,11,P.pa],[21,5,13,11,P.pa],[19,5,2,11,P.wl],[8,8,9,1,P.wl],[8,11,9,1,P.wl],[8,13,6,1,P.wl],[23,8,9,1,P.wl],[23,11,9,1,P.wl],[27,13,3,3,P.ru],[33,0,2,7,P.hi],[31,1,2,4,P.hi]]);
+const reliquary = () => svg(36, 52, [[6,0,24,8,P.ink],[8,2,20,6,P.w],[14,3,8,2,P.go],[0,6,36,46,P.ink],[2,8,32,42,P.wd],[4,10,28,28,P.pas],[4,10,28,2,P.hi],[16,13,4,9,P.ru],[13,21,10,10,P.go],[15,23,6,6,P.gol],[13,21,10,1,P.gol],[4,40,28,8,P.w],[16,43,4,2,P.hi]]);
+const portrait = () => svg(28, 36, [[0,0,28,36,P.ink],[1,1,26,34,P.go],[1,1,26,1,P.gol],[3,3,22,30,P.ink],[4,4,20,28,P.led],[9,8,10,4,P.wd],[11,10,6,7,P.wl],[7,18,14,14,P.wd],[12,18,4,3,P.wl]]);
+const chest = () => svg(72, 48, [[2,6,68,16,P.ink],[4,8,64,12,P.w],[4,8,64,2,P.wl],[4,20,64,26,P.ink],[6,22,60,22,P.w],[6,29,60,1,P.wd],[6,36,60,1,P.wd],[12,6,8,40,P.ink],[13,7,6,38,P.wl],[52,6,8,40,P.ink],[53,7,6,38,P.wl],[31,17,10,12,P.ink],[32,18,8,10,P.go],[35,22,2,4,P.ink],[6,46,8,2,P.ink],[58,46,8,2,P.ink]], 3);
+const torch = () => svg(10, 28, [[4,10,2,18,P.wd],[2,8,6,3,P.wl],[3,2,4,6,P.go],[4,0,2,4,P.gol]]);
+
+function band(short){
+  return `<div class="band"><div class="gauge"><i></i><span>${short ? "Objectif · 62 %" : "Objectif de la Confrérie · 62 %"}</span></div>
+  <div class="status"><span class="packs">10 packs</span>${[41, 9, 3, 0, 0].map((n, i) => `<span class="cnt"><b class="dot" style="background:${RAR[i]}"></b>${n}</span>`).join("")}</div></div>`;
+}
+function place(host, html, cap, style){ const o = el("div", "obj", html + (cap ? `<span class="cap">${cap}</span>` : "")); o.style.cssText = style; host.appendChild(o); return o; }
+
+/* 1 — Grenier */
+(() => {
+  const s = document.getElementById("attic"); s.innerHTML = band();
+  const room = el("div", "room"); room.appendChild(el("div", "floor")); s.appendChild(room);
+  place(room, bookshelf(), "Bibliothèque", "left:30px;bottom:90px");
+  place(room, windowSvg(), "Le fil de la Confrérie", "left:210px;top:40px");
+  place(room, portrait(), "Mon profil", "left:400px;top:50px");
+  place(room, reliquary(), "Succès", "right:200px;top:150px");
+  place(room, lectern(), "Échanges et amis", "right:40px;bottom:90px");
+  place(room, torch(), "", "left:150px;top:90px"); place(room, torch(), "", "right:150px;top:60px");
+  place(room, chest() + `<span class="timer">Prochain pack dans 07:42</span>`, "", "left:330px;bottom:26px");
+  const b = el("div", "panel bonus", `<div class="t">Bonus du jour</div><div>Un petit booster vous attend, Confrère.</div><div style="margin-top:6px"><span class="btn">Le prendre</span></div>`);
+  b.style.cssText = "left:580px;bottom:40px"; room.appendChild(b);
+})();
+
+/* 2 — Ouverture */
+(() => {
+  const s = document.getElementById("reveal"); s.innerHTML = band();
+  const wrap = el("div"); wrap.style.cssText = "padding:18px 14px;background:repeating-linear-gradient(90deg,#8f6a43 0 78px,#5c4026 78px 80px)";
+  const cards = el("div", "cards"); cards.style.justifyContent = "center";
+  cards.append(cardFace(TERRARIA, 0, "small"), cardFace(HADES, 1, "small"), cardBack(2, 0), cardBack(1, 3), cardBack(0, 4));
+  wrap.append(cards); const foot = el("div", "", `<span class="btn alt">Tout retourner</span>`); foot.style.cssText = "text-align:center;margin-top:14px"; wrap.append(foot); s.append(wrap);
+})();
+
+/* 3 — Bibliothèque */
+function library(host, phone){
+  host.innerHTML = band(phone);
+  const lib = el("div", "lib");
+  const shelf = el("div", "shelf", ["Aventure · Tome 1", "Aventure · Tome 2", "Aventure · Tome 3", "Aventure · Tome 4", "Aventure · Tome 5", "Stratégie · Tome 1", "Stratégie · Tome 2"].map((t, i) => `<div class="tome${i === 3 ? " open" : ""}">${t}</div>`).join(""));
+  const main = el("div");
+  main.innerHTML = `<div class="tabs"><span class="tab on">Tomes</span><span class="tab">Éditeurs</span><span class="tab">Les mieux notés de l'année</span></div>
+    <h3 class="t" style="margin:0 0 2px;font-size:20px">Aventure — Tome 4 · 2011–2012</h3><div style="margin-bottom:8px">3 cartes sur 10 (exemple)</div>`;
+  const cards = el("div", "cards");
+  const empty = (t, y) => el("div", "slot", `<div class="t">${t}</div><small>${y}</small><small>Carte manquante</small>`);
+  cards.append(cardFace(TERRARIA, 0, "small"), empty("Limbo", 2011), cardFace(PORTAL, 3, "small"), empty("Bastion", 2011), empty("Dark Souls", 2012), cardFace(STARDEW, 1, "small"), empty("Fez", 2013), empty("Journey", 2012));
+  main.append(cards); if (!phone) lib.append(shelf); lib.append(main); host.append(lib);
+}
+library(document.getElementById("library"));
+
+/* 4 — Échange */
+function trade(host, phone){
+  host.innerHTML = band(phone);
+  const them = el("div", "side them", `<h3>Léa propose</h3>`), tc = el("div", "cards"); tc.append(cardFace(HADES, 2, "small"), cardFace(TERRARIA, 0, "small")); them.append(tc);
+  const mid = el("div", "mid", `<div><b class="t">Léa a répondu à votre proposition.</b> L'échange expire dans 5 jours.</div><div style="display:flex;gap:8px;flex-wrap:wrap"><span class="btn">Accepter</span><span class="btn alt">Contre-proposition</span><span class="btn alt">Refuser</span></div>`);
+  const me = el("div", "side", `<h3>Vous donnez</h3>`), mc = el("div", "cards"); mc.append(cardFace(PORTAL, 3, "small")); me.append(mc);
+  host.append(them, mid, me);
+}
+trade(document.getElementById("trade"));
+
+/* 5 — Carte partagée */
+function shared(host, phone){
+  host.innerHTML = `<div class="band"><div class="t" style="font-size:18px">gameble</div><span class="btn">Se connecter avec Steam</span></div>`;
+  const g = el("div", "shared");
+  g.append(cardFace(HL2, 4, "big"));
+  g.append(el("div", "", `<h3>Half-Life 2</h3><div>Carte de <b>Hugo</b> · légendaire · saison 1</div><div>Sorti en 2004 · © Valve</div>
+    <p style="margin:8px 0">Courte description du jeu, reprise de sa page Steam, dans la langue du visiteur.</p>
+    <span class="btn alt">Voir sur Steam</span>
+    <div class="panel" style="margin-top:14px"><div class="t" style="font-size:18px">Rejoignez la Confrérie</div><div>Dix packs vous attendent au grenier.</div><div style="margin-top:6px"><span class="btn">Ouvrir mes packs</span></div></div>`));
+  g.append(el("div", "panel", `<div class="t" style="font-size:17px">Le fil de la Confrérie</div><ul class="feed">
+    <li>Confrère Hugo a tiré <b>Half-Life 2</b> <b class="dot" style="background:${RAR[4]}"></b></li>
+    <li>Consœur Inès a échangé <b>Hades</b> contre <b>Portal 2</b></li>
+    <li>Confrère Malo est le premier à découvrir <b>Terraria</b> <b class="dot" style="background:${RAR[0]}"></b></li>
+    <li>Consœur Jade a tiré <b>Stardew Valley</b> <b class="dot" style="background:${RAR[1]}"></b></li></ul>`));
+  host.append(g);
+}
+shared(document.getElementById("shared"));
+
+/* 6 — Téléphone */
+(() => {
+  const host = document.getElementById("phones");
+  const phone = (label) => { const w = el("div"), p = el("div", "phone"); w.append(el("div", "lab", label), p); host.append(w); return p; };
+  let p = phone("Ouverture, option 1 — une carte à la fois"); p.innerHTML = band(true);
+  let body = el("div"); body.style.cssText = "padding:14px;background:repeating-linear-gradient(90deg,#8f6a43 0 78px,#5c4026 78px 80px);display:flex;flex-direction:column;align-items:center";
+  body.append(cardBack(2, 2, 3), el("div", "dots", "<i class='on'></i><i class='on'></i><i class='on'></i><i></i><i></i>"), el("div", "", `<span class="btn alt">Tout retourner</span>`)); p.append(body);
+  p = phone("Ouverture, option 2 — les cinq cartes, deux de front"); p.innerHTML = band(true);
+  body = el("div"); body.style.cssText = "padding:12px 10px;background:repeating-linear-gradient(90deg,#8f6a43 0 78px,#5c4026 78px 80px)";
+  const c = el("div", "cards"); c.style.justifyContent = "center"; c.append(cardFace(TERRARIA, 0, "small"), cardFace(HADES, 1, "small"), cardBack(2, 0), cardBack(1, 3), cardBack(0, 4)); body.append(c); p.append(body);
+  p = phone("Grenier"); p.innerHTML = band(true);
+  const room = el("div", "room"); room.style.height = "560px"; room.appendChild(el("div", "floor")); p.append(room);
+  place(room, bookshelf(), "Bibliothèque", "left:14px;top:20px");
+  place(room, windowSvg(), "Le fil", "left:140px;top:20px");
+  place(room, portrait(), "Profil", "right:14px;top:30px");
+  place(room, reliquary(), "Succès", "left:150px;top:190px");
+  place(room, lectern(), "Échanges", "right:14px;top:170px");
+  place(room, chest() + `<span class="timer">Prochain pack dans 07:42</span>`, "", "left:70px;bottom:70px");
+  const b = el("div", "panel", `<b class="t">Bonus du jour</b> <span class="btn" style="padding:2px 8px">Le prendre</span>`); b.style.cssText = "position:absolute;left:10px;right:10px;bottom:10px;display:flex;justify-content:space-between;align-items:center"; room.append(b);
+  p = phone("Échange — les deux côtés empilés"); trade(p, true);
+})();
+
+/* Sélecteur de police */
+const FONTS = [["IM Fell English", '"IM Fell English",serif'], ["Cinzel", '"Cinzel",serif'], ["Almendra", '"Almendra",serif'], ["Grenze Gotisch", '"Grenze Gotisch",serif'], ["Pixelify Sans (pixel)", '"Pixelify Sans",monospace']];
+const picker = document.getElementById("picker");
+FONTS.forEach(([name, stack], i) => { const b = el("button", "", name); b.type = "button"; b.setAttribute("aria-pressed", String(i === 0));
+  b.onclick = () => { document.documentElement.style.setProperty("--ft", stack); for (const x of picker.querySelectorAll("button")) x.setAttribute("aria-pressed", String(x === b)); };
+  picker.appendChild(b); });
+</script>
+</body>
+</html>

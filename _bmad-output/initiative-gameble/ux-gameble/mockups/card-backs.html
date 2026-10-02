@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gameble — dos de carte retenus</title>
+<style>
+/* Palette « Parchemin au grand jour » : bg #e9dcc0 · surface #f4ead2 · ink #2b1d10 · muted #6b5640 · accent #8a3b12
+   Laiton : #5c4026 · #8f6a43 · #c4a173 · #ecdcb8 — Or (provisoire) : #a8741a · #f0b429 · #ffe08a
+   Jeu 1 : acier #7d8a99 · émeraude #2e9e4f · saphir #2b6fd6 · améthyste #8e44c9 · or #f0b429
+   Jeu 2 : acier #7d8a99 · turquoise #1fa39a · rubis #d42b2b · améthyste #8e44c9 · or #f0b429 */
+:root{--bg:#e9dcc0;--surface:#f4ead2;--ink:#2b1d10;--muted:#6b5640;--accent:#8a3b12}
+*{box-sizing:border-box}
+body{margin:0;padding:24px 16px 64px;background:var(--bg);color:var(--ink);font-family:ui-monospace,"DejaVu Sans Mono",Menlo,Consolas,monospace;font-size:14px;line-height:1.5}
+h1{font-size:20px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px}
+h2{font-size:16px;margin:44px 0 4px;text-transform:uppercase;border-bottom:4px solid var(--ink);padding-bottom:4px}
+h3{font-size:13px;margin:20px 0 0;text-transform:uppercase}
+p{margin:4px 0 12px;max-width:82ch;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:24px;margin:10px 0 24px;align-items:flex-end}
+.lab{font-size:11px;margin:0 0 6px;color:var(--accent);font-weight:700;text-transform:uppercase;max-width:240px;min-height:2.6em;display:flex;align-items:flex-end}
+canvas{display:block;image-rendering:pixelated;box-shadow:2px 2px 0 var(--ink)}
+</style>
+</head>
+<body>
+<h1>Dos de carte retenus</h1>
+<p>Récapitulatif des choix : reliure ornée, sceaux du jeu 1, fleuron, cuir losangé. Paliers 1 à 4 : coins carrés, double sangle, ferrures en laiton. Légendaire : coins arrondis, sangle cloutée, ferrures dorées, rayons et éclats, sans texte. Maquettes de composition en pixel art ×2 (80 × 120 pixels d'art).</p>
+
+<h2>1 — Les cinq raretés</h2>
+<p>Agrandies ×3, puis à la taille réelle de l'application (×2).</p>
+<div class="row" id="tiers"></div>
+<div class="row" id="tiers-real"></div>
+
+<h2>2 — Les cinq paliers de poussière</h2>
+<p>Âge du jeu, figé à l'émission de la carte. Semi-transparente, des bords vers le centre.</p>
+<div class="row" id="dust"></div>
+<div class="row" id="dust-legend"></div>
+
+<script>
+const W = 80, H = 120, CX = 39.5, CY = 59.5;
+const C = {ink:"#2b1d10", leather:"#7a3410", leatherD:"#64290c", paper:"#e2d1ad", dust:"#a89676", dustL:"#c9b994"};
+const BRASS = {D:"#5c4026", M:"#8f6a43", L:"#c4a173", H:"#ecdcb8"};
+const GOLD = {D:"#a8741a", M:"#f0b429", L:"#ffe08a", H:"#fff6d0"};
+const STEEL = {m:"#7d8a99", d:"#56616e", l:"#aab6c2"}, PURPLE = {m:"#8e44c9", d:"#612b8f", l:"#b97be8"},
+  GOLDS = {m:"#f0b429", d:"#a8741a", l:"#ffe08a"};
+const SETS = [
+  [STEEL, {m:"#2e9e4f", d:"#1d6e36", l:"#63cf7e"}, {m:"#2b6fd6", d:"#1c4a99", l:"#6aa3f2"}, PURPLE, GOLDS],
+  [STEEL, {m:"#1fa39a", d:"#13706a", l:"#5fd6cc"}, {m:"#d42b2b", d:"#8f1818", l:"#f26d5e"}, PURPLE, GOLDS],
+];
+const G = [".####","#....","#..##","#...#",".####"];
+const hash = (x, y) => { const s = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453; return s - Math.floor(s); };
+
+function tools(ctx){
+  const px = (x, y, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, 1, 1); };
+  const rect = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+  const frame = (x, y, w, h, c) => { rect(x, y, w, 1, c); rect(x, y + h - 1, w, 1, c); rect(x, y, 1, h, c); rect(x + w - 1, y, 1, h, c); };
+  const each = (fn) => { for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) fn(x, y); };
+  const sym = (x, y, c) => { px(x, y, c); px(W - 1 - x, y, c); px(x, H - 1 - y, c); px(W - 1 - x, H - 1 - y, c); };
+  const tb = (x, y, c) => { px(x, y, c); px(x, H - 1 - y, c); };
+  const blend = (x, y, c, a) => { ctx.globalAlpha = a; px(x, y, c); ctx.globalAlpha = 1; };
+  return {px, rect, frame, each, sym, tb, blend};
+}
+function lozenge(put, cx, cy, half, fill, light){
+  for (let y = Math.floor(cy - half - 1); y <= cy + half + 1; y++) for (let x = Math.floor(cx - half - 1); x <= cx + half + 1; x++){
+    const m = Math.abs(x - cx) + Math.abs(y - cy);
+    if (m <= half + 0.5) put(x, y, m > half - 0.8 ? C.ink : (x < cx && y < cy) ? light : fill);
+  }
+}
+
+function base(t, M, pat, legendary){
+  t.rect(0, 0, W, H, C.ink);
+  t.rect(1, 1, W - 2, H - 2, M.M);
+  t.rect(1, 1, W - 2, 1, M.L); t.rect(1, 1, 1, H - 2, M.L);
+  t.rect(1, H - 2, W - 2, 1, M.D); t.rect(W - 2, 1, 1, H - 2, M.D);
+  t.rect(4, 4, W - 8, H - 8, C.ink);
+  t.rect(5, 5, W - 10, H - 10, C.leather);
+  for (let y = 5; y < H - 5; y++) for (let x = 5; x < W - 5; x++){
+    const on = pat === 0 ? ((x + y) % 8 === 0 || (x - y + 800) % 8 === 0)
+      : pat === 1 ? (x % 5 === 0)
+      : (x % 4 === 1 && y % 4 === 1);
+    if (on) t.px(x, y, C.leatherD);
+  }
+  t.frame(8, 8, W - 16, H - 16, M.M);
+  if (legendary) t.frame(10, 10, W - 20, H - 20, M.D);
+  for (let x = 16; x < W / 2; x += 8) t.sym(x, 8, M.H);
+  for (let y = 16; y < H / 2 - 12; y += 8) t.sym(8, y, M.H);
+}
+function corners(t, M, type){
+  for (let i = 0; i <= 13; i++) for (let j = 0; j <= 13; j++){
+    let c = null;
+    if (type === 0){ if (j <= 12 - i) c = j === 12 - i ? C.ink : (i === 0 || j === 0) ? M.L : M.M; }
+    else if (type === 1){ const d = Math.hypot(i, j); if (d <= 13) c = d > 11.8 ? C.ink : (i === 0 || j === 0) ? M.L : d > 9 && d < 10 ? M.D : M.M; }
+    else { if (i <= 9 && j <= 9) c = (i === 9 || j === 9) ? C.ink : (i === 0 || j === 0) ? M.L : (i >= 3 && i <= 6 && j >= 3 && j <= 6) ? ((i === 3 || j === 3) ? M.D : M.H) : M.M; }
+    if (c) t.sym(5 + j, 5 + i, c);
+  }
+  if (type !== 2){ t.sym(7, 7, M.H); t.sym(8, 7, M.H); t.sym(7, 8, M.H); t.sym(8, 8, M.D); }
+}
+function topBottom(t, M, type, gem){
+  if (type === 0 || type === 1){
+    const cy = type === 0 ? 31 : 17;
+    for (let y = 9; y <= 38; y++) for (let x = 9; x <= 70; x++){
+      const d = Math.hypot(x - CX, y - cy), keep = type === 0 ? y <= cy : y >= cy;
+      if (!keep) continue;
+      if (d >= 11.5 && d <= 18.5) t.tb(x, y, C.ink);
+      if (d >= 12.5 && d <= 17.5) t.tb(x, y, d > 16.3 ? M.L : d < 13.5 ? M.D : M.M);
+    }
+    lozenge(t.tb, CX, type === 0 ? cy - 6 : cy + 7, 4, gem.m, gem.l);
+  } else if (type === 2){
+    for (let x = 18; x <= 61; x++){ t.tb(x, 26, C.ink); t.tb(x, 27, M.L); t.tb(x, 28, C.ink); }
+    lozenge(t.tb, CX - 15, 27, 4, M.M, M.L); lozenge(t.tb, CX + 15, 27, 4, M.M, M.L);
+    lozenge(t.tb, CX, 27, 9, M.M, M.L); lozenge(t.tb, CX, 27, 4, gem.m, gem.l);
+  } else {
+    for (const [apex, hw] of [[34, 17], [24, 10]]) for (let x = Math.ceil(CX - hw); x <= CX + hw; x++){
+      const y0 = Math.round(apex - Math.abs(x - CX) * 0.75);
+      t.tb(x, y0 - 4, C.ink); t.tb(x, y0 - 3, M.L); t.tb(x, y0 - 2, M.M); t.tb(x, y0 - 1, M.D); t.tb(x, y0, C.ink);
+    }
+    lozenge(t.tb, CX, 14, 3, gem.m, gem.l);
+  }
+}
+function strap(t, M, type){
+  if (type === 2){
+    for (const y of [52, 61]){ t.rect(1, y, W - 2, 7, C.ink); t.rect(1, y + 1, W - 2, 5, M.M); t.rect(1, y + 1, W - 2, 1, M.L); t.rect(1, y + 5, W - 2, 1, M.D); }
+    return;
+  }
+  t.rect(1, 52, W - 2, 16, C.ink); t.rect(1, 53, W - 2, 14, M.M);
+  t.rect(1, 53, W - 2, 1, M.L); t.rect(1, 66, W - 2, 1, M.D);
+  for (let x = 4; x < W - 6; x += (type === 0 ? 8 : 7)){
+    if (Math.abs(x + 2 - CX) < 22) continue;
+    if (type === 0){ t.rect(x + 2, 59, 2, 2, M.H); t.px(x + 3, 60, M.D); }
+    else { t.frame(x, 57, 6, 6, M.D); t.px(x, 57, M.H); t.px(x + 1, 57, M.H); }
+  }
+}
+function medallion(t, M, legendary){
+  if (legendary) for (let k = 0; k < 16; k++){
+    const a = k * Math.PI / 8 + Math.PI / 16, far = k % 2 ? 27 : 32;
+    for (let r = 21; r <= far; r++){ const x = Math.round(CX + Math.cos(a) * r), y = Math.round(CY + Math.sin(a) * r); if (y < 51 || y > 68) t.px(x, y, r % 3 ? GOLD.M : GOLD.L); }
+  }
+  t.each((x, y) => { const dx = x - CX, dy = y - CY, d = Math.hypot(dx, dy);
+    if (d <= 19.5) t.px(x, y, d > 18.5 ? C.ink : d > 16.8 ? (dx + dy < 0 ? M.L : M.D) : d > 14.6 ? M.M : d > 13.6 ? C.ink : C.paper); });
+}
+function letterG(t, colour, lit){
+  const ox = 35, oy = 55;
+  G.forEach((r, j) => { for (let i = 0; i < 5; i++) if (r[i] === "#") for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++){
+    const x = ox + i * 2 + a, y = oy + j * 2 + b; if (lit) t.px(x + 1, y + 1, lit); t.px(x, y, colour); } });
+}
+function blob(t, r, S, scallop){
+  t.each((x, y) => { const dx = x - CX, dy = y - CY, d = Math.hypot(dx, dy), a = Math.atan2(dy, dx);
+    const rr = r + (scallop ? Math.cos(a * scallop) * 1.2 : Math.sin(a * 5) * 0.8 + Math.cos(a * 3) * 0.6);
+    if (d <= rr) t.px(x, y, d > rr - 1.6 ? (dx + dy < 0 ? S.l : S.d) : S.m); });
+}
+function seal(t, tier, S){
+  const ring = (r1, r2, c) => t.each((x, y) => { const d = Math.hypot(x - CX, y - CY); if (d >= r1 && d <= r2) t.px(x, y, c); });
+  if (tier === 0){ ring(9.6, 11.4, S.m); ring(7.4, 8.1, S.l); letterG(t, S.d, null); }
+  else if (tier === 1){ ring(9.6, 11.6, S.m); ring(7.2, 8.0, S.d); letterG(t, S.d, null);
+  } else if (tier === 2 || tier === 3){
+    if (tier === 3) for (let k = 0; k < 26; k++) for (const s of [-1, 1]) for (let w = 0; w < 7; w++){
+      if (k > 22 && Math.abs(w - 3) < k - 22) continue;
+      t.px(Math.round(CX + s * (3 + k * 0.45 + w)), 70 + k, w === 0 || w === 6 ? S.d : w === 2 ? S.l : S.m);
+    }
+    blob(t, 11.5, S, 0); letterG(t, S.d, S.l);
+  } else {
+    blob(t, 12.5, S, 12); letterG(t, S.d, S.l);
+    for (const [x, y] of [[20, 44], [58, 40], [62, 78], [17, 74], [28, 96], [52, 22], [24, 20], [56, 99]]){ t.px(x, y, GOLD.H); t.px(x + 1, y, GOLD.L); t.px(x, y + 1, GOLD.L); t.px(x - 1, y, GOLD.L); t.px(x, y - 1, GOLD.L); }
+  }
+}
+function dust(t, tier){
+  const reach = [0, 0.24, 0.48, 0.8, 1.6][tier], maxA = [0, 0.62, 0.74, 0.84, 0.93][tier];
+  if (!reach) return;
+  t.each((x, y) => {
+    const ex = Math.min(x, W - 1 - x) / (W / 2), ey = Math.min(y, H - 1 - y) / (H / 2);
+    const d = 0.6 * Math.min(ex, ey) + 0.4 * (1 - Math.hypot(1 - ex, 1 - ey) / Math.SQRT2);
+    const clump = 0.75 + 0.5 * hash((x >> 2) + 11, (y >> 2) + 5);
+    const a = Math.max(0, Math.min(1, (reach * clump - d) / 0.3)) * maxA * (0.72 + 0.28 * hash(x + 7, y + 3));
+    if (a > 0.03) t.blend(x, y, hash(y, x) < 0.3 ? C.dustL : C.dust, a);
+  });
+}
+
+function back(o){
+  const scale = o.scale || 3, legendary = o.tier === 4, M = legendary ? GOLD : BRASS, S = SETS[o.set || 0][o.tier];
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  cv.style.width = W * scale + "px"; cv.style.height = H * scale + "px";
+  const t = tools(cv.getContext("2d"));
+  base(t, M, o.pat || 0, legendary); corners(t, M, o.corner || 0); topBottom(t, M, o.top || 0, S);
+  strap(t, M, o.strap || 0); medallion(t, M, legendary); seal(t, o.tier, S); dust(t, o.dust || 0);
+  return cv;
+}
+function add(hostId, label, o){
+  const wrap = document.createElement("div"), lab = document.createElement("div");
+  lab.className = "lab"; lab.textContent = label; wrap.append(lab, back(o)); document.getElementById(hostId).appendChild(wrap);
+}
+
+const TIERS = ["Commune — acier", "Émeraude", "Saphir", "Améthyste", "Légendaire — or"];
+const pick = (tier) => tier === 4 ? {tier, top: 2, corner: 1, strap: 0, pat: 0} : {tier, top: 2, corner: 2, strap: 2, pat: 0};
+TIERS.forEach((name, i) => { add("tiers", name, pick(i)); add("tiers-real", name, {...pick(i), scale: 2}); });
+const DUST = ["Moins d'1 an — aucune", "1 à 5 ans — légère", "5 à 10 ans — marquée", "10 à 20 ans — épaisse", "Plus de 20 ans — ensevelie"];
+DUST.forEach((name, i) => { add("dust", name, {...pick(2), dust: i}); add("dust-legend", name, {...pick(4), dust: i}); });
+</script>
+</body>
+</html>

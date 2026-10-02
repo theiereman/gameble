@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gameble — filtre pixel sur les visuels Steam</title>
+<style>
+/* Palette « Parchemin au grand jour » (color-themes-1.html)
+   bg #e9dcc0 · surface #f4ead2 · surface-2 #e2d1ad · ink #2b1d10 · muted #6b5640 · accent #8a3b12 */
+:root{--bg:#e9dcc0;--surface:#f4ead2;--surface2:#e2d1ad;--ink:#2b1d10;--muted:#6b5640;--accent:#8a3b12;--u:4px}
+*{box-sizing:border-box}
+body{margin:0;padding:24px 16px 64px;background:var(--bg);color:var(--ink);font-family:ui-monospace,"DejaVu Sans Mono",Menlo,Consolas,monospace;font-size:14px;line-height:1.5}
+h1{font-size:20px;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px}
+h2{font-size:16px;margin:40px 0 4px;text-transform:uppercase;border-bottom:var(--u) solid var(--ink);padding-bottom:4px}
+p{margin:4px 0 12px;max-width:80ch;color:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:16px;margin:12px 0 28px;align-items:flex-start}
+.card{background:var(--surface);border:var(--u) solid var(--ink);box-shadow:var(--u) var(--u) 0 var(--ink);padding:8px}
+.card canvas,.card img{display:block;border:var(--u) solid var(--ink);image-rendering:pixelated;background:var(--surface2)}
+.card .t{font-weight:700;margin-top:8px;text-transform:uppercase;font-size:12px}
+.card .c{font-size:10px;color:var(--muted)}
+.lab{font-size:11px;margin:0 0 6px;color:var(--accent);font-weight:700;text-transform:uppercase}
+.miss{display:flex;align-items:center;justify-content:center;border:var(--u) solid var(--ink);background:var(--surface2);color:var(--muted);font-size:11px;text-align:center}
+.game{margin-top:20px;font-weight:700}
+</style>
+</head>
+<body>
+<h1>Filtre pixel sur les visuels Steam</h1>
+<p>Les images viennent directement du CDN Steam et sont pixelisées dans le navigateur, à l'affichage. Rien n'est copié ni stocké. Chaque ligne montre le même visuel avec cinq réglages, dans un cadre provisoire à l'échelle ×4.</p>
+<p>À regarder : à partir de quel réglage le logo du jeu devient illisible, et quel format (bandeau ou jaquette) tient le mieux.</p>
+
+<h2>Format A — bandeau horizontal</h2>
+<p>Image « header » de la page du store (460 × 215). Disponible pour tous les jeux.</p>
+<div id="landscape"></div>
+
+<h2>Format B — jaquette verticale</h2>
+<p>Image de bibliothèque (600 × 900). Les jeux anciens n'en ont pas toujours : une case vide ci-dessous le signale.</p>
+<div id="portrait"></div>
+
+<script>
+const GAMES = [
+  {id: 620, title: "Portal 2", credit: "© Valve"},
+  {id: 220, title: "Half-Life 2", credit: "© Valve"},
+  {id: 1145360, title: "Hades", credit: "© Supergiant Games"},
+  {id: 413150, title: "Stardew Valley", credit: "© ConcernedApe"},
+];
+const VARIANTS = [
+  {label: "Tel quel", scale: 1, reduce: false},
+  {label: "Pixels ×2", scale: 2, reduce: false},
+  {label: "Pixels ×3", scale: 3, reduce: false},
+  {label: "Pixels ×4", scale: 4, reduce: false},
+  {label: "×4 + couleurs réduites", scale: 4, reduce: true},
+];
+const FORMATS = {
+  landscape: {file: "header.jpg", w: 232, h: 108},
+  portrait: {file: "library_600x900.jpg", w: 160, h: 240},
+};
+const BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]];
+const LEVELS = 5; // niveaux par canal pour la variante « couleurs réduites »
+
+function reduceColours(ctx, w, h) {
+  const img = ctx.getImageData(0, 0, w, h), d = img.data, step = 255 / (LEVELS - 1);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = (y * w + x) * 4, t = (BAYER[y % 4][x % 4] / 16 - 0.5) * step;
+    for (let c = 0; c < 3; c++) {
+      d[i + c] = Math.max(0, Math.min(255, Math.round((d[i + c] + t) / step) * step));
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+function render(formatKey) {
+  const f = FORMATS[formatKey], host = document.getElementById(formatKey);
+  for (const g of GAMES) {
+    const name = document.createElement("div");
+    name.className = "game"; name.textContent = g.title; host.appendChild(name);
+    const row = document.createElement("div"); row.className = "row"; host.appendChild(row);
+    const cells = VARIANTS.map(v => {
+      const wrap = document.createElement("div");
+      const lab = document.createElement("div"); lab.className = "lab"; lab.textContent = v.label;
+      const card = document.createElement("div"); card.className = "card";
+      const cv = document.createElement("canvas");
+      cv.width = Math.round(f.w / v.scale); cv.height = Math.round(f.h / v.scale);
+      cv.style.width = f.w + "px"; cv.style.height = f.h + "px";
+      const t = document.createElement("div"); t.className = "t"; t.textContent = g.title;
+      const c = document.createElement("div"); c.className = "c"; c.textContent = g.credit;
+      card.append(cv, t, c); wrap.append(lab, card); row.appendChild(wrap);
+      return {v, cv};
+    });
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      for (const {v, cv} of cells) {
+        const ctx = cv.getContext("2d");
+        ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
+        // Recadrage centré pour respecter les proportions de la fenêtre du cadre.
+        const ratio = cv.width / cv.height, ir = img.width / img.height;
+        let sw = img.width, sh = img.height;
+        if (ir > ratio) sw = img.height * ratio; else sh = img.width / ratio;
+        ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 0, 0, cv.width, cv.height);
+        if (v.reduce) reduceColours(ctx, cv.width, cv.height);
+      }
+    };
+    img.onerror = () => {
+      for (const {cv} of cells) {
+        const miss = document.createElement("div"); miss.className = "miss";
+        miss.style.width = (f.w + 8) + "px"; miss.style.height = (f.h + 8) + "px";
+        miss.textContent = "pas d'image dans ce format";
+        cv.replaceWith(miss);
+      }
+    };
+    img.src = "https://cdn.akamai.steamstatic.com/steam/apps/" + g.id + "/" + f.file;
+  }
+}
+render("landscape");
+render("portrait");
+</script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!--
+  UX Design Validation Report — skeleton template.
+
+  This file is a starter the synthesis pass fills in directly. There is no
+  substitution engine. The LLM:
+    1. Reads {doc_workspace}/review-rubric.md and every review-{lens}.md from
+       additional reviewers.
+    2. Copies this skeleton.
+    3. Replaces the placeholder content (everything between TEMPLATE markers)
+       with the consolidated review, preserving the structure and CSS.
+    4. Writes the result to {doc_workspace}/validation-report.html.
+    5. Writes a markdown twin to {doc_workspace}/validation-report.md.
+
+  Visual rules the LLM must preserve:
+    - The container width, the color tokens, the typography.
+    - One dimension = one collapsible <section class="dimension">.
+    - Verdict pill uses the verdict-* class matching its judgment.
+    - Severity badge uses the badge-sev-* class matching its level.
+    - Each extra reviewer (accessibility, adversarial, etc.) gets its own
+      collapsible section below the rubric dimensions.
+    - The footer always shows the artifact paths and timestamp.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UX Design Validation: TEMPLATE_UX_SPEC_NAME</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --muted: #78716c;
+
+    --verdict-strong: #16a34a;
+    --verdict-adequate: #65a30d;
+    --verdict-thin: #d97706;
+    --verdict-broken: #dc2626;
+
+    --sev-low: #64748b;
+    --sev-medium: #ca8a04;
+    --sev-high: #ea580c;
+    --sev-critical: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  header.report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .title h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .title .subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+  .synthesis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--muted);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 15.5px;
+  }
+  .synthesis p { margin: 0 0 10px; }
+  .synthesis p:last-child { margin-bottom: 0; }
+
+  .dimension-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .dim-card .dim-name { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .dim-card .dim-verdict { font-size: 14px; font-weight: 600; }
+
+  section.dimension, section.reviewer-section { margin-bottom: 14px; }
+  section.dimension details, section.reviewer-section details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  section summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  section summary::-webkit-details-marker { display: none; }
+  section summary::before {
+    content: "▸";
+    display: inline-block;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
+  section details[open] summary::before { transform: rotate(90deg); }
+  section summary h2 {
+    display: inline;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    flex: 1;
+  }
+  .verdict-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: white;
+  }
+  .verdict-strong { background: var(--verdict-strong); }
+  .verdict-adequate { background: var(--verdict-adequate); }
+  .verdict-thin { background: var(--verdict-thin); }
+  .verdict-broken { background: var(--verdict-broken); }
+
+  .dim-body { padding: 4px 20px 18px; }
+  .dim-judgment { color: var(--text); font-size: 14.5px; }
+  .dim-judgment p { margin: 0 0 10px; }
+
+  .findings-list { padding: 0 20px 4px; }
+  article.finding {
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  article.finding:first-child { border-top: none; }
+  article.finding header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .badge {
+    font-size: 10.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .badge-sev-low { background: rgba(100, 116, 139, 0.12); color: var(--sev-low); }
+  .badge-sev-medium { background: rgba(202, 138, 4, 0.14); color: var(--sev-medium); }
+  .badge-sev-high { background: rgba(234, 88, 12, 0.14); color: var(--sev-high); }
+  .badge-sev-critical { background: rgba(220, 38, 38, 0.14); color: var(--sev-critical); }
+  .finding-title { margin: 0; font-size: 15px; font-weight: 500; flex: 1; min-width: 200px; }
+  .finding-location { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--muted); }
+  .finding-note, .finding-fix { margin-top: 6px; font-size: 14px; }
+  .finding-fix strong { color: var(--muted); font-weight: 500; }
+
+  .reviewer-source {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .mechanical {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+  .mechanical h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .mechanical ul { margin: 0; padding-left: 20px; }
+  .mechanical li { margin-bottom: 4px; color: var(--text); }
+
+  footer.report-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  footer .meta { display: flex; gap: 24px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+  <div class="container">
+<header class="report-header"><div class="title"><h1>gameble — UX Design Validation Report</h1><div class="subtitle">_bmad-output/initiative-gameble/ux-gameble/</div></div></header>
+<div class="synthesis"><p>The spine pair is a usable contract for the card, the attic, the pack reveal, the library and trades: decisions are committed, tokens resolve and each key screen has a mock. Its weak point is upstream: the spec still describes the earlier design and must adopt these files. Three areas remain thin and are flagged: how friends are made, what the achievements are, and the card detail view.</p><p>Findings: 0 critical, 1 high, 4 medium, 7 low.</p></div>
+<div class="dimension-summary"><div class="dim-card"><div class="dim-name">Flow coverage</div><div class="dim-verdict">adequate</div></div><div class="dim-card"><div class="dim-name">Token completeness</div><div class="dim-verdict">adequate</div></div><div class="dim-card"><div class="dim-name">Component coverage</div><div class="dim-verdict">adequate</div></div><div class="dim-card"><div class="dim-name">State coverage</div><div class="dim-verdict">adequate</div></div><div class="dim-card"><div class="dim-name">Visual reference coverage</div><div class="dim-verdict">strong</div></div><div class="dim-card"><div class="dim-name">Bloat &amp; overspecification</div><div class="dim-verdict">strong</div></div><div class="dim-card"><div class="dim-name">Inheritance discipline</div><div class="dim-verdict">thin</div></div><div class="dim-card"><div class="dim-name">Shape fit</div><div class="dim-verdict">strong</div></div></div>
+<section class="dimension"><details><summary><h2>Flow coverage</h2><span class="verdict-pill verdict-adequate">adequate</span></summary><div class="dim-body"><div class="dim-judgment"><p>Two key flows carry a named protagonist, numbered steps, a climax beat and a failure path: Léa&#x27;s first session and the trade between Hugo and Léa. They cover sign-in, packs, reveal, collection, card detail, public profile, sharing, trades, the feed and the daily bonus.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">No flow shows how two players become friends</h3><span class="finding-location">EXPERIENCE.md, Key Flows, Flow 2 step 1</span></header><div class="finding-note">Flow 2 assumes the friendship exists. The spec offers an invite link or a friend code (CAP-10).</div><div class="finding-fix"><strong>Fix:</strong> Narrate the friend invitation, or accept the assumption when the spec is updated.</div></article><article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">Achievements have no flow and no defined content</h3><span class="finding-location">EXPERIENCE.md, Component Patterns</span></header><div class="finding-note">The author asked for simple achievements on their own screen; none is named.</div><div class="finding-fix"><strong>Fix:</strong> List the achievements before the screen is built.</div></article><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Data controls and moderation have no flow</h3><span class="finding-location">EXPERIENCE.md, Information Architecture</span></header><div class="finding-note">CAP-14 and CAP-15 are described plainly from the spec, by decision.</div><div class="finding-fix"><strong>Fix:</strong> None needed unless these screens grow.</div></article></div></details></section>
+<section class="dimension"><details><summary><h2>Token completeness</h2><span class="verdict-pill verdict-adequate">adequate</span></summary><div class="dim-body"><div class="dim-judgment"><p>Every colour token has a hex value and every {token} reference resolves. Contrast is stated for the load-bearing pairs, and the rarity colours that fail on parchment are barred from text.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">Gold values are provisional</h3><span class="finding-location">DESIGN.md, Colors</span></header><div class="finding-note">Legendary cards use gold values chosen for the mocks.</div><div class="finding-fix"><strong>Fix:</strong> Confirm or replace the three gold tokens.</div></article><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Card title size is not a token</h3><span class="finding-location">DESIGN.md, typography</span></header><div class="finding-note">The mocks use 15px on the large card and 12px on the small one.</div><div class="finding-fix"><strong>Fix:</strong> Add the two sizes if implementers need them.</div></article><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Scene colours are not tokens</h3><span class="finding-location">DESIGN.md, The attic</span></header><div class="finding-note">Brick and parquet colours belong to the art, not to the interface.</div><div class="finding-fix"><strong>Fix:</strong> Leave to the final art.</div></article></div></details></section>
+<section class="dimension"><details><summary><h2>Component coverage</h2><span class="verdict-pill verdict-adequate">adequate</span></summary><div class="dim-body"><div class="dim-judgment"><p>Cards, seals, dust, the attic objects, the gauge, buttons, the bonus panel, tomes, empty slots and the trade board have a visual entry and a behavioural entry.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">The card detail view has no visual spec and no mock</h3><span class="finding-location">DESIGN.md, Components</span></header><div class="finding-note">Its content is listed in the Information Architecture; the shared-card mock shows a close cousin.</div><div class="finding-fix"><strong>Fix:</strong> Mock it, or state that it follows the shared-card layout.</div></article><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">The feed entry is an assumption without a mock</h3><span class="finding-location">DESIGN.md, Other components</span></header><div class="finding-note">The feed excerpt was removed from the shared-card page.</div><div class="finding-fix"><strong>Fix:</strong> Mock the feed screen when it is designed.</div></article></div></details></section>
+<section class="dimension"><details><summary><h2>State coverage</h2><span class="verdict-pill verdict-adequate">adequate</span></summary><div class="dim-body"><div class="dim-judgment"><p>Signed-out, first session, packs, daily bonus, sets, the four trade states, goal reached, refused opening, empty collection, quiet feed, missing image and focus are covered.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">No empty state for the friends list, the trade list and achievements</h3><span class="finding-location">EXPERIENCE.md, State Patterns</span></header><div class="finding-note">These screens were not narrated.</div><div class="finding-fix"><strong>Fix:</strong> Add them when the screens are designed.</div></article><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">No loading state for card art</h3><span class="finding-location">EXPERIENCE.md, State Patterns</span></header><div class="finding-note">Art is fetched from Steam and filtered in the browser, so a card exists briefly without its image.</div><div class="finding-fix"><strong>Fix:</strong> State what the art window shows meanwhile.</div></article></div></details></section>
+<section class="dimension"><details><summary><h2>Visual reference coverage</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>Four mockups are linked inline where they apply: card face, card backs, attic, key screens. The imported reference image is linked with its reconciliation note. Spines-win-on-conflict is stated once.</p></div></div><div class="findings-list"></div></details></section>
+<section class="dimension"><details><summary><h2>Bloat &amp; overspecification</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>Tables carry most of the content and the prose stays tied to decisions.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">&quot;Not in the MVP&quot; restates scope</h3><span class="finding-location">EXPERIENCE.md, Interaction Primitives</span></header><div class="finding-note">The list repeats product scope, yet it stops implementers from adding those interactions.</div><div class="finding-fix"><strong>Fix:</strong> Keep.</div></article></div></details></section>
+<section class="dimension"><details open><summary><h2>Inheritance discipline</h2><span class="verdict-pill verdict-thin">thin</span></summary><div class="dim-body"><div class="dim-judgment"><p>Sources resolve and names match across the two spines. The spec, however, still describes the earlier contract.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-high">high</span><h3 class="finding-title">The spec contradicts the spines on thirteen points</h3><span class="finding-location">ux-gameble.md, Changes this run asks of the spec</span></header><div class="finding-note">Reveal by glow, sets by genre, decade and publisher, no daily bonus, no achievements, a feed that is not public, and more.</div><div class="finding-fix"><strong>Fix:</strong> Run bmad-spec to adopt the spines and apply the listed changes.</div></article></div></details></section>
+<section class="dimension"><details><summary><h2>Shape fit</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>DESIGN.md follows the canonical order. EXPERIENCE.md has every default section, plus Responsive &amp; Platform and Inspiration &amp; Anti-patterns, both triggered.</p></div></div><div class="findings-list"></div></details></section>
+<div class="mechanical"><h3>Mechanical notes</h3><ul><li>Run inline by the facilitator, without subagents.</li><li>Eleven items keep an [ASSUMPTION] tag across the two spines.</li></ul></div><footer class="report-footer"><div class="meta"><span>review-rubric.md</span><span>2026-10-02T12:34:42+02:00</span></div></footer>
+</div>
+</body>
+</html>
