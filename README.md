@@ -42,7 +42,7 @@ bin/rails zeitwerk:check
 Sentry receives production errors only (no tracing, no profiling, no personal data; the player id is the only thing attached about a player). It starts only when `SENTRY_DSN` is set, so development and test send nothing.
 
 1. Create the Sentry project (platform: Rails) and copy its DSN.
-2. Export it in the shell you deploy from: `export SENTRY_DSN=https://…` (`.kamal/secrets` reads it from there; never commit it).
+2. Put it in `config/sentry_dsn.key` (git-ignored like `master.key`, kept out of the image); `.kamal/secrets` reads it from there. Never commit it.
 3. Deploy: `bin/kamal deploy`. The release is the deployed `KAMAL_VERSION`.
 4. Send a test event and check it appears in the Sentry project, tagged `production` and the release:
 
