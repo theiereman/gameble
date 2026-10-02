@@ -7,9 +7,6 @@ covers: [R5]
 after: [4]
 hitl: false
 risk: low
-tracker_id: 6
-remote: https://github.com/theiereman/gameble/issues/6
-tracker_status: backlog
 ---
 
 # Front-end toolchain

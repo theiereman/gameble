@@ -3,7 +3,7 @@ title: 'Walking skeleton running locally'
 type: 'feature'
 ticket: '1'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '311fd22bd289df0266c439a85fd1f80cc1b68ccb'
 route: 'full'
 route_source: 'auto'

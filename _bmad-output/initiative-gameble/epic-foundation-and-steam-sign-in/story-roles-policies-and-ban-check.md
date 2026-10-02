@@ -7,9 +7,6 @@ covers: [R4]
 after: [6]
 hitl: false
 risk: medium
-tracker_id: 8
-remote: https://github.com/theiereman/gameble/issues/8
-tracker_status: backlog
 ---
 
 # Roles, policies and ban check

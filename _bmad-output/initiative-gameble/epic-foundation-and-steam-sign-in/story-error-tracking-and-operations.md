@@ -7,9 +7,6 @@ covers: [R7]
 after: [8]
 hitl: true
 risk: low
-tracker_id: 10
-remote: https://github.com/theiereman/gameble/issues/10
-tracker_status: backlog
 ---
 
 # Error tracking and operations

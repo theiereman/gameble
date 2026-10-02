@@ -7,9 +7,6 @@ covers: [R2, R8]
 after: [1]
 hitl: false
 risk: low
-tracker_id: 3
-remote: https://github.com/theiereman/gameble/issues/3
-tracker_status: backlog
 ---
 
 # CI gates

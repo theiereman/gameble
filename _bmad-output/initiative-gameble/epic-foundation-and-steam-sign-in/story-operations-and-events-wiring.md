@@ -7,9 +7,6 @@ covers: [R3]
 after: [2]
 hitl: false
 risk: medium
-tracker_id: 4
-remote: https://github.com/theiereman/gameble/issues/4
-tracker_status: backlog
 ---
 
 # Operations and events wiring

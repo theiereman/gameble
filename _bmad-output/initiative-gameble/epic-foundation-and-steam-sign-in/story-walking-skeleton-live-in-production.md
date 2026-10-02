@@ -7,9 +7,6 @@ covers: [R2, R7]
 after: []
 hitl: true
 risk: medium
-tracker_id: 2
-remote: https://github.com/theiereman/gameble/issues/2
-tracker_status: backlog
 ---
 
 # Walking skeleton live in production
