@@ -3,7 +3,7 @@ title: 'Attic page shell'
 type: 'feature'
 ticket: '8'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '3aa9183eee4963cd458aa9adff644f3de1fda963'
 route: 'full'
 route_source: 'auto'

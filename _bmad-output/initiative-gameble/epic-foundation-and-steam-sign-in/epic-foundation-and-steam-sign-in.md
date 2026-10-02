@@ -6,12 +6,10 @@ parent: initiative-gameble
 covers: [CAP-1, CAP-18]
 after: []
 assignee: ""
+status: done
 risk: medium
 estimate: ""
 estimate_basis: ""
-tracker_id: 1
-remote: https://github.com/theiereman/gameble/issues/1
-tracker_status: backlog
 ---
 
 # Foundation and Steam sign-in
@@ -68,3 +66,5 @@ The platform baseline and the `Accounts` sign-in path. Not the catalog, packs, o
 - Decision: a closing refactor sweep (story 10) follows every other story.
 - Assumption: the set check was run by the facilitator in this conversation, not by independent agents.
 
+- Decision (2026-10-02): the author closed the epic with every story built. Done when checks 1, 4 and 6 name production, which does not exist yet; they were verified locally and on the test LXC, and the production checks are owed with the deferred production deployment (`deferred-work.md`).
+- Decision (2026-10-02): ticket tracking moved from GitHub Issues to the repo store at the author's request; the tracker fields were removed from this epic's files.

@@ -3,7 +3,7 @@ title: 'Steam sign-in'
 type: 'feature'
 ticket: '6'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: 'a47113e550be5373b4c63d456a2a1f15d0a47977'
 route: 'full'
 route_source: 'auto'

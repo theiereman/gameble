@@ -3,7 +3,7 @@ title: 'Roles, policies and ban check'
 type: 'feature'
 ticket: '7'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '92feaecc2c6496dabbcd0e2a13ef837f62aafe41'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'CI gates'
 type: 'chore'
 ticket: '2'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '68f23708f961db17eb65e75407b3b361a9466139'
 route: 'oneshot'
 route_source: 'auto'

@@ -6,9 +6,6 @@ parent: epic-foundation-and-steam-sign-in
 after: [1, 2, 3, 4, 5, 6, 7, 8, 9]
 hitl: false
 risk: low
-tracker_id: 11
-remote: https://github.com/theiereman/gameble/issues/11
-tracker_status: backlog
 ---
 
 # Refactor sweep

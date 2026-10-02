@@ -3,7 +3,7 @@ title: 'Front-end toolchain'
 type: 'feature'
 ticket: '5'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '4f19c8fa155169d33e46ed6aba7f65ac6e561344'
 route: 'full'
 route_source: 'auto'

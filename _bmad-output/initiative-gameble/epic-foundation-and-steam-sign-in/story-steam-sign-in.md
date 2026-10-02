@@ -7,9 +7,6 @@ covers: [R1, R4]
 after: [3, 4]
 hitl: true
 risk: medium
-tracker_id: 7
-remote: https://github.com/theiereman/gameble/issues/7
-tracker_status: backlog
 ---
 
 # Steam sign-in

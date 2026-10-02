@@ -3,7 +3,7 @@ title: 'Error tracking and operations'
 type: 'feature'
 ticket: '9'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '63f5c20cb3c2274dc9145dd50a52ff1aa54edf8e'
 route: 'full'
 route_source: 'auto'

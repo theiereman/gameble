@@ -7,9 +7,6 @@ covers: [R9, R4]
 after: [7]
 hitl: false
 risk: low
-tracker_id: 9
-remote: https://github.com/theiereman/gameble/issues/9
-tracker_status: backlog
 ---
 
 # Attic page shell

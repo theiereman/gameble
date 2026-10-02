@@ -7,9 +7,6 @@ covers: [R5, R6]
 after: [3]
 hitl: false
 risk: low
-tracker_id: 5
-remote: https://github.com/theiereman/gameble/issues/5
-tracker_status: backlog
 ---
 
 # Locales and layout shell

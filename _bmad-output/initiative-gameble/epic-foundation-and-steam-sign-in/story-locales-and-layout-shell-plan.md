@@ -3,7 +3,7 @@ title: 'Locales and layout shell'
 type: 'feature'
 ticket: '4'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: 'debfd316530ca133d6082065af3c47efe4a5e4d7'
 route: 'full'
 route_source: 'auto'
