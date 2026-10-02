@@ -17,21 +17,21 @@ sources:
 
 ## Why
 
-The idea is a vision, and it answers a pain. "Collect Wikipedia" card games (WikiMasters, Wikigacha) prove the loop is fun: pull a pack, land something famous, show it off and trade it. But the existing games are slow under load, flat to open, generic-looking, padded with hollow features, and pushy about money.
+The idea is a vision, and it seizes an opportunity. Gamers have no real trading card game (TCG) made of their games: Steam Trading Cards drop only from games you own, are sold for real money, and have no pack-opening moment. "Collect Wikipedia" card games (WikiMasters, Wikigacha) prove the loop is fun (pull a pack, land something prestigious, show it off, trade it), but they are slow under load, flat to open, generic-looking, padded with hollow features, and pushy about money.
 
-gameble is an open-source passion project that does this loop properly for French-speaking friend groups. Its lasting edge is not execution but community: every player belongs to *La Grande Confrérie des Gamblers* (the Brotherhood). The launch beachhead is disappointed WikiMasters and Wikigacha players.
+gameble is an open-source passion project, and the game its author wants to play: that loop, done properly, where every card is a Steam game. It serves French- and English-speaking gamers who have a Steam account. Its lasting edge is not execution but community: every player belongs to *La Grande Confrérie des Gamblers* (the Brotherhood). The first players are the author's friends who play WikiMasters and love video games.
 
 ## Capabilities
 
 - **CAP-1**
-  - **intent:** A visitor can sign in with Discord or Google and get a player account.
-  - **success:** Sign-in with either provider creates the account or reuses an existing one. No password is stored by gameble.
+  - **intent:** A visitor can sign in with their Steam account, and only that way, to get a player account.
+  - **success:** Steam sign-in creates the account or reuses the one tied to that Steam account. No other sign-in method exists, and gameble stores no password.
 - **CAP-2**
-  - **intent:** The system builds a card catalog from French Wikipedia, with recognisable subjects only.
-  - **success:** An import run produces cards that match the inclusion and exclusion rules in `catalog-and-rarity.md`, each with a family and a Commons image or fallback art.
+  - **intent:** The system builds a card catalog from the Steam catalog, keeping established games only.
+  - **success:** An import run produces cards that match the inclusion and exclusion rules in `catalog-and-rarity.md`, each with its title, short description, store tags, sets and Steam image address, all stored in gameble's own database.
 - **CAP-3**
-  - **intent:** Every card has a rarity that reflects the subject's worldwide fame, so a player can guess why a card is rare.
-  - **success:** Rarity follows the formula in `catalog-and-rarity.md`. A subject covered by more Wikipedias never ranks below one covered by fewer, unless the French-pageview boost applies.
+  - **intent:** Every card has a rarity that reflects the game's prestige, so a player can guess why a card is rare.
+  - **success:** Rarity is computed only from the game's Steam review score and review count, as specified in `catalog-and-rarity.md`. Metacritic is not used.
 - **CAP-4**
   - **intent:** A player earns one free 5-card pack every 10 minutes, banking up to 10 unopened packs.
   - **success:**
@@ -43,17 +43,17 @@ gameble is an open-source passion project that does this loop properly for Frenc
   - **intent:** Opening a pack is a staged reveal that builds tension in proportion to rarity.
   - **success:** The reveal behaves as specified in `card-and-reveal.md` on desktop and mobile. "Flip all" never skips a legendary's reveal.
 - **CAP-6**
-  - **intent:** A player can browse their collection by family and see their progress in each family.
-  - **success:** Each family shows owned / total distinct cards. Duplicates are counted per card.
+  - **intent:** A player can browse their collection by set and see their progress in each set.
+  - **success:** Each set shows owned / total distinct cards. A card in several sets counts in each. Duplicates are counted per card.
 - **CAP-7**
-  - **intent:** A player can open a card's detail view to see the subject and its sources.
-  - **success:** The detail view shows the title, summary, rarity, family, a link to the French Wikipedia article, and the image author and licence.
+  - **intent:** A player can open a card's detail view to see the game and its credits.
+  - **success:** The detail view shows the title, short description, rarity, sets, publisher and copyright, and a link to the game's Steam store page. Card text appears in the player's UI language.
 - **CAP-8**
   - **intent:** Each player has a public collection profile reachable by link.
-  - **success:** A logged-out visitor opening the profile link sees that player's collection and family progress.
+  - **success:** A logged-out visitor opening the profile link sees that player's collection and set progress.
 - **CAP-9**
   - **intent:** A player can share a pull as a link that previews nicely on Discord, X and WhatsApp.
-  - **success:** Pasting the link on each of the three platforms shows a preview with the card image, title and rarity.
+  - **success:** Pasting the link on each of the three platforms shows a preview with the game's Steam image, the card title and its rarity. No image is generated.
 - **CAP-10**
   - **intent:** Players can become friends through an invite link or a friend code.
   - **success:** Using a valid link or code creates a mutual friendship, visible to both players.
@@ -88,32 +88,35 @@ gameble is an open-source passion project that does this loop properly for Frenc
 ## Constraints
 
 - **No real money**, anywhere: no purchases, no ads, no cash-out.
-- **French UI only** in the MVP, with i18n infrastructure in place. All repo text (code, comments, docs) is in English.
+- **French and English UI**, both complete at launch. Card text is available in every UI language. All repo text (code, comments, docs) is in English.
+- **Cards are only pulled or traded.** Owning a game on Steam never grants its card.
 - **Card copies:** every copy stores its minted rarity and season from day one, so a V2 market and V3 seasons need no migration.
-- **Forkable engine:** the game engine (packs, rarity tiers, collection, trades, goals, feed) is independent of the catalog source. French Wikipedia is one adapter.
+- **Forkable engine:** the game engine (packs, rarity tiers, collection, trades, goals, feed) is independent of the catalog source. Steam is one adapter.
 - **Open source.** Infrastructure components (queues, caches, streaming) are added only when measured load justifies them.
-- **Stack:** full TypeScript (strict), React SPA and PostgreSQL. Details are in `stack.md`.
-- **Stateless services:** several API instances can run in parallel. Pack credit and trades are transactional in PostgreSQL.
+- **Stack:** Ruby on Rails and PostgreSQL, with React components embedded for highly interactive parts. Details are in `stack.md`.
+- **Stateless services:** several app instances can run in parallel. Pack credit and trades are transactional in PostgreSQL.
 - **Zero-downtime ready:** health checks, graceful shutdown, and backward-compatible (expand/contract) migrations.
 - **CI/CD ready:** one reproducible container image per service, configuration by environment variables only, automated tests in CI from day one.
-- **Separable services:** the API, the catalog importer and future workers are separable deployables of one modular monolith.
+- **Separable processes:** the web app, the catalog importer and background workers are parts of one modular monolith that can be deployed separately.
 - **Pack opening:** p95 latency < 200 ms.
-- **Catalog source:** Wikimedia dumps, not live Wikipedia APIs.
-- **Images:** Wikimedia Commons only, with author and licence attribution (CC BY-SA). Subjects without an image get designed fallback art.
+- **Catalog source:** the Steam API, read only by offline import scripts that copy the data into gameble's database. Play never depends on a live Steam API call, and a card keeps its data if Steam changes or removes the game.
+- **Images:** loaded from Steam's CDN, never copied or transformed. The publisher and copyright are shown on the card, and the site terms state there is no affiliation with Steam or Valve. There is no fallback art.
 - **Bots:** edge bot protection from day one; trades are limited to friends.
 - **Platforms:** responsive desktop and mobile web. Native store apps must remain possible later.
-- **Wikipedia edits:** never rewarded in any way.
 - **Tone and naming** follow `brotherhood-tone.md`.
 
 ## Non-goals
 
 - Combat or any card battle mechanic.
+- Sign-in methods other than Steam.
+- Catalogs other than Steam.
 - Back-office features beyond moderation (set creation is V3).
 - Guilds.
-- Any currency, auction house, listing fee or sale commission (V2, see `later-roadmap.md`).
-- Brotherhood Pass, seasonal catalog recompute, community-voted themed sets, back-office, foil variants (V3).
+- Any currency, auction house, card destruction, listing fee or sale commission (V2, see `later-roadmap.md`).
+- Brotherhood Pass, seasonal catalog recompute, community-voted themed sets (V3).
+- Bonuses from the player's Steam library, playtime or achievements (later).
+- Curation of games delisted from Steam (later).
 - Native App Store and Play Store apps.
-- English UI, and catalogs other than French Wikipedia.
 
 ## Success signal
 
@@ -125,3 +128,14 @@ The author plays gameble every day for a month alongside at least 10 active play
 - The weekly-goal reward is one rare pack per contributor.
 - Multi-card trades are allowed in both directions (N cards for M cards).
 - Per-tier draw odds start at ~70% common and ~20% for the second tier, with the rest shared, and are tuned in playtests.
+- The card detail view links to the game's Steam store page (CAP-7).
+- The live feed and goal gauge use Rails' built-in live updates; the exact mechanism is chosen in architecture.
+- A card whose Steam image no longer loads still shows its frame and title.
+- The copy never names a real company; publisher names appear only as card credits and set names.
+- Card text translations come from Steam's own localized store text, imported once per UI language.
+
+## Open Questions
+
+- **Prestige formula (CAP-3):** how do Steam review score and review count combine into the 5 tiers? This is calibrated on real import data.
+- **Sets in the MVP (CAP-6):** sets can later be created from Steam store tags, probably in a second phase. Do genre, decade and publisher sets, with per-set progress, ship in the MVP, or do sets wait for that phase?
+- **Pack reveal (CAP-5):** `card-and-reveal.md` keeps the rarity glow from the brief. The paused UX work explored dust and a seal, and is being revisited for Steam art. Which one is the contract? This is settled when the UX files are adopted.

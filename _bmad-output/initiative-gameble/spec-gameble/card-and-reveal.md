@@ -4,9 +4,12 @@ Referenced by CAP-5, CAP-7, CAP-9.
 
 ## Card
 
-- **Identity:** a gameble-designed frame carries the identity, with the family colour, a rarity effect and the Brotherhood house style. It must not look generic or template-made.
-- **Image:** the Wikimedia Commons photo is inset in the frame. Author and licence appear in the detail view.
-- **No photo:** a designed per-family fallback, never a blank or placeholder.
+- **Identity:** a gameble-designed frame carries the identity, with a rarity effect and the Brotherhood house style. It must not look generic or template-made.
+- **Art style:** 16-bit pixel art for the frame and interface. How untouched, full-colour Steam art sits inside it is settled in the UX work.
+- **Image:** the game's official Steam art is inset in the frame, loaded as-is from Steam's CDN.
+- **Text:** the title and a short description, in the player's UI language.
+- **Credits:** the publisher and copyright are shown on the card.
+- **No image:** there is no fallback art. A card whose image no longer loads still shows its frame and title.
 
 ## Pack reveal
 
