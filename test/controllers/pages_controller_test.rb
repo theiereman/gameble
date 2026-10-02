@@ -33,6 +33,25 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a.button--secondary[href='/fr']"
   end
 
+  test "the sample island's mount element carries its name and French props from the server" do
+    get home_path(locale: :fr)
+
+    assert_select "[data-controller=turbo-mount-sample-island]" do |elements|
+      element = elements.sole
+      assert_equal "SampleIsland", element["data-turbo-mount-sample-island-component-value"]
+      assert_equal(
+        {
+          "data" => { "season" => 1 },
+          "strings" => {
+            "heading" => "Le tableau de rassemblement de la Confrérie",
+            "season" => "Saison de service en cours :"
+          }
+        },
+        JSON.parse(element["data-turbo-mount-sample-island-props-value"])
+      )
+    end
+  end
+
   test "an unknown locale segment answers not found" do
     get "/de"
 

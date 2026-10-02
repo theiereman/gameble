@@ -15,3 +15,6 @@ en:
       intro: "The vaults of the Grand Gamblers' Brotherhood stand open to you. The scribes are still dusting the shelves; the cards arrive soon. Stand ready."
       enlist: "Report for duty"
       linger: "Linger in the archives"
+      island:
+        heading: "The Brotherhood muster board"
+        season: "Current season of service:"

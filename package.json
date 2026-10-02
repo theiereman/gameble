@@ -1,7 +1,22 @@
 {
   "private": true,
   "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hotwired/stimulus": "3.2.2",
+    "@hotwired/turbo-rails": "8.0.23",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "stimulus-vite-helpers": "3.1.0",
+    "turbo-mount": "0.4.4"
+  },
   "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "typescript": "7.0.2",
     "vite": "^8.3.2",
     "vite-plugin-ruby": "^5.2.5"
   }

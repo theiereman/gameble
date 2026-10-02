@@ -249,6 +249,13 @@ Verified against the RubyGems and npm registries on 2026-10-02. If a gem lags be
 | React | 19.3.0 |
 | TypeScript | 7.0.2 |
 | Turbo Mount | 0.4.4 |
+| @hotwired/turbo-rails (npm) | 8.0.23 |
+| @hotwired/stimulus (npm) | 3.2.2 |
+| turbo-mount (npm) | 0.4.4 |
+| react-dom | 19.3.0 |
+| @types/react, @types/react-dom | 19.3.0 |
+| @vitejs/plugin-react | 6.1.1 |
+| stimulus-vite-helpers | 3.1.0 |
 | dry-operation | 1.1.0 |
 | Rails Event Store | 3.2.0 |
 | Packwerk | 3.3.1 |

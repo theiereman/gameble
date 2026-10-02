@@ -13,4 +13,9 @@
       <%= t(".linger") %>
     <% end %>
   </div>
+
+  <%= turbo_mount("SampleIsland", props: {
+    data: { season: 1 },
+    strings: { heading: t(".island.heading"), season: t(".island.season") }
+  }) %>
 </div>
