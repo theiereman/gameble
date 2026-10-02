@@ -1,7 +1,8 @@
 module Game
   # Fills the bank of a player who never had a pack (CAP-4, AD-7): ten
   # regular packs, available now, of five cards each drawn from the published
-  # season, inserted in one statement under the bank lock, and
+  # season with the first-session guarantee (FirstSessionGuarantee), inserted
+  # in one statement under the bank lock, and
   # Game::BankFilled. Idempotent: a player who ever had a pack, or a game
   # with no published season, gets nothing and publishes nothing.
   #
@@ -13,6 +14,11 @@ module Game
   class FillBank < Operation
     # Packs in a full bank.
     BANK_SIZE = 10
+
+    def initialize(random: SecureRandom)
+      super()
+      @random = random
+    end
 
     def call(player:)
       player = step require_player(player)
@@ -34,9 +40,12 @@ module Game
 
     def insert_packs(player, pool)
       now = Time.current
-      Pack.insert_all!(Array.new(BANK_SIZE) do
+      draws = Array.new(BANK_SIZE) { Draw.pack(odds: DrawOdds::REGULAR, size: Pack::SIZE, random: @random, pool:) }
+      # Rows keep their order, and insert_all! numbers them in that order:
+      # the opening order (available_at, id) is the order of `draws`.
+      Pack.insert_all!(FirstSessionGuarantee.apply(draws, pool:, random: @random).map do |cards|
         { player_id: player.id, token: Pack.generate_unique_secure_token, kind: "regular", season_id: pool.season_id,
-          card_season_ids: Draw.pack(odds: DrawOdds::REGULAR, size: Pack::SIZE, pool:), available_at: now }
+          card_season_ids: cards, available_at: now }
       end)
       Success()
     end
