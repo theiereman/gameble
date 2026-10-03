@@ -1,0 +1,24 @@
+<% title = public_profile_title(@owner) %>
+<% content_for :back_button, true %>
+<% content_for :title, title %>
+<% content_for :head do %><meta name="robots" content="noindex"><% end %>
+<%# One of a player's sets opened on their public profile (CAP-8): their
+    shelf on the left, the open tome with their cards on the right, the
+    owner named above it; on a phone the tome alone, with a way back to the
+    shelf. %>
+<section class="library library--open profile" aria-labelledby="library-heading">
+  <% token = @owner.token %>
+  <% started = @kind == PublicProfilesController::STARTED %>
+  <div class="library__aside">
+    <%= render "library/shelf", kind: @kind, spines: @spines, pagy: @pagy, current_set: @set,
+      tabs: PublicProfilesController::TABS, mark_complete: true,
+      tab_url: ->(kind) { brother_path(token, kind: (kind unless kind == PublicProfilesController::STARTED)) },
+      set_url: ->(kind, key, page) { brother_set_path(token, kind:, key:, page:, tab: (PublicProfilesController::STARTED if started)) } %>
+  </div>
+  <div class="library__open">
+    <%= link_to t(".owner", name: title), brother_path(token), class: "profile__owner", data: { turbo_prefetch: false } %>
+    <%= link_to t("library.set.back_to_shelf"), brother_path(token, kind: (@kind unless started), page: @shelf_page),
+      class: "library__back", data: { turbo_prefetch: false } %>
+    <%= render "library/tome", set: @set, slots: @slots, quantities: @quantities %>
+  </div>
+</section>

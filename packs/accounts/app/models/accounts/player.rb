@@ -1,6 +1,13 @@
 module Accounts
   # A player (CAP-1). Known by a Steam id; addressed in public by a random
-  # token, never by its database id (AD-15). No name, avatar or password.
+  # token, never by its database id (AD-15). The token is a public,
+  # non-secret handle: it is the link to the player's public profile (CAP-8).
+  # No avatar or password.
+  #
+  # Its display name is the Steam persona name read at the last sign-in
+  # (`persona_name`, nil until Steam gives one): a label, not unique, which
+  # titles the public profile. Reports and moderation key on the token. It is
+  # personal data: an account's export and deletion include it.
   #
   # A player holds one role (AD-14): player, moderator or administrator; a
   # signed-out visitor is the absence of a player. A ban is the time it took

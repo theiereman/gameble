@@ -1,0 +1,10 @@
+<% content_for :back_button, true %>
+<% content_for :title, t(".title") %>
+<% content_for :head do %><meta name="robots" content="noindex"><% end %>
+<%# The profile asked for cannot be shown (CAP-8): no player has this
+    token, or the profile may not be shown. One page for both, so a ban
+    cannot be told from a missing player. %>
+<section class="profile-unavailable" aria-labelledby="profile-unavailable-heading">
+  <h1 id="profile-unavailable-heading"><%= t(".title") %></h1>
+  <%= render TextPlateComponent.new(tag: :p) do %><%= t(".body") %><% end %>
+</section>

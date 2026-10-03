@@ -203,6 +203,7 @@ fr:
       heading: "La bibliothèque de la Confrérie"
       tabs:
         label: "Les sortes de collections"
+        started: "Entamées"
         tome: "Tomes"
         publisher: "Éditeurs"
         best_of_year: "Les mieux notés de l'année"
@@ -212,10 +213,13 @@ fr:
         one: "%{count} carte possédée sur %{total}"
         other: "%{count} cartes possédées sur %{total}"
       empty:
+        started: "Aucune collection entamée pour l'instant, Confrère : celle-ci attend encore sa première carte."
         tome: "Aucun tome ne se dresse encore sur ces étagères, Confrère. Cette saison n'en relie aucun."
         publisher: "Aucun éditeur n'a mérité sa collection cette saison, Confrère."
         best_of_year: "Aucune année n'a vu ses meilleurs reliés cette saison, Confrère."
       past_the_end: "Cette étagère est vide, Confrère. Les tomes s'arrêtent sur une étagère précédente."
+      complete: "Complète"
+      public_profile: "Ton profil public"
       no_season: "Les étagères sont nues, Confrère : la Confrérie n'a encore publié aucune saison de cartes."
     set:
       back_to_shelf: "Retour à l'étagère"
@@ -225,6 +229,25 @@ fr:
       copies:
         one: "%{count} exemplaire"
         other: "%{count} exemplaires"
+  public_profiles:
+    title: "%{name}"
+    fallback_title: "Confrère %{code}"
+    show:
+      counts: "La collection"
+      # French keeps the singular for 0, which the plural rule here does not.
+      distinct_cards:
+        zero: "%{count} carte collectionnée"
+        one: "%{count} carte collectionnée"
+        other: "%{count} cartes collectionnées"
+      complete_sets:
+        zero: "%{count} collection complète"
+        one: "%{count} collection complète"
+        other: "%{count} collections complètes"
+    set:
+      owner: "La bibliothèque de %{name}"
+    unavailable:
+      title: "Profil indisponible"
+      body: "La bibliothèque de ce Confrère est fermée aux visiteurs, Confrère. Le lien ne mène nulle part, ou son propriétaire ne la montre plus."
   daily_bonuses:
     create:
       collected: "Le booster du jour est dans le coffre, Confrère. Ouvre-le quand tu veux."

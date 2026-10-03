@@ -3,16 +3,26 @@ module Accounts
   # that id, or creates one and publishes Accounts::PlayerRegistered. A banned
   # player is refused.
   #
-  #   Accounts::SignIn.new.call(steam_id: "76561197960287930")
+  # The persona name the web layer read from Steam for this sign-in (CAP-8)
+  # becomes the player's display name: a present one, stripped and cut to
+  # PERSONA_NAME_LENGTH characters, replaces a different stored one, so a
+  # renamed Steam account is picked up here; nil or blank keeps the stored
+  # name (Steam failed or gave none). Accounts never calls Steam itself.
+  #
+  #   Accounts::SignIn.new.call(steam_id: "76561197960287930", persona_name: "Gabe")
   #   # => Success(player) | Failure(:invalid_steam_id) | Failure(:banned)
   class SignIn < ApplicationOperation
-    def call(steam_id:)
+    PERSONA_NAME_LENGTH = 64
+
+    def call(steam_id:, persona_name: nil)
       steam_id = step validate_steam_id(steam_id)
 
       transaction do
         player = step find_or_create_player(steam_id)
         step refuse_banned(player)
-        if player.previously_new_record?
+        registered = player.previously_new_record?
+        step store_persona_name(player, persona_name)
+        if registered
           step publish(PlayerRegistered.new(data: { player_id: player.id }), stream_name: "Accounts::Player$#{player.id}")
         end
         player
@@ -31,6 +41,13 @@ module Accounts
 
     def refuse_banned(player)
       player.banned? ? Failure(:banned) : Success(player)
+    end
+
+    def store_persona_name(player, persona_name)
+      # Control characters (a NUL byte would fail the write) are dropped.
+      name = persona_name.gsub(/[[:cntrl:]]/, "").strip.first(PERSONA_NAME_LENGTH).strip if persona_name.is_a?(String)
+      player.update!(persona_name: name) if name.present? && name != player.persona_name
+      Success(player)
     end
 
     # Two first sign-ins racing on the same Steam id meet the unique index:

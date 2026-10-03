@@ -21,6 +21,14 @@ Rails.application.routes.draw do
     # One set of the library, opened beside the shelf, by kind and key (AD-15).
     get "library/:kind/:key" => "library#set", as: :library_set, constraints: { kind: /tome|publisher|best_of_year/ }
 
+    # A player's public profile (CAP-8), by their token (AD-15: 24 base58
+    # characters, as has_secure_token makes them): their library, and one of
+    # their sets opened beside its shelf.
+    resources :brothers, only: :show, param: :token, controller: :public_profiles,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    get "brothers/:token/library/:kind/:key" => "public_profiles#set", as: :brother_set,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/, kind: /tome|publisher|best_of_year/ }
+
     # A card's detail (CAP-7), by its slug (AD-15): in the published season,
     # or in the season numbered.
     get "cards/:slug" => "cards#show", as: :card

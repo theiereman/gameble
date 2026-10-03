@@ -1,8 +1,12 @@
 <% content_for :back_button, true %>
 <%# The library (DESIGN.md: a decorated room; mockups/key-screens.html,
-    library()): the published season's sets on a shelf, by kind. %>
+    library()): the published season's sets on a shelf, by kind; for a
+    signed-in player, the way to the public profile showing it to others. %>
 <section class="library" aria-labelledby="library-heading">
   <h1 id="library-heading" class="library__heading"><%= t(".heading") %></h1>
+  <% if current_player %>
+    <%= link_to t(".public_profile"), brother_path(current_player.token), class: "library__profile", data: { turbo_prefetch: false } %>
+  <% end %>
   <%= render "library/shelf", kind: @kind, spines: @spines, pagy: @pagy, tab_url: ->(kind) { library_path(kind:) },
     set_url: ->(kind, key, page) { library_set_path(kind:, key:, page:) }, current_set: nil %>
 </section>

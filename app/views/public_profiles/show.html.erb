@@ -1,0 +1,21 @@
+<% title = public_profile_title(@owner) %>
+<% content_for :back_button, true %>
+<% content_for :title, title %>
+<% content_for :head do %><meta name="robots" content="noindex"><% end %>
+<%# A player's public profile (CAP-8): their name, what their collection
+    counts, and their library, open on the sets they have started. %>
+<section class="library profile" aria-labelledby="library-heading">
+  <header class="profile__header">
+    <h1 id="library-heading" class="library__heading profile__name"><%= title %></h1>
+    <ul class="profile__counts" aria-label="<%= t(".counts") %>">
+      <li><%= t(".distinct_cards", count: @summary.distinct_cards) %></li>
+      <li><%= t(".complete_sets", count: @summary.complete_sets) %></li>
+    </ul>
+  </header>
+  <% token = @owner.token %>
+  <% tab = (@kind if @kind == PublicProfilesController::STARTED) %>
+  <%= render "library/shelf", kind: @kind, spines: @spines, pagy: @pagy, current_set: nil,
+    tabs: PublicProfilesController::TABS, mark_complete: true,
+    tab_url: ->(kind) { brother_path(token, kind: (kind unless kind == PublicProfilesController::STARTED)) },
+    set_url: ->(kind, key, page) { brother_set_path(token, kind:, key:, page:, tab:) } %>
+</section>
