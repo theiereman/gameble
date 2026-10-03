@@ -7,9 +7,14 @@
 # whether their profile may be shown, Catalog the sets and cards, Game the
 # owner's progress, copies and counts.
 #
+# A card shared from the owner's collection (CAP-9, story 4.5) opens their
+# profile with that card's detail first, an owner line, and for a visitor an
+# invitation to play; its Open Graph tags let a pasted link preview it.
+#
 # An unknown token and a profile that may not be shown (a banned owner)
 # render the same unavailable page with a 404, so a ban cannot be told from
-# a missing player.
+# a missing player. These pages are read from shared links, so any browser
+# and link-preview crawler gets them (public_read?).
 class PublicProfilesController < ApplicationController
   include ShelfLoading
 
@@ -51,7 +56,32 @@ class PublicProfilesController < ApplicationController
     @quantities = Game::Quantities.call(@owner, @slots.keys)
   end
 
+  # GET /:locale/brothers/:token/cards/:slug and
+  # /:locale/brothers/:token/cards/:slug/seasons/:number: a card shown from
+  # the owner's collection, first on their profile, the Started shelf below.
+  # As on the card's own page, an unknown slug or a card the season asked
+  # (the published one by default) does not hold is not found; an owner who
+  # no longer holds it is said so.
+  def card
+    number = request.path_parameters[:number]&.to_i
+    @detail = Catalog::CardDetail.call(slug: params[:slug], locale: I18n.locale, season_number: number)
+    raise ActiveRecord::RecordNotFound if @detail.nil?
+
+    id = @detail.card_season_id
+    @owner_holds = Game::Quantities.call(@owner, [ id ]).key?(id)
+
+    season = Catalog::PublishedSeason.call
+    @kind = STARTED
+    load_shelf(shelf_relation(season), owner: @owner)
+    @summary = Game::CollectionSummary.call(@owner, season:)
+  end
+
   private
+    # Every page of a profile is read from a shared link.
+    def public_read?
+      request.get? || request.head?
+    end
+
     def authorize_page
       authorize :page, :show?
     end

@@ -9,12 +9,16 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
 
   setup do
+    # A PUBLIC_URL exported in the shell would replace the request's base.
+    @public_url = Rails.configuration.x.public_url
+    Rails.configuration.x.public_url = nil
     OmniAuth.config.test_mode = true
   end
 
   teardown do
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
+    Rails.configuration.x.public_url = @public_url
   end
 
   def sign_in(player)
@@ -186,6 +190,60 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "a holder gets the share block: a button, the season-qualified link of their profile, a status region" do
+    player = accounts_players(:player)
+    hold(player, catalog_card_seasons(:portal_one), 1)
+    sign_in(player)
+
+    get card_path(locale: :en, slug: "portal")
+
+    url = "http://www.example.com/en/brothers/#{player.token}/cards/portal/seasons/1"
+    share = css_select(".card-detail__share[data-controller=share]").sole
+    assert_equal [ "Link copied", "Press Ctrl+C to copy" ], [ share["data-share-copied-value"], share["data-share-manual-value"] ]
+    assert_select ".card-detail__share button[type=button][data-action='share#copy']", "Share this card"
+    assert_select ".card-detail__share label", /Link to this card/
+    assert_select ".card-detail__share label input[type=text][readonly][data-share-target=url][value=?]", url
+    assert_select ".card-detail__share [role=status][data-share-target=status]", ""
+
+    get card_path(locale: :fr, slug: "portal")
+    assert_select ".card-detail__share input[value=?]", "http://www.example.com/fr/brothers/#{player.token}/cards/portal/seasons/1"
+    assert_select ".card-detail__share button", "Partager cette carte"
+  end
+
+  test "the share link names the season of the card-season held, on the configured public base" do
+    player = accounts_players(:player)
+    hold(player, catalog_card_seasons(:portal_one), 1)
+    publish_season_two_with_portal
+    Rails.configuration.x.public_url = "https://gameble.example"
+    host! "evil.example"
+    sign_in(player)
+
+    get card_season_path(locale: :en, slug: "portal", number: 1)
+    assert_select ".card-detail__share input[value=?]", "https://gameble.example/en/brothers/#{player.token}/cards/portal/seasons/1"
+    assert_not_includes response.body, "evil.example"
+
+    # Season 2's portal is not held.
+    get card_path(locale: :en, slug: "portal")
+    assert_select ".card-detail__share", false
+  ensure
+    Rails.configuration.x.public_url = @public_url
+  end
+
+  test "no share block for a player without copies, nor for a visitor" do
+    player = accounts_players(:player)
+    hold(player, catalog_card_seasons(:portal_one), 0)
+    hold(accounts_players(:moderator), catalog_card_seasons(:portal_one), 1)
+    sign_in(player)
+
+    get card_path(locale: :en, slug: "portal")
+    assert_select ".card-detail__share", false
+
+    delete session_path(locale: :en)
+    get card_path(locale: :en, slug: "portal")
+    assert_select ".card-detail__share", false
+    assert_select "[data-controller=share]", false
+  end
+
   # The test connection keeps its query cache from one request to the next,
   # which a real request never inherits: it is emptied before counting.
   def assert_request_queries(count, &request)
@@ -202,6 +260,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_request_queries(4) { get card_path(locale: :en, slug: "portal") }
     assert_response :success
     assert_select ".card-detail__copies", "You hold 2 copies"
+    assert_select ".card-detail__share"
 
     delete session_path(locale: :en)
     # The card detail and its sets.

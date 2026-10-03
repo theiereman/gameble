@@ -246,6 +246,12 @@ fr:
         other: "%{count} collections complètes"
     set:
       owner: "La bibliothèque de %{name}"
+    card:
+      og_title: "%{title} — %{rarity}"
+      og_description: "Une carte du grenier de la Confrérie. Enrôle-toi via Steam, Confrère : dix paquets t'attendent."
+      owner_gone: "N'est plus dans la collection de %{owner}"
+      invitation: "Dix paquets t'attendent au grenier, Confrère. Ouvre-les, et les cartes sont à toi."
+      sign_in: "Les réclamer via Steam"
     unavailable:
       title: "Profil indisponible"
       body: "La bibliothèque de ce Confrère est fermée aux visiteurs, Confrère. Le lien ne mène nulle part, ou son propriétaire ne la montre plus."
@@ -266,6 +272,11 @@ fr:
       one: "Tu en détiens %{count} exemplaire"
       other: "Tu en détiens %{count} exemplaires"
     store: "La voir sur la boutique Steam"
+    share:
+      button: "Partager cette carte"
+      url: "Lien vers cette carte"
+      copied: "Lien copié"
+      manual: "Appuie sur Ctrl+C pour copier"
   cards:
     face_down: "Carte face cachée"
     face_down_with_rarity: "Carte face cachée, %{rarity}"

@@ -5,8 +5,14 @@
     - detail: a Catalog::CardDetail::Detail;
     - copies: how many copies of it the viewer holds, or nil for no line;
     - owner: the name of the collection it is shown from, or nil for no line;
+    - owner_holds: whether that collection still holds it (default true); if
+      not, the owner line says it is no longer there;
     - set_url: ->(set) { path } leading each set to its tome, or nil for the
-      sets' names alone. %>
+      sets' names alone;
+    - share_url: the absolute link sharing it from the viewer's collection,
+      or nil (the default) for no share button. %>
+<% owner_holds = local_assigns.fetch(:owner_holds, true) %>
+<% share_url = local_assigns.fetch(:share_url, nil) %>
 <% view = detail.view %>
 <% strings = CardStrings.for([ view ]) %>
 <article class="card-detail" aria-labelledby="card-detail-heading">
@@ -15,8 +21,10 @@
   </div>
   <div class="card-detail__body">
     <h1 id="card-detail-heading" class="card-detail__title"><%= view.title %></h1>
-    <% if owner %>
+    <% if owner && owner_holds %>
       <p class="card-detail__owner"><%= t("card_details.owner", owner:) %></p>
+    <% elsif owner %>
+      <p class="card-detail__owner card-detail__owner--gone"><%= t("public_profiles.card.owner_gone", owner:) %></p>
     <% end %>
     <% if detail.short_description %>
       <p class="card-detail__description"><%= detail.short_description %></p>
@@ -49,6 +57,19 @@
     </dl>
     <% if copies %>
       <p class="card-detail__copies"><%= t("card_details.copies", count: copies) %></p>
+    <% end %>
+    <% if share_url %>
+      <%# Copies the link (share_controller.ts); where the clipboard cannot be
+          written, the link is selected in its field to copy by hand. %>
+      <div class="card-detail__share" data-controller="share"
+        data-share-copied-value="<%= t("card_details.share.copied") %>" data-share-manual-value="<%= t("card_details.share.manual") %>">
+        <button type="button" class="button button--primary" data-action="share#copy"><%= t("card_details.share.button") %></button>
+        <label class="card-detail__share-field">
+          <span class="card-detail__share-label"><%= t("card_details.share.url") %></span>
+          <input type="text" class="card-detail__share-url" value="<%= share_url %>" readonly data-share-target="url">
+        </label>
+        <p class="card-detail__share-status" role="status" data-share-target="status"></p>
+      </div>
     <% end %>
     <p class="card-detail__store">
       <%= link_to t("card_details.store"), card_detail_store_url(detail.store_url), class: "button button--secondary",

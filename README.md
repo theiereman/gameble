@@ -16,6 +16,8 @@ bin/setup --skip-server       # gems, npm packages, databases
 
 The database connection reads `DB_HOST`, `DB_PORT`, `DB_USER` and `DB_PASSWORD`, with defaults matching `compose.yaml`.
 
+`PUBLIC_URL` is the public base of shared links (`https://host`, no trailing slash): required in production; in development and test, links fall back to the request's base.
+
 ## Run
 
 ```sh

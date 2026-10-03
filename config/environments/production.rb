@@ -57,6 +57,11 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
+  # The public base of shared links (config/initializers/public_url.rb) is
+  # read from PUBLIC_URL, which config/deploy.yml sets; without it the shared
+  # card page and a holder's card detail page fail rather than echo the
+  # request's Host header.
+
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "example.com" }
 

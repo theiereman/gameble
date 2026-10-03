@@ -2,7 +2,9 @@
  * A card's detail (CAP-7; DESIGN.md: parchment panels, hard edges and ink
  * shadows on the 2px grid): the large face beside a definition list of what
  * the card does not carry, stacked on a phone. And the links leading to it
- * from a face or an empty slot, which keep the card's own look.
+ * from a face or an empty slot, which keep the card's own look. A held
+ * card's share button, and a card shared from a player's collection: the
+ * owner line, the invitation to play, the owner's profile below.
  */
 
 .card-detail {
@@ -22,6 +24,7 @@
 }
 
 .card-detail__body {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -40,9 +43,56 @@
   margin: 0;
 }
 
-.card-detail__copies {
+.card-detail__copies,
+.card-detail__owner {
   font-family: var(--font-family-label);
   font-weight: var(--font-weight-label);
+}
+
+/* A shared card its owner no longer holds. */
+.card-detail__owner--gone {
+  color: var(--color-ink-muted);
+}
+
+/* Sharing a held card: the button, the link in a read-only field to copy by
+   hand where the clipboard cannot be written, and the feedback. */
+.card-detail__share {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.card-detail__share .button {
+  margin: 0;
+}
+
+.card-detail__share-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-self: stretch;
+}
+
+.card-detail__share-label,
+.card-detail__share-status {
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+}
+
+.card-detail__share-url {
+  width: 100%;
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  border: var(--space-unit) solid var(--color-ink);
+  background: var(--color-surface-sunken);
+  color: var(--color-ink);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-label);
+}
+
+.card-detail__share-status {
+  margin: 0;
 }
 
 .card-detail__fields {
@@ -95,6 +145,33 @@
 .card-link:focus-visible {
   outline: var(--space-unit) solid var(--color-ink);
   outline-offset: var(--space-unit);
+}
+
+/* A card shared from a player's collection: its detail, the invitation to
+   play, then the owner's profile. */
+.shared-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* Each part as wide as its own page would make it, centred. */
+.shared-card > * {
+  width: 100%;
+}
+
+.shared-card__invitation {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: calc(1000px + 2 * var(--space-unit));
+  margin: 0 auto;
+}
+
+.shared-card__invitation .button {
+  margin: 0;
 }
 
 /* On a phone the face above its fields. */

@@ -1,0 +1,18 @@
+<%# What a link preview (Discord, X, WhatsApp) reads of a shared card
+    (CAP-9): its title and rarity, a fixed invitation line, in the URL's
+    language, and never an image (no og:image, twitter:image or image_src:
+    the game's art is not ours to show). The page stays out of search
+    engines.
+    - title: the card's title and rarity (shared_card_title);
+    - url: the page's absolute, season-qualified URL, without query. %>
+<% description = t("public_profiles.card.og_description") %>
+<meta name="robots" content="noindex">
+<%= tag.meta name: "description", content: description %>
+<%= tag.link rel: "canonical", href: url %>
+<%= tag.meta property: "og:type", content: "website" %>
+<%= tag.meta property: "og:site_name", content: t("layouts.application.application_name") %>
+<%= tag.meta property: "og:title", content: title %>
+<%= tag.meta property: "og:description", content: description %>
+<%= tag.meta property: "og:url", content: url %>
+<%= tag.meta property: "og:locale", content: og_locale %>
+<%= tag.meta name: "twitter:card", content: "summary" %>
