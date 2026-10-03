@@ -36,7 +36,7 @@ class QueueConfigTest < ActiveSupport::TestCase
       served = config.fetch("workers").flat_map { Array(it["queues"]) }
 
       assert_not_empty config.fetch("dispatchers"), env
-      (queues + [ recurring.dig(env, "recover_stalled_imports", "queue") ]).each { assert_includes served, it, env }
+      (queues + [ recurring.fetch(env).fetch("recover_stalled_imports").fetch("queue") ]).each { assert_includes served, it, env }
     end
   end
 

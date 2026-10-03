@@ -11,10 +11,17 @@ review: 'thorough'
 review_source: 'pinned'
 lenses_ran: ['blind-hunter', 'edge-case-hunter', 'verification-gap', 'intent-alignment']
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context: ['{project-root}/_bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md']
 warnings: ['oversized']
-deferred: []
+deferred:
+  - summary: >-
+      A database loaded from db/schema.rb dumps the three steam_* checks in another form than a database migrated from scratch, so a migration run on a schema-loaded test database rewrites them and CI's drift step fails.
+    evidence: |-
+      Pre-existing since story 2.11. db/schema.rb holds the fresh-migrate form ('x'::character varying::text), which a fresh postgres:18 container reproduces with CI's own step (no diff). Recreating that check from schema.rb deparses as ('x'::character varying)::text (checked on PostgreSQL 18.6), so `RAILS_ENV=test bin/rails db:migrate` after `db:test:prepare` dumps a different schema.rb. Workaround: `RAILS_ENV=test bin/rails db:drop db:create db:migrate` before committing a migration; a fix would rewrite the three checks in a form that round-trips.
+    location: >-
+      db/schema.rb:207-226 (steam_apps_details_exclusion_check, steam_apps_review_exclusion_check, steam_import_runs_status_check)
+    severity: medium
 ---
 
 <intent-contract>
@@ -137,6 +144,35 @@ deferred: []
   - `[false]` `[reject]` (intent) The waits' sum depends on jitter — polynomial waits are about 3 s and 18 s plus at most 15 %, far below 600 s.
   - `[false]` `[reject]` (intent) Set pages run their queries in another order — the counts are unchanged and asserted; nothing depends on the order.
 
+### 2026-10-03 — Review pass (follow-up)
+- verdicts: 25 findings — high 0, medium 1, low 13, false 11, maybe-false 0
+- findings:
+  - `[low]` `[patch]` (blind) The "Migrate development for story 4.6" approval leaves out that the next deploy migrates too (`bin/docker-entrypoint` runs `db:prepare` on server start; a failed validation stops the boot) and gives no check to run first — entry now names the deploy and gives the SELECT for offending rows.
+  - `[false]` `[reject]` (blind) F8's resolved line and the test name overstate the retry-versus-stall bound — both say "the waits"; the line reads "waits sum to less than `STALL_AFTER`", and the job comment states each attempt's HTTP time is outside the bound.
+  - `[low]` `[reject]` (blind) `HealBanksJob`'s grouped count reads every past pack row of the batch, where `distinct.pluck(:player_id)` was index-only — true, but the job runs once per season publication and replaced per-player queries; a partial index or anti-join is beyond a direct correction.
+  - `[low]` `[patch]` (blind) `cards/_detail` turned a missing `set_url` local into a silent nil — now `detail.current_season ? local_assigns.fetch(:set_url) : nil`, so a caller that forgets it raises again.
+  - `[low]` `[patch]` (blind) The O2 migration's comment said a reward pack "holds any number" while the check requires one or more — reworded "one or more".
+  - `[false]` `[reject]` (blind) Nothing ties `Pack::SIZE`/`BONUS_SIZE` to the check's literals — a change of either makes `FillBank`, `TopUpBank` and `CollectDailyBonus` inserts fail in their own tests on the test database; not silent.
+  - `[low]` `[patch]` (blind) F5's deferred entry named `PublishSeason` as the only bulk write in `Catalog`; `PruneDraft#remove_others` `delete_all`s draft card-seasons too — evidence now names both (both draft-only, conclusion unchanged).
+  - `[low]` `[reject]` (blind) New `deferred-work.md` entries carry no revisit trigger — the file's format does not ask for one; choosing triggers is a product call, not a direct correction.
+  - `[low]` `[reject]` (blind) `hold` and request `sign_in` stay copied in game-pack, back-office and bonus tests — outside epic 4's five tests the intent names; a data/request split of the helpers across ~11 files is more than a direct correction.
+  - `[low]` `[patch]` (blind) The queue test's recurring lookup used `dig`, so a missing entry failed as "include nil" — now `fetch`. The other claims are refuted: the three job queues are read from the jobs to catch drift (all `default` today), and `recurring.yml` has no ERB.
+  - `[low]` `[reject]` (blind) The empty slot's name "Portal 2007 Missing card" has no separators — it is the visible text, as the intent asks; markup changes beyond the `aria-label` are out of the plan's Never list.
+  - `[false]` `[reject]` (blind) `heal_bank.rb` says "short of ten" rather than `BANK_SIZE` — AD-7 fixes the bank at ten and the pack's comments name it so; nothing reads wrong.
+  - `[false]` `[reject]` (blind) `BANK_COUNT` is named like a number — its comment says it is the per-player count expression; no caller misreads it.
+  - `[low]` `[reject]` (edge) carried — a 2-D array might reach `array_position` before `array_ndims` — checked: PostgreSQL short-circuits (the expression yields false), and the insert would be refused either way; `pack_test` asserts the check's name.
+  - `[false]` `[reject]` (edge) The validating migration aborts on a pack breaking the rule, with no repair path — every writer draws exactly `Pack::SIZE`/`BONUS_SIZE` cards (`Draw.pack` is `Array.new(size)`), so no such row is reachable; the approval entry now gives the check query.
+  - `[medium]` `[defer]` (verification-gap, other) The three `steam_*` checks' rewrite in `db/schema.rb` may flip back on the next dump — true for a schema-loaded database (recreated, the check deparses `('x'::character varying)::text`), false as "another PostgreSQL version": a fresh `postgres:18` container (digest 5a5a84b1…, 18.6, CI's image) running CI's `db:create db:migrate && git diff --exit-code -- db/schema.rb` leaves no diff. Pre-existing since 2.11; deferred.
+  - `[false]` `[reject]` (intent) "CI is green" was shown only locally, not on CI's `postgres:18` — now run on a fresh `postgres:18` container with CI's env: the drift step leaves no diff, `db:test:prepare` loads the schema and the pack tests pass (39 runs); the local server is the same image.
+  - `[false]` `[reject]` (intent) carried — 4.5's old-browser finding and 4.3's reveal-island links are only in `pending-approvals.md` — open product decisions are routed there.
+  - `[false]` `[reject]` (intent) 4.4's epic-Notes finding is not mentioned — settled by 530566b before this story; nothing left to record.
+  - `[low]` `[reject]` (intent) carried — the empty slot's name is asserted on the HTML, not the accessibility tree.
+  - `[false]` `[reject]` (intent) The sweep decided 4.3's deferred empty-slot question itself — "fixed or recorded" allows the fix, and the approval entry describes the new behaviour for the author to reverse.
+  - `[false]` `[reject]` (intent) carried — D1, O2, O5 and F8 lie outside epic 4's code — the retro entries are addressed to "the next sweep".
+  - `[low]` `[reject]` (intent) carried — "queries do not grow" is shown within one batch only.
+  - `[low]` `[reject]` (intent) carried — no shared-card test for an older season's unlinked sets.
+  - `[false]` `[reject]` (intent) carried — set pages run their queries in another order.
+
 ## Design Notes
 
 - Recorded, not done: F2 needs a lock across `Steam` and `Catalog` (AD-2 forbids it); F5 a database trigger whose frozen columns need design; F7 waits on the real import's refusal count; 4.3's face links and 4.4's timeouts are low and outside a cleanup.
@@ -170,3 +206,17 @@ deferred: []
 **Verification:** after the patches, `bin/rails test` 932 runs 0 failures; `bin/rails test:system` 46 runs 0 failures; `npm run typecheck`, `npm run test:js` (60), `packwerk validate` and `check`, `rubocop` (302 files), `i18n-tasks missing`, `brakeman`, `bundler-audit` clean; `RAILS_ENV=test bin/rails db:drop db:create db:migrate` leaves `db/schema.rb` unchanged. Test database only.
 
 **Residual risks:** the development database needs the two migrations (pending-approvals.md); the check's validation fails if a development pack breaks the size rule (none expected); F2, F5, F7 and the low epic-4 findings stay recorded, not fixed.
+
+### Follow-up pass (2026-10-03)
+
+**Summary:** fresh four-lens review of 91a7ea7 and 77eec31. The previous pass's unverified risk is retired: a fresh `postgres:18` container (digest `5a5a84b1…`, PostgreSQL 18.6, what CI pulls) running CI's `bin/rails db:create db:migrate && git diff --exit-code -- db/schema.rb` leaves no diff, and `db:test:prepare` plus the pack tests pass on it. `HealBanksJob`'s filter matches `Pack.bank` (regular, unopened) and both halves are pinned by the short-bank test; `game_packs_card_season_ids_check` matches every writer's sizes.
+
+**Files changed:** `app/views/cards/_detail.html.erb` (a missing `set_url` raises again); `db/migrate/20261003060000_check_game_packs_card_season_ids.rb` (comment: reward packs hold one or more); `test/config/queue_config_test.rb` (`fetch` for the recurring entry); `_bmad-output/initiative-gameble/deferred-work.md` (F5 evidence names `PruneDraft`; schema-flip entry); `_bmad-output/initiative-gameble/pending-approvals.md` (the 4.6 migrations also run on deploy, with a check query).
+
+**Review:** 25 findings. Patched 5 (all low). Deferred 1 (medium, pre-existing: a schema-loaded test database dumps the `steam_*` checks differently). Rejected 19: 8 low and 11 false, reasons in the triage log.
+
+**Follow-up review:** false -- follow-up pass, patched counts: high 0, medium 0, low 5.
+
+**Verification:** `bin/rails test` 932 runs 0 failures; `bin/rails test:system` 46 runs 0 failures; `npm run typecheck`, `npm run test:js` (60), `packwerk validate` and `check`, `rubocop` (302 files), `i18n-tasks missing`, `brakeman` clean; CI's migrate and drift step on a fresh `postgres:18` container, no diff. Test databases only.
+
+**Residual risks:** the development database and the next deploy need the two migrations (pending-approvals.md); a migration run on a schema-loaded test database rewrites the `steam_*` checks (deferred).
