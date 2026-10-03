@@ -21,6 +21,8 @@ Operations set aside while the author was away (2026-10-02): each waits for an e
   - A cards pass that writes no card empties the draft.
   - Once a later run is abandoned, the completed run before it can no longer be rescored, so a formula change needs a new run.
   - A run that failed after writing cards keeps publishing refused, even once later runs are abandoned, until a new run completes.
+  - "Latest" for abandoning leaves abandoned runs out, as the publish gate does (follow-up review): once the latest run is abandoned, a failed run before it that wrote no card can be abandoned in turn, so it no longer keeps publishing refused with no way out but a new run.
+  - A failed "Rescore the cards" that wrote no card can be abandoned: the draft keeps the run's earlier full pass with its old scores, and the run before it then decides whether publishing is allowed. If that earlier run had failed after writing cards (its cards since pruned by the rescored run's completion), publishing stays refused until a new run completes. Rare (a partial run, then a new completed run, then a rescore failing on its first page); telling a rescore apart would need a new column. Confirm, or decide that a failed rescore may not be abandoned.
 
 ## Deferred to the UX redesign (bmad-ux)
 
