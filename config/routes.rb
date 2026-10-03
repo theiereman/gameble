@@ -28,6 +28,13 @@ Rails.application.routes.draw do
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     get "brothers/:token/library/:kind/:key" => "public_profiles#set", as: :brother_set,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/, kind: /tome|publisher|best_of_year/ }
+    # A card shared from a player's collection (CAP-9), shown first on their
+    # profile, by its slug: in the published season, or in the season
+    # numbered (the form a share link takes).
+    get "brothers/:token/cards/:slug" => "public_profiles#card", as: :brother_card,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    get "brothers/:token/cards/:slug/seasons/:number" => "public_profiles#card", as: :brother_card_season,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/, number: /\d+/ }
 
     # A card's detail (CAP-7), by its slug (AD-15): in the published season,
     # or in the season numbered.

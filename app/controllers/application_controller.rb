@@ -2,7 +2,9 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
 
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
+  # Pages meant to be read from a shared link (public_read?) are open to any
+  # browser, so link previews (Discord, X, WhatsApp) and older browsers get them.
+  allow_browser versions: :modern, unless: :public_read?
 
   around_action :switch_locale
   before_action :set_sentry_user
@@ -16,6 +18,12 @@ class ApplicationController < ActionController::Base
   helper_method :current_player
 
   private
+    # Whether this request reads a page meant to be opened from a shared
+    # link, by any browser or link-preview crawler. None by default.
+    def public_read?
+      false
+    end
+
     # Each request runs in the locale of its URL (AD-18), Pagy's links
     # included: its locale is per thread, so it is set on every request.
     def switch_locale(&action)

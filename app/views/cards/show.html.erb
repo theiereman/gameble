@@ -1,6 +1,7 @@
 <% content_for :back_button, true %>
 <% content_for :title, @detail.view.title %>
 <%# A card's detail (CAP-7). Its sets lead to their tomes only in the
-    published season, the one the library shows. %>
-<%= render "cards/detail", detail: @detail, copies: @copies, owner: nil,
+    published season, the one the library shows. A holder can share it
+    (CAP-9). %>
+<%= render "cards/detail", detail: @detail, copies: @copies, owner: nil, share_url: @share_url,
   set_url: (->(set) { library_set_path(kind: set.kind, key: set.key) } if @detail.current_season) %>

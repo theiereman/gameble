@@ -1,0 +1,24 @@
+<%# A player's public profile (CAP-8): their name, what their collection
+    counts, and their library, open on the tab given. Shown alone (the
+    profile, its name the page's h1) or below a card shared from it (CAP-9,
+    its name an h2 under the card's title):
+    - owner: the profile's player;
+    - title: the profile's title (public_profile_title);
+    - summary: the owner's Game::CollectionSummary;
+    - kind, spines, pagy: the shelf, as ShelfLoading loads it;
+    - heading: the tag of the profile's name, :h1 or :h2. %>
+<section class="library profile" aria-labelledby="library-heading">
+  <header class="profile__header">
+    <%= content_tag heading, title, id: "library-heading", class: "library__heading profile__name" %>
+    <ul class="profile__counts" aria-label="<%= t("public_profiles.show.counts") %>">
+      <li><%= t("public_profiles.show.distinct_cards", count: summary.distinct_cards) %></li>
+      <li><%= t("public_profiles.show.complete_sets", count: summary.complete_sets) %></li>
+    </ul>
+  </header>
+  <% token = owner.token %>
+  <% tab = (kind if kind == PublicProfilesController::STARTED) %>
+  <%= render "library/shelf", kind:, spines:, pagy:, current_set: nil,
+    tabs: PublicProfilesController::TABS, mark_complete: true,
+    tab_url: ->(tab_kind) { brother_path(token, kind: (tab_kind unless tab_kind == PublicProfilesController::STARTED)) },
+    set_url: ->(set_kind, key, page) { brother_set_path(token, kind: set_kind, key:, page:, tab:) } %>
+</section>
