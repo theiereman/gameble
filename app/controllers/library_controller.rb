@@ -6,8 +6,10 @@
 # visitor, or a banned player, owns nothing (CAP-18). Catalog answers the
 # sets, their sizes and cards, Game the player's progress and copies; this
 # layer pages, labels and joins them. Sets are addressed by kind and key; no
-# set or card-season id reaches the page (AD-15).
+# set or card-season id reaches the page (AD-15). A card's sets lead here,
+# so, like the card's page, it is open to any browser (PublicRead).
 class LibraryController < ApplicationController
+  include PublicRead
   include ShelfLoading
 
   # GET /:locale/library?kind=…&page=n. An unknown, blank or repeated kind

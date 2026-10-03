@@ -250,12 +250,6 @@ fr:
         other: "%{count} collections complètes"
     set:
       owner: "La bibliothèque de %{name}"
-    card:
-      og_title: "%{title} — %{rarity}"
-      og_description: "Une carte du grenier de la Confrérie. Enrôle-toi via Steam, Confrère : dix paquets t'attendent."
-      owner_gone: "N'est plus dans la collection de %{owner}"
-      invitation: "Dix paquets t'attendent au grenier, Confrère. Ouvre-les, et les cartes sont à toi."
-      sign_in: "Les réclamer via Steam"
     unavailable:
       title: "Profil indisponible"
       body: "La bibliothèque de ce Confrère est fermée aux visiteurs, Confrère. Le lien ne mène nulle part, ou son propriétaire ne la montre plus."
@@ -270,12 +264,14 @@ fr:
     season: "Saison"
     sets: "Collections"
     publisher: "Éditeur"
-    owner: "De la collection de %{owner}"
     copies:
       one: "Tu en détiens %{count} exemplaire"
       other: "Tu en détiens %{count} exemplaires"
     store: "La voir sur la boutique Steam"
     notice: "Ce jeu et son image appartiennent à leurs propriétaires respectifs. gameble n'est affilié ni à Valve ni à Steam."
+    preview:
+      title: "%{title} — %{rarity}"
+      description: "Une carte du grenier de la Confrérie. Enrôle-toi via Steam, Confrère : dix paquets t'attendent."
     share:
       button: "Partager cette carte"
       url: "Lien vers cette carte"
@@ -285,6 +281,9 @@ fr:
     face_down: "Carte face cachée"
     face_down_with_rarity: "Carte face cachée, %{rarity}"
     season: "Saison %{number}"
+    show:
+      invitation: "Dix paquets t'attendent au grenier, Confrère. Ouvre-les, et les cartes sont à toi."
+      sign_in: "Les réclamer via Steam"
   catalog:
     rarity:
       steel: "Acier"

@@ -4,8 +4,10 @@ require_relative "../support/library_requests"
 
 # A card's detail page (CAP-7, story 4.3): every field in the viewer's
 # language, the viewer's copies, the sets leading to their tomes, the Steam
-# link; open to a visitor; the cards that are not found; the queries of a
-# request; no database id on the page.
+# link; open to a visitor; a holder's share link, the page's own address
+# (CAP-9); the cards that are not found; the queries of a request; no
+# database id on the page. Its preview tags and invitation:
+# card_preview_tags_test.rb.
 class CardsControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
@@ -56,7 +58,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_path(locale: :en, slug: "portal")
 
     assert_response :success
-    assert_select "title", "Portal"
+    assert_select "title", "Portal — Amethyst"
     assert_select ".card-detail h1", "Portal"
     assert_select ".card-detail__face .card.card--large.card--face.card--rarity-amethyst .card__title", "Portal"
     assert_select ".card-detail__description", "A puzzle game of portals."
@@ -70,7 +72,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     # The description is never on the face.
     assert_no_match(/portals/, css_select(".card-detail__face").sole.text)
     assert_select ".card-detail__copies", false
-    assert_select ".card-detail__owner", false
+    assert_no_match(/collection of/i, response.body)
     assert_select ".status-band > a.button--secondary[href='/en']", "Back to the attic"
   end
 
@@ -80,7 +82,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_path(locale: :fr, slug: "tin-soldier")
 
     assert_select ".card-detail h1", "Soldat de plomb"
-    assert_select "title", "Soldat de plomb"
+    assert_select "title", "Soldat de plomb — Acier"
     assert_equal [ [ "Sortie", "2024" ], [ "Rareté", "Acier" ], [ "Saison", "1" ] ], fields
     assert_select ".card-detail__notice", "Ce jeu et son image appartiennent à leurs propriétaires respectifs. gameble n'est affilié ni à Valve ni à Steam."
     assert_equal [ "La voir sur la boutique Steam", "https://store.steampowered.com/app/401/Tin_Soldier/?snr=1_7&l=french" ],
@@ -181,23 +183,26 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "a holder gets the share block: a button, the season-qualified link of their profile, a status region" do
+  test "a holder gets the share block: a button, the card-season's own link, without their token, a status region" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 1)
     sign_in(player)
 
     get card_path(locale: :en, slug: "portal")
 
-    url = "http://www.example.com/en/brothers/#{player.token}/cards/portal/seasons/1"
+    url = "http://www.example.com/en/cards/portal/seasons/1"
     share = css_select(".card-detail__share[data-controller=share]").sole
     assert_equal [ "Link copied", "Press Ctrl+C to copy" ], [ share["data-share-copied-value"], share["data-share-manual-value"] ]
     assert_select ".card-detail__share button[type=button][data-action='share#copy']", "Share this card"
     assert_select ".card-detail__share label", /Link to this card/
     assert_select ".card-detail__share label input[type=text][readonly][data-share-target=url][value=?]", url
     assert_select ".card-detail__share [role=status][data-share-target=status]", ""
+    assert_not_includes response.body, player.token
+    # The share link is the page's own og:url.
+    assert_equal url, css_select("head meta[property='og:url']").sole["content"]
 
     get card_path(locale: :fr, slug: "portal")
-    assert_select ".card-detail__share input[value=?]", "http://www.example.com/fr/brothers/#{player.token}/cards/portal/seasons/1"
+    assert_select ".card-detail__share input[value=?]", "http://www.example.com/fr/cards/portal/seasons/1"
     assert_select ".card-detail__share button", "Partager cette carte"
   end
 
@@ -210,7 +215,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     sign_in(player)
 
     get card_season_path(locale: :en, slug: "portal", number: 1)
-    assert_select ".card-detail__share input[value=?]", "https://gameble.example/en/brothers/#{player.token}/cards/portal/seasons/1"
+    assert_select ".card-detail__share input[value=?]", "https://gameble.example/en/cards/portal/seasons/1"
     assert_not_includes response.body, "evil.example"
 
     # Season 2's portal is not held.

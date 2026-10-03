@@ -1,6 +1,26 @@
 # The words and links of a card's detail and of the links leading to it
-# (CAP-7, story 4.3).
+# (CAP-7, story 4.3), and of its link previews (CAP-9).
 module CardDetailsHelper
+  # Open Graph's name of each locale of the URL.
+  OG_LOCALES = { "en" => "en_US", "fr" => "fr_FR" }.freeze
+
+  # A card's title in its page's and its previews' language: "Portal —
+  # Amethyst".
+  def card_preview_title(view)
+    t("card_details.preview.title", title: view.title, rarity: CardStrings.for([ view ]).rarity_name(view.rarity))
+  end
+
+  # The absolute, season-qualified URL of a card-season's page on the
+  # public base: its share link, og:url and canonical link alike.
+  def card_public_url(view)
+    public_url_for(card_season_path(slug: view.id, number: view.season_number))
+  end
+
+  # The page's locale as Open Graph names it: "en_US", "fr_FR".
+  def og_locale
+    OG_LOCALES.fetch(I18n.locale.to_s)
+  end
+
   # The game's Steam store page, in French on a French page (Steam reads
   # `l=french`); any query the address already has is kept.
   def card_detail_store_url(url)

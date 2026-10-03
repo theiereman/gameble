@@ -245,12 +245,6 @@ en:
         other: "%{count} sets complete"
     set:
       owner: "The library of %{name}"
-    card:
-      og_title: "%{title} — %{rarity}"
-      og_description: "A card from the attic of the Brotherhood. Enlist through Steam, Brother: ten packs wait for you."
-      owner_gone: "No longer in %{owner}'s collection"
-      invitation: "Ten packs wait in the attic, Brother. Open them, and the cards are yours."
-      sign_in: "Claim them through Steam"
     unavailable:
       title: "Profile not available"
       body: "This Brother's library is closed to visitors, Brother. The link leads nowhere, or its owner may no longer show it."
@@ -265,12 +259,14 @@ en:
     season: "Season"
     sets: "Sets"
     publisher: "Publisher"
-    owner: "From the collection of %{owner}"
     copies:
       one: "You hold %{count} copy"
       other: "You hold %{count} copies"
     store: "See it on the Steam store"
     notice: "This game and its image belong to their respective owners. gameble is not affiliated with Valve or Steam."
+    preview:
+      title: "%{title} — %{rarity}"
+      description: "A card from the attic of the Brotherhood. Enlist through Steam, Brother: ten packs wait for you."
     share:
       button: "Share this card"
       url: "Link to this card"
@@ -280,6 +276,9 @@ en:
     face_down: "Face-down card"
     face_down_with_rarity: "Face-down card, %{rarity}"
     season: "Season %{number}"
+    show:
+      invitation: "Ten packs wait in the attic, Brother. Open them, and the cards are yours."
+      sign_in: "Claim them through Steam"
   catalog:
     rarity:
       steel: "Steel"

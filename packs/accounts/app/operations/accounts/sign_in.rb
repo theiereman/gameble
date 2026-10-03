@@ -4,16 +4,16 @@ module Accounts
   # player is refused.
   #
   # The persona name the web layer read from Steam for this sign-in (CAP-8)
-  # becomes the player's display name: a present one, stripped and cut to
-  # PERSONA_NAME_LENGTH characters, replaces a different stored one, so a
-  # renamed Steam account is picked up here; nil or blank keeps the stored
-  # name (Steam failed or gave none). Accounts never calls Steam itself.
+  # becomes the player's display name: cleaned by Accounts::PersonaName
+  # (invisible characters dropped, spaces squished, cut to
+  # Accounts::PersonaName::LENGTH characters), it replaces a different
+  # stored one, so a renamed Steam account is picked up here; nil, or a name
+  # that cleans to nothing, keeps the stored name (Steam failed or gave none
+  # worth showing). Accounts never calls Steam itself.
   #
   #   Accounts::SignIn.new.call(steam_id: "76561197960287930", persona_name: "Gabe")
   #   # => Success(player) | Failure(:invalid_steam_id) | Failure(:banned)
   class SignIn < ApplicationOperation
-    PERSONA_NAME_LENGTH = 64
-
     def call(steam_id:, persona_name: nil)
       steam_id = step validate_steam_id(steam_id)
 
@@ -44,9 +44,10 @@ module Accounts
     end
 
     def store_persona_name(player, persona_name)
-      # Control characters (a NUL byte would fail the write) are dropped.
-      name = persona_name.gsub(/[[:cntrl:]]/, "").strip.first(PERSONA_NAME_LENGTH).strip if persona_name.is_a?(String)
-      player.update!(persona_name: name) if name.present? && name != player.persona_name
+      # Control characters (a NUL byte would fail the write) are dropped
+      # with the other invisible ones.
+      name = PersonaName.clean(persona_name)
+      player.update!(persona_name: name) if name && name != player.persona_name
       Success(player)
     end
 

@@ -58,9 +58,10 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # The public base of shared links (config/initializers/public_url.rb) is
-  # read from PUBLIC_URL, which config/deploy.yml sets; without it the shared
-  # card page and a holder's card detail page fail rather than echo the
-  # request's Host header.
+  # read from PUBLIC_URL, which config/deploy.yml sets: production refuses to
+  # boot when it is missing or malformed, rather than echo the request's
+  # Host header (the Docker build's assets:precompile, SECRET_KEY_BASE_DUMMY
+  # set, boots without it).
 
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "example.com" }

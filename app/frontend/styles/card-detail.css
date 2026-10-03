@@ -3,8 +3,8 @@
  * shadows on the 2px grid): the large face beside a definition list of what
  * the card does not carry, stacked on a phone. And the links leading to it
  * from a face or an empty slot, which keep the card's own look. A held
- * card's share button, and a card shared from a player's collection: the
- * owner line, the invitation to play, the owner's profile below.
+ * card's share button, and below the detail, for a visitor, the invitation
+ * to play.
  */
 
 .card-detail {
@@ -36,22 +36,15 @@
   overflow-wrap: anywhere;
 }
 
-.card-detail__owner,
 .card-detail__description,
 .card-detail__copies,
 .card-detail__store {
   margin: 0;
 }
 
-.card-detail__copies,
-.card-detail__owner {
+.card-detail__copies {
   font-family: var(--font-family-label);
   font-weight: var(--font-weight-label);
-}
-
-/* A shared card its owner no longer holds. */
-.card-detail__owner--gone {
-  color: var(--color-ink-muted);
 }
 
 /* Sharing a held card: the button, the link in a read-only field to copy by
@@ -147,30 +140,19 @@
   outline-offset: var(--space-unit);
 }
 
-/* A card shared from a player's collection: its detail, the invitation to
-   play, then the owner's profile. */
-.shared-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-}
-
-/* Each part as wide as its own page would make it, centred. */
-.shared-card > * {
-  width: 100%;
-}
-
-.shared-card__invitation {
+/* For a visitor, below the detail and as wide, centred: the invitation to
+   play. */
+.card-detail__invitation {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: var(--space-4);
   max-width: calc(1000px + 2 * var(--space-unit));
-  margin: 0 auto;
+  margin: var(--space-6) auto 0;
 }
 
-.shared-card__invitation .button {
+.card-detail__invitation .button {
   margin: 0;
 }
 

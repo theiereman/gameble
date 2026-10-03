@@ -1,9 +1,12 @@
-# Absolute links handed out to the world (CAP-9): a shared card's link, its
+# Absolute links handed out to the world (CAP-9): a card's share link, its
 # og:url and its canonical link. Their base is the configured public one
-# (config.x.public_url, from PUBLIC_URL), never the request's Host header,
-# which a client can forge.
+# (config.x.public_url, from PUBLIC_URL, checked at boot by
+# config/initializers/public_url.rb), never the request's Host header, which
+# a client can forge.
 module PublicUrlsHelper
-  # Raised in production when PUBLIC_URL is not set.
+  # Raised in production when no public base is configured. Production
+  # refuses to boot without PUBLIC_URL, so this guards a configuration
+  # changed after boot only.
   class MissingPublicUrl < StandardError; end
 
   # The configured public base followed by `path`. Without a configured base,
