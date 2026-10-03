@@ -64,6 +64,8 @@ Administrators open Mission Control Jobs at `/back-office/jobs` (linked from the
 
 Administrators start and watch import runs at `/<locale>/back-office/import-runs`. The `import` queue has its own process, one thread (`bin/jobs -c config/queue_import.yml --skip-recurring`, the `import` role of `config/deploy.yml`); the key comes from `config/steam_api.key` through `.kamal/secrets`. A run that fails after its retries can be resumed from its cursor on its page.
 
+A run goes through five steps: the app list (`GetAppList`), the review pass (`GetItems`, 100 games a call), the tag names (`GetTagList`), the details of the kept games (`GetItems`, in English and French), then the cards written into the draft season. Only the Steam Web API is called; the keyless store API (`appdetails`) is not, so a run takes minutes rather than hours. A card's genres are its tags among the curated list of `Steam::GenreTags`, most-voted first, and it sits in the tome of the first; a change of that list takes effect on "Rescore the cards" (without calling Steam) while the run's draft is unpublished, otherwise on the next import.
+
 Stopping the import worker gracefully (`TERM`) hands its job back, and the run goes on from its cursor when the worker restarts. A worker killed outright (`KILL`, out of memory) loses its job: every 5 minutes `Steam::RecoverStalledImportsJob` (`config/recurring.yml`) puts a running run that has not moved for 10 minutes back on the import queue, and it goes on from its cursor, without duplicates.
 
 ### Calibrating a season

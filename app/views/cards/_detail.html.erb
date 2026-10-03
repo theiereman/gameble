@@ -1,6 +1,7 @@
 <%# A card's detail (CAP-7; DESIGN.md: a parchment panel): its large face
     and, beside it, what the card itself does not carry. Rows without a value
-    are left out. The description appears here only, never on the face. The
+    are left out; the ownership notice follows them on every card. The
+    description appears here only, never on the face. The
     owner's data come as locals, so a shared card renders it too:
     - detail: a Catalog::CardDetail::Detail;
     - copies: how many copies of it the viewer holds, or nil for no line;
@@ -50,11 +51,8 @@
         <dt><%= t("card_details.publisher") %></dt>
         <dd><%= detail.publisher %></dd>
       <% end %>
-      <% if detail.credit %>
-        <dt><%= t("card_details.credit") %></dt>
-        <dd class="card-detail__credit"><%= detail.credit %></dd>
-      <% end %>
     </dl>
+    <p class="card-detail__notice"><%= t("card_details.notice") %></p>
     <% if copies %>
       <p class="card-detail__copies"><%= t("card_details.copies", count: copies) %></p>
     <% end %>

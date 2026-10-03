@@ -2,9 +2,10 @@ module Steam
   # Reopens the latest completed import run on its cards step, cursor 0, and
   # enqueues its first page (AD-19; story 2.8): the cards step writes every
   # game the run carried through again, so a change of Steam::PrestigeScore
-  # rewrites the draft's scores without calling Steam. The run's card counts
-  # start again from 0; its errors are kept. Once the last page is written,
-  # the run completes again.
+  # or of the genre list (Steam::GenreTags) rewrites the draft's scores and
+  # genres without calling Steam. The run's card counts start again from 0;
+  # its errors are kept. Once the last page is written, the run completes
+  # again.
   #
   # Refused unless the run is the latest and completed, once its cards are
   # published (no draft season, or a season published since the run

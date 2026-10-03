@@ -10,9 +10,10 @@ module Steam
     self.table_name = "steam_import_runs"
 
     # The steps of a run, in order: the app list, the review pass, the tag
-    # names, the store details of the kept games, their genres, then the
-    # cards written into the draft season.
-    STEPS = %w[app_list reviews tags details genres cards].freeze
+    # names, the store details of the kept games, then the cards written into
+    # the draft season. (A genres step, on the keyless store API, came between
+    # the details and the cards until 2026-10-03.)
+    STEPS = %w[app_list reviews tags details cards].freeze
     # The errors kept on a run, the latest last.
     ERROR_LIMIT = 20
     # The length an error message is cut to.
@@ -96,15 +97,6 @@ module Steam
 
     def apps_excluded_details
       count_of("apps_excluded_details")
-    end
-
-    # Apps the genres step looked at, and those it excluded.
-    def apps_genred
-      count_of("apps_genred")
-    end
-
-    def apps_excluded_genres
-      count_of("apps_excluded_genres")
     end
 
     # Cards the cards step wrote into the draft season, and those it refused.

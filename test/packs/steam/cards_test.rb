@@ -19,12 +19,11 @@ class Steam::CardsTest < ActiveSupport::TestCase
   # Apps carried by `run` through every step, each with every card field.
   def ready(run, *appids, **overrides)
     Steam::App.insert_all(appids.map do |appid|
-      { appid: appid, name: "Game #{appid}", import_run_id: run.id, reviewed_run_id: run.id, details_run_id: run.id, genres_run_id: run.id,
+      { appid: appid, name: "Game #{appid}", import_run_id: run.id, reviewed_run_id: run.id, details_run_id: run.id,
         review_count: 1_000 + appid, review_percent_positive: 90,
         name_en: "Game #{appid}", name_fr: "Jeu #{appid}", short_description_en: "The game #{appid}.", short_description_fr: "Le jeu #{appid}.",
-        publishers: [ "Publisher #{appid}", "Other" ], release_on: Date.new(2011, 4, 19), tag_ids: [ 492, 19 ],
-        store_url_path: "app/#{appid}/Game_#{appid}/", image_url: "https://example.test/#{appid}.jpg",
-        genres: %w[action indie], credit: "© Studio #{appid}" }.merge(overrides)
+        publishers: [ "Publisher #{appid}", "Other" ], release_on: Date.new(2011, 4, 19), tag_ids: [ 492, 1664, 19, 122 ],
+        store_url_path: "app/#{appid}/Game_#{appid}/", image_url: "https://example.test/#{appid}.jpg" }.merge(overrides)
     end)
   end
 
@@ -33,7 +32,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
   def rerun(appids)
     Steam::ImportRun.active.update_all(status: "completed", finished_at: Time.current)
     run = run_on("cards")
-    Steam::App.where(appid: appids).update_all(import_run_id: run.id, reviewed_run_id: run.id, details_run_id: run.id, genres_run_id: run.id)
+    Steam::App.where(appid: appids).update_all(import_run_id: run.id, reviewed_run_id: run.id, details_run_id: run.id)
     run
   end
 
@@ -99,7 +98,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
   test "a ready game maps onto the card keywords with plain Ruby values" do
     run = run_on("cards")
     ready(run, 620, review_percent_positive: 95, review_count: 1_000, store_url_path: "/app/620/Portal_2/",
-      tag_ids: [ 1, 492, 2, 3, 19, 4 ], genres: [ "action", "", "adventure" ])
+      tag_ids: [ 1, 492, 1664, 2, 3, 19, 4, 122 ])
     tag_names = { 492 => "Indie", 2 => "!!!", 3 => "Co-op", 19 => "Action", 4 => "Co op" }
 
     attributes = Steam::CardMapping.call(Steam::App.find_by!(appid: 620), tag_names: tag_names).value!
@@ -111,8 +110,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
       image_url: "https://example.test/620.jpg",
       store_url: "https://store.steampowered.com/app/620/Portal_2/",
       publisher: "Publisher 620",
-      credit: "© Studio 620",
-      genres: %w[action adventure],
+      genres: %w[puzzle rpg],
       tags: %w[indie co_op action],
       prestige_score: Steam::PrestigeScore.call(percent_positive: 95, review_count: 1_000),
       rating: 95
@@ -164,7 +162,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     card = card_of(20)
     assert_equal [ Date.new(2011, 4, 19), "https://example.test/20.jpg", "https://store.steampowered.com/app/20/Game_20/" ],
       [ card.release_date, card.image_url, card.store_url ]
-    assert_equal [ "Publisher 20", "© Studio 20", %w[action indie], %w[indie action] ], [ card.publisher, card.credit, card.genres, card.tags ]
+    assert_equal [ "Publisher 20", %w[puzzle rpg], %w[indie action] ], [ card.publisher, card.genres, card.tags ]
     assert_equal({ "en" => [ "Game 20", "The game 20." ], "fr" => [ "Jeu 20", "Le jeu 20." ] },
       card.texts.to_h { |text| [ text.locale, [ text.title, text.short_description ] ] })
     card_season = card.card_seasons.sole
@@ -184,7 +182,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
   test "a cards page takes the next ready games after the cursor, never one the run did not carry through" do
     run = run_on("cards", last_appid: 2)
     ready(run, *(1..8).to_a)
-    Steam::App.where(appid: 4).update_all(genres_exclusion: "unavailable")
+    Steam::App.where(appid: 4).update_all(details_exclusion: "no_vertical_image")
 
     cards_page(run, page_size: 3)
 
@@ -332,11 +330,11 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_equal [ Steam::ImportStepFinished, Steam::ImportRunFinished ], events_of(run).map(&:class)
   end
 
-  test "a stale genres job once the run is on the cards does nothing" do
+  test "a stale details job once the run is on the cards does nothing" do
     run = run_on("cards")
     ready(run, 10)
 
-    result = Steam::ImportCardsPage.new.call(import_run_id: run.id, cursor: { "step" => "genres", "last_appid" => 0 })
+    result = Steam::ImportCardsPage.new.call(import_run_id: run.id, cursor: { "step" => "details", "last_appid" => 0 })
 
     assert_equal :cursor_moved, result.failure
     assert_empty steam_cards
@@ -357,7 +355,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
   end
 
   test "a cards page for a run on another step, unknown, or not running fails" do
-    assert_equal :not_running, Steam::ImportCardsPage.new.call(import_run_id: run_on("genres").id).failure
+    assert_equal :not_running, Steam::ImportCardsPage.new.call(import_run_id: run_on("details").id).failure
     assert_equal :not_found, Steam::ImportCardsPage.new.call(import_run_id: -1).failure
     assert_equal :not_running, Steam::ImportCardsPage.new.call(import_run_id: Steam::ImportRun.create!(status: :failed, step: "cards").id).failure
   end
@@ -388,8 +386,8 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_empty steam_cards
   end
 
-  test "the genres step hands over to the cards, whose last page completes the run" do
-    run = run_on("genres", last_appid: 10)
+  test "the details step hands over to the cards, whose last page completes the run" do
+    run = run_on("details", last_appid: 10)
     ready(run, 10)
 
     perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }

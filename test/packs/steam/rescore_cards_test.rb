@@ -28,11 +28,10 @@ class Steam::RescoreCardsTest < ActiveSupport::TestCase
   # Apps carried by `run` through every step.
   def ready(run, *appids)
     Steam::App.insert_all(appids.map do |appid|
-      { appid:, name: "Game #{appid}", import_run_id: run.id, reviewed_run_id: run.id, details_run_id: run.id, genres_run_id: run.id,
+      { appid:, name: "Game #{appid}", import_run_id: run.id, reviewed_run_id: run.id, details_run_id: run.id,
         review_count: 1_000 * appid, review_percent_positive: 90, name_en: "Game #{appid}", name_fr: "Jeu #{appid}",
         short_description_en: "The game #{appid}.", short_description_fr: "Le jeu #{appid}.", publishers: [ "Studio" ],
-        release_on: Date.new(2011, 4, 19), tag_ids: [], store_url_path: "app/#{appid}/", image_url: "https://example.test/#{appid}.jpg",
-        genres: %w[action], credit: "© Studio" }
+        release_on: Date.new(2011, 4, 19), tag_ids: [ 122 ], store_url_path: "app/#{appid}/", image_url: "https://example.test/#{appid}.jpg" }
     end)
   end
 

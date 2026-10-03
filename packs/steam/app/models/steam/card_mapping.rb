@@ -2,7 +2,9 @@ module Steam
   # Maps a game a run carried through every step (Steam::App.ready_by) onto
   # the keywords of Catalog::UpsertDraftCard (AD-4): plain Ruby values only
   # (String, Date, Integer, Float, Array, Hash), so Catalog never sees a
-  # Steam record. `tag_names` is { tagid => English name } (Steam::Tag).
+  # Steam record. `tag_names` is { tagid => English name } (Steam::Tag). The
+  # genres are the game's listed genre tags, most-voted first
+  # (Steam::GenreTags): Catalog puts the card in the tome of the first.
   #
   # A game without a review score or count cannot be scored: refused with
   # NO_REVIEWS, without calling Catalog.
@@ -28,8 +30,7 @@ module Steam
         image_url: app.image_url,
         store_url: app.store_url,
         publisher: Array(app.publishers).first,
-        credit: app.credit,
-        genres: Array(app.genres).reject(&:blank?),
+        genres: GenreTags.call(app.tag_ids),
         tags: tag_keys(app.tag_ids, tag_names),
         prestige_score: PrestigeScore.call(percent_positive: app.review_percent_positive, review_count: app.review_count),
         rating: app.review_percent_positive

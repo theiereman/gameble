@@ -1,6 +1,6 @@
 module Catalog
   # A card's detail (CAP-7): its CardView in one card-season, with what only
-  # the detail shows (the short description, the credit, the store link) and
+  # the detail shows (the short description, the store link) and
   # the sets of that season holding it. The card is found by its slug alone
   # (AD-15: never by id, never through FriendlyId's fallback to the primary
   # key); the card-season is that of the season numbered `season_number`, or
@@ -19,13 +19,13 @@ module Catalog
   # never reaches a page. `current_season` is true when the card-season is
   # the published season's.
   module CardDetail
-    Detail = Data.define(:view, :short_description, :publisher, :credit, :store_url, :sets, :card_season_id, :current_season)
+    Detail = Data.define(:view, :short_description, :publisher, :store_url, :sets, :card_season_id, :current_season)
 
     LATEST = "(SELECT MAX(published.number) FROM catalog_seasons published WHERE published.status = 'published')".freeze
 
     COLUMNS = [
       "catalog_card_seasons.id", "catalog_cards.slug", "catalog_card_texts.title", "catalog_card_texts.short_description",
-      "catalog_cards.publisher", "catalog_cards.credit", "catalog_cards.store_url", "catalog_cards.release_date",
+      "catalog_cards.publisher", "catalog_cards.store_url", "catalog_cards.release_date",
       "catalog_seasons.number", "catalog_card_seasons.rarity", "catalog_card_seasons.dust_tier", "catalog_cards.image_url",
       "catalog_seasons.number = #{LATEST}"
     ].freeze
@@ -36,10 +36,10 @@ module Catalog
       row = card_season(slug.to_s, locale.to_s, season_number)
       return if row.nil?
 
-      id, slug, title, description, publisher, credit, store_url, release_date, number, rarity, dust, image_url, current = row
+      id, slug, title, description, publisher, store_url, release_date, number, rarity, dust, image_url, current = row
       view = CardView.new(id: slug, title:, publisher:, year: release_date.year, season_number: number,
         rarity:, dust: CardSeason.dust_tiers.fetch(dust), image_url:)
-      Detail.new(view:, short_description: description.presence, publisher:, credit: credit.presence, store_url:,
+      Detail.new(view:, short_description: description.presence, publisher:, store_url:,
         sets: sets(id), card_season_id: id, current_season: current)
     end
 

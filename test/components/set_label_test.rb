@@ -34,11 +34,14 @@ class SetLabelTest < ActiveSupport::TestCase
     assert_equal "Best rated of 2011", label("best_of_year", { "year" => 2011 }, :en)
   end
 
-  test "every Steam genre has its label in both locales" do
-    genres = %w[action adventure casual indie massively_multiplayer racing rpg simulation sports strategy free_to_play
+  test "every genre tag and every former store genre has its label in both locales" do
+    # The store's genres, imported until story 2.10: seasons published before
+    # it name their tomes with them.
+    store_genres = %w[action adventure casual indie massively_multiplayer racing rpg simulation sports strategy free_to_play
       early_access violent gore nudity sexual_content utilities education design_illustration animation_modeling
       audio_production video_production photo_editing software_training web_publishing game_development accounting
       movie documentary episodic short tutorial 360_video]
+    genres = (store_genres + Steam::GenreTags::GENRES.values).uniq
 
     %i[en fr].each do |locale|
       assert_equal genres.sort, I18n.t("catalog.genres", locale:).keys.map(&:to_s).sort, locale

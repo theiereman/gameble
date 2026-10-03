@@ -15,9 +15,8 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     season
   end
 
-  test "a card of the published season, in two queries: its view, texts, credits and sets" do
+  test "a card of the published season, in two queries: its view, texts and sets" do
     portal = catalog_card_seasons(:portal_one)
-    catalog_cards(:portal).update_columns(credit: "© Valve Corporation.\nAll rights reserved.")
     detail = nil
 
     assert_queries_count(2) { detail = Catalog::CardDetail.call(slug: "portal", locale: :en) }
@@ -26,7 +25,6 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
       rarity: "amethyst", dust: 3, image_url: "https://images.example.test/400.jpg"), detail.view
     assert_equal "A puzzle game of portals.", detail.short_description
     assert_equal "Valve", detail.publisher
-    assert_equal "© Valve Corporation.\nAll rights reserved.", detail.credit
     assert_equal "https://store.example.test/400", detail.store_url
     assert_equal [ Catalog::SetSlots::SetRef.new(kind: "publisher", key: "valve", params: { "publisher" => "Valve" }) ], detail.sets
     assert_equal portal.id, detail.card_season_id
@@ -38,19 +36,16 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert_equal "Soldat de plomb", Catalog::CardDetail.call(slug: "tin-soldier", locale: "fr").view.title
   end
 
-  test "a card without publisher, credit, description or set has nil and none" do
+  test "a card without publisher, description or set has nil and none" do
     detail = Catalog::CardDetail.call(slug: "tin-soldier", locale: :en)
 
     assert_nil detail.publisher
-    assert_nil detail.credit
     assert_nil detail.short_description
     assert_equal [], detail.sets
 
     catalog_card_texts(:portal_en).update_columns(short_description: "")
-    catalog_cards(:portal).update_columns(credit: "")
     detail = Catalog::CardDetail.call(slug: "portal", locale: :en)
     assert_nil detail.short_description
-    assert_nil detail.credit
   end
 
   test "an unknown slug, a card id or a slug in another case is nothing, in one query" do

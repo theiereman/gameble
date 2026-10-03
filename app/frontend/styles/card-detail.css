@@ -123,9 +123,9 @@
   color: var(--color-accent);
 }
 
-/* Steam's legal notice, its line breaks kept. */
-.card-detail__credit {
-  white-space: pre-line;
+/* The ownership notice, under the fields of every card. */
+.card-detail__notice {
+  margin: 0;
   color: var(--color-ink-muted);
   font-size: var(--font-size-label);
 }

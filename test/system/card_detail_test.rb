@@ -35,7 +35,6 @@ class CardDetailTest < ApplicationSystemTestCase
     player = accounts_players(:player)
     id = members(season, "action-1").first
     card = Catalog::CardSeason.find(id).card
-    card.update_columns(credit: "© 2011 Seed Studio.\nAll rights reserved.")
     Catalog::CardText.where(card_id: card.id, locale: "en").update_all(short_description: "A seed of a game.")
     Game::Holding.create!(player_id: player.id, card_season_id: id, quantity: 2)
     sign_in(player)
@@ -48,9 +47,7 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector ".card-detail__face .card--large.card--face"
     assert_selector ".card-detail__description", text: "A seed of a game."
     assert_selector ".card-detail__copies", text: "You hold 2 copies"
-    assert_selector ".card-detail__credit", text: "© 2011 Seed Studio."
-    # The credit keeps its line break.
-    assert_equal "pre-line", find(".card-detail__credit").evaluate_script("getComputedStyle(this).whiteSpace")
+    assert_selector ".card-detail__notice", text: "This game and its image belong to their respective owners. gameble is not affiliated with Valve or Steam."
     link = find(".card-detail__store a", text: "See it on the Steam store")
     assert_equal [ card.store_url, "_blank" ], [ link[:href], link[:target] ]
     take_screenshot
@@ -104,7 +101,6 @@ class CardDetailTest < ApplicationSystemTestCase
 
   test "on a phone the face stands above its fields, without sideways scroll" do
     page.driver.browser.manage.window.resize_to(390, 844)
-    catalog_cards(:portal).update_columns(credit: "© 2007 Valve Corporation. All rights reserved. Valve, the Valve logo and Portal are trademarks.")
 
     visit card_path(locale: :en, slug: "portal")
 

@@ -59,8 +59,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   def store_link = css_select(".card-detail__store a").sole
 
-  test "a card of the published season: every field, the sets leading to their tomes, the Steam link" do
-    catalog_cards(:portal).update_columns(credit: "© 2007 Valve Corporation.\nAll rights reserved.")
+  test "a card of the published season: every field, the sets leading to their tomes, the ownership notice, the Steam link" do
     add_portal_to_a_tome
 
     get card_path(locale: :en, slug: "portal")
@@ -71,10 +70,10 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__face .card.card--large.card--face.card--rarity-amethyst .card__title", "Portal"
     assert_select ".card-detail__description", "A puzzle game of portals."
     assert_equal [ [ "Released", "2007" ], [ "Rarity", "Amethyst" ], [ "Season", "1" ], [ "Sets", "Action · Tome 1 | Valve" ],
-      [ "Publisher", "Valve" ], [ "Copyright", "© 2007 Valve Corporation.\nAll rights reserved." ] ], fields
+      [ "Publisher", "Valve" ] ], fields
     assert_equal [ [ "Action · Tome 1", "/en/library/tome/action-1" ], [ "Valve", "/en/library/publisher/valve" ] ],
       css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
-    assert_equal "© 2007 Valve Corporation.\nAll rights reserved.", css_select(".card-detail__credit").sole.text
+    assert_equal "This game and its image belong to their respective owners. gameble is not affiliated with Valve or Steam.", css_select(".card-detail__notice").sole.text
     assert_equal [ "See it on the Steam store", "https://store.example.test/400", "noopener noreferrer external", "_blank" ],
       store_link.then { [ it.text.strip, it["href"], it["rel"], it["target"] ] }
     # The description is never on the face.
@@ -92,6 +91,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail h1", "Soldat de plomb"
     assert_select "title", "Soldat de plomb"
     assert_equal [ [ "Sortie", "2024" ], [ "Rareté", "Acier" ], [ "Saison", "1" ] ], fields
+    assert_select ".card-detail__notice", "Ce jeu et son image appartiennent à leurs propriétaires respectifs. gameble n'est affilié ni à Valve ni à Steam."
     assert_equal [ "La voir sur la boutique Steam", "https://store.steampowered.com/app/401/Tin_Soldier/?snr=1_7&l=french" ],
       store_link.then { [ it.text.strip, it["href"] ] }
 
@@ -100,14 +100,14 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "https://store.example.test/400?l=french", store_link["href"]
   end
 
-  test "a card without publisher, credit, description or set leaves those rows out" do
+  test "a card without publisher, description or set leaves those rows out, the ownership notice kept" do
     get card_path(locale: :en, slug: "tin-soldier")
 
     assert_response :success
     assert_equal [ "Released", "Rarity", "Season" ], fields.map(&:first)
     assert_select ".card-detail__description", false
     assert_select ".card-detail__sets", false
-    assert_select ".card-detail__credit", false
+    assert_select ".card-detail__notice", "This game and its image belong to their respective owners. gameble is not affiliated with Valve or Steam."
   end
 
   test "a player sees how many copies they hold: two, one, or no line without any" do

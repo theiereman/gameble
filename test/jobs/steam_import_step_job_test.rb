@@ -3,8 +3,7 @@ require_relative "../support/steam_api_stubs"
 
 # The import job (AD-19): one page per job, the next page enqueued after the
 # commit, each step handing over to the next, the run failed once retries are
-# spent, the store's rate limit retried minutes apart, and a resumed run going on from its cursor without
-# duplicates.
+# spent, and a resumed run going on from its cursor without duplicates.
 class SteamImportStepJobTest < ActiveJob::TestCase
   include SteamApiStubs
 
@@ -49,7 +48,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_equal 5, run.apps_reviewed
     assert_equal 2, run.apps_kept
     assert_equal 3, run.apps_excluded
-    assert_equal({ "step" => "cards", "last_appid" => 0 }, run.cursor, "review items carry no type: no game reached the genres nor the cards")
+    assert_equal({ "step" => "cards", "last_appid" => 0 }, run.cursor, "review items carry no type: no game reached the cards")
     assert_equal [ 0, 0 ], [ run.cards_written, run.cards_refused ]
     assert_equal [ 2, 2 ], [ run.apps_detailed, run.apps_excluded_details ]
     assert_equal 3, calls.size, "one review page, then one details page in English and in French"
@@ -243,49 +242,6 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_equal [ 10 ], Steam::App.kept_by(run).pluck(:appid)
   end
 
-  def genres_run_with(*appids)
-    run = Steam::ImportRun.create!(status: :running, step: "genres", cursor: { "step" => "genres", "last_appid" => 0 }, started_at: 1.minute.ago)
-    Steam::App.insert_all(appids.map { |appid| { appid: appid, name: "Game #{appid}", import_run_id: run.id, reviewed_run_id: run.id, details_run_id: run.id } })
-    run
-  end
-
-  test "the store's rate limit is retried three minutes later, and fails the run after three attempts" do
-    run = genres_run_with(10)
-    calls = 0
-    steam_stubs.get(SteamApiStubs::APP_DETAILS_PATH) do
-      calls += 1
-      [ 429, {}, "" ]
-    end
-
-    freeze_time do
-      Steam::ImportStepJob.perform_now(run.id, run.cursor)
-
-      retry_at = Time.zone.at(enqueued_jobs.sole.fetch(:at))
-      assert_operator retry_at, :>=, 3.minutes.from_now
-      assert_operator retry_at, :<, 4.minutes.from_now
-    end
-    assert_predicate run.reload, :running?
-
-    2.times { perform_enqueued_jobs }
-
-    run.reload
-    assert_predicate run, :failed?
-    assert_equal 3, calls, "three attempts, none retried inside the client"
-    assert_includes run.latest_errors.first.message, "Steam::StoreApi::RateLimited"
-    assert_equal({ "step" => "genres", "last_appid" => 0 }, run.cursor)
-    assert_no_enqueued_jobs
-  end
-
-  test "a malformed store answer is retried like any error, then fails the run" do
-    run = genres_run_with(10)
-    stub_app_details(10 => :null)
-
-    perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
-
-    assert_predicate run.reload, :failed?
-    assert_includes run.latest_errors.first.message, "Steam::StoreApi::Error"
-  end
-
   test "a stale reviews job once the run is on the tags does nothing" do
     run = Steam::ImportRun.create!(status: :running, step: "tags", cursor: { "step" => "tags", "last_appid" => 0 }, started_at: 1.minute.ago)
     calls = stub_get_tag_list
@@ -296,7 +252,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_equal "tags", run.reload.step
   end
 
-  test "the tags page enqueues the first details page, which enqueues the first genres page once no game is left" do
+  test "the tags page enqueues the first details page, which enqueues the first cards page once no game is left" do
     run = Steam::ImportRun.create!(status: :running, step: "tags", cursor: { "step" => "tags", "last_appid" => 0 }, started_at: 1.minute.ago)
     stub_get_tag_list
 
@@ -304,7 +260,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
       Steam::ImportStepJob.perform_now(run.id, run.cursor)
     end
     clear_enqueued_jobs
-    assert_enqueued_with(job: Steam::ImportStepJob, args: [ run.id, { "step" => "genres", "last_appid" => 0 } ]) do
+    assert_enqueued_with(job: Steam::ImportStepJob, args: [ run.id, { "step" => "cards", "last_appid" => 0 } ]) do
       Steam::ImportStepJob.perform_now(run.id, run.reload.cursor)
     end
   end
@@ -312,21 +268,59 @@ class SteamImportStepJobTest < ActiveJob::TestCase
   test "a full stubbed run keeps only the normal game ready, with all its card fields" do
     stub_app_list_page(after: 0, appids: [ 10, 20, 30 ], more: false)
     stub_get_tag_list
-    english = { 10 => detailed_item(10, reviews: 9_000), 20 => detailed_item(20, type: 4, reviews: 9_000), 30 => detailed_item(30, capsule: nil, reviews: 9_000) }
+    tags = [ { "tagid" => 492, "weight" => 1200 }, { "tagid" => 1664, "weight" => 900 }, { "tagid" => 1663, "weight" => 700 } ]
+    english = { 10 => detailed_item(10, tags:, reviews: 9_000), 20 => detailed_item(20, type: 4, reviews: 9_000),
+      30 => detailed_item(30, capsule: nil, reviews: 9_000) }
     stub_get_items_by_language("english" => english, "french" => { 10 => french_item(10) })
-    stub_app_details(10 => app_details_entry(10))
 
     run = perform_enqueued_jobs { start_run }
 
     run.reload
     assert_predicate run, :completed?
-    assert_equal [ 3, 3, 2, 1, 0 ], [ run.tags_named, run.apps_detailed, run.apps_excluded_details, run.apps_genred, run.apps_excluded_genres ]
+    assert_equal [ 3, 3, 2 ], [ run.tags_named, run.apps_detailed, run.apps_excluded_details ]
     app = Steam::App.ready_by(run).sole
     assert_equal 10, app.appid
     assert_equal [ "The best game 10.", "Le meilleur jeu 10." ], [ app.short_description_en, app.short_description_fr ]
-    assert_equal [ [ "Publisher 10" ], [ 492, 19 ], %w[action free_to_play] ], [ app.publishers, app.tag_ids, app.genres ]
-    assert [ app.name_en, app.name_fr, app.release_on, app.credit, app.store_url, app.image_url ].all?(&:present?)
+    assert_equal [ [ "Publisher 10" ], [ 492, 1664, 1663 ] ], [ app.publishers, app.tag_ids ]
+    assert [ app.name_en, app.name_fr, app.release_on, app.store_url, app.image_url ].all?(&:present?)
     assert_equal [ 1, 0 ], [ run.cards_written, run.cards_refused ]
-    assert_equal [ "steam:10" ], Catalog::DraftSeason.call.card_seasons.map { |card_season| card_season.card.source_key }
+    card = Catalog::DraftSeason.call.card_seasons.sole.card
+    assert_equal [ "steam:10", %w[puzzle fps], nil ], [ card.source_key, card.genres, Catalog::Card.where(id: card.id).pick(Arel.sql("credit")) ]
+  end
+
+  # Each game's tags, heaviest first: [ tagid, weight ] pairs.
+  GENRE_TAGS = {
+    1 => [ [ 492, 1200 ], [ 1664, 900 ], [ 1663, 800 ] ],
+    2 => [ [ 1663, 500 ], [ 122, 900 ], [ 19, 950 ] ],
+    3 => [ [ 999_999, 2000 ], [ 122, 10 ] ]
+  }.freeze
+
+  test "a full stubbed run goes through every step without the store API, and each card's tome after publish is its most-voted genre tag" do
+    appids = (1..21).to_a
+    stub_app_list_page(after: 0, appids:, more: false)
+    stub_get_tag_list(19 => "Action", 492 => "Indie", 1664 => "Puzzle", 1663 => "FPS", 122 => "RPG")
+    english = appids.index_with do |appid|
+      tags = GENRE_TAGS.fetch(appid, [ [ 19, 900 ], [ 492, 1200 ] ]).map { |tagid, weight| { "tagid" => tagid, "weight" => weight } }
+      detailed_item(appid, tags:, reviews: 500 + (appid * 1_000))
+    end
+    calls = stub_get_items_by_language("english" => english, "french" => {})
+
+    # Every request is answered by a stub above, or raises and fails the run:
+    # a completed run made no other request (no store API).
+    run = perform_enqueued_jobs { start_run }
+
+    run.reload
+    assert_predicate run, :completed?
+    assert_equal 3, calls.size, "one review page, then one details page in English and in French"
+    finished = Rails.configuration.event_store.read.stream(Steam::ImportRun.stream_name(run.id)).of_type(Steam::ImportStepFinished).map { |event| event.data[:step] }
+    assert_equal %w[app_list reviews tags details cards], finished
+    assert_equal [ 21, 0 ], [ run.cards_written, run.cards_refused ]
+
+    draft = Catalog::DraftSeason.call
+    assert Catalog::PublishSeason.new.call(number: draft.number).success?
+
+    tomes = Catalog::Set.where(season_id: draft.id, kind: "tome").includes(memberships: { card_season: :card })
+      .to_h { |set| [ set.params["genre"], set.memberships.map { |membership| membership.card_season.card.source_key }.sort ] }
+    assert_equal({ "puzzle" => [ "steam:1" ], "rpg" => [ "steam:2", "steam:3" ] }, tomes)
   end
 end

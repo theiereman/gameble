@@ -33,12 +33,6 @@
           <dt><%= t(".apps_excluded_details") %></dt>
           <dd data-import-run-apps-excluded-details="<%= @import_run.apps_excluded_details %>"><%= number_with_delimiter(@import_run.apps_excluded_details) %></dd>
         <% end %>
-        <% if @import_run.reached?("genres") %>
-          <dt><%= t(".apps_genred") %></dt>
-          <dd data-import-run-apps-genred="<%= @import_run.apps_genred %>"><%= number_with_delimiter(@import_run.apps_genred) %></dd>
-          <dt><%= t(".apps_excluded_genres") %></dt>
-          <dd data-import-run-apps-excluded-genres="<%= @import_run.apps_excluded_genres %>"><%= number_with_delimiter(@import_run.apps_excluded_genres) %></dd>
-        <% end %>
         <% if @import_run.reached?("cards") %>
           <dt><%= t(".cards_written") %></dt>
           <dd data-import-run-cards-written="<%= @import_run.cards_written %>"><%= number_with_delimiter(@import_run.cards_written) %></dd>

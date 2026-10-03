@@ -11,7 +11,7 @@ module Steam
   # transaction; then, in one transaction, the page's rows are updated (never
   # created) and the cursor and the counts move past the page. When no app is
   # left after the cursor, the step finishes (Steam::FinishImportStep) without
-  # calling Steam.
+  # calling Steam and hands over to the cards (Steam::ImportCardsPage).
   #
   # A Steam failure raises Steam::WebApi::Error (key redacted), for the job to
   # retry and, once retries are spent, fail the run.
