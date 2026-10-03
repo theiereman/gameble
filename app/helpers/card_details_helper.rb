@@ -19,9 +19,13 @@ module CardDetailsHelper
     t("card_details.open", title: view.title, rarity: strings.rarity_name(view.rarity), season: view.season_number)
   end
 
-  # A card's face or empty slot, leading to its detail in its own season.
-  def link_to_card_detail(view, strings, &)
-    link_to(card_season_path(slug: view.id, number: view.season_number), class: "card-link",
-      aria: { label: card_detail_open_label(view, strings) }, data: { turbo_prefetch: false }, &)
+  # A card's face or empty slot, leading to its detail in its own season. A
+  # face, given its `strings`, is named by card_detail_open_label; an empty
+  # slot, without, by its visible text (title, year, "Missing card"), so a
+  # screen reader tells it from an owned face.
+  def link_to_card_detail(view, strings: nil, &)
+    aria = strings ? { label: card_detail_open_label(view, strings) } : {}
+    link_to(card_season_path(slug: view.id, number: view.season_number), class: "card-link", aria:,
+      data: { turbo_prefetch: false }, &)
   end
 end

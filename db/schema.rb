@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_050002) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_060001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -164,6 +164,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_050002) do
     t.index ["player_id"], name: "index_game_packs_on_player_id"
     t.index ["season_id"], name: "index_game_packs_on_season_id"
     t.index ["token"], name: "index_game_packs_on_token", unique: true
+    t.check_constraint "array_ndims(card_season_ids) = 1 AND cardinality(card_season_ids) >= 1 AND array_position(card_season_ids, NULL::bigint) IS NULL AND (kind::text <> 'regular'::text OR cardinality(card_season_ids) = 5) AND (kind::text <> 'bonus'::text OR cardinality(card_season_ids) = 3)", name: "game_packs_card_season_ids_check"
     t.check_constraint "kind::text = 'regular'::text OR kind::text = 'bonus'::text OR kind::text = 'reward'::text", name: "game_packs_kind_check"
   end
 
@@ -203,9 +204,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_050002) do
     t.index ["details_run_id", "appid"], name: "index_steam_apps_detailed_by_run", where: "(details_exclusion IS NULL)"
     t.index ["import_run_id"], name: "index_steam_apps_on_import_run_id"
     t.index ["reviewed_run_id", "appid"], name: "index_steam_apps_kept_by_run", where: "(review_exclusion IS NULL)"
-    t.check_constraint "details_exclusion IS NULL OR (details_exclusion::text = ANY (ARRAY['unavailable'::character varying, 'not_a_game'::character varying, 'no_title'::character varying, 'no_vertical_image'::character varying, 'no_release_date'::character varying]::text[]))", name: "steam_apps_details_exclusion_check"
+    t.check_constraint "details_exclusion IS NULL OR (details_exclusion::text = ANY (ARRAY['unavailable'::character varying::text, 'not_a_game'::character varying::text, 'no_title'::character varying::text, 'no_vertical_image'::character varying::text, 'no_release_date'::character varying::text]))", name: "steam_apps_details_exclusion_check"
     t.check_constraint "genres_exclusion IS NULL OR genres_exclusion::text = 'unavailable'::text", name: "steam_apps_genres_exclusion_check"
-    t.check_constraint "review_exclusion IS NULL OR (review_exclusion::text = ANY (ARRAY['too_few_reviews'::character varying, 'unavailable'::character varying, 'malformed_reviews'::character varying]::text[]))", name: "steam_apps_review_exclusion_check"
+    t.check_constraint "review_exclusion IS NULL OR (review_exclusion::text = ANY (ARRAY['too_few_reviews'::character varying::text, 'unavailable'::character varying::text, 'malformed_reviews'::character varying::text]))", name: "steam_apps_review_exclusion_check"
   end
 
   create_table "steam_import_runs", force: :cascade do |t|
@@ -222,7 +223,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_050002) do
     t.index "(true)", name: "index_steam_import_runs_one_active", unique: true, where: "(((status)::text = 'pending'::text) OR ((status)::text = 'running'::text))"
     t.index ["created_at"], name: "index_steam_import_runs_on_created_at"
     t.index ["token"], name: "index_steam_import_runs_on_token", unique: true
-    t.check_constraint "status::text = ANY (ARRAY['pending'::character varying, 'running'::character varying, 'completed'::character varying, 'failed'::character varying, 'abandoned'::character varying]::text[])", name: "steam_import_runs_status_check"
+    t.check_constraint "status::text = ANY (ARRAY['pending'::character varying::text, 'running'::character varying::text, 'completed'::character varying::text, 'failed'::character varying::text, 'abandoned'::character varying::text])", name: "steam_import_runs_status_check"
   end
 
   create_table "steam_tags", force: :cascade do |t|

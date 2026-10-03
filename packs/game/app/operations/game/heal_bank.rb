@@ -7,8 +7,9 @@ module Game
   # full bank, a player who never had a pack (Game::FillBank's job) or a game
   # with no published season gets nothing and publishes nothing.
   #
-  # Run for every player that had a pack by Game::HealBanksJob, when a
-  # season is published and by `bin/rails game:top_up_banks`.
+  # Run by Game::HealBanksJob, when a season is published and by
+  # `bin/rails game:top_up_banks`, for every player that had a pack and whose
+  # bank is short of ten.
   #
   #   Game::HealBank.new.call(player:)
   #   # => Success(packs inserted) | Failure(:player_required)

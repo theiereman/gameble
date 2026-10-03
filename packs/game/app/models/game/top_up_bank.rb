@@ -26,9 +26,9 @@ module Game
 
       start = [ now, bank.maximum(:available_at) ].compact.max
       Pack.insert_all!(Array.new(missing) do |index|
-        { player_id:, token: Pack.generate_unique_secure_token, kind: "regular", season_id: pool.season_id,
+        Pack.row(player_id:, kind: :regular, season_id: pool.season_id,
           card_season_ids: Draw.pack(odds: DrawOdds::REGULAR, size: Pack::SIZE, random:, pool:),
-          available_at: start + (Pack::INTERVAL * (index + 1)) }
+          available_at: start + (Pack::INTERVAL * (index + 1)))
       end)
       missing
     end

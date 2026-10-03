@@ -10,10 +10,7 @@
   <% token = @owner.token %>
   <% started = @kind == PublicProfilesController::STARTED %>
   <div class="library__aside">
-    <%= render "library/shelf", kind: @kind, spines: @spines, pagy: @pagy, current_set: @set,
-      tabs: PublicProfilesController::TABS, mark_complete: true,
-      tab_url: ->(kind) { brother_path(token, kind: (kind unless kind == PublicProfilesController::STARTED)) },
-      set_url: ->(kind, key, page) { brother_set_path(token, kind:, key:, page:, tab: (PublicProfilesController::STARTED if started)) } %>
+    <%= render "library/shelf", kind: @kind, spines: @spines, pagy: @pagy, current_set: @set, **profile_shelf_links(token, @kind) %>
   </div>
   <div class="library__open">
     <%= link_to t(".owner", name: title), brother_path(token), class: "profile__owner", data: { turbo_prefetch: false } %>

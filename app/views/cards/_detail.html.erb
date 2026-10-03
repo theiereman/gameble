@@ -9,11 +9,13 @@
     - owner_holds: whether that collection still holds it (default true); if
       not, the owner line says it is no longer there;
     - set_url: ->(set) { path } leading each set to its tome, or nil for the
-      sets' names alone;
+      sets' names alone; the sets of a season other than the published one
+      (the one the library shows) are never linked;
     - share_url: the absolute link sharing it from the viewer's collection,
       or nil (the default) for no share button. %>
 <% owner_holds = local_assigns.fetch(:owner_holds, true) %>
 <% share_url = local_assigns.fetch(:share_url, nil) %>
+<% set_url = nil unless detail.current_season %>
 <% view = detail.view %>
 <% strings = CardStrings.for([ view ]) %>
 <article class="card-detail" aria-labelledby="card-detail-heading">

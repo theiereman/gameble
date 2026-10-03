@@ -1,11 +1,13 @@
 require "test_helper"
 require_relative "../support/catalog_seeds"
+require_relative "../support/library_requests"
 
 # The library (CAP-6, story 4.1): the published season's sets by kind, with
 # the viewer's owned / total, for a player and a visitor; tabs, pages,
 # labels, the empty states and the queries of a request.
 class LibraryControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
+  include LibraryRequests
 
   setup do
     OmniAuth.config.test_mode = true
@@ -16,13 +18,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     OmniAuth.config.test_mode = false
   end
 
-  def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
-    assert_equal player.id, session[:player_id]
-  end
-
   # The shelf as [ name, "owned / total" ] pairs, in order.
   def spines
     css_select(".shelf .tome").map { |tome| [ tome.at_css(".tome__name").text, tome.at_css(".tome__count").text ] }
@@ -30,15 +25,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
   def open_tab
     css_select(".library__tab[aria-current=page]").sole.text
-  end
-
-  def set_members(season, key)
-    set = Catalog::Set.find_by!(season_id: season.id, key:)
-    Catalog::SetMembership.where(set_id: set.id).order(:position).pluck(:card_season_id)
-  end
-
-  def hold(player, card_season_id, quantity)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
   end
 
   test "a player sees the season's tomes with their names and owned / total, cards in several sets counted in each" do
@@ -288,13 +274,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Tomes", "Publishers", "Best rated of the year" ], css_select(".library__tab").map(&:text)
     assert_select ".library__tab[data-turbo-prefetch=false]", 3
     assert_select ".shelf a.tome[data-turbo-prefetch=false]", 1
-  end
-
-  # The test connection keeps its query cache from one request to the next,
-  # which a real request never inherits: it is emptied before counting.
-  def assert_request_queries(count, &request)
-    ActiveRecord::Base.connection.clear_query_cache
-    assert_queries_count(count, &request)
   end
 
   test "a player's request costs six queries, a visitor's four" do

@@ -1,5 +1,6 @@
 require "test_helper"
 require_relative "../support/catalog_seeds"
+require_relative "../support/library_requests"
 
 # A player's public profile (CAP-8, story 4.4): their name, their counts and
 # their library, open on the sets they have started, with their progress and
@@ -7,6 +8,7 @@ require_relative "../support/catalog_seeds"
 # owner; no database id, no Steam id; the queries of a request.
 class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
+  include LibraryRequests
 
   setup do
     OmniAuth.config.test_mode = true
@@ -17,22 +19,6 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
   teardown do
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
-  end
-
-  def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
-    assert_equal player.id, session[:player_id]
-  end
-
-  def set_members(season, key)
-    set = Catalog::Set.find_by!(season_id: season.id, key:)
-    Catalog::SetMembership.where(set_id: set.id).order(:position, :id).pluck(:card_season_id)
-  end
-
-  def hold(player, card_season_id, quantity)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
   end
 
   # The shelf as [ name, "owned / total" ] pairs, in order.
@@ -199,6 +185,13 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".library__aside .shelf .tome[aria-current=page] .tome__name", "Action · Tome 1"
     assert_select ".profile__counts", false
     assert_select ".open-tome__slots > li > a.card-link[data-turbo-prefetch=false]", 25
+    # The owner's faces are named by their label; an empty slot by its
+    # visible text, whoever looks.
+    links = css_select(".open-tome__slots > li > a.card-link")
+    face, missing = Catalog::CardViews.call(members, locale: :en).values_at(members[3], members[1])
+    assert_equal "#{face.title}, #{I18n.t("catalog.rarity.#{face.rarity}", locale: :en)}, season #{season.number}", links[3]["aria-label"]
+    assert_equal members.map { |id| id.in?([ members[0], members[3] ]) }, links.map { it["aria-label"].present? }
+    assert_equal "#{missing.title} #{missing.year} Missing card", links[1].text.squish
   end
 
   test "a tome opened from the Started shelf keeps the Started shelf beside it" do
@@ -343,13 +336,6 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  # The test connection keeps its query cache from one request to the next,
-  # which a real request never inherits: it is emptied before counting.
-  def assert_request_queries(count, &request)
-    ActiveRecord::Base.connection.clear_query_cache
-    assert_queries_count(count, &request)
-  end
-
   test "a visitor's profile costs seven queries, a signed-in viewer's one more" do
     season = publish_sets_draft
     hold(@owner, set_members(season, "p").first, 1)
@@ -370,8 +356,8 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     season = publish_sets_draft
     hold(@owner, set_members(season, "action-1").first, 1)
 
-    # Owner by token, published season, set slots, shelf count, shelf page,
-    # totals, the owner's progress, card views, the owner's quantities.
+    # Owner by token, published season, set slots, card views, the owner's
+    # quantities, shelf count, shelf page, totals, the owner's progress.
     assert_request_queries(9) { get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1") }
     assert_response :success
 

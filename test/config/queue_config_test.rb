@@ -1,7 +1,8 @@
 require "test_helper"
 
 # The import worker (AD-19, AD-21): one process, one thread, the import queue
-# only; the jobs process leaves that queue alone.
+# only; the jobs process leaves that queue alone, and dispatches and serves
+# the queues of the other jobs.
 class QueueConfigTest < ActiveSupport::TestCase
   def load_config(name)
     YAML.safe_load(ERB.new(Rails.root.join("config", name).read).result, aliases: true)
@@ -23,6 +24,19 @@ class QueueConfigTest < ActiveSupport::TestCase
         assert_not_includes queues, "*", env
         assert_not_includes queues, "import", env
       end
+    end
+  end
+
+  test "the jobs process dispatches and serves the default queue, the bank healing's and the stalled-import recovery's" do
+    recurring = YAML.safe_load(Rails.root.join("config/recurring.yml").read, aliases: true)
+    queues = [ "default", Game::HealBanksJob.new.queue_name, Steam::RecoverStalledImportsJob.new.queue_name ]
+
+    %w[development production].each do |env|
+      config = load_config("queue.yml").fetch(env)
+      served = config.fetch("workers").flat_map { Array(it["queues"]) }
+
+      assert_not_empty config.fetch("dispatchers"), env
+      (queues + [ recurring.dig(env, "recover_stalled_imports", "queue") ]).each { assert_includes served, it, env }
     end
   end
 

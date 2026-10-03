@@ -15,10 +15,5 @@
       <li><%= t("public_profiles.show.complete_sets", count: summary.complete_sets) %></li>
     </ul>
   </header>
-  <% token = owner.token %>
-  <% tab = (kind if kind == PublicProfilesController::STARTED) %>
-  <%= render "library/shelf", kind:, spines:, pagy:, current_set: nil,
-    tabs: PublicProfilesController::TABS, mark_complete: true,
-    tab_url: ->(tab_kind) { brother_path(token, kind: (tab_kind unless tab_kind == PublicProfilesController::STARTED)) },
-    set_url: ->(set_kind, key, page) { brother_set_path(token, kind: set_kind, key:, page:, tab:) } %>
+  <%= render "library/shelf", kind:, spines:, pagy:, current_set: nil, **profile_shelf_links(owner.token, kind) %>
 </section>

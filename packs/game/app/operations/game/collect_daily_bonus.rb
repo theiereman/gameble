@@ -34,8 +34,8 @@ module Game
         step unclaimed(player, day)
         pool = step published_pool
         step FillBank.new(random: @random).call(player:, now:)
-        pack = Pack.create!(player_id: player.id, kind: :bonus, season_id: pool.season_id, available_at: now,
-          card_season_ids: Draw.pack(odds: DrawOdds::BONUS, size: Pack::BONUS_SIZE, random: @random, pool:))
+        pack = Pack.create!(Pack.row(player_id: player.id, kind: :bonus, season_id: pool.season_id, available_at: now,
+          card_season_ids: Draw.pack(odds: DrawOdds::BONUS, size: Pack::BONUS_SIZE, random: @random, pool:)))
         DailyBonusClaim.create!(player_id: player.id, day:, pack_id: pack.id)
         step publish(DailyBonusCollected.new(data: { player_id: player.id, pack_id: pack.id }), stream_name: stream_name(player.id))
         pack

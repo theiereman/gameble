@@ -3,7 +3,8 @@ require_relative "../support/steam_api_stubs"
 
 # The import job (AD-19): one page per job, the next page enqueued after the
 # commit, each step handing over to the next, the run failed once retries are
-# spent, and a resumed run going on from its cursor without duplicates.
+# spent (the waits between attempts well below a stall), and a resumed run
+# going on from its cursor without duplicates.
 class SteamImportStepJobTest < ActiveJob::TestCase
   include SteamApiStubs
 
@@ -145,6 +146,22 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_includes message, "503"
     assert_not_includes message, API_KEY
     assert_equal 1, run.error_messages.size
+  end
+
+  test "the waits between a page job's attempts add up to well below a stall, and the run fails after the last" do
+    freeze_time
+    stub_app_list_status(503, after: 0)
+
+    run = perform_enqueued_jobs { start_run }
+
+    # The first attempt runs at once; each retry is scheduled after a wait.
+    attempts = performed_jobs.select { it[:job] == Steam::ImportStepJob }
+    assert_equal Steam::ImportStepJob::ATTEMPTS, attempts.size
+    waits = attempts.drop(1).map { it.fetch(:at) - Time.current.to_f }
+    assert waits.all?(&:positive?), "every retry waits"
+    assert_operator waits.sum, :<, Steam::StalledImportRuns::STALL_AFTER.to_f,
+      "the waits between attempts stay below Steam::StalledImportRuns::STALL_AFTER"
+    assert_predicate run.reload, :failed?
   end
 
   test "a resumed run goes on from its cursor, and a page fetched twice leaves no duplicate" do

@@ -15,7 +15,7 @@
   <% else %>
     <ol class="pack-result__cards" aria-label="<%= t(".cards") %>">
       <% @cards.each do |card| %>
-        <li class="pack-result__card"><%= link_to_card_detail(card, @strings) do %><%= render CardComponent.new(card:, size: :small, side: :face, strings: @strings) %><% end %></li>
+        <li class="pack-result__card"><%= link_to_card_detail(card, strings: @strings) do %><%= render CardComponent.new(card:, size: :small, side: :face, strings: @strings) %><% end %></li>
       <% end %>
     </ol>
     <div class="pack-end">

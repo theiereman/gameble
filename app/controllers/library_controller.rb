@@ -27,18 +27,9 @@ class LibraryController < ApplicationController
   def set
     authorize :page, :show?
     season = Catalog::PublishedSeason.call
-    raise ActiveRecord::RecordNotFound if season.nil?
-
-    slots = Catalog::SetSlots.call(season_id: season.id, kind: params[:kind], key: params[:key])
-    raise ActiveRecord::RecordNotFound if slots.nil?
-
-    @kind = slots.set.kind
-    @set = slots.set
+    load_set(season, owner: current_player)
+    @kind = @set.kind
     @shelf_page = page_param if params[:page].present?
     load_shelf(Catalog::SeasonShelf.relation(kind: @kind, season:), owner: current_player)
-
-    views = Catalog::CardViews.call(slots.card_season_ids, locale: I18n.locale)
-    @slots = slots.card_season_ids.each_with_object({}) { |id, ordered| ordered[id] = views[id] if views.key?(id) }
-    @quantities = Game::Quantities.call(current_player, @slots.keys)
   end
 end

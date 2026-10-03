@@ -15,7 +15,10 @@ module Steam
   #
   # Any error is retried; once the attempts are spent, the run fails with the
   # error (key redacted) and, while it is the latest run, can be resumed from
-  # its cursor (Steam::ResumeImport).
+  # its cursor (Steam::ResumeImport). The waits between attempts add up to
+  # well below Steam::StalledImportRuns::STALL_AFTER; the attempts' own HTTP
+  # time adds to them, so a slow failing page can outlast it, and a recovery
+  # then enqueues a duplicate that the cursor check stops (Steam::PageSteps).
   class ImportStepJob < ActiveJob::Base
     queue_as :import
 
