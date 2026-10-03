@@ -88,9 +88,10 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-13**
   - **intent:** A live Brotherhood feed shows what other players are doing, so the platform feels inhabited.
   - **success:**
-    - The feed shows notable pulls, first discoveries of a card, and trades.
+    - The feed shows notable pulls, first discoveries of a card, trades and reposts (CAP-19).
     - The feed is readable without an account.
     - With few players, it falls back to lower-rarity events and is never empty while any activity exists.
+    - A signed-in player has a Friends tab showing only their friends' pulls, trades and reposts.
 - **CAP-14**
   - **intent:** A player can manage their personal data from their profile.
   - **success:** From the profile, a player can delete their account, export their data, and hide their public profile. Each action works end to end.
@@ -111,6 +112,13 @@ gameble is an open-source passion project, and the game its author wants to play
   - **success:**
     - Signed out, a visitor can open the attic, the feed, public profiles, card details and the sets with their empty slots.
     - Opening a pack, trading and collecting the bonus are refused without an account and lead to Steam sign-in.
+- **CAP-19**
+  - **intent:** A player can repost a card they own to the Brotherhood feed to show it off, so flexing a collection happens in gameble rather than on Discord.
+  - **success:**
+    - Any card the player owns can be reposted, whatever its rarity, with no limit on the number of reposts.
+    - A repost appears in the global feed and in the Friends tab of the player's friends.
+    - Reposting a card the player does not own is refused, whatever the client does.
+    - Feed events carry no reactions or comments.
 
 ## Constraints
 
@@ -140,6 +148,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - Bulk pack opening.
 - Live trades with both players connected (later).
 - Card marks: favourite, to trade, personal categories (later).
+- Reactions or comments on feed events (later).
 - Sets built from Steam store tags (later).
 - Sign-in methods other than Steam.
 - Catalogs other than Steam.
@@ -166,6 +175,7 @@ The author plays gameble every day for a month alongside at least 10 active play
 - A card whose Steam image no longer loads still shows its frame and title.
 - The copy never names a real company; publisher names appear only as card credits and set names.
 - Card text translations come from Steam's own localized store text, imported once per UI language.
+- A repost is a past event: it stays in the feed after the card is traded away, and disappears with a hidden or banned profile (CAP-14, CAP-15).
 
 ## Open Questions
 
@@ -173,3 +183,4 @@ The author plays gameble every day for a month alongside at least 10 active play
 - **Achievements (CAP-17):** which achievements exist?
 - **Boosters (CAP-12, CAP-16):** what are the odds of the daily bonus booster and of the weekly goal's rare pack?
 - **Weekly goal (CAP-12):** how much does a trade count compared with a pack opening?
+- **Feed flooding (CAP-19):** with unlimited reposts, how does the global feed stay readable: grouping, a per-player cap in the global view, or nothing until measured?

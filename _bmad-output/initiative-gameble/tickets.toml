@@ -38,8 +38,8 @@ after = [{ epic = 3, needs = "owned cards, with their reserved count, and the ca
 id = 6
 slug = "epic-brotherhood"
 title = "The Brotherhood"
-covers = ["CAP-12", "CAP-13", "CAP-17"]
-after = [{ epic = 3, needs = "the pack-opened event and reward packs" }, { epic = 5, needs = "the trade-accepted event" }]
+covers = ["CAP-12", "CAP-13", "CAP-17", "CAP-19"]
+after = [{ epic = 3, needs = "the pack-opened event and reward packs" }, { epic = 5, needs = "the trade-accepted event and friendships for the Friends tab" }]
 
 [[epic]]
 id = 7
