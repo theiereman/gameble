@@ -28,7 +28,7 @@ For a collector: sets to complete, with empty slots that name what is missing. F
 - R2 (CAP-6; EXPERIENCE.md, Tome, Empty slot): a tome opens onto its slots in order: an owned card shows its face (with the number of copies when more than one), a missing one is an empty slot naming the game.
 - R3 (CAP-7; AD-18): a card's detail shows its art, title, short description, release year, rarity, season, sets (each leading to its tome), publisher with a notice that the game and its image belong to their owners (story 2.10, replacing the per-game copyright), and a link to its Steam store page; text in the viewer's language; the description appears only here.
 - R4 (CAP-8; AD-15): each player has a public profile at a link built on their random token, showing their collection and set progress; it is reachable signed out.
-- R5 (CAP-9; AD-15): a player shares a card they own as a link opening their public profile with that card shown; its preview on Discord, X and WhatsApp carries the card's title and rarity and no game image.
+- R5 (CAP-9; AD-15): a player shares a card they own as a link to the card's own page, which shows the card only, never who shared or holds it (author, 2026-10-03; story 4.7); its preview on Discord, X and WhatsApp carries the card's title and rarity and no game image.
 - R6 (CAP-18; AD-15): signed out, a visitor opens the library (every slot empty), a public profile and a card's detail; no URL, page or response exposes a database id.
 - R7 (AD-18; epic 2 Decision): set names and genre labels are rendered from locale keys (`catalog.sets.*`, `catalog.genres.*`) using `catalog_sets.params`, in French and English.
 
@@ -36,7 +36,7 @@ For a collector: sets to complete, with empty slots that name what is missing. F
 
 1. The library shows publisher sets, tomes and "best rated of the year" sets, each with owned / total and empty slots naming the missing game.
 2. A card's detail shows its title, description, year, rarity, season, sets, publisher, and a link to its Steam page.
-3. A shared link opens the sharer's public profile with the card shown; its preview on Discord, X and WhatsApp carries the title and rarity and no game image.
+3. A shared link opens the card's own page, with no owner shown; its preview on Discord, X and WhatsApp carries the title and rarity and no game image.
 4. Signed out, a visitor can open the library with empty sets, a public profile and a card's detail.
 5. No URL, page or response exposes a database id.
 
