@@ -8,6 +8,7 @@ module SteamApiStubs
   ITEMS_PATH = "/IStoreBrowseService/GetItems/v1/".freeze
   TAG_LIST_PATH = "/IStoreService/GetTagList/v1/".freeze
   APP_DETAILS_PATH = "/api/appdetails".freeze
+  PLAYER_SUMMARIES_PATH = "/ISteamUser/GetPlayerSummaries/v2/".freeze
 
   attr_reader :steam_stubs, :store_sleeps
 
@@ -171,5 +172,30 @@ module SteamApiStubs
     data["legal_notice"] = legal_notice unless legal_notice.nil?
     data["genres"] = genres.each_with_index.map { |description, index| { "id" => (index + 1).to_s, "description" => description } } unless genres.nil?
     { "success" => true, "data" => data }
+  end
+
+  # Answers GetPlayerSummaries for `steam_id` with `name` as its persona name
+  # (nil answers no player at all). Returns the params of each call.
+  def stub_player_summary(steam_id, name)
+    calls = []
+    steam_stubs.get(PLAYER_SUMMARIES_PATH) do |env|
+      calls << env.params
+      players = name.nil? ? [] : [ { "steamid" => steam_id, "communityvisibilitystate" => 3, "personaname" => name, "avatar" => "https://avatars.example.test/a.jpg" } ]
+      [ 200, { "Content-Type" => "application/json" }, { "response" => { "players" => players } }.to_json ]
+    end
+    calls
+  end
+
+  # Answers GetPlayerSummaries with `status`, or raises a connection failure
+  # for :connection_failed. Returns the params of each call.
+  def stub_player_summary_failure(status = 503)
+    calls = []
+    steam_stubs.get(PLAYER_SUMMARIES_PATH) do |env|
+      calls << env.params
+      raise Faraday::ConnectionFailed, "failed to open #{env.url}" if status == :connection_failed
+
+      [ status, { "Content-Type" => "application/json" }, "{}" ]
+    end
+    calls
   end
 end

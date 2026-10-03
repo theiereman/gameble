@@ -7,6 +7,14 @@ require "rails/test_help"
 # time, and one empties the output while another reads the manifest.
 abort "Vite build failed: see log/test.log" unless ViteRuby.commands.build
 
+# No test reaches Steam: outside production the Web API key is read from
+# config/steam_api.key, which may hold the author's real key. Both clients
+# answer from an empty set of Faraday test stubs unless a test stubs them
+# (SteamApiStubs, which restores this on unstub); an unstubbed call raises.
+# Set here, before the parallel workers fork.
+Steam::WebApi.adapter = [ :test, Faraday::Adapter::Test::Stubs.new ]
+Steam::StoreApi.adapter = [ :test, Faraday::Adapter::Test::Stubs.new ]
+
 module ActiveSupport
   class TestCase
     # Run tests in parallel with specified workers

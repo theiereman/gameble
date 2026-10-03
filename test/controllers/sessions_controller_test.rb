@@ -1,17 +1,22 @@
 require "test_helper"
+require_relative "../support/steam_api_stubs"
 
 class SessionsControllerTest < ActionDispatch::IntegrationTest
+  include SteamApiStubs
+
   STEAM_ID = "76561197960287930".freeze
   CLAIMED_ID = "https://steamcommunity.com/openid/id/#{STEAM_ID}".freeze
 
   setup do
     OmniAuth.config.test_mode = true
     mock_steam(CLAIMED_ID)
+    stub_steam_api
   end
 
   teardown do
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
+    unstub_steam_api
   end
 
   def mock_steam(uid)
@@ -307,5 +312,89 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".status-band__counters form[action=?] button.button--secondary", "/session?locale=fr", text: "Quitter les rangs"
     assert_select ".status-band__counters form[action='/auth/steam']", false
+  end
+
+  # The persona name (CAP-8)
+
+  test "a sign-in reads the player's Steam persona name and stores it" do
+    calls = stub_player_summary(STEAM_ID, "Gabe")
+
+    sign_in_with_steam
+
+    player = new_players.sole
+    assert_equal "Gabe", player.persona_name
+    assert_equal player.id, signed_in_player_id
+    assert_equal [ STEAM_ID ], calls.map { it["steamids"] }
+  end
+
+  test "a renamed Steam account is renamed on its next sign-in" do
+    stub_player_summary(STEAM_ID, "Gabe")
+    stub_player_summary(STEAM_ID, "Gaben")
+    sign_in_with_steam
+    assert_equal "Gabe", new_players.sole.persona_name
+    delete session_path(locale: :en)
+
+    sign_in_with_steam
+
+    assert_equal "Gaben", new_players.sole.persona_name
+  end
+
+  [ 503, 403, :connection_failed ].each do |failure|
+    test "a Steam failure (#{failure}) while reading the name signs the player in and keeps the stored name" do
+      stub_player_summary(STEAM_ID, "Gabe")
+      sign_in_with_steam
+      delete session_path(locale: :en)
+      calls = stub_player_summary_failure(failure)
+
+      assert_no_error_reported { sign_in_with_steam }
+
+      assert_equal 1, calls.size
+      assert_equal new_players.sole.id, signed_in_player_id
+      assert_equal "Gabe", new_players.sole.persona_name
+      assert_redirected_to home_path(locale: :en)
+      assert_equal I18n.t("sessions.create.welcome", locale: :en), flash[:notice]
+    end
+  end
+
+  test "a first sign-in whose name Steam fails to give leaves none" do
+    stub_player_summary_failure(503)
+
+    sign_in_with_steam
+
+    assert_equal new_players.sole.id, signed_in_player_id
+    assert_nil new_players.sole.persona_name
+  end
+
+  test "an empty name or no player from Steam keeps the stored name" do
+    stub_player_summary(STEAM_ID, "Gabe")
+    stub_player_summary(STEAM_ID, "")
+    stub_player_summary(STEAM_ID, nil)
+
+    3.times do
+      sign_in_with_steam
+      delete session_path(locale: :en)
+    end
+
+    assert_equal "Gabe", new_players.sole.persona_name
+  end
+
+  test "an unexpected error while reading the name is reported, and the sign-in goes on" do
+    steam_stubs.get(PLAYER_SUMMARIES_PATH) { raise "the summary broke" }
+
+    assert_error_reported(RuntimeError) { sign_in_with_steam }
+
+    assert_equal new_players.sole.id, signed_in_player_id
+    assert_nil new_players.sole.persona_name
+  end
+
+  test "a banned player's name is not stored" do
+    banned = accounts_players(:banned)
+    stub_player_summary(banned.steam_id, "Banned Brother")
+    mock_steam("https://steamcommunity.com/openid/id/#{banned.steam_id}")
+
+    sign_in_with_steam(origin: "/fr")
+
+    assert_nil signed_in_player_id
+    assert_nil banned.reload.persona_name
   end
 end

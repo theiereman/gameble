@@ -71,4 +71,25 @@ class Catalog::SeasonShelfTest < ActiveSupport::TestCase
 
     assert_queries_count(0) { assert_equal({}, Catalog::SetTotals.call([])) }
   end
+
+  test "every kind: tomes, then publishers, then best of year, each in its own order, lazily" do
+    season = seed_published_sets([
+      [ "best_of_year", "2011", { "year" => 2011 } ],
+      [ "publisher", "valve", { "publisher" => "Valve" } ],
+      [ "tome", "adventure-1", { "genre" => "adventure", "volume" => 1, "volumes" => 1 } ],
+      [ "best_of_year", "2015", { "year" => 2015 } ],
+      [ "tome", "action-10", { "genre" => "action", "volume" => 10, "volumes" => 10 } ],
+      [ "publisher", "activision", { "publisher" => "Activision" } ],
+      [ "tome", "action-2", { "genre" => "action", "volume" => 2, "volumes" => 10 } ]
+    ])
+
+    relation = nil
+    assert_queries_count(0) { relation = Catalog::SeasonShelf.every_kind(season:) }
+    assert_equal %w[action-2 action-10 adventure-1 activision valve 2015 2011], relation.map(&:key)
+    assert_empty relation.group_values
+  end
+
+  test "every kind answers nothing without a season" do
+    assert_queries_count(0) { assert_nil Catalog::SeasonShelf.every_kind(season: nil) }
+  end
 end

@@ -82,4 +82,72 @@ class Accounts::SignInTest < ActiveSupport::TestCase
       end
     end
   end
+
+  # The persona name (CAP-8)
+
+  test "a first sign-in stores the persona name and still publishes PlayerRegistered" do
+    player = Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: "Gabe").value!
+
+    assert_equal "Gabe", player.reload.persona_name
+    assert_equal [ { player_id: player.id } ], registered_events.map(&:data)
+  end
+
+  test "a later sign-in with another name renames the player" do
+    Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: "Gabe")
+
+    player = Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: "Gaben").value!
+
+    assert_equal "Gaben", player.reload.persona_name
+    assert_equal 1, registered_events.size
+  end
+
+  [ nil, "", "   ", 42 ].each do |name|
+    test "a sign-in with a persona name of #{name.inspect} keeps the stored one" do
+      Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: "Gabe")
+
+      result = Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: name)
+
+      assert result.success?
+      assert_equal "Gabe", result.value!.reload.persona_name
+    end
+  end
+
+  test "a first sign-in without a name leaves none" do
+    player = Accounts::SignIn.new.call(steam_id: STEAM_ID).value!
+
+    assert_nil player.reload.persona_name
+  end
+
+  test "the name is stripped and cut to 64 characters" do
+    player = Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: "  #{"a" * 70}  ").value!
+
+    assert_equal "a" * 64, player.reload.persona_name
+  end
+
+  test "the same name writes nothing" do
+    player = Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: "Gabe").value!
+    updated_at = player.reload.updated_at
+
+    travel 1.minute do
+      Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: " Gabe ")
+    end
+
+    assert_equal updated_at, player.reload.updated_at
+  end
+
+  test "control characters are dropped from the name, a NUL byte included, and the sign-in goes on" do
+    result = Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: "Ga\u0000be\n")
+
+    assert result.success?
+    assert_equal "Gabe", result.value!.reload.persona_name
+  end
+
+  test "a banned player's name is not stored" do
+    banned = accounts_players(:banned)
+
+    result = Accounts::SignIn.new.call(steam_id: banned.steam_id, persona_name: "Banned Brother")
+
+    assert_equal :banned, result.failure
+    assert_nil banned.reload.persona_name
+  end
 end

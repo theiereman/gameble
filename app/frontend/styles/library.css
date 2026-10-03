@@ -107,6 +107,14 @@
   overflow-wrap: anywhere;
 }
 
+.tome__complete {
+  flex: none;
+  padding: 0 var(--space-2);
+  border: var(--space-unit) solid var(--color-ink);
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
 .tome__count {
   flex: none;
   padding: 0 var(--space-2);
@@ -274,6 +282,68 @@
 .slot__missing {
   color: var(--color-ink-muted);
   font-size: var(--font-size-label);
+}
+
+/* The way from the library to the player's public profile, and from a
+   profile's open tome back to it: parchment plates. */
+.library__profile,
+.profile__owner {
+  align-self: flex-start;
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  border: var(--space-unit) solid var(--color-ink);
+  box-shadow: var(--shadow-hard);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+/* A public profile: the owner's name and what their collection counts. */
+.profile__header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.profile__name {
+  overflow-wrap: anywhere;
+}
+
+.profile__counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.profile__counts > li {
+  padding: var(--plate-padding-y) var(--plate-padding-x);
+  border: var(--space-unit) solid var(--color-ink);
+  box-shadow: var(--shadow-hard);
+  background: var(--color-surface);
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight-label);
+  font-size: var(--font-size-label);
+}
+
+/* A profile that cannot be shown. */
+.profile-unavailable {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.profile-unavailable > h1 {
+  margin: 0;
 }
 
 /* On a phone the tome stands alone. */

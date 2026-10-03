@@ -19,6 +19,9 @@ module Steam
   #
   #   Steam::WebApi.new.get_tag_list(language: "english")
   #   # => [{ tagid: 19, name: "Action" }, ...]
+  #
+  #   Steam::WebApi.new.get_player_summary(steamid: "76561197960287930")
+  #   # => "Gabe" | nil
   class WebApi
     BASE_URL = "https://api.steampowered.com".freeze
     REDACTED = "[FILTERED]".freeze
@@ -99,6 +102,24 @@ module Steam
       tags
     end
 
+    # The persona name of one player, from ISteamUser/GetPlayerSummaries, for
+    # a sign-in (CAP-8): one attempt, no retry, a 5 s timeout, so a slow
+    # Steam never holds a sign-in long. Stripped; nil when Steam answers no
+    # player with that id or an empty name. A failure or a malformed answer
+    # raises Steam::WebApi::Error, the key redacted.
+    def get_player_summary(steamid:)
+      body = get("/ISteamUser/GetPlayerSummaries/v2/", { steamids: steamid }, summary_connection)
+      response = body["response"] if body.is_a?(Hash)
+      raise Error, "GetPlayerSummaries answered without a response object" unless response.is_a?(Hash)
+      raise Error, "GetPlayerSummaries answered players that are not a list" unless response["players"].is_a?(Array)
+
+      player = response["players"].find { |entry| entry.is_a?(Hash) && entry["steamid"].to_s == steamid.to_s }
+      name = player && player["personaname"]
+      raise Error, "GetPlayerSummaries answered a persona name that is not a string" unless name.nil? || name.is_a?(String)
+
+      name&.strip.presence
+    end
+
     # Keeps the key out of inspections (consoles, error reports).
     def inspect
       "#<#{self.class.name}>"
@@ -115,7 +136,7 @@ module Steam
 
     private
 
-    def get(path, params)
+    def get(path, params, connection = self.connection)
       raise Error, "STEAM_API_KEY is not set" if @api_key.empty?
 
       connection.get(path, params.merge(key: @api_key)).body
@@ -144,6 +165,16 @@ module Steam
           max_interval: 60,
           retry_statuses: RETRY_STATUSES,
           methods: %i[get]
+        f.response :json
+        f.adapter(*adapter)
+      end
+    end
+
+    # For a request made while a player waits (a sign-in): no retry and a
+    # short timeout.
+    def summary_connection
+      @summary_connection ||= Faraday.new(url: BASE_URL, request: { timeout: 5, open_timeout: 5 }) do |f|
+        f.response :raise_error
         f.response :json
         f.adapter(*adapter)
       end

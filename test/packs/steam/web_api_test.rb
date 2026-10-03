@@ -183,4 +183,81 @@ class Steam::WebApiTest < ActiveSupport::TestCase
       assert_not_includes error.message, API_KEY
     end
   end
+
+  # GetPlayerSummaries
+
+  STEAM_ID = "76561197960287930".freeze
+
+  def player_summary(steamid = STEAM_ID)
+    Steam::WebApi.new.get_player_summary(steamid:)
+  end
+
+  def answer_players(players)
+    steam_stubs.get(PLAYER_SUMMARIES_PATH) { [ 200, { "Content-Type" => "application/json" }, { "response" => { "players" => players } }.to_json ] }
+  end
+
+  test "get_player_summary asks for the player with the key and returns their persona name, stripped" do
+    calls = stub_player_summary(STEAM_ID, "  Gabe the Brave ")
+
+    assert_equal "Gabe the Brave", player_summary
+    assert_equal [ { "steamids" => STEAM_ID, "key" => API_KEY } ], calls
+  end
+
+  test "get_player_summary answers nil when Steam knows no such player" do
+    stub_player_summary(STEAM_ID, nil)
+
+    assert_nil player_summary
+  end
+
+  [ "", "   " ].each do |name|
+    test "get_player_summary answers nil for an empty name (#{name.inspect})" do
+      stub_player_summary(STEAM_ID, name)
+
+      assert_nil player_summary
+    end
+  end
+
+  test "get_player_summary reads only the player asked about" do
+    answer_players([ { "steamid" => "76561197960287931", "personaname" => "Someone else" } ])
+
+    assert_nil player_summary
+  end
+
+  test "get_player_summary makes one attempt, without retry, and raises without the key" do
+    calls = stub_player_summary_failure(503)
+
+    error = assert_raises(Steam::WebApi::Error) { player_summary }
+
+    assert_equal 1, calls.size
+    assert_includes error.message, "503"
+    assert_not_includes error.message, API_KEY
+    assert_nil error.cause
+  end
+
+  test "get_player_summary raises without the key on a connection failure" do
+    stub_player_summary_failure(:connection_failed)
+
+    error = assert_raises(Steam::WebApi::Error) { player_summary }
+
+    assert_not_includes error.message, API_KEY
+    assert_includes error.message, Steam::WebApi::REDACTED
+    assert_nil error.cause
+  end
+
+  test "get_player_summary waits five seconds at most" do
+    options = Steam::WebApi.new.send(:summary_connection).options
+
+    assert_equal 5, options.timeout
+    assert_equal 5, options.open_timeout
+  end
+
+  [ "not json", "{}", { "response" => [] }.to_json, { "response" => {} }.to_json, { "response" => { "players" => {} } }.to_json,
+    { "response" => { "players" => [ { "steamid" => STEAM_ID, "personaname" => 42 } ] } }.to_json ].each do |body|
+    test "get_player_summary raises on a malformed answer (#{body})" do
+      steam_stubs.get(PLAYER_SUMMARIES_PATH) { [ 200, { "Content-Type" => "application/json" }, body ] }
+
+      error = assert_raises(Steam::WebApi::Error) { player_summary }
+      assert_not_includes error.message, API_KEY
+    end
+  end
 end

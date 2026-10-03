@@ -1,21 +1,27 @@
-<%# A shelf of sets (CAP-6): the tabs of the three kinds, the tomes of one
-    page with their name and owned / total, each opening its set, and the
-    links to the other pages. The owner's data and paths come as locals, so
-    another player's library renders it too:
-    - kind: the open tab, one of LibraryController::KINDS;
-    - spines: LibraryController::Spine list, nil when no season is published;
+<%# A shelf of sets (CAP-6, CAP-8): the tabs, the tomes of one page with
+    their name and owned / total, each opening its set, and the links to the
+    other pages. The owner's data and paths come as locals, so another
+    player's library (the public profile) renders it too:
+    - kind: the open tab, one of `tabs`;
+    - spines: ShelfLoading::Spine list, nil when no season is published;
     - pagy: the page (nil without a season);
-    - tab_url: a lambda giving a tab's URL from its kind;
+    - tab_url: a lambda giving a tab's URL from its name;
     - set_url: a lambda giving a set's URL from its kind, key and shelf page;
     - current_set: the open set (kind and key), or nil; its spine, when on
-      this page, is marked current. %>
+      this page, is marked current;
+    - tabs: the tabs, in order (default: the three kinds of sets);
+    - mark_complete: whether a spine whose every card is owned says so
+      (default: false). %>
+<% tabs = local_assigns.fetch(:tabs, LibraryController::KINDS) %>
+<% mark_complete = local_assigns.fetch(:mark_complete, false) %>
 <div class="library__room">
   <% if spines.nil? %>
     <%= render TextPlateComponent.new(tag: :p) do %><%= t("library.show.no_season") %><% end %>
   <% else %>
     <nav class="library__tabs" aria-label="<%= t("library.show.tabs.label") %>">
-      <% LibraryController::KINDS.each do |tab| %>
-        <%= link_to t("library.show.tabs.#{tab}"), tab_url.call(tab), class: "library__tab", aria: { current: ("page" if tab == kind) } %>
+      <% tabs.each do |tab| %>
+        <%= link_to t("library.show.tabs.#{tab}"), tab_url.call(tab), class: "library__tab",
+          aria: { current: ("page" if tab == kind) }, data: { turbo_prefetch: false } %>
       <% end %>
     </nav>
 
@@ -26,10 +32,14 @@
     <% else %>
       <ol class="shelf" aria-label="<%= t("library.show.tabs.#{kind}") %>">
         <% spines.each do |spine| %>
-          <% current = current_set && current_set.kind == kind && current_set.key == spine.key %>
+          <% current = current_set && current_set.kind == spine.kind && current_set.key == spine.key %>
           <li>
-            <%= link_to set_url.call(kind, spine.key, pagy.page), class: "tome", aria: { current: ("page" if current) } do %>
+            <%= link_to set_url.call(spine.kind, spine.key, pagy.page), class: "tome", aria: { current: ("page" if current) },
+              data: { turbo_prefetch: false } do %>
               <span class="tome__name"><%= spine.label %></span>
+              <% if mark_complete && spine.total.positive? && spine.owned == spine.total %>
+                <span class="tome__complete"><%= t("library.show.complete") %></span>
+              <% end %>
               <span class="tome__count" aria-hidden="true"><%= spine.owned %> / <%= spine.total %></span>
               <span class="visually-hidden"><%= t("library.show.progress", count: spine.owned, total: spine.total) %></span>
             <% end %>
@@ -40,7 +50,7 @@
 
     <% if pagy.count.positive? && (pagy.last > 1 || spines.empty?) %>
       <%# Pagy writes its links escaped, from its own dictionary (the pagy keys of the locale files). %>
-      <%= pagy.series_nav.html_safe %>
+      <%= pagy.series_nav(anchor_string: 'data-turbo-prefetch="false"').html_safe %>
     <% end %>
   <% end %>
 </div>

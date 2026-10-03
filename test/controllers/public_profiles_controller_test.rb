@@ -1,0 +1,382 @@
+require "test_helper"
+require_relative "../support/catalog_seeds"
+
+# A player's public profile (CAP-8, story 4.4): their name, their counts and
+# their library, open on the sets they have started, with their progress and
+# cards whoever looks; the unavailable page for an unknown token or a banned
+# owner; no database id, no Steam id; the queries of a request.
+class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
+  include CatalogSeeds
+
+  setup do
+    OmniAuth.config.test_mode = true
+    @owner = accounts_players(:player)
+    @owner.update_columns(persona_name: "Gabe the Brave")
+  end
+
+  teardown do
+    OmniAuth.config.mock_auth.delete(:steam)
+    OmniAuth.config.test_mode = false
+  end
+
+  def sign_in(player)
+    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
+    post "/auth/steam", params: { origin: "/en" }
+    follow_redirect!
+    assert_equal player.id, session[:player_id]
+  end
+
+  def set_members(season, key)
+    set = Catalog::Set.find_by!(season_id: season.id, key:)
+    Catalog::SetMembership.where(set_id: set.id).order(:position, :id).pluck(:card_season_id)
+  end
+
+  def hold(player, card_season_id, quantity)
+    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
+  end
+
+  # The shelf as [ name, "owned / total" ] pairs, in order.
+  def spines
+    css_select(".shelf .tome").map { |tome| [ tome.at_css(".tome__name").text, tome.at_css(".tome__count").text ] }
+  end
+
+  def open_tab = css_select(".library__tab[aria-current=page]").sole.text
+  def counts = css_select(".profile__counts li").map(&:text)
+  def heading = css_select(".open-tome__heading").sole.text
+  def progress = css_select(".open-tome__progress [aria-hidden]").sole.text
+
+  # The keys of the published season's sets of every kind, in shelf order.
+  def every_kind(season) = Catalog::SeasonShelf.every_kind(season:).map(&:key)
+
+  def label(season, key) = SetLabel.for(Catalog::Set.find_by!(season_id: season.id, key:))
+
+  test "a visitor sees the owner's name, their counts and the sets they have started first" do
+    season = publish_sets_draft
+    publisher = set_members(season, "p")
+    publisher.each { |id| hold(@owner, id, 1) }
+    rpg = (set_members(season, "rpg-1") - publisher).first
+    hold(@owner, rpg, 3)
+
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_response :success
+    assert_select "title", "Gabe the Brave"
+    assert_select "h1", "Gabe the Brave"
+    assert_select "meta[name=robots][content=noindex]"
+    held = publisher + [ rpg ]
+    started = every_kind(season).select { |key| (set_members(season, key) & held).any? }
+    complete = every_kind(season).count { |key| (set_members(season, key) - held).empty? }
+    assert_equal [ "6 cards collected", I18n.t("public_profiles.show.complete_sets", count: complete, locale: :en) ], counts
+    assert_equal "Started", open_tab
+    assert_equal [ "Started", "Tomes", "Publishers", "Best rated of the year" ], css_select(".library__tab").map(&:text)
+    assert_equal started.map { |key| [ label(season, key), "#{(set_members(season, key) & held).size} / #{set_members(season, key).size}" ] }, spines
+    assert_includes spines, [ "P", "5 / 5" ]
+    assert_select ".status-band > a.button--secondary[href='/en']", "Back to the attic"
+    assert_select "a.library__profile", false
+  end
+
+  test "a fully owned set is labelled complete and counted; the others are not" do
+    season = publish_sets_draft
+    set_members(season, "p").each { |id| hold(@owner, id, 1) }
+
+    get brother_path(locale: :en, token: @owner.token, kind: "publisher")
+
+    assert_equal "Publishers", open_tab
+    assert_select ".shelf .tome", 1
+    assert_select ".shelf .tome .tome__complete", { count: 1, text: "Complete" }
+    assert_select ".shelf .tome .tome__name", "P"
+
+    get brother_path(locale: :en, token: @owner.token)
+    complete = css_select(".shelf .tome").select { it.at_css(".tome__complete") }.map { it.at_css(".tome__name").text }
+    assert_includes complete, "P"
+    partial = spines.reject { |_, count| count.split(" / ").uniq.size == 1 }
+    assert partial.any?
+    assert_equal spines.size - partial.size, complete.size
+    assert_match(/\A#{complete.size} sets? complete\z/, counts.last)
+  end
+
+  test "each tab shows its kind with the owner's progress, and leads to its sets" do
+    season = publish_sets_draft
+    first = set_members(season, "action-1").first
+    hold(@owner, first, 2)
+
+    get brother_path(locale: :en, token: @owner.token, kind: "tome")
+    assert_equal "Tomes", open_tab
+    assert_equal [ [ "Action · Tome 1", "1 / 25" ], [ "Action · Tome 2", "0 / 25" ], [ "Action · Tome 3", "0 / 25" ], [ "RPG · Tome 1", "#{set_members(season, "rpg-1").include?(first) ? 1 : 0} / 44" ] ], spines
+    token = @owner.token
+    assert_equal [ "/en/brothers/#{token}", "/en/brothers/#{token}?kind=tome", "/en/brothers/#{token}?kind=publisher", "/en/brothers/#{token}?kind=best_of_year" ],
+      css_select(".library__tab").map { it["href"] }
+    assert_equal "/en/brothers/#{token}/library/tome/action-1?page=1", css_select(".shelf a.tome").first["href"]
+    assert_select ".library__tab[data-turbo-prefetch=false]", 4
+    assert_select ".shelf a.tome[data-turbo-prefetch=false]", 4
+
+    get brother_path(locale: :en, token: @owner.token, kind: "best_of_year")
+    assert_equal "Best rated of the year", open_tab
+    assert_equal %w[2015 2012 2011].map { |year| "Best rated of #{year}" }, spines.map(&:first)
+
+    get brother_path(locale: :en, token: @owner.token)
+    assert_equal "Started", open_tab
+    assert css_select(".shelf a.tome").all? { it["href"].end_with?("?page=1&tab=started") }
+  end
+
+  test "a shelf of more than fifty sets pages, its page links unprefetched" do
+    seed_published_sets((1..60).map { |volume| [ "tome", "action-#{volume}", { "genre" => "action", "volume" => volume, "volumes" => 60 } ] })
+
+    get brother_path(locale: :en, token: @owner.token, kind: "tome")
+
+    assert_select ".shelf .tome", 50
+    assert_select ".series-nav a[href=?][data-turbo-prefetch=false]", "/en/brothers/#{@owner.token}?kind=tome&page=2", minimum: 1
+    assert_select ".series-nav a[href]:not([data-turbo-prefetch=false])", false
+  end
+
+  [ nil, "", "nope", [ "publisher" ], "started" ].each do |kind|
+    test "a kind of #{kind.inspect} opens the Started tab" do
+      publish_sets_draft
+
+      get brother_path(locale: :en, token: @owner.token), params: { kind: }.compact
+
+      assert_response :success
+      assert_equal "Started", open_tab
+    end
+  end
+
+  test "the owner's progress, never the viewer's" do
+    season = publish_sets_draft
+    hold(@owner, set_members(season, "action-2").first, 1)
+    viewer = accounts_players(:moderator)
+    set_members(season, "action-1").first(5).each { |id| hold(viewer, id, 1) }
+    sign_in(viewer)
+
+    get brother_path(locale: :en, token: @owner.token, kind: "tome")
+    assert_includes spines, [ "Action · Tome 1", "#{(set_members(season, "action-1") & [ set_members(season, "action-2").first ]).size} / 25" ]
+    assert_includes spines, [ "Action · Tome 2", "1 / 25" ]
+    assert_equal "1 card collected", counts.first
+
+    get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1")
+    assert_select ".open-tome__slots .card", (set_members(season, "action-1") & [ set_members(season, "action-2").first ]).size
+  end
+
+  test "a player with no card: the Started shelf says so and the counts are zero" do
+    publish_sets_draft
+
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_response :success
+    assert_select ".shelf", false
+    assert_select ".library__room p.text-plate", "No set started yet, Brother: this collection still awaits its first card."
+    assert_equal [ "0 cards collected", "0 sets complete" ], counts
+  end
+
+  test "with no season published the shelf says so and the counts are zero" do
+    catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
+
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_response :success
+    assert_select ".library__room p.text-plate", "The shelves are bare, Brother: the Brotherhood has published no season of cards yet."
+    assert_equal [ "0 cards collected", "0 sets complete" ], counts
+  end
+
+  test "a tome of the profile shows the owner's cards and copies, the rest as empty slots" do
+    season = publish_sets_draft
+    members = set_members(season, "action-1")
+    hold(@owner, members[0], 1)
+    hold(@owner, members[3], 2)
+
+    get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1", page: 1)
+
+    assert_response :success
+    assert_select "title", "Gabe the Brave"
+    assert_select "meta[name=robots][content=noindex]"
+    assert_equal "Action · Tome 1 · 2011–2015", heading
+    assert_equal "2 / 25", progress
+    assert_select ".open-tome__slots .card.card--face", 2
+    assert_select ".open-tome__copies", "×2"
+    assert_select ".slot .slot__missing", { count: 23, text: "Missing card" }
+    assert_select "a.profile__owner[href=?]", "/en/brothers/#{@owner.token}", "The library of Gabe the Brave"
+    assert_select "a.library__back[href=?]", "/en/brothers/#{@owner.token}?kind=tome&page=1", "Back to the shelf"
+    assert_select ".library__aside .library__tab[aria-current=page]", "Tomes"
+    assert_select ".library__aside .shelf .tome[aria-current=page] .tome__name", "Action · Tome 1"
+    assert_select ".profile__counts", false
+    assert_select ".open-tome__slots > li > a.card-link[data-turbo-prefetch=false]", 25
+  end
+
+  test "a tome opened from the Started shelf keeps the Started shelf beside it" do
+    season = publish_sets_draft
+    hold(@owner, set_members(season, "p").first, 1)
+
+    get brother_path(locale: :en, token: @owner.token)
+    href = css_select(".shelf a.tome").find { it.at_css(".tome__name").text == "P" }["href"]
+    assert_equal "/en/brothers/#{@owner.token}/library/publisher/p?page=1&tab=started", href
+
+    get href
+    assert_response :success
+    assert_equal "P", heading
+    assert_select ".library__aside .library__tab[aria-current=page]", "Started"
+    assert_select ".library__aside .shelf .tome[aria-current=page] .tome__name", "P"
+    assert_select "a.library__back[href=?]", "/en/brothers/#{@owner.token}?page=1"
+    assert css_select(".library__aside .shelf a.tome").all? { it["href"].end_with?("&tab=started") }
+  end
+
+  test "a wrong kind, an unknown key or a key of another kind is not found under a profile" do
+    publish_sets_draft
+
+    get "/en/brothers/#{@owner.token}/library/nope/action-1"
+    assert_response :not_found
+
+    get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-9")
+    assert_response :not_found
+
+    get brother_set_path(locale: :en, token: @owner.token, kind: "publisher", key: "action-1")
+    assert_response :not_found
+  end
+
+  test "with no season published no set is found under a profile" do
+    catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
+
+    get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1")
+    assert_response :not_found
+  end
+
+  test "an unknown token shows the unavailable page with a 404, after one lookup" do
+    publish_sets_draft
+
+    assert_request_queries(1) { get brother_path(locale: :en, token: "A" * 24) }
+
+    assert_response :not_found
+    assert_select "title", "Profile not available"
+    assert_select "h1", "Profile not available"
+    assert_select "meta[name=robots][content=noindex]"
+    assert_select ".shelf", false
+
+    get brother_set_path(locale: :en, token: "A" * 24, kind: "tome", key: "action-1")
+    assert_response :not_found
+    assert_select "h1", "Profile not available"
+  end
+
+  test "a malformed token is a routing 404, with no query" do
+    assert_request_queries(0) { get "/en/brothers/abcde" }
+    assert_response :not_found
+
+    # 0, O, I and l are not base58.
+    get "/en/brothers/#{"0" * 24}"
+    assert_response :not_found
+    get "/en/brothers/#{"A" * 25}"
+    assert_response :not_found
+  end
+
+  test "a banned owner's profile is the same unavailable page as an unknown token" do
+    publish_sets_draft
+    banned = accounts_players(:banned)
+    banned.update_columns(persona_name: "Banned Brother")
+
+    get brother_path(locale: :en, token: "A" * 24)
+    unknown = css_select("main").to_html
+
+    get brother_path(locale: :en, token: banned.token)
+    assert_response :not_found
+    assert_equal unknown, css_select("main").to_html
+    assert_select "title", "Profile not available"
+    assert_not_includes response.body, "Banned Brother"
+
+    get brother_set_path(locale: :en, token: banned.token, kind: "tome", key: "action-1")
+    assert_response :not_found
+    assert_equal unknown, css_select("main").to_html
+  end
+
+  test "in French: the fallback title, the French tabs and plurals" do
+    season = publish_sets_draft
+    @owner.update_columns(persona_name: nil)
+    hold(@owner, set_members(season, "p").first, 1)
+    code = Accounts::PublicProfile.code(@owner.token)
+
+    get brother_path(locale: :fr, token: @owner.token)
+
+    assert_select "title", "Confrère #{code}"
+    assert_select "h1", "Confrère #{code}"
+    assert_equal "Entamées", open_tab
+    assert_equal [ "1 carte collectionnée", "0 collection complète" ], counts
+    assert_equal [ "Entamées", "Tomes", "Éditeurs", "Les mieux notés de l'année" ], css_select(".library__tab").map(&:text)
+
+    set_members(season, "p").drop(1).each { |id| hold(@owner, id, 1) }
+    get brother_path(locale: :fr, token: @owner.token, kind: "publisher")
+    assert_equal "5 cartes collectionnées", counts.first
+    assert_select ".tome__complete", "Complète"
+
+    get brother_path(locale: :en, token: @owner.token)
+    assert_select "h1", "Brother #{code}"
+    assert_equal "5 cards collected", counts.first
+    assert_match(/\A1 set complete\z|\A\d+ sets complete\z/, counts.last)
+
+    get brother_set_path(locale: :fr, token: @owner.token, kind: "publisher", key: "p")
+    assert_select "a.profile__owner", "La bibliothèque de Confrère #{code}"
+  end
+
+  test "the persona name is escaped as user content" do
+    publish_sets_draft
+    @owner.update_columns(persona_name: "<b>Gabe</b> & co")
+
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_select "h1", "<b>Gabe</b> & co"
+    assert_select "h1 b", false
+    assert_select "title", "<b>Gabe</b> & co"
+    assert_includes response.body, "&lt;b&gt;Gabe&lt;/b&gt; &amp; co"
+  end
+
+  test "no database id, no Steam id; the token only in URLs" do
+    season = publish_sets_draft
+    hold(@owner, set_members(season, "action-1").first, 2)
+    ids = [ @owner.id ] + Catalog::Set.where(season_id: season.id).ids + Catalog::CardSeason.where(season_id: season.id).ids
+
+    [ brother_path(locale: :en, token: @owner.token), brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1") ].each do |path|
+      get path
+
+      assert_not_includes response.body, @owner.steam_id
+      assert_select ".library [data-id], .library [id]:not(#library-heading)", false
+      without_urls = response.body.gsub(/(href|action|value)="[^"]*"/, "")
+      assert_not_includes without_urls, @owner.token
+      html = css_select("main").sole.to_html
+      ids.each do |id|
+        assert_no_match(/\b#{id}\b/, html.gsub(/Tome \d+|\d+ \/ \d+|\d+ of \d+|\d+ cards?|\d+ sets?|\b(19|20)\d\d\b|×\d+|\d+ cop(y|ies)|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|\?page=\d+|page=\d+|\/seasons\/\d+|[Ss]eason \d+/, ""))
+      end
+    end
+  end
+
+  # The test connection keeps its query cache from one request to the next,
+  # which a real request never inherits: it is emptied before counting.
+  def assert_request_queries(count, &request)
+    ActiveRecord::Base.connection.clear_query_cache
+    assert_queries_count(count, &request)
+  end
+
+  test "a visitor's profile costs seven queries, a signed-in viewer's one more" do
+    season = publish_sets_draft
+    hold(@owner, set_members(season, "p").first, 1)
+
+    # Owner by token, published season, shelf count, shelf page, totals,
+    # progress, summary.
+    assert_request_queries(7) { get brother_path(locale: :en, token: @owner.token) }
+    assert_response :success
+    assert_select ".shelf .tome", minimum: 1
+
+    sign_in(accounts_players(:moderator))
+    # The same, and the viewer's lookup.
+    assert_request_queries(8) { get brother_path(locale: :en, token: @owner.token) }
+    assert_response :success
+  end
+
+  test "a visitor's profile tome costs nine queries, a signed-in viewer's one more" do
+    season = publish_sets_draft
+    hold(@owner, set_members(season, "action-1").first, 1)
+
+    # Owner by token, published season, set slots, shelf count, shelf page,
+    # totals, the owner's progress, card views, the owner's quantities.
+    assert_request_queries(9) { get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1") }
+    assert_response :success
+
+    sign_in(accounts_players(:moderator))
+    assert_request_queries(10) { get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1", tab: "started") }
+    assert_response :success
+  end
+end

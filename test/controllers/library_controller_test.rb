@@ -184,6 +184,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Action · Tome 1", spines.first.first
     assert_select ".series-nav a[aria-current=page]", "1"
     assert_select ".series-nav a[href='/en/library?page=2']", minimum: 1
+    assert_select ".series-nav a[href]:not([data-turbo-prefetch=false])", false
 
     get library_path(locale: :en, page: 2)
     assert_equal 50, spines.size
@@ -254,6 +255,39 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".library [data-id], .library [id]:not(#library-heading)", false
     shelf = css_select(".library").sole.to_html
     ids.each { |id| assert_no_match(/\b#{id}\b/, shelf.gsub(/Tome \d+|\d+ \/ \d+|\d+ of \d+/, "")) }
+  end
+
+  test "a signed-in player finds the link to their public profile; a visitor or a banned player does not" do
+    publish_sets_draft
+    player = accounts_players(:player)
+
+    get library_path(locale: :en)
+    assert_select "a.library__profile", false
+
+    sign_in(player)
+    get library_path(locale: :fr)
+    assert_select "a.library__profile[href=?][data-turbo-prefetch=false]", "/fr/brothers/#{player.token}", "Ton profil public"
+    get library_path(locale: :en)
+    assert_select "a.library__profile[href=?]", "/en/brothers/#{player.token}", "Your public profile"
+
+    player.update_columns(banned_at: Time.current)
+    get library_path(locale: :en)
+    assert_select "a.library__profile", false
+  end
+
+  test "the library marks no set complete and keeps its three tabs" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    set_members(season, "p").each { |id| hold(player, id, 1) }
+    sign_in(player)
+
+    get library_path(locale: :en, kind: "publisher")
+
+    assert_equal [ [ "P", "5 / 5" ] ], spines
+    assert_select ".tome__complete", false
+    assert_equal [ "Tomes", "Publishers", "Best rated of the year" ], css_select(".library__tab").map(&:text)
+    assert_select ".library__tab[data-turbo-prefetch=false]", 3
+    assert_select ".shelf a.tome[data-turbo-prefetch=false]", 1
   end
 
   # The test connection keeps its query cache from one request to the next,

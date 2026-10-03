@@ -1,6 +1,8 @@
 # Steam sign-in and sign-out (CAP-1, AD-14). The web layer orchestrates:
-# Steam turns the verified OpenID response into a Steam id, Accounts signs
-# the player in, and the session keeps only the player id.
+# Steam turns the verified OpenID response into a Steam id and reads the
+# player's persona name, Accounts signs the player in and stores that name
+# (CAP-8), and the session keeps only the player id. The name is a bonus: a
+# Steam failure while reading it never blocks the sign-in.
 #
 # A sign-in returns to the page it started on (OmniAuth's origin) when that
 # is a local page under a locale, else to home. Only a successful sign-in
@@ -54,7 +56,20 @@ class SessionsController < ApplicationController
     # sign-up (the bank fill, Game::Handlers::PlayerRegistered) that raises
     # rolls the new player back. The error is reported.
     def sign_in(steam_id)
-      Accounts::SignIn.new.call(steam_id:)
+      Accounts::SignIn.new.call(steam_id:, persona_name: persona_name(steam_id))
+    rescue StandardError => error
+      Rails.error.report(error)
+      nil
+    end
+
+    # The player's Steam persona name, or nil when Steam fails (a warning in
+    # the log) or anything else goes wrong (reported); either way the
+    # sign-in goes on and the stored name is kept.
+    def persona_name(steam_id)
+      Steam::WebApi.new.get_player_summary(steamid: steam_id)
+    rescue Steam::WebApi::Error => error
+      Rails.logger.warn("Steam persona name not read at sign-in: #{error.message}")
+      nil
     rescue StandardError => error
       Rails.error.report(error)
       nil
