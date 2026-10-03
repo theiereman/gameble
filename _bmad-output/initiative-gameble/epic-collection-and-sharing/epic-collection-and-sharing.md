@@ -53,10 +53,11 @@ The library, tome, card detail, public profile and share link. Not trades or the
 
 ## Notes
 
-- Decision (2026-10-02): breakdown of six stories drafted by the orchestrator under the author's standing instruction, pending the author's review.
+- Decision (2026-10-02): breakdown of six stories drafted by the orchestrator under the author's standing instruction; judged through the epic retrospective (author, 2026-10-03).
 - Decision (2026-10-02): tracer bullet is story 1: the lectern leads to a library listing the season's sets with the viewer's progress, through Catalog and Game queries, set labels and the visitor view.
 - Decision (2026-10-03, author): a public profile is titled with the player's Steam persona name, refreshed at each sign-in; "Brother" plus a short code from the token is the fallback when no name is stored. The name is personal data that epic 7's export and deletion must cover.
 - Decision (2026-10-02): the status band's counts per rarity (EXPERIENCE.md) are not in this epic's Done when; left for a later story.
 - Decision (2026-10-02): a closing refactor sweep (story 6) follows the other stories.
+- Note (story 4.4): the player token is a public, non-secret handle (the profile link `/<locale>/brothers/<token>`); friend invites (epic 5) use a separate secret, never the token; revoking a profile link is "hide profile" (epic 7); the stored persona name (`accounts_players.persona_name`) is personal data that epic 7's export and deletion must include.
 
 
