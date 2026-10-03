@@ -38,6 +38,11 @@
           <dd data-import-run-cards-written="<%= @import_run.cards_written %>"><%= number_with_delimiter(@import_run.cards_written) %></dd>
           <dt><%= t(".cards_refused") %></dt>
           <dd data-import-run-cards-refused="<%= @import_run.cards_refused %>"><%= number_with_delimiter(@import_run.cards_refused) %></dd>
+          <% if @import_run.completed? %>
+            <%# Counted when the pass ends, so only once the run completed. %>
+            <dt><%= t(".cards_removed") %></dt>
+            <dd data-import-run-cards-removed="<%= @import_run.cards_removed %>"><%= number_with_delimiter(@import_run.cards_removed) %></dd>
+          <% end %>
         <% end %>
         <dt><%= t(".cursor") %></dt>
         <dd><%= @import_run.last_appid %></dd>
@@ -73,5 +78,15 @@
       <%= render ButtonComponent.new(variant: :secondary, href: rescore_back_office_import_run_path(@import_run), method: :post,
             confirm: t(".rescore_confirm")) do %><%= t(".rescore") %><% end %>
     </p>
+  <% end %>
+  <% if @abandon_refusal.nil? %>
+    <p>
+      <%= render ButtonComponent.new(variant: :secondary, href: abandon_back_office_import_run_path(@import_run), method: :post,
+            confirm: t(".abandon_confirm")) do %><%= t(".abandon") %><% end %>
+    </p>
+  <% elsif @abandon_refusal == :cards_written %>
+    <%= render TextPlateComponent.new(tag: :p) do %>
+      <%= t(".cards_written_note") %>
+    <% end %>
   <% end %>
 </div>

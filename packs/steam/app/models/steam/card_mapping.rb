@@ -7,21 +7,25 @@ module Steam
   # (Steam::GenreTags): Catalog puts the card in the tome of the first.
   #
   # A game without a review score or count cannot be scored: refused with
-  # NO_REVIEWS, without calling Catalog.
+  # NO_REVIEWS, without calling Catalog. A score outside 0–100 or a count
+  # below 1 (a row stored before Steam::ReviewPolicy refused such values) is
+  # refused with INVALID_REVIEWS, so Steam::PrestigeScore never raises.
   #
   #   Steam::CardMapping.call(app, tag_names: { 19 => "Action" })
-  #   # => Success({ source_key: "steam:620", ... }) | Failure(:no_reviews)
+  #   # => Success({ source_key: "steam:620", ... }) | Failure(:no_reviews) | Failure(:invalid_reviews)
   module CardMapping
     extend Dry::Monads[:result]
 
     NO_REVIEWS = :no_reviews
+    INVALID_REVIEWS = :invalid_reviews
     SOURCE_PREFIX = "steam:".freeze
 
     def self.call(app, tag_names:)
       return Failure(NO_REVIEWS) if app.review_percent_positive.nil? || app.review_count.nil?
+      return Failure(INVALID_REVIEWS) unless app.review_percent_positive.between?(0, 100) && app.review_count >= 1
 
       Success(
-        source_key: "#{SOURCE_PREFIX}#{app.appid}",
+        source_key: source_key(app.appid),
         texts: {
           "en" => { title: app.name_en, short_description: app.short_description_en },
           "fr" => { title: app.name_fr, short_description: app.short_description_fr }
@@ -35,6 +39,11 @@ module Steam
         prestige_score: PrestigeScore.call(percent_positive: app.review_percent_positive, review_count: app.review_count),
         rating: app.review_percent_positive
       )
+    end
+
+    # The opaque key of the card of `appid` in Catalog.
+    def self.source_key(appid)
+      "#{SOURCE_PREFIX}#{appid}"
     end
 
     # The names of the game's tags, in its order, as keys: unknown tagids

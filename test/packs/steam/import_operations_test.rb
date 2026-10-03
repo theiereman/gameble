@@ -164,6 +164,37 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
     assert_equal "reviews", run.reload.step
   end
 
+  test "an appid repeated in a page is kept once, its first entry, and named in the run's errors" do
+    run = running_run(last_appid: 0, apps_listed: 1)
+    apps = [ { "appid" => 10, "name" => "Ten" }, { "appid" => 20, "name" => "First" }, { "appid" => 20, "name" => "Second" }, { "appid" => 20, "name" => "Third" } ]
+    steam_stubs.get("#{APP_LIST_PATH}?last_appid=0") do
+      [ 200, { "Content-Type" => "application/json" }, { "response" => { "apps" => apps, "have_more_results" => true, "last_appid" => 20 } }.to_json ]
+    end
+
+    assert Steam::ImportAppListPage.new.call(import_run_id: run.id).success?
+
+    assert_equal [ [ 10, "Ten" ], [ 20, "First" ] ], Steam::App.order(:appid).pluck(:appid, :name)
+    run.reload
+    assert_equal [ 3, 20 ], [ run.apps_listed, run.last_appid ]
+    assert_equal [ "appid 20: repeated_in_page" ], run.latest_errors.map(&:message)
+    assert_predicate run, :running?
+  end
+
+  test "the malformed entries of a page are skipped and counted in one error line" do
+    run = running_run(last_appid: 5)
+    apps = [ {}, { "appid" => "x" }, { "appid" => -3 }, "junk", { "appid" => 2**40 }, { "appid" => 10, "name" => "Ten" } ]
+    steam_stubs.get("#{APP_LIST_PATH}?last_appid=5") do
+      [ 200, { "Content-Type" => "application/json" }, { "response" => { "apps" => apps, "have_more_results" => true, "last_appid" => 10 } }.to_json ]
+    end
+
+    assert Steam::ImportAppListPage.new.call(import_run_id: run.id).success?
+
+    assert_equal [ 10 ], Steam::App.pluck(:appid)
+    run.reload
+    assert_equal [ 1, 10 ], [ run.apps_listed, run.last_appid ]
+    assert_equal [ "app list after appid 5: 5 malformed_entries" ], run.latest_errors.map(&:message)
+  end
+
   test "a page for an unknown run fails with not_found" do
     assert_equal :not_found, Steam::ImportAppListPage.new.call(import_run_id: -1).failure
   end
@@ -338,6 +369,131 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
     assert_equal :not_latest, Steam::ResumeImport.refusal(older)
   end
 
+  # AbandonImport
+
+  def abandon(run)
+    Steam::AbandonImport.new.call(import_run_id: run.id)
+  end
+
+  test "abandoning the latest failed run keeps its finish and errors, publishes its event, and lets a new run start" do
+    run = failed_run(last_appid: 900)
+    finished_at = run.finished_at
+
+    result = abandon(run)
+
+    assert_equal run.id, result.value!.id
+    run.reload
+    assert_predicate run, :abandoned?
+    assert_equal [ finished_at.to_i, 1, 900 ], [ run.finished_at.to_i, run.error_messages.size, run.last_appid ]
+    assert_equal [ Steam::ImportRunAbandoned ], events_of(run).map(&:class)
+    assert_equal({ import_run_id: run.id }, events_of(run).first.data)
+    assert_nil Steam::UnfinishedImportRun.call
+    assert_equal :not_resumable, Steam::ResumeImport.new.call(import_run_id: run.id).failure
+    assert_equal :not_completed, Steam::RescoreCards.new.call(import_run_id: run.id).failure
+    assert Steam::StartImport.new.call.success?
+  end
+
+  test "a run on the cards step that wrote nothing in its pass can be abandoned" do
+    run = failed_run
+    run.update!(step: "cards", cursor: { "step" => "cards", "last_appid" => 0 })
+
+    assert abandon(run).success?
+    assert_predicate run.reload, :abandoned?
+  end
+
+  test "a run on the cards step past appid 0 whose every card was refused can be abandoned" do
+    run = failed_run
+    run.update!(step: "cards", cursor: { "step" => "cards", "last_appid" => 40 }, counts: { "cards_written" => 0, "cards_refused" => 3 })
+
+    assert abandon(run).success?
+    assert_predicate run.reload, :abandoned?
+  end
+
+  test "a run that wrote cards in its pass is refused with cards_written" do
+    run = failed_run
+    run.update!(step: "cards", cursor: { "step" => "cards", "last_appid" => 40 }, counts: { "cards_written" => 2 })
+
+    assert_equal :cards_written, abandon(run).failure
+    assert_predicate run.reload, :failed?
+    assert_empty events_of(run)
+  end
+
+  [ :running, :completed, :pending, :abandoned ].each do |status|
+    test "abandoning a #{status} run fails with not_abandonable" do
+      run = Steam::ImportRun.create!(status: status, step: "app_list")
+
+      assert_equal :not_abandonable, abandon(run).failure
+      assert_equal status.to_s, run.reload.status
+      assert_empty events_of(run)
+    end
+  end
+
+  test "abandoning a failed run that is not the latest fails with not_latest" do
+    older = failed_run
+    older.update!(created_at: 2.days.ago)
+    Steam::ImportRun.create!(status: :completed, step: "cards", finished_at: 1.minute.ago)
+
+    assert_equal :not_latest, abandon(older).failure
+    assert_predicate older.reload, :failed?
+  end
+
+  test "abandoning an unknown run fails with not_found" do
+    assert_equal :not_found, Steam::AbandonImport.new.call(import_run_id: -1).failure
+  end
+
+  test "AbandonImport.refusal says why a run cannot be abandoned" do
+    run = failed_run
+    assert_nil Steam::AbandonImport.refusal(run)
+
+    run.update!(step: "cards", cursor: { "step" => "cards", "last_appid" => 1 }, counts: { "cards_written" => 1 })
+    assert_equal :cards_written, Steam::AbandonImport.refusal(run)
+
+    latest = Steam::ImportRun.create!(status: :completed, step: "cards", finished_at: 1.minute.ago)
+    assert_equal :not_latest, Steam::AbandonImport.refusal(run)
+    assert_equal :not_abandonable, Steam::AbandonImport.refusal(latest)
+  end
+
+  # UnfinishedImportRun
+
+  test "the unfinished run is the latest one unless it completed or was abandoned" do
+    assert_nil Steam::UnfinishedImportRun.call
+
+    run = failed_run
+    assert_equal run, Steam::UnfinishedImportRun.call
+
+    %w[running pending].each do |status|
+      run.update_columns(status:)
+      assert_equal run, Steam::UnfinishedImportRun.call, status
+    end
+    %w[completed abandoned].each do |status|
+      run.update_columns(status:)
+      assert_nil Steam::UnfinishedImportRun.call, status
+    end
+  end
+
+  test "an abandoned latest run is skipped: a run before it that failed after writing cards is still unfinished" do
+    Steam::ImportRun.create!(status: :completed, step: "cards", created_at: 3.days.ago, finished_at: 3.days.ago)
+    partial = Steam::ImportRun.create!(status: :failed, step: "cards", cursor: { "step" => "cards", "last_appid" => 40 },
+      counts: { "cards_written" => 2 }, created_at: 2.days.ago, finished_at: 2.days.ago)
+    abandoned = failed_run
+    abandon(abandoned)
+
+    assert_predicate abandoned.reload, :abandoned?
+    assert_equal partial, Steam::UnfinishedImportRun.call
+
+    partial.update_columns(status: "completed")
+    assert_nil Steam::UnfinishedImportRun.call
+  end
+
+  test "the database accepts every run status and refuses an unknown one" do
+    run = Steam::ImportRun.create!(status: :completed, step: "app_list")
+
+    Steam::ImportRun.statuses.each_value do |status|
+      assert_equal 1, Steam::ImportRun.where(id: run.id).update_all(status:), status
+    end
+    assert_raises(ActiveRecord::StatementInvalid) { Steam::ImportRun.where(id: run.id).update_all(status: "lost") }
+  end
+
   test "every failure code has a message in both locales" do
     codes = {
       Steam::StartImport => %i[run_in_progress],
@@ -350,6 +506,7 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
       Steam::CompleteImport => %i[not_running],
       Steam::FailImport => %i[not_found not_running],
       Steam::ResumeImport => %i[not_found not_resumable run_in_progress not_latest],
+      Steam::AbandonImport => %i[not_found not_abandonable not_latest cards_written],
       Steam::RescoreCards => %i[not_found not_latest not_completed already_published run_in_progress]
     }
     %i[en fr].each do |locale|

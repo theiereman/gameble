@@ -5,6 +5,11 @@ module Steam
   # allows one pending or running run at a time. Addressed in URLs by a random
   # token, never by its id (AD-15).
   #
+  # A failed run is resumed (Steam::ResumeImport) or, while it is the latest
+  # and has written no card in its current pass, abandoned
+  # (Steam::AbandonImport): an abandoned run is finished for good and blocks
+  # no new run; Steam::UnfinishedImportRun skips it.
+  #
   # Written only through the operations of this pack (AD-3).
   class ImportRun < ApplicationRecord
     self.table_name = "steam_import_runs"
@@ -21,7 +26,7 @@ module Steam
 
     has_secure_token :token
 
-    enum :status, { pending: "pending", running: "running", completed: "completed", failed: "failed" },
+    enum :status, { pending: "pending", running: "running", completed: "completed", failed: "failed", abandoned: "abandoned" },
       default: :pending, validate: true
 
     has_many :apps, class_name: "Steam::App", inverse_of: :import_run, dependent: nil
@@ -106,6 +111,12 @@ module Steam
 
     def cards_refused
       count_of("cards_refused")
+    end
+
+    # Cards the end of the cards pass removed from the draft season: those
+    # an earlier pass wrote and this one did not.
+    def cards_removed
+      count_of("cards_removed")
     end
 
     def count_of(name)

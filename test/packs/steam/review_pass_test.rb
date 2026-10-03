@@ -262,6 +262,47 @@ class Steam::ReviewPassTest < ActiveSupport::TestCase
     assert_equal "unavailable", Steam::ReviewPolicy.verdict(nil).exclusion
   end
 
+  def summary_item(appid, summary)
+    { "item_type" => 0, "id" => appid, "success" => 1, "appid" => appid, "reviews" => { "summary_filtered" => summary } }
+  end
+
+  test "malformed review values never raise: the app is excluded malformed_reviews and the invalid values are stored as NULL" do
+    run = reviews_run
+    list(run, *(1..10).to_a)
+    stub_get_items(
+      1 => summary_item(1, "review_count" => 900, "percent_positive" => 150),
+      2 => summary_item(2, "review_count" => 900, "percent_positive" => -1),
+      3 => summary_item(3, "review_count" => 900, "percent_positive" => "abc"),
+      4 => summary_item(4, "review_count" => 900),
+      5 => summary_item(5, "review_count" => [ 1 ], "percent_positive" => 90),
+      6 => summary_item(6, "review_count" => "12x", "percent_positive" => 90),
+      7 => summary_item(7, "review_count" => 2**40, "percent_positive" => 90),
+      8 => summary_item(8, "review_count" => "900", "percent_positive" => "93"),
+      9 => summary_item(9, "review_count" => 12, "percent_positive" => 150),
+      10 => summary_item(10, "review_count" => 900, "percent_positive" => 93.5).merge("reviews" => { "summary_filtered" => "x", "note\u0000" => "a\u0000b" })
+    )
+
+    assert review_page(run).success?
+
+    assert_equal({
+      1 => [ 900, nil, "malformed_reviews" ], 2 => [ 900, nil, "malformed_reviews" ], 3 => [ 900, nil, "malformed_reviews" ],
+      4 => [ 900, nil, "malformed_reviews" ], 5 => [ nil, 90, "malformed_reviews" ], 6 => [ nil, 90, "malformed_reviews" ],
+      7 => [ nil, 90, "malformed_reviews" ], 8 => [ 900, 93, nil ], 9 => [ 12, nil, "too_few_reviews" ], 10 => [ 0, nil, "too_few_reviews" ]
+    }, Steam::App.order(:appid).pluck(:appid, :review_count, :review_percent_positive, :review_exclusion).to_h { |appid, *rest| [ appid, rest ] })
+    assert_equal({ "summary_filtered" => "x", "note" => "ab" }, Steam::App.find_by!(appid: 10).reviews, "NUL bytes are removed before the jsonb column")
+    assert_equal [ 8 ], Steam::App.kept_by(run).pluck(:appid)
+    assert_equal [ 10, 1, 9 ], [ run.reload.apps_reviewed, run.apps_kept, run.apps_excluded ]
+  end
+
+  test "the database accepts every review exclusion" do
+    run = reviews_run
+    list(run, 10)
+
+    Steam::ReviewPolicy::EXCLUSIONS.each do |exclusion|
+      assert_equal 1, Steam::App.where(appid: 10).update_all(review_exclusion: exclusion), exclusion
+    end
+  end
+
   test "the database refuses an unknown exclusion" do
     run = reviews_run
     list(run, 10)

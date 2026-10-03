@@ -11,6 +11,12 @@ module Steam
   # gives the French name and short description; when it is missing,
   # unsuccessful or blank, the English value stands in. The first exclusion
   # that matches wins, in the order of EXCLUSIONS.
+  #
+  # Every field is read defensively (Steam::RawValue), never through a value
+  # that is not a Hash: a malformed title, image or release date gives its
+  # exclusion (no_title, no_vertical_image, no_release_date), a malformed
+  # publisher or tag is dropped, and NUL bytes are removed from the strings
+  # and from the raw item stored in `details`.
   module DetailsPolicy
     UNAVAILABLE = "unavailable".freeze
     NOT_A_GAME = "not_a_game".freeze
@@ -40,19 +46,22 @@ module Steam
       french = nil unless french.is_a?(Hash) && french["success"] == 1
       return unavailable unless english
 
-      name_en = english["name"].to_s.strip.presence
-      description_en = PlainText.call(english.dig("basic_info", "short_description")).presence
+      name_en = text(english["name"])
+      description_en = description(english)
+      assets = RawValue.object(english["assets"])
       details = Verdict.new(
         name_en: name_en,
-        name_fr: french&.dig("name").to_s.strip.presence || name_en,
+        name_fr: text(french&.fetch("name", nil)) || name_en,
         short_description_en: description_en,
-        short_description_fr: PlainText.call(french&.dig("basic_info", "short_description")).presence || description_en,
+        short_description_fr: description(french) || description_en,
         publishers: publishers(english),
         release_on: release_on(english),
         tag_ids: tag_ids(english),
-        store_url_path: english["store_url_path"].to_s.presence || "app/#{appid}/",
-        image_url: Cdn.asset_url(english.dig("assets", "asset_url_format"), english.dig("assets", "library_capsule")),
-        details: english.merge("french" => { "name" => french&.dig("name"), "short_description" => french&.dig("basic_info", "short_description") }),
+        store_url_path: RawValue.string(english["store_url_path"]).presence || "app/#{appid}/",
+        image_url: Cdn.asset_url(RawValue.string(assets["asset_url_format"]), RawValue.string(assets["library_capsule"])),
+        details: RawValue.scrub(english.merge("french" => {
+          "name" => french&.fetch("name", nil), "short_description" => RawValue.object(french&.fetch("basic_info", nil))["short_description"]
+        })),
         exclusion: nil
       )
       details.with(exclusion: exclusion(english, details))
@@ -71,25 +80,53 @@ module Steam
       end
     end
 
+    # A string field stripped, or nil when blank or not a String.
+    def self.text(value)
+      RawValue.string(value)&.strip.presence
+    end
+
+    # The item's short description as plain text, or nil.
+    def self.description(item)
+      PlainText.call(RawValue.string(RawValue.object(item&.fetch("basic_info", nil))["short_description"])).presence
+    end
+
     def self.publishers(item)
-      Array(item.dig("basic_info", "publishers")).filter_map { |publisher| publisher["name"].to_s.strip.presence if publisher.is_a?(Hash) }
+      list = RawValue.object(item["basic_info"])["publishers"]
+      return [] unless list.is_a?(Array)
+
+      list.filter_map { |publisher| text(publisher["name"]) if publisher.is_a?(Hash) }
     end
 
     # The earliest known date: a game released before Steam keeps its
-    # original date, which the dust uses.
+    # original date, which the dust uses. A date that is not a timestamp
+    # from 1970 to the end of year 9999 is ignored.
     def self.release_on(item)
-      release = item["release"].is_a?(Hash) ? item["release"] : {}
-      timestamps = RELEASE_DATES.map { |key| release[key].to_i }.select(&:positive?)
+      release = RawValue.object(item["release"])
+      timestamps = RELEASE_DATES.filter_map { |key| RawValue.integer(release[key], min: 1, max: RawValue::TIMESTAMP_MAX) }
       timestamps.min&.then { |timestamp| Time.at(timestamp).utc.to_date }
     end
 
-    # The tagids by weight, the heaviest first, ties by tagid.
+    # The tagids by weight, the heaviest first, ties by tagid. A tag whose
+    # tagid is not an int4 above 0, or whose weight is present but not an
+    # int4 from 0, is dropped; a missing weight counts 0.
     def self.tag_ids(item)
-      Array(item["tags"]).select { |tag| tag.is_a?(Hash) && tag["tagid"].present? }
-        .sort_by { |tag| [ -tag["weight"].to_i, tag["tagid"].to_i ] }
-        .map { |tag| tag["tagid"].to_i }
+      tags = item["tags"]
+      return [] unless tags.is_a?(Array)
+
+      tags.filter_map { |tag| tag_weight(tag) }
+        .sort_by { |tagid, weight| [ -weight, tagid ] }
+        .map(&:first)
     end
 
-    private_class_method :unavailable, :exclusion, :publishers, :release_on, :tag_ids
+    # [ tagid, weight ] of a well-formed tag, or nil.
+    def self.tag_weight(tag)
+      return unless tag.is_a?(Hash)
+
+      tagid = RawValue.integer(tag["tagid"], min: 1, max: RawValue::INT4_MAX)
+      weight = tag["weight"].nil? ? 0 : RawValue.integer(tag["weight"], min: 0, max: RawValue::INT4_MAX)
+      [ tagid, weight ] if tagid && weight
+    end
+
+    private_class_method :unavailable, :exclusion, :text, :description, :publishers, :release_on, :tag_ids, :tag_weight
   end
 end

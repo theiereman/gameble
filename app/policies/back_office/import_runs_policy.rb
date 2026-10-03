@@ -9,5 +9,6 @@ module BackOffice
     def create? = administrator?
     def resume? = administrator?
     def rescore? = administrator?
+    def abandon? = administrator?
   end
 end
