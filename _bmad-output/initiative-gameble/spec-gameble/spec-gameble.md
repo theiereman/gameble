@@ -65,7 +65,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **success:** A logged-out visitor opening the profile link sees that player's collection and set progress, titled with the player's Steam persona name, refreshed at each sign-in.
 - **CAP-9**
   - **intent:** A player can share a pull as a link that previews nicely on Discord, X and WhatsApp.
-  - **success:** Pasting the link on each of the three platforms shows a preview with the card title and its rarity, and no image at all.
+  - **success:** Pasting the link on each of the three platforms shows a preview with the card title and its rarity, and no image at all. The shared page shows the card only, never who shared or owns it.
 - **CAP-10**
   - **intent:** Players can become friends through an invite link or a friend code.
   - **success:** Using a valid link or code creates a mutual friendship, visible to both players.

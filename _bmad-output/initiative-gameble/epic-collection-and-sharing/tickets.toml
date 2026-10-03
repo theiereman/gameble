@@ -66,3 +66,15 @@ covers = []
 after = [1, 2, 3, 4, 5]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Fixes from the epic retrospective"
+description = "Fixes the epic 4 retrospective's findings: a shared link shows the card only, with no owner line or ownership claim (author's decision, 2026-10-03), so a link to any card is harmless; a card opened from a public profile keeps the visitor in a page that works for them (signed out and on the older browsers the profile allows); `PUBLIC_URL` is checked at boot (scheme and host, no path), required by `deploy.yml`, tested, and the share system test no longer depends on the shell's environment; Steam persona names are cleaned of zero-width and bidirectional control characters, so a blank-looking name falls back to \"Brother <code>\"."
+verify = "A shared link to a card the sharer never held opens the card with its preview tags and no owner line; from a public profile a visitor opens a card without a 406 on a supported older browser; the app refuses to boot in production with a missing or malformed `PUBLIC_URL`; a persona name made only of invisible characters shows the fallback title."
+covers = ["R3", "R4", "R5"]
+after = [6]
+hitl = false
+risk = "medium"
+references = ["epic-collection-and-sharing/epic-collection-and-sharing-retrospective.md"]
