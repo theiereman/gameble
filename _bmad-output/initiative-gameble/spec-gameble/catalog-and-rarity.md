@@ -5,9 +5,9 @@ Referenced by CAP-2, CAP-3, CAP-4, CAP-6.
 ## Card identity
 
 - One card per Steam app of type `game` that passes the filters.
-- **Card text:** a title and a short description, stored in every language the UI supports. Translations come from Steam's own localized store text.
+- **Card text:** a title and a short description. The title is Steam's single store name, the same in every language (Steam does not localize game names); the short description is stored in every language the UI supports, from Steam's own localized store text.
 - **Release date:** imported with each game. It gives the year shown on the card and the dust on its back.
-- **Tags:** Steam store tags are imported with each game.
+- **Tags:** Steam store tags are imported with each game, with their vote weights, as English keys. Whether French labels are needed is open (see the spec).
 
 ## Inclusion
 

@@ -116,3 +116,15 @@ after = [9, "4.3"]
 hitl = false
 risk = "medium"
 references = ["spec-gameble/catalog-and-rarity.md#sets", "spec-gameble/catalog-and-rarity.md#import"]
+
+[[entry]]
+id = 11
+type = "story"
+title = "Import hardening before season 1"
+description = "Before the first real import: the draft season holds only the latest completed run's cards (cards a newer run drops leave the draft), one malformed app (a review percentage outside 0-100, an appid repeated in a page) is excluded with a reason instead of failing the run, and an administrator can abandon a failed run so a later run or a publish is not blocked. Found by the epic retrospective."
+verify = "Two runs over different games leave only the second run's games in the draft, with one formula's scores; a recorded page with a malformed app completes with that app excluded; an abandoned failed run no longer blocks a new run or a publish."
+covers = ["R2", "R6"]
+after = [10]
+hitl = false
+risk = "medium"
+references = ["epic-steam-catalog/epic-steam-catalog-retrospective.md"]

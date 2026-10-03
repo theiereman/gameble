@@ -82,3 +82,9 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-packs-and-reveal/story-signed-out-attic-plan.md`
   summary: Kept for the record, no action: the visitor tests live in the packs, daily-bonus and a new system test file rather than the Code Map's files.
   evidence: Story 3.8 review, rejected — coverage complete.
+- source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/epic-steam-catalog-retrospective.md`
+  summary: Deferred from the epic 2 retrospective (2026-10-03), for the next sweep: the rescore variant of the publish-lock race (F2, next to the 2.6 entry); the AD-5 freeze enforced only in models, a database trigger being the option (F5); set membership versus live card fields for epic 4's set screens (F6); the capped refusal log (F7); tests for the store request spacing, the queue configuration and the retry-versus-stall timing, and the stale rate-limit comment in `import_genres_page.rb` (gone with story 2.10).
+  evidence: Retrospective findings F2, F5, F6, F7 and action item 4; the draft pruning, malformed apps and run abandonment went to story 2.11.
+- source_plan: `_bmad-output/initiative-gameble/epic-packs-and-reveal/epic-packs-and-reveal-retrospective.md`
+  summary: Deferred from the epic 3 retrospective (2026-10-03): D1 (the pack-row hash built in three places), O2 (`card_season_ids` has no database check on length or kind) and O5 (`HealBanksJob` walks every player on each publication) for a sweep; B4–B6 (bankless players, unretried heal failures, healed-bank schedule) are epic 7 Done when 6; B7–B8 (countdown keying, UTC-only screen-reader text) go to the UX redesign.
+  evidence: Retrospective findings D1, O2, O5, B4–B8; the phone "flip all" defect went to story 3.11.

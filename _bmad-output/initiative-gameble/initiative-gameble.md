@@ -59,6 +59,7 @@ One Rails application and its Steam import, cut by capability. Not the V2 market
 - Decision: every choice more than one epic must adopt lives in the architecture spine; no cross-epic decision entry is needed.
 - Open question: prestige formula and tier thresholds (spec); epic-steam-catalog waits on real import data.
 - Open question: the list of achievements (spec); epic-brotherhood waits on it.
-- Open question: odds of the daily bonus booster and of the weekly goal's rare pack (spec); epic-packs-and-reveal and epic-brotherhood wait on it.
+- Decision (2026-10-03): daily bonus booster odds confirmed (spec CAP-16). Open question: odds of the weekly goal's rare pack (spec); epic-brotherhood waits on it.
+- Direction (2026-10-03): the author will redo the UX through bmad-ux, menus with a screen per feature replacing the attic's object metaphor.
 - Open question: how much a trade counts in the weekly goal (spec); epic-brotherhood waits on it.
 - Unknown: whether the 2–4 week estimate of the brief still holds after the scope added on 2026-10-02; to re-check once epics are incepted.
