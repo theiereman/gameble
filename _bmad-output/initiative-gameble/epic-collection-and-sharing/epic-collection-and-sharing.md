@@ -55,7 +55,7 @@ The library, tome, card detail, public profile and share link. Not trades or the
 
 - Decision (2026-10-02): breakdown of six stories drafted by the orchestrator under the author's standing instruction, pending the author's review.
 - Decision (2026-10-02): tracer bullet is story 1: the lectern leads to a library listing the season's sets with the viewer's progress, through Catalog and Game queries, set labels and the visitor view.
-- Assumption (2026-10-02): a player has no stored name (CAP-1), so a public profile is titled "Brother" plus a short code from the player's public token; recorded in `pending-approvals.md`.
+- Decision (2026-10-03, author): a public profile is titled with the player's Steam persona name, refreshed at each sign-in; "Brother" plus a short code from the token is the fallback when no name is stored. The name is personal data that epic 7's export and deletion must cover.
 - Decision (2026-10-02): the status band's counts per rarity (EXPERIENCE.md) are not in this epic's Done when; left for a later story.
 - Decision (2026-10-02): a closing refactor sweep (story 6) follows the other stories.
 
