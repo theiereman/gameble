@@ -192,6 +192,7 @@ en:
       cards: "The cards of your pack"
       flip_all: "Flip all"
       next: "Next card"
+      previous: "Previous card"
       progress: "Card %{position} of %{count}"
       all_flipped: "Every card is turned, Brother."
       open_next_pack: "Open the next pack"

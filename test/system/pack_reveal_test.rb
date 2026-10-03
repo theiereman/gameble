@@ -230,13 +230,22 @@ class PackRevealTest < ApplicationSystemTestCase
     assert_no_selector ".pack-reveal"
   end
 
-  test "on a phone one large card at a time, focus following next; flip all shows each gold and ends on the last" do
+  # Waits for the focus to match: a view change made by flip all's timers
+  # moves the focus in an effect, just after the new card is drawn.
+  def assert_focus(selector, message)
+    page.document.synchronize do
+      raise Capybara::ExpectationNotMet, message unless page.evaluate_script("document.activeElement.matches(#{selector.to_json})")
+    end
+  end
+
+  test "on a phone one large card at a time, focus following next; flip all holds each gold, then every card is reached forward and back" do
     page.driver.browser.manage.window.resize_to(*PHONE)
     open_pack(card_ids(:steel_card_one, :gold_card_one, :emerald_card_one, :gold_card_one, :steel_card_one))
 
     assert_selector ".pack-reveal--phone .reveal-card.reveal-card--large", count: 1
     assert_selector ".pack-reveal__progress", text: "1 / 5"
     assert_no_button "Next card"
+    assert_no_button "Previous card"
 
     find(".reveal-card").click
     assert_selector ".reveal-card[data-state=flipped]"
@@ -246,15 +255,44 @@ class PackRevealTest < ApplicationSystemTestCase
     assert page.evaluate_script("document.activeElement.classList.contains('reveal-card')"), "focus should move to the new card"
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
 
-    # Each gold card is the one shown while it is held, flipped.
-    click_on "Flip all"
+    # Flip all with the focus left on the shown card (as a tap does on Safari,
+    # which does not focus buttons): each gold card is the one shown while it
+    # is held, flipped, its full length; the focus follows the view.
+    page.execute_script("document.querySelector('.pack-reveal__controls .button').click()")
     [ "2 / 5", "4 / 5" ].each do |progress|
       assert_selector ".pack-reveal__progress", text: progress, wait: 5
       assert_selector ".reveal-card", count: 1
       assert_selector ".reveal-card[data-state=flipped] .reveal-card__face .card--rarity-gold"
+      assert_no_button "Previous card"
+      assert_no_button "Next card"
+      assert_focus ".reveal-card", "focus should stay on the shown card"
     end
-    assert_selector ".pack-reveal__progress", text: "5 / 5", wait: 10
-    assert_announced "Every card is turned, Brother."
+
+    # The run over, the view is back on the first card it turned.
+    assert_announced "Every card is turned, Brother.", wait: 10
+    assert_selector ".pack-reveal__progress", text: "2 / 5"
+    assert_focus ".pack-reveal *", "focus should stay in the reveal"
+
+    # Every card, forward and back, face up, the focus kept in the reveal; each
+    # gold card was held its full length before the next card turned.
+    timings = {}
+    click_on "Previous card"
+    assert_selector ".pack-reveal__progress", text: "1 / 5"
+    assert_no_button "Previous card"
+    [ [ "Next card", 2..5 ], [ "Previous card", 4.downto(1) ] ].each do |control, positions|
+      positions.each do |position|
+        click_on control
+        assert_selector ".pack-reveal__progress", text: "#{position} / 5"
+        assert_selector ".reveal-card", count: 1
+        assert_selector ".reveal-card[data-state=flipped]"
+        assert_focus ".pack-reveal *", "focus should stay in the reveal"
+        timings[position] ||= [ flipped_at(1), reveal_ms(1) ]
+      end
+    end
+    assert_no_button "Previous card"
+    [ 2, 4 ].each do |gold|
+      assert_operator timings[gold + 1][0] - timings[gold][0], :>=, timings[gold][1], "gold card #{gold} should be held its full length"
+    end
     take_screenshot
   end
 
