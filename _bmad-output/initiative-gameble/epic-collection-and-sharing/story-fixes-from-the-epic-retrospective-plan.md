@@ -5,6 +5,7 @@ ticket: '7'
 created: '2026-10-03'
 status: 'built'
 baseline_revision: '6b66367fb08aa1b8e9deb965c28b8c8ea2201813'
+built_revision: '60929459f506af792b987b56ed19bed68af2e617' # the story's own commit
 route: 'full'
 route_source: 'auto'
 review: 'thorough'
@@ -227,3 +228,5 @@ deferred:
 - An older browser following a share link still meets a 406 if it signs in (pending).
 - Real previews on Discord, X and WhatsApp remain unchecked until a public HTTPS host exists.
 - A deploy with a bad `PUBLIC_URL` now fails at boot rather than serving 500s.
+
+**Story commit:** `60929459f506af792b987b56ed19bed68af2e617` (code, tests, plan and `deferred-work.md`); `pending-approvals.md` and this hash in a separate `docs:` commit.
