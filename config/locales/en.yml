@@ -59,11 +59,10 @@ en:
         reviews: "Counting the reviews"
         tags: "Naming the tags"
         details: "Copying the store pages"
-        genres: "Sorting by genre"
         cards: "Writing the cards"
       index:
         heading: "The Steam import"
-        intro: "Each run copies the list of Steam games into the Brotherhood's ledgers, counts their reviews and sets aside the games with fewer than 500, then copies the store pages of those kept, in French and English, and their genres, before writing them as cards into the draft season, page by page. One run at a time."
+        intro: "Each run copies the list of Steam games into the Brotherhood's ledgers, counts their reviews and sets aside the games with fewer than 500, then copies the store pages of those kept, in French and English, with their tags, before writing them as cards into the draft season, page by page. One run at a time."
         start: "Start an import"
         empty: "No import has run yet. The ledgers wait for their first page."
         caption: "Import runs, the latest first"
@@ -83,8 +82,6 @@ en:
         tags_named: "Tags named"
         apps_detailed: "Store pages copied"
         apps_excluded_details: "Set aside at the store page"
-        apps_genred: "Games sorted by genre"
-        apps_excluded_genres: "Set aside at the genres"
         cards_written: "Cards written"
         cards_refused: "Cards refused"
         cursor: "Last appid"
@@ -92,7 +89,7 @@ en:
         finished_at: "Finished"
         resume: "Resume from where it stopped"
         rescore: "Rescore the cards"
-        rescore_confirm: "Write every card of this run into the draft season again, with the prestige formula as it now stands? No call is made to Steam."
+        rescore_confirm: "Write every card of this run into the draft season again, with the prestige formula and the genre list as they now stand? No call is made to Steam."
         errors: "Latest errors"
       create:
         started: "The import is under way, officer. The scribes are copying the first page."
@@ -261,12 +258,12 @@ en:
     season: "Season"
     sets: "Sets"
     publisher: "Publisher"
-    credit: "Copyright"
     owner: "From the collection of %{owner}"
     copies:
       one: "You hold %{count} copy"
       other: "You hold %{count} copies"
     store: "See it on the Steam store"
+    notice: "This game and its image belong to their respective owners. gameble is not affiliated with Valve or Steam."
     share:
       button: "Share this card"
       url: "Link to this card"
@@ -287,8 +284,27 @@ en:
       tome: "%{genre} · Tome %{volume}"
       best_of_year: "Best rated of %{year}"
       with_years: "%{label} · %{years}"
-    # Steam's genres, by key (Steam::GenresPolicy); SetLabel humanises any other.
+    # Tome genres, by key; SetLabel humanises any other. The genre tags of
+    # Steam::GenreTags first (racing, rpg, simulation, sports and strategy
+    # among the store genres below); then the store's genres, imported until
+    # story 2.10 and kept because seasons published before it name their
+    # tomes with them.
     genres:
+      fps: "FPS"
+      platformer: "Platformer"
+      metroidvania: "Metroidvania"
+      puzzle: "Puzzle"
+      horror: "Horror"
+      roguelike: "Roguelike"
+      souls_like: "Souls-like"
+      hack_and_slash: "Hack and Slash"
+      fighting: "Fighting"
+      survival: "Survival"
+      city_builder: "City Builder"
+      sandbox: "Sandbox"
+      visual_novel: "Visual Novel"
+      point_and_click: "Point & Click"
+      card_game: "Card Game"
       action: "Action"
       adventure: "Adventure"
       casual: "Casual"

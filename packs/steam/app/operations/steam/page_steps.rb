@@ -1,7 +1,7 @@
 module Steam
   # The steps shared by the page operations of an import run (AD-3, AD-19):
   # Steam::ImportAppListPage, ImportReviewsPage, ImportTagsPage,
-  # ImportDetailsPage, ImportGenresPage and ImportCardsPage. Private steps
+  # ImportDetailsPage and ImportCardsPage. Private steps
   # only: each operation keeps its own `call`, which dry-operation wraps only
   # when the class defines it itself. The including class defines STEP, the
   # step its pages belong to.

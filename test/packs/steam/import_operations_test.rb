@@ -345,7 +345,6 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
       Steam::ImportReviewsPage => %i[not_found not_running cursor_moved],
       Steam::ImportTagsPage => %i[not_found not_running cursor_moved],
       Steam::ImportDetailsPage => %i[not_found not_running cursor_moved],
-      Steam::ImportGenresPage => %i[not_found not_running cursor_moved],
       Steam::ImportCardsPage => %i[not_found not_running cursor_moved],
       Steam::FinishImportStep => %i[not_running],
       Steam::CompleteImport => %i[not_running],

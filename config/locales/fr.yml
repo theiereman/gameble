@@ -59,11 +59,10 @@ fr:
         reviews: "Décompte des évaluations"
         tags: "Noms des étiquettes"
         details: "Copie des pages du magasin"
-        genres: "Classement par genre"
         cards: "Inscription des cartes"
       index:
         heading: "L'import Steam"
-        intro: "Chaque passe recopie la liste des jeux Steam dans les registres de la Confrérie, compte leurs évaluations et écarte les jeux qui en ont moins de 500, puis recopie les pages du magasin des jeux retenus, en français et en anglais, et leurs genres, avant de les inscrire comme cartes dans la saison en brouillon, page après page. Une passe à la fois."
+        intro: "Chaque passe recopie la liste des jeux Steam dans les registres de la Confrérie, compte leurs évaluations et écarte les jeux qui en ont moins de 500, puis recopie les pages du magasin des jeux retenus, en français et en anglais, avec leurs étiquettes, avant de les inscrire comme cartes dans la saison en brouillon, page après page. Une passe à la fois."
         start: "Lancer un import"
         empty: "Aucun import n'a encore tourné. Les registres attendent leur première page."
         caption: "Passes d'import, la plus récente en premier"
@@ -83,8 +82,6 @@ fr:
         tags_named: "Étiquettes nommées"
         apps_detailed: "Pages du magasin recopiées"
         apps_excluded_details: "Écartés à la page du magasin"
-        apps_genred: "Jeux classés par genre"
-        apps_excluded_genres: "Écartés aux genres"
         cards_written: "Cartes inscrites"
         cards_refused: "Cartes refusées"
         cursor: "Dernier appid"
@@ -92,7 +89,7 @@ fr:
         finished_at: "Terminé"
         resume: "Reprendre là où il s'est arrêté"
         rescore: "Recalculer les cartes"
-        rescore_confirm: "Réinscrire chaque carte de cette passe dans la saison en brouillon, avec la formule de prestige telle qu'elle est désormais ? Aucun appel n'est fait à Steam."
+        rescore_confirm: "Réinscrire chaque carte de cette passe dans la saison en brouillon, avec la formule de prestige et la liste des genres telles qu'elles sont désormais ? Aucun appel n'est fait à Steam."
         errors: "Dernières erreurs"
       create:
         started: "L'import est lancé, officier. Les scribes recopient la première page."
@@ -266,12 +263,12 @@ fr:
     season: "Saison"
     sets: "Collections"
     publisher: "Éditeur"
-    credit: "Droits"
     owner: "De la collection de %{owner}"
     copies:
       one: "Tu en détiens %{count} exemplaire"
       other: "Tu en détiens %{count} exemplaires"
     store: "La voir sur la boutique Steam"
+    notice: "Ce jeu et son image appartiennent à leurs propriétaires respectifs. gameble n'est affilié ni à Valve ni à Steam."
     share:
       button: "Partager cette carte"
       url: "Lien vers cette carte"
@@ -292,8 +289,27 @@ fr:
       tome: "%{genre} · Tome %{volume}"
       best_of_year: "Les mieux notés de %{year}"
       with_years: "%{label} · %{years}"
-    # Steam's genres, by key (Steam::GenresPolicy); SetLabel humanises any other.
+    # Tome genres, by key; SetLabel humanises any other. The genre tags of
+    # Steam::GenreTags first (racing, rpg, simulation, sports and strategy
+    # among the store genres below); then the store's genres, imported until
+    # story 2.10 and kept because seasons published before it name their
+    # tomes with them.
     genres:
+      fps: "FPS"
+      platformer: "Plateforme"
+      metroidvania: "Metroidvania"
+      puzzle: "Réflexion"
+      horror: "Horreur"
+      roguelike: "Roguelike"
+      souls_like: "Souls-like"
+      hack_and_slash: "Hack and slash"
+      fighting: "Combat"
+      survival: "Survie"
+      city_builder: "Gestion de ville"
+      sandbox: "Bac à sable"
+      visual_novel: "Visual novel"
+      point_and_click: "Point & click"
+      card_game: "Jeu de cartes"
       action: "Action"
       adventure: "Aventure"
       casual: "Occasionnel"

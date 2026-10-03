@@ -15,11 +15,7 @@ module Steam
   #
   # Any error is retried; once the attempts are spent, the run fails with the
   # error (key redacted) and, while it is the latest run, can be resumed from
-  # its cursor (Steam::ResumeImport). The store's rate limit
-  # (Steam::StoreApi::RateLimited) is retried minutes apart instead:
-  # declared last, its handler takes precedence. The client raises it at once,
-  # without retrying, so three attempts take two waits of RATE_LIMIT_WAIT
-  # (six minutes, plus up to 15 % jitter), under the stall recovery's ten.
+  # its cursor (Steam::ResumeImport).
   class ImportStepJob < ActiveJob::Base
     queue_as :import
 
@@ -28,18 +24,15 @@ module Steam
       "reviews" => "Steam::ImportReviewsPage",
       "tags" => "Steam::ImportTagsPage",
       "details" => "Steam::ImportDetailsPage",
-      "genres" => "Steam::ImportGenresPage",
       "cards" => "Steam::ImportCardsPage"
     }.freeze
     ATTEMPTS = 3
-    RATE_LIMIT_WAIT = 3.minutes
 
     FAIL_RUN = ->(job, error) do
       Steam::FailImport.new.call(import_run_id: job.arguments.first, error: Steam::WebApi.new.redact("#{error.class}: #{error.message}"))
     end
 
     retry_on StandardError, wait: :polynomially_longer, attempts: ATTEMPTS, &FAIL_RUN
-    retry_on Steam::StoreApi::RateLimited, wait: RATE_LIMIT_WAIT, attempts: ATTEMPTS, &FAIL_RUN
 
     # `cursor` is the run's cursor when the job was enqueued; nil skips the check.
     def perform(import_run_id, cursor = nil)

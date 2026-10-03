@@ -19,7 +19,7 @@ module Catalog
   #     image_url: "https://…", store_url: "https://…",
   #     texts: { "en" => { title: "Portal 2", short_description: "…" }, "fr" => { title: "Portal 2" } },
   #     prestige_score: 0.97, rating: 98.0,
-  #     publisher: "…", credit: nil, genres: %w[action], tags: %w[puzzle]
+  #     publisher: "…", genres: %w[action], tags: %w[puzzle]
   #   )
   #   # => Success(card_season) | Failure(:missing_text) | Failure(:invalid_card)
   class UpsertDraftCard < ApplicationOperation
@@ -27,8 +27,8 @@ module Catalog
     ATTEMPTS = 3
 
     def call(source_key:, release_date:, image_url:, store_url:, texts:, prestige_score:, rating:,
-             publisher: nil, credit: nil, genres: [], tags: [])
-      card_attributes = step validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, credit:, genres:, tags:)
+             publisher: nil, genres: [], tags: [])
+      card_attributes = step validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, genres:, tags:)
       scores = step validate_scores(prestige_score:, rating:)
       texts = step validate_texts(texts)
 
@@ -48,15 +48,15 @@ module Catalog
 
     # Genres name tomes (SetBuilder), so each must be a valid set key:
     # one malformed genre would otherwise stop the season's publication.
-    def validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, credit:, genres:, tags:)
+    def validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, genres:, tags:)
       valid = [ source_key, image_url, store_url ].all? { |value| present_string?(value) } &&
         release_date.is_a?(Date) &&
-        [ publisher, credit ].all? { |value| value.nil? || value.is_a?(String) } &&
+        (publisher.nil? || publisher.is_a?(String)) &&
         [ genres, tags ].all? { |list| list.is_a?(Array) && list.all? { |item| present_string?(item) } } &&
         genres.all? { |genre| Set::KEY_FORMAT.match?(genre) }
       return Failure(:invalid_card) unless valid
 
-      Success(source_key:, release_date:, image_url:, store_url:, publisher: publisher.presence, credit: credit.presence, genres:, tags:)
+      Success(source_key:, release_date:, image_url:, store_url:, publisher: publisher.presence, genres:, tags:)
     end
 
     # Scores are numbers as given, never parsed from strings.

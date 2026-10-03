@@ -25,7 +25,7 @@ if Rails.env.development? && Catalog::PublishedSeason.call.nil?
       prestige_score: number.to_f,
       rating: 50.0 + (index % 50),
       publisher: "Seed Publisher #{(index % 6) + 1}",
-      genres: [ %w[action rpg strategy].fetch(index % 3) ]
+      genres: [ %w[fps rpg strategy].fetch(index % 3) ]
     ).value!
   end
 

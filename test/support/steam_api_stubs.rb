@@ -1,37 +1,25 @@
-# Stubs the Steam Web API and the store API with Faraday's test adapter: no
-# test calls Steam. Include in a test case, call `stub_steam_api` in setup
-# and `unstub_steam_api` in teardown. The store API's spacing is 0 and its
-# sleeper records the waits in `store_sleeps`.
+# Stubs the Steam Web API with Faraday's test adapter: no test calls Steam.
+# Include in a test case, call `stub_steam_api` in setup and
+# `unstub_steam_api` in teardown.
 module SteamApiStubs
   API_KEY = "TEST0STEAM0API0KEY0123456789ABCD".freeze
   APP_LIST_PATH = "/IStoreService/GetAppList/v1/".freeze
   ITEMS_PATH = "/IStoreBrowseService/GetItems/v1/".freeze
   TAG_LIST_PATH = "/IStoreService/GetTagList/v1/".freeze
-  APP_DETAILS_PATH = "/api/appdetails".freeze
   PLAYER_SUMMARIES_PATH = "/ISteamUser/GetPlayerSummaries/v2/".freeze
 
-  attr_reader :steam_stubs, :store_sleeps
+  attr_reader :steam_stubs
 
   def stub_steam_api
     @steam_api_was = [ Steam::WebApi.adapter, Steam::WebApi.retry_interval, Rails.configuration.x.steam.api_key ]
-    @store_api_was = [ Steam::StoreApi.adapter, Steam::StoreApi.retry_interval, Steam::StoreApi.interval, Steam::StoreApi.sleeper ]
     @steam_stubs = Faraday::Adapter::Test::Stubs.new
-    @store_sleeps = []
     Steam::WebApi.adapter = [ :test, @steam_stubs ]
     Steam::WebApi.retry_interval = 0
     Rails.configuration.x.steam.api_key = API_KEY
-    sleeps = @store_sleeps
-    Steam::StoreApi.adapter = [ :test, @steam_stubs ]
-    Steam::StoreApi.retry_interval = 0
-    Steam::StoreApi.interval = 0
-    Steam::StoreApi.sleeper = ->(seconds) { sleeps << seconds }
-    Steam::StoreApi.reset_spacing!
   end
 
   def unstub_steam_api
     Steam::WebApi.adapter, Steam::WebApi.retry_interval, Rails.configuration.x.steam.api_key = @steam_api_was
-    Steam::StoreApi.adapter, Steam::StoreApi.retry_interval, Steam::StoreApi.interval, Steam::StoreApi.sleeper = @store_api_was
-    Steam::StoreApi.reset_spacing!
   end
 
   # A GetAppList page answered for the request that starts after `after`.
@@ -141,37 +129,6 @@ module SteamApiStubs
       [ 200, { "Content-Type" => "application/json" }, body.to_json ]
     end
     calls
-  end
-
-  # Answers every appdetails call from `entries`, { appid => entry }: an entry
-  # Hash is answered under the appid's key; :null answers `null`, :missing an
-  # object without the appid's key, :not_json a body that is not JSON. An
-  # appid not in `entries` is answered `{ success: false }`. Returns the
-  # params of each call.
-  def stub_app_details(entries)
-    calls = []
-    steam_stubs.get(APP_DETAILS_PATH) do |env|
-      calls << env.params
-      appid = env.params.fetch("appids").to_i
-      entry = entries.fetch(appid, { "success" => false })
-      body = case entry
-      when :null then "null"
-      when :missing then { "1" => { "success" => false } }.to_json
-      when :not_json then "<html>Access Denied</html>"
-      else { appid.to_s => entry }.to_json
-      end
-      [ 200, { "Content-Type" => "application/json; charset=utf-8" }, body ]
-    end
-    calls
-  end
-
-  # An appdetails entry of a game with `filters=basic,genres`.
-  def app_details_entry(appid, genres: [ "Action", "Free to Play" ], legal_notice: "&copy; Studio #{appid}<br>All rights reserved.")
-    data = { "type" => "game", "name" => "Game #{appid}", "steam_appid" => appid, "required_age" => 0, "is_free" => false,
-      "short_description" => "A game.", "supported_languages" => "English", "header_image" => "https://example.test/header.jpg" }
-    data["legal_notice"] = legal_notice unless legal_notice.nil?
-    data["genres"] = genres.each_with_index.map { |description, index| { "id" => (index + 1).to_s, "description" => description } } unless genres.nil?
-    { "success" => true, "data" => data }
   end
 
   # Answers GetPlayerSummaries for `steam_id` with `name` as its persona name

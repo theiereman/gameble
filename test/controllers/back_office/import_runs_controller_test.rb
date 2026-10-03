@@ -127,7 +127,6 @@ module BackOffice
       }
       french = { 10 => french_item(10, name: "Portal 2", description: "La <i>suite</i>.") }
       items_calls = stub_get_items_by_language("english" => english, "french" => french)
-      details_calls = stub_app_details(10 => app_details_entry(10, genres: [ "Action", "Adventure" ], legal_notice: "&copy; Valve<br>All rights reserved."))
 
       perform_enqueued_jobs { post back_office_import_runs_path(locale: :fr) }
 
@@ -139,7 +138,6 @@ module BackOffice
       assert_equal({ 30 => "not_a_game", 60 => "no_vertical_image" },
         Steam::App.where.not(details_exclusion: nil).order(:appid).pluck(:appid, :details_exclusion).to_h)
       assert_equal 3, items_calls.size
-      assert_equal [ "10" ], details_calls.map { |params| params["appids"] }
 
       app = Steam::App.ready_by(run).sole
       assert_equal 10, app.appid
@@ -149,8 +147,6 @@ module BackOffice
       assert_equal [ "Valve" ], app.publishers
       assert_equal [ 492, 19 ], app.tag_ids
       assert_equal %w[Indie Action], app.tag_ids.map { |tagid| Steam::Tag.find_by!(tagid: tagid).name }
-      assert_equal "© Valve All rights reserved.", app.credit
-      assert_equal %w[action adventure], app.genres
       assert_equal "https://store.steampowered.com/app/10/Portal_2/", app.store_url
       assert_equal "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/10/library_600x900.jpg?t=1745363004", app.image_url
 
@@ -165,8 +161,6 @@ module BackOffice
       assert_select "[data-import-run-tags-named='3']", "3"
       assert_select "[data-import-run-apps-detailed='3']", "3"
       assert_select "[data-import-run-apps-excluded-details='2']", "2"
-      assert_select "[data-import-run-apps-genred='1']", "1"
-      assert_select "[data-import-run-apps-excluded-genres='0']", "0"
       assert_select "[data-import-run-cards-written='1']", "1"
       assert_select "[data-import-run-cards-refused='0']", "0"
       assert_select "dt", "Jeux retenus"
@@ -176,9 +170,10 @@ module BackOffice
     test "a full run writes the three ready games as cards into the draft season, a second identical run leaves three, and the page shows them" do
       sign_in(accounts_players(:administrator))
       stub_app_list_page(after: 0, appids: [ 10, 20, 30, 40, 50 ], more: false)
-      stub_get_tag_list(19 => "Action", 492 => "Indie")
+      stub_get_tag_list(19 => "Action", 492 => "Indie", 1664 => "Puzzle", 1663 => "FPS")
+      portal_tags = [ { "tagid" => 19, "weight" => 900 }, { "tagid" => 492, "weight" => 1200 }, { "tagid" => 1663, "weight" => 300 }, { "tagid" => 1664, "weight" => 800 } ]
       english = {
-        10 => detailed_item(10, name: "Portal 2", reviews: 12_000),
+        10 => detailed_item(10, name: "Portal 2", tags: portal_tags, reviews: 12_000),
         20 => detailed_item(20, reviews: 499),
         30 => detailed_item(30, capsule: nil, reviews: 800),
         40 => detailed_item(40, reviews: 600),
@@ -186,7 +181,6 @@ module BackOffice
       }
       french = { 10 => french_item(10, name: "Portal 2"), 40 => french_item(40), 50 => french_item(50) }
       stub_get_items_by_language("english" => english, "french" => french)
-      stub_app_details([ 10, 40, 50 ].index_with { |appid| app_details_entry(appid) })
 
       perform_enqueued_jobs { post back_office_import_runs_path(locale: :en) }
 
@@ -200,8 +194,9 @@ module BackOffice
       assert_equal cards.values.map(&:id).sort, draft.card_seasons.pluck(:card_id).sort
       portal = cards.fetch("steam:10")
       assert_equal "portal-2", portal.slug
-      assert_equal [ Date.new(2011, 4, 19), "Publisher 10", "© Studio 10 All rights reserved.", %w[action free_to_play], %w[indie action] ],
-        [ portal.release_date, portal.publisher, portal.credit, portal.genres, portal.tags ]
+      assert_equal [ Date.new(2011, 4, 19), "Publisher 10", %w[puzzle fps], %w[indie action puzzle fps] ],
+        [ portal.release_date, portal.publisher, portal.genres, portal.tags ]
+      assert_equal [], cards.fetch("steam:40").genres, "no listed genre tag: no genre"
       assert_equal "https://store.steampowered.com/app/10/Portal_2/", portal.store_url
       assert_equal "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/10/library_600x900.jpg?t=1745363004", portal.image_url
       assert_equal({ "en" => [ "Portal 2", "The best game 10." ], "fr" => [ "Portal 2", "Le meilleur jeu 10." ] },
@@ -239,10 +234,9 @@ module BackOffice
       assert_select "[data-import-run-apps-reviewed]"
       assert_select "[data-import-run-tags-named]", false
       assert_select "[data-import-run-apps-detailed]", false
-      assert_select "[data-import-run-apps-genred]", false
     end
 
-    test "a run on the details step shows the tags and details counts, not the genres" do
+    test "a run on the details step shows the tags and details counts, not the cards" do
       sign_in(accounts_players(:administrator))
       run = Steam::ImportRun.create!(status: :running, step: "details", cursor: { "step" => "details", "last_appid" => 0 }, started_at: 1.minute.ago,
         counts: { "tags_named" => 450, "apps_detailed" => 1200, "apps_excluded_details" => 30 })
@@ -253,7 +247,6 @@ module BackOffice
       assert_select "[data-import-run-tags-named='450']", "450"
       assert_select "[data-import-run-apps-detailed='1200']", "1,200"
       assert_select "[data-import-run-apps-excluded-details='30']", "30"
-      assert_select "[data-import-run-apps-genred]", false
       assert_select "[data-import-run-cards-written]", false
     end
 

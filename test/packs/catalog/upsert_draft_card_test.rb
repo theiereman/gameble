@@ -5,7 +5,7 @@ require "test_helper"
 class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
   def attributes(**overrides)
     {
-      source_key: "src:620", publisher: "Valve", credit: nil, release_date: Date.new(2011, 4, 18),
+      source_key: "src:620", publisher: "Valve", release_date: Date.new(2011, 4, 18),
       genres: %w[action adventure], tags: %w[puzzle co-op],
       image_url: "https://images.example.test/620.jpg", store_url: "https://store.example.test/620",
       texts: {
@@ -48,7 +48,6 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     assert_equal "portal-2", card.slug
     assert_equal Date.new(2011, 4, 18), card.release_date
     assert_equal "Valve", card.publisher
-    assert_nil card.credit
     assert_equal %w[action adventure], card.genres
     assert_equal %w[puzzle co-op], card.tags
     assert_equal "https://images.example.test/620.jpg", card.image_url
@@ -224,11 +223,10 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     end
   end
 
-  test "a blank publisher or credit is stored as NULL" do
-    card = upsert(publisher: "  ", credit: "").value!.card.reload
+  test "a blank publisher is stored as NULL" do
+    card = upsert(publisher: "  ").value!.card.reload
 
     assert_nil card.publisher
-    assert_nil card.credit
   end
 
   test "a rating of 0 and of 100 are accepted, and integers are numbers" do
