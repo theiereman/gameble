@@ -4,7 +4,7 @@ key: ""
 type: epic
 title: "The Brotherhood"
 parent: initiative-gameble
-covers: [CAP-12, CAP-13, CAP-17]
+covers: [CAP-12, CAP-13, CAP-17, CAP-19]
 after: []
 assignee: ""
 risk: medium
@@ -16,7 +16,7 @@ estimate_basis: ""
 
 ## Description
 
-The community becomes visible: a weekly shared goal fed by pack openings and trades, a public live feed of notable pulls, first discoveries and trades, and simple achievements.
+The community becomes visible: a weekly shared goal fed by pack openings and trades, a public live feed of notable pulls, first discoveries, trades and players' reposts, with a Friends tab, and simple achievements.
 
 ## Outcome
 
@@ -24,7 +24,7 @@ For every player: the feeling of playing alongside others, and a reason to contr
 
 ## Requirements
 
-Completed at this epic's inception. The source lines are CAP-12, CAP-13 and CAP-17 of the spec.
+Completed at this epic's inception. The source lines are CAP-12, CAP-13, CAP-17 and CAP-19 of the spec.
 
 ## Done when
 
