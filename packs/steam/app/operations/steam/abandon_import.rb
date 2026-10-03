@@ -6,6 +6,10 @@ module Steam
   # rescored, and Steam::UnfinishedImportRun skips it when deciding whether
   # a season can be published.
   #
+  # "Latest" leaves abandoned runs out, as the publish gate does: once the
+  # latest run is abandoned, a failed run before it, which now decides
+  # whether a season can be published, can be abandoned in turn.
+  #
   # Refused unless the run failed (not_abandonable) and is the latest
   # (not_latest), and once it wrote at least one card in its current pass,
   # on the cards step (cards_written): those cards replaced the previous
@@ -31,7 +35,7 @@ module Steam
     # only when nil.
     def self.refusal(run)
       return :not_abandonable unless run.failed?
-      return :not_latest unless LatestImportRun.call == run
+      return :not_latest unless ImportRun.where.not(status: :abandoned).latest_first.first == run
 
       :cards_written if run.step == ImportCardsPage::STEP && run.cards_written.positive?
     end

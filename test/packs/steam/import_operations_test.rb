@@ -485,6 +485,30 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
     assert_nil Steam::UnfinishedImportRun.call
   end
 
+  test "once the latest run is abandoned, a failed run before it that wrote no card can be abandoned and stops blocking" do
+    older = failed_run
+    older.update!(created_at: 2.days.ago)
+    newer = failed_run
+    assert_equal :not_latest, Steam::AbandonImport.refusal(older)
+
+    assert abandon(newer).success?
+    assert_equal older, Steam::UnfinishedImportRun.call
+    assert_nil Steam::AbandonImport.refusal(older)
+
+    assert abandon(older).success?
+    assert_predicate older.reload, :abandoned?
+    assert_nil Steam::UnfinishedImportRun.call
+  end
+
+  test "once the latest run is abandoned, a run before it that wrote cards in its pass still cannot be abandoned" do
+    partial = Steam::ImportRun.create!(status: :failed, step: "cards", cursor: { "step" => "cards", "last_appid" => 40 },
+      counts: { "cards_written" => 2 }, created_at: 2.days.ago, finished_at: 2.days.ago)
+    abandon(failed_run)
+
+    assert_equal :cards_written, abandon(partial).failure
+    assert_equal partial, Steam::UnfinishedImportRun.call
+  end
+
   test "the database accepts every run status and refuses an unknown one" do
     run = Steam::ImportRun.create!(status: :completed, step: "app_list")
 

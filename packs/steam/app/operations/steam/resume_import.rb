@@ -6,8 +6,9 @@ module Steam
   # (an abandoned run included: not_resumable).
   #
   # Only the latest run can become active again (here or through
-  # Steam::RescoreCards), so Steam::UnfinishedImportRun's gate, which reads
-  # the latest run only, covers every active run.
+  # Steam::RescoreCards), and an abandoned run never does, so
+  # Steam::UnfinishedImportRun's gate, which reads the latest run that was
+  # not abandoned, covers every active run.
   #
   #   Steam::ResumeImport.new.call(import_run_id: run.id)
   #   # => Success(run) | Failure(:not_found) | Failure(:not_resumable)

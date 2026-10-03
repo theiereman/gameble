@@ -93,8 +93,8 @@ fr:
         rescore: "Recalculer les cartes"
         rescore_confirm: "Réinscrire chaque carte de cette passe dans la saison en brouillon, avec la formule de prestige et la liste des genres telles qu'elles sont désormais ? Aucun appel n'est fait à Steam."
         abandon: "Abandonner cette passe"
-        abandon_confirm: "Abandonner cette passe pour de bon ? Elle ne pourra plus jamais être reprise, et la saison en brouillon garde les cartes qu'elle tient."
-        cards_written_note: "Cette passe a déjà inscrit des cartes dans la saison en brouillon par-dessus celles de la dernière passe terminée : elle ne peut donc pas être abandonnée. Reprends-la, ou lance un nouvel import : une fois celui-ci terminé, le brouillon tient ses cartes et aucune autre."
+        abandon_confirm: "Abandonner cette passe pour de bon ? Elle ne pourra plus jamais être reprise, et la saison en brouillon reste telle quelle."
+        cards_written_note: "Cette passe a déjà inscrit des cartes dans la saison en brouillon par-dessus celles que le brouillon tenait : elle ne peut donc pas être abandonnée. Reprends-la, ou lance un nouvel import : une fois celui-ci terminé, le brouillon tient ses cartes et aucune autre."
         errors: "Dernières erreurs"
       create:
         started: "L'import est lancé, officier. Les scribes recopient la première page."
@@ -104,7 +104,7 @@ fr:
         rescoring: "Les scribes réinscrivent les cartes avec la nouvelle formule, officier. La saison ne peut pas être publiée avant qu'ils aient fini."
         run_in_progress: "Un import est en cours, officier. Laisse-le finir, ou attends qu'il s'interrompe, avant de recalculer les cartes."
       abandon:
-        abandoned: "La passe est abandonnée, officier. Les scribes referment son registre pour de bon ; la saison en brouillon garde les cartes qu'elle tient."
+        abandoned: "La passe est abandonnée, officier. Les scribes referment son registre pour de bon ; la saison en brouillon reste telle quelle."
     cards:
       index:
         heading: "La presse à cartes"
@@ -186,7 +186,7 @@ fr:
         sets: "Collections"
       publish:
         published: "La saison %{number} est publiée, officier. Ses cartes sont prêtes pour le tirage."
-        import_active: "Le dernier import Steam n'est pas terminé, officier. Laisse-le finir, abandonne-le s'il s'est interrompu, ou lance une nouvelle passe et laisse-la aboutir, avant de publier la saison."
+        import_active: "Un import Steam n'est pas terminé, officier. Laisse-le finir ou reprends-le ; abandonne-le s'il s'est interrompu avant d'inscrire des cartes ; ou lance une nouvelle passe et laisse-la aboutir, avant de publier la saison."
   packs:
     create:
       throttled: "Doucement, Confrère. Le coffre a besoin d'un instant entre deux ouvertures ; réessaie dans une minute."

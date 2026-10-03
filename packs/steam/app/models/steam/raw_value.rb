@@ -30,9 +30,10 @@ module Steam
       number if number&.between?(min, max)
     end
 
-    # A String without its NUL bytes; anything else is nil.
+    # A String without its NUL bytes or invalid UTF-8 bytes; anything else
+    # is nil.
     def self.string(value)
-      value.delete(NUL) if value.is_a?(String)
+      clean(value) if value.is_a?(String)
     end
 
     # A JSON object: a Hash, or {} for anything else.
@@ -40,15 +41,21 @@ module Steam
       value.is_a?(Hash) ? value : {}
     end
 
-    # `value` with the NUL bytes removed from every string, keys included,
-    # however deep: Postgres refuses "\u0000" in a jsonb column.
+    # `value` with the NUL bytes and invalid UTF-8 bytes removed from every
+    # string, keys included, however deep: Postgres refuses both in a jsonb
+    # column.
     def self.scrub(value)
       case value
-      when String then value.delete(NUL)
+      when String then clean(value)
       when Hash then value.to_h { |key, item| [ scrub(key), scrub(item) ] }
       when Array then value.map { |item| scrub(item) }
       else value
       end
     end
+
+    def self.clean(string)
+      string.scrub("").delete(NUL)
+    end
+    private_class_method :clean
   end
 end

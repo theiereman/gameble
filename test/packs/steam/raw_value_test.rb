@@ -33,6 +33,13 @@ class Steam::RawValueTest < ActiveSupport::TestCase
     [ nil, "x", [ 1 ], 3 ].each { |value| assert_equal({}, Steam::RawValue.object(value), value.inspect) }
   end
 
+  test "string and scrub drop invalid UTF-8 bytes instead of raising" do
+    bad = "Por\xFFtal\u0000 2".dup.force_encoding(Encoding::UTF_8)
+
+    assert_equal "Portal 2", Steam::RawValue.string(bad)
+    assert_equal({ "Portal 2" => [ "Portal 2" ] }, Steam::RawValue.scrub({ bad => [ bad ] }))
+  end
+
   test "scrub removes NUL bytes from every string of a deep value, keys included" do
     raw = { "a\u0000" => [ "x\u0000y", { "b" => "\u0000" }, 1, nil, true, 1.5 ], "c" => "plain" }
 

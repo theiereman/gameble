@@ -11,10 +11,17 @@ review: 'thorough'
 review_source: 'pinned'
 lenses_ran: ['blind-hunter', 'edge-case-hunter', 'verification-gap', 'intent-alignment']
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context: []
 warnings: ['oversized']
-deferred: []
+deferred:
+  - summary: >-
+      A NUL byte in a Steam tag name still makes the tags upsert raise and fails the tags step.
+    evidence: |-
+      `WebApi#get_tag_list` keeps `tag["name"]` as is, while every other Steam string now goes through `Steam::RawValue.string`; Postgres refuses "\u0000" in a text column. Pre-existing (the tags step is not an app and was not changed by this story), and Valve's curated tag names are unlikely to hold one.
+    location: >-
+      packs/steam/app/clients/steam/web_api.rb (get_tag_list)
+    severity: low
 ---
 
 <intent-contract>
@@ -183,6 +190,39 @@ deferred: []
   - `[low]` `[reject]` (blind) The `carded_run_id` index could be partial — a bigint index over a table of a few hundred thousand rows; the gain is negligible.
   - `[low]` `[patch]` (blind) "Cards struck from the draft" shows 0 before the end-of-pass prune has run — the row now shows only for a completed run.
 
+### 2026-10-03 — Review pass (follow-up)
+- verdicts: 29 findings — high 0, medium 2, low 23, false 4, maybe-false 0
+- findings:
+  - `[low]` `[patch]` (blind) A failed rescore that wrote no card can be abandoned; the run whose full pass is the draft becomes abandoned, the gate falls back to an older run, and the `UnfinishedImportRun` comment ("an abandoned run wrote no card") is wrong for it — confirmed. The comment now says "no card in its last pass". With the edge 3 patch an older run that wrote no card can be abandoned in turn; the remaining case (an older run that failed after writing cards, whose cards the rescored run's completion already pruned) keeps publishing refused until a new run completes. It needs a partial run, then a completed run, then a rescore failing on its first page; telling a rescore apart needs a new column, so it is recorded in `pending-approvals.md`. Grouped with edge 4.
+  - `[low]` `[reject]` (blind) The abandon button and the `cards_written` note sit outside the polled frame, so they appear only after a reload — the plan places them there on purpose (a confirmed POST button); a stale button is refused by the operation with an alert, so nothing goes wrong. Moving them into the frame changes the page's structure for a cosmetic gain.
+  - `[low]` `[patch]` (blind) `import_active` says "abandon it if it halted", wrong for a run that wrote cards or an older blocking run — the en and fr copy now say "a Steam import", offer resuming, and limit abandoning to a run that halted before writing cards.
+  - `[low]` `[defer]` (blind) `get_tag_list` keeps tag names without removing NUL bytes — pre-existing (the tags step was not changed by this story, and a tag is not an app); added to `deferred`.
+  - `[low]` `[reject]` (blind) A store item with a malformed appid is dropped silently and the game ends up `unavailable`; `appid || id` lets a malformed appid hide a valid id — the plan's rule ("an item whose appid is not an integer is skipped"); `unavailable` is a recorded reason. Counting and logging these adds surface for a Steam answer never seen.
+  - `[low]` `[reject]` (blind) Malformed entries can be counted twice across pages when `last_appid` is malformed — needs a malformed cursor and malformed entries on the same page; only the error-line count is off. Not worth a new branch.
+  - `[low]` `[patch]` (blind) The `ResumeImport` comment says the gate "reads the latest run only" — now "the latest run that was not abandoned".
+  - `[low]` `[patch]` (blind) `cards_written_note` says "over those of the last completed run", wrong with no earlier completed run or for a rescore — now "over the cards it held" / "par-dessus celles que le brouillon tenait".
+  - `[low]` `[patch]` (blind) `abandon_confirm` and the abandon flash say "keeps the cards it holds", an unclear pronoun in en and fr — now "the draft season is left as it stands" / "reste telle quelle".
+  - `[low]` `[patch]` (blind) A controller comment line was not rewrapped — rewrapped.
+  - `[low]` `[patch]` (edge) A Steam string holding an invalid UTF-8 byte (JSON 3.0.2 parses it) makes `RawValue.string`/`scrub` raise `ArgumentError` in `String#delete` — confirmed in the bundle. Both now drop invalid bytes (`scrub("")`) before removing NULs; test added. Grouped with edge 8.
+  - `[low]` `[reject]` (edge) An all-malformed page with `have_more_results` and a valid `last_appid` at or below the request cursor ends the app_list step — `more_pages?` already ends the step for any page whose cursor does not move, before this story too; Steam answering a non-advancing cursor is not met in practice, and the fix is another guard branch.
+  - `[medium]` `[patch]` (edge) An older failed run that wrote no card, then a newer run started and abandoned: the gate reads the older run, which can be neither resumed nor abandoned (`not_latest`), so publishing stays blocked until a full new run completes — confirmed; a regression of the previous pass's gate patch. `AbandonImport.refusal` now reads "latest" as the latest run that was not abandoned, as the gate does, so that run can be abandoned in turn; a run that wrote cards in its pass still cannot (`cards_written`). Tests added for both; README and pending-approvals updated. Grouped with verification-gap other 1.
+  - `[low]` `[patch]` (edge) A completed run reopened by a rescore that fails before its first page can be abandoned, and the gate then reads an older run — grouped with blind 1.
+  - `[low]` `[reject]` (edge) More than 20 repeated appids in one page push the other errors out of the 20 kept — Steam repeating that many appids in one page is not met in practice; collapsing the lines adds a branch.
+  - `[false]` `[reject]` (edge) Rolling back the first migration while rows hold `abandoned` or `malformed_reviews` aborts midway — Postgres runs the migration's DDL in a transaction, so the rollback fails whole and leaves the schema as it was; a loud failure on data the old schema cannot hold is correct.
+  - `[low]` `[reject]` (edge) Two jsonb keys that differ only by NUL bytes collide after `scrub` — such keys are not met in Steam answers; detecting the collision adds a branch.
+  - `[low]` `[patch]` (edge, claim) `RawValue` claims it never raises, but invalid UTF-8 makes it raise — grouped with edge 1.
+  - `[low]` `[reject]` (edge, claim) AC 4 says a run on cards with `last_appid > 0` offers no abandon button, while the code refuses only on `cards_written > 0` — the previous pass changed this on purpose (a pass whose every card was refused never touched the draft); the AC's Given implies cards were written. The fix would edit this build's plan.
+  - `[medium]` `[patch]` (verification-gap, other) A run fails before its cards, a new run completes, its rescore fails before writing a card and is abandoned: the gate reads the first run, which cannot be abandoned or resumed, so only a new import unblocks publishing — confirmed; grouped with edge 3, whose patch makes that run abandonable.
+  - `[false]` `[reject]` (intent) The draft is mixed while a pass runs or after a run fails partway — carried: publishing is refused while that run is the latest non-abandoned unfinished one, and the abandon is refused (`cards_written`), so a mixed draft cannot be published.
+  - `[low]` `[reject]` (intent) The two-run test uses overlapping games ([10, 20] then [20, 30]) rather than wholly different ones — the overlap checks the dropped card and the rescored shared card at once; a disjoint pair would check strictly less.
+  - `[false]` `[reject]` (intent) A repeated appid is kept and carded rather than excluded — the malformed thing is the repeated entry, which is dropped with the reason `repeated_in_page`; the game itself is valid. Recorded in `pending-approvals.md` for confirmation.
+  - `[low]` `[reject]` (intent) `malformed_reviews` shows only as a count on the run page, not per app — the reason is stored per app; listing excluded apps is not asked by the intent and adds a page.
+  - `[low]` `[reject]` (intent) No captured real Steam payloads; malformed input is checked with hand-built stubs — carried: real Steam calls are forbidden, and Faraday stubs are the repo's recorded answers.
+  - `[low]` `[reject]` (intent) The two deferred inputs (a title of about 2.7 kB, a body that is not valid JSON) still fail the run — carried: recorded in `deferred-work.md`.
+  - `[low]` `[reject]` (intent) The `cards_written` carve-out keeps the F3 deadlock for an input that fails the cards step every time — carried.
+  - `[false]` `[reject]` (intent) "A new run is not blocked" was already true before the story — carried: the assertion states a true behavior.
+  - `[low]` `[reject]` (intent) Abandon then publish is tested only with a run that failed on details, not one on cards that wrote nothing — the gate does not read the step; the operation tests abandon a cards-step run that wrote nothing, and the gate tests read the run after an abandon.
+
 ## Design Notes
 
 **Why prune at the end of a pass, and why `carded_run_id`.** Pruning at `StartImport` would empty the draft for hours, and a failed run would lose the previous cards. Pruning at the end keeps the invariant at the moment it matters: when no run is unfinished, the draft is exactly the latest completed pass. Steam already records its per-step run ids (`reviewed_run_id`, `details_run_id`), so `carded_run_id` follows that pattern. Clearing it on a rescore makes the keep list "this pass", not "this run". Catalog stays source-agnostic: it receives only opaque keys.
@@ -258,6 +298,19 @@ One thorough pass with four lenses (blind hunter, edge-case hunter, verification
 **Follow-up review: recommended.**
 - Patched counts: high 0, medium 3 (entries), low 7 (entries).
 - **Risk not re-checked by any lens:** the post-review publish gate (`UnfinishedImportRun` skipping abandoned runs) changes when publishing unblocks. A run that failed after writing cards, followed only by abandoned runs, now keeps publishing blocked until a new run completes. How that rule interacts with `ResumeImport`, `RescoreCards` and the abandon refusals was only checked by the implementer's new tests. The app-list raise also changes behavior on Steam answers no test records from reality.
+
+**Follow-up review (2026-10-03)**
+
+A fresh thorough pass, focused on the publish gate (commit 21e511c) and the interplay of abandon, rescore, draft pruning and publish. Four lenses gave 29 findings: high 0, medium 2, low 23, false 4.
+- **Patched:** 1 medium entry and 7 low entries (16 finding rows):
+  - medium: an older failed run that wrote no card, left behind an abandoned latest run (directly, or after a failed rescore), blocked publishing with no way out but a new import. `Steam::AbandonImport.refusal` now reads "latest" as the latest run that was not abandoned, as `Steam::UnfinishedImportRun` does, so it can be abandoned in turn; a run that wrote cards in its pass still cannot;
+  - low: `RawValue` drops invalid UTF-8 bytes instead of raising; the gate and resume comments; the `import_active`, `cards_written_note`, `abandon_confirm` and abandon flash copy in en and fr; a comment rewrap.
+- **Deferred:** a NUL byte in a Steam tag name (pre-existing).
+- **Rejected,** with reasons in the triage log: the button outside the polled frame, silent malformed store items, double-counted malformed entries, a non-advancing cursor on an all-malformed page, more than 20 repeated appids, NUL key collisions, the AC 4 wording, the overlapping two-run test, per-app reason pages, a step-specific abandon-then-publish test, and the carried rows; false: the migration rollback, the mixed draft mid-pass, the repeated appid kept, the "new run" assertion.
+- Files: `abandon_import.rb`, `unfinished_import_run.rb`, `resume_import.rb`, `raw_value.rb`, `import_runs_controller.rb`, `config/locales/{en,fr}.yml`, `README.md`, `test/packs/steam/{import_operations,raw_value}_test.rb`, `pending-approvals.md`.
+- Patched counts: high 0, medium 1 (entry), low 7 (entries). **Follow-up review: not recommended**: no high was patched, so the work has converged.
+- Verification after the patches: `bin/rails test` 925 runs, 0 failures; `bin/rails test:system` 46 runs, 0 failures; packwerk, rubocop, `i18n-tasks missing` and `unused` clean. No migration changed. No Steam call, no import, test database only.
+- Residual: a failed rescore that wrote no card can still be abandoned. If the run before it failed after writing cards, publishing stays refused until a new run completes (`pending-approvals.md`).
 
 **Verification**
 
