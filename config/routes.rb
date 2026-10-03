@@ -21,6 +21,11 @@ Rails.application.routes.draw do
     # One set of the library, opened beside the shelf, by kind and key (AD-15).
     get "library/:kind/:key" => "library#set", as: :library_set, constraints: { kind: /tome|publisher|best_of_year/ }
 
+    # A card's detail (CAP-7), by its slug (AD-15): in the published season,
+    # or in the season numbered.
+    get "cards/:slug" => "cards#show", as: :card
+    get "cards/:slug/seasons/:number" => "cards#show", as: :card_season, constraints: { number: /\d+/ }
+
     # Collecting the daily bonus from the attic (CAP-16).
     resource :daily_bonus, path: "daily-bonus", only: :create
 

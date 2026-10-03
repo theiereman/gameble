@@ -85,7 +85,17 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".slot .slot__missing", { count: 22, text: "Missing card" }
     assert_select ".status-band > a.button--secondary[href='/en']", "Back to the attic"
     assert_select "a.library__back[href=?]", "/en/library?kind=tome", "Back to the shelf"
-    assert_select "a[href*='/cards/']", false
+    # Every face and empty slot leads to its card's detail in this season;
+    # "×n" stays outside the link.
+    slugs = Catalog::CardSeason.where(id: members).includes(:card).index_by(&:id).transform_values { it.card.slug }
+    links = css_select(".open-tome__slots > li > a.card-link")
+    assert_equal members.map { |id| "/en/cards/#{slugs.fetch(id)}/seasons/#{season.number}" }, links.map { it["href"] }
+    assert_equal members.map { |id| [ "false", id.in?([ members[0], members[3], members[24] ]) ? ".card" : ".slot" ] },
+      links.map { |link| [ link["data-turbo-prefetch"], link.at_css(".card") ? ".card" : ".slot" ] }
+    rarity = Catalog::CardViews.call([ members[3] ], locale: :en).fetch(members[3]).rarity
+    assert_equal "#{title(members[3])}, #{I18n.t("catalog.rarity.#{rarity}", locale: :en)}, season #{season.number}", links[3]["aria-label"]
+    assert_select "a.card-link .open-tome__copies", false
+    assert_select "a.card-link + .open-tome__copies", "×2"
   end
 
   test "a visitor sees the same tome with every slot empty" do
@@ -210,7 +220,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".library [data-id], .library [id]:not(#library-heading)", false
     html = css_select(".library").sole.to_html
     ids.each do |id|
-      assert_no_match(/\b#{id}\b/, html.gsub(/Tome \d+|\d+ \/ \d+|\d+ of \d+|\b(19|20)\d\d\b|×\d+|\d+ cop(y|ies)|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|\?page=\d+/, ""))
+      assert_no_match(/\b#{id}\b/, html.gsub(/Tome \d+|\d+ \/ \d+|\d+ of \d+|\b(19|20)\d\d\b|×\d+|\d+ cop(y|ies)|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|\?page=\d+|\/seasons\/\d+|[Ss]eason \d+/, ""))
     end
   end
 

@@ -1,7 +1,8 @@
 <% content_for :back_button, true %>
 <%# The cards of an opened pack, in their drawn order (five, or three for
     the daily bonus). Right after the opening, the reveal island; on any
-    other visit, the faces. Both end on the same way out. %>
+    other visit, the faces, each leading to its card's detail. Both end on
+    the same way out. %>
 <% turbo_exempts_page_from_cache if @reveal %>
 <section class="pack-result" aria-labelledby="pack-result-heading">
   <h1 id="pack-result-heading"><%= @pack.bonus? ? t(".heading_bonus") : t(".heading") %></h1>
@@ -14,7 +15,7 @@
   <% else %>
     <ol class="pack-result__cards" aria-label="<%= t(".cards") %>">
       <% @cards.each do |card| %>
-        <li class="pack-result__card"><%= render CardComponent.new(card:, size: :small, side: :face, strings: @strings) %></li>
+        <li class="pack-result__card"><%= link_to_card_detail(card, @strings) do %><%= render CardComponent.new(card:, size: :small, side: :face, strings: @strings) %><% end %></li>
       <% end %>
     </ol>
     <div class="pack-end">
