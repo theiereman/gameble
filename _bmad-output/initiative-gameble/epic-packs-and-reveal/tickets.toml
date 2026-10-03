@@ -114,3 +114,15 @@ covers = []
 after = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 11
+type = "bug"
+title = "Flip all on a phone shows every card"
+description = "On a phone, \"flip all\" jumps to the gold cards then the last card with no way back, so the player never sees the other cards of the pack, and keyboard focus falls off the page (`PackReveal.tsx`). After flip all, every card of the pack can be viewed in turn and focus stays on the reveal. Found by the epic retrospective."
+verify = "A system test at phone width opens a pack, flips all, and reaches each of the five cards in turn, forward and back, with focus kept inside the reveal; a legendary's reveal is still never skipped."
+covers = ["R5"]
+after = [6]
+hitl = false
+risk = "low"
+references = ["epic-packs-and-reveal/epic-packs-and-reveal-retrospective.md"]

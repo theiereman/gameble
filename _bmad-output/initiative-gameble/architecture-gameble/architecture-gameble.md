@@ -155,13 +155,13 @@ graph TD
 - **Prevents:** counting or enumerating players.
 - **Rule:** Players are addressed by a random token, cards by a slug. Database ids never appear in URLs, HTML or JSON.
 
-### AD-16 — Server-rendered pages, two React islands `[ADOPTED]`
+### AD-16 — Server-rendered pages, few React islands `[ADOPTED]`
 
 - **Binds:** CAP-5, CAP-11, and every screen
 - **Prevents:** a second application growing in the browser.
 - **Rule:**
   - Pages are rendered by Rails with ViewComponent and Hotwire.
-  - React is used for the pack reveal and the trade board only, mounted with Turbo Mount and written in TypeScript.
+  - React is used for the pack reveal and the trade board, and for the back-office card preview that shows both card renderers side by side (story 3.5), mounted with Turbo Mount and written in TypeScript. A new island needs an amendment here.
   - A component receives its initial data and its translated strings as props. Each player action calls a server endpoint that runs an operation.
   - There is no client-side router and no global client store.
   - Styles are plain CSS; the tokens of `DESIGN.md` are CSS custom properties.
@@ -362,7 +362,7 @@ gameble/
 ## Deferred
 
 - **Prestige formula and tier thresholds:** calibrated on the first real import (open question in the spec).
-- **Achievement list, booster odds, weight of a trade in the weekly goal:** product questions still open in the spec; the structures above hold whatever is chosen.
+- **Achievement list, the weekly goal pack's odds, weight of a trade in the weekly goal:** product questions still open in the spec; the structures above hold whatever is chosen.
 - **Feed selection thresholds:** tuned with real activity; the rule lives in one handler (AD-13).
 - **Event retention and partitioning:** decide when the event tables pass 50 million rows.
 - **Read replica:** added when the primary's read load is measured as the limit; AD-11 makes it a configuration change.

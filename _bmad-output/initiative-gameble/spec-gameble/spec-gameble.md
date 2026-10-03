@@ -184,4 +184,5 @@ The author plays gameble every day for a month alongside at least 10 active play
 - **Achievements (CAP-17):** which achievements exist?
 - **Weekly goal pack (CAP-12):** what are the odds of the weekly goal's rare pack?
 - **Weekly goal (CAP-12):** how much does a trade count compared with a pack opening?
+- **Tag labels:** do French tag labels need importing once tags or genre tome names are shown to players?
 - **Feed flooding (CAP-19):** with unlimited reposts, how does the global feed stay readable: grouping, a per-player cap in the global view, or nothing until measured?

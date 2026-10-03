@@ -33,6 +33,8 @@ Completed at this epic's inception. The source lines are CAP-14 and CAP-15 of th
 3. Only staff accounts reach the back-office.
 4. A database backup has been restored successfully at least once.
 5. The site terms state that gameble has no affiliation with Steam or Valve.
+6. Before the first deploy (from the epic 3 retrospective, 2026-10-03): a player without a bank gets one when they use the game, a failed bank fill is retried, the healed bank's schedule is decided, and races between bank operations of different stories (open, register, bonus, heal) are tested.
+7. The production Docker image is built in CI or as a pre-deploy check.
 
 ## Boundaries
 
