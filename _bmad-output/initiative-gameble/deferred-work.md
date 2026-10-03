@@ -91,3 +91,6 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-import-without-the-store-api-plan.md`
   summary: Contract migration owed for story 2.10 (expand/contract): drop `steam_apps.genres`, `credit`, `app_details`, `genres_run_id` (with its foreign key to `steam_import_runs`) and `genres_exclusion` (with its check `steam_apps_genres_exclusion_check`), and `catalog_cards.credit`; then remove them from `Steam::App.ignored_columns` and `Catalog::Card.ignored_columns`.
   evidence: Story 2.10 removed the genres step and the store API and ignores these columns without dropping them, so a deployed version still running the old code keeps working during the rollout.
+- source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-import-hardening-before-season-1-plan.md`
+  summary: Two malformed inputs still fail a page after story 2.11: a store title long enough to break the slug's unique index (about 2.7 kB) still fails the cards page that writes it, and a whole Steam answer that is not valid JSON still fails the page that asked for it (retried, then the run fails, as before).
+  evidence: Story 2.11 hardens the values inside a well-formed answer (`Steam::RawValue`, `Steam::ReviewPolicy`, `Steam::DetailsPolicy`, `Steam::WebApi`, `Steam::ImportAppListPage`) and leaves the slug index and the JSON parse error out of its scope.

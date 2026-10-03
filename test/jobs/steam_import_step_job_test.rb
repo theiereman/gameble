@@ -288,6 +288,73 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_equal [ "steam:10", %w[puzzle fps], nil ], [ card.source_key, card.genres, Catalog::Card.where(id: card.id).pick(Arel.sql("credit")) ]
   end
 
+  # Replaces Steam::PrestigeScore::COUNT_WEIGHT for the block.
+  def with_count_weight(weight)
+    original = Steam::PrestigeScore::COUNT_WEIGHT
+    silence_warnings { Steam::PrestigeScore.const_set(:COUNT_WEIGHT, weight) }
+    yield
+  ensure
+    silence_warnings { Steam::PrestigeScore.const_set(:COUNT_WEIGHT, original) }
+  end
+
+  # Records the Steam answers of a full run over `appids`, each with `reviews` reviews.
+  def record_run(appids, reviews:)
+    steam_stubs.clear
+    stub_get_tag_list
+    stub_app_list_page(after: 0, appids:, more: false)
+    stub_get_items_by_language("english" => appids.index_with { |appid| detailed_item(appid, reviews: reviews.fetch(appid)) }, "french" => {})
+  end
+
+  def draft_scores
+    Catalog::DraftSeason.call.card_seasons.joins(:card).order("catalog_cards.source_key").pluck("catalog_cards.source_key", :prestige_score).to_h
+  end
+
+  test "a second import over other games leaves the draft with exactly its cards, scored with its formula" do
+    reviews = { 10 => 1_000, 20 => 5_000, 30 => 50_000 }
+    record_run([ 10, 20 ], reviews:)
+    first = perform_enqueued_jobs { start_run }
+    assert_predicate first.reload, :completed?
+    assert_equal %w[steam:10 steam:20], draft_scores.keys
+
+    record_run([ 20, 30 ], reviews:)
+    second = with_count_weight(0.5) do
+      run = perform_enqueued_jobs { start_run }
+      expected = [ 20, 30 ].to_h { |appid| [ "steam:#{appid}", Steam::PrestigeScore.call(percent_positive: 90, review_count: reviews.fetch(appid)) ] }
+      assert_equal expected.keys, draft_scores.keys
+      expected.each { |key, score| assert_in_delta score, draft_scores.fetch(key), 1e-9, key }
+      run
+    end
+
+    second.reload
+    assert_predicate second, :completed?
+    assert_equal [ 2, 0, 1 ], [ second.cards_written, second.cards_refused, second.cards_removed ]
+    assert_equal 0, first.reload.cards_removed
+    assert_predicate Catalog::Card.find_by(source_key: "steam:10"), :present?, "a pruned card keeps its row"
+  end
+
+  test "a full stubbed run with a repeated appid and a malformed review percent completes, the malformed app without a card" do
+    stub_get_tag_list
+    apps = [ 10, 10, 20, 30 ].map { |appid| { "appid" => appid, "name" => "Game #{appid}" } }
+    steam_stubs.get("#{APP_LIST_PATH}?last_appid=0") do
+      [ 200, { "Content-Type" => "application/json" }, { "response" => { "apps" => apps } }.to_json ]
+    end
+    english = [ 10, 20, 30 ].index_with { |appid| detailed_item(appid, reviews: 9_000) }
+    english[20]["reviews"]["summary_filtered"]["percent_positive"] = 150
+    stub_get_items_by_language("english" => english, "french" => {})
+
+    run = perform_enqueued_jobs { start_run }
+
+    run.reload
+    assert_predicate run, :completed?
+    assert_equal [ 10, 20, 30 ], Steam::App.order(:appid).pluck(:appid)
+    assert_equal 1, Steam::App.where(appid: 10).count
+    assert_equal [ 3, 3, 2, 1 ], [ run.apps_listed, run.apps_reviewed, run.apps_kept, run.apps_excluded ]
+    assert_equal [ nil, "malformed_reviews" ], Steam::App.find_by!(appid: 20).slice(:review_percent_positive, :review_exclusion).values
+    assert_equal %w[steam:10 steam:30], draft_scores.keys
+    assert_nil Catalog::Card.find_by(source_key: "steam:20")
+    assert_includes run.latest_errors.map(&:message), "appid 10: repeated_in_page"
+  end
+
   # Each game's tags, heaviest first: [ tagid, weight ] pairs.
   GENRE_TAGS = {
     1 => [ [ 492, 1200 ], [ 1664, 900 ], [ 1663, 800 ] ],

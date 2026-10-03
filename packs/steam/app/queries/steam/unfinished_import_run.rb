@@ -1,13 +1,17 @@
 module Steam
-  # The latest import run when it has not completed (pending, running or
-  # failed), or nil (AD-3, AD-19). The latest run, when failed, can still be
-  # resumed and write its remaining cards, so the back-office refuses to
-  # publish a season until the latest run completes: a run never spans two
-  # seasons. Only the latest run can become active again (Steam::ResumeImport,
-  # Steam::RescoreCards), so reading the latest run covers every active one.
+  # The latest import run that was not abandoned, when it has not completed
+  # (pending, running or failed), or nil (AD-3, AD-19). The latest run, when
+  # failed, can still be resumed and write its remaining cards, so the
+  # back-office refuses to publish a season until a run completes: a run
+  # never spans two seasons. An abandoned run (Steam::AbandonImport) wrote
+  # no card, so it is skipped and the run before it decides: a run that
+  # failed after writing cards keeps blocking even once a later run is
+  # abandoned, until a new run completes. Only the latest run can become
+  # active again (Steam::ResumeImport, Steam::RescoreCards), so reading the
+  # latest runs covers every active one.
   module UnfinishedImportRun
     def self.call
-      run = ImportRun.latest_first.first
+      run = ImportRun.where.not(status: :abandoned).latest_first.first
       run unless run.nil? || run.completed?
     end
   end

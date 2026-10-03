@@ -52,6 +52,7 @@ Rails.application.routes.draw do
       resources :import_runs, path: "import-runs", only: %i[index show create] do
         post :resume, on: :member
         post :rescore, on: :member
+        post :abandon, on: :member
       end
 
       # The catalog seasons (AD-5), administrators only.

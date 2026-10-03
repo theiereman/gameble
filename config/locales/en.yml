@@ -54,6 +54,7 @@ en:
         running: "Under way"
         completed: "Done"
         failed: "Halted"
+        abandoned: "Abandoned"
       steps:
         app_list: "Listing the Steam games"
         reviews: "Counting the reviews"
@@ -84,12 +85,16 @@ en:
         apps_excluded_details: "Set aside at the store page"
         cards_written: "Cards written"
         cards_refused: "Cards refused"
+        cards_removed: "Cards struck from the draft"
         cursor: "Last appid"
         started_at: "Started"
         finished_at: "Finished"
         resume: "Resume from where it stopped"
         rescore: "Rescore the cards"
         rescore_confirm: "Write every card of this run into the draft season again, with the prestige formula and the genre list as they now stand? No call is made to Steam."
+        abandon: "Abandon this run"
+        abandon_confirm: "Abandon this run for good? It can never be resumed, and the draft season keeps the cards it holds."
+        cards_written_note: "This run has already written cards into the draft season over those of the last completed run, so it cannot be abandoned. Resume it, or start a new import: once that one completes, the draft holds its cards and no others."
         errors: "Latest errors"
       create:
         started: "The import is under way, officer. The scribes are copying the first page."
@@ -98,6 +103,8 @@ en:
       rescore:
         rescoring: "The scribes are writing the cards again with the new formula, officer. The season cannot be published until they finish."
         run_in_progress: "An import is under way, officer. Let it finish, or wait for it to halt, before rescoring the cards."
+      abandon:
+        abandoned: "The run is abandoned, officer. The scribes close its ledger for good; the draft season keeps the cards it holds."
     cards:
       index:
         heading: "The card press"
@@ -179,7 +186,7 @@ en:
         sets: "Sets"
       publish:
         published: "Season %{number} is published, officer. Its cards are ready for the draw."
-        import_active: "The latest Steam import has not completed, officer. Let it finish, or start a new run and let it complete, before publishing the season."
+        import_active: "The latest Steam import has not completed, officer. Let it finish, abandon it if it halted, or start a new run and let it complete, before publishing the season."
   packs:
     create:
       throttled: "Easy, Brother. The chest needs a moment between openings; try again in a minute."
@@ -391,6 +398,8 @@ en:
       not_resumable: "Only a halted import can be resumed, officer."
       not_running: "That import is not under way."
       cursor_moved: "That page of the import was already copied."
-      not_latest: "Only the latest import run can be resumed or rescored, officer."
+      not_latest: "Only the latest import run can be resumed, rescored or abandoned, officer."
+      not_abandonable: "Only a halted import can be abandoned, officer."
+      cards_written: "That run has already written cards into the draft season, officer. Resume it, or start a new import, rather than abandon it."
       not_completed: "Only a completed import run can be rescored, officer."
       already_published: "The cards of that run are already published in a season, officer. Start a new import to fill the next draft."

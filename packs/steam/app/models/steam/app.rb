@@ -13,7 +13,9 @@ module Steam
   # Steam::DetailsPolicy::EXCLUSIONS, NULL when the game can become a card).
   # Steam::ImportCardsPage writes the apps ready by the run into the draft
   # season as cards (Steam::CardMapping), their genres derived from their
-  # tags (Steam::GenreTags).
+  # tags (Steam::GenreTags), and marks each app whose card it wrote with the
+  # run (carded_run_id); the end of the cards pass keeps only those cards in
+  # the draft. A rescore (Steam::RescoreCards) clears the run's marks first.
   #
   # The columns the store API's genres step wrote (genres, credit,
   # app_details, genres_run_id, genres_exclusion) are ignored until a
@@ -24,6 +26,7 @@ module Steam
 
     belongs_to :import_run, class_name: "Steam::ImportRun", inverse_of: :apps
     belongs_to :reviewed_run, class_name: "Steam::ImportRun", optional: true
+    belongs_to :carded_run, class_name: "Steam::ImportRun", optional: true
 
     STORE_URL_BASE = "https://store.steampowered.com/".freeze
 
@@ -38,6 +41,9 @@ module Steam
     # exclusion): each holds what a draft card needs (English title, release
     # date, image and store URL).
     scope :ready_by, ->(run) { kept_by(run).where(details_run_id: run.id, details_exclusion: nil) }
+
+    # The apps whose card the run's current cards pass wrote into the draft.
+    scope :carded_by, ->(run) { where(carded_run_id: run.id) }
 
     # The app's page on the Steam store: its store path, or app/<appid>/
     # when it has none.

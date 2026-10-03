@@ -32,6 +32,62 @@ class Steam::WebApiTest < ActiveSupport::TestCase
     assert_nil page.last_appid
   end
 
+  test "an entry without a valid appid is dropped and counted; a kept entry's malformed fields are left empty" do
+    entries = [ {}, { "appid" => "x" }, { "appid" => -3 }, "junk", { "appid" => 2**40 }, { "appid" => 0 }, { "appid" => 1.5 },
+      { "appid" => 10, "name" => "Ok", "last_modified" => 1_700_000_000, "price_change_number" => 7 },
+      { "appid" => "20", "name" => [ "x" ], "last_modified" => [ 1 ], "price_change_number" => "12x" },
+      { "appid" => 30, "name" => "N\u0000ul", "last_modified" => 253_402_300_800, "price_change_number" => -1 } ]
+    steam_stubs.get(APP_LIST_PATH) do
+      [ 200, { "Content-Type" => "application/json" }, { "response" => { "apps" => entries, "have_more_results" => true, "last_appid" => [ 30 ] } }.to_json ]
+    end
+
+    page = Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 100)
+
+    assert_equal 7, page.malformed
+    assert_equal [
+      { appid: 10, name: "Ok", last_modified: Time.at(1_700_000_000).utc, price_change_number: 7 },
+      { appid: 20, name: "", last_modified: nil, price_change_number: nil },
+      { appid: 30, name: "Nul", last_modified: nil, price_change_number: nil }
+    ], page.apps
+    assert_nil page.last_appid, "a malformed cursor is left out; the page goes on from its highest appid"
+  end
+
+  test "a page of malformed entries only, with more to come and no valid cursor, raises without the key" do
+    steam_stubs.get(APP_LIST_PATH) do
+      [ 200, { "Content-Type" => "application/json" }, { "response" => { "apps" => [ {}, "junk" ], "have_more_results" => true, "last_appid" => "x" } }.to_json ]
+    end
+
+    error = assert_raises(Steam::WebApi::Error) { Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 100) }
+    assert_not_includes error.message, API_KEY
+  end
+
+  test "a page of malformed entries only goes on with a valid cursor, and ends the list without more to come" do
+    [ { "have_more_results" => true, "last_appid" => 50 }, {} ].each do |extra|
+      steam_stubs.clear
+      steam_stubs.get(APP_LIST_PATH) do
+        [ 200, { "Content-Type" => "application/json" }, { "response" => { "apps" => [ {}, "junk" ] }.merge(extra) }.to_json ]
+      end
+
+      page = Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 100)
+
+      assert_equal [ [], 2, extra["last_appid"] ], [ page.apps, page.malformed, page.last_appid ], extra.inspect
+    end
+  end
+
+  test "an empty page with more to come and no cursor does not raise" do
+    steam_stubs.get(APP_LIST_PATH) do
+      [ 200, { "Content-Type" => "application/json" }, { "response" => { "apps" => [], "have_more_results" => true } }.to_json ]
+    end
+
+    assert_empty Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 100).apps
+  end
+
+  test "a well-formed page counts no malformed entry" do
+    stub_app_list_page(after: 0, appids: [ 1, 2 ], more: true)
+
+    assert_equal 0, Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 100).malformed
+  end
+
   test "a 429 then a 503 are retried until the page comes" do
     stub_app_list_status(429, after: 0)
     stub_app_list_status(503, after: 0)
@@ -136,6 +192,14 @@ class Steam::WebApiTest < ActiveSupport::TestCase
     assert_equal [ 10, 20 ], items.keys
     assert_equal reviewed_item(10, 812), items[10]
     assert_equal 2, items[20]["success"]
+  end
+
+  test "get_items skips an item that is not an object or whose appid is not an integer" do
+    items = [ "junk", [ 10 ], { "appid" => [ 10 ], "success" => 1 }, { "appid" => "10x", "success" => 1 }, { "appid" => 10.0, "success" => 1 },
+      { "id" => { "a" => 1 }, "success" => 1 }, { "appid" => "20", "success" => 1 } ]
+    steam_stubs.get(ITEMS_PATH) { [ 200, { "Content-Type" => "application/json" }, { "response" => { "store_items" => items } }.to_json ] }
+
+    assert_equal({ 20 => { "appid" => "20", "success" => 1 } }, get_items([ 10, 20 ]))
   end
 
   test "get_items is retried on a 429 and raises without the key once retries are spent" do

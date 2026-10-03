@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_040000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_050002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -197,13 +197,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_040000) do
     t.jsonb "app_details"
     t.bigint "genres_run_id"
     t.string "genres_exclusion"
+    t.bigint "carded_run_id"
     t.index ["appid"], name: "index_steam_apps_on_appid", unique: true
+    t.index ["carded_run_id", "appid"], name: "index_steam_apps_carded_by_run"
     t.index ["details_run_id", "appid"], name: "index_steam_apps_detailed_by_run", where: "(details_exclusion IS NULL)"
     t.index ["import_run_id"], name: "index_steam_apps_on_import_run_id"
     t.index ["reviewed_run_id", "appid"], name: "index_steam_apps_kept_by_run", where: "(review_exclusion IS NULL)"
     t.check_constraint "details_exclusion IS NULL OR (details_exclusion::text = ANY (ARRAY['unavailable'::character varying, 'not_a_game'::character varying, 'no_title'::character varying, 'no_vertical_image'::character varying, 'no_release_date'::character varying]::text[]))", name: "steam_apps_details_exclusion_check"
     t.check_constraint "genres_exclusion IS NULL OR genres_exclusion::text = 'unavailable'::text", name: "steam_apps_genres_exclusion_check"
-    t.check_constraint "review_exclusion IS NULL OR review_exclusion::text = 'too_few_reviews'::text OR review_exclusion::text = 'unavailable'::text", name: "steam_apps_review_exclusion_check"
+    t.check_constraint "review_exclusion IS NULL OR (review_exclusion::text = ANY (ARRAY['too_few_reviews'::character varying, 'unavailable'::character varying, 'malformed_reviews'::character varying]::text[]))", name: "steam_apps_review_exclusion_check"
   end
 
   create_table "steam_import_runs", force: :cascade do |t|
@@ -220,7 +222,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_040000) do
     t.index "(true)", name: "index_steam_import_runs_one_active", unique: true, where: "(((status)::text = 'pending'::text) OR ((status)::text = 'running'::text))"
     t.index ["created_at"], name: "index_steam_import_runs_on_created_at"
     t.index ["token"], name: "index_steam_import_runs_on_token", unique: true
-    t.check_constraint "status::text = 'pending'::text OR status::text = 'running'::text OR status::text = 'completed'::text OR status::text = 'failed'::text", name: "steam_import_runs_status_check"
+    t.check_constraint "status::text = ANY (ARRAY['pending'::character varying, 'running'::character varying, 'completed'::character varying, 'failed'::character varying, 'abandoned'::character varying]::text[])", name: "steam_import_runs_status_check"
   end
 
   create_table "steam_tags", force: :cascade do |t|
@@ -244,6 +246,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_040000) do
   add_foreign_key "game_holdings", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_packs", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
+  add_foreign_key "steam_apps", "steam_import_runs", column: "carded_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "details_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "genres_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "import_run_id"

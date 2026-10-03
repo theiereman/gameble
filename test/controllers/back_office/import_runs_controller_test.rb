@@ -1,11 +1,15 @@
 require "test_helper"
 require_relative "../../support/steam_api_stubs"
+require_relative "../../support/catalog_seeds"
+require_relative "../../support/counting_rate_limit"
 
 module BackOffice
   # The Steam import page of the back-office (AD-19), administrators only.
   class ImportRunsControllerTest < ActionDispatch::IntegrationTest
     include ActiveJob::TestHelper
     include SteamApiStubs
+    include CatalogSeeds
+    include CountingRateLimit
 
     setup do
       OmniAuth.config.test_mode = true
@@ -222,7 +226,27 @@ module BackOffice
       assert_select "[data-import-run-step=cards]", /Writing the cards/
       assert_select "[data-import-run-cards-written='3']", "3"
       assert_select "[data-import-run-cards-refused='0']", "0"
+      assert_select "[data-import-run-cards-removed='0']", "0"
       assert_select "dt", "Cards written"
+      assert_select "dt", "Cards struck from the draft"
+    end
+
+    test "a completed run shows the cards struck from the draft; a run before its cards, or still in its cards pass, does not" do
+      sign_in(accounts_players(:administrator))
+      run = Steam::ImportRun.create!(status: :completed, step: "cards", counts: { "cards_written" => 2, "cards_removed" => 1 }, finished_at: 1.minute.ago)
+
+      get back_office_import_run_path(run, locale: :fr)
+      assert_select "[data-import-run-cards-removed='1']", "1"
+      assert_select "dt", "Cartes rayées du brouillon"
+
+      run.update!(status: :failed)
+      get back_office_import_run_path(run, locale: :fr)
+      assert_select "[data-import-run-cards-written='2']"
+      assert_select "[data-import-run-cards-removed]", false
+
+      run.update!(status: :completed, step: "details")
+      get back_office_import_run_path(run, locale: :fr)
+      assert_select "[data-import-run-cards-removed]", false
     end
 
     test "a run on the review pass does not show the counts of the later steps" do
@@ -398,6 +422,105 @@ module BackOffice
       assert_predicate run.reload, :failed?
     end
 
+    # Abandon
+
+    test "an administrator abandons the latest run that failed before its cards: the draft can be published and a new import started" do
+      sign_in(accounts_players(:administrator))
+      draft = seed_card_seasons(distinct_scores(21))
+      run = Steam::ImportRun.create!(status: :failed, step: "details", cursor: { "step" => "details", "last_appid" => 300 }, counts: { "apps_listed" => 7 },
+        started_at: 1.hour.ago, finished_at: 1.minute.ago, error_messages: [ { "at" => 1.minute.ago.utc.iso8601, "message" => "Steam::WebApi::Error: boom" } ])
+
+      get back_office_import_run_path(run, locale: :fr)
+      assert_select "form[action='/fr/back-office/import-runs/#{run.token}/abandon'][data-turbo-confirm] button", "Abandonner cette passe"
+      assert_select "turbo-frame form[action$='/abandon']", false
+
+      post abandon_back_office_import_run_path(run, locale: :fr)
+
+      assert_redirected_to back_office_import_run_path(run, locale: :fr)
+      follow_redirect!
+      assert_equal I18n.t("back_office.import_runs.abandon.abandoned", locale: :fr), flash[:notice]
+      assert_predicate run.reload, :abandoned?
+      assert_select "[data-import-run-status=abandoned]", "Abandonné"
+      assert_select "form[action$='/resume']", false
+      assert_select "form[action$='/rescore']", false
+      assert_select "form[action$='/abandon']", false
+      assert_select ".ledger-errors li", /boom/
+
+      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number }
+      assert_equal I18n.t("back_office.seasons.publish.published", number: draft.number, locale: :fr), flash[:notice]
+      assert_predicate draft.reload, :published?
+
+      assert_enqueued_with(job: Steam::ImportStepJob) { post back_office_import_runs_path(locale: :fr) }
+      assert_predicate Steam::ImportRun.latest_first.first, :running?
+    end
+
+    test "a latest run that failed after writing cards offers to resume and explains why it cannot be abandoned" do
+      sign_in(accounts_players(:administrator))
+      run = Steam::ImportRun.create!(status: :failed, step: "cards", cursor: { "step" => "cards", "last_appid" => 620 },
+        counts: { "cards_written" => 100, "cards_removed" => 0 }, started_at: 1.hour.ago, finished_at: 1.minute.ago)
+
+      get back_office_import_run_path(run, locale: :en)
+
+      assert_select "form[action$='/resume'] button", "Resume from where it stopped"
+      assert_select "form[action$='/abandon']", false
+      assert_select ".text-plate", I18n.t("back_office.import_runs.show.cards_written_note", locale: :en)
+      assert_select "[data-import-run-cards-removed]", false, "counted only once the pass ends"
+
+      post abandon_back_office_import_run_path(run, locale: :en)
+
+      assert_redirected_to back_office_import_run_path(run, locale: :en)
+      assert_equal I18n.t("errors.steam.cards_written", locale: :en), flash[:alert]
+      assert_predicate run.reload, :failed?
+    end
+
+    test "a run that is running, completed or not the latest offers no abandon, and abandoning it is refused" do
+      sign_in(accounts_players(:administrator))
+      older = Steam::ImportRun.create!(status: :failed, step: "app_list", created_at: 2.days.ago, started_at: 2.days.ago, finished_at: 2.days.ago)
+      completed = Steam::ImportRun.create!(status: :completed, step: "cards", finished_at: 1.minute.ago)
+
+      { older => "not_latest", completed => "not_abandonable" }.each do |run, code|
+        get back_office_import_run_path(run, locale: :en)
+        assert_select "form[action$='/abandon']", false
+        assert_select ".text-plate", { text: I18n.t("back_office.import_runs.show.cards_written_note", locale: :en), count: 0 }
+
+        post abandon_back_office_import_run_path(run, locale: :en)
+
+        assert_equal I18n.t("errors.steam.#{code}", locale: :en), flash[:alert], code
+      end
+      assert_predicate older.reload, :failed?
+
+      completed.update!(status: :running, finished_at: nil)
+      get back_office_import_run_path(completed, locale: :en)
+      assert_select "form[action$='/abandon']", false
+      post abandon_back_office_import_run_path(completed, locale: :en)
+      assert_equal I18n.t("errors.steam.not_abandonable", locale: :en), flash[:alert]
+      assert_predicate completed.reload, :running?
+    end
+
+    test "more than 10 abandons a minute are throttled" do
+      sign_in(accounts_players(:administrator))
+      run = running_run
+
+      with_counting_rate_limit(ImportRunsController) do
+        10.times do
+          post abandon_back_office_import_run_path(run, locale: :en)
+          assert_redirected_to back_office_import_run_path(run, locale: :en)
+        end
+
+        post abandon_back_office_import_run_path(run, locale: :en)
+      end
+
+      assert_response :too_many_requests
+    end
+
+    test "abandoning an unknown run is not found" do
+      sign_in(accounts_players(:administrator))
+
+      post abandon_back_office_import_run_path("nope", locale: :en)
+
+      assert_response :not_found
+    end
+
     test "the back-office links to the import for an administrator only" do
       sign_in(accounts_players(:administrator))
       get back_office_path(locale: :fr)
@@ -416,6 +539,7 @@ module BackOffice
       yield :post, back_office_import_runs_path(locale: :fr)
       yield :post, resume_back_office_import_run_path(run, locale: :fr)
       yield :post, rescore_back_office_import_run_path(run, locale: :fr)
+      yield :post, abandon_back_office_import_run_path(run, locale: :fr)
     end
 
     [ :player, :moderator ].each do |role|

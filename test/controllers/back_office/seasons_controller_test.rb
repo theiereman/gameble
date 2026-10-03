@@ -186,6 +186,35 @@ module BackOffice
       assert_predicate draft.reload, :published?
     end
 
+    test "an abandoned latest run does not block publishing" do
+      sign_in(accounts_players(:administrator))
+      draft = seed_card_seasons(distinct_scores(21))
+      Steam::ImportRun.create!(status: :completed, step: "cards", created_at: 2.days.ago, finished_at: 2.days.ago)
+      Steam::ImportRun.create!(status: :abandoned, step: "details", created_at: 1.hour.ago, finished_at: 1.minute.ago)
+
+      get back_office_seasons_path(locale: :en)
+      assert_no_match I18n.t("back_office.seasons.publish.import_active", locale: :en), response.body
+
+      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
+
+      assert_equal I18n.t("back_office.seasons.publish.published", number: draft.number, locale: :en), flash[:notice]
+      assert_predicate draft.reload, :published?
+    end
+
+    test "an abandoned latest run does not lift the block of an earlier run that failed after writing cards" do
+      sign_in(accounts_players(:administrator))
+      draft = seed_card_seasons(distinct_scores(21))
+      Steam::ImportRun.create!(status: :completed, step: "cards", created_at: 3.days.ago, finished_at: 3.days.ago)
+      Steam::ImportRun.create!(status: :failed, step: "cards", cursor: { "step" => "cards", "last_appid" => 40 }, counts: { "cards_written" => 2 },
+        created_at: 2.days.ago, finished_at: 2.days.ago)
+      Steam::ImportRun.create!(status: :abandoned, step: "details", created_at: 1.hour.ago, finished_at: 1.minute.ago)
+
+      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
+
+      assert_equal I18n.t("back_office.seasons.publish.import_active", locale: :en), flash[:alert]
+      assert_predicate draft.reload, :draft?
+    end
+
     test "a stale page is refused with stale_draft" do
       sign_in(accounts_players(:administrator))
       draft = seed_card_seasons(distinct_scores(21))

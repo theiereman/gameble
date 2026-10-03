@@ -11,8 +11,14 @@ module Steam
   # error raised here has the key redacted from its message and carries no
   # cause, so neither the logs, Sentry nor the import run's errors see it.
   #
+  # An answer of the wrong shape raises; a malformed entry inside a good
+  # answer is read defensively (Steam::RawValue), so one bad app never fails
+  # a page: an app-list entry without a valid appid is dropped and counted
+  # (AppListPage#malformed), a store item whose appid is not an integer is
+  # skipped.
+  #
   #   Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 10_000)
-  #   # => #<Steam::WebApi::AppListPage apps: [{ appid:, name:, last_modified:, price_change_number: }], have_more_results:, last_appid:>
+  #   # => #<Steam::WebApi::AppListPage apps: [{ appid:, name:, last_modified:, price_change_number: }], have_more_results:, last_appid:, malformed: 0>
   #
   #   Steam::WebApi.new.get_items(appids: [ 10, 20 ], context: { language: "english", country_code: "US" }, data_request: { include_reviews: true })
   #   # => { 10 => { "appid" => 10, "success" => 1, "reviews" => { ... }, ... } }
@@ -29,7 +35,8 @@ module Steam
 
     class Error < StandardError; end
 
-    AppListPage = Data.define(:apps, :have_more_results, :last_appid)
+    # `malformed` counts the entries dropped for want of a valid appid.
+    AppListPage = Data.define(:apps, :have_more_results, :last_appid, :malformed)
 
     # The Faraday adapter, as arguments to `Faraday::Connection#adapter`.
     # Tests swap in Faraday's test adapter: `Steam::WebApi.adapter = [ :test, stubs ]`.
@@ -43,7 +50,12 @@ module Steam
 
     # One page of IStoreService/GetAppList, games only, after `last_appid`.
     # The list is ordered by appid; `last_appid` of the page is the cursor of
-    # the next one.
+    # the next one. An entry that is not an object, or whose appid is missing,
+    # not an integer or outside 1..2**31 - 1, is dropped and counted in
+    # `malformed`; the other fields of a kept entry are read defensively. A
+    # page that says there is more but holds only malformed entries and no
+    # valid last_appid raises: the cursor could not move past it, and ending
+    # the list there would cut the catalog short.
     def get_app_list(last_appid:, max_results:)
       body = get("/IStoreService/GetAppList/v1/", include_games: true, last_appid: last_appid, max_results: max_results)
       response = body["response"] if body.is_a?(Hash)
@@ -52,18 +64,24 @@ module Steam
       raise Error, "GetAppList answered without a response object" unless response.is_a?(Hash)
       raise Error, "GetAppList answered apps that are not a list" unless response.fetch("apps", []).is_a?(Array)
 
-      AppListPage.new(
-        apps: Array(response["apps"]).map { |app| normalize_app(app) },
-        have_more_results: response["have_more_results"] == true,
-        last_appid: response["last_appid"]&.to_i
-      )
+      entries = response.fetch("apps", [])
+      apps = entries.filter_map { |app| normalize_app(app) }
+      more = response["have_more_results"] == true
+      last_appid = RawValue.integer(response["last_appid"], min: 0, max: RawValue::INT4_MAX)
+      if more && entries.any? && apps.empty? && last_appid.nil?
+        raise Error, "GetAppList answered #{entries.size} malformed apps and no cursor, with more to come"
+      end
+
+      AppListPage.new(apps: apps, have_more_results: more, last_appid: last_appid, malformed: entries.size - apps.size)
     end
 
     # The store items of IStoreBrowseService/GetItems for `appids` (at most
     # 100 a call), raw, keyed by appid. Only the requested appids are keys:
     # Steam answers an unknown appid as `id: 0, success: 15`, which matches
-    # none, so an appid missing from the hash got no answer. What each item
-    # holds depends on `data_request`; the caller reads it.
+    # none, so an appid missing from the hash got no answer; an item that is
+    # not an object, or whose appid is not an integer, is skipped the same
+    # way. What each item holds depends on `data_request`; the caller reads
+    # it, defensively (Steam::RawValue).
     def get_items(appids:, context:, data_request:)
       input = { ids: appids.map { |appid| { appid: appid } }, context: context, data_request: data_request }
       body = get("/IStoreBrowseService/GetItems/v1/", input_json: input.to_json)
@@ -78,8 +96,8 @@ module Steam
       items.each_with_object({}) do |item, by_appid|
         next unless item.is_a?(Hash)
 
-        appid = (item["appid"] || item["id"]).to_i
-        by_appid[appid] = item if requested.include?(appid)
+        appid = RawValue.integer(item["appid"] || item["id"], min: 1, max: RawValue::INT4_MAX)
+        by_appid[appid] = item if appid && requested.include?(appid)
       end
     end
 
@@ -144,12 +162,19 @@ module Steam
       raise Error.new(redact("#{error.class}: #{error.message}")), cause: nil
     end
 
+    # The entry's columns, or nil when it has no valid appid. A malformed
+    # name, date or price change number is left empty.
     def normalize_app(app)
+      return unless app.is_a?(Hash)
+
+      appid = RawValue.integer(app["appid"], min: 1, max: RawValue::INT4_MAX)
+      return unless appid
+
       {
-        appid: Integer(app.fetch("appid")),
-        name: app["name"].to_s,
-        last_modified: app["last_modified"] && Time.at(app["last_modified"].to_i).utc,
-        price_change_number: app["price_change_number"]&.to_i
+        appid: appid,
+        name: RawValue.string(app["name"]).to_s,
+        last_modified: RawValue.integer(app["last_modified"], min: 0, max: RawValue::TIMESTAMP_MAX)&.then { |timestamp| Time.at(timestamp).utc },
+        price_change_number: RawValue.integer(app["price_change_number"], min: 0, max: RawValue::INT8_MAX)
       }
     end
 

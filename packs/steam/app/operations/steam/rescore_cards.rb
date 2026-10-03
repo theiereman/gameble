@@ -3,15 +3,18 @@ module Steam
   # enqueues its first page (AD-19; story 2.8): the cards step writes every
   # game the run carried through again, so a change of Steam::PrestigeScore
   # or of the genre list (Steam::GenreTags) rewrites the draft's scores and
-  # genres without calling Steam. The run's card counts start again from 0;
-  # its errors are kept. Once the last page is written, the run completes
-  # again.
+  # genres without calling Steam. The run's card counts start again from 0
+  # and its card marks (Steam::App.carded_by) are cleared, so the end of the
+  # pass keeps in the draft only the cards this pass writes: a card it now
+  # refuses leaves the draft. Its errors are kept. Once the last page is
+  # written, the run completes again.
   #
   # Refused unless the run is the latest and completed, once its cards are
   # published (no draft season, or a season published since the run
   # finished: a run never spans two seasons), and while another run is
-  # active. While the run is on its cards step again, the seasons
-  # page refuses to publish (Steam::UnfinishedImportRun).
+  # active, or once the run is abandoned (not_completed). While the run is on
+  # its cards step again, the seasons page refuses to publish
+  # (Steam::UnfinishedImportRun).
   #
   #   Steam::RescoreCards.new.call(import_run_id: run.id)
   #   # => Success(run) | Failure(:not_found) | Failure(:not_latest)
@@ -66,7 +69,8 @@ module Steam
     def reopen(run)
       ImportRun.transaction(requires_new: true) do
         run.update!(status: :running, step: STEP, cursor: ImportRun.cursor_for(STEP), finished_at: nil,
-          counts: run.counts.merge("cards_written" => 0, "cards_refused" => 0))
+          counts: run.counts.merge("cards_written" => 0, "cards_refused" => 0, "cards_removed" => 0))
+        App.carded_by(run).update_all(carded_run_id: nil, updated_at: Time.current)
       end
       Success(run)
     rescue ActiveRecord::RecordNotUnique

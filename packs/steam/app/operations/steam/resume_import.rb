@@ -2,7 +2,8 @@ module Steam
   # Resumes a failed import run from its cursor (AD-19): the run is running
   # again on the step and cursor it failed on, and its next page is enqueued
   # once committed. Its errors are kept. Refused while another run is active,
-  # and for a failed run that is not the latest.
+  # for a failed run that is not the latest, and for a run that did not fail
+  # (an abandoned run included: not_resumable).
   #
   # Only the latest run can become active again (here or through
   # Steam::RescoreCards), so Steam::UnfinishedImportRun's gate, which reads

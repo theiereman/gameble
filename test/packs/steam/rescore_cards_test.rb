@@ -83,6 +83,38 @@ class Steam::RescoreCardsTest < ActiveSupport::TestCase
     assert_not_equal before, draft_scores
   end
 
+  test "reopening clears the run's card marks and its removed count; a card the rescore now refuses leaves the draft" do
+    run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 0 }, counts: { "apps_listed" => 3 }, started_at: 1.hour.ago)
+    ready(run, 10, 20, 30)
+    perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
+    run.update_columns(counts: run.reload.counts.merge("cards_removed" => 4))
+    Steam::App.where(appid: 10).update_all(review_percent_positive: 150)
+
+    rescore(run)
+
+    run.reload
+    assert_empty Steam::App.carded_by(run)
+    assert_equal 0, run.cards_removed
+    assert_equal %w[steam:10 steam:20 steam:30], draft_scores.keys, "the draft is untouched until the pass ends"
+
+    perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
+
+    run.reload
+    assert_predicate run, :completed?
+    assert_equal [ 2, 1, 1 ], [ run.cards_written, run.cards_refused, run.cards_removed ]
+    assert_equal [ "appid 10: invalid_reviews" ], run.latest_errors.map(&:message)
+    assert_equal %w[steam:20 steam:30], draft_scores.keys
+    assert_equal [ 20, 30 ], Steam::App.carded_by(run).order(:appid).pluck(:appid)
+  end
+
+  test "an abandoned run is refused with not_completed" do
+    Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    run = completed_run(status: :abandoned)
+
+    assert_no_enqueued_jobs { assert_equal :not_completed, rescore(run).failure }
+    assert_predicate run.reload, :abandoned?
+  end
+
   test "a run that is not the latest is refused with not_latest" do
     older = completed_run(created_at: 2.days.ago)
     completed_run

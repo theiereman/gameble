@@ -148,6 +148,18 @@ class Steam::CardsTest < ActiveSupport::TestCase
     end
   end
 
+  test "a game whose stored review values are out of range is refused with invalid_reviews, never raising" do
+    run = run_on("cards")
+    ready(run, 1, review_percent_positive: 150)
+    ready(run, 2, review_percent_positive: -1)
+    ready(run, 3, review_count: 0)
+    ready(run, 4, review_count: -5)
+
+    Steam::App.where(appid: [ 1, 2, 3, 4 ]).find_each do |app|
+      assert_equal :invalid_reviews, Steam::CardMapping.call(app, tag_names: {}).failure, app.appid
+    end
+  end
+
   # ImportCardsPage
 
   test "a cards page writes each ready game into the draft season with every field, its prestige score and its rating" do
@@ -316,6 +328,126 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_equal 25, run.cards_refused
     assert_equal Steam::ImportRun::ERROR_LIMIT, run.error_messages.size
     assert_equal (6..25).map { |appid| "appid #{appid}: no_reviews" }, run.error_messages.map { |error| error["message"] }
+  end
+
+  test "a cards page marks the apps whose card it wrote with the run, not the refused ones" do
+    run = run_on("cards")
+    ready(run, 10, 20, 30)
+    Steam::App.where(appid: 20).update_all(review_percent_positive: 150)
+
+    cards_page(run)
+
+    assert_equal [ 10, 30 ], Steam::App.carded_by(run).order(:appid).pluck(:appid)
+    assert_equal [ "appid 20: invalid_reviews" ], run.reload.latest_errors.map(&:message)
+    assert_equal [ 2, 1 ], [ run.cards_written, run.cards_refused ]
+  end
+
+  def card_scores
+    Catalog::CardSeason.where(season: draft).joins(:card).order("catalog_cards.source_key").pluck("catalog_cards.source_key", :prestige_score).to_h
+  end
+
+  test "the database refuses a card mark for a run that does not exist" do
+    run = run_on("cards")
+    ready(run, 10)
+
+    assert_raises(ActiveRecord::InvalidForeignKey) { Steam::App.where(appid: 10).update_all(carded_run_id: -1) }
+  end
+
+  test "the end of a pass keeps in the draft only the cards it wrote: an earlier run's other cards leave it, their card rows stay" do
+    first = run_on("cards")
+    ready(first, 10, 20)
+    cards_page(first)
+    cards_page(first)
+    assert_predicate first.reload, :completed?
+    assert_equal 0, first.cards_removed
+
+    Steam::App.update_all(review_percent_positive: 70)
+    ready(first, 30)
+    second = rerun([ 20, 30 ])
+    cards_page(second)
+    assert_equal %w[steam:10 steam:20 steam:30], card_scores.keys, "nothing is pruned in the middle of a pass"
+
+    assert cards_page(second).success?
+
+    second.reload
+    assert_predicate second, :completed?
+    assert_equal [ 2, 0, 1 ], [ second.cards_written, second.cards_refused, second.cards_removed ]
+    assert_equal %w[steam:20 steam:30], card_scores.keys
+    assert_in_delta Steam::PrestigeScore.call(percent_positive: 70, review_count: 1_020), card_scores["steam:20"]
+    assert_predicate card_of(10), :present?
+    pruned = Rails.configuration.event_store.read.stream(Catalog::Season.stream_name(draft.id)).of_type(Catalog::DraftPruned).to_a
+    assert_equal [ { season_id: draft.id, removed: 0 }, { season_id: draft.id, removed: 1 } ], pruned.map(&:data)
+    assert_equal [ Steam::CardsPageImported, Steam::ImportStepFinished, Steam::ImportRunFinished ], events_of(second).map(&:class)
+  end
+
+  test "a pass over several pages, failed then resumed, keeps every card it wrote and removes only an earlier run's other card" do
+    other = run_on("cards")
+    ready(other, 40)
+    cards_page(other)
+    other.update!(status: :completed, finished_at: Time.current)
+    run = run_on("cards")
+    ready(run, 10, 20, 30)
+
+    cards_page(run, page_size: 2)
+    assert Steam::FailImport.new.call(import_run_id: run.id, error: "Steam::WebApi::Error: boom").success?
+    assert Steam::ResumeImport.new.call(import_run_id: run.id).success?
+    3.times { cards_page(run, page_size: 2) unless run.reload.completed? }
+
+    run.reload
+    assert_predicate run, :completed?
+    assert_equal %w[steam:10 steam:20 steam:30], card_scores.keys
+    assert_equal [ 3, 1 ], [ run.cards_written, run.cards_removed ]
+    assert_predicate card_of(40), :present?
+  end
+
+  test "the end of a pass never touches a published season" do
+    first = run_on("cards")
+    ready(first, 10, 20)
+    cards_page(first)
+    published = draft
+    Catalog::CardSeason.where(season: published).update_all(rarity: 1, dust_tier: 0)
+    published.update_columns(status: "published", published_at: Time.current)
+    first.update!(status: :completed, finished_at: Time.current)
+    frozen = Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rarity)
+
+    second = rerun([ 20 ])
+    cards_page(second)
+    cards_page(second)
+
+    assert_equal frozen, Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rarity)
+    assert_equal %w[steam:20], card_scores.keys
+    assert_equal 0, second.reload.cards_removed
+  end
+
+  test "a pass that wrote no card empties the draft" do
+    first = run_on("cards")
+    ready(first, 10, 20)
+    cards_page(first)
+    cards_page(first)
+    Steam::App.update_all(review_count: nil)
+    second = rerun([ 10, 20 ])
+
+    cards_page(second)
+    cards_page(second)
+
+    second.reload
+    assert_predicate second, :completed?
+    assert_equal [ 0, 2, 2 ], [ second.cards_written, second.cards_refused, second.cards_removed ]
+    assert_empty card_scores
+    assert_equal :empty_season, Catalog::PublishSeason.new.call(number: draft.number).failure
+  end
+
+  test "an exception in the prune rolls the end of the pass back" do
+    run = run_on("cards", last_appid: 10)
+    prune = Object.new
+    prune.define_singleton_method(:call) { |**| raise "boom" }
+
+    assert_raises(RuntimeError) { cards_page(run, prune: prune) }
+
+    run.reload
+    assert_predicate run, :running?
+    assert_equal [ "cards", 10 ], [ run.step, run.last_appid ]
+    assert_empty events_of(run)
   end
 
   test "with no ready game after the cursor, the cards step completes the run" do

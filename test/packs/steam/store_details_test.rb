@@ -223,6 +223,38 @@ class Steam::StoreDetailsTest < ActiveSupport::TestCase
     assert_equal Date.new(1988, 9, 24), Steam::DetailsPolicy.verdict(1, item, nil).release_on
   end
 
+  test "a malformed store item never raises: a bad field gives its exclusion or is dropped, NUL bytes are removed" do
+    run = run_on("details")
+    keep(run, *(1..9).to_a)
+    english = {
+      1 => detailed_item(1).merge("basic_info" => "not a hash"),
+      2 => detailed_item(2).merge("assets" => [ "library_600x900.jpg" ]),
+      3 => detailed_item(3, release: { "steam_release_date" => { "t" => 1 } }),
+      4 => detailed_item(4, release: { "steam_release_date" => 253_402_300_800 }),
+      5 => detailed_item(5, tags: [ { "tagid" => 19, "weight" => [ 1 ] }, { "tagid" => 2**40, "weight" => 5 }, { "tagid" => "x" }, "junk",
+        { "tagid" => 492, "weight" => 7 }, { "tagid" => 1664 } ]),
+      6 => detailed_item(6, name: "Nul\u0000 game", description: "A\u0000b", publishers: [ "P\u0000ub" ]),
+      7 => detailed_item(7).merge("name" => [ "x" ], "release" => "2011", "tags" => { "tagid" => 19 }, "store_url_path" => 7),
+      8 => detailed_item(8, release: { "steam_release_date" => 1_303_171_200.5 }),
+      9 => detailed_item(9).merge("basic_info" => { "short_description" => [ "x" ], "publishers" => "Valve" })
+    }
+    french = { 1 => french_item(1).merge("basic_info" => [ 1 ], "name" => { "a" => 1 }), 6 => french_item(6, name: "Jeu\u0000 6") }
+    stub_get_items_by_language("english" => english, "french" => french)
+
+    assert details_page(run).success?
+
+    apps = Steam::App.order(:appid).index_by(&:appid)
+    assert_equal({ 1 => nil, 2 => "no_vertical_image", 3 => "no_release_date", 4 => "no_release_date", 5 => nil, 6 => nil,
+      7 => "no_title", 8 => "no_release_date", 9 => nil }, apps.transform_values(&:details_exclusion))
+    assert_equal [ "Game 1", "Game 1", nil, nil, [] ], [ apps[1].name_en, apps[1].name_fr, apps[1].short_description_en, apps[1].short_description_fr, apps[1].publishers ]
+    assert_equal [ 492, 1664 ], apps[5].tag_ids, "a malformed tag is dropped; a missing weight counts 0"
+    assert_equal [ "Nul game", "Jeu 6", "Ab", [ "Pub" ] ], [ apps[6].name_en, apps[6].name_fr, apps[6].short_description_en, apps[6].publishers ]
+    assert_not_includes apps[6].details.to_json, "\\u0000"
+    assert_equal [ [], "app/7/" ], [ apps[7].tag_ids, apps[7].store_url_path ]
+    assert_equal [ nil, [] ], [ apps[9].short_description_en, apps[9].publishers ]
+    assert_equal [ 9, 5 ], [ run.reload.apps_detailed, run.apps_excluded_details ]
+  end
+
   test "a details page takes the next 100 games kept by this run after the cursor; an app the run did not keep is left alone" do
     run = run_on("details", last_appid: 5)
     keep(run, *(1..120).to_a.reverse)

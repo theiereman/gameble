@@ -9,6 +9,13 @@ module Steam
   # page the step finishes (Steam::FinishImportStep) and the run moves on to
   # the review pass.
   #
+  # A malformed entry never fails the page. An appid listed twice in the
+  # page is kept once, its first entry, and appended to the run's errors as
+  # "appid <id>: repeated_in_page"; the entries Steam::WebApi dropped for
+  # want of a valid appid are appended as one line, "app list after appid
+  # <cursor>: <n> malformed_entries". apps_listed counts the unique valid
+  # apps.
+  #
   # A Steam failure raises Steam::WebApi::Error (key redacted), for the job to
   # retry and, once retries are spent, fail the run.
   #
@@ -43,8 +50,11 @@ module Steam
         run = step lock_run(import_run_id)
         step require_on_step(run)
         step require_cursor_unchanged(run, expected_cursor)
-        step upsert_apps(run, page.apps)
-        step advance(run, page, last_appid)
+        apps = page.apps.uniq { |app| app[:appid] }
+        errors = page_errors(page, last_appid)
+        run.append_errors(errors) if errors.any?
+        listed = step upsert_apps(run, apps)
+        step advance(run, page, last_appid, listed)
         step publish_page(AppListPageImported, run)
         step FinishImportStep.new.call(import_run: run) unless more_pages?(page, run.last_appid, last_appid)
         run
@@ -61,11 +71,19 @@ module Steam
       Success(rows.size)
     end
 
+    # The page's repeated appids and malformed entries, as error lines.
+    def page_errors(page, last_appid)
+      repeated = page.apps.map { |app| app[:appid] }.tally.select { |_, count| count > 1 }.keys
+      errors = repeated.map { |appid| "appid #{appid}: repeated_in_page" }
+      errors << "app list after appid #{last_appid}: #{page.malformed} malformed_entries" if page.malformed.positive?
+      errors
+    end
+
     # The cursor is the page's last_appid (or its highest appid when Steam
     # leaves it out); it never moves back.
-    def advance(run, page, last_appid)
+    def advance(run, page, last_appid, listed)
       next_appid = [ page.last_appid.to_i, *page.apps.map { |app| app[:appid] }, last_appid ].max
-      advance_page(run, last_appid: next_appid, add: { "apps_listed" => page.apps.size })
+      advance_page(run, last_appid: next_appid, add: { "apps_listed" => listed })
     end
 
     # Steam says there is more, and the cursor moved: a page that does not
