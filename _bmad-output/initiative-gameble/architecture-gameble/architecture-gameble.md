@@ -91,7 +91,7 @@ graph TD
   - A player's bank holds ten pre-drawn packs, each with its 5 cards and an availability time. Pack credit is read from those times; no task runs per player.
   - A new player's bank is filled by a `Game` handler reacting to `Accounts::PlayerRegistered`, with the first-session guarantee of the spec.
   - A replacement pack becomes available ten minutes after the latest availability time in the bank, or ten minutes after the opening when the bank was full.
-  - `Game::OpenPack` locks the player's bank, consumes one available pack, credits the 5 cards, publishes its event, and enqueues a job that draws the replacement. If a due pack is missing, the operation draws it itself.
+  - `Game::OpenPack` locks the player's bank, consumes one available pack, credits the 5 cards, publishes its event, and tops the bank back up to ten in the same transaction (`Game::TopUpBank`): each replacement is drawn at once from the in-memory pool. No job draws packs, and no undrawn pack exists.
   - A draw picks the tier by the published odds, then a card uniformly within the tier, with secure randomness, from an in-memory list of the published season.
   - Bonus and reward packs are rows of the same table, outside the cap of ten.
   - The reveal is a browser animation. The server keeps no flip state.

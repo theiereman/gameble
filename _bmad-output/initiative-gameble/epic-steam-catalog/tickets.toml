@@ -104,3 +104,15 @@ covers = []
 after = [1, 2, 3, 4, 5, 6, 7, 8]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 10
+type = "story"
+title = "Import without the store API"
+description = "Removes the `genres` step and `Steam::StoreApi`: the tome genre becomes the most-voted tag among a curated list of about twenty genre tags (by tag id, from the weighted tags `GetItems` already returns in the details step), and the per-game credit (legal notice) is no longer imported; the card detail shows the publisher with a generic notice that the game and its image belong to their owners."
+verify = "A run on recorded `GetItems` answers makes no store API call, puts each game in the tome of its most-voted listed genre tag (none when it has none), and the card detail shows the publisher and the generic notice in both languages; the degraded local import of 1,000 games finishes in minutes."
+covers = ["R4", "R7"]
+after = [9, "4.3"]
+hitl = false
+risk = "medium"
+references = ["spec-gameble/catalog-and-rarity.md#sets", "spec-gameble/catalog-and-rarity.md#import"]

@@ -59,13 +59,13 @@ gameble is an open-source passion project, and the game its author wants to play
     - An empty slot names the missing game.
 - **CAP-7**
   - **intent:** A player can open a card's detail view to see the game and its credits.
-  - **success:** The detail view shows the title, short description, release year, rarity, minted season, sets, publisher and copyright, and a link to the game's Steam store page. Card text appears in the player's UI language. The description appears only in this view, not on the card.
+  - **success:** The detail view shows the title, short description, release year, rarity, minted season, sets, publisher, a notice that the game and its image belong to their owners, and a link to the game's Steam store page. Card text appears in the player's UI language. The description appears only in this view, not on the card.
 - **CAP-8**
   - **intent:** Each player has a public collection profile reachable by link.
-  - **success:** A logged-out visitor opening the profile link sees that player's collection and set progress.
+  - **success:** A logged-out visitor opening the profile link sees that player's collection and set progress, titled with the player's Steam persona name, refreshed at each sign-in.
 - **CAP-9**
   - **intent:** A player can share a pull as a link that previews nicely on Discord, X and WhatsApp.
-  - **success:** Pasting the link on each of the three platforms shows a preview with the card title and its rarity, and no game image.
+  - **success:** Pasting the link on each of the three platforms shows a preview with the card title and its rarity, and no image at all.
 - **CAP-10**
   - **intent:** Players can become friends through an invite link or a friend code.
   - **success:** Using a valid link or code creates a mutual friendship, visible to both players.
@@ -103,7 +103,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - Only staff accounts can reach the back-office. Moderators review reports and ban; administrators also run the catalog import and publish a season.
 - **CAP-16**
   - **intent:** A player who comes back gets a daily bonus.
-  - **success:** Once a day, a player can collect one small booster with better odds than a normal pack. A second collection the same day is refused, whatever the client does. The day changes at midnight UTC.
+  - **success:** Once a day, a player can collect one small booster of 3 cards with better odds than a normal pack (no common; emerald 70 %, sapphire 24 %, amethyst 5 %, legendary 1 %). A second collection the same day is refused, whatever the client does. The day changes at midnight UTC.
 - **CAP-17**
   - **intent:** A player has simple achievements that mark their progress.
   - **success:** An achievement is granted when its condition is met and shows as earned on the achievements screen.
@@ -124,6 +124,7 @@ gameble is an open-source passion project, and the game its author wants to play
 
 - **No real money**, anywhere: no purchases, no ads, no cash-out.
 - **French and English UI**, both complete at launch. Card text is available in every UI language. All repo text (code, comments, docs) is in English.
+- **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports.
 - **Cards are only pulled or traded.** Owning a game on Steam never grants its card.
 - **Card copies:** a player can own several copies of a card. Copies are counted per card and season, so each keeps the rarity and season it was minted with, and a V2 market and V3 seasons need no migration.
 - **Forkable engine:** the game engine (packs, rarity tiers, collection, trades, goals, feed) is independent of the catalog source. Steam is one adapter.
@@ -134,8 +135,8 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CI/CD ready:** one reproducible container image, run as web, jobs and import processes; configuration by environment variables only; automated tests in CI from day one.
 - **Separable processes:** the web app, the catalog importer and background workers are parts of one modular monolith that can be deployed separately.
 - **Pack opening:** p95 latency < 200 ms.
-- **Catalog source:** the Steam API, read only by offline import scripts that copy the data into gameble's database. Play never depends on a live Steam API call, and a card keeps its data if Steam changes or removes the game.
-- **Images:** loaded from Steam's CDN, never copied. They are pixelated and reduced to 16 colours in the browser, at display time. The publisher and copyright are shown, and the site terms state there is no affiliation with Steam or Valve. There is no fallback art.
+- **Catalog source:** the Steam Web API (keyed, batched), read only by offline import scripts; the keyless store API is not used that copy the data into gameble's database. Play never depends on a live Steam API call, and a card keeps its data if Steam changes or removes the game.
+- **Images:** loaded from Steam's CDN, never copied. They are pixelated and reduced to 16 colours in the browser, at display time. The publisher is shown with a notice that the game and its image belong to their owners, and the site terms state there is no affiliation with Steam or Valve. There is no fallback art.
 - **Look and behaviour** follow `DESIGN.md` and `EXPERIENCE.md`.
 - **Bots:** edge bot protection from day one; trades are limited to friends.
 - **Platforms:** responsive desktop and mobile web. Native store apps must remain possible later.
@@ -181,6 +182,6 @@ The author plays gameble every day for a month alongside at least 10 active play
 
 - **Prestige formula (CAP-3):** how do Steam review score and review count combine into the 5 tiers? This is calibrated on real import data.
 - **Achievements (CAP-17):** which achievements exist?
-- **Boosters (CAP-12, CAP-16):** what are the odds of the daily bonus booster and of the weekly goal's rare pack?
+- **Weekly goal pack (CAP-12):** what are the odds of the weekly goal's rare pack?
 - **Weekly goal (CAP-12):** how much does a trade count compared with a pack opening?
 - **Feed flooding (CAP-19):** with unlimited reposts, how does the global feed stay readable: grouping, a per-player cap in the global view, or nothing until measured?

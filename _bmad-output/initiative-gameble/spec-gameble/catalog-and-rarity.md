@@ -45,7 +45,7 @@ Referenced by CAP-2, CAP-3, CAP-4, CAP-6.
 A game can belong to several sets. Three kinds ship in the MVP:
 
 - **Publisher sets:** one set per publisher with at least 5 games in the catalog.
-- **Tomes:** each Steam store genre is split into volumes of about thirty games, ordered by release date. A game sits in one tome, by its first-listed genre.
+- **Tomes:** each genre is split into volumes of about thirty games, ordered by release date. The genres are a curated list of about twenty Steam genre tags kept in code (e.g. FPS, platformer, puzzle, horror, roguelike, souls-like, racing, strategy, RPG, survival). A game sits in one tome, that of its most-voted tag in the list; a game with none of them sits in no tome.
 - **Best rated of the year:** for each release year, the 10 catalog games with the highest review score.
 
 Sets built from Steam store tags come later.
@@ -54,9 +54,8 @@ Sets built from Steam store tags come later.
 
 - **Source:** the Steam API, read by offline import scripts, never at play time. An administrator starts a run by hand; its progress is visible in the back-office.
 - **Storage:** the scripts copy the catalog data into gameble's database, which is the reference at play time. Images are not copied; only their Steam CDN address is stored.
-- **Limits measured on 2026-10-02:**
-  - Store endpoints (`appdetails`, `appreviews`): about 200 requests per 5 minutes.
-  - Steam Web API: 100,000 calls per day per key. `IStoreService/GetAppList` lists the apps.
-- **Duration:** applying the 500-review filter needs a review count for every game on Steam, so a full pass may take hours to days. Importing text in each UI language adds requests. Measure early.
+- **Endpoints:** only the Steam Web API: `IStoreService/GetAppList` lists the apps, `IStoreService/GetTagList` names the tags, `IStoreBrowseService/GetItems` (100 apps a call) gives reviews, text, publishers, release date, weighted tags and assets. The keyless store API (`appdetails`, about 200 requests per 5 minutes) is not used: it alone made a full import last hours.
+- **Limit:** 100,000 Web API calls per day per key; a full import needs a few thousand.
+- **Duration:** every season re-imports every game, so rarity reflects current reviews; there is no incremental import. Measure the full run.
 - **Terms:** an API key is required and the Steam Web API terms of use apply.
-- **Delisted games:** the store API returns little for them. They are not curated in the MVP.
+- **Delisted games:** Steam returns little for them. They are not curated in the MVP.
