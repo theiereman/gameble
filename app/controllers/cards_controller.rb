@@ -6,15 +6,14 @@
 # who holds the card can share it (CAP-9): a link to their public profile
 # with this card-season shown first.
 class CardsController < ApplicationController
+  include CardDetailLoading
+
   # GET /:locale/cards/:slug and /:locale/cards/:slug/seasons/:number. An
   # unknown slug, or a card the season asked (the published one by default)
   # does not hold, is not found.
   def show
     authorize :page, :show?
-    number = request.path_parameters[:number]&.to_i
-    @detail = Catalog::CardDetail.call(slug: params[:slug], locale: I18n.locale, season_number: number)
-    raise ActiveRecord::RecordNotFound if @detail.nil?
-
+    load_card_detail
     id = @detail.card_season_id
     @copies = Game::Quantities.call(current_player, [ id ]).fetch(id, nil)
     @share_url = share_url if @copies && current_player

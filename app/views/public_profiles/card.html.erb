@@ -15,7 +15,7 @@
     tomes, only in the published season. %>
 <div class="shared-card">
   <%= render "cards/detail", detail: @detail, copies: nil, owner: owner_title, owner_holds: @owner_holds, share_url: nil,
-    set_url: (->(set) { brother_set_path(token, kind: set.kind, key: set.key) } if @detail.current_season) %>
+    set_url: ->(set) { brother_set_path(token, kind: set.kind, key: set.key) } %>
   <% unless current_player %>
     <section class="shared-card__invitation" aria-label="<%= t(".invitation") %>">
       <%= render TextPlateComponent.new(tag: :p) do %><%= t(".invitation") %><% end %>

@@ -4,4 +4,4 @@
     published season, the one the library shows. A holder can share it
     (CAP-9). %>
 <%= render "cards/detail", detail: @detail, copies: @copies, owner: nil, share_url: @share_url,
-  set_url: (->(set) { library_set_path(kind: set.kind, key: set.key) } if @detail.current_season) %>
+  set_url: ->(set) { library_set_path(kind: set.kind, key: set.key) } %>

@@ -1,8 +1,9 @@
 <%# An open tome (CAP-6; DESIGN.md, Empty slot): its name, the owner's
     owned / total, and its slots in order. An owned card shows its small face
     and, from two copies, their number; a missing one is an empty slot naming
-    its game. Each leads to its card's detail. The owner's data come as
-    locals, so another player's library renders it too:
+    its game. Each leads to its card's detail; a face's link is named by the
+    card's title, rarity and season, an empty slot's by its visible text. The
+    owner's data come as locals, so another player's library renders it too:
     - set: the set (kind, key, params), as Catalog::SetSlots answers it;
     - slots: { card_season_id => Catalog::CardView }, in slot order;
     - quantities: { card_season_id => copies } for the cards the owner holds
@@ -22,13 +23,13 @@
       <% copies = quantities.fetch(id, 0) %>
       <li class="open-tome__slot">
         <% if copies.positive? %>
-          <%= link_to_card_detail(card, strings) do %><%= render CardComponent.new(card:, strings:) %><% end %>
+          <%= link_to_card_detail(card, strings:) do %><%= render CardComponent.new(card:, strings:) %><% end %>
           <% if copies > 1 %>
             <span class="open-tome__copies" aria-hidden="true">×<%= copies %></span>
             <span class="visually-hidden"><%= t("library.tome.copies", count: copies) %></span>
           <% end %>
         <% else %>
-          <%= link_to_card_detail(card, strings) do %>
+          <%= link_to_card_detail(card) do %>
             <span class="slot">
               <span class="slot__title"><%= card.title %></span>
               <span class="slot__year"><%= card.year %></span>

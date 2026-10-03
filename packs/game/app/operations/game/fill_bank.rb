@@ -46,8 +46,7 @@ module Game
       # Rows keep their order, and insert_all! numbers them in that order:
       # the opening order (available_at, id) is the order of `draws`.
       Pack.insert_all!(FirstSessionGuarantee.apply(draws, pool:, random: @random).map do |cards|
-        { player_id: player.id, token: Pack.generate_unique_secure_token, kind: "regular", season_id: pool.season_id,
-          card_season_ids: cards, available_at: now }
+        Pack.row(player_id: player.id, kind: :regular, season_id: pool.season_id, card_season_ids: cards, available_at: now)
       end)
       Success()
     end

@@ -33,6 +33,13 @@ module Game
     # Unopened and available at `now`, the next one to open first.
     scope :available, ->(now = Time.current) { unopened.where(available_at: ..now).order(:available_at, :id) }
 
+    # The attributes of a new pack, with a fresh token: the one shape of the
+    # rows that Game::FillBank and Game::TopUpBank insert (insert_all!) and
+    # Game::CollectDailyBonus creates.
+    def self.row(player_id:, kind:, season_id:, card_season_ids:, available_at:)
+      { player_id:, token: generate_unique_secure_token, kind: kind.to_s, season_id:, card_season_ids:, available_at: }
+    end
+
     def opened?
       opened_at.present?
     end

@@ -5,8 +5,7 @@
     on a phone the tome alone, with a way back to the shelf. %>
 <section class="library library--open" aria-labelledby="library-heading">
   <div class="library__aside">
-    <%= render "library/shelf", kind: @kind, spines: @spines, pagy: @pagy, tab_url: ->(kind) { library_path(kind:) },
-      set_url: ->(kind, key, page) { library_set_path(kind:, key:, page:) }, current_set: @set %>
+    <%= render "library/shelf", kind: @kind, spines: @spines, pagy: @pagy, current_set: @set, **library_shelf_links %>
   </div>
   <div class="library__open">
     <%= link_to t(".back_to_shelf"), library_path(kind: @kind, page: @shelf_page), class: "library__back" %>

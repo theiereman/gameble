@@ -1,5 +1,6 @@
 require "test_helper"
 require_relative "../support/catalog_seeds"
+require_relative "../support/library_requests"
 
 # One set opened in the library (CAP-6, story 4.2): its heading and owned /
 # total, its slots in order, owned faces with their copies and empty slots
@@ -7,6 +8,7 @@ require_relative "../support/catalog_seeds"
 # sets that are not found; the queries of a request.
 class LibrarySetTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
+  include LibraryRequests
 
   setup do
     OmniAuth.config.test_mode = true
@@ -15,22 +17,6 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
   teardown do
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
-  end
-
-  def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
-    assert_equal player.id, session[:player_id]
-  end
-
-  def set_members(season, key)
-    set = Catalog::Set.find_by!(season_id: season.id, key:)
-    Catalog::SetMembership.where(set_id: set.id).order(:position, :id).pluck(:card_season_id)
-  end
-
-  def hold(player, card_season_id, quantity)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
   end
 
   def title(card_season_id, locale = "en")
@@ -94,6 +80,10 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
       links.map { |link| [ link["data-turbo-prefetch"], link.at_css(".card") ? ".card" : ".slot" ] }
     rarity = Catalog::CardViews.call([ members[3] ], locale: :en).fetch(members[3]).rarity
     assert_equal "#{title(members[3])}, #{I18n.t("catalog.rarity.#{rarity}", locale: :en)}, season #{season.number}", links[3]["aria-label"]
+    # A face's link is named by its label; an empty slot's by its visible
+    # text, so a screen reader says "Missing card".
+    assert_equal members.map { |id| id.in?([ members[0], members[3], members[24] ]) }, links.map { it["aria-label"].present? }
+    assert_equal "#{title(members[1])} #{year(members[1])} Missing card", links[1].text.squish
     assert_select "a.card-link .open-tome__copies", false
     assert_select "a.card-link + .open-tome__copies", "×2"
   end
@@ -224,21 +214,14 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     end
   end
 
-  # The test connection keeps its query cache from one request to the next,
-  # which a real request never inherits: it is emptied before counting.
-  def assert_request_queries(count, &request)
-    ActiveRecord::Base.connection.clear_query_cache
-    assert_queries_count(count, &request)
-  end
-
   test "a player's request costs nine queries, a visitor's six" do
     season = publish_sets_draft
     player = accounts_players(:player)
     hold(player, set_members(season, "action-1").first, 1)
     sign_in(player)
 
-    # Player lookup, published season, set slots, shelf count, shelf page,
-    # totals, progress, card views, quantities.
+    # Player lookup, published season, set slots, card views, quantities,
+    # shelf count, shelf page, totals, progress.
     assert_request_queries(9) { get library_set_path(locale: :en, kind: "tome", key: "action-1") }
     assert_response :success
 

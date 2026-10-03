@@ -7,6 +7,5 @@
   <% if current_player %>
     <%= link_to t(".public_profile"), brother_path(current_player.token), class: "library__profile", data: { turbo_prefetch: false } %>
   <% end %>
-  <%= render "library/shelf", kind: @kind, spines: @spines, pagy: @pagy, tab_url: ->(kind) { library_path(kind:) },
-    set_url: ->(kind, key, page) { library_set_path(kind:, key:, page:) }, current_set: nil %>
+  <%= render "library/shelf", kind: @kind, spines: @spines, pagy: @pagy, current_set: nil, **library_shelf_links %>
 </section>

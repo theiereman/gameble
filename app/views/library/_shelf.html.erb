@@ -1,7 +1,8 @@
 <%# A shelf of sets (CAP-6, CAP-8): the tabs, the tomes of one page with
     their name and owned / total, each opening its set, and the links to the
     other pages. The owner's data and paths come as locals, so another
-    player's library (the public profile) renders it too:
+    player's library (the public profile) renders it too; ShelvesHelper
+    builds the paths, tabs and mark_complete of each:
     - kind: the open tab, one of `tabs`;
     - spines: ShelfLoading::Spine list, nil when no season is published;
     - pagy: the page (nil without a season);

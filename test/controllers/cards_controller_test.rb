@@ -1,5 +1,6 @@
 require "test_helper"
 require_relative "../support/catalog_seeds"
+require_relative "../support/library_requests"
 
 # A card's detail page (CAP-7, story 4.3): every field in the viewer's
 # language, the viewer's copies, the sets leading to their tomes, the Steam
@@ -7,6 +8,7 @@ require_relative "../support/catalog_seeds"
 # request; no database id on the page.
 class CardsControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
+  include LibraryRequests
 
   setup do
     # A PUBLIC_URL exported in the shell would replace the request's base.
@@ -19,17 +21,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
     Rails.configuration.x.public_url = @public_url
-  end
-
-  def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
-    assert_equal player.id, session[:player_id]
-  end
-
-  def hold(player, card_season, quantity)
-    Game::Holding.create!(player_id: player.id, card_season_id: card_season.id, quantity:)
   end
 
   # A tome of the fixture season holding portal, beside its publisher set.
@@ -112,9 +103,9 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "a player sees how many copies they hold: two, one, or no line without any" do
     player = accounts_players(:player)
-    hold(player, catalog_card_seasons(:portal_one), 2)
-    hold(player, catalog_card_seasons(:gold_card_one), 1)
-    hold(player, catalog_card_seasons(:steel_card_one), 0)
+    hold(player, catalog_card_seasons(:portal_one).id, 2)
+    hold(player, catalog_card_seasons(:gold_card_one).id, 1)
+    hold(player, catalog_card_seasons(:steel_card_one).id, 0)
     sign_in(player)
 
     get card_path(locale: :en, slug: "portal")
@@ -134,7 +125,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a visitor opens the same page, without copies" do
-    hold(accounts_players(:player), catalog_card_seasons(:portal_one), 2)
+    hold(accounts_players(:player), catalog_card_seasons(:portal_one).id, 2)
 
     get card_path(locale: :en, slug: "portal")
 
@@ -192,7 +183,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "a holder gets the share block: a button, the season-qualified link of their profile, a status region" do
     player = accounts_players(:player)
-    hold(player, catalog_card_seasons(:portal_one), 1)
+    hold(player, catalog_card_seasons(:portal_one).id, 1)
     sign_in(player)
 
     get card_path(locale: :en, slug: "portal")
@@ -212,7 +203,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "the share link names the season of the card-season held, on the configured public base" do
     player = accounts_players(:player)
-    hold(player, catalog_card_seasons(:portal_one), 1)
+    hold(player, catalog_card_seasons(:portal_one).id, 1)
     publish_season_two_with_portal
     Rails.configuration.x.public_url = "https://gameble.example"
     host! "evil.example"
@@ -231,8 +222,8 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "no share block for a player without copies, nor for a visitor" do
     player = accounts_players(:player)
-    hold(player, catalog_card_seasons(:portal_one), 0)
-    hold(accounts_players(:moderator), catalog_card_seasons(:portal_one), 1)
+    hold(player, catalog_card_seasons(:portal_one).id, 0)
+    hold(accounts_players(:moderator), catalog_card_seasons(:portal_one).id, 1)
     sign_in(player)
 
     get card_path(locale: :en, slug: "portal")
@@ -244,16 +235,9 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-controller=share]", false
   end
 
-  # The test connection keeps its query cache from one request to the next,
-  # which a real request never inherits: it is emptied before counting.
-  def assert_request_queries(count, &request)
-    ActiveRecord::Base.connection.clear_query_cache
-    assert_queries_count(count, &request)
-  end
-
   test "a player's request costs four queries, a visitor's two" do
     player = accounts_players(:player)
-    hold(player, catalog_card_seasons(:portal_one), 2)
+    hold(player, catalog_card_seasons(:portal_one).id, 2)
     sign_in(player)
 
     # Player lookup, card detail, sets, quantities.
@@ -270,7 +254,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "no database id reaches the page" do
     player = accounts_players(:player)
-    hold(player, catalog_card_seasons(:portal_one), 2)
+    hold(player, catalog_card_seasons(:portal_one).id, 2)
     sign_in(player)
     ids = [ catalog_cards(:portal).id, catalog_card_seasons(:portal_one).id, catalog_seasons(:one).id, catalog_sets(:valve_one).id,
       catalog_card_texts(:portal_en).id, player.id ]

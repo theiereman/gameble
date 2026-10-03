@@ -17,6 +17,7 @@
 # and link-preview crawler gets them (public_read?).
 class PublicProfilesController < ApplicationController
   include ShelfLoading
+  include CardDetailLoading
 
   # The tab of the sets the owner has started, before the three kinds.
   STARTED = "started".freeze
@@ -41,19 +42,10 @@ class PublicProfilesController < ApplicationController
   # found.
   def set
     season = Catalog::PublishedSeason.call
-    raise ActiveRecord::RecordNotFound if season.nil?
-
-    slots = Catalog::SetSlots.call(season_id: season.id, kind: params[:kind], key: params[:key])
-    raise ActiveRecord::RecordNotFound if slots.nil?
-
-    @set = slots.set
+    load_set(season, owner: @owner)
     @kind = params[:tab] == STARTED ? STARTED : @set.kind
     @shelf_page = page_param if params[:page].present?
     load_shelf(shelf_relation(season), owner: @owner)
-
-    views = Catalog::CardViews.call(slots.card_season_ids, locale: I18n.locale)
-    @slots = slots.card_season_ids.each_with_object({}) { |id, ordered| ordered[id] = views[id] if views.key?(id) }
-    @quantities = Game::Quantities.call(@owner, @slots.keys)
   end
 
   # GET /:locale/brothers/:token/cards/:slug and
@@ -63,10 +55,7 @@ class PublicProfilesController < ApplicationController
   # (the published one by default) does not hold is not found; an owner who
   # no longer holds it is said so.
   def card
-    number = request.path_parameters[:number]&.to_i
-    @detail = Catalog::CardDetail.call(slug: params[:slug], locale: I18n.locale, season_number: number)
-    raise ActiveRecord::RecordNotFound if @detail.nil?
-
+    load_card_detail
     id = @detail.card_season_id
     @owner_holds = Game::Quantities.call(@owner, [ id ]).key?(id)
 

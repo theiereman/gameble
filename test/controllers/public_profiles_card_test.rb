@@ -1,5 +1,6 @@
 require "test_helper"
 require_relative "../support/catalog_seeds"
+require_relative "../support/library_requests"
 
 # A card shared from a player's collection (CAP-9, story 4.5): the owner's
 # profile with the card's detail first, the owner line (or "no longer
@@ -9,6 +10,7 @@ require_relative "../support/catalog_seeds"
 # page and the cards not found; the queries of a request; no database id.
 class PublicProfilesCardTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
+  include LibraryRequests
 
   # Discordbot, the old Firefox Discord also fetches with, Twitterbot,
   # WhatsApp and an iOS 16 Safari.
@@ -36,17 +38,6 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
     Rails.configuration.x.public_url = @public_url
   end
 
-  def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
-    assert_equal player.id, session[:player_id]
-  end
-
-  def hold(player, card_season, quantity)
-    Game::Holding.create!(player_id: player.id, card_season_id: card_season.id, quantity:)
-  end
-
   def card_page(locale: :en, slug: "blue-depths", number: nil, token: @owner.token)
     number ? brother_card_season_path(locale:, token:, slug:, number:) : brother_card_path(locale:, token:, slug:)
   end
@@ -60,7 +51,7 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
   def canonical = css_select("head link[rel=canonical]").sole["href"]
 
   test "a visitor sees the owner's profile with the card's detail first, the owner line and the invitation" do
-    hold(@owner, @sapphire, 1)
+    hold(@owner, @sapphire.id, 1)
 
     get card_page(number: 1)
 
@@ -81,7 +72,7 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
   end
 
   test "the preview tags: title and rarity, a fixed line, the season URL, en_US, a summary card, no image" do
-    hold(@owner, @sapphire, 1)
+    hold(@owner, @sapphire.id, 1)
 
     get card_page(number: 1)
 
@@ -104,7 +95,7 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
   end
 
   test "in French: the French title and rarity, fr_FR, the French URL" do
-    hold(@owner, @sapphire, 1)
+    hold(@owner, @sapphire.id, 1)
 
     get card_page(locale: :fr, number: 1)
 
@@ -118,7 +109,7 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
   end
 
   test "the season-less link shows the published season, its canonical the season form, without query" do
-    hold(@owner, catalog_card_seasons(:portal_one), 1)
+    hold(@owner, catalog_card_seasons(:portal_one).id, 1)
 
     get "#{card_page(slug: "portal")}?utm_source=discord"
 
@@ -130,7 +121,7 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
   end
 
   test "the card's sets lead to the owner's tomes" do
-    hold(@owner, catalog_card_seasons(:portal_one), 1)
+    hold(@owner, catalog_card_seasons(:portal_one).id, 1)
 
     get card_page(slug: "portal", number: 1)
 
@@ -139,7 +130,7 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
   end
 
   test "an owner who no longer holds the card: the detail says so, 200" do
-    hold(@owner, @sapphire, 0)
+    hold(@owner, @sapphire.id, 0)
 
     get card_page(number: 1)
 
@@ -154,9 +145,9 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
   end
 
   test "a signed-in viewer, the owner or not: the detail and owner line, no invitation, no share button, no copies" do
-    hold(@owner, @sapphire, 2)
+    hold(@owner, @sapphire.id, 2)
     viewer = accounts_players(:moderator)
-    hold(viewer, @sapphire, 3)
+    hold(viewer, @sapphire.id, 3)
 
     [ viewer, @owner ].each do |player|
       sign_in(player)
@@ -173,7 +164,7 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
   end
 
   test "a visitor signing in from the invitation lands in the attic" do
-    hold(@owner, @sapphire, 1)
+    hold(@owner, @sapphire.id, 1)
     get card_page(number: 1)
     form = css_select(".shared-card__invitation form").sole
     origin = form.at_css("input[name=origin]")["value"]
@@ -189,9 +180,9 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
   end
 
   test "an unknown token or a banned owner shows the unavailable page, even with a bad slug" do
-    hold(@owner, @sapphire, 1)
+    hold(@owner, @sapphire.id, 1)
     banned = accounts_players(:banned)
-    hold(banned, @sapphire, 1)
+    hold(banned, @sapphire.id, 1)
 
     [ card_page(token: "A" * 24), card_page(token: banned.token, number: 1), card_page(token: banned.token, slug: "nope"),
       card_page(token: banned.token, slug: "nope", number: 7) ].each do |path|
@@ -202,7 +193,7 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
   end
 
   test "an unknown slug, a numeric slug, a card id or an unknown season is not found" do
-    hold(@owner, @sapphire, 1)
+    hold(@owner, @sapphire.id, 1)
     token = @owner.token
 
     [ "/en/brothers/#{token}/cards/nope", "/en/brothers/#{token}/cards/123", "/en/brothers/#{token}/cards/#{catalog_cards(:sapphire_card).id}",
@@ -215,7 +206,7 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
   end
 
   test "a season number in the query string is ignored" do
-    hold(@owner, @sapphire, 1)
+    hold(@owner, @sapphire.id, 1)
 
     get "#{card_page}?number=7"
 
@@ -224,7 +215,7 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
   end
 
   test "the absolute URLs come from the configured base, never from a spoofed Host" do
-    hold(@owner, @sapphire, 1)
+    hold(@owner, @sapphire.id, 1)
     Rails.configuration.x.public_url = "https://gameble.example"
     host! "evil.example"
 
@@ -238,7 +229,7 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
 
   USER_AGENTS.each do |name, user_agent|
     test "#{name} gets the page with its tags" do
-      hold(@owner, @sapphire, 1)
+      hold(@owner, @sapphire.id, 1)
 
       get card_page(number: 1), headers: { "User-Agent" => user_agent }
 
@@ -255,15 +246,8 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  # The test connection keeps its query cache from one request to the next,
-  # which a real request never inherits: it is emptied before counting.
-  def assert_request_queries(count, &request)
-    ActiveRecord::Base.connection.clear_query_cache
-    assert_queries_count(count, &request)
-  end
-
   test "a visitor's shared card costs ten queries, a signed-in viewer's one more" do
-    hold(@owner, catalog_card_seasons(:portal_one), 1)
+    hold(@owner, catalog_card_seasons(:portal_one).id, 1)
 
     # Owner by token, card detail, its sets, the owner's quantity, published
     # season, shelf count, shelf page, totals, progress, summary.
@@ -278,7 +262,7 @@ class PublicProfilesCardTest < ActionDispatch::IntegrationTest
   end
 
   test "no database id reaches the page; the token only in URLs" do
-    hold(@owner, @sapphire, 2)
+    hold(@owner, @sapphire.id, 2)
     ids = [ @owner.id, @sapphire.id, catalog_cards(:sapphire_card).id, catalog_seasons(:one).id, catalog_sets(:valve_one).id ]
 
     get card_page(number: 1)
