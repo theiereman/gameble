@@ -18,6 +18,7 @@ export type PackRevealStrings = {
   cards: string
   flipAll: string
   next: string
+  previous: string
   /** "Card n of N", by position. */
   progress: string[]
   /** Said once flip all is over. */
@@ -80,6 +81,8 @@ export default function PackReveal({ cards, cardStrings, strings, openPackUrl, a
   const [current, setCurrent] = useState(0)
   const phoneRef = useRef(phone)
   phoneRef.current = phone
+  const currentRef = useRef(current)
+  currentRef.current = current
 
   // The live region: announcements are appended, a new node each, so one
   // never replaces another before it is spoken (a tap wipes then flips at
@@ -120,6 +123,24 @@ export default function PackReveal({ cards, cardStrings, strings, openPackUrl, a
     announce(cards[index].title)
   }
 
+  // Phone: "next" and "previous" move focus to the new card, which wipes it.
+  const shownCard = useRef<HTMLButtonElement>(null)
+  const cardList = useRef<HTMLOListElement>(null)
+  const focusShown = useRef(false)
+  useEffect(() => {
+    if (!focusShown.current) return
+    focusShown.current = false
+    shownCard.current?.focus()
+  }, [current, phone])
+
+  // Phone, flip all: the shown card leaves the page; its focus, if it had
+  // it, goes to the new one rather than to the body.
+  const showCard = (index: number) => {
+    if (index === currentRef.current) return
+    if (cardList.current?.contains(document.activeElement)) focusShown.current = true
+    setCurrent(index)
+  }
+
   // Flip all: the rest, quickly, a gold card held its full length; input is
   // ignored while it runs, and its timers go with the island.
   const cancelFlipAll = useRef<(() => void) | null>(null)
@@ -138,26 +159,18 @@ export default function PackReveal({ cards, cardStrings, strings, openPackUrl, a
       onStep: ({ index, mode }) => {
         flipCard(index, mode)
         // On a phone the view moves to each gold card and holds it.
-        if (phoneRef.current && cards[index].rarity === "gold") setCurrent(index)
+        if (phoneRef.current && cards[index].rarity === "gold") showCard(index)
       },
       onEnd: () => {
         cancelFlipAll.current = null
         runningRef.current = false
         setRunning(false)
-        if (phoneRef.current) setCurrent(last)
+        // Then back to the first card it turned, to step through the rest.
+        if (phoneRef.current) showCard(plan.steps[0].index)
         announce(strings.allFlipped)
       },
     })
   }
-
-  // Phone: "next" moves focus to the new card, which wipes it.
-  const shownCard = useRef<HTMLButtonElement>(null)
-  const focusShown = useRef(false)
-  useEffect(() => {
-    if (!focusShown.current) return
-    focusShown.current = false
-    shownCard.current?.focus()
-  }, [current, phone])
 
   // Crossing into the phone layout shows the focused card, keeping its focus,
   // else the first card not yet flipped. Decided while rendering, before the
@@ -181,6 +194,11 @@ export default function PackReveal({ cards, cardStrings, strings, openPackUrl, a
   const next = () => {
     focusShown.current = true
     setCurrent((index) => Math.min(index + 1, last))
+  }
+
+  const previous = () => {
+    focusShown.current = true
+    setCurrent((index) => Math.max(index - 1, 0))
   }
 
   const allFlipped = items.every((item) => item.state === "flipped")
@@ -209,7 +227,7 @@ export default function PackReveal({ cards, cardStrings, strings, openPackUrl, a
         )}
       </div>
 
-      <ol className="pack-reveal__cards" aria-label={strings.cards}>
+      <ol className="pack-reveal__cards" aria-label={strings.cards} ref={cardList}>
         {shown.map((index) => (
           <li className="pack-reveal__item" key={index} value={index + 1}>
             <RevealCard
@@ -226,11 +244,18 @@ export default function PackReveal({ cards, cardStrings, strings, openPackUrl, a
         ))}
       </ol>
 
-      {phone && !running && current < last && items[current].state === "flipped" && (
-        <div className="pack-reveal__next">
-          <button type="button" className="button button--secondary" onClick={next}>
-            {strings.next}
-          </button>
+      {phone && !running && (current > 0 || (current < last && items[current].state === "flipped")) && (
+        <div className="pack-reveal__nav">
+          {current > 0 && (
+            <button type="button" className="button button--secondary" onClick={previous}>
+              {strings.previous}
+            </button>
+          )}
+          {current < last && items[current].state === "flipped" && (
+            <button type="button" className="button button--secondary" onClick={next}>
+              {strings.next}
+            </button>
+          )}
         </div>
       )}
 

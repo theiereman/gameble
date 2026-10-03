@@ -46,7 +46,7 @@ class PacksController < ApplicationController
         cards: @cards.map(&:to_props),
         cardStrings: @strings.to_props,
         strings: {
-          cards: t("packs.show.cards"), flipAll: t("packs.show.flip_all"), next: t("packs.show.next"), allFlipped: t("packs.show.all_flipped"),
+          cards: t("packs.show.cards"), flipAll: t("packs.show.flip_all"), next: t("packs.show.next"), previous: t("packs.show.previous"), allFlipped: t("packs.show.all_flipped"),
           progress: (1..@cards.size).map { |position| t("packs.show.progress", position:, count: @cards.size) },
           openNextPack: t("packs.show.open_next_pack"), backToAttic: t("packs.show.back_to_attic"),
           failed: t("packs.show.failed"), reload: t("packs.show.reload")

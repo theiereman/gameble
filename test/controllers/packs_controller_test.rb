@@ -69,6 +69,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal pack.card_season_ids.map { |id| views.fetch(id).to_props.as_json }, props["cards"]
     assert_equal CardStrings.for(views.values).to_props.as_json, props["cardStrings"]
     assert_equal "Flip all", props.dig("strings", "flipAll")
+    assert_equal "Previous card", props.dig("strings", "previous")
     assert_equal (1..5).map { |n| "Card #{n} of 5" }, props.dig("strings", "progress")
     assert_equal "/en/packs", props["openPackUrl"]
     assert_equal "/en", props["atticUrl"]
@@ -120,6 +121,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Couronne d'or" ] * 5, props["cards"].map { it["title"] }
     assert_equal [ "golden-crown" ] * 5, props["cards"].map { it["id"] }
     assert_equal "Tout retourner", props.dig("strings", "flipAll")
+    assert_equal "Carte précédente", props.dig("strings", "previous")
     assert_equal "Carte 1 sur 5", props.dig("strings", "progress").first
   end
 

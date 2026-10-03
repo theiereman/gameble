@@ -192,6 +192,7 @@ fr:
       cards: "Les cartes de ton paquet"
       flip_all: "Tout retourner"
       next: "Carte suivante"
+      previous: "Carte précédente"
       progress: "Carte %{position} sur %{count}"
       all_flipped: "Toutes les cartes sont retournées, Confrère."
       open_next_pack: "Ouvrir le paquet suivant"

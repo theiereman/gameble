@@ -21,7 +21,7 @@
 }
 
 .pack-reveal__controls,
-.pack-reveal__next {
+.pack-reveal__nav {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -29,7 +29,7 @@
 }
 
 .pack-reveal__controls .button,
-.pack-reveal__next .button {
+.pack-reveal__nav .button {
   margin: 0;
 }
 
@@ -66,7 +66,7 @@
 
 .pack-reveal--phone .pack-reveal__controls,
 .pack-reveal--phone .pack-reveal__cards,
-.pack-reveal--phone .pack-reveal__next {
+.pack-reveal--phone .pack-reveal__nav {
   justify-content: center;
 }
 
