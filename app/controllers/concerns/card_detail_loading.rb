@@ -1,7 +1,7 @@
-# A card's detail for a controller that shows one (CAP-7, CAP-9): the card's
-# own page and a card shared from a player's collection. The card is
-# addressed by its slug, and by its season's number for a card-season other
-# than the published season's (AD-15).
+# A card's detail for a controller that shows one (CAP-7): the card's own
+# page, which a share link also opens (CAP-9). The card is addressed by its
+# slug, and by its season's number for a card-season other than the
+# published season's (AD-15).
 module CardDetailLoading
   extend ActiveSupport::Concern
 

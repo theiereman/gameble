@@ -194,6 +194,33 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "#{missing.title} #{missing.year} Missing card", links[1].text.squish
   end
 
+  test "a face of a profile tome leads to the card's own page, which an older browser opens, and its sets to the library" do
+    season = publish_sets_draft
+    members = set_members(season, "p")
+    hold(@owner, members.first, 1)
+    view = Catalog::CardViews.call([ members.first ], locale: :en).fetch(members.first)
+    old = { "User-Agent" => "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1" }
+
+    get brother_set_path(locale: :en, token: @owner.token, kind: "publisher", key: "p", page: 1), headers: old
+    assert_response :success
+    href = css_select(".open-tome__slots > li > a.card-link").first["href"]
+    assert_equal "/en/cards/#{view.id}/seasons/#{season.number}", href
+
+    get href, headers: old
+    assert_response :success
+    assert_select ".card-detail h1", view.title
+    assert_not_includes response.body, "Gabe the Brave"
+    set_link = css_select(".card-detail__sets a").find { it.text == "P" }["href"]
+    assert_equal "/en/library/publisher/p", set_link
+
+    get set_link, headers: old
+    assert_response :success
+    assert_select ".open-tome__heading", "P"
+
+    get home_path(locale: :en), headers: old
+    assert_response :not_acceptable
+  end
+
   test "a tome opened from the Started shelf keeps the Started shelf beside it" do
     season = publish_sets_draft
     hold(@owner, set_members(season, "p").first, 1)
@@ -303,6 +330,29 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get brother_set_path(locale: :fr, token: @owner.token, kind: "publisher", key: "p")
     assert_select "a.profile__owner", "La bibliothèque de Confrère #{code}"
+  end
+
+  [ "\u200B", "\u202E\u2066", "\u3164", "\u3000 \u2800" ].each do |name|
+    test "a stored persona name of #{name.inspect}, nothing visible, falls back to Brother <code>" do
+      publish_sets_draft
+      @owner.update_columns(persona_name: name)
+      code = Accounts::PublicProfile.code(@owner.token)
+
+      get brother_path(locale: :en, token: @owner.token)
+
+      assert_select "title", "Brother #{code}"
+      assert_select "h1", "Brother #{code}"
+    end
+  end
+
+  test "a stored persona name is shown cleaned of its invisible characters" do
+    publish_sets_draft
+    @owner.update_columns(persona_name: "\u202EGa\u200Bbe\u3000the Brave")
+
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_select "h1", "Gabe the Brave"
+    assert_no_match(/\u202E|\u200B/, response.body)
   end
 
   test "the persona name is escaped as user content" do

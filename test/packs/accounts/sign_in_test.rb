@@ -142,6 +142,31 @@ class Accounts::SignInTest < ActiveSupport::TestCase
     assert_equal "Gabe", result.value!.reload.persona_name
   end
 
+  # Invisible characters (story 4.7, retrospective B4).
+
+  [ "\u200B\u202E", "\u3164", "\u2066 \u3000" ].each do |name|
+    test "a first sign-in with a persona name of #{name.inspect}, nothing visible, stores none" do
+      result = Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: name)
+
+      assert result.success?
+      assert_nil result.value!.reload.persona_name
+    end
+
+    test "a later sign-in with a persona name of #{name.inspect} keeps the stored one" do
+      Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: "Gabe")
+
+      assert_equal "Gabe", Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: name).value!.reload.persona_name
+    end
+  end
+
+  { "Ga\u200Bbe" => "Gabe", "\u202Egabe" => "gabe", "A\u3000B" => "A B" }.each do |name, stored|
+    test "a persona name of #{name.inspect} is stored as #{stored.inspect}" do
+      player = Accounts::SignIn.new.call(steam_id: STEAM_ID, persona_name: name).value!
+
+      assert_equal stored, player.reload.persona_name
+    end
+  end
+
   test "a banned player's name is not stored" do
     banned = accounts_players(:banned)
 

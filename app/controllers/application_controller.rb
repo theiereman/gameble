@@ -2,8 +2,9 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
 
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  # Pages meant to be read from a shared link (public_read?) are open to any
-  # browser, so link previews (Discord, X, WhatsApp) and older browsers get them.
+  # Pages meant to be read from a shared link (the PublicRead concern's
+  # public_read?) are open to any browser, so link previews (Discord, X,
+  # WhatsApp) and older browsers get them.
   allow_browser versions: :modern, unless: :public_read?
 
   around_action :switch_locale
@@ -19,7 +20,8 @@ class ApplicationController < ActionController::Base
 
   private
     # Whether this request reads a page meant to be opened from a shared
-    # link, by any browser or link-preview crawler. None by default.
+    # link, by any browser or link-preview crawler. None by default; the
+    # PublicRead concern opens a controller's GET and HEAD requests.
     def public_read?
       false
     end

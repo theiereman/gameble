@@ -4,5 +4,4 @@
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
 <%# A player's public profile (CAP-8): their name, what their collection
     counts, and their library, open on the sets they have started. %>
-<%= render "public_profiles/profile", owner: @owner, title:, summary: @summary, kind: @kind, spines: @spines, pagy: @pagy,
-  heading: :h1 %>
+<%= render "public_profiles/profile", owner: @owner, title:, summary: @summary, kind: @kind, spines: @spines, pagy: @pagy %>

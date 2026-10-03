@@ -1,11 +1,11 @@
-<%# What a link preview (Discord, X, WhatsApp) reads of a shared card
-    (CAP-9): its title and rarity, a fixed invitation line, in the URL's
-    language, and never an image (no og:image, twitter:image or image_src:
-    the game's art is not ours to show). The page stays out of search
-    engines.
-    - title: the card's title and rarity (shared_card_title);
+<%# What a link preview (Discord, X, WhatsApp) reads of a card's page, the
+    form a share link takes (CAP-9): its title and rarity, a fixed
+    invitation line, in the URL's language, and never an image (no
+    og:image, twitter:image or image_src: the game's art is not ours to
+    show), nor who shared or holds it. The page stays out of search engines.
+    - title: the card's title and rarity (card_preview_title);
     - url: the page's absolute, season-qualified URL, without query. %>
-<% description = t("public_profiles.card.og_description") %>
+<% description = t("card_details.preview.description") %>
 <meta name="robots" content="noindex">
 <%= tag.meta name: "description", content: description %>
 <%= tag.link rel: "canonical", href: url %>

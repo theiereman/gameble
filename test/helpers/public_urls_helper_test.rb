@@ -17,7 +17,7 @@ class PublicUrlsHelperTest < ActionView::TestCase
     Rails.configuration.x.public_url = "https://gameble.example"
     request.host = "evil.example"
 
-    assert_equal "https://gameble.example/en/brothers/x", public_url_for("/en/brothers/x")
+    assert_equal "https://gameble.example/en/cards/portal/seasons/1", public_url_for("/en/cards/portal/seasons/1")
   end
 
   test "without a configured base, the request's base outside production" do

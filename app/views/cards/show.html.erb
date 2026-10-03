@@ -1,7 +1,20 @@
+<% view = @detail.view %>
+<% title = card_preview_title(view) %>
 <% content_for :back_button, true %>
-<% content_for :title, @detail.view.title %>
-<%# A card's detail (CAP-7). Its sets lead to their tomes only in the
-    published season, the one the library shows. A holder can share it
-    (CAP-9). %>
-<%= render "cards/detail", detail: @detail, copies: @copies, owner: nil, share_url: @share_url,
+<% content_for :title, title %>
+<% content_for :head do %>
+  <%= render "cards/share_tags", title:, url: card_public_url(view) %>
+<% end %>
+<%# A card's detail (CAP-7), also the page a share link opens (CAP-9;
+    EXPERIENCE Flow 1): only the card, never who shared or holds it. Its
+    sets lead to their tomes only in the published season, the one the
+    library shows. A holder can share it; a visitor is invited to play. %>
+<%= render "cards/detail", detail: @detail, copies: @copies, share_url: @share_url,
   set_url: ->(set) { library_set_path(kind: set.kind, key: set.key) } %>
+<% unless current_player %>
+  <section class="card-detail__invitation" aria-label="<%= t(".invitation") %>">
+    <%= render TextPlateComponent.new(tag: :p) do %><%= t(".invitation") %><% end %>
+    <%# Signing in from here lands in the attic, where the packs wait. %>
+    <%= render ButtonComponent.new(href: "/auth/steam", method: :post, params: { origin: home_path }, turbo: false) do %><%= t(".sign_in") %><% end %>
+  </section>
+<% end %>

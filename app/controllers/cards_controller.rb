@@ -3,9 +3,13 @@
 # open to a visitor (CAP-18). The card is addressed by its slug, and by its
 # season's number for a card-season other than the published season's
 # (AD-15); Catalog answers the card and its sets, Game the copies. A viewer
-# who holds the card can share it (CAP-9): a link to their public profile
-# with this card-season shown first.
+# who holds the card can share it (CAP-9): the link is this card-season's
+# own page, which carries the preview tags and, for a visitor, an
+# invitation to play; it shows only the card, never who shared or holds it
+# (spec CAP-9, 2026-10-03). Read from shared links, it is open to any
+# browser and link-preview crawler (PublicRead).
 class CardsController < ApplicationController
+  include PublicRead
   include CardDetailLoading
 
   # GET /:locale/cards/:slug and /:locale/cards/:slug/seasons/:number. An
@@ -20,10 +24,9 @@ class CardsController < ApplicationController
   end
 
   private
-    # The absolute link to this card-season on the viewer's public profile,
-    # always season-qualified, on the configured public base.
+    # The absolute link to this card-season's page, always season-qualified,
+    # on the configured public base; nothing in it names the viewer.
     def share_url
-      view = @detail.view
-      helpers.public_url_for(brother_card_season_path(current_player.token, slug: view.id, number: view.season_number))
+      helpers.card_public_url(@detail.view)
     end
 end

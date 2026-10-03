@@ -2,14 +2,18 @@ require "application_system_test_case"
 require_relative "../support/steam_api_stubs"
 
 # Sharing a card (CAP-9, story 4.5; EXPERIENCE Flow 1): a holder copies the
-# link from the card's detail; a visitor opens it and sees the holder's
-# profile with the card first, then signs in from the invitation and lands
-# in the attic. Where the clipboard cannot be written (plain HTTP), the link
-# is selected and copied by execCommand, or the player is told to copy it.
+# link from the card's detail, the card-season's own page; a visitor opens
+# it and sees only the card, never who shared it, then signs in from the
+# invitation and lands in the attic. Where the clipboard cannot be written
+# (plain HTTP), the link is selected and copied by execCommand, or the
+# player is told to copy it.
 class ShareCardTest < ApplicationSystemTestCase
   include SteamApiStubs
 
   setup do
+    # A PUBLIC_URL exported in the shell would replace the server's base.
+    @public_url = Rails.configuration.x.public_url
+    Rails.configuration.x.public_url = nil
     stub_steam_api
     @holder = accounts_players(:player)
     stub_player_summary(@holder.steam_id, "Gabe the Brave")
@@ -21,6 +25,7 @@ class ShareCardTest < ApplicationSystemTestCase
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
     unstub_steam_api
+    Rails.configuration.x.public_url = @public_url
   end
 
   def sign_in(player)
@@ -69,7 +74,7 @@ class ShareCardTest < ApplicationSystemTestCase
     assert_selector ".card-detail__share [role=status]", text: "Link copied"
     url = evaluate_script("window.copiedText")
     assert_equal find(".card-detail__share-url").value, url
-    assert_match %r{\Ahttp://[^/]+/en/brothers/#{@holder.token}/cards/portal/seasons/1\z}, url
+    assert_match %r{\Ahttp://[^/]+/en/cards/portal/seasons/1\z}, url
     take_screenshot
 
     click_on "Stand down"
@@ -77,15 +82,17 @@ class ShareCardTest < ApplicationSystemTestCase
     visit url
 
     assert_title "Portal — Amethyst"
-    assert_selector ".shared-card > .card-detail h1", text: "Portal"
-    assert_selector ".card-detail__owner", text: "From the collection of Gabe the Brave"
+    assert_selector "main > .card-detail h1", text: "Portal"
+    assert_selector ".card-detail__invitation", text: "Ten packs wait in the attic"
     assert_no_selector ".card-detail__share"
-    assert_selector ".library.profile h2", text: "Gabe the Brave"
+    assert_no_selector ".card-detail__copies"
+    assert_no_selector ".library"
+    assert_no_text "Gabe the Brave"
     take_screenshot
 
     newcomer = accounts_players(:moderator)
     OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{newcomer.steam_id}")
-    within(".shared-card__invitation") { click_on "Claim them through Steam" }
+    within(".card-detail__invitation") { click_on "Claim them through Steam" }
 
     assert_button "Stand down"
     assert_current_path "/en"

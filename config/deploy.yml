@@ -66,8 +66,11 @@ env:
     # The PostgreSQL accessory below, reached over Kamal's docker network.
     DB_HOST: gameble-db
 
-    # The public base of shared links (CAP-9): the test LXC's address for
-    # now; the public HTTPS host once one exists.
+    # The public base of shared links (CAP-9), required: production refuses
+    # to boot without it or with a malformed one (checked at boot by
+    # config/initializers/public_url.rb; test/config/public_url_test.rb pins
+    # it here). The test LXC's address for now; the public HTTPS host once
+    # one exists.
     PUBLIC_URL: http://192.168.1.6
 
     # Log everything from Rails
