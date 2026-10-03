@@ -15,7 +15,7 @@
       or nil (the default) for no share button. %>
 <% owner_holds = local_assigns.fetch(:owner_holds, true) %>
 <% share_url = local_assigns.fetch(:share_url, nil) %>
-<% set_url = nil unless detail.current_season %>
+<% set_url = detail.current_season ? local_assigns.fetch(:set_url) : nil %>
 <% view = detail.view %>
 <% strings = CardStrings.for([ view ]) %>
 <article class="card-detail" aria-labelledby="card-detail-heading">
