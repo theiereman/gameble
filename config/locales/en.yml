@@ -227,6 +227,19 @@ en:
     create:
       collected: "The daily booster is in the chest, Brother. Open it when you will."
       throttled: "Easy, Brother. The bonus will not run away; try again in a minute."
+  card_details:
+    open: "%{title}, %{rarity}, season %{season}"
+    year: "Released"
+    rarity: "Rarity"
+    season: "Season"
+    sets: "Sets"
+    publisher: "Publisher"
+    credit: "Copyright"
+    owner: "From the collection of %{owner}"
+    copies:
+      one: "You hold %{count} copy"
+      other: "You hold %{count} copies"
+    store: "See it on the Steam store"
   cards:
     face_down: "Face-down card"
     face_down_with_rarity: "Face-down card, %{rarity}"

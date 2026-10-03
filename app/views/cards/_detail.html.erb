@@ -1,0 +1,58 @@
+<%# A card's detail (CAP-7; DESIGN.md: a parchment panel): its large face
+    and, beside it, what the card itself does not carry. Rows without a value
+    are left out. The description appears here only, never on the face. The
+    owner's data come as locals, so a shared card renders it too:
+    - detail: a Catalog::CardDetail::Detail;
+    - copies: how many copies of it the viewer holds, or nil for no line;
+    - owner: the name of the collection it is shown from, or nil for no line;
+    - set_url: ->(set) { path } leading each set to its tome, or nil for the
+      sets' names alone. %>
+<% view = detail.view %>
+<% strings = CardStrings.for([ view ]) %>
+<article class="card-detail" aria-labelledby="card-detail-heading">
+  <div class="card-detail__face">
+    <%= render CardComponent.new(card: view, strings:, size: :large) %>
+  </div>
+  <div class="card-detail__body">
+    <h1 id="card-detail-heading" class="card-detail__title"><%= view.title %></h1>
+    <% if owner %>
+      <p class="card-detail__owner"><%= t("card_details.owner", owner:) %></p>
+    <% end %>
+    <% if detail.short_description %>
+      <p class="card-detail__description"><%= detail.short_description %></p>
+    <% end %>
+    <dl class="card-detail__fields">
+      <dt><%= t("card_details.year") %></dt>
+      <dd><%= view.year %></dd>
+      <dt><%= t("card_details.rarity") %></dt>
+      <dd><%= strings.rarity_name(view.rarity) %></dd>
+      <dt><%= t("card_details.season") %></dt>
+      <dd><%= view.season_number %></dd>
+      <% if detail.sets.any? %>
+        <dt><%= t("card_details.sets") %></dt>
+        <dd>
+          <ul class="card-detail__sets">
+            <% detail.sets.each do |set| %>
+              <li><%= set_url ? link_to(SetLabel.for(set), set_url.call(set)) : SetLabel.for(set) %></li>
+            <% end %>
+          </ul>
+        </dd>
+      <% end %>
+      <% if detail.publisher %>
+        <dt><%= t("card_details.publisher") %></dt>
+        <dd><%= detail.publisher %></dd>
+      <% end %>
+      <% if detail.credit %>
+        <dt><%= t("card_details.credit") %></dt>
+        <dd class="card-detail__credit"><%= detail.credit %></dd>
+      <% end %>
+    </dl>
+    <% if copies %>
+      <p class="card-detail__copies"><%= t("card_details.copies", count: copies) %></p>
+    <% end %>
+    <p class="card-detail__store">
+      <%= link_to t("card_details.store"), card_detail_store_url(detail.store_url), class: "button button--secondary",
+        rel: "noopener noreferrer external", target: "_blank" %>
+    </p>
+  </div>
+</article>

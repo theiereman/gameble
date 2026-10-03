@@ -82,6 +82,10 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_not_equal "no-store", response.headers["Cache-Control"]
     assert_select "meta[name=turbo-cache-control]", 0
     assert_equal pack.card_season_ids.map { |id| views.fetch(id).title }, css_select(".pack-result__card .card--face .card__title").map(&:text)
+    # Each face leads to its card's detail, in its season.
+    assert_equal pack.card_season_ids.map { |id| "/en/cards/#{views.fetch(id).id}/seasons/1" },
+      css_select(".pack-result__card > a.card-link").map { it["href"] }
+    assert_select ".pack-result__card > a.card-link[data-turbo-prefetch=false] > .card--face", 5
     assert_equal [ "Open the next pack", "Back to the attic" ], end_buttons
 
     get home_path(locale: :en)
@@ -99,6 +103,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Ton paquet, Confrère"
     assert_equal [ "Couronne d'or" ] * 5, css_select(".card__title").map(&:text)
     assert_equal [ "Or" ] * 5, css_select(".card--face .card__plate > .visually-hidden").map(&:text)
+    assert_equal [ "Couronne d'or, Or, saison 1" ] * 5, css_select(".pack-result__card > a.card-link").map { it["aria-label"] }
+    assert_equal [ "/fr/cards/golden-crown/seasons/1" ] * 5, css_select(".pack-result__card > a.card-link").map { it["href"] }
   end
 
   test "the reveal of a pack whose card appears five times keeps the five, in French" do
