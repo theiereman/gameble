@@ -1,30 +1,8 @@
 <!DOCTYPE html>
-<!--
-  UX Design Validation Report — skeleton template.
-
-  This file is a starter the synthesis pass fills in directly. There is no
-  substitution engine. The LLM:
-    1. Reads {doc_workspace}/review-rubric.md and every review-{lens}.md from
-       additional reviewers.
-    2. Copies this skeleton.
-    3. Replaces the placeholder content (everything between TEMPLATE markers)
-       with the consolidated review, preserving the structure and CSS.
-    4. Writes the result to {doc_workspace}/validation-report.html.
-    5. Writes a markdown twin to {doc_workspace}/validation-report.md.
-
-  Visual rules the LLM must preserve:
-    - The container width, the color tokens, the typography.
-    - One dimension = one collapsible <section class="dimension">.
-    - Verdict pill uses the verdict-* class matching its judgment.
-    - Severity badge uses the badge-sev-* class matching its level.
-    - Each extra reviewer (accessibility, adversarial, etc.) gets its own
-      collapsible section below the rubric dimensions.
-    - The footer always shows the artifact paths and timestamp.
--->
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>UX Design Validation: TEMPLATE_UX_SPEC_NAME</title>
+<title>UX Design Validation: gameble</title>
 <style>
   :root {
     --bg: #fafaf9;
@@ -205,18 +183,1432 @@
 </head>
 <body>
   <div class="container">
-<header class="report-header"><div class="title"><h1>gameble — UX Design Validation Report</h1><div class="subtitle">_bmad-output/initiative-gameble/ux-gameble/</div></div></header>
-<div class="synthesis"><p>The spine pair is a usable contract for the card, the attic, the pack reveal, the library and trades: decisions are committed, tokens resolve and each key screen has a mock. Its weak point is upstream: the spec still describes the earlier design and must adopt these files. Three areas remain thin and are flagged: how friends are made, what the achievements are, and the card detail view.</p><p>Findings: 0 critical, 1 high, 4 medium, 7 low.</p></div>
-<div class="dimension-summary"><div class="dim-card"><div class="dim-name">Flow coverage</div><div class="dim-verdict">adequate</div></div><div class="dim-card"><div class="dim-name">Token completeness</div><div class="dim-verdict">adequate</div></div><div class="dim-card"><div class="dim-name">Component coverage</div><div class="dim-verdict">adequate</div></div><div class="dim-card"><div class="dim-name">State coverage</div><div class="dim-verdict">adequate</div></div><div class="dim-card"><div class="dim-name">Visual reference coverage</div><div class="dim-verdict">strong</div></div><div class="dim-card"><div class="dim-name">Bloat &amp; overspecification</div><div class="dim-verdict">strong</div></div><div class="dim-card"><div class="dim-name">Inheritance discipline</div><div class="dim-verdict">thin</div></div><div class="dim-card"><div class="dim-name">Shape fit</div><div class="dim-verdict">strong</div></div></div>
-<section class="dimension"><details><summary><h2>Flow coverage</h2><span class="verdict-pill verdict-adequate">adequate</span></summary><div class="dim-body"><div class="dim-judgment"><p>Two key flows carry a named protagonist, numbered steps, a climax beat and a failure path: Léa&#x27;s first session and the trade between Hugo and Léa. They cover sign-in, packs, reveal, collection, card detail, public profile, sharing, trades, the feed and the daily bonus.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">No flow shows how two players become friends</h3><span class="finding-location">EXPERIENCE.md, Key Flows, Flow 2 step 1</span></header><div class="finding-note">Flow 2 assumes the friendship exists. The spec offers an invite link or a friend code (CAP-10).</div><div class="finding-fix"><strong>Fix:</strong> Narrate the friend invitation, or accept the assumption when the spec is updated.</div></article><article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">Achievements have no flow and no defined content</h3><span class="finding-location">EXPERIENCE.md, Component Patterns</span></header><div class="finding-note">The author asked for simple achievements on their own screen; none is named.</div><div class="finding-fix"><strong>Fix:</strong> List the achievements before the screen is built.</div></article><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Data controls and moderation have no flow</h3><span class="finding-location">EXPERIENCE.md, Information Architecture</span></header><div class="finding-note">CAP-14 and CAP-15 are described plainly from the spec, by decision.</div><div class="finding-fix"><strong>Fix:</strong> None needed unless these screens grow.</div></article></div></details></section>
-<section class="dimension"><details><summary><h2>Token completeness</h2><span class="verdict-pill verdict-adequate">adequate</span></summary><div class="dim-body"><div class="dim-judgment"><p>Every colour token has a hex value and every {token} reference resolves. Contrast is stated for the load-bearing pairs, and the rarity colours that fail on parchment are barred from text.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">Gold values are provisional</h3><span class="finding-location">DESIGN.md, Colors</span></header><div class="finding-note">Legendary cards use gold values chosen for the mocks.</div><div class="finding-fix"><strong>Fix:</strong> Confirm or replace the three gold tokens.</div></article><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Card title size is not a token</h3><span class="finding-location">DESIGN.md, typography</span></header><div class="finding-note">The mocks use 15px on the large card and 12px on the small one.</div><div class="finding-fix"><strong>Fix:</strong> Add the two sizes if implementers need them.</div></article><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">Scene colours are not tokens</h3><span class="finding-location">DESIGN.md, The attic</span></header><div class="finding-note">Brick and parquet colours belong to the art, not to the interface.</div><div class="finding-fix"><strong>Fix:</strong> Leave to the final art.</div></article></div></details></section>
-<section class="dimension"><details><summary><h2>Component coverage</h2><span class="verdict-pill verdict-adequate">adequate</span></summary><div class="dim-body"><div class="dim-judgment"><p>Cards, seals, dust, the attic objects, the gauge, buttons, the bonus panel, tomes, empty slots and the trade board have a visual entry and a behavioural entry.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-medium">medium</span><h3 class="finding-title">The card detail view has no visual spec and no mock</h3><span class="finding-location">DESIGN.md, Components</span></header><div class="finding-note">Its content is listed in the Information Architecture; the shared-card mock shows a close cousin.</div><div class="finding-fix"><strong>Fix:</strong> Mock it, or state that it follows the shared-card layout.</div></article><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">The feed entry is an assumption without a mock</h3><span class="finding-location">DESIGN.md, Other components</span></header><div class="finding-note">The feed excerpt was removed from the shared-card page.</div><div class="finding-fix"><strong>Fix:</strong> Mock the feed screen when it is designed.</div></article></div></details></section>
-<section class="dimension"><details><summary><h2>State coverage</h2><span class="verdict-pill verdict-adequate">adequate</span></summary><div class="dim-body"><div class="dim-judgment"><p>Signed-out, first session, packs, daily bonus, sets, the four trade states, goal reached, refused opening, empty collection, quiet feed, missing image and focus are covered.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">No empty state for the friends list, the trade list and achievements</h3><span class="finding-location">EXPERIENCE.md, State Patterns</span></header><div class="finding-note">These screens were not narrated.</div><div class="finding-fix"><strong>Fix:</strong> Add them when the screens are designed.</div></article><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">No loading state for card art</h3><span class="finding-location">EXPERIENCE.md, State Patterns</span></header><div class="finding-note">Art is fetched from Steam and filtered in the browser, so a card exists briefly without its image.</div><div class="finding-fix"><strong>Fix:</strong> State what the art window shows meanwhile.</div></article></div></details></section>
-<section class="dimension"><details><summary><h2>Visual reference coverage</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>Four mockups are linked inline where they apply: card face, card backs, attic, key screens. The imported reference image is linked with its reconciliation note. Spines-win-on-conflict is stated once.</p></div></div><div class="findings-list"></div></details></section>
-<section class="dimension"><details><summary><h2>Bloat &amp; overspecification</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>Tables carry most of the content and the prose stays tied to decisions.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-low">low</span><h3 class="finding-title">&quot;Not in the MVP&quot; restates scope</h3><span class="finding-location">EXPERIENCE.md, Interaction Primitives</span></header><div class="finding-note">The list repeats product scope, yet it stops implementers from adding those interactions.</div><div class="finding-fix"><strong>Fix:</strong> Keep.</div></article></div></details></section>
-<section class="dimension"><details open><summary><h2>Inheritance discipline</h2><span class="verdict-pill verdict-thin">thin</span></summary><div class="dim-body"><div class="dim-judgment"><p>Sources resolve and names match across the two spines. The spec, however, still describes the earlier contract.</p></div></div><div class="findings-list"><article class="finding"><header><span class="badge badge-sev-high">high</span><h3 class="finding-title">The spec contradicts the spines on thirteen points</h3><span class="finding-location">ux-gameble.md, Changes this run asks of the spec</span></header><div class="finding-note">Reveal by glow, sets by genre, decade and publisher, no daily bonus, no achievements, a feed that is not public, and more.</div><div class="finding-fix"><strong>Fix:</strong> Run bmad-spec to adopt the spines and apply the listed changes.</div></article></div></details></section>
-<section class="dimension"><details><summary><h2>Shape fit</h2><span class="verdict-pill verdict-strong">strong</span></summary><div class="dim-body"><div class="dim-judgment"><p>DESIGN.md follows the canonical order. EXPERIENCE.md has every default section, plus Responsive &amp; Platform and Inspiration &amp; Anti-patterns, both triggered.</p></div></div><div class="findings-list"></div></details></section>
-<div class="mechanical"><h3>Mechanical notes</h3><ul><li>Run inline by the facilitator, without subagents.</li><li>Eleven items keep an [ASSUMPTION] tag across the two spines.</li></ul></div><footer class="report-footer"><div class="meta"><span>review-rubric.md</span><span>2026-10-02T12:34:42+02:00</span></div></footer>
-</div>
+
+    <header class="report-header">
+      <div class="title">
+        <h1>gameble — UX Design Validation Report</h1>
+        <div class="subtitle">/home/teyermann/projets/gameble/_bmad-output/initiative-gameble/ux-gameble/DESIGN.md + EXPERIENCE.md · run 2026-10-05</div>
+      </div>
+    </header>
+
+    <div class="synthesis">
+      <p>The pair is a strong contract for the player-facing game. The token set is complete, every reference resolves, the contrast claims check out, and the booster and trade surfaces are specified down to keys, states and copy. The main gap is the staff side. The back-office (moderation, catalog import, season publish) has no flow, no components and no states, and the spine sends readers to "the previous run", whose content is no longer in the spine. Below that sit about a dozen medium gaps: missing state families (special boosters against the 10-booster cap, the weekly goal lifecycle, data export, trade edge cases), a focus ring that disappears on same-coloured card frames, component names that drift between the two spines, a broken file reference and a stale canister description.</p>
+      <p>The three extra reviewers move the picture from "complete" to "complete but not yet safe to build from". The accessibility lens found 3 critical issues the rubric could not see from the text alone: Commune and Peu commune icons are pixel-identical at small sizes, the reveal is never announced to screen readers, and moving or blinking content has no pause control or in-app motion setting (WCAG 2.2.2, Level A). It also raises two of the rubric's mediums, the focus ring and the phone touch sizes, to high. The feasibility lens found 2 critical gaps: cover images are built from Steam's legacy path, which silently fails for recent games, and the fluid desktop and phone layouts are still undecided, so there is no layout to port. Its 5 high findings are decisions for <code>bmad-architecture</code>, whose final spine predates the redesign. The mockups-vs-spines lens found nothing blocking. It found stale spine text (notched canister caps "to be redrawn", counter-proposal and visibility notes, a contradictory <code>motto</code> token), decided copy the spines lack, three mock faults to fix later, and 15 implicit decisions for the author to confirm. Across all four reviewers: <strong>5 critical, 15 high, 50 medium, 60 low</strong>.</p>
+    </div>
+
+    <div class="dimension-summary">
+      <div class="dim-card">
+        <div class="dim-name">Flow coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Token completeness</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Component coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">State coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Visual reference coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Bloat &amp; overspecification</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Inheritance discipline</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Shape fit</div>
+        <div class="dim-verdict" style="color: var(--verdict-strong)">strong</div>
+      </div>
+    </div>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Flow coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Checked every CAP-1…CAP-18 in the spec and the brief's three key moments (pull, brag, trade) against Key Flows. Three flows exist (first session, trade with quantities, equipping a back), each with a named protagonist, numbered steps and a bolded climax; Flows 1 and 2 have failure paths. Together they cover CAP-1, 4, 5, 6, 10, 11, 13, 16 and 18, the receiving side of CAP-9, and the new card-back capability.</p>
+            <p><strong>Findings:</strong> 1 high · 1 medium · 1 low.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">No flow covers the staff journeys</h3>
+              <span class="finding-location">EXPERIENCE.md › IA (Back-office row); State Patterns</span>
+            </header>
+            <div class="finding-note">Report → moderator review → ban (CAP-15), the administrator starting and watching a catalog import (CAP-2), and publishing a season have no flow. The Back-office IA row says "Behaviour unchanged from the previous run", but the 2026-10-05 rewrite replaced that run's spine, so a consumer has nothing to extract. "Not staff" and "Banned account" are the only staff-side content.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Bring the back-office behaviour back into this spine: a Key Flow "Moderator reviews a report and bans" with a failure path, Component Patterns rows (report queue, report detail, ban action, import run and progress, season publish) and states (empty queue, import running, import failed, ban confirmation).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Capabilities with a product promise have no flow</h3>
+              <span class="finding-location">EXPERIENCE.md › Key Flows</span>
+            </header>
+            <div class="finding-note">The brag from the sharer's side (detail → PARTAGER → link copied → pasted on Discord; CAP-9, the brief's "brag" moment), the weekly goal reached and the rare booster arriving (CAP-12), an achievement unlocking (CAP-17), and exporting data or deleting the account (CAP-14 "each action works end to end").</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a short flow for the share and one for the goal reward. Fold achievement unlock and data export into State Patterns rows if a flow feels too heavy.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Flow 3 has no failure path; Flow 1's climax is conditional</h3>
+              <span class="finding-location">EXPERIENCE.md › Key Flows 1 and 3</span>
+            </header>
+            <div class="finding-note">Flow 3 (Inès) could fail if she equips the back during an opening, or if the set is completed through a trade. Flow 1's climax ("If it is an Épique…") weakens it as an acceptance anchor.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a one-line failure path to Flow 3, and pin Flow 1's climax to the guaranteed Rare-or-better reveal.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Token completeness</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>YAML frontmatter parses. All 68 <code>{…}</code> references in DESIGN.md and all 7 in EXPERIENCE.md resolve. Every colour is a hex value. Stated contrasts were recomputed and hold (on-accent/accent 9.11, text/ground 12.82, muted/panel 5.98, on-lime/primary 6.23, rarity colours on panel-raised ≥ 5.09). The product is dark-only, so light/dark pairs do not apply.</p>
+            <p><strong>Findings:</strong> 2 medium · 3 low.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The focus ring has no token and vanishes on same-coloured frames</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns "Focus"; DESIGN.md › Colors: Gold</span>
+            </header>
+            <div class="finding-note">EXPERIENCE sets focus to "3px <code>{colors.accent}</code> … gold <code>{colors.gold}</code> on cards in grids". Gold on a Légendaire frame is 1.0:1 and accent on a Rare frame is 1.0:1, so focus vanishes exactly on the cards that matter. Gold-as-focus also breaks DESIGN's rule that gold "is never a general accent".</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a <code>focus-ring</code> component token (e.g. a 2px <code>{colors.outline}</code> gap plus a 3px <code>{colors.accent-hi}</code> or <code>{colors.text-max}</code> ring with an offset), check it against all five rarity frames, panels and accent fills, and use it in both spines.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Type sizes used in prose have no typography token</h3>
+              <span class="finding-location">DESIGN.md › Components: Public card page, Result banner; Typography</span>
+            </header>
+            <div class="finding-note">Public page title "Pixelify Sans 38px", description "VT323 22px", Épique banner "small (28px)", card micro lines "7 to 10px" under a single 8px <code>micro</code> token, small-card footer at 7px.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add <code>public-title</code>, <code>body-large</code>, <code>banner-small</code> and a <code>micro</code> ramp per card size (as done for <code>card-title-*</code>), and reference them by name.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Four colour tokens have no stated role</h3>
+              <span class="finding-location">DESIGN.md frontmatter</span>
+            </header>
+            <div class="finding-note"><code>accent-hi</code>, <code>accent-press</code>, <code>on-alert</code> and <code>star</code> are defined but not referenced in the body.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Give each a use in Colors, or remove it.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">No global contrast target; dark-only never stated</h3>
+              <span class="finding-location">DESIGN.md › Colors</span>
+            </header>
+            <div class="finding-note">EXPERIENCE's floor implies 4.5:1 text; nothing states 3:1 for non-text UI (focus rings, input borders, gauge segments).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add one line to Colors: "Dark only. Text ≥ 4.5:1, UI boundaries and focus ≥ 3:1, except <code>dim</code> and <code>publisher</code>, which carry redundant information only."</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Token-shape oddities a resolver will trip on</h3>
+              <span class="finding-location">DESIGN.md frontmatter</span>
+            </header>
+            <div class="finding-note"><code>typography.publisher</code> has only a <code>note</code> and no <code>fontSize</code>; easings live under <code>components.motion</code>; <code>hazard-stripe.pattern</code> embeds <code>{colors.accent}</code> inside a composite string.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Split <code>publisher</code> into per-size tokens, move easings to a top-level <code>motion</code> group (or note the convention), and give the stripe colours their own keys.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Component coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Every component name in both spines was checked against DESIGN.md Components (visual) and EXPERIENCE.md Component Patterns (behavioural). Most core components have both halves with real rules: card face, canister, tray, caption plate, menu item, trade board, quantity stepper, reserved tag, card picker, back picker, share sheet, modal and toast.</p>
+            <p><strong>Findings:</strong> 3 medium.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">EXPERIENCE components with no visual spec in DESIGN</h3>
+              <span class="finding-location">EXPERIENCE.md › Component Patterns, State Patterns</span>
+            </header>
+            <div class="finding-note">Invitation (received and sent rows), the hub's "PROGRESSION DES SETS" panel, Face-down card and Revealed card, the Public profile page, the signed-out hub invitation to sign in, and the booster screen's "RÉSERVE VIDE" replacement for the canister.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add short DESIGN entries for each, or state explicitly which existing entry they reuse.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Interactive DESIGN components with no behavioural row</h3>
+              <span class="finding-location">DESIGN.md › Components; EXPERIENCE.md › Component Patterns</span>
+            </header>
+            <div class="finding-note">Text field (validation, max length, submit on Enter, error line), Radio list, Link, the button family (one-primary rule, press, disabled), Add slot, Remove "✕", Status chip, Stack, the RAPPORT panel (folds on the phone).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add rows. A single "Buttons" row can carry the one-primary rule and the pressed and disabled behaviour.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Phone touch sizes contradict the 44px Accessibility Floor</h3>
+              <span class="finding-location">DESIGN.md › Tabs and filters, Buttons → Back button, Trade board → Remove</span>
+            </header>
+            <div class="finding-note">Tabs and filters are 34px and serve as the phone's chip rows; the Back button is <code>button-height-sm</code> (34px); the remove "✕" is a "small square".</div>
+            <div class="finding-fix"><strong>Fix:</strong> Give each a phone size of <code>{spacing.touch-min}</code>, or a 44px hit area around the 34px visual, in DESIGN.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>State coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Each IA surface was checked for empty, cold load, focus, error, offline, permission denied and signed out. Booster, trade and friends surfaces are thorough, with copy. Cold load, offline, network error and banned are tagged <code>[ASSUMPTION]</code> and listed as open, which is acceptable for a draft. The back-office gap is counted under Flow coverage.</p>
+            <p><strong>Findings:</strong> 4 medium · 1 low.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Special boosters and the 10-booster cap are undefined</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns "Goal reached", "Daily booster with a full reserve"; Component Patterns "Booster canister"</span>
+            </header>
+            <div class="finding-note">The daily booster (spec: "small", "better odds") and the goal reward ("rare booster") land in the same reserve. Nothing says how they look among identical canisters, whether they open first, whether the daily one still has 5 cards, or what happens to a goal reward when the reserve is full.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add states for a special booster in the reserve and for a goal reward arriving with a full reserve; add the cap rule for rewards to the spec-change list.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The weekly community goal lifecycle is missing</h3>
+              <span class="finding-location">DESIGN.md › Community goal panel; EXPERIENCE.md › Component Patterns "Community goal"</span>
+            </header>
+            <div class="finding-note">The spec's goal is weekly with a target scaling with weekly active players; no spine says "weekly". No state for week end, reset, reached goal on the panel, missed goal, or non-contributor. DESIGN removes any countdown.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add rows for goal reached (panel look), week rollover, goal missed and non-contributor, and state where the week boundary is visible, if anywhere.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Profil et paramètres has no states for its data actions</h3>
+              <span class="finding-location">EXPERIENCE.md › Component Patterns "Settings row", "Delete dialog"</span>
+            </header>
+            <div class="finding-note">Export in progress, ready, failed; where sign-out lands; where the player lands after deleting the account; the effect of a language switch. CAP-14 requires each action to work end to end.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add rows for each.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Trade edge cases are missing</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns, trade rows</span>
+            </header>
+            <div class="finding-note">Friend banned or deleted mid-trade; whether the 7-day expiry restarts on a counter-proposal; how reservations move when a counter changes quantities (Flow 2 step 7); a card picker with nothing to place.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add four rows.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Smaller state gaps</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns</span>
+            </header>
+            <div class="finding-note">Succès has no state rows; the share sheet has no state for clipboard refusal; a signed-in visitor on the public card page; a signed-out visitor on the card detail (CAP-18).</div>
+            <div class="finding-fix"><strong>Fix:</strong> One row each.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Visual reference coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Checked <code>mockups/key-screens.html</code>, <code>mockups/mobile.html</code>, <code>imports/claude-design-concepts/</code>, <code>imports/ref-01…04*.png</code> and <code>imports/hearthstone-card-back-reference.png</code>. No <code>wireframes/</code> folder. Spines-win-on-conflict is stated once per spine. Every file is reachable; no orphans.</p>
+            <p><strong>Findings:</strong> 1 medium · 2 low.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Broken reference to a retired file</h3>
+              <span class="finding-location">EXPERIENCE.md › Inspiration &amp; Anti-patterns</span>
+            </header>
+            <div class="finding-note">"Rejected — the medieval archives direction" cites <code>reconcile-hearthstone-card-back-reference.md</code>, which the memlog records as retired (git history only).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Drop the filename or say "(git history)".</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Mockups linked only globally, not at the sections they illustrate</h3>
+              <span class="finding-location">DESIGN.md › Brand &amp; Style; EXPERIENCE.md › Foundation</span>
+            </header>
+            <div class="finding-note"><code>mobile.html</code> is not linked at Reveal caption plate, Tray, Tab bar, Responsive &amp; Platform. <code>key-screens.html</code> is not cited at Trade board, Friends, Activity feed, Achievements, Profile and settings, Public card page.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add one-line "Reference: …, &lt;screen&gt;" pointers at those sections.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">ref-01…ref-04 cited only as a range</h3>
+              <span class="finding-location">DESIGN.md › Brand &amp; Style</span>
+            </header>
+            <div class="finding-note">Nothing says what each shows (hub, booster, collection, rarity scale); ref-04's four-tier scale is superseded.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Name each at its section, with a note that ref-04's four-tier scale is superseded.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Bloat &amp; overspecification</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>DESIGN.md's editorial voice is appropriate, and EXPERIENCE.md is mostly tables. Little would go unread.</p>
+            <p><strong>Findings:</strong> 3 low.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">DESIGN.md carries timings it says live in EXPERIENCE</h3>
+              <span class="finding-location">DESIGN.md › Components</span>
+            </header>
+            <div class="finding-note">Holo 34 steps / 3.4s, back sheen 5.2s, art fade 600ms, "COPIÉ ✓" 1.6s, count bump 0.5s, ticker 60s, canister breath (duplicated). Prose restates token values ("34px, Silkscreen 10px", "24 × 26px").</div>
+            <div class="finding-fix"><strong>Fix:</strong> Move the timings to EXPERIENCE Motion, and cite tokens instead of raw values in prose.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Project history and a prototype selector in EXPERIENCE</h3>
+              <span class="finding-location">EXPERIENCE.md › Foundation, Implementation notes</span>
+            </header>
+            <div class="finding-note">Foundation carries "replaces the 2026-10-02 medieval direction… Epic 1 must be reworked"; Implementation notes quotes <code>.screen:not(.on) *</code>.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Move the history to <code>ux-gameble.md</code> or the memlog; keep the rule ("hide every descendant of an inactive screen") and drop the selector.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Card backs states product rules</h3>
+              <span class="finding-location">EXPERIENCE.md › Card backs</span>
+            </header>
+            <div class="finding-note">How backs are earned belongs in the spec once <code>bmad-spec</code> absorbs the capability.</div>
+            <div class="finding-fix"><strong>Fix:</strong> After absorption, shrink it to a pointer plus the UX-only rules.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Inheritance discipline</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p><code>sources</code> resolve. CAP ids are cited verbatim. EXPERIENCE token references resolve to DESIGN tokens. Spec divergences already listed in <code>ux-gameble.md</code> were not counted.</p>
+            <p><strong>Findings:</strong> 3 medium · 1 low.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Component names drift between the spines</h3>
+              <span class="finding-location">EXPERIENCE.md › Component Patterns vs DESIGN.md › Components</span>
+            </header>
+            <div class="finding-note">EXPERIENCE claims "(same names)" but: Community goal ↔ Community goal panel; Set progress row ↔ Set row; Trade list ↔ List row; Trade board ↔ Board; Friend profile ↔ Friend profile dialog; Report / Delete dialog ↔ Report and delete dialogs; Face-down / Revealed card ↔ Card face / Card backs.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Pick one name per component and use it in both spines and in the frontmatter <code>components</code> keys.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Canister description is stale against the memlog</h3>
+              <span class="finding-location">DESIGN.md › Components: Booster canister</span>
+            </header>
+            <div class="finding-note">DESIGN says "Two notched metal caps" and "it is redrawn … (the author reviews it)". The memlog records the notches removed (solid edges, grip ridges kept) and the 2px redraw done and approved in v3-4.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Describe solid-edged caps with grip ridges, and drop the pending-review sentence.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Spec divergences not listed in ux-gameble.md</h3>
+              <span class="finding-location">ux-gameble.md › Changes; spines throughout</span>
+            </header>
+            <div class="finding-note">(a) Glossary: the spec says "pack", the spines say "booster", <code>ux-gameble.md</code> mixes both. (b) Weekly goal → "community goal". (c) Daily booster size and odds not reflected. (d) The spec's "no affiliation with Steam or Valve" terms constraint has no UX surface.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a pack = booster glossary line and the requested spec change; list (b) and (c); add a Terms/legal surface (IA row, footer link on public pages and in Profil et paramètres).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Sources frontmatter incomplete</h3>
+              <span class="finding-location">EXPERIENCE.md and DESIGN.md frontmatter</span>
+            </header>
+            <div class="finding-note">EXPERIENCE omits the spec companions (<code>catalog-and-rarity.md</code>, <code>brotherhood-tone.md</code>) and the brief addendum; DESIGN.md has no <code>sources</code>.</div>
+            <div class="finding-fix"><strong>Fix:</strong> List the companions, or state that the spec's <code>companions:</code> are inherited.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Shape fit</h2>
+          <span class="verdict-pill verdict-strong">strong</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>DESIGN.md sections follow the canonical order (Brand & Style → Colors with a Rarity subsection → Typography → Layout & Spacing → Elevation & Depth → Shapes → Components → Do's and Don'ts). EXPERIENCE.md has every required default, plus Responsive & Platform (multi-surface) and Inspiration & Anti-patterns. The invented sections earn their place: Motion holds the timing contract, Card backs carries a capability the spec has not absorbed yet, Implementation notes holds binding build pitfalls, Open questions is clearly marked non-blocking.</p>
+            <p>No findings.</p>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="reviewer-section">
+      <details>
+        <summary>
+          <h2>Accessibility review <span class="reviewer-source">· 3 critical · 9 high · 11 medium · 8 low</span></h2>
+          <span class="reviewer-source">review-accessibility.md</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p><strong>Verdict (reviewer's words):</strong> The spines have a real accessibility floor (rarity named in words, a named face-down card, inert screens, focus return, a reduced-motion paragraph, 44 px touch targets for the stepper), and the base token contrasts are good. But several guarantees do not hold when checked against the prototypes: the Commune and Peu commune icons are drawn pixel-identical, so "shape + name + colour" fails where names are absent or set in 7 px; the reveal, the core of the game, is never announced to screen readers; and auto-moving and blinking content has no pause control or in-app motion setting (WCAG 2.2.2, Level A). <strong>Not ready as a builder contract until the critical and high items are written into the spines.</strong></p>
+            <p>Computed failures worth keeping in view: <code>publisher</code> on the title band 4.29:1; <code>dim</code> 2.7–3.5:1 for text; <code>line</code> and <code>line-soft</code> control boundaries 1.35–2.0:1; accent ring on accent fill and gold ring on a Légendaire frame both 1.0:1; chrome under the vignette ≈2.5–4.2:1 (estimate); lime vs Peu commune jade 1.10:1 (hue only).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">critical</span>
+              <h3 class="finding-title">C1 — Commune and Peu commune icons are the same shape</h3>
+              <span class="finding-location">DESIGN.md › Rarity icon; EXPERIENCE.md › Accessibility Floor; mocks inShape()</span>
+            </header>
+            <div class="finding-note">Rasterised at 7 × 7 and 9 × 9 art pixels, "circle" and "octagon" give the same silhouette; only grey vs jade tells them apart. The icon appears without a readable name in the top-bar counter, tray slots, feed thumbnails, small missing-card slots and the ticker, and the rarity name on <code>card-s</code> is 7 px Silkscreen. The spine's own rule, "colour never stands alone", is broken.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Silhouettes differ by at least 8 art pixels at 7 × 7 and stay distinct in greyscale (Commune a hollow ring or plain square; Peu commune keeps flat-cut corners). Add a greyscale render check. Add a visible label or legend for the top-bar counter.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">critical</span>
+              <h3 class="finding-title">C2 — The reveal is silent for screen-reader users</h3>
+              <span class="finding-location">EXPERIENCE.md › Accessibility Floor, Face-down card, Tout révéler, Result banner, Cards dealt</span>
+            </header>
+            <div class="finding-note">Only the focused button's accessible name changes, which screen readers do not reliably announce. "Tout révéler" reveals unfocused cards, so nothing is said at all. The Légendaire signal is visual only. For a blind player, the core moment of the product yields no feedback.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Every reveal posts one polite message to a dedicated booster live region ("Carte 2 : Hades — Supergiant Games, 2020, Roguelite. Épique."). Tout révéler posts one summary. A Légendaire posts "Signal légendaire" at start and the result on landing. Focus stays on the revealed card.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">critical</span>
+              <h3 class="finding-title">C3 — Moving and blinking content cannot be paused; no in-app motion setting</h3>
+              <span class="finding-location">DESIGN.md › Activity feed, Elevation &amp; Depth, LEDs, blinkers; EXPERIENCE.md › LIVE ticker, Motion › Reduced motion</span>
+            </header>
+            <div class="finding-note">The ticker loops for 60 s and pauses only on mouse hover. At least eight blinkers and pulses run indefinitely on the hub; the feed adds entries on its own. The only off switch is the OS setting. WCAG 2.2.2 (Level A) requires a pause/stop/hide control for anything moving longer than 5 s.</div>
+            <div class="finding-fix"><strong>Fix:</strong> (1) A focusable pause/play button next to LIVE; pause on focus-within and touch. (2) A "Mettre en pause le direct" feed toggle that buffers entries. (3) An "Animations réduites" setting (default: follow the system). (4) Ambient blinkers stop after 5 s or only mark state changes.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H1 — Single-key shortcuts 1–6 without an off switch</h3>
+              <span class="finding-location">EXPERIENCE.md › Menu item, Interaction Primitives › Keyboard</span>
+            </header>
+            <div class="finding-note">Hub-wide single-character shortcuts fail WCAG 2.1.4 (Level A). Speech-input users dictating digits and stray typing trigger navigation.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Keys 1–6 work only while focus is in the hub menu, or with a modifier; a setting can turn them off; expose <code>aria-keyshortcuts</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H2 — The vignette and scanlines sit above all content</h3>
+              <span class="finding-location">DESIGN.md › Elevation &amp; Depth › Atmosphere; mock z-index 89/90 over ticker, top bar, toasts</span>
+            </header>
+            <div class="finding-note">The vignette darkens edges by ≈0.36–0.45 black, exactly where the top bar, ticker, toasts and phone tab bar sit. Documented ratios no longer hold there (≈2.5–4.2:1). The status and navigation chrome becomes the least readable part of the screen.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Vignette and stars sit under the content and never cover chrome, toasts or dialogs; scanlines ≤ 11 % and excluded from text-bearing chrome. Every ratio in Colors is measured with every overlay applied.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H3 — Reduced motion misses many animations and still flashes</h3>
+              <span class="finding-location">EXPERIENCE.md › Motion › Reduced motion; DESIGN.md › Elevation &amp; Depth</span>
+            </header>
+            <div class="finding-note">The list leaves out the trade swap, daily arc, back equip, the shake of a locked back, the app-start flicker, star twinkle and parallax shift, lock-in overshoot, toasts, feed, holo/foil/glow, sheen, canister breathing and phone slides. "Flashes drop to 30 %" still flashes the whole screen. The mock shakes the stage on every reveal, contradicting DESIGN.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Rule plus exceptions: under reduced motion nothing translates, rotates, scales, shakes, flashes, blinks, sweeps or loops; state changes are 150–220 ms crossfades. Spell out the Légendaire, trade swap and locked-back versions. Flashes go to 0. Reconcile or remove per-tier reveal shakes.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H4 — Focus indicator is ambiguous, sometimes invisible, and can be obscured</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns › Focus; DESIGN.md › Menu item, Buttons, Tabs</span>
+            </header>
+            <div class="finding-note">Accent ring on accent-filled items is 1.0:1 and focus looks identical to hover; gold ring on a Légendaire is 1.0:1; the mock prototyped 2 px inset rings and colour-only link focus (1.45:1); nothing stops sticky chrome from covering the focused element (WCAG 2.4.11).</div>
+            <div class="finding-fix"><strong>Fix:</strong> A 3 px <code>{colors.text-max}</code> ring with a 3 px <code>{colors.outline}</code> gap on every focusable element, separate from hover, never colour alone; <code>scroll-padding</code> equal to top bar, ticker, tab bar and pinned actions.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H5 — Toasts carry essential messages for 2.8 s</h3>
+              <span class="finding-location">EXPERIENCE.md › Toast, refusal states, Motion</span>
+            </header>
+            <div class="finding-note">Errors and refusals ("EXEMPLAIRES INSUFFISANTS", "UN ÉCHANGE À LA FOIS", "DOS VERROUILLÉ", network failures) vanish and cannot be paused or recalled. In the mock, one Esc dismisses the toast and navigates to the hub.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Toasts confirm only; errors also appear inline until the next action. Toasts last ≥ 5 s + 1 s per 10 words, pause on hover/focus, have a close button; Esc closes the toast and nothing else.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H6 — Pixel fonts at 7–9 px carry essential information</h3>
+              <span class="finding-location">DESIGN.md › Typography, Status chip, Tab bar</span>
+            </header>
+            <div class="finding-note">Silkscreen caps are 4–5 px tall at 7–8 px and blur off-grid. Rarity names on <code>card-s</code>, status chips and phone tab labels are information carriers at these sizes. Long tracked uppercase labels remove word shape; VT323 line-height is 1.0.</div>
+            <div class="finding-fix"><strong>Fix:</strong> No text below 8 px; information carriers ≥ 10 px; multi-line VT323 line-height ≥ 1.2; uppercase via <code>text-transform</code> over sentence-case source; offer a "Police lisible" setting swapping the pixel fonts for a legible sans.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H7 — Focus management in booster and trade is unspecified; a double activation exits the reveal</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns, Revealed card, Reveal abandoned</span>
+            </header>
+            <div class="finding-note">Focus destinations after opening, Tout révéler, Ouvrir le suivant, ✕, picker close, swap end, sub-views and Steam return are unstated. A second click on a just-revealed card leaves the booster screen, and nothing resumes on return: a player with a tremor skips the remaining reveals.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a Focus column (cards land → card 1; Tout révéler → OUVRIR LE SUIVANT; ✕ → next card or add slot; swap → status line; sub-view → heading; back → opener). A revealed card ignores activation for 400 ms and opens its detail as a dialog over the booster.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H8 — Feed live region will flood screen readers</h3>
+              <span class="finding-location">EXPERIENCE.md › Accessibility Floor; mock #fdList aria-live</span>
+            </header>
+            <div class="finding-note">A polite region receiving an entry every few seconds queues speech without end.</div>
+            <div class="finding-fix"><strong>Fix:</strong> The feed is not a live region; a status line announces batches at most every 30 s while unfocused; the pause toggle stops announcements; the ticker is <code>aria-hidden</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H9 — Phone touch targets below 44 px in spine and mock</h3>
+              <span class="finding-location">DESIGN.md › Tabs and filters, Buttons, Trade board › Remove, Modal ✕; phone mock</span>
+            </header>
+            <div class="finding-note">34 px chips and small buttons, a 44 × 36 stepper, a 32 × 32 remove ✕ overlapping the card edge, 36 px top-bar chips contradict the spine's own floor.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Every phone target has a 44 × 44 hit area with 8 px spacing; add <code>chip-height-touch: 44px</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M1 — Low-contrast tokens used for information</h3>
+              <span class="finding-location">DESIGN.md › Colors (dim, publisher), Activity feed, Status chip, Daily booster</span>
+            </header>
+            <div class="finding-note">Feed times in dim, "CLOS" at 3.2/2.7:1 and 8 px, dimmed feed rows at 4.35 and 2.57, publisher at 4.29, "RÉSERVE PLEINE" only as disabled text (2.64).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Set <code>publisher</code> to <code>#8a96a2</code>; <code>dim</code> for decoration only; times and CLOS in muted; dim feed rows by background, never opacity; a muted line under the disabled claim.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M2 — Non-text contrast of controls (WCAG 1.4.11)</h3>
+              <span class="finding-location">DESIGN.md › Text field, Tabs, Settings segments, Radio list, Stepper, Progress track</span>
+            </header>
+            <div class="finding-note">Boundaries in <code>line</code> (1.8–2.0:1) and <code>line-soft</code> (1.35:1) are below 3:1.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Interactive boundaries use <code>{colors.line-deep}</code> (3.2:1) or brighter; progress tracks show a 3:1 edge or a text value.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M3 — Blink rates are unbounded; the mock blinks at 4–7 Hz</h3>
+              <span class="finding-location">DESIGN.md › Status LED, Canister</span>
+            </header>
+            <div class="finding-note">Small areas pass 2.3.1, but they sit next to full-screen flashes and shakes, in the photosensitive band.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Nothing blinks faster than 2 Hz; at most one full-screen flash per sequence, never 3 in a second; flashes never overlap when Tout révéler chains cards.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M4 — Hub cognitive load and structure</h3>
+              <span class="finding-location">EXPERIENCE.md › IA › Hub content; DESIGN.md › Layout &amp; Spacing</span>
+            </header>
+            <div class="finding-note">About a dozen things move at once on the hub; no heading, landmark or reading order is defined.</div>
+            <div class="finding-fix"><strong>Fix:</strong> A Structure line per screen (h1, nav, main, complementary, ticker hidden; reading order). At most two ambient animations outside the booster; countdowns update per minute above one hour.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M5 — Esc does too much</h3>
+              <span class="finding-location">EXPERIENCE.md › Keyboard, Counter-proposal, IA</span>
+            </header>
+            <div class="finding-note">Esc silently discards a counter-proposal and navigates away from any screen; it collides with IME and browser uses.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Esc closes the topmost overlay only; cancels a counter only after confirmation; returns to the hub only when nothing consumed it and no edit or text field is active.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M6 — Dialogs, picker and stepper semantics</h3>
+              <span class="finding-location">DESIGN.md / EXPERIENCE.md › Dialogs, Card picker, Quantity stepper</span>
+            </header>
+            <div class="finding-note">Dialog name, initial focus and ✕ name unspecified (the mock names every dialog "Fenêtre"); picker arrows conflict between grid movement and quantity.</div>
+            <div class="finding-fix"><strong>Fix:</strong> <code>aria-labelledby</code> from the title; initial focus never on ✕; ✕ named "Fermer"; picker grid one tab stop; stepper a <code>spinbutton</code>; refusals and COPIÉ announced politely.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M7 — Reflow, zoom and text spacing</h3>
+              <span class="finding-location">DESIGN.md › Typography, Layout; EXPERIENCE.md › Responsive</span>
+            </header>
+            <div class="finding-note">Nothing states that 400 % zoom yields the phone layout, that the default font size is honoured, or that user text spacing does not clip fixed-height rows.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Breakpoints in CSS px; rem text from a 16 px root (art pixel in px); <code>min-height</code>, never <code>height</code>, on text rows; verify with the 1.4.12 bookmarklet.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M8 — Card and media semantics are incomplete</h3>
+              <span class="finding-location">EXPERIENCE.md › Accessibility Floor; DESIGN.md › Pixel filter, Avatars, Gauges, Countdown</span>
+            </header>
+            <div class="finding-note">A card's exposed text lacks number, copies, NOUVEAU and reserved count; canvases, thumbnails, avatars, rays and gauges unspecified; the packs chip label rewrites every second.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Define a card's text order; canvases and thumbnails <code>aria-hidden</code>; gauges <code>role=progressbar</code>; countdown text changes at most per minute.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M9 — Time limits and their wording</h3>
+              <span class="finding-location">EXPERIENCE.md › Voice, Daily booster, Trade states</span>
+            </header>
+            <div class="finding-note">"Minuit UTC" forces mental arithmetic; whether an uncollected daily booster lapses is unsaid; no warning before a proposal expires.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Local time ("prêt à 02 h 00"); state whether the daily lapses; hours under 24 h with a "bientôt" cue.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M10 — Gestures and touch alternatives on the phone</h3>
+              <span class="finding-location">EXPERIENCE.md › Interaction Primitives, Revealed card, Card detail; DESIGN.md › Reveal caption plate</span>
+            </header>
+            <div class="finding-note">Tap is overloaded on the top card (a double tap stores it unseen); the "◀ ▶" hint looks like a control; held-finger tilt competes with scrolling.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Every swipe has a visible button (RANGER; 44 × 64 ◀ ▶ in detail); 400 ms tap guard after a flip; tilt after 150 ms without vertical movement; long-press never required.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M11 — Long sequences cannot be skipped</h3>
+              <span class="finding-location">EXPERIENCE.md › Tout révéler, Opening in progress</span>
+            </header>
+            <div class="finding-note">Navigation is blocked through each sequence; players distressed by the effects have no escape but the OS setting.</div>
+            <div class="finding-fix"><strong>Fix:</strong> A "Passer" control (and Esc) jumps to the end state.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L1 — Rare equals the accent colour; jade sits next to lime</h3>
+              <span class="finding-location">DESIGN.md › Colors, Rarity</span>
+            </header>
+            <div class="finding-note">Rare-coloured text reads as interactive; jade and lime differ by hue only (1.10:1).</div>
+            <div class="finding-fix"><strong>Fix:</strong> State that rarity-coloured text is never interactive.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L2 — Hover-only title tooltips</h3>
+              <span class="finding-location">Mock badges and rarity counter</span>
+            </header>
+            <div class="finding-note">Hover-only information is lost on touch and keyboard.</div>
+            <div class="finding-fix"><strong>Fix:</strong> No information lives only in <code>title</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L3 — App-start whole-screen flicker</h3>
+              <span class="finding-location">EXPERIENCE.md › Motion › App start</span>
+            </header>
+            <div class="finding-note">A 0 → 1.5 brightness overshoot over the whole screen; single, but unpleasant.</div>
+            <div class="finding-fix"><strong>Fix:</strong> List it in the reduced-motion profile and cap the overshoot at 1.1.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L4 — Pointer-only copy</h3>
+              <span class="finding-location">EXPERIENCE.md › Cards dealt; canister</span>
+            </header>
+            <div class="finding-note">"Cliquez une carte…" and "CLIQUEZ POUR OUVRIR" address pointer users only.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Device-neutral copy; state that Space and Enter both activate.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L5 — Language</h3>
+              <span class="finding-location">EXPERIENCE.md › Foundation, Accessibility Floor, Card detail</span>
+            </header>
+            <div class="finding-note">Steam descriptions may differ in language from the UI; English copy and rarity names do not exist yet.</div>
+            <div class="finding-fix"><strong>Fix:</strong> <code>&lt;html lang&gt;</code> follows the chosen language; foreign blocks carry their own <code>lang</code>; write the English rarity names.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L6 — State shown by border only</h3>
+              <span class="finding-location">DESIGN.md › Trade board, Settings</span>
+            </header>
+            <div class="finding-note">The edited side is shown by an accent border only; segments mix <code>aria-pressed</code> and radio semantics.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add "EN ÉDITION" to the side header; pick one segment semantic.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L7 — Links that open new tabs or leave the site</h3>
+              <span class="finding-location">"VOIR SUR STEAM ↗", Steam sign-in</span>
+            </header>
+            <div class="finding-note">Players are not told a link opens a new tab or leaves the site.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Accessible names add "(nouvel onglet)"; the sign-in button says it opens Steam.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L8 — Typed delete confirmation</h3>
+              <span class="finding-location">EXPERIENCE.md › Delete dialog</span>
+            </header>
+            <div class="finding-note">Case, paste and language are unspecified.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Case-insensitive, paste allowed, word localised, field labelled with the word to type.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="reviewer-section">
+      <details>
+        <summary>
+          <h2>Technical feasibility review <span class="reviewer-source">· 2 critical · 5 high · 12 medium · 12 low</span></h2>
+          <span class="reviewer-source">review-feasibility.md</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p><strong>Verdict (reviewer's words):</strong> <strong>Conditional pass: buildable, but not yet without guessing.</strong> The look and motion can be built on the recorded stack (Rails + ViewComponent + Hotwire, two React islands through Turbo Mount, plain CSS tokens); nothing needs a stack change, and the Steam CDN answers <code>Access-Control-Allow-Origin: *</code>, so the in-browser pixel filter works. Before the first story starts, two things must be settled: where each cover image comes from, and the fluid layout rules. "There is no layout to port, only a picture of one." Five high findings are decisions the architecture must take; the medium and low findings are spine fixes or build rules.</p>
+            <p>Evidence: <code>curl</code> against six Steam CDN hosts (ACAO <code>*</code> on 200s, none on 404s, preflight 405); a Node benchmark of the mocks' <code>medianCut</code> + <code>quantize</code>; <code>fc-query</code> glyph coverage of the three fonts. The review also carries a 14-item "For the architecture" list (AD-17 rewrite, image source, AD-16 islands and event contract, opening endpoint, Turbo motion, layout system, real-time and presence, new domain data, tier names, CSP, island i18n, pixel-art assets, performance budget, housekeeping) and a 12-item Epic 1 rework list (tokens, fonts, attic removal, layout, ButtonComponent, TextPlate, locales, focus style, back-office, sign-in landing, CSP, tickets).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">critical</span>
+              <h3 class="finding-title">C1 — Cover URLs built from the old path: recent games get no art or a silent grey placeholder</h3>
+              <span class="finding-location">DESIGN.md › Pixel filter; mocks CDN + id + '/library_600x900.jpg'</span>
+            </header>
+            <div class="finding-note">For apps whose assets moved to hashed paths, the legacy path returns 404 (PEAK) or, worse, 200 with a 300 × 450 grey JPEG (Battlefield 6) that <code>loadImg</code> accepts. Recent, popular games — the most desirable cards — are the ones affected.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Import stores the hashed <code>library_capsule_2x</code> URL (fallback <code>library_capsule</code>) and refreshes it periodically; the CAP-2 exclusion tests the API asset list; <code>Catalog</code> exposes an opaque <code>image_url</code>; the filter treats &lt; 300 × 450 or single-channel images as missing. DESIGN.md says "the vertical capsule URL recorded at import".</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">critical</span>
+              <h3 class="finding-title">C2 — The fluid desktop and phone layouts cannot be coded without guessing</h3>
+              <span class="finding-location">DESIGN.md › Layout &amp; Spacing ("Open: max width, breakpoint, tablets"); EXPERIENCE.md › Responsive &amp; Platform; mocks position:absolute stages</span>
+            </header>
+            <div class="finding-note">There is no layout to port, only a picture of one. Undecided: short desktop viewports (1366 × 768 leaves ≈650 px; hub centre and 600 px booster stage do not fit), medium widths (hub needs ≈1150 px, booster ≈1300 px), phone landscape (844 × 390 gets the desktop layout), tablets.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Write concrete rules: phone below 720 px or coarse pointer under 500 px tall; two columns 720–1179; three from 1180; max 1440; fixed top bar and ticker; a fixed logical booster stage (884 × 600) scaled by integer-friendly factors; pick phone-landscape behaviour; tablets follow width rules.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H1 — Main-thread cost of the pixel filter, worst during the opening</h3>
+              <span class="finding-location">DESIGN.md › Pixel filter; AD-17; mocks getArt / medianCut / quantize</span>
+            </header>
+            <div class="finding-note">≈2.5–12 ms per image for quantisation alone on desktop, 5–10× on low-end Android, plus the 600 × 900 decode. Five cards filter during the 1.2 s explosion: up to ≈0.5 s of blocking inside the hero animation; on slow links the flip shows the placeholder, repeating the v2-3 bug.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Web Worker + OffscreenCanvas; lazy with a concurrency cap; one palette per game; start fetching on the open response and never flip before art is ready or failed; optionally store the 32-colour palette at import.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H2 — The opening protocol (latency, refusal, double trigger) is not specified</h3>
+              <span class="finding-location">EXPERIENCE.md › Opening refused, Motion, Implementation notes; AD-7</span>
+            </header>
+            <div class="finding-note">If the explosion starts on click, a refusal arrives after the caps have blown, contradicting "nothing opens"; if it waits, the click feels dead. A double click can open two packs, one never shown.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Request on click; the ARMEMENT charge phase (≈300 ms) masks latency; caps blow only on success, else disarm and toast; lock the trigger and use an idempotency key; define the JSON response (five cards, reserve and availability times, pre-open tier counts).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H3 — AD-16's "two islands" understates the client work; no contract links islands and chrome</h3>
+              <span class="finding-location">AD-16; EXPERIENCE.md › Component Patterns</span>
+            </header>
+            <div class="finding-note">The booster island is two choreographies (desktop row, phone pile + tray). The rarity counter, packs chip and badges live in server-rendered chrome; teams will invent ad-hoc globals that AD-16 forbids.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Islands: booster (layout mode) and trade board. Named Stimulus controllers. A DOM event contract (<code>gameble:tier-revealed</code>, <code>gameble:reserve-changed</code>, <code>gameble:toast</code>, <code>gameble:trade-badge</code>). Shared filter, tilt and reduced-motion modules.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H4 — Screen-change motion and phone slide-overs do not come for free with Turbo Drive</h3>
+              <span class="finding-location">EXPERIENCE.md › Motion (screen change, app start, sub-views, blocked navigation)</span>
+            </header>
+            <div class="finding-note">Turbo swaps the body; cached previews replay lock-ins; the flicker plays on every full load; staggered lock-in adds 0.5–1 s; browser Back cannot be blocked; cached booster/trade snapshots go stale.</div>
+            <div class="finding-fix"><strong>Fix:</strong> View Transitions through Turbo; permanent atmosphere layers; skip lock-in on previews and cap the stagger at ≈400 ms; flicker once per session; <code>no-cache</code> on booster and trade; phone sub-views as URL-advancing Turbo Frames. Spine: "in-app back controls are disabled; browser Back is allowed and loses nothing".</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H5 — The spines add server mechanisms the final architecture does not hold</h3>
+              <span class="finding-location">ux-gameble.md › Changes; EXPERIENCE.md; DESIGN.md; architecture-gameble.md</span>
+            </header>
+            <div class="finding-note">The architecture (status: final) says 16 colours, steel…gold tiers, proposer-set expiry, two surprises per card. Presence, card backs, NOUVEAU "seen" (a write on a read role), per-season numbers, invitations and three-way visibility have no home.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Run <code>bmad-spec</code> with the change list, then <code>bmad-architecture</code> in update mode with the "For the architecture" list, before slicing the redesign epics.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M1 — The 2 CSS px art pixel goes uneven at fractional DPR</h3>
+              <span class="finding-location">DESIGN.md › art-pixel, image-rendering: pixelated</span>
+            </header>
+            <div class="finding-note">At DPR 1.25 / 1.75 and some Android ratios, columns alternate 2/3 px and outlines blur — hitting the identity's first idea. The mocks hide this with <code>fit()</code>.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Spike on a 125 % Windows laptop; accept, snap backing stores to round(2·dpr), or snap only large cards; record the choice in DESIGN.md.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M2 — The pixel fonts lack the interface glyphs the copy uses</h3>
+              <span class="finding-location">DESIGN.md › Typography; copy "◀ PONT", "TOUT VOIR ▸", "↗", "⇄", "✕", "✓", "◆"</span>
+            </header>
+            <div class="finding-note">None of the three fonts has ◀ ▶ ▸ ◆ ⇄ ↗ ✕ ✓ or U+202F (the French group separator); they fall back with mismatched metrics, and ◀ ▶ can render as colour emoji.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Draw them as pixel SVG icons; group digits with U+00A0; note the rule under Typography.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M3 — The documented CORS fallback can never trigger as coded</h3>
+              <span class="finding-location">DESIGN.md › Pixel filter fallback; mocks crossOrigin + try/catch</span>
+            </header>
+            <div class="finding-note">With <code>crossOrigin</code> set and no ACAO, the load itself fails; the try/catch never runs. <code>IMGP</code> caches failures forever.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Retry once without <code>crossOrigin</code> and draw unquantised; do not cache failures for the session; never add headers to image fetches.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M4 — The continuous-animation and paint budget is unbounded</h3>
+              <span class="finding-location">DESIGN.md › Elevation &amp; Depth, Rarity effects; mocks scan, tcgHolo, bFrame rAF loop</span>
+            </header>
+            <div class="finding-note"><code>background-position</code> animations repaint the main thread; the hub stacks 10+ infinite loops; an rAF loop runs forever on every screen.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Loops animate only transform/opacity; rAF only while something moves; <code>content-visibility: auto</code>; a budget (≤ 6 visible infinite animations on the phone); a low-end Android spike.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M5 — touch-action: none on large cards traps scrolling on the phone</h3>
+              <span class="finding-location">mobile.html .show, .d-card, .pub-card, .z-card</span>
+            </header>
+            <div class="finding-note">A drag starting on the showcase or public card does not scroll the page.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Cards in scrolling content use <code>pan-y</code>; tilt follows only horizontal drag or long press; <code>none</code> only on the booster stage.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M6 — The mocks' code is not safe to port into Turbo/Stimulus lifecycles</h3>
+              <span class="finding-location">key-screens.html, mobile.html</span>
+            </header>
+            <div class="finding-note">53 and 68 <code>addEventListener</code>, 0 removals; uncleared intervals; module-level mutable state; unbounded caches. Turbo visits pile them up.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Implementation notes: mocks are a reference for look and timing, never source; listeners and timers registered in connect() and removed in disconnect(); LRU-bounded caches.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M7 — i18n inside the islands needs interpolation and plurals</h3>
+              <span class="finding-location">AD-16, AD-18</span>
+            </header>
+            <div class="finding-note">Pre-translated props cannot hold counts; French and English pluralise 0 differently.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Scoped key → template maps with one/other forms; a shared <code>t()</code> with <code>Intl.PluralRules</code>; server-rendered <code>&lt;time&gt;</code>; uppercase in CSS.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M8 — No Content-Security-Policy is defined</h3>
+              <span class="finding-location">config/initializers/content_security_policy.rb</span>
+            </header>
+            <div class="finding-note">The redesign widens what must be allowed (Steam image hosts, workers, fonts).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Adopt a policy now (img/connect to Steam hosts, worker-src blob:, self-hosted fonts, nonces), report-only for one release.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M9 — The 3D pitfall is narrower than the actual rule</h3>
+              <span class="finding-location">EXPERIENCE.md › Implementation notes</span>
+            </header>
+            <div class="finding-note">Any grouping property (opacity &lt; 1, filter, overflow, clip-path, mask, blend mode…) on or between tilt/flip layers flattens 3D and brings back the mirrored back. One refactor reintroduces the v2-3 bug.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Extend the note to all grouping properties; add a visual regression test of a tilted, revealed card.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M10 — Some tokens are not CSS values, and one is ambiguous</h3>
+              <span class="finding-location">DESIGN.md frontmatter (panel.border, bevel, card-back.sheen, idle-float, hazard-stripe, pixel outline, blink)</span>
+            </header>
+            <div class="finding-note"><code>panel.border: inset 2px</code> read literally draws a bevel; prose tokens force guessing; the three outline widths will drift.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Give each token the exact CSS value from the mocks; move prose effects to an Effects section; state the custom-property naming (<code>--color-*</code>).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M11 — Backs, canister, icons, avatars and logo exist only as procedural drawing code</h3>
+              <span class="finding-location">mocks backCanvas, canister canvases, iconSVG; DESIGN.md › Card backs</span>
+            </header>
+            <div class="finding-note">Production either ships runtime canvas drawing or someone redraws the art by hand and it drifts.</div>
+            <div class="finding-fix"><strong>Fix:</strong> A one-off export script renders each asset to PNG/SVG under <code>app/frontend/images/pixel/</code>; the author reviews the sheet once.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M12 — Phone shell model and safe areas</h3>
+              <span class="finding-location">mobile.html inner scroll; DESIGN.md "tab bar plus the safe area"; epic 1 viewport meta</span>
+            </header>
+            <div class="finding-note">Without <code>viewport-fit=cover</code>, safe-area insets are 0 on iOS; an inner-scroll app shell breaks Turbo scroll restoration and the iOS URL bar.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Document scroll, sticky top bar, fixed tab bar with safe-area padding; <code>viewport-fit=cover</code>; <code>dvh</code> for the booster stage.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L1 — One palette per size</h3>
+              <span class="finding-location">mocks ARTP</span>
+            </header>
+            <div class="finding-note">The same card can show different colours at s and xl.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Per-game palette (H1).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L2 — Collection arrow keys hard-code 5 columns</h3>
+              <span class="finding-location">mocks ArrowDown:5</span>
+            </header>
+            <div class="finding-note">Fluid grids break it.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Compute rows from offsetTop or the computed grid columns.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L3 — Esc precedence is spread across components</h3>
+              <span class="finding-location">EXPERIENCE.md › Keyboard</span>
+            </header>
+            <div class="finding-note">A native dialog and a document-level hotkeys controller both see one Esc.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Native <code>&lt;dialog&gt;</code> everywhere; hotkeys ignore defaultPrevented, open dialogs and form fields; 1–6 need an off switch.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L4 — LIVE ticker and live updates</h3>
+              <span class="finding-location">mock ticker translateX(-50%)</span>
+            </header>
+            <div class="finding-note">Inserting items mid-loop makes the strip jump.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Apply incoming items on <code>animationiteration</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L5 — Pixel fonts at sizes off their grid</h3>
+              <span class="finding-location">DESIGN.md › Typography</span>
+            </header>
+            <div class="finding-note">Silkscreen at 7–14 px and Pixelify 600 render antialiased.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Self-host subsetted woff2, preload, <code>font-display: block</code>; record licences (OFL) as a decision.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L6 — Hotlinking dependence</h3>
+              <span class="finding-location">Steam CDN</span>
+            </header>
+            <div class="finding-note">Valve could add referer checks or change hosts.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Build URLs from import data; one host config value; <code>referrerPolicy: no-referrer</code>; never cache covers in storage.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L7 — Countdowns and pack credit on the client</h3>
+              <span class="finding-location">"+1 dans", "PROCHAIN DANS", expiry</span>
+            </header>
+            <div class="finding-note">A skewed device clock shows wrong numbers.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Pass <code>server_now</code> and availability times; the server stays the authority.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L8 — Accessibility details that touch implementation</h3>
+              <span class="finding-location">mocks #fx canvas; reveal</span>
+            </header>
+            <div class="finding-note">Art and FX canvases are not <code>aria-hidden</code>; a reveal only changes the focused card's name.</div>
+            <div class="finding-fix"><strong>Fix:</strong> aria-hide canvases; send reveals to the polite live region; never draw text into a canvas.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L9 — The pedestal drifts 6 px</h3>
+              <span class="finding-location">mock .pedestal drift 8s</span>
+            </header>
+            <div class="finding-note">Breaks the "idle float 2 px at most" rule; the unused 10 px <code>bob</code> must not be ported.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Cap at 2 px or record the scenery exception.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L10 — allow_browser :modern</h3>
+              <span class="finding-location">ApplicationController</span>
+            </header>
+            <div class="finding-note">Safari 17.2+ / Chrome 120+ / Firefox 121+; shuts out iPhones on iOS 16.</div>
+            <div class="finding-fix"><strong>Fix:</strong> State the supported-browser floor in EXPERIENCE.md › Responsive &amp; Platform.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L11 — The daily-booster arc and Turbo Streams</h3>
+              <span class="finding-location">EXPERIENCE.md › Motion (daily)</span>
+            </header>
+            <div class="finding-note">The arc needs both positions before the stream replaces the DOM.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Run it from <code>turbo:before-stream-render</code> and dispatch <code>gameble:reserve-changed</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L12 — Grid scale</h3>
+              <span class="finding-location">Collection grid</span>
+            </header>
+            <div class="finding-note">Large publisher sets far exceed the mock's 30 cards.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Paginate or virtualise beyond ≈60 slots.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="reviewer-section">
+      <details>
+        <summary>
+          <h2>Mockups vs spines review <span class="reviewer-source">· 13 medium · 29 low</span></h2>
+          <span class="reviewer-source">review-mockups.md</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p><strong>Verdict (reviewer's words):</strong> The spines and the approved mocks agree on structure, tokens, motion and almost every behaviour. All 50 colour tokens appear in both mocks; every Motion timing matches the code within rounding. <strong>No divergence blocks the build.</strong> The divergences that matter are spine text that went stale after the v3-3 / v3-4 / mobile-v1-3 rounds (notched canister caps "to be redrawn", the counter-proposal and visibility notes that say "the mock" lacks them, a <code>motto</code> token that contradicts the goal panel), decided states without their copy, and phone booster details the spines leave out. The mocks have three real faults: the card detail lacks description, season, sets and copyright; the empty showcase shows two lime buttons; the phone zoom draws rays behind low tiers.</p>
+            <p>This reviewer sorts by kind, not severity: (a) spine right, mock convenience — 6; (b) fix the spine — 22; (c) fix the mock later — 5; (d) implicit decisions to confirm — 15. For the severity totals, this synthesis maps stale or contradicting spine text, missing decided copy and phone layout rules to <em>medium</em>, other (b) omissions to <em>low</em>, (c) to <em>medium</em> where a builder porting the mock would inherit the fault (c1, c2) and <em>low</em> otherwise, and every (d) to <em>low</em>. The six (a) items carry no action and are not counted; a5 (dead CSS encoding dropped decisions: <code>.g-motto</code>, <code>.tgl</code>, <code>bob</code>, <code>.g-time</code>) must not be ported.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">b1 — Canister caps described as notched</h3>
+              <span class="finding-location">DESIGN.md › Booster canister</span>
+            </header>
+            <div class="finding-note">The mock caps have solid, clean edges: crisp outline, light rim, knurled grip, collar, no notches.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Rewrite the cap description (memlog 260, 261).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">b2 — Canister "to be redrawn" is stale; approved anatomy and tokens missing</h3>
+              <span class="finding-location">DESIGN.md › Booster canister, components.canister</span>
+            </header>
+            <div class="finding-note">The redraw (100 × 150 art px at 2 CSS px) is done and approved. Missing: indicator window, rim bands, gloss, rivets, LED plate, barcode, emblem window. Caps are a steel gradient, not <code>muted</code>; the body a slate-blue gradient, not flat <code>panel-raised</code>.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Drop the sentence, describe the approved art, update the tokens or mark them as art (memlog 259, 262).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">b3 — Hazard band turns orange when armed</h3>
+              <span class="finding-location">DESIGN.md › Booster canister; EXPERIENCE.md › Motion</span>
+            </header>
+            <div class="finding-note">Not in the spine.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">b4 — The motto token contradicts the goal panel</h3>
+              <span class="finding-location">DESIGN.md › Colors (Motto) vs Community goal panel</span>
+            </header>
+            <div class="finding-note">Colors says <code>motto</code> carries the Brotherhood line; the panel section says <code>text-bright</code>; both mocks render it in <code>#e6eef5</code>, brass only in dead CSS.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Remove the <code>motto</code> token and its bullet, or say where it is used.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">b5 — Counter-proposal note is stale</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns "Counter-proposal in progress"</span>
+            </header>
+            <div class="finding-note">"The mock only opened my side" and the <code>[ASSUMPTION: copy]</code> are stale: the mocks open both sides with "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez."; the send button stays disabled until each side holds a card; focus goes to my add slot.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Remove the note and tag; adopt the mock copy and enable rule.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">b6 — Visibility labels still marked to write</h3>
+              <span class="finding-location">DESIGN.md › Profile and settings; EXPERIENCE.md › Settings row</span>
+            </header>
+            <div class="finding-note">The mocks ship VISIBILITÉ DU PROFIL with PUBLIC / AMIS UNIQUEMENT / PRIVÉ (radio group, default PUBLIC) and the three summary lines.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Write the labels and summary lines in; drop the tag.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">b7 — Daily booster with a full reserve lacks its copy</h3>
+              <span class="finding-location">DESIGN.md › Daily booster panel; EXPERIENCE.md › State</span>
+            </header>
+            <div class="finding-note">State word "RÉSERVE PLEINE" in orange and line "Ouvrez un booster pour récupérer celui du jour.".</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add the word, colour and line; add "full reserve" to orange's uses.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">b8 — Empty showcase lacks its copy</h3>
+              <span class="finding-location">DESIGN.md › Showcase; EXPERIENCE.md › "No notable pull yet"</span>
+            </header>
+            <div class="finding-note">Hatched frame, "OUVREZ VOTRE PREMIER BOOSTER", "Votre plus belle carte s'affichera ici.", button "OUVRIR UN BOOSTER", no rays.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add the copy; button colour per c4.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">b9 — Achievements gauge and tiles differ</h3>
+              <span class="finding-location">DESIGN.md › Achievements, gauge-segmented</span>
+            </header>
+            <div class="finding-note">One segment per achievement (40), 10 px tall; tiles grouped OBTENUS / À OBTENIR; tile bar 4 px in <code>line-deep</code>; one column on the phone.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Amend the gauge rule and tile spec.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">b10 — Reveal label under dealt cards</h3>
+              <span class="finding-location">DESIGN.md › Rarity icon / Result banner</span>
+            </header>
+            <div class="finding-note">"? ? ?" face down, then icon and tier name on reveal; mentioned only in passing.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Describe it as a component.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">b11 — Phone booster behaviour omitted</h3>
+              <span class="finding-location">DESIGN.md › Reveal caption plate, Tray; EXPERIENCE.md › Responsive, Motion</span>
+            </header>
+            <div class="finding-note">Pile deal with offsets and tilt; tap/swipe hints; 40 × 54 tray thumbnails with spark burst; plate ticks and Légendaire plate colour; tray zoom overlay; Tout révéler stores in the tray; daily flyer to the BOOSTER tab; tab bar disabled during opening.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add to DESIGN (plate, tray, zoom) and EXPERIENCE (Responsive, Motion, Tab bar).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">b12 — Phone sizes and type ramp not in tokens</h3>
+              <span class="finding-location">DESIGN.md › spacing / typography; Layout</span>
+            </header>
+            <div class="finding-note">Buttons 48 (small 44), stepper 44 × 36, ticker 30, PLUS rows 52, set chips 132 × 48; smaller type ramp (screen title 19, showcase 23, public title 30…).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add the phone values as tokens or a phone note.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">b13 — Card-size rules for trade and phone pickers</h3>
+              <span class="finding-location">DESIGN.md › Layout; EXPERIENCE.md › Responsive</span>
+            </header>
+            <div class="finding-note">Single-card trade side uses <code>card-m</code>; phone pickers <code>card-s</code>, <code>card-xs</code> only under 372 px; back grid <code>card-xs</code>; phone back preview <code>card-m</code> (DESIGN says <code>card-l</code>).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Align the size list and the phone rule.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">b14 — Phone sheets and tab behaviour</h3>
+              <span class="finding-location">DESIGN.md › Dialogs; EXPERIENCE.md › Motion, Tab bar</span>
+            </header>
+            <div class="finding-note">Grab handle; full-height picker; 240 ms rise (spine 220); sub-view slides 260/200 ms; current tab returns to root.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">b15 — Phone card detail controls</h3>
+              <span class="finding-location">DESIGN.md › Collection (card detail)</span>
+            </header>
+            <div class="finding-note">44 × 64 ◀ ▶ buttons, position line, actions pinned at the bottom.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">b16 — Per-screen top-bar contents</h3>
+              <span class="finding-location">DESIGN.md › Top bar</span>
+            </header>
+            <div class="finding-note">Reserve chip on booster, unique-cards bar on collection, trade note, LIVE chip on the feed; shortened phone titles.</div>
+            <div class="finding-fix"><strong>Fix:</strong> List them.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">b17 — Booster information panel has no spec</h3>
+              <span class="finding-location">DESIGN.md › Panels</span>
+            </header>
+            <div class="finding-note">Kicker, GRAND CATALOGUE title, bracketed info panel, reserve pips, revealed counter; phone 44 px strip.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a component entry.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">b18 — The pixel pedestal is a ringed planet</h3>
+              <span class="finding-location">DESIGN.md › Showcase / Shapes</span>
+            </header>
+            <div class="finding-note">200 × 200 art px planet with a lit ring.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Describe it.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">b19 — Approved copy the build needs is missing</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns, Voice</span>
+            </header>
+            <div class="finding-note">Trade toasts, side labels, picker titles and counter, board lines, invite labels, public pitch, PLUS subtitle.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Record the strings.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">b20 — Selected grid card and phone RAPPORT fold</h3>
+              <span class="finding-location">DESIGN.md › Collection</span>
+            </header>
+            <div class="finding-note">Pulsing 3 px accent frame with <code>aria-pressed</code>; fold shows "n cartes · n doublons" and a CARTES UNIQUES row.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">b21 — Small motion details</h3>
+              <span class="finding-location">EXPERIENCE.md › Motion</span>
+            </header>
+            <div class="finding-note">Peu commune ring; public card idle float over a breathing shadow; detail re-entry 260 ms with a turn.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add to the table.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">b22 — Card-back word position</h3>
+              <span class="finding-location">DESIGN.md › Card backs</span>
+            </header>
+            <div class="finding-note">Words sit at the top or bottom, not only the bottom.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Say "at the top or bottom".</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">c1 — Card detail lacks description, season, sets and copyright</h3>
+              <span class="finding-location">Both mocks, card detail</span>
+            </header>
+            <div class="finding-note">Contradicts memlog 63, CAP-7 and EXPERIENCE Card detail.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add the four facts to both details (mock).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">c2 — makePack() still forces a Rare into every booster</h3>
+              <span class="finding-location">Both mocks, demo code</span>
+            </header>
+            <div class="finding-note">Invisible, but anyone porting the code inherits a per-booster guarantee (contradicts memlog 243).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Remove the line (mock).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">c3 — Phone tray progress reads "1/5"</h3>
+              <span class="finding-location">Phone mock, booster tray</span>
+            </header>
+            <div class="finding-note">The decision and EXPERIENCE say "CARTE n / 5".</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add "CARTE", or the author accepts "n/5" and the spine is amended.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">c4 — Two lime primaries on the empty-showcase hub</h3>
+              <span class="finding-location">Both mocks, hub</span>
+            </header>
+            <div class="finding-note">"OUVRIR UN BOOSTER" and "RÉCUPÉRER" both lime; DESIGN says never more than one per view.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Make the showcase button secondary, or write the exception into the spine.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">c5 — Phone zoom draws rays behind low tiers</h3>
+              <span class="finding-location">Phone mock, tray zoom</span>
+            </header>
+            <div class="finding-note">Blue rays on Commune, Peu commune and Rare; DESIGN allows no rays below Épique.</div>
+            <div class="finding-fix"><strong>Fix:</strong> No rays below Épique (mock).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d1 — Reserve countdown at 10/10</h3>
+              <span class="finding-location">EXPERIENCE <code>[ASSUMPTION]</code></span>
+            </header>
+            <div class="finding-note">The mock keeps counting; the spine hides it.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Visible or hidden?</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d2 — Card-number threshold</h3>
+              <span class="finding-location">DESIGN.md › Card face</span>
+            </header>
+            <div class="finding-note">Short "#4 215" on s and m; full form only on l/xl. DESIGN: full form from medium.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Pick a threshold.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d3 — Missing-card slot label</h3>
+              <span class="finding-location">DESIGN / EXPERIENCE collection</span>
+            </header>
+            <div class="finding-note">Mock shows "NON OBTENUE" instead of the number.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Number, NON OBTENUE, or both?</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d4 — Copy badge from x1</h3>
+              <span class="finding-location">Collection grid</span>
+            </header>
+            <div class="finding-note">The mock badges every owned card.</div>
+            <div class="finding-fix"><strong>Fix:</strong> From x1 or duplicates only?</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d5 — Friend code format</h3>
+              <span class="finding-location">Amis</span>
+            </header>
+            <div class="finding-note">Mock accepts 3–5 chars, dash, 4; spine says "ABCD-1234".</div>
+            <div class="finding-fix"><strong>Fix:</strong> Fix the format.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d6 — Sign-out landing</h3>
+              <span class="finding-location">Settings</span>
+            </header>
+            <div class="finding-note">The mock lands on the public card page of the last pull; spine silent.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Where does sign-out land?</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d7 — Focus styles per element</h3>
+              <span class="finding-location">EXPERIENCE › Focus</span>
+            </header>
+            <div class="finding-note">Hover fill + 6 px halo on controls, 3 px gold on grid cards, accent with offset on canister and dealt cards.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Confirm and document per element (see the accessibility H4).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d8 — Pedestal drifts 6 px</h3>
+              <span class="finding-location">Hub</span>
+            </header>
+            <div class="finding-note">Spine caps bobbing at 2 px (for cards).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Confirm 6 px for scenery, or cap at 2 px.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d9 — Légendaire glow in showcase and public page</h3>
+              <span class="finding-location">DESIGN › Rarity effects</span>
+            </header>
+            <div class="finding-note">The mock shows no glow there; the spine says it does.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add the glow to the mock, or narrow the spine.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d10 — Ticker and feed thresholds</h3>
+              <span class="finding-location">EXPERIENCE <code>[ASSUMPTION]</code></span>
+            </header>
+            <div class="finding-note">Ticker sample includes a Rare; feed fills in with dimmed lower tiers.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Confirm the thresholds.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d11 — 6 px Silkscreen on card-xs</h3>
+              <span class="finding-location">DESIGN › Typography</span>
+            </header>
+            <div class="finding-note">Below the stated 7 px floor; legibility unchecked.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Confirm or raise (see accessibility H6).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d12 — Second back button on the booster</h3>
+              <span class="finding-location">Desktop booster</span>
+            </header>
+            <div class="finding-note">"RETOUR AU PONT" beside "◀ PONT".</div>
+            <div class="finding-fix"><strong>Fix:</strong> Keep or drop.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d13 — Shorter phone labels and Amis order</h3>
+              <span class="finding-location">Phone mock</span>
+            </header>
+            <div class="finding-note">"ÉCHANGER", "SIGNALER CE PROFIL", "SUPPRIMER", "CONNEXION STEAM".</div>
+            <div class="finding-fix"><strong>Fix:</strong> May phone copy differ?</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d14 — Asynchronous export</h3>
+              <span class="finding-location">Settings</span>
+            </header>
+            <div class="finding-note">"PRÉPARATION…" then toast "EXPORT PRÊT".</div>
+            <div class="finding-fix"><strong>Fix:</strong> Confirm the async export (CAP-14).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">d15 — Friend showcase selection</h3>
+              <span class="finding-location">EXPERIENCE <code>[ASSUMPTION]</code></span>
+            </header>
+            <div class="finding-note">The player's summary takes the three rarest automatically.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Confirm automatic, or let the player choose.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <div class="mechanical">
+      <h3>Mechanical notes</h3>
+      <ul>
+        <li>DESIGN.md frontmatter is valid YAML. 68/68 DESIGN and 7/7 EXPERIENCE token references resolve. All colours are hex. No Mermaid in either spine.</li>
+        <li>Broken cross-reference: <code>reconcile-hearthstone-card-back-reference.md</code> (EXPERIENCE.md, Inspiration &amp; Anti-patterns), retired per the memlog.</li>
+        <li>Dangling reference: "Behaviour unchanged from the previous run" (EXPERIENCE.md, IA, Back-office) points to superseded spine content.</li>
+        <li>Name inconsistencies across spines: see Inheritance discipline, first finding.</li>
+        <li>Card size conflict: Responsive &amp; Platform puts the phone hub showcase at <code>card-l</code>; DESIGN Layout lists <code>card-xl</code> for the hub showcase with no phone exception.</li>
+        <li>Focus colour: EXPERIENCE uses <code>{colors.gold}</code> for focus on grid cards, while DESIGN Colors excludes gold from general use.</li>
+        <li><code>ux-gameble.md</code> uses both "pack" and "booster" for the same object within one bullet list.</li>
+        <li>Frontmatter: DESIGN.md has no <code>sources</code> (optional). Typography weights are YAML integers (700) where the examples use strings ('700'); harmless, but should be consistent.</li>
+      </ul>
+    </div>
+
+    <footer class="report-footer">
+      <div class="meta">
+        <span>Rubric: /home/teyermann/projets/gameble/_bmad-output/initiative-gameble/ux-gameble/review-rubric.md</span>
+        <span>Extra reviewers: review-accessibility.md · review-feasibility.md · review-mockups.md</span>
+        <span>DESIGN.md: /home/teyermann/projets/gameble/_bmad-output/initiative-gameble/ux-gameble/DESIGN.md</span>
+        <span>EXPERIENCE.md: /home/teyermann/projets/gameble/_bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md</span>
+        <span>Generated: 2026-10-05</span>
+      </div>
+    </footer>
+  </div>
 </body>
 </html>

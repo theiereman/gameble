@@ -83,6 +83,8 @@ canvas,img.px{image-rendering:pixelated;image-rendering:crisp-edges}
 #flash{position:absolute;inset:0;z-index:80;pointer-events:none;opacity:0;background:#fff}
 .screen{position:absolute;inset:0;z-index:2;visibility:hidden}
 .screen.on{visibility:visible}
+/* A child set to visibility:visible (e.g. .bx-slot.shown) would show through a hidden screen: force every descendant of an inactive screen hidden. */
+.screen:not(.on) *{visibility:hidden!important}
 
 /* ---------- canvas building blocks ---------- */
 .hazard{height:8px;background:repeating-linear-gradient(-45deg,#66c0f4 0 8px,#0e141b 8px 16px)}
