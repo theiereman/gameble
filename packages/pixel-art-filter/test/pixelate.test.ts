@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { pixelate } from "../src/index"
+import { cropRegion, DEFAULT_ANCHOR, pixelate } from "../src/index"
 import { fromPixels, image, toPixels, type Rgba } from "./helpers"
 
 const RED: Rgba = [255, 0, 0, 255]
@@ -45,10 +45,30 @@ describe("pixelate", () => {
     expect(toPixels(pixelate(source, 2, 3, { crop: "none" }))).not.toEqual(Array(6).fill([255, 252, 252, 255]))
   })
 
-  it("crops the centre vertically when the source is taller than the target", () => {
+  it("crops the centre vertically with an anchor of 0.5", () => {
     const source = image(10, 40, (_x, y) => (y >= 10 && y < 30 ? GREEN : BLACK))
 
+    expect(toPixels(pixelate(source, 2, 4, { anchor: 0.5 }))).toEqual(Array(8).fill(GREEN))
+  })
+
+  it("anchors a vertical crop 42 % of the way down by default", () => {
+    // A 10 × 20 region in 10 × 120: the 100 rows left over go 42 above, 58 below.
+    const source = image(10, 120, (_x, y) => (y >= 42 && y < 62 ? GREEN : BLACK))
+
+    expect(DEFAULT_ANCHOR).toBe(0.42)
     expect(toPixels(pixelate(source, 2, 4))).toEqual(Array(8).fill(GREEN))
+    expect(toPixels(pixelate(source, 2, 4, { anchor: 0 }))).toEqual(Array(8).fill(BLACK))
+  })
+
+  it("gives the crop region for the browser's downscale", () => {
+    expect(cropRegion(600, 900, 68, 108)).toEqual({ x: (600 - 900 * (68 / 108)) / 2, y: 0, width: 900 * (68 / 108), height: 900 })
+    expect(cropRegion(300, 600, 2, 3)).toEqual({ x: 0, y: (600 - 450) * 0.42, width: 300, height: 450 })
+    expect(cropRegion(300, 600, 2, 3, { anchor: 1 })).toEqual({ x: 0, y: 150, width: 300, height: 450 })
+    expect(cropRegion(300, 600, 2, 3, { crop: "none" })).toEqual({ x: 0, y: 0, width: 300, height: 600 })
+  })
+
+  it.each([-0.1, 1.1, Number.NaN])("rejects an anchor of %s", (anchor) => {
+    expect(() => pixelate(fromPixels(1, 1, [RED]), 1, 1, { anchor })).toThrow(RangeError)
   })
 
   it("repeats the covering pixel when the source is smaller than the target", () => {

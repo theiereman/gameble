@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { filter, quantize } from "../src/index"
+import { applyPalette, buildPalette, DEFAULT_COLORS, filter, quantize } from "../src/index"
 import { nearest } from "../src/quantize"
 import { distinctColors, fromPixels, image, toPixels, type Rgba } from "./helpers"
 
@@ -93,6 +93,35 @@ describe("quantize", () => {
   })
 })
 
+describe("buildPalette and applyPalette", () => {
+  // 64 distinct colours, so the default of 32 has to merge them.
+  const many = image(8, 8, (x, y) => [x * 32, y * 32, (x * 8 + y) * 4, 255])
+
+  it("default to 32 colours", () => {
+    expect(DEFAULT_COLORS).toBe(32)
+    expect(buildPalette(many)).toHaveLength(32)
+    expect(quantize(many).palette).toHaveLength(32)
+  })
+
+  it("make quantize when chained", () => {
+    const palette = buildPalette(many, 8)
+
+    expect(applyPalette(many, palette)).toEqual(quantize(many, 8).pixels)
+  })
+
+  it("remap another image to a given palette, keeping alpha and transparent pixels", () => {
+    const palette = buildPalette(fromPixels(2, 1, [A, B]))
+    const other = fromPixels(3, 1, [[190, 50, 30, 200], [30, 70, 200, 255], [1, 2, 3, 0]])
+
+    expect(toPixels(applyPalette(other, palette))).toEqual([[200, 40, 40, 200], [20, 60, 220, 255], [1, 2, 3, 0]])
+  })
+
+  it("refuse an empty or oversized palette", () => {
+    expect(() => applyPalette(fromPixels(1, 1, [A]), [])).toThrow(RangeError)
+    expect(() => applyPalette(fromPixels(1, 1, [A]), Array(257).fill([0, 0, 0]))).toThrow(RangeError)
+  })
+})
+
 describe("filter", () => {
   // A colourful 600 × 900 sample in the size of a vertical Steam image.
   const sample = image(600, 900, (x, y) => [
@@ -102,7 +131,7 @@ describe("filter", () => {
     255,
   ])
 
-  it("pixelates to the grid and reduces to 16 colours, the same way every time", () => {
+  it("pixelates to the grid and reduces to 32 colours, the same way every time", () => {
     const started = performance.now()
     const first = filter(sample, { width: 120, height: 180 })
     const elapsed = performance.now() - started
@@ -110,8 +139,8 @@ describe("filter", () => {
 
     expect(first.pixels.width).toBe(120)
     expect(first.pixels.height).toBe(180)
-    expect(first.palette.length).toBeLessThanOrEqual(16)
-    expect(distinctColors(first.pixels).size).toBeLessThanOrEqual(16)
+    expect(first.palette.length).toBe(32)
+    expect(distinctColors(first.pixels).size).toBeLessThanOrEqual(32)
     expect(second.palette).toEqual(first.palette)
     expect(Array.from(second.pixels.data)).toEqual(Array.from(first.pixels.data))
     expect(elapsed).toBeLessThan(500)

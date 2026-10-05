@@ -2,27 +2,49 @@ import { assertColors, assertPixels, type Color, type Pixels } from "./pixels"
 
 export type Quantized = { palette: Color[]; pixels: Pixels }
 
+/** The colour count of the card art (AD-17). */
+export const DEFAULT_COLORS = 32
+
 /** A unique colour and how many pixels have it. */
 type Entry = { channels: Color; count: number }
 
 type Box = { entries: Entry[]; population: number; ranges: Color }
 
 /**
- * Reduces `pixels` to at most `colors` colours by median cut, without dithering.
- * Pixels of alpha 0 are transparent: they are copied unchanged and kept out of
- * the palette. Every other pixel keeps its alpha and takes the nearest palette
- * colour. The result depends only on the input.
+ * Reduces `pixels` to at most `colors` colours by median cut, without dithering:
+ * `buildPalette` followed by `applyPalette`. The result depends only on the input.
  */
-export function quantize(pixels: Pixels, colors = 16): Quantized {
+export function quantize(pixels: Pixels, colors = DEFAULT_COLORS): Quantized {
+  const palette = buildPalette(pixels, colors)
+  return { palette, pixels: { width: pixels.width, height: pixels.height, data: remap(pixels.data, palette) } }
+}
+
+/**
+ * At most `colors` colours that represent `pixels`, by median cut. Pixels of
+ * alpha 0 are kept out of it; an image with no other pixel gives an empty
+ * palette. The result depends only on the input.
+ */
+export function buildPalette(pixels: Pixels, colors = DEFAULT_COLORS): Color[] {
   assertPixels(pixels)
   assertColors(colors)
 
   const entries = histogram(pixels.data)
-  const palette = entries.length <= colors
+  return entries.length <= colors
     ? entries.map((entry) => [...entry.channels] as Color)
     : medianCut(entries, colors).map(mean)
+}
 
-  return { palette, pixels: { width: pixels.width, height: pixels.height, data: remap(pixels.data, palette) } }
+/**
+ * `pixels` with every pixel that is not fully transparent taking the nearest
+ * colour of `palette` (and keeping its alpha); pixels of alpha 0 are copied
+ * unchanged. Used to draw every size of an image with the palette computed once.
+ */
+export function applyPalette(pixels: Pixels, palette: Color[]): Pixels {
+  assertPixels(pixels)
+  if (palette.length < 1 || palette.length > 256) {
+    throw new RangeError(`palette must hold 1 to 256 colours, got ${palette.length}`)
+  }
+  return { width: pixels.width, height: pixels.height, data: remap(pixels.data, palette) }
 }
 
 function histogram(data: Uint8ClampedArray): Entry[] {

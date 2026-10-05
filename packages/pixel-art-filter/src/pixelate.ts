@@ -1,9 +1,19 @@
 import { assertPixels, assertSize, type Pixels } from "./pixels"
 
-/** `"cover"` centre-crops the source to the target ratio; `"none"` stretches it. */
+/** `"cover"` crops the source to the target ratio; `"none"` stretches it. */
 export type Crop = "cover" | "none"
 
-export type PixelateOptions = { crop?: Crop }
+/**
+ * Where a `"cover"` crop sits vertically when the source is taller than the
+ * target ratio: 0 keeps the top, 0.5 the middle, 1 the bottom. Covers put
+ * their title and faces above the middle (AD-17).
+ */
+export const DEFAULT_ANCHOR = 0.42
+
+export type PixelateOptions = { crop?: Crop; anchor?: number }
+
+/** A rectangle of the source, in source pixels (not rounded). */
+export type Region = { x: number; y: number; width: number; height: number }
 
 /** One source index and the share of it a target pixel covers. */
 type Tap = { index: number; weight: number }
@@ -14,23 +24,11 @@ type Tap = { index: number; weight: number }
  * where the source is smaller than the target, the covering pixel is used.
  * Alpha is then made binary: 128 or more becomes 255, less becomes 0 (RGB 0).
  */
-export function pixelate(source: Pixels, width: number, height: number, { crop = "cover" }: PixelateOptions = {}): Pixels {
+export function pixelate(source: Pixels, width: number, height: number, { crop = "cover", anchor = DEFAULT_ANCHOR }: PixelateOptions = {}): Pixels {
   assertPixels(source)
-  assertSize("width", width)
-  assertSize("height", height)
-
-  let regionWidth = source.width
-  let regionHeight = source.height
-  if (crop === "cover") {
-    const targetRatio = width / height
-    if (source.width / source.height > targetRatio) {
-      regionWidth = source.height * targetRatio
-    } else {
-      regionHeight = source.width / targetRatio
-    }
-  }
-  const columns = taps(source.width, (source.width - regionWidth) / 2, regionWidth, width)
-  const rows = taps(source.height, (source.height - regionHeight) / 2, regionHeight, height)
+  const region = cropRegion(source.width, source.height, width, height, { crop, anchor })
+  const columns = taps(source.width, region.x, region.width, width)
+  const rows = taps(source.height, region.y, region.height, height)
 
   const input = source.data
   const output = new Uint8ClampedArray(width * height * 4)
@@ -63,6 +61,41 @@ export function pixelate(source: Pixels, width: number, height: number, { crop =
     }
   }
   return { width, height, data: output }
+}
+
+/**
+ * The part of a `sourceWidth × sourceHeight` image that a `width × height`
+ * target shows. `"cover"` keeps the largest region of the target's ratio,
+ * centred horizontally and placed vertically by `anchor`; `"none"` keeps the
+ * whole source. Used by `pixelate` and by the browser's downscale.
+ */
+export function cropRegion(
+  sourceWidth: number,
+  sourceHeight: number,
+  width: number,
+  height: number,
+  { crop = "cover", anchor = DEFAULT_ANCHOR }: PixelateOptions = {},
+): Region {
+  assertSize("source width", sourceWidth)
+  assertSize("source height", sourceHeight)
+  assertSize("width", width)
+  assertSize("height", height)
+  assertAnchor(anchor)
+  if (crop === "none") return { x: 0, y: 0, width: sourceWidth, height: sourceHeight }
+
+  const targetRatio = width / height
+  if (sourceWidth / sourceHeight > targetRatio) {
+    const regionWidth = sourceHeight * targetRatio
+    return { x: (sourceWidth - regionWidth) / 2, y: 0, width: regionWidth, height: sourceHeight }
+  }
+  const regionHeight = sourceWidth / targetRatio
+  return { x: 0, y: (sourceHeight - regionHeight) * anchor, width: sourceWidth, height: regionHeight }
+}
+
+function assertAnchor(anchor: number): void {
+  if (!Number.isFinite(anchor) || anchor < 0 || anchor > 1) {
+    throw new RangeError(`anchor must be a number from 0 to 1, got ${anchor}`)
+  }
 }
 
 /** For each of `count` target cells, the source indices it covers along one axis. */

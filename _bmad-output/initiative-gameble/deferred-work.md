@@ -190,3 +190,6 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-architecture-conformance-plan.md`
   summary: A font file under Vite's 4 KB inline limit becomes a `data:` URI, which `font-src 'self'` refuses once the CSP is enforced. None exists today; when the shell's subsetted woff2 files land, exclude fonts from `assetsInlineLimit` in `vite.config.ts` (as card images are) or check none is under the limit.
   evidence: Story 8.4 review (edge case, unverified): `vite.config.ts` excludes only `/images/card/` from inlining.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-pixel-filter-v2-plan.md`
+  summary: The Content-Security-Policy of story 8.4 must allow the pixel filter's module worker (`worker-src 'self'`) and list the Steam image hosts in `connect-src` as well as `img-src`, because the worker loads covers with `fetch`; without them every cover falls back to the plain main-thread path without palette.
+  evidence: Story 8.5 moves cover loading into `packages/pixel-art-filter/src/worker-job.ts` (`fetch` with `mode: "cors"`), started by `new Worker(new URL("./worker.ts", import.meta.url), { type: "module" })` in `src/renderer.ts`; no CSP is configured yet (feasibility M8, story 8.4).
