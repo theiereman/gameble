@@ -1,55 +1,90 @@
 # Spine Pair Review — gameble
 
+Reviewer: rubric walker (Reviewer Gate, 2026-10-05 redesign). Inputs: `DESIGN.md`, `EXPERIENCE.md` (draft, 2026-10-05), `ux-gameble.md`, `.memlog.md` (entries from "Update started 2026-10-05" onward), `mockups/`, `imports/`, sources `../spec-gameble/spec-gameble.md` (+ companions) and `../brief-gameble/brief-gameble.md`. Spec divergences that `ux-gameble.md` already lists as requested spec changes are not flagged.
+
 ## Overall verdict
-The spine pair is a usable contract for the card, the attic, the pack reveal, the library and trades: decisions are committed, tokens resolve and each key screen has a mock. Its weak point is upstream: the spec still describes the earlier design and must adopt these files. Three areas remain thin and are flagged: how friends are made, what the achievements are, and the card detail view.
+
+The pair is a strong contract for the player-facing game. The token set is complete, every reference resolves, the contrast claims check out, and the booster and trade surfaces are specified down to keys, states and copy. The main gap is the staff side. The back-office (moderation, catalog import, season publish) has no flow, no components and no states, and the spine sends readers to "the previous run", whose content is no longer in the spine. Below that sit about a dozen medium gaps: missing state families (special boosters against the 10-booster cap, the weekly goal lifecycle, data export, trade edge cases), a focus ring that disappears on same-coloured card frames, component names that drift between the two spines, a broken file reference and a stale canister description.
 
 ## 1. Flow coverage — adequate
-Two key flows carry a named protagonist, numbered steps, a climax beat and a failure path: Léa's first session and the trade between Hugo and Léa. They cover sign-in, packs, reveal, collection, card detail, public profile, sharing, trades, the feed and the daily bonus.
+
+Checked: every CAP-1…CAP-18 in the spec and the brief's three key moments (pull, brag, trade) against Key Flows. Three flows exist (first session, trade with quantities, equipping a back). Each has a named protagonist, numbered steps and a bolded climax. Flows 1 and 2 have failure paths. Between them they cover CAP-1, 4, 5, 6, 10, 11, 13, 16 and 18, the receiving side of CAP-9, and the new card-back capability.
+
 ### Findings
-- **medium** No flow shows how two players become friends (EXPERIENCE.md, Key Flows, Flow 2 step 1). Flow 2 assumes the friendship exists. The spec offers an invite link or a friend code (CAP-10). *Fix:* Narrate the friend invitation, or accept the assumption when the spec is updated.
-- **medium** Achievements have no flow and no defined content (EXPERIENCE.md, Component Patterns). The author asked for simple achievements on their own screen; none is named. *Fix:* List the achievements before the screen is built.
-- **low** Data controls and moderation have no flow (EXPERIENCE.md, Information Architecture). CAP-14 and CAP-15 are described plainly from the spec, by decision. *Fix:* None needed unless these screens grow.
+- **high** No flow covers the staff journeys: report → moderator review → ban (CAP-15), the administrator starting and watching a catalog import (CAP-2), or publishing a season. The IA row for Back-office says "Behaviour unchanged from the previous run", but the 2026-10-05 rewrite replaced that run's spine, so a consumer has nothing to extract from (EXPERIENCE.md, Information Architecture, Back-office row; State Patterns rows "Not staff" and "Banned account" are the only staff-side content). *Fix:* bring the back-office behaviour back into this spine. Add a Key Flow "Moderator reviews a report and bans" with a failure path, plus Component Patterns rows (report queue, report detail, ban action, import run and progress, season publish) and states (empty queue, import running, import failed, ban confirmation).
+- **medium** Several capabilities that carry a product promise have no flow: the brag from the sharer's side (open detail → PARTAGER → link copied → pasted on Discord; CAP-9 and the brief's "brag" moment), the weekly goal being reached and the rare booster arriving (CAP-12), an achievement unlocking (CAP-17), and exporting data or deleting the account (CAP-14 "each action works end to end"). *Fix:* add a short flow for the share and one for the goal reward. Fold achievement unlock and data export into State Patterns rows if a flow feels too heavy.
+- **low** Flow 3 (Inès) has no failure path. The flow could fail if she equips the back during an opening, or if the set is completed through a trade rather than a reveal. Flow 1's climax is conditional ("If it is an Épique…"), which weakens it as an acceptance anchor (EXPERIENCE.md, Key Flows 1 and 3). *Fix:* add a one-line failure path to Flow 3, and pin Flow 1's climax to the guaranteed Rare-or-better reveal.
 
 ## 2. Token completeness — adequate
-Every colour token has a hex value and every {token} reference resolves. Contrast is stated for the load-bearing pairs, and the rarity colours that fail on parchment are barred from text.
+
+Checked: YAML frontmatter parses. All 68 `{…}` references in DESIGN.md and all 7 in EXPERIENCE.md resolve to defined tokens. Every colour is a hex value. Stated contrasts were recomputed and hold: on-accent/accent 9.11, text/ground 12.82, muted/panel 5.98, on-lime/primary 6.23, dim/panel 3.20, publisher/panel-raised 4.29, rarity colours on panel-raised at 5.09 or more (Commune 5.09, Épique 5.16). The product is dark-only, so light/dark pairs do not apply.
+
 ### Findings
-- **medium** Gold values are provisional (DESIGN.md, Colors). Legendary cards use gold values chosen for the mocks. *Fix:* Confirm or replace the three gold tokens.
-- **low** Card title size is not a token (DESIGN.md, typography). The mocks use 15px on the large card and 12px on the small one. *Fix:* Add the two sizes if implementers need them.
-- **low** Scene colours are not tokens (DESIGN.md, The attic). Brick and parquet colours belong to the art, not to the interface. *Fix:* Leave to the final art.
+- **medium** The focus ring has no token or DESIGN component spec. EXPERIENCE sets it to "3px `{colors.accent}` … gold `{colors.gold}` on cards in grids". Gold on a Légendaire frame is 1.0:1 and accent on a Rare frame is 1.0:1, so focus vanishes exactly on the cards that matter. Gold-as-focus also breaks DESIGN's rule that gold "is never a general accent" (EXPERIENCE.md, State Patterns "Focus"; DESIGN.md, Colors: Gold). *Fix:* add a `focus-ring` component token, for example a 2px `{colors.outline}` gap plus a 3px `{colors.accent-hi}` or `{colors.text-max}` ring with an offset. Check it against all five rarity frames, the panels and the accent fills, and use it in both spines.
+- **medium** Type sizes used in prose have no typography token: the public page title "Pixelify Sans 38px", its description "VT323 22px", the Épique banner "small (28px)", card micro lines "7 to 10px" under a single 8px `micro` token, and the small-card footer at 7px (DESIGN.md, Components: Public card page, Result banner; Typography). *Fix:* add `public-title`, `body-large`, `banner-small` and a `micro` ramp per card size (as done for `card-title-*`), and reference them by name.
+- **low** Four colour tokens have no stated role: `accent-hi`, `accent-press`, `on-alert` and `star` (DESIGN.md frontmatter; not referenced in the body). *Fix:* give each a use in Colors, or remove it.
+- **low** No global contrast target is stated (EXPERIENCE's floor implies 4.5:1 text; nothing states 3:1 for non-text UI such as focus rings, input borders and gauge segments). The pair also never says the product is dark-only. *Fix:* add one line to Colors: "Dark only. Text ≥ 4.5:1, UI boundaries and focus ≥ 3:1, except `dim` and `publisher`, which carry redundant information only."
+- **low** Token-shape oddities a resolver will trip on: `typography.publisher` has only a `note` (13/16/18px) and no `fontSize`; easing curves live under `components.motion`, though motion is not a component; `hazard-stripe.pattern` embeds `{colors.accent}` inside a composite string (DESIGN.md frontmatter). *Fix:* split `publisher` into per-size tokens, move the easings to a top-level `motion` group or note the convention, and give the stripe colours their own keys.
 
 ## 3. Component coverage — adequate
-Cards, seals, dust, the attic objects, the gauge, buttons, the bonus panel, tomes, empty slots and the trade board have a visual entry and a behavioural entry.
+
+Checked: every component name in both spines against DESIGN.md Components (visual) and EXPERIENCE.md Component Patterns (behavioural). Most core components have both halves with real rules: card face, canister, tray, caption plate, menu item, trade board, quantity stepper, reserved tag, card picker, back picker, share sheet, modal and toast.
+
 ### Findings
-- **medium** The card detail view has no visual spec and no mock (DESIGN.md, Components). Its content is listed in the Information Architecture; the shared-card mock shows a close cousin. *Fix:* Mock it, or state that it follows the shared-card layout.
-- **low** The feed entry is an assumption without a mock (DESIGN.md, Other components). The feed excerpt was removed from the shared-card page. *Fix:* Mock the feed screen when it is designed.
+- **medium** These EXPERIENCE components have no visual spec in DESIGN: **Invitation** (received row with ACCEPTER/IGNORER, sent row with EN ATTENTE), the hub's **"PROGRESSION DES SETS"** panel (Set progress row on the hub), **Face-down card** and **Revealed card** (states of Card face; covered only implicitly by Card backs), the **Public profile** page, the signed-out hub **invitation to sign in**, and the booster screen's **"RÉSERVE VIDE"** replacement for the canister (EXPERIENCE.md, Component Patterns and State Patterns). *Fix:* add short DESIGN entries for each, or state explicitly which existing entry they reuse.
+- **medium** These interactive DESIGN components have no behavioural row in EXPERIENCE: Text field (validation, max length, submit on Enter, error line), Radio list, Link, the button family (one-primary-per-view rule, press and disabled behaviour), Add slot, Remove "✕", Status chip, Stack, and the RAPPORT panel (folds on the phone) (DESIGN.md, Components; EXPERIENCE.md, Component Patterns). *Fix:* add rows. A single "Buttons" row can carry the one-primary rule and the pressed and disabled behaviour.
+- **medium** Phone touch sizes contradict the Accessibility Floor ("at least 44px on the phone"). Tabs and filters are 34px and serve as the phone's chip rows. The Back button is a "small secondary button" (`button-height-sm`, 34px) and is the phone's contextual back. The remove "✕" is a "small square" (DESIGN.md, Components: Tabs and filters, Buttons → Back button, Trade board → Remove; EXPERIENCE.md, Accessibility Floor). *Fix:* give each a phone size of `{spacing.touch-min}`, or a 44px hit area around the 34px visual, in DESIGN.
 
 ## 4. State coverage — adequate
-Signed-out, first session, packs, daily bonus, sets, the four trade states, goal reached, refused opening, empty collection, quiet feed, missing image and focus are covered.
-### Findings
-- **low** No empty state for the friends list, the trade list and achievements (EXPERIENCE.md, State Patterns). These screens were not narrated. *Fix:* Add them when the screens are designed.
-- **low** No loading state for card art (EXPERIENCE.md, State Patterns). Art is fetched from Steam and filtered in the browser, so a card exists briefly without its image. *Fix:* State what the art window shows meanwhile.
 
-## 5. Visual reference coverage — strong
-Four mockups are linked inline where they apply: card face, card backs, attic, key screens. The imported reference image is linked with its reconciliation note. Spines-win-on-conflict is stated once.
-### Findings
-- None.
+Checked: each IA surface for empty, cold load, focus, error, offline, permission denied and signed out. The booster, trade and friends surfaces are thorough, with copy. Cold load, offline, network error and banned are tagged `[ASSUMPTION]` and listed as open, which is acceptable for a draft. The back-office gap is counted under 1.
 
-## 6. Bloat & overspecification — strong
-Tables carry most of the content and the prose stays tied to decisions.
 ### Findings
-- **low** "Not in the MVP" restates scope (EXPERIENCE.md, Interaction Primitives). The list repeats product scope, yet it stops implementers from adding those interactions. *Fix:* Keep.
+- **medium** Special boosters and the 10-booster cap are undefined. The daily booster (spec: "small", "better odds") and the goal reward ("rare booster") both land in the same reserve. Nothing says how they look among identical canisters, whether they open first, whether the daily one still has 5 cards (the booster screen always states "5 cartes"), or what happens to a goal reward when the reserve is already full (EXPERIENCE.md, State Patterns "Goal reached", "Daily booster with a full reserve"; Component Patterns "Booster canister"). `ux-gameble.md` covers only the daily booster joining the reserve. *Fix:* add states for a special booster in the reserve and for a goal reward arriving with a full reserve, and add the cap rule for rewards to the spec-change list.
+- **medium** The community goal lifecycle is missing. The spec's goal is **weekly**, with a target that scales with weekly active players, but no spine says "weekly". There is no state for the week ending, the reset, a reached goal as shown on the panel, a missed goal, or a player who did not contribute. DESIGN removes any countdown (DESIGN.md, Community goal panel; EXPERIENCE.md, Component Patterns "Community goal"). *Fix:* add rows for goal reached (panel look), week rollover, goal missed and non-contributor, and state where the week boundary is visible, if anywhere.
+- **medium** Profil et paramètres has no states for its data actions: export in progress, export ready, export failed; where sign-out lands; where the player lands after deleting the account; the effect of a language switch (EXPERIENCE.md, Component Patterns "Settings row", "Delete dialog"). CAP-14 requires each action to work end to end. *Fix:* add rows for each.
+- **medium** Trade edge cases are missing: the friend is banned or deletes their account while a trade is open; whether the 7-day expiry restarts on a counter-proposal; how reservations move when a counter changes quantities (Flow 2 step 7 drops Hugo's Slay the Spire from ×2 to ×1); a card picker with nothing to place (a new player, or every copy reserved) (EXPERIENCE.md, State Patterns, trade rows). *Fix:* add four rows.
+- **low** Smaller gaps: Succès has no state rows (unlock notification, signed-out view); the share sheet copies on open with no state for clipboard refusal (permission denied); a signed-in visitor on the public card page (top bar, CTA); a signed-out visitor on the card detail, which CAP-18 lists (EXPERIENCE.md, State Patterns). *Fix:* one row each.
 
-## 7. Inheritance discipline — thin
-Sources resolve and names match across the two spines. The spec, however, still describes the earlier contract.
+## 5. Visual reference coverage — adequate
+
+Checked: `mockups/key-screens.html` and `mockups/mobile.html`. `imports/claude-design-concepts/` (Booster, Card, Collection, Main, Raretes `.dc.html`, `canvas.json`), `imports/ref-01…04*.png`, `imports/hearthstone-card-back-reference.png`. There is no `wireframes/` folder. Spines-win-on-conflict is stated once per spine (DESIGN.md, Brand & Style; EXPERIENCE.md, Foundation). Every file is reachable, so there are no orphans.
+
 ### Findings
-- **high** The spec contradicts the spines on thirteen points (ux-gameble.md, Changes this run asks of the spec). Reveal by glow, sets by genre, decade and publisher, no daily bonus, no achievements, a feed that is not public, and more. *Fix:* Run bmad-spec to adopt the spines and apply the listed changes.
+- **medium** Broken reference: EXPERIENCE.md, Inspiration & Anti-patterns ("Rejected — the medieval archives direction") cites `reconcile-hearthstone-card-back-reference.md`, which the memlog records as retired from the workspace (kept in git history only). *Fix:* drop the filename or say "(git history)".
+- **low** `mockups/mobile.html` is linked only in DESIGN Brand & Style and EXPERIENCE Foundation. It is not linked at the phone-specific sections that it illustrates: Reveal caption plate, Tray, Tab bar, Responsive & Platform. `mockups/key-screens.html` is cited at Card face, Booster canister and Motion, but not at Trade board, Friends, Activity feed, Achievements, Profile and settings or Public card page, all of which it contains. *Fix:* add one-line "Reference: … , <screen>" pointers at those sections.
+- **low** `imports/ref-01…ref-04` are cited only as a range in Brand & Style, and nothing says what each one shows (hub, booster, collection, rarity scale). ref-04 shows four tiers and is superseded by the five-tier scale (DESIGN.md, Brand & Style). *Fix:* name each at its section (Hub content, Booster canister, Collection, Rarity), with a note that ref-04's four-tier scale is superseded.
+
+## 6. Bloat & overspecification — adequate
+
+DESIGN.md's editorial voice is appropriate, and EXPERIENCE.md is mostly tables. Little would go unread.
+
+### Findings
+- **low** DESIGN.md says "timings live in `EXPERIENCE.md`, Motion", then carries its own timings: holo "34 steps every 3.4s", card-back sheen 5.2s, art fade 600ms, "COPIÉ ✓" 1.6s, count bump 0.5s, ticker 60s, canister breath 2px over 6s. The canister breath is duplicated in EXPERIENCE. Prose also restates values that tokens hold ("34px, Silkscreen 10px", "24 × 26px") (DESIGN.md, Components). *Fix:* move the timings to EXPERIENCE Motion, and cite tokens instead of raw values in prose.
+- **low** EXPERIENCE.md Foundation carries project history ("replaces the 2026-10-02 medieval direction… Epic 1 … must be reworked"), and Implementation notes quotes a prototype CSS selector (`.screen:not(.on) *`). *Fix:* move the history to `ux-gameble.md` or the memlog. In the notes, keep the rule ("hide every descendant of an inactive screen") and drop the selector.
+- **low** EXPERIENCE.md "Card backs" states product rules (how backs are earned) that belong in the spec once `bmad-spec` absorbs the new capability. *Fix:* after absorption, shrink it to a pointer plus the UX-only rules (choosing, display, locked look).
+
+## 7. Inheritance discipline — adequate
+
+Checked: `sources` resolve (`../spec-gameble/spec-gameble.md`, `../brief-gameble/brief-gameble.md`). CAP ids are cited verbatim (CAP-7, 8, 13, 15). EXPERIENCE token references resolve to DESIGN tokens. Spec divergences already listed in `ux-gameble.md` were not counted: rarity names, single reveal, 32 colours, card face and number, card backs, the trade changes, vous, Brotherhood, CAP-18 "hub", daily into reserve, no per-booster promise, invitations, presence, three-way visibility and the later quick-open input.
+
+### Findings
+- **medium** EXPERIENCE Component Patterns claims "(same names)" as DESIGN, but the names drift: Community goal ↔ Community goal panel; Set progress row ↔ Set row; Trade list ↔ List row; Trade board ↔ Board; Friend profile ↔ Friend profile dialog; Report / Delete dialog ↔ Report and delete dialogs; Face-down card / Revealed card ↔ (Card face / Card backs). *Fix:* pick one name per component and use it in both spines and in the frontmatter `components` keys.
+- **medium** The canister description is stale against the canonical memlog. DESIGN says "Two notched metal caps" and "it is redrawn … (the author reviews it)". The memlog records that the notches were removed (caps with clean, solid edges, grip ridges kept) and that the 2 px redraw was done and approved in v3-4 (DESIGN.md, Components: Booster canister). *Fix:* describe solid-edged caps with grip ridges, and drop the pending-review sentence.
+- **medium** Spec divergences and omissions that `ux-gameble.md` does not list: (a) **glossary**: the spec says "pack" everywhere (CAP-4, CAP-12 "rare pack", CAP-16 "small booster"), while the spines say "booster" throughout; `ux-gameble.md` mixes both ("10th pack" / "10th booster"). (b) **weekly goal → "community goal"**: the panel drops the weekly framing (see 4). (c) **daily booster size and odds** ("small", "better odds") are not reflected (see 4). (d) The spec Constraint "the site terms state there is no affiliation with Steam or Valve" has no UX surface: no terms page or footer link in the IA, and no place on the public page. *Fix:* add a pack = booster glossary line to `ux-gameble.md` and to the requested spec changes, list (b) and (c), and add a Terms/legal surface (IA row and footer link on the public pages and in Profil et paramètres).
+- **low** EXPERIENCE.md `sources` omits the spec companions it leans on (`catalog-and-rarity.md`, `brotherhood-tone.md`) and the brief addendum. DESIGN.md has no `sources` field at all (EXPERIENCE.md and DESIGN.md frontmatter). *Fix:* list the companions, or state that the spec's `companions:` are inherited.
 
 ## 8. Shape fit — strong
-DESIGN.md follows the canonical order. EXPERIENCE.md has every default section, plus Responsive & Platform and Inspiration & Anti-patterns, both triggered.
-### Findings
-- None.
+
+DESIGN.md sections follow the canonical order: Brand & Style → Colors (with a Rarity subsection) → Typography → Layout & Spacing → Elevation & Depth → Shapes → Components → Do's and Don'ts. EXPERIENCE.md has every required default: Foundation, IA, Voice and Tone, Component Patterns, State Patterns, Interaction Primitives, Accessibility Floor and Key Flows. Responsive & Platform is present (multi-surface), and so is Inspiration & Anti-patterns (reference products and rejects in the memlog). The invented sections earn their place. Motion holds the timing contract, Card backs carries a capability the spec has not absorbed yet, Implementation notes holds binding build pitfalls, and Open questions is clearly marked non-blocking.
 
 ## Mechanical notes
-- Run inline by the facilitator, without subagents.
-- Findings fixed during the review are not listed: missing Inspiration & Anti-patterns section, unlinked import, missing visual entries for the trade board, secondary button, back button and rarity counter, missing states from the spec (refused opening, quiet feed, hidden or banned profile).
-- Ten items in EXPERIENCE.md and one in DESIGN.md keep an `[ASSUMPTION]` tag.
+
+- DESIGN.md frontmatter is valid YAML. 68/68 DESIGN and 7/7 EXPERIENCE token references resolve. All colours are hex. No Mermaid in either spine.
+- Broken cross-reference: `reconcile-hearthstone-card-back-reference.md` (EXPERIENCE.md, Inspiration & Anti-patterns). Retired per the memlog.
+- Dangling reference: "Behaviour unchanged from the previous run" (EXPERIENCE.md, IA, Back-office). It points to superseded spine content.
+- Name inconsistencies across spines: see 7, first finding.
+- Card size conflict: Responsive & Platform puts the phone hub showcase at `card-l`, while DESIGN Layout lists `card-xl` for the "hub showcase" with no phone exception.
+- Focus colour: EXPERIENCE uses `{colors.gold}` for focus on grid cards, while DESIGN Colors excludes gold from general use. See 2.
+- `ux-gameble.md` uses both "pack" and "booster" for the same object within one bullet list.
+- Frontmatter completeness: EXPERIENCE.md has name, status, created, updated and sources. DESIGN.md has name, description, status, created and updated, but no sources (optional per the DESIGN.md spec). Typography weights are YAML integers (700) where the DESIGN.md examples use strings ('700'). This is harmless, but the form should be consistent.
