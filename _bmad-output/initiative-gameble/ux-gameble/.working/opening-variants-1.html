@@ -1,0 +1,1174 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ouvertures de booster</title>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0f15;--bar:#171a21;--p1:#121a24;--p2:#0e141b;--l1:#2a475e;--l2:#1f3346;--acc:#66c0f4;--tx:#c7d5e0;--mu:#8f98a0;--ol:#06090d;--lime:#a4d007;--gold:#f4c542;--or:#e8833a}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx)}
+body{font-family:'VT323',monospace;font-size:20px;line-height:1.2}
+@keyframes tcgHolo{0%{background-position:160% 0}100%{background-position:-60% 0}}
+@keyframes tcgFoil{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes scan{0%{background-position:0 0}100%{background-position:0 6px}}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:.15}}
+@keyframes twinkle{0%,100%{opacity:.2}50%{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes sweep{0%{transform:translateX(-150%) skewX(-20deg)}55%,100%{transform:translateX(700%) skewX(-20deg)}}
+@keyframes pulseGlow{0%,100%{opacity:.55}50%{opacity:1}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(-10px) rotate(1.2deg)}}
+@keyframes breath{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes hop{0%,100%{transform:translateY(0) rotate(-1.5deg) scale(1,1)}45%{transform:translateY(-12px) rotate(1.5deg) scale(.98,1.02)}}
+@keyframes floatUp{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-16px) rotate(2deg)}}
+@keyframes drift{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-6px) rotate(.6deg)}}
+@keyframes ledArm{0%,49%{background:#e8833a}50%,100%{background:#3a2412}}
+@keyframes cbump{0%{color:#ffffff;transform:translateY(-3px)}100%{transform:none}}
+@keyframes brkBlink{0%,49%{opacity:1}50%,100%{opacity:.35}}
+
+/* ---------- page chrome ---------- */
+.page{max-width:1152px;margin:0 auto;padding:22px 16px 48px}
+.top{display:flex;gap:20px;align-items:flex-start}
+.top .hz{flex:none;margin-top:10px}
+.hazard{height:8px;background:repeating-linear-gradient(-45deg,#66c0f4 0 8px,#0e141b 8px 16px)}
+.kick{font-family:'Silkscreen',monospace;font-size:11px;letter-spacing:3px;color:var(--acc)}
+h1{margin:6px 0 4px;font-family:'Pixelify Sans',monospace;font-weight:700;font-size:32px;line-height:36px;color:#fff;letter-spacing:.5px}
+.lede{margin:0;color:var(--mu);font-size:20px}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:22px 0 18px}
+.bar .sp{flex:1}
+.px-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font-family:'Silkscreen',monospace;font-size:12px;letter-spacing:1px;border:0;cursor:pointer;padding:0 14px;height:40px;background:#2a475e;color:#e6eef5;
+  box-shadow:0 -3px 0 0 #06090d,0 3px 0 0 #06090d,-3px 0 0 0 #06090d,3px 0 0 0 #06090d,inset 0 -4px 0 0 rgba(0,0,0,.35);transition:transform .14s steps(2),background-color .1s steps(2),color .1s steps(2)}
+.px-btn:hover,.px-btn:focus-visible{transform:translateY(-3px);background:#66c0f4;color:#0b1520;outline:none}
+.px-btn:active{transform:translateY(2px)}
+.px-btn.go{background:#7aa60a;color:#0f1a03}
+.px-btn.go:hover,.px-btn.go:focus-visible{background:#beee11;color:#0f1a03}
+.px-btn[disabled]{background:#18212a;color:#56636f;cursor:not-allowed;transform:none}
+.px-btn .k{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#0e141b;color:var(--acc);font-size:11px;box-shadow:0 0 0 2px #06090d}
+.tabs{display:flex;flex-wrap:wrap;gap:12px}
+.tab[aria-selected="true"]{background:#66c0f4;color:#0b1520}
+.tab[aria-selected="true"] .k{background:#0b1520;color:#66c0f4}
+.speed{display:flex;align-items:center;gap:10px}
+.speed .lab{font-family:'Silkscreen',monospace;font-size:10px;letter-spacing:2px;color:var(--mu)}
+.speed .px-btn{height:32px;padding:0 10px;font-size:11px}
+.speed .px-btn[aria-pressed="true"]{background:#c7d5e0;color:#0b1520}
+.brk{position:relative}
+.brk::before,.brk::after{content:"";position:absolute;width:14px;height:14px;border:0 solid #66c0f4;pointer-events:none;z-index:2}
+.brk::before{top:-7px;left:-7px;border-top-width:3px;border-left-width:3px}
+.brk::after{bottom:-7px;right:-7px;border-bottom-width:3px;border-right-width:3px}
+.fit{width:100%;box-shadow:0 0 0 3px #06090d,0 0 0 5px #2a475e}
+.acts{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin:24px 0 8px}
+.acts .keys{margin-left:auto;font-family:'Silkscreen',monospace;font-size:10px;letter-spacing:1px;color:var(--mu)}
+.notes{list-style:none;margin:18px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.notes li{display:grid;grid-template-columns:28px 180px 1fr auto;gap:14px;align-items:baseline;padding:10px 14px;background:#0e141b;box-shadow:inset 0 0 0 2px #1f3346;cursor:pointer}
+.notes li.on{background:#121a24;box-shadow:inset 0 0 0 2px #66c0f4}
+.notes .n{font-family:'Pixelify Sans',monospace;font-weight:700;font-size:20px;color:var(--acc)}
+.notes .nm{font-family:'Silkscreen',monospace;font-size:12px;letter-spacing:1px;color:#fff}
+.notes .tx{font-size:19px;color:var(--mu);line-height:1.15}
+.notes li.on .tx{color:var(--tx)}
+.notes .tm{font-family:'Silkscreen',monospace;font-size:10px;letter-spacing:1px;color:var(--lime);white-space:nowrap;text-align:right;line-height:16px}
+.foot{margin:18px 0 0;font-size:18px;color:#5d6b7c}
+@media (max-width:760px){.notes li{grid-template-columns:24px 1fr}.notes .tx,.notes .tm{grid-column:1/-1;text-align:left}.acts .keys{margin-left:0}}
+
+/* ---------- stage ---------- */
+#stage{position:absolute;left:0;top:0;width:1120px;height:600px;transform-origin:0 0;overflow:hidden;background:#0b0f15;font-family:'Silkscreen',monospace;color:var(--tx)}
+#shake{position:absolute;inset:0}
+#stars i{position:absolute;background:#c7d5e0;animation:twinkle 3s steps(4) infinite}
+.scanlines{position:absolute;inset:0;pointer-events:none;z-index:60;background:repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 1px,transparent 1px 3px);animation:scan .6s steps(3) infinite}
+.vignette{position:absolute;inset:0;pointer-events:none;z-index:59;box-shadow:inset 0 0 180px 30px rgba(0,0,0,.7)}
+.sh-l{position:absolute;left:26px;top:22px;z-index:3;width:260px}
+.sh-l .k1{margin-top:12px;font-size:10px;letter-spacing:3px;color:var(--acc)}
+.sh-l .k2{margin-top:4px;font-family:'Pixelify Sans',monospace;font-weight:700;font-size:24px;color:#fff}
+.sh-l .k3{margin-top:2px;font-size:9px;letter-spacing:2px;color:var(--mu)}
+.sh-r{position:absolute;right:26px;top:22px;z-index:3;text-align:right}
+.sh-r .k1{font-size:10px;letter-spacing:3px;color:var(--mu)}
+.sh-r .cnt{display:inline-block;margin-top:4px;font-family:'Pixelify Sans',monospace;font-weight:700;font-size:26px;color:#fff}
+.sh-r .cnt.bump{animation:cbump .3s steps(3)}
+.sh-r .slow{margin-top:6px;font-size:10px;letter-spacing:2px;color:var(--or);visibility:hidden}
+.sh-r .slow.on{visibility:visible;animation:blink 1.2s steps(1) infinite}
+#hint{position:absolute;left:0;right:0;bottom:26px;text-align:center;font-size:13px;letter-spacing:3px;color:var(--acc);z-index:3}
+#hint.blink{animation:blink 1s steps(1) infinite}
+#dim{position:absolute;inset:0;background:rgba(6,9,13,.74);opacity:0;transition:opacity .35s ease-out;z-index:8;pointer-events:none}
+#dim.on{opacity:1}
+#dim.soft{opacity:.45}
+#sun{position:absolute;left:300px;top:20px;width:520px;height:520px;border-radius:50%;opacity:0;z-index:9;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,226,140,.5) 0,rgba(244,197,66,.22) 34%,rgba(244,197,66,0) 64%)}
+#cards{position:absolute;inset:0;z-index:10;pointer-events:none}
+#beams{position:absolute;inset:0;z-index:15;pointer-events:none}
+#fx{position:absolute;left:0;top:0;width:1120px;height:600px;image-rendering:pixelated;z-index:20;pointer-events:none}
+#flood{position:absolute;inset:0;z-index:44;pointer-events:none;opacity:0;mix-blend-mode:screen;
+  background:radial-gradient(circle at 50% 46%,rgba(255,240,200,.55) 0,rgba(244,197,66,.22) 30%,rgba(244,197,66,0) 62%)}
+#flash{position:absolute;inset:0;z-index:45;pointer-events:none;opacity:0}
+#banner{position:absolute;left:0;right:0;top:34px;z-index:42;display:flex;flex-direction:column;align-items:center;pointer-events:none;opacity:0}
+#banner .row{display:flex;align-items:center;gap:16px}
+#banner .hz{width:70px;height:8px;background:repeating-linear-gradient(-45deg,var(--bc) 0 8px,#0e141b 8px 16px)}
+#banner .t{font-family:'Pixelify Sans',monospace;font-weight:700;font-size:42px;line-height:48px;color:var(--bc);letter-spacing:2px;
+  text-shadow:3px 0 0 #06090d,-3px 0 0 #06090d,0 3px 0 #06090d,0 -3px 0 #06090d,0 6px 0 rgba(0,0,0,.45)}
+#banner.small .t{font-size:28px;line-height:34px}
+#banner .s{margin-top:2px;font-family:'VT323',monospace;font-size:22px;color:#e6eef5;text-shadow:0 2px 0 #06090d}
+
+/* ---------- pack ---------- */
+#packwrap{position:absolute;left:460px;top:120px;width:200px;height:300px;z-index:9}
+.prays{position:absolute;left:-140px;top:-90px;width:480px;height:480px;border-radius:50%;pointer-events:none;
+  background:repeating-conic-gradient(rgba(102,192,244,.16) 0deg 9deg,transparent 9deg 18deg);animation:spin 40s steps(160) infinite;
+  -webkit-mask-image:radial-gradient(circle,#000 25%,transparent 68%);mask-image:radial-gradient(circle,#000 25%,transparent 68%)}
+.pglow{position:absolute;left:-80px;top:-30px;width:360px;height:360px;border-radius:50%;pointer-events:none;opacity:0;
+  background:radial-gradient(circle,rgba(159,214,247,.28),rgba(102,192,244,0) 65%)}
+.packbtn{position:absolute;inset:0;display:block;padding:0;border:0;background:transparent;cursor:pointer}
+.packbtn:focus-visible{outline:3px solid #66c0f4;outline-offset:14px}
+.packbtn[disabled]{cursor:default}
+.pidle,.pmove{position:absolute;inset:0}
+.idle-1{animation:breath 3.6s ease-in-out infinite}
+.idle-2{animation:bob 3s ease-in-out infinite}
+.idle-3{animation:hop 1.6s cubic-bezier(.45,0,.55,1) infinite}
+.idle-4{animation:floatUp 5s ease-in-out infinite}
+.pmove{transition:filter .1s steps(2)}
+.packbtn:not([disabled]):hover .pmove{filter:brightness(1.15)}
+.plid{position:absolute;left:0;top:0;width:200px;height:35px;transform-origin:0 100%}
+.pbody{position:absolute;left:0;top:35px;width:200px;height:265px}
+.plid svg,.pbody svg{display:block}
+.pbody .l1{position:absolute;left:0;right:0;top:41px;text-align:center;font-size:11px;letter-spacing:3px;color:#0b1520}
+.pbody .l2{position:absolute;left:0;right:0;top:55px;text-align:center;font-family:'Pixelify Sans',monospace;font-weight:700;font-size:25px;color:#0b1520}
+.pbody .l3{position:absolute;left:0;right:0;top:203px;text-align:center;font-size:9px;letter-spacing:2px;color:#8f98a0}
+.shine-mask{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.shine{position:absolute;top:0;bottom:0;left:0;width:34px;background:rgba(255,255,255,.22);animation:sweep 2.8s steps(28) infinite}
+.jag{position:absolute;left:0;width:200px;height:5px;opacity:0;pointer-events:none}
+.plid .jag{top:35px}
+.pbody .jag{top:-5px}
+.clamp{position:absolute;left:-14px;width:228px;height:20px;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:0 9px;background:#2a475e;
+  box-shadow:0 -3px 0 0 #06090d,0 3px 0 0 #06090d,-3px 0 0 0 #06090d,3px 0 0 0 #06090d,inset 0 -4px 0 0 rgba(0,0,0,.35),inset 0 3px 0 0 rgba(255,255,255,.12)}
+.clamp.t{top:-6px}.clamp.b{bottom:-6px}
+.clamp .led{width:6px;height:6px;background:#66c0f4;box-shadow:0 0 0 2px #06090d}
+.clamp .hz{width:84px;height:8px;background:repeating-linear-gradient(-45deg,#66c0f4 0 6px,#0e141b 6px 12px)}
+.armed .clamp .led{animation:ledArm .16s steps(1) infinite}
+.armed .clamp .hz{background:repeating-linear-gradient(-45deg,#e8833a 0 6px,#0e141b 6px 12px)}
+.plight{position:absolute;left:0;top:-40px;width:200px;height:90px;pointer-events:none;opacity:0;mix-blend-mode:screen;
+  background:radial-gradient(50% 50% at 50% 70%,rgba(214,239,255,.8),rgba(102,192,244,0) 70%)}
+.pbeam{position:absolute;left:30px;top:-300px;width:140px;height:336px;pointer-events:none;opacity:0;transform-origin:50% 100%;mix-blend-mode:screen;
+  background:linear-gradient(0deg,rgba(214,239,255,.55),rgba(159,214,247,.18) 55%,rgba(102,192,244,0));
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent);mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent)}
+#packhint{position:absolute;left:0;right:0;top:446px;text-align:center;font-size:13px;letter-spacing:3px;color:var(--acc);z-index:3;animation:blink 1s steps(1) infinite}
+
+/* ---------- cards ---------- */
+.slot{position:absolute;width:164px;height:248px;margin:-124px 0 0 -82px;visibility:hidden;pointer-events:auto}
+.slot.shown{visibility:visible}
+.travel,.float,.lift{position:absolute;inset:0}
+.travel{transition:filter .35s ease-out}
+.slot.dimmed .travel{filter:brightness(.32) saturate(.6)}
+.slot.drift .float{animation:drift var(--dd,4.6s) ease-in-out infinite}
+.lift{perspective:1000px}
+.tilt{position:absolute;inset:0;display:block;width:100%;height:100%;padding:0;border:0;background:none;cursor:pointer;transform-style:preserve-3d;font:inherit;color:inherit}
+.tilt:focus-visible{outline:3px solid #66c0f4;outline-offset:8px}
+.slot.on .tilt{cursor:default}
+.flip{position:absolute;inset:0;transform-style:preserve-3d}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.back{background:#171a21;padding:6px;box-shadow:0 -4px 0 0 #06090d,0 4px 0 0 #06090d,-4px 0 0 0 #06090d,4px 0 0 0 #06090d}
+.bin{position:relative;height:100%;background:repeating-linear-gradient(45deg,#1b2838 0 6px,#16202d 6px 12px);box-shadow:inset 0 0 0 2px #2a475e,inset 0 0 0 5px #0e141b;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.bin .bset{font-size:10px;letter-spacing:2px;color:#66c0f4}
+.bin .bname{font-family:'Pixelify Sans',monospace;font-weight:700;font-size:14px;letter-spacing:2px;color:#2a6f9a}
+.bin .d{position:absolute;width:4px;height:4px;background:#66c0f4}
+.bshine{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.bshine i{position:absolute;top:0;bottom:0;left:0;width:26px;background:rgba(220,240,255,.07);animation:sweep 4.2s steps(42) infinite}
+.scan{position:absolute;left:6px;right:6px;top:-8px;height:6px;opacity:0;pointer-events:none;background:var(--sc,#cfeeff);box-shadow:0 0 0 2px rgba(6,9,13,.6)}
+.lockbrk{position:absolute;inset:-14px;pointer-events:none;opacity:0}
+.lockbrk i{position:absolute;width:20px;height:20px;border:0 solid #f4c542}
+.lockbrk i:nth-child(1){left:0;top:0;border-top-width:4px;border-left-width:4px}
+.lockbrk i:nth-child(2){right:0;top:0;border-top-width:4px;border-right-width:4px}
+.lockbrk i:nth-child(3){left:0;bottom:0;border-bottom-width:4px;border-left-width:4px}
+.lockbrk i:nth-child(4){right:0;bottom:0;border-bottom-width:4px;border-right-width:4px}
+.lockbrk.blink i{animation:brkBlink .3s steps(1) infinite}
+.front{transform:rotateY(180deg);padding:4px;background:var(--rc);
+  box-shadow:0 -4px 0 0 #06090d,0 4px 0 0 #06090d,-4px 0 0 0 #06090d,4px 0 0 0 #06090d,inset 3px 3px 0 0 rgba(255,255,255,.35),inset -3px -3px 0 0 rgba(0,0,0,.35)}
+.fin{position:relative;height:100%;background:#121a24;display:flex;flex-direction:column}
+.ttl{flex:0 0 42px;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:0 6px;background:#121a24;box-shadow:inset 0 -2px 0 0 #06090d}
+.ttl span{font-family:'Pixelify Sans',monospace;font-weight:600;font-size:12px;line-height:13px;letter-spacing:.5px;text-transform:uppercase;color:#fff;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ttl .pub{font-family:'VT323',monospace;font-size:14px;line-height:11px;color:#5d6b7c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.art{position:relative;flex:0 0 162px;background:#0e141b;overflow:hidden}
+.art canvas{display:block;width:156px;height:162px;image-rendering:pixelated}
+.art .ab{position:absolute;width:8px;height:8px;border:0 solid rgba(255,255,255,.7)}
+.art .ab.a1{left:3px;top:3px;border-top-width:2px;border-left-width:2px}
+.art .ab.a2{right:3px;bottom:3px;border-bottom-width:2px;border-right-width:2px}
+.miss{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  background:repeating-linear-gradient(45deg,#121a24 0 6px,#0e141b 6px 12px);font-family:'VT323',monospace;font-size:16px;color:#5d6b7c;text-align:center}
+.ft{flex:1;background:#1b2838;box-shadow:inset 0 2px 0 0 #06090d;padding:5px 6px 0;display:flex;flex-direction:column;gap:2px}
+.f1,.f2{display:flex;justify-content:space-between;align-items:center;font-size:8px;letter-spacing:1px;line-height:10px;color:#8f98a0}
+.f2 .rn{display:flex;align-items:center;gap:5px;color:var(--rc);font-size:9px}
+.holo{position:absolute;inset:0;pointer-events:none;opacity:var(--holo);mix-blend-mode:overlay;
+  background:linear-gradient(115deg,rgba(255,255,255,0) 38%,rgba(255,255,255,.55) 48%,rgba(102,192,244,.45) 52%,rgba(255,255,255,0) 62%);background-size:300% 100%;animation:tcgHolo 3.4s steps(34) infinite}
+.foil{position:absolute;inset:0;pointer-events:none;opacity:var(--foil);mix-blend-mode:color-dodge;
+  background:linear-gradient(135deg,#ff3cac,#f4c542,#4cf0ff,#b47cff,#ff3cac);background-size:400% 400%;animation:tcgFoil 6s steps(60) infinite}
+.glare{position:absolute;inset:0;pointer-events:none;opacity:var(--ga,0);mix-blend-mode:screen;
+  background:radial-gradient(circle at var(--gx,50%) var(--gy,30%),rgba(255,255,255,.26),rgba(255,255,255,0) 55%)}
+.crays{position:absolute;left:50%;top:50%;width:420px;height:420px;margin:-210px 0 0 -210px;border-radius:50%;pointer-events:none;opacity:0;
+  background:repeating-conic-gradient(var(--ray,transparent) 0deg 8deg,transparent 8deg 16deg);animation:spin 24s steps(96) infinite;transition:opacity .5s ease-out;
+  -webkit-mask-image:radial-gradient(circle,#000 25%,transparent 68%);mask-image:radial-gradient(circle,#000 25%,transparent 68%)}
+.slot.r3 .crays{--ray:rgba(180,124,255,.22)}
+.slot.r4 .crays{--ray:rgba(244,197,66,.36);width:500px;height:500px;margin:-250px 0 0 -250px;animation-duration:14s}
+.slot.on.r3 .crays,.slot.on.r4 .crays{opacity:1}
+.cglow{position:absolute;inset:-6px;background:rgba(244,197,66,.7);filter:blur(14px);opacity:0;pointer-events:none}
+.slot.on.r4 .cglow{opacity:1;animation:pulseGlow 1.1s steps(5) infinite}
+.lbl{position:absolute;left:-30px;right:-30px;top:260px;height:22px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:10px;letter-spacing:2px;color:#2a475e}
+
+@media (prefers-reduced-motion:reduce){
+  .idle-1,.idle-2,.idle-3,.idle-4,.slot.drift .float,.prays,.crays,.shine,.bshine i{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <div class="hazard hz" style="width:96px"></div>
+    <div>
+      <div class="kick">GAMEBLE · ÉTUDE DE MOUVEMENT · OUVERTURE DE BOOSTER</div>
+      <h1>Quatre ouvertures, un seul style</h1>
+      <p class="lede">Même pack, mêmes cinq cartes, même scène : seul le mouvement change. Cliquez le pack pour l'ouvrir, puis une carte pour la révéler.</p>
+    </div>
+  </header>
+
+  <div class="bar">
+    <div class="tabs" role="tablist" aria-label="Variante" id="tabs"></div>
+    <div class="sp"></div>
+    <div class="speed" role="group" aria-label="Vitesse d'animation" id="speed">
+      <span class="lab">VITESSE</span>
+      <button type="button" class="px-btn" data-r="1" aria-pressed="true">1×</button>
+      <button type="button" class="px-btn" data-r="0.5" aria-pressed="false">0,5×</button>
+      <button type="button" class="px-btn" data-r="0.25" aria-pressed="false">0,25×</button>
+    </div>
+  </div>
+
+  <div class="fit brk" id="fit">
+    <div id="stage" class="v1">
+      <div id="shake">
+        <div id="stars"></div>
+        <div class="sh-l">
+          <div class="hazard" style="width:120px"></div>
+          <div class="k1">ZONE DE DÉPLOIEMENT</div>
+          <div class="k2">ÉTÉ INDÉ</div>
+          <div class="k3" id="vname">VARIANTE 1 · TERMINAL REVISITÉ</div>
+        </div>
+        <div class="sh-r">
+          <div class="k1">CARTES RÉVÉLÉES</div>
+          <div class="cnt" id="cnt">0 / 5</div>
+          <div class="slow" id="slow">RALENTI</div>
+        </div>
+        <div id="sun"></div>
+        <div id="dim"></div>
+        <div id="packwrap"></div>
+        <div id="packhint">CLIQUEZ POUR OUVRIR</div>
+        <div id="cards"></div>
+        <div id="beams"></div>
+        <canvas id="fx" width="560" height="300"></canvas>
+        <div id="hint"></div>
+      </div>
+      <div id="flood"></div>
+      <div id="banner" aria-hidden="true"></div>
+      <div id="flash"></div>
+      <div class="vignette"></div>
+      <div class="scanlines"></div>
+      <div id="live" class="sr" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"></div>
+    </div>
+  </div>
+
+  <div class="acts">
+    <button type="button" class="px-btn go" id="bOpen">OUVRIR LE BOOSTER</button>
+    <button type="button" class="px-btn" id="bAll">TOUT RÉVÉLER</button>
+    <button type="button" class="px-btn" id="bReplay">REJOUER</button>
+    <span class="keys">CLAVIER : 1–4 VARIANTE · R REJOUER · T TOUT RÉVÉLER</span>
+  </div>
+
+  <ol class="notes" id="notes"></ol>
+  <p class="foot">Toutes les durées sont données à 1×. Les mouvements (pack, cartes, retournements, inclinaison, secousses) sont fluides ; les petits effets (clignotements, voyants, compteur, lignes de balayage, rayons) restent en pas à pas comme sur le canevas. Avec « réduire les animations », chaque séquence devient un fondu court. Images : capsules verticales Steam, filtre pixel fin (1 pixel = 2 px, 32 couleurs).</p>
+</div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const W = 1120, H = 600, PX = 560, PY = 270;
+const PACK_TOP = PY - 150;
+
+/* ================= data ================= */
+const R = [
+  { n: 'Commune', c: '#8f98a0', hi: '#e6eef5' },
+  { n: 'Peu commune', c: '#3ecf9e', hi: '#c4f7e2' },
+  { n: 'Rare', c: '#66c0f4', hi: '#d6efff' },
+  { n: 'Épique', c: '#b47cff', hi: '#e6d4ff' },
+  { n: 'Légendaire', c: '#f4c542', hi: '#fff1b8' }
+];
+const HOLO = [0, 0, .45, .7, 1], FOIL = [0, 0, 0, .08, .22];
+const GAMES = [
+  { id: 367520, p: 'Team Cherry', t: 'Hollow Knight', y: 2017, g: 'Metroidvania', r: 0, n: '014' },
+  { id: 504230, p: 'Maddy Makes Games', t: 'Celeste', y: 2018, g: 'Plateforme', r: 1, n: '031' },
+  { id: 1145360, p: 'Supergiant Games', t: 'Hades', y: 2020, g: 'Roguelite', r: 2, n: '058' },
+  { id: 753640, p: 'Annapurna Interactive', t: 'Outer Wilds', y: 2020, g: 'Aventure', r: 3, n: '087' },
+  { id: 2379780, p: 'Playstack', t: 'Balatro', y: 2024, g: 'Roguelite', r: 4, n: '007' }
+];
+const GOLD = ['#f4c542', '#fff1b8', '#ffd27a', '#ffffff'];
+const CONF = ['#66c0f4', '#a4d007', '#f4c542', '#b47cff', '#3ecf9e', '#ffffff', '#e8833a'];
+const STEAM = ['#ffffff', '#d6efff', '#9fd6f7', '#66c0f4'];
+
+/* ================= rarity shapes (9×9 pixel grids) ================= */
+const SHAPES = [
+  ['..#####..', '.#######.', '##.....##', '##.....##', '##.....##', '##.....##', '##.....##', '.#######.', '..#####..'],
+  ['...###...', '..#####..', '.#######.', '#########', '#########', '#########', '.#######.', '..#####..', '...###...'],
+  ['....#....', '...###...', '..#####..', '.#######.', '#########', '.#######.', '..#####..', '...###...', '....#....'],
+  ['....#....', '...###...', '...###...', '..#####..', '..#####..', '.#######.', '.#######.', '#########', '#########'],
+  ['....#....', '....#....', '...###...', '#########', '.#######.', '..#####..', '..##.##..', '.##...##.', '##.....##']
+];
+function icon(t, px = 2, outline = false) {
+  const g = SHAPES[t], m = outline ? 1 : 0, N = 9 + 2 * m;
+  const on = (x, y) => { const row = g[y - m]; return !!row && row[x - m] === '#'; };
+  let s = '', hi = false;
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    if (on(x, y)) {
+      const top = !hi && !on(x, y - 1); if (top) hi = true;
+      s += `<rect x="${x}" y="${y}" width="1" height="1" fill="${top ? R[t].hi : R[t].c}"/>`;
+    } else if (outline && (on(x - 1, y) || on(x + 1, y) || on(x, y - 1) || on(x, y + 1))) {
+      s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#06090d"/>`;
+    }
+  }
+  return `<svg viewBox="0 0 ${N} ${N}" width="${N * px}" height="${N * px}" shape-rendering="crispEdges" aria-hidden="true" style="display:block;flex:none">${s}</svg>`;
+}
+
+/* ================= pack art (canvas SVG, 40×60 units at 5 px) ================= */
+const PACK_RECTS = (() => {
+  let s = '<rect x="0" y="0" width="40" height="4" fill="#8f98a0"/>';
+  for (let x = 1; x < 40; x += 4) s += `<rect x="${x}" y="0" width="2" height="1" fill="#0b0f15"/>`;
+  s += '<rect x="0" y="4" width="40" height="1" fill="#c7d5e0"/><rect x="0" y="5" width="40" height="50" fill="#1b2838"/>' +
+    '<rect x="0" y="5" width="2" height="50" fill="#2a475e"/><rect x="38" y="5" width="2" height="50" fill="#10161e"/>' +
+    '<rect x="2" y="13" width="36" height="16" fill="#66c0f4"/><rect x="2" y="13" width="36" height="1" fill="#b5e2ff"/><rect x="2" y="28" width="36" height="1" fill="#2a6f9a"/>' +
+    '<rect x="4" y="8" width="1" height="1" fill="#66c0f4"/><rect x="35" y="8" width="1" height="1" fill="#66c0f4"/><rect x="4" y="51" width="1" height="1" fill="#66c0f4"/><rect x="35" y="51" width="1" height="1" fill="#66c0f4"/>' +
+    '<rect x="15" y="31" width="10" height="13" fill="#c7d5e0"/><rect x="16" y="32" width="8" height="11" fill="#121a24"/>' +
+    '<rect x="19" y="34" width="2" height="7" fill="#f4c542"/><rect x="17" y="36" width="6" height="3" fill="#f4c542"/>' +
+    '<rect x="0" y="55" width="40" height="1" fill="#c7d5e0"/><rect x="0" y="56" width="40" height="4" fill="#8f98a0"/>';
+  for (let x = 1; x < 40; x += 4) s += `<rect x="${x}" y="59" width="2" height="1" fill="#0b0f15"/>`;
+  return s;
+})();
+/* jagged torn edge, no glow: just the wrapper's own colours */
+function jagSVG(up) {
+  let s = '';
+  for (let x = 0; x < 40; x++) {
+    const h = [1, 0, 1, 1, 0, 1, 0, 0, 1, 1][x % 10];
+    if (up ? h : !h) s += `<rect x="${x}" y="0" width="1" height="1" fill="#1b2838"/>`;
+  }
+  return `<svg viewBox="0 0 40 1" width="200" height="5" shape-rendering="crispEdges">${s}</svg>`;
+}
+const EMBLEM = '<svg viewBox="0 0 12 12" width="64" height="64" shape-rendering="crispEdges" aria-hidden="true">' +
+  '<rect x="4" y="0" width="7" height="9" fill="#2a475e"/><rect x="1" y="2" width="7" height="9" fill="#66c0f4"/><rect x="2" y="3" width="5" height="7" fill="#171a21"/>' +
+  '<rect x="4" y="5" width="1" height="3" fill="#f4c542"/><rect x="3" y="6" width="3" height="1" fill="#f4c542"/></svg>';
+const QMARK = (() => {
+  const g = ['.###.', '#...#', '...#.', '..#..', '..#..', '.....', '..#..']; let s = '';
+  g.forEach((row, y) => [...row].forEach((ch, x) => { if (ch === '#') s += `<rect x="${x}" y="${y}" width="1" height="1" fill="#2a475e"/>`; }));
+  return `<svg viewBox="0 0 5 7" width="20" height="28" shape-rendering="crispEdges" aria-hidden="true">${s}</svg>`;
+})();
+
+/* ================= Steam art: fine pixel filter (78×81 art px → 156×162 css px, 32 colours) ================= */
+function reduceColours(ctx, w, h, n) {
+  const img = ctx.getImageData(0, 0, w, h), d = img.data, px = [];
+  for (let i = 0; i < d.length; i += 4) px.push([d[i], d[i + 1], d[i + 2]]);
+  let boxes = [px.slice()];
+  while (boxes.length < n) {
+    let best = -1, bestRange = 0, bestCh = 0;
+    boxes.forEach((b, bi) => {
+      if (b.length < 2) return;
+      for (let c = 0; c < 3; c++) {
+        let lo = 255, hi = 0;
+        for (const p of b) { if (p[c] < lo) lo = p[c]; if (p[c] > hi) hi = p[c]; }
+        if (hi - lo > bestRange) { bestRange = hi - lo; best = bi; bestCh = c; }
+      }
+    });
+    if (best < 0) break;
+    const b = boxes[best].sort((p, q) => p[bestCh] - q[bestCh]), mid = b.length >> 1;
+    boxes.splice(best, 1, b.slice(0, mid), b.slice(mid));
+  }
+  const pal = boxes.map(b => { const s = [0, 0, 0]; for (const p of b) { s[0] += p[0]; s[1] += p[1]; s[2] += p[2]; } return s.map(v => v / b.length); });
+  for (let i = 0; i < d.length; i += 4) {
+    let bi = 0, bd = Infinity;
+    for (let k = 0; k < pal.length; k++) {
+      const dr = d[i] - pal[k][0], dg = d[i + 1] - pal[k][1], db = d[i + 2] - pal[k][2], dist = dr * dr + dg * dg + db * db;
+      if (dist < bd) { bd = dist; bi = k; }
+    }
+    d[i] = pal[bi][0]; d[i + 1] = pal[bi][1]; d[i + 2] = pal[bi][2];
+  }
+  ctx.putImageData(img, 0, 0);
+}
+const AW = 78, AH = 81;
+const artCache = new Map();
+function loadImg(src, cors) {
+  return new Promise(res => { const im = new Image(); if (cors) im.crossOrigin = 'anonymous'; im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
+}
+function processArt(im, cors) {
+  const cv = document.createElement('canvas'); cv.width = AW; cv.height = AH;
+  const g = cv.getContext('2d', { willReadFrequently: true });
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  const ratio = AW / AH, ir = im.width / im.height;
+  let sw = im.width, sh = im.height;
+  if (ir > ratio) sw = im.height * ratio; else sh = im.width / ratio;
+  g.drawImage(im, (im.width - sw) / 2, (im.height - sh) / 2, sw, sh, 0, 0, AW, AH);
+  if (cors) { try { reduceColours(g, AW, AH, 32); } catch (e) { /* tainted: keep unreduced pixels */ } }
+  return cv;
+}
+function getArt(id) {
+  if (!artCache.has(id)) artCache.set(id, (async () => {
+    const urls = [`https://cdn.akamai.steamstatic.com/steam/apps/${id}/library_600x900.jpg`,
+      `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${id}/library_600x900.jpg`];
+    for (const u of urls) { const im = await loadImg(u, true); if (im) return processArt(im, true); }
+    const im = await loadImg(urls[0], false); if (im) return processArt(im, false);
+    return null;
+  })());
+  return artCache.get(id);
+}
+GAMES.forEach(g => getArt(g.id));
+
+/* ================= virtual clock: every duration scales with the speed toggle ================= */
+let RATE = 1, VT = 0;
+const TIMERS = [];
+function wait(ms) {
+  return new Promise(res => {
+    const t = VT + ms; let i = TIMERS.length;
+    while (i > 0 && TIMERS[i - 1].t > t) i--;
+    TIMERS.splice(i, 0, { t, res });
+  });
+}
+const after = (ms, fn) => { wait(ms).then(fn); };
+const every = (total, step, fn) => { for (let t = 0; t < total; t += step) after(t, fn); };
+function anim(el, kf, o) {
+  const a = el.animate(kf, Object.assign({ fill: 'forwards', easing: 'linear' }, o));
+  a.playbackRate = RATE; return a;
+}
+const f = (v, d = 2) => (+v).toFixed(d);
+const T = (x = 0, y = 0, r = 0, sx = 1, sy = sx) => `translate(${f(x, 1)}px,${f(y, 1)}px) rotate(${f(r)}deg) scale(${f(sx, 3)},${f(sy, 3)})`;
+const rnd = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.random() * a.length | 0];
+const easeOut = p => 1 - Math.pow(1 - p, 3);
+function rgba(h, a) { const n = parseInt(h.slice(1), 16); return `rgba(${n >> 16},${n >> 8 & 255},${n & 255},${a})`; }
+
+/* ================= FX: pixel particles on a 2-css-px grid ================= */
+const fxCv = $('#fx'), fxG = fxCv.getContext('2d');
+const FX = {
+  p: [], rings: [], fans: [], dirty: false,
+  clear() { this.p.length = 0; this.rings.length = 0; this.fans.length = 0; },
+  emit(x, y, n, cols, o = {}) {
+    if (RM) return;
+    for (let i = 0; i < n; i++) {
+      const a = o.dir != null ? o.dir + (Math.random() - .5) * (o.spread ?? 1) : Math.random() * Math.PI * 2;
+      const v = rnd(...(o.spd || [40, 160]));
+      this.p.push({ x: x + (Math.random() - .5) * (o.jx || 0), y: y + (Math.random() - .5) * (o.jy || 0), vx: Math.cos(a) * v, vy: Math.sin(a) * v - (o.up || 0),
+        g: o.g ?? 160, dr: o.drag ?? .4, t: 0, life: rnd(...(o.life || [.4, .8])), c: pick(cols), s: Math.random() < (o.big ?? .25) ? 2 : 1, grow: o.grow || 0, a0: o.alpha ?? 1, tw: !!o.tw });
+    }
+  },
+  converge(x, y, n, cols, o = {}) {
+    if (RM) return;
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, r = rnd(...(o.r || [110, 180])), T0 = rnd(...(o.time || [.26, .36]));
+      this.p.push({ x: x + Math.cos(a) * r, y: y + Math.sin(a) * r, vx: -Math.cos(a) * r / T0, vy: -Math.sin(a) * r / T0, g: 0, dr: 1, t: 0, life: T0, c: pick(cols), s: Math.random() < .3 ? 2 : 1, grow: 0, a0: 1, tw: false, conv: true });
+    }
+  },
+  ring(x, y, c, r1, life = .5) { if (!RM) this.rings.push({ x, y, c, r1, life, t: 0 }); },
+  fan(x, y, c, o = {}) { if (!RM) this.fans.push({ x, y, c, n: o.n || 12, len: o.len || 400, life: o.life || 1.6, alpha: o.alpha || .3, spin: o.spin || .2, rot: Math.random() * 6, t: 0 }); },
+  step(dt) {
+    const g = fxG, live = this.p.length || this.rings.length || this.fans.length;
+    if (!live && !this.dirty) return;
+    g.clearRect(0, 0, 560, 300); this.dirty = !!live;
+    for (const y of this.fans) {
+      y.t += dt; y.rot += y.spin * dt;
+      const k = Math.min(1, y.t / .2) * Math.max(0, Math.min(1, (y.life - y.t) / .5));
+      g.save(); g.translate(y.x / 2, y.y / 2); g.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < y.n; i++) {
+        const a = y.rot + i * Math.PI * 2 / y.n, w = .06 + .03 * Math.sin(i * 1.7);
+        g.fillStyle = rgba(y.c, y.alpha * k * (i % 2 ? .5 : 1));
+        g.beginPath(); g.moveTo(0, 0); g.lineTo(Math.cos(a - w) * y.len / 2, Math.sin(a - w) * y.len / 2); g.lineTo(Math.cos(a + w) * y.len / 2, Math.sin(a + w) * y.len / 2); g.closePath(); g.fill();
+      }
+      g.restore();
+    }
+    this.fans = this.fans.filter(y => y.t < y.life);
+    for (const p of this.p) {
+      p.t += dt; const d = Math.pow(p.dr, dt);
+      p.vx *= d; p.vy = p.vy * d + p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      const k = 1 - p.t / p.life;
+      let a = p.conv ? Math.min(1, p.t / (p.life * .3)) : (k < .35 ? k / .35 : 1);
+      if (p.tw) a *= .55 + .45 * Math.sin(p.t * 18);
+      const s = Math.round(p.s + p.grow * p.t);
+      g.globalAlpha = Math.max(0, a * p.a0); g.fillStyle = p.c;
+      g.fillRect(Math.round(p.x / 2 - s / 2), Math.round(p.y / 2 - s / 2), s, s);
+    }
+    g.globalAlpha = 1; this.p = this.p.filter(p => p.t < p.life);
+    for (const r of this.rings) {
+      r.t += dt; const k = r.t / r.life, rr = (6 + (r.r1 - 6) * easeOut(k)) / 2, n = Math.max(24, rr * 6 | 0);
+      g.globalAlpha = Math.max(0, 1 - k); g.fillStyle = r.c;
+      for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; g.fillRect(Math.round(r.x / 2 + Math.cos(a) * rr), Math.round(r.y / 2 + Math.sin(a) * rr), 1, 1); }
+    }
+    g.globalAlpha = 1; this.rings = this.rings.filter(r => r.t < r.life);
+  }
+};
+
+/* ================= shared stage effects ================= */
+const shakeEl = $('#shake'), flashEl = $('#flash'), floodEl = $('#flood'), bannerEl = $('#banner'), dimEl = $('#dim'), sunEl = $('#sun'), beamsEl = $('#beams');
+function shake(amp, dur) {
+  if (RM || !amp) return;
+  const k = [], n = 8;
+  for (let i = 0; i < n; i++) { const a = amp * Math.pow(1 - i / n, 2); k.push({ transform: `translate(${f(rnd(-a, a), 1)}px,${f(rnd(-a, a), 1)}px)` }); }
+  k.push({ transform: 'translate(0px,0px)' });
+  anim(shakeEl, k, { duration: dur, fill: 'none' });
+}
+function flash(col, peak, dur, x, y) {
+  if (RM) peak *= .3;
+  flashEl.style.background = x == null ? col :
+    `radial-gradient(circle at ${f(x / W * 100)}% ${f(y / H * 100)}%,rgba(255,250,240,${peak}) 0,${rgba(col, peak * .6)} 16%,${rgba(col, 0)} 52%)`;
+  anim(flashEl, [{ opacity: 0 }, { opacity: x == null ? peak : 1, offset: .12 }, { opacity: 0 }], { duration: dur, easing: 'ease-out', fill: 'none' });
+}
+function lightBeam(x, yBase, h, w, col, dur) {
+  if (RM) return;
+  const b = document.createElement('div');
+  b.style.cssText = `position:absolute;left:${x - w / 2}px;top:${yBase - h}px;width:${w}px;height:${h}px;transform-origin:50% 100%;mix-blend-mode:screen;opacity:0;` +
+    `background:linear-gradient(0deg,${rgba(col, .6)},${rgba(col, .18)} 55%,${rgba(col, 0)});` +
+    '-webkit-mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent);mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent)';
+  beamsEl.appendChild(b);
+  anim(b, [{ opacity: 0, transform: 'scaleY(.15)' }, { opacity: 1, transform: 'scaleY(1)', offset: .25 }, { opacity: 0, transform: 'scaleY(1.1)' }], { duration: dur, easing: 'ease-out' });
+  after(dur + 20, () => b.remove());
+}
+function banner(t, style, small) {
+  const g = currentGame(t);
+  bannerEl.className = small ? 'small' : '';
+  bannerEl.style.setProperty('--bc', R[t].c);
+  bannerEl.innerHTML = `<div class="row"><i class="hz"></i>${icon(t, small ? 3 : 4, true)}<span class="t">${R[t].n.toUpperCase()}${t === 4 ? ' !' : ''}</span>${icon(t, small ? 3 : 4, true)}<i class="hz"></i></div>` +
+    (small ? '' : `<div class="s">${g.t} · ${g.y}</div>`);
+  const K = {
+    stamp: [[{ opacity: 0, transform: 'translateY(0px) scale(1.5,1.5)', easing: 'cubic-bezier(.2,.9,.3,1)' }, { opacity: 1, transform: 'translateY(0px) scale(1,1)', offset: .1 }, { opacity: 1, transform: 'translateY(0px) scale(1,1)', offset: .82 }, { opacity: 0, transform: 'translateY(0px) scale(1,1)' }], 1500],
+    rise: [[{ opacity: 0, transform: 'translateY(14px) scale(1.12,1.12)', easing: 'cubic-bezier(.2,.8,.2,1)' }, { opacity: 1, transform: 'translateY(0px) scale(1,1)', offset: .16 }, { opacity: 1, transform: 'translateY(0px) scale(1.02,1.02)', offset: .8 }, { opacity: 0, transform: 'translateY(-6px) scale(1.04,1.04)' }], 1600],
+    pop: [[{ opacity: 0, transform: 'translateY(0px) scale(2.2,.2)' }, { opacity: 1, transform: 'translateY(0px) scale(.86,1.24)', offset: .1 }, { opacity: 1, transform: 'translateY(0px) scale(1.06,.95)', offset: .18 }, { opacity: 1, transform: 'translateY(0px) scale(1,1)', offset: .26 }, { opacity: 1, transform: 'translateY(0px) scale(1,1)', offset: .8 }, { opacity: 0, transform: 'translateY(-16px) scale(1,1)' }], small ? 1100 : 1500],
+    calm: [[{ opacity: 0, transform: 'translateY(12px) scale(.96,.96)', easing: 'cubic-bezier(.25,.7,.25,1)' }, { opacity: 1, transform: 'translateY(0px) scale(1,1)', offset: .25 }, { opacity: 1, transform: 'translateY(0px) scale(1,1)', offset: .8 }, { opacity: 0, transform: 'translateY(-6px) scale(1,1)' }], 1600]
+  };
+  const [kf, d] = RM ? [[{ opacity: 0 }, { opacity: 1, offset: .15 }, { opacity: 1, offset: .85 }, { opacity: 0 }], 1400] : K[style];
+  anim(bannerEl, kf, { duration: d, fill: 'none' });
+}
+
+/* ================= state ================= */
+const S = { v: 0, phase: 'sealed', order: [0, 1, 2, 3, 4], cards: [], revealed: 0, lock: false, pendingAll: false, allRunning: false };
+const P = {};
+const currentGame = t => GAMES.find(g => g.r === t);
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+/* layouts: row for 1–3, floating arc for 4 */
+function layout(k) {
+  if (S.v === 3) { const d = k - 2; return { x: PX + d * 182, y: 290 + d * d * 11, r: d * 5 }; }
+  return { x: PX + (k - 2) * 190, y: 286, r: 0 };
+}
+
+/* ================= pack ================= */
+function buildPack() {
+  const v = S.v + 1;
+  const clamp = cls => `<div class="clamp ${cls}"><i class="led"></i><i class="hz"></i><i class="led"></i></div>`;
+  $('#packwrap').innerHTML =
+    `<div class="pglow"></div><div class="prays"></div>
+     <button type="button" class="packbtn" aria-label="Ouvrir le booster Été indé, 5 cartes">
+       <div class="pidle idle-${v}">
+         <div class="pmove">
+           <div class="pbody"><svg viewBox="0 7 40 53" width="200" height="265" shape-rendering="crispEdges" aria-hidden="true">${PACK_RECTS}</svg>
+             <div class="l1">SET 01</div><div class="l2">ÉTÉ INDÉ</div><div class="l3">5 CARTES</div>
+             <div class="shine-mask"><div class="shine"></div></div><div class="jag">${jagSVG(true)}</div></div>
+           <div class="plid"><svg viewBox="0 0 40 7" width="200" height="35" shape-rendering="crispEdges" aria-hidden="true">${PACK_RECTS}</svg><div class="jag">${jagSVG(false)}</div></div>
+           <div class="plight"></div>
+         </div>
+         ${v === 1 ? clamp('t') + clamp('b') : ''}
+       </div>
+     </button>
+     <div class="pbeam"></div>`;
+  const w = $('#packwrap');
+  Object.assign(P, { wrap: w, btn: w.querySelector('.packbtn'), idle: w.querySelector('.pidle'), move: w.querySelector('.pmove'), lid: w.querySelector('.plid'),
+    body: w.querySelector('.pbody'), rays: w.querySelector('.prays'), glow: w.querySelector('.pglow'), light: w.querySelector('.plight'), beam: w.querySelector('.pbeam'),
+    jags: w.querySelectorAll('.jag'), clampT: w.querySelector('.clamp.t'), clampB: w.querySelector('.clamp.b') });
+  P.btn.addEventListener('click', openPack);
+  $('#packhint').style.visibility = 'visible';
+}
+function stopIdle(d = 160) {
+  const cur = getComputedStyle(P.idle).transform;
+  P.idle.style.animation = 'none';
+  anim(P.idle, [{ transform: cur === 'none' ? 'none' : cur }, { transform: 'none' }], { duration: d, easing: 'ease-out' });
+}
+function hidePack(delay, dur, to) {
+  anim(P.body, [{ transform: T(), opacity: 1 }, { transform: to || T(0, 24, 0, .96), opacity: 0 }], { duration: dur, delay, easing: 'cubic-bezier(.5,0,.8,.4)', fill: 'both' });
+  anim(P.rays, [{ opacity: 1 }, { opacity: 0 }], { duration: dur, delay, fill: 'both' });
+}
+
+/* ================= cards ================= */
+function cardHTML(g, k) {
+  const r = R[g.r];
+  return `<div class="travel"><div class="float"><div class="lift">
+    <div class="crays"></div><div class="cglow"></div>
+    <button type="button" class="tilt" aria-label="Carte ${k + 1} sur 5, face cachée. Révéler.">
+      <div class="flip">
+        <div class="face back"><div class="bin"><i class="d" style="left:10px;top:10px"></i><i class="d" style="right:10px;top:10px"></i><i class="d" style="left:10px;bottom:10px"></i><i class="d" style="right:10px;bottom:10px"></i>
+          ${EMBLEM}<div class="bname">GAMEBLE</div><div class="bset">SET 01</div></div>
+          <div class="bshine"><i></i></div><div class="scan"></div><div class="glare"></div></div>
+        <div class="face front" style="--rc:${r.c};--holo:${HOLO[g.r]};--foil:${FOIL[g.r]}">
+          <div class="fin"><div class="ttl"><span>${g.t}</span><div class="pub">${g.p}</div></div>
+            <div class="art"><canvas width="${AW}" height="${AH}"></canvas><i class="ab a1"></i><i class="ab a2"></i></div>
+            <div class="ft"><div class="f1"><span>${g.g.toUpperCase()}</span><span>${g.y}</span></div>
+              <div class="f2"><span class="rn">${icon(g.r, 2)}<span>${r.n.toUpperCase()}</span></span><span>#${g.n}</span></div></div></div>
+          <div class="holo"></div><div class="foil"></div><div class="glare"></div></div>
+      </div>
+    </button>
+    <div class="lockbrk"><i></i><i></i><i></i><i></i></div>
+  </div></div><div class="lbl">? ? ?</div></div>`;
+}
+function buildCards() {
+  const host = $('#cards'); host.innerHTML = ''; S.cards = [];
+  S.order.forEach((gi, k) => {
+    const g = GAMES[gi], pos = layout(k);
+    const slot = document.createElement('div'); slot.className = 'slot r' + g.r;
+    slot.style.left = pos.x + 'px'; slot.style.top = pos.y + 'px';
+    slot.style.setProperty('--dd', (4.2 + k * .35).toFixed(2) + 's');
+    slot.innerHTML = cardHTML(g, k); host.appendChild(slot);
+    const c = { g, k, pos, restT: T(0, 0, pos.r), slot, travel: slot.querySelector('.travel'), lift: slot.querySelector('.lift'), btn: slot.querySelector('.tilt'),
+      flip: slot.querySelector('.flip'), scan: slot.querySelector('.scan'), brk: slot.querySelector('.lockbrk'), glow: slot.querySelector('.cglow'), lbl: slot.querySelector('.lbl'),
+      liftT: T(), rev: false, busy: false, ready: false, hover: false, hv: 0, rx: 0, ry: 0, trx: 0, try_: 0, wa: 0, ph: k * 1.37, gx: 50, gy: 30 };
+    const cv = slot.querySelector('canvas');
+    getArt(g.id).then(src => {
+      if (src) cv.getContext('2d').drawImage(src, 0, 0);
+      else { const m = document.createElement('div'); m.className = 'miss'; m.innerHTML = QMARK + '<span>image<br>indisponible</span>'; cv.replaceWith(m); }
+    });
+    c.btn.addEventListener('click', () => onCardClick(c));
+    c.btn.addEventListener('pointerenter', () => { c.hover = true; });
+    c.btn.addEventListener('pointerleave', () => { c.hover = false; c.trx = c.try_ = 0; });
+    c.btn.addEventListener('pointermove', e => {
+      const b = slot.getBoundingClientRect(), px = (e.clientX - b.left) / b.width - .5, py = (e.clientY - b.top) / b.height - .5;
+      const A = VARS[S.v].tilt; c.trx = -py * A * .85; c.try_ = px * A; c.gx = (px + .5) * 100; c.gy = (py + .5) * 100;
+    });
+    S.cards.push(c);
+  });
+}
+function setLift(c, to, dur, easing) { anim(c.lift, [{ transform: c.liftT }, { transform: to }], { duration: dur, easing }); c.liftT = to; }
+function trembleTo(c, to, n, amp, dur) {
+  /* lift from current pose to `to` while shivering with growing amplitude */
+  const m = /translate\(([-\d.]+)px,([-\d.]+)px\) rotate\([-\d.]+deg\) scale\(([-\d.]+),/.exec(to);
+  const ty = m ? +m[2] : 0, sc = m ? +m[3] : 1, kf = [{ transform: c.liftT }];
+  for (let i = 1; i < n; i++) { const p = i / n, s = i % 2 ? 1 : -1; kf.push({ transform: T(s * amp * p * .8, ty * easeOut(p), s * amp * p * .6, 1 + (sc - 1) * easeOut(p)) }); }
+  kf.push({ transform: to });
+  anim(c.lift, kf, { duration: dur }); c.liftT = to;
+}
+function dealAll(order, fn) {
+  let end = 0;
+  order.forEach((k, j) => {
+    const c = S.cards[k], o = fn(c, j);
+    c.slot.classList.add('shown');
+    anim(c.travel, o.kf, { duration: o.dur, delay: o.delay, fill: 'both', easing: o.easing || 'linear' });
+    if (o.land != null) after(o.delay + o.dur * o.land, () => o.onLand(c));
+    end = Math.max(end, o.delay + o.dur);
+  });
+  return end;
+}
+function dust(c, n = 5) { FX.emit(c.pos.x, c.pos.y + 124, n, ['#2a475e', '#3d6383', '#66c0f4'], { dir: -Math.PI / 2, spread: 2.6, spd: [30, 80], g: 140, life: [.2, .38], jx: 120 }); }
+function lock(c, soft) {
+  S.lock = true; dimEl.className = soft ? 'soft' : 'on';
+  S.cards.forEach(o => { if (o !== c) o.slot.classList.add('dimmed'); });
+  c.slot.style.zIndex = 30;
+}
+function unlock(c) {
+  S.lock = false; dimEl.className = '';
+  S.cards.forEach(o => o.slot.classList.remove('dimmed'));
+  after(400, () => { c.slot.style.zIndex = ''; });
+}
+function markRevealed(c) {
+  const g = c.g, r = R[g.r];
+  c.rev = true; c.slot.classList.add('on');
+  c.lbl.innerHTML = icon(g.r, 2, true) + `<span>${r.n.toUpperCase()}${g.r === 4 ? ' !' : ''}</span>`; c.lbl.style.color = r.c;
+  c.btn.setAttribute('aria-label', `${g.t}, ${g.p}, ${g.y}, ${g.g}, ${r.n}. Révélée.`);
+  S.revealed++;
+  const cnt = $('#cnt'); cnt.textContent = S.revealed + ' / 5'; cnt.classList.remove('bump'); void cnt.offsetWidth; cnt.classList.add('bump');
+  $('#live').textContent = `${r.n} : ${g.t} (${g.y})`;
+  updateHint();
+}
+
+/* ================= tilt / hover / idle wobble (fluid, rAF) ================= */
+function tiltStep(dt, vt) {
+  const V = VARS[S.v], kk = Math.min(1, dt * 12), ks = Math.min(1, dt * 4);
+  for (const c of S.cards) {
+    if (!c.ready) continue;
+    const active = !c.busy && !S.lock && S.phase === 'dealt';
+    const hv = active && c.hover ? 1 : 0;
+    c.hv += (hv - c.hv) * kk;
+    c.rx += ((active && c.hover ? c.trx : 0) - c.rx) * kk;
+    c.ry += ((active && c.hover ? c.try_ : 0) - c.ry) * kk;
+    c.wa += ((V.wobble && active ? 1 : 0) - c.wa) * ks;
+    const rz = Math.sin(vt / 620 + c.ph) * 1.4 * c.wa, wy = Math.sin(vt / 900 + c.ph) * 3 * c.wa;
+    c.btn.style.transform = `translateY(${f(-c.hv * (c.rev ? 4 : 8) + wy)}px) rotateX(${f(c.rx)}deg) rotateY(${f(c.ry)}deg) rotateZ(${f(rz)}deg) scale(${f(1 + c.hv * V.hs, 3)})`;
+    if (V.tilt > 8) { c.btn.style.setProperty('--ga', f(c.hv, 3)); c.btn.style.setProperty('--gx', f(c.gx, 1) + '%'); c.btn.style.setProperty('--gy', f(c.gy, 1) + '%'); }
+  }
+}
+
+/* ================= 1 · TERMINAL REVISITÉ ================= */
+async function openV1() {
+  P.wrap.classList.add('armed');
+  stopIdle(120);
+  /* anticipation: the clamps arm, the pack braces */
+  anim(P.move, [{ transform: T() }, { transform: T(0, 3, 0, 1, .975) }], { duration: 140, easing: 'cubic-bezier(.55,0,.75,.2)' });
+  await wait(140);
+  /* release: clamps snap away, the pack decompresses upward */
+  [[P.clampT, -34], [P.clampB, 34]].forEach(([el, dy]) =>
+    anim(el, [{ transform: T(), opacity: 1 }, { transform: T(0, dy * .8), opacity: 1, offset: .55 }, { transform: T(0, dy), opacity: 0 }], { duration: 260, easing: 'cubic-bezier(.2,.9,.3,1)' }));
+  anim(P.move, [{ transform: T(0, 3, 0, 1, .975) }, { transform: T(0, -8, 0, 1, 1.012), offset: .5 }, { transform: T(0, -6) }], { duration: 300, easing: 'cubic-bezier(.25,.8,.3,1)' });
+  shake(1.5, 140);
+  for (const y of [PACK_TOP - 4, PACK_TOP + 304]) for (const s of [-1, 1]) FX.emit(PX + s * 108, y, 3, ['#ffffff', '#d6efff'], { spd: [60, 140], g: 260, life: [.15, .28] });
+  await wait(120);
+  /* one short hiss of vapour from both sides of the lid */
+  for (const d of [0, 60]) after(d, () => { for (const s of [-1, 1]) FX.emit(PX + s * 96, PACK_TOP + 26, 6, ['#cfe6f5', '#9fb7c9', '#ffffff'], { dir: s > 0 ? -.35 : Math.PI + .35, spread: .7, spd: [50, 120], g: -50, drag: .15, life: [.35, .55], grow: 4, alpha: .55, big: .6 }); });
+  /* lid pops */
+  anim(P.lid, [{ transform: T(), opacity: 1 }, { transform: T(14, -54, -12), opacity: 1, offset: .55 }, { transform: T(22, -82, -20), opacity: 0 }], { duration: 420, easing: 'cubic-bezier(.2,.75,.3,1)' });
+  await wait(100);
+  /* dispense: straight up out of the bay, then glide into the row */
+  const end = dealAll([0, 1, 2, 3, 4], (c, j) => {
+    const sx = PX - c.pos.x, sy = PACK_TOP + 40 - c.pos.y;
+    return { delay: j * 50, dur: 420, land: .82, onLand: dust,
+      kf: [{ transform: T(sx, sy, 0, .45), opacity: 0, easing: 'cubic-bezier(.3,0,.3,1)' },
+        { transform: T(sx, sy - 56, 0, .6), opacity: 1, offset: .2, easing: 'cubic-bezier(.22,.9,.36,1)' },
+        { transform: T(0, 4, 0, 1.02, .98), opacity: 1, offset: .82, easing: 'ease-out' },
+        { transform: c.restT, opacity: 1 }] };
+  });
+  hidePack(120, 300);
+  await wait(end);
+}
+async function revealV1(c) {
+  const t = c.g.r, s = c.pos, col = R[t].c;
+  if (t === 4) return legendV1(c);
+  const L = [4, 6, 8, 12][t];
+  setLift(c, T(0, -L, 0, 1 + t * .012), 110, 'cubic-bezier(.3,0,.3,1)');
+  await wait(110);
+  const passes = [0, 1, 1, 2][t];
+  for (let i = 0; i < passes; i++) { scanPass(c, t >= 2 ? col : '#d6efff', 150); await wait(150); }
+  const dur = [240, 260, 280, 320][t];
+  anim(c.flip, [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(180deg)' }], { duration: dur, easing: 'cubic-bezier(.65,0,.25,1)' });
+  await wait(dur / 2);
+  markRevealed(c);
+  FX.emit(s.x, s.y - L, [8, 16, 28, 52][t], [col, R[t].hi, '#ffffff'], { spd: [40, 120 + t * 50], g: 140, life: [.3, .5 + t * .08], jx: 90, jy: 140 });
+  if (t >= 1) FX.ring(s.x, s.y - L, col, 90 + t * 30, .4);
+  if (t >= 3) { after(90, () => FX.ring(s.x, s.y - L, R[t].hi, 120, .45)); flash(col, .35, 280, s.x, s.y); shake(2, 200); }
+  await wait(dur / 2);
+  setLift(c, T(), 260, 'cubic-bezier(.3,1.4,.5,1)');
+  await wait(260);
+}
+function scanPass(c, col, d) {
+  c.scan.style.setProperty('--sc', col);
+  anim(c.scan, [{ transform: 'translateY(0px)', opacity: 1 }, { transform: 'translateY(250px)', opacity: 1 }], { duration: d, easing: 'cubic-bezier(.45,0,.55,1)', fill: 'none' });
+}
+async function legendV1(c) {
+  const s = c.pos, y = s.y - 22;
+  lock(c);
+  setLift(c, T(0, -22, 0, 1.1), 200, 'cubic-bezier(.45,0,.25,1)');
+  anim(c.brk, [{ opacity: 0, transform: 'scale(1.35)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 200, easing: 'steps(4,end)' });
+  await wait(200);
+  c.brk.classList.add('blink');
+  every(380, 50, () => FX.converge(s.x, y, 4, GOLD, { r: [100, 160], time: [.22, .3] }));
+  scanPass(c, '#f4c542', 220); await wait(220);
+  scanPass(c, '#f4c542', 160); await wait(160);
+  for (const d of [0, 50]) after(d, () => { for (const k of [-1, 1]) FX.emit(s.x + k * 92, y - 40, 5, ['#fff1b8', '#ffe4a0', '#ffffff'], { dir: k > 0 ? -.3 : Math.PI + .3, spread: .8, spd: [50, 120], g: -40, drag: .15, life: [.3, .5], grow: 4, alpha: .5, big: .6 }); });
+  anim(c.flip, [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(180deg)' }], { duration: 380, easing: 'cubic-bezier(.65,0,.25,1)' });
+  await wait(190);
+  markRevealed(c);
+  flash('#fff6d6', .55, 380); shake(5, 360);
+  FX.emit(s.x, y, 130, GOLD, { spd: [80, 420], g: 160, drag: .45, life: [.5, 1.1], big: .4, jx: 80, jy: 120 });
+  [0, 110, 220].forEach((d, i) => after(d, () => FX.ring(s.x, y, i % 2 ? '#ffffff' : '#f4c542', 180 + i * 50, .55)));
+  FX.fan(s.x, y, '#f4c542', { n: 14, len: 560, life: 1.5, alpha: .26, spin: .3 });
+  banner(4, 'stamp');
+  await wait(190 + 600);
+  c.brk.classList.remove('blink');
+  anim(c.brk, [{ opacity: 1 }, { opacity: 0 }], { duration: 160, easing: 'steps(3,end)' });
+  unlock(c);
+  setLift(c, T(), 340, 'cubic-bezier(.3,1.25,.5,1)');
+  await wait(340);
+}
+
+/* ================= 2 · DÉCHIRURE ================= */
+async function openV2() {
+  stopIdle(100);
+  /* charge: light is drawn in, the pack shakes harder and harder */
+  const kf = [];
+  for (let i = 0; i <= 9; i++) { const s = i % 2 ? 1 : -1; kf.push({ transform: T(s * i * .5, -i * .5, s * (.4 + i * .32), 1 + i * .006) }); }
+  kf.push({ transform: T(0, -4, 0, 1.06, .95) });
+  anim(P.move, kf, { duration: 300 });
+  anim(P.rays, [{ opacity: 1, transform: 'scale(1)' }, { opacity: 1, transform: 'scale(1.12)' }], { duration: 300, easing: 'ease-in' });
+  every(260, 40, () => FX.converge(PX, PY, 5, STEAM, { r: [150, 220], time: [.24, .3] }));
+  await wait(300);
+  /* tear: the top strip of the wrapper is ripped off. It peels up from the left end, hangs on the
+     right end for an instant, snaps free and is flung away. Jagged pixel edges, no glowing line, no sparks. */
+  P.jags.forEach(j => { j.style.opacity = 1; });
+  P.lid.style.transformOrigin = '100% 100%';
+  anim(P.lid, [
+    { transform: T(), opacity: 1, easing: 'cubic-bezier(.5,0,.7,.4)' },
+    { transform: T(0, -4, 16), opacity: 1, offset: .26, easing: 'cubic-bezier(.2,.8,.3,1)' },
+    { transform: T(40, -46, 34), opacity: 1, offset: .5, easing: 'cubic-bezier(.3,.5,.5,1)' },
+    { transform: T(150, -150, 72), opacity: 0 }], { duration: 560 });
+  anim(P.move, [{ transform: T(0, -4, 0, 1.06, .95) }, { transform: T(-3, 3, -1.5, .98, 1.03), offset: .45 }, { transform: T() }], { duration: 280, easing: 'ease-out' });
+  await wait(150);
+  /* snap: light escapes from the opened top */
+  FX.emit(PX + 100, PACK_TOP + 32, 5, ['#8f98a0', '#c7d5e0', '#2a475e'], { dir: -.7, spread: 1, spd: [80, 200], g: 420, drag: .5, life: [.3, .55], big: .6 });
+  FX.emit(PX, PACK_TOP + 30, 24, STEAM, { dir: -Math.PI / 2, spread: 1, spd: [140, 380], g: 220, life: [.35, .7] });
+  anim(P.beam, [{ opacity: 0, transform: 'scaleY(.15)' }, { opacity: 1, transform: 'scaleY(1)', offset: .25 }, { opacity: 0, transform: 'scaleY(1.12)' }], { duration: 600, easing: 'ease-out', fill: 'none' });
+  shake(2.5, 200);
+  await wait(20);
+  /* the cards shoot up the beam, then fall into a row with a small settle */
+  const end = dealAll([0, 1, 2, 3, 4], (c, j) => {
+    const sx = PX - c.pos.x, sy = PACK_TOP + 50 - c.pos.y, r0 = (c.k - 2) * -14;
+    return { delay: j * 60, dur: 500, land: .8, onLand: cc => dust(cc, 6),
+      kf: [{ transform: T(sx, sy, r0, .35), opacity: 0, easing: 'cubic-bezier(.2,.7,.4,1)' },
+        { transform: T(sx * .55, 40 - c.pos.y, r0 * .4, .9), opacity: 1, offset: .42, easing: 'cubic-bezier(.5,0,.85,.5)' },
+        { transform: T(0, 5, 0, 1.04, .95), opacity: 1, offset: .8, easing: 'ease-out' },
+        { transform: c.restT, opacity: 1 }] };
+  });
+  hidePack(80, 300);
+  await wait(end);
+}
+async function revealV2(c) {
+  const t = c.g.r, s = c.pos, col = R[t].c;
+  if (t === 4) return legendV2(c);
+  const tr = [0, 120, 200, 320][t], L = [2, 6, 10, 16][t];
+  if (tr) {
+    trembleTo(c, T(0, -L, 0, 1 + t * .015), Math.max(4, Math.round(tr / 40)), t * .9, tr);
+    if (t >= 2) every(tr - 60, 45, () => FX.converge(s.x, s.y - L, 3, [col, R[t].hi], { r: [80, 130], time: [.18, .24] }));
+    await wait(tr);
+  } else { setLift(c, T(0, -3, 0, 1.01), 90, 'ease-out'); await wait(90); }
+  anim(c.flip, [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(196deg)', offset: .72 }, { transform: 'rotateY(180deg)' }], { duration: 340, easing: 'cubic-bezier(.35,.1,.3,1)' });
+  await wait(150);
+  markRevealed(c);
+  if (t >= 2) lightBeam(s.x, s.y + 40 - L, [0, 0, 260, 400][t], 120 + t * 10, R[t].hi, 520);
+  FX.emit(s.x, s.y - L, [10, 22, 40, 70][t], [col, R[t].hi, '#ffffff'], { dir: -Math.PI / 2, spread: t >= 2 ? 1.4 : 6.3, spd: [50, 160 + t * 70], g: 200, life: [.3, .55 + t * .1], jx: 80, jy: 120 });
+  if (t >= 1) FX.ring(s.x, s.y - L, col, 100 + t * 35, .45);
+  if (t >= 3) { flash(col, .5, 360, s.x, s.y); shake(2.5, 220); }
+  await wait(190);
+  setLift(c, T(), 280, 'cubic-bezier(.3,1.3,.5,1)');
+  await wait(280);
+}
+async function legendV2(c) {
+  const s = c.pos, y = s.y - 26;
+  lock(c);
+  /* charge: rises, shivers harder, gold drawn in */
+  trembleTo(c, T(0, -26, 0, 1.08), 14, 3.6, 640);
+  anim(c.glow, [{ opacity: 0 }, { opacity: .85 }], { duration: 640, easing: 'ease-in', fill: 'none' });
+  every(600, 40, () => FX.converge(s.x, y, 5, GOLD, { r: [150, 250], time: [.22, .3] }));
+  await wait(640);
+  anim(c.flip, [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(196deg)', offset: .72 }, { transform: 'rotateY(180deg)' }], { duration: 400, easing: 'cubic-bezier(.35,.1,.3,1)' });
+  await wait(170);
+  markRevealed(c);
+  lightBeam(s.x, y + 80, 560, 230, '#fff1b8', 900);
+  flash('#ffbf5e', .9, 700, s.x, y); shake(5.5, 420);
+  FX.emit(s.x, y, 150, GOLD, { dir: -Math.PI / 2, spread: 2.2, spd: [120, 520], g: 260, drag: .5, life: [.5, 1.1], big: .4, jx: 80, jy: 100 });
+  [0, 120, 260].forEach((d, i) => after(d, () => FX.ring(s.x, y, i % 2 ? '#fff1b8' : '#f4c542', 200 + i * 60, .6)));
+  every(1000, 90, () => FX.emit(s.x + rnd(-160, 160), y - 190, 3, GOLD, { dir: Math.PI / 2, spread: .6, spd: [20, 60], g: 70, drag: .8, life: [.8, 1.2], tw: true }));
+  banner(4, 'rise');
+  await wait(230 + 760);
+  unlock(c);
+  setLift(c, T(), 340, 'cubic-bezier(.3,1.3,.5,1)');
+  await wait(340);
+}
+
+/* ================= 3 · ARCADE ================= */
+async function openV3() {
+  stopIdle(80);
+  /* squash, stretch, hop */
+  anim(P.move, [
+    { transform: T(), easing: 'cubic-bezier(.4,0,.6,1)' },
+    { transform: T(0, 16, 0, 1.2, .78), offset: .34, easing: 'cubic-bezier(.2,.9,.3,1)' },
+    { transform: T(0, -50, -3, .88, 1.16), offset: .74, easing: 'cubic-bezier(.3,0,.5,1)' },
+    { transform: T(0, -42, -4, 1.06, 1.06) }], { duration: 280 });
+  await wait(280);
+  /* pop! */
+  anim(P.move, [{ transform: T(0, -42, -4, 1.06, 1.06), opacity: 1 }, { transform: T(0, -42, 0, 1.35, 1.35), opacity: 0 }], { duration: 90, easing: 'cubic-bezier(.5,0,1,.6)' });
+  anim(P.rays, [{ opacity: 1 }, { opacity: 0 }], { duration: 200 });
+  await wait(60);
+  const cy = PY - 42;
+  FX.emit(PX, cy, 90, CONF, { spd: [140, 560], g: 620, drag: .3, life: [.5, 1.1], big: .55 });
+  FX.ring(PX, cy, '#ffffff', 220, .35); after(70, () => FX.ring(PX, cy, '#66c0f4', 150, .4));
+  flash('#ffffff', .3, 160); shake(5, 280);
+  /* cards burst out from the middle and bounce into place */
+  const end = dealAll([2, 1, 3, 0, 4], (c, j) => {
+    const sx = PX - c.pos.x, sy = cy - c.pos.y, r0 = (c.k - 2) * 26 + rnd(-10, 10);
+    return { delay: j * 45, dur: 460, land: .7, onLand: cc => { dust(cc, 6); shake(1.5, 110); },
+      kf: [{ transform: T(sx, sy, r0, .2), opacity: 0, easing: 'cubic-bezier(.15,.8,.3,1)' },
+        { transform: T(sx * .2, Math.min(sy * .4, 0) - 70, -r0 * .3, 1.1), opacity: 1, offset: .42, easing: 'cubic-bezier(.6,0,.9,.5)' },
+        { transform: T(0, 10, 0, 1.14, .84), opacity: 1, offset: .7, easing: 'ease-out' },
+        { transform: T(0, -6, 0, .95, 1.06), opacity: 1, offset: .86, easing: 'ease-in-out' },
+        { transform: c.restT, opacity: 1 }] };
+  });
+  await wait(end);
+}
+const INT3 = [
+  { sh: 0, L: 0, n: 16, shk: 1, ring: 0 },
+  { sh: 90, L: 8, n: 28, shk: 1.5, ring: 1 },
+  { sh: 170, L: 16, n: 48, shk: 3, ring: 1 },
+  { sh: 280, L: 26, n: 86, shk: 5, ring: 2 }
+];
+async function revealV3(c) {
+  const t = c.g.r, s = c.pos, col = R[t].c, I = INT3[t];
+  if (t === 4) return legendV3(c);
+  if (I.sh) {
+    trembleTo(c, T(0, -I.L, 0, 1.06), Math.max(4, Math.round(I.sh / 40)), t * .9, I.sh);
+    if (t >= 3) every(I.sh - 40, 40, () => FX.converge(s.x, s.y - I.L, 3, [col, '#ffffff'], { r: [90, 140], time: [.18, .24] }));
+    await wait(I.sh);
+  } else { setLift(c, T(0, -4, 0, 1.03), 70, 'ease-out'); await wait(70); }
+  const L = I.L || 4, dur = 300 + t * 40;
+  anim(c.flip, [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(200deg)', offset: .72 }, { transform: 'rotateY(172deg)', offset: .88 }, { transform: 'rotateY(180deg)' }], { duration: dur, easing: 'cubic-bezier(.3,.1,.3,1)' });
+  await wait(dur * .42);
+  markRevealed(c);
+  shake(I.shk, 160 + t * 40);
+  FX.emit(s.x, s.y - L, I.n, [col, R[t].hi, '#ffffff', ...(t >= 2 ? CONF.slice(0, 3) : [])], { spd: [60, 200 + t * 90], g: 420, drag: .35, life: [.35, .6 + t * .12], big: .45, jx: 60, jy: 90 });
+  for (let k = 0; k < I.ring; k++) after(k * 90, () => FX.ring(s.x, s.y - L, k % 2 ? '#ffffff' : col, 110 + t * 30, .38));
+  if (t === 3) banner(3, 'pop', true);
+  anim(c.lift, [{ transform: T(0, -L, 0, 1.06) }, { transform: T(0, -L * .4, 0, 1.14, .9), offset: .25 }, { transform: T(0, 4, 0, .95, 1.06), offset: .6 }, { transform: T() }], { duration: 380 + t * 60, easing: 'cubic-bezier(.2,.8,.3,1)' });
+  c.liftT = T();
+  await wait(380 + t * 60);
+}
+async function legendV3(c) {
+  const s = c.pos, y = s.y - 50;
+  lock(c);
+  /* jump up and charge, shivering harder */
+  const kf = [{ transform: c.liftT }];
+  for (let i = 1; i <= 14; i++) { const p = i / 14, sg = i % 2 ? 1 : -1; kf.push({ transform: T(sg * p * 3, -50 * easeOut(Math.min(1, p * 1.6)), sg * (1 + p * 4), 1 + .15 * easeOut(p)) }); }
+  kf.push({ transform: T(0, -50, 0, 1.15) });
+  anim(c.lift, kf, { duration: 520 }); c.liftT = T(0, -50, 0, 1.15);
+  every(480, 40, () => FX.converge(s.x, y, 5, [...GOLD, '#b47cff', '#66c0f4'], { r: [140, 220], time: [.2, .28] }));
+  await wait(520);
+  /* one-and-a-half spin with overshoot */
+  anim(c.flip, [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(560deg)', offset: .8 }, { transform: 'rotateY(540deg)' }], { duration: 560, easing: 'cubic-bezier(.2,.6,.3,1)' });
+  after(90, () => markRevealed(c));
+  await wait(420);
+  /* impact */
+  anim(c.lift, [{ transform: T(0, -50, 0, 1.15, 1.15) }, { transform: T(0, -46, 0, 1.28, 1.02), offset: .22 }, { transform: T(0, -52, 0, 1.08, 1.22), offset: .5 }, { transform: T(0, -50, 0, 1.15, 1.15) }], { duration: 360, easing: 'ease-out' });
+  FX.emit(s.x, y, 120, CONF, { spd: [160, 620], g: 600, drag: .3, life: [.6, 1.3], big: .55 });
+  FX.emit(s.x, y, 80, GOLD, { spd: [80, 380], g: 300, drag: .4, life: [.5, 1], big: .4 });
+  [0, 100, 200].forEach((d, i) => after(d, () => FX.ring(s.x, y, i % 2 ? '#ffffff' : '#f4c542', 200 + i * 60, .45)));
+  FX.fan(s.x, y, '#f4c542', { n: 16, len: 560, life: 1.3, alpha: .28, spin: .6 });
+  flash('#fff3b0', .5, 300); shake(8, 460);
+  banner(4, 'pop');
+  await wait(760);
+  unlock(c);
+  setLift(c, T(), 380, 'cubic-bezier(.3,1.5,.5,1)');
+  after(300, () => { dust(c, 8); shake(2, 120); });
+  await wait(380);
+}
+
+/* ================= 4 · APESANTEUR ================= */
+async function openV4() {
+  stopIdle(120);
+  /* the pack rises and its flap swings open */
+  anim(P.move, [{ transform: T() }, { transform: T(0, -26, 0, 1.05) }], { duration: 300, easing: 'cubic-bezier(.45,0,.25,1)' });
+  anim(P.glow, [{ opacity: 0, transform: 'scale(.7)' }, { opacity: 1, transform: 'scale(1.1)', offset: .5 }, { opacity: 0, transform: 'scale(1.25)' }], { duration: 1100, easing: 'ease-out', fill: 'none' });
+  every(900, 70, () => FX.emit(PX + rnd(-130, 130), PY + rnd(-40, 160), 2, ['#9fd6f7', '#d6efff', '#66c0f4'], { dir: -Math.PI / 2, spread: .4, spd: [30, 70], g: -20, drag: .9, life: [.8, 1.3], tw: true }));
+  await wait(200);
+  anim(P.lid, [{ transform: T(), opacity: 1 }, { transform: T(-8, -26, -26), opacity: 1, offset: .55 }, { transform: T(-14, -44, -36), opacity: 0 }], { duration: 520, easing: 'cubic-bezier(.25,.6,.3,1)' });
+  anim(P.light, [{ opacity: 0 }, { opacity: 1, offset: .3 }, { opacity: 0 }], { duration: 800, easing: 'ease-out', fill: 'none' });
+  await wait(100);
+  /* the cards drift out on soft curves and settle into a floating arc */
+  const end = dealAll([2, 1, 3, 0, 4], (c, j) => {
+    const x0 = PX - c.pos.x, y0 = PACK_TOP - 26 + 40 - c.pos.y, cx = PX + (c.pos.x - PX) * .4 - c.pos.x, cy = 30 - c.pos.y, r0 = (c.k - 2) * -14, kf = [], N = 8;
+    for (let i = 0; i <= N; i++) {
+      const u = i / N, a = (1 - u) * (1 - u), b = 2 * (1 - u) * u, d = u * u;
+      kf.push({ transform: T(a * x0 + b * cx, a * y0 + b * cy, r0 + (c.pos.r - r0) * easeOut(u), .35 + .65 * easeOut(u)), opacity: Math.min(1, u * 5) });
+    }
+    kf[N].transform = c.restT;
+    return { delay: j * 55, dur: 640, easing: 'cubic-bezier(.3,.6,.25,1)', kf, land: .95, onLand: cc => { FX.ring(cc.pos.x, cc.pos.y + 130, '#3d6383', 70, .5); } };
+  });
+  hidePack(140, 420, T(0, 30, 0, .92));
+  await wait(end);
+}
+async function revealV4(c) {
+  const t = c.g.r, s = c.pos, col = R[t].c;
+  if (t === 4) return legendV4(c);
+  const L = [10, 12, 16, 22][t];
+  if (t === 3) lock(c, true);
+  setLift(c, T(0, -L, 0, 1.04 + t * .012), 200, 'cubic-bezier(.45,0,.25,1)');
+  await wait(170);
+  anim(c.flip, [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(180deg)' }], { duration: 420, easing: 'cubic-bezier(.45,.05,.25,1)' });
+  await wait(210);
+  markRevealed(c);
+  FX.emit(s.x, s.y - L + 60, [8, 14, 24, 40][t], [col, R[t].hi, '#ffffff'], { dir: -Math.PI / 2, spread: .9, spd: [30, 90], g: -30, drag: .85, life: [.8, 1.4], jx: 150, jy: 120, tw: true });
+  if (t >= 1) FX.ring(s.x, s.y - L, col, 110 + t * 25, .8);
+  if (t >= 2) after(140, () => FX.ring(s.x, s.y - L, R[t].hi, 90 + t * 20, .8));
+  if (t === 3) FX.fan(s.x, s.y - L, col, { n: 10, len: 380, life: 1.1, alpha: .2, spin: .15 });
+  await wait(210 + 80);
+  if (t === 3) unlock(c);
+  setLift(c, T(), 420, 'cubic-bezier(.45,0,.25,1)');
+  await wait(420);
+}
+async function legendV4(c) {
+  const s = c.pos, cx = PX, cy = 276, cT = T(cx - s.x, cy - s.y, 0, 1.18);
+  lock(c);
+  c.slot.classList.remove('drift');
+  /* the card leaves the arc and rises to the centre, a sun rises behind it */
+  anim(c.travel, [{ transform: c.restT }, { transform: cT }], { duration: 440, easing: 'cubic-bezier(.45,0,.25,1)' });
+  anim(sunEl, [{ opacity: 0, transform: 'translateY(60px) scale(.6)' }, { opacity: 1, transform: 'translateY(0px) scale(1)' }], { duration: 900, easing: 'cubic-bezier(.2,.6,.2,1)' });
+  every(1700, 70, () => FX.emit(cx + rnd(-220, 220), cy + rnd(40, 200), 2, GOLD, { dir: -Math.PI / 2, spread: .3, spd: [30, 70], g: -20, drag: .9, life: [.9, 1.5], tw: true }));
+  await wait(440);
+  anim(c.flip, [{ transform: 'rotateY(0deg)' }, { transform: 'rotateY(180deg)' }], { duration: 520, easing: 'cubic-bezier(.45,.05,.25,1)' });
+  await wait(260);
+  markRevealed(c);
+  anim(floodEl, [{ opacity: 0 }, { opacity: .8, offset: .15 }, { opacity: 0 }], { duration: 1300, easing: 'ease-out', fill: 'none' });
+  FX.fan(cx, cy, '#ffd99a', { n: 16, len: 640, life: 1.6, alpha: .3, spin: .16 });
+  FX.fan(cx, cy, '#ffb85c', { n: 9, len: 440, life: 1.4, alpha: .22, spin: -.12 });
+  FX.emit(cx, cy, 90, GOLD, { spd: [30, 150], g: -10, drag: .55, life: [.9, 1.5], tw: true, jx: 60, jy: 80 });
+  [0, 180].forEach((d, i) => after(d, () => FX.ring(cx, cy, i ? '#fff1b8' : '#f4c542', 260 - i * 60, .9)));
+  banner(4, 'calm');
+  await wait(260 + 520);
+  /* back to its place in the arc */
+  anim(c.travel, [{ transform: cT }, { transform: c.restT }], { duration: 440, easing: 'cubic-bezier(.45,0,.25,1)' });
+  anim(sunEl, [{ opacity: 1, transform: 'translateY(0px) scale(1)' }, { opacity: 0, transform: 'translateY(30px) scale(.9)' }], { duration: 440, easing: 'ease-in-out' });
+  unlock(c);
+  await wait(440);
+  c.slot.classList.add('drift');
+}
+
+/* ================= reduced motion: short fades instead ================= */
+async function openRM() {
+  anim(P.wrap, [{ opacity: 1 }, { opacity: 0 }], { duration: 200 });
+  S.cards.forEach((c, i) => { c.slot.classList.add('shown'); anim(c.travel, [{ opacity: 0, transform: c.restT }, { opacity: 1, transform: c.restT }], { duration: 240, delay: i * 40, fill: 'both' }); });
+  await wait(420);
+}
+async function revealRM(c) {
+  anim(c.flip, [{ transform: 'rotateY(180deg)' }, { transform: 'rotateY(180deg)' }], { duration: 1 });
+  anim(c.lift, [{ opacity: .2 }, { opacity: 1 }], { duration: 220, fill: 'none' });
+  markRevealed(c);
+  if (c.g.r === 4) { banner(4, 'calm'); await wait(1400); } else await wait(220);
+}
+
+/* ================= variants ================= */
+const VARS = [
+  { name: 'Terminal revisité', open: openV1, reveal: revealV1, tilt: 0, hs: .02, wobble: false, timing: '≈1,0 s d\'ouverture · Légendaire ≈1,9 s',
+    text: 'Les pinces s\'arment puis se relâchent d\'un coup, le joint siffle une seule fois, le couvercle saute et la baie distribue les cartes une à une. Un effet à la fois : anticipation → libération → distribution. Révélation : un trait de scan balaie le dos (deux passes pour l\'Épique), puis la carte pivote d\'un coup sec ; la Légendaire est verrouillée par des crochets, scannée deux fois, puis libérée dans un éclair.' },
+  { name: 'Déchirure', open: openV2, reveal: revealV2, tilt: 0, hs: .02, wobble: false, timing: '≈1,2 s d\'ouverture · Légendaire ≈2,1 s',
+    text: 'Le pack aspire la lumière et tremble de plus en plus, puis la bande du haut est arrachée : elle se soulève par la gauche, tient un instant par la droite, cède et s\'envole avec son bord dentelé (aucun trait lumineux, aucune étincelle). Un faisceau monte de l\'ouverture, les cartes y jaillissent et retombent en ligne avec un léger tassement. Révélation : la carte vibre et se charge, un rayon jaillit au retournement ; la Légendaire s\'élève, se charge d\'or et se retourne sous une pluie de paillettes.' },
+  { name: 'Arcade', open: openV3, reveal: revealV3, tilt: 16, hs: .05, wobble: true, timing: '≈1,0 s d\'ouverture · Légendaire ≈2,1 s',
+    text: 'Écrasement, étirement, pop ! Le pack éclate en confettis de pixels, les cartes rebondissent à leur place, se dandinent et s\'inclinent en 3D sous le curseur avec un reflet. Révélation : frisson, retournement avec dépassement, impact qui écrase la carte ; bannière pour l\'Épique ; la Légendaire bondit, tourne une fois et demie et retombe en fanfare.' },
+  { name: 'Apesanteur', open: openV4, reveal: revealV4, tilt: 6, hs: .03, wobble: false, timing: '≈1,2 s d\'ouverture · Légendaire ≈1,9 s',
+    text: 'Le pack s\'élève et son rabat s\'ouvre ; les cartes dérivent sur des courbes douces et se posent en arc, où elles flottent. Rapide mais sans rebond. Révélation : la carte vient vers vous et pivote en douceur, des poussières montent ; la Légendaire quitte l\'arc pour le centre devant un soleil levant, se retourne dans un halo de rayons puis regagne sa place.' }
+];
+
+/* ================= flow ================= */
+function updateHint() {
+  const h = $('#hint');
+  const left = 5 - S.revealed;
+  h.className = '';
+  if (S.phase === 'sealed') h.textContent = '';
+  else if (S.phase === 'opening') h.textContent = 'OUVERTURE…';
+  else if (left > 0) { h.textContent = `CLIQUEZ SUR UNE CARTE POUR LA RÉVÉLER · ${left} RESTANTE${left > 1 ? 'S' : ''}`; h.className = 'blink'; }
+  else h.textContent = 'PACK COMPLET · REJOUER POUR RECOMMENCER';
+  $('#bOpen').disabled = S.phase !== 'sealed';
+  $('#bAll').disabled = S.phase === 'dealt' && left === 0;
+}
+async function openPack() {
+  if (S.phase !== 'sealed') return;
+  S.phase = 'opening'; P.btn.disabled = true; $('#packhint').style.visibility = 'hidden';
+  buildCards(); updateHint();
+  await (RM ? openRM() : VARS[S.v].open());
+  P.wrap.style.visibility = 'hidden';
+  S.phase = 'dealt';
+  S.cards.forEach(c => { c.ready = true; if (S.v === 3) c.slot.classList.add('drift'); });
+  updateHint();
+  if (S.pendingAll) { S.pendingAll = false; revealAll(); }
+}
+function onCardClick(c) {
+  if (S.phase !== 'dealt' || c.rev || c.busy || S.lock || S.allRunning) return;
+  doReveal(c);
+}
+async function doReveal(c) {
+  c.busy = true;
+  await (RM ? revealRM(c) : VARS[S.v].reveal(c));
+  c.busy = false;
+}
+async function revealAll() {
+  if (S.phase === 'sealed') { S.pendingAll = true; openPack(); return; }
+  if (S.phase === 'opening') { S.pendingAll = true; return; }
+  if (S.allRunning) return;
+  S.allRunning = true;
+  while (S.lock) await wait(50);
+  for (const c of S.cards) {
+    if (c.rev || c.busy) continue;
+    const p = doReveal(c);
+    if (c.g.r === 4) await p; else await wait(150);
+  }
+  S.allRunning = false;
+}
+function reset() {
+  TIMERS.length = 0;
+  const stage = $('#stage');
+  for (const a of stage.getAnimations({ subtree: true })) {
+    if ((window.CSSAnimation && a instanceof CSSAnimation) || (window.CSSTransition && a instanceof CSSTransition)) continue;
+    a.cancel();
+  }
+  FX.clear(); FX.dirty = true; beamsEl.innerHTML = '';
+  Object.assign(S, { phase: 'sealed', revealed: 0, lock: false, pendingAll: false, allRunning: false, order: shuffle([0, 1, 2, 3, 4]) });
+  dimEl.className = ''; bannerEl.innerHTML = '';
+  $('#cards').innerHTML = ''; S.cards = [];
+  $('#packwrap').style.visibility = '';
+  buildPack();
+  $('#cnt').textContent = '0 / 5';
+  stage.className = 'v' + (S.v + 1);
+  $('#vname').textContent = `VARIANTE ${S.v + 1} · ${VARS[S.v].name.toUpperCase()}`;
+  updateHint();
+}
+function selectVariant(i) {
+  S.v = i;
+  document.querySelectorAll('.tab').forEach((b, k) => { b.setAttribute('aria-selected', k === i ? 'true' : 'false'); b.tabIndex = k === i ? 0 : -1; });
+  document.querySelectorAll('.notes li').forEach((li, k) => li.classList.toggle('on', k === i));
+  reset();
+}
+function setSpeed(r) {
+  RATE = r;
+  document.querySelectorAll('#speed .px-btn').forEach(b => b.setAttribute('aria-pressed', +b.dataset.r === r ? 'true' : 'false'));
+  const sl = $('#slow'); sl.textContent = 'RALENTI ' + String(r).replace('.', ',') + '×'; sl.classList.toggle('on', r !== 1);
+}
+
+/* ================= UI ================= */
+const tabs = $('#tabs'), notes = $('#notes');
+VARS.forEach((v, i) => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'px-btn tab'; b.setAttribute('role', 'tab');
+  b.innerHTML = `<span class="k">${i + 1}</span>${v.name.toUpperCase()}`;
+  b.addEventListener('click', () => selectVariant(i));
+  tabs.appendChild(b);
+  const li = document.createElement('li');
+  li.innerHTML = `<span class="n">${i + 1}</span><span class="nm">${v.name.toUpperCase()}</span><span class="tx">${v.text}</span><span class="tm">${v.timing.replace(' · ', '<br>')}</span>`;
+  li.addEventListener('click', () => selectVariant(i));
+  notes.appendChild(li);
+});
+document.querySelectorAll('#speed .px-btn').forEach(b => b.addEventListener('click', () => setSpeed(+b.dataset.r)));
+$('#bOpen').addEventListener('click', openPack);
+$('#bAll').addEventListener('click', revealAll);
+$('#bReplay').addEventListener('click', reset);
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key >= '1' && e.key <= '4') { selectVariant(+e.key - 1); e.preventDefault(); }
+  else if (e.key === 'r' || e.key === 'R') reset();
+  else if (e.key === 't' || e.key === 'T') revealAll();
+});
+
+/* stars (canvas idiom) */
+(() => {
+  let s = 11; const r = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+  let h = '';
+  for (let i = 0; i < 46; i++) { const z = r() > .82 ? 4 : 2; h += `<i style="left:${Math.floor(r() * W)}px;top:${Math.floor(r() * H)}px;width:${z}px;height:${z}px;animation-duration:${(1.5 + r() * 3).toFixed(2)}s"></i>`; }
+  $('#stars').innerHTML = h;
+})();
+
+/* fit the 1120×600 stage to the page width */
+const fit = $('#fit'), stageEl = $('#stage');
+function fitStage() { const s = Math.min(1, fit.clientWidth / W); stageEl.style.transform = `scale(${s})`; fit.style.height = (H * s) + 'px'; }
+new ResizeObserver(fitStage).observe(fit); fitStage();
+
+/* main loop: virtual clock, speed sync, particles, tilt */
+let last = performance.now();
+function frame(now) {
+  const rdt = Math.min(50, now - last); last = now;
+  const dt = rdt * RATE; VT += dt;
+  while (TIMERS.length && TIMERS[0].t <= VT) TIMERS.shift().res();
+  for (const a of document.getAnimations()) if (a.playbackRate !== RATE) a.playbackRate = RATE;
+  FX.step(dt / 1000);
+  tiltStep(dt / 1000, VT);
+  requestAnimationFrame(frame);
+}
+selectVariant(0);
+setSpeed(1);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
