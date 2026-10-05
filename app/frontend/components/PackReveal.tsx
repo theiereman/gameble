@@ -27,7 +27,7 @@ export type PackRevealStrings = {
   failed: string
   reload: string
   openNextPack: string
-  backToAttic: string
+  backToHub: string
 }
 
 export type PackRevealProps = {
@@ -36,7 +36,7 @@ export type PackRevealProps = {
   strings: PackRevealStrings
   /** Where to open the next pack; null when none is available. */
   openPackUrl: string | null
-  atticUrl: string
+  hubUrl: string
 }
 
 /** Whether a media query matches, followed as it changes; never for an empty query. */
@@ -67,7 +67,7 @@ function csrf(): { param: string; token: string } | null {
   return param && token ? { param, token } : null
 }
 
-export default function PackReveal({ cards, cardStrings, strings, openPackUrl, atticUrl }: PackRevealProps) {
+export default function PackReveal({ cards, cardStrings, strings, openPackUrl, hubUrl }: PackRevealProps) {
   const [phoneText] = useState(phoneQuery)
   const phone = useMediaQuery(phoneText)
   const reducedMotion = useMediaQuery(REDUCED_MOTION)
@@ -274,8 +274,8 @@ export default function PackReveal({ cards, cardStrings, strings, openPackUrl, a
             </button>
           </form>
         )}
-        <a className="button button--secondary" href={atticUrl}>
-          {strings.backToAttic}
+        <a className="button button--secondary" href={hubUrl}>
+          {strings.backToHub}
         </a>
       </div>
     </div>

@@ -36,32 +36,58 @@ fr:
       close: "Fermer"
     steam_sign_in:
       alt: "Se connecter via Steam (ouvre Steam)"
+    sign_in_panel:
+      title: "Connectez-vous pour jouer"
+      close: "Fermer"
   pages:
     home:
-      heading: "Le grenier de la Confrérie"
-      objects:
-        lectern: "Bibliothèque"
-        notice_board: "Le fil de la Confrérie"
-        medal_display: "Succès"
-        mirror: "Mon profil"
-        trade_table: "Échanges et amis"
-        chest: "Le coffre"
-      invitation: "Enrôle-toi via Steam, Confrère, et le coffre s'ouvrira pour toi."
-      chest:
-        open: "Ouvrir un paquet (%{count})"
-        open_visitor: "S'enrôler via Steam pour ouvrir un paquet"
-        empty: "Aucun paquet"
-      countdown:
-        label: "Prochain paquet dans"
-        at: "Prochain paquet à %{time} (UTC)"
-      bonus:
-        heading: "Bonus du jour"
-        text: "Un petit booster t'attend, Confrère."
-        collect: "Le prendre"
-        collect_visitor: "S'enrôler via Steam pour le prendre"
-      island:
-        heading: "Le tableau de rassemblement de la Confrérie"
-        season: "Saison de service en cours :"
+      kicker:
+        title: "Pont de commandement"
+        subtitle: "Vaisseau-bibliothèque « Archiviste »"
+      menu:
+        label: "Menu du pont"
+        open_booster: "Ouvrir un booster"
+        reserve:
+          one: "%{number} booster en réserve"
+          other: "%{number} boosters en réserve"
+        reserve_empty: "Réserve vide"
+        collection: "Collection"
+        collection_meta:
+          zero: "%{owned} carte unique sur %{total}"
+          one: "%{owned} carte unique sur %{total}"
+          other: "%{owned} cartes uniques sur %{total}"
+        trades: "Échanges"
+        friends: "Amis"
+        feed: "Fil d'activité"
+        achievements: "Succès"
+        soon: "bientôt disponible"
+      showcase:
+        kicker: "Dernière obtention"
+        see_card: "Voir la fiche"
+        empty:
+          title: "Ouvrez votre premier booster"
+          text: "Votre plus belle carte s'affichera ici."
+          open: "Ouvrir un booster"
+          reserve_empty: "Réserve vide"
+      invitation:
+        title: "Vos jeux Steam, en cartes à collectionner."
+        text: "Ouvrez des boosters, complétez des sets, échangez avec vos amis."
+        open: "Ouvrir mes premiers boosters"
+      daily:
+        title: "Booster quotidien"
+        ready: "Prêt"
+        full: "Réserve pleine"
+        text: "Un booster offert chaque jour. Il rejoint votre réserve."
+        full_text: "Ouvrez un booster pour récupérer celui du jour."
+        collect: "Récupérer"
+      sets:
+        title: "Progression des sets"
+        # French keeps the singular for 0, which the plural rule here does not.
+        progress:
+          zero: "%{owned} carte possédée sur %{total}"
+          one: "%{owned} carte possédée sur %{total}"
+          other: "%{owned} cartes possédées sur %{total}"
+        see_all: "Tout voir"
   back_office:
     dashboard:
       show:
@@ -212,7 +238,7 @@ fr:
         import_active: "Un import Steam n'est pas terminé, officier. Laisse-le finir ou reprends-le ; abandonne-le s'il s'est interrompu avant d'inscrire des cartes ; ou lance une nouvelle passe et laisse-la aboutir, avant de publier la saison."
   packs:
     create:
-      throttled: "Doucement, Confrère. Le coffre a besoin d'un instant entre deux ouvertures ; réessaie dans une minute."
+      throttled: "Trop d'ouvertures en une minute. Réessayez dans un instant."
     show:
       heading: "Ton paquet, Confrère"
       heading_bonus: "Ton bonus du jour"
@@ -223,7 +249,7 @@ fr:
       progress: "Carte %{position} sur %{count}"
       all_flipped: "Toutes les cartes sont retournées, Confrère."
       open_next_pack: "Ouvrir le paquet suivant"
-      back_to_attic: "Retour au grenier"
+      back_to_hub: "Retour au pont"
       failed: "La révélation a trébuché, Confrère. Tes cartes sont à l'abri dans ta collection."
       reload: "Voir mes cartes"
   library:
@@ -278,8 +304,8 @@ fr:
       body: "La bibliothèque de ce Confrère est fermée aux visiteurs, Confrère. Le lien ne mène nulle part, ou son propriétaire ne la montre plus."
   daily_bonuses:
     create:
-      collected: "Le booster du jour est dans le coffre, Confrère. Ouvre-le quand tu veux."
-      throttled: "Doucement, Confrère. Le bonus ne s'envolera pas ; réessaie dans une minute."
+      collected: "Un booster rejoint votre réserve. Le prochain sera prêt à minuit (UTC)."
+      throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
   card_details:
     open: "%{title}, %{rarity}, saison %{season}"
     year: "Sortie"
@@ -294,7 +320,7 @@ fr:
     notice: "Ce jeu et son image appartiennent à leurs propriétaires respectifs. gameble n'est affilié ni à Valve ni à Steam."
     preview:
       title: "%{title} — %{rarity}"
-      description: "Une carte du grenier de la Confrérie. Enrôle-toi via Steam, Confrère : dix paquets t'attendent."
+      description: "Une carte de gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix boosters vous attendent."
     share:
       button: "Partager cette carte"
       url: "Lien vers cette carte"
@@ -305,8 +331,8 @@ fr:
     face_down_with_rarity: "Carte face cachée, %{rarity}"
     season: "Saison %{number}"
     show:
-      invitation: "Dix paquets t'attendent au grenier, Confrère. Ouvre-les, et les cartes sont à toi."
-      sign_in: "Les réclamer via Steam"
+      invitation: "Ouvrez des boosters, complétez des sets, échangez avec vos amis."
+      sign_in: "Ouvrir mes premiers boosters"
   catalog:
     rarity:
       common: "Commune"
@@ -379,14 +405,14 @@ fr:
       "360_video": "Vidéo 360"
   sessions:
     create:
-      welcome: "Bienvenue dans les rangs, Confrère. La Confrérie a inscrit ton nom au grand registre."
+      welcome: "Bienvenue sur gameble. Vos boosters vous attendent."
     destroy:
-      farewell: "Tu as quitté les rangs, Confrère. Les coffres te gardent ta place au chaud."
+      farewell: "Déconnexion effectuée. Votre collection vous attend."
   authorization:
-    sign_in_required: "Seuls les Confrères enrôlés peuvent faire cela. Enrôle-toi d'abord via Steam."
-    forbidden: "Cet ordre dépasse ton grade, Confrère. Les coffres restent fermés."
+    sign_in_required: "Connectez-vous avec Steam pour faire cela."
+    forbidden: "Votre compte n'a pas accès à cette page."
   rate_limit:
-    throttled: "Trop de tentatives d'enrôlement, Confrère. Reprends ton souffle et réessaie dans une minute."
+    throttled: "Trop de tentatives de connexion. Réessayez dans une minute."
   # Number formats (number_with_delimiter, number_with_precision,
   # number_to_percentage). Defined here so test and production render the
   # same (production falls back to en). The delimiter is a no-break space
@@ -409,9 +435,9 @@ fr:
         other_season: "appartient à une autre saison"
   errors:
     accounts:
-      invalid_steam_id: "Les scribes n'ont pas pu lire cette identité, Confrère. Enrôle-toi à nouveau."
-      banned: "La Confrérie a rayé ton nom du registre. Les coffres te restent fermés."
-      sign_in_failed: "L'enrôlement a échoué, Confrère. Les scribes ont trébuché sur le registre ; réessaie."
+      invalid_steam_id: "Votre identifiant Steam n'a pas pu être lu. Connectez-vous à nouveau."
+      banned: "Ce compte a été suspendu. Vous ne pouvez plus vous connecter."
+      sign_in_failed: "La connexion a échoué de notre côté. Réessayez dans un instant."
     catalog:
       missing_text: "Les scribes ont besoin du titre de la carte dans chaque langue de la Confrérie avant de l'inscrire au registre."
       invalid_card: "Les scribes ne peuvent pas inscrire cette carte au registre : ses particularités sont incomplètes ou en désordre."
@@ -422,14 +448,14 @@ fr:
       no_published_season: "Aucune saison publiée ne porte ce numéro, officier."
       already_numbered: "Les cartes de cette saison sont déjà numérotées, officier."
     game:
-      player_required: "Seul un Confrère enrôlé et en règle peut faire cela."
-      no_pack_available: "Le coffre est vide, Confrère. Attends le prochain paquet."
-      already_collected: "Tu as déjà pris le bonus du jour, Confrère. Le prochain vient après minuit (UTC)."
-      no_season: "La Confrérie n'a pas encore de saison de cartes, Confrère. Reviens plus tard dans la journée pour ton bonus."
+      player_required: "Connectez-vous avec un compte actif pour faire cela."
+      no_pack_available: "Votre réserve est vide. Le prochain booster arrive bientôt."
+      already_collected: "Vous avez déjà récupéré le booster du jour. Le prochain sera prêt à minuit (UTC)."
+      no_season: "Aucune saison de cartes n'est encore ouverte. Revenez plus tard pour le booster du jour."
       reserve_full: "Votre réserve est pleine : ouvrez un booster pour récupérer celui du jour."
     steam:
-      invalid_claimed_id: "Les scribes ne reconnaissent pas les papiers que tu rapportes, Confrère. Enrôle-toi à nouveau."
-      sign_in_failed: "L'enrôlement a échoué, Confrère. Tes papiers n'ont pas été tamponnés ; réessaie."
+      invalid_claimed_id: "La réponse de Steam n'a pas été reconnue. Connectez-vous à nouveau."
+      sign_in_failed: "La connexion avec Steam n'a pas abouti. Réessayez."
       run_in_progress: "Un import est déjà en cours, officier. Laisse-le finir, ou attends qu'il s'interrompe, avant d'en lancer un autre."
       not_found: "Les scribes ne trouvent pas cette passe d'import dans les registres."
       not_resumable: "Seul un import interrompu peut être repris, officier."

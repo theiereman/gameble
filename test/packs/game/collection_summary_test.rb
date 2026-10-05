@@ -68,4 +68,25 @@ class Game::CollectionSummaryTest < ActiveSupport::TestCase
     assert_queries_count(2) { result = Game::CollectionSummary.call(@player) }
     assert_equal 1, result.distinct_cards
   end
+
+  test "the distinct cards alone, in one query that never reads the sets; 0 without a query for a visitor or no season" do
+    hold(@player, members("p").first, 2)
+    hold(@player, members("p").second, 0)
+    hold(@player, catalog_card_seasons(:portal_one).id, 1)
+    hold(accounts_players(:moderator), members("p").last, 1)
+
+    queries = []
+    callback = ->(*, payload) { queries << payload[:sql] }
+    result = ActiveSupport::Notifications.subscribed(callback, "sql.active_record") do
+      Game::CollectionSummary.distinct_cards(@player, season: @season)
+    end
+    assert_equal 1, result
+    assert_equal 1, queries.size
+    assert_no_match(/catalog_set_memberships/, queries.sole)
+
+    assert_queries_count(0) do
+      assert_equal 0, Game::CollectionSummary.distinct_cards(nil, season: @season)
+      assert_equal 0, Game::CollectionSummary.distinct_cards(@player, season: nil)
+    end
+  end
 end

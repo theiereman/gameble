@@ -199,3 +199,21 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-tier-names-and-season-numbers-plan.md`
   summary: Rake task tests load the tasks in `setup` outside `capture_io`; in the parallel suite some workers re-load `game_benchmark.rake` and print constant-redefinition warnings to stderr. Load the application's tasks once per process (guard on `Rake::Task.task_defined?`) in a shared test helper.
   evidence: Story 8.3 implementation (`test/lib/catalog_number_seasons_task_test.rb`); the same pattern predates it in the player-state backfill test, which does not assert on stderr.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
+  summary: Transitional: the hub's menu 01 (and the empty showcase's "Ouvrir un booster") is the existing open-pack form, opening a booster straight to its reveal, not a link to the booster screen (EXPERIENCE.md, Ouverture de booster), until that screen exists.
+  evidence: Story 8.2 Design Notes; `app/views/pages/_menu.html.erb`, `app/views/pages/_showcase.html.erb`.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
+  summary: Transitional: menu items 03 to 06 (Échanges, Amis, Fil d'activité, Succès) render disabled (`aria-disabled`, "bientôt disponible"), without their badge or meta, until their screens exist.
+  evidence: Story 8.2 Design Notes; `app/views/pages/_menu.html.erb`.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
+  summary: Transitional: the showcase has no planet, rays or idle float, its card is the large face (240 × 360) on the phone too where DESIGN.md asks `card-l`, and its line lacks the genre and the card number (DESIGN.md, Showcase), until the pixel assets (8.8), effects (8.6) and card face (8.3, 8.6) land.
+  evidence: Story 8.2 Design Notes; `app/views/pages/_showcase.html.erb`, `app/frontend/styles/hub.css`.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
+  summary: Transitional: the phone hub shows no packs chip or rarity counter block of its own (the top bar's chip stays), no community goal panel and no LIVE ticker (epic 6, story 8.8); their slots are left out.
+  evidence: Story 8.2 Design Notes and Never list; `app/views/pages/home.html.erb`.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
+  summary: Transitional: once the day's booster is collected the daily booster panel is hidden until the next UTC day, where DESIGN.md shows "RÉCUPÉRÉ" with the countdown and a thin bar (story 10.4).
+  evidence: Story 8.2 Design Notes; `app/views/pages/home.html.erb`.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
+  summary: `test/system/pack_reveal_test.rb` failed intermittently in 2 of 4 full system-suite runs during story 8.2 (once in setup, the top bar's Steam button not found; once at the end-of-reveal buttons), never when run alone; cause unknown, possibly pre-existing.
+  evidence: Story 8.2 implementation report; the orchestrator's full runs passed.

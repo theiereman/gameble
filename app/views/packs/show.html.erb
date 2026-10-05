@@ -10,7 +10,7 @@
     <%= turbo_mount("PackReveal", props: reveal_props, class: "pack-reveal-island") %>
     <%# Always a way out, shown while the island has not drawn its own. %>
     <div class="pack-end pack-reveal__fallback">
-      <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t(".back_to_attic") %><% end %>
+      <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t(".back_to_hub") %><% end %>
     </div>
   <% else %>
     <ol class="pack-result__cards" aria-label="<%= t(".cards") %>">
@@ -22,7 +22,7 @@
       <% if @next_pack %>
         <%= render ButtonComponent.new(href: packs_path, method: :post) do %><%= t(".open_next_pack") %><% end %>
       <% end %>
-      <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t(".back_to_attic") %><% end %>
+      <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t(".back_to_hub") %><% end %>
     </div>
   <% end %>
 </section>

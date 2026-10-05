@@ -2,7 +2,7 @@ require "test_helper"
 require_relative "../support/counting_rate_limit"
 require_relative "../support/game_packs"
 
-# The daily bonus panel in the attic and its collection (CAP-16, R8): end to
+# The hub's daily booster panel and its collection (CAP-16, R8): end to
 # end, the result page of a bonus pack, and every refusal.
 class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
@@ -26,15 +26,15 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     assert session[:player_id]
   end
 
-  def chest_button
-    css_select(".attic__object--chest .attic__chest-action button").sole
+  def reserve_badge
+    css_select(".hub-menu .menu-item__badge").sole.text
   end
 
   def panel
-    css_select(".attic__bonus")
+    css_select(".daily-booster")
   end
 
-  test "a player collects the bonus from the attic: one more pack, the panel gone, refused again that day, back the next" do
+  test "a player collects the bonus from the hub: one more pack, the panel gone, refused again that day, back the next" do
     now = Time.utc(2026, 10, 2, 22, 0)
     travel_to(now) do
       Game::FillBank.new.call(player: @player).value!
@@ -44,17 +44,17 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
 
     travel_to(now) do
       get home_path(locale: :en)
-      assert_equal "Open a pack (9)", chest_button.text
-      assert_select ".attic__bonus h2", "Daily bonus"
-      assert_select ".attic__bonus form[action='/en/daily-bonus'][method=post] button", "Take it"
+      assert_equal "9", reserve_badge
+      assert_select ".daily-booster h2", "Daily booster"
+      assert_select ".daily-booster form[action='/en/daily-bonus'][method=post] button", "Collect"
 
       post daily_bonus_path(locale: :en)
 
       assert_redirected_to home_path(locale: :en)
       assert_response :see_other
-      assert_equal I18n.t("daily_bonuses.create.collected", locale: :en), flash[:notice]
+      assert_equal "A booster joins your reserve. The next one will be ready at midnight (UTC).", flash[:notice]
       follow_redirect!
-      assert_equal "Open a pack (10)", chest_button.text
+      assert_equal "10", reserve_badge
       assert_empty panel
 
       post daily_bonus_path(locale: :en)
@@ -70,17 +70,19 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "with a full reserve, the panel says so instead of its button, and a collection is refused; nothing written" do
+  test "with a full reserve, the panel says so and disables its button, and a collection is refused; nothing written" do
     Game::FillBank.new.call(player: @player).value!
     sign_in(@player)
 
     get home_path(locale: :en)
-    assert_select ".attic__bonus h2", "Daily bonus"
-    assert_select ".attic__bonus p", I18n.t("errors.game.reserve_full", locale: :en)
-    assert_select ".attic__bonus form", 0
+    assert_select ".daily-booster h2", "Daily booster"
+    assert_select ".daily-booster .daily-booster__state", "Reserve full"
+    assert_select ".daily-booster .daily-booster__text", "Open a booster to collect today's."
+    assert_select ".daily-booster button[disabled]", "Collect"
+    assert_select ".daily-booster form", 0
 
     get home_path(locale: :fr)
-    assert_select ".attic__bonus p", "Votre réserve est pleine : ouvrez un booster pour récupérer celui du jour."
+    assert_select ".daily-booster .daily-booster__text", "Ouvrez un booster pour récupérer celui du jour."
 
     assert_no_difference -> { Game::Pack.count } do
       post daily_bonus_path(locale: :fr)
@@ -96,15 +98,15 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :fr)
 
-    assert_select ".attic__bonus h2", "Bonus du jour"
-    assert_select ".attic__bonus button", "Le prendre"
+    assert_select ".daily-booster h2", "Booster quotidien"
+    assert_select ".daily-booster .daily-booster__state", "Prêt"
+    assert_select ".daily-booster .daily-booster__text", "Un booster offert chaque jour. Il rejoint votre réserve."
+    assert_select ".daily-booster button", "Récupérer"
   end
 
-  test "a visitor sees the panel with a Steam sign-in button, and a visitor's POST is refused with the sign-in message; nothing written" do
+  test "a visitor sees no panel, and a visitor's POST is refused with the sign-in message; nothing written" do
     get home_path(locale: :en)
-    assert_select ".attic__bonus h2", "Daily bonus"
-    assert_select ".attic__bonus form[action='/auth/steam'][method=post] button", "Enlist through Steam to take it"
-    assert_select ".attic__bonus form[action='/auth/steam'] input[name=origin][value='/en']"
+    assert_empty panel
 
     assert_no_difference -> { Game::Pack.count } do
       assert_no_difference -> { Game::DailyBonusClaim.count } do
@@ -160,23 +162,16 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 3, props["cards"].size
 
     get pack_path(bonus.token, locale: :fr)
-    assert_select "h1", "Ton bonus du jour"
+    assert_select "h1", I18n.t("packs.show.heading_bonus", locale: :fr)
     assert_select ".pack-result__card .card--face", 3
   end
 
-  test "a visitor sees no panel when no season is published" do
+  test "a visitor sees no panel when no season is published, and menu 01 opens the sign-in panel" do
     catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
 
     get home_path(locale: :en)
 
     assert_empty panel
-    assert_select ".attic__chest-action form[action='/auth/steam'] button", "Enlist through Steam to open a pack"
-  end
-
-  test "in French, a visitor's chest and panel buttons say they enlist through Steam" do
-    get home_path(locale: :fr)
-
-    assert_select ".attic__chest-action form[action='/auth/steam'] button", "S'enrôler via Steam pour ouvrir un paquet"
-    assert_select ".attic__bonus form[action='/auth/steam'] button", "S'enrôler via Steam pour le prendre"
+    assert_select ".hub-menu button.menu-item[data-dialog-opener-dialog-value=sign-in-panel] .menu-item__label", "Open a booster"
   end
 end

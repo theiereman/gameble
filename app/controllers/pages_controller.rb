@@ -1,15 +1,39 @@
+# The hub, "Pont de commandement" (EXPERIENCE.md, Hub content): the numbered
+# menu, the showcase of the player's latest notable pull (or the invitation
+# to sign in), the daily booster panel and the set progress rows. A read
+# only page (AD-11): Catalog answers the season, its size and the showcased
+# card, Game the player's reserve, pull, collection and sets.
 class PagesController < ApplicationController
   def home
     authorize :page, :show?
-    # A visitor sees the bonus panel whenever a player could collect one
-    # (CAP-18): when a season is published.
-    @season_published = Catalog::PublishedSeason.call.present? unless current_player
-    return unless current_player
-
-    now = Time.current
-    @bank = Game::BankSummary.call(current_player, now:)
-    # Whole seconds to the next pack of the bank, rounded up so the countdown
-    # reaches zero once the pack is due.
-    @next_pack_in = (@bank[:next_available_at] - now).ceil if @bank[:next_available_at]
+    @season = Catalog::PublishedSeason.call
+    if current_player
+      @bank = Game::BankSummary.call(current_player)
+      @showcase = showcase if @season
+    end
+    @collection = collection if @season
+    @sets = @season ? set_rows : []
   end
+
+  private
+    # The card of the player's latest notable pull, as a Catalog::CardView,
+    # or nil (the empty showcase).
+    def showcase
+      id = Game::NotablePull.call(current_player)
+      Catalog::CardViews.call([ id ], locale: I18n.locale)[id] if id
+    end
+
+    # Menu 02's meta: distinct cards held in the season, out of its cards.
+    def collection
+      { owned: Game::CollectionSummary.distinct_cards(current_player, season: @season),
+        total: Catalog::CardCount.call(@season) }
+    end
+
+    # The set progress rows, named in the current locale; a set is reached by
+    # its kind and key (AD-15).
+    def set_rows
+      Game::HubSets.call(current_player, season: @season).map do |row|
+        { label: SetLabel.for(row.set), kind: row.set.kind, key: row.set.key, owned: row.owned, total: row.total }
+      end
+    end
 end

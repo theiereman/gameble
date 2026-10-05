@@ -731,6 +731,107 @@ a {
   border-bottom-width: var(--corner-brackets-stroke);
 }
 
+/* ---- Modal (DESIGN.md, Dialogs; the sign-in panel): a scrim, a bracketed
+   panel with an accent title row and a square close button. The panel
+   fills the dialog, so a click on the dialog itself is on the scrim. On the
+   phone, a bottom sheet with a grab handle and a line on its top edge. ---- */
+
+.modal {
+  width: min(var(--modal-width), calc(100vw - 2 * var(--space-gutter-phone)));
+  max-width: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  overflow: visible;
+}
+
+.modal::backdrop {
+  background: var(--modal-scrim);
+}
+
+/* Opening (EXPERIENCE.md, Motion): the scrim fades in 160ms, the panel
+   rises 16px into place in 220ms (on the phone, the sheet from below). */
+.modal[open] {
+  animation: modal-rise 220ms var(--ease-out);
+}
+
+.modal[open]::backdrop {
+  animation: modal-fade 160ms linear;
+}
+
+@keyframes modal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+@keyframes modal-sheet {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.modal__panel {
+  box-shadow: var(--panel-border), var(--overlay-shadow);
+}
+
+.modal__handle {
+  display: none;
+}
+
+.modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-5);
+}
+
+.modal__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.modal__close {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  color: var(--color-text-bright);
+  cursor: pointer;
+}
+
+.modal__close:hover {
+  color: var(--color-alert);
+}
+
+.modal__close:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.modal__body {
+  display: flex;
+  justify-content: center;
+}
+
 /* ---- Screen changes (EXPERIENCE.md, Motion): the old screen slides 32px
    away and fades in 170ms; the new one slides in from 48px in 260ms, 40ms
    later. The bars and the atmosphere do not move. ---- */
@@ -847,9 +948,38 @@ html[data-screen-change="same"]::view-transition-new(screen) {
     min-height: var(--space-chip-height-touch);
   }
 
-  .toast__close {
+  .toast__close,
+  .modal__close {
     width: var(--space-touch-min);
     height: var(--space-touch-min);
+  }
+
+  .modal {
+    width: 100%;
+    max-width: var(--space-phone-column-max);
+    margin: auto auto 0;
+  }
+
+  .modal[open] {
+    animation-name: modal-sheet;
+  }
+
+  .modal__panel {
+    padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+    box-shadow: inset 0 var(--space-unit) 0 0 var(--color-line), var(--overlay-shadow);
+  }
+
+  .modal__panel.panel--brackets::before,
+  .modal__panel.panel--brackets::after {
+    display: none;
+  }
+
+  .modal__handle {
+    display: block;
+    width: 44px;
+    height: 4px;
+    margin: 0 auto var(--space-4);
+    background: var(--color-line);
   }
 
   .atmosphere__vignette {
@@ -899,6 +1029,11 @@ html[data-screen-change="same"]::view-transition-new(screen) {
     animation: none;
   }
 
+  /* A dialog only crossfades. */
+  .modal[open] {
+    animation-name: modal-fade;
+  }
+
   .button:hover,
   .button:active {
     transform: none;
@@ -918,6 +1053,10 @@ html[data-motion="reduced"] .button {
 
 html[data-motion="reduced"] .toast {
   animation: none;
+}
+
+html[data-motion="reduced"] .modal[open] {
+  animation-name: modal-fade;
 }
 
 html[data-motion="reduced"] .button:hover,

@@ -9,17 +9,21 @@
 # the form or link a full-page load, for a response that leaves the site
 # (Steam sign-in) or the app's pages (the job queue). `confirm:` asks the
 # browser to confirm a form button before it is sent (Turbo's
-# data-turbo-confirm).
+# data-turbo-confirm). `opens:` names a dialog by its id: the button opens it
+# (dialog_opener_controller.ts), for a game-styled action that needs an
+# account and opens the sign-in panel instead (DESIGN.md, Sign-in panel);
+# without JavaScript it does nothing.
 class ButtonComponent < ViewComponent::Base
   VARIANTS = %i[primary secondary danger link].freeze
   SIZES = %i[default small].freeze
 
   def initialize(variant: :primary, href: nil, type: :button, method: nil, params: {}, turbo: true, confirm: nil,
-    size: :default, icon: nil, disabled: false)
+    size: :default, icon: nil, disabled: false, opens: nil)
     raise ArgumentError, "unknown button variant: #{variant.inspect}" unless VARIANTS.include?(variant)
     raise ArgumentError, "unknown button size: #{size.inspect}" unless SIZES.include?(size)
     raise ArgumentError, "a form button needs an href" if method && href.nil?
     raise ArgumentError, "only a form button can ask for confirmation" if confirm && method.nil?
+    raise ArgumentError, "a dialog opener is a plain button" if opens && (href || disabled)
 
     @variant = variant
     @href = href
@@ -31,6 +35,7 @@ class ButtonComponent < ViewComponent::Base
     @size = size
     @icon = icon
     @disabled = disabled
+    @opens = opens
   end
 
   private
@@ -42,6 +47,12 @@ class ButtonComponent < ViewComponent::Base
       return content unless @icon
 
       safe_join([ helpers.pixel_icon(@icon, class: "button__icon"), tag.span(content, class: "button__label") ])
+    end
+
+    # The attributes of a button opening a dialog (dialog_opener_controller.ts).
+    def opener_options
+      { aria: { haspopup: "dialog" },
+        data: { controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: @opens } }
     end
 
     def form_options

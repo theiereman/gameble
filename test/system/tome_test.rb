@@ -36,7 +36,7 @@ class TomeTest < ApplicationSystemTestCase
     owned.each_with_index { |id, index| Game::Holding.create!(player_id: player.id, card_season_id: id, quantity: index == 1 ? 2 : 1) }
     sign_in(player)
 
-    click_on "Library"
+    within(".hub-menu") { click_on "Collection" }
     click_on "Action · Tome 1"
 
     assert_selector "h1", text: "Action · Tome 1 · 2011–2015"

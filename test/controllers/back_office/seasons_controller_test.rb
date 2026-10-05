@@ -278,7 +278,7 @@ module BackOffice
       end
     end
 
-    test "a visitor is sent to the attic and asked to sign in for every season action" do
+    test "a visitor is sent to the hub and asked to sign in for every season action" do
       draft = seed_card_seasons(distinct_scores(21))
 
       each_request(draft) do |verb, path, params|

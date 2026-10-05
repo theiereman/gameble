@@ -51,7 +51,8 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ { player_id: player.id } ], registered_events.map(&:data)
     assert_equal player.id, signed_in_player_id
     assert_redirected_to home_path(locale: :en)
-    assert_equal "Welcome to the ranks, Brother. The Brotherhood has entered your name in the great ledger.", flash[:notice]
+    assert_equal "Welcome to gameble. Your boosters are waiting.", flash[:notice]
+    assert flash[:signed_in], "the hub is asked to focus its first menu item"
 
     follow_redirect!
     assert_select ".toasts[role=status] > .toast.toast--notice .toast__message", flash[:notice]
@@ -152,7 +153,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     sign_in_with_steam(origin: "/fr")
 
     assert_redirected_to home_path(locale: :fr)
-    assert_equal "Bienvenue dans les rangs, Confrère. La Confrérie a inscrit ton nom au grand registre.", flash[:notice]
+    assert_equal "Bienvenue sur gameble. Vos boosters vous attendent.", flash[:notice]
   end
 
   test "a malformed claimed id signs nobody in" do
@@ -235,11 +236,13 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal player_id, signed_in_player_id
   end
 
-  test "a sign-in returns to the local page it started on" do
-    sign_in_with_steam(origin: "/fr/some/page")
+  [ "/fr/some/page", "/fr/library", "/fr/cards/portal", "/fr" ].each do |origin|
+    test "a sign-in started on #{origin} lands on the hub in its locale" do
+      sign_in_with_steam(origin:)
 
-    assert_redirected_to "/fr/some/page"
-    assert_equal I18n.t("sessions.create.welcome", locale: :fr), flash[:notice]
+      assert_redirected_to home_path(locale: :fr)
+      assert_equal I18n.t("sessions.create.welcome", locale: :fr), flash[:notice]
+    end
   end
 
   test "a refused sign-in returns to the local page it started on" do
@@ -279,16 +282,18 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, new_players.count
   end
 
-  test "signing out resets the session and shows the sign-in button again" do
+  test "signing out resets the session, lands on the signed-out hub and shows the sign-in button again" do
     sign_in_with_steam
     follow_redirect!
-    assert_select "#player-menu form[action=?] input[name=_method][value=delete]", "/session?locale=en"
+    assert_select "#player-menu form[action=?][data-turbo=false] input[name=_method][value=delete]", "/session?locale=en"
 
     delete session_path(locale: :en)
 
     assert_nil signed_in_player_id
     assert_redirected_to home_path(locale: :en)
+    assert_equal I18n.t("sessions.destroy.farewell", locale: :en), flash[:notice]
     follow_redirect!
+    assert_select ".hub-invitation"
     assert_select ".top-bar__end form[action='/auth/steam'][method=post] button img[alt=?]", "Sign in through Steam (opens Steam)"
     assert_select ".top-bar form[action^='/session']", false
   end

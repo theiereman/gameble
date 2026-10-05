@@ -1,0 +1,527 @@
+/*
+ * The hub, "Pont de commandement" (DESIGN.md: Layout & Spacing, Kicker,
+ * Menu item, Showcase, Daily booster panel, Set progress row, Signed-out
+ * hub). From 1180px three columns: kicker, menu and daily booster panel on
+ * the left (340px), the showcase in the centre, the set progress on the
+ * right (340px). From 720px two: the left column (260 to 300px) holds the
+ * kicker, menu, daily booster panel and set progress; the showcase stands
+ * alone in the centre. Under 720px one column, without the menu: kicker,
+ * showcase (or invitation), daily booster panel, set progress.
+ */
+
+.hub {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr) 340px;
+  grid-template-rows: auto auto auto 1fr;
+  grid-template-areas:
+    "kicker showcase sets"
+    "menu showcase sets"
+    "daily showcase sets"
+    ". showcase sets";
+  gap: var(--space-5) var(--space-column-gap-wide);
+  align-items: start;
+}
+
+.hub__kicker { grid-area: kicker; }
+.hub-menu { grid-area: menu; }
+.hub-showcase { grid-area: showcase; }
+.daily-booster { grid-area: daily; }
+.hub-sets { grid-area: sets; }
+
+/* ---- Kicker: an accent Silkscreen title and a VT323 subtitle ---- */
+
+.hub__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.hub__subtitle {
+  margin: var(--space-1) 0 0;
+  color: var(--color-muted);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+/* ---- Menu: numbered rows ---- */
+
+.hub-menu__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menu-item__form {
+  margin: 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  min-height: var(--space-menu-item-height);
+  margin: 0;
+  padding: var(--space-2) var(--space-5);
+  border: 0;
+  background: var(--color-panel);
+  box-shadow: var(--control-border);
+  color: var(--color-text-bright);
+  font: var(--font-menu);
+  letter-spacing: var(--tracking-menu);
+  text-align: left;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 120ms var(--ease-out);
+}
+
+.menu-item__number {
+  flex: none;
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.menu-item__label {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The count badge: lime, greyed at zero; steady. */
+.menu-item__badge {
+  flex: none;
+  min-width: 26px;
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-lime);
+  color: var(--color-on-lime);
+  font: var(--font-button);
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.menu-item__meta {
+  flex: none;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.menu-item__arrow {
+  width: 6px;
+  height: 10px;
+  visibility: hidden;
+}
+
+a.menu-item:hover,
+button.menu-item:hover {
+  background: var(--color-accent);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent-hi);
+  color: var(--color-on-accent);
+  transform: translateX(10px);
+}
+
+a.menu-item:hover .menu-item__number,
+a.menu-item:hover .menu-item__meta,
+button.menu-item:hover .menu-item__number {
+  color: var(--color-on-accent);
+}
+
+a.menu-item:hover .menu-item__arrow,
+button.menu-item:hover .menu-item__arrow,
+.menu-item:focus-visible .menu-item__arrow {
+  visibility: visible;
+}
+
+a.menu-item:active,
+button.menu-item:active {
+  background: var(--color-accent-press);
+  color: var(--color-on-accent);
+}
+
+.menu-item:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+/* Under the pointer, the focus ring keeps its gap. */
+a.menu-item:focus-visible:hover,
+button.menu-item:focus-visible:hover {
+  box-shadow: var(--focus-ring-gap), inset 0 0 0 var(--space-unit) var(--color-accent-hi);
+}
+
+.menu-item[aria-disabled="true"] {
+  color: var(--color-disabled-text);
+  cursor: default;
+}
+
+.menu-item[aria-disabled="true"] .menu-item__number {
+  color: var(--color-disabled-text);
+}
+
+.menu-item[aria-disabled="true"] .menu-item__badge {
+  background: var(--color-disabled-bg);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
+  color: var(--color-disabled-text);
+}
+
+/* ---- Showcase, empty showcase and invitation ---- */
+
+.hub-showcase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  text-align: center;
+}
+
+.hub-showcase__kicker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--color-gold);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.hub-showcase__light {
+  width: 8px;
+  height: 8px;
+  background: var(--color-gold);
+}
+
+/* The card at card-xl (240 × 360) over a flat ground shadow. */
+.hub-showcase__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  padding-top: var(--space-3);
+}
+
+.hub-showcase__ground {
+  width: 200px;
+  height: 10px;
+  background: var(--color-outline);
+}
+
+.hub-showcase__name,
+.hub-invitation__title {
+  max-width: 100%;
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-showcase-name);
+  letter-spacing: var(--tracking-showcase-name);
+  overflow-wrap: anywhere;
+}
+
+.hub-showcase__name {
+  text-transform: uppercase;
+}
+
+.hub-showcase__rarity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  font: var(--font-card-meta-xl);
+  letter-spacing: var(--tracking-card-meta-xl);
+  text-transform: uppercase;
+}
+
+.hub-showcase__rarity-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.hub-showcase__rarity--1 { color: var(--color-rarity-commune); }
+.hub-showcase__rarity--2 { color: var(--color-rarity-peu-commune); }
+.hub-showcase__rarity--3 { color: var(--color-rarity-rare); }
+.hub-showcase__rarity--4 { color: var(--color-rarity-epique); }
+.hub-showcase__rarity--5 { color: var(--color-rarity-legendaire); }
+
+.hub-showcase .button,
+.hub-showcase .button-form {
+  margin: 0;
+}
+
+/* The empty frame: hatched, a dashed card outline, the logo dimmed. */
+.hub-showcase__frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 240px;
+  height: 360px;
+  background: repeating-linear-gradient(-45deg, var(--color-panel-sunken) 0 6px, var(--color-panel) 6px 12px);
+  box-shadow: var(--panel-soft-border);
+}
+
+.hub-showcase__outline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 196px;
+  height: 304px;
+  border: var(--space-unit) dashed var(--color-line);
+}
+
+.hub-showcase__logo {
+  width: 24px;
+  height: 24px;
+  opacity: 0.35;
+}
+
+.hub-showcase__line {
+  max-width: 34ch;
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.hub-showcase__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+/* A disabled button states its reason beside it. */
+.hub-showcase__reason {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+/* ---- Daily booster panel: a quiet panel with its state word ---- */
+
+.daily-booster {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.daily-booster__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  align-self: stretch;
+}
+
+.daily-booster__title {
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-menu);
+  letter-spacing: var(--tracking-menu);
+  text-transform: uppercase;
+}
+
+.daily-booster__state {
+  margin: 0;
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.daily-booster__state--ready { color: var(--color-lime); }
+.daily-booster__state--full { color: var(--color-alert); }
+
+.daily-booster__text {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.daily-booster .button,
+.daily-booster .button-form {
+  margin: 0;
+}
+
+/* ---- Set progress: rows with a thin bar, then "Tout voir" ---- */
+
+.hub-sets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.hub-sets__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.hub-sets__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.set-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "name count"
+    "bar bar";
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  min-height: var(--space-touch-min);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+  color: var(--color-text-bright);
+  text-decoration: none;
+}
+
+.set-row:hover {
+  box-shadow: var(--control-border), inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.set-row:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--panel-border);
+}
+
+.set-row__name {
+  grid-area: name;
+  overflow: hidden;
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.set-row__count {
+  grid-area: count;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The thin progress bar: an accent fill on a track edged in line-deep. */
+.set-row__bar {
+  grid-area: bar;
+  display: block;
+  width: 100%;
+  height: 6px;
+  border: 0;
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 1px var(--color-line-deep);
+  color: var(--color-accent);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.set-row__bar::-webkit-progress-bar {
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 1px var(--color-line-deep);
+}
+
+.set-row__bar::-webkit-progress-value {
+  background: var(--color-accent);
+}
+
+.set-row__bar::-moz-progress-bar {
+  background: var(--color-accent);
+}
+
+.hub-sets .button--link {
+  align-self: flex-end;
+  margin: 0;
+}
+
+/* ---- Two columns (720 to 1179px) ---- */
+
+@media (max-width: 1179px) {
+  .hub {
+    grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto 1fr;
+    grid-template-areas:
+      "kicker showcase"
+      "menu showcase"
+      "daily showcase"
+      "sets showcase"
+      ". showcase";
+    column-gap: var(--space-column-gap-medium);
+  }
+}
+
+/* ---- Phone: one column, the tab bar navigates ---- */
+
+@media (max-width: 719px) {
+  .hub {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-6);
+  }
+
+  .hub-menu {
+    display: none;
+  }
+
+  .hub__title {
+    font: var(--font-kicker-phone);
+    letter-spacing: var(--tracking-kicker-phone);
+  }
+
+  .hub-showcase__name,
+  .hub-invitation__title {
+    font: var(--font-showcase-name-phone);
+    letter-spacing: var(--tracking-showcase-name-phone);
+  }
+
+  .daily-booster .button,
+  .daily-booster .button-form {
+    align-self: stretch;
+  }
+
+  .daily-booster .button {
+    width: 100%;
+  }
+}
+
+/* ---- Reduced motion: no slide ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-item {
+    transition: none;
+  }
+
+  a.menu-item:hover,
+  button.menu-item:hover {
+    transform: none;
+  }
+}
+
+html[data-motion="reduced"] .menu-item {
+  transition: none;
+}
+
+html[data-motion="reduced"] a.menu-item:hover,
+html[data-motion="reduced"] button.menu-item:hover {
+  transform: none;
+}

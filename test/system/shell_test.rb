@@ -158,7 +158,7 @@ class ShellTest < ApplicationSystemTestCase
     refresh_with_turbo
     assert_selector "html[data-screen-change=same]", visible: :all
 
-    click_on "Library"
+    within(".hub-menu") { click_on "Collection" }
     assert_current_path library_path(locale: :en)
     assert_no_selector "html[data-screen-change]", visible: :all
   end
@@ -180,7 +180,7 @@ class ShellTest < ApplicationSystemTestCase
     Game::OpenPack.new.call(player:).value!
     sign_in(player)
 
-    within(".attic__bonus") { click_on "Take it" }
+    within(".daily-booster") { click_on "Collect" }
 
     notice = I18n.t("daily_bonuses.create.collected", locale: :en)
     assert_selector ".toasts .toast.toast--notice", text: notice

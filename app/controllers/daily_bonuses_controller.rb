@@ -1,5 +1,5 @@
-# Collecting the daily bonus from the attic panel (CAP-16): the bonus pack
-# lands in the chest, and the player is sent back to the attic.
+# Collecting the daily booster from the hub's panel (CAP-16): the bonus pack
+# joins the reserve, and the player is sent back to the hub.
 class DailyBonusesController < ApplicationController
   rate_limit to: 5, within: 1.minute, only: :create,
     by: -> { current_player&.id || request.remote_ip },

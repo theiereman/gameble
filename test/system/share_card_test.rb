@@ -4,7 +4,7 @@ require_relative "../support/steam_api_stubs"
 # Sharing a card (CAP-9, story 4.5; EXPERIENCE Flow 1): a holder copies the
 # link from the card's detail, the card-season's own page; a visitor opens
 # it and sees only the card, never who shared it, then signs in from the
-# invitation and lands in the attic. Where the clipboard cannot be written
+# invitation's sign-in panel and lands on the hub. Where the clipboard cannot be written
 # (plain HTTP), the link is selected and copied by execCommand, or the
 # player is told to copy it.
 class ShareCardTest < ApplicationSystemTestCase
@@ -64,7 +64,7 @@ class ShareCardTest < ApplicationSystemTestCase
     JS
   end
 
-  test "a holder copies the link; a visitor opens it, then signs in from the invitation and lands in the attic" do
+  test "a holder copies the link; a visitor opens it, then signs in from the invitation and lands on the hub" do
     sign_in(@holder)
     visit card_path(locale: :en, slug: "portal")
     stub_clipboard
@@ -83,7 +83,7 @@ class ShareCardTest < ApplicationSystemTestCase
 
     assert_title "Portal — Epic"
     assert_selector "main > .card-detail h1", text: "Portal"
-    assert_selector ".card-detail__invitation", text: "Ten packs wait in the attic"
+    assert_selector ".card-detail__invitation", text: "Open boosters, complete sets, trade with your friends."
     assert_no_selector ".card-detail__share"
     assert_no_selector ".card-detail__copies"
     assert_no_selector ".library"
@@ -92,11 +92,12 @@ class ShareCardTest < ApplicationSystemTestCase
 
     newcomer = accounts_players(:moderator)
     OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{newcomer.steam_id}")
-    within(".card-detail__invitation") { click_on "Claim them through Steam" }
+    within(".card-detail__invitation") { click_on "Open my first boosters" }
+    within("dialog#sign-in-panel[open]") { find(".steam-sign-in__button").click }
 
     assert_signed_in
     assert_current_path "/en"
-    assert_selector "#attic-heading", visible: :all
+    assert_selector ".hub__title", text: "COMMAND BRIDGE"
   end
 
   test "without a clipboard the link is selected and copied by execCommand, or the player is told to copy it" do

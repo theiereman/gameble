@@ -4,9 +4,12 @@
 # (CAP-8), and the session keeps only the player id. The name is a bonus: a
 # Steam failure while reading it never blocks the sign-in.
 #
-# A sign-in returns to the page it started on (OmniAuth's origin) when that
-# is a local page under a locale, else to home. Only a successful sign-in
-# touches the session; a failed or forged one leaves it as it was.
+# A successful sign-in lands on the hub (AD-14; EXPERIENCE.md, Steam
+# sign-in), in the locale of the page it started on (OmniAuth's origin, when
+# that is a local page under a locale), and asks the hub to focus its first
+# menu item. A failed or refused one returns to that page, else to the hub.
+# Only a successful sign-in touches the session; a failed or forged one
+# leaves it as it was. Signing out also lands on the hub.
 class SessionsController < ApplicationController
   # Set in the session by the request phase (config/initializers/omniauth.rb)
   # and consumed by the callback: a callback this browser did not start is
@@ -39,7 +42,7 @@ class SessionsController < ApplicationController
 
     reset_session
     session[:player_id] = result.value!.id
-    redirect_to return_path, notice: t(".welcome")
+    redirect_to home_path, notice: t(".welcome"), flash: { signed_in: true }
   end
 
   # GET /auth/failure: Steam refused, the visitor cancelled, or the response

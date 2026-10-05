@@ -13,20 +13,20 @@ const RETRY_MS = 5000
 // While a form is being submitted, the next look at whether it is over.
 const BUSY_RETRY_MS = 250
 
-// The countdown to the next pack under the attic chest (R4). The server
+// The countdown to the next pack, in the top bar's packs chip (R4). The server
 // renders the whole seconds left; the clock counts down against a
 // performance.now() deadline, so a throttled timer or a changed system clock
 // never drifts it. One second after zero the page refreshes with a morph,
 // keeping its scroll, and shows the new pack and the next countdown; until a
 // new value arrives, the refresh is tried again every few seconds.
 //
-// A refresh would cancel a form submission in flight (the chest's "Open a
-// pack"), so none starts from a submission's start until the next page
+// A refresh would cancel a form submission in flight (the hub's "Ouvrir un
+// booster"), so none starts from a submission's start until the next page
 // load, or until the submission ends without one.
 //
-// With `refresh` false (the top bar's packs chip), the clock stops at 00:00
-// and the page is never refreshed: another countdown, or the next visit,
-// brings the new value.
+// With `refresh` false (the packs chip on any page but the hub), the clock
+// stops at 00:00 and the page is never refreshed: the next visit brings the
+// new value.
 export default class extends Controller<HTMLElement> {
   static values = { seconds: Number, refresh: { type: Boolean, default: true } }
   static targets = ["clock"]

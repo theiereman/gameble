@@ -1,5 +1,5 @@
-# The library (CAP-6, epic 4 R1, R2, R6, R7), reached from the attic's
-# lectern: the published season's sets of one kind, as tomes on a shelf,
+# The library (CAP-6, epic 4 R1, R2, R6, R7), reached from the hub's
+# menu: the published season's sets of one kind, as tomes on a shelf,
 # fifty to a page, each with its name and how many of its cards the viewer
 # owns; and one set opened beside the shelf, its slots in order, the owned
 # cards face up with their copies, the missing ones naming their game. A

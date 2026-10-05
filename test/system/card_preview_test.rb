@@ -132,7 +132,7 @@ class CardPreviewTest < ApplicationSystemTestCase
     # A stale mark and a hidden canvas, as the snapshot Turbo caches on leaving.
     page.execute_script("const art = document.querySelector(#{art.to_json}); art.dataset.art = 'stale'; art.querySelector('canvas').hidden = true")
     click_on "Bridge"
-    assert_selector ".attic"
+    assert_selector ".hub"
 
     page.go_back
     assert_selector "#{art}[data-art=drawn] canvas:not([hidden])"

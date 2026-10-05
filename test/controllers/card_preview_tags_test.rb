@@ -58,8 +58,10 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select "h1", 1
     assert_select ".card-detail__copies", false
     assert_select ".card-detail__share", false
-    assert_select "main > .card-detail + .card-detail__invitation p.panel", "Ten packs wait in the attic, Brother. Open them, and the cards are yours."
-    assert_select ".card-detail__invitation form[action='/auth/steam'] button", "Claim them through Steam"
+    assert_select "main > .card-detail + .card-detail__invitation p.panel", "Open boosters, complete sets, trade with your friends."
+    assert_select ".card-detail__invitation button.button--primary[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]",
+      "Open my first boosters"
+    assert_select "main form[action='/auth/steam']", false
     assert_select ".library, .profile", false
     assert_not_includes response.body, "Gabe the Brave"
     assert_no_match(/collection of|No longer in/i, response.body)
@@ -71,7 +73,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
 
     assert_equal "Blue Depths — Rare", og("title")
     assert_select "title", "Blue Depths — Rare"
-    description = "A card from the attic of the Brotherhood. Enlist through Steam, Brother: ten packs wait for you."
+    description = "A card of gameble, your Steam games as collectible cards. Sign in through Steam: ten boosters wait for you."
     assert_equal description, og("description")
     assert_equal description, meta("name", "description")
     assert_equal "website", og("type")
@@ -94,9 +96,10 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select "title", "Profondeurs bleues — Rare"
     assert_equal "fr_FR", og("locale")
     assert_equal season_url(locale: :fr), og("url")
-    assert_equal "Une carte du grenier de la Confrérie. Enrôle-toi via Steam, Confrère : dix paquets t'attendent.", og("description")
-    assert_select ".card-detail__invitation p", "Dix paquets t'attendent au grenier, Confrère. Ouvre-les, et les cartes sont à toi."
-    assert_select ".card-detail__invitation button", "Les réclamer via Steam"
+    assert_equal "Une carte de gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix boosters vous attendent.", og("description")
+    assert_select ".card-detail__invitation p", "Ouvrez des boosters, complétez des sets, échangez avec vos amis."
+    assert_select ".card-detail__invitation button", "Ouvrir mes premiers boosters"
+    assert_select "dialog#sign-in-panel .modal__title", "Connectez-vous pour jouer"
   end
 
   test "the season-less page shows the published season, its canonical the season form, without query" do
@@ -148,11 +151,12 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__share input[value=?]", season_url
   end
 
-  test "a visitor signing in from the invitation lands in the attic" do
+  test "a visitor signing in from the invitation's sign-in panel lands on the hub" do
     get card_page
-    form = css_select(".card-detail__invitation form").sole
+    assert_select ".card-detail__invitation button[data-dialog-opener-dialog-value=sign-in-panel]"
+    form = css_select("dialog#sign-in-panel form.steam-sign-in").sole
     origin = form.at_css("input[name=origin]")["value"]
-    assert_equal "/en", origin
+    assert_equal URI(card_page).path, origin
 
     newcomer = accounts_players(:moderator)
     OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{newcomer.steam_id}")
@@ -240,7 +244,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the attic and the sessions still turn an old browser away" do
+  test "the hub and the sessions still turn an old browser away" do
     old = { "User-Agent" => USER_AGENTS[:ios_16_safari] }
 
     get home_path(locale: :en), headers: old

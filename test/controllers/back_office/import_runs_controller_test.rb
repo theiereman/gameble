@@ -558,7 +558,7 @@ module BackOffice
       end
     end
 
-    test "a visitor is sent to the attic and asked to sign in for every import action" do
+    test "a visitor is sent to the hub and asked to sign in for every import action" do
       run = failed_run
 
       each_request(run) do |verb, path|

@@ -1,7 +1,7 @@
 require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 
-# The library from the attic's lectern (CAP-6, story 4.1): a player sees the
+# The library from the hub's menu (CAP-6, story 4.1): a player sees the
 # season's tomes with their owned / total and moves between the tabs; a
 # visitor sees the same sets at 0.
 class LibraryTest < ApplicationSystemTestCase
@@ -23,12 +23,12 @@ class LibraryTest < ApplicationSystemTestCase
     OmniAuth.config.test_mode = false
   end
 
-  test "a player walks from the lectern to the library, its tabs and back to the attic" do
+  test "a player walks from the hub's menu to the library, its tabs and back to the hub" do
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
 
-    click_on "Library"
+    within(".hub-menu") { click_on "Collection" }
 
     assert_current_path library_path(locale: :en)
     assert_selector "h1", text: "The library of the Brotherhood"
@@ -51,10 +51,10 @@ class LibraryTest < ApplicationSystemTestCase
     assert_current_path home_path(locale: :en)
   end
 
-  test "a visitor reaches the library from the lectern by keyboard and sees every set at 0" do
+  test "a visitor reaches the library from the hub's menu by keyboard and sees every set at 0" do
     visit home_path(locale: :fr)
 
-    find(".attic__link").send_keys(:enter)
+    find(".hub-menu a.menu-item[aria-keyshortcuts='2']").send_keys(:enter)
 
     assert_current_path library_path(locale: :fr)
     assert_selector ".shelf .tome", count: 4

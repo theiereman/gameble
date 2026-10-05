@@ -36,13 +36,19 @@ class PackRevealTest < ApplicationSystemTestCase
     names.map { |name| catalog_card_seasons(name).id }
   end
 
-  # Opens a pack holding these card-seasons from the attic chest, and waits
-  # for the island. `more` leaves another pack available after it.
+  # Opens a pack holding these card-seasons from the hub (menu 01 on a
+  # desktop, the empty showcase's button on a phone, where the menu is
+  # hidden), and waits for the island. `more` leaves another pack available
+  # after it.
   def open_pack(cards, kind: :regular, more: false)
     create_pack(@player, cards:, kind:, available_at: 1.day.ago)
     create_pack(@player, available_at: 1.hour.ago) if more
     visit home_path(locale: :en)
-    find(".attic__object--chest button").click
+    if has_css?(".hub-menu", wait: 0)
+      find(".hub-menu .menu-item[aria-keyshortcuts='1']").click
+    else
+      within(".hub-showcase--empty") { click_on "Open a booster" }
+    end
     assert_selector ".pack-reveal"
     Game::Pack.where(player_id: @player.id).where.not(opened_at: nil).order(:opened_at).last
   end
@@ -210,8 +216,8 @@ class PackRevealTest < ApplicationSystemTestCase
 
     click_on "Flip all"
     assert_selector ".reveal-card[data-state=flipped]"
-    within(".pack-reveal .pack-end") { click_on "Back to the attic" }
-    assert_selector ".attic"
+    within(".pack-reveal .pack-end") { click_on "Back to the bridge" }
+    assert_selector ".hub"
     sleep 3
     assert_equal [], page.evaluate_script("window.revealErrors")
 
@@ -330,17 +336,17 @@ class PackRevealTest < ApplicationSystemTestCase
     assert page.evaluate_script("document.activeElement.matches('.reveal-card[data-state=wiped]')"), "focus should stay on the card"
   end
 
-  test "the reveal ends on the next pack when one is available, and on the attic alone when none is" do
+  test "the reveal ends on the next pack when one is available, and on the way back to the hub alone when none is" do
     open_pack(card_ids(*[ :common_card_one ] * 5), more: true)
     within(".pack-reveal .pack-end") do
       # Button labels are uppercased by CSS (DESIGN.md, Buttons).
-      assert_equal [ "OPEN THE NEXT PACK", "BACK TO THE ATTIC" ], all(".button").map(&:text)
+      assert_equal [ "OPEN THE NEXT PACK", "BACK TO THE BRIDGE" ], all(".button").map(&:text)
       click_on "Open the next pack"
     end
 
     # Turbo disables the button while the form is sent: wait for the form to go.
     assert_no_selector ".pack-reveal .pack-end form"
     assert_selector ".reveal-card[data-state=dusty]", count: 5
-    within(".pack-reveal .pack-end") { assert_equal [ "BACK TO THE ATTIC" ], all(".button").map(&:text) }
+    within(".pack-reveal .pack-end") { assert_equal [ "BACK TO THE BRIDGE" ], all(".button").map(&:text) }
   end
 end

@@ -13,10 +13,10 @@ Rails.application.routes.draw do
   scope ":locale", locale: /en|fr/ do
     root "pages#home", as: :home
 
-    # Opening a pack from the chest, and the list of its cards (AD-15: by token).
+    # Opening a pack from the hub, and the list of its cards (AD-15: by token).
     resources :packs, only: %i[create show], param: :token
 
-    # The library, reached from the attic's lectern: the season's sets (CAP-6).
+    # The library, reached from the hub's menu: the season's sets (CAP-6).
     resource :library, controller: :library, only: :show
     # One set of the library, opened beside the shelf, by kind and key (AD-15).
     get "library/:kind/:key" => "library#set", as: :library_set, constraints: { kind: /tome|publisher|best_of_year/ }
@@ -47,7 +47,7 @@ Rails.application.routes.draw do
     get "cards/:slug" => "cards#show", as: :card
     get "cards/:slug/seasons/:number" => "cards#show", as: :card_season, constraints: { number: /\d+/ }
 
-    # Collecting the daily bonus from the attic (CAP-16).
+    # Collecting the daily bonus from the hub (CAP-16).
     resource :daily_bonus, path: "daily-bonus", only: :create
 
     # Staff only (R9): moderators and administrators.

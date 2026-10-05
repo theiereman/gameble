@@ -1,0 +1,40 @@
+<%# The showcase (DESIGN.md, Showcase; EXPERIENCE.md, Showcase): the
+    player's latest pull of tier 4 or above (Game::NotablePull), its title,
+    rarity and "Voir la fiche". Without one, the empty showcase: a hatched
+    frame holding a dashed card outline and the dimmed logo, its copy and
+    the view's one primary button, which opens a booster (disabled with its
+    reason when the reserve is empty). %>
+<% if card %>
+  <% tier = Catalog::Rarity::TIERS.key(card.rarity.to_sym) %>
+  <section class="hub-showcase" aria-labelledby="hub-showcase-name">
+    <p class="hub-showcase__kicker"><span class="hub-showcase__light" aria-hidden="true"></span><%= t("pages.home.showcase.kicker") %></p>
+    <div class="hub-showcase__stage">
+      <%= render CardComponent.new(card:, strings: CardStrings.for([ card ]), size: :large) %>
+      <span class="hub-showcase__ground" aria-hidden="true"></span>
+    </div>
+    <h2 id="hub-showcase-name" class="hub-showcase__name"><%= card.title %></h2>
+    <p class="hub-showcase__rarity hub-showcase__rarity--<%= tier %>">
+      <%= pixel_icon("rarity-#{tier}", class: "hub-showcase__rarity-icon") %>
+      <span><%= t("catalog.rarity.#{Catalog::Rarity::TIERS.fetch(tier)}") %></span>
+    </p>
+    <%= render ButtonComponent.new(variant: :secondary, href: card_path(slug: card.id)) do %><%= t("pages.home.showcase.see_card") %><% end %>
+  </section>
+<% else %>
+  <section class="hub-showcase hub-showcase--empty" aria-labelledby="hub-showcase-name">
+    <div class="hub-showcase__stage">
+      <span class="hub-showcase__frame" aria-hidden="true">
+        <span class="hub-showcase__outline"><%= pixel_icon("logo", class: "hub-showcase__logo") %></span>
+      </span>
+    </div>
+    <h2 id="hub-showcase-name" class="hub-showcase__name"><%= t("pages.home.showcase.empty.title") %></h2>
+    <p class="hub-showcase__line"><%= t("pages.home.showcase.empty.text") %></p>
+    <div class="hub-showcase__actions">
+      <% if bank[:available].positive? %>
+        <%= render ButtonComponent.new(href: packs_path, method: :post) do %><%= t("pages.home.showcase.empty.open") %><% end %>
+      <% else %>
+        <%= render ButtonComponent.new(disabled: true) do %><%= t("pages.home.showcase.empty.open") %><% end %>
+        <p class="hub-showcase__reason"><%= t("pages.home.showcase.empty.reserve_empty") %></p>
+      <% end %>
+    </div>
+  </section>
+<% end %>

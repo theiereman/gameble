@@ -4,7 +4,7 @@
 # The `reading` role is declared from the start (AD-11) and points to the
 # primary. GET and HEAD requests run under it with writes prevented
 # (ApplicationController). Adding a read replica takes more than
-# `reading: :primary_replica`: pages read right after a write (the attic
+# `reading: :primary_replica`: pages read right after a write (the hub
 # after POST /daily-bonus, the pack page after POST /packs) must then stay
 # on the primary, for instance for a short window after a write, or a
 # lagging replica serves them stale data. The

@@ -2,8 +2,8 @@ require "test_helper"
 require_relative "../support/counting_rate_limit"
 require_relative "../support/game_packs"
 
-# The attic chest and the pack result page (R9, CAP-4): opening a pack end to
-# end, the result page, and every refusal.
+# Opening a pack from the hub's menu and the pack result page (R9, CAP-4):
+# end to end, the result page, and every refusal.
 class PacksControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
   include GamePacks
@@ -27,8 +27,13 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert session[:player_id]
   end
 
-  def chest_button
-    css_select(".attic__object--chest .attic__chest-action button").sole
+  # Menu 01 of the hub: the open-pack button, or the disabled item.
+  def open_item
+    css_select(".hub-menu .menu-item[aria-keyshortcuts='1']").sole
+  end
+
+  def reserve_badge
+    open_item.at_css(".menu-item__badge").text
   end
 
   REVEAL = "[data-turbo-mount-pack-reveal-component-value=PackReveal]".freeze
@@ -48,7 +53,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     player = Accounts::Player.find_by!(steam_id: NEW_STEAM_ID)
 
     get home_path(locale: :en)
-    assert_select ".attic__object--chest form[action='/en/packs'][method=post] button", "Open a pack (10)"
+    assert_select ".hub-menu form[action='/en/packs'][method=post] button.menu-item .menu-item__badge", "10"
 
     post packs_path(locale: :en)
 
@@ -72,8 +77,9 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Previous card", props.dig("strings", "previous")
     assert_equal (1..5).map { |n| "Card #{n} of 5" }, props.dig("strings", "progress")
     assert_equal "/en/packs", props["openPackUrl"]
-    assert_equal "/en", props["atticUrl"]
-    assert_select ".pack-reveal__fallback a[href='/en']", "Back to the attic"
+    assert_equal "/en", props["hubUrl"]
+    assert_equal "Back to the bridge", props.dig("strings", "backToHub")
+    assert_select ".pack-reveal__fallback a[href='/en']", "Back to the bridge"
     assert_equal "Show my cards", props.dig("strings", "reload")
 
     get pack_path(pack.token, locale: :en)
@@ -87,10 +93,10 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal pack.card_season_ids.map { |id| "/en/cards/#{views.fetch(id).id}/seasons/1" },
       css_select(".pack-result__card > a.card-link").map { it["href"] }
     assert_select ".pack-result__card > a.card-link[data-turbo-prefetch=false] > .card--face", 5
-    assert_equal [ "Open the next pack", "Back to the attic" ], end_buttons
+    assert_equal [ "Open the next pack", "Back to the bridge" ], end_buttons
 
     get home_path(locale: :en)
-    assert_equal "Open a pack (9)", chest_button.text
+    assert_equal "9", reserve_badge
   end
 
   test "the faces are named in the locale of the URL" do
@@ -125,7 +131,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Carte 1 sur 5", props.dig("strings", "progress").first
   end
 
-  test "with no pack left, both branches end on the attic alone" do
+  test "with no pack left, both branches end on the way back to the hub alone" do
     player = accounts_players(:player)
     pack = create_pack(player, available_at: 1.day.ago)
     sign_in(player.steam_id)
@@ -135,7 +141,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_nil reveal_props["openPackUrl"]
 
     get pack_path(pack.token, locale: :en)
-    assert_equal [ "Back to the attic" ], end_buttons
+    assert_equal [ "Back to the bridge" ], end_buttons
   end
 
   test "a daily bonus pack reveals its three cards" do
@@ -181,15 +187,15 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "an empty chest shows a disabled button, and opening is refused with an alert" do
+  test "an empty reserve disables menu 01, and opening is refused with an alert" do
     player = accounts_players(:player)
     create_pack(player, available_at: 1.day.from_now)
     sign_in(player.steam_id)
 
     get home_path(locale: :fr)
-    assert_equal "Aucun paquet", chest_button.text
-    assert chest_button["disabled"]
-    assert_select ".attic__object--chest form", false
+    assert_equal "true", open_item["aria-disabled"]
+    assert_equal "Réserve vide", open_item.at_css(".visually-hidden").text
+    assert_select ".hub-menu form", false
 
     post packs_path(locale: :fr)
 
@@ -198,11 +204,11 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, Game::Holding.where(player_id: player.id).count
   end
 
-  test "a visitor's chest button starts the Steam sign-in, and a visitor's opening is refused; nothing changes" do
+  test "a visitor's menu 01 opens the sign-in panel, and a visitor's opening is refused; nothing changes" do
     get home_path(locale: :en)
-    assert_select ".attic__object--chest form[action='/auth/steam'][method=post] button", "Enlist through Steam to open a pack"
-    assert_select ".attic__object--chest form[action='/auth/steam'] input[name=origin][value='/en']"
-    assert_select ".attic__countdown", count: 0
+    assert_equal "sign-in-panel", open_item["data-dialog-opener-dialog-value"]
+    assert_select ".hub-menu form", false
+    assert_select "[data-controller=countdown]", count: 0
 
     assert_no_difference [ -> { Game::Pack.count }, -> { Game::Pack.where.not(opened_at: nil).count }, -> { Game::Holding.count } ] do
       post packs_path(locale: :en)
@@ -212,7 +218,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
   end
 
-  test "more than 30 openings a minute by one player are sent back to the attic with an alert" do
+  test "more than 30 openings a minute by one player are sent back to the hub with an alert" do
     player = accounts_players(:player)
     31.times { |index| create_pack(player, available_at: (index + 1).minutes.ago) }
     sign_in(player.steam_id)
@@ -231,8 +237,9 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, Game::BankSummary.call(player)[:available]
   end
 
+  # The packs chip's countdown in the top bar.
   def countdown
-    css_select(".attic__object--chest .attic__countdown[data-controller=countdown]")
+    css_select(".top-bar .packs-chip__next[data-controller=countdown]")
   end
 
   test "opening a full bank leaves nine packs and a countdown of ten minutes, read as a time to screen readers" do
@@ -246,17 +253,18 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
       get home_path(locale: :en)
     end
 
-    assert_equal "Open a pack (9)", chest_button.text
+    assert_equal "9", reserve_badge
     assert_equal "600", countdown.sole["data-countdown-seconds-value"]
-    assert_select ".attic__countdown [aria-hidden=true]", text: /Next pack in\s+10:00/
-    assert_select ".attic__countdown [data-countdown-target=clock]", "10:00"
-    assert_select ".attic__countdown .visually-hidden", "Next pack at 14:32 (UTC)"
+    assert_equal "true", countdown.sole["data-countdown-refresh-value"]
+    assert_select ".packs-chip__next [aria-hidden=true]", text: /\+1 in\s+10:00/
+    assert_select ".packs-chip__next [data-countdown-target=clock]", "10:00"
+    assert_select ".packs-chip__next .visually-hidden", "Next booster at 14:32 (UTC)"
     assert_select "meta[name=turbo-refresh-method][content=morph]"
     assert_select "meta[name=turbo-refresh-scroll][content=preserve]"
     assert_select "meta[name=turbo-cache-control][content=no-cache]"
   end
 
-  test "back 35 minutes after opening all ten packs, the chest shows three and the countdown points to 40 minutes" do
+  test "back 35 minutes after opening all ten packs, the hub shows three and the countdown points to 40 minutes" do
     player = accounts_players(:player)
     now = Time.utc(2026, 10, 2, 9, 0)
     travel_to(now) { Game::FillBank.new.call(player:).value! }
@@ -265,21 +273,21 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     travel_to(now + 35.minutes) { get home_path(locale: :fr) }
 
-    assert_equal "Ouvrir un paquet (3)", chest_button.text
+    assert_equal "3", reserve_badge
     assert_equal "300", countdown.sole["data-countdown-seconds-value"]
-    assert_select ".attic__countdown [aria-hidden=true]", text: /Prochain paquet dans\s+05:00/
-    assert_select ".attic__countdown .visually-hidden", "Prochain paquet à 09:40 (UTC)"
+    assert_select ".packs-chip__next [aria-hidden=true]", text: /\+1 dans\s+05:00/
+    assert_select ".packs-chip__next .visually-hidden", "Prochain booster à 09:40 (UTC)"
   end
 
-  test "with no pack available now, the chest is disabled and the countdown shows" do
+  test "with no pack available now, menu 01 is disabled and the countdown shows" do
     player = accounts_players(:player)
     create_pack(player, available_at: 4.minutes.from_now)
     sign_in(player.steam_id)
 
     get home_path(locale: :en)
 
-    assert_equal "No pack", chest_button.text
-    assert chest_button["disabled"]
+    assert_equal "true", open_item["aria-disabled"]
+    assert_equal "0", reserve_badge
     assert_equal 1, countdown.size
   end
 
@@ -292,8 +300,9 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_equal "Open a pack (11)", chest_button.text
+    assert_equal "11", reserve_badge
     assert_empty countdown
+    assert_select ".packs-chip__next--full", "Reserve full"
   end
 
   test "a visitor sees no countdown" do

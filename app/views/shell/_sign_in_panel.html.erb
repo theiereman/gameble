@@ -1,0 +1,21 @@
+<%# The sign-in panel (DESIGN.md, Sign-in panel; EXPERIENCE.md, Modal): the
+    modal every game-styled action needing an account opens (a
+    ButtonComponent with `opens: "sign-in-panel"`), holding only its title
+    line, Valve's official image (focused first) and the close "✕". Esc, the
+    "✕" or a click on the scrim closes it and focus returns to the opener
+    (dialog_controller.ts). A bottom sheet on the phone. Rendered for
+    visitors outside the back-office. %>
+<dialog id="sign-in-panel" class="modal" aria-labelledby="sign-in-panel-title" data-controller="dialog" data-action="click->dialog#closeOnScrim">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p id="sign-in-panel-title" class="modal__title"><%= t("shell.sign_in_panel.title") %></p>
+      <button type="button" class="modal__close" aria-label="<%= t("shell.sign_in_panel.close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <div class="modal__body">
+      <%= render SteamSignInComponent.new(origin: request.path, autofocus: true) %>
+    </div>
+  <% end %>
+</dialog>

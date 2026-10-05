@@ -1,0 +1,18 @@
+<%# The daily booster panel (DESIGN.md, Daily booster panel; CAP-16): a
+    quiet panel under the menu while the day's booster is collectable. Ready:
+    "Récupérer" sends it to the reserve, the view's primary unless the empty
+    showcase holds it. Reserve full (AD-7): the button is disabled and the
+    line says why. Once collected the panel is gone until the next UTC day. %>
+<% full = bank[:reserve_full] %>
+<%= render PanelComponent.new(tag: :section, quiet: true, class: "daily-booster", aria: { labelledby: "daily-booster-title" }) do %>
+  <div class="daily-booster__head">
+    <h2 id="daily-booster-title" class="daily-booster__title"><%= t("pages.home.daily.title") %></h2>
+    <p class="daily-booster__state daily-booster__state--<%= full ? "full" : "ready" %>"><%= full ? t("pages.home.daily.full") : t("pages.home.daily.ready") %></p>
+  </div>
+  <p class="daily-booster__text"><%= full ? t("pages.home.daily.full_text") : t("pages.home.daily.text") %></p>
+  <% if full %>
+    <%= render ButtonComponent.new(size: :small, disabled: true) do %><%= t("pages.home.daily.collect") %><% end %>
+  <% else %>
+    <%= render ButtonComponent.new(variant: primary ? :primary : :secondary, size: :small, href: daily_bonus_path, method: :post) do %><%= t("pages.home.daily.collect") %><% end %>
+  <% end %>
+<% end %>

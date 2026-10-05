@@ -1,4 +1,4 @@
-# Opening a pack from the attic chest, and the opened pack's page (CAP-4,
+# Opening a pack from the hub, and the opened pack's page (CAP-4,
 # CAP-5, R9). Packs are addressed by their token (AD-15). Right after an
 # opening the page mounts the reveal (the PackReveal island), once: every
 # later visit, reload or back navigation shows the cards face up.
@@ -48,11 +48,11 @@ class PacksController < ApplicationController
         strings: {
           cards: t("packs.show.cards"), flipAll: t("packs.show.flip_all"), next: t("packs.show.next"), previous: t("packs.show.previous"), allFlipped: t("packs.show.all_flipped"),
           progress: (1..@cards.size).map { |position| t("packs.show.progress", position:, count: @cards.size) },
-          openNextPack: t("packs.show.open_next_pack"), backToAttic: t("packs.show.back_to_attic"),
+          openNextPack: t("packs.show.open_next_pack"), backToHub: t("packs.show.back_to_hub"),
           failed: t("packs.show.failed"), reload: t("packs.show.reload")
         },
         openPackUrl: (packs_path if @next_pack),
-        atticUrl: home_path
+        hubUrl: home_path
       }
     end
     helper_method :reveal_props

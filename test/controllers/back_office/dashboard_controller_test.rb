@@ -54,7 +54,7 @@ module BackOffice
       assert_select "h1", false
     end
 
-    test "a visitor is sent to the attic and asked to sign in" do
+    test "a visitor is sent to the hub and asked to sign in" do
       get back_office_path(locale: :fr)
 
       assert_redirected_to home_path(locale: :fr)

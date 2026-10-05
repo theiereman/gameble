@@ -34,7 +34,7 @@ class PublicProfileTest < ApplicationSystemTestCase
     assert_signed_in
     assert_equal "Gabe the Brave", @player.reload.persona_name
 
-    click_on "Library"
+    within(".hub-menu") { click_on "Collection" }
     click_on "Your public profile"
 
     assert_current_path brother_path(locale: :en, token: @player.token)

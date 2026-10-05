@@ -51,7 +51,7 @@ module BackOffice
       end
     end
 
-    test "a visitor is sent to the attic and asked to sign in" do
+    test "a visitor is sent to the hub and asked to sign in" do
       get "/back-office/jobs"
 
       assert_redirected_to "/en"
