@@ -396,7 +396,7 @@ The layout rules (no scaling, page scroll, breakpoints at 720 and 1180px, conten
 - **Booster on the phone:** the cards land as a pile; one large card at a time; tap to reveal; the caption plate shows rarity, title and year; tap, swipe or "RANGER" stores the card in the tray; "Tout révéler" reveals and stores the rest; a filled slot opens the card zoom.
 - **Collection on the phone:** two columns with the publisher visible; set and genre chip rows; the RAPPORT panel folds; the card detail slides over with "◀ GRILLE", ◀ ▶ buttons and a position line.
 - **Trades on the phone:** the list first; the trade board slides over ("◀ LISTE") with the friend's side on top and actions pinned at the bottom; the card picker is a full-height sheet.
-- **Browsers:** `[ASSUMPTION]` the modern-browser floor recorded in the architecture. Native store apps stay possible later.
+- **Browsers:** the modern-browser floor of the architecture (AD-27); the public pages a link opens also serve older browsers. Native store apps stay possible later.
 
 ## Inspiration & Anti-patterns
 
@@ -415,7 +415,7 @@ Visual inspirations and rejections live in `DESIGN.md` (see Brand & Style and Do
 ### Flow 1 — First session (Léa, on her PC, clicks a link Hugo posted on Discord)
 
 1. Léa clicks Hugo's link. Discord's preview showed the card's title and rarity, no image.
-2. Signed out, she lands on the public card page: "PARTAGÉE PAR HUGO", Hollow Knight large and tilting under her pointer, its publisher, "LÉGENDAIRE", genre, year, number, the short description and "VOIR SUR STEAM ↗".
+2. Signed out, she lands on the public card page: Hollow Knight large and tilting under her pointer, its publisher, "LÉGENDAIRE", genre, year, number, the short description and "VOIR SUR STEAM ↗".
 3. Below, the LIVE strip shows pulls and trades with their rarities. She can open the feed and browse the sets, all slots empty.
 4. She presses "OUVRIR MES PREMIERS BOOSTERS". The sign-in panel opens with its title line and Valve's official button; she signs in with Steam.
 5. She lands on the Pont de commandement. The packs chip reads 10 BOOSTERS with "Réserve pleine"; menu 01 carries a lime "10"; the empty showcase invites her to open her first booster.
@@ -470,6 +470,12 @@ Build rules found while prototyping and reviewing; they bind the build. Architec
 - **3D card stack:** never put 3D transforms on a `<button>` that holds card faces, and never put a grouping property (opacity below 1, filter, overflow, clip-path, mask, mix-blend-mode, isolation) on or between the tilt and flip layers: either one flattens the 3D and shows the mirrored back. Use plain layers (tilt, then flip), both faces with `backface-visibility: hidden`, and a flat transparent button on top for focus and activation. One reveal path for a single activation and for "Tout révéler". A visual regression test covers a tilted, revealed card.
 - **Hide every descendant of an inactive screen,** not only the screen: a child made visible on purpose (a dealt card) otherwise shows through.
 - **Content timing:** card content reaches the browser when the booster is opened; the reveal is only an animation; counters update at each reveal so the interface never spoils a card.
+- **Dialogs and Esc:** every modal and bottom sheet is a native `<dialog>` opened with `showModal()`, in Stimulus and React; the hotkeys controller ignores events already handled, events while a dialog is open and events from form fields, so one Esc never both closes a dialog and navigates. Single-key shortcuts can be turned off.
+- **No inline style:** server HTML carries no `style` attribute (the CSP blocks it); progress bars and gauges get their values as CSS custom properties set by a controller.
+- **Large grids:** a collection grid beyond about 60 slots is paginated or virtualized, and only visible cards are filtered.
+- **Fonts:** the three font files are preloaded with `font-display: block` and a short block period, so a fallback swap never reflows two-line card titles.
+- **Daily booster arc:** runs from `turbo:before-stream-render` (both positions known before the DOM is replaced) and dispatches `gameble:bank-changed`.
+- **Daily bonus booster:** it holds 3 cards, so the revealed counter and hints count to 3 for it ("Cartes révélées : n / 3").
 
 ## Open questions
 

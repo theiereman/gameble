@@ -90,7 +90,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - The recipient can accept a proposal, decline it, or answer with a counter-proposal that may change both sides. A counter-proposal can be accepted, declined or countered in turn.
     - Neither player needs to be connected at the same time as the other.
     - The proposer can cancel it. A proposal expires after a fixed 7 days.
-    - A card placed in an open trade is reserved: it cannot be used elsewhere until the trade ends.
+    - A card a player offers in an open trade is reserved: it cannot be used elsewhere until the trade ends. Cards requested from the friend are not reserved; acceptance checks they are still free.
     - Two friends have at most one open trade at a time.
     - On acceptance, all cards swap owners atomically with their minted rarity and season.
     - Non-friends cannot trade.
@@ -159,7 +159,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **Card copies:** a player can own several copies of a card. Copies are counted per card and season, so each keeps the rarity and season it was minted with, and a V2 market and V3 seasons need no migration.
 - **Forkable engine:** the game engine (packs, rarity tiers, collection, trades, goals, feed) is independent of the catalog source. Steam is one adapter.
 - **Open source.** Infrastructure components (queues, caches, streaming) are added only when measured load justifies them.
-- **Architecture:** the rules of `architecture-gameble.md` bind every build. The stack is Ruby on Rails and PostgreSQL, with React components embedded for the pack reveal and the trade board; versions and deployment are in that file. It predates the 2026-10-05 redesign; see Open Questions.
+- **Architecture:** the rules of `architecture-gameble.md` bind every build. The stack is Ruby on Rails and PostgreSQL, with React components embedded for the booster and the trade board; versions and deployment are in that file.
 - **Stateless services:** several app instances can run in parallel. Pack credit and trades are transactional in PostgreSQL.
 - **Zero-downtime ready:** health checks, graceful shutdown, and backward-compatible (expand/contract) migrations.
 - **CI/CD ready:** one reproducible container image, run as web, jobs and import processes; configuration by environment variables only; automated tests in CI from day one.
@@ -220,5 +220,4 @@ The author plays gameble every day for a month alongside at least 10 active play
 - **Feed and ticker (CAP-13):** do set completions and hourly totals join pulls, first discoveries and trades? `EXPERIENCE.md`'s ticker assumes so.
 - **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.
 - **English copy (CAP-3, language constraint):** the English copy and the English tier names are not written yet. Who writes them before launch?
-- **Architecture conflict:** `architecture-gameble.md` predates the redesign (AD-17 reduces to 16 colours, tiers named steel to gold, a dust tier on the card-season record; no per-season number, card backs, invitations or presence). Until `bmad-architecture` absorbs `ux-gameble.md`, For the architecture, which prevails?
 - **Repost and Friends tab in the UX (CAP-13, CAP-19):** `DESIGN.md` and `EXPERIENCE.md` do not cover the repost action or the feed's Friends tab yet.

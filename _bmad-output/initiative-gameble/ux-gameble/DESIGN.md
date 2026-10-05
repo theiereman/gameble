@@ -831,7 +831,7 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Fil d'activité
 
 #### Public card page
 
-No app chrome: a slim top bar with the logo and the official Steam sign-in image. Left: the shared card at `card-xl`, tilting under the pointer, with rays from Épique up. Right: "PARTAGÉE PAR HUGO" with the avatar, the title in `{typography.public-title}`, the publisher, a line with rarity, genre, year and number, the description in `{typography.body-large}`, the link "VOIR SUR STEAM ↗", and a call-to-action panel with a two-line pitch (copy: see `EXPERIENCE.md`, Copy deck) and the primary button "OUVRIR MES PREMIERS BOOSTERS". Below, "LIVE · En ce moment sur gameble" with three compact feed entries. A footer link "Mentions légales".
+No app chrome: a slim top bar with the logo and the official Steam sign-in image. Left: the shared card at `card-xl`, tilting under the pointer, with rays from Épique up. The page never names who shared or owns the card (spec CAP-9). Right: the title in `{typography.public-title}`, the publisher, a line with rarity, genre, year and number, the description in `{typography.body-large}`, the link "VOIR SUR STEAM ↗", and a call-to-action panel with a two-line pitch (copy: see `EXPERIENCE.md`, Copy deck) and the primary button "OUVRIR MES PREMIERS BOOSTERS". Below, "LIVE · En ce moment sur gameble" with three compact feed entries. A footer link "Mentions légales".
 
 #### Legal page
 

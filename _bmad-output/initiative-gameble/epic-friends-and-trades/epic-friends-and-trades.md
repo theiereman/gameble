@@ -30,7 +30,7 @@ Completed at this epic's inception. The source lines are CAP-10 and CAP-11 of th
 
 1. A valid invite link or friend code sends an invitation; once the other player accepts it, the friendship is visible to both. An ignored invitation creates nothing.
 2. A player proposes a trade holding an offer and a request (at least one card each side, at most 4 different cards per side, a chosen quantity of each); the friend accepts, declines or answers with a counter-proposal that may change both sides; the proposer can cancel; a proposal expires after a fixed 7 days.
-3. A card placed in an open trade cannot be placed in another until the trade ends: a player places at most the copies they own minus those reserved elsewhere.
+3. A card offered in an open trade cannot be offered in another until the trade ends: a player offers at most the copies they own minus those reserved elsewhere. Requested cards are not reserved; acceptance checks they are still free.
 4. Acceptance swaps every card at once; an expired or declined trade moves nothing and releases the cards.
 5. Two friends never have two open trades at the same time; non-friends cannot trade.
 
