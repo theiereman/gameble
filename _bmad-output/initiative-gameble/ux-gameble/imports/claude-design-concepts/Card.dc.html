@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Gabarit de carte</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&amp;family=Silkscreen:wght@400;700&amp;family=VT323&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="position:relative;width:200px;height:280px;box-sizing:border-box;padding:5px;background:{{r.col}};box-shadow:0 -4px 0 0 #06090d,0 4px 0 0 #06090d,-4px 0 0 0 #06090d,4px 0 0 0 #06090d,inset 3px 3px 0 0 rgba(255,255,255,.35),inset -3px -3px 0 0 rgba(0,0,0,.35);font-family:'Silkscreen',monospace;color:#c7d5e0;overflow:hidden">
+<div style="position:relative;height:100%;box-sizing:border-box;background:#121a24;display:flex;flex-direction:column;gap:4px;padding:4px">
+<div style="flex:none;display:flex;align-items:center;gap:6px;height:22px">
+<div style="flex:none;width:22px;height:22px;display:flex;align-items:center;justify-content:center;background:#a4d007;color:#0f1a03;font-family:'Pixelify Sans',monospace;font-weight:700;font-size:15px;box-shadow:0 -2px 0 0 #06090d,0 2px 0 0 #06090d,-2px 0 0 0 #06090d,2px 0 0 0 #06090d,inset -2px -2px 0 0 #5c7e10">{{d.cost}}</div>
+<div style="min-width:0;flex:1;font-family:'Pixelify Sans',monospace;font-weight:600;font-size:12px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#ffffff">{{d.name}}</div>
+</div>
+<div style="position:relative;flex:none;height:110px;box-shadow:0 0 0 2px #06090d;overflow:hidden">
+<svg viewBox="0 0 32 20" width="182" height="110" preserveAspectRatio="none" shape-rendering="crispEdges" style="display:block">
+<rect x="0" y="0" width="32" height="7" fill="{{p.s1}}"></rect>
+<rect x="0" y="7" width="32" height="5" fill="{{p.s2}}"></rect>
+<rect x="0" y="12" width="32" height="8" fill="{{p.s3}}"></rect>
+<rect x="1" y="6" width="1" height="1" fill="{{p.s2}}"></rect>
+<rect x="5" y="6" width="1" height="1" fill="{{p.s2}}"></rect>
+<rect x="9" y="6" width="1" height="1" fill="{{p.s2}}"></rect>
+<rect x="13" y="6" width="1" height="1" fill="{{p.s2}}"></rect>
+<rect x="17" y="6" width="1" height="1" fill="{{p.s2}}"></rect>
+<rect x="21" y="6" width="1" height="1" fill="{{p.s2}}"></rect>
+<rect x="29" y="6" width="1" height="1" fill="{{p.s2}}"></rect>
+<rect x="3" y="7" width="1" height="1" fill="{{p.s1}}"></rect>
+<rect x="11" y="7" width="1" height="1" fill="{{p.s1}}"></rect>
+<rect x="19" y="7" width="1" height="1" fill="{{p.s1}}"></rect>
+<rect x="27" y="7" width="1" height="1" fill="{{p.s1}}"></rect>
+<rect x="2" y="11" width="1" height="1" fill="{{p.s3}}"></rect>
+<rect x="6" y="11" width="1" height="1" fill="{{p.s3}}"></rect>
+<rect x="10" y="11" width="1" height="1" fill="{{p.s3}}"></rect>
+<rect x="14" y="11" width="1" height="1" fill="{{p.s3}}"></rect>
+<rect x="18" y="11" width="1" height="1" fill="{{p.s3}}"></rect>
+<rect x="22" y="11" width="1" height="1" fill="{{p.s3}}"></rect>
+<rect x="26" y="11" width="1" height="1" fill="{{p.s3}}"></rect>
+<rect x="30" y="11" width="1" height="1" fill="{{p.s3}}"></rect>
+<rect x="4" y="12" width="1" height="1" fill="{{p.s2}}"></rect>
+<rect x="12" y="12" width="1" height="1" fill="{{p.s2}}"></rect>
+<rect x="20" y="12" width="1" height="1" fill="{{p.s2}}"></rect>
+<rect x="28" y="12" width="1" height="1" fill="{{p.s2}}"></rect>
+<rect x="3" y="2" width="1" height="1" fill="{{p.star}}"></rect>
+<rect x="8" y="4" width="1" height="1" fill="{{p.star}}"></rect>
+<rect x="14" y="1" width="1" height="1" fill="{{p.star}}"></rect>
+<rect x="18" y="3" width="1" height="1" fill="{{p.star}}"></rect>
+<rect x="30" y="2" width="1" height="1" fill="{{p.star}}"></rect>
+<rect x="11" y="5" width="1" height="1" fill="{{p.star}}"></rect>
+<rect x="29" y="8" width="1" height="1" fill="{{p.star}}"></rect>
+<rect x="24" y="2" width="3" height="1" fill="{{p.sun}}"></rect>
+<rect x="23" y="3" width="5" height="3" fill="{{p.sun}}"></rect>
+<rect x="24" y="6" width="3" height="1" fill="{{p.sun}}"></rect>
+<rect x="24" y="3" width="1" height="1" fill="#ffffff" opacity=".6"></rect>
+<g opacity="{{o.planet}}">
+<rect x="4" y="1" width="3" height="1" fill="{{p.acc}}"></rect>
+<rect x="3" y="2" width="5" height="4" fill="{{p.acc}}"></rect>
+<rect x="4" y="6" width="3" height="1" fill="{{p.acc}}"></rect>
+<rect x="4" y="2" width="1" height="1" fill="#ffffff" opacity=".6"></rect>
+<rect x="0" y="4" width="11" height="1" fill="{{p.sun}}"></rect>
+</g>
+<polygon points="0,13 3,13 3,11 5,11 5,9 7,9 7,8 9,8 9,10 11,10 11,12 13,12 13,10 15,10 15,7 17,7 17,6 18,6 18,8 20,8 20,10 22,10 22,12 24,12 24,11 26,11 26,9 28,9 28,11 30,11 30,13 32,13 32,20 0,20" fill="{{p.m1}}"></polygon>
+<rect x="7" y="8" width="2" height="1" fill="#ffffff" opacity=".35"></rect>
+<rect x="15" y="7" width="2" height="1" fill="#ffffff" opacity=".35"></rect>
+<rect x="17" y="6" width="1" height="1" fill="#ffffff" opacity=".35"></rect>
+<rect x="26" y="9" width="2" height="1" fill="#ffffff" opacity=".35"></rect>
+<polygon points="0,16 4,16 4,15 7,15 7,14 10,14 10,15 13,15 13,16 18,16 18,15 21,15 21,14 25,14 25,15 28,15 28,16 32,16 32,20 0,20" fill="{{p.m2}}"></polygon>
+<rect x="0" y="17" width="32" height="3" fill="{{p.g}}"></rect>
+<rect x="0" y="17" width="32" height="1" fill="{{p.gl}}"></rect>
+<rect x="3" y="16" width="1" height="1" fill="{{p.gl}}"></rect>
+<rect x="12" y="16" width="1" height="1" fill="{{p.gl}}"></rect>
+<rect x="22" y="16" width="1" height="1" fill="{{p.gl}}"></rect>
+<rect x="30" y="16" width="1" height="1" fill="{{p.gl}}"></rect>
+<g opacity="{{o.castle}}" fill="{{p.sil}}">
+<rect x="5" y="11" width="1" height="1"></rect>
+<rect x="7" y="11" width="1" height="1"></rect>
+<rect x="5" y="12" width="3" height="5"></rect>
+<rect x="9" y="8" width="1" height="1"></rect>
+<rect x="11" y="8" width="1" height="1"></rect>
+<rect x="9" y="9" width="3" height="8"></rect>
+<rect x="8" y="13" width="1" height="4"></rect>
+<rect x="10" y="6" width="1" height="2"></rect>
+<rect x="11" y="6" width="2" height="1" fill="{{p.acc}}"></rect>
+<rect x="10" y="11" width="1" height="1" fill="{{p.acc}}"></rect>
+<rect x="6" y="14" width="1" height="1" fill="{{p.acc}}"></rect>
+</g>
+<g opacity="{{o.ship}}" fill="{{p.sil}}">
+<rect x="10" y="5" width="7" height="2"></rect>
+<rect x="17" y="6" width="1" height="1"></rect>
+<rect x="11" y="7" width="3" height="1"></rect>
+<rect x="13" y="4" width="3" height="1" fill="{{p.acc}}"></rect>
+<rect x="8" y="5" width="2" height="1" fill="{{p.acc}}"></rect>
+<rect x="7" y="6" width="1" height="1" fill="{{p.acc}}" opacity=".7"></rect>
+</g>
+<g opacity="{{o.tree}}">
+<rect x="20" y="13" width="2" height="4" fill="{{p.sil}}"></rect>
+<rect x="18" y="9" width="6" height="4" fill="{{p.acc}}"></rect>
+<rect x="19" y="8" width="4" height="1" fill="{{p.acc}}"></rect>
+<rect x="17" y="10" width="1" height="2" fill="{{p.acc}}"></rect>
+<rect x="24" y="10" width="1" height="2" fill="{{p.acc}}"></rect>
+<rect x="19" y="11" width="1" height="1" fill="{{p.sil}}" opacity=".5"></rect>
+<rect x="22" y="10" width="1" height="1" fill="{{p.sil}}" opacity=".5"></rect>
+<rect x="23" y="13" width="1" height="2" fill="{{p.sun}}"></rect>
+</g>
+<g opacity="{{o.skull}}">
+<rect x="13" y="8" width="6" height="4" fill="{{p.acc}}"></rect>
+<rect x="14" y="7" width="4" height="1" fill="{{p.acc}}"></rect>
+<rect x="14" y="12" width="4" height="1" fill="{{p.acc}}"></rect>
+<rect x="14" y="9" width="1" height="2" fill="{{p.sil}}"></rect>
+<rect x="17" y="9" width="1" height="2" fill="{{p.sil}}"></rect>
+<rect x="14" y="9" width="1" height="1" fill="{{p.sun}}"></rect>
+<rect x="17" y="9" width="1" height="1" fill="{{p.sun}}"></rect>
+<rect x="15" y="12" width="1" height="1" fill="{{p.sil}}"></rect>
+<rect x="17" y="12" width="1" height="1" fill="{{p.sil}}"></rect>
+</g>
+<g opacity="{{o.cross}}">
+<rect x="14" y="10" width="3" height="2" fill="{{p.sil}}"></rect>
+<rect x="13" y="12" width="5" height="5" fill="{{p.sil}}"></rect>
+<rect x="15" y="6" width="1" height="3" fill="{{p.acc}}"></rect>
+<rect x="15" y="12" width="1" height="3" fill="{{p.acc}}"></rect>
+<rect x="11" y="10" width="3" height="1" fill="{{p.acc}}"></rect>
+<rect x="17" y="10" width="3" height="1" fill="{{p.acc}}"></rect>
+<rect x="15" y="10" width="1" height="1" fill="{{p.sun}}"></rect>
+</g>
+</svg>
+<div style="position:absolute;left:3px;top:3px;width:8px;height:8px;border-top:2px solid rgba(255,255,255,.7);border-left:2px solid rgba(255,255,255,.7)"></div>
+<div style="position:absolute;right:3px;bottom:3px;width:8px;height:8px;border-bottom:2px solid rgba(255,255,255,.7);border-right:2px solid rgba(255,255,255,.7)"></div>
+</div>
+<div style="flex:none;display:flex;justify-content:space-between;align-items:center;height:16px;padding:0 5px;background:#1b2838;font-size:8px;letter-spacing:1px">
+<span style="color:{{r.col}}">{{d.genre}}</span>
+<span style="color:#8f98a0">{{d.num}}</span>
+</div>
+<div style="flex:1;min-height:0;background:#0d131b;box-shadow:inset 0 0 0 1px #2a475e;padding:4px 6px;font-family:'VT323',monospace;font-size:15px;line-height:14px;color:#c7d5e0;overflow:hidden">
+<div style="color:{{r.col}};letter-spacing:3px;margin-bottom:3px">{{d.code}}</div>
+<div>{{d.text}}</div>
+</div>
+<div style="flex:none;height:22px;display:flex;align-items:center;justify-content:space-between;padding:0 4px">
+<div style="display:flex;align-items:center;gap:5px;font-family:'Pixelify Sans',monospace;font-weight:700;font-size:16px;color:#ffffff">
+<svg viewBox="0 0 9 9" width="14" height="14" shape-rendering="crispEdges" aria-hidden="true">
+<rect x="7" y="0" width="2" height="1" fill="#e6eef5"></rect>
+<rect x="6" y="1" width="2" height="1" fill="#e6eef5"></rect>
+<rect x="5" y="2" width="2" height="1" fill="#e6eef5"></rect>
+<rect x="4" y="3" width="2" height="1" fill="#e6eef5"></rect>
+<rect x="3" y="4" width="2" height="1" fill="#c7d5e0"></rect>
+<rect x="1" y="3" width="1" height="1" fill="#f4c542"></rect>
+<rect x="2" y="4" width="1" height="1" fill="#f4c542"></rect>
+<rect x="3" y="5" width="1" height="1" fill="#f4c542"></rect>
+<rect x="4" y="6" width="1" height="1" fill="#f4c542"></rect>
+<rect x="2" y="6" width="1" height="1" fill="#a4743c"></rect>
+<rect x="1" y="7" width="1" height="1" fill="#a4743c"></rect>
+<rect x="0" y="8" width="1" height="1" fill="#a4743c"></rect>
+</svg>
+<span>{{d.atk}}</span>
+</div>
+<div style="display:flex;align-items:center;gap:6px">
+<div style="width:8px;height:8px;transform:rotate(45deg);background:{{r.col}};box-shadow:0 0 0 2px #06090d"></div>
+<span style="font-size:7px;letter-spacing:1px;color:{{r.col}}">{{r.label}}</span>
+</div>
+<div style="display:flex;align-items:center;gap:5px;font-family:'Pixelify Sans',monospace;font-weight:700;font-size:16px;color:#ffffff">
+<span>{{d.hp}}</span>
+<svg viewBox="0 0 8 6" width="14" height="11" shape-rendering="crispEdges" aria-hidden="true">
+<rect x="1" y="0" width="2" height="1" fill="#e0485a"></rect>
+<rect x="5" y="0" width="2" height="1" fill="#e0485a"></rect>
+<rect x="0" y="1" width="8" height="2" fill="#e0485a"></rect>
+<rect x="1" y="3" width="6" height="1" fill="#e0485a"></rect>
+<rect x="2" y="4" width="4" height="1" fill="#e0485a"></rect>
+<rect x="3" y="5" width="2" height="1" fill="#e0485a"></rect>
+<rect x="1" y="1" width="1" height="1" fill="#ff9aa5"></rect>
+</svg>
+</div>
+</div>
+</div>
+<div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,0) 38%,rgba(255,255,255,.55) 48%,rgba(102,192,244,.45) 52%,rgba(255,255,255,0) 62%);background-size:300% 100%;mix-blend-mode:overlay;opacity:{{r.holo}};animation:tcgHolo 3.4s steps(34) infinite"></div>
+<div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,#ff3cac,#f4c542,#4cf0ff,#b47cff,#ff3cac);background-size:400% 400%;mix-blend-mode:color-dodge;opacity:{{r.foil}};animation:tcgFoil 6s steps(60) infinite"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"item":{"editor":null,"tsType":"object"},"$preview":{"width":200,"height":280}}'>
+const PAL = {
+  dusk:{s1:'#1b1f3a',s2:'#4a2f5c',s3:'#c45a5a',star:'#f4e3b0',sun:'#ffd27a',m1:'#2b2140',m2:'#1a1528',g:'#120e1c',gl:'#3b2e57',sil:'#0b0812',acc:'#ff8f5a'},
+  night:{s1:'#0a1020',s2:'#13264a',s3:'#1f4a7a',star:'#c7d5e0',sun:'#e9f2ff',m1:'#16304f',m2:'#0f2238',g:'#0a1626',gl:'#2a475e',sil:'#050b14',acc:'#66c0f4'},
+  forest:{s1:'#2a4a5a',s2:'#4e7a6a',s3:'#a8c48a',star:'#f0f6d8',sun:'#fff3b0',m1:'#3a5a48',m2:'#24402f',g:'#16291d',gl:'#4f7a3a',sil:'#0e1a12',acc:'#8bd36a'},
+  crypt:{s1:'#14091c',s2:'#2b0f2e',s3:'#4a1636',star:'#ff9ad5',sun:'#b4ff6a',m1:'#2a1030',m2:'#1a0a20',g:'#0e0612',gl:'#43204a',sil:'#06030a',acc:'#e8e2d0'},
+  desert:{s1:'#2f6aa0',s2:'#6fa6c8',s3:'#f2c38a',star:'#ffffff',sun:'#fff4c2',m1:'#c78a52',m2:'#9a5f36',g:'#6b3f22',gl:'#d9a066',sil:'#3a2010',acc:'#ff5a3c'},
+  neon:{s1:'#0d0221',s2:'#2a0a4a',s3:'#7a1c7a',star:'#66c0f4',sun:'#ff3cac',m1:'#24104a',m2:'#160a30',g:'#0a0518',gl:'#5d2bd6',sil:'#05020c',acc:'#4cf0ff'}
+};
+const RAR = {
+  common:{label:'COMMUNE',col:'#8f98a0',holo:0,foil:0},
+  rare:{label:'RARE',col:'#66c0f4',holo:0.45,foil:0},
+  epic:{label:'ÉPIQUE',col:'#b47cff',holo:0.7,foil:0.08},
+  legend:{label:'LÉGENDAIRE',col:'#f4c542',holo:1,foil:0.22}
+};
+const SPR = ['castle','ship','tree','skull','cross','planet'];
+const DEF = {name:'Gravebound',genre:'RPG',cost:6,atk:5,hp:6,rarity:'legend',pal:'dusk',sprite:'castle',num:'#007/120',code:'▲▶▼▶',text:'Quête épique : double ses stats après 3 tours.'};
+class Component extends DCLogic {
+  renderVals() {
+    const d = this.props.item ?? DEF;
+    const r = RAR[d.rarity] || RAR.common;
+    const p = PAL[d.pal] || PAL.night;
+    const o = {};
+    SPR.forEach((k) => { o[k] = d.sprite === k ? '1' : '0'; });
+    return { d, r, p, o };
+  }
+}
+</script>
+</body>
+</html>

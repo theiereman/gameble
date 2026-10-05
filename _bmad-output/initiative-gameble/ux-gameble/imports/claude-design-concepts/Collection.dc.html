@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Collection</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&amp;family=Silkscreen:wght@400;700&amp;family=VT323&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0b0f15}
+@keyframes tcgHolo{0%{background-position:160% 0}100%{background-position:-60% 0}}
+@keyframes tcgFoil{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(-10px) rotate(1.2deg)}}
+@keyframes scan{0%{background-position:0 0}100%{background-position:0 6px}}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:.15}}
+@keyframes pulseGlow{0%,100%{opacity:.45}50%{opacity:1}}
+@keyframes fillIn{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes shadowPulse{0%,100%{transform:scaleX(1);opacity:.55}50%{transform:scaleX(.8);opacity:.3}}
+.scanlines{position:absolute;inset:0;pointer-events:none;z-index:60;background:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 1px,transparent 1px 3px);animation:scan .6s steps(3) infinite}
+.vignette{position:absolute;inset:0;pointer-events:none;z-index:59;box-shadow:inset 0 0 180px 30px rgba(0,0,0,.65)}
+.hazard{height:8px;background:repeating-linear-gradient(-45deg,#66c0f4 0 8px,#0e141b 8px 16px)}
+.brk{position:relative}
+.brk::before,.brk::after{content:"";position:absolute;width:14px;height:14px;border:0 solid #66c0f4;pointer-events:none}
+.brk::before{top:-5px;left:-5px;border-top-width:3px;border-left-width:3px}
+.brk::after{bottom:-5px;right:-5px;border-bottom-width:3px;border-right-width:3px}
+.px-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;box-sizing:border-box;font-family:'Silkscreen',monospace;font-size:12px;letter-spacing:1px;border:0;cursor:pointer;padding:0 14px;height:44px;background:#2a475e;color:#e6eef5;text-decoration:none;box-shadow:0 -3px 0 0 #06090d,0 3px 0 0 #06090d,-3px 0 0 0 #06090d,3px 0 0 0 #06090d,inset 0 -4px 0 0 rgba(0,0,0,.35);transition:transform .14s steps(2),background-color .1s steps(2),color .1s steps(2)}
+.px-btn:hover,.px-btn:focus-visible{transform:translateY(-3px);background:#66c0f4;color:#0b1520;outline:none}
+.px-btn:active{transform:translateY(2px)}
+.px-btn.go{background:#7aa60a;color:#0f1a03}
+.px-btn.go:hover,.px-btn.go:focus-visible{background:#beee11;color:#0f1a03}
+.tab{height:40px;padding:0 14px;border:0;cursor:pointer;background:#121a24;color:#8f98a0;font-family:'Silkscreen',monospace;font-size:11px;letter-spacing:1px;box-shadow:inset 0 0 0 2px #1f3346;transition:transform .12s steps(2),background-color .1s steps(2),color .1s steps(2)}
+.tab:hover,.tab:focus-visible{color:#ffffff;transform:translateY(-2px);outline:none;box-shadow:inset 0 0 0 2px #66c0f4}
+.tab.is-on{background:#66c0f4;color:#0b1520;box-shadow:inset 0 -4px 0 0 #2a6f9a,0 0 0 3px #06090d}
+.slot{position:relative;display:block;width:120px;height:168px;padding:0;border:0;background:transparent;cursor:pointer;transition:transform .28s cubic-bezier(.2,1.6,.4,1)}
+.slot:hover{transform:translateY(-10px) rotate(-2deg) scale(1.04);z-index:3}
+.slot:focus-visible{outline:3px solid #f4c542;outline-offset:8px}
+.slot.is-sel::after{content:"";position:absolute;inset:-8px;border:3px solid #66c0f4;pointer-events:none;animation:pulseGlow .9s steps(3) infinite}
+.slot.is-locked{cursor:not-allowed}
+.slot.is-locked:hover{transform:translateX(0);animation:none}
+.dup{position:absolute;right:-6px;top:-6px;z-index:2;min-width:26px;height:20px;padding:0 4px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;background:#66c0f4;color:#0b1520;font-family:'Silkscreen',monospace;font-size:10px;box-shadow:0 0 0 2px #06090d}
+.set-row{display:flex;flex-direction:column;gap:6px;padding:10px 12px;background:#121a24;box-shadow:inset 0 0 0 2px #1f3346}
+.set-row.on{background:#1b2838;box-shadow:inset 5px 0 0 0 #66c0f4,inset 0 0 0 2px #2a475e}
+</style>
+</helmet>
+<div style="position:relative;width:1280px;height:720px;overflow:hidden;background:#0b0f15;font-family:'Silkscreen',monospace;color:#c7d5e0">
+<div style="position:relative;z-index:10;height:56px;display:flex;align-items:center;gap:16px;padding:0 24px;background:#171a21;box-shadow:0 2px 0 0 #2a475e">
+<a href="Main.dc.html" class="px-btn" style="height:34px;font-size:11px">◀ PONT</a>
+<div style="font-family:'Pixelify Sans',monospace;font-weight:700;font-size:20px;color:#ffffff;letter-spacing:1px">ARMURERIE DES CARTES</div>
+<div style="flex:1"></div>
+<div style="font-family:'VT323',monospace;font-size:20px;color:#8f98a0">Collection : <span style="color:#ffffff">87 / 120</span></div>
+<div style="width:180px;height:10px;background:#0e141b;box-shadow:0 0 0 2px #2a475e"><div style="width:72.5%;height:100%;background:#66c0f4;transform-origin:left;animation:fillIn 1.2s steps(12) both"></div></div>
+</div>
+<aside style="position:absolute;left:32px;top:76px;width:240px;display:flex;flex-direction:column;gap:12px;z-index:5">
+<div class="hazard"></div>
+<div style="font-size:12px;letter-spacing:3px;color:#66c0f4">SETS</div>
+<div class="set-row on">
+<div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#ffffff">ÉTÉ INDÉ</span><span style="color:#66c0f4">87/120</span></div>
+<div style="height:5px;background:#0e141b"><div style="width:72.5%;height:100%;background:#66c0f4"></div></div>
+</div>
+<div class="set-row">
+<div style="display:flex;justify-content:space-between;font-size:11px"><span>CLASSIQUES</span><span style="color:#8f98a0">12/60</span></div>
+<div style="height:5px;background:#0e141b"><div style="width:20%;height:100%;background:#8f98a0"></div></div>
+</div>
+<div class="set-row" style="opacity:.55">
+<div style="display:flex;justify-content:space-between;font-size:11px"><span>SOLDES D'HIVER</span><span style="color:#8f98a0">VERROUILLÉ</span></div>
+<div style="height:5px;background:#0e141b"></div>
+</div>
+<div class="brk" style="margin-top:14px;background:#121a24;box-shadow:inset 0 0 0 2px #2a475e;padding:14px;display:flex;flex-direction:column;gap:10px;font-size:10px;letter-spacing:1px">
+<div style="color:#66c0f4;font-size:11px;letter-spacing:2px">RAPPORT</div>
+<div style="display:flex;justify-content:space-between"><span style="color:#8f98a0">CARTES TOTALES</span><span style="color:#ffffff">99</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#8f98a0">DOUBLONS</span><span style="color:#ffffff">14</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#8f98a0">ÉPIQUES</span><span style="color:#b47cff">9</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#8f98a0">LÉGENDAIRES</span><span style="color:#f4c542">3</span></div>
+</div>
+</aside>
+<div style="position:absolute;left:296px;top:76px;width:560px;display:flex;flex-wrap:wrap;gap:8px;z-index:6">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="7">
+<button type="button" class="tab {{t.cls}}" onClick="{{t.pick}}">{{t.label}}</button>
+</sc-for>
+</div>
+<div style="position:absolute;left:304px;top:150px;width:552px;height:546px;overflow-y:auto;overflow-x:visible;z-index:5;padding-top:10px">
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 16px;justify-items:start">
+<sc-for list="{{slots}}" as="c" hint-placeholder-count="8">
+<button type="button" class="slot {{c.cls}}" onClick="{{c.pick}}" aria-label="{{c.aria}}">
+<sc-if value="{{c.owned}}" hint-placeholder-val="{{true}}">
+<div style="position:absolute;left:0;top:0;width:200px;height:280px;transform:scale(.6);transform-origin:0 0;pointer-events:none">
+<dc-import name="Card" item="{{c.data}}" hint-size="200px,280px"></dc-import>
+</div>
+<div class="dup">x{{c.qty}}</div>
+</sc-if>
+<sc-if value="{{c.locked}}" hint-placeholder-val="{{false}}">
+<div style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,#121a24 0 6px,#0e141b 6px 12px);box-shadow:inset 0 0 0 2px #2a475e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font-family:'Silkscreen',monospace;font-size:9px;letter-spacing:1px;color:#8f98a0">
+<svg viewBox="0 0 10 12" width="30" height="36" shape-rendering="crispEdges" aria-hidden="true">
+<rect x="3" y="0" width="4" height="1" fill="#8f98a0"></rect>
+<rect x="2" y="1" width="1" height="4" fill="#8f98a0"></rect>
+<rect x="7" y="1" width="1" height="4" fill="#8f98a0"></rect>
+<rect x="1" y="5" width="8" height="7" fill="#8f98a0"></rect>
+<rect x="4" y="7" width="2" height="3" fill="#0e141b"></rect>
+</svg>
+<span style="font-family:'Pixelify Sans',monospace;font-weight:700;font-size:20px;color:#2a475e">???</span>
+<span>{{c.genre}}</span>
+</div>
+</sc-if>
+</button>
+</sc-for>
+</div>
+</div>
+<section style="position:absolute;left:888px;top:76px;width:360px;height:612px;box-sizing:border-box;background:#121a24;box-shadow:inset 0 0 0 2px #2a475e;padding:16px 20px 20px;display:flex;flex-direction:column;align-items:center;z-index:5" class="brk">
+<div style="align-self:stretch;display:flex;justify-content:space-between;align-items:center">
+<span style="font-size:12px;letter-spacing:2px;color:#66c0f4">FICHE DE L'UNITÉ</span>
+<span style="font-family:'VT323',monospace;font-size:20px;color:#8f98a0">{{sel.num}}</span>
+</div>
+<div style="position:relative;width:200px;height:280px;margin-top:22px;animation:bob 3.2s ease-in-out infinite">
+<dc-import name="Card" item="{{sel.data}}" hint-size="200px,280px"></dc-import>
+</div>
+<div style="width:150px;height:8px;margin-top:16px;background:rgba(0,0,0,.6);animation:shadowPulse 3.2s ease-in-out infinite"></div>
+<div style="align-self:stretch;margin-top:16px;display:flex;flex-direction:column;gap:2px;font-size:10px;letter-spacing:1px">
+<div style="display:flex;justify-content:space-between;padding:7px 10px;background:#0e141b"><span style="color:#8f98a0">GENRE</span><span style="color:#ffffff">{{sel.genre}}</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;background:#0e141b"><span style="color:#8f98a0">RARETÉ</span><span style="color:{{sel.rcol}}">{{sel.rlabel}}</span></div>
+<div style="display:flex;justify-content:space-between;padding:7px 10px;background:#0e141b"><span style="color:#8f98a0">EXEMPLAIRES</span><span style="color:#ffffff">x{{sel.qty}}</span></div>
+</div>
+<div style="align-self:stretch;display:flex;gap:14px;margin-top:auto">
+<button type="button" class="px-btn go" style="flex:1">AJOUTER AU DECK</button>
+<button type="button" class="px-btn" style="flex:none">RECYCLER</button>
+</div>
+</section>
+<div class="vignette"></div>
+<div class="scanlines"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":720}}'>
+const LIST = [
+  {id:'grave',fam:'rpg',qty:1,data:{name:'Gravebound',genre:'RPG',cost:6,atk:5,hp:6,rarity:'legend',pal:'dusk',sprite:'castle',num:'#007/120',code:'▲▶▼▶',text:'Quête épique : double ses stats après 3 tours.'}},
+  {id:'crypt',fam:'rogue',qty:2,data:{name:'Neon Crypt',genre:'ROGUELITE',cost:3,atk:4,hp:3,rarity:'epic',pal:'crypt',sprite:'skull',num:'#031/120',code:'▲▲▼▶',text:'Mort permanente : à sa destruction, piochez 2 cartes.'}},
+  {id:'over',fam:'fps',qty:1,data:{name:'Overclock Arena',genre:'FPS',cost:4,atk:6,hp:2,rarity:'rare',pal:'neon',sprite:'cross',num:'#058/120',code:'◀▶◀▶',text:'Headshot : inflige 2 dégâts directs au rival.'}},
+  {id:'fleet',fam:'strat',qty:3,data:{name:'Iron Fleet Tactics',genre:'STRATÉGIE',cost:5,atk:3,hp:7,rarity:'rare',pal:'night',sprite:'ship',num:'#072/120',code:'▼▼▲▶',text:'Tour par tour : +1 PV à vos cartes Stratégie.'}},
+  {id:'moss',fam:'indie',qty:2,data:{name:'Moss & Lantern',genre:'INDÉ',cost:2,atk:2,hp:4,rarity:'common',pal:'forest',sprite:'tree',num:'#014/120',code:'▲◀▶',text:'Coup de cœur : +1 Hype si jouée en premier.'}},
+  {id:'dune',fam:'sim',qty:1,data:{name:'Dune Courier',genre:'SIMULATION',cost:3,atk:1,hp:6,rarity:'common',pal:'desert',sprite:'ship',num:'#089/120',code:'▶▶▼',text:'Livraison : gagnez 1 crédit à chaque tour.'}},
+  {id:'abyss',fam:'indie',qty:1,data:{name:'Abyssal Diver',genre:'METROIDVANIA',cost:4,atk:4,hp:4,rarity:'epic',pal:'night',sprite:'planet',num:'#046/120',code:'▼▼◀▲',text:'Backtracking : renvoie une carte dans votre main.'}},
+  {id:'star',fam:'sim',qty:1,data:{name:'Starhaul Freight',genre:'SIMULATION',cost:5,atk:2,hp:8,rarity:'common',pal:'neon',sprite:'planet',num:'#101/120',code:'▲▶▶',text:'Cargo lourd : protège la carte à sa gauche.'}},
+  {id:'lock1',fam:'rpg',locked:true,genre:'RPG'},
+  {id:'lock2',fam:'fps',locked:true,genre:'FPS'}
+];
+const TABS = [
+  {key:'all',label:'TOUS'},{key:'rogue',label:'ROGUELITE'},{key:'rpg',label:'RPG'},{key:'fps',label:'FPS'},
+  {key:'strat',label:'STRATÉGIE'},{key:'sim',label:'SIMULATION'},{key:'indie',label:'INDÉ'}
+];
+const RAR = { common:['COMMUNE','#8f98a0'], rare:['RARE','#66c0f4'], epic:['ÉPIQUE','#b47cff'], legend:['LÉGENDAIRE','#f4c542'] };
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { filter: 'all', sel: 'grave' };
+  }
+  renderVals() {
+    const s = this.state;
+    const tabs = TABS.map((t) => ({ label: t.label, cls: t.key === s.filter ? 'is-on' : '', pick: () => this.setState({ filter: t.key }) }));
+    const slots = LIST.filter((c) => s.filter === 'all' || c.fam === s.filter).map((c) => ({
+      owned: !c.locked,
+      locked: !!c.locked,
+      data: c.data,
+      qty: c.qty,
+      genre: c.genre,
+      cls: c.locked ? 'is-locked' : (c.id === s.sel ? 'is-sel' : ''),
+      aria: c.locked ? 'Carte verrouillée' : c.data.name,
+      pick: () => { if (!c.locked) this.setState({ sel: c.id }); }
+    }));
+    const cur = LIST.find((c) => c.id === s.sel) || LIST[0];
+    const sel = {
+      data: cur.data,
+      num: cur.data.num,
+      genre: cur.data.genre,
+      qty: cur.qty,
+      rlabel: RAR[cur.data.rarity][0],
+      rcol: RAR[cur.data.rarity][1]
+    };
+    return { tabs, slots, sel };
+  }
+}
+</script>
+</body>
+</html>
