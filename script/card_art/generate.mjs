@@ -90,6 +90,10 @@ function runMockup(file, names) {
   return new Function("document", "window", "Image", `${source}\nreturn { ${names.join(", ")} }`)(document, window, Image)
 }
 
+// The first direction's parchment tones, recoloured to DESIGN.md's text
+// tones (story 8.1) until the card faces and backs are redrawn.
+const RECOLOUR = { "#e2d1ad": "#c7d5e0", "#f4ead2": "#e6eef5" }
+
 // A pixel-rect SVG: one <path> per colour, made of rectangles merged across
 // rows. Alpha is kept to two decimals.
 function pixelSvg(sink, { symbol } = {}) {
@@ -97,7 +101,8 @@ function pixelSvg(sink, { symbol } = {}) {
   const key = ([r, g, b, a]) => {
     const alpha = Math.round(a * 100) / 100
     if (alpha <= 0) return null
-    const hex = "#" + [r, g, b].map((c) => Math.round(c).toString(16).padStart(2, "0")).join("")
+    const raw = "#" + [r, g, b].map((c) => Math.round(c).toString(16).padStart(2, "0")).join("")
+    const hex = RECOLOUR[raw] ?? raw
     return alpha >= 1 ? hex : `${hex}/${alpha}`
   }
   // Runs per row, then rectangles grown downwards while the run repeats.

@@ -1,22 +1,22 @@
 /*
- * A card's detail (CAP-7; DESIGN.md: parchment panels, hard edges and ink
- * shadows on the 2px grid): the large face beside a definition list of what
- * the card does not carry, stacked on a phone. And the links leading to it
- * from a face or an empty slot, which keep the card's own look. A held
- * card's share button, and below the detail, for a visitor, the invitation
- * to play.
+ * A card's detail (CAP-7; panels, hard edges and pixel outlines on the 2px
+ * grid, until the card detail is redesigned): the large face beside a
+ * definition list of what the card does not carry, stacked on a phone. And
+ * the links leading to it from a face or an empty slot, which keep the
+ * card's own look. A held card's share button, and below the detail, for a
+ * visitor, the invitation to play.
  */
 
 .card-detail {
   display: flex;
   align-items: flex-start;
-  gap: var(--space-6);
+  gap: var(--space-7);
   max-width: calc(1000px + 2 * var(--space-unit));
   margin: 0 auto;
   padding: var(--space-5);
-  border: var(--space-unit) solid var(--color-ink);
-  box-shadow: var(--shadow-hard);
-  background: var(--color-surface);
+  border: var(--space-unit) solid var(--color-line);
+  box-shadow: var(--pixel-outline-3);
+  background: var(--color-panel);
 }
 
 .card-detail__face {
@@ -43,8 +43,8 @@
 }
 
 .card-detail__copies {
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
+  font-family: var(--font-family-silkscreen);
+  font-weight: var(--font-weight-regular);
 }
 
 /* Sharing a held card: the button, the link in a read-only field to copy by
@@ -69,19 +69,18 @@
 
 .card-detail__share-label,
 .card-detail__share-status {
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
 }
 
 .card-detail__share-url {
   width: 100%;
-  padding: var(--plate-padding-y) var(--plate-padding-x);
-  border: var(--space-unit) solid var(--color-ink);
-  background: var(--color-surface-sunken);
-  color: var(--color-ink);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-label);
+  padding: var(--space-2) var(--space-4);
+  border: var(--space-unit) solid var(--color-line);
+  background: var(--color-panel-sunken);
+  color: var(--color-text);
+  font-family: var(--font-family-vt323);
+  font: var(--font-body-small);
 }
 
 .card-detail__share-status {
@@ -96,9 +95,8 @@
 }
 
 .card-detail__fields dt {
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
 }
 
 .card-detail__fields dd {
@@ -119,8 +117,8 @@
 /* The ownership notice, under the fields of every card. */
 .card-detail__notice {
   margin: 0;
-  color: var(--color-ink-muted);
-  font-size: var(--font-size-label);
+  color: var(--color-muted);
+  font: var(--font-body-small);
 }
 
 .card-detail__store .button {
@@ -135,10 +133,6 @@
   vertical-align: top;
 }
 
-.card-link:focus-visible {
-  outline: var(--space-unit) solid var(--color-ink);
-  outline-offset: var(--space-unit);
-}
 
 /* For a visitor, below the detail and as wide, centred: the invitation to
    play. */
@@ -149,7 +143,7 @@
   align-items: center;
   gap: var(--space-4);
   max-width: calc(1000px + 2 * var(--space-unit));
-  margin: var(--space-6) auto 0;
+  margin: var(--space-7) auto 0;
 }
 
 .card-detail__invitation .button {

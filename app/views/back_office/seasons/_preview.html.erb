@@ -2,12 +2,12 @@
 <section class="stack" aria-labelledby="draft-preview" data-preview>
   <h2 id="draft-preview"><%= t(".heading", number:) %></h2>
 
-  <%= render TextPlateComponent.new(tag: :p) do %>
+  <%= render PanelComponent.new(tag: :p) do %>
     <%= t(".intro") %>
   <% end %>
 
   <% if preview.empty_season? %>
-    <%= render TextPlateComponent.new(tag: :p) do %>
+    <%= render PanelComponent.new(tag: :p) do %>
       <span data-preview-verdict="empty_season"><%= Catalog::PublishSeason.failure_message(:empty_season) %></span>
     <% end %>
   <% else %>
@@ -62,7 +62,7 @@
         </tbody>
       </table>
     <% else %>
-      <%= render TextPlateComponent.new(tag: :p) do %>
+      <%= render PanelComponent.new(tag: :p) do %>
         <span data-preview-verdict="empty_tier"><%= Catalog::PublishSeason.failure_message(:empty_tier) %></span>
       <% end %>
     <% end %>

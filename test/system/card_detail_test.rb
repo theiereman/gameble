@@ -21,8 +21,8 @@ class CardDetailTest < ApplicationSystemTestCase
   def sign_in(player)
     OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
     visit home_path(locale: :en)
-    click_on "Enlist through Steam"
-    assert_button "Stand down"
+    click_steam_sign_in
+    assert_signed_in
   end
 
   def members(season, key)
@@ -48,7 +48,7 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector ".card-detail__description", text: "A seed of a game."
     assert_selector ".card-detail__copies", text: "You hold 2 copies"
     assert_selector ".card-detail__notice", text: "This game and its image belong to their respective owners. gameble is not affiliated with Valve or Steam."
-    link = find(".card-detail__store a", text: "See it on the Steam store")
+    link = find(".card-detail__store a", text: /\ASee it on the Steam store\z/i)
     assert_equal [ card.store_url, "_blank" ], [ link[:href], link[:target] ]
     take_screenshot
 

@@ -34,7 +34,7 @@ class AtticTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
 
     assert_selector ".attic__object--chest"
-    assert_selector ".status-band form[action='/auth/steam']", visible: true
+    assert_selector ".top-bar form.steam-sign-in[action='/auth/steam']", visible: true
     assert page.evaluate_script("document.querySelector('.attic').scrollWidth > document.querySelector('.attic').clientWidth"), "the room should overflow its frame"
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page itself should not scroll sideways"
     assert_operator page.evaluate_script("document.querySelector('.attic').scrollLeft"), :>, 0

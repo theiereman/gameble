@@ -154,3 +154,24 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-collection-and-sharing/story-fixes-from-the-epic-retrospective-plan.md`
   summary: An older browser let onto a card's page sees the invitation and the status band's "Back to the attic", and both lead to a 406 (Steam callback, attic).
   evidence: Story 4.5's deferred finding, now on the card's page since story 4.7 makes it the share link (story 4.7 review, intent alignment); the decision is pending in `pending-approvals.md` ("Older browsers signing in from a shared card").
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
+  summary: Transitional: the player chip opens a small popover menu (own public profile, back-office for staff, sign out) instead of Profil et paramètres (EXPERIENCE.md, Player chip), until that screen exists.
+  evidence: Story 8.1 Design Notes; `app/views/shell/_player_chip.html.erb`.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
+  summary: Transitional: the phone tab bar's BOOSTER, ÉCHANGES and PLUS tabs render disabled (`aria-disabled`, not links), and the top bar's packs chip is not a link to the booster screen (EXPERIENCE.md, Packs chip), until their screens ship.
+  evidence: Story 8.1 Design Notes; `app/views/shell/_tab_bar.html.erb`, `app/views/shell/_packs_chip.html.erb`.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
+  summary: Transitional: the packs chip's countdown stops at 00:00 and never refreshes the page (`countdown` controller with `refresh: false`); the new count appears on the next visit or when the hub's own countdown refreshes it.
+  evidence: Story 8.1 Design Notes; `app/frontend/controllers/countdown_controller.ts`.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
+  summary: Transitional: the `view-transition` meta is always rendered (AD-27 wants it only when motion is allowed); there is no stored "Animations réduites" setting yet, so CSS removes the screen-change animation under `prefers-reduced-motion` or `html[data-motion=reduced]`.
+  evidence: Story 8.1 Design Notes; `app/views/layouts/application.html.erb`, `app/frontend/styles/shell.css`.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
+  summary: The public card page (`cards#show` for a visitor, the share link) still wears the app chrome (back button, phone tab bar) where DESIGN.md asks for a slim top bar with the logo and the official Steam image, and EXPERIENCE.md hides the tab bar.
+  evidence: Story 8.1 quick review, deferred as pre-existing (the old shell wrapped it too); the public card page belongs to epic-space-terminal-screens.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
+  summary: The card page keeps a game-styled text button that posts to `/auth/steam` (`app/views/cards/show.html.erb:18`), while DESIGN.md makes Valve's official image the only link to Steam's sign-in.
+  evidence: Story 8.1 quick review, deferred as pre-existing; story 8.2's sign-in panel replaces such calls to action.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
+  summary: The top bar reads `Game::BankSummary` on every signed-in page; its `bonus_collectable` part (published-season lookup, daily-claim check) is unused by the packs chip, so up to two queries per page are wasted.
+  evidence: Story 8.1 quick review; the hub's duplicate read was patched (`shell_bank` reuses `@bank`), the rest needs a parameter or a narrower query.

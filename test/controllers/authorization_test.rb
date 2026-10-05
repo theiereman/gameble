@@ -91,8 +91,8 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_nil session[:player_id]
-    assert_select ".status-band__counters form[action='/auth/steam']"
-    assert_select ".status-band__counters form[action^='/session']", false
+    assert_select ".top-bar__end form[action='/auth/steam']"
+    assert_select ".top-bar form[action^='/session']", false
   end
 
   test "a player banned meanwhile cannot sign out as if still signed in" do

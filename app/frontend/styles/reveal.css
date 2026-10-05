@@ -46,12 +46,11 @@
 /* "n / N", on a text plate. */
 .pack-reveal__progress {
   margin: 0;
-  padding: var(--plate-padding-y) var(--plate-padding-x);
-  border: var(--space-unit) solid var(--color-ink);
-  background: var(--color-surface);
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
+  padding: var(--space-2) var(--space-4);
+  border: var(--space-unit) solid var(--color-line);
+  background: var(--color-panel);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
 }
 
 /* Wider screens: small cards side by side, wrapping. Phone: one large card. */
@@ -96,10 +95,6 @@
   height: 360px;
 }
 
-.reveal-card:focus-visible {
-  outline: var(--space-unit) solid var(--color-ink);
-  outline-offset: var(--space-unit);
-}
 
 /* A finger sliding on a dusty card wipes it instead of scrolling. */
 .reveal-card[data-state="dusty"] {
@@ -185,13 +180,13 @@
   position: absolute;
   width: var(--space-unit);
   height: var(--space-unit);
-  background: var(--color-dust);
+  background: var(--color-dim);
   opacity: 0;
   animation: reveal-burst calc(var(--reveal-ms) - var(--reveal-turn-ms)) steps(4) var(--reveal-turn-ms) forwards;
 }
 
 .reveal-card__pixel:nth-child(even) {
-  background: var(--color-dust-light);
+  background: var(--color-muted);
 }
 
 @keyframes reveal-burst {
@@ -214,7 +209,7 @@
 
 .reveal-card__ray {
   position: absolute;
-  background: var(--color-gold-light);
+  background: var(--color-rarity-legendaire-hi);
   opacity: 0;
   animation: reveal-ray calc((var(--reveal-ms) - var(--reveal-turn-ms)) / 3) step-end var(--reveal-turn-ms) 3;
 }

@@ -1,0 +1,31 @@
+<%# The phone tab bar (DESIGN.md, Tab bar): five roots, each a pixel icon
+    over its label; the current one marked. Screens that do not exist yet
+    (booster, trades, more) are shown disabled, not as links. Hidden from
+    720px up. %>
+<% tabs = [
+     [ :hub, "tab-hub", home_path, controller_path == "pages" ],
+     [ :booster, "tab-booster", nil, false ],
+     [ :collection, "tab-collection", library_path, %w[library cards].include?(controller_path) ],
+     [ :trades, "tab-trades", nil, false ],
+     [ :more, "tab-more", nil, false ]
+   ] %>
+<nav class="tab-bar" aria-label="<%= t("shell.tabs.label") %>">
+  <ul class="tab-bar__list">
+    <% tabs.each do |key, icon, path, current| %>
+      <li class="tab-bar__item">
+        <% if path %>
+          <%= link_to path, class: "tab-bar__tab", aria: { current: ("page" if current) }, data: { turbo_prefetch: false } do %>
+            <%= pixel_icon(icon, class: "tab-bar__icon") %>
+            <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
+          <% end %>
+        <% else %>
+          <span class="tab-bar__tab" aria-disabled="true">
+            <%= pixel_icon(icon, class: "tab-bar__icon") %>
+            <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
+            <span class="visually-hidden"><%= t("shell.tabs.soon") %></span>
+          </span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</nav>

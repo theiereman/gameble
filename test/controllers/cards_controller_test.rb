@@ -73,7 +73,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/portals/, css_select(".card-detail__face").sole.text)
     assert_select ".card-detail__copies", false
     assert_no_match(/collection of/i, response.body)
-    assert_select ".status-band > a.button--secondary[href='/en']", "Back to the attic"
+    assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
   end
 
   test "in French the title, description, labels and Steam page are French" do
@@ -197,7 +197,8 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__share label", /Link to this card/
     assert_select ".card-detail__share label input[type=text][readonly][data-share-target=url][value=?]", url
     assert_select ".card-detail__share [role=status][data-share-target=status]", ""
-    assert_not_includes response.body, player.token
+    # Only the player's own menu, in the top bar, links their profile.
+    assert_not_includes css_select("head, main").to_s, player.token
     # The share link is the page's own og:url.
     assert_equal url, css_select("head meta[property='og:url']").sole["content"]
 
@@ -240,13 +241,15 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-controller=share]", false
   end
 
-  test "a player's request costs four queries, a visitor's two" do
+  test "a player's request costs nine queries, a visitor's two" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 2)
     sign_in(player)
 
-    # Player lookup, card detail, sets, quantities.
-    assert_request_queries(4) { get card_path(locale: :en, slug: "portal") }
+    # Player lookup, card detail, sets, quantities, and the top bar's five
+    # (bank count, next pack, published season, daily claim, copies per
+    # tier).
+    assert_request_queries(9) { get card_path(locale: :en, slug: "portal") }
     assert_response :success
     assert_select ".card-detail__copies", "You hold 2 copies"
     assert_select ".card-detail__share"

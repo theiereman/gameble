@@ -1,0 +1,35 @@
+<%# The top bar (DESIGN.md, Top bar): on the left the logo, or the back
+    button to the bridge (and the screen title, when the view gives one) on
+    every other page (`content_for :back_button`); on the right the
+    player's rarity counter, packs chip and player chip, or the official
+    Steam sign-in image for a visitor. The back-office shows the player
+    chip only. %>
+<header class="top-bar">
+  <div class="top-bar__inner">
+    <div class="top-bar__start">
+      <% if content_for?(:back_button) %>
+        <%= render ButtonComponent.new(variant: :secondary, size: :small, href: home_path, icon: "arrow-left") do %><%= t("shell.top_bar.back") %><% end %>
+        <% if content_for?(:screen_title) %>
+          <p class="top-bar__title"><%= yield :screen_title %></p>
+        <% end %>
+      <% else %>
+        <p class="top-bar__brand">
+          <%= pixel_icon("logo", class: "top-bar__logo") %>
+          <span class="top-bar__name"><%= t("shell.top_bar.brand") %></span>
+        </p>
+      <% end %>
+    </div>
+
+    <div class="top-bar__end">
+      <% if current_player %>
+        <% unless back_office_page? %>
+          <%= render "shell/rarity_counter", counts: shell_tier_counts %>
+          <%= render "shell/packs_chip", bank: shell_bank %>
+        <% end %>
+        <%= render "shell/player_chip", player: current_player %>
+      <% else %>
+        <%= render SteamSignInComponent.new(origin: request.path) %>
+      <% end %>
+    </div>
+  </div>
+</header>

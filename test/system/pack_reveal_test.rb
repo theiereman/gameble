@@ -17,8 +17,8 @@ class PackRevealTest < ApplicationSystemTestCase
     OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{@player.steam_id}")
     reduce_motion(true)
     visit home_path(locale: :en)
-    click_on "Enlist through Steam"
-    assert_button "Stand down"
+    click_steam_sign_in
+    assert_signed_in
   end
 
   teardown do
@@ -333,13 +333,14 @@ class PackRevealTest < ApplicationSystemTestCase
   test "the reveal ends on the next pack when one is available, and on the attic alone when none is" do
     open_pack(card_ids(*[ :steel_card_one ] * 5), more: true)
     within(".pack-reveal .pack-end") do
-      assert_equal [ "Open the next pack", "Back to the attic" ], all(".button").map(&:text)
+      # Button labels are uppercased by CSS (DESIGN.md, Buttons).
+      assert_equal [ "OPEN THE NEXT PACK", "BACK TO THE ATTIC" ], all(".button").map(&:text)
       click_on "Open the next pack"
     end
 
     # Turbo disables the button while the form is sent: wait for the form to go.
     assert_no_selector ".pack-reveal .pack-end form"
     assert_selector ".reveal-card[data-state=dusty]", count: 5
-    within(".pack-reveal .pack-end") { assert_equal [ "Back to the attic" ], all(".button").map(&:text) }
+    within(".pack-reveal .pack-end") { assert_equal [ "BACK TO THE ATTIC" ], all(".button").map(&:text) }
   end
 end

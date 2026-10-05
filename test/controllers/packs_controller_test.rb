@@ -59,7 +59,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", "Your pack, Brother"
     assert_select ".card", 0
-    assert_select ".flash", 0
+    assert_select ".toasts > .toast", 0
     assert_not_includes response.body, pack.token
     assert_equal "no-store", response.headers["Cache-Control"]
     assert_select "meta[name=turbo-cache-control][content=no-cache]"
@@ -156,8 +156,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     sign_in(NEW_STEAM_ID)
     follow_redirect!
 
-    assert_select ".flash__message", 1
-    assert_select ".flash__message--notice", I18n.t("sessions.create.welcome", locale: :en)
+    assert_select ".toasts > .toast", 1
+    assert_select ".toasts > .toast--notice .toast__message", I18n.t("sessions.create.welcome", locale: :en)
   end
 
   test "another player's pack, an unopened pack and an unknown token are not found" do

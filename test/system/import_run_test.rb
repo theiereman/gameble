@@ -15,8 +15,8 @@ class ImportRunTest < ApplicationSystemTestCase
 
   test "an administrator starts an import and watches the app count grow, until the run completes" do
     visit home_path(locale: :en)
-    click_on "Enlist through Steam"
-    assert_button "Stand down"
+    click_steam_sign_in
+    assert_signed_in
 
     visit back_office_path(locale: :en)
     click_on "The Steam import"

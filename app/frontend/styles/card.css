@@ -1,20 +1,20 @@
 /*
  * The card, face and back (DESIGN.md: Card face, Card back, Rarity seal, Dust;
- * mockups/card-face.html layout A, card-backs.html, key-screens.html for the
- * titles in Jost). Shared by CardComponent and the React Card, which render
+ * mockups/card-face.html layout A, card-backs.html; titles in Pixelify Sans,
+ * recoloured to the space-terminal tokens until story 8.3 redraws the face). Shared by CardComponent and the React Card, which render
  * the same tree. One art pixel is 2 CSS pixels (--space-unit). The root has
  * no overflow and no transform: the reveal (story 3.6) wraps and flips it.
  * Pixel parts come from ../images/card/ (script/card_art/generate.mjs).
  */
 
 .card {
-  /* The face's binding, from the outside in: ink, metal, ink, rarity piping
-     (2 art pixels), ink, then the art window. Insets in CSS pixels. */
+  /* The face's binding, from the outside in: outline, metal, outline, rarity piping
+     (2 art pixels), outline, then the art window. Insets in CSS pixels. */
   --card-piping-inset: calc(2 * var(--space-unit));
   --card-window-inset: calc(5 * var(--space-unit));
-  --card-metal: var(--color-brass);
-  --card-metal-light: var(--color-brass-light);
-  --card-metal-dark: var(--color-brass-dark);
+  --card-metal: var(--color-line);
+  --card-metal-light: var(--color-line-deep);
+  --card-metal-dark: var(--color-panel-raised);
 
   position: relative;
   display: inline-block;
@@ -22,8 +22,8 @@
   vertical-align: top;
   width: var(--card-width);
   height: var(--card-height);
-  box-shadow: var(--shadow-hard);
-  color: var(--color-ink);
+  box-shadow: var(--pixel-outline-4);
+  color: var(--color-text);
 }
 
 /* Small: 80 × 120 art pixels, 1 pixel of metal. Large: 120 × 180, 3 pixels. */
@@ -47,45 +47,45 @@
   --card-height: 360px;
   --card-piping-inset: calc(4 * var(--space-unit));
   --card-window-inset: calc(7 * var(--space-unit));
-  --card-title-size: var(--font-size-body);
+  --card-title-size: 0.9375rem;
   --card-title-line: 18px;
   --card-sweep-duration: 6.75s;
   --card-sweep-steps: 75;
 }
 
 .card--rarity-steel {
-  --card-rarity: var(--color-rarity-steel);
-  --card-rarity-light: var(--color-rarity-steel-light);
+  --card-rarity: var(--color-rarity-commune);
+  --card-rarity-light: var(--color-rarity-commune-hi);
 }
 
 .card--rarity-emerald {
-  --card-rarity: var(--color-rarity-emerald);
-  --card-rarity-light: var(--color-rarity-emerald-light);
+  --card-rarity: var(--color-rarity-peu-commune);
+  --card-rarity-light: var(--color-rarity-peu-commune-hi);
 }
 
 .card--rarity-sapphire {
-  --card-rarity: var(--color-rarity-sapphire);
-  --card-rarity-light: var(--color-rarity-sapphire-light);
+  --card-rarity: var(--color-rarity-rare);
+  --card-rarity-light: var(--color-rarity-rare-hi);
 }
 
 .card--rarity-amethyst {
-  --card-rarity: var(--color-rarity-amethyst);
-  --card-rarity-light: var(--color-rarity-amethyst-light);
+  --card-rarity: var(--color-rarity-epique);
+  --card-rarity-light: var(--color-rarity-epique-hi);
 }
 
-/* Gold replaces brass on legendary cards only. */
+/* The legendary tier's colours replace the metal on its cards only. */
 .card--rarity-gold {
-  --card-rarity: var(--color-gold);
-  --card-rarity-light: var(--color-gold-light);
-  --card-metal: var(--color-gold);
-  --card-metal-light: var(--color-gold-light);
-  --card-metal-dark: var(--color-gold-dark);
+  --card-rarity: var(--color-rarity-legendaire);
+  --card-rarity-light: var(--color-rarity-legendaire-hi);
+  --card-metal: var(--color-rarity-legendaire);
+  --card-metal-light: var(--color-rarity-legendaire-hi);
+  --card-metal-dark: var(--color-rarity-legendaire-lo);
 }
 
 /* ---- Face ---- */
 
 .card--face {
-  background: var(--color-ink);
+  background: var(--color-outline);
 }
 
 /* The metal: light at top left, dark at bottom right. */
@@ -101,17 +101,17 @@
 .card__piping {
   position: absolute;
   inset: var(--card-piping-inset);
-  border: var(--space-unit) solid var(--color-ink);
+  border: var(--space-unit) solid var(--color-outline);
   background: var(--card-rarity);
   box-shadow: inset var(--space-unit) var(--space-unit) 0 0 var(--card-rarity-light);
 }
 
-/* The art window: 68 × 108 / 104 × 164 art pixels inside an ink line. */
+/* The art window: 68 × 108 / 104 × 164 art pixels inside an outline line. */
 .card__window {
   position: absolute;
   inset: var(--card-window-inset);
-  border: var(--space-unit) solid var(--color-ink);
-  background: var(--color-surface-sunken);
+  border: var(--space-unit) solid var(--color-outline);
+  background: var(--color-panel-sunken);
 }
 
 .card__art {
@@ -155,25 +155,25 @@
   top: calc(2 * var(--space-unit));
   left: calc(2 * var(--space-unit));
   padding: calc(2 * var(--space-unit));
-  border: var(--space-unit) solid var(--color-ink);
-  background: var(--color-surface);
-  color: var(--color-ink);
+  border: var(--space-unit) solid var(--color-outline);
+  background: var(--color-panel);
+  color: var(--color-text);
 }
 
-/* The text plate, at the bottom over the art, after an ink line and a
+/* The text plate, at the bottom over the art, after an outline line and a
    1-pixel rarity line. Line heights are even, so is the plate. */
 .card__plate {
   position: absolute;
   right: 0;
   bottom: 0;
   left: 0;
-  padding: var(--plate-padding-y) var(--plate-padding-x);
-  border-top: var(--space-unit) solid var(--color-ink);
-  background: var(--color-surface);
+  padding: var(--space-2) var(--space-4);
+  border-top: var(--space-unit) solid var(--color-outline);
+  background: var(--color-panel);
   box-shadow:
     0 calc(-1 * var(--space-unit)) 0 0 var(--card-rarity),
-    0 calc(-2 * var(--space-unit)) 0 0 var(--color-ink);
-  font-family: var(--font-family-card-title);
+    0 calc(-2 * var(--space-unit)) 0 0 var(--color-outline);
+  font-family: var(--font-family-pixelify);
 }
 
 .card__title {
@@ -182,7 +182,7 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
-  font-weight: var(--font-weight-card-title);
+  font-weight: var(--font-weight-semibold);
   font-size: var(--card-title-size);
   line-height: var(--card-title-line);
   overflow-wrap: anywhere;
@@ -192,8 +192,8 @@
 .card__publisher {
   display: block;
   overflow: hidden;
-  color: var(--color-ink-muted);
-  font-weight: var(--font-weight-body);
+  color: var(--color-muted);
+  font-weight: var(--font-weight-regular);
   font-size: 12px;
   line-height: 14px;
   white-space: nowrap;
@@ -205,7 +205,7 @@
 .card__season {
   position: absolute;
   /* Against the plate's padding box: above its border, the rarity line and
-     the ink line; one empty art pixel from the art's right edge. */
+     the outline line; one empty art pixel from the art's right edge. */
   right: var(--space-unit);
   bottom: calc(100% + 3 * var(--space-unit));
   width: calc(18 * var(--space-unit));
@@ -247,11 +247,11 @@
   height: 100%;
   transform-origin: top left;
   background: linear-gradient(90deg,
-    color-mix(in srgb, var(--color-gold-light) 22%, transparent) 0 4px,
-    color-mix(in srgb, var(--color-gold-light) 42%, transparent) 4px 8px,
-    color-mix(in srgb, var(--color-gold-light) 62%, transparent) 8px 10px,
-    color-mix(in srgb, var(--color-gold-light) 42%, transparent) 10px 14px,
-    color-mix(in srgb, var(--color-gold-light) 22%, transparent) 14px 18px);
+    color-mix(in srgb, var(--color-rarity-legendaire-hi) 22%, transparent) 0 4px,
+    color-mix(in srgb, var(--color-rarity-legendaire-hi) 42%, transparent) 4px 8px,
+    color-mix(in srgb, var(--color-rarity-legendaire-hi) 62%, transparent) 8px 10px,
+    color-mix(in srgb, var(--color-rarity-legendaire-hi) 42%, transparent) 10px 14px,
+    color-mix(in srgb, var(--color-rarity-legendaire-hi) 22%, transparent) 14px 18px);
   animation: card-sweep var(--card-sweep-duration) steps(var(--card-sweep-steps)) infinite;
 }
 
@@ -265,12 +265,12 @@
   position: absolute;
   width: var(--space-unit);
   height: var(--space-unit);
-  background: var(--color-surface);
+  background: var(--color-panel);
   box-shadow:
-    calc(-1 * var(--space-unit)) 0 0 0 var(--color-gold-light),
-    var(--space-unit) 0 0 0 var(--color-gold-light),
-    0 calc(-1 * var(--space-unit)) 0 0 var(--color-gold-light),
-    0 var(--space-unit) 0 0 var(--color-gold-light);
+    calc(-1 * var(--space-unit)) 0 0 0 var(--color-rarity-legendaire-hi),
+    var(--space-unit) 0 0 0 var(--color-rarity-legendaire-hi),
+    0 calc(-1 * var(--space-unit)) 0 0 var(--color-rarity-legendaire-hi),
+    0 var(--space-unit) 0 0 var(--color-rarity-legendaire-hi);
   animation: card-sparkle 1.62s step-end infinite;
 }
 
@@ -306,7 +306,7 @@
 /* The tier's back, 80 × 120 art pixels: at 2 CSS pixels each on the small
    card, at 3 on the large one until a 120 × 180 back is drawn. */
 .card--back {
-  background-color: var(--color-leather);
+  background-color: var(--color-line-soft);
   background-size: 100% 100%;
   image-rendering: pixelated;
 }

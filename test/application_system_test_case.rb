@@ -8,4 +8,23 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   driven_by :selenium, using: :headless_chrome, screen_size: SCREEN_SIZE do |options|
     options.binary = ENV["CHROME_BIN"] if ENV["CHROME_BIN"].present?
   end
+
+  # Signing in and out through the shell's top bar (story 8.1): the official
+  # Steam image for a visitor, the player menu's "Sign out" for a player.
+  def click_steam_sign_in
+    find(".top-bar .steam-sign-in__button").click
+  end
+
+  def assert_signed_in
+    assert_selector ".top-bar .player-chip"
+  end
+
+  def sign_out
+    find(".top-bar .player-chip__button").click
+    within("#player-menu") { click_on "Sign out" }
+  end
+
+  def assert_signed_out
+    assert_selector ".top-bar .steam-sign-in__button"
+  end
 end

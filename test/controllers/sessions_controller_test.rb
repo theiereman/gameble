@@ -54,7 +54,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Welcome to the ranks, Brother. The Brotherhood has entered your name in the great ledger.", flash[:notice]
 
     follow_redirect!
-    assert_select ".flash .flash__message--notice", flash[:notice]
+    assert_select ".toasts[role=status] > .toast.toast--notice .toast__message", flash[:notice]
   end
 
   def bank_of(player)
@@ -272,23 +272,23 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "signing out resets the session and shows the sign-in button again" do
     sign_in_with_steam
     follow_redirect!
-    assert_select ".status-band__counters form[action=?] input[name=_method][value=delete]", "/session?locale=en"
+    assert_select "#player-menu form[action=?] input[name=_method][value=delete]", "/session?locale=en"
 
     delete session_path(locale: :en)
 
     assert_nil signed_in_player_id
     assert_redirected_to home_path(locale: :en)
     follow_redirect!
-    assert_select ".status-band__counters form[action='/auth/steam'][method=post] button", "Enlist through Steam"
-    assert_select ".status-band__counters form[action^='/session']", false
+    assert_select ".top-bar__end form[action='/auth/steam'][method=post] button img[alt=?]", "Sign in through Steam (opens Steam)"
+    assert_select ".top-bar form[action^='/session']", false
   end
 
   test "a signed-out visitor sees the Steam sign-in button as a POST form" do
     get home_path(locale: :fr)
 
-    assert_select ".status-band__counters form[action='/auth/steam'][method=post][data-turbo=false]" do
+    assert_select ".top-bar__end form.steam-sign-in[action='/auth/steam'][method=post][data-turbo=false]" do
       assert_select "input[name=origin][value='/fr']"
-      assert_select "button.button--primary", "S'enrôler via Steam"
+      assert_select "button.steam-sign-in__button img[src*='sits_01'][width='180'][height='35'][alt=?]", "Se connecter via Steam (ouvre Steam)"
     end
   end
 
@@ -310,8 +310,8 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     sign_in_with_steam
     get home_path(locale: :fr)
 
-    assert_select ".status-band__counters form[action=?] button.button--secondary", "/session?locale=fr", text: "Quitter les rangs"
-    assert_select ".status-band__counters form[action='/auth/steam']", false
+    assert_select "#player-menu form[action=?] button.player-menu__item", "/session?locale=fr", text: "Se déconnecter"
+    assert_select ".top-bar form[action='/auth/steam']", false
   end
 
   # The persona name (CAP-8)

@@ -30,8 +30,8 @@ class PublicProfileTest < ApplicationSystemTestCase
 
   test "a player finds their public profile in the library; a visitor reads it" do
     visit home_path(locale: :en)
-    click_on "Enlist through Steam"
-    assert_button "Stand down"
+    click_steam_sign_in
+    assert_signed_in
     assert_equal "Gabe the Brave", @player.reload.persona_name
 
     click_on "Library"
@@ -46,8 +46,8 @@ class PublicProfileTest < ApplicationSystemTestCase
     assert_selector ".shelf .tome .tome__complete", text: "Complete"
     take_screenshot
 
-    click_on "Stand down"
-    assert_button "Enlist through Steam"
+    sign_out
+    assert_signed_out
     visit brother_path(locale: :en, token: @player.token)
 
     assert_selector "h1", text: "Gabe the Brave"

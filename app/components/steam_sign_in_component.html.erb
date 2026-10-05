@@ -1,0 +1,1 @@
+<%= button_to "/auth/steam", method: :post, params: { origin: @origin }, class: "steam-sign-in__button", form_class: "steam-sign-in", form: { data: { turbo: false } } do %><%= image_tag helpers.vite_asset_path(IMAGE), alt: t("shell.steam_sign_in.alt"), width: 180, height: 35, class: "steam-sign-in__image" %><% end %>

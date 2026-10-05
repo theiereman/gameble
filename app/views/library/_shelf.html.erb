@@ -17,7 +17,7 @@
 <% mark_complete = local_assigns.fetch(:mark_complete, false) %>
 <div class="library__room">
   <% if spines.nil? %>
-    <%= render TextPlateComponent.new(tag: :p) do %><%= t("library.show.no_season") %><% end %>
+    <%= render PanelComponent.new(tag: :p) do %><%= t("library.show.no_season") %><% end %>
   <% else %>
     <nav class="library__tabs" aria-label="<%= t("library.show.tabs.label") %>">
       <% tabs.each do |tab| %>
@@ -27,7 +27,7 @@
     </nav>
 
     <% if spines.empty? %>
-      <%= render TextPlateComponent.new(tag: :p) do %>
+      <%= render PanelComponent.new(tag: :p) do %>
         <%= pagy.count.zero? ? t("library.show.empty.#{kind}") : t("library.show.past_the_end") %>
       <% end %>
     <% else %>

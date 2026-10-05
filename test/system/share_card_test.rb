@@ -31,8 +31,8 @@ class ShareCardTest < ApplicationSystemTestCase
   def sign_in(player)
     OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
     visit home_path(locale: :en)
-    click_on "Enlist through Steam"
-    assert_button "Stand down"
+    click_steam_sign_in
+    assert_signed_in
   end
 
   # The clipboard as a secure page sees it, recording what is written.
@@ -77,8 +77,8 @@ class ShareCardTest < ApplicationSystemTestCase
     assert_match %r{\Ahttp://[^/]+/en/cards/portal/seasons/1\z}, url
     take_screenshot
 
-    click_on "Stand down"
-    assert_button "Enlist through Steam"
+    sign_out
+    assert_signed_out
     visit url
 
     assert_title "Portal — Amethyst"
@@ -94,7 +94,7 @@ class ShareCardTest < ApplicationSystemTestCase
     OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{newcomer.steam_id}")
     within(".card-detail__invitation") { click_on "Claim them through Steam" }
 
-    assert_button "Stand down"
+    assert_signed_in
     assert_current_path "/en"
     assert_selector "#attic-heading", visible: :all
   end
@@ -127,7 +127,7 @@ class ShareCardTest < ApplicationSystemTestCase
     click_on "Share this card"
     assert_selector ".card-detail__share [role=status]", text: "Link copied"
 
-    click_on "Back to the attic"
+    click_on "Bridge"
     assert_current_path "/en"
     go_back
 

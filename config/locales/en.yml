@@ -3,16 +3,39 @@
 en:
   layouts:
     application:
-      title: "gameble · The Grand Gamblers' Brotherhood"
+      title: "gameble"
       application_name: "gameble"
-      status_band:
-        label: "Brotherhood status"
-        gauge: "Weekly goal"
-        counters: "Packs and cards"
-        sign_in: "Enlist through Steam"
-        sign_out: "Stand down"
-        back_office: "Back-office"
-        back: "Back to the attic"
+  shell:
+    top_bar:
+      brand: "gameble"
+      back: "Bridge"
+    rarity:
+      label: "Rarities"
+      legend: "Rarities"
+    packs:
+      label: "Boosters"
+      next_in: "+1 in"
+      next_at: "Next booster at %{time} (UTC)"
+      full: "Reserve full"
+    player:
+      menu: "Player menu"
+      fallback_name: "Player"
+      profile: "My public profile"
+      back_office: "Back-office"
+      sign_out: "Sign out"
+    tabs:
+      label: "Main navigation"
+      hub: "Bridge"
+      booster: "Booster"
+      collection: "Collection"
+      trades: "Trades"
+      more: "More"
+      soon: "coming soon"
+    toast:
+      region: "Notifications"
+      close: "Close"
+    steam_sign_in:
+      alt: "Sign in through Steam (opens Steam)"
   pages:
     home:
       heading: "The attic of the Brotherhood"

@@ -69,7 +69,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".open-tome__slots .card.card--small.card--face", 3
     assert_select ".open-tome__copies[aria-hidden=true] + .visually-hidden", "2 copies"
     assert_select ".slot .slot__missing", { count: 22, text: "Missing card" }
-    assert_select ".status-band > a.button--secondary[href='/en']", "Back to the attic"
+    assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
     assert_select "a.library__back[href=?]", "/en/library?kind=tome", "Back to the shelf"
     # Every face and empty slot leads to its card's detail in this season;
     # "×n" stays outside the link.
@@ -214,19 +214,21 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a player's request costs nine queries, a visitor's six" do
+  test "a player's request costs thirteen queries, a visitor's six" do
     season = publish_sets_draft
     player = accounts_players(:player)
     hold(player, set_members(season, "action-1").first, 1)
     sign_in(player)
 
     # Player lookup, published season, set slots, card views, quantities,
-    # shelf count, shelf page, totals, progress.
-    assert_request_queries(9) { get library_set_path(locale: :en, kind: "tome", key: "action-1") }
+    # shelf count, shelf page, totals, progress, and the top bar's four (bank
+    # count, next pack, daily claim, copies per tier).
+    assert_request_queries(13) { get library_set_path(locale: :en, kind: "tome", key: "action-1") }
     assert_response :success
 
     delete session_path(locale: :en)
-    # The same without the lookup, the progress and the quantities.
+    # The same without the lookup, the progress, the quantities and the top
+    # bar's.
     assert_request_queries(6) { get library_set_path(locale: :en, kind: "tome", key: "action-1") }
     assert_response :success
   end

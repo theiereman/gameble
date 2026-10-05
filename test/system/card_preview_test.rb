@@ -30,8 +30,8 @@ class CardPreviewTest < ApplicationSystemTestCase
     administrator = accounts_players(:administrator)
     OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{administrator.steam_id}")
     visit home_path(locale: :en)
-    click_on "Enlist through Steam"
-    assert_button "Stand down"
+    click_steam_sign_in
+    assert_signed_in
   end
 
   teardown do
@@ -131,7 +131,7 @@ class CardPreviewTest < ApplicationSystemTestCase
     art = "[data-pair=steel-face-small][data-renderer=server] .card__art"
     # A stale mark and a hidden canvas, as the snapshot Turbo caches on leaving.
     page.execute_script("const art = document.querySelector(#{art.to_json}); art.dataset.art = 'stale'; art.querySelector('canvas').hidden = true")
-    click_on "Back to the attic"
+    click_on "Bridge"
     assert_selector ".attic"
 
     page.go_back

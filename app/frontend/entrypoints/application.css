@@ -1,74 +1,12 @@
 /* Application stylesheet, served by Vite. Values come from the tokens, never raw (AD-16). */
 @import "../styles/tokens.css";
 @import "../styles/fonts.css";
+@import "../styles/shell.css";
 @import "../styles/attic.css";
 @import "../styles/library.css";
 @import "../styles/card-detail.css";
 @import "../styles/card.css";
 @import "../styles/reveal.css";
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  border-radius: var(--rounded);
-}
-
-body {
-  margin: 0;
-  background: var(--color-bg);
-  color: var(--color-ink);
-  font-family: var(--font-family-body);
-  font-weight: var(--font-weight-body);
-  font-size: var(--font-size-body);
-  line-height: var(--line-height-body);
-}
-
-h1 {
-  margin: 0 0 var(--space-4);
-  font-family: var(--font-family-title);
-  font-weight: var(--font-weight-title);
-  font-size: var(--font-size-title);
-}
-
-/* Accessibility floor: a visible ink focus outline on everything focusable. */
-:focus-visible {
-  outline: var(--space-unit) solid var(--color-ink);
-  outline-offset: var(--space-unit);
-}
-
-/* Status band: gauge at top left, counters at top right; filled by later stories. */
-.status-band {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-5);
-  padding: var(--space-3) var(--space-5);
-  background: var(--color-surface);
-  border-bottom: var(--space-unit) solid var(--color-ink);
-}
-
-.status-band__gauge,
-.status-band__counters {
-  min-height: var(--space-7);
-}
-
-.status-band__gauge {
-  flex: 1 1 auto;
-}
-
-.status-band__counters {
-  flex: 0 1 auto;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.main {
-  padding: var(--space-6) var(--space-5);
-}
 
 /* Read by screen readers, not shown. */
 .visually-hidden {
@@ -84,114 +22,25 @@ h1 {
   margin-top: var(--space-5);
 }
 
-/* Text plate (DESIGN.md: Other components). */
-.text-plate {
-  margin: 0;
-  padding: var(--plate-padding-y) var(--plate-padding-x);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  border: var(--space-unit) solid var(--color-ink);
-}
-
-/* Buttons: primary on rust, secondary on parchment; ink border, hard shadow. */
-.button {
-  display: inline-block;
-  margin: 0 var(--space-3) var(--space-3) 0;
-  padding: var(--plate-padding-y) var(--plate-padding-x);
-  border: var(--space-unit) solid var(--color-ink);
-  box-shadow: var(--shadow-hard);
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
-  line-height: var(--line-height-body);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.button:active {
-  box-shadow: none;
-  transform: translate(var(--space-unit), var(--space-unit));
-}
-
-.button--primary {
-  background: var(--color-accent);
-  color: var(--color-on-accent);
-}
-
-.button--secondary {
-  background: var(--color-surface);
-  color: var(--color-ink);
-}
-
-/* A button that cannot act now (an empty chest): no shadow, no press. */
-.button:disabled {
-  box-shadow: none;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.button:disabled:active {
-  transform: none;
-}
-
-/* A one-button form (sign-in, sign-out) sits inline like a link button. */
-.button-form {
-  display: inline-block;
-  margin: 0;
-}
-
-.status-band > .button,
-.status-band__counters .button {
-  margin: 0;
-}
-
-/* Flash messages, between the status band and the main region. */
-.flash {
-  padding: var(--space-3) var(--space-5) 0;
-}
-
-.flash__message {
-  margin: 0;
-  padding: var(--plate-padding-y) var(--plate-padding-x);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  border: var(--space-unit) solid var(--color-ink);
-}
-
-.flash__message--alert {
-  border-color: var(--color-danger);
-}
-
-.flash__message--notice {
-  border-color: var(--color-success);
-}
-
-h2 {
-  margin: 0 0 var(--space-3);
-  font-family: var(--font-family-title);
-  font-weight: var(--font-weight-title);
-  font-size: var(--font-size-body);
-}
-
 /* Back-office ledgers: a table of records and the fields of one record, on
-   parchment, ink-ruled. */
+   a panel, ruled with lines. */
 .ledger {
   border-collapse: collapse;
-  background: var(--color-surface);
-  border: var(--space-unit) solid var(--color-ink);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
 }
 
 .ledger th,
 .ledger td {
   padding: var(--space-3) var(--space-4);
-  border-bottom: var(--space-unit) solid var(--color-ink);
+  border-bottom: var(--space-unit) solid var(--color-line-soft);
   text-align: left;
 }
 
 .ledger th {
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-muted);
 }
 
 .ledger-entry {
@@ -199,15 +48,15 @@ h2 {
   grid-template-columns: max-content 1fr;
   gap: var(--space-3) var(--space-5);
   margin: 0;
-  padding: var(--plate-padding-y) var(--plate-padding-x);
-  background: var(--color-surface);
-  border: var(--space-unit) solid var(--color-ink);
+  padding: var(--space-panel-padding);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
 }
 
 .ledger-entry dt {
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-muted);
 }
 
 .ledger-entry dd {
@@ -216,10 +65,11 @@ h2 {
 
 .ledger-errors {
   margin: 0;
-  padding: var(--plate-padding-y) var(--plate-padding-x);
+  padding: var(--space-panel-padding);
   list-style: none;
-  background: var(--color-surface);
-  border: var(--space-unit) solid var(--color-danger);
+  background: var(--color-panel);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-alert);
+  color: var(--color-alert);
   overflow-wrap: anywhere;
 }
 
@@ -227,7 +77,7 @@ h2 {
 .card-preview {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--space-6);
+  gap: var(--space-7);
 }
 
 .card-preview__cards {
@@ -242,9 +92,9 @@ h2 {
 
 .card-preview__label {
   margin-bottom: var(--space-3);
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-muted);
 }
 
 /* The cards of an opened pack, face up: every visit after the reveal. */

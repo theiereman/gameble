@@ -25,8 +25,8 @@ class LibraryTest < ApplicationSystemTestCase
 
   test "a player walks from the lectern to the library, its tabs and back to the attic" do
     visit home_path(locale: :en)
-    click_on "Enlist through Steam"
-    assert_button "Stand down"
+    click_steam_sign_in
+    assert_signed_in
 
     click_on "Library"
 
@@ -47,7 +47,7 @@ class LibraryTest < ApplicationSystemTestCase
     assert_selector ".shelf .tome", count: 3
     assert_selector ".shelf .tome", match: :first, text: "Best rated of 2015"
 
-    click_on "Back to the attic"
+    click_on "Bridge"
     assert_current_path home_path(locale: :en)
   end
 

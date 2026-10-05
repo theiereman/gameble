@@ -3,7 +3,7 @@
 <div class="stack">
   <h1><%= t(".heading") %></h1>
 
-  <%= render TextPlateComponent.new(tag: :p) do %>
+  <%= render PanelComponent.new(tag: :p) do %>
     <%= t(".intro") %>
   <% end %>
 
@@ -12,7 +12,7 @@
   </p>
 
   <% if @import_runs.empty? %>
-    <%= render TextPlateComponent.new(tag: :p) do %>
+    <%= render PanelComponent.new(tag: :p) do %>
       <%= t(".empty") %>
     <% end %>
   <% else %>

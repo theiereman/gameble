@@ -26,9 +26,12 @@ module BackOffice
 
         assert_response :success
         assert_select "h1", "Le back-office de la Confrérie"
-        assert_select "main .text-plate", "Rien n'attend encore les officiers. Les registres sont vierges."
-        assert_select ".status-band > a.button--secondary:first-child[href='/fr']", "Retour au grenier"
+        assert_select "main .panel", "Rien n'attend encore les officiers. Les registres sont vierges."
+        assert_select ".top-bar__start > a.button--secondary:first-child[href='/fr']", "Pont"
         assert_select "a[href='/fr/back-office']", false
+        assert_select "body.is-back-office"
+        assert_select "#atmosphere", false
+        assert_select ".tab-bar", false
       end
     end
 
@@ -38,7 +41,7 @@ module BackOffice
       get back_office_path(locale: :en)
 
       assert_select "h1", "The Brotherhood's back-office"
-      assert_select ".status-band > a.button--secondary[href='/en']", "Back to the attic"
+      assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
     end
 
     test "a player is refused the back-office with 403" do

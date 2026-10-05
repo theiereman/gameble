@@ -1,0 +1,938 @@
+/*
+ * The shell (AD-28; DESIGN.md: Chrome, Primitives, Layout & Spacing,
+ * Elevation & Depth; EXPERIENCE.md: Motion): base, focus ring, top bar,
+ * phone tab bar, atmosphere layers, toasts, buttons, panels, page widths,
+ * screen-change transitions and the back-office variant.
+ *
+ * Breakpoints (CSS px of the viewport): phone under 720, narrow under 900,
+ * three columns from 1180. Text sizes in rem, art pixels in px.
+ */
+
+/* ---- Base ---- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-radius: var(--rounded);
+}
+
+html {
+  background: var(--color-backdrop);
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-ground);
+  color: var(--color-text);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+h1 {
+  margin: 0 0 var(--space-4);
+  color: var(--color-text-max);
+  font: var(--font-screen-title);
+  letter-spacing: var(--tracking-screen-title);
+}
+
+h2 {
+  margin: 0 0 var(--space-3);
+  color: var(--color-text-bright);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+}
+
+a {
+  color: var(--color-accent);
+}
+
+/* Accessibility floor (DESIGN.md, Focus ring): a white ring 3px out, the
+   gap filled with the outline colour, on everything focusable. */
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  box-shadow: var(--focus-ring-gap);
+}
+
+.pixel-icon {
+  display: inline-block;
+  flex: none;
+  vertical-align: middle;
+  image-rendering: pixelated;
+}
+
+/* ---- Page widths ---- */
+
+.main {
+  position: relative;
+  z-index: 1;
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: var(--space-content-max);
+  margin: 0 auto;
+  padding: var(--space-page-padding-wide);
+  view-transition-name: screen;
+}
+
+/* ---- Atmosphere: stars, scanlines and vignette, under everything ---- */
+
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.atmosphere__stars,
+.atmosphere__scanlines,
+.atmosphere__vignette {
+  position: absolute;
+  inset: 0;
+}
+
+/* One tile wider than the screen, so a shift of up to a tile never shows
+   an edge (starfield_controller.ts). */
+.atmosphere__stars {
+  right: auto;
+  width: calc(100% + 480px);
+  background: url("../images/pixel/starfield.svg") repeat;
+  transform: translateX(var(--star-shift, 0px));
+}
+
+.atmosphere__stars.is-shifting {
+  transition: transform 1.1s var(--ease-out);
+}
+
+.atmosphere__scanlines {
+  background: var(--scanlines);
+}
+
+.atmosphere__vignette {
+  box-shadow: var(--vignette-desktop);
+}
+
+/* ---- Top bar ---- */
+
+.top-bar {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  background: var(--color-steam-bar);
+  box-shadow: var(--top-bar-rule);
+}
+
+.top-bar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  max-width: var(--space-content-max);
+  min-height: var(--topbar-height);
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-gutter-desktop);
+}
+
+.top-bar__start,
+.top-bar__end {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.top-bar__end {
+  justify-content: flex-end;
+}
+
+.top-bar__start .button,
+.top-bar__end .button,
+.top-bar__end .button-form {
+  margin: 0;
+}
+
+.top-bar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-screen-title);
+  letter-spacing: var(--tracking-screen-title);
+  text-transform: uppercase;
+}
+
+.top-bar__logo {
+  width: 24px;
+  height: 24px;
+}
+
+.top-bar__title {
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text-max);
+  font: var(--font-screen-title);
+  letter-spacing: var(--tracking-screen-title);
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The rarity counter: a sunken box of five icons and counts. */
+.rarity-counter__button,
+.packs-chip,
+.player-chip__button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--space-chip-height);
+  margin: 0;
+  padding: var(--space-1) var(--space-4);
+  border: 0;
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.rarity-counter__button,
+.player-chip__button {
+  cursor: pointer;
+}
+
+.rarity-counter__button:hover,
+.player-chip__button:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.rarity-counter__button:focus-visible,
+.player-chip__button:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.rarity-counter__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.rarity-counter__count,
+.packs-chip__count {
+  color: var(--color-text-max);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The packs chip: canister, reserve, divider, countdown. */
+.packs-chip__label,
+.packs-chip__next {
+  color: var(--color-muted);
+}
+
+.packs-chip__divider {
+  align-self: stretch;
+  width: var(--space-unit);
+  margin: var(--space-1) 0;
+  background: var(--color-line);
+}
+
+.packs-chip__next--full {
+  color: var(--color-alert);
+}
+
+.packs-chip__clock {
+  color: var(--color-text-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The player chip: the avatar outlined, the name, a steady lime dot. */
+.player-chip__avatar {
+  width: 32px;
+  height: 32px;
+  box-shadow: var(--pixel-outline-3);
+}
+
+.player-chip__button {
+  padding-left: var(--space-2);
+  font: var(--font-menu);
+  letter-spacing: var(--tracking-menu);
+  text-transform: none;
+}
+
+.player-chip__name {
+  max-width: 16ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-chip__dot {
+  width: 8px;
+  height: 8px;
+  background: var(--color-lime);
+}
+
+/* The legend and the player menu: native popovers under the top bar, at
+   the right edge of the content. */
+.shell-popover {
+  position: fixed;
+  inset: auto;
+  top: calc(var(--topbar-height) + var(--space-3));
+  right: max(var(--space-gutter-phone), calc((100vw - var(--space-content-max)) / 2 + var(--space-gutter-desktop)));
+  min-width: 220px;
+  max-width: calc(100vw - 2 * var(--space-gutter-phone));
+  margin: 0;
+  padding: var(--space-panel-padding);
+  border: 0;
+  background: var(--color-panel);
+  box-shadow: var(--panel-border), var(--overlay-shadow);
+  color: var(--color-text);
+}
+
+.shell-popover__title {
+  margin: 0 0 var(--space-3);
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.rarity-legend__list,
+.player-menu__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rarity-legend__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--space-chip-height);
+  padding: 0 var(--space-3);
+  background: var(--color-panel-raised);
+}
+
+.rarity-legend__name {
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.rarity-legend__row--1 .rarity-legend__name { color: var(--color-rarity-commune); }
+.rarity-legend__row--2 .rarity-legend__name { color: var(--color-rarity-peu-commune); }
+.rarity-legend__row--3 .rarity-legend__name { color: var(--color-rarity-rare); }
+.rarity-legend__row--4 .rarity-legend__name { color: var(--color-rarity-epique); }
+.rarity-legend__row--5 .rarity-legend__name { color: var(--color-rarity-legendaire); }
+
+.rarity-legend__count {
+  color: var(--color-text-max);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+  font-variant-numeric: tabular-nums;
+}
+
+.player-menu__form {
+  margin: 0;
+}
+
+.player-menu__item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--space-touch-min);
+  padding: 0 var(--space-4);
+  border: 0;
+  background: var(--color-panel);
+  box-shadow: var(--control-border);
+  color: var(--color-text-bright);
+  font: var(--font-menu);
+  letter-spacing: var(--tracking-menu);
+  text-align: left;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.player-menu__item:hover {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.player-menu__item:active {
+  background: var(--color-accent-press);
+  color: var(--color-on-accent);
+}
+
+.player-menu__item:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+/* The official Steam image, untouched, in a 44px hit area. */
+.steam-sign-in {
+  display: inline-flex;
+  margin: 0;
+}
+
+.steam-sign-in__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--space-touch-min);
+  padding: 0 var(--space-1);
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.steam-sign-in__image {
+  display: block;
+  width: 180px;
+  height: 35px;
+}
+
+/* ---- Phone tab bar ---- */
+
+.tab-bar {
+  display: none;
+}
+
+.tab-bar__list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  max-width: var(--space-phone-column-max);
+  height: var(--tabbar-height);
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.tab-bar__item {
+  display: flex;
+}
+
+.tab-bar__tab {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: var(--space-touch-min);
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.tab-bar__icon {
+  width: 22px;
+  height: 22px;
+}
+
+.tab-bar__label {
+  /* No tracking, so "COLLECTION" fits a 72px tab at 360px. */
+  max-width: 100%;
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab-bar__tab[aria-current="page"] {
+  background: var(--color-panel-raised);
+  color: var(--color-accent);
+  box-shadow: inset 0 3px 0 0 var(--color-accent);
+}
+
+.tab-bar__tab[aria-disabled="true"] {
+  opacity: 0.4;
+}
+
+.tab-bar__tab:focus-visible {
+  outline-offset: calc(-1 * (var(--focus-ring-width) + var(--focus-ring-offset)));
+  box-shadow: inset 0 0 0 calc(var(--focus-ring-width) + var(--focus-ring-offset)) var(--color-outline);
+}
+
+/* ---- Toasts ---- */
+
+.toasts {
+  position: fixed;
+  left: 50%;
+  bottom: var(--space-7);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: min(440px, calc(100vw - 2 * var(--space-gutter-phone)));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-5);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border), var(--overlay-shadow);
+  pointer-events: auto;
+  animation: toast-rise 250ms var(--ease-out);
+}
+
+.toast__light {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: var(--space-3);
+  background: var(--color-accent);
+}
+
+.toast--alert .toast__light {
+  background: var(--color-alert);
+}
+
+.toast__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.toast--alert .toast__title {
+  color: var(--color-alert);
+}
+
+.toast__message {
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+  overflow-wrap: anywhere;
+}
+
+.toast__close {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  color: var(--color-text-bright);
+  cursor: pointer;
+}
+
+.toast__close:hover {
+  color: var(--color-alert);
+}
+
+.toast__close:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+@keyframes toast-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+/* ---- Buttons (DESIGN.md, Buttons) ---- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: var(--space-button-height);
+  margin: 0 var(--space-3) var(--space-3) 0;
+  padding: var(--space-2) var(--space-5);
+  border: 0;
+  background: var(--color-line);
+  box-shadow: var(--pixel-outline-3), var(--button-inset);
+  color: var(--color-text-bright);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 120ms var(--step-small);
+}
+
+.button--small {
+  min-height: var(--space-button-height-sm);
+  padding: var(--space-1) var(--space-4);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+}
+
+.button:hover {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  transform: translateY(-3px);
+}
+
+.button:active {
+  box-shadow: var(--pixel-outline-3), var(--button-inset-pressed);
+  transform: translateY(2px);
+}
+
+.button:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--button-inset);
+}
+
+.button--primary {
+  background: var(--color-primary);
+  color: var(--color-on-lime);
+}
+
+.button--primary:hover {
+  background: var(--color-primary-hover);
+  color: var(--color-on-lime);
+}
+
+.button--danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+
+.button--danger:hover {
+  background: var(--color-alert);
+  color: var(--color-on-alert);
+}
+
+/* A link: muted Silkscreen, accent with a pixel arrow on hover. */
+.button--link {
+  min-height: var(--space-touch-min);
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--color-muted);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+}
+
+.button--link::after {
+  content: "";
+  width: 6px;
+  height: 10px;
+  background: currentColor;
+  mask: url("../images/pixel/arrow-small-right.svg") no-repeat center / contain;
+  visibility: hidden;
+}
+
+.button--link:hover {
+  background: none;
+  color: var(--color-accent);
+  transform: none;
+}
+
+.button--link:hover::after {
+  visibility: visible;
+}
+
+.button--link:active {
+  box-shadow: none;
+  transform: none;
+}
+
+.button--link:focus-visible {
+  box-shadow: var(--focus-ring-gap);
+}
+
+/* Disabled: greyed, no lift, no press; its reason is written beside it. */
+.button:disabled,
+.button[aria-disabled="true"] {
+  background: var(--color-disabled-bg);
+  box-shadow: var(--pixel-outline-3);
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.button--link:disabled {
+  background: none;
+  box-shadow: none;
+}
+
+/* A one-button form (sign-out, the chest) sits inline like a link button. */
+.button-form {
+  display: inline-block;
+  margin: 0;
+}
+
+/* ---- Panels (DESIGN.md, Panels and terminal details) ---- */
+
+.panel {
+  position: relative;
+  margin: 0;
+  padding: var(--space-panel-padding);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+  color: var(--color-text);
+}
+
+.panel--quiet {
+  background: var(--color-panel-sunken);
+  box-shadow: var(--panel-soft-border);
+}
+
+/* Two accent L-shapes, top left and bottom right, outside the panel. */
+.panel--brackets::before,
+.panel--brackets::after {
+  content: "";
+  position: absolute;
+  width: var(--corner-brackets-size);
+  height: var(--corner-brackets-size);
+  border: 0 solid var(--color-accent);
+  pointer-events: none;
+}
+
+.panel--brackets::before {
+  top: var(--corner-brackets-offset);
+  left: var(--corner-brackets-offset);
+  border-top-width: var(--corner-brackets-stroke);
+  border-left-width: var(--corner-brackets-stroke);
+}
+
+.panel--brackets::after {
+  right: var(--corner-brackets-offset);
+  bottom: var(--corner-brackets-offset);
+  border-right-width: var(--corner-brackets-stroke);
+  border-bottom-width: var(--corner-brackets-stroke);
+}
+
+/* ---- Screen changes (EXPERIENCE.md, Motion): the old screen slides 32px
+   away and fades in 170ms; the new one slides in from 48px in 260ms, 40ms
+   later. The bars and the atmosphere do not move. ---- */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-old(screen) {
+  animation: screen-out 170ms var(--ease-out) both;
+}
+
+::view-transition-new(screen) {
+  animation: screen-in 260ms var(--ease-out) 40ms both;
+}
+
+/* A visit to the page already shown is no screen change. */
+html[data-screen-change="same"]::view-transition-old(screen),
+html[data-screen-change="same"]::view-transition-new(screen) {
+  animation: none;
+}
+
+@keyframes screen-out {
+  to {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateX(48px);
+  }
+}
+
+/* ---- Widths and breakpoints ---- */
+
+@media (max-width: 1179px) {
+  .main {
+    padding: var(--space-page-padding-medium);
+  }
+
+  /* The packs chip drops its divider and countdown (still in its text). */
+  .packs-chip__divider {
+    display: none;
+  }
+
+  .packs-chip__next {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 899px) {
+  /* Labels give way to their values, which keep them in their names. */
+  .packs-chip__label,
+  .player-chip__name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* The phone: one portrait column of at most 480px, the tab bar fixed at
+   the bottom with the safe area, toasts at the top. */
+@media (max-width: 719px) {
+  html {
+    scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .main {
+    max-width: var(--space-phone-column-max);
+    padding: var(--space-page-padding-phone);
+    padding-bottom: calc(var(--space-7) + var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .top-bar__inner {
+    max-width: var(--space-phone-column-max);
+    padding: var(--space-2) var(--space-gutter-phone);
+    padding-top: max(var(--space-2), env(safe-area-inset-top, 0px));
+    gap: var(--space-3);
+  }
+
+  .top-bar__brand,
+  .top-bar__title {
+    font: var(--font-screen-title-phone);
+    letter-spacing: var(--tracking-screen-title-phone);
+  }
+
+  .rarity-counter {
+    display: none;
+  }
+
+  .button {
+    min-height: var(--space-button-height-phone);
+  }
+
+  .button--small {
+    min-height: var(--space-button-height-sm-phone);
+  }
+
+  .rarity-counter__button,
+  .packs-chip,
+  .player-chip__button {
+    min-height: var(--space-chip-height-touch);
+  }
+
+  .toast__close {
+    width: var(--space-touch-min);
+    height: var(--space-touch-min);
+  }
+
+  .atmosphere__vignette {
+    box-shadow: var(--vignette-phone);
+  }
+
+  .tab-bar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    display: block;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--color-steam-bar);
+    box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line);
+  }
+
+  .toasts {
+    top: max(var(--space-3), env(safe-area-inset-top, 0px));
+    bottom: auto;
+  }
+
+  .toast {
+    animation-name: toast-drop;
+  }
+}
+
+@keyframes toast-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+}
+
+/* ---- Reduced motion (EXPERIENCE.md): the system's preference or the
+   player's setting (html[data-motion=reduced], motion.ts) stops the star
+   shift, the screen slides and the toast rise. ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .atmosphere__stars.is-shifting,
+  .button {
+    transition: none;
+  }
+
+  .toast {
+    animation: none;
+  }
+
+  .button:hover,
+  .button:active {
+    transform: none;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+html[data-motion="reduced"] .atmosphere__stars.is-shifting,
+html[data-motion="reduced"] .button {
+  transition: none;
+}
+
+html[data-motion="reduced"] .toast {
+  animation: none;
+}
+
+html[data-motion="reduced"] .button:hover,
+html[data-motion="reduced"] .button:active {
+  transform: none;
+}
+
+html[data-motion="reduced"]::view-transition-group(*),
+html[data-motion="reduced"]::view-transition-old(*),
+html[data-motion="reduced"]::view-transition-new(*) {
+  animation: none !important;
+}
+
+/* ---- Back-office: the tokens and the top bar, nothing else ---- */
+
+.is-back-office .main {
+  view-transition-name: none;
+}

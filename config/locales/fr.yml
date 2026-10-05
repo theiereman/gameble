@@ -3,16 +3,39 @@
 fr:
   layouts:
     application:
-      title: "gameble · La Grande Confrérie des Gamblers"
+      title: "gameble"
       application_name: "gameble"
-      status_band:
-        label: "État de la Confrérie"
-        gauge: "Objectif de la semaine"
-        counters: "Paquets et cartes"
-        sign_in: "S'enrôler via Steam"
-        sign_out: "Quitter les rangs"
-        back_office: "Back-office"
-        back: "Retour au grenier"
+  shell:
+    top_bar:
+      brand: "gameble"
+      back: "Pont"
+    rarity:
+      label: "Raretés"
+      legend: "Raretés"
+    packs:
+      label: "Boosters"
+      next_in: "+1 dans"
+      next_at: "Prochain booster à %{time} (UTC)"
+      full: "Réserve pleine"
+    player:
+      menu: "Menu du joueur"
+      fallback_name: "Joueur"
+      profile: "Mon profil public"
+      back_office: "Back-office"
+      sign_out: "Se déconnecter"
+    tabs:
+      label: "Navigation principale"
+      hub: "Pont"
+      booster: "Booster"
+      collection: "Collection"
+      trades: "Échanges"
+      more: "Plus"
+      soon: "bientôt disponible"
+    toast:
+      region: "Notifications"
+      close: "Fermer"
+    steam_sign_in:
+      alt: "Se connecter via Steam (ouvre Steam)"
   pages:
     home:
       heading: "Le grenier de la Confrérie"
@@ -367,7 +390,7 @@ fr:
   # Number formats (number_with_delimiter, number_with_precision,
   # number_to_percentage). Defined here so test and production render the
   # same (production falls back to en). The delimiter is a no-break space
-  # (U+00A0): Jost has no narrow no-break space (U+202F).
+  # (U+00A0), as DESIGN.md groups digits ("31 420").
   number:
     format:
       separator: ","

@@ -2,7 +2,11 @@
 <html lang="<%= I18n.locale %>">
   <head>
     <title><%= content_for(:title) || t(".title") %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="#171a21">
+    <%# Screen changes are View Transitions (AD-27); CSS drops their
+        animation under reduced motion. %>
+    <meta name="view-transition" content="same-origin">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="<%= t(".application_name") %>">
     <meta name="mobile-web-app-capable" content="yes">
@@ -18,43 +22,30 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
+    <%# The pixel fonts' latin files, before the stylesheet asks for them. %>
+    <% %w[pixelify-sans-latin-600 pixelify-sans-latin-700 silkscreen-latin-400 vt323-latin-400].each do |font| %>
+      <%= tag.link rel: "preload", href: vite_asset_path("fonts/#{font}-normal.woff2"), as: "font", type: "font/woff2", crossorigin: "anonymous" %>
+    <% end %>
+
     <%= vite_client_tag %>
     <%= vite_react_refresh_tag %>
     <%= vite_stylesheet_tag "application.css" %>
     <%= vite_typescript_tag "application" %>
   </head>
 
-  <body>
-    <header class="status-band" aria-label="<%= t(".status_band.label") %>">
-      <% if content_for?(:back_button) %>
-        <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t(".status_band.back") %><% end %>
-      <% end %>
-      <section class="status-band__gauge" aria-label="<%= t(".status_band.gauge") %>"></section>
-      <section class="status-band__counters" aria-label="<%= t(".status_band.counters") %>">
-        <% if policy([ :back_office, :dashboard ]).show? && !current_page?(back_office_path) %>
-          <%= render ButtonComponent.new(variant: :secondary, href: back_office_path) do %><%= t(".status_band.back_office") %><% end %>
-        <% end %>
-        <% if current_player %>
-          <%= render ButtonComponent.new(variant: :secondary, href: session_path, method: :delete) do %><%= t(".status_band.sign_out") %><% end %>
-        <% else %>
-          <%= render ButtonComponent.new(variant: :primary, href: "/auth/steam", method: :post, params: { origin: request.path }, turbo: false) do %><%= t(".status_band.sign_in") %><% end %>
-        <% end %>
-      </section>
-    </header>
+  <%# The shell (AD-28; DESIGN.md, Chrome): atmosphere under everything, the
+      top bar, the page, the phone tab bar and the toasts. The back-office
+      keeps the tokens and the top bar only. %>
+  <body class="<%= "is-back-office" if back_office_page? %>">
+    <%= render "shell/atmosphere" unless back_office_page? %>
+    <%= render "shell/top_bar" %>
+    <%= yield :ticker if content_for?(:ticker) %>
 
-    <%# Only these two are messages; the flash carries other data, such as
-        the pack to reveal, that never reaches the page. %>
-    <% messages = flash.to_hash.slice("notice", "alert").compact_blank %>
-    <% if messages.any? %>
-      <div class="flash" role="status">
-        <% messages.each do |type, message| %>
-          <p class="flash__message flash__message--<%= type %>"><%= message %></p>
-        <% end %>
-      </div>
-    <% end %>
-
-    <main class="main">
+    <main id="main" class="main">
       <%= yield %>
     </main>
+
+    <%= render "shell/tab_bar" unless back_office_page? %>
+    <%= render "shell/toasts" %>
   </body>
 </html>

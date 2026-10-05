@@ -1,0 +1,20 @@
+<%# The player chip (DESIGN.md, Player chip): avatar, name and the online
+    dot. Until Profil et paramètres exists it opens a small menu (a native
+    popover): the player's public profile, the back-office for staff, and
+    signing out. %>
+<div class="player-chip">
+  <button type="button" class="player-chip__button" popovertarget="player-menu">
+    <%= pixel_icon("avatar-default", class: "player-chip__avatar") %>
+    <span class="player-chip__name"><%= Accounts::PersonaName.clean(player.persona_name) || t("shell.player.fallback_name") %></span>
+    <span class="player-chip__dot" aria-hidden="true"></span>
+  </button>
+  <nav id="player-menu" class="player-menu shell-popover" popover aria-label="<%= t("shell.player.menu") %>">
+    <ul class="player-menu__list">
+      <li><%= link_to t("shell.player.profile"), brother_path(token: player.token), class: "player-menu__item", data: { turbo_prefetch: false } %></li>
+      <% if policy([ :back_office, :dashboard ]).show? && !current_page?(back_office_path) %>
+        <li><%= link_to t("shell.player.back_office"), back_office_path, class: "player-menu__item" %></li>
+      <% end %>
+      <li><%= button_to t("shell.player.sign_out"), session_path, method: :delete, class: "player-menu__item", form_class: "player-menu__form" %></li>
+    </ul>
+  </nav>
+</div>

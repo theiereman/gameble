@@ -13,7 +13,7 @@
   set_url: ->(set) { library_set_path(kind: set.kind, key: set.key) } %>
 <% unless current_player %>
   <section class="card-detail__invitation" aria-label="<%= t(".invitation") %>">
-    <%= render TextPlateComponent.new(tag: :p) do %><%= t(".invitation") %><% end %>
+    <%= render PanelComponent.new(tag: :p) do %><%= t(".invitation") %><% end %>
     <%# Signing in from here lands in the attic, where the packs wait. %>
     <%= render ButtonComponent.new(href: "/auth/steam", method: :post, params: { origin: home_path }, turbo: false) do %><%= t(".sign_in") %><% end %>
   </section>

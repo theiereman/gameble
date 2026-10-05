@@ -41,17 +41,15 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".attic__object--chest .attic__chest-action button", 1
   end
 
-  test "the French shell renders in French with the status band above the main region" do
+  test "the French shell renders in French with the top bar above the main region" do
     get home_path(locale: :fr)
 
     assert_response :success
     assert_select "html[lang=fr]"
-    assert_select "title", "gameble · La Grande Confrérie des Gamblers"
+    assert_select "title", "gameble"
     assert_select "h1", "Le grenier de la Confrérie"
-    assert_select "body > header.status-band + main"
-    assert_select "header.status-band[aria-label=?]", "État de la Confrérie"
-    assert_select "section[aria-label=?]", "Objectif de la semaine"
-    assert_select "section[aria-label=?]", "Paquets et cartes"
+    assert_select "body > header.top-bar + main#main"
+    assert_select "nav.tab-bar[aria-label=?]", "Navigation principale"
   end
 
   test "the English shell renders in English and loads its Vite assets" do
@@ -59,9 +57,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "html[lang=en]"
-    assert_select "title", "gameble · The Grand Gamblers' Brotherhood"
+    assert_select "title", "gameble"
     assert_select "h1", "The attic of the Brotherhood"
-    assert_select "body > header.status-band + main"
+    assert_select "body > header.top-bar + main#main"
     assert_select "script[type=module][src^='/vite-test/assets/application-'][src$='.js']"
     assert_select "link[rel=stylesheet][href^='/vite-test/assets/application-'][href$='.css']"
   end
@@ -72,9 +70,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_attic_room(:fr)
     assert_select ".attic__invitation", "Enrôle-toi via Steam, Confrère, et le coffre s'ouvrira pour toi."
-    assert_select ".status-band__counters form[action='/auth/steam'] input[name=origin][value='/fr']"
+    assert_select ".top-bar__end form.steam-sign-in[action='/auth/steam'] input[name=origin][value='/fr']"
     assert_select "a[href='/fr/back-office']", false
-    assert_select ".status-band > a.button", false
+    assert_select ".top-bar__start a.button", false
   end
 
   test "a player sees the attic without the invitation, with the sign-out button and no back-office link" do
@@ -85,8 +83,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_attic_room(:en)
     assert_select ".attic__invitation", false
-    assert_select ".status-band__counters form[action^='/session']"
-    assert_select ".status-band__counters form[action='/auth/steam']", false
+    assert_select "#player-menu form[action^='/session']"
+    assert_select ".top-bar form[action='/auth/steam']", false
     assert_select "a[href='/en/back-office']", false
   end
 
@@ -101,12 +99,12 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   [ :moderator, :administrator ].each do |role|
-    test "a #{role} sees the back-office link in the status band, in the current locale" do
+    test "a #{role} sees the back-office link in the player menu, in the current locale" do
       sign_in(accounts_players(role))
 
       get home_path(locale: :fr)
 
-      assert_select ".status-band__counters a.button--secondary[href='/fr/back-office']", "Back-office"
+      assert_select "#player-menu a.player-menu__item[href='/fr/back-office']", "Back-office"
     end
   end
 

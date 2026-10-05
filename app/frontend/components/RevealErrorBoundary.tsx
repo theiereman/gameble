@@ -18,7 +18,7 @@ export default class RevealErrorBoundary extends Component<Props, { failed: bool
     if (!this.state.failed) return this.props.children
     return (
       <div className="pack-reveal pack-reveal--failed" role="alert">
-        <p className="text-plate">{this.props.strings.failed}</p>
+        <p className="panel">{this.props.strings.failed}</p>
         <div className="pack-end">
           <a className="button button--secondary" href={window.location.pathname}>
             {this.props.strings.reload}

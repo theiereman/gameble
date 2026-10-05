@@ -23,11 +23,16 @@ const BUSY_RETRY_MS = 250
 // A refresh would cancel a form submission in flight (the chest's "Open a
 // pack"), so none starts from a submission's start until the next page
 // load, or until the submission ends without one.
+//
+// With `refresh` false (the top bar's packs chip), the clock stops at 00:00
+// and the page is never refreshed: another countdown, or the next visit,
+// brings the new value.
 export default class extends Controller<HTMLElement> {
-  static values = { seconds: Number }
+  static values = { seconds: Number, refresh: { type: Boolean, default: true } }
   static targets = ["clock"]
 
   declare readonly secondsValue: number
+  declare readonly refreshValue: boolean
   declare readonly clockTarget: HTMLElement
 
   private deadline?: number
@@ -76,6 +81,11 @@ export default class extends Controller<HTMLElement> {
   private tick(): void {
     window.clearTimeout(this.timer)
     const left = (this.deadline ?? 0) - performance.now()
+    if (!this.refreshValue && left <= 0) {
+      // Stopped; a new value morphed in starts it again.
+      this.clockTarget.textContent = "00:00"
+      return
+    }
     if (left <= -1000) {
       if (this.submitting) {
         this.schedule(BUSY_RETRY_MS)

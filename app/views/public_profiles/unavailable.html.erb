@@ -6,5 +6,5 @@
     cannot be told from a missing player. %>
 <section class="profile-unavailable" aria-labelledby="profile-unavailable-heading">
   <h1 id="profile-unavailable-heading"><%= t(".title") %></h1>
-  <%= render TextPlateComponent.new(tag: :p) do %><%= t(".body") %><% end %>
+  <%= render PanelComponent.new(tag: :p) do %><%= t(".body") %><% end %>
 </section>

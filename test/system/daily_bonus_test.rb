@@ -17,8 +17,8 @@ class DailyBonusTest < ApplicationSystemTestCase
   test "a player takes the daily bonus from the attic" do
     Game::FillBank.new.call(player: @player).value!
     visit home_path(locale: :en)
-    click_on "Enlist through Steam"
-    assert_button "Stand down"
+    click_steam_sign_in
+    assert_signed_in
     assert_button "Open a pack (10)"
     take_screenshot
 

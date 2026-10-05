@@ -85,7 +85,7 @@
             confirm: t(".abandon_confirm")) do %><%= t(".abandon") %><% end %>
     </p>
   <% elsif @abandon_refusal == :cards_written %>
-    <%= render TextPlateComponent.new(tag: :p) do %>
+    <%= render PanelComponent.new(tag: :p) do %>
       <%= t(".cards_written_note") %>
     <% end %>
   <% end %>

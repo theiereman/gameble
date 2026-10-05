@@ -70,4 +70,56 @@ class ButtonComponentTest < ViewComponent::TestCase
   test "an unknown variant is refused" do
     assert_raises(ArgumentError) { ButtonComponent.new(variant: :tertiary) }
   end
+
+  test "the danger and link variants" do
+    render_inline(ButtonComponent.new(variant: :danger)) { "Delete" }
+    assert_selector "button.button.button--danger", text: "Delete"
+
+    render_inline(ButtonComponent.new(variant: :link, href: "/en/feed")) { "See all" }
+    assert_selector "a.button.button--link[href='/en/feed']", text: "See all"
+  end
+
+  test "the default stays primary" do
+    render_inline(ButtonComponent.new) { "Open" }
+
+    assert_selector "button.button--primary"
+  end
+
+  test "a small button" do
+    render_inline(ButtonComponent.new(variant: :secondary, size: :small, href: "/en")) { "Back" }
+
+    assert_selector "a.button.button--secondary.button--small[href='/en']"
+  end
+
+  test "an unknown size is refused" do
+    assert_raises(ArgumentError) { ButtonComponent.new(size: :huge) }
+  end
+
+  test "an icon comes before the label, hidden from assistive technology" do
+    render_inline(ButtonComponent.new(variant: :secondary, href: "/en", icon: "arrow-left")) { "Bridge" }
+
+    assert_selector "a.button > svg.pixel-icon.button__icon[aria-hidden=true][focusable=false]:first-child + span.button__label", text: "Bridge"
+    assert_equal "Bridge", page.find("a.button").text.strip
+  end
+
+  test "an icon in a form button and a plain button" do
+    render_inline(ButtonComponent.new(href: "/session", method: :delete, icon: "close")) { "Leave" }
+    assert_selector "form button.button svg.pixel-icon + span.button__label", text: "Leave"
+
+    render_inline(ButtonComponent.new(icon: "check")) { "Done" }
+    assert_selector "button.button svg.pixel-icon + span.button__label", text: "Done"
+  end
+
+  test "a disabled button is always a plain disabled button, never a link or a form" do
+    render_inline(ButtonComponent.new(href: "/en/packs", method: :post, disabled: true)) { "Open" }
+    assert_selector "button.button.button--primary[type=button][disabled]", text: "Open"
+    assert_no_selector "form"
+
+    render_inline(ButtonComponent.new(variant: :secondary, href: "/en", disabled: true)) { "Back" }
+    assert_selector "button.button--secondary[type=button][disabled]", text: "Back"
+    assert_no_selector "a"
+
+    render_inline(ButtonComponent.new(type: :submit, disabled: true)) { "Send" }
+    assert_selector "button[type=button][disabled]"
+  end
 end

@@ -67,7 +67,7 @@
     <% bonus_panel = @bank.present? ? @bank[:bonus_collectable] : @season_published %>
     <% if bonus_panel %>
       <section class="attic__bonus" aria-labelledby="attic-bonus-heading">
-        <%= render TextPlateComponent.new do %>
+        <%= render PanelComponent.new do %>
           <h2 id="attic-bonus-heading" class="attic__bonus-heading"><%= t(".bonus.heading") %></h2>
           <p class="attic__bonus-text"><%= t(".bonus.text") %></p>
         <% end %>
@@ -81,7 +81,7 @@
 
     <% unless current_player %>
       <div class="attic__invitation">
-        <%= render TextPlateComponent.new(tag: :p) do %>
+        <%= render PanelComponent.new(tag: :p) do %>
           <%= t(".invitation") %>
         <% end %>
       </div>

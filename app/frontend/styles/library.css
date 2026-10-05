@@ -1,10 +1,9 @@
 /*
- * The library (DESIGN.md: a decorated room; composition from
- * mockups/key-screens.html, library()): a panelled wall of brass wood, the
- * tabs of the three kinds of sets on parchment, the tomes standing on a
- * dark wooden shelf in leather bindings, and the page links below; an open
- * tome beside the shelf, its slots filled with cards or left empty. Hard
- * edges and ink shadows on the 2px grid.
+ * The library of the first direction, recoloured to the space-terminal
+ * tokens until the collection screen replaces it: a panelled wall, the tabs
+ * of the three kinds of sets, the tomes standing on a shelf, and the page
+ * links below; an open tome beside the shelf, its slots filled with cards or
+ * left empty. Hard edges and pixel outlines on the 2px grid.
  */
 
 .library {
@@ -25,15 +24,15 @@
   flex-direction: column;
   gap: var(--space-4);
   padding: var(--space-5);
-  border: var(--space-unit) solid var(--color-ink);
-  box-shadow: var(--shadow-hard);
+  border: var(--space-unit) solid var(--color-line);
+  box-shadow: var(--pixel-outline-3);
   background:
-    linear-gradient(var(--color-brass-dark) 0 0) bottom / 100% var(--space-4) no-repeat,
-    repeating-linear-gradient(to right, var(--color-brass) 0 62px, var(--color-brass-dark) 62px 64px),
-    var(--color-brass);
+    linear-gradient(var(--color-panel-raised) 0 0) bottom / 100% var(--space-4) no-repeat,
+    repeating-linear-gradient(to right, var(--color-line) 0 62px, var(--color-panel-raised) 62px 64px),
+    var(--color-line);
 }
 
-/* Tabs: parchment plates, the open one in rust. */
+/* Tabs: panel plates, the open one in accent. */
 .library__tabs {
   display: flex;
   flex-wrap: wrap;
@@ -41,14 +40,13 @@
 }
 
 .library__tab {
-  padding: var(--plate-padding-y) var(--plate-padding-x);
-  border: var(--space-unit) solid var(--color-ink);
-  box-shadow: var(--shadow-hard);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
+  padding: var(--space-2) var(--space-4);
+  border: var(--space-unit) solid var(--color-line);
+  box-shadow: var(--pixel-outline-3);
+  background: var(--color-panel);
+  color: var(--color-text);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
   text-decoration: none;
 }
 
@@ -65,8 +63,8 @@
   margin: 0;
   padding: var(--space-3);
   list-style: none;
-  border: var(--space-unit) solid var(--color-ink);
-  background: var(--color-brass-dark);
+  border: var(--space-unit) solid var(--color-line);
+  background: var(--color-panel-raised);
 }
 
 /* A tome: a leather binding, its name and owned / total on it. */
@@ -85,21 +83,21 @@
   align-items: baseline;
   gap: var(--space-3);
   min-height: 44px;
-  padding: var(--plate-padding-y) var(--plate-padding-x);
-  border: var(--space-unit) solid var(--color-ink);
+  padding: var(--space-2) var(--space-4);
+  border: var(--space-unit) solid var(--color-line);
   border-bottom-width: calc(3 * var(--space-unit));
-  background: var(--color-leather);
-  color: var(--color-on-accent);
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
+  background: var(--color-line-soft);
+  color: var(--color-text);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
   text-decoration: none;
 }
 
-/* The open tome's spine, pulled out of the row in rust. */
+/* The open tome's spine, pulled out of the row in accent. */
 .tome[aria-current="page"] {
   background: var(--color-accent);
-  box-shadow: var(--shadow-hard);
+  color: var(--color-on-accent);
+  box-shadow: var(--pixel-outline-3);
   transform: translateX(var(--space-3));
 }
 
@@ -110,18 +108,18 @@
 .tome__complete {
   flex: none;
   padding: 0 var(--space-2);
-  border: var(--space-unit) solid var(--color-ink);
+  border: var(--space-unit) solid var(--color-line);
   background: var(--color-gold);
-  color: var(--color-ink);
+  color: var(--color-on-gold);
 }
 
 .tome__count {
   flex: none;
   padding: 0 var(--space-2);
-  background: var(--color-leather-dark);
+  background: var(--color-panel-sunken);
 }
 
-/* Pagy's page links, as small parchment plates. */
+/* Pagy's page links, as small panel plates. */
 .library .series-nav {
   display: flex;
   flex-wrap: wrap;
@@ -130,19 +128,18 @@
 
 .library .series-nav a {
   min-width: 32px;
-  padding: var(--plate-padding-y) var(--space-3);
-  border: var(--space-unit) solid var(--color-ink);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
+  padding: var(--space-2) var(--space-3);
+  border: var(--space-unit) solid var(--color-line);
+  background: var(--color-panel);
+  color: var(--color-text);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
   text-align: center;
   text-decoration: none;
 }
 
 .library .series-nav a[href] {
-  box-shadow: var(--shadow-hard);
+  box-shadow: var(--pixel-outline-3);
 }
 
 .library .series-nav a[aria-current="page"] {
@@ -151,7 +148,7 @@
 }
 
 .library .series-nav a[aria-disabled="true"]:not([aria-current]) {
-  color: var(--color-ink-muted);
+  color: var(--color-muted);
 }
 
 /* An open tome: the shelf on the left, the tome on the right; on a phone
@@ -177,26 +174,25 @@
 .library__back {
   display: none;
   align-self: flex-start;
-  padding: var(--plate-padding-y) var(--plate-padding-x);
-  border: var(--space-unit) solid var(--color-ink);
-  box-shadow: var(--shadow-hard);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
+  padding: var(--space-2) var(--space-4);
+  border: var(--space-unit) solid var(--color-line);
+  box-shadow: var(--pixel-outline-3);
+  background: var(--color-panel);
+  color: var(--color-text);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
   text-decoration: none;
 }
 
-/* The open tome: a parchment page holding its slots. */
+/* The open tome: a panel page holding its slots. */
 .open-tome {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
   padding: var(--space-5);
-  border: var(--space-unit) solid var(--color-ink);
-  box-shadow: var(--shadow-hard);
-  background: var(--color-surface);
+  border: var(--space-unit) solid var(--color-line);
+  box-shadow: var(--pixel-outline-3);
+  background: var(--color-panel);
 }
 
 .open-tome__header {
@@ -214,9 +210,8 @@
 
 .open-tome__progress {
   margin: 0;
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
 }
 
 .open-tome__slots {
@@ -234,19 +229,18 @@
   flex: none;
 }
 
-/* "×n" on an owned card's corner, a small rust plate. */
+/* "×n" on an owned card's corner, a small accent plate. */
 .open-tome__copies {
   position: absolute;
   top: calc(-1 * var(--space-3));
   right: calc(-1 * var(--space-3));
   padding: 0 var(--space-3);
-  border: var(--space-unit) solid var(--color-ink);
-  box-shadow: var(--shadow-hard);
+  border: var(--space-unit) solid var(--color-line);
+  box-shadow: var(--pixel-outline-3);
   background: var(--color-accent);
   color: var(--color-on-accent);
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
 }
 
 /* An empty slot (DESIGN.md, Empty slot): the small card's size, a dashed
@@ -260,10 +254,10 @@
   /* The small card's size (card.css), so empty slots line up with faces. */
   width: var(--card-small-width);
   height: var(--card-small-height);
-  padding: var(--plate-padding-y) var(--plate-padding-x);
-  border: var(--space-unit) dashed var(--color-ink-muted);
-  background: var(--color-surface-sunken);
-  color: var(--color-ink);
+  padding: var(--space-2) var(--space-4);
+  border: var(--space-unit) dashed var(--color-line-deep);
+  background: var(--color-panel-sunken);
+  color: var(--color-text);
   text-align: center;
 }
 
@@ -274,29 +268,28 @@
   -webkit-line-clamp: 2;
   line-clamp: 2;
   overflow-wrap: anywhere;
-  font-family: var(--font-family-card-title);
-  font-weight: var(--font-weight-card-title);
+  font-family: var(--font-family-pixelify);
+  font-weight: var(--font-weight-semibold);
 }
 
 .slot__year,
 .slot__missing {
-  color: var(--color-ink-muted);
-  font-size: var(--font-size-label);
+  color: var(--color-muted);
+  font: var(--font-body-small);
 }
 
 /* The way from the library to the player's public profile, and from a
-   profile's open tome back to it: parchment plates. */
+   profile's open tome back to it: panel plates. */
 .library__profile,
 .profile__owner {
   align-self: flex-start;
-  padding: var(--plate-padding-y) var(--plate-padding-x);
-  border: var(--space-unit) solid var(--color-ink);
-  box-shadow: var(--shadow-hard);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
+  padding: var(--space-2) var(--space-4);
+  border: var(--space-unit) solid var(--color-line);
+  box-shadow: var(--pixel-outline-3);
+  background: var(--color-panel);
+  color: var(--color-text);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
   text-decoration: none;
   overflow-wrap: anywhere;
 }
@@ -324,13 +317,12 @@
 }
 
 .profile__counts > li {
-  padding: var(--plate-padding-y) var(--plate-padding-x);
-  border: var(--space-unit) solid var(--color-ink);
-  box-shadow: var(--shadow-hard);
-  background: var(--color-surface);
-  font-family: var(--font-family-label);
-  font-weight: var(--font-weight-label);
-  font-size: var(--font-size-label);
+  padding: var(--space-2) var(--space-4);
+  border: var(--space-unit) solid var(--color-line);
+  box-shadow: var(--pixel-outline-3);
+  background: var(--color-panel);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
 }
 
 /* A profile that cannot be shown. */

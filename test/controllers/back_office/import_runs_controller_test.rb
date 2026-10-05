@@ -61,7 +61,7 @@ module BackOffice
       get back_office_import_runs_path(locale: :en)
 
       assert_select "table", false
-      assert_select ".text-plate", /No import has run yet/
+      assert_select "main .panel", /No import has run yet/
     end
 
     test "an administrator starts an import and lands on its page, which shows the app_list step and polls" do
@@ -463,7 +463,7 @@ module BackOffice
 
       assert_select "form[action$='/resume'] button", "Resume from where it stopped"
       assert_select "form[action$='/abandon']", false
-      assert_select ".text-plate", I18n.t("back_office.import_runs.show.cards_written_note", locale: :en)
+      assert_select "main .panel", I18n.t("back_office.import_runs.show.cards_written_note", locale: :en)
       assert_select "[data-import-run-cards-removed]", false, "counted only once the pass ends"
 
       post abandon_back_office_import_run_path(run, locale: :en)
@@ -481,7 +481,7 @@ module BackOffice
       { older => "not_latest", completed => "not_abandonable" }.each do |run, code|
         get back_office_import_run_path(run, locale: :en)
         assert_select "form[action$='/abandon']", false
-        assert_select ".text-plate", { text: I18n.t("back_office.import_runs.show.cards_written_note", locale: :en), count: 0 }
+        assert_select "main .panel", { text: I18n.t("back_office.import_runs.show.cards_written_note", locale: :en), count: 0 }
 
         post abandon_back_office_import_run_path(run, locale: :en)
 

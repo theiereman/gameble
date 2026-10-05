@@ -25,8 +25,8 @@ class TomeTest < ApplicationSystemTestCase
   def sign_in(player)
     OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
     visit home_path(locale: :en)
-    click_on "Enlist through Steam"
-    assert_button "Stand down"
+    click_steam_sign_in
+    assert_signed_in
   end
 
   test "a player opens a tome from the shelf: their cards face up, the missing ones named" do
@@ -56,7 +56,7 @@ class TomeTest < ApplicationSystemTestCase
     assert_selector "h1", text: "Action · Tome 2 · 2015"
     assert_selector ".open-tome__progress", text: "0 / 25"
 
-    click_on "Back to the attic"
+    click_on "Bridge"
     assert_current_path home_path(locale: :en)
   end
 
@@ -65,7 +65,7 @@ class TomeTest < ApplicationSystemTestCase
     Game::Holding.create!(player_id: accounts_players(:player).id, card_season_id: members(season, "p").first, quantity: 1)
 
     visit library_path(locale: :fr, kind: "publisher")
-    click_on "P"
+    find(".shelf a.tome .tome__name", exact_text: "P").click
 
     assert_selector "h1", text: "P"
     assert_selector ".open-tome__progress", text: "0 / 5"

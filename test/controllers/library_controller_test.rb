@@ -44,7 +44,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Tomes", open_tab
     assert_equal [ [ "Action · Tome 1", "3 / 25" ], [ "Action · Tome 2", "0 / 25" ], [ "Action · Tome 3", "0 / 25" ], [ "RPG · Tome 1", "0 / 44" ] ], spines
     assert_select ".tome .visually-hidden", "3 cards owned out of 25"
-    assert_select ".status-band > a.button--secondary[href='/en']", "Back to the attic"
+    assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
 
     get library_path(locale: :en, kind: "best_of_year")
 
@@ -132,7 +132,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".shelf", false
-    assert_select ".library__room p.text-plate", "No publisher has earned a set this season, Brother."
+    assert_select ".library__room p.panel", "No publisher has earned a set this season, Brother."
     assert_select ".series-nav", false
   end
 
@@ -183,13 +183,13 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en, page: 9)
     assert_response :success
     assert_equal 0, spines.size
-    assert_select ".library__room p.text-plate", "This shelf stands empty, Brother. The tomes end on an earlier one."
+    assert_select ".library__room p.panel", "This shelf stands empty, Brother. The tomes end on an earlier one."
     assert_select ".series-nav a[href='/en/library?page=3']", minimum: 1
 
     get library_path(locale: :en, page: "99999999999999999999")
     assert_response :success
     assert_equal 0, spines.size
-    assert_select ".library__room p.text-plate", "This shelf stands empty, Brother. The tomes end on an earlier one."
+    assert_select ".library__room p.panel", "This shelf stands empty, Brother. The tomes end on an earlier one."
 
     get library_path(locale: :en, page: "abc")
     assert_response :success
@@ -228,7 +228,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en)
 
     assert_response :success
-    assert_select ".library__room p.text-plate", "The shelves are bare, Brother: the Brotherhood has published no season of cards yet."
+    assert_select ".library__room p.panel", "The shelves are bare, Brother: the Brotherhood has published no season of cards yet."
     assert_select ".library__tabs", false
   end
 
@@ -276,15 +276,17 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".shelf a.tome[data-turbo-prefetch=false]", 1
   end
 
-  test "a player's request costs six queries, a visitor's four" do
+  test "a player's request costs ten queries, a visitor's four" do
     publish_sets_draft
     sign_in(accounts_players(:player))
 
-    # Player lookup, published season, Pagy count, set page, totals, progress.
-    assert_request_queries(6) { get library_path(locale: :en) }
+    # Player lookup, published season, Pagy count, set page, totals, progress,
+    # and the top bar's four (bank count, next pack, daily claim, copies per
+    # tier).
+    assert_request_queries(10) { get library_path(locale: :en) }
 
     delete session_path(locale: :en)
-    # The same without the lookup and the progress.
+    # The same without the lookup, the progress and the top bar's.
     assert_request_queries(4) { get library_path(locale: :en) }
   end
 end

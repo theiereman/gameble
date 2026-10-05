@@ -145,7 +145,7 @@ module BackOffice
       get back_office_seasons_path(locale: :en)
 
       assert_select "[data-preview-tier=gold]", "1"
-      assert_select ".text-plate", I18n.t("back_office.seasons.publish.import_active", locale: :en)
+      assert_select "main .panel", I18n.t("back_office.seasons.publish.import_active", locale: :en)
       assert_select "form[action$='/seasons/publish']"
     end
 

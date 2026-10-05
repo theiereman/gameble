@@ -57,7 +57,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Started", "Tomes", "Publishers", "Best rated of the year" ], css_select(".library__tab").map(&:text)
     assert_equal started.map { |key| [ label(season, key), "#{(set_members(season, key) & held).size} / #{set_members(season, key).size}" ] }, spines
     assert_includes spines, [ "P", "5 / 5" ]
-    assert_select ".status-band > a.button--secondary[href='/en']", "Back to the attic"
+    assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
     assert_select "a.library__profile", false
   end
 
@@ -149,7 +149,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".shelf", false
-    assert_select ".library__room p.text-plate", "No set started yet, Brother: this collection still awaits its first card."
+    assert_select ".library__room p.panel", "No set started yet, Brother: this collection still awaits its first card."
     assert_equal [ "0 cards collected", "0 sets complete" ], counts
   end
 
@@ -159,7 +159,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :en, token: @owner.token)
 
     assert_response :success
-    assert_select ".library__room p.text-plate", "The shelves are bare, Brother: the Brotherhood has published no season of cards yet."
+    assert_select ".library__room p.panel", "The shelves are bare, Brother: the Brotherhood has published no season of cards yet."
     assert_equal [ "0 cards collected", "0 sets complete" ], counts
   end
 
@@ -386,7 +386,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a visitor's profile costs seven queries, a signed-in viewer's one more" do
+  test "a visitor's profile costs seven queries, a signed-in viewer's five more" do
     season = publish_sets_draft
     hold(@owner, set_members(season, "p").first, 1)
 
@@ -397,12 +397,13 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".shelf .tome", minimum: 1
 
     sign_in(accounts_players(:moderator))
-    # The same, and the viewer's lookup.
-    assert_request_queries(8) { get brother_path(locale: :en, token: @owner.token) }
+    # The same, the viewer's lookup and the top bar's four (bank count, next
+    # pack, daily claim, copies per tier).
+    assert_request_queries(12) { get brother_path(locale: :en, token: @owner.token) }
     assert_response :success
   end
 
-  test "a visitor's profile tome costs nine queries, a signed-in viewer's one more" do
+  test "a visitor's profile tome costs nine queries, a signed-in viewer's five more" do
     season = publish_sets_draft
     hold(@owner, set_members(season, "action-1").first, 1)
 
@@ -412,7 +413,8 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     sign_in(accounts_players(:moderator))
-    assert_request_queries(10) { get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1", tab: "started") }
+    # The same, the viewer's lookup and the top bar's four.
+    assert_request_queries(14) { get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1", tab: "started") }
     assert_response :success
   end
 end

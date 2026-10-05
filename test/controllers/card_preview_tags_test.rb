@@ -58,12 +58,12 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select "h1", 1
     assert_select ".card-detail__copies", false
     assert_select ".card-detail__share", false
-    assert_select "main > .card-detail + .card-detail__invitation p.text-plate", "Ten packs wait in the attic, Brother. Open them, and the cards are yours."
+    assert_select "main > .card-detail + .card-detail__invitation p.panel", "Ten packs wait in the attic, Brother. Open them, and the cards are yours."
     assert_select ".card-detail__invitation form[action='/auth/steam'] button", "Claim them through Steam"
     assert_select ".library, .profile", false
     assert_not_includes response.body, "Gabe the Brave"
     assert_no_match(/collection of|No longer in/i, response.body)
-    assert_select ".status-band > a.button--secondary[href='/en']", "Back to the attic"
+    assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
   end
 
   test "the preview tags: title and rarity, a fixed line, the season URL, en_US, a summary card, no image" do

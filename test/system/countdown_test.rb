@@ -25,8 +25,8 @@ class CountdownTest < ApplicationSystemTestCase
     page.driver.browser.manage.window.resize_to(*PHONE)
     create_pack(@player)
     visit home_path(locale: :en)
-    click_on "Enlist through Steam"
-    assert_button "Stand down"
+    click_steam_sign_in
+    assert_signed_in
 
     create_pack(@player, available_at: 4.seconds.from_now)
     visit home_path(locale: :en)
@@ -43,8 +43,8 @@ class CountdownTest < ApplicationSystemTestCase
   test "a refresh that brings back the same countdown is tried again until the pack comes" do
     create_pack(@player)
     visit home_path(locale: :en)
-    click_on "Enlist through Steam"
-    assert_button "Stand down"
+    click_steam_sign_in
+    assert_signed_in
 
     # The server's clock stands still: every refresh answers 2 seconds left.
     travel_to(Time.current)
@@ -68,8 +68,8 @@ class CountdownTest < ApplicationSystemTestCase
   test "the refresh waits for a pack being opened, which reaches its result page" do
     create_pack(@player)
     visit home_path(locale: :en)
-    click_on "Enlist through Steam"
-    assert_button "Stand down"
+    click_steam_sign_in
+    assert_signed_in
 
     create_pack(@player, available_at: 2.seconds.from_now)
     visit home_path(locale: :en)

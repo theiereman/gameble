@@ -1,0 +1,8 @@
+<div class="toast toast--<%= @tone %>" data-toast-target="toast" data-turbo-temporary>
+  <span class="toast__light" aria-hidden="true"></span>
+  <div class="toast__body">
+    <% unless @title.nil? %><p class="toast__title" data-toast-part="title"><%= @title %></p><% end %>
+    <p class="toast__message" data-toast-part="message"><%= @message %></p>
+  </div>
+  <button type="button" class="toast__close" data-action="toast#close" aria-label="<%= t("shell.toast.close") %>"><%= helpers.pixel_icon("close") %></button>
+</div>
