@@ -177,6 +177,7 @@ class ShellTest < ApplicationSystemTestCase
   test "the daily bonus's notice, brought by the hub's refresh, leaves by itself" do
     player = accounts_players(:player)
     Game::FillBank.new.call(player:).value!
+    Game::OpenPack.new.call(player:).value!
     sign_in(player)
 
     within(".attic__bonus") { click_on "Take it" }

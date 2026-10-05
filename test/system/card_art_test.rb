@@ -37,8 +37,8 @@ class CardArtTest < ApplicationSystemTestCase
     administrator = accounts_players(:administrator)
     OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{administrator.steam_id}")
     visit home_path(locale: :en)
-    click_on "Enlist through Steam"
-    assert_button "Stand down"
+    click_steam_sign_in
+    assert_signed_in
     visit back_office_cards_path(locale: :en)
     assert_selector SAMPLE_CARD, visible: :all
   end
