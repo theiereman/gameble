@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Échelle de rareté</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&amp;family=Silkscreen:wght@400;700&amp;family=VT323&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0b0f15}
+@keyframes tcgHolo{0%{background-position:160% 0}100%{background-position:-60% 0}}
+@keyframes tcgFoil{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(-10px) rotate(1.2deg)}}
+@keyframes scan{0%{background-position:0 0}100%{background-position:0 6px}}
+@keyframes twinkle{0%,100%{opacity:.2}50%{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shadowPulse{0%,100%{transform:scaleX(1);opacity:.55}50%{transform:scaleX(.8);opacity:.3}}
+.scanlines{position:absolute;inset:0;pointer-events:none;z-index:60;background:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 1px,transparent 1px 3px);animation:scan .6s steps(3) infinite}
+.vignette{position:absolute;inset:0;pointer-events:none;z-index:59;box-shadow:inset 0 0 180px 30px rgba(0,0,0,.7)}
+.hazard{height:8px;background:repeating-linear-gradient(-45deg,#66c0f4 0 8px,#0e141b 8px 16px)}
+.hover-lift{transition:transform .3s cubic-bezier(.2,1.6,.4,1)}
+.hover-lift:hover{transform:translateY(-16px) rotate(-3deg) scale(1.05)}
+</style>
+</helmet>
+<div style="position:relative;width:1280px;height:720px;overflow:hidden;background:#0b0f15;font-family:'Silkscreen',monospace;color:#c7d5e0">
+<sc-for list="{{stars}}" as="s" hint-placeholder-count="20">
+<div style="position:absolute;left:{{s.x}};top:{{s.y}};width:{{s.z}};height:{{s.z}};background:#c7d5e0;animation:twinkle {{s.d}} steps(4) infinite"></div>
+</sc-for>
+<div style="position:absolute;left:120px;top:56px;width:1040px;display:flex;align-items:center;gap:24px">
+<div class="hazard" style="width:120px"></div>
+<div style="font-family:'Pixelify Sans',monospace;font-weight:700;font-size:40px;color:#ffffff;letter-spacing:1px">ÉCHELLE DE RARETÉ</div>
+<div class="hazard" style="flex:1"></div>
+</div>
+<div style="position:absolute;left:120px;top:110px;font-family:'VT323',monospace;font-size:22px;color:#8f98a0">Plus la carte est rare, plus elle prend vie.</div>
+<div style="position:absolute;left:120px;top:200px;width:1040px;display:flex;justify-content:space-between">
+<div style="display:flex;flex-direction:column;align-items:center">
+<div style="position:relative;width:200px;height:280px;animation:bob 3.2s ease-in-out infinite">
+<div class="hover-lift"><dc-import name="Card" item="{{cm}}" hint-size="200px,280px"></dc-import></div>
+</div>
+<div style="width:150px;height:8px;margin-top:22px;background:rgba(0,0,0,.6);animation:shadowPulse 3.2s ease-in-out infinite"></div>
+<div style="margin-top:22px;font-size:16px;letter-spacing:3px;color:#8f98a0">COMMUNE</div>
+<div style="margin-top:6px;font-family:'VT323',monospace;font-size:20px;color:#8f98a0">Taux : [TAUX] %</div>
+</div>
+<div style="display:flex;flex-direction:column;align-items:center">
+<div style="position:relative;width:200px;height:280px;animation:bob 3.2s ease-in-out infinite;animation-delay:-.8s">
+<div class="hover-lift"><dc-import name="Card" item="{{rr}}" hint-size="200px,280px"></dc-import></div>
+</div>
+<div style="width:150px;height:8px;margin-top:22px;background:rgba(0,0,0,.6);animation:shadowPulse 3.2s ease-in-out infinite;animation-delay:-.8s"></div>
+<div style="margin-top:22px;font-size:16px;letter-spacing:3px;color:#66c0f4">RARE</div>
+<div style="margin-top:6px;font-family:'VT323',monospace;font-size:20px;color:#8f98a0">Taux : [TAUX] %</div>
+</div>
+<div style="display:flex;flex-direction:column;align-items:center">
+<div style="position:relative;width:200px;height:280px;animation:bob 3.2s ease-in-out infinite;animation-delay:-1.6s">
+<div style="position:absolute;left:-90px;top:-50px;width:380px;height:380px;border-radius:50%;pointer-events:none;background:repeating-conic-gradient(rgba(180,124,255,.18) 0deg 10deg,transparent 10deg 20deg);animation:spin 30s steps(120) infinite;-webkit-mask-image:radial-gradient(circle,#000 25%,transparent 68%);mask-image:radial-gradient(circle,#000 25%,transparent 68%)"></div>
+<div class="hover-lift"><dc-import name="Card" item="{{ep}}" hint-size="200px,280px"></dc-import></div>
+</div>
+<div style="width:150px;height:8px;margin-top:22px;background:rgba(0,0,0,.6);animation:shadowPulse 3.2s ease-in-out infinite;animation-delay:-1.6s"></div>
+<div style="margin-top:22px;font-size:16px;letter-spacing:3px;color:#b47cff">ÉPIQUE</div>
+<div style="margin-top:6px;font-family:'VT323',monospace;font-size:20px;color:#8f98a0">Taux : [TAUX] %</div>
+</div>
+<div style="display:flex;flex-direction:column;align-items:center">
+<div style="position:relative;width:200px;height:280px;animation:bob 3.2s ease-in-out infinite;animation-delay:-2.4s">
+<div style="position:absolute;left:-110px;top:-70px;width:420px;height:420px;border-radius:50%;pointer-events:none;background:repeating-conic-gradient(rgba(244,197,66,.3) 0deg 8deg,transparent 8deg 16deg);animation:spin 14s steps(112) infinite;-webkit-mask-image:radial-gradient(circle,#000 25%,transparent 68%);mask-image:radial-gradient(circle,#000 25%,transparent 68%)"></div>
+<div class="hover-lift"><dc-import name="Card" item="{{lg}}" hint-size="200px,280px"></dc-import></div>
+</div>
+<div style="width:150px;height:8px;margin-top:22px;background:rgba(0,0,0,.6);animation:shadowPulse 3.2s ease-in-out infinite;animation-delay:-2.4s"></div>
+<div style="margin-top:22px;font-size:16px;letter-spacing:3px;color:#f4c542">LÉGENDAIRE</div>
+<div style="margin-top:6px;font-family:'VT323',monospace;font-size:20px;color:#8f98a0">Taux : [TAUX] %</div>
+</div>
+</div>
+<div class="vignette"></div>
+<div class="scanlines"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":720}}'>
+const STARS = (() => { let s = 23; const r = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; }; return Array.from({ length: 50 }, () => ({ x: Math.floor(r() * 1280) + 'px', y: Math.floor(r() * 720) + 'px', z: (r() > 0.82 ? 4 : 2) + 'px', d: (1.5 + r() * 3).toFixed(2) + 's' })); })();
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      stars: STARS,
+      cm: {name:'Moss & Lantern',genre:'INDÉ',cost:2,atk:2,hp:4,rarity:'common',pal:'forest',sprite:'tree',num:'#014/120',code:'▲◀▶',text:'Coup de cœur : +1 Hype si jouée en premier.'},
+      rr: {name:'Iron Fleet Tactics',genre:'STRATÉGIE',cost:5,atk:3,hp:7,rarity:'rare',pal:'night',sprite:'ship',num:'#072/120',code:'▼▼▲▶',text:'Tour par tour : +1 PV à vos cartes Stratégie.'},
+      ep: {name:'Neon Crypt',genre:'ROGUELITE',cost:3,atk:4,hp:3,rarity:'epic',pal:'crypt',sprite:'skull',num:'#031/120',code:'▲▲▼▶',text:'Mort permanente : à sa destruction, piochez 2 cartes.'},
+      lg: {name:'Gravebound',genre:'RPG',cost:6,atk:5,hp:6,rarity:'legend',pal:'dusk',sprite:'castle',num:'#007/120',code:'▲▶▼▶',text:'Quête épique : double ses stats après 3 tours.'}
+    };
+  }
+}
+</script>
+</body>
+</html>
