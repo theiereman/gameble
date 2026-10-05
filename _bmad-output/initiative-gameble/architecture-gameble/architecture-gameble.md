@@ -5,7 +5,7 @@ purpose: build-substrate
 altitude: initiative
 paradigm: 'modular monolith with an operations layer'
 scope: 'The gameble MVP as a whole: one Rails application, its four domain packs, its web layer, the Steam import and the deployment.'
-status: draft
+status: final
 created: '2026-10-02'
 updated: '2026-10-05'
 binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21]
