@@ -644,7 +644,7 @@ The Steam cover dominates. No stats, cost or effect text. Reference: [mockups/ke
 - **`card-xs`:** title and rarity line only `[ASSUMPTION]`, so nothing meaningful drops below 10px.
 - **Image missing:** a pixel picture icon and "IMAGE INDISPONIBLE" in the art box; frame, title and footer stay.
 - **Effects:** see Rarity effects.
-- The description, minted season, sets and copyright are not on the card; they live in the card detail.
+- The description, minted season and sets are not on the card; they live in the card detail. No copyright appears on the card or its detail; the ownership notice is on the legal page.
 
 #### Pixel filter
 
@@ -787,7 +787,7 @@ An overlay with the card at `card-xl`, its name and rarity line, "VOIR LA FICHE"
 - **Copy badge:** "x3" in a small accent box at a card's top-right, from x1 `[ASSUMPTION: as mocked]`. **NOUVEAU tag:** a small lime box at the top-left.
 - **Selected card:** a steady 3px accent frame around it.
 - **Missing-card slot:** the card shape with a dark hatched fill and a `{colors.line-deep}` border, a small pixel icon, the missing game's name (Pixelify Sans, muted) and its year. Nothing else.
-- **Card detail ("FICHE DE LA CARTE"):** a bracketed panel with the number at top right, the card at `card-l` with its effects, a ground shadow, rows of facts (label in muted Silkscreen left, value right, on `{colors.panel-sunken}`): title, publisher, rarity, genre, year, description, minted season, sets, copyright, copies owned. Buttons at the bottom: "VOIR SUR STEAM" (primary) and "PARTAGER". A card not owned shows the active card back at 55% opacity with its name and year. Phone: a sub-view with 44 × 64 CSS px ◀ ▶ buttons beside the card, a position line ("S1 · #4 215 · 3 / 13 · glissez pour parcourir") and actions pinned at the bottom.
+- **Card detail ("FICHE DE LA CARTE"):** a bracketed panel with the number at top right, the card at `card-l` with its effects, a ground shadow, rows of facts (label in muted Silkscreen left, value right, on `{colors.panel-sunken}`): title, publisher, rarity, genre, year, description, minted season, sets, copies owned. Buttons at the bottom: "VOIR SUR STEAM" (primary) and "PARTAGER". A card not owned shows the active card back at 55% opacity with its name and year. Phone: a sub-view with 44 × 64 CSS px ◀ ▶ buttons beside the card, a position line ("S1 · #4 215 · 3 / 13 · glissez pour parcourir") and actions pinned at the bottom.
 
 #### Trade board
 
@@ -835,7 +835,7 @@ No app chrome: a slim top bar with the logo and the official Steam sign-in image
 
 #### Legal page
 
-A plain panel page in the game's tokens: the notice that gameble is not affiliated with Steam or Valve, the terms of use and the privacy notice `[ASSUMPTION: layout]`.
+A plain panel page in the game's tokens: the notice that gameble is not affiliated with Steam or Valve, the ownership notice (« Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons. »), the terms of use and the privacy notice `[ASSUMPTION: layout]`.
 
 #### Back-office
 

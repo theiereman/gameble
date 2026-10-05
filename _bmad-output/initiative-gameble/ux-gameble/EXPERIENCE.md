@@ -41,7 +41,7 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 | Public profile | A player's link | A player's collection and set progress, per their visibility (spec CAP-8) `[ASSUMPTION: shown as the collection screen in read-only mode; not mocked]` |
 | Sign-in panel | Any game-styled action that needs an account | One title line and Valve's official Steam sign-in button |
 | Steam sign-in | The official image, wherever it appears | Create or reuse the account (Steam's own page) |
-| Legal page | "Mentions légales" in Profil et paramètres and the public page footer | No-affiliation notice, terms of use, privacy notice |
+| Legal page | "Mentions légales" in Profil et paramètres and the public page footer | No-affiliation notice, ownership notice ("Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."), terms of use, privacy notice |
 | Plus (phone only) | PLUS tab | PLUS rows: Amis, Fil d'activité, Succès, Profil et paramètres |
 | Back-office | Staff accounts only | Out of the redesign's scope: unchanged behavior (spec CAP-2, CAP-15), plain functional style, designed later |
 
@@ -169,7 +169,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 
 | Component | Behavioral rules |
 |---|---|
-| Card detail | Title, publisher, rarity, genre, year, short description, minted season, sets, copyright, copies owned. "VOIR SUR STEAM" opens the store page in a new tab (said in its accessible name). "PARTAGER" opens the share sheet; absent for a card not owned. Phone: ◀ ▶ buttons and swipe move to the previous or next card. |
+| Card detail | Title, publisher, rarity, genre, year, short description, minted season, sets, copies owned. "VOIR SUR STEAM" opens the store page in a new tab (said in its accessible name). "PARTAGER" opens the share sheet; absent for a card not owned. Phone: ◀ ▶ buttons and swipe move to the previous or next card. |
 | Missing-card slot | Shows the missing game's name and year; opens the card detail with the faded active card back. |
 | Copy badge / NOUVEAU tag | "x3" shows copies owned. "NOUVEAU" marks cards obtained since the player last saw them `[ASSUMPTION: cleared once seen]`. |
 | RAPPORT panel | Totals and copies per rarity. Folds on the phone; the fold toggle announces whether it is expanded. |

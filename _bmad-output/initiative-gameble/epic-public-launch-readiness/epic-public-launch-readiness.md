@@ -32,7 +32,7 @@ Completed at this epic's inception. The source lines are CAP-14 and CAP-15 of th
 2. A report on a username or profile appears in the back-office; a ban blocks the account's sign-in and hides its profile.
 3. Only staff accounts reach the back-office.
 4. A database backup has been restored successfully at least once.
-5. A legal page, reached from "Mentions légales" in the profile and the public page footer, holds the notice that gameble has no affiliation with Steam or Valve, the terms of use and the privacy notice.
+5. A legal page, reached from "Mentions légales" in the profile and the public page footer, holds the notice that gameble has no affiliation with Steam or Valve, the ownership notice (« Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons. »), the terms of use and the privacy notice; the card detail then drops its per-card notice (`card_details.notice`).
 6. Before the first deploy (from the epic 3 retrospective, 2026-10-03): a player without a bank gets one when they use the game, a failed bank fill is retried, the healed bank's schedule is decided, and races between bank operations of different stories (open, register, bonus, heal) are tested.
 7. The production Docker image is built in CI or as a pre-deploy check.
 

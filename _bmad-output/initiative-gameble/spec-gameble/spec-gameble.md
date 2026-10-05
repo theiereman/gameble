@@ -67,7 +67,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **success:**
     - The card face shows the title, publisher, cover, genre, release year, rarity (shape and name) and card number, and no stats.
     - The card number is the card's number within its season, without a total ("S1 · #4 215").
-    - The detail view shows the title, publisher, rarity, genre, release year, short description, minted season, sets, a notice that the game and its image belong to their owners, card number, copies owned, and a link to the game's Steam store page.
+    - The detail view shows the title, publisher, rarity, genre, release year, short description, minted season, sets, card number, copies owned, and a link to the game's Steam store page.
     - Card text appears in the player's UI language. The description appears only in the detail view, not on the card.
 - **CAP-8**
   - **intent:** Each player has a collection profile reachable by link, visible to whom they choose.
@@ -166,8 +166,8 @@ gameble is an open-source passion project, and the game its author wants to play
 - **Separable processes:** the web app, the catalog importer and background workers are parts of one modular monolith that can be deployed separately.
 - **Pack opening:** p95 latency < 200 ms.
 - **Catalog source:** the Steam Web API (keyed, batched), read only by offline import scripts that copy the data into gameble's database; the keyless store API is not used. Play never depends on a live Steam API call, and a card keeps its data if Steam changes or removes the game.
-- **Images:** loaded from Steam's CDN, never copied. In the browser, at display time, the vertical cover is cropped to the card's art box, pixelated at 2 CSS px per image pixel and reduced to about 32 colours, with no dithering. The publisher is shown with a notice that the game and its image belong to their owners. There is no fallback art.
-- **Legal:** the notice that gameble has no affiliation with Steam or Valve, the terms of use and the privacy notice live on a legal page reached from "Mentions légales" (profile and public page footer).
+- **Images:** loaded from Steam's CDN, never copied. In the browser, at display time, the vertical cover is cropped to the card's art box, pixelated at 2 CSS px per image pixel and reduced to about 32 colours, with no dithering. The publisher is shown on the card; the ownership notice is on the legal page. There is no fallback art.
+- **Legal:** the notice that gameble has no affiliation with Steam or Valve, the ownership notice (in substance: « Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons. »), the terms of use and the privacy notice live on a legal page reached from "Mentions légales" (profile and public page footer).
 - **Look and behaviour** follow `DESIGN.md` and `EXPERIENCE.md`. The back-office is outside them: plain functional style, behaviour unchanged, designed later.
 - **Reduced motion:** an in-app "Animations réduites" setting follows the system preference by default. When on, it also stops the LIVE ticker and every looping or blinking effect.
 - **Bots:** edge bot protection from day one; trades are limited to friends.
@@ -222,5 +222,4 @@ The author plays gameble every day for a month alongside at least 10 active play
 - **English copy (CAP-3, language constraint):** the English copy and the English tier names are not written yet. Who writes them before launch?
 - **Architecture conflict:** `architecture-gameble.md` predates the redesign (AD-17 reduces to 16 colours, tiers named steel to gold, a dust tier on the card-season record; no per-season number, card backs, invitations or presence). Until `bmad-architecture` absorbs `ux-gameble.md`, For the architecture, which prevails?
 - **Card genre (CAP-2, CAP-7):** the redesign shows "the game's first-listed Steam genre" on the card, but the import reads only `GetItems`, which has no genres (2026-10-03); tomes use the most-voted tag of a curated list instead. Is the card's genre that tome genre, and what does a game in no tome show?
-- **Ownership notice (CAP-7, legal constraint):** the redesign lists a "copyright" row in the card detail and moves the "no affiliation with Steam or Valve" notice to the legal page, while the import no longer reads a per-game legal notice and the built detail shows a generic owners' notice with the no-affiliation line on every card (2026-10-03). Which stays on the card?
 - **Repost and Friends tab in the UX (CAP-13, CAP-19):** `DESIGN.md` and `EXPERIENCE.md` do not cover the repost action or the feed's Friends tab yet.
