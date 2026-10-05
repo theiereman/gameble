@@ -7,7 +7,7 @@ Referenced by CAP-2, CAP-3, CAP-4, CAP-6, CAP-7.
 - One card per Steam app of type `game` that passes the filters.
 - **Card text:** a title and a short description. The title is Steam's single store name, the same in every language (Steam does not localize game names); the short description is stored in every language the UI supports, from Steam's own localized store text.
 - **Release date:** imported with each game. It gives the year shown on the card; it drives nothing else.
-- **Genre:** shown on the card. The redesign asked for the first-listed Steam store genre, but the Web API gives no genres; tomes use the most-voted tag of a curated list (see Sets). Which one the card shows is open (see the spec).
+- **Genre:** the genre of the game's tome (see Sets), shown on the card. The Web API gives no store genres, so the genre comes from the tags. A game in no tome shows no genre.
 - **Tags:** Steam store tags are imported with each game, with their vote weights, as English keys. Whether French labels are needed is open (see the spec).
 - **Card number:** each card has a number within its season, shown without a total ("S1 · #4 215"; digits grouped with a no-break space).
 - **Card face:** title, publisher, cover, genre, release year, rarity (shape and name) and card number. No stats, cost or effect text. Layout in `DESIGN.md`, Card face.
@@ -59,7 +59,7 @@ Referenced by CAP-2, CAP-3, CAP-4, CAP-6, CAP-7.
 A game can belong to several sets. Three kinds ship in the MVP:
 
 - **Publisher sets:** one set per publisher with at least 5 games in the catalog.
-- **Tomes:** each genre is split into volumes of about thirty games, ordered by release date. The genres are a curated list of about twenty Steam genre tags kept in code (e.g. FPS, platformer, puzzle, horror, roguelike, souls-like, racing, strategy, RPG, survival). A game sits in one tome, that of its most-voted tag in the list; a game with none of them sits in no tome.
+- **Tomes:** each genre is split into volumes of about thirty games, ordered by release date. The genres are a curated list of about twenty-five Steam genre tags kept in code (e.g. FPS, third-person shooter, platformer, puzzle, horror, roguelike, souls-like, stealth, rhythm, arcade, racing, strategy, RPG, survival). Broad tags (Action, Adventure, Casual, Indie) are not genres. A game sits in one tome, that of its most-voted tag in the list; a game with none of them sits in no tome.
 - **Best rated of the year:** for each release year, the 10 catalog games with the highest review score.
 
 Completing a set can unlock a card back (CAP-20). Sets built from Steam store tags come later.

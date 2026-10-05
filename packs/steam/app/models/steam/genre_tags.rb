@@ -31,7 +31,12 @@ module Steam
       3810 => "sandbox",
       3799 => "visual_novel",
       1698 => "point_and_click",
-      1666 => "card_game"
+      1666 => "card_game",
+      3814 => "third_person_shooter",
+      1687 => "stealth",
+      1752 => "rhythm",
+      4255 => "shoot_em_up",
+      1773 => "arcade"
     }.freeze
 
     # The genre keys of `tag_ids`, in their order: unlisted tagids dropped.

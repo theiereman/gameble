@@ -17,9 +17,9 @@ class Steam::GenreTagsTest < ActiveSupport::TestCase
     assert_equal [ "rpg" ], Steam::GenreTags.call([ 999_999, 122 ])
   end
 
-  test "the list holds 20 genres, each a valid set key" do
-    assert_equal 20, Steam::GenreTags::GENRES.size
-    assert_equal 20, Steam::GenreTags::GENRES.values.uniq.size
+  test "the list holds 25 genres, each a valid set key" do
+    assert_equal 25, Steam::GenreTags::GENRES.size
+    assert_equal 25, Steam::GenreTags::GENRES.values.uniq.size
     Steam::GenreTags::GENRES.each_value { |genre| assert_match Catalog::Set::KEY_FORMAT, genre }
   end
 
