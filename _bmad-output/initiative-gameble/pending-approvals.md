@@ -30,7 +30,6 @@ Operations set aside while the author was away (2026-10-02): each waits for an e
 
 The `ux-redesign` branch was merged into local `main` (`764baa2`); all checks pass (RuboCop, packwerk, i18n-tasks, Brakeman, typecheck, 60 JS tests, 1,014 Rails tests, 46 system tests). Decisions it leaves:
 
-- **Push `main`.** Local `main` is ahead of `origin/main` by the 58 earlier commits, the merge and the doc reconciliation. Push, then delete the remote `ux-redesign` branch if it is no longer needed.
 - **Card genre (spec open question).** The redesign shows "the game's first-listed Steam genre" on the card face and detail, but the import reads only `GetItems`, which has no genres (story 2.10). Options: show the tome genre (most-voted tag of the curated `Steam::GenreTags` list) and decide what a game in no tome shows, or bring back a genre source.
 - **Ownership notice (spec open question).** The redesign's card detail lists a "copyright" row and moves the "no affiliation with Steam or Valve" notice to a legal page; the import no longer reads a per-game legal notice and the built detail shows a generic owners' notice with the no-affiliation line on every card (story 2.10, still awaiting your wording above). The merged spec keeps the owners' notice on the card and the no-affiliation line on the legal page; confirm.
 - **Capability numbering.** The redesign named friends' presence CAP-19, already taken by the repost (2026-10-03, covered by epic 6); the merge keeps the repost as CAP-19, card backs as CAP-20 and moves presence to CAP-21. Confirm.
@@ -53,3 +52,4 @@ The `ux-redesign` branch was merged into local `main` (`764baa2`); all checks pa
 ## Settled on 2026-10-05
 
 - Superseded by the UX redesign (`DESIGN.md`, `EXPERIENCE.md`, final 2026-10-05), to apply when the reveal is rebuilt: the large card back size, tier cues on a dusty back (dust, rarity seal and wipe are dropped; one click reveals rarity and game together), the reveal's phone layout (phone pile with a tray; breakpoints 720 and 1180 px) and flip all on a phone ("Tout révéler").
+- `main` pushed with the UX redesign merge, and the remote `ux-redesign` branch deleted.
