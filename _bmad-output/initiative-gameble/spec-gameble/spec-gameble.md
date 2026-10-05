@@ -6,11 +6,11 @@ companions:
   - later-roadmap.md
   - ../ux-gameble/DESIGN.md
   - ../ux-gameble/EXPERIENCE.md
+  - ../ux-gameble/ux-gameble.md
   - ../architecture-gameble/architecture-gameble.md
 sources:
   - ../brief-gameble/brief-gameble.md
   - ../brief-gameble/addendum.md
-  - ../ux-gameble/ux-gameble.md
 ---
 
 > **Canonical contract.** This SPEC and the files in `companions:` are the complete, preservation-validated contract for what to build, test, and validate. Source documents listed in frontmatter are for traceability — consult them only if you need narrative rationale or prose color this contract intentionally omits.
@@ -27,29 +27,34 @@ gameble is an open-source passion project, and the game its author wants to play
 
 - **CAP-1**
   - **intent:** A visitor can sign in with their Steam account, and only that way, to get a player account.
-  - **success:** Steam sign-in creates the account or reuses the one tied to that Steam account. No other sign-in method exists, and gameble stores no password.
+  - **success:**
+    - Steam sign-in creates the account or reuses the one tied to that Steam account. No other sign-in method exists, and gameble stores no password.
+    - The only link to Steam's sign-in is Valve's official "Sign in through Steam" image, unmodified. A game-styled call to action that needs an account opens a sign-in panel holding one title line and that image.
+    - Signing in lands on the hub; signing out lands on the hub, signed out.
 - **CAP-2**
   - **intent:** The system builds a card catalog from the Steam catalog, keeping established games only.
-  - **success:** An import run produces cards that match the inclusion and exclusion rules in `catalog-and-rarity.md`, each with its title, short description, release date, store tags, sets and Steam image address, all stored in gameble's own database. An administrator starts an import by hand and can watch its progress.
+  - **success:** An import run produces cards that match the inclusion and exclusion rules in `catalog-and-rarity.md`, each with its title, short description, release date, genre, store tags, sets and Steam image address, all stored in gameble's own database. An administrator starts an import by hand and can watch its progress.
 - **CAP-3**
   - **intent:** Every card has a rarity that reflects the game's prestige, so a player can guess why a card is rare.
-  - **success:** Rarity is computed only from the game's Steam review score and review count, as specified in `catalog-and-rarity.md`. Metacritic is not used.
+  - **success:**
+    - Rarity is computed only from the game's Steam review score and review count, as specified in `catalog-and-rarity.md`. Metacritic is not used.
+    - The five tiers, from the most common, are Commune, Peu commune, Rare, Épique and Légendaire. Each shows with its name, colour and shape, never by colour alone.
 - **CAP-4**
   - **intent:** A player earns one free 5-card pack every 10 minutes, banking up to 10 unopened packs, and opens them one at a time.
   - **success:**
     - A new account starts with 10 packs banked.
     - Packs are opened one by one; there is no bulk opening.
     - Packs are drawn in advance on the server; opening only delivers them.
-    - A new player gets at least one sapphire or better by their 10th pack.
+    - No pack promises a rarity. The only guarantee: a new player gets a Rare or better by their 10th pack, with no visible sign.
     - Pack credit is computed server-side. Opening without a banked pack is refused, whatever the client does.
     - Packs accrue while the player is away, up to a cap of 10.
     - Draws pick a rarity tier first, then a card within it.
     - Opened cards are added to the player's collection, each copy carrying its minted rarity and season.
 - **CAP-5**
-  - **intent:** Opening a pack is a staged reveal with two surprises per card: its rarity, then the game.
+  - **intent:** Opening a pack is a staged reveal: the five cards are dealt face down, and each reveals its rarity and its game in one surprise.
   - **success:**
-    - The reveal behaves as specified in `EXPERIENCE.md` on desktop and mobile: dust by the age of the game, wipe to see the rarity seal, flip to see the game.
-    - "Flip all" never skips a legendary's reveal.
+    - The reveal behaves as specified in `EXPERIENCE.md` on desktop and mobile: a single click, tap or Enter reveals a card's rarity and game together. There is no dust, rarity seal or wipe.
+    - "Tout révéler" reveals the remaining cards, and a Légendaire still plays its full sequence.
     - The five cards join the collection when the pack is opened. Leaving in the middle of a reveal loses nothing and does not resume.
 - **CAP-6**
   - **intent:** A player can browse their collection by set, see their progress in each set, and see which cards are missing.
@@ -58,23 +63,33 @@ gameble is an open-source passion project, and the game its author wants to play
     - Each set shows owned / total distinct cards. A card in several sets counts in each. Duplicates are counted per card.
     - An empty slot names the missing game.
 - **CAP-7**
-  - **intent:** A player can open a card's detail view to see the game and its credits.
-  - **success:** The detail view shows the title, short description, release year, rarity, minted season, sets, publisher, a notice that the game and its image belong to their owners, and a link to the game's Steam store page. Card text appears in the player's UI language. The description appears only in this view, not on the card.
+  - **intent:** A player sees a card's face at a glance and can open its detail view to see the game and its credits.
+  - **success:**
+    - The card face shows the title, publisher, cover, genre, release year, rarity (shape and name) and card number, and no stats.
+    - The card number is the card's number within its season, without a total ("S1 · #4 215").
+    - The detail view shows the title, publisher, rarity, genre, release year, short description, minted season, sets, a notice that the game and its image belong to their owners, card number, copies owned, and a link to the game's Steam store page.
+    - Card text appears in the player's UI language. The description appears only in the detail view, not on the card.
 - **CAP-8**
-  - **intent:** Each player has a public collection profile reachable by link.
-  - **success:** A logged-out visitor opening the profile link sees that player's collection and set progress, titled with the player's Steam persona name, refreshed at each sign-in.
+  - **intent:** Each player has a collection profile reachable by link, visible to whom they choose.
+  - **success:**
+    - Visibility is public (the default), friends only, or private.
+    - Public: a logged-out visitor opening the profile link sees that player's collection and set progress.
+    - Friends only: only the player's friends see it. Private: nobody else sees it.
+    - The profile is titled with the player's Steam persona name, refreshed at each sign-in.
 - **CAP-9**
   - **intent:** A player can share a pull as a link that previews nicely on Discord, X and WhatsApp.
   - **success:** Pasting the link on each of the three platforms shows a preview with the card title and its rarity, and no image at all. The shared page shows the card only, never who shared or owns it.
 - **CAP-10**
   - **intent:** Players can become friends through an invite link or a friend code.
-  - **success:** Using a valid link or code creates a mutual friendship, visible to both players.
+  - **success:** A valid link or code sends an invitation. Once the other player accepts it, the friendship exists and is visible to both. They can also ignore it.
 - **CAP-11**
   - **intent:** Friends can trade cards directly and asynchronously, one or several cards on each side, with no currency.
   - **success:**
-    - The recipient can accept a proposal, decline it, or answer with a counter-proposal. A counter-proposal can be accepted, declined or countered in turn.
+    - A proposal holds an offer and a request, and is sent only when each side holds a card.
+    - At most 4 different cards per side. With several copies of a card, the player chooses how many to place: on their side, up to copies owned minus copies reserved in other trades; on the friend's side, up to what the friend owns.
+    - The recipient can accept a proposal, decline it, or answer with a counter-proposal that may change both sides. A counter-proposal can be accepted, declined or countered in turn.
     - Neither player needs to be connected at the same time as the other.
-    - The proposer can cancel it, and sets its expiry, up to 7 days.
+    - The proposer can cancel it. A proposal expires after a fixed 7 days.
     - A card placed in an open trade is reserved: it cannot be used elsewhere until the trade ends.
     - Two friends have at most one open trade at a time.
     - On acceptance, all cards swap owners atomically with their minted rarity and season.
@@ -94,7 +109,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - A signed-in player has a Friends tab showing only their friends' pulls, trades and reposts.
 - **CAP-14**
   - **intent:** A player can manage their personal data from their profile.
-  - **success:** From the profile, a player can delete their account, export their data, and hide their public profile. Each action works end to end.
+  - **success:** From the profile, a player can delete their account, export their data, and set their profile's visibility (public, friends only, private). Each action works end to end.
 - **CAP-15**
   - **intent:** Players can report a username or profile, and a moderator can review reports in a back-office and ban accounts.
   - **success:**
@@ -103,14 +118,17 @@ gameble is an open-source passion project, and the game its author wants to play
     - Only staff accounts can reach the back-office. Moderators review reports and ban; administrators also run the catalog import and publish a season.
 - **CAP-16**
   - **intent:** A player who comes back gets a daily bonus.
-  - **success:** Once a day, a player can collect one small booster of 3 cards with better odds than a normal pack (no common; emerald 70 %, sapphire 24 %, amethyst 5 %, legendary 1 %). A second collection the same day is refused, whatever the client does. The day changes at midnight UTC.
+  - **success:**
+    - Once a day, a player can collect one small booster of 3 cards with better odds than a normal pack (no Commune; Peu commune 70 %, Rare 24 %, Épique 5 %, Légendaire 1 %). It joins their bank.
+    - A second collection the same day is refused, whatever the client does. The day changes at midnight UTC.
+    - When the bank holds 10 packs, the claim stays disabled until a pack is opened; nothing is lost.
 - **CAP-17**
   - **intent:** A player has simple achievements that mark their progress.
   - **success:** An achievement is granted when its condition is met and shows as earned on the achievements screen.
 - **CAP-18**
   - **intent:** A visitor without an account can look at everything that needs no account, but cannot act.
   - **success:**
-    - Signed out, a visitor can open the attic, the feed, public profiles, card details and the sets with their empty slots.
+    - Signed out, a visitor can open the hub, the feed, public profiles, card details and the sets with their empty slots.
     - Opening a pack, trading and collecting the bonus are refused without an account and lead to Steam sign-in.
 - **CAP-19**
   - **intent:** A player can repost a card they own to the Brotherhood feed to show it off, so flexing a collection happens in gameble rather than on Discord.
@@ -119,27 +137,41 @@ gameble is an open-source passion project, and the game its author wants to play
     - A repost appears in the global feed and in the Friends tab of the player's friends.
     - Reposting a card the player does not own is refused, whatever the client does.
     - Feed events carry no reactions or comments.
+- **CAP-20**
+  - **intent:** A player earns card backs and chooses the one their face-down cards wear.
+  - **success:**
+    - Every account starts with the "Standard" card back.
+    - More are unlocked by completing a set, contributing to a successful weekly goal, some achievements, and events or seasons. A locked back states its unlock condition.
+    - The player picks one active back in the profile; it applies from the next pack opened.
+    - Only the player sees it: on their own face-down cards at opening, and faded on the detail of a card they do not own.
+    - The back catalogue is in `DESIGN.md`.
+- **CAP-21**
+  - **intent:** A player can see which of their friends are around.
+  - **success:** Friends see each other's status: online, current activity, or last seen. The friends menu item shows how many friends are online.
 
 ## Constraints
 
 - **No real money**, anywhere: no purchases, no ads, no cash-out.
 - **French and English UI**, both complete at launch. Card text is available in every UI language. All repo text (code, comments, docs) is in English.
 - **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports.
+- **Player-facing words:** the interface says "booster" for pack, "réserve" for bank and "objectif communautaire" for the weekly goal. The spec and the code keep pack, bank and weekly goal.
 - **Cards are only pulled or traded.** Owning a game on Steam never grants its card.
 - **Card copies:** a player can own several copies of a card. Copies are counted per card and season, so each keeps the rarity and season it was minted with, and a V2 market and V3 seasons need no migration.
 - **Forkable engine:** the game engine (packs, rarity tiers, collection, trades, goals, feed) is independent of the catalog source. Steam is one adapter.
 - **Open source.** Infrastructure components (queues, caches, streaming) are added only when measured load justifies them.
-- **Architecture:** the rules of `architecture-gameble.md` bind every build. The stack is Ruby on Rails and PostgreSQL, with React components embedded for the pack reveal and the trade board; versions and deployment are in that file.
+- **Architecture:** the rules of `architecture-gameble.md` bind every build. The stack is Ruby on Rails and PostgreSQL, with React components embedded for the pack reveal and the trade board; versions and deployment are in that file. It predates the 2026-10-05 redesign; see Open Questions.
 - **Stateless services:** several app instances can run in parallel. Pack credit and trades are transactional in PostgreSQL.
 - **Zero-downtime ready:** health checks, graceful shutdown, and backward-compatible (expand/contract) migrations.
 - **CI/CD ready:** one reproducible container image, run as web, jobs and import processes; configuration by environment variables only; automated tests in CI from day one.
 - **Separable processes:** the web app, the catalog importer and background workers are parts of one modular monolith that can be deployed separately.
 - **Pack opening:** p95 latency < 200 ms.
-- **Catalog source:** the Steam Web API (keyed, batched), read only by offline import scripts; the keyless store API is not used that copy the data into gameble's database. Play never depends on a live Steam API call, and a card keeps its data if Steam changes or removes the game.
-- **Images:** loaded from Steam's CDN, never copied. They are pixelated and reduced to 16 colours in the browser, at display time. The publisher is shown with a notice that the game and its image belong to their owners, and the site terms state there is no affiliation with Steam or Valve. There is no fallback art.
-- **Look and behaviour** follow `DESIGN.md` and `EXPERIENCE.md`.
+- **Catalog source:** the Steam Web API (keyed, batched), read only by offline import scripts that copy the data into gameble's database; the keyless store API is not used. Play never depends on a live Steam API call, and a card keeps its data if Steam changes or removes the game.
+- **Images:** loaded from Steam's CDN, never copied. In the browser, at display time, the vertical cover is cropped to the card's art box, pixelated at 2 CSS px per image pixel and reduced to about 32 colours, with no dithering. The publisher is shown with a notice that the game and its image belong to their owners. There is no fallback art.
+- **Legal:** the notice that gameble has no affiliation with Steam or Valve, the terms of use and the privacy notice live on a legal page reached from "Mentions légales" (profile and public page footer).
+- **Look and behaviour** follow `DESIGN.md` and `EXPERIENCE.md`. The back-office is outside them: plain functional style, behaviour unchanged, designed later.
+- **Reduced motion:** an in-app "Animations réduites" setting follows the system preference by default. When on, it also stops the LIVE ticker and every looping or blinking effect.
 - **Bots:** edge bot protection from day one; trades are limited to friends.
-- **Platforms:** responsive desktop and mobile web. Native store apps must remain possible later.
+- **Platforms:** responsive desktop and phone web. Phones are portrait only, with no landscape layout and no overlay; the installed web app is locked to portrait by its manifest. On every size the interface is never scaled: pages scroll and reflow by width. Native store apps must remain possible later.
 - **Tone and naming** follow `brotherhood-tone.md`.
 
 ## Non-goals
@@ -147,6 +179,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - Combat or any card battle mechanic (a "knowledge battles" idea is parked in `later-roadmap.md`).
 - A guide or tutorial.
 - Bulk pack opening.
+- Any input at opening that improves the odds (later).
 - Live trades with both players connected (later).
 - Card marks: favourite, to trade, personal categories (later).
 - Reactions or comments on feed events (later).
@@ -168,13 +201,8 @@ The author plays gameble every day for a month alongside at least 10 active play
 
 ## Assumptions
 
-- Every player has a public profile by default; they can hide it (CAP-14).
 - The weekly-goal reward is one rare pack per contributor.
-- Multi-card trades are allowed in both directions (N cards for M cards).
 - Per-card draw odds are those in `catalog-and-rarity.md` and are tuned in playtests.
-- The card detail view links to the game's Steam store page (CAP-7).
-- A card whose Steam image no longer loads still shows its frame and title.
-- The copy never names a real company; publisher names appear only as card credits and set names.
 - Card text translations come from Steam's own localized store text, imported once per UI language.
 - A repost is a past event: it stays in the feed after the card is traded away, and disappears with a hidden or banned profile (CAP-14, CAP-15).
 
@@ -186,3 +214,13 @@ The author plays gameble every day for a month alongside at least 10 active play
 - **Weekly goal (CAP-12):** how much does a trade count compared with a pack opening?
 - **Tag labels:** do French tag labels need importing once tags or genre tome names are shown to players?
 - **Feed flooding (CAP-19):** with unlimited reposts, how does the global feed stay readable: grouping, a per-player cap in the global view, or nothing until measured?
+- **Special packs and the cap (CAP-12, CAP-16):** does the weekly goal's rare pack land above 10 when the bank is full?
+- **Weekly goal lifecycle (CAP-12):** what happens when the goal is reached, missed, and at the week rollover? `EXPERIENCE.md` tags its answers as assumptions.
+- **Card backs (CAP-20):** which backs ship, and does every successful weekly goal grant one?
+- **Feed and ticker (CAP-13):** do set completions and hourly totals join pulls, first discoveries and trades? `EXPERIENCE.md`'s ticker assumes so.
+- **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.
+- **English copy (CAP-3, language constraint):** the English copy and the English tier names are not written yet. Who writes them before launch?
+- **Architecture conflict:** `architecture-gameble.md` predates the redesign (AD-17 reduces to 16 colours, tiers named steel to gold, a dust tier on the card-season record; no per-season number, card backs, invitations or presence). Until `bmad-architecture` absorbs `ux-gameble.md`, For the architecture, which prevails?
+- **Card genre (CAP-2, CAP-7):** the redesign shows "the game's first-listed Steam genre" on the card, but the import reads only `GetItems`, which has no genres (2026-10-03); tomes use the most-voted tag of a curated list instead. Is the card's genre that tome genre, and what does a game in no tome show?
+- **Ownership notice (CAP-7, legal constraint):** the redesign lists a "copyright" row in the card detail and moves the "no affiliation with Steam or Valve" notice to the legal page, while the import no longer reads a per-game legal notice and the built detail shows a generic owners' notice with the no-affiliation line on every card (2026-10-03). Which stays on the card?
+- **Repost and Friends tab in the UX (CAP-13, CAP-19):** `DESIGN.md` and `EXPERIENCE.md` do not cover the repost action or the feed's Friends tab yet.
