@@ -28,22 +28,43 @@ covers = ["CAP-6", "CAP-7", "CAP-8", "CAP-9", "CAP-18"]
 after = [{ epic = 2, needs = "the sets of the published season" }, { epic = 3, needs = "owned cards and the card component" }]
 
 [[epic]]
+id = 8
+slug = "epic-space-terminal-redesign"
+title = "Space terminal: shell, card and booster"
+covers = ["CAP-1", "CAP-3", "CAP-4", "CAP-5", "CAP-7", "CAP-16", "CAP-18"]
+after = [{ epic = 3, needs = "the pack bank, the opening and the reveal to rework" }, { epic = 4, needs = "the card component and the pages it appears on" }]
+
+[[epic]]
+id = 10
+slug = "epic-space-terminal-screens"
+title = "Space terminal: screens"
+covers = ["CAP-6", "CAP-7", "CAP-8", "CAP-9", "CAP-16", "CAP-18"]
+after = [{ epic = 4, needs = "the collection, card detail, profile and share screens to rework" }, { epic = 8, needs = "the shell, the hub, the card face and the booster island" }]
+
+[[epic]]
 id = 5
 slug = "epic-friends-and-trades"
 title = "Friends and trades"
-covers = ["CAP-10", "CAP-11"]
-after = [{ epic = 3, needs = "owned cards, with their reserved count, and the card component" }]
+covers = ["CAP-10", "CAP-11", "CAP-21"]
+after = [{ epic = 3, needs = "owned cards, with their reserved count" }, { epic = 8, needs = "the new shell and the single card face" }]
 
 [[epic]]
 id = 6
 slug = "epic-brotherhood"
 title = "The Brotherhood"
 covers = ["CAP-12", "CAP-13", "CAP-17", "CAP-19"]
-after = [{ epic = 3, needs = "the pack-opened event and reward packs" }, { epic = 5, needs = "the trade-accepted event and friendships for the Friends tab" }]
+after = [{ epic = 3, needs = "the pack-opened event and reward packs" }, { epic = 5, needs = "the trade-accepted event and friendships for the Friends tab" }, { epic = 8, needs = "the new shell, the hub and the ticker slot" }]
+
+[[epic]]
+id = 9
+slug = "epic-card-backs"
+title = "Card backs"
+covers = ["CAP-20"]
+after = [{ epic = 6, needs = "the set-completed, goal reward and achievement events" }, { epic = 8, needs = "the booster island showing the active back" }, { epic = 10, needs = "the profile and settings screen for the back picker" }]
 
 [[epic]]
 id = 7
 slug = "epic-public-launch-readiness"
 title = "Ready for the public"
 covers = ["CAP-14", "CAP-15"]
-after = [{ epic = 1, needs = "player accounts, staff roles and the back-office shell" }]
+after = [{ epic = 1, needs = "player accounts, staff roles and the back-office shell" }, { epic = 10, needs = "the profile and settings screen" }]

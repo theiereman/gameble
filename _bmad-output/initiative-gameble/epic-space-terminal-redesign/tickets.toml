@@ -1,0 +1,146 @@
+# tickets.toml — the stories of epic 8, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Shell and tokens"
+description = "Replaces the medieval shell on every page: DESIGN.md tokens as CSS custom properties, self-hosted Pixelify Sans, Silkscreen and VT323, the top bar, the phone tab bar, the permanent atmosphere layers, toasts replacing flash, the button and panel components, the focus ring, viewport-fit and the View Transition meta, with a script exporting the logo and interface icons; old screens keep their content inside it."
+verify = "Every page renders in the new shell on desktop and phone with no Jost, parchment or text plate left, flash messages show as toasts, and the back-office uses the new tokens without the atmosphere layers."
+covers = ["R1"]
+after = ["3.11", "4.7"]
+hitl = false
+risk = "medium"
+references = ["ux-gameble/review-feasibility.md#epic-1-rework"]
+
+[[entry]]
+id = 2
+type = "story"
+title = "Hub and sign-in panel"
+description = "Replaces the attic with the hub \"Pont de commandement\" (menu, showcase, set progress; signed-out variant), adds the sign-in panel holding Valve's official image, lands sign-in and sign-out on the hub, and rewrites the shell's and hub's copy in \"vous\"."
+verify = "Signed out and signed in, the hub shows on desktop and phone; every call to action needing an account opens the sign-in panel; signing in and out return to the hub; the attic page, styles, controller and tests are gone."
+covers = ["R1"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Tier names and season numbers"
+description = "Renames the tier code names to common through legendary with the French and English names in locales, has PublishSeason give every card of a season a random number with a one-time backfill for seasons published before, and reads a card's genre from its tome in that season."
+verify = "A published season's cards each have a unique number from a shuffle, the old season gets numbers once, no code names steel to gold remain, and a card's genre equals its tome's genre or is empty."
+covers = ["R2", "R3"]
+after = ["4.7"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Architecture conformance"
+description = "Brings the built code in line with AD-28: jobs enqueued after commit, the reading role declared and GETs run with writes prevented, the reserve counted as every available unopened pack with the daily bonus refused at 10 (reserve_full), game_player_states created at registration and backfilled, and the Content-Security-Policy in report-only mode."
+verify = "A GET that writes the primary fails in test, a job enqueued in a rolled-back transaction never runs, a bonus claim with 10 available packs is refused, every player has a game_player_states row, and pages send a report-only CSP."
+covers = ["R7"]
+after = []
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Pixel filter v2"
+description = "Rewrites packages/pixel-art-filter and its client to AD-17: crop anchored at 42 %, 2 CSS px art pixels, 32 colours by median cut without dithering, in a Web Worker with OffscreenCanvas, lazy with 2 to 4 jobs, one palette per game, a bounded cache closing evicted bitmaps, the main-thread CORS and old-browser fallbacks, and placeholder detection."
+verify = "Package tests cover quantisation, the palette reuse, the placeholder and the fallbacks; a page of 30 covers filters off the main thread; a grey 300 x 450 placeholder shows as a missing image."
+covers = ["R4"]
+after = []
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Single card face"
+description = "Redraws CardComponent as the only card face (title, publisher, cover, genre, year, rarity shape and name, season number) at the four sizes, with the tilt and glare controller and holo and foil, wired to filter v2; removes Card.tsx and every read of dust_tier, and adapts the back-office preview to show server faces."
+verify = "Every place a card appears renders CardComponent, Card.tsx is gone, nothing reads dust_tier, and a visual regression test covers a tilted revealed card at each size."
+covers = ["R3"]
+after = [1, 3, 5]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Drop dust_tier"
+description = "The contract step of AD-28's migration: removes the dust_tier column and its check constraint from catalog_card_seasons once no code reads it."
+verify = "The migration passes strong_migrations, the schema has no dust_tier, and the full test suite passes."
+covers = ["R3", "R7"]
+after = [6]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Remaining pixel-art assets"
+description = "Extends the export script to the card backs, the canister, the planet and the avatars, at 1x art resolution under app/frontend/images/pixel/, for the author to review once as one sheet."
+verify = "The exported files exist and render pixelated at 2 CSS px; the author approves the sheet."
+covers = ["R1", "R5"]
+after = [1]
+hitl = true
+risk = "low"
+
+[[entry]]
+id = 9
+type = "spike"
+title = "Performance on the reference phone"
+description = "Measures, on the low-end Android the author picks, the filter worker on a 30-card page, a Légendaire sequence and an idle hub, and the POST /packs p95, and records whether AD-27's budget holds or what must change."
+verify = "A short report gives the measured frame rates and p95 with the device and method, and names any change the booster stories must make."
+covers = ["R8"]
+after = [2, 5, 6]
+hitl = true
+risk = "high"
+unknown = "The reference device is not chosen yet."
+
+[[entry]]
+id = 10
+type = "story"
+title = "Opening exchange"
+description = "Turns POST /packs into AD-23's JSON exchange: an idempotency key and the pack's card back stored on the opened pack and replayed before any throttle or availability check, the response with the kind, the server-rendered faces, slugs, tiers, covers, bank count and times, server time and pre-open tier counts, the fixed error codes, and the \"mon dernier booster\" page face up."
+verify = "Two posts with one key open one pack and return the same cards, a refused open returns its code and opens nothing, a daily bonus pack returns 3 faces, and the last-booster page shows the pack face up."
+covers = ["R5"]
+after = [4, 6]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 11
+type = "story"
+title = "Booster island, desktop"
+description = "Replaces PackReveal with the booster island's desktop mode: canister, the charge phase masking the request, the explosion, the deal row of server faces under the Standard back, one-activation reveals, \"Tout révéler\" with the Légendaire sequence, \"Ouvrir le suivant\", the live region, and the gameble:tier-revealed and bank-changed events updating the top bar."
+verify = "On desktop a player opens a booster, reveals each card by click or Enter, sees the counters move per reveal, and a refusal disarms the canister with a toast; system tests cover the protocol and the Légendaire sequence."
+covers = ["R5", "R6"]
+after = [8, 9, 10]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 12
+type = "story"
+title = "Booster island, phone"
+description = "Adds the island's phone mode: the pile, tap to reveal, swipe to store in the tray, the caption plate with the banners, the card zoom, and the rebuild on a width change, portrait only."
+verify = "On a phone viewport a player opens a booster, reveals and stores five cards, opens one in the zoom, and the view rebuilds when the width crosses the breakpoint."
+covers = ["R6"]
+after = [11]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 13
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
+verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+hitl = false
+risk = "low"

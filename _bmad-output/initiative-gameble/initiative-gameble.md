@@ -3,7 +3,7 @@ key: ""
 type: initiative
 title: "gameble MVP: a Steam card game played every day by the Brotherhood"
 parent: none
-covers: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18]
+covers: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21]
 after: []
 assignee: ""
 risk: high
@@ -25,18 +25,18 @@ For French- and English-speaking gamers with a Steam account: a card game worth 
 
 ## Requirements
 
-The spec is the requirement source: `spec-gameble/spec-gameble.md`, capabilities CAP-1 to CAP-18. Its companions bind every epic: the architecture spine (AD-1 to AD-22), `DESIGN.md`, `EXPERIENCE.md`, `catalog-and-rarity.md`, `brotherhood-tone.md`.
+The spec is the requirement source: `spec-gameble/spec-gameble.md`, capabilities CAP-1 to CAP-21. Its companions bind every epic: the architecture spine (AD-1 to AD-28), `DESIGN.md`, `EXPERIENCE.md`, `catalog-and-rarity.md`, `brotherhood-tone.md`.
 
 ## Done when
 
 1. The author plays every day for a month alongside at least 10 active players, not all of them friends, and sees their pulls and trades in the feed.
-2. Every capability CAP-1 to CAP-18 is live in production, in French and in English.
+2. Every capability CAP-1 to CAP-21 is live in production, in French and in English.
 3. Opening a pack answers within 200 ms at the 95th percentile.
 4. No blocking bug stays open for more than a day during the first month.
 
 ## Boundaries
 
-One Rails application and its Steam import, cut by capability. Not the V2 market, later seasons or native apps; see the spec's non-goals and `later-roadmap.md`. Tracer path: a visitor signs in with Steam (epic 1), on a small imported and published catalog (epic 2), opens a pack and flips its cards (epic 3).
+One Rails application and its Steam import, cut by capability. Not the V2 market, later seasons or native apps; see the spec's non-goals and `later-roadmap.md`. Tracer path: a visitor signs in with Steam (epic 1), on a small imported and published catalog (epic 2), opens a pack and flips its cards (epic 3). Since the 2026-10-05 redesign, epic-space-terminal-redesign reworks the built screens before epics 5 to 7 build theirs in the new shell.
 
 - Touch point: Steam OpenID — sign-in verification; owner: epic-foundation-and-steam-sign-in
 - Touch point: hosting server, Cloudflare, Sentry, GitHub Actions — configured, not built; owner: epic-foundation-and-steam-sign-in
@@ -63,3 +63,6 @@ One Rails application and its Steam import, cut by capability. Not the V2 market
 - Direction (2026-10-03): the author will redo the UX through bmad-ux, menus with a screen per feature replacing the attic's object metaphor.
 - Open question: how much a trade counts in the weekly goal (spec); epic-brotherhood waits on it.
 - Unknown: whether the 2–4 week estimate of the brief still holds after the scope added on 2026-10-02; to re-check once epics are incepted.
+- Decision (2026-10-05): the space-terminal redesign reworks the built screens in a new epic, epic-space-terminal-redesign, placed after epic 4 and before epic 5 (shell first, then screen by screen, AD-28); epics 1 to 4 stay closed with their retrospectives. Approved by the author.
+- Decision (2026-10-05): card backs (CAP-20) get their own epic, epic-card-backs, after epic 6, once every unlocking event exists; the redesign shows the Standard back only. Friends' presence (CAP-21) goes to epic 5; the repost (CAP-19) stays in epic 6. Approved by the author.
+- Open question: the reference low-end Android for the performance budget (architecture Deferred); epic-space-terminal-redesign's booster work waits on it.

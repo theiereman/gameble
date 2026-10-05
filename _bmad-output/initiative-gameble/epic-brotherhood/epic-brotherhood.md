@@ -51,4 +51,4 @@ Event handlers, the weekly goal, the feed, achievements and their broadcasts. No
 - Open question: the list of achievements (spec).
 - Open question: how much a trade counts in the weekly goal, and the odds of the rare pack (spec).
 - Unknown: the weekly target formula (spine, Deferred).
-- The 2026-10-05 redesign: only the weekly goal carries a Brotherhood line (`brotherhood-tone.md`); `DESIGN.md` and `EXPERIENCE.md` do not cover the repost action or the Friends tab yet. Card backs (CAP-20), partly unlocked by the weekly goal and achievements, are not assigned to an epic yet (pending approval).
+- The 2026-10-05 redesign: only the weekly goal carries a Brotherhood line (`brotherhood-tone.md`); `DESIGN.md` and `EXPERIENCE.md` do not cover the repost action or the Friends tab yet. Card backs (CAP-20) have their own epic after this one (epic-card-backs); this epic publishes the events they unlock on (Game::SetCompleted, goal rewards, achievements).

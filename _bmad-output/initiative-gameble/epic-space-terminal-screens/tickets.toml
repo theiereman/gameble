@@ -1,0 +1,56 @@
+# tickets.toml — the stories of epic 10, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Collection and sets"
+description = "Rebuilds the collection screen: set filters and progress, the grid of owned faces with copy badges and missing slots naming the game, pagination beyond about 60 slots, and NOUVEAU from a holding's last_gained_at against the watermark in game_player_states, moved by a POST from the player's own collection page."
+verify = "A player sees each set's progress and slots on desktop and phone; cards gained after the last visit show NOUVEAU once and lose it after the next visit; reserving a card never marks it; a visitor sees every slot empty."
+covers = ["R1", "R6"]
+after = ["4.7", "8.4", "8.6"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Card detail"
+description = "Rebuilds the card detail (\"FICHE DE LA CARTE\"): the card large with its facts, copies owned, \"VOIR SUR STEAM\" and \"PARTAGER\", the Standard back faded for a card not owned, and on the phone a sub-view frame advancing the URL with previous and next buttons and swipe."
+verify = "From the collection, a revealed booster card or the showcase, the detail opens with every fact in both languages; on a phone, previous and next move through the set and Back returns to the grid at its scroll."
+covers = ["R2", "R6"]
+after = ["8.6"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Public profile and shared card page"
+description = "Restyles the public profile, and the shared card page as the design's public card page without any sharer: the card tilting, its facts, the Steam link, the call to sign in, and a share sheet; previews keep title and rarity with no image."
+verify = "A signed-out visitor opens a shared link and sees the card only, no player named; a profile shows its sets in the new design; preview tags carry no image."
+covers = ["R3", "R6"]
+after = [2]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Daily booster and settings"
+description = "Adds the hub's daily booster panel (claim into the reserve with its arc to the packs chip, full-reserve state, countdown to midnight UTC, the 3-card reveal count) and the profile and settings screen with language, \"Animations réduites\" stored in Accounts and mirrored in a cookie, and sign-out, driving one shared motion switch for CSS, Stimulus, islands and View Transitions."
+verify = "A player claims the daily booster once a day and is refused at a full reserve; turning on \"Animations réduites\" stops the ticker, every loop and the screen transitions, signed in or out."
+covers = ["R4", "R5", "R6"]
+after = ["8.2", "8.11"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it, ending with no screen of the medieval direction left."
+verify = "The full test suite, lint, packwerk and typecheck pass, no medieval asset or style remains, and every deferred finding is fixed, recorded or dropped with a reason."
+covers = []
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"

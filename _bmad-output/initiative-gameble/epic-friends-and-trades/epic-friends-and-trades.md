@@ -4,7 +4,7 @@ key: ""
 type: epic
 title: "Friends and trades"
 parent: initiative-gameble
-covers: [CAP-10, CAP-11]
+covers: [CAP-10, CAP-11, CAP-21]
 after: []
 assignee: ""
 risk: medium
@@ -24,7 +24,7 @@ For two friends: swapping cards without being connected at the same time, with n
 
 ## Requirements
 
-Completed at this epic's inception. The source lines are CAP-10 and CAP-11 of the spec.
+Completed at this epic's inception. The source lines are CAP-10, CAP-11 and CAP-21 of the spec.
 
 ## Done when
 
@@ -33,6 +33,7 @@ Completed at this epic's inception. The source lines are CAP-10 and CAP-11 of th
 3. A card offered in an open trade cannot be offered in another until the trade ends: a player offers at most the copies they own minus those reserved elsewhere. Requested cards are not reserved; acceptance checks they are still free.
 4. Acceptance swaps every card at once; an expired or declined trade moves nothing and releases the cards.
 5. Two friends never have two open trades at the same time; non-friends cannot trade.
+6. A player sees each friend's presence (online, current activity or last seen) and the friends menu shows how many are online.
 
 ## Boundaries
 
@@ -48,4 +49,4 @@ Friendships and trades in `Game`, the friends page and the trade board React isl
 ## Notes
 
 - Unknown: no flow narrates how two players become friends; the UX review flagged it. Settled at this epic's inception.
-- The 2026-10-05 redesign changed CAP-10 (invitations) and CAP-11 (offer and request, quantities, fixed 7-day expiry); Description and Done when follow it. Friends' presence (CAP-21) is not assigned to an epic yet; it would fit here (pending approval).
+- The 2026-10-05 redesign changed CAP-10 (invitations) and CAP-11 (offer and request, quantities, fixed 7-day expiry); Description and Done when follow it. Friends' presence (CAP-21) belongs here (author, 2026-10-05; architecture AD-24).
