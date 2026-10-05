@@ -16,7 +16,7 @@ estimate_basis: ""
 
 ## Description
 
-Players become friends through an invite link or a friend code, and trade cards on a face-to-face board, asynchronously, with counter-proposals. Cards placed in a trade are reserved.
+Players send an invitation through an invite link or a friend code and become friends once it is accepted, then trade cards on a face-to-face board, asynchronously, with counter-proposals. A proposal holds an offer and a request, with quantities. Cards placed in a trade are reserved.
 
 ## Outcome
 
@@ -28,9 +28,9 @@ Completed at this epic's inception. The source lines are CAP-10 and CAP-11 of th
 
 ## Done when
 
-1. A valid invite link or friend code creates a mutual friendship visible to both players.
-2. A player proposes a trade; the friend accepts, declines or answers with a counter-proposal; the proposer can cancel.
-3. A card placed in an open trade cannot be placed in another until the trade ends.
+1. A valid invite link or friend code sends an invitation; once the other player accepts it, the friendship is visible to both. An ignored invitation creates nothing.
+2. A player proposes a trade holding an offer and a request (at least one card each side, at most 4 different cards per side, a chosen quantity of each); the friend accepts, declines or answers with a counter-proposal that may change both sides; the proposer can cancel; a proposal expires after a fixed 7 days.
+3. A card placed in an open trade cannot be placed in another until the trade ends: a player places at most the copies they own minus those reserved elsewhere.
 4. Acceptance swaps every card at once; an expired or declined trade moves nothing and releases the cards.
 5. Two friends never have two open trades at the same time; non-friends cannot trade.
 
@@ -48,3 +48,4 @@ Friendships and trades in `Game`, the friends page and the trade board React isl
 ## Notes
 
 - Unknown: no flow narrates how two players become friends; the UX review flagged it. Settled at this epic's inception.
+- The 2026-10-05 redesign changed CAP-10 (invitations) and CAP-11 (offer and request, quantities, fixed 7-day expiry); Description and Done when follow it. Friends' presence (CAP-21) is not assigned to an epic yet; it would fit here (pending approval).

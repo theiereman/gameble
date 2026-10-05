@@ -24,15 +24,15 @@ For a player: control over their data. For the author: a site he can open to peo
 
 ## Requirements
 
-Completed at this epic's inception. The source lines are CAP-14 and CAP-15 of the spec, the spec's Images constraint on the site terms, and the spine's Deferred items on backups.
+Completed at this epic's inception. The source lines are CAP-14 and CAP-15 of the spec, the spec's Legal constraint, and the spine's Deferred items on backups.
 
 ## Done when
 
-1. From their profile, a player hides their public profile, exports their data and deletes their account; each works end to end.
+1. From their profile, a player sets their profile's visibility (public, friends only, private), exports their data and deletes their account; each works end to end.
 2. A report on a username or profile appears in the back-office; a ban blocks the account's sign-in and hides its profile.
 3. Only staff accounts reach the back-office.
 4. A database backup has been restored successfully at least once.
-5. The site terms state that gameble has no affiliation with Steam or Valve.
+5. A legal page, reached from "Mentions légales" in the profile and the public page footer, holds the notice that gameble has no affiliation with Steam or Valve, the terms of use and the privacy notice.
 6. Before the first deploy (from the epic 3 retrospective, 2026-10-03): a player without a bank gets one when they use the game, a failed bank fill is retried, the healed bank's schedule is decided, and races between bank operations of different stories (open, register, bonus, heal) are tested.
 7. The production Docker image is built in CI or as a pre-deploy check.
 
