@@ -3,7 +3,8 @@ require_relative "../../support/game_packs"
 
 # Game::CollectDailyBonus (CAP-16, R8, AD-7, AD-9): once per UTC day, a bonus
 # pack of three cards with better odds, outside the bank's cap of ten,
-# opened in arrival order; and the bank summary's `bonus_collectable`.
+# opened in arrival order, refused while the reserve holds ten; and the bank
+# summary's `bonus_collectable` and `reserve_full`.
 class Game::CollectDailyBonusTest < ActiveSupport::TestCase
   include GamePacks
 
@@ -22,13 +23,20 @@ class Game::CollectDailyBonusTest < ActiveSupport::TestCase
     Game::FillBank.new.call(player: @player).value!
   end
 
+  # A full bank with one pack opened: nine available, the replacement ten
+  # minutes after the opening.
+  def reserve_of_nine
+    full_bank
+    Game::OpenPack.new.call(player: @player).value!
+  end
+
   def unpublish
     catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
   end
 
-  test "collecting with a full bank: one claim, a bonus pack of three available now, one event; 11 available" do
+  test "collecting with a reserve of nine: one claim, a bonus pack of three available now, one event; a full reserve" do
     travel_to(@now) do
-      full_bank
+      reserve_of_nine
 
       result = collect
 
@@ -48,7 +56,49 @@ class Game::CollectDailyBonusTest < ActiveSupport::TestCase
       assert_equal 1, events.size
       assert_equal({ player_id: @player.id, pack_id: pack.id }, events.sole.data)
       assert_equal 10, Game::Pack.bank(@player.id).count
-      assert_equal({ available: 11, next_available_at: nil, bonus_collectable: false }, summary)
+      assert_equal({ available: 10, reserve_full: true, next_available_at: @now + 10.minutes, bonus_collectable: false }, summary)
+    end
+  end
+
+  test "a full reserve refuses the bonus: no claim, no pack, no event" do
+    travel_to(@now) do
+      full_bank
+      assert summary[:reserve_full]
+      assert summary[:bonus_collectable]
+      events = game_events(@player).size
+
+      assert_equal :reserve_full, collect.failure
+
+      assert_equal 0, claims.count
+      assert_equal 0, packs.bonus.count
+      assert_equal 10, packs.count
+      assert_equal events, game_events(@player).size
+    end
+  end
+
+  test "the reserve counts available packs of every kind; scheduled and opened ones are not in it" do
+    travel_to(@now) do
+      7.times { create_pack(@player, available_at: @now - 1.minute) }
+      create_pack(@player, available_at: @now - 1.minute, kind: :bonus)
+      create_pack(@player, available_at: @now + 1.minute)
+      create_pack(@player, available_at: @now - 1.minute, opened_at: @now - 1.minute)
+      assert_equal 8, Game::Reserve.count(@player.id, now: @now)
+
+      create_pack(@player, available_at: @now - 1.minute, kind: :reward)
+      assert_equal 9, Game::Reserve.count(@player.id, now: @now)
+      assert collect.success?
+
+      assert_equal 10, Game::Reserve.count(@player.id, now: @now)
+    end
+  end
+
+  test "an already collected bonus is refused as such, even with a full reserve" do
+    travel_to(@now) do
+      reserve_of_nine
+      collect.value!
+      assert summary[:reserve_full]
+
+      assert_equal :already_collected, collect.failure
     end
   end
 
@@ -72,7 +122,7 @@ class Game::CollectDailyBonusTest < ActiveSupport::TestCase
   end
 
   test "a second collection the same UTC day writes nothing and publishes nothing" do
-    travel_to(@now) { full_bank && collect.value! }
+    travel_to(@now) { collect.value! }
 
     result = travel_to(@now + 8.hours + 59.minutes) { collect }
 
@@ -92,7 +142,11 @@ class Game::CollectDailyBonusTest < ActiveSupport::TestCase
 
   test "the day is the UTC day, whatever the time zone: 23:59:59 then 00:00:01 are two days" do
     Time.use_zone("Pacific/Kiritimati") do
-      travel_to(Time.utc(2026, 10, 2, 23, 59, 59)) { collect.value! }
+      travel_to(Time.utc(2026, 10, 2, 23, 59, 59)) do
+        collect.value!
+        # Ten packs and the bonus: two openings bring the reserve under ten.
+        2.times { Game::OpenPack.new.call(player: @player).value! }
+      end
 
       result = travel_to(Time.utc(2026, 10, 3, 0, 0, 1)) { collect }
 
@@ -109,7 +163,7 @@ class Game::CollectDailyBonusTest < ActiveSupport::TestCase
     travel_to(@now) do
       collect.value!
 
-      assert_equal({ available: 9, next_available_at: @now + 4.minutes, bonus_collectable: false }, summary)
+      assert_equal({ available: 9, reserve_full: false, next_available_at: @now + 4.minutes, bonus_collectable: false }, summary)
       assert_equal 10, Game::Pack.bank(@player.id).count
     end
   end
@@ -128,12 +182,20 @@ class Game::CollectDailyBonusTest < ActiveSupport::TestCase
     end
   end
 
-  test "bonuses of several days pile up above ten without moving the countdown" do
-    travel_to(@now) { full_bank }
-    3.times { |day| travel_to(@now + day.days) { collect.value! } }
+  test "bonuses of several days fill the reserve up to ten, then wait for an opening, without moving the countdown" do
+    travel_to(@now) do
+      9.times { create_pack(@player, available_at: @now - 1.minute) }
+      collect.value!
+    end
 
-    travel_to(@now + 2.days) do
-      assert_equal({ available: 13, next_available_at: nil, bonus_collectable: false }, summary)
+    travel_to(@now + 1.day) do
+      assert_equal :reserve_full, collect.failure
+
+      Game::OpenPack.new.call(player: @player).value!
+      collect.value!
+
+      assert_equal 2, packs.bonus.count
+      assert_equal({ available: 10, reserve_full: true, next_available_at: @now + 1.day + 10.minutes, bonus_collectable: false }, summary)
     end
   end
 

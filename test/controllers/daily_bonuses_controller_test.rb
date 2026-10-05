@@ -36,12 +36,15 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
 
   test "a player collects the bonus from the attic: one more pack, the panel gone, refused again that day, back the next" do
     now = Time.utc(2026, 10, 2, 22, 0)
-    travel_to(now) { Game::FillBank.new.call(player: @player).value! }
+    travel_to(now) do
+      Game::FillBank.new.call(player: @player).value!
+      Game::OpenPack.new.call(player: @player).value!
+    end
     sign_in(@player)
 
     travel_to(now) do
       get home_path(locale: :en)
-      assert_equal "Open a pack (10)", chest_button.text
+      assert_equal "Open a pack (9)", chest_button.text
       assert_select ".attic__bonus h2", "Daily bonus"
       assert_select ".attic__bonus form[action='/en/daily-bonus'][method=post] button", "Take it"
 
@@ -51,7 +54,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       assert_response :see_other
       assert_equal I18n.t("daily_bonuses.create.collected", locale: :en), flash[:notice]
       follow_redirect!
-      assert_equal "Open a pack (11)", chest_button.text
+      assert_equal "Open a pack (10)", chest_button.text
       assert_empty panel
 
       post daily_bonus_path(locale: :en)
@@ -65,6 +68,27 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       get home_path(locale: :en)
       assert_equal 1, panel.size
     end
+  end
+
+  test "with a full reserve, the panel says so instead of its button, and a collection is refused; nothing written" do
+    Game::FillBank.new.call(player: @player).value!
+    sign_in(@player)
+
+    get home_path(locale: :en)
+    assert_select ".attic__bonus h2", "Daily bonus"
+    assert_select ".attic__bonus p", I18n.t("errors.game.reserve_full", locale: :en)
+    assert_select ".attic__bonus form", 0
+
+    get home_path(locale: :fr)
+    assert_select ".attic__bonus p", "Votre réserve est pleine : ouvrez un booster pour récupérer celui du jour."
+
+    assert_no_difference -> { Game::Pack.count } do
+      post daily_bonus_path(locale: :fr)
+    end
+
+    assert_redirected_to home_path(locale: :fr)
+    assert_equal I18n.t("errors.game.reserve_full", locale: :fr), flash[:alert]
+    assert_equal 0, Game::DailyBonusClaim.count
   end
 
   test "the panel's copy in French" do

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_03_060001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -168,6 +168,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_060001) do
     t.check_constraint "kind::text = 'regular'::text OR kind::text = 'bonus'::text OR kind::text = 'reward'::text", name: "game_packs_kind_check"
   end
 
+  create_table "game_player_states", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id"], name: "index_game_player_states_on_player_id", unique: true
+  end
+
   create_table "steam_apps", force: :cascade do |t|
     t.bigint "appid", null: false
     t.string "name", null: false
@@ -247,6 +254,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_03_060001) do
   add_foreign_key "game_holdings", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_packs", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
+  add_foreign_key "game_player_states", "accounts_players", column: "player_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "carded_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "details_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "genres_run_id"

@@ -2,8 +2,10 @@ module Game
   # The lock of a player's bank (AD-7): a transaction-level advisory lock on
   # (NAMESPACE, player id), released at commit or rollback. Every operation
   # that changes a player's bank takes it first, so openings, fills,
-  # replacements and bonuses of one player run one at a time. Lock order:
-  # the bank, then the holdings in ascending card-season.
+  # replacements and bonuses of one player run one at a time. Lock order
+  # (AD-10): each player's bank lock in ascending player id, then the
+  # holdings in ascending player then card-season, then the players'
+  # game_player_states rows (Game::PlayerState).
   #
   #   transaction do
   #     Game::BankLock.acquire(player.id)

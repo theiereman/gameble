@@ -65,16 +65,19 @@
         Steam sign-in. The view decides it in this local, from the bank
         summary (a player) or @season_published (a visitor). %>
     <% bonus_panel = @bank.present? ? @bank[:bonus_collectable] : @season_published %>
+    <%# A full reserve refuses the bonus (AD-7): the panel says why instead
+        of offering a press that would fail. %>
+    <% reserve_full = @bank.present? && @bank[:reserve_full] %>
     <% if bonus_panel %>
       <section class="attic__bonus" aria-labelledby="attic-bonus-heading">
         <%= render PanelComponent.new do %>
           <h2 id="attic-bonus-heading" class="attic__bonus-heading"><%= t(".bonus.heading") %></h2>
-          <p class="attic__bonus-text"><%= t(".bonus.text") %></p>
+          <p class="attic__bonus-text"><%= reserve_full ? t("errors.game.reserve_full") : t(".bonus.text") %></p>
         <% end %>
-        <% if @bank %>
-          <%= render ButtonComponent.new(href: daily_bonus_path, method: :post) do %><%= t(".bonus.collect") %><% end %>
-        <% else %>
+        <% if @bank.nil? %>
           <%= render ButtonComponent.new(href: "/auth/steam", method: :post, params: { origin: request.path }, turbo: false) do %><%= t(".bonus.collect_visitor") %><% end %>
+        <% elsif !reserve_full %>
+          <%= render ButtonComponent.new(href: daily_bonus_path, method: :post) do %><%= t(".bonus.collect") %><% end %>
         <% end %>
       </section>
     <% end %>

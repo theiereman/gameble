@@ -76,6 +76,16 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ { player_id: player.id } ], bank_filled_events.map(&:data)
   end
 
+  # The callback is the one GET exempt from the read-only role (AD-11): the
+  # sign-up writes the player, their bank and their game state row.
+  test "a first sign-in, on the GET callback, creates the new player's game state row" do
+    sign_in_with_steam
+
+    player = new_players.sole
+    assert_equal player.id, signed_in_player_id
+    assert_equal 1, Game::PlayerState.where(player_id: player.id).count
+  end
+
   test "a returning sign-in adds no pack" do
     sign_in_with_steam
     delete session_path(locale: :en)

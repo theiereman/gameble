@@ -115,7 +115,9 @@ class OpenPackBenchmark
     # A database left by a crashed run goes first.
     ActiveRecord::Tasks::DatabaseTasks.drop(db_config)
     ActiveRecord::Tasks::DatabaseTasks.create(db_config)
-    ActiveRecord::Base.establish_connection(db_config)
+    # Both roles of ApplicationRecord (AD-11): the timed GET reads under
+    # `reading`, which would otherwise stay on the test database.
+    ApplicationRecord.connects_to(database: { writing: db_config, reading: db_config })
     check_database!
     ActiveRecord::Tasks::DatabaseTasks.load_schema(db_config, :ruby, Rails.root.join("db/schema.rb").to_s)
     check_database!
@@ -128,10 +130,18 @@ class OpenPackBenchmark
     ActiveRecord::Tasks::DatabaseTasks.drop(db_config)
   end
 
-  # Every write goes to the benchmark's own database, or nothing is written.
+  # Every write goes to the benchmark's own database, or nothing is written;
+  # every read under the reading role (GET requests) comes from it too.
   def check_database!
-    connected = ActiveRecord::Base.with_connection { |connection| connection.select_value("SELECT current_database()") }
+    connected = current_database
     refuse("connected to #{connected}, not #{DATABASE}") unless connected == DATABASE
+
+    reading = ApplicationRecord.connected_to(role: :reading) { current_database }
+    refuse("reading from #{reading}, not #{DATABASE}") unless reading == DATABASE
+  end
+
+  def current_database
+    ApplicationRecord.with_connection { |connection| connection.select_value("SELECT current_database()") }
   end
 
   # --- Seeding --------------------------------------------------------------

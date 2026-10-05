@@ -25,7 +25,9 @@ class Game::CollectDailyBonusConcurrencyTest < ActiveSupport::TestCase
   end
 
   test "two collections at once: one succeeds, the other is refused; one claim, one bonus pack" do
-    10.times { |index| create_pack(@player, available_at: (index + 1).minutes.ago) }
+    # Nine available packs: one short of a full reserve, so the bonus is
+    # refused for being taken, not for the reserve.
+    9.times { |index| create_pack(@player, available_at: (index + 1).minutes.ago) }
     gate = Queue.new
     threads = Array.new(2) do
       Thread.new do

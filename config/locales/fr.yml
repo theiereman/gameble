@@ -424,6 +424,7 @@ fr:
       no_pack_available: "Le coffre est vide, Confrère. Attends le prochain paquet."
       already_collected: "Tu as déjà pris le bonus du jour, Confrère. Le prochain vient après minuit (UTC)."
       no_season: "La Confrérie n'a pas encore de saison de cartes, Confrère. Reviens plus tard dans la journée pour ton bonus."
+      reserve_full: "Votre réserve est pleine : ouvrez un booster pour récupérer celui du jour."
     steam:
       invalid_claimed_id: "Les scribes ne reconnaissent pas les papiers que tu rapportes, Confrère. Enrôle-toi à nouveau."
       sign_in_failed: "L'enrôlement a échoué, Confrère. Tes papiers n'ont pas été tamponnés ; réessaie."

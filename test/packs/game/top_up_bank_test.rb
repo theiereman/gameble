@@ -35,7 +35,7 @@ class Game::TopUpBankTest < ActiveSupport::TestCase
       assert_equal catalog_seasons(:one).id, replacement.season_id
       assert_equal 5, replacement.card_season_ids.size
       assert_empty replacement.card_season_ids - fixture_tier_ids
-      assert_equal({ available: 9, next_available_at: @now + 10.minutes }, summary)
+      assert_equal({ available: 9, reserve_full: false, next_available_at: @now + 10.minutes }, summary)
     end
   end
 
@@ -57,7 +57,7 @@ class Game::TopUpBankTest < ActiveSupport::TestCase
 
     travel_to(@now + 35.minutes) do
       assert_equal 10, bank.count
-      assert_equal({ available: 3, next_available_at: @now + 40.minutes }, summary)
+      assert_equal({ available: 3, reserve_full: false, next_available_at: @now + 40.minutes }, summary)
       assert_equal 7, bank.where(available_at: (@now + 35.minutes)..).count
     end
   end
@@ -110,12 +110,12 @@ class Game::TopUpBankTest < ActiveSupport::TestCase
     travel_to(@now) do
       assert_equal bonus, open.value!
       assert_equal 10, Game::Pack.where(player_id: @player.id).regular.count
-      assert_equal({ available: 10, next_available_at: nil }, summary)
+      assert_equal({ available: 10, reserve_full: true, next_available_at: nil }, summary)
     end
   end
 
   test "the bank summary of a player without a bank has no next pack" do
-    assert_equal({ available: 0, next_available_at: nil }, summary)
+    assert_equal({ available: 0, reserve_full: false, next_available_at: nil }, summary)
   end
 
   test "an emptied bank is healed with ten packs scheduled from now, once, and BankToppedUp" do

@@ -24,6 +24,10 @@ class SignedOutAtticTest < ApplicationSystemTestCase
 
     assert_current_path home_path(locale: :en)
     within(".attic__chest-action") { assert_button "Open a pack (10)" }
-    within(".attic__bonus") { assert_button "Take it" }
+    # Ten new packs make a full reserve: the panel asks to open one first (AD-7).
+    within(".attic__bonus") do
+      assert_text I18n.t("errors.game.reserve_full", locale: :en)
+      assert_no_button "Take it"
+    end
   end
 end

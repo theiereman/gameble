@@ -1,0 +1,16 @@
+# Every fixture player has their game state row, as a registered or
+# backfilled player does (AD-28).
+_fixture:
+  model_class: Game::PlayerState
+
+player:
+  player_id: <%= ActiveRecord::FixtureSet.identify(:player) %>
+
+moderator:
+  player_id: <%= ActiveRecord::FixtureSet.identify(:moderator) %>
+
+administrator:
+  player_id: <%= ActiveRecord::FixtureSet.identify(:administrator) %>
+
+banned:
+  player_id: <%= ActiveRecord::FixtureSet.identify(:banned) %>

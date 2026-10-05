@@ -16,6 +16,12 @@ class SessionsController < ApplicationController
   # Steam's return is a browser GET that rack-openid relabels as POST, so it
   # carries no authenticity token. Login CSRF is guarded by SIGN_IN_STARTED.
   skip_forgery_protection only: :create
+  # The callback signs the player in, which writes (Accounts::SignIn), so it
+  # never runs under the read-only role (AD-11). Through Steam it arrives as
+  # a POST anyway (rack-openid relabels the return with `_method=post`); it
+  # is a real GET only under OmniAuth's test mode, which is what this skip
+  # covers. `failure` and `destroy` keep the role.
+  skip_around_action :read_only_unless_writing, only: :create
 
   ORIGIN_PATH = %r{\A/(?:#{I18n.available_locales.join("|")})(?:/[^\\\s]*)?\z}
 

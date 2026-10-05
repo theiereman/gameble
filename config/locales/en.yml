@@ -417,6 +417,7 @@ en:
       no_pack_available: "The chest is empty, Brother. Wait for the next pack."
       already_collected: "You have already taken today's bonus, Brother. The next one comes after midnight (UTC)."
       no_season: "The Brotherhood has no season of cards yet, Brother. Come back later today for your bonus."
+      reserve_full: "Your reserve is full: open a booster to collect today's."
     steam:
       invalid_claimed_id: "The scribes could not recognise the papers you brought back, Brother. Enlist again."
       sign_in_failed: "The enlistment did not go through, Brother. Your papers were not stamped; try again."

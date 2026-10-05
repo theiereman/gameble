@@ -10,6 +10,10 @@ module Steam
     ASSET_BASE = "https://shared.akamai.steamstatic.com/store_item_assets/".freeze
     FILENAME = "${FILENAME}".freeze
 
+    # The hosts Steam serves card images from, as Content-Security-Policy
+    # sources (AD-27): ASSET_BASE's host and its siblings.
+    IMAGE_SOURCES = %w[https://*.steamstatic.com].freeze
+
     # The URL of `filename` from the item's format; nil when either is blank
     # or the format names no file.
     def self.asset_url(asset_url_format, filename)

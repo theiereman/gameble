@@ -7,6 +7,9 @@ class ApplicationController < ActionController::Base
   # WhatsApp) and older browsers get them.
   allow_browser versions: :modern, unless: :public_read?
 
+  # First, so everything the request reads (the player included) runs on
+  # the role it chose.
+  around_action :read_only_unless_writing
   around_action :switch_locale
   before_action :set_sentry_user
 
@@ -24,6 +27,19 @@ class ApplicationController < ActionController::Base
     # PublicRead concern opens a controller's GET and HEAD requests.
     def public_read?
       false
+    end
+
+    # A GET or HEAD reads (AD-11): it runs under the `reading` role with
+    # writes prevented, so a write from an ApplicationRecord model or the
+    # event store raises ActiveRecord::ReadOnlyError. A write a page needs
+    # is a separate POST to an operation. Enqueuing a job is not a write to
+    # the primary: Solid Queue keeps its own connection class.
+    def read_only_unless_writing(&action)
+      if request.get? || request.head?
+        ApplicationRecord.connected_to(role: :reading, prevent_writes: true, &action)
+      else
+        yield
+      end
     end
 
     # Each request runs in the locale of its URL (AD-18), Pagy's links
