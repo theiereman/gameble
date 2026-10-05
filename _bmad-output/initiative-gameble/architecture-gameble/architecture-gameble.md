@@ -5,17 +5,19 @@ purpose: build-substrate
 altitude: initiative
 paradigm: 'modular monolith with an operations layer'
 scope: 'The gameble MVP as a whole: one Rails application, its four domain packs, its web layer, the Steam import and the deployment.'
-status: final
+status: draft
 created: '2026-10-02'
-updated: '2026-10-02'
-binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18]
+updated: '2026-10-05'
+binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21]
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/catalog-and-rarity.md
-  - ../spec-gameble/stack.md
   - ../spec-gameble/later-roadmap.md
+  - ../spec-gameble/brotherhood-tone.md
   - ../ux-gameble/DESIGN.md
   - ../ux-gameble/EXPERIENCE.md
+  - ../ux-gameble/ux-gameble.md
+  - ../ux-gameble/review-feasibility.md
 companions: []
 ---
 
@@ -27,11 +29,11 @@ A **modular monolith with an operations layer**: one Rails application, four dom
 
 | Layer | Directory | Holds |
 | --- | --- | --- |
-| `Catalog` | `packs/catalog` | Cards, card texts per locale, seasons, a card's rarity and dust tier for a season, sets |
+| `Catalog` | `packs/catalog` | Cards, card texts per locale, genres, seasons, a card's rarity and number for a season, sets |
 | `Steam` | `packs/steam` | Steam API client, import jobs, raw Steam data, import runs, sign-in verification |
-| `Accounts` | `packs/accounts` | Players, staff roles, bans, reports, data controls |
-| `Game` | `packs/game` | Pack bank, owned cards, trades, friendships, weekly goal, daily bonus, achievements, events and their handlers |
-| Web layer | `app/` | Controllers, policies, view components, React components, back-office |
+| `Accounts` | `packs/accounts` | Players, staff roles, last seen, profile visibility, preferences, bans, reports, data controls |
+| `Game` | `packs/game` | Pack bank, owned cards, trades, invitations, friendships, card backs, weekly goal, daily bonus, achievements, feed, presence activity, events and their handlers |
+| Web layer | `app/` | Controllers, policies, view components, Stimulus controllers, React islands, back-office, legal page |
 | Image filter | `packages/pixel-art-filter` | Standalone browser package |
 
 ## Invariants & Rules
@@ -51,7 +53,7 @@ graph TD
 
 - **Binds:** all
 - **Prevents:** game rules scattered across controllers, callbacks, jobs and components.
-- **Rule:** Domain code lives in one of the four packs. The web layer holds no game rule: it calls operations and queries, renders, and authorizes.
+- **Rule:** Domain code lives in one of the four packs. The web layer holds no game rule: it calls operations and queries, renders, and authorizes. Nothing anywhere takes real money: no purchase, no ad, no cash-out.
 
 ### AD-2 — Dependency direction, enforced `[ADOPTED]`
 
@@ -68,14 +70,22 @@ graph TD
 ### AD-4 — Steam is an adapter `[ADOPTED]`
 
 - **Binds:** CAP-1, CAP-2, CAP-3
-- **Prevents:** an engine that cannot be forked onto another catalog.
-- **Rule:** `Steam` is the only code that knows Steam. It keeps raw Steam responses in its own tables, computes a prestige score, and writes cards into `Catalog`. `Catalog` and `Game` never reference a Steam-specific field.
+- **Prevents:** an engine that cannot be forked onto another catalog; Steam data about players kept beyond need.
+- **Rule:**
+  - `Steam` is the only code that knows Steam. It keeps raw Steam catalog responses in its own tables and writes cards into `Catalog`. `Catalog` and `Game` never reference a Steam-specific field; a card's image is an opaque `image_url`.
+  - `Steam` computes the prestige score from the review score and review count only, and a source-neutral rating for "best rated of the year".
+  - `Steam` computes a card's genres from its tags: the tags of the curated list in `Steam::GenreTags`, most-voted first.
+  - The only Steam data kept about a player is the Steam id and the persona name, refreshed at each sign-in. A player's library, playtime or achievements are never read.
 
 ### AD-5 — The catalog is published by season `[ADOPTED]`
 
-- **Binds:** CAP-2, CAP-3, CAP-4, CAP-6
-- **Prevents:** a half-imported catalog being drawn from; rarities drifting under owned cards.
-- **Rule:** An import fills a draft season. `Catalog::PublishSeason` turns scores into the 5 tiers, builds the sets and makes the season visible at once. Draws read only the published season. Rarity and dust tier live on the card-season record and never change after publication.
+- **Binds:** CAP-2, CAP-3, CAP-4, CAP-6, CAP-7
+- **Prevents:** a half-imported catalog being drawn from; rarities, numbers or genres drifting under owned cards.
+- **Rule:**
+  - An import fills a draft season. `Catalog::PublishSeason` turns scores into the 5 tiers, gives every card of the season its number by a random shuffle (`SecureRandom`), builds the sets and makes the season visible at once. Only `PublishSeason` assigns numbers; a season published before numbers existed gets them once, by the same shuffle.
+  - Draws read only the published season.
+  - Rarity, number and set memberships belong to the card-season and never change after publication. A card's genre in a season is the genre of its tome in that season; a card in no tome shows no genre.
+  - A card's identity (texts, publisher, release date, store and image URL) is shared by its seasons and follows Steam: it is refreshed by the import (`Catalog::UpsertDraftCard`) and by AD-19's image refresh, nothing else.
 
 ### AD-6 — Owned cards are counted, not listed `[ADOPTED]`
 
@@ -88,34 +98,43 @@ graph TD
 - **Binds:** CAP-4, CAP-5, CAP-12, CAP-16
 - **Prevents:** draws at click time, per-player scheduled tasks, and several ways of granting a pack.
 - **Rule:**
-  - A player's bank holds ten pre-drawn packs, each with its 5 cards and an availability time. Pack credit is read from those times; no task runs per player.
+  - A player's bank holds ten pre-drawn regular packs, each with its cards and an availability time. Pack credit is read from those times; no task runs per player. A new player's ten packs are all available at once.
+  - Each pack kind (regular, daily bonus, weekly reward) fixes its card count and its odds table: 5 cards at the published odds for a regular pack, 3 at the bonus odds for the daily bonus.
   - A new player's bank is filled by a `Game` handler reacting to `Accounts::PlayerRegistered`, with the first-session guarantee of the spec.
   - A replacement pack becomes available ten minutes after the latest availability time in the bank, or ten minutes after the opening when the bank was full.
-  - `Game::OpenPack` locks the player's bank, consumes one available pack, credits the 5 cards, publishes its event, and tops the bank back up to ten in the same transaction (`Game::TopUpBank`): each replacement is drawn at once from the in-memory pool. No job draws packs, and no undrawn pack exists.
-  - A draw picks the tier by the published odds, then a card uniformly within the tier, with secure randomness, from an in-memory list of the published season.
-  - Bonus and reward packs are rows of the same table, outside the cap of ten.
+  - `Game::OpenPack` takes the player's bank lock, consumes the oldest available pack of any kind, credits its cards, publishes its event, and tops the bank back up to ten in the same transaction (`Game::TopUpBank`): each replacement is drawn at once from the in-memory pool. The only other drawer is `Game::HealBanksJob`, which fills banks left short when a season is published, one player per transaction.
+  - A draw picks the tier by the pack kind's odds, then a card uniformly within the tier, with secure randomness, from an in-memory list of the published season.
+  - The reserve shown to the player is every unopened pack, of any kind, already available. The daily bonus claim fails with `reserve_full` while it holds 10; the operation and the page read that from one query.
   - The reveal is a browser animation. The server keeps no flip state.
-  - Opening reads a pre-drawn pack and writes at most 5 counted rows, which keeps it within the spec's 200 ms p95.
+  - Opening reads a pre-drawn pack and writes at most 5 counted rows; its handlers stay within the spec's 200 ms p95, measured on `POST /packs` before launch.
 
-### AD-8 — Trades reserve cards `[ADOPTED]`
+### AD-8 — Trades reserve the offer `[ADOPTED]`
 
-- **Binds:** CAP-11
-- **Prevents:** a card promised twice; partial transfers; deadlocks.
-- **Rule:** Two friends have at most one open trade. Placing a card raises `reserved` on its row; declining, cancelling and expiry lower it. Acceptance is one transaction that locks both players' rows in the order of AD-6, moves the cards and closes the trade. A counter-proposal replaces the current offer and hands the turn over. A periodic job closes expired trades.
+- **Binds:** CAP-10, CAP-11
+- **Prevents:** a card promised twice; partial transfers; deadlocks; a friend freezing a player's cards.
+- **Rule:**
+  - A friendship is one row per pair, the lower player id first, unique. It exists once an invitation is accepted. An invitation (by link or by friend code) is pending, accepted or ignored; accepting creates the friendship in the same operation. Each player has a short random friend code in `Game`, never derived from an id.
+  - Every trade operation requires the two players to be friends.
+  - Two friends have at most one open trade. A proposal holds an offer and a request, each with at least one card, at most 4 distinct card-seasons per side, each with a quantity.
+  - Only the current proposal's offer is reserved: sending it raises `reserved` on the sender's rows, up to `quantity - reserved`. A counter-proposal releases the previous offer and reserves the new one, then hands the turn over. Declining, cancelling and expiry release the offer.
+  - Acceptance is one transaction: it refuses a proposal past its expiry, locks both players in the order of AD-10, checks that the requested cards are still free, moves both sides and closes the trade.
+  - A proposal expires 7 days after it was sent; a periodic job closes expired trades, one trade per transaction.
 
 ### AD-9 — No row is written by every player `[ADOPTED]`
 
-- **Binds:** CAP-12, CAP-13, CAP-16, CAP-17
+- **Binds:** CAP-12, CAP-13, CAP-16, CAP-17, CAP-21
 - **Prevents:** lock queues on a hot row.
-- **Rule:** Shared figures are derived from per-player rows. Uniqueness is left to the database: one daily-bonus row per player and UTC day, one first-discovery row per card-season, one reward row per player and week.
+- **Rule:** Shared figures are derived from per-player rows. Uniqueness is left to the database: one daily-bonus row per player and UTC day, one first-discovery row per card-season, one reward row per player and week, one unlock row per player and card back.
 
 ### AD-10 — Events are the only bridge to derived data `[ADOPTED]`
 
-- **Binds:** CAP-12, CAP-13, CAP-14, CAP-17
-- **Prevents:** a feed, gauge or achievement computed three different ways; personal data frozen in a log.
+- **Binds:** CAP-12, CAP-13, CAP-14, CAP-17, CAP-19, CAP-20, CAP-21
+- **Prevents:** a feed, gauge, unlock or achievement computed three different ways; personal data frozen in a log; a race or a duplicate aborting an opening.
 - **Rule:**
-  - Each operation publishes one Rails Event Store event inside its transaction. Events are never modified.
-  - A handler runs in that transaction and writes only rows of that player or new rows: a feed entry, a weekly contribution, an achievement.
+  - An operation that changes state publishes one primary Rails Event Store event inside its transaction; an operation that changes nothing publishes nothing, and housekeeping writes (last seen, the NOUVEAU watermark) publish none. Events are never modified.
+  - An operation that raises a player's quantities then publishes one `Game::SetCompleted` per set that player completes for the first time, decided by inserting a set-completion row (unique per player and set) with `ON CONFLICT DO NOTHING`.
+  - A handler runs in that transaction, never publishes an event, and writes only rows of that player or new rows: a feed entry, a weekly contribution, an achievement, a card back unlock, the player's latest activity. Unique rows are inserted with `ON CONFLICT DO NOTHING`; a duplicate never fails the operation.
+  - Lock order inside a transaction: each player's advisory lock (`Game::BankLock`) in ascending player id, then holdings in ascending player then card-season, then the players' `game_player_states` rows.
   - Totals across players (the gauge) are summed by one periodic job.
   - State tables are the truth; events are not replayed to rebuild them.
   - Events carry identifiers only. Deleting an account anonymises the player record.
@@ -123,9 +142,9 @@ graph TD
 
 ### AD-11 — A separate read path `[ADOPTED]`
 
-- **Binds:** CAP-6, CAP-7, CAP-8, CAP-13, CAP-18
+- **Binds:** CAP-6, CAP-7, CAP-8, CAP-13, CAP-18, CAP-21
 - **Prevents:** a rewrite when a read replica is added.
-- **Rule:** Requests that only read and tolerate a second of delay run under the database `reading` role. At the start that role points to the primary.
+- **Rule:** Requests that only read and tolerate a second of delay run under the database `reading` role, declared from the start and pointing to the primary. A GET never writes the primary: it runs with writes prevented, and a write a page needs after rendering (the NOUVEAU watermark) is a separate POST to an operation. Enqueuing a job is not a write to the primary.
 
 ### AD-12 — Backends are swapped by configuration `[ADOPTED]`
 
@@ -135,54 +154,76 @@ graph TD
 
 ### AD-13 — Broadcasts are batched and leave after commit `[ADOPTED]`
 
-- **Binds:** CAP-12, CAP-13
-- **Prevents:** broadcasts of uncommitted state; one message per event at high load.
-- **Rule:** Broadcasts are sent by a job, never inside a transaction. The gauge is broadcast about every ten seconds; feed entries leave in small batches. Feed and gauge streams are public. The choice of what enters the feed lives in one handler.
+- **Binds:** CAP-8, CAP-10, CAP-11, CAP-12, CAP-13, CAP-20
+- **Prevents:** broadcasts of uncommitted state; one message per event at high load; a per-friend fan-out; a hidden player shown.
+- **Rule:**
+  - Jobs are enqueued only after their transaction commits (`enqueue_after_transaction_commit`). Broadcasts are sent by a job, never inside a transaction. The gauge is broadcast about every ten seconds; feed entries leave in small batches. Feed and gauge streams are public. The choice of what enters the feed lives in one handler.
+  - Each player has one private Turbo Stream, named by an opaque random key held in `Accounts` and rotated on ban and deletion. It carries only what calls for an answer: trade proposals and their state changes, friend invitations, and card backs unlocked outside an opening. The cable connection identifies the player from the session and refuses a banned one.
+  - The feed's Friends tab and friends' presence are read when the page renders; nothing is broadcast to every friend.
+  - Every surface that names a player beside their cards asks one question, `Game::Visibility.visible?(viewer, owner)`, at render or at broadcast; nothing is stored on the entry. Public surfaces show an entry only if every player it names is public and not banned or deleted; the Friends tab also shows friends-only friends.
 
 ### AD-14 — Identity and access `[ADOPTED]`
 
-- **Binds:** CAP-1, CAP-14, CAP-15, CAP-18
-- **Prevents:** a second sign-in path; an unprotected mutation; a ban that takes effect late.
+- **Binds:** CAP-1, CAP-8, CAP-14, CAP-15, CAP-18
+- **Prevents:** a second sign-in path; an unprotected mutation; a ban that takes effect late; a private profile shown; data left behind by a deletion.
 - **Rule:**
-  - Sign-in is Steam only, through OmniAuth and `omniauth-openid`; the Steam-specific verification lives in `Steam` and hands a Steam id to `Accounts`.
+  - Sign-in is Steam only, through OmniAuth and `omniauth-openid`; the Steam-specific verification lives in `Steam` and hands a Steam id to `Accounts`. The only link to it is Valve's official sign-in image. Signing in and out are full page loads.
   - The session is an encrypted cookie holding only the player id. Each request reloads the player and checks the ban.
-  - Every controller action has a Pundit policy. Every `Game` operation requires a player as input.
+  - Every controller action has a Pundit policy; a signed-out player is refused with `sign_in_required`. Every `Game` operation acts for one player given as input; work over many players is a job running that operation once per player, or a `Game::SystemOperation` that writes only rows belonging to no player.
   - Roles: signed-out visitor, player, moderator, administrator.
+  - Profile visibility is public, friends only or private, stored in `Accounts`. The profile policy and AD-13's visibility question combine it with `Game`'s friendship query.
+  - Deleting an account publishes `Accounts::PlayerDeleted`; `Game` handles it by cancelling open trades, releasing reservations and dropping friendships, invitations and its private key. A ban hides the player everywhere through AD-13. The data export is assembled in the web layer from `Accounts` and `Game` queries.
 
 ### AD-15 — No internal id in a URL `[ADOPTED]`
 
 - **Binds:** CAP-7, CAP-8, CAP-9, CAP-10
-- **Prevents:** counting or enumerating players.
-- **Rule:** Players are addressed by a random token, cards by a slug. Database ids never appear in URLs, HTML or JSON.
+- **Prevents:** counting or enumerating players; a share link exposing its sharer.
+- **Rule:** Players are addressed by a random token, cards by a slug, packs and invitations by a token. Database ids never appear in URLs, HTML, JSON, DOM ids or stream names. The share link addresses a card-season and never a player; its page shows the card only, and its preview carries the title and rarity and no image.
 
-### AD-16 — Server-rendered pages, few React islands `[ADOPTED]`
+### AD-16 — Server-rendered pages, three React islands `[ADOPTED]`
 
 - **Binds:** CAP-5, CAP-11, and every screen
-- **Prevents:** a second application growing in the browser.
+- **Prevents:** a second application growing in the browser; a card face drawn two ways; islands reaching into the page chrome.
 - **Rule:**
-  - Pages are rendered by Rails with ViewComponent and Hotwire.
-  - React is used for the pack reveal and the trade board, and for the back-office card preview that shows both card renderers side by side (story 3.5), mounted with Turbo Mount and written in TypeScript. A new island needs an amendment here.
-  - A component receives its initial data and its translated strings as props. Each player action calls a server endpoint that runs an operation.
+  - Pages are rendered by Rails with ViewComponent and Hotwire. Behaviour on server-rendered pages lives in named Stimulus controllers (`card-art`, `tilt`, `starfield`, `countdown`, `ticker`, `hotkeys`, `dialog`, `toast`, …).
+  - React is used for three islands, mounted with Turbo Mount and written in TypeScript: the booster (desktop and phone modes), the trade board, and the back-office card preview. A new island needs an amendment here.
+  - A card face has one renderer: the card ViewComponent. An island receives faces as server-rendered HTML and draws only the back, the flip and its choreography. Server HTML carries no `style` attribute; dynamic values are set as custom properties by a controller.
+  - Islands talk to the chrome only through typed `gameble:*` DOM events (for example `tier-revealed`, `bank-changed`, `toast`, `trade-badge`, `back-unlocked`), all declared in one TypeScript file.
+  - The filter client, tilt, reduced motion and `t()` are shared modules in `app/frontend/lib`, used by both Stimulus and React.
+  - A component receives its initial data and its strings as props. Each player action calls a server endpoint that runs an operation.
   - There is no client-side router and no global client store.
   - Styles are plain CSS; the tokens of `DESIGN.md` are CSS custom properties.
 
 ### AD-17 — The image filter is a standalone package `[ADOPTED]`
 
 - **Binds:** CAP-5, CAP-6, CAP-7, CAP-8
-- **Prevents:** several implementations of the card art treatment; code that cannot be published.
-- **Rule:** Pixelation and reduction to 16 colours live in `packages/pixel-art-filter`, in TypeScript, with no dependency on gameble. The card view component and the React components both use it. Images are loaded from Steam's CDN and never stored.
+- **Prevents:** several implementations of the card art treatment; code that cannot be published; the filter blocking the opening animation.
+- **Rule:**
+  - Cropping to the art box (anchored at 42 %), pixelation at 2 CSS px per art pixel and reduction to 32 colours by median cut, without dithering, live in `packages/pixel-art-filter`, in TypeScript, with no dependency on gameble.
+  - The filter runs in a Web Worker with `OffscreenCanvas`, lazily, with 2 to 4 jobs at once. One palette per game is computed from the largest size needed and reused at every size. A browser without these APIs (public pages are open to older browsers) gets the cover pixelated without palette on the main thread.
+  - Filtered bitmaps are kept in a bounded in-memory cache and closed when evicted. Images are loaded from Steam's CDN, never stored, never in a service worker or browser storage, and no palette or other image-derived data is stored server-side.
+  - Image requests carry no added header and no referrer. A CORS failure is retried once on the main thread with a plain image and drawn pixelated without palette; a failure is not cached for the session.
+  - A decoded image under 300 × 450 or with a single channel counts as missing.
 
 ### AD-18 — One place for copy `[ADOPTED]`
 
 - **Binds:** all
-- **Prevents:** strings translated in two places; a locale shipped incomplete.
-- **Rule:** All interface copy lives in Rails locale files, in French and English, and follows `brotherhood-tone.md`. The locale is the first segment of the URL. Card text per locale lives in `Catalog`. CI fails on a key missing in either locale.
+- **Prevents:** strings translated in two places; a locale shipped incomplete; plurals or numbers formatted per island.
+- **Rule:**
+  - All interface copy lives in Rails locale files, in French and English, and follows `brotherhood-tone.md` (copy says "vous"). The interface says "booster", "réserve" and "objectif communautaire"; code and docs keep pack, bank and weekly goal. The locale is the first segment of the URL. Card text per locale lives in `Catalog`. CI fails on a key missing in either locale.
+  - Islands receive a scoped map of templates with `one`/`other` forms and `%{n}` placeholders, read by one shared `t()` that applies Rails' plural rule for each locale and falls back to `other`.
+  - Strings are stored in natural case; uppercase is applied by CSS. Numbers are formatted by one helper on each side that groups digits with U+00A0.
+  - Relative times are server-rendered `<time>` elements refreshed by a Stimulus controller.
 
 ### AD-19 — The import is a separate, resumable process `[ADOPTED]`
 
 - **Binds:** CAP-2, CAP-3
-- **Prevents:** play depending on Steam; an import that cannot be watched or resumed.
-- **Rule:** Import jobs run on their own queue with one throttled worker, resume after interruption, and write idempotently. An administrator starts a run by hand. Each run has a record with its step, counts and errors, shown in the back-office.
+- **Prevents:** play depending on Steam; an import that cannot be watched or resumed; covers dying between seasons.
+- **Rule:**
+  - The import reads the keyed Steam Web API only (`GetAppList`, `GetTagList`, `GetItems`), with the key from the environment; the keyless store API is not used. Every season re-imports every game, with card text per UI language.
+  - Import jobs run on their own queue with one throttled worker, resume after interruption, and write idempotently. An administrator starts a run by hand. Each run has a record with its step, counts and errors, shown in the back-office.
+  - The cover address is the `library_capsule` asset built from `GetItems`' `asset_url_format`; a game without one is excluded.
+  - A weekly recurring job on the same queue re-reads `GetItems` for the published season's cards and replaces an `image_url` only with a new valid address, through a dedicated `Catalog` operation; it never clears one.
 
 ### AD-20 — Proven gems first `[ADOPTED]`
 
@@ -190,15 +231,16 @@ graph TD
 - **Prevents:** each session re-implementing a solved problem its own way.
 - **Rule:** Use a long-proven, maintained gem when one fits. Write custom code only when none does. A new dependency is added to the Stack table with its version.
 
-### AD-21 — One image, three processes `[ADOPTED]`
+### AD-21 — One image, separable processes `[ADOPTED]`
 
 - **Binds:** all
-- **Prevents:** deployment choices that block scaling out.
+- **Prevents:** deployment choices that block scaling out; downtime at deploy.
 - **Rule:**
-  - One container image runs as three processes: web, jobs, import worker. Kamal 2 deploys them.
-  - App instances are stateless. Configuration comes from environment variables only.
+  - One container image runs as web, general jobs and the import worker. Kamal 2 deploys them. At the start general jobs run inside Puma (`SOLID_QUEUE_IN_PUMA`); moving them to their own process is configuration.
+  - App instances are stateless. Configuration comes from environment variables only; production refuses to boot without a valid `PUBLIC_URL`.
+  - Web answers a health check at `/up`; web and job processes drain on `SIGTERM`.
   - PostgreSQL has four logical databases: primary, queue, cache, cable. Each can move to its own server.
-  - `strong_migrations` refuses a migration that would block the database.
+  - Every schema change is expand/contract; `strong_migrations` refuses a migration that would block the database.
   - Cloudflare sits in front. Sentry receives errors. Backups exist before launch.
 
 ### AD-22 — What CI refuses `[ADOPTED]`
@@ -207,19 +249,87 @@ graph TD
 - **Prevents:** untested rules in a language without static types.
 - **Rule:** Tests are Minitest with fixtures. Each operation is tested for success and for every failure. The draw has a statistical test against the published odds. Each policy is tested, including for the signed-out visitor. Each key flow of `EXPERIENCE.md` has one end-to-end test. CI fails on a test failure, a pack boundary violation, a missing translation or an unsafe migration.
 
+### AD-23 — The opening exchange `[ADOPTED]`
+
+- **Binds:** CAP-4, CAP-5, CAP-20
+- **Prevents:** each session inventing its own opening request; a lost response costing a reveal; a double activation opening two packs.
+- **Rule:**
+  - The booster island sends `POST /:locale/packs` as JSON with an idempotency key generated per activation, and locks its trigger until the answer.
+  - Success returns the pack's kind and its 3 or 5 cards in drawn order (each as its server-rendered face plus slug, tier and cover URL), the bank count and availability times, the server time, the pack's card back, the per-tier counts before the opening, and any card back unlocked by it.
+  - Failure uses the JSON error convention with the codes `no_pack_available`, `throttled`, `sign_in_required`.
+  - The key and the active card back are stored on the opened pack; the key is unique per player. A repeated key returns that pack as it was opened, before any throttle or availability check, and opens nothing more.
+  - The opened pack's page (`/:locale/packs/:token`) stays as "mon dernier booster": cards face up, no reveal.
+
+### AD-24 — Presence is read, not tracked `[ADOPTED]`
+
+- **Binds:** CAP-21
+- **Prevents:** presence drifting after a crash or a deploy; a write inside a GET; presence pushed to every friend.
+- **Rule:**
+  - "Last seen" is `last_seen_at` on the player's row in `Accounts`. A request enqueues a job that updates it, at most about once a minute per player. "Online" means seen within a short window.
+  - The activity shown ("Ouvre un booster") is the player's latest game action and its time, written by a `Game` handler on the player's `game_player_states` row from the events of AD-10, and shown while recent.
+  - Presence is not built on Action Cable connections. It is read when the friends page or menu renders (AD-13).
+
+### AD-25 — Card backs live in code `[ADOPTED]`
+
+- **Binds:** CAP-20
+- **Prevents:** two catalogues of backs; unlocks granted from several places.
+- **Rule:**
+  - The back catalogue is one constant in `Game`: each back has a key, an exported asset file and an unlock rule. Adding a back is a commit.
+  - Unlocks are rows per player and back, unique. The active back is a column of the player's `game_player_states` row. Every account has `standard`.
+  - Unlocks are granted only by `Game` handlers on events (AD-10), and by one administrator operation run from the console that grants a back to a group of players, one player per transaction.
+  - An unlock is announced by the opening's response (AD-23) or the private stream (AD-13).
+  - The active back shows only to its owner: on their face-down cards at opening, as stored on the pack, and faded on the detail of a card they do not own.
+
+### AD-26 — NOUVEAU is a watermark `[ADOPTED]`
+
+- **Binds:** CAP-6, CAP-11
+- **Prevents:** a write per card seen; a write inside a GET; cards marked new by a reservation.
+- **Rule:**
+  - A holding has `last_gained_at`, set only when its quantity rises. The player's `game_player_states` row holds a "collection seen up to" watermark.
+  - A holding is new when its quantity is above zero and `last_gained_at` is after the watermark.
+  - Only the player's own collection page, once rendered, posts the largest `last_gained_at` it showed to an operation, which keeps the greater of that and the current watermark (AD-11).
+
+### AD-27 — Layout, motion and assets `[ADOPTED]`
+
+- **Binds:** every screen
+- **Prevents:** layouts guessed from the mocks; navigation motion fighting Turbo; unbounded animation cost; procedural art at runtime; a CSP that blocks the app.
+- **Rule:**
+  - Nothing is scaled. The document scrolls, with the top bar and the ticker; the phone tab bar is fixed with safe-area padding. Breakpoints are 720 and 1180 px, content is capped at 1280 px, the phone is a portrait column of at most 480 px with `viewport-fit=cover`; the manifest asks for portrait, and no landscape layout exists where it is ignored.
+  - Screen changes use View Transitions through Turbo's `view-transition` meta tag, rendered only when motion is allowed. Phone sub-views are Turbo Frames that advance the URL, wrapped in a View Transition by one Stimulus controller. The star field, scanlines and vignette are `data-turbo-permanent` and absent from the back-office. Lock-in animations are skipped on Turbo previews. Booster and trade pages are never cached by Turbo. Browser Back is always allowed.
+  - "Animations réduites" is stored on the player in `Accounts`, mirrored in a cookie for signed-out visitors, follows the system by default, and is read through one shared switch by CSS, Stimulus and the islands; when on it stops the LIVE ticker and every looping or blinking effect.
+  - Infinite animations animate only `transform` or `opacity`; animation loops stop when nothing moves or the page is hidden; at most six infinite animations show at once on a phone view; holo and foil run only on cards in the viewport; offscreen grid cards use `content-visibility: auto`. Listeners and timers are removed on disconnect or cleanup. Mocks are a reference, never source.
+  - Pixel-art assets (backs, canister, icons, avatars, planet, logo) are exported once by a script to static files under `app/frontend/images/pixel/`.
+  - Fonts are self-hosted subsetted woff2 files.
+  - The production Content-Security-Policy has no inline script and `script-src 'self'`; nonces cover styles only; `img-src` and `connect-src` allow the Steam image hosts, `connect-src` the cable's `wss:` origin, `worker-src 'self' blob:`, `font-src 'self'`. Development has its own policy for the Vite server. It runs report-only for one release first.
+  - Supported browsers are Rails' `allow_browser :modern`, except the public pages a link can open.
+
+### AD-28 — Reworking the first direction `[ADOPTED]`
+
+- **Binds:** every screen built in epics 1 to 4
+- **Prevents:** two interfaces maintained at once; screens restyled by sessions that disagree on the shell; built code left contradicting this spine.
+- **Rule:**
+  - One story replaces the shell first: tokens, fonts, layout, top bar, tab bar, toasts and base components. Screens are then reworked one at a time; in between a screen may show old content in the new shell. There is no feature flag and no second stylesheet.
+  - Data changes follow expand/contract (AD-21): `dust_tier` leaves the card-season record; card-season numbers are added (AD-5); holdings gain `last_gained_at`; `game_player_states` is created and backfilled; tier code names become `common`, `uncommon`, `rare`, `epic`, `legendary` with integers 1 to 5 unchanged.
+  - Built code brought into line: `Card.tsx` and the two-renderer preview give way to AD-16's single face; the daily bonus refuses a full reserve (AD-7); jobs enqueue after commit (AD-13); GETs run on the reading role with writes prevented (AD-11).
+
 ## Consistency Conventions
 
 | Concern | Convention |
 | --- | --- |
 | Naming: tables | Prefixed by pack: `catalog_cards`, `game_holdings`, `accounts_players`, `steam_apps`. |
 | Naming: operations | `Pack::VerbNoun`: `Game::OpenPack`, `Game::AcceptTrade`, `Catalog::PublishSeason`. |
-| Naming: events | `Pack::NounVerbed`, past tense: `Game::PackOpened`, `Game::TradeAccepted`, `Accounts::PlayerDeleted`. |
-| Naming: rarity tiers | Integers 1 to 5, named steel, emerald, sapphire, amethyst, gold. Defined once, in `Catalog`. |
+| Naming: events | `Pack::NounVerbed`, past tense: `Game::PackOpened`, `Game::SetCompleted`, `Accounts::PlayerDeleted`. |
+| Naming: rarity tiers | Integers 1 to 5; code names `common`, `uncommon`, `rare`, `epic`, `legendary`, defined once in `Catalog`; player-facing names (Commune … Légendaire) in locale files. |
+| Naming: DOM events | `gameble:<noun-verb>`, declared in one TypeScript file. |
+| Naming: player-facing words | Code, events and docs say pack, bank, weekly goal; only locale files say booster, réserve, objectif communautaire. |
+| Repo text | Code, comments and docs are in English. |
+| Naming: CSS tokens | `--color-*`, `--space-*`, `--font-*`, … from `DESIGN.md`. |
+| Card number | `S<season> · #<number>`, digits grouped with U+00A0, no total. |
 | Ids | `bigint` primary keys inside; public token or slug outside (AD-15). |
-| Time | Stored and computed in UTC. A day is a UTC day. A week is an ISO week starting Monday 00:00 UTC. |
+| Time | Stored and computed in UTC. A day is a UTC day. A week is an ISO week starting Monday 00:00 UTC. The client receives the server time with any countdown. |
 | Failures | An operation fails with a symbol code. Its message is the locale key `errors.<pack>.<code>`. |
 | JSON errors | `{ "error": { "code": "…", "message": "…" } }` with the matching HTTP status. |
-| Randomness | `SecureRandom` for every draw. |
+| Randomness | `SecureRandom` for every draw and the season numbering. |
 | Pagination | Pagy. |
 | Abuse | Rails `rate_limit` on mutating endpoints; edge protection at Cloudflare. |
 | Locales | `fr` and `en`. The first visit follows the browser language. |
@@ -227,13 +337,15 @@ graph TD
 
 ## Stack
 
-Verified against the RubyGems and npm registries on 2026-10-02. If a gem lags behind Ruby 4.0 at scaffold time, fall back to Ruby 3.4.11.
+Verified against the RubyGems and npm registries on 2026-10-02; browser APIs (View Transitions in Turbo 8, `OffscreenCanvas` in workers) checked on 2026-10-05. If a gem lags behind Ruby 4.0 at scaffold time, fall back to Ruby 3.4.11.
 
 | Name | Version |
 | --- | --- |
 | Ruby | 4.0.7 |
 | Rails | 8.1.4 |
 | PostgreSQL | 18 |
+| pg | 1.6.3 |
+| Node.js | 24.15.0 |
 | Puma | 8.0.2 |
 | Thruster | 0.1.26 |
 | Kamal | 2.12.0 |
@@ -245,6 +357,7 @@ Verified against the RubyGems and npm registries on 2026-10-02. If a gem lags be
 | Stimulus (stimulus-rails) | 1.3.4 |
 | ViewComponent | 4.15.0 |
 | Vite Rails | 3.11.1 |
+| vite-plugin-ruby | 5.2.5 |
 | Vite | 8.3.2 |
 | React | 19.3.0 |
 | TypeScript | 7.0.2 |
@@ -253,6 +366,7 @@ Verified against the RubyGems and npm registries on 2026-10-02. If a gem lags be
 | @hotwired/turbo-rails (npm) | 8.0.23 |
 | @hotwired/stimulus (npm) | 3.2.2 |
 | turbo-mount (npm) | 0.4.4 |
+| Capybara, selenium-webdriver (system tests) | 3.40.0, 4.50.0 |
 | react-dom | 19.3.0 |
 | @types/react, @types/react-dom | 19.3.0 |
 | @vitejs/plugin-react | 6.1.1 |
@@ -287,7 +401,7 @@ graph LR
   W --> OID[Steam OpenID]
   J[jobs] --> PG
   I[import worker] --> PG
-  I --> API[Steam API]
+  I --> API[Steam Web API]
 ```
 
 ```mermaid
@@ -295,16 +409,20 @@ erDiagram
   ACCOUNTS_PLAYER ||--o{ GAME_PACK : banks
   ACCOUNTS_PLAYER ||--o{ GAME_HOLDING : owns
   ACCOUNTS_PLAYER ||--o{ GAME_TRADE : "takes part in"
+  ACCOUNTS_PLAYER ||--o{ GAME_INVITATION : sends
   ACCOUNTS_PLAYER ||--o{ GAME_FRIENDSHIP : has
+  ACCOUNTS_PLAYER ||--o{ GAME_BACK_UNLOCK : unlocks
+  ACCOUNTS_PLAYER ||--o{ GAME_SET_COMPLETION : completes
   ACCOUNTS_PLAYER ||--o{ GAME_DAILY_BONUS_CLAIM : claims
   ACCOUNTS_PLAYER ||--o{ GAME_GOAL_CONTRIBUTION : contributes
   ACCOUNTS_PLAYER ||--o{ GAME_ACHIEVEMENT_UNLOCK : earns
   ACCOUNTS_PLAYER ||--o{ GAME_FEED_ENTRY : "appears in"
+  ACCOUNTS_PLAYER ||--o| GAME_PLAYER_STATE : "has activity, active back, seen watermark"
   ACCOUNTS_PLAYER ||--o{ ACCOUNTS_REPORT : "is reported by"
   GAME_WEEKLY_GOAL ||--o{ GAME_GOAL_CONTRIBUTION : receives
-  GAME_TRADE ||--o{ GAME_TRADE_ITEM : offers
+  GAME_TRADE ||--o{ GAME_TRADE_ITEM : "offers and requests"
   CATALOG_CARD ||--o{ CATALOG_CARD_TEXT : "is translated in"
-  CATALOG_CARD ||--o{ CATALOG_CARD_SEASON : "is rated in"
+  CATALOG_CARD ||--o{ CATALOG_CARD_SEASON : "is rated and numbered in"
   CATALOG_SEASON ||--o{ CATALOG_CARD_SEASON : contains
   CATALOG_SEASON ||--o{ CATALOG_SET : defines
   CATALOG_SET ||--o{ CATALOG_SET_MEMBERSHIP : lists
@@ -320,16 +438,20 @@ erDiagram
 ```text
 gameble/
   app/
-    controllers/      # thin; admin/ holds the back-office
+    controllers/      # thin; back_office/ holds the back-office
     policies/         # Pundit
-    components/       # ViewComponent: card, text plate, buttons
-    frontend/         # Vite entrypoints, React components (TypeScript), Stimulus controllers
+    components/       # ViewComponent: card face, panel, buttons, chrome
+    frontend/
+      components/     # React islands (TypeScript)
+      controllers/    # Stimulus controllers
+      lib/            # shared modules: filter client, tilt, motion, t(), DOM events
+      images/pixel/   # exported pixel-art assets
     views/
   packs/
     catalog/          # models, queries, operations
     steam/            # API client, import jobs, raw data, sign-in verification
     accounts/         # models, operations
-    game/             # models, queries, operations, events, handlers, jobs
+    game/             # models, queries, operations, events, handlers, jobs, card backs
   packages/
     pixel-art-filter/ # standalone TypeScript package
   config/locales/     # fr, en
@@ -343,34 +465,45 @@ gameble/
 | CAP-1 Steam sign-in | `Steam`, `Accounts`, web layer | AD-4, AD-14 |
 | CAP-2 Catalog import | `Steam`, `Catalog` | AD-4, AD-5, AD-19 |
 | CAP-3 Rarity | `Steam` (score), `Catalog` (tiers) | AD-4, AD-5 |
-| CAP-4 Packs | `Game` | AD-3, AD-6, AD-7 |
-| CAP-5 Reveal | React island, image filter | AD-7, AD-16, AD-17 |
-| CAP-6 Collection and sets | `Game` (holdings), `Catalog` (sets) | AD-5, AD-6, AD-11 |
-| CAP-7 Card detail | web layer, `Catalog` | AD-11, AD-15, AD-18 |
-| CAP-8 Public profile | web layer, `Accounts`, `Game` | AD-11, AD-14, AD-15 |
-| CAP-9 Share link | web layer | AD-15 |
-| CAP-10 Friends | `Game` | AD-3, AD-15 |
-| CAP-11 Trades | `Game`, React island | AD-6, AD-8, AD-16 |
+| CAP-4 Packs | `Game`, booster island | AD-3, AD-6, AD-7, AD-23 |
+| CAP-5 Reveal | booster island, image filter | AD-7, AD-16, AD-17, AD-23, AD-27 |
+| CAP-6 Collection and sets | `Game` (holdings), `Catalog` (sets) | AD-5, AD-6, AD-11, AD-26 |
+| CAP-7 Card face and detail | web layer, `Catalog` | AD-5, AD-11, AD-15, AD-16, AD-18 |
+| CAP-8 Profile and visibility | web layer, `Accounts`, `Game` | AD-11, AD-14, AD-15 |
+| CAP-9 Share link | web layer, `Catalog` | AD-15 |
+| CAP-10 Friends and invitations | `Game` | AD-3, AD-8, AD-13, AD-15 |
+| CAP-11 Trades | `Game`, trade board island | AD-6, AD-8, AD-13, AD-16 |
 | CAP-12 Weekly goal | `Game` | AD-7, AD-9, AD-10, AD-13 |
-| CAP-13 Feed | `Game` | AD-10, AD-11, AD-13 |
-| CAP-14 Data controls | `Accounts`, `Game` (by event) | AD-10, AD-14 |
+| CAP-13 Feed and Friends tab | `Game` | AD-10, AD-11, AD-13, AD-14 |
+| CAP-14 Data controls | `Accounts`, `Game` (by event), web layer (export) | AD-10, AD-13, AD-14 |
 | CAP-15 Reports and moderation | `Accounts`, back-office | AD-14 |
 | CAP-16 Daily bonus | `Game` | AD-7, AD-9 |
 | CAP-17 Achievements | `Game` | AD-9, AD-10 |
 | CAP-18 Signed-out visit | web layer, `Game` | AD-11, AD-14 |
+| CAP-19 Repost | `Game` | AD-3, AD-10, AD-13 |
+| CAP-20 Card backs | `Game`, booster island | AD-9, AD-10, AD-25 |
+| CAP-21 Presence | `Accounts` (last seen), `Game` (activity) | AD-9, AD-10, AD-24 |
+| Legal page | web layer | AD-18 |
 
 ## Deferred
 
 - **Prestige formula and tier thresholds:** calibrated on the first real import (open question in the spec).
-- **Achievement list, the weekly goal pack's odds, weight of a trade in the weekly goal:** product questions still open in the spec; the structures above hold whatever is chosen.
-- **Feed selection thresholds:** tuned with real activity; the rule lives in one handler (AD-13).
+- **Achievement list, the weekly goal pack's odds, weight of a trade in the weekly goal, the goal's reached, missed and rollover states:** product questions still open in the spec; the structures above hold whatever is chosen.
+- **Reward packs and the cap of ten:** whether the weekly goal's pack lands above 10 (spec open question); AD-7 holds either answer.
+- **Which card backs ship and their unlock rules:** open in the spec; AD-25's constant holds them.
+- **Feed selection thresholds and ticker events:** tuned with real activity; the rule lives in one handler (AD-13).
+- **Presence windows:** the "online" window and the activity's display time are tuned in play; AD-24 fixes only where they are read from.
+- **Reference low-end Android and the performance spike:** the device is chosen before the booster story, which starts with a spike on the opening, the Légendaire sequence and an idle hub (AD-27's budget).
+- **Fractional device-pixel ratios:** whether art canvases snap to whole device pixels is settled by a measurement on a 125 % Windows laptop.
+- **Rails 8.1 support window:** bug fixes end in October 2026; move to the next minor when it ships.
+- **Generator leftovers:** `propshaft`, `image_processing` and `jbuilder` are removed once checked unused; `vite` and `vite-plugin-ruby` are pinned exactly like the rest.
+- **Weekly goal rewards:** delivered by a job running one per-player operation per contributor (AD-14), with the week's card back when it has one.
 - **Event retention and partitioning:** decide when the event tables pass 50 million rows.
 - **Read replica:** added when the primary's read load is measured as the limit; AD-11 makes it a configuration change.
 - **Dedicated real-time or job backend:** when Solid Cable or Solid Queue is measured as the limit; AD-12 makes it a configuration change.
 - **Weekly goal target formula:** how the target scales with weekly active players; the weekly goal row and the periodic job carry it.
-- **`omniauth-openid` on Rails 8.1:** checked when the app is scaffolded. If it does not work, the OpenID check is written inside `Steam`, as AD-20 allows.
 - **Staging environment, backup schedule and restore drill:** set before launch.
 - **K3s:** only if Kamal on several servers stops being enough.
 - **Publishing the image filter:** an npm package, then a Rails gem wrapper; a side quest outside the MVP. AD-17 keeps it extractable.
-- **Admin interface gem:** the back-office starts as plain Rails pages plus Mission Control Jobs.
+- **Admin interface gem and the back-office design:** the back-office stays plain Rails pages plus Mission Control Jobs, outside the redesign.
 - **Market, seasons after the first, native apps:** later versions; AD-5, AD-6 and AD-7 already carry the season.
