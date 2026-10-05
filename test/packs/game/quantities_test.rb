@@ -5,7 +5,7 @@ require "test_helper"
 class Game::QuantitiesTest < ActiveSupport::TestCase
   setup do
     @player = accounts_players(:player)
-    @portal, @steel, @gold = %i[portal_one steel_card_one gold_card_one].map { catalog_card_seasons(it).id }
+    @portal, @common, @legendary = %i[portal_one common_card_one legendary_card_one].map { catalog_card_seasons(it).id }
   end
 
   def hold(player, card_season_id, quantity)
@@ -14,20 +14,20 @@ class Game::QuantitiesTest < ActiveSupport::TestCase
 
   test "the copies of the cards asked about that the player holds, in one query" do
     hold(@player, @portal, 2)
-    hold(@player, @steel, 1)
-    hold(@player, @gold, 0)
-    hold(accounts_players(:moderator), @gold, 3)
+    hold(@player, @common, 1)
+    hold(@player, @legendary, 0)
+    hold(accounts_players(:moderator), @legendary, 3)
 
     quantities = nil
-    assert_queries_count(1) { quantities = Game::Quantities.call(@player, [ @portal, @steel, @gold, @portal ]) }
-    assert_equal({ @portal => 2, @steel => 1 }, quantities)
+    assert_queries_count(1) { quantities = Game::Quantities.call(@player, [ @portal, @common, @legendary, @portal ]) }
+    assert_equal({ @portal => 2, @common => 1 }, quantities)
     assert_equal({ @portal => 2 }, Game::Quantities.call(@player, [ @portal ]))
   end
 
   test "another player can be asked about" do
-    hold(accounts_players(:moderator), @gold, 3)
+    hold(accounts_players(:moderator), @legendary, 3)
 
-    assert_equal({ @gold => 3 }, Game::Quantities.call(accounts_players(:moderator), [ @gold, @portal ]))
+    assert_equal({ @legendary => 3 }, Game::Quantities.call(accounts_players(:moderator), [ @legendary, @portal ]))
   end
 
   test "no query for a visitor or no card" do

@@ -201,7 +201,7 @@
   }
 }
 
-/* Gold: rays around the card, blinking, two from each side. */
+/* Legendary: rays around the card, blinking, two from each side. */
 .reveal-card__rays {
   position: absolute;
   inset: 0;

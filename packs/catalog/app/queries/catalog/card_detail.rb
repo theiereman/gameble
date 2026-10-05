@@ -9,7 +9,7 @@ module Catalog
   # or a card without text in the locale is nil.
   #
   # Two queries: the card, its text, card-season and season (the published
-  # season folded in as a subquery); then its sets, in the library's tab
+  # season and the tome genre folded in as subqueries); then its sets, in the library's tab
   # order (tome, publisher, best_of_year), then by key.
   #
   #   Catalog::CardDetail.call(slug: "portal", locale: "fr")
@@ -27,7 +27,7 @@ module Catalog
       "catalog_card_seasons.id", "catalog_cards.slug", "catalog_card_texts.title", "catalog_card_texts.short_description",
       "catalog_cards.publisher", "catalog_cards.store_url", "catalog_cards.release_date",
       "catalog_seasons.number", "catalog_card_seasons.rarity", "catalog_card_seasons.dust_tier", "catalog_cards.image_url",
-      "catalog_seasons.number = #{LATEST}"
+      "catalog_seasons.number = #{LATEST}", "catalog_card_seasons.number", CardViews::GENRE
     ].freeze
 
     KIND_ORDER = Arel.sql("CASE catalog_sets.kind WHEN 'tome' THEN 0 WHEN 'publisher' THEN 1 ELSE 2 END")
@@ -36,9 +36,10 @@ module Catalog
       row = card_season(slug.to_s, locale.to_s, season_number)
       return if row.nil?
 
-      id, slug, title, description, publisher, store_url, release_date, number, rarity, dust, image_url, current = row
-      view = CardView.new(id: slug, title:, publisher:, year: release_date.year, season_number: number,
-        rarity:, dust: CardSeason.dust_tiers.fetch(dust), image_url:)
+      id, slug, title, description, publisher, store_url, release_date, season_number, rarity, dust, image_url, current,
+        number, genre = row
+      view = CardView.new(id: slug, title:, publisher:, year: release_date.year, season_number:,
+        rarity:, dust: CardSeason.dust_tiers.fetch(dust), image_url:, number:, genre:)
       Detail.new(view:, short_description: description.presence, publisher:, store_url:,
         sets: sets(id), card_season_id: id, current_season: current)
     end

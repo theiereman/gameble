@@ -28,7 +28,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "../..")
 const mockups = join(root, "_bmad-output/initiative-gameble/ux-gameble/mockups")
 const out = join(root, "app/frontend/images/card")
 
-const RARITIES = ["steel", "emerald", "sapphire", "amethyst", "gold"]
+const RARITIES = ["common", "uncommon", "rare", "epic", "legendary"]
 
 // A canvas stand-in: an RGBA float buffer that composites fillRect calls
 // (source-over, globalAlpha) pixel by pixel.
@@ -149,7 +149,7 @@ const { W, H } = backs
 const pick = (tier) => (tier === 4 ? { top: 2, corner: 1, strap: 0, pat: 0 } : { top: 2, corner: 2, strap: 2, pat: 0 })
 // The legendary seal also scatters sparkles over the back: a plus around each
 // of the points `seal()` lists. Those pixels belong to the back; every other
-// seal pixel (the amethyst's ribbon included) stays in the seal.
+// seal pixel (the epic's ribbon included) stays in the seal.
 const SPARKLE_POINTS = JSON.parse(backs.seal.toString().match(/for \(const \[x, y\] of (\[\[[\d, \[\]]*\]\])\)/)[1])
 const sparkle = new Set(SPARKLE_POINTS.flatMap(([x, y]) => [[x, y], [x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]].map(([px, py]) => `${px},${py}`)))
 

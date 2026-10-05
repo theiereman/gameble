@@ -131,7 +131,7 @@ fr:
     cards:
       index:
         heading: "La presse à cartes"
-        intro: "La face et le dos de chaque rareté aux deux tailles, puis un dos sous chaque niveau de poussière : à gauche tels que les pages les dessinent, à droite tels que la révélation les dessinera. Les deux doivent concorder trait pour trait. L'image est un échantillon du coffre de la Confrérie ; celle de l'émeraude manque exprès, pour montrer une carte sans image."
+        intro: "La face et le dos de chaque rareté aux deux tailles, puis un dos sous chaque niveau de poussière : à gauche tels que les pages les dessinent, à droite tels que la révélation les dessinera. Les deux doivent concorder trait pour trait. L'image est un échantillon du coffre de la Confrérie ; celle de la peu commune manque exprès, pour montrer une carte sans image."
         server: "Les pages"
         react: "La révélation"
         label: "%{rarity}, %{side}, %{size}"
@@ -143,11 +143,11 @@ fr:
           small: "petite"
           large: "grande"
         samples:
-          steel: "Soldat de plomb"
-          emerald: "Collines vertes"
-          sapphire: "Profondeurs bleues"
-          amethyst: "La longue chronique des archives d'améthyste et des clés perdues par leurs gardiens"
-          gold: "Couronne d'or"
+          common: "Soldat de plomb"
+          uncommon: "Collines vertes"
+          rare: "Profondeurs bleues"
+          epic: "La longue chronique des archives d'améthyste et des clés perdues par leurs gardiens"
+          legendary: "Couronne d'or"
     seasons:
       statuses:
         draft: "Brouillon"
@@ -309,11 +309,11 @@ fr:
       sign_in: "Les réclamer via Steam"
   catalog:
     rarity:
-      steel: "Acier"
-      emerald: "Émeraude"
-      sapphire: "Saphir"
-      amethyst: "Améthyste"
-      gold: "Or"
+      common: "Commune"
+      uncommon: "Peu commune"
+      rare: "Rare"
+      epic: "Épique"
+      legendary: "Légendaire"
     sets:
       tome: "%{genre} · Tome %{volume}"
       best_of_year: "Les mieux notés de %{year}"
@@ -419,6 +419,8 @@ fr:
       stale_draft: "Ce brouillon n'est plus celui des registres, officier. Recharge la page et regarde à nouveau."
       empty_season: "La saison en brouillon ne contient encore aucune carte, officier. Lance d'abord un import."
       empty_tier: "La saison en brouillon est trop petite pour remplir les cinq raretés, officier. Importe d'abord plus de jeux."
+      no_published_season: "Aucune saison publiée ne porte ce numéro, officier."
+      already_numbered: "Les cartes de cette saison sont déjà numérotées, officier."
     game:
       player_required: "Seul un Confrère enrôlé et en règle peut faire cela."
       no_pack_available: "Le coffre est vide, Confrère. Attends le prochain paquet."

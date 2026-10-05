@@ -4,6 +4,6 @@ module Catalog
   # tiers in its publication, the draw odds in Game. The database holds the
   # integer, checked BETWEEN 1 AND 5.
   module Rarity
-    TIERS = { 1 => :steel, 2 => :emerald, 3 => :sapphire, 4 => :amethyst, 5 => :gold }.freeze
+    TIERS = { 1 => :common, 2 => :uncommon, 3 => :rare, 4 => :epic, 5 => :legendary }.freeze
   end
 end

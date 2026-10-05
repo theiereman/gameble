@@ -21,7 +21,7 @@ module BackOffice
     end
 
     def tier_cells
-      %w[gold amethyst sapphire emerald steel].map { |name| css_select("tr[data-season-number='2'] td[data-season-tier=#{name}]").first&.text }
+      %w[legendary epic rare uncommon common].map { |name| css_select("tr[data-season-number='2'] td[data-season-tier=#{name}]").first&.text }
     end
 
     test "an administrator sees the seasons and publishes the draft of 150 cards" do
@@ -33,7 +33,7 @@ module BackOffice
       assert_response :success
       assert_select "h1", "Les saisons du catalogue"
       assert_select "tr[data-season-number='1'][data-season-status=published] td[data-season-card-count='5']"
-      assert_select "tr[data-season-number='1'] td[data-season-tier=amethyst]", "1"
+      assert_select "tr[data-season-number='1'] td[data-season-tier=epic]", "1"
       assert_select "tr[data-season-number='2'][data-season-status=draft] td", /Brouillon/
       assert_select "tr[data-season-number='2'] td[data-season-card-count='150']"
       assert_select "tr[data-season-number='2'] td[data-season-tier]", false
@@ -83,9 +83,9 @@ module BackOffice
       assert_select "section[data-preview] h2", "Season 2, if published now"
       assert_select "table.ledger ~ section[data-preview] ~ form[action='/en/back-office/seasons/publish']"
       assert_select "section[data-preview] ~ table.ledger", false
-      assert_equal %w[2 6 15 37 90], %w[gold amethyst sapphire emerald steel].map { |name| css_select("[data-preview-tier=#{name}]").sole.text }
-      assert_equal %w[149.000 143.000 128.000 91.000], %w[gold amethyst sapphire emerald].map { |name| css_select("[data-preview-threshold=#{name}]").sole.text }
-      assert_select "[data-preview-threshold=steel]", false
+      assert_equal %w[2 6 15 37 90], %w[legendary epic rare uncommon common].map { |name| css_select("[data-preview-tier=#{name}]").sole.text }
+      assert_equal %w[149.000 143.000 128.000 91.000], %w[legendary epic rare uncommon].map { |name| css_select("[data-preview-threshold=#{name}]").sole.text }
+      assert_select "[data-preview-threshold=common]", false
       assert_equal %w[1.000 15.000 75.000 135.000 149.000 150.000], %w[min p10 p50 p90 p99 max].map { |p| css_select("[data-preview-percentile=#{p}]").sole.text }
       assert_select "[data-preview-dust=thick]", "100.0%"
       assert_select "[data-preview-dust=none]", "0.0%"
@@ -144,7 +144,7 @@ module BackOffice
 
       get back_office_seasons_path(locale: :en)
 
-      assert_select "[data-preview-tier=gold]", "1"
+      assert_select "[data-preview-tier=legendary]", "1"
       assert_select "main .panel", I18n.t("back_office.seasons.publish.import_active", locale: :en)
       assert_select "form[action$='/seasons/publish']"
     end

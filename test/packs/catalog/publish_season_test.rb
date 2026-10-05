@@ -2,12 +2,13 @@ require "test_helper"
 require_relative "../../support/catalog_seeds"
 
 # Catalog::PublishSeason (AD-3, AD-5): publishing the draft, every failure,
-# the event, and the published-season query the draw reads.
+# the event, the card numbers (R3) and their one-time backfill, and the
+# published-season query the draw reads.
 class Catalog::PublishSeasonTest < ActiveSupport::TestCase
   include CatalogSeeds
 
-  def publish(number)
-    Catalog::PublishSeason.new.call(number:)
+  def publish(number, random: SecureRandom)
+    Catalog::PublishSeason.new(random:).call(number:)
   end
 
   def events_of(season)
@@ -15,7 +16,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
   end
 
   def season_data(season)
-    Catalog::CardSeason.where(season_id: season.id).order(:id).pluck(:rarity, :dust_tier, :updated_at)
+    Catalog::CardSeason.where(season_id: season.id).order(:id).pluck(:rarity, :dust_tier, :number, :updated_at)
   end
 
   def assert_nothing_written(season, &block)
@@ -40,10 +41,10 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_equal season, Catalog::PublishedSeason.call
 
     card_seasons = Catalog::CardSeason.where(season_id: season.id).includes(:card)
-    assert_equal({ "gold" => 2, "amethyst" => 6, "sapphire" => 15, "emerald" => 37, "steel" => 90 }, card_seasons.group(:rarity).count)
+    assert_equal({ "legendary" => 2, "epic" => 6, "rare" => 15, "uncommon" => 37, "common" => 90 }, card_seasons.group(:rarity).count)
     top = card_seasons.max_by(&:prestige_score)
-    assert_equal "gold", top.rarity
-    assert_equal "steel", card_seasons.min_by(&:prestige_score).rarity
+    assert_equal "legendary", top.rarity
+    assert_equal "common", card_seasons.min_by(&:prestige_score).rarity
     card_seasons.each do |card_season|
       expected = card_season.card.release_date == Date.new(2006, 10, 2) ? "buried" : "none"
       assert_equal expected, card_season.dust_tier
@@ -146,8 +147,78 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     season = seed_card_seasons(distinct_scores(21))
     publish(season.number)
 
-    card_season = Catalog::CardSeason.find_by!(season_id: season.id, rarity: :gold)
-    assert_not card_season.update(rarity: :steel)
+    card_season = Catalog::CardSeason.find_by!(season_id: season.id, rarity: :legendary)
+    assert_not card_season.update(rarity: :common)
+  end
+
+  def numbers_of(season)
+    Catalog::CardSeason.where(season_id: season.id).order(:id).pluck(:number)
+  end
+
+  test "publishing gives every card-season a distinct number in 1..n" do
+    season = seed_card_seasons(distinct_scores(150))
+
+    assert publish(season.number).success?
+
+    assert_equal (1..150).to_a, numbers_of(season).sort
+  end
+
+  test "the numbers are a shuffle of 1..n over the card-seasons in id order, by the random given" do
+    season = seed_card_seasons(distinct_scores(21))
+
+    assert publish(season.number, random: Random.new(42)).success?
+
+    expected = (1..21).to_a.shuffle(random: Random.new(42))
+    assert_equal expected, numbers_of(season)
+    assert_not_equal (1..21).to_a, expected, "the seed shuffles"
+  end
+
+  test "a published card-season's number is frozen" do
+    season = seed_card_seasons(distinct_scores(21))
+    publish(season.number)
+
+    card_season = Catalog::CardSeason.where(season_id: season.id).first
+    assert_not card_season.update(number: card_season.number + 100)
+    assert card_season.errors.added?(:base, :frozen_once_published)
+  end
+
+  # PublishSeason#number_published
+
+  def unnumbered_published_season
+    season = seed_card_seasons(distinct_scores(21))
+    assert publish(season.number).success?
+    Catalog::CardSeason.where(season_id: season.id).update_all(number: nil)
+    season.reload
+  end
+
+  test "number_published numbers a published season once, by the same shuffle, without an event" do
+    season = unnumbered_published_season
+
+    assert_no_difference -> { events_of(season).size } do
+      result = Catalog::PublishSeason.new(random: Random.new(7)).number_published(number: season.number)
+      assert_equal season, result.value!
+    end
+
+    assert_equal (1..21).to_a.shuffle(random: Random.new(7)), numbers_of(season)
+  end
+
+  test "number_published on a numbered season is already_numbered and writes nothing" do
+    season = unnumbered_published_season
+    assert Catalog::PublishSeason.new.number_published(number: season.number).success?
+
+    assert_nothing_written(season) do
+      assert_equal :already_numbered, Catalog::PublishSeason.new.number_published(number: season.number).failure
+    end
+  end
+
+  test "number_published on a draft or an unknown number is no_published_season" do
+    season = seed_card_seasons(distinct_scores(21))
+
+    assert_nothing_written(season) do
+      assert_equal :no_published_season, Catalog::PublishSeason.new.number_published(number: season.number).failure
+      assert_equal :no_published_season, Catalog::PublishSeason.new.number_published(number: 999).failure
+    end
+    assert_equal Array.new(21), numbers_of(season)
   end
 
   test "no draft is no_draft" do
@@ -226,7 +297,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_equal [ 1, 2, 3, 4, 5 ], result[:tiers].keys.sort
     assert_equal({ 1 => 12, 2 => 5, 3 => 2, 4 => 1, 5 => 1 }, result[:tiers].transform_values(&:size))
     assert_equal ids.order(:id).ids, result[:tiers].values.flatten.sort
-    assert_equal ids.where(rarity: :gold).ids, result[:tiers][5]
+    assert_equal ids.where(rarity: :legendary).ids, result[:tiers][5]
   end
 
   test "the highest published season is the one drawn from" do

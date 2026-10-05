@@ -14,7 +14,7 @@ export const CARD_PIXELS: Record<CardSize, { width: number; height: number }> = 
   large: { width: 240, height: 360 },
 }
 
-/** Gold rays: two from each side of the card. */
+/** Legendary rays: two from each side of the card. */
 const RAYS = 8
 
 export type RevealCardProps = {
@@ -100,7 +100,7 @@ export default function RevealCard({ card, item, size, strings, reducedMotion, o
               style={{ left: `${x}px`, top: `${y}px`, "--dx": `${dx}px`, "--dy": `${dy}px` } as CSSProperties}
             />
           ))}
-          {card.rarity === "gold" && (
+          {card.rarity === "legendary" && (
             <span className="reveal-card__rays">
               {Array.from({ length: RAYS }, (_, index) => (
                 <span className="reveal-card__ray" key={index} />

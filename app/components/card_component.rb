@@ -40,7 +40,7 @@ class CardComponent < ViewComponent::Base
 
     def face? = side == :face
     def large? = size == :large
-    def legendary? = card.rarity == "gold"
+    def legendary? = card.rarity == "legendary"
 
     def art = ART.fetch(size)
 

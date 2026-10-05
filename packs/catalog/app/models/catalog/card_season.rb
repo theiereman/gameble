@@ -1,10 +1,12 @@
 module Catalog
   # A card in a season (AD-5): the source's scores for that season, and the
-  # rarity and dust tier its publication gives. Scores follow the source
-  # while the season is a draft; rarity and dust tier stay NULL until it is
-  # published. Once published, none of them changes again, and no card-season
-  # is added to or removed from the season. A card-season never moves to
-  # another card or season.
+  # rarity, dust tier and number in the season (R3) its publication gives.
+  # Scores follow the source while the season is a draft; rarity, dust tier
+  # and number stay NULL until it is published (a season published before
+  # numbers existed stays unnumbered until `catalog:number_seasons`). Once
+  # published, none of them changes again, and no card-season is added to or
+  # removed from the season. A card-season never moves to another card or
+  # season.
   #
   # `prestige_score` is opaque here and only ordered; `rating` is the
   # source's review score in percent.
@@ -12,7 +14,7 @@ module Catalog
     self.table_name = "catalog_card_seasons"
 
     # The columns frozen once the season is published.
-    SEASON_DATA = %w[prestige_score rating rarity dust_tier].freeze
+    SEASON_DATA = %w[prestige_score rating rarity dust_tier number].freeze
 
     attr_readonly :card_id, :season_id
 
@@ -25,6 +27,7 @@ module Catalog
 
     validates :prestige_score, numericality: true
     validates :rating, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
+    validates :number, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
     validate :season_data_frozen_once_published
     before_destroy :refuse_destroy_once_published
 

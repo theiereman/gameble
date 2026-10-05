@@ -12,9 +12,9 @@ portal:
   tags: ["puzzle", "first-person"]
 
 # One card-season per other tier in the published season, so a draw works
-# in every test (with portal_one, amethyst).
+# in every test (with portal_one, epic).
 
-steel_card:
+common_card:
   source_key: "src:401"
   slug: "tin-soldier"
   release_date: 2024-06-01
@@ -23,7 +23,7 @@ steel_card:
   genres: []
   tags: []
 
-emerald_card:
+uncommon_card:
   source_key: "src:402"
   slug: "green-hills"
   release_date: 2019-06-01
@@ -32,7 +32,7 @@ emerald_card:
   genres: []
   tags: []
 
-sapphire_card:
+rare_card:
   source_key: "src:403"
   slug: "blue-depths"
   release_date: 2014-06-01
@@ -41,7 +41,7 @@ sapphire_card:
   genres: []
   tags: []
 
-gold_card:
+legendary_card:
   source_key: "src:405"
   slug: "golden-crown"
   release_date: 1998-06-01

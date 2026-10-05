@@ -2,10 +2,10 @@ require "application_system_test_case"
 require_relative "../support/game_packs"
 
 # The pack reveal (CAP-5, story 3.6): right after an opening the cards lie
-# face down; wiping shows the seal, flipping the game; flip all holds a gold
+# face down; wiping shows the seal, flipping the game; flip all holds a legendary
 # card its full length; on a phone one card at a time. Any later visit shows
 # the faces. Reduced motion is emulated in every test but one, which times the
-# gold flourish with motion on.
+# legendary flourish with motion on.
 class PackRevealTest < ApplicationSystemTestCase
   include GamePacks
 
@@ -87,7 +87,7 @@ class PackRevealTest < ApplicationSystemTestCase
   end
 
   test "keyboard only: focus wipes and shows the seal, Enter flips, every card in turn" do
-    pack = open_pack(card_ids(:steel_card_one, :emerald_card_one, :gold_card_one, :sapphire_card_one, :portal_one))
+    pack = open_pack(card_ids(:common_card_one, :uncommon_card_one, :legendary_card_one, :rare_card_one, :portal_one))
 
     assert_selector ".reveal-card[data-state=dusty]", count: 5
     assert_not_includes page.html, pack.token
@@ -96,7 +96,7 @@ class PackRevealTest < ApplicationSystemTestCase
 
     page.execute_script("document.querySelector('.pack-reveal__controls .button').focus()")
     titles = [ "Tin Soldier", "Green Hills", "Golden Crown", "Blue Depths", "Portal" ]
-    rarities = %w[Steel Emerald Gold Sapphire Amethyst]
+    rarities = %w[Common Uncommon Legendary Rare Epic]
     titles.zip(rarities).each.with_index(1) do |(title, rarity), position|
       page.send_keys(:tab)
       assert_selector "#{card(position)}[data-state=wiped]"
@@ -113,7 +113,7 @@ class PackRevealTest < ApplicationSystemTestCase
   end
 
   test "a mouse over a card wipes it, a click on a dusty card flips it; a card without dust keeps its seal hidden until wiped" do
-    open_pack(card_ids(:steel_card_one, :emerald_card_one, :sapphire_card_one, :portal_one, :gold_card_one))
+    open_pack(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :legendary_card_one))
 
     assert_selector "#{card(1)} .card--dust-0"
     assert_equal "hidden", seal_visibility(1)
@@ -129,11 +129,11 @@ class PackRevealTest < ApplicationSystemTestCase
     # A wipe then a flip in one gesture: the rarity is not replaced by the title.
     find(card(3)).click
     assert_equal "flipped", state(3)
-    assert_equal [ "Sapphire", "Blue Depths" ], announcements.last(2)
+    assert_equal [ "Rare", "Blue Depths" ], announcements.last(2)
   end
 
-  test "flip all holds the one gold card its full length and flips the others quickly" do
-    open_pack(card_ids(:steel_card_one, :gold_card_one, :emerald_card_one, :sapphire_card_one, :steel_card_one))
+  test "flip all holds the one legendary card its full length and flips the others quickly" do
+    open_pack(card_ids(:common_card_one, :legendary_card_one, :uncommon_card_one, :rare_card_one, :common_card_one))
 
     click_on "Flip all"
     wait_until_all_flipped(5)
@@ -144,8 +144,8 @@ class PackRevealTest < ApplicationSystemTestCase
     assert_operator flipped_at(2) - flipped_at(1), :<, 1000
   end
 
-  test "five identical gold cards flip one by one; flip all skips those flipped and holds each other gold" do
-    open_pack(card_ids(*[ :gold_card_one ] * 5))
+  test "five identical legendary cards flip one by one; flip all skips those flipped and holds each other legendary" do
+    open_pack(card_ids(*[ :legendary_card_one ] * 5))
 
     page.execute_script("document.querySelector(#{card(2).to_json}).click()")
     assert_equal "flipped", state(2)
@@ -162,7 +162,7 @@ class PackRevealTest < ApplicationSystemTestCase
   end
 
   test "with reduced motion nothing moves, and no dust bursts" do
-    open_pack(card_ids(:gold_card_one, :steel_card_one, :steel_card_one, :steel_card_one, :steel_card_one))
+    open_pack(card_ids(:legendary_card_one, :common_card_one, :common_card_one, :common_card_one, :common_card_one))
 
     find(card(1)).click
     assert_selector "#{card(1)}[data-state=flipped][data-playing]"
@@ -172,9 +172,9 @@ class PackRevealTest < ApplicationSystemTestCase
     assert_no_selector ".reveal-card__burst", visible: :all
   end
 
-  test "with motion, a gold card turns, bursts and shines for its full length; flip all holds the next gold" do
+  test "with motion, a legendary card turns, bursts and shines for its full length; flip all holds the next legendary" do
     reduce_motion(false)
-    open_pack(card_ids(:gold_card_one, :steel_card_one, :gold_card_one, :steel_card_one, :steel_card_one))
+    open_pack(card_ids(:legendary_card_one, :common_card_one, :legendary_card_one, :common_card_one, :common_card_one))
 
     find(card(1)).click
     assert_selector "#{card(1)} .reveal-card__pixel", count: 32, visible: :all
@@ -190,7 +190,7 @@ class PackRevealTest < ApplicationSystemTestCase
   end
 
   test "a card whose art fails shows its frame and title" do
-    open_pack(card_ids(*[ :sapphire_card_one ] * 5))
+    open_pack(card_ids(*[ :rare_card_one ] * 5))
 
     find(card(1)).click
     within(card(1)) do
@@ -201,7 +201,7 @@ class PackRevealTest < ApplicationSystemTestCase
   end
 
   test "leaving during flip all raises no error; going back shows the faces, without the reveal" do
-    open_pack(card_ids(*[ :gold_card_one ] * 5))
+    open_pack(card_ids(*[ :legendary_card_one ] * 5))
     page.execute_script(<<~JS)
       window.revealErrors = []
       addEventListener("error", (event) => revealErrors.push(String(event.message)))
@@ -221,7 +221,7 @@ class PackRevealTest < ApplicationSystemTestCase
   end
 
   test "a reload mid-reveal shows the faces, and nothing resumes" do
-    open_pack(card_ids(:steel_card_one, :emerald_card_one, :sapphire_card_one, :portal_one, :gold_card_one))
+    open_pack(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :legendary_card_one))
     find(card(1)).click
 
     page.refresh
@@ -238,9 +238,9 @@ class PackRevealTest < ApplicationSystemTestCase
     end
   end
 
-  test "on a phone one large card at a time, focus following next; flip all holds each gold, then every card is reached forward and back" do
+  test "on a phone one large card at a time, focus following next; flip all holds each legendary, then every card is reached forward and back" do
     page.driver.browser.manage.window.resize_to(*PHONE)
-    open_pack(card_ids(:steel_card_one, :gold_card_one, :emerald_card_one, :gold_card_one, :steel_card_one))
+    open_pack(card_ids(:common_card_one, :legendary_card_one, :uncommon_card_one, :legendary_card_one, :common_card_one))
 
     assert_selector ".pack-reveal--phone .reveal-card.reveal-card--large", count: 1
     assert_selector ".pack-reveal__progress", text: "1 / 5"
@@ -256,13 +256,13 @@ class PackRevealTest < ApplicationSystemTestCase
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
 
     # Flip all with the focus left on the shown card (as a tap does on Safari,
-    # which does not focus buttons): each gold card is the one shown while it
+    # which does not focus buttons): each legendary card is the one shown while it
     # is held, flipped, its full length; the focus follows the view.
     page.execute_script("document.querySelector('.pack-reveal__controls .button').click()")
     [ "2 / 5", "4 / 5" ].each do |progress|
       assert_selector ".pack-reveal__progress", text: progress, wait: 5
       assert_selector ".reveal-card", count: 1
-      assert_selector ".reveal-card[data-state=flipped] .reveal-card__face .card--rarity-gold"
+      assert_selector ".reveal-card[data-state=flipped] .reveal-card__face .card--rarity-legendary"
       assert_no_button "Previous card"
       assert_no_button "Next card"
       assert_focus ".reveal-card", "focus should stay on the shown card"
@@ -274,7 +274,7 @@ class PackRevealTest < ApplicationSystemTestCase
     assert_focus ".pack-reveal *", "focus should stay in the reveal"
 
     # Every card, forward and back, face up, the focus kept in the reveal; each
-    # gold card was held its full length before the next card turned.
+    # legendary card was held its full length before the next card turned.
     timings = {}
     click_on "Previous card"
     assert_selector ".pack-reveal__progress", text: "1 / 5"
@@ -290,22 +290,22 @@ class PackRevealTest < ApplicationSystemTestCase
       end
     end
     assert_no_button "Previous card"
-    [ 2, 4 ].each do |gold|
-      assert_operator timings[gold + 1][0] - timings[gold][0], :>=, timings[gold][1], "gold card #{gold} should be held its full length"
+    [ 2, 4 ].each do |legendary|
+      assert_operator timings[legendary + 1][0] - timings[legendary][0], :>=, timings[legendary][1], "legendary card #{legendary} should be held its full length"
     end
     take_screenshot
   end
 
   test "a daily bonus reveals three cards" do
     page.driver.browser.manage.window.resize_to(*PHONE)
-    open_pack(card_ids(:sapphire_card_one, :portal_one, :gold_card_one), kind: :bonus)
+    open_pack(card_ids(:rare_card_one, :portal_one, :legendary_card_one), kind: :bonus)
 
     assert_selector "h1", text: "Your daily bonus"
     assert_selector ".pack-reveal__progress", text: "1 / 3"
   end
 
   test "crossing the phone width switches the layout and draws the art again" do
-    open_pack(card_ids(:steel_card_one, :emerald_card_one, :sapphire_card_one, :portal_one, :gold_card_one))
+    open_pack(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :legendary_card_one))
     assert_selector ".reveal-card--small", count: 5
     assert_selector ".card__art[data-art]", count: 5, visible: :all
 
@@ -331,7 +331,7 @@ class PackRevealTest < ApplicationSystemTestCase
   end
 
   test "the reveal ends on the next pack when one is available, and on the attic alone when none is" do
-    open_pack(card_ids(*[ :steel_card_one ] * 5), more: true)
+    open_pack(card_ids(*[ :common_card_one ] * 5), more: true)
     within(".pack-reveal .pack-end") do
       # Button labels are uppercased by CSS (DESIGN.md, Buttons).
       assert_equal [ "OPEN THE NEXT PACK", "BACK TO THE ATTIC" ], all(".button").map(&:text)

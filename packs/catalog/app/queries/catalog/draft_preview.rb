@@ -24,7 +24,7 @@ module Catalog
     # `tiers` nil) when a tier would hold no card.
     #
     # - `percentiles`: { 10 => score, 50 => …, 90 => …, 99 => … }
-    # - `tiers`: [ Tier(tier, card_count, threshold) ], gold first; steel's
+    # - `tiers`: [ Tier(tier, card_count, threshold) ], legendary first; common's
     #   threshold is nil
     # - `dust`: { 0 => count, …, 4 => count }, every level present
     # - `top`, `bottom`: [ Entry ], the highest scores first, the lowest first
@@ -69,7 +69,7 @@ module Catalog
       )
     end
 
-    # Each tier's card count and threshold, gold first, as PublishSeason
+    # Each tier's card count and threshold, legendary first, as PublishSeason
     # would cut them; nil when a tier would hold no card.
     def self.tiers_of(scores)
       tiers = RarityThresholds.tiers(scores)

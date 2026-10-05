@@ -32,7 +32,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     Catalog::SetMembership.insert_all!([ { set_id:, card_season_id: catalog_card_seasons(:portal_one).id, position: 1 } ])
   end
 
-  # A published season numbered 2 holding portal (gold).
+  # A published season numbered 2 holding portal (legendary).
   def publish_season_two_with_portal
     season = seed_published_sets([ [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
     card_season_id = Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.99,
@@ -58,11 +58,11 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_path(locale: :en, slug: "portal")
 
     assert_response :success
-    assert_select "title", "Portal — Amethyst"
+    assert_select "title", "Portal — Epic"
     assert_select ".card-detail h1", "Portal"
-    assert_select ".card-detail__face .card.card--large.card--face.card--rarity-amethyst .card__title", "Portal"
+    assert_select ".card-detail__face .card.card--large.card--face.card--rarity-epic .card__title", "Portal"
     assert_select ".card-detail__description", "A puzzle game of portals."
-    assert_equal [ [ "Released", "2007" ], [ "Rarity", "Amethyst" ], [ "Season", "1" ], [ "Sets", "Action · Tome 1 | Valve" ],
+    assert_equal [ [ "Released", "2007" ], [ "Rarity", "Epic" ], [ "Season", "1" ], [ "Sets", "Action · Tome 1 | Valve" ],
       [ "Publisher", "Valve" ] ], fields
     assert_equal [ [ "Action · Tome 1", "/en/library/tome/action-1" ], [ "Valve", "/en/library/publisher/valve" ] ],
       css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
@@ -77,13 +77,13 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "in French the title, description, labels and Steam page are French" do
-    catalog_cards(:steel_card).update_columns(store_url: "https://store.steampowered.com/app/401/Tin_Soldier/?snr=1_7&l=english")
+    catalog_cards(:common_card).update_columns(store_url: "https://store.steampowered.com/app/401/Tin_Soldier/?snr=1_7&l=english")
 
     get card_path(locale: :fr, slug: "tin-soldier")
 
     assert_select ".card-detail h1", "Soldat de plomb"
-    assert_select "title", "Soldat de plomb — Acier"
-    assert_equal [ [ "Sortie", "2024" ], [ "Rareté", "Acier" ], [ "Saison", "1" ] ], fields
+    assert_select "title", "Soldat de plomb — Commune"
+    assert_equal [ [ "Sortie", "2024" ], [ "Rareté", "Commune" ], [ "Saison", "1" ] ], fields
     assert_select ".card-detail__notice", "Ce jeu et son image appartiennent à leurs propriétaires respectifs. gameble n'est affilié ni à Valve ni à Steam."
     assert_equal [ "La voir sur la boutique Steam", "https://store.steampowered.com/app/401/Tin_Soldier/?snr=1_7&l=french" ],
       store_link.then { [ it.text.strip, it["href"] ] }
@@ -106,8 +106,8 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   test "a player sees how many copies they hold: two, one, or no line without any" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 2)
-    hold(player, catalog_card_seasons(:gold_card_one).id, 1)
-    hold(player, catalog_card_seasons(:steel_card_one).id, 0)
+    hold(player, catalog_card_seasons(:legendary_card_one).id, 1)
+    hold(player, catalog_card_seasons(:common_card_one).id, 0)
     sign_in(player)
 
     get card_path(locale: :en, slug: "portal")
@@ -140,14 +140,14 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     publish_season_two_with_portal
 
     get card_path(locale: :en, slug: "portal")
-    assert_select ".card-detail__face .card.card--rarity-gold.card--dust-4"
-    assert_equal [ "Gold", "2" ], fields.to_h.values_at("Rarity", "Season")
+    assert_select ".card-detail__face .card.card--rarity-legendary.card--dust-4"
+    assert_equal [ "Legendary", "2" ], fields.to_h.values_at("Rarity", "Season")
     assert_equal [ [ "Action · Tome 1", "/en/library/tome/action-1" ] ], css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
 
     get card_season_path(locale: :en, slug: "portal", number: 1)
     assert_response :success
-    assert_select ".card-detail__face .card.card--rarity-amethyst.card--dust-3"
-    assert_equal [ "Amethyst", "1", "Valve" ], fields.to_h.values_at("Rarity", "Season", "Sets")
+    assert_select ".card-detail__face .card.card--rarity-epic.card--dust-3"
+    assert_equal [ "Epic", "1", "Valve" ], fields.to_h.values_at("Rarity", "Season", "Sets")
     assert_select ".card-detail__sets a", false
     assert_select ".card-detail__sets li", "Valve"
   end

@@ -131,7 +131,7 @@ en:
     cards:
       index:
         heading: "The card press"
-        intro: "Every rarity's face and back at both sizes, then one back under each level of dust: on the left as the pages draw them, on the right as the reveal will. The two must match line for line. The art is a sample from the Brotherhood's own chest; the emerald's art is missing on purpose, to show a card without it."
+        intro: "Every rarity's face and back at both sizes, then one back under each level of dust: on the left as the pages draw them, on the right as the reveal will. The two must match line for line. The art is a sample from the Brotherhood's own chest; the uncommon's art is missing on purpose, to show a card without it."
         server: "The pages"
         react: "The reveal"
         label: "%{rarity}, %{side}, %{size}"
@@ -143,11 +143,11 @@ en:
           small: "small"
           large: "large"
         samples:
-          steel: "Tin Soldier"
-          emerald: "Green Hills"
-          sapphire: "Blue Depths"
-          amethyst: "The Long Chronicles of the Amethyst Archive and the Keys Its Keepers Lost at Sea"
-          gold: "Golden Crown"
+          common: "Tin Soldier"
+          uncommon: "Green Hills"
+          rare: "Blue Depths"
+          epic: "The Long Chronicles of the Amethyst Archive and the Keys Its Keepers Lost at Sea"
+          legendary: "Golden Crown"
     seasons:
       statuses:
         draft: "Draft"
@@ -304,11 +304,11 @@ en:
       sign_in: "Claim them through Steam"
   catalog:
     rarity:
-      steel: "Steel"
-      emerald: "Emerald"
-      sapphire: "Sapphire"
-      amethyst: "Amethyst"
-      gold: "Gold"
+      common: "Common"
+      uncommon: "Uncommon"
+      rare: "Rare"
+      epic: "Epic"
+      legendary: "Legendary"
     sets:
       tome: "%{genre} · Tome %{volume}"
       best_of_year: "Best rated of %{year}"
@@ -412,6 +412,8 @@ en:
       stale_draft: "That draft is no longer the one in the ledgers, officer. Reload the page and look again."
       empty_season: "The draft season holds no card yet, officer. Run an import first."
       empty_tier: "The draft season is too small to fill all five rarities, officer. Import more games first."
+      no_published_season: "No published season bears that number, officer."
+      already_numbered: "The cards of that season are numbered already, officer."
     game:
       player_required: "Only an enlisted Brother in good standing may do that."
       no_pack_available: "The chest is empty, Brother. Wait for the next pack."

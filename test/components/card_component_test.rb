@@ -3,17 +3,17 @@ require "test_helper"
 class CardComponentTest < ViewComponent::TestCase
   def card(**overrides)
     Catalog::CardView.new(id: "blue-depths", title: "Blue Depths", publisher: "Deepwater", year: 2014, season_number: 1,
-      rarity: "sapphire", dust: 0, image_url: "/art.png", **overrides)
+      rarity: "rare", dust: 0, image_url: "/art.png", number: 4_215, genre: "puzzle", **overrides)
   end
 
   def render_card(view = card, **options)
     I18n.with_locale(:en) { render_inline(CardComponent.new(card: view, strings: CardStrings.for([ view ]), **options)) }
   end
 
-  test "a small sapphire face: title, year tag, season seal, piping, hidden rarity, no publisher" do
+  test "a small rare face: title, year tag, season seal, piping, hidden rarity, no publisher" do
     render_card
 
-    assert_selector "span.card.card--small.card--face.card--rarity-sapphire.card--dust-0"
+    assert_selector "span.card.card--small.card--face.card--rarity-rare.card--dust-0"
     assert_selector ".card__title", text: "Blue Depths"
     assert_selector ".card__year .visually-hidden", text: "2014"
     assert_selector ".card__year .card__glyph use", count: 4
@@ -22,7 +22,7 @@ class CardComponentTest < ViewComponent::TestCase
     assert_selector ".card__season .visually-hidden", text: "Season 1"
     assert_selector ".card__season use[href$='#glyph-S']"
     assert_selector ".card__piping[aria-hidden=true]"
-    assert_selector ".card__plate .visually-hidden", text: "Sapphire"
+    assert_selector ".card__plate .visually-hidden", text: "Rare"
     assert_no_selector ".card__publisher"
     assert_no_selector ".card__shine"
     assert_selector ".card__art[data-controller=card-art][data-card-art-url-value='/art.png'][data-card-art-width-value='68'][data-card-art-height-value='108'] canvas.card__canvas[data-card-art-target=canvas]"
@@ -61,11 +61,18 @@ class CardComponentTest < ViewComponent::TestCase
     assert_selector ".card__season .visually-hidden", text: "Season 12"
   end
 
-  test "a legendary face has a gold frame, the sweep and the sparkles" do
-    render_card(card(rarity: "gold"))
+  test "a legendary face has its own frame colours, the sweep and the sparkles" do
+    render_card(card(rarity: "legendary"))
 
-    assert_selector ".card.card--rarity-gold .card__shine[aria-hidden=true] .card__sweep"
+    assert_selector ".card.card--rarity-legendary .card__shine[aria-hidden=true] .card__sweep"
     assert_selector ".card__shine .card__sparkle", count: CardComponent::SPARKLES
+  end
+
+  test "only the legendary tier shines: an epic face has no sweep nor sparkles" do
+    render_card(card(rarity: "epic"))
+
+    assert_selector ".card.card--rarity-epic"
+    assert_no_selector ".card__shine"
   end
 
   Catalog::Rarity::TIERS.each_value do |rarity|
@@ -93,7 +100,7 @@ class CardComponentTest < ViewComponent::TestCase
   test "French strings" do
     view = card(season_number: 3)
     I18n.with_locale(:fr) { render_inline(CardComponent.new(card: view, strings: CardStrings.for([ view ]), side: :back)) }
-    assert_selector ".card[aria-label='Carte face cachée, Saphir']"
+    assert_selector ".card[aria-label='Carte face cachée, Rare']"
 
     I18n.with_locale(:fr) { render_inline(CardComponent.new(card: view, strings: CardStrings.for([ view ]))) }
     assert_selector ".card__season .visually-hidden", text: "Saison 3"
@@ -114,8 +121,8 @@ class CardComponentTest < ViewComponent::TestCase
     props = I18n.with_locale(:en) { CardStrings.new(season_numbers: [ 12, 1, 12 ]).to_props }
 
     assert_equal "Face-down card", props[:faceDown]
-    assert_equal "Face-down card, Gold", props[:faceDownByRarity]["gold"]
-    assert_equal "Emerald", props[:rarityNames]["emerald"]
+    assert_equal "Face-down card, Legendary", props[:faceDownByRarity]["legendary"]
+    assert_equal "Uncommon", props[:rarityNames]["uncommon"]
     assert_equal({ "1" => "Season 1", "12" => "Season 12" }, props[:seasons])
   end
 end

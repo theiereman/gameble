@@ -8,7 +8,7 @@ import { useEffect, useRef } from "react"
 import { CARD_ART, drawCardArt, type CardSize } from "../lib/card_art"
 import spriteUrl from "../images/card/sprite.svg"
 
-export type Rarity = "steel" | "emerald" | "sapphire" | "amethyst" | "gold"
+export type Rarity = "common" | "uncommon" | "rare" | "epic" | "legendary"
 
 /** Catalog::CardView#to_props. */
 export type CardView = {
@@ -20,6 +20,10 @@ export type CardView = {
   rarity: Rarity
   dust: number
   imageUrl: string
+  /** The card's number in its season; null while unnumbered. */
+  number: number | null
+  /** The genre key of the card's tome; null when it is in no tome. */
+  genre: string | null
 }
 
 /** CardStrings#to_props: every word resolved on the server. */
@@ -121,7 +125,7 @@ export default function Card({ card, size, side, strings, sealVisible = true }: 
           </span>
         </span>
       </span>
-      {card.rarity === "gold" && (
+      {card.rarity === "legendary" && (
         <span className="card__shine" aria-hidden="true">
           <span className="card__sweep" />
           {Array.from({ length: SPARKLES }, (_, index) => (

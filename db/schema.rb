@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_05_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_05_010002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -36,9 +36,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_05_000000) do
     t.integer "dust_tier", limit: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "number"
     t.index ["card_id", "season_id"], name: "index_catalog_card_seasons_on_card_id_and_season_id", unique: true
+    t.index ["season_id", "number"], name: "index_catalog_card_seasons_on_season_id_and_number", unique: true
     t.index ["season_id"], name: "index_catalog_card_seasons_on_season_id"
     t.check_constraint "dust_tier >= 0 AND dust_tier <= 4", name: "catalog_card_seasons_dust_tier_check"
+    t.check_constraint "number > 0", name: "catalog_card_seasons_number_check"
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "catalog_card_seasons_rarity_check"
     t.check_constraint "rating >= 0::numeric AND rating <= 100::numeric", name: "catalog_card_seasons_rating_check"
   end

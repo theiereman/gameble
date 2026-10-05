@@ -4,13 +4,15 @@ module BackOffice
   # CardComponent and, beside it, by the React Card (the CardPreview island),
   # each pair under the same data-pair. The cards are built here, without the
   # database; their art is a sample bundled with the application, except the
-  # emerald's, a same-origin URL that answers 404.
+  # uncommon's, a same-origin URL that answers 404.
   class CardsController < ApplicationController
-    PUBLISHERS = { steel: nil, emerald: "Hillside Works", sapphire: "Deepwater", amethyst: "Brotherhood Press", gold: "Crown & Sons" }.freeze
-    YEARS = { steel: 2024, emerald: 2019, sapphire: 2014, amethyst: 2007, gold: 1998 }.freeze
-    SEASONS = { steel: 1, emerald: 3, sapphire: 12, amethyst: 2, gold: 1 }.freeze
-    MISSING_ART = :emerald
-    DUST_TIER = :sapphire
+    PUBLISHERS = { common: nil, uncommon: "Hillside Works", rare: "Deepwater", epic: "Brotherhood Press", legendary: "Crown & Sons" }.freeze
+    YEARS = { common: 2024, uncommon: 2019, rare: 2014, epic: 2007, legendary: 1998 }.freeze
+    SEASONS = { common: 1, uncommon: 3, rare: 12, epic: 2, legendary: 1 }.freeze
+    # Card numbers in their season; the epic's is not given yet.
+    NUMBERS = { common: 4_215, uncommon: 7, rare: 1_000_000, epic: nil, legendary: 1 }.freeze
+    MISSING_ART = :uncommon
+    DUST_TIER = :rare
 
     def index
       authorize [ :back_office, :cards ], :index?
@@ -31,7 +33,8 @@ module BackOffice
         Catalog::CardView.new(
           id: "sample-#{rarity}", title: t("back_office.cards.index.samples.#{rarity}"), publisher: PUBLISHERS.fetch(rarity),
           year: YEARS.fetch(rarity), season_number: SEASONS.fetch(rarity), rarity: rarity.to_s, dust: 0,
-          image_url: rarity == MISSING_ART ? missing_art_url : helpers.vite_asset_path("images/card_preview/sample.png")
+          image_url: rarity == MISSING_ART ? missing_art_url : helpers.vite_asset_path("images/card_preview/sample.png"),
+          number: NUMBERS.fetch(rarity), genre: nil
         )
       end
 

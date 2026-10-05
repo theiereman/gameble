@@ -62,7 +62,7 @@ class ShellHelperTest < ActionView::TestCase
   test "a player's bank and tier counts are read once per request" do
     self.current_player = accounts_players(:player)
     create_pack(current_player)
-    Game::Holding.create!(player_id: current_player.id, card_season_id: catalog_card_seasons(:gold_card_one).id, quantity: 2)
+    Game::Holding.create!(player_id: current_player.id, card_season_id: catalog_card_seasons(:legendary_card_one).id, quantity: 2)
 
     assert_equal 1, shell_bank[:available]
     assert_equal 2, shell_tier_counts[5]

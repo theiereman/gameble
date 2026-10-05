@@ -13,42 +13,42 @@ portal_fr:
   title: "Portal"
   short_description: "Un jeu de casse-tête à portails."
 
-steel_card_en:
-  card: steel_card
+common_card_en:
+  card: common_card
   locale: en
   title: "Tin Soldier"
 
-steel_card_fr:
-  card: steel_card
+common_card_fr:
+  card: common_card
   locale: fr
   title: "Soldat de plomb"
 
-emerald_card_en:
-  card: emerald_card
+uncommon_card_en:
+  card: uncommon_card
   locale: en
   title: "Green Hills"
 
-emerald_card_fr:
-  card: emerald_card
+uncommon_card_fr:
+  card: uncommon_card
   locale: fr
   title: "Collines vertes"
 
-sapphire_card_en:
-  card: sapphire_card
+rare_card_en:
+  card: rare_card
   locale: en
   title: "Blue Depths"
 
-sapphire_card_fr:
-  card: sapphire_card
+rare_card_fr:
+  card: rare_card
   locale: fr
   title: "Profondeurs bleues"
 
-gold_card_en:
-  card: gold_card
+legendary_card_en:
+  card: legendary_card
   locale: en
   title: "Golden Crown"
 
-gold_card_fr:
-  card: gold_card
+legendary_card_fr:
+  card: legendary_card
   locale: fr
   title: "Couronne d'or"

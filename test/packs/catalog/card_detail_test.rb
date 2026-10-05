@@ -6,12 +6,12 @@ require_relative "../../support/catalog_seeds"
 class Catalog::CardDetailTest < ActiveSupport::TestCase
   include CatalogSeeds
 
-  # A published season numbered 2 holding portal (gold, buried), written
+  # A published season numbered 2 holding portal (legendary, buried), written
   # with insert_all as a published season can no longer change.
   def publish_season_two_with_portal
     season = seed_published_sets([])
     Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.99, rating: 99,
-      rarity: Catalog::Rarity::TIERS.invert.fetch(:gold), dust_tier: Catalog::Dust::LEVELS.invert.fetch(:buried) } ])
+      rarity: Catalog::Rarity::TIERS.invert.fetch(:legendary), dust_tier: Catalog::Dust::LEVELS.invert.fetch(:buried) } ])
     season
   end
 
@@ -22,7 +22,7 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert_queries_count(2) { detail = Catalog::CardDetail.call(slug: "portal", locale: :en) }
 
     assert_equal Catalog::CardView.new(id: "portal", title: "Portal", publisher: "Valve", year: 2007, season_number: 1,
-      rarity: "amethyst", dust: 3, image_url: "https://images.example.test/400.jpg"), detail.view
+      rarity: "epic", dust: 3, image_url: "https://images.example.test/400.jpg", number: 4, genre: nil), detail.view
     assert_equal "A puzzle game of portals.", detail.short_description
     assert_equal "Valve", detail.publisher
     assert_equal "https://store.example.test/400", detail.store_url
@@ -59,11 +59,11 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     publish_season_two_with_portal
 
     detail = Catalog::CardDetail.call(slug: "portal", locale: :en)
-    assert_equal [ 2, "gold", 4, true ], [ detail.view.season_number, detail.view.rarity, detail.view.dust, detail.current_season ]
+    assert_equal [ 2, "legendary", 4, true ], [ detail.view.season_number, detail.view.rarity, detail.view.dust, detail.current_season ]
     assert_equal [], detail.sets
 
     older = Catalog::CardDetail.call(slug: "portal", locale: :en, season_number: 1)
-    assert_equal [ 1, "amethyst", 3, false ], [ older.view.season_number, older.view.rarity, older.view.dust, older.current_season ]
+    assert_equal [ 1, "epic", 3, false ], [ older.view.season_number, older.view.rarity, older.view.dust, older.current_season ]
     assert_equal [ "valve" ], older.sets.map(&:key)
 
     assert Catalog::CardDetail.call(slug: "portal", locale: :en, season_number: 2).current_season
@@ -76,7 +76,7 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert Catalog::CardDetail.call(slug: "tin-soldier", locale: :en, season_number: 1)
 
     draft = Catalog::Season.create!(number: 3)
-    Catalog::CardSeason.create!(card: catalog_cards(:steel_card), season: draft, prestige_score: 0.5, rating: 90)
+    Catalog::CardSeason.create!(card: catalog_cards(:common_card), season: draft, prestige_score: 0.5, rating: 90)
     assert_nil Catalog::CardDetail.call(slug: "tin-soldier", locale: :en, season_number: 3)
     assert_nil Catalog::CardDetail.call(slug: "tin-soldier", locale: :en, season_number: 9)
     assert_nil Catalog::CardDetail.call(slug: "tin-soldier", locale: :en, season_number: 99_999_999_999)
@@ -102,5 +102,27 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert_includes detail.sets.map(&:kind), "tome"
     assert_equal "publisher", detail.sets.find { it.key == "p" }.kind
     assert_equal({ "publisher" => "P" }, detail.sets.find { it.key == "p" }.params)
+  end
+
+  test "the view carries the card-season's number and the genre of its tome in that season" do
+    season = publish_sets_draft
+    tome = Catalog::Set.find_by!(season_id: season.id, kind: "tome", key: "rpg-1")
+    card_season = tome.memberships.first.card_season
+
+    view = Catalog::CardDetail.call(slug: card_season.card.slug, locale: :en).view
+
+    assert_equal [ card_season.number, "rpg" ], [ view.number, view.genre ]
+    assert_includes 1..150, view.number
+    assert_equal "S#{season.number} · ##{card_season.number}", view.number_label
+  end
+
+  test "a card-season in no tome has no genre; one never numbered has no number" do
+    publish_season_two_with_portal
+
+    view = Catalog::CardDetail.call(slug: "portal", locale: :en).view
+    assert_equal [ nil, nil, nil ], [ view.number, view.genre, view.number_label ]
+
+    older = Catalog::CardDetail.call(slug: "portal", locale: :en, season_number: 1).view
+    assert_equal [ 4, nil, "S1 · #4" ], [ older.number, older.genre, older.number_label ]
   end
 end

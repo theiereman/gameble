@@ -18,8 +18,8 @@ class Game::DrawPoolTest < ActiveSupport::TestCase
     season = catalog_seasons(:one)
     assert_equal season.id, pool.season_id
     assert_equal [ season.id, season.published_at ], pool.key
-    assert_equal({ 1 => tier_ids(:steel_card_one), 2 => tier_ids(:emerald_card_one), 3 => tier_ids(:sapphire_card_one),
-      4 => tier_ids(:portal_one), 5 => tier_ids(:gold_card_one) }, pool.tiers)
+    assert_equal({ 1 => tier_ids(:common_card_one), 2 => tier_ids(:uncommon_card_one), 3 => tier_ids(:rare_card_one),
+      4 => tier_ids(:portal_one), 5 => tier_ids(:legendary_card_one) }, pool.tiers)
     assert_predicate pool.tiers, :frozen?
     assert pool.tiers.values.all?(&:frozen?)
   end
@@ -54,7 +54,7 @@ class Game::DrawPoolTest < ActiveSupport::TestCase
 
     assert_not_same first, pool
     assert_equal season.id, pool.season_id
-    assert_equal [ catalog_card_seasons(:steel_card_one).id, added.id ].sort, pool.tiers.fetch(1).sort
+    assert_equal [ catalog_card_seasons(:common_card_one).id, added.id ].sort, pool.tiers.fetch(1).sort
   end
 
   test "no published season gives no pool" do
@@ -64,7 +64,7 @@ class Game::DrawPoolTest < ActiveSupport::TestCase
   end
 
   test "a published season with an empty tier raises" do
-    Catalog::CardSeason.where(id: catalog_card_seasons(:gold_card_one).id).update_all(rarity: 4)
+    Catalog::CardSeason.where(id: catalog_card_seasons(:legendary_card_one).id).update_all(rarity: 4)
     catalog_seasons(:one).update_columns(published_at: 1.minute.ago)
 
     error = assert_raises(Game::DrawPool::EmptyTier) { Game::DrawPool.current }

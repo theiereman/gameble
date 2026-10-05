@@ -8,9 +8,9 @@ module GamePacks
       available_at:, opened_at:)
   end
 
-  # The fixture season's card-season ids, steel to gold.
+  # The fixture season's card-season ids, common to legendary.
   def fixture_tier_ids
-    %i[steel_card_one emerald_card_one sapphire_card_one portal_one gold_card_one].map { |name| catalog_card_seasons(name).id }
+    %i[common_card_one uncommon_card_one rare_card_one portal_one legendary_card_one].map { |name| catalog_card_seasons(name).id }
   end
 
   def game_events(player, type = nil)

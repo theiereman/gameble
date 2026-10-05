@@ -76,7 +76,7 @@ class ShellTest < ActionDispatch::IntegrationTest
 
   test "a player elsewhere: the back button to the bridge, the rarity counter, the packs chip and the player chip" do
     player = accounts_players(:player)
-    hold(player, :steel_card_one, 3)
+    hold(player, :common_card_one, 3)
     hold(player, :portal_one, 1)
     3.times { create_pack(player) }
     create_pack(player, available_at: 125.seconds.from_now)
@@ -99,7 +99,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "#rarity-legend[popover]" do
       assert_select ".shell-popover__title", "Rarities"
       assert_select "li.rarity-legend__row", 5
-      assert_equal [ "Steel", "Emerald", "Sapphire", "Amethyst", "Gold" ], css_select(".rarity-legend__name").map(&:text)
+      assert_equal [ "Common", "Uncommon", "Rare", "Epic", "Legendary" ], css_select(".rarity-legend__name").map(&:text)
       assert_equal %w[3 0 0 1 0], css_select(".rarity-legend__count").map(&:text)
     end
 
@@ -143,7 +143,7 @@ class ShellTest < ActionDispatch::IntegrationTest
 
   test "no published season: the rarity counter shows zeros" do
     player = accounts_players(:player)
-    hold(player, :steel_card_one, 3)
+    hold(player, :common_card_one, 3)
     catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
     sign_in(player)
 

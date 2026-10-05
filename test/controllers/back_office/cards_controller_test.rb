@@ -23,14 +23,14 @@ module BackOffice
 
       assert_response :success
       pairs = Catalog::Rarity::TIERS.values.product(%w[face back], %w[small large]).map { |parts| parts.join("-") } +
-        (0..4).map { |level| "sapphire-back-small-dust-#{level}" }
+        (0..4).map { |level| "rare-back-small-dust-#{level}" }
       assert_equal pairs, css_select("[data-renderer=server]").map { it["data-pair"] }
-      assert_select "[data-pair=sapphire-back-small-dust-3] .card.card--dust-3 .card__dust"
+      assert_select "[data-pair=rare-back-small-dust-3] .card.card--dust-3 .card__dust"
       assert_select ".card__title", text: "Profondeurs bleues"
 
       props = JSON.parse(css_select("[data-turbo-mount-card-preview-component-value=CardPreview], [data-controller~=turbo-mount-card-preview]").first["data-turbo-mount-card-preview-props-value"])
       assert_equal pairs, props["pairs"].map { it["pair"] }
-      assert_equal "Carte face cachée, Saphir", props.dig("strings", "faceDownByRarity", "sapphire")
+      assert_equal "Carte face cachée, Rare", props.dig("strings", "faceDownByRarity", "rare")
       assert_equal "Saison 12", props.dig("strings", "seasons", "12")
       assert_no_match %r{steam}i, response.body.scan(/data-card-art-url-value="[^"]*"/).join
     end

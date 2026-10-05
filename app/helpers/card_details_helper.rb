@@ -5,7 +5,7 @@ module CardDetailsHelper
   OG_LOCALES = { "en" => "en_US", "fr" => "fr_FR" }.freeze
 
   # A card's title in its page's and its previews' language: "Portal —
-  # Amethyst".
+  # Epic".
   def card_preview_title(view)
     t("card_details.preview.title", title: view.title, rarity: CardStrings.for([ view ]).rarity_name(view.rarity))
   end
@@ -34,7 +34,7 @@ module CardDetailsHelper
     url
   end
 
-  # The name of a link to a card's detail: "Portal, Amethyst, season 1".
+  # The name of a link to a card's detail: "Portal, Epic, season 1".
   def card_detail_open_label(view, strings)
     t("card_details.open", title: view.title, rarity: strings.rarity_name(view.rarity), season: view.season_number)
   end

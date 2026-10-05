@@ -6,39 +6,45 @@ portal_one:
   season: one
   prestige_score: 0.9
   rating: 95.5
-  rarity: amethyst
+  rarity: epic
   dust_tier: thick
+  number: 4
 
 # One card-season per other tier, so the published season can be drawn from.
+# The five are numbered 1..5 in the season.
 
-steel_card_one:
-  card: steel_card
+common_card_one:
+  card: common_card
   season: one
   prestige_score: 0.2
   rating: 80.0
-  rarity: steel
+  rarity: common
   dust_tier: none
+  number: 1
 
-emerald_card_one:
-  card: emerald_card
+uncommon_card_one:
+  card: uncommon_card
   season: one
   prestige_score: 0.5
   rating: 80.0
-  rarity: emerald
+  rarity: uncommon
   dust_tier: light
+  number: 2
 
-sapphire_card_one:
-  card: sapphire_card
+rare_card_one:
+  card: rare_card
   season: one
   prestige_score: 0.7
   rating: 80.0
-  rarity: sapphire
+  rarity: rare
   dust_tier: marked
+  number: 3
 
-gold_card_one:
-  card: gold_card
+legendary_card_one:
+  card: legendary_card
   season: one
   prestige_score: 0.99
   rating: 80.0
-  rarity: gold
+  rarity: legendary
   dust_tier: buried
+  number: 5

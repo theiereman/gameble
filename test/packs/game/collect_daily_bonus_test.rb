@@ -48,7 +48,7 @@ class Game::CollectDailyBonusTest < ActiveSupport::TestCase
       assert_equal catalog_seasons(:one).id, pack.season_id
       assert_equal Game::Pack::BONUS_SIZE, pack.card_season_ids.size
       assert_empty pack.card_season_ids - fixture_tier_ids
-      assert_not_includes pack.card_season_ids, catalog_card_seasons(:steel_card_one).id
+      assert_not_includes pack.card_season_ids, catalog_card_seasons(:common_card_one).id
       claim = claims.sole
       assert_equal Date.new(2026, 10, 2), claim.day
       assert_equal pack.id, claim.pack_id

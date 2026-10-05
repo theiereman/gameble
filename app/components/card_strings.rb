@@ -21,7 +21,7 @@ class CardStrings
 
   def rarity_name(rarity) = @rarity_names.fetch(rarity.to_s)
 
-  # "Face-down card, Sapphire", or "Face-down card" without a rarity.
+  # "Face-down card, Rare", or "Face-down card" without a rarity.
   def face_down(rarity = nil) = rarity ? @face_down_by_rarity.fetch(rarity.to_s) : @face_down
 
   def season(number) = @seasons.fetch(number)

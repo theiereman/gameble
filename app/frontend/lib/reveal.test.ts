@@ -29,55 +29,55 @@ describe("card states", () => {
 })
 
 describe("lengths", () => {
-  it("grow with the rarity, a gold card the longest", () => {
-    const tiers: Rarity[] = ["steel", "emerald", "sapphire", "amethyst", "gold"]
+  it("grow with the rarity, a legendary card the longest", () => {
+    const tiers: Rarity[] = ["common", "uncommon", "rare", "epic", "legendary"]
     const lengths = tiers.map(revealLength)
     expect([...lengths].sort((a, b) => a - b)).toEqual(lengths)
     expect(new Set(lengths).size).toBe(5)
   })
 
-  it("are the steel length in a quick flip, except a gold card's", () => {
-    expect(flipLength("amethyst", "quick")).toBe(revealLength("steel"))
-    expect(flipLength("gold", "quick")).toBe(revealLength("gold"))
-    expect(flipLength("sapphire", "full")).toBe(revealLength("sapphire"))
+  it("are the common length in a quick flip, except a legendary card's", () => {
+    expect(flipLength("epic", "quick")).toBe(revealLength("common"))
+    expect(flipLength("legendary", "quick")).toBe(revealLength("legendary"))
+    expect(flipLength("rare", "full")).toBe(revealLength("rare"))
   })
 })
 
 describe("planFlipAll", () => {
   const dusty = (count: number): CardState[] => Array(count).fill("dusty")
 
-  it("staggers quick cards when there is no gold", () => {
-    const { steps, end } = planFlipAll(["steel", "emerald", "sapphire", "amethyst", "steel"], dusty(5))
+  it("staggers quick cards when there is no legendary", () => {
+    const { steps, end } = planFlipAll(["common", "uncommon", "rare", "epic", "common"], dusty(5))
     expect(steps.map((step) => step.at)).toEqual([0, 1, 2, 3, 4].map((n) => n * STAGGER_MS))
-    expect(steps.every((step) => step.mode === "quick" && step.length === revealLength("steel"))).toBe(true)
-    expect(end).toBe(4 * STAGGER_MS + revealLength("steel"))
+    expect(steps.every((step) => step.mode === "quick" && step.length === revealLength("common"))).toBe(true)
+    expect(end).toBe(4 * STAGGER_MS + revealLength("common"))
   })
 
-  it("holds a gold card its full length before the next", () => {
-    const { steps } = planFlipAll(["steel", "gold", "emerald", "steel", "steel"], ["dusty", "wiped", "dusty", "dusty", "dusty"])
-    const gold = steps[1]
-    expect(gold).toMatchObject({ index: 1, mode: "full", length: revealLength("gold") })
-    expect(steps[2].at - gold.at).toBeGreaterThanOrEqual(revealLength("gold"))
+  it("holds a legendary card its full length before the next", () => {
+    const { steps } = planFlipAll(["common", "legendary", "uncommon", "common", "common"], ["dusty", "wiped", "dusty", "dusty", "dusty"])
+    const legendary = steps[1]
+    expect(legendary).toMatchObject({ index: 1, mode: "full", length: revealLength("legendary") })
+    expect(steps[2].at - legendary.at).toBeGreaterThanOrEqual(revealLength("legendary"))
   })
 
-  it("holds each of two gold cards, and five identical gold cards one by one", () => {
-    const two = planFlipAll(["gold", "steel", "gold", "steel", "steel"], dusty(5)).steps
-    expect(two[1].at - two[0].at).toBeGreaterThanOrEqual(revealLength("gold"))
-    expect(two[3].at - two[2].at).toBeGreaterThanOrEqual(revealLength("gold"))
+  it("holds each of two legendary cards, and five identical legendary cards one by one", () => {
+    const two = planFlipAll(["legendary", "common", "legendary", "common", "common"], dusty(5)).steps
+    expect(two[1].at - two[0].at).toBeGreaterThanOrEqual(revealLength("legendary"))
+    expect(two[3].at - two[2].at).toBeGreaterThanOrEqual(revealLength("legendary"))
 
-    const five = planFlipAll(Array(5).fill("gold"), dusty(5))
+    const five = planFlipAll(Array(5).fill("legendary"), dusty(5))
     expect(five.steps.map((step) => step.index)).toEqual([0, 1, 2, 3, 4])
-    five.steps.slice(1).forEach((step, n) => expect(step.at - five.steps[n].at).toBe(revealLength("gold")))
-    expect(five.end).toBe(5 * revealLength("gold"))
+    five.steps.slice(1).forEach((step, n) => expect(step.at - five.steps[n].at).toBe(revealLength("legendary")))
+    expect(five.end).toBe(5 * revealLength("legendary"))
   })
 
-  it("skips flipped cards, a flipped gold card included", () => {
-    const { steps } = planFlipAll(["steel", "gold", "emerald"], ["flipped", "flipped", "wiped"])
-    expect(steps).toEqual([{ index: 2, at: 0, mode: "quick", length: revealLength("steel") }])
+  it("skips flipped cards, a flipped legendary card included", () => {
+    const { steps } = planFlipAll(["common", "legendary", "uncommon"], ["flipped", "flipped", "wiped"])
+    expect(steps).toEqual([{ index: 2, at: 0, mode: "quick", length: revealLength("common") }])
   })
 
   it("plans nothing when every card is flipped", () => {
-    expect(planFlipAll(["steel", "gold"], ["flipped", "flipped"])).toEqual({ steps: [], end: 0 })
+    expect(planFlipAll(["common", "legendary"], ["flipped", "flipped"])).toEqual({ steps: [], end: 0 })
   })
 })
 
@@ -91,7 +91,7 @@ describe("runFlipAll", () => {
   }
 
   it("flips each card at its time, then ends", () => {
-    const plan = planFlipAll(["steel", "gold", "emerald"], ["dusty", "dusty", "dusty"])
+    const plan = planFlipAll(["common", "legendary", "uncommon"], ["dusty", "dusty", "dusty"])
     const flipped: { index: number; at: number }[] = []
     const onEnd = vi.fn()
     const start = Date.now()
@@ -99,21 +99,21 @@ describe("runFlipAll", () => {
 
     vi.advanceTimersByTime(STAGGER_MS)
     expect(flipped.map((card) => card.index)).toEqual([0, 1])
-    vi.advanceTimersByTime(revealLength("gold") - 1)
+    vi.advanceTimersByTime(revealLength("legendary") - 1)
     expect(flipped.map((card) => card.index)).toEqual([0, 1])
     vi.advanceTimersByTime(1)
     expect(flipped.map((card) => card.index)).toEqual([0, 1, 2])
-    expect(flipped[2].at - flipped[1].at).toBeGreaterThanOrEqual(revealLength("gold"))
+    expect(flipped[2].at - flipped[1].at).toBeGreaterThanOrEqual(revealLength("legendary"))
     expect(onEnd).not.toHaveBeenCalled()
 
-    vi.advanceTimersByTime(revealLength("steel"))
+    vi.advanceTimersByTime(revealLength("common"))
     expect(onEnd).toHaveBeenCalledOnce()
   })
 
   it("clears every timer when cancelled", () => {
     const onStep = vi.fn()
     const onEnd = vi.fn()
-    const cancel = runFlipAll(planFlipAll(["gold", "steel"], ["dusty", "dusty"]), { onStep, onEnd }, timers)
+    const cancel = runFlipAll(planFlipAll(["legendary", "common"], ["dusty", "dusty"]), { onStep, onEnd }, timers)
     vi.advanceTimersByTime(0)
     expect(onStep).toHaveBeenCalledOnce()
 
@@ -126,18 +126,18 @@ describe("runFlipAll", () => {
 
   it("runs on the browser's timers by default", () => {
     const onEnd = vi.fn()
-    runFlipAll(planFlipAll(["steel"], ["dusty"]), { onStep: () => {}, onEnd })
-    vi.advanceTimersByTime(revealLength("steel"))
+    runFlipAll(planFlipAll(["common"], ["dusty"]), { onStep: () => {}, onEnd })
+    vi.advanceTimersByTime(revealLength("common"))
     expect(onEnd).toHaveBeenCalledOnce()
   })
 })
 
 describe("burstPixels", () => {
   it("gives more pixels to rarer cards, the same ones each time, on the 2 px grid at every step", () => {
-    expect(burstPixels("steel", 160, 240)).toHaveLength(BURST_PIXELS.steel)
-    expect(burstPixels("gold", 160, 240)).toHaveLength(BURST_PIXELS.gold)
-    expect(burstPixels("gold", 240, 360)).toEqual(burstPixels("gold", 240, 360))
-    for (const { x, y, dx, dy } of burstPixels("gold", 240, 360)) {
+    expect(burstPixels("common", 160, 240)).toHaveLength(BURST_PIXELS.common)
+    expect(burstPixels("legendary", 160, 240)).toHaveLength(BURST_PIXELS.legendary)
+    expect(burstPixels("legendary", 240, 360)).toEqual(burstPixels("legendary", 240, 360))
+    for (const { x, y, dx, dy } of burstPixels("legendary", 240, 360)) {
       for (const value of [x, y, dx / BURST_STEPS, dy / BURST_STEPS]) expect(Math.abs(value) % 2).toBe(0)
     }
   })

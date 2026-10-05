@@ -81,7 +81,7 @@ class ShareCardTest < ApplicationSystemTestCase
     assert_signed_out
     visit url
 
-    assert_title "Portal — Amethyst"
+    assert_title "Portal — Epic"
     assert_selector "main > .card-detail h1", text: "Portal"
     assert_selector ".card-detail__invitation", text: "Ten packs wait in the attic"
     assert_no_selector ".card-detail__share"

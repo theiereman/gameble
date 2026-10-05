@@ -4,7 +4,7 @@ require "application_system_test_case"
 # (back-office card preview, administrators only).
 class CardPreviewTest < ApplicationSystemTestCase
   PAIRS = Catalog::Rarity::TIERS.values.product(%w[face back], %w[small large]).map { |parts| parts.join("-") } +
-    (0..4).map { |level| "sapphire-back-small-dust-#{level}" }
+    (0..4).map { |level| "rare-back-small-dust-#{level}" }
 
   # A card's markup reduced to what both renderers must share: tag, sorted
   # classes, role, aria-*, `use href` and its own text, collapsed; data-*,
@@ -84,7 +84,7 @@ class CardPreviewTest < ApplicationSystemTestCase
   test "a missing art hides the canvas and keeps the frame and title" do
     visit_preview
 
-    %w[emerald-face-small emerald-face-large].each do |pair|
+    %w[uncommon-face-small uncommon-face-large].each do |pair|
       %w[server react].each do |renderer|
         within("[data-pair=#{pair}][data-renderer=#{renderer}]") do
           assert_selector ".card__art[data-art=failed]"
@@ -99,9 +99,9 @@ class CardPreviewTest < ApplicationSystemTestCase
   test "a long title shows two lines and keeps its full text" do
     visit_preview
 
-    title = page.find("[data-pair=amethyst-face-small][data-renderer=server] .card__title")
+    title = page.find("[data-pair=epic-face-small][data-renderer=server] .card__title")
     assert_equal "The Long Chronicles of the Amethyst Archive and the Keys Its Keepers Lost at Sea", title.text(:all)
-    line = page.evaluate_script("parseFloat(getComputedStyle(document.querySelector('[data-pair=amethyst-face-small] .card__title')).lineHeight)")
+    line = page.evaluate_script("parseFloat(getComputedStyle(document.querySelector('[data-pair=epic-face-small] .card__title')).lineHeight)")
     assert_equal 2 * line, title.evaluate_script("this.getBoundingClientRect().height")
 
     plates = page.evaluate_script("[...document.querySelectorAll('.card__plate')].map((plate) => plate.getBoundingClientRect().height)")
@@ -110,8 +110,8 @@ class CardPreviewTest < ApplicationSystemTestCase
 
   test "the legendary face sweeps and blinks; with reduced motion the sweep stops and the sparkles stay" do
     visit_preview
-    sweep = "[data-pair=gold-face-large][data-renderer=server] .card__sweep"
-    sparkle = "[data-pair=gold-face-large][data-renderer=server] .card__sparkle"
+    sweep = "[data-pair=legendary-face-large][data-renderer=server] .card__sweep"
+    sparkle = "[data-pair=legendary-face-large][data-renderer=server] .card__sparkle"
     style = ->(selector, property) { page.evaluate_script("getComputedStyle(document.querySelector(#{selector.to_json}))[#{property.to_json}]") }
 
     assert_equal "card-sweep", style.(sweep, "animationName")
@@ -121,14 +121,14 @@ class CardPreviewTest < ApplicationSystemTestCase
     assert_equal "none", style.(sweep, "animationName")
     assert_equal "none", style.(sparkle, "animationName")
     assert_equal "1", style.(sparkle, "opacity")
-    assert_equal 7, page.all("[data-pair=gold-face-large][data-renderer=react] .card__sparkle", visible: :all).size
+    assert_equal 7, page.all("[data-pair=legendary-face-large][data-renderer=react] .card__sparkle", visible: :all).size
   ensure
     page.driver.browser.execute_cdp("Emulation.setEmulatedMedia", features: [ { name: "prefers-reduced-motion", value: "" } ])
   end
 
   test "a Turbo restore visit draws the art again" do
     visit_preview
-    art = "[data-pair=steel-face-small][data-renderer=server] .card__art"
+    art = "[data-pair=common-face-small][data-renderer=server] .card__art"
     # A stale mark and a hidden canvas, as the snapshot Turbo caches on leaving.
     page.execute_script("const art = document.querySelector(#{art.to_json}); art.dataset.art = 'stale'; art.querySelector('canvas').hidden = true")
     click_on "Bridge"
@@ -138,7 +138,7 @@ class CardPreviewTest < ApplicationSystemTestCase
     assert_selector "#{art}[data-art=drawn] canvas:not([hidden])"
     painted = page.evaluate_script(<<~JS)
       (() => {
-        const canvas = document.querySelector("[data-pair=steel-face-small][data-renderer=server] canvas")
+        const canvas = document.querySelector("[data-pair=common-face-small][data-renderer=server] canvas")
         return canvas.getContext("2d").getImageData(0, 0, 1, 1).data[3]
       })()
     JS

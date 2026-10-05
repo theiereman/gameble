@@ -16,10 +16,10 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
   end
 
   test "rarity tiers and dust levels are defined once, as keys" do
-    assert_equal({ 1 => :steel, 2 => :emerald, 3 => :sapphire, 4 => :amethyst, 5 => :gold }, Catalog::Rarity::TIERS)
+    assert_equal({ 1 => :common, 2 => :uncommon, 3 => :rare, 4 => :epic, 5 => :legendary }, Catalog::Rarity::TIERS)
     assert_equal({ 0 => :none, 1 => :light, 2 => :marked, 3 => :thick, 4 => :buried }, Catalog::Dust::LEVELS)
     assert_equal %w[en fr], Catalog::CardText::LOCALES
-    assert_predicate card_season, :rarity_amethyst?
+    assert_predicate card_season, :rarity_epic?
     assert_predicate card_season, :dust_thick?
   end
 
@@ -41,8 +41,8 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
     end
   end
 
-  test "rarity and dust tier may stay NULL, scores may not" do
-    Catalog::CardSeason.where(id: card_season.id).update_all(rarity: nil, dust_tier: nil)
+  test "rarity, dust tier and number may stay NULL, scores may not" do
+    Catalog::CardSeason.where(id: card_season.id).update_all(rarity: nil, dust_tier: nil, number: nil)
 
     refused(ActiveRecord::NotNullViolation) { Catalog::CardSeason.where(id: card_season.id).update_all(rating: nil) }
     refused(ActiveRecord::NotNullViolation) { Catalog::CardSeason.where(id: card_season.id).update_all(prestige_score: nil) }
@@ -84,6 +84,22 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
     end
   end
 
+  [ 0, -1 ].each do |number|
+    test "the database refuses a card number of #{number}" do
+      refused(ActiveRecord::CheckViolation) { Catalog::CardSeason.where(id: card_season.id).update_all(number:) }
+    end
+  end
+
+  test "the database refuses a card number twice in a season, but not across seasons nor while unnumbered" do
+    refused(ActiveRecord::RecordNotUnique) do
+      Catalog::CardSeason.where(id: catalog_card_seasons(:common_card_one).id).update_all(number: card_season.number)
+    end
+
+    Catalog::CardSeason.where(id: catalog_card_seasons(:common_card_one, :rare_card_one).map(&:id)).update_all(number: nil)
+    other = Catalog::CardSeason.create!(card: catalog_cards(:portal), season: draft, prestige_score: 1, rating: 1)
+    assert Catalog::CardSeason.where(id: other.id).update_all(number: card_season.number)
+  end
+
   test "the database refuses a card twice for the same source key or slug" do
     card = catalog_cards(:portal)
     attributes = card.attributes.slice("release_date", "image_url", "store_url")
@@ -122,8 +138,12 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
   end
 
   test "a card-season's season data is frozen once its season is published" do
-    card_season.rarity = :gold
+    card_season.rarity = :legendary
 
+    assert_not card_season.valid?
+    assert_includes card_season.errors.details[:base], { error: :frozen_once_published }
+
+    card_season.reload.number = 99
     assert_not card_season.valid?
     assert_includes card_season.errors.details[:base], { error: :frozen_once_published }
   end

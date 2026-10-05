@@ -20,10 +20,10 @@ class Game::DrawTest < ActiveSupport::TestCase
     assert_equal({ 1 => 7_600, 2 => 1_900, 3 => 430, 4 => 65, 5 => 5 }, Game::DrawOdds::REGULAR)
   end
 
-  test "the daily bonus odds: emerald to gold, no steel, summing to ten thousand" do
+  test "the daily bonus odds: uncommon to legendary, no common, summing to ten thousand" do
     assert_equal({ 2 => 7_000, 3 => 2_400, 4 => 500, 5 => 100 }, Game::DrawOdds::BONUS)
     assert_equal [ 2, 3, 4, 5 ], Game::DrawOdds::BONUS.keys.sort
-    assert_not_includes Game::DrawOdds::BONUS.keys, Catalog::Rarity::TIERS.key(:steel)
+    assert_not_includes Game::DrawOdds::BONUS.keys, Catalog::Rarity::TIERS.key(:common)
     assert_equal Game::DrawOdds::TOTAL, Game::DrawOdds::BONUS.values.sum
     assert_equal 3, Game::Pack::BONUS_SIZE
   end
@@ -36,8 +36,8 @@ class Game::DrawTest < ActiveSupport::TestCase
 
   test "a card is picked by its index within the tier" do
     pool = Game::DrawPool.current
-    assert_equal catalog_card_seasons(:gold_card_one).id, Game::Draw.card(tier: 5, random: Scripted.new(0), pool:)
-    assert_equal [ catalog_card_seasons(:steel_card_one).id, catalog_card_seasons(:gold_card_one).id ],
+    assert_equal catalog_card_seasons(:legendary_card_one).id, Game::Draw.card(tier: 5, random: Scripted.new(0), pool:)
+    assert_equal [ catalog_card_seasons(:common_card_one).id, catalog_card_seasons(:legendary_card_one).id ],
       Game::Draw.pack(odds: Game::DrawOdds::REGULAR, size: 2, random: Scripted.new(10, 0, 9_999, 0), pool:)
   end
 
@@ -66,17 +66,17 @@ class Game::DrawTest < ActiveSupport::TestCase
       assert_in_delta n * p, by_tier.fetch(tier, 0), 4 * sigma, "tier #{tier}"
     end
 
-    amethysts = pool.tiers.fetch(4)
-    assert_equal 6, amethysts.size
+    epics = pool.tiers.fetch(4)
+    assert_equal 6, epics.size
     counts = ids.select { |id| rarity_of.fetch(id) == 4 }.tally
     m = counts.values.sum
-    amethysts.each do |id|
-      p = 1.0 / amethysts.size
+    epics.each do |id|
+      p = 1.0 / epics.size
       assert_in_delta m * p, counts.fetch(id, 0), 4 * Math.sqrt(m * p * (1 - p)), "card-season #{id}"
     end
   end
 
-  test "100,000 bonus draws follow the bonus odds per tier, and never draw steel" do
+  test "100,000 bonus draws follow the bonus odds per tier, and never draw common" do
     season = seed_card_seasons(distinct_scores(150))
     assert Catalog::PublishSeason.new.call(number: season.number).success?
     pool = Game::DrawPool.current

@@ -1,6 +1,6 @@
 module Game
   # The first-session guarantee (CAP-4; catalog-and-rarity.md, Draw): a new
-  # player gets a sapphire or better by their tenth pack. If none of the
+  # player gets a rare or better by their tenth pack. If none of the
   # first nine packs, in opening order, holds a card of tier 3 or above, one
   # card of the tenth, at a random position, is replaced by a card drawn from
   # tiers 3 to 5 in the regular odds' proportions (DrawOdds::GUARANTEE).

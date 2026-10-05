@@ -95,23 +95,23 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
   test "the faces are named in the locale of the URL" do
     player = accounts_players(:player)
-    gold = catalog_card_seasons(:gold_card_one).id
-    pack = create_pack(player, cards: [ gold ] * 5, opened_at: 1.minute.ago)
+    legendary = catalog_card_seasons(:legendary_card_one).id
+    pack = create_pack(player, cards: [ legendary ] * 5, opened_at: 1.minute.ago)
     sign_in(player.steam_id)
 
     get pack_path(pack.token, locale: :fr)
 
     assert_select "h1", "Ton paquet, Confrère"
     assert_equal [ "Couronne d'or" ] * 5, css_select(".card__title").map(&:text)
-    assert_equal [ "Or" ] * 5, css_select(".card--face .card__plate > .visually-hidden").map(&:text)
-    assert_equal [ "Couronne d'or, Or, saison 1" ] * 5, css_select(".pack-result__card > a.card-link").map { it["aria-label"] }
+    assert_equal [ "Légendaire" ] * 5, css_select(".card--face .card__plate > .visually-hidden").map(&:text)
+    assert_equal [ "Couronne d'or, Légendaire, saison 1" ] * 5, css_select(".pack-result__card > a.card-link").map { it["aria-label"] }
     assert_equal [ "/fr/cards/golden-crown/seasons/1" ] * 5, css_select(".pack-result__card > a.card-link").map { it["href"] }
   end
 
   test "the reveal of a pack whose card appears five times keeps the five, in French" do
     player = accounts_players(:player)
-    gold = catalog_card_seasons(:gold_card_one).id
-    create_pack(player, cards: [ gold ] * 5, available_at: 1.day.ago)
+    legendary = catalog_card_seasons(:legendary_card_one).id
+    create_pack(player, cards: [ legendary ] * 5, available_at: 1.day.ago)
     sign_in(player.steam_id)
 
     post packs_path(locale: :fr)
@@ -148,7 +148,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "h1", "Your daily bonus"
     props = reveal_props
-    assert_equal %w[sapphire amethyst gold], props["cards"].map { it["rarity"] }
+    assert_equal %w[rare epic legendary], props["cards"].map { it["rarity"] }
     assert_equal [ "Card 1 of 3", "Card 2 of 3", "Card 3 of 3" ], props.dig("strings", "progress")
   end
 

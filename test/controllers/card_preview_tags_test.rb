@@ -69,8 +69,8 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   test "the preview tags: title and rarity, a fixed line, the season URL, en_US, a summary card, no image" do
     get card_page
 
-    assert_equal "Blue Depths — Sapphire", og("title")
-    assert_select "title", "Blue Depths — Sapphire"
+    assert_equal "Blue Depths — Rare", og("title")
+    assert_select "title", "Blue Depths — Rare"
     description = "A card from the attic of the Brotherhood. Enlist through Steam, Brother: ten packs wait for you."
     assert_equal description, og("description")
     assert_equal description, meta("name", "description")
@@ -90,8 +90,8 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   test "in French: the French title and rarity, fr_FR, the French URL, the French invitation" do
     get card_page(locale: :fr)
 
-    assert_equal "Profondeurs bleues — Saphir", og("title")
-    assert_select "title", "Profondeurs bleues — Saphir"
+    assert_equal "Profondeurs bleues — Rare", og("title")
+    assert_select "title", "Profondeurs bleues — Rare"
     assert_equal "fr_FR", og("locale")
     assert_equal season_url(locale: :fr), og("url")
     assert_equal "Une carte du grenier de la Confrérie. Enrôle-toi via Steam, Confrère : dix paquets t'attendent.", og("description")
@@ -106,7 +106,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail h1", "Portal"
     assert_equal season_url(slug: "portal"), canonical
     assert_equal season_url(slug: "portal"), og("url")
-    assert_equal "Portal — Amethyst", og("title")
+    assert_equal "Portal — Epic", og("title")
   end
 
   test "a season number in the query string is ignored" do
@@ -129,7 +129,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   end
 
   test "a signed-in viewer, holder or not: the card, no invitation; a holder keeps their copies and the share block" do
-    hold(@sharer, catalog_card_seasons(:sapphire_card_one).id, 2)
+    hold(@sharer, catalog_card_seasons(:rare_card_one).id, 2)
     viewer = accounts_players(:moderator)
 
     sign_in(viewer)
@@ -138,7 +138,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__invitation", false
     assert_select ".card-detail__copies", false
     assert_select ".card-detail__share", false
-    assert_equal "Blue Depths — Sapphire", og("title")
+    assert_equal "Blue Depths — Rare", og("title")
     delete session_path(locale: :en)
 
     sign_in(@sharer)
@@ -205,7 +205,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
 
       assert_response :success
       assert_equal target, path
-      assert_equal "Portal — Amethyst", og("title")
+      assert_equal "Portal — Epic", og("title")
       assert_equal season_url(slug: "portal"), og("url")
     end
   end
@@ -228,7 +228,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
       get card_page(slug: "portal"), headers: { "User-Agent" => user_agent }
 
       assert_response :success
-      assert_equal "Portal — Amethyst", og("title")
+      assert_equal "Portal — Epic", og("title")
       set_link = css_select(".card-detail__sets a").sole["href"]
 
       get set_link, headers: { "User-Agent" => user_agent }
@@ -257,8 +257,8 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   end
 
   test "no database id reaches the page" do
-    hold(@sharer, catalog_card_seasons(:sapphire_card_one).id, 2)
-    ids = [ @sharer.id, catalog_card_seasons(:sapphire_card_one).id, catalog_cards(:sapphire_card).id, catalog_seasons(:one).id,
+    hold(@sharer, catalog_card_seasons(:rare_card_one).id, 2)
+    ids = [ @sharer.id, catalog_card_seasons(:rare_card_one).id, catalog_cards(:rare_card).id, catalog_seasons(:one).id,
       catalog_sets(:valve_one).id ]
 
     get card_page
@@ -272,6 +272,6 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
 
       assert_no_match(/\b#{id}\b/, html, "id #{id} on the page")
     end
-    assert_no_match(/\b#{catalog_card_seasons(:sapphire_card_one).id}\b/, response.body)
+    assert_no_match(/\b#{catalog_card_seasons(:rare_card_one).id}\b/, response.body)
   end
 end

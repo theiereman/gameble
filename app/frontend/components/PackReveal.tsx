@@ -141,7 +141,7 @@ export default function PackReveal({ cards, cardStrings, strings, openPackUrl, a
     setCurrent(index)
   }
 
-  // Flip all: the rest, quickly, a gold card held its full length; input is
+  // Flip all: the rest, quickly, a legendary card held its full length; input is
   // ignored while it runs, and its timers go with the island.
   const cancelFlipAll = useRef<(() => void) | null>(null)
   useEffect(() => () => cancelFlipAll.current?.(), [])
@@ -158,8 +158,8 @@ export default function PackReveal({ cards, cardStrings, strings, openPackUrl, a
     cancelFlipAll.current = runFlipAll(plan, {
       onStep: ({ index, mode }) => {
         flipCard(index, mode)
-        // On a phone the view moves to each gold card and holds it.
-        if (phoneRef.current && cards[index].rarity === "gold") showCard(index)
+        // On a phone the view moves to each legendary card and holds it.
+        if (phoneRef.current && cards[index].rarity === "legendary") showCard(index)
       },
       onEnd: () => {
         cancelFlipAll.current = null

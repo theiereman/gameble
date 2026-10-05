@@ -94,7 +94,7 @@ class CardDetailTest < ApplicationSystemTestCase
     link = find(".pack-result__card:first-child a.card-link")
     link.execute_script("this.focus()")
 
-    assert_equal "Tin Soldier, Steel, season 1", link["aria-label"]
+    assert_equal "Tin Soldier, Common, season 1", link["aria-label"]
     assert_equal "inline-block", link.evaluate_script("getComputedStyle(this).display")
     assert_not_equal "none", link.evaluate_script("getComputedStyle(this).outlineStyle")
   end

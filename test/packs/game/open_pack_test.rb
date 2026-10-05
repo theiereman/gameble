@@ -41,16 +41,16 @@ class Game::OpenPackTest < ActiveSupport::TestCase
   end
 
   test "a card twice in a pack adds two; a card already held is incremented in its row" do
-    portal, gold = catalog_card_seasons(:portal_one).id, catalog_card_seasons(:gold_card_one).id
-    steel = catalog_card_seasons(:steel_card_one).id
-    create_pack(@player, cards: [ gold, portal, steel, portal, steel ], available_at: 2.minutes.ago)
-    create_pack(@player, cards: [ portal, steel, steel, steel, gold ])
+    portal, legendary = catalog_card_seasons(:portal_one).id, catalog_card_seasons(:legendary_card_one).id
+    common = catalog_card_seasons(:common_card_one).id
+    create_pack(@player, cards: [ legendary, portal, common, portal, common ], available_at: 2.minutes.ago)
+    create_pack(@player, cards: [ portal, common, common, common, legendary ])
 
     open.value!
-    assert_equal [ [ steel, 2, 0 ], [ portal, 2, 0 ], [ gold, 1, 0 ] ].sort, holdings
+    assert_equal [ [ common, 2, 0 ], [ portal, 2, 0 ], [ legendary, 1, 0 ] ].sort, holdings
 
     open.value!
-    assert_equal [ [ steel, 5, 0 ], [ portal, 3, 0 ], [ gold, 2, 0 ] ].sort, holdings
+    assert_equal [ [ common, 5, 0 ], [ portal, 3, 0 ], [ legendary, 2, 0 ] ].sort, holdings
     assert_equal 3, Game::Holding.where(player_id: @player.id).count
   end
 

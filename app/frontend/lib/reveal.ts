@@ -12,11 +12,11 @@ export const TURN_MS = 400
 
 /** The flourish after the turn, longer as the rarity rises. */
 export const FLOURISH_MS: Record<Rarity, number> = {
-  steel: 200,
-  emerald: 350,
-  sapphire: 700,
-  amethyst: 1100,
-  gold: 2400,
+  common: 200,
+  uncommon: 350,
+  rare: 700,
+  epic: 1100,
+  legendary: 2400,
 }
 
 /** The dust fading off a wiped card. */
@@ -27,11 +27,11 @@ export const STAGGER_MS = 150
 
 /** Dust burst: how many pixels fly off a card, by rarity. */
 export const BURST_PIXELS: Record<Rarity, number> = {
-  steel: 8,
-  emerald: 12,
-  sapphire: 16,
-  amethyst: 24,
-  gold: 32,
+  common: 8,
+  uncommon: 12,
+  rare: 16,
+  epic: 24,
+  legendary: 32,
 }
 
 /** The steps of the burst's flight: each step lands on the 2 px grid. */
@@ -45,9 +45,9 @@ export function revealLength(rarity: Rarity): number {
   return TURN_MS + FLOURISH_MS[rarity]
 }
 
-/** The length a card plays when flipped this way. A gold card always plays its full length. */
+/** The length a card plays when flipped this way. A legendary card always plays its full length. */
 export function flipLength(rarity: Rarity, mode: FlipMode): number {
-  return mode === "quick" && rarity !== "gold" ? revealLength("steel") : revealLength(rarity)
+  return mode === "quick" && rarity !== "legendary" ? revealLength("common") : revealLength(rarity)
 }
 
 /** Wiping a dusty card shows its seal; any other card is left as it is. */
@@ -65,7 +65,7 @@ export type FlipAllStep = { index: number; at: number; mode: FlipMode; length: n
 
 /**
  * Flip all, planned: the cards not yet flipped, in order. A quick card is
- * followed by the next one a stagger later; a gold card, wiped or not, plays
+ * followed by the next one a stagger later; a legendary card, wiped or not, plays
  * its full length before the next starts. `end` is when the last card's
  * reveal is over.
  */
@@ -75,7 +75,7 @@ export function planFlipAll(rarities: Rarity[], states: CardState[]): { steps: F
   let end = 0
   rarities.forEach((rarity, index) => {
     if (states[index] === "flipped") return
-    const mode: FlipMode = rarity === "gold" ? "full" : "quick"
+    const mode: FlipMode = rarity === "legendary" ? "full" : "quick"
     const length = flipLength(rarity, mode)
     steps.push({ index, at, mode, length })
     end = Math.max(end, at + length)
@@ -99,7 +99,7 @@ const browserTimers: Timers = {
  * Runs a flip all plan: `onStep` for each card at its time, then `onEnd`.
  * Each timer is set when the previous one fires, so a card is never flipped
  * sooner after the one before than the plan says, however late a timer
- * fires: a gold card is always held its full length. Returns a cancel
+ * fires: a legendary card is always held its full length. Returns a cancel
  * function that clears the pending timer (on unmount).
  */
 export function runFlipAll(

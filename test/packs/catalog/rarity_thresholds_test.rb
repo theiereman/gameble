@@ -12,10 +12,10 @@ class Catalog::RarityThresholdsTest < ActiveSupport::TestCase
     Array.new(count) { |index| (count - index).to_f }
   end
 
-  test "the shares are keyed by the non-steel tiers and leave steel some cards" do
+  test "the shares are keyed by the non-common tiers and leave common some cards" do
     assert_equal [ 2, 3, 4, 5 ], Catalog::RarityThresholds::SHARES.keys.sort
     assert_operator Catalog::RarityThresholds::SHARES.values.sum, :<, 10_000
-    assert_equal 1, Catalog::RarityThresholds::STEEL
+    assert_equal 1, Catalog::RarityThresholds::COMMON
   end
 
   test "1,000 distinct scores cut into 10 / 40 / 100 / 250 / 600" do
@@ -44,7 +44,7 @@ class Catalog::RarityThresholdsTest < ActiveSupport::TestCase
     assert_equal [ 3, 2, 10, 25, 60 ], tier_counts(scores)
   end
 
-  test "a score covering the gold and amethyst cuts leaves a tier empty" do
+  test "a score covering the legendary and epic cuts leaves a tier empty" do
     scores = Array.new(5, 100.0) + distinct(95)
 
     assert_nil Catalog::RarityThresholds.tiers(scores)
@@ -58,7 +58,7 @@ class Catalog::RarityThresholdsTest < ActiveSupport::TestCase
     assert_equal [ 1, 1, 2, 5, 12 ], tier_counts(distinct(21))
   end
 
-  test "equal scores all the way down leave steel empty" do
+  test "equal scores all the way down leave common empty" do
     assert_nil Catalog::RarityThresholds.tiers(distinct(20) + Array.new(80, 0.0))
   end
 

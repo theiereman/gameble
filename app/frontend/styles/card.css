@@ -53,28 +53,28 @@
   --card-sweep-steps: 75;
 }
 
-.card--rarity-steel {
+.card--rarity-common {
   --card-rarity: var(--color-rarity-commune);
   --card-rarity-light: var(--color-rarity-commune-hi);
 }
 
-.card--rarity-emerald {
+.card--rarity-uncommon {
   --card-rarity: var(--color-rarity-peu-commune);
   --card-rarity-light: var(--color-rarity-peu-commune-hi);
 }
 
-.card--rarity-sapphire {
+.card--rarity-rare {
   --card-rarity: var(--color-rarity-rare);
   --card-rarity-light: var(--color-rarity-rare-hi);
 }
 
-.card--rarity-amethyst {
+.card--rarity-epic {
   --card-rarity: var(--color-rarity-epique);
   --card-rarity-light: var(--color-rarity-epique-hi);
 }
 
 /* The legendary tier's colours replace the metal on its cards only. */
-.card--rarity-gold {
+.card--rarity-legendary {
   --card-rarity: var(--color-rarity-legendaire);
   --card-rarity-light: var(--color-rarity-legendaire-hi);
   --card-metal: var(--color-rarity-legendaire);
@@ -260,7 +260,7 @@
   to { transform: translateX(calc(var(--card-width) + 140px)) skewX(26.565deg); }
 }
 
-/* A plus of gold light around a pale centre, 3 art pixels wide. */
+/* A plus of golden light around a pale centre, 3 art pixels wide. */
 .card__sparkle {
   position: absolute;
   width: var(--space-unit);
@@ -311,11 +311,11 @@
   image-rendering: pixelated;
 }
 
-.card--back.card--rarity-steel { background-image: url("../images/card/back-steel.svg"); }
-.card--back.card--rarity-emerald { background-image: url("../images/card/back-emerald.svg"); }
-.card--back.card--rarity-sapphire { background-image: url("../images/card/back-sapphire.svg"); }
-.card--back.card--rarity-amethyst { background-image: url("../images/card/back-amethyst.svg"); }
-.card--back.card--rarity-gold { background-image: url("../images/card/back-gold.svg"); }
+.card--back.card--rarity-common { background-image: url("../images/card/back-common.svg"); }
+.card--back.card--rarity-uncommon { background-image: url("../images/card/back-uncommon.svg"); }
+.card--back.card--rarity-rare { background-image: url("../images/card/back-rare.svg"); }
+.card--back.card--rarity-epic { background-image: url("../images/card/back-epic.svg"); }
+.card--back.card--rarity-legendary { background-image: url("../images/card/back-legendary.svg"); }
 
 /* The rarity seal, drawn over the whole back so it sits in the medallion. */
 .card__seal {
