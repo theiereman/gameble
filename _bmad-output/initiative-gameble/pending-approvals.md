@@ -62,3 +62,7 @@ Operations set aside while the author was away (2026-10-02): each waits for an e
 
 - **Apply the dust_tier contract migration.** `20261006100000_remove_dust_tier_from_catalog_card_seasons` drops `catalog_card_seasons.dust_tier` and its check `catalog_card_seasons_dust_tier_check`. Development: migrated on 2026-10-06. Test LXC: deploy with no import run running and no season being published, since the code already deployed (before 8.7) still writes the column (`Catalog::UpsertDraftCard`'s create, `Catalog::PublishSeason`); `bin/docker-entrypoint` applies it through `db:prepare` when the new web container boots. An import step failing in that window resumes under `Steam::RecoverStalledImportsJob` on the new code. Not run. Removing `ignored_columns` afterwards is in deferred-work.md.
 - Development migrated on 2026-10-06 with stories 8.7 (dust_tier dropped), 8.10 (opening key and card back on packs) and the 8.2 follow-up (opened-packs index).
+
+## Remaining pixel-art assets (2026-10-06, story 8.8, hitl)
+
+- **Review the pixel-art sheet once.** Open `_bmad-output/initiative-gameble/epic-space-terminal-redesign/pixel-art-sheet.html` in a browser. It shows all 81 exported files under `app/frontend/images/pixel/`, at 2 CSS px per art pixel: 8.1's icons, the 8 card backs at the 5 card sizes, the canister parts, the planet and 8 avatars. Approve it, or name what to redraw in `script/pixel_art/export.mjs`. Story 8.8 stays `built` until you do.
