@@ -1,0 +1,47 @@
+<%# The RAPPORT (DESIGN.md and EXPERIENCE.md, RAPPORT panel): the copies
+    held in the season, the duplicates (copies beyond the first of each
+    card) and the copies per rarity, each with its icon, name and count in
+    its colour. From 1180px a panel; under 720px a fold reading
+    "n cartes · n doublons", which adds the unique cards when open (the
+    native <details> says whether it is expanded). Between the two, hidden.
+    - counts: copies per rarity tier (Game::TierCounts);
+    - unique: the distinct cards held in the season. %>
+<% copies = counts.values.sum %>
+<% duplicates = [ copies - unique, 0 ].max %>
+<% tiers = capture do %>
+  <% Catalog::Rarity::TIERS.each do |tier, code| %>
+    <div class="report__row report__row--tier report__row--tier-<%= tier %>">
+      <dt><%= pixel_icon("rarity-#{tier}", class: "report__icon") %><%= t("catalog.rarity.#{code}") %></dt>
+      <dd><%= number_with_delimiter(counts.fetch(tier)) %></dd>
+    </div>
+  <% end %>
+<% end %>
+<section class="report report--panel" aria-labelledby="collection-report-title">
+  <h2 id="collection-report-title" class="report__title"><span class="report__light" aria-hidden="true"></span><%= t("library.report.title") %></h2>
+  <dl class="report__rows">
+    <div class="report__row">
+      <dt><%= t("library.report.copies") %></dt>
+      <dd><%= number_with_delimiter(copies) %></dd>
+    </div>
+    <div class="report__row">
+      <dt><%= t("library.report.duplicates") %></dt>
+      <dd><%= number_with_delimiter(duplicates) %></dd>
+    </div>
+  </dl>
+  <dl class="report__rows report__rows--tiers"><%= tiers %></dl>
+</section>
+<details class="report report--fold">
+  <summary class="report__summary">
+    <%= pixel_icon("arrow-small-right", class: "report__chevron") %>
+    <span class="report__title"><%= t("library.report.title") %></span>
+    <span class="report__line"><%= t("library.report.fold", copies: t("library.report.copies_count", count: copies, number: number_with_delimiter(copies)),
+      duplicates: t("library.report.duplicates_count", count: duplicates, number: number_with_delimiter(duplicates))) %></span>
+  </summary>
+  <dl class="report__rows">
+    <div class="report__row">
+      <dt><%= t("library.report.unique") %></dt>
+      <dd><%= number_with_delimiter(unique) %></dd>
+    </div>
+  </dl>
+  <dl class="report__rows report__rows--tiers"><%= tiers %></dl>
+</details>

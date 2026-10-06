@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_06_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_06_141010) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -146,6 +146,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_100000) do
     t.integer "reserved", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "last_gained_at"
     t.index ["card_season_id"], name: "index_game_holdings_on_card_season_id"
     t.index ["player_id", "card_season_id"], name: "index_game_holdings_on_player_id_and_card_season_id", unique: true
     t.check_constraint "quantity >= reserved AND reserved >= 0", name: "game_holdings_quantity_check"
@@ -177,6 +178,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_100000) do
     t.bigint "player_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "collection_seen_up_to"
     t.index ["player_id"], name: "index_game_player_states_on_player_id", unique: true
   end
 

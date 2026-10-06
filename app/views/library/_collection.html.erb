@@ -1,0 +1,38 @@
+<%# The collection screen (DESIGN.md: Layout & Spacing, Collection;
+    EXPERIENCE.md, Collection). From 1180px the sets and the RAPPORT in a
+    220px column beside the grid; from 720px the sets in a strip of rows
+    above the grid, the RAPPORT hidden; on the phone one column: the sets as
+    a strip of chips, the RAPPORT folded, the grid two cards wide. The genre
+    chips ("Tous" and the scope's genres) show only with two genres or more.
+    When the grid shows new cards to their player, the collection-seen
+    controller posts the latest gain shown, once the page is rendered
+    (AD-26).
+    - heading: the scope's name (the whole season, or the set's);
+    - kind, set, spines, shelf: the list of sets (library/set_list);
+    - grid: the Catalog::CollectionGrid; slots, pagy: its page (library/grid);
+    - unique, season_cards, tier_counts: the viewer's figures;
+    - seen_up_to: the latest gain among the new cards shown, or nil. %>
+<div class="collection">
+  <h1 class="visually-hidden"><%= heading %></h1>
+  <aside class="collection__aside" aria-labelledby="collection-sets-title">
+    <%= render "library/set_list", kind:, set:, spines:, pagy: shelf, unique:, season_cards: season_cards %>
+    <%= render "library/report", counts: tier_counts, unique: unique %>
+  </aside>
+  <section class="collection__main" aria-label="<%= heading %>">
+    <% if grid.genres.size >= 2 %>
+      <nav class="genre-chips" aria-label="<%= t("library.genres.label") %>">
+        <%= link_to t("library.genres.all"), collection_genre_path(nil), class: "genre-chip",
+          aria: { current: ("true" if grid.genre.nil?) }, data: { turbo_prefetch: false } %>
+        <% grid.genres.each do |genre| %>
+          <%= link_to SetLabel.genre(genre), collection_genre_path(genre), class: "genre-chip",
+            aria: { current: ("true" if grid.genre == genre) }, data: { turbo_prefetch: false } %>
+        <% end %>
+      </nav>
+    <% end %>
+    <%= render "library/grid", slots:, pagy: pagy %>
+  </section>
+  <% if seen_up_to %>
+    <div hidden data-controller="collection-seen" data-collection-seen-url-value="<%= library_seen_path %>"
+      data-collection-seen-up-to-value="<%= seen_up_to.utc.iso8601(6) %>"></div>
+  <% end %>
+</div>

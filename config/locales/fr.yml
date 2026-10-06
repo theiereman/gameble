@@ -82,11 +82,6 @@ fr:
         collect: "Récupérer"
       sets:
         title: "Progression des sets"
-        # French keeps the singular for 0, which the plural rule here does not.
-        progress:
-          zero: "%{owned} carte possédée sur %{total}"
-          one: "%{owned} carte possédée sur %{total}"
-          other: "%{owned} cartes possédées sur %{total}"
         see_all: "Tout voir"
   back_office:
     dashboard:
@@ -241,8 +236,60 @@ fr:
       failed: "La révélation a trébuché, Confrère. Tes cartes sont à l'abri dans ta collection."
       reload: "Voir mes cartes"
   library:
+    collection:
+      title: "Collection"
+    status:
+      label: "Cartes uniques :"
+      # French keeps the singular for 0, which the plural rule here does not.
+      progress:
+        zero: "%{owned} carte unique sur %{total}"
+        one: "%{owned} carte unique sur %{total}"
+        other: "%{owned} cartes uniques sur %{total}"
+    sets:
+      title: "Sets"
+      kinds: "Sortes de sets"
+      whole_season: "Toute la saison"
+    set_row:
+      # French keeps the singular for 0, which the plural rule here does not.
+      progress:
+        zero: "%{owned} carte possédée sur %{total}"
+        one: "%{owned} carte possédée sur %{total}"
+        other: "%{owned} cartes possédées sur %{total}"
+    report:
+      title: "Rapport"
+      copies: "Cartes totales"
+      duplicates: "Doublons"
+      unique: "Cartes uniques"
+      fold: "%{copies} · %{duplicates}"
+      copies_count:
+        zero: "%{number} carte"
+        one: "%{number} carte"
+        other: "%{number} cartes"
+      duplicates_count:
+        zero: "%{number} doublon"
+        one: "%{number} doublon"
+        other: "%{number} doublons"
+    genres:
+      label: "Filtrer par genre"
+      all: "Tous"
+    grid:
+      label: "Cartes"
+      empty: "Aucune carte de ce genre dans ce set pour l'instant."
+      past_the_end: "Plus aucune carte ici : la grille s'arrête sur une page précédente. Revenez à la dernière page."
+      new: "Nouveau"
+      missing: "Carte manquante"
+      copies:
+        zero: "%{number} exemplaire"
+        one: "%{number} exemplaire"
+        other: "%{number} exemplaires"
+      pages:
+        label: "Pages de cartes"
+        page: "Page"
+        previous: "Page précédente"
+        next: "Page suivante"
+    seen:
+      throttled: "Trop de requêtes en une minute. Réessayez dans un instant."
     show:
-      heading: "La bibliothèque de la Confrérie"
       tabs:
         label: "Les sortes de collections"
         started: "Entamées"
@@ -261,7 +308,6 @@ fr:
         best_of_year: "Aucune année n'a vu ses meilleurs reliés cette saison, Confrère."
       past_the_end: "Cette étagère est vide, Confrère. Les tomes s'arrêtent sur une étagère précédente."
       complete: "Complète"
-      public_profile: "Ton profil public"
       no_season: "Les étagères sont nues, Confrère : la Confrérie n'a encore publié aucune saison de cartes."
     set:
       back_to_shelf: "Retour à l'étagère"
@@ -438,6 +484,7 @@ fr:
       already_numbered: "Les cartes de cette saison sont déjà numérotées, officier."
     game:
       player_required: "Connectez-vous avec un compte actif pour faire cela."
+      invalid_time: "L'heure envoyée n'a pas pu être lue. Rechargez la page."
       no_pack_available: "Votre réserve est vide. Le prochain booster arrive bientôt."
       already_collected: "Vous avez déjà récupéré le booster du jour. Le prochain sera prêt à minuit (UTC)."
       no_season: "Aucune saison de cartes n'est encore ouverte. Revenez plus tard pour le booster du jour."

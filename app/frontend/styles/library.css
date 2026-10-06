@@ -1,7 +1,9 @@
 /*
- * The library of the first direction, recoloured to the space-terminal
- * tokens until the collection screen replaces it: a panelled wall, the tabs
- * of the three kinds of sets, the tomes standing on a shelf, and the page
+ * A player's public profile only (library/_shelf, library/_tome,
+ * public_profiles/*), until story 10.3 redraws it; the collection screen
+ * has its own stylesheet (collection.css). The library of the first
+ * direction, recoloured to the space-terminal tokens: a panelled wall, the
+ * tabs of the kinds of sets, the tomes standing on a shelf, and the page
  * links below; an open tome beside the shelf, its slots filled with cards or
  * left empty. Hard edges and pixel outlines on the 2px grid.
  */
@@ -278,9 +280,7 @@
   font: var(--font-body-small);
 }
 
-/* The way from the library to the player's public profile, and from a
-   profile's open tome back to it: panel plates. */
-.library__profile,
+/* The way from a profile's open tome back to it: a panel plate. */
 .profile__owner {
   align-self: flex-start;
   padding: var(--space-2) var(--space-4);

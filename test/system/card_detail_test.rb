@@ -40,7 +40,7 @@ class CardDetailTest < ApplicationSystemTestCase
     sign_in(player)
 
     visit library_set_path(locale: :en, kind: "tome", key: "action-1")
-    find(".open-tome__slots a.card-link", match: :first).click
+    find(".collection-grid a.card-link", match: :first).click
 
     assert_current_path "/en/cards/#{card.slug}/seasons/#{season.number}"
     assert_selector ".card-detail h1", text: "Seed 0"
@@ -53,7 +53,7 @@ class CardDetailTest < ApplicationSystemTestCase
     take_screenshot
 
     click_on "Action · Tome 1"
-    assert_selector "h1", text: "Action · Tome 1 · 2011–2015"
+    assert_selector ".set-row[aria-current=page] .set-row__name", text: /\AAction · Tome 1\z/i
   end
 
   test "a visitor clicks an empty slot and reads the card's detail" do
@@ -61,7 +61,7 @@ class CardDetailTest < ApplicationSystemTestCase
     card = Catalog::CardSeason.find(members(season, "p").first).card
 
     visit library_set_path(locale: :fr, kind: "publisher", key: "p")
-    find(".open-tome__slots a.card-link .slot", match: :first).click
+    find(".collection-grid a.card-link .missing-slot", match: :first).click
 
     assert_current_path "/fr/cards/#{card.slug}/seasons/#{season.number}"
     assert_selector ".card-detail h1", text: card.texts.find_by!(locale: "fr").title

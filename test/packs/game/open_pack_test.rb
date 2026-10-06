@@ -54,6 +54,32 @@ class Game::OpenPackTest < ActiveSupport::TestCase
     assert_equal 3, Game::Holding.where(player_id: @player.id).count
   end
 
+  test "every credited holding, new or raised, is gained at the opening (AD-26); an untouched one keeps its time" do
+    portal, common, legendary = %i[portal_one common_card_one legendary_card_one].map { catalog_card_seasons(it).id }
+    earlier = Time.zone.parse("2026-10-01 08:00:00.250000")
+    Game::Holding.create!(player_id: @player.id, card_season_id: portal, quantity: 1, last_gained_at: earlier)
+    Game::Holding.create!(player_id: @player.id, card_season_id: legendary, quantity: 1, last_gained_at: earlier)
+    create_pack(@player, cards: [ portal, common, common, portal, portal ])
+
+    pack = open.value!
+
+    gained = Game::Holding.where(player_id: @player.id).to_h { [ it.card_season_id, it.last_gained_at ] }
+    assert_equal pack.reload.opened_at, gained.fetch(portal)
+    assert_equal pack.opened_at, gained.fetch(common)
+    assert_equal earlier, gained.fetch(legendary)
+  end
+
+  test "moving reserved copies leaves last_gained_at as it is" do
+    portal = catalog_card_seasons(:portal_one).id
+    create_pack(@player, cards: Array.new(5, portal))
+    open.value!
+    holding = Game::Holding.find_by!(player_id: @player.id, card_season_id: portal)
+
+    assert_no_changes -> { holding.reload.last_gained_at } do
+      Game::Holding.where(id: holding.id).update_all(reserved: 2, updated_at: 1.minute.from_now)
+    end
+  end
+
   test "with every pack opened, opening fails and changes nothing" do
     create_pack(@player, opened_at: 1.hour.ago)
 

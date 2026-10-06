@@ -2,9 +2,12 @@
     button to the bridge (and the screen title, when the view gives one) on
     every other page (`content_for :back_button`); on the right the
     player's rarity counter, packs chip and player chip, or the official
-    Steam sign-in image for a visitor. The back-office shows the player
+    Steam sign-in image for a visitor. A screen with its own status
+    (`content_for :top_bar_status`, the collection's unique cards) shows it
+    first, in place of the rarity counter and packs chip (on the phone, of
+    the player chip too: collection.css). The back-office shows the player
     chip only. %>
-<header class="top-bar">
+<header class="<%= class_names("top-bar", "top-bar--status": content_for?(:top_bar_status)) %>">
   <div class="top-bar__inner">
     <div class="top-bar__start">
       <% if content_for?(:back_button) %>
@@ -21,8 +24,9 @@
     </div>
 
     <div class="top-bar__end">
+      <%= yield :top_bar_status if content_for?(:top_bar_status) %>
       <% if current_player %>
-        <% unless back_office_page? %>
+        <% unless back_office_page? || content_for?(:top_bar_status) %>
           <%= render "shell/rarity_counter", counts: shell_tier_counts %>
           <%= render "shell/packs_chip", bank: shell_bank %>
         <% end %>

@@ -16,10 +16,13 @@ Rails.application.routes.draw do
     # Opening a pack from the hub, and the list of its cards (AD-15: by token).
     resources :packs, only: %i[create show], param: :token
 
-    # The library, reached from the hub's menu: the season's sets (CAP-6).
+    # The collection, reached from the hub's menu: the whole season (CAP-6).
     resource :library, controller: :library, only: :show
-    # One set of the library, opened beside the shelf, by kind and key (AD-15).
+    # The collection of one set, by kind and key (AD-15).
     get "library/:kind/:key" => "library#set", as: :library_set, constraints: { kind: /tome|publisher|best_of_year/ }
+    # The collection's watermark (AD-26): the page posts the latest gain it
+    # showed as new.
+    post "library/seen" => "collection_seen#create", as: :library_seen
 
     # A player's public profile (CAP-8), by their token (AD-15: 24 base58
     # characters, as has_secure_token makes them): their library, and one of

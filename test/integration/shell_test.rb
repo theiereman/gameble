@@ -82,7 +82,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     create_pack(player, available_at: 125.seconds.from_now)
     sign_in(player)
 
-    get library_path(locale: :en)
+    get card_path(locale: :en, slug: "portal")
 
     assert_select ".top-bar__start > a.button.button--secondary.button--small[href='/en']" do
       assert_select "svg.pixel-icon.button__icon[aria-hidden=true]"

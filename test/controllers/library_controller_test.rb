@@ -2,9 +2,12 @@ require "test_helper"
 require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
 
-# The library (CAP-6, story 4.1): the published season's sets by kind, with
-# the viewer's owned / total, for a player and a visitor; tabs, pages,
-# labels, the empty states and the queries of a request.
+# The collection of the whole season (CAP-6, story 10.1; DESIGN.md,
+# Collection): the top bar's unique cards, the sets of one kind as progress
+# rows under "Whole season", the RAPPORT, the genre chips, the grid of owned
+# faces and missing slots sixty to a page, the NOUVEAU tag and its watermark
+# post; for a player, a visitor and a banned player; the queries of a
+# request.
 class LibraryControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
@@ -18,275 +21,391 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     OmniAuth.config.test_mode = false
   end
 
-  # The shelf as [ name, "owned / total" ] pairs, in order.
-  def spines
-    css_select(".shelf .tome").map { |tome| [ tome.at_css(".tome__name").text, tome.at_css(".tome__count").text ] }
+  # The season's cards in grid order.
+  def season_cards(season) = Catalog::CardSeason.where(season_id: season.id).where.not(rarity: nil).order(:number, :id).ids
+
+  def title(card_season_id, locale = "en")
+    Catalog::CardText.find_by!(card_id: Catalog::CardSeason.find(card_season_id).card_id, locale:).title
   end
 
-  def open_tab
-    css_select(".library__tab[aria-current=page]").sole.text
+  def year(card_season_id) = Catalog::CardSeason.find(card_season_id).card.release_date.year
+
+  # The set progress rows as [ name, "owned/total" ], in order.
+  def set_rows
+    css_select(".collection-sets .set-row").map { [ it.at_css(".set-row__name").text, it.at_css(".set-row__count").text ] }
   end
 
-  test "a player sees the season's tomes with their names and owned / total, cards in several sets counted in each" do
-    season = publish_sets_draft
-    player = accounts_players(:player)
-    first, second, third = set_members(season, "action-1").first(3)
-    hold(player, first, 1)
-    hold(player, second, 2)
-    hold(player, third, 1)
-    hold(player, set_members(season, "action-2").first, 0)
-    sign_in(player)
+  def current_row = css_select(".collection-sets .set-row[aria-current=page] .set-row__name").sole.text
 
-    get library_path(locale: :en)
-
-    assert_response :success
-    assert_select "h1", "The library of the Brotherhood"
-    assert_equal "Tomes", open_tab
-    assert_equal [ [ "Action · Tome 1", "3 / 25" ], [ "Action · Tome 2", "0 / 25" ], [ "Action · Tome 3", "0 / 25" ], [ "RPG · Tome 1", "0 / 44" ] ], spines
-    assert_select ".tome .visually-hidden", "3 cards owned out of 25"
-    assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
-
-    get library_path(locale: :en, kind: "best_of_year")
-
-    owned = [ first, second, third ]
-    expected = %w[2015 2012 2011].map do |year|
-      members = set_members(season, year)
-      [ "Best rated of #{year}", "#{(members & owned).size} / #{members.size}" ]
+  # The grid's slots: [ :owned, title, "xn", "New" | nil ] or [ :missing, title, year ].
+  def slots
+    css_select(".collection-grid > li.collection-slot").map do |slot|
+      if (card = slot.at_css(".card"))
+        [ :owned, card.at_css(".card__title").text, slot.at_css(".collection-slot__copies").text, slot.at_css(".collection-slot__new")&.text ]
+      else
+        [ :missing, slot.at_css(".missing-slot__title").text, slot.at_css(".missing-slot__year").text.to_i ]
+      end
     end
-    assert_equal "Best rated of the year", open_tab
-    assert_equal expected, spines
   end
 
-  test "a card in a publisher set and a tome is counted in both" do
+  def report
+    css_select(".report--panel .report__row").to_h { [ it.at_css("dt").text.strip, it.at_css("dd").text ] }
+  end
+
+  test "a player sees their unique cards, the tomes' progress, the RAPPORT and the first sixty cards of the season" do
     season = publish_sets_draft
     player = accounts_players(:player)
-    card = set_members(season, "p").first
-    hold(player, card, 1)
-    tome = %w[action-1 action-2 action-3].find { |key| set_members(season, key).include?(card) }
+    cards = season_cards(season)
+    # The first three of the grid (numbers are shuffled at publication), and
+    # a card of a tome held at 0.
+    first, second, third = cards.first(3)
+    hold(player, first, 1)
+    hold(player, second, 3)
+    hold(player, third, 1)
+    hold(player, (set_members(season, "action-2") - cards.first(3)).first, 0)
+    tomes = %w[action-1 action-2 action-3 rpg-1].map { (set_members(season, it) & [ first, second, third ]).size }
     sign_in(player)
-
-    get library_path(locale: :fr, kind: "publisher")
-
-    assert_equal "Éditeurs", open_tab
-    assert_equal [ [ "P", "1 / 5" ] ], spines
-
-    get library_path(locale: :fr)
-
-    assert_includes spines, [ "Action · Tome #{tome.last}", "1 / 25" ]
-  end
-
-  test "a visitor sees every set at 0 / total" do
-    season = publish_sets_draft
-    hold(accounts_players(:player), set_members(season, "action-1").first, 1)
 
     get library_path(locale: :en)
 
     assert_response :success
-    assert_equal [ [ "Action · Tome 1", "0 / 25" ], [ "Action · Tome 2", "0 / 25" ], [ "Action · Tome 3", "0 / 25" ], [ "RPG · Tome 1", "0 / 44" ] ], spines
+    assert_select "title", "Collection"
+    assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
+    assert_select ".top-bar__title", "Collection"
+    assert_select ".top-bar__end .collection-status" do
+      assert_select ".collection-status__label[aria-hidden=true]", "Unique cards:"
+      assert_select ".collection-status__value[aria-hidden=true]", "3 / 150"
+      assert_select ".visually-hidden", "3 unique cards out of 150"
+      assert_select "progress.collection-status__bar[value='3'][max='150'][aria-hidden=true]"
+    end
+    assert_select ".top-bar .rarity-counter, .top-bar .packs-chip", false
+    assert_select ".top-bar .player-chip"
+    assert_select "h1", "Whole season"
+
+    assert_select ".collection-sets__kicker", "Sets"
+    assert_equal [ [ "Tomes", "/en/library", "true" ], [ "Publishers", "/en/library?kind=publisher", nil ],
+      [ "Best rated of the year", "/en/library?kind=best_of_year", nil ] ],
+      css_select(".collection-kinds a.collection-kind").map { [ it.text, it["href"], it["aria-current"] ] }
+    assert_equal [ [ "Whole season", "3/150" ], [ "Action · Tome 1", "#{tomes[0]}/25" ], [ "Action · Tome 2", "#{tomes[1]}/25" ],
+      [ "Action · Tome 3", "#{tomes[2]}/25" ], [ "RPG · Tome 1", "#{tomes[3]}/44" ] ], set_rows
+    assert_equal "Whole season", current_row
+    assert_equal [ "/en/library", "/en/library/tome/action-1", "/en/library/tome/action-2", "/en/library/tome/action-3", "/en/library/tome/rpg-1" ],
+      css_select(".collection-sets .set-row").map { it["href"] }
+    assert_select ".collection-sets .set-row .visually-hidden", "#{tomes[1]} #{tomes[1] == 1 ? "card" : "cards"} owned out of 25"
+    assert_select ".collection-sets .series-nav", false
+
+    copies = Hash.new(0)
+    Catalog::CardSeason.where(id: [ first, second, third ]).pluck(:id, :rarity).each { |id, rarity| copies[rarity] += { first => 1, second => 3, third => 1 }.fetch(id) }
+    tiers = Catalog::Rarity::TIERS.values.to_h { [ I18n.t("catalog.rarity.#{it}", locale: :en), copies[it.to_s].to_s ] }
+    assert_equal({ "Total cards" => "5", "Duplicates" => "2" }.merge(tiers), report)
+    assert_select ".report--fold summary .report__line", "5 cards · 2 duplicates"
+    assert_select ".report--fold .report__row dt", "Unique cards"
+
+    assert_equal [ "All", "Action", "RPG" ], css_select(".genre-chips .genre-chip").map(&:text)
+    expected = cards.first(60).map do |id|
+      case id
+      when first, third then [ :owned, title(id), "x1", nil ]
+      when second then [ :owned, title(id), "x3", nil ]
+      else [ :missing, title(id), year(id) ]
+      end
+    end
+    assert_equal expected, slots
+    assert_select ".collection-grid .card.card--m", expected.count { it.first == :owned }
+    assert_select ".collection-slot__copies[aria-hidden=true] + .visually-hidden", "3 copies"
+    assert_select ".missing-slot svg.pixel-icon.missing-slot__icon"
+    assert_select ".missing-slot .visually-hidden", { count: 60 - expected.count { it.first == :owned }, text: "Missing card" }
+    # Every face and missing slot leads to its card's detail in this season.
+    slugs = Catalog::CardSeason.where(id: cards.first(60)).includes(:card).index_by(&:id).transform_values { it.card.slug }
+    links = css_select(".collection-grid > li > a.card-link")
+    assert_equal cards.first(60).map { "/en/cards/#{slugs.fetch(it)}/seasons/#{season.number}" }, links.map { it["href"] }
+    assert links.all? { it["data-turbo-prefetch"] == "false" }
+    assert_select "a.card-link .collection-slot__copies", false
+    assert_select ".collection-pages[aria-label=?]", "Pages of cards" do
+      assert_select "[aria-current=page]", "Page 1"
+      assert_select "a[href=?]:not([rel])", "/en/library?page=2", "Page 2"
+      assert_select "a[rel=next][href=?][aria-label=?]", "/en/library?page=2", "Next page"
+      assert_select "a[rel=prev]", false
+    end
+    assert_select "[data-controller=collection-seen]", false
+    assert_select "[style]", false
   end
 
-  test "a player banned since signing in sees the library as a visitor, with no ownership query" do
+  test "the grid's pages: sixty cards each, the rest on the last, past it the empty line" do
+    season = publish_sets_draft
+    cards = season_cards(season)
+
+    get library_path(locale: :en, page: 2)
+    assert_equal cards[60, 60].map { title(it) }, slots.map(&:second)
+    assert_select ".collection-pages a[rel=prev][href='/en/library?page=1']"
+
+    get library_path(locale: :en, page: 3)
+    assert_equal 30, slots.size
+    assert_select ".collection-pages a[rel=next]", false
+
+    get library_path(locale: :en, page: 9)
+    assert_response :success
+    assert_empty slots
+    assert_select ".collection-grid__empty", "No more cards here: the grid ends on an earlier page. Go back to the last page."
+    assert_select ".collection-pages a[rel=prev][href='/en/library?page=3']"
+
+    [ "abc", "99999999999999999999" ].each do |page|
+      get library_path(locale: :en, page:)
+      assert_response :success
+    end
+    get library_path(locale: :en, page: "abc")
+    assert_equal 60, slots.size
+  end
+
+  test "a visitor sees every slot missing, no NOUVEAU and the Steam sign-in image, without a holdings query" do
+    season = publish_sets_draft
+    hold(accounts_players(:player), season_cards(season).first, 1, gained_at: 1.minute.ago)
+
+    assert_no_queries_match(/game_holdings|game_player_states/) { get library_path(locale: :en) }
+
+    assert_response :success
+    assert_equal season_cards(season).first(60).map { [ :missing, title(it), year(it) ] }, slots
+    assert_select ".collection-slot__new, [data-controller=collection-seen]", false
+    assert_select ".collection-status__value", "0 / 150"
+    assert_select ".top-bar__end form.steam-sign-in input[name=origin][value='/en/library']"
+    assert_equal [ [ "Whole season", "0/150" ], [ "Action · Tome 1", "0/25" ], [ "Action · Tome 2", "0/25" ], [ "Action · Tome 3", "0/25" ], [ "RPG · Tome 1", "0/44" ] ], set_rows
+    assert_equal({ "Total cards" => "0", "Duplicates" => "0" }, report.first(2).to_h)
+  end
+
+  test "a player banned since signing in sees the collection as a visitor, with no ownership query" do
     season = publish_sets_draft
     player = accounts_players(:player)
-    hold(player, set_members(season, "p").first, 1)
+    hold(player, season_cards(season).first, 1, gained_at: 1.minute.ago)
     sign_in(player)
     player.update_columns(banned_at: Time.current)
 
-    # The visitor's four, after the lookup that finds the ban.
-    assert_no_queries_match(/game_holdings/) do
-      assert_request_queries(1 + 4) { get library_path(locale: :en, kind: "publisher") }
+    assert_no_queries_match(/game_holdings|game_player_states/) do
+      # The visitor's eight, after the lookup that finds the ban.
+      assert_request_queries(1 + 8) { get library_path(locale: :en) }
     end
 
     assert_response :success
-    assert_equal [ [ "P", "0 / 5" ] ], spines
+    assert_equal :missing, slots.first.first
+    assert_select ".collection-slot__new", false
     assert_nil session[:player_id]
   end
 
+  test "cards gained since the watermark are new; the page carries the latest gain shown, posted once rendered" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    first, second, third, fourth = season_cards(season).first(4)
+    older = 2.hours.ago.change(usec: 111_111)
+    latest = 1.hour.ago.change(usec: 654_321)
+    hold(player, first, 2, gained_at: older)
+    hold(player, second, 1, gained_at: latest)
+    hold(player, third, 1)
+    hold(player, fourth, 1, gained_at: 3.hours.ago)
+    Game::PlayerState.where(player_id: player.id).update_all(collection_seen_up_to: 150.minutes.ago)
+    sign_in(player)
+
+    get library_path(locale: :fr)
+
+    assert_equal [ [ :owned, title(first, "fr"), "x2", "Nouveau" ], [ :owned, title(second, "fr"), "x1", "Nouveau" ],
+      [ :owned, title(third, "fr"), "x1", nil ], [ :owned, title(fourth, "fr"), "x1", nil ] ], slots.first(4)
+    assert_select "div[hidden][data-controller=collection-seen][data-collection-seen-url-value='/fr/library/seen']" do |element|
+      assert_equal latest.utc.iso8601(6), element.first["data-collection-seen-up-to-value"]
+    end
+
+    Game::MarkCollectionSeen.new.call(player:, up_to: latest)
+    get library_path(locale: :fr)
+
+    assert_select ".collection-slot__new", false
+    assert_select "[data-controller=collection-seen]", false
+  end
+
+  test "the page writes nothing: the watermark moves only by its POST" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    hold(player, season_cards(season).first, 1, gained_at: 1.minute.ago)
+    sign_in(player)
+
+    assert_no_changes -> { Game::PlayerState.find_by!(player_id: player.id).attributes } do
+      get library_path(locale: :en)
+      get library_set_path(locale: :en, kind: "tome", key: "action-1")
+    end
+  end
+
+  test "a new card on another page carries no post on this one" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    hold(player, season_cards(season).last, 1, gained_at: 1.minute.ago)
+    sign_in(player)
+
+    get library_path(locale: :en)
+    assert_select "[data-controller=collection-seen]", false
+
+    get library_path(locale: :en, page: 3)
+    assert_select ".collection-slot__new", "New"
+    assert_select "[data-controller=collection-seen]"
+  end
+
   [ nil, "", "nope", [ "publisher" ] ].each do |kind|
-    test "a kind of #{kind.inspect} opens the tomes" do
+    test "a kind of #{kind.inspect} lists the tomes" do
       publish_sets_draft
 
       get library_path(locale: :en), params: { kind: }.compact
 
       assert_response :success
-      assert_equal "Tomes", open_tab
-      assert_equal 4, spines.size
+      assert_select ".collection-kind[aria-current=true]", "Tomes"
+      assert_equal 5, set_rows.size
     end
   end
 
-  test "the tabs lead to each kind, the current one marked" do
-    publish_sets_draft
+  test "the other kinds list their sets, in their order, with their progress" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    card = set_members(season, "p").first
+    hold(player, card, 1)
+    sign_in(player)
 
-    get library_path(locale: :fr, kind: "best_of_year")
+    get library_path(locale: :fr, kind: "publisher")
+    assert_select ".collection-kind[aria-current=true]", "Éditeurs"
+    assert_equal [ [ "Toute la saison", "1/150" ], [ "P", "1/5" ] ], set_rows
+    assert_equal "Toute la saison", current_row
+    assert_equal [ "/fr/library?kind=publisher", "/fr/library/publisher/p" ], css_select(".collection-sets .set-row").map { it["href"] }
 
-    assert_equal [ [ "Tomes", "/fr/library?kind=tome" ], [ "Éditeurs", "/fr/library?kind=publisher" ],
-      [ "Les mieux notés de l'année", "/fr/library?kind=best_of_year" ] ],
-      css_select(".library__tabs a").map { |tab| [ tab.text, tab["href"] ] }
-    assert_equal "Les mieux notés de l'année", open_tab
+    get library_path(locale: :en, kind: "best_of_year")
+    owned = [ card ]
+    expected = %w[2015 2012 2011].map do |key|
+      members = set_members(season, key)
+      [ "Best rated of #{key}", "#{(members & owned).size}/#{members.size}" ]
+    end
+    assert_equal [ [ "Whole season", "1/150" ] ] + expected, set_rows
   end
 
-  test "a tab with no set of its kind says so" do
+  test "a kind without sets says so" do
     seed_published_sets([ [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
 
     get library_path(locale: :en, kind: "publisher")
 
     assert_response :success
-    assert_select ".shelf", false
-    assert_select ".library__room p.panel", "No publisher has earned a set this season, Brother."
-    assert_select ".series-nav", false
+    assert_equal [ [ "Whole season", "0/0" ] ], set_rows
+    assert_select ".collection-sets__empty", "No publisher has earned a set this season, Brother."
+    assert_select ".collection-sets .series-nav", false
+    assert_select ".collection-grid__empty", "No card of this genre in this set yet."
+    assert_select ".collection-pages", false
   end
 
-  test "labels: a French genre, an unknown genre humanised, a best of year" do
-    seed_published_sets([
-      [ "tome", "free_to_play-2", { "genre" => "free_to_play", "volume" => 2, "volumes" => 2 } ],
-      [ "tome", "xyz-1", { "genre" => "xyz", "volume" => 1, "volumes" => 1 } ],
-      [ "best_of_year", "2011", { "year" => 2011 } ]
-    ])
-
-    get library_path(locale: :fr)
-    assert_equal [ [ "Gratuit · Tome 2", "0 / 0" ], [ "Xyz · Tome 1", "0 / 0" ] ], spines
-
-    get library_path(locale: :fr, kind: "best_of_year")
-    assert_equal [ [ "Les mieux notés de 2011", "0 / 0" ] ], spines
-  end
-
-  test "tomes are ordered by genre key then volume as a number" do
-    seed_published_sets([
-      [ "tome", "adventure-1", { "genre" => "adventure", "volume" => 1, "volumes" => 1 } ],
-      [ "tome", "action-10", { "genre" => "action", "volume" => 10, "volumes" => 10 } ],
-      [ "tome", "action-2", { "genre" => "action", "volume" => 2, "volumes" => 10 } ]
-    ])
-
-    get library_path(locale: :en)
-
-    assert_equal [ "Action · Tome 2", "Action · Tome 10", "Adventure · Tome 1" ], spines.map(&:first)
-  end
-
-  test "120 tomes come fifty to a page; past the last page the shelf is empty; a page that is no number is the first" do
+  test "120 tomes come fifty to a list page (shelf), kept by the rows' links; past the last the list says so" do
     seed_published_sets((1..120).map { |volume| [ "tome", "action-#{volume}", { "genre" => "action", "volume" => volume, "volumes" => 120 } ] })
 
     get library_path(locale: :en)
-    assert_equal 50, spines.size
-    assert_equal "Action · Tome 1", spines.first.first
-    assert_select ".series-nav a[aria-current=page]", "1"
-    assert_select ".series-nav a[href='/en/library?page=2']", minimum: 1
-    assert_select ".series-nav a[href]:not([data-turbo-prefetch=false])", false
+    assert_equal 51, set_rows.size
+    assert_equal "Action · Tome 1", set_rows.second.first
+    assert_select ".collection-sets .series-nav a[aria-current=page]", "1"
+    assert_select ".collection-sets .series-nav a[href='/en/library?shelf=2']", minimum: 1
+    assert_select ".collection-sets .series-nav a[href]:not([data-turbo-prefetch=false])", false
 
-    get library_path(locale: :en, page: 2)
-    assert_equal 50, spines.size
-    assert_equal "Action · Tome 51", spines.first.first
+    get library_path(locale: :en, shelf: 3)
+    assert_equal [ "Whole season", "Action · Tome 101" ], set_rows.first(2).map(&:first)
+    assert_equal 21, set_rows.size
+    assert_equal "/en/library?shelf=3", css_select(".collection-sets .set-row").first["href"]
+    assert_equal "/en/library/tome/action-101?shelf=3", css_select(".collection-sets .set-row")[1]["href"]
 
-    get library_path(locale: :en, page: 3)
-    assert_equal 20, spines.size
-    assert_equal "Action · Tome 120", spines.last.first
-
-    get library_path(locale: :en, page: 9)
+    get library_path(locale: :en, shelf: 9)
     assert_response :success
-    assert_equal 0, spines.size
-    assert_select ".library__room p.panel", "This shelf stands empty, Brother. The tomes end on an earlier one."
-    assert_select ".series-nav a[href='/en/library?page=3']", minimum: 1
-
-    get library_path(locale: :en, page: "99999999999999999999")
-    assert_response :success
-    assert_equal 0, spines.size
-    assert_select ".library__room p.panel", "This shelf stands empty, Brother. The tomes end on an earlier one."
-
-    get library_path(locale: :en, page: "abc")
-    assert_response :success
-    assert_equal "Action · Tome 1", spines.first.first
-    assert_equal 50, spines.size
+    assert_equal 1, set_rows.size
+    assert_select ".collection-sets__empty", "This shelf stands empty, Brother. The tomes end on an earlier one."
+    assert_select ".collection-sets .series-nav a[href='/en/library?shelf=3']", minimum: 1
   end
 
-  test "the page links speak the Brotherhood's words in the page's locale" do
-    seed_published_sets((1..60).map { |volume| [ "tome", "action-#{volume}", { "genre" => "action", "volume" => volume, "volumes" => 60 } ] })
+  test "genre chips show with two genres or more and filter the grid; an unknown genre is ignored" do
+    seed_published_sets([ [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
+    get library_path(locale: :en)
+    assert_select ".genre-chips", false
 
-    get library_path(locale: :fr)
-    assert_select "nav.series-nav[aria-label=?]", "Les étagères"
-    assert_select ".series-nav a[aria-label=?][href='/fr/library?page=2']", "L'étagère suivante"
+    season = publish_sets_draft
+    rpg = set_members(season, "rpg-1")
 
-    get library_path(locale: :en, page: 2)
-    assert_select "nav.series-nav[aria-label=?]", "The shelves"
-    assert_select ".series-nav a[aria-label=?][href='/en/library?page=1']", "The previous shelf"
+    get library_path(locale: :fr, kind: "publisher", shelf: 1)
+    assert_select "nav.genre-chips[aria-label=?]", "Filtrer par genre"
+    assert_equal [ [ "Tous", "/fr/library?kind=publisher&shelf=1", "true" ], [ "Action", "/fr/library?genre=action&kind=publisher&shelf=1", nil ],
+      [ "RPG", "/fr/library?genre=rpg&kind=publisher&shelf=1", nil ] ],
+      css_select(".genre-chip").map { [ it.text, it["href"], it["aria-current"] ] }
+
+    get library_path(locale: :en, genre: "rpg", page: 1)
+    assert_select ".genre-chip[aria-current=true]", "RPG"
+    assert_equal 44, slots.size
+    assert_equal season_cards(season).select { it.in?(rpg) }.map { title(it) }, slots.map(&:second)
+
+    get library_path(locale: :en, genre: "rpg", page: 2)
+    assert_empty slots
+    assert_select ".collection-grid__empty", "No more cards here: the grid ends on an earlier page. Go back to the last page."
+
+    [ "strategy", [ "rpg" ] ].each do |genre|
+      get library_path(locale: :en), params: { genre: }
+      assert_response :success
+      assert_select ".genre-chip[aria-current=true]", "All"
+      assert_equal 60, slots.size
+    end
   end
 
-  test "the owned count is read out with its plural, French singular for 0 and 1" do
+  test "French copy" do
     season = publish_sets_draft
     player = accounts_players(:player)
-    hold(player, set_members(season, "action-1").first, 1)
+    first = season_cards(season).first
+    hold(player, first, 1, gained_at: 1.minute.ago)
     sign_in(player)
 
     get library_path(locale: :fr)
-    assert_equal [ "1 carte possédée sur 25", "0 carte possédée sur 25" ], css_select(".tome .visually-hidden").first(2).map(&:text)
 
-    get library_path(locale: :en)
-    assert_equal [ "1 card owned out of 25", "0 cards owned out of 25" ], css_select(".tome .visually-hidden").first(2).map(&:text)
+    assert_select ".collection-status__label", "Cartes uniques :"
+    assert_select ".collection-status .visually-hidden", "1 carte unique sur 150"
+    assert_select ".report--panel .report__title", "Rapport"
+    assert_select ".report--fold .report__line", "1 carte · 0 doublon"
+    assert_equal [ "Cartes totales", "Doublons" ], css_select(".report--panel .report__row dt").first(2).map { it.text.strip }
+    assert_select ".collection-slot__new", "Nouveau"
+    assert_select ".collection-slot__copies + .visually-hidden", "1 exemplaire"
+    assert_select ".missing-slot .visually-hidden", { minimum: 1, text: "Carte manquante" }
+    assert_select ".collection-pages[aria-label=?] a[rel=next][aria-label=?]", "Pages de cartes", "Page suivante"
   end
 
-  test "with no season published the library says so" do
+  test "with no season published the collection says so" do
     catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
 
     get library_path(locale: :en)
 
     assert_response :success
-    assert_select ".library__room p.panel", "The shelves are bare, Brother: the Brotherhood has published no season of cards yet."
-    assert_select ".library__tabs", false
+    assert_select ".collection-none p.panel", "The shelves are bare, Brother: the Brotherhood has published no season of cards yet."
+    assert_select ".collection, .collection-status", false
   end
 
   test "no set or card-season id reaches the page" do
     season = publish_sets_draft
+    player = accounts_players(:player)
+    hold(player, season_cards(season).first, 2, gained_at: 1.minute.ago)
+    sign_in(player)
     ids = Catalog::Set.where(season_id: season.id).ids + Catalog::CardSeason.where(season_id: season.id).ids
 
     get library_path(locale: :en)
 
-    assert_select ".library [data-id], .library [id]:not(#library-heading)", false
-    shelf = css_select(".library").sole.to_html
-    ids.each { |id| assert_no_match(/\b#{id}\b/, shelf.gsub(/Tome \d+|\d+ \/ \d+|\d+ of \d+/, "")) }
+    assert_select ".collection [data-id]", false
+    assert_equal %w[collection-sets-title collection-report-title], css_select(".collection [id]").map { it["id"] }
+    html = css_select(".collection").sole.to_html
+    ids.each do |id|
+      assert_no_match(/\b#{id}\b/, html.gsub(/Tome \d+|\d+\/\d+|\d+ (cards?|copies|copy|duplicates?) |out of \d+|\b(19|20)\d\d\b|x\d+|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|viewbox="[\d ]+"|\?(page|shelf)=\d+|\/seasons\/\d+|value="\d+"|max="\d+"|[Ss]eason \d+|#\d+|Page<\/span> \d+|<dd>\d+<\/dd>|[MmHhVvZz][\d.-]+/, ""))
+    end
   end
 
-  test "a signed-in player finds the link to their public profile; a visitor or a banned player does not" do
-    publish_sets_draft
-    player = accounts_players(:player)
-
-    get library_path(locale: :en)
-    assert_select "a.library__profile", false
-
-    sign_in(player)
-    get library_path(locale: :fr)
-    assert_select "a.library__profile[href=?][data-turbo-prefetch=false]", "/fr/brothers/#{player.token}", "Ton profil public"
-    get library_path(locale: :en)
-    assert_select "a.library__profile[href=?]", "/en/brothers/#{player.token}", "Your public profile"
-
-    player.update_columns(banned_at: Time.current)
-    get library_path(locale: :en)
-    assert_select "a.library__profile", false
-  end
-
-  test "the library marks no set complete and keeps its three tabs" do
+  test "a player's request costs thirteen queries, a visitor's eight" do
     season = publish_sets_draft
     player = accounts_players(:player)
-    set_members(season, "p").each { |id| hold(player, id, 1) }
+    hold(player, season_cards(season).first, 1, gained_at: 1.minute.ago)
     sign_in(player)
 
-    get library_path(locale: :en, kind: "publisher")
-
-    assert_equal [ [ "P", "5 / 5" ] ], spines
-    assert_select ".tome__complete", false
-    assert_equal [ "Tomes", "Publishers", "Best rated of the year" ], css_select(".library__tab").map(&:text)
-    assert_select ".library__tab[data-turbo-prefetch=false]", 3
-    assert_select ".shelf a.tome[data-turbo-prefetch=false]", 1
-  end
-
-  test "a player's request costs ten queries, a visitor's four" do
-    publish_sets_draft
-    sign_in(accounts_players(:player))
-
-    # Player lookup, published season, Pagy count, set page, totals, progress,
-    # and the top bar's four (bank count, next pack, daily claim, copies per
-    # tier).
-    assert_request_queries(10) { get library_path(locale: :en) }
+    # Player lookup, published season; the list: count, page, totals,
+    # progress; the grid: genres, count (the season's cards, read again from
+    # the query cache by the top bar), page, card views, the player's slots;
+    # the figures: unique cards, copies per tier.
+    assert_request_queries(13) { get library_path(locale: :en) }
 
     delete session_path(locale: :en)
-    # The same without the lookup, the progress and the top bar's.
-    assert_request_queries(4) { get library_path(locale: :en) }
+    # The same without the lookup, the progress, the slots, the unique cards
+    # and the copies per tier.
+    assert_request_queries(8) { get library_path(locale: :en) }
   end
 end

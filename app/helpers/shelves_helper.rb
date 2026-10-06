@@ -2,13 +2,6 @@
 # `library/shelf` partial: a tab's URL from its name, a set's URL from its
 # kind, key and shelf page.
 module ShelvesHelper
-  # The signed-in player's library: its three tabs, its sets opened beside
-  # the shelf.
-  def library_shelf_links
-    { tab_url: ->(kind) { library_path(kind:) },
-      set_url: ->(kind, key, page) { library_set_path(kind:, key:, page:) } }
-  end
-
   # A player's public profile, by their token, open on the tab `kind`: the
   # Started tab first (its URL without a kind), spines marked complete, and
   # sets opened beside the Started shelf (`tab=started`) when it is the one

@@ -1,11 +1,16 @@
 <% content_for :back_button, true %>
-<%# The library (DESIGN.md: a decorated room; mockups/key-screens.html,
-    library()): the published season's sets on a shelf, by kind; for a
-    signed-in player, the way to the public profile showing it to others. %>
-<section class="library" aria-labelledby="library-heading">
-  <h1 id="library-heading" class="library__heading"><%= t(".heading") %></h1>
-  <% if current_player %>
-    <%= link_to t(".public_profile"), brother_path(current_player.token), class: "library__profile", data: { turbo_prefetch: false } %>
-  <% end %>
-  <%= render "library/shelf", kind: @kind, spines: @spines, pagy: @pagy, current_set: nil, **library_shelf_links %>
-</section>
+<% content_for :screen_title, t("library.collection.title") %>
+<% content_for :title, t("library.collection.title") %>
+<%# The collection of the whole season (library/collection), or, with no
+    season published, the line saying so. %>
+<% if @season.nil? %>
+  <section class="collection-none" aria-labelledby="collection-heading">
+    <h1 id="collection-heading" class="visually-hidden"><%= t("library.collection.title") %></h1>
+    <%= render PanelComponent.new(tag: :p) do %><%= t("library.show.no_season") %><% end %>
+  </section>
+<% else %>
+  <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
+  <%= render "library/collection", heading: t("library.sets.whole_season"), kind: @kind, set: nil, spines: @spines, shelf: @pagy,
+    grid: @grid, slots: @slots, pagy: @grid_pagy, unique: @unique, season_cards: @season_cards, tier_counts: @tier_counts,
+    seen_up_to: @seen_up_to %>
+<% end %>

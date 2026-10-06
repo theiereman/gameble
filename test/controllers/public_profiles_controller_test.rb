@@ -215,7 +215,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get set_link, headers: old
     assert_response :success
-    assert_select ".open-tome__heading", "P"
+    assert_select ".set-row[aria-current=page] .set-row__name", "P"
 
     get home_path(locale: :en), headers: old
     assert_response :not_acceptable

@@ -1,0 +1,584 @@
+/*
+ * The collection (DESIGN.md: Layout & Spacing, Top bar, Collection;
+ * EXPERIENCE.md, Collection). From 1180px the sets and the RAPPORT in a
+ * 220px column beside the grid; from 720px the sets become a strip of 184px
+ * progress rows above the grid, the kicker and the RAPPORT hidden; under
+ * 720px one column: the sets a strip of 132 × 48 chips, the RAPPORT folded,
+ * the grid two cards wide. The grid holds medium cards (card-m) in as many
+ * columns as fit, with DESIGN's fixed gaps; extra width adds a column. No
+ * horizontal page scroll at any width.
+ */
+
+.collection {
+  /* How far a grid slot reaches past its card: room for the badges, the
+     card's pixel outline, its tilt and the focus ring, all kept inside the
+     slot's paint containment (content-visibility). */
+  --slot-bleed: var(--space-4);
+
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-areas: "aside main";
+  gap: var(--space-5) var(--space-column-gap-wide);
+  align-items: start;
+}
+
+.collection__aside {
+  grid-area: aside;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.collection__main {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+/* ---- Top bar status: "Cartes uniques : 87 / 16 480" and its bar ---- */
+
+/* The status keeps its width; the screen title gives way (ellipsis). */
+.top-bar--status .top-bar__end {
+  flex-shrink: 0;
+}
+
+.collection-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  color: var(--color-muted);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+  white-space: nowrap;
+}
+
+.collection-status__value {
+  color: var(--color-text-max);
+  font-variant-numeric: tabular-nums;
+}
+
+.collection-status__bar {
+  display: block;
+  flex: none;
+  width: 180px;
+  height: 10px;
+  border: 0;
+  background: var(--color-panel-sunken);
+  box-shadow: 0 0 0 var(--space-unit) var(--color-line);
+  color: var(--color-accent);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.collection-status__bar::-webkit-progress-bar {
+  background: var(--color-panel-sunken);
+}
+
+.collection-status__bar::-webkit-progress-value {
+  background: var(--color-accent);
+}
+
+.collection-status__bar::-moz-progress-bar {
+  background: var(--color-accent);
+}
+
+/* ---- Sets: the kicker, the kind chips, the progress rows ---- */
+
+.collection-sets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.collection-sets__kicker {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.collection-sets__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.collection-sets__empty {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+/* The scope shown (DESIGN.md, Set progress row): a 5px accent bar on its
+   left, on the raised panel, its count in accent. */
+.set-row[aria-current] {
+  background: var(--color-panel-raised);
+  box-shadow: inset 5px 0 0 0 var(--color-accent), var(--panel-border);
+}
+
+.set-row[aria-current] .set-row__name {
+  color: var(--color-text-max);
+}
+
+.set-row[aria-current] .set-row__count {
+  color: var(--color-accent);
+}
+
+.set-row[aria-current]:focus-visible {
+  box-shadow: var(--focus-ring-gap), inset 5px 0 0 0 var(--color-accent), var(--panel-border);
+}
+
+/* Kind and genre chips: control-bordered plates, the current one in
+   accent. */
+.collection-kinds,
+.genre-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.collection-kind,
+.genre-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-chip-height);
+  padding: var(--space-1) var(--space-4);
+  background: var(--color-panel);
+  box-shadow: var(--control-border);
+  color: var(--color-text);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.collection-kind:hover,
+.genre-chip:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+  color: var(--color-text-max);
+}
+
+.collection-kind[aria-current],
+.genre-chip[aria-current] {
+  background: var(--color-accent);
+  box-shadow: inset 0 calc(-2 * var(--space-unit)) 0 0 var(--color-line-deep);
+  color: var(--color-on-accent);
+}
+
+.collection-kind:focus-visible,
+.genre-chip:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+/* Page links (Pagy's for the sets, the grid's own): small panel plates,
+   the current one in accent. */
+.collection-sets .series-nav,
+.collection-pages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.collection-sets .series-nav a,
+.collection-pages__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--space-chip-height);
+  min-height: var(--space-chip-height);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-panel);
+  box-shadow: var(--control-border);
+  color: var(--color-text);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+  text-decoration: none;
+}
+
+.collection-sets .series-nav a[aria-current="page"],
+.collection-pages__link[aria-current="page"] {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.collection-sets .series-nav a[aria-disabled="true"]:not([aria-current]) {
+  box-shadow: var(--panel-soft-border);
+  color: var(--color-disabled-text);
+}
+
+.collection-pages__arrow {
+  width: 8px;
+  height: 14px;
+}
+
+.collection-pages__gap {
+  color: var(--color-muted);
+}
+
+/* ---- RAPPORT: a panel from 1180px, a fold on the phone ---- */
+
+.report {
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+}
+
+.report--panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-panel-padding);
+}
+
+.report--fold {
+  display: none;
+}
+
+.report__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.report__light {
+  width: 8px;
+  height: 8px;
+  background: var(--color-accent);
+}
+
+.report__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.report__rows--tiers {
+  padding-top: var(--space-3);
+  border-top: var(--space-unit) solid var(--color-line-soft);
+}
+
+.report__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-card-meta);
+  text-transform: uppercase;
+}
+
+.report__row dt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  color: var(--color-muted);
+}
+
+.report__row dd {
+  margin: 0;
+  color: var(--color-text-max);
+  font-variant-numeric: tabular-nums;
+}
+
+.report__icon {
+  width: 14px;
+  height: 14px;
+}
+
+.report__row--tier-1 dd { color: var(--color-rarity-commune); }
+.report__row--tier-2 dd { color: var(--color-rarity-peu-commune); }
+.report__row--tier-3 dd { color: var(--color-rarity-rare); }
+.report__row--tier-4 dd { color: var(--color-rarity-epique); }
+.report__row--tier-5 dd { color: var(--color-rarity-legendaire); }
+
+.report__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--space-touch-min);
+  padding: var(--space-2) var(--space-5);
+  cursor: pointer;
+  list-style: none;
+}
+
+.report__summary::-webkit-details-marker {
+  display: none;
+}
+
+.report__line {
+  flex: 1;
+  color: var(--color-text);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  text-align: right;
+}
+
+.report__chevron {
+  width: 6px;
+  height: 10px;
+  color: var(--color-accent);
+}
+
+.report--fold[open] .report__chevron {
+  transform: rotate(90deg);
+}
+
+.report--fold > .report__rows {
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+.report--fold > .report__rows--tiers {
+  padding-top: var(--space-3);
+}
+
+/* ---- The grid: medium cards, fixed gaps ---- */
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, var(--card-m-width));
+  gap: var(--space-grid-gap-rows) var(--space-grid-gap-columns);
+  justify-content: start;
+  margin: 0;
+  padding: var(--space-3) 0;
+  list-style: none;
+}
+
+.collection-grid__empty {
+  margin: 0;
+  padding: var(--space-8) 0;
+  color: var(--color-muted);
+  font: var(--font-body-large);
+  letter-spacing: var(--tracking-body-large);
+  text-align: center;
+}
+
+/* A slot reaches past its card by --slot-bleed on every side (a negative
+   margin keeps the grid's gaps): far from the viewport it skips its
+   rendering, at its known size. */
+.collection-slot {
+  position: relative;
+  margin: calc(-1 * var(--slot-bleed));
+  padding: var(--slot-bleed);
+  content-visibility: auto;
+  contain-intrinsic-size: auto calc(var(--card-m-width) + 2 * var(--slot-bleed)) auto calc(var(--card-m-height) + 2 * var(--slot-bleed));
+}
+
+.collection-slot > .card-link {
+  display: block;
+  width: var(--card-m-width);
+  height: var(--card-m-height);
+}
+
+/* "x3": copies owned, a small accent box at the card's top-right. */
+.collection-slot__copies {
+  position: absolute;
+  top: calc(var(--slot-bleed) - 3 * var(--space-1));
+  right: calc(var(--slot-bleed) - 3 * var(--space-1));
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 20px;
+  padding: 0 var(--space-2);
+  background: var(--color-accent);
+  box-shadow: 0 0 0 var(--space-unit) var(--color-outline);
+  color: var(--color-on-accent);
+  font: var(--font-label);
+  letter-spacing: 0;
+  pointer-events: none;
+}
+
+/* "Nouveau": a small lime box at the card's top-left. */
+.collection-slot__new {
+  position: absolute;
+  top: calc(var(--slot-bleed) - 3 * var(--space-1));
+  left: calc(var(--slot-bleed) - 3 * var(--space-1));
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 var(--space-2);
+  background: var(--color-lime);
+  box-shadow: 0 0 0 var(--space-unit) var(--color-outline);
+  color: var(--color-on-lime);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-card-meta);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* A missing card (DESIGN.md, Missing-card slot): the card's shape, a dark
+   hatched fill in a line-deep border, a padlock, the game's name and year. */
+.missing-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: var(--card-m-width);
+  height: var(--card-m-height);
+  padding: var(--space-4) var(--space-3);
+  background: repeating-linear-gradient(45deg, var(--color-panel) 0 6px, var(--color-panel-sunken) 6px 12px);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-deep);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.card-link:hover .missing-slot {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.missing-slot__icon {
+  width: 20px;
+  height: 24px;
+}
+
+.missing-slot__title {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow-wrap: anywhere;
+  font: var(--font-card-title-m);
+  letter-spacing: var(--tracking-card-title-m);
+  text-transform: uppercase;
+}
+
+.missing-slot__year {
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+/* ---- No season ---- */
+
+.collection-none {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* ---- Two columns (720 to 1179px): the sets above the grid ---- */
+
+@media (max-width: 1179px) {
+  .collection {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "aside"
+      "main";
+    column-gap: var(--space-column-gap-medium);
+  }
+
+  .collection-sets__kicker,
+  .report--panel {
+    display: none;
+  }
+
+  /* Positioned, so the rows' visually hidden sentences (absolute) scroll
+     with the strip instead of widening the page. */
+  .collection-sets__list {
+    position: relative;
+    flex-direction: row;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: var(--space-1);
+  }
+
+  .collection-sets__list > li {
+    flex: none;
+    width: 184px;
+  }
+}
+
+/* Under 900px the status label gives way to its value. */
+@media (max-width: 899px) {
+  .collection-status__label {
+    display: none;
+  }
+}
+
+/* ---- Phone: one column, chips, the RAPPORT folded, two cards a row ---- */
+
+@media (max-width: 719px) {
+  /* The phone's top bar: the back button, the title and the status, as
+     mocked; a visitor keeps the Steam sign-in image instead of a status
+     that is always 0. */
+  .top-bar--status .player-chip,
+  .collection-status--visitor {
+    display: none;
+  }
+
+  .collection__aside {
+    gap: var(--space-4);
+  }
+
+  .collection-status__bar {
+    width: 48px;
+  }
+
+  .collection-sets__list > li {
+    width: 132px;
+  }
+
+  .collection-sets__list .set-row {
+    min-height: 48px;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .collection-kinds,
+  .genre-chips {
+    gap: var(--space-touch-gap);
+  }
+
+  .collection-kind,
+  .genre-chip,
+  .collection-sets .series-nav a,
+  .collection-pages__link {
+    min-height: var(--space-touch-min);
+  }
+
+  .collection-sets .series-nav a,
+  .collection-pages__link {
+    min-width: var(--space-touch-min);
+  }
+
+  .collection-sets .series-nav,
+  .collection-pages {
+    gap: var(--space-touch-gap);
+  }
+
+  .report--fold {
+    display: block;
+  }
+
+  .collection-grid {
+    grid-template-columns: repeat(2, var(--card-m-width));
+    justify-content: center;
+  }
+}
+
+/* Two medium cards and a 12px gap need 332px: on narrower phones (360px
+   wide) the gap tightens to 8px. */
+@media (max-width: 371px) {
+  .collection-grid {
+    column-gap: var(--space-3);
+  }
+}

@@ -1,11 +1,12 @@
 # A shelf of sets for a controller that shows one (CAP-6, CAP-8): the
-# library of the signed-in player and a player's public profile. The caller
-# gives the ordered relation of the sets to shelve and the player whose
-# progress it shows (never the viewer implicitly); the shelf is paged fifty
-# to a page, each set labelled with its owner's owned / total. One set can
-# be opened beside it, its slots with that owner's copies (load_set). Sets
-# are addressed by kind and key; no set or card-season id reaches the page
-# (AD-15).
+# collection's list of sets (LibraryController, through load_shelf) and a
+# player's public profile (PublicProfilesController, through load_shelf and
+# load_set). The caller gives the ordered relation of the sets to shelve and
+# the player whose progress it shows (never the viewer implicitly); the
+# shelf is paged fifty to a page, each set labelled with its owner's owned /
+# total. On the public profile one set can be opened beside it, its slots
+# with that owner's copies (load_set). Sets are addressed by kind and key;
+# no set or card-season id reaches the page (AD-15).
 module ShelfLoading
   extend ActiveSupport::Concern
 
@@ -24,11 +25,12 @@ module ShelfLoading
   private
     # The page of `relation` asked for: @pagy and @spines, both nil without a
     # relation (no published season). `owner`'s progress, nil for nothing
-    # owned.
-    def load_shelf(relation, owner:)
+    # owned. The page is read from the parameter `page_key` (`page` unless
+    # the caller pages something else with it), and its links write it.
+    def load_shelf(relation, owner:, page_key: "page")
       return if relation.nil?
 
-      @pagy, sets = pagy(:offset, relation, limit: SHELF_SIZE, page: page_param)
+      @pagy, sets = pagy(:offset, relation, limit: SHELF_SIZE, page: page_param(page_key), page_key:)
       sets = sets.to_a
       ids = sets.map(&:id)
       totals = Catalog::SetTotals.call(ids)
@@ -55,9 +57,9 @@ module ShelfLoading
       @quantities = Game::Quantities.call(owner, @slots.keys)
     end
 
-    # The shelf page asked for: a number from 1 to MAX_PAGE, 1 for anything
-    # that is not one.
-    def page_param
-      params[:page].to_s.to_i.clamp(1, MAX_PAGE)
+    # The page asked for in the parameter `key`: a number from 1 to
+    # MAX_PAGE, 1 for anything that is not one.
+    def page_param(key = "page")
+      params[key].to_s.to_i.clamp(1, MAX_PAGE)
     end
 end

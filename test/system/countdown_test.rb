@@ -91,7 +91,7 @@ class CountdownTest < ApplicationSystemTestCase
     assert_signed_in
 
     create_pack(@player, available_at: 2.seconds.from_now)
-    visit library_path(locale: :en)
+    visit card_path(locale: :en, slug: "portal")
     page.execute_script("window.refreshes = 0; document.addEventListener('turbo:load', () => window.refreshes++)")
 
     assert_selector "#{COUNTDOWN} [data-countdown-target=clock]", text: "00:00", visible: :all, wait: 5

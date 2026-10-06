@@ -165,7 +165,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :en)
     assert_select ".top-bar .packs-chip__next[data-controller=countdown][data-countdown-refresh-value=true]"
 
-    get library_path(locale: :en)
+    get card_path(locale: :en, slug: "portal")
     assert_select ".top-bar .packs-chip__next[data-controller=countdown][data-countdown-refresh-value=false]"
   end
 

@@ -3,7 +3,8 @@ module Game
   # oldest available pack of any kind (by availability time, then id) is
   # marked opened, with the card back the player has on (Game::CardBacks),
   # its cards are credited to the player's holdings in one upsert, ascending
-  # card-season, and Game::PackOpened is published.
+  # card-season, each marked as gained at the opening (AD-26), and
+  # Game::PackOpened is published.
   # A pack that is not available yet is never opened. Opening a regular pack
   # tops the bank back up to ten in the same transaction (Game::TopUpBank);
   # a bonus or reward pack tops up nothing.
@@ -69,13 +70,16 @@ module Game
     end
 
     # One row per card-season, in ascending order so concurrent writers lock
-    # holdings in the same order (AD-6); a card drawn twice adds 2.
+    # holdings in the same order (AD-6); a card drawn twice adds 2. Every
+    # credited holding gained copies now (AD-26: its NOUVEAU tag), whether
+    # inserted or raised.
     def credit(player, pack, now)
       rows = pack.card_season_ids.tally.sort.map do |card_season_id, quantity|
-        { player_id: player.id, card_season_id:, quantity:, created_at: now, updated_at: now }
+        { player_id: player.id, card_season_id:, quantity:, last_gained_at: now, created_at: now, updated_at: now }
       end
       Holding.upsert_all(rows, unique_by: %i[player_id card_season_id], record_timestamps: false,
-        on_duplicate: Arel.sql("quantity = game_holdings.quantity + excluded.quantity, updated_at = excluded.updated_at"))
+        on_duplicate: Arel.sql("quantity = game_holdings.quantity + excluded.quantity, " \
+          "last_gained_at = excluded.last_gained_at, updated_at = excluded.updated_at"))
       Success()
     end
   end

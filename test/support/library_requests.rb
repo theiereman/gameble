@@ -10,8 +10,10 @@ module LibraryRequests
     assert_equal player.id, session[:player_id]
   end
 
-  def hold(player, card_season_id, quantity)
-    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
+  # Copies of a card-season, last gained at `gained_at` (nil: before AD-26,
+  # never new).
+  def hold(player, card_season_id, quantity, gained_at: nil)
+    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:, last_gained_at: gained_at)
   end
 
   # The card-season ids of the set `key` of `season`, in slot order.

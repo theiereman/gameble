@@ -178,6 +178,24 @@ const ICONS = {
       "cccccccccc",
     ],
   },
+  // A missing card's padlock (10 × 12, DESIGN.md, Missing-card slot): a
+  // shackle over a body pierced by its keyhole.
+  lock: {
+    grid: [
+      "...cccc...",
+      "..c....c..",
+      "..c....c..",
+      "..c....c..",
+      "..c....c..",
+      ".cccccccc.",
+      ".cccccccc.",
+      ".ccc..ccc.",
+      ".ccc..ccc.",
+      ".ccc..ccc.",
+      ".cccccccc.",
+      ".cccccccc.",
+    ],
+  },
   // ◀ and ▶.
   "arrow-left": {
     grid: [

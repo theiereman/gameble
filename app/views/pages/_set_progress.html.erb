@@ -1,19 +1,12 @@
 <%# "Progression des sets" (DESIGN.md, Set progress row): up to four sets
-    (Game::HubSets), each a link to that set in the collection, with the
-    unique cards owned out of its size and a thin bar (a native <progress>,
-    hidden from assistive technology, which reads the sentence instead);
-    "Tout voir" opens the collection. %>
+    (Game::HubSets), each a set progress row (library/set_row) leading to
+    that set in the collection; "Tout voir" opens the collection. %>
 <section class="hub-sets" aria-labelledby="hub-sets-title">
   <h2 id="hub-sets-title" class="hub-sets__title"><%= t("pages.home.sets.title") %></h2>
   <ul class="hub-sets__list">
     <% sets.each do |set| %>
       <li>
-        <%= link_to library_set_path(kind: set[:kind], key: set[:key]), class: "set-row", data: { turbo_prefetch: false } do %>
-          <span class="set-row__name"><%= set[:label] %></span>
-          <span class="set-row__count" aria-hidden="true"><%= number_with_delimiter(set[:owned]) %>/<%= number_with_delimiter(set[:total]) %></span>
-          <span class="visually-hidden"><%= t("pages.home.sets.progress", count: set[:owned], owned: number_with_delimiter(set[:owned]), total: number_with_delimiter(set[:total])) %></span>
-          <progress class="set-row__bar" value="<%= set[:owned] %>" max="<%= [ set[:total], 1 ].max %>" aria-hidden="true"></progress>
-        <% end %>
+        <%= render "library/set_row", href: library_set_path(kind: set[:kind], key: set[:key]), label: set[:label], owned: set[:owned], total: set[:total] %>
       </li>
     <% end %>
   </ul>

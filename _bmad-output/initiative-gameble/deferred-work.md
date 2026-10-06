@@ -235,3 +235,12 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-drop-dust-tier-plan.md`
   summary: Remove `dust_tier` from `Catalog::CardSeason.ignored_columns` (`packs/catalog/app/models/catalog/card_season.rb`) once development and the test LXC have run `20261006100000_remove_dust_tier_from_catalog_card_seasons`.
   evidence: Story 8.7, the contract step of AD-28: strong_migrations' column removal needs the column ignored before `remove_column`, and the ignore stays until every environment has dropped it.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-collection-and-sets-plan.md`
+  summary: The collection grid uses fixed `card-m` faces (160 × 240) in as many columns as fit, where DESIGN.md (Collection grid) asks cards resized between 120 and 170px wide to fill the row, the small face layout under 140px, and the pixel filter re-run at the rendered art size after a resize.
+  evidence: Story 10.1 Never list; `app/frontend/styles/collection.css` (`.collection-grid`, `repeat(auto-fill, var(--card-m-width))`).
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-collection-and-sets-plan.md`
+  summary: Transitional: a grid slot links to the card's own page (`card_season_path`); the in-screen card detail ("FICHE DE LA CARTE", 340px from 1180px, 300px below, a sub-view on the phone) and the selected card's accent frame are left to story 10.2.
+  evidence: Story 10.1 Never list; `app/views/library/_grid.html.erb`.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-collection-and-sets-plan.md`
+  summary: Transitional: the public profile keeps the first direction's shelf and tome (`library/_shelf`, `library/_tome`, `ShelvesHelper#profile_shelf_links`, `library.css`, and the keys only they use: `library.tome.*`, `library.set.back_to_shelf`, `library.show.tabs.label`, `library.show.tabs.started`, `library.show.empty.started`, `library.show.progress`, `library.show.complete`) until story 10.3 redraws it; remove them then. The `library.show.*` keys the collection also uses (`tabs.tome|publisher|best_of_year`, `empty.tome|publisher|best_of_year`, `past_the_end`, `no_season`) stay, or move under the collection's own keys.
+  evidence: Story 10.1 Never list; `app/views/public_profiles/*`, `app/frontend/styles/library.css` header.

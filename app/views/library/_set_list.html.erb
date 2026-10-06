@@ -1,0 +1,36 @@
+<%# The collection's sets (DESIGN.md, Collection): the kicker "Sets", the
+    chips of the three kinds, then set progress rows: "Toute la saison"
+    first, then the listed kind's sets of this page, the scope shown marked
+    current; and the list's page links (`shelf`).
+    - kind: the kind listed;
+    - set: the set shown (kind, key), nil for the whole season;
+    - spines: ShelfLoading::Spine list of the page; pagy: its page;
+    - unique, season_cards: the "Toute la saison" row's owned / total. %>
+<div class="collection-sets">
+  <h2 id="collection-sets-title" class="collection-sets__kicker"><%= t("library.sets.title") %></h2>
+  <nav class="collection-kinds" aria-label="<%= t("library.sets.kinds") %>">
+    <% LibraryController::KINDS.each do |tab| %>
+      <%= link_to t("library.show.tabs.#{tab}"), collection_season_path(kind: tab), class: "collection-kind",
+        aria: { current: ("true" if tab == kind) }, data: { turbo_prefetch: false } %>
+    <% end %>
+  </nav>
+  <ul class="collection-sets__list">
+    <li class="collection-sets__item collection-sets__item--season">
+      <%= render "library/set_row", href: collection_season_path(kind:, shelf: pagy.page), label: t("library.sets.whole_season"),
+        owned: unique, total: season_cards, current: set.nil? %>
+    </li>
+    <% spines.each do |spine| %>
+      <li class="collection-sets__item">
+        <%= render "library/set_row", href: collection_set_path(kind: spine.kind, key: spine.key, shelf: pagy.page), label: spine.label,
+          owned: spine.owned, total: spine.total, current: set.present? && set.kind == spine.kind && set.key == spine.key %>
+      </li>
+    <% end %>
+  </ul>
+  <% if spines.empty? %>
+    <p class="collection-sets__empty"><%= pagy.count.zero? ? t("library.show.empty.#{kind}") : t("library.show.past_the_end") %></p>
+  <% end %>
+  <% if pagy.count.positive? && (pagy.last > 1 || spines.empty?) %>
+    <%# Pagy writes its links escaped, from its own dictionary (the pagy keys of the locale files). %>
+    <%= pagy.series_nav(anchor_string: 'data-turbo-prefetch="false"').html_safe %>
+  <% end %>
+</div>
