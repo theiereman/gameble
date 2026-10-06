@@ -1,0 +1,25 @@
+# tickets.toml — the stories of the season preparation epic, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "An import builds beside the draft and replaces it only once validated"
+description = "An import run writes its cards into a staging draft of its own; an administrator reviews it and promotes it to replace the draft, or throws it away, so a failed or bad run never leaves a mixed draft."
+verify = "A run that fails or is discarded leaves the current draft exactly as it was; promoting a completed run replaces the draft in one step; a promoted draft can still be published."
+covers = ["CAP-2", "CAP-3"]
+after = ["2.12"]
+hitl = true
+risk = "high"
+notes = ["il faut pouvoir rollback et donc faire un import à côté en attendant de le valider ou qqch dans le genre"]
+
+[[entry]]
+id = 2
+type = "story"
+title = "An administrator curates the tome genres in the back-office before publishing"
+description = "A back-office screen lists every Steam tag the import met with its game count; the administrator maps each to a genre, makes it a genre of its own, or ignores it, manages genres with French and English labels (English tag name by default), and a draft with an unclassified tag cannot be published; replaces Steam::GenreTags, seeded from its 25 genres."
+verify = "Mapping Roguelite to Roguelike and rescoring moves those games into Roguelike tomes in the preview; a new unclassified tag blocks the publish with a reason; a renamed genre shows its labels on the tomes."
+covers = ["CAP-6"]
+after = [1]
+hitl = true
+risk = "medium"
+notes = ["après un import et avant de publier une saison je peux voir tous les genres qui ont été ajoutés et c'est moi qui décide lesquels fusionner vers un genre", "il faut tout classer avant de pouvoir publier ; le nom anglais sert par défaut mais je dois pouvoir entrer les traductions manuellement"]

@@ -68,3 +68,11 @@ slug = "epic-public-launch-readiness"
 title = "Ready for the public"
 covers = ["CAP-14", "CAP-15"]
 after = [{ epic = 1, needs = "player accounts, staff roles and the back-office shell" }, { epic = 10, needs = "the profile and settings screen" }]
+
+[[epic]]
+id = 11
+slug = "epic-season-preparation"
+title = "Season preparation"
+covers = ["CAP-2", "CAP-3", "CAP-6"]
+after = [{ epic = 2, needs = "the import runs, the draft season and the publication" }]
+
