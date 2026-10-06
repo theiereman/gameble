@@ -1,6 +1,6 @@
 # Pending approvals
 
-Operations set aside while the author was away (2026-10-02): each waits for an explicit go-ahead. Nothing here has been run.
+Operations and decisions waiting for the author's go-ahead, kept since 2026-10-02. Open items first; settled ones are listed by date at the end.
 
 - **Cloudflare and link previews (epic 4).** When Cloudflare is set up: Bot Fight Mode off, or a WAF skip rule for Discordbot, Twitterbot and WhatsApp on `/*/cards/*` (the share link since story 4.7) and `/*/brothers/*` (public profiles, and the old share links that redirect to the card), or previews fail.
 - **Manual preview check (story 4.5).** Paste a share link in Discord, X and WhatsApp once a public HTTPS host exists (the LXC's LAN address cannot be reached by their servers).
@@ -48,26 +48,17 @@ Operations set aside while the author was away (2026-10-02): each waits for an e
 - The 25 tome genres confirmed as listed in `Steam::GenreTags` (author); folding neighbours stays open above.
 - The architecture spine absorbed the redesign (AD-1 to AD-28, final); epics 8 and 10 rework the built screens, card backs (CAP-20) have epic 9 and presence (CAP-21) joins epic 5.
 
-## Architecture conformance (2026-10-05)
-
-- **Backfill `game_player_states` on the test LXC.** After deploying the story that creates the table (`bin/docker-entrypoint` runs `db:prepare`, which applies the migration), run `bin/kamal app exec 'bin/rails game:backfill_player_states'` once: every existing player, banned ones included, gets their row (one transaction per player, idempotent, a failing player reported and skipped). Players registering after the deploy get theirs at sign-up. Not run.
-
-## Tier names and season numbers (2026-10-05, story 8.3)
-
-- **Number the published seasons.** Run `bin/rails catalog:number_seasons` on the test LXC after deploying story 8.3 (`bin/kamal app exec 'bin/rails catalog:number_seasons'`; `bin/docker-entrypoint` applies the three migrations through `db:prepare`). Every published season without numbers gets 1..n by `Catalog::PublishSeason`'s shuffle, in one transaction per season; a numbered season is reported and skipped, so it is safe to re-run. Not run. The NOT NULL contract migration waits on it (deferred-work.md). (Development was numbered on 2026-10-05.)
-
-## Drop dust_tier (2026-10-06, story 8.7)
-
-- **Apply the dust_tier contract migration.** `20261006100000_remove_dust_tier_from_catalog_card_seasons` drops `catalog_card_seasons.dust_tier` and its check `catalog_card_seasons_dust_tier_check`. Development: migrated on 2026-10-06. Test LXC: deploy with no import run running and no season being published, since the code already deployed (before 8.7) still writes the column (`Catalog::UpsertDraftCard`'s create, `Catalog::PublishSeason`); `bin/docker-entrypoint` applies it through `db:prepare` when the new web container boots. An import step failing in that window resumes under `Steam::RecoverStalledImportsJob` on the new code. Not run. Removing `ignored_columns` afterwards is in deferred-work.md.
-- Development migrated on 2026-10-06 with stories 8.7 (dust_tier dropped), 8.10 (opening key and card back on packs) and the 8.2 follow-up (opened-packs index).
-
 ## Remaining pixel-art assets (2026-10-06, story 8.8, hitl)
 
 - **Review the pixel-art sheet once.** Open `_bmad-output/initiative-gameble/epic-space-terminal-redesign/pixel-art-sheet.html` in a browser. It shows all 81 exported files under `app/frontend/images/pixel/`, at 2 CSS px per art pixel: 8.1's icons, the 8 card backs at the 5 card sizes, the canister parts, the planet and 8 avatars. Approve it, or name what to redraw in `script/pixel_art/export.mjs`. Story 8.8 stays `built` until you do.
 
 ## Staging and production (2026-10-06)
 
-- **Traefik route for staging.** In the home lab Traefik's dynamic config, the `gameble` router names `service: gameble-staging`, but the service is declared as `gameble`: change one so they match, or the domain answers 404. Optionally add a `gameble-http` router on the `web` entry point like the other apps. Check that the `tcp` block's last address (`192.168.1.173:22`) has its closing quote.
-- **First staging deploy.** `bin/kamal deploy -d staging` (the old `.kamal/secrets` is now `.kamal/secrets.staging`; plain `bin/kamal deploy` no longer has servers). Then open https://gameble.dotsncircles.com and test Steam sign-in. The staging-dependent items above (backfills, number_seasons, real import, preview checks) run against this destination.
 - **Production later.** Fill `config/deploy.production.yml` (VPS address, registry such as ghcr.io), create `.kamal/secrets.production` with its own keys, point gameble.com at the VPS (Cloudflare in Full mode if used), then `bin/kamal deploy -d production`.
 - Staging deployed and the first full real import run there (2026-10-06, 55 min, 12,307 cards); season 1 published on staging with the starting calibration (epic 2 Notes).
+
+## Settled on 2026-10-06
+
+- Staging (gameble.dotsncircles.com) deployed by the author with the Traefik route fixed; the first full real import ran there and season 1 was published (epic 2 Notes). Epic 2 marked done.
+- On staging's fresh database, `db:prepare` applied every migration at boot (dust_tier dropped, numbers column, player states), season 1 was numbered by its own publication, and players get their `game_player_states` row at sign-up: the backfills `catalog:number_seasons` and `game:backfill_player_states` are not needed there. They stay available for any older database.
+- Prestige formula: log10(review count) + 4 × Wilson (story 2.12); season 1 on staging keeps the old scores and is not republished.
