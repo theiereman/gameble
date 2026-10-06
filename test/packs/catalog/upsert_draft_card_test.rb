@@ -58,7 +58,6 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     assert_in_delta 0.97, card_season.prestige_score
     assert_equal BigDecimal("98.0"), card_season.rating
     assert_nil card_season.rarity
-    assert_nil card_season.dust_tier
 
     events = events_of(season)
     assert_equal [ Catalog::DraftCardUpserted ], events.map(&:class)

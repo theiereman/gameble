@@ -67,28 +67,6 @@
       <% end %>
     <% end %>
 
-    <h3><%= t(".dust") %></h3>
-    <table class="ledger">
-      <caption class="visually-hidden"><%= t(".dust") %></caption>
-      <thead>
-        <tr>
-          <th scope="col"><%= t(".dust_level") %></th>
-          <th scope="col"><%= t(".share") %></th>
-          <th scope="col"><%= t(".cards") %></th>
-        </tr>
-      </thead>
-      <tbody>
-        <% preview.dust.each do |level, count| %>
-          <% name = Catalog::Dust::LEVELS.fetch(level) %>
-          <tr>
-            <th scope="row"><%= t(".dust_levels.#{name}") %></th>
-            <td data-preview-dust="<%= name %>"><%= number_to_percentage(count * 100.0 / preview.card_count, precision: 1) %></td>
-            <td><%= number_with_delimiter(count) %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-
     <% [ [ :top, preview.top, t(".top", count: preview.top.size) ], [ :bottom, preview.bottom, t(".bottom", count: preview.bottom.size) ] ].each do |end_name, entries, heading| %>
       <h3><%= heading %></h3>
       <table class="ledger">

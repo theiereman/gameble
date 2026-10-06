@@ -1,9 +1,8 @@
 module Catalog
   # Publishes the draft season (CAP-3, AD-5): cuts its prestige scores into
-  # the five rarity tiers (RarityThresholds), sets each card-season's dust
-  # level from its game's age on the publication date (Dust), gives each
-  # card-season its number in the season (R3), builds its sets (SetBuilder),
-  # then makes the season the published one, all in one transaction.
+  # the five rarity tiers (RarityThresholds), gives each card-season its
+  # number in the season (R3), builds its sets (SetBuilder), then makes the
+  # season the published one, all in one transaction.
   #
   # Numbers are 1..n over the season's n card-seasons, shuffled with
   # SecureRandom (or the `random:` given, for tests) over the card-seasons in
@@ -100,15 +99,13 @@ module Catalog
       tiers ? Success(tiers) : Failure(:empty_tier)
     end
 
-    # One UPDATE per (rarity, dust level) pair, then one for the numbers.
-    # The publication date is the UTC date of the publication time. The rows
-    # come in id order (SeasonRows).
+    # One UPDATE per rarity, then one for the numbers. The rows come in id
+    # order (SeasonRows).
     def write_season_data(card_seasons, tiers, now)
-      published_on = now.utc.to_date
       card_seasons.zip(tiers)
-        .group_by { |row, tier| [ tier, Dust.level_for(row.release_date, on: published_on) ] }
-        .each do |(rarity, dust_tier), pairs|
-          CardSeason.where(id: pairs.map { |row, _| row.id }).update_all(rarity:, dust_tier:, updated_at: now)
+        .group_by { |_row, tier| tier }
+        .each do |rarity, pairs|
+          CardSeason.where(id: pairs.map { |row, _| row.id }).update_all(rarity:, updated_at: now)
         end
       number_card_seasons(card_seasons.map(&:id), now)
     end

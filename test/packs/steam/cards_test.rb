@@ -227,7 +227,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     ready(first, 10, 20)
     cards_page(first)
     published = draft
-    Catalog::CardSeason.where(season: published).update_all(rarity: 1, dust_tier: 0)
+    Catalog::CardSeason.where(season: published).update_all(rarity: 1)
     published.update_columns(status: "published", published_at: Time.current)
     frozen = Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rating, :updated_at)
 
@@ -405,7 +405,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     ready(first, 10, 20)
     cards_page(first)
     published = draft
-    Catalog::CardSeason.where(season: published).update_all(rarity: 1, dust_tier: 0)
+    Catalog::CardSeason.where(season: published).update_all(rarity: 1)
     published.update_columns(status: "published", published_at: Time.current)
     first.update!(status: :completed, finished_at: Time.current)
     frozen = Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rarity)

@@ -177,7 +177,7 @@ fr:
         published: "Publiée"
       index:
         heading: "Les saisons du catalogue"
-        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, dépose la poussière sur leur dos, les relie en éditeurs, en tomes de genre et en meilleurs de chaque année, et l'ouvre au tirage, d'un seul coup. Une saison publiée ne change plus jamais."
+        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, les numérote, les relie en éditeurs, en tomes de genre et en meilleurs de chaque année, et l'ouvre au tirage, d'un seul coup. Une saison publiée ne change plus jamais."
         empty: "Aucune saison pour l'instant. Le premier import ouvrira le brouillon."
         caption: "Saisons du catalogue, par numéro"
         number: "Saison"
@@ -190,8 +190,8 @@ fr:
           best_of_year: "Meilleurs de l'année"
         publish: "Publier la saison %{number}"
         confirm:
-          one: "Publier la saison %{number} et sa seule carte ? Ses raretés et sa poussière ne changeront plus jamais."
-          other: "Publier la saison %{number} et ses %{count} cartes ? Ses raretés et sa poussière ne changeront plus jamais."
+          one: "Publier la saison %{number} et sa seule carte ? La rareté et le numéro de cette carte ne changeront plus jamais."
+          other: "Publier la saison %{number} et ses %{count} cartes ? Ses raretés et leurs numéros ne changeront plus jamais."
       preview:
         heading: "La saison %{number}, si elle était publiée maintenant"
         intro: "Ce que donnerait la publication du brouillon aujourd'hui, lu sur ses cartes telles qu'elles sont. Rien n'est écrit ici. La formule de prestige, les parts des raretés et la taille des tomes vivent dans le code : change-les, recalcule le dernier import si la formule a changé, puis relis ceci."
@@ -207,15 +207,6 @@ fr:
         tier: "Rareté"
         cards: "Cartes"
         threshold: "Score minimal"
-        dust: "Poussière"
-        dust_level: "Poussière"
-        share: "Part"
-        dust_levels:
-          none: "Aucune"
-          light: "Légère"
-          marked: "Marquée"
-          thick: "Épaisse"
-          buried: "Ensevelie"
         top:
           one: "La carte au score le plus haut"
           other: "Les %{count} cartes aux scores les plus hauts"

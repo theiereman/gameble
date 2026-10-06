@@ -98,7 +98,7 @@ module Steam
     end
 
     # The earliest known date: a game released before Steam keeps its
-    # original date, which the dust uses. A date that is not a timestamp
+    # original date, whose year the card shows. A date that is not a timestamp
     # from 1970 to the end of year 9999 is ignored.
     def self.release_on(item)
       release = RawValue.object(item["release"])

@@ -6,17 +6,15 @@ require_relative "../../support/catalog_seeds"
 class Catalog::DraftPreviewTest < ActiveSupport::TestCase
   include CatalogSeeds
 
-  ON = Date.new(2026, 10, 2)
-
   def preview
-    Catalog::DraftPreview.call(on: ON)
+    Catalog::DraftPreview.call
   end
 
   def card_ids(season)
     Catalog::CardSeason.where(season_id: season.id).order(:id).pluck(:card_id)
   end
 
-  test "the 150-card draft previews its scores, tiers, dust, extremes, genres and sets" do
+  test "the 150-card draft previews its scores, tiers, extremes, genres and sets" do
     draft = seed_sets_draft
     ids = card_ids(draft)
 
@@ -29,7 +27,6 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
     assert_nil result.tier_verdict
     assert_equal [ [ 5, 2, 149.0 ], [ 4, 6, 143.0 ], [ 3, 15, 128.0 ], [ 2, 37, 91.0 ], [ 1, 90, nil ] ],
       result.tiers.map { |tier| [ tier.tier, tier.card_count, tier.threshold ] }
-    assert_equal({ 0 => 0, 1 => 0, 2 => 0, 3 => 150, 4 => 0 }, result.dust)
     assert_equal ids.first(10), result.top.map(&:card_id)
     assert_equal (0..9).map { |i| "Seed #{i}" }, result.top.map(&:title)
     assert_equal [ 150.0, BigDecimal(50) ], [ result.top.first.prestige_score, result.top.first.rating ]
@@ -38,12 +35,6 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
     assert_equal [ [ "action", 75, 3 ], [ "rpg", 44, 1 ], [ nil, 31, 0 ] ],
       result.genres.map { |genre| [ genre.genre, genre.card_count, genre.tome_count ] }
     assert_equal({ "publisher" => 1, "tome" => 4, "best_of_year" => 3 }, result.set_counts)
-  end
-
-  test "the dust shares follow the age on the given date" do
-    seed_card_seasons(distinct_scores(4), release_dates: [ Date.new(2026, 4, 2), Date.new(2025, 10, 2), Date.new(2016, 10, 2), Date.new(2006, 10, 2) ])
-
-    assert_equal({ 0 => 1, 1 => 1, 2 => 0, 3 => 1, 4 => 1 }, preview.dust)
   end
 
   test "a draft too small for five tiers shows the empty_tier verdict in place of the tiers, and the rest" do

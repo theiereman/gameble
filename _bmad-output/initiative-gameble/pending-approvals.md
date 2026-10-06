@@ -57,3 +57,7 @@ Operations set aside while the author was away (2026-10-02): each waits for an e
 ## Tier names and season numbers (2026-10-05, story 8.3)
 
 - **Number the published seasons.** Run `bin/rails catalog:number_seasons` on the test LXC after deploying story 8.3 (`bin/kamal app exec 'bin/rails catalog:number_seasons'`; `bin/docker-entrypoint` applies the three migrations through `db:prepare`). Every published season without numbers gets 1..n by `Catalog::PublishSeason`'s shuffle, in one transaction per season; a numbered season is reported and skipped, so it is safe to re-run. Not run. The NOT NULL contract migration waits on it (deferred-work.md). (Development was numbered on 2026-10-05.)
+
+## Drop dust_tier (2026-10-06, story 8.7)
+
+- **Apply the dust_tier contract migration.** `20261006100000_remove_dust_tier_from_catalog_card_seasons` drops `catalog_card_seasons.dust_tier` and its check `catalog_card_seasons_dust_tier_check`. Development: `bin/rails db:migrate` once (not run). Test LXC: deploy with no import run running and no season being published, since the code already deployed (before 8.7) still writes the column (`Catalog::UpsertDraftCard`'s create, `Catalog::PublishSeason`); `bin/docker-entrypoint` applies it through `db:prepare` when the new web container boots. An import step failing in that window resumes under `Steam::RecoverStalledImportsJob` on the new code. Not run. Removing `ignored_columns` afterwards is in deferred-work.md.

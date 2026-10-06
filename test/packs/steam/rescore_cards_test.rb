@@ -145,7 +145,7 @@ class Steam::RescoreCardsTest < ActiveSupport::TestCase
     ready(run, 10, 20)
     perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
     season = Catalog::DraftSeason.call
-    Catalog::CardSeason.where(season:).update_all(rarity: 1, dust_tier: 0)
+    Catalog::CardSeason.where(season:).update_all(rarity: 1)
     season.update_columns(status: "published", published_at: Time.current)
     before = [ run.reload.attributes, Catalog::Season.count, Catalog::CardSeason.count, events_of(run).size ]
 

@@ -87,8 +87,7 @@ module BackOffice
       assert_equal %w[149.000 143.000 128.000 91.000], %w[legendary epic rare uncommon].map { |name| css_select("[data-preview-threshold=#{name}]").sole.text }
       assert_select "[data-preview-threshold=common]", false
       assert_equal %w[1.000 15.000 75.000 135.000 149.000 150.000], %w[min p10 p50 p90 p99 max].map { |p| css_select("[data-preview-percentile=#{p}]").sole.text }
-      assert_select "[data-preview-dust=thick]", "100.0%"
-      assert_select "[data-preview-dust=none]", "0.0%"
+      assert_select "[data-preview-dust]", false
       assert_select "tr[data-preview-top]", 10
       assert_select "tr[data-preview-top='1'] td", "Seed 0"
       assert_select "tr[data-preview-top='10'] td", "Seed 9"

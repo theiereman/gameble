@@ -16,7 +16,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
   end
 
   def season_data(season)
-    Catalog::CardSeason.where(season_id: season.id).order(:id).pluck(:rarity, :dust_tier, :number, :updated_at)
+    Catalog::CardSeason.where(season_id: season.id).order(:id).pluck(:rarity, :number, :updated_at)
   end
 
   def assert_nothing_written(season, &block)
@@ -25,9 +25,8 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_equal before, [ season.reload.attributes, season_data(season), events_of(season).size ]
   end
 
-  test "publishing a draft of 150 sets rarities and dust, flips the season and publishes one event" do
-    release_dates = Array.new(150) { |index| index.even? ? Date.new(2006, 10, 2) : Date.new(2025, 10, 3) }
-    season = seed_card_seasons(distinct_scores(150), release_dates:)
+  test "publishing a draft of 150 sets rarities, flips the season and publishes one event" do
+    season = seed_card_seasons(distinct_scores(150))
     now = Time.utc(2026, 10, 2, 23, 30)
 
     result = travel_to(now) { publish(season.number) }
@@ -40,15 +39,11 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_nil Catalog::DraftSeason.call
     assert_equal season, Catalog::PublishedSeason.call
 
-    card_seasons = Catalog::CardSeason.where(season_id: season.id).includes(:card)
+    card_seasons = Catalog::CardSeason.where(season_id: season.id)
     assert_equal({ "legendary" => 2, "epic" => 6, "rare" => 15, "uncommon" => 37, "common" => 90 }, card_seasons.group(:rarity).count)
     top = card_seasons.max_by(&:prestige_score)
     assert_equal "legendary", top.rarity
     assert_equal "common", card_seasons.min_by(&:prestige_score).rarity
-    card_seasons.each do |card_season|
-      expected = card_season.card.release_date == Date.new(2006, 10, 2) ? "buried" : "none"
-      assert_equal expected, card_season.dust_tier
-    end
 
     events = events_of(season)
     assert_equal [ Catalog::SeasonPublished ], events.map(&:class)
@@ -126,21 +121,6 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_not set.update(key: "rpg-2")
     assert_not set.destroy
     assert_not set.memberships.first.destroy
-  end
-
-  test "the publication date is the UTC date of the publication" do
-    season = seed_card_seasons(distinct_scores(21), release_dates: Array.new(21, Date.new(2025, 10, 3)))
-
-    # 2026-10-03 00:30 UTC is still 2026-10-02 in Honolulu (UTC-10): only the
-    # UTC date makes the game a year old.
-    Time.use_zone("Pacific/Honolulu") do
-      travel_to(Time.utc(2026, 10, 3, 0, 30)) do
-        assert_equal Date.new(2026, 10, 2), Time.current.to_date
-        assert publish(season.number).success?
-      end
-    end
-
-    assert_equal [ "light" ], Catalog::CardSeason.where(season_id: season.id).distinct.pluck(:dust_tier)
   end
 
   test "a published season's data is frozen" do

@@ -36,7 +36,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   def publish_season_two_with_portal
     season = seed_published_sets([ [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
     card_season_id = Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.99,
-      rating: 99, rarity: 5, dust_tier: 4 } ], returning: :id).rows.flatten.first
+      rating: 99, rarity: 5 } ], returning: :id).rows.flatten.first
     Catalog::SetMembership.insert_all!([ { set_id: Catalog::Set.find_by!(season_id: season.id).id, card_season_id:, position: 1 } ])
     season
   end

@@ -7,7 +7,6 @@ portal_one:
   prestige_score: 0.9
   rating: 95.5
   rarity: epic
-  dust_tier: thick
   number: 4
 
 # One card-season per other tier, so the published season can be drawn from.
@@ -19,7 +18,6 @@ common_card_one:
   prestige_score: 0.2
   rating: 80.0
   rarity: common
-  dust_tier: none
   number: 1
 
 uncommon_card_one:
@@ -28,7 +26,6 @@ uncommon_card_one:
   prestige_score: 0.5
   rating: 80.0
   rarity: uncommon
-  dust_tier: light
   number: 2
 
 rare_card_one:
@@ -37,7 +34,6 @@ rare_card_one:
   prestige_score: 0.7
   rating: 80.0
   rarity: rare
-  dust_tier: marked
   number: 3
 
 legendary_card_one:
@@ -46,5 +42,4 @@ legendary_card_one:
   prestige_score: 0.99
   rating: 80.0
   rarity: legendary
-  dust_tier: buried
   number: 5

@@ -1,4 +1,5 @@
 require "test_helper"
+require Rails.root.join("db/migrate/20261006100000_remove_dust_tier_from_catalog_card_seasons").to_s
 
 # The catalog's database constraints and model rules (AD-5): what the
 # database refuses even when a model is bypassed.
@@ -15,12 +16,10 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
     Catalog::Season.create!(status: :draft, number: 2)
   end
 
-  test "rarity tiers and dust levels are defined once, as keys" do
+  test "rarity tiers are defined once, as keys" do
     assert_equal({ 1 => :common, 2 => :uncommon, 3 => :rare, 4 => :epic, 5 => :legendary }, Catalog::Rarity::TIERS)
-    assert_equal({ 0 => :none, 1 => :light, 2 => :marked, 3 => :thick, 4 => :buried }, Catalog::Dust::LEVELS)
     assert_equal %w[en fr], Catalog::CardText::LOCALES
     assert_predicate card_season, :rarity_epic?
-    assert_predicate card_season, :dust_thick?
   end
 
   [ 0, 6 ].each do |rarity|
@@ -29,10 +28,34 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
     end
   end
 
-  [ -1, 5 ].each do |dust_tier|
-    test "the database refuses a dust tier of #{dust_tier}" do
-      refused(ActiveRecord::CheckViolation) { Catalog::CardSeason.where(id: card_season.id).update_all(dust_tier: dust_tier) }
-    end
+  # Whether catalog_card_seasons has the dust_tier column, and its check.
+  def dust_tier
+    connection = ActiveRecord::Base.connection
+    [ connection.column_exists?(:catalog_card_seasons, :dust_tier),
+      connection.check_constraint_exists?(:catalog_card_seasons, name: "catalog_card_seasons_dust_tier_check") ]
+  end
+
+  test "a card-season has no dust tier, nor its check (AD-28)" do
+    assert_equal [ false, false ], dust_tier
+  end
+
+  # PostgreSQL DDL is transactional: the round trip is rolled back with the
+  # test. The model ignores the column, so none of its queries names it.
+  test "the dust tier's removal rolls back to a nullable smallint checked 0 to 4, and runs again" do
+    migration = RemoveDustTierFromCatalogCardSeasons.new
+    migration.suppress_messages { migration.migrate(:down) }
+
+    assert_equal [ true, true ], dust_tier
+    column = ActiveRecord::Base.connection.columns(:catalog_card_seasons).find { |c| c.name == "dust_tier" }
+    assert_equal [ :integer, 2, true ], [ column.type, column.limit, column.null ]
+    refused(ActiveRecord::CheckViolation) { Catalog::CardSeason.where(id: card_season.id).update_all("dust_tier = 5") }
+    assert_equal 1, Catalog::CardSeason.where(id: card_season.id).update_all("dust_tier = 4")
+
+    migration.suppress_messages { migration.migrate(:up) }
+
+    assert_equal [ false, false ], dust_tier
+  ensure
+    Catalog::CardSeason.reset_column_information
   end
 
   [ -0.01, 100.01 ].each do |rating|
@@ -41,8 +64,8 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
     end
   end
 
-  test "rarity, dust tier and number may stay NULL, scores may not" do
-    Catalog::CardSeason.where(id: card_season.id).update_all(rarity: nil, dust_tier: nil, number: nil)
+  test "rarity and number may stay NULL, scores may not" do
+    Catalog::CardSeason.where(id: card_season.id).update_all(rarity: nil, number: nil)
 
     refused(ActiveRecord::NotNullViolation) { Catalog::CardSeason.where(id: card_season.id).update_all(rating: nil) }
     refused(ActiveRecord::NotNullViolation) { Catalog::CardSeason.where(id: card_season.id).update_all(prestige_score: nil) }

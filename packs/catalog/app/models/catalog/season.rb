@@ -1,6 +1,6 @@
 module Catalog
   # A season of the catalog (AD-5). Imports fill the one draft; publishing
-  # it makes its cards drawable and freezes their rarity, dust tier and sets.
+  # it makes its cards drawable and freezes their rarity, number and sets.
   # The published season is the highest-numbered published one.
   class Season < ApplicationRecord
     self.table_name = "catalog_seasons"

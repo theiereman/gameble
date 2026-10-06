@@ -1,8 +1,8 @@
 module Catalog
-  # The card-seasons of a season with what the cut, the dust and the sets
-  # read from them and their cards, in one pluck (AD-5). Takes no lock of its
-  # own: PublishSeason calls it inside its transaction, the calibration
-  # preview outside one. `season_id` is an id, or a relation selecting one
+  # The card-seasons of a season with what the cut and the sets read from
+  # them and their cards, in one pluck (AD-5). Takes no lock of its own:
+  # PublishSeason calls it inside its transaction, the calibration preview
+  # outside one. `season_id` is an id, or a relation selecting one
   # (the preview passes the draft's, so the season is read in the same
   # query).
   #

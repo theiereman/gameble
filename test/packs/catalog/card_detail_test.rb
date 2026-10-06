@@ -6,12 +6,12 @@ require_relative "../../support/catalog_seeds"
 class Catalog::CardDetailTest < ActiveSupport::TestCase
   include CatalogSeeds
 
-  # A published season numbered 2 holding portal (legendary, buried), written
-  # with insert_all as a published season can no longer change.
+  # A published season numbered 2 holding portal (legendary), written with
+  # insert_all as a published season can no longer change.
   def publish_season_two_with_portal
     season = seed_published_sets([])
     Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.99, rating: 99,
-      rarity: Catalog::Rarity::TIERS.invert.fetch(:legendary), dust_tier: Catalog::Dust::LEVELS.invert.fetch(:buried) } ])
+      rarity: Catalog::Rarity::TIERS.invert.fetch(:legendary) } ])
     season
   end
 

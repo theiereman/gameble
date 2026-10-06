@@ -170,8 +170,7 @@ class OpenPackBenchmark
     scores = Array.new(CARDS) { |index| index + random.rand }.shuffle(random:)
     tiers = Catalog::RarityThresholds.tiers(scores) || refuse("the cut left a tier empty")
     Catalog::CardSeason.insert_all!(card_ids.each_with_index.map do |card_id, index|
-      { card_id:, season_id:, prestige_score: scores[index], rating: random.rand(0..100), rarity: tiers[index],
-        dust_tier: Catalog::Dust.level_for(release_dates[index], on: now.to_date) }
+      { card_id:, season_id:, prestige_score: scores[index], rating: random.rand(0..100), rarity: tiers[index] }
     end)
     season_id
   end

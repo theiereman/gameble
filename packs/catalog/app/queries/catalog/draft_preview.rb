@@ -3,7 +3,7 @@ module Catalog
   # prestige formula, the tier shares and the tome size before a season is
   # published (CAP-3, AD-5; epic 2, story 2.8). Reads the draft without a
   # lock and writes nothing; uses the same rules as PublishSeason
-  # (RarityThresholds, Dust, SetBuilder), so publishing a draft unchanged
+  # (RarityThresholds, SetBuilder), so publishing a draft unchanged
   # since gives the tier sizes and set counts shown here.
   #
   # Two queries at any size: the draft's rows (SeasonRows, the draft read in
@@ -26,20 +26,19 @@ module Catalog
     # - `percentiles`: { 10 => score, 50 => …, 90 => …, 99 => … }
     # - `tiers`: [ Tier(tier, card_count, threshold) ], legendary first; common's
     #   threshold is nil
-    # - `dust`: { 0 => count, …, 4 => count }, every level present
     # - `top`, `bottom`: [ Entry ], the highest scores first, the lowest first
     # - `genres`: [ Genre(genre, card_count, tome_count) ], the most cards
     #   first, then by genre; genre nil for the cards without one, last
     # - `set_counts`: { "publisher" => n, "tome" => n, "best_of_year" => n }
     Preview = Data.define(:verdict, :card_count, :percentiles, :min, :max, :tier_verdict, :tiers,
-      :dust, :top, :bottom, :genres, :set_counts) do
+      :top, :bottom, :genres, :set_counts) do
       def empty_season? = verdict == :empty_season
     end
     Tier = Data.define(:tier, :card_count, :threshold)
     Entry = Data.define(:card_id, :title, :rating, :prestige_score)
     Genre = Data.define(:genre, :card_count, :tome_count)
 
-    def self.call(on: Time.current.utc.to_date)
+    def self.call
       rows = SeasonRows.call(Season.draft.select(:id))
       if rows.empty?
         return Season.draft.exists? ? Preview.new(verdict: :empty_season, **Preview.members.excluding(:verdict).index_with(nil)) : nil
@@ -61,7 +60,6 @@ module Catalog
         max: ranked_asc.last,
         tier_verdict: tiers ? nil : :empty_tier,
         tiers:,
-        dust: dust_of(rows, on),
         top: entries(top, titles),
         bottom: entries(bottom, titles),
         genres: genres_of(rows, tomes),
@@ -80,11 +78,6 @@ module Catalog
       Rarity::TIERS.keys.reverse.map { |tier| Tier.new(tier:, card_count: counts.fetch(tier), threshold: thresholds[tier]) }
     end
 
-    def self.dust_of(rows, on)
-      counts = rows.map { |row| Dust.level_for(row.release_date, on:) }.tally
-      Dust::LEVELS.keys.index_with { |level| counts.fetch(level, 0) }
-    end
-
     def self.entries(rows, titles)
       rows.map { |row| Entry.new(card_id: row.card_id, title: titles[row.card_id], rating: row.rating, prestige_score: row.prestige_score) }
     end
@@ -96,6 +89,6 @@ module Catalog
         .sort_by { |genre| [ genre.genre.nil? ? 1 : 0, -genre.card_count, genre.genre.to_s ] }
     end
 
-    private_class_method :tiers_of, :dust_of, :entries, :genres_of
+    private_class_method :tiers_of, :entries, :genres_of
   end
 end
