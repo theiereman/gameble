@@ -182,6 +182,8 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "S1 · #4 · 2 / 3 · swipe to browse", position
     back = css_select(".top-bar__start.top-bar__start--phone-back > a.top-bar__phone-back").sole
     assert_equal [ "/en/library/tome/action-1", "history-back", "Grid" ], [ back["href"], back["data-controller"], back.text.squish ]
+    # Opened from the whole season's collection, it goes back there instead.
+    assert_equal [ "/en/library" ], JSON.parse(back["data-history-back-alternates-value"])
     # The bridge stays, for the desktop.
     assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
     # Without a set in the query, the face shows to everyone.
@@ -203,6 +205,16 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "button", "disabled" ], [ "button", "disabled" ] ], navs
     assert_equal "S1 · #4 · 1 / 1", position
     assert_equal "/en/library/publisher/valve", css_select(".top-bar__phone-back").sole["href"]
+  end
+
+  test "an unnumbered card's position line keeps its season, and its header shows no number" do
+    add_a_tome
+    Catalog::CardSeason.where(id: catalog_card_seasons(:portal_one).id).update_all(number: nil)
+
+    get in_tome("portal")
+
+    assert_equal "S1 · 2 / 3 · swipe to browse", position
+    assert_select ".card-detail__number", false
   end
 
   test "an unknown kind, or a set that does not hold the card, is ignored: the first set, the face" do

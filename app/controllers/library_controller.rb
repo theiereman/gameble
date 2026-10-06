@@ -66,15 +66,19 @@ class LibraryController < ApplicationController
       load_summary
     end
 
-    # @grid_pagy and @slots: [ [ Catalog::CardView, Game::CollectionSlots::Slot | nil ], … ]
-    # in grid order, nil for a card the viewer does not hold. @seen_up_to:
-    # the latest gain among the new cards shown, nil when none is.
+    # @grid_pagy and @slots: [ [ Catalog::CardView, Game::CollectionSlots::Slot | nil, SetRef | nil ], … ]
+    # in grid order, nil for a card the viewer does not hold; the third, for
+    # the whole season only, is the card's tome (nil in no tome), which its
+    # link names so the detail browses it and fades a card not held (a
+    # set's grid names its own set). @seen_up_to: the latest gain among the
+    # new cards shown, nil when none is.
     def load_grid(grid)
       @grid_pagy, page = pagy(:offset, grid.card_seasons, limit: GRID_SIZE, page: page_param)
       ids = page.pluck(:id)
       views = Catalog::CardViews.call(ids, locale: I18n.locale)
       held = Game::CollectionSlots.call(current_player, ids)
-      @slots = ids.filter_map { |id| [ views[id], held[id] ] if views.key?(id) }
+      tomes = grid.set ? {} : Catalog::CardTomes.call(ids)
+      @slots = ids.filter_map { |id| [ views[id], held[id], tomes[id] ] if views.key?(id) }
       @seen_up_to = held.values.select(&:new).map(&:gained_at).max
     end
 

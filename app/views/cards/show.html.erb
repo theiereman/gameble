@@ -8,12 +8,15 @@
 <%# On a phone, the way back is the grid of the set it browses ("◀ Grille"),
     when that grid is in the library (the published season): back through
     history when the grid is an earlier entry, so it shows at its scroll
-    (history_back_controller.ts), else a plain visit. %>
+    (history_back_controller.ts), else a plain visit. Opened from the whole
+    season's collection (its links name the card's tome), it goes back to
+    that collection instead: its path is an alternate history target, taken
+    only when it is the entry right before the detail. %>
 <% if @browse && @detail.current_season %>
   <% content_for :phone_back do %>
     <%= link_to library_set_path(kind: @browse.set.kind, key: @browse.set.key),
       class: "button button--secondary button--small top-bar__phone-back",
-      data: { controller: "history-back", action: "history-back#back" } do %>
+      data: { controller: "history-back", action: "history-back#back", history_back_alternates_value: [ library_path ].to_json } do %>
       <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".grid") %></span>
     <% end %>
   <% end %>

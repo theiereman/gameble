@@ -19,9 +19,12 @@ import { swipeStep } from "../lib/swipe"
 // - sets the page's title to the card's as soon as it shows (Turbo merges
 //   the response's head, layouts/turbo_rails/frame.html.erb, a moment
 //   later);
-// - after a step pressed from the keyboard, puts the focus back on the same
-//   control in the new detail (on its heading when that control is the
-//   disabled end).
+// - on a phone (◀ ▶ shown), focuses the detail's heading as the sub-view
+//   opens and after each step (EXPERIENCE.md, Focus after each step:
+//   "Sub-view opened (phone) → Its heading"), without scrolling; after a
+//   step pressed from the keyboard, it puts the focus back on the same
+//   control in the new detail instead (on its heading when that control is
+//   the disabled end). Nothing on a Turbo preview.
 //
 // Turbo's own visit for the new URL renders no body, but would start a
 // View Transition of its own, which would cut the card's short: during a
@@ -40,7 +43,13 @@ let stepTransition: { finished: Promise<unknown> } | null = null
 let stepTimer: ReturnType<typeof setTimeout> | undefined
 let pausedMeta: { element: HTMLMetaElement; content: string } | null = null
 
+// Ends the step, and with it a keyboard press's wish to refocus its control:
+// on the normal path the new detail's connect has consumed it already (the
+// frame renders before the promoted visit loads, and a View Transition's
+// update runs before it finishes); after a failed or cancelled visit (the
+// fallback timer) a later detail must focus its heading, not ◀ ▶.
 function endStep(): void {
+  focusAfterStep = null
   document.removeEventListener("turbo:load", stepLoaded)
   if (stepTimer !== undefined) clearTimeout(stepTimer)
   stepTimer = undefined
@@ -75,6 +84,11 @@ function beginStep(direction: Direction): void {
   stepTimer = setTimeout(endStep, STEP_TIMEOUT_MS)
 }
 
+/** Whether `element` is displayed (not under display: none). */
+function shown(element: HTMLElement): boolean {
+  return element.checkVisibility?.() ?? element.offsetParent !== null
+}
+
 type FrameRender = (currentElement: Element, newElement: Element) => void
 type ViewTransitionDocument = Document & { startViewTransition?: (update: () => void) => { finished: Promise<unknown> } }
 
@@ -102,6 +116,8 @@ export default class extends Controller<HTMLElement> {
     if (focusAfterStep) {
       this.focusControl(focusAfterStep)
       focusAfterStep = null
+    } else if (!document.documentElement.hasAttribute("data-turbo-preview") && this.hasHeadingTarget && this.navShown()) {
+      this.headingTarget.focus({ preventScroll: true })
     }
   }
 
@@ -114,8 +130,9 @@ export default class extends Controller<HTMLElement> {
   // A press of ◀ or ▶ (click, Enter, or a swipe): Turbo follows the link.
   step(event: Event & { params: { direction?: string } }): void {
     const direction: Direction = event.params.direction === "previous" ? "previous" : "next"
-    focusAfterStep = document.activeElement === event.currentTarget ? direction : null
+    // After beginStep, which ends any step still running (and clears this).
     beginStep(direction)
+    focusAfterStep = document.activeElement === event.currentTarget ? direction : null
   }
 
   // ---- Swipe on the stage (touch only; touch-action: pan-y in CSS) ----
@@ -143,7 +160,7 @@ export default class extends Controller<HTMLElement> {
     // At an end the control is a disabled button: nothing happens. From
     // 720px ◀ ▶ are hidden (no position line either): a swipe does nothing.
     if (!(control instanceof HTMLAnchorElement)) return
-    if (control.checkVisibility?.() ?? control.offsetParent !== null) control.click()
+    if (shown(control)) control.click()
   }
 
   cancel(): void {
@@ -160,6 +177,11 @@ export default class extends Controller<HTMLElement> {
     detail.render = (currentElement, newElement) => {
       stepTransition = doc.startViewTransition!(() => render(currentElement, newElement))
     }
+  }
+
+  // ◀ ▶ are shown: the phone layout (under 720px) of a detail browsing a set.
+  private navShown(): boolean {
+    return [this.hasPreviousTarget && this.previousTarget, this.hasNextTarget && this.nextTarget].some((control) => control && shown(control))
   }
 
   private focusControl(direction: Direction): void {

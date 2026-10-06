@@ -3,10 +3,13 @@ require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
 
 # A card's detail, "FICHE DE LA CARTE" (CAP-7, story 4.3; epic 10 R2, R6):
-# opened from a tome's owned face, from an empty slot (the faded card back),
-# from an opened pack's faces; on a phone the sub-view: ◀ ▶ and a swipe step
-# through the set, replacing the URL, "◀ Grille" and browser Back return to
-# the grid at its scroll, the actions stay in view; under reduced motion a
+# opened from a tome's owned face, from an empty slot (the faded card back,
+# from a set's grid and from the whole season's), from an opened pack's
+# faces; on a phone the sub-view: its heading takes the focus as it opens,
+# ◀ ▶ and a swipe step through the set, replacing the URL, "◀ Grille" and
+# browser Back return to the grid at its scroll with the focus on its link
+# to the card last shown (the whole season's collection when opened from
+# it, not the tome's grid), the actions stay in view; under reduced motion a
 # step does not move.
 class CardDetailTest < ApplicationSystemTestCase
   include CatalogSeeds
@@ -51,6 +54,14 @@ class CardDetailTest < ApplicationSystemTestCase
   def assert_scrolled_to(y)
     page.document.synchronize(Capybara.default_max_wait_time) do
       raise Capybara::ExpectationNotMet, "scrolled to #{scroll_y}, not #{y}" unless (scroll_y - y).abs <= 2
+    end
+  end
+
+  # Waits for the focus to be on an element matching `selector`.
+  def assert_focused(selector)
+    page.document.synchronize(Capybara.default_max_wait_time) do
+      focused = evaluate_script("document.activeElement?.outerHTML.slice(0, 120)")
+      raise Capybara::ExpectationNotMet, "focus on #{focused}, not #{selector}" unless evaluate_script("document.activeElement?.matches(#{selector.to_json})")
     end
   end
 
@@ -139,6 +150,23 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_operator title_lines, :<=, 2
   end
 
+  test "from the whole season's collection, a missing slot opens its card on the faded back, browsing its tome" do
+    season = publish_sets_draft
+
+    visit library_path(locale: :en)
+    link = find(".collection-grid a.card-link[href*='set_kind=tome']", match: :first)
+    href = link[:href]
+    link.find(".missing-slot").click
+
+    assert_current_path URI(href).request_uri
+    assert_match(/\?set_key=[a-z]+-\d&set_kind=tome\z/, current_url_path)
+    assert_selector ".card-detail__back img[src*='back-standard']"
+    assert_selector ".card-detail__not-owned", text: "NOT OWNED"
+    assert_no_selector ".card-detail__card .card"
+    assert_selector ".card-detail__sets a", text: /TOME/i
+    assert_equal season.number.to_s, current_url_path[%r{/seasons/(\d+)}, 1]
+  end
+
   test "an opened pack's faces lead to their cards" do
     player = accounts_players(:player)
     pack = create_pack(player, cards: fixture_tier_ids, opened_at: 1.minute.ago)
@@ -187,6 +215,8 @@ class CardDetailTest < ApplicationSystemTestCase
 
     assert_current_path in_tome_path(ids[3], season)
     assert_selector ".card-detail h1", text: title(ids[3])
+    # The sub-view opened: its heading has the focus.
+    assert_focused ".card-detail h1"
     assert_selector ".card-detail__position", text: "· 4 / 25 · SWIPE TO BROWSE"
     assert_no_selector ".card-detail__number"
     assert_selector ".top-bar__phone-back", text: "GRID"
@@ -236,6 +266,10 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_current_path library_set_path(locale: :en, kind: "tome", key: "action-1")
     assert_selector ".collection-grid"
     assert_scrolled_to grid_scroll
+    # The focus is on the grid's link to the card last shown, the grid still
+    # at its scroll.
+    assert_focused ".collection-grid > li:nth-child(5) a.card-link"
+    assert_scrolled_to grid_scroll
 
     # Browser Back from the detail does the same.
     go_forward
@@ -246,6 +280,47 @@ class CardDetailTest < ApplicationSystemTestCase
     go_back
     assert_current_path library_set_path(locale: :en, kind: "tome", key: "action-1")
     assert_selector ".collection-grid"
+    assert_scrolled_to grid_scroll
+    assert_focused ".collection-grid > li:nth-child(5) a.card-link"
+  end
+
+  test "on a phone, a card opened from the whole season's collection goes back there with ◀ Grille, not to its tome's grid" do
+    season = publish_sets_draft
+    page.driver.browser.manage.window.resize_to(*PHONE)
+
+    visit library_path(locale: :en)
+    # A card of this page whose next card in its tome is on the page too.
+    shown = all(".collection-grid a.card-link", visible: :all).map { URI(it[:href]) }
+      .to_h { [ it.path[%r{\A/en/cards/([^/]+)/}, 1], Rack::Utils.parse_query(it.query)["set_key"] ] }
+    key, from, to = shown.values.compact.uniq.filter_map { |tome|
+      slugs = members(season, tome).map { slug(it) }
+      pair = slugs.each_cons(2).reverse_each.find { |a, b| shown.key?(a) && shown.key?(b) }
+      [ tome, *pair ] if pair
+    }.first
+    assert key, "a card and the next one in its tome should be on the first page"
+
+    slot = find(".collection-grid a.card-link[href^='/en/cards/#{from}/']")
+    slot.execute_script("this.scrollIntoView({ block: 'center' })")
+    grid_scroll = scroll_y
+    assert_operator grid_scroll, :>, 0
+    slot.click
+
+    assert_selector ".card-detail h1"
+    assert_match %r{\A/en/cards/#{from}/seasons/#{season.number}\?set_key=#{key}&set_kind=tome\z}, current_url_path
+    assert_focused ".card-detail h1"
+    find(".card-detail__nav--next").click
+    assert_selector ".card-detail h1"
+    page.document.synchronize { raise Capybara::ExpectationNotMet unless current_url_path.start_with?("/en/cards/#{to}/") }
+    assert_no_selector "html[data-sub-view-step]", visible: :all
+
+    # Its href is the tome's grid, but the season's collection, an earlier
+    # entry, is where the sub-view was opened: back through history to it.
+    assert_equal "/en/library/tome/#{key}", URI(find(".top-bar__phone-back")[:href]).path
+    find(".top-bar__phone-back").click
+    assert_current_path library_path(locale: :en)
+    assert_selector ".collection-grid"
+    assert_scrolled_to grid_scroll
+    assert_focused ".collection-grid a.card-link[href^='/en/cards/#{to}/']"
     assert_scrolled_to grid_scroll
   end
 

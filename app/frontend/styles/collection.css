@@ -371,13 +371,15 @@
 
 /* A slot reaches past its card by --slot-bleed on every side (a negative
    margin keeps the grid's gaps): far from the viewport it skips its
-   rendering, at its known size. */
+   rendering, at its known size. The intrinsic size is the content box's
+   (the padding comes on top), so a slot not rendered yet, as on a Turbo
+   restore, takes the card's own size and nothing shifts once it renders. */
 .collection-slot {
   position: relative;
   margin: calc(-1 * var(--slot-bleed));
   padding: var(--slot-bleed);
   content-visibility: auto;
-  contain-intrinsic-size: auto calc(var(--card-m-width) + 2 * var(--slot-bleed)) auto calc(var(--card-m-height) + 2 * var(--slot-bleed));
+  contain-intrinsic-size: auto var(--card-m-width) auto var(--card-m-height);
 }
 
 .collection-slot > .card-link {

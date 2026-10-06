@@ -2,15 +2,21 @@
 // position Turbo writes in each history entry's state), so a contextual
 // back ("◀ Grille"; history_back_controller.ts) can go back through
 // history to a page shown earlier, which Turbo then restores at its
-// scroll, rather than visit it anew. Kept in sessionStorage and started
-// afresh on each full document load (resetTrail), as Turbo's index restarts
-// there: only entries of the current Turbo session are trusted. Any storage
+// scroll, rather than visit it anew, and a page shown again can focus the
+// link to the page the user came back from. Kept in sessionStorage and
+// started afresh on each full document load (resetTrail): Turbo reads its
+// index back from history.state there (a reload, a back/forward document
+// load), but the pages recorded by earlier documents of the tab, or by
+// entries this document never saw, cannot be trusted to still match those
+// indexes; only entries of the current document are. A reload therefore
+// loses the trail, and the back falls back to a plain visit. Any storage
 // error (private mode, quota) leaves it empty, and the back is a plain visit.
 //
 // Every page load and every frame visit that changes the URL records
 // { index → pathname }: a replaced entry (◀ ▶) overwrites its index, a new
-// entry its own. Only entries before the current one are read back: those
-// are always the pages history would return to.
+// entry its own. Entries before the current one are the pages history
+// would return to; the entry right after it, the page the user just came
+// back from.
 
 export const TRAIL_KEY = "gameble:history-trail"
 /** How many entries are kept around the current one, either way. */
@@ -30,9 +36,9 @@ function read(storage: TrailStorage | null): Trail {
 }
 
 /**
- * Empties the trail. Called on each full document load: Turbo's restoration
- * index restarts at 0 there, so entries recorded by an earlier document of
- * the tab no longer match the indexes of this one.
+ * Empties the trail. Called on each full document load, and when the page
+ * comes back from the back/forward cache: entries recorded by another
+ * document of the tab may name other pages at the same indexes.
  */
 export function resetTrail(storage: TrailStorage | null): void {
   if (!storage) return
@@ -68,6 +74,28 @@ export function stepsBackTo(pathname: string, index: number, storage: TrailStora
     if (trail[earlier] === pathname) return index - earlier
   }
   return null
+}
+
+/**
+ * How many entries a contextual back goes back from the entry at `index`:
+ * to the nearest earlier entry showing `pathname` (its href's), or to an
+ * alternate only when that is the entry right before the current one (the
+ * page the detail was opened from: ◀ ▶ only replace entries, so it stays
+ * one step back). Null when neither is: the link visits its href.
+ */
+export function backSteps(pathname: string, alternates: readonly string[], index: number, storage: TrailStorage | null): number | null {
+  const steps = stepsBackTo(pathname, index, storage)
+  if (steps === 1) return steps
+  if (alternates.includes(read(storage)[index - 1] ?? "")) return 1
+  return steps
+}
+
+/**
+ * The pathname recorded for the entry right after the one at `index` (the
+ * page the user came back from by a restore visit), or null when none is.
+ */
+export function entryAfter(index: number, storage: TrailStorage | null): string | null {
+  return read(storage)[index + 1] ?? null
 }
 
 /** The tab's session storage, or null where reading it throws. */

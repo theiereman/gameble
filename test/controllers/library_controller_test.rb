@@ -114,10 +114,15 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".collection-slot__copies[aria-hidden=true] + .visually-hidden", "3 copies"
     assert_select ".missing-slot svg.pixel-icon.missing-slot__icon"
     assert_select ".missing-slot .visually-hidden", { count: 60 - expected.count { it.first == :owned }, text: "Missing card" }
-    # Every face and missing slot leads to its card's detail in this season.
+    # Every face and missing slot leads to its card's detail in this season,
+    # browsing the card's tome (a card in no tome, without a set).
     slugs = Catalog::CardSeason.where(id: cards.first(60)).includes(:card).index_by(&:id).transform_values { it.card.slug }
+    tome_of = %w[action-1 action-2 action-3 rpg-1].flat_map { |key| set_members(season, key).map { [ it, key ] } }.to_h
     links = css_select(".collection-grid > li > a.card-link")
-    assert_equal cards.first(60).map { "/en/cards/#{slugs.fetch(it)}/seasons/#{season.number}" }, links.map { it["href"] }
+    assert_equal cards.first(60).map { |id|
+      "/en/cards/#{slugs.fetch(id)}/seasons/#{season.number}#{"?set_key=#{tome_of[id]}&set_kind=tome" if tome_of[id]}"
+    }, links.map { it["href"] }
+    assert links.any? { !it["href"].include?("?") }, "a card in no tome"
     assert links.all? { it["data-turbo-prefetch"] == "false" }
     assert_select "a.card-link .collection-slot__copies", false
     assert_select ".collection-pages[aria-label=?]", "Pages of cards" do
@@ -128,6 +133,26 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select "[data-controller=collection-seen]", false
     assert_select "[style]", false
+  end
+
+  test "on the whole season a held card's link and a missing one's name the card's tome, so its detail browses it" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    page_one = season_cards(season).first(60)
+    held, missing = page_one.select { it.in?(set_members(season, "rpg-1")) }.first(2)
+    assert missing, "two cards of rpg-1 on the first page"
+    hold(player, held, 1)
+    sign_in(player)
+    href = ->(id) { "/en/cards/#{Catalog::CardSeason.find(id).card.slug}/seasons/#{season.number}?set_key=rpg-1&set_kind=tome" }
+
+    get library_path(locale: :en)
+
+    assert_select ".collection-grid a.card-link[href=?] .card", href.(held)
+    assert_select ".collection-grid a.card-link[href=?] .missing-slot", href.(missing)
+
+    # A set's page names its own set, never the tome.
+    get library_set_path(locale: :en, kind: "publisher", key: "p")
+    assert_equal [ "?set_key=p&set_kind=publisher" ] * 5, css_select(".collection-grid a.card-link").map { it["href"][/\?.*/] }
   end
 
   test "the grid's pages: sixty cards each, the rest on the last, past it the empty line" do
@@ -179,8 +204,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     player.update_columns(banned_at: Time.current)
 
     assert_no_queries_match(/game_holdings|game_player_states/) do
-      # The visitor's eight, after the lookup that finds the ban.
-      assert_request_queries(1 + 8) { get library_path(locale: :en) }
+      # The visitor's nine, after the lookup that finds the ban.
+      assert_request_queries(1 + 9) { get library_path(locale: :en) }
     end
 
     assert_response :success
@@ -391,7 +416,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a player's request costs thirteen queries, a visitor's eight" do
+  test "a player's request costs fourteen queries, a visitor's nine" do
     season = publish_sets_draft
     player = accounts_players(:player)
     hold(player, season_cards(season).first, 1, gained_at: 1.minute.ago)
@@ -399,13 +424,14 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     # Player lookup, published season; the list: count, page, totals,
     # progress; the grid: genres, count (the season's cards, read again from
-    # the query cache by the top bar), page, card views, the player's slots;
-    # the figures: unique cards, copies per tier.
-    assert_request_queries(13) { get library_path(locale: :en) }
+    # the query cache by the top bar), page, card views, the player's slots,
+    # the cards' tomes (the whole season only: their links name them); the
+    # figures: unique cards, copies per tier.
+    assert_request_queries(14) { get library_path(locale: :en) }
 
     delete session_path(locale: :en)
     # The same without the lookup, the progress, the slots, the unique cards
     # and the copies per tier.
-    assert_request_queries(8) { get library_path(locale: :en) }
+    assert_request_queries(9) { get library_path(locale: :en) }
   end
 end

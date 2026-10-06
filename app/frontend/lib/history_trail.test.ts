@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { TRAIL_KEY, TRAIL_SPAN, recordEntry, resetTrail, stepsBackTo, type TrailStorage } from "./history_trail"
+import { TRAIL_KEY, TRAIL_SPAN, backSteps, entryAfter, recordEntry, resetTrail, stepsBackTo, type TrailStorage } from "./history_trail"
 
 function memory(): TrailStorage & { items: Map<string, string> } {
   const items = new Map<string, string>()
@@ -38,6 +38,34 @@ describe("history trail", () => {
     expect(stepsBackTo("/b", 2, storage)).toBeNull()
   })
 
+  it("goes back to an alternate only when the detail was opened from it, the entry right before", () => {
+    const storage = memory()
+    const card = "/en/cards/portal/seasons/1"
+    const tome = "/en/library/tome/action-1"
+    const season = ["/en/library"]
+
+    // The season's collection → a card (its ◀ ▶ replaced the entry).
+    recordEntry(0, "/en", storage)
+    recordEntry(1, "/en/library", storage)
+    recordEntry(2, card, storage)
+    expect(backSteps(tome, season, 2, storage)).toBe(1)
+
+    // The season's collection → the bridge → a card from its showcase: the
+    // collection is no longer where the detail came from; the tome's grid is
+    // visited.
+    recordEntry(2, "/en", storage)
+    recordEntry(3, card, storage)
+    expect(backSteps(tome, season, 3, storage)).toBeNull()
+
+    // The tome's grid, earlier, still wins by its own pathname.
+    recordEntry(0, tome, storage)
+    expect(backSteps(tome, season, 3, storage)).toBe(3)
+
+    // The tome's grid right before: one step back.
+    recordEntry(2, tome, storage)
+    expect(backSteps(tome, season, 3, storage)).toBe(1)
+  })
+
   it("a replaced entry overwrites its index", () => {
     const storage = memory()
     recordEntry(0, "/grid", storage)
@@ -69,6 +97,23 @@ describe("history trail", () => {
     expect(stepsBackTo("/grid", 2, storage)).toBeNull()
     expect(stepsBackTo("/en/hub", 1, storage)).toBe(1)
     expect(() => resetTrail(null)).not.toThrow()
+  })
+
+  it("names the page right after the current entry: the one the user came back from", () => {
+    const storage = memory()
+    recordEntry(0, "/en", storage)
+    recordEntry(1, "/grid", storage)
+    recordEntry(2, "/cards/a", storage)
+    // ◀ ▶ replaced the detail's entry; then Back to the grid.
+    recordEntry(2, "/cards/b", storage)
+    recordEntry(1, "/grid", storage)
+
+    expect(entryAfter(1, storage)).toBe("/cards/b")
+    expect(entryAfter(0, storage)).toBe("/grid")
+    expect(entryAfter(2, storage)).toBeNull()
+    expect(entryAfter(1, null)).toBeNull()
+    resetTrail(storage)
+    expect(entryAfter(1, storage)).toBeNull()
   })
 
   it("is empty without storage, or with a broken or refusing one", () => {

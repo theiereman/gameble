@@ -75,9 +75,10 @@
       <div class="card-detail__info">
         <h1 id="card-detail-heading" class="card-detail__title" tabindex="-1" data-sub-view-target="heading"><%= view.title %></h1>
         <% if browse %>
-          <% position = [ view.number_label, t("card_details.position", position: browse.position, total: browse.total) ] %>
+          <%# "S1 · #4 215 · 3 / 13", or "S1 · 3 / 13" for an unnumbered card. %>
+          <% position = [ view.number_label || "S#{view.season_number}", t("card_details.position", position: browse.position, total: browse.total) ] %>
           <% position << t("card_details.swipe") if browse.total > 1 %>
-          <p class="card-detail__position"><%= position.compact.join(" · ") %></p>
+          <p class="card-detail__position"><%= position.join(" · ") %></p>
         <% end %>
         <% if detail.short_description %>
           <p class="card-detail__description"><%= detail.short_description %></p>
