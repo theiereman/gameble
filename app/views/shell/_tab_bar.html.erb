@@ -1,15 +1,16 @@
 <%# The phone tab bar (DESIGN.md, Tab bar): five roots, each a pixel icon
     over its label; the current one marked. Screens that do not exist yet
-    (booster, trades, more) are shown disabled, not as links. Hidden from
-    720px up. %>
+    (trades, more) are shown disabled, not as links. Its links are locked
+    while the booster island opens or reveals (navigation-lock). Hidden
+    from 720px up. %>
 <% tabs = [
      [ :hub, "tab-hub", home_path, controller_path == "pages" ],
-     [ :booster, "tab-booster", nil, false ],
+     [ :booster, "tab-booster", booster_path, controller_path == "boosters" ],
      [ :collection, "tab-collection", library_path, %w[library cards].include?(controller_path) ],
      [ :trades, "tab-trades", nil, false ],
      [ :more, "tab-more", nil, false ]
    ] %>
-<nav class="tab-bar" aria-label="<%= t("shell.tabs.label") %>">
+<nav class="tab-bar" aria-label="<%= t("shell.tabs.label") %>" data-controller="navigation-lock">
   <ul class="tab-bar__list">
     <% tabs.each do |key, icon, path, current| %>
       <li class="tab-bar__item">

@@ -3,8 +3,9 @@ require_relative "../support/card_baselines"
 require_relative "../support/game_packs"
 
 # The card face, pixel for pixel (story "Single card face"): tilted under a
-# resting pointer, at each size in the back-office preview and revealed in a
-# freshly opened pack, compared with committed baselines
+# resting pointer, at each size in the back-office preview and revealed in
+# the booster (desktop, m; the phone booster returns with story 8.12),
+# compared with committed baselines
 # (test/fixtures/files/card_faces/; UPDATE_CARD_BASELINES=1 rewrites them).
 # The rare sample carries no infinite effect outside the booster; the
 # revealed card is a common one, whose booster face has none either, and
@@ -12,8 +13,6 @@ require_relative "../support/game_packs"
 class CardFaceVisualTest < ApplicationSystemTestCase
   include CardBaselines
   include GamePacks
-
-  PHONE = [ 390, 844 ].freeze
 
   setup do
     OmniAuth.config.test_mode = true
@@ -23,7 +22,6 @@ class CardFaceVisualTest < ApplicationSystemTestCase
   teardown do
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
-    page.driver.browser.manage.window.resize_to(*SCREEN_SIZE)
   end
 
   def sign_in(player)
@@ -62,33 +60,31 @@ class CardFaceVisualTest < ApplicationSystemTestCase
     end
   end
 
-  [ [ "m", nil ], [ "xl", PHONE ] ].each do |size, window|
-    test "a revealed face tilts under the pointer and matches its baseline at #{size}" do
-      page.driver.browser.manage.window.resize_to(*window) if window
-      player = accounts_players(:player)
-      sign_in(player)
-      create_pack(player, cards: fixture_tier_ids, available_at: 1.day.ago)
-      visit home_path(locale: :en)
-      # Menu 01 on desktop; the empty showcase's button on a phone, where
-      # the menu is hidden.
-      if has_css?(".hub-menu", wait: 0)
-        find(".hub-menu .menu-item[aria-keyshortcuts='1']").click
-      else
-        within(".hub-showcase--empty") { click_on "Open a booster" }
-      end
-      assert_selector ".pack-reveal"
+  test "a revealed face in the booster tilts under the pointer and matches its baseline at m" do
+    player = accounts_players(:player)
+    sign_in(player)
+    create_pack(player, cards: fixture_tier_ids, available_at: 1.day.ago)
+    visit booster_path(locale: :en)
 
-      button = find(".pack-reveal__item:nth-child(1) .reveal-card")
-      button.click
-      assert_selector ".pack-reveal__item:nth-child(1) .reveal-card[data-state=flipped]:not([data-playing])", wait: 5
-      card = find(".pack-reveal__item:nth-child(1) .reveal-card__face .card.card--#{size}.card--booster")
-      assert_selector ".pack-reveal__item:nth-child(1) .reveal-card__face .card__title", text: "TIN SOLDIER"
-      card.find(".card__art[data-art]", visible: :all)
-      rest_pointer_on(card)
+    find(".booster-canister").click
+    assert_selector ".booster-card[data-dealt]", count: 5, wait: 10
+    assert_selector ".booster__state", text: /\AINVENTORY\z/
+    find(".booster-card:nth-child(1) .booster-card__hit").click
+    assert_selector ".booster-card:nth-child(1)[data-revealed] .booster-card__flip.is-up"
+    # The reveal over: the navigation unlocked, the burst gone.
+    assert_selector ".booster__back:not([aria-disabled])", wait: 5
+    assert_selector ".booster-card:nth-child(1) .booster-card__fx:empty", visible: :all
+    card = find(".booster-card:nth-child(1) .booster-card__front .card.card--m.card--booster")
+    assert_selector ".booster-card:nth-child(1) .booster-card__front .card__title", text: "TIN SOLDIER"
+    card.find(".card__art[data-art]", visible: :all)
+    rest_pointer_on(card)
 
-      assert_tilted(card)
-      assert_card_settled(card)
-      assert_matches_card_baseline(button, "revealed-#{size}")
+    assert_tilted(card)
+    assert_card_settled(card)
+    slot = find(".booster-card:nth-child(1) .booster-card__frame")
+    page.document.synchronize(5) do
+      raise Capybara::ExpectationNotMet, "the slot is still moving" unless slot.evaluate_script("this.getAnimations({ subtree: true }).length === 0")
     end
+    assert_matches_card_baseline(slot, "revealed-m")
   end
 end

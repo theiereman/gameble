@@ -1,0 +1,13 @@
+<%# The booster screen's reserve chip (DESIGN.md, Top bar: "a static n EN
+    RÉSERVE chip"): the boosters in reserve, no countdown, not a link. The
+    reserve-chip controller follows the island's `gameble:bank-changed`,
+    the count grouped with the locale's delimiter and the label chosen by
+    plural from the same templates. %>
+<% templates = t("shell.packs.in_reserve") %>
+<p class="packs-chip packs-chip--static" data-controller="reserve-chip"
+   data-reserve-chip-delimiter-value="<%= t("number.format.delimiter") %>"
+   data-reserve-chip-templates-value="<%= templates.to_json %>">
+  <%= pixel_icon("canister-small", class: "packs-chip__icon") %>
+  <span class="packs-chip__count" data-reserve-chip-target="count"><%= number_with_delimiter(bank[:available]) %></span>
+  <span class="packs-chip__label" data-reserve-chip-target="label"><%= t("shell.packs.in_reserve", count: bank[:available], number: "").strip %></span>
+</p>

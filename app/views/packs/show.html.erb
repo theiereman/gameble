@@ -1,28 +1,21 @@
 <% content_for :back_button, true %>
-<%# The cards of an opened pack, in their drawn order (five, or three for
-    the daily bonus). Right after the opening, the reveal island; on any
-    other visit, the faces, each leading to its card's detail. Both end on
-    the same way out. %>
-<% turbo_exempts_page_from_cache if @reveal %>
+<%# "My last booster": the cards of an opened pack face up, in their drawn
+    order (five, or three for the daily bonus), each leading to its card's
+    detail. The booster screen reveals them; this page is where the
+    no-JavaScript opening lands and where any later visit shows them. It
+    ends on the booster screen when a pack is available, and on the way
+    back. %>
 <section class="pack-result" aria-labelledby="pack-result-heading">
   <h1 id="pack-result-heading"><%= @pack.bonus? ? t(".heading_bonus") : t(".heading") %></h1>
-  <% if @reveal %>
-    <%= turbo_mount("PackReveal", props: pack_reveal_props(@cards, next_pack: @next_pack), class: "pack-reveal-island") %>
-    <%# Always a way out, shown while the island has not drawn its own. %>
-    <div class="pack-end pack-reveal__fallback">
-      <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t(".back_to_hub") %><% end %>
-    </div>
-  <% else %>
-    <ol class="pack-result__cards" aria-label="<%= t(".cards") %>">
-      <% @cards.each do |card| %>
-        <li class="pack-result__card"><%= link_to_card_detail(card, strings: @strings) do %><%= render CardComponent.new(card:, size: :m) %><% end %></li>
-      <% end %>
-    </ol>
-    <div class="pack-end">
-      <% if @next_pack %>
-        <%= render ButtonComponent.new(href: packs_path, method: :post) do %><%= t(".open_next_pack") %><% end %>
-      <% end %>
-      <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t(".back_to_hub") %><% end %>
-    </div>
-  <% end %>
+  <ol class="pack-result__cards" aria-label="<%= t(".cards") %>">
+    <% @cards.each do |card| %>
+      <li class="pack-result__card"><%= link_to_card_detail(card, strings: @strings) do %><%= render CardComponent.new(card:, size: :m) %><% end %></li>
+    <% end %>
+  </ol>
+  <div class="pack-end">
+    <% if @next_pack %>
+      <%= render ButtonComponent.new(href: booster_path) do %><%= t(".open_booster") %><% end %>
+    <% end %>
+    <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t(".back_to_hub") %><% end %>
+  </div>
 </section>

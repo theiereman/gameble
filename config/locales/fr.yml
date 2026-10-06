@@ -17,6 +17,9 @@ fr:
       next_in: "+1 dans"
       next_at: "Prochain booster à %{time} (UTC)"
       full: "Réserve pleine"
+      in_reserve:
+        one: "%{number} en réserve"
+        other: "%{number} en réserve"
     player:
       menu: "Menu du joueur"
       fallback_name: "Joueur"
@@ -226,15 +229,8 @@ fr:
       heading: "Ton paquet, Confrère"
       heading_bonus: "Ton bonus du jour"
       cards: "Les cartes de ton paquet"
-      flip_all: "Tout retourner"
-      next: "Carte suivante"
-      previous: "Carte précédente"
-      progress: "Carte %{position} sur %{count}"
-      all_flipped: "Toutes les cartes sont retournées, Confrère."
-      open_next_pack: "Ouvrir le paquet suivant"
+      open_booster: "Ouvrir un booster"
       back_to_hub: "Retour au pont"
-      failed: "La révélation a trébuché, Confrère. Tes cartes sont à l'abri dans ta collection."
-      reload: "Voir mes cartes"
   library:
     collection:
       title: "Collection"
@@ -336,6 +332,67 @@ fr:
     unavailable:
       title: "Profil indisponible"
       body: "La bibliothèque de ce Confrère est fermée aux visiteurs, Confrère. Le lien ne mène nulle part, ou son propriétaire ne la montre plus."
+  boosters:
+    show:
+      title: "Ouverture de booster"
+    # The Booster island's words (BoostersHelper#booster_props), uppercase by
+    # CSS where the design shows capitals; plural keys read by the island's
+    # t() (app/frontend/lib/i18n.ts).
+    island:
+      kicker: "Booster · Saison %{number}"
+      kicker_plain: "Booster"
+      title: "Grand catalogue"
+      cards_per_pack: "Cartes par booster"
+      in_reserve: "En réserve"
+      reserve_count:
+        zero: "%{n} booster"
+        one: "%{n} booster"
+        other: "%{n} boosters"
+      state: "État"
+      states:
+        sealed: "Scellé"
+        arming: "Armement"
+        ejecting: "Éjection"
+        inventory: "Inventaire"
+        legendary_signal: "Signal légendaire"
+        complete: "Inventaire complet"
+        waiting: "En attente"
+      reserve: "Réserve"
+      next_in: "+1 dans"
+      next_at: "Prochain booster à %{time} (UTC)"
+      reserve_full: "Réserve pleine"
+      open: "Ouvrir le booster"
+      open_next: "Ouvrir le suivant"
+      reserve_empty: "Réserve vide"
+      empty_next: "Prochain booster dans %{time}"
+      reveal_all: "Tout révéler"
+      back: "Retour au pont"
+      revealed_count: "Cartes révélées : %{revealed} / %{total}"
+      canister_label: "Ouvrir le booster Saison %{season}, grand catalogue, %{count} cartes"
+      canister_label_plain: "Ouvrir le booster, grand catalogue, %{count} cartes"
+      canister_hint: "Cliquez pour ouvrir"
+      canister_season: "Saison %{number}"
+      result: "Résultat du booster"
+      hint_remaining:
+        one: "Cliquez une carte pour la révéler · %{n} restante"
+        other: "Cliquez une carte pour la révéler · %{n} restantes"
+      hint_done:
+        one: "Booster inventorié · +%{n} carte dans la collection"
+        other: "Booster inventorié · +%{n} cartes dans la collection"
+      face_down: "Carte %{position} sur %{total}, face cachée. Révéler."
+      face_up: "%{card}, %{rarity}. Voir la fiche."
+      card_label: "%{title} — %{details}"
+      announce_card: "Carte %{position} : %{card}. %{rarity}."
+      summary:
+        one: "%{n} carte révélée : %{tiers}."
+        other: "%{n} cartes révélées : %{tiers}."
+      summary_tier: "%{rarity} × %{n}"
+      legendary_banner: "%{rarity} !"
+      banner_line: "%{title} · %{year}"
+      refused_title: "Ouverture annulée"
+      failed: "L'ouverture n'a pas abouti. Vérifiez votre connexion ou rechargez la page, puis réessayez."
+      island_failed: "Le booster n'a pas pu s'afficher. Vos cartes sont dans votre collection."
+      reload: "Recharger"
   daily_bonuses:
     create:
       collected: "Un booster rejoint votre réserve. Le prochain sera prêt à minuit (UTC)."
@@ -361,8 +418,6 @@ fr:
       copied: "Lien copié"
       manual: "Appuie sur Ctrl+C pour copier"
   cards:
-    face_down: "Carte face cachée"
-    face_down_with_rarity: "Carte face cachée, %{rarity}"
     face:
       image_missing: "Image indisponible"
     show:

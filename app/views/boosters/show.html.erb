@@ -1,0 +1,20 @@
+<% content_for :back_button, true %>
+<% content_for :screen_title, t(".title") %>
+<% content_for :title, t(".title") %>
+<% content_for :booster_top_bar, true %>
+<%# The booster screen (EXPERIENCE.md, Ouverture de booster; DESIGN.md,
+    Booster canister and Booster information panel): the Booster island
+    opens one booster at a time through the opening exchange and reveals
+    its cards. Never served from Turbo's cache (AD-27): a snapshot would
+    show a hand already dealt. Without JavaScript, or until the island
+    draws, the fallback below: the open-pack form, which lands on the pack's
+    page face up, and the way back. %>
+<% turbo_exempts_page_from_cache %>
+<h1 class="visually-hidden"><%= t(".title") %></h1>
+<%= turbo_mount("Booster", props: booster_props(bank: @bank, season: @season), class: "booster-island") %>
+<div class="booster__fallback">
+  <% if @bank[:available].positive? %>
+    <%= render ButtonComponent.new(href: packs_path, method: :post) do %><%= t("boosters.island.open") %><% end %>
+  <% end %>
+  <%= render ButtonComponent.new(variant: :secondary, href: home_path) do %><%= t("boosters.island.back") %><% end %>
+</div>

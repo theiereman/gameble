@@ -103,7 +103,7 @@ class ShellTest < ActionDispatch::IntegrationTest
       assert_equal %w[3 0 0 1 0], css_select(".rarity-legend__count").map(&:text)
     end
 
-    assert_select "p.packs-chip" do
+    assert_select ".top-bar__end a.packs-chip[href='/en/booster'][data-turbo-prefetch=false]" do
       assert_select "svg.pixel-icon.packs-chip__icon"
       assert_select ".packs-chip__count", "3"
       assert_select ".packs-chip__label", "Boosters"
@@ -113,7 +113,7 @@ class ShellTest < ActionDispatch::IntegrationTest
       assert_select ".packs-chip__next [aria-hidden=true]", /\+1 in/
       assert_select ".packs-chip__next .visually-hidden", /\ANext booster at \d\d:\d\d \(UTC\)\z/
     end
-    assert_select ".packs-chip a, a.packs-chip", false
+    assert_select ".packs-chip a, p.packs-chip", false
 
     assert_select ".player-chip button.player-chip__button[popovertarget=player-menu]" do
       assert_select "svg.pixel-icon.player-chip__avatar"
@@ -160,15 +160,18 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "#player-menu a.player-menu__item[href='/fr/back-office']", "Back-office"
   end
 
-  test "the phone tab bar: five tabs, the existing screens as links, the others disabled" do
+  test "the phone tab bar: five tabs, the existing screens as links, the others disabled, locked during an opening" do
     get library_path(locale: :fr)
 
     assert_select "nav.tab-bar[aria-label=?] ul.tab-bar__list > li.tab-bar__item", "Navigation principale", 5
     assert_equal [ "Pont", "Booster", "Collection", "Échanges", "Plus" ], css_select(".tab-bar__label").map(&:text)
     assert_select "a.tab-bar__tab[href='/fr']:not([aria-current])", /Pont/
+    assert_select "a.tab-bar__tab[href='/fr/booster']:not([aria-current])", /Booster/
     assert_select "a.tab-bar__tab[href='/fr/library'][aria-current=page]", /Collection/
-    assert_select "span.tab-bar__tab[aria-disabled=true]", 3
-    assert_select "span.tab-bar__tab[aria-disabled=true] .visually-hidden", { count: 3, text: "bientôt disponible" }
+    assert_select "span.tab-bar__tab[aria-disabled=true]", 2
+    assert_select "span.tab-bar__tab[aria-disabled=true] .visually-hidden", { count: 2, text: "bientôt disponible" }
+    assert_select "nav.tab-bar[data-controller=navigation-lock]"
+    assert_select ".top-bar__start[data-controller=navigation-lock]"
     assert_select ".tab-bar__tab svg.pixel-icon.tab-bar__icon", 5
 
     get home_path(locale: :fr)

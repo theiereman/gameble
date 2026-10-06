@@ -145,6 +145,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-collection-and-sharing/story-fixes-from-the-epic-retrospective-plan.md`
   summary: The reveal's failure paths have no test: no test references `RevealErrorBoundary` (`app/frontend/components/RevealErrorBoundary.tsx`), and `test/controllers/packs_controller_test.rb` only asserts that the server-rendered fallback exists, not that it shows when the island fails to mount or throws.
   evidence: Epic 3 retrospective B3 (action item 2), which had no route; carried by the epic 4 retrospective (previous-retro follow-through, action item 7).
+  resolved: Story 11 (booster island, desktop) removes PackReveal and `RevealErrorBoundary`; its successor `BoosterErrorBoundary` is untested too (new entry below).
 - source_plan: `_bmad-output/initiative-gameble/epic-collection-and-sharing/story-fixes-from-the-epic-retrospective-plan.md`
   summary: A persona name is cut to 64 code points, not 64 graphemes, so the cut can split a letter from its combining mark, an emoji from its modifier or a flag's pair.
   evidence: Story 4.7 review (blind hunter, edge-case hunter), deferred as pre-existing: story 4.4 already cut with `first(64)`; `Accounts::PersonaName.clean` keeps that rule. A fix would cut with `grapheme_clusters.first(LENGTH).join`.
@@ -160,6 +161,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
   summary: Transitional: the phone tab bar's BOOSTER, ÉCHANGES and PLUS tabs render disabled (`aria-disabled`, not links), and the top bar's packs chip is not a link to the booster screen (EXPERIENCE.md, Packs chip), until their screens ship.
   evidence: Story 8.1 Design Notes; `app/views/shell/_tab_bar.html.erb`, `app/views/shell/_packs_chip.html.erb`.
+  resolved: In part by story 11: the BOOSTER tab and the packs chip link to the booster screen; ÉCHANGES and PLUS stay disabled until their screens ship.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
   summary: Transitional: the packs chip's countdown stops at 00:00 and never refreshes the page (`countdown` controller with `refresh: false`); the new count appears on the next visit or when the hub's own countdown refreshes it.
   evidence: Story 8.1 Design Notes; `app/frontend/controllers/countdown_controller.ts`.
@@ -189,7 +191,7 @@
   evidence: Story 8.4 review (verification gap); `test/initializers/sentry_test.rb` keeps `SENTRY_DSN` blank in the suite, so the branch never runs.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-architecture-conformance-plan.md`
   summary: A font file under Vite's 4 KB inline limit becomes a `data:` URI, which `font-src 'self'` refuses once the CSP is enforced. None exists today; when the shell's subsetted woff2 files land, exclude fonts from `assetsInlineLimit` in `vite.config.ts` (as card images are) or check none is under the limit.
-  evidence: Story 8.4 review (edge case, unverified): `vite.config.ts` excludes only `/images/card/` from inlining.
+  evidence: Story 8.4 review (edge case, unverified): `vite.config.ts` excluded only `/images/card/` from inlining; story 11 removed that rule with the old card images, so `vite.config.ts` sets no `assetsInlineLimit` now.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-pixel-filter-v2-plan.md`
   summary: The Content-Security-Policy of story 8.4 must allow the pixel filter's module worker (`worker-src 'self'`) and list the Steam image hosts in `connect-src` as well as `img-src`, because the worker loads covers with `fetch`; without them every cover falls back to the plain main-thread path without palette.
   evidence: Story 8.5 moves cover loading into `packages/pixel-art-filter/src/worker-job.ts` (`fetch` with `mode: "cors"`), started by `new Worker(new URL("./worker.ts", import.meta.url), { type: "module" })` in `src/renderer.ts`; no CSP is configured yet (feasibility M8, story 8.4).
@@ -202,6 +204,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
   summary: Transitional: the hub's menu 01 (and the empty showcase's "Ouvrir un booster") is the existing open-pack form, opening a booster straight to its reveal, not a link to the booster screen (EXPERIENCE.md, Ouverture de booster), until that screen exists.
   evidence: Story 8.2 Design Notes; `app/views/pages/_menu.html.erb`, `app/views/pages/_showcase.html.erb`.
+  resolved: Story 11 makes menu 01, the empty showcase's button and the pack page's "Ouvrir un booster" links to the booster screen (`booster_path`).
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
   summary: Transitional: menu items 03 to 06 (Échanges, Amis, Fil d'activité, Succès) render disabled (`aria-disabled`, "bientôt disponible"), without their badge or meta, until their screens exist.
   evidence: Story 8.2 Design Notes; `app/views/pages/_menu.html.erb`.
@@ -217,6 +220,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
   summary: `test/system/pack_reveal_test.rb` failed intermittently in 2 of 4 full system-suite runs during story 8.2 (once in setup, the top bar's Steam button not found; once at the end-of-reveal buttons), never when run alone; cause unknown, possibly pre-existing.
   evidence: Story 8.2 implementation report; the orchestrator's full runs passed.
+  resolved: Story 11 removes `pack_reveal_test.rb` with the reveal; `test/system/booster_test.rb` replaces it.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-single-card-face-plan.md`
   summary: A phone's long press on a card face inside a link (tome, pack result) may open the browser's link context menu or a text selection after about 500 ms, cancelling the pointer and ending the finger's tilt early; if so, suppress it while a finger tilts (`contextmenu` prevented, `-webkit-touch-callout: none`, `user-select: none` on `.card`).
   evidence: Story 8.6 review (unverified, medium if true): `attachTilt` (`app/frontend/lib/tilt.ts`) handles no `contextmenu` and `.card` sets no callout or selection rule; settle it with a long press on a tome face on an Android Chrome and an iOS Safari device.
@@ -229,9 +233,11 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-single-card-face-plan.md`
   summary: `script/card_art/generate.mjs` cannot run any more: it reads `ux-gameble/mockups/card-backs.html`, removed by the UX redesign (5de0377); the card backs and `sprite.svg` can only be edited by hand until story 8.11 redraws the backs.
   evidence: Story 8.6: re-running the script to drop the unused season seal and glyph symbols failed with ENOENT; those symbols were removed from `app/frontend/images/card/sprite.svg` by hand and from the script.
+  resolved: Story 11 removes `script/card_art/` and `app/frontend/images/card/` (the old backs and seal sprite, used only by the reveal); the booster draws the exported `images/pixel/back-standard-m.png` (story 8.8).
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-opening-exchange-plan.md`
   summary: A JSON opening (AD-23) with a missing or stale CSRF token answers Rails' 422 HTML page, not the `{ error: { code, message } }` envelope; the booster island (8.11) must send `X-CSRF-Token` and decide how a stale token (another tab signed out) is answered or handled.
   evidence: Story 8.10 review: ApplicationController keeps `protect_from_forgery with: :exception` and rescues only Pundit's refusal; the test environment disables forgery protection, so no test covers it.
+  resolved: Story 11: the booster island sends `X-CSRF-Token` from `meta[name=csrf-token]`; Rails' HTML 422 is read as an unknown outcome (generic reason inline, toast, live region; the idempotency key kept), covered by `booster_test.rb` ("a stale CSRF token"). The server answer stays HTML.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-drop-dust-tier-plan.md`
   summary: Remove `dust_tier` from `Catalog::CardSeason.ignored_columns` (`packs/catalog/app/models/catalog/card_season.rb`) once development and the test LXC have run `20261006100000_remove_dust_tier_from_catalog_card_seasons`.
   evidence: Story 8.7, the contract step of AD-28: strong_migrations' column removal needs the column ignored before `remove_column`, and the ignore stays until every environment has dropped it.
@@ -247,3 +253,21 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/tickets.toml` (entry 9, dropped)
   summary: Measure the booster, the filter worker on a 30-card page and the idle hub on a real low-end Android (AD-27's budget: frames, long tasks, at most six infinite animations per phone view); the spike 8.9 was dropped on 2026-10-06 (no physical device, emulation declined by the author).
   evidence: Epic 8 Notes, Decision of 2026-10-06; architecture Deferred, 'Reference low-end Android and the performance spike'.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-island-desktop-plan.md`
+  summary: Dealt booster cards stay `card-m` (160 × 240) at every width; DESIGN.md (Layout & Spacing, Booster) steps them down to `card-s` (112 × 168) between 720 and 899px. Under 900px the row only wraps.
+  evidence: Story 11 Never list (no width rebuild before story 8.12); the opening exchange already renders `m` and `xl` faces only (`PacksHelper::REVEAL_SIZES`), so a `card-s` deal needs an `s` face in the answer too.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-island-desktop-plan.md`
+  summary: The booster's phone mode (story 8.12): the stacked pile, one `card-xl` card at a time, the reveal caption plate, the tray, the card zoom, "Touchez pour ouvrir" and the 44px information strip. Under 720px the desktop island and its wrapping row are shown as they are.
+  evidence: Story 11 Never list; `app/frontend/components/Booster.tsx`, `app/frontend/styles/booster.css` (no phone layout beyond wrapping); the `revealed-xl.png` card baseline was deleted with the old reveal and returns with the phone booster.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-island-desktop-plan.md`
+  summary: `BoosterErrorBoundary` (the island's fallback when its chunk fails to load or it throws) has no test: no test makes the island fail and checks the message and the reload link.
+  evidence: Story 11; the same gap as the removed `RevealErrorBoundary` (epic 3 retrospective B3). A system test could block the lazy chunk's URL through CDP (`Network.setBlockedURLs`) before visiting the booster screen.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-island-desktop-plan.md`
+  summary: The booster's card backs: only `standard` is drawn (`booster-card__back--standard`); every other `pack.cardBack` key falls back to it until the card-back picker and the other backs ship (epic 9).
+  evidence: Story 11 (AD-25); `app/frontend/components/BoosterCard.tsx` (`CARD_BACKS`).
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-island-desktop-plan.md`
+  summary: Before the answer, the booster screen states the regular pack size (canister name "… 5 cartes", "Cartes révélées : — / 5", CARTES PAR BOOSTER 5) even when the next pack to open is a 3-card daily bonus (OpenPack opens the oldest available pack of any kind); the counts switch to the answer's card count at the deal. Showing the next pack's size needs it in the bank summary (or a prop) across the game pack's boundary.
+  evidence: Story 11 review (rejected low: the intent sets the bonus pack's counts from the answer); `app/helpers/boosters_helper.rb` (`packSize: Game::Pack::SIZE`), `packs/game/app/operations/game/open_pack.rb`.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-island-desktop-plan.md`
+  summary: Intermittent system-test failures seen once each under the parallel full suite and never alone — `BoosterTest` "a refusal …" failed in its setup because the hub was already signed in (no `.steam-sign-in__button`; seed 18869, not reproduced with the same seed), and `ShellTest` "the daily bonus's notice …" (both toast-through-refresh cases; seed 18869 rerun) missed their notice toast. Each passed 3 of 3 alone; four more full runs were clean.
+  evidence: Story 11 verification, 2026-10-06. The signed-in setup suggests a session cookie restored after Capybara's reset by a request still in flight from the worker's previous test; the toast cases are timing-sensitive under load, like the known shell_test phone-toast flake.

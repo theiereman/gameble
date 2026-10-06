@@ -1,0 +1,1040 @@
+/*
+ * The booster screen (DESIGN.md: Booster canister, Booster information
+ * panel, Face-down card and revealed card, Result banner, Layout & Spacing;
+ * EXPERIENCE.md: Motion, Implementation notes): the Booster island, its
+ * canister, its dealt cards and their effects. Timings live in
+ * app/frontend/lib/booster.ts; the island animates transform and opacity
+ * through WAAPI. Here only the steady states and the loops (breath, sweep,
+ * rays, sheen), all transform-only and stopped under reduced motion.
+ *
+ * The card stack (.booster-card) keeps every grouping property (opacity
+ * under 1, filter, overflow, clip-path, mask, blend, isolation) off
+ * __flip and off the layers between __lift and the faces, so the turn stays
+ * 3D. Opacity fades go on __travel or __lift.
+ */
+
+/* The server's fallback (no JavaScript, or the island not drawn yet). */
+.booster__fallback {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.booster__fallback .button,
+.booster__fallback .button-form {
+  margin: 0;
+}
+
+.booster-island:has(.booster:not(.booster--failed)) + .booster__fallback {
+  display: none;
+}
+
+.booster--failed {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+/* ---- Layout: info column, stage ---- */
+
+/* Rays, rings and a lifted card may reach past the island's sides: clipped
+   there, so the page never scrolls sideways (overflow-x: clip makes no
+   scroll container, and sits far above the cards' 3D stack). */
+.booster {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: var(--space-8);
+  align-items: start;
+  overflow-x: clip;
+}
+
+.booster__info {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.booster__hazard,
+.booster__result-stripe {
+  height: var(--hazard-stripe-height);
+  background: repeating-linear-gradient(var(--hazard-stripe-angle),
+    var(--color-accent) 0 var(--hazard-stripe-band),
+    var(--color-panel-sunken) var(--hazard-stripe-band) calc(2 * var(--hazard-stripe-band)));
+}
+
+.booster__kicker {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.booster__title {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-max);
+  font: var(--font-hero);
+  letter-spacing: var(--tracking-hero);
+  text-transform: uppercase;
+}
+
+/* The bracketed panel: cards per booster, reserve, state. */
+.booster__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  font: var(--font-label);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.booster__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.booster__row dt {
+  color: var(--color-muted);
+}
+
+.booster__row dd {
+  margin: 0;
+}
+
+.booster__value {
+  color: var(--color-text-max);
+}
+
+.booster__value--reserve {
+  color: var(--color-lime);
+}
+
+.booster__row--state {
+  padding-top: 10px;
+  box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line-soft);
+}
+
+.booster__state {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text-bright);
+}
+
+/* The status light: 8px, steady (DESIGN.md, Status light). */
+.booster__light {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  background: var(--color-accent);
+}
+
+.booster__state[data-tone="alert"] { color: var(--color-alert); }
+.booster__state[data-tone="alert"] .booster__light { background: var(--color-alert); }
+.booster__state[data-tone="gold"] { color: var(--color-gold); }
+.booster__state[data-tone="gold"] .booster__light { background: var(--color-gold); }
+.booster__state[data-tone="done"] { color: var(--color-lime); }
+.booster__state[data-tone="done"] .booster__light { background: var(--color-lime); }
+
+/* The reserve: "+1 dans …" or "Réserve pleine", then ten pips. */
+.booster__reserve-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.booster__next {
+  font: var(--font-body-small);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.booster__clock {
+  color: var(--color-text);
+  font-weight: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.booster__next--full {
+  color: var(--color-alert);
+}
+
+.booster__pips {
+  display: flex;
+  gap: 3px;
+  margin-top: var(--space-3);
+}
+
+.booster__pip {
+  flex: 1;
+  height: var(--reserve-pips-height);
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 1px var(--color-line-soft);
+}
+
+.booster__pip[data-lit] {
+  background: var(--color-lime);
+  box-shadow: none;
+}
+
+/* The actions: the one primary, then Tout révéler and the way back. */
+.booster__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.booster__actions .button {
+  margin: 0;
+}
+
+.booster__open {
+  width: 100%;
+}
+
+.booster__actions-row {
+  display: flex;
+  gap: 14px;
+}
+
+.booster__actions-row .button {
+  flex: 1;
+  min-width: 0;
+  padding: 0 10px;
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+}
+
+/* An opening refused: the reason, inline under the actions. */
+.booster__reason {
+  margin: 0;
+  color: var(--color-alert);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.booster__counter {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-large);
+  letter-spacing: var(--tracking-body-large);
+}
+
+/* ---- The stage: the canister zone and the deal row in one cell ---- */
+
+.booster__stage {
+  position: relative;
+  min-width: 0;
+  min-height: 520px;
+}
+
+.booster__shake {
+  position: relative;
+  display: grid;
+  grid-template: minmax(520px, auto) / minmax(0, 1fr);
+}
+
+.booster__shake > .booster__zone,
+.booster__shake > .booster__result,
+.booster__shake > .booster__deal-area {
+  grid-area: 1 / 1;
+}
+
+.booster__dim {
+  position: absolute;
+  inset: calc(-1 * var(--space-5));
+  z-index: 5;
+  background: color-mix(in srgb, var(--color-outline) 74%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 350ms var(--ease-out);
+}
+
+.booster__stage[data-legendary] .booster__dim {
+  opacity: 1;
+}
+
+.booster__fx {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+}
+
+/* No z-index on the zone or the deal area: a legendary card rises above
+   the stage's dim, both in the same stacking context. */
+.booster__zone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-7);
+  padding: var(--space-8) 0;
+}
+
+.booster__canister-hint {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-button);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.booster__canister-hint[data-hidden] {
+  visibility: hidden;
+}
+
+/* Reserve empty: the line in place of the canister. */
+.booster__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  text-align: center;
+}
+
+.booster__empty-title {
+  color: var(--color-muted);
+  font: var(--font-menu);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.booster__empty-next {
+  color: var(--color-text);
+  font: var(--font-body-large);
+  letter-spacing: var(--tracking-body-large);
+}
+
+/* "Résultat du booster" between two hazard stripes, once dealt. */
+.booster__result {
+  z-index: 4;
+  align-self: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding-top: var(--space-6);
+  color: var(--color-accent);
+  font: var(--font-menu);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms var(--ease-out);
+}
+
+.booster__result[data-shown] {
+  opacity: 1;
+}
+
+.booster__result-stripe {
+  width: 80px;
+}
+
+.booster__deal-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  padding: 72px 0 var(--space-7);
+}
+
+.booster__deal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-7) var(--space-deal-gap-max);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.booster__hint {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+  text-align: center;
+}
+
+/* The flash: one short warm flash at the opening, gold at a Légendaire's impact. */
+.booster__flash {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: color-mix(in srgb, var(--color-text-max) 85%, var(--color-alert));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.booster__flash[data-tone="gold"] {
+  background: color-mix(in srgb, var(--color-text-max) 65%, var(--color-gold));
+}
+
+/* ---- The canister: 100 × 150 art pixels at 2 CSS px ---- */
+
+.booster-canister__wrap {
+  position: relative;
+  flex: none;
+  width: 200px;
+  height: 300px;
+}
+
+.booster-canister__rays {
+  position: absolute;
+  left: -140px;
+  top: -90px;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(color-mix(in srgb, var(--color-accent) 16%, transparent) 0deg 9deg, transparent 9deg 18deg);
+  mask-image: radial-gradient(circle, #000 25%, transparent 68%);
+  pointer-events: none;
+  animation: booster-spin 40s steps(160) infinite;
+}
+
+.booster-canister {
+  position: absolute;
+  inset: 0;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.booster-canister[aria-disabled="true"] {
+  cursor: default;
+}
+
+.booster-canister__idle,
+.booster-canister__move {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.booster-canister__idle {
+  animation: booster-breath 6s ease-in-out infinite;
+}
+
+.booster-canister__wrap[data-busy] .booster-canister__idle,
+.booster-canister__wrap[data-busy] .booster-canister__sweep-band {
+  animation: none;
+}
+
+.booster-canister__body,
+.booster-canister__cap {
+  position: absolute;
+  left: 0;
+  display: block;
+  width: 200px;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+}
+
+.booster-canister__body {
+  top: 40px;
+  height: 220px;
+  background-image: url("../images/pixel/canister-body.png");
+}
+
+.booster-canister__cap {
+  height: 40px;
+}
+
+.booster-canister__cap--top {
+  top: 0;
+  background-image: url("../images/pixel/canister-cap-top.png");
+}
+
+.booster-canister__cap--bottom {
+  top: 260px;
+  background-image: url("../images/pixel/canister-cap-bottom.png");
+}
+
+/* The label on the body: "Saison 1 / Grand catalogue". */
+.booster-canister__line {
+  position: absolute;
+  left: 40px;
+  right: 40px;
+  display: block;
+  color: var(--color-on-accent);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.booster-canister__line--season {
+  top: 34px;
+  font: var(--font-button-sm);
+  letter-spacing: 3px;
+}
+
+.booster-canister__line--title {
+  top: 47px;
+  font: 700 1.25rem / 1.25rem var(--font-family-pixelify);
+}
+
+.booster-canister__hazard {
+  position: absolute;
+  left: 16px;
+  top: 180px;
+  width: 92px;
+  height: 12px;
+  background: repeating-linear-gradient(-45deg, var(--color-accent) 0 6px, var(--color-panel-sunken) 6px 12px);
+}
+
+.booster-canister__led {
+  position: absolute;
+  top: 184px;
+  width: 10px;
+  height: 10px;
+  background: var(--color-accent);
+}
+
+.booster-canister__led--1 { left: 140px; }
+.booster-canister__led--2 { left: 156px; }
+.booster-canister__led--3 { left: 172px; }
+
+.booster-canister__led--cap {
+  left: 160px;
+  top: 14px;
+}
+
+/* Armed: the LEDs and the hazard band turn orange, steadily. */
+.booster-canister__wrap[data-armed] .booster-canister__led {
+  background: var(--color-alert);
+}
+
+.booster-canister__wrap[data-armed] .booster-canister__hazard {
+  background: repeating-linear-gradient(-45deg, var(--color-alert) 0 6px, var(--color-panel-sunken) 6px 12px);
+}
+
+/* A band of light sweeping across the body, in steps. */
+.booster-canister__sweep {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.booster-canister__sweep-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  width: 34px;
+  background: color-mix(in srgb, var(--color-text-max) 22%, transparent);
+  animation: booster-sweep 2.8s steps(28) infinite;
+}
+
+/* ---- A dealt card ---- */
+
+.booster-card {
+  --booster-tier: var(--color-rarity-commune);
+  --booster-tier-hi: var(--color-rarity-commune-hi);
+  position: relative;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: var(--card-m-width);
+  margin: 0;
+}
+
+.booster-card[data-tier="uncommon"] {
+  --booster-tier: var(--color-rarity-peu-commune);
+  --booster-tier-hi: var(--color-rarity-peu-commune-hi);
+}
+
+.booster-card[data-tier="rare"] {
+  --booster-tier: var(--color-rarity-rare);
+  --booster-tier-hi: var(--color-rarity-rare-hi);
+}
+
+.booster-card[data-tier="epic"] {
+  --booster-tier: var(--color-rarity-epique);
+  --booster-tier-hi: var(--color-rarity-epique-hi);
+}
+
+.booster-card[data-tier="legendary"] {
+  --booster-tier: var(--color-rarity-legendaire);
+  --booster-tier-hi: var(--color-rarity-legendaire-hi);
+}
+
+/* The rays of an Épique or Légendaire reach past its slot: those cards sit
+   one layer down, so their rays pass behind the neighbouring cards. */
+.booster-card {
+  z-index: 1;
+}
+
+.booster-card[data-tier="epic"],
+.booster-card[data-tier="legendary"] {
+  z-index: 0;
+}
+
+/* Above the stage's dim while its legendary sequence runs. */
+.booster-card[data-legendary] {
+  z-index: 6;
+}
+
+.booster-card__frame {
+  position: relative;
+  width: var(--card-m-width);
+  height: var(--card-m-height);
+}
+
+.booster-card__travel,
+.booster-card__hover,
+.booster-card__lift,
+.booster-card__flip,
+.booster-card__back,
+.booster-card__front,
+.booster-card__fx {
+  position: absolute;
+  inset: 0;
+}
+
+/* Present from the answer (its art loading), shown once dealt. */
+.booster-card:not([data-dealt]) .booster-card__travel {
+  opacity: 0;
+}
+
+.booster-card:not([data-dealt]) {
+  pointer-events: none;
+}
+
+.booster-card__hover {
+  transition: transform 160ms var(--ease-out);
+}
+
+.booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible) .booster-card__hover {
+  transform: translateY(-8px);
+}
+
+.booster-card__lift {
+  perspective: 1000px;
+}
+
+.booster-card__flip {
+  transform-style: preserve-3d;
+}
+
+.booster-card__flip.is-up {
+  transform: rotateY(180deg);
+}
+
+.booster-card__back,
+.booster-card__front {
+  backface-visibility: hidden;
+}
+
+.booster-card__front {
+  transform: rotateY(180deg);
+}
+
+.booster-card__front .card {
+  display: block;
+}
+
+.booster-card[data-revealed] .booster-card__front {
+  cursor: pointer;
+}
+
+/* The player's card back (AD-25): 80 × 120 art pixels at 2 CSS px. */
+.booster-card__back {
+  overflow: hidden;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  box-shadow: var(--pixel-outline-4);
+  image-rendering: pixelated;
+}
+
+.booster-card__back--standard {
+  background-image: url("../images/pixel/back-standard-m.png");
+}
+
+/* A pale sheen crossing the back from time to time. */
+.booster-card__back::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 60%;
+  background: linear-gradient(115deg,
+    transparent 20%,
+    color-mix(in srgb, var(--color-accent-hi) 16%, transparent) 45%,
+    color-mix(in srgb, var(--color-accent-hi) 5%, transparent) 60%,
+    transparent 80%);
+  transform: translateX(-100%);
+  animation: booster-back-sheen 5.2s cubic-bezier(.45, 0, .25, 1) infinite;
+  pointer-events: none;
+}
+
+/* Turned away once revealed: its sheen stops. */
+.booster-card[data-revealed] .booster-card__back::after {
+  animation: none;
+}
+
+/* A face-down card's face keeps still: no holo, no foil. */
+.booster-card:not([data-revealed]) .card__holo,
+.booster-card:not([data-revealed]) .card__foil {
+  animation: none;
+}
+
+/* Rays (Épique purple, Légendaire gold) and a Légendaire's glow, behind the card once revealed. */
+.booster-card__rays {
+  --booster-ray: color-mix(in srgb, var(--color-rarity-epique) 22%, transparent);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 420px;
+  height: 420px;
+  margin: -210px 0 0 -210px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(var(--booster-ray) 0deg 8deg, transparent 8deg 16deg);
+  mask-image: radial-gradient(circle, #000 25%, transparent 68%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 500ms var(--ease-out);
+}
+
+.booster-card[data-tier="legendary"] .booster-card__rays {
+  --booster-ray: color-mix(in srgb, var(--color-rarity-legendaire) 36%, transparent);
+  width: 500px;
+  height: 500px;
+  margin: -250px 0 0 -250px;
+}
+
+/* They turn only once shown: no loop behind a face-down card. */
+.booster-card[data-revealed] .booster-card__rays {
+  opacity: 1;
+  animation: booster-spin 24s steps(96) infinite;
+}
+
+.booster-card[data-revealed][data-tier="legendary"] .booster-card__rays {
+  animation-duration: 14s;
+}
+
+.booster-card__glow {
+  position: absolute;
+  inset: -6px;
+  background: color-mix(in srgb, var(--color-gold) 70%, transparent);
+  filter: blur(14px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.booster-card[data-revealed] .booster-card__glow {
+  opacity: 1;
+}
+
+/* The flat hit button on top: focus and activation. */
+.booster-card__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+/* Revealed: the pointer goes through to the face's tilt; the slot catches the click. */
+.booster-card[data-revealed] .booster-card__hit {
+  pointer-events: none;
+}
+
+.booster-card__fx {
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* The label under the card: "? ? ?", then the tier's icon and name. */
+.booster-card__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 22px;
+  margin: 0;
+  color: var(--color-line);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.booster-card[data-revealed] .booster-card__label {
+  color: var(--booster-tier);
+}
+
+.booster-card__label-icon-box {
+  display: inline-flex;
+}
+
+.booster-card__label-icon {
+  width: 14px;
+  height: 14px;
+  filter: drop-shadow(2px 0 0 var(--color-outline)) drop-shadow(-2px 0 0 var(--color-outline))
+    drop-shadow(0 2px 0 var(--color-outline)) drop-shadow(0 -2px 0 var(--color-outline));
+}
+
+/* ---- Effects: pixels, rings, sparks, smoke (spans the island adds and removes) ---- */
+
+.booster-fx__pixel,
+.booster-fx__spark,
+.booster-fx__smoke,
+.booster-fx__ring {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.booster-fx__pixel {
+  width: 4px;
+  height: 4px;
+  background: var(--booster-tier);
+}
+
+.booster-fx__pixel--1 { background: var(--booster-tier-hi); }
+.booster-fx__pixel--2 { background: var(--color-text-max); }
+
+.booster-fx__ring {
+  border: var(--space-unit) solid var(--booster-tier);
+  border-radius: 50%;
+}
+
+.booster-fx__ring--white,
+.booster-fx__ring--blast {
+  border-color: var(--color-text-max);
+}
+
+.booster-fx__spark {
+  width: 4px;
+  height: 4px;
+  background: var(--color-text-max);
+}
+
+.booster-fx__spark--1 { background: var(--color-gold); }
+.booster-fx__spark--2 { background: var(--color-alert); }
+.booster-fx__spark--3 { background: var(--color-accent); }
+
+.booster-fx__smoke {
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  background: color-mix(in srgb, var(--color-muted) 60%, transparent);
+}
+
+/* ---- The result banner: Épique small, Légendaire large ---- */
+
+.booster__banner {
+  --booster-tier: var(--color-rarity-epique);
+  position: absolute;
+  top: var(--space-8);
+  left: 0;
+  right: 0;
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--booster-tier);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.booster__banner[data-tier="legendary"] {
+  --booster-tier: var(--color-rarity-legendaire);
+}
+
+.booster__banner-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.booster__banner-stripe {
+  width: 70px;
+  height: var(--hazard-stripe-height);
+  background: repeating-linear-gradient(-45deg, var(--booster-tier) 0 8px, var(--color-panel-sunken) 8px 16px);
+}
+
+.booster__banner-icon {
+  display: inline-flex;
+}
+
+.booster__banner-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.booster__banner-name {
+  font: var(--font-banner-small);
+  letter-spacing: var(--tracking-banner-small);
+  text-transform: uppercase;
+  text-shadow: 3px 0 0 var(--color-outline), -3px 0 0 var(--color-outline), 0 3px 0 var(--color-outline), 0 -3px 0 var(--color-outline);
+}
+
+.booster__banner--large .booster__banner-name {
+  font: var(--font-banner);
+  letter-spacing: var(--tracking-banner);
+}
+
+.booster__banner--large .booster__banner-icon svg {
+  width: 34px;
+  height: 34px;
+}
+
+.booster__banner-line {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-bright);
+  font: var(--font-body-large);
+  letter-spacing: var(--tracking-body-large);
+  text-shadow: 0 2px 0 var(--color-outline);
+}
+
+/* ---- Loops: transform only ---- */
+
+@keyframes booster-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes booster-breath {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes booster-sweep {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  55%, 100% { transform: translateX(700%) skewX(-20deg); }
+}
+
+@keyframes booster-back-sheen {
+  0%, 55% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* ---- Narrower widths: the info panels above the stage, in a wrapping row ---- */
+
+@media (max-width: 1259px) {
+  .booster {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+  }
+
+  .booster__info {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 18px var(--space-7);
+  }
+
+  .booster__hazard,
+  .booster__counter {
+    flex: 1 1 100%;
+  }
+
+  .booster__id,
+  .booster__reserve {
+    flex: 1 1 200px;
+  }
+
+  .booster__panel,
+  .booster__actions {
+    flex: 1 1 260px;
+  }
+
+  .booster__title {
+    font-size: 1.625rem;
+    line-height: 1.875rem;
+  }
+
+  .booster__deal {
+    column-gap: var(--space-deal-gap-min);
+  }
+}
+
+@media (max-width: 719px) {
+  .booster__stage,
+  .booster__shake {
+    min-height: 440px;
+  }
+
+  .booster__shake {
+    grid-template-rows: minmax(440px, auto);
+  }
+}
+
+/* ---- Reduced motion: every loop stops; no hover lift, no rays ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .booster-canister__idle,
+  .booster-canister__rays,
+  .booster-canister__sweep-band,
+  .booster-card[data-revealed] .booster-card__rays,
+  .booster-card__back::after {
+    animation: none;
+  }
+
+  .booster-canister__sweep,
+  .booster-card__rays,
+  .booster-card__back::after {
+    display: none;
+  }
+
+  .booster-card__hover {
+    transition: none;
+  }
+
+  .booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible) .booster-card__hover {
+    transform: none;
+  }
+}
+
+html[data-motion="reduced"] .booster-canister__idle,
+html[data-motion="reduced"] .booster-canister__rays,
+html[data-motion="reduced"] .booster-canister__sweep-band,
+html[data-motion="reduced"] .booster-card[data-revealed] .booster-card__rays,
+html[data-motion="reduced"] .booster-card__back::after {
+  animation: none;
+}
+
+html[data-motion="reduced"] .booster-canister__sweep,
+html[data-motion="reduced"] .booster-card__rays,
+html[data-motion="reduced"] .booster-card__back::after {
+  display: none;
+}
+
+html[data-motion="reduced"] .booster-card__hover {
+  transition: none;
+}
+
+html[data-motion="reduced"] .booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible) .booster-card__hover {
+  transform: none;
+}

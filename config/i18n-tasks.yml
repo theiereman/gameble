@@ -27,3 +27,5 @@ ignore_unused:
   - "catalog.genres.*"
   # Pagy's dictionary, read by Pagy::I18n, not by the I18n gem.
   - "pagy.*"
+  # The Booster island's words, passed whole to its props (BoostersHelper#booster_props).
+  - "boosters.island.*"

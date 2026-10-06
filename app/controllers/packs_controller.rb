@@ -1,10 +1,8 @@
 # Opening a pack, and the opened pack's page (CAP-4, CAP-5, R9). Packs are
 # addressed by their token (AD-15).
 #
-# The opening answers two ways. The hub's form (HTML) is redirected to the
-# pack's page, where the reveal (the PackReveal island) mounts once: every
-# later visit, reload or back navigation shows the cards face up. The
-# booster island's exchange (JSON, AD-23) sends an `Idempotency-Key` header,
+# The opening answers two ways. The booster island's exchange (JSON, AD-23)
+# sends an `Idempotency-Key` header,
 # a UUID per activation: the answer carries the pack, its cards with their
 # faces, the bank, the server time and the per-tier counts before the
 # opening, and the same key answers the same pack again without opening
@@ -14,7 +12,10 @@
 # and at the limit gets 429; its retry after Retry-After replays the pack.
 # A refusal answers
 # `{ error: { code, message } }`: 400 invalid_idempotency_key (no key, or not
-# a UUID), 401 sign_in_required, 422 no_pack_available, 429 throttled.
+# a UUID), 401 sign_in_required, 422 no_pack_available, 429 throttled. The
+# booster screen's form (HTML), its fallback without JavaScript, is
+# redirected to the pack's page, which shows the cards face up: "my last
+# booster".
 class PacksController < ApplicationController
   # The rate limit's window, also the JSON answer's Retry-After.
   RATE_LIMIT_WINDOW = 1.minute
@@ -29,8 +30,7 @@ class PacksController < ApplicationController
   rate_limit to: 30, within: RATE_LIMIT_WINDOW, only: :create,
     by: -> { current_player&.id || request.remote_ip }, with: :throttled, unless: :replayed_key?
 
-  # POST /:locale/packs. The flash names the opened pack for the next
-  # request only; the layout never prints it.
+  # POST /:locale/packs
   def create
     authorize :pack, :create?
 
@@ -40,9 +40,8 @@ class PacksController < ApplicationController
     end
   end
 
-  # GET /:locale/packs/:token. Another player's pack, one not opened yet or
-  # an unknown token are all not found. The reveal's response is never
-  # stored, by the browser or by Turbo, so going back fetches the faces.
+  # GET /:locale/packs/:token: the pack's cards face up. Another player's
+  # pack, one not opened yet or an unknown token are all not found.
   def show
     @pack = Game::OpenedPackByToken.call(current_player, params[:token])
     raise ActiveRecord::RecordNotFound if @pack.nil?
@@ -51,8 +50,6 @@ class PacksController < ApplicationController
     @cards = cards_of(@pack)
     @strings = CardStrings.new
     @next_pack = Game::BankSummary.call(current_player)[:available].positive?
-    @reveal = flash[:reveal].present? && flash[:reveal] == @pack.token
-    no_store if @reveal
   end
 
   private
@@ -60,9 +57,7 @@ class PacksController < ApplicationController
   def open_from_form
     result = Game::OpenPack.new.call(player: current_player)
     if result.success?
-      pack = result.value!
-      flash[:reveal] = pack.token
-      redirect_to pack_path(pack.token), status: :see_other
+      redirect_to pack_path(result.value!.token), status: :see_other
     else
       redirect_to home_path, alert: Game::OpenPack.failure_message(result.failure), status: :see_other
     end

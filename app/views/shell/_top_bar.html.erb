@@ -5,11 +5,14 @@
     Steam sign-in image for a visitor. A screen with its own status
     (`content_for :top_bar_status`, the collection's unique cards) shows it
     first, in place of the rarity counter and packs chip (on the phone, of
-    the player chip too: collection.css). The back-office shows the player
-    chip only. %>
+    the player chip too: collection.css). The booster screen
+    (`content_for :booster_top_bar`) shows the rarity counter and a static
+    reserve chip, both following its island's events. The back-office
+    shows the player chip only. The start's links and buttons are locked
+    while the booster island opens or reveals (navigation-lock). %>
 <header class="<%= class_names("top-bar", "top-bar--status": content_for?(:top_bar_status)) %>">
   <div class="top-bar__inner">
-    <div class="top-bar__start">
+    <div class="top-bar__start" data-controller="navigation-lock">
       <% if content_for?(:back_button) %>
         <%= render ButtonComponent.new(variant: :secondary, size: :small, href: home_path, icon: "arrow-left") do %><%= t("shell.top_bar.back") %><% end %>
         <% if content_for?(:screen_title) %>
@@ -28,7 +31,11 @@
       <% if current_player %>
         <% unless back_office_page? || content_for?(:top_bar_status) %>
           <%= render "shell/rarity_counter", counts: shell_tier_counts %>
-          <%= render "shell/packs_chip", bank: shell_bank %>
+          <% if content_for?(:booster_top_bar) %>
+            <%= render "shell/reserve_chip", bank: shell_bank %>
+          <% else %>
+            <%= render "shell/packs_chip", bank: shell_bank %>
+          <% end %>
         <% end %>
         <%= render "shell/player_chip", player: current_player %>
       <% else %>

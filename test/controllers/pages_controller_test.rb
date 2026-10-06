@@ -72,8 +72,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[1 2 3 4 5 6], menu_items.map { it["aria-keyshortcuts"] }
     assert_equal %w[01 02 03 04 05 06], css_select(".hub-menu .menu-item__number").map(&:text)
 
-    # 01: the open-pack form, its reserve in a lime badge.
-    assert_select ".hub-menu form.menu-item__form[action='/fr/packs'][method=post] button.menu-item[data-hub-menu-target=item]" do
+    # 01: the booster screen, its reserve in a lime badge.
+    assert_select ".hub-menu a.menu-item[href='/fr/booster'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
       assert_select ".menu-item__label", "Ouvrir un booster"
       assert_select ".menu-item__badge[aria-hidden=true]", "3"
       assert_select ".visually-hidden", "3 boosters en réserve"
@@ -136,20 +136,20 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".hub-showcase__frame[aria-hidden=true] .hub-showcase__outline svg.hub-showcase__logo"
       assert_select "h2.hub-showcase__name", "Open your first booster"
       assert_select ".hub-showcase__line", "Your finest card will show here."
-      assert_select "form[action='/en/packs'][method=post] button.button--primary", "Open a booster"
+      assert_select "a.button.button--primary[href='/en/booster']", "Open a booster"
     end
     # One lime action: the daily panel's button turns secondary.
     assert_select ".daily-booster form button.button--secondary.button--small", "Collect"
     assert_select "main .button--primary", 1
   end
 
-  test "an empty reserve disables menu 01 and the empty showcase's button, saying why" do
+  test "an empty reserve greys menu 01's badge and disables the empty showcase's button, saying why" do
     sign_in(@player)
 
     get home_path(locale: :en)
 
-    assert_select ".hub-menu span.menu-item[aria-disabled=true][aria-keyshortcuts='1']" do
-      assert_select ".menu-item__badge[aria-hidden=true]", "0"
+    assert_select ".hub-menu a.menu-item[href='/en/booster'][aria-keyshortcuts='1']:not([aria-disabled])" do
+      assert_select ".menu-item__badge.menu-item__badge--zero[aria-hidden=true]", "0"
       assert_select ".visually-hidden", "Reserve empty"
     end
     assert_select ".hub-menu form[action='/en/packs']", false
@@ -190,7 +190,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :en)
 
     assert_select ".daily-booster", false
-    assert_select ".hub-menu form[action='/en/packs'] .menu-item__badge"
+    assert_select ".hub-menu a.menu-item[href='/en/booster'] .menu-item__badge"
   end
 
   test "a visitor's hub: the menu opens the sign-in panel, an invitation replaces the showcase, no daily panel" do

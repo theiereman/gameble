@@ -55,7 +55,7 @@ class ShellTest < ApplicationSystemTestCase
     sign_in(player)
 
     assert_selector ".top-bar .rarity-counter__button", visible: true
-    assert_selector ".top-bar .packs-chip", text: /3\s+BOOSTERS/i
+    assert_selector ".top-bar a.packs-chip[href='/en/booster']", text: /3\s+BOOSTERS/i
     assert_selector ".packs-chip__next", text: /\+1 in \d\d:\d\d/i, visible: true
     assert_no_selector ".tab-bar", visible: true
     assert_equal "rgb(11, 15, 21)", computed("body", "backgroundColor")
@@ -81,7 +81,8 @@ class ShellTest < ApplicationSystemTestCase
 
       assert_selector ".tab-bar", visible: true
       assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: /PONT/i
-      assert_selector ".tab-bar span.tab-bar__tab[aria-disabled=true]", count: 3
+      assert_selector ".tab-bar a.tab-bar__tab[href='/fr/booster']", text: /BOOSTER/i
+      assert_selector ".tab-bar span.tab-bar__tab[aria-disabled=true]", count: 2
       assert_no_selector ".rarity-counter__button", visible: true
       assert_selector ".top-bar .player-chip__button", visible: true
       assert_equal "fixed", computed(".tab-bar", "position")

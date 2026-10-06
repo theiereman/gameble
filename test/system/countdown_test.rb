@@ -63,7 +63,7 @@ class CountdownTest < ApplicationSystemTestCase
     travel_back
   end
 
-  test "the refresh waits for a pack being opened, which reaches its result page" do
+  test "the refresh waits for a form being submitted (the daily booster's), which lands" do
     create_pack(@player)
     visit home_path(locale: :en)
     click_steam_sign_in
@@ -71,17 +71,17 @@ class CountdownTest < ApplicationSystemTestCase
 
     create_pack(@player, available_at: 2.seconds.from_now)
     visit home_path(locale: :en)
-    # A slow opening: the submission stays in flight past the refresh's time.
+    # A slow submission: it stays in flight past the refresh's time.
     page.execute_script(<<~JS)
       const fetch = window.fetch
       window.fetch = (input, init) => init?.method?.toUpperCase() === "POST"
         ? new Promise((resolve) => setTimeout(resolve, 4000)).then(() => fetch(input, init))
         : fetch(input, init)
     JS
-    find(".hub-menu .menu-item[aria-keyshortcuts='1']").click
+    within(".daily-booster") { click_on "Collect" }
 
-    assert_selector "h1", text: I18n.t("packs.show.heading", locale: :en), wait: 10
-    assert_current_path %r{/en/packs/}
+    assert_text I18n.t("daily_bonuses.create.collected", locale: :en), wait: 10
+    assert_selector BADGE, text: "3"
   end
 
   test "elsewhere the packs chip's countdown stops at zero without refreshing the page" do

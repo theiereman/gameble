@@ -182,16 +182,19 @@ class HubTest < ApplicationSystemTestCase
     assert_nil focused_item
   end
 
-  test "back from opening the last booster with menu 01, now disabled, the first enabled item is focused" do
-    create_pack(@player)
+  test "menu 01 opens the booster screen; back on the bridge after its last booster, menu 01 is focused, its badge greyed" do
+    create_pack(@player, cards: fixture_tier_ids)
     sign_in
 
     item("1").click
-    assert_current_path(/packs/)
-    click_on "Bridge"
+    assert_current_path booster_path(locale: :en)
+    find(".booster-canister").click
+    assert_selector ".booster-card[data-dealt]", count: 5, wait: 10
+    assert_selector ".booster__state", text: /\AINVENTORY\z/
+    find(".top-bar__start a.button").click
     assert_current_path home_path(locale: :en)
-    assert_selector ".hub-menu .menu-item[aria-keyshortcuts='1'][aria-disabled=true]"
-    assert_equal "2", focused_item
+    assert_selector ".hub-menu .menu-item[aria-keyshortcuts='1']:not([aria-disabled]) .menu-item__badge--zero", text: "0"
+    assert_equal "1", focused_item
   end
 
   test "a sign-in focuses menu 01 even when another item was used before it" do

@@ -148,7 +148,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("daily_bonuses.create.throttled", locale: :en), flash[:alert]
   end
 
-  test "an opened bonus pack's page is titled the daily bonus, reveals its three cards, then shows them" do
+  test "an opened bonus pack's page is titled the daily bonus and shows its three cards" do
     sign_in(@player)
     post daily_bonus_path(locale: :en)
     bonus = Game::Pack.where(player_id: @player.id).bonus.sole
@@ -158,8 +158,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/en/packs/#{bonus.token}"
     follow_redirect!
     assert_select "h1", "Your daily bonus"
-    props = JSON.parse(css_select("[data-turbo-mount-pack-reveal-props-value]").sole["data-turbo-mount-pack-reveal-props-value"])
-    assert_equal 3, props["cards"].size
+    assert_select ".pack-result__card .card.card--m", 3
 
     get pack_path(bonus.token, locale: :fr)
     assert_select "h1", I18n.t("packs.show.heading_bonus", locale: :fr)

@@ -151,12 +151,10 @@ class CardComponentTest < ViewComponent::TestCase
     assert_raises(ArgumentError) { CardComponent.new(card:, size: :small) }
   end
 
-  test "the strings of a card's back, for the reveal" do
-    props = I18n.with_locale(:en) { CardStrings.new.to_props }
+  test "the rarity names of a card's labels" do
+    strings = I18n.with_locale(:en) { CardStrings.new }
 
-    assert_equal "Face-down card", props[:faceDown]
-    assert_equal "Face-down card, Legendary", props[:faceDownByRarity]["legendary"]
-    assert_equal "Uncommon", props[:rarityNames]["uncommon"]
-    assert_equal %i[rarityNames faceDown faceDownByRarity], props.keys
+    assert_equal "Uncommon", strings.rarity_name("uncommon")
+    assert_equal "Legendary", strings.rarity_name(:legendary)
   end
 end

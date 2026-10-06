@@ -2,8 +2,9 @@ require "test_helper"
 require_relative "../support/counting_rate_limit"
 require_relative "../support/game_packs"
 
-# Opening a pack from the hub's menu and the pack result page (R9, CAP-4):
-# end to end, the result page, and every refusal.
+# Opening a pack (R9, CAP-4): the booster's opening exchange (JSON, AD-23),
+# the form the booster screen falls back to without JavaScript, the pack's
+# page face up ("my last booster"), and every refusal.
 class PacksControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
   include GamePacks
@@ -27,7 +28,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert session[:player_id]
   end
 
-  # Menu 01 of the hub: the open-pack button, or the disabled item.
+  # Menu 01 of the hub: the link to the booster screen.
   def open_item
     css_select(".hub-menu .menu-item[aria-keyshortcuts='1']").sole
   end
@@ -36,24 +37,19 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     open_item.at_css(".menu-item__badge").text
   end
 
-  REVEAL = "[data-turbo-mount-pack-reveal-component-value=PackReveal]".freeze
-
-  # The reveal island's props, or nil when the page has none.
-  def reveal_props
-    element = css_select(REVEAL).first
-    element && JSON.parse(element["data-turbo-mount-pack-reveal-props-value"])
-  end
+  # Any React island on the page (Turbo Mount).
+  ISLAND = "[data-controller^=turbo-mount]".freeze
 
   def end_buttons
     css_select(".pack-end .button").map { |button| button.text.strip }
   end
 
-  test "a new player opens a pack: the reveal comes once, with the cards in order, then the faces on every later visit" do
+  test "a new player opens a pack with the form: it lands on the pack's page, face up, on every visit" do
     sign_in(NEW_STEAM_ID)
     player = Accounts::Player.find_by!(steam_id: NEW_STEAM_ID)
 
     get home_path(locale: :en)
-    assert_select ".hub-menu form[action='/en/packs'][method=post] button.menu-item .menu-item__badge", "10"
+    assert_select ".hub-menu a.menu-item[href='/en/booster'] .menu-item__badge", "10"
 
     post packs_path(locale: :en)
 
@@ -63,42 +59,12 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
     assert_select "h1", "Your pack, Brother"
-    assert_select ".card", 0
     assert_select ".toasts > .toast", 0
-    assert_not_includes response.body, pack.token
-    assert_equal "no-store", response.headers["Cache-Control"]
-    assert_select "meta[name=turbo-cache-control][content=no-cache]"
-
-    props = reveal_props
-    views = Catalog::CardViews.call(pack.card_season_ids, locale: :en)
-    cards = pack.card_season_ids.map { |id| views.fetch(id) }
-    assert_equal cards.map { [ it.rarity, it.title ] }, props["cards"].map { it.values_at("rarity", "title") }
-    # Each face rendered on the server, at both sizes, with the booster's effects.
-    props["cards"].zip(cards).each do |card, view|
-      assert_equal %w[m xl], card["faces"].keys
-      card["faces"].each do |size, html|
-        face = Nokogiri::HTML5.fragment(html)
-        assert_equal 1, face.css(".card.card--#{size}.card--booster.card--rarity-#{view.rarity}[data-controller=tilt]").size
-        assert_equal view.title, face.at_css(".card__title").text
-        assert_empty face.css("[style]")
-      end
-    end
-    assert_equal CardStrings.new.to_props.as_json, props["cardStrings"]
-    assert_equal "Flip all", props.dig("strings", "flipAll")
-    assert_equal "Previous card", props.dig("strings", "previous")
-    assert_equal (1..5).map { |n| "Card #{n} of 5" }, props.dig("strings", "progress")
-    assert_equal "/en/packs", props["openPackUrl"]
-    assert_equal "/en", props["hubUrl"]
-    assert_equal "Back to the bridge", props.dig("strings", "backToHub")
-    assert_select ".pack-reveal__fallback a[href='/en']", "Back to the bridge"
-    assert_equal "Show my cards", props.dig("strings", "reload")
-
-    get pack_path(pack.token, locale: :en)
-
-    assert_response :success
-    assert_nil reveal_props
+    assert_select ISLAND, 0
     assert_not_equal "no-store", response.headers["Cache-Control"]
     assert_select "meta[name=turbo-cache-control]", 0
+
+    views = Catalog::CardViews.call(pack.card_season_ids, locale: :en)
     assert_equal pack.card_season_ids.map { |id| views.fetch(id).title }, css_select(".pack-result__card .card.card--m .card__title").map(&:text)
     # Each face leads to its card's detail, in its season.
     assert_equal pack.card_season_ids.map { |id| "/en/cards/#{views.fetch(id).id}/seasons/1" },
@@ -106,7 +72,13 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_select ".pack-result__card > a.card-link[data-turbo-prefetch=false] > .card.card--m", 5
     assert_select ".pack-result__card .card--booster", 0
     assert_select "[style]", 0
-    assert_equal [ "Open the next pack", "Back to the bridge" ], end_buttons
+    assert_equal [ "Open a booster", "Back to the bridge" ], end_buttons
+    assert_select ".pack-end a.button--primary[href='/en/booster']", "Open a booster"
+    assert_select ".pack-end form", 0
+
+    get pack_path(pack.token, locale: :en)
+    assert_response :success
+    assert_select ".pack-result__card .card.card--m", 5
 
     get home_path(locale: :en)
     assert_equal "9", reserve_badge
@@ -127,38 +99,36 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "/fr/cards/golden-crown/seasons/1" ] * 5, css_select(".pack-result__card > a.card-link").map { it["href"] }
   end
 
-  test "the reveal of a pack whose card appears five times keeps the five, in French" do
+  test "a pack whose card appears five times answers the five, in French, each with its title, year and spoken label" do
     player = accounts_players(:player)
     legendary = catalog_card_seasons(:legendary_card_one).id
     create_pack(player, cards: [ legendary ] * 5, available_at: 1.day.ago)
     sign_in(player.steam_id)
 
-    post packs_path(locale: :fr)
-    follow_redirect!
+    open_json(locale: :fr)
 
-    props = reveal_props
-    assert_equal [ "Couronne d'or" ] * 5, props["cards"].map { it["title"] }
-    assert_equal [ "legendary" ] * 5, props["cards"].map { it["rarity"] }
-    assert_equal [ "Légendaire" ] * 5, props["cards"].map { Nokogiri::HTML5.fragment(it.dig("faces", "m")).at_css(".card__rarity").text }
-    assert_equal "Tout retourner", props.dig("strings", "flipAll")
-    assert_equal "Carte précédente", props.dig("strings", "previous")
-    assert_equal "Carte 1 sur 5", props.dig("strings", "progress").first
+    assert_response :ok
+    assert_equal [ "Couronne d'or" ] * 5, body["cards"].map { it["title"] }
+    assert_equal [ 1998 ] * 5, body["cards"].map { it["year"] }
+    assert_equal [ "Couronne d'or — 1998" ] * 5, body["cards"].map { it["label"] }
+    assert_equal [ "legendary" ] * 5, body["cards"].map { it["tier"] }
+    assert_equal [ "Légendaire" ] * 5, body["cards"].map { Nokogiri::HTML5.fragment(it.dig("faces", "m")).at_css(".card__rarity").text }
   end
 
-  test "with no pack left, both branches end on the way back to the hub alone" do
+  test "with no pack left, the pack's page ends on the way back to the hub alone" do
     player = accounts_players(:player)
     pack = create_pack(player, available_at: 1.day.ago)
     sign_in(player.steam_id)
 
     post packs_path(locale: :en)
     follow_redirect!
-    assert_nil reveal_props["openPackUrl"]
+    assert_equal [ "Back to the bridge" ], end_buttons
 
     get pack_path(pack.token, locale: :en)
     assert_equal [ "Back to the bridge" ], end_buttons
   end
 
-  test "a daily bonus pack reveals its three cards" do
+  test "a daily bonus pack opened with the form shows its three cards" do
     player = accounts_players(:player)
     create_pack(player, kind: :bonus, cards: fixture_tier_ids.last(3), available_at: 1.day.ago)
     sign_in(player.steam_id)
@@ -167,9 +137,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_select "h1", "Your daily bonus"
-    props = reveal_props
-    assert_equal %w[rare epic legendary], props["cards"].map { it["rarity"] }
-    assert_equal [ "Card 1 of 3", "Card 2 of 3", "Card 3 of 3" ], props.dig("strings", "progress")
+    assert_equal %w[RARE EPIC LEGENDARY], css_select(".pack-result__card .card__rarity").map { it.text.upcase }
+    assert_select ISLAND, 0
   end
 
   test "the flash's notices and alerts still show, and nothing else of it" do
@@ -201,13 +170,15 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "an empty reserve disables menu 01, and opening is refused with an alert" do
+  test "an empty reserve greys menu 01's badge, and opening is refused with an alert" do
     player = accounts_players(:player)
     create_pack(player, available_at: 1.day.from_now)
     sign_in(player.steam_id)
 
     get home_path(locale: :fr)
-    assert_equal "true", open_item["aria-disabled"]
+    assert_equal "/fr/booster", open_item["href"]
+    assert_nil open_item["aria-disabled"]
+    assert_equal "0", open_item.at_css(".menu-item__badge.menu-item__badge--zero").text
     assert_equal "Réserve vide", open_item.at_css(".visually-hidden").text
     assert_select ".hub-menu form", false
 
@@ -293,14 +264,14 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_select ".packs-chip__next .visually-hidden", "Prochain booster à 09:40 (UTC)"
   end
 
-  test "with no pack available now, menu 01 is disabled and the countdown shows" do
+  test "with no pack available now, menu 01's badge reads 0 and the countdown shows" do
     player = accounts_players(:player)
     create_pack(player, available_at: 4.minutes.from_now)
     sign_in(player.steam_id)
 
     get home_path(locale: :en)
 
-    assert_equal "true", open_item["aria-disabled"]
+    assert_equal "/en/booster", open_item["href"]
     assert_equal "0", reserve_badge
     assert_equal 1, countdown.size
   end
@@ -398,9 +369,10 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     views = Catalog::CardViews.call(pack.card_season_ids, locale: :en)
     cards = pack.card_season_ids.map { views.fetch(it) }
-    assert_equal cards.map { [ it.id, it.rarity, it.image_url ] }, body["cards"].map { it.values_at("slug", "tier", "coverUrl") }
+    assert_equal cards.map { [ it.id, it.rarity, it.image_url, it.title, it.year ] },
+      body["cards"].map { it.values_at("slug", "tier", "coverUrl", "title", "year") }
     body["cards"].zip(cards).each do |card, view|
-      assert_equal %w[slug tier coverUrl faces], card.keys
+      assert_equal %w[slug tier coverUrl title year label faces], card.keys
       assert_equal %w[m xl], card["faces"].keys
       card["faces"].each do |size, html|
         face = Nokogiri::HTML5.fragment(html)
@@ -412,7 +384,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     # No database id (AD-15): no id key, and the only integers are counts.
     assert_empty json_keys(body).grep(/\Aid\z|Id\z/)
-    assert_equal [ "bank.available", *%w[common uncommon rare epic legendary].map { "tierCountsBefore.#{it}" } ],
+    assert_equal [ *Array.new(5, "cards.[].year"), "bank.available", *%w[common uncommon rare epic legendary].map { "tierCountsBefore.#{it}" } ],
       json_integers(body).map(&:first)
   end
 
@@ -539,6 +511,10 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   test "a daily bonus pack answers its three cards, each with its two faces" do
     player = accounts_players(:player)
     create_pack(player, kind: :bonus, cards: fixture_tier_ids.last(3), available_at: 1.day.ago)
+    # Portal in an action tome: its genre ends its spoken label.
+    set_id = Catalog::Set.insert_all!([ { season_id: catalog_seasons(:one).id, kind: "tome", key: "action-1",
+      params: { "genre" => "action", "volume" => 1, "volumes" => 1 } } ], returning: :id).rows.flatten.first
+    Catalog::SetMembership.insert_all!([ { set_id:, card_season_id: catalog_card_seasons(:portal_one).id, position: 1 } ])
     sign_in(player.steam_id)
 
     open_json
@@ -546,6 +522,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_response :ok
     assert_equal "bonus", body.dig("pack", "kind")
     assert_equal %w[rare epic legendary], body["cards"].map { it["tier"] }
+    # Spoken as the booster's live region says them: title — publisher, year, genre.
+    assert_equal [ "Blue Depths — 2014", "Portal — Valve, 2007, Action", "Golden Crown — 1998" ], body["cards"].map { it["label"] }
     body["cards"].each do |card|
       assert_equal %w[m xl], card["faces"].keys
       card["faces"].each { |size, html| assert_equal 1, Nokogiri::HTML5.fragment(html).css(".card.card--#{size}.card--booster").size }
@@ -572,7 +550,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     get body.dig("pack", "url")
 
     assert_response :success
-    assert_nil reveal_props
+    assert_select ISLAND, 0
     assert_select ".pack-result__card .card.card--m", 5
   end
 end

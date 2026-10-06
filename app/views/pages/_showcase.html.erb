@@ -2,8 +2,8 @@
     player's latest pull of tier 4 or above (Game::NotablePull), its title,
     rarity and "Voir la fiche". Without one, the empty showcase: a hatched
     frame holding a dashed card outline and the dimmed logo, its copy and
-    the view's one primary button, which opens a booster (disabled with its
-    reason when the reserve is empty). %>
+    the view's one primary button, which opens the booster screen (disabled
+    with its reason when the reserve is empty). %>
 <% if card %>
   <% tier = Catalog::Rarity::TIERS.key(card.rarity.to_sym) %>
   <section class="hub-showcase" aria-labelledby="hub-showcase-name">
@@ -30,7 +30,7 @@
     <p class="hub-showcase__line"><%= t("pages.home.showcase.empty.text") %></p>
     <div class="hub-showcase__actions">
       <% if bank[:available].positive? %>
-        <%= render ButtonComponent.new(href: packs_path, method: :post) do %><%= t("pages.home.showcase.empty.open") %><% end %>
+        <%= render ButtonComponent.new(href: booster_path) do %><%= t("pages.home.showcase.empty.open") %><% end %>
       <% else %>
         <%= render ButtonComponent.new(disabled: true) do %><%= t("pages.home.showcase.empty.open") %><% end %>
         <p class="hub-showcase__reason"><%= t("pages.home.showcase.empty.reserve_empty") %></p>

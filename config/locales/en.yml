@@ -17,6 +17,9 @@ en:
       next_in: "+1 in"
       next_at: "Next booster at %{time} (UTC)"
       full: "Reserve full"
+      in_reserve:
+        one: "%{number} in reserve"
+        other: "%{number} in reserve"
     player:
       menu: "Player menu"
       fallback_name: "Player"
@@ -225,15 +228,8 @@ en:
       heading: "Your pack, Brother"
       heading_bonus: "Your daily bonus"
       cards: "The cards of your pack"
-      flip_all: "Flip all"
-      next: "Next card"
-      previous: "Previous card"
-      progress: "Card %{position} of %{count}"
-      all_flipped: "Every card is turned, Brother."
-      open_next_pack: "Open the next pack"
+      open_booster: "Open a booster"
       back_to_hub: "Back to the bridge"
-      failed: "The reveal stumbled, Brother. Your cards are safe in your collection."
-      reload: "Show my cards"
   library:
     collection:
       title: "Collection"
@@ -323,6 +319,66 @@ en:
     unavailable:
       title: "Profile not available"
       body: "This Brother's library is closed to visitors, Brother. The link leads nowhere, or its owner may no longer show it."
+  boosters:
+    show:
+      title: "Booster opening"
+    # The Booster island's words (BoostersHelper#booster_props), uppercase by
+    # CSS where the design shows capitals; plural keys read by the island's
+    # t() (app/frontend/lib/i18n.ts).
+    island:
+      kicker: "Booster · Season %{number}"
+      kicker_plain: "Booster"
+      title: "Grand catalogue"
+      cards_per_pack: "Cards per booster"
+      in_reserve: "In reserve"
+      reserve_count:
+        one: "%{n} booster"
+        other: "%{n} boosters"
+      state: "State"
+      states:
+        sealed: "Sealed"
+        arming: "Arming"
+        ejecting: "Ejection"
+        inventory: "Inventory"
+        legendary_signal: "Legendary signal"
+        complete: "Inventory complete"
+        waiting: "Waiting"
+      reserve: "Reserve"
+      next_in: "+1 in"
+      next_at: "Next booster at %{time} (UTC)"
+      reserve_full: "Reserve full"
+      open: "Open the booster"
+      open_next: "Open the next one"
+      reserve_empty: "Reserve empty"
+      empty_next: "Next booster in %{time}"
+      reveal_all: "Reveal all"
+      back: "Back to the bridge"
+      revealed_count: "Cards revealed: %{revealed} / %{total}"
+      canister_label: "Open the booster Season %{season}, grand catalogue, %{count} cards"
+      canister_label_plain: "Open the booster, grand catalogue, %{count} cards"
+      canister_hint: "Click to open"
+      canister_season: "Season %{number}"
+      result: "Booster result"
+      hint_remaining:
+        one: "Click a card to reveal it · %{n} left"
+        other: "Click a card to reveal it · %{n} left"
+      hint_done:
+        one: "Booster inventoried · +%{n} card in the collection"
+        other: "Booster inventoried · +%{n} cards in the collection"
+      face_down: "Card %{position} of %{total}, face down. Reveal."
+      face_up: "%{card}, %{rarity}. See the card."
+      card_label: "%{title} — %{details}"
+      announce_card: "Card %{position}: %{card}. %{rarity}."
+      summary:
+        one: "%{n} card revealed: %{tiers}."
+        other: "%{n} cards revealed: %{tiers}."
+      summary_tier: "%{rarity} × %{n}"
+      legendary_banner: "%{rarity}!"
+      banner_line: "%{title} · %{year}"
+      refused_title: "Opening cancelled"
+      failed: "The opening did not go through. Check your connection or reload the page, then try again."
+      island_failed: "The booster could not be shown. Your cards are in your collection."
+      reload: "Reload"
   daily_bonuses:
     create:
       collected: "A booster joins your reserve. The next one will be ready at midnight (UTC)."
@@ -348,8 +404,6 @@ en:
       copied: "Link copied"
       manual: "Press Ctrl+C to copy"
   cards:
-    face_down: "Face-down card"
-    face_down_with_rarity: "Face-down card, %{rarity}"
     face:
       image_missing: "Image unavailable"
     show:

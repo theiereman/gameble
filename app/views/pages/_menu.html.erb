@@ -1,8 +1,8 @@
 <%# The hub's numbered menu (DESIGN.md, Menu item; EXPERIENCE.md, Menu
     item): keys 1 to 6 open an item while focus is inside the menu
-    (hub_menu_controller.ts). 01 opens a booster (a player's open-pack form,
-    with the reserve as a lime badge, greyed and disabled at zero; for a
-    visitor, the sign-in panel); 02 opens the collection, with the unique
+    (hub_menu_controller.ts). 01 opens the booster screen (for a player, a
+    link with the reserve as a lime badge, greyed at zero; for a visitor,
+    the sign-in panel); 02 opens the collection, with the unique
     cards owned out of the season's; 03 to 06 have no screen yet. Hidden on
     the phone, where the tab bar navigates. %>
 <% soon = %i[trades friends feed achievements] %>
@@ -16,20 +16,19 @@
               data: { hub_menu_target: "item", controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: "sign-in-panel" } do %>
           <%= head %><%= arrow %>
         <% end %>
-      <% elsif bank[:available].positive? %>
-        <%= button_to packs_path, method: :post, class: "menu-item", form_class: "menu-item__form",
-              aria: { keyshortcuts: "1" }, data: { hub_menu_target: "item", action: "hub-menu#remember" } do %>
+      <% else %>
+        <%= link_to booster_path, class: "menu-item", aria: { keyshortcuts: "1" },
+              data: { hub_menu_target: "item", action: "hub-menu#remember", turbo_prefetch: false } do %>
           <%= head %>
-          <span class="menu-item__badge" aria-hidden="true"><%= number_with_delimiter(bank[:available]) %></span>
-          <span class="visually-hidden"><%= t("pages.home.menu.reserve", count: bank[:available], number: number_with_delimiter(bank[:available])) %></span>
+          <% if bank[:available].positive? %>
+            <span class="menu-item__badge" aria-hidden="true"><%= number_with_delimiter(bank[:available]) %></span>
+            <span class="visually-hidden"><%= t("pages.home.menu.reserve", count: bank[:available], number: number_with_delimiter(bank[:available])) %></span>
+          <% else %>
+            <span class="menu-item__badge menu-item__badge--zero" aria-hidden="true">0</span>
+            <span class="visually-hidden"><%= t("pages.home.menu.reserve_empty") %></span>
+          <% end %>
           <%= arrow %>
         <% end %>
-      <% else %>
-        <span class="menu-item" aria-disabled="true" aria-keyshortcuts="1">
-          <%= head %>
-          <span class="menu-item__badge" aria-hidden="true">0</span>
-          <span class="visually-hidden"><%= t("pages.home.menu.reserve_empty") %></span>
-        </span>
       <% end %>
     </li>
     <li class="hub-menu__entry">

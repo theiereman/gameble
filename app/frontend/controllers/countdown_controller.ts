@@ -20,9 +20,9 @@ const BUSY_RETRY_MS = 250
 // keeping its scroll, and shows the new pack and the next countdown; until a
 // new value arrives, the refresh is tried again every few seconds.
 //
-// A refresh would cancel a form submission in flight (the hub's "Ouvrir un
-// booster"), so none starts from a submission's start until the next page
-// load, or until the submission ends without one.
+// A refresh would cancel a form submission in flight (the hub's daily
+// booster, "Récupérer"), so none starts from a submission's start until the
+// next page load, or until the submission ends without one.
 //
 // With `refresh` false (the packs chip on any page but the hub), the clock
 // stops at 00:00 and the page is never refreshed: the next visit brings the

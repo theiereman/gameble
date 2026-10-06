@@ -236,7 +236,43 @@ a {
   font-variant-numeric: tabular-nums;
 }
 
-/* The packs chip: canister, reserve, divider, countdown. */
+/* A count the booster island just raised brightens a moment. */
+.rarity-counter__count[data-changed],
+.rarity-legend__count[data-changed] {
+  color: var(--color-accent-hi);
+}
+
+/* Navigation locked during a booster opening or reveal
+   (navigation_lock_controller.ts): dimmed, inert to the pointer's look. */
+[data-navigation-locked] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+[data-navigation-locked]:hover,
+[data-navigation-locked]:active {
+  transform: none;
+}
+
+/* The packs chip: canister, reserve, divider, countdown; a link to the
+   booster screen. The booster screen's static chip (--static) is no link. */
+a.packs-chip {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a.packs-chip:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+a.packs-chip:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.packs-chip--static {
+  margin: 0;
+}
+
 .packs-chip__label,
 .packs-chip__next {
   color: var(--color-muted);

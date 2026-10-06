@@ -1,11 +1,11 @@
 <%# The packs chip (DESIGN.md, Packs chip): the boosters in reserve and the
     countdown to the next one, or "Réserve pleine" at Game::Pack::BANK_SIZE.
-    Not a link until the booster screen exists. The ticking clock is hidden
+    A link to the booster screen. The ticking clock is hidden
     from screen readers, which read the static time. On the hub it refreshes
     the page by morphing at zero (the new booster counted in the menu);
     elsewhere it stops at zero. %>
 <% seconds = shell_next_pack_in(bank) %>
-<p class="packs-chip">
+<%= link_to booster_path, class: "packs-chip", data: { turbo_prefetch: false } do %>
   <%= pixel_icon("canister-small", class: "packs-chip__icon") %>
   <span class="packs-chip__count"><%= number_with_delimiter(bank[:available]) %></span>
   <span class="packs-chip__label"><%= t("shell.packs.label") %></span>
@@ -20,4 +20,4 @@
       <span class="visually-hidden"><%= t("shell.packs.next_at", time: bank[:next_available_at].utc.strftime("%H:%M")) %></span>
     </span>
   <% end %>
-</p>
+<% end %>

@@ -1,15 +1,17 @@
 <%# The rarity counter (DESIGN.md, Rarity counter): each tier's icon and the
     copies held in the published season; the names are in its accessible
     name and in the "Raretés" legend it opens (a native popover: Esc or a
-    second activation closes it). Hidden on the phone. %>
-<div class="rarity-counter">
+    second activation closes it). Hidden on the phone. The rarity-counter
+    controller raises a tier's counts as the booster island reveals its
+    cards (`gameble:tier-revealed`). %>
+<div class="rarity-counter" data-controller="rarity-counter" data-rarity-counter-delimiter-value="<%= t("number.format.delimiter") %>">
   <button type="button" class="rarity-counter__button" popovertarget="rarity-legend">
     <span class="visually-hidden"><%= t("shell.rarity.label") %></span>
     <% Catalog::Rarity::TIERS.each do |tier, code| %>
       <span class="rarity-counter__item">
         <%= pixel_icon("rarity-#{tier}", class: "rarity-counter__icon") %>
         <span class="visually-hidden"><%= t("catalog.rarity.#{code}") %></span>
-        <span class="rarity-counter__count"><%= number_with_delimiter(counts.fetch(tier)) %></span>
+        <span class="rarity-counter__count" data-rarity-counter-target="count" data-tier="<%= code %>"><%= number_with_delimiter(counts.fetch(tier)) %></span>
       </span>
     <% end %>
   </button>
@@ -20,7 +22,7 @@
         <li class="rarity-legend__row rarity-legend__row--<%= tier %>">
           <%= pixel_icon("rarity-#{tier}", class: "rarity-legend__icon") %>
           <span class="rarity-legend__name"><%= t("catalog.rarity.#{code}") %></span>
-          <span class="rarity-legend__count"><%= number_with_delimiter(counts.fetch(tier)) %></span>
+          <span class="rarity-legend__count" data-rarity-counter-target="count" data-tier="<%= code %>"><%= number_with_delimiter(counts.fetch(tier)) %></span>
         </li>
       <% end %>
     </ul>

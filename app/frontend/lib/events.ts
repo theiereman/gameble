@@ -1,6 +1,7 @@
 // The application's own DOM events (architecture, Consistency Conventions:
 // `gameble:<noun-verb>`, declared here only). Each name maps to its detail;
 // dispatchGameble and onGameble keep both ends typed.
+import type { Rarity } from "./card_types"
 
 // A toast to show (EXPERIENCE.md, Toast): the shell's toast region appends
 // it from its server-rendered template.
@@ -10,8 +11,23 @@ export type ToastDetail = {
   tone?: "notice" | "alert"
 }
 
+// The booster island revealed a card of `tier`: the player's copies per
+// tier now, read by the top bar's rarity counter.
+export type TierRevealedDetail = { tier: Rarity; counts: Record<Rarity, number> }
+
+// The player's reserve changed (an opening's answer): read by the booster
+// screen's reserve chip. Times are UTC ISO 8601.
+export type BankChangedDetail = { available: number; reserveFull: boolean; nextAvailableAt: string | null; serverTime: string }
+
+// The booster island locks the in-app navigation (top bar back button, tab
+// bar) while it opens a booster or reveals a card, and unlocks it after.
+export type NavigationLockedDetail = { locked: boolean }
+
 export interface GamebleEventMap {
   "gameble:toast": ToastDetail
+  "gameble:tier-revealed": TierRevealedDetail
+  "gameble:bank-changed": BankChangedDetail
+  "gameble:navigation-locked": NavigationLockedDetail
 }
 
 export type GamebleEventName = keyof GamebleEventMap

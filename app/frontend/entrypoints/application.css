@@ -7,7 +7,7 @@
 @import "../styles/collection.css";
 @import "../styles/card-detail.css";
 @import "../styles/card.css";
-@import "../styles/reveal.css";
+@import "../styles/booster.css";
 
 /* Read by screen readers, not shown. */
 .visually-hidden {
@@ -98,7 +98,7 @@
   color: var(--color-muted);
 }
 
-/* The cards of an opened pack, face up: every visit after the reveal. */
+/* The cards of an opened pack, face up ("my last booster"). */
 .pack-result {
   display: flex;
   flex-direction: column;
@@ -116,4 +116,17 @@
   margin: 0;
   padding: var(--space-3);
   list-style: none;
+}
+
+/* The end of the pack's page: the booster screen and the way back. */
+.pack-end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.pack-end .button,
+.pack-end .button-form {
+  margin: 0;
 }
