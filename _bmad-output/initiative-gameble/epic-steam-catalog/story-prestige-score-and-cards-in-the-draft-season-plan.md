@@ -3,7 +3,7 @@ title: 'Prestige score and cards in the draft season'
 type: 'feature'
 ticket: '5'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '9c8b664073253c80e2ec9c4d94126dc838a85553'
 route: 'full'
 route_source: 'auto'

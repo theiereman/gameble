@@ -3,7 +3,7 @@ title: 'Import run tracer'
 type: 'feature'
 ticket: '1'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '947517442c4697e8288c5689c19eb6fd4cabc784'
 route: 'full'
 route_source: 'auto'

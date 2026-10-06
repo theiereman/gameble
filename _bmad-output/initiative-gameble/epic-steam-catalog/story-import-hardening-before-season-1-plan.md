@@ -3,7 +3,7 @@ title: 'Import hardening before season 1'
 type: 'feature'
 ticket: '11'
 created: '2026-10-03'
-status: 'built'
+status: done
 baseline_revision: '2d908769f2ae88d557d8d4bc6f233800f4627629'
 route: 'full'
 route_source: 'auto'

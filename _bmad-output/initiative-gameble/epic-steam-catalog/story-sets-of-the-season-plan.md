@@ -3,7 +3,7 @@ title: 'Sets of the season'
 type: 'feature'
 ticket: '7'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: 'b33e0aafd658850fa02a5f574fe3ef984246bb70'
 route: 'full'
 route_source: 'auto'

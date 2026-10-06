@@ -3,7 +3,7 @@ title: 'Store details in both languages'
 type: 'feature'
 ticket: '4'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '426adf4c8edc3739efb795fa4b0dd7147728c9af'
 route: 'full'
 route_source: 'auto'

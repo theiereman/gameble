@@ -3,7 +3,7 @@ title: 'Popularity-led prestige score'
 type: 'feature'
 ticket: '12'
 created: '2026-10-06'
-status: 'built'
+status: done
 baseline_revision: '28aee29275da3c7342adc46b6863d03686c66562'
 route: 'oneshot'
 route_source: 'auto'

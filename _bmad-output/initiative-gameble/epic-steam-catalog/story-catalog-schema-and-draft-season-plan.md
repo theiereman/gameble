@@ -3,7 +3,7 @@ title: 'Catalog schema and draft season'
 type: 'feature'
 ticket: '2'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: 'a9ee53a4be4d60612337ebc04e66ca417defc8a8'
 route: 'full'
 route_source: 'auto'

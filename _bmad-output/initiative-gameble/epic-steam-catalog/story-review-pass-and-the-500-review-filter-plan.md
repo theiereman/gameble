@@ -3,7 +3,7 @@ title: 'Review pass and the 500-review filter'
 type: 'feature'
 ticket: '3'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '8828e609f57e0eeeda5fd759744d82e3e92f02aa'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'Import without the store API'
 type: 'refactor'
 ticket: '10'
 created: '2026-10-03'
-status: 'built'
+status: done
 baseline_revision: '4b1dfe4854fc1932f91358685fb7cf2310f8ffca'
 route: 'full'
 route_source: 'auto'

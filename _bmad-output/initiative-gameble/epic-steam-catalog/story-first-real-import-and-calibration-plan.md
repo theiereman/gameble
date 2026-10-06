@@ -3,7 +3,7 @@ title: 'First real import and calibration'
 type: 'feature'
 ticket: '8'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: 'd69b583c21c4dd3534028fd2eb6b075357427fe4'
 route: 'full'
 route_source: 'auto'

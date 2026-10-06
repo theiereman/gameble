@@ -3,7 +3,7 @@ title: 'Publish a season with its tiers'
 type: 'feature'
 ticket: '6'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '761439ebb03adea85068ec77b3c7ac29205bc159'
 route: 'full'
 route_source: 'auto'
