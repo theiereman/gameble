@@ -30,11 +30,15 @@ export default class extends Controller<HTMLElement> {
   private frame?: number
 
   private readonly visited = (event: Event): void => {
-    const url = (event as CustomEvent<{ url?: string }>).detail?.url
-    // At turbo:visit, location is still the page being left.
-    const same = url !== undefined && new URL(url, location.href).pathname === location.pathname
+    const { url, action } = (event as CustomEvent<{ url?: string; action?: string }>).detail ?? {}
+    // At turbo:visit, location is still the page being left, except on a
+    // restoration (Back, Forward): the browser has already moved to the
+    // entry, so a restoration always counts as a screen change.
+    const same = action !== "restore" && url !== undefined && new URL(url, location.href).pathname === location.pathname
     if (same) {
       document.documentElement.dataset.screenChange = "same"
+      // A screen change this visit replaced is not shown any more.
+      pending = false
     } else {
       delete document.documentElement.dataset.screenChange
       pending = true

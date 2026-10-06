@@ -11,7 +11,7 @@ review: 'quick'
 review_source: 'pinned'
 lenses_ran: [quick]
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context:
   - '{project-root}/_bmad-output/initiative-gameble/ux-gameble/DESIGN.md'
   - '{project-root}/_bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md'
@@ -147,6 +147,17 @@ deferred:
   - `[low]` `[patch]` Toasts ignore Esc, and closing a focused toast drops focus to the body — Esc on a focused toast now closes it (system test added); the focus drop is rejected as a low with a rare path (a toast is seldom focused) whose fix adds a focus-destination rule the shell does not define yet.
   - `[low]` `[patch]` The `RECOLOUR` constant sat between `pixelSvg`'s doc comment and the function — moved above the comment.
 
+### 2026-10-06 — Review pass
+- verdicts: 7 findings — high 0, medium 3, low 3, false 1, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` Back and Forward count as same-page visits. On a restoration, Turbo 8.0.23's `History.onPopState` sets the location to the entry before `turbo:visit` fires, so the requested path always equals `location.pathname`. The restored screen lost its slide and the stars stayed still, and the marker lingered until the next link visit. Fixed: `starfield_controller.ts` treats `action: "restore"` as a screen change. New system test "Back and Forward are screen changes" (marker cleared, `.main` captured as `screen`, stars −160 → −320 px); it fails without the fix.
+  - `[low]` `[reject]` The marker is decided from the requested URL, not the rendered page. A redirected GET (a visitor tapping COLLECTION and being sent back to the hub) slides the hub over itself. Real, but only on visitor-only redirect paths, and the cost is one 300ms slide. A fix has to read Turbo's fetch response (`turbo:before-fetch-response`) or the followed redirect visit, which adds a new branch, so it is not worth it now.
+  - `[low]` `[patch]` The same-path branch never reset `pending`, so a different-path visit superseded by a same-path one (tapping the current tab while a link loads, or the hub countdown's refresh during a link visit) shifted the stars on a same-page render. Fixed: the same-path branch sets `pending = false`.
+  - `[medium]` `[patch]` Under `html[data-screen-change=same]`, only the screen's old and new images lost their animation. `::view-transition-group(screen)` kept its UA 250ms animation, so the opaque old picture showed under the new one, for example the daily booster panel after "Collect" or the counts after the countdown refresh. Fixed: under the marker `.main` gets `view-transition-name: none`, so the root's new picture replaces the old one at once. The existing refresh test now asserts the computed name (`none` after a refresh, `screen` after a link visit).
+  - `[medium]` `[patch]` During a screen change the sliding screen painted over the phone tab bar and the toasts, which were part of the root snapshot under `group(screen)`. EXPERIENCE.md says the bars do not move. Fixed: `.tab-bar` and `.toasts` get their own `view-transition-name`. Their group and new image have no animation and their old image is hidden, so they stay above the screen and change at once. System test asserts both names on a 390px phone.
+  - `[low]` `[reject]` Several flash toasts in one morph refresh can come out in reverse order: with one kept toast A, notice B1 soft-matches A and is re-added in a microtask, while alert B2 is inserted at once (A, B2, B1). It needs a morph that brings both a notice and an alert while a toast is still shown, which is rare, and fixing the order means new insertion bookkeeping. The lens confirmed that no toast is lost or duplicated for 1+1, 2+1, 1+2 and 2+2. Two new system tests cover several kept toasts (order kept) and two kept toasts plus the incoming daily-bonus notice (three shown, all timed out).
+  - `[false]` `[reject]` Leaving the back-office with a stale marker. Entering it always clears the marker, because the starfield controller is still connected when that `turbo:visit` fires. Nothing in the back-office sets the marker, and `.is-back-office .main` has no transition name. The `pending` shift kept for the next page with stars is a real screen change, as intended. New system test: hub refresh, then back-office, then Bridge; the marker is gone each time and the view-transition names are right.
+
 ## Auto Run Result
 
 - **Summary:** the medieval shell is replaced on every page: DESIGN.md tokens (`tokens.css`), self-hosted Pixelify Sans 600/700, Silkscreen 400 and VT323 400 (latin + latin-ext woff2, OFL texts, latin files preloaded), a layout with top bar (logo or "◀ Pont", rarity counter with its "Raretés" legend, packs chip, player chip with a transitional menu, or Valve's official Steam image), phone tab bar, permanent star field/scanlines/vignette, toasts replacing flash, view-transition and viewport metas; Button (danger, link, small, icon, disabled), Panel, Toast and SteamSignIn components; `TextPlateComponent` removed; a deterministic `script/pixel_art/export.mjs` writing 23 pixel SVGs; existing screens recoloured only; the back-office keeps tokens and top bar without atmosphere or tab bar.
@@ -155,6 +166,35 @@ deferred:
 - **Follow-up review:** recommended (`true`) — two medium findings were patched on this first pass. The specific unverified risk: the toast region's new morph handling (cancelling `turbo:before-morph-element`, re-adding the incoming toast in a microtask) and the same-path screen-change flag are covered only by hub system tests; several toasts during one morph, and leaving the back-office (no starfield controller there to clear the flag), are untested.
 - **Verification:** `node script/pixel_art/export.mjs --check` ok (23 files); `bin/rubocop` no offenses; `packwerk validate` and `check` clean; `i18n-tasks missing` none; `npm run typecheck` clean; `npm run test:js` 63 passed; `bin/rails test` 1055 runs, 0 failures; `bin/rails test:system` 58 runs, 0 failures (after the review patches). Acceptance grep (Jost, parchment hexes, text-plate, status-band, `.flash`) empty in `app/`, `config/`, `test/`.
 - **Residual risks:** signed-in pages run 4–5 more queries (request-count tests raised); button labels uppercased by CSS; the transitional player menu, disabled tabs, non-refreshing chip countdown and always-rendered view-transition meta are recorded in deferred-work.md; screen-reader announcement of toasts present at load is untested.
+
+### Follow-up pass (2026-10-06)
+
+- **Summary:** follow-up quick review of the shell. It found and fixed Back/Forward being taken for same-page visits, a stale pending star shift, the double picture on same-page refreshes, and the tab bar and toasts being covered by the sliding screen. It also added system tests for the open risks of the first pass: a refresh outside the hub, history navigation, leaving the back-office, and several toasts across a morph refresh.
+- **Files:**
+  - `app/frontend/controllers/starfield_controller.ts`: a restoration is a screen change; a same-path visit drops a pending shift.
+  - `app/frontend/styles/shell.css`: under the marker `.main` is not captured; the tab bar and the toasts are captured on their own, without animation.
+  - `test/system/shell_test.rb`: five new tests, and the refresh test extended.
+- **Review:** quick lens, 7 findings.
+  - Patched 4: medium 3, low 1.
+  - Deferred: none.
+  - Rejected 3:
+    - The redirected-GET marker: low, visitor-only, the fix needs a new branch on the fetch response.
+    - Reverse order of several toasts in one morph: low, rare, the fix needs insertion bookkeeping.
+    - Stale marker after the back-office: false, the marker is cleared on entry.
+- **Follow-up review:** not recommended (`false`): this follow-up pass patched no high finding.
+- **Verification:**
+  - `node script/pixel_art/export.mjs --check`: ok.
+  - `bin/rubocop`: no offenses.
+  - `packwerk validate` / `check`: clean.
+  - `i18n-tasks missing`: none.
+  - `npm run typecheck`: clean.
+  - `npm run test:js`: 114 passed.
+  - `bin/rails test`: 1130 runs, 0 failures.
+  - `bin/rails test:system`: 71 runs, 0 failures.
+  - The new shell tests fail without the patches (3 failures) and pass with them.
+- **Residual risks:**
+  - The view-transition pseudo-elements are checked only through computed `view-transition-name` values, not by watching a running transition.
+  - Redirected GETs still decide the marker from the requested URL.
 
 ## Design Notes
 

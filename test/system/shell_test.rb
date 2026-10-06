@@ -152,15 +152,68 @@ class ShellTest < ApplicationSystemTestCase
     assert_selector "html[data-test-loaded]", visible: :all
   end
 
+  def assert_star_shift(pixels)
+    assert_selector ".atmosphere__stars[style*='--star-shift: #{pixels}px']", visible: :all
+  end
+
   test "a refresh of the same page is no screen change; a visit to another one is" do
     visit home_path(locale: :en)
 
     refresh_with_turbo
     assert_selector "html[data-screen-change=same]", visible: :all
+    # The screen is not captured apart, so no old picture lingers under the new one.
+    assert_equal "none", computed(".main", "viewTransitionName")
 
     within(".hub-menu") { click_on "Collection" }
     assert_current_path library_path(locale: :en)
     assert_no_selector "html[data-screen-change]", visible: :all
+    assert_equal "screen", computed(".main", "viewTransitionName")
+
+    # Another page than the hub, refreshed (a plain replace, no morph).
+    refresh_with_turbo
+    assert_selector "html[data-screen-change=same]", visible: :all
+  end
+
+  test "Back and Forward are screen changes: the screen slides and the stars shift" do
+    visit home_path(locale: :en)
+    within(".hub-menu") { click_on "Collection" }
+    assert_current_path library_path(locale: :en)
+    assert_star_shift(-160)
+    refresh_with_turbo
+    assert_selector "html[data-screen-change=same]", visible: :all
+    assert_star_shift(-160)
+
+    page.go_back
+    assert_current_path home_path(locale: :en)
+    assert_selector ".hub-menu"
+    assert_no_selector "html[data-screen-change]", visible: :all
+    assert_equal "screen", computed(".main", "viewTransitionName")
+    assert_star_shift(-320)
+  end
+
+  test "the back-office, without stars, leaves no same-page mark behind" do
+    sign_in(accounts_players(:administrator))
+    refresh_with_turbo
+    assert_selector "html[data-screen-change=same]", visible: :all
+
+    find(".top-bar .player-chip").click
+    click_on "Back-office"
+    assert_selector "body.is-back-office"
+    assert_no_selector "html[data-screen-change]", visible: :all
+    assert_equal "none", computed(".main", "viewTransitionName")
+
+    find(".top-bar__start a").click
+    assert_current_path home_path(locale: :en)
+    assert_no_selector "body.is-back-office"
+    assert_no_selector "html[data-screen-change]", visible: :all
+    assert_equal "screen", computed(".main", "viewTransitionName")
+  end
+
+  test "the tab bar and the toasts are captured apart from the sliding screen" do
+    resize_to(*PHONES["390"])
+    visit home_path(locale: :en)
+    assert_equal "tab-bar", computed(".tab-bar", "viewTransitionName")
+    assert_equal "toasts", computed(".toasts", "viewTransitionName")
   end
 
   test "a toast stays through a morph refresh of the hub" do
@@ -172,6 +225,45 @@ class ShellTest < ApplicationSystemTestCase
 
     refresh_with_turbo
     assert_selector ".toasts .toast", text: "Still here"
+  end
+
+  test "several toasts stay through a morph refresh of the hub, in their order" do
+    visit home_path(locale: :en)
+    page.execute_script(<<~JS)
+      for (const message of ["First toast, kept through the refresh of the page for a while.", "Second toast, kept through the refresh of the page as well."]) {
+        window.dispatchEvent(new CustomEvent("gameble:toast", { detail: { message } }))
+      }
+    JS
+    assert_selector ".toasts .toast", count: 2
+
+    refresh_with_turbo
+    messages = all(".toasts .toast .toast__message").map(&:text)
+    assert_equal 2, messages.size
+    assert_match(/\AFirst toast/i, messages.first)
+    assert_match(/\ASecond toast/i, messages.last)
+    assert_no_selector ".toasts .toast", wait: 12
+  end
+
+  test "the daily bonus's notice joins the toasts kept through the hub's refresh, and all leave by themselves" do
+    player = accounts_players(:player)
+    Game::FillBank.new.call(player:).value!
+    Game::OpenPack.new.call(player:).value!
+    sign_in(player)
+    find(".toasts .toast__close").click
+    assert_no_selector ".toasts .toast"
+    page.execute_script(<<~JS)
+      for (const message of ["One toast already on screen.", "Another toast already on screen."]) {
+        window.dispatchEvent(new CustomEvent("gameble:toast", { detail: { message } }))
+      }
+    JS
+    assert_selector ".toasts .toast", count: 2
+
+    within(".daily-booster") { click_on "Collect" }
+
+    notice = I18n.t("daily_bonuses.create.collected", locale: :en)
+    assert_selector ".toasts .toast.toast--notice", text: notice
+    assert_selector ".toasts .toast", count: 3
+    assert_no_selector ".toasts .toast", wait: 12
   end
 
   test "the daily bonus's notice, brought by the hub's refresh, leaves by itself" do

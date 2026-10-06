@@ -849,10 +849,37 @@ a {
   animation: screen-in 260ms var(--ease-out) 40ms both;
 }
 
-/* A visit to the page already shown is no screen change. */
-html[data-screen-change="same"]::view-transition-old(screen),
-html[data-screen-change="same"]::view-transition-new(screen) {
+/* A visit to the page already shown is no screen change: the screen is not
+   captured apart, so the page's new picture replaces the old one at once
+   (with the screen captured and its animations removed, the old and new
+   pictures would show on top of each other until the group's own 250ms
+   animation ends). */
+html[data-screen-change="same"] .main {
+  view-transition-name: none;
+}
+
+/* The phone tab bar and the toasts are captured apart so the sliding screen,
+   drawn above the root picture, never covers them; they do not move, and
+   their new picture replaces the old one at once. */
+.tab-bar {
+  view-transition-name: tab-bar;
+}
+
+.toasts {
+  view-transition-name: toasts;
+}
+
+::view-transition-group(tab-bar),
+::view-transition-group(toasts),
+::view-transition-new(tab-bar),
+::view-transition-new(toasts) {
   animation: none;
+}
+
+::view-transition-old(tab-bar),
+::view-transition-old(toasts) {
+  animation: none;
+  opacity: 0;
 }
 
 @keyframes screen-out {
