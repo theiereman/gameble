@@ -5,17 +5,34 @@
 <% content_for :head do %>
   <%= render "cards/share_tags", title:, url: card_public_url(view) %>
 <% end %>
+<%# On a phone, the way back is the grid of the set it browses ("◀ Grille"),
+    when that grid is in the library (the published season): back through
+    history when the grid is an earlier entry, so it shows at its scroll
+    (history_back_controller.ts), else a plain visit. %>
+<% if @browse && @detail.current_season %>
+  <% content_for :phone_back do %>
+    <%= link_to library_set_path(kind: @browse.set.kind, key: @browse.set.key),
+      class: "button button--secondary button--small top-bar__phone-back",
+      data: { controller: "history-back", action: "history-back#back" } do %>
+      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".grid") %></span>
+    <% end %>
+  <% end %>
+<% end %>
 <%# A card's detail (CAP-7), also the page a share link opens (CAP-9;
     EXPERIENCE Flow 1): only the card, never who shared or holds it. Its
-    sets lead to their tomes only in the published season, the one the
-    library shows. A holder can share it; a visitor is invited to play. %>
-<%= render "cards/detail", detail: @detail, copies: @copies, share_url: @share_url,
-  set_url: ->(set) { library_set_path(kind: set.kind, key: set.key) } %>
+    sets lead to their grids only in the published season, the one the
+    library shows. A holder can share it; a visitor is invited to play. ◀ ▶
+    replace this frame and the URL (sub_view_controller.ts); every other
+    link in it leaves the page. %>
+<%= turbo_frame_tag "card-detail", target: "_top" do %>
+  <%= render "cards/detail", detail: @detail, copies: @copies, signed_in: current_player.present?, share_url: @share_url,
+    set_url: ->(set) { library_set_path(kind: set.kind, key: set.key) }, browse: @browse, faded: @faded, back_key: @back_key %>
+<% end %>
 <% unless current_player %>
   <section class="card-detail__invitation" aria-label="<%= t(".invitation") %>">
     <%= render PanelComponent.new(tag: :p) do %><%= t(".invitation") %><% end %>
     <%# Opens the sign-in panel; signing in lands on the hub, where the
-        boosters wait. %>
-    <%= render ButtonComponent.new(opens: "sign-in-panel") do %><%= t(".sign_in") %><% end %>
+        boosters wait. Secondary: "Voir sur Steam" is the page's one primary. %>
+    <%= render ButtonComponent.new(variant: :secondary, opens: "sign-in-panel") do %><%= t(".sign_in") %><% end %>
   </section>
 <% end %>

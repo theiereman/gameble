@@ -1,70 +1,159 @@
-<%# A card's detail (CAP-7; DESIGN.md: a parchment panel): its extra-large face
-    and, beside it, what the card itself does not carry. Rows without a value
-    are left out; the ownership notice follows them on every card. The
-    description appears here only, never on the face. It names no one but
-    the viewer (CAP-9: a shared card shows only the card):
+<%# A card's detail, "FICHE DE LA CARTE" (CAP-7; DESIGN.md, Card detail;
+    epic 10 R2, R6): a bracketed panel with the number at top right, the
+    card at card-l over a ground shadow, its title, the facts the card does
+    not carry, the ownership notice and the actions ("Voir sur Steam", the
+    one primary, and "Partager" for a holder). On a phone (sub_view
+    controller) ◀ ▶ beside the card and a swipe on it step through the set
+    it browses, under a position line, with the actions pinned at the
+    bottom. It names no one but the viewer (CAP-9: a shared card shows only
+    the card). Locals:
     - detail: a Catalog::CardDetail::Detail;
-    - copies: how many copies of it the viewer holds, or nil for no line;
-    - set_url: ->(set) { path } leading each set to its tome, or nil for the
-      sets' names alone; the sets of a season other than the published one
-      (the one the library shows) are never linked;
+    - copies: how many copies of it the viewer holds, or nil;
+    - signed_in: whether a player views it (default false): then the
+      copies row reads their copies, or "None";
+    - set_url: ->(set) { path } leading each set to its grid, or nil for
+      the sets' names alone; the sets of a season other than the published
+      one (the one the library shows) are never linked;
     - share_url: the absolute link to this card-season's page, to share,
-      or nil (the default) for no share button. %>
+      or nil (the default) for no share button;
+    - browse: the Catalog::SetNeighbours::Neighbours of the set it browses,
+      or nil (the default) for no ◀ ▶ and no position line;
+    - faded: true to show the viewer's card back, faded, in place of the
+      face, for a card they do not hold within a set (default false);
+    - back_key: the viewer's active card back (Game::CardBacks). %>
 <% share_url = local_assigns.fetch(:share_url, nil) %>
-<% set_url = detail.current_season ? local_assigns.fetch(:set_url) : nil %>
+<% set_url = detail.current_season ? local_assigns.fetch(:set_url, nil) : nil %>
+<% browse = local_assigns.fetch(:browse, nil) %>
+<% faded = local_assigns.fetch(:faded, false) %>
+<% back_key = local_assigns.fetch(:back_key, Game::CardBacks::STANDARD) %>
+<% signed_in = local_assigns.fetch(:signed_in, false) %>
 <% view = detail.view %>
 <% strings = CardStrings.new %>
-<article class="card-detail" aria-labelledby="card-detail-heading">
-  <div class="card-detail__face">
-    <%= render CardComponent.new(card: view, size: :xl) %>
-  </div>
-  <div class="card-detail__body">
-    <h1 id="card-detail-heading" class="card-detail__title"><%= view.title %></h1>
-    <% if detail.short_description %>
-      <p class="card-detail__description"><%= detail.short_description %></p>
+<% tier = Catalog::Rarity::TIERS.invert.fetch(view.rarity.to_sym) %>
+<% controllers = [ "sub-view", ("share" if share_url) ].compact.join(" ") %>
+<% data = { controller: controllers, sub_view_title_value: card_preview_title(view) } %>
+<% data.merge!(share_copied_value: t("card_details.share.copied"), share_manual_value: t("card_details.share.manual")) if share_url %>
+<%= render PanelComponent.new(tag: :article, brackets: true, class: "card-detail", aria: { labelledby: "card-detail-heading" }, data:) do %>
+  <header class="card-detail__header">
+    <p class="card-detail__kicker"><%= t("card_details.kicker") %></p>
+    <% if view.number %>
+      <p class="card-detail__number"><%= view.number_label %></p>
     <% end %>
-    <dl class="card-detail__fields">
-      <dt><%= t("card_details.year") %></dt>
-      <dd><%= view.year %></dd>
-      <dt><%= t("card_details.rarity") %></dt>
-      <dd><%= strings.rarity_name(view.rarity) %></dd>
-      <dt><%= t("card_details.season") %></dt>
-      <dd><%= view.season_number %></dd>
-      <% if detail.sets.any? %>
-        <dt><%= t("card_details.sets") %></dt>
-        <dd>
-          <ul class="card-detail__sets">
-            <% detail.sets.each do |set| %>
-              <li><%= set_url ? link_to(SetLabel.for(set), set_url.call(set)) : SetLabel.for(set) %></li>
-            <% end %>
-          </ul>
-        </dd>
-      <% end %>
-      <% if detail.publisher %>
-        <dt><%= t("card_details.publisher") %></dt>
-        <dd><%= detail.publisher %></dd>
-      <% end %>
-    </dl>
-    <p class="card-detail__notice"><%= t("card_details.notice") %></p>
-    <% if copies %>
-      <p class="card-detail__copies"><%= t("card_details.copies", count: copies) %></p>
-    <% end %>
-    <% if share_url %>
-      <%# Copies the link (share_controller.ts); where the clipboard cannot be
-          written, the link is selected in its field to copy by hand. %>
-      <div class="card-detail__share" data-controller="share"
-        data-share-copied-value="<%= t("card_details.share.copied") %>" data-share-manual-value="<%= t("card_details.share.manual") %>">
-        <button type="button" class="button button--primary" data-action="share#copy"><%= t("card_details.share.button") %></button>
-        <label class="card-detail__share-field">
-          <span class="card-detail__share-label"><%= t("card_details.share.url") %></span>
-          <input type="text" class="card-detail__share-url" value="<%= share_url %>" readonly data-share-target="url">
-        </label>
-        <p class="card-detail__share-status" role="status" data-share-target="status"></p>
+  </header>
+  <div class="card-detail__layout">
+    <div class="card-detail__columns">
+      <%# The stage: the card between ◀ and ▶ (links replacing the frame and
+          the URL; a disabled button at an end). A horizontal swipe on it
+          presses them; a vertical drag scrolls the page. %>
+      <div class="card-detail__stage" data-sub-view-target="stage"
+        data-action="pointerdown->sub-view#press pointermove->sub-view#drag pointerup->sub-view#release pointercancel->sub-view#cancel">
+        <% if browse %>
+          <%= render "cards/detail_nav", browse:, view:, side: :previous %>
+        <% end %>
+        <div class="card-detail__card">
+          <% if faded %>
+            <span class="card-detail__back">
+              <%= card_back_image(back_key, class: "card-detail__back-image") %>
+              <span class="card-detail__back-plate">
+                <span class="card-detail__back-title" aria-hidden="true"><%= view.title %></span>
+                <span class="card-detail__back-line">
+                  <span class="card-detail__back-year" aria-hidden="true"><%= view.year %></span>
+                  <span class="card-detail__not-owned"><%= t("card_details.not_owned") %></span>
+                </span>
+              </span>
+            </span>
+          <% else %>
+            <%= render CardComponent.new(card: view, size: :l) %>
+          <% end %>
+          <span class="card-detail__shadow" aria-hidden="true"></span>
+        </div>
+        <% if browse %>
+          <%= render "cards/detail_nav", browse:, view:, side: :next %>
+        <% end %>
       </div>
-    <% end %>
-    <p class="card-detail__store">
-      <%= link_to t("card_details.store"), card_detail_store_url(detail.store_url), class: "button button--secondary",
-        rel: "noopener noreferrer external", target: "_blank" %>
-    </p>
+
+      <div class="card-detail__info">
+        <h1 id="card-detail-heading" class="card-detail__title" tabindex="-1" data-sub-view-target="heading"><%= view.title %></h1>
+        <% if browse %>
+          <% position = [ view.number_label, t("card_details.position", position: browse.position, total: browse.total) ] %>
+          <% position << t("card_details.swipe") if browse.total > 1 %>
+          <p class="card-detail__position"><%= position.compact.join(" · ") %></p>
+        <% end %>
+        <% if detail.short_description %>
+          <p class="card-detail__description"><%= detail.short_description %></p>
+        <% end %>
+        <dl class="card-detail__facts">
+          <% if detail.publisher %>
+            <div class="card-detail__fact">
+              <dt><%= t("card_details.facts.publisher") %></dt>
+              <dd><%= detail.publisher %></dd>
+            </div>
+          <% end %>
+          <div class="card-detail__fact">
+            <dt><%= t("card_details.facts.rarity") %></dt>
+            <dd class="card-detail__rarity card-detail__rarity--<%= view.rarity %>">
+              <%= pixel_icon("rarity-#{tier}", class: "card-detail__rarity-icon") %>
+              <%= strings.rarity_name(view.rarity) %>
+            </dd>
+          </div>
+          <% if view.genre %>
+            <div class="card-detail__fact">
+              <dt><%= t("card_details.facts.genre") %></dt>
+              <dd><%= SetLabel.genre(view.genre) %></dd>
+            </div>
+          <% end %>
+          <div class="card-detail__fact">
+            <dt><%= t("card_details.facts.year") %></dt>
+            <dd><%= view.year %></dd>
+          </div>
+          <div class="card-detail__fact">
+            <dt><%= t("card_details.facts.season") %></dt>
+            <dd><%= t("card_details.season_number", number: view.season_number) %></dd>
+          </div>
+          <% if detail.sets.any? %>
+            <div class="card-detail__fact">
+              <dt><%= t("card_details.facts.sets") %></dt>
+              <dd>
+                <ul class="card-detail__sets">
+                  <% detail.sets.each do |set| %>
+                    <li><%= set_url ? link_to(SetLabel.for(set), set_url.call(set)) : SetLabel.for(set) %></li>
+                  <% end %>
+                </ul>
+              </dd>
+            </div>
+          <% end %>
+          <% if signed_in %>
+            <div class="card-detail__fact">
+              <dt><%= t("card_details.facts.copies") %></dt>
+              <dd class="card-detail__copies"><%= copies ? t("card_details.copies", count: copies) : t("card_details.no_copies") %></dd>
+            </div>
+          <% end %>
+        </dl>
+        <p class="card-detail__notice"><%= t("card_details.notice") %></p>
+        <% if share_url %>
+          <%# The link, copied by "Partager" (share_controller.ts); where the
+              clipboard cannot be written, it is selected here to copy by
+              hand. %>
+          <div class="card-detail__share">
+            <label class="card-detail__share-field">
+              <span class="card-detail__share-label"><%= t("card_details.share.url") %></span>
+              <input type="text" class="card-detail__share-url" value="<%= share_url %>" readonly data-share-target="url">
+            </label>
+            <p class="card-detail__share-status" role="status" data-share-target="status"></p>
+          </div>
+        <% end %>
+        <div class="card-detail__actions">
+          <%= link_to card_detail_store_url(detail.store_url), class: "button button--primary card-detail__store",
+            rel: "noopener noreferrer external", target: "_blank" do %>
+            <span class="button__label"><%= t("card_details.store") %></span>
+            <span class="visually-hidden"><%= t("card_details.new_tab") %></span>
+            <%= pixel_icon("external", class: "button__icon") %>
+          <% end %>
+          <% if share_url %>
+            <button type="button" class="button button--secondary card-detail__share-button" data-action="share#copy"><%= t("card_details.share.button") %></button>
+          <% end %>
+        </div>
+      </div>
+    </div>
   </div>
-</article>
+<% end %>

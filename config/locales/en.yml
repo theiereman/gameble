@@ -385,21 +385,33 @@ en:
       throttled: "Too many attempts in a minute. Try again in a moment."
   card_details:
     open: "%{title}, %{rarity}, season %{season}"
-    year: "Released"
-    rarity: "Rarity"
-    season: "Season"
-    sets: "Sets"
-    publisher: "Publisher"
+    kicker: "Card file"
+    facts:
+      publisher: "Publisher"
+      rarity: "Rarity"
+      genre: "Genre"
+      year: "Year"
+      season: "Season"
+      sets: "Sets"
+      copies: "Copies"
+    season_number: "Season %{number}"
     copies:
-      one: "You hold %{count} copy"
-      other: "You hold %{count} copies"
-    store: "See it on the Steam store"
+      one: "%{count} copy"
+      other: "%{count} copies"
+    no_copies: "None"
+    not_owned: "Not owned"
+    position: "%{position} / %{total}"
+    swipe: "swipe to browse"
+    previous: "Previous card"
+    next: "Next card"
+    store: "See on Steam"
+    new_tab: "(new tab)"
     notice: "This game and its image belong to their respective owners. gameble is not affiliated with Valve or Steam."
     preview:
       title: "%{title} — %{rarity}"
       description: "A card of gameble, your Steam games as collectible cards. Sign in through Steam: ten boosters wait for you."
     share:
-      button: "Share this card"
+      button: "Share"
       url: "Link to this card"
       copied: "Link copied"
       manual: "Press Ctrl+C to copy"
@@ -409,6 +421,7 @@ en:
     show:
       invitation: "Open boosters, complete sets, trade with your friends."
       sign_in: "Open my first boosters"
+      grid: "Grid"
   catalog:
     rarity:
       common: "Common"

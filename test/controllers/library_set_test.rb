@@ -75,9 +75,15 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select "[style]", 0
     # A tome holds one genre: no chips.
     assert_select ".genre-chips", false
+    # Every face and missing slot leads to its card's detail in this season,
+    # browsing this set (its ◀ ▶, a card not held as the faded back); "xn"
+    # stays outside the link.
     slugs = Catalog::CardSeason.where(id: members).includes(:card).index_by(&:id).transform_values { it.card.slug }
     links = css_select(".collection-grid > li > a.card-link")
-    assert_equal members.map { |id| "/en/cards/#{slugs.fetch(id)}/seasons/#{season.number}" }, links.map { it["href"] }
+    assert_equal members.map { |id| "/en/cards/#{slugs.fetch(id)}/seasons/#{season.number}?set_key=action-1&set_kind=tome" },
+      links.map { it["href"] }
+    assert_equal members.map { |id| [ "false", id.in?([ members[0], members[3], members[24] ]) ? ".card" : ".missing-slot" ] },
+      links.map { |link| [ link["data-turbo-prefetch"], link.at_css(".card") ? ".card" : ".missing-slot" ] }
     rarity = Catalog::CardViews.call([ members[3] ], locale: :en).fetch(members[3]).rarity
     assert_equal "#{title(members[3])}, #{I18n.t("catalog.rarity.#{rarity}", locale: :en)}, season #{season.number}", links[3]["aria-label"]
     # A face's link is named by its label; a missing slot's by its visible

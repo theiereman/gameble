@@ -1,30 +1,234 @@
 /*
- * A card's detail (CAP-7; panels, hard edges and pixel outlines on the 2px
- * grid, until the card detail is redesigned): the extra-large face beside a
- * definition list of what the card does not carry, stacked on a phone. And
- * the links leading to it from a face or an empty slot, which keep the
- * card's own look. A held card's share button, and below the detail, for a
- * visitor, the invitation to play.
+ * A card's detail, "FICHE DE LA CARTE" (CAP-7; DESIGN.md: Card detail,
+ * Panels and terminal details, Card sizes; EXPERIENCE.md: Collection, Motion;
+ * epic 10 R2, R6): a bracketed panel up to 720px wide, centred, its header
+ * (kicker, number at top right), then the stage (the card at card-l over a
+ * ground shadow, or the viewer's card back at 55% for a card not held) and
+ * the information (title, position line, description, fact rows, notice,
+ * share link, actions). Two columns, stage and information, when the panel
+ * is wide enough (a container query, so a narrow right-hand panel stacks
+ * them too); one column otherwise.
+ *
+ * Under 720px (the phone sub-view): ◀ ▶ beside the card, 44 × 64, the
+ * position line shown and the header's number hidden (the line carries
+ * it), the actions pinned above the tab bar. A step between cards
+ * (sub_view_controller.ts) slides the card out toward the step and the
+ * next one in with a slight turn, in a View Transition; under reduced
+ * motion nothing moves (styles/shell.css drops every View Transition
+ * animation, and the controller starts none).
+ *
+ * Also the links leading to a card's detail from a face or an empty slot,
+ * and, for a visitor, the invitation to play below the detail.
  */
+
+:root {
+  /* The phone's pinned actions: a phone button and its padding (read by
+     the page's scroll padding too). */
+  --card-detail-actions-height: calc(var(--space-button-height-phone) + 2 * var(--space-4));
+}
 
 .card-detail {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-7);
-  max-width: calc(1000px + 2 * var(--space-unit));
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: var(--space-breakpoint-two-columns);
   margin: 0 auto;
-  padding: var(--space-5);
-  border: var(--space-unit) solid var(--color-line);
-  box-shadow: var(--pixel-outline-3);
-  background: var(--color-panel);
 }
 
-.card-detail__face {
+/* ---- Header: the kicker, the number at top right ---- */
+
+.card-detail__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.card-detail__kicker,
+.card-detail__number {
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.card-detail__kicker {
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+}
+
+.card-detail__number {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  white-space: nowrap;
+}
+
+/* ---- Columns: stage | information when wide, stacked when narrow ---- */
+
+.card-detail__layout {
+  container-type: inline-size;
+}
+
+.card-detail__columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+}
+
+@container (min-width: 520px) {
+  .card-detail__columns {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+/* ---- Stage: ◀, the card over its ground shadow, ▶ ---- */
+
+.card-detail__stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  /* A horizontal swipe steps (sub_view_controller.ts); a vertical drag
+     scrolls the page. */
+  touch-action: pan-y;
+}
+
+.card-detail__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+/* A flat dark bar under the card (DESIGN.md, Ground shadows). */
+.card-detail__shadow {
+  display: block;
+  width: 168px;
+  height: 8px;
+  background: var(--color-outline);
+  opacity: 0.7;
+}
+
+/* ◀ and ▶: shown on the phone only. A link, or a disabled button at an
+   end of the set (the position line says where the card stands). */
+.card-detail__nav {
+  display: none;
   flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-touch-min);
+  height: 64px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  color: var(--color-text-bright);
+  cursor: pointer;
 }
 
-.card-detail__body {
-  flex: 1 1 auto;
+.card-detail__nav:hover {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.card-detail__nav:active {
+  background: var(--color-accent-press);
+  color: var(--color-on-accent);
+}
+
+.card-detail__nav:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.card-detail__nav:disabled {
+  background: var(--color-disabled-bg);
+  box-shadow: none;
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
+.card-detail__nav-icon {
+  width: 8px;
+  height: 14px;
+}
+
+/* A card not held, within a set: the viewer's card back at 55%, its
+   title, year and "Not owned" on a plate across its lower part. */
+.card-detail__back {
+  position: relative;
+  display: block;
+  width: 208px;
+  height: 312px;
+  box-shadow: var(--pixel-outline-4);
+}
+
+.card-detail__back-image {
+  display: block;
+  width: 208px;
+  height: 312px;
+  opacity: 0.55;
+  image-rendering: pixelated;
+}
+
+/* One near-opaque plate across the back's lower band, under its ring: the
+   title (two lines at most), then the year and "Not owned". However long
+   the title, the plate never reaches the ring (on back-standard-l.png it
+   ends 214px down; the plate is at most 66px tall, 18px from the bottom);
+   it covers the band's decorative "GAMEBLE" word instead. */
+.card-detail__back-plate {
+  position: absolute;
+  right: var(--space-5);
+  bottom: 18px;
+  left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px var(--space-3);
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  text-align: center;
+}
+
+.card-detail__back-title {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  color: var(--color-text-max);
+  font: var(--font-card-title-l);
+  letter-spacing: var(--tracking-card-title-l);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.card-detail__back-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.card-detail__back-year {
+  color: var(--color-text);
+  font: var(--font-card-meta);
+  letter-spacing: var(--tracking-card-meta);
+}
+
+.card-detail__not-owned {
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+/* ---- Information ---- */
+
+.card-detail__info {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
@@ -36,96 +240,153 @@
   overflow-wrap: anywhere;
 }
 
+/* "S1 · #4 215 · 3 / 13 · glissez pour parcourir": the phone's. */
+.card-detail__position {
+  display: none;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
 .card-detail__description,
-.card-detail__copies,
-.card-detail__store {
+.card-detail__notice {
   margin: 0;
 }
 
-.card-detail__copies {
-  font-family: var(--font-family-silkscreen);
-  font-weight: var(--font-weight-regular);
+/* Fact rows: a muted label on the left, the value on the right, each on a
+   sunken row. */
+.card-detail__facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
 }
 
-/* Sharing a held card: the button, the link in a read-only field to copy by
-   hand where the clipboard cannot be written, and the feedback. */
+.card-detail__fact {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 32px;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-panel-sunken);
+}
+
+.card-detail__fact dt {
+  flex: none;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.card-detail__fact dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text-bright);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* The rarity: its icon and its name in its colour (never interactive). */
+.card-detail__rarity {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.card-detail__rarity-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.card-detail__fact .card-detail__rarity--common { color: var(--color-rarity-commune); }
+.card-detail__fact .card-detail__rarity--uncommon { color: var(--color-rarity-peu-commune); }
+.card-detail__fact .card-detail__rarity--rare { color: var(--color-rarity-rare); }
+.card-detail__fact .card-detail__rarity--epic { color: var(--color-rarity-epique); }
+.card-detail__fact .card-detail__rarity--legendary { color: var(--color-rarity-legendaire); }
+
+.card-detail__sets {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The ownership notice, under the facts of every card. */
+.card-detail__notice {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+/* Sharing a held card: the link in a read-only field, to copy by hand
+   where the clipboard cannot be written, and the feedback. */
 .card-detail__share {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-3);
-}
-
-.card-detail__share .button {
-  margin: 0;
+  gap: var(--space-2);
 }
 
 .card-detail__share-field {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  align-self: stretch;
 }
 
-.card-detail__share-label,
+.card-detail__share-label {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+/* "Link copied", or how to copy it by hand: a sentence, in VT323. */
 .card-detail__share-status {
-  font: var(--font-button);
-  letter-spacing: var(--tracking-button);
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-body-small);
 }
 
 .card-detail__share-url {
   width: 100%;
   padding: var(--space-2) var(--space-4);
-  border: var(--space-unit) solid var(--color-line);
-  background: var(--color-panel-sunken);
+  border: 0;
+  background: var(--color-input);
+  box-shadow: var(--control-border);
   color: var(--color-text);
-  font-family: var(--font-family-vt323);
   font: var(--font-body-small);
 }
 
-.card-detail__share-status {
+.card-detail__share-url:focus-visible {
+  box-shadow: var(--focus-ring-gap), inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+/* "Voir sur Steam" (the one primary) and "Partager". */
+.card-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.card-detail__actions .button {
   margin: 0;
 }
 
-.card-detail__fields {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  gap: var(--space-3) var(--space-5);
-  margin: 0;
+.card-detail__store .button__icon {
+  width: 14px;
+  height: 14px;
 }
 
-.card-detail__fields dt {
-  font: var(--font-button);
-  letter-spacing: var(--tracking-button);
-}
+/* ---- A face or an empty slot leading to its card's detail ---- */
 
-.card-detail__fields dd {
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-
-.card-detail__sets {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.card-detail__sets a {
-  color: var(--color-accent);
-}
-
-/* The ownership notice, under the fields of every card. */
-.card-detail__notice {
-  margin: 0;
-  color: var(--color-muted);
-  font: var(--font-body-small);
-}
-
-.card-detail__store .button {
-  margin: 0;
-}
-
-/* A face or an empty slot leading to its card's detail. */
 .card-link {
   display: inline-block;
   color: inherit;
@@ -133,16 +394,16 @@
   vertical-align: top;
 }
 
+/* ---- For a visitor, below the detail and as wide, centred: the
+   invitation to play ---- */
 
-/* For a visitor, below the detail and as wide, centred: the invitation to
-   play. */
 .card-detail__invitation {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: var(--space-4);
-  max-width: calc(1000px + 2 * var(--space-unit));
+  max-width: var(--space-breakpoint-two-columns);
   margin: var(--space-7) auto 0;
 }
 
@@ -150,15 +411,114 @@
   margin: 0;
 }
 
-/* On a phone the face above its fields. */
-@media (max-width: 720px) {
+/* ---- The phone sub-view ---- */
+
+@media (max-width: 719px) {
   .card-detail {
-    flex-direction: column;
-    align-items: center;
-    padding: var(--space-3);
+    padding: var(--space-5) var(--space-4);
   }
 
-  .card-detail__body {
-    align-self: stretch;
+  .card-detail__number {
+    display: none;
   }
+
+  .card-detail__nav {
+    display: inline-flex;
+  }
+
+  .card-detail__position {
+    display: block;
+  }
+
+  /* Scroll padding covers the pinned actions too (DESIGN.md, Focus ring),
+     so a focused set link or share field is never hidden behind them. */
+  html:has(.card-detail__actions) {
+    scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height));
+  }
+
+  /* Pinned above the tab bar while the information scrolls under them. */
+  .card-detail__actions {
+    position: sticky;
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+    z-index: 2;
+    margin: 0 calc(-1 * var(--space-4));
+    min-height: var(--card-detail-actions-height);
+    padding: var(--space-4);
+    background: var(--color-panel);
+    box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line);
+  }
+
+  .card-detail__actions .button {
+    flex: 1 1 0;
+  }
+}
+
+/* ---- A step between cards (sub_view_controller.ts): only the card moves.
+   It is named for the View Transition while a step runs; the screen is
+   not (styles/shell.css). ---- */
+
+html[data-sub-view-step] .card-detail__card {
+  view-transition-name: card-detail-card;
+}
+
+::view-transition-group(card-detail-card) {
+  animation: none;
+}
+
+html[data-sub-view-step="next"]::view-transition-old(card-detail-card) {
+  animation: card-detail-out-left 160ms var(--ease-out) both;
+}
+
+html[data-sub-view-step="next"]::view-transition-new(card-detail-card) {
+  animation: card-detail-in-right 260ms var(--ease-out) 40ms both;
+}
+
+html[data-sub-view-step="previous"]::view-transition-old(card-detail-card) {
+  animation: card-detail-out-right 160ms var(--ease-out) both;
+}
+
+html[data-sub-view-step="previous"]::view-transition-new(card-detail-card) {
+  animation: card-detail-in-left 260ms var(--ease-out) 40ms both;
+}
+
+@keyframes card-detail-out-left {
+  to {
+    opacity: 0;
+    transform: translateX(-48px);
+  }
+}
+
+@keyframes card-detail-out-right {
+  to {
+    opacity: 0;
+    transform: translateX(48px);
+  }
+}
+
+@keyframes card-detail-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(48px) rotate(3deg);
+  }
+}
+
+@keyframes card-detail-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-48px) rotate(-3deg);
+  }
+}
+
+/* ---- Reduced motion: the step's card is not captured apart, so it is
+   replaced at once (shell.css drops View Transition animations too, and
+   the controller starts none). ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-sub-view-step] .card-detail__card {
+    view-transition-name: none;
+  }
+}
+
+html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
+  view-transition-name: none;
 }

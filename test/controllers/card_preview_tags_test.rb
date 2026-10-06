@@ -54,13 +54,17 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     get card_page
 
     assert_response :success
-    assert_select "main > .card-detail:first-child h1", "Blue Depths"
+    assert_select "main > turbo-frame#card-detail:first-child > .card-detail h1", "Blue Depths"
     assert_select "h1", 1
     assert_select ".card-detail__copies", false
     assert_select ".card-detail__share", false
-    assert_select "main > .card-detail + .card-detail__invitation p.panel", "Open boosters, complete sets, trade with your friends."
-    assert_select ".card-detail__invitation button.button--primary[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]",
+    assert_select "main > turbo-frame#card-detail + .card-detail__invitation p.panel", "Open boosters, complete sets, trade with your friends."
+    assert_select ".card-detail__invitation button.button--secondary[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]",
       "Open my first boosters"
+    # "Voir sur Steam" is the page's one primary action.
+    assert_select "main .button--primary", 1
+    assert_select "main .card-detail__store.button--primary"
+    assert_select ".card-detail__card .card.card--l.card--rarity-rare"
     assert_select "main form[action='/auth/steam']", false
     assert_select ".library, .profile", false
     assert_not_includes response.body, "Gabe the Brave"
@@ -139,15 +143,17 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     get card_page
     assert_response :success
     assert_select ".card-detail__invitation", false
-    assert_select ".card-detail__copies", false
+    assert_select ".card-detail__copies", "None"
     assert_select ".card-detail__share", false
+    # The card's own page shows the face to a viewer who does not hold it.
+    assert_select ".card-detail__card .card.card--l"
     assert_equal "Blue Depths — Rare", og("title")
     delete session_path(locale: :en)
 
     sign_in(@sharer)
     get card_page
     assert_select ".card-detail__invitation", false
-    assert_select ".card-detail__copies", "You hold 2 copies"
+    assert_select ".card-detail__copies", "2 copies"
     assert_select ".card-detail__share input[value=?]", season_url
   end
 

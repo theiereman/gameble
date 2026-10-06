@@ -17,6 +17,7 @@ import { motionReduced } from "../lib/motion"
 // A visit to the page already shown (a refresh, a form sent back to the same
 // page, the current tab tapped) is no screen change: the stars stay, and
 // `html[data-screen-change=same]` tells the CSS to skip the screen's slide.
+// Nor is a visit made while `html[data-sub-view-step]` is set.
 const SHIFT = 160
 
 let offset = 0
@@ -30,6 +31,9 @@ export default class extends Controller<HTMLElement> {
   private frame?: number
 
   private readonly visited = (event: Event): void => {
+    // A sub-view's step (the card detail's ◀ ▶, sub_view_controller.ts)
+    // changes the URL but not the screen: the stars stay.
+    if (document.documentElement.dataset.subViewStep) return
     const { url, action } = (event as CustomEvent<{ url?: string; action?: string }>).detail ?? {}
     // At turbo:visit, location is still the page being left, except on a
     // restoration (Back, Forward): the browser has already moved to the

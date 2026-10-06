@@ -5,9 +5,13 @@
     collection, "Nouveau" in a lime box at the top-left; a missing one is a
     hatched slot with a padlock, naming its game and year. Each leads to its
     card's detail: a face's link is named by the card's title, rarity and
-    season, a missing slot's by its visible text and "Missing card". No
+    season, a missing slot's by its visible text and "Missing card"; within
+    a set, the link names it, so the detail browses that set (◀ ▶) and
+    shows a card the viewer does not hold as their faded card back. No
     card: the empty-filter line, or, past the last page of a scope that has
     cards, the past-the-end line.
+    - set: the set shown (a Catalog::SetSlots::SetRef), nil for the whole
+      season;
     - slots: [ [ Catalog::CardView, Game::CollectionSlots::Slot | nil ], … ];
     - pagy: the grid's page. %>
 <% strings = CardStrings.new %>
@@ -18,14 +22,14 @@
     <% slots.each do |card, held| %>
       <li class="collection-slot">
         <% if held %>
-          <%= link_to_card_detail(card, strings:) do %><%= render CardComponent.new(card:, size: :m) %><% end %>
+          <%= link_to_card_detail(card, strings:, set:) do %><%= render CardComponent.new(card:, size: :m) %><% end %>
           <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(held.copies) %></span>
           <span class="visually-hidden"><%= t("library.grid.copies", count: held.copies, number: number_with_delimiter(held.copies)) %></span>
           <% if held.new %>
             <span class="collection-slot__new"><%= t("library.grid.new") %></span>
           <% end %>
         <% else %>
-          <%= link_to_card_detail(card) do %>
+          <%= link_to_card_detail(card, set:) do %>
             <span class="missing-slot">
               <%= pixel_icon("lock", class: "missing-slot__icon") %>
               <span class="missing-slot__title"><%= card.title %></span>

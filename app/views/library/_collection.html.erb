@@ -29,7 +29,7 @@
         <% end %>
       </nav>
     <% end %>
-    <%= render "library/grid", slots:, pagy: pagy %>
+    <%= render "library/grid", set: grid.set, slots:, pagy: pagy %>
   </section>
   <% if seen_up_to %>
     <div hidden data-controller="collection-seen" data-collection-seen-url-value="<%= library_seen_path %>"

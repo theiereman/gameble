@@ -160,6 +160,12 @@ a {
   margin: 0;
 }
 
+/* A view's contextual phone back (a sub-view's "◀ GRILLE"): shown in place
+   of "◀ PONT" under 720px only. */
+.top-bar__start > .top-bar__phone-back {
+  display: none;
+}
+
 .top-bar__brand {
   display: flex;
   align-items: center;
@@ -894,6 +900,13 @@ html[data-screen-change="same"] .main {
   view-transition-name: none;
 }
 
+/* A sub-view's step (the card detail's ◀ ▶; sub_view_controller.ts) is no
+   screen change either: the screen stays, only the sub-view's own named
+   parts move (styles/card-detail.css). */
+html[data-sub-view-step] .main {
+  view-transition-name: none;
+}
+
 /* The phone tab bar and the toasts are captured apart so the sliding screen,
    drawn above the root picture, never covers them; they do not move, and
    their new picture replaces the old one at once. */
@@ -995,6 +1008,14 @@ html[data-screen-change="same"] .main {
 
   .rarity-counter {
     display: none;
+  }
+
+  .top-bar__start--phone-back > .button:not(.top-bar__phone-back) {
+    display: none;
+  }
+
+  .top-bar__start--phone-back > .top-bar__phone-back {
+    display: inline-flex;
   }
 
   .button {

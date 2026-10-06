@@ -1,0 +1,15 @@
+<%# A Turbo Frame's response (turbo-rails' frame layout, overridden): the
+    page's own head and language, then the view without the shell. A frame
+    visit that changes the URL (data-turbo-action, the card detail's ◀ ▶)
+    has Turbo merge this head into the page's and set the page's language
+    from it: with turbo-rails' bare layout the page would lose its title,
+    viewport, language and View Transition meta. %>
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <%= render "layouts/head" %>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>

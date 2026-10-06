@@ -245,8 +245,8 @@
   summary: The collection grid uses fixed `card-m` faces (160 × 240) in as many columns as fit, where DESIGN.md (Collection grid) asks cards resized between 120 and 170px wide to fill the row, the small face layout under 140px, and the pixel filter re-run at the rendered art size after a resize.
   evidence: Story 10.1 Never list; `app/frontend/styles/collection.css` (`.collection-grid`, `repeat(auto-fill, var(--card-m-width))`).
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-collection-and-sets-plan.md`
-  summary: Transitional: a grid slot links to the card's own page (`card_season_path`); the in-screen card detail ("FICHE DE LA CARTE", 340px from 1180px, 300px below, a sub-view on the phone) and the selected card's accent frame are left to story 10.2.
-  evidence: Story 10.1 Never list; `app/views/library/_grid.html.erb`.
+  summary: A grid slot opens the card's detail page (story 10.2's "FICHE DE LA CARTE", browsing the set shown); the in-screen detail beside the grid on a tablet and desktop (340px from 1180px, 300px below; EXPERIENCE.md Responsive), which can render `cards/_detail` (its container query stacks it at 340px), and the selected card's accent frame are not built. From the whole-season collection the links name no set, so the detail browses the card's first set and its "◀ Grille" leads to that set rather than back to the season.
+  evidence: Story 10.1 Never list; story 10.2 Design Notes; `app/views/library/_grid.html.erb`.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-collection-and-sets-plan.md`
   summary: Transitional: the public profile keeps the first direction's shelf and tome (`library/_shelf`, `library/_tome`, `ShelvesHelper#profile_shelf_links`, `library.css`, and the keys only they use: `library.tome.*`, `library.set.back_to_shelf`, `library.show.tabs.label`, `library.show.tabs.started`, `library.show.empty.started`, `library.show.progress`, `library.show.complete`) until story 10.3 redraws it; remove them then. The `library.show.*` keys the collection also uses (`tabs.tome|publisher|best_of_year`, `empty.tome|publisher|best_of_year`, `past_the_end`, `no_season`) stay, or move under the collection's own keys.
   evidence: Story 10.1 Never list; `app/views/public_profiles/*`, `app/frontend/styles/library.css` header.
@@ -271,3 +271,12 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-island-desktop-plan.md`
   summary: Intermittent system-test failures seen once each under the parallel full suite and never alone — `BoosterTest` "a refusal …" failed in its setup because the hub was already signed in (no `.steam-sign-in__button`; seed 18869, not reproduced with the same seed), and `ShellTest` "the daily bonus's notice …" (both toast-through-refresh cases; seed 18869 rerun) missed their notice toast. Each passed 3 of 3 alone; four more full runs were clean.
   evidence: Story 11 verification, 2026-10-06. The signed-in setup suggests a session cookie restored after Capybara's reset by a request still in flight from the worker's previous test; the toast cases are timing-sensitive under load, like the known shell_test phone-toast flake.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-card-detail-plan.md`
+  summary: The card detail has no rays behind an Épique or Légendaire card and no idle float with a breathing ground shadow (DESIGN.md Elevation & Depth, EXPERIENCE.md Motion "Idle float"); the hub showcase lacks them too, so they belong in one shared piece of work.
+  evidence: Story 10.2 Never list; `app/frontend/styles/card-detail.css` draws a still ground shadow only.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-card-detail-plan.md`
+  summary: Story 10.3: the card's faded back depends on a set in the query (a share link and the card's own page show the face to everyone, so a shared link still shows the card); once the public card page has its own layout or route, decide whether the in-app detail fades every card the viewer does not hold (AD-25) and drop the query rule.
+  evidence: Story 10.2 Design Notes, "Set context and the faded back"; `CardsController#show` (`@faded`).
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-card-detail-plan.md`
+  summary: The phone sub-view's swipe, step View Transition and "◀ Grille" history back were verified only in headless Chromium with synthetic pointer events; check them on an iOS Safari and an Android Chrome device (swipe beside the 150ms tilt hold, the card's turn, Back to the grid at its scroll).
+  evidence: Story 10.2 review, follow-up recommended; `test/system/card_detail_test.rb`.

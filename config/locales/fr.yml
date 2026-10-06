@@ -399,30 +399,43 @@ fr:
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
   card_details:
     open: "%{title}, %{rarity}, saison %{season}"
-    year: "Sortie"
-    rarity: "Rareté"
-    season: "Saison"
-    sets: "Collections"
-    publisher: "Éditeur"
+    kicker: "Fiche de la carte"
+    facts:
+      publisher: "Éditeur"
+      rarity: "Rareté"
+      genre: "Genre"
+      year: "Année"
+      season: "Saison"
+      sets: "Sets"
+      copies: "Exemplaires"
+    season_number: "Saison %{number}"
     copies:
-      one: "Tu en détiens %{count} exemplaire"
-      other: "Tu en détiens %{count} exemplaires"
-    store: "La voir sur la boutique Steam"
+      one: "%{count} exemplaire"
+      other: "%{count} exemplaires"
+    no_copies: "Aucun"
+    not_owned: "Non possédée"
+    position: "%{position} / %{total}"
+    swipe: "glissez pour parcourir"
+    previous: "Carte précédente"
+    next: "Carte suivante"
+    store: "Voir sur Steam"
+    new_tab: "(nouvel onglet)"
     notice: "Ce jeu et son image appartiennent à leurs propriétaires respectifs. gameble n'est affilié ni à Valve ni à Steam."
     preview:
       title: "%{title} — %{rarity}"
       description: "Une carte de gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix boosters vous attendent."
     share:
-      button: "Partager cette carte"
+      button: "Partager"
       url: "Lien vers cette carte"
       copied: "Lien copié"
-      manual: "Appuie sur Ctrl+C pour copier"
+      manual: "Appuyez sur Ctrl+C pour copier"
   cards:
     face:
       image_missing: "Image indisponible"
     show:
       invitation: "Ouvrez des boosters, complétez des sets, échangez avec vos amis."
       sign_in: "Ouvrir mes premiers boosters"
+      grid: "Grille"
   catalog:
     rarity:
       common: "Commune"

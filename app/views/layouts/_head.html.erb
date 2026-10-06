@@ -1,0 +1,35 @@
+<%# The page's head, the same for a full page and a frame's response
+    (layouts/turbo_rails/frame.html.erb): Turbo merges a frame visit's head
+    that changes the URL (the card detail's ◀ ▶) into the page's, so the
+    page keeps its viewport, its language, its View Transitions and its
+    assets, and takes the new title, canonical and preview tags. %>
+<title><%= content_for(:title) || t("layouts.application.title") %></title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171a21">
+<%# Screen changes are View Transitions (AD-27); CSS drops their
+    animation under reduced motion. %>
+<meta name="view-transition" content="same-origin">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="application-name" content="<%= t("layouts.application.application_name") %>">
+<meta name="mobile-web-app-capable" content="yes">
+<%= csrf_meta_tags %>
+<%= csp_meta_tag %>
+
+<%= content_for(:head) %>
+
+<%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+<%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+<link rel="icon" href="/icon.png" type="image/png">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon.png">
+
+<%# The pixel fonts' latin files, before the stylesheet asks for them. %>
+<% %w[pixelify-sans-latin-600 pixelify-sans-latin-700 silkscreen-latin-400 vt323-latin-400].each do |font| %>
+  <%= tag.link rel: "preload", href: vite_asset_path("fonts/#{font}-normal.woff2"), as: "font", type: "font/woff2", crossorigin: "anonymous" %>
+<% end %>
+
+<%= vite_client_tag %>
+<%= vite_react_refresh_tag %>
+<%= vite_stylesheet_tag "application.css" %>
+<%= vite_typescript_tag "application" %>

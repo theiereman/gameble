@@ -69,7 +69,7 @@ class ShareCardTest < ApplicationSystemTestCase
     visit card_path(locale: :en, slug: "portal")
     stub_clipboard
 
-    click_on "Share this card"
+    click_on "Share"
 
     assert_selector ".card-detail__share [role=status]", text: "Link copied"
     url = evaluate_script("window.copiedText")
@@ -82,7 +82,8 @@ class ShareCardTest < ApplicationSystemTestCase
     visit url
 
     assert_title "Portal — Epic"
-    assert_selector "main > .card-detail h1", text: "Portal"
+    assert_selector "main > turbo-frame#card-detail > .card-detail h1", text: "Portal"
+    assert_selector ".card-detail__card .card.card--l"
     assert_selector ".card-detail__invitation", text: "Open boosters, complete sets, trade with your friends."
     assert_no_selector ".card-detail__share"
     assert_no_selector ".card-detail__copies"
@@ -105,18 +106,18 @@ class ShareCardTest < ApplicationSystemTestCase
     visit card_path(locale: :en, slug: "portal")
 
     stub_no_clipboard(copied: false)
-    click_on "Share this card"
+    click_on "Share"
     assert_selector ".card-detail__share [role=status]", text: "Press Ctrl+C to copy"
     assert link_selected?, "the link should be selected"
 
     stub_no_clipboard(copied: true)
-    click_on "Share this card"
+    click_on "Share"
     assert_selector ".card-detail__share [role=status]", text: "Link copied"
 
     # The browser refuses the clipboard: execCommand, then the hint.
     execute_script("document.execCommand = () => false")
     stub_clipboard(result: "Promise.reject(new Error('denied'))")
-    click_on "Share this card"
+    click_on "Share"
     assert_selector ".card-detail__share [role=status]", text: "Press Ctrl+C to copy"
     assert link_selected?, "the link should be selected"
   end
@@ -125,7 +126,7 @@ class ShareCardTest < ApplicationSystemTestCase
     sign_in(@holder)
     visit card_path(locale: :en, slug: "portal")
     stub_clipboard
-    click_on "Share this card"
+    click_on "Share"
     assert_selector ".card-detail__share [role=status]", text: "Link copied"
 
     click_on "Bridge"

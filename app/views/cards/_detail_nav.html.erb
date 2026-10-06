@@ -1,0 +1,16 @@
+<%# ◀ or ▶ beside the card of a detail (cards/_detail): a link to the card
+    before or after it in the set it browses, which replaces the
+    `card-detail` frame and the URL (sub_view_controller.ts), or a disabled
+    button at that end of the set. Locals: browse (Catalog::SetNeighbours),
+    view (the card's CardView), side (:previous or :next). %>
+<% path = card_detail_neighbour_path(browse, view, side) %>
+<% label = t("card_details.#{side}") %>
+<% icon = pixel_icon(side == :previous ? "arrow-left" : "arrow-right", class: "card-detail__nav-icon") %>
+<% if path %>
+  <%= link_to icon, path, class: "card-detail__nav card-detail__nav--#{side}", aria: { label: },
+    data: { turbo_frame: "card-detail", turbo_action: "replace", turbo_prefetch: false,
+      sub_view_target: side, sub_view_direction_param: side, action: "sub-view#step" } %>
+<% else %>
+  <%= tag.button icon, type: :button, disabled: true, class: "card-detail__nav card-detail__nav--#{side}", aria: { label: },
+    data: { sub_view_target: side } %>
+<% end %>
