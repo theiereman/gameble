@@ -71,3 +71,6 @@ The `Steam` and `Catalog` packs and the import pages of the back-office. Not the
 - Decision (2026-10-02): hitl on story 1 (a Steam Web API key in the credentials) and story 8 (the author runs the full import and approves the calibration).
 - Decision (2026-10-02): a closing refactor sweep (story 9) follows every other story.
 - Assumption: the set check was run by the facilitator in this conversation, not by independent agents.
+- Measurement (2026-10-06, staging gameble.dotsncircles.com, author): the first full real import ran 13:53:57–14:49:19 UTC (55 min): 190,718 apps listed and reviewed, 12,326 kept (500 reviews or more), 178,392 set aside, 446 tags named, 12,326 store pages copied, 19 set aside there, 12,307 cards written, 0 refused, 0 struck from the draft.
+- Measurement (2026-10-06, staging): season 1 published at 15:02:33 UTC with 12,307 cards: Commune 7,384 (60 %), Peu commune 3,076 (25 %), Rare 1,231 (10 %), Épique 492 (4 %), Légendaire 124 (1 %); 380 publisher sets, 406 tomes, 37 best-of-year sets. Calibration kept the starting values (COUNT_WEIGHT, the tier shares, TOME_SIZE); season 1 is frozen, a change applies from season 2.
+
