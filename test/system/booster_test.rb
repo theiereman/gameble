@@ -1,13 +1,16 @@
 require "application_system_test_case"
 require_relative "../support/game_packs"
 
-# The booster screen (story 8.11; EXPERIENCE.md: Booster, Opening protocol):
-# the canister sends the opening exchange and deals the cards face down;
-# one activation reveals a card, "Reveal all" the rest; the top bar's
-# rarity counter rises at each reveal and its reserve chip follows each
-# answer; every refusal leaves the canister at rest and says why. Reduced
-# motion is emulated in every test but the Légendaire's, which runs the
-# whole choreography with motion on.
+# The booster screen (stories 8.11 and 8.12; EXPERIENCE.md: Booster,
+# Opening protocol): the canister sends the opening exchange and deals the
+# cards face down; one activation reveals a card, "Reveal all" the rest;
+# the top bar's rarity counter rises at each reveal and its reserve chip
+# follows each answer; every refusal leaves the canister at rest and says
+# why. On a phone the cards land in a pile, each revealed card is stored in
+# the tray (Store, a tap or a swipe) and a filled slot opens the card zoom;
+# from 720 to 899px the row deals small cards; a width crossing a
+# breakpoint draws the same hand again. Reduced motion is emulated in every
+# test but those named "with motion" and the loop budget's.
 class BoosterTest < ApplicationSystemTestCase
   include GamePacks
 
@@ -570,8 +573,351 @@ class BoosterTest < ApplicationSystemTestCase
     page.driver.browser.execute_cdp("Network.disable")
   end
 
-  test "on a phone the BOOSTER tab leads to the screen, which opens and reveals in a wrapping row" do
+  # ---- The phone, the narrow row and the rebuild (story 8.12) ----
+
+  def phone_card(position)
+    ".booster-card[data-position='#{position}']"
+  end
+
+  def phone_hit(position)
+    "#{phone_card(position)} .booster-card__hit"
+  end
+
+  def on_phone
     page.driver.browser.manage.window.resize_to(*PHONE)
+  end
+
+  # The phone's pile dealt: every card at card-xl, the first on top with the focus.
+  def assert_pile(count)
+    assert_selector ".booster[data-layout=phone] .booster__pile .booster-card[data-dealt]", count:, wait: 10
+    assert_selector ".booster__state", text: /\AINVENTORY\z/
+  end
+
+  def boxes_apart?(first, second)
+    page.evaluate_script(<<~JS)
+      (() => {
+        const a = document.querySelector(#{first.to_json}).getBoundingClientRect()
+        const b = document.querySelector(#{second.to_json}).getBoundingClientRect()
+        return a.bottom <= b.top || b.bottom <= a.top || a.right <= b.left || b.right <= a.left
+      })()
+    JS
+  end
+
+  # A drag of the top card by synthetic touch pointer events (pointerId 7),
+  # as a finger would: down, halfway, up at (dx, dy).
+  def drag_top(position, dx, dy)
+    execute_script(<<~JS, dx, dy)
+      const face = document.querySelector(#{"#{phone_card(position)} .booster-card__front .card".to_json})
+      const box = document.querySelector(#{"#{phone_card(position)} .booster-card__frame".to_json}).getBoundingClientRect()
+      const x = box.left + box.width / 2, y = box.top + box.height / 2
+      const event = (type, clientX, clientY) => new PointerEvent(type, { bubbles: true, pointerId: 7, pointerType: "touch", isPrimary: true, clientX, clientY })
+      face.dispatchEvent(event("pointerdown", x, y))
+      face.dispatchEvent(event("pointermove", x + arguments[0] / 2, y + arguments[1] / 2))
+      face.dispatchEvent(event("pointerup", x + arguments[0], y + arguments[1]))
+    JS
+  end
+
+  # Running infinite animations on the page (AD-27: six at most on a phone view).
+  def infinite_loops
+    page.evaluate_script(<<~JS)
+      document.getAnimations().filter((animation) => animation.playState === "running" && animation.effect.getTiming().iterations === Infinity).length
+    JS
+  end
+
+  def filled_slots
+    all(".booster-tray__slot--filled").size
+  end
+
+  test "on a phone: a pile of large cards, one at a time, each revealed then stored by Store, a tap or a swipe, the focus following" do
+    on_phone
+    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one), more: true)
+
+    within(".booster-strip") do
+      assert_selector "h2#booster-title", text: "SEASON 1 · GRAND CATALOGUE"
+      assert_selector ".booster__pip[data-lit]", count: 2
+      assert_selector ".booster__state", text: "SEALED"
+    end
+    assert_selector ".booster__canister-hint", text: "TAP TO OPEN"
+    assert_selector ".booster__canister-facts", text: "5 cards"
+    assert_no_selector ".booster__info"
+    assert_no_selector ".booster__counter"
+    assert_button "Open the booster"
+    assert_button "Reveal all", disabled: true
+
+    open_canister
+    assert_pile(5)
+    assert_selector ".booster__pile .booster-card__front .card.card--xl", count: 5, visible: :all
+    assert_selector "#{phone_card(1)}[data-top]"
+    assert_selector ".booster__pile .booster-card[inert]", count: 4
+    assert_focus phone_hit(1)
+    assert_selector ".booster-tray__slot", count: 5
+    assert_selector ".booster-tray__slot[data-next]", count: 1
+    assert_selector ".booster-tray__count", text: %r{CARD\s+0 / 5}
+    assert_selector ".booster-plate-band__hint", text: "Tap the card to reveal it"
+    assert_no_selector ".booster-plate"
+
+    # One activation reveals the top card; the plate tells it, under the card.
+    page.send_keys(:enter)
+    assert_selector "#{phone_card(1)}[data-revealed]"
+    assert_selector ".booster-plate[data-tier=common]", text: /COMMON.*TIN SOLDIER · 2024/m
+    assert_announced "Card 1: Tin Soldier — 2024. Common."
+    assert_equal "Tin Soldier — 2024, Common. Store the card.", find(phone_hit(1))["aria-label"]
+    assert_focus phone_hit(1)
+    assert boxes_apart?(".booster-plate", "#{phone_card(1)} .booster-card__frame"), "the plate should never cover the card"
+    sleep 0.45
+    click_on "Store"
+    assert_no_selector phone_card(1)
+    assert_selector ".booster-tray__slot--filled[data-tier=common]", count: 1
+    assert_selector ".booster-tray__count", text: %r{CARD\s+1 / 5}
+    assert_focus phone_hit(2)
+
+    # The second: a tap once its guard is over (a tap within it does nothing).
+    page.send_keys(:enter)
+    assert_selector "#{phone_card(2)}[data-revealed]"
+    find("#{phone_card(2)} .booster-card__front .card").click
+    assert_selector phone_card(2)
+    sleep 0.45
+    find("#{phone_card(2)} .booster-card__front .card").click
+    assert_no_selector phone_card(2)
+    assert_equal 2, filled_slots
+    assert_focus phone_hit(3)
+
+    # The third: a swipe; a short drag first springs back.
+    page.send_keys(:enter)
+    assert_selector "#{phone_card(3)}[data-revealed]"
+    sleep 0.45
+    drag_top(3, 30, 20)
+    sleep 0.3
+    assert_selector "#{phone_card(3)}[data-revealed][data-top]"
+    assert_equal 2, filled_slots
+    assert_equal "", find("#{phone_card(3)} .booster-card__float", visible: :all).evaluate_script("this.style.transform")
+    drag_top(3, 120, 10)
+    assert_no_selector phone_card(3)
+    assert_selector ".booster-tray__count", text: %r{CARD\s+3 / 5}
+    assert_focus phone_hit(4)
+
+    page.send_keys(:enter)
+    assert_selector ".booster-plate[data-tier=epic]", text: /EPIC.*PORTAL · 2007/m
+    sleep 0.45
+    click_on "Store"
+    assert_focus phone_hit(5)
+    page.send_keys(:enter)
+    assert_selector "#{phone_card(5)}[data-revealed]"
+    sleep 0.45
+    click_on "Store"
+
+    assert_equal 5, filled_slots
+    assert_no_selector ".booster__pile .booster-card"
+    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    assert_selector ".booster-plate-band__hint", text: "Booster inventoried · +5 cards in the collection"
+    assert_focus ".booster__open"
+    assert_button "Open the next one"
+    assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
+  end
+
+  test "on a phone a filled tray slot opens the card zoom; Esc gives the focus back to the slot, See the card leads to its page" do
+    on_phone
+    open_screen(card_ids(*[ :rare_card_one ] * 5))
+    open_canister
+    assert_pile(5)
+    page.send_keys(:enter)
+    assert_selector "#{phone_card(1)}[data-revealed]"
+    sleep 0.45
+    click_on "Store"
+    slot = ".booster-tray__slot--filled"
+    assert_equal "Blue Depths — 2014, Rare. Enlarge.", find(slot)["aria-label"]
+
+    find(slot).click
+    within("dialog.booster-zoom[open]") do
+      assert_selector "h2", text: "BLUE DEPTHS"
+      assert_selector ".booster-zoom__line", text: "RARE · 2014"
+      assert_selector ".booster-zoom__face .card.card--xl.card--rarity-rare", visible: :all
+      assert_link "See the card"
+      assert_button "Close"
+      assert_selector ".booster-zoom__tip", text: "Hold the card to tilt it"
+    end
+    assert_equal "booster-zoom-title", find("dialog.booster-zoom")["aria-labelledby"]
+
+    page.send_keys(:escape)
+    assert_no_selector "dialog.booster-zoom"
+    assert_focus slot
+    assert_current_path "/en/booster"
+
+    find(slot).click
+    click_on "Close"
+    assert_no_selector "dialog.booster-zoom"
+    assert_focus slot
+
+    find(slot).click
+    click_on "See the card"
+    assert_current_path "/en/cards/blue-depths"
+  end
+
+  test "on a phone Reveal all reveals and stores every card in the tray, with one summary" do
+    on_phone
+    open_screen(card_ids(:common_card_one, :legendary_card_one, :common_card_one, :uncommon_card_one, :rare_card_one), more: true)
+    open_canister
+    assert_pile(5)
+
+    click_on "Reveal all"
+    assert_selector ".booster-tray__slot--filled", count: 5, wait: 20
+    assert_announced "5 cards revealed: Legendary × 1, Rare × 1, Uncommon × 1, Common × 2.", wait: 10
+    assert_equal 1, announcements.count { it.end_with?("cards revealed: Legendary × 1, Rare × 1, Uncommon × 1, Common × 2.") }
+    assert_includes announcements, "Legendary signal"
+    assert_no_selector ".booster__pile .booster-card"
+    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    assert_focus ".booster__open"
+
+    # The next booster: the tray clears, a canister docks and opens with a new key.
+    click_on "Open the next one"
+    assert_pile(5)
+    assert_selector ".booster-tray__slot--filled", count: 0
+    assert_selector ".booster-tray__count", text: %r{CARD\s+0 / 5}
+    assert_focus phone_hit(1)
+    assert_equal 2, request_keys.uniq.size
+  end
+
+  test "with motion on a phone a Légendaire plays in the caption plate, never over the card, under its signal" do
+    reduce_motion(false)
+    on_phone
+    open_screen(card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
+    open_canister
+    assert_pile(5)
+
+    find(phone_hit(1)).click
+    assert_selector ".booster__state", text: "LEGENDARY SIGNAL"
+    assert_selector ".booster-plate[data-tier=legendary]", text: /LEGENDARY!.*GOLDEN CROWN · 1998/m, wait: 3
+    assert_selector ".booster__state", text: "LEGENDARY SIGNAL"
+    assert_no_selector ".booster__banner"
+    assert boxes_apart?(".booster-plate", "#{phone_card(1)} .booster-card__frame"), "the plate should never cover the card"
+    assert_selector ".booster__state", text: /\AINVENTORY\z/, wait: 5
+    assert_no_selector ".booster__banner"
+  end
+
+  test "with motion on a phone a finger held still tilts the revealed card: neither dragged nor stored" do
+    reduce_motion(false)
+    on_phone
+    open_screen(card_ids(*[ :common_card_one ] * 5))
+    open_canister
+    assert_pile(5)
+    find(phone_hit(1)).click
+    assert_selector "#{phone_card(1)}[data-revealed]"
+    assert_no_selector ".booster__back[aria-disabled=true]", wait: 5
+    sleep 0.45
+
+    face = "#{phone_card(1)} .booster-card__front .card"
+    execute_script(<<~JS)
+      const face = document.querySelector(#{face.to_json})
+      const box = face.getBoundingClientRect()
+      window.holdAt = [ box.left + box.width / 2, box.top + box.height / 2 ]
+      face.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerId: 7, pointerType: "touch", isPrimary: true, clientX: holdAt[0], clientY: holdAt[1] }))
+    JS
+    assert_selector "#{face}[data-tilting]", visible: :all
+    execute_script(<<~JS)
+      const face = document.querySelector(#{face.to_json})
+      const event = (type, dx) => new PointerEvent(type, { bubbles: true, pointerId: 7, pointerType: "touch", isPrimary: true, clientX: holdAt[0] + dx, clientY: holdAt[1] })
+      face.dispatchEvent(event("pointermove", 60))
+      face.dispatchEvent(event("pointermove", 120))
+      face.dispatchEvent(event("pointerup", 120))
+    JS
+    sleep 0.4
+
+    assert_selector "#{phone_card(1)}[data-top][data-revealed]"
+    assert_equal 0, filled_slots
+    assert_equal "", find("#{phone_card(1)} .booster-card__float", visible: :all).evaluate_script("this.style.transform")
+  end
+
+  test "a width crossing 720px draws the same hand again: no request, nothing replayed, the revealed cards in the tray and back" do
+    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one))
+    open_canister
+    assert_dealt(5)
+    find(hit(1)).click
+    find(hit(2)).click
+    assert_selector ".booster-card[data-revealed]", count: 2
+    first, second = revealed_at(1), revealed_at(2)
+
+    on_phone
+    assert_selector ".booster[data-layout=phone]"
+    assert_selector ".booster__pile .booster-card", count: 3
+    assert_selector ".booster__pile .booster-card[data-revealed]", count: 0
+    assert_selector ".booster-tray__slot--filled", count: 2
+    assert_selector ".booster-tray__count", text: %r{CARD\s+2 / 5}
+    assert_selector "#{phone_card(3)}[data-top]"
+    assert_selector ".booster__state", text: /\AINVENTORY\z/
+
+    page.driver.browser.manage.window.resize_to(*SCREEN_SIZE)
+    assert_selector ".booster[data-layout=wide]"
+    assert_selector ".booster__deal .booster-card[data-dealt]", count: 5
+    assert_selector ".booster-card[data-revealed]", count: 2
+    assert_equal [ first, second ], [ revealed_at(1), revealed_at(2) ]
+    assert_selector ".booster__counter", text: "Cards revealed: 2 / 5"
+    assert_equal 1, request_keys.size
+    assert_equal 1, opened_packs
+  end
+
+  test "a width change during a reveal waits for it to end" do
+    open_screen(card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
+    open_canister
+    assert_dealt(5)
+    # A Légendaire's still banner holds its reveal 1.4 s under reduced motion.
+    find(hit(1)).click
+    assert_selector ".booster__state", text: "LEGENDARY SIGNAL"
+    on_phone
+    assert_selector ".booster[data-layout=wide]"
+    assert_selector ".booster[data-layout=phone]", wait: 5
+    assert_selector ".booster-tray__slot--filled", count: 1
+    assert_selector ".booster__pile .booster-card", count: 4
+  end
+
+  test "from 720 to 899px the cards are dealt small, and step up to medium past 900px" do
+    page.driver.browser.manage.window.resize_to(800, 900)
+    open_screen(card_ids(*[ :common_card_one ] * 5))
+    assert_selector ".booster[data-layout=narrow]"
+    open_canister
+    assert_dealt(5)
+
+    assert_selector ".booster-card__front .card.card--s", count: 5, visible: :all
+    assert_equal [ 112 ] * 5, page.evaluate_script("[...document.querySelectorAll('.booster-card')].map((slot) => slot.getBoundingClientRect().width)")
+    find(hit(1)).click
+    assert_selector "#{card(1)}[data-revealed]"
+
+    page.driver.browser.manage.window.resize_to(1000, 900)
+    assert_selector ".booster[data-layout=wide]"
+    assert_selector ".booster-card__front .card.card--m", count: 5, visible: :all
+    assert_selector ".booster-card[data-revealed]", count: 1
+    assert_equal 1, request_keys.size
+  end
+
+  test "before the answer, a daily bonus pack first in line is counted as three cards" do
+    open_screen(card_ids(:rare_card_one, :portal_one, :legendary_card_one), kind: :bonus)
+
+    assert_selector ".booster-canister[aria-label='Open the booster Season 1, grand catalogue, 3 cards']"
+    assert_selector ".booster__row", text: /CARDS PER BOOSTER\s+3/
+    assert_selector ".booster__counter", text: "Cards revealed: — / 3"
+
+    on_phone
+    assert_selector ".booster__canister-facts", text: "3 cards"
+  end
+
+  test "on a phone at most six loops run: at rest after the deal and after an Épique's reveal" do
+    reduce_motion(false)
+    on_phone
+    open_screen(card_ids(:portal_one, *[ :common_card_one ] * 4))
+    assert_operator infinite_loops, :<=, 6
+    open_canister
+    assert_pile(5)
+    assert_selector ".booster__state", text: /\AINVENTORY\z/
+    assert_operator infinite_loops, :<=, 6
+    assert_operator infinite_loops, :>=, 1
+
+    find(phone_hit(1)).click
+    assert_selector "#{phone_card(1)}[data-revealed]"
+    assert_no_selector "[aria-disabled=true].booster__back", wait: 5
+    assert_operator infinite_loops, :<=, 6
+  end
+
+  test "on a phone the BOOSTER tab leads to the screen, which opens and reveals on the pile" do
+    on_phone
     create_pack(@player, cards: card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :legendary_card_one))
     visit home_path(locale: :en)
     find(".tab-bar a.tab-bar__tab", text: /BOOSTER/).click
@@ -580,9 +926,9 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: /BOOSTER/
     record_requests
     open_canister
-    assert_dealt(5)
-    find(hit(2)).click
-    assert_selector "#{card(2)}[data-revealed] .booster-card__label", text: "UNCOMMON"
+    assert_pile(5)
+    find(phone_hit(1)).click
+    assert_selector ".booster-plate", text: /COMMON/
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
   end
 end

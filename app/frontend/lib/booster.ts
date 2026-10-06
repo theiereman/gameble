@@ -242,15 +242,18 @@ export function pose(x = 0, y = 0, rotate = 0, scaleX = 1, scaleY = scaleX): str
 
 /**
  * A card's flight (arcadeDeal): from `dx`, `dy` (the canister's centre,
- * relative to its slot) up in an arc, squashing as it lands, to rest.
+ * relative to its slot) up in an arc, squashing as it lands, to its rest
+ * pose: none in the row, its place in the pile on the phone (pilePose), so
+ * the flight ends where the stylesheet holds the card and nothing snaps.
  */
-export function dealKeyframes(dx: number, dy: number, rotate: number): Keyframe[] {
+export function dealKeyframes(dx: number, dy: number, rotate: number, rest: PilePose = PILE_REST): Keyframe[] {
+  const { y, scale, rotate: tilt } = rest
   return [
     { transform: pose(dx, dy, rotate, 0.2), opacity: 0, easing: "cubic-bezier(.15,.8,.3,1)" },
     { transform: pose(dx * 0.2, Math.min(dy * 0.4, 0) - 70, -rotate * 0.3, 1.1), opacity: 1, offset: 0.42, easing: "cubic-bezier(.6,0,.9,.5)" },
-    { transform: pose(0, 10, 0, 1.14, 0.84), opacity: 1, offset: DEAL_LAND_AT, easing: "ease-out" },
-    { transform: pose(0, -6, 0, 0.95, 1.06), opacity: 1, offset: 0.86, easing: "ease-in-out" },
-    { transform: pose(), opacity: 1 },
+    { transform: pose(0, y + 10, tilt, scale * 1.14, scale * 0.84), opacity: 1, offset: DEAL_LAND_AT, easing: "ease-out" },
+    { transform: pose(0, y - 6, tilt, scale * 0.95, scale * 1.06), opacity: 1, offset: 0.86, easing: "ease-in-out" },
+    { transform: pose(0, y, tilt, scale), opacity: 1 },
   ]
 }
 
@@ -278,4 +281,127 @@ const CARD_BACKS: readonly string[] = ["standard"]
 /** The class of a card's back for the answer's `pack.cardBack` key. */
 export function cardBackClass(key: string): string {
   return `booster-card__back--${CARD_BACKS.includes(key) ? key : "standard"}`
+}
+
+// ---- Layouts (story 8.12; DESIGN.md, Layout & Spacing, Card sizes) ----
+
+/**
+ * The island's three layouts, by the viewport's width: the phone's pile,
+ * tray and caption plate under 720px; the row of `card-s` faces from 720
+ * to 899px; the row of `card-m` faces from 900px.
+ */
+export type Layout = "phone" | "narrow" | "wide"
+
+/** Under 720px: the phone layout (DESIGN.md, breakpoint-two-columns). */
+export const PHONE_QUERY = "(max-width: 719px)"
+/** Under 900px: dealt cards step down to card-s (DESIGN.md, breakpoint-narrow). */
+export const NARROW_QUERY = "(max-width: 899px)"
+
+export function layoutFor(phone: boolean, narrow: boolean): Layout {
+  return phone ? "phone" : narrow ? "narrow" : "wide"
+}
+
+/** The face a layout deals: xl alone on the phone, s in the narrow row, m in the wide one. */
+export function faceSize(layout: Layout): "xl" | "s" | "m" {
+  return layout === "phone" ? "xl" : layout === "narrow" ? "s" : "m"
+}
+
+// ---- The phone's pile ----
+
+/** A card's place in the pile: lower, smaller and tilted a little more as it lies deeper. */
+export type PilePose = { y: number; scale: number; rotate: number }
+
+const PILE_REST: PilePose = { y: 0, scale: 1, rotate: 0 }
+
+/**
+ * The pose of the card `depth` cards under the top (EXPERIENCE.md, Motion:
+ * 5px offsets, ±1.4° tilt): 5px lower and 2 % smaller per card, tilted
+ * one way then the other, 2.8° at most. The top card (0) lies flat.
+ */
+export function pilePose(depth: number): PilePose {
+  const rotate = depth === 0 ? 0 : (depth % 2 === 1 ? 1.4 : -1.4) * Math.min(depth, 2)
+  return { y: 5 * depth, scale: Number((1 - 0.02 * depth).toFixed(3)), rotate }
+}
+
+/** The pose as a transform. */
+export function pileTransform(depth: number): string {
+  const { y, scale, rotate } = pilePose(depth)
+  return pose(0, y, rotate, scale)
+}
+
+/** The order cards land in the pile: the bottom card first (5: 4, 3, 2, 1, 0), the first card on top. */
+export function pileOrder(count: number): number[] {
+  return Array.from({ length: count }, (_, index) => count - 1 - index)
+}
+
+/** The card on top of the pile: the first one not stored yet, or null once all are. */
+export function topOfPile(revealed: boolean[], stored: boolean[]): number | null {
+  const index = revealed.findIndex((_, position) => !stored[position])
+  return index === -1 ? null : index
+}
+
+/** How deep a card lies: the cards above it in the pile (those before it, not stored). */
+export function pileDepth(index: number, stored: boolean[]): number {
+  let depth = 0
+  for (let position = 0; position < index; position++) if (!stored[position]) depth++
+  return depth
+}
+
+/** How far, in px, a finger travels on a revealed card before it drags it. */
+export const SWIPE_START = 10
+
+/**
+ * A revealed card let go after a drag of `dx`, `dy` px: stored in the tray
+ * for a long enough move sideways, up, or down toward the tray; otherwise
+ * it springs back.
+ */
+export function swipeStores(dx: number, dy: number): boolean {
+  return Math.abs(dx) > 64 || dy < -64 || dy > 90
+}
+
+/**
+ * The stored cards once the island is drawn again in `layout` (a width
+ * crossing 720px): into the phone, every revealed card lies in the tray;
+ * out of it, nothing is stored (the row shows every card).
+ */
+export function storedAfterRebuild(revealed: boolean[], stored: boolean[], layout: Layout): boolean[] {
+  return layout === "phone" ? revealed.map((shown, index) => shown || (stored[index] ?? false)) : revealed.map(() => false)
+}
+
+/** The Légendaire's jump on the phone: 60 % of the room above the card, 50px at most, never out of the stage. */
+export function phoneJump(headroom: number): number {
+  return Math.max(0, Math.min(LEGENDARY_JUMP_PX, Math.floor(headroom * 0.6)))
+}
+
+/** The share of the mock's swell (the reveal's scale) the phone keeps. */
+export const PHONE_SWELL = 0.25
+
+/**
+ * A reveal's scale on the phone: a quarter of its swell, so the card-xl
+ * card, 8px above the caption plate, never grows over it and stays inside
+ * the stage.
+ */
+export function phoneSwell(scale: number): number {
+  return Number((1 + (scale - 1) * PHONE_SWELL).toFixed(4))
+}
+
+// ---- The phone's timings (EXPERIENCE.md, Motion: Tray) ----
+
+/** Cards landing in the pile: 1.5 times the row's stagger. */
+export const PHONE_DEAL_STAGGER = Math.round(DEAL_STAGGER * 1.5)
+/** A stored card shrinking into its slot. */
+export const STORE_MS = 260
+/** The slot popping as it receives the card. */
+export const SLOT_POP_MS = 260
+/** The caption plate popping in; longer for a Légendaire. */
+export const PLATE_POP_MS = 320
+export const PLATE_POP_LEGENDARY_MS = 380
+/** A short drag let go: the card springs back. */
+export const SPRING_BACK_MS = 260
+/** Sparks at the slot of a stored Épique or better. */
+export const TRAY_SPARKS = 10
+
+/** Tout révéler on the phone: how long a revealed card shows before it is stored. */
+export function phoneAllHold(tier: Rarity): number {
+  return tierIndex(tier) >= 3 ? scaled(320) : scaled(150)
 }

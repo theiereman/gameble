@@ -4,7 +4,7 @@ require_relative "../support/game_packs"
 
 # The card face, pixel for pixel (story "Single card face"): tilted under a
 # resting pointer, at each size in the back-office preview and revealed in
-# the booster (desktop, m; the phone booster returns with story 8.12),
+# the booster (the desktop row, m; the phone's pile, xl, story 8.12),
 # compared with committed baselines
 # (test/fixtures/files/card_faces/; UPDATE_CARD_BASELINES=1 rewrites them).
 # The rare sample carries no infinite effect outside the booster; the
@@ -86,5 +86,37 @@ class CardFaceVisualTest < ApplicationSystemTestCase
       raise Capybara::ExpectationNotMet, "the slot is still moving" unless slot.evaluate_script("this.getAnimations({ subtree: true }).length === 0")
     end
     assert_matches_card_baseline(slot, "revealed-m")
+  end
+
+  test "a revealed face on the phone's pile tilts under the pointer and matches its baseline at xl" do
+    page.driver.browser.manage.window.resize_to(390, 844)
+    player = accounts_players(:player)
+    sign_in(player)
+    create_pack(player, cards: fixture_tier_ids, available_at: 1.day.ago)
+    visit booster_path(locale: :en)
+
+    find(".booster-canister").click
+    assert_selector ".booster[data-layout=phone] .booster__pile .booster-card[data-dealt]", count: 5, wait: 10
+    assert_selector ".booster__state", text: /\AINVENTORY\z/
+    top = ".booster-card[data-position='1']"
+    find("#{top} .booster-card__hit").click
+    assert_selector "#{top}[data-revealed][data-top] .booster-card__flip.is-up"
+    # The reveal over: the navigation unlocked, the burst gone.
+    assert_selector ".booster__back:not([aria-disabled])", wait: 5
+    assert_selector "#{top} .booster-card__fx:empty", visible: :all
+    card = find("#{top} .booster-card__front .card.card--xl.card--booster")
+    assert_selector "#{top} .booster-card__front .card__title", text: "TIN SOLDIER"
+    card.find(".card__art[data-art]", visible: :all)
+    rest_pointer_on(card)
+
+    assert_tilted(card)
+    assert_card_settled(card)
+    slot = find("#{top} .booster-card__frame")
+    page.document.synchronize(5) do
+      raise Capybara::ExpectationNotMet, "the slot is still moving" unless slot.evaluate_script("this.getAnimations({ subtree: true }).length === 0")
+    end
+    assert_matches_card_baseline(slot, "revealed-xl")
+  ensure
+    page.driver.browser.manage.window.resize_to(*SCREEN_SIZE)
   end
 end

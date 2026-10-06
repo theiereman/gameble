@@ -67,8 +67,8 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal ",", data["delimiter"]
     assert_equal 1, data["season"]
     assert_equal 5, data["packSize"]
-    assert_equal({ "available" => 9, "reserveFull" => false, "nextAvailableAt" => "2026-10-06T14:32:00.000Z", "serverTime" => "2026-10-06T14:22:00.000Z" },
-      data["bank"])
+    assert_equal({ "available" => 9, "reserveFull" => false, "nextAvailableAt" => "2026-10-06T14:32:00.000Z", "serverTime" => "2026-10-06T14:22:00.000Z",
+      "nextPackSize" => 5 }, data["bank"])
     assert_equal({ "common" => "Common", "uncommon" => "Uncommon", "rare" => "Rare", "epic" => "Epic", "legendary" => "Legendary" }, data["rarityNames"])
     assert_equal %w[common uncommon rare epic legendary], data["rarityIcons"].keys
     data["rarityIcons"].each_value { |svg| assert_equal 1, Nokogiri::HTML5.fragment(svg).css("svg.pixel-icon.booster-card__label-icon[aria-hidden=true]").size }
@@ -136,5 +136,17 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".booster__fallback form", 0
     assert_select ".booster__fallback a[href='/fr']", "Retour au pont"
     assert_select ".packs-chip--static .packs-chip__label", "en réserve"
+  end
+
+  test "a daily bonus pack first in line: the island is told the next booster holds three cards" do
+    create_pack(@player, kind: :bonus, available_at: 2.hours.ago)
+    create_pack(@player, available_at: 1.hour.ago)
+    sign_in(@player)
+
+    get booster_path(locale: :en)
+
+    assert_response :success
+    assert_equal 3, props.dig("bank", "nextPackSize")
+    assert_equal 5, props["packSize"]
   end
 end

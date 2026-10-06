@@ -16,9 +16,15 @@
  */
 
 :root {
-  /* The medium card's size, shared with the library's empty slots. */
+  /* The medium card's size, shared with the library's empty slots; the
+     small and extra-large ones, shared with the booster's slots (card-s in
+     its narrow row, card-xl in the phone's pile and zoom). */
+  --card-s-width: 112px;
+  --card-s-height: 168px;
   --card-m-width: 160px;
   --card-m-height: 240px;
+  --card-xl-width: 240px;
+  --card-xl-height: 360px;
 }
 
 .card {
@@ -41,8 +47,8 @@
 /* ---- Sizes: frame, body padding, art box, footer lines, gaps ---- */
 
 .card--s {
-  --card-width: 112px;
-  --card-height: 168px;
+  --card-width: var(--card-s-width);
+  --card-height: var(--card-s-height);
   --card-frame: 3px;
   --card-padding: 3px;
   --card-gap: 2px;
@@ -94,8 +100,8 @@
 }
 
 .card--xl {
-  --card-width: 240px;
-  --card-height: 360px;
+  --card-width: var(--card-xl-width);
+  --card-height: var(--card-xl-height);
   --card-frame: 6px;
   --card-padding: 5px;
   --card-gap: 4px;

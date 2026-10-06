@@ -1,8 +1,8 @@
 # The opened pack's page (CAP-5) and the booster's opening exchange (AD-23).
 module PacksHelper
-  # The sizes the opening exchange renders a face at: m in the booster's
-  # row on wider screens, xl alone on a phone (story 8.12).
-  REVEAL_SIZES = %i[m xl].freeze
+  # The sizes the opening exchange renders a face at: s in the booster's
+  # row from 720 to 899px, m from 900px, xl alone on a phone (under 720px).
+  REVEAL_SIZES = %i[s m xl].freeze
 
   # A card's booster faces, rendered by CardComponent at each REVEAL_SIZES
   # (AD-16): { m: "<span class=\"card …\">…", xl: "…" }.
@@ -14,8 +14,9 @@ module PacksHelper
   # replay alike. The pack (by its token), its card back and its cards (by
   # slug, in drawn order, with their display fields and faces) are the pack
   # as it was opened. The bank at `now` (the count, whether the reserve is
-  # full, the availability times to come) and the server time are the
-  # current ones. The per-tier counts before the opening are recomputed on
+  # full, the availability times to come, the card count of the pack the
+  # next opening opens, nil when none is available) and the server time
+  # are the current ones. The per-tier counts before the opening are recomputed on
   # each answer (the current counts minus the pack's cards), so on a replay
   # they drift if the player gained cards since. `unlockedCardBacks` stays
   # empty until card backs can be unlocked (epic 9). No database id
@@ -29,7 +30,8 @@ module PacksHelper
         { slug: card.id, tier: card.rarity, coverUrl: card.image_url, title: card.title, year: card.year,
           label: pack_card_label(card), faces: pack_faces(card) }
       end,
-      bank: { available:, reserveFull: Game::Reserve.full?(available), nextAvailableAt: scheduled.first, scheduledAt: scheduled },
+      bank: { available:, reserveFull: Game::Reserve.full?(available), nextAvailableAt: scheduled.first, scheduledAt: scheduled,
+              nextPackSize: Game::NextPackSize.call(player, now:) },
       serverTime: opening_time(now),
       tierCountsBefore: Game::TierCounts.before_opening(player, pack).transform_keys { Catalog::Rarity::TIERS.fetch(it) },
       unlockedCardBacks: []

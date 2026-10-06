@@ -32,6 +32,21 @@ import {
   secondsUntil,
   shakeKeyframes,
   utcTime,
+  DEAL_STAGGER as ROW_STAGGER,
+  PHONE_DEAL_STAGGER,
+  SWIPE_START,
+  faceSize,
+  layoutFor,
+  phoneAllHold,
+  phoneJump,
+  phoneSwell,
+  pileDepth,
+  pileOrder,
+  pilePose,
+  pileTransform,
+  storedAfterRebuild,
+  swipeStores,
+  topOfPile,
 } from "./booster"
 
 describe("timings", () => {
@@ -184,5 +199,110 @@ describe("cardBackClass", () => {
     expect(cardBackClass("standard")).toBe("booster-card__back--standard")
     expect(cardBackClass("aurora")).toBe("booster-card__back--standard")
     expect(cardBackClass("")).toBe("booster-card__back--standard")
+  })
+})
+
+describe("layouts", () => {
+  it("are the phone under 720px, the narrow row under 900px, the wide row above", () => {
+    expect(layoutFor(true, true)).toBe("phone")
+    expect(layoutFor(false, true)).toBe("narrow")
+    expect(layoutFor(false, false)).toBe("wide")
+  })
+
+  it("deal xl on the phone, s in the narrow row, m in the wide one", () => {
+    expect(faceSize("phone")).toBe("xl")
+    expect(faceSize("narrow")).toBe("s")
+    expect(faceSize("wide")).toBe("m")
+  })
+})
+
+describe("the phone's pile", () => {
+  it("poses each card 5px lower, 2 % smaller and tilted one way then the other, 2.8° at most", () => {
+    expect(pilePose(0)).toEqual({ y: 0, scale: 1, rotate: 0 })
+    expect(pilePose(1)).toEqual({ y: 5, scale: 0.98, rotate: 1.4 })
+    expect(pilePose(2)).toEqual({ y: 10, scale: 0.96, rotate: -2.8 })
+    expect(pilePose(3)).toEqual({ y: 15, scale: 0.94, rotate: 2.8 })
+    expect(pilePose(4)).toEqual({ y: 20, scale: 0.92, rotate: -2.8 })
+    expect(pileTransform(1)).toBe("translate(0px, 5px) rotate(1.4deg) scale(0.98, 0.98)")
+  })
+
+  it("lands the bottom card first and keeps the first card on top", () => {
+    expect(pileOrder(5)).toEqual([4, 3, 2, 1, 0])
+    expect(pileOrder(3)).toEqual([2, 1, 0])
+    expect(pileOrder(0)).toEqual([])
+  })
+
+  it("has on top the first card not stored, none once all are", () => {
+    expect(topOfPile([false, false, false], [false, false, false])).toBe(0)
+    expect(topOfPile([true, false, false], [true, false, false])).toBe(1)
+    expect(topOfPile([true, false, true], [true, false, true])).toBe(1)
+    expect(topOfPile([true, true], [true, true])).toBeNull()
+  })
+
+  it("counts a card's depth from the cards still above it", () => {
+    expect(pileDepth(0, [false, false, false])).toBe(0)
+    expect(pileDepth(2, [false, false, false])).toBe(2)
+    expect(pileDepth(2, [true, false, false])).toBe(1)
+    expect(pileDepth(3, [true, false, true, false])).toBe(1)
+  })
+
+  it("deals each card to its pile pose, so the flight ends where the card rests", () => {
+    const frames = dealKeyframes(0, -200, 26, pilePose(2))
+    expect(frames.at(-1)).toMatchObject({ opacity: 1, transform: pileTransform(2) })
+    expect(frames[2].transform).toBe("translate(0px, 20px) rotate(-2.8deg) scale(1.094, 0.806)")
+  })
+
+  it("lands 1.5 times the row's stagger apart", () => {
+    expect(PHONE_DEAL_STAGGER).toBe(Math.round(ROW_STAGGER * 1.5))
+  })
+})
+
+describe("swipeStores", () => {
+  it("stores after a long move sideways, up, or down toward the tray", () => {
+    expect(swipeStores(65, 0)).toBe(true)
+    expect(swipeStores(-65, 0)).toBe(true)
+    expect(swipeStores(0, -65)).toBe(true)
+    expect(swipeStores(0, 91)).toBe(true)
+  })
+
+  it("springs back after a short drag", () => {
+    expect(swipeStores(64, 0)).toBe(false)
+    expect(swipeStores(30, -64)).toBe(false)
+    expect(swipeStores(-20, 90)).toBe(false)
+    expect(SWIPE_START).toBe(10)
+  })
+})
+
+describe("storedAfterRebuild", () => {
+  it("lays every revealed card in the tray on the way into the phone", () => {
+    expect(storedAfterRebuild([true, false, true, false], [false, false, false, false], "phone")).toEqual([true, false, true, false])
+    expect(storedAfterRebuild([true, true, false], [true, false, false], "phone")).toEqual([true, true, false])
+  })
+
+  it("stores nothing in a row", () => {
+    expect(storedAfterRebuild([true, true, false], [true, true, false], "wide")).toEqual([false, false, false])
+    expect(storedAfterRebuild([true, false], [true, false], "narrow")).toEqual([false, false])
+  })
+})
+
+describe("the phone's motion", () => {
+  it("keeps the Légendaire's jump to 60 % of the room above the card, 50px at most", () => {
+    expect(phoneJump(200)).toBe(50)
+    expect(phoneJump(40)).toBe(24)
+    expect(phoneJump(0)).toBe(0)
+    expect(phoneJump(-10)).toBe(0)
+  })
+
+  it("keeps a quarter of the reveal's swell, so the large card stays clear of the plate", () => {
+    expect(phoneSwell(1)).toBe(1)
+    expect(phoneSwell(1.15)).toBe(1.0375)
+    expect(phoneSwell(0.9)).toBe(0.975)
+  })
+
+  it("holds an Épique or better longer before Tout révéler stores it", () => {
+    expect(phoneAllHold("epic")).toBe(scaled(320))
+    expect(phoneAllHold("legendary")).toBe(scaled(320))
+    expect(phoneAllHold("rare")).toBe(scaled(150))
+    expect(phoneAllHold("common")).toBe(scaled(150))
   })
 })

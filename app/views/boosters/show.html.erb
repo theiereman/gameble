@@ -11,7 +11,7 @@
     page face up, and the way back. %>
 <% turbo_exempts_page_from_cache %>
 <h1 class="visually-hidden"><%= t(".title") %></h1>
-<%= turbo_mount("Booster", props: booster_props(bank: @bank, season: @season), class: "booster-island") %>
+<%= turbo_mount("Booster", props: booster_props(bank: @bank, season: @season, next_pack_size: @next_pack_size), class: "booster-island") %>
 <div class="booster__fallback">
   <% if @bank[:available].positive? %>
     <%= render ButtonComponent.new(href: packs_path, method: :post) do %><%= t("boosters.island.open") %><% end %>

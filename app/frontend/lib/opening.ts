@@ -16,8 +16,8 @@ export type OpeningCard = {
   year: number | null
   /** The card as spoken: "Hades — Supergiant Games, 2020, Roguelite". */
   label: string
-  /** The face at each size, rendered on the server (CardComponent). */
-  faces: { m: string; xl: string }
+  /** The face at each size, rendered on the server (CardComponent): s in the narrow row, m in the wide one, xl on the phone. */
+  faces: { s: string; m: string; xl: string }
 }
 
 export type OpeningBank = {
@@ -25,6 +25,8 @@ export type OpeningBank = {
   reserveFull: boolean
   nextAvailableAt: string | null
   scheduledAt: string[]
+  /** The card count of the pack the next opening opens, null when none is available. */
+  nextPackSize: number | null
 }
 
 export type OpeningAnswer = {
@@ -76,6 +78,8 @@ export async function sendOpening({ url, key, csrfToken, fetch: send = globalThi
   return error ? { kind: "refused", ...error } : FAILED
 }
 
+const FACE_SIZES = ["s", "m", "xl"] as const
+
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value)
 
 function isCard(value: unknown): value is OpeningCard {
@@ -86,7 +90,7 @@ function isCard(value: unknown): value is OpeningCard {
     typeof value.title === "string" &&
     typeof value.label === "string" &&
     isRecord(value.faces) &&
-    typeof value.faces.m === "string"
+    FACE_SIZES.every((size) => typeof (value.faces as Record<string, unknown>)[size] === "string")
   )
 }
 

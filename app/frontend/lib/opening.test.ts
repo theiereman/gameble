@@ -5,8 +5,8 @@ const KEY = "3c1f9a2e-7d4b-4c8a-b5e6-0f2d9e8a1b7c"
 
 const answer = {
   pack: { token: "abc", kind: "regular", cardBack: "standard", url: "/fr/packs/abc" },
-  cards: [{ slug: "portal", tier: "epic", coverUrl: "https://x/y.jpg", title: "Portal", year: 2007, label: "Portal — Valve, 2007", faces: { m: "<span></span>", xl: "<span></span>" } }],
-  bank: { available: 9, reserveFull: false, nextAvailableAt: null, scheduledAt: [] },
+  cards: [{ slug: "portal", tier: "epic", coverUrl: "https://x/y.jpg", title: "Portal", year: 2007, label: "Portal — Valve, 2007", faces: { s: "<span></span>", m: "<span></span>", xl: "<span></span>" } }],
+  bank: { available: 9, reserveFull: false, nextAvailableAt: null, scheduledAt: [], nextPackSize: 5 },
   serverTime: "2026-10-06T14:22:00.000Z",
   tierCountsBefore: { common: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0 },
   unlockedCardBacks: [],
@@ -59,6 +59,8 @@ describe("sendOpening", () => {
       fake(new Response("<html>422</html>", { status: 422, headers: { "Content-Type": "text/html" } })),
       fake(json(200, { pack: {} })),
       fake(json(422, { message: "no envelope" })),
+      // A card without one of its three faces.
+      fake(json(200, { ...answer, cards: [{ ...answer.cards[0], faces: { m: "<span></span>", xl: "<span></span>" } }] })),
     ]
     for (const { send } of outcomes) expect(await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })).toEqual({ kind: "failed" })
   })

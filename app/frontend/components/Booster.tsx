@@ -1,6 +1,7 @@
 // The booster screen's island (EXPERIENCE.md: Booster, Opening protocol,
 // Motion, Focus after each step; DESIGN.md: Booster canister, Booster
-// information panel, Result banner; AD-16, AD-23, AD-27), desktop mode.
+// information panel, Result banner, Reveal caption plate, Tray, Card zoom;
+// AD-16, AD-23, AD-27).
 //
 // One activation of the canister (or "Ouvrir le booster") sends the
 // opening exchange (lib/opening.ts) while the canister charges; the answer
@@ -14,16 +15,32 @@
 // card shows (tier-revealed), the reserve on each answer (bank-changed),
 // and the navigation lock during an opening and each reveal.
 //
+// Three layouts (story 8.12), read from two media queries and carried as
+// `data-layout` (the stylesheet sizes the stage from it): the wide row of
+// card-m faces from 900px, the narrow row of card-s faces from 720px, and
+// under 720px the phone's pile of card-xl faces, one at a time, with its
+// information strip, caption plate, tray and card zoom. On the phone a
+// revealed top card is stored in the tray (a tap, a swipe or "Ranger")
+// instead of opening its page. A width crossing a breakpoint draws the
+// island again in place once it is idle: the same pack, what was revealed
+// and the counts kept, no request, nothing replayed.
+//
 // Cards go by position, never by slug: a pack can hold the same card twice.
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { flushSync } from "react-dom"
 import BoosterCanister, { type CanisterParts } from "./BoosterCanister"
 import BoosterCard from "./BoosterCard"
+import BoosterPanel from "./BoosterPanel"
+import BoosterPlate, { type PlateCard } from "./BoosterPlate"
+import BoosterStrip from "./BoosterStrip"
+import BoosterTray from "./BoosterTray"
+import BoosterZoom from "./BoosterZoom"
+import { useCardSwipe } from "./useCardSwipe"
 import type { Rarity } from "../lib/card_types"
 import { dispatchGameble } from "../lib/events"
 import { formatNumber, t, type Template } from "../lib/i18n"
 import { motionReduced } from "../lib/motion"
-import { sendOpening, type OpeningAnswer, type OpeningResult } from "../lib/opening"
+import { sendOpening, type OpeningAnswer, type OpeningCard, type OpeningResult } from "../lib/opening"
 import {
   ARM_MS,
   ART_POLL,
@@ -54,6 +71,9 @@ import {
   LIFT_PX,
   MARK_AT,
   MARK_IN_SPIN,
+  NARROW_QUERY,
+  PHONE_DEAL_STAGGER,
+  PHONE_QUERY,
   RAYS_FADE_MS,
   REVEAL_ALL_GAP,
   REVEAL_GUARD,
@@ -68,23 +88,40 @@ import {
   SINK,
   SINK_PX,
   SINK_STAGGER,
+  SLOT_POP_MS,
   SPIN,
+  SPRING_BACK_MS,
+  STORE_MS,
+  TRAY_SPARKS,
   TREMBLE_MS,
   burstPixels,
   countsAfterReveal,
   dealKeyframes,
   dealOrder,
   dealRotation,
+  faceSize,
   formatClock,
   keyAfter,
+  layoutFor,
+  phoneAllHold,
+  phoneJump,
+  phoneSwell,
+  pileDepth,
+  pileOrder,
+  pilePose,
+  pileTransform,
   planRevealAll,
   pose,
   revealSummary,
   scaled,
   secondsUntil,
   shakeKeyframes,
+  storedAfterRebuild,
+  swipeStores,
   tierIndex,
+  topOfPile,
   utcTime,
+  type Layout,
   type TierCounts,
 } from "../lib/booster"
 
@@ -129,6 +166,23 @@ export type BoosterStrings = {
   failed: string
   islandFailed: string
   reload: string
+  // The phone (story 8.12).
+  stripTitle: string
+  stripTitlePlain: string
+  canisterHintTouch: string
+  canisterFacts: Template
+  hintTap: string
+  hintSwipe: string
+  store: string
+  faceUpStore: string
+  tray: string
+  trayLabel: string
+  trayCount: string
+  traySlot: string
+  zoomLine: string
+  seeCard: string
+  close: string
+  zoomTip: string
 }
 
 export type BoosterBank = {
@@ -136,6 +190,8 @@ export type BoosterBank = {
   reserveFull: boolean
   nextAvailableAt: string | null
   serverTime: string
+  /** The card count of the pack the next opening opens (3 for a daily bonus pack first in line), null when none is available. */
+  nextPackSize: number | null
 }
 
 export type BoosterProps = {
@@ -148,7 +204,7 @@ export type BoosterProps = {
   delimiter: string
   /** The published season's number, null without one. */
   season: number | null
-  /** The cards of a regular pack. */
+  /** The cards of a regular pack: the size shown when the next pack's is not known. */
   packSize: number
   bank: BoosterBank
   rarityNames: Record<Rarity, string>
@@ -165,6 +221,15 @@ type Banner = { key: number; tier: Rarity; large: boolean; line: string | null; 
 /** The live region keeps the latest few announcements; older ones are spoken already. */
 const ANNOUNCEMENTS_KEPT = 5
 const RESERVE_PIPS = 10
+
+/** The layout the viewport's width asks for (lib/booster.ts, layoutFor). */
+function readLayout(): Layout {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return "wide"
+  return layoutFor(window.matchMedia(PHONE_QUERY).matches, window.matchMedia(NARROW_QUERY).matches)
+}
+
+/** A click this soon after a drag ends belongs to the drag: it never stores the card. */
+const CLICK_AFTER_DRAG = 300
 
 /** A UUID for the idempotency key (crypto.randomUUID needs a secure context). */
 function newKey(): string {
@@ -270,6 +335,21 @@ export default function Booster(props: BoosterProps) {
   // The idempotency key kept for the next activation (keyAfter), or null.
   const pendingKey = useRef<string | null>(null)
 
+  // The layout the island is drawn in, and the one the width asks for once
+  // the island is idle (applyLayout).
+  const [layout, setLayoutState] = useState<Layout>(readLayout)
+  const layoutRef = useRef(layout)
+  const pendingLayout = useRef<Layout | null>(null)
+  // Bumped by a rebuild: the cards are drawn again, fresh, at rest.
+  const [stageKey, setStageKey] = useState(0)
+  // The phone's tray: the cards stored, by position; a store running.
+  const [stored, setStoredState] = useState<boolean[]>([])
+  const storedRef = useRef<boolean[]>([])
+  const [storing, setStoringState] = useState(false)
+  const storingRef = useRef(false)
+  // The tray slot whose card the zoom shows, or null.
+  const [zoom, setZoom] = useState<number | null>(null)
+
   const setPhase = (next: Phase) => {
     phaseRef.current = next
     setPhaseState(next)
@@ -282,9 +362,19 @@ export default function Booster(props: BoosterProps) {
     revealingAllRef.current = on
     setRevealingAllState(on)
   }
+  const setStored = (next: boolean[]) => {
+    storedRef.current = next
+    setStoredState(next)
+  }
+  const setStoring = (on: boolean) => {
+    storingRef.current = on
+    setStoringState(on)
+  }
+  const phoneLayout = () => layoutRef.current === "phone"
 
   // ---- Elements ----
 
+  const section = useRef<HTMLElement>(null)
   const canister = useRef<CanisterParts>(null)
   const shake = useRef<HTMLDivElement>(null)
   const flash = useRef<HTMLDivElement>(null)
@@ -300,6 +390,10 @@ export default function Booster(props: BoosterProps) {
       }),
     [],
   )
+  const traySlots = useRef<(HTMLElement | null)[]>([])
+  const traySlotRef = useCallback((index: number, element: HTMLElement | null) => {
+    traySlots.current[index] = element
+  }, [])
   const part = (index: number, name: string) => slots.current[index]?.querySelector<HTMLElement>(`.booster-card__${name}`) ?? null
 
   // ---- Timers and listeners go with the island ----
@@ -354,6 +448,7 @@ export default function Booster(props: BoosterProps) {
     if (--lockDepth.current === 0) {
       setLocked(false)
       dispatchGameble("gameble:navigation-locked", { locked: false })
+      applyLayout()
     }
   }
 
@@ -369,15 +464,34 @@ export default function Booster(props: BoosterProps) {
   // ---- Focus (EXPERIENCE.md, Focus after each step): asked for by a step,
   // given once the render that enables its target is committed ----
 
-  type FocusTarget = "open" | "back" | "first-card"
+  // "card": the card to act on next (the pile's top card on the phone, the
+  // first face-down card in a row), else "after"; "after": "Ouvrir le
+  // suivant" (or the way back with an empty reserve); a tray slot.
+  type FocusTarget = "open" | "back" | "card" | "after" | { slot: number }
   const focusNext = useRef<FocusTarget | null>(document.documentElement.hasAttribute("data-turbo-preview") ? null : props.bank.available > 0 ? "open" : "back")
   const requestFocus = (target: FocusTarget) => {
     focusNext.current = target
   }
+  const cardToFocus = (): number | null => {
+    if (phaseRef.current !== "dealt" || !answerRef.current) return null
+    if (phoneLayout()) return topOfPile(revealedRef.current, storedRef.current)
+    const index = revealedRef.current.findIndex((shown) => !shown)
+    return index === -1 ? null : index
+  }
+  const focusElement = (target: FocusTarget): HTMLElement | null => {
+    if (typeof target === "object") return traySlots.current[target.slot] ?? null
+    if (target === "open") return openButton.current
+    if (target === "back") return backLink.current
+    if (target === "card") {
+      const index = cardToFocus()
+      if (index !== null) return part(index, "hit")
+    }
+    return bankRef.current.available > 0 ? openButton.current : backLink.current
+  }
   useEffect(() => {
     const target = focusNext.current
     if (target === null) return
-    const element = target === "open" ? openButton.current : target === "back" ? backLink.current : part(0, "hit")
+    const element = focusElement(target)
     if (!element || (element instanceof HTMLButtonElement && element.disabled)) return
     focusNext.current = null
     element.focus({ preventScroll: true })
@@ -510,14 +624,15 @@ export default function Booster(props: BoosterProps) {
 
   const changeBank = (next: BoosterBank) => {
     setBankBoth(next)
-    dispatchGameble("gameble:bank-changed", next)
+    const { available, reserveFull, nextAvailableAt, serverTime } = next
+    dispatchGameble("gameble:bank-changed", { available, reserveFull, nextAvailableAt, serverTime })
   }
 
   // ---- Opening ----
 
   const refuse = (result: Exclude<OpeningResult, { kind: "opened" }>) => {
     const message = result.kind === "refused" ? result.message : strings.failed
-    if (result.kind === "refused" && result.code === "no_pack_available") changeBank({ ...bankRef.current, available: 0, reserveFull: false })
+    if (result.kind === "refused" && result.code === "no_pack_available") changeBank({ ...bankRef.current, available: 0, reserveFull: false, nextPackSize: null })
     const empty = bankRef.current.available <= 0
     // The canister disarms without blowing: its squash is undone.
     settle(canister.current?.move)
@@ -539,9 +654,11 @@ export default function Booster(props: BoosterProps) {
     setHeadShown(false)
     if (!motionReduced()) {
       for (let index = 0; index < count; index++) {
+        // Stored cards are in the tray already; a pile card sinks from its pose.
         const travel = part(index, "travel")
+        const from = phoneLayout() ? pileTransform(pileDepth(index, storedRef.current)) : pose()
         settle(travel)
-        animate(travel, [{ transform: pose(), opacity: 1 }, { transform: pose(0, SINK_PX, 0, 0.92), opacity: 0 }], {
+        animate(travel, [{ transform: from, opacity: 1 }, { transform: pose(0, SINK_PX, 0, 0.92), opacity: 0 }], {
           duration: SINK,
           delay: index * SINK_STAGGER,
           easing: "cubic-bezier(.5,0,.8,.4)",
@@ -557,6 +674,7 @@ export default function Booster(props: BoosterProps) {
       setAnswer(null)
       setRevealedState([])
       setRevealedAt([])
+      setStored([])
       setDealt(false)
       setArmed(false)
       setCanisterAway(false)
@@ -600,19 +718,23 @@ export default function Booster(props: BoosterProps) {
     await wait(HEAD_DELAY)
     setHeadShown(true)
 
-    // Each card from the canister's centre to its slot, centre out.
+    // Each card from the canister's centre to its slot, centre out; on the
+    // phone to its place in the pile, the bottom card first.
     const origin = parts?.button?.getBoundingClientRect()
+    const phone = phoneLayout()
+    const stagger = phone ? PHONE_DEAL_STAGGER : DEAL_STAGGER
     flushSync(() => setDealt(true))
     let end = 0
-    dealOrder(count).forEach((index, position) => {
+    ;(phone ? pileOrder(count) : dealOrder(count)).forEach((index, position) => {
       const slot = slots.current[index]
       const travel = part(index, "travel")
       if (!slot || !travel || !origin) return
       const rect = slot.querySelector(".booster-card__frame")?.getBoundingClientRect() ?? slot.getBoundingClientRect()
       const dx = origin.left + origin.width / 2 - (rect.left + rect.width / 2)
       const dy = origin.top + origin.height / 2 - (rect.top + rect.height / 2)
-      const delay = position * DEAL_STAGGER
-      animate(travel, dealKeyframes(dx, dy, dealRotation(index, count)), { duration: DEAL_MS, delay, fill: "backwards", easing: "linear" })
+      const delay = position * stagger
+      const rest = phone ? pilePose(pileDepth(index, storedRef.current)) : undefined
+      animate(travel, dealKeyframes(dx, dy, dealRotation(index, count), rest), { duration: DEAL_MS, delay, fill: "backwards", easing: "linear" })
       later(delay + DEAL_MS * DEAL_LAND_AT, () => stageShake(1.5, LAND_SHAKE_MS))
       end = Math.max(end, delay + DEAL_MS)
     })
@@ -631,7 +753,7 @@ export default function Booster(props: BoosterProps) {
   }
 
   const open = async () => {
-    if (opening.current || revealing.current.size > 0 || revealingAllRef.current) return
+    if (opening.current || revealing.current.size > 0 || revealingAllRef.current || storingRef.current) return
     if (bankRef.current.available <= 0) return
     const current = phaseRef.current
     if (current === "dealt" && revealedRef.current.some((shown) => !shown)) return
@@ -671,6 +793,7 @@ export default function Booster(props: BoosterProps) {
       reserveFull: next.bank.reserveFull,
       nextAvailableAt: next.bank.nextAvailableAt,
       serverTime: next.serverTime,
+      nextPackSize: next.bank.nextPackSize ?? null,
     })
     counts.current = { ...next.tierCountsBefore }
     answerRef.current = next
@@ -681,6 +804,7 @@ export default function Booster(props: BoosterProps) {
       setAnswer(next)
       setRevealedState(revealedRef.current)
       setRevealedAt(revealedAtRef.current)
+      setStored(next.cards.map(() => false))
     })
 
     if (motionReduced()) await fadeAndDeal(next.cards.length)
@@ -691,7 +815,7 @@ export default function Booster(props: BoosterProps) {
     setPhase("dealt")
     opening.current = false
     unlock()
-    requestFocus("first-card")
+    requestFocus("card")
   }
 
   // ---- Reveal: one path for a card and for Tout révéler ----
@@ -719,12 +843,27 @@ export default function Booster(props: BoosterProps) {
     if (!quiet) announce(t(strings.announceCard, { position: index + 1, card: card.label, rarity: rarityNames[card.tier] }))
   }
 
+  /**
+   * How far a card may rise: as the mock on wider screens; on the phone,
+   * inside the stage (60 % of the room above the card, 50px at most).
+   */
+  const riseLimit = (index: number): number => {
+    if (!phoneLayout()) return LEGENDARY_JUMP_PX
+    const frame = slots.current[index]?.querySelector(".booster-card__frame")
+    const stage = shake.current
+    if (!frame || !stage) return 0
+    return phoneJump(frame.getBoundingClientRect().top - stage.getBoundingClientRect().top)
+  }
+
+  /** A swell of the reveal (a scale): the mock's on wider screens, damped on the phone (phoneSwell). */
+  const swell = (scale: number) => (phoneLayout() ? phoneSwell(scale) : scale)
+
   /** A common to epic card: tremble, flip, burst, settle (revealV3). */
   const revealTier = async (index: number, tier: Rarity, quiet: boolean) => {
     const level = tierIndex(tier)
     const lift = part(index, "lift")
     const flip = part(index, "flip")
-    const height = LIFT_PX[level] || COMMON_LIFT_PX
+    const height = Math.min(LIFT_PX[level] || COMMON_LIFT_PX, riseLimit(index))
     settle(lift)
     if (TREMBLE_MS[level] > 0) {
       const steps = Math.max(4, Math.round(TREMBLE_MS[level] / scaled(40)))
@@ -733,13 +872,13 @@ export default function Booster(props: BoosterProps) {
       for (let step = 1; step < steps; step++) {
         const progress = step / steps
         const side = step % 2 === 1 ? 1 : -1
-        keyframes.push({ transform: pose(side * amplitude * progress * 0.8, -height * easeOut(progress), side * amplitude * progress * 0.6, 1 + 0.06 * easeOut(progress)) })
+        keyframes.push({ transform: pose(side * amplitude * progress * 0.8, -height * easeOut(progress), side * amplitude * progress * 0.6, swell(1 + 0.06 * easeOut(progress))) })
       }
-      keyframes.push({ transform: pose(0, -height, 0, 1.06) })
+      keyframes.push({ transform: pose(0, -height, 0, swell(1.06)) })
       animate(lift, keyframes, { duration: TREMBLE_MS[level], fill: "forwards" })
       await wait(TREMBLE_MS[level])
     } else {
-      animate(lift, [{ transform: pose() }, { transform: pose(0, -COMMON_LIFT_PX, 0, 1.03) }], { duration: COMMON_LIFT_MS, easing: "ease-out", fill: "forwards" })
+      animate(lift, [{ transform: pose() }, { transform: pose(0, -height, 0, swell(1.03)) }], { duration: COMMON_LIFT_MS, easing: "ease-out", fill: "forwards" })
       await wait(COMMON_LIFT_MS)
     }
 
@@ -760,12 +899,13 @@ export default function Booster(props: BoosterProps) {
         ring(host, `booster-fx__ring booster-fx__ring--${count % 2 === 0 ? "tier" : "white"}`, width / 2, boxHeight / 2 - height, 110 + level * 30, scaled(count * 90))
       }
     }
-    if (level === 3) showBanner(tier, false, null)
+    // On the phone the caption plate shows the tier: no banner over the card.
+    if (level === 3 && !phoneLayout()) showBanner(tier, false, null)
     settle(lift)
     animate(lift, [
-      { transform: pose(0, -height, 0, 1.06) },
-      { transform: pose(0, -height * 0.4, 0, 1.14, 0.9), offset: 0.25 },
-      { transform: pose(0, 4, 0, 0.95, 1.06), offset: 0.6 },
+      { transform: pose(0, -height, 0, swell(1.06)) },
+      { transform: pose(0, -height * 0.4, 0, swell(1.14), swell(0.9)), offset: 0.25 },
+      { transform: pose(0, 4, 0, swell(0.95), swell(1.06)), offset: 0.6 },
       { transform: pose() },
     ], { duration: SETTLE_MS[level], easing: "cubic-bezier(.2,.8,.3,1)", fill: "none" })
     await wait(SETTLE_MS[level])
@@ -776,6 +916,8 @@ export default function Booster(props: BoosterProps) {
     const card = answerRef.current?.cards[index]
     const lift = part(index, "lift")
     const flip = part(index, "flip")
+    // The jump: 50px, or what the phone's stage leaves above the card.
+    const rise = riseLimit(index)
     legendaryRunning.current = true
     setLegendary(index)
     setStatus("legendarySignal")
@@ -786,10 +928,10 @@ export default function Booster(props: BoosterProps) {
       const progress = step / 14
       const side = step % 2 === 1 ? 1 : -1
       jump.push({
-        transform: pose(side * progress * 3, -LEGENDARY_JUMP_PX * easeOut(Math.min(1, progress * 1.6)), side * (1 + progress * 4), 1 + 0.15 * easeOut(progress)),
+        transform: pose(side * progress * 3, -rise * easeOut(Math.min(1, progress * 1.6)), side * (1 + progress * 4), swell(1 + 0.15 * easeOut(progress))),
       })
     }
-    jump.push({ transform: pose(0, -LEGENDARY_JUMP_PX, 0, 1.15) })
+    jump.push({ transform: pose(0, -rise, 0, swell(1.15)) })
     settle(lift)
     animate(lift, jump, { duration: LEGENDARY_JUMP, fill: "forwards" })
     await wait(LEGENDARY_JUMP)
@@ -804,29 +946,29 @@ export default function Booster(props: BoosterProps) {
 
     settle(lift)
     animate(lift, [
-      { transform: pose(0, -LEGENDARY_JUMP_PX, 0, 1.15, 1.15) },
-      { transform: pose(0, -LEGENDARY_JUMP_PX + 4, 0, 1.28, 1.02), offset: 0.22 },
-      { transform: pose(0, -LEGENDARY_JUMP_PX - 2, 0, 1.08, 1.22), offset: 0.5 },
-      { transform: pose(0, -LEGENDARY_JUMP_PX, 0, 1.15, 1.15) },
+      { transform: pose(0, -rise, 0, swell(1.15)) },
+      { transform: pose(0, -rise + 4, 0, swell(1.28), swell(1.02)), offset: 0.22 },
+      { transform: pose(0, -rise - 2, 0, swell(1.08), swell(1.22)), offset: 0.5 },
+      { transform: pose(0, -rise, 0, swell(1.15)) },
     ], { duration: scaled(360), easing: "ease-out", fill: "forwards" })
     burst(index, "legendary")
     const host = part(index, "fx")
     if (host && !motionReduced()) {
       const { width, height } = host.getBoundingClientRect()
       ;[0, 100, 200].forEach((delay, count) =>
-        ring(host, `booster-fx__ring booster-fx__ring--${count % 2 === 0 ? "tier" : "white"}`, width / 2, height / 2 - LEGENDARY_JUMP_PX, 200 + count * 60, scaled(delay)),
+        ring(host, `booster-fx__ring booster-fx__ring--${count % 2 === 0 ? "tier" : "white"}`, width / 2, height / 2 - rise, 200 + count * 60, scaled(delay)),
       )
     }
     stageFlash("gold", 0.5, LEGENDARY_FLASH_MS)
     stageShake(8, LEGENDARY_SHAKE_MS)
-    showBanner("legendary", true, card ? t(strings.bannerLine, { title: card.title, year: card.year ?? "" }) : null)
+    if (!phoneLayout()) showBanner("legendary", true, card ? t(strings.bannerLine, { title: card.title, year: card.year ?? "" }) : null)
     await wait(IMPACT)
 
     setLegendary(null)
     legendaryRunning.current = false
     setStatus("inventory")
     settle(lift)
-    animate(lift, [{ transform: pose(0, -LEGENDARY_JUMP_PX, 0, 1.15) }, { transform: pose() }], {
+    animate(lift, [{ transform: pose(0, -rise, 0, swell(1.15)) }, { transform: pose() }], {
       duration: DROP,
       easing: "cubic-bezier(.3,1.5,.5,1)",
       fill: "none",
@@ -845,7 +987,8 @@ export default function Booster(props: BoosterProps) {
     mark(index, quiet)
     animate(part(index, "lift"), [{ opacity: 0.2 }, { opacity: 1 }], { duration: RM_REVEAL_FADE, fill: "none" })
     if (tier === "legendary") {
-      showBanner("legendary", true, card ? t(strings.bannerLine, { title: card.title, year: card.year ?? "" }) : null)
+      // On the phone the still "Légendaire !" is the caption plate's.
+      if (!phoneLayout()) showBanner("legendary", true, card ? t(strings.bannerLine, { title: card.title, year: card.year ?? "" }) : null)
       await wait(RM_LEGENDARY_STILL)
       legendaryRunning.current = false
       setStatus("inventory")
@@ -877,13 +1020,18 @@ export default function Booster(props: BoosterProps) {
     else if (card.tier === "legendary") await revealLegendary(index, fromAll)
     else await revealTier(index, card.tier, fromAll)
     revealing.current.delete(index)
+    // On the phone the booster is complete once its last card is stored.
+    if (!fromAll && !phoneLayout() && revealing.current.size === 0 && allRevealed()) complete()
     unlock()
-    if (!fromAll && revealing.current.size === 0 && allRevealed()) complete()
   }
 
   const revealAll = async () => {
     const current = answerRef.current
-    if (!current || phaseRef.current !== "dealt" || revealingAllRef.current || legendaryRunning.current) return
+    if (!current || phaseRef.current !== "dealt" || revealingAllRef.current || legendaryRunning.current || storingRef.current) return
+    if (phoneLayout()) {
+      await revealAndStoreAll(current)
+      return
+    }
     const plan = planRevealAll(
       current.cards.map((card) => card.tier),
       revealedRef.current.map((shown, index) => shown || revealing.current.has(index)),
@@ -907,7 +1055,210 @@ export default function Booster(props: BoosterProps) {
       ),
     )
     if (allRevealed()) complete()
+    applyLayout()
   }
+
+  // ---- The phone: the pile, the tray, the zoom ----
+
+  /**
+   * Tout révéler on the phone: each card on top of the pile in turn is
+   * revealed (a Légendaire in full), shown a moment, then stored; one
+   * summary of the cards it revealed.
+   */
+  const revealAndStoreAll = async (current: OpeningAnswer) => {
+    setRevealingAll(true)
+    // A reveal already running on the top card ends first.
+    while (revealing.current.size > 0) {
+      await wait(ART_POLL)
+    }
+    const shown: Rarity[] = []
+    for (let index = 0; index < current.cards.length; index++) {
+      if (disposed.current || answerRef.current !== current) return
+      if (storedRef.current[index]) continue
+      if (!revealedRef.current[index]) {
+        await reveal(index, true)
+        shown.push(current.cards[index].tier)
+      }
+      await wait(phoneAllHold(current.cards[index].tier))
+      await store(index, true)
+    }
+    setRevealingAll(false)
+    if (shown.length > 0) {
+      announce(revealSummary(shown, { summary: strings.summary, summaryTier: strings.summaryTier, rarityNames, delimiter }))
+    }
+    if (storedRef.current.every(Boolean)) complete()
+    applyLayout()
+  }
+
+  /** Nothing runs: no opening, no reveal, no Tout révéler, no store. */
+  const idle = () =>
+    !opening.current && revealing.current.size === 0 && !revealingAllRef.current && !storingRef.current && lockDepth.current === 0 && phaseRef.current !== "opening"
+
+  /**
+   * The phone's revealed top card may be stored now: by a tap, a swipe or
+   * "Ranger" once its guard is over and nothing runs; by Tout révéler at
+   * once.
+   */
+  const canStore = (index: number, fromAll: boolean): boolean => {
+    if (!phoneLayout() || phaseRef.current !== "dealt" || !answerRef.current?.cards[index]) return false
+    if (!revealedRef.current[index] || storedRef.current[index] || storingRef.current) return false
+    if (topOfPile(revealedRef.current, storedRef.current) !== index) return false
+    if (fromAll) return true
+    if (lockDepth.current > 0 || opening.current || revealingAllRef.current || revealing.current.size > 0) return false
+    const at = revealedAtRef.current[index]
+    return at !== undefined && performance.now() - at >= REVEAL_GUARD
+  }
+
+  /** The sparks of an Épique or better landing in its tray slot. */
+  const traySparks = (index: number, tier: Rarity) => {
+    const host = fx.current
+    const slot = traySlots.current[index]
+    if (!host || !slot || motionReduced() || tierIndex(tier) < 3) return
+    const box = host.getBoundingClientRect()
+    const rect = slot.getBoundingClientRect()
+    const x = rect.left + rect.width / 2 - box.left
+    const y = rect.top + rect.height / 2 - box.top
+    for (let count = 0; count < TRAY_SPARKS; count++) {
+      const angle = (count / TRAY_SPARKS) * Math.PI * 2
+      const reach = 26 + (count % 3) * 8
+      spark(host, `booster-fx__pixel booster-fx__pixel--${count % 3} booster-fx--${tier}`, x - 2, y - 2, [
+        { transform: "translate(0px, 0px)", opacity: 1 },
+        { transform: `translate(${Math.round(Math.cos(angle) * reach / 2) * 2}px, ${Math.round(Math.sin(angle) * reach / 2) * 2}px)`, opacity: 0 },
+      ], { duration: scaled(380), easing: "steps(4)" })
+    }
+  }
+
+  /**
+   * A revealed top card goes into its tray slot: it shrinks into the slot
+   * (from where a swipe left it), leaves the pile, the slot pops, an
+   * Épique or better adds sparks; the focus goes to the next top card, or
+   * after the last to "Ouvrir le suivant" (the booster complete).
+   */
+  const store = async (index: number, fromAll: boolean): Promise<void> => {
+    if (!canStore(index, fromAll)) return
+    const card = answerRef.current?.cards[index]
+    if (!card) return
+    setStoring(true)
+    const float = part(index, "float")
+    const frame = slots.current[index]?.querySelector(".booster-card__frame")
+    const target = traySlots.current[index]
+    const start = float?.style.transform || "none"
+    if (float) float.style.transform = ""
+    if (!motionReduced() && float && frame && target) {
+      const from = frame.getBoundingClientRect()
+      const to = target.getBoundingClientRect()
+      const dx = to.left + to.width / 2 - (from.left + from.width / 2)
+      const dy = to.top + to.height / 2 - (from.top + from.height / 2)
+      const end = `translate(${Math.round(dx)}px, ${Math.round(dy)}px) scale(${(to.width / Math.max(1, from.width)).toFixed(3)})`
+      settle(float)
+      animate(float, [
+        { transform: start, opacity: 1 },
+        { transform: end, opacity: 1, offset: 0.82 },
+        { transform: end, opacity: 0 },
+      ], { duration: STORE_MS, easing: "cubic-bezier(.45,0,.6,1)", fill: "forwards" })
+      await wait(STORE_MS)
+    }
+    if (disposed.current) return
+    flushSync(() => setStored(storedRef.current.map((done, position) => done || position === index)))
+    if (!motionReduced()) {
+      animate(traySlots.current[index], [
+        { transform: "scale(1)" },
+        { transform: "scale(1.22)", offset: 0.4 },
+        { transform: "scale(1)" },
+      ], { duration: SLOT_POP_MS, easing: "cubic-bezier(.2,1.35,.35,1)" })
+      traySparks(index, card.tier)
+    }
+    const everyStored = storedRef.current.every(Boolean)
+    if (everyStored && !fromAll) complete()
+    else if (!fromAll) requestFocus("card")
+    setStoring(false)
+    applyLayout()
+  }
+
+  /** A short drag let go: the card springs back to the top of the pile, still revealed. */
+  const springBack = (index: number) => {
+    const float = part(index, "float")
+    if (!float) return
+    const from = float.style.transform || "none"
+    float.style.transform = ""
+    if (!motionReduced()) animate(float, [{ transform: from }, { transform: "none" }], { duration: SPRING_BACK_MS, easing: "cubic-bezier(.2,1.6,.4,1)" })
+  }
+
+  // The swipe on the revealed top card: stored after a long enough move,
+  // else (or after a tilt, or a cancelled pointer) back on the pile.
+  const swipe = useCardSwipe({
+    canStart: (index) => canStore(index, false),
+    slot: (index) => slots.current[index] ?? null,
+    float: (index) => part(index, "float"),
+    release: (index, dx, dy, abandoned) => {
+      if (!abandoned && swipeStores(dx, dy) && canStore(index, false)) void store(index, false)
+      else springBack(index)
+    },
+  })
+
+  /** "Ranger" on the caption plate: the top card into the tray. */
+  const storeTop = () => {
+    const index = topOfPile(revealedRef.current, storedRef.current)
+    if (index !== null) void store(index, false)
+  }
+
+  /** A filled tray slot opens the card zoom, while nothing runs. */
+  const openZoom = useCallback((index: number) => {
+    if (!idle() || !storedRef.current[index]) return
+    setZoom(index)
+  }, [])
+
+  const closeZoom = () => {
+    const index = zoom
+    requestFocus(index === null ? "card" : { slot: index })
+    setZoom(null)
+  }
+
+  // ---- The layout: a width crossing 720 or 900px draws the island again ----
+
+  /**
+   * Applies the layout the width asks for, once the island is idle: the
+   * cards drawn again at rest in the new layout (stageKey), the revealed
+   * ones stored when entering the phone, every one back in the row when
+   * leaving it; no request, nothing replayed, the counts kept. A focus
+   * inside the island lands on the same control in the new layout.
+   */
+  const applyLayout = () => {
+    const next = pendingLayout.current
+    if (next === null || !idle()) return
+    pendingLayout.current = null
+    if (next === layoutRef.current) return
+    const focused = section.current?.contains(document.activeElement) ?? false
+    swipe.forget()
+    layoutRef.current = next
+    if (focused) requestFocus("card")
+    setStored(storedAfterRebuild(revealedRef.current, storedRef.current, next))
+    // Every card shown (on the phone, a last one left on the pile): the hand is complete in either layout.
+    if (phaseRef.current === "dealt" && allRevealed()) setStatus("complete")
+    setLayoutState(next)
+    setStageKey((value) => value + 1)
+    setZoom(null)
+    setBanner(null)
+  }
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return
+    const phone = window.matchMedia(PHONE_QUERY)
+    const narrow = window.matchMedia(NARROW_QUERY)
+    const onChange = () => {
+      pendingLayout.current = layoutFor(phone.matches, narrow.matches)
+      applyLayout()
+    }
+    phone.addEventListener("change", onChange)
+    narrow.addEventListener("change", onChange)
+    // The width may have changed between the first drawing and now.
+    onChange()
+    return () => {
+      phone.removeEventListener("change", onChange)
+      narrow.removeEventListener("change", onChange)
+    }
+    // applyLayout reads refs only.
+  }, [])
 
   /** A face-down card reveals; a revealed one opens its card page once its guard is over. */
   const activateCard = useCallback(
@@ -915,6 +1266,11 @@ export default function Booster(props: BoosterProps) {
       const card = answerRef.current?.cards[index]
       if (!card) return
       if (revealedRef.current[index]) {
+        // On the phone a tap stores it (a click that ends a drag does not).
+        if (layoutRef.current === "phone") {
+          if (performance.now() - swipe.lastDragEnd() >= CLICK_AFTER_DRAG) void store(index, false)
+          return
+        }
         // No leaving while the navigation is locked (a reveal, Tout révéler, an opening).
         if (lockDepth.current > 0 || opening.current || revealingAllRef.current) return
         const at = revealedAtRef.current[index]
@@ -954,125 +1310,161 @@ export default function Booster(props: BoosterProps) {
 
   const cards = answer?.cards ?? []
   const total = cards.length
+  const phone = layout === "phone"
   const revealedCount = revealed.filter(Boolean).length
+  const storedCount = stored.filter(Boolean).length
   const everyRevealed = total > 0 && revealedCount === total
   const remaining = total - revealedCount
-  const busy = phase === "opening" || revealingAll || locked
+  const busy = phase === "opening" || revealingAll || locked || storing
   const empty = phase === "empty"
+  // Before the answer, the size of the pack the next opening opens; after it, the answer's.
+  const nextSize = bank.nextPackSize ?? packSize
+  const shownSize = total || nextSize
   const seasonLine = season === null ? null : t(strings.canisterSeason, { number: season })
   const canisterLabel =
     season === null
-      ? t(strings.canisterLabelPlain, { count: packSize })
-      : t(strings.canisterLabel, { season, count: packSize })
+      ? t(strings.canisterLabelPlain, { count: nextSize })
+      : t(strings.canisterLabel, { season, count: nextSize })
 
   const openLabel = bank.available <= 0 && phase !== "opening" ? strings.reserveEmpty : phase === "dealt" ? strings.openNext : strings.open
   const openDisabled = (bank.available <= 0 && phase !== "opening") || (phase === "dealt" && !everyRevealed)
-  const revealAllDisabled = phase !== "dealt" || everyRevealed || revealingAll || legendary !== null
+  const revealAllDisabled = phase !== "dealt" || everyRevealed || revealingAll || storing || legendary !== null
 
   const statusTone = status === "arming" || status === "ejecting" ? "alert" : status === "legendarySignal" ? "gold" : status === "complete" ? "done" : "rest"
   const clock = left === null ? null : formatClock(left)
+  const nextLine = !bank.reserveFull && clock !== null && bank.nextAvailableAt ? { clock, spoken: t(strings.nextAt, { time: utcTime(bank.nextAvailableAt) }) } : null
+
+  // The phone's pile: the cards not stored, the first on top.
+  const top = phase === "dealt" && total > 0 ? topOfPile(revealed, stored) : null
+  const face = faceSize(layout)
+  const cardBack = answer?.pack.cardBack ?? "standard"
 
   const hint =
     phase === "dealt" && total > 0
-      ? remaining > 0
-        ? t(strings.hintRemaining, { count: remaining, n: number(remaining) })
-        : t(strings.hintDone, { count: total, n: number(total) })
+      ? phone
+        ? top === null
+          ? t(strings.hintDone, { count: total, n: number(total) })
+          : revealed[top]
+            ? strings.hintSwipe
+            : strings.hintTap
+        : remaining > 0
+          ? t(strings.hintRemaining, { count: remaining, n: number(remaining) })
+          : t(strings.hintDone, { count: total, n: number(total) })
       : null
 
+  const topCard = top !== null && revealed[top] ? cards[top] : null
+  const plate: PlateCard | null =
+    phone && top !== null && topCard
+      ? {
+          key: `${answer?.pack.token}-${top}`,
+          tier: topCard.tier,
+          icon: rarityIcons[topCard.tier],
+          tierText: tierLabel(topCard.tier),
+          line: t(strings.bannerLine, { title: topCard.title, year: topCard.year ?? "" }),
+        }
+      : null
+
+  const cardName = (card: OpeningCard, index: number) =>
+    revealed[index]
+      ? t(phone ? strings.faceUpStore : strings.faceUp, { card: card.label, rarity: rarityNames[card.tier] })
+      : t(strings.faceDown, { position: index + 1, total })
+
+  const dealtCards = cards.map((card, index) =>
+    phone && stored[index] ? null : (
+      <BoosterCard
+        key={`${answer?.pack.token}-${index}`}
+        index={index}
+        tier={card.tier}
+        face={card.faces[face]}
+        cardBack={cardBack}
+        dealt={dealt}
+        revealed={revealed[index] ?? false}
+        revealedAt={revealedAt[index]}
+        legendary={legendary === index}
+        name={cardName(card, index)}
+        tierIcon={rarityIcons[card.tier]}
+        tierLabel={tierLabel(card.tier)}
+        slotRef={slotRefs[index]}
+        onActivate={activateCard}
+        depth={phone ? pileDepth(index, stored) : null}
+        gestures={phone && index === top && revealed[index] ? swipe.gestures : null}
+      />
+    ),
+  )
+
+  const openButtonElement = (
+    <button
+      type="button"
+      ref={openButton}
+      className="button button--primary booster__open"
+      disabled={openDisabled}
+      aria-disabled={!openDisabled && busy ? "true" : undefined}
+      onClick={() => {
+        if (!busy) void open()
+      }}
+    >
+      {openLabel}
+    </button>
+  )
+  const revealAllButton = (
+    <button type="button" className="button button--secondary booster__reveal-all" disabled={revealAllDisabled} onClick={() => void revealAll()}>
+      {strings.revealAll}
+    </button>
+  )
+  const backButton = (
+    <a
+      ref={backLink}
+      className="button button--secondary booster__back"
+      href={hubUrl}
+      aria-disabled={locked ? "true" : undefined}
+      onClick={(event) => {
+        if (lockDepth.current > 0) event.preventDefault()
+      }}
+    >
+      {strings.back}
+    </a>
+  )
+  const reasonLine = reason && <p className="booster__reason">{reason}</p>
+
+  const zoomed = zoom !== null && phone ? cards[zoom] : null
+
   return (
-    <section className="booster" aria-labelledby="booster-title" data-phase={phase}>
-      <aside className="booster__info">
-        <div className="booster__hazard" aria-hidden="true" />
-        <div className="booster__id">
-          <p className="booster__kicker">{season === null ? strings.kickerPlain : t(strings.kicker, { number: season })}</p>
-          <h2 id="booster-title" className="booster__title">
-            {strings.title}
-          </h2>
-        </div>
-
-        <dl className="booster__panel panel panel--brackets">
-          <div className="booster__row">
-            <dt>{strings.cardsPerPack}</dt>
-            <dd className="booster__value">{number(packSize)}</dd>
-          </div>
-          <div className="booster__row">
-            <dt>{strings.inReserve}</dt>
-            <dd className="booster__value booster__value--reserve">{t(strings.reserveCount, { count: bank.available, n: number(bank.available) })}</dd>
-          </div>
-          <div className="booster__row booster__row--state">
-            <dt>{strings.state}</dt>
-            <dd className="booster__state" data-tone={statusTone}>
-              <span className="booster__light" aria-hidden="true" />
-              <span className="booster__state-word">{strings.states[status]}</span>
-            </dd>
-          </div>
-        </dl>
-
-        <div className="booster__reserve">
-          <p className="booster__reserve-head">
-            <span>{strings.reserve}</span>
-            {bank.reserveFull ? (
-              <span className="booster__next booster__next--full">{strings.reserveFull}</span>
-            ) : (
-              clock !== null &&
-              bank.nextAvailableAt && (
-                <span className="booster__next">
-                  <span aria-hidden="true">
-                    {strings.nextIn} <b className="booster__clock">{clock}</b>
-                  </span>
-                  <span className="visually-hidden">{t(strings.nextAt, { time: utcTime(bank.nextAvailableAt) })}</span>
-                </span>
-              )
-            )}
-          </p>
-          <div className="booster__pips" aria-hidden="true">
-            {Array.from({ length: RESERVE_PIPS }, (_, index) => (
-              <span key={index} className="booster__pip" data-lit={index < Math.min(bank.available, RESERVE_PIPS) ? "" : undefined} />
-            ))}
-          </div>
-        </div>
-
-        <div className="booster__actions">
-          <button
-            type="button"
-            ref={openButton}
-            className="button button--primary booster__open"
-            disabled={openDisabled}
-            aria-disabled={!openDisabled && busy ? "true" : undefined}
-            onClick={() => {
-              if (!busy) void open()
-            }}
-          >
-            {openLabel}
-          </button>
-          <div className="booster__actions-row">
-            <button
-              type="button"
-              className="button button--secondary booster__reveal-all"
-              disabled={revealAllDisabled}
-              onClick={() => void revealAll()}
-            >
-              {strings.revealAll}
-            </button>
-            <a
-              ref={backLink}
-              className="button button--secondary booster__back"
-              href={hubUrl}
-              aria-disabled={locked ? "true" : undefined}
-              onClick={(event) => {
-                if (lockDepth.current > 0) event.preventDefault()
-              }}
-            >
-              {strings.back}
-            </a>
-          </div>
-          {reason && <p className="booster__reason">{reason}</p>}
-        </div>
-
-        <p className="booster__counter">
-          {t(strings.revealedCount, { revealed: phase === "dealt" ? number(revealedCount) : "—", total: number(total || packSize) })}
-        </p>
-      </aside>
+    <section ref={section} className="booster" aria-labelledby="booster-title" data-phase={phase} data-layout={layout}>
+      {phone ? (
+        <BoosterStrip
+          title={season === null ? strings.stripTitlePlain : t(strings.stripTitle, { number: season })}
+          lit={Math.min(bank.available, RESERVE_PIPS)}
+          pips={RESERVE_PIPS}
+          reserveFull={bank.reserveFull ? strings.reserveFull : null}
+          next={nextLine && { label: strings.nextIn, ...nextLine }}
+          state={strings.states[status]}
+          tone={statusTone}
+        />
+      ) : (
+        <BoosterPanel
+          kicker={season === null ? strings.kickerPlain : t(strings.kicker, { number: season })}
+          title={strings.title}
+          cardsPerPack={{ label: strings.cardsPerPack, value: number(shownSize) }}
+          inReserve={{ label: strings.inReserve, value: t(strings.reserveCount, { count: bank.available, n: number(bank.available) }) }}
+          state={{ label: strings.state, word: strings.states[status], tone: statusTone }}
+          reserve={strings.reserve}
+          reserveFull={bank.reserveFull ? strings.reserveFull : null}
+          next={nextLine && { label: strings.nextIn, ...nextLine }}
+          lit={Math.min(bank.available, RESERVE_PIPS)}
+          pips={RESERVE_PIPS}
+          actions={
+            <>
+              {openButtonElement}
+              <div className="booster__actions-row">
+                {revealAllButton}
+                {backButton}
+              </div>
+              {reasonLine}
+            </>
+          }
+          counter={t(strings.revealedCount, { revealed: phase === "dealt" ? number(revealedCount) : "—", total: number(shownSize) })}
+        />
+      )}
 
       <div className="booster__stage" data-legendary={legendary !== null ? "" : undefined}>
         <div className="booster__shake" ref={shake}>
@@ -1104,51 +1496,67 @@ export default function Booster(props: BoosterProps) {
                     onActivate={() => void open()}
                   />
                   <p className="booster__canister-hint" aria-hidden="true" data-hidden={phase !== "sealed" ? "" : undefined}>
-                    {strings.canisterHint}
+                    {phone ? strings.canisterHintTouch : strings.canisterHint}
                   </p>
+                  {phone && (
+                    <p className="booster__canister-facts" aria-hidden="true" data-hidden={phase !== "sealed" ? "" : undefined}>
+                      {t(strings.canisterFacts, { count: nextSize, n: number(nextSize) })}
+                    </p>
+                  )}
                 </>
               )}
             </div>
           )}
 
-          <div className="booster__result" data-shown={headShown ? "" : undefined} aria-hidden={headShown ? undefined : "true"}>
-            <span className="booster__result-stripe" aria-hidden="true" />
-            <span className="booster__result-title">{strings.result}</span>
-            <span className="booster__result-stripe" aria-hidden="true" />
-          </div>
-
-          {total > 0 && (
-            <div className="booster__deal-area">
-              <ol className="booster__deal" aria-label={strings.result}>
-                {cards.map((card, index) => (
-                  <BoosterCard
-                    key={`${answer?.pack.token}-${index}`}
-                    index={index}
-                    tier={card.tier}
-                    face={card.faces.m}
-                    cardBack={answer?.pack.cardBack ?? "standard"}
-                    dealt={dealt}
-                    revealed={revealed[index] ?? false}
-                    revealedAt={revealedAt[index]}
-                    legendary={legendary === index}
-                    name={
-                      revealed[index]
-                        ? t(strings.faceUp, { card: card.label, rarity: rarityNames[card.tier] })
-                        : t(strings.faceDown, { position: index + 1, total })
-                    }
-                    tierIcon={rarityIcons[card.tier]}
-                    tierLabel={tierLabel(card.tier)}
-                    slotRef={slotRefs[index]}
-                    onActivate={activateCard}
-                  />
-                ))}
-              </ol>
-              {hint && <p className="booster__hint">{hint}</p>}
+          {!phone && (
+            <div className="booster__result" data-shown={headShown ? "" : undefined} aria-hidden={headShown ? undefined : "true"}>
+              <span className="booster__result-stripe" aria-hidden="true" />
+              <span className="booster__result-title">{strings.result}</span>
+              <span className="booster__result-stripe" aria-hidden="true" />
             </div>
           )}
+
+          {total > 0 &&
+            (phone ? (
+              <>
+                <div className="booster__pile-area">
+                  <ol key={stageKey} className="booster__pile" aria-label={strings.result}>
+                    {dealtCards}
+                  </ol>
+                </div>
+                {dealt && (
+                  <>
+                    <BoosterPlate plate={plate} hint={hint} storeLabel={strings.store} storeBusy={busy} onStore={storeTop} />
+                    <BoosterTray
+                      key={stageKey}
+                      label={strings.tray}
+                      countLabel={strings.trayLabel}
+                      count={t(strings.trayCount, { n: number(storedCount), total: number(total) })}
+                      slots={cards.map((card) => ({
+                        tier: card.tier,
+                        coverUrl: card.coverUrl,
+                        name: t(strings.traySlot, { card: card.label, rarity: rarityNames[card.tier] }),
+                      }))}
+                      stored={stored}
+                      rarityIcons={rarityIcons}
+                      busy={busy}
+                      slotRef={traySlotRef}
+                      onOpen={openZoom}
+                    />
+                  </>
+                )}
+              </>
+            ) : (
+              <div className="booster__deal-area">
+                <ol key={stageKey} className="booster__deal" aria-label={strings.result}>
+                  {dealtCards}
+                </ol>
+                {hint && <p className="booster__hint">{hint}</p>}
+              </div>
+            ))}
         </div>
 
-        {banner && (
+        {banner && !phone && (
           <div
             key={banner.key}
             ref={bannerElement}
@@ -1170,6 +1578,33 @@ export default function Booster(props: BoosterProps) {
         )}
         <div className="booster__flash" ref={flash} aria-hidden="true" />
       </div>
+
+      {phone && (
+        <div className="booster__phone-actions">
+          <div className="booster__actions-row">
+            {openButtonElement}
+            {revealAllButton}
+          </div>
+          {backButton}
+          {reasonLine}
+        </div>
+      )}
+
+      {zoomed && zoom !== null && (
+        <BoosterZoom
+          key={zoom}
+          tier={zoomed.tier}
+          title={zoomed.title}
+          face={zoomed.faces.xl}
+          icon={rarityIcons[zoomed.tier]}
+          line={t(strings.zoomLine, { rarity: rarityNames[zoomed.tier], year: zoomed.year ?? "" })}
+          href={cardUrl.replace("SLUG", encodeURIComponent(zoomed.slug))}
+          seeCard={strings.seeCard}
+          close={strings.close}
+          tip={strings.zoomTip}
+          onClose={closeZoom}
+        />
+      )}
 
       <div className="visually-hidden" role="status" aria-live="polite">
         {announcements.map(({ key, text }) => (

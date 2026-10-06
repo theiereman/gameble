@@ -3,10 +3,13 @@
 // revealed card). Plain layers, each with one job, animated by the Booster
 // island through WAAPI:
 //
-//   li.booster-card            data-tier, data-dealt, data-revealed(-at)
+//   li.booster-card            data-tier, data-dealt, data-revealed(-at);
+//                              on the phone data-top, data-depth, inert
+//                              under the top, the pile pose's properties
 //     __frame                  the card's box
-//       __travel               the deal and the sink (transform, opacity)
-//         __hover              the CSS lift under the pointer or the focus
+//       __travel               the deal, the sink, the pile pose (transform, opacity)
+//         __float              the phone's swipe drag and store flight
+//           __hover            the CSS lift under the pointer or the focus
 //           __lift             perspective; the reveal's tremble, jump, settle
 //             __glow, __rays   behind the card, once revealed
 //             __flip           preserve-3d; `is-up` turns it face up
@@ -21,14 +24,27 @@
 // would flatten the turn and show the mirrored back. The hit button never
 // moves; once the card is revealed it lets the pointer through to the
 // face's own tilt, and the slot catches the click.
-import { memo, useMemo, type MouseEvent, type Ref } from "react"
-import { cardBackClass } from "../lib/booster"
+//
+// On the phone (story 8.12) the cards lie in a pile: each one at its
+// depth's pose (lib/booster.ts, pilePose, read by the stylesheet from
+// custom properties), only the top one taking input (the others inert) and
+// running its loops.
+import { memo, useMemo, type CSSProperties, type MouseEvent, type PointerEvent, type Ref } from "react"
+import { cardBackClass, pilePose } from "../lib/booster"
 import type { Rarity } from "../lib/card_types"
+
+/** The phone's swipe on the revealed top card, handled by the island. */
+export type CardGestures = {
+  onPointerDown: (index: number, event: PointerEvent<HTMLLIElement>) => void
+  onPointerMove: (index: number, event: PointerEvent<HTMLLIElement>) => void
+  onPointerUp: (index: number, event: PointerEvent<HTMLLIElement>) => void
+  onPointerCancel: (index: number, event: PointerEvent<HTMLLIElement>) => void
+}
 
 export type BoosterCardProps = {
   index: number
   tier: Rarity
-  /** The face at m, rendered on the server. */
+  /** The face at the layout's size (s, m or xl), rendered on the server. */
   face: string
   cardBack: string
   dealt: boolean
@@ -43,6 +59,9 @@ export type BoosterCardProps = {
   tierLabel: string
   slotRef: Ref<HTMLLIElement>
   onActivate: (index: number) => void
+  /** On the phone: how deep the card lies in the pile (0 on top); null in a row. */
+  depth?: number | null
+  gestures?: CardGestures | null
 }
 
 function BoosterCard({
@@ -59,6 +78,8 @@ function BoosterCard({
   tierLabel,
   slotRef,
   onActivate,
+  depth = null,
+  gestures = null,
 }: BoosterCardProps) {
   // The same objects while the HTML is the same, so React never rewrites
   // the face (nor the work of its controllers: art, tilt).
@@ -72,26 +93,44 @@ function BoosterCard({
     onActivate(index)
   }
 
+  // The pile: the pose of the card's depth, the top one above the rest.
+  const pile = depth === null ? null : pilePose(depth)
+  const style = pile
+    ? ({ "--pile-y": `${pile.y}px`, "--pile-scale": pile.scale, "--pile-rotate": `${pile.rotate}deg`, zIndex: 20 - (depth ?? 0) } as CSSProperties)
+    : undefined
+  const top = depth === 0
+
   return (
     <li
       ref={slotRef}
       className="booster-card"
+      style={style}
+      data-position={index + 1}
       data-tier={tier}
       data-dealt={dealt ? "" : undefined}
       data-revealed={revealed ? "" : undefined}
       data-revealed-at={revealedAt}
       data-legendary={legendary ? "" : undefined}
+      data-top={top ? "" : undefined}
+      data-depth={depth ?? undefined}
+      inert={depth !== null && !top}
       onClick={activate}
+      onPointerDown={gestures ? (event) => gestures.onPointerDown(index, event) : undefined}
+      onPointerMove={gestures ? (event) => gestures.onPointerMove(index, event) : undefined}
+      onPointerUp={gestures ? (event) => gestures.onPointerUp(index, event) : undefined}
+      onPointerCancel={gestures ? (event) => gestures.onPointerCancel(index, event) : undefined}
     >
       <div className="booster-card__frame">
         <div className="booster-card__travel">
-          <div className="booster-card__hover">
-            <div className="booster-card__lift">
-              {tier === "legendary" && <span className="booster-card__glow" aria-hidden="true" />}
-              {(tier === "epic" || tier === "legendary") && <span className="booster-card__rays" aria-hidden="true" />}
-              <div className={revealed ? "booster-card__flip is-up" : "booster-card__flip"}>
-                <div className={`booster-card__back ${cardBackClass(cardBack)}`} aria-hidden="true" />
-                <div className="booster-card__front" aria-hidden="true" dangerouslySetInnerHTML={faceHtml} />
+          <div className="booster-card__float">
+            <div className="booster-card__hover">
+              <div className="booster-card__lift">
+                {tier === "legendary" && <span className="booster-card__glow" aria-hidden="true" />}
+                {(tier === "epic" || tier === "legendary") && <span className="booster-card__rays" aria-hidden="true" />}
+                <div className={revealed ? "booster-card__flip is-up" : "booster-card__flip"}>
+                  <div className={`booster-card__back ${cardBackClass(cardBack)}`} aria-hidden="true" />
+                  <div className="booster-card__front" aria-hidden="true" dangerouslySetInnerHTML={faceHtml} />
+                </div>
               </div>
             </div>
           </div>

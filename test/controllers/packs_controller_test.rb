@@ -362,7 +362,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[pack cards bank serverTime tierCountsBefore unlockedCardBacks], body.keys
     assert_equal({ "token" => pack.token, "kind" => "regular", "cardBack" => "standard", "url" => "/en/packs/#{pack.token}" }, body["pack"])
     scheduled = (now + 10.minutes).iso8601(3)
-    assert_equal({ "available" => 9, "reserveFull" => false, "nextAvailableAt" => scheduled, "scheduledAt" => [ scheduled ] }, body["bank"])
+    assert_equal({ "available" => 9, "reserveFull" => false, "nextAvailableAt" => scheduled, "scheduledAt" => [ scheduled ], "nextPackSize" => 5 },
+      body["bank"])
     assert_equal "2026-10-06T14:22:00.000Z", body["serverTime"]
     assert_equal counts_before.transform_keys { Catalog::Rarity::TIERS.fetch(it).to_s }, body["tierCountsBefore"]
     assert_equal %w[common uncommon rare epic legendary], body["tierCountsBefore"].keys
@@ -374,7 +375,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
       body["cards"].map { it.values_at("slug", "tier", "coverUrl", "title", "year") }
     body["cards"].zip(cards).each do |card, view|
       assert_equal %w[slug tier coverUrl title year label faces], card.keys
-      assert_equal %w[m xl], card["faces"].keys
+      assert_equal %w[s m xl], card["faces"].keys
       card["faces"].each do |size, html|
         face = Nokogiri::HTML5.fragment(html)
         assert_equal 1, face.css(".card.card--#{size}.card--booster.card--rarity-#{view.rarity}[data-controller=tilt]").size
@@ -385,7 +386,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     # No database id (AD-15): no id key, and the only integers are counts.
     assert_empty json_keys(body).grep(/\Aid\z|Id\z/)
-    assert_equal [ *Array.new(5, "cards.[].year"), "bank.available", *%w[common uncommon rare epic legendary].map { "tierCountsBefore.#{it}" } ],
+    assert_equal [ *Array.new(5, "cards.[].year"), "bank.available", "bank.nextPackSize", *%w[common uncommon rare epic legendary].map { "tierCountsBefore.#{it}" } ],
       json_integers(body).map(&:first)
   end
 
@@ -399,7 +400,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :ok
     assert_equal bonus.token, body.dig("pack", "token")
-    assert_equal({ "available" => 10, "reserveFull" => true, "nextAvailableAt" => nil, "scheduledAt" => [] }, body["bank"])
+    assert_equal({ "available" => 10, "reserveFull" => true, "nextAvailableAt" => nil, "scheduledAt" => [], "nextPackSize" => 5 }, body["bank"])
   end
 
   test "the same key again replays the same answer, with nothing opened, even once the reserve is empty" do
@@ -509,7 +510,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a daily bonus pack answers its three cards, each with its two faces" do
+  test "a daily bonus pack answers its three cards, each with its three faces" do
     player = accounts_players(:player)
     create_pack(player, kind: :bonus, cards: fixture_tier_ids.last(3), available_at: 1.day.ago)
     # Portal in an action tome: its genre ends its spoken label.
@@ -525,8 +526,10 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[rare epic legendary], body["cards"].map { it["tier"] }
     # Spoken as the booster's live region says them: title — publisher, year, genre.
     assert_equal [ "Blue Depths — 2014", "Portal — Valve, 2007, Action", "Golden Crown — 1998" ], body["cards"].map { it["label"] }
+    # Nothing left to open: no next pack size.
+    assert_nil body.dig("bank", "nextPackSize")
     body["cards"].each do |card|
-      assert_equal %w[m xl], card["faces"].keys
+      assert_equal %w[s m xl], card["faces"].keys
       card["faces"].each { |size, html| assert_equal 1, Nokogiri::HTML5.fragment(html).css(".card.card--#{size}.card--booster").size }
     end
   end
