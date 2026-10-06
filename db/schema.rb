@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_06_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_06_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -165,6 +165,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_06_000001) do
     t.string "card_back"
     t.index ["player_id", "available_at", "id"], name: "index_game_packs_unopened", where: "(opened_at IS NULL)"
     t.index ["player_id", "idempotency_key"], name: "index_game_packs_on_player_id_and_idempotency_key", unique: true, where: "(idempotency_key IS NOT NULL)"
+    t.index ["player_id", "season_id", "opened_at"], name: "index_game_packs_opened", order: { opened_at: :desc }, where: "(opened_at IS NOT NULL)"
     t.index ["player_id"], name: "index_game_packs_on_player_id"
     t.index ["season_id"], name: "index_game_packs_on_season_id"
     t.index ["token"], name: "index_game_packs_on_token", unique: true
