@@ -16,7 +16,6 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
 
 ## After the UX redesign merge (2026-10-05)
 
-- **Capability numbering.** The redesign named friends' presence CAP-19, already taken by the repost (2026-10-03, covered by epic 6); the merge keeps the repost as CAP-19, card backs as CAP-20 and moves presence to CAP-21. Confirm.
 - **Repost and Friends tab missing from the UX.** `DESIGN.md` and `EXPERIENCE.md` do not cover the repost action (CAP-19) or the feed's Friends tab (CAP-13). A short `bmad-ux` update before epic 6 is sliced.
 - **Tome genres: fold neighbours.** The author wants neighbouring tags folded into one genre (Roguelite into Roguelike, Survival Horror into Horror, Shooter into FPS, …); to work out before the real import (spec open question), then change `Steam::GenreTags` and rescore.
 - **Import into a separate draft, with rollback.** The author wants a run to build its cards beside the current draft and replace it only once validated, so a failed or bad run can be thrown away without touching the draft (supersedes "a run that wrote cards cannot be abandoned", story 2.11). Backlog story `backlog/story-import-staging-and-rollback.md`; it changes AD-5 and AD-19, so its design goes through `bmad-architecture` first.
@@ -59,3 +58,4 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
 - On staging's fresh database, `db:prepare` applied every migration at boot (dust_tier dropped, numbers column, player states), season 1 was numbered by its own publication, and players get their `game_player_states` row at sign-up: the backfills `catalog:number_seasons` and `game:backfill_player_states` are not needed there. They stay available for any older database.
 - Prestige formula: log10(review count) + 4 × Wilson (story 2.12); season 1 on staging keeps the old scores and is not republished.
 - Pixel-art sheet of story 8.8 reviewed and approved by the author (82 files); story 8.8 marked done.
+- Capability numbering confirmed by the author: CAP-19 repost (epic 6), CAP-20 card backs (epic 9), CAP-21 friends' presence (epic 5).
