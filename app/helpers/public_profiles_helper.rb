@@ -1,7 +1,7 @@
 # The words of a player's public profile (CAP-8, story 4.4).
 module PublicProfilesHelper
   # The profile's title: the owner's Steam persona name (user content,
-  # escaped wherever it is written), or "Brother <code>" for an owner Steam
+  # escaped wherever it is written), or "Player <code>" for an owner Steam
   # never named, the code drawn from their token. The stored name is cleaned
   # again (Accounts::PersonaName), so a name stored before invisible
   # characters were cleaned at sign-in, and that holds nothing visible, falls

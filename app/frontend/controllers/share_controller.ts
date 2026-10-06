@@ -1,12 +1,15 @@
 import { Controller } from "@hotwired/stimulus"
 
-// The share button of a card's detail (CAP-9): copies the link of the card on
-// the holder's public profile. In a secure context (HTTPS, localhost) the link
-// is written to the clipboard right in the click; elsewhere (the plain-HTTP
-// test server) or when the browser refuses, the link is selected in its
-// read-only field and copied with the older execCommand, and the status says
-// "Link copied" only when that worked, else how to copy it by hand. No Web
-// Share API, no tracking: the link only.
+// The share sheet of a card's detail (CAP-9; DESIGN.md, Share sheet): the
+// "Partager" button (which also opens the sheet, dialog-opener) and the
+// sheet's "Copier" copy the card-season's link. The sheet copies it on
+// opening, in that same click. In a secure context (HTTPS, localhost) the
+// link is written to the clipboard right in the click; elsewhere (the
+// plain-HTTP test server) or when the browser refuses, the link is selected
+// in its read-only field and copied with the older execCommand, and the
+// status (a polite live region) says "Link copied" only when that worked,
+// else how to copy it by hand, the link staying selected. No Web Share API,
+// no tracking: the link only.
 export default class extends Controller<HTMLElement> {
   static targets = ["url", "status"]
   static values = { copied: String, manual: String }

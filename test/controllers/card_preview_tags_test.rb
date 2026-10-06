@@ -3,12 +3,13 @@ require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
 
 # A card's page as a share link opens it (CAP-9, story 4.5, reworked by the
-# epic 4 retrospective fixes): only the card, never who shared or holds it;
-# the preview tags (title and rarity, never an image) in the URL's
-# language, on the configured public base; for a visitor, the invitation
-# to play; open to link-preview crawlers and older browsers, with the
-# library its sets lead to; the share links of story 4.5 redirected; no
-# database id.
+# epic 4 retrospective fixes, redrawn by story 10.3): only the card, never
+# who shared or holds it; the preview tags (title and rarity, never an
+# image) in the URL's language, on the configured public base; for a
+# visitor, the public card page with the invitation to play and, for an
+# older browser, the line asking to update; open to link-preview crawlers
+# and older browsers, with the library its sets lead to; the share links of
+# story 4.5 redirected; no database id.
 class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
@@ -50,26 +51,59 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   def og(property) = meta("property", "og:#{property}")
   def canonical = css_select("head link[rel=canonical]").sole["href"]
 
-  test "a visitor sees the card only, then the invitation; no owner line or name, even for a card the sharer never held" do
+  test "a visitor sees the public card page: the card only, the pitch and its one primary button; no owner line or name, even for a card the sharer never held" do
     get card_page
 
     assert_response :success
-    assert_select "main > turbo-frame#card-detail:first-child > .card-detail h1", "Blue Depths"
+    assert_select "main > article.public-card h1#public-card-heading", "Blue Depths"
     assert_select "h1", 1
-    assert_select ".card-detail__copies", false
-    assert_select ".card-detail__share", false
-    assert_select "main > turbo-frame#card-detail + .card-detail__invitation p.panel", "Open boosters, complete sets, trade with your friends."
-    assert_select ".card-detail__invitation button.button--secondary[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]",
+    assert_select ".public-card .card.card--xl.card--rarity-rare"
+    assert_select ".public-card__publisher", false
+    assert_select ".public-card__line", "Rare · 2014 · S1 · #3"
+    assert_select ".card-detail, .card-detail__copies, #share-sheet, .card-detail__share", false
+    assert_select ".public-card__pitch-title", "Your Steam games, as collectible cards."
+    assert_select ".public-card__pitch-text", "Open boosters, complete sets, trade with your friends."
+    assert_select ".public-card__pitch button.button--primary[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]",
       "Open my first boosters"
-    # "Voir sur Steam" is the page's one primary action.
+    # The page's one primary action; "See on Steam" is a link.
     assert_select "main .button--primary", 1
-    assert_select "main .card-detail__store.button--primary"
-    assert_select ".card-detail__card .card.card--l.card--rarity-rare"
+    link = css_select("main a.public-card__store.button--link").sole
+    assert_equal [ "See on Steam (new tab)", "noopener noreferrer external", "_blank" ], [ link.text.squish, link["rel"], link["target"] ]
+    # The slim top bar: the logo and the Steam sign-in image, no way back to
+    # the bridge, no tab bar.
+    assert_select ".top-bar__brand .top-bar__logo"
+    assert_select ".top-bar__start > a", false
+    assert_select ".top-bar__end form[action='/auth/steam'] img.steam-sign-in__image"
+    assert_select "nav.tab-bar", false
     assert_select "main form[action='/auth/steam']", false
+    # The placeholders: the LIVE strip, three inert entries, the legal notice.
+    assert_select ".public-card__live-title", /Live\s+·\s+Right now on gameble/
+    assert_select ".public-card__live-entry", 3
+    assert_select ".public-card__live-list[aria-hidden=true]"
+    assert_select ".public-card__legal", "Legal notice"
+    assert_select ".public-card__footer a", false
     assert_select ".library, .profile", false
     assert_not_includes response.body, "Gabe the Brave"
     assert_no_match(/collection of|No longer in/i, response.body)
-    assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
+  end
+
+  test "an older browser's line: in the markup beside the invitation, the stylesheet showing one or the other by :has() support, no script involved" do
+    get card_page
+
+    assert_select ".public-card__update", "Your browser is too old to sign in to gameble. Update it to play."
+    assert_select ".public-card__pitch"
+    assert_select "script", text: /:has|userAgent|navigator/, count: 0
+
+    css = Rails.root.join("app/frontend/styles/card-detail.css").read
+    default, supported = css.split("@supports selector(:has(*))", 2)
+    # By default: the invitation and the sign-in image hidden, the line shown.
+    assert_match(/\.public-card__pitch \{\s*display: none;/, default)
+    assert_match(/\.is-public-page \.top-bar__end \{\s*display: none;/, default)
+    assert_no_match(/\.public-card__update \{[^}]*display: none/, default)
+    # Where :has() works: the invitation and the image shown, the line hidden.
+    assert_match(/\.public-card__pitch \{\s*display: flex;/, supported)
+    assert_match(/\.public-card__update \{\s*display: none;/, supported)
+    assert_match(/\.is-public-page \.top-bar__end \{\s*display: flex;/, supported)
   end
 
   test "the preview tags: title and rarity, a fixed line, the season URL, en_US, a summary card, no image" do
@@ -101,8 +135,12 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_equal "fr_FR", og("locale")
     assert_equal season_url(locale: :fr), og("url")
     assert_equal "Une carte de gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix boosters vous attendent.", og("description")
-    assert_select ".card-detail__invitation p", "Ouvrez des boosters, complétez des sets, échangez avec vos amis."
-    assert_select ".card-detail__invitation button", "Ouvrir mes premiers boosters"
+    assert_select ".public-card__pitch-title", "Vos jeux Steam, en cartes à collectionner."
+    assert_select ".public-card__pitch-text", "Ouvrez des boosters, complétez des sets, échangez avec vos amis."
+    assert_select ".public-card__pitch button", "Ouvrir mes premiers boosters"
+    assert_select ".public-card__update", "Votre navigateur est trop ancien pour se connecter à gameble. Mettez-le à jour pour jouer."
+    assert_select ".public-card__live-title", /En ce moment sur gameble/
+    assert_select ".public-card__legal", "Mentions légales"
     assert_select "dialog#sign-in-panel .modal__title", "Connectez-vous pour jouer"
   end
 
@@ -110,7 +148,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     get "#{card_page(slug: "portal", number: nil)}?utm_source=discord"
 
     assert_response :success
-    assert_select ".card-detail h1", "Portal"
+    assert_select ".public-card h1", "Portal"
     assert_equal season_url(slug: "portal"), canonical
     assert_equal season_url(slug: "portal"), og("url")
     assert_equal "Portal — Epic", og("title")
@@ -154,12 +192,12 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     get card_page
     assert_select ".card-detail__invitation", false
     assert_select ".card-detail__copies", "2 copies"
-    assert_select ".card-detail__share input[value=?]", season_url
+    assert_select "#share-sheet input[value=?]", season_url
   end
 
   test "a visitor signing in from the invitation's sign-in panel lands on the hub" do
     get card_page
-    assert_select ".card-detail__invitation button[data-dialog-opener-dialog-value=sign-in-panel]"
+    assert_select ".public-card__pitch button[data-dialog-opener-dialog-value=sign-in-panel]"
     form = css_select("dialog#sign-in-panel form.steam-sign-in").sole
     origin = form.at_css("input[name=origin]")["value"]
     assert_equal URI(card_page).path, origin
@@ -188,7 +226,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
 
     follow_redirect!
     assert_response :success
-    assert_select ".card-detail h1", "Profondeurs bleues"
+    assert_select ".public-card h1", "Profondeurs bleues"
     assert_not_includes response.body, "Gabe the Brave"
   end
 
@@ -239,7 +277,8 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
 
       assert_response :success
       assert_equal "Portal — Epic", og("title")
-      set_link = css_select(".card-detail__sets a").sole["href"]
+      # The public page shows no sets: portal's publisher set is in the library.
+      set_link = library_set_path(locale: :en, kind: "publisher", key: "valve")
 
       get set_link, headers: { "User-Agent" => user_agent }
       assert_response :success

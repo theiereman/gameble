@@ -15,7 +15,8 @@
       the sets' names alone; the sets of a season other than the published
       one (the one the library shows) are never linked;
     - share_url: the absolute link to this card-season's page, to share,
-      or nil (the default) for no share button;
+      or nil (the default) for no share button and no share sheet
+      (cards/_share_sheet);
     - browse: the Catalog::SetNeighbours::Neighbours of the set it browses,
       or nil (the default) for no ◀ ▶ and no position line;
     - faded: true to show the viewer's card back, faded, in place of the
@@ -131,18 +132,6 @@
           <% end %>
         </dl>
         <p class="card-detail__notice"><%= t("card_details.notice") %></p>
-        <% if share_url %>
-          <%# The link, copied by "Partager" (share_controller.ts); where the
-              clipboard cannot be written, it is selected here to copy by
-              hand. %>
-          <div class="card-detail__share">
-            <label class="card-detail__share-field">
-              <span class="card-detail__share-label"><%= t("card_details.share.url") %></span>
-              <input type="text" class="card-detail__share-url" value="<%= share_url %>" readonly data-share-target="url">
-            </label>
-            <p class="card-detail__share-status" role="status" data-share-target="status"></p>
-          </div>
-        <% end %>
         <div class="card-detail__actions">
           <%= link_to card_detail_store_url(detail.store_url), class: "button button--primary card-detail__store",
             rel: "noopener noreferrer external", target: "_blank" do %>
@@ -151,10 +140,18 @@
             <%= pixel_icon("external", class: "button__icon") %>
           <% end %>
           <% if share_url %>
-            <button type="button" class="button button--secondary card-detail__share-button" data-action="share#copy"><%= t("card_details.share.button") %></button>
+            <%# Opens the share sheet and copies the link in the same click,
+                where the browser still allows the clipboard
+                (share_controller.ts). %>
+            <button type="button" class="button button--secondary card-detail__share-button" aria-haspopup="dialog"
+              data-controller="dialog-opener" data-dialog-opener-dialog-value="share-sheet"
+              data-action="dialog-opener#open share#copy"><%= t("card_details.share.button") %></button>
           <% end %>
         </div>
       </div>
     </div>
   </div>
+  <% if share_url %>
+    <%= render "cards/share_sheet", view:, share_url:, strings: %>
+  <% end %>
 <% end %>

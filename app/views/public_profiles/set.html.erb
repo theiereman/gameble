@@ -2,20 +2,51 @@
 <% content_for :back_button, true %>
 <% content_for :title, title %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
-<%# One of a player's sets opened on their public profile (CAP-8): their
-    shelf on the left, the open tome with their cards on the right, the
-    owner named above it; on a phone the tome alone, with a way back to the
-    shelf. %>
-<section class="library library--open profile" aria-labelledby="library-heading">
-  <% token = @owner.token %>
-  <% started = @kind == PublicProfilesController::STARTED %>
-  <div class="library__aside">
-    <%= render "library/shelf", kind: @kind, spines: @spines, pagy: @pagy, current_set: @set, **profile_shelf_links(token, @kind) %>
-  </div>
-  <div class="library__open">
-    <%= link_to t(".owner", name: title), brother_path(token), class: "profile__owner", data: { turbo_prefetch: false } %>
-    <%= link_to t("library.set.back_to_shelf"), brother_path(token, kind: (@kind unless started), page: @shelf_page),
-      class: "library__back", data: { turbo_prefetch: false } %>
-    <%= render "library/tome", set: @set, slots: @slots, quantities: @quantities %>
-  </div>
-</section>
+<%# One of a player's sets opened on their public profile (CAP-8;
+    DESIGN.md, Collection, in read-only mode): the sets beside it as the
+    collection lists them, the owner named above, and the grid of the set
+    with the owner's cards (their copies in a corner box, from x1, as in the
+    collection) and the cards they miss as hatched slots naming their game.
+    No NOUVEAU tag and no genre filter: those are the viewer's own. Each
+    leads to its card's own page. %>
+<% token = @owner.token %>
+<% started = @kind == PublicProfilesController::STARTED %>
+<% strings = CardStrings.new %>
+<% owned = @slots.keys.count { |id| @quantities.fetch(id, 0).positive? } %>
+<div class="collection profile-set">
+  <aside class="collection__aside" aria-labelledby="collection-sets-title">
+    <%= link_to t(".owner", name: title), brother_path(token, kind: (@kind unless started), page: @shelf_page), class: "profile__owner",
+      data: { turbo_prefetch: false } %>
+    <%= render "public_profiles/set_list", kind: @kind, set: @set, spines: @spines, pagy: @pagy, links: profile_shelf_links(token, @kind) %>
+  </aside>
+  <section class="collection__main" aria-labelledby="profile-set-heading">
+    <header class="profile-set__header">
+      <h1 id="profile-set-heading" class="profile-set__heading"><%= SetLabel.heading(@set, @slots.values.map(&:year)) %></h1>
+      <p class="profile-set__progress">
+        <span aria-hidden="true"><%= owned %> / <%= @slots.size %></span>
+        <span class="visually-hidden"><%= t("public_profiles.show.progress", count: owned, owned:, total: @slots.size) %></span>
+      </p>
+    </header>
+    <ol class="collection-grid" aria-label="<%= t(".slots") %>">
+      <% @slots.each do |id, card| %>
+        <% copies = @quantities.fetch(id, 0) %>
+        <li class="collection-slot">
+          <% if copies.positive? %>
+            <%= link_to_card_detail(card, strings:) do %><%= render CardComponent.new(card:, size: :m) %><% end %>
+            <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(copies) %></span>
+            <span class="visually-hidden"><%= t(".copies", count: copies) %></span>
+          <% else %>
+            <%= link_to_card_detail(card) do %>
+              <span class="missing-slot">
+                <%= pixel_icon("lock", class: "missing-slot__icon") %>
+                <span class="missing-slot__title"><%= card.title %></span>
+                <span class="missing-slot__year"><%= card.year %></span>
+                <span class="visually-hidden"><%= t(".missing") %></span>
+              </span>
+            <% end %>
+          <% end %>
+        </li>
+      <% end %>
+    </ol>
+  </section>
+</div>

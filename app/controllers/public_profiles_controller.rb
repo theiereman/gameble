@@ -1,8 +1,9 @@
-# A player's public profile (CAP-8, story 4.4), at a link built on their
-# token (AD-15): their library, readable by anyone, signed out included
-# (CAP-18). The shelf opens on the sets they have started, beside the three
-# kinds of the library, each with the owner's progress (never the viewer's);
-# a set opens beside its shelf with the owner's cards. The header counts
+# A player's public profile (CAP-8, story 4.4, redrawn by story 10.3), at a
+# link built on their token (AD-15): their collection, readable by anyone,
+# signed out included (CAP-18), drawn with the collection's components in
+# read-only mode. The list of sets opens on the ones they have started,
+# beside the three kinds, each with the owner's progress (never the
+# viewer's); a set opens beside the list with the owner's cards. The header counts
 # their distinct cards and complete sets. Accounts answers the owner and
 # whether their profile may be shown, Catalog the sets and cards, Game the
 # owner's progress, copies and counts.

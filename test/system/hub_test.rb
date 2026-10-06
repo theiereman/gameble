@@ -139,16 +139,16 @@ class HubTest < ApplicationSystemTestCase
     assert_selector ".top-bar .steam-sign-in__button"
   end
 
-  test "the sign-in panel opens from a card page's invitation, and signing in from it lands on the hub" do
+  test "the sign-in panel opens from a card page's pitch, and signing in from it lands on the hub" do
     create_pack(@player)
     visit card_path(locale: :en, slug: "portal")
 
-    within(".card-detail__invitation") { click_on "Open my first boosters" }
+    within(".public-card__pitch") { click_on "Open my first boosters" }
     find("#sign-in-panel .modal__close").send_keys(:escape)
     assert_no_selector "dialog#sign-in-panel[open]"
-    assert focused?(".card-detail__invitation .button"), "the focus should return to the invitation's button"
+    assert focused?(".public-card__pitch .button"), "the focus should return to the invitation's button"
 
-    within(".card-detail__invitation") { click_on "Open my first boosters" }
+    within(".public-card__pitch") { click_on "Open my first boosters" }
     within("dialog#sign-in-panel[open]") { find(".steam-sign-in__button").click }
 
     assert_signed_in

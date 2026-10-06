@@ -1,16 +1,20 @@
-<%# A player's public profile (CAP-8): their name, what their collection
-    counts, and their library, open on the tab given:
+<%# A player's public profile (CAP-8; DESIGN.md, Collection, in read-only
+    mode): their summary, and their sets as the collection lists them, open
+    on the tab given. Locals:
     - owner: the profile's player;
     - title: the profile's title (public_profile_title);
     - summary: the owner's Game::CollectionSummary;
-    - kind, spines, pagy: the shelf, as ShelfLoading loads it. %>
-<section class="library profile" aria-labelledby="library-heading">
-  <header class="profile__header">
-    <%= content_tag :h1, title, id: "library-heading", class: "library__heading profile__name" %>
-    <ul class="profile__counts" aria-label="<%= t("public_profiles.show.counts") %>">
-      <li><%= t("public_profiles.show.distinct_cards", count: summary.distinct_cards) %></li>
-      <li><%= t("public_profiles.show.complete_sets", count: summary.complete_sets) %></li>
-    </ul>
-  </header>
-  <%= render "library/shelf", kind:, spines:, pagy:, current_set: nil, **profile_shelf_links(owner.token, kind) %>
+    - kind, spines, pagy: the sets, as ShelfLoading loads them. %>
+<section class="profile" aria-labelledby="profile-heading">
+  <%= render "public_profiles/summary", title: title, summary: summary %>
+  <div class="collection">
+    <aside class="collection__aside" aria-labelledby="collection-sets-title">
+      <%= render "public_profiles/set_list", kind:, set: nil, spines:, pagy:, links: profile_shelf_links(owner.token, kind) %>
+    </aside>
+    <section class="collection__main profile__pick" aria-label="<%= t("library.sets.title") %>">
+      <% if spines.present? %>
+        <p class="profile__hint"><%= t("public_profiles.show.pick") %></p>
+      <% end %>
+    </section>
+  </div>
 </section>

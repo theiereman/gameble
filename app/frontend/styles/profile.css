@@ -1,0 +1,135 @@
+/*
+ * A player's public profile (public_profiles/*; DESIGN.md: Profile and
+ * settings, Collection; story 10.3): the summary panel, then the sets and
+ * the open set drawn with the collection's own components (collection.css),
+ * read-only. Hard edges and pixel outlines on the 2px grid.
+ */
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+/* ---- The summary: the avatar, the name and the counts ---- */
+
+.profile-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-panel-padding);
+}
+
+.profile-summary__avatar {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  box-shadow: var(--pixel-outline-3);
+}
+
+.profile-summary__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.profile-summary__name {
+  margin: 0;
+  font: var(--font-public-title);
+  letter-spacing: var(--tracking-public-title);
+  overflow-wrap: anywhere;
+}
+
+.profile-summary__counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+/* A set the owner finished reads in lime, beside its words. */
+.set-row__count--complete {
+  color: var(--color-lime);
+}
+
+/* ---- The page of the sets, before one is open ---- */
+
+.profile__hint {
+  margin: 0;
+  padding: var(--space-8) 0;
+  color: var(--color-muted);
+  font: var(--font-body-large);
+  letter-spacing: var(--tracking-body-large);
+  text-align: center;
+}
+
+/* ---- An open set: the way back, its name and the owner's progress ---- */
+
+.profile__owner {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-touch-min);
+  color: var(--color-muted);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+  overflow-wrap: anywhere;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.profile__owner:hover {
+  color: var(--color-accent);
+}
+
+.profile-set__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-5);
+}
+
+.profile-set__heading {
+  margin: 0;
+}
+
+.profile-set__progress {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- A profile that cannot be shown ---- */
+
+.profile-unavailable {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.profile-unavailable > h1 {
+  margin: 0;
+}
+
+@media (max-width: 719px) {
+  .profile-summary {
+    gap: var(--space-5);
+  }
+
+  .profile-summary__name {
+    font: var(--font-public-title-phone);
+    letter-spacing: var(--tracking-public-title-phone);
+  }
+}

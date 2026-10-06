@@ -1,0 +1,16 @@
+<%# A public profile's summary (DESIGN.md, Profile and settings: Public
+    profile summary, without the showcase and the visibility line, which
+    wait for epic 7): the avatar, the owner's name and what their collection
+    counts. Locals:
+    - title: the profile's title (public_profile_title);
+    - summary: the owner's Game::CollectionSummary. %>
+<%= render PanelComponent.new(tag: :header, brackets: true, class: "profile-summary") do %>
+  <%= pixel_icon("avatar-default", class: "profile-summary__avatar") %>
+  <div class="profile-summary__text">
+    <%= content_tag :h1, title, id: "profile-heading", class: "profile-summary__name" %>
+    <ul class="profile-summary__counts" aria-label="<%= t("public_profiles.show.counts") %>">
+      <li><%= t("public_profiles.show.distinct_cards", count: summary.distinct_cards) %></li>
+      <li><%= t("public_profiles.show.complete_sets", count: summary.complete_sets) %></li>
+    </ul>
+  </div>
+<% end %>

@@ -292,32 +292,32 @@ fr:
         tome: "Tomes"
         publisher: "Éditeurs"
         best_of_year: "Les mieux notés de l'année"
-      # French keeps the singular for 0, which the plural rule here does not.
-      progress:
-        zero: "%{count} carte possédée sur %{total}"
-        one: "%{count} carte possédée sur %{total}"
-        other: "%{count} cartes possédées sur %{total}"
       empty:
         started: "Aucune collection entamée pour l'instant, Confrère : celle-ci attend encore sa première carte."
         tome: "Aucun tome ne se dresse encore sur ces étagères, Confrère. Cette saison n'en relie aucun."
         publisher: "Aucun éditeur n'a mérité sa collection cette saison, Confrère."
         best_of_year: "Aucune année n'a vu ses meilleurs reliés cette saison, Confrère."
       past_the_end: "Cette étagère est vide, Confrère. Les tomes s'arrêtent sur une étagère précédente."
-      complete: "Complète"
       no_season: "Les étagères sont nues, Confrère : la Confrérie n'a encore publié aucune saison de cartes."
-    set:
-      back_to_shelf: "Retour à l'étagère"
-    tome:
-      slots: "Les cases du tome"
-      missing: "Carte manquante"
-      copies:
-        one: "%{count} exemplaire"
-        other: "%{count} exemplaires"
   public_profiles:
     title: "%{name}"
-    fallback_title: "Confrère %{code}"
+    fallback_title: "Joueur %{code}"
     show:
       counts: "La collection"
+      pick: "Choisissez un set pour voir les cartes qu'il contient."
+      complete: "Complet"
+      # French keeps the singular for 0, which the plural rule here does not.
+      progress:
+        zero: "%{count} carte possédée sur %{total}"
+        one: "%{count} carte possédée sur %{total}"
+        other: "%{count} cartes possédées sur %{total}"
+      empty:
+        started: "Aucun set entamé pour l'instant : cette collection attend encore sa première carte."
+        tome: "Aucun tome dans cette saison pour l'instant."
+        publisher: "Aucun éditeur n'a de set cette saison."
+        best_of_year: "Aucun set des mieux notés cette saison."
+      past_the_end: "Cette liste s'arrête sur une page précédente."
+      no_season: "Aucune saison de cartes n'est publiée pour l'instant."
       # French keeps the singular for 0, which the plural rule here does not.
       distinct_cards:
         zero: "%{count} carte collectionnée"
@@ -328,10 +328,15 @@ fr:
         one: "%{count} collection complète"
         other: "%{count} collections complètes"
     set:
-      owner: "La bibliothèque de %{name}"
+      owner: "La collection de %{name}"
+      slots: "Les cartes du set"
+      missing: "Carte manquante"
+      copies:
+        one: "%{count} exemplaire"
+        other: "%{count} exemplaires"
     unavailable:
       title: "Profil indisponible"
-      body: "La bibliothèque de ce Confrère est fermée aux visiteurs, Confrère. Le lien ne mène nulle part, ou son propriétaire ne la montre plus."
+      body: "Ce profil n'est pas disponible. Le lien ne mène nulle part, ou son propriétaire ne le montre plus."
   boosters:
     show:
       title: "Ouverture de booster"
@@ -444,16 +449,27 @@ fr:
       description: "Une carte de gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix boosters vous attendent."
     share:
       button: "Partager"
+      title: "Partager la carte"
+      close: "Fermer"
       url: "Lien vers cette carte"
+      copy: "Copier"
       copied: "Lien copié"
       manual: "Appuyez sur Ctrl+C pour copier"
+      note: "L'aperçu du lien affiche le titre et la rareté de la carte, sans l'image du jeu."
+      public_page: "Voir la page publique"
   cards:
     face:
       image_missing: "Image indisponible"
     show:
       invitation: "Ouvrez des boosters, complétez des sets, échangez avec vos amis."
+      pitch_title: "Vos jeux Steam, en cartes à collectionner."
       sign_in: "Ouvrir mes premiers boosters"
+      update_browser: "Votre navigateur est trop ancien pour se connecter à gameble. Mettez-le à jour pour jouer."
       grid: "Grille"
+      live:
+        marker: "Live"
+        title: "En ce moment sur gameble"
+      legal: "Mentions légales"
   catalog:
     rarity:
       common: "Commune"

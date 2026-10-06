@@ -1,0 +1,70 @@
+<%# The public card page (DESIGN.md, Public card page; EXPERIENCE.md, Public
+    pages and sign-in; story 10.3): what a visitor opens from a shared link.
+    The card at card-xl, tilting under the pointer, and beside it the
+    title, publisher, the "rarity, genre, year, number" line, the
+    description, "Voir sur Steam", and the invitation to play. Below, the
+    LIVE strip and the legal notice, both inert placeholders until the feed
+    and the legal page exist (epics 6 and 7). It names no one (CAP-9) and
+    shows no app chrome (the layout's top bar is the slim one).
+    The invitation needs an account, which Steam's sign-in gives only to a
+    modern browser: the invitation is hidden and the update line shown unless
+    the browser supports :has() (styles/card-detail.css), so no script sniffs
+    the browser. Locals:
+    - detail: a Catalog::CardDetail::Detail. %>
+<% view = detail.view %>
+<% strings = CardStrings.new %>
+<% tier = Catalog::Rarity::TIERS.invert.fetch(view.rarity.to_sym) %>
+<% line = [ strings.rarity_name(view.rarity), (SetLabel.genre(view.genre) if view.genre), view.year, view.number_label ].compact %>
+<article class="public-card" aria-labelledby="public-card-heading">
+  <div class="public-card__layout">
+    <div class="public-card__stage">
+      <%= render CardComponent.new(card: view, size: :xl) %>
+      <span class="public-card__shadow" aria-hidden="true"></span>
+    </div>
+    <div class="public-card__info">
+      <h1 id="public-card-heading" class="public-card__title"><%= view.title %></h1>
+      <% if detail.publisher %>
+        <p class="public-card__publisher"><%= detail.publisher %></p>
+      <% end %>
+      <p class="public-card__line public-card__line--<%= view.rarity %>">
+        <%= pixel_icon("rarity-#{tier}", class: "public-card__rarity-icon") %>
+        <span><%= line.join(" · ") %></span>
+      </p>
+      <% if detail.short_description %>
+        <p class="public-card__description"><%= detail.short_description %></p>
+      <% end %>
+      <%= link_to card_detail_store_url(detail.store_url), class: "button button--link public-card__store",
+        rel: "noopener noreferrer external", target: "_blank" do %>
+        <span class="button__label"><%= t("card_details.store") %></span>
+        <span class="visually-hidden"><%= t("card_details.new_tab") %></span>
+        <%= pixel_icon("external", class: "button__icon") %>
+      <% end %>
+
+      <%# Opens the sign-in panel; signing in lands on the hub, where the
+          boosters wait. The page's one primary action. %>
+      <%= render PanelComponent.new(tag: :section, class: "public-card__pitch", aria: { labelledby: "public-card-pitch" }) do %>
+        <p id="public-card-pitch" class="public-card__pitch-title"><%= t("cards.show.pitch_title") %></p>
+        <p class="public-card__pitch-text"><%= t("cards.show.invitation") %></p>
+        <%= render ButtonComponent.new(variant: :primary, opens: "sign-in-panel") do %><%= t("cards.show.sign_in") %><% end %>
+      <% end %>
+      <p class="public-card__update"><%= t("cards.show.update_browser") %></p>
+    </div>
+  </div>
+
+  <section class="public-card__live" aria-labelledby="public-card-live">
+    <h2 id="public-card-live" class="public-card__live-title">
+      <span class="live-marker"><span class="live-marker__text"><%= t("cards.show.live.marker") %></span><span class="live-marker__dot" aria-hidden="true"></span></span>
+      <span aria-hidden="true">·</span>
+      <%= t("cards.show.live.title") %>
+    </h2>
+    <ul class="public-card__live-list" aria-hidden="true">
+      <li class="public-card__live-entry"></li>
+      <li class="public-card__live-entry"></li>
+      <li class="public-card__live-entry"></li>
+    </ul>
+  </section>
+
+  <footer class="public-card__footer">
+    <span class="public-card__legal"><%= t("cards.show.legal") %></span>
+  </footer>
+</article>

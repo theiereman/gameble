@@ -12,9 +12,12 @@
 # does not hold shows their active card back, faded (AD-25); the card's own
 # page, without a set (a share link, the showcase), shows the face to
 # everyone. A viewer who holds the card can share it (CAP-9): the link is
-# this card-season's own page, which carries the preview tags and, for a
-# visitor, an invitation to play; it shows only the card, never who shared
-# or holds it (spec CAP-9, 2026-10-03). Read from shared links, it is open
+# this card-season's own page, which carries the preview tags; it shows only
+# the card, never who shared or holds it (spec CAP-9, 2026-10-03). A visitor
+# who opens that page, without a set in the query, gets the public card page
+# (DESIGN.md, Public card page; story 10.3): the card, its facts and the
+# invitation to play, with no app chrome. A signed-in viewer, or a visitor
+# browsing a set, gets the detail panel. Read from shared links, it is open
 # to any browser and link-preview crawler (PublicRead).
 class CardsController < ApplicationController
   include PublicRead
@@ -31,7 +34,8 @@ class CardsController < ApplicationController
     @copies = Game::Quantities.call(current_player, [ id ]).fetch(id, nil)
     @share_url = share_url if @copies && current_player
     named = named_set
-    @browse = browse(named || @detail.sets.first)
+    @public = current_player.nil? && named.nil?
+    @browse = browse(named || @detail.sets.first) unless @public
     @faded = !named.nil? && @copies.nil?
     @back_key = Game::CardBacks.active_key(current_player)
   end

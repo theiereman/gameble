@@ -1,0 +1,45 @@
+<%# The share sheet, "PARTAGER LA CARTE" (DESIGN.md, Share sheet;
+    EXPERIENCE.md, Share sheet): a modal <dialog> (a bottom sheet on the
+    phone) a holder opens with "Partager". Opening it copies the link and
+    says so politely (share_controller.ts, on the detail around it); where
+    the clipboard refuses, the link stays selected in its field with the
+    manual-copy line. The thumbnail is the card's face, never the game's
+    image alone, and the note says the link's preview shows the title and
+    rarity only. It names no one but the card (CAP-9). Locals:
+    - view: the card's Catalog::CardView;
+    - share_url: the card-season's absolute link;
+    - strings: CardStrings. %>
+<dialog id="share-sheet" class="modal" aria-labelledby="share-sheet-title" data-controller="dialog" data-action="click->dialog#closeOnScrim">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p id="share-sheet-title" class="modal__title"><%= t("card_details.share.title") %></p>
+      <button type="button" class="modal__close" aria-label="<%= t("card_details.share.close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <div class="share-sheet__body">
+      <div class="share-sheet__summary">
+        <div class="share-sheet__thumb" aria-hidden="true"><%= render CardComponent.new(card: view, size: :s) %></div>
+        <div>
+          <p class="share-sheet__name"><%= view.title %></p>
+          <p class="share-sheet__line"><%= strings.rarity_name(view.rarity) %></p>
+        </div>
+      </div>
+      <div class="share-sheet__field">
+        <label class="share-sheet__label" for="share-sheet-url"><%= t("card_details.share.url") %></label>
+        <div class="share-sheet__row">
+          <input type="text" id="share-sheet-url" class="share-sheet__url" value="<%= share_url %>" readonly data-share-target="url">
+          <button type="button" class="button button--secondary button--small" autofocus data-action="share#copy"><%= t("card_details.share.copy") %></button>
+        </div>
+      </div>
+      <p class="share-sheet__status" role="status" data-share-target="status"></p>
+      <p class="share-sheet__note"><%= t("card_details.share.note") %></p>
+      <%= link_to card_season_path(slug: view.id, number: view.season_number), class: "button button--link share-sheet__public",
+        rel: "noopener noreferrer", target: "_blank", data: { turbo: false } do %>
+        <span class="button__label"><%= t("card_details.share.public_page") %></span>
+        <span class="visually-hidden"><%= t("card_details.new_tab") %></span>
+      <% end %>
+    </div>
+  <% end %>
+</dialog>

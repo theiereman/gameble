@@ -303,3 +303,14 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-card-detail-plan.md`
   summary: The phone system test's browser-Back leg (`test/system/card_detail_test.rb`, "on a phone, ◀ ▶ and a swipe step through the set…", the last `assert_scrolled_to grid_scroll` after `go_forward` then `go_back`) sometimes finds the grid at scroll 0 when the whole file runs in parallel; likely Turbo filing the forward-restored detail's scroll-to-top under the grid's restoration entry when Back follows quickly. Find the race (or wait on Turbo's restoration data in the test) and decide whether a quick real Back can hit it.
   evidence: Run on 2026-10-06 in the 10.2 follow-up: at commit b7776c2 alone it failed 6 of 8 file runs; after the follow-up's `contain-intrinsic-size` fix 1 of 6 and 2 of 11 file runs, always green alone (6×) and in the full suites (81 runs).
+
+- source_plan: none
+  summary: A donation link somewhere in the app, since the author intends to fund gameble only through donations.
+  evidence: Raised by the author on 2026-10-06 while planning story 10.3. Needs a decision on where it lives (hub, settings, public card page footer, legal page of epic 7), which platform, and a spec capability or constraint; not in the spec today.
+- source_plan: none
+  summary: A "back" button beside the "bridge" button in the top bar, to go back exactly one screen instead of always returning to the bridge.
+  evidence: Raised by the author on 2026-10-06 while planning story 10.3. It touches the shell's top bar (`content_for :back_button`, epic 8's shell) and its navigation history behaviour, including the card detail sub-view's own Back; fits epic 10's refactor sweep or a new shell story.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-public-profile-and-shared-card-page-plan.md`
+  summary: Rays (purple for Épique, gold for Légendaire) behind the card on the card detail, the hub showcase and the public card page, as DESIGN.md (Elevation & Depth, Rarity) requires.
+  evidence: Quick review of story 10.3 (2026-10-06): the public card page has the ground shadow but no rays; the same rays are absent from the detail and the showcase, and exist only in `app/frontend/styles/booster.css` (`.booster-card__rays`), so a shared rays component is a cross-screen job, not this story's.

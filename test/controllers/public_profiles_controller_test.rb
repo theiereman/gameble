@@ -2,10 +2,12 @@ require "test_helper"
 require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
 
-# A player's public profile (CAP-8, story 4.4): their name, their counts and
-# their library, open on the sets they have started, with their progress and
-# cards whoever looks; the unavailable page for an unknown token or a banned
-# owner; no database id, no Steam id; the queries of a request.
+# A player's public profile (CAP-8, story 4.4, redrawn by story 10.3): their
+# avatar, name and counts, and their sets drawn with the collection's
+# components in read-only mode, open on the sets they have started, with
+# their progress and cards whoever looks; the unavailable page for an
+# unknown token or a banned owner; no database id, no Steam id; the queries
+# of a request; none of the old tome shelf or its "Brother" wording.
 class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
@@ -21,15 +23,17 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     OmniAuth.config.test_mode = false
   end
 
-  # The shelf as [ name, "owned / total" ] pairs, in order.
+  # The list of sets as [ name, "owned / total" ] pairs, in order.
   def spines
-    css_select(".shelf .tome").map { |tome| [ tome.at_css(".tome__name").text, tome.at_css(".tome__count").text ] }
+    css_select(".collection-sets__list .set-row").map { |row| [ row.at_css(".set-row__name").text, row.at_css(".set-row__count").text.sub("/", " / ") ] }
   end
 
-  def open_tab = css_select(".library__tab[aria-current=page]").sole.text
-  def counts = css_select(".profile__counts li").map(&:text)
-  def heading = css_select(".open-tome__heading").sole.text
-  def progress = css_select(".open-tome__progress [aria-hidden]").sole.text
+  def set_rows = css_select(".collection-sets__list a.set-row")
+  def open_tab = css_select(".collection-kind[aria-current=true]").sole.text
+  def tabs = css_select(".collection-kind")
+  def counts = css_select(".profile-summary__counts li").map(&:text)
+  def heading = css_select(".profile-set__heading").sole.text
+  def progress = css_select(".profile-set__progress [aria-hidden]").sole.text
 
   # The keys of the published season's sets of every kind, in shelf order.
   def every_kind(season) = Catalog::SeasonShelf.every_kind(season:).map(&:key)
@@ -49,16 +53,21 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", "Gabe the Brave"
     assert_select "h1", "Gabe the Brave"
     assert_select "meta[name=robots][content=noindex]"
+    # The summary: the avatar, the name, the counts; no tome shelf.
+    assert_select "header.profile-summary.panel--brackets svg.profile-summary__avatar[aria-hidden=true]"
+    assert_select ".library, .shelf, .tome, .library__room", false
     held = publisher + [ rpg ]
     started = every_kind(season).select { |key| (set_members(season, key) & held).any? }
     complete = every_kind(season).count { |key| (set_members(season, key) - held).empty? }
     assert_equal [ "6 cards collected", I18n.t("public_profiles.show.complete_sets", count: complete, locale: :en) ], counts
     assert_equal "Started", open_tab
-    assert_equal [ "Started", "Tomes", "Publishers", "Best rated of the year" ], css_select(".library__tab").map(&:text)
+    assert_equal [ "Started", "Tomes", "Publishers", "Best rated of the year" ], tabs.map(&:text)
     assert_equal started.map { |key| [ label(season, key), "#{(set_members(season, key) & held).size} / #{set_members(season, key).size}" ] }, spines
     assert_includes spines, [ "P", "5 / 5" ]
     assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
     assert_select "a.library__profile", false
+    assert_select ".collection .collection__aside .collection-sets"
+    assert_select ".profile__hint", "Pick a set to see the cards it holds."
   end
 
   test "a fully owned set is labelled complete and counted; the others are not" do
@@ -68,12 +77,13 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :en, token: @owner.token, kind: "publisher")
 
     assert_equal "Publishers", open_tab
-    assert_select ".shelf .tome", 1
-    assert_select ".shelf .tome .tome__complete", { count: 1, text: "Complete" }
-    assert_select ".shelf .tome .tome__name", "P"
+    assert_select ".set-row", 1
+    assert_select ".set-row .set-row__count--complete", 1
+    assert_select ".set-row .visually-hidden", /5 cards owned out of 5 · Complete/
+    assert_select ".set-row .set-row__name", "P"
 
     get brother_path(locale: :en, token: @owner.token)
-    complete = css_select(".shelf .tome").select { it.at_css(".tome__complete") }.map { it.at_css(".tome__name").text }
+    complete = set_rows.select { it.at_css(".set-row__count--complete") }.map { it.at_css(".set-row__name").text }
     assert_includes complete, "P"
     partial = spines.reject { |_, count| count.split(" / ").uniq.size == 1 }
     assert partial.any?
@@ -91,10 +101,10 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "Action · Tome 1", "1 / 25" ], [ "Action · Tome 2", "0 / 25" ], [ "Action · Tome 3", "0 / 25" ], [ "RPG · Tome 1", "#{set_members(season, "rpg-1").include?(first) ? 1 : 0} / 44" ] ], spines
     token = @owner.token
     assert_equal [ "/en/brothers/#{token}", "/en/brothers/#{token}?kind=tome", "/en/brothers/#{token}?kind=publisher", "/en/brothers/#{token}?kind=best_of_year" ],
-      css_select(".library__tab").map { it["href"] }
-    assert_equal "/en/brothers/#{token}/library/tome/action-1?page=1", css_select(".shelf a.tome").first["href"]
-    assert_select ".library__tab[data-turbo-prefetch=false]", 4
-    assert_select ".shelf a.tome[data-turbo-prefetch=false]", 4
+      tabs.map { it["href"] }
+    assert_equal "/en/brothers/#{token}/library/tome/action-1?page=1", set_rows.first["href"]
+    assert_select ".collection-kind[data-turbo-prefetch=false]", 4
+    assert_select ".collection-sets__list a.set-row[data-turbo-prefetch=false]", 4
 
     get brother_path(locale: :en, token: @owner.token, kind: "best_of_year")
     assert_equal "Best rated of the year", open_tab
@@ -102,7 +112,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get brother_path(locale: :en, token: @owner.token)
     assert_equal "Started", open_tab
-    assert css_select(".shelf a.tome").all? { it["href"].end_with?("?page=1&tab=started") }
+    assert set_rows.all? { it["href"].end_with?("?page=1&tab=started") }
   end
 
   test "a shelf of more than fifty sets pages, its page links unprefetched" do
@@ -110,7 +120,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get brother_path(locale: :en, token: @owner.token, kind: "tome")
 
-    assert_select ".shelf .tome", 50
+    assert_select ".collection-sets__list .set-row", 50
     assert_select ".series-nav a[href=?][data-turbo-prefetch=false]", "/en/brothers/#{@owner.token}?kind=tome&page=2", minimum: 1
     assert_select ".series-nav a[href]:not([data-turbo-prefetch=false])", false
   end
@@ -139,7 +149,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "1 card collected", counts.first
 
     get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1")
-    assert_select ".open-tome__slots .card", (set_members(season, "action-1") & [ set_members(season, "action-2").first ]).size
+    assert_select ".collection-grid .card", (set_members(season, "action-1") & [ set_members(season, "action-2").first ]).size
   end
 
   test "a player with no card: the Started shelf says so and the counts are zero" do
@@ -148,8 +158,9 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :en, token: @owner.token)
 
     assert_response :success
-    assert_select ".shelf", false
-    assert_select ".library__room p.panel", "No set started yet, Brother: this collection still awaits its first card."
+    assert_select ".collection-sets__list .set-row", false
+    assert_select ".collection-sets__empty", "No set started yet: this collection still awaits its first card."
+    assert_select ".profile__hint", false
     assert_equal [ "0 cards collected", "0 sets complete" ], counts
   end
 
@@ -159,7 +170,8 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :en, token: @owner.token)
 
     assert_response :success
-    assert_select ".library__room p.panel", "The shelves are bare, Brother: the Brotherhood has published no season of cards yet."
+    assert_select ".collection-sets__empty", "No season of cards is published yet."
+    assert_select ".collection-kind", false
     assert_equal [ "0 cards collected", "0 sets complete" ], counts
   end
 
@@ -176,18 +188,21 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=robots][content=noindex]"
     assert_equal "Action · Tome 1 · 2011–2015", heading
     assert_equal "2 / 25", progress
-    assert_select ".open-tome__slots .card.card--m", 2
-    assert_select ".open-tome__copies", "×2"
-    assert_select ".slot .slot__missing", { count: 23, text: "Missing card" }
-    assert_select "a.profile__owner[href=?]", "/en/brothers/#{@owner.token}", "The library of Gabe the Brave"
-    assert_select "a.library__back[href=?]", "/en/brothers/#{@owner.token}?kind=tome&page=1", "Back to the shelf"
-    assert_select ".library__aside .library__tab[aria-current=page]", "Tomes"
-    assert_select ".library__aside .shelf .tome[aria-current=page] .tome__name", "Action · Tome 1"
-    assert_select ".profile__counts", false
-    assert_select ".open-tome__slots > li > a.card-link[data-turbo-prefetch=false]", 25
+    assert_select ".collection-grid .card.card--m", 2
+    # The owner's copies from x1, as in the collection; no NOUVEAU tag.
+    assert_equal [ "x1", "x2" ], css_select(".collection-slot__copies").map(&:text)
+    assert_select ".collection-slot__new", false
+    assert_select ".missing-slot .visually-hidden", { count: 23, text: "Missing card" }
+    assert_select ".missing-slot svg.missing-slot__icon"
+    assert_select "a.profile__owner[href=?]", "/en/brothers/#{@owner.token}?kind=tome&page=1", "The collection of Gabe the Brave"
+    assert_select ".collection__aside .collection-kind[aria-current=true]", "Tomes"
+    assert_select ".collection__aside .set-row[aria-current=page] .set-row__name", "Action · Tome 1"
+    assert_select ".profile-summary", false
+    assert_select ".library, .open-tome, .tome, .slot", false
+    assert_select ".collection-grid > li > a.card-link[data-turbo-prefetch=false]", 25
     # The owner's faces are named by their label; an empty slot by its
     # visible text, whoever looks.
-    links = css_select(".open-tome__slots > li > a.card-link")
+    links = css_select(".collection-grid > li > a.card-link")
     face, missing = Catalog::CardViews.call(members, locale: :en).values_at(members[3], members[1])
     assert_equal "#{face.title}, #{I18n.t("catalog.rarity.#{face.rarity}", locale: :en)}, season #{season.number}", links[3]["aria-label"]
     assert_equal members.map { |id| id.in?([ members[0], members[3] ]) }, links.map { it["aria-label"].present? }
@@ -203,14 +218,15 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get brother_set_path(locale: :en, token: @owner.token, kind: "publisher", key: "p", page: 1), headers: old
     assert_response :success
-    href = css_select(".open-tome__slots > li > a.card-link").first["href"]
+    href = css_select(".collection-grid > li > a.card-link").first["href"]
     assert_equal "/en/cards/#{view.id}/seasons/#{season.number}", href
 
     get href, headers: old
     assert_response :success
-    assert_select ".card-detail h1", view.title
+    assert_select ".public-card h1", view.title
     assert_not_includes response.body, "Gabe the Brave"
-    set_link = css_select(".card-detail__sets a").find { it.text == "P" }["href"]
+    # The public page lists no sets: the library its sets lead to stays open.
+    set_link = library_set_path(locale: :en, kind: "publisher", key: "p")
     assert_equal "/en/library/publisher/p", set_link
 
     get set_link, headers: old
@@ -226,16 +242,16 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     hold(@owner, set_members(season, "p").first, 1)
 
     get brother_path(locale: :en, token: @owner.token)
-    href = css_select(".shelf a.tome").find { it.at_css(".tome__name").text == "P" }["href"]
+    href = set_rows.find { it.at_css(".set-row__name").text == "P" }["href"]
     assert_equal "/en/brothers/#{@owner.token}/library/publisher/p?page=1&tab=started", href
 
     get href
     assert_response :success
     assert_equal "P", heading
-    assert_select ".library__aside .library__tab[aria-current=page]", "Started"
-    assert_select ".library__aside .shelf .tome[aria-current=page] .tome__name", "P"
-    assert_select "a.library__back[href=?]", "/en/brothers/#{@owner.token}?page=1"
-    assert css_select(".library__aside .shelf a.tome").all? { it["href"].end_with?("&tab=started") }
+    assert_select ".collection__aside .collection-kind[aria-current=true]", "Started"
+    assert_select ".collection__aside .set-row[aria-current=page] .set-row__name", "P"
+    assert_select "a.profile__owner[href=?]", "/en/brothers/#{@owner.token}?page=1"
+    assert css_select(".collection__aside a.set-row").all? { it["href"].end_with?("&tab=started") }
   end
 
   test "a wrong kind, an unknown key or a key of another kind is not found under a profile" do
@@ -267,7 +283,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", "Profile not available"
     assert_select "h1", "Profile not available"
     assert_select "meta[name=robots][content=noindex]"
-    assert_select ".shelf", false
+    assert_select ".collection, .collection-sets", false
 
     get brother_set_path(locale: :en, token: "A" * 24, kind: "tome", key: "action-1")
     assert_response :not_found
@@ -312,36 +328,36 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get brother_path(locale: :fr, token: @owner.token)
 
-    assert_select "title", "Confrère #{code}"
-    assert_select "h1", "Confrère #{code}"
+    assert_select "title", "Joueur #{code}"
+    assert_select "h1", "Joueur #{code}"
     assert_equal "Entamées", open_tab
     assert_equal [ "1 carte collectionnée", "0 collection complète" ], counts
-    assert_equal [ "Entamées", "Tomes", "Éditeurs", "Les mieux notés de l'année" ], css_select(".library__tab").map(&:text)
+    assert_equal [ "Entamées", "Tomes", "Éditeurs", "Les mieux notés de l'année" ], tabs.map(&:text)
 
     set_members(season, "p").drop(1).each { |id| hold(@owner, id, 1) }
     get brother_path(locale: :fr, token: @owner.token, kind: "publisher")
     assert_equal "5 cartes collectionnées", counts.first
-    assert_select ".tome__complete", "Complète"
+    assert_select ".set-row .visually-hidden", /5 cartes possédées sur 5 · Complet/
 
     get brother_path(locale: :en, token: @owner.token)
-    assert_select "h1", "Brother #{code}"
+    assert_select "h1", "Player #{code}"
     assert_equal "5 cards collected", counts.first
     assert_match(/\A1 set complete\z|\A\d+ sets complete\z/, counts.last)
 
     get brother_set_path(locale: :fr, token: @owner.token, kind: "publisher", key: "p")
-    assert_select "a.profile__owner", "La bibliothèque de Confrère #{code}"
+    assert_select "a.profile__owner", "La collection de Joueur #{code}"
   end
 
   [ "\u200B", "\u202E\u2066", "\u3164", "\u3000 \u2800" ].each do |name|
-    test "a stored persona name of #{name.inspect}, nothing visible, falls back to Brother <code>" do
+    test "a stored persona name of #{name.inspect}, nothing visible, falls back to Player <code>" do
       publish_sets_draft
       @owner.update_columns(persona_name: name)
       code = Accounts::PublicProfile.code(@owner.token)
 
       get brother_path(locale: :en, token: @owner.token)
 
-      assert_select "title", "Brother #{code}"
-      assert_select "h1", "Brother #{code}"
+      assert_select "title", "Player #{code}"
+      assert_select "h1", "Player #{code}"
     end
   end
 
@@ -376,7 +392,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
       get path
 
       assert_not_includes response.body, @owner.steam_id
-      assert_select ".library [data-id], .library [id]:not(#library-heading)", false
+      assert_select ".collection [data-id], .profile [data-id]", false
       without_urls = response.body.gsub(/(href|action|value)="[^"]*"/, "")
       assert_not_includes without_urls, @owner.token
       html = css_select("main").sole.to_html
@@ -394,7 +410,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # progress, summary.
     assert_request_queries(7) { get brother_path(locale: :en, token: @owner.token) }
     assert_response :success
-    assert_select ".shelf .tome", minimum: 1
+    assert_select ".collection-sets__list .set-row", minimum: 1
 
     sign_in(accounts_players(:moderator))
     # The same, the viewer's lookup and the top bar's four (bank count, next

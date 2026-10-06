@@ -327,36 +327,68 @@
   font: var(--font-body-small);
 }
 
-/* Sharing a held card: the link in a read-only field, to copy by hand
-   where the clipboard cannot be written, and the feedback. */
-.card-detail__share {
+/* The share sheet, "PARTAGER LA CARTE" (DESIGN.md, Share sheet): a
+   modal opened by "Partager" (a holder's), the card's thumbnail with its
+   title and rarity line, the link in a read-only field beside "Copier" (to
+   copy by hand where the clipboard cannot be written), the feedback, the
+   note on the preview and the way to the public page. */
+.share-sheet__body {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-4);
+  min-width: 0;
 }
 
-.card-detail__share-field {
+.share-sheet__summary {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  align-items: center;
+  gap: var(--space-5);
 }
 
-.card-detail__share-label {
+/* The card's own face, small: the thumbnail is never the game's image
+   alone. It leaves room for the card's pixel outline. */
+.share-sheet__thumb {
+  flex: none;
+  padding: var(--space-3);
+}
+
+.share-sheet__name {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-showcase-name-phone);
+  letter-spacing: var(--tracking-showcase-name-phone);
+  overflow-wrap: anywhere;
+}
+
+.share-sheet__line {
+  margin: var(--space-2) 0 0;
   color: var(--color-muted);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
 }
 
-/* "Link copied", or how to copy it by hand: a sentence, in VT323. */
-.card-detail__share-status {
-  margin: 0;
-  color: var(--color-text-bright);
-  font: var(--font-body-small);
+.share-sheet__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
-.card-detail__share-url {
-  width: 100%;
+.share-sheet__label {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.share-sheet__row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.share-sheet__url {
+  flex: 1 1 auto;
+  min-width: 0;
   padding: var(--space-2) var(--space-4);
   border: 0;
   background: var(--color-input);
@@ -365,8 +397,32 @@
   font: var(--font-body-small);
 }
 
-.card-detail__share-url:focus-visible {
+.share-sheet__url:focus-visible {
   box-shadow: var(--focus-ring-gap), inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.share-sheet__row .button {
+  flex: none;
+  margin: 0;
+}
+
+/* "Link copied", or how to copy it by hand: a sentence, in VT323. */
+.share-sheet__status {
+  min-height: 1.25rem;
+  margin: 0;
+  color: var(--color-lime);
+  font: var(--font-body-small);
+}
+
+.share-sheet__note {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.share-sheet__public {
+  align-self: flex-start;
+  margin: 0;
 }
 
 /* "Voir sur Steam" (the one primary) and "Partager". */
@@ -521,4 +577,282 @@ html[data-sub-view-step="previous"]::view-transition-new(card-detail-card) {
 
 html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   view-transition-name: none;
+}
+
+/* ---- The public card page (DESIGN.md, Public card page; story 10.3): no
+   app chrome. The card at card-xl and its information side by side, both
+   capped at 1180px and centred; one column under 720px. The LIVE strip and
+   the legal notice below are inert placeholders. ---- */
+
+.public-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.public-card__layout {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-8);
+  align-items: start;
+}
+
+.public-card__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  /* The card tilts under the pointer; a vertical drag scrolls the page. */
+  touch-action: pan-y;
+}
+
+/* A flat dark bar under the card (DESIGN.md, Ground shadows). */
+.public-card__shadow {
+  display: block;
+  width: 200px;
+  height: 8px;
+  background: var(--color-outline);
+  opacity: 0.7;
+}
+
+.public-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.public-card__title {
+  margin: 0;
+  font: var(--font-public-title);
+  letter-spacing: var(--tracking-public-title);
+  overflow-wrap: anywhere;
+}
+
+.public-card__publisher {
+  margin: 0;
+  color: var(--color-publisher);
+  font: var(--font-publisher-xl);
+}
+
+/* Rarity, genre, year and number, in the rarity's colour (never
+   interactive). */
+.public-card__line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+  text-transform: uppercase;
+}
+
+.public-card__rarity-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.public-card__line--common { color: var(--color-rarity-commune); }
+.public-card__line--uncommon { color: var(--color-rarity-peu-commune); }
+.public-card__line--rare { color: var(--color-rarity-rare); }
+.public-card__line--epic { color: var(--color-rarity-epique); }
+.public-card__line--legendary { color: var(--color-rarity-legendaire); }
+
+.public-card__description {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--color-text);
+  font: var(--font-body-large);
+  letter-spacing: var(--tracking-body-large);
+}
+
+.public-card__store {
+  align-self: flex-start;
+  margin: 0;
+}
+
+.public-card__store .button__icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* The invitation: hidden, with the sign-in button of the top bar, until
+   the browser supports :has() (below), which Steam's sign-in needs; the
+   update line shows instead. A browser that does not know @supports
+   selector() ignores the whole block. */
+.public-card__pitch {
+  display: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.public-card__pitch .button {
+  margin: var(--space-2) 0 0;
+}
+
+.public-card__pitch-title {
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+}
+
+.public-card__pitch-text {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.public-card__update {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+  color: var(--color-text-bright);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.is-public-page .top-bar__end {
+  display: none;
+}
+
+@supports selector(:has(*)) {
+  .public-card__pitch {
+    display: flex;
+  }
+
+  .public-card__update {
+    display: none;
+  }
+
+  .is-public-page .top-bar__end {
+    display: flex;
+  }
+}
+
+/* ---- LIVE · En ce moment sur gameble (placeholders) ---- */
+
+.public-card__live {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.public-card__live-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+/* The LIVE marker: the word on an accent block with a dark square that
+   blinks once a second, the only blinking element (DESIGN.md, Elevation).
+   It stays lit under reduced motion. */
+.live-marker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.live-marker__dot {
+  width: 6px;
+  height: 6px;
+  background: var(--color-on-accent);
+  animation: live-blink 1s steps(1, end) infinite;
+}
+
+@keyframes live-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.public-card__live-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.public-card__live-entry {
+  min-height: 68px;
+  background: var(--color-panel-sunken);
+  box-shadow: var(--panel-soft-border);
+}
+
+.public-card__footer {
+  padding-top: var(--space-4);
+  border-top: var(--space-unit) solid var(--color-line-soft);
+}
+
+/* "Mentions légales": a muted placeholder, no page behind it yet. */
+.public-card__legal {
+  color: var(--color-muted);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+  text-transform: uppercase;
+}
+
+@media (max-width: 719px) {
+  .public-card {
+    gap: var(--space-7);
+  }
+
+  .public-card__layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+
+  .public-card__title {
+    font: var(--font-public-title-phone);
+    letter-spacing: var(--tracking-public-title-phone);
+  }
+
+  .public-card__description {
+    font: var(--font-body-large-phone);
+    letter-spacing: var(--tracking-body-large-phone);
+  }
+
+  .public-card__pitch .button {
+    width: 100%;
+    min-height: var(--space-button-height-phone);
+  }
+
+  .public-card__live-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* No tab bar on this page: the main's bottom padding is the plain one. */
+  .is-public-page .main {
+    padding-bottom: var(--space-7);
+  }
+
+  html:has(.public-card) {
+    scroll-padding-bottom: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-marker__dot {
+    animation: none;
+  }
+}
+
+html[data-motion="reduced"] .live-marker__dot {
+  animation: none;
 }

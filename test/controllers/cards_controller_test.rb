@@ -8,8 +8,10 @@ require_relative "../support/library_requests"
 # share link, the page's own address (CAP-9); the set it browses, its ◀ ▶
 # and position line, the faded card back of a card not held within a set,
 # the phone's way back to the grid; the cards that are not found; the
-# queries of a request; no database id on the page. Its preview tags and
-# invitation: card_preview_tags_test.rb.
+# queries of a request; no database id on the page. Most tests read the
+# detail as a signed-in viewer: a visitor on the card's own page gets the
+# public card page instead (story 10.3), which, with the preview tags, is
+# covered in card_preview_tags_test.rb.
 class CardsControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
@@ -60,6 +62,9 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   def store_link = css_select(".card-detail__actions a.card-detail__store").sole
 
+  # A viewer who holds nothing: the detail, not the public page.
+  def sign_in_viewer = sign_in(accounts_players(:moderator))
+
   # ◀ and ▶: [ tag, href or "disabled" ].
   def navs
     css_select(".card-detail__nav").map { [ it.name, it.name == "a" ? it["href"] : (it["disabled"] && "disabled") ] }
@@ -69,6 +74,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "a card of the published season: the bracketed panel, its face, every fact, the sets leading to their grids, the notice, the Steam link" do
     add_a_tome
+    sign_in_viewer
 
     get card_path(locale: :en, slug: "portal")
 
@@ -83,7 +89,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", 0
     assert_select ".card-detail__description", "A puzzle game of portals."
     assert_equal [ [ "Publisher", "Valve" ], [ "Rarity", "Epic" ], [ "Genre", "Action" ], [ "Year", "2007" ], [ "Season", "Season 1" ],
-      [ "Sets", "Action · Tome 1 | Valve" ] ], facts
+      [ "Sets", "Action · Tome 1 | Valve" ], [ "Copies", "None" ] ], facts
     assert_select ".card-detail__rarity.card-detail__rarity--epic svg.card-detail__rarity-icon[aria-hidden=true]"
     assert_equal [ [ "Action · Tome 1", "/en/library/tome/action-1" ], [ "Valve", "/en/library/publisher/valve" ] ],
       css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
@@ -94,13 +100,13 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail .button--primary", 1
     # The description is never on the face.
     assert_no_match(/portals/, css_select(".card-detail__card").sole.text)
-    assert_select ".card-detail__copies", false
     assert_no_match(/collection of/i, response.body)
     assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
   end
 
   test "in French every fact, the title, description and Steam page are French" do
     add_a_tome
+    sign_in_viewer
     catalog_cards(:common_card).update_columns(store_url: "https://store.steampowered.com/app/401/Tin_Soldier/?snr=1_7&l=english")
 
     get card_path(locale: :fr, slug: "tin-soldier")
@@ -108,7 +114,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail h1", "Soldat de plomb"
     assert_select "title", "Soldat de plomb — Commune"
     assert_select ".card-detail__kicker", "Fiche de la carte"
-    assert_equal [ [ "Rareté", "Commune" ], [ "Genre", "Action" ], [ "Année", "2024" ], [ "Saison", "Saison 1" ], [ "Sets", "Action · Tome 1" ] ], facts
+    assert_equal [ [ "Rareté", "Commune" ], [ "Genre", "Action" ], [ "Année", "2024" ], [ "Saison", "Saison 1" ], [ "Sets", "Action · Tome 1" ], [ "Exemplaires", "Aucun" ] ], facts
     assert_select ".card-detail__notice", "Ce jeu et son image appartiennent à leurs propriétaires respectifs. gameble n'est affilié ni à Valve ni à Steam."
     assert_equal [ "Voir sur Steam (nouvel onglet)", "https://store.steampowered.com/app/401/Tin_Soldier/?snr=1_7&l=french" ],
       store_link.then { [ it.text.squish, it["href"] ] }
@@ -118,14 +124,15 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_path(locale: :fr, slug: "portal")
     assert_select ".card-detail__description", "Un jeu de casse-tête à portails."
     assert_equal "https://store.example.test/400?l=french", store_link["href"]
-    assert_equal [ "Éditeur", "Rareté", "Genre", "Année", "Saison", "Sets" ], facts.map(&:first)
+    assert_equal [ "Éditeur", "Rareté", "Genre", "Année", "Saison", "Sets", "Exemplaires" ], facts.map(&:first)
   end
 
   test "a card without publisher, description, genre or set leaves those rows out, without ◀ ▶ or position line" do
+    sign_in_viewer
     get card_path(locale: :en, slug: "tin-soldier")
 
     assert_response :success
-    assert_equal [ "Rarity", "Year", "Season" ], facts.map(&:first)
+    assert_equal [ "Rarity", "Year", "Season", "Copies" ], facts.map(&:first)
     assert_select ".card-detail__description", false
     assert_select ".card-detail__sets", false
     assert_select ".card-detail__nav", false
@@ -157,20 +164,30 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Exemplaires", "Aucun" ], facts.last
   end
 
-  test "a visitor opens the same page, without a copies row" do
+  test "a visitor on the card's own page gets the public card page: the card at card-xl, no copies, no panel, no way back to the bridge" do
     hold(accounts_players(:player), catalog_card_seasons(:portal_one).id, 2)
 
     get card_path(locale: :en, slug: "portal")
 
     assert_response :success
-    assert_select ".card-detail h1", "Portal"
-    assert_select ".card-detail__card .card"
+    assert_select ".public-card h1", "Portal"
+    assert_select ".public-card .card.card--xl.card--rarity-epic .card__title", "Portal"
+    assert_select ".public-card__publisher", "Valve"
+    assert_select ".public-card__line", "Epic · 2007 · S1 · #4"
+    assert_select ".public-card__description", "A puzzle game of portals."
+    assert_equal [ "https://store.example.test/400", "_blank" ], css_select("a.public-card__store").sole.then { [ it["href"], it["target"] ] }
+    assert_select ".card-detail", false
     assert_select ".card-detail__copies", false
-    assert_not_includes facts.map(&:first), "Copies"
+    assert_select ".top-bar__start > a.button--secondary", false
+    assert_select ".top-bar__brand"
+    assert_select "nav.tab-bar", false
+    assert_select "body.is-public-page"
+    assert_select ".top-bar__end form.steam-sign-in"
   end
 
   test "the card's own page browses its first set, tomes first: ◀ ▶ carry that set, the position line, the phone's way back to its grid" do
     add_a_tome
+    sign_in_viewer
 
     get card_path(locale: :en, slug: "portal")
 
@@ -275,7 +292,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_includes facts, [ "Rarity", "Epic" ]
 
     get card_season_path(locale: :en, slug: "portal", number: 1)
-    assert_select ".card-detail__card .card.card--l"
+    assert_select ".public-card .card.card--xl"
     assert_select ".card-detail__back", false
   end
 
@@ -287,6 +304,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "an older season by its number: its rarity, its sets without links, browsing its own set, no way back to a grid" do
     publish_season_two_with_portal
+    sign_in_viewer
 
     get card_path(locale: :en, slug: "portal")
     assert_select ".card-detail__card .card.card--rarity-legendary"
@@ -321,6 +339,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "a season number in the query string is ignored: the published season shows" do
     publish_season_two_with_portal
+    sign_in_viewer
 
     [ "/en/cards/portal?number[]=1", "/en/cards/portal?number=abc", "/en/cards/portal?number=1" ].each do |path|
       get path
@@ -336,7 +355,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "a holder gets the share block: the button beside the Steam link, the card-season's own link, without their token, a status region" do
+  test "a holder gets the share sheet: the button beside the Steam link opening it, the card's face as thumbnail, the card-season's own link, without their token, a status region" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 1)
     sign_in(player)
@@ -348,18 +367,37 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Link copied", "Press Ctrl+C to copy" ], [ detail["data-share-copied-value"], detail["data-share-manual-value"] ]
     assert_equal [ "card-detail__store", "card-detail__share-button" ],
       css_select(".card-detail__actions > *").map { (it["class"].split & %w[card-detail__store card-detail__share-button]).sole }
-    assert_select ".card-detail__actions button.button--secondary[type=button][data-action='share#copy']", "Share"
-    assert_select ".card-detail__share label", /Link to this card/
-    assert_select ".card-detail__share label input[type=text][readonly][data-share-target=url][value=?]", url
-    assert_select ".card-detail__share [role=status][data-share-target=status]", ""
+    # "Share" opens the sheet and copies the link in the same click.
+    button = css_select(".card-detail__actions button.button--secondary[type=button]").sole
+    assert_equal [ "Share", "dialog-opener#open share#copy", "share-sheet", "dialog" ],
+      [ button.text, button["data-action"], button["data-dialog-opener-dialog-value"], button["aria-haspopup"] ]
+    sheet = css_select(".card-detail dialog#share-sheet.modal[aria-labelledby=share-sheet-title]").sole
+    assert_equal "dialog", sheet["data-controller"]
+    assert_equal "Share the card", sheet.at_css("#share-sheet-title").text
+    assert_equal "Close", sheet.at_css(".modal__close")["aria-label"]
+    assert_equal [ "Portal", "Epic" ], [ sheet.at_css(".share-sheet__name").text, sheet.at_css(".share-sheet__line").text ]
+    # The thumbnail is the card's own face, decorative, and no image of the game.
+    assert_equal 1, sheet.css(".share-sheet__thumb[aria-hidden=true] .card.card--s").size
+    assert_empty sheet.css("img")
+    assert_select "#share-sheet label[for=share-sheet-url]", "Link to this card"
+    assert_select "#share-sheet input#share-sheet-url[type=text][readonly][data-share-target=url][value=?]", url
+    assert_select "#share-sheet button[data-action='share#copy'][autofocus]", "Copy"
+    assert_select "#share-sheet [role=status][data-share-target=status]", ""
+    assert_select "#share-sheet .share-sheet__note", "The link's preview shows the card's title and rarity, without the game's image."
+    assert_select "#share-sheet a.share-sheet__public[href=?][target=_blank][rel~=noopener]", "/en/cards/portal/seasons/1"
+    assert_select "#share-sheet a.share-sheet__public .visually-hidden", "(new tab)"
+    assert_select ".card-detail__share", false
     # Only the player's own menu, in the top bar, links their profile.
     assert_not_includes css_select("head, main").to_s, player.token
     # The share link is the page's own og:url.
     assert_equal url, css_select("head meta[property='og:url']").sole["content"]
 
     get card_path(locale: :fr, slug: "portal")
-    assert_select ".card-detail__share input[value=?]", "http://www.example.com/fr/cards/portal/seasons/1"
+    assert_select "#share-sheet input[value=?]", "http://www.example.com/fr/cards/portal/seasons/1"
     assert_select ".card-detail__share-button", "Partager"
+    assert_select "#share-sheet #share-sheet-title", "Partager la carte"
+    assert_select "#share-sheet .share-sheet__note", "L'aperçu du lien affiche le titre et la rareté de la carte, sans l'image du jeu."
+    assert_select "#share-sheet button[data-action='share#copy']", "Copier"
     assert_equal "Appuyez sur Ctrl+C pour copier", css_select(".card-detail").sole["data-share-manual-value"]
   end
 
@@ -372,7 +410,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     sign_in(player)
 
     get card_season_path(locale: :en, slug: "portal", number: 1)
-    assert_select ".card-detail__share input[value=?]", "https://gameble.example/en/cards/portal/seasons/1"
+    assert_select "#share-sheet input[value=?]", "https://gameble.example/en/cards/portal/seasons/1"
     assert_not_includes response.body, "evil.example"
 
     # Season 2's portal is not held.
@@ -389,16 +427,16 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     sign_in(player)
 
     get card_path(locale: :en, slug: "portal")
-    assert_select ".card-detail__share", false
+    assert_select "#share-sheet", false
     assert_select ".card-detail__share-button", false
 
     delete session_path(locale: :en)
     get card_path(locale: :en, slug: "portal")
-    assert_select ".card-detail__share", false
+    assert_select "#share-sheet", false
     assert_select "[data-controller~=share]", false
   end
 
-  test "a player's request costs ten queries, a visitor's three; a frame visit (◀ ▶) skips the top bar's" do
+  test "a player's request costs ten queries, a visitor's two; a frame visit (◀ ▶) skips the top bar's" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 2)
     sign_in(player)
@@ -409,14 +447,15 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_request_queries(10) { get card_path(locale: :en, slug: "portal") }
     assert_response :success
     assert_equal [ "Copies", "2 copies" ], facts.last
-    assert_select ".card-detail__share"
+    assert_select "#share-sheet"
     assert_request_queries(5) { get card_path(locale: :en, slug: "portal"), headers: { "Turbo-Frame" => "card-detail" } }
     assert_select "turbo-frame#card-detail .card-detail h1", "Portal"
 
     delete session_path(locale: :en)
-    # The card detail, its sets and its neighbours.
-    assert_request_queries(3) { get card_path(locale: :en, slug: "portal") }
+    # The public card page: the card detail and its sets; no neighbours.
+    assert_request_queries(2) { get card_path(locale: :en, slug: "portal") }
     assert_response :success
+    assert_select ".public-card"
   end
 
   test "no database id reaches the page" do

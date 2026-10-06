@@ -1,0 +1,36 @@
+<%# The sets of a player's profile (DESIGN.md, Collection: Set progress
+    row), read-only: the kicker "Sets", the chips of the tabs (the sets the
+    owner started, then the three kinds), the progress rows of the page with
+    the owner's progress, never the viewer's, and the page links. Built from
+    the collection's components (collection.css). Locals:
+    - kind: the open tab; set: the set shown (kind, key), or nil;
+    - spines, pagy: ShelfLoading's page of sets (nil without a season);
+    - links: ShelvesHelper#profile_shelf_links (tabs, tab_url, set_url). %>
+<div class="collection-sets">
+  <h2 id="collection-sets-title" class="collection-sets__kicker"><%= t("library.sets.title") %></h2>
+  <% if spines.nil? %>
+    <p class="collection-sets__empty"><%= t("public_profiles.show.no_season") %></p>
+  <% else %>
+    <nav class="collection-kinds" aria-label="<%= t("library.sets.kinds") %>">
+      <% links.fetch(:tabs).each do |tab| %>
+        <%= link_to t("library.show.tabs.#{tab}"), links.fetch(:tab_url).call(tab), class: "collection-kind",
+          aria: { current: ("true" if tab == kind) }, data: { turbo_prefetch: false } %>
+      <% end %>
+    </nav>
+    <ul class="collection-sets__list">
+      <% spines.each do |spine| %>
+        <li class="collection-sets__item">
+          <%= render "public_profiles/set_row", href: links.fetch(:set_url).call(spine.kind, spine.key, pagy.page), label: spine.label,
+            owned: spine.owned, total: spine.total, current: set.present? && set.kind == spine.kind && set.key == spine.key %>
+        </li>
+      <% end %>
+    </ul>
+    <% if spines.empty? %>
+      <p class="collection-sets__empty"><%= pagy.count.zero? ? t("public_profiles.show.empty.#{kind}") : t("public_profiles.show.past_the_end") %></p>
+    <% end %>
+    <% if pagy.count.positive? && (pagy.last > 1 || spines.empty?) %>
+      <%# Pagy writes its links escaped, from its own dictionary (the pagy keys of the locale files). %>
+      <%= pagy.series_nav(anchor_string: 'data-turbo-prefetch="false"').html_safe %>
+    <% end %>
+  <% end %>
+</div>

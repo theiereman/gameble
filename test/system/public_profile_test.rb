@@ -4,8 +4,9 @@ require_relative "../support/steam_api_stubs"
 
 # A player's public profile (CAP-8, story 4.4): a player signs in, their
 # Steam persona name is stored, and they find the link to their profile in
-# the library; a visitor opens that link and sees the owner's name, started
-# sets, counts and, in a tome, the owner's cards.
+# the library; a visitor opens that link and sees the owner's avatar and name,
+# counts, started sets and, in a set, the owner's cards (story 10.3: the
+# collection's components, read-only).
 class PublicProfileTest < ApplicationSystemTestCase
   include CatalogSeeds
   include SteamApiStubs
@@ -42,10 +43,11 @@ class PublicProfileTest < ApplicationSystemTestCase
     assert_current_path brother_path(locale: :en, token: @player.token)
     assert_title "Gabe the Brave"
     assert_selector "h1", text: "Gabe the Brave"
-    assert_selector ".profile__counts li", text: "5 cards collected"
-    assert_selector ".library__tab[aria-current=page]", text: "Started"
-    assert_selector ".shelf .tome", text: "P"
-    assert_selector ".shelf .tome .tome__complete", text: "Complete"
+    assert_selector ".profile-summary__avatar"
+    assert_selector ".profile-summary__counts li", text: /5 cards collected/i
+    assert_selector ".collection-kind[aria-current=true]", text: /\AStarted\z/i
+    assert_selector ".set-row", text: /\AP/i
+    assert_selector ".set-row .set-row__count--complete", text: "5/5"
     take_screenshot
 
     sign_out
@@ -53,19 +55,21 @@ class PublicProfileTest < ApplicationSystemTestCase
     visit brother_path(locale: :en, token: @player.token)
 
     assert_selector "h1", text: "Gabe the Brave"
-    click_on "Publishers"
-    assert_selector ".library__tab[aria-current=page]", text: "Publishers"
-    find(".shelf a.tome", text: "P").click
+    click_on "Publishers", match: :first
+    assert_selector ".collection-kind[aria-current=true]", text: /\APublishers\z/i
+    find(".set-row", text: /\AP\b/i).click
 
-    assert_selector ".open-tome__heading", text: "P"
-    assert_selector ".open-tome__progress", text: "5 / 5"
-    assert_selector ".open-tome__slots .card.card--m", count: 5
-    assert_selector ".open-tome__copies", count: 1, text: "×2"
-    assert_selector ".library__aside .tome[aria-current=page]", text: "P"
+    assert_selector ".profile-set__heading", text: "P"
+    assert_selector ".profile-set__progress", text: "5 / 5"
+    assert_selector ".collection-grid .card.card--m", count: 5
+    assert_selector ".collection-slot__copies", count: 5
+    assert_selector ".collection-slot__copies", text: "x2", count: 1
+    assert_selector ".collection__aside .set-row[aria-current=page]", text: /\AP/i
+    assert_no_selector ".shelf, .tome, .library"
     take_screenshot
 
-    click_on "The library of Gabe the Brave"
-    assert_current_path brother_path(locale: :en, token: @player.token)
+    click_on "The collection of Gabe the Brave"
+    assert_current_path brother_path(locale: :en, token: @player.token, kind: "publisher", page: 1)
     assert_no_selector "a.library__profile"
   end
 
@@ -73,6 +77,6 @@ class PublicProfileTest < ApplicationSystemTestCase
     visit brother_path(locale: :fr, token: "A" * 24)
 
     assert_selector "h1", text: "Profil indisponible"
-    assert_no_selector ".shelf"
+    assert_no_selector ".collection-sets"
   end
 end

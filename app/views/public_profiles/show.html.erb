@@ -2,6 +2,6 @@
 <% content_for :back_button, true %>
 <% content_for :title, title %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
-<%# A player's public profile (CAP-8): their name, what their collection
-    counts, and their library, open on the sets they have started. %>
+<%# A player's public profile (CAP-8): their summary, and their sets as the
+    collection lists them, open on the ones they have started. %>
 <%= render "public_profiles/profile", owner: @owner, title:, summary: @summary, kind: @kind, spines: @spines, pagy: @pagy %>

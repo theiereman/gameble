@@ -284,30 +284,30 @@ en:
         tome: "Tomes"
         publisher: "Publishers"
         best_of_year: "Best rated of the year"
-      progress:
-        one: "%{count} card owned out of %{total}"
-        other: "%{count} cards owned out of %{total}"
       empty:
         started: "No set started yet, Brother: this collection still awaits its first card."
         tome: "No tome stands on these shelves yet, Brother. This season binds none."
         publisher: "No publisher has earned a set this season, Brother."
         best_of_year: "No year has had its best bound this season, Brother."
       past_the_end: "This shelf stands empty, Brother. The tomes end on an earlier one."
-      complete: "Complete"
       no_season: "The shelves are bare, Brother: the Brotherhood has published no season of cards yet."
-    set:
-      back_to_shelf: "Back to the shelf"
-    tome:
-      slots: "The slots of the tome"
-      missing: "Missing card"
-      copies:
-        one: "%{count} copy"
-        other: "%{count} copies"
   public_profiles:
     title: "%{name}"
-    fallback_title: "Brother %{code}"
+    fallback_title: "Player %{code}"
     show:
       counts: "The collection"
+      pick: "Pick a set to see the cards it holds."
+      complete: "Complete"
+      progress:
+        one: "%{count} card owned out of %{total}"
+        other: "%{count} cards owned out of %{total}"
+      empty:
+        started: "No set started yet: this collection still awaits its first card."
+        tome: "No tome in this season yet."
+        publisher: "No publisher has a set this season."
+        best_of_year: "No best-rated set this season."
+      past_the_end: "This list ends on an earlier page."
+      no_season: "No season of cards is published yet."
       distinct_cards:
         one: "%{count} card collected"
         other: "%{count} cards collected"
@@ -315,10 +315,15 @@ en:
         one: "%{count} set complete"
         other: "%{count} sets complete"
     set:
-      owner: "The library of %{name}"
+      owner: "The collection of %{name}"
+      slots: "The cards of the set"
+      missing: "Missing card"
+      copies:
+        one: "%{count} copy"
+        other: "%{count} copies"
     unavailable:
       title: "Profile not available"
-      body: "This Brother's library is closed to visitors, Brother. The link leads nowhere, or its owner may no longer show it."
+      body: "This profile is not available. The link leads nowhere, or its owner no longer shows it."
   boosters:
     show:
       title: "Booster opening"
@@ -430,16 +435,27 @@ en:
       description: "A card of gameble, your Steam games as collectible cards. Sign in through Steam: ten boosters wait for you."
     share:
       button: "Share"
+      title: "Share the card"
+      close: "Close"
       url: "Link to this card"
+      copy: "Copy"
       copied: "Link copied"
       manual: "Press Ctrl+C to copy"
+      note: "The link's preview shows the card's title and rarity, without the game's image."
+      public_page: "See the public page"
   cards:
     face:
       image_missing: "Image unavailable"
     show:
       invitation: "Open boosters, complete sets, trade with your friends."
+      pitch_title: "Your Steam games, as collectible cards."
       sign_in: "Open my first boosters"
+      update_browser: "Your browser is too old to sign in to gameble. Update it to play."
       grid: "Grid"
+      live:
+        marker: "Live"
+        title: "Right now on gameble"
+      legal: "Legal notice"
   catalog:
     rarity:
       common: "Common"
