@@ -7,7 +7,8 @@ const STORAGE_KEY = "gameble:hub-menu-item"
 // inside the menu, keys 1 to 6 (without Ctrl, Alt or Meta) activate the item whose
 // `aria-keyshortcuts` is that key, unless it is disabled. Using an item
 // remembers its number for the session (sessionStorage), and coming back to
-// the hub focuses it, once. Right after signing in (`focus-first`) the hub
+// the hub focuses it, once (the first enabled item when it is disabled by
+// then). Right after signing in (`focus-first`) the hub
 // focuses item 01 instead; where the menu is hidden (the phone), the hub's
 // heading takes that focus. Without storage, nothing is restored and
 // nothing fails. Nothing happens on a Turbo preview.
@@ -29,7 +30,9 @@ export default class extends Controller<HTMLElement> {
     if (stored === undefined && !this.focusFirstValue) return
 
     // A sign-in always focuses item 01, whatever item was used before it.
-    const item = this.focusFirstValue || stored === undefined ? this.itemTargets[0] : this.item(stored)
+    // An item used and now disabled (01 once the reserve is empty) gives
+    // the focus to the first enabled item, as a sign-in does.
+    const item = this.focusFirstValue || stored === undefined ? this.itemTargets[0] : (this.item(stored) ?? this.itemTargets[0])
     if (this.menuShown()) {
       item?.focus()
     } else if (this.hasHeadingTarget) {

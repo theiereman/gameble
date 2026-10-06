@@ -19,7 +19,7 @@ class PagesController < ApplicationController
     # The card of the player's latest notable pull, as a Catalog::CardView,
     # or nil (the empty showcase).
     def showcase
-      id = Game::NotablePull.call(current_player)
+      id = Game::NotablePull.call(current_player, season: @season)
       Catalog::CardViews.call([ id ], locale: I18n.locale)[id] if id
     end
 

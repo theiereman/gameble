@@ -11,11 +11,18 @@ review: 'quick'
 review_source: 'pinned'
 lenses_ran: [quick]
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context:
   - '{project-root}/_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md'
 warnings: [oversized]
-deferred: []
+deferred:
+  - summary: >-
+      The hub showcase renders the card at CardComponent's large size (104×164 art px), not DESIGN.md's card-xl (240×360) on the desktop, while the empty frame is 240×360; owned by story 8.6 (card face rewrite).
+    evidence: |-
+      Follow-up review of story 8.2 (2026-10-06): app/components/card_component.rb SIZES = small/large, ART[:large] 104×164; app/views/pages/_showcase.html.erb size: :large; app/frontend/styles/hub.css .hub-showcase__frame 240×360. Recorded in deferred-work.md naming story 8.6.
+    location: >-
+      app/views/pages/_showcase.html.erb:12
+    severity: low
 ---
 
 <intent-contract>
@@ -123,6 +130,19 @@ deferred: []
   - `[low]` `[patch]` The sign-in panel had no opening motion (EXPERIENCE.md Motion: 160ms scrim, 220ms panel rising 16px) — fixed: backdrop fade, panel rise, bottom sheet slide on the phone, fade only under reduced motion.
   - `[low]` `[patch]` A hovered, keyboard-focused menu item lost the focus ring's gap (hover box-shadow out-specified `:focus-visible`) — fixed: a `:focus-visible:hover` rule keeps the gap.
 
+### 2026-10-06 — Review pass
+- verdicts: 9 findings — high 0, medium 2, low 6, false 0, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` `Game::NotablePull`'s first query (opened packs of a player, latest 50) had no index to serve it. `game_packs` had only `player_id`, the partial unopened index, `season_id` and `token`, so every hub load and countdown refresh fetched and sorted every pack the player ever had. Fixed: migration `20261006000000_index_game_packs_opened` adds a partial index `(player_id, season_id, opened_at DESC) WHERE opened_at IS NOT NULL`, built concurrently (strong_migrations refused a fourth column, so the `id` tie-break is sorted on the few ties).
+  - `[medium]` `[patch]` The fallback query is not rare: about one hub load in six for an established player, every load for a new player, and every load for a veteran after a new season until their first Épique+. It also unnested packs of every season, though a pack's cards always belong to its `season_id` (`FillBank`, `TopUpBank` and `CollectDailyBonus` write the pool's season). Fixed: `Game::NotablePull.call(player, season:)` takes the hub's `@season` and filters `game_packs.season_id`, so both steps read that season's packs only, through the new index; the published-season subquery is gone. New tests: 51 newer packs of another season no longer push the pull to the second query (one query), and no season returns nil without a query.
+  - `[low]` `[reject]` `Game::HubSets`' started-sets query joins all of the player's holdings to the season's memberships and counts every started set's size, so a heavy collector reads most of the season's memberships on each hub load, against the plan's "no full-season aggregation". This is a few index scans (tens of ms at most at full scale), the sizes are needed to order sets by share, and the fix is a stored set size (a column written at publish), which is more than a direct correction.
+  - `[low]` `[reject]` `Catalog::CardCount` counts the season's 16k card-seasons on every hub hit, visitors included. It is one indexed count of a few ms, and caching it adds an invalidation rule. The missing per-load query pin it mentions is now added: `pages_controller_test` asserts 13 queries for a player's hub, 14 once the pull sits behind the 50 latest packs (60 more opened packs add only the fallback), and 4 for a visitor.
+  - `[low]` `[patch]` Coming back after opening the last booster from menu 01 focused nothing: the empty-reserve 01 is a disabled span without the `item` target, and the restore had no fallback, unlike the sign-in path. Fixed: `hub_menu_controller.ts` falls back to the first enabled item. New system test (open the last booster with 01, back by "Bridge", item 02 focused); it fails without the fix.
+  - `[low]` `[reject]` A morph refresh replacing the focused control drops focus to the body: (a) a refused open from 01, (b) "Récupérer", whose panel is gone after the morph. This is real for keyboard users, but the fix needs a focus destination after an action removes its own control. Neither DESIGN nor EXPERIENCE defines one, and the shell left the same case open (story 8.1, closed toast). Carried with case (a)'s stale key, rejected on the first pass.
+  - `[low]` `[reject]` A Ctrl/Cmd/Shift-click on a menu item (the browser opens a new tab) stores its number in the current tab, which focuses that item on its next hub load. The only effect is a focused item later on; the fix is a new modifier guard.
+  - `[low]` `[reject]` A press inside the sign-in panel released over the scrim closes it (the click target is the `<dialog>`). This is rare (the panel holds one line of text and an image), and the fix adds pointerdown tracking.
+  - `[low]` `[defer]` The showcase card is CardComponent's `:large` (104×164 art px), not DESIGN's card-xl (240×360), while its empty frame and the `hub.css` comment say 240×360. CardComponent and the card CSS belong to story 8.6, so this is deferred to it in deferred-work.md and the plan's `deferred` list (it corrects the earlier transitional entry's "240 × 360").
+
 ## Design Notes
 
 - Menu 01 for a player is the existing open-pack form (`button_to packs_path`, Turbo) styled as a menu item, not a link to a booster screen (none yet); deferred-work records it with the disabled 03–06 items.
@@ -154,3 +174,43 @@ Run from the worktree root with `export DATABASE_URL=postgres://postgres:postgre
 - **Follow-up review:** recommended (`true`) — three medium findings were patched on this first pass. The specific unverified risk: the `NotablePull` two-step query and the hub's per-load query count are checked only by tests on small fixtures, never against a long pack history; and the hub menu's focus restore interacts with Turbo morph refreshes (countdown, refused opens) in ways only partly covered by system tests.
 - **Verification:** `bin/rubocop` no offenses; `packwerk validate` and `check` clean; `i18n-tasks missing` none; `npm run typecheck` clean; `npm run test:js` 114 passed; `bin/rails test` 1113 runs, 0 failures; `bin/rails test:system` 66 runs, 0 failures (after the patches); `grep -rniI attic app config lib packs test` empty.
 - **Residual risks:** the implementing subagent saw `test/system/pack_reveal_test.rb` fail intermittently (2 of 4 full system runs; never alone, never in the orchestrator's runs), cause unknown, recorded in deferred-work.md; the showcase card is the medieval face until story 8.6; a new player with no notable pull runs two showcase queries per hub load; the English copy is new and unreviewed.
+
+
+### Follow-up pass (2026-10-06)
+
+- **Summary:** follow-up quick review of the hub, focused on the first pass's open risks. The showcase query now reads only the published season's packs through a new partial index. The hub's per-load query count is pinned for a player (13, or 14 with the fallback, whatever the history length) and for a visitor (4). Returning to the hub after opening the last booster focuses the first enabled item.
+- **Files:**
+  - `db/migrate/20261006000000_index_game_packs_opened.rb` and `db/schema.rb`: the opened-packs partial index.
+  - `packs/game/app/queries/game/notable_pull.rb`: takes `season:` and filters by pack season.
+  - `app/controllers/pages_controller.rb`: passes `@season`.
+  - `app/frontend/controllers/hub_menu_controller.ts`: falls back to the first enabled item.
+  - `test/packs/game/notable_pull_test.rb`: another-season and no-season tests.
+  - `test/controllers/pages_controller_test.rb`: the hub query count.
+  - `test/system/hub_test.rb`: return after the last booster.
+  - `_bmad-output/initiative-gameble/deferred-work.md`: showcase card size, for story 8.6.
+- **Review:** quick lens, 9 findings.
+  - Patched 3: medium 2, low 1.
+  - Deferred 1 (low): showcase card size, for story 8.6.
+  - Rejected 5:
+    - HubSets' started-set sizes: low, the fix needs a stored set size.
+    - CardCount on every hit: low, a few ms; caching adds invalidation. Its query-pin part was done.
+    - Focus loss when a morph removes the focused control: low, no defined focus destination.
+    - Modified-click remember: low, a new guard for a negligible effect.
+    - Drag released over the scrim: low, rare, needs pointerdown tracking.
+- **Follow-up review:** not recommended (`false`): this follow-up pass patched no high finding.
+- **Verification:**
+  - `node script/pixel_art/export.mjs --check`: ok.
+  - `bin/rubocop`: no offenses.
+  - `packwerk validate` / `check`: clean.
+  - `i18n-tasks missing`: none.
+  - `npm run typecheck`: clean.
+  - `npm run test:js`: 114 passed.
+  - `bin/rails test`: 1133 runs, 0 failures.
+  - `bin/rails test:system`: 72 runs, 0 failures.
+  - `grep -rniI attic app config lib packs test`: empty.
+  - The new hub-menu system test fails without its fix.
+  - The migration ran on the private test database (`gameble_test_wfr`).
+- **Residual risks:**
+  - The index's use is reasoned from the query shape, not measured with EXPLAIN on a large history: test tables are too small for the planner to choose it.
+  - HubSets still sizes every started set per load.
+  - The next deploy applies the concurrent index migration through `db:prepare`.

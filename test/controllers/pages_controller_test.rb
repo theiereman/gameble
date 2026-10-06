@@ -7,6 +7,9 @@ require_relative "../support/game_packs"
 class PagesControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
 
+  PLAYER_HUB_QUERIES = 13
+  VISITOR_HUB_QUERIES = 4
+
   setup do
     Game::DrawPool.reset!
     OmniAuth.config.test_mode = true
@@ -253,6 +256,36 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu .menu-item__meta", false
     assert_select ".daily-booster", false
     assert_select ".hub-showcase--empty"
+  end
+
+  def assert_hub_queries(count)
+    ActiveRecord::Base.connection.clear_query_cache
+    assert_queries_count(count) { get home_path(locale: :en) }
+    assert_response :success
+  end
+
+  test "a hub load costs a fixed number of queries, however long the player's history" do
+    create_pack(@player, cards: fixture_tier_ids, opened_at: 2.hours.ago)
+    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2)
+    sign_in(@player)
+
+    # Player lookup, published season, bank (count, next pack, daily claim),
+    # showcase (pull, card view), collection (owned, total), sets (progress,
+    # the started sets, the fill, which finds no other set here, so no sizes)
+    # and the top bar's copies per tier.
+    assert_hub_queries(PLAYER_HUB_QUERIES)
+    assert_select ".hub-showcase .card"
+
+    # Many more opened packs, the pull now behind the RECENT latest: only the
+    # showcase's second query is added.
+    common = Array.new(Game::Pack::SIZE, catalog_card_seasons(:common_card_one).id)
+    (Game::NotablePull::RECENT + 10).times { |index| create_pack(@player, cards: common, opened_at: (index + 1).minutes.ago) }
+    assert_hub_queries(PLAYER_HUB_QUERIES + 1)
+    assert_select ".hub-showcase .card"
+
+    delete session_path(locale: :en)
+    # Published season, collection total, sets fill and its totals.
+    assert_hub_queries(VISITOR_HUB_QUERIES)
   end
 
   test "sets and cards are addressed by kind, key and slug, never by database id" do

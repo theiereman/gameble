@@ -28,16 +28,16 @@ class Game::NotablePullTest < ActiveSupport::TestCase
     open_pack(Array.new(5) { |index| tier(1, index) }, opened_at: Time.zone.parse("2026-10-05 11:00"))
 
     result = nil
-    assert_queries_count(1) { result = Game::NotablePull.call(@player) }
+    assert_queries_count(1) { result = Game::NotablePull.call(@player, season: @season) }
     assert_equal tier(4), result
   end
 
   test "within that pack, the highest tier, then the first drawn" do
     open_pack([ tier(4, 1), tier(1), tier(4, 0), tier(1), tier(2) ], opened_at: 2.hours.ago)
-    assert_equal tier(4, 1), Game::NotablePull.call(@player)
+    assert_equal tier(4, 1), Game::NotablePull.call(@player, season: @season)
 
     open_pack([ tier(4), tier(1), tier(5), tier(1), tier(2) ], opened_at: 1.hour.ago)
-    assert_equal tier(5), Game::NotablePull.call(@player)
+    assert_equal tier(5), Game::NotablePull.call(@player, season: @season)
   end
 
   test "an unopened pack, another player's pack and an older season's card are not pulls" do
@@ -47,7 +47,7 @@ class Game::NotablePullTest < ActiveSupport::TestCase
     old = Catalog::CardSeason.where(season_id: catalog_seasons(:one).id).where("rarity = 5").pick(:id)
     open_pack(Array.new(5, old), opened_at: 1.minute.ago, season: catalog_seasons(:one))
 
-    assert_nil Game::NotablePull.call(@player)
+    assert_nil Game::NotablePull.call(@player, season: @season)
   end
 
   test "a pull older than the latest packs looked at first is found by a second query" do
@@ -56,14 +56,30 @@ class Game::NotablePullTest < ActiveSupport::TestCase
     Game::NotablePull::RECENT.times { |index| open_pack(common, opened_at: (index + 1).minutes.ago) }
 
     result = nil
-    assert_queries_count(2) { result = Game::NotablePull.call(@player) }
+    assert_queries_count(2) { result = Game::NotablePull.call(@player, season: @season) }
     assert_equal tier(4), result
+  end
+
+  test "newer packs of another season are not read: the pull behind them is found by the first query" do
+    open_pack([ tier(1), tier(4), tier(1), tier(1), tier(1) ], opened_at: 1.day.ago)
+    old = Array.new(5, Catalog::CardSeason.where(season_id: catalog_seasons(:one).id).pick(:id))
+    (Game::NotablePull::RECENT + 1).times { |index| open_pack(old, opened_at: (index + 1).minutes.ago, season: catalog_seasons(:one)) }
+
+    result = nil
+    assert_queries_count(1) { result = Game::NotablePull.call(@player, season: @season) }
+    assert_equal tier(4), result
+  end
+
+  test "nil, without a query, for no season" do
+    open_pack([ tier(4), tier(1), tier(1), tier(1), tier(1) ], opened_at: 1.hour.ago)
+
+    assert_queries_count(0) { assert_nil Game::NotablePull.call(@player, season: nil) }
   end
 
   test "nil, without a query, for a visitor; nil for a player who never pulled tier 4" do
     open_pack(Array.new(5) { |index| tier(3, index) }, opened_at: 1.hour.ago)
 
-    assert_queries_count(0) { assert_nil Game::NotablePull.call(nil) }
-    assert_nil Game::NotablePull.call(@player)
+    assert_queries_count(0) { assert_nil Game::NotablePull.call(nil, season: @season) }
+    assert_nil Game::NotablePull.call(@player, season: @season)
   end
 end
