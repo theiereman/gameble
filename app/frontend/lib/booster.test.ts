@@ -21,6 +21,7 @@ import {
   TREMBLE_MS,
   burstPixels,
   countsAfterReveal,
+  cardBackClass,
   dealKeyframes,
   dealOrder,
   formatClock,
@@ -175,5 +176,13 @@ describe("keyframes", () => {
     expect(frames).toHaveLength(9)
     expect(frames[0].transform).toBe("translate(5.0px, -3.0px)")
     expect(frames.at(-1)?.transform).toBe("translate(0px, 0px)")
+  })
+})
+
+describe("cardBackClass", () => {
+  it("names the back of a known key, and the standard back for any other", () => {
+    expect(cardBackClass("standard")).toBe("booster-card__back--standard")
+    expect(cardBackClass("aurora")).toBe("booster-card__back--standard")
+    expect(cardBackClass("")).toBe("booster-card__back--standard")
   })
 })

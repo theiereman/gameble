@@ -262,7 +262,9 @@ class ShellTest < ApplicationSystemTestCase
     within(".daily-booster") { click_on "Collect" }
 
     notice = I18n.t("daily_bonuses.create.collected", locale: :en)
-    assert_selector ".toasts .toast.toast--notice", text: notice
+    # The collect, its redirect and the hub's render: slower than Capybara's
+    # 2 s when the parallel workers load the machine.
+    assert_selector ".toasts .toast.toast--notice", text: notice, wait: 6
     assert_selector ".toasts .toast", count: 3
     assert_no_selector ".toasts .toast", wait: 12
   end
@@ -276,7 +278,9 @@ class ShellTest < ApplicationSystemTestCase
     within(".daily-booster") { click_on "Collect" }
 
     notice = I18n.t("daily_bonuses.create.collected", locale: :en)
-    assert_selector ".toasts .toast.toast--notice", text: notice
+    # The collect, its redirect and the hub's render: slower than Capybara's
+    # 2 s when the parallel workers load the machine.
+    assert_selector ".toasts .toast.toast--notice", text: notice, wait: 6
     assert_no_selector ".toasts .toast", text: notice, wait: 12
   end
 

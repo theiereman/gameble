@@ -9,6 +9,18 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     options.binary = ENV["CHROME_BIN"] if ENV["CHROME_BIN"].present?
   end
 
+  # Each test starts without cookies. Capybara's reset clears them, then
+  # waits for the requests still running, and every answer re-sends the
+  # session cookie: a request the last page left in flight (the collection's
+  # keepalive "seen" POST outlives the page) would sign the next test's
+  # browser in. The cookies are cleared once more after that wait.
+  def after_teardown
+    Capybara.reset_sessions!
+    page.driver.browser.execute_cdp("Network.clearBrowserCookies")
+  ensure
+    super
+  end
+
   # Signing in and out through the shell's top bar (story 8.1): the official
   # Steam image for a visitor, the player menu's "Sign out" for a player.
   def click_steam_sign_in

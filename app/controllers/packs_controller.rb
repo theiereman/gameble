@@ -15,7 +15,7 @@
 # a UUID), 401 sign_in_required, 422 no_pack_available, 429 throttled. The
 # booster screen's form (HTML), its fallback without JavaScript, is
 # redirected to the pack's page, which shows the cards face up: "my last
-# booster".
+# booster"; a refusal goes back to the booster screen with its reason.
 class PacksController < ApplicationController
   # The rate limit's window, also the JSON answer's Retry-After.
   RATE_LIMIT_WINDOW = 1.minute
@@ -59,7 +59,7 @@ class PacksController < ApplicationController
     if result.success?
       redirect_to pack_path(result.value!.token), status: :see_other
     else
-      redirect_to home_path, alert: Game::OpenPack.failure_message(result.failure), status: :see_other
+      redirect_to booster_path, alert: Game::OpenPack.failure_message(result.failure), status: :see_other
     end
   end
 

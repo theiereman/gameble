@@ -22,14 +22,8 @@
 // moves; once the card is revealed it lets the pointer through to the
 // face's own tilt, and the slot catches the click.
 import { memo, useMemo, type MouseEvent, type Ref } from "react"
+import { cardBackClass } from "../lib/booster"
 import type { Rarity } from "../lib/card_types"
-
-/** The card backs the island draws; an unknown key shows the standard one (AD-25). */
-const CARD_BACKS = ["standard"] as const
-
-export function cardBackClass(key: string): string {
-  return `booster-card__back--${(CARD_BACKS as readonly string[]).includes(key) ? key : "standard"}`
-}
 
 export type BoosterCardProps = {
   index: number

@@ -170,7 +170,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "an empty reserve greys menu 01's badge, and opening is refused with an alert" do
+  test "an empty reserve greys menu 01's badge, and opening is refused back to the booster screen with an alert" do
     player = accounts_players(:player)
     create_pack(player, available_at: 1.day.from_now)
     sign_in(player.steam_id)
@@ -184,7 +184,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     post packs_path(locale: :fr)
 
-    assert_redirected_to home_path(locale: :fr)
+    # The form is the booster screen's fallback: its refusal goes back there.
+    assert_redirected_to booster_path(locale: :fr)
     assert_equal I18n.t("errors.game.no_pack_available", locale: :fr), flash[:alert]
     assert_equal 0, Game::Holding.where(player_id: player.id).count
   end

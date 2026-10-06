@@ -1,7 +1,7 @@
 require "application_system_test_case"
 require_relative "../support/game_packs"
 
-# The booster screen (story 11; EXPERIENCE.md: Booster, Opening protocol):
+# The booster screen (story 8.11; EXPERIENCE.md: Booster, Opening protocol):
 # the canister sends the opening exchange and deals the cards face down;
 # one activation reveals a card, "Reveal all" the rest; the top bar's
 # rarity counter rises at each reveal and its reserve chip follows each
@@ -430,6 +430,8 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster__back[aria-disabled=true]"
     find(back).click
     assert_current_path "/en/booster"
+    find(".booster__back").click
+    assert_current_path "/en/booster"
     assert_dealt(5)
     assert_no_selector "#{back}[aria-disabled]"
 
@@ -438,6 +440,134 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector "#{back}[aria-disabled=true]"
     assert_no_selector "#{back}[aria-disabled]", wait: 5
     assert_selector ".booster__back:not([aria-disabled])"
+  end
+
+  test "a reveal waiting for its art locks the navigation at once, and a Légendaire waiting holds every other activation" do
+    open_screen(card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
+    open_canister
+    assert_dealt(5)
+    # The Légendaire's art is not drawn yet: its reveal waits for it.
+    art = "#{card(1)} .booster-card__front .card__art"
+    assert_selector "#{art}[data-art]", visible: :all
+    page.execute_script("document.querySelector(#{art.to_json}).removeAttribute('data-art')")
+    back = ".top-bar .top-bar__start a.button"
+
+    find(hit(1)).click
+    assert_selector "#{back}[aria-disabled=true]"
+    assert_selector ".booster__back[aria-disabled=true]"
+    page.execute_script("document.querySelector(#{hit(2).to_json}).click()")
+    click_on "Reveal all"
+    sleep 0.5
+    assert_no_selector ".booster-card[data-revealed]"
+
+    page.execute_script("document.querySelector(#{art.to_json}).setAttribute('data-art', 'drawn')")
+    assert_selector "#{card(1)}[data-revealed]"
+    assert_no_selector "#{back}[aria-disabled]", wait: 5
+    assert_selector ".booster-card[data-revealed]", count: 1
+  end
+
+  test "with reduced motion nothing loops or bursts, and a Légendaire holds a still banner under its signal" do
+    open_screen(card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
+    %w[.booster-canister__idle .booster-canister__rays].each do |selector|
+      assert_equal "none", page.evaluate_script("getComputedStyle(document.querySelector(#{selector.to_json})).animationName")
+    end
+    page.execute_script(<<~JS)
+      window.boosterFx = 0
+      new MutationObserver((records) => {
+        for (const record of records) for (const node of record.addedNodes) {
+          if (node instanceof Element && /booster-fx__/.test(node.className)) window.boosterFx += 1
+        }
+      }).observe(document.querySelector(".booster"), { childList: true, subtree: true })
+    JS
+
+    open_canister
+    assert_dealt(5)
+    find(hit(1)).click
+    assert_selector ".booster__state", text: "LEGENDARY SIGNAL"
+    assert_selector ".booster__banner--large", text: "LEGENDARY!"
+    assert_selector ".booster__banner-line", text: "Golden Crown · 1998"
+    assert_no_selector ".booster__stage[data-legendary]"
+    assert_selector ".booster__state", text: /\AINVENTORY\z/, wait: 5
+    assert_equal 0, page.evaluate_script("window.boosterFx")
+    assert_no_selector "#{card(1)} .booster-card__rays", visible: true
+  end
+
+  test "leaving during Reveal all stops the island: the hub's counts and links stay as they were" do
+    create_pack(@player, cards: card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
+    # Reached through Turbo, so Back is a restoration visit in the same window.
+    visit home_path(locale: :en)
+    find(".hub-menu .menu-item[aria-keyshortcuts='1']").click
+    assert_current_path "/en/booster"
+    open_canister
+    assert_dealt(5)
+
+    click_on "Reveal all"
+    assert_selector "#{card(1)}[data-revealed]"
+    page.go_back
+    assert_current_path "/en"
+    assert_no_selector ".booster"
+    commons = rarity_count("common")
+    page.execute_script(<<~JS)
+      window.lateBoosterEvents = []
+      for (const name of ["gameble:tier-revealed", "gameble:navigation-locked"]) {
+        addEventListener(name, (event) => window.lateBoosterEvents.push([name, event.detail]))
+      }
+    JS
+    # The Légendaire's still banner held 1.4 s; the next reveals would have run since.
+    sleep 3
+
+    assert_equal [], page.evaluate_script("window.lateBoosterEvents")
+    assert_equal commons, rarity_count("common")
+    assert_no_selector "[data-navigation-locked]", visible: :all
+  end
+
+  test "a sealed canister whose next booster arrives while the screen shows: the screen refreshes with one more in reserve" do
+    create_pack(@player, available_at: 1.hour.ago)
+    create_pack(@player, available_at: 3.seconds.from_now)
+    visit booster_path(locale: :en)
+    assert_selector ".booster__row", text: /IN RESERVE\s+1 BOOSTER\z/
+    page.execute_script("document.querySelector('.booster').dataset.marker = 'before'")
+
+    assert_selector ".booster__row", text: /IN RESERVE\s+2 BOOSTERS/, wait: 10
+    assert_no_selector ".booster[data-marker]"
+    assert_selector ".booster__state", text: "SEALED"
+    assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "2"
+  end
+
+  test "the countdown reaching zero while cards are dealt leaves the screen as it is" do
+    create_pack(@player, cards: card_ids(*[ :common_card_one ] * 5), available_at: 1.hour.ago)
+    arrives = 4.seconds.from_now
+    create_pack(@player, available_at: arrives)
+    visit booster_path(locale: :en)
+    open_canister
+    assert_dealt(5)
+    page.execute_script("document.querySelector('.booster').dataset.marker = 'kept'")
+
+    sleep [ arrives + 2.seconds - Time.current, 0 ].max
+    assert_selector ".booster[data-marker=kept]"
+    assert_selector ".booster-card[data-dealt]", count: 5
+    assert_selector ".booster__state", text: /\AINVENTORY\z/
+  end
+
+  test "an island whose code does not load leaves a message and a reload of the whole page" do
+    page.driver.browser.execute_cdp("Network.enable")
+    page.driver.browser.execute_cdp("Network.setBlockedURLs", urls: [ "*/Booster-*.js" ])
+    create_pack(@player)
+    visit booster_path(locale: :en)
+
+    assert_selector ".booster--failed[role=alert]", text: I18n.t("boosters.island.island_failed", locale: :en)
+    assert_no_selector ".booster-canister"
+    # The form without JavaScript stays, a way to open the booster all the same.
+    assert_selector ".booster__fallback", text: /OPEN THE BOOSTER/
+    reload = find_link(I18n.t("boosters.island.reload", locale: :en), href: "/en/booster")
+    assert_equal "false", reload["data-turbo"]
+
+    page.driver.browser.execute_cdp("Network.setBlockedURLs", urls: [])
+    reload.click
+    assert_selector ".booster-canister"
+  ensure
+    page.driver.browser.execute_cdp("Network.setBlockedURLs", urls: [])
+    page.driver.browser.execute_cdp("Network.disable")
   end
 
   test "on a phone the BOOSTER tab leads to the screen, which opens and reveals in a wrapping row" do

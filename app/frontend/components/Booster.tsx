@@ -838,13 +838,17 @@ export default function Booster(props: BoosterProps) {
   /** Reduced motion: the face crossfades in; a Légendaire holds a still banner (revealRM). */
   const revealStill = async (index: number, tier: Rarity, quiet: boolean) => {
     const card = answerRef.current?.cards[index]
-    if (tier === "legendary") announce(strings.states.legendarySignal)
+    if (tier === "legendary") {
+      setStatus("legendarySignal")
+      announce(strings.states.legendarySignal)
+    }
     mark(index, quiet)
     animate(part(index, "lift"), [{ opacity: 0.2 }, { opacity: 1 }], { duration: RM_REVEAL_FADE, fill: "none" })
     if (tier === "legendary") {
       showBanner("legendary", true, card ? t(strings.bannerLine, { title: card.title, year: card.year ?? "" }) : null)
       await wait(RM_LEGENDARY_STILL)
       legendaryRunning.current = false
+      setStatus("inventory")
     } else {
       await wait(RM_REVEAL_FADE)
     }

@@ -271,3 +271,11 @@ export function shakeKeyframes(amplitude: number): Keyframe[] {
   frames.push({ transform: "translate(0px, 0px)" })
   return frames
 }
+
+/** The card backs the island draws; an unknown key shows the standard one (AD-25). */
+const CARD_BACKS: readonly string[] = ["standard"]
+
+/** The class of a card's back for the answer's `pack.cardBack` key. */
+export function cardBackClass(key: string): string {
+  return `booster-card__back--${CARD_BACKS.includes(key) ? key : "standard"}`
+}
