@@ -24,14 +24,17 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  # config.assume_ssl = true
+  # Every destination is served over HTTPS (AD-21): staging behind the home
+  # lab's Traefik, production behind kamal-proxy's own TLS. Rails treats each
+  # request as HTTPS, so cookies are secure and generated URLs (the Steam
+  # OpenID return URL included) use https.
+  config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  # config.force_ssl = true
+  config.force_ssl = true
 
   # Skip http-to-https redirect for the default health check endpoint.
-  # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
+  config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
 
   # Log to STDOUT with the current request id as a default log tag.
   config.log_tags = [ :request_id ]
@@ -58,7 +61,7 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # The public base of shared links (config/initializers/public_url.rb) is
-  # read from PUBLIC_URL, which config/deploy.yml sets: production refuses to
+  # read from PUBLIC_URL, which each Kamal destination sets (config/deploy.<destination>.yml): production refuses to
   # boot when it is missing or malformed, rather than echo the request's
   # Host header (the Docker build's assets:precompile, SECRET_KEY_BASE_DUMMY
   # set, boots without it).

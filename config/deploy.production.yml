@@ -1,0 +1,32 @@
+# Production (AD-21): gameble.com on a VPS, not set up yet. Fill in the
+# server, then create .kamal/secrets.production (its own master key,
+# database password, Sentry DSN and Steam key) before
+#   bin/kamal deploy -d production
+#
+# On a VPS kamal-proxy terminates TLS itself (Let's Encrypt), so ports 80
+# and 443 must reach it; with Cloudflare in front, set its SSL/TLS mode to
+# "Full". The image registry must be reachable from the VPS (e.g. ghcr.io
+# with KAMAL_REGISTRY_PASSWORD), not localhost:5555.
+servers:
+  web: []        # - <VPS address>
+  import:
+    hosts: []    # - <VPS address>
+    cmd: bin/jobs -c config/queue_import.yml --skip-recurring
+
+proxy:
+  ssl: true
+  host: gameble.com
+
+env:
+  clear:
+    PUBLIC_URL: https://gameble.com
+
+# registry:
+#   server: ghcr.io
+#   username: <github user>
+#   password:
+#     - KAMAL_REGISTRY_PASSWORD
+
+# accessories:
+#   db:
+#     host: <VPS address>

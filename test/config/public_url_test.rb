@@ -4,7 +4,7 @@ require "open3"
 # The public base of shared links (CAP-9; epic 4 retrospective U1–U3):
 # PUBLIC_URL parsed and checked at boot by config/initializers/public_url.rb,
 # a malformed value refused everywhere, a missing one in production; and
-# config/deploy.yml setting it.
+# each Kamal destination (config/deploy.<destination>.yml) setting it.
 class PublicUrlTest < ActiveSupport::TestCase
   SECRET = "s3cr3t-password".freeze
 
@@ -97,11 +97,20 @@ class PublicUrlTest < ActiveSupport::TestCase
     assert_equal "nil", printed_base(output)
   end
 
-  test "deployment sets a valid PUBLIC_URL" do
-    deploy = YAML.safe_load(Rails.root.join("config/deploy.yml").read, aliases: true)
-    value = deploy.dig("env", "clear", "PUBLIC_URL")
+  Dir[Rails.root.join("config/deploy.*.yml")].each do |path|
+    destination = File.basename(path, ".yml").delete_prefix("deploy.")
 
-    assert_predicate value, :present?, "config/deploy.yml must set env.clear.PUBLIC_URL"
-    assert_predicate PublicUrl.parse(value), :present?
+    test "the #{destination} destination sets a valid PUBLIC_URL" do
+      deploy = YAML.safe_load(File.read(path), aliases: true)
+      value = deploy.dig("env", "clear", "PUBLIC_URL")
+
+      assert_predicate value, :present?, "config/deploy.#{destination}.yml must set env.clear.PUBLIC_URL"
+      assert_predicate PublicUrl.parse(value), :present?
+    end
+  end
+
+  test "both destinations exist and the shared config sets no PUBLIC_URL" do
+    assert_equal %w[production staging], Dir[Rails.root.join("config/deploy.*.yml")].map { File.basename(_1, ".yml").delete_prefix("deploy.") }.sort
+    assert_nil YAML.safe_load(Rails.root.join("config/deploy.yml").read, aliases: true).dig("env", "clear", "PUBLIC_URL")
   end
 end

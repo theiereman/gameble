@@ -4,34 +4,15 @@ service: gameble
 # Name of the container image (use your-user/app-name on external registries).
 image: gameble
 
-# Deploy to these servers.
-servers:
-  web:
-    - 192.168.1.6
-  # The Steam import worker (AD-19, AD-21): the same image, one process with
-  # one thread on the import queue only. The web role's Solid Queue serves
-  # every other queue.
-  import:
-    hosts:
-      - 192.168.1.6
-    cmd: bin/jobs -c config/queue_import.yml --skip-recurring
-  # job:
-  #   hosts:
-  #     - 192.168.0.1
-  #   cmd: bin/jobs
-
-# Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
-# If used with Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
+# Environments are Kamal destinations (AD-21): this file holds what they
+# share; config/deploy.<destination>.yml adds their servers, host and
+# PUBLIC_URL, and .kamal/secrets.<destination> their secrets.
+#   bin/kamal deploy -d staging      # gameble.dotsncircles.com, home lab
+#   bin/kamal deploy -d production   # gameble.com, a VPS (not set up yet)
 #
-# Using an SSL proxy like this requires turning on config.assume_ssl and config.force_ssl in production.rb!
-#
-# Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
-#
-# No domain yet: the proxy answers plain HTTP on the server's IP. With a
-# domain, set `ssl: true` and `host:`, and turn on config.assume_ssl and
-# config.force_ssl in production.rb.
-proxy:
-  ssl: false
+# Roles, with their hosts in each destination file: web, and the Steam import
+# worker (AD-19, AD-21), the same image as one process with one thread on the
+# import queue only. The web role's Solid Queue serves every other queue.
 
 # Where you keep your container images.
 registry:
@@ -66,12 +47,9 @@ env:
     # The PostgreSQL accessory below, reached over Kamal's docker network.
     DB_HOST: gameble-db
 
-    # The public base of shared links (CAP-9), required: production refuses
-    # to boot without it or with a malformed one (checked at boot by
-    # config/initializers/public_url.rb; test/config/public_url_test.rb pins
-    # it here). The test LXC's address for now; the public HTTPS host once
-    # one exists.
-    PUBLIC_URL: http://192.168.1.6
+    # PUBLIC_URL, the public base of shared links (CAP-9), is set per
+    # destination: production refuses to boot without a valid one
+    # (config/initializers/public_url.rb; test/config/public_url_test.rb).
 
     # Log everything from Rails
     # RAILS_LOG_LEVEL: debug
@@ -118,7 +96,7 @@ builder:
 accessories:
   db:
     image: postgres:18
-    host: 192.168.1.6
+    # host: set per destination.
     # Reachable from the server only, not from the network.
     port: "127.0.0.1:5432:5432"
     env:

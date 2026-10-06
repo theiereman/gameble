@@ -242,6 +242,7 @@ graph TD
   - PostgreSQL has four logical databases: primary, queue, cache, cable. Each can move to its own server.
   - Every schema change is expand/contract; `strong_migrations` refuses a migration that would block the database.
   - Cloudflare sits in front. Sentry receives errors. Backups exist before launch.
+  - Environments are Kamal destinations sharing `config/deploy.yml`: `staging` (gameble.dotsncircles.com, the home lab LXC behind the author's Traefik, which terminates TLS) and `production` (gameble.com on a VPS, kamal-proxy terminating TLS). Each has its own servers, host, `PUBLIC_URL` and `.kamal/secrets.<destination>`; both run `RAILS_ENV=production` with `assume_ssl` and `force_ssl`.
 
 ### AD-22 — What CI refuses `[ADOPTED]`
 
@@ -502,7 +503,7 @@ gameble/
 - **Read replica:** added when the primary's read load is measured as the limit; AD-11 makes it a configuration change.
 - **Dedicated real-time or job backend:** when Solid Cable or Solid Queue is measured as the limit; AD-12 makes it a configuration change.
 - **Weekly goal target formula:** how the target scales with weekly active players; the weekly goal row and the periodic job carry it.
-- **Staging environment, backup schedule and restore drill:** set before launch.
+- **Production VPS, its registry, backup schedule and restore drill:** set before launch; staging exists since 2026-10-06.
 - **K3s:** only if Kamal on several servers stops being enough.
 - **Publishing the image filter:** an npm package, then a Rails gem wrapper; a side quest outside the MVP. AD-17 keeps it extractable.
 - **Admin interface gem and the back-office design:** the back-office stays plain Rails pages plus Mission Control Jobs, outside the redesign.

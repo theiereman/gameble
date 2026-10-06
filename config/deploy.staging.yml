@@ -1,0 +1,24 @@
+# Staging (AD-21): the home lab LXC behind the author's Traefik, which
+# terminates TLS for gameble.dotsncircles.com and forwards plain HTTP to
+# kamal-proxy on 192.168.1.6:80.
+#   bin/kamal deploy -d staging
+servers:
+  web:
+    - 192.168.1.6
+  import:
+    hosts:
+      - 192.168.1.6
+    cmd: bin/jobs -c config/queue_import.yml --skip-recurring
+
+proxy:
+  ssl: false                       # Traefik holds the certificate
+  host: gameble.dotsncircles.com
+  forward_headers: true            # keep Traefik's X-Forwarded-Proto: https
+
+env:
+  clear:
+    PUBLIC_URL: https://gameble.dotsncircles.com
+
+accessories:
+  db:
+    host: 192.168.1.6

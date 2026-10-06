@@ -40,10 +40,13 @@ class QueueConfigTest < ActiveSupport::TestCase
     end
   end
 
-  test "deployment runs the import worker as its own role, with the Steam key" do
-    deploy = YAML.safe_load(Rails.root.join("config/deploy.yml").read, aliases: true)
+  test "each destination runs the import worker as its own role, with the Steam key" do
+    shared = YAML.safe_load(Rails.root.join("config/deploy.yml").read, aliases: true)
+    assert_includes shared.dig("env", "secret"), "STEAM_API_KEY"
 
-    assert_equal "bin/jobs -c config/queue_import.yml --skip-recurring", deploy.dig("servers", "import", "cmd")
-    assert_includes deploy.dig("env", "secret"), "STEAM_API_KEY"
+    %w[staging production].each do |destination|
+      deploy = YAML.safe_load(Rails.root.join("config/deploy.#{destination}.yml").read, aliases: true)
+      assert_equal "bin/jobs -c config/queue_import.yml --skip-recurring", deploy.dig("servers", "import", "cmd"), destination
+    end
   end
 end
