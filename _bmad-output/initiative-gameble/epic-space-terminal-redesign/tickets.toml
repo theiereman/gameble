@@ -119,7 +119,7 @@ title = "Booster island, desktop"
 description = "Replaces PackReveal with the booster island's desktop mode: canister, the charge phase masking the request, the explosion, the deal row of server faces under the Standard back, one-activation reveals, \"Tout révéler\" with the Légendaire sequence, \"Ouvrir le suivant\", the live region, and the gameble:tier-revealed and bank-changed events updating the top bar."
 verify = "On desktop a player opens a booster, reveals each card by click or Enter, sees the counters move per reveal, and a refusal disarms the canister with a toast; system tests cover the protocol and the Légendaire sequence."
 covers = ["R5", "R6"]
-after = [8, 9, 10]
+after = [8, 10]
 hitl = false
 risk = "high"
 

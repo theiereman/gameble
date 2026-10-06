@@ -39,7 +39,7 @@ For a player: from the hub to a revealed booster, the game as designed in `DESIG
 2. Every card face comes from one server component, filtered to 32 colours in a worker, with its season number, tome genre and new tier.
 3. Opening a booster follows the opening protocol on desktop and phone; a lost response replays the same pack and a refusal opens nothing.
 4. AD-28's conformance list holds: tier codes renamed, `dust_tier` dropped, jobs after commit, GETs on the reading role, the full reserve refusing the bonus.
-5. Opening stays within 200 ms at the 95th percentile and the booster holds its frame budget on the reference low-end phone.
+5. Opening stays within 200 ms at the 95th percentile, and the booster follows AD-27's animation rules; its frame budget on a real low-end phone is measured later.
 
 ## Boundaries
 
@@ -59,4 +59,4 @@ The web layer's shell, the hub, the card component, the booster island, the filt
 - Decision (2026-10-05): a new epic rather than stories in epics 1 to 4; shell first, then screen by screen, no feature flag (architecture AD-28). Approved by the author.
 - Decision (2026-10-05): the redesign is split in two epics, this one (shell, card and booster) and epic-space-terminal-screens; approved by the author.
 - Decision (2026-10-05): tracer bullet is entry 1, the shell with the exported logo and icons; the data (3, 4) and filter (5) lanes run beside it; the booster waits on the performance spike (9).
-- Unknown: the reference low-end Android for the performance budget; entry 9 waits on it.
+- Decision (2026-10-06): entry 9, the performance spike, is dropped by the author (no physical reference phone, emulation declined); the booster stories follow AD-27's animation rules without a measured budget, and a measurement on a real low-end phone is deferred.
