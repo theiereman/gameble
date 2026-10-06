@@ -3,7 +3,7 @@ name: gameble
 description: Pixel-art trading card game of Steam games, presented as an elegant space terminal in Steam's colors. Real Steam covers under a fine pixel filter, sober panels, small effects that tick in steps.
 status: final
 created: 2026-10-01
-updated: 2026-10-05
+updated: '2026-10-06'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../brief-gameble/brief-gameble.md
@@ -787,7 +787,7 @@ An overlay with the card at `card-xl`, its name and rarity line, "VOIR LA FICHE"
 - **Copy badge:** "x3" in a small accent box at a card's top-right, from x1 `[ASSUMPTION: as mocked]`. **NOUVEAU tag:** a small lime box at the top-left.
 - **Selected card:** a steady 3px accent frame around it.
 - **Missing-card slot:** the card shape with a dark hatched fill and a `{colors.line-deep}` border, a small pixel icon, the missing game's name (Pixelify Sans, muted) and its year. Nothing else.
-- **Card detail ("FICHE DE LA CARTE"):** a bracketed panel with the number at top right, the card at `card-l` with its effects, a ground shadow, rows of facts (label in muted Silkscreen left, value right, on `{colors.panel-sunken}`): title, publisher, rarity, genre, year, description, minted season, sets, copies owned. Buttons at the bottom: "VOIR SUR STEAM" (primary) and "PARTAGER". A card not owned shows the active card back at 55% opacity with its name and year. Phone: a sub-view with 44 × 64 CSS px ◀ ▶ buttons beside the card, a position line ("S1 · #4 215 · 3 / 13 · glissez pour parcourir") and actions pinned at the bottom.
+- **Card detail ("FICHE DE LA CARTE"):** a bracketed panel with the number at top right, the card at `card-l` with its effects, a ground shadow, rows of facts (label in muted Silkscreen left, value right, on `{colors.panel-sunken}`): title, publisher, rarity, genre, year, description, minted season, sets, copies owned. Buttons at the bottom: "VOIR SUR STEAM" (primary), "PARTAGER" and, for a card owned, "REPOSTER" (secondary). A card not owned shows the active card back at 55% opacity with its name and year. Phone: a sub-view with 44 × 64 CSS px ◀ ▶ buttons beside the card, a position line ("S1 · #4 215 · 3 / 13 · glissez pour parcourir") and actions pinned at the bottom.
 
 #### Trade board
 
@@ -815,7 +815,8 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Amis.
 
 Reference: [mockups/key-screens.html](mockups/key-screens.html), Fil d'activité.
 
-- **Feed entry:** a row on `{colors.panel}` (at least 68px tall): time in muted VT323, one or two avatars, a VT323 sentence with names and titles in white, one or two pixel thumbnails framed in the rarity color, and a right-aligned tag (rarity icon and name, or "⇄ ÉCHANGE"). A first discovery carries a gold "PREMIÈRE DÉCOUVERTE" chip. Lower-tier entries added to fill a quiet feed sit on `{colors.panel-sunken}`, never dimmed by opacity. No Brotherhood line on this screen.
+- **Feed tabs:** two segmented tabs, "TOUS" and "AMIS", above the filter chips (`{typography.label}`, selected filled accent), the same control as the filter group.
+- **Feed entry:** a row on `{colors.panel}` (at least 68px tall): time in muted VT323, one or two avatars, a VT323 sentence with names and titles in white, one or two pixel thumbnails framed in the rarity color, and a right-aligned tag (rarity icon and name, or "⇄ ÉCHANGE"). A first discovery carries a gold "PREMIÈRE DÉCOUVERTE" chip. A repost entry carries a "REPOST" tag in `{colors.accent}` with the card's thumbnail framed in its rarity color. Lower-tier entries added to fill a quiet feed sit on `{colors.panel-sunken}`, never dimmed by opacity. No Brotherhood line on this screen.
 - **LIVE ticker:** a band on `{colors.steam-bar}` along the bottom of the hub: the LIVE marker on the left, then a VT323 line scrolling right to left, items separated by a pixel "◆", rarity names in their color.
 
 #### Achievements

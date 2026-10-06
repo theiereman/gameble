@@ -2,7 +2,7 @@
 name: gameble
 status: final
 created: 2026-10-01
-updated: 2026-10-05
+updated: '2026-10-06'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/catalog-and-rarity.md
@@ -34,7 +34,7 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 | Amis | Menu 04; PLUS on the phone | Invite by link or code, answer invitations, list friends with their presence |
 | Friend profile | A friend row | Showcase, propose a trade, report |
 | Report dialog | "SIGNALER" in a friend profile | Report a username or profile |
-| Fil d'activité | Menu 05; PLUS on the phone; open without an account | Pulls, first discoveries and trades as they happen |
+| Fil d'activité | Menu 05; PLUS on the phone; open without an account | Pulls, first discoveries, trades and reposts; tabs TOUS and AMIS (friends only) |
 | Succès | Menu 06; PLUS on the phone | Achievements, earned and to earn |
 | Profil et paramètres | The player chip; PLUS on the phone | Public profile summary, settings, card-back picker, "Mentions légales" |
 | Public card page | A shared link, without an account | Show the shared card and invite the visitor to play |
@@ -92,7 +92,8 @@ The single source for every message the interface shows. Other sections name the
 | Invite code messages | "Format attendu : ABCD-1234." · "C'est votre propre code." · "Invitation déjà envoyée." · "Invitation envoyée à KAI-8F2D." |
 | Presence | "En ligne" · "Ouvre un booster" · "Il y a 3 h" |
 | Report | "Pseudo ou avatar inapproprié" · "Triche ou abus" · "Harcèlement" · "Autre" · "Merci. L'équipe de modération examinera ce profil. Léa ne verra pas qui l'a signalé." |
-| Feed | "Rien pour l'instant dans ce filtre." |
+| Feed | "Rien pour l'instant dans ce filtre." · Friends tab without friends: `[ASSUMPTION]` "Ajoutez des amis pour suivre leurs tirages." with "AJOUTER DES AMIS" · repost entry: `[ASSUMPTION]` "Hugo a reposté Elden Ring." · tag "REPOST" |
+| Repost | Action `[ASSUMPTION]` "REPOSTER" · confirmation toast `[ASSUMPTION]` "Carte repostée dans le fil." |
 | Back picker | "Vous seul le voyez, sur vos cartes face cachée à l'ouverture." · "DOS VERROUILLÉ" · "DOS ÉQUIPÉ" · "« Aurore » apparaîtra sur vos cartes face cachée." |
 | Profile visibility | "Visible par tous les joueurs" · "Visible par vos amis seulement" · "Profil privé : vous seul le voyez" |
 | Settings | "PRÉPARATION…" · "EXPORT PRÊT" · delete word: "SUPPRIMER" ("DELETE" in English) |
@@ -203,7 +204,9 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 
 | Component | Behavioral rules |
 |---|---|
-| Feed entry | One event per row (also on the public card page). Filters: TOUT, TIRAGES, DÉCOUVERTES, ÉCHANGES. New entries arrive at the top. |
+| Feed tabs | TOUS shows everyone's events; AMIS shows only the viewer's friends' pulls, trades and reposts. The tab and the type filter combine ("AMIS · TIRAGES" shows friends' pulls). The AMIS tab is read when the screen opens and when it is revisited, not updated live. Signed out, AMIS opens the sign-in panel. A player without friends sees the Friends-tab line and "AJOUTER DES AMIS", which opens Amis. |
+| Feed entry | One event per row (also on the public card page). Filters: TOUT, TIRAGES, DÉCOUVERTES, ÉCHANGES, REPOSTS. New entries arrive at the top. A repost is an entry naming the player and the card, tagged "REPOST"; it never appears in the LIVE ticker. |
+| Repost action | "REPOSTER" on a card the player owns, in three places: the card detail (beside "PARTAGER"), a revealed card at the end of a booster opening (desktop under the revealed row's card, phone in the card zoom), and the hub showcase under the best card. Any rarity, no limit, no message, reactions or comments. The action posts the repost and confirms with the repost toast; the button stays available (a card can be reposted again). Absent for a card not owned and for a visitor. |
 | Achievement tile | Earned or to earn, with progress where countable, and the card back it unlocks if any. |
 
 ### Profil et paramètres
