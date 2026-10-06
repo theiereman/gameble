@@ -90,7 +90,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # The showcase: the tier 4 card of the pack, its rarity and its page.
     assert_select ".hub-showcase:not(.hub-showcase--empty)" do
       assert_select ".hub-showcase__kicker", "Dernière obtention"
-      assert_select ".card.card--large", 1
+      assert_select ".card.card--xl", 1
       assert_select "h2.hub-showcase__name", "Portal"
       assert_select ".hub-showcase__rarity.hub-showcase__rarity--4 svg.pixel-icon"
       assert_select ".hub-showcase__rarity span", epic_name(:fr)

@@ -176,7 +176,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=robots][content=noindex]"
     assert_equal "Action · Tome 1 · 2011–2015", heading
     assert_equal "2 / 25", progress
-    assert_select ".open-tome__slots .card.card--face", 2
+    assert_select ".open-tome__slots .card.card--m", 2
     assert_select ".open-tome__copies", "×2"
     assert_select ".slot .slot__missing", { count: 23, text: "Missing card" }
     assert_select "a.profile__owner[href=?]", "/en/brothers/#{@owner.token}", "The library of Gabe the Brave"

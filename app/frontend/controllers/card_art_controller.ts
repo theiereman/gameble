@@ -9,15 +9,17 @@ const NEAR_VIEWPORT = "300px"
 // does not fetch and filter every image at once. Each connect waits and
 // draws again, so a Turbo restore visit, whose cached snapshot keeps no
 // canvas pixels, shows the art again; a disconnect stops the wait and aborts
-// a draw under way.
+// a draw under way. The palette size defaults to the art size (0 or absent).
 export default class extends Controller<HTMLElement> {
   static targets = ["canvas"]
-  static values = { url: String, width: Number, height: Number }
+  static values = { url: String, width: Number, height: Number, paletteWidth: Number, paletteHeight: Number }
 
   declare readonly canvasTarget: HTMLCanvasElement
   declare readonly urlValue: string
   declare readonly widthValue: number
   declare readonly heightValue: number
+  declare readonly paletteWidthValue: number
+  declare readonly paletteHeightValue: number
 
   private abort?: AbortController
   private observer?: IntersectionObserver
@@ -49,6 +51,8 @@ export default class extends Controller<HTMLElement> {
     void drawCardArt(this.element, this.canvasTarget, this.urlValue, {
       width: this.widthValue,
       height: this.heightValue,
+      paletteWidth: this.paletteWidthValue || this.widthValue,
+      paletteHeight: this.paletteHeightValue || this.heightValue,
       signal: this.abort.signal,
     })
   }

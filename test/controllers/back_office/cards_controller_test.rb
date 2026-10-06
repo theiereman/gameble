@@ -3,6 +3,9 @@ require "test_helper"
 module BackOffice
   # The card preview of the back-office, administrators only.
   class CardsControllerTest < ActionDispatch::IntegrationTest
+    SPECIMENS = Catalog::Rarity::TIERS.values.product(%w[s m l xl]).map { |parts| parts.join("-") } +
+      Catalog::Rarity::TIERS.values.map { |rarity| "#{rarity}-m-booster" }
+
     setup { OmniAuth.config.test_mode = true }
 
     teardown do
@@ -17,21 +20,25 @@ module BackOffice
       assert_equal player.id, session[:player_id]
     end
 
-    test "an administrator sees every pair, server side and as props of the React island" do
+    test "an administrator sees every tier's face at each size, then at m with the booster's effects, all from the server" do
       sign_in(accounts_players(:administrator))
       get back_office_cards_path(locale: :fr)
 
       assert_response :success
-      pairs = Catalog::Rarity::TIERS.values.product(%w[face back], %w[small large]).map { |parts| parts.join("-") } +
-        (0..4).map { |level| "rare-back-small-dust-#{level}" }
-      assert_equal pairs, css_select("[data-renderer=server]").map { it["data-pair"] }
-      assert_select "[data-pair=rare-back-small-dust-3] .card.card--dust-3 .card__dust"
-      assert_select ".card__title", text: "Profondeurs bleues"
-
-      props = JSON.parse(css_select("[data-turbo-mount-card-preview-component-value=CardPreview], [data-controller~=turbo-mount-card-preview]").first["data-turbo-mount-card-preview-props-value"])
-      assert_equal pairs, props["pairs"].map { it["pair"] }
-      assert_equal "Carte face cachée, Rare", props.dig("strings", "faceDownByRarity", "rare")
-      assert_equal "Saison 12", props.dig("strings", "seasons", "12")
+      assert_equal SPECIMENS, css_select("[data-specimen]").map { it["data-specimen"] }
+      SPECIMENS.each do |specimen|
+        rarity, size, booster = specimen.split("-")
+        assert_select "[data-specimen=#{specimen}] > .card.card--#{size}.card--rarity-#{rarity}#{".card--booster" if booster}", 1
+        assert_select "[data-specimen=#{specimen}] .card--booster", booster ? 1 : 0
+      end
+      assert_select "[data-specimen=rare-s] .card__title", text: "Profondeurs bleues"
+      assert_select "[data-specimen=rare-xl] .card__genre", text: "Réflexion"
+      assert_select "[data-specimen=common-m] .card__genre", 0
+      assert_select "[data-specimen=epic-m] .card__number", 0
+      assert_select "[data-specimen=rare-l] .card__number", "S12 · #1 000 000"
+      assert_select "[data-specimen=legendary-m-booster] figcaption", "Légendaire, taille M, booster"
+      assert_select "[data-turbo-mount-card-preview-component-value], [data-controller~=turbo-mount-card-preview]", 0
+      assert_select "[style]", 0
       assert_no_match %r{steam}i, response.body.scan(/data-card-art-url-value="[^"]*"/).join
     end
 

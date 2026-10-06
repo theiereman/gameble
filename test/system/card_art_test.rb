@@ -5,7 +5,7 @@ require "application_system_test_case"
 # drawn on the main thread without palette. The back-office card preview is
 # the host page; card-art elements are added to it by script.
 class CardArtTest < ApplicationSystemTestCase
-  SAMPLE_CARD = "[data-pair=common-face-small][data-renderer=server] .card__art".freeze
+  SAMPLE_CARD = "[data-specimen=common-s] .card__art".freeze
 
   # Adds one card-art element per URL, at the small art size, pinned to the
   # top of the window so each nears the viewport at once.

@@ -54,7 +54,7 @@ class HubTest < ApplicationSystemTestCase
     sign_in
 
     assert_selector ".hub-menu .menu-item", count: 6
-    assert_selector ".hub-showcase .card--large"
+    assert_selector ".hub-showcase .card--xl"
     assert_selector ".daily-booster"
     assert_selector ".hub-sets .set-row"
     menu, showcase, sets = %w[.hub-menu .hub-showcase .hub-sets].map do |selector|

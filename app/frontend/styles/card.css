@@ -1,122 +1,223 @@
 /*
- * The card, face and back (DESIGN.md: Card face, Card back, Rarity seal, Dust;
- * mockups/card-face.html layout A, card-backs.html; titles in Pixelify Sans,
- * recoloured to the space-terminal tokens until story 8.3 redraws the face). Shared by CardComponent and the React Card, which render
- * the same tree. One art pixel is 2 CSS pixels (--space-unit). The root has
- * no overflow and no transform: the reveal (story 3.6) wraps and flips it.
- * Pixel parts come from ../images/card/ (script/card_art/generate.mjs).
+ * The card face, the only one (DESIGN.md: Card face, Card sizes, Rarity
+ * icon, Rarity effects; EXPERIENCE.md, Implementation notes; AD-27, AD-28):
+ * CardComponent draws it on every page, and the pack reveal receives it as
+ * HTML. Four sizes, s, m, l and xl. The frame is the rarity colour inside
+ * the pixel outline, with the bevel; inside it the body holds the title
+ * band, the art box and the two footer lines.
+ *
+ * The root is the tilt layer (lib/tilt.ts writes --tilt-rx, --tilt-ry,
+ * --glare-dx and --glare-dy): it never carries overflow, filter, an opacity
+ * under 1, clip-path, mask, mix-blend-mode or isolation, which would flatten
+ * the 3D stack. The effects (holo, foil, glare) are clipped inside
+ * .card__effects. Infinite animations move only transform, and run only
+ * while the face is in the viewport ([data-in-view], tilt_controller.ts).
+ * Under reduced motion there is no tilt, glare, holo or foil.
  */
 
-.card {
-  /* The face's binding, from the outside in: outline, metal, outline, rarity piping
-     (2 art pixels), outline, then the art window. Insets in CSS pixels. */
-  --card-piping-inset: calc(2 * var(--space-unit));
-  --card-window-inset: calc(5 * var(--space-unit));
-  --card-metal: var(--color-line);
-  --card-metal-light: var(--color-line-deep);
-  --card-metal-dark: var(--color-panel-raised);
+:root {
+  /* The medium card's size, shared with the library's empty slots. */
+  --card-m-width: 160px;
+  --card-m-height: 240px;
+}
 
+.card {
   position: relative;
   display: inline-block;
   flex: none;
   vertical-align: top;
+  box-sizing: border-box;
   width: var(--card-width);
   height: var(--card-height);
-  box-shadow: var(--pixel-outline-4);
+  padding: var(--card-frame);
+  background: var(--card-rarity);
+  box-shadow: var(--pixel-outline-4), var(--card-face-bevel);
   color: var(--color-text);
+  text-align: left;
+  /* A vertical drag scrolls the page; a finger held still tilts the face. */
+  touch-action: pan-y;
 }
 
-/* Small: 80 × 120 art pixels, 1 pixel of metal. Large: 120 × 180, 3 pixels. */
-:root {
-  /* The small card's size, shared with the library's empty slots. */
-  --card-small-width: 160px;
-  --card-small-height: 240px;
+/* ---- Sizes: frame, body padding, art box, footer lines, gaps ---- */
+
+.card--s {
+  --card-width: 112px;
+  --card-height: 168px;
+  --card-frame: 3px;
+  --card-padding: 3px;
+  --card-gap: 2px;
+  --card-art-width: 100px;
+  --card-art-height: 102px;
+  --card-line-height: 12px;
+  --card-rarity-line-height: 14px;
+  --card-band-padding: var(--space-2);
+  --card-icon: 10px;
+  --card-title-font: var(--font-card-title-s);
+  --card-meta-font: var(--font-card-meta);
+  --card-meta-tracking: var(--tracking-card-meta);
 }
 
-.card--small {
-  --card-width: var(--card-small-width);
-  --card-height: var(--card-small-height);
-  --card-title-size: 12px;
-  --card-title-line: 14px;
-  --card-sweep-duration: 5.22s;
-  --card-sweep-steps: 58;
+.card--m {
+  --card-width: var(--card-m-width);
+  --card-height: var(--card-m-height);
+  --card-frame: 4px;
+  --card-padding: 4px;
+  --card-gap: 2px;
+  --card-art-width: 144px;
+  --card-art-height: 148px;
+  --card-line-height: 14px;
+  --card-rarity-line-height: 16px;
+  --card-band-padding: var(--space-2);
+  --card-icon: 10px;
+  --card-title-font: var(--font-card-title-m);
+  --card-publisher-font: var(--font-publisher-m);
+  --card-meta-font: var(--font-card-meta);
+  --card-meta-tracking: var(--tracking-card-meta);
 }
 
-.card--large {
+.card--l {
+  --card-width: 208px;
+  --card-height: 312px;
+  --card-frame: 5px;
+  --card-padding: 5px;
+  --card-gap: 4px;
+  --card-art-width: 188px;
+  --card-art-height: 194px;
+  --card-line-height: 16px;
+  --card-rarity-line-height: 20px;
+  --card-band-padding: 6px;
+  --card-icon: 14px;
+  --card-title-font: var(--font-card-title-l);
+  --card-publisher-font: var(--font-publisher-l);
+  --card-meta-font: var(--font-card-meta);
+  --card-meta-tracking: var(--tracking-card-meta);
+}
+
+.card--xl {
   --card-width: 240px;
   --card-height: 360px;
-  --card-piping-inset: calc(4 * var(--space-unit));
-  --card-window-inset: calc(7 * var(--space-unit));
-  --card-title-size: 0.9375rem;
-  --card-title-line: 18px;
-  --card-sweep-duration: 6.75s;
-  --card-sweep-steps: 75;
+  --card-frame: 6px;
+  --card-padding: 5px;
+  --card-gap: 4px;
+  --card-art-width: 218px;
+  --card-art-height: 224px;
+  --card-line-height: 18px;
+  --card-rarity-line-height: 24px;
+  --card-band-padding: 6px;
+  --card-icon: 14px;
+  --card-title-font: var(--font-card-title-xl);
+  --card-publisher-font: var(--font-publisher-xl);
+  --card-meta-font: var(--font-card-meta-xl);
+  --card-meta-tracking: var(--tracking-card-meta-xl);
 }
+
+/* ---- Rarity: the frame, the band's tick, the genre and the rarity name ---- */
 
 .card--rarity-common {
   --card-rarity: var(--color-rarity-commune);
-  --card-rarity-light: var(--color-rarity-commune-hi);
+  --card-rarity-hi: var(--color-rarity-commune-hi);
 }
 
 .card--rarity-uncommon {
   --card-rarity: var(--color-rarity-peu-commune);
-  --card-rarity-light: var(--color-rarity-peu-commune-hi);
+  --card-rarity-hi: var(--color-rarity-peu-commune-hi);
 }
 
 .card--rarity-rare {
   --card-rarity: var(--color-rarity-rare);
-  --card-rarity-light: var(--color-rarity-rare-hi);
+  --card-rarity-hi: var(--color-rarity-rare-hi);
 }
 
 .card--rarity-epic {
   --card-rarity: var(--color-rarity-epique);
-  --card-rarity-light: var(--color-rarity-epique-hi);
+  --card-rarity-hi: var(--color-rarity-epique-hi);
 }
 
-/* The legendary tier's colours replace the metal on its cards only. */
 .card--rarity-legendary {
   --card-rarity: var(--color-rarity-legendaire);
-  --card-rarity-light: var(--color-rarity-legendaire-hi);
-  --card-metal: var(--color-rarity-legendaire);
-  --card-metal-light: var(--color-rarity-legendaire-hi);
-  --card-metal-dark: var(--color-rarity-legendaire-lo);
+  --card-rarity-hi: var(--color-rarity-legendaire-hi);
 }
 
-/* ---- Face ---- */
+/* ---- The body ---- */
 
-.card--face {
-  background: var(--color-outline);
+.card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+  box-sizing: border-box;
+  height: 100%;
+  padding: var(--card-padding);
+  background: var(--color-panel);
 }
 
-/* The metal: light at top left, dark at bottom right. */
-.card__frame {
-  position: absolute;
-  inset: var(--space-unit);
-  background: var(--card-metal);
-  box-shadow:
-    inset var(--space-unit) var(--space-unit) 0 0 var(--card-metal-light),
-    inset calc(-1 * var(--space-unit)) calc(-1 * var(--space-unit)) 0 0 var(--card-metal-dark);
+/* The title band takes what the art and the footer leave, with a 3px tick
+   of the rarity colour on its left edge. */
+.card__band {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 var(--card-band-padding) 0 calc(3px + var(--card-band-padding));
+  background: var(--color-panel-raised);
+  box-shadow: inset 3px 0 0 0 var(--card-rarity);
 }
 
-.card__piping {
-  position: absolute;
-  inset: var(--card-piping-inset);
-  border: var(--space-unit) solid var(--color-outline);
-  background: var(--card-rarity);
-  box-shadow: inset var(--space-unit) var(--space-unit) 0 0 var(--card-rarity-light);
+.card__title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  font: var(--card-title-font);
+  color: var(--color-text-max);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
-/* The art window: 68 × 108 / 104 × 164 art pixels inside an outline line. */
-.card__window {
-  position: absolute;
-  inset: var(--card-window-inset);
-  border: var(--space-unit) solid var(--color-outline);
-  background: var(--color-panel-sunken);
+/* The publisher, from m up. */
+.card__publisher {
+  display: block;
+  overflow: hidden;
+  font: var(--card-publisher-font);
+  color: var(--color-publisher);
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
+/* The art: the cover through the pixel filter, two white corner brackets,
+   a dark hatched box until it is drawn. */
 .card__art {
+  position: relative;
+  flex: none;
+  width: var(--card-art-width);
+  height: var(--card-art-height);
+  background: repeating-linear-gradient(-45deg, var(--color-panel-sunken) 0 4px, var(--color-outline) 4px 6px);
+}
+
+.card__art::before,
+.card__art::after {
+  content: "";
   position: absolute;
-  inset: 0;
+  width: 8px;
+  height: 8px;
+  border: 0 solid var(--color-text-max);
+  pointer-events: none;
+}
+
+.card__art::before {
+  top: var(--space-1);
+  left: var(--space-1);
+  border-top-width: 2px;
+  border-left-width: 2px;
+}
+
+.card__art::after {
+  right: var(--space-1);
+  bottom: var(--space-1);
+  border-right-width: 2px;
+  border-bottom-width: 2px;
 }
 
 .card__canvas {
@@ -126,215 +227,199 @@
   image-rendering: pixelated;
 }
 
-/* A failed art leaves the frame and the title. */
+/* A failed art leaves the frame, the title and the footer. */
 .card__canvas[hidden] {
   display: none;
 }
 
-/* Pixel-drawn marks: glyphs 5 art pixels square, 1 pixel apart. */
-.card__marks {
+/* Image missing: a pixel picture and its words in the art box. */
+.card__missing {
+  display: none;
+}
+
+.card__art[data-art="failed"] .card__missing {
+  position: absolute;
+  inset: 0;
   display: flex;
-  gap: var(--space-unit);
-}
-
-/* Sprite symbols keep their pixel edges (the attribute stays on the sprite root). */
-.card svg {
-  shape-rendering: crispEdges;
-}
-
-.card__glyph {
-  display: block;
-  flex: none;
-  width: calc(5 * var(--space-unit));
-  height: calc(5 * var(--space-unit));
-}
-
-/* The release year, top left of the art. */
-.card__year {
-  position: absolute;
-  top: calc(2 * var(--space-unit));
-  left: calc(2 * var(--space-unit));
-  padding: calc(2 * var(--space-unit));
-  border: var(--space-unit) solid var(--color-outline);
-  background: var(--color-panel);
-  color: var(--color-text);
-}
-
-/* The text plate, at the bottom over the art, after an outline line and a
-   1-pixel rarity line. Line heights are even, so is the plate. */
-.card__plate {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  padding: var(--space-2) var(--space-4);
-  border-top: var(--space-unit) solid var(--color-outline);
-  background: var(--color-panel);
-  box-shadow:
-    0 calc(-1 * var(--space-unit)) 0 0 var(--card-rarity),
-    0 calc(-2 * var(--space-unit)) 0 0 var(--color-outline);
-  font-family: var(--font-family-pixelify);
-}
-
-.card__title {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--card-title-size);
-  line-height: var(--card-title-line);
-  overflow-wrap: anywhere;
-}
-
-/* The publisher credit, large size only. */
-.card__publisher {
-  display: block;
-  overflow: hidden;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
   color: var(--color-muted);
-  font-weight: var(--font-weight-regular);
-  font-size: 12px;
-  line-height: 14px;
+  font: var(--card-meta-font);
+  letter-spacing: var(--card-meta-tracking);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.card__missing-icon {
+  display: block;
+  width: 20px;
+  height: 16px;
+}
+
+/* The footer: genre and year, then the rarity icon, name and number. */
+.card__line {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--card-line-height);
+  padding: 0 var(--space-2);
+  overflow: hidden;
+  background: var(--color-panel-raised);
+  font: var(--card-meta-font);
+  letter-spacing: var(--card-meta-tracking);
+  text-transform: uppercase;
   white-space: nowrap;
+}
+
+.card__line--rarity {
+  height: var(--card-rarity-line-height);
+}
+
+.card__genre,
+.card__rarity {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--card-rarity);
   text-overflow: ellipsis;
 }
 
-/* The season seal, just above the plate at the right of the art: 18 art
-   pixels round, 26 wide for two digits. */
-.card__season {
-  position: absolute;
-  /* Against the plate's padding box: above its border, the rarity line and
-     the outline line; one empty art pixel from the art's right edge. */
-  right: var(--space-unit);
-  bottom: calc(100% + 3 * var(--space-unit));
-  width: calc(18 * var(--space-unit));
-  height: calc(18 * var(--space-unit));
-  color: var(--color-accent);
+.card__year,
+.card__number {
+  flex: none;
+  margin-left: auto;
+  color: var(--color-muted);
 }
 
-.card__season--wide {
-  width: calc(26 * var(--space-unit));
+.card__rarity-icon {
+  display: block;
+  width: var(--card-icon);
+  height: var(--card-icon);
 }
 
-.card__season-seal {
+/* ---- Tilt ---- */
+
+.card[data-tilt] {
+  transform: perspective(800px) rotateX(var(--tilt-rx, 0deg)) rotateY(var(--tilt-ry, 0deg));
+}
+
+/* ---- Effects, clipped to the card ---- */
+
+.card__effects {
   position: absolute;
   inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.card__season .card__marks {
-  position: absolute;
-  top: calc(6 * var(--space-unit));
-  left: calc(4 * var(--space-unit));
-}
-
-/* Legendary: a light band sweeps across the card, sparkles blink. */
-.card__shine {
-  position: absolute;
-  inset: var(--space-unit);
   overflow: hidden;
   pointer-events: none;
 }
 
-.card__sweep {
+/* The glare: a soft light centred under the pointer, shown while a pointer
+   drives the tilt. */
+.card__glare {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 50%,
+    color-mix(in srgb, var(--color-text-max) 30%, transparent) 0,
+    color-mix(in srgb, var(--color-text-max) 10%, transparent) 12%,
+    transparent 28%);
+  opacity: 0;
+  transform: translate(var(--glare-dx, 0px), var(--glare-dy, 0px));
+  transition: opacity 200ms var(--ease-out);
+}
+
+.card[data-tilting] .card__glare {
+  opacity: 1;
+}
+
+/* Holo: a diagonal band of light sweeping across in steps, then a pause.
+   Off the card until it runs. */
+.card__holo {
   position: absolute;
   top: 0;
-  left: 0;
-  width: calc(9 * var(--space-unit));
-  height: 100%;
-  transform-origin: top left;
-  background: linear-gradient(90deg,
-    color-mix(in srgb, var(--color-rarity-legendaire-hi) 22%, transparent) 0 4px,
-    color-mix(in srgb, var(--color-rarity-legendaire-hi) 42%, transparent) 4px 8px,
-    color-mix(in srgb, var(--color-rarity-legendaire-hi) 62%, transparent) 8px 10px,
-    color-mix(in srgb, var(--color-rarity-legendaire-hi) 42%, transparent) 10px 14px,
-    color-mix(in srgb, var(--color-rarity-legendaire-hi) 22%, transparent) 14px 18px);
-  animation: card-sweep var(--card-sweep-duration) steps(var(--card-sweep-steps)) infinite;
+  bottom: 0;
+  left: -100%;
+  width: 100%;
+  background: linear-gradient(115deg,
+    transparent 25%,
+    color-mix(in srgb, var(--card-rarity-hi) 35%, transparent) 42%,
+    color-mix(in srgb, var(--color-text-max) 55%, transparent) 50%,
+    color-mix(in srgb, var(--card-rarity-hi) 35%, transparent) 58%,
+    transparent 75%);
+  opacity: 0.6;
 }
 
-@keyframes card-sweep {
-  from { transform: translateX(calc(var(--card-height) / -2 - 40px)) skewX(26.565deg); }
-  to { transform: translateX(calc(var(--card-width) + 140px)) skewX(26.565deg); }
+.card[data-in-view] .card__holo {
+  animation: card-holo 4.8s steps(24) infinite;
 }
 
-/* A plus of golden light around a pale centre, 3 art pixels wide. */
-.card__sparkle {
+@keyframes card-holo {
+  from { transform: translateX(0); }
+  60%, to { transform: translateX(200%); }
+}
+
+/* Foil: a wide rainbow blend drifting slowly. */
+.card__foil {
   position: absolute;
-  width: var(--space-unit);
-  height: var(--space-unit);
-  background: var(--color-panel);
-  box-shadow:
-    calc(-1 * var(--space-unit)) 0 0 0 var(--color-rarity-legendaire-hi),
-    var(--space-unit) 0 0 0 var(--color-rarity-legendaire-hi),
-    0 calc(-1 * var(--space-unit)) 0 0 var(--color-rarity-legendaire-hi),
-    0 var(--space-unit) 0 0 var(--color-rarity-legendaire-hi);
-  animation: card-sparkle 1.62s step-end infinite;
+  top: 0;
+  bottom: 0;
+  left: -100%;
+  width: 300%;
+  background: linear-gradient(100deg,
+    var(--color-rarity-epique), var(--color-rarity-rare), var(--color-rarity-peu-commune),
+    var(--color-rarity-legendaire), var(--color-alert), var(--color-rarity-epique),
+    var(--color-rarity-rare), var(--color-rarity-peu-commune), var(--color-rarity-legendaire));
 }
 
-.card__sparkle:nth-child(2) { left: 20%; top: 15%; animation-delay: 0s; }
-.card__sparkle:nth-child(3) { left: 75%; top: 10%; animation-delay: -0.45s; }
-.card__sparkle:nth-child(4) { left: 85%; top: 45%; animation-delay: -0.9s; }
-.card__sparkle:nth-child(5) { left: 15%; top: 55%; animation-delay: -1.35s; }
-.card__sparkle:nth-child(6) { left: 60%; top: 70%; animation-delay: -1.8s; }
-.card__sparkle:nth-child(7) { left: 35%; top: 33%; animation-delay: -2.25s; }
-.card__sparkle:nth-child(8) { left: 90%; top: 80%; animation-delay: -2.7s; }
-
-@keyframes card-sparkle {
-  0% { opacity: 1; }
-  33.333% { opacity: 0; }
-  100% { opacity: 0; }
+.card[data-in-view] .card__foil {
+  animation: card-foil 12s steps(48) infinite alternate;
 }
 
-/* Reduced motion: no sweep, the sparkles shown still. */
+@keyframes card-foil {
+  from { transform: translateX(0); }
+  to { transform: translateX(33.333%); }
+}
+
+/* The booster's strengths (DESIGN.md, Rarity effects); elsewhere only the
+   legendary tier has its holo sheen. */
+.card--booster.card--rarity-rare .card__holo { opacity: 0.45; }
+.card--booster.card--rarity-epic .card__holo { opacity: 0.7; }
+.card--booster.card--rarity-legendary .card__holo { opacity: 1; }
+.card--booster.card--rarity-epic .card__foil { opacity: 0.08; }
+.card--booster.card--rarity-legendary .card__foil { opacity: 0.22; }
+
+/* ---- Reduced motion: no tilt, glare, holo or foil ---- */
+
 @media (prefers-reduced-motion: reduce) {
-  .card__sweep {
+  .card[data-tilt] {
+    transform: none;
+  }
+
+  .card__glare,
+  .card__holo,
+  .card__foil,
+  .card[data-in-view] .card__holo,
+  .card[data-in-view] .card__foil {
     display: none;
     animation: none;
-  }
-
-  .card__sparkle {
-    opacity: 1;
-    animation: none;
+    transition: none;
   }
 }
 
-/* ---- Back ---- */
-
-/* The tier's back, 80 × 120 art pixels: at 2 CSS pixels each on the small
-   card, at 3 on the large one until a 120 × 180 back is drawn. */
-.card--back {
-  background-color: var(--color-line-soft);
-  background-size: 100% 100%;
-  image-rendering: pixelated;
+html[data-motion="reduced"] .card[data-tilt] {
+  transform: none;
 }
 
-.card--back.card--rarity-common { background-image: url("../images/card/back-common.svg"); }
-.card--back.card--rarity-uncommon { background-image: url("../images/card/back-uncommon.svg"); }
-.card--back.card--rarity-rare { background-image: url("../images/card/back-rare.svg"); }
-.card--back.card--rarity-epic { background-image: url("../images/card/back-epic.svg"); }
-.card--back.card--rarity-legendary { background-image: url("../images/card/back-legendary.svg"); }
-
-/* The rarity seal, drawn over the whole back so it sits in the medallion. */
-.card__seal {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
+html[data-motion="reduced"] .card__glare,
+html[data-motion="reduced"] .card__holo,
+html[data-motion="reduced"] .card__foil,
+html[data-motion="reduced"] .card[data-in-view] .card__holo,
+html[data-motion="reduced"] .card[data-in-view] .card__foil {
+  display: none;
+  animation: none;
+  transition: none;
 }
-
-/* Dust: a real element, last child, so the reveal can fade, mask or erase it. */
-.card__dust {
-  position: absolute;
-  inset: 0;
-  background-size: 100% 100%;
-  pointer-events: none;
-}
-
-.card--dust-1 .card__dust { background-image: url("../images/card/dust-1.svg"); }
-.card--dust-2 .card__dust { background-image: url("../images/card/dust-2.svg"); }
-.card--dust-3 .card__dust { background-image: url("../images/card/dust-3.svg"); }
-.card--dust-4 .card__dust { background-image: url("../images/card/dust-4.svg"); }

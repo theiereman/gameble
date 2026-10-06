@@ -7,7 +7,7 @@ module CardDetailsHelper
   # A card's title in its page's and its previews' language: "Portal —
   # Epic".
   def card_preview_title(view)
-    t("card_details.preview.title", title: view.title, rarity: CardStrings.for([ view ]).rarity_name(view.rarity))
+    t("card_details.preview.title", title: view.title, rarity: CardStrings.new.rarity_name(view.rarity))
   end
 
   # The absolute, season-qualified URL of a card-season's page on the

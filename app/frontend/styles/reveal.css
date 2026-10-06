@@ -1,11 +1,11 @@
 /*
  * The pack reveal (story 3.6; EXPERIENCE.md, Face-down card, Flip all, Pack
- * reveal on phone; DESIGN.md, Dust): the PackReveal island and its cards.
- * Every duration comes from app/frontend/lib/reveal.ts, written on each card
- * as --reveal-ms (the card's whole reveal), --reveal-turn-ms and
+ * reveal on phone): the PackReveal island, its cards and their backs. Every
+ * duration comes from app/frontend/lib/reveal.ts, written on each card as
+ * --reveal-ms (the card's whole reveal), --reveal-turn-ms and
  * --reveal-wipe-ms. Motion moves on the 2 px grid in steps; no blur, glow or
- * gradient. The card itself (styles/card.css) is never transformed: its
- * wrappers are.
+ * gradient. The face (styles/card.css, the server's CardComponent) tilts on
+ * its own; the turn moves its wrappers.
  */
 
 /* The phone layout's one query. The island reads it with matchMedia and
@@ -53,7 +53,7 @@
   letter-spacing: var(--tracking-button);
 }
 
-/* Wider screens: small cards side by side, wrapping. Phone: one large card. */
+/* Wider screens: m cards side by side, wrapping. Phone: one xl card. */
 .pack-reveal__cards {
   display: flex;
   flex-wrap: wrap;
@@ -90,13 +90,13 @@
   cursor: pointer;
 }
 
-.reveal-card--large {
+.reveal-card--xl {
   width: 240px;
   height: 360px;
 }
 
-
-/* A finger sliding on a dusty card wipes it instead of scrolling. */
+/* A finger sliding on a card with its seal hidden wipes it instead of
+   scrolling. */
 .reveal-card[data-state="dusty"] {
   touch-action: none;
 }
@@ -123,17 +123,52 @@
   visibility: hidden;
 }
 
-/* Under dust the seal is hidden, whatever the dust level; wiping shows it
-   and lifts the dust. */
-.reveal-card[data-state="dusty"] .card__seal {
-  visibility: hidden;
+/* A face still hidden runs no holo or foil: the viewport alone does not
+   stop them (card.css), and the face is in it from the start. */
+.reveal-card:not([data-state="flipped"]) .reveal-card__face .card__holo,
+.reveal-card:not([data-state="flipped"]) .reveal-card__face .card__foil {
+  animation: none;
 }
 
-.reveal-card .card__dust {
+/* ---- The back: the tier's back and its seal, drawn by the island ---- */
+
+/* 80 × 120 art pixels: at 2 CSS pixels each on m, at 3 on xl until a
+   120 × 180 back is drawn. */
+.card-back {
+  position: relative;
+  display: block;
+  width: 160px;
+  height: 240px;
+  background-color: var(--color-line-soft);
+  background-size: 100% 100%;
+  box-shadow: var(--pixel-outline-4);
+  image-rendering: pixelated;
+}
+
+.card-back--xl {
+  width: 240px;
+  height: 360px;
+}
+
+.card-back--rarity-common { background-image: url("../images/card/back-common.svg"); }
+.card-back--rarity-uncommon { background-image: url("../images/card/back-uncommon.svg"); }
+.card-back--rarity-rare { background-image: url("../images/card/back-rare.svg"); }
+.card-back--rarity-epic { background-image: url("../images/card/back-epic.svg"); }
+.card-back--rarity-legendary { background-image: url("../images/card/back-legendary.svg"); }
+
+/* The rarity seal, drawn over the whole back so it sits in the medallion. */
+.card-back__seal {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  shape-rendering: crispEdges;
   transition: opacity var(--reveal-wipe-ms) steps(4);
 }
 
-.reveal-card:not([data-state="dusty"]) .card__dust {
+/* The seal is hidden until the card is wiped. */
+.reveal-card[data-state="dusty"] .card-back__seal {
   opacity: 0;
 }
 
@@ -168,8 +203,8 @@
   from, to { transform: translate(calc(-1 * var(--space-unit)), calc(-1 * var(--space-unit))); }
 }
 
-/* The flourish: the remaining dust blasted off in 2 px pixels, after the
-   turn; removed by the island once it is over. */
+/* The flourish: a burst of 2 px pixels, after the turn; removed by the
+   island once it is over. */
 .reveal-card__burst {
   position: absolute;
   inset: 0;
@@ -238,10 +273,10 @@
   50% { opacity: 0; }
 }
 
-/* Reduced motion: no turn, no hold, no burst, no fading dust; the faces show
-   at once (the legendary shimmer stops in card.css). */
+/* Reduced motion: no turn, no hold, no burst, no fading seal; the faces
+   show at once (the tilt and effects stop in card.css). */
 @media (prefers-reduced-motion: reduce) {
-  .reveal-card .card__dust {
+  .card-back__seal {
     transition: none;
   }
 

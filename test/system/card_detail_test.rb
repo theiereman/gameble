@@ -44,7 +44,7 @@ class CardDetailTest < ApplicationSystemTestCase
 
     assert_current_path "/en/cards/#{card.slug}/seasons/#{season.number}"
     assert_selector ".card-detail h1", text: "Seed 0"
-    assert_selector ".card-detail__face .card--large.card--face"
+    assert_selector ".card-detail__face .card.card--xl"
     assert_selector ".card-detail__description", text: "A seed of a game."
     assert_selector ".card-detail__copies", text: "You hold 2 copies"
     assert_selector ".card-detail__notice", text: "This game and its image belong to their respective owners. gameble is not affiliated with Valve or Steam."
@@ -76,7 +76,7 @@ class CardDetailTest < ApplicationSystemTestCase
     sign_in(player)
 
     visit pack_path(pack.token, locale: :en)
-    assert_selector ".pack-result__card a.card-link .card--face", count: 5
+    assert_selector ".pack-result__card a.card-link .card.card--m", count: 5
     find(".pack-result__card:nth-child(4) a.card-link").click
 
     assert_current_path "/en/cards/portal/seasons/1"

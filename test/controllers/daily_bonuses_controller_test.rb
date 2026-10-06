@@ -163,7 +163,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
 
     get pack_path(bonus.token, locale: :fr)
     assert_select "h1", I18n.t("packs.show.heading_bonus", locale: :fr)
-    assert_select ".pack-result__card .card--face", 3
+    assert_select ".pack-result__card .card.card--m", 3
   end
 
   test "a visitor sees no panel when no season is published, and menu 01 opens the sign-in panel" do

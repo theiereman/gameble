@@ -2,9 +2,9 @@
 // card, Flip all; story 3.6). Pure: no DOM, no React. Every duration of the
 // reveal lives here; the stylesheet (styles/reveal.css) reads them from the
 // custom properties the island writes on each card.
-import type { Rarity } from "../components/Card"
+import type { Rarity } from "./card_types"
 
-/** A card's place in the reveal: under dust, wiped (seal shown), turned (face shown). */
+/** A card's place in the reveal: face down with its seal hidden (`dusty`), seal shown (`wiped`), turned (face shown). */
 export type CardState = "dusty" | "wiped" | "flipped"
 
 /** The turn, the same for every card. */
@@ -19,13 +19,13 @@ export const FLOURISH_MS: Record<Rarity, number> = {
   legendary: 2400,
 }
 
-/** The dust fading off a wiped card. */
+/** The seal showing on a wiped card. */
 export const WIPE_MS = 200
 
 /** Flip all: the gap between two quick cards. */
 export const STAGGER_MS = 150
 
-/** Dust burst: how many pixels fly off a card, by rarity. */
+/** Burst: how many pixels fly off a card, by rarity. */
 export const BURST_PIXELS: Record<Rarity, number> = {
   common: 8,
   uncommon: 12,

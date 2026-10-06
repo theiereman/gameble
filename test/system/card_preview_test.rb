@@ -1,29 +1,12 @@
 require "application_system_test_case"
 
-# The card, as the server draws it and as the React Card draws it
-# (back-office card preview, administrators only).
+# The card face as the server draws it at every size (back-office card
+# preview, administrators only): its art, the missing image, a long title,
+# the holo sheen in and out of the viewport, a Turbo restore.
 class CardPreviewTest < ApplicationSystemTestCase
-  PAIRS = Catalog::Rarity::TIERS.values.product(%w[face back], %w[small large]).map { |parts| parts.join("-") } +
-    (0..4).map { |level| "rare-back-small-dust-#{level}" }
-
-  # A card's markup reduced to what both renderers must share: tag, sorted
-  # classes, role, aria-*, `use href` and its own text, collapsed; data-*,
-  # style, size and hidden are left out.
-  PROJECTION = <<~JS.freeze
-    (pair, renderer) => {
-      const project = (node) => {
-        const attributes = {}
-        for (const { name, value } of node.attributes) {
-          if (name === "role" || name.startsWith("aria-") || (node.localName === "use" && name === "href")) attributes[name] = value
-        }
-        const text = [...node.childNodes].filter((child) => child.nodeType === Node.TEXT_NODE)
-          .map((child) => child.textContent).join("").replace(/\\s+/g, " ").trim()
-        return { tag: node.localName, classes: [...node.classList].sort(), attributes, text, children: [...node.children].map(project) }
-      }
-      const card = document.querySelector(`[data-pair="${pair}"][data-renderer="${renderer}"] > .card`)
-      return card ? JSON.stringify(project(card)) : null
-    }
-  JS
+  SIZES = { "s" => [ 112, 168, 50, 51 ], "m" => [ 160, 240, 72, 74 ], "l" => [ 208, 312, 94, 97 ], "xl" => [ 240, 360, 109, 112 ] }.freeze
+  SPECIMENS = Catalog::Rarity::TIERS.values.product(SIZES.keys).map { |parts| parts.join("-") } +
+    Catalog::Rarity::TIERS.values.map { |rarity| "#{rarity}-m-booster" }
 
   setup do
     OmniAuth.config.test_mode = true
@@ -35,112 +18,159 @@ class CardPreviewTest < ApplicationSystemTestCase
   end
 
   teardown do
+    reduce_motion(false)
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
   end
 
-  def projection(pair, renderer)
-    page.evaluate_script("(#{PROJECTION})(#{pair.to_json}, #{renderer.to_json})")
+  def reduce_motion(on)
+    page.driver.browser.execute_cdp("Emulation.setEmulatedMedia", features: [ { name: "prefers-reduced-motion", value: on ? "reduce" : "" } ])
+  end
+
+  def style(selector, property)
+    page.evaluate_script("getComputedStyle(document.querySelector(#{selector.to_json}))[#{property.to_json}]")
+  end
+
+  def box(selector)
+    page.evaluate_script("(() => { const r = document.querySelector(#{selector.to_json}).getBoundingClientRect(); return [ r.width, r.height ] })()")
   end
 
   def visit_preview
     visit back_office_cards_path(locale: :en)
-    assert_selector "[data-renderer=react] .card", count: PAIRS.size
-    # The server's faces draw their art only near the viewport: each is
-    # brought into view until it starts, then the page goes back to the top.
-    page.all("[data-renderer=server] .card--face .card__art", visible: :all).each do |art|
+    assert_selector "[data-specimen] > .card", count: SPECIMENS.size
+    # Faces draw their art only near the viewport: each is brought into view
+    # until it starts, then the page goes back to the top.
+    page.all("[data-specimen] .card__art", visible: :all).each do |art|
       scroll_to(art, align: :center)
       art.assert_matches_selector("[data-art]", visible: :all)
     end
     page.execute_script("window.scrollTo(0, 0)")
-    # Every face's art has settled, on both sides.
-    assert_no_selector ".card--face .card__art:not([data-art])"
+    assert_no_selector ".card__art:not([data-art])", visible: :all
   end
 
-  test "both renderers draw every pair with the same markup, and the sample art" do
+  test "every specimen is drawn at its size, its art at its art size" do
     visit_preview
 
-    assert_equal PAIRS, page.all("[data-renderer=server]").map { it["data-pair"] }
-    PAIRS.each do |pair|
-      server = projection(pair, "server")
-      assert server, "no server card for #{pair}"
-      assert_equal server, projection(pair, "react"), "the two renderers differ on #{pair}"
+    assert_equal SPECIMENS, page.all("[data-specimen]").map { it["data-specimen"] }
+    SPECIMENS.each do |specimen|
+      size = specimen.split("-")[1]
+      width, height, art_width, art_height = SIZES.fetch(size)
+      card = "[data-specimen=#{specimen}] > .card"
+      assert_equal [ width, height ], box(card), "#{specimen} card"
+      assert_equal [ 2 * art_width, 2 * art_height ], box("#{card} .card__art"), "#{specimen} art box"
+      assert_equal [ art_width, art_height ], page.evaluate_script("(() => { const c = document.querySelector(#{"#{card} .card__canvas".to_json}); return [ c.width, c.height ] })()")
+      # Every part fits inside the body: nothing overflows the card.
+      inside = page.evaluate_script(<<~JS)
+        (() => {
+          const card = document.querySelector(#{card.to_json}).getBoundingClientRect()
+          return [...document.querySelectorAll(#{"#{card} .card__body > *".to_json})].every((part) => {
+            const r = part.getBoundingClientRect()
+            return r.top >= card.top && r.bottom <= card.bottom && r.left >= card.left && r.right <= card.right
+          })
+        })()
+      JS
+      assert inside, "#{specimen}: a part leaves the card"
     end
 
-    faces = page.all(".card--face .card__art", visible: :all)
-    assert_equal 20, faces.size
-    assert_equal 16, page.all(".card--face .card__art[data-art=drawn] canvas:not([hidden])", visible: :all).size
-    # A drawn canvas holds the filtered art: opaque pixels at the art size.
-    drawn = page.evaluate_script(<<~JS)
-      [...document.querySelectorAll(".card--face .card__art[data-art=drawn] canvas")].every((canvas) => {
+    drawn = page.all(".card__art[data-art=drawn] canvas:not([hidden])", visible: :all)
+    # Every specimen but the uncommon's five, whose art is missing.
+    assert_equal 20, drawn.size
+    opaque = page.evaluate_script(<<~JS)
+      [...document.querySelectorAll(".card__art[data-art=drawn] canvas")].every((canvas) => {
         const data = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height).data
-        return (canvas.width === 68 || canvas.width === 104) && data[3] === 255 && data[data.length - 1] === 255
+        return data[3] === 255 && data[data.length - 1] === 255
       })
     JS
-    assert drawn, "every drawn canvas should hold the art"
+    assert opaque, "every drawn canvas should hold the art"
     take_screenshot
   end
 
-  test "a missing art hides the canvas and keeps the frame and title" do
+  test "a missing art shows the picture and its words, and keeps the frame, title and footer" do
     visit_preview
 
-    %w[uncommon-face-small uncommon-face-large].each do |pair|
-      %w[server react].each do |renderer|
-        within("[data-pair=#{pair}][data-renderer=#{renderer}]") do
-          assert_selector ".card__art[data-art=failed]"
-          assert_selector ".card__canvas", visible: :hidden
-          assert_selector ".card__frame", visible: :all
-          assert_selector ".card__title", text: "Green Hills"
-        end
+    SIZES.each_key do |size|
+      within("[data-specimen=uncommon-#{size}]") do
+        assert_selector ".card__art[data-art=failed]"
+        assert_selector ".card__canvas", visible: :hidden
+        assert_selector ".card__missing .card__missing-icon"
+        assert_selector ".card__missing", text: "IMAGE UNAVAILABLE"
+        assert_selector ".card__title", text: "GREEN HILLS"
+        assert_selector ".card__rarity", text: "UNCOMMON"
+        assert_selector ".card__year", text: "2019"
       end
     end
+    assert_no_selector "[data-specimen=rare-m] .card__missing"
+    # Under the art, until it is drawn (or when it is missing), a hatched box.
+    assert_match(/\Arepeating-linear-gradient\(/, style("[data-specimen=uncommon-m] .card__art", "backgroundImage"))
   end
 
-  test "a long title shows two lines and keeps its full text" do
+  test "a long title shows two lines at most and keeps its full text" do
     visit_preview
 
-    title = page.find("[data-pair=epic-face-small][data-renderer=server] .card__title")
-    assert_equal "The Long Chronicles of the Amethyst Archive and the Keys Its Keepers Lost at Sea", title.text(:all)
-    line = page.evaluate_script("parseFloat(getComputedStyle(document.querySelector('[data-pair=epic-face-small] .card__title')).lineHeight)")
-    assert_equal 2 * line, title.evaluate_script("this.getBoundingClientRect().height")
-
-    plates = page.evaluate_script("[...document.querySelectorAll('.card__plate')].map((plate) => plate.getBoundingClientRect().height)")
-    assert plates.all? { |height| height.to_i == height && height.to_i.even? }, "plate heights should be even: #{plates.uniq}"
+    SIZES.each_key do |size|
+      selector = "[data-specimen=epic-#{size}] .card__title"
+      title = page.find(selector)
+      assert_equal "The Long Chronicles of the Amethyst Archive and the Keys Its Keepers Lost at Sea", title.text(:all)
+      line = page.evaluate_script("parseFloat(getComputedStyle(document.querySelector(#{selector.to_json})).lineHeight)")
+      assert_equal 2 * line, box(selector)[1], "#{size}: two lines"
+    end
+    short = "[data-specimen=rare-s] .card__title"
+    assert_equal page.evaluate_script("parseFloat(getComputedStyle(document.querySelector(#{short.to_json})).lineHeight)"), box(short)[1]
   end
 
-  test "the legendary face sweeps and blinks; with reduced motion the sweep stops and the sparkles stay" do
+  test "the holo sheen runs only while the face is in view, and never under reduced motion" do
     visit_preview
-    sweep = "[data-pair=legendary-face-large][data-renderer=server] .card__sweep"
-    sparkle = "[data-pair=legendary-face-large][data-renderer=server] .card__sparkle"
-    style = ->(selector, property) { page.evaluate_script("getComputedStyle(document.querySelector(#{selector.to_json}))[#{property.to_json}]") }
+    holo = "[data-specimen=legendary-xl] .card__holo"
 
-    assert_equal "card-sweep", style.(sweep, "animationName")
-    assert_equal "card-sparkle", style.(sparkle, "animationName")
+    scroll_to(find("[data-specimen=legendary-xl]"), align: :center)
+    assert_selector "[data-specimen=legendary-xl] > .card[data-in-view]"
+    assert_equal "card-holo", style(holo, "animationName")
+    assert_no_selector "[data-specimen=rare-xl] .card__holo"
 
-    page.driver.browser.execute_cdp("Emulation.setEmulatedMedia", features: [ { name: "prefers-reduced-motion", value: "reduce" } ])
-    assert_equal "none", style.(sweep, "animationName")
-    assert_equal "none", style.(sparkle, "animationName")
-    assert_equal "1", style.(sparkle, "opacity")
-    assert_equal 7, page.all("[data-pair=legendary-face-large][data-renderer=react] .card__sparkle", visible: :all).size
-  ensure
-    page.driver.browser.execute_cdp("Emulation.setEmulatedMedia", features: [ { name: "prefers-reduced-motion", value: "" } ])
+    page.execute_script("window.scrollTo(0, 0)")
+    assert_no_selector "[data-specimen=legendary-xl] > .card[data-in-view]"
+    assert_equal "none", style(holo, "animationName")
+
+    scroll_to(find("[data-specimen=legendary-xl]"), align: :center)
+    assert_selector "[data-specimen=legendary-xl] > .card[data-in-view]"
+    reduce_motion(true)
+    assert_equal "none", style(holo, "animationName")
+    assert_equal "none", style(holo, "display")
+    assert_equal "none", style("[data-specimen=legendary-xl] .card__glare", "display")
+    reduce_motion(false)
+
+    booster = "[data-specimen=legendary-m-booster]"
+    scroll_to(find(booster), align: :center)
+    assert_selector "#{booster} > .card[data-in-view]"
+    assert_equal [ "card-holo", "1" ], [ style("#{booster} .card__holo", "animationName"), style("#{booster} .card__holo", "opacity") ]
+    assert_equal [ "card-foil", "0.22" ], [ style("#{booster} .card__foil", "animationName"), style("#{booster} .card__foil", "opacity") ]
+    assert_equal "0.45", style("[data-specimen=rare-m-booster] .card__holo", "opacity")
+    assert_equal [ "0.7", "0.08" ], [ style("[data-specimen=epic-m-booster] .card__holo", "opacity"), style("[data-specimen=epic-m-booster] .card__foil", "opacity") ]
+    assert_no_selector "[data-specimen=rare-m-booster] .card__foil"
   end
 
-  test "a Turbo restore visit draws the art again" do
+  test "a Turbo restore visit draws the art again, from a clean face" do
     visit_preview
-    art = "[data-pair=common-face-small][data-renderer=server] .card__art"
-    # A stale mark and a hidden canvas, as the snapshot Turbo caches on leaving.
-    page.execute_script("const art = document.querySelector(#{art.to_json}); art.dataset.art = 'stale'; art.querySelector('canvas').hidden = true")
+    specimen = "[data-specimen=common-s]"
+    art = "#{specimen} .card__art"
+    # A stale mark, a hidden canvas and a stale tilt, as the snapshot Turbo caches on leaving.
+    page.execute_script(<<~JS)
+      const art = document.querySelector(#{art.to_json})
+      art.dataset.art = "stale"
+      art.querySelector("canvas").hidden = true
+      const card = document.querySelector(#{"#{specimen} > .card".to_json})
+      card.dataset.tilt = "held"
+      card.style.setProperty("--tilt-rx", "5deg")
+    JS
     click_on "Bridge"
     assert_selector ".hub"
 
     page.go_back
     assert_selector "#{art}[data-art=drawn] canvas:not([hidden])"
+    assert_no_selector "#{specimen} > .card[data-tilt]"
+    assert_not find("#{specimen} > .card").evaluate_script("this.hasAttribute('style')")
     painted = page.evaluate_script(<<~JS)
-      (() => {
-        const canvas = document.querySelector("[data-pair=common-face-small][data-renderer=server] canvas")
-        return canvas.getContext("2d").getImageData(0, 0, 1, 1).data[3]
-      })()
+      document.querySelector(#{"#{art} canvas".to_json}).getContext("2d").getImageData(0, 0, 1, 1).data[3]
     JS
     assert_equal 255, painted
   end

@@ -1,15 +1,16 @@
 // The pack reveal (CAP-5; EXPERIENCE.md, Face-down card, Flip all, Pack
 // reveal on phone; story 3.6), the island AD-16 allows. Mounted once, right
-// after an opening: the pack's cards lie face down under dust, seals hidden;
-// wiping a card shows its seal, flipping it shows the game. The cards are
+// after an opening: the pack's cards lie face down, seals hidden; wiping a
+// card shows its seal, flipping it shows the game, its face rendered on the
+// server (CardComponent) and passed as HTML. The cards are
 // already in the collection, so nothing here calls the server and nothing
 // resumes: a later visit shows the faces, server-rendered.
 //
 // Items, announcements and progress go by position, never by card id: a pack
 // can hold the same card more than once.
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react"
-import type { CardStrings, CardView } from "./Card"
-import RevealCard, { type RevealItem } from "./RevealCard"
+import type { CardStrings } from "../lib/card_types"
+import RevealCard, { type RevealCardData, type RevealItem } from "./RevealCard"
 import { flip, planFlipAll, runFlipAll, wipe, type FlipMode } from "../lib/reveal"
 
 /** Every word of the reveal, resolved on the server (AD-16). */
@@ -31,7 +32,7 @@ export type PackRevealStrings = {
 }
 
 export type PackRevealProps = {
-  cards: CardView[]
+  cards: RevealCardData[]
   cardStrings: CardStrings
   strings: PackRevealStrings
   /** Where to open the next pack; null when none is available. */
@@ -202,7 +203,7 @@ export default function PackReveal({ cards, cardStrings, strings, openPackUrl, h
   }
 
   const allFlipped = items.every((item) => item.state === "flipped")
-  const size = phone ? "large" : "small"
+  const size = phone ? "xl" : "m"
   const shown = phone ? [current] : cards.map((_, index) => index)
   const token = openPackUrl ? csrf() : null
 

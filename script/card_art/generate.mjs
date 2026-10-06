@@ -1,23 +1,19 @@
 #!/usr/bin/env node
-// Generates the hand-drawn pixel parts of the card (DESIGN.md: Card back,
-// Rarity seal, Dust, Card face marks) as pixel-rect SVGs in
-// app/frontend/images/card/, from the mockups' own drawing code: the scripts
-// of mockups/card-backs.html and mockups/card-face.html run here against a
-// pixel sink instead of a canvas. Both card renderers (CardComponent and
-// Card.tsx) reference the files through Vite asset URLs; the final art can
-// later replace them under the same names.
+// Generates the hand-drawn pixel parts of the card backs (DESIGN.md: Card
+// back, Rarity seal) as pixel-rect SVGs in app/frontend/images/card/, from
+// the mockups' own drawing code: the script of mockups/card-backs.html runs
+// here against a pixel sink instead of a canvas.
+// The pack reveal's backs (RevealCard.tsx, styles/reveal.css) reference the
+// files through Vite asset URLs; the final art can later replace them under
+// the same names.
 //
 //   node script/card_art/generate.mjs
 //
 // Writes:
 // - back-<rarity>.svg: one back per tier, 80 × 120 art pixels, without its
 //   seal and dust (the legendary's sparkles stay on its back);
-// - dust-<1..4>.svg: the dust overlay of each level, semi-transparent;
 // - sprite.svg: <symbol>s for the five seals (seal-<rarity>, card-sized
-//   viewBox so a seal sits in the medallion when drawn over the whole back),
-//   the season seal (season-seal[-wide], wide for two digits)
-//   and the digit and letter glyphs (glyph-<char>, 5 × 5, drawn in
-//   currentColor, centred in a fixed advance).
+//   viewBox so a seal sits in the medallion when drawn over the whole back).
 //
 // The output is deterministic: running it again changes no file.
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs"
@@ -141,9 +137,9 @@ function pixelSvg(sink, { symbol } = {}) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" shape-rendering="crispEdges">${body}</svg>\n`
 }
 
-// ---- Backs, seals and dust: mockups/card-backs.html ----
+// ---- Backs and seals: mockups/card-backs.html ----
 
-const backs = runMockup("card-backs.html", ["W", "H", "CX", "CY", "BRASS", "GOLD", "SETS", "tools", "base", "corners", "topBottom", "strap", "medallion", "seal", "dust"])
+const backs = runMockup("card-backs.html", ["W", "H", "CX", "CY", "BRASS", "GOLD", "SETS", "tools", "base", "corners", "topBottom", "strap", "medallion", "seal"])
 const { W, H } = backs
 // The mockup's choice per tier (card-backs.html, `pick`).
 const pick = (tier) => (tier === 4 ? { top: 2, corner: 1, strap: 0, pat: 0 } : { top: 2, corner: 2, strap: 2, pat: 0 })
@@ -177,68 +173,7 @@ RARITIES.forEach((rarity, tier) => {
   seals.push(pixelSvg(seal, { symbol: `seal-${rarity}` }))
 })
 
-for (let level = 1; level <= 4; level++) {
-  const sink = new PixelSink(W, H)
-  backs.dust(backs.tools(sink), level)
-  writeFileSync(join(out, `dust-${level}.svg`), pixelSvg(sink))
-}
-
-// ---- Season seal and glyphs: mockups/card-face.html ----
-
-const face = runMockup("card-face.html", ["drawFace", "SIZES", "FONT", "C"])
-// The face draws its season seal as a rust ring around "S1"; it is the only
-// rust on a face without art. The large card's seal (radius 8) serves both
-// sizes: the small one's (radius 7) is one pixel too narrow for "S" and a
-// digit at a fixed glyph advance.
-const RUST = rgb(face.C.rust), SURFACE = [...rgb(face.C.surface), 1]
-// Widened by this many columns for a two-digit season (three glyph advances).
-const WIDE = 8
-
-const seasonSeals = []
-{
-  const mockSize = "big", r = 8
-  const { W: fw, H: fh } = face.SIZES[mockSize]
-  const sink = new PixelSink(fw, fh)
-  face.drawFace(sink, { game: { title: "X", pub: "X", year: 2000 }, tier: 0, variant: "A", size: mockSize }, null)
-  let minX = fw, maxX = 0, minY = fh, maxY = 0
-  for (let y = 0; y < fh; y++) for (let x = 0; x < fw; x++) {
-    const [pr, pg, pb] = sink.get(x, y)
-    if (Math.round(pr) === RUST[0] && Math.round(pg) === RUST[1] && Math.round(pb) === RUST[2]) {
-      minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y)
-    }
-  }
-  // The rust ring is symmetric about the seal's centre; the ink ring is one
-  // pixel outside it.
-  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2
-  const x0 = minX - 1, y0 = minY - 1, sw = maxX - minX + 3, sh = maxY - minY + 3
-  const round = new PixelSink(sw, sh)
-  for (let y = 0; y < sh; y++) for (let x = 0; x < sw; x++) {
-    const d = Math.hypot(x0 + x - cx, y0 + y - cy)
-    if (d > r + 0.6) continue
-    // Inside the rust ring, the mockup's "S1" is cleared to parchment: the
-    // season is written with the glyphs.
-    round.set(x, y, d <= r - 2 ? SURFACE : sink.get(x0 + x, y0 + y))
-  }
-  seasonSeals.push(pixelSvg(round, { symbol: "season-seal" }))
-
-  // The wide seal repeats the middle column.
-  const wide = new PixelSink(sw + WIDE, sh), mid = Math.floor(sw / 2)
-  for (let y = 0; y < sh; y++) for (let x = 0; x < sw + WIDE; x++) {
-    const from = x <= mid ? x : x < mid + WIDE ? mid : x - WIDE
-    wide.set(x, y, round.get(from, y))
-  }
-  seasonSeals.push(pixelSvg(wide, { symbol: "season-seal-wide" }))
-}
-
-const GLYPH = 5
-const glyphs = Object.keys(face.FONT).filter((ch) => /^[0-9A-Z]$/.test(ch)).sort().map((ch) => {
-  const rows = face.FONT[ch], offset = Math.floor((GLYPH - rows[0].length) / 2)
-  let d = ""
-  rows.forEach((row, y) => { for (let x = 0; x < row.length; x++) if (row[x] === "#") d += `M${x + offset} ${y}h1v1h-1z` })
-  return `<symbol id="glyph-${ch}" viewBox="0 0 ${GLYPH} ${GLYPH}"><path fill="currentColor" d="${d}"/></symbol>`
-})
-
 writeFileSync(join(out, "sprite.svg"),
-  `<svg xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">${[...seals, ...seasonSeals, ...glyphs].join("")}</svg>\n`)
+  `<svg xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">${seals.join("")}</svg>\n`)
 
 console.log(`Card art written to ${out}`)

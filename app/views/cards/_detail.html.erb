@@ -1,4 +1,4 @@
-<%# A card's detail (CAP-7; DESIGN.md: a parchment panel): its large face
+<%# A card's detail (CAP-7; DESIGN.md: a parchment panel): its extra-large face
     and, beside it, what the card itself does not carry. Rows without a value
     are left out; the ownership notice follows them on every card. The
     description appears here only, never on the face. It names no one but
@@ -13,10 +13,10 @@
 <% share_url = local_assigns.fetch(:share_url, nil) %>
 <% set_url = detail.current_season ? local_assigns.fetch(:set_url) : nil %>
 <% view = detail.view %>
-<% strings = CardStrings.for([ view ]) %>
+<% strings = CardStrings.new %>
 <article class="card-detail" aria-labelledby="card-detail-heading">
   <div class="card-detail__face">
-    <%= render CardComponent.new(card: view, strings:, size: :large) %>
+    <%= render CardComponent.new(card: view, size: :xl) %>
   </div>
   <div class="card-detail__body">
     <h1 id="card-detail-heading" class="card-detail__title"><%= view.title %></h1>

@@ -22,7 +22,7 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert_queries_count(2) { detail = Catalog::CardDetail.call(slug: "portal", locale: :en) }
 
     assert_equal Catalog::CardView.new(id: "portal", title: "Portal", publisher: "Valve", year: 2007, season_number: 1,
-      rarity: "epic", dust: 3, image_url: "https://images.example.test/400.jpg", number: 4, genre: nil), detail.view
+      rarity: "epic", image_url: "https://images.example.test/400.jpg", number: 4, genre: nil), detail.view
     assert_equal "A puzzle game of portals.", detail.short_description
     assert_equal "Valve", detail.publisher
     assert_equal "https://store.example.test/400", detail.store_url
@@ -59,11 +59,11 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     publish_season_two_with_portal
 
     detail = Catalog::CardDetail.call(slug: "portal", locale: :en)
-    assert_equal [ 2, "legendary", 4, true ], [ detail.view.season_number, detail.view.rarity, detail.view.dust, detail.current_season ]
+    assert_equal [ 2, "legendary", true ], [ detail.view.season_number, detail.view.rarity, detail.current_season ]
     assert_equal [], detail.sets
 
     older = Catalog::CardDetail.call(slug: "portal", locale: :en, season_number: 1)
-    assert_equal [ 1, "epic", 3, false ], [ older.view.season_number, older.view.rarity, older.view.dust, older.current_season ]
+    assert_equal [ 1, "epic", false ], [ older.view.season_number, older.view.rarity, older.current_season ]
     assert_equal [ "valve" ], older.sets.map(&:key)
 
     assert Catalog::CardDetail.call(slug: "portal", locale: :en, season_number: 2).current_season

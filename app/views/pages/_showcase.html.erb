@@ -9,7 +9,7 @@
   <section class="hub-showcase" aria-labelledby="hub-showcase-name">
     <p class="hub-showcase__kicker"><span class="hub-showcase__light" aria-hidden="true"></span><%= t("pages.home.showcase.kicker") %></p>
     <div class="hub-showcase__stage">
-      <%= render CardComponent.new(card:, strings: CardStrings.for([ card ]), size: :large) %>
+      <%= render CardComponent.new(card:, size: :xl) %>
       <span class="hub-showcase__ground" aria-hidden="true"></span>
     </div>
     <h2 id="hub-showcase-name" class="hub-showcase__name"><%= card.title %></h2>

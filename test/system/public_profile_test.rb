@@ -57,7 +57,7 @@ class PublicProfileTest < ApplicationSystemTestCase
 
     assert_selector ".open-tome__heading", text: "P"
     assert_selector ".open-tome__progress", text: "5 / 5"
-    assert_selector ".open-tome__slots .card--face", count: 5
+    assert_selector ".open-tome__slots .card.card--m", count: 5
     assert_selector ".open-tome__copies", count: 1, text: "×2"
     assert_selector ".library__aside .tome[aria-current=page]", text: "P"
     take_screenshot

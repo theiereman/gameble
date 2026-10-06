@@ -1,26 +1,39 @@
 // One card of the pack reveal (story 3.6): a button wrapping the card's back
-// and face (the 3.5 Card, unchanged inside), only one side exposed. Wiped by
-// a mouse passing over it, a finger touching or sliding on it, or keyboard
-// focus; flipped by click, tap, Enter or Space. Its state lives in PackReveal.
-import { useLayoutEffect, useState, type CSSProperties, type PointerEvent, type Ref } from "react"
-import Card, { type CardStrings, type CardView } from "./Card"
-import type { CardSize } from "../lib/card_art"
+// and face, only one side exposed. The island draws the back (the tier's
+// back and seal); the face is the server's CardComponent, as HTML, whose
+// Stimulus controllers (art, tilt) connect on their own. Wiped by a mouse
+// passing over it, a finger touching or sliding on it, or keyboard focus;
+// flipped by click, tap, Enter or Space. Its state lives in PackReveal.
+import { useLayoutEffect, useMemo, useState, type CSSProperties, type PointerEvent, type Ref } from "react"
+import type { CardStrings, Rarity } from "../lib/card_types"
 import { TURN_MS, WIPE_MS, burstPixels, flipLength, type CardState, type FlipMode } from "../lib/reveal"
+import spriteUrl from "../images/card/sprite.svg"
 
 export type RevealItem = { state: CardState; mode: FlipMode; flippedAt?: number }
 
-export const CARD_PIXELS: Record<CardSize, { width: number; height: number }> = {
-  small: { width: 160, height: 240 },
-  large: { width: 240, height: 360 },
+/** The sizes a revealed card shows at: m beside the others, xl alone on a phone. */
+export type RevealSize = "m" | "xl"
+
+/** A card of the pack (PacksHelper#pack_reveal_props). */
+export type RevealCardData = {
+  rarity: Rarity
+  title: string
+  /** The face at each size, rendered on the server (CardComponent). */
+  faces: Record<RevealSize, string>
+}
+
+export const CARD_PIXELS: Record<RevealSize, { width: number; height: number }> = {
+  m: { width: 160, height: 240 },
+  xl: { width: 240, height: 360 },
 }
 
 /** Legendary rays: two from each side of the card. */
 const RAYS = 8
 
 export type RevealCardProps = {
-  card: CardView
+  card: RevealCardData
   item: RevealItem
-  size: CardSize
+  size: RevealSize
   strings: CardStrings
   reducedMotion: boolean
   onWipe: () => void
@@ -65,6 +78,9 @@ export default function RevealCard({ card, item, size, strings, reducedMotion, o
 
   const label = flipped ? undefined : state === "wiped" ? strings.faceDownByRarity[card.rarity] : strings.faceDown
   const { width, height } = CARD_PIXELS[size]
+  // The same object while the face is the same, so React never rewrites the
+  // face (and its controllers' work) on a render.
+  const face = useMemo(() => ({ __html: card.faces[size] }), [card, size])
 
   return (
     <button
@@ -86,11 +102,17 @@ export default function RevealCard({ card, item, size, strings, reducedMotion, o
       onPointerMove={wipeOnTouch}
     >
       <span className="reveal-card__side reveal-card__back" aria-hidden={flipped ? "true" : undefined}>
-        <Card card={card} size={size} side="back" strings={strings} sealVisible={state !== "dusty"} />
+        <span
+          className={`card-back card-back--${size} card-back--rarity-${card.rarity}`}
+          role="img"
+          aria-label={state === "dusty" ? strings.faceDown : strings.faceDownByRarity[card.rarity]}
+        >
+          <svg className="card-back__seal" aria-hidden="true">
+            <use href={`${spriteUrl}#seal-${card.rarity}`} />
+          </svg>
+        </span>
       </span>
-      <span className="reveal-card__side reveal-card__face" aria-hidden={flipped ? undefined : "true"}>
-        <Card card={card} size={size} side="face" strings={strings} />
-      </span>
+      <span className="reveal-card__side reveal-card__face" aria-hidden={flipped ? undefined : "true"} dangerouslySetInnerHTML={face} />
       {playing && !reducedMotion && (
         <span className="reveal-card__burst" aria-hidden="true">
           {burstPixels(card.rarity, width, height).map(({ x, y, dx, dy }, index) => (

@@ -3,126 +3,160 @@ require "test_helper"
 class CardComponentTest < ViewComponent::TestCase
   def card(**overrides)
     Catalog::CardView.new(id: "blue-depths", title: "Blue Depths", publisher: "Deepwater", year: 2014, season_number: 1,
-      rarity: "rare", dust: 0, image_url: "/art.png", number: 4_215, genre: "puzzle", **overrides)
+      rarity: "rare", image_url: "/art.png", number: 4_215, genre: "puzzle", **overrides)
   end
 
-  def render_card(view = card, **options)
-    I18n.with_locale(:en) { render_inline(CardComponent.new(card: view, strings: CardStrings.for([ view ]), **options)) }
+  def render_card(view = card, locale: :en, **options)
+    I18n.with_locale(locale) { render_inline(CardComponent.new(card: view, **options)) }
   end
 
-  test "a small rare face: title, year tag, season seal, piping, hidden rarity, no publisher" do
+  test "a medium rare face by default: frame, title band, art, genre and year, rarity line" do
     render_card
 
-    assert_selector "span.card.card--small.card--face.card--rarity-rare.card--dust-0"
-    assert_selector ".card__title", text: "Blue Depths"
-    assert_selector ".card__year .visually-hidden", text: "2014"
-    assert_selector ".card__year .card__glyph use", count: 4
-    assert_selector ".card__year use[href$='#glyph-2']", count: 1
-    assert_selector ".card__season:not(.card__season--wide) .card__season-seal use[href$='#season-seal']"
-    assert_selector ".card__season .visually-hidden", text: "Season 1"
-    assert_selector ".card__season use[href$='#glyph-S']"
-    assert_selector ".card__piping[aria-hidden=true]"
-    assert_selector ".card__plate .visually-hidden", text: "Rare"
-    assert_no_selector ".card__publisher"
-    assert_no_selector ".card__shine"
-    assert_selector ".card__art[data-controller=card-art][data-card-art-url-value='/art.png'][data-card-art-width-value='68'][data-card-art-height-value='108'] canvas.card__canvas[data-card-art-target=canvas]"
+    assert_selector "span.card.card--m.card--rarity-rare[data-controller=tilt][data-tilt-max-value='10']"
+    assert_no_selector ".card--booster"
+    assert_selector ".card > .card__body > .card__band > .card__title", text: "Blue Depths"
+    assert_selector ".card__band > .card__publisher", text: "Deepwater"
+    assert_selector ".card__body > .card__art + .card__line + .card__line.card__line--rarity"
+    assert_selector ".card__line:not(.card__line--rarity) > .card__genre", text: "Puzzle"
+    assert_selector ".card__line:not(.card__line--rarity) > .card__year", text: "2014"
+    assert_selector ".card__line--rarity > svg.pixel-icon.card__rarity-icon[aria-hidden=true] + .card__rarity", text: "Rare"
+    assert_selector ".card__line--rarity > .card__number", text: "#4 215", exact_text: true
   end
 
-  test "nothing in a card is focusable or interactive" do
-    render_card(size: :large)
+  { s: [ 50, 51 ], m: [ 72, 74 ], l: [ 94, 97 ], xl: [ 109, 112 ] }.each do |size, (width, height)|
+    test "the #{size} face draws its art at #{width} × #{height} art pixels with the xl palette" do
+      render_card(size:)
 
-    assert_no_selector "[tabindex], a, button, input"
-    assert_no_selector "[id]"
+      assert_selector "span.card.card--#{size}"
+      assert_selector ".card__art[data-controller=card-art][data-card-art-url-value='/art.png']" \
+        "[data-card-art-width-value='#{width}'][data-card-art-height-value='#{height}']" \
+        "[data-card-art-palette-width-value='109'][data-card-art-palette-height-value='112']"
+      assert_selector ".card__art > canvas.card__canvas[width='#{width}'][height='#{height}'][aria-hidden=true][data-card-art-target=canvas]"
+      assert_selector ".card__art > .card__missing > svg.pixel-icon.card__missing-icon + .card__missing-text", text: "Image unavailable", visible: :all
+      assert_selector ".card__title", text: "Blue Depths"
+      assert_selector ".card__genre", text: "Puzzle"
+      assert_selector ".card__year", text: "2014"
+      assert_selector ".card__rarity", text: "Rare"
+    end
   end
 
-  test "a large face credits the publisher when there is one" do
-    render_card(size: :large)
-    assert_selector ".card--large .card__publisher", text: "© Deepwater"
-    assert_selector ".card__art[data-card-art-width-value='104'][data-card-art-height-value='164']"
-    assert_selector ".card__season-seal use[href$='#season-seal']"
-
-    render_card(card(publisher: nil), size: :large)
+  test "the publisher shows from m up, never on s" do
+    render_card(size: :s)
     assert_no_selector ".card__publisher"
+
+    %i[m l xl].each do |size|
+      render_card(size:)
+      assert_selector ".card__publisher", text: "Deepwater"
+    end
+  end
+
+  test "the number: alone on s and m, with its season on l and xl" do
+    view = card(season_number: 12, number: 1_000_000)
+    { s: "#1 000 000", m: "#1 000 000", l: "S12 · #1 000 000", xl: "S12 · #1 000 000" }.each do |size, label|
+      render_card(view, size:)
+      assert_selector ".card__number", exact_text: label
+    end
+  end
+
+  test "the compact rarity icon on s and m, the large one on l and xl" do
+    %i[s m].each do |size|
+      render_card(size:)
+      assert_selector ".card__rarity-icon[width='10'][height='10']"
+    end
+    %i[l xl].each do |size|
+      render_card(size:)
+      assert_selector ".card__rarity-icon[width='14'][height='14']"
+    end
+  end
+
+  test "no genre, no number, no publisher: each element is left out" do
+    render_card(card(genre: nil, number: nil, publisher: nil), size: :xl)
+
+    assert_no_selector ".card__genre"
+    assert_no_selector ".card__number"
+    assert_no_selector ".card__publisher"
+    assert_selector ".card__year", text: "2014"
+    assert_selector ".card__rarity", text: "Rare"
+  end
+
+  test "a genre outside the curated list is its key humanised" do
+    render_card(card(genre: "space_trucking"))
+
+    assert_selector ".card__genre", text: "Space trucking"
   end
 
   test "a long title stays whole in the DOM" do
     title = "The Long Chronicles of the Amethyst Archive and the Keys Its Keepers Lost at Sea"
     render_card(card(title:))
 
-    assert_equal 80, title.length
     assert_equal title, page.find(".card__title").text
   end
 
-  test "a two-digit season widens the seal and writes both digits" do
-    render_card(card(season_number: 12))
+  test "outside the booster only the legendary tier has its holo sheen, and no tier its foil" do
+    Catalog::Rarity::TIERS.each_value do |rarity|
+      render_card(card(rarity: rarity.to_s))
 
-    assert_selector ".card__season.card__season--wide .card__season-seal use[href$='#season-seal-wide']"
-    assert_equal %w[S 1 2], page.all(".card__season .card__glyph use", visible: :all).map { it[:href].split("#").last.delete_prefix("glyph-") }
-    assert_selector ".card__season .visually-hidden", text: "Season 12"
-  end
-
-  test "a legendary face has its own frame colours, the sweep and the sparkles" do
-    render_card(card(rarity: "legendary"))
-
-    assert_selector ".card.card--rarity-legendary .card__shine[aria-hidden=true] .card__sweep"
-    assert_selector ".card__shine .card__sparkle", count: CardComponent::SPARKLES
-  end
-
-  test "only the legendary tier shines: an epic face has no sweep nor sparkles" do
-    render_card(card(rarity: "epic"))
-
-    assert_selector ".card.card--rarity-epic"
-    assert_no_selector ".card__shine"
-  end
-
-  Catalog::Rarity::TIERS.each_value do |rarity|
-    test "a #{rarity} back: its seal and a label with the rarity" do
-      render_card(card(rarity: rarity.to_s), side: :back)
-
-      name = I18n.t("catalog.rarity.#{rarity}", locale: :en)
-      assert_selector "span.card.card--back.card--rarity-#{rarity}[role=img][aria-label='Face-down card, #{name}']"
-      assert_selector ".card__seal[aria-hidden=true] use[href$='#seal-#{rarity}']"
-      assert_no_selector ".card__title"
+      assert_selector ".card > .card__effects[aria-hidden=true] > .card__glare"
+      if rarity == :legendary
+        assert_selector ".card__effects > .card__holo"
+      else
+        assert_no_selector ".card__holo"
+      end
+      assert_no_selector ".card__foil"
     end
   end
 
-  test "dust: no element at level 0, the level's overlay last at 1 to 4" do
-    render_card(side: :back)
-    assert_selector ".card.card--dust-0"
-    assert_no_selector ".card__dust"
+  test "in the booster: holo from rare up, foil from epic up, a stronger tilt" do
+    expected = { common: [ false, false ], uncommon: [ false, false ], rare: [ true, false ], epic: [ true, true ], legendary: [ true, true ] }
+    expected.each do |rarity, (holo, foil)|
+      render_card(card(rarity: rarity.to_s), booster: true)
 
-    (1..4).each do |level|
-      render_card(card(dust: level), side: :back)
-      assert_selector ".card.card--dust-#{level} > .card__dust[aria-hidden=true]:last-child"
+      assert_selector ".card.card--booster.card--rarity-#{rarity}[data-tilt-max-value='16']"
+      assert_equal holo, page.has_selector?(".card__holo"), "#{rarity} holo"
+      assert_equal foil, page.has_selector?(".card__foil"), "#{rarity} foil"
+      assert_selector ".card__glare"
     end
   end
 
-  test "French strings" do
-    view = card(season_number: 3)
-    I18n.with_locale(:fr) { render_inline(CardComponent.new(card: view, strings: CardStrings.for([ view ]), side: :back)) }
-    assert_selector ".card[aria-label='Carte face cachée, Rare']"
-
-    I18n.with_locale(:fr) { render_inline(CardComponent.new(card: view, strings: CardStrings.for([ view ]))) }
-    assert_selector ".card__season .visually-hidden", text: "Saison 3"
-  end
-
-  test "a season without its string fails loudly" do
-    assert_raises(KeyError) do
-      render_inline(CardComponent.new(card: card(season_number: 4), strings: CardStrings.new(season_numbers: [ 1 ])))
+  test "each tier's icon and name" do
+    Catalog::Rarity::TIERS.each do |tier, rarity|
+      render_card(card(rarity: rarity.to_s), size: :s)
+      assert_selector ".card--rarity-#{rarity} .card__rarity", text: I18n.t("catalog.rarity.#{rarity}", locale: :en)
+      paths = ShellHelper.pixel_source("rarity-compact-#{tier}").scan(/ d="([^"]+)"/).flatten
+      assert_equal paths, page.all(".card__rarity-icon path", visible: :all).map { it["d"] }
     end
   end
 
-  test "an unknown size or side is refused" do
-    assert_raises(ArgumentError) { CardComponent.new(card:, strings: CardStrings.new, size: :huge) }
-    assert_raises(ArgumentError) { CardComponent.new(card:, strings: CardStrings.new, side: :edge) }
+  test "French words" do
+    render_card(card(rarity: "uncommon"), locale: :fr)
+
+    assert_selector ".card__rarity", text: "Peu commune"
+    assert_selector ".card__genre", text: "Réflexion"
+    assert_selector ".card__missing-text", text: "Image indisponible", visible: :all
   end
 
-  test "the strings for the React card, resolved on the server" do
-    props = I18n.with_locale(:en) { CardStrings.new(season_numbers: [ 12, 1, 12 ]).to_props }
+  test "no style attribute, nothing focusable, no id" do
+    %i[s m l xl].each do |size|
+      render_card(card(rarity: "legendary"), size:, booster: true)
+
+      assert_no_selector "[style]", visible: :all
+      assert_no_selector "[tabindex], a, button, input", visible: :all
+      assert_no_selector "[id]", visible: :all
+    end
+  end
+
+  test "an unknown size is refused" do
+    assert_raises(ArgumentError) { CardComponent.new(card:, size: :huge) }
+    assert_raises(ArgumentError) { CardComponent.new(card:, size: :small) }
+  end
+
+  test "the strings of a card's back, for the reveal" do
+    props = I18n.with_locale(:en) { CardStrings.new.to_props }
 
     assert_equal "Face-down card", props[:faceDown]
     assert_equal "Face-down card, Legendary", props[:faceDownByRarity]["legendary"]
     assert_equal "Uncommon", props[:rarityNames]["uncommon"]
-    assert_equal({ "1" => "Season 1", "12" => "Season 12" }, props[:seasons])
+    assert_equal %i[rarityNames faceDown faceDownByRarity], props.keys
   end
 end

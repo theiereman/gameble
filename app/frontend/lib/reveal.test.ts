@@ -13,7 +13,7 @@ import {
   type CardState,
   type FlipAllStep,
 } from "./reveal"
-import type { Rarity } from "../components/Card"
+import type { Rarity } from "./card_types"
 
 describe("card states", () => {
   it("wipes a dusty card once, and leaves a wiped or flipped one", () => {

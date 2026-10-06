@@ -60,7 +60,8 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "title", "Portal — Epic"
     assert_select ".card-detail h1", "Portal"
-    assert_select ".card-detail__face .card.card--large.card--face.card--rarity-epic .card__title", "Portal"
+    assert_select ".card-detail__face .card.card--xl.card--rarity-epic .card__title", "Portal"
+    assert_select "[style]", 0
     assert_select ".card-detail__description", "A puzzle game of portals."
     assert_equal [ [ "Released", "2007" ], [ "Rarity", "Epic" ], [ "Season", "1" ], [ "Sets", "Action · Tome 1 | Valve" ],
       [ "Publisher", "Valve" ] ], fields
@@ -136,17 +137,17 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__copies", false
   end
 
-  test "an older season by its number: its rarity and dust, its sets without links" do
+  test "an older season by its number: its rarity, its sets without links" do
     publish_season_two_with_portal
 
     get card_path(locale: :en, slug: "portal")
-    assert_select ".card-detail__face .card.card--rarity-legendary.card--dust-4"
+    assert_select ".card-detail__face .card.card--rarity-legendary"
     assert_equal [ "Legendary", "2" ], fields.to_h.values_at("Rarity", "Season")
     assert_equal [ [ "Action · Tome 1", "/en/library/tome/action-1" ] ], css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
 
     get card_season_path(locale: :en, slug: "portal", number: 1)
     assert_response :success
-    assert_select ".card-detail__face .card.card--rarity-epic.card--dust-3"
+    assert_select ".card-detail__face .card.card--rarity-epic"
     assert_equal [ "Epic", "1", "Valve" ], fields.to_h.values_at("Rarity", "Season", "Sets")
     assert_select ".card-detail__sets a", false
     assert_select ".card-detail__sets li", "Valve"

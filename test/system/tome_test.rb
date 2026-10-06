@@ -43,11 +43,11 @@ class TomeTest < ApplicationSystemTestCase
     assert_selector ".library__aside .tome[aria-current=page]", text: "Action · Tome 1"
     assert_selector ".open-tome__progress", text: "3 / 25"
     assert_selector ".open-tome__slots > li", count: 25
-    assert_selector ".open-tome__slots .card--face", count: 3
+    assert_selector ".open-tome__slots .card.card--m", count: 3
     assert_selector ".open-tome__copies", count: 1, text: "×2"
     assert_selector ".slot", count: 22
     assert_selector ".slot", match: :first, text: "Missing card"
-    # An empty slot is a small card's size.
+    # An empty slot is a medium card's size.
     assert_equal [ 160, 240 ], page.evaluate_script("(() => { const r = document.querySelector('.slot').getBoundingClientRect(); return [ r.width, r.height ] })()")
     assert_no_selector ".library__back"
     take_screenshot
@@ -109,7 +109,7 @@ class TomeTest < ApplicationSystemTestCase
 
     visit library_set_path(locale: :en, kind: "publisher", key: "big")
 
-    assert_selector ".open-tome__slots .card--face", count: 300
+    assert_selector ".open-tome__slots .card.card--m", count: 300
     # The first cards are drawn (or fail, the test images being unreachable);
     # those far below are not even started.
     assert_selector ".open-tome__slots > li:first-child .card__art[data-art]", visible: :all

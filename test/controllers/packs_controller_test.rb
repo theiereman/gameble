@@ -71,8 +71,19 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     props = reveal_props
     views = Catalog::CardViews.call(pack.card_season_ids, locale: :en)
-    assert_equal pack.card_season_ids.map { |id| views.fetch(id).to_props.as_json }, props["cards"]
-    assert_equal CardStrings.for(views.values).to_props.as_json, props["cardStrings"]
+    cards = pack.card_season_ids.map { |id| views.fetch(id) }
+    assert_equal cards.map { [ it.rarity, it.title ] }, props["cards"].map { it.values_at("rarity", "title") }
+    # Each face rendered on the server, at both sizes, with the booster's effects.
+    props["cards"].zip(cards).each do |card, view|
+      assert_equal %w[m xl], card["faces"].keys
+      card["faces"].each do |size, html|
+        face = Nokogiri::HTML5.fragment(html)
+        assert_equal 1, face.css(".card.card--#{size}.card--booster.card--rarity-#{view.rarity}[data-controller=tilt]").size
+        assert_equal view.title, face.at_css(".card__title").text
+        assert_empty face.css("[style]")
+      end
+    end
+    assert_equal CardStrings.new.to_props.as_json, props["cardStrings"]
     assert_equal "Flip all", props.dig("strings", "flipAll")
     assert_equal "Previous card", props.dig("strings", "previous")
     assert_equal (1..5).map { |n| "Card #{n} of 5" }, props.dig("strings", "progress")
@@ -88,11 +99,13 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_nil reveal_props
     assert_not_equal "no-store", response.headers["Cache-Control"]
     assert_select "meta[name=turbo-cache-control]", 0
-    assert_equal pack.card_season_ids.map { |id| views.fetch(id).title }, css_select(".pack-result__card .card--face .card__title").map(&:text)
+    assert_equal pack.card_season_ids.map { |id| views.fetch(id).title }, css_select(".pack-result__card .card.card--m .card__title").map(&:text)
     # Each face leads to its card's detail, in its season.
     assert_equal pack.card_season_ids.map { |id| "/en/cards/#{views.fetch(id).id}/seasons/1" },
       css_select(".pack-result__card > a.card-link").map { it["href"] }
-    assert_select ".pack-result__card > a.card-link[data-turbo-prefetch=false] > .card--face", 5
+    assert_select ".pack-result__card > a.card-link[data-turbo-prefetch=false] > .card.card--m", 5
+    assert_select ".pack-result__card .card--booster", 0
+    assert_select "[style]", 0
     assert_equal [ "Open the next pack", "Back to the bridge" ], end_buttons
 
     get home_path(locale: :en)
@@ -109,7 +122,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "h1", "Ton paquet, Confrère"
     assert_equal [ "Couronne d'or" ] * 5, css_select(".card__title").map(&:text)
-    assert_equal [ "Légendaire" ] * 5, css_select(".card--face .card__plate > .visually-hidden").map(&:text)
+    assert_equal [ "Légendaire" ] * 5, css_select(".card .card__rarity").map(&:text)
     assert_equal [ "Couronne d'or, Légendaire, saison 1" ] * 5, css_select(".pack-result__card > a.card-link").map { it["aria-label"] }
     assert_equal [ "/fr/cards/golden-crown/seasons/1" ] * 5, css_select(".pack-result__card > a.card-link").map { it["href"] }
   end
@@ -125,7 +138,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     props = reveal_props
     assert_equal [ "Couronne d'or" ] * 5, props["cards"].map { it["title"] }
-    assert_equal [ "golden-crown" ] * 5, props["cards"].map { it["id"] }
+    assert_equal [ "legendary" ] * 5, props["cards"].map { it["rarity"] }
+    assert_equal [ "Légendaire" ] * 5, props["cards"].map { Nokogiri::HTML5.fragment(it.dig("faces", "m")).at_css(".card__rarity").text }
     assert_equal "Tout retourner", props.dig("strings", "flipAll")
     assert_equal "Carte précédente", props.dig("strings", "previous")
     assert_equal "Carte 1 sur 5", props.dig("strings", "progress").first

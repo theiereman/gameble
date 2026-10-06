@@ -154,17 +154,14 @@ en:
     cards:
       index:
         heading: "The card press"
-        intro: "Every rarity's face and back at both sizes, then one back under each level of dust: on the left as the pages draw them, on the right as the reveal will. The two must match line for line. The art is a sample from the Brotherhood's own chest; the uncommon's art is missing on purpose, to show a card without it."
-        server: "The pages"
-        react: "The reveal"
-        label: "%{rarity}, %{side}, %{size}"
-        dust_label: "%{rarity}, %{side}, %{size}, dust %{level}"
-        sides:
-          face: "face"
-          back: "back"
+        intro: "Every rarity's face at the four sizes, then each rarity at size M with the booster's effects. Hover a card to tilt it. The art is a sample from the Brotherhood's own chest; the uncommon's art is missing on purpose, to show a card without it."
+        label: "%{rarity}, %{size}"
+        booster_label: "%{rarity}, %{size}, booster"
         sizes:
-          small: "small"
-          large: "large"
+          s: "size S"
+          m: "size M"
+          l: "size L"
+          xl: "size XL"
         samples:
           common: "Tin Soldier"
           uncommon: "Green Hills"
@@ -321,7 +318,8 @@ en:
   cards:
     face_down: "Face-down card"
     face_down_with_rarity: "Face-down card, %{rarity}"
-    season: "Season %{number}"
+    face:
+      image_missing: "Image unavailable"
     show:
       invitation: "Open boosters, complete sets, trade with your friends."
       sign_in: "Open my first boosters"

@@ -243,7 +243,7 @@
   letter-spacing: var(--tracking-button);
 }
 
-/* An empty slot (DESIGN.md, Empty slot): the small card's size, a dashed
+/* An empty slot (DESIGN.md, Missing-card slot): the medium card's size, a dashed
    muted border on the sunken surface, naming the missing game. */
 .slot {
   display: flex;
@@ -251,9 +251,9 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  /* The small card's size (card.css), so empty slots line up with faces. */
-  width: var(--card-small-width);
-  height: var(--card-small-height);
+  /* The medium card's size (card.css), so empty slots line up with faces. */
+  width: var(--card-m-width);
+  height: var(--card-m-height);
   padding: var(--space-2) var(--space-4);
   border: var(--space-unit) dashed var(--color-line-deep);
   background: var(--color-panel-sunken);

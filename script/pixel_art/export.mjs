@@ -88,6 +88,51 @@ const RARITY_SHAPES = {
   ],
 }
 
+// The compact rarity set for card faces, 5 × 5 (DESIGN.md, Rarity icon):
+// the same five silhouettes, still distinct in grayscale.
+const RARITY_COMPACT_SHAPES = {
+  // 1: a solid disc.
+  1: [
+    ".hhh.",
+    "hbbbb",
+    "bbbbb",
+    "bbbbl",
+    ".lll.",
+  ],
+  // 2: a ring around a centre dot.
+  2: [
+    ".hhh.",
+    "h...b",
+    "b.b.b",
+    "b...l",
+    ".lll.",
+  ],
+  // 3: a diamond.
+  3: [
+    "..h..",
+    ".hbb.",
+    "hbbbl",
+    ".bbl.",
+    "..l..",
+  ],
+  // 4: a triangle, point up, on a full base.
+  4: [
+    "..h..",
+    ".hbb.",
+    ".bbb.",
+    "hbbbb",
+    "lllll",
+  ],
+  // 5: a five-pointed star, two feet.
+  5: [
+    "..h..",
+    "hhbhh",
+    ".bbb.",
+    ".b.l.",
+    "l...l",
+  ],
+}
+
 const ICONS = {
   // The gameble logo: two stacked cards and a gold mark (12 × 12).
   logo: {
@@ -108,6 +153,20 @@ const ICONS = {
     ],
   },
   ...Object.fromEntries(Object.entries(RARITY_SHAPES).map(([tier, grid]) => [`rarity-${tier}`, { legend: RARITY[tier], grid }])),
+  ...Object.fromEntries(Object.entries(RARITY_COMPACT_SHAPES).map(([tier, grid]) => [`rarity-compact-${tier}`, { legend: RARITY[tier], grid }])),
+  // A card's missing art (10 × 8): a frame, a sun and a mountain.
+  picture: {
+    grid: [
+      "cccccccccc",
+      "c........c",
+      "c.....cc.c",
+      "c.....cc.c",
+      "c...c....c",
+      "c..ccc.c.c",
+      "c.cccccccc",
+      "cccccccccc",
+    ],
+  },
   // ◀ and ▶.
   "arrow-left": {
     grid: [

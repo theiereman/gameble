@@ -32,28 +32,9 @@ class PacksController < ApplicationController
     authorize @pack, :show?, policy_class: PackPolicy
     views = Catalog::CardViews.call(@pack.card_season_ids, locale: I18n.locale)
     @cards = @pack.card_season_ids.map { |id| views.fetch(id) }
-    @strings = CardStrings.for(@cards)
+    @strings = CardStrings.new
     @next_pack = Game::BankSummary.call(current_player)[:available].positive?
     @reveal = flash[:reveal].present? && flash[:reveal] == @pack.token
     no_store if @reveal
   end
-
-  private
-    # The PackReveal island's props: the cards in their drawn order, and
-    # every word resolved here (AD-16).
-    def reveal_props
-      {
-        cards: @cards.map(&:to_props),
-        cardStrings: @strings.to_props,
-        strings: {
-          cards: t("packs.show.cards"), flipAll: t("packs.show.flip_all"), next: t("packs.show.next"), previous: t("packs.show.previous"), allFlipped: t("packs.show.all_flipped"),
-          progress: (1..@cards.size).map { |position| t("packs.show.progress", position:, count: @cards.size) },
-          openNextPack: t("packs.show.open_next_pack"), backToHub: t("packs.show.back_to_hub"),
-          failed: t("packs.show.failed"), reload: t("packs.show.reload")
-        },
-        openPackUrl: (packs_path if @next_pack),
-        hubUrl: home_path
-      }
-    end
-    helper_method :reveal_props
 end

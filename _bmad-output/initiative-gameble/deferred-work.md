@@ -206,7 +206,7 @@
   summary: Transitional: menu items 03 to 06 (Échanges, Amis, Fil d'activité, Succès) render disabled (`aria-disabled`, "bientôt disponible"), without their badge or meta, until their screens exist.
   evidence: Story 8.2 Design Notes; `app/views/pages/_menu.html.erb`.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
-  summary: Transitional: the showcase has no planet, rays or idle float, its card is the large face (240 × 360) on the phone too where DESIGN.md asks `card-l`, and its line lacks the genre and the card number (DESIGN.md, Showcase), until the pixel assets (8.8), effects (8.6) and card face (8.3, 8.6) land.
+  summary: Transitional: the showcase has no planet, rays or idle float, its card is the `card-xl` face (240 × 360, story 8.6) on the phone too where DESIGN.md asks `card-l`, and its line lacks the genre and the card number (DESIGN.md, Showcase), until the pixel assets (8.8), effects (8.6) and card face (8.3, 8.6) land.
   evidence: Story 8.2 Design Notes; `app/views/pages/_showcase.html.erb`, `app/frontend/styles/hub.css`.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
   summary: Transitional: the phone hub shows no packs chip or rarity counter block of its own (the top bar's chip stays), no community goal panel and no LIVE ticker (epic 6, story 8.8); their slots are left out.
@@ -217,3 +217,15 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
   summary: `test/system/pack_reveal_test.rb` failed intermittently in 2 of 4 full system-suite runs during story 8.2 (once in setup, the top bar's Steam button not found; once at the end-of-reveal buttons), never when run alone; cause unknown, possibly pre-existing.
   evidence: Story 8.2 implementation report; the orchestrator's full runs passed.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-single-card-face-plan.md`
+  summary: A phone's long press on a card face inside a link (tome, pack result) may open the browser's link context menu or a text selection after about 500 ms, cancelling the pointer and ending the finger's tilt early; if so, suppress it while a finger tilts (`contextmenu` prevented, `-webkit-touch-callout: none`, `user-select: none` on `.card`).
+  evidence: Story 8.6 review (unverified, medium if true): `attachTilt` (`app/frontend/lib/tilt.ts`) handles no `contextmenu` and `.card` sets no callout or selection rule; settle it with a long press on a tome face on an Android Chrome and an iOS Safari device.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-single-card-face-plan.md`
+  summary: Every card face registers a non-passive `touchmove` listener (`attachTilt`, to stop the page scrolling under a tilting finger), so a touch scroll starting on a card waits for the main thread; on a 300-card tome on a low-end Android this may cost scroll latency (AD-27). Adding the listener only while a finger tilts would not work (Chrome classifies a touch sequence at its start), so a fix needs another design (e.g. one delegated listener, or `touch-action` switched before the hold ends).
+  evidence: Story 8.6 review (unverified, medium if true): `app/frontend/lib/tilt.ts` adds `touchmove` with `{ passive: false }` per card; settle it with a Chrome performance trace of a touch scroll over the tome on a low-end Android device.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-single-card-face-plan.md`
+  summary: The card face visual baselines (`test/fixtures/files/card_faces/*.png`, mean difference ≤ 1.5 per channel) were captured with Manjaro's Chromium; CI's `system-test` job runs ubuntu-latest's Chrome, whose font rasterisation and 3D resampling may differ enough to fail `card_face_visual_test.rb` on CI only. If it does, regenerate the baselines on CI's browser (`UPDATE_CARD_BASELINES=1`) or pin one browser build for both.
+  evidence: Story 8.6 review (unverified, medium if true): `test/support/card_baselines.rb`, `.github/workflows/ci.yml` (no `CHROME_BIN`); settle it with the first CI run after the commit.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-single-card-face-plan.md`
+  summary: `script/card_art/generate.mjs` cannot run any more: it reads `ux-gameble/mockups/card-backs.html`, removed by the UX redesign (5de0377); the card backs and `sprite.svg` can only be edited by hand until story 8.11 redraws the backs.
+  evidence: Story 8.6: re-running the script to drop the unused season seal and glyph symbols failed with ENOENT; those symbols were removed from `app/frontend/images/card/sprite.svg` by hand and from the script.

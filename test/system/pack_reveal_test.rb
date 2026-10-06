@@ -70,8 +70,10 @@ class PackRevealTest < ApplicationSystemTestCase
     page.evaluate_script("parseFloat(document.querySelector(#{card(position).to_json}).style.getPropertyValue('--reveal-ms'))")
   end
 
+  # The seal on the card's back: "hidden" until the card is wiped.
   def seal_visibility(position)
-    page.evaluate_script("getComputedStyle(document.querySelector(#{"#{card(position)} .card__seal".to_json})).visibility")
+    opacity = page.evaluate_script("getComputedStyle(document.querySelector(#{"#{card(position)} .card-back__seal".to_json})).opacity")
+    opacity == "0" ? "hidden" : "visible"
   end
 
   # The latest announcement; earlier ones stay in the live region.
@@ -113,15 +115,16 @@ class PackRevealTest < ApplicationSystemTestCase
       page.send_keys(:enter)
       assert_selector "#{card(position)}[data-state=flipped][aria-disabled=true]"
       assert_nil find(card(position))["aria-label"]
-      assert_selector "#{card(position)} .reveal-card__face .card__title", text: title
+      assert_selector "#{card(position)} .reveal-card__face .card__title", text: title.upcase
       assert_equal title, announced
     end
   end
 
-  test "a mouse over a card wipes it, a click on a dusty card flips it; a card without dust keeps its seal hidden until wiped" do
+  test "a mouse over a card wipes it, a click on a face-down card flips it; the seal is hidden until wiped" do
     open_pack(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :legendary_card_one))
 
-    assert_selector "#{card(1)} .card--dust-0"
+    assert_selector "#{card(1)} .reveal-card__back .card-back.card-back--m.card-back--rarity-common[role=img]"
+    assert_selector "#{card(1)} .reveal-card__back .card-back__seal use[href$='#seal-common']", visible: :all
     assert_equal "hidden", seal_visibility(1)
     find(card(1)).hover
     assert_equal "wiped", state(1)
@@ -167,7 +170,7 @@ class PackRevealTest < ApplicationSystemTestCase
     assert_operator flipped_at(5) - flipped_at(3), :>=, reveal_ms(3)
   end
 
-  test "with reduced motion nothing moves, and no dust bursts" do
+  test "with reduced motion nothing moves, nothing bursts, and the face does not tilt" do
     open_pack(card_ids(:legendary_card_one, :common_card_one, :common_card_one, :common_card_one, :common_card_one))
 
     find(card(1)).click
@@ -176,6 +179,10 @@ class PackRevealTest < ApplicationSystemTestCase
     assert_equal "none", page.evaluate_script("getComputedStyle(document.querySelector(#{face.to_json})).animationName")
     assert_equal "visible", page.evaluate_script("getComputedStyle(document.querySelector(#{face.to_json})).visibility")
     assert_no_selector ".reveal-card__burst", visible: :all
+
+    find("#{card(1)} .reveal-card__face .card").hover
+    page.driver.browser.action.move_to(find("#{card(1)} .reveal-card__face .card").native, -20, -30).perform
+    assert_no_selector "#{card(1)} .reveal-card__face .card[data-tilt]", wait: 0.5
   end
 
   test "with motion, a legendary card turns, bursts and shines for its full length; flip all holds the next legendary" do
@@ -195,14 +202,17 @@ class PackRevealTest < ApplicationSystemTestCase
     assert_operator flipped_at(4) - flipped_at(3), :>=, reveal_ms(3)
   end
 
-  test "a card whose art fails shows its frame and title" do
+  test "a card whose art fails shows the missing image, its frame, title and footer" do
     open_pack(card_ids(*[ :rare_card_one ] * 5))
 
     find(card(1)).click
     within(card(1)) do
+      assert_selector ".card.card--m.card--booster.card--rarity-rare"
       assert_selector ".card__art[data-art=failed]"
-      assert_selector ".card__frame", visible: :all
-      assert_selector ".card__title", text: "Blue Depths"
+      assert_selector ".card__canvas", visible: :hidden
+      assert_selector ".card__missing", text: "IMAGE UNAVAILABLE"
+      assert_selector ".card__title", text: "BLUE DEPTHS"
+      assert_selector ".card__rarity", text: "RARE"
     end
   end
 
@@ -222,7 +232,7 @@ class PackRevealTest < ApplicationSystemTestCase
     assert_equal [], page.evaluate_script("window.revealErrors")
 
     page.go_back
-    assert_selector ".pack-result__card .card--face", count: 5
+    assert_selector ".pack-result__card .card.card--m", count: 5
     assert_no_selector ".pack-reveal"
   end
 
@@ -232,7 +242,7 @@ class PackRevealTest < ApplicationSystemTestCase
 
     page.refresh
 
-    assert_selector ".pack-result__card .card--face", count: 5
+    assert_selector ".pack-result__card .card.card--m", count: 5
     assert_no_selector ".pack-reveal"
   end
 
@@ -244,11 +254,11 @@ class PackRevealTest < ApplicationSystemTestCase
     end
   end
 
-  test "on a phone one large card at a time, focus following next; flip all holds each legendary, then every card is reached forward and back" do
+  test "on a phone one xl card at a time, focus following next; flip all holds each legendary, then every card is reached forward and back" do
     page.driver.browser.manage.window.resize_to(*PHONE)
     open_pack(card_ids(:common_card_one, :legendary_card_one, :uncommon_card_one, :legendary_card_one, :common_card_one))
 
-    assert_selector ".pack-reveal--phone .reveal-card.reveal-card--large", count: 1
+    assert_selector ".pack-reveal--phone .reveal-card.reveal-card--xl", count: 1
     assert_selector ".pack-reveal__progress", text: "1 / 5"
     assert_no_button "Next card"
     assert_no_button "Previous card"
@@ -312,24 +322,26 @@ class PackRevealTest < ApplicationSystemTestCase
 
   test "crossing the phone width switches the layout and draws the art again" do
     open_pack(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :legendary_card_one))
-    assert_selector ".reveal-card--small", count: 5
+    assert_selector ".reveal-card--m", count: 5
+    assert_selector ".reveal-card__face .card.card--m", count: 5, visible: :all
     assert_selector ".card__art[data-art]", count: 5, visible: :all
 
     page.driver.browser.manage.window.resize_to(*PHONE)
-    assert_selector ".pack-reveal--phone .reveal-card--large", count: 1
-    assert_equal 104, page.evaluate_script("document.querySelector('.reveal-card .card__canvas').width")
+    assert_selector ".pack-reveal--phone .reveal-card--xl", count: 1
+    assert_selector ".reveal-card__face .card.card--xl", count: 1, visible: :all
+    assert_equal 109, page.evaluate_script("document.querySelector('.reveal-card .card__canvas').width")
     assert_selector ".reveal-card .card__art[data-art]", visible: :all
 
     page.driver.browser.manage.window.resize_to(*SCREEN_SIZE)
-    assert_selector ".reveal-card--small", count: 5
-    assert_equal 68, page.evaluate_script("document.querySelector('.reveal-card .card__canvas').width")
+    assert_selector ".reveal-card--m", count: 5
+    assert_equal 72, page.evaluate_script("document.querySelector('.reveal-card .card__canvas').width")
 
     # Into the phone layout: the first card not flipped, or the focused one, keeping focus.
     page.execute_script("document.querySelector(#{card(1).to_json}).click()")
     page.driver.browser.manage.window.resize_to(*PHONE)
     assert_selector ".pack-reveal__progress", text: "2 / 5"
     page.driver.browser.manage.window.resize_to(*SCREEN_SIZE)
-    assert_selector ".reveal-card--small", count: 5
+    assert_selector ".reveal-card--m", count: 5
     page.execute_script("document.querySelector(#{card(4).to_json}).focus()")
     page.driver.browser.manage.window.resize_to(*PHONE)
     assert_selector ".pack-reveal__progress", text: "4 / 5"

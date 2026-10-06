@@ -1,64 +1,80 @@
-# One card, face or back, at the small or large size (epic 3, R6, R7;
-# DESIGN.md, Card face, Card back, Rarity seal, Dust). The React Card
-# (app/frontend/components/Card.tsx) renders the same element tree and
-# classes; both share app/frontend/styles/card.css and the pixel parts
-# generated into app/frontend/images/card/ (script/card_art/generate.mjs).
+# The card face, the only one (DESIGN.md: Card face, Card sizes, Rarity
+# icon, Rarity effects; AD-16, AD-27, AD-28): every page draws it here, and
+# the pack reveal receives it as HTML rendered here. Styled by
+# app/frontend/styles/card.css.
 #
-#   render CardComponent.new(card: view, size: :large, side: :face, strings: CardStrings.for([ view ]))
+#   render CardComponent.new(card: view, size: :l)
+#   render CardComponent.new(card: view, size: :m, booster: true)
 #
-# `card` is a Catalog::CardView. The face's art is drawn in the browser by
-# the card-art Stimulus controller, through pixel-art-filter.
+# `card` is a Catalog::CardView. Four sizes: s, m, l, xl. The art is drawn
+# in the browser by the card-art Stimulus controller (pixel-art-filter), the
+# tilt, glare and holo/foil run by the tilt controller. `booster: true`
+# gives a face the booster opening's effects (Rarity effects) and a stronger
+# tilt.
 class CardComponent < ViewComponent::Base
-  SIZES = %i[small large].freeze
-  SIDES = %i[face back].freeze
+  SIZES = %i[s m l xl].freeze
 
-  # The art window, in art pixels (one art pixel is 2 CSS pixels).
-  ART = { small: { width: 68, height: 108 }, large: { width: 104, height: 164 } }.freeze
+  # The art box, in art pixels (one art pixel is 2 CSS pixels): half the
+  # art box of each size in DESIGN.md.
+  ART = {
+    s: { width: 50, height: 51 },
+    m: { width: 72, height: 74 },
+    l: { width: 94, height: 97 },
+    xl: { width: 109, height: 112 }
+  }.freeze
 
-  # The legendary face's sparkles.
-  SPARKLES = 7
+  # Each game's palette is computed at the largest art, so a card shows the
+  # same colours at every size.
+  PALETTE = ART.fetch(:xl)
 
-  # A season seal widens from this season on, to hold two digits.
-  WIDE_SEASON = 10
+  # The tilt's strength, in degrees.
+  TILT_MAX = 10
+  TILT_MAX_BOOSTER = 16
 
-  def initialize(card:, strings:, size: :small, side: :face)
+  # Sizes showing the publisher, and the number with its season.
+  PUBLISHER_SIZES = %i[m l xl].freeze
+  LARGE_SIZES = %i[l xl].freeze
+
+  # Tiers with the holo sheen, and the foil, in each context.
+  HOLO = { default: %w[legendary], booster: %w[rare epic legendary] }.freeze
+  FOIL = { default: [], booster: %w[epic legendary] }.freeze
+
+  def initialize(card:, size: :m, booster: false)
     raise ArgumentError, "unknown card size: #{size.inspect}" unless SIZES.include?(size)
-    raise ArgumentError, "unknown card side: #{side.inspect}" unless SIDES.include?(side)
 
     @card = card
-    @strings = strings
     @size = size
-    @side = side
+    @booster = booster
   end
 
   private
-    attr_reader :card, :strings, :size, :side
+    attr_reader :card, :size, :booster
 
     def classes
-      "card card--#{size} card--#{side} card--rarity-#{card.rarity} card--dust-#{card.dust}"
+      [ "card", "card--#{size}", "card--rarity-#{card.rarity}", ("card--booster" if booster) ].compact.join(" ")
     end
 
-    def face? = side == :face
-    def large? = size == :large
-    def legendary? = card.rarity == "legendary"
+    def tilt_max = booster ? TILT_MAX_BOOSTER : TILT_MAX
 
     def art = ART.fetch(size)
 
-    def sprite(symbol)
-      "#{helpers.vite_asset_path('images/card/sprite.svg')}##{symbol}"
+    def context = booster ? :booster : :default
+
+    def holo? = HOLO.fetch(context).include?(card.rarity)
+    def foil? = FOIL.fetch(context).include?(card.rarity)
+
+    def publisher? = PUBLISHER_SIZES.include?(size) && card.publisher.present?
+
+    def large? = LARGE_SIZES.include?(size)
+
+    def genre = card.genre && SetLabel.genre(card.genre)
+
+    def rarity_name = t("catalog.rarity.#{card.rarity}")
+
+    def rarity_icon
+      tier = Catalog::Rarity::TIERS.invert.fetch(card.rarity.to_sym)
+      helpers.pixel_icon(large? ? "rarity-#{tier}" : "rarity-compact-#{tier}", class: "card__rarity-icon")
     end
 
-    def glyphs(text)
-      text.to_s.upcase.chars
-    end
-
-    def wide_season? = card.season_number >= WIDE_SEASON
-
-    def season_classes
-      wide_season? ? "card__season card__season--wide" : "card__season"
-    end
-
-    def season_seal
-      wide_season? ? "season-seal-wide" : "season-seal"
-    end
+    def number_label = card.number_label(with_season: large?)
 end

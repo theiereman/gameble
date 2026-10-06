@@ -26,7 +26,7 @@ module Catalog
     COLUMNS = [
       "catalog_card_seasons.id", "catalog_cards.slug", "catalog_card_texts.title", "catalog_card_texts.short_description",
       "catalog_cards.publisher", "catalog_cards.store_url", "catalog_cards.release_date",
-      "catalog_seasons.number", "catalog_card_seasons.rarity", "catalog_card_seasons.dust_tier", "catalog_cards.image_url",
+      "catalog_seasons.number", "catalog_card_seasons.rarity", "catalog_cards.image_url",
       "catalog_seasons.number = #{LATEST}", "catalog_card_seasons.number", CardViews::GENRE
     ].freeze
 
@@ -36,16 +36,16 @@ module Catalog
       row = card_season(slug.to_s, locale.to_s, season_number)
       return if row.nil?
 
-      id, slug, title, description, publisher, store_url, release_date, season_number, rarity, dust, image_url, current,
+      id, slug, title, description, publisher, store_url, release_date, season_number, rarity, image_url, current,
         number, genre = row
       view = CardView.new(id: slug, title:, publisher:, year: release_date.year, season_number:,
-        rarity:, dust: CardSeason.dust_tiers.fetch(dust), image_url:, number:, genre:)
+        rarity:, image_url:, number:, genre:)
       Detail.new(view:, short_description: description.presence, publisher:, store_url:,
         sets: sets(id), card_season_id: id, current_season: current)
     end
 
     def self.card_season(slug, locale, season_number)
-      scope = CardSeason.where.not(rarity: nil).where.not(dust_tier: nil)
+      scope = CardSeason.where.not(rarity: nil)
         .joins(:card, :season)
         .joins("JOIN catalog_card_texts ON catalog_card_texts.card_id = catalog_card_seasons.card_id")
         .where(catalog_cards: { slug: }, catalog_card_texts: { locale: }, catalog_seasons: { status: "published" })

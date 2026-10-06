@@ -7,7 +7,6 @@ import { registerComponent } from "turbo-mount/react"
 import { createElement, lazy, Suspense, type ComponentType } from "react"
 
 import RevealErrorBoundary from "../components/RevealErrorBoundary"
-import type { CardPreviewProps } from "../components/CardPreview"
 import type { PackRevealProps } from "../components/PackReveal"
 
 const application = Application.start()
@@ -17,12 +16,6 @@ const turboMount = new TurboMount({ application })
 // Turbo Mount types components as taking no props; the props arrive as JSON written by Rails,
 // so each island's own props type is the contract, checked inside the component.
 const island = <P>(component: ComponentType<P>) => component as ComponentType
-
-// The back-office card preview: only its page mounts it, so its code loads
-// on demand. A recorded exception to AD-16's two islands.
-const CardPreview = lazy(() => import("../components/CardPreview"))
-const LazyCardPreview = (props: CardPreviewProps) => createElement(Suspense, { fallback: null }, createElement(CardPreview, props))
-registerComponent(turboMount, "CardPreview", island(LazyCardPreview))
 
 // The pack reveal (AD-16), mounted once right after an opening: its code
 // loads on that page only.

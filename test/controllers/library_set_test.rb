@@ -66,7 +66,8 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
       end
     end
     assert_equal expected, slots
-    assert_select ".open-tome__slots .card.card--small.card--face", 3
+    assert_select ".open-tome__slots .card.card--m", 3
+    assert_select "[style]", 0
     assert_select ".open-tome__copies[aria-hidden=true] + .visually-hidden", "2 copies"
     assert_select ".slot .slot__missing", { count: 22, text: "Missing card" }
     assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"

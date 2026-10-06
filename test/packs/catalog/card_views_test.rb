@@ -10,16 +10,16 @@ class Catalog::CardViewsTest < ActiveSupport::TestCase
     Catalog::SetMembership.insert_all!([ { set_id:, card_season_id: card_season.id, position: 1 } ])
   end
 
-  test "three card-seasons in French, with their years, seasons, rarities and dust" do
+  test "three card-seasons in French, with their years, seasons and rarities" do
     portal, common, legendary = catalog_card_seasons(:portal_one), catalog_card_seasons(:common_card_one), catalog_card_seasons(:legendary_card_one)
 
     views = Catalog::CardViews.call([ portal.id, common.id, legendary.id, portal.id ], locale: :fr)
 
     assert_equal [ portal.id, common.id, legendary.id ].sort, views.keys.sort
     assert_equal Catalog::CardView.new(id: "portal", title: "Portal", publisher: "Valve", year: 2007, season_number: 1,
-      rarity: "epic", dust: 3, image_url: "https://images.example.test/400.jpg", number: 4, genre: nil), views.fetch(portal.id)
-    assert_equal [ "Soldat de plomb", nil, 2024, "common", 0 ], views.fetch(common.id).then { [ it.title, it.publisher, it.year, it.rarity, it.dust ] }
-    assert_equal [ "Couronne d'or", 1998, "legendary", 4 ], views.fetch(legendary.id).then { [ it.title, it.year, it.rarity, it.dust ] }
+      rarity: "epic", image_url: "https://images.example.test/400.jpg", number: 4, genre: nil), views.fetch(portal.id)
+    assert_equal [ "Soldat de plomb", nil, 2024, "common" ], views.fetch(common.id).then { [ it.title, it.publisher, it.year, it.rarity ] }
+    assert_equal [ "Couronne d'or", 1998, "legendary" ], views.fetch(legendary.id).then { [ it.title, it.year, it.rarity ] }
     assert_equal "Golden Crown", Catalog::CardViews.call([ legendary.id ], locale: "en").fetch(legendary.id).title
   end
 
@@ -44,7 +44,7 @@ class Catalog::CardViewsTest < ActiveSupport::TestCase
 
   test "the number label: the season and the number, digits grouped by three with a no-break space, no total" do
     view = ->(season_number, number) { Catalog::CardView.new(id: "x", title: "X", publisher: nil, year: 2000, season_number:,
-      rarity: "common", dust: 0, image_url: "/art.png", number:, genre: nil) }
+      rarity: "common", image_url: "/art.png", number:, genre: nil) }
 
     assert_equal "S1 · #4\u00A0215", view.(1, 4_215).number_label
     assert_equal "S12 · #7", view.(12, 7).number_label
@@ -53,21 +53,22 @@ class Catalog::CardViewsTest < ActiveSupport::TestCase
     assert_nil view.(1, nil).number_label
   end
 
-  test "a draft card-season, without rarity or dust, is left out" do
+  test "the short number label: the number alone, grouped the same way" do
+    view = ->(number) { Catalog::CardView.new(id: "x", title: "X", publisher: nil, year: 2000, season_number: 12,
+      rarity: "common", image_url: "/art.png", number:, genre: nil) }
+
+    assert_equal "#4\u00A0215", view.(4_215).number_label(with_season: false)
+    assert_equal "#7", view.(7).number_label(with_season: false)
+    assert_nil view.(nil).number_label(with_season: false)
+  end
+
+  test "a draft card-season, without rarity, is left out" do
     draft_season = Catalog::Season.create!(number: 2)
     draft = Catalog::CardSeason.create!(card: catalog_cards(:portal), season: draft_season, prestige_score: 0.5, rating: 90)
     portal = catalog_card_seasons(:portal_one)
 
     assert_equal [ portal.id ], Catalog::CardViews.call([ draft.id, portal.id ], locale: :en).keys
     assert_equal({}, Catalog::CardViews.call([], locale: :en))
-  end
-
-  test "to_props mirrors the TypeScript CardView, in camelCase" do
-    view = Catalog::CardView.new(id: "portal", title: "Portal", publisher: nil, year: 2007, season_number: 12,
-      rarity: "rare", dust: 2, image_url: "/art.png", number: 4_215, genre: "puzzle")
-
-    assert_equal({ id: "portal", title: "Portal", publisher: nil, year: 2007, seasonNumber: 12, rarity: "rare", dust: 2, imageUrl: "/art.png",
-      number: 4_215, genre: "puzzle" }, view.to_props)
   end
 
   test "one query" do

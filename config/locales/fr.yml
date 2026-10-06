@@ -157,17 +157,14 @@ fr:
     cards:
       index:
         heading: "La presse à cartes"
-        intro: "La face et le dos de chaque rareté aux deux tailles, puis un dos sous chaque niveau de poussière : à gauche tels que les pages les dessinent, à droite tels que la révélation les dessinera. Les deux doivent concorder trait pour trait. L'image est un échantillon du coffre de la Confrérie ; celle de la peu commune manque exprès, pour montrer une carte sans image."
-        server: "Les pages"
-        react: "La révélation"
-        label: "%{rarity}, %{side}, %{size}"
-        dust_label: "%{rarity}, %{side}, %{size}, poussière %{level}"
-        sides:
-          face: "face"
-          back: "dos"
+        intro: "La face de chaque rareté aux quatre tailles, puis chaque rareté en taille M avec les effets du booster. Survolez une carte pour l'incliner. L'image est un échantillon du coffre de la Confrérie ; celle de la peu commune manque exprès, pour montrer une carte sans image."
+        label: "%{rarity}, %{size}"
+        booster_label: "%{rarity}, %{size}, booster"
         sizes:
-          small: "petite"
-          large: "grande"
+          s: "taille S"
+          m: "taille M"
+          l: "taille L"
+          xl: "taille XL"
         samples:
           common: "Soldat de plomb"
           uncommon: "Collines vertes"
@@ -329,7 +326,8 @@ fr:
   cards:
     face_down: "Carte face cachée"
     face_down_with_rarity: "Carte face cachée, %{rarity}"
-    season: "Saison %{number}"
+    face:
+      image_missing: "Image indisponible"
     show:
       invitation: "Ouvrez des boosters, complétez des sets, échangez avec vos amis."
       sign_in: "Ouvrir mes premiers boosters"
