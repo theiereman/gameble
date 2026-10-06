@@ -63,16 +63,16 @@ class Steam::CardsTest < ActiveSupport::TestCase
     Steam::PrestigeScore.call(percent_positive: percent, review_count: count)
   end
 
-  test "the prestige score lets acclaim dominate and the count only nudge" do
-    assert_in_delta 0.965, score(95, 1_000), 0.0005
-    assert_in_delta 0.986, score(95, 10_000), 0.0005
-    assert_in_delta 1.012, score(99, 1_000), 0.0005
-    assert_in_delta 0.027, score(0, 500), 0.0005
-    assert_in_delta 0.470, score(40, 10_000_000), 0.0005
-    assert_in_delta 1.006, score(99, 600), 0.0005
-    assert_operator score(95, 1_000), :<, score(95, 10_000)
-    assert_operator score(95, 10_000), :<, score(99, 1_000)
-    assert_operator score(40, 10_000_000), :<, score(99, 600), "a little-known game is never rare for being little known"
+  test "the prestige score lets popularity lead and acclaim separate" do
+    assert_in_delta 6.739, score(95, 1_000), 0.0005
+    assert_in_delta 6.927, score(99, 1_000), 0.0005
+    assert_in_delta 2.699, score(0, 500), 0.0005
+    assert_in_delta 9.654, score(87, 1_500_000), 0.0005
+    assert_in_delta 7.602, score(98, 5_000), 0.0005
+    assert_operator score(98, 5_000), :<, score(87, 1_500_000), "a blockbuster ranks above a small acclaimed game"
+    assert_operator score(95, 10_000), :<, score(92, 200_000), "twenty times the reviews outweigh three points of score"
+    assert_operator score(95, 1_000), :<, score(99, 1_000), "among games known alike, the better liked ranks higher"
+    assert_operator score(100, 500), :<, score(95, 10_000), "a perfect score does not lift a little-known game above a well-known, well-liked one"
   end
 
   test "the prestige score is strictly increasing in each input over a grid of the domain" do

@@ -53,7 +53,7 @@ The `Steam` and `Catalog` packs and the import pages of the back-office. Not the
 
 ## Notes
 
-- Open question: prestige formula and tier thresholds; calibrated on the first real import.
+- Open question: prestige formula and tier thresholds; calibrated on the first real import. Resolved: tier shares kept at calibration (2026-10-06), formula chosen by the author in story 2.12 (2026-10-06).
 - Unknown: the duration of a full import pass under Steam's rate limit; measured on the first run.
 - Retrospective (2026-10-03): not accepted until season 1 is published from a real import; see `epic-steam-catalog-retrospective.md`. Follow-ups: story 10 (no store API), story 11 (import hardening), then the author's real import, calibration and publication, then a new retrospective.
 - Degraded local import (2026-10-03, development): 1,000 listed games, 502 kept by the review filter, 498 cards written into draft season 2; all steps but genres took 14 s, genres (store API) about 17 min.
@@ -73,4 +73,4 @@ The `Steam` and `Catalog` packs and the import pages of the back-office. Not the
 - Assumption: the set check was run by the facilitator in this conversation, not by independent agents.
 - Measurement (2026-10-06, staging gameble.dotsncircles.com, author): the first full real import ran 13:53:57–14:49:19 UTC (55 min): 190,718 apps listed and reviewed, 12,326 kept (500 reviews or more), 178,392 set aside, 446 tags named, 12,326 store pages copied, 19 set aside there, 12,307 cards written, 0 refused, 0 struck from the draft.
 - Measurement (2026-10-06, staging): season 1 published at 15:02:33 UTC with 12,307 cards: Commune 7,384 (60 %), Peu commune 3,076 (25 %), Rare 1,231 (10 %), Épique 492 (4 %), Légendaire 124 (1 %); 380 publisher sets, 406 tomes, 37 best-of-year sets. Calibration kept the starting values (COUNT_WEIGHT, the tier shares, TOME_SIZE); season 1 is frozen, a change applies from season 2.
-
+- Decision (2026-10-06, author, story 2.12): the prestige score becomes `log10(review_count) + 4 × Wilson lower bound` (z = 1.96), popularity first, after a simulation on the 12,326 games of the staging import (the 124 Légendaires would be games with about 93k reviews or more and at least 76 % positive, e.g. Counter-Strike 2, Dota 2, Elden Ring, Skyrim, Red Dead Redemption 2, Cyberpunk 2077). It supersedes the 2026-10-02 starting formula and `COUNT_WEIGHT`; season 1 on staging is not republished, the formula applies from the next publication or rescore.

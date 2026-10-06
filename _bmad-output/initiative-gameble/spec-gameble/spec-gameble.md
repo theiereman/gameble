@@ -208,7 +208,6 @@ The author plays gameble every day for a month alongside at least 10 active play
 
 ## Open Questions
 
-- **Prestige formula (CAP-3):** how do Steam review score and review count combine into the 5 tiers? This is calibrated on real import data.
 - **Achievements (CAP-17):** which achievements exist?
 - **Weekly goal pack (CAP-12):** what are the odds of the weekly goal's rare pack?
 - **Weekly goal (CAP-12):** how much does a trade count compared with a pack opening?

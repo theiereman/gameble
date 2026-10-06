@@ -57,7 +57,7 @@ One Rails application and its Steam import, cut by capability. Not the V2 market
 - Decision: the daily bonus (CAP-16) sits with packs and achievements (CAP-17) with the Brotherhood; approved 2026-10-02.
 - Decision: CAP-18 is shared — epic 1 delivers the access rules, epic 4 the public pages; approved 2026-10-02.
 - Decision: every choice more than one epic must adopt lives in the architecture spine; no cross-epic decision entry is needed.
-- Open question: prestige formula and tier thresholds (spec); epic-steam-catalog waits on real import data.
+- Open question: prestige formula and tier thresholds (spec); epic-steam-catalog waits on real import data. Resolved 2026-10-06: tier shares kept at calibration, formula chosen by the author (story 2.12).
 - Open question: the list of achievements (spec); epic-brotherhood waits on it.
 - Decision (2026-10-03): daily bonus booster odds confirmed (spec CAP-16). Open question: odds of the weekly goal's rare pack (spec); epic-brotherhood waits on it.
 - Direction (2026-10-03): the author will redo the UX through bmad-ux, menus with a screen per feature replacing the attic's object metaphor.

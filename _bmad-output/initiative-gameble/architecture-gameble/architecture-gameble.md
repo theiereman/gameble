@@ -488,7 +488,7 @@ gameble/
 
 ## Deferred
 
-- **Prestige formula and tier thresholds:** calibrated on the first real import (open question in the spec).
+- **Prestige formula and tier thresholds:** settled on the first real import: the tier shares in `Catalog::RarityThresholds` were kept, and the formula is `log10(review_count) + 4 × Wilson lower bound` (author, 2026-10-06, story 2.12; `catalog-and-rarity.md`, Rarity).
 - **Achievement list, the weekly goal pack's odds, weight of a trade in the weekly goal, the goal's reached, missed and rollover states:** product questions still open in the spec; the structures above hold whatever is chosen.
 - **Reward packs and the cap of ten:** whether the weekly goal's pack lands above 10 (spec open question); AD-7 holds either answer.
 - **Which card backs ship and their unlock rules:** open in the spec; AD-25's constant holds them.

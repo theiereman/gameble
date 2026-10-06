@@ -4,17 +4,25 @@ module Steam
   # count, nothing else (Metacritic never). Catalog::PublishSeason cuts the
   # rarity tiers from it.
   #
-  # The Wilson lower bound of the positive share at 95 % (z = 1.96), plus
-  # COUNT_WEIGHT × log10(review_count). Acclaim dominates; the count only
-  # nudges, so a little-known game is never rare for being little known.
-  # Strictly increasing in each input. A starting formula: COUNT_WEIGHT is
-  # calibrated on the first real import, with the draft season's preview
-  # (Catalog::DraftPreview) and a rescore (Steam::RescoreCards).
+  # log10(review_count) + SHARE_WEIGHT × the Wilson lower bound of the
+  # positive share at 95 % (z = 1.96). Popularity leads and acclaim
+  # separates: a tenfold count is worth one point, the share at most
+  # SHARE_WEIGHT points, so the best-known games are the rarest and, among
+  # games known alike, the better liked one ranks higher. Strictly
+  # increasing in each input.
   #
-  #   Steam::PrestigeScore.call(percent_positive: 95, review_count: 1_000) # => 0.9647…
+  # Chosen by the author on 2026-10-06 (story 2.12), after a simulation on
+  # the 12,326 games of the first real import: with SHARE_WEIGHT = 4 the
+  # Légendaires are games with about 93k reviews or more and at least 76 %
+  # positive (Counter-Strike 2, Dota 2, Elden Ring, Skyrim…), where the
+  # earlier Wilson + 0.01 × log10(count) made small acclaimed games
+  # Légendaires. It applies from the next publication or rescore
+  # (Steam::RescoreCards); a published season never changes.
+  #
+  #   Steam::PrestigeScore.call(percent_positive: 95, review_count: 1_000) # => 6.7387…
   module PrestigeScore
     Z = 1.96
-    COUNT_WEIGHT = 0.01
+    SHARE_WEIGHT = 4
 
     # `percent_positive` an Integer 0–100, `review_count` an Integer ≥ 1;
     # anything else (nil included) raises ArgumentError.
@@ -26,7 +34,7 @@ module Steam
         raise ArgumentError, "review_count must be an Integer of at least 1, got #{review_count.inspect}"
       end
 
-      wilson_lower_bound(percent_positive.fdiv(100), review_count.to_f) + COUNT_WEIGHT * Math.log10(review_count)
+      Math.log10(review_count) + SHARE_WEIGHT * wilson_lower_bound(percent_positive.fdiv(100), review_count.to_f)
     end
 
     def self.wilson_lower_bound(share, count)
