@@ -1088,6 +1088,7 @@ const DESCRIPTIONS = {
   ...Object.fromEntries(TIER_NAMES.map((tier, i) => [`rarity-${i + 1}.svg`, `${tier} rarity icon, ${TIER_SHAPES[i]}, 7 × 7`])),
   ...Object.fromEntries(TIER_NAMES.map((tier, i) => [`rarity-compact-${i + 1}.svg`, `${tier} rarity icon for card faces, ${TIER_SHAPES[i]}, 5 × 5`])),
   "picture.svg": "Missing cover art: a frame, a sun and a mountain (text colour)",
+  "lock.svg": "A missing card's padlock on its empty slot (10 × 12, text colour)",
   "arrow-left.svg": "◀ arrow (text colour)",
   "arrow-right.svg": "▶ arrow (text colour)",
   "arrow-small-right.svg": "▸ small arrow for links (text colour)",

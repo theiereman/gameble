@@ -13,6 +13,8 @@ class PixelArtExportTest < ActiveSupport::TestCase
   # Half of each DESIGN.md card size: one art pixel is 2 CSS px.
   BACK_SIZES = { "xs" => [ 50, 75 ], "s" => [ 56, 84 ], "m" => [ 80, 120 ], "l" => [ 104, 156 ], "xl" => [ 120, 180 ] }.freeze
   AVATAR_COLOURS = %w[blue pink gold jade orange lavender grey violet].freeze
+  # Every committed file is one the script writes.
+  FILE_COUNT = Dir.children(PIXEL_DIR).count
 
   test "the committed pixel art matches the export script" do
     output, status = export("--check")
@@ -26,7 +28,7 @@ class PixelArtExportTest < ActiveSupport::TestCase
 
       assert_predicate status, :success?, output
       assert_equal Dir.children(PIXEL_DIR).sort, Dir.children(dir).sort
-      assert_match(/81 pixel-art files/, output)
+      assert_match(/#{FILE_COUNT} pixel-art files/, output)
     end
   end
 
@@ -49,7 +51,7 @@ class PixelArtExportTest < ActiveSupport::TestCase
       output, status = export("--check", "--out", dir)
 
       assert_predicate status, :success?, output
-      assert_match(/81 pixel-art files up to date/, output)
+      assert_match(/#{FILE_COUNT} pixel-art files up to date/, output)
     end
   end
 
