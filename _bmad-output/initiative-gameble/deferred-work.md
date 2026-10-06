@@ -229,3 +229,6 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-single-card-face-plan.md`
   summary: `script/card_art/generate.mjs` cannot run any more: it reads `ux-gameble/mockups/card-backs.html`, removed by the UX redesign (5de0377); the card backs and `sprite.svg` can only be edited by hand until story 8.11 redraws the backs.
   evidence: Story 8.6: re-running the script to drop the unused season seal and glyph symbols failed with ENOENT; those symbols were removed from `app/frontend/images/card/sprite.svg` by hand and from the script.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-opening-exchange-plan.md`
+  summary: A JSON opening (AD-23) with a missing or stale CSRF token answers Rails' 422 HTML page, not the `{ error: { code, message } }` envelope; the booster island (8.11) must send `X-CSRF-Token` and decide how a stale token (another tab signed out) is answered or handled.
+  evidence: Story 8.10 review: ApplicationController keeps `protect_from_forgery with: :exception` and rescues only Pundit's refusal; the test environment disables forgery protection, so no test covers it.

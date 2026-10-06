@@ -4,6 +4,12 @@ module Game
   # available and, once opened, the time it was. Bonus and reward packs are
   # rows of the same table. Addressed in URLs by its token (AD-15).
   #
+  # Once opened, a pack also keeps the card back the player had on
+  # (`card_back`, a Game::CardBacks key; nil for the packs opened before it
+  # was kept) and, when the booster's JSON exchange opened it, the request's
+  # Idempotency-Key (`idempotency_key`, a UUID unique per player, AD-23), so
+  # the same request replays the same pack.
+  #
   # No association to Catalog: the database keys suffice, and the catalog is
   # read through its queries. Written only through the operations of this
   # pack (AD-3).
@@ -42,6 +48,12 @@ module Game
 
     def opened?
       opened_at.present?
+    end
+
+    # The key of the card back the pack was opened with: `standard` for a
+    # pack opened before the back was kept.
+    def card_back_key
+      card_back || CardBacks::STANDARD
     end
   end
 end

@@ -96,4 +96,99 @@ class Game::OpenPackTest < ActiveSupport::TestCase
       I18n.with_locale(locale) { assert_predicate Game::OpenPack.failure_message(:no_pack_available), :present? }
     end
   end
+
+  # --- The opening exchange's key (AD-23) ---------------------------------
+
+  KEY = "0f8e2c4a-6b1d-4e3f-9a7c-5d2b8e1f3a6c".freeze
+
+  def open_with(key, player: @player) = Game::OpenPack.new.call(player:, idempotency_key: key)
+
+  # Everything an opening writes for the player.
+  def written
+    [ Game::Pack.where(player_id: @player.id).order(:id).pluck(:id, :opened_at, :idempotency_key, :card_back), holdings, game_events(@player).size ]
+  end
+
+  test "an opening with a key stores the key and the standard card back" do
+    create_pack(@player)
+
+    pack = open_with(KEY).value!
+
+    assert_equal KEY, pack.reload.idempotency_key
+    assert_equal "standard", pack.card_back
+    assert_equal "standard", pack.card_back_key
+  end
+
+  test "the same key again returns the same pack and writes nothing, even with no pack left" do
+    Game::FillBank.new.call(player: @player).value!
+    first = open_with(KEY).value!
+
+    assert_no_changes -> { written } do
+      assert_equal first, open_with(KEY).value!
+      assert_equal first, open_with(KEY.upcase).value!
+    end
+
+    9.times { open.value! }
+    Game::Pack.where(player_id: @player.id).unopened.delete_all
+    assert_equal :no_pack_available, open.failure
+    assert_no_changes -> { written } do
+      assert_equal first, open_with(KEY).value!
+    end
+    assert_equal 1, game_events(@player, Game::PackOpened).count { it.data[:pack_id] == first.id }
+  end
+
+  test "a malformed key is refused before any write" do
+    create_pack(@player)
+
+    [ "", "not-a-uuid", "#{KEY}x", KEY.delete("-"), 42 ].each do |key|
+      assert_no_changes -> { written } do
+        assert_equal :invalid_idempotency_key, open_with(key).failure, key.inspect
+      end
+    end
+  end
+
+  test "another player's key is a new key: it opens this player's pack" do
+    moderator = accounts_players(:moderator)
+    create_pack(moderator)
+    theirs = open_with(KEY, player: moderator).value!
+    mine = create_pack(@player)
+
+    assert_equal mine, open_with(KEY).value!
+    assert_not_equal theirs, mine
+    assert_equal KEY, mine.reload.idempotency_key
+  end
+
+  test "without a key, the pack opens as before, keeps no key and the standard back" do
+    create_pack(@player)
+
+    pack = open.value!.reload
+
+    assert_nil pack.idempotency_key
+    assert_equal "standard", pack.card_back
+  end
+
+  test "a pack opened before the back was kept reads as standard" do
+    pack = create_pack(@player, opened_at: 1.minute.ago)
+
+    assert_nil pack.card_back
+    assert_equal Game::CardBacks::STANDARD, pack.card_back_key
+  end
+
+  test "replay? is true only for a well-formed key a pack of the player's carries" do
+    create_pack(@player)
+    open_with(KEY).value!
+
+    assert Game::OpenPack.replay?(@player, KEY)
+    assert Game::OpenPack.replay?(@player, KEY.upcase)
+    assert_not Game::OpenPack.replay?(accounts_players(:moderator), KEY)
+    assert_not Game::OpenPack.replay?(nil, KEY)
+    assert_not Game::OpenPack.replay?(@player, SecureRandom.uuid)
+    assert_not Game::OpenPack.replay?(@player, "not-a-uuid")
+    assert_not Game::OpenPack.replay?(@player, nil)
+  end
+
+  test "invalid_idempotency_key has a message in both locales" do
+    %i[en fr].each do |locale|
+      I18n.with_locale(locale) { assert_predicate Game::OpenPack.failure_message(:invalid_idempotency_key), :present? }
+    end
+  end
 end

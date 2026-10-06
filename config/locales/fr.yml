@@ -451,6 +451,7 @@ fr:
       already_collected: "Vous avez déjà récupéré le booster du jour. Le prochain sera prêt à minuit (UTC)."
       no_season: "Aucune saison de cartes n'est encore ouverte. Revenez plus tard pour le booster du jour."
       reserve_full: "Votre réserve est pleine : ouvrez un booster pour récupérer celui du jour."
+      invalid_idempotency_key: "La demande d'ouverture est mal formée. Rechargez la page et réessayez."
     steam:
       invalid_claimed_id: "La réponse de Steam n'a pas été reconnue. Connectez-vous à nouveau."
       sign_in_failed: "La connexion avec Steam n'a pas abouti. Réessayez."

@@ -1,8 +1,8 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# The Game queries the web layer reads: the chest's count and an opened pack
-# by token.
+# The Game queries the web layer reads: the chest's count, an opened pack by
+# token and the bank's schedule.
 class Game::QueriesTest < ActiveSupport::TestCase
   include GamePacks
 
@@ -33,5 +33,21 @@ class Game::QueriesTest < ActiveSupport::TestCase
     assert_nil Game::OpenedPackByToken.call(@player, unopened.token)
     assert_nil Game::OpenedPackByToken.call(@player, "unknown")
     assert_nil Game::OpenedPackByToken.call(@player, nil)
+  end
+
+  test "the bank schedule lists the regular packs not available yet, earliest first" do
+    now = Time.current.change(usec: 0)
+    create_pack(@player)
+    create_pack(@player, available_at: now + 20.minutes)
+    create_pack(@player, available_at: now + 10.minutes)
+    create_pack(@player, available_at: now + 5.minutes, kind: :bonus)
+    create_pack(@player, available_at: now + 15.minutes, opened_at: 1.minute.ago)
+    create_pack(accounts_players(:moderator), available_at: now + 1.minute)
+
+    schedule = Game::BankSchedule.call(@player, now:)
+
+    assert_equal [ now + 10.minutes, now + 20.minutes ], schedule
+    assert_equal Game::BankSummary.call(@player, now:)[:next_available_at], schedule.first
+    assert_empty Game::BankSchedule.call(accounts_players(:moderator), now: now + 1.minute)
   end
 end

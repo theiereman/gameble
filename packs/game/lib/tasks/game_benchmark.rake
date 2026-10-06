@@ -2,9 +2,11 @@
 # opening to answer within 200 ms at the 95th percentile. This task builds a
 # 15,000-card published season and players with full banks in a database of
 # its own, then times, in-process and without concurrency, the opening
-# request (POST /en/packs, the gate), the result page that follows (GET) and
-# the operation alone (Game::OpenPack), three times; it exits non-zero when
-# the worst POST p95 reaches 200 ms. Never in CI.
+# request (POST /en/packs, the gate: the booster's JSON exchange of AD-23,
+# a fresh Idempotency-Key per post, its faces rendered in the answer), the
+# result page that follows (GET of the answer's pack url) and the operation
+# alone (Game::OpenPack), three times; it exits non-zero when the worst POST
+# p95 reaches 200 ms. Never in CI.
 #
 #   RAILS_ENV=test bin/rails game:benchmark_open_pack
 #
@@ -251,21 +253,27 @@ class OpenPackBenchmark
 
       session = sessions.fetch(player_index)
       location = open_over_http(session, post, keep)
-      posts_by_player[http_players.fetch(player_index).id] += 1
+      player_id = http_players.fetch(player_index).id
+      posts_by_player[player_id] += 1
+      # Checked as soon as the player's posts are done: the count expires
+      # one rate-limit window after the first, shorter than a whole run.
+      check_rate_limit_ran(player_id, posts_by_player[player_id]) if posts_by_player[player_id] == OPENINGS_PER_PLAYER
       read_over_http(session, location, get, keep)
 
       open_directly(direct_players.fetch(player_index), direct, keep)
     end
-    check_rate_limit_ran(posts_by_player)
 
     { run:, cold_ms:, series: [ post, get, direct ] }
   end
 
+  # The booster's exchange: a JSON POST with a fresh key, answered 200 with
+  # the pack, whose url the GET then reads.
   def open_over_http(session, series, keep)
-    ms, queries, gc = timed { session.post "/en/packs" }
-    location = session.response.location.to_s
-    unless session.response.status == 303 && location.match?(%r{/packs/})
-      refuse("an opening over HTTP failed: #{session.response.status} to #{location.inspect}")
+    headers = { "Accept" => "application/json", "Idempotency-Key" => SecureRandom.uuid }
+    ms, queries, gc = timed { session.post "/en/packs", headers: }
+    location = session.response.status == 200 ? JSON.parse(session.response.body).dig("pack", "url").to_s : ""
+    unless location.match?(%r{/packs/})
+      refuse("an opening over HTTP failed: #{session.response.status}, pack url #{location.inspect}")
     end
     series.add(ms, queries, gc) if keep
     location
@@ -284,13 +292,11 @@ class OpenPackBenchmark
     series.add(ms, queries, gc) if keep
   end
 
-  # The rate limit ran on the in-memory store: its count per player is the
-  # number of POSTs.
-  def check_rate_limit_ran(posts_by_player)
-    posts_by_player.each do |player_id, count|
-      counted = @rate_limit_store.read("rate-limit:packs:#{player_id}", raw: true).to_i
-      refuse("the rate limit counted #{counted} openings of #{count} for player #{player_id}") unless counted == count
-    end
+  # The rate limit ran on the in-memory store: its count for the player is
+  # the number of POSTs.
+  def check_rate_limit_ran(player_id, count)
+    counted = @rate_limit_store.read("rate-limit:packs:#{player_id}", raw: true).to_i
+    refuse("the rate limit counted #{counted} openings of #{count} for player #{player_id}") unless counted == count
   end
 
   # [ms, queries, GC runs] of the block, timed alone.

@@ -22,13 +22,13 @@ class Game::OpenPackConcurrencyTest < ActiveSupport::TestCase
   end
 
   # Two openings started together, each on its own connection.
-  def open_twice
+  def open_twice(idempotency_key: nil)
     gate = Queue.new
     threads = Array.new(2) do
       Thread.new do
         ActiveRecord::Base.connection_pool.with_connection do
           gate.pop
-          Game::OpenPack.new.call(player: Accounts::Player.find(@player.id))
+          Game::OpenPack.new.call(player: Accounts::Player.find(@player.id), idempotency_key:)
         end
       end
     end
@@ -67,5 +67,18 @@ class Game::OpenPackConcurrencyTest < ActiveSupport::TestCase
     assert_equal 1, results.count(&:success?)
     assert_equal [ :no_pack_available ], results.select(&:failure?).map(&:failure)
     assert_equal [ 5 ], Game::Holding.where(player_id: @player.id).pluck(:quantity)
+  end
+
+  test "two openings at once with one key: one pack opened, both answer it" do
+    3.times { |index| create_pack(@player, available_at: (index + 1).minutes.ago) }
+
+    results = open_twice(idempotency_key: SecureRandom.uuid)
+
+    assert results.all?(&:success?)
+    assert_equal 1, results.map { |result| result.value!.id }.uniq.size
+    assert_equal 1, Game::Pack.where(player_id: @player.id).where.not(opened_at: nil).count
+    assert_equal 2, Game::BankSummary.call(@player)[:available]
+    assert_equal [ 5 ], Game::Holding.where(player_id: @player.id).pluck(:quantity)
+    assert_equal 1, Rails.configuration.event_store.read.stream(Game::Operation.stream_name(@player.id)).of_type(Game::PackOpened).count
   end
 end

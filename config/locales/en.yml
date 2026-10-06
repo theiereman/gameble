@@ -441,6 +441,7 @@ en:
       already_collected: "You have already collected today's booster. The next one will be ready at midnight (UTC)."
       no_season: "No season of cards is open yet. Come back later for the daily booster."
       reserve_full: "Your reserve is full: open a booster to collect today's."
+      invalid_idempotency_key: "The opening request was malformed. Reload the page and try again."
     steam:
       invalid_claimed_id: "Steam's answer was not recognised. Sign in again."
       sign_in_failed: "The sign-in through Steam did not go through. Try again."

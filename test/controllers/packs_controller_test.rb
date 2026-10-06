@@ -326,4 +326,253 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     assert_empty countdown
   end
+
+  # --- The booster's opening exchange (JSON, AD-23) -----------------------
+
+  KEY = "3c1f9a2e-7d4b-4c8a-b5e6-0f2d9e8a1b7c".freeze
+
+  def open_json(key = KEY, locale: :en)
+    headers = { "Accept" => "application/json" }
+    headers["Idempotency-Key"] = key unless key.nil?
+    post packs_path(locale:), headers:
+  end
+
+  def body = response.parsed_body
+
+  # Every key of a JSON document, at any depth.
+  def json_keys(node)
+    case node
+    when Hash then node.keys + node.values.flat_map { json_keys(it) }
+    when Array then node.flat_map { json_keys(it) }
+    else []
+    end
+  end
+
+  # [path, value] of every integer in a JSON document.
+  def json_integers(node, path = [])
+    case node
+    when Hash then node.flat_map { |key, value| json_integers(value, path + [ key ]) }
+    when Array then node.flat_map { json_integers(it, path + [ "[]" ]) }
+    when Integer then [ [ path.join("."), node ] ]
+    else []
+    end
+  end
+
+  # Everything an opening writes for the player.
+  def written(player)
+    [ Game::Pack.where(player_id: player.id).order(:id).pluck(:id, :opened_at, :idempotency_key, :card_back),
+      Game::Holding.where(player_id: player.id).order(:card_season_id).pluck(:card_season_id, :quantity),
+      game_events(player).size ]
+  end
+
+  def assert_json_error(status, code, message)
+    assert_response status
+    assert_equal({ "error" => { "code" => code, "message" => message } }, body)
+  end
+
+  test "a JSON opening answers the pack, its cards with their faces, the bank, the server time and the counts before" do
+    player = accounts_players(:player)
+    now = Time.utc(2026, 10, 6, 14, 22)
+    travel_to(now) { Game::FillBank.new.call(player:).value! }
+    oldest = Game::Pack.where(player_id: player.id).available(now).first
+    counts_before = Game::TierCounts.call(player)
+    sign_in(player.steam_id)
+
+    travel_to(now) { open_json }
+
+    assert_response :ok
+    pack = oldest.reload
+    assert_predicate pack, :opened?
+    assert_equal KEY, pack.idempotency_key
+    assert_equal "standard", pack.card_back
+    assert_equal [ pack.id ], game_events(player, Game::PackOpened).map { it.data[:pack_id] }
+
+    assert_equal %w[pack cards bank serverTime tierCountsBefore unlockedCardBacks], body.keys
+    assert_equal({ "token" => pack.token, "kind" => "regular", "cardBack" => "standard", "url" => "/en/packs/#{pack.token}" }, body["pack"])
+    scheduled = (now + 10.minutes).iso8601(3)
+    assert_equal({ "available" => 9, "reserveFull" => false, "nextAvailableAt" => scheduled, "scheduledAt" => [ scheduled ] }, body["bank"])
+    assert_equal "2026-10-06T14:22:00.000Z", body["serverTime"]
+    assert_equal counts_before.transform_keys { Catalog::Rarity::TIERS.fetch(it).to_s }, body["tierCountsBefore"]
+    assert_equal %w[common uncommon rare epic legendary], body["tierCountsBefore"].keys
+    assert_equal [], body["unlockedCardBacks"]
+
+    views = Catalog::CardViews.call(pack.card_season_ids, locale: :en)
+    cards = pack.card_season_ids.map { views.fetch(it) }
+    assert_equal cards.map { [ it.id, it.rarity, it.image_url ] }, body["cards"].map { it.values_at("slug", "tier", "coverUrl") }
+    body["cards"].zip(cards).each do |card, view|
+      assert_equal %w[slug tier coverUrl faces], card.keys
+      assert_equal %w[m xl], card["faces"].keys
+      card["faces"].each do |size, html|
+        face = Nokogiri::HTML5.fragment(html)
+        assert_equal 1, face.css(".card.card--#{size}.card--booster.card--rarity-#{view.rarity}[data-controller=tilt]").size
+        assert_equal view.title, face.at_css(".card__title").text
+        assert_empty face.css("[style]")
+      end
+    end
+
+    # No database id (AD-15): no id key, and the only integers are counts.
+    assert_empty json_keys(body).grep(/\Aid\z|Id\z/)
+    assert_equal [ "bank.available", *%w[common uncommon rare epic legendary].map { "tierCountsBefore.#{it}" } ],
+      json_integers(body).map(&:first)
+  end
+
+  test "a JSON opening that leaves the reserve full and nothing scheduled answers so" do
+    player = accounts_players(:player)
+    10.times { |index| create_pack(player, available_at: (index + 1).minutes.ago) }
+    bonus = create_pack(player, kind: :bonus, available_at: 1.hour.ago)
+    sign_in(player.steam_id)
+
+    open_json
+
+    assert_response :ok
+    assert_equal bonus.token, body.dig("pack", "token")
+    assert_equal({ "available" => 10, "reserveFull" => true, "nextAvailableAt" => nil, "scheduledAt" => [] }, body["bank"])
+  end
+
+  test "the same key again replays the same answer, with nothing opened, even once the reserve is empty" do
+    player = accounts_players(:player)
+    first = create_pack(player, cards: fixture_tier_ids, available_at: 2.minutes.ago)
+    create_pack(player)
+    sign_in(player.steam_id)
+    open_json
+    answer = body
+
+    assert_no_changes -> { written(player) } do
+      open_json
+    end
+    assert_response :ok
+    assert_equal answer.slice("pack", "cards", "tierCountsBefore"), body.slice("pack", "cards", "tierCountsBefore")
+    assert_equal first.token, body.dig("pack", "token")
+    assert_equal %w[common uncommon rare epic legendary], body["cards"].map { it["tier"] }
+
+    open_json(SecureRandom.uuid)
+    assert_equal 0, body.dig("bank", "available")
+    assert_no_changes -> { written(player) } do
+      open_json(KEY.upcase)
+    end
+    assert_response :ok
+    assert_equal answer["cards"], body["cards"]
+    assert_equal first.token, body.dig("pack", "token")
+    assert_equal 0, body.dig("bank", "available")
+  end
+
+  test "replays are not counted by the rate limit, and replay past it; a 31st new key is throttled with Retry-After" do
+    player = accounts_players(:player)
+    31.times { |index| create_pack(player, available_at: (index + 1).minutes.ago) }
+    sign_in(player.steam_id)
+    keys = Array.new(31) { SecureRandom.uuid }
+
+    with_counting_rate_limit(PacksController) do
+      keys.first(29).each { open_json(it) }
+      first_token = Game::Pack.find_by!(player_id: player.id, idempotency_key: keys.first).token
+      3.times do
+        open_json(keys.first)
+        assert_response :ok
+        assert_equal first_token, body.dig("pack", "token")
+      end
+      open_json(keys[29])
+      assert_response :ok
+
+      assert_no_changes -> { written(player) } do
+        open_json(keys[30])
+      end
+      assert_json_error :too_many_requests, "throttled", I18n.t("packs.create.throttled", locale: :en)
+      assert_equal "60", response.headers["Retry-After"]
+
+      open_json(keys.first)
+      assert_response :ok
+      assert_equal first_token, body.dig("pack", "token")
+    end
+    assert_equal 1, Game::BankSummary.call(player)[:available]
+  end
+
+  test "another player's key opens this player's own pack" do
+    moderator = accounts_players(:moderator)
+    create_pack(moderator)
+    Game::OpenPack.new.call(player: moderator, idempotency_key: KEY).value!
+    player = accounts_players(:player)
+    mine = create_pack(player)
+    sign_in(player.steam_id)
+
+    open_json
+
+    assert_response :ok
+    assert_equal mine.token, body.dig("pack", "token")
+    assert_equal KEY, mine.reload.idempotency_key
+  end
+
+  test "an empty reserve answers 422 no_pack_available and writes nothing" do
+    player = accounts_players(:player)
+    create_pack(player, available_at: 1.day.from_now)
+    sign_in(player.steam_id)
+
+    assert_no_changes -> { written(player) } do
+      open_json(locale: :fr)
+    end
+
+    assert_json_error :unprocessable_content, "no_pack_available", I18n.t("errors.game.no_pack_available", locale: :fr)
+  end
+
+  test "a visitor's JSON opening answers 401 sign_in_required and writes nothing" do
+    create_pack(accounts_players(:player))
+
+    assert_no_difference [ -> { Game::Pack.where.not(opened_at: nil).count }, -> { Game::Holding.count } ] do
+      open_json
+    end
+
+    assert_json_error :unauthorized, "sign_in_required", I18n.t("authorization.sign_in_required", locale: :en)
+  end
+
+  test "a JSON opening without a key, or with one that is not a UUID, answers 400 invalid_idempotency_key" do
+    player = accounts_players(:player)
+    create_pack(player)
+    sign_in(player.steam_id)
+
+    [ nil, "", "not-a-uuid", KEY.delete("-") ].each do |key|
+      assert_no_changes -> { written(player) } do
+        open_json(key)
+      end
+      assert_json_error :bad_request, "invalid_idempotency_key", I18n.t("errors.game.invalid_idempotency_key", locale: :en)
+    end
+  end
+
+  test "a daily bonus pack answers its three cards, each with its two faces" do
+    player = accounts_players(:player)
+    create_pack(player, kind: :bonus, cards: fixture_tier_ids.last(3), available_at: 1.day.ago)
+    sign_in(player.steam_id)
+
+    open_json
+
+    assert_response :ok
+    assert_equal "bonus", body.dig("pack", "kind")
+    assert_equal %w[rare epic legendary], body["cards"].map { it["tier"] }
+    body["cards"].each do |card|
+      assert_equal %w[m xl], card["faces"].keys
+      card["faces"].each { |size, html| assert_equal 1, Nokogiri::HTML5.fragment(html).css(".card.card--#{size}.card--booster").size }
+    end
+  end
+
+  test "the form's opening keeps the standard card back and no key" do
+    player = accounts_players(:player)
+    pack = create_pack(player)
+    sign_in(player.steam_id)
+
+    post packs_path(locale: :en)
+
+    assert_redirected_to "/en/packs/#{pack.token}"
+    assert_equal [ nil, "standard" ], [ pack.reload.idempotency_key, pack.card_back ]
+  end
+
+  test "the pack's page after a JSON opening shows the cards face up, without the reveal" do
+    player = accounts_players(:player)
+    create_pack(player)
+    sign_in(player.steam_id)
+    open_json
+
+    get body.dig("pack", "url")
+
+    assert_response :success
+    assert_nil reveal_props
+    assert_select ".pack-result__card .card.card--m", 5
+  end
 end

@@ -3,7 +3,8 @@ module Game
   # now, of every kind (Game::Reserve), whether it is full, and when the next
   # pack of the bank comes (R4): the earliest future availability time among
   # the unopened regular packs, nil when every one is available or the
-  # player has no bank. Bonus and reward packs never move it.
+  # player has no bank: the first of Game::BankSchedule, the times the
+  # opening exchange answers. Bonus and reward packs never move it.
   # `bonus_collectable`: a season is published and the player has no daily
   # bonus claim for the UTC day of `now` (CAP-16), the same two checks as
   # Game::CollectDailyBonus, without loading the draw pool. `reserve_full`:
@@ -19,7 +20,7 @@ module Game
       {
         available:,
         reserve_full: Reserve.full?(available),
-        next_available_at: Pack.bank(player.id).where.not(available_at: ..now).minimum(:available_at),
+        next_available_at: BankSchedule.call(player, now:).first,
         bonus_collectable: Catalog::PublishedSeason.call.present? &&
           !DailyBonusClaim.exists?(player_id: player.id, day: DailyBonusClaim.day_of(now))
       }
