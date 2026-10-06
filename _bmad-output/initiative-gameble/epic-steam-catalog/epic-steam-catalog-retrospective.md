@@ -1,17 +1,17 @@
 ---
 epic: epic-steam-catalog
 date: 2026-10-06
-verdict: rejected
+verdict: accepted-with-open-items
 criteria: declared
 headless: true
 ---
 
-# Retrospective: Steam catalog (epic 2), re-run
+# Retrospective: Steam catalog (epic 2), third run
 
-This is a re-run of the 2026-10-03 retrospective (verdict `rejected`), which this file replaces. Current evidence wins over the earlier record. Since then, three things changed:
-- Stories 2.10 and 2.11 were built.
-- The remediation items from the earlier run landed.
-- Later epics changed code this epic owns: 25 tome genres, tiers renamed in story 8.3, `dust_tier` dropped in story 8.7, and the Kamal staging destination.
+This run replaces the two earlier ones: 2026-10-03, verdict `rejected`, and the morning of 2026-10-06 (`200521d`), also `rejected`. The second run said the code side was complete and the verdict was rejected only because no Steam season had been published from a real import. Current evidence wins. Since then, one thing changed:
+- `d3a768f` (docs) records that the author deployed staging (gameble.dotsncircles.com) and ran the first full real import there on 2026-10-06, then published season 1.
+
+No code changed after the second run (`git log 200521d..HEAD` holds only `d3a768f`).
 
 ## Epic summary
 
@@ -35,10 +35,9 @@ This is a re-run of the 2026-10-03 retrospective (verdict `rejected`), which thi
 
 - **Unfinished tickets (`pending_tickets`):** none. All eleven are `status = built`.
 - **Tickets still at `built`, not called done:** all eleven. The owner has marked none of them done.
-- **Ticket 2.8 is `built`, but its hitl part is still not done.**
-  - `pending-approvals.md` still lists "Full real Steam import in development" and "Deploy to the test LXC … and run the first real import there", each marked not run.
-  - `deferred-work.md` still holds the open entry "The first real Steam import and the calibration are not done".
-  - The epic Notes record no measured full run, catalog size or tier sizes.
+- **Ticket 2.8's hitl part has now run (author's report).** Commit `d3a768f` adds two Measurement lines to the epic Notes (`epic-steam-catalog.md`, last two Notes) and moves the two real-import entries of `pending-approvals.md` to a "Staging deployed and the first full real import run there" line. What is still open of 2.8:
+  - the author has not reported checking the names of the 124 Légendaire cards, so the calibration approval rests on "Calibration kept the starting values" alone;
+  - `deferred-work.md` line 52, "The first real Steam import and the calibration are not done", is still open.
 - **Ranges.**
   - The 2.10 and 2.11 ranges have no merges. Each story has one main commit, with its docs committed apart.
   - 2.11's range was cut at `da3c974`, the last commit naming story 2.11. Later commits belong to epics 4, 8 and 10.
@@ -48,7 +47,7 @@ This is a re-run of the 2026-10-03 retrospective (verdict `rejected`), which thi
     - `b8bae72`: story 8.7, `dust_tier` dropped.
     - `d968377`: the Kamal staging and production destinations.
 
-    They were read as later context, not as this epic's work.
+    They were read as later context, not as this epic's work. `d3a768f` (docs) carries this epic's real-import evidence.
 - **2.10 (`4b1dfe4..2d90876`):** 43 paths, +492/−738. The `genres` step, `Steam::StoreApi`, `GenresPolicy` and `ImportGenresPage` were removed, and `Steam::GenreTags` was added.
 - **2.11 (`2d90876..da3c974`):** 42 paths, +1,740/−123. It added `Catalog::PruneDraft`, `Steam::RawValue`, `Steam::AbandonImport` and `carded_run_id`. Most of the churn is tests and the plan.
 
@@ -62,179 +61,180 @@ This is a re-run of the 2026-10-03 retrospective (verdict `rejected`), which thi
 | Story files | none (no ticket refined) |
 | Plans | all eleven. 2.10: one quick review pass. 2.11: a thorough four-lens pass plus a thorough follow-up pass. |
 | `git_evidence.py` | run on the 2.10 and 2.11 ranges. The 2.1–2.9 ranges come from the 2026-10-03 run, and their commits are unchanged. |
-| Previous retrospective | the 2026-10-03 run of this same file, followed through below |
-| `pending-approvals.md`, `deferred-work.md` | read at HEAD `d968377` |
-| Development database | **read only**, in a read-only transaction, for seasons, runs and draft contents. Nothing was written. |
+| Previous retrospective | the second run of this same file (2026-10-06, `200521d`), followed through below |
+| `pending-approvals.md`, `deferred-work.md` | read at HEAD `d3a768f` |
+| Staging measurements | **author-reported** from the back-office, recorded in the epic Notes by `d3a768f`. No staging database or host was reachable from this run, so they were checked for internal consistency (below), not against the data. |
+| Development database | read only, in the 2026-10-06 morning run (N2, N3). Not re-read in this run. |
 | Session logs | not read in this re-run. Process lessons rest on the plans and commits. |
-| Test suite | `test/packs/steam test/packs/catalog test/jobs test/controllers/back_office`: 505 runs, 0 failures (test database) |
+| Test suite | 505 runs, 0 failures in the earlier run of the day. Not re-run: `d3a768f` changes only docs. |
 
 ## Findings
 
-Earlier findings keep their ids. Each shows its status at HEAD.
+Earlier findings keep their ids. Each shows its status at HEAD `d3a768f`.
+
+### The real import on staging (new evidence)
+
+- **R1. The figures recorded in the Notes are internally consistent** (epic Notes, Measurement lines of 2026-10-06; checked by arithmetic in this run).
+  - Listed 190,718 − kept 12,326 = 178,392 set aside. The Notes give 178,392.
+  - Kept 12,326 − 19 set aside at the store page = 12,307 cards written. 0 refused at the cards step.
+  - Tiers: 7,384 + 3,076 + 1,231 + 492 + 124 = 12,307. That is 60.0 / 25.0 / 10.0 / 4.0 / 1.0 %, which matches `Catalog::RarityThresholds::SHARES = {5=>100, 4=>400, 3=>1000, 2=>2500}` per mille (`packs/catalog/app/models/catalog/rarity_thresholds.rb:16`).
+  - 406 tomes fits `SetBuilder::TOME_SIZE = 30` over the 25 genres of `Steam::GenreTags`. Rounding volumes of `(n + 15) / 30` gives about 410 for 12,307 cards, fewer when cards fall outside every genre.
+  - The 55-minute duration matches what was expected after story 2.10 removed `appdetails` ("minutes rather than hours", `pending-approvals.md` before `d3a768f`).
+
+  *Accept.* This is consistent with the code. It is the author's report, not data read by this run.
+- **R2. The 19 games set aside at the store page are what the details step should do.** `Steam::DetailsPolicy::EXCLUSIONS` are `unavailable`, `not_a_game`, `no_title`, `no_vertical_image` and `no_release_date` (`packs/steam/app/models/steam/details_policy.rb:21-26`). The Notes do not break the 19 down by reason. *Accept.*
+- **R3. The import ran without two preconditions the author had set.**
+  - The neighbouring-genre fold was "to work out before the real import". `pending-approvals.md` still lists it as open.
+  - The backlog story `story-import-staging-and-rollback.md` has not landed.
+
+  Season 1 is frozen (AD-5), so each change now applies from season 2 (epic Notes: "a change applies from season 2"). Season 1's 406 tomes are cut on the unfolded genres. *Accept as the author's choice.* The fold carries over to season 2 (open question 2).
+- **R4. Calibration kept its starting values without a recorded review.**
+  - The Notes say the starting values were kept: `COUNT_WEIGHT = 0.01` (`prestige_score.rb:17`), the tier shares, and `TOME_SIZE = 30` (`set_builder.rb:13`).
+  - 2.8's hitl part names "the author's approval of the calibration" (`deferred-work.md` line 52). The author has not yet reported checking the 124 Légendaire names, the sanity check that the top tier holds the games it should.
+
+  Season 1 cannot be recalibrated. *Defer:* the review informs season 2 (action item 1).
+- **R5. `pending-approvals.md` no longer tells the truth about its own state.**
+  - Its header still says "Nothing here has been run", yet the file now records the staging deploy and the real import.
+  - The "Traefik route for staging" and "First staging deploy" items are still listed as pending.
+  - The test-LXC operations (`catalog:number_seasons`, the `dust_tier` contract migration, `game:backfill_player_states`) do not say whether they are moot on a fresh staging database.
+
+  *Fix now, as doc hygiene* (action item 3).
 
 ### Resolved since 2026-10-03
 
-- **F1. The draft was never pruned.** *Resolved by story 2.11* (`21e511c`).
-  - At the end of each cards pass, `Catalog::PruneDraft` keeps only the draft card-seasons whose source key the pass wrote (`steam_apps.carded_run_id`).
-  - A rescore clears the marks, so a card the rescore now refuses leaves the draft.
-  - Tested across runs: A {10, 20}, then B {20, 30} with a changed weight. Also tested over several pages with a failure and a resume (2.11 Review Triage Log, verification-gap medium).
-- **F3. One bad app could fail every resume, and a failed run blocked publishing.** *Resolved by story 2.11* (`21e511c`, `2286751`).
-  - `Steam::RawValue` reads Steam's values defensively.
-  - Bad review values are excluded as `malformed_reviews`. A stored score out of range is refused as `invalid_reviews`, and `CardMapping` no longer lets `PrestigeScore` raise.
-  - An appid repeated within one page is kept once and logged as `repeated_in_page`.
-  - An administrator can abandon a failed run (`Steam::AbandonImport`), except one that wrote cards in its current pass.
-  - **Residuals,** in `deferred-work.md`:
-    - a store title of about 2.7 kB, or a Steam answer that is not valid JSON, still fails its page;
-    - a NUL byte in a tag name still fails the tags step (2.11 plan, `deferred`).
-- **A2. Genre keys normalized two ways.** *Moot.* Story 2.10 replaced the store genres with the fixed keys of `Steam::GenreTags` (2.11 Implementation Notes).
-- **A4. The stale rate-limit comment.** *Moot.* `import_genres_page.rb` was deleted by story 2.10.
-- **S4. Tome genres in Steam's order.** *Superseded.* A card's tome is now its most-voted listed genre tag (2.10). In the development draft (498 cards), every card has a genre. The largest tomes are fps (104), strategy (101) and rpg (66); no card falls back to "Indie" (read from `catalog_cards.genres` of draft season 2).
-- **F6. Set membership versus live card fields.** *Resolved by epic 4* (`deferred-work.md`, resolved by story 4.6).
-- **F8. Verification gaps.** *Resolved or moot.*
-  - The queue configuration is tested in `test/config/queue_config_test.rb`.
-  - Retries versus stall timing is tested at `test/jobs/steam_import_step_job_test.rb:162`.
-  - The store-spacing test went away with `StoreApi`.
+- **F1. The draft was never pruned.** *Resolved by story 2.11* (`21e511c`, `Catalog::PruneDraft`). The real run struck 0 cards from the draft, as expected on a first run (Notes).
+- **F3. One bad app could fail every resume, and a failed run blocked publishing.** *Resolved by story 2.11* (`21e511c`, `2286751`). The real run over 190,718 apps completed with 0 refused and no reported failure. **Residuals,** in `deferred-work.md`:
+  - a store title of about 2.7 kB, or a Steam answer that is not valid JSON, still fails its page;
+  - a NUL byte in a tag name still fails the tags step.
+- **A2, A4.** *Moot* after story 2.10.
+- **S4. Tome genres in Steam's order.** *Superseded* by 2.10's most-voted genre tag. The 2.8 risk of hundreds of `indie` volumes no longer applies: Indie is not one of the 25 genres.
+- **F6.** *Resolved by epic 4* (story 4.6).
+- **F8.** *Resolved or moot* (`queue_config_test.rb`, `steam_import_step_job_test.rb:162`).
+- **N4. Calibration still at its starting values.** *Closed as a finding.* The values were kept on purpose after the real run. The open review moves to R4.
+- **N3. The development draft met the inclusion rules.** All 498 draft cards had at least 500 reviews, a vertical image, a release date, French and English texts, and a genre (second run, read only). *Carried as supporting evidence for Done when 4.*
+- **N2. "Season 1" in development is the seed season.** *Settled by the evidence.* The first Steam season is season 1 on staging, so Done when 3's wording holds there. Development's seed season stays a local matter (open question 4).
 
 ### Still open (deferred, tracked)
 
-- **F2.** The rescore variant of the publish-lock race (`deferred-work.md`, line 37). *Defer.*
-- **F4. Rate-limit resilience against real Steam is unproven.** The store-API half is gone: since 2.10 the run makes no `appdetails` calls. Web API 429 handling is still unexercised against real Steam. *Defer to the real run.*
-- **F5.** The AD-5 freeze is enforced only in models (`deferred-work.md`, line 40). *Defer.*
-- **F7.** The refusal log is capped at 20 lines (`deferred-work.md`, line 43). This waits on the real run's refusal count. *Defer.*
+- **F2.** The rescore variant of the publish-lock race (`deferred-work.md` line 37). *Defer.*
+- **F4. Web API rate limits.** No 429 is reported and the run completed in 55 minutes, but the run's error log has not been reported here. *Defer.* Downgraded: the run did not fail.
+- **F5.** The AD-5 freeze is enforced only in models (`deferred-work.md` line 40). Now that a real published season exists, this guards owned cards. *Defer.*
+- **F7.** The refusal log is capped at 20 lines (`deferred-work.md` line 43). The real run refused 0 cards, so the cap did not bite. *Defer, lowered.*
+- **N1. Epic R6 no longer matches the code.** R6 still names the steel … gold tiers and a dust tier from the game's age.
+  - Story 8.3 (`a1e4e44`) renamed the tiers `common … legendary`. The back-office shows them as Commune … Légendaire (Notes).
+  - Story 8.7 (`b8bae72`) dropped `dust_tier`.
+  - Publication now numbers the cards (AD-28).
 
-### New in this run
+  *Accept the deviation; reconcile R6* (action item 4).
+- **N5. Author preconditions still open:**
+  - the genre fold (R3);
+  - the import staging and rollback story;
+  - seven unconfirmed 2.11 edge-case rules in `pending-approvals.md`.
 
-- **N1. Epic R6 no longer matches the code.** R6 still says `PublishSeason` "sets each card-season's dust tier from the game's age" and names the tiers "steel, emerald, sapphire, amethyst, gold".
-  - Story 8.3 (`a1e4e44`) renamed the tier codes to `common … legendary` (`packs/catalog/app/models/catalog/rarity.rb`).
-  - Story 8.7 (`b8bae72`) dropped `dust_tier` and `Catalog::Dust`.
-  - Publishing now also numbers each card (AD-28).
-  - Done when does not mention dust, so the verdict is unaffected. *Accept the deviation (epic 8 owns it); propose reconciling R6* (action item 5).
-- **N2. In development, "season 1" is the seed season, not a Steam season.**
-  - Read from the development database: season 1 is `published` (2026-10-02 18:42) and holds 60 cards whose source keys are `seed:*` (`db/seeds.rb`: "a small published season of generic cards").
-  - Season 2 is the `draft`: 498 `steam:*` cards from run 4 (1,000 listed games, 502 kept), with no rarities.
-  - So a Steam publication in development would be season 2. Done when 3 names "season 1" (open question).
-- **N3. The development draft meets the inclusion rules.** All 498 draft cards have:
-  - a Steam app with at least 500 reviews (none below);
-  - a `library_600x900` image URL;
-  - a release date;
-  - French and English texts;
-  - a genre.
-
-  This is positive evidence for Done when 4, on a degraded 1,000-game draft only.
-- **N4. Calibration is still at its starting values.**
-  - `Steam::PrestigeScore::COUNT_WEIGHT = 0.01`.
-  - `Catalog::RarityThresholds::SHARES = {5=>100, 4=>400, 3=>1000, 2=>2500}` ("Starting values, to be calibrated on the first real import", `rarity_thresholds.rb`).
-  - `SetBuilder::TOME_SIZE = 30`.
-
-  Expected, since 2.8's hitl part has not run.
-- **N5. Open preconditions the author has set for the real import.** These live in `pending-approvals.md` and are not code defects:
-  - "Tome genres: fold neighbours … to work out before the real import";
-  - the backlog story `_bmad-output/backlog/story-import-staging-and-rollback.md` (import into a separate draft with rollback; changes AD-5/AD-19);
-  - seven unconfirmed edge-case rules for story 2.11;
-  - the first staging deploy (a Traefik route mismatch to fix first).
-
-  None is a Done-when criterion, but the first two decide *when* the real import is worth running.
+  None blocks season 1, but all of them shape season 2.
 
 ### Diff-scope review
 
-**Narrowed.** `bmad-review` was not re-run on the 2.10 and 2.11 diffs. Story 2.11 already had two thorough four-lens passes: 32 findings, then 29, ending with "follow-up review: not recommended", no high finding, and every medium finding patched. Story 2.10 had one quick pass with 4 low findings, all patched. This run checked the seams between stories inline:
-- Prune (2.11) against numbering at publication (8.3): numbers are given only at publication, on the draft that remains, so they do not interact.
-- 8.7's single Steam edit (`details_policy.rb`) is a comment.
-- The genre-list change (`d1a1cdb`) is applied through a rescore of run 4, which recorded 498 cards written and none refused (`pending-approvals.md`, settled 2026-10-05; consistent with run 4's counts in the database).
-
-No new defect was found. The two story-level reviews are the review record.
+**Narrowed, unchanged from the second run.** `bmad-review` was not re-run. Stories 2.10 and 2.11 carry their own review passes (2.11: two thorough four-lens passes, ending "follow-up review: not recommended"). The seams were checked inline in the second run. No code has changed since (`200521d..HEAD` is docs only).
 
 ## Behavior verification
 
-- **Exercised:** the Steam, Catalog, job and back-office tests (505 runs, 0 failures). They include the stubbed full runs, the cross-run prune, abandonment and the publish gates.
-- **Observed in the development database (read only):**
-  - run 4 completed all five steps on 1,000 real listed apps (`cards_written` 498, `cards_refused` 0);
-  - the draft contents are as in N3;
-  - no Steam season has been published.
-- **Not exercised:**
-  - a full real import (about 190k listed apps);
-  - publishing a Steam season;
+- **Exercised by this run:** nothing new. The tests (505 runs, 0 failures) and the read-only development database reads come from the second run of the day, and no code changed after them.
+- **Reported by the author, on staging** (`d3a768f`, epic Notes), not observed by this run:
+  - a full real import started from the back-office, all steps through to cards;
+  - Steam season 1 published, with tiers and the three kinds of set.
+- **Not exercised or not reported:**
+  - an interrupted real run resuming. Story 2.1's manual kill-and-restart check was meant for the same real run (`deferred-work.md` line 52), and the Notes do not mention one;
+  - players seeing the published cards, and the per-card fields, on staging;
   - the abandon flow in a browser;
-  - staging. The pending items say the first staging deploy has not run, and nothing in the tree shows it did.
+  - the Légendaire names (R4).
 
 ## Previous-retro follow-through
 
-Action items of the 2026-10-03 run:
+Action items of the second run (2026-10-06, `200521d`):
 
-1. **Run the first real import and finish 2.8's hitl part** (the author). **Not landed.** `pending-approvals.md` still lists both runs as "Nothing here has been run". The epic Notes hold only the degraded 1,000-game import. Development has no published Steam season (N2).
-2. **The draft holds exactly the latest run's cards** (dev loop). **Landed:** story 2.11, `21e511c`, `Catalog::PruneDraft`, and `test/packs/catalog/prune_draft_test.rb` with the cross-run test in `cards_test.rb`.
-3. **Harden the import against one bad app** (dev loop). **Landed:** 2.11, `21e511c` and `2286751`. The bad-percent refusal, the dedup and abandonment are all in. The genre-normalization part is moot after 2.10.
-4. **Pin the invariants and fix the stale comment** (dev loop). **Landed:** story 4.6, per `deferred-work.md` line 97 (`queue_config_test.rb`, `steam_import_step_job_test.rb:162`). The store spacing and the comment are moot after 2.10.
-5. **Watch rate limits during the real run** (the author). **Not landed:** no real run yet. The store half is moot after 2.10.
-6. **Record the deferred findings** (dev loop). **Landed:** `deferred-work.md` lines 37 (F2), 40 (F5), 43 (F7) and 95–97 (F6, resolved).
-7. **Reconcile the spec on titles and tags** (the author). **Landed:** `spec-gameble/catalog-and-rarity.md` lines 8 and 11 now say the title is Steam's single name and tags are English keys, with French labels open. The French tag labels question is still open in the spec.
-8. **Process lessons** (orchestrator):
-   - (a) A Never "later" leaves a `deferred-work.md` entry: **landed**. The 2.10 and 2.11 residuals are in `deferred-work.md` (lines 103 and 106).
-   - (b) An idempotency matrix row for a different input set: **landed** (2.11 matrix, "Cross-run prune").
-   - (c) Record a re-sequencing: no re-sequencing occurred, so **not tested**. `tickets.py` reports 2.10's `after = "4.3"` as an `order_conflict`/`undeclared_after` across epics.
-   - (d) Implementation Notes current at commit: **landed** for 2.10 and 2.11.
-   - (e) A retrospective for epic 1: **not landed**. `epic-foundation-and-steam-sign-in/` still has no retrospective file.
+1. **Run the real import, calibrate, and publish the first Steam season** (the author). **Landed, author-reported:** `d3a768f`, epic Notes Measurement lines.
+   - Sub-step 1, settle the preconditions: **not landed.** The import ran without them (R3, N5).
+   - Sub-step 2, choose the database: staging. **Landed.**
+   - Sub-step 3, watch for 429s: none reported (F4).
+   - Sub-step 4, record the counts: **landed** for listed, kept and refused counts and tier and tome sizes. Per-step durations were not recorded, only the total of 55 minutes.
+   - Sub-step 5, calibrate: the starting values were kept. The review is not reported (R4).
+   - Sub-step 6, re-run this retrospective: this run.
+2. **Close ticket 2.8 and mark the epic's tickets done** (the author, through `bmad-ticket`). **Not landed:** `tickets.py status` shows all eleven tickets `built` / `review`. `deferred-work.md` line 52 is still open.
+3. **Revisit F7** (conditional). **Condition not met:** 0 cards refused.
+4. **Harden the Web API rate-limit path** (conditional). **Condition not met:** the run did not fail.
+5. **Reconcile R6 and Done when 3** (the author). **Partly moot:** Done when 3's "season 1" now holds on staging. **R6 not landed:** `epic-steam-catalog.md` R6 still names steel … gold and the dust tier.
+6. **Run epic 1's retrospective** (the orchestrator). **Not landed:** `epic-foundation-and-steam-sign-in/` has no retrospective file.
 
 ## Action items
 
 All items are **proposed, not applied.** This run wrote only this file.
 
-1. **Run the real import, calibrate, and publish the first Steam season** (finish 2.8's hitl part). Owner: **the author (hitl)**. In order:
-   1. Settle the preconditions the author set:
-      - the neighbouring-genre fold for `Steam::GenreTags`;
-      - whether `story-import-staging-and-rollback` must land first;
-      - the 2.11 edge-case rules in `pending-approvals.md`.
-   2. Choose the database (open question 1). Either development: decide what to do with seed season 1. Or staging: fix the Traefik route, run `bin/kamal deploy -d staging` with the `import` role, and apply the pending migrations and backfills.
-   3. Run the full real import and watch for Web API 429s (F4).
-   4. Record each step's duration, the listed, kept and refused counts, and the tier and tome sizes in the epic Notes.
-   5. Calibrate `COUNT_WEIGHT`, `RarityThresholds::SHARES` and `TOME_SIZE`, rescore, check the preview, and publish.
-   6. Re-run this retrospective.
-2. **Close ticket 2.8 and mark the epic's tickets done** once item 1 is recorded. Owner: **the author, through `bmad-ticket`**. Also close the `deferred-work.md` entry "The first real Steam import and the calibration are not done".
-3. **Revisit F7** (the capped refusal log) if the real run refuses more than a handful of cards. Owner: **dev loop**, conditional on item 1.
-4. **Harden the Web API rate-limit path** only if item 1 shows 429s fail the run (F4). Owner: **dev loop**, conditional.
-5. **Reconcile R6 and Done when 3 with the as-built** (N1, N2). This is a spec reconciliation. Owner: **the author**.
-   - R6: tier codes `common … legendary` (AD-28, story 8.3), no dust tier (story 8.7), and card numbers at publication.
-   - Done when 3: say "the first Steam season" (or name the database) rather than "season 1", if development's seed season keeps number 1.
-6. **Run epic 1's retrospective**, carried from 8(e). Owner: **the orchestrator**.
+1. **Review the calibration on season 1's real data, for season 2** (R4). Owner: **the author (hitl)**. Check the 124 Légendaire names and the 492 Épique, the tome sizes after the genre fold (R3), and, if needed, change `COUNT_WEIGHT`, `SHARES` or `TOME_SIZE` before season 2's import. Record the approval, or the changes, in the epic Notes.
+2. **Close 2.8 and the epic** once item 1 is recorded, or now if the author judges season 1's calibration accepted as is. Owner: **the author, through `bmad-ticket`**. Steps:
+   1. Mark the eleven tickets done.
+   2. Close the `deferred-work.md` line 52 entry. Its remaining part, story 2.1's real kill-and-restart check, is either moved to a new entry or dropped explicitly.
+3. **Bring `pending-approvals.md` up to date** (R5). Owner: **the orchestrator, with the author's confirmation**. Steps:
+   1. Fix the header.
+   2. Settle or remove the Traefik and first-staging-deploy items.
+   3. Say which test-LXC operations (`number_seasons`, the `dust_tier` contract migration, the player-state backfill) are moot on staging's fresh database.
+4. **Reconcile R6 with the as-built** (N1). This is a spec reconciliation. Owner: **the author**. R6 should name tier codes `common … legendary` (AD-28, story 8.3), drop the dust tier (story 8.7), and add card numbers at publication.
+5. **Run epic 1's retrospective**, carried from the 2026-10-03 run's item 8(e). Owner: **the orchestrator**.
+6. **Keep the deferred items tracked:**
+   - F2, F5 and F7;
+   - F4, rechecked against the staging run's error log if the author can read it;
+   - the 2.11 residuals;
+   - N5's preconditions, which apply before season 2.
+
+   Owner: **dev loop and the author**. Nothing new to file: each one already has its `deferred-work.md` or `pending-approvals.md` entry.
 
 ## Acceptance verdict
 
-**Machine verdict: `rejected` (not accepted)**, against **declared** criteria, with **no human decision.** No ticket is unfinished, so the verdict rests on the criteria. The code side of the epic is complete and the two earlier blocking findings (F1, F3) are resolved. What is missing is the epic's own goal: a Steam season published from a real import.
+**Machine verdict: `accepted-with-open-items`**, against **declared** criteria, with **no human decision.** No ticket is unfinished (`pending_tickets` empty). Every Done-when criterion is now met, on the author's report of the staging run read with the code. No blocking finding stands. The open items are tracked (above).
 
 | # | Criterion | Evidence now | Status |
 |---|---|---|---|
-| 1 | Start an import from the back-office and see its step, counts and errors | System and controller tests (green). Run 4 in development completed from the back-office with full counts recorded. | **Met** |
-| 2 | An interrupted import resumes without restarting and without duplicates | Cursor guards, stall recovery and the resume tests (green). The multi-page fail/resume prune test (2.11). Story 2.1's local SIGKILL check. Unique `source_key`. | **Met** (tests and one local manual check) |
-| 3 | Publishing season 1 makes its cards visible at once with tier, release date, FR/EN text and sets | No Steam season is published anywhere on record. Development's published season 1 is the 60-card seed (N2). The draft's 498 cards carry date and FR/EN texts but no tier. | **Not met** |
-| 4 | No game in the catalog under 500 reviews or without a vertical image | Filters exist and are tested, and F1 is fixed. The development draft has 0 of 498 cards in breach (N3). There is no published Steam catalog to judge, and the draft covers only the first 1,000 appids. | **Met on the degraded draft; not demonstrated on a published season** |
-| 5 | The published season has publisher sets, tomes and best-of-year sets | `SetBuilder` is tested (2.7's acceptance draft). Development's seed season 1 has 6 publisher, 3 tome and 35 best-of-year sets, but from seed data, not Steam. | **Not demonstrated** on a Steam season |
+| 1 | Start an import from the back-office and see its step, counts and errors | System and controller tests (green). Development run 4. The staging run's counts were read by the author from the back-office (Notes). | **Met** |
+| 2 | An interrupted import resumes without restarting and without duplicate cards | Cursor guards, stall recovery and the resume tests, including 2.11's multi-page fail/resume prune test. Story 2.1's local kill check. Unique `source_key`. The real run was not interrupted, so there is no real-run evidence. | **Met** (tests and one local manual check) |
+| 3 | Publishing season 1 makes its cards visible at once, each with a tier, a release date, FR/EN title and description, and its sets | Season 1 published on staging at 15:02:33 UTC with 12,307 cards, every card in one of the five tiers (the counts sum to 12,307) (Notes). Each written card has a release date and a title by construction (`DetailsPolicy` excludes `no_title` and `no_release_date`). French falls back to English where Steam gives none (`details_policy.rb`, verdict). Player-side visibility on staging is not reported. | **Met** (author-reported; per-card fields by construction) |
+| 4 | No game in the catalog with fewer than 500 reviews or without a vertical image | Kept means 500 reviews or more (Notes). `DetailsPolicy` excludes `no_vertical_image` before a card is written. The 19 games set aside at the store page are this filter at work (R2). The development draft had 0 of 498 cards in breach (N3). | **Met** (by construction, with a consistent real-run report) |
+| 5 | The published season contains publisher sets, tomes and best-of-year sets | 380 publisher sets, 406 tomes and 37 best-of-year sets in staging season 1 (Notes). | **Met** |
 
-**What lifts it:** action item 1, which is a real import, calibration and publication, with the measurements in the epic Notes. With that done, the expected verdict is `accepted-with-open-items`, carrying F2, F4, F5, F7, the 2.11 residuals and N1 as tracked items. No code change is required to lift the verdict.
+**Why not `accepted`:**
+- R4: the calibration review has not been reported.
+- R5: `pending-approvals.md` is out of date.
+- N1: R6's wording is out of date.
+- Epic 1's retrospective is missing.
+- F2, F4, F5, F7 and the 2.11 residuals are deferred.
+- The real-run evidence is the author's report. This run could not read the staging database.
+
+A human decision overrides this verdict.
 
 ## Open questions
 
-1. **Which database holds the first Steam season?** In development it would be season 2, behind seed season 1. On staging it would be season 1, but staging has not been deployed. The answer decides how Done when 3 should read (action item 5).
-2. **Must the import staging and rollback story land before the real import?** The author asked for it, and it changes AD-5 and AD-19. It would also change how a bad real run is thrown away.
-3. **The neighbouring-genre fold:** which tags fold into which? The author marked it "to work out before the real import".
-4. **The 2.11 edge-case rules** in `pending-approvals.md` await confirmation. They are seven items, including whether a failed rescore may be abandoned.
-5. **French tag labels:** still open in the spec (S3 carried).
-6. **Real Web API throttling** over about 1,900 `GetItems` calls is unknown (F4).
+1. **Is season 1's calibration accepted as published?** The author has not reported the Légendaire check (R4). The answer decides whether item 1 is a season 2 task or a formality.
+2. **The neighbouring-genre fold:** which tags fold into which, now for season 2 (R3)?
+3. **Must the import staging and rollback story land before season 2's import?** It changes AD-5 and AD-19.
+4. **Development's seed season 1:** keep it, or align development with staging? This is a local matter only.
+5. **The 2.11 edge-case rules** in `pending-approvals.md` still await confirmation.
+6. **French tag labels:** still open in the spec.
+7. **Did the staging run log any errors** (429s, page failures that resumed)? This would settle F4 and F7.
 
 ## Assumptions
 
 Headless run (`-H _bmad-output/initiative-gameble/epic-steam-catalog`). Every choice below was made without the user.
 
-- **Epic resolution:** the folder was given. `tickets.py status` returned 11 rows, all `built` / `review`.
-- **`pending_tickets`:** empty. The verdict is not forced by unfinished tickets.
-- **The verdict:** `rejected` was rendered from the evidence alone, on Done when 3 and 5, and 4 for a published season. No human decision was taken. A human decision overrides it.
-- **This file was rewritten in place.** The earlier run's findings are carried by id with their current status, and its action items are followed through above.
-- **The caller's context was taken as context, not as evidence.** It said the real import and the season 1 publication had not been done, and that staging was configured but not known to be deployed. Each point was checked against `pending-approvals.md`, `deferred-work.md` and the development database. Nothing in them contradicts it.
-- **The development database was read** in a read-only transaction: seasons, import runs, draft contents and set counts. It was not written. The test LXC and staging were not contacted.
+- **Epic resolution:** the folder was given. `tickets.py status` returned 11 rows, all `built` / `review`. `pending_tickets` is empty.
+- **Resumed run:** the existing file (second run, `200521d`) was loaded. Its findings were reconciled against `d3a768f`, and the file was rewritten in place. Ids carry over. Development-database and test-suite results are carried from the second run, because no code changed since.
+- **The staging figures were taken as evidence on the author's report.** The caller relayed them, and `d3a768f` records them in the epic Notes. This run had no access to the staging database or host and verified them only for internal consistency and against the code (R1, R2). If they prove wrong, the verdict falls back to `rejected`.
+- **The verdict:** `accepted-with-open-items` was rendered from the evidence alone. No human decision was taken.
+- **Criterion 2** is judged met on tests and the local check, as in earlier runs. The real run's lack of an interruption is not counted against it.
+- **Criterion 3's "visible at once"** is judged on the publication being reported and on `PublishSeason` making a season visible in one step (tested). Player-side visibility on staging was not reported.
+- **The missing Légendaire check** was treated as a calibration review (2.8's hitl approval), not a Done-when criterion, so it is an open item rather than a blocker.
 - **Narrowed scope:**
-  - `bmad-review` was not re-run (see Diff-scope review).
-  - The aggregate views for 2.10 and 2.11 come from `git_evidence.py` change volume and from reading the plans, without a dependency-graph tool.
-  - Session logs were not read.
-  - The full suite and the system tests were not run, only the four relevant test directories.
-- **Range cut:** 2.11's range ends at `da3c974`. The later commits that touch `packs/steam` and `packs/catalog` (`d1a1cdb`, `a1e4e44`, `b8bae72`) were read as context for N1 and N4.
-- **Every action item is proposed and owned as stated.** None was applied.
+  - no `bmad-review` re-run;
+  - no test re-run;
+  - no session logs;
+  - no staging access.
+- **Every action item is proposed and owned as stated.** None was applied. No ticket, plan, epic file or code was changed.
 - **Team discussion (Phase 3)** did not run (headless).
