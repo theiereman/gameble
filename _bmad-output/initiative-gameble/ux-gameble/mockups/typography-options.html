@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trio de polices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+  @font-face { font-family: "Departure Mono"; src: url("https://cdn.jsdelivr.net/gh/rektdeckard/departure-mono@main/public/assets/DepartureMono-Regular.woff2") format("woff2"); font-display: swap; }
+  :root {
+    --ground: #0b0f15; --panel: #121a24; --sunken: #0e141b; --raised: #1b2838;
+    --line: #2a475e; --line-soft: #1f3346; --accent: #66c0f4; --accent-hi: #b5e2ff; --text: #c7d5e0;
+    --bright: #e6eef5; --muted: #8f98a0; --primary: #7aa60a; --lime: #a4d007; --on-lime: #0f1a03;
+    --orange: #f08a24; --epic: #b47cff; --legend: #f5c542; --rare: #66c0f4; --uncommon: #3fcf8e;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #06090d; color: var(--text); font-family: system-ui, sans-serif; padding: 24px 16px 48px; }
+  .intro { max-width: 1180px; margin: 0 auto 18px; }
+  .intro h1 { margin: 0 0 6px; font-size: 18px; color: var(--bright); font-weight: 600; }
+  .intro p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
+  .variant { max-width: 1180px; margin: 0 auto 32px; }
+  .vhead { color: var(--bright); font: 600 15px/1.4 system-ui, sans-serif; margin: 0 0 4px; }
+  .vhead small { display: block; color: var(--accent); font-weight: 500; font-size: 13px; }
+  .screen { background: var(--ground); box-shadow: inset 0 0 0 2px var(--line); overflow: hidden;
+    background-image: radial-gradient(1px 1px at 12% 20%, #fff8 50%, transparent 51%), radial-gradient(1px 1px at 70% 35%, #fff6 50%, transparent 51%), radial-gradient(1px 1px at 40% 80%, #fff5 50%, transparent 51%), radial-gradient(1px 1px at 88% 70%, #fff7 50%, transparent 51%); }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 16px; background: #0b0f15e6; border-bottom: 2px solid var(--line-soft); }
+  .logo { color: var(--bright); }
+  .logo b { color: var(--lime); }
+  .tright { display: flex; gap: 12px; align-items: center; }
+  .chip { background: var(--sunken); box-shadow: inset 0 0 0 2px var(--line-soft); padding: 5px 10px; display: flex; gap: 8px; align-items: center; color: var(--text); white-space: nowrap; }
+  .chip .k { color: var(--muted); }
+  .tiers { display: flex; gap: 8px; }
+  .tiers i { font-style: normal; }
+  .t1 { color: var(--muted); } .t2 { color: var(--uncommon); } .t3 { color: var(--rare); } .t4 { color: var(--epic); } .t5 { color: var(--legend); }
+  .layout { display: grid; grid-template-columns: 300px 1fr 300px; gap: 18px; padding: 18px; }
+  .panel { background: var(--panel); box-shadow: inset 0 0 0 2px var(--line); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .kicker { color: var(--accent); text-transform: uppercase; }
+  .sub { color: var(--muted); }
+  .menu { display: grid; gap: 6px; }
+  .item { display: flex; justify-content: space-between; align-items: center; background: var(--sunken); box-shadow: inset 0 0 0 2px var(--line-soft); padding: 9px 10px; text-transform: uppercase; color: var(--text); }
+  .item.on { box-shadow: inset 0 0 0 2px var(--accent); color: var(--bright); }
+  .item em { font-style: normal; color: var(--muted); margin-right: 8px; }
+  .badge { background: var(--lime); color: var(--on-lime); padding: 0 6px; }
+  .badge.o { background: var(--orange); color: #1a0d00; }
+  .badge.g { background: transparent; color: var(--muted); box-shadow: inset 0 0 0 1px var(--line); }
+  .showcase { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 18px 14px; background: radial-gradient(circle at 50% 35%, #55308f55, transparent 60%), var(--panel); box-shadow: inset 0 0 0 2px var(--line); }
+  .card { width: 210px; background: var(--sunken); box-shadow: inset 0 0 0 3px var(--epic), 0 0 0 3px #06090d, 0 10px 30px #0008; padding: 8px; display: flex; flex-direction: column; gap: 5px; transform: rotate(-2deg); }
+  .art { height: 230px; background: linear-gradient(165deg, #1d1438 0%, #55308f 45%, #b47cff55 60%, #0e141b 100%); }
+  .ctitle { color: var(--bright); text-transform: uppercase; }
+  .pub { color: var(--muted); }
+  .meta { color: var(--epic); text-transform: uppercase; display: flex; justify-content: space-between; }
+  .num { color: var(--muted); }
+  .name { color: var(--bright); text-transform: uppercase; text-align: center; }
+  .btn { background: var(--primary); color: var(--on-lime); padding: 10px 16px; box-shadow: inset 0 -3px 0 #0004; text-transform: uppercase; text-align: center; }
+  .btn.s { background: var(--raised); color: var(--bright); box-shadow: inset 0 0 0 2px var(--line), inset 0 -3px 0 #0004; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .bar { height: 8px; background: var(--sunken); box-shadow: inset 0 0 0 1px var(--line-soft); }
+  .bar span { display: block; height: 100%; background: var(--accent); }
+  .setname { color: var(--text); }
+  .count { color: var(--bright); }
+  .body { color: var(--text); }
+  .label { color: var(--muted); text-transform: uppercase; }
+  .ticker { display: flex; gap: 24px; padding: 8px 16px; border-top: 2px solid var(--line-soft); white-space: nowrap; overflow: hidden; color: var(--muted); }
+  .ticker b { color: var(--legend); font-weight: inherit; }
+  .ticker .live { color: var(--orange); }
+
+  /* Variant 1 */
+  .v1 .logo, .v1 .name, .v1 .count, .v1 .ctitle, .v1 .h { font-family: "VT323"; }
+  .v1 .logo { font-size: 30px; } .v1 .name { font-size: 32px; } .v1 .count { font-size: 46px; line-height: .9; } .v1 .ctitle { font-size: 22px; line-height: 1; } .v1 .h { font-size: 26px; }
+  .v1 .kicker, .v1 .item, .v1 .btn, .v1 .label, .v1 .chip, .v1 .meta, .v1 .num, .v1 .badge, .v1 .row .pct { font-family: "Departure Mono"; }
+  .v1 .kicker, .v1 .item, .v1 .btn, .v1 .label, .v1 .chip, .v1 .meta, .v1 .num, .v1 .badge, .v1 .row .pct { font-size: 11px; } .v1 .kicker { letter-spacing: .12em; } .v1 .item { letter-spacing: .05em; } .v1 .btn { letter-spacing: .08em; }
+  .v1 .body, .v1 .pub, .v1 .sub, .v1 .setname, .v1 .ticker { font-family: "Space Mono"; }
+  .v1 .body { font-size: 14px; line-height: 1.5; } .v1 .pub, .v1 .sub, .v1 .setname, .v1 .ticker { font-size: 12.5px; }
+  /* Variant 2 */
+  .v2 .logo, .v2 .name, .v2 .count, .v2 .ctitle, .v2 .h { font-family: "VT323"; }
+  .v2 .logo { font-size: 30px; } .v2 .name { font-size: 32px; } .v2 .count { font-size: 46px; line-height: .9; } .v2 .ctitle { font-size: 22px; line-height: 1; } .v2 .h { font-size: 26px; }
+  .v2 .kicker, .v2 .item, .v2 .btn, .v2 .label, .v2 .chip, .v2 .meta, .v2 .num, .v2 .badge, .v2 .row .pct { font-family: "Departure Mono"; }
+  .v2 .kicker, .v2 .item, .v2 .btn, .v2 .label, .v2 .chip, .v2 .meta, .v2 .num, .v2 .badge, .v2 .row .pct { font-size: 11px; } .v2 .kicker { letter-spacing: .12em; } .v2 .item { letter-spacing: .05em; } .v2 .btn { letter-spacing: .08em; }
+  .v2 .body, .v2 .pub, .v2 .sub, .v2 .setname, .v2 .ticker { font-family: "Departure Mono"; }
+  .v2 .body, .v2 .pub, .v2 .sub, .v2 .setname, .v2 .ticker { font-size: 11px; line-height: 1.6; }
+  /* Variant 3 */
+  .v3 .logo, .v3 .name, .v3 .count, .v3 .ctitle, .v3 .h { font-family: "VT323"; }
+  .v3 .logo { font-size: 30px; } .v3 .name { font-size: 32px; } .v3 .count { font-size: 46px; line-height: .9; } .v3 .ctitle { font-size: 22px; line-height: 1; } .v3 .h { font-size: 26px; }
+  .v3 .kicker, .v3 .item, .v3 .btn, .v3 .label, .v3 .chip, .v3 .meta, .v3 .num, .v3 .badge, .v3 .row .pct { font-family: "Space Mono"; }
+  .v3 .kicker { font-size: 11px; letter-spacing: .12em; } .v3 .item { font-size: 13px; letter-spacing: .05em; } .v3 .btn { font-size: 13px; font-weight: 700; letter-spacing: .08em; } .v3 .label, .v3 .meta, .v3 .num { font-size: 10.5px; letter-spacing: .06em; } .v3 .chip, .v3 .badge, .v3 .row .pct { font-size: 12px; }
+  .v3 .body, .v3 .pub, .v3 .sub, .v3 .setname, .v3 .ticker { font-family: "Space Mono"; }
+  .v3 .body { font-size: 14px; line-height: 1.5; } .v3 .pub, .v3 .sub, .v3 .setname, .v3 .ticker { font-size: 12.5px; }
+  /* Variant 4 */
+  .v4 .logo, .v4 .name, .v4 .count, .v4 .ctitle, .v4 .h { font-family: "Departure Mono"; }
+  .v4 .logo, .v4 .name, .v4 .h { font-size: 22px; } .v4 .count { font-size: 33px; line-height: 1; } .v4 .ctitle { font-size: 11px; }
+  .v4 .kicker, .v4 .item, .v4 .btn, .v4 .label, .v4 .chip, .v4 .meta, .v4 .num, .v4 .badge, .v4 .row .pct { font-family: "Departure Mono"; }
+  .v4 .kicker, .v4 .item, .v4 .btn, .v4 .label, .v4 .chip, .v4 .meta, .v4 .num, .v4 .badge, .v4 .row .pct { font-size: 11px; } .v4 .kicker { letter-spacing: .12em; } .v4 .item { letter-spacing: .05em; } .v4 .btn { letter-spacing: .08em; }
+  .v4 .body, .v4 .pub, .v4 .sub, .v4 .setname, .v4 .ticker { font-family: "Space Mono"; }
+  .v4 .body { font-size: 14px; line-height: 1.5; } .v4 .pub, .v4 .sub, .v4 .setname, .v4 .ticker { font-size: 12.5px; }
+
+  @media (max-width: 1000px) { .layout { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="intro">
+  <h1>VT323 · Departure Mono · Space Mono</h1>
+  <p>Turret Road retirée. VT323 seulement pour les grands textes ; les petits textes en Departure Mono ou Space Mono.</p>
+</div>
+<div id="variants"></div>
+<script>
+  const hub = `
+  <div class="screen">
+    <div class="topbar">
+      <div class="logo">GAME<b>BLE</b></div>
+      <div class="tright">
+        <div class="chip tiers"><span class="k">RARETÉS</span><i class="t1">●312</i><i class="t2">◎81</i><i class="t3">◆17</i><i class="t4">▲3</i><i class="t5">★1</i></div>
+        <div class="chip"><span class="k">BOOSTERS</span>7 / 10 · +1 dans 04:12</div>
+        <div class="chip">HUGO ▾</div>
+      </div>
+    </div>
+    <div class="layout">
+      <div class="panel">
+        <div class="kicker">Pont de commandement</div>
+        <div class="sub">Vaisseau-bibliothèque « Archiviste »</div>
+        <div class="menu">
+          <div class="item on"><span><em>01</em>Ouvrir un booster</span><span class="badge">7</span></div>
+          <div class="item"><span><em>02</em>Collection</span><span class="badge g">412 / 16 480</span></div>
+          <div class="item"><span><em>03</em>Échanges</span><span class="badge o">2</span></div>
+          <div class="item"><span><em>04</em>Amis</span><span class="badge g">3 en ligne</span></div>
+          <div class="item"><span><em>05</em>Fil d'activité</span><span class="badge g">En direct</span></div>
+          <div class="item"><span><em>06</em>Succès</span><span class="badge g">12 / 40</span></div>
+        </div>
+        <div class="panel" style="padding:12px">
+          <div class="label">Booster du jour</div>
+          <div class="body">Un booster offert chaque jour. Il rejoint votre réserve.</div>
+          <div class="btn s">Récupérer</div>
+        </div>
+      </div>
+      <div class="showcase">
+        <div class="label">Votre plus belle carte</div>
+        <div class="card">
+          <div class="art"></div>
+          <div class="ctitle">Hollow Knight</div>
+          <div class="pub">Team Cherry</div>
+          <div class="meta"><span>▲ Épique</span><span>Metroidvania</span></div>
+          <div class="num">S1 · #4 215 · 2017</div>
+        </div>
+        <div class="name">Hollow Knight</div>
+        <div class="body" style="text-align:center;max-width:420px">Tirée il y a 3 h. Une carte Épique sur 30 boosters en moyenne.</div>
+        <div class="btn">Voir la fiche</div>
+      </div>
+      <div class="panel">
+        <div class="h" style="color:var(--bright)">Progression des sets</div>
+        <div class="row"><span class="setname">Metroidvania · Tome 2</span><span class="pct count" style="font-size:inherit">18 / 30</span></div>
+        <div class="bar"><span style="width:60%"></span></div>
+        <div class="row"><span class="setname">Supergiant Games</span><span class="pct">5 / 7</span></div>
+        <div class="bar"><span style="width:71%"></span></div>
+        <div class="row"><span class="setname">Les mieux notés de 2017</span><span class="pct">3 / 10</span></div>
+        <div class="bar"><span style="width:30%"></span></div>
+        <div class="label">Prochain booster dans</div>
+        <div class="count">04:12</div>
+        <div class="btn s">Tout voir ▸</div>
+      </div>
+    </div>
+    <div class="ticker"><span class="live">● LIVE</span><span>Léa a tiré <b>★ Elden Ring</b></span><span>Max a échangé Celeste contre Hades</span><span>Première découverte : ◆ Outer Wilds</span></div>
+  </div>`
+  const variants = [
+    ["v1", "1 — VT323 · Departure Mono · Space Mono", "VT323 : grands titres, logo, grands nombres · Departure Mono : menus, boutons, libellés, puces, données de carte · Space Mono : texte courant, éditeur, sets, ticker"],
+    ["v2", "2 — VT323 · Departure Mono", "VT323 : grands titres et grands nombres · Departure Mono : tout le reste"],
+    ["v3", "3 — VT323 · Space Mono", "VT323 : grands titres et grands nombres · Space Mono : tout le reste"],
+    ["v4", "4 — Departure Mono · Space Mono", "Departure Mono : titres, logo, nombres et interface · Space Mono : texte courant, sans VT323"],
+  ]
+  const root = document.getElementById("variants")
+  for (const [cls, name, desc] of variants) {
+    root.insertAdjacentHTML("beforeend", `<section class="variant ${cls}"><p class="vhead">${name}<small>${desc}</small></p>${hub}</section>`)
+  }
+</script>
+</body>
+</html>

@@ -135,12 +135,25 @@ hitl = false
 risk = "medium"
 
 [[entry]]
+id = 14
+type = "story"
+title = "Typography: VT323 for large text, Space Mono for the rest"
+description = "Replaces the three-font set with two, as the author chose on 2026-10-06 (option 3 of ux-gameble/mockups/typography-options.html): VT323 only for large text (logo, screen and hero titles, the showcase and card-xl names, big numbers and timers, banners) and Space Mono (400, 700) for everything else (menus, buttons, labels, chips, card lines and titles at small sizes, running text, publisher, ticker); Pixelify Sans and Silkscreen are removed; self-hosted subsetted woff2 with their OFL texts; DESIGN.md Typography, the tokens and the card face baselines follow."
+verify = "No page uses Pixelify Sans or Silkscreen, VT323 appears only at large sizes, every small text is Space Mono at or above the 10 px floor, and the visual baselines are regenerated and pass."
+covers = ["R1", "R3"]
+after = [12]
+hitl = false
+risk = "medium"
+references = ["ux-gameble/mockups/typography-options.html"]
+notes = ["VT323 n'est pas bien pour les petits textes", "l'option 3"]
+
+[[entry]]
 id = 13
 type = "story"
 title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+after = [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 14]
 hitl = false
 risk = "low"
