@@ -48,10 +48,6 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
 - The 25 tome genres confirmed as listed in `Steam::GenreTags` (author); folding neighbours stays open above.
 - The architecture spine absorbed the redesign (AD-1 to AD-28, final); epics 8 and 10 rework the built screens, card backs (CAP-20) have epic 9 and presence (CAP-21) joins epic 5.
 
-## Remaining pixel-art assets (2026-10-06, story 8.8, hitl)
-
-- **Review the pixel-art sheet once.** Open `_bmad-output/initiative-gameble/epic-space-terminal-redesign/pixel-art-sheet.html` in a browser. It shows all 81 exported files under `app/frontend/images/pixel/`, at 2 CSS px per art pixel: 8.1's icons, the 8 card backs at the 5 card sizes, the canister parts, the planet and 8 avatars. Approve it, or name what to redraw in `script/pixel_art/export.mjs`. Story 8.8 stays `built` until you do.
-
 ## Staging and production (2026-10-06)
 
 - **Production later.** Fill `config/deploy.production.yml` (VPS address, registry such as ghcr.io), create `.kamal/secrets.production` with its own keys, point gameble.com at the VPS (Cloudflare in Full mode if used), then `bin/kamal deploy -d production`.
@@ -62,3 +58,4 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
 - Staging (gameble.dotsncircles.com) deployed by the author with the Traefik route fixed; the first full real import ran there and season 1 was published (epic 2 Notes). Epic 2 marked done.
 - On staging's fresh database, `db:prepare` applied every migration at boot (dust_tier dropped, numbers column, player states), season 1 was numbered by its own publication, and players get their `game_player_states` row at sign-up: the backfills `catalog:number_seasons` and `game:backfill_player_states` are not needed there. They stay available for any older database.
 - Prestige formula: log10(review count) + 4 × Wilson (story 2.12); season 1 on staging keeps the old scores and is not republished.
+- Pixel-art sheet of story 8.8 reviewed and approved by the author (82 files); story 8.8 marked done.
