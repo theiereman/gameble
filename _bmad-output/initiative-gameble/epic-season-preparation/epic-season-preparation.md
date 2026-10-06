@@ -47,3 +47,4 @@ Completed at this epic's inception. The sources are the two stories below (autho
 
 - Decision (2026-10-06): the two backlog stories (import staging with rollback, genre curation) grouped in this epic by the author; not urgent, needed before the next season's import.
 - Unknown: the back-office screens' design and the architecture amendments (staging draft, genre data, AD-18 exception); settled with the author before inception.
+- Decision (2026-10-06, author): story 2.11's rules on abandoning a run that wrote cards, rescoring the previous run once a later one is abandoned, and refusing publication after a failed cards pass are to be replaced by story 1's staging with rollback.
