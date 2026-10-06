@@ -128,3 +128,15 @@ after = [10]
 hitl = false
 risk = "medium"
 references = ["epic-steam-catalog/epic-steam-catalog-retrospective.md"]
+
+[[entry]]
+id = 12
+type = "story"
+title = "Popularity-led prestige score"
+description = "Replaces Steam::PrestigeScore with log10(review_count) + 4 × the Wilson lower bound of the positive share (z = 1.96), so the best-known games lead and acclaim still separates them, as the author chose on 2026-10-06 after a simulation on the staging import (12,326 games: the 124 Légendaires become games with at least ~93k reviews and 76 % positive, e.g. Counter-Strike 2, Dota 2, Elden Ring, Skyrim, Red Dead Redemption 2, Cyberpunk 2077); catalog-and-rarity.md's player-facing rule follows; the published season 1 on staging is not republished, the formula applies from the next publication."
+verify = "PrestigeScore orders a 1.5M-review game at 87 % above a 5k-review game at 98 %, stays strictly increasing in each input, and the draft preview and rescore use it; the spec states the new rule."
+covers = ["R5"]
+after = [11]
+hitl = false
+risk = "low"
+notes = ["c'est quand même généralement les gros jeux qu'on considère légendaire même s'ils sont pas oufs parfois", "ok pour k=4 mais je ne vais pas republier de saison"]
