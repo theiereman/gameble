@@ -104,13 +104,13 @@ risk = "medium"
 id = 10
 type = "story"
 title = "A friend's profile and visibility"
-description = "Adds Game::Visibility as the single visibility question, and the friend's profile dialog with their showcase of three cards and PROPOSER UN ÉCHANGE; SIGNALER waits for reports (epic 7)."
+description = "Completes the friends-only branch of Game::Visibility (built in epic 7) with the friendship query, and adds the friend's profile dialog with their showcase of three cards and PROPOSER UN ÉCHANGE; SIGNALER waits for reports (epic 7)."
 verify = "A friend opens a friend's profile and sees their showcase and can start a trade from it; a non-friend does not see what visibility hides; the question is asked in one place."
 covers = ["R1", "R4"]
-after = [1]
+after = [1, "7.2"]
 hitl = false
 risk = "medium"
-notes = ["check whether the profile visibility setting exists already (epic 7 owns it) before wiring friends-only"]
+notes = ["the visibility setting and Game::Visibility are built in epic 7 (story 2); this story plugs the friendship query in and reuses the report operation of epic 7 story 4 for SIGNALER"]
 
 [[entry]]
 id = 11

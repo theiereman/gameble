@@ -1,0 +1,138 @@
+# tickets.toml — the stories of epic 7, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "The production image builds in CI"
+description = "Adds a CI job that builds the production Docker image without pushing it and checks that the container boots and answers /up."
+verify = "A pull request or push to develop fails the CI when the image no longer builds or no longer answers /up."
+covers = ["R7"]
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Profile visibility setting"
+description = "Adds the visibility column (public by default, an expand then contract migration), Accounts::SetVisibility, the settings row as a radio group applied at once, Game::Visibility.visible?(viewer, owner) with friends only counting no friend until epic 5, and the \"not available\" states of the public profile and the shared card page."
+verify = "A player sets private and a signed-out visitor, a stranger and a banned player's page all see \"not available\"; public shows the profile as before; the visibility question is asked in one place; every policy involved is tested signed out."
+covers = ["R1"]
+after = ["4.7", "10.4"]
+hitl = false
+risk = "low"
+notes = ["epic 5 and epic 6 consume Game::Visibility; its friends-only branch is completed by epic 5"]
+
+[[entry]]
+id = 3
+type = "story"
+title = "Legal page"
+description = "Adds the legal page reached from \"Mentions légales\" in the settings and the public pages' footer, with the no-affiliation notice, the ownership notice, the terms of use and the privacy notice, and removes the per-card notice (card_details.notice) and its tests; the donation link's place is decided here."
+verify = "The page opens from the settings and from a public footer, signed out too, in both languages; a card's detail no longer carries the per-card notice."
+covers = ["R5"]
+after = []
+hitl = true
+risk = "low"
+notes = ["the author writes or approves the terms of use and the privacy notice; the layout follows DESIGN.md"]
+
+[[entry]]
+id = 4
+type = "story"
+title = "Reports"
+description = "Adds the reports table, the report dialog on the public profile with four reasons (anonymous to the reported player), Accounts::ReportPlayer as a reusable operation, and rate limits; the friend profile of epic 5 reuses it."
+verify = "A signed-in visitor reports a profile with one reason and the reported player learns nothing about it; a visitor signed out is led to the sign-in panel; a report is limited per player."
+covers = ["R4"]
+after = [2]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Moderation: the queue, bans and unbans"
+description = "Adds the staff queue of reports in the back-office, Accounts::BanPlayer and unban (a moderator cannot ban an administrator or themselves), the ban hiding the profile through Game::Visibility, and the staff-only policies tested signed out and as a non-staff player; staff accounts are made from the console and the runbook says how."
+verify = "A moderator bans a reported player, who can no longer sign in and whose profile shows as unavailable; an unban restores both; a moderator cannot ban an administrator; a non-staff player and a visitor never reach the back-office."
+covers = ["R4"]
+after = [2, 4, "1.7"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Healing a bank at a season's publication, all at once"
+description = "Changes the healing run on a season's publication so every player short of ten packs, or with none, gets the missing packs all available at once, with no other trigger, no retry and no fill on use."
+verify = "Publishing a season gives a player with no pack their ten packs available now and a player short of ten the missing ones available now; a full bank is untouched; nothing heals a bank outside a publication."
+covers = ["R6"]
+after = []
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Data export"
+description = "Assembles a player's export in the web layer from Accounts and Game queries (what they own or did, not what identifies another player), with the states PRÉPARATION… and EXPORT PRÊT, a rate limit and a download; later epics add what they store."
+verify = "A player requests an export and gets a file holding only their own data; another player's data never appears; a second request inside the limit is refused."
+covers = ["R2"]
+after = [3]
+hitl = true
+risk = "medium"
+notes = ["the author confirms the export's contents against the privacy notice written in story 3"]
+
+[[entry]]
+id = 8
+type = "story"
+title = "Account deletion"
+description = "Adds the typed-word dialog (SUPPRIMER, DELETE in English, case-insensitive, paste allowed), Accounts::DeletePlayer anonymising the record and releasing the steam id, the Accounts::PlayerDeleted event, a Game handler releasing what the player holds, sign-out, and the profile and feed entries disappearing; epic 5's last story extends the handler to trades and friendships."
+verify = "A player deletes their account and is signed out; their profile and shared cards show as unavailable; their steam id can sign up again as a new player; deleting during a concurrent opening leaves no orphan row."
+covers = ["R3"]
+after = [2]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 9
+type = "story"
+title = "Races between bank operations"
+description = "Adds concurrency tests across stories: opening a pack, registering, collecting the daily bonus and healing at a publication against each other, following the lock order of AD-10, and deleting an account against an opening."
+verify = "The concurrency tests pass repeatedly, with no double spend of a pack and no deadlock."
+covers = ["R6"]
+after = [6, 8]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 10
+type = "story"
+title = "Public pages throttled or cached, CSP enforced"
+description = "Throttles or caches the public profile, card page and library reads without ever caching a private or hidden page, and moves the CSP from report-only to enforced after a run on staging whose reports are read and fixed."
+verify = "Repeated reads of a public page are throttled or served from cache; a private page is never cached; every screen works on staging under the enforced CSP and the browser console shows no violation."
+covers = ["R7"]
+after = [2]
+hitl = true
+risk = "medium"
+notes = ["the author checks staging under the enforced CSP before the switch"]
+
+[[entry]]
+id = 11
+type = "story"
+title = "Backups and a restore drill"
+description = "Adds a periodic backup of the databases kept off the server, a restore into a scratch database, and a runbook; the production destination (server, registry, secrets) is a prerequisite the author sets."
+verify = "A backup is restored into a scratch database and the app boots on it; the runbook says how often it runs and where it is kept."
+covers = ["R7"]
+after = []
+hitl = true
+risk = "high"
+notes = ["the author chooses the server and the storage, runs the drill and signs it off"]
+
+[[entry]]
+id = 12
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
+verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+hitl = false
+risk = "low"

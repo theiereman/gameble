@@ -42,32 +42,25 @@ covers = ["CAP-6", "CAP-7", "CAP-8", "CAP-9", "CAP-16", "CAP-18"]
 after = [{ epic = 4, needs = "the collection, card detail, profile and share screens to rework" }, { epic = 8, needs = "the shell, the hub, the card face and the booster island" }]
 
 [[epic]]
+id = 7
+slug = "epic-public-launch-readiness"
+title = "Ready for the public"
+covers = ["CAP-14", "CAP-15"]
+after = [{ epic = 1, needs = "player accounts, staff roles and the back-office shell" }, { epic = 4, needs = "the public profile and the shared card page that visibility and reports apply to" }, { epic = 10, needs = "the profile and settings screen" }]
+
+[[epic]]
 id = 5
 slug = "epic-friends-and-trades"
 title = "Friends and trades"
 covers = ["CAP-10", "CAP-11", "CAP-21"]
-after = [{ epic = 3, needs = "owned cards, with their reserved count" }, { epic = 8, needs = "the new shell and the single card face" }]
+after = [{ epic = 7, needs = "Game::Visibility and the visibility setting" }, { epic = 3, needs = "owned cards, with their reserved count" }, { epic = 8, needs = "the new shell and the single card face" }]
 
 [[epic]]
 id = 6
 slug = "epic-brotherhood"
 title = "The Brotherhood"
 covers = ["CAP-12", "CAP-13", "CAP-17", "CAP-19"]
-after = [{ epic = 3, needs = "the pack-opened event and reward packs" }, { epic = 5, needs = "the trade-accepted event and friendships for the Friends tab" }, { epic = 8, needs = "the new shell, the hub and the ticker slot" }]
-
-[[epic]]
-id = 9
-slug = "epic-card-backs"
-title = "Card backs"
-covers = ["CAP-20"]
-after = [{ epic = 6, needs = "the set-completed, goal reward and achievement events" }, { epic = 8, needs = "the booster island showing the active back" }, { epic = 10, needs = "the profile and settings screen for the back picker" }]
-
-[[epic]]
-id = 7
-slug = "epic-public-launch-readiness"
-title = "Ready for the public"
-covers = ["CAP-14", "CAP-15"]
-after = [{ epic = 1, needs = "player accounts, staff roles and the back-office shell" }, { epic = 10, needs = "the profile and settings screen" }]
+after = [{ epic = 7, needs = "Game::Visibility, bans and the feed's hidden profiles" }, { epic = 3, needs = "the pack-opened event and reward packs" }, { epic = 5, needs = "the trade-accepted event and friendships for the Friends tab" }, { epic = 8, needs = "the new shell, the hub and the ticker slot" }]
 
 [[epic]]
 id = 11
@@ -76,3 +69,9 @@ title = "Season preparation"
 covers = ["CAP-2", "CAP-3", "CAP-6"]
 after = [{ epic = 2, needs = "the import runs, the draft season and the publication" }]
 
+[[epic]]
+id = 9
+slug = "epic-card-backs"
+title = "Card backs"
+covers = ["CAP-20"]
+after = [{ epic = 6, needs = "the set-completed, goal reward and achievement events" }, { epic = 8, needs = "the booster island showing the active back" }, { epic = 10, needs = "the profile and settings screen for the back picker" }]
