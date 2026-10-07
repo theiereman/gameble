@@ -84,9 +84,23 @@ class Game::WeeklyGoalTest < ActiveSupport::TestCase
 
   test "the current goal reads the summed row, or zero and the computed target before the job" do
     now = MONDAY + 1.hour
-    assert_equal({ total: 0, target: 200 }, Game::CurrentGoal.call(now:))
+    assert_equal({ total: 0, target: 200, reached: false, previous: nil }, Game::CurrentGoal.call(now:))
     open_for(@player, at: now)
     Game::SumWeeklyGoalJob.new.perform(now:)
-    assert_equal({ total: 1, target: 200 }, Game::CurrentGoal.call(now:))
+    assert_equal({ total: 1, target: 200, reached: false, previous: nil }, Game::CurrentGoal.call(now:))
+  end
+
+  test "the current goal is reached at its target, and after the rollover shows the previous week's final count" do
+    Game::WeeklyGoal.create!(week_start: MONDAY.to_date, total: 200, target: 200)
+    assert_equal({ total: 200, target: 200, reached: true, previous: nil }, Game::CurrentGoal.call(now: MONDAY + 1.day))
+
+    Game::WeeklyGoal.where(week_start: MONDAY.to_date).update_all(total: 180)
+    # The new week before the job ran: an empty gauge, a new target, last week missed.
+    assert_equal({ total: 0, target: 200, reached: false, previous: { total: 180, target: 200, reached: false } },
+      Game::CurrentGoal.call(now: MONDAY + 7.days))
+
+    Game::WeeklyGoal.create!(week_start: MONDAY.to_date + 7, total: 12, target: 250)
+    assert_equal({ total: 12, target: 250, reached: false, previous: { total: 180, target: 200, reached: false } },
+      Game::CurrentGoal.call(now: MONDAY + 7.days))
   end
 end

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { TOAST_BASE_MS, toastDuration } from "./toast"
+import { TOAST_BASE_MS, TOAST_ONCE_PREFIX, firstShowing, toastDuration } from "./toast"
 
 describe("toastDuration", () => {
   it("stays the base time for an empty text", () => {
@@ -16,5 +16,39 @@ describe("toastDuration", () => {
 
   it("counts words across any whitespace", () => {
     expect(toastDuration("  Léa a\n7 jours\tpour répondre. ")).toBe(6000)
+  })
+})
+
+describe("firstShowing", () => {
+  function memory(): Pick<Storage, "getItem" | "setItem"> & { items: Map<string, string> } {
+    const items = new Map<string, string>()
+    return { items, getItem: (key) => items.get(key) ?? null, setItem: (key, value) => void items.set(key, value) }
+  }
+
+  it("answers true the first time for a key, then false", () => {
+    const storage = memory()
+    expect(firstShowing("goal-reward-2026-10-05", storage)).toBe(true)
+    expect(firstShowing("goal-reward-2026-10-05", storage)).toBe(false)
+    expect(storage.items.get(`${TOAST_ONCE_PREFIX}goal-reward-2026-10-05`)).toBe("1")
+  })
+
+  it("keeps keys apart", () => {
+    const storage = memory()
+    expect(firstShowing("goal-reward-2026-10-05", storage)).toBe(true)
+    expect(firstShowing("goal-reward-2026-10-12", storage)).toBe(true)
+  })
+
+  it("shows the toast when storage is missing or refuses", () => {
+    expect(firstShowing("goal-reward-2026-10-05", null)).toBe(true)
+    const refusing = {
+      getItem: (): string | null => {
+        throw new Error("blocked")
+      },
+      setItem: (): void => {
+        throw new Error("blocked")
+      },
+    }
+    expect(firstShowing("goal-reward-2026-10-05", refusing)).toBe(true)
+    expect(firstShowing("goal-reward-2026-10-05", refusing)).toBe(true)
   })
 })

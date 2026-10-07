@@ -92,6 +92,12 @@ en:
         progress: "%{total} of %{target} boosters opened this week"
         reward: "Reward"
         reward_text: "A rare booster for every contributor"
+        reached: "Goal reached"
+        previous_reached: "Last week: %{total} / %{target} · goal reached"
+        previous_missed: "Last week: %{total} / %{target} · goal missed"
+      goal_reward:
+        title: "Goal reached"
+        message: "A rare booster joins your reserve."
       sets:
         title: "Set progress"
         see_all: "See all"

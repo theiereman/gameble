@@ -93,6 +93,12 @@ fr:
         progress: "%{total} boosters ouverts sur %{target} cette semaine"
         reward: "Récompense"
         reward_text: "Un booster rare pour chaque contributeur"
+        reached: "Objectif atteint"
+        previous_reached: "Semaine dernière : %{total} / %{target} · objectif atteint"
+        previous_missed: "Semaine dernière : %{total} / %{target} · objectif manqué"
+      goal_reward:
+        title: "Objectif atteint"
+        message: "Un booster rare rejoint votre réserve."
       sets:
         title: "Progression des sets"
         see_all: "Tout voir"
