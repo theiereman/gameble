@@ -26,7 +26,7 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     Game::SetCompletion.where(player_id: @players.map(&:id)).delete_all
     Game::Friendship.delete_all
     Accounts::Player.where(id: @created.map(&:id)).delete_all if @created
-    streams = @players.map { |player| Game::Operation.stream_name(player.id) }
+    streams = @players.flat_map { |player| [ Game::Operation.stream_name(player.id), "Accounts::Player$#{player.id}" ] }
     connection = ActiveRecord::Base.connection
     event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))
     connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))
@@ -81,6 +81,26 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     assert_equal [ :insufficient_copies ], results.select(&:failure?).map(&:failure)
     assert_equal 2, reserved(@alice, @card)
     assert_equal 1, Game::Trade.count
+  end
+
+  test "a deletion racing proposals to the deleted player: no trade stays open, nothing stays reserved, no deadlock" do
+    dave = Accounts::Player.create!(steam_id: "76561197960288101", persona_name: "Dave")
+    @players += [ dave ]
+    @created = [ dave ]
+    befriend(@alice, dave)
+    befriend(@carol, dave)
+    hold(@alice, @card, 2)
+    hold(@carol, @other, 1)
+
+    results = together(-> { Accounts::DeletePlayer.new.call(player: Accounts::Player.find(dave.id)) },
+      propose(@alice, dave, { @card => 2 }, { @other => 1 }), propose(@carol, dave, { @other => 1 }, { @card => 1 }))
+
+    assert results.first.success?
+    results.drop(1).select(&:failure?).each { |result| assert_equal :not_friends, result.failure }
+    assert_equal 0, Game::Trade.in_progress.where(recipient_id: dave.id).count
+    assert_equal 0, reserved(@alice, @card)
+    assert_equal 0, reserved(@carol, @other)
+    assert_equal 0, Game::Friendship.of(dave.id).count
   end
 
   test "many proposals of single copies at once never reserve more than owned" do

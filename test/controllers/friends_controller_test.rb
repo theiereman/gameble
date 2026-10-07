@@ -30,7 +30,10 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select "main h1", "Amis"
     assert_select ".friends__label", "Votre code ami"
     assert_select ".friends__code", "7K2Q-F3NX"
-    assert_select ".friends__empty"
+    assert_select ".friends__empty", /Aucun ami pour l'instant\./ do
+      assert_select "a[href='#friends-invite']", "Invitez-en un avec votre lien ou votre code."
+    end
+    assert_select ".friends__panel#friends-invite .friends__heading", "Inviter un ami"
     assert_select ".friends__row", 0
   end
 
