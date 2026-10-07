@@ -1,10 +1,13 @@
-# What the trades screen writes about a trade (EXPERIENCE.md, Trade list row,
-# Trade board; DESIGN.md, Trade board): the friend's name, a side in words
-# ("Celeste ×2, Hades"), the status chip, the expiry and the outcome's age,
-# and the key a card goes by in the counter form (AD-15: its slug and
-# season number, never its id). Rows are Game::TradesOf rows; `cards` are
-# Catalog::CardViews by card-season.
+# What the trades screen writes about a trade: the friend's name, a side in
+# words ("Celeste ×2, Hades"), the status chip, the expiry and the outcome's
+# age, the key a card goes by in the counter form (its slug and season
+# number, never its id), and the props of the TradeBoard island with the
+# keys its edits are kept under in the browser. Rows are Game::TradesOf
+# rows; `cards` are Catalog::CardViews by card-season.
 module TradesHelper
+  COUNTER_FORM_ID = "trade-counter-form"
+  DRAFT_FORM_ID = "trade-draft-form"
+
   # The list's groups, in order, with the rows of each.
   def trade_groups(trades)
     { yours: trades.yours, theirs: trades.theirs, recent: trades.recent }
@@ -67,6 +70,10 @@ module TradesHelper
     end
   end
 
+  def trade_board_lines(row)
+    row.state == :concluded ? [ row.own_side, row.friend_side ] : [ row.friend_side, row.own_side ]
+  end
+
   # The board's one-line status message.
   def trade_message(row, editing: false)
     return t("trades.board.editing") if editing
@@ -107,29 +114,66 @@ module TradesHelper
     "#{view.id}--s#{view.season_number}"
   end
 
-  def trade_board_props(trade, own_held:, friend_held:, picks:, error: nil)
+  def trade_draft_key(player, friend) = "#{player.token}:#{friend.token}"
+  def trade_counter_key(player, row) = "#{player.token}:#{row.token}:#{row.expires_at.to_i}"
+
+  def trade_board_locals(trade, cards:, own_held: nil, friend_held: nil, picks: nil, editing: false, **locals)
+    return {} unless trade
+
+    island = if trade.state == :yours && own_held && friend_held && picks
+      trade_board_props(trade, own_held:, friend_held:, picks:, cards:, editing:, error: flash[:trade_error])
+    end
+    locals.merge(editing:, island:)
+  end
+
+  def trade_board_props(trade, own_held:, friend_held:, picks:, cards:, editing:, error: nil)
     name = trade_friend_name(trade.friend)
     friend_label, own_label = trade_side_labels(trade)
-    {
+    trade_island_props(
       sides: [
-        trade_island_side(:friend, label: friend_label, name:, held: friend_held, lines: trade.friend_side, picks:),
-        trade_island_side(:own, label: own_label, name:, held: own_held, lines: trade.own_side, picks:)
+        trade_island_side(:friend, label: friend_label, name:, held: friend_held, lines: trade.friend_side, picks:,
+          read_html: trade_read_side(trade, :friend, label: friend_label, cards:)),
+        trade_island_side(:own, label: own_label, name:, held: own_held, lines: trade.own_side, picks:,
+          read_html: trade_read_side(trade, :own, label: own_label, cards:))
       ],
-      message: trade_message(trade, editing: true),
-      error:,
-      swapIcon: pixel_icon("swap", class: "trade-board__swap").to_str,
-      closeIcon: pixel_icon("close", class: "trade-island__close-icon").to_str,
-      strings: trade_island_strings
-    }
+      message: trade_message(trade, editing: true), read_message: trade_message(trade),
+      editing:, draft_key: trade_counter_key(current_player, trade), form_id: COUNTER_FORM_ID, error:
+    )
+  end
+
+  def trade_draft_props(friend, own_held:, friend_held:, picks:, error: nil)
+    name = trade_friend_name(friend)
+    trade_island_props(
+      sides: [
+        trade_island_side(:friend, label: t("trades.side.friend_gives", name:), name:, held: friend_held, lines: [], picks:),
+        trade_island_side(:own, label: t("trades.side.you_give"), name:, held: own_held, lines: [], picks:)
+      ],
+      message: t("trades.board.choose"), read_message: nil,
+      editing: true, draft_key: trade_draft_key(current_player, friend), form_id: DRAFT_FORM_ID, error:
+    )
   end
 
   private
-    def trade_island_side(side, label:, name:, held:, lines:, picks:)
+    def trade_island_props(sides:, message:, read_message:, editing:, draft_key:, form_id:, error:)
+      {
+        sides:, message:, readMessage: read_message, editing:, draftKey: draft_key, formId: form_id, error:,
+        swapIcon: pixel_icon("swap", class: "trade-board__swap").to_str,
+        closeIcon: pixel_icon("close", class: "trade-island__close-icon").to_str,
+        strings: trade_island_strings
+      }
+    end
+
+    def trade_read_side(trade, side, label:, cards:)
+      lines = side == :own ? trade.own_side : trade.friend_side
+      render("trades/side", side:, label:, lines:, cards:, editing: false, reserved: side == :friend).to_str
+    end
+
+    def trade_island_side(side, label:, name:, held:, lines:, picks:, read_html: nil)
       own = side == :own
       views = held.keys.filter_map { |id| picks[id] && [ id, picks[id] ] }
       views.sort_by! { |_, view| [ view.season_number, view.number ? 0 : 1, view.number.to_i, view.title ] }
       {
-        side:, field: own ? "give" : "take", label:,
+        side:, field: own ? "give" : "take", label:, readHtml: read_html,
         add: t("trades.island.add.#{side}"),
         pickerTitle: t("trades.island.picker.#{side}", name:),
         pickerTitleShort: t("trades.island.picker_short.#{side}", name:),

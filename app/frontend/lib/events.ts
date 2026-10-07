@@ -24,7 +24,9 @@ export type BankChangedDetail = { available: number; reserveFull: boolean; nextA
 // bar) while it opens a booster or reveals a card, and unlocks it after.
 export type NavigationLockedDetail = { locked: boolean }
 
-export type TradeChangedDetail = { give: SideCount; take: SideCount }
+export type TradeChangedDetail = { give: SideCount; take: SideCount; changed: boolean }
+
+export type TradeEditingDetail = { editing: boolean }
 
 export interface GamebleEventMap {
   "gameble:toast": ToastDetail
@@ -32,6 +34,7 @@ export interface GamebleEventMap {
   "gameble:bank-changed": BankChangedDetail
   "gameble:navigation-locked": NavigationLockedDetail
   "gameble:trade-changed": TradeChangedDetail
+  "gameble:trade-editing": TradeEditingDetail
 }
 
 export type GamebleEventName = keyof GamebleEventMap

@@ -1,0 +1,17 @@
+<dialog id="trade-undo-dialog" class="modal" aria-labelledby="trade-undo-dialog-title" aria-describedby="trade-undo-dialog-text"
+        data-controller="dialog" data-action="click->dialog#closeOnScrim" data-trade-board-target="undoDialog">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p id="trade-undo-dialog-title" class="modal__title"><%= t("trades.undo_dialog.title") %></p>
+      <button type="button" class="modal__close" aria-label="<%= t("trades.undo_dialog.close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <p id="trade-undo-dialog-text" class="trade-undo__text"><%= t("trades.undo_dialog.text", name: trade_friend_name(trade.friend)) %></p>
+    <div class="trade-undo__actions">
+      <button type="button" class="button button--primary" data-action="trade-board#restore"><%= t("trades.undo_dialog.confirm") %></button>
+      <button type="button" class="button button--secondary" data-action="dialog#close"><%= t("trades.undo_dialog.keep") %></button>
+    </div>
+  <% end %>
+</dialog>

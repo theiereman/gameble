@@ -1,7 +1,7 @@
 require "test_helper"
 
 class TradePolicyTest < ActiveSupport::TestCase
-  ACTIONS = %i[index? show? counter? accept? decline? cancel?].freeze
+  ACTIONS = %i[index? show? new? create? counter? accept? decline? cancel?].freeze
 
   test "a visitor may neither read nor answer trades" do
     ACTIONS.each { |action| assert_not TradePolicy.new(nil, :trade).public_send(action), action }

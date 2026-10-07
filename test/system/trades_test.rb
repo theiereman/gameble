@@ -2,9 +2,11 @@ require "application_system_test_case"
 
 # The trades screen in a browser: on a desktop the list beside the board,
 # the actions as forms and the badge falling as the player answers; on a
-# phone the list, then the board alone with "◀ Liste"; the counter-proposal's
-# trade board island with its card picker and steppers, by pointer, by
-# keyboard and on a phone; a visitor gets the sign-in panel.
+# phone the list, then the board alone with "◀ Liste"; the trade board
+# island with its card picker and steppers, by pointer, by keyboard and on a
+# phone; a draft kept in the browser until it is sent, a counter-proposal
+# written in place, and the swap after an acceptance; a visitor gets the
+# sign-in panel.
 class TradesTest < ApplicationSystemTestCase
   setup do
     @hugo = accounts_players(:player)
@@ -243,6 +245,215 @@ class TradesTest < ApplicationSystemTestCase
     assert_no_selector "#trade-send-reason", visible: true
     click_on "Send the counter-proposal"
     assert_selector ".toast", text: /Lea has 7 days to answer/
+  end
+
+  def record_animations
+    page.execute_script(<<~JS)
+      window.recordedFrames = []
+      const animate = Element.prototype.animate
+      Element.prototype.animate = function (frames, options) {
+        window.recordedFrames.push(JSON.stringify(frames))
+        return animate.call(this, frames, options)
+      }
+    JS
+  end
+
+  def recorded_frames = page.evaluate_script("window.recordedFrames")
+
+  def draft_entries = page.evaluate_script("Object.keys(localStorage).filter((key) => key.startsWith('gameble:trade-draft:'))")
+
+  test "a draft is kept in the browser until it is sent, the friend counters it in place, and accepting plays the swap" do
+    hills = catalog_card_seasons(:uncommon_card_one).id
+    hold(@lea, hills, 2)
+    sign_in @hugo
+
+    visit friends_path(locale: :en)
+    click_on "Lea"
+    within(".friend-profile") { click_on "Propose a trade" }
+    assert_selector ".trade-board .trade-chip--accent", text: /DRAFT/i
+    assert_selector ".trade-board__expiry", text: "Valid for 7 days once sent"
+    assert page.evaluate_script("document.activeElement.id === 'trade-board-heading'"), "focus on the board heading"
+    assert_selector "button[type=submit][disabled]", text: /Send the proposal/i
+    find(".trade-side--friend .trade-add").click
+    pick_toggle("Blue Depths").click
+    click_on "Place"
+    find(".trade-side--own .trade-add").click
+    pick_toggle("Portal").click
+    click_on "Place"
+    within(".trade-side--own") do
+      find(".stepper__button--more").click
+      assert_selector ".stepper[aria-valuenow='2']"
+    end
+    assert_equal 1, draft_entries.size
+
+    visit home_path(locale: :en)
+    assert_signed_in
+    assert_equal 0, Game::Trade.count
+    visit new_trade_path(locale: :en, friend: @lea.token)
+    within(".trade-side--own") { assert_selector ".stepper[aria-label='Copies of Portal'][aria-valuenow='2']" }
+    within(".trade-side--friend") { assert_selector ".trade-card__remove[aria-label='Remove Blue Depths']" }
+    click_on "Send the proposal"
+    assert_selector ".toast", text: /Lea has 7 days to answer/
+    assert_selector ".trade-board .trade-chip--accent", text: /WAITING/i
+    assert_empty draft_entries
+    trade = Game::Trade.sole
+    assert_equal [ [ "offer", @portal, 2 ], [ "request", @depths, 1 ] ], trade.items.order(:side).map { [ it.side, it.card_season_id, it.quantity ] }
+
+    find(".toast .toast__close").click
+    sign_out
+    assert_signed_out
+    sign_in @lea
+    visit trade_path(token: trade.token, locale: :en)
+    page.execute_script("window.stayedOnPage = true")
+    within(".trade-board") { click_on "Counter" }
+    assert_selector ".trade-side--editing", count: 2
+    assert_selector ".trade-board .trade-chip--accent", text: /EDITING/i
+    assert_current_path counter_trade_path(token: trade.token, locale: :en)
+    assert page.evaluate_script("document.activeElement.matches('.trade-side--own .trade-add')"), "focus on the player's add slot"
+
+    click_on "Discard the changes"
+    assert_no_selector ".trade-side--editing"
+    assert_no_selector "#trade-undo-dialog", visible: true
+    assert_current_path trade_path(token: trade.token, locale: :en)
+
+    within(".trade-board") { click_on "Counter" }
+    find(".trade-side--own .trade-card__remove[aria-label='Remove Blue Depths']").click
+    find(".trade-side--own .trade-add").click
+    pick_toggle("Green Hills").click
+    click_on "Place"
+    click_on "Discard the changes"
+    within("#trade-undo-dialog") { click_on "Keep editing" }
+    assert_no_selector "#trade-undo-dialog", visible: true
+    within(".trade-side--own") { assert_selector ".trade-card__remove[aria-label='Remove Green Hills']" }
+    click_on "Discard the changes"
+    within("#trade-undo-dialog") { click_on "Discard the changes" }
+    assert_no_selector ".trade-side--editing"
+    within(".trade-side--own") { assert_selector ".card", text: /Blue Depths/i }
+    assert_selector ".trade-board .trade-chip--alert", text: /YOUR TURN/i
+    assert_empty draft_entries
+    assert page.evaluate_script("window.stayedOnPage === true"), "the counter-proposal opened and closed in place"
+
+    within(".trade-board") { click_on "Counter" }
+    find(".trade-side--own .trade-card__remove[aria-label='Remove Blue Depths']").click
+    find(".trade-side--own .trade-add").click
+    pick_toggle("Green Hills").click
+    click_on "Place"
+    click_on "Send the counter-proposal"
+    assert_selector ".toast", text: /Hugo has 7 days to answer/
+    assert_empty draft_entries
+
+    find(".toast .toast__close").click
+    sign_out
+    assert_signed_out
+    sign_in @hugo
+    visit trade_path(token: trade.token, locale: :en)
+    record_animations
+    within(".trade-board") { click_on "Accept" }
+    assert_selector ".trade-board .trade-chip--lime", text: /DONE/i
+    assert_selector ".trade-board__message:focus", text: "Trade done."
+    flights = recorded_frames.select { it.include?("translate(") }
+    assert_equal 2, flights.size, "both stacks fly across"
+    assert flights.all? { it.include?("scale(1.12, 0.86)") }, "and squash as they land"
+    within(".trade-side--own") do
+      assert_selector ".card", text: /Green Hills/i
+      assert_selector ".trade-card__new", text: /NEW/i
+    end
+    within(".trade-side--friend") { assert_selector ".card", text: /Portal/i }
+  end
+
+  test "with Animations réduites the swap is a crossfade" do
+    @hugo.update!(reduced_motion: true)
+    trade = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })
+    sign_in @hugo
+    visit trade_path(token: trade.token, locale: :en)
+    record_animations
+
+    within(".trade-board") { click_on "Accept" }
+
+    assert_selector ".trade-board .trade-chip--lime", text: /DONE/i
+    assert_selector ".trade-board__message:focus", text: "Trade done."
+    frames = recorded_frames
+    assert_not frames.any? { it.include?("translate(") }, "no card moves"
+    assert_equal 2, frames.count { it.include?("opacity") }
+  end
+
+  test "a draft or a counter-proposal refused by the server keeps the picks still possible" do
+    hills, soldier = %i[uncommon_card_one common_card_one].map { catalog_card_seasons(it).id }
+    hold(@lea, hills, 2)
+    sign_in @hugo
+    visit new_trade_path(locale: :en, friend: @lea.token)
+    find(".trade-side--friend .trade-add").click
+    pick_toggle("Blue Depths").click
+    pick_toggle("Green Hills").click
+    click_on "Place"
+    find(".trade-side--own .trade-add").click
+    pick_toggle("Portal").click
+    click_on "Place"
+    Game::Holding.where(player_id: @lea.id, card_season_id: hills).update_all(quantity: 0)
+
+    click_on "Send the proposal"
+
+    assert_selector ".trade-board__error", text: I18n.t("errors.game.invalid_request", locale: :en)
+    assert_selector ".trade-board .trade-chip--accent", text: /DRAFT/i
+    within(".trade-side--friend") do
+      assert_selector ".trade-card__remove", count: 1
+      assert_selector ".trade-card__remove[aria-label='Remove Blue Depths']"
+    end
+    within(".trade-side--own") { assert_selector ".trade-card__remove[aria-label='Remove Portal']" }
+
+    hold(@hugo, soldier, 1)
+    Game::Holding.where(player_id: @lea.id, card_season_id: hills).update_all(quantity: 1)
+    from_lea = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 1 })
+    visit trade_path(token: from_lea.token, locale: :en)
+    within(".trade-board") { click_on "Counter" }
+    find(".trade-side--friend .trade-add").click
+    pick_toggle("Green Hills").click
+    click_on "Place"
+    find(".trade-side--own .trade-card__remove[aria-label='Remove Portal']").click
+    find(".trade-side--own .trade-add").click
+    pick_toggle("Tin Soldier").click
+    click_on "Place"
+    Game::Holding.where(player_id: @lea.id, card_season_id: hills).update_all(quantity: 0)
+
+    click_on "Send the counter-proposal"
+
+    assert_selector ".trade-board__error", text: I18n.t("errors.game.invalid_request", locale: :en)
+    assert_current_path counter_trade_path(token: from_lea.token, locale: :en)
+    within(".trade-side--friend") do
+      assert_selector ".trade-card__remove", count: 1
+      assert_selector ".trade-card__remove[aria-label='Remove Blue Depths']"
+    end
+    within(".trade-side--own") do
+      assert_selector ".trade-card__remove", count: 1
+      assert_selector ".trade-card__remove[aria-label='Remove Tin Soldier']"
+    end
+  end
+
+  test "a draft with a friend already trading opens that trade instead" do
+    trade = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })
+    sign_in @hugo
+
+    visit new_trade_path(locale: :en, friend: @lea.token)
+
+    assert_current_path trade_path(token: trade.token, locale: :en)
+    assert_selector ".trade-board__error", text: "A trade is already open with Lea."
+  end
+
+  test "abandoning a draft forgets it" do
+    sign_in @hugo
+    visit new_trade_path(locale: :en, friend: @max.token)
+    find(".trade-side--own .trade-add").click
+    pick_toggle("Portal").click
+    click_on "Place"
+    assert_equal 1, draft_entries.size
+
+    click_on "Abandon"
+
+    assert_current_path trades_path(locale: :en)
+    assert_empty draft_entries
+    visit new_trade_path(locale: :en, friend: @max.token)
+    assert_selector ".trade-side--own .trade-add"
+    assert_no_selector ".trade-card__remove"
   end
 
   test "a visitor is led to the sign-in panel from menu 03" do

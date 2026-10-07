@@ -243,6 +243,19 @@
   display: contents;
 }
 
+.trade-board__action-set,
+.trade-board__action {
+  display: contents;
+}
+
+.trade-board__action-set[hidden] {
+  display: none;
+}
+
+.trade-board__message:focus {
+  outline: none;
+}
+
 /* ---- A side ---- */
 
 .trade-side {
@@ -362,6 +375,16 @@
   text-transform: uppercase;
 }
 
+.trade-card__new {
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-lime);
+  box-shadow: 0 0 0 2px var(--color-outline);
+  color: var(--color-on-lime);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
 /* The counter form's quantity: a dark pill with the field and "/max". */
 .trade-card__stepper {
   display: inline-flex;
@@ -394,7 +417,8 @@
   font: var(--font-body-small);
 }
 
-.trade-island {
+.trade-island,
+.trade-island__static {
   display: contents;
 }
 
@@ -833,4 +857,82 @@
     padding: var(--space-4) 0;
     background: var(--color-panel);
   }
+}
+
+/* ---- Discarding a counter-proposal's changes ---- */
+
+.trade-undo__text {
+  margin: 0 0 var(--space-5);
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.trade-undo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+/* ---- The swap ---- */
+
+.trade-board__middle {
+  position: relative;
+}
+
+.trade-board--swapping .trade-card {
+  z-index: 5;
+}
+
+.trade-swap__ring,
+.trade-swap__confetti {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+}
+
+.trade-swap__ring {
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  box-shadow: 0 0 0 3px var(--color-accent);
+  animation: trade-swap-ring 500ms ease-out forwards;
+}
+
+.trade-swap__confetti {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: var(--color-lime);
+  animation: trade-swap-confetti 550ms ease-out forwards;
+}
+
+.trade-swap__confetti--1 { background: var(--color-gold); }
+.trade-swap__confetti--2 { background: var(--color-accent); }
+.trade-swap__confetti--3 { background: var(--color-rarity-epique); }
+
+.trade-swap__flash {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: var(--color-text-max);
+  opacity: 0;
+  pointer-events: none;
+  animation: trade-swap-flash 300ms ease-out forwards;
+}
+
+@keyframes trade-swap-ring {
+  from { opacity: 1; transform: scale(0.2); }
+  to { opacity: 0; transform: scale(2.4); }
+}
+
+@keyframes trade-swap-confetti {
+  from { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+  to { opacity: 0; transform: translate(var(--confetti-x), var(--confetti-y)) rotate(180deg); }
+}
+
+@keyframes trade-swap-flash {
+  0% { opacity: 0; }
+  30% { opacity: 0.16; }
+  100% { opacity: 0; }
 }

@@ -1,10 +1,14 @@
 <% content_for :back_button, true %>
 <% content_for :title, t("trades.board.heading", name: trade_friend_name(@trade.friend)) %>
 <% content_for :screen_title, t("trades.title") %>
+<% turbo_exempts_page_from_cache %>
 <%# One trade's board beside the list; on a phone the board alone, slid over
-    the list, back to it with "◀ Liste" (EXPERIENCE.md, Trades on the
-    phone). %>
+    the list, back to it with "◀ Liste". The board's heading takes the
+    focus, unless the swap that just concluded it gives it to the status
+    line. %>
 <% content_for :phone_back do %>
   <%= render "trades/phone_back" %>
 <% end %>
-<%= render "trades/screen", view: :board, trades: @trades, trade: @trade, cards: @cards %>
+<%= render "trades/screen", view: :board, trades: @trades, trade: @trade, cards: @cards,
+      board: trade_board_locals(@trade, cards: @cards, own_held: @own_cards, friend_held: @friend_cards, picks: @picks,
+        fresh: @new_cards, trade_again: @trade_again, focus: true, swap: flash[:trade_swap], forget: flash[:trade_forget]) %>
