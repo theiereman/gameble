@@ -124,11 +124,6 @@ class TradesController < ApplicationController
       Catalog::CardViews.call(rows.flat_map(&:card_season_ids), locale: I18n.locale)
     end
 
-    # The quantities a side of the counter form sends, by card-season, its
-    # cards named by their key (AD-15), 0 or blank removing one. A value
-    # that is no number is kept, for CounterTrade to refuse. nil when a key
-    # names no card among `held` (the side's holder's card-seasons), which
-    # refuses the side.
     def quantities(fields, held, cards)
       fields = fields.respond_to?(:to_unsafe_h) ? fields.to_unsafe_h : {}
       ids = held.filter_map { |id| (view = cards[id]) && [ helpers.trade_card_key(view), id ] }.to_h

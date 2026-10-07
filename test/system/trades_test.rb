@@ -1,7 +1,6 @@
 require "application_system_test_case"
 
-# The trades screen in a browser (stories 5.6, 5.7; EXPERIENCE.md, Échanges,
-# Card picker, Trades on the phone): on a desktop the list beside the board,
+# The trades screen in a browser: on a desktop the list beside the board,
 # the actions as forms and the badge falling as the player answers; on a
 # phone the list, then the board alone with "◀ Liste"; the counter-proposal's
 # trade board island with its card picker and steppers, by pointer, by

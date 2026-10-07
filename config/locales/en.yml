@@ -683,7 +683,6 @@ en:
           other: "%{count} copies"
         limit_title: "4 cards at most"
         limit_text: "Remove a card before placing another."
-        empty: "No card available."
         card_label: "%{title}, %{owned}"
         owned:
           one: "1 copy"

@@ -1,20 +1,11 @@
-// The quantity stepper (DESIGN.md, Quantity stepper; EXPERIENCE.md,
-// Quantity stepper; story 5.7): a dark pill "−", "×N", "+", then "/max"
-// ("sur N" under it on the phone). The pill is the spinbutton and the one
-// tab stop: arrows or + and − change the copies, Home and End go to 1 and
-// to the maximum. Its buttons are for the pointer and keep the focus on
-// the pill.
 import type { KeyboardEvent } from "react"
 import { stepperKey } from "../lib/trade_board"
 
 export type QuantityStepperProps = {
   value: number
   max: number
-  /** "Exemplaires de Celeste". */
   label: string
-  /** "2 sur 3". */
   valueText: string
-  /** "/3" and "sur 3". */
   maxText: string
   maxPhoneText: string
   more: string
@@ -36,8 +27,8 @@ export default function QuantityStepper({ value, max, label, valueText, maxText,
     change(step === "min" ? 1 : step === "max" ? max : value + step)
   }
 
-  // A press on a button keeps the focus where it is (the pill, or wherever it was).
-  const keepFocus = (event: { preventDefault: () => void }) => event.preventDefault()
+  // A mousedown on a button would move the focus off the spinbutton.
+  const keepFocus =(event: { preventDefault: () => void }) => event.preventDefault()
 
   return (
     <span

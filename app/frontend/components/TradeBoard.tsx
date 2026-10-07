@@ -1,14 +1,3 @@
-// The trade board island (AD-16; DESIGN.md, Trade board, Stack, Quantity
-// stepper, Add slot; EXPERIENCE.md, Échanges, Focus after each step; story
-// 5.7), mounted on the counter-proposal's board inside its server form. It
-// draws both sides "EN ÉDITION", the friend's first, with the status line
-// between them: each card at card-s (the size of the add slot beside it),
-// with its stepper when more than one copy may be placed and "✕"; an add
-// slot while a side holds fewer than four cards opens the card picker
-// (TradePicker). Each side writes its fields (`give[<key>]`, `take[<key>]`)
-// for the form, and every change goes to the page as `gameble:trade-changed`
-// (the send button waits for a card on each side). The faces come from the
-// server (CardComponent); the words from the locale files, through props.
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { flushSync } from "react-dom"
 import { dispatchGameble } from "../lib/events"
@@ -17,15 +6,12 @@ import { MAX_CARDS, initialLines, remove, setQuantity, sideCount, type Line } fr
 import QuantityStepper from "./QuantityStepper"
 import TradePicker from "./TradePicker"
 
-/** A card its holder holds: the player's own (with copies reserved elsewhere) or the friend's. */
 export type TradeCard = {
   key: string
   title: string
   owned: number
   reserved: number
-  /** The copies that may be placed: the player's free copies, or what the friend holds. */
   max: number
-  /** The card-s face, rendered on the server. */
   face: string
 }
 
@@ -37,6 +23,7 @@ export type TradeSideData = {
   pickerTitle: string
   pickerTitleShort: string
   note: string
+  none: string
   cards: TradeCard[]
   lines: Line[]
 }
@@ -56,7 +43,8 @@ export type TradeBoardStrings = {
   pickedCopies: Template
   limitTitle: string
   limitText: string
-  empty: string
+  noneTitle: string
+  noneAllReserved: string
   cardLabel: string
   owned: Template
   reservedElsewhere: Template
@@ -79,8 +67,6 @@ export type TradeBoardProps = {
   strings: TradeBoardStrings
 }
 
-// Where the focus goes after the next render: a side's card (its "✕"), or its add slot;
-// `preventScroll` when the board opens.
 type FocusTarget = { side: number; key: string | null; preventScroll?: boolean }
 
 export default function TradeBoard({ sides, message, error, swapIcon, closeIcon, strings }: TradeBoardProps) {
@@ -90,21 +76,17 @@ export default function TradeBoard({ sides, message, error, swapIcon, closeIcon,
   )
   const [picking, setPicking] = useState<number | null>(null)
   const sideElements = useRef<(HTMLDivElement | null)[]>([])
-  // The board opens for a counter-proposal: the focus goes to the add slot on the
-  // player's side (EXPERIENCE.md, Focus after each step: "CONTRE-PROPOSER"), the page
-  // left where it is.
   const focusAfter = useRef<FocusTarget | null>({ side: sides.findIndex((side) => side.side === "own"), key: null, preventScroll: true })
   const swapHtml = useMemo(() => ({ __html: swapIcon }), [swapIcon])
   const closeHtml = useMemo(() => ({ __html: closeIcon }), [closeIcon])
 
-  // The page's send button follows the sides.
   useEffect(() => {
     const count = (field: TradeSideData["field"]) => sideCount(lines[sides.findIndex((side) => side.field === field)] ?? [])
     dispatchGameble("gameble:trade-changed", { give: count("give"), take: count("take") })
   }, [lines, sides])
 
-  // A page kept by Turbo never shows the picker open: closed before the snapshot is taken.
   useEffect(() => {
+    // Turbo snapshots the page right after this event, before React would re-render.
     const beforeCache = () => flushSync(() => setPicking(null))
     document.addEventListener("turbo:before-cache", beforeCache)
     return () => document.removeEventListener("turbo:before-cache", beforeCache)
@@ -123,7 +105,6 @@ export default function TradeBoard({ sides, message, error, swapIcon, closeIcon,
 
   const update = (index: number, next: Line[]) => setLines((current) => current.map((side, at) => (at === index ? next : side)))
 
-  // "✕": the next card on that side takes the focus, or its add slot.
   const removeCard = (index: number, key: string) => {
     const side = lines[index]
     const at = side.findIndex((line) => line.key === key)
@@ -224,7 +205,6 @@ export default function TradeBoard({ sides, message, error, swapIcon, closeIcon,
           closeIcon={closeIcon}
           onPlace={(next) => update(picking, next)}
           onClose={() => {
-            // Back to the add slot that opened it, or the side's first card once it holds four.
             focusAfter.current = { side: picking, key: null }
             setPicking(null)
           }}

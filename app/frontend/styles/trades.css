@@ -292,7 +292,8 @@
   font: var(--font-body-small);
 }
 
-.trade-side__none-title {
+.trade-side__none-title,
+.trade-picker__empty-title {
   color: var(--color-alert);
   font-weight: inherit;
 }
@@ -393,10 +394,6 @@
   font: var(--font-body-small);
 }
 
-/* ---- The trade board island (story 5.7): its mount takes no box, so its
-   sides and status line sit in the board's grid; each card has "✕" at
-   its top right and its stepper under it; an add slot follows the cards. ---- */
-
 .trade-island {
   display: contents;
 }
@@ -458,7 +455,6 @@
   height: 12px;
 }
 
-/* The add slot: a hatched card-s button, a large "+" and its words. */
 .trade-add {
   display: flex;
   flex-direction: column;
@@ -491,8 +487,6 @@
   font: var(--font-count-large);
 }
 
-/* The quantity stepper: a dark pill "−", "×N", "+", "/max" (the phone:
-   "sur N" under the pill). */
 .stepper {
   display: inline-flex;
   align-items: center;
@@ -545,8 +539,6 @@
 .stepper__max-phone {
   display: none;
 }
-
-/* ---- The card picker: a wide dialog, a grid of card-s faces ---- */
 
 .modal--wide {
   width: min(var(--modal-width-wide), calc(100vw - 2 * var(--space-gutter-phone)));
@@ -604,8 +596,6 @@
   height: var(--card-s-height);
 }
 
-/* The flat button over the face takes the focus and the press (EXPERIENCE.md,
-   3D card stack: no transform on a button holding a face). */
 .trade-pick__toggle {
   position: absolute;
   inset: 0;
@@ -764,7 +754,6 @@
     display: none;
   }
 
-  /* The card picker: a full-height sheet. */
   .trade-picker {
     width: 100%;
     max-width: var(--space-phone-column-max);
@@ -794,8 +783,6 @@
     flex-basis: 100%;
   }
 
-  /* Touch: 44px-wide stepper buttons, "sur N" under the pill, a 44px hit
-     area around the 24px "✕". */
   .trade-card--editing,
   .trade-pick__foot {
     padding-bottom: var(--space-6);

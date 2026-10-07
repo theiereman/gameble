@@ -703,7 +703,6 @@ fr:
           other: "%{count} exemplaires"
         limit_title: "4 cartes au plus"
         limit_text: "Retirez une carte avant d'en placer une autre."
-        empty: "Aucune carte disponible."
         card_label: "%{title}, %{owned}"
         owned:
           one: "1 exemplaire"

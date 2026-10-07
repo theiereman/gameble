@@ -107,14 +107,6 @@ module TradesHelper
     "#{view.id}--s#{view.season_number}"
   end
 
-  # The TradeBoard island's props (story 5.7; AD-16; EXPERIENCE.md, Card
-  # picker, Quantity stepper): the friend's side then the player's, each
-  # with its words, every card its holder holds (a card-s face, copies,
-  # those reserved elsewhere and the maximum to place: the player's free
-  # copies, what the friend holds; the friend's reservations stay theirs)
-  # and the cards on it now; the board's status line, a refusal, its icons
-  # and the island's words. `own_held` and `friend_held` are
-  # Game::HeldCopies rows, `picks` their Catalog::CardViews.
   def trade_board_props(trade, own_held:, friend_held:, picks:, error: nil)
     name = trade_friend_name(trade.friend)
     friend_label, own_label = trade_side_labels(trade)
@@ -142,6 +134,7 @@ module TradesHelper
         pickerTitle: t("trades.island.picker.#{side}", name:),
         pickerTitleShort: t("trades.island.picker_short.#{side}", name:),
         note: t("trades.island.note.#{side}", name:),
+        none: own ? t("trades.side.none.none_owned") : t("trades.side.none.friend_none_owned", name:),
         cards: views.map do |id, view|
           row = held.fetch(id)
           { key: trade_card_key(view), title: view.title, owned: row.quantity, reserved: own ? row.reserved : 0,
@@ -151,13 +144,12 @@ module TradesHelper
       }
     end
 
-    # The island's own words (`trades.island.strings`, in lower camel case,
-    # plural hashes kept) with the board's words it shares.
     def trade_island_strings
       t("trades.island.strings").deep_transform_keys { it.to_s.camelize(:lower) }.merge(
         editing: t("trades.chip.editing"), cards: t("trades.side.cards"), cardsCopies: t("trades.side.cards_copies"),
         copiesLabel: t("trades.side.copies_label"), reserved: t("trades.side.reserved"),
-        quantity: t("trades.side.quantity_label"), max: t("trades.side.max")
+        quantity: t("trades.side.quantity_label"), max: t("trades.side.max"),
+        noneTitle: t("trades.side.none.title"), noneAllReserved: t("trades.side.none.all_reserved")
       )
     end
 end

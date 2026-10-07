@@ -233,7 +233,6 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal @bob.id, trade.reload.proposer_id
   end
 
-  # The island's props: JSON in the turbo-mount element (story 5.7).
   def island_props
     element = css_select("[data-controller='turbo-mount-trade-board']").first
     assert element, "the TradeBoard island is mounted"
@@ -276,6 +275,9 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez.", props.fetch("message")
     assert_equal({ "one" => "%{count} carte", "other" => "%{count} cartes" }, props.dig("strings", "cards"))
     assert_equal "Retirer %{title}", props.dig("strings", "remove")
+    assert_equal I18n.t("trades.side.none.friend_none_owned", name: "Lea", locale: :fr), friend.fetch("none")
+    assert_equal I18n.t("trades.side.none.none_owned", locale: :fr), own.fetch("none")
+    assert_equal I18n.t("trades.side.none.all_reserved", locale: :fr), props.dig("strings", "noneAllReserved")
   end
 
   test "a counter places cards the side's holder holds that were not on it" do

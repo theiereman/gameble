@@ -1,15 +1,3 @@
-// The card picker (DESIGN.md, Card picker, Modal; EXPERIENCE.md, Card
-// picker, Modal, Focus after each step; story 5.7): a wide modal <dialog>,
-// a full-height sheet on the phone, titled "PLACER MES CARTES" or "CHOISIR
-// DANS LA COLLECTION DE LÉA" ("CARTES DE LÉA" on the phone). Its grid shows
-// every card of the side's holder at card-s with its copies and, on the
-// player's side, the copies reserved in other trades; a card with none free
-// cannot be picked. Picking adds a card with 1 copy (a lime frame and ✓),
-// with a stepper under it when more than one is free; a fifth card is
-// refused inline. "PLACER" commits the choice to the side, "ANNULER", "✕",
-// Esc and the scrim discard it. The grid is one tab stop, arrow keys move
-// inside it. Each face sits under a flat transparent button (EXPERIENCE.md,
-// 3D card stack). Mounted while open; its parent gives the focus back.
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import { t } from "../lib/i18n"
 import { columnsOf, gridMove, toggle, setQuantity, sideCount, type Line } from "../lib/trade_board"
@@ -22,7 +10,6 @@ export type TradePickerProps = {
   strings: TradeBoardStrings
   closeIcon: string
   onPlace: (lines: Line[]) => void
-  /** Once the dialog has closed, placed or not. */
   onClose: () => void
 }
 
@@ -46,7 +33,6 @@ export default function TradePicker({ side, lines, strings, closeIcon, onPlace, 
     const onClosed = () => closed.current()
     element.addEventListener("close", onClosed)
     if (!element.open && typeof element.showModal === "function") element.showModal()
-    // The first control, never "✕": the grid's card, or "PLACER" without any.
     const first = grid.current?.querySelector<HTMLButtonElement>('.trade-pick__toggle[tabindex="0"]') ?? placeButton.current
     first?.focus()
     return () => {
@@ -80,6 +66,8 @@ export default function TradePicker({ side, lines, strings, closeIcon, onPlace, 
   }
 
   const count = sideCount(selection)
+  const nothingToPlace =
+    side.cards.length === 0 ? side.none : side.cards.every((card) => card.max < 1) ? strings.noneAllReserved : null
   const picked = new Map(selection.map((line) => [line.key, line.quantity]))
 
   return (
@@ -88,7 +76,7 @@ export default function TradePicker({ side, lines, strings, closeIcon, onPlace, 
       className="modal modal--wide trade-picker"
       aria-labelledby="trade-picker-title"
       onClick={(event) => {
-        // The panel fills the dialog: a click on the dialog itself is on the scrim.
+        // A click on the dialog element itself lands on its backdrop.
         if (event.target === event.currentTarget) shut()
       }}
     >
@@ -103,9 +91,12 @@ export default function TradePicker({ side, lines, strings, closeIcon, onPlace, 
         </div>
         <p className="trade-picker__note">{side.note}</p>
         <div className="trade-picker__body">
-          {side.cards.length === 0 ? (
-            <p className="trade-picker__empty">{strings.empty}</p>
-          ) : (
+          {nothingToPlace && (
+            <p className="trade-picker__empty">
+              <b className="trade-picker__empty-title">{strings.noneTitle}</b> {nothingToPlace}
+            </p>
+          )}
+          {side.cards.length > 0 && (
             <ul ref={grid} className="trade-picker__grid" aria-labelledby="trade-picker-title" onKeyDown={onGridKeyDown}>
               {side.cards.map((card, index) => {
                 const quantity = picked.get(card.key)

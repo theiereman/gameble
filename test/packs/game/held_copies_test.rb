@@ -1,7 +1,5 @@
 require "test_helper"
 
-# Game::HeldCopies (story 5.7): every card a player holds, with the copies
-# reserved in open trades and the free ones, for the trade board's picker.
 class Game::HeldCopiesTest < ActiveSupport::TestCase
   setup do
     @player = accounts_players(:player)
