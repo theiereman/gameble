@@ -707,6 +707,15 @@ en:
           one: "1 reserved in another trade"
           other: "%{count} reserved in other trades"
         unavailable: "none available"
+        search_label: "Search by title"
+        search_placeholder: "Search a title"
+        rarities_legend: "Rarity"
+        clear_filters: "Clear filters"
+        no_match: "No card matches these filters. Clear them to see every card again."
+        results:
+          zero: "No card shown."
+          one: "1 card shown."
+          other: "%{count} cards shown."
     accepted:
       title: "Trade done"
       text:

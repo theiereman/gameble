@@ -159,7 +159,7 @@ module TradesHelper
         none: own ? t("trades.side.none.none_owned") : t("trades.side.none.friend_none_owned", name:),
         cards: views.map do |id, view|
           row = held.fetch(id)
-          { key: trade_card_key(view), title: view.title, owned: row.quantity, reserved: own ? row.reserved : 0,
+          { key: trade_card_key(view), title: view.title, rarity: view.rarity.to_s, owned: row.quantity, reserved: own ? row.reserved : 0,
             max: trade_card_limit(side, row), face: render(CardComponent.new(card: view, size: :s)).to_str }
         end,
         lines: lines.filter_map { |line| (view = picks[line.card_season_id]) && { key: trade_card_key(view), quantity: line.quantity } }
@@ -171,7 +171,8 @@ module TradesHelper
         editing: t("trades.chip.editing"), cards: t("trades.side.cards"), cardsCopies: t("trades.side.cards_copies"),
         copiesLabel: t("trades.side.copies_label"), reserved: t("trades.side.reserved"),
         quantity: t("trades.side.quantity_label"), max: t("trades.side.max"),
-        noneTitle: t("trades.side.none.title"), noneAllReserved: t("trades.side.none.all_reserved")
+        noneTitle: t("trades.side.none.title"), noneAllReserved: t("trades.side.none.all_reserved"),
+        rarities: Catalog::Rarity::TIERS.values.to_h { [ it, t("catalog.rarity.#{it}") ] }
       )
     end
 end

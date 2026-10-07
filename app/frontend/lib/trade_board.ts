@@ -1,3 +1,5 @@
+import type { Rarity } from "./card_types"
+
 export type Line = { key: string; quantity: number }
 
 export type SideCount = { cards: number; copies: number }
@@ -90,6 +92,20 @@ export function columnsOf(tops: readonly number[]): number {
   const first = tops[0]
   const columns = tops.findIndex((top) => Math.abs(top - first) > 1)
   return columns === -1 ? tops.length : columns
+}
+
+function fold(text: string): string {
+  return text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim()
+}
+
+/** The cards whose title holds the query (any case or accent) and whose rarity is one of `rarities`, when any; server order kept. */
+export function filterCards<Card extends { title: string; rarity: Rarity }>(
+  cards: readonly Card[],
+  query: string,
+  rarities: readonly Rarity[],
+): Card[] {
+  const needle = fold(query)
+  return cards.filter((card) => (rarities.length === 0 || rarities.includes(card.rarity)) && fold(card.title).includes(needle))
 }
 
 function clamp(value: number, min: number, max: number): number {

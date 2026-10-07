@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { flushSync } from "react-dom"
 import { dispatchGameble, onGameble } from "../lib/events"
 import { t, type Template } from "../lib/i18n"
+import type { Rarity } from "../lib/card_types"
 import { MAX_CARDS, initialLines, remove, setQuantity, sideCount, type Line } from "../lib/trade_board"
 import { forgetDraft, readDraft, sameLines, saveDraft, type DraftSides } from "../lib/trade_draft"
 import QuantityStepper from "./QuantityStepper"
@@ -10,6 +11,7 @@ import TradePicker from "./TradePicker"
 export type TradeCard = {
   key: string
   title: string
+  rarity: Rarity
   owned: number
   reserved: number
   max: number
@@ -58,6 +60,13 @@ export type TradeBoardStrings = {
   reserved: Template
   quantity: string
   max: string
+  searchLabel: string
+  searchPlaceholder: string
+  raritiesLegend: string
+  rarities: Record<Rarity, string>
+  clearFilters: string
+  noMatch: string
+  results: Template
 }
 
 export type TradeBoardProps = {

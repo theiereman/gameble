@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import { t } from "../lib/i18n"
-import { columnsOf, gridMove, toggle, setQuantity, sideCount, type Line } from "../lib/trade_board"
+import { RARITIES, type Rarity } from "../lib/card_types"
+import { columnsOf, filterCards, gridMove, toggle, setQuantity, sideCount, type Line } from "../lib/trade_board"
 import QuantityStepper from "./QuantityStepper"
 import type { TradeBoardStrings, TradeSideData } from "./TradeBoard"
 
@@ -19,10 +20,10 @@ export default function TradePicker({ side, lines, strings, closeIcon, onPlace, 
   const placeButton = useRef<HTMLButtonElement>(null)
   const [selection, setSelection] = useState<Line[]>(lines)
   const [refused, setRefused] = useState(false)
-  const [active, setActive] = useState(() => {
-    const first = lines.length > 0 ? side.cards.findIndex((card) => card.key === lines[0].key) : 0
-    return Math.max(0, first)
-  })
+  const search = useRef<HTMLInputElement>(null)
+  const [query, setQuery] = useState("")
+  const [rarities, setRarities] = useState<Rarity[]>([])
+  const [activeKey, setActiveKey] = useState<string | null>(() => (lines.length > 0 ? lines[0].key : null))
   const closed = useRef(onClose)
   closed.current = onClose
   const closeHtml = useMemo(() => ({ __html: closeIcon }), [closeIcon])
@@ -45,9 +46,24 @@ export default function TradePicker({ side, lines, strings, closeIcon, onPlace, 
     if (dialog.current?.open) dialog.current.close()
   }
 
-  const pick = (index: number) => {
-    const card = side.cards[index]
-    setActive(index)
+  const visible = useMemo(() => filterCards(side.cards, query, rarities), [side.cards, query, rarities])
+  const filtering = query.trim() !== "" || rarities.length > 0
+  const found = activeKey === null ? -1 : visible.findIndex((card) => card.key === activeKey)
+  const active = Math.max(0, found)
+
+  const toggleRarity = (rarity: Rarity) =>
+    setRarities((current) => (current.includes(rarity) ? current.filter((value) => value !== rarity) : [...current, rarity]))
+
+  const clearFilters = () => {
+    setQuery("")
+    setRarities([])
+    search.current?.focus()
+  }
+
+  const pick = (key: string) => {
+    const card = side.cards.find((candidate) => candidate.key === key)
+    if (!card) return
+    setActiveKey(key)
     const next = toggle(selection, card.key, card.max)
     setRefused(next.refused)
     setSelection(next.lines)
@@ -58,10 +74,10 @@ export default function TradePicker({ side, lines, strings, closeIcon, onPlace, 
     if (!target.classList.contains("trade-pick__toggle") || !grid.current) return
     const items = Array.from(grid.current.querySelectorAll<HTMLElement>(":scope > .trade-pick"))
     const columns = columnsOf(items.map((item) => item.offsetTop))
-    const next = gridMove(active, event.key, items.length, columns)
+    const next = gridMove(active, event.key, visible.length, columns)
     if (next === null) return
     event.preventDefault()
-    setActive(next)
+    setActiveKey(visible[next]?.key ?? null)
     items[next]?.querySelector<HTMLButtonElement>(".trade-pick__toggle")?.focus()
   }
 
@@ -90,15 +106,57 @@ export default function TradePicker({ side, lines, strings, closeIcon, onPlace, 
           <button type="button" className="modal__close" aria-label={strings.close} onClick={shut} dangerouslySetInnerHTML={closeHtml} />
         </div>
         <p className="trade-picker__note">{side.note}</p>
+        {side.cards.length > 0 && (
+          <div className="trade-picker__filters" role="search">
+            <label className="visually-hidden" htmlFor="trade-picker-search">
+              {strings.searchLabel}
+            </label>
+            <input
+              ref={search}
+              id="trade-picker-search"
+              type="search"
+              className="filters__search-field"
+              value={query}
+              autoComplete="off"
+              placeholder={strings.searchPlaceholder}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+            <fieldset className="filters__group trade-picker__rarities">
+              <legend className="filters__legend">{strings.raritiesLegend}</legend>
+              {RARITIES.map((rarity) => (
+                <label key={rarity} className="filter-chip">
+                  <input
+                    type="checkbox"
+                    className="filter-chip__box"
+                    checked={rarities.includes(rarity)}
+                    onChange={() => toggleRarity(rarity)}
+                  />
+                  <span className="filter-chip__text">{strings.rarities[rarity]}</span>
+                </label>
+              ))}
+            </fieldset>
+            <div className="trade-picker__filter-foot">
+              <p className="trade-picker__results" aria-live="polite">
+                {t(strings.results, { count: visible.length })}
+              </p>
+              {filtering && (
+                <button type="button" className="filters__clear trade-picker__clear" onClick={clearFilters}>
+                  {strings.clearFilters}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
         <div className="trade-picker__body">
           {nothingToPlace && (
             <p className="trade-picker__empty">
               <b className="trade-picker__empty-title">{strings.noneTitle}</b> {nothingToPlace}
             </p>
           )}
-          {side.cards.length > 0 && (
+          {side.cards.length > 0 && !nothingToPlace && visible.length === 0 && <p className="trade-picker__empty">{strings.noMatch}</p>}
+          {visible.length > 0 && (
             <ul ref={grid} className="trade-picker__grid" aria-labelledby="trade-picker-title" onKeyDown={onGridKeyDown}>
-              {side.cards.map((card, index) => {
+              {visible.map((card, index) => {
                 const quantity = picked.get(card.key)
                 const isPicked = quantity !== undefined
                 const unavailable = card.max < 1
@@ -141,7 +199,7 @@ export default function TradePicker({ side, lines, strings, closeIcon, onPlace, 
                         aria-pressed={isPicked}
                         aria-disabled={unavailable && !isPicked ? true : undefined}
                         aria-label={label}
-                        onClick={() => pick(index)}
+                        onClick={() => pick(card.key)}
                       />
                     </div>
                     <div className="trade-pick__foot">

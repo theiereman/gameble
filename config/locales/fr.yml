@@ -727,6 +727,15 @@ fr:
           one: "1 réservé ailleurs"
           other: "%{count} réservés ailleurs"
         unavailable: "aucun disponible"
+        search_label: "Rechercher par titre"
+        search_placeholder: "Rechercher un titre"
+        rarities_legend: "Rareté"
+        clear_filters: "Effacer les filtres"
+        no_match: "Aucune carte ne correspond à ces filtres. Effacez-les pour revoir toutes les cartes."
+        results:
+          zero: "Aucune carte affichée."
+          one: "1 carte affichée."
+          other: "%{count} cartes affichées."
     accepted:
       title: "Échange conclu"
       text:

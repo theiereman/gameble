@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { columnsOf, gridMove, initialLines, remove, setQuantity, sideCount, stepperKey, toggle, type Line } from "./trade_board"
+import { columnsOf, filterCards, gridMove, initialLines, remove, setQuantity, sideCount, stepperKey, toggle, type Line } from "./trade_board"
 
 const lines = (...pairs: [string, number][]): Line[] => pairs.map(([key, quantity]) => ({ key, quantity }))
 
@@ -85,5 +85,40 @@ describe("columnsOf", () => {
     expect(columnsOf([10, 10, 10, 200, 200])).toBe(3)
     expect(columnsOf([10, 10])).toBe(2)
     expect(columnsOf([])).toBe(1)
+  })
+})
+
+describe("filterCards", () => {
+  const cards = [
+    { key: "a", title: "Café Owner", rarity: "common" as const },
+    { key: "b", title: "Portal", rarity: "rare" as const },
+    { key: "c", title: "Portal 2", rarity: "legendary" as const },
+    { key: "d", title: "Hades", rarity: "rare" as const },
+  ]
+  const keys = (list: { key: string }[]) => list.map((card) => card.key)
+
+  it("keeps every card, in order, without a filter", () => {
+    expect(keys(filterCards(cards, "", []))).toEqual(["a", "b", "c", "d"])
+    expect(keys(filterCards(cards, "   ", []))).toEqual(["a", "b", "c", "d"])
+  })
+
+  it("matches part of a title whatever the case or accent", () => {
+    expect(keys(filterCards(cards, "PORT", []))).toEqual(["b", "c"])
+    expect(keys(filterCards(cards, "cafe", []))).toEqual(["a"])
+    expect(keys(filterCards(cards, "café", []))).toEqual(["a"])
+  })
+
+  it("matches any of the chosen rarities", () => {
+    expect(keys(filterCards(cards, "", ["rare"]))).toEqual(["b", "d"])
+    expect(keys(filterCards(cards, "", ["common", "legendary"]))).toEqual(["a", "c"])
+  })
+
+  it("requires both the search and a rarity", () => {
+    expect(keys(filterCards(cards, "portal", ["legendary"]))).toEqual(["c"])
+  })
+
+  it("returns nothing when no card matches", () => {
+    expect(filterCards(cards, "zelda", [])).toEqual([])
+    expect(filterCards(cards, "hades", ["common"])).toEqual([])
   })
 })

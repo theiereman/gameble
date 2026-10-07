@@ -166,6 +166,55 @@ class TradesTest < ApplicationSystemTestCase
       trade.items.group_by(&:side).transform_values { |items| items.map { [ it.card_season_id, it.quantity ] }.sort })
   end
 
+  test "the picker filters its cards by title and rarity without touching the selection" do
+    soldier, hills, crown = %i[common_card_one uncommon_card_one legendary_card_one].map { catalog_card_seasons(it).id }
+    [ soldier, hills, crown, @portal ].each { hold(@lea, it, 1) }
+    trade = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })
+    sign_in @hugo
+    visit counter_trade_path(token: trade.token, locale: :en)
+
+    find(".trade-side--friend .trade-add").click
+    assert_selector ".trade-pick", count: 5
+    pick_toggle("Tin Soldier").click
+
+    fill_in "Search by title", with: "PORT"
+    assert_selector ".trade-pick", count: 1
+    assert_selector ".trade-pick__toggle[aria-label^='Portal,']"
+    assert_selector ".trade-picker__results", text: "1 card shown."
+    assert_selector ".trade-picker__count", text: "2 cards · 2 copies (4 cards at most)"
+
+    fill_in "Search by title", with: ""
+    check "Legendary", allow_label_click: true
+    check "Common", allow_label_click: true
+    assert_selector ".trade-pick", count: 2
+    assert_selector ".trade-pick__toggle[aria-label^='Golden Crown,']"
+    assert_selector ".trade-pick__toggle[aria-label^='Tin Soldier,'][aria-pressed='true']"
+
+    fill_in "Search by title", with: "portal"
+    assert_no_selector ".trade-pick"
+    assert_selector ".trade-picker__empty", text: /No card matches/
+    assert_selector ".trade-picker__results", text: "No card shown."
+    assert_selector ".trade-picker__count", text: "2 cards · 2 copies (4 cards at most)"
+
+    click_on "Clear filters"
+    assert_selector ".trade-pick", count: 5
+    assert_equal "", find_field("Search by title").value
+    assert_selector ".trade-picker input[type=search]:focus"
+    assert_no_selector ".trade-picker__clear"
+
+    check "Legendary", allow_label_click: true
+    check "Common", allow_label_click: true
+    assert_selector ".trade-pick", count: 2
+    pick_toggle("Tin Soldier").send_keys(:arrow_right, :arrow_left)
+    assert_selector ".trade-pick__toggle:focus[aria-label^='Tin Soldier,']"
+    page.active_element.send_keys(:end)
+    assert_selector ".trade-pick:last-child .trade-pick__toggle[tabindex='0']"
+    uncheck "Legendary", allow_label_click: true
+    uncheck "Common", allow_label_click: true
+    click_on "Place"
+    within(".trade-side--friend") { assert_selector ".trade-card__remove[aria-label='Remove Tin Soldier']" }
+  end
+
   test "the board and its picker work by keyboard" do
     soldier = catalog_card_seasons(:common_card_one).id
     hold(@hugo, soldier, 3)
