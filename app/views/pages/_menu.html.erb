@@ -4,7 +4,7 @@
     link with the reserve as a lime badge, greyed at zero; for a visitor,
     the sign-in panel); 02 opens the collection, with the unique
     cards owned out of the season's; 04 opens the Friends screen (for a visitor,
-    the sign-in panel); 03, 05 and 06 have no screen yet. Hidden on
+    the sign-in panel); 05 opens the public feed; 03 and 06 have no screen yet. Hidden on
     the phone, where the tab bar navigates. %>
 <nav class="hub-menu" aria-label="<%= t("pages.home.menu.label") %>" data-hub-menu-target="menu" data-action="keydown->hub-menu#press">
   <% arrow = pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
@@ -25,6 +25,8 @@
     <% [ [ :trades, 3 ], [ :friends, 4 ], [ :feed, 5 ], [ :achievements, 6 ] ].each do |item, position| %>
       <% if item == :friends %>
         <%= render "pages/menu_friends", signed_in: !bank.nil? %>
+      <% elsif item == :feed %>
+        <%= render "pages/menu_feed" %>
       <% else %>
         <li class="hub-menu__entry">
           <span class="menu-item" aria-disabled="true" aria-keyshortcuts="<%= position %>">

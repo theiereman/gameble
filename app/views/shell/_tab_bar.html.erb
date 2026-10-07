@@ -9,7 +9,7 @@
      [ :booster, "tab-booster", booster_path, controller_path == "boosters" ],
      [ :collection, "tab-collection", library_path, %w[library cards].include?(controller_path) ],
      [ :trades, "tab-trades", nil, false ],
-     [ :more, "tab-more", more_path, (controller_path == "pages" && action_name == "more") || %w[settings friends].include?(controller_path) ]
+     [ :more, "tab-more", more_path, (controller_path == "pages" && action_name == "more") || %w[settings friends feeds].include?(controller_path) ]
    ] %>
 <nav class="tab-bar" aria-label="<%= t("shell.tabs.label") %>" data-controller="navigation-lock">
   <ul class="tab-bar__list">

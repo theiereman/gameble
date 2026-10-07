@@ -314,3 +314,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-public-profile-and-shared-card-page-plan.md`
   summary: Rays (purple for Épique, gold for Légendaire) behind the card on the card detail, the hub showcase and the public card page, as DESIGN.md (Elevation & Depth, Rarity) requires.
   evidence: Quick review of story 10.3 (2026-10-06): the public card page has the ground shadow but no rays; the same rays are absent from the detail and the showcase, and exist only in `app/frontend/styles/booster.css` (`.booster-card__rays`), so a shared rays component is a cross-screen job, not this story's.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-brotherhood/story-feed-tracer-a-public-feed-of-notable-pulls-plan.md`
+  summary: The feed reads a window of 90 rows per pass, so hidden players' entries can crowd out older public ones.
+  evidence: Game::FeedEntries filters by Game::Visibility in Ruby after reading WINDOW rows; unverified at scale, would be medium.

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_130300) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_130400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -152,6 +152,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_130300) do
     t.datetime "updated_at", null: false
     t.index ["pack_id"], name: "index_game_daily_bonus_claims_on_pack_id"
     t.index ["player_id", "day"], name: "index_game_daily_bonus_claims_on_player_id_and_day", unique: true
+  end
+
+  create_table "game_feed_entries", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "pack_id", null: false
+    t.bigint "card_season_id", null: false
+    t.integer "position", null: false
+    t.integer "rarity", null: false
+    t.boolean "notable", default: true, null: false
+    t.datetime "occurred_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["notable", "occurred_at", "id"], name: "index_game_feed_entries_on_notable_and_occurred_at_and_id"
+    t.index ["pack_id", "position"], name: "index_game_feed_entries_on_pack_id_and_position", unique: true
+    t.index ["player_id"], name: "index_game_feed_entries_on_player_id"
+    t.check_constraint "rarity >= 1 AND rarity <= 5", name: "game_feed_entries_rarity_check"
   end
 
   create_table "game_friend_codes", force: :cascade do |t|
@@ -363,6 +379,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_130300) do
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
   add_foreign_key "game_daily_bonus_claims", "accounts_players", column: "player_id"
   add_foreign_key "game_daily_bonus_claims", "game_packs", column: "pack_id"
+  add_foreign_key "game_feed_entries", "accounts_players", column: "player_id"
+  add_foreign_key "game_feed_entries", "game_packs", column: "pack_id"
   add_foreign_key "game_friend_codes", "accounts_players", column: "player_id"
   add_foreign_key "game_friendships", "accounts_players", column: "high_player_id"
   add_foreign_key "game_friendships", "accounts_players", column: "low_player_id"

@@ -1,0 +1,38 @@
+<% content_for :back_button, true %>
+<% content_for :title, t(".title") %>
+<% content_for :screen_title, t(".title") %>
+<% content_for :phone_back do %>
+  <%= link_to more_path, class: "button button--secondary button--small top-bar__phone-back" do %>
+    <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
+  <% end %>
+<% end %>
+<%# Fil d'activité (EXPERIENCE.md, Fil d'activité; DESIGN.md, Activity feed):
+    the tab TOUS, then one row per pull of Épique or better, newest first:
+    time, a sentence naming the player, the card's thumbnail and its rarity.
+    Fillers of a quiet feed sit on the sunken panel. Names and the order are
+    already filtered by Game::Visibility. No Brotherhood line here. %>
+<section class="feed" aria-labelledby="feed-heading">
+  <h1 id="feed-heading" class="feed__title"><%= t(".title") %></h1>
+  <p class="feed__tabs"><span class="feed__tab" aria-current="true"><%= t(".all") %></span></p>
+  <% if @items.empty? %>
+    <%= render PanelComponent.new(tag: :p, class: "feed__empty") do %><%= t(".empty") %><% end %>
+  <% else %>
+    <ul class="feed__list">
+      <% @items.each do |item, card| %>
+        <% tier = Catalog::Rarity::TIERS.key(card.rarity.to_sym) %>
+        <% name = item.player.persona_name.presence || t(".nameless") %>
+        <li class="<%= class_names("feed__entry", "feed__entry--filler": item.filler) %>">
+          <time class="feed__time" datetime="<%= item.entry.occurred_at.utc.iso8601 %>"><%= item.entry.occurred_at.utc.strftime(t(".time_format")) %></time>
+          <p class="feed__sentence"><%= t(".pulled_html", name: tag.strong(name), card: tag.strong(card.title)) %></p>
+          <%= link_to card_path(slug: card.id), class: "feed__thumb", aria: { label: card.title }, data: { turbo_prefetch: false } do %>
+            <%= render CardComponent.new(card:, size: :s) %>
+          <% end %>
+          <span class="feed__tag feed__tag--<%= card.rarity %>">
+            <%= pixel_icon("rarity-#{tier}", class: "feed__tag-icon") %>
+            <span><%= t("catalog.rarity.#{Catalog::Rarity::TIERS.fetch(tier)}") %></span>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>

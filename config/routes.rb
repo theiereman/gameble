@@ -66,6 +66,9 @@ Rails.application.routes.draw do
     patch "settings/visibility" => "settings#visibility", as: :settings_visibility
     # The Friends screen (CAP-10): the player's friends and friend code.
     resource :friends, only: :show
+
+    # The activity feed (CAP-13): public, read only.
+    get "feed" => "feeds#show", as: :feed
     # Invitations, by friend code (a field of the Friends screen) and their
     # answers; addressed by token (AD-15).
     post "friends/invitations" => "invitations#create", as: :invitations

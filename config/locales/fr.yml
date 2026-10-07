@@ -469,6 +469,15 @@ fr:
       session:
         label: "Session"
         sign_out: "Se déconnecter"
+  feeds:
+    show:
+      title: "Fil d'activité"
+      more: "Plus"
+      all: "Tous"
+      empty: "Rien pour l'instant."
+      nameless: "Officier sans nom"
+      time_format: "%-d/%m, %H:%M UTC"
+      pulled_html: "%{name} a tiré %{card}"
   friends:
     show:
       title: "Amis"

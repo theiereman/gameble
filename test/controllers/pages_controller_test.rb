@@ -85,9 +85,13 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".menu-item__meta", "1/5"
       assert_select ".visually-hidden", "1 carte unique sur 5"
     end
-    # 03 to 06: no screen yet.
+    # 05: the public feed.
+    assert_select ".hub-menu a.menu-item[href='/fr/feed'][aria-keyshortcuts='5']" do
+      assert_select ".menu-item__label", "Fil d'activité"
+    end
+    # 03 and 06: no screen yet.
     disabled = css_select(".hub-menu span.menu-item[aria-disabled=true]")
-    assert_equal [ "Échanges", "Fil d'activité", "Succès" ], disabled.map { it.at_css(".menu-item__label").text }
+    assert_equal [ "Échanges", "Succès" ], disabled.map { it.at_css(".menu-item__label").text }
     assert disabled.all? { it.at_css(".visually-hidden").text == "bientôt disponible" }
 
     # The showcase: the tier 4 card of the pack, its rarity and its page.

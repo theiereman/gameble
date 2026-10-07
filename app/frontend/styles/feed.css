@@ -1,0 +1,107 @@
+/*
+ * Fil d'activité (DESIGN.md: Activity feed; EXPERIENCE.md: Fil d'activité;
+ * story 6.1): the tab, then one row per pull, at least 68px tall. Hard
+ * edges, no animation, no opacity to dim a filler.
+ */
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 720px;
+}
+
+.feed__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.feed__tabs {
+  display: flex;
+  margin: 0;
+}
+
+.feed__tab {
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.feed__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feed__entry {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr auto auto;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 68px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel);
+}
+
+.feed__entry--filler {
+  background: var(--color-panel-sunken);
+}
+
+.feed__time {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.feed__sentence {
+  margin: 0;
+  font: var(--font-body);
+}
+
+.feed__sentence strong {
+  color: var(--color-text-max);
+  font-weight: inherit;
+}
+
+.feed__thumb {
+  display: block;
+  text-decoration: none;
+}
+
+.feed__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.feed__tag--common { color: var(--color-rarity-commune); }
+.feed__tag--uncommon { color: var(--color-rarity-peu-commune); }
+.feed__tag--rare { color: var(--color-rarity-rare); }
+.feed__tag--epic { color: var(--color-rarity-epique); }
+.feed__tag--legendary { color: var(--color-rarity-legendaire); }
+
+.feed__empty {
+  margin: 0;
+}
+
+@media (max-width: 719px) {
+  .feed__entry {
+    grid-template-columns: 1fr auto;
+  }
+
+  .feed__time,
+  .feed__sentence {
+    grid-column: 1 / -1;
+  }
+}

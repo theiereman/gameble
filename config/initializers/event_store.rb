@@ -13,6 +13,8 @@ Rails.configuration.to_prepare do
 
   # Every opening counts toward the weekly goal (AD-10).
   event_store.subscribe(Game::Handlers::PackOpened, to: [ Game::PackOpened ])
+  # The notable pulls of an opening go to the activity feed (AD-10, AD-13).
+  event_store.subscribe(Game::Handlers::PackOpenedFeed, to: [ Game::PackOpened ])
 
   Rails.configuration.event_store = event_store
 end

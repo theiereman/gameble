@@ -13,6 +13,8 @@ class Game::OpenPackConcurrencyTest < ActiveSupport::TestCase
 
   teardown do
     Game::Holding.where(player_id: @player.id).delete_all
+    Game::FeedEntry.where(player_id: @player.id).delete_all
+    Game::WeeklyContribution.where(player_id: @player.id).delete_all
     Game::Pack.where(player_id: @player.id).delete_all
     stream = Game::Operation.stream_name(@player.id)
     connection = ActiveRecord::Base.connection
