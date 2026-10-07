@@ -61,6 +61,11 @@ fr:
           other: "%{owned} cartes uniques sur %{total}"
         trades: "Échanges"
         friends: "Amis"
+        # French keeps the singular for 0, which the plural rule here does not.
+        friends_online:
+          zero: "%{number} en ligne"
+          one: "%{number} en ligne"
+          other: "%{number} en ligne"
         feed: "Fil d'activité"
         achievements: "Succès"
         soon: "bientôt disponible"
@@ -518,6 +523,23 @@ fr:
       pending: "En attente"
       accept: "Accepter"
       ignore: "Ignorer"
+      presence:
+        online: "En ligne"
+        offline: "Hors ligne"
+        minutes_ago:
+          one: "Il y a %{count} min"
+          other: "Il y a %{count} min"
+        hours_ago:
+          one: "Il y a %{count} h"
+          other: "Il y a %{count} h"
+        days_ago:
+          one: "Il y a %{count} j"
+          other: "Il y a %{count} j"
+        activities:
+          opening_pack: "Ouvre un booster"
+          collecting_daily: "Récupère son booster du jour"
+          trading: "Négocie un échange"
+          making_friends: "Se fait des amis"
   invitations:
     sent: "Invitation envoyée à %{to}."
     throttled: "Trop de tentatives en une minute. Réessayez dans un instant."

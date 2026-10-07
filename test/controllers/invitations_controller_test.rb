@@ -56,7 +56,7 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     post accept_invitation_path(token:, locale: :fr)
     follow_redirect!
     assert_select ".toast", /Nouvel ami/i
-    assert_select ".friends__row", "Lea"
+    assert_select ".friends__row .friends__name", "Lea"
     assert_select ".friends__invitation", 0
   end
 

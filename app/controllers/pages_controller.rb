@@ -4,7 +4,8 @@
 # set progress rows, with the goal reward's toast while a contributor's
 # reward pack waits unopened. A read only page (AD-11): Catalog answers the
 # season, its size and the showcased card, Game the goal, the player's
-# reserve, reward, pull, collection and sets.
+# reserve, reward, pull, collection, sets and how many of their friends are
+# online (menu 04).
 class PagesController < ApplicationController
   def home
     authorize :page, :show?
@@ -13,6 +14,7 @@ class PagesController < ApplicationController
     if current_player
       @bank = Game::BankSummary.call(current_player)
       @goal_reward_week = Game::WaitingGoalReward.call(current_player)
+      @friends_online = Game::FriendsPresence.online_count(current_player)
       @showcase = showcase if @season
     end
     @collection = collection if @season

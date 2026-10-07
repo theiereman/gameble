@@ -123,3 +123,35 @@
   font: var(--font-screen-title);
   letter-spacing: var(--tracking-screen-title);
 }
+
+/* Story 5.3: a friend's presence (DESIGN.md, Friend row): a square dot and
+   its words, lime online, blue doing something, muted away. */
+
+.friends__friend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.friends__presence {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-muted);
+}
+
+.friends__dot {
+  width: 8px;
+  height: 8px;
+  background: currentcolor;
+}
+
+.friends__presence--online {
+  color: var(--color-lime);
+}
+
+.friends__presence--active {
+  color: var(--color-accent);
+}

@@ -29,6 +29,12 @@ module BackOffice
       assert_equal player.id, session[:player_id]
     end
 
+    # No job is enqueued but the signed-in player's last-seen write, which
+    # any request may enqueue (story 5.3).
+    def assert_no_import_jobs(&)
+      assert_no_enqueued_jobs(except: Accounts::NoteLastSeenJob, &)
+    end
+
     def running_run(apps_listed: 0)
       Steam::ImportRun.create!(status: :running, step: "app_list", cursor: { "last_appid" => 42 }, counts: { "apps_listed" => apps_listed }, started_at: 1.minute.ago)
     end
@@ -86,7 +92,7 @@ module BackOffice
       sign_in(accounts_players(:administrator))
       running_run
 
-      assert_no_enqueued_jobs { post back_office_import_runs_path(locale: :en) }
+      assert_no_import_jobs { post back_office_import_runs_path(locale: :en) }
 
       assert_redirected_to back_office_import_runs_path(locale: :en)
       assert_equal I18n.t("errors.steam.run_in_progress", locale: :en), flash[:alert]
@@ -343,7 +349,7 @@ module BackOffice
       older = Steam::ImportRun.create!(status: :failed, step: "app_list", cursor: { "last_appid" => 42 }, created_at: 2.days.ago, started_at: 2.days.ago, finished_at: 2.days.ago)
       Steam::ImportRun.create!(status: :completed, step: "cards", finished_at: 1.minute.ago)
 
-      assert_no_enqueued_jobs { post resume_back_office_import_run_path(older, locale: :en) }
+      assert_no_import_jobs { post resume_back_office_import_run_path(older, locale: :en) }
 
       assert_redirected_to back_office_import_run_path(older, locale: :en)
       assert_equal I18n.t("errors.steam.not_latest", locale: :en), flash[:alert]
@@ -380,7 +386,7 @@ module BackOffice
       get back_office_import_run_path(run, locale: :en)
       assert_select "form[action$='/rescore']", false
 
-      assert_no_enqueued_jobs { post rescore_back_office_import_run_path(run, locale: :en) }
+      assert_no_import_jobs { post rescore_back_office_import_run_path(run, locale: :en) }
       assert_equal I18n.t("errors.steam.already_published", locale: :en), flash[:alert]
       assert_predicate run.reload, :completed?
     end
@@ -391,7 +397,7 @@ module BackOffice
       Steam::ImportRun.create!(status: :running, step: "app_list", started_at: 1.day.ago, created_at: 1.day.ago)
       run = Steam::ImportRun.create!(status: :completed, step: "cards", finished_at: 1.minute.ago)
 
-      assert_no_enqueued_jobs { post rescore_back_office_import_run_path(run, locale: :en) }
+      assert_no_import_jobs { post rescore_back_office_import_run_path(run, locale: :en) }
 
       assert_equal I18n.t("back_office.import_runs.rescore.run_in_progress", locale: :en), flash[:alert]
     end
@@ -415,7 +421,7 @@ module BackOffice
       sign_in(accounts_players(:administrator))
       run = failed_run
 
-      assert_no_enqueued_jobs { post rescore_back_office_import_run_path(run, locale: :en) }
+      assert_no_import_jobs { post rescore_back_office_import_run_path(run, locale: :en) }
 
       assert_redirected_to back_office_import_run_path(run, locale: :en)
       assert_equal I18n.t("errors.steam.not_completed", locale: :en), flash[:alert]
@@ -548,7 +554,7 @@ module BackOffice
         sign_in(accounts_players(role))
 
         each_request(run) do |verb, path|
-          assert_no_enqueued_jobs { public_send(verb, path) }
+          assert_no_import_jobs { public_send(verb, path) }
 
           assert_response :forbidden, "#{verb} #{path}"
           assert_includes response.body, ERB::Util.html_escape(I18n.t("authorization.forbidden", locale: :fr))

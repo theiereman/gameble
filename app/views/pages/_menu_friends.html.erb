@@ -1,13 +1,18 @@
 <%# Menu 04, "Amis" (see pages/_menu): for a player a link to the Friends
-    screen, for a visitor a button opening the sign-in panel, as menu 01
-    does. %>
+    screen with how many friends are online ("2 en ligne",
+    Game::FriendsPresence), for a visitor a button opening the sign-in
+    panel, as menu 01 does. %>
 <li class="hub-menu__entry">
   <% head = capture do %><span class="menu-item__number" aria-hidden="true">04</span><span class="menu-item__label"><%= t("pages.home.menu.friends") %></span><% end %>
   <% arrow = pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
   <% if signed_in %>
     <%= link_to friends_path, class: "menu-item", aria: { keyshortcuts: "4" },
           data: { hub_menu_target: "item", action: "hub-menu#remember", turbo_prefetch: false } do %>
-      <%= head %><%= arrow %>
+      <%= head %>
+      <% if online %>
+        <span class="menu-item__meta"><%= t("pages.home.menu.friends_online", count: online, number: number_with_delimiter(online)) %></span>
+      <% end %>
+      <%= arrow %>
     <% end %>
   <% else %>
     <%= tag.button type: :button, class: "menu-item", aria: { haspopup: "dialog", keyshortcuts: "4" },
