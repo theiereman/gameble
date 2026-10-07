@@ -47,7 +47,6 @@ fr:
     home:
       kicker:
         title: "Pont de commandement"
-        subtitle: "Vaisseau-bibliothèque « Archiviste »"
       menu:
         label: "Menu du pont"
         open_booster: "Ouvrir un booster"

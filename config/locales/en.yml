@@ -47,7 +47,6 @@ en:
     home:
       kicker:
         title: "Command bridge"
-        subtitle: "Library ship “Archivist”"
       menu:
         label: "Bridge menu"
         open_booster: "Open a booster"

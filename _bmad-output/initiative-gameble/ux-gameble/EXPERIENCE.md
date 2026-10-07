@@ -49,7 +49,7 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 
 **Phone navigation.** A bottom tab bar: PONT · BOOSTER · COLLECTION · ÉCHANGES · PLUS. Tab roots have no back button; tapping the current tab returns to its root or scrolls it to the top. Sub-views slide over their screen with a contextual back: "◀ GRILLE" (card detail), "◀ LISTE" (trade board), "◀ PLUS" (Amis, Fil, Succès, Profil). The public card page has no tab bar.
 
-**Hub content.** Top bar: logo, rarity counter, packs chip, player chip. Left: kicker "PONT DE COMMANDEMENT" with the subtitle "Vaisseau-bibliothèque « Archiviste »", the menu, the daily booster panel. Center: the showcase. Right: the community goal panel and "PROGRESSION DES SETS" (four set progress rows, "TOUT VOIR ▸"). Bottom: the LIVE ticker. On the phone the same blocks stack in one scrolling column without the menu.
+**Hub content.** Top bar: logo, rarity counter, packs chip, player chip. Left: kicker "PONT DE COMMANDEMENT" alone (no subtitle: the "Vaisseau-bibliothèque « Archiviste »" line was cut, author 2026-10-07), the menu, the daily booster panel. Center: the showcase. Right: the community goal panel and "PROGRESSION DES SETS" (four set progress rows, "TOUT VOIR ▸"). Bottom: the LIVE ticker. On the phone the same blocks stack in one scrolling column without the menu.
 
 **Signed-out visitors** see everything that needs no account and cannot act: any such action opens the sign-in panel, and the collection shows every slot empty. The signed-out hub is described in `DESIGN.md` (see Signed-out hub) `[ASSUMPTION: not mocked]`.
 

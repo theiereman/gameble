@@ -16,7 +16,6 @@
 <div class="hub" data-controller="hub-menu" data-hub-menu-focus-first-value="<%= flash[:signed_in].present? %>">
   <header class="hub__kicker">
     <h1 class="hub__title" tabindex="-1" data-hub-menu-target="heading"><%= t(".kicker.title") %></h1>
-    <p class="hub__subtitle"><%= t(".kicker.subtitle") %></p>
   </header>
 
   <%= render "pages/menu", bank: @bank, collection: @collection %>

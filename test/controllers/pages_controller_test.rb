@@ -45,7 +45,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "body > header.top-bar + main#main"
     assert_select "nav.tab-bar[aria-label=?]", "Navigation principale"
     assert_select "main h1.hub__title[tabindex='-1']", "Pont de commandement"
-    assert_select "main .hub__subtitle", "Vaisseau-bibliothèque « Archiviste »"
+    assert_select "main .hub__kicker .hub__subtitle", false
   end
 
   test "the English hub renders in English and loads its Vite assets" do
