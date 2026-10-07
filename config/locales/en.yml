@@ -60,6 +60,9 @@ en:
           other: "%{owned} unique cards out of %{total}"
         trades: "Trades"
         friends: "Friends"
+        friends_online:
+          one: "%{number} online"
+          other: "%{number} online"
         feed: "Activity feed"
         achievements: "Achievements"
         soon: "coming soon"
@@ -490,6 +493,23 @@ en:
       pending: "Pending"
       accept: "Accept"
       ignore: "Ignore"
+      presence:
+        online: "Online"
+        offline: "Offline"
+        minutes_ago:
+          one: "%{count} min ago"
+          other: "%{count} min ago"
+        hours_ago:
+          one: "%{count} h ago"
+          other: "%{count} h ago"
+        days_ago:
+          one: "%{count} day ago"
+          other: "%{count} days ago"
+        activities:
+          opening_pack: "Opening a booster"
+          collecting_daily: "Collecting the daily booster"
+          trading: "Negotiating a trade"
+          making_friends: "Making friends"
   invitations:
     sent: "Invitation sent to %{to}."
     throttled: "Too many attempts in a minute. Try again in a moment."

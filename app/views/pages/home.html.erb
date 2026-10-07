@@ -18,7 +18,7 @@
     <h1 class="hub__title" tabindex="-1" data-hub-menu-target="heading"><%= t(".kicker.title") %></h1>
   </header>
 
-  <%= render "pages/menu", bank: @bank, collection: @collection %>
+  <%= render "pages/menu", bank: @bank, collection: @collection, friends_online: @friends_online %>
 
   <% if current_player %>
     <span hidden data-controller="bonus-arc" data-action="turbo:before-stream-render@document->bonus-arc#render"></span>

@@ -1,7 +1,8 @@
 require "test_helper"
 
 # The Friends screen (EXPERIENCE.md, Amis; story 5.1): the player's friend
-# code and an empty friends list; a visitor is sent home to sign in.
+# code and an empty friends list; a visitor is sent home to sign in. Each
+# friend's presence and menu 04's online count (story 5.3).
 class FriendsControllerTest < ActionDispatch::IntegrationTest
   setup do
     OmniAuth.config.test_mode = true
@@ -43,8 +44,55 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "main h1", "Friends"
     assert_select ".friends__label", "Your friend code"
-    assert_select ".friends__row", "Sam"
+    assert_select ".friends__row .friends__name", "Sam"
+    assert_select ".friends__row .friends__presence--offline", "Offline"
     assert_select ".friends__empty", 1, "only the no-invitation line"
+  end
+
+  test "each friend shows their presence, and menu 04 counts those online" do
+    now = Time.utc(2026, 10, 7, 15, 0)
+    friends = { moderator: "Ada", administrator: "Bob" }.map do |key, name|
+      friend = accounts_players(key)
+      friend.update_columns(persona_name: name)
+      low, high = [ @player.id, friend.id ].minmax
+      Game::Friendship.create!(low_player_id: low, high_player_id: high)
+      friend
+    end
+    ada, bob = friends
+
+    travel_to(now) do
+      Game::FillBank.new.call(player: ada).value!
+      Game::OpenPack.new.call(player: ada).value!
+      bob.update_columns(last_seen_at: now - 3.hours)
+      sign_in
+
+      get friends_path(locale: :fr)
+      assert_select ".friends__friend", 2
+      assert_select ".friends__friend:nth-child(1) .friends__name", "Ada"
+      assert_select ".friends__friend:nth-child(1) .friends__presence--active", "Ouvre un booster"
+      assert_select ".friends__friend:nth-child(2) .friends__presence--offline", "Il y a 3 h"
+      assert_select ".friends__dot[aria-hidden=true]", 2
+
+      get home_path(locale: :fr)
+      assert_select ".hub-menu a.menu-item[href='/fr/friends'] .menu-item__meta", "1 en ligne"
+
+      travel 6.minutes
+      bob.update_columns(last_seen_at: Time.current)
+      get friends_path(locale: :en)
+      assert_select ".friends__friend:nth-child(1) .friends__presence--offline", "6 min ago"
+      assert_select ".friends__friend:nth-child(2) .friends__presence--online", "Online"
+      get home_path(locale: :en)
+      assert_select ".hub-menu a.menu-item[href='/en/friends'] .menu-item__meta", "1 online"
+    end
+  end
+
+  test "menu 04 shows zero online for a player without friends, nothing for a visitor" do
+    get home_path(locale: :fr)
+    assert_select ".hub-menu .menu-item__meta", { text: /en ligne/, count: 0 }
+
+    sign_in
+    get home_path(locale: :fr)
+    assert_select ".hub-menu a.menu-item[href='/fr/friends'] .menu-item__meta", "0 en ligne"
   end
 
   test "a visitor is sent home to sign in" do

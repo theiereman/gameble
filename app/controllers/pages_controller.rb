@@ -2,7 +2,8 @@
 # menu, the showcase of the player's latest notable pull (or the invitation
 # to sign in), the daily booster panel and the set progress rows. A read
 # only page (AD-11): Catalog answers the season, its size and the showcased
-# card, Game the player's reserve, pull, collection and sets.
+# card, Game the player's reserve, pull, collection, sets and how many of
+# their friends are online (menu 04).
 class PagesController < ApplicationController
   def home
     authorize :page, :show?
@@ -10,6 +11,7 @@ class PagesController < ApplicationController
     @goal = Game::CurrentGoal.call
     if current_player
       @bank = Game::BankSummary.call(current_player)
+      @friends_online = Game::FriendsPresence.online_count(current_player)
       @showcase = showcase if @season
     end
     @collection = collection if @season

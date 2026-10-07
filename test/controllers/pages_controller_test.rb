@@ -7,7 +7,7 @@ require_relative "../support/game_packs"
 class PagesControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
 
-  PLAYER_HUB_QUERIES = 14
+  PLAYER_HUB_QUERIES = 15
   VISITOR_HUB_QUERIES = 5
 
   setup do
@@ -269,7 +269,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
     get home_path(locale: :en)
     assert_select ".hub-sets", false
-    assert_select ".hub-menu .menu-item__meta", false
+    assert_select ".hub-menu .menu-item__meta", count: 1, text: "0 online"
     assert_select ".daily-booster", false
     assert_select ".hub-showcase--empty"
   end
@@ -304,8 +304,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # Player lookup, published season, the weekly goal (one read once the job
     # has created the week's row), bank (count, next pack, daily claim),
     # showcase (pull, card view), collection (owned, total), sets (progress,
-    # the started sets, the fill, which finds no other set here, so no sizes)
-    # and the top bar's copies per tier.
+    # the started sets, the fill, which finds no other set here, so no sizes),
+    # the top bar's copies per tier and menu 04's friends online.
     assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"
 
