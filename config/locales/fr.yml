@@ -330,20 +330,20 @@ fr:
         next: "Page suivante"
     seen:
       throttled: "Trop de requêtes en une minute. Réessayez dans un instant."
+    # The collection's list of sets (library/set_list); the public profile
+    # reads the tab names too.
     show:
       tabs:
-        label: "Les sortes de collections"
         started: "Entamées"
         tome: "Tomes"
         publisher: "Éditeurs"
         best_of_year: "Les mieux notés de l'année"
       empty:
-        started: "Aucune collection entamée pour l'instant, Confrère : celle-ci attend encore sa première carte."
-        tome: "Aucun tome ne se dresse encore sur ces étagères, Confrère. Cette saison n'en relie aucun."
-        publisher: "Aucun éditeur n'a mérité sa collection cette saison, Confrère."
-        best_of_year: "Aucune année n'a vu ses meilleurs reliés cette saison, Confrère."
-      past_the_end: "Cette étagère est vide, Confrère. Les tomes s'arrêtent sur une étagère précédente."
-      no_season: "Les étagères sont nues, Confrère : la Confrérie n'a encore publié aucune saison de cartes."
+        tome: "Aucun tome dans cette saison pour l'instant."
+        publisher: "Aucun éditeur n'a de set cette saison."
+        best_of_year: "Aucun set des mieux notés cette saison."
+      past_the_end: "Cette liste s'arrête sur une page précédente."
+      no_season: "Aucune saison de cartes n'est publiée pour l'instant."
   public_profiles:
     title: "%{name}"
     fallback_title: "Joueur %{code}"

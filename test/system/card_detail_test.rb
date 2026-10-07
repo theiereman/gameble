@@ -56,6 +56,16 @@ class CardDetailTest < ApplicationSystemTestCase
     end
   end
 
+  # Waits for the browser to draw `count` frames, so the events a frame
+  # dispatches (scroll among them) have run.
+  def wait_for_frames(count = 2)
+    evaluate_async_script(<<~JS, count)
+      const [ count, done ] = arguments
+      const step = (left) => left === 0 ? done() : requestAnimationFrame(() => step(left - 1))
+      step(count)
+    JS
+  end
+
   # Waits for the focus to be on an element matching `selector`.
   def assert_focused(selector)
     page.document.synchronize(Capybara.default_max_wait_time) do
@@ -273,9 +283,11 @@ class CardDetailTest < ApplicationSystemTestCase
     # Browser Back from the detail does the same.
     go_forward
     assert_selector ".card-detail__position", text: "· 5 / 25 ·"
-    # Turbo renders the cached detail, then scrolls it to its top: going
-    # back before that would file the detail's scroll under the grid's entry.
+    # Turbo renders the cached detail, then scrolls it to its top, and files
+    # that scroll from the `scroll` event the next frame fires: going back
+    # before that event would file the detail's 0 under the grid's entry.
     assert_scrolled_to 0
+    wait_for_frames
     go_back
     assert_current_path library_set_path(locale: :en, kind: "tome", key: "action-1")
     assert_selector ".collection-grid"
