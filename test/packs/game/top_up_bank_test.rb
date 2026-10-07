@@ -1,5 +1,6 @@
 require "test_helper"
 require_relative "../../support/game_packs"
+require_relative "../../support/rake_tasks"
 
 # Replacement packs (R1, R4, AD-7): opening a regular pack replaces it, the
 # new pack drawn at once and scheduled ten minutes after the later of the
@@ -9,6 +10,7 @@ require_relative "../../support/game_packs"
 # does (epic 7 R6).
 class Game::TopUpBankTest < ActiveSupport::TestCase
   include GamePacks
+  include RakeTasks
 
   setup do
     Game::DrawPool.reset!
@@ -18,7 +20,7 @@ class Game::TopUpBankTest < ActiveSupport::TestCase
 
   def open = Game::OpenPack.new.call(player: @player)
   def bank = Game::Pack.bank(@player.id)
-  def summary = Game::BankSummary.call(@player).except(:bonus_collectable, :bonus_collected, :next_bonus_at)
+  def summary = Game::BankSummary.reserve(@player)
 
   def full_bank_at(time)
     travel_to(time) { Game::FillBank.new.call(player: @player).value! }
@@ -166,12 +168,12 @@ class Game::TopUpBankTest < ActiveSupport::TestCase
   end
 
   test "game:top_up_banks heals every emptied bank and adds nothing on a second run" do
-    Rails.application.load_tasks if Rake::Task.tasks.none? { |task| task.name == "game:top_up_banks" }
+    task = rake_task("game:top_up_banks")
     create_pack(@player, opened_at: @now - 1.hour)
     moderator = accounts_players(:moderator)
     Game::FillBank.new.call(player: moderator).value!
 
-    run = -> { capture_io { Rake::Task["game:top_up_banks"].tap(&:reenable).invoke } }
+    run = -> { capture_io { task.tap(&:reenable).invoke } }
 
     travel_to(@now) { run.call }
     assert_equal 10, bank.count

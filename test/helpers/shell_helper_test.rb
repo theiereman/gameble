@@ -59,12 +59,14 @@ class ShellHelperTest < ActionView::TestCase
     end
   end
 
-  test "a player's bank and tier counts are read once per request" do
+  test "a player's reserve and tier counts are read once per request, the reserve alone" do
     self.current_player = accounts_players(:player)
     create_pack(current_player)
     Game::Holding.create!(player_id: current_player.id, card_season_id: catalog_card_seasons(:legendary_card_one).id, quantity: 2)
 
-    assert_equal 1, shell_bank[:available]
+    assert_queries_count(2) do
+      assert_equal({ available: 1, reserve_full: false, next_available_at: nil }, shell_bank)
+    end
     assert_equal 2, shell_tier_counts[5]
     assert_queries_count(0) do
       shell_bank
@@ -72,13 +74,18 @@ class ShellHelperTest < ActionView::TestCase
     end
   end
 
-  test "the countdown to the next pack, unless the reserve is full" do
-    bank = { available: 3, next_available_at: 90.seconds.from_now, bonus_collectable: false }
-    assert_in_delta 90, shell_next_pack_in(bank), 1
-    assert_not shell_reserve_full?(bank)
+  test "the page's own bank is the shell's, without a query" do
+    self.current_player = accounts_players(:player)
+    @bank = { available: 4, reserve_full: false, next_available_at: nil }
 
-    full = bank.merge(available: Game::Pack::BANK_SIZE)
-    assert shell_reserve_full?(full)
+    assert_queries_count(0) { assert_same @bank, shell_bank }
+  end
+
+  test "the countdown to the next pack, unless the reserve is full" do
+    bank = { available: 3, reserve_full: false, next_available_at: 90.seconds.from_now }
+    assert_in_delta 90, shell_next_pack_in(bank), 1
+
+    full = bank.merge(available: Game::Reserve::FULL, reserve_full: true)
     assert_nil shell_next_pack_in(full)
     assert_nil shell_next_pack_in(bank.merge(next_available_at: nil))
     assert_nil shell_next_pack_in(nil)

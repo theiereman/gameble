@@ -1,5 +1,6 @@
 require "test_helper"
 require_relative "../../support/game_packs"
+require_relative "../../support/rake_tasks"
 
 # A player's game state row (AD-10, AD-28): created by Game::CreatePlayerState
 # at sign-up, after the bank, and for the players who predate the table by
@@ -65,6 +66,10 @@ end
 # Game::BackfillPlayerStatesJob (AD-14, AD-28): every player without a row
 # gets one, banned players included, one operation per player.
 class Game::BackfillPlayerStatesJobTest < ActiveSupport::TestCase
+  include RakeTasks
+
+  setup { rake_task("game:backfill_player_states") }
+
   test "every player without a row gets one, banned included; those with a row cost nothing; a rerun is a no-op" do
     Game::PlayerState.where(player_id: [ accounts_players(:player).id, accounts_players(:banned).id ]).delete_all
     newcomer = Accounts::Player.create!(steam_id: "76561197960287891")
@@ -102,8 +107,7 @@ class Game::BackfillPlayerStatesJobTest < ActiveSupport::TestCase
   end
 
   def run_task
-    Rails.application.load_tasks if Rake::Task.tasks.none? { |task| task.name == "game:backfill_player_states" }
-    Rake::Task["game:backfill_player_states"].execute
+    rake_task("game:backfill_player_states").execute
   end
 
   test "a player whose creation raises is reported and skipped; the others still get their row" do

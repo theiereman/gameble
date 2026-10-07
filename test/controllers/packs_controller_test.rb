@@ -128,6 +128,19 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Back to the bridge" ], end_buttons
   end
 
+  test "the pack's page reads the reserve once, for its end and the packs chip, and never the daily bonus" do
+    player = accounts_players(:player)
+    pack = create_pack(player, opened_at: 1.minute.ago)
+    3.times { create_pack(player) }
+    sign_in(player.steam_id)
+
+    assert_queries_match(/SELECT COUNT\(\*\) FROM "game_packs"/, count: 1) do
+      assert_no_queries_match(/game_daily_bonus_claims/) { get pack_path(pack.token, locale: :en) }
+    end
+    assert_equal [ "Open a booster", "Back to the bridge" ], end_buttons
+    assert_select ".packs-chip__count", "3"
+  end
+
   test "a daily bonus pack opened with the form shows its three cards" do
     player = accounts_players(:player)
     create_pack(player, kind: :bonus, cards: fixture_tier_ids.last(3), available_at: 1.day.ago)

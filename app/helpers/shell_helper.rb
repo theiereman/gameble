@@ -44,12 +44,13 @@ module ShellHelper
     controller_path.start_with?("back_office/")
   end
 
-  # The signed-in player's bank (Game::BankSummary), for the packs chip; nil
-  # for a visitor. Read once per request; the hub's own @bank is reused.
+  # The signed-in player's reserve (Game::BankSummary.reserve), for the
+  # packs and reserve chips; nil for a visitor. Read once per request; the
+  # page's own @bank (hub, booster screen, pack page) is reused.
   def shell_bank
     return @shell_bank if defined?(@shell_bank)
 
-    @shell_bank = @bank || (current_player && Game::BankSummary.call(current_player))
+    @shell_bank = @bank || (current_player && Game::BankSummary.reserve(current_player))
   end
 
   # Copies held per rarity tier in the published season (Game::TierCounts),
@@ -61,7 +62,7 @@ module ShellHelper
   # Whole seconds to the next pack of the bank, rounded up; nil when the
   # reserve is full or nothing is scheduled.
   def shell_next_pack_in(bank)
-    return if bank.nil? || shell_reserve_full?(bank) || bank[:next_available_at].nil?
+    return if bank.nil? || bank[:reserve_full] || bank[:next_available_at].nil?
 
     [ (bank[:next_available_at] - Time.current).ceil, 0 ].max
   end
@@ -86,11 +87,5 @@ module ShellHelper
   def bank_changed_json(bank)
     { available: bank[:available], reserveFull: bank[:reserve_full], nextAvailableAt: bank[:next_available_at]&.utc&.iso8601,
       serverTime: Time.current.utc.iso8601 }.to_json
-  end
-
-  # The reserve holds Game::Pack::BANK_SIZE boosters (EXPERIENCE.md, Reserve
-  # full): the countdown gives way to "Réserve pleine".
-  def shell_reserve_full?(bank)
-    bank[:available] >= Game::Pack::BANK_SIZE
   end
 end

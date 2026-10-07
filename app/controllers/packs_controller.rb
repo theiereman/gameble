@@ -49,7 +49,9 @@ class PacksController < ApplicationController
     authorize @pack, :show?, policy_class: PackPolicy
     @cards = cards_of(@pack)
     @strings = CardStrings.new
-    @next_pack = Game::BankSummary.call(current_player)[:available].positive?
+    # The reserve, read once: the top bar's packs chip reuses it.
+    @bank = Game::BankSummary.reserve(current_player)
+    @next_pack = @bank[:available].positive?
   end
 
   private
