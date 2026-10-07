@@ -45,12 +45,36 @@ hitl = false
 risk = "medium"
 
 [[entry]]
+id = 6
+type = "story"
+title = "Airier spacing, a centred booster opening and a still star field"
+description = "Raises the panel padding and the gaps between panels, rows, chips and cards across every screen by about one step of the scale, centres the booster opening horizontally and vertically in the window without resizing it, and stops the star field's sideways shift at screen changes, leaving a few stars that twinkle softly."
+verify = "On a large window the opening sits centred with room between its components and nothing resized; changing screen leaves the stars where they are; with \"Animations réduites\" on, nothing twinkles; the hub, collection and card detail show more space between their parts."
+covers = ["R7"]
+after = [4]
+hitl = false
+risk = "low"
+notes = ["exact gap values are tuned on the built screens (DESIGN.md Breathing room is an [ASSUMPTION])"]
+
+[[entry]]
+id = 7
+type = "story"
+title = "Collection opens on owned cards, with a filter zone and a search"
+description = "The collection opens on the cards the player owns, newest first; one folded FILTRES zone of toggleable chips (state: owned, all, missing, new, duplicates; rarity; set; genre; OR within a group, AND across) with an active count and a clear-all replaces the rows of chips, and a search over title and publisher combines with them, on desktop and phone (a sheet)."
+verify = "A player opens the collection and sees owned cards first; switching state to missing shows the empty slots naming the game; two genre chips show either genre, adding a rarity chip narrows to both; typing a title narrows the grid as they type; the empty result shows the empty-filter line."
+covers = ["R7", "R1"]
+after = [1, 6]
+hitl = false
+risk = "medium"
+notes = ["filter groups, the folded default and the clear-all label are [ASSUMPTION] in EXPERIENCE.md", "the sets progress rows keep their place; RAPPORT panel unchanged"]
+
+[[entry]]
 id = 5
 type = "story"
 title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it, ending with no screen of the medieval direction left."
 verify = "The full test suite, lint, packwerk and typecheck pass, no medieval asset or style remains, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [1, 2, 3, 4]
+after = [1, 2, 3, 4, 6, 7]
 hitl = false
 risk = "low"

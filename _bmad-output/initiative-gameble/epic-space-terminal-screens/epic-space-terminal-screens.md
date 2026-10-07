@@ -30,6 +30,7 @@ For a player: every screen epics 1 to 4 built follows `DESIGN.md` and `EXPERIENC
 - R4 (CAP-16; AD-7): the daily booster panel claims a 3-card booster into the reserve, refuses at a full reserve, and counts down to midnight UTC.
 - R5 (Reduced motion and player-facing words constraints; AD-18, AD-27): the profile and settings screen holds language, "Animations réduites" and sign-out; one motion switch drives CSS, Stimulus, islands and View Transitions.
 - R6 (CAP-18): signed out, these screens show what needs no account and lead to the sign-in panel for the rest.
+- R7 (CAP-6; UX update of 2026-10-07): the interface breathes more (panel padding and gaps up about one step), the booster opening is centred in the window without resizing, the star field stays still at screen changes and only twinkles, and the collection opens on the owned cards, newest first, with a FILTRES zone of toggleable chips (state, rarity, set, genre) and a search over title and publisher in place of the rows of chips.
 
 ## Done when
 
@@ -38,6 +39,7 @@ For a player: every screen epics 1 to 4 built follows `DESIGN.md` and `EXPERIENC
 3. The shared card page names no player and previews without an image on Discord, X and WhatsApp.
 4. "Animations réduites" stops every looping or blinking effect, the ticker and the View Transitions, signed in or out.
 5. No screen of the medieval direction remains.
+6. The collection opens on owned cards; a player filters it by state, rarity, set and genre from one zone and searches by title or publisher; the booster opening is centred on a large window; the star field does not move at screen changes.
 
 ## Boundaries
 
@@ -54,3 +56,4 @@ The web layer's screens and their Stimulus controllers, the NOUVEAU watermark in
 ## Notes
 
 - Decision (2026-10-05): split from epic-space-terminal-redesign; approved by the author.
+- Decision (2026-10-07): the author's appearance remarks (ux-gameble/.memlog.md, entries of 2026-10-07; DESIGN.md and EXPERIENCE.md updated) become R7 and two stories, after story 4 and before the refactor sweep: global spacing, centred booster opening and the still star field first, then the collection's filter zone and search, so the two never edit the same stylesheets at once. Filter groups and the folded default are `[ASSUMPTION]` in the spines.
