@@ -37,6 +37,14 @@ bin/rails test
 bin/rails zeitwerk:check
 ```
 
+## Branches and deployment
+
+- `develop` carries the work in progress and deploys to staging (https://gameble.dotsncircles.com) automatically once CI passes on it (`.github/workflows/deploy-staging.yml`).
+- `main` is kept for production and is never deployed to staging by the workflow. Merge `develop` into `main` only when the production deployment is meant to happen.
+- Feature branches start from `develop` and come back through a pull request.
+
+The staging workflow needs these repository secrets: `STAGING_SSH_KEY` (private key allowed on the LXC), `STAGING_SSH_KNOWN_HOSTS` (the host key line for `[gameble.dotsncircles.com]:2224`), `RAILS_MASTER_KEY`, `SENTRY_DSN`, `DATABASE_PASSWORD` and `STEAM_API_KEY`; they are written to the same `config/*.key` files that `.kamal/secrets.staging` reads.
+
 ## Production checks
 
 ### Sentry (AD-21)
