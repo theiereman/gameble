@@ -236,7 +236,7 @@ class CardDetailTest < ApplicationSystemTestCase
     find(".card-detail__nav--next").click
     assert_selector ".card-detail__position", text: "· 5 / 25 ·"
     assert_equal in_tome_path(ids[4], season), current_url_path
-    assert_equal entries + 1, evaluate_script("history.length")
+    assert_history_length entries + 1
     # The page's title follows the card.
     assert_selector ".card-detail h1", text: title(ids[4])
     assert_title(/\A#{title(ids[4])} — /)
@@ -259,7 +259,7 @@ class CardDetailTest < ApplicationSystemTestCase
       const event = (type, clientY) => new PointerEvent(type, { bubbles: true, pointerId: 8, pointerType: "touch", isPrimary: true, clientX: 200, clientY })
       stage.dispatchEvent(event("pointerdown", 300)); stage.dispatchEvent(event("pointerup", 100))
     JS
-    assert_equal entries + 1, evaluate_script("history.length")
+    assert_history_length entries + 1
     assert_selector ".card-detail__position", text: "· 5 / 25 ·"
 
     find(".top-bar__phone-back").click
@@ -376,5 +376,17 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_equal 1, evaluate_script("window.transitions")
     assert_no_selector "html[data-sub-view-step]", visible: :all
     assert_equal "same-origin", evaluate_script("document.querySelector('meta[name=view-transition]').content")
+  end
+
+  # The history entry is pushed by Turbo a moment after the page shows the new
+  # card, so the length is read again for up to two seconds before it is judged.
+  def assert_history_length(expected)
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 2
+    length = evaluate_script("history.length")
+    while length != expected && Process.clock_gettime(Process::CLOCK_MONOTONIC) < deadline
+      sleep 0.05
+      length = evaluate_script("history.length")
+    end
+    assert_equal expected, length
   end
 end
