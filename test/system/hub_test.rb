@@ -158,7 +158,7 @@ class HubTest < ApplicationSystemTestCase
     assert_equal "1", focused_item
     take_screenshot
 
-    item("1").send_keys("3")
+    item("1").send_keys("6")
     assert_current_path home_path(locale: :en)
     find("body").send_keys("2")
     assert_current_path home_path(locale: :en)
