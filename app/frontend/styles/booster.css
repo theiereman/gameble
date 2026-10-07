@@ -66,17 +66,6 @@
   min-width: 0;
 }
 
-/* The opening sits in the middle of a window taller than itself, horizontally
-   (its own width) and vertically; nothing is resized, and a shorter window
-   keeps it at the top and scrolls (min-height, never a fixed height). */
-@media (min-width: 720px) {
-  .main:has(.booster-island) {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-}
-
 .booster__hazard,
 .booster__result-stripe {
   height: var(--hazard-stripe-height);

@@ -502,7 +502,7 @@ Rules:
 The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 
 - **Gutters:** `{spacing.gutter-desktop}` on desktop, `{spacing.gutter-phone}` on the phone. Panels pad `{spacing.panel-padding}`.
-- **Booster opening centred (author, 2026-10-07):** on a window taller or wider than the stage, the opening is centred horizontally and vertically in the space available, with more room between its components; nothing is resized.
+- **Booster opening at the top (author, 2026-10-07):** the opening starts at the top of the page like every other screen, with more room between its components; its hazard stripe is the first thing on screen, and nothing is resized. This replaces the earlier vertical centring, which made the stripe look misplaced.
 - **No scaling, anywhere.** The page never shrinks or grows to fit the window: every element keeps its size. A short window scrolls the page vertically, and the top bar and LIVE ticker scroll with it (they are not fixed). A narrower window reflows by width breakpoints. The booster stage is not scaled either.
 - **Width:** content (and the top bar's contents) is capped at `{spacing.content-max}` and centered; the ground, star field, top bar and ticker backgrounds run full width. The exact cap is 1280px; the decision is "below 1440px". Tablets follow the same width rules.
 - **Breakpoints** (CSS px of the viewport, so browser zoom reaches them):
