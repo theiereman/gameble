@@ -38,7 +38,7 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 | Succès | Menu 06; PLUS on the phone | Achievements, earned and to earn |
 | Profil et paramètres | The player chip; PLUS on the phone | Public profile summary, settings, card-back picker, "Mentions légales" |
 | Public card page | A shared link, without an account | Show the shared card and invite the visitor to play |
-| Public profile | A player's link | A player's collection and set progress, per their visibility (spec CAP-8) `[ASSUMPTION: shown as the collection screen in read-only mode; not mocked]` |
+| Public profile | A player's link | A player's collection and set progress, per their visibility (spec CAP-8) |
 | Sign-in panel | Any game-styled action that needs an account | One title line and Valve's official Steam sign-in button |
 | Steam sign-in | The official image, wherever it appears | Create or reuse the account (Steam's own page) |
 | Legal page | "Mentions légales" in Profil et paramètres and the public page footer | No-affiliation notice, ownership notice ("Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."), terms of use, privacy notice |
@@ -51,7 +51,7 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 
 **Hub content.** Top bar: logo, rarity counter, packs chip, player chip. Left: kicker "PONT DE COMMANDEMENT" alone (no subtitle: the "Vaisseau-bibliothèque « Archiviste »" line was cut, author 2026-10-07), the menu, the daily booster panel. Center: the showcase. Right: the community goal panel and "PROGRESSION DES SETS" (four set progress rows, "TOUT VOIR ▸"). Bottom: the LIVE ticker. On the phone the same blocks stack in one scrolling column without the menu.
 
-**Signed-out visitors** see everything that needs no account and cannot act: any such action opens the sign-in panel, and the collection shows every slot empty. The signed-out hub is described in `DESIGN.md` (see Signed-out hub) `[ASSUMPTION: not mocked]`.
+**Signed-out visitors** see everything that needs no account and cannot act: any such action opens the sign-in panel, and the collection shows every slot empty. The signed-out hub is described in `DESIGN.md` (see Signed-out hub).
 
 ## Voice and Tone
 
@@ -87,23 +87,23 @@ The single source for every message the interface shows. Other sections name the
 | Trade board lines | "Léa vous propose cet échange." · "En attente de la réponse de Léa." · "Choisissez les cartes de chaque côté." · "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez." · "Échange en cours…" · "Échange conclu." · "Échange clos." · "Valable 7 jours après l'envoi" · "Expire dans n j" |
 | Trade toasts | "PROPOSITION ENVOYÉE" · "Léa a 7 jours pour répondre. Vos cartes sont réservées d'ici là." · "ÉCHANGE REFUSÉ · Votre réponse a été envoyée à Léa." · "PROPOSITION ANNULÉE · Vos cartes ne sont plus réservées." · "ÉCHANGE CONCLU · Dead Cells ×2 rejoint votre collection." |
 | Trade refusals (inline) | "4 CARTES AU PLUS · Retirez une carte avant d'en placer une autre." · "UN ÉCHANGE À LA FOIS · Un échange est déjà ouvert avec Léa." · "EXEMPLAIRES INSUFFISANTS" · "Vous n'avez plus assez d'exemplaires de Celeste." |
-| Card picker | "n cartes · n exemplaires (4 cartes au plus)" · "n disponibles" · `[ASSUMPTION]` "Aucune carte disponible." |
+| Card picker | "n cartes · n exemplaires (4 cartes au plus)" · "n disponibles" · "Aucune carte disponible." |
 | Friends | "PAR LIEN" · "VOTRE CODE AMI" · "AJOUTER AVEC UN CODE" · "Sam vous invite" · "Envoyée à 8F2D-K9XM" · "NOUVEL AMI · Sam fait maintenant partie de vos amis." · "Aucune invitation en cours." |
 | Invite code messages | "Format attendu : ABCD-1234." · "C'est votre propre code." · "Invitation déjà envoyée." · "Invitation envoyée à 8F2D-K9XM." |
 | Presence | "En ligne" · "Ouvre un booster" · "Il y a 3 h" |
 | Report | "Pseudo ou avatar inapproprié" · "Triche ou abus" · "Harcèlement" · "Autre" · "Merci. L'équipe de modération examinera ce profil. Léa ne verra pas qui l'a signalé." |
-| Feed | "Rien pour l'instant dans ce filtre." · Friends tab without friends: `[ASSUMPTION]` "Ajoutez des amis pour suivre leurs tirages." with "AJOUTER DES AMIS" · repost entry: `[ASSUMPTION]` "Hugo a reposté Elden Ring." · tag "REPOST" |
-| Repost | Action `[ASSUMPTION]` "REPOSTER" · confirmation toast `[ASSUMPTION]` "Carte repostée dans le fil." |
+| Feed | "Rien pour l'instant dans ce filtre." · Friends tab without friends: "Ajoutez des amis pour suivre leurs tirages." with "AJOUTER DES AMIS" · repost entry: "Hugo a reposté Elden Ring." · tag "REPOST" |
+| Repost | Action "REPOSTER" · confirmation toast "Carte repostée dans le fil." |
 | Back picker | "Vous seul le voyez, sur vos cartes face cachée à l'ouverture." · "DOS VERROUILLÉ" · "DOS ÉQUIPÉ" · "« Aurore » apparaîtra sur vos cartes face cachée." |
 | Profile visibility | "Visible par tous les joueurs" · "Visible par vos amis seulement" · "Profil privé : vous seul le voyez" |
 | Settings | "PRÉPARATION…" · "EXPORT PRÊT" · delete word: "SUPPRIMER" ("DELETE" in English) |
-| Share and copy | "COPIÉ ✓" · `[ASSUMPTION]` "Copiez le lien manuellement." |
+| Share and copy | "COPIÉ ✓" · "Copiez le lien manuellement." |
 | Public page | "Vos jeux Steam, en cartes à collectionner." · "Ouvrez des boosters, complétez des sets, échangez avec vos amis." · "LIVE · En ce moment sur gameble" |
 | Sign-in panel | "CONNECTEZ-VOUS POUR JOUER" |
 | PLUS | "Le reste du vaisseau" |
 | Links | "(nouvel onglet)" |
 
-`[ASSUMPTION]` Shorter phone labels are allowed where the mock uses them ("ÉCHANGER", "SIGNALER CE PROFIL", "SUPPRIMER", "PROFIL"). The English copy is not written yet; it follows the same rules.
+ Shorter phone labels are allowed where the mock uses them ("ÉCHANGER", "SIGNALER CE PROFIL", "SUPPRIMER", "PROFIL"). The English copy is not written yet; it follows the same rules.
 
 ## Component Patterns
 
@@ -134,7 +134,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 
 | Component | Behavioral rules |
 |---|---|
-| Rarity counter | Copies owned per rarity; a count updates as each card is revealed, never before. Activating it opens the "RARETÉS" legend (icon, name, count per tier); Esc or a second activation closes it. |
+| Rarity counter | Copies owned per rarity; a count updates as each card is revealed, never before. The "RARETÉS" legend (icon, name, count per tier) opens below the counter on hover (desktop) and on activation, and stays open after a click; Esc, a second activation or leaving it closes it (author, 2026-10-07). Keyboard focus opens it too. |
 | Packs chip | Reserve count and the countdown to the next booster, or "Réserve pleine" at 10. Opens the booster screen. |
 | Player chip | Opens Profil et paramètres. |
 | Menu item | Opens its screen. Keys 1 to 6 open the matching item only while focus is inside the menu (`aria-keyshortcuts`). Coming back to the hub focuses the item last used. |
@@ -147,11 +147,11 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 
 | Component | Behavioral rules |
 |---|---|
-| Showcase | The player's latest pull of Épique rarity or better `[ASSUMPTION: threshold as mocked]`. "VOIR LA FICHE" opens its card detail. Empty showcase: its copy (see Copy deck) and "OUVRIR UN BOOSTER", which opens the booster screen. |
+| Showcase | The card the player chose, else automatically their latest pull of Épique rarity or better (author, 2026-10-07: the player can choose one card in addition to the automatic one). `[ASSUMPTION: the choice is made from the card detail of an owned card, "METTRE EN VITRINE", and "RETIRER DE LA VITRINE" returns to the automatic card]`. "VOIR LA FICHE" opens its card detail. Empty showcase: its copy (see Copy deck) and "OUVRIR UN BOOSTER", which opens the booster screen. |
 | Community goal panel | The shared weekly gauge for all players, the count and the reward. Fills with every booster opened and, a little, with trades. States: see State Patterns. |
 | Daily booster panel | "RÉCUPÉRER" sends one booster into the reserve (a small canister flies to the packs chip; on the phone, to the BOOSTER tab). Then "PROCHAIN DANS" with a countdown to the day change (midnight UTC). At 10 boosters the button is disabled, with the full-reserve state and line, until a booster is opened. Signed out: opens the sign-in panel. |
 | Set progress row | Opens the collection filtered on that set (hub) or filters the grid (collection). |
-| LIVE ticker | Scrolls notable activity: pulls of Épique or better, trades, set completions, hourly totals `[ASSUMPTION: thresholds and the last two kinds as mocked; the spec lists pulls, first discoveries and trades]`. New items join at the loop boundary. Pauses on hover and focus; stops with "Animations réduites". Hidden from assistive technology (the feed carries the same events). |
+| LIVE ticker | Scrolls notable activity: pulls of Épique or better, trades, set completions, hourly totals. New items join at the loop boundary. Pauses on hover and focus; stops with "Animations réduites". Hidden from assistive technology (the feed carries the same events). |
 
 ### Booster
 
@@ -172,10 +172,10 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 |---|---|
 | Card detail | Title, publisher, rarity, genre, year, short description, minted season, sets, copies owned. "VOIR SUR STEAM" opens the store page in a new tab (said in its accessible name). "PARTAGER" opens the share sheet; absent for a card not owned. Phone: ◀ ▶ buttons and swipe move to the previous or next card. |
 | Collection opening (author, 2026-10-07) | Opens on the cards the player owns, newest first (the ones tagged NOUVEAU in front). The state filter switches to TOUT, MANQUANTES, NOUVELLES or DOUBLONS; missing slots appear only then. |
-| Filter zone | A folded panel "FILTRES" with the count of active filters. Chips are switched on or off, several at once: OR within a group, AND across groups. Groups: state, rarity, set, genre `[ASSUMPTION: groups and the folded default]`. A "TOUT EFFACER" clears them. Changing a filter re-lays the grid and keeps focus on the zone. |
-| Search | Free text over the card title and publisher, applied as the player types and combined with the active filters; an empty result shows the empty-filter line. `[ASSUMPTION]` |
+| Filter zone | A folded panel "FILTRES" with the count of active filters. Chips are switched on or off, several at once: OR within a group, AND across groups. Groups: state, rarity, set, genre. A "TOUT EFFACER" clears them. Changing a filter re-lays the grid and keeps focus on the zone. |
+| Search | Free text over the card title and publisher, applied as the player types and combined with the active filters; an empty result shows the empty-filter line. |
 | Missing-card slot | Shows the missing game's name and year; opens the card detail with the faded active card back. |
-| Copy badge / NOUVEAU tag | "x3" shows copies owned. "NOUVEAU" marks cards obtained since the player last saw them `[ASSUMPTION: cleared once seen]`. |
+| Copy badge / NOUVEAU tag | "x3" shows copies owned, from x2 (a single copy shows no badge; author, 2026-10-07). "NOUVEAU" marks cards obtained since the player last saw them. |
 | RAPPORT panel | Totals and copies per rarity. Folds on the phone; the fold toggle announces whether it is expanded. |
 | Share sheet | Copies the link on opening and says so ("COPIÉ ✓", announced politely). The link's preview on Discord, X and WhatsApp shows the title and rarity, never the image. "VOIR LA PAGE PUBLIQUE ▸" opens the public card page. |
 
@@ -198,9 +198,9 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 | Component | Behavioral rules |
 |---|---|
 | Invite panel | "COPIER" copies the invite link. The code field accepts the format of the codes in use (for example "7K2Q-F3NX", "8F2D-K9XM") (author, 2026-10-07: the code is purely random, 4 characters, a dash, 4 characters, never derived from the name), submits on Enter and answers on the line below. A valid code sends an invitation. |
-| Invitation row | Received: "ACCEPTER" creates the friendship for both; "IGNORER" dismisses it. Sent: "EN ATTENTE" until answered. The invite link sends an invitation the same way `[ASSUMPTION]`. |
+| Invitation row | Received: "ACCEPTER" creates the friendship for both; "IGNORER" dismisses it. Sent: "EN ATTENTE" until answered. The invite link sends an invitation the same way. |
 | Friend row | Shows the friend's presence (see Copy deck, Presence). The avatar or name opens the friend profile; "PROPOSER UN ÉCHANGE" opens the trade already in progress with that friend, or a new draft. |
-| Friend profile | A dialog: showcase of three cards `[ASSUMPTION: the three rarest, automatically]`, "PROPOSER UN ÉCHANGE", "SIGNALER". |
+| Friend profile | A dialog: showcase of three cards, "PROPOSER UN ÉCHANGE", "SIGNALER". |
 | Report dialog | A reason must be chosen before "ENVOYER LE SIGNALEMENT". The reported player never learns who reported them. |
 
 ### Fil d'activité and Succès
@@ -246,7 +246,7 @@ Messages quoted by key are in the Copy deck.
 | Signed out | Everywhere | Everything visible. An action that needs an account opens the sign-in panel; closing it returns to the same page, still signed out. |
 | First session | Hub, booster | The reserve holds 10 boosters. A Rare or better is guaranteed by the 10th booster, without any visible sign. No booster ever promises a rarity. |
 | Reserve full | Hub, booster | 10 pips lit; the countdown is replaced by "Réserve pleine" (packs chip, booster panel). The daily booster claim is disabled until a booster is opened (Copy deck, Daily booster). |
-| Special booster in the reserve | Hub, booster | `[ASSUMPTION]` The daily booster (better odds) and the goal's rare booster join the same reserve and open with the same ritual; they are not told apart among the canisters. Whether a goal reward is added above 10 is open. |
+| Special booster in the reserve | Hub, booster | The daily booster (better odds) and the goal's rare booster join the same reserve and open with the same ritual; they are not told apart among the canisters. Whether a goal reward is added above 10 is open. |
 | Reserve empty | Booster | The canister is replaced by the empty-reserve line (Copy deck, Booster states); the open button reads "RÉSERVE VIDE" and is disabled. |
 | Opening refused | Booster | See Opening protocol, step 4. |
 | Opening in progress | Booster | Navigation disabled (see Opening protocol, step 6). |
@@ -256,43 +256,43 @@ Messages quoted by key are in the Copy deck.
 | Daily booster ready / collected | Hub | "PRÊT" with "RÉCUPÉRER", then "RÉCUPÉRÉ" with the countdown. A second collection the same day is refused. |
 | No notable pull yet | Hub | The empty showcase (Copy deck, Empty showcase). While it shows, the daily booster's "RÉCUPÉRER" turns secondary, so the hub keeps one lime action. |
 | Goal in progress | Hub | Gauge, "TOUS LES JOUEURS n / target", reward line. |
-| Goal reached | Hub | `[ASSUMPTION]` The gauge is full and the panel reads "OBJECTIF ATTEINT"; every contributor receives the rare booster (and the week's card back, when the goal has one) with a toast; a non-contributor sees the reached state only. |
-| Goal missed | Hub | `[ASSUMPTION]` At the week's end the panel shows the final count; nothing is granted. |
-| Week rollover | Hub | `[ASSUMPTION]` A new goal with a new target starts at the week boundary; the gauge empties. |
+| Goal reached | Hub | The gauge is full and the panel reads "OBJECTIF ATTEINT"; every contributor receives the rare booster (and the week's card back, when the goal has one) with a toast; a non-contributor sees the reached state only. |
+| Goal missed | Hub | At the week's end the panel shows the final count; nothing is granted. |
+| Week rollover | Hub | A new goal with a new target starts at the week boundary; the gauge empties. |
 | Image missing / loading | Any card | "IMAGE INDISPONIBLE" in the art box / a dark hatched box until the filtered cover is ready. |
 | Collection empty | Collection | Every slot is a missing-card slot naming its game. |
 | Filter empty | Collection | The empty-filter line (Copy deck, Collection). |
-| Set complete | Collection, hub | `[ASSUMPTION]` The set row shows owned = total; if the set unlocks a card back, a toast announces it. |
+| Set complete | Collection, hub | The set row shows owned = total; if the set unlocks a card back, a toast announces it. |
 | Trade draft | Trade board | "BROUILLON", both sides editable, with the validity line. "ENVOYER LA PROPOSITION" enables once each side holds a card; "ABANDONNER" deletes the draft. |
 | Trade waiting for the player | Trade board, list, badge | "À VOUS", the proposal line and the expiry. The friend's offered copies are tagged reserved. Actions: "ACCEPTER", "CONTRE-PROPOSER", "REFUSER". |
 | Counter-proposal in progress | Trade board | Both sides become editable, marked "EN ÉDITION", with the counter-proposal line. "RENVOYER LA CONTRE-PROPOSITION" enables once each side holds a card; "ANNULER LES MODIFICATIONS" restores the received proposal, after a confirmation if anything changed. |
-| Counter-proposal sent | Trade board | `[ASSUMPTION]` The 7-day expiry restarts; the player's reserved copies become exactly those on the player's side; copies the player removed are released. |
+| Counter-proposal sent | Trade board | The 7-day expiry restarts; the player's reserved copies become exactly those on the player's side; copies the player removed are released. |
 | Trade waiting for the friend | Trade board, list | "EN ATTENTE", the waiting line, the player's copies tagged "RÉSERVÉE". Action: "ANNULER LA PROPOSITION". |
 | One trade per pair | Friend row, friend profile | Proposing to a friend with a trade in progress opens that trade, with the one-at-a-time refusal. |
 | Not enough copies | Trade board | Accepting when a copy is no longer available: "EXEMPLAIRES INSUFFISANTS" inline and in a toast; nothing moves. |
-| Nothing to place | Card picker | `[ASSUMPTION]` The no-card line (Copy deck, Card picker) with the reason (none owned, or all reserved). |
+| Nothing to place | Card picker | The no-card line (Copy deck, Card picker) with the reason (none owned, or all reserved). |
 | Trade done | Trade board, list | The swap plays; "CONCLU" and the concluded line; received cards tagged "NOUVEAU". The trade appears in the feed and counts toward the goal. |
 | Trade declined, canceled, expired | Trade board, list | "CLOS", with the outcome and its age ("refusé il y a 4 j"). Reserved copies are released. A proposal expires after a fixed 7 days. Action: "NOUVEL ÉCHANGE AVEC LÉA". |
-| Friend banned or deleted mid-trade | Trade board, list | `[ASSUMPTION]` The trade closes ("CLOS") and every reserved copy is released. |
+| Friend banned or deleted mid-trade | Trade board, list | The trade closes ("CLOS") and every reserved copy is released. |
 | Invite code invalid / own / repeated / sent | Amis | The matching line (Copy deck, Invite code messages). |
 | Invitation received / accepted / ignored | Amis | Received: the invitation row with "ACCEPTER" / "IGNORER". Accepted: the "NOUVEL AMI" toast and the friend in the list. Ignored: the row disappears. |
 | No invitation | Amis | The no-invitation line (Copy deck, Friends). |
-| No friend, no trade | Amis, Échanges | `[ASSUMPTION]` One line pointing to the invite panel. Not mocked. |
+| No friend, no trade | Amis, Échanges | One line pointing to the invite panel. Not mocked. |
 | Friend presence | Amis, menu 04 | Online, current activity, or last seen. |
 | Quiet feed | Fil d'activité, ticker | With few players, lower-tier pulls fill in on a quieter background. Never empty while any activity exists. |
 | Feed filter empty | Fil d'activité | The empty-filter line (Copy deck, Feed). |
 | Profile visibility | Profile, public pages | PUBLIC: anyone, signed out included, sees the profile and its shared cards. AMIS UNIQUEMENT: friends only. PRIVÉ: nobody else. The summary states it. |
-| Profile not visible to this visitor, or banned | Public card page, public profile, friend profile | `[ASSUMPTION]` The page says the profile is not available. |
+| Profile not visible to this visitor, or banned | Public card page, public profile, friend profile | The page says the profile is not available. |
 | Card back locked / equipped | Back picker | Locked: the condition inline and the "DOS VERROUILLÉ" toast. Equipped: the preview turns to the new card back; the "DOS ÉQUIPÉ" toast. |
-| Export | Profil et paramètres | `[ASSUMPTION: asynchronous, as mocked]` "PRÉPARATION…" on the button, then the "EXPORT PRÊT" toast with the download; a failure says so inline with a retry. |
+| Export | Profil et paramètres | "PRÉPARATION…" on the button, then the "EXPORT PRÊT" toast with the download; a failure says so inline with a retry. |
 | Sign out | Profil et paramètres | Lands on the hub in signed-out mode. |
-| Account deleted | Delete dialog | `[ASSUMPTION]` Lands on the signed-out hub with a toast confirming the deletion. |
+| Account deleted | Delete dialog | Lands on the signed-out hub with a toast confirming the deletion. |
 | Language switched | Profil et paramètres | The interface and card text change at once; `<html lang>` follows. |
-| Clipboard refused | Share sheet, invite panel | `[ASSUMPTION]` The link stays selected in its field with the manual-copy line inline. |
-| Cold load | Every screen | `[ASSUMPTION]` Panels appear as their data arrives; counts show "—" until known. Not mocked. |
-| Network or server error | Everywhere | `[ASSUMPTION]` Inline where the action was, and a toast; nothing was lost; the screen stays usable. Not mocked. |
-| Banned account | Steam sign-in | `[ASSUMPTION]` Sign-in is refused with a one-line explanation (spec CAP-15). Not mocked. |
-| Not staff | Back-office | `[ASSUMPTION]` The address answers as if it did not exist. |
+| Clipboard refused | Share sheet, invite panel | The link stays selected in its field with the manual-copy line inline. |
+| Cold load | Every screen | Panels appear as their data arrives; counts show "—" until known. Not mocked. |
+| Network or server error | Everywhere | Inline where the action was, and a toast; nothing was lost; the screen stays usable. Not mocked. |
+| Banned account | Steam sign-in | Sign-in is refused with a one-line explanation (spec CAP-15). Not mocked. |
+| Not staff | Back-office | The address answers as if it did not exist. |
 | Phone held sideways | Every screen (phone) | Nothing happens (see Responsive & Platform). |
 
 ## Interaction Primitives
@@ -370,7 +370,7 @@ Behavior only. Contrast values live in `DESIGN.md` (see Colors).
 - **Touch:** at least 44 × 44 CSS px for every phone target, 8px apart.
 - **Readability:** no meaningful information below 10px in the pixel fonts; `{colors.dim}` is decorative only.
 - **Zoom and text spacing:** breakpoints are in CSS px of the viewport, so browser zoom reaches the phone layout; text is in rem; text rows use a minimum height so user text spacing never clips them.
-- **Language:** `<html lang>` follows the chosen language; text in another language (a Steam description) carries its own `lang`. `[ASSUMPTION]` A first visit uses the browser's language.
+- **Language:** `<html lang>` follows the chosen language; text in another language (a Steam description) carries its own `lang`. A first visit uses the browser's language.
 - **Links and sign-in:** links that open a new tab or leave gameble say so; the Steam image's accessible name says it opens Steam.
 
 ### Focus after each step
@@ -394,7 +394,7 @@ Behavior only. Contrast values live in `DESIGN.md` (see Colors).
 
 ## Responsive & Platform
 
-The layout rules (no scaling, page scroll, breakpoints at 720 and 1180px, content capped at 1280px `[ASSUMPTION: exact value; decided "below 1440px"]`, per-screen reflow, collection grid sizing, phone column) live in `DESIGN.md` (see Layout & Spacing). Tablets follow the width rules. Behavior specific to each form factor:
+The layout rules (no scaling, page scroll, breakpoints at 720 and 1180px, content capped at 1280px, per-screen reflow, collection grid sizing, phone column) live in `DESIGN.md` (see Layout & Spacing). Tablets follow the width rules. Behavior specific to each form factor:
 
 - **Desktop:** the card detail is a right-hand panel; dialogs are centered; toasts appear at the bottom. After a resize, the collection grid re-measures its cards and re-runs the pixel filter at the rendered size, and the booster stage re-lays dealt cards in place without replaying.
 - **Phone:** portrait only; held sideways, nothing changes, and the installed web app declares `"orientation": "portrait"` in its manifest (a browser tab cannot be locked). Document scroll; sub-views slide over their screen; dialogs are bottom sheets; toasts appear at the top; safe areas are respected. Checked at 390 × 844 and 360 × 740.
@@ -451,7 +451,7 @@ Failure: Léa refuses, Hugo cancels, or 7 days pass → "CLOS", reserved copies 
 
 ### Flow 3 — Equipping a card back earned by completing a set (Inès, after a lucky week)
 
-1. Inès reveals the last missing card of "Roguelite · vol. 1". The set row reaches 30/30 `[ASSUMPTION: a toast announces the back "Aurore"]`.
+1. Inès reveals the last missing card of "Roguelite · vol. 1". The set row reaches 30/30.
 2. From her player chip she opens Profil et paramètres. In "DOS DE CARTE", Aurore is no longer grayed.
 3. She chooses it: the preview turns to Aurore, "DOS ACTIF"; the "DOS ÉQUIPÉ" toast.
 4. **Climax:** at her next booster, the five cards land face down under an aurora sky. Only she sees it.

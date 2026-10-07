@@ -508,7 +508,7 @@ The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 - **Gutters:** `{spacing.gutter-desktop}` on desktop, `{spacing.gutter-phone}` on the phone. Panels pad `{spacing.panel-padding}`.
 - **Booster opening centred (author, 2026-10-07):** on a window taller or wider than the stage, the opening is centred horizontally and vertically in the space available, with more room between its components; nothing is resized.
 - **No scaling, anywhere.** The page never shrinks or grows to fit the window: every element keeps its size. A short window scrolls the page vertically, and the top bar and LIVE ticker scroll with it (they are not fixed). A narrower window reflows by width breakpoints. The booster stage is not scaled either.
-- **Width:** content (and the top bar's contents) is capped at `{spacing.content-max}` and centered; the ground, star field, top bar and ticker backgrounds run full width. `[ASSUMPTION]` The exact cap is 1280px; the decision is "below 1440px". Tablets follow the same width rules.
+- **Width:** content (and the top bar's contents) is capped at `{spacing.content-max}` and centered; the ground, star field, top bar and ticker backgrounds run full width. The exact cap is 1280px; the decision is "below 1440px". Tablets follow the same width rules.
 - **Breakpoints** (CSS px of the viewport, so browser zoom reaches them):
 
 | Width | Layout | Page padding, column gap |
@@ -530,12 +530,12 @@ The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 | Succès | Tiles fill columns of at least 260px | Same | Same |
 | Public card page | Card · info (capped at 1180px), LIVE strip and footer below | Same | One column: card, info, LIVE, footer |
 
-- **Breathing room (author, 2026-10-07):** the whole interface breathes more. Panels get more padding (`{spacing.panel-padding}`), and the gaps between panels, rows, chips and cards go up by about one step of the scale. `[ASSUMPTION]` The exact gap values are tuned on the built screens; information must stay easy to tell apart at a glance.
+- **Breathing room (author, 2026-10-07):** the whole interface breathes more. Panels get more padding (`{spacing.panel-padding}`), and the gaps between panels, rows, chips and cards go up by about one step of the scale. The exact gap values are tuned on the built screens; information must stay easy to tell apart at a glance.
 - **Booster stage:** as wide as its column. The five dealt cards sit in one row with gaps from `{spacing.deal-gap-max}` down to `{spacing.deal-gap-min}`; when even that does not fit, they wrap into a row of 3 and a row of 2 and the stage grows taller.
 - **Trade board:** when the board itself is under 700px wide (container query), its sides stack (the friend's side, the swap icon turned a quarter, the player's side).
 - **Collection grid:** fixed gaps (`{spacing.grid-gap-columns}` between columns, `{spacing.grid-gap-rows}` between rows); the cards resize between `{spacing.grid-card-min}` and `{spacing.grid-card-max}` wide at 2:3 (even pixel sizes) to fill the row, and extra width adds a column rather than spreading cards apart. Under 140px a card uses the small face layout, from 140px the medium one. The pixel filter re-runs at the rendered art size after a resize. Examples: 4 columns of 138px at 1920 and 1366, 4 of 150px at 1024, 5 of 136px at 800.
 - **Top bar on narrower widths:** under 1180px the packs chip drops its divider and countdown and the trades note hides; under 900px the "BOOSTERS" label, the player's name and the collection label hide (their values stay in accessible names).
-- **Showcase rays** are clipped by the center column between 1180 and 1279px `[ASSUMPTION: as mocked]`.
+- **Showcase rays** are clipped by the center column between 1180 and 1279px.
 - **Phone composition:** portrait only. A single scrolling column per screen between the top bar and the bottom tab bar (`{spacing.tabbar-height}` plus the safe area). Reference sizes 390 × 844 and 360 × 740. A phone held sideways shows no overlay and no landscape layout: the phone layout stays a portrait-width column (at most `{spacing.phone-column-max}`), centered, scrolling. The installed web app declares portrait orientation in its manifest; a browser tab cannot be locked. Phone sizes: buttons `{spacing.button-height-phone}` (small `{spacing.button-height-sm-phone}`), ticker `{spacing.ticker-height-phone}`, PLUS rows `{spacing.plus-row-height}`, set chips `{components.set-chip-phone.size}`.
 - **Touch:** every phone target has at least a `{spacing.touch-min}` × `{spacing.touch-min}` CSS px hit area and `{spacing.touch-gap}` from its neighbors, even when its visual is smaller (chips: `{spacing.chip-height}` visual, `{spacing.chip-height-touch}` hit area).
 - **Card sizes**, all 2:3. The art box is always twice the image's pixel resolution, so the art pixel stays 2 CSS px.
@@ -642,8 +642,8 @@ The Steam cover dominates. No stats, cost or effect text. Reference: [mockups/ke
 - **Title band** (top, `{colors.panel-raised}`, with a 3px rarity-colored tick on its left edge): the game title in Pixelify Sans uppercase, then the publisher in VT323 `{colors.publisher}`. The small and extra-small cards show the title only.
 - **Art:** the game's cover through the pixel filter, with two small white corner brackets (top-left, bottom-right). Before it loads, a dark hatched box.
 - **Footer line 1:** the genre in the rarity color, left; the release year in `{colors.muted}`, right.
-- **Footer line 2:** the compact rarity icon (see Rarity icon), the rarity name in the rarity color, and the card number within its season, without a total: "S1 · #4 215" on `card-l` and `card-xl`, "#4 215" on `card-s` and `card-m` `[ASSUMPTION: threshold as mocked]`.
-- **`card-xs`:** title and rarity line only `[ASSUMPTION]`, so nothing meaningful drops below 10px.
+- **Footer line 2:** the compact rarity icon (see Rarity icon), the rarity name in the rarity color, and the card number within its season, without a total: "S1 · #4 215" on `card-l` and `card-xl`, "#4 215" on `card-s` and `card-m`.
+- **`card-xs`:** title and rarity line only, so nothing meaningful drops below 10px.
 - **Image missing:** a pixel picture icon and "IMAGE INDISPONIBLE" in the art box; frame, title and footer stay.
 - **Effects:** see Rarity effects.
 - The description, minted season and sets are not on the card; they live in the card detail. No copyright appears on the card or its detail; the ownership notice is on the legal page.
@@ -714,7 +714,7 @@ Navigation and status around the screens.
 
 #### Rarity counter
 
-In the top bar: the five icons, each followed by the number of copies owned, in a sunken box with a `{colors.line-deep}` border. Activating it opens a small legend panel, "RARETÉS", listing icon, name and count for each tier `[ASSUMPTION: form of the legend]`. A count brightens briefly when it changes.
+In the top bar: the five icons, each followed by the number of copies owned, in a sunken box with a `{colors.line-deep}` border. The legend panel, "RARETÉS", listing icon, name and count for each tier, opens below the counter on hover (desktop) and on click or tap, and stays for a click (author, 2026-10-07). A count brightens briefly when it changes.
 
 #### Menu item
 
@@ -750,7 +750,7 @@ A quiet panel under the hub menu: "BOOSTER QUOTIDIEN" with a state word on the r
 
 #### Signed-out hub
 
-The hub with the official Steam sign-in image in place of the packs and player chips; the daily booster panel and the showcase are replaced by a short invitation to sign in `[ASSUMPTION: not mocked]`.
+The hub with the official Steam sign-in image in place of the packs and player chips; the daily booster panel and the showcase are replaced by a short invitation to sign in.
 
 #### Booster canister
 
@@ -785,9 +785,9 @@ An overlay with the card at `card-xl`, its name and rarity line, "VOIR LA FICHE"
 #### Collection
 
 - **Set progress row:** name and "owned/total", a thin progress bar; the selected set has a 5px accent bar on its left. The same component lists sets on the hub ("PROGRESSION DES SETS", four sets, "TOUT VOIR ▸").
-- **Filter zone (author, 2026-10-07):** replaces the rows of set and genre chips. A folded panel "FILTRES" (left column on desktop, a sheet on the phone) shows the count of active filters. Inside, groups of chips the player switches on or off: state (POSSÉDÉES, TOUT, MANQUANTES, NOUVELLES, DOUBLONS), rarity, set, genre; the chip style is the control row's (`aria-pressed`, filled with accent when on). A search field sits above the grid. `[ASSUMPTION]` Group names and the folded default.
+- **Filter zone (author, 2026-10-07):** replaces the rows of set and genre chips. A folded panel "FILTRES" (left column on desktop, a sheet on the phone) shows the count of active filters. Inside, groups of chips the player switches on or off: state (POSSÉDÉES, TOUT, MANQUANTES, NOUVELLES, DOUBLONS), rarity, set, genre; the chip style is the control row's (`aria-pressed`, filled with accent when on). A search field sits above the grid. Group names and the folded default.
 - **RAPPORT panel:** total cards, duplicates, and copies per rarity with icon, name and count in the rarity color. On the phone it folds to one line, "n cartes · n doublons", and adds a "CARTES UNIQUES" row when open.
-- **Copy badge:** "x3" in a small accent box at a card's top-right, from x1 `[ASSUMPTION: as mocked]`. **NOUVEAU tag:** a small lime box at the top-left.
+- **Copy badge:** "x3" in a small accent box at a card's top-right, from x2 (a single copy shows no badge; author, 2026-10-07). **NOUVEAU tag:** a small lime box at the top-left.
 - **Selected card:** a steady 3px accent frame around it.
 - **Missing-card slot:** the card shape with a dark hatched fill and a `{colors.line-deep}` border, a small pixel icon, the missing game's name (Pixelify Sans, muted) and its year. Nothing else.
 - **Card detail ("FICHE DE LA CARTE"):** a bracketed panel with the number at top right, the card at `card-l` with its effects, a ground shadow, rows of facts (label in muted Silkscreen left, value right, on `{colors.panel-sunken}`): title, publisher, rarity, genre, year, description, minted season, sets, copies owned. Buttons at the bottom: "VOIR SUR STEAM" (primary), "PARTAGER" and, for a card owned, "REPOSTER" (secondary). A card not owned shows the active card back at 55% opacity with its name and year. Phone: a sub-view with 44 × 64 CSS px ◀ ▶ buttons beside the card, a position line ("S1 · #4 215 · 3 / 13 · glissez pour parcourir") and actions pinned at the bottom.
@@ -830,7 +830,7 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Fil d'activité
 #### Profile and settings
 
 - **Public profile summary:** avatar, name, card count, "VITRINE" of three cards, and the visibility line: "Visible par tous les joueurs", "Visible par vos amis seulement" or "Profil privé : vous seul le voyez" ("Vous seul le voyez" on the phone).
-- **Settings row:** a muted label on the left and a control on the right, separated by a 2px `{colors.line-soft}` rule. Controls: segmented groups (selected segment filled accent; `{components.control-border.css}`) for "LANGUE" (FRANÇAIS / ENGLISH), "VISIBILITÉ DU PROFIL" (PUBLIC / AMIS UNIQUEMENT / PRIVÉ, a radio group) and "ANIMATIONS RÉDUITES" `[ASSUMPTION: segments SYSTÈME / OUI / NON]`; buttons for "MES DONNÉES" (EXPORTER), "SESSION" (SE DÉCONNECTER) and "COMPTE" (SUPPRIMER MON COMPTE, danger). A "Mentions légales" link closes the list.
+- **Settings row:** a muted label on the left and a control on the right, separated by a 2px `{colors.line-soft}` rule. Controls: segmented groups (selected segment filled accent; `{components.control-border.css}`) for "LANGUE" (FRANÇAIS / ENGLISH), "VISIBILITÉ DU PROFIL" (PUBLIC / AMIS UNIQUEMENT / PRIVÉ, a radio group) and "ANIMATIONS RÉDUITES"; buttons for "MES DONNÉES" (EXPORTER), "SESSION" (SE DÉCONNECTER) and "COMPTE" (SUPPRIMER MON COMPTE, danger). A "Mentions légales" link closes the list.
 - **Back picker:** the active card back large (`card-l`, phone `card-m`) with its name and "DOS ACTIF" in lime; a grid of the backs, each with its name and either "ACTIF", "Choisir" or its unlock condition; the active card back has a steady lime frame.
 
 #### Public card page
@@ -839,7 +839,7 @@ No app chrome: a slim top bar with the logo and the official Steam sign-in image
 
 #### Legal page
 
-A plain panel page in the game's tokens: the notice that gameble is not affiliated with Steam or Valve, the ownership notice (« Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons. »), the terms of use and the privacy notice `[ASSUMPTION: layout]`.
+A plain panel page in the game's tokens: the notice that gameble is not affiliated with Steam or Valve, the ownership notice (« Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons. »), the terms of use and the privacy notice.
 
 #### Back-office
 
