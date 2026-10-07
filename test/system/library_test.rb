@@ -27,7 +27,6 @@ class LibraryTest < ApplicationSystemTestCase
   teardown do
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
-    page.driver.browser.manage.window.resize_to(*SCREEN_SIZE)
   end
 
   def members(key)
@@ -96,12 +95,16 @@ class LibraryTest < ApplicationSystemTestCase
     assert_current_path home_path(locale: :en)
   end
 
+  # The grid's sixty slots are counted with `visible: :all`, in one call:
+  # checking each one's visibility is sixty round trips to the browser, and
+  # on a loaded runner one such attempt outlasts the wait while the frame
+  # the filter reloads replaces the nodes under it.
   test "a visitor who unticks the only state chip keeps every slot, as the form without JavaScript" do
     visit library_path(locale: :en)
     find(".filters__summary").click
-    assert_selector ".collection-grid > li", count: 60
+    assert_selector ".collection-grid > li", count: 60, visible: :all
     find(".filter-chip__text", text: /\AAll\z/i).click
-    assert_selector ".collection-grid > li", count: 60
+    assert_selector ".collection-grid > li", count: 60, visible: :all
     assert_equal [ "ALL" ], all("[data-group=state] .filter-chip__box:checked", visible: :all).map { it.find(:xpath, "..").text.strip }
     assert_selector ".filters__count", visible: :hidden
     assert_selector "[role=status]", text: "150 cards shown.", visible: :all
@@ -145,11 +148,11 @@ class LibraryTest < ApplicationSystemTestCase
 
     find(".filters__summary").click
     find(".filter-chip__text", text: /\AMissing\z/i).click
-    assert_selector ".collection-grid > li", count: 60
+    assert_selector ".collection-grid > li", count: 60, visible: :all
     assert_selector ".collection-slot .card", count: 3
     assert_selector ".filters__count", text: "2"
     find(".filter-chip__text", text: /\AOwned\z/i).click
-    assert_selector ".collection-grid .missing-slot", count: 60
+    assert_selector ".collection-grid .missing-slot", count: 60, visible: :all
     assert_no_selector ".collection-slot .card"
     assert_selector ".filters__count", text: "1"
     assert_selector ".filters__clear", visible: true
@@ -209,7 +212,7 @@ class LibraryTest < ApplicationSystemTestCase
 
     assert_current_path library_path(locale: :fr)
     assert_selector ".collection-status", text: "0 / 150"
-    assert_selector ".missing-slot", count: 60
+    assert_selector ".missing-slot", count: 60, visible: :all
     assert_no_selector ".collection-grid .card, .collection-slot__new"
     assert_selector ".top-bar .steam-sign-in__button"
     assert_no_sideways_scroll

@@ -30,7 +30,6 @@ class BoosterTest < ApplicationSystemTestCase
     reduce_motion(false)
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
-    page.driver.browser.manage.window.resize_to(*SCREEN_SIZE)
   end
 
   def reduce_motion(on)
@@ -82,6 +81,18 @@ class BoosterTest < ApplicationSystemTestCase
   def assert_dealt(count)
     assert_selector ".booster-card[data-dealt]", count:, wait: 10
     assert_selector ".booster__state", text: /\AINVENTORY\z/
+  end
+
+  # The reveal's guard (REVEAL_GUARD, lib/booster.ts) is measured on
+  # performance.now(): with the page's clock frozen, a card revealed inside
+  # the block is still within its guard whatever the machine's pace, so a
+  # tap sent here is the one the guard must ignore. The clock runs again
+  # after the block, from where it was frozen.
+  def within_reveal_guard
+    page.execute_script("const now = performance.now(); performance.now = () => now")
+    yield
+  ensure
+    page.execute_script("delete performance.now")
   end
 
   def state
@@ -200,11 +211,13 @@ class BoosterTest < ApplicationSystemTestCase
     open_canister
     assert_dealt(5)
 
-    find(hit(2)).click
-    assert_selector "#{card(2)}[data-revealed]"
-    # Within the guard: the face's click stays on the screen.
-    page.execute_script("document.querySelector(#{"#{card(2)} .booster-card__front .card".to_json}).click()")
-    assert_current_path "/en/booster"
+    within_reveal_guard do
+      find(hit(2)).click
+      assert_selector "#{card(2)}[data-revealed]"
+      # Within the guard: the face's click stays on the screen.
+      page.execute_script("document.querySelector(#{"#{card(2)} .booster-card__front .card".to_json}).click()")
+      assert_current_path "/en/booster"
+    end
 
     sleep 0.5
     find("#{card(2)} .booster-card__front .card").click
@@ -672,10 +685,13 @@ class BoosterTest < ApplicationSystemTestCase
     assert_focus phone_hit(2)
 
     # The second: a tap once its guard is over (a tap within it does nothing).
-    page.send_keys(:enter)
-    assert_selector "#{phone_card(2)}[data-revealed]"
-    find("#{phone_card(2)} .booster-card__front .card").click
-    assert_selector phone_card(2)
+    within_reveal_guard do
+      page.send_keys(:enter)
+      assert_selector "#{phone_card(2)}[data-revealed]"
+      find("#{phone_card(2)} .booster-card__front .card").click
+      assert_selector phone_card(2)
+      assert_equal 1, filled_slots
+    end
     sleep 0.45
     find("#{phone_card(2)} .booster-card__front .card").click
     assert_no_selector phone_card(2)

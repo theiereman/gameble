@@ -24,7 +24,6 @@ class CardDetailTest < ApplicationSystemTestCase
   teardown do
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
-    page.driver.browser.manage.window.resize_to(*SCREEN_SIZE)
   end
 
   def sign_in(player)

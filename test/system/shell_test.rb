@@ -21,11 +21,6 @@ class ShellTest < ApplicationSystemTestCase
   teardown do
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
-    resize_to(*SCREEN_SIZE)
-  end
-
-  def resize_to(width, height)
-    page.driver.browser.manage.window.resize_to(width, height)
   end
 
   def sign_in(player, locale: :en)

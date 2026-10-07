@@ -1,12 +1,29 @@
 require "test_helper"
+require_relative "support/chromedriver_stale_nodes"
+
+# CI's runner is slower than a development machine: a page re-rendered with
+# sixty cards, or a redirect after a form, can take more than Capybara's
+# default two seconds. The wait is a ceiling, never a delay.
+Capybara.default_max_wait_time = 5
 
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   # Headless Chrome. CHROME_BIN points at another Chrome-compatible browser, such as Chromium locally.
-  # The browser window size; a test that resizes the window restores it to this.
+  # The browser window size. One browser serves every test of a worker, so a
+  # test that resizes the window (a phone layout) is followed by one that
+  # finds the hub's menu hidden unless the size is restored: the teardown
+  # below restores it for every test.
   SCREEN_SIZE = [ 1400, 1400 ].freeze
 
   driven_by :selenium, using: :headless_chrome, screen_size: SCREEN_SIZE do |options|
     options.binary = ENV["CHROME_BIN"] if ENV["CHROME_BIN"].present?
+  end
+
+  teardown do
+    resize_to(*SCREEN_SIZE)
+  end
+
+  def resize_to(width, height)
+    page.driver.browser.manage.window.resize_to(width, height)
   end
 
   # Each test starts without cookies. Capybara's reset clears them, then

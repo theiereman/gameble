@@ -127,7 +127,5 @@ class CardFaceVisualTest < ApplicationSystemTestCase
       raise Capybara::ExpectationNotMet, "the slot is still moving" unless slot.evaluate_script("this.getAnimations({ subtree: true }).length === 0")
     end
     assert_matches_card_baseline(slot, "revealed-xl")
-  ensure
-    page.driver.browser.manage.window.resize_to(*SCREEN_SIZE)
   end
 end

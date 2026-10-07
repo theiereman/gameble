@@ -15,7 +15,6 @@ class TomeTest < ApplicationSystemTestCase
   teardown do
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
-    page.driver.browser.manage.window.resize_to(*SCREEN_SIZE)
   end
 
   def members(season, key)
@@ -75,7 +74,8 @@ class TomeTest < ApplicationSystemTestCase
 
     visit library_set_path(locale: :en, kind: "publisher", key: "big")
 
-    assert_selector ".collection-grid .card.card--m", count: 60
+    # Sixty cards counted in one call (see library_test.rb).
+    assert_selector ".collection-grid .card.card--m", count: 60, visible: :all
     # The first cards are drawn (or fail, the test images being unreachable);
     # those far below are not even started.
     assert_selector ".collection-grid > li:first-child .card__art[data-art]", visible: :all, wait: 10
@@ -86,6 +86,6 @@ class TomeTest < ApplicationSystemTestCase
 
     find(".collection-pages a[rel=next]").click
     assert_current_path library_set_path(locale: :en, kind: "publisher", key: "big", page: 2)
-    assert_selector ".collection-grid .card.card--m", count: 60
+    assert_selector ".collection-grid .card.card--m", count: 60, visible: :all
   end
 end
