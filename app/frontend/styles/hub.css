@@ -105,6 +105,12 @@
   text-align: center;
 }
 
+/* A trade waiting for the player: orange (DESIGN.md, Count badge). */
+.menu-item__badge--alert {
+  background: var(--color-alert);
+  color: var(--color-on-alert);
+}
+
 .menu-item__meta {
   flex: none;
   color: var(--color-muted);

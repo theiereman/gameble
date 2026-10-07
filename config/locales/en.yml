@@ -34,7 +34,9 @@ en:
       collection: "Collection"
       trades: "Trades"
       more: "More"
-      soon: "coming soon"
+      trades_waiting:
+        one: "%{number} trade waiting for you"
+        other: "%{number} trades waiting for you"
     toast:
       region: "Notifications"
       close: "Close"
@@ -59,6 +61,9 @@ en:
           one: "%{owned} unique card out of %{total}"
           other: "%{owned} unique cards out of %{total}"
         trades: "Trades"
+        trades_waiting:
+          one: "%{number} trade waiting for you"
+          other: "%{number} trades waiting for you"
         friends: "Friends"
         feed: "Activity feed"
         achievements: "Achievements"
@@ -524,6 +529,94 @@ en:
     unknown:
       title: "Invitation"
       text: "This invitation link is not valid."
+  trades:
+    title: "Trades"
+    throttled: "Too many actions in one minute. Try again in a moment."
+    insufficient: "Not enough copies"
+    list:
+      label: "Your trades"
+      back: "List"
+      empty: "No trade yet. Propose one to a friend from Friends."
+      yours: "Waiting for you"
+      theirs: "Waiting for their answer"
+      recent: "Recently finished"
+    row:
+      what_for_what: "%{theirs} for %{yours}"
+      expires:
+        one: "expires in %{count} d"
+        other: "expires in %{count} d"
+    chip:
+      yours: "Your turn"
+      theirs: "Waiting"
+      concluded: "Done"
+      closed: "Closed"
+      editing: "Editing"
+    outcome:
+      accepted: "done %{age}"
+      declined: "declined %{age}"
+      cancelled: "cancelled %{age}"
+      expired: "expired %{age}"
+    age:
+      now: "just now"
+      minutes:
+        one: "%{count} min ago"
+        other: "%{count} min ago"
+      hours:
+        one: "%{count} h ago"
+        other: "%{count} h ago"
+      days:
+        one: "%{count} d ago"
+        other: "%{count} d ago"
+    board:
+      heading: "Trade with %{name}"
+      expires_html: "Expires in %{days}"
+      days:
+        one: "%{count} d"
+        other: "%{count} d"
+      yours: "%{name} proposes this trade to you."
+      theirs: "Waiting for %{name}'s answer."
+      concluded: "Trade done."
+      closed: "Trade closed."
+      editing: "Change what you give and what you ask for, then send it back."
+    side:
+      friend_gives: "%{name} gives"
+      friend_received: "%{name} received"
+      friend_offered: "%{name} offered"
+      you_give: "You give"
+      you_received: "You received"
+      cards:
+        one: "%{count} card"
+        other: "%{count} cards"
+      cards_copies:
+        one: "%{cards} · %{copies} copies"
+        other: "%{cards} · %{copies} copies"
+      copies_label: "Copies:"
+      reserved:
+        one: "Reserved"
+        other: "%{count} reserved"
+      quantity_label: "Copies of %{title}"
+      max: "/%{max}"
+    actions:
+      accept: "Accept"
+      counter: "Counter"
+      decline: "Decline"
+      cancel: "Cancel the proposal"
+      send_counter: "Send the counter-proposal"
+      undo: "Discard the changes"
+    accepted:
+      title: "Trade done"
+      text:
+        one: "%{cards} joins your collection."
+        other: "%{cards} join your collection."
+    declined:
+      title: "Trade declined"
+      text: "Your answer was sent to %{name}."
+    cancelled:
+      title: "Proposal cancelled"
+      text: "Your cards are no longer reserved."
+    sent:
+      title: "Proposal sent"
+      text: "%{name} has 7 days to answer. Your cards are reserved until then."
   reports:
     open: "REPORT"
     reasons:

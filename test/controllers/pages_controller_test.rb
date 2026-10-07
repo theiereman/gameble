@@ -7,7 +7,7 @@ require_relative "../support/game_packs"
 class PagesControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
 
-  PLAYER_HUB_QUERIES = 15
+  PLAYER_HUB_QUERIES = 16
   VISITOR_HUB_QUERIES = 5
 
   setup do
@@ -89,9 +89,15 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/fr/feed'][aria-keyshortcuts='5']" do
       assert_select ".menu-item__label", "Fil d'activité"
     end
-    # 03 and 06: no screen yet.
+    # 03: the trades screen, the waiting count greyed at zero.
+    assert_select ".hub-menu a.menu-item[href='/fr/trades'][aria-keyshortcuts='3']" do
+      assert_select ".menu-item__label", "Échanges"
+      assert_select ".menu-item__badge.menu-item__badge--alert.menu-item__badge--zero", "0"
+      assert_select ".visually-hidden", "0 échange en attente de vous"
+    end
+    # 06: no screen yet.
     disabled = css_select(".hub-menu span.menu-item[aria-disabled=true]")
-    assert_equal [ "Échanges", "Succès" ], disabled.map { it.at_css(".menu-item__label").text }
+    assert_equal [ "Succès" ], disabled.map { it.at_css(".menu-item__label").text }
     assert disabled.all? { it.at_css(".visually-hidden").text == "bientôt disponible" }
 
     # The showcase: the tier 4 card of the pack, its rarity and its page.
@@ -359,7 +365,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # waiting goal reward,
     # showcase (pull, card view), collection (owned, total), sets (progress,
     # the started sets, the fill, which finds no other set here, so no sizes)
-    # and the top bar's copies per tier.
+    # the top bar's copies per tier, and the trades waiting (menu 03 and the
+    # tab bar share one count).
     assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"
 

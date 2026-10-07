@@ -6,9 +6,12 @@ module Game
   # trade past that can no longer be accepted nor countered, and stays open
   # until Game::ExpireTradesJob closes it. A counter-proposal swaps
   # `proposer_id` and `recipient_id`: the recipient is the player whose turn
-  # it is. Written only through the trade operations of this pack (AD-3).
+  # it is. Addressed outside by its random token (AD-15), never by its id.
+  # Written only through the trade operations of this pack (AD-3).
   class Trade < ApplicationRecord
     self.table_name = "game_trades"
+
+    has_secure_token :token, length: 24
 
     STATUSES = %w[open cancelled declined accepted expired].freeze
     LIFETIME = 7.days

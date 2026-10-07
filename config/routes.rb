@@ -82,6 +82,19 @@ Rails.application.routes.draw do
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     post "invite/:token" => "invite_links#create",
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    # The trades screen (CAP-11; EXPERIENCE.md, Échanges): the list, one
+    # trade's board by its token (AD-15), the counter-proposal form, and the
+    # answers, each a POST to an operation.
+    resources :trades, only: %i[index show], param: :token,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
+      member do
+        get :counter, action: :edit
+        post :counter
+        post :accept
+        post :decline
+        post :cancel
+      end
+    end
     # The phone's PLUS tab: the rest of the ship (EXPERIENCE.md, PLUS rows).
     get "more" => "pages#more", as: :more
 
