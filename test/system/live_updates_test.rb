@@ -116,4 +116,91 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     fill_in "Add with a code", with: ""
     assert_selector ".friends__invitation", text: "Max invites you"
   end
+
+  test "a partner's update during an in-place counter-proposal keeps the picks, and the board catches up once it ends" do
+    [ @lea, @max ].each { befriend(@hugo, it) }
+    Game::Holding.create!(player_id: @hugo.id, card_season_id: @portal, quantity: 4, reserved: 0)
+    Game::Holding.create!(player_id: @lea.id, card_season_id: @depths, quantity: 2, reserved: 0)
+    Game::Holding.create!(player_id: @max.id, card_season_id: @depths, quantity: 1, reserved: 0)
+    trade = Game::ProposeTrade.new.call(player: @lea, recipient: @hugo, offer: { @depths => 1 }, request: { @portal => 2 }).value!
+    deliver
+
+    sign_in @hugo
+    visit trade_path(token: trade.token, locale: :en)
+    listening
+    page.execute_script("addEventListener('gameble:trades-updated', () => { document.body.dataset.signals = (Number(document.body.dataset.signals || 0) + 1).toString() })")
+    within(".trade-board") { click_on "Counter" }
+    within(".trade-side--own") do
+      find(".stepper__button--more").click
+      assert_selector ".stepper[aria-valuenow='3']"
+    end
+
+    Game::ProposeTrade.new.call(player: @max, recipient: @hugo, offer: { @depths => 1 }, request: { @portal => 1 }).value!
+    deliver
+    assert_selector "body[data-signals='1']"
+    Game::CancelTrade.new.call(player: @lea, trade_id: trade.id).value!
+    deliver
+    assert_selector "body[data-signals='2']"
+
+    assert_selector ".trade-side--editing", count: 2
+    within(".trade-side--own") { assert_selector ".stepper[aria-valuenow='3']" }
+    assert_no_selector ".trade-row", text: /MAX/i
+    assert not_reloaded?
+
+    click_on "Discard the changes"
+    within("#trade-undo-dialog") { click_on "Discard the changes" }
+
+    assert_selector ".trade-board .trade-chip--muted", text: /CLOSED/i
+    assert_selector ".trade-row", text: /MAX/i
+    assert_no_selector ".trade-side--editing"
+    assert not_reloaded?
+  end
+
+  test "the swap after an acceptance plays out before the accepter's own update refreshes the board" do
+    befriend(@hugo, @lea)
+    Game::Holding.create!(player_id: @hugo.id, card_season_id: @portal, quantity: 4, reserved: 0)
+    Game::Holding.create!(player_id: @lea.id, card_season_id: @depths, quantity: 2, reserved: 0)
+    trade = Game::ProposeTrade.new.call(player: @lea, recipient: @hugo, offer: { @depths => 1 }, request: { @portal => 2 }).value!
+    deliver
+
+    sign_in @hugo
+    visit trade_path(token: trade.token, locale: :en)
+    listening
+    page.execute_script(<<~JS)
+      window.renders = []
+      window.flights = 0
+      const animate = Element.prototype.animate
+      Element.prototype.animate = function (frames, options) {
+        if (JSON.stringify(frames).includes("translate(")) window.flights += 1
+        return animate.call(this, frames, options)
+      }
+      document.addEventListener("turbo:before-render", () => {
+        window.renders.push(document.querySelector(".trade-board--swapping") ? "during the swap" : "outside the swap")
+      })
+      document.addEventListener("turbo:load", () => {
+        if (!document.querySelector(".trade-board[data-live-refresh-hold]")) return
+        window.signalDuringSwap = true
+        dispatchEvent(new CustomEvent("gameble:trades-updated"))
+      }, { once: true })
+    JS
+
+    within(".trade-board") { click_on "Accept" }
+
+    assert_selector ".trade-board .trade-chip--lime", text: /DONE/i
+    assert_selector ".trade-board__message:focus", text: "Trade done."
+    deliver
+    assert page.evaluate_script("window.signalDuringSwap === true"), "the update arrived while the cards were flying"
+    assert_equal 2, page.evaluate_script("window.flights")
+    assert_selector ".trade-board:not([data-live-refresh-hold])"
+    wait_until_renders(2)
+    assert_equal [ "outside the swap" ], page.evaluate_script("window.renders").uniq
+    within(".trade-side--own") { assert_selector ".trade-card__new", text: /NEW/i }
+    assert not_reloaded?
+  end
+
+  def wait_until_renders(count)
+    Timeout.timeout(Capybara.default_max_wait_time) do
+      sleep 0.05 until page.evaluate_script("window.renders.length") >= count
+    end
+  end
 end

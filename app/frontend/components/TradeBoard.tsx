@@ -1,8 +1,9 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { flushSync } from "react-dom"
-import { dispatchGameble } from "../lib/events"
+import { dispatchGameble, onGameble } from "../lib/events"
 import { t, type Template } from "../lib/i18n"
 import { MAX_CARDS, initialLines, remove, setQuantity, sideCount, type Line } from "../lib/trade_board"
+import { forgetDraft, readDraft, sameLines, saveDraft, type DraftSides } from "../lib/trade_draft"
 import QuantityStepper from "./QuantityStepper"
 import TradePicker from "./TradePicker"
 
@@ -19,6 +20,7 @@ export type TradeSideData = {
   side: "friend" | "own"
   field: "take" | "give"
   label: string
+  readHtml: string | null
   add: string
   pickerTitle: string
   pickerTitleShort: string
@@ -61,6 +63,10 @@ export type TradeBoardStrings = {
 export type TradeBoardProps = {
   sides: TradeSideData[]
   message: string
+  readMessage: string | null
+  editing: boolean
+  draftKey: string
+  formId: string
   error: string | null
   swapIcon: string
   closeIcon: string
@@ -69,21 +75,48 @@ export type TradeBoardProps = {
 
 type FocusTarget = { side: number; key: string | null; preventScroll?: boolean }
 
-export default function TradeBoard({ sides, message, error, swapIcon, closeIcon, strings }: TradeBoardProps) {
+const maximaOf = (side: TradeSideData) => new Map(side.cards.map((card) => [card.key, card.max]))
+
+export default function TradeBoard(props: TradeBoardProps) {
+  const { sides, message, readMessage, draftKey, formId, error, swapIcon, closeIcon, strings } = props
   const cardsBySide = useMemo(() => sides.map((side) => new Map(side.cards.map((card) => [card.key, card]))), [sides])
-  const [lines, setLines] = useState<Line[][]>(() =>
-    sides.map((side, index) => initialLines(side.lines, new Map(Array.from(cardsBySide[index].values(), (card) => [card.key, card.max])))),
-  )
+  const received = useMemo(() => sides.map((side) => initialLines(side.lines, maximaOf(side))), [sides])
+  const [editing, setEditing] = useState(props.editing)
+  const [lines, setLines] = useState<Line[][]>(() => {
+    const kept = readDraft(draftKey)
+    return kept ? sides.map((side) => initialLines(kept[side.field] ?? [], maximaOf(side))) : received
+  })
   const [picking, setPicking] = useState<number | null>(null)
   const sideElements = useRef<(HTMLDivElement | null)[]>([])
-  const focusAfter = useRef<FocusTarget | null>({ side: sides.findIndex((side) => side.side === "own"), key: null, preventScroll: true })
+  const own = sides.findIndex((side) => side.side === "own")
+  const friend = sides.findIndex((side) => side.side === "friend")
+  const focusAfter = useRef<FocusTarget | null>(props.editing && readMessage !== null ? { side: own, key: null, preventScroll: true } : null)
   const swapHtml = useMemo(() => ({ __html: swapIcon }), [swapIcon])
   const closeHtml = useMemo(() => ({ __html: closeIcon }), [closeIcon])
 
   useEffect(() => {
+    const changed = lines.some((side, index) => !sameLines(side, received[index] ?? []))
+    if (changed) {
+      const kept: DraftSides = {}
+      sides.forEach((side, index) => (kept[side.field] = lines[index]))
+      saveDraft(draftKey, kept)
+    } else {
+      forgetDraft(draftKey)
+    }
     const count = (field: TradeSideData["field"]) => sideCount(lines[sides.findIndex((side) => side.field === field)] ?? [])
-    dispatchGameble("gameble:trade-changed", { give: count("give"), take: count("take") })
-  }, [lines, sides])
+    dispatchGameble("gameble:trade-changed", { give: count("give"), take: count("take"), changed })
+  }, [lines, sides, received, draftKey])
+
+  useEffect(
+    () =>
+      onGameble("gameble:trade-editing", ({ editing: next }) => {
+        setPicking(null)
+        setEditing(next)
+        if (next) focusAfter.current = { side: own, key: null }
+        else setLines(received)
+      }),
+    [own, received],
+  )
 
   useEffect(() => {
     // Turbo snapshots the page right after this event, before React would re-render.
@@ -119,6 +152,7 @@ export default function TradeBoard({ sides, message, error, swapIcon, closeIcon,
   }
 
   const renderSide = (side: TradeSideData, index: number) => {
+    if (!editing) return <div key={side.side} className="trade-island__static" dangerouslySetInnerHTML={{ __html: side.readHtml ?? "" }} />
     const sideLines = lines[index]
     const cards = cardsBySide[index]
     return (
@@ -162,7 +196,7 @@ export default function TradeBoard({ sides, message, error, swapIcon, closeIcon,
                   onClick={() => removeCard(index, line.key)}
                   dangerouslySetInnerHTML={closeHtml}
                 />
-                <input type="hidden" name={`${side.field}[${line.key}]`} value={line.quantity} />
+                <input type="hidden" form={formId} name={`${side.field}[${line.key}]`} value={line.quantity} />
               </li>
             )
           })}
@@ -181,15 +215,14 @@ export default function TradeBoard({ sides, message, error, swapIcon, closeIcon,
     )
   }
 
-  const friend = sides.findIndex((side) => side.side === "friend")
-  const own = sides.findIndex((side) => side.side === "own")
-
   return (
     <>
       {friend >= 0 && renderSide(sides[friend], friend)}
       <div className="trade-board__middle">
         <span className="trade-board__swap-box" aria-hidden="true" dangerouslySetInnerHTML={swapHtml} />
-        <p className="trade-board__message">{message}</p>
+        <p className="trade-board__message" tabIndex={-1}>
+          {editing ? message : (readMessage ?? message)}
+        </p>
         {error && (
           <p className="trade-board__error" role="alert">
             {error}

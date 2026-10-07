@@ -89,10 +89,10 @@ Rails.application.routes.draw do
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     post "invite/:token" => "invite_links#create",
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
-    # The trades screen (CAP-11; EXPERIENCE.md, Échanges): the list, one
-    # trade's board by its token (AD-15), the counter-proposal form, and the
-    # answers, each a POST to an operation.
-    resources :trades, only: %i[index show], param: :token,
+    # The trades screen: the list, one trade's board by its token, the draft
+    # of a new trade with a friend and its sending, the counter-proposal
+    # form, and the answers, each a POST to an operation.
+    resources :trades, only: %i[index show new create], param: :token,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
       member do
         get :counter, action: :edit

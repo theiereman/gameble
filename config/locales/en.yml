@@ -544,7 +544,6 @@ en:
       showcase: "Showcase"
       no_showcase: "No card in the showcase."
       propose_trade: "Propose a trade"
-      soon: "Coming soon"
     unavailable:
       body: "This profile is not available."
   invitations:
@@ -571,6 +570,15 @@ en:
     title: "Trades"
     throttled: "Too many actions in one minute. Try again in a moment."
     insufficient: "Not enough copies"
+    one_at_a_time:
+      title: "One trade at a time"
+      text: "A trade is already open with %{name}."
+    undo_dialog:
+      title: "Discard the changes?"
+      text: "What you changed will be lost, and %{name}'s proposal will come back as it was."
+      confirm: "Discard the changes"
+      keep: "Keep editing"
+      close: "Close"
     list:
       label: "Your trades"
       back: "List"
@@ -590,6 +598,7 @@ en:
       concluded: "Done"
       closed: "Closed"
       editing: "Editing"
+      draft: "Draft"
     outcome:
       accepted: "done %{age}"
       declined: "declined %{age}"
@@ -618,6 +627,7 @@ en:
       closed: "Trade closed."
       editing: "Change what you give and what you ask for, then send it back."
       choose: "Choose the cards on each side."
+      valid: "Valid for 7 days once sent"
     side:
       friend_gives: "%{name} gives"
       friend_received: "%{name} received"
@@ -636,6 +646,7 @@ en:
         other: "%{count} reserved"
       quantity_label: "Copies of %{title}"
       max: "/%{max}"
+      new: "New"
       none:
         title: "No card available."
         none_owned: "You no longer hold any of these cards."
@@ -648,6 +659,9 @@ en:
       cancel: "Cancel the proposal"
       send_counter: "Send the counter-proposal"
       undo: "Discard the changes"
+      send: "Send the proposal"
+      abandon: "Abandon"
+      again: "New trade with %{name}"
     island:
       add:
         friend: "Choose their cards"

@@ -562,7 +562,6 @@ fr:
       showcase: "Vitrine"
       no_showcase: "Aucune carte en vitrine."
       propose_trade: "Proposer un échange"
-      soon: "Bientôt disponible"
     unavailable:
       body: "Ce profil n'est pas disponible."
   invitations:
@@ -589,6 +588,15 @@ fr:
     title: "Échanges"
     throttled: "Trop d'actions en une minute. Réessayez dans un instant."
     insufficient: "Exemplaires insuffisants"
+    one_at_a_time:
+      title: "Un échange à la fois"
+      text: "Un échange est déjà ouvert avec %{name}."
+    undo_dialog:
+      title: "Annuler les modifications ?"
+      text: "Ce que vous avez changé sera perdu et la proposition de %{name} reviendra telle quelle."
+      confirm: "Annuler les modifications"
+      keep: "Continuer à modifier"
+      close: "Fermer"
     list:
       label: "Vos échanges"
       back: "Liste"
@@ -608,6 +616,7 @@ fr:
       concluded: "Conclu"
       closed: "Clos"
       editing: "En édition"
+      draft: "Brouillon"
     outcome:
       accepted: "conclu %{age}"
       declined: "refusé %{age}"
@@ -636,6 +645,7 @@ fr:
       closed: "Échange clos."
       editing: "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez."
       choose: "Choisissez les cartes de chaque côté."
+      valid: "Valable 7 jours après l'envoi"
     side:
       friend_gives: "%{name} donne"
       friend_received: "%{name} a reçu"
@@ -654,6 +664,7 @@ fr:
         other: "%{count} réservées"
       quantity_label: "Exemplaires de %{title}"
       max: "/%{max}"
+      new: "Nouveau"
       none:
         title: "Aucune carte disponible."
         none_owned: "Vous n'avez plus aucune de ces cartes."
@@ -666,6 +677,9 @@ fr:
       cancel: "Annuler la proposition"
       send_counter: "Renvoyer la contre-proposition"
       undo: "Annuler les modifications"
+      send: "Envoyer la proposition"
+      abandon: "Abandonner"
+      again: "Nouvel échange avec %{name}"
     island:
       add:
         friend: "Choisir ses cartes"

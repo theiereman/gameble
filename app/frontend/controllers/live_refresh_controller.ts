@@ -6,8 +6,9 @@ import "../lib/turbo"
 type SubmitEndDetail = { success: boolean; fetchResponse?: { header(name: string): string | null } }
 
 // Morphs the page again when its signal arrives, but never over a visit or a
-// submission in flight, unsent text or an open dialog: it waits until those
-// are over, since Turbo drops a refresh asked for during a visit.
+// submission in flight, unsent text, an open dialog or an element holding it
+// back (`data-live-refresh-hold`): it waits until those are over, since Turbo
+// drops a refresh asked for during a visit.
 export default class extends Controller<HTMLElement> {
   static values = { signal: String }
 
@@ -16,6 +17,7 @@ export default class extends Controller<HTMLElement> {
   private stopListening?: () => void
   private due = false
   private submitting = false
+  private holds?: MutationObserver
 
   private readonly submitStarted = (): void => {
     this.submitting = true
@@ -58,6 +60,8 @@ export default class extends Controller<HTMLElement> {
     this.element.addEventListener("input", this.refreshWhenFree)
     // A dialog's close event does not bubble; it is caught on its way down.
     document.addEventListener("close", this.refreshWhenFree, true)
+    this.holds = new MutationObserver(this.refreshWhenFree)
+    this.holds.observe(this.element, { subtree: true, attributes: true, attributeFilter: ["data-live-refresh-hold"] })
   }
 
   disconnect(): void {
@@ -68,6 +72,8 @@ export default class extends Controller<HTMLElement> {
     document.removeEventListener("turbo:load", this.visitEnded)
     this.element.removeEventListener("input", this.refreshWhenFree)
     document.removeEventListener("close", this.refreshWhenFree, true)
+    this.holds?.disconnect()
+    this.holds = undefined
   }
 
   private visiting(): boolean {
@@ -75,7 +81,11 @@ export default class extends Controller<HTMLElement> {
   }
 
   private holdingUnsavedState(): boolean {
-    return this.dialogOpen() || this.unsentText()
+    return this.dialogOpen() || this.unsentText() || this.heldBack()
+  }
+
+  private heldBack(): boolean {
+    return this.element.querySelector("[data-live-refresh-hold]") !== null
   }
 
   private dialogOpen(): boolean {

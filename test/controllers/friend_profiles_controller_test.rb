@@ -57,8 +57,7 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".friend-profile__showcase li:nth-child(1) .card--s.card--rarity-legendary"
       assert_select ".friend-profile__showcase li:nth-child(2) .card--rarity-epic"
       assert_select ".friend-profile__showcase li:nth-child(3) .card--rarity-rare"
-      assert_select ".friend-profile__actions button.button--primary[disabled]", "Proposer un échange"
-      assert_select ".friend-profile__soon", "Bientôt disponible"
+      assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @friend.token), "Proposer un échange"
       assert_select ".friend-profile__actions button.button--link[aria-haspopup=dialog][data-dialog-opener-dialog-value=?]",
         "report-dialog-#{@friend.token}", "SIGNALER"
       assert_select "dialog#report-dialog-#{@friend.token} form[action=?]", brother_report_path(locale: :fr, token: @friend.token) do
@@ -78,7 +77,7 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friend-profile__count", "0 cards collected"
     assert_select ".friend-profile__showcase", false
     assert_select ".friend-profile__empty", "No card in the showcase."
-    assert_select ".friend-profile__actions button[disabled]", "Propose a trade"
+    assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :en, friend: @friend.token), "Propose a trade"
   end
 
   test "a friends-only friend is shown; a private one is the not-available frame" do

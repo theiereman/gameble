@@ -58,7 +58,7 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
     assert_select "#tab-trades-badge .tab-bar__badge", 0
   end
 
-  test "the trades and Friends screens refresh on their signal, the counter form does not" do
+  test "the trades and Friends screens refresh on their signal, held back by a board in edition" do
     friend = accounts_players(:moderator)
     low, high = [ @player.id, friend.id ].minmax
     Game::Friendship.create!(low_player_id: low, high_player_id: high)
@@ -75,8 +75,10 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
 
     get counter_trade_path(locale: :en, token: trade.token)
     assert_response :success
-    assert_select "section.trades", 1
-    assert_select "[data-controller~='live-refresh']", 0
+    assert_select "section.trades[data-controller='live-refresh'] .trade-board[data-trade-board-editing-value='true']", 1
+    Game::CancelTrade.new.call(player: friend, trade_id: trade.id).value!
+    get new_trade_path(locale: :en, friend: friend.token)
+    assert_select "section.trades[data-controller='live-refresh'] .trade-board[data-trade-board-editing-value='true']", 1
 
     get friends_path(locale: :en)
     assert_select "section.friends[data-controller='live-refresh'][data-live-refresh-signal-value='friends-updated']", 1

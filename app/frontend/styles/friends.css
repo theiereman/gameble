@@ -233,8 +233,7 @@
 }
 
 .friend-profile__empty,
-.friend-profile__loading,
-.friend-profile__soon {
+.friend-profile__loading {
   margin: 0;
   color: var(--color-muted);
 }

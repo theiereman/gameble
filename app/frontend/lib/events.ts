@@ -27,7 +27,9 @@ export type NavigationLockedDetail = { locked: boolean }
 // The player's private stream says their trades, or their friends and
 // invitations, changed.
 export type StreamUpdatedDetail = Record<string, never>
-export type TradeChangedDetail = { give: SideCount; take: SideCount }
+export type TradeChangedDetail = { give: SideCount; take: SideCount; changed: boolean }
+
+export type TradeEditingDetail = { editing: boolean }
 
 export interface GamebleEventMap {
   "gameble:toast": ToastDetail
@@ -37,6 +39,7 @@ export interface GamebleEventMap {
   "gameble:trades-updated": StreamUpdatedDetail
   "gameble:friends-updated": StreamUpdatedDetail
   "gameble:trade-changed": TradeChangedDetail
+  "gameble:trade-editing": TradeEditingDetail
 }
 
 export type GamebleEventName = keyof GamebleEventMap
