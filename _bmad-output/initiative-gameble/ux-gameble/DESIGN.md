@@ -3,7 +3,7 @@ name: gameble
 description: Pixel-art trading card game of Steam games, presented as an elegant space terminal in Steam's colors. Real Steam covers under a fine pixel filter, sober panels, small effects that tick in steps.
 status: final
 created: 2026-10-01
-updated: '2026-10-06'
+updated: '2026-10-07'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../brief-gameble/brief-gameble.md
@@ -231,7 +231,7 @@ spacing:
   '8': 32px
   gutter-desktop: 32px
   gutter-phone: 16px
-  panel-padding: 16px 18px
+  panel-padding: 20px 24px
   topbar-height: 56px
   ticker-height: 32px
   ticker-height-phone: 30px
@@ -506,6 +506,7 @@ Rules:
 The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 
 - **Gutters:** `{spacing.gutter-desktop}` on desktop, `{spacing.gutter-phone}` on the phone. Panels pad `{spacing.panel-padding}`.
+- **Booster opening centred (author, 2026-10-07):** on a window taller or wider than the stage, the opening is centred horizontally and vertically in the space available, with more room between its components; nothing is resized.
 - **No scaling, anywhere.** The page never shrinks or grows to fit the window: every element keeps its size. A short window scrolls the page vertically, and the top bar and LIVE ticker scroll with it (they are not fixed). A narrower window reflows by width breakpoints. The booster stage is not scaled either.
 - **Width:** content (and the top bar's contents) is capped at `{spacing.content-max}` and centered; the ground, star field, top bar and ticker backgrounds run full width. `[ASSUMPTION]` The exact cap is 1280px; the decision is "below 1440px". Tablets follow the same width rules.
 - **Breakpoints** (CSS px of the viewport, so browser zoom reaches them):
@@ -529,6 +530,7 @@ The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 | Succès | Tiles fill columns of at least 260px | Same | Same |
 | Public card page | Card · info (capped at 1180px), LIVE strip and footer below | Same | One column: card, info, LIVE, footer |
 
+- **Breathing room (author, 2026-10-07):** the whole interface breathes more. Panels get more padding (`{spacing.panel-padding}`), and the gaps between panels, rows, chips and cards go up by about one step of the scale. `[ASSUMPTION]` The exact gap values are tuned on the built screens; information must stay easy to tell apart at a glance.
 - **Booster stage:** as wide as its column. The five dealt cards sit in one row with gaps from `{spacing.deal-gap-max}` down to `{spacing.deal-gap-min}`; when even that does not fit, they wrap into a row of 3 and a row of 2 and the stage grows taller.
 - **Trade board:** when the board itself is under 700px wide (container query), its sides stack (the friend's side, the swap icon turned a quarter, the player's side).
 - **Collection grid:** fixed gaps (`{spacing.grid-gap-columns}` between columns, `{spacing.grid-gap-rows}` between rows); the cards resize between `{spacing.grid-card-min}` and `{spacing.grid-card-max}` wide at 2:3 (even pixel sizes) to fill the row, and extra width adds a column rather than spreading cards apart. Under 140px a card uses the small face layout, from 140px the medium one. The pixel filter re-runs at the rendered art size after a resize. Examples: 4 columns of 138px at 1920 and 1366, 4 of 150px at 1024, 5 of 136px at 800.
@@ -558,7 +560,7 @@ Depth is drawn in pixels, not in soft shadows.
 - **Panels** are flat, separated by an inset line, not by elevation.
 - **Ground shadows:** a showcased card floats over a flat dark bar that breathes with its idle float.
 - **Glow is rare:** a Légendaire gets a blurred gold glow only inside the booster opening. Rays (pixel sunbursts) turn behind Épique and Légendaire cards in the booster, the card detail, the hub showcase and the public card page; never behind lower tiers. Dialogs and toasts have one soft drop shadow so they sit above the screen.
-- **Atmosphere, under the content:** a star field of 2 and 4px stars that shifts sideways when the screen changes; faint scanlines (`{components.scanlines.css}`); a vignette (`{components.vignette.desktop}`, phone `{components.vignette.phone}`). All three sit on the background and the art only, never over text, bars, toasts, dialogs or the tab bar.
+- **Atmosphere, under the content:** a star field of 2 and 4px stars that stays still when the screen changes and only twinkles softly, a few stars at a time (no sideways shift); faint scanlines (`{components.scanlines.css}`); a vignette (`{components.vignette.desktop}`, phone `{components.vignette.phone}`). All three sit on the background and the art only, never over text, bars, toasts, dialogs or the tab bar.
 - **Flash and shake** exist only inside the booster opening and the trade swap.
 - **Blinking** is reserved for genuinely live things: the LIVE marker. Status lights, kickers, badges, timers, the focus frame and decorative pulses are steady. Nothing blinks faster than `{components.motion.blink-max-rate}`.
 
@@ -783,6 +785,7 @@ An overlay with the card at `card-xl`, its name and rarity line, "VOIR LA FICHE"
 #### Collection
 
 - **Set progress row:** name and "owned/total", a thin progress bar; the selected set has a 5px accent bar on its left. The same component lists sets on the hub ("PROGRESSION DES SETS", four sets, "TOUT VOIR ▸").
+- **Filter zone (author, 2026-10-07):** replaces the rows of set and genre chips. A folded panel "FILTRES" (left column on desktop, a sheet on the phone) shows the count of active filters. Inside, groups of chips the player switches on or off: state (POSSÉDÉES, TOUT, MANQUANTES, NOUVELLES, DOUBLONS), rarity, set, genre; the chip style is the control row's (`aria-pressed`, filled with accent when on). A search field sits above the grid. `[ASSUMPTION]` Group names and the folded default.
 - **RAPPORT panel:** total cards, duplicates, and copies per rarity with icon, name and count in the rarity color. On the phone it folds to one line, "n cartes · n doublons", and adds a "CARTES UNIQUES" row when open.
 - **Copy badge:** "x3" in a small accent box at a card's top-right, from x1 `[ASSUMPTION: as mocked]`. **NOUVEAU tag:** a small lime box at the top-left.
 - **Selected card:** a steady 3px accent frame around it.

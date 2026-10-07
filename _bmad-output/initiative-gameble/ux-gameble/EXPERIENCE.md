@@ -2,7 +2,7 @@
 name: gameble
 status: final
 created: 2026-10-01
-updated: '2026-10-06'
+updated: '2026-10-07'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/catalog-and-rarity.md
@@ -171,6 +171,9 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 | Component | Behavioral rules |
 |---|---|
 | Card detail | Title, publisher, rarity, genre, year, short description, minted season, sets, copies owned. "VOIR SUR STEAM" opens the store page in a new tab (said in its accessible name). "PARTAGER" opens the share sheet; absent for a card not owned. Phone: ◀ ▶ buttons and swipe move to the previous or next card. |
+| Collection opening (author, 2026-10-07) | Opens on the cards the player owns, newest first (the ones tagged NOUVEAU in front). The state filter switches to TOUT, MANQUANTES, NOUVELLES or DOUBLONS; missing slots appear only then. |
+| Filter zone | A folded panel "FILTRES" with the count of active filters. Chips are switched on or off, several at once: OR within a group, AND across groups. Groups: state, rarity, set, genre `[ASSUMPTION: groups and the folded default]`. A "TOUT EFFACER" clears them. Changing a filter re-lays the grid and keeps focus on the zone. |
+| Search | Free text over the card title and publisher, applied as the player types and combined with the active filters; an empty result shows the empty-filter line. `[ASSUMPTION]` |
 | Missing-card slot | Shows the missing game's name and year; opens the card detail with the faded active card back. |
 | Copy badge / NOUVEAU tag | "x3" shows copies owned. "NOUVEAU" marks cards obtained since the player last saw them `[ASSUMPTION: cleared once seen]`. |
 | RAPPORT panel | Totals and copies per rarity. Folds on the phone; the fold toggle announces whether it is expanded. |
@@ -310,7 +313,7 @@ Movement is fluid at 60fps (transforms and opacity only; continuous loops never 
 | Moment | Duration | What happens |
 |---|---|---|
 | App start | 340ms, once per session | A brief power-on brightening of the screen (overshoot capped at 1.1). |
-| Screen change | about 300ms | The old screen slides 32px away and fades (170ms); the new one slides in from 48px (260ms, 40ms later); the star field shifts sideways (1.1s). Panels lock into place with a short overshoot, staggered over 400ms at most. |
+| Screen change | about 300ms | The old screen slides 32px away and fades (170ms); the new one slides in from 48px (260ms, 40ms later); the star field does not move (it only twinkles, a few stars at a time). Panels lock into place with a short overshoot, staggered over 400ms at most. |
 | Phone sub-view | 260ms in, 200ms out | Slides over its screen. |
 | Phone sheet | 240ms | Rises from 60px. |
 | Canister at rest | loop | Breathes 2px over 6s; a light band sweeps across it; rays turn slowly behind it. |
@@ -397,7 +400,7 @@ The layout rules (no scaling, page scroll, breakpoints at 720 and 1180px, conten
 - **Phone:** portrait only; held sideways, nothing changes, and the installed web app declares `"orientation": "portrait"` in its manifest (a browser tab cannot be locked). Document scroll; sub-views slide over their screen; dialogs are bottom sheets; toasts appear at the top; safe areas are respected. Checked at 390 × 844 and 360 × 740.
 - **Hub on the phone:** kicker, packs chip and rarity counter, showcase, community goal panel, daily booster panel, set progress rows, LIVE ticker. The menu lives in the tab bar and the PLUS rows (no numbers).
 - **Booster on the phone:** the cards land as a pile; one large card at a time; tap to reveal; the caption plate shows rarity, title and year; tap, swipe or "RANGER" stores the card in the tray; "Tout révéler" reveals and stores the rest; a filled slot opens the card zoom.
-- **Collection on the phone:** two columns with the publisher visible; set and genre chip rows; the RAPPORT panel folds; the card detail slides over with "◀ GRILLE", ◀ ▶ buttons and a position line.
+- **Collection on the phone:** two columns with the publisher visible; the FILTRES sheet and the search field; the RAPPORT panel folds; the card detail slides over with "◀ GRILLE", ◀ ▶ buttons and a position line.
 - **Trades on the phone:** the list first; the trade board slides over ("◀ LISTE") with the friend's side on top and actions pinned at the bottom; the card picker is a full-height sheet.
 - **Browsers:** the modern-browser floor of the architecture (AD-27); the public pages a link opens also serve older browsers. Native store apps stay possible later.
 
