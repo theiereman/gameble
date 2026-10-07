@@ -90,6 +90,10 @@ builder:
 # ssh:
 #   user: app
 
+# The servers' SSH daemon listens on 2224, whichever machine runs Kamal.
+ssh:
+  port: 2224
+
 # Use accessory services (secrets come from .kamal/secrets).
 # PostgreSQL 18 (AD-21). The user `gameble` is the image's superuser, so the
 # app's `db:prepare` creates the four databases (primary, cache, queue, cable).
