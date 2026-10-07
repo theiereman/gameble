@@ -24,6 +24,8 @@ module Accounts
 
     has_secure_token :token
 
+    before_save :rotate_stream_key, if: :banned_or_deleted_now?
+
     enum :role, { player: "player", moderator: "moderator", administrator: "administrator" },
       default: :player, validate: true
 
@@ -48,6 +50,16 @@ module Accounts
     # A moderator or an administrator.
     def staff?
       moderator? || administrator?
+    end
+
+    private
+
+    def banned_or_deleted_now?
+      (will_save_change_to_banned_at? && banned_at.present?) || (will_save_change_to_deleted_at? && deleted_at.present?)
+    end
+
+    def rotate_stream_key
+      self.stream_key = SecureRandom.uuid
     end
   end
 end

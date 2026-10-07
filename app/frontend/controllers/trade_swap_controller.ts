@@ -25,6 +25,7 @@ export default class extends Controller<HTMLElement> {
     if (!this.playValue) return
     this.playValue = false
     if (document.documentElement.hasAttribute("data-turbo-preview")) return
+    this.element.toggleAttribute("data-live-refresh-hold", true)
     this.play()
   }
 
@@ -36,6 +37,7 @@ export default class extends Controller<HTMLElement> {
     this.timers = []
     this.effects = []
     this.element.classList.remove("trade-board--swapping")
+    this.element.removeAttribute("data-live-refresh-hold")
   }
 
   private play(): void {
@@ -94,6 +96,7 @@ export default class extends Controller<HTMLElement> {
 
   private finish(): void {
     this.element.classList.remove("trade-board--swapping")
+    this.element.removeAttribute("data-live-refresh-hold")
     this.element.querySelector<HTMLElement>(".trade-board__message")?.focus({ preventScroll: true })
   }
 

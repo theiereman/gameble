@@ -1,0 +1,4 @@
+<% if waiting.positive? %>
+  <span class="tab-bar__badge tab-bar__badge--alert" aria-hidden="true"><%= number_with_delimiter(waiting) %></span>
+  <span class="visually-hidden"><%= t("shell.tabs.trades_waiting", count: waiting, number: number_with_delimiter(waiting)) %></span>
+<% end %>

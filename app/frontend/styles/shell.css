@@ -70,6 +70,10 @@ a {
   image-rendering: pixelated;
 }
 
+.stream-slot {
+  display: contents;
+}
+
 /* ---- Page widths ---- */
 
 .main {

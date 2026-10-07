@@ -36,6 +36,7 @@ export default class extends Controller<HTMLElement> {
   private stopListening?: () => void
 
   connect(): void {
+    if (this.editingValue) this.holdLiveRefresh(true)
     if (this.forgetValue) forgetDraft(this.forgetValue)
     this.stopListening = onGameble("gameble:trade-changed", ({ changed }) => {
       this.changed = changed
@@ -81,11 +82,16 @@ export default class extends Controller<HTMLElement> {
 
   private show(editing: boolean): void {
     this.editingValue = editing
+    this.holdLiveRefresh(editing)
     this.element.classList.toggle("trade-board--editing", editing)
     this.chipTargets.forEach((element) => (element.hidden = editing))
     this.readActionsTargets.forEach((element) => (element.hidden = editing))
     this.editingChipTargets.forEach((element) => (element.hidden = !editing))
     this.editActionsTargets.forEach((element) => (element.hidden = !editing))
+  }
+
+  private holdLiveRefresh(hold: boolean): void {
+    this.element.toggleAttribute("data-live-refresh-hold", hold)
   }
 
   private replaceUrl(url: string): void {

@@ -2,8 +2,11 @@
     `view` is :list (/trades: on a phone the list alone) or :board (one
     trade, or a draft: on a phone the board alone, back to the list with
     "◀ Liste"); on a desktop both show. `board` holds the board partial's
-    locals; with `draft` (the friend) the board is that draft's. %>
-<section class="trades trades--<%= view %>" aria-labelledby="trades-heading">
+    locals; with `draft` (the friend) the board is that draft's. The page
+    refreshes when the player's trades change, unless a board in edition or
+    a swap in flight holds it back. %>
+<%= tag.section class: "trades trades--#{view}", aria: { labelledby: "trades-heading" },
+      data: { controller: "live-refresh", live_refresh_signal_value: "trades-updated" } do %>
   <h1 id="trades-heading" class="trades__title"><%= t("trades.title") %></h1>
   <div class="trades__layout">
     <%= render "trades/list", trades:, current: (trade if view == :board), cards: %>
@@ -13,4 +16,4 @@
       <%= render "trades/board", trade:, cards:, **local_assigns.fetch(:board, {}) %>
     <% end %>
   </div>
-</section>
+<% end %>

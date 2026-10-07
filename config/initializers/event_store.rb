@@ -8,6 +8,9 @@ Rails.configuration.to_prepare do
 
   # A new player's bank is filled within the sign-up (AD-7).
   event_store.subscribe(Game::Handlers::PlayerRegistered, to: [ Accounts::PlayerRegistered ])
+  # Before Game cuts a deleted or banned player off, while their friends and
+  # trade partners can still be found.
+  event_store.subscribe(PlayerStream, to: PlayerStream::CUT_OFF_EVENTS)
   # A deleted account's game is released within the deletion (AD-14).
   event_store.subscribe(Game::Handlers::PlayerDeleted, to: [ Accounts::PlayerDeleted ])
   # A banned player's trades close and their friendships end within the ban
@@ -23,6 +26,8 @@ Rails.configuration.to_prepare do
   # A player's own actions are their latest activity, read by their friends'
   # presence (AD-24).
   event_store.subscribe(Game::Handlers::PlayerActivity, to: Game::Handlers::PlayerActivity::EVENTS.keys)
+
+  event_store.subscribe(PlayerStream, to: PlayerStream::EVENTS)
 
   Rails.configuration.event_store = event_store
 end

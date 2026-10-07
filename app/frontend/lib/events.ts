@@ -24,6 +24,9 @@ export type BankChangedDetail = { available: number; reserveFull: boolean; nextA
 // bar) while it opens a booster or reveals a card, and unlocks it after.
 export type NavigationLockedDetail = { locked: boolean }
 
+// The player's private stream says their trades, or their friends and
+// invitations, changed.
+export type StreamUpdatedDetail = Record<string, never>
 export type TradeChangedDetail = { give: SideCount; take: SideCount; changed: boolean }
 
 export type TradeEditingDetail = { editing: boolean }
@@ -33,6 +36,8 @@ export interface GamebleEventMap {
   "gameble:tier-revealed": TierRevealedDetail
   "gameble:bank-changed": BankChangedDetail
   "gameble:navigation-locked": NavigationLockedDetail
+  "gameble:trades-updated": StreamUpdatedDetail
+  "gameble:friends-updated": StreamUpdatedDetail
   "gameble:trade-changed": TradeChangedDetail
   "gameble:trade-editing": TradeEditingDetail
 }

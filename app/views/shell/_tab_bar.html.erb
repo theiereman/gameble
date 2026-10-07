@@ -21,9 +21,8 @@
           <%= link_to path, class: "tab-bar__tab", aria: { current: ("page" if current) }, data: { turbo_prefetch: false } do %>
             <%= pixel_icon(icon, class: "tab-bar__icon") %>
             <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
-            <% if key == :trades && waiting&.positive? %>
-              <span class="tab-bar__badge tab-bar__badge--alert" aria-hidden="true"><%= number_with_delimiter(waiting) %></span>
-              <span class="visually-hidden"><%= t("shell.tabs.trades_waiting", count: waiting, number: number_with_delimiter(waiting)) %></span>
+            <% if key == :trades %>
+              <span id="tab-trades-badge" class="stream-slot"><%= render "shell/tab_trades_badge", waiting: %></span>
             <% end %>
           <% end %>
         <% else %>
