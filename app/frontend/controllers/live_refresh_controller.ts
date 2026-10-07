@@ -32,6 +32,7 @@ export default class extends Controller<HTMLElement> {
   }
 
   private readonly visitEnded = (): void => {
+    this.submitting = false
     // Turbo forgets its current visit just after turbo:load.
     window.setTimeout(this.refreshWhenFree)
   }
