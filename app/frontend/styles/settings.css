@@ -1,0 +1,141 @@
+/*
+ * Profil et paramètres (DESIGN.md: Profile and settings; EXPERIENCE.md:
+ * Settings row; story 10.4), and the phone's PLUS screen. A bracketed panel
+ * of settings rows (a muted label on the left, a control on the right,
+ * ruled with line-soft), segmented groups for the choices. Hard edges and
+ * pixel outlines on the 2px grid; no animation of its own.
+ */
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 520px;
+}
+
+.settings__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.settings__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-5);
+  min-height: var(--space-touch-min);
+  padding: var(--space-4) 0;
+  border-bottom: var(--space-unit) solid var(--color-line-soft);
+}
+
+.settings-row:first-child {
+  padding-top: 0;
+}
+
+.settings-row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.settings-row__label {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.settings-row__form,
+.settings-row .button,
+.settings-row .button-form {
+  margin: 0;
+}
+
+/* A segmented group: one choice at a time, the chosen one filled with
+   accent (DESIGN.md, Tabs and filters). The current locale carries
+   aria-current, the pressed motion choice aria-pressed. */
+.segmented {
+  display: inline-flex;
+}
+
+.segmented__option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--space-chip-height);
+  margin: 0;
+  padding: var(--space-1) var(--space-4);
+  border: 0;
+  background: var(--color-panel);
+  box-shadow: var(--control-border);
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.segmented__option + .segmented__option {
+  margin-left: calc(-1 * var(--space-unit));
+}
+
+.segmented__option:hover {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.segmented__option[aria-pressed="true"],
+.segmented__option[aria-current="true"] {
+  background: var(--color-accent);
+  box-shadow: var(--control-border);
+  color: var(--color-on-accent);
+}
+
+.segmented__option:focus-visible {
+  position: relative;
+  z-index: 1;
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+/* ---- PLUS: the rest of the ship (phone tab) ---- */
+
+.plus {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.plus__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menu-item--plus {
+  min-height: var(--space-plus-row-height);
+}
+
+@media (max-width: 719px) {
+  .segmented__option {
+    min-height: var(--space-chip-height-touch);
+  }
+
+  .settings-row {
+    min-height: var(--space-touch-min);
+  }
+}

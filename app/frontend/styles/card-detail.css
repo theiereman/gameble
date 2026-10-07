@@ -847,6 +847,13 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   }
 }
 
+/* The LIVE ticker (epics 5 and 6) is not built yet. Its hooks are here: the
+   marker's dot stops blinking, staying lit (the rule below, and the same
+   one under html[data-motion=reduced]), and its band keeps its height
+   token (--space-ticker-height, tokens.css) whatever the motion. The
+   ticker's own scrolling line must join both reduced-motion rules when it
+   is built (EXPERIENCE.md, LIVE ticker: stops, shows its latest items
+   still). */
 @media (prefers-reduced-motion: reduce) {
   .live-marker__dot {
     animation: none;

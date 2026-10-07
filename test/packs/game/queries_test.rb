@@ -20,7 +20,8 @@ class Game::QueriesTest < ActiveSupport::TestCase
     create_pack(@player, opened_at: 1.minute.ago)
     create_pack(accounts_players(:moderator), available_at: now + 10.minutes)
 
-    assert_equal({ available: 3, reserve_full: false, next_available_at: now + 1.hour, bonus_collectable: true }, Game::BankSummary.call(@player, now:))
+    assert_equal({ available: 3, reserve_full: false, next_available_at: now + 1.hour, bonus_collectable: true,
+                   bonus_collected: false, next_bonus_at: now.utc.tomorrow.beginning_of_day }, Game::BankSummary.call(@player, now:))
   end
 
   test "an opened pack is found by its token for its owner only" do

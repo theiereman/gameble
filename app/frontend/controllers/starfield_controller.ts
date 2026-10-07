@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { motionReduced } from "../lib/motion"
+import { motionReduced, onMotionChange } from "../lib/motion"
 
 // The star field's sideways shift on a screen change (EXPERIENCE.md, Motion:
 // "the star field shifts sideways (1.1s)"). The star layer is a repeated
@@ -7,7 +7,9 @@ import { motionReduced } from "../lib/motion"
 // SHIFT px left with a transform (the transition is in CSS), and when the
 // move would leave the extra tile, the layer first jumps back by one whole
 // tile, which looks the same, so the field wraps without a visible jump.
-// Nothing moves under reduced motion.
+// Nothing moves under reduced motion: the switch (lib/motion.ts) is read when a
+// shift starts, and a shift under way stops where it is going when the
+// switch flips on.
 //
 // The layer is data-turbo-permanent, so Turbo moves it from page to page
 // and this controller may disconnect and reconnect during a render: the
@@ -29,6 +31,7 @@ export default class extends Controller<HTMLElement> {
   declare readonly tileValue: number
 
   private frame?: number
+  private stopMotionWatch?: () => void
 
   private readonly visited = (event: Event): void => {
     // A sub-view's step (the card detail's ◀ ▶, sub_view_controller.ts)
@@ -57,6 +60,10 @@ export default class extends Controller<HTMLElement> {
     document.addEventListener("turbo:visit", this.visited)
     document.addEventListener("turbo:load", this.loaded)
     this.place(offset, false)
+    // Reduced motion switched on mid-shift: the field lands at once.
+    this.stopMotionWatch = onMotionChange((reduced) => {
+      if (reduced) this.place(offset, false)
+    })
     if (pending) {
       this.frame = window.requestAnimationFrame(() => {
         this.frame = undefined
@@ -68,6 +75,8 @@ export default class extends Controller<HTMLElement> {
   disconnect(): void {
     document.removeEventListener("turbo:visit", this.visited)
     document.removeEventListener("turbo:load", this.loaded)
+    this.stopMotionWatch?.()
+    this.stopMotionWatch = undefined
     if (this.frame !== undefined) window.cancelAnimationFrame(this.frame)
     this.frame = undefined
   }

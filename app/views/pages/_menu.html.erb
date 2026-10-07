@@ -7,30 +7,9 @@
     the phone, where the tab bar navigates. %>
 <% soon = %i[trades friends feed achievements] %>
 <nav class="hub-menu" aria-label="<%= t("pages.home.menu.label") %>" data-hub-menu-target="menu" data-action="keydown->hub-menu#press">
+  <% arrow = pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
   <ol class="hub-menu__list">
-    <li class="hub-menu__entry">
-      <% head = capture do %><span class="menu-item__number" aria-hidden="true">01</span><span class="menu-item__label"><%= t("pages.home.menu.open_booster") %></span><% end %>
-      <% arrow = pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
-      <% if bank.nil? %>
-        <%= tag.button type: :button, class: "menu-item", aria: { haspopup: "dialog", keyshortcuts: "1" },
-              data: { hub_menu_target: "item", controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: "sign-in-panel" } do %>
-          <%= head %><%= arrow %>
-        <% end %>
-      <% else %>
-        <%= link_to booster_path, class: "menu-item", aria: { keyshortcuts: "1" },
-              data: { hub_menu_target: "item", action: "hub-menu#remember", turbo_prefetch: false } do %>
-          <%= head %>
-          <% if bank[:available].positive? %>
-            <span class="menu-item__badge" aria-hidden="true"><%= number_with_delimiter(bank[:available]) %></span>
-            <span class="visually-hidden"><%= t("pages.home.menu.reserve", count: bank[:available], number: number_with_delimiter(bank[:available])) %></span>
-          <% else %>
-            <span class="menu-item__badge menu-item__badge--zero" aria-hidden="true">0</span>
-            <span class="visually-hidden"><%= t("pages.home.menu.reserve_empty") %></span>
-          <% end %>
-          <%= arrow %>
-        <% end %>
-      <% end %>
-    </li>
+    <%= render "pages/menu_booster", bank: bank %>
     <li class="hub-menu__entry">
       <%= link_to library_path, class: "menu-item", aria: { keyshortcuts: "2" },
             data: { hub_menu_target: "item", action: "hub-menu#remember", turbo_prefetch: false } do %>

@@ -66,6 +66,28 @@ module ShellHelper
     [ (bank[:next_available_at] - Time.current).ceil, 0 ].max
   end
 
+  # A UTC day, in seconds.
+  DAY_SECONDS = 24 * 60 * 60
+
+  # Whole seconds to the next daily bonus (00:00 UTC), rounded up, within a
+  # day.
+  def daily_bonus_seconds(bank)
+    (bank[:next_bonus_at] - Time.current).ceil.clamp(0, DAY_SECONDS)
+  end
+
+  # "HH:MM:SS", the daily countdown's clock.
+  def format_clock(seconds)
+    format("%02d:%02d:%02d", seconds / 3600, seconds % 3600 / 60, seconds % 60)
+  end
+
+  # The detail of `gameble:bank-changed` for a bank (events.ts,
+  # BankChangedDetail), as the claim's answer carries it to
+  # bonus_arc_controller.ts.
+  def bank_changed_json(bank)
+    { available: bank[:available], reserveFull: bank[:reserve_full], nextAvailableAt: bank[:next_available_at]&.utc&.iso8601,
+      serverTime: Time.current.utc.iso8601 }.to_json
+  end
+
   # The reserve holds Game::Pack::BANK_SIZE boosters (EXPERIENCE.md, Reserve
   # full): the countdown gives way to "Réserve pleine".
   def shell_reserve_full?(bank)

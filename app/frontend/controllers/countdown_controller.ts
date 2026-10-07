@@ -24,16 +24,24 @@ const BUSY_RETRY_MS = 250
 // booster, "Récupérer"), so none starts from a submission's start until the
 // next page load, or until the submission ends without one.
 //
+// The daily booster panel's countdown to 00:00 UTC (CAP-16) is the same
+// controller: `hours` writes "HH:MM:SS", and a `bar` target (a <progress>
+// of `total` seconds) fills as the clock runs down.
+//
 // With `refresh` false (the packs chip on any page but the hub), the clock
 // stops at 00:00 and the page is never refreshed: the next visit brings the
 // new value.
 export default class extends Controller<HTMLElement> {
-  static values = { seconds: Number, refresh: { type: Boolean, default: true } }
-  static targets = ["clock"]
+  static values = { seconds: Number, refresh: { type: Boolean, default: true }, hours: Boolean, total: Number }
+  static targets = ["clock", "bar"]
 
   declare readonly secondsValue: number
   declare readonly refreshValue: boolean
+  declare readonly hoursValue: boolean
+  declare readonly totalValue: number
   declare readonly clockTarget: HTMLElement
+  declare readonly hasBarTarget: boolean
+  declare readonly barTarget: HTMLProgressElement
 
   private deadline?: number
   private seconds?: number
@@ -45,8 +53,11 @@ export default class extends Controller<HTMLElement> {
   }
 
   private readonly submitEnded = (event: Event): void => {
-    // A successful submission is followed by a visit, ended by turbo:load.
-    if (!(event as CustomEvent<{ success: boolean }>).detail?.success) this.submitting = false
+    const { success, fetchResponse } = (event as CustomEvent<{ success: boolean; fetchResponse?: { header(name: string): string | null } }>).detail ?? {}
+    // A successful submission is followed by a visit, ended by turbo:load,
+    // unless the answer is a Turbo Stream (the daily claim): no visit follows.
+    const stream = fetchResponse?.header("Content-Type")?.startsWith("text/vnd.turbo-stream.html") ?? false
+    if (!success || stream) this.submitting = false
   }
 
   private readonly loaded = (): void => {
@@ -83,7 +94,7 @@ export default class extends Controller<HTMLElement> {
     const left = (this.deadline ?? 0) - performance.now()
     if (!this.refreshValue && left <= 0) {
       // Stopped; a new value morphed in starts it again.
-      this.clockTarget.textContent = "00:00"
+      this.show(0)
       return
     }
     if (left <= -1000) {
@@ -97,10 +108,19 @@ export default class extends Controller<HTMLElement> {
     }
 
     const seconds = Math.max(0, Math.ceil(left / 1000))
-    const minutes = Math.floor(seconds / 60)
-    this.clockTarget.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`
+    this.show(seconds)
     // Wake at the next whole second, or at the refresh.
     this.schedule(left > 0 ? left - (seconds - 1) * 1000 : left + 1000)
+  }
+
+  // The clock, and the bar when there is one.
+  private show(seconds: number): void {
+    const pad = (n: number): string => String(n).padStart(2, "0")
+    const minutes = Math.floor(seconds / 60)
+    this.clockTarget.textContent = this.hoursValue
+      ? `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}:${pad(seconds % 60)}`
+      : `${pad(minutes)}:${pad(seconds % 60)}`
+    if (this.hasBarTarget && this.totalValue > 0) this.barTarget.value = Math.max(0, this.totalValue - seconds)
   }
 
   private schedule(wait: number): void {

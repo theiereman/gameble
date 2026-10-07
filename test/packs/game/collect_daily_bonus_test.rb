@@ -56,7 +56,8 @@ class Game::CollectDailyBonusTest < ActiveSupport::TestCase
       assert_equal 1, events.size
       assert_equal({ player_id: @player.id, pack_id: pack.id }, events.sole.data)
       assert_equal 10, Game::Pack.bank(@player.id).count
-      assert_equal({ available: 10, reserve_full: true, next_available_at: @now + 10.minutes, bonus_collectable: false }, summary)
+      assert_equal({ available: 10, reserve_full: true, next_available_at: @now + 10.minutes, bonus_collectable: false,
+                    bonus_collected: true, next_bonus_at: Time.utc(2026, 10, 3) }, summary)
     end
   end
 
@@ -163,7 +164,8 @@ class Game::CollectDailyBonusTest < ActiveSupport::TestCase
     travel_to(@now) do
       collect.value!
 
-      assert_equal({ available: 9, reserve_full: false, next_available_at: @now + 4.minutes, bonus_collectable: false }, summary)
+      assert_equal({ available: 9, reserve_full: false, next_available_at: @now + 4.minutes, bonus_collectable: false,
+                    bonus_collected: true, next_bonus_at: Time.utc(2026, 10, 3) }, summary)
       assert_equal 10, Game::Pack.bank(@player.id).count
     end
   end
@@ -195,7 +197,8 @@ class Game::CollectDailyBonusTest < ActiveSupport::TestCase
       collect.value!
 
       assert_equal 2, packs.bonus.count
-      assert_equal({ available: 10, reserve_full: true, next_available_at: @now + 1.day + 10.minutes, bonus_collectable: false }, summary)
+      assert_equal({ available: 10, reserve_full: true, next_available_at: @now + 1.day + 10.minutes, bonus_collectable: false,
+                    bonus_collected: true, next_bonus_at: Time.utc(2026, 10, 4) }, summary)
     end
   end
 

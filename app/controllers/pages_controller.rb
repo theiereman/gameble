@@ -15,6 +15,12 @@ class PagesController < ApplicationController
     @sets = @season ? set_rows : []
   end
 
+  # GET /:locale/more: the phone's PLUS tab (EXPERIENCE.md, PLUS rows), the
+  # rows of the screens that are not tabs. Nothing is read.
+  def more
+    authorize :page, :show?
+  end
+
   private
     # The card of the player's latest notable pull, as a Catalog::CardView,
     # or nil (the empty showcase).

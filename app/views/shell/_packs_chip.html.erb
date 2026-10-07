@@ -3,9 +3,11 @@
     A link to the booster screen. The ticking clock is hidden
     from screen readers, which read the static time. On the hub it refreshes
     the page by morphing at zero (the new booster counted in the menu);
-    elsewhere it stops at zero. %>
+    elsewhere it stops at zero (`refresh`, the hub by default; the daily
+    claim's Turbo Stream answer replaces the chip on the hub). %>
+<% refresh = local_assigns.fetch(:refresh, controller_path == "pages") %>
 <% seconds = shell_next_pack_in(bank) %>
-<%= link_to booster_path, class: "packs-chip", data: { turbo_prefetch: false } do %>
+<%= link_to booster_path, id: "packs-chip", class: "packs-chip", data: { turbo_prefetch: false } do %>
   <%= pixel_icon("canister-small", class: "packs-chip__icon") %>
   <span class="packs-chip__count"><%= number_with_delimiter(bank[:available]) %></span>
   <span class="packs-chip__label"><%= t("shell.packs.label") %></span>
@@ -14,7 +16,7 @@
     <span class="packs-chip__next packs-chip__next--full"><%= t("shell.packs.full") %></span>
   <% elsif seconds %>
     <span class="packs-chip__divider" aria-hidden="true"></span>
-    <span class="packs-chip__next" data-controller="countdown" data-countdown-seconds-value="<%= seconds %>" data-countdown-refresh-value="<%= controller_path == "pages" %>">
+    <span class="packs-chip__next" data-controller="countdown" data-countdown-seconds-value="<%= seconds %>" data-countdown-refresh-value="<%= refresh %>">
       <span aria-hidden="true"><%= t("shell.packs.next_in") %>
         <span class="packs-chip__clock" data-countdown-target="clock"><%= format("%02d:%02d", *seconds.divmod(60)) %></span></span>
       <span class="visually-hidden"><%= t("shell.packs.next_at", time: bank[:next_available_at].utc.strftime("%H:%M")) %></span>

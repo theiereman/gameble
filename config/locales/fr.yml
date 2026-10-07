@@ -24,6 +24,7 @@ fr:
       menu: "Menu du joueur"
       fallback_name: "Joueur"
       profile: "Mon profil public"
+      settings: "Paramètres"
       back_office: "Back-office"
       sign_out: "Se déconnecter"
     tabs:
@@ -83,9 +84,16 @@ fr:
         text: "Un booster offert chaque jour. Il rejoint votre réserve."
         full_text: "Ouvrez un booster pour récupérer celui du jour."
         collect: "Récupérer"
+        collected: "Récupéré"
+        next_in: "Prochain dans"
+        next_at: "Prochain booster à minuit (UTC)"
       sets:
         title: "Progression des sets"
         see_all: "Tout voir"
+    more:
+      title: "Plus"
+      subtitle: "Le reste du vaisseau"
+      settings: "Profil et paramètres"
   back_office:
     dashboard:
       show:
@@ -416,6 +424,20 @@ fr:
       see_card: "Voir la fiche"
       close: "Fermer"
       zoom_tip: "Maintenez la carte pour l'incliner"
+  settings:
+    show:
+      title: "Profil et paramètres"
+      more: "Plus"
+      language:
+        label: "Langue"
+      motion:
+        label: "Animations réduites"
+        system: "Système"
+        "on": "Oui"
+        "off": "Non"
+      session:
+        label: "Session"
+        sign_out: "Se déconnecter"
   daily_bonuses:
     create:
       collected: "Un booster rejoint votre réserve. Le prochain sera prêt à minuit (UTC)."
@@ -572,6 +594,8 @@ fr:
         other_season: "appartient à une autre saison"
   errors:
     accounts:
+      player_required: "Connectez-vous avec un compte actif pour faire cela."
+      invalid_setting: "Ce réglage n'a pas pu être enregistré. Rechargez la page et réessayez."
       invalid_steam_id: "Votre identifiant Steam n'a pas pu être lu. Connectez-vous à nouveau."
       banned: "Ce compte a été suspendu. Vous ne pouvez plus vous connecter."
       sign_in_failed: "La connexion a échoué de notre côté. Réessayez dans un instant."

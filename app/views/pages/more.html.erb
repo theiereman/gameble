@@ -1,0 +1,31 @@
+<% content_for :title, t(".title") %>
+<%# The phone's PLUS tab (DESIGN.md, PLUS rows): menu-item rows, without
+    numbers, for the screens that are not tabs, under the kicker and
+    "Le reste du vaisseau". Amis, Fil d'activité and Succès have no screen
+    yet; the tab bar only shows on the phone, and the screen reads the same
+    on a desktop that opens its address. %>
+<% turbo_exempts_page_from_cache %>
+<section class="plus" aria-labelledby="plus-heading">
+  <header class="hub__kicker">
+    <h1 id="plus-heading" class="hub__title"><%= t("pages.home.kicker.title") %></h1>
+    <p class="hub__subtitle"><%= t(".subtitle") %></p>
+  </header>
+  <ul class="plus__list">
+    <% %i[friends feed achievements].each do |item| %>
+      <li>
+        <span class="menu-item menu-item--plus" aria-disabled="true">
+          <span class="menu-item__label"><%= t("pages.home.menu.#{item}") %></span>
+          <span class="visually-hidden"><%= t("pages.home.menu.soon") %></span>
+        </span>
+      </li>
+    <% end %>
+    <% if current_player %>
+    <li>
+      <%= link_to settings_path, class: "menu-item menu-item--plus", data: { turbo_prefetch: false } do %>
+        <span class="menu-item__label"><%= t(".settings") %></span>
+        <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
+      <% end %>
+    </li>
+    <% end %>
+  </ul>
+</section>

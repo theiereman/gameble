@@ -9,20 +9,27 @@ module Game
   # bonus claim for the UTC day of `now` (CAP-16), the same two checks as
   # Game::CollectDailyBonus, without loading the draw pool. `reserve_full`:
   # the reserve holds Game::Reserve::FULL, so a collection would be refused
-  # (AD-7); the same query as the operation's.
+  # (AD-7); the same query as the operation's. `bonus_collected`: the
+  # player's claim for that UTC day exists (the hub's panel then shows the
+  # countdown to `next_bonus_at`, the next 00:00 UTC, when the day's bonus
+  # comes back).
   #
   #   Game::BankSummary.call(player)
   #   # => { available: n, reserve_full: true | false, next_available_at: Time | nil,
-  #   #      bonus_collectable: true | false }
+  #   #      bonus_collectable: true | false, bonus_collected: true | false,
+  #   #      next_bonus_at: Time }
   module BankSummary
     def self.call(player, now: Time.current)
       available = Reserve.count(player.id, now:)
+      day = DailyBonusClaim.day_of(now)
+      collected = DailyBonusClaim.exists?(player_id: player.id, day:)
       {
         available:,
         reserve_full: Reserve.full?(available),
         next_available_at: BankSchedule.call(player, now:).first,
-        bonus_collectable: Catalog::PublishedSeason.call.present? &&
-          !DailyBonusClaim.exists?(player_id: player.id, day: DailyBonusClaim.day_of(now))
+        bonus_collectable: !collected && Catalog::PublishedSeason.call.present?,
+        bonus_collected: collected,
+        next_bonus_at: day.next_day.in_time_zone("UTC")
       }
     end
   end

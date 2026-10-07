@@ -34,7 +34,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     css_select(".daily-booster")
   end
 
-  test "a player collects the bonus from the hub: one more pack, the panel gone, refused again that day, back the next" do
+  test "a player collects the bonus from the hub: one more pack, the panel collected, refused again that day, back the next" do
     now = Time.utc(2026, 10, 2, 22, 0)
     travel_to(now) do
       Game::FillBank.new.call(player: @player).value!
@@ -55,7 +55,9 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       assert_equal "A booster joins your reserve. The next one will be ready at midnight (UTC).", flash[:notice]
       follow_redirect!
       assert_equal "10", reserve_badge
-      assert_empty panel
+      assert_select ".daily-booster.daily-booster--collected .daily-booster__state", "Collected"
+      assert_select ".daily-booster .daily-booster__clock", "02:00:00"
+      assert_select ".daily-booster form, .daily-booster button", 0
 
       post daily_bonus_path(locale: :en)
 
@@ -67,7 +69,85 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     travel_to(Time.utc(2026, 10, 3, 0, 0, 1)) do
       get home_path(locale: :en)
       assert_equal 1, panel.size
+      # The next day's panel is no longer collected: with ten boosters in reserve, it is full.
+      assert_select ".daily-booster.daily-booster--full .daily-booster__state", "Reserve full"
     end
+  end
+
+  def stream_post(**params)
+    post daily_bonus_path(locale: :en), params:, as: :turbo_stream
+    assert_response :success
+    assert_equal Mime[:turbo_stream], response.media_type
+  end
+
+  test "from Turbo, the claim answers in Turbo Stream: the panel collected and marked for the arc, the chip, menu 01 and a toast" do
+    now = Time.utc(2026, 10, 2, 22, 0)
+    travel_to(now) do
+      Game::FillBank.new.call(player: @player).value!
+      Game::OpenPack.new.call(player: @player).value!
+    end
+    sign_in(@player)
+
+    travel_to(now) do
+      assert_difference -> { Game::DailyBonusClaim.count }, 1 do
+        stream_post
+      end
+
+      assert_select "turbo-stream[action=replace][target=daily-booster] template" do
+        assert_select ".daily-booster#daily-booster.daily-booster--collected[data-bonus-arc-collected]"
+        assert_select ".daily-booster__state", "Collected"
+        assert_select ".daily-booster__clock", "02:00:00"
+        bank = JSON.parse(css_select("[data-bonus-arc-collected]").sole["data-bonus-arc-bank"])
+        assert_equal({ "available" => 10, "reserveFull" => true, "nextAvailableAt" => "2026-10-02T22:10:00Z", "serverTime" => "2026-10-02T22:00:00Z" }, bank)
+      end
+      assert_select "turbo-stream[action=replace][target=packs-chip] template a#packs-chip .packs-chip__count", "10"
+      assert_select "turbo-stream[action=replace][target=packs-chip] template .packs-chip__next--full", "Reserve full"
+      assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge", "10"
+      assert_select "turbo-stream[action=replace][target=hub-showcase-actions] template #hub-showcase-actions"
+      assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--notice .toast__message",
+        "A booster joins your reserve. The next one will be ready at midnight (UTC)."
+    end
+  end
+
+  test "from Turbo, a second claim the same day is refused in Turbo Stream: the countdown panel without the arc, an alert toast" do
+    sign_in(@player)
+    stream_post
+    assert_equal 1, Game::DailyBonusClaim.count
+
+    assert_no_difference -> { Game::Pack.count } do
+      stream_post
+    end
+
+    assert_select "turbo-stream[action=replace][target=daily-booster] template .daily-booster--collected .daily-booster__clock"
+    assert_select "[data-bonus-arc-collected]", false
+    assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--alert .toast__message", I18n.t("errors.game.already_collected", locale: :en)
+    assert_equal 1, Game::DailyBonusClaim.count
+  end
+
+  test "from Turbo, a claim at a full reserve is refused in Turbo Stream: the full panel in orange, nothing written" do
+    Game::FillBank.new.call(player: @player).value!
+    sign_in(@player)
+
+    assert_no_difference -> { Game::Pack.count } do
+      stream_post
+    end
+
+    assert_select "turbo-stream[action=replace][target=daily-booster] template .daily-booster--full" do
+      assert_select ".daily-booster__state--full", "Reserve full"
+      assert_select "button[disabled]", "Collect"
+    end
+    assert_select "[data-bonus-arc-collected]", false
+    assert_select "turbo-stream[action=append][target=toasts] template .toast--alert .toast__message", I18n.t("errors.game.reserve_full", locale: :en)
+    assert_equal 0, Game::DailyBonusClaim.count
+  end
+
+  test "from Turbo, a visitor's claim is refused with the sign-in message, nothing written" do
+    assert_no_difference -> { Game::DailyBonusClaim.count } do
+      post daily_bonus_path(locale: :en), as: :turbo_stream
+    end
+
+    assert_redirected_to home_path(locale: :en)
+    assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
   end
 
   test "with a full reserve, the panel says so and disables its button, and a collection is refused; nothing written" do

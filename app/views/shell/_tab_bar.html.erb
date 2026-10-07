@@ -1,14 +1,15 @@
 <%# The phone tab bar (DESIGN.md, Tab bar): five roots, each a pixel icon
-    over its label; the current one marked. Screens that do not exist yet
-    (trades, more) are shown disabled, not as links. Its links are locked
+    over its label; the current one marked. PLUS opens the rest of the ship
+    (settings among its rows); the trades screen does not exist yet and is
+    shown disabled, not as a link. Its links are locked
     while the booster island opens or reveals (navigation-lock). Hidden
     from 720px up. %>
 <% tabs = [
-     [ :hub, "tab-hub", home_path, controller_path == "pages" ],
+     [ :hub, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
      [ :booster, "tab-booster", booster_path, controller_path == "boosters" ],
      [ :collection, "tab-collection", library_path, %w[library cards].include?(controller_path) ],
      [ :trades, "tab-trades", nil, false ],
-     [ :more, "tab-more", nil, false ]
+     [ :more, "tab-more", more_path, (controller_path == "pages" && action_name == "more") || controller_path == "settings" ]
    ] %>
 <nav class="tab-bar" aria-label="<%= t("shell.tabs.label") %>" data-controller="navigation-lock">
   <ul class="tab-bar__list">

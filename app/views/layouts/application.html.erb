@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="<%= I18n.locale %>">
+<%# data-motion is the one switch for reduced motion: CSS, Stimulus, the
+    islands and View Transitions read it (motion.ts; AD-27). %>
+<html lang="<%= I18n.locale %>"<% if motion_reduced? %> data-motion="reduced"<% end %>>
   <head>
     <%= render "layouts/head" %>
   </head>

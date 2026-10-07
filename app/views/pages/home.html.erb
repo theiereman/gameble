@@ -4,7 +4,11 @@
     left, the showcase in the centre, the set progress on the right (from
     1180px; under it in the left column). Phone: one column without the
     menu, the tab bar navigating. A visitor sees the same menu and an
-    invitation instead of the showcase, without the daily booster panel.
+    invitation instead of the showcase, without the daily booster panel,
+    which a player keeps once the day's booster is collected (the
+    countdown to the next one). The daily claim's Turbo Stream answer
+    replaces the panel, the packs chip, menu 01 and the empty showcase's
+    action (bonus_arc_controller.ts flies the canister).
     Never served from Turbo's cache; the packs chip's countdown refreshes it
     by morphing, keeping the scroll. %>
 <% turbo_exempts_page_from_cache %>
@@ -17,11 +21,15 @@
 
   <%= render "pages/menu", bank: @bank, collection: @collection %>
 
+  <% if current_player %>
+    <span hidden data-controller="bonus-arc" data-action="turbo:before-stream-render@document->bonus-arc#render"></span>
+  <% end %>
+
   <% if current_player.nil? %>
     <%= render "pages/invitation" %>
   <% else %>
     <%= render "pages/showcase", card: @showcase, bank: @bank %>
-    <%= render "pages/daily_booster", bank: @bank, primary: @showcase.present? if @bank[:bonus_collectable] %>
+    <%= render "pages/daily_booster", bank: @bank, primary: @showcase.present? if @bank[:bonus_collectable] || @bank[:bonus_collected] %>
   <% end %>
 
   <%= render "pages/set_progress", sets: @sets if @sets.any? %>

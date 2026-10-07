@@ -28,13 +28,6 @@
     </div>
     <h2 id="hub-showcase-name" class="hub-showcase__name"><%= t("pages.home.showcase.empty.title") %></h2>
     <p class="hub-showcase__line"><%= t("pages.home.showcase.empty.text") %></p>
-    <div class="hub-showcase__actions">
-      <% if bank[:available].positive? %>
-        <%= render ButtonComponent.new(href: booster_path) do %><%= t("pages.home.showcase.empty.open") %><% end %>
-      <% else %>
-        <%= render ButtonComponent.new(disabled: true) do %><%= t("pages.home.showcase.empty.open") %><% end %>
-        <p class="hub-showcase__reason"><%= t("pages.home.showcase.empty.reserve_empty") %></p>
-      <% end %>
-    </div>
+    <%= render "pages/showcase_actions", bank: bank %>
   </section>
 <% end %>

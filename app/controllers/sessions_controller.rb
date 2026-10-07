@@ -9,7 +9,8 @@
 # that is a local page under a locale), and asks the hub to focus its first
 # menu item. A failed or refused one returns to that page, else to the hub.
 # Only a successful sign-in touches the session; a failed or forged one
-# leaves it as it was. Signing out also lands on the hub.
+# leaves it as it was. Signing out also lands on the hub, keeping the
+# player's motion preference in a cookie.
 class SessionsController < ApplicationController
   # Set in the session by the request phase (config/initializers/omniauth.rb)
   # and consumed by the callback: a callback this browser did not start is
@@ -56,6 +57,8 @@ class SessionsController < ApplicationController
   # DELETE /session
   def destroy
     authorize :session
+    # The signed-out hub keeps the player's motion preference (the cookie).
+    write_motion_cookie(current_player.reduced_motion)
     reset_session
     redirect_to home_path, notice: t(".farewell")
   end

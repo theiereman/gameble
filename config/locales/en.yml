@@ -24,6 +24,7 @@ en:
       menu: "Player menu"
       fallback_name: "Player"
       profile: "My public profile"
+      settings: "Settings"
       back_office: "Back-office"
       sign_out: "Sign out"
     tabs:
@@ -82,9 +83,16 @@ en:
         text: "A free booster every day. It joins your reserve."
         full_text: "Open a booster to collect today's."
         collect: "Collect"
+        collected: "Collected"
+        next_in: "Next in"
+        next_at: "Next booster at midnight (UTC)"
       sets:
         title: "Set progress"
         see_all: "See all"
+    more:
+      title: "More"
+      subtitle: "The rest of the ship"
+      settings: "Profile and settings"
   back_office:
     dashboard:
       show:
@@ -402,6 +410,20 @@ en:
       see_card: "See the card"
       close: "Close"
       zoom_tip: "Hold the card to tilt it"
+  settings:
+    show:
+      title: "Profile and settings"
+      more: "More"
+      language:
+        label: "Language"
+      motion:
+        label: "Reduced motion"
+        system: "System"
+        "on": "Yes"
+        "off": "No"
+      session:
+        label: "Session"
+        sign_out: "Sign out"
   daily_bonuses:
     create:
       collected: "A booster joins your reserve. The next one will be ready at midnight (UTC)."
@@ -556,6 +578,8 @@ en:
         other_season: "belongs to another season"
   errors:
     accounts:
+      player_required: "Sign in with an active account to do that."
+      invalid_setting: "That setting could not be saved. Reload the page and try again."
       invalid_steam_id: "Your Steam ID could not be read. Sign in again."
       banned: "This account has been suspended. You can no longer sign in."
       sign_in_failed: "The sign-in failed on our side. Try again in a moment."

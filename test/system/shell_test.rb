@@ -82,7 +82,8 @@ class ShellTest < ApplicationSystemTestCase
       assert_selector ".tab-bar", visible: true
       assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: /PONT/i
       assert_selector ".tab-bar a.tab-bar__tab[href='/fr/booster']", text: /BOOSTER/i
-      assert_selector ".tab-bar span.tab-bar__tab[aria-disabled=true]", count: 2
+      assert_selector ".tab-bar a.tab-bar__tab[href='/fr/more']", text: /PLUS/i
+      assert_selector ".tab-bar span.tab-bar__tab[aria-disabled=true]", count: 1
       assert_no_selector ".rarity-counter__button", visible: true
       assert_selector ".top-bar .player-chip__button", visible: true
       assert_equal "fixed", computed(".tab-bar", "position")

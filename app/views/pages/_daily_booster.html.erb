@@ -1,18 +1,39 @@
-<%# The daily booster panel (DESIGN.md, Daily booster panel; CAP-16): a
-    quiet panel under the menu while the day's booster is collectable. Ready:
-    "Récupérer" sends it to the reserve, the view's primary unless the empty
-    showcase holds it. Reserve full (AD-7): the button is disabled and the
-    line says why. Once collected the panel is gone until the next UTC day. %>
-<% full = bank[:reserve_full] %>
-<%= render PanelComponent.new(tag: :section, quiet: true, class: "daily-booster", aria: { labelledby: "daily-booster-title" }) do %>
+<%# The daily booster panel (DESIGN.md, Daily booster panel; EXPERIENCE.md,
+    Daily booster panel and State Patterns; CAP-16): a quiet panel under the
+    menu, never gone once the season is open. Ready: "Récupérer" sends the
+    booster to the reserve, the view's primary unless the empty showcase
+    holds it. Reserve full (AD-7): the button is disabled, the state word
+    and the line orange, and the line says why. Collected: "Récupéré", the
+    countdown to the day change (00:00 UTC) and a thin bar filling toward it.
+    The claim answers in Turbo Stream, which replaces this panel
+    (daily_bonuses/create.turbo_stream.erb); `arc` marks that success answer
+    for bonus_arc_controller.ts, which flies the canister to the packs chip.
+    Locals: bank, primary, arc. %>
+<% arc = local_assigns.fetch(:arc, false) %>
+<% state = bank[:bonus_collected] ? :collected : (bank[:reserve_full] ? :full : :ready) %>
+<% seconds = daily_bonus_seconds(bank) %>
+<%= render PanelComponent.new(tag: :section, quiet: true, id: "daily-booster", class: "daily-booster daily-booster--#{state}",
+      aria: { labelledby: "daily-booster-title" },
+      data: ({ bonus_arc_collected: "", bonus_arc_bank: bank_changed_json(bank) } if arc) || {}) do %>
   <div class="daily-booster__head">
     <h2 id="daily-booster-title" class="daily-booster__title"><%= t("pages.home.daily.title") %></h2>
-    <p class="daily-booster__state daily-booster__state--<%= full ? "full" : "ready" %>"><%= full ? t("pages.home.daily.full") : t("pages.home.daily.ready") %></p>
+    <p class="daily-booster__state daily-booster__state--<%= state %>"><%= t("pages.home.daily.#{state}") %></p>
   </div>
-  <p class="daily-booster__text"><%= full ? t("pages.home.daily.full_text") : t("pages.home.daily.text") %></p>
-  <% if full %>
+  <% case state %>
+  <% when :collected %>
+    <p class="daily-booster__text"><%= t("daily_bonuses.create.collected") %></p>
+    <div class="daily-booster__next" data-controller="countdown" data-countdown-seconds-value="<%= seconds %>" data-countdown-hours-value="true"
+         data-countdown-total-value="<%= ShellHelper::DAY_SECONDS %>">
+      <p class="daily-booster__next-label" aria-hidden="true"><%= t("pages.home.daily.next_in") %></p>
+      <p class="daily-booster__clock" aria-hidden="true" data-countdown-target="clock"><%= format_clock(seconds) %></p>
+      <progress class="daily-booster__bar" aria-hidden="true" max="<%= ShellHelper::DAY_SECONDS %>" value="<%= ShellHelper::DAY_SECONDS - seconds %>" data-countdown-target="bar"></progress>
+      <span class="visually-hidden"><%= t("pages.home.daily.next_at") %></span>
+    </div>
+  <% when :full %>
+    <p class="daily-booster__text"><%= t("pages.home.daily.full_text") %></p>
     <%= render ButtonComponent.new(size: :small, disabled: true) do %><%= t("pages.home.daily.collect") %><% end %>
   <% else %>
+    <p class="daily-booster__text"><%= t("pages.home.daily.text") %></p>
     <%= render ButtonComponent.new(variant: primary ? :primary : :secondary, size: :small, href: daily_bonus_path, method: :post) do %><%= t("pages.home.daily.collect") %><% end %>
   <% end %>
 <% end %>

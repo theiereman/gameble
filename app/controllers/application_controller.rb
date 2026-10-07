@@ -19,7 +19,14 @@ class ApplicationController < ActionController::Base
 
   rescue_from Pundit::NotAuthorizedError, with: :refuse
 
-  helper_method :current_player
+  # The motion preference's cookie (EXPERIENCE.md, Reduced motion; AD-27):
+  # the player's "Animations réduites" setting mirrored for the visitor they
+  # become at sign-out. "reduced" forces reduced motion, "full" is an
+  # explicit "no"; no cookie follows the system.
+  MOTION_COOKIE = :motion
+  MOTION_COOKIE_VALUES = { "reduced" => true, "full" => false }.freeze
+
+  helper_method :current_player, :motion_reduced?
 
   private
     # Whether this request reads a page meant to be opened from a shared
@@ -72,6 +79,29 @@ class ApplicationController < ActionController::Base
         player = nil
       end
       @current_player = player
+    end
+
+    # The motion preference: a signed-in player's own setting (nil follows
+    # the system), a visitor's cookie. true forces reduced motion.
+    def motion_setting
+      current_player ? current_player.reduced_motion : MOTION_COOKIE_VALUES[cookies[MOTION_COOKIE]]
+    end
+
+    # Whether the server forces reduced motion: the layout sets
+    # `html[data-motion=reduced]` from it and drops the view-transition meta
+    # (AD-27). The system's own preference is read by CSS and motion.ts.
+    def motion_reduced?
+      motion_setting == true
+    end
+
+    # Mirrors a setting (true, false, nil) in the motion cookie, which lives
+    # a year; nil removes it.
+    def write_motion_cookie(setting)
+      if setting.nil?
+        cookies.delete(MOTION_COOKIE)
+      else
+        cookies[MOTION_COOKIE] = { value: setting ? "reduced" : "full", expires: 1.year.from_now, httponly: true, same_site: :lax }
+      end
     end
 
     # Errors reported to Sentry carry the player id, and nothing else about

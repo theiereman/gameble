@@ -56,6 +56,12 @@ Rails.application.routes.draw do
     # Collecting the daily bonus from the hub (CAP-16).
     resource :daily_bonus, path: "daily-bonus", only: :create
 
+    # The player's settings (EXPERIENCE.md, Profil et paramètres): language,
+    # reduced motion and sign-out. GET reads (AD-11); PATCH writes.
+    resource :settings, only: %i[show update]
+    # The phone's PLUS tab: the rest of the ship (EXPERIENCE.md, PLUS rows).
+    get "more" => "pages#more", as: :more
+
     # Staff only (R9): moderators and administrators.
     get "back-office" => "back_office/dashboard#show", as: :back_office
 

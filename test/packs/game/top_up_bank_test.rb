@@ -17,7 +17,7 @@ class Game::TopUpBankTest < ActiveSupport::TestCase
 
   def open = Game::OpenPack.new.call(player: @player)
   def bank = Game::Pack.bank(@player.id)
-  def summary = Game::BankSummary.call(@player).except(:bonus_collectable)
+  def summary = Game::BankSummary.call(@player).except(:bonus_collectable, :bonus_collected, :next_bonus_at)
 
   def full_bank_at(time)
     travel_to(time) { Game::FillBank.new.call(player: @player).value! }

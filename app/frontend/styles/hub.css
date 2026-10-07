@@ -340,7 +340,92 @@ button.menu-item:focus-visible:hover {
 }
 
 .daily-booster__state--ready { color: var(--color-lime); }
+.daily-booster__state--collected { color: var(--color-muted); }
 .daily-booster__state--full { color: var(--color-alert); }
+
+/* The full reserve is an alert: the panel's line and the line saying why
+   turn orange (DESIGN.md, Colors: orange for "RÉSERVE PLEINE"). */
+.panel.daily-booster--full {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-alert);
+}
+
+.daily-booster--full .daily-booster__text {
+  color: var(--color-alert);
+}
+
+/* Collected: "Prochain dans", the clock in Pixelify Sans and a thin bar
+   filling toward 00:00 UTC (the countdown controller). */
+.daily-booster__next {
+  display: grid;
+  gap: var(--space-2);
+  align-self: stretch;
+}
+
+.daily-booster__next-label {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.daily-booster__clock {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-screen-title);
+  letter-spacing: var(--tracking-screen-title);
+  font-variant-numeric: tabular-nums;
+}
+
+.daily-booster__bar {
+  display: block;
+  width: 100%;
+  height: 6px;
+  border: 0;
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 1px var(--color-line-deep);
+  color: var(--color-accent);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.daily-booster__bar::-webkit-progress-bar {
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 1px var(--color-line-deep);
+}
+
+.daily-booster__bar::-webkit-progress-value {
+  background: var(--color-accent);
+}
+
+.daily-booster__bar::-moz-progress-bar {
+  background: var(--color-accent);
+}
+
+/* The canister flying to the packs chip (bonus_arc_controller.ts): moved by
+   transform only, over everything, never in the way of a click. */
+.bonus-arc {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 30;
+  width: 24px;
+  height: 24px;
+  color: var(--color-accent-hi);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.bonus-arc__icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The chip's count brightens a moment once the canister lands. */
+.packs-chip__count.is-bumped {
+  color: var(--color-accent-hi);
+}
 
 .daily-booster__text {
   margin: 0;
