@@ -23,5 +23,6 @@
     <%= render "shell/tab_bar" unless back_office_page? || content_for?(:public_page) %>
     <%= render "shell/toasts" %>
     <%= render "shell/sign_in_panel" unless current_player || back_office_page? %>
+    <%= player_stream_tag %>
   </body>
 </html>

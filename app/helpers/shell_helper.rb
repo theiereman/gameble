@@ -62,6 +62,12 @@ module ShellHelper
     @shell_trades_waiting = current_player && Game::TradesWaiting.call(current_player)
   end
 
+  def player_stream_tag
+    return if current_player.nil? || back_office_page?
+
+    turbo_stream_from(*PlayerStream.streamables(current_player), channel: PlayerStreamChannel)
+  end
+
   # Copies held per rarity tier in the published season (Game::TierCounts),
   # for the rarity counter. Read once per request.
   def shell_tier_counts
