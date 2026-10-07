@@ -2,12 +2,16 @@
 # terminates TLS for gameble.dotsncircles.com and forwards plain HTTP to
 # kamal-proxy on 192.168.1.6:80.
 #   bin/kamal deploy -d staging
+#
+# Kamal reaches the LXC over SSH through Traefik (entrypoint :2224 ->
+# 192.168.1.6:22), so servers use the DNS name, not the LXC's own IP, which
+# has nothing listening on 2224.
 servers:
   web:
-    - 192.168.1.6
+    - gameble.dotsncircles.com
   import:
     hosts:
-      - 192.168.1.6
+      - gameble.dotsncircles.com
     cmd: bin/jobs -c config/queue_import.yml --skip-recurring
 
 proxy:
@@ -21,4 +25,4 @@ env:
 
 accessories:
   db:
-    host: 192.168.1.6
+    host: gameble.dotsncircles.com
