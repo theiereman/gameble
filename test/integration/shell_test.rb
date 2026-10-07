@@ -184,6 +184,7 @@ class ShellTest < ActionDispatch::IntegrationTest
 
     assert_select "body > #atmosphere.atmosphere[data-turbo-permanent][aria-hidden=true]:first-child" do
       assert_select ".atmosphere__stars[data-controller=starfield]"
+      assert_select ".atmosphere__twinkle > i", 12
       assert_select ".atmosphere__scanlines"
       assert_select ".atmosphere__vignette"
     end

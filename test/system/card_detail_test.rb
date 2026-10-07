@@ -368,7 +368,7 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector ".card-detail__position", text: "· 3 / 25 ·"
     assert_equal 1, evaluate_script("window.transitions")
     # The star field did not shift: the screen did not change.
-    assert_no_selector ".atmosphere__stars.is-shifting", visible: :all
+    assert_no_selector ".atmosphere__stars[style*='--star-shift']", visible: :all
 
     execute_script("document.documentElement.dataset.motion = 'reduced'")
     find(".card-detail__nav--next").click

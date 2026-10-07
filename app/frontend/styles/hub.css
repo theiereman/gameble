@@ -18,7 +18,7 @@
     "menu showcase sets"
     "daily showcase sets"
     ". showcase sets";
-  gap: var(--space-5) var(--space-column-gap-wide);
+  gap: var(--space-6) var(--space-column-gap-wide);
   align-items: start;
 }
 
@@ -205,7 +205,7 @@ button.menu-item:focus-visible:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-5);
+  gap: var(--space-6);
   padding-top: var(--space-3);
 }
 
@@ -562,7 +562,7 @@ button.menu-item:focus-visible:hover {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: var(--space-6);
+    gap: var(--space-7);
   }
 
   .hub-menu {

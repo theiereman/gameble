@@ -30,7 +30,7 @@
 .card-detail {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-6);
   max-width: var(--space-breakpoint-two-columns);
   margin: 0 auto;
 }
@@ -72,7 +72,7 @@
 .card-detail__columns {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-6);
+  gap: var(--space-7);
 }
 
 @container (min-width: 520px) {
@@ -98,7 +98,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-5);
+  gap: var(--space-6);
 }
 
 /* A flat dark bar under the card (DESIGN.md, Ground shadows). */
@@ -603,7 +603,7 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-6);
+  gap: var(--space-7);
   /* The card tilts under the pointer; a vertical drag scrolls the page. */
   touch-action: pan-y;
 }

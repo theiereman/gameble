@@ -100,17 +100,59 @@ a {
   inset: 0;
 }
 
-/* One tile wider than the screen, so a shift of up to a tile never shows
-   an edge (starfield_controller.ts). */
+/* A still field: it does not move at a screen change (EXPERIENCE.md). */
 .atmosphere__stars {
-  right: auto;
-  width: calc(100% + 480px);
   background: url("../images/pixel/starfield.svg") repeat;
-  transform: translateX(var(--star-shift, 0px));
 }
 
-.atmosphere__stars.is-shifting {
-  transition: transform 1.1s var(--ease-out);
+/* A dozen stars twinkle softly: a slow stepped fade, periods of 3 s or more
+   (below blink-max-rate), each star on its own delay. */
+.atmosphere__twinkle {
+  position: absolute;
+  inset: 0;
+}
+
+.atmosphere__twinkle > i {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--size, 2px);
+  height: var(--size, 2px);
+  background: #c7d5e0;
+  opacity: 0.1;
+  animation: star-twinkle var(--period, 4s) steps(6, end) var(--delay, 0s) infinite alternate;
+}
+
+/* Places (x y), sizes, delays and periods of the twelve. */
+.atmosphere__twinkle > i:nth-child(1) { --x: 8%; --y: 12%; --delay: 0s; --period: 4s; }
+.atmosphere__twinkle > i:nth-child(2) { --x: 21%; --y: 64%; --size: 4px; --delay: 2s; --period: 5s; }
+.atmosphere__twinkle > i:nth-child(3) { --x: 33%; --y: 28%; --delay: 4s; --period: 3s; }
+.atmosphere__twinkle > i:nth-child(4) { --x: 47%; --y: 82%; --delay: 1s; --period: 6s; }
+.atmosphere__twinkle > i:nth-child(5) { --x: 58%; --y: 9%; --size: 4px; --delay: 5s; --period: 4s; }
+.atmosphere__twinkle > i:nth-child(6) { --x: 66%; --y: 47%; --delay: 3s; --period: 5s; }
+.atmosphere__twinkle > i:nth-child(7) { --x: 74%; --y: 71%; --delay: 0s; --period: 3s; }
+.atmosphere__twinkle > i:nth-child(8) { --x: 83%; --y: 22%; --size: 4px; --delay: 6s; --period: 6s; }
+.atmosphere__twinkle > i:nth-child(9) { --x: 91%; --y: 55%; --delay: 2s; --period: 4s; }
+.atmosphere__twinkle > i:nth-child(10) { --x: 14%; --y: 88%; --delay: 4s; --period: 5s; }
+.atmosphere__twinkle > i:nth-child(11) { --x: 39%; --y: 52%; --size: 4px; --delay: 1s; --period: 3s; }
+.atmosphere__twinkle > i:nth-child(12) { --x: 96%; --y: 91%; --delay: 5s; --period: 6s; }
+
+/* AD-27: at most six infinite animations show at once on a phone view, the
+   booster's own among them, so only three stars twinkle there. */
+@media (max-width: 719px) {
+  .atmosphere__twinkle > i:nth-child(n + 4) {
+    display: none;
+  }
+}
+
+@keyframes star-twinkle {
+  from {
+    opacity: 0.1;
+  }
+
+  to {
+    opacity: 0.7;
+  }
 }
 
 .atmosphere__scanlines {
@@ -1101,10 +1143,13 @@ html[data-sub-view-step] .main {
 
 /* ---- Reduced motion (EXPERIENCE.md): the system's preference or the
    player's setting (html[data-motion=reduced], motion.ts) stops the star
-   shift, the screen slides and the toast rise. ---- */
+   twinkle, the screen slides and the toast rise. ---- */
 
 @media (prefers-reduced-motion: reduce) {
-  .atmosphere__stars.is-shifting,
+  .atmosphere__twinkle > i {
+    animation: none;
+  }
+
   .button {
     transition: none;
   }
@@ -1130,7 +1175,10 @@ html[data-sub-view-step] .main {
   }
 }
 
-html[data-motion="reduced"] .atmosphere__stars.is-shifting,
+html[data-motion="reduced"] .atmosphere__twinkle > i {
+  animation: none;
+}
+
 html[data-motion="reduced"] .button {
   transition: none;
 }
