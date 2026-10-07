@@ -543,6 +543,18 @@ fr:
           collecting_daily: "Récupère son booster du jour"
           trading: "Négocie un échange"
           making_friends: "Se fait des amis"
+    profile_dialog:
+      title: "Profil"
+      close: "Fermer"
+      loading: "Chargement du profil…"
+  friend_profiles:
+    show:
+      showcase: "Vitrine"
+      no_showcase: "Aucune carte en vitrine."
+      propose_trade: "Proposer un échange"
+      soon: "Bientôt disponible"
+    unavailable:
+      body: "Ce profil n'est pas disponible."
   invitations:
     sent: "Invitation envoyée à %{to}."
     throttled: "Trop de tentatives en une minute. Réessayez dans un instant."

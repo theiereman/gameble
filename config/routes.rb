@@ -69,6 +69,10 @@ Rails.application.routes.draw do
     resource :account, only: :destroy
     # The Friends screen (CAP-10): the player's friends and friend code.
     resource :friends, only: :show
+    # A friend's profile (EXPERIENCE.md, Friend profile), by their token
+    # (AD-15): the body of the dialog a friend row opens.
+    get "friends/:token" => "friend_profiles#show", as: :friend_profile,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
 
     # The activity feed (CAP-13): public, read only.
     get "feed" => "feeds#show", as: :feed

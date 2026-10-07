@@ -36,6 +36,8 @@ module Game
     def self.visible(scope, viewer, limit, filler:)
       found = []
       players = {}
+      # Asked once per player: a friends-only player costs a friendship query.
+      shown = Hash.new { |seen, id| seen[id] = Visibility.visible?(viewer, players[id]) }
       cursor = nil
       PASSES.times do
         page = scope.newest_first
@@ -45,7 +47,7 @@ module Game
         players.merge!(Accounts::Player.where(id: missing).index_by(&:id)) if missing.any?
         entries.each do |entry|
           player = players[entry.player_id]
-          found << Entry.new(entry:, player:, filler:) if Visibility.visible?(viewer, player)
+          found << Entry.new(entry:, player:, filler:) if shown[entry.player_id]
         end
         break if found.size >= limit || entries.size < WINDOW
 
