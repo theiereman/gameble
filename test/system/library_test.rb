@@ -96,6 +96,17 @@ class LibraryTest < ApplicationSystemTestCase
     assert_current_path home_path(locale: :en)
   end
 
+  test "a visitor who unticks the only state chip keeps every slot, as the form without JavaScript" do
+    visit library_path(locale: :en)
+    find(".filters__summary").click
+    assert_selector ".collection-grid > li", count: 60
+    find(".filter-chip__text", text: /\AAll\z/i).click
+    assert_selector ".collection-grid > li", count: 60
+    assert_equal [ "ALL" ], all("[data-group=state] .filter-chip__box:checked", visible: :all).map { it.find(:xpath, "..").text.strip }
+    assert_selector ".filters__count", visible: :hidden
+    assert_selector "[role=status]", text: "150 cards shown.", visible: :all
+  end
+
   test "on a 390 × 844 phone the tab leads here: the sets a strip of chips, the RAPPORT folded, two cards a row" do
     page.driver.browser.manage.window.resize_to(390, 844)
     sign_in
@@ -151,7 +162,7 @@ class LibraryTest < ApplicationSystemTestCase
     within("[data-group=genre]") do
       find(".filter-chip__text", text: /\ARPG\z/i).click
     end
-    assert_selector ".collection-grid__empty", text: "No card of this genre in this set yet."
+    assert_selector ".collection-grid__empty", text: "Nothing matches these filters."
     assert_equal "RPG", page.evaluate_script("document.activeElement.parentElement.textContent.trim()")
     assert_selector ".filters__count", text: "1"
 

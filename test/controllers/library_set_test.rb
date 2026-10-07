@@ -166,7 +166,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_equal 11, css_select(".collection-sets .set-row").size
     assert_equal "/en/library?shelf=2", css_select(".collection-sets .set-row").first["href"]
     assert_equal "/en/library/tome/action-51?shelf=2", css_select(".collection-sets .set-row")[1]["href"]
-    assert_select ".collection-grid__empty", "No card of this genre in this set yet."
+    assert_select ".collection-grid__empty", "Nothing matches these filters."
 
     get library_set_path(locale: :en, kind: "tome", key: "action-55")
     assert_response :success

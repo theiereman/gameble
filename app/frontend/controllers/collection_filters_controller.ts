@@ -26,7 +26,8 @@ export default class extends Controller<HTMLFormElement> {
   }
 
   // A chip was switched. The state group never stays empty: with every
-  // state off, the owned cards come back, as when the page opens.
+  // state off, its default comes back (owned, or all for a viewer who owns
+  // nothing), as when the page opens.
   changed(event: Event): void {
     const box = event.target as HTMLInputElement
     if (box.type !== "checkbox") return
@@ -34,8 +35,8 @@ export default class extends Controller<HTMLFormElement> {
     if (state && state.contains(box)) {
       const boxes = this.boxes(state)
       if (!boxes.some((b) => b.checked)) {
-        const owned = boxes.find((b) => b.value === "owned")
-        if (owned) owned.checked = true
+        const fallback = boxes.find((b) => b.value === (state.dataset.default ?? "owned"))
+        if (fallback) fallback.checked = true
       }
     }
     this.refresh()
@@ -44,6 +45,8 @@ export default class extends Controller<HTMLFormElement> {
 
   typed(event: Event): void {
     if (!this.hasSearchTarget || event.target !== this.searchTarget) return
+    // A composition (IME) is not text yet: wait for compositionend.
+    if ((event as InputEvent).isComposing) return
     this.refresh()
     window.clearTimeout(this.timer)
     this.timer = window.setTimeout(() => this.submit(), TYPING_PAUSE_MS)

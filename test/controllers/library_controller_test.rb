@@ -318,7 +318,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "Whole season", "0/0" ] ], set_rows
     assert_select ".collection-sets__empty", "No publisher has earned a set this season, Brother."
     assert_select ".collection-sets .series-nav", false
-    assert_select ".collection-grid__empty", "No card of this genre in this set yet."
+    assert_select ".collection-grid__empty", "Nothing matches these filters."
     assert_select ".collection-pages", false
   end
 
@@ -569,7 +569,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :en, q: "zzzz")
     assert_empty slots
-    assert_select ".collection-grid__empty", "No card of this genre in this set yet."
+    assert_select ".collection-grid__empty", "Nothing matches these filters."
     assert_select ".collection-pages", false
 
     get library_path(locale: :en, q: "%")
@@ -582,9 +582,18 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal 60, slots.size
     assert_equal [ "All" ], css_select("[data-group=state] .filter-chip__box[checked]").map { it.parent.text.strip }
     assert_select ".filters__count[hidden]"
+    assert_select "[data-group=state][data-default=all]"
+    assert_select "form.filters[role=search]"
+    assert_select "turbo-frame#collection-results p[role=status]", "150 cards shown."
+
+    # Asking "all" explicitly is the default of this viewer: no filter on.
+    get library_path(locale: :en, state: %w[all])
+    assert_select ".filters__count[hidden]"
+    assert_select ".filters__clear[hidden]"
 
     get library_path(locale: :en, state: %w[owned])
     assert_empty slots
+    assert_select "turbo-frame#collection-results p[role=status]", "No card shown."
 
     get library_path(locale: :en, state: %w[missing])
     assert_equal 60, slots.size

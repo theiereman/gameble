@@ -300,7 +300,11 @@ fr:
         duplicates: "Doublons"
     grid:
       label: "Cartes"
-      empty: "Aucune carte de ce genre dans ce set pour l'instant."
+      empty: "Aucune carte ne correspond à ces filtres."
+      result:
+        zero: "Aucune carte affichée."
+        one: "1 carte affichée."
+        other: "%{count} cartes affichées."
       past_the_end: "Plus aucune carte ici : la grille s'arrête sur une page précédente. Revenez à la dernière page."
       new: "Nouveau"
       missing: "Carte manquante"

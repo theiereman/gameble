@@ -87,9 +87,13 @@ class LibraryController < ApplicationController
     # when the viewer owns none yet.
     def effective_states
       asked = Game::CollectionStates.sanitize(list_param(:state))
-      return asked if asked.any?
+      asked.any? ? asked : [ default_state ]
+    end
 
-      @unique.positive? ? %w[owned] : %w[all]
+    # The state shown when none is asked: the owned cards, or every slot
+    # when the viewer owns none yet.
+    def default_state
+      @unique.positive? ? "owned" : "all"
     end
 
     # @grid_pagy and @slots: [ [ Catalog::CardView, Game::CollectionSlots::Slot | nil, SetRef | nil ], … ]
@@ -101,6 +105,7 @@ class LibraryController < ApplicationController
     def load_grid(grid)
       @states = effective_states
       @states_asked = Game::CollectionStates.sanitize(list_param(:state)).any?
+      @state_default = default_state
       cards = Game::CollectionStates.call(current_player, grid.card_seasons, states: @states, newest_first: grid.set.nil?)
       @grid_pagy, page = pagy(:offset, cards, limit: GRID_SIZE, page: page_param)
       ids = page.pluck(:id)

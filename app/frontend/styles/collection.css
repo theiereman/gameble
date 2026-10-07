@@ -173,6 +173,13 @@
   color: var(--color-on-accent);
 }
 
+/* A chip on is not told by its colour alone: a check mark precedes it. */
+.filter-chip__box:checked + .filter-chip__text::before {
+  content: "\2713";
+  margin-right: var(--space-2);
+  font-weight: bold;
+}
+
 .collection-kind:focus-visible,
 .filter-chip__box:focus-visible + .filter-chip__text {
   box-shadow: var(--focus-ring-gap), var(--control-border);

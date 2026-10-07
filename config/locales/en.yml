@@ -293,7 +293,11 @@ en:
         duplicates: "Duplicates"
     grid:
       label: "Cards"
-      empty: "No card of this genre in this set yet."
+      empty: "Nothing matches these filters."
+      result:
+        zero: "No card shown."
+        one: "1 card shown."
+        other: "%{count} cards shown."
       past_the_end: "No more cards here: the grid ends on an earlier page. Go back to the last page."
       new: "New"
       missing: "Missing card"

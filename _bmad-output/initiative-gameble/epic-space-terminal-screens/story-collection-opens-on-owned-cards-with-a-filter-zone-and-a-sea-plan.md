@@ -3,7 +3,7 @@ title: 'Collection opens on owned cards, with a filter zone and a search'
 type: 'feature'
 ticket: '7'
 created: '2026-10-07'
-status: 'in-review'
+status: 'built'
 baseline_revision: '47cea18b653361d83cd2a5ab133491a1eade4cca'
 route: 'full'
 route_source: 'auto'
@@ -76,6 +76,8 @@ Implemented directly (no coding subagent: the investigation lived in this sessio
 ## Plan Change Log
 
 ## Review Triage Log
+
+Review fixes (commit "fix: story 10.7 review findings"). Fixed: (1) the JS honours the state group's `data-default` when it is emptied; (2) the filter count compares the states to the effective default (all for a visitor or a player owning nothing, owned otherwise), served as `state_default`; (3) a checked chip carries a check mark drawn in CSS besides the accent fill; (4) a visually hidden `role="status"` line in the results frame says how many cards are shown (fr, en), and the form is `role="search"`; (5) `library.grid.empty` reworded to a neutral line, tests updated; (6) the search does not submit while composing (IME), it submits on `compositionend`. Left out, out of scope: the set group's contents, history behaviour, the hidden `kind` field, the Game/Catalog SQL coupling, the seen post.
 
 ## Design Notes
 

@@ -28,10 +28,11 @@ module CollectionHelper
 
   # The number of filters on, as the FILTRES zone shows it: every chip
   # chosen in the rarity, set and genre groups, and the states when the
-  # player chose others than the owned cards the page opens on.
-  def collection_filter_count(grid:, states:, states_asked:)
+  # player chose others than the default the page opens on (the owned
+  # cards, or every slot for a viewer who owns none).
+  def collection_filter_count(grid:, states:, states_asked:, state_default: "owned")
     chosen = grid.chosen_rarities.size + grid.chosen_sets.size + grid.chosen_genres.size
-    chosen + (states_asked && states != [ "owned" ] ? states.size : 0)
+    chosen + (states_asked && states != [ state_default ] ? states.size : 0)
   end
 
   # The scope with no filter and no search, the list of sets kept.
