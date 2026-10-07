@@ -10,6 +10,7 @@ Context for MVP design decisions that must not block these. Nothing here is buil
   - ~10% sale commission: *Effort de la Confrérie* / Brotherhood Effort.
 - **Market gate:** access is gated by gameble seniority (account age or packs opened). The threshold is TBD.
 - **Money:** no real money; currency is never purchasable or withdrawable.
+- **Average sale price in the collection (author, 2026-10-07):** each card shows its average sale price on the market, and the collection can be filtered and sorted by it, to see what is worth something. It needs completed sales, so it waits for the auction house; the price is in the in-game currency, never real money.
 - **Quick sorting from the opening:** while a booster is opened, the player marks cards in place into a "to process" zone: drag on desktop, swipe or buttons on phone (buttons always available). One validation then destroys or sells everything in it. Marking is reversible until validation; cards in the zone no longer count in the collection; marking a card's only copy asks for an extra confirmation. The "to process" screen must be easy to scan so reviewing stays quick.
   - **Rejected:** an immediate swipe that sells or discards (too dangerous), and default automatic sorting of duplicate commons (some are kept for a set or a loved game).
   - **To check before V2:** a per-copy "to process" state must fit the copy model without a heavy migration.

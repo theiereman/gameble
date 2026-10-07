@@ -66,7 +66,7 @@ covers = ["R7", "R1"]
 after = [1, 6]
 hitl = false
 risk = "medium"
-notes = ["filter groups, the folded default and the clear-all label are [ASSUMPTION] in EXPERIENCE.md", "the sets progress rows keep their place; RAPPORT panel unchanged"]
+notes = ["filter groups, the folded default and the clear-all label are [ASSUMPTION] in EXPERIENCE.md", "the sets progress rows keep their place; RAPPORT panel unchanged", "a sort and filter by average market sale price is a V2 requirement (later-roadmap.md): no sales exist before the auction house, so this story builds none of it but leaves room for one more filter group and a sort"]
 
 [[entry]]
 id = 5
