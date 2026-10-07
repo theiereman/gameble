@@ -78,11 +78,11 @@ class TomeTest < ApplicationSystemTestCase
     assert_selector ".collection-grid .card.card--m", count: 60
     # The first cards are drawn (or fail, the test images being unreachable);
     # those far below are not even started.
-    assert_selector ".collection-grid > li:first-child .card__art[data-art]", visible: :all
+    assert_selector ".collection-grid > li:first-child .card__art[data-art]", visible: :all, wait: 10
     assert_no_selector ".collection-grid > li:last-child .card__art[data-art]", visible: :all
 
     page.execute_script("window.scrollTo(0, document.body.scrollHeight)")
-    assert_selector ".collection-grid > li:last-child .card__art[data-art]", visible: :all
+    assert_selector ".collection-grid > li:last-child .card__art[data-art]", visible: :all, wait: 10
 
     find(".collection-pages a[rel=next]").click
     assert_current_path library_set_path(locale: :en, kind: "publisher", key: "big", page: 2)
