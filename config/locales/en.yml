@@ -320,8 +320,8 @@ en:
         next: "Next page"
     seen:
       throttled: "Too many requests in a minute. Try again in a moment."
-    # The collection's list of sets (library/set_list); the public profile
-    # reads the tab names too.
+    # The collection's list of sets (library/set_list) and its no-season
+    # line (library/show); the public profile reads the tab names too.
     show:
       tabs:
         started: "Started"

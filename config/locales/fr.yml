@@ -330,8 +330,8 @@ fr:
         next: "Page suivante"
     seen:
       throttled: "Trop de requêtes en une minute. Réessayez dans un instant."
-    # The collection's list of sets (library/set_list); the public profile
-    # reads the tab names too.
+    # The collection's list of sets (library/set_list) and its no-season
+    # line (library/show); the public profile reads the tab names too.
     show:
       tabs:
         started: "Entamées"

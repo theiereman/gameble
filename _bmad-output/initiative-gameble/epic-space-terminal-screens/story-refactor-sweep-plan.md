@@ -7,9 +7,9 @@ status: 'built'
 baseline_revision: '3fc4caa7a17758436cedca22793c0fa1c6cfb9c0'
 route: 'oneshot'
 route_source: 'auto'
-review: 'none'
-review_source: 'auto'
-lenses_ran: []
+review: 'quick'
+review_source: 'pinned'
+lenses_ran: [quick]
 review_loop_iteration: 0
 followup_review_recommended: false
 context: []
@@ -20,6 +20,13 @@ deferred:
     severity: medium
   - summary: 'Kept deferred in deferred-work.md as features or device checks: fluid grid sizing, in-screen detail panel, rays and idle float, real-device gesture check, top-bar back button, donation link.'
     evidence: 'Implementation Notes, Sweep inventory.'
+    severity: low
+  - summary: >-
+      The hub stylesheet keeps a dead rule, `.menu-item__form`, which no view or component renders.
+    evidence: |-
+      Quick review of story 10.5: grep finds the class only in app/frontend/styles/hub.css:59; pre-existing, and the hub menu is epic 8's (lane 8.13 sweeps it).
+    location: >-
+      app/frontend/styles/hub.css:59
     severity: low
 ---
 
@@ -64,12 +71,22 @@ Outside epic 10, noted for the orchestrator: the opened pack's page (`packs/show
 
 No medieval asset or style remains: `library.css`, `_shelf`, `_tome` and the old images are gone; a scan of class selectors in `collection.css`, `card-detail.css`, `profile.css`, `hub.css`, `card.css`, `shell.css`, `settings.css` finds none unused apart from Pagy's and dynamically built ones.
 
+## Review Triage Log
+
+### 2026-10-07 — Review pass
+- verdicts: 3 findings — high 0, medium 0, low 3, false 0, maybe-false 0
+- findings:
+  - `[low]` `[patch]` The comment added above `library.show` in both locale files says the keys serve the set list (`library/set_list`), but `library.show.no_season` is read by `library/show.html.erb` — fixed: the comment names the no-season line and `library/show` too; i18n-tasks missing and the library and public profile controller tests re-run green.
+  - `[low]` `[defer]` `.menu-item__form` in `app/frontend/styles/hub.css:59` matches nothing in any view, component or script — pre-existing, in epic 8's hub menu, swept in parallel by lane 8.13; recorded in frontmatter `deferred`.
+  - `[low]` `[reject]` The Sweep inventory says the selector scan found nothing unused besides Pagy's and dynamically built classes, which misses `.menu-item__form` — true, but the fix is an edit of this build's plan; the Auto Run Result records the correction.
+
 ## Auto Run Result
 
 Status: built.
 
 - **Changes:** collection set-list copy (`library.show.empty.*`, `past_the_end`, `no_season`) reworded without the old "Brother" / shelf wording, en and fr; dead keys `library.show.tabs.label` and `library.show.empty.started` removed; `library_controller_test.rb` updated (plus a French no-season check); `card_detail_test.rb` waits two frames before Back (`wait_for_frames`), fixing its flaky Back leg; `_collection.html.erb` comment rewrapped; three `deferred-work.md` entries of epic 10 marked resolved (shelf transition, faded-back rule decided, flaky test).
-- **Review:** not run. The author's quota was running out and the orchestrator asked to wrap up; the diff is copy, tests and records only (self-read, no finding).
+- **Review:** quick lens, run in-session after the first commit at the orchestrator's request (no subagents available): 3 findings, 1 patched (low: the new locale comment named only the set list, while `no_season` is read by `library/show`), 1 deferred (low, pre-existing: dead `.menu-item__form` rule in `hub.css`, epic 8's hub), 1 rejected (low: the inventory's claim that the CSS scan found no unused selector besides Pagy's and dynamic ones missed `.menu-item__form`; its fix is an edit of this plan, so it is corrected here instead).
+- **Follow-up review recommended:** false (patched: high 0, medium 0, low 1).
 - **Verification:** rubocop on changed Ruby files clean; packwerk validate and check clean; i18n-tasks missing and unused none; `bin/rails test` (PARALLEL_WORKERS=2) 1511 runs, 0 failures, 0 errors; system `library_test`, `tome_test`, `card_detail_test`, `public_profile_test` (PARALLEL_WORKERS=1) 22 runs green; `card_detail_test.rb` 5 more runs green. No frontend file touched, so typecheck and vitest were not run.
 - **Left out:** see frontmatter `deferred` and the Sweep inventory; the pack page's medieval copy is epic 8's.
 
