@@ -497,6 +497,22 @@ en:
     unknown:
       title: "Invitation"
       text: "This invitation link is not valid."
+  reports:
+    open: "REPORT"
+    reasons:
+      inappropriate_name: "Inappropriate username or avatar"
+      cheating: "Cheating or abuse"
+      harassment: "Harassment"
+      other: "Other"
+    dialog:
+      title: "Report this profile"
+      close: "Close"
+      legend: "Why are you reporting this profile?"
+      note: "The moderation team will review this profile. The player will not see who reported them."
+      submit: "SEND THE REPORT"
+    create:
+      sent: "Thank you. The moderation team will review this profile. The player will not see who reported them."
+      throttled: "Too many attempts in a minute. Try again in a moment."
   daily_bonuses:
     create:
       collected: "A booster joins your reserve. The next one will be ready at midnight (UTC)."
@@ -656,6 +672,10 @@ en:
       invalid_steam_id: "Your Steam ID could not be read. Sign in again."
       banned: "This account has been suspended. You can no longer sign in."
       sign_in_failed: "The sign-in failed on our side. Try again in a moment."
+      invalid_reason: "Choose a reason to send the report."
+      player_not_found: "That profile could not be found."
+      cannot_report_self: "You cannot report your own profile."
+      rate_limited: "You have sent many reports today. Try again tomorrow."
     catalog:
       missing_text: "The scribes need the card's title in every tongue of the Brotherhood before it can enter the ledger."
       invalid_card: "The scribes cannot enter that card in the ledger: its particulars are incomplete or out of order."

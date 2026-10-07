@@ -1,0 +1,31 @@
+<%# The report dialog, "SIGNALER" (DESIGN.md, Report dialog; EXPERIENCE.md,
+    Report dialog): a modal <dialog> (a bottom sheet on the phone) a player
+    opens from a profile. A radio list of the four reasons, one of which must
+    be chosen before "ENVOYER LE SIGNALEMENT"; the note says the reported
+    player will not learn who reported them. It posts to reports#create and
+    is reusable by any profile (epic 5's friend profile). Locals:
+    - owner: the reported player. %>
+<dialog id="report-dialog" class="modal" aria-labelledby="report-dialog-title" data-controller="dialog" data-action="click->dialog#closeOnScrim">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p id="report-dialog-title" class="modal__title modal__title--alert"><%= t("reports.dialog.title") %></p>
+      <button type="button" class="modal__close" aria-label="<%= t("reports.dialog.close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <%= form_with url: brother_report_path(token: owner.token), class: "report-dialog__form" do %>
+      <fieldset class="report-dialog__reasons">
+        <legend class="report-dialog__legend"><%= t("reports.dialog.legend") %></legend>
+        <% Accounts::Report.reasons.each_key do |reason| %>
+          <label class="report-dialog__reason">
+            <%= radio_button_tag "reason", reason, false, required: true, class: "report-dialog__radio" %>
+            <span><%= t("reports.reasons.#{reason}") %></span>
+          </label>
+        <% end %>
+      </fieldset>
+      <p class="report-dialog__note"><%= t("reports.dialog.note") %></p>
+      <%= render ButtonComponent.new(variant: :danger, type: :submit) do %><%= t("reports.dialog.submit") %><% end %>
+    <% end %>
+  <% end %>
+</dialog>

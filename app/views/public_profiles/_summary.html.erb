@@ -4,7 +4,8 @@
     it. Locals:
     - owner: the profile's player;
     - title: the profile's title (public_profile_title);
-    - summary: the owner's Game::CollectionSummary. %>
+    - summary: the owner's Game::CollectionSummary.
+    The report dialog (reports/_dialog) is rendered by the profile. %>
 <%= render PanelComponent.new(tag: :header, brackets: true, class: "profile-summary") do %>
   <%= pixel_icon("avatar-default", class: "profile-summary__avatar") %>
   <div class="profile-summary__text">
@@ -14,5 +15,11 @@
       <li><%= t("public_profiles.show.complete_sets", count: summary.complete_sets) %></li>
     </ul>
     <p class="profile-summary__visibility"><%= t("public_profiles.show.visibility.#{owner.visibility}") %></p>
+    <%# SIGNALER (CAP-15): a visitor is led to the sign-in panel, a player to the report dialog; the owner reports no one. %>
+    <% if current_player.nil? %>
+      <%= render ButtonComponent.new(variant: :link, size: :small, opens: "sign-in-panel") do %><%= t("reports.open") %><% end %>
+    <% elsif current_player != owner %>
+      <%= render ButtonComponent.new(variant: :link, size: :small, opens: "report-dialog") do %><%= t("reports.open") %><% end %>
+    <% end %>
   </div>
 <% end %>

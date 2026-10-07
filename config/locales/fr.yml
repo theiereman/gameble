@@ -511,6 +511,22 @@ fr:
     unknown:
       title: "Invitation"
       text: "Ce lien d'invitation n'est pas valide."
+  reports:
+    open: "SIGNALER"
+    reasons:
+      inappropriate_name: "Pseudo ou avatar inapproprié"
+      cheating: "Triche ou abus"
+      harassment: "Harcèlement"
+      other: "Autre"
+    dialog:
+      title: "Signaler ce profil"
+      close: "Fermer"
+      legend: "Pourquoi signalez-vous ce profil ?"
+      note: "L'équipe de modération examinera ce profil. Le joueur ne verra pas qui l'a signalé."
+      submit: "ENVOYER LE SIGNALEMENT"
+    create:
+      sent: "Merci. L'équipe de modération examinera ce profil. Le joueur ne verra pas qui l'a signalé."
+      throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
   daily_bonuses:
     create:
       collected: "Un booster rejoint votre réserve. Le prochain sera prêt à minuit (UTC)."
@@ -672,6 +688,10 @@ fr:
       invalid_steam_id: "Votre identifiant Steam n'a pas pu être lu. Connectez-vous à nouveau."
       banned: "Ce compte a été suspendu. Vous ne pouvez plus vous connecter."
       sign_in_failed: "La connexion a échoué de notre côté. Réessayez dans un instant."
+      invalid_reason: "Choisissez un motif pour envoyer le signalement."
+      player_not_found: "Ce profil est introuvable."
+      cannot_report_self: "Vous ne pouvez pas signaler votre propre profil."
+      rate_limited: "Vous avez envoyé beaucoup de signalements aujourd'hui. Réessayez demain."
     catalog:
       missing_text: "Les scribes ont besoin du titre de la carte dans chaque langue de la Confrérie avant de l'inscrire au registre."
       invalid_card: "Les scribes ne peuvent pas inscrire cette carte au registre : ses particularités sont incomplètes ou en désordre."
