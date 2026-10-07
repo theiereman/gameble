@@ -27,8 +27,8 @@ module Game
     end
 
     # The two are friends and the other is neither banned (AD-8) nor deleted
-    # (their cards are gone, Game::ReleasePlayer; story 5.11 drops the
-    # friendship itself).
+    # (a deletion or a ban drops the friendship itself,
+    # Game::DropFriendsAndTrades; this covers a trade racing it).
     def friends(player, other)
       low, high = [ player.id, other.id ].minmax
       friendly = !other.banned? && !other.deleted? && Friendship.exists?(low_player_id: low, high_player_id: high)

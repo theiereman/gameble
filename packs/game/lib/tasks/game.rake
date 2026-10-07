@@ -34,4 +34,19 @@ namespace :game do
 
     puts "game:backfill_friend_codes: every player has their friend code"
   end
+
+  # Meant for production: run once after the deploy that cuts removed
+  # players off (story 5.11), and after a ban set from the console until
+  # moderation bans through Accounts::PlayerBanned (story 7.5).
+  desc "Runs Game::DropFriendsAndTradesJob now: deleted or banned players' open trades cancelled, their friendships and invitations dropped; idempotent"
+  task drop_friends_and_trades: :environment do
+    Game::DropFriendsAndTradesJob.perform_now
+    left = Game::DropFriendsAndTradesJob.players_with_ties.count
+    if left.positive?
+      abort "game:drop_friends_and_trades: #{left} deleted or banned player(s) still have friends, invitations or open trades " \
+        "(failures reported to the error tracker); fix them and rerun"
+    end
+
+    puts "game:drop_friends_and_trades: no deleted or banned player has friends, invitations or open trades left"
+  end
 end

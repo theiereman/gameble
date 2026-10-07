@@ -4,11 +4,11 @@
     player's side facing each other (stacked under 700px of board), the
     swap icon and the status line between them, a refusal inline under it,
     and the actions of the state below, each a form posting to its
-    operation (none on the player's turn when the friend deleted their
-    account: accepting is refused and their offered copies are gone; story
-    5.11 closes such trades). `editing` makes it the counter-proposal form: both sides
-    "EN ÉDITION", a quantity field per card (0 removes it; the card picker
-    comes with the trade board island). %>
+    operation (a friend who deletes their account or is banned closes their
+    trades, Game::DropFriendsAndTrades). `editing` makes it the
+    counter-proposal form: both sides "EN ÉDITION", a quantity field per card
+    (0 removes it; the card picker comes with the trade board island), and a
+    side with no copy left to place says so and why. %>
 <% friend_label, own_label = trade_side_labels(trade) %>
 <% tone, chip = trade_chip(trade) %>
 <% body = capture do %>
@@ -26,7 +26,7 @@
     </p>
   </header>
   <%= render "trades/side", side: :friend, label: friend_label, lines: trade.friend_side, cards:, editing:,
-        reserved: trade.state == :yours, max: friend_max %>
+        reserved: trade.state == :yours, max: friend_max, none: (trade_nothing_to_place(trade, :friend, friend_max) if editing) %>
   <div class="trade-board__middle">
     <%= pixel_icon("swap", class: "trade-board__swap") %>
     <p class="trade-board__message"><%= trade_message(trade, editing:) %></p>
@@ -35,12 +35,12 @@
     <% end %>
   </div>
   <%= render "trades/side", side: :own, label: own_label, lines: trade.own_side, cards:, editing:,
-        reserved: trade.state == :theirs, max: own_max %>
+        reserved: trade.state == :theirs, max: own_max, none: (trade_nothing_to_place(trade, :own, own_max, own_held) if editing) %>
   <div class="trade-board__actions">
     <% if editing %>
       <%= render ButtonComponent.new(type: :submit) do %><%= t("trades.actions.send_counter") %><% end %>
       <%= render ButtonComponent.new(variant: :secondary, href: trade_path(token: trade.token)) do %><%= t("trades.actions.undo") %><% end %>
-    <% elsif trade.state == :yours && !trade.friend.deleted? %>
+    <% elsif trade.state == :yours %>
       <%= render ButtonComponent.new(href: accept_trade_path(token: trade.token), method: :post) do %><%= t("trades.actions.accept") %><% end %>
       <%= render ButtonComponent.new(variant: :secondary, href: counter_trade_path(token: trade.token)) do %><%= t("trades.actions.counter") %><% end %>
       <%= render ButtonComponent.new(variant: :secondary, href: decline_trade_path(token: trade.token), method: :post) do %><%= t("trades.actions.decline") %><% end %>

@@ -2,10 +2,11 @@
     ATTENTE DE LEUR RÉPONSE", "TERMINÉS RÉCEMMENT", an empty group left out.
     Each row is a link to its board: the friend's name, what for what, the
     expiry or the outcome's age, and the status chip; the board shown is
-    the current page's row. %>
+    the current page's row. Without a trade, one line points to the invite
+    panel on Amis. %>
 <nav class="trades__list" aria-label="<%= t("trades.list.label") %>">
   <% if trades.empty? %>
-    <%= render PanelComponent.new(tag: :p, class: "trades__empty") do %><%= t("trades.list.empty") %><% end %>
+    <%= render PanelComponent.new(tag: :p, class: "trades__empty") do %><%= t("trades.list.empty") %> <%= link_to t("trades.list.empty_invite"), friends_path(anchor: "friends-invite") %><% end %>
   <% end %>
   <% trade_groups(trades).each do |group, rows| %>
     <% next if rows.empty? %>
