@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,7 +27,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
     t.index ["steam_id"], name: "index_accounts_players_on_steam_id", unique: true
     t.index ["token"], name: "index_accounts_players_on_token", unique: true
     t.check_constraint "role::text = 'player'::text OR role::text = 'moderator'::text OR role::text = 'administrator'::text", name: "accounts_players_role_check"
-    t.check_constraint "visibility::text = ANY (ARRAY['public'::character varying, 'friends_only'::character varying, 'private'::character varying]::text[])", name: "accounts_players_visibility_check"
+    t.check_constraint "visibility::text = ANY (ARRAY['public'::character varying::text, 'friends_only'::character varying::text, 'private'::character varying::text])", name: "accounts_players_visibility_check"
   end
 
   create_table "catalog_card_seasons", force: :cascade do |t|
@@ -205,6 +205,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
     t.index ["player_id"], name: "index_game_player_states_on_player_id", unique: true
   end
 
+  create_table "game_weekly_contributions", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.date "week_start", null: false
+    t.integer "openings", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "week_start"], name: "index_game_weekly_contributions_on_player_id_and_week_start", unique: true
+    t.index ["week_start"], name: "index_game_weekly_contributions_on_week_start"
+    t.check_constraint "openings >= 0", name: "game_weekly_contributions_openings_check"
+  end
+
+  create_table "game_weekly_goals", force: :cascade do |t|
+    t.date "week_start", null: false
+    t.integer "target", null: false
+    t.integer "total", default: 0, null: false
+    t.datetime "summed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["week_start"], name: "index_game_weekly_goals_on_week_start", unique: true
+    t.check_constraint "target > 0 AND total >= 0", name: "game_weekly_goals_figures_check"
+  end
+
   create_table "steam_apps", force: :cascade do |t|
     t.bigint "appid", null: false
     t.string "name", null: false
@@ -288,6 +310,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
   add_foreign_key "game_packs", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
   add_foreign_key "game_player_states", "accounts_players", column: "player_id"
+  add_foreign_key "game_weekly_contributions", "accounts_players", column: "player_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "carded_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "details_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "genres_run_id"

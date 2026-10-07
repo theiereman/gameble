@@ -1,0 +1,23 @@
+<%# The community goal panel in its in-progress state (DESIGN.md, Community
+    goal panel; EXPERIENCE.md, Component Patterns and State Patterns; CAP-12):
+    the key panel with its corner brackets, "Objectif communautaire", the
+    one Brotherhood line carrying the week's real target, "Tous les joueurs"
+    with the shared count, a gauge of 24 segments and the reward. No
+    per-player figure. Read only (AD-11); the figures are those the periodic
+    job last summed. Locals: goal ({ total:, target: }). %>
+<% segments = GoalHelper::SEGMENTS %>
+<% lit = goal_lit_segments(goal) %>
+<%= render PanelComponent.new(tag: :section, brackets: true, id: "community-goal", class: "hub-goal", aria: { labelledby: "community-goal-title" }) do %>
+  <h2 id="community-goal-title" class="hub-goal__title"><%= t("pages.home.goal.title") %></h2>
+  <p class="hub-goal__line"><%= t("pages.home.goal.line", target: number_with_delimiter(goal[:target])) %></p>
+  <div class="hub-goal__count">
+    <p class="hub-goal__label"><%= t("pages.home.goal.players") %></p>
+    <p class="hub-goal__figures" aria-hidden="true"><%= number_with_delimiter(goal[:total]) %> / <%= number_with_delimiter(goal[:target]) %></p>
+    <span class="visually-hidden"><%= t("pages.home.goal.progress", total: number_with_delimiter(goal[:total]), target: number_with_delimiter(goal[:target])) %></span>
+  </div>
+  <div class="hub-goal__gauge" aria-hidden="true">
+    <% segments.times do |index| %><span class="hub-goal__segment<%= " hub-goal__segment--lit" if index < lit %>"></span><% end %>
+  </div>
+  <p class="hub-goal__reward-label"><%= t("pages.home.goal.reward") %></p>
+  <p class="hub-goal__reward"><%= t("pages.home.goal.reward_text") %></p>
+<% end %>

@@ -11,5 +11,8 @@ Rails.configuration.to_prepare do
   # Players left without a bank get one when a season is published.
   event_store.subscribe(Game::Handlers::SeasonPublished, to: [ Catalog::SeasonPublished ])
 
+  # Every opening counts toward the weekly goal (AD-10).
+  event_store.subscribe(Game::Handlers::PackOpened, to: [ Game::PackOpened ])
+
   Rails.configuration.event_store = event_store
 end

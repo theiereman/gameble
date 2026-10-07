@@ -14,8 +14,8 @@
   grid-template-columns: 340px minmax(0, 1fr) 340px;
   grid-template-rows: auto auto auto 1fr;
   grid-template-areas:
-    "kicker showcase sets"
-    "menu showcase sets"
+    "kicker showcase goal"
+    "menu showcase goal"
     "daily showcase sets"
     ". showcase sets";
   gap: var(--space-6) var(--space-column-gap-wide);
@@ -544,11 +544,12 @@ button.menu-item:focus-visible:hover {
 @media (max-width: 1179px) {
   .hub {
     grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
-    grid-template-rows: auto auto auto auto 1fr;
+    grid-template-rows: auto auto auto auto auto 1fr;
     grid-template-areas:
       "kicker showcase"
       "menu showcase"
       "daily showcase"
+      "goal showcase"
       "sets showcase"
       ". showcase";
     column-gap: var(--space-column-gap-medium);
@@ -610,4 +611,73 @@ html[data-motion="reduced"] .menu-item {
 html[data-motion="reduced"] a.menu-item:hover,
 html[data-motion="reduced"] button.menu-item:hover {
   transform: none;
+}
+
+/* ---- Community goal panel: the key panel, in progress (DESIGN.md) ---- */
+
+.hub-goal {
+  grid-area: goal;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.hub-goal__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.hub-goal__line {
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-body-large);
+  letter-spacing: var(--tracking-body);
+}
+
+.hub-goal__count {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.hub-goal__label,
+.hub-goal__reward-label {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.hub-goal__reward-label { color: var(--color-lime); }
+
+.hub-goal__figures {
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.hub-goal__gauge {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: var(--gauge-gap);
+}
+
+.hub-goal__segment {
+  height: var(--gauge-segment-height);
+  background: var(--color-line-soft);
+}
+
+.hub-goal__segment--lit { background: var(--color-accent); }
+
+.hub-goal__reward {
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
 }
