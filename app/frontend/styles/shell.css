@@ -587,6 +587,21 @@ button.tab-bar__tab {
   box-shadow: inset 0 0 0 calc(var(--focus-ring-width) + var(--focus-ring-offset)) var(--color-outline);
 }
 
+/* ---- Version ---- */
+
+.app-version {
+  position: fixed;
+  left: var(--space-gutter-desktop);
+  bottom: var(--space-3);
+  z-index: 2;
+  margin: 0;
+  color: var(--color-dim);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  pointer-events: none;
+  user-select: none;
+}
+
 /* ---- Toasts ---- */
 
 .toasts {
@@ -1158,6 +1173,14 @@ html[data-sub-view-step] .main {
   .toasts {
     top: max(var(--space-3), env(safe-area-inset-top, 0px));
     bottom: auto;
+  }
+
+  .app-version {
+    left: var(--space-gutter-phone);
+  }
+
+  body:has(.tab-bar) .app-version {
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-2));
   }
 
   .toast {

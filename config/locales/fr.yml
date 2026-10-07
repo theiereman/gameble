@@ -46,6 +46,8 @@ fr:
     sign_in_panel:
       title: "Connectez-vous pour jouer"
       close: "Fermer"
+    version:
+      label: "Version déployée"
   pages:
     home:
       kicker:
