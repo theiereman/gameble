@@ -1,0 +1,25 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Forge: quick card sorting</title>
+<style>body{font:16px/1.5 system-ui,sans-serif;max-width:720px;margin:2rem auto;padding:0 1rem;background:#14161c;color:#e8e6df}h1{margin-bottom:.2rem}h2{margin-top:2rem;border-bottom:1px solid #444;padding-bottom:.2rem}.seal{float:right;margin:0 0 1rem 1rem}li{margin:.3rem 0}.who{color:#b9b4a4}</style></head><body>
+<svg class="seal" width="130" height="130" viewBox="0 0 130 130" role="img" aria-label="HARDENED"><circle cx="65" cy="65" r="60" fill="#8c1d2b" stroke="#d4a94a" stroke-width="5"/><circle cx="65" cy="65" r="46" fill="none" stroke="#d4a94a" stroke-width="2" stroke-dasharray="4 3"/><text x="65" y="72" text-anchor="middle" font-family="serif" font-weight="bold" font-size="17" fill="#f3dfa2">HARDENED</text></svg>
+<h1>Quick card sorting from the booster opening</h1>
+<p class="who">Outcome: hardened as a V2 requirement. Nothing to build before V2.</p>
+<h2>Locked decisions</h2><ul>
+<li>The problem is leaving the booster screen and searching the collection; the action must happen in place and keep the player active.</li>
+<li>Desktop: drag into a "to process" zone. Phone: swipe or buttons, with buttons always available.</li>
+<li>Marking is reversible until a single validation sells or discards everything in the zone.</li>
+<li>Cards in the zone leave the collection; the only copy of a card needs an extra confirmation.</li>
+<li>The "to process" screen must be highly legible to review fast.</li>
+<li>Built with V2: currency, destruction and the market come first.</li></ul>
+<h2>Rejected</h2><ul>
+<li>Immediate swipe to sell or discard: too dangerous.</li>
+<li>Default automatic sorting of duplicate commons: some commons are kept for a set or a loved game.</li></ul>
+<h2>Weak points that survived</h2><ul>
+<li>A per-copy "to process" state must fit the V2 copy model without a heavy migration.</li>
+<li>The zone can become a chore if it fills up without showing what it yields.</li>
+<li>Drag and swipe are two gestures to build and keep consistent.</li></ul>
+<h2>Pressure-tested by</h2><ul>
+<li>🎨 Sally (UX): gestures on a phone pile.</li>
+<li>🏗️ Winston (architect): swipe conflicts, per-copy state.</li>
+<li>📋 John (PM): MVP scope against the spec.</li>
+<li>🃏 Karim (generated, a player with 800 boosters opened): the chore of per-card gestures, the lost only copy.</li></ul>
+</body></html>
