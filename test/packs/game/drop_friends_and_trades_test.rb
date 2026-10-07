@@ -1,12 +1,6 @@
 require "test_helper"
 require_relative "../../support/rake_tasks"
 
-# Cutting a deleted or banned player off (R6, AD-14; story 5.11): their open
-# trades close as cancelled with every reserved copy released, their
-# friendships and invitations go, the others' stay; on a deletion
-# (Accounts::DeletePlayer), on a ban (Accounts::PlayerBanned) and by the
-# sweep of the players already removed (Game::DropFriendsAndTradesJob and
-# its task).
 class Game::DropFriendsAndTradesTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include RakeTasks

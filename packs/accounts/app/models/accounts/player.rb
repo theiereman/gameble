@@ -39,12 +39,19 @@ module Accounts
     # race, and Accounts::SignIn relies on the index conflict.
     validates :steam_id, presence: true, format: { with: STEAM_ID_FORMAT }, unless: :deleted?
 
+    scope :in_good_standing, -> { where(banned_at: nil, deleted_at: nil) }
+    scope :removed, -> { where.not(banned_at: nil).or(where.not(deleted_at: nil)) }
+
     def banned?
       banned_at.present?
     end
 
     def deleted?
       deleted_at.present?
+    end
+
+    def removed?
+      banned? || deleted?
     end
 
     # A moderator or an administrator.

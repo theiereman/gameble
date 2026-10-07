@@ -1,12 +1,6 @@
 require "test_helper"
 require_relative "../support/counting_rate_limit"
 
-# The trades screen: the list in three groups, a trade's board by its token
-# with the actions of its state, the island that turns a board waiting for
-# the player into a counter-proposal, the counter-proposal form, the draft of
-# a new trade and its sending, the swap after an acceptance, the orange
-# waiting badge on menu 03 and the ÉCHANGES tab, and the sign-in panel for a
-# visitor.
 class TradesControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
 
@@ -54,7 +48,6 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
   end
 
-  # Lea proposes Profondeurs bleues for Portal ×2: Hugo's turn.
   def from_lea = propose(@bob, @alice, offer: { @depths => 1 }, request: { @portal => 2 })
 
   test "a visitor is sent home to sign in, and menu 03 and the tab open the sign-in panel" do
@@ -118,7 +111,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
       assert_select "a[href=?]", counter_trade_path(token: trade.token, locale: :fr), "Contre-proposer"
       assert_select "form[action=?] button", decline_trade_path(token: trade.token, locale: :fr), "Refuser"
     end
-    assert_no_match(/trade[_-]id|value="#{trade.id}"/, response.body)
+    assert_no_match(/trade[_-]id|\svalue="#{trade.id}"/, response.body)
   end
 
   test "the proposer sees their reserved copies and cancels; the copies are released" do
@@ -269,7 +262,6 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
   test "the counter form mounts the trade board island with both holders' cards, over the quantity fields" do
     hold(@bob, @soldier, 3)
     trade = from_lea
-    # Another trade reserves one of Hugo's three Portal.
     propose(@alice, @carol, offer: { @portal => 1 }, request: { @depths => 1 })
     sign_in @alice
 
@@ -290,10 +282,8 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ { "key" => "blue-depths--s1", "quantity" => 1 } ], friend.fetch("lines")
     assert_equal [ { "key" => "portal--s1", "quantity" => 2 } ], own.fetch("lines")
 
-    # Hugo's cards: copies, those reserved elsewhere, the free ones; ordered by number.
     assert_equal [ [ "tin-soldier--s1", 1, 0, 1 ], [ "portal--s1", 3, 1, 2 ] ],
       own.fetch("cards").map { it.values_at("key", "owned", "reserved", "max") }
-    # Lea's: what she holds, her reservations her own.
     assert_equal [ [ "tin-soldier--s1", 3, 0, 3 ], [ "blue-depths--s1", 2, 0, 2 ] ],
       friend.fetch("cards").map { it.values_at("key", "owned", "reserved", "max") }
     face = own.fetch("cards").last.fetch("face")
@@ -334,7 +324,6 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     trade = from_lea
     sign_in @alice
 
-    # Hugo holds no Blue Depths to give; Lea holds no Golden Crown to ask for.
     post counter_trade_path(token: trade.token, locale: :fr), params: { give: { "blue-depths--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
     assert_redirected_to counter_trade_path(token: trade.token, locale: :fr)
     follow_redirect!

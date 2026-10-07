@@ -1,7 +1,5 @@
 require "test_helper"
 
-# A friend's presence in words (EXPERIENCE.md, Copy deck, Presence; story
-# 5.3): online, the activity, or a compact time since last seen.
 class PresenceHelperTest < ActionView::TestCase
   Row = Game::FriendsPresence::Row
 

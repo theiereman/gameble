@@ -1,16 +1,5 @@
 module Game
   module Handlers
-    # Records a player's latest game action (CAP-21, AD-24): the activity a
-    # friend sees on their row ("Ouvre un booster") while it is recent
-    # (Game::FriendsPresence). EVENTS maps each event that is a player's own
-    # action to its activity key and the data key naming the player who
-    # acted; the keys are worded at render (friends.show.presence).
-    #
-    # It runs in the publishing transaction (AD-10), after the operation's
-    # other locks, and writes only the actor's own Game::PlayerState row, the
-    # last in AD-10's lock order: one upsert, which creates the row when
-    # missing so a player without one never fails the operation. It
-    # publishes nothing.
     module PlayerActivity
       EVENTS = {
         Game::PackOpened => [ :opening_pack, :player_id ],

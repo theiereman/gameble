@@ -19,13 +19,13 @@ class PlayerStreamJob < ApplicationJob
   private
 
   def reachable?(player)
-    player.present? && !player.banned? && !player.deleted?
+    player.present? && !player.removed?
   end
 
   def announceable_friends(ids)
     return [] if ids.empty?
 
-    Accounts::Player.where(id: ids, banned_at: nil, deleted_at: nil).order(:id).to_a
+    Accounts::Player.in_good_standing.where(id: ids).order(:id).to_a
   end
 
   def broadcast(player, locale, locals)

@@ -1,8 +1,5 @@
 require "test_helper"
 
-# The friend code and the friendship (AD-8, story 5.1): a purely random,
-# unique code per player, the queries the Friends screen reads, and the
-# backfill.
 class Game::FriendCodeTest < ActiveSupport::TestCase
   setup { @player = accounts_players(:player) }
 

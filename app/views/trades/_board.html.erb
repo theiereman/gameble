@@ -1,20 +1,3 @@
-<%# The trade board: a bracketed panel headed "Échange avec Léa", the status
-    chip and the expiry (or the outcome's age), the friend's column and the
-    player's facing each other (stacked under 700px of board), the swap icon
-    and the status line between them, a refusal inline under it, and the
-    actions of the state below, each a form posting to its operation, or a
-    link to the counter-proposal or to a new trade with the friend.
-
-    `island`, on the player's turn, mounts the TradeBoard island over the
-    sides: it shows the proposal as received and turns it into a
-    counter-proposal in place (CONTRE-PROPOSER, then ANNULER LES
-    MODIFICATIONS, confirmed when something changed). `editing` opens it as
-    the counter-proposal (the counter page), its fallback the quantity
-    fields of each side, a side with no copy left to place saying so and
-    why. The counter form sits in the actions; the sides' fields reach it by
-    its id. Once concluded the cards have crossed: `swap` plays their swap,
-    and `fresh` names the received cards still new in the collection.
-    `trade_again` offers a closed trade's friend a new one. %>
 <% editing = local_assigns.fetch(:editing, false) %>
 <% fresh = local_assigns.fetch(:fresh, nil) || [] %>
 <% friend_label, own_label = trade_side_labels(trade) %>
@@ -22,10 +5,12 @@
 <% tone, chip = trade_chip(trade) %>
 <% form_id = TradesHelper::COUNTER_FORM_ID %>
 <% yours = trade.state == :yours %>
+<% own_held = local_assigns[:own_held] %>
+<% friend_held = local_assigns[:friend_held] %>
 <% body = capture do %>
   <header class="trade-board__header">
     <%= pixel_icon("avatar-default", class: "trade-board__avatar") %>
-    <h2 id="trade-board-heading" class="trade-board__title" tabindex="-1"><%= t("trades.board.heading", name: trade_friend_name(trade.friend)) %></h2>
+    <h2 id="trade-board-heading" class="trade-board__title" tabindex="-1"><%= t("trades.board.heading", name: friend_name(trade.friend)) %></h2>
     <%= tag.span chip, class: "trade-chip trade-chip--#{tone}", hidden: editing, data: { trade_board_target: ("chip" if yours) } %>
     <% if yours %>
       <%= tag.span t("trades.chip.editing"), class: "trade-chip trade-chip--accent", hidden: !editing, data: { trade_board_target: "editingChip" } %>
@@ -41,18 +26,12 @@
   </header>
   <% sides = capture do %>
     <%= render "trades/side", side: :friend, label: friend_label, lines: friend_lines, cards:, editing:, form: form_id,
-          reserved: yours, max: local_assigns[:friend_max],
-          none: (trade_nothing_to_place(trade, :friend, local_assigns[:friend_max]) if editing) %>
-    <div class="trade-board__middle">
-      <%= pixel_icon("swap", class: "trade-board__swap") %>
-      <p class="trade-board__message" tabindex="-1"><%= trade_message(trade, editing:) %></p>
-      <% if flash[:trade_error] %>
-        <p class="trade-board__error" role="alert"><%= flash[:trade_error] %></p>
-      <% end %>
-    </div>
+          reserved: yours, held: friend_held,
+          none: (trade_nothing_to_place(trade, :friend, friend_held) if editing) %>
+    <%= render "trades/board_middle", message: trade_message(trade, editing:) %>
     <%= render "trades/side", side: :own, label: own_label, lines: own_lines, cards:, editing:, form: form_id,
-          reserved: trade.state == :theirs, max: local_assigns[:own_max], fresh:,
-          none: (trade_nothing_to_place(trade, :own, local_assigns[:own_max], local_assigns[:own_copies]) if editing) %>
+          reserved: trade.state == :theirs, held: own_held, fresh:,
+          none: (trade_nothing_to_place(trade, :own, own_held) if editing) %>
   <% end %>
   <% if local_assigns[:island] %>
     <%= turbo_mount("TradeBoard", props: island, class: "trade-island") { sides } %>
@@ -79,7 +58,7 @@
     <% elsif trade.state == :theirs %>
       <%= render ButtonComponent.new(variant: :secondary, href: cancel_trade_path(token: trade.token), method: :post) do %><%= t("trades.actions.cancel") %><% end %>
     <% elsif trade.state == :closed && local_assigns[:trade_again] %>
-      <%= render ButtonComponent.new(href: new_trade_path(friend: trade.friend.token)) do %><%= t("trades.actions.again", name: trade_friend_name(trade.friend)) %><% end %>
+      <%= render ButtonComponent.new(href: new_trade_path(friend: trade.friend.token)) do %><%= t("trades.actions.again", name: friend_name(trade.friend)) %><% end %>
     <% end %>
   </div>
   <% if yours %>

@@ -1,24 +1,5 @@
 module Game
-  # A player's trades as the trades screen shows them (CAP-11, AD-8;
-  # EXPERIENCE.md, Trade list row, Trade board), each seen from the player's
-  # side: the friend, what each of them gives, the state and its time. Trades
-  # whose other party is banned are left out (AD-13).
-  #
-  # States: `:yours` (open, the player's turn), `:theirs` (open, the
-  # friend's turn), `:concluded` (accepted) and `:closed` (declined,
-  # cancelled or expired). An open trade past its expiry can no longer be
-  # answered: it reads as closed and expired from then on, before
-  # Game::ExpireTradesJob closes it (its `ended_at` is the expiry).
-  #
-  # `friend_side` is what the friend gives (or gave, or offered), `own_side`
-  # what the player gives, each a list of Line by card-season. `id` is for
-  # the operations, server side: never put it in a page (AD-15), the token
-  # addresses the trade.
-  #
-  #   Game::TradesOf.call(player)                  # => Result(yours: [Row, …], theirs: […], recent: […])
-  #   Game::TradesOf.find(player, token)           # => Row | nil
   module TradesOf
-    # How long a finished trade stays in "TERMINÉS RÉCEMMENT", and how many.
     RECENT = 14.days
     RECENT_LIMIT = 20
 
@@ -31,7 +12,6 @@ module Game
 
     Result = Data.define(:yours, :theirs, :recent) do
       def empty? = yours.empty? && theirs.empty? && recent.empty?
-      # The first trade, in the order of the list.
       def first = yours.first || theirs.first || recent.first
     end
 
@@ -49,9 +29,6 @@ module Game
       )
     end
 
-    # One of the player's trades by its token, of any age; nil for a visitor,
-    # an unknown token, someone else's trade, or one whose other party is
-    # banned.
     def self.find(player, token, now: Time.current)
       return unless player && token.is_a?(String)
 
@@ -91,7 +68,6 @@ module Game
     end
     private_class_method :other_id
 
-    # [state, outcome, ended_at]
     def self.state_of(trade, player, now)
       if trade.open?
         return [ :closed, "expired", trade.expires_at ] if trade.expired?(now)

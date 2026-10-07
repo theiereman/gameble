@@ -1,9 +1,6 @@
-<% name = @owner.persona_name.presence || t("friends.show.nameless") %>
+<% name = friend_name(@owner) %>
 <% content_for :title, t(".title", name:) %>
 <% content_for :screen_title, t(".heading") %>
-<%# A player's invite link (EXPERIENCE.md, Amis): the owner's name and one
-    action. A visitor's action opens the sign-in panel, whose sign-in comes
-    back to this page; a player's sends the invitation. %>
 <section class="friends invite-link" aria-labelledby="invite-link-heading">
   <h1 id="invite-link-heading" class="friends__title"><%= t(".heading") %></h1>
   <%= render PanelComponent.new(brackets: true, class: "friends__panel") do %>

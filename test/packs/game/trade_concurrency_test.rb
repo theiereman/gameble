@@ -1,12 +1,5 @@
 require "test_helper"
 
-# The trade operations under concurrency (AD-6, AD-8, AD-10): the bank locks
-# taken in ascending player id, then the holdings in ascending card-season,
-# serialise proposals, acceptances and counters that touch the same player,
-# so a card is never reserved beyond what is owned, never spent twice, and
-# crossing trades never deadlock. Each
-# thread has its own connection, so the test commits for real and cleans up
-# after itself.
 class Game::TradeConcurrencyTest < ActiveSupport::TestCase
   self.use_transactional_tests = false
 
@@ -46,7 +39,6 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
 
   def quantity(player, card_season_id) = Game::Holding.uncached { Game::Holding.find_by(player_id: player.id, card_season_id:)&.quantity.to_i }
 
-  # Runs the blocks together, each on its own connection, released at once.
   # A deadlock would hang the threads: a timeout fails the test instead.
   def together(*blocks)
     gate = Queue.new

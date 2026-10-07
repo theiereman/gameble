@@ -1,4 +1,4 @@
-<% name = trade_friend_name(friend) %>
+<% name = friend_name(friend) %>
 <% empty = { lines: [], cards: {}, editing: true } %>
 <%= render PanelComponent.new(tag: :section, brackets: true, class: "trade-board trade-board--editing",
       aria: { labelledby: "trade-board-heading" },
@@ -13,13 +13,7 @@
     </header>
     <%= turbo_mount("TradeBoard", props: island, class: "trade-island") do %>
       <%= render "trades/side", side: :friend, label: t("trades.side.friend_gives", name:), reserved: false, **empty %>
-      <div class="trade-board__middle">
-        <%= pixel_icon("swap", class: "trade-board__swap") %>
-        <p class="trade-board__message"><%= t("trades.board.choose") %></p>
-        <% if flash[:trade_error] %>
-          <p class="trade-board__error" role="alert"><%= flash[:trade_error] %></p>
-        <% end %>
-      </div>
+      <%= render "trades/board_middle", message: t("trades.board.choose") %>
       <%= render "trades/side", side: :own, label: t("trades.side.you_give"), reserved: false, **empty %>
     <% end %>
     <div class="trade-board__actions">

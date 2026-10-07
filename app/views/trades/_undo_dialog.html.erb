@@ -8,7 +8,7 @@
         <%= pixel_icon("close", class: "modal__close-icon") %>
       </button>
     </div>
-    <p id="trade-undo-dialog-text" class="trade-undo__text"><%= t("trades.undo_dialog.text", name: trade_friend_name(trade.friend)) %></p>
+    <p id="trade-undo-dialog-text" class="trade-undo__text"><%= t("trades.undo_dialog.text", name: friend_name(trade.friend)) %></p>
     <div class="trade-undo__actions">
       <button type="button" class="button button--primary" data-action="trade-board#restore"><%= t("trades.undo_dialog.confirm") %></button>
       <button type="button" class="button button--secondary" data-action="dialog#close"><%= t("trades.undo_dialog.keep") %></button>

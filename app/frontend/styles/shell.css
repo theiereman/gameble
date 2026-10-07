@@ -540,7 +540,6 @@ button.tab-bar__tab {
   cursor: pointer;
 }
 
-/* A count badge at the icon's top right: orange for the trades waiting. */
 .tab-bar__badge {
   position: absolute;
   top: var(--space-2);

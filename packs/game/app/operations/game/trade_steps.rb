@@ -1,13 +1,7 @@
 module Game
-  # The steps the trade operations share (AD-6, AD-8): reading and checking
-  # a side, the parties of a trade, and reserving or releasing an offer on
-  # holdings already locked (Game::TradeLocks). Mixed into the trade
-  # operations; every method returning a Result is meant for `step`.
   module TradeSteps
     private
 
-    # { card_season_id => quantity } with integer ids and positive integer
-    # quantities, one to four cards, sorted by card-season.
     def normalise(side, code)
       return Failure(code) unless side.is_a?(Hash) && side.size.between?(1, TradeItem::MAX_CARDS_PER_SIDE)
 
@@ -21,30 +15,24 @@ module Game
       value.is_a?(Integer) ? value : (Integer(value, 10, exception: false) if value.is_a?(String))
     end
 
-    # The requested cards exist in the catalogue.
     def known_cards(request)
       Catalog::CardSeason.where(id: request.keys).count == request.size ? Success() : Failure(:invalid_request)
     end
 
-    # The two are friends and the other is neither banned (AD-8) nor deleted
-    # (a deletion or a ban drops the friendship itself,
-    # Game::DropFriendsAndTrades; this covers a trade racing it).
     def friends(player, other)
-      low, high = [ player.id, other.id ].minmax
-      friendly = !other.banned? && !other.deleted? && Friendship.exists?(low_player_id: low, high_player_id: high)
-      friendly ? Success() : Failure(:not_friends)
+      !other.removed? && FriendshipBetween.call(player, other) ? Success() : Failure(:not_friends)
     end
 
-    # The trade, when the player is one of its parties: Failure(:trade_not_found)
-    # otherwise. Read without a lock: the parties of a trade never change, only
-    # which of them proposes (`turn` checks it again under the lock).
     def find_trade(player, trade_id)
       trade = Trade.find_by(id: trade_id)
       trade && [ trade.proposer_id, trade.recipient_id ].include?(player.id) ? Success(trade) : Failure(:trade_not_found)
     end
 
-    # The player holds `role` (:proposer_id or :recipient_id) in the trade:
-    # Failure(:not_allowed) otherwise.
+    def lock_trade(trade)
+      TradeLocks.players(trade.proposer_id, trade.recipient_id)
+      Trade.lock.find(trade.id)
+    end
+
     def turn(trade, player, role)
       trade.public_send(role) == player.id ? Success() : Failure(:not_allowed)
     end
@@ -57,14 +45,11 @@ module Game
       trade.expired?(now) ? Failure(:trade_expired) : Success()
     end
 
-    # Each offered quantity is at most the free copies (`quantity - reserved`)
-    # of the locked holdings.
-    def enough_copies(offer, holdings)
-      free = offer.all? { |card_season_id, quantity| (holding = holdings[card_season_id]) && quantity <= holding.quantity - holding.reserved }
-      free ? Success() : Failure(:insufficient_copies)
+    def enough_copies(lines, holdings, code = :insufficient_copies)
+      free = lines.all? { |card_season_id, quantity| (holding = holdings[card_season_id]) && quantity <= holding.quantity - holding.reserved }
+      free ? Success() : Failure(code)
     end
 
-    # A side of a stored trade, { card_season_id => quantity }, by card-season.
     def side_of(trade, side)
       TradeItem.where(trade_id: trade.id, side:).order(:card_season_id).pluck(:card_season_id, :quantity).to_h
     end
@@ -76,17 +61,12 @@ module Game
       TradeItem.insert_all!(rows)
     end
 
-    # Raises `reserved` by the offer on the locked holdings, by card-season.
     def reserve(offer, holdings, now)
       shift_reserved(offer, holdings, now, 1)
     end
 
-    # Lowers `reserved` by the offer on the locked holdings, by card-season.
-    # A card with no holding left is skipped: a deleted proposer's holdings
-    # are gone with their reservations (Game::ReleasePlayer), so expiring or
-    # declining their trade releases nothing.
     def release(offer, holdings, now)
-      shift_reserved(offer.select { |card_season_id, _| holdings.key?(card_season_id) }, holdings, now, -1)
+      shift_reserved(offer.slice(*holdings.keys), holdings, now, -1)
     end
 
     def shift_reserved(offer, holdings, now, sign)

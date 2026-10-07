@@ -1,12 +1,6 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# What other players' operations meet once a player deleted their account
-# (CAP-14, stories 7.8 and 5.11): the deletion cancels the trades with them
-# and ends the friendship (Game::DropFriendsAndTrades), so a trade with them
-# can no longer be answered, a new one cannot be proposed, the expiry job
-# has nothing left to close, and no row is ever created for them; the goal
-# reward job and the presence write skip them.
 class Game::DeletedPlayerPartnerTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include GamePacks

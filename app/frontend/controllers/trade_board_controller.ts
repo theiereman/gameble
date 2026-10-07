@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { openDialog } from "../lib/dialog"
 import { dispatchGameble, onGameble } from "../lib/events"
 import { currentIndex, recordEntry, sessionTrailStorage } from "../lib/history_trail"
+import { holdLiveRefresh } from "../lib/live_refresh_hold"
 import { forgetDraft } from "../lib/trade_draft"
 
 const opensElsewhere = (event: Event): boolean =>
@@ -36,7 +37,7 @@ export default class extends Controller<HTMLElement> {
   private stopListening?: () => void
 
   connect(): void {
-    if (this.editingValue) this.holdLiveRefresh(true)
+    if (this.editingValue) holdLiveRefresh(this.element, true)
     if (this.forgetValue) forgetDraft(this.forgetValue)
     this.stopListening = onGameble("gameble:trade-changed", ({ changed }) => {
       this.changed = changed
@@ -82,16 +83,12 @@ export default class extends Controller<HTMLElement> {
 
   private show(editing: boolean): void {
     this.editingValue = editing
-    this.holdLiveRefresh(editing)
+    holdLiveRefresh(this.element, editing)
     this.element.classList.toggle("trade-board--editing", editing)
     this.chipTargets.forEach((element) => (element.hidden = editing))
     this.readActionsTargets.forEach((element) => (element.hidden = editing))
     this.editingChipTargets.forEach((element) => (element.hidden = !editing))
     this.editActionsTargets.forEach((element) => (element.hidden = !editing))
-  }
-
-  private holdLiveRefresh(hold: boolean): void {
-    this.element.toggleAttribute("data-live-refresh-hold", hold)
   }
 
   private replaceUrl(url: string): void {

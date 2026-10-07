@@ -1,26 +1,4 @@
 module Game
-  # A player proposes a trade to a friend (CAP-11, AD-6, AD-8): an offer and
-  # a request, each a hash of card-season id => quantity, one to four
-  # different cards per side. Under the bank locks of both players in
-  # ascending player id (AD-10):
-  #
-  # 1. the two are friends (Game::Friendship): Failure(:not_friends), also
-  #    for oneself, a banned or an unknown player;
-  # 2. they have no open trade, whoever proposed it: Failure(:trade_already_open)
-  #    (the partial unique index is the database's guarantee behind it);
-  # 3. the proposer's holdings of the offered cards are locked in ascending
-  #    card-season and each offered quantity must be at most
-  #    `quantity - reserved`: Failure(:insufficient_copies), nothing reserved;
-  # 4. the trade and its items are inserted, `reserved` is raised by exactly
-  #    the offered quantities, and Game::TradeProposed is published.
-  #
-  # The requested cards must exist in the catalogue but are neither owned
-  # nor reserved: acceptance checks them free. The trade expires 7 days
-  # after `now`.
-  #
-  #   Game::ProposeTrade.new.call(player:, recipient:, offer: { 12 => 2 }, request: { 40 => 1 })
-  #   # => Success(trade) | Failure(:player_required) | Failure(:not_friends) | Failure(:invalid_offer)
-  #   #    | Failure(:invalid_request) | Failure(:trade_already_open) | Failure(:insufficient_copies)
   class ProposeTrade < Operation
     include TradeSteps
 

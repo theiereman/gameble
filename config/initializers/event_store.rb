@@ -8,13 +8,10 @@ Rails.configuration.to_prepare do
 
   # A new player's bank is filled within the sign-up (AD-7).
   event_store.subscribe(Game::Handlers::PlayerRegistered, to: [ Accounts::PlayerRegistered ])
-  # Before Game cuts a deleted or banned player off, while their friends and
-  # trade partners can still be found.
+  # Handlers run in subscription order: PlayerStream reads the ties the PlayerDeleted and PlayerBanned handlers drop.
   event_store.subscribe(PlayerStream, to: PlayerStream::CUT_OFF_EVENTS)
   # A deleted account's game is released within the deletion (AD-14).
   event_store.subscribe(Game::Handlers::PlayerDeleted, to: [ Accounts::PlayerDeleted ])
-  # A banned player's trades close and their friendships end within the ban
-  # (AD-14).
   event_store.subscribe(Game::Handlers::PlayerBanned, to: [ Accounts::PlayerBanned ])
   # Players left without a bank get one when a season is published.
   event_store.subscribe(Game::Handlers::SeasonPublished, to: [ Catalog::SeasonPublished ])
@@ -23,8 +20,6 @@ Rails.configuration.to_prepare do
   event_store.subscribe(Game::Handlers::PackOpened, to: [ Game::PackOpened ])
   # The notable pulls of an opening go to the activity feed (AD-10, AD-13).
   event_store.subscribe(Game::Handlers::PackOpenedFeed, to: [ Game::PackOpened ])
-  # A player's own actions are their latest activity, read by their friends'
-  # presence (AD-24).
   event_store.subscribe(Game::Handlers::PlayerActivity, to: Game::Handlers::PlayerActivity::EVENTS.keys)
 
   event_store.subscribe(PlayerStream, to: PlayerStream::EVENTS)

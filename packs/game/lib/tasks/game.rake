@@ -24,8 +24,6 @@ namespace :game do
     puts "game:backfill_player_states: every player has their game_player_states row"
   end
 
-  # Meant for production: run once after the deploy that creates
-  # game_friend_codes (AD-8).
   desc "Runs Game::BackfillFriendCodesJob now: a friend code for every player without one, banned included; idempotent"
   task backfill_friend_codes: :environment do
     Game::BackfillFriendCodesJob.perform_now
@@ -35,9 +33,6 @@ namespace :game do
     puts "game:backfill_friend_codes: every player has their friend code"
   end
 
-  # Meant for production: run once after the deploy that cuts removed
-  # players off (story 5.11), and after a ban set from the console until
-  # moderation bans through Accounts::PlayerBanned (story 7.5).
   desc "Runs Game::DropFriendsAndTradesJob now: deleted or banned players' open trades cancelled, their friendships and invitations dropped; idempotent"
   task drop_friends_and_trades: :environment do
     Game::DropFriendsAndTradesJob.perform_now

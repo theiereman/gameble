@@ -1,9 +1,5 @@
 require "test_helper"
 
-# The reads of the trades screen (story 5.6): Game::TradesOf (the list's
-# groups and one trade by token, seen from the player's side),
-# Game::TradesWaiting (the orange badge) and Game::FreeCopies (the counter
-# form's maximum).
 class Game::TradesOfTest < ActiveSupport::TestCase
   setup do
     @alice = accounts_players(:player)
@@ -127,12 +123,11 @@ class Game::TradesOfTest < ActiveSupport::TestCase
     assert Game::TradesOf.call(nil).empty?
   end
 
-  test "free copies are the copies held minus those reserved" do
+  test "free copies are the copies held minus those reserved in open trades" do
     propose(@alice, @bob, offer: { @one => 2 }, request: { @three => 1 })
 
-    assert_equal({ @one => 1, @two => 1 }, Game::FreeCopies.call(@alice, [ @one, @two, @three ]))
+    assert_equal({ @one => 1, @two => 1 }, Game::HeldCopies.call(@alice).transform_values(&:free))
     propose(@alice, @carol, offer: { @one => 1 }, request: { @three => 1 })
-    assert_equal({ @two => 1 }, Game::FreeCopies.call(@alice, [ @one, @two ]))
-    assert_equal({}, Game::FreeCopies.call(nil, [ @one ]))
+    assert_equal({ @one => 0, @two => 1 }, Game::HeldCopies.call(@alice).transform_values(&:free))
   end
 end

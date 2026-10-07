@@ -1,18 +1,13 @@
 <% content_for :back_button, true %>
 <% content_for :title, friend_name(@owner) %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
-<%# A friend's profile: the body of the friend's dialog on the Friends
-    screen, which loads this frame when it opens; read alone, it is a page.
-    The 64px avatar, the name, the card count, "VITRINE" with up to three
-    cards, "PROPOSER UN ÉCHANGE" (primary: the draft of a trade with them, or
-    the trade already open between them) and the orange "SIGNALER", which
-    opens the report dialog and comes back to the Friends screen. %>
 <%= turbo_frame_tag friend_profile_frame_id(@owner.token), target: "_top" do %>
   <section class="friend-profile" aria-labelledby="friend-profile-name-<%= @owner.token %>">
     <div class="friend-profile__head">
       <%= pixel_icon("avatar-default", class: "friend-profile__avatar") %>
       <div class="friend-profile__who">
         <h2 id="friend-profile-name-<%= @owner.token %>" class="friend-profile__name"><%= friend_name(@owner) %></h2>
+        <p class="friend-profile__presence"><%= render "friends/presence", presence: @presence %></p>
         <p class="friend-profile__count"><%= t("public_profiles.show.distinct_cards", count: @distinct_cards) %></p>
       </div>
     </div>

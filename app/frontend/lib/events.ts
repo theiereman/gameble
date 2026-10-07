@@ -24,8 +24,6 @@ export type BankChangedDetail = { available: number; reserveFull: boolean; nextA
 // bar) while it opens a booster or reveals a card, and unlocks it after.
 export type NavigationLockedDetail = { locked: boolean }
 
-// The player's private stream says their trades, or their friends and
-// invitations, changed.
 export type StreamUpdatedDetail = Record<string, never>
 export type TradeChangedDetail = { give: SideCount; take: SideCount; changed: boolean }
 

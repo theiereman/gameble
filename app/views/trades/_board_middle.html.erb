@@ -1,0 +1,7 @@
+<div class="trade-board__middle">
+  <%= pixel_icon("swap", class: "trade-board__swap") %>
+  <p class="trade-board__message" tabindex="-1"><%= message %></p>
+  <% if flash[:trade_error] %>
+    <p class="trade-board__error" role="alert"><%= flash[:trade_error] %></p>
+  <% end %>
+</div>

@@ -1,5 +1,4 @@
-# Jobs broadcast from their own process (bin/jobs), so development needs a
-# cross-process adapter: PostgreSQL's LISTEN/NOTIFY on the primary database.
+# Jobs broadcast from their own process (bin/jobs): development needs a cross-process adapter.
 development:
   adapter: postgresql
 
