@@ -320,20 +320,20 @@ en:
         next: "Next page"
     seen:
       throttled: "Too many requests in a minute. Try again in a moment."
+    # The collection's list of sets (library/set_list) and its no-season
+    # line (library/show); the public profile reads the tab names too.
     show:
       tabs:
-        label: "The kinds of sets"
         started: "Started"
         tome: "Tomes"
         publisher: "Publishers"
         best_of_year: "Best rated of the year"
       empty:
-        started: "No set started yet, Brother: this collection still awaits its first card."
-        tome: "No tome stands on these shelves yet, Brother. This season binds none."
-        publisher: "No publisher has earned a set this season, Brother."
-        best_of_year: "No year has had its best bound this season, Brother."
-      past_the_end: "This shelf stands empty, Brother. The tomes end on an earlier one."
-      no_season: "The shelves are bare, Brother: the Brotherhood has published no season of cards yet."
+        tome: "No tome in this season yet."
+        publisher: "No publisher has a set this season."
+        best_of_year: "No best-rated set this season."
+      past_the_end: "This list ends on an earlier page."
+      no_season: "No season of cards is published yet."
   public_profiles:
     title: "%{name}"
     fallback_title: "Player %{code}"
