@@ -1,20 +1,18 @@
 require "test_helper"
 require_relative "../support/catalog_seeds"
+require_relative "../support/rake_tasks"
 
 # catalog:number_seasons (AD-28, the expand step of card numbers): numbers,
 # once, each published season whose cards have no number yet, through
 # Catalog::PublishSeason#number_published.
 class CatalogNumberSeasonsTaskTest < ActiveSupport::TestCase
   include CatalogSeeds
+  include RakeTasks
 
-  # Tasks are loaded outside capture_io: loading them a second time in a
-  # process warns about the benchmark task's constants on stderr.
-  setup do
-    Rails.application.load_tasks if Rake::Task.tasks.none? { |task| task.name == "catalog:number_seasons" }
-  end
+  setup { rake_task("catalog:number_seasons") }
 
   def run_task
-    Rake::Task["catalog:number_seasons"].execute
+    rake_task("catalog:number_seasons").execute
   end
 
   def numbers_of(season)

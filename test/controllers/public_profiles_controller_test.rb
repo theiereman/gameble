@@ -456,7 +456,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a visitor's profile costs seven queries, a signed-in viewer's five more" do
+  test "a visitor's profile costs seven queries, a signed-in viewer's four more" do
     season = publish_sets_draft
     hold(@owner, set_members(season, "p").first, 1)
 
@@ -467,13 +467,13 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".collection-sets__list .set-row", minimum: 1
 
     sign_in(accounts_players(:moderator))
-    # The same, the viewer's lookup and the top bar's four (bank count, next
-    # pack, daily claim, copies per tier).
-    assert_request_queries(12) { get brother_path(locale: :en, token: @owner.token) }
+    # The same, the viewer's lookup and the top bar's three (reserve count,
+    # next pack, copies per tier).
+    assert_request_queries(11) { get brother_path(locale: :en, token: @owner.token) }
     assert_response :success
   end
 
-  test "a visitor's profile tome costs nine queries, a signed-in viewer's five more" do
+  test "a visitor's profile tome costs nine queries, a signed-in viewer's four more" do
     season = publish_sets_draft
     hold(@owner, set_members(season, "action-1").first, 1)
 
@@ -483,8 +483,8 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     sign_in(accounts_players(:moderator))
-    # The same, the viewer's lookup and the top bar's four.
-    assert_request_queries(14) { get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1", tab: "started") }
+    # The same, the viewer's lookup and the top bar's three.
+    assert_request_queries(13) { get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1", tab: "started") }
     assert_response :success
   end
 end
