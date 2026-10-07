@@ -1,4 +1,4 @@
-import type { Pixels } from "../src/index"
+import type { Pixels } from "pixelcrush"
 
 export type Rgba = [number, number, number, number]
 

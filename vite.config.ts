@@ -7,7 +7,7 @@ export default defineConfig({
     RubyPlugin(),
     react(),
   ],
-  // pixel-art-filter starts its worker as a module
+  // The card-art renderer (app/frontend/lib/card_art) starts its worker as a module
   // (new Worker(new URL("./worker.ts", import.meta.url), { type: "module" })).
   worker: {
     format: 'es',

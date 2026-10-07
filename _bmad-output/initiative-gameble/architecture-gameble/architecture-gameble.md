@@ -34,7 +34,7 @@ A **modular monolith with an operations layer**: one Rails application, four dom
 | `Accounts` | `packs/accounts` | Players, staff roles, last seen, profile visibility, preferences, bans, reports, data controls |
 | `Game` | `packs/game` | Pack bank, owned cards, trades, invitations, friendships, card backs, weekly goal, daily bonus, achievements, feed, presence activity, events and their handlers |
 | Web layer | `app/` | Controllers, policies, view components, Stimulus controllers, React islands, back-office, legal page |
-| Image filter | `packages/pixel-art-filter` | Standalone browser package |
+| Image filter | `app/frontend/lib/card_art` | The card-art worker and renderer, on the `pixelcrush` npm package |
 
 ## Invariants & Rules
 
@@ -199,7 +199,7 @@ graph TD
 - **Binds:** CAP-5, CAP-6, CAP-7, CAP-8
 - **Prevents:** several implementations of the card art treatment; code that cannot be published; the filter blocking the opening animation.
 - **Rule:**
-  - Cropping to the art box (anchored at 42 %), pixelation at 2 CSS px per art pixel and reduction to 32 colours by median cut, without dithering, live in `packages/pixel-art-filter`, in TypeScript, with no dependency on gameble.
+  - Pixelation and reduction to 32 colours by median cut, without dithering, come from `pixelcrush`, the author's npm package (published from github.com/theiereman/pixelcrush), with no dependency on gameble. Cropping to the art box (anchored at 42 %), pixelation at 2 CSS px per art pixel and the card-art worker live in `app/frontend/lib/card_art`.
   - The filter runs in a Web Worker with `OffscreenCanvas`, lazily, with 2 to 4 jobs at once. One palette per game is computed from the largest size needed and reused at every size. A browser without these APIs (public pages are open to older browsers) gets the cover pixelated without palette on the main thread.
   - Filtered bitmaps are kept in a bounded in-memory cache and closed when evicted. Images are loaded from Steam's CDN, never stored, never in a service worker or browser storage, and no palette or other image-derived data is stored server-side.
   - Image requests carry no added header and no referrer. A CORS failure is retried once on the main thread with a plain image and drawn pixelated without palette; a failure is not cached for the session.
@@ -453,8 +453,6 @@ gameble/
     steam/            # API client, import jobs, raw data, sign-in verification
     accounts/         # models, operations
     game/             # models, queries, operations, events, handlers, jobs, card backs
-  packages/
-    pixel-art-filter/ # standalone TypeScript package
   config/locales/     # fr, en
   test/               # Minitest, fixtures
 ```

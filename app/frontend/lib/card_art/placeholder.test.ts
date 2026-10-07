@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { isPlaceholder, isSingleChannel, isTooSmall, MIN_SOURCE } from "../src/index"
-import { fromPixels, image } from "./helpers"
+import { isPlaceholder, isSingleChannel, isTooSmall, MIN_SOURCE } from "./placeholder"
+import { fromPixels, image } from "./test_helpers"
 
 describe("placeholder", () => {
   it("takes 300 × 450 as the smallest cover", () => {

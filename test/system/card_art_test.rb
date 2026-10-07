@@ -1,6 +1,6 @@
 require "application_system_test_case"
 
-# The card art through pixel-art-filter (AD-17): filtered in its worker with
+# The card art through pixelcrush (AD-17): filtered in the card-art worker with
 # 32 colours, Steam's grey placeholder counted as missing, a CORS refusal
 # drawn on the main thread without palette. The back-office card preview is
 # the host page; card-art elements are added to it by script.

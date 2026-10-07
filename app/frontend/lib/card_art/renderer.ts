@@ -1,8 +1,6 @@
 import { abortError, ArtMissingError } from "./errors"
 import { renderPlain, type PlainRenderer } from "./plain"
-import { assertColors, assertSize } from "./pixels"
-import { DEFAULT_COLORS } from "./quantize"
-import type { ArtJob, JobRequest, JobResponse, JobResult } from "./worker-job"
+import type { ArtJob, JobRequest, JobResponse, JobResult } from "./worker_job"
 
 export type RenderArtOptions = {
   /** The art size, in art pixels. */
@@ -48,6 +46,8 @@ export type ArtRenderer = {
   dispose(): void
 }
 
+/** The colour count of the card art (AD-17). */
+export const DEFAULT_COLORS = 32
 export const DEFAULT_CONCURRENCY = 3
 export const DEFAULT_CACHE_LIMIT = 120
 
@@ -263,6 +263,18 @@ function draw(canvas: HTMLCanvasElement, bitmap: ImageBitmap, width: number, hei
   canvas.width = width
   canvas.height = height
   context.drawImage(bitmap, 0, 0)
+}
+
+function assertSize(name: string, value: number): void {
+  if (!Number.isInteger(value) || value <= 0) {
+    throw new RangeError(`${name} must be a positive integer, got ${value}`)
+  }
+}
+
+function assertColors(colors: number): void {
+  if (!Number.isInteger(colors) || colors < 1 || colors > 256) {
+    throw new RangeError(`colors must be an integer from 1 to 256, got ${colors}`)
+  }
 }
 
 function browserSupported(): boolean {

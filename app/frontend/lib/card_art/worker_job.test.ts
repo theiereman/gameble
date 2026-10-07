@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import type { Pixels } from "../src/index"
+import type { Pixels } from "pixelcrush"
 import {
   createJobRunner,
   FETCH_TIMEOUT_MS,
@@ -9,9 +9,9 @@ import {
   type ArtJob,
   type JobEnvironment,
   type JobResult,
-} from "../src/worker-job"
-import { FakeBitmap, FakeImageData, FakeSurface, opaqueColors } from "./fakes"
-import { image } from "./helpers"
+} from "./worker_job"
+import { FakeBitmap, FakeImageData, FakeSurface, opaqueColors } from "./test_fakes"
+import { image } from "./test_helpers"
 
 /** A colourful 600 × 900 cover, in the size of a Steam library capsule. */
 const COVER = image(600, 900, (x, y) => [(x * 255) / 599, (y * 255) / 899, ((x + y) * 7) % 256, 255])

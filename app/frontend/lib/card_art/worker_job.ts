@@ -1,8 +1,6 @@
+import { applyPalette, buildPalette, pixelate, type Color, type Pixels } from "pixelcrush"
 import { downscale } from "./downscale"
-import { pixelate } from "./pixelate"
-import type { Color, Pixels } from "./pixels"
 import { isSingleChannel, isTooSmall } from "./placeholder"
-import { applyPalette, buildPalette } from "./quantize"
 
 /** One art to draw: `url` at `width × height`, with the game's palette computed at `paletteWidth × paletteHeight`. */
 export type ArtJob = {
@@ -154,7 +152,9 @@ export async function runJob(job: ArtJob, environment: JobEnvironment): Promise<
     const output = environment.createSurface(job.width, job.height)
     if (!output) return UNSUPPORTED
     const filtered = applyPalette(art, palette)
-    output.context.putImageData(new ImageData(filtered.data, filtered.width, filtered.height), 0, 0)
+    // pixelcrush types the data as a Uint8ClampedArray on any buffer; applyPalette allocates a plain ArrayBuffer.
+    const data = filtered.data as Uint8ClampedArray<ArrayBuffer>
+    output.context.putImageData(new ImageData(data, filtered.width, filtered.height), 0, 0)
     return { status: "drawn", bitmap: output.canvas.transferToImageBitmap() }
   } catch {
     return MISSING
@@ -168,7 +168,7 @@ function artPixels(bitmap: ImageBitmap, width: number, height: number, { createS
   const last = downscale(bitmap, bitmap.width, bitmap.height, width, height, createSurface)
   if (!last) return null
   const { data } = last.context.getImageData(0, 0, last.width, last.height)
-  return pixelate({ width: last.width, height: last.height, data }, width, height, { crop: "none" })
+  return pixelate({ width: last.width, height: last.height, data }, { width, height, crop: "none" })
 }
 
 /**

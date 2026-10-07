@@ -1,4 +1,4 @@
-import type { Pixels } from "../src/index"
+import type { Pixels } from "pixelcrush"
 
 /** Something a fake context can draw from. */
 type Drawable = { width: number; height: number; pixels: Pixels }
@@ -22,7 +22,7 @@ export class FakeBitmap implements Drawable {
 }
 
 export class FakeImageData {
-  constructor(readonly data: Uint8ClampedArray<ArrayBuffer>, readonly width: number, readonly height: number) {}
+  constructor(readonly data: Uint8ClampedArray, readonly width: number, readonly height: number) {}
 }
 
 export type DrawCall = { source: unknown; args: number[] }

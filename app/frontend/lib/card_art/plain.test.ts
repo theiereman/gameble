@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { ArtMissingError } from "../src/index"
-import { renderPlain } from "../src/plain"
+import { ArtMissingError } from "./errors"
+import { renderPlain } from "./plain"
 
 /** How the stubbed browser decodes the next images. */
 let decode: (image: FakeImage) => Promise<void>
