@@ -86,6 +86,22 @@ module TradesHelper
     end
   end
 
+  # Why a side of the counter form has no copy left to place, or nil
+  # (EXPERIENCE.md, Nothing to place): `max` is the copies each card may
+  # take (Game::FreeCopies for the player, Game::Quantities for the friend),
+  # `held` the player's own copies, reserved ones included (nil for the
+  # friend's side). The player holds none of them, or holds them all
+  # reserved in other trades; the friend holds none any more.
+  def trade_nothing_to_place(row, side, max, held = nil)
+    lines = side == :own ? row.own_side : row.friend_side
+    return if max.nil? || lines.empty? || lines.any? { |line| max.fetch(line.card_season_id, 0).positive? }
+
+    if side == :friend then t("trades.side.none.friend_none_owned", name: trade_friend_name(row.friend))
+    elsif lines.any? { |line| held.to_h.fetch(line.card_season_id, 0).positive? } then t("trades.side.none.all_reserved")
+    else t("trades.side.none.none_owned")
+    end
+  end
+
   # The counter form's name for a card: its slug and its season's number.
   def trade_card_key(view)
     "#{view.id}--s#{view.season_number}"

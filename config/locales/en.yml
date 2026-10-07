@@ -500,7 +500,8 @@ en:
       title: "Friends"
       more: "More"
       code_label: "Your friend code"
-      empty: "No friends yet. Your code is how they will find you."
+      empty: "No friends yet."
+      empty_invite: "Invite one with your link or your code."
       nameless: "Nameless officer"
       invite: "Invite a friend"
       by_link: "By link"
@@ -573,7 +574,8 @@ en:
     list:
       label: "Your trades"
       back: "List"
-      empty: "No trade yet. Propose one to a friend from Friends."
+      empty: "No trades yet."
+      empty_invite: "Invite a friend to trade cards."
       yours: "Waiting for you"
       theirs: "Waiting for their answer"
       recent: "Recently finished"
@@ -634,6 +636,11 @@ en:
         other: "%{count} reserved"
       quantity_label: "Copies of %{title}"
       max: "/%{max}"
+      none:
+        title: "No card available."
+        none_owned: "You no longer hold any of these cards."
+        all_reserved: "Your copies are all reserved in other trades."
+        friend_none_owned: "%{name} no longer holds any of these cards."
     actions:
       accept: "Accept"
       counter: "Counter"
@@ -703,7 +710,7 @@ en:
     dialog:
       title: "Delete my account"
       close: "Close"
-      note: "Your collection, your boosters and your profile will be erased for good. This cannot be undone."
+      note: "Your collection, your boosters, your open trades and your profile will be erased for good. This cannot be undone."
       word: "DELETE"
       label: "Type %{word} to confirm"
       submit: "Delete for good"

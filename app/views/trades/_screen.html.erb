@@ -10,8 +10,8 @@
   <div class="trades__layout">
     <%= render "trades/list", trades:, current: (trade if view == :board), cards: %>
     <% if trade %>
-      <%= render "trades/board", trade:, cards:, editing:, own_max: local_assigns[:own_max], friend_max: local_assigns[:friend_max],
-            island: local_assigns[:island] %>
+      <%= render "trades/board", trade:, cards:, editing:, own_max: local_assigns[:own_max],
+            own_held: local_assigns[:own_held], friend_max: local_assigns[:friend_max], island: local_assigns[:island] %>
     <% end %>
   </div>
 </section>

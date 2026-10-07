@@ -7,10 +7,8 @@
 # A trade is addressed by its token (AD-15). On a desktop the list sits
 # beside a board (the first trade's on the list itself); on a phone the list
 # and the board are separate views (trades.css). A counter-proposal is a form
-# of its own (`edit`): the TradeBoard island (story 5.7) picks the cards of
-# each side among those their holder holds and sets their quantities, over
-# a fallback of quantity fields for the cards already there. Mutations are
-# limited to 20 a minute per player.
+# of its own (`edit`) where each side takes any card its holder holds.
+# Mutations are limited to 20 a minute per player.
 class TradesController < ApplicationController
   rate_limit to: 20, within: 1.minute, only: %i[counter accept decline cancel],
     by: -> { current_player&.id || request.remote_ip },
@@ -40,7 +38,7 @@ class TradesController < ApplicationController
   def edit
     authorize :trade, :counter?
     @trade = find_trade!
-    unless @trade.state == :yours && !@trade.friend.deleted?
+    unless @trade.state == :yours
       # A refused counter lands here first: its message goes on to the board.
       flash.keep
       return redirect_to(trade_path(token: @trade.token))
@@ -48,12 +46,12 @@ class TradesController < ApplicationController
 
     @trades = Game::TradesOf.call(current_player)
     @cards = card_views(@trades, @trade)
-    # The picker's cards: the player's (free copies), the friend's (copies held).
-    @own_held = Game::HeldCopies.call(current_player)
-    @friend_held = Game::HeldCopies.call(@trade.friend)
-    @picks = Catalog::CardViews.call(@own_held.keys + @friend_held.keys, locale: I18n.locale)
-    @own_max = @own_held.transform_values(&:free)
-    @friend_max = @friend_held.transform_values(&:quantity)
+    @own_cards = Game::HeldCopies.call(current_player)
+    @friend_cards = Game::HeldCopies.call(@trade.friend)
+    @picks = Catalog::CardViews.call(@own_cards.keys + @friend_cards.keys, locale: I18n.locale)
+    @own_max = @own_cards.transform_values(&:free)
+    @own_held = @own_cards.transform_values(&:quantity)
+    @friend_max = @friend_cards.transform_values(&:quantity)
   end
 
   # POST /:locale/trades/:token/counter, with `give[<card key>]` and
@@ -99,11 +97,7 @@ class TradesController < ApplicationController
     authorize :trade, :decline?
     trade = find_trade!
 
-    # A deleted partner's offered copies are gone with their holdings:
-    # releasing them would fail, so declining waits for story 5.11, which
-    # closes such trades.
-    result = trade.friend.deleted? ? Dry::Monads::Failure(:not_friends) : Game::DeclineTrade.new.call(player: current_player, trade_id: trade.id)
-    answer(trade, result) do
+    answer(trade, Game::DeclineTrade.new.call(player: current_player, trade_id: trade.id)) do
       toast t("trades.declined.title"), t("trades.declined.text", name: helpers.trade_friend_name(trade.friend))
     end
   end

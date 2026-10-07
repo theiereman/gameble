@@ -4,7 +4,9 @@
     reserved by the trade carry "RÉSERVÉE" / "2 RÉSERVÉES". When editing,
     each card has a quantity field named by its slug and season (AD-15),
     from 0 (removed) to `max` (the player's free copies, or what the friend
-    owns), and the side is marked "EN ÉDITION". %>
+    owns), and the side is marked "EN ÉDITION"; `none`, when set, says why
+    no card of the side has a copy left to place ("Aucune carte
+    disponible."). %>
 <% size = lines.size == 1 ? :m : :s %>
 <% field = side == :own ? "give" : "take" %>
 <div class="<%= class_names("trade-side", "trade-side--#{side}", "trade-side--editing": editing) %>">
@@ -13,6 +15,9 @@
     <% if editing %><span class="trade-side__editing"><%= t("trades.chip.editing") %></span><% end %>
     <span class="trade-side__count"><%= trade_side_count(lines) %></span>
   </p>
+  <% if local_assigns[:none] %>
+    <p class="trade-side__none"><b class="trade-side__none-title"><%= t("trades.side.none.title") %></b> <%= none %></p>
+  <% end %>
   <ul class="trade-side__cards">
     <% lines.each do |line| %>
       <% view = cards[line.card_season_id] or next %>

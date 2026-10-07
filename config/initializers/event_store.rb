@@ -10,6 +10,9 @@ Rails.configuration.to_prepare do
   event_store.subscribe(Game::Handlers::PlayerRegistered, to: [ Accounts::PlayerRegistered ])
   # A deleted account's game is released within the deletion (AD-14).
   event_store.subscribe(Game::Handlers::PlayerDeleted, to: [ Accounts::PlayerDeleted ])
+  # A banned player's trades close and their friendships end within the ban
+  # (AD-14).
+  event_store.subscribe(Game::Handlers::PlayerBanned, to: [ Accounts::PlayerBanned ])
   # Players left without a bank get one when a season is published.
   event_store.subscribe(Game::Handlers::SeasonPublished, to: [ Catalog::SeasonPublished ])
 

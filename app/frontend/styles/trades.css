@@ -284,6 +284,19 @@
   color: var(--color-accent);
 }
 
+/* Nothing to place (EXPERIENCE.md, State Patterns): the no-card line and
+   its reason, over the side's cards (story 5.11). */
+.trade-side__none {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.trade-side__none-title {
+  color: var(--color-alert);
+  font-weight: inherit;
+}
+
 .trade-side__cards {
   flex: 1;
   display: flex;

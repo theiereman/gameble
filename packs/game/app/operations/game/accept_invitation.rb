@@ -3,9 +3,9 @@ module Game
   # created in the same transaction that marks the invitation accepted, and
   # Game::InvitationAccepted is published. The invitation is found by its
   # token (AD-15) and must be pending and addressed to the player, else
-  # :not_found; a sender banned meanwhile also gives :not_found. A friendship
-  # that exists already (a rerun, a crossing invitation) is kept: the
-  # invitation is still closed as accepted.
+  # :not_found; a sender banned or deleted meanwhile also gives :not_found.
+  # A friendship that exists already (a rerun, a crossing invitation) is
+  # kept: the invitation is still closed as accepted.
   #
   #   Game::AcceptInvitation.new.call(player:, token:)
   #   # => Success(invitation) | Failure(:player_required) | Failure(:not_found)
@@ -29,7 +29,7 @@ module Game
     def pending_for(player, token)
       invitation = token.is_a?(String) ? Invitation.pending.lock.find_by(token:, recipient_id: player.id) : nil
       sender = invitation && Accounts::PlayerById.call(invitation.sender_id)
-      sender && !sender.banned? ? Success(invitation) : Failure(:not_found)
+      sender && !sender.banned? && !sender.deleted? ? Success(invitation) : Failure(:not_found)
     end
   end
 end

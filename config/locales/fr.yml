@@ -518,7 +518,8 @@ fr:
       title: "Amis"
       more: "Plus"
       code_label: "Votre code ami"
-      empty: "Aucun ami pour l'instant. Votre code est la clé pour vous retrouver."
+      empty: "Aucun ami pour l'instant."
+      empty_invite: "Invitez-en un avec votre lien ou votre code."
       nameless: "Officier sans nom"
       invite: "Inviter un ami"
       by_link: "Par lien"
@@ -591,7 +592,8 @@ fr:
     list:
       label: "Vos échanges"
       back: "Liste"
-      empty: "Aucun échange pour l'instant. Proposez-en un à un ami depuis Amis."
+      empty: "Aucun échange pour l'instant."
+      empty_invite: "Invitez un ami pour échanger des cartes."
       yours: "En attente de vous"
       theirs: "En attente de leur réponse"
       recent: "Terminés récemment"
@@ -652,6 +654,11 @@ fr:
         other: "%{count} réservées"
       quantity_label: "Exemplaires de %{title}"
       max: "/%{max}"
+      none:
+        title: "Aucune carte disponible."
+        none_owned: "Vous n'avez plus aucune de ces cartes."
+        all_reserved: "Vos exemplaires sont tous réservés dans d'autres échanges."
+        friend_none_owned: "%{name} n'a plus aucune de ces cartes."
     actions:
       accept: "Accepter"
       counter: "Contre-proposer"
@@ -723,7 +730,7 @@ fr:
     dialog:
       title: "Supprimer mon compte"
       close: "Fermer"
-      note: "Votre collection, vos boosters et votre profil seront effacés définitivement. Cette action est irréversible."
+      note: "Votre collection, vos boosters, vos échanges en cours et votre profil seront effacés définitivement. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
       submit: "Supprimer définitivement"

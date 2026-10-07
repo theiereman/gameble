@@ -353,44 +353,72 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select "form button", "Decline"
   end
 
-  test "a trade with a partner who deleted their account renders, waits for nobody and cannot be answered" do
+  test "a partner who deletes their account closes the trades with them: shown closed, the player's copies released" do
     yours = from_lea
     theirs = propose(@alice, @carol, offer: { @soldier => 1 }, request: { @depths => 1 })
+    assert_equal 1, holding(@alice, @soldier).reserved
     Accounts::DeletePlayer.new.call(player: @bob).value!
     Accounts::DeletePlayer.new.call(player: @carol).value!
     sign_in @alice
 
     get trades_path(locale: :fr)
     assert_response :success
+    assert_select ".trades__group", "Terminés récemment"
     assert_select ".trade-row", 2
     assert_select ".trade-row__name", /Officier sans nom/
+    assert_select ".trade-row .trade-chip--muted", text: "Clos", count: 2
+    assert_select ".trade-row__when", /annulé/
     assert_select ".tab-bar__badge", 0
+    assert_equal 0, holding(@alice, @soldier).reserved
 
-    get trade_path(token: yours.token, locale: :fr)
-    assert_response :success
-    assert_select ".trade-board__title", "Échange avec Officier sans nom"
-    assert_select ".trade-board__actions form, .trade-board__actions a", 0
-    post decline_trade_path(token: yours.token, locale: :fr)
-    follow_redirect!
-    assert_select ".trade-board__error", I18n.t("errors.game.not_friends", locale: :fr)
+    [ yours, theirs ].each do |trade|
+      get trade_path(token: trade.token, locale: :fr)
+      assert_response :success
+      assert_select ".trade-board__title", "Échange avec Officier sans nom"
+      assert_select ".trade-board__message", "Échange clos."
+      assert_select ".trade-board__actions form, .trade-board__actions a", 0
+    end
     get counter_trade_path(token: yours.token, locale: :fr)
     assert_redirected_to trade_path(token: yours.token, locale: :fr)
-
-    get trade_path(token: theirs.token, locale: :fr)
-    assert_response :success
-    post cancel_trade_path(token: theirs.token, locale: :fr)
-    follow_redirect!
-    assert_select ".trade-chip--muted", "Clos"
-    assert_equal 0, holding(@alice, @soldier).reserved
   end
 
-  test "a player with no trade sees the empty line" do
+  test "a player with no trade sees the empty line, pointing to the invite panel" do
     sign_in @alice
 
     get trades_path(locale: :fr)
 
-    assert_select ".trades__empty"
+    assert_select ".trades__empty", /Aucun échange pour l'instant\./ do
+      assert_select "a[href=?]", friends_path(locale: :fr, anchor: "friends-invite"), "Invitez un ami pour échanger des cartes."
+    end
     assert_select ".trade-board", 0
+  end
+
+  test "a side of the counter form with no copy left to place says so and why" do
+    trade = from_lea
+    holding(@alice, @portal).update!(reserved: 3)
+    holding(@bob, @depths).update!(quantity: 0, reserved: 0)
+    sign_in @alice
+
+    get counter_trade_path(token: trade.token, locale: :fr)
+
+    assert_response :success
+    assert_select ".trade-side--own .trade-side__none", "Aucune carte disponible. Vos exemplaires sont tous réservés dans d'autres échanges."
+    assert_select ".trade-side--friend .trade-side__none", "Aucune carte disponible. Lea n'a plus aucune de ces cartes."
+
+    holding(@alice, @portal).update!(quantity: 0, reserved: 0)
+    get counter_trade_path(token: trade.token, locale: :fr)
+    assert_select ".trade-side--own .trade-side__none", "Aucune carte disponible. Vous n'avez plus aucune de ces cartes."
+  end
+
+  test "a counter form whose sides have copies to place shows no such line" do
+    trade = from_lea
+    sign_in @alice
+
+    get counter_trade_path(token: trade.token, locale: :fr)
+
+    assert_select ".trade-side__none", 0
+    get trade_path(token: trade.token, locale: :fr)
+    assert_select ".trade-side__none", 0
   end
 
   test "the answers are limited to 20 a minute" do
