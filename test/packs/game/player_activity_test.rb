@@ -43,6 +43,25 @@ class Game::PlayerActivityTest < ActiveSupport::TestCase
     end
   end
 
+  test "countering is the counterer's activity, accepting the recipient's" do
+    befriend(@alice, @bob)
+    one = catalog_card_seasons(:portal_one).id
+    rare = catalog_card_seasons(:rare_card_one).id
+    Game::Holding.create!(player_id: @alice.id, card_season_id: one, quantity: 2, reserved: 0)
+    Game::Holding.create!(player_id: @bob.id, card_season_id: rare, quantity: 2, reserved: 0)
+    trade = travel_to(@now) { Game::ProposeTrade.new.call(player: @alice, recipient: @bob, offer: { one => 1 }, request: { rare => 1 }).value! }
+
+    travel_to(@now + 1.minute) do
+      Game::CounterTrade.new.call(player: @bob, trade_id: trade.id, offer: { rare => 1 }, request: { one => 2 }).value!
+      assert_equal [ "trading", @now + 1.minute ], activity(@bob)
+    end
+
+    travel_to(@now + 2.minutes) do
+      Game::AcceptTrade.new.call(player: @alice, trade_id: trade.id).value!
+      assert_equal [ "trading", @now + 2.minutes ], activity(@alice)
+    end
+  end
+
   test "proposing and cancelling are the proposer's activity, declining the recipient's" do
     befriend(@alice, @bob)
     one = catalog_card_seasons(:portal_one).id

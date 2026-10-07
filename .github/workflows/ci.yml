@@ -1,12 +1,23 @@
 name: CI
 
+# A push to develop runs only the quick jobs (lint and the non-system tests),
+# to spare the Actions minutes; the whole suite (security scans, production
+# image, system tests) runs on main, on pull requests, and on demand
+# (workflow_dispatch, e.g. on develop before a merge into main).
 on:
   pull_request:
   push:
     branches: [ main, develop ]
+  workflow_dispatch:
+
+# A newer push to develop cancels the run of the one before it.
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'push' && github.ref_name == 'develop' }}
 
 jobs:
   scan_ruby:
+    if: ${{ !(github.event_name == 'push' && github.ref_name == 'develop') }}
     runs-on: ubuntu-latest
 
     steps:
@@ -25,6 +36,7 @@ jobs:
         run: bin/bundler-audit
       
   docker-image:
+    if: ${{ !(github.event_name == 'push' && github.ref_name == 'develop') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -136,6 +148,7 @@ jobs:
         run: bin/rails db:test:prepare test
 
   system-test:
+    if: ${{ !(github.event_name == 'push' && github.ref_name == 'develop') }}
     runs-on: ubuntu-latest
 
     services:

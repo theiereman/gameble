@@ -92,6 +92,7 @@ deferred:
 - `online_count` is one SQL count (friendships subquery, players LEFT JOIN states) so the hub's query budget grows by one (14 to 15) whatever the number of friends; it relies on ACTIVITY_WINDOW being shorter than ONLINE_WINDOW, and the presence test checks it against the rows in every scenario.
 - The friend rows gained `.friends__name` and `.friends__presence`; the 5.2 invitations test now targets the name.
 - Migration `20261007145300_add_presence.rb`; `db/schema.rb` version moved to it.
+- After the build, develop had moved (stories 5.5, 7.6 and 6.5 merged); develop was merged into the lane branch: the hub's query budget is now 16 (6.5's goal reward read plus menu 04's count), the schema version is develop's, and the deferred finding below was resolved there: story 5.5's TradeCountered (the counterer) and TradeAccepted (the recipient) are now `trading` activities, tested; neither operation locks a state row, so the handler's write stays last (AD-10).
 
 ## Plan Change Log
 
@@ -113,7 +114,7 @@ deferred:
 
 ## Auto Run Result
 
-- **Summary:** friends' presence (CAP-21, AD-24). `accounts_players.last_seen_at`, written by `Accounts::NoteLastSeenJob` / `Accounts::NoteLastSeen` (one throttled UPDATE, no event), enqueued by `ApplicationController#note_presence` at most once a minute per session and never written by the request; `Game::Handlers::PlayerActivity` records the actor's latest action on `game_player_states` (`last_activity`, `last_activity_at`) for pack openings, the daily booster, trade propose / cancel / decline and invitations sent / accepted; `Game::FriendsPresence` gives each friend active / online / offline with the windows in one place (online 5 min, activity 3 min), and an online count in one query; the friend rows show a dot and "Ouvre un booster" / "En ligne" / "Il y a 3 h" / "Hors ligne", menu 04 shows "n en ligne".
+- **Summary:** friends' presence (CAP-21, AD-24). `accounts_players.last_seen_at`, written by `Accounts::NoteLastSeenJob` / `Accounts::NoteLastSeen` (one throttled UPDATE, no event), enqueued by `ApplicationController#note_presence` at most once a minute per session and never written by the request; `Game::Handlers::PlayerActivity` records the actor's latest action on `game_player_states` (`last_activity`, `last_activity_at`) for pack openings, the daily booster, trade propose / cancel / decline (and, after merging develop, counter / accept) and invitations sent / accepted; `Game::FriendsPresence` gives each friend active / online / offline with the windows in one place (online 5 min, activity 3 min), and an online count in one query; the friend rows show a dot and "Ouvre un booster" / "En ligne" / "Il y a 3 h" / "Hors ligne", menu 04 shows "n en ligne".
 - **Files:**
   - `db/migrate/20261007145300_add_presence.rb`, `db/schema.rb` -- the three columns.
   - `packs/accounts/app/operations/accounts/note_last_seen.rb`, `packs/accounts/app/jobs/accounts/note_last_seen_job.rb` -- throttled last-seen write and its job.
@@ -123,8 +124,8 @@ deferred:
   - `app/controllers/friends_controller.rb`, `app/views/friends/show.html.erb`, `app/helpers/presence_helper.rb`, `app/frontend/styles/friends.css` -- presence on the friend rows.
   - `app/controllers/pages_controller.rb`, `app/views/pages/home.html.erb`, `_menu.html.erb`, `_menu_friends.html.erb` -- "n en ligne" on menu 04.
   - `config/locales/fr.yml`, `config/locales/en.yml` -- presence and menu copy.
-  - tests: `test/packs/accounts/note_last_seen_test.rb`, `test/packs/game/player_activity_test.rb`, `test/packs/game/friends_presence_test.rb`, `test/controllers/presence_test.rb`, `test/helpers/presence_helper_test.rb`, and updates to `friends_controller_test.rb`, `invitations_controller_test.rb`, `pages_controller_test.rb` (query budget 15, the no-season meta), `back_office/import_runs_controller_test.rb` (no import job, the last-seen job allowed).
-- **Review:** quick lens, in-session; 0 patches, 1 deferred (5.5's events), 2 rejected (handler writes through upsert: allowed by AD-10; private friends' presence: no card shown, AD-13 does not apply).
+  - tests: `test/packs/accounts/note_last_seen_test.rb`, `test/packs/game/player_activity_test.rb`, `test/packs/game/friends_presence_test.rb`, `test/controllers/presence_test.rb`, `test/helpers/presence_helper_test.rb`, and updates to `friends_controller_test.rb`, `invitations_controller_test.rb`, `pages_controller_test.rb` (query budget 16 after merging develop, the no-season meta), `back_office/import_runs_controller_test.rb` (no import job, the last-seen job allowed).
+- **Review:** quick lens, in-session; 0 patches, 1 deferred (5.5's events, resolved after merging develop, see Implementation Notes), 2 rejected (handler writes through upsert: allowed by AD-10; private friends' presence: no card shown, AD-13 does not apply).
 - **Follow-up review recommended:** false (no patched entries).
-- **Verification:** `bin/rails test` 1453 runs, 0 failures; `bin/rails test test/system/hub_test.rb` 10 runs, 0 failures; `bin/rubocop` on the changed Ruby files clean; `bundle exec packwerk check` clean; `i18n-tasks missing` and `unused` clean; `npm run typecheck` and `npx vitest run` (132 tests) pass.
+- **Verification:** `bin/rails test` 1453 runs, 0 failures (1511 runs, 0 failures after merging develop); `bin/rails test test/system/hub_test.rb` 10 runs, 0 failures (11 after the merge); `bin/rubocop` on the changed Ruby files clean; `bundle exec packwerk check` clean; `i18n-tasks missing` and `unused` clean; `npm run typecheck` and `npx vitest run` (132 tests) pass.
 - **Residual risks:** the windows and the activity wording are first guesses, tuned in play (AD-24); the English copy is unreviewed; the last-seen time is only as fresh as the job queue.

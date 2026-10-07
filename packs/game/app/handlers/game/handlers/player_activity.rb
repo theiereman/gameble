@@ -18,6 +18,8 @@ module Game
         Game::TradeProposed => [ :trading, :proposer_id ],
         Game::TradeCancelled => [ :trading, :proposer_id ],
         Game::TradeDeclined => [ :trading, :recipient_id ],
+        Game::TradeCountered => [ :trading, :proposer_id ],
+        Game::TradeAccepted => [ :trading, :recipient_id ],
         Game::InvitationSent => [ :making_friends, :sender_id ],
         Game::InvitationAccepted => [ :making_friends, :recipient_id ]
       }.freeze

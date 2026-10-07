@@ -1,13 +1,19 @@
 # The activity feed, "Fil d'activité" (CAP-13, EXPERIENCE.md, Fil d'activité):
-# the notable pulls, newest first, readable without an account (CAP-18). A
-# read only page (AD-11): Game answers the entries each already filtered by
-# Game::Visibility for the viewer, Catalog the cards. Only the TOUS tab and
-# pulls exist yet.
+# the notable entries, newest first, readable without an account (CAP-18),
+# under the type filters TOUT, TIRAGES, DÉCOUVERTES, ÉCHANGES and REPOSTS
+# (story 6.2). A read only page (AD-11): Game answers the entries each
+# already filtered by Game::Visibility for the viewer, Catalog the cards.
+# Only the TOUS tab and pulls exist yet.
 class FeedsController < ApplicationController
-  # GET /:locale/feed
+  # The `filter` parameter's values and the kind of entry each shows; none,
+  # or an unknown one, is TOUT.
+  FILTERS = { "pulls" => "pull", "discoveries" => "discovery", "trades" => "trade", "reposts" => "repost" }.freeze
+
+  # GET /:locale/feed(?filter=pulls)
   def show
     authorize :page, :show?
-    entries = Game::FeedEntries.call(current_player)
+    @filter = params[:filter].presence_in(FILTERS.keys)
+    entries = Game::FeedEntries.call(current_player, kind: FILTERS[@filter])
     cards = Catalog::CardViews.call(entries.map { |item| item.entry.card_season_id }, locale: I18n.locale)
     @items = entries.filter_map { |item| [ item, cards[item.entry.card_season_id] ] if cards[item.entry.card_season_id] }
   end

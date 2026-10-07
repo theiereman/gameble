@@ -6,8 +6,10 @@ module Game
   # card-season, each marked as gained at the opening (AD-26), and
   # Game::PackOpened is published.
   # A pack that is not available yet is never opened. Opening a regular pack
-  # tops the bank back up to ten in the same transaction (Game::TopUpBank);
-  # a bonus or reward pack tops up nothing.
+  # replaces it in the same transaction (Game::TopUpBank), so a full bank
+  # stays full; a bank already short stays short until the next season's
+  # publication heals it (Game::HealBanksJob). A bonus or reward pack
+  # replaces nothing.
   #
   # The booster's JSON exchange (AD-23) passes the request's Idempotency-Key,
   # a UUID, stored on the opened pack. Under the bank lock (AD-10), before the

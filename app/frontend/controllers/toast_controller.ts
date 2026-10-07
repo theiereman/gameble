@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { onGameble, type ToastDetail } from "../lib/events"
-import { toastDuration } from "../lib/toast"
+import { firstShowing, toastDuration } from "../lib/toast"
 
 type Timer = { remaining: number; startedAt?: number; handle?: number; hovered: boolean; focused: boolean; cleanup: () => void }
 
@@ -10,6 +10,7 @@ type Timer = { remaining: number; startedAt?: number; handle?: number; hovered: 
 // Each toast stays toastDuration(its text), pauses while hovered or focused,
 // and closes with its "✕" or Esc. A morph refresh of the page (the hub)
 // keeps the toasts on screen and brings its own, which are timed as well.
+// A toast with a once key (`data-toast-once`) shows once per browser.
 // Every listener and timer goes on disconnect.
 export default class extends Controller<HTMLElement> {
   static targets = ["template", "toast"]
@@ -103,6 +104,12 @@ export default class extends Controller<HTMLElement> {
 
   private track(toast: HTMLElement): void {
     if (this.timers.has(toast)) return
+    // A toast with a once key that this browser already showed goes at once.
+    const once = toast.dataset.toastOnce
+    if (once && !firstShowing(once)) {
+      toast.remove()
+      return
+    }
     const pause = (key: "hovered" | "focused") => () => {
       const timer = this.timers.get(toast)
       if (!timer) return

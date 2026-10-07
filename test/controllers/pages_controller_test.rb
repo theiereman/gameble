@@ -7,7 +7,7 @@ require_relative "../support/game_packs"
 class PagesControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
 
-  PLAYER_HUB_QUERIES = 15
+  PLAYER_HUB_QUERIES = 16
   VISITOR_HUB_QUERIES = 5
 
   setup do
@@ -289,6 +289,59 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#community-goal .hub-goal__line", text: /\AToute la Confrérie ouvre 50[\s\u00a0\u202f]000 boosters, ensemble\.\z/
   end
 
+  test "a reached goal reads Objectif atteint with a full gauge, for a visitor and a player, in both languages" do
+    week = Game::WeeklyGoal.week_start(Time.current)
+    Game::WeeklyGoal.create!(week_start: week, total: 210, target: 200)
+
+    get home_path(locale: :en)
+    assert_select "#community-goal .hub-goal__status", text: "Goal reached"
+    assert_select "#community-goal .hub-goal__figures", text: "210 / 200"
+    assert_select "#community-goal .hub-goal__segment--lit", count: 24
+    assert_select "#community-goal .hub-goal__previous", false
+
+    sign_in(@player, origin: "/fr")
+    get home_path(locale: :fr)
+    assert_select "#community-goal .hub-goal__status", text: "Objectif atteint"
+    assert_select "#community-goal .hub-goal__segment--lit", count: 24
+  end
+
+  test "after the rollover the panel shows the new week's empty gauge and target, and last week's final count" do
+    week = Game::WeeklyGoal.week_start(Time.current)
+    Game::WeeklyGoal.create!(week_start: week - 7, total: 180, target: 200)
+    Game::WeeklyGoal.create!(week_start: week, total: 0, target: 250)
+
+    get home_path(locale: :fr)
+    assert_select "#community-goal .hub-goal__status", false
+    assert_select "#community-goal .hub-goal__figures", text: "0 / 250"
+    assert_select "#community-goal .hub-goal__segment--lit", count: 0
+    assert_select "#community-goal .hub-goal__previous", text: "Semaine dernière : 180 / 200 · objectif manqué"
+
+    Game::WeeklyGoal.where(week_start: week - 7).update_all(total: 260)
+    get home_path(locale: :en)
+    assert_select "#community-goal .hub-goal__previous", text: "Last week: 260 / 200 · goal reached"
+  end
+
+  test "a contributor whose goal reward waits unopened gets the reward toast, keyed by its week; others do not" do
+    week = Game::WeeklyGoal.week_start(Time.current) - 7
+    Game::WeeklyGoal.create!(week_start: week, total: 200, target: 200)
+    Game::WeeklyContribution.create!(player_id: @player.id, week_start: week, openings: 1)
+    Game::GrantGoalReward.new.call(player: @player, week_start: week).value!
+
+    get home_path(locale: :en)
+    assert_select "#toasts > .toast", false
+
+    sign_in(@player, origin: "/fr")
+    get home_path(locale: :fr)
+    assert_select "#toasts > .toast[data-toast-once='goal-reward-#{week.iso8601}']" do
+      assert_select ".toast__title", text: "Objectif atteint"
+      assert_select ".toast__message", text: "Un booster rare rejoint votre réserve."
+    end
+
+    Game::OpenPack.new.call(player: @player).value!
+    get home_path(locale: :fr)
+    assert_select "#toasts > .toast", false
+  end
+
   def assert_hub_queries(count)
     ActiveRecord::Base.connection.clear_query_cache
     assert_queries_count(count) { get home_path(locale: :en) }
@@ -302,7 +355,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     Game::SumWeeklyGoalJob.new.perform
 
     # Player lookup, published season, the weekly goal (one read once the job
-    # has created the week's row), bank (count, next pack, daily claim),
+    # has created the week's row), bank (count, next pack, daily claim), the
+    # waiting goal reward,
     # showcase (pull, card view), collection (owned, total), sets (progress,
     # the started sets, the fill, which finds no other set here, so no sizes),
     # the top bar's copies per tier and menu 04's friends online.
