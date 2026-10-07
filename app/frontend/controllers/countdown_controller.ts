@@ -1,11 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-
-// Turbo, as @hotwired/turbo-rails exposes it (the package has no types).
-declare global {
-  interface Window {
-    Turbo: { visit(location: string, options?: { action?: "advance" | "replace" }): void }
-  }
-}
+import "../lib/turbo"
 
 // After a refresh that brought no new countdown (failed, or the same value),
 // the next try.

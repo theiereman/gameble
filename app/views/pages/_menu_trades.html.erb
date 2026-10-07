@@ -15,8 +15,7 @@
     <%= link_to trades_path, class: "menu-item", aria: { keyshortcuts: "3" },
           data: { hub_menu_target: "item", action: "hub-menu#remember", turbo_prefetch: false } do %>
       <%= head %>
-      <span class="<%= class_names("menu-item__badge", "menu-item__badge--alert", "menu-item__badge--zero": waiting.zero?) %>" aria-hidden="true"><%= number_with_delimiter(waiting) %></span>
-      <span class="visually-hidden"><%= t("pages.home.menu.trades_waiting", count: waiting, number: number_with_delimiter(waiting)) %></span>
+      <span id="menu-trades-badge" class="stream-slot"><%= render "pages/menu_trades_badge", waiting: %></span>
       <%= arrow %>
     <% end %>
   <% end %>

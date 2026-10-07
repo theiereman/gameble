@@ -15,7 +15,7 @@
     one line points to the invite panel (`#friends-invite`, also the trades
     screen's way here). %>
 <% invite_url = public_url_for(invite_link_path(token: current_player.token)) %>
-<section class="friends" aria-labelledby="friends-heading">
+<section class="friends" aria-labelledby="friends-heading" data-controller="live-refresh" data-live-refresh-signal-value="friends-updated">
   <h1 id="friends-heading" class="friends__title"><%= t(".title") %></h1>
   <%= render PanelComponent.new(brackets: true, class: "friends__panel", id: "friends-invite") do %>
     <h2 class="friends__heading"><%= t(".invite") %></h2>

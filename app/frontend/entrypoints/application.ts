@@ -9,6 +9,9 @@ import { createElement, lazy, Suspense, type ComponentType } from "react"
 import BoosterErrorBoundary from "../components/BoosterErrorBoundary"
 import type { BoosterProps } from "../components/Booster"
 import TradeBoard from "../components/TradeBoard"
+import { registerStreamActions } from "../lib/stream_actions"
+
+registerStreamActions(window.Turbo)
 
 const application = Application.start()
 registerControllers(application, import.meta.glob("../controllers/**/*_controller.ts", { eager: true }))
