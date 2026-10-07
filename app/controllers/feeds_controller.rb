@@ -3,7 +3,7 @@
 # under the type filters TOUT, TIRAGES, DÉCOUVERTES, ÉCHANGES and REPOSTS
 # (story 6.2). A read only page (AD-11): Game answers the entries each
 # already filtered by Game::Visibility for the viewer, Catalog the cards.
-# Only the TOUS tab and pulls exist yet.
+# Only the TOUS tab, pulls and first discoveries (story 6.7) exist yet.
 class FeedsController < ApplicationController
   # The `filter` parameter's values and the kind of entry each shows; none,
   # or an unknown one, is TOUT.

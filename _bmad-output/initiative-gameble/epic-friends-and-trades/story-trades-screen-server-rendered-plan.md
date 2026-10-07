@@ -121,3 +121,23 @@ Subagents unavailable, done in-session (implementation and the quick review lens
 - **Follow-up review recommended:** false (one low patch).
 - **Verification:** `bin/rails test` (non-system, PARALLEL_WORKERS=2): 1511 runs, 0 failures; `bin/rails test test/system/shell_test.rb test/system/hub_test.rb test/system/trades_test.rb` (PARALLEL_WORKERS=1): 32 runs, 0 failures; `bin/rubocop` on changed Ruby: no offences; `bundle exec packwerk check`: none; `bundle exec i18n-tasks missing` and `unused`: none. No TypeScript changed (typecheck and vitest not needed).
 - **Residual risks:** the counter form cannot add cards until the picker (5.7); "NOUVEL ÉCHANGE AVEC …", drafts, the swap and NOUVEAU on the board wait for 5.8; the badge is not live (5.9); the 14-day "recently" window and English copy are autonomous choices for the author to confirm; query-count tests and the hub menu are shared with other lanes (merge conflicts likely in `pages/_menu.html.erb` and the count constants).
+
+### Merge of develop (673ecb0)
+
+- develop merged into the lane branch (merge commit). It brought 5.3, 7.8, 5.10, 10.5, 8.13 and 6.7. Conflicts were resolved keeping both sides:
+  - `pages/_menu.html.erb`: menu 03's trades partial and menu 04's friends-online count.
+  - Locales: `trades.*` next to 7.8's `accounts.*`.
+  - `db/schema.rb`: develop's tables plus `game_trades.token` and its index. I loaded develop's schema into a fresh lane database and ran the three token migrations; the dump matches the committed schema.
+  - Query-count tests: I measured each one on the merged code. The hub is 17 (`PLAYER_HUB_QUERIES`), the card detail 9, the public profile 12 and its tome 14. The library and library-set counts stay at 16.
+- Partner who deleted their account (7.8): `Game::ReleasePlayer` deletes the deleted player's holdings, and story 5.11 will close their trades. Until then:
+  - Such trades still render, on the list and the board, under the fallback name.
+  - They no longer count in the waiting badge.
+  - When it is the player's turn, the board shows no actions. The counter form sends the player back to the board, and the controller refuses a decline with `not_friends`. Without that guard, `DeclineTrade` would raise, because the offered copies it must release are gone.
+  - When it is the partner's turn, the player can still cancel, which releases the player's own copies.
+  - A controller test covers these cases.
+- Verification after the merge:
+  - `bin/rails test` (PARALLEL_WORKERS=2): 1616 runs, 0 failures.
+  - System tests for trades, shell, hub and friends (PARALLEL_WORKERS=1): 34 runs, 0 failures.
+  - rubocop, packwerk, `i18n-tasks missing` and `unused`, `npm run typecheck` and `npx vitest run` (138 tests): all clean.
+- Story 5.10: the friend profile's PROPOSER UN ÉCHANGE could link to `trade_path(token:)` when the pair already has an open trade. Starting a new trade needs the draft of story 5.8. I did not wire it here.
+

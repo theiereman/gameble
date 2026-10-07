@@ -316,7 +316,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal [ [ "Whole season", "0/0" ] ], set_rows
-    assert_select ".collection-sets__empty", "No publisher has earned a set this season, Brother."
+    assert_select ".collection-sets__empty", "No publisher has a set this season."
     assert_select ".collection-sets .series-nav", false
     assert_select ".collection-grid__empty", "Nothing matches these filters."
     assert_select ".collection-pages", false
@@ -341,7 +341,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en, shelf: 9)
     assert_response :success
     assert_equal 1, set_rows.size
-    assert_select ".collection-sets__empty", "This shelf stands empty, Brother. The tomes end on an earlier one."
+    assert_select ".collection-sets__empty", "This list ends on an earlier page."
     assert_select ".collection-sets .series-nav a[href='/en/library?shelf=3']", minimum: 1
   end
 
@@ -400,8 +400,12 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en)
 
     assert_response :success
-    assert_select ".collection-none p.panel", "The shelves are bare, Brother: the Brotherhood has published no season of cards yet."
+    assert_select ".collection-none p.panel", "No season of cards is published yet."
     assert_select ".collection, .collection-status", false
+
+    get library_path(locale: :fr)
+
+    assert_select ".collection-none p.panel", "Aucune saison de cartes n'est publiée pour l'instant."
   end
 
   test "no set or card-season id reaches the page" do

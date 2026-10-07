@@ -60,6 +60,47 @@ class SettingsTest < ApplicationSystemTestCase
     end
   end
 
+  test "a player deletes their account by typing the word, is signed out, and their profile shows as unavailable" do
+    token = @player.token
+    sign_in settings_path(locale: :fr)
+
+    click_on "Supprimer mon compte"
+    within("dialog#delete-dialog") do
+      assert_selector "#delete-dialog-title", text: "SUPPRIMER MON COMPTE"
+      submit = find("button[type=submit]")
+      assert_predicate submit, :disabled?
+      fill_in "Tapez SUPPRIMER pour confirmer", with: "suppr"
+      assert_predicate submit, :disabled?
+      fill_in "Tapez SUPPRIMER pour confirmer", with: "supprimer"
+      assert_not_predicate submit, :disabled?
+      click_on "Annuler"
+    end
+    assert_no_selector "dialog#delete-dialog[open]"
+    assert_not @player.reload.deleted?
+
+    click_on "Supprimer mon compte"
+    within("dialog#delete-dialog") do
+      fill_in "Tapez SUPPRIMER pour confirmer", with: ""
+      assert_selector "button[type=submit][disabled]"
+      # A paste is an input event too.
+      field = find_field("Tapez SUPPRIMER pour confirmer")
+      page.execute_script(<<~JS, field)
+        arguments[0].value = "Supprimer"
+        arguments[0].dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertFromPaste" }))
+      JS
+      assert_selector "button[type=submit]:not([disabled])"
+      click_on "Supprimer définitivement"
+    end
+
+    assert_signed_out
+    assert_selector ".hub-invitation"
+    assert_text "Votre compte a été supprimé"
+    assert_predicate @player.reload, :deleted?
+
+    visit brother_path(locale: :en, token:)
+    assert_text "Profile not available"
+  end
+
   test "a player picks reduced motion on the settings screen, and the switch follows on every page, signed in and out" do
     sign_in
     find(".top-bar .player-chip__button").click

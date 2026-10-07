@@ -5,8 +5,9 @@
     the sign-in panel); 02 opens the collection, with the unique
     cards owned out of the season's; 03 opens the trades screen, with the
     trades waiting for the player as an orange badge, and 04 the Friends
-    screen (for a visitor, each the sign-in panel); 05 opens the public feed;
-    06 has no screen yet. Hidden on the phone, where the tab bar navigates. %>
+    screen, with how many friends are online (for a visitor, each the
+    sign-in panel); 05 opens the public feed; 06 has no screen yet.
+    Hidden on the phone, where the tab bar navigates. %>
 <nav class="hub-menu" aria-label="<%= t("pages.home.menu.label") %>" data-hub-menu-target="menu" data-action="keydown->hub-menu#press">
   <% arrow = pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
   <ol class="hub-menu__list">
@@ -27,7 +28,7 @@
       <% if item == :trades %>
         <%= render "pages/menu_trades", waiting: (shell_trades_waiting unless bank.nil?) %>
       <% elsif item == :friends %>
-        <%= render "pages/menu_friends", signed_in: !bank.nil? %>
+        <%= render "pages/menu_friends", signed_in: !bank.nil?, online: local_assigns[:friends_online] %>
       <% elsif item == :feed %>
         <%= render "pages/menu_feed" %>
       <% else %>

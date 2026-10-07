@@ -7,7 +7,7 @@ require_relative "../support/game_packs"
 class PagesControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
 
-  PLAYER_HUB_QUERIES = 16
+  PLAYER_HUB_QUERIES = 17
   VISITOR_HUB_QUERIES = 5
 
   setup do
@@ -58,6 +58,21 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "link[rel=stylesheet][href^='/vite-test/assets/application-'][href$='.css']"
   end
 
+  test "the showcase's line names the genre of the card's tome, and leaves out a missing number" do
+    create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
+    set_id = Catalog::Set.insert_all!([ { season_id: catalog_seasons(:one).id, kind: "tome", key: "puzzle-1",
+      params: { "genre" => "puzzle", "volume" => 1, "volumes" => 1 } } ], returning: :id).rows.flatten.first
+    Catalog::SetMembership.insert_all!([ { set_id:, card_season_id: catalog_card_seasons(:portal_one).id, position: 1 } ])
+    sign_in(@player)
+
+    get home_path(locale: :fr)
+    assert_select ".hub-showcase__rarity span", "#{epic_name(:fr)} · Réflexion · S1 · #4"
+
+    catalog_card_seasons(:portal_one).update_columns(number: nil)
+    get home_path(locale: :en)
+    assert_select ".hub-showcase__rarity span", "#{epic_name(:en)} · Puzzle"
+  end
+
   test "a player's hub: the menu, the latest notable pull, the daily panel and the set progress" do
     create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
     Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2)
@@ -100,13 +115,14 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Succès" ], disabled.map { it.at_css(".menu-item__label").text }
     assert disabled.all? { it.at_css(".visually-hidden").text == "bientôt disponible" }
 
-    # The showcase: the tier 4 card of the pack, its rarity and its page.
+    # The showcase: the tier 4 card of the pack, its line (rarity and
+    # number; no tome, so no genre) and its page.
     assert_select ".hub-showcase:not(.hub-showcase--empty)" do
       assert_select ".hub-showcase__kicker", "Dernière obtention"
       assert_select ".card.card--xl", 1
       assert_select "h2.hub-showcase__name", "Portal"
       assert_select ".hub-showcase__rarity.hub-showcase__rarity--4 svg.pixel-icon"
-      assert_select ".hub-showcase__rarity span", epic_name(:fr)
+      assert_select ".hub-showcase__rarity span", "#{epic_name(:fr)} · S1 · #4"
       assert_select "a.button.button--secondary[href='/fr/cards/portal']", "Voir la fiche"
     end
 
@@ -275,7 +291,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
     get home_path(locale: :en)
     assert_select ".hub-sets", false
-    assert_select ".hub-menu .menu-item__meta", false
+    assert_select ".hub-menu .menu-item__meta", count: 1, text: "0 online"
     assert_select ".daily-booster", false
     assert_select ".hub-showcase--empty"
   end
@@ -364,9 +380,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # has created the week's row), bank (count, next pack, daily claim), the
     # waiting goal reward,
     # showcase (pull, card view), collection (owned, total), sets (progress,
-    # the started sets, the fill, which finds no other set here, so no sizes)
-    # the top bar's copies per tier, and the trades waiting (menu 03 and the
-    # tab bar share one count).
+    # the started sets, the fill, which finds no other set here, so no sizes),
+    # the top bar's copies per tier, menu 04's friends online and the trades
+    # waiting (menu 03 and the tab bar share one count).
     assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"
 

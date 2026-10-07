@@ -46,5 +46,4 @@ node_modules
 
 # Vitest reports and attachments (the JSON reporter writes .vitest/json/).
 /.vitest/
-packages/pixel-art-filter/dist
 .claude/worktrees/

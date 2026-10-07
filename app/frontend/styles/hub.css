@@ -1,12 +1,14 @@
 /*
  * The hub, "Pont de commandement" (DESIGN.md: Layout & Spacing, Kicker,
- * Menu item, Showcase, Daily booster panel, Set progress row, Signed-out
- * hub). From 1180px three columns: kicker, menu and daily booster panel on
- * the left (340px), the showcase in the centre, the set progress on the
- * right (340px). From 720px two: the left column (260 to 300px) holds the
- * kicker, menu, daily booster panel and set progress; the showcase stands
+ * Menu item, Showcase, Daily booster panel, Community goal panel, Set
+ * progress row, Signed-out hub). From 1180px three columns: kicker, menu
+ * and daily booster panel on the left (340px), the showcase in the centre,
+ * the community goal and the set progress on the right (340px). From 720px
+ * two: the left column (260 to 300px) holds the kicker, menu, daily
+ * booster panel, community goal and set progress; the showcase stands
  * alone in the centre. Under 720px one column, without the menu: kicker,
- * showcase (or invitation), daily booster panel, set progress.
+ * showcase (or invitation), community goal, daily booster panel, set
+ * progress.
  */
 
 .hub {
@@ -54,10 +56,6 @@
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-.menu-item__form {
-  margin: 0;
 }
 
 .menu-item {
@@ -256,8 +254,7 @@ button.menu-item:focus-visible:hover {
 .hub-showcase__rarity--4 { color: var(--color-rarity-epique); }
 .hub-showcase__rarity--5 { color: var(--color-rarity-legendaire); }
 
-.hub-showcase .button,
-.hub-showcase .button-form {
+.hub-showcase .button {
   margin: 0;
 }
 

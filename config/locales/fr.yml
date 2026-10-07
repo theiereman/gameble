@@ -68,6 +68,11 @@ fr:
           one: "%{number} échange en attente de vous"
           other: "%{number} échanges en attente de vous"
         friends: "Amis"
+        # French keeps the singular for 0, which the plural rule here does not.
+        friends_online:
+          zero: "%{number} en ligne"
+          one: "%{number} en ligne"
+          other: "%{number} en ligne"
         feed: "Fil d'activité"
         achievements: "Succès"
         soon: "bientôt disponible"
@@ -332,20 +337,20 @@ fr:
         next: "Page suivante"
     seen:
       throttled: "Trop de requêtes en une minute. Réessayez dans un instant."
+    # The collection's list of sets (library/set_list) and its no-season
+    # line (library/show); the public profile reads the tab names too.
     show:
       tabs:
-        label: "Les sortes de collections"
         started: "Entamées"
         tome: "Tomes"
         publisher: "Éditeurs"
         best_of_year: "Les mieux notés de l'année"
       empty:
-        started: "Aucune collection entamée pour l'instant, Confrère : celle-ci attend encore sa première carte."
-        tome: "Aucun tome ne se dresse encore sur ces étagères, Confrère. Cette saison n'en relie aucun."
-        publisher: "Aucun éditeur n'a mérité sa collection cette saison, Confrère."
-        best_of_year: "Aucune année n'a vu ses meilleurs reliés cette saison, Confrère."
-      past_the_end: "Cette étagère est vide, Confrère. Les tomes s'arrêtent sur une étagère précédente."
-      no_season: "Les étagères sont nues, Confrère : la Confrérie n'a encore publié aucune saison de cartes."
+        tome: "Aucun tome dans cette saison pour l'instant."
+        publisher: "Aucun éditeur n'a de set cette saison."
+        best_of_year: "Aucun set des mieux notés cette saison."
+      past_the_end: "Cette liste s'arrête sur une page précédente."
+      no_season: "Aucune saison de cartes n'est publiée pour l'instant."
   public_profiles:
     title: "%{name}"
     fallback_title: "Joueur %{code}"
@@ -486,6 +491,9 @@ fr:
       session:
         label: "Session"
         sign_out: "Se déconnecter"
+      account:
+        label: "Compte"
+        delete: "Supprimer mon compte"
   feeds:
     show:
       title: "Fil d'activité"
@@ -503,6 +511,8 @@ fr:
       nameless: "Officier sans nom"
       time_format: "%-d/%m, %H:%M UTC"
       pulled_html: "%{name} a tiré %{card}"
+      first_discovery: "Première découverte"
+      discovered_html: "%{card}, trouvée par %{name} pour la première fois dans la communauté"
   friends:
     show:
       title: "Amis"
@@ -525,6 +535,35 @@ fr:
       pending: "En attente"
       accept: "Accepter"
       ignore: "Ignorer"
+      presence:
+        online: "En ligne"
+        offline: "Hors ligne"
+        minutes_ago:
+          one: "Il y a %{count} min"
+          other: "Il y a %{count} min"
+        hours_ago:
+          one: "Il y a %{count} h"
+          other: "Il y a %{count} h"
+        days_ago:
+          one: "Il y a %{count} j"
+          other: "Il y a %{count} j"
+        activities:
+          opening_pack: "Ouvre un booster"
+          collecting_daily: "Récupère son booster du jour"
+          trading: "Négocie un échange"
+          making_friends: "Se fait des amis"
+    profile_dialog:
+      title: "Profil"
+      close: "Fermer"
+      loading: "Chargement du profil…"
+  friend_profiles:
+    show:
+      showcase: "Vitrine"
+      no_showcase: "Aucune carte en vitrine."
+      propose_trade: "Proposer un échange"
+      soon: "Bientôt disponible"
+    unavailable:
+      body: "Ce profil n'est pas disponible."
   invitations:
     sent: "Invitation envoyée à %{to}."
     throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
@@ -633,6 +672,19 @@ fr:
     sent:
       title: "Proposition envoyée"
       text: "%{name} a 7 jours pour répondre. Vos cartes sont réservées d'ici là."
+  accounts:
+    dialog:
+      title: "Supprimer mon compte"
+      close: "Fermer"
+      note: "Votre collection, vos boosters et votre profil seront effacés définitivement. Cette action est irréversible."
+      word: "SUPPRIMER"
+      label: "Tapez %{word} pour confirmer"
+      submit: "Supprimer définitivement"
+      cancel: "Annuler"
+    destroy:
+      deleted: "Votre compte a été supprimé. Merci d'avoir joué."
+      wrong_word: "Tapez %{word} pour confirmer la suppression. Rien n'a été effacé."
+      throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
   reports:
     open: "SIGNALER"
     reasons:

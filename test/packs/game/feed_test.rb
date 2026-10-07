@@ -21,7 +21,7 @@ class Game::FeedTest < ActiveSupport::TestCase
   def entries = Game::FeedEntry.order(:id).pluck(:position, :notable, :rarity)
 
   # Feed rows of `kind` written straight, newest last, on a pack of `player`
-  # (only pulls have a handler yet).
+  # (trades and reposts have no handler yet).
   def add_entries(player, count, kind: "pull", notable: true, from: 1.hour.ago)
     pack = create_pack(player)
     rows = Array.new(count) do |position|
@@ -61,7 +61,8 @@ class Game::FeedTest < ActiveSupport::TestCase
   end
 
   test "an opening publishes its own event only, the feed handler publishes nothing" do
-    create_pack(@player, cards: [ fixture_tier_ids[3] ] * 5)
+    # A card already discovered and in no set: no other event follows.
+    create_pack(@player, cards: [ fixture_tier_ids[4] ] * 5)
     before = game_events(@player).size
 
     Game::OpenPack.new.call(player: @player).value!
@@ -94,6 +95,21 @@ class Game::FeedTest < ActiveSupport::TestCase
     @other.update!(visibility: :public)
     @player.update!(banned_at: Time.current)
     assert_equal [ @other ], Game::FeedEntries.call(nil).map(&:player)
+  end
+
+  test "a friends-only player's entries show to their friends only, asked once per player (story 5.10)" do
+    add_entries(@other, 5)
+    @other.update!(visibility: :friends_only)
+    stranger = accounts_players(:administrator)
+    Game::Friendship.create!(low_player_id: [ @player.id, @other.id ].min, high_player_id: [ @player.id, @other.id ].max)
+
+    # The notable rows, their player, one friendship question (not one per
+    # entry), then the fillers' rows.
+    shown = nil
+    assert_queries_count(4) { shown = Game::FeedEntries.call(@player) }
+    assert_equal [ @other ] * 5, shown.map(&:player)
+    assert_empty Game::FeedEntries.call(stranger)
+    assert_empty Game::FeedEntries.call(nil)
   end
 
   test "lower rarities stay out while the feed holds enough, and fill it when it is quiet" do

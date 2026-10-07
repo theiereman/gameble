@@ -16,7 +16,9 @@ module Game
   #
   # The lock serialises a player's grants; the unique index on (player_id,
   # week_start) is the database's guarantee behind it. Run by
-  # Game::GrantGoalRewardsJob, one player per transaction.
+  # Game::GrantGoalRewardsJob, one player per transaction. A player whose
+  # account was deleted while it waited on the lock gets nothing
+  # (Game::Operation#lock_bank).
   #
   #   Game::GrantGoalReward.new.call(player:, week_start: Date)
   #   # => Success(pack) | Failure(:player_required) | Failure(:goal_not_reached) | Failure(:not_contributor)
@@ -31,7 +33,7 @@ module Game
       player = step require_player(player)
 
       transaction do
-        BankLock.acquire(player.id)
+        step lock_bank(player)
         step reached(week_start)
         step contributed(player, week_start)
         step ungranted(player, week_start)

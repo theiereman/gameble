@@ -436,15 +436,15 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-controller~=share]", false
   end
 
-  test "a player's request costs eleven queries, a visitor's two; a frame visit (◀ ▶) skips the top bar's" do
+  test "a player's request costs nine queries, a visitor's two; a frame visit (◀ ▶) skips the top bar's" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 2)
     sign_in(player)
 
     # Player lookup, card detail, sets, neighbours, quantities, and the top
-    # bar's five (bank count, next pack, published season, daily claim,
-    # copies per tier), and the tab bar's trades waiting.
-    assert_request_queries(11) { get card_path(locale: :en, slug: "portal") }
+    # bar's three (reserve count, next pack, copies per tier), and the tab
+    # bar's trades waiting.
+    assert_request_queries(9) { get card_path(locale: :en, slug: "portal") }
     assert_response :success
     assert_equal [ "Copies", "2 copies" ], facts.last
     assert_select "#share-sheet"

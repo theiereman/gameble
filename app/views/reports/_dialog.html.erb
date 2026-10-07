@@ -4,22 +4,27 @@
     be chosen before "ENVOYER LE SIGNALEMENT"; the note says the reported
     player will not learn who reported them. It posts to reports#create and
     is reusable by any profile (epic 5's friend profile). Locals:
-    - owner: the reported player. %>
-<dialog id="report-dialog" class="modal" aria-labelledby="report-dialog-title" data-controller="dialog" data-action="click->dialog#closeOnScrim">
+    - owner: the reported player;
+    - id: the dialog's id, "report-dialog" unless a page holds several;
+    - from: "friends" to come back to the Friends screen once sent, else
+      the report comes back to the public profile. %>
+<% id = local_assigns.fetch(:id, "report-dialog") %>
+<dialog id="<%= id %>" class="modal" aria-labelledby="<%= id %>-title" data-controller="dialog" data-action="click->dialog#closeOnScrim">
   <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
     <span class="modal__handle" aria-hidden="true"></span>
     <div class="modal__head">
-      <p id="report-dialog-title" class="modal__title modal__title--alert"><%= t("reports.dialog.title") %></p>
+      <p id="<%= id %>-title" class="modal__title modal__title--alert"><%= t("reports.dialog.title") %></p>
       <button type="button" class="modal__close" aria-label="<%= t("reports.dialog.close") %>" data-action="dialog#close">
         <%= pixel_icon("close", class: "modal__close-icon") %>
       </button>
     </div>
     <%= form_with url: brother_report_path(token: owner.token), class: "report-dialog__form" do %>
+      <%= hidden_field_tag :from, local_assigns[:from], id: nil if local_assigns[:from] %>
       <fieldset class="report-dialog__reasons">
         <legend class="report-dialog__legend"><%= t("reports.dialog.legend") %></legend>
         <% Accounts::Report.reasons.each_key do |reason| %>
           <label class="report-dialog__reason">
-            <%= radio_button_tag "reason", reason, false, required: true, class: "report-dialog__radio" %>
+            <%= radio_button_tag "reason", reason, false, required: true, class: "report-dialog__radio", id: "#{id}-#{reason}" %>
             <span><%= t("reports.reasons.#{reason}") %></span>
           </label>
         <% end %>

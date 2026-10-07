@@ -26,10 +26,12 @@ module Game
       Catalog::CardSeason.where(id: request.keys).count == request.size ? Success() : Failure(:invalid_request)
     end
 
-    # The two are friends and the other is not banned (AD-8).
+    # The two are friends and the other is neither banned (AD-8) nor deleted
+    # (their cards are gone, Game::ReleasePlayer; story 5.11 drops the
+    # friendship itself).
     def friends(player, other)
       low, high = [ player.id, other.id ].minmax
-      friendly = !other.banned? && Friendship.exists?(low_player_id: low, high_player_id: high)
+      friendly = !other.banned? && !other.deleted? && Friendship.exists?(low_player_id: low, high_player_id: high)
       friendly ? Success() : Failure(:not_friends)
     end
 
@@ -80,8 +82,11 @@ module Game
     end
 
     # Lowers `reserved` by the offer on the locked holdings, by card-season.
+    # A card with no holding left is skipped: a deleted proposer's holdings
+    # are gone with their reservations (Game::ReleasePlayer), so expiring or
+    # declining their trade releases nothing.
     def release(offer, holdings, now)
-      shift_reserved(offer, holdings, now, -1)
+      shift_reserved(offer.select { |card_season_id, _| holdings.key?(card_season_id) }, holdings, now, -1)
     end
 
     def shift_reserved(offer, holdings, now, sign)

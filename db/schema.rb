@@ -15,7 +15,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_183102) do
   enable_extension "pg_catalog.plpgsql"
 
   create_table "accounts_players", force: :cascade do |t|
-    t.string "steam_id", null: false
+    t.string "steam_id"
     t.string "token", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -24,8 +24,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_183102) do
     t.string "persona_name"
     t.boolean "reduced_motion"
     t.string "visibility", default: "public", null: false
+    t.datetime "last_seen_at"
+    t.datetime "deleted_at"
     t.index ["steam_id"], name: "index_accounts_players_on_steam_id", unique: true
     t.index ["token"], name: "index_accounts_players_on_token", unique: true
+    t.check_constraint "(steam_id IS NULL) = (deleted_at IS NOT NULL)", name: "accounts_players_deleted_check"
     t.check_constraint "role::text = 'player'::text OR role::text = 'moderator'::text OR role::text = 'administrator'::text", name: "accounts_players_role_check"
     t.check_constraint "visibility::text = ANY (ARRAY['public'::character varying::text, 'friends_only'::character varying::text, 'private'::character varying::text])", name: "accounts_players_visibility_check"
   end
@@ -173,6 +176,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_183102) do
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "game_feed_entries_rarity_check"
   end
 
+  create_table "game_first_discoveries", force: :cascade do |t|
+    t.bigint "card_season_id", null: false
+    t.bigint "player_id", null: false
+    t.bigint "pack_id"
+    t.datetime "discovered_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["card_season_id"], name: "index_game_first_discoveries_on_card_season_id", unique: true
+    t.index ["pack_id"], name: "index_game_first_discoveries_on_pack_id"
+    t.index ["player_id"], name: "index_game_first_discoveries_on_player_id"
+  end
+
   create_table "game_friend_codes", force: :cascade do |t|
     t.bigint "player_id", null: false
     t.string "code", null: false
@@ -259,7 +274,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_183102) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "collection_seen_up_to"
+    t.string "last_activity"
+    t.datetime "last_activity_at"
     t.index ["player_id"], name: "index_game_player_states_on_player_id", unique: true
+  end
+
+  create_table "game_set_completions", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "set_id", null: false
+    t.datetime "completed_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "set_id"], name: "index_game_set_completions_on_player_id_and_set_id", unique: true
   end
 
   create_table "game_trade_items", force: :cascade do |t|
@@ -397,6 +423,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_183102) do
   add_foreign_key "game_daily_bonus_claims", "game_packs", column: "pack_id"
   add_foreign_key "game_feed_entries", "accounts_players", column: "player_id"
   add_foreign_key "game_feed_entries", "game_packs", column: "pack_id"
+  add_foreign_key "game_first_discoveries", "accounts_players", column: "player_id"
+  add_foreign_key "game_first_discoveries", "game_packs", column: "pack_id"
   add_foreign_key "game_friend_codes", "accounts_players", column: "player_id"
   add_foreign_key "game_friendships", "accounts_players", column: "high_player_id"
   add_foreign_key "game_friendships", "accounts_players", column: "low_player_id"
@@ -409,6 +437,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_183102) do
   add_foreign_key "game_packs", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
   add_foreign_key "game_player_states", "accounts_players", column: "player_id"
+  add_foreign_key "game_set_completions", "accounts_players", column: "player_id"
   add_foreign_key "game_trade_items", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_trade_items", "game_trades", column: "trade_id"
   add_foreign_key "game_trades", "accounts_players", column: "high_player_id"

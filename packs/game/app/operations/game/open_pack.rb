@@ -5,6 +5,10 @@ module Game
   # its cards are credited to the player's holdings in one upsert, ascending
   # card-season, each marked as gained at the opening (AD-26), and
   # Game::PackOpened is published.
+  # The first pull of a card in its season is recorded (Game::FirstDiscovery)
+  # and every set the cards complete for the player for the first time
+  # (Game::SetCompletion); Game::CardDiscovered and Game::SetCompleted follow
+  # Game::PackOpened, one per row inserted (AD-9, AD-10, story 6.7).
   # A pack that is not available yet is never opened. Opening a regular pack
   # replaces it in the same transaction (Game::TopUpBank), so a full bank
   # stays full; a bank already short stays short until the next season's
@@ -46,7 +50,7 @@ module Game
       step check_key(idempotency_key)
 
       transaction do
-        BankLock.acquire(player.id)
+        step lock_bank(player)
         replayed = idempotency_key && Pack.find_by(player_id: player.id, idempotency_key:)
         next replayed if replayed
 
@@ -54,13 +58,25 @@ module Game
         pack = step next_pack(player, now)
         pack.update!(opened_at: now, idempotency_key:, card_back: CardBacks.active_key(player))
         step credit(player, pack, now)
+        discovered = FirstDiscovery.record(pack, now)
+        completed = SetCompletion.record(player.id, pack.card_season_ids, now)
         TopUpBank.call(player_id: player.id, now:, random: @random) if pack.regular?
         step publish(PackOpened.new(data: { player_id: player.id, pack_id: pack.id }), stream_name: stream_name(player.id))
+        step publish_discoveries(player, pack, discovered)
+        step publish_completions(player.id, completed)
         pack
       end
     end
 
     private
+
+    # One Game::CardDiscovered per card-season the opening discovered.
+    def publish_discoveries(player, pack, card_season_ids)
+      card_season_ids.each do |card_season_id|
+        publish(CardDiscovered.new(data: { player_id: player.id, card_season_id:, pack_id: pack.id }), stream_name: stream_name(player.id))
+      end
+      Success()
+    end
 
     def check_key(key)
       key.nil? || (key.is_a?(String) && key.match?(IDEMPOTENCY_KEY)) ? Success() : Failure(:invalid_idempotency_key)

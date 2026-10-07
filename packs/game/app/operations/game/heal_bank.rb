@@ -24,7 +24,7 @@ module Game
       player = step require_player(player)
 
       transaction do
-        BankLock.acquire(player.id)
+        step lock_bank(player)
         next 0 unless Pack.exists?(player_id: player.id)
 
         inserted = TopUpBank.heal(player_id: player.id, now: Time.current, random: @random)

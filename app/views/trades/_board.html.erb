@@ -4,7 +4,9 @@
     player's side facing each other (stacked under 700px of board), the
     swap icon and the status line between them, a refusal inline under it,
     and the actions of the state below, each a form posting to its
-    operation. `editing` makes it the counter-proposal form: both sides
+    operation (none on the player's turn when the friend deleted their
+    account: accepting is refused and their offered copies are gone; story
+    5.11 closes such trades). `editing` makes it the counter-proposal form: both sides
     "EN ÉDITION", a quantity field per card (0 removes it; the card picker
     comes with the trade board island). %>
 <% friend_label, own_label = trade_side_labels(trade) %>
@@ -38,7 +40,7 @@
     <% if editing %>
       <%= render ButtonComponent.new(type: :submit) do %><%= t("trades.actions.send_counter") %><% end %>
       <%= render ButtonComponent.new(variant: :secondary, href: trade_path(token: trade.token)) do %><%= t("trades.actions.undo") %><% end %>
-    <% elsif trade.state == :yours %>
+    <% elsif trade.state == :yours && !trade.friend.deleted? %>
       <%= render ButtonComponent.new(href: accept_trade_path(token: trade.token), method: :post) do %><%= t("trades.actions.accept") %><% end %>
       <%= render ButtonComponent.new(variant: :secondary, href: counter_trade_path(token: trade.token)) do %><%= t("trades.actions.counter") %><% end %>
       <%= render ButtonComponent.new(variant: :secondary, href: decline_trade_path(token: trade.token), method: :post) do %><%= t("trades.actions.decline") %><% end %>

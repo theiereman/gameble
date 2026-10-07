@@ -39,7 +39,7 @@ class TradesController < ApplicationController
   def edit
     authorize :trade, :counter?
     @trade = find_trade!
-    unless @trade.state == :yours
+    unless @trade.state == :yours && !@trade.friend.deleted?
       # A refused counter lands here first: its message goes on to the board.
       flash.keep
       return redirect_to(trade_path(token: @trade.token))
@@ -87,7 +87,11 @@ class TradesController < ApplicationController
     authorize :trade, :decline?
     trade = find_trade!
 
-    answer(trade, Game::DeclineTrade.new.call(player: current_player, trade_id: trade.id)) do
+    # A deleted partner's offered copies are gone with their holdings:
+    # releasing them would fail, so declining waits for story 5.11, which
+    # closes such trades.
+    result = trade.friend.deleted? ? Dry::Monads::Failure(:not_friends) : Game::DeclineTrade.new.call(player: current_player, trade_id: trade.id)
+    answer(trade, result) do
       toast t("trades.declined.title"), t("trades.declined.text", name: helpers.trade_friend_name(trade.friend))
     end
   end

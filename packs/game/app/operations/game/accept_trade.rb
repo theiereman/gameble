@@ -18,7 +18,10 @@ module Game
   #    recipient gives the request and gains the offer; a holding whose
   #    quantity rises is marked gained now (`last_gained_at`, its NOUVEAU
   #    tag), one that falls to zero stays as a row of zero copies;
-  # 7. the trade closes as `accepted` and Game::TradeAccepted is published.
+  # 7. each player's sets completed for the first time by the cards they
+  #    gain are recorded (Game::SetCompletion);
+  # 8. the trade closes as `accepted` and Game::TradeAccepted is published,
+  #    then one Game::SetCompleted per set recorded, on that player's stream.
   #
   #   Game::AcceptTrade.new.call(player:, trade_id:)
   #   # => Success(trade) | Failure(:player_required) | Failure(:trade_not_found) | Failure(:not_allowed)
@@ -46,9 +49,11 @@ module Game
         step requested_free(request, holdings.fetch(trade.recipient_id))
         move(trade.proposer_id, holdings.fetch(trade.proposer_id), given: offer, gained: request, released: offer, now:)
         move(trade.recipient_id, holdings.fetch(trade.recipient_id), given: request, gained: offer, released: {}, now:)
+        completed = completions(trade, offer, request, now)
         trade.update!(status: "accepted", closed_at: now)
         step publish(TradeAccepted.new(data: { trade_id: trade.id, proposer_id: trade.proposer_id, recipient_id: trade.recipient_id }),
           stream_name: stream_name(trade.proposer_id))
+        completed.each { |player_id, set_ids| step publish_completions(player_id, set_ids) }
         trade
       end
     end
@@ -60,6 +65,14 @@ module Game
     def lock_holdings(trade, offer, request)
       cards = (offer.keys | request.keys).sort
       [ trade.low_player_id, trade.high_player_id ].to_h { |player_id| [ player_id, TradeLocks.holdings(player_id, cards) ] }
+    end
+
+    # The sets each player completes for the first time with the cards they
+    # gain (the proposer the request, the recipient the offer), recorded by
+    # ascending player id: { player_id => [ set_id, … ] }.
+    def completions(trade, offer, request, now)
+      gained = { trade.proposer_id => request.keys, trade.recipient_id => offer.keys }
+      [ trade.low_player_id, trade.high_player_id ].to_h { |player_id| [ player_id, SetCompletion.record(player_id, gained.fetch(player_id), now) ] }
     end
 
     def requested_free(request, holdings)

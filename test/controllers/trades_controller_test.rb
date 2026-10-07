@@ -273,6 +273,37 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select "form button", "Decline"
   end
 
+  test "a trade with a partner who deleted their account renders, waits for nobody and cannot be answered" do
+    yours = from_lea
+    theirs = propose(@alice, @carol, offer: { @soldier => 1 }, request: { @depths => 1 })
+    Accounts::DeletePlayer.new.call(player: @bob).value!
+    Accounts::DeletePlayer.new.call(player: @carol).value!
+    sign_in @alice
+
+    get trades_path(locale: :fr)
+    assert_response :success
+    assert_select ".trade-row", 2
+    assert_select ".trade-row__name", /Officier sans nom/
+    assert_select ".tab-bar__badge", 0
+
+    get trade_path(token: yours.token, locale: :fr)
+    assert_response :success
+    assert_select ".trade-board__title", "Échange avec Officier sans nom"
+    assert_select ".trade-board__actions form, .trade-board__actions a", 0
+    post decline_trade_path(token: yours.token, locale: :fr)
+    follow_redirect!
+    assert_select ".trade-board__error", I18n.t("errors.game.not_friends", locale: :fr)
+    get counter_trade_path(token: yours.token, locale: :fr)
+    assert_redirected_to trade_path(token: yours.token, locale: :fr)
+
+    get trade_path(token: theirs.token, locale: :fr)
+    assert_response :success
+    post cancel_trade_path(token: theirs.token, locale: :fr)
+    follow_redirect!
+    assert_select ".trade-chip--muted", "Clos"
+    assert_equal 0, holding(@alice, @soldier).reserved
+  end
+
   test "a player with no trade sees the empty line" do
     sign_in @alice
 
