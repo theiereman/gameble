@@ -45,6 +45,8 @@ en:
     sign_in_panel:
       title: "Sign in to play"
       close: "Close"
+    version:
+      label: "Deployed version"
   pages:
     home:
       kicker:

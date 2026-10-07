@@ -81,6 +81,13 @@ class ShellHelperTest < ActionView::TestCase
     assert_queries_count(0) { assert_same @bank, shell_bank }
   end
 
+  test "the version shown is the build's release tag, else the deployed commit, else dev" do
+    assert_equal "v1.2.0", ShellHelper.app_version({ "GAMEBLE_VERSION" => "v1.2.0", "KAMAL_VERSION" => "0123456789abcdef" })
+    assert_equal "0123456", ShellHelper.app_version({ "GAMEBLE_VERSION" => "", "KAMAL_VERSION" => "0123456789abcdef_uncommitted_abc" })
+    assert_equal "dev", ShellHelper.app_version({})
+    assert_equal ShellHelper.app_version, shell_version
+  end
+
   test "the countdown to the next pack, unless the reserve is full" do
     bank = { available: 3, reserve_full: false, next_available_at: 90.seconds.from_now }
     assert_in_delta 90, shell_next_pack_in(bank), 1
