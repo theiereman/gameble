@@ -32,6 +32,9 @@ Rails.application.routes.draw do
     # their sets opened beside its shelf.
     resources :brothers, only: :show, param: :token, controller: :public_profiles,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    # Reporting a player from their profile (CAP-15), by token.
+    post "brothers/:token/report" => "reports#create", as: :brother_report,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     get "brothers/:token/library/:kind/:key" => "public_profiles#set", as: :brother_set,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/, kind: /tome|publisher|best_of_year/ }
     # The share links of story 4.5, which named the sharer's token, lead to

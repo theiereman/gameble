@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,7 +27,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
     t.index ["steam_id"], name: "index_accounts_players_on_steam_id", unique: true
     t.index ["token"], name: "index_accounts_players_on_token", unique: true
     t.check_constraint "role::text = 'player'::text OR role::text = 'moderator'::text OR role::text = 'administrator'::text", name: "accounts_players_role_check"
-    t.check_constraint "visibility::text = ANY (ARRAY['public'::character varying, 'friends_only'::character varying, 'private'::character varying]::text[])", name: "accounts_players_visibility_check"
+    t.check_constraint "visibility::text = ANY (ARRAY['public'::character varying::text, 'friends_only'::character varying::text, 'private'::character varying::text])", name: "accounts_players_visibility_check"
+  end
+
+  create_table "accounts_reports", force: :cascade do |t|
+    t.bigint "reporter_id", null: false
+    t.bigint "reported_id", null: false
+    t.string "reason", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reported_id"], name: "index_accounts_reports_on_reported_id"
+    t.index ["reporter_id", "created_at"], name: "index_accounts_reports_on_reporter_id_and_created_at"
+    t.index ["reporter_id", "reported_id"], name: "index_accounts_reports_on_reporter_id_and_reported_id", unique: true
+    t.check_constraint "reason::text = ANY (ARRAY['inappropriate_name'::character varying, 'cheating'::character varying, 'harassment'::character varying, 'other'::character varying]::text[])", name: "accounts_reports_reason_check"
   end
 
   create_table "catalog_card_seasons", force: :cascade do |t|
@@ -271,6 +283,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
     t.index ["tagid"], name: "index_steam_tags_on_tagid", unique: true
   end
 
+  add_foreign_key "accounts_reports", "accounts_players", column: "reported_id"
+  add_foreign_key "accounts_reports", "accounts_players", column: "reporter_id"
   add_foreign_key "catalog_card_seasons", "catalog_cards", column: "card_id"
   add_foreign_key "catalog_card_seasons", "catalog_seasons", column: "season_id"
   add_foreign_key "catalog_card_texts", "catalog_cards", column: "card_id"
