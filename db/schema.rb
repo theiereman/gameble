@@ -39,7 +39,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_130300) do
     t.index ["reported_id"], name: "index_accounts_reports_on_reported_id"
     t.index ["reporter_id", "created_at"], name: "index_accounts_reports_on_reporter_id_and_created_at"
     t.index ["reporter_id", "reported_id"], name: "index_accounts_reports_on_reporter_id_and_reported_id", unique: true
-    t.check_constraint "reason::text = ANY (ARRAY['inappropriate_name'::character varying, 'cheating'::character varying, 'harassment'::character varying, 'other'::character varying]::text[])", name: "accounts_reports_reason_check"
+    t.check_constraint "reason::text = ANY (ARRAY['inappropriate_name'::character varying::text, 'cheating'::character varying::text, 'harassment'::character varying::text, 'other'::character varying::text])", name: "accounts_reports_reason_check"
   end
 
   create_table "catalog_card_seasons", force: :cascade do |t|
