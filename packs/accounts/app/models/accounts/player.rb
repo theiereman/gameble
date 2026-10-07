@@ -23,6 +23,12 @@ module Accounts
     enum :role, { player: "player", moderator: "moderator", administrator: "administrator" },
       default: :player, validate: true
 
+    # Who may see the player's profile (CAP-14): everyone, their friends only
+    # (counted by Game::Visibility, nobody until epic 5) or only them. The
+    # prefix keeps `private` from clashing with Ruby's own.
+    enum :visibility, { public: "public", friends_only: "friends_only", private: "private" },
+      default: :public, prefix: :visibility, validate: true
+
     # Uniqueness of the Steam id is the unique index's job: a validation would
     # race, and Accounts::SignIn relies on the index conflict.
     validates :steam_id, presence: true, format: { with: STEAM_ID_FORMAT }

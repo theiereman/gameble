@@ -8,12 +8,14 @@ class SettingsPolicyTest < ActiveSupport::TestCase
   test "a visitor may neither read nor change settings" do
     assert_not policy_for(:visitor).show?
     assert_not policy_for(:visitor).update?
+    assert_not policy_for(:visitor).visibility?
   end
 
   [ :player, :moderator, :administrator ].each do |role|
     test "a #{role} may read and change their settings" do
       assert policy_for(role).show?
       assert policy_for(role).update?
+      assert policy_for(role).visibility?
     end
   end
 

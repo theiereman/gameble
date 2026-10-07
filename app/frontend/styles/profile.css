@@ -133,3 +133,11 @@
     letter-spacing: var(--tracking-public-title-phone);
   }
 }
+
+/* Who may see the profile (CAP-14), under the counts. */
+.profile-summary__visibility {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}

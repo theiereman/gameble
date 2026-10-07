@@ -4,13 +4,14 @@
 # read-only mode. The list of sets opens on the ones they have started,
 # beside the three kinds, each with the owner's progress (never the
 # viewer's); a set opens beside the list with the owner's cards. The header counts
-# their distinct cards and complete sets. Accounts answers the owner and
+# their distinct cards and complete sets. Accounts answers the owner, Game
 # whether their profile may be shown, Catalog the sets and cards, Game the
 # owner's progress, copies and counts.
 #
-# An unknown token and a profile that may not be shown (a banned owner)
-# render the same unavailable page with a 404, so a ban cannot be told from
-# a missing player. These pages are read from shared links, so any browser
+# An unknown token and a profile that may not be shown (a banned owner, or
+# one whose visibility hides it from this viewer: Game::Visibility) render
+# the same unavailable page with a 404, so a ban cannot be told from a
+# missing player. These pages are read from shared links, so any browser
 # and link-preview crawler gets them (PublicRead).
 class PublicProfilesController < ApplicationController
   include PublicRead
@@ -54,7 +55,7 @@ class PublicProfilesController < ApplicationController
     # action) for an unknown token or a profile that may not be shown.
     def load_owner
       @owner = Accounts::PlayerByToken.call(params[:token])
-      return if Accounts::PublicProfile.visible?(@owner, viewer: current_player)
+      return if Game::Visibility.visible?(current_player, @owner)
 
       render "public_profiles/unavailable", status: :not_found
     end
