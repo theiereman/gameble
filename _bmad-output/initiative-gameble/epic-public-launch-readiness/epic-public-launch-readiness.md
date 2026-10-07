@@ -65,3 +65,4 @@ Data controls, reports and bans in `Accounts`, the moderation pages, backups and
 - Decision (2026-10-07): bank healing happens only at a season's publication, all packs at once; a player short of packs outside that moment waits for the next publication (author).
 - Decision (2026-10-07): the CSP is enforced before opening to the public, after a run on staging checking its reports.
 - Not built here: the legal texts (terms of use, privacy notice) and the restore drill are the author's (hitl); the donation link's place is decided with the legal page.
+- Decision (2026-10-07): the existing fill of an empty bank before a daily bonus (`Game::CollectDailyBonus`, a player who never had a pack) is kept as the one exception to "healed only at a season's publication" (author).
