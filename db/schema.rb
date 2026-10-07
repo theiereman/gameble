@@ -176,6 +176,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_170810) do
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "game_feed_entries_rarity_check"
   end
 
+  create_table "game_first_discoveries", force: :cascade do |t|
+    t.bigint "card_season_id", null: false
+    t.bigint "player_id", null: false
+    t.bigint "pack_id"
+    t.datetime "discovered_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["card_season_id"], name: "index_game_first_discoveries_on_card_season_id", unique: true
+    t.index ["pack_id"], name: "index_game_first_discoveries_on_pack_id"
+    t.index ["player_id"], name: "index_game_first_discoveries_on_player_id"
+  end
+
   create_table "game_friend_codes", force: :cascade do |t|
     t.bigint "player_id", null: false
     t.string "code", null: false
@@ -265,6 +277,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_170810) do
     t.string "last_activity"
     t.datetime "last_activity_at"
     t.index ["player_id"], name: "index_game_player_states_on_player_id", unique: true
+  end
+
+  create_table "game_set_completions", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "set_id", null: false
+    t.datetime "completed_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "set_id"], name: "index_game_set_completions_on_player_id_and_set_id", unique: true
   end
 
   create_table "game_trade_items", force: :cascade do |t|
@@ -400,6 +421,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_170810) do
   add_foreign_key "game_daily_bonus_claims", "game_packs", column: "pack_id"
   add_foreign_key "game_feed_entries", "accounts_players", column: "player_id"
   add_foreign_key "game_feed_entries", "game_packs", column: "pack_id"
+  add_foreign_key "game_first_discoveries", "accounts_players", column: "player_id"
+  add_foreign_key "game_first_discoveries", "game_packs", column: "pack_id"
   add_foreign_key "game_friend_codes", "accounts_players", column: "player_id"
   add_foreign_key "game_friendships", "accounts_players", column: "high_player_id"
   add_foreign_key "game_friendships", "accounts_players", column: "low_player_id"
@@ -412,6 +435,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_170810) do
   add_foreign_key "game_packs", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
   add_foreign_key "game_player_states", "accounts_players", column: "player_id"
+  add_foreign_key "game_set_completions", "accounts_players", column: "player_id"
   add_foreign_key "game_trade_items", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_trade_items", "game_trades", column: "trade_id"
   add_foreign_key "game_trades", "accounts_players", column: "high_player_id"

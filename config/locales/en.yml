@@ -488,6 +488,8 @@ en:
       nameless: "Nameless officer"
       time_format: "%b %-d, %H:%M UTC"
       pulled_html: "%{name} pulled %{card}"
+      first_discovery: "First discovery"
+      discovered_html: "%{card}, found by %{name} for the first time in the community"
   friends:
     show:
       title: "Friends"
