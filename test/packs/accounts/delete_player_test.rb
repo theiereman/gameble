@@ -34,7 +34,9 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
       holdings: Game::Holding.where(player_id: player.id).count,
       feed: Game::FeedEntry.where(player_id: player.id).count,
       claims: Game::DailyBonusClaim.where(player_id: player.id).count,
-      codes: Game::FriendCode.where(player_id: player.id).count }
+      codes: Game::FriendCode.where(player_id: player.id).count,
+      rewards: Game::GoalReward.where(player_id: player.id).count,
+      states: Game::PlayerState.where(player_id: player.id).count }
   end
 
   test "the record stays, anonymised: no Steam id, no name, a new token, deleted_at; PlayerDeleted carries its id only" do
@@ -58,19 +60,31 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     assert_equal({ player_id: @player.id }, events.first.data)
   end
 
-  test "what the player held is released; the weekly contribution and the state row stay; another player is untouched" do
+  test "what the player held is released, goal rewards and the state row included; the weekly contribution stays; another player is untouched" do
     play(@player)
     play(@other)
     Game::CreatePlayerState.new.call(player: @player).value!
+    Game::CreatePlayerState.new.call(player: @other).value!
+    week = Game::WeeklyContribution.where(player_id: @player.id).pick(:week_start)
+    Game::WeeklyGoal.create!(week_start: week, total: 1, target: 1)
+    [ @player, @other ].each { |player| Game::GrantGoalReward.new.call(player:, week_start: week).value! }
     before = game_rows(@other)
     assert game_rows(@player).values.all?(&:positive?), game_rows(@player).inspect
 
     assert delete.success?
 
-    assert_equal({ packs: 0, holdings: 0, feed: 0, claims: 0, codes: 0 }, game_rows(@player))
+    assert_equal({ packs: 0, holdings: 0, feed: 0, claims: 0, codes: 0, rewards: 0, states: 0 }, game_rows(@player))
     assert Game::WeeklyContribution.exists?(player_id: @player.id)
-    assert Game::PlayerState.exists?(player_id: @player.id)
     assert_equal before, game_rows(@other)
+  end
+
+  test "the last-seen time is erased, and a last-seen write queued before the deletion writes nothing" do
+    @player.update_columns(last_seen_at: 10.minutes.ago)
+    delete
+
+    assert_nil @player.reload.last_seen_at
+    assert_equal Dry::Monads::Success(false), Accounts::NoteLastSeen.new.call(player_id: @player.id, at: Time.current)
+    assert_nil @player.reload.last_seen_at
   end
 
   test "a player with no game deletes too" do
@@ -148,6 +162,7 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     [ Game::OpenPack, Game::CollectDailyBonus, Game::FillBank, Game::HealBank ].each do |operation|
       assert_equal Dry::Monads::Failure(:player_required), operation.new.call(player: @player), operation.name
     end
+    assert_equal Dry::Monads::Failure(:player_required), Game::GrantGoalReward.new.call(player: @player, week_start: Date.current.beginning_of_week)
     assert_equal 0, Game::Pack.where(player_id: @player.id).count
   end
 

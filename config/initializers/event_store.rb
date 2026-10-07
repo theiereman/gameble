@@ -17,6 +17,9 @@ Rails.configuration.to_prepare do
   event_store.subscribe(Game::Handlers::PackOpened, to: [ Game::PackOpened ])
   # The notable pulls of an opening go to the activity feed (AD-10, AD-13).
   event_store.subscribe(Game::Handlers::PackOpenedFeed, to: [ Game::PackOpened ])
+  # A player's own actions are their latest activity, read by their friends'
+  # presence (AD-24).
+  event_store.subscribe(Game::Handlers::PlayerActivity, to: Game::Handlers::PlayerActivity::EVENTS.keys)
 
   Rails.configuration.event_store = event_store
 end

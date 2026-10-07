@@ -2,8 +2,9 @@ require "test_helper"
 
 # The trade operations under concurrency (AD-6, AD-8, AD-10): the bank locks
 # taken in ascending player id, then the holdings in ascending card-season,
-# serialise proposals that touch the same player, so a card is never
-# reserved beyond what is owned and crossing trades never deadlock. Each
+# serialise proposals, acceptances and counters that touch the same player,
+# so a card is never reserved beyond what is owned, never spent twice, and
+# crossing trades never deadlock. Each
 # thread has its own connection, so the test commits for real and cleans up
 # after itself.
 class Game::TradeConcurrencyTest < ActiveSupport::TestCase
@@ -40,7 +41,9 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
   end
 
-  def reserved(player, card_season_id) = Game::Holding.uncached { Game::Holding.find_by!(player_id: player.id, card_season_id:).reserved }
+  def reserved(player, card_season_id) = Game::Holding.uncached { Game::Holding.find_by(player_id: player.id, card_season_id:)&.reserved.to_i }
+
+  def quantity(player, card_season_id) = Game::Holding.uncached { Game::Holding.find_by(player_id: player.id, card_season_id:)&.quantity.to_i }
 
   # Runs the blocks together, each on its own connection, released at once.
   # A deadlock would hang the threads: a timeout fails the test instead.
@@ -60,6 +63,10 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
 
   def propose(from, to, offer, request)
     -> { Game::ProposeTrade.new.call(player: Accounts::Player.find(from.id), recipient: Accounts::Player.find(to.id), offer:, request:) }
+  end
+
+  def accept(player, trade)
+    -> { Game::AcceptTrade.new.call(player: Accounts::Player.find(player.id), trade_id: trade.id) }
   end
 
   test "two proposals of the same copies to two friends at once: one reserves them, the other is refused" do
@@ -152,5 +159,81 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
 
     assert_includes [ 0, 2 ], reserved(@alice, @card)
     assert_equal reserved(@alice, @card), Game::Trade.in_progress.where(proposer_id: @alice.id).count * 2
+  end
+
+  test "two acceptances at once of trades asking for the same last copy: one swaps, the other moves nothing" do
+    befriend(@alice, @bob)
+    befriend(@carol, @bob)
+    hold(@alice, @card, 1)
+    hold(@carol, @card, 1)
+    hold(@bob, @other, 1)
+    first = propose(@alice, @bob, { @card => 1 }, { @other => 1 }).call.value!
+    second = propose(@carol, @bob, { @card => 1 }, { @other => 1 }).call.value!
+
+    results = together(accept(@bob, first), accept(@bob, second))
+
+    assert_equal 1, results.count(&:success?)
+    assert_equal [ :requested_cards_unavailable ], results.select(&:failure?).map(&:failure)
+    assert_equal [ 0, 0 ], [ quantity(@bob, @other), reserved(@bob, @other) ]
+    assert_equal 1, quantity(@bob, @card)
+    assert_equal 1, quantity(@alice, @other) + quantity(@carol, @other), "the last copy went to one proposer only"
+    assert_equal 1, Game::Trade.where(status: "accepted").count
+    assert_equal 1, Game::Trade.in_progress.count
+  end
+
+  test "the same trade accepted twice at once swaps once" do
+    befriend(@alice, @bob)
+    hold(@alice, @card, 2)
+    hold(@bob, @other, 3)
+    trade = propose(@alice, @bob, { @card => 2 }, { @other => 1 }).call.value!
+
+    results = together(accept(@bob, trade), accept(@bob, trade))
+
+    assert_equal 1, results.count(&:success?)
+    assert_equal [ :trade_not_open ], results.select(&:failure?).map(&:failure)
+    assert_equal [ 0, 1, 2, 2 ], [ quantity(@alice, @card), quantity(@alice, @other), quantity(@bob, @card), quantity(@bob, @other) ]
+    assert_equal 0, reserved(@alice, @card)
+  end
+
+  test "an acceptance racing a counter and a cancel of the same trade: exactly one acts" do
+    befriend(@alice, @bob)
+    hold(@alice, @card, 5)
+    hold(@bob, @other, 5)
+
+    4.times do
+      trade = propose(@alice, @bob, { @card => 1 }, { @other => 1 }).call.value!
+      results = together(
+        accept(@bob, trade),
+        -> { Game::CounterTrade.new.call(player: Accounts::Player.find(@bob.id), trade_id: trade.id, offer: { @other => 1 }, request: { @card => 1 }) },
+        -> { Game::CancelTrade.new.call(player: Accounts::Player.find(@alice.id), trade_id: trade.id) }
+      )
+
+      assert_equal 1, results.count(&:success?), results.inspect
+      trade.reload
+      Game::CancelTrade.new.call(player: Accounts::Player.find(trade.proposer_id), trade_id: trade.id).value! if trade.open?
+      [ @alice, @bob ].each do |player|
+        assert_equal [ 0, 0 ], [ reserved(player, @card), reserved(player, @other) ], results.inspect
+      end
+      assert_equal 5, quantity(@alice, @card) + quantity(@bob, @card)
+      assert_equal 5, quantity(@alice, @other) + quantity(@bob, @other)
+    end
+  end
+
+  test "crossing acceptances around three players at once never deadlock" do
+    befriend(@alice, @bob)
+    befriend(@bob, @carol)
+    befriend(@alice, @carol)
+    [ @alice, @bob, @carol ].each do |player|
+      hold(player, @card, 1)
+      hold(player, @other, 1)
+    end
+    trades = [ [ @alice, @bob ], [ @bob, @carol ], [ @carol, @alice ] ].map { |from, to| propose(from, to, { @card => 1 }, { @other => 1 }).call.value! }
+
+    results = together(*trades.map { |trade| accept(Accounts::Player.find(trade.recipient_id), trade) })
+
+    assert results.all?(&:success?), results.inspect
+    assert_equal [ 1, 1, 1 ], @players.map { |player| quantity(player, @card) }
+    assert_equal [ 1, 1, 1 ], @players.map { |player| quantity(player, @other) }
+    assert_equal [ 0, 0, 0 ], @players.map { |player| reserved(player, @card) }
   end
 end

@@ -20,7 +20,8 @@ class Game::DeletePlayerConcurrencyTest < ActiveSupport::TestCase
 
   teardown do
     id = @player.id
-    [ Game::FeedEntry, Game::DailyBonusClaim, Game::Pack, Game::Holding, Game::FriendCode,
+    Game::WeeklyGoal.where(week_start: Date.current.beginning_of_week).delete_all
+    [ Game::FeedEntry, Game::DailyBonusClaim, Game::GoalReward, Game::Pack, Game::Holding, Game::FriendCode,
       Game::WeeklyContribution, Game::PlayerState ].each { |model| model.where(player_id: id).delete_all }
     connection = ActiveRecord::Base.connection
     streams = [ Game::Operation.stream_name(id), "Accounts::Player$#{id}" ]
@@ -33,10 +34,11 @@ class Game::DeletePlayerConcurrencyTest < ActiveSupport::TestCase
   def leftovers
     id = @player.id
     { packs: Game::Pack.where(player_id: id).count, holdings: Game::Holding.where(player_id: id).count,
-      feed: Game::FeedEntry.where(player_id: id).count, claims: Game::DailyBonusClaim.where(player_id: id).count }
+      feed: Game::FeedEntry.where(player_id: id).count, claims: Game::DailyBonusClaim.where(player_id: id).count,
+      rewards: Game::GoalReward.where(player_id: id).count }
   end
 
-  def none_left = { packs: 0, holdings: 0, feed: 0, claims: 0 }
+  def none_left = { packs: 0, holdings: 0, feed: 0, claims: 0, rewards: 0 }
 
   # Runs `first` in a transaction that stays open until `second`, started on
   # another connection, waits on a lock; then commits it. Returns both
@@ -102,12 +104,18 @@ class Game::DeletePlayerConcurrencyTest < ActiveSupport::TestCase
     assert_equal none_left, leftovers
   end
 
-  test "a daily bonus, a fill or a heal that waits on the deletion writes nothing, not even a new bank" do
-    [ Game::CollectDailyBonus, Game::FillBank, Game::HealBank ].each_with_index do |operation, index|
+  test "a daily bonus, a fill, a heal or a goal reward that waits on the deletion writes nothing, not even a new bank" do
+    week = Date.current.beginning_of_week
+    Game::WeeklyGoal.create!(week_start: week, total: 1, target: 1)
+    Game::WeeklyContribution.create!(player_id: @player.id, week_start: week, openings: 1)
+    operations = {
+      Game::CollectDailyBonus => {}, Game::FillBank => {}, Game::HealBank => {}, Game::GrantGoalReward => { week_start: week }
+    }
+    operations.each_with_index do |(operation, arguments), index|
       @player.update_columns(steam_id: "7656119796029#{9880 + index}", deleted_at: nil) if index.positive?
       player = Accounts::Player.find(@player.id)
 
-      deletion, result = first_holding_the_lock(delete_player, -> { operation.new.call(player:) })
+      deletion, result = first_holding_the_lock(delete_player, -> { operation.new.call(player:, **arguments) })
 
       assert deletion.success?, operation.name
       assert_equal Dry::Monads::Failure(:player_required), result, operation.name

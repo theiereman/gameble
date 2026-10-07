@@ -318,3 +318,4 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-brotherhood/story-feed-tracer-a-public-feed-of-notable-pulls-plan.md`
   summary: The feed reads a window of 90 rows per pass, so hidden players' entries can crowd out older public ones.
   evidence: Game::FeedEntries filters by Game::Visibility in Ruby after reading WINDOW rows; unverified at scale, would be medium.
+  resolved: Story 6.2: the feed reads pages of 90 rows, up to ten, until its window of visible entries is full, so hidden players no longer crowd out older public entries; only more than 900 hidden entries in a row could still empty it.

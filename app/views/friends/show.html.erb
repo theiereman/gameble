@@ -8,8 +8,9 @@
 <% end %>
 <%# Amis (EXPERIENCE.md, Amis; DESIGN.md, Friends): the invite panel (the
     permanent link with COPIER, the player's own friend code, the field to
-    add a friend by code), the invitations and the friend list. Presence
-    comes with a later story. The field answers on the line below it. %>
+    add a friend by code), the invitations and the friend list, each friend
+    with their presence: a dot (lime online, blue doing something, muted
+    away) and its words. The field answers on the line below it. %>
 <% invite_url = public_url_for(invite_link_path(token: current_player.token)) %>
 <section class="friends" aria-labelledby="friends-heading">
   <h1 id="friends-heading" class="friends__title"><%= t(".title") %></h1>
@@ -67,7 +68,12 @@
   <% else %>
     <ul class="friends__list">
       <% @friends.each do |friend| %>
-        <li class="friends__row"><%= friend.persona_name.presence || t(".nameless") %></li>
+        <li class="friends__row friends__friend">
+          <span class="friends__name"><%= friend.player.persona_name.presence || t(".nameless") %></span>
+          <span class="friends__presence friends__presence--<%= friend.state %>">
+            <span class="friends__dot" aria-hidden="true"></span><%= presence_text(friend) %>
+          </span>
+        </li>
       <% end %>
     </ul>
   <% end %>

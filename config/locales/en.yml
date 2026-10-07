@@ -60,6 +60,9 @@ en:
           other: "%{owned} unique cards out of %{total}"
         trades: "Trades"
         friends: "Friends"
+        friends_online:
+          one: "%{number} online"
+          other: "%{number} online"
         feed: "Activity feed"
         achievements: "Achievements"
         soon: "coming soon"
@@ -92,6 +95,12 @@ en:
         progress: "%{total} of %{target} boosters opened this week"
         reward: "Reward"
         reward_text: "A rare booster for every contributor"
+        reached: "Goal reached"
+        previous_reached: "Last week: %{total} / %{target} · goal reached"
+        previous_missed: "Last week: %{total} / %{target} · goal missed"
+      goal_reward:
+        title: "Goal reached"
+        message: "A rare booster joins your reserve."
       sets:
         title: "Set progress"
         see_all: "See all"
@@ -468,6 +477,14 @@ en:
       more: "More"
       all: "All"
       empty: "Nothing here yet."
+      empty_filter: "Nothing in this filter yet."
+      filters_label: "Filter by type"
+      filters:
+        all: "Everything"
+        pulls: "Pulls"
+        discoveries: "Discoveries"
+        trades: "Trades"
+        reposts: "Reposts"
       nameless: "Nameless officer"
       time_format: "%b %-d, %H:%M UTC"
       pulled_html: "%{name} pulled %{card}"
@@ -493,6 +510,23 @@ en:
       pending: "Pending"
       accept: "Accept"
       ignore: "Ignore"
+      presence:
+        online: "Online"
+        offline: "Offline"
+        minutes_ago:
+          one: "%{count} min ago"
+          other: "%{count} min ago"
+        hours_ago:
+          one: "%{count} h ago"
+          other: "%{count} h ago"
+        days_ago:
+          one: "%{count} day ago"
+          other: "%{count} days ago"
+        activities:
+          opening_pack: "Opening a booster"
+          collecting_daily: "Collecting the daily booster"
+          trading: "Negotiating a trade"
+          making_friends: "Making friends"
   invitations:
     sent: "Invitation sent to %{to}."
     throttled: "Too many attempts in a minute. Try again in a moment."
@@ -730,6 +764,9 @@ en:
       trade_not_found: "That trade could not be found."
       not_allowed: "That is not yours to do in this trade."
       trade_not_open: "That trade is already closed."
+      trade_expired: "That trade has expired: its 7 days are over."
+      requested_cards_unavailable: "Not enough copies: a card asked for is no longer available. Nothing moved."
+      trade_not_expired: "That trade has not expired yet."
       invalid_format: "Expected format: ABCD-1234."
       own_code: "That is your own code."
       own_link: "That is your own link."
