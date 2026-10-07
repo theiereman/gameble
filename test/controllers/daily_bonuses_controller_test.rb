@@ -27,7 +27,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
   end
 
   def reserve_badge
-    css_select(".hub-menu .menu-item__badge").sole.text
+    css_select("#hub-menu-booster .menu-item__badge").sole.text
   end
 
   def panel

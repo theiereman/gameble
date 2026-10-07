@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_170810) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_183102) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -312,9 +312,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_170810) do
     t.datetime "closed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "token", null: false
     t.index ["low_player_id", "high_player_id"], name: "index_game_trades_one_open_per_pair", unique: true, where: "((status)::text = 'open'::text)"
     t.index ["proposer_id", "status"], name: "index_game_trades_on_proposer_id_and_status"
     t.index ["recipient_id", "status"], name: "index_game_trades_on_recipient_id_and_status"
+    t.index ["token"], name: "index_game_trades_on_token", unique: true
     t.check_constraint "low_player_id < high_player_id", name: "game_trades_order_check"
     t.check_constraint "proposer_id = low_player_id AND recipient_id = high_player_id OR proposer_id = high_player_id AND recipient_id = low_player_id", name: "game_trades_parties_check"
     t.check_constraint "status::text = ANY (ARRAY['open'::character varying::text, 'cancelled'::character varying::text, 'declined'::character varying::text, 'accepted'::character varying::text, 'expired'::character varying::text])", name: "game_trades_status_check"

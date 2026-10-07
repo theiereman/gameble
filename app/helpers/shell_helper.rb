@@ -53,6 +53,15 @@ module ShellHelper
     @shell_bank = @bank || (current_player && Game::BankSummary.reserve(current_player))
   end
 
+  # How many trades wait for the signed-in player's answer
+  # (Game::TradesWaiting), for the orange badge of menu 03 and the ÉCHANGES
+  # tab; nil for a visitor. Read once per request, at render.
+  def shell_trades_waiting
+    return @shell_trades_waiting if defined?(@shell_trades_waiting)
+
+    @shell_trades_waiting = current_player && Game::TradesWaiting.call(current_player)
+  end
+
   # Copies held per rarity tier in the published season (Game::TierCounts),
   # for the rarity counter. Read once per request.
   def shell_tier_counts

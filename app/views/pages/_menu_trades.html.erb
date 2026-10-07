@@ -1,0 +1,23 @@
+<%# Menu 03, "Échanges" (see pages/_menu; DESIGN.md, Count badge): for a
+    player a link to the trades screen with the trades waiting for their
+    answer as an orange badge, greyed at zero, its number in the item's
+    accessible name; for a visitor a button opening the sign-in panel, as
+    menu 01 does. `waiting` is nil for a visitor. %>
+<li class="hub-menu__entry">
+  <% head = capture do %><span class="menu-item__number" aria-hidden="true">03</span><span class="menu-item__label"><%= t("pages.home.menu.trades") %></span><% end %>
+  <% arrow = pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
+  <% if waiting.nil? %>
+    <%= tag.button type: :button, class: "menu-item", aria: { haspopup: "dialog", keyshortcuts: "3" },
+          data: { hub_menu_target: "item", controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: "sign-in-panel" } do %>
+      <%= head %><%= arrow %>
+    <% end %>
+  <% else %>
+    <%= link_to trades_path, class: "menu-item", aria: { keyshortcuts: "3" },
+          data: { hub_menu_target: "item", action: "hub-menu#remember", turbo_prefetch: false } do %>
+      <%= head %>
+      <span class="<%= class_names("menu-item__badge", "menu-item__badge--alert", "menu-item__badge--zero": waiting.zero?) %>" aria-hidden="true"><%= number_with_delimiter(waiting) %></span>
+      <span class="visually-hidden"><%= t("pages.home.menu.trades_waiting", count: waiting, number: number_with_delimiter(waiting)) %></span>
+      <%= arrow %>
+    <% end %>
+  <% end %>
+</li>

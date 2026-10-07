@@ -1,0 +1,436 @@
+/*
+ * Échanges (DESIGN.md: Trade board, Layout per screen; EXPERIENCE.md:
+ * Échanges, Trades on the phone; story 5.6): the trade list beside one
+ * trade's board, server-rendered. From 1180px the list is 316px wide, from
+ * 900px 250px, from 720px it stands above the board; under 720px (the
+ * phone) the list page shows the list alone and a trade's page the board
+ * alone (`.trades--list`, `.trades--board`). The board's sides face each
+ * other, and stack when the board is under 700px wide (container query).
+ * Hard edges, no animation of their own: the shell slides the screen.
+ */
+
+.trades {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.trades__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.trades__layout {
+  display: grid;
+  grid-template-columns: 316px minmax(0, 1fr);
+  gap: var(--space-7);
+  align-items: start;
+}
+
+/* ---- The list ---- */
+
+.trades__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.trades__empty {
+  color: var(--color-muted);
+}
+
+.trades__group {
+  margin: var(--space-4) 0 var(--space-1);
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.trades__group:first-of-type {
+  margin-top: 0;
+}
+
+.trades__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trade-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-4);
+  background: var(--color-panel);
+  box-shadow: inset 0 0 0 2px var(--color-line-soft);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.trade-row:hover {
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+.trade-row:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring-gap), inset 0 0 0 2px var(--color-line-soft);
+}
+
+.trade-row[aria-current="page"] {
+  background: var(--color-panel-raised);
+  box-shadow: inset 5px 0 0 0 var(--color-accent), inset 0 0 0 2px var(--color-line);
+}
+
+.trade-row__avatar {
+  flex: none;
+  width: 32px;
+  height: 32px;
+}
+
+.trade-row__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.trade-row__name {
+  color: var(--color-text-max);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.trade-row__what,
+.trade-row__when {
+  overflow: hidden;
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trade-row__when {
+  color: var(--color-muted);
+}
+
+/* ---- The status chip: its label in a 2px frame of its colour ---- */
+
+.trade-chip {
+  flex: none;
+  padding: var(--space-1) var(--space-3);
+  box-shadow: inset 0 0 0 2px currentColor;
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.trade-chip--alert { color: var(--color-alert); }
+.trade-chip--accent { color: var(--color-accent); }
+.trade-chip--lime { color: var(--color-lime); }
+.trade-chip--muted { color: var(--color-muted); }
+
+/* ---- The board ---- */
+
+.trade-board {
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.trade-board__form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 156px minmax(0, 1fr);
+  grid-template-areas:
+    "header header header"
+    "friend middle own"
+    "actions actions actions";
+  row-gap: var(--space-5);
+}
+
+.trade-board__header {
+  grid-area: header;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 40px;
+}
+
+.trade-board__avatar {
+  width: 32px;
+  height: 32px;
+}
+
+.trade-board__title {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-screen-title);
+  letter-spacing: var(--tracking-screen-title);
+}
+
+.trade-board__title:focus {
+  outline: none;
+}
+
+.trade-board__expiry {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 0 auto;
+  color: var(--color-muted);
+  font: var(--font-body);
+}
+
+.trade-board__expiry b {
+  color: var(--color-alert);
+  font-weight: inherit;
+}
+
+.trade-board__hourglass {
+  width: 14px;
+  height: 14px;
+}
+
+.trade-board__middle {
+  grid-area: middle;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: 0 var(--space-4);
+  text-align: center;
+}
+
+.trade-board__swap {
+  width: 40px;
+  height: 40px;
+}
+
+.trade-board__message {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.trade-board__error {
+  margin: 0;
+  color: var(--color-alert);
+  font: var(--font-body-small);
+}
+
+.trade-board__actions {
+  grid-area: actions;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  min-height: 48px;
+}
+
+.trade-board__actions form {
+  display: contents;
+}
+
+/* ---- A side ---- */
+
+.trade-side {
+  min-width: 0;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-4) var(--space-6);
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 2px var(--color-line-soft);
+}
+
+.trade-side--friend { grid-area: friend; }
+.trade-side--own { grid-area: own; }
+
+.trade-side--editing {
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+.trade-side__header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.trade-side__count {
+  color: var(--color-text-max);
+  text-transform: none;
+}
+
+.trade-side__editing {
+  color: var(--color-accent);
+}
+
+.trade-side__cards {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: var(--space-7) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trade-card {
+  position: relative;
+  flex: none;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* Several copies: a second card edge behind the face. */
+.trade-card--stack::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 6px;
+  z-index: -1;
+  width: var(--card-width, var(--card-s-width));
+  height: var(--card-height, var(--card-s-height));
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 2px var(--color-line), 0 0 0 3px var(--color-outline);
+}
+
+.trade-card:has(.card--m) { --card-width: var(--card-m-width); --card-height: var(--card-m-height); }
+.trade-card:has(.card--s) { --card-width: var(--card-s-width); --card-height: var(--card-s-height); }
+
+/* The gold "×2" at the top left. */
+.trade-card__quantity {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  z-index: 2;
+  min-width: 30px;
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-gold);
+  box-shadow: 0 0 0 2px var(--color-outline);
+  color: var(--color-on-gold);
+  font: var(--font-button);
+  text-align: center;
+}
+
+/* "RÉSERVÉE": accent on a dark pill with a deep line. */
+.trade-card__reserved {
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 2px var(--color-line-deep);
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+/* The counter form's quantity: a dark pill with the field and "/max". */
+.trade-card__stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3) 0 0;
+  background: var(--color-input);
+  box-shadow: inset 0 0 0 2px var(--color-line), 0 0 0 2px var(--color-outline);
+}
+
+.trade-card__field {
+  width: 4.5em;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text-max);
+  font: var(--font-button);
+  text-align: center;
+}
+
+.trade-card__field:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.trade-card__max {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+/* A board under 700px: the friend's side, the swap turned a quarter, the
+   player's side. */
+@container (max-width: 699px) {
+  .trade-board__form {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "header"
+      "friend"
+      "middle"
+      "own"
+      "actions";
+  }
+
+  .trade-board__swap {
+    transform: rotate(90deg);
+  }
+
+  .trade-side {
+    min-height: 0;
+  }
+}
+
+/* ---- Widths ---- */
+
+@media (max-width: 1179px) {
+  .trades__layout {
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+}
+
+@media (max-width: 899px) {
+  .trades__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The phone: the list alone, or the board alone with its actions pinned
+   at the bottom, above the tab bar. */
+@media (max-width: 719px) {
+  .trades--list .trade-board,
+  .trades--board .trades__list,
+  .trades--board .trades__title {
+    display: none;
+  }
+
+  .trade-board__actions {
+    position: sticky;
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom));
+    z-index: 3;
+    padding: var(--space-4) 0;
+    background: var(--color-panel);
+  }
+}

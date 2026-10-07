@@ -1,0 +1,10 @@
+<% content_for :back_button, true %>
+<% content_for :title, t("trades.board.heading", name: trade_friend_name(@trade.friend)) %>
+<% content_for :screen_title, t("trades.title") %>
+<%# One trade's board beside the list; on a phone the board alone, slid over
+    the list, back to it with "◀ Liste" (EXPERIENCE.md, Trades on the
+    phone). %>
+<% content_for :phone_back do %>
+  <%= render "trades/phone_back" %>
+<% end %>
+<%= render "trades/screen", view: :board, trades: @trades, trade: @trade, cards: @cards %>

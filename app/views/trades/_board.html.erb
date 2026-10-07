@@ -1,0 +1,61 @@
+<%# The trade board, read only (DESIGN.md, Trade board; EXPERIENCE.md, State
+    Patterns): a bracketed panel headed "Échange avec Léa", the status chip
+    and the expiry (or the outcome's age), the friend's side and the
+    player's side facing each other (stacked under 700px of board), the
+    swap icon and the status line between them, a refusal inline under it,
+    and the actions of the state below, each a form posting to its
+    operation (none on the player's turn when the friend deleted their
+    account: accepting is refused and their offered copies are gone; story
+    5.11 closes such trades). `editing` makes it the counter-proposal form: both sides
+    "EN ÉDITION", a quantity field per card (0 removes it; the card picker
+    comes with the trade board island). %>
+<% friend_label, own_label = trade_side_labels(trade) %>
+<% tone, chip = trade_chip(trade) %>
+<% body = capture do %>
+  <header class="trade-board__header">
+    <%= pixel_icon("avatar-default", class: "trade-board__avatar") %>
+    <h2 id="trade-board-heading" class="trade-board__title" tabindex="-1"><%= t("trades.board.heading", name: trade_friend_name(trade.friend)) %></h2>
+    <span class="trade-chip trade-chip--<%= editing ? "accent" : tone %>"><%= editing ? t("trades.chip.editing") : chip %></span>
+    <p class="trade-board__expiry">
+      <% if trade.open? %>
+        <%= pixel_icon("hourglass", class: "trade-board__hourglass") %>
+        <%= t("trades.board.expires_html", days: tag.b(t("trades.board.days", count: trade_days_left(trade)))) %>
+      <% else %>
+        <%= trade_outcome_age(trade) %>
+      <% end %>
+    </p>
+  </header>
+  <%= render "trades/side", side: :friend, label: friend_label, lines: trade.friend_side, cards:, editing:,
+        reserved: trade.state == :yours, max: friend_max %>
+  <div class="trade-board__middle">
+    <%= pixel_icon("swap", class: "trade-board__swap") %>
+    <p class="trade-board__message"><%= trade_message(trade, editing:) %></p>
+    <% if flash[:trade_error] %>
+      <p class="trade-board__error" role="alert"><%= flash[:trade_error] %></p>
+    <% end %>
+  </div>
+  <%= render "trades/side", side: :own, label: own_label, lines: trade.own_side, cards:, editing:,
+        reserved: trade.state == :theirs, max: own_max %>
+  <div class="trade-board__actions">
+    <% if editing %>
+      <%= render ButtonComponent.new(type: :submit) do %><%= t("trades.actions.send_counter") %><% end %>
+      <%= render ButtonComponent.new(variant: :secondary, href: trade_path(token: trade.token)) do %><%= t("trades.actions.undo") %><% end %>
+    <% elsif trade.state == :yours && !trade.friend.deleted? %>
+      <%= render ButtonComponent.new(href: accept_trade_path(token: trade.token), method: :post) do %><%= t("trades.actions.accept") %><% end %>
+      <%= render ButtonComponent.new(variant: :secondary, href: counter_trade_path(token: trade.token)) do %><%= t("trades.actions.counter") %><% end %>
+      <%= render ButtonComponent.new(variant: :secondary, href: decline_trade_path(token: trade.token), method: :post) do %><%= t("trades.actions.decline") %><% end %>
+    <% elsif trade.state == :theirs %>
+      <%= render ButtonComponent.new(variant: :secondary, href: cancel_trade_path(token: trade.token), method: :post) do %><%= t("trades.actions.cancel") %><% end %>
+    <% end %>
+  </div>
+<% end %>
+<%= render PanelComponent.new(tag: :section, brackets: true, class: class_names("trade-board", "trade-board--editing": editing),
+      aria: { labelledby: "trade-board-heading" }) do %>
+  <% if editing %>
+    <%= form_with url: counter_trade_path(token: trade.token), method: :post, class: "trade-board__form" do %>
+      <%= body %>
+    <% end %>
+  <% else %>
+    <div class="trade-board__form"><%= body %></div>
+  <% end %>
+<% end %>

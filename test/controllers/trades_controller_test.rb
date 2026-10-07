@@ -1,0 +1,327 @@
+require "test_helper"
+require_relative "../support/counting_rate_limit"
+
+# The trades screen (EXPERIENCE.md, Échanges, Trade board; story 5.6): the
+# list in three groups, a trade's board by its token with the actions of its
+# state as forms, the counter-proposal form, the orange waiting badge on
+# menu 03 and the ÉCHANGES tab, and the sign-in panel for a visitor.
+class TradesControllerTest < ActionDispatch::IntegrationTest
+  include CountingRateLimit
+
+  setup do
+    OmniAuth.config.test_mode = true
+    @alice = accounts_players(:player)
+    @bob = accounts_players(:moderator)
+    @carol = accounts_players(:administrator)
+    @alice.update!(persona_name: "Hugo")
+    @bob.update!(persona_name: "Lea")
+    @carol.update!(persona_name: "Max")
+    @portal = catalog_card_seasons(:portal_one).id
+    @soldier = catalog_card_seasons(:common_card_one).id
+    @depths = catalog_card_seasons(:rare_card_one).id
+    [ @bob, @carol ].each { befriend(@alice, it) }
+    hold(@alice, @portal, 3)
+    hold(@alice, @soldier, 1)
+    hold(@bob, @depths, 2)
+    hold(@carol, @depths, 1)
+  end
+
+  teardown do
+    OmniAuth.config.mock_auth.delete(:steam)
+    OmniAuth.config.test_mode = false
+  end
+
+  def befriend(first, second)
+    low, high = [ first.id, second.id ].minmax
+    Game::Friendship.create!(low_player_id: low, high_player_id: high)
+  end
+
+  def hold(player, card_season_id, quantity)
+    Game::Holding.create!(player_id: player.id, card_season_id:, quantity:, reserved: 0)
+  end
+
+  def holding(player, card_season_id) = Game::Holding.find_by(player_id: player.id, card_season_id:)
+
+  def propose(player, recipient, offer:, request:)
+    Game::ProposeTrade.new.call(player:, recipient:, offer:, request:).value!
+  end
+
+  def sign_in(player, origin: "/fr")
+    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
+    post "/auth/steam", params: { origin: }
+    follow_redirect!
+  end
+
+  # Lea proposes Profondeurs bleues for Portal ×2: Hugo's turn.
+  def from_lea = propose(@bob, @alice, offer: { @depths => 1 }, request: { @portal => 2 })
+
+  test "a visitor is sent home to sign in, and menu 03 and the tab open the sign-in panel" do
+    trade = from_lea
+
+    get trades_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
+    post accept_trade_path(token: trade.token, locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
+    assert trade.reload.open?
+
+    get home_path(locale: :fr)
+    assert_select ".hub-menu button.menu-item[aria-keyshortcuts='3'][aria-haspopup=dialog]", /Échanges/
+    assert_select ".tab-bar button.tab-bar__tab[aria-haspopup=dialog]", /Échanges/
+  end
+
+  test "the list groups the trades, and the first board shows beside it" do
+    from_lea
+    propose(@alice, @carol, offer: { @soldier => 1 }, request: { @depths => 1 })
+    sign_in @alice
+
+    get trades_path(locale: :fr)
+
+    assert_response :success
+    assert_select "title", /Échanges/
+    assert_select ".trades--list"
+    assert_equal [ "En attente de vous", "En attente de leur réponse" ], css_select(".trades__group").map { it.text.strip }
+    rows = css_select(".trade-row")
+    assert_equal 2, rows.size
+    assert_match(/Lea/, rows[0].text)
+    assert_match(/Profondeurs bleues contre Portal ×2/, rows[0].text)
+    assert_match(/expire dans 7 j/, rows[0].text)
+    assert_equal "À vous", rows[0].at_css(".trade-chip--alert").text
+    assert_match(/Profondeurs bleues contre Soldat de plomb/, rows[1].text)
+    assert_equal "En attente", rows[1].at_css(".trade-chip--accent").text
+    assert_select ".trade-board .trade-board__title", "Échange avec Lea"
+  end
+
+  test "the board of a trade waiting for the player: its line, expiry, reserved copies and three actions" do
+    trade = from_lea
+    sign_in @alice
+
+    get trade_path(token: trade.token, locale: :fr)
+
+    assert_response :success
+    assert_select ".trades--board"
+    assert_select ".trade-row[aria-current=page][href=?]", trade_path(token: trade.token, locale: :fr)
+    assert_select ".top-bar__phone-back[href='/fr/trades']", /Liste/
+    assert_select ".trade-board" do
+      assert_select ".trade-chip--alert", "À vous"
+      assert_select ".trade-board__expiry", /Expire dans\s+7 j/
+      assert_select ".trade-board__message", "Lea vous propose cet échange."
+      assert_select ".trade-side--friend .trade-side__label", "Lea donne"
+      assert_select ".trade-side--friend .trade-card__reserved", "Réservée"
+      assert_select ".trade-side--friend .card", 1
+      assert_select ".trade-side--own .trade-side__label", "Vous donnez"
+      assert_select ".trade-side--own .trade-card__quantity", /×2/
+      assert_select ".trade-side--own .trade-side__count", "1 carte · 2 ex."
+      assert_select ".trade-side--own .trade-card__reserved", 0
+      assert_select "form[action=?] button", accept_trade_path(token: trade.token, locale: :fr), "Accepter"
+      assert_select "a[href=?]", counter_trade_path(token: trade.token, locale: :fr), "Contre-proposer"
+      assert_select "form[action=?] button", decline_trade_path(token: trade.token, locale: :fr), "Refuser"
+    end
+    assert_no_match(/trade[_-]id|value="#{trade.id}"/, response.body)
+  end
+
+  test "the proposer sees their reserved copies and cancels; the copies are released" do
+    trade = propose(@alice, @bob, offer: { @portal => 2 }, request: { @depths => 1 })
+    sign_in @alice
+
+    get trade_path(token: trade.token, locale: :fr)
+    assert_select ".trade-chip--accent", "En attente"
+    assert_select ".trade-board__message", "En attente de la réponse de Lea."
+    assert_select ".trade-side--own .trade-card__reserved", "2 réservées"
+    assert_select ".trade-board__actions form button", 1
+
+    post cancel_trade_path(token: trade.token, locale: :fr)
+    assert_redirected_to trade_path(token: trade.token, locale: :fr)
+    follow_redirect!
+    assert_select ".toast", /Proposition annulée.*Vos cartes ne sont plus réservées\./m
+    assert_select ".trade-chip--muted", "Clos"
+    assert_select ".trade-board__expiry", /annulé à l'instant/
+    assert_select ".trade-side--friend .trade-side__label", "Lea proposait"
+    assert_select ".trade-board__actions form", 0
+    assert_equal 0, holding(@alice, @portal).reserved
+  end
+
+  test "accepting swaps the cards, says what joined the collection and lowers the badge" do
+    trade = from_lea
+    sign_in @alice
+    get home_path(locale: :fr)
+    assert_select ".hub-menu a.menu-item[href='/fr/trades'] .menu-item__badge--alert", "1"
+    assert_select ".hub-menu a.menu-item[href='/fr/trades'] .visually-hidden", "1 échange en attente de vous"
+    assert_select ".tab-bar a.tab-bar__tab[href='/fr/trades'] .tab-bar__badge--alert", "1"
+
+    post accept_trade_path(token: trade.token, locale: :fr)
+    assert_redirected_to trade_path(token: trade.token, locale: :fr)
+    follow_redirect!
+
+    assert_select ".toast", /Échange conclu.*Profondeurs bleues rejoint votre collection\./m
+    assert_select ".trade-chip--lime", "Conclu"
+    assert_select ".trade-board__message", "Échange conclu."
+    assert_select ".trade-side--friend .trade-side__label", "Lea a reçu"
+    assert_select ".trade-side--own .trade-side__label", "Vous avez reçu"
+    assert_select ".trades__group", "Terminés récemment"
+    assert_equal 1, holding(@alice, @portal).quantity
+    assert_equal 1, holding(@alice, @depths).quantity
+
+    get home_path(locale: :fr)
+    assert_select ".hub-menu a.menu-item[href='/fr/trades'] .menu-item__badge--zero", "0"
+    assert_select ".tab-bar__badge", 0
+  end
+
+  test "an acceptance refused shows the reason on the board and in a toast; nothing moves" do
+    trade = from_lea
+    Game::Holding.where(player_id: @alice.id, card_season_id: @portal).update_all(quantity: 1)
+    sign_in @alice
+
+    post accept_trade_path(token: trade.token, locale: :fr)
+    follow_redirect!
+
+    message = I18n.t("errors.game.requested_cards_unavailable", locale: :fr)
+    assert_select ".trade-board__error[role=alert]", message
+    assert_select ".toast--alert", /Exemplaires insuffisants/
+    assert_select ".trade-chip--alert", "À vous"
+    assert trade.reload.open?
+  end
+
+  test "declining tells the friend's name" do
+    trade = from_lea
+    sign_in @alice
+
+    post decline_trade_path(token: trade.token, locale: :fr)
+    follow_redirect!
+
+    assert_select ".toast", /Échange refusé.*Votre réponse a été envoyée à Lea\./m
+    assert_select ".trade-board__expiry", /refusé à l'instant/
+    assert_equal "declined", trade.reload.status
+  end
+
+  test "the counter form edits both sides' quantities and sends the counter-proposal" do
+    trade = from_lea
+    sign_in @alice
+
+    get counter_trade_path(token: trade.token, locale: :fr)
+    assert_response :success
+    assert_select ".trade-board--editing form[action=?][method=post]", counter_trade_path(token: trade.token, locale: :fr)
+    assert_select ".trade-side--editing", 2
+    assert_select ".trade-board__message", "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez."
+    assert_select "input[name='give[portal--s1]'][value='2'][min='0'][max='3']"
+    assert_select "input[name='take[blue-depths--s1]'][value='1'][max='2']"
+    assert_select "button[type=submit]", "Renvoyer la contre-proposition"
+    assert_select "a[href=?]", trade_path(token: trade.token, locale: :fr), "Annuler les modifications"
+
+    post counter_trade_path(token: trade.token, locale: :fr), params: { give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "2" } }
+    assert_redirected_to trade_path(token: trade.token, locale: :fr)
+    follow_redirect!
+
+    assert_select ".toast", /Proposition envoyée.*Lea a 7 jours pour répondre\./m
+    assert_select ".trade-chip--accent", "En attente"
+    trade.reload
+    assert_equal @alice.id, trade.proposer_id
+    assert_equal({ "offer" => [ [ @portal, 1 ] ], "request" => [ [ @depths, 2 ] ] },
+      trade.items.group_by(&:side).transform_values { |items| items.map { [ it.card_season_id, it.quantity ] } })
+    assert_equal 1, holding(@alice, @portal).reserved
+    assert_equal 0, holding(@bob, @depths).reserved
+  end
+
+  test "a counter that empties a side is refused on its form" do
+    trade = from_lea
+    sign_in @alice
+
+    post counter_trade_path(token: trade.token, locale: :fr), params: { give: { "portal--s1" => "0" }, take: { "blue-depths--s1" => "1" } }
+
+    assert_redirected_to counter_trade_path(token: trade.token, locale: :fr)
+    follow_redirect!
+    assert_select ".trade-board__error", I18n.t("errors.game.invalid_offer", locale: :fr)
+    assert_equal @bob.id, trade.reload.proposer_id
+  end
+
+  test "the counter form is only for the player's turn, and a counter sent off turn says why on the board" do
+    trade = propose(@alice, @bob, offer: { @portal => 1 }, request: { @depths => 1 })
+    sign_in @alice
+
+    get counter_trade_path(token: trade.token, locale: :fr)
+    assert_redirected_to trade_path(token: trade.token, locale: :fr)
+
+    post counter_trade_path(token: trade.token, locale: :fr), params: { give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
+    follow_redirect!
+    follow_redirect!
+    assert_select ".trade-board__error", I18n.t("errors.game.not_allowed", locale: :fr)
+  end
+
+  test "someone else's trade, or an unknown token, is not found" do
+    befriend(@bob, @carol)
+    trade = propose(@bob, @carol, offer: { @depths => 1 }, request: { @depths => 1 })
+    sign_in @alice
+
+    get trade_path(token: trade.token, locale: :fr)
+    assert_response :not_found
+    post accept_trade_path(token: "1" * 24, locale: :fr)
+    assert_response :not_found
+  end
+
+  test "the screen reads in English" do
+    trade = from_lea
+    sign_in @alice, origin: "/en"
+
+    get trade_path(token: trade.token, locale: :en)
+
+    assert_select ".trades__group", "Waiting for you"
+    assert_select ".trade-row__what", "Blue Depths for Portal ×2"
+    assert_select ".trade-board__title", "Trade with Lea"
+    assert_select ".trade-board__message", "Lea proposes this trade to you."
+    assert_select ".trade-board__expiry", /Expires in\s+7 d/
+    assert_select "form button", "Accept"
+    assert_select "a", "Counter"
+    assert_select "form button", "Decline"
+  end
+
+  test "a trade with a partner who deleted their account renders, waits for nobody and cannot be answered" do
+    yours = from_lea
+    theirs = propose(@alice, @carol, offer: { @soldier => 1 }, request: { @depths => 1 })
+    Accounts::DeletePlayer.new.call(player: @bob).value!
+    Accounts::DeletePlayer.new.call(player: @carol).value!
+    sign_in @alice
+
+    get trades_path(locale: :fr)
+    assert_response :success
+    assert_select ".trade-row", 2
+    assert_select ".trade-row__name", /Officier sans nom/
+    assert_select ".tab-bar__badge", 0
+
+    get trade_path(token: yours.token, locale: :fr)
+    assert_response :success
+    assert_select ".trade-board__title", "Échange avec Officier sans nom"
+    assert_select ".trade-board__actions form, .trade-board__actions a", 0
+    post decline_trade_path(token: yours.token, locale: :fr)
+    follow_redirect!
+    assert_select ".trade-board__error", I18n.t("errors.game.not_friends", locale: :fr)
+    get counter_trade_path(token: yours.token, locale: :fr)
+    assert_redirected_to trade_path(token: yours.token, locale: :fr)
+
+    get trade_path(token: theirs.token, locale: :fr)
+    assert_response :success
+    post cancel_trade_path(token: theirs.token, locale: :fr)
+    follow_redirect!
+    assert_select ".trade-chip--muted", "Clos"
+    assert_equal 0, holding(@alice, @soldier).reserved
+  end
+
+  test "a player with no trade sees the empty line" do
+    sign_in @alice
+
+    get trades_path(locale: :fr)
+
+    assert_select ".trades__empty"
+    assert_select ".trade-board", 0
+  end
+
+  test "the answers are limited to 20 a minute" do
+    trade = from_lea
+    sign_in @alice
+
+    with_counting_rate_limit(TradesController) do
+      21.times { post decline_trade_path(token: trade.token, locale: :fr) }
+    end
+
+    assert_redirected_to trades_path(locale: :fr)
+    assert_equal I18n.t("trades.throttled", locale: :fr), flash[:alert]
+  end
+end
