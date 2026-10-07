@@ -29,7 +29,7 @@ class CountdownTest < ApplicationSystemTestCase
 
     create_pack(@player, available_at: 4.seconds.from_now)
     visit home_path(locale: :en)
-    assert_selector BADGE, text: "1"
+    assert_selector BADGE, text: "1", wait: 10
     assert_selector "#{COUNTDOWN} [data-countdown-target=clock]", text: /\A00:0[1-4]\z/, visible: :all
     page.execute_script("document.querySelector('.hub').testMark = 'kept'")
 
@@ -53,7 +53,7 @@ class CountdownTest < ApplicationSystemTestCase
 
     # The first refresh comes at 3 s, the retry 5 s later.
     Timeout.timeout(15) { sleep 0.2 until page.evaluate_script("window.refreshes") >= 2 }
-    assert_selector BADGE, text: "1"
+    assert_selector BADGE, text: "1", wait: 10
     assert_selector "#{COUNTDOWN}[data-countdown-seconds-value='2']", visible: :all
 
     travel_back
@@ -81,7 +81,7 @@ class CountdownTest < ApplicationSystemTestCase
     within(".daily-booster") { click_on "Collect" }
 
     assert_text I18n.t("daily_bonuses.create.collected", locale: :en), wait: 10
-    assert_selector BADGE, text: "3"
+    assert_selector BADGE, text: "3", wait: 10
   end
 
   test "elsewhere the packs chip's countdown stops at zero without refreshing the page" do

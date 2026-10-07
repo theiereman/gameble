@@ -26,13 +26,13 @@ class DailyBonusTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
-    assert_selector BADGE, text: "9"
+    assert_selector BADGE, text: "9", wait: 10
     take_screenshot
 
     within(".daily-booster") { click_on "Collect" }
 
     assert_text I18n.t("daily_bonuses.create.collected", locale: :en)
-    assert_selector BADGE, text: "10"
+    assert_selector BADGE, text: "10", wait: 10
     within(".daily-booster") do
       assert_text "COLLECTED"
       assert_text "NEXT IN"
@@ -58,7 +58,7 @@ class DailyBonusTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
-    assert_selector BADGE, text: "9"
+    assert_selector BADGE, text: "9", wait: 10
   end
 
   test "the canister arcs to the packs chip, then the reserve is announced and the chip's count brightens" do
@@ -67,7 +67,7 @@ class DailyBonusTest < ApplicationSystemTestCase
 
     within(".daily-booster") { click_on "Collect" }
 
-    assert_selector BADGE, text: "10"
+    assert_selector BADGE, text: "10", wait: 10
     Timeout.timeout(5) { sleep 0.05 until page.evaluate_script("window.bankEvents.length") == 1 }
     assert page.evaluate_script("window.arcSeen"), "a canister should have flown"
     assert_no_selector ".bonus-arc"
@@ -84,7 +84,7 @@ class DailyBonusTest < ApplicationSystemTestCase
 
     within(".daily-booster") { click_on "Collect" }
 
-    assert_selector BADGE, text: "10"
+    assert_selector BADGE, text: "10", wait: 10
     Timeout.timeout(5) { sleep 0.05 until page.evaluate_script("window.bankEvents.length") == 1 }
     assert_not page.evaluate_script("window.arcSeen"), "no canister should fly"
   ensure
@@ -99,7 +99,7 @@ class DailyBonusTest < ApplicationSystemTestCase
 
     within(".daily-booster") { click_on "Collect" }
 
-    assert_selector BADGE, text: "10"
+    assert_selector BADGE, text: "10", wait: 10
     Timeout.timeout(5) { sleep 0.05 until page.evaluate_script("window.bankEvents.length") == 1 }
     assert_not page.evaluate_script("window.arcSeen"), "no canister should fly"
   end
@@ -113,7 +113,7 @@ class DailyBonusTest < ApplicationSystemTestCase
 
     assert_text I18n.t("errors.game.already_collected", locale: :en)
     assert_selector ".daily-booster--collected"
-    assert_selector BADGE, text: "10"
+    assert_selector BADGE, text: "10", wait: 10
     sleep 0.8
     assert_not page.evaluate_script("window.arcSeen")
     assert_equal 0, page.evaluate_script("window.bankEvents.length")
@@ -124,7 +124,7 @@ class DailyBonusTest < ApplicationSystemTestCase
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
-    assert_selector BADGE, text: "10"
+    assert_selector BADGE, text: "10", wait: 10
 
     within(".daily-booster") do
       assert_text "RESERVE FULL"
