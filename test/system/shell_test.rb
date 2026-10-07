@@ -154,8 +154,11 @@ class ShellTest < ApplicationSystemTestCase
     assert_selector "html[data-test-loaded]", visible: :all
   end
 
-  def assert_star_shift(pixels)
-    assert_selector ".atmosphere__stars[style*='--star-shift: #{pixels}px']", visible: :all
+  # The star field is still: it carries no shift and does not move.
+  def assert_stars_still
+    assert_selector ".atmosphere__stars", visible: :all
+    assert_no_selector ".atmosphere__stars[style*='--star-shift']", visible: :all
+    assert_equal "none", computed(".atmosphere__stars", "transform")
   end
 
   test "a refresh of the same page is no screen change; a visit to another one is" do
@@ -176,21 +179,33 @@ class ShellTest < ApplicationSystemTestCase
     assert_selector "html[data-screen-change=same]", visible: :all
   end
 
-  test "Back and Forward are screen changes: the screen slides and the stars shift" do
+  test "Back and Forward are screen changes: the screen slides and the stars stay" do
     visit home_path(locale: :en)
     within(".hub-menu") { click_on "Collection" }
     assert_current_path library_path(locale: :en)
-    assert_star_shift(-160)
+    assert_stars_still
     refresh_with_turbo
     assert_selector "html[data-screen-change=same]", visible: :all
-    assert_star_shift(-160)
+    assert_stars_still
 
     page.go_back
     assert_current_path home_path(locale: :en)
     assert_selector ".hub-menu"
     assert_no_selector "html[data-screen-change]", visible: :all
     assert_equal "screen", computed(".main", "viewTransitionName")
-    assert_star_shift(-320)
+    assert_stars_still
+  end
+
+  test "a few stars twinkle softly, slowly, and stop under reduced motion, read live" do
+    visit home_path(locale: :en)
+    twinkles = "document.querySelector('.atmosphere__twinkle').getAnimations({ subtree: true }).filter((a) => a.playState === 'running')"
+
+    assert_equal 12, evaluate_script("#{twinkles}.length")
+    # A slow fade: every period is 3 s or more (below 1 Hz).
+    assert evaluate_script("#{twinkles}.every((a) => a.effect.getTiming().duration >= 3000)")
+
+    execute_script("document.documentElement.dataset.motion = 'reduced'")
+    assert_equal 0, evaluate_script("#{twinkles}.length")
   end
 
   test "the back-office, without stars, leaves no same-page mark behind" do

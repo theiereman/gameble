@@ -52,7 +52,7 @@
 .booster {
   display: grid;
   grid-template-columns: 300px minmax(0, 1fr);
-  gap: var(--space-8);
+  gap: 40px;
   align-items: start;
   overflow-x: clip;
 }
@@ -62,8 +62,19 @@
   z-index: 3;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--space-7);
   min-width: 0;
+}
+
+/* The opening sits in the middle of a window taller than itself, horizontally
+   (its own width) and vertically; nothing is resized, and a shorter window
+   keeps it at the top and scrolls (min-height, never a fixed height). */
+@media (min-width: 720px) {
+  .main:has(.booster-island) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 }
 
 .booster__hazard,
@@ -976,14 +987,14 @@
 @media (max-width: 1259px) {
   .booster {
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-7);
+    gap: var(--space-8);
   }
 
   .booster__info {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-start;
-    gap: 18px var(--space-7);
+    gap: var(--space-7) var(--space-8);
   }
 
   .booster__hazard,

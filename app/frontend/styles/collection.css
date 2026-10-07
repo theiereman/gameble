@@ -18,7 +18,7 @@
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
   grid-template-areas: "aside main";
-  gap: var(--space-5) var(--space-column-gap-wide);
+  gap: var(--space-6) var(--space-column-gap-wide);
   align-items: start;
 }
 
@@ -26,7 +26,7 @@
   grid-area: aside;
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-6);
   min-width: 0;
 }
 
@@ -34,7 +34,7 @@
   grid-area: main;
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-6);
   min-width: 0;
 }
 
@@ -529,7 +529,7 @@
   }
 
   .collection__aside {
-    gap: var(--space-4);
+    gap: var(--space-5);
   }
 
   .collection-status__bar {

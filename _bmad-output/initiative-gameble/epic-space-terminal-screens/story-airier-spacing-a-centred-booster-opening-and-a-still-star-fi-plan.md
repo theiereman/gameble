@@ -3,7 +3,7 @@ title: 'Airier spacing, a centred booster opening and a still star field'
 type: 'feature'
 ticket: '6'
 created: '2026-10-07'
-status: 'ready-for-dev'
+status: 'done'
 baseline_revision: '4cb65b1bf4c67092cb1a1bac6972c63a7c57f508'
 route: 'full'
 route_source: 'auto'
@@ -69,6 +69,13 @@ context:
 - Given the hub, collection and card detail, then panels and rows show more space than at baseline.
 
 ## Implementation Notes
+
+Decisions taken unattended (author away):
+- Tokens raised one step: panel padding 20px 24px; page padding wide 32 32 40, medium 24 28 32, phone 20 20 28; column gaps 32/24; grid gaps 16/20; phone gutter 20. Layout gaps raised in hub, collection, card-detail, profile, settings and booster (a gap already at 32px, as in the public card page, stays: the scale stops there).
+- Booster centring: `.main:has(.booster-island)` is a flex column centred above 720px (the island wraps `.booster`, so `:has(> .booster)` did not match). The booster grid gap is 40px, the info column gap 24px.
+- AD-27 limits infinite animations to six on a phone view: only 3 of the 12 twinkling stars show under 720px. The twinkle places and rhythms are `nth-child` rules in shell.css because the CSP forbids inline styles.
+- `baseline_revision` kept as planned; the worktree branch was fast-forwarded to `develop` (fa1676d) before work, as it lacked the plan.
+- Review `quick`: self-review of the diff, no findings.
 
 ## Plan Change Log
 

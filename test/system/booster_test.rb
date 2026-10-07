@@ -888,6 +888,25 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal 1, request_keys.size
   end
 
+  test "in a window taller than the opening it sits in the middle; in a short one it is at the top and the page scrolls" do
+    margin = <<~JS
+      const main = document.querySelector("main").getBoundingClientRect()
+      const box = document.querySelector(".booster").getBoundingClientRect()
+      return [Math.round(box.top - main.top), Math.round(main.bottom - box.bottom)]
+    JS
+    page.driver.browser.manage.window.resize_to(1600, 1400)
+    open_screen(card_ids(*[ :common_card_one ] * 5))
+    above, below = page.evaluate_script("(() => { #{margin} })()")
+    # The page padding is 8px deeper below than above.
+    assert_operator (above - below).abs, :<=, 10, "the opening is centred: #{above} above, #{below} below"
+    assert_operator above, :>, 40
+
+    page.driver.browser.manage.window.resize_to(1400, 500)
+    above, = page.evaluate_script("(() => { #{margin} })()")
+    assert_operator above, :<=, 40, "a short window keeps the opening at the top"
+    assert page.evaluate_script("document.documentElement.scrollHeight > window.innerHeight")
+  end
+
   test "before the answer, a daily bonus pack first in line is counted as three cards" do
     open_screen(card_ids(:rare_card_one, :portal_one, :legendary_card_one), kind: :bonus)
 
