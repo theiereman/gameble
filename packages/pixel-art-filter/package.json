@@ -9,9 +9,24 @@
   },
   "types": "./src/index.ts",
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "build": "node scripts/build.mjs"
   },
   "devDependencies": {
     "vitest": "5.0.3"
-  }
+  },
+  "license": "MIT",
+  "author": "Thomas Eyermann",
+  "keywords": [
+    "pixel-art",
+    "pixelate",
+    "image",
+    "canvas",
+    "web-worker",
+    "offscreencanvas",
+    "median-cut",
+    "palette",
+    "quantize"
+  ],
+  "sideEffects": false
 }

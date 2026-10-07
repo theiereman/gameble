@@ -2,6 +2,16 @@
 
 Turns an image into pixel art: it crops the image to the art's ratio, downscales it to a small grid, then reduces it to a few colours computed for that image (median cut, no dithering). In the browser the work runs in a Web Worker on `OffscreenCanvas`. It is written in TypeScript and depends on nothing.
 
+## Install
+
+```sh
+npm install pixel-art-filter
+```
+
+It is an ES module with type declarations, for the browser and for any JavaScript runtime that has typed arrays (the core). The browser part needs `Worker`, `OffscreenCanvas` and `createImageBitmap`; it falls back to the main thread without them (see "Fallbacks and failures").
+
+It was written for game cover art, and its defaults come from there: a 32-colour palette, a crop anchored at 42 % from the top, and a "missing image" rule sized for Steam's grey 300 × 450 placeholder (see "Placeholders"). The core functions take all of these as options.
+
 ## Core
 
 The core works on RGBA pixels and runs anywhere.
@@ -72,7 +82,7 @@ A failure is never cached: the next render tries again. Images are not stored an
 
 ### Bundling and hosting
 
-The worker is started with `new Worker(new URL("./worker.ts", import.meta.url), { type: "module" })`; with Vite, set `worker: { format: "es" }`. A Content Security Policy must allow the worker (`worker-src 'self'`) and list the image hosts in `connect-src` (the worker's `fetch`) and `img-src` (the main-thread fallback). Steam's CDN hosts answer `access-control-allow-origin: *` (checked 2026-10-02).
+The worker is started with `new Worker(new URL("./worker.js", import.meta.url), { type: "module" })` (`worker.ts` in the source); a bundler that understands this pattern (Vite, webpack 5, Rollup with a plugin) bundles it, and with Vite you set `worker: { format: "es" }`. A Content Security Policy must allow the worker (`worker-src 'self'`) and list the image hosts in `connect-src` (the worker's `fetch`) and `img-src` (the main-thread fallback). Steam's CDN hosts answer `access-control-allow-origin: *` (checked 2026-10-02).
 
 ## Tests
 
@@ -82,3 +92,16 @@ From the repository root:
 npm run test:js
 npm run typecheck
 ```
+
+## Publishing
+
+The package in the repository is private and consumed from its sources. `npm run build` compiles it into `dist/` (JavaScript, `.d.ts`, a `package.json` made for npm, the README and the LICENSE), and `dist/` is what you publish:
+
+```sh
+cd packages/pixel-art-filter
+npm run build
+npm pack --dry-run ./dist   # lists what would be published
+npm publish ./dist
+```
+
+Bump `version` in `package.json` first. Add a `repository` field to it when the code lives in a public repository.
