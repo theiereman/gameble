@@ -22,6 +22,8 @@ module Game
   #   # => Success(trade) | Failure(:player_required) | Failure(:not_friends) | Failure(:invalid_offer)
   #   #    | Failure(:invalid_request) | Failure(:trade_already_open) | Failure(:insufficient_copies)
   class ProposeTrade < Operation
+    include TradeSteps
+
     def call(player:, recipient:, offer:, request:)
       player = step require_player(player)
       offer = step normalise(offer, :invalid_offer)
@@ -51,33 +53,8 @@ module Game
 
     private
 
-    # { card_season_id => quantity } with integer ids and positive integer
-    # quantities, one to four cards.
-    def normalise(side, code)
-      return Failure(code) unless side.is_a?(Hash) && side.size.between?(1, TradeItem::MAX_CARDS_PER_SIDE)
-
-      lines = side.to_h { |id, quantity| [ integer(id), integer(quantity) ] }
-      return Failure(code) unless lines.size == side.size && lines.all? { |id, quantity| id&.positive? && quantity&.between?(1, TradeItem::MAX_QUANTITY) }
-
-      Success(lines.sort.to_h)
-    end
-
-    def integer(value)
-      value.is_a?(Integer) ? value : (Integer(value, 10, exception: false) if value.is_a?(String))
-    end
-
-    def known_cards(request)
-      Catalog::CardSeason.where(id: request.keys).count == request.size ? Success() : Failure(:invalid_request)
-    end
-
     def other_player(player, recipient)
       recipient.is_a?(Accounts::Player) && recipient.persisted? && recipient.id != player.id ? Success() : Failure(:not_friends)
-    end
-
-    def friends(player, recipient)
-      low, high = [ player.id, recipient.id ].minmax
-      friendly = !recipient.banned? && Friendship.exists?(low_player_id: low, high_player_id: high)
-      friendly ? Success() : Failure(:not_friends)
     end
 
     def no_open_trade(player, recipient)
@@ -85,28 +62,10 @@ module Game
       Trade.in_progress.exists?(low_player_id: low, high_player_id: high) ? Failure(:trade_already_open) : Success()
     end
 
-    def enough_copies(offer, holdings)
-      free = offer.all? { |card_season_id, quantity| (holding = holdings[card_season_id]) && quantity <= holding.quantity - holding.reserved }
-      free ? Success() : Failure(:insufficient_copies)
-    end
-
     def create_trade(player, recipient, now)
       low, high = [ player.id, recipient.id ].minmax
       Trade.create!(low_player_id: low, high_player_id: high, proposer_id: player.id, recipient_id: recipient.id,
         status: "open", proposed_at: now, expires_at: now + Trade::LIFETIME)
-    end
-
-    def create_items(trade, offer, request, now)
-      rows = { "offer" => offer, "request" => request }.flat_map do |side, lines|
-        lines.map { |card_season_id, quantity| { trade_id: trade.id, side:, card_season_id:, quantity:, created_at: now, updated_at: now } }
-      end
-      TradeItem.insert_all!(rows)
-    end
-
-    def reserve(offer, holdings, now)
-      offer.each do |card_season_id, quantity|
-        Holding.where(id: holdings.fetch(card_season_id).id).update_all([ "reserved = reserved + ?, updated_at = ?", quantity, now ])
-      end
     end
   end
 end
