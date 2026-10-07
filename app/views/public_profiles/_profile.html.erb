@@ -6,7 +6,7 @@
     - summary: the owner's Game::CollectionSummary;
     - kind, spines, pagy: the sets, as ShelfLoading loads them. %>
 <section class="profile" aria-labelledby="profile-heading">
-  <%= render "public_profiles/summary", title: title, summary: summary %>
+  <%= render "public_profiles/summary", owner:, title: title, summary: summary %>
   <div class="collection">
     <aside class="collection__aside" aria-labelledby="collection-sets-title">
       <%= render "public_profiles/set_list", kind:, set: nil, spines:, pagy:, links: profile_shelf_links(owner.token, kind) %>

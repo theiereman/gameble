@@ -302,6 +302,10 @@ en:
     title: "%{name}"
     fallback_title: "Player %{code}"
     show:
+      visibility:
+        public: "Visible to all players"
+        friends_only: "Visible to your friends only"
+        private: "Private profile: only you can see it"
       counts: "The collection"
       pick: "Pick a set to see the cards it holds."
       complete: "Complete"
@@ -415,6 +419,11 @@ en:
       more: "More"
       language:
         label: "Language"
+      visibility:
+        label: "Profile visibility"
+        public: "Public"
+        friends_only: "Friends only"
+        private: "Private"
       motion:
         label: "Reduced motion"
         system: "System"

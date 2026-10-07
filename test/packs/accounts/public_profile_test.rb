@@ -1,22 +1,8 @@
 require "test_helper"
 
-# Accounts::PublicProfile (CAP-8): whose profile may be shown, and the code
-# naming a player without a persona name.
+# Accounts::PublicProfile (CAP-8): the code naming a player without a persona
+# name. Whose profile may be shown is Game::Visibility's question.
 class Accounts::PublicProfileTest < ActiveSupport::TestCase
-  test "a player's profile is visible to a visitor and to another player" do
-    player = accounts_players(:player)
-
-    assert Accounts::PublicProfile.visible?(player, viewer: nil)
-    assert Accounts::PublicProfile.visible?(player, viewer: accounts_players(:moderator))
-    assert Accounts::PublicProfile.visible?(player, viewer: player)
-  end
-
-  test "a banned player's profile, or no player, is not visible" do
-    assert_not Accounts::PublicProfile.visible?(accounts_players(:banned), viewer: nil)
-    assert_not Accounts::PublicProfile.visible?(accounts_players(:banned), viewer: accounts_players(:banned))
-    assert_not Accounts::PublicProfile.visible?(nil, viewer: accounts_players(:player))
-  end
-
   test "the code is the first six Crockford base32 characters of the token's SHA-256" do
     token = "8fRbREJutTNEvhJdRHHihZ78"
     bits = Digest::SHA256.hexdigest(token)[0, 8].to_i(16).to_s(2).rjust(32, "0")[0, 30]

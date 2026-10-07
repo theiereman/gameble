@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_110100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,9 +23,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_100000) do
     t.datetime "banned_at"
     t.string "persona_name"
     t.boolean "reduced_motion"
+    t.string "visibility", default: "public", null: false
     t.index ["steam_id"], name: "index_accounts_players_on_steam_id", unique: true
     t.index ["token"], name: "index_accounts_players_on_token", unique: true
     t.check_constraint "role::text = 'player'::text OR role::text = 'moderator'::text OR role::text = 'administrator'::text", name: "accounts_players_role_check"
+    t.check_constraint "visibility::text = ANY (ARRAY['public'::character varying, 'friends_only'::character varying, 'private'::character varying]::text[])", name: "accounts_players_visibility_check"
   end
 
   create_table "catalog_card_seasons", force: :cascade do |t|

@@ -34,12 +34,16 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "title", /Profil et paramètres/
     assert_select "main h1", "Profil et paramètres"
-    assert_select ".settings-row", 3
-    assert_equal [ "Langue", "Animations réduites", "Session" ], css_select(".settings-row__label").map(&:text)
+    assert_select ".settings-row", 4
+    assert_equal [ "Langue", "Visibilité du profil", "Animations réduites", "Session" ], css_select(".settings-row__label").map(&:text)
     assert_select "[role=group][aria-labelledby=settings-language] a.segmented__option", 2
     assert_select "a.segmented__option[href='/fr/settings'][aria-current=true][lang=fr]", "Français"
     assert_select "a.segmented__option[href='/en/settings'][lang=en]:not([aria-current])", "English"
     assert_select "form[action='/fr/settings'][data-turbo=false] input[name=_method][value=patch]"
+    assert_select "[role=group][aria-labelledby=settings-visibility] button[name=visibility]", 3
+    assert_select "form[action='/fr/settings/visibility'] button[name=visibility][value=public][aria-pressed=true]", "Public"
+    assert_select "button[name=visibility][value=friends_only][aria-pressed=false]", "Amis uniquement"
+    assert_select "button[name=visibility][value=private][aria-pressed=false]", "Privé"
     assert_select "button.segmented__option[name=reduced_motion]", 3
     assert_select "button[name=reduced_motion][value=system][aria-pressed=true]", "Système"
     assert_select "button[name=reduced_motion][value=on][aria-pressed=false]", "Oui"
@@ -55,7 +59,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get settings_path(locale: :en)
 
     assert_select "main h1", "Profile and settings"
-    assert_equal [ "Language", "Reduced motion", "Session" ], css_select(".settings-row__label").map(&:text)
+    assert_equal [ "Language", "Profile visibility", "Reduced motion", "Session" ], css_select(".settings-row__label").map(&:text)
     assert_select "button[name=reduced_motion][value=on][aria-pressed=true]", "Yes"
     assert_select "button[name=reduced_motion][value=system][aria-pressed=false]", "System"
     assert_select "button[name=reduced_motion][value=off][aria-pressed=false]", "No"
@@ -68,7 +72,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get settings_path(locale: :en)
 
     assert_select "button[name=reduced_motion][value=off][aria-pressed=true]", "No"
-    assert_select "button[aria-pressed=true]", 1
+    assert_select "button[name=reduced_motion][aria-pressed=true]", 1
   end
 
   test "a visitor is sent home and asked to sign in; nothing is written" do
@@ -89,6 +93,47 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_not_includes Array(response.headers["Set-Cookie"]).join("\n"), "motion="
     assert_nil @player.reload.reduced_motion
+  end
+
+  # The profile visibility row
+
+  %w[private friends_only public].each do |choice|
+    test "choosing #{choice} stores it at once and marks it" do
+      @player.update!(visibility: "private") if choice == "public"
+      sign_in
+
+      patch settings_visibility_path(locale: :en), params: { visibility: choice }
+
+      assert_redirected_to settings_path(locale: :en)
+      assert_response :see_other
+      assert_equal choice, @player.reload.visibility
+      follow_redirect!
+      assert_select "button[name=visibility][value=#{choice}][aria-pressed=true]", 1
+      assert_select "button[name=visibility][aria-pressed=true]", 1
+    end
+  end
+
+  [ nil, "", "everyone", "Private", [ "private" ] ].each do |choice|
+    test "#{choice.inspect} is no visibility: refused with its message, nothing changes" do
+      sign_in
+
+      patch settings_visibility_path(locale: :fr), params: { visibility: choice }
+
+      assert_redirected_to settings_path(locale: :fr)
+      assert_equal I18n.t("errors.accounts.invalid_setting", locale: :fr), flash[:alert]
+      assert_equal "public", @player.reload.visibility
+    end
+  end
+
+  test "a visitor cannot set a visibility, and a GET writes nothing" do
+    patch settings_visibility_path(locale: :en), params: { visibility: "private" }
+    assert_redirected_to home_path(locale: :en)
+    assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
+    assert_equal "public", @player.reload.visibility
+
+    sign_in
+    get settings_path(locale: :en, visibility: "private")
+    assert_equal "public", @player.reload.visibility
   end
 
   # Writing a setting

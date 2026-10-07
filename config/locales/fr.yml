@@ -310,6 +310,10 @@ fr:
     title: "%{name}"
     fallback_title: "Joueur %{code}"
     show:
+      visibility:
+        public: "Visible par tous les joueurs"
+        friends_only: "Visible par vos amis seulement"
+        private: "Profil privé : vous seul le voyez"
       counts: "La collection"
       pick: "Choisissez un set pour voir les cartes qu'il contient."
       complete: "Complet"
@@ -429,6 +433,11 @@ fr:
       more: "Plus"
       language:
         label: "Langue"
+      visibility:
+        label: "Visibilité du profil"
+        public: "Public"
+        friends_only: "Amis uniquement"
+        private: "Privé"
       motion:
         label: "Animations réduites"
         system: "Système"

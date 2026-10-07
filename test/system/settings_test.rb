@@ -47,6 +47,20 @@ class SettingsTest < ApplicationSystemTestCase
     assert_selector "button[aria-pressed=true]", text: /\A#{label}\z/i
   end
 
+  test "a player sets the profile visibility at once, and a signed-out visitor then finds the profile unavailable" do
+    sign_in settings_path(locale: :en)
+    assert_selector "button[name=visibility][aria-pressed=true]", text: "PUBLIC"
+
+    within("[role=group][aria-labelledby=settings-visibility]") { click_on "Private" }
+    assert_selector "button[name=visibility][aria-pressed=true]", text: "PRIVATE"
+    assert_equal "private", @player.reload.visibility
+
+    using_session("visitor") do
+      visit brother_path(locale: :en, token: @player.token)
+      assert_text "Profile not available"
+    end
+  end
+
   test "a player picks reduced motion on the settings screen, and the switch follows on every page, signed in and out" do
     sign_in
     find(".top-bar .player-chip__button").click

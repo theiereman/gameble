@@ -1,0 +1,46 @@
+require "test_helper"
+
+# Game::Visibility (AD-13, AD-14): the one visibility question.
+class Game::VisibilityTest < ActiveSupport::TestCase
+  setup do
+    @owner = accounts_players(:player)
+    @stranger = accounts_players(:moderator)
+  end
+
+  def visible?(viewer, owner = @owner) = Game::Visibility.visible?(viewer, owner)
+
+  test "a public owner is seen by a visitor, a stranger and themselves" do
+    assert visible?(nil)
+    assert visible?(@stranger)
+    assert visible?(@owner)
+  end
+
+  test "a private owner is seen by themselves only" do
+    @owner.visibility_private!
+
+    assert visible?(@owner)
+    assert_not visible?(nil)
+    assert_not visible?(@stranger)
+  end
+
+  test "a friends-only owner counts no friend until epic 5: seen by themselves only" do
+    @owner.visibility_friends_only!
+
+    assert visible?(@owner)
+    assert_not visible?(nil)
+    assert_not visible?(@stranger)
+  end
+
+  test "a banned owner is seen by no one, themselves included, whatever their visibility" do
+    banned = accounts_players(:banned)
+
+    assert_not visible?(nil, banned)
+    assert_not visible?(banned, banned)
+    assert_not visible?(@stranger, banned)
+  end
+
+  test "no owner is seen by no one" do
+    assert_not visible?(nil, nil)
+    assert_not visible?(@owner, nil)
+  end
+end

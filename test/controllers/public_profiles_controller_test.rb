@@ -320,6 +320,43 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal unknown, css_select("main").to_html
   end
 
+  test "a private or friends-only owner is the unavailable page for a visitor and a stranger, not for the owner" do
+    publish_sets_draft
+    get brother_path(locale: :en, token: "A" * 24)
+    unknown = css_select("main").to_html
+
+    %w[private friends_only].each do |visibility|
+      @owner.update!(visibility:)
+
+      get brother_path(locale: :en, token: @owner.token)
+      assert_response :not_found
+      assert_equal unknown, css_select("main").to_html, visibility
+
+      get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1")
+      assert_response :not_found
+
+      sign_in(accounts_players(:moderator))
+      get brother_path(locale: :en, token: @owner.token)
+      assert_response :not_found
+      delete session_path(locale: :en)
+
+      sign_in(@owner)
+      get brother_path(locale: :en, token: @owner.token)
+      assert_response :success
+      delete session_path(locale: :en)
+    end
+  end
+
+  test "the summary states who may see the profile" do
+    get brother_path(locale: :en, token: @owner.token)
+    assert_select ".profile-summary__visibility", "Visible to all players"
+
+    @owner.update!(visibility: "private")
+    sign_in(@owner)
+    get brother_path(locale: :fr, token: @owner.token)
+    assert_select ".profile-summary__visibility", "Profil privé : vous seul le voyez"
+  end
+
   test "in French: the fallback title, the French tabs and plurals" do
     season = publish_sets_draft
     @owner.update_columns(persona_name: nil)

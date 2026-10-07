@@ -59,6 +59,8 @@ Rails.application.routes.draw do
     # The player's settings (EXPERIENCE.md, Profil et paramètres): language,
     # reduced motion and sign-out. GET reads (AD-11); PATCH writes.
     resource :settings, only: %i[show update]
+    # The profile visibility row of the settings (CAP-14).
+    patch "settings/visibility" => "settings#visibility", as: :settings_visibility
     # The phone's PLUS tab: the rest of the ship (EXPERIENCE.md, PLUS rows).
     get "more" => "pages#more", as: :more
 
