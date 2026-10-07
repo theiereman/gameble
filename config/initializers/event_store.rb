@@ -8,6 +8,8 @@ Rails.configuration.to_prepare do
 
   # A new player's bank is filled within the sign-up (AD-7).
   event_store.subscribe(Game::Handlers::PlayerRegistered, to: [ Accounts::PlayerRegistered ])
+  # A deleted account's game is released within the deletion (AD-14).
+  event_store.subscribe(Game::Handlers::PlayerDeleted, to: [ Accounts::PlayerDeleted ])
   # Players left without a bank get one when a season is published.
   event_store.subscribe(Game::Handlers::SeasonPublished, to: [ Catalog::SeasonPublished ])
 

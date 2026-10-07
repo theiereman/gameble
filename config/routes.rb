@@ -64,6 +64,9 @@ Rails.application.routes.draw do
     resource :settings, only: %i[show update]
     # The profile visibility row of the settings (CAP-14).
     patch "settings/visibility" => "settings#visibility", as: :settings_visibility
+    # Deleting the player's own account, from the settings' delete dialog
+    # (CAP-14).
+    resource :account, only: :destroy
     # The Friends screen (CAP-10): the player's friends and friend code.
     resource :friends, only: :show
 

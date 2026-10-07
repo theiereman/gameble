@@ -27,7 +27,7 @@ module Game
       player = step require_player(player)
 
       transaction do
-        BankLock.acquire(player.id)
+        step lock_bank(player)
         next 0 if Pack.exists?(player_id: player.id)
 
         pool = DrawPool.current

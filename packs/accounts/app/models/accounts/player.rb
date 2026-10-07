@@ -13,6 +13,10 @@ module Accounts
   # signed-out visitor is the absence of a player. A ban is the time it took
   # effect; a banned player cannot sign in and is signed out on their next
   # request.
+  #
+  # A deleted account (Accounts::DeletePlayer) keeps its record, as the
+  # target of the rows that name it, anonymised: no Steam id (released, so
+  # the player can sign up again), no name, a new token, and `deleted_at`.
   class Player < ApplicationRecord
     self.table_name = "accounts_players"
 
@@ -31,10 +35,14 @@ module Accounts
 
     # Uniqueness of the Steam id is the unique index's job: a validation would
     # race, and Accounts::SignIn relies on the index conflict.
-    validates :steam_id, presence: true, format: { with: STEAM_ID_FORMAT }
+    validates :steam_id, presence: true, format: { with: STEAM_ID_FORMAT }, unless: :deleted?
 
     def banned?
       banned_at.present?
+    end
+
+    def deleted?
+      deleted_at.present?
     end
 
     # A moderator or an administrator.

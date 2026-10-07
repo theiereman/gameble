@@ -468,6 +468,9 @@ en:
       session:
         label: "Session"
         sign_out: "Sign out"
+      account:
+        label: "Account"
+        delete: "Delete my account"
   feeds:
     show:
       title: "Activity feed"
@@ -544,6 +547,19 @@ en:
     unknown:
       title: "Invitation"
       text: "This invitation link is not valid."
+  accounts:
+    dialog:
+      title: "Delete my account"
+      close: "Close"
+      note: "Your collection, your boosters and your profile will be erased for good. This cannot be undone."
+      word: "DELETE"
+      label: "Type %{word} to confirm"
+      submit: "Delete for good"
+      cancel: "Cancel"
+    destroy:
+      deleted: "Your account has been deleted. Thank you for playing."
+      wrong_word: "Type %{word} to confirm the deletion. Nothing was erased."
+      throttled: "Too many attempts in a minute. Try again in a moment."
   reports:
     open: "REPORT"
     reasons:

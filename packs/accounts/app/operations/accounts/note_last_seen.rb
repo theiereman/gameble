@@ -11,7 +11,7 @@ module Accounts
   #
   #   Accounts::NoteLastSeen.new.call(player_id: 1, at: Time.current)
   #   # => Success(true) when written, Success(false) when throttled or the
-  #   #    player is gone or banned | Failure(:invalid_time)
+  #   #    player is gone, banned or deleted | Failure(:invalid_time)
   class NoteLastSeen < ApplicationOperation
     # The least time between two writes for one player.
     THROTTLE = 1.minute
@@ -21,7 +21,7 @@ module Accounts
 
       transaction do
         at = [ at, Time.current ].min
-        written = Player.where(id: player_id, banned_at: nil)
+        written = Player.where(id: player_id, banned_at: nil, deleted_at: nil)
           .where("last_seen_at IS NULL OR last_seen_at <= ?", at - THROTTLE)
           .update_all(last_seen_at: at)
         written.positive?

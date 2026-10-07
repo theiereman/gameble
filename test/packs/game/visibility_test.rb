@@ -39,6 +39,14 @@ class Game::VisibilityTest < ActiveSupport::TestCase
     assert_not visible?(@stranger, banned)
   end
 
+  test "a deleted owner is seen by no one, themselves included" do
+    Accounts::DeletePlayer.new.call(player: @owner).value!
+
+    assert_not visible?(nil)
+    assert_not visible?(@stranger)
+    assert_not visible?(@owner)
+  end
+
   test "no owner is seen by no one" do
     assert_not visible?(nil, nil)
     assert_not visible?(@owner, nil)

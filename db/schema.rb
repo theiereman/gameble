@@ -10,12 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_165000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_170810) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "accounts_players", force: :cascade do |t|
-    t.string "steam_id", null: false
+    t.string "steam_id"
     t.string "token", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -25,8 +25,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_165000) do
     t.boolean "reduced_motion"
     t.string "visibility", default: "public", null: false
     t.datetime "last_seen_at"
+    t.datetime "deleted_at"
     t.index ["steam_id"], name: "index_accounts_players_on_steam_id", unique: true
     t.index ["token"], name: "index_accounts_players_on_token", unique: true
+    t.check_constraint "(steam_id IS NULL) = (deleted_at IS NOT NULL)", name: "accounts_players_deleted_check"
     t.check_constraint "role::text = 'player'::text OR role::text = 'moderator'::text OR role::text = 'administrator'::text", name: "accounts_players_role_check"
     t.check_constraint "visibility::text = ANY (ARRAY['public'::character varying::text, 'friends_only'::character varying::text, 'private'::character varying::text])", name: "accounts_players_visibility_check"
   end
