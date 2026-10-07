@@ -14,6 +14,8 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
 - **Hub showcase line (story 8.13, 2026-10-07).** Now "rarity · genre · number", e.g. "Épique · Réflexion · S1 · #4". To confirm.
 - **Account deletion copy (story 7.8, 2026-10-07).** The dialog says collection, boosters and profile are erased; the mockup also names trades and card backs, which story 5.11 handles. To revisit with 5.11.
 - **Collection wording (story 10.5, 2026-10-07).** The opened pack page (`packs.show`, epic 8) still says "Ton paquet, Confrère" and uses "tu"; "Tome" set labels are kept as in the spec where the mockups say "vol.". To decide.
+- **After the next deploy: `bin/rails game:drop_friends_and_trades` (story 5.11, 2026-10-07).** Closes the trades, friendships and invitations of accounts deleted before 5.11 and of bans set from the console; run once after deploying, and again after any console ban until story 7.5's ban action publishes `Accounts::PlayerBanned`.
+- **Trades screen and board choices (stories 5.6 to 5.9, 2026-10-07).** Finished trades stay listed 14 days (20 at most); the card picker lists a friend's whole collection whatever their profile visibility (trading needs it); the live stream is per locale; a dialog open or text not yet sent holds a live refresh back; an incoming proposal moves only the badge, with no toast; the draft's validity line, the discard confirmation and the English trade copy are drafts. The friend row on Amis has no PROPOSER UN ÉCHANGE button yet (the friend profile has it). To confirm.
 
 ## After the UX redesign merge (2026-10-05)
 
