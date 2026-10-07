@@ -24,6 +24,19 @@ jobs:
       - name: Scan for known security vulnerabilities in gems used
         run: bin/bundler-audit
       
+  docker-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      # Builds the production image (never pushed) and boots it with throw-away
+      # values (SECRET_KEY_BASE, PUBLIC_URL), no RAILS_MASTER_KEY, no database.
+      - name: Build the production image and check it answers /up
+        run: bin/docker-smoke
+
   lint:
     runs-on: ubuntu-latest
     env:
