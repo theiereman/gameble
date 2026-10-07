@@ -28,6 +28,8 @@ class SessionsController < ApplicationController
   skip_around_action :read_only_unless_writing, only: :create
 
   ORIGIN_PATH = %r{\A/(?:#{I18n.available_locales.join("|")})(?:/[^\\\s]*)?\z}
+  # A player's invite link (CAP-10): a sign-in started there returns to it.
+  INVITE_PATH = %r{\A/(?:#{I18n.available_locales.join("|")})/invite/[1-9A-HJ-NP-Za-km-z]{24}\z}
 
   # GET /auth/steam/callback, after OmniAuth has verified the response.
   def create
@@ -43,7 +45,11 @@ class SessionsController < ApplicationController
 
     reset_session
     session[:player_id] = result.value!.id
-    redirect_to home_path, notice: t(".welcome"), flash: { signed_in: true }
+    if (invite = invite_origin)
+      redirect_to invite, notice: t(".welcome")
+    else
+      redirect_to home_path, notice: t(".welcome"), flash: { signed_in: true }
+    end
   end
 
   # GET /auth/failure: Steam refused, the visitor cancelled, or the response
@@ -95,6 +101,13 @@ class SessionsController < ApplicationController
     # one of the origin page, else the default one.
     def requested_locale
       params[:locale] || origin_path&.split("/")&.at(1)
+    end
+
+    # The invite link the sign-in started from, else nil: a visitor who
+    # opened it lands back on it, signed in (AD-8).
+    def invite_origin
+      origin = origin_path
+      origin if origin && INVITE_PATH.match?(origin)
     end
 
     def return_path

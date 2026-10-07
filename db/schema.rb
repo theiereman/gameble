@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,7 +27,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
     t.index ["steam_id"], name: "index_accounts_players_on_steam_id", unique: true
     t.index ["token"], name: "index_accounts_players_on_token", unique: true
     t.check_constraint "role::text = 'player'::text OR role::text = 'moderator'::text OR role::text = 'administrator'::text", name: "accounts_players_role_check"
-    t.check_constraint "visibility::text = ANY (ARRAY['public'::character varying, 'friends_only'::character varying, 'private'::character varying]::text[])", name: "accounts_players_visibility_check"
+    t.check_constraint "visibility::text = ANY (ARRAY['public'::character varying::text, 'friends_only'::character varying::text, 'private'::character varying::text])", name: "accounts_players_visibility_check"
   end
 
   create_table "catalog_card_seasons", force: :cascade do |t|
@@ -175,6 +175,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
     t.check_constraint "quantity >= reserved AND reserved >= 0", name: "game_holdings_quantity_check"
   end
 
+  create_table "game_invitations", force: :cascade do |t|
+    t.string "token", null: false
+    t.bigint "sender_id", null: false
+    t.bigint "recipient_id", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["recipient_id"], name: "index_game_invitations_on_recipient_id"
+    t.index ["sender_id", "recipient_id"], name: "index_game_invitations_one_pending_per_pair", unique: true, where: "((status)::text = 'pending'::text)"
+    t.index ["sender_id"], name: "index_game_invitations_on_sender_id"
+    t.index ["token"], name: "index_game_invitations_on_token", unique: true
+    t.check_constraint "sender_id <> recipient_id", name: "game_invitations_distinct_check"
+    t.check_constraint "status::text = ANY (ARRAY['pending'::character varying, 'accepted'::character varying, 'ignored'::character varying]::text[])", name: "game_invitations_status_check"
+  end
+
   create_table "game_packs", force: :cascade do |t|
     t.bigint "player_id", null: false
     t.string "token", null: false
@@ -285,6 +300,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
   add_foreign_key "game_friendships", "accounts_players", column: "low_player_id"
   add_foreign_key "game_holdings", "accounts_players", column: "player_id"
   add_foreign_key "game_holdings", "catalog_card_seasons", column: "card_season_id"
+  add_foreign_key "game_invitations", "accounts_players", column: "recipient_id"
+  add_foreign_key "game_invitations", "accounts_players", column: "sender_id"
   add_foreign_key "game_packs", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
   add_foreign_key "game_player_states", "accounts_players", column: "player_id"
