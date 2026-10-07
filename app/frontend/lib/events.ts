@@ -2,6 +2,7 @@
 // `gameble:<noun-verb>`, declared here only). Each name maps to its detail;
 // dispatchGameble and onGameble keep both ends typed.
 import type { Rarity } from "./card_types"
+import type { SideCount } from "./trade_board"
 
 // A toast to show (EXPERIENCE.md, Toast): the shell's toast region appends
 // it from its server-rendered template.
@@ -23,11 +24,17 @@ export type BankChangedDetail = { available: number; reserveFull: boolean; nextA
 // bar) while it opens a booster or reveals a card, and unlocks it after.
 export type NavigationLockedDetail = { locked: boolean }
 
+// The trade board island's sides changed (and once when it mounts): what
+// the player gives and asks for, read by the board's send button
+// (trade_send_controller.ts), which waits for a card on each side.
+export type TradeChangedDetail = { give: SideCount; take: SideCount }
+
 export interface GamebleEventMap {
   "gameble:toast": ToastDetail
   "gameble:tier-revealed": TierRevealedDetail
   "gameble:bank-changed": BankChangedDetail
   "gameble:navigation-locked": NavigationLockedDetail
+  "gameble:trade-changed": TradeChangedDetail
 }
 
 export type GamebleEventName = keyof GamebleEventMap

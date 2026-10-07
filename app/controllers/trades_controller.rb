@@ -6,10 +6,11 @@
 #
 # A trade is addressed by its token (AD-15). On a desktop the list sits
 # beside a board (the first trade's on the list itself); on a phone the list
-# and the board are separate views (trades.css). Until the trade board island
-# (stories 5.7, 5.8), a counter-proposal edits the quantities of the cards
-# already on each side, a form of its own (`edit`). Mutations are limited to
-# 20 a minute per player.
+# and the board are separate views (trades.css). A counter-proposal is a form
+# of its own (`edit`): the TradeBoard island (story 5.7) picks the cards of
+# each side among those their holder holds and sets their quantities, over
+# a fallback of quantity fields for the cards already there. Mutations are
+# limited to 20 a minute per player.
 class TradesController < ApplicationController
   rate_limit to: 20, within: 1.minute, only: %i[counter accept decline cancel],
     by: -> { current_player&.id || request.remote_ip },
@@ -47,20 +48,31 @@ class TradesController < ApplicationController
 
     @trades = Game::TradesOf.call(current_player)
     @cards = card_views(@trades, @trade)
-    @own_max = Game::FreeCopies.call(current_player, @trade.own_side.map(&:card_season_id))
-    @friend_max = Game::Quantities.call(@trade.friend, @trade.friend_side.map(&:card_season_id))
+    # The picker's cards: the player's (free copies), the friend's (copies held).
+    @own_held = Game::HeldCopies.call(current_player)
+    @friend_held = Game::HeldCopies.call(@trade.friend)
+    @picks = Catalog::CardViews.call(@own_held.keys + @friend_held.keys, locale: I18n.locale)
+    @own_max = @own_held.transform_values(&:free)
+    @friend_max = @friend_held.transform_values(&:quantity)
   end
 
   # POST /:locale/trades/:token/counter, with `give[<card key>]` and
-  # `take[<card key>]` quantities (0 removes the card).
+  # `take[<card key>]` quantities (0 removes the card): the player gives
+  # cards they hold and asks for cards the friend holds.
   def counter
     authorize :trade, :counter?
     trade = find_trade!
-    cards = Catalog::CardViews.call(trade.card_season_ids, locale: I18n.locale)
-    offer = quantities(params[:give], trade.own_side, cards)
-    request = quantities(params[:take], trade.friend_side, cards)
+    own = Game::HeldCopies.call(current_player).keys
+    friend = Game::HeldCopies.call(trade.friend).keys
+    cards = Catalog::CardViews.call(own + friend, locale: I18n.locale)
+    offer = quantities(params[:give], own, cards)
+    request = quantities(params[:take], friend, cards)
 
-    result = Game::CounterTrade.new.call(player: current_player, trade_id: trade.id, offer:, request:)
+    result =
+      if offer.nil? then Dry::Monads::Failure(:invalid_offer)
+      elsif request.nil? then Dry::Monads::Failure(:invalid_request)
+      else Game::CounterTrade.new.call(player: current_player, trade_id: trade.id, offer:, request:)
+      end
     if result.success?
       toast t("trades.sent.title"), t("trades.sent.text", name: helpers.trade_friend_name(trade.friend))
       redirect_to trade_path(token: trade.token), status: :see_other
@@ -118,15 +130,18 @@ class TradesController < ApplicationController
       Catalog::CardViews.call(rows.flat_map(&:card_season_ids), locale: I18n.locale)
     end
 
-    # The quantities a side of the counter form sends, by card-season: only
-    # the cards already on that side (no picker yet), 0 or blank removing
-    # one. A value that is no number is kept, for CounterTrade to refuse.
-    def quantities(fields, lines, cards)
+    # The quantities a side of the counter form sends, by card-season, its
+    # cards named by their key (AD-15), 0 or blank removing one. A value
+    # that is no number is kept, for CounterTrade to refuse. nil when a key
+    # names no card among `held` (the side's holder's card-seasons), which
+    # refuses the side.
+    def quantities(fields, held, cards)
       fields = fields.respond_to?(:to_unsafe_h) ? fields.to_unsafe_h : {}
-      lines.each_with_object({}) do |line, side|
-        view = cards[line.card_season_id] or next
-        value = fields[helpers.trade_card_key(view)].to_s.strip
-        side[line.card_season_id] = value unless value.empty? || value == "0"
+      ids = held.filter_map { |id| (view = cards[id]) && [ helpers.trade_card_key(view), id ] }.to_h
+      fields.each_with_object({}) do |(key, value), side|
+        id = ids[key.to_s] or return
+        value = value.to_s.strip
+        side[id] = value unless value.empty? || value == "0"
       end
     end
 

@@ -6,9 +6,13 @@
     and the actions of the state below, each a form posting to its
     operation (none on the player's turn when the friend deleted their
     account: accepting is refused and their offered copies are gone; story
-    5.11 closes such trades). `editing` makes it the counter-proposal form: both sides
-    "EN ÉDITION", a quantity field per card (0 removes it; the card picker
-    comes with the trade board island). %>
+    5.11 closes such trades). `editing` makes it the counter-proposal form:
+    the TradeBoard island (story 5.7) draws both sides "EN ÉDITION", each
+    card with its stepper and "✕", an add slot opening the card picker, and
+    the side's fields; until it mounts (or without JavaScript), a quantity
+    field per card already there (0 removes it). The send button waits for
+    a card on each side (trade_send_controller.ts). `island` holds the
+    island's props when editing. %>
 <% friend_label, own_label = trade_side_labels(trade) %>
 <% tone, chip = trade_chip(trade) %>
 <% body = capture do %>
@@ -25,21 +29,29 @@
       <% end %>
     </p>
   </header>
-  <%= render "trades/side", side: :friend, label: friend_label, lines: trade.friend_side, cards:, editing:,
-        reserved: trade.state == :yours, max: friend_max %>
-  <div class="trade-board__middle">
-    <%= pixel_icon("swap", class: "trade-board__swap") %>
-    <p class="trade-board__message"><%= trade_message(trade, editing:) %></p>
-    <% if flash[:trade_error] %>
-      <p class="trade-board__error" role="alert"><%= flash[:trade_error] %></p>
-    <% end %>
-  </div>
-  <%= render "trades/side", side: :own, label: own_label, lines: trade.own_side, cards:, editing:,
-        reserved: trade.state == :theirs, max: own_max %>
-  <div class="trade-board__actions">
+  <% sides = capture do %>
+    <%= render "trades/side", side: :friend, label: friend_label, lines: trade.friend_side, cards:, editing:,
+          reserved: trade.state == :yours, max: friend_max %>
+    <div class="trade-board__middle">
+      <%= pixel_icon("swap", class: "trade-board__swap") %>
+      <p class="trade-board__message"><%= trade_message(trade, editing:) %></p>
+      <% if flash[:trade_error] %>
+        <p class="trade-board__error" role="alert"><%= flash[:trade_error] %></p>
+      <% end %>
+    </div>
+    <%= render "trades/side", side: :own, label: own_label, lines: trade.own_side, cards:, editing:,
+          reserved: trade.state == :theirs, max: own_max %>
+  <% end %>
+  <% if editing %>
+    <%= turbo_mount("TradeBoard", props: island, class: "trade-island") { sides } %>
+  <% else %>
+    <%= sides %>
+  <% end %>
+  <div class="trade-board__actions" <%= tag.attributes(data: { controller: ("trade-send" if editing) }) %>>
     <% if editing %>
       <%= render ButtonComponent.new(type: :submit) do %><%= t("trades.actions.send_counter") %><% end %>
       <%= render ButtonComponent.new(variant: :secondary, href: trade_path(token: trade.token)) do %><%= t("trades.actions.undo") %><% end %>
+      <p id="trade-send-reason" class="trade-board__reason" data-trade-send-target="reason" hidden><%= t("trades.board.choose") %></p>
     <% elsif trade.state == :yours && !trade.friend.deleted? %>
       <%= render ButtonComponent.new(href: accept_trade_path(token: trade.token), method: :post) do %><%= t("trades.actions.accept") %><% end %>
       <%= render ButtonComponent.new(variant: :secondary, href: counter_trade_path(token: trade.token)) do %><%= t("trades.actions.counter") %><% end %>

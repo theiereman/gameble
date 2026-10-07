@@ -233,6 +233,86 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal @bob.id, trade.reload.proposer_id
   end
 
+  # The island's props: JSON in the turbo-mount element (story 5.7).
+  def island_props
+    element = css_select("[data-controller='turbo-mount-trade-board']").first
+    assert element, "the TradeBoard island is mounted"
+    JSON.parse(element["data-turbo-mount-trade-board-props-value"])
+  end
+
+  test "the counter form mounts the trade board island with both holders' cards, over the quantity fields" do
+    hold(@bob, @soldier, 3)
+    trade = from_lea
+    # Another trade reserves one of Hugo's three Portal.
+    propose(@alice, @carol, offer: { @portal => 1 }, request: { @depths => 1 })
+    sign_in @alice
+
+    get counter_trade_path(token: trade.token, locale: :fr)
+    assert_response :success
+    assert_select ".trade-board--editing form .trade-island input[name='give[portal--s1]'][max='2']"
+    assert_select ".trade-board__actions[data-controller='trade-send'] #trade-send-reason[hidden]", "Choisissez les cartes de chaque côté."
+
+    props = island_props
+    friend, own = props.fetch("sides")
+    assert_equal %w[friend take], friend.values_at("side", "field")
+    assert_equal %w[own give], own.values_at("side", "field")
+    assert_equal "Choisir dans la collection de Lea", friend.fetch("pickerTitle")
+    assert_equal "Cartes de Lea", friend.fetch("pickerTitleShort")
+    assert_equal "Placer mes cartes", own.fetch("add")
+    assert_equal [ { "key" => "blue-depths--s1", "quantity" => 1 } ], friend.fetch("lines")
+    assert_equal [ { "key" => "portal--s1", "quantity" => 2 } ], own.fetch("lines")
+
+    # Hugo's cards: copies, those reserved elsewhere, the free ones; ordered by number.
+    assert_equal [ [ "tin-soldier--s1", 1, 0, 1 ], [ "portal--s1", 3, 1, 2 ] ],
+      own.fetch("cards").map { it.values_at("key", "owned", "reserved", "max") }
+    # Lea's: what she holds, her reservations her own.
+    assert_equal [ [ "tin-soldier--s1", 3, 0, 3 ], [ "blue-depths--s1", 2, 0, 2 ] ],
+      friend.fetch("cards").map { it.values_at("key", "owned", "reserved", "max") }
+    face = own.fetch("cards").last.fetch("face")
+    assert_includes face, "card--s"
+    assert_includes face, "Portal"
+    assert_no_match(/style=/, face)
+    assert_no_match(/"id"|card_season_id/, props.to_json)
+    assert_equal "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez.", props.fetch("message")
+    assert_equal({ "one" => "%{count} carte", "other" => "%{count} cartes" }, props.dig("strings", "cards"))
+    assert_equal "Retirer %{title}", props.dig("strings", "remove")
+  end
+
+  test "a counter places cards the side's holder holds that were not on it" do
+    hold(@bob, @soldier, 3)
+    trade = from_lea
+    sign_in @alice
+
+    post counter_trade_path(token: trade.token, locale: :fr),
+      params: { give: { "portal--s1" => "1", "tin-soldier--s1" => "1" }, take: { "tin-soldier--s1" => "2" } }
+
+    assert_redirected_to trade_path(token: trade.token, locale: :fr)
+    trade.reload
+    assert_equal @alice.id, trade.proposer_id
+    assert_equal({ "offer" => [ [ @soldier, 1 ], [ @portal, 1 ] ].sort, "request" => [ [ @soldier, 2 ] ] },
+      trade.items.group_by(&:side).transform_values { |items| items.map { [ it.card_season_id, it.quantity ] }.sort })
+    assert_equal 1, holding(@alice, @soldier).reserved
+    assert_equal 0, holding(@bob, @depths).reserved
+  end
+
+  test "a counter naming a card its holder does not hold is refused, and nothing changes" do
+    trade = from_lea
+    sign_in @alice
+
+    # Hugo holds no Blue Depths to give; Lea holds no Golden Crown to ask for.
+    post counter_trade_path(token: trade.token, locale: :fr), params: { give: { "blue-depths--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
+    assert_redirected_to counter_trade_path(token: trade.token, locale: :fr)
+    follow_redirect!
+    assert_select ".trade-board__error", I18n.t("errors.game.invalid_offer", locale: :fr)
+    assert_equal I18n.t("errors.game.invalid_offer", locale: :fr), island_props.fetch("error")
+
+    post counter_trade_path(token: trade.token, locale: :fr), params: { give: { "portal--s1" => "1" }, take: { "golden-crown--s1" => "1" } }
+    follow_redirect!
+    assert_select ".trade-board__error", I18n.t("errors.game.invalid_request", locale: :fr)
+    assert_equal @bob.id, trade.reload.proposer_id
+    assert_equal 1, holding(@bob, @depths).reserved
+  end
+
   test "the counter form is only for the player's turn, and a counter sent off turn says why on the board" do
     trade = propose(@alice, @bob, offer: { @portal => 1 }, request: { @depths => 1 })
     sign_in @alice

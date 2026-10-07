@@ -380,6 +380,331 @@
   font: var(--font-body-small);
 }
 
+/* ---- The trade board island (story 5.7): its mount takes no box, so its
+   sides and status line sit in the board's grid; each card has "✕" at
+   its top right and its stepper under it; an add slot follows the cards. ---- */
+
+.trade-island {
+  display: contents;
+}
+
+.trade-board__reason {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  text-align: center;
+}
+
+.trade-board__swap-box {
+  display: inline-flex;
+}
+
+.trade-card--editing {
+  padding-bottom: var(--space-4);
+}
+
+.trade-card--editing .stepper {
+  position: absolute;
+  bottom: calc(-1 * var(--space-4));
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+}
+
+.trade-card__remove {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: var(--color-line);
+  box-shadow: 0 0 0 2px var(--color-outline);
+  color: var(--color-text-bright);
+  cursor: pointer;
+}
+
+.trade-card__remove:hover {
+  background: var(--color-alert);
+  color: var(--color-on-alert);
+}
+
+.trade-card__remove:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+.trade-island__close-icon {
+  width: 12px;
+  height: 12px;
+}
+
+/* The add slot: a hatched card-s button, a large "+" and its words. */
+.trade-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  width: var(--card-s-width);
+  height: var(--card-s-height);
+  padding: var(--space-3);
+  border: 0;
+  background: repeating-linear-gradient(45deg, var(--color-panel) 0 6px, var(--color-panel-sunken) 6px 12px);
+  box-shadow: inset 0 0 0 2px var(--color-line);
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.trade-add:hover {
+  box-shadow: inset 0 0 0 2px var(--color-accent);
+}
+
+.trade-add:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring-gap), inset 0 0 0 2px var(--color-accent);
+}
+
+.trade-add__plus {
+  font: var(--font-count-large);
+}
+
+/* The quantity stepper: a dark pill "−", "×N", "+", "/max" (the phone:
+   "sur N" under the pill). */
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  background: var(--color-input);
+  box-shadow: inset 0 0 0 2px var(--color-line), 0 0 0 2px var(--color-outline);
+  white-space: nowrap;
+}
+
+.stepper:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.stepper__button {
+  width: 24px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  background: var(--color-line);
+  color: var(--color-text-bright);
+  font: var(--font-button);
+  cursor: pointer;
+}
+
+.stepper__button:hover:not(:disabled) {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.stepper__button:disabled {
+  background: var(--color-disabled-bg);
+  color: var(--color-disabled-text);
+  cursor: default;
+}
+
+.stepper__value {
+  min-width: 30px;
+  color: var(--color-text-max);
+  font: var(--font-button);
+  text-align: center;
+}
+
+.stepper__max {
+  padding: 0 var(--space-3) 0 var(--space-1);
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.stepper__max-phone {
+  display: none;
+}
+
+/* ---- The card picker: a wide dialog, a grid of card-s faces ---- */
+
+.modal--wide {
+  width: min(var(--modal-width-wide), calc(100vw - 2 * var(--space-gutter-phone)));
+}
+
+.trade-picker__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-height: calc(100dvh - 2 * var(--space-7));
+}
+
+.trade-picker__panel .modal__head {
+  margin: 0;
+}
+
+.trade-picker__title-short {
+  display: none;
+}
+
+.trade-picker__note,
+.trade-picker__empty {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.trade-picker__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-4) 0;
+}
+
+.trade-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--card-s-width), 1fr));
+  justify-items: center;
+  gap: var(--space-6) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trade-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.trade-pick__card {
+  position: relative;
+  width: var(--card-s-width);
+  height: var(--card-s-height);
+}
+
+/* The flat button over the face takes the focus and the press (EXPERIENCE.md,
+   3D card stack: no transform on a button holding a face). */
+.trade-pick__toggle {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.trade-pick__toggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.trade-pick__toggle[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+.trade-pick__card--picked::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  z-index: 3;
+  box-shadow: 0 0 0 3px var(--color-lime);
+  pointer-events: none;
+}
+
+.trade-pick__card--unavailable .trade-pick__face {
+  opacity: 0.45;
+}
+
+.trade-pick__owned {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  z-index: 3;
+  min-width: 30px;
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 2px var(--color-line), 0 0 0 2px var(--color-outline);
+  color: var(--color-text-max);
+  font: var(--font-button-sm);
+  text-align: center;
+}
+
+.trade-pick__reserved {
+  position: absolute;
+  bottom: var(--space-3);
+  left: 50%;
+  z-index: 3;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.trade-pick__check {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  z-index: 3;
+  width: 24px;
+  height: 24px;
+  background: var(--color-lime);
+  box-shadow: 0 0 0 2px var(--color-outline);
+  color: var(--color-on-lime);
+  font: var(--font-button);
+  line-height: 24px;
+  text-align: center;
+}
+
+.trade-pick__foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+}
+
+.trade-pick__available {
+  color: var(--color-dim);
+  font: var(--font-body-small);
+}
+
+.trade-picker__refusal {
+  margin: 0;
+  color: var(--color-alert);
+  font: var(--font-body-small);
+}
+
+.trade-picker__refusal:empty {
+  display: none;
+}
+
+.trade-picker__refusal b {
+  font-weight: inherit;
+  text-transform: uppercase;
+}
+
+.trade-picker__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-4);
+}
+
+.trade-picker__count {
+  flex: 1;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
 /* A board under 700px: the friend's side, the swap turned a quarter, the
    player's side. */
 @container (max-width: 699px) {
@@ -424,6 +749,81 @@
   .trades--board .trades__list,
   .trades--board .trades__title {
     display: none;
+  }
+
+  /* The card picker: a full-height sheet. */
+  .trade-picker {
+    width: 100%;
+    max-width: var(--space-phone-column-max);
+    height: 100dvh;
+    max-height: none;
+    margin: 0 auto;
+  }
+
+  .trade-picker__panel {
+    height: 100%;
+    max-height: none;
+  }
+
+  .trade-picker__title {
+    display: none;
+  }
+
+  .trade-picker__title-short {
+    display: inline;
+  }
+
+  .trade-picker__actions .button {
+    flex: 1;
+  }
+
+  .trade-picker__count {
+    flex-basis: 100%;
+  }
+
+  /* Touch: 44px-wide stepper buttons, "sur N" under the pill, a 44px hit
+     area around the 24px "✕". */
+  .trade-card--editing,
+  .trade-pick__foot {
+    padding-bottom: var(--space-6);
+  }
+
+  .stepper {
+    position: relative;
+    height: 36px;
+  }
+
+  .stepper__button {
+    position: relative;
+    width: 44px;
+    height: 36px;
+  }
+
+  .stepper__button::after {
+    content: "";
+    position: absolute;
+    inset: -4px 0;
+  }
+
+  .stepper__max {
+    display: none;
+  }
+
+  .stepper__max-phone {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    display: block;
+    padding-top: var(--space-1);
+    transform: translateX(-50%);
+    color: var(--color-muted);
+    font: var(--font-body-small);
+  }
+
+  .trade-card__remove::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
   }
 
   .trade-board__actions {

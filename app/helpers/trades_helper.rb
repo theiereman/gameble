@@ -90,4 +90,58 @@ module TradesHelper
   def trade_card_key(view)
     "#{view.id}--s#{view.season_number}"
   end
+
+  # The TradeBoard island's props (story 5.7; AD-16; EXPERIENCE.md, Card
+  # picker, Quantity stepper): the friend's side then the player's, each
+  # with its words, every card its holder holds (a card-s face, copies,
+  # those reserved elsewhere and the maximum to place: the player's free
+  # copies, what the friend holds; the friend's reservations stay theirs)
+  # and the cards on it now; the board's status line, a refusal, its icons
+  # and the island's words. `own_held` and `friend_held` are
+  # Game::HeldCopies rows, `picks` their Catalog::CardViews.
+  def trade_board_props(trade, own_held:, friend_held:, picks:, error: nil)
+    name = trade_friend_name(trade.friend)
+    friend_label, own_label = trade_side_labels(trade)
+    {
+      sides: [
+        trade_island_side(:friend, label: friend_label, name:, held: friend_held, lines: trade.friend_side, picks:),
+        trade_island_side(:own, label: own_label, name:, held: own_held, lines: trade.own_side, picks:)
+      ],
+      message: trade_message(trade, editing: true),
+      error:,
+      swapIcon: pixel_icon("swap", class: "trade-board__swap").to_str,
+      closeIcon: pixel_icon("close", class: "trade-island__close-icon").to_str,
+      strings: trade_island_strings
+    }
+  end
+
+  private
+    def trade_island_side(side, label:, name:, held:, lines:, picks:)
+      own = side == :own
+      views = held.keys.filter_map { |id| picks[id] && [ id, picks[id] ] }
+      views.sort_by! { |_, view| [ view.season_number, view.number ? 0 : 1, view.number.to_i, view.title ] }
+      {
+        side:, field: own ? "give" : "take", label:,
+        add: t("trades.island.add.#{side}"),
+        pickerTitle: t("trades.island.picker.#{side}", name:),
+        pickerTitleShort: t("trades.island.picker_short.#{side}", name:),
+        note: t("trades.island.note.#{side}", name:),
+        cards: views.map do |id, view|
+          row = held.fetch(id)
+          { key: trade_card_key(view), title: view.title, owned: row.quantity, reserved: own ? row.reserved : 0,
+            max: own ? row.free : row.quantity, face: render(CardComponent.new(card: view, size: :s)).to_str }
+        end,
+        lines: lines.filter_map { |line| (view = picks[line.card_season_id]) && { key: trade_card_key(view), quantity: line.quantity } }
+      }
+    end
+
+    # The island's own words (`trades.island.strings`, in lower camel case,
+    # plural hashes kept) with the board's words it shares.
+    def trade_island_strings
+      t("trades.island.strings").deep_transform_keys { it.to_s.camelize(:lower) }.merge(
+        editing: t("trades.chip.editing"), cards: t("trades.side.cards"), cardsCopies: t("trades.side.cards_copies"),
+        copiesLabel: t("trades.side.copies_label"), reserved: t("trades.side.reserved"),
+        quantity: t("trades.side.quantity_label"), max: t("trades.side.max")
+      )
+    end
 end

@@ -615,6 +615,7 @@ en:
       concluded: "Trade done."
       closed: "Trade closed."
       editing: "Change what you give and what you ask for, then send it back."
+      choose: "Choose the cards on each side."
     side:
       friend_gives: "%{name} gives"
       friend_received: "%{name} received"
@@ -640,6 +641,50 @@ en:
       cancel: "Cancel the proposal"
       send_counter: "Send the counter-proposal"
       undo: "Discard the changes"
+    island:
+      add:
+        friend: "Choose their cards"
+        own: "Place my cards"
+      picker:
+        friend: "Choose from %{name}'s collection"
+        own: "Place my cards"
+      picker_short:
+        friend: "%{name}'s cards"
+        own: "My cards"
+      note:
+        friend: "Choose the cards, then how many copies to ask %{name} for."
+        own: "Choose the cards, then the number of copies. A copy you place stays reserved until the answer."
+      strings:
+        close: "Close"
+        place: "Place"
+        cancel: "Cancel"
+        remove: "Remove %{title}"
+        more: "One more copy"
+        fewer: "One copy fewer"
+        value_text: "%{count} of %{max}"
+        max_phone: "of %{max}"
+        available:
+          zero: "none available"
+          one: "1 available"
+          other: "%{count} available"
+        picked: "%{cards} · %{copies} (4 cards at most)"
+        picked_cards:
+          one: "%{count} card"
+          other: "%{count} cards"
+        picked_copies:
+          one: "%{count} copy"
+          other: "%{count} copies"
+        limit_title: "4 cards at most"
+        limit_text: "Remove a card before placing another."
+        empty: "No card available."
+        card_label: "%{title}, %{owned}"
+        owned:
+          one: "1 copy"
+          other: "%{count} copies"
+        reserved_elsewhere:
+          one: "1 reserved in another trade"
+          other: "%{count} reserved in other trades"
+        unavailable: "none available"
     accepted:
       title: "Trade done"
       text:

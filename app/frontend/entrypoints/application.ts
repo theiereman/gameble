@@ -8,6 +8,7 @@ import { createElement, lazy, Suspense, type ComponentType } from "react"
 
 import BoosterErrorBoundary from "../components/BoosterErrorBoundary"
 import type { BoosterProps } from "../components/Booster"
+import TradeBoard from "../components/TradeBoard"
 
 const application = Application.start()
 registerControllers(application, import.meta.glob("../controllers/**/*_controller.ts", { eager: true }))
@@ -23,3 +24,8 @@ const Booster = lazy(() => import("../components/Booster"))
 const LazyBooster = (props: BoosterProps) =>
   createElement(BoosterErrorBoundary, { strings: props.strings }, createElement(Suspense, { fallback: null }, createElement(Booster, props)))
 registerComponent(turboMount, "Booster", island(LazyBooster))
+
+// The trade board island (AD-16, story 5.7), on the counter-proposal's
+// board: loaded with the application, so it replaces the server's fallback
+// fields in place, without an empty frame while a chunk loads.
+registerComponent(turboMount, "TradeBoard", island(TradeBoard))
