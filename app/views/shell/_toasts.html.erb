@@ -1,12 +1,15 @@
 <%# The toast region (EXPERIENCE.md, Toast): a polite live region holding
     the flash messages as toasts, and the template a `gameble:toast` event
     is built from. Only notice and alert are messages; the flash carries
-    other data, such as the pack to reveal, that never reaches the page. %>
+    other data, such as the pack to reveal, that never reaches the page. A
+    page adds its own toasts with `content_for :toasts` (the hub's goal
+    reward). %>
 <% messages = flash.to_hash.slice("notice", "alert").compact_blank %>
 <div id="toasts" class="toasts" role="status" aria-live="polite" aria-label="<%= t("shell.toast.region") %>" data-controller="toast">
   <% title = flash["toast_title"].presence %>
   <% messages.each do |type, message| %>
     <%= render ToastComponent.new(message:, title:, tone: type.to_sym) %>
   <% end %>
+  <%= content_for(:toasts) %>
   <template data-toast-target="template"><%= render ToastComponent.new(message: "", title: "") %></template>
 </div>

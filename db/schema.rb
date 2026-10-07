@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_130400) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_165000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -188,6 +188,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_130400) do
     t.index ["high_player_id"], name: "index_game_friendships_on_high_player_id"
     t.index ["low_player_id", "high_player_id"], name: "index_game_friendships_on_low_player_id_and_high_player_id", unique: true
     t.check_constraint "low_player_id < high_player_id", name: "game_friendships_order_check"
+  end
+
+  create_table "game_goal_rewards", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.date "week_start", null: false
+    t.bigint "pack_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["pack_id"], name: "index_game_goal_rewards_on_pack_id"
+    t.index ["player_id", "week_start"], name: "index_game_goal_rewards_on_player_id_and_week_start", unique: true
+    t.index ["week_start"], name: "index_game_goal_rewards_on_week_start"
   end
 
   create_table "game_holdings", force: :cascade do |t|
@@ -384,6 +395,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_130400) do
   add_foreign_key "game_friend_codes", "accounts_players", column: "player_id"
   add_foreign_key "game_friendships", "accounts_players", column: "high_player_id"
   add_foreign_key "game_friendships", "accounts_players", column: "low_player_id"
+  add_foreign_key "game_goal_rewards", "accounts_players", column: "player_id"
+  add_foreign_key "game_goal_rewards", "game_packs", column: "pack_id"
   add_foreign_key "game_holdings", "accounts_players", column: "player_id"
   add_foreign_key "game_holdings", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_invitations", "accounts_players", column: "recipient_id"

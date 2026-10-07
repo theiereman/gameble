@@ -1,8 +1,10 @@
 # The hub, "Pont de commandement" (EXPERIENCE.md, Hub content): the numbered
 # menu, the showcase of the player's latest notable pull (or the invitation
-# to sign in), the daily booster panel and the set progress rows. A read
-# only page (AD-11): Catalog answers the season, its size and the showcased
-# card, Game the player's reserve, pull, collection and sets.
+# to sign in), the daily booster panel, the community goal panel and the
+# set progress rows, with the goal reward's toast while a contributor's
+# reward pack waits unopened. A read only page (AD-11): Catalog answers the
+# season, its size and the showcased card, Game the goal, the player's
+# reserve, reward, pull, collection and sets.
 class PagesController < ApplicationController
   def home
     authorize :page, :show?
@@ -10,6 +12,7 @@ class PagesController < ApplicationController
     @goal = Game::CurrentGoal.call
     if current_player
       @bank = Game::BankSummary.call(current_player)
+      @goal_reward_week = Game::WaitingGoalReward.call(current_player)
       @showcase = showcase if @season
     end
     @collection = collection if @season

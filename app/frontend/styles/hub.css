@@ -613,7 +613,8 @@ html[data-motion="reduced"] button.menu-item:hover {
   transform: none;
 }
 
-/* ---- Community goal panel: the key panel, in progress (DESIGN.md) ---- */
+/* ---- Community goal panel: the key panel, in progress, reached, and the
+   previous week's result after the rollover (DESIGN.md, EXPERIENCE.md) ---- */
 
 .hub-goal {
   grid-area: goal;
@@ -655,6 +656,14 @@ html[data-motion="reduced"] button.menu-item:hover {
 
 .hub-goal__reward-label { color: var(--color-lime); }
 
+.hub-goal__status {
+  margin: 0;
+  color: var(--color-lime);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
 .hub-goal__figures {
   margin: 0;
   color: var(--color-text-bright);
@@ -678,6 +687,15 @@ html[data-motion="reduced"] button.menu-item:hover {
 .hub-goal__reward {
   margin: 0;
   color: var(--color-text-bright);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.hub-goal__previous {
+  margin: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-line-soft);
+  color: var(--color-muted);
   font: var(--font-body);
   letter-spacing: var(--tracking-body);
 }
