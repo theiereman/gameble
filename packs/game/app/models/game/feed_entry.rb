@@ -3,13 +3,18 @@ module Game
   # pack, named by the player who pulled it. `notable` entries are pulls of
   # Épique or better; a filler is the best card of a pack that held none,
   # kept so a quiet feed is never empty (R4). Unique per pack and position.
-  # Written only by Game::Handlers::PackOpenedFeed, in the opening's
+  # Its `kind` is what the feed's type filters read (story 6.2); pulls are
+  # written only by Game::Handlers::PackOpenedFeed, in the opening's
   # transaction; visibility is not stored but asked when it is shown (AD-13).
   class FeedEntry < ApplicationRecord
     self.table_name = "game_feed_entries"
 
     # The lowest tier of a notable pull (Catalog::Rarity::TIERS: Épique).
     NOTABLE_TIER = 4
+
+    # The kinds of entry (the database checks the same list): pulls now,
+    # first discoveries, trades and reposts from their own stories.
+    KINDS = %w[pull discovery trade repost].freeze
 
     scope :newest_first, -> { order(occurred_at: :desc, id: :desc) }
 
@@ -23,7 +28,7 @@ module Game
       return if chosen.empty?
 
       rows = chosen.map do |id, position, tier|
-        { player_id: pack.player_id, pack_id: pack.id, card_season_id: id, position:, rarity: tier,
+        { kind: "pull", player_id: pack.player_id, pack_id: pack.id, card_season_id: id, position:, rarity: tier,
           notable: notable.any?, occurred_at: now, created_at: now, updated_at: now }
       end
       insert_all(rows, unique_by: %i[pack_id position], record_timestamps: false)

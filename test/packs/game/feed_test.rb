@@ -1,8 +1,9 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# The activity feed (CAP-13, AD-10, AD-11, AD-13; story 6.1): the handler's
-# choice of entries and the read that filters them through Game::Visibility.
+# The activity feed (CAP-13, AD-10, AD-11, AD-13; stories 6.1, 6.2): the
+# handler's choice of entries and the read that filters them by kind and
+# through Game::Visibility.
 class Game::FeedTest < ActiveSupport::TestCase
   include GamePacks
 
@@ -18,6 +19,18 @@ class Game::FeedTest < ActiveSupport::TestCase
   end
 
   def entries = Game::FeedEntry.order(:id).pluck(:position, :notable, :rarity)
+
+  # Feed rows of `kind` written straight, newest last, on a pack of `player`
+  # (only pulls have a handler yet).
+  def add_entries(player, count, kind: "pull", notable: true, from: 1.hour.ago)
+    pack = create_pack(player)
+    rows = Array.new(count) do |position|
+      at = from + position.seconds
+      { kind:, player_id: player.id, pack_id: pack.id, card_season_id: fixture_tier_ids[3], position:,
+        rarity: 4, notable:, occurred_at: at, created_at: at, updated_at: at }
+    end
+    Game::FeedEntry.insert_all!(rows)
+  end
 
   test "each pull of Épique or better is an entry, the others are not" do
     common, _, rare, epic, legendary = fixture_tier_ids
@@ -99,5 +112,51 @@ class Game::FeedTest < ActiveSupport::TestCase
 
   test "an empty feed is empty" do
     assert_empty Game::FeedEntries.call(nil)
+  end
+
+  test "an opening writes pulls" do
+    open_pack(@player, [ fixture_tier_ids[3] ])
+
+    assert_equal [ "pull" ], Game::FeedEntry.distinct.pluck(:kind)
+  end
+
+  test "a kind shows only its entries, the whole feed shows every kind" do
+    open_pack(@player, [ fixture_tier_ids[3] ])
+    add_entries(@other, 1, kind: "trade")
+
+    assert_equal [ "trade" ], Game::FeedEntries.call(nil, kind: "trade").map { |item| item.entry.kind }
+    assert_equal [ "pull" ], Game::FeedEntries.call(nil, kind: "pull").map { |item| item.entry.kind }
+    assert_equal %w[pull trade], Game::FeedEntries.call(nil).map { |item| item.entry.kind }.uniq.sort
+    assert_empty Game::FeedEntries.call(nil, kind: "repost")
+  end
+
+  test "fillers complete the whole feed and the pulls, never another kind" do
+    open_pack(@player, [ fixture_tier_ids[0] ] * 5)
+
+    assert_equal [ true ], Game::FeedEntries.call(nil).map(&:filler)
+    assert_equal [ true ], Game::FeedEntries.call(nil, kind: "pull").map(&:filler)
+    %w[discovery trade repost].each { |kind| assert_empty Game::FeedEntries.call(nil, kind:) }
+  end
+
+  test "a hidden or banned player's crowd of entries does not hide an older visible one" do
+    travel_to(3.hours.ago) { open_pack(@player, [ fixture_tier_ids[3] ]) }
+    add_entries(@other, Game::FeedEntries::WINDOW + 5)
+
+    @other.update!(visibility: :private)
+    assert_equal [ @player ], Game::FeedEntries.call(nil).map(&:player).uniq
+
+    @other.update!(visibility: :public, banned_at: Time.current)
+    assert_equal [ @player ], Game::FeedEntries.call(nil, kind: "pull").map(&:player).uniq
+  end
+
+  test "a hidden crowd of fillers does not hide an older visible filler" do
+    travel_to(3.hours.ago) { open_pack(@player, [ fixture_tier_ids[0] ] * 5) }
+    add_entries(@other, Game::FeedEntries::WINDOW + 5, notable: false)
+    @other.update!(visibility: :private)
+
+    shown = Game::FeedEntries.call(nil)
+
+    assert_equal [ @player ], shown.map(&:player)
+    assert shown.all?(&:filler)
   end
 end
