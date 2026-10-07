@@ -635,6 +635,7 @@ fr:
       concluded: "Échange conclu."
       closed: "Échange clos."
       editing: "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez."
+      choose: "Choisissez les cartes de chaque côté."
     side:
       friend_gives: "%{name} donne"
       friend_received: "%{name} a reçu"
@@ -665,6 +666,51 @@ fr:
       cancel: "Annuler la proposition"
       send_counter: "Renvoyer la contre-proposition"
       undo: "Annuler les modifications"
+    island:
+      add:
+        friend: "Choisir ses cartes"
+        own: "Placer mes cartes"
+      picker:
+        friend: "Choisir dans la collection de %{name}"
+        own: "Placer mes cartes"
+      picker_short:
+        friend: "Cartes de %{name}"
+        own: "Mes cartes"
+      note:
+        friend: "Choisissez les cartes, puis combien d'exemplaires demander à %{name}."
+        own: "Choisissez les cartes, puis le nombre d'exemplaires. Un exemplaire placé reste réservé jusqu'à la réponse."
+      strings:
+        close: "Fermer"
+        place: "Placer"
+        cancel: "Annuler"
+        remove: "Retirer %{title}"
+        more: "Un exemplaire de plus"
+        fewer: "Un exemplaire de moins"
+        value_text: "%{count} sur %{max}"
+        max_phone: "sur %{max}"
+        available:
+          zero: "aucun disponible"
+          one: "1 disponible"
+          other: "%{count} disponibles"
+        picked: "%{cards} · %{copies} (4 cartes au plus)"
+        picked_cards:
+          zero: "0 carte"
+          one: "%{count} carte"
+          other: "%{count} cartes"
+        picked_copies:
+          zero: "0 exemplaire"
+          one: "%{count} exemplaire"
+          other: "%{count} exemplaires"
+        limit_title: "4 cartes au plus"
+        limit_text: "Retirez une carte avant d'en placer une autre."
+        card_label: "%{title}, %{owned}"
+        owned:
+          one: "1 exemplaire"
+          other: "%{count} exemplaires"
+        reserved_elsewhere:
+          one: "1 réservé ailleurs"
+          other: "%{count} réservés ailleurs"
+        unavailable: "aucun disponible"
     accepted:
       title: "Échange conclu"
       text:

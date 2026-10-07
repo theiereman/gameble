@@ -2,7 +2,8 @@
     the list in its three groups beside one trade's board. `view` is :list
     (/trades: on a phone the list alone) or :board (one trade: on a phone
     the board alone, back to the list with "◀ Liste"); on a desktop both
-    show. `editing` turns the board into the counter-proposal form. %>
+    show. `editing` turns the board into the counter-proposal form, `island`
+    the props of its TradeBoard island. %>
 <% editing = local_assigns.fetch(:editing, false) %>
 <section class="trades trades--<%= view %>" aria-labelledby="trades-heading">
   <h1 id="trades-heading" class="trades__title"><%= t("trades.title") %></h1>
@@ -10,7 +11,7 @@
     <%= render "trades/list", trades:, current: (trade if view == :board), cards: %>
     <% if trade %>
       <%= render "trades/board", trade:, cards:, editing:, own_max: local_assigns[:own_max],
-            own_held: local_assigns[:own_held], friend_max: local_assigns[:friend_max] %>
+            own_held: local_assigns[:own_held], friend_max: local_assigns[:friend_max], island: local_assigns[:island] %>
     <% end %>
   </div>
 </section>
