@@ -7,7 +7,7 @@
 #   render CardComponent.new(card: view, size: :m, booster: true)
 #
 # `card` is a Catalog::CardView. Four sizes: s, m, l, xl. The art is drawn
-# in the browser by the card-art Stimulus controller (pixel-art-filter), the
+# in the browser by the card-art Stimulus controller (pixelcrush), the
 # tilt, glare and holo/foil run by the tilt controller. `booster: true`
 # gives a face the booster opening's effects (Rarity effects) and a stronger
 # tilt.

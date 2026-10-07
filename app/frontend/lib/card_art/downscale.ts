@@ -1,4 +1,11 @@
-import { cropRegion, DEFAULT_ANCHOR } from "./pixelate"
+import { cropRegion } from "pixelcrush"
+
+/**
+ * Where a `"cover"` crop sits vertically when the source is taller than the
+ * art box: 0 keeps the top, 0.5 the middle, 1 the bottom. Covers put their
+ * title and faces above the middle (AD-17).
+ */
+export const DEFAULT_ANCHOR = 0.42
 
 /** What the downscale needs of a 2D context, on a canvas or an `OffscreenCanvas`. */
 export type DrawContext = Pick<CanvasRenderingContext2D, "drawImage" | "imageSmoothingEnabled" | "imageSmoothingQuality">
@@ -47,7 +54,7 @@ export function downscale<C extends DrawContext>(
   createSurface: CreateSurface<C>,
   anchor = DEFAULT_ANCHOR,
 ): (Surface<C> & Size) | null {
-  const region = cropRegion(sourceWidth, sourceHeight, width, height, { anchor })
+  const region = cropRegion(sourceWidth, sourceHeight, { width, height, anchor: { y: anchor } })
   let previous: (Surface<C> & Size) | null = null
   for (const size of halvingSizes(region.width, region.height, width, height)) {
     const surface = createSurface(size.width, size.height)

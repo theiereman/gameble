@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { downscale, halvingSizes, type Surface } from "../src/downscale"
-import { FakeSurface } from "./fakes"
-import { image } from "./helpers"
+import { downscale, halvingSizes, type Surface } from "./downscale"
+import { FakeSurface } from "./test_fakes"
+import { image } from "./test_helpers"
 
 describe("halvingSizes", () => {
   it("halves a cover's region until it is within twice the art size", () => {

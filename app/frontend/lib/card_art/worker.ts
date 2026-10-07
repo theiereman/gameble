@@ -1,7 +1,7 @@
 // The worker entry (AD-17): one job per message, one URL at a time, its
 // bitmap transferred back. Started by the renderer on the first render that
 // needs it.
-import { createJobRunner, PaletteCache, type JobEnvironment, type JobRequest, type JobResponse, type WorkerSurface } from "./worker-job"
+import { createJobRunner, PaletteCache, type JobEnvironment, type JobRequest, type JobResponse, type WorkerSurface } from "./worker_job"
 
 type WorkerScope = {
   addEventListener(type: "message", listener: (event: MessageEvent<JobRequest>) => void): void

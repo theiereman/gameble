@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
-import { ArtMissingError, createArtRenderer, type ArtRendererOptions } from "../src/index"
-import type { JobRequest, JobResult } from "../src/worker-job"
+import { ArtMissingError } from "./errors"
+import { createArtRenderer, type ArtRendererOptions } from "./renderer"
+import type { JobRequest, JobResult } from "./worker_job"
 
 class FakeWorker {
   readonly posted: JobRequest[] = []
@@ -345,6 +346,6 @@ describe("renderArt", () => {
   it("touches no DOM global until called", async () => {
     vi.resetModules()
 
-    await expect(import("../src/index")).resolves.toHaveProperty("renderArt")
+    await expect(import("./renderer")).resolves.toHaveProperty("renderArt")
   })
 })

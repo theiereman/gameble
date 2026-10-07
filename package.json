@@ -1,16 +1,14 @@
 {
   "private": true,
   "type": "module",
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
-    "typecheck": "tsc --noEmit && tsc --noEmit -p packages/pixel-art-filter",
+    "typecheck": "tsc --noEmit",
     "test:js": "vitest run"
   },
   "dependencies": {
     "@hotwired/stimulus": "3.2.2",
     "@hotwired/turbo-rails": "8.0.23",
+    "pixelcrush": "0.2.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "stimulus-vite-helpers": "3.1.0",

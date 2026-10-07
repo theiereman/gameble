@@ -1,9 +1,9 @@
-// Draws a card's art: the Steam image pixelated and reduced to 32 colours by
-// pixel-art-filter (AD-17), in its worker, on the card's canvas. Used by the
-// card-art Stimulus controller (CardComponent).
-import { renderArt } from "pixel-art-filter"
+// Draws a card's art: the Steam image pixelated and reduced to 32 colours
+// with pixelcrush (AD-17), in the card-art worker (renderer.ts), on the
+// card's canvas. Used by the card-art Stimulus controller (CardComponent).
+import { DEFAULT_COLORS, renderArt } from "./renderer"
 
-const COLORS = 32
+const COLORS = DEFAULT_COLORS
 
 /**
  * Draws `url` on `canvas` at `width` × `height` art pixels and marks

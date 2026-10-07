@@ -1,4 +1,4 @@
-import { assertPixels, type Pixels } from "./pixels"
+import type { Pixels } from "pixelcrush"
 
 /**
  * The smallest image taken for a cover. Steam answers a missing cover with a
@@ -20,7 +20,6 @@ export function isTooSmall(width: number, height: number): boolean {
  * within `tolerance` of each other. An image with no such pixel counts too.
  */
 export function isSingleChannel(pixels: Pixels, tolerance = GREY_TOLERANCE): boolean {
-  assertPixels(pixels)
   const { data } = pixels
   for (let offset = 0; offset < data.length; offset += 4) {
     if (data[offset + 3] === 0) continue

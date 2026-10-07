@@ -1,7 +1,6 @@
 {
   "all": {
-    "sourceCodeDir": "app/frontend",
-    "watchAdditionalPaths": ["packages/pixel-art-filter/src/**/*"]
+    "sourceCodeDir": "app/frontend"
   },
   "development": {
     "autoBuild": true,
