@@ -42,3 +42,83 @@
   padding: 0;
   list-style: none;
 }
+
+/* Story 5.2: the invite panel (link, code field), the invitation rows and
+   the invite link page. */
+
+.friends__heading {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.friends__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-block: var(--space-4);
+}
+
+.friends__row-field {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.friends__input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 2px solid var(--color-line);
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-family: var(--font-family-pixelify);
+}
+
+.friends__input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.friends__status,
+.friends__message {
+  min-height: 1.5em;
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.friends__message--sent {
+  color: var(--color-lime);
+}
+
+.friends__message--error {
+  color: var(--color-alert);
+}
+
+.friends__invitation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.friends__actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.friends__chip {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.invite-link__line {
+  margin: 0 0 var(--space-3);
+  font-size: 1.5rem;
+}

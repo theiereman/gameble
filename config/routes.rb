@@ -63,6 +63,19 @@ Rails.application.routes.draw do
     patch "settings/visibility" => "settings#visibility", as: :settings_visibility
     # The Friends screen (CAP-10): the player's friends and friend code.
     resource :friends, only: :show
+    # Invitations, by friend code (a field of the Friends screen) and their
+    # answers; addressed by token (AD-15).
+    post "friends/invitations" => "invitations#create", as: :invitations
+    post "friends/invitations/:token/accept" => "invitations#accept", as: :accept_invitation,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    post "friends/invitations/:token/ignore" => "invitations#ignore", as: :ignore_invitation,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    # A player's permanent invite link (AD-15: their own token); a visitor
+    # signs in first and returns to it.
+    get "invite/:token" => "invite_links#show", as: :invite_link,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    post "invite/:token" => "invite_links#create",
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     # The phone's PLUS tab: the rest of the ship (EXPERIENCE.md, PLUS rows).
     get "more" => "pages#more", as: :more
 

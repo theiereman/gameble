@@ -44,7 +44,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select "main h1", "Friends"
     assert_select ".friends__label", "Your friend code"
     assert_select ".friends__row", "Sam"
-    assert_select ".friends__empty", false
+    assert_select ".friends__empty", 1, "only the no-invitation line"
   end
 
   test "a visitor is sent home to sign in" do
