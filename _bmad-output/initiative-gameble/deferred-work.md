@@ -344,3 +344,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-friends-and-trades/story-trade-board-island-the-draft-the-counter-and-the-swap-plan.md`
   summary: The friend row on Amis has no "PROPOSER UN ÉCHANGE", which EXPERIENCE.md's Friend row gives it (the trade already in progress with that friend, or a new draft); only the friend profile carries the button.
   evidence: Story 5.8 left the row's layout to Amis ("The friend row on Amis gets no button here"); noted by the epic 5 refactor sweep (story 5.12) as a feature, not a cleanup. The link is `new_trade_path(friend: token)`, which already opens the open trade when there is one.
+
+- source_plan: none
+  summary: Replace the collection's tome (volume) system with another way to browse and organise the collection.
+  evidence: Author, 2026-10-07: "il faut changer le système de collection en tome, c'est nul". The reasons and the replacement are not decided; start with a UX conversation (bmad-ux) before planning.
