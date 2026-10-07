@@ -66,7 +66,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     tomes = %w[action-1 action-2 action-3 rpg-1].map { (set_members(season, it) & [ first, second, third ]).size }
     sign_in(player)
 
-    get library_path(locale: :en)
+    get library_path(locale: :en, state: %w[all])
 
     assert_response :success
     assert_select "title", "Collection"
@@ -101,7 +101,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".report--fold summary .report__line", "5 cards · 2 duplicates"
     assert_select ".report--fold .report__row dt", "Unique cards"
 
-    assert_equal [ "All", "Action", "RPG" ], css_select(".genre-chips .genre-chip").map(&:text)
+    assert_equal [ "Owned", "All", "Missing", "New", "Duplicates" ], css_select("[data-group=state] .filter-chip__text").map(&:text)
+    assert_equal [ "All" ], css_select("[data-group=state] .filter-chip__box[checked]").map { it.parent.at_css(".filter-chip__text").text }
     expected = cards.first(60).map do |id|
       case id
       when first, third then [ :owned, title(id), "x1", nil ]
@@ -127,8 +128,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "a.card-link .collection-slot__copies", false
     assert_select ".collection-pages[aria-label=?]", "Pages of cards" do
       assert_select "[aria-current=page]", "Page 1"
-      assert_select "a[href=?]:not([rel])", "/en/library?page=2", "Page 2"
-      assert_select "a[rel=next][href=?][aria-label=?]", "/en/library?page=2", "Next page"
+      assert_select "a[href=?]:not([rel])", "/en/library?state%5B%5D=all&page=2", "Page 2"
+      assert_select "a[rel=next][href=?][aria-label=?]", "/en/library?state%5B%5D=all&page=2", "Next page"
       assert_select "a[rel=prev]", false
     end
     assert_select "[data-controller=collection-seen]", false
@@ -145,13 +146,13 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     sign_in(player)
     href = ->(id) { "/en/cards/#{Catalog::CardSeason.find(id).card.slug}/seasons/#{season.number}?set_key=rpg-1&set_kind=tome" }
 
-    get library_path(locale: :en)
+    get library_path(locale: :en, state: %w[all])
 
     assert_select ".collection-grid a.card-link[href=?] .card", href.(held)
     assert_select ".collection-grid a.card-link[href=?] .missing-slot", href.(missing)
 
     # A set's page names its own set, never the tome.
-    get library_set_path(locale: :en, kind: "publisher", key: "p")
+    get library_set_path(locale: :en, kind: "publisher", key: "p", state: %w[all])
     assert_equal [ "?set_key=p&set_kind=publisher" ] * 5, css_select(".collection-grid a.card-link").map { it["href"][/\?.*/] }
   end
 
@@ -229,8 +230,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :fr)
 
-    assert_equal [ [ :owned, title(first, "fr"), "x2", "Nouveau" ], [ :owned, title(second, "fr"), "x1", "Nouveau" ],
-      [ :owned, title(third, "fr"), "x1", nil ], [ :owned, title(fourth, "fr"), "x1", nil ] ], slots.first(4)
+    # Owned cards only, newest gained first, the one never gained last.
+    assert_equal [ [ :owned, title(second, "fr"), "x1", "Nouveau" ], [ :owned, title(first, "fr"), "x2", "Nouveau" ],
+      [ :owned, title(fourth, "fr"), "x1", nil ], [ :owned, title(third, "fr"), "x1", nil ] ], slots
     assert_select "div[hidden][data-controller=collection-seen][data-collection-seen-url-value='/fr/library/seen']" do |element|
       assert_equal latest.utc.iso8601(6), element.first["data-collection-seen-up-to-value"]
     end
@@ -254,16 +256,21 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a new card on another page carries no post on this one" do
+  test "a new card hidden by the filters carries no post; shown first, it carries one" do
     season = publish_sets_draft
     player = accounts_players(:player)
     hold(player, season_cards(season).last, 1, gained_at: 1.minute.ago)
     sign_in(player)
 
-    get library_path(locale: :en)
+    get library_path(locale: :en, state: %w[missing])
     assert_select "[data-controller=collection-seen]", false
 
-    get library_path(locale: :en, page: 3)
+    get library_path(locale: :en, state: %w[all], page: 2)
+    assert_select ".collection-slot__new", false
+    assert_select "[data-controller=collection-seen]", false
+
+    # Newest gained first: on the first page, tagged, with its post.
+    get library_path(locale: :en, state: %w[all])
     assert_select ".collection-slot__new", "New"
     assert_select "[data-controller=collection-seen]"
   end
@@ -338,45 +345,43 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".collection-sets .series-nav a[href='/en/library?shelf=3']", minimum: 1
   end
 
-  test "genre chips show with two genres or more and filter the grid; an unknown genre is ignored" do
-    seed_published_sets([ [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
-    get library_path(locale: :en)
-    assert_select ".genre-chips", false
-
+  test "the genre chips filter the grid, OR within the group; an unknown genre is ignored" do
     season = publish_sets_draft
+    action = set_members(season, "action-1") + set_members(season, "action-2") + set_members(season, "action-3")
     rpg = set_members(season, "rpg-1")
 
-    get library_path(locale: :fr, kind: "publisher", shelf: 1)
-    assert_select "nav.genre-chips[aria-label=?]", "Filtrer par genre"
-    assert_equal [ [ "Tous", "/fr/library?kind=publisher&shelf=1", "true" ], [ "Action", "/fr/library?genre=action&kind=publisher&shelf=1", nil ],
-      [ "RPG", "/fr/library?genre=rpg&kind=publisher&shelf=1", nil ] ],
-      css_select(".genre-chip").map { [ it.text, it["href"], it["aria-current"] ] }
+    get library_path(locale: :fr, kind: "publisher", shelf: 1, state: %w[all])
+    assert_equal [ "Action", "RPG" ], css_select("[data-group=genre] .filter-chip__text").map(&:text)
+    assert_equal [ "genre[]" ], css_select("[data-group=genre] input").map { it["name"] }.uniq
+    assert_equal [ "publisher" ], css_select("form.filters input[name=kind]").map { it["value"] }
 
-    get library_path(locale: :en, genre: "rpg", page: 1)
-    assert_select ".genre-chip[aria-current=true]", "RPG"
-    assert_equal 44, slots.size
+    get library_path(locale: :en, genre: [ "rpg" ], state: %w[all])
+    assert_equal [ "RPG" ], css_select("[data-group=genre] .filter-chip__box[checked]").map { it.parent.text.strip }
     assert_equal season_cards(season).select { it.in?(rpg) }.map { title(it) }, slots.map(&:second)
 
-    get library_path(locale: :en, genre: "rpg", page: 2)
+    get library_path(locale: :en, genre: [ "rpg", "action" ], state: %w[all])
+    assert_equal season_cards(season).select { it.in?(rpg + action) }.first(60).map { title(it) }, slots.map(&:second)
+
+    get library_path(locale: :en, genre: [ "rpg" ], state: %w[all], page: 2)
     assert_empty slots
     assert_select ".collection-grid__empty", "No more cards here: the grid ends on an earlier page. Go back to the last page."
 
-    [ "strategy", [ "rpg" ] ].each do |genre|
+    [ "strategy", [ "strategy" ] ].each do |genre|
       get library_path(locale: :en), params: { genre: }
       assert_response :success
-      assert_select ".genre-chip[aria-current=true]", "All"
+      assert_select ".filters__count[hidden]"
       assert_equal 60, slots.size
     end
   end
 
-  test "French copy" do
+    test "French copy" do
     season = publish_sets_draft
     player = accounts_players(:player)
     first = season_cards(season).first
     hold(player, first, 1, gained_at: 1.minute.ago)
     sign_in(player)
 
-    get library_path(locale: :fr)
+    get library_path(locale: :fr, state: %w[all])
 
     assert_select ".collection-status__label", "Cartes uniques :"
     assert_select ".collection-status .visually-hidden", "1 carte unique sur 150"
@@ -409,14 +414,14 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en)
 
     assert_select ".collection [data-id]", false
-    assert_equal %w[collection-sets-title collection-report-title], css_select(".collection [id]").map { it["id"] }
+    assert_equal %w[collection-sets-title collection-report-title collection-search collection-results], css_select(".collection [id]").map { it["id"] }
     html = css_select(".collection").sole.to_html
     ids.each do |id|
       assert_no_match(/\b#{id}\b/, html.gsub(/Tome \d+|\d+\/\d+|\d+ (cards?|copies|copy|duplicates?) |out of \d+|\b(19|20)\d\d\b|x\d+|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|viewbox="[\d ]+"|\?(page|shelf)=\d+|\/seasons\/\d+|value="\d+"|max="\d+"|[Ss]eason \d+|#\d+|Page<\/span> \d+|<dd>\d+<\/dd>|[MmHhVvZz][\d.-]+/, ""))
     end
   end
 
-  test "a player's request costs fourteen queries, a visitor's nine" do
+  test "a player's request costs fifteen queries, a visitor's nine" do
     season = publish_sets_draft
     player = accounts_players(:player)
     hold(player, season_cards(season).first, 1, gained_at: 1.minute.ago)
@@ -424,14 +429,180 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     # Player lookup, published season; the list: count, page, totals,
     # progress; the grid: genres, count (the season's cards, read again from
-    # the query cache by the top bar), page, card views, the player's slots,
+    # the query cache by the top bar; filtered by state it is its own query),
+    # page, card views, the player's slots,
     # the cards' tomes (the whole season only: their links name them); the
     # figures: unique cards, copies per tier.
-    assert_request_queries(14) { get library_path(locale: :en) }
+    assert_request_queries(15) { get library_path(locale: :en) }
 
     delete session_path(locale: :en)
     # The same without the lookup, the progress, the slots, the unique cards
     # and the copies per tier.
     assert_request_queries(9) { get library_path(locale: :en) }
+  end
+
+  test "the collection opens on the owned cards, newest gained first, FILTRES folded with no count" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    first, second, third = season_cards(season).first(3)
+    hold(player, first, 1, gained_at: 3.hours.ago)
+    hold(player, second, 2, gained_at: 1.hour.ago)
+    hold(player, third, 1)
+    sign_in(player)
+
+    get library_path(locale: :en)
+
+    assert_equal [ second, first, third ].map { [ :owned, title(it), nil ] }, slots.map { [ it[0], it[1], nil ] }
+    assert_select "form.filters[method=get][data-controller=collection-filters][data-turbo-frame=collection-results]"
+    assert_select "details.filters__zone:not([open]) summary", /Filters/
+    assert_select ".filters__count[hidden]"
+    assert_select ".filters__clear[hidden]"
+    assert_select "turbo-frame#collection-results[target=_top] .collection-grid"
+    assert_select "input[type=search][name=q]#collection-search"
+    assert_equal [ "Owned" ], css_select("[data-group=state] .filter-chip__box[checked]").map { it.parent.text.strip }
+    assert_equal [ "Common", "Uncommon", "Rare", "Epic", "Legendary" ], css_select("[data-group=rarity] .filter-chip__text").map(&:text)
+    assert_equal [ "Action · Tome 1", "Action · Tome 2", "Action · Tome 3", "RPG · Tome 1" ],
+      css_select("[data-group=sets] .filter-chip__text").map(&:text)
+  end
+
+  test "the missing state shows the empty slots naming the game; owned plus missing is every slot" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    cards = season_cards(season)
+    hold(player, cards.first, 1)
+    sign_in(player)
+
+    get library_path(locale: :en, state: %w[missing])
+    assert_equal cards.drop(1).first(60).map { [ :missing, title(it), year(it) ] }, slots
+    assert_select ".filters__count:not([hidden])", /1/
+    assert_select "details.filters__zone[open]"
+    assert_select ".filters__clear:not([hidden])[href=?]", "/en/library"
+
+    get library_path(locale: :en, state: %w[owned missing])
+    assert_equal :owned, slots.first.first
+    assert_equal 60, slots.size
+    assert_select ".filters__count", /2/
+  end
+
+  test "new and duplicates states; an unknown state is ignored" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    first, second, third = season_cards(season).first(3)
+    hold(player, first, 2, gained_at: 2.hours.ago)
+    hold(player, second, 1, gained_at: 1.minute.ago)
+    hold(player, third, 3)
+    Game::PlayerState.where(player_id: player.id).update_all(collection_seen_up_to: 1.hour.ago)
+    sign_in(player)
+
+    get library_path(locale: :en, state: %w[new])
+    assert_equal [ title(second) ], slots.map(&:second)
+
+    get library_path(locale: :en, state: %w[duplicates])
+    assert_equal [ title(first), title(third) ], slots.map(&:second)
+
+    get library_path(locale: :en, state: %w[new duplicates])
+    assert_equal [ second, first, third ].map { title(it) }, slots.map(&:second)
+
+    get library_path(locale: :en, state: %w[bogus])
+    assert_equal 3, slots.size
+  end
+
+  test "two genre chips show either genre; a rarity chip then narrows to both" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    cards = season_cards(season)
+    rpg = set_members(season, "rpg-1")
+    action = set_members(season, "action-1")
+    sample = (rpg.first(6) + action.first(6))
+    sample.each { hold(player, it, 1) }
+    sign_in(player)
+
+    get library_path(locale: :en, genre: %w[rpg])
+    assert_equal rpg.first(6).map { title(it) }.sort, slots.map(&:second).sort
+
+    get library_path(locale: :en, genre: %w[rpg action])
+    assert_equal sample.size, slots.size
+
+    rarity = Catalog::CardSeason.where(id: sample).pick(:rarity)
+    both = Catalog::CardSeason.where(id: sample, rarity:).count
+    get library_path(locale: :en, genre: %w[rpg action], rarity: [ rarity ])
+    assert_equal both, slots.size
+    assert_operator both, :<, sample.size
+    assert_select ".filters__count", /3/
+  end
+
+  test "the set chips filter the whole season's cards, OR within the group" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    a = set_members(season, "action-1").first(3)
+    b = set_members(season, "rpg-1").first(2)
+    (a + b).each { hold(player, it, 1) }
+    sign_in(player)
+
+    get library_path(locale: :en, sets: %w[tome:action-1 tome:rpg-1])
+    assert_equal 5, slots.size
+    assert_equal [ "Action · Tome 1", "RPG · Tome 1" ], css_select("[data-group=sets] .filter-chip__box[checked]").map { it.parent.text.strip }
+
+    get library_path(locale: :en, sets: %w[tome:rpg-1])
+    assert_equal 2, slots.size
+  end
+
+  test "a search over title and publisher narrows the grid with the other filters; an empty result shows the empty-filter line" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    titled = Catalog::CardSeason.where(season_id: season.id).joins(card: :texts).where(catalog_card_texts: { locale: "en", title: "Seed 5" }).pick(:id)
+    published = Catalog::CardSeason.where(season_id: season.id).joins(:card).where(catalog_cards: { publisher: "P" }).ids
+    ([ titled ] + published).each { hold(player, it, 1) }
+    sign_in(player)
+
+    get library_path(locale: :en, q: "seed 5")
+    assert_equal "Seed 5", slots.first.second
+    assert_select "input[name=q][value=?]", "seed 5"
+    assert_select ".filters__clear:not([hidden])"
+
+    get library_path(locale: :en, q: "P", state: %w[all])
+    assert_operator slots.size, :>=, 5
+
+    get library_path(locale: :en, q: "seed 5", state: %w[missing])
+    assert slots.any?
+    assert slots.all? { it.first == :missing && it.second.start_with?("Seed 5") && it.second != "Seed 5" }
+
+    get library_path(locale: :en, q: "zzzz")
+    assert_empty slots
+    assert_select ".collection-grid__empty", "No card of this genre in this set yet."
+    assert_select ".collection-pages", false
+
+    get library_path(locale: :en, q: "%")
+    assert_empty slots
+  end
+
+  test "a visitor, and a player owning nothing, open on every slot; owned shows none" do
+    season = publish_sets_draft
+    get library_path(locale: :en)
+    assert_equal 60, slots.size
+    assert_equal [ "All" ], css_select("[data-group=state] .filter-chip__box[checked]").map { it.parent.text.strip }
+    assert_select ".filters__count[hidden]"
+
+    get library_path(locale: :en, state: %w[owned])
+    assert_empty slots
+
+    get library_path(locale: :en, state: %w[missing])
+    assert_equal 60, slots.size
+
+    sign_in(accounts_players(:player))
+    get library_path(locale: :en)
+    assert_equal season_cards(season).first(60).map { [ :missing, title(it), year(it) ] }, slots
+  end
+
+  test "the filters apply inside a set page and the list keeps its kind" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    members = set_members(season, "action-1")
+    hold(player, members[3], 1)
+    sign_in(player)
+
+    get library_set_path(locale: :en, kind: "tome", key: "action-1", rarity: Catalog::Rarity::TIERS.values.map(&:to_s))
+    assert_equal [ title(members[3]) ], slots.map(&:second)
+    assert_select ".filters__clear[href=?]", "/en/library/tome/action-1"
   end
 end

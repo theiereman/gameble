@@ -2,7 +2,8 @@ require "test_helper"
 require_relative "../../support/catalog_seeds"
 
 # Catalog::CollectionGrid (CAP-6, story 10.1): the ordered cards of the whole
-# season or of one set, their genres, and the genre filter.
+# season or of one set, their genres, and the filters: genre, rarity, set and
+# text.
 class Catalog::CollectionGridTest < ActiveSupport::TestCase
   include CatalogSeeds
 
@@ -26,7 +27,7 @@ class Catalog::CollectionGridTest < ActiveSupport::TestCase
 
     assert_nil grid.set
     assert_equal %w[action rpg], grid.genres
-    assert_nil grid.genre
+    assert_empty grid.chosen_genres
     expected = Catalog::CardSeason.where(season_id: @season.id).where.not(rarity: nil).order(:number, :id).ids
     assert_equal 150, expected.size
     assert_equal expected, grid.card_seasons.pluck(:id)
@@ -42,15 +43,15 @@ class Catalog::CollectionGridTest < ActiveSupport::TestCase
   end
 
   test "a genre keeps the cards of its tomes; an unknown genre is ignored" do
-    grid = Catalog::CollectionGrid.call(season: @season, genre: "rpg")
+    grid = Catalog::CollectionGrid.call(season: @season, genres: [ "rpg" ])
 
-    assert_equal "rpg", grid.genre
+    assert_equal [ "rpg" ], grid.chosen_genres
     assert_equal members("rpg-1").sort, grid.card_seasons.pluck(:id).sort
     assert grid.card_seasons.pluck(:id).all? { tome_genre(it) == "rpg" }
 
     %w[strategy Action].push(nil, "").each do |genre|
-      grid = Catalog::CollectionGrid.call(season: @season, genre:)
-      assert_nil grid.genre
+      grid = Catalog::CollectionGrid.call(season: @season, genres: [ genre ])
+      assert_empty grid.chosen_genres
       assert_equal 150, grid.card_seasons.count
     end
   end
@@ -69,11 +70,53 @@ class Catalog::CollectionGridTest < ActiveSupport::TestCase
     genres = best.map { tome_genre(it) }.compact.uniq.sort
     assert_operator genres.size, :>=, 2
 
-    grid = Catalog::CollectionGrid.call(season: @season, kind: :best_of_year, key: "2011", genre: genres.last)
+    grid = Catalog::CollectionGrid.call(season: @season, kind: :best_of_year, key: "2011", genres: [ genres.last ])
 
     assert_equal genres, grid.genres
-    assert_equal genres.last, grid.genre
+    assert_equal [ genres.last ], grid.chosen_genres
     assert_equal best.select { tome_genre(it) == genres.last }, grid.card_seasons.pluck(:id)
+  end
+
+  test "several genres are an OR; a rarity then narrows them, an AND" do
+    both = Catalog::CollectionGrid.call(season: @season, genres: %w[rpg action])
+    assert_equal %w[action rpg], both.chosen_genres
+    assert_equal members("rpg-1").size + %w[action-1 action-2 action-3].sum { members(it).size }, both.card_seasons.count
+
+    rarity = Catalog::CardSeason.where(id: both.card_seasons.select(:id)).pick(:rarity)
+    narrowed = Catalog::CollectionGrid.call(season: @season, genres: %w[rpg action], rarities: [ rarity ])
+    assert_equal [ rarity ], narrowed.chosen_rarities
+    expected = Catalog::CardSeason.where(id: both.card_seasons.select(:id), rarity:).ids
+    assert_equal expected.sort, narrowed.card_seasons.pluck(:id).sort
+
+    two = Catalog::CollectionGrid.call(season: @season, rarities: %w[common legendary nope])
+    assert_equal %w[common legendary], two.chosen_rarities
+    assert_equal Catalog::CardSeason.where(season_id: @season.id, rarity: %w[common legendary]).count, two.card_seasons.count
+  end
+
+  test "sets asked as kind:key keep the cards of any of them; unknown sets and a set's own page ignore them" do
+    grid = Catalog::CollectionGrid.call(season: @season, sets: %w[tome:action-1 tome:rpg-1 tome:nope publisher nonsense])
+
+    assert_equal %w[action-1 rpg-1], grid.chosen_sets.map(&:key)
+    assert_equal (members("action-1") + members("rpg-1")).sort, grid.card_seasons.pluck(:id).sort
+
+    inside = Catalog::CollectionGrid.call(season: @season, kind: "tome", key: "action-1", sets: [ "tome:rpg-1" ])
+    assert_empty inside.chosen_sets
+    assert_equal members("action-1"), inside.card_seasons.pluck(:id)
+  end
+
+  test "a text is found in the title in the locale or in the publisher, whatever its case; wildcards are literal" do
+    by_title = Catalog::CollectionGrid.call(season: @season, query: "seed 12", locale: "fr")
+    assert_equal [ 12 ] + (120..129).to_a, by_title.card_seasons.map { Integer(it.card.texts.find_by!(locale: "fr").title[/\d+/]) }.sort
+
+    by_publisher = Catalog::CollectionGrid.call(season: @season, query: "q")
+    assert_equal 4, by_publisher.card_seasons.count
+
+    assert_equal 0, Catalog::CollectionGrid.call(season: @season, query: "%").card_seasons.count
+    assert_equal 0, Catalog::CollectionGrid.call(season: @season, query: "_eed").card_seasons.count
+    assert_equal 150, Catalog::CollectionGrid.call(season: @season, query: "  ").card_seasons.count
+
+    both = Catalog::CollectionGrid.call(season: @season, query: "seed 12", genres: %w[rpg])
+    assert_operator both.card_seasons.count, :<, by_title.card_seasons.count
   end
 
   test "a set the season does not hold under that kind and key is nil" do

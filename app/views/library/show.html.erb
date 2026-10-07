@@ -12,5 +12,5 @@
   <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
   <%= render "library/collection", heading: t("library.sets.whole_season"), kind: @kind, set: nil, spines: @spines, shelf: @pagy,
     grid: @grid, slots: @slots, pagy: @grid_pagy, unique: @unique, season_cards: @season_cards, tier_counts: @tier_counts,
-    seen_up_to: @seen_up_to %>
+    seen_up_to: @seen_up_to, states: @states, states_asked: @states_asked, query: @query %>
 <% end %>

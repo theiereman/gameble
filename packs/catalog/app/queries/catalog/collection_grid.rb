@@ -7,21 +7,27 @@ module Catalog
   #   whole season;
   # - `genres`: the genre keys of the scope's cards (their tomes' `genre`
   #   param, CardViews::GENRE), sorted; one query;
-  # - `genre`: the genre asked when it is one of `genres`, else nil (an
-  #   unknown genre is ignored);
-  # - `card_seasons`: the scope's card-seasons with a rarity, filtered on
-  #   `genre`, as a lazy, ordered Catalog::CardSeason relation the web layer
-  #   pages in SQL: the season by number then id, a set by membership
-  #   position then id.
+  # - `chosen_genres`: the genres asked that are among `genres` (an unknown
+  #   one is ignored);
+  # - `chosen_rarities`: the rarity names asked that exist (others ignored);
+  # - `chosen_sets`: the sets asked as "kind:key" that the season holds, as
+  #   SetRefs, only on the whole season (a set's own page has no set group);
+  # - `card_seasons`: the scope's card-seasons with a rarity, filtered on the
+  #   chosen genres, rarities and sets (OR within a group, AND across) and on
+  #   `query`, a text found in the card's title in `locale` or its publisher
+  #   (case-insensitive), as a lazy, ordered Catalog::CardSeason relation the
+  #   web layer pages in SQL: the season by number then id, a set by
+  #   membership position then id.
   #
   # nil when a set is asked that the season does not hold under that kind
   # and key. Its lookup is one more query.
   #
-  #   Catalog::CollectionGrid.call(season:, genre: "rpg")
+  #   Catalog::CollectionGrid.call(season:, genres: [ "rpg" ], rarities: [ "rare" ], query: "port", locale: "en")
   #   Catalog::CollectionGrid.call(season:, kind: "tome", key: "action-1")
-  #   # => Grid(set: SetRef | nil, genres: [ "action", "rpg" ], genre: "rpg" | nil, card_seasons: relation) | nil
+  #   # => Grid(set: SetRef | nil, genres: [ "action", "rpg" ], chosen_genres: [ "rpg" ], chosen_rarities: [ "rare" ],
+  #   #         chosen_sets: [], card_seasons: relation) | nil
   module CollectionGrid
-    Grid = Data.define(:set, :genres, :genre, :card_seasons)
+    Grid = Data.define(:set, :genres, :chosen_genres, :chosen_rarities, :chosen_sets, :card_seasons)
 
     # The genres of a set's cards: their tomes, through a second membership.
     SET_GENRES = <<~SQL.squish.freeze
@@ -31,7 +37,11 @@ module Catalog
        WHERE member.set_id = :set_id
     SQL
 
-    def self.call(season:, kind: nil, key: nil, genre: nil)
+    # The longest text searched.
+    MAX_QUERY = 100
+
+    def self.call(season:, kind: nil, key: nil, genres: [], rarities: [], sets: [], query: nil, locale: I18n.locale)
+      genres_asked = genres
       cards = CardSeason.where(season_id: season.id).where.not(rarity: nil)
       set = nil
       if kind
@@ -40,18 +50,54 @@ module Catalog
         return if set_id.nil?
 
         set = SetSlots::SetRef.new(kind: set_kind, key: set_key, params:)
-        genres = Set.connection.select_values(Set.sanitize_sql_array([ SET_GENRES, { set_id: } ]), "Catalog::CollectionGrid")
+        genres_of_scope = Set.connection.select_values(Set.sanitize_sql_array([ SET_GENRES, { set_id: } ]), "Catalog::CollectionGrid")
         cards = cards.joins(:set_memberships).where(catalog_set_memberships: { set_id: })
           .order(Arel.sql("catalog_set_memberships.position, catalog_set_memberships.id"))
       else
-        genres = Set.where(season_id: season.id, kind: "tome").distinct.pluck(Arel.sql("catalog_sets.params->>'genre'"))
+        genres_of_scope = Set.where(season_id: season.id, kind: "tome").distinct.pluck(Arel.sql("catalog_sets.params->>'genre'"))
         cards = cards.order(:number, :id)
       end
 
-      genres = genres.compact.sort
-      genre = nil unless genres.include?(genre)
-      cards = cards.where("#{CardViews::GENRE} = ?", genre) if genre
-      Grid.new(set:, genres:, genre:, card_seasons: cards)
+      genres = genres_of_scope.compact.sort
+      chosen_genres = genres & Array(genres_asked).map(&:to_s)
+      cards = cards.where("#{CardViews::GENRE} IN (?)", chosen_genres) if chosen_genres.any?
+
+      chosen_rarities = Rarity::TIERS.values.map(&:to_s) & Array(rarities).map(&:to_s)
+      cards = cards.where(rarity: chosen_rarities) if chosen_rarities.any?
+
+      chosen_sets = set ? [] : chosen_sets_of(season, sets)
+      if chosen_sets.any?
+        ids = Set.where(season_id: season.id).where(kind: chosen_sets.map(&:kind), key: chosen_sets.map(&:key)).pluck(:id, :kind, :key)
+          .filter_map { |id, set_kind, set_key| id if chosen_sets.any? { it.kind == set_kind && it.key == set_key } }
+        cards = cards.where(id: SetMembership.where(set_id: ids).select(:card_season_id))
+      end
+
+      text = query.to_s.strip.first(MAX_QUERY)
+      cards = cards.where(text_match(text, locale)) if text.present?
+      Grid.new(set:, genres:, chosen_genres:, chosen_rarities:, chosen_sets:, card_seasons: cards)
     end
+
+    # The sets asked as "kind:key" that the season holds, in the order asked.
+    def self.chosen_sets_of(season, asked)
+      pairs = Array(asked).filter_map { it.to_s.split(":", 2) if it.to_s.include?(":") }.uniq.first(50)
+      return [] if pairs.empty?
+
+      held = Set.where(season_id: season.id, kind: pairs.map(&:first), key: pairs.map(&:last)).pluck(:kind, :key, :params)
+        .to_h { |kind, key, params| [ [ kind, key ], params ] }
+      pairs.filter_map { |kind, key| SetSlots::SetRef.new(kind:, key:, params: held[[ kind, key ]]) if held.key?([ kind, key ]) }
+    end
+    private_class_method :chosen_sets_of
+
+    # The card-seasons whose card has `text` in its title in `locale` or in
+    # its publisher; the wildcards of LIKE are escaped.
+    def self.text_match(text, locale)
+      pattern = "%#{Set.sanitize_sql_like(text)}%"
+      Set.sanitize_sql_array([
+        "catalog_card_seasons.card_id IN (SELECT card_id FROM catalog_card_texts WHERE locale = ? AND title ILIKE ?) " \
+        "OR catalog_card_seasons.card_id IN (SELECT id FROM catalog_cards WHERE publisher ILIKE ?)",
+        locale.to_s, pattern, pattern
+      ])
+    end
+    private_class_method :text_match
   end
 end

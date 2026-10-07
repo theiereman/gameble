@@ -7,7 +7,8 @@ require_relative "../support/game_packs"
 # their faces with their copies and the missing cards named, on a desktop
 # and a 390 × 844 phone without sideways scroll; the cards of a pack just
 # opened are new, and no longer once seen; a visitor sees every slot
-# missing.
+# missing. Story 10.7: it opens on the owned cards, and the FILTRES zone and
+# the search narrow the grid without losing focus.
 class LibraryTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GamePacks
@@ -56,7 +57,7 @@ class LibraryTest < ApplicationSystemTestCase
     assert_selector ".collection-status", text: %r{\AUnique cards:\s*3 / 150}
     assert_selector ".collection-sets .set-row[aria-current=page]", text: /WHOLE SEASON/
     assert_selector ".report--panel", visible: true
-    assert_selector ".collection-grid > li", count: 60
+    assert_selector ".collection-grid > li", count: 3
     take_screenshot
 
     row("Action · Tome 1").click
@@ -64,6 +65,9 @@ class LibraryTest < ApplicationSystemTestCase
     assert_current_path library_set_path(locale: :en, kind: "tome", key: "action-1")
     assert_selector ".collection-sets .set-row[aria-current=page]", text: /ACTION · TOME 1\s*3\/25/
     assert_selector ".collection-sets .set-row", text: %r{ACTION · TOME 2\s*0/25}
+    assert_selector ".collection-grid > li", count: 3
+    find(".filters__summary").click
+    find(".filter-chip__text", text: /\AAll\z/i).click
     assert_selector ".collection-grid > li", count: 25
     assert_selector ".collection-grid .card.card--m", count: 3
     assert_selector ".collection-slot__copies", count: 3
@@ -99,7 +103,7 @@ class LibraryTest < ApplicationSystemTestCase
     find(".tab-bar a.tab-bar__tab", text: /COLLECTION/i).click
 
     assert_current_path library_path(locale: :en)
-    assert_selector ".collection-grid > li", count: 60
+    assert_selector ".collection-grid > li", count: 3
     assert_no_selector ".report--panel", visible: true
     assert_no_selector ".collection-status__label", visible: true
     assert_selector ".collection-status__value", text: "3 / 150"
@@ -117,6 +121,52 @@ class LibraryTest < ApplicationSystemTestCase
     row("Action · Tome 1").click
     assert_selector ".collection-sets .set-row[aria-current=page]", text: %r{3/25}
     assert_selector ".collection-grid .card.card--m", count: 3
+    assert_no_sideways_scroll
+    take_screenshot
+  end
+
+  test "the FILTRES zone: chips narrow the grid, the zone keeps focus, the count follows, a search narrows as it is typed" do
+    sign_in
+    visit library_path(locale: :en)
+    assert_selector ".collection-grid > li", count: 3
+    assert_no_selector ".filters__zone[open]"
+    assert_no_selector ".filters__count", visible: true
+
+    find(".filters__summary").click
+    find(".filter-chip__text", text: /\AMissing\z/i).click
+    assert_selector ".collection-grid > li", count: 60
+    assert_selector ".collection-slot .card", count: 3
+    assert_selector ".filters__count", text: "2"
+    find(".filter-chip__text", text: /\AOwned\z/i).click
+    assert_selector ".collection-grid .missing-slot", count: 60
+    assert_no_selector ".collection-slot .card"
+    assert_selector ".filters__count", text: "1"
+    assert_selector ".filters__clear", visible: true
+
+    # Back to the owned cards, then a genre none of them has.
+    find(".filter-chip__text", text: /\AOwned\z/i).click
+    find(".filter-chip__text", text: /\AMissing\z/i).click
+    assert_selector ".collection-grid > li", count: 3
+    assert_no_selector ".filters__count", visible: true
+    within("[data-group=genre]") do
+      find(".filter-chip__text", text: /\ARPG\z/i).click
+    end
+    assert_selector ".collection-grid__empty", text: "No card of this genre in this set yet."
+    assert_equal "RPG", page.evaluate_script("document.activeElement.parentElement.textContent.trim()")
+    assert_selector ".filters__count", text: "1"
+
+    # The search narrows as it is typed, and keeps the focus in the field.
+    find(".filters__clear").click
+    assert_selector ".collection-grid > li", count: 3
+    title = Catalog::CardSeason.find(@tome.first).card.texts.find_by!(locale: "en").title
+    field = find("#collection-search")
+    field.click
+    field.send_keys(title)
+    assert_selector ".collection-grid .card__title", text: title.upcase
+    assert_equal "collection-search", page.evaluate_script("document.activeElement.id")
+    field.send_keys("zzzz")
+    assert_selector ".collection-grid__empty"
+    assert_equal "collection-search", page.evaluate_script("document.activeElement.id")
     assert_no_sideways_scroll
     take_screenshot
   end

@@ -265,9 +265,25 @@ en:
       duplicates_count:
         one: "%{number} duplicate"
         other: "%{number} duplicates"
-    genres:
-      label: "Filter by genre"
-      all: "All"
+    filters:
+      title: "Filters"
+      active: "Active filters:"
+      clear: "Clear all"
+      apply: "Apply"
+      search:
+        label: "Search by title or publisher"
+        placeholder: "Search a title or a publisher"
+      groups:
+        state: "State"
+        rarity: "Rarity"
+        sets: "Set"
+        genre: "Genre"
+      states:
+        owned: "Owned"
+        all: "All"
+        missing: "Missing"
+        new: "New"
+        duplicates: "Duplicates"
     grid:
       label: "Cards"
       empty: "No card of this genre in this set yet."
