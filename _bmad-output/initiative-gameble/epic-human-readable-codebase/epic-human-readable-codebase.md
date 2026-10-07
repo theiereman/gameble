@@ -26,7 +26,7 @@ For a developer discovering gameble on GitHub: they clone it, run it and find th
 
 No capability of the spec: a platform epic. Each line cites the source it comes from.
 
-- R1. The backend is one Rails application. The packs become domains (`domains/<name>/`, DDD vocabulary), still checked by packwerk; Ruby namespaces unchanged. Source: author, 2026-10-07; amends the architecture spine, Modules and AD-2.
+- R1. The backend is one Rails application. The packs become domains under `app/domains/<name>/` (DDD vocabulary), still package boundaries checked by packwerk; Ruby namespaces unchanged. Source: author, 2026-10-07; amends the architecture spine, Modules and AD-2.
 - R2. The code reads without comments: no reference to planning ids (AD-n, CAP-n, R-n, story n.n, epic n, DESIGN.md, EXPERIENCE.md) in code, tests or configuration; a comment survives only where the code cannot say it (an external constraint). Intent is carried by names, extracted methods and objects. Source: author, 2026-10-07.
 - R3. No oversized source file: production Ruby and TypeScript files stay within 400 lines, CSS files within 500. Source: author, 2026-10-07 ("découper les trop gros fichiers").
 - R4. A consistency pass removes duplication and the conventions that diverged between build sessions. Source: author, 2026-10-07 ("tout le reste aussi").
@@ -37,8 +37,8 @@ No capability of the spec: a platform epic. Each line cites the source it comes 
 
 ## Done when
 
-1. The backend's domain code lives under `domains/`, packwerk's check passes in CI, and the full test suite is green.
-2. A CI step finds no planning reference (AD-n, CAP-n, story n.n, epic n, DESIGN.md, EXPERIENCE.md) in `app`, `config`, `db`, `domains`, `lib`, `script` or `test`.
+1. The backend's domain code lives under `app/domains/`, packwerk's check passes in CI, and the full test suite is green.
+2. A CI step finds no planning reference (AD-n, CAP-n, story n.n, epic n, DESIGN.md, EXPERIENCE.md) in `app`, `config`, `db`, `lib`, `script` or `test`.
 3. No production Ruby or TypeScript file exceeds 400 lines and no CSS file exceeds 500.
 4. ESLint, Prettier and Stylelint run in CI and pass.
 5. A developer following only the README on a fresh machine runs the app and the tests; the repository holds the architecture overview, the glossary, CONTRIBUTING, `.env.example` and an AGPL-3.0 LICENSE.
@@ -61,8 +61,9 @@ A cleanup of the whole codebase, no feature: behaviour, URLs, markup seen by pla
 - Decision (2026-10-07, author): the last epic of the MVP, after every feature epic and before production; meanwhile a rule in `AGENTS.md` (bmad-project-context) stops new planning references and explanatory comments in the code of the remaining epics.
 - Decision (2026-10-07, author): the AI tooling and the git history stay in the public repository.
 - Decision (2026-10-07, author): self-explanatory code over comments; no ADR folder in the repository, the architecture overview carries what a newcomer needs.
-- Decision (2026-10-07, author): packwerk is kept; packs are renamed domains (`domains/<name>/`). Packs-rails reads its paths from `packs.yml` (`pack_paths`).
+- Decision (2026-10-07, author): packwerk is kept; packs are renamed domains and moved to `app/domains/<name>/`, each still a packwerk package.
+- Unknown: the exact layout inside `app/domains/<name>/` that packwerk, packs-rails (`pack_paths` in `packs.yml`, or a few lines of autoload configuration in its place) and Zeitwerk all accept — Rails autoloads every `app/*` folder, so `app/domains` must not become a `Domains` namespace. The architecture entry settles it with a short trial before the move; the move entry waits on it.
 - Decision (2026-10-07, author): licence AGPL-3.0 (open source; a modified version served online must publish its source).
-- Source conflict: architecture, Modules and AD-2 — the spine places domain code in `packs/<name>` vs the author's decision for `domains/<name>`; an entry of this epic amends the spine through bmad-architecture before the move.
+- Source conflict: architecture, Modules and AD-2 — the spine places domain code in `packs/<name>` vs the author's decision for `app/domains/<name>`; an entry of this epic amends the spine through bmad-architecture before the move.
 - Assumption: the size limits (400 lines for Ruby and TypeScript, 500 for CSS) were proposed while slicing and accepted with the envelope; tests are not held to them.
 - Waits on epics 5, 6, 7, 9 and 11 because: the cleanup covers the whole codebase once, after its last feature is written.
