@@ -1,11 +1,13 @@
 module Game
   # Brings every player in good standing to a full bank (AD-7) when a season
-  # is published: a player who never had a pack gets their first ten
-  # (Game::FillBank), and a player whose bank is short of ten, such as one
-  # who opened their last pack while no season was published, is topped up
-  # (Game::HealBank). Each player is served in their own transaction; both
-  # operations do nothing for a bank served meanwhile. A player whose fill
-  # fails is reported and skipped, so the others still get their bank.
+  # is published, the only moment a bank is healed: a player who never had a
+  # pack gets their first ten (Game::FillBank), and a player whose bank is
+  # short of ten, such as one who opened packs while no season was
+  # published, gets the missing ones (Game::HealBank); either way every new
+  # pack is available at once. Each player is served in their own
+  # transaction; both operations do nothing for a bank served meanwhile. A
+  # player whose fill fails is reported and skipped, so the others still get
+  # their bank; nothing retries it before the next publication.
   #
   # Per batch of players, one query reads whether each had a pack and how
   # many their bank holds; a player whose bank is full costs nothing more.
