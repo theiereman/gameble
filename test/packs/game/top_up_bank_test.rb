@@ -92,6 +92,17 @@ class Game::TopUpBankTest < ActiveSupport::TestCase
     assert_equal (1..8).map { |step| @now + 3.minutes + (step * 10).minutes }, scheduled
   end
 
+  test "healing a short bank makes every missing pack available at once, not ten minutes apart" do
+    create_pack(@player, available_at: @now - 2.minutes)
+    create_pack(@player, available_at: @now + 3.minutes)
+
+    travel_to(@now) { assert_equal 8, Game::HealBank.new.call(player: @player).value! }
+
+    assert_equal 10, bank.count
+    assert_equal 8, bank.where(available_at: @now).count
+    assert_equal 9, bank.where(available_at: ..@now).count
+  end
+
   test "with no published season the opening succeeds and nothing is inserted" do
     full_bank_at(@now)
     catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
@@ -118,12 +129,12 @@ class Game::TopUpBankTest < ActiveSupport::TestCase
     assert_equal({ available: 0, reserve_full: false, next_available_at: nil }, summary)
   end
 
-  test "an emptied bank is healed with ten packs scheduled from now, once, and BankToppedUp" do
+  test "an emptied bank is healed with ten packs available now, all at once, once, and BankToppedUp" do
     create_pack(@player, opened_at: @now - 1.hour)
 
     travel_to(@now) do
       assert_equal 10, Game::HealBank.new.call(player: @player).value!
-      assert_equal (1..10).map { |step| @now + (step * 10).minutes }, bank.order(:available_at).pluck(:available_at)
+      assert_equal [ @now ] * 10, bank.order(:available_at).pluck(:available_at)
       assert_equal 0, Game::HealBank.new.call(player: @player).value!
     end
     events = game_events(@player, Game::BankToppedUp)

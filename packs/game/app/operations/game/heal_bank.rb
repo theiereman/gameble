@@ -2,8 +2,10 @@ module Game
   # Heals the bank of a player left short of ten — mainly one who opened
   # their last pack while no season was published, or a bank from a build
   # before openings were replaced (CAP-4, AD-7): under the bank lock,
-  # the missing regular packs are drawn and scheduled from now
-  # (Game::TopUpBank), and Game::BankToppedUp is published. Idempotent: a
+  # the missing regular packs are drawn and all made available now, at once
+  # (Game::TopUpBank, `immediate: true`; the author's decision of 2026-10-07:
+  # a bank is healed only when a season is published, with no retry and no
+  # fill on use), and Game::BankToppedUp is published. Idempotent: a
   # full bank, a player who never had a pack (Game::FillBank's job) or a game
   # with no published season gets nothing and publishes nothing.
   #
@@ -26,7 +28,7 @@ module Game
         BankLock.acquire(player.id)
         next 0 unless Pack.exists?(player_id: player.id)
 
-        inserted = TopUpBank.call(player_id: player.id, now: Time.current, random: @random)
+        inserted = TopUpBank.call(player_id: player.id, now: Time.current, random: @random, immediate: true)
         next 0 if inserted.zero?
 
         step publish(BankToppedUp.new(data: { player_id: player.id, packs: inserted }), stream_name: stream_name(player.id))

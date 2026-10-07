@@ -137,6 +137,6 @@ class Game::HealBanksJobTest < ActiveSupport::TestCase
     bank = Game::Pack.bank(player.id)
     assert_equal 10, bank.count
     assert_equal [ season.id ], bank.distinct.pluck(:season_id)
-    assert_equal (1..10).map { |step| now + (step * 10).minutes }, bank.order(:available_at).pluck(:available_at)
+    assert_equal [ now ] * 10, bank.order(:available_at).pluck(:available_at)
   end
 end

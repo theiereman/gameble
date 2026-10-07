@@ -8,15 +8,20 @@ module Game
   # `now` and the latest availability time in the bank, that time recomputed
   # after each pack. With a full bank before an opening, this is AD-7's rule:
   # ten minutes after the latest time in the bank, or after the opening when
-  # every pack was available. A bank left short heals the same way.
+  # every pack was available.
+  #
+  # A bank left short is healed apart (Game::HealBank, run when a season is
+  # published): with `immediate: true` every missing pack is available at
+  # `now`, all at once (author, 2026-10-07).
   #
   # Drawn inline rather than by a job: a recorded deviation from AD-7
   # (pending-approvals.md). Bonus and reward packs neither count nor move
   # the schedule. With no published season, nothing is inserted.
   #
   #   Game::TopUpBank.call(player_id: player.id, now: Time.current) # => packs inserted
+  #   Game::TopUpBank.call(player_id: player.id, now: Time.current, immediate: true)
   module TopUpBank
-    def self.call(player_id:, now:, random: SecureRandom)
+    def self.call(player_id:, now:, random: SecureRandom, immediate: false)
       bank = Pack.bank(player_id)
       missing = Pack::BANK_SIZE - bank.count
       return 0 unless missing.positive?
@@ -28,7 +33,7 @@ module Game
       Pack.insert_all!(Array.new(missing) do |index|
         Pack.row(player_id:, kind: :regular, season_id: pool.season_id,
           card_season_ids: Draw.pack(odds: DrawOdds::REGULAR, size: Pack::SIZE, random:, pool:),
-          available_at: start + (Pack::INTERVAL * (index + 1)))
+          available_at: immediate ? now : start + (Pack::INTERVAL * (index + 1)))
       end)
       missing
     end
