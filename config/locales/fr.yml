@@ -279,9 +279,25 @@ fr:
         zero: "%{number} doublon"
         one: "%{number} doublon"
         other: "%{number} doublons"
-    genres:
-      label: "Filtrer par genre"
-      all: "Tous"
+    filters:
+      title: "Filtres"
+      active: "Filtres actifs :"
+      clear: "Tout effacer"
+      apply: "Appliquer"
+      search:
+        label: "Rechercher par titre ou éditeur"
+        placeholder: "Rechercher un titre ou un éditeur"
+      groups:
+        state: "État"
+        rarity: "Rareté"
+        sets: "Set"
+        genre: "Genre"
+      states:
+        owned: "Possédées"
+        all: "Tout"
+        missing: "Manquantes"
+        new: "Nouvelles"
+        duplicates: "Doublons"
     grid:
       label: "Cartes"
       empty: "Aucune carte de ce genre dans ce set pour l'instant."

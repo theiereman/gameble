@@ -51,7 +51,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     hold(player, members[5], 0)
     sign_in(player)
 
-    get library_set_path(locale: :en, kind: "tome", key: "action-1")
+    get library_set_path(locale: :en, kind: "tome", key: "action-1", state: %w[all])
 
     assert_response :success
     assert_select "title", "Action · Tome 1"
@@ -73,8 +73,8 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".collection-grid .card.card--m", 3
     assert_select ".collection-slot__copies[aria-hidden=true] + .visually-hidden", "2 copies"
     assert_select "[style]", 0
-    # A tome holds one genre: no chips.
-    assert_select ".genre-chips", false
+    # A tome holds one genre: one genre chip.
+    assert_equal [ "Action" ], css_select("[data-group=genre] .filter-chip__text").map(&:text)
     # Every face and missing slot leads to its card's detail in this season,
     # browsing this set (its ◀ ▶, a card not held as the faded back); "xn"
     # stays outside the link.
@@ -123,17 +123,17 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".collection-kind[aria-current=true]", "Éditeurs"
   end
 
-  test "a set's genre chips filter its cards and keep the list" do
+  test "a set's genre chips filter its cards, keep the list and offer no set group" do
     season = publish_sets_draft
     members = set_members(season, "2011")
     genres = members.to_h { |id| [ id, Catalog::CardViews.call([ id ], locale: :en).fetch(id).genre ] }
 
-    get library_set_path(locale: :en, kind: "best_of_year", key: "2011", shelf: 1)
-    assert_equal [ [ "All", "/en/library/best_of_year/2011?shelf=1" ], [ "Action", "/en/library/best_of_year/2011?genre=action&shelf=1" ],
-      [ "RPG", "/en/library/best_of_year/2011?genre=rpg&shelf=1" ] ], css_select(".genre-chip").map { [ it.text, it["href"] ] }
+    get library_set_path(locale: :en, kind: "best_of_year", key: "2011", shelf: 1, state: %w[all])
+    assert_equal [ "Action", "RPG" ], css_select("[data-group=genre] .filter-chip__text").map(&:text)
+    assert_select "[data-group=sets]", false
+    assert_select "form.filters[action=?]", "/en/library/best_of_year/2011"
 
-    get library_set_path(locale: :en, kind: "best_of_year", key: "2011", genre: "rpg")
-    assert_select ".genre-chip[aria-current=true]", "RPG"
+    get library_set_path(locale: :en, kind: "best_of_year", key: "2011", genre: [ "rpg" ], state: %w[all])
     assert_equal members.select { genres[it] == "rpg" }.map { title(it) }, slots.map(&:second)
     assert_equal [ "Best rated of 2011", "0/10" ], current_row
   end
@@ -146,7 +146,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     hold(player, members.second, 3)
     sign_in(player)
 
-    get library_set_path(locale: :fr, kind: "best_of_year", key: "2011")
+    get library_set_path(locale: :fr, kind: "best_of_year", key: "2011", state: %w[all])
 
     assert_select "h1", "Les mieux notés de 2011"
     assert_equal [ "Les mieux notés de 2011", "1/10" ], current_row
