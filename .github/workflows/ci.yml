@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # Builds the production image (never pushed) and boots it with throw-away
       # values (SECRET_KEY_BASE, PUBLIC_URL), no RAILS_MASTER_KEY, no database.
