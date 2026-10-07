@@ -16,11 +16,20 @@ recover_stalled_imports: &recover_stalled_imports
   queue: default
   schedule: every 5 minutes
 
+# The weekly goal's total is summed from the players' own contribution rows
+# (AD-10); the gauge moves about every ten seconds (AD-13).
+sum_weekly_goal: &sum_weekly_goal
+  class: Game::SumWeeklyGoalJob
+  queue: default
+  schedule: every 10 seconds
+
 development:
   recover_stalled_imports: *recover_stalled_imports
+  sum_weekly_goal: *sum_weekly_goal
 
 production:
   recover_stalled_imports: *recover_stalled_imports
+  sum_weekly_goal: *sum_weekly_goal
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12

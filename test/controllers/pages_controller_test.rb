@@ -7,8 +7,8 @@ require_relative "../support/game_packs"
 class PagesControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
 
-  PLAYER_HUB_QUERIES = 13
-  VISITOR_HUB_QUERIES = 4
+  PLAYER_HUB_QUERIES = 14
+  VISITOR_HUB_QUERIES = 5
 
   setup do
     Game::DrawPool.reset!
@@ -270,6 +270,21 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-showcase--empty"
   end
 
+  test "the hub shows the goal panel with the Brotherhood line and the real target, in both languages, to a visitor too" do
+    Game::WeeklyContribution.create!(player_id: @player.id, week_start: Game::WeeklyGoal.week_start(Time.current) - 7, openings: 1)
+    Game::SumWeeklyGoalJob.new.perform
+    Game::WeeklyGoal.where(week_start: Game::WeeklyGoal.week_start(Time.current)).update_all(total: 100, target: 50_000)
+
+    get home_path(locale: :en)
+    assert_select "#community-goal .hub-goal__line", text: "The whole Brotherhood opens 50,000 boosters, together."
+    assert_select "#community-goal .hub-goal__figures", text: "100 / 50,000"
+    assert_select "#community-goal .hub-goal__segment", count: 24
+    assert_select "#community-goal .hub-goal__segment--lit", count: 0
+
+    get home_path(locale: :fr)
+    assert_select "#community-goal .hub-goal__line", text: /\AToute la Confrérie ouvre 50[\s\u00a0\u202f]000 boosters, ensemble\.\z/
+  end
+
   def assert_hub_queries(count)
     ActiveRecord::Base.connection.clear_query_cache
     assert_queries_count(count) { get home_path(locale: :en) }
@@ -280,8 +295,10 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     create_pack(@player, cards: fixture_tier_ids, opened_at: 2.hours.ago)
     Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2)
     sign_in(@player)
+    Game::SumWeeklyGoalJob.new.perform
 
-    # Player lookup, published season, bank (count, next pack, daily claim),
+    # Player lookup, published season, the weekly goal (one read once the job
+    # has created the week's row), bank (count, next pack, daily claim),
     # showcase (pull, card view), collection (owned, total), sets (progress,
     # the started sets, the fill, which finds no other set here, so no sizes)
     # and the top bar's copies per tier.

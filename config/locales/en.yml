@@ -85,6 +85,13 @@ en:
         collected: "Collected"
         next_in: "Next in"
         next_at: "Next booster at midnight (UTC)"
+      goal:
+        title: "Community goal"
+        line: "The whole Brotherhood opens %{target} boosters, together."
+        players: "All players"
+        progress: "%{total} of %{target} boosters opened this week"
+        reward: "Reward"
+        reward_text: "A rare booster for every contributor"
       sets:
         title: "Set progress"
         see_all: "See all"

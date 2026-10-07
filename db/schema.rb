@@ -235,6 +235,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_130000) do
     t.check_constraint "low_player_id < high_player_id", name: "game_trades_order_check"
     t.check_constraint "proposer_id = low_player_id AND recipient_id = high_player_id OR proposer_id = high_player_id AND recipient_id = low_player_id", name: "game_trades_parties_check"
     t.check_constraint "status::text = ANY (ARRAY['open'::character varying, 'cancelled'::character varying, 'declined'::character varying, 'accepted'::character varying, 'expired'::character varying]::text[])", name: "game_trades_status_check"
+  create_table "game_weekly_contributions", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.date "week_start", null: false
+    t.integer "openings", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "week_start"], name: "index_game_weekly_contributions_on_player_id_and_week_start", unique: true
+    t.index ["week_start"], name: "index_game_weekly_contributions_on_week_start"
+    t.check_constraint "openings >= 0", name: "game_weekly_contributions_openings_check"
+  end
+
+  create_table "game_weekly_goals", force: :cascade do |t|
+    t.date "week_start", null: false
+    t.integer "target", null: false
+    t.integer "total", default: 0, null: false
+    t.datetime "summed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["week_start"], name: "index_game_weekly_goals_on_week_start", unique: true
+    t.check_constraint "target > 0 AND total >= 0", name: "game_weekly_goals_figures_check"
   end
 
   create_table "steam_apps", force: :cascade do |t|
@@ -326,6 +346,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_130000) do
   add_foreign_key "game_trades", "accounts_players", column: "low_player_id"
   add_foreign_key "game_trades", "accounts_players", column: "proposer_id"
   add_foreign_key "game_trades", "accounts_players", column: "recipient_id"
+  add_foreign_key "game_weekly_contributions", "accounts_players", column: "player_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "carded_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "details_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "genres_run_id"

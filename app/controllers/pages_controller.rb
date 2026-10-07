@@ -7,6 +7,7 @@ class PagesController < ApplicationController
   def home
     authorize :page, :show?
     @season = Catalog::PublishedSeason.call
+    @goal = Game::CurrentGoal.call
     if current_player
       @bank = Game::BankSummary.call(current_player)
       @showcase = showcase if @season

@@ -86,6 +86,13 @@ fr:
         collected: "Récupéré"
         next_in: "Prochain dans"
         next_at: "Prochain booster à minuit (UTC)"
+      goal:
+        title: "Objectif communautaire"
+        line: "Toute la Confrérie ouvre %{target} boosters, ensemble."
+        players: "Tous les joueurs"
+        progress: "%{total} boosters ouverts sur %{target} cette semaine"
+        reward: "Récompense"
+        reward_text: "Un booster rare pour chaque contributeur"
       sets:
         title: "Progression des sets"
         see_all: "Tout voir"
