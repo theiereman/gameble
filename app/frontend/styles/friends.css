@@ -123,3 +123,98 @@
   font: var(--font-screen-title);
   letter-spacing: var(--tracking-screen-title);
 }
+
+/* Story 5.10: a friend's name opens their profile dialog (DESIGN.md,
+   Friend profile): the 64px avatar, the name and card count, "VITRINE"
+   with three small cards, the primary action and the orange "SIGNALER". */
+
+.friends__name {
+  min-height: var(--space-touch-min);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.friends__name:hover {
+  color: var(--color-accent);
+}
+
+.friends__name:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.friend-profile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.friend-profile__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.friend-profile__avatar {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  box-shadow: var(--pixel-outline-3);
+}
+
+.friend-profile__who {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.friend-profile__name {
+  margin: 0;
+  font: var(--font-screen-title);
+  letter-spacing: var(--tracking-screen-title);
+  overflow-wrap: anywhere;
+}
+
+.friend-profile__count,
+.friend-profile__heading {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.friend-profile__showcase {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.friend-profile__empty,
+.friend-profile__loading,
+.friend-profile__soon {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.friend-profile__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+/* SIGNALER: the orange link (DESIGN.md, Link). */
+.friend-profile__actions .button--link {
+  color: var(--color-alert);
+}

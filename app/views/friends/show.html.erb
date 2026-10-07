@@ -9,7 +9,8 @@
 <%# Amis (EXPERIENCE.md, Amis; DESIGN.md, Friends): the invite panel (the
     permanent link with COPIER, the player's own friend code, the field to
     add a friend by code), the invitations and the friend list. Presence
-    comes with a later story. The field answers on the line below it. %>
+    comes with a later story. The field answers on the line below it. A
+    friend's name opens their profile dialog (story 5.10). %>
 <% invite_url = public_url_for(invite_link_path(token: current_player.token)) %>
 <section class="friends" aria-labelledby="friends-heading">
   <h1 id="friends-heading" class="friends__title"><%= t(".title") %></h1>
@@ -67,8 +68,11 @@
   <% else %>
     <ul class="friends__list">
       <% @friends.each do |friend| %>
-        <li class="friends__row"><%= friend.persona_name.presence || t(".nameless") %></li>
+        <li class="friends__row"><button type="button" class="friends__name" aria-haspopup="dialog" data-controller="dialog-opener" data-action="dialog-opener#open" data-dialog-opener-dialog-value="<%= friend_dialog_id(friend.token) %>"><%= friend_name(friend) %></button></li>
       <% end %>
     </ul>
+    <% @friends.each do |friend| %>
+      <%= render "friends/profile_dialog", friend: %>
+    <% end %>
   <% end %>
 </section>

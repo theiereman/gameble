@@ -47,6 +47,22 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friends__empty", 1, "only the no-invitation line"
   end
 
+  test "a friend's name opens their profile dialog, whose frame loads the profile lazily (story 5.10)" do
+    other = accounts_players(:moderator)
+    other.update!(persona_name: "Sam")
+    Game::Friendship.create!(low_player_id: [ @player.id, other.id ].min, high_player_id: [ @player.id, other.id ].max)
+    sign_in
+
+    get friends_path(locale: :fr)
+
+    assert_select ".friends__row button.friends__name[aria-haspopup=dialog][data-dialog-opener-dialog-value=?]", "friend-#{other.token}", "Sam"
+    assert_select "dialog#friend-#{other.token}.modal[aria-label=Sam]" do
+      assert_select ".modal__title", "Profil"
+      assert_select "turbo-frame#friend-profile-#{other.token}[loading=lazy][target=_top][src=?]",
+        friend_profile_path(locale: :fr, token: other.token)
+    end
+  end
+
   test "a visitor is sent home to sign in" do
     get friends_path(locale: :fr)
 

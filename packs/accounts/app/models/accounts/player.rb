@@ -24,8 +24,8 @@ module Accounts
       default: :player, validate: true
 
     # Who may see the player's profile (CAP-14): everyone, their friends only
-    # (counted by Game::Visibility, nobody until epic 5) or only them. The
-    # prefix keeps `private` from clashing with Ruby's own.
+    # (decided by Game::Visibility, the friendships being Game's) or only
+    # them. The prefix keeps `private` from clashing with Ruby's own.
     enum :visibility, { public: "public", friends_only: "friends_only", private: "private" },
       default: :public, prefix: :visibility, validate: true
 

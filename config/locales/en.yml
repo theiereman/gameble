@@ -504,6 +504,18 @@ en:
       pending: "Pending"
       accept: "Accept"
       ignore: "Ignore"
+    profile_dialog:
+      title: "Profile"
+      close: "Close"
+      loading: "Loading the profile…"
+  friend_profiles:
+    show:
+      showcase: "Showcase"
+      no_showcase: "No card in the showcase."
+      propose_trade: "Propose a trade"
+      soon: "Coming soon"
+    unavailable:
+      body: "This profile is not available."
   invitations:
     sent: "Invitation sent to %{to}."
     throttled: "Too many attempts in a minute. Try again in a moment."

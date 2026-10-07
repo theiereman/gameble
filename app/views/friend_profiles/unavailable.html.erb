@@ -1,0 +1,13 @@
+<% content_for :back_button, true %>
+<% content_for :title, t("public_profiles.unavailable.title") %>
+<% content_for :head do %><meta name="robots" content="noindex"><% end %>
+<%# A friend's profile that cannot be shown: no player has this token, they
+    are not (or no longer) a friend, they are banned, or their visibility
+    hides them (Game::Visibility). One answer for all, as the public
+    profile's unavailable page, so a ban cannot be told from the rest. %>
+<%= turbo_frame_tag friend_profile_frame_id(params[:token]), target: "_top" do %>
+  <section class="friend-profile friend-profile--unavailable">
+    <h2 class="friend-profile__name"><%= t("public_profiles.unavailable.title") %></h2>
+    <p class="friend-profile__empty"><%= t(".body") %></p>
+  </section>
+<% end %>

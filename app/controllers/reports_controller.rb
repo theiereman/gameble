@@ -6,7 +6,8 @@
 # is the unavailable page with a 404, as the profile itself (a report cannot
 # probe a hidden player). A visitor is refused by the policy and sent to the
 # sign-in; each player is limited per minute here and per day by the
-# operation.
+# operation. A report sent from a friend's profile (`from=friends`, story
+# 5.10) comes back to the Friends screen, any other to the profile.
 class ReportsController < ApplicationController
   rate_limit to: 10, within: 1.minute, only: :create,
     by: -> { current_player&.id || request.remote_ip },
@@ -20,10 +21,11 @@ class ReportsController < ApplicationController
     return render "public_profiles/unavailable", status: :not_found unless Game::Visibility.visible?(current_player, reported)
 
     result = Accounts::ReportPlayer.new.call(reporter: current_player, reported:, reason: params[:reason])
+    back = params[:from] == "friends" ? friends_path : brother_path(token: reported.token)
     if result.success?
-      redirect_to brother_path(token: reported.token), notice: t(".sent"), status: :see_other
+      redirect_to back, notice: t(".sent"), status: :see_other
     else
-      redirect_to brother_path(token: reported.token), alert: Accounts::ReportPlayer.failure_message(result.failure), status: :see_other
+      redirect_to back, alert: Accounts::ReportPlayer.failure_message(result.failure), status: :see_other
     end
   end
 end

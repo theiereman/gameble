@@ -135,6 +135,22 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "a report sent from a friend's profile comes back to the Friends screen (story 5.10)" do
+    Game::Friendship.create!(low_player_id: [ @owner.id, @reporter.id ].min, high_player_id: [ @owner.id, @reporter.id ].max)
+    @owner.update!(visibility: "friends_only")
+    sign_in(@reporter)
+
+    assert_difference "Accounts::Report.count", 1 do
+      post report_path_of(@owner), params: { reason: "harassment", from: "friends" }
+    end
+    assert_redirected_to friends_path(locale: :en)
+    assert_predicate flash[:notice], :present?
+
+    post report_path_of(@owner), params: { from: "friends" }
+    assert_redirected_to friends_path(locale: :en)
+    assert_equal "Choose a reason to send the report.", flash[:alert]
+  end
+
   test "a player is limited per minute" do
     sign_in(@reporter)
 
