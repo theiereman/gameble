@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_130100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -215,7 +215,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_130000) do
     t.index ["card_season_id"], name: "index_game_trade_items_on_card_season_id"
     t.index ["trade_id", "side", "card_season_id"], name: "index_game_trade_items_on_trade_id_and_side_and_card_season_id", unique: true
     t.check_constraint "quantity > 0", name: "game_trade_items_quantity_check"
-    t.check_constraint "side::text = ANY (ARRAY['offer'::character varying, 'request'::character varying]::text[])", name: "game_trade_items_side_check"
+    t.check_constraint "side::text = ANY (ARRAY['offer'::character varying::text, 'request'::character varying::text])", name: "game_trade_items_side_check"
   end
 
   create_table "game_trades", force: :cascade do |t|
@@ -234,7 +234,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_130000) do
     t.index ["recipient_id", "status"], name: "index_game_trades_on_recipient_id_and_status"
     t.check_constraint "low_player_id < high_player_id", name: "game_trades_order_check"
     t.check_constraint "proposer_id = low_player_id AND recipient_id = high_player_id OR proposer_id = high_player_id AND recipient_id = low_player_id", name: "game_trades_parties_check"
-    t.check_constraint "status::text = ANY (ARRAY['open'::character varying, 'cancelled'::character varying, 'declined'::character varying, 'accepted'::character varying, 'expired'::character varying]::text[])", name: "game_trades_status_check"
+    t.check_constraint "status::text = ANY (ARRAY['open'::character varying::text, 'cancelled'::character varying::text, 'declined'::character varying::text, 'accepted'::character varying::text, 'expired'::character varying::text])", name: "game_trades_status_check"
+  end
+
   create_table "game_weekly_contributions", force: :cascade do |t|
     t.bigint "player_id", null: false
     t.date "week_start", null: false
