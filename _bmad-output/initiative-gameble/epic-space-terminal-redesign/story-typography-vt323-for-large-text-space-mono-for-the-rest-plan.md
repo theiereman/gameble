@@ -3,8 +3,8 @@ title: 'Typography: VT323 for large text, Space Mono for the rest'
 type: 'feature'
 ticket: '14'
 created: '2026-10-07'
-status: 'draft'
-baseline_revision: ''
+status: 'in-progress'
+baseline_revision: '69577d6a35f822de8e26a257005310e676d52cc2'
 route: 'full'
 route_source: 'auto'
 review: ''
@@ -91,7 +91,7 @@ Baselines are rendered by the container's Chromium; CI's Chrome may differ by hi
 
 ## Verification
 
-**Commands:**
+**Commands:** (in this container: `export DB_PORT=5432 CHROME_BIN=/opt/pw-browsers/chromium`; the test database is prepared; `npm ci` and `bundle install` are done)
 - `grep -rni "pixelify\|silkscreen" app config test _bmad-output/initiative-gameble/ux-gameble/DESIGN.md` -- expected: no match.
 - `bin/rubocop && npm run typecheck && npm run test:js` -- expected: clean.
 - `bin/rails test test/integration/shell_test.rb` -- expected: pass.
