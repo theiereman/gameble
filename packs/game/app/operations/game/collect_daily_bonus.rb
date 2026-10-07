@@ -33,7 +33,7 @@ module Game
       player = step require_player(player)
 
       transaction do
-        BankLock.acquire(player.id)
+        step lock_bank(player)
         now = Time.current
         day = DailyBonusClaim.day_of(now)
         step unclaimed(player, day)

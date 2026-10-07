@@ -69,7 +69,7 @@ class Game::FillBankTest < ActiveSupport::TestCase
 
       assert_equal :player_required, result.failure
     end
-    assert_equal 0, Game::Pack.unopened.count
+    assert_equal 0, Game::Pack.count
   end
 
   test "the sign-up handler fills the bank, and raises when the fill fails" do

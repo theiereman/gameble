@@ -1,11 +1,12 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# Replacement packs (R1, R4, AD-7): opening a regular pack tops the bank back
-# up to ten, each new pack drawn at once and scheduled ten minutes after the
-# later of the opening and the latest time in the bank; the bank summary's
-# next pack; and the healing of banks left short (Game::HealBank,
-# game:top_up_banks).
+# Replacement packs (R1, R4, AD-7): opening a regular pack replaces it, the
+# new pack drawn at once and scheduled ten minutes after the later of the
+# opening and the latest time in the bank; the bank summary's next pack; and
+# the healing of banks left short (Game::HealBank, game:top_up_banks), every
+# missing pack available at once, which nothing but a season's publication
+# does (epic 7 R6).
 class Game::TopUpBankTest < ActiveSupport::TestCase
   include GamePacks
 
@@ -80,16 +81,31 @@ class Game::TopUpBankTest < ActiveSupport::TestCase
     assert_operator Game::Pack.where(player_id: @player.id).where.not(opened_at: nil).count, :>=, 20
   end
 
-  test "a bank left short is topped up to ten, ten minutes apart from the later of now and its latest time" do
+  test "opening a pack of a short bank replaces only that pack: the bank stays short, no fill on use" do
     create_pack(@player, available_at: @now - 2.minutes)
     create_pack(@player, available_at: @now - 1.minute)
     create_pack(@player, available_at: @now + 3.minutes)
 
     travel_to(@now) { open.value! }
 
-    assert_equal 10, bank.count
-    scheduled = bank.order(:available_at).pluck(:available_at).last(8)
-    assert_equal (1..8).map { |step| @now + 3.minutes + (step * 10).minutes }, scheduled
+    assert_equal 3, bank.count
+    assert_equal [ @now - 1.minute, @now + 3.minutes, @now + 13.minutes ], bank.order(:available_at).pluck(:available_at)
+    assert_empty game_events(@player, Game::BankToppedUp)
+  end
+
+  test "outside a season's publication nothing heals a short bank: opening, daily bonus or sign-in" do
+    3.times { |index| create_pack(@player, available_at: @now - (index + 1).minutes) }
+
+    travel_to(@now) do
+      open.value!
+      Game::CollectDailyBonus.new.call(player: @player).value!
+      Accounts::SignIn.new.call(steam_id: @player.steam_id).value!
+    end
+
+    assert_equal 3, bank.count
+    assert_equal 1, Game::Pack.where(player_id: @player.id).bonus.count
+    assert_empty game_events(@player, Game::BankToppedUp)
+    assert_empty game_events(@player, Game::BankFilled)
   end
 
   test "healing a short bank makes every missing pack available at once, not ten minutes apart" do
@@ -143,7 +159,7 @@ class Game::TopUpBankTest < ActiveSupport::TestCase
 
   test "healing leaves alone a player who never had a pack, and a missing or banned player fails" do
     assert_equal 0, Game::HealBank.new.call(player: @player).value!
-    assert_equal 0, Game::Pack.unopened.count
+    assert_equal 0, Game::Pack.count
     [ nil, accounts_players(:banned) ].each do |player|
       assert_equal :player_required, Game::HealBank.new.call(player:).failure
     end

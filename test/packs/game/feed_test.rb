@@ -97,6 +97,21 @@ class Game::FeedTest < ActiveSupport::TestCase
     assert_equal [ @other ], Game::FeedEntries.call(nil).map(&:player)
   end
 
+  test "a friends-only player's entries show to their friends only, asked once per player (story 5.10)" do
+    add_entries(@other, 5)
+    @other.update!(visibility: :friends_only)
+    stranger = accounts_players(:administrator)
+    Game::Friendship.create!(low_player_id: [ @player.id, @other.id ].min, high_player_id: [ @player.id, @other.id ].max)
+
+    # The notable rows, their player, one friendship question (not one per
+    # entry), then the fillers' rows.
+    shown = nil
+    assert_queries_count(4) { shown = Game::FeedEntries.call(@player) }
+    assert_equal [ @other ] * 5, shown.map(&:player)
+    assert_empty Game::FeedEntries.call(stranger)
+    assert_empty Game::FeedEntries.call(nil)
+  end
+
   test "lower rarities stay out while the feed holds enough, and fill it when it is quiet" do
     common = fixture_tier_ids[0]
     epic = fixture_tier_ids[3]

@@ -10,12 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_150100) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_170810) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "accounts_players", force: :cascade do |t|
-    t.string "steam_id", null: false
+    t.string "steam_id"
     t.string "token", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -24,8 +24,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_150100) do
     t.string "persona_name"
     t.boolean "reduced_motion"
     t.string "visibility", default: "public", null: false
+    t.datetime "last_seen_at"
+    t.datetime "deleted_at"
     t.index ["steam_id"], name: "index_accounts_players_on_steam_id", unique: true
     t.index ["token"], name: "index_accounts_players_on_token", unique: true
+    t.check_constraint "(steam_id IS NULL) = (deleted_at IS NOT NULL)", name: "accounts_players_deleted_check"
     t.check_constraint "role::text = 'player'::text OR role::text = 'moderator'::text OR role::text = 'administrator'::text", name: "accounts_players_role_check"
     t.check_constraint "visibility::text = ANY (ARRAY['public'::character varying::text, 'friends_only'::character varying::text, 'private'::character varying::text])", name: "accounts_players_visibility_check"
   end
@@ -169,14 +172,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_150100) do
     t.index ["notable", "occurred_at", "id"], name: "index_game_feed_entries_on_notable_and_occurred_at_and_id"
     t.index ["pack_id", "position"], name: "index_game_feed_entries_on_pack_id_and_position", unique: true
     t.index ["player_id"], name: "index_game_feed_entries_on_player_id"
-    t.check_constraint "kind::text = ANY (ARRAY['pull'::character varying, 'discovery'::character varying, 'trade'::character varying, 'repost'::character varying]::text[])", name: "game_feed_entries_kind_check"
+    t.check_constraint "kind::text = ANY (ARRAY['pull'::character varying::text, 'discovery'::character varying::text, 'trade'::character varying::text, 'repost'::character varying::text])", name: "game_feed_entries_kind_check"
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "game_feed_entries_rarity_check"
   end
 
   create_table "game_first_discoveries", force: :cascade do |t|
     t.bigint "card_season_id", null: false
     t.bigint "player_id", null: false
-    t.bigint "pack_id", null: false
+    t.bigint "pack_id"
     t.datetime "discovered_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -203,6 +206,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_150100) do
     t.index ["high_player_id"], name: "index_game_friendships_on_high_player_id"
     t.index ["low_player_id", "high_player_id"], name: "index_game_friendships_on_low_player_id_and_high_player_id", unique: true
     t.check_constraint "low_player_id < high_player_id", name: "game_friendships_order_check"
+  end
+
+  create_table "game_goal_rewards", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.date "week_start", null: false
+    t.bigint "pack_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["pack_id"], name: "index_game_goal_rewards_on_pack_id"
+    t.index ["player_id", "week_start"], name: "index_game_goal_rewards_on_player_id_and_week_start", unique: true
+    t.index ["week_start"], name: "index_game_goal_rewards_on_week_start"
   end
 
   create_table "game_holdings", force: :cascade do |t|
@@ -260,6 +274,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_150100) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "collection_seen_up_to"
+    t.string "last_activity"
+    t.datetime "last_activity_at"
     t.index ["player_id"], name: "index_game_player_states_on_player_id", unique: true
   end
 
@@ -410,6 +426,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_150100) do
   add_foreign_key "game_friend_codes", "accounts_players", column: "player_id"
   add_foreign_key "game_friendships", "accounts_players", column: "high_player_id"
   add_foreign_key "game_friendships", "accounts_players", column: "low_player_id"
+  add_foreign_key "game_goal_rewards", "accounts_players", column: "player_id"
+  add_foreign_key "game_goal_rewards", "game_packs", column: "pack_id"
   add_foreign_key "game_holdings", "accounts_players", column: "player_id"
   add_foreign_key "game_holdings", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_invitations", "accounts_players", column: "recipient_id"

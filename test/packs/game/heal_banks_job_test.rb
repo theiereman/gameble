@@ -2,9 +2,10 @@ require "test_helper"
 require_relative "../../support/catalog_seeds"
 require_relative "../../support/game_packs"
 
-# Game::HealBanksJob (R3): a season published later fills the banks of the
-# players who never had a pack, and tops up those left short of ten (an
-# emptied bank included); a full bank costs no operation.
+# Game::HealBanksJob (R3, epic 7 R6): a season published later fills the
+# banks of the players who never had a pack, and heals those left short of
+# ten (an emptied bank included), every new pack available at once; a full
+# bank costs no operation.
 class Game::HealBanksJobTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include CatalogSeeds
@@ -34,7 +35,32 @@ class Game::HealBanksJobTest < ActiveSupport::TestCase
     assert_equal 10, Game::Pack.where(player_id: accounts_players(:administrator).id).count
     assert_equal 10, Game::Pack.bank(accounts_players(:moderator).id).count
     assert_equal 11, Game::Pack.where(player_id: accounts_players(:moderator).id).count
-    assert_equal 0, Game::Pack.unopened.where(player_id: accounts_players(:banned).id).count
+    assert_equal 0, Game::Pack.where(player_id: accounts_players(:banned).id).count
+  end
+
+  test "publishing a season: ten packs available now for a player with none, the missing ones available now for a short bank, a full bank untouched" do
+    bankless, short, full = %i[player moderator administrator].map { accounts_players(it) }
+    now = Time.current.change(usec: 0)
+    travel_to(now - 1.hour) { Game::FillBank.new.call(player: full).value! }
+    full_before = Game::Pack.bank(full.id).order(:id).pluck(:id, :available_at, :card_season_ids)
+    create_pack(short, opened_at: now - 1.hour)
+    kept = [ create_pack(short, available_at: now - 1.minute), create_pack(short, available_at: now + 5.minutes) ]
+    season = seed_card_seasons(distinct_scores(150))
+
+    travel_to(now) { perform_enqueued_jobs { Catalog::PublishSeason.new.call(number: season.number).value! } }
+
+    bank = Game::Pack.bank(bankless.id)
+    assert_equal [ now ] * 10, bank.pluck(:available_at)
+    assert_equal [ season.id ], bank.distinct.pluck(:season_id)
+
+    bank = Game::Pack.bank(short.id)
+    assert_equal 10, bank.count
+    assert_equal [ now ] * 8, bank.where.not(id: kept.map(&:id)).pluck(:available_at)
+    assert_equal kept.map { [ it.id, it.available_at ] }, bank.where(id: kept.map(&:id)).order(:id).pluck(:id, :available_at)
+    assert_equal [ { player_id: short.id, packs: 8 } ], game_events(short, Game::BankToppedUp).map(&:data)
+
+    assert_equal full_before, Game::Pack.bank(full.id).order(:id).pluck(:id, :available_at, :card_season_ids)
+    assert_empty game_events(full, Game::BankToppedUp)
   end
 
   test "a player whose fill raises is reported and the others still get their bank" do

@@ -139,3 +139,58 @@
     min-height: var(--space-touch-min);
   }
 }
+
+/* The delete dialog (DESIGN.md, Delete dialog): the title row in alert
+   orange (.modal__title--alert), the note, the text field labelled with the
+   word to type, the danger button (greyed while disabled, shell.css) and
+   ANNULER, stacked on the phone. */
+.delete-dialog__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.delete-dialog__note {
+  margin: 0;
+  color: var(--color-text-bright);
+}
+
+.delete-dialog__label {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+/* The text field (DESIGN.md, Text field): the input well, the control
+   border, accent on focus. */
+.delete-dialog__input {
+  width: 100%;
+  min-height: var(--space-touch-min);
+  margin: 0;
+  padding: 0 var(--space-3);
+  border: var(--space-unit) solid var(--color-line);
+  border-radius: 0;
+  background: var(--color-input);
+  color: var(--color-text-bright);
+  font: var(--font-body);
+}
+
+.delete-dialog__input:focus-visible {
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.delete-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+@media (max-width: 719px) {
+  .delete-dialog__actions {
+    flex-direction: column;
+  }
+}

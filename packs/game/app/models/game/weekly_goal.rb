@@ -6,12 +6,19 @@ module Game
   # The target is the number of players active the previous week (at least
   # one pack opened) times PER_PLAYER, never below FLOOR: tuned in play.
   #
+  # Reached once its total is at or above its target (story 6.5).
+  #
   # Written only through Game::SumWeeklyGoalJob (AD-3).
   class WeeklyGoal < ApplicationRecord
     self.table_name = "game_weekly_goals"
 
     PER_PLAYER = 50
     FLOOR = 200
+
+    # The goals whose total reached their target: the contributors of their
+    # week are rewarded (Game::GrantGoalReward). A target never moves once
+    # the goal exists and a total only grows, so a reached goal stays so.
+    scope :reached, -> { where("total >= target") }
 
     # The Monday (a Date) of the UTC week a time falls in.
     def self.week_start(time) = time.utc.to_date.beginning_of_week(:monday)

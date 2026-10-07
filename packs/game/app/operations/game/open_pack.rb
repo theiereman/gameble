@@ -10,8 +10,10 @@ module Game
   # (Game::SetCompletion); Game::CardDiscovered and Game::SetCompleted follow
   # Game::PackOpened, one per row inserted (AD-9, AD-10, story 6.7).
   # A pack that is not available yet is never opened. Opening a regular pack
-  # tops the bank back up to ten in the same transaction (Game::TopUpBank);
-  # a bonus or reward pack tops up nothing.
+  # replaces it in the same transaction (Game::TopUpBank), so a full bank
+  # stays full; a bank already short stays short until the next season's
+  # publication heals it (Game::HealBanksJob). A bonus or reward pack
+  # replaces nothing.
   #
   # The booster's JSON exchange (AD-23) passes the request's Idempotency-Key,
   # a UUID, stored on the opened pack. Under the bank lock (AD-10), before the
@@ -48,7 +50,7 @@ module Game
       step check_key(idempotency_key)
 
       transaction do
-        BankLock.acquire(player.id)
+        step lock_bank(player)
         replayed = idempotency_key && Pack.find_by(player_id: player.id, idempotency_key:)
         next replayed if replayed
 

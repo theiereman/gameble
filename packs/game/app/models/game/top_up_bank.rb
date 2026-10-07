@@ -1,41 +1,56 @@
 module Game
-  # Tops a player's bank back up to Pack::BANK_SIZE unopened regular packs
-  # (CAP-4, AD-7): a step of the operations that change the bank, run under
-  # the bank lock (Game::BankLock) inside their transaction.
+  # Puts regular packs into a player's bank (CAP-4, AD-7): a step of the
+  # operations that change the bank, run under the bank lock
+  # (Game::BankLock) inside their transaction. Each pack is drawn at once
+  # from the in-memory pool (regular odds, the season published now).
   #
-  # Each missing pack is drawn at once from the in-memory pool (regular odds,
-  # the season published now) and scheduled Pack::INTERVAL after the later of
-  # `now` and the latest availability time in the bank, that time recomputed
-  # after each pack. With a full bank before an opening, this is AD-7's rule:
-  # ten minutes after the latest time in the bank, or after the opening when
-  # every pack was available.
+  # `call`, after an opening (Game::OpenPack): the opened pack is replaced,
+  # one pack, scheduled Pack::INTERVAL after the later of `now` and the
+  # latest availability time in the bank. With a full bank before the
+  # opening, this is AD-7's rule: ten minutes after the latest time in the
+  # bank, or after the opening when every pack was available. A bank short
+  # of ten before the opening stays short by as much: an opening never fills
+  # it (no fill on use).
   #
-  # A bank left short is healed apart (Game::HealBank, run when a season is
-  # published): with `immediate: true` every missing pack is available at
-  # `now`, all at once (author, 2026-10-07).
+  # `heal`, when a season is published (Game::HealBank, through
+  # Game::HealBanksJob): every pack missing from ten is inserted, all
+  # available at `now`, at once. Nothing else heals a bank (author,
+  # 2026-10-07).
   #
   # Drawn inline rather than by a job: a recorded deviation from AD-7
   # (pending-approvals.md). Bonus and reward packs neither count nor move
   # the schedule. With no published season, nothing is inserted.
   #
-  #   Game::TopUpBank.call(player_id: player.id, now: Time.current) # => packs inserted
-  #   Game::TopUpBank.call(player_id: player.id, now: Time.current, immediate: true)
+  #   Game::TopUpBank.call(player_id: player.id, now: Time.current) # => packs inserted, 0 or 1
+  #   Game::TopUpBank.heal(player_id: player.id, now: Time.current) # => packs inserted, 0 to 10
   module TopUpBank
-    def self.call(player_id:, now:, random: SecureRandom, immediate: false)
+    def self.call(player_id:, now:, random: SecureRandom)
       bank = Pack.bank(player_id)
-      missing = Pack::BANK_SIZE - bank.count
+      return 0 unless bank.count < Pack::BANK_SIZE
+
+      start = [ now, bank.maximum(:available_at) ].compact.max
+      insert(player_id, [ start + Pack::INTERVAL ], random)
+    end
+
+    def self.heal(player_id:, now:, random: SecureRandom)
+      missing = Pack::BANK_SIZE - Pack.bank(player_id).count
       return 0 unless missing.positive?
 
+      insert(player_id, [ now ] * missing, random)
+    end
+
+    # One regular pack per availability time, in one statement; 0 with no
+    # published season.
+    def self.insert(player_id, times, random)
       pool = DrawPool.current
       return 0 if pool.nil?
 
-      start = [ now, bank.maximum(:available_at) ].compact.max
-      Pack.insert_all!(Array.new(missing) do |index|
+      Pack.insert_all!(times.map do |available_at|
         Pack.row(player_id:, kind: :regular, season_id: pool.season_id,
-          card_season_ids: Draw.pack(odds: DrawOdds::REGULAR, size: Pack::SIZE, random:, pool:),
-          available_at: immediate ? now : start + (Pack::INTERVAL * (index + 1)))
+          card_season_ids: Draw.pack(odds: DrawOdds::REGULAR, size: Pack::SIZE, random:, pool:), available_at:)
       end)
-      missing
+      times.size
     end
+    private_class_method :insert
   end
 end

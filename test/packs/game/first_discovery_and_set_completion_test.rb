@@ -118,8 +118,13 @@ class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
   test "the opening's budget: three statements more, whatever its cards discover or complete" do
     add_to_valve(@common, @rare)
     undiscover(@common, @uncommon, @rare)
+    # The schema cache warmed, so a worker's first introspection of the two
+    # tables is not counted; schema queries are skipped anyway.
+    [ Game::FirstDiscovery, Game::SetCompletion ].each(&:columns)
     statements = []
-    counter = ->(*, payload) { statements << payload[:sql] if payload[:sql].match?(/game_first_discoveries|game_set_completions/) }
+    counter = lambda do |*, payload|
+      statements << payload[:sql] if payload[:name] != "SCHEMA" && payload[:sql].match?(/game_first_discoveries|game_set_completions/)
+    end
 
     ActiveSupport::Notifications.subscribed(counter, "sql.active_record") do
       open_pack(@player, [ @common, @uncommon, @rare, @portal, @legendary ])

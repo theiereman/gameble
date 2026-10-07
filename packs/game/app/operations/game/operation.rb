@@ -1,8 +1,10 @@
 module Game
   # Base class of every Game operation (AD-14): each one acts for a player.
   # Defining `call` without a required `player:` keyword raises ArgumentError
-  # when the class is loaded, and `require_player` refuses a missing, unsaved
-  # or banned player.
+  # when the class is loaded, and `require_player` refuses a missing, unsaved,
+  # banned or deleted player. An operation that writes a player's bank takes
+  # the bank lock through `lock_bank`, which refuses a player whose account
+  # was deleted while it waited (Accounts::DeletePlayer).
   #
   #   class Game::OpenPack < Game::Operation
   #     def call(player:)
@@ -47,11 +49,21 @@ module Game
     end
 
     def require_player(player)
-      if player.is_a?(Accounts::Player) && player.persisted? && !player.banned?
+      if player.is_a?(Accounts::Player) && player.persisted? && !player.banned? && !player.deleted?
         Success(player)
       else
         Failure(:player_required)
       end
+    end
+
+    # Takes the player's bank lock (Game::BankLock; inside `transaction`),
+    # then reads afresh whether the account was deleted meanwhile: a deletion
+    # releases the bank under the same lock (Game::ReleasePlayer), so an
+    # operation that waited on it writes nothing and fails with
+    # :player_required, leaving no row behind.
+    def lock_bank(player)
+      BankLock.acquire(player.id)
+      Accounts::Player.where(id: player.id).where.not(deleted_at: nil).exists? ? Failure(:player_required) : Success()
     end
   end
 end

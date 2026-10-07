@@ -2,7 +2,9 @@ module Game
   # The first pull of a card in a season (CAP-13, AD-9, story 6.7): one row
   # per card-season, unique in the database, naming the player and the pack.
   # Written only by Game::OpenPack, in the opening's transaction; its insert
-  # decides that Game::CardDiscovered is published, once.
+  # decides that Game::CardDiscovered is published, once. An account
+  # deletion forgets the pack (Game::ReleasePlayer) but keeps the row, so a
+  # card is never discovered twice in its season.
   class FirstDiscovery < ApplicationRecord
     self.table_name = "game_first_discoveries"
 

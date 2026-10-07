@@ -8,7 +8,9 @@
     which a player keeps once the day's booster is collected (the
     countdown to the next one). The daily claim's Turbo Stream answer
     replaces the panel, the packs chip, menu 01 and the empty showcase's
-    action (bonus_arc_controller.ts flies the canister).
+    action (bonus_arc_controller.ts flies the canister). A contributor whose
+    goal reward pack waits unopened gets the reward toast, which a browser
+    shows once per week's reward.
     Never served from Turbo's cache; the packs chip's countdown refreshes it
     by morphing, keeping the scroll. %>
 <% turbo_exempts_page_from_cache %>
@@ -18,10 +20,16 @@
     <h1 class="hub__title" tabindex="-1" data-hub-menu-target="heading"><%= t(".kicker.title") %></h1>
   </header>
 
-  <%= render "pages/menu", bank: @bank, collection: @collection %>
+  <%= render "pages/menu", bank: @bank, collection: @collection, friends_online: @friends_online %>
 
   <% if current_player %>
     <span hidden data-controller="bonus-arc" data-action="turbo:before-stream-render@document->bonus-arc#render"></span>
+  <% end %>
+
+  <% if @goal_reward_week %>
+    <% content_for :toasts do %>
+      <%= render ToastComponent.new(title: t(".goal_reward.title"), message: t(".goal_reward.message"), once: "goal-reward-#{@goal_reward_week.iso8601}") %>
+    <% end %>
   <% end %>
 
   <% if current_player.nil? %>

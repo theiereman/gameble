@@ -347,6 +347,23 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "a friends-only owner is shown to a friend, a private one is not (story 5.10)" do
+    publish_sets_draft
+    friend = accounts_players(:moderator)
+    Game::Friendship.create!(low_player_id: [ @owner.id, friend.id ].min, high_player_id: [ @owner.id, friend.id ].max)
+    @owner.update!(visibility: "friends_only")
+    sign_in(friend)
+
+    get brother_path(locale: :en, token: @owner.token)
+    assert_response :success
+    assert_select "h1", "Gabe the Brave"
+    assert_select ".profile-summary__visibility", "Visible to your friends only"
+
+    @owner.update!(visibility: "private")
+    get brother_path(locale: :en, token: @owner.token)
+    assert_response :not_found
+  end
+
   test "the summary states who may see the profile" do
     get brother_path(locale: :en, token: @owner.token)
     assert_select ".profile-summary__visibility", "Visible to all players"

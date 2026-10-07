@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
   around_action :read_only_unless_writing
   around_action :switch_locale
   before_action :set_sentry_user
+  before_action :note_presence
 
   # Every action takes a policy decision (AD-14); one that skipped `authorize`
   # raises Pundit::AuthorizationNotPerformedError.
@@ -25,6 +26,10 @@ class ApplicationController < ActionController::Base
   # explicit "no"; no cookie follows the system.
   MOTION_COOKIE = :motion
   MOTION_COOKIE_VALUES = { "reduced" => true, "full" => false }.freeze
+
+  # The session's mark of the last time a request enqueued the player's
+  # last-seen write (CAP-21, AD-24), in epoch seconds.
+  PRESENCE_MARK = :seen_at
 
   helper_method :current_player, :motion_reduced?
 
@@ -68,13 +73,14 @@ class ApplicationController < ActionController::Base
 
     # The signed-in player, reloaded on each request from the player id the
     # encrypted session cookie holds (AD-14); nil when signed out. A banned
-    # player is signed out and the request goes on as a visitor's. Only the
-    # player id leaves the session: a sign-in in progress keeps its marker.
+    # player, or one whose account was deleted (from another browser too),
+    # is signed out and the request goes on as a visitor's. Only the player
+    # id leaves the session: a sign-in in progress keeps its marker.
     def current_player
       return @current_player if defined?(@current_player)
 
       player = Accounts::PlayerById.call(session[:player_id])
-      if player&.banned?
+      if player&.banned? || player&.deleted?
         session.delete(:player_id)
         player = nil
       end
@@ -108,6 +114,23 @@ class ApplicationController < ActionController::Base
     # the player (AD-21). Sentry runs only where SENTRY_DSN is set.
     def set_sentry_user
       Sentry.set_user(id: current_player.id) if Sentry.initialized? && current_player
+    end
+
+    # Notes that the signed-in player was seen: enqueues
+    # Accounts::NoteLastSeenJob with the request's time, at most once per
+    # Accounts::NoteLastSeen::THROTTLE for the session, and not when the
+    # account already shows a time that recent. Enqueuing is not a write
+    # (AD-11): a GET stays read only. The mark lives in the session cookie.
+    def note_presence
+      return unless current_player
+
+      now = Time.current
+      throttle = Accounts::NoteLastSeen::THROTTLE
+      return if session[PRESENCE_MARK].to_i > (now - throttle).to_i
+      return if current_player.last_seen_at && current_player.last_seen_at > now - throttle
+
+      Accounts::NoteLastSeenJob.perform_later(current_player.id, now)
+      session[PRESENCE_MARK] = now.to_i
     end
 
     def pundit_user

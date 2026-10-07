@@ -1,0 +1,20 @@
+<%# A friend's profile dialog (DESIGN.md, Friend profile; EXPERIENCE.md,
+    Friend profile): a modal <dialog> (a bottom sheet on the phone) the
+    friend's row opens. Its body is a lazy frame, loaded from the friend's
+    profile (friend_profiles#show) when the dialog opens, so the Friends
+    screen reads nothing per friend. Locals:
+    - friend: the friend, an Accounts::Player. %>
+<dialog id="<%= friend_dialog_id(friend.token) %>" class="modal friend-dialog" aria-label="<%= friend_name(friend) %>" data-controller="dialog" data-action="click->dialog#closeOnScrim">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p class="modal__title"><%= t(".title") %></p>
+      <button type="button" class="modal__close" aria-label="<%= t(".close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <%= turbo_frame_tag friend_profile_frame_id(friend.token), src: friend_profile_path(token: friend.token), loading: :lazy, target: "_top" do %>
+      <p class="friend-profile__loading" role="status"><%= t(".loading") %></p>
+    <% end %>
+  <% end %>
+</dialog>
