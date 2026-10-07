@@ -53,3 +53,9 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
 - Import staging with rollback and genre curation grouped in a new epic, epic-season-preparation (id 11), to incept before the next season's import.
 - Story 2.11's edge-case rules: kept by the author — malformed review percent excluded (`malformed_reviews`), an app listed twice in a page kept once and reported, a pass writing no card empties the draft; the rules on abandoning runs, rescoring the previous run and refusing publication after a failure are left to epic-season-preparation, whose staging-with-rollback replaces them.
 - Share link previews checked by the author on staging (Discord, X, WhatsApp): title and rarity shown, no image (story 4.5's manual check done).
+
+## Settled on 2026-10-07
+
+- Epic 9, card backs (CAP-20), is out of the MVP, built after the public launch (author).
+- English copy is translated by AI from the French, not written by hand (author); it settles the spec's open question on who writes the English copy.
+- Dependabot: the four actions bumps and image_processing 2.2.0 merged into develop; the staging deploy workflow follows actions/checkout 7. CI's test job no longer eager loads (a zeitwerk:check step does), which fixes the two read-only guard tests that failed only in CI.

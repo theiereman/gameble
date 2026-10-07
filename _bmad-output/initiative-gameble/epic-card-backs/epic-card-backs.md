@@ -48,3 +48,4 @@ The back catalogue in code, unlocks and the active back in `Game`, the back pick
 
 - Open question: which backs ship and their unlock rules (spec).
 - Decision (2026-10-05): its own epic after epic 6, once every unlocking event exists. Approved by the author.
+- Decision (2026-10-07): this epic is not part of the MVP; it is built after the public launch (author). Epics 5 and 6 publish the events it will consume (SetCompleted, the goal reward, achievements).
