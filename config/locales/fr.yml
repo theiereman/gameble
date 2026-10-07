@@ -490,6 +490,8 @@ fr:
       nameless: "Officier sans nom"
       time_format: "%-d/%m, %H:%M UTC"
       pulled_html: "%{name} a tiré %{card}"
+      first_discovery: "Première découverte"
+      discovered_html: "%{card}, trouvée par %{name} pour la première fois dans la communauté"
   friends:
     show:
       title: "Amis"

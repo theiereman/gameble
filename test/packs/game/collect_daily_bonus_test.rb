@@ -225,7 +225,7 @@ class Game::CollectDailyBonusTest < ActiveSupport::TestCase
       assert_equal :player_required, collect(player).failure
     end
     assert_equal 0, Game::DailyBonusClaim.count
-    assert_equal 0, Game::Pack.count
+    assert_equal 0, Game::Pack.unopened.count
   end
 
   test "the bonus is collectable again the next UTC day" do

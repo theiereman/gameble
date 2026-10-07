@@ -143,7 +143,7 @@ class Game::TopUpBankTest < ActiveSupport::TestCase
 
   test "healing leaves alone a player who never had a pack, and a missing or banned player fails" do
     assert_equal 0, Game::HealBank.new.call(player: @player).value!
-    assert_equal 0, Game::Pack.count
+    assert_equal 0, Game::Pack.unopened.count
     [ nil, accounts_players(:banned) ].each do |player|
       assert_equal :player_required, Game::HealBank.new.call(player:).failure
     end

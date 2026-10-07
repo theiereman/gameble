@@ -1,0 +1,12 @@
+# Every card of the fixture season was first pulled by the banned player's
+# pioneer pack (story 6.7): see packs.yml.
+_fixture:
+  model_class: Game::FirstDiscovery
+
+<% %i[portal_one common_card_one uncommon_card_one rare_card_one legendary_card_one].each do |name| %>
+<%= name %>:
+  card_season_id: <%= ActiveRecord::FixtureSet.identify(name) %>
+  player_id: <%= ActiveRecord::FixtureSet.identify(:banned) %>
+  pack_id: <%= ActiveRecord::FixtureSet.identify(:pioneer) %>
+  discovered_at: <%= 2.weeks.ago.to_fs(:db) %>
+<% end %>

@@ -262,6 +262,8 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
   # Catalog::PublishedCardSeasonsByTier
 
   test "the published season's card-seasons by tier, the draft left out" do
+    Game::FirstDiscovery.delete_all # the fixture pack of the first discoveries holds the season
+    Game::Pack.delete_all
     Catalog::SetMembership.delete_all
     Catalog::Set.delete_all
     Catalog::CardSeason.delete_all

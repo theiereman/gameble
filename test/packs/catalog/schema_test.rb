@@ -272,6 +272,8 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
 
   test "there is no draft season and no published season when the catalog is empty" do
     assert_nil Catalog::DraftSeason.call
+    Game::FirstDiscovery.delete_all # the fixture pack of the first discoveries holds the season
+    Game::Pack.delete_all
     Catalog::SetMembership.delete_all
     Catalog::Set.delete_all
     Catalog::CardSeason.delete_all

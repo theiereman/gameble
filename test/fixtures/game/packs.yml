@@ -1,0 +1,15 @@
+# The pack that first pulled every card of the fixture season (story 6.7),
+# opened long ago by the banned player (hidden everywhere, never healed), so
+# a test's opening of fixture cards is an ordinary pull; a test of a first
+# discovery deletes the row it needs.
+_fixture:
+  model_class: Game::Pack
+
+pioneer:
+  player_id: <%= ActiveRecord::FixtureSet.identify(:banned) %>
+  token: pioneerpackfixturetoken1
+  kind: regular
+  season_id: <%= ActiveRecord::FixtureSet.identify(:one) %>
+  card_season_ids: <%= %i[portal_one common_card_one uncommon_card_one rare_card_one legendary_card_one].map { |name| ActiveRecord::FixtureSet.identify(name) } %>
+  available_at: <%= 2.weeks.ago.to_fs(:db) %>
+  opened_at: <%= 2.weeks.ago.to_fs(:db) %>

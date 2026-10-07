@@ -21,7 +21,7 @@ class Game::FeedTest < ActiveSupport::TestCase
   def entries = Game::FeedEntry.order(:id).pluck(:position, :notable, :rarity)
 
   # Feed rows of `kind` written straight, newest last, on a pack of `player`
-  # (only pulls have a handler yet).
+  # (trades and reposts have no handler yet).
   def add_entries(player, count, kind: "pull", notable: true, from: 1.hour.ago)
     pack = create_pack(player)
     rows = Array.new(count) do |position|
@@ -61,7 +61,8 @@ class Game::FeedTest < ActiveSupport::TestCase
   end
 
   test "an opening publishes its own event only, the feed handler publishes nothing" do
-    create_pack(@player, cards: [ fixture_tier_ids[3] ] * 5)
+    # A card already discovered and in no set: no other event follows.
+    create_pack(@player, cards: [ fixture_tier_ids[4] ] * 5)
     before = game_events(@player).size
 
     Game::OpenPack.new.call(player: @player).value!

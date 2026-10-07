@@ -34,7 +34,7 @@ class Game::HealBanksJobTest < ActiveSupport::TestCase
     assert_equal 10, Game::Pack.where(player_id: accounts_players(:administrator).id).count
     assert_equal 10, Game::Pack.bank(accounts_players(:moderator).id).count
     assert_equal 11, Game::Pack.where(player_id: accounts_players(:moderator).id).count
-    assert_equal 0, Game::Pack.where(player_id: accounts_players(:banned).id).count
+    assert_equal 0, Game::Pack.unopened.where(player_id: accounts_players(:banned).id).count
   end
 
   test "a player whose fill raises is reported and the others still get their bank" do
