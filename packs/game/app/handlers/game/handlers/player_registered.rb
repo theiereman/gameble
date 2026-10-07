@@ -1,7 +1,8 @@
 module Game
   module Handlers
     # Fills a new player's bank (AD-7, AD-10), then creates their game state
-    # row (Game::CreatePlayerState), in the lock order of AD-10: the bank
+    # row (Game::CreatePlayerState) and their friend code
+    # (Game::CreateFriendCode, AD-8), in the lock order of AD-10: the bank
     # first, the state row last. Synchronously, inside the sign-up's
     # transaction (config/initializers/event_store.rb). A failure raises,
     # which rolls the sign-up back: a player is never created without a
@@ -11,6 +12,7 @@ module Game
         player = Accounts::PlayerById.call(event.data.fetch(:player_id))
         FillBank.new.call(player:).value!
         CreatePlayerState.new.call(player:).value!
+        CreateFriendCode.new.call(player:).value!
       end
     end
   end

@@ -1,0 +1,20 @@
+# Every fixture player has their friend code, as a registered or backfilled
+# player does (AD-8).
+_fixture:
+  model_class: Game::FriendCode
+
+player:
+  player_id: <%= ActiveRecord::FixtureSet.identify(:player) %>
+  code: 7K2Q-F3NX
+
+moderator:
+  player_id: <%= ActiveRecord::FixtureSet.identify(:moderator) %>
+  code: 8F2D-K9XM
+
+administrator:
+  player_id: <%= ActiveRecord::FixtureSet.identify(:administrator) %>
+  code: 3HJP-R5TW
+
+banned:
+  player_id: <%= ActiveRecord::FixtureSet.identify(:banned) %>
+  code: 9ABC-D4EF

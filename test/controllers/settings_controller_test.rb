@@ -287,7 +287,8 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub__subtitle", "Le reste du vaisseau"
     assert_select ".plus__list > li", 4
     assert_select ".plus__list a.menu-item[href='/fr/settings']", /Profil et paramètres/
-    assert_select ".plus__list .menu-item[aria-disabled=true]", 3
+    assert_select ".plus__list a.menu-item[href='/fr/friends']", /Amis/
+    assert_select ".plus__list .menu-item[aria-disabled=true]", 2
     assert_select "a.tab-bar__tab[href='/fr/more'][aria-current=page]"
   end
 

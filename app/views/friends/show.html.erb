@@ -1,0 +1,30 @@
+<% content_for :back_button, true %>
+<% content_for :title, t(".title") %>
+<% content_for :screen_title, t(".title") %>
+<% content_for :phone_back do %>
+  <%= link_to more_path, class: "button button--secondary button--small top-bar__phone-back" do %>
+    <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
+  <% end %>
+<% end %>
+<%# Amis (EXPERIENCE.md, Amis; DESIGN.md, Friends): the invite panel with the
+    player's own friend code, large, and the friend list. Invitations, the
+    invite link and code entry come with story 5.2, presence with 5.x; the
+    list is empty until then and says so in one line. %>
+<section class="friends" aria-labelledby="friends-heading">
+  <h1 id="friends-heading" class="friends__title"><%= t(".title") %></h1>
+  <% if @friend_code %>
+    <%= render PanelComponent.new(brackets: true, class: "friends__panel") do %>
+      <p class="friends__label" id="friend-code-label"><%= t(".code_label") %></p>
+      <p class="friends__code" aria-labelledby="friend-code-label"><%= @friend_code %></p>
+    <% end %>
+  <% end %>
+  <% if @friends.empty? %>
+    <%= render PanelComponent.new(tag: :p, class: "friends__empty") do %><%= t(".empty") %><% end %>
+  <% else %>
+    <ul class="friends__list">
+      <% @friends.each do |friend| %>
+        <li class="friends__row"><%= friend.persona_name.presence || t(".nameless") %></li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>

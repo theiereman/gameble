@@ -59,6 +59,8 @@ Rails.application.routes.draw do
     # The player's settings (EXPERIENCE.md, Profil et paramètres): language,
     # reduced motion and sign-out. GET reads (AD-11); PATCH writes.
     resource :settings, only: %i[show update]
+    # The Friends screen (CAP-10): the player's friends and friend code.
+    resource :friends, only: :show
     # The phone's PLUS tab: the rest of the ship (EXPERIENCE.md, PLUS rows).
     get "more" => "pages#more", as: :more
 
