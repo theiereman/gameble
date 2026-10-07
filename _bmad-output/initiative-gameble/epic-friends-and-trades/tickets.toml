@@ -1,0 +1,135 @@
+# tickets.toml — the stories of epic 5, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Friend code and a first Friends screen"
+description = "Adds the friendship and friend-code tables with a random code per player (4 characters, a dash, 4 characters), enables menu 04 and the PLUS row for AMIS, and lists a player's friends with \"VOTRE CODE AMI\"; the tracer path through Game, the web layer and the shell."
+verify = "A signed-in player opens AMIS from the menu and from the phone's PLUS row and sees their own code and an empty friends list; two accounts never share a code; a signed-out visitor is led to the sign-in panel."
+covers = ["R1"]
+after = ["3.1", "8.1", "8.6"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Invitations by code and by link"
+description = "Sends, accepts and ignores invitations: a player enters a friend code or opens another player's permanent invite link (signing in first and returning), the recipient sees the invitation row with ACCEPTER and IGNORER, and accepting creates the friendship in the same operation; own code, repeated invitation and invalid format answer with the copy deck's lines; mutating endpoints are rate-limited."
+verify = "A player enters a valid code and the friend sees the invitation and accepts it, after which both see each other; an ignored invitation creates nothing; the player's own code and a duplicate are refused with their messages; a signed-out visitor opening a link signs in and lands on the invitation."
+covers = ["R1"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Friends' presence"
+description = "Adds last-seen to accounts, updated by a throttled job and never by a GET, and shows each friend as online, with a current activity, or with a last-seen time, plus the \"n en ligne\" count on menu 04; the latest game action is recorded in the player's game state by a handler."
+verify = "A friend who just acted shows online with their activity; one idle past the window shows last seen; the menu count matches the friends shown online; no GET writes a row."
+covers = ["R5"]
+after = [1]
+hitl = false
+risk = "medium"
+notes = ["the online window and the activity wording are tuned in play (AD-24)"]
+
+[[entry]]
+id = 4
+type = "story"
+title = "Trade core: propose, cancel, decline and reserve"
+description = "The domain of a trade in Game: tables, ProposeTrade (friendship required, one open trade per pair, at most 4 different cards per side, quantities, the offer reserved up to the copies owned minus those reserved elsewhere), CancelTrade and DeclineTrade releasing the cards, each in one transaction with one event and the lock order of AD-10; no screen."
+verify = "Operation tests show a proposal reserving exactly the offered copies, a second trade for the same pair or for a card already fully reserved refused, non-friends refused, cancel and decline releasing the cards, and concurrent proposals never reserving more than owned."
+covers = ["R2", "R3", "R4"]
+after = [1]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Accept, counter and expire a trade"
+description = "AcceptTrade swaps every card in one transaction after checking expiry and that the requested cards are still free, with the NOUVEAU watermark moved for what the receiver gains; CounterTrade releases the old offer, reserves the new one and restarts the 7 days; a recurring job closes expired trades one per transaction."
+verify = "Acceptance exchanges both sides at once or moves nothing; a requested card no longer free refuses it; a counter changes both sides and hands the turn over; a trade 7 days after its last send or counter expires and releases the cards; two simultaneous acceptances never double-spend."
+covers = ["R2", "R3", "R4"]
+after = [4]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Trades screen, server-rendered"
+description = "Enables menu 03 and the ÉCHANGES tab: the list in its three groups, a read-only board with its states and the actions as forms, and the orange waiting badge on the menu and the tab, read at render, with the English copy written."
+verify = "A player sees their trades grouped by state, opens one on desktop and phone (the board slides over the list), accepts, declines, cancels or counters through the actions, and sees the waiting badge fall as they answer; a visitor is led to the sign-in panel."
+covers = ["R2", "R4"]
+after = [5]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 7
+type = "story"
+title = "Trade board island: the card picker and quantities"
+description = "The React island mounted on the trade board with the card picker (full-height sheet on the phone), the quantity stepper, reserved tags and the limits of at most 4 different cards per side, fed by server-rendered card faces and talking to the page through typed gameble events."
+verify = "A player picks and removes cards and sets quantities on both sides within the limits on desktop and phone; cards fully reserved elsewhere show their tag and cannot be picked beyond what is free; the board stays usable by keyboard."
+covers = ["R2", "R3", "R6"]
+after = [6]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Trade board island: the draft, the counter and the swap"
+description = "Completes the board: a draft kept in the browser until the proposal is sent, editing both sides of a counter-proposal, the actions with their states BROUILLON, À VOUS, EN ÉDITION, EN ATTENTE, CONCLU and CLOS, and the swap animation of about 0.75 seconds, still under Animations réduites."
+verify = "A player drafts a trade, leaves and finds nothing stored on the server, sends it, and the friend counters it and sends it back; accepting plays the swap, which is skipped under Animations réduites."
+covers = ["R2", "R6"]
+after = [7]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 9
+type = "story"
+title = "A private stream and live updates"
+description = "Adds the opaque stream key in Accounts (rotated on ban or deletion), the cable connection that identifies the player and refuses a banned one, and batched broadcast jobs sent after commit that carry proposals, state changes and invitations, the trade-badge update and the NOUVEL AMI toast."
+verify = "With two accounts open, a proposal, a counter and an invitation reach the other player without a reload and move the badge; a banned player cannot connect; no broadcast happens inside a transaction."
+covers = ["R6"]
+after = [2, 5]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 10
+type = "story"
+title = "A friend's profile and visibility"
+description = "Adds Game::Visibility as the single visibility question, and the friend's profile dialog with their showcase of three cards and PROPOSER UN ÉCHANGE; SIGNALER waits for reports (epic 7)."
+verify = "A friend opens a friend's profile and sees their showcase and can start a trade from it; a non-friend does not see what visibility hides; the question is asked in one place."
+covers = ["R1", "R4"]
+after = [1]
+hitl = false
+risk = "medium"
+notes = ["check whether the profile visibility setting exists already (epic 7 owns it) before wiring friends-only"]
+
+[[entry]]
+id = 11
+type = "story"
+title = "Deleting or banning an account, and the empty states"
+description = "A handler for a deleted or banned player cancels their trades, releases the reservations and drops their friendships and invitations, and the screens' empty states are completed: no friend, no trade, no card to place, the picker's states."
+verify = "Deleting an account with open trades releases the other side's reserved cards and removes the friendship; each empty state shows its copy-deck line."
+covers = ["R6"]
+after = [5]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 12
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
+verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+hitl = false
+risk = "low"

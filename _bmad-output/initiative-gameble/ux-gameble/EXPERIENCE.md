@@ -88,8 +88,8 @@ The single source for every message the interface shows. Other sections name the
 | Trade toasts | "PROPOSITION ENVOYÉE" · "Léa a 7 jours pour répondre. Vos cartes sont réservées d'ici là." · "ÉCHANGE REFUSÉ · Votre réponse a été envoyée à Léa." · "PROPOSITION ANNULÉE · Vos cartes ne sont plus réservées." · "ÉCHANGE CONCLU · Dead Cells ×2 rejoint votre collection." |
 | Trade refusals (inline) | "4 CARTES AU PLUS · Retirez une carte avant d'en placer une autre." · "UN ÉCHANGE À LA FOIS · Un échange est déjà ouvert avec Léa." · "EXEMPLAIRES INSUFFISANTS" · "Vous n'avez plus assez d'exemplaires de Celeste." |
 | Card picker | "n cartes · n exemplaires (4 cartes au plus)" · "n disponibles" · `[ASSUMPTION]` "Aucune carte disponible." |
-| Friends | "PAR LIEN" · "VOTRE CODE AMI" · "AJOUTER AVEC UN CODE" · "Sam vous invite" · "Envoyée à KAI-8F2D" · "NOUVEL AMI · Sam fait maintenant partie de vos amis." · "Aucune invitation en cours." |
-| Invite code messages | "Format attendu : ABCD-1234." · "C'est votre propre code." · "Invitation déjà envoyée." · "Invitation envoyée à KAI-8F2D." |
+| Friends | "PAR LIEN" · "VOTRE CODE AMI" · "AJOUTER AVEC UN CODE" · "Sam vous invite" · "Envoyée à 8F2D-K9XM" · "NOUVEL AMI · Sam fait maintenant partie de vos amis." · "Aucune invitation en cours." |
+| Invite code messages | "Format attendu : ABCD-1234." · "C'est votre propre code." · "Invitation déjà envoyée." · "Invitation envoyée à 8F2D-K9XM." |
 | Presence | "En ligne" · "Ouvre un booster" · "Il y a 3 h" |
 | Report | "Pseudo ou avatar inapproprié" · "Triche ou abus" · "Harcèlement" · "Autre" · "Merci. L'équipe de modération examinera ce profil. Léa ne verra pas qui l'a signalé." |
 | Feed | "Rien pour l'instant dans ce filtre." · Friends tab without friends: `[ASSUMPTION]` "Ajoutez des amis pour suivre leurs tirages." with "AJOUTER DES AMIS" · repost entry: `[ASSUMPTION]` "Hugo a reposté Elden Ring." · tag "REPOST" |
@@ -197,7 +197,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 
 | Component | Behavioral rules |
 |---|---|
-| Invite panel | "COPIER" copies the invite link. The code field accepts the format of the codes in use (for example "HUGO-7K2Q", "KAI-8F2D") `[ASSUMPTION: 3 to 5 characters, a dash, 4 characters, as mocked]`, submits on Enter and answers on the line below. A valid code sends an invitation. |
+| Invite panel | "COPIER" copies the invite link. The code field accepts the format of the codes in use (for example "7K2Q-F3NX", "8F2D-K9XM") (author, 2026-10-07: the code is purely random, 4 characters, a dash, 4 characters, never derived from the name), submits on Enter and answers on the line below. A valid code sends an invitation. |
 | Invitation row | Received: "ACCEPTER" creates the friendship for both; "IGNORER" dismisses it. Sent: "EN ATTENTE" until answered. The invite link sends an invitation the same way `[ASSUMPTION]`. |
 | Friend row | Shows the friend's presence (see Copy deck, Presence). The avatar or name opens the friend profile; "PROPOSER UN ÉCHANGE" opens the trade already in progress with that friend, or a new draft. |
 | Friend profile | A dialog: showcase of three cards `[ASSUMPTION: the three rarest, automatically]`, "PROPOSER UN ÉCHANGE", "SIGNALER". |
@@ -436,7 +436,7 @@ Failure: she closes the sign-in panel or Steam refuses → she stays on the publ
 
 ### Flow 2 — A trade with quantities (Hugo and Léa, a few days later)
 
-1. Léa entered Hugo's code HUGO-7K2Q in Amis; Hugo saw her invitation and pressed "ACCEPTER". They are friends.
+1. Léa entered Hugo's code 7K2Q-F3NX in Amis; Hugo saw her invitation and pressed "ACCEPTER". They are friends.
 2. In Amis, Hugo presses "PROPOSER UN ÉCHANGE" on Léa's row. The trade board opens as "BROUILLON".
 3. "CHOISIR SES CARTES": from Léa's collection he picks Disco Elysium, one copy.
 4. "PLACER MES CARTES": he picks Slay the Spire; he owns three, so a stepper appears; he sets ×2 ("/3") and presses "PLACER". His side shows a stack with "×2" and "1 carte · 2 ex.".
