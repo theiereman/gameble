@@ -33,6 +33,8 @@ gem "thruster", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 2.2"
+# image_processing 2 no longer pulls its image library in; the card filter uses libvips
+gem "ruby-vips", "~> 2.2"
 
 # Bundle and serve frontend assets with Vite [https://vite-ruby.netlify.app/]
 gem "vite_rails", "~> 3.11.1"
