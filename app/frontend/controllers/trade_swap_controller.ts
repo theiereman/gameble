@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import type { Point } from "../lib/arc"
+import { holdLiveRefresh } from "../lib/live_refresh_hold"
 import { motionReduced } from "../lib/motion"
 import { SWAP_BURST_AT, SWAP_CROSSFADE_MS, SWAP_MS, confettiDirections, swapKeyframes } from "../lib/trade_swap"
 
@@ -25,7 +26,7 @@ export default class extends Controller<HTMLElement> {
     if (!this.playValue) return
     this.playValue = false
     if (document.documentElement.hasAttribute("data-turbo-preview")) return
-    this.element.toggleAttribute("data-live-refresh-hold", true)
+    holdLiveRefresh(this.element, true)
     this.play()
   }
 
@@ -37,7 +38,7 @@ export default class extends Controller<HTMLElement> {
     this.timers = []
     this.effects = []
     this.element.classList.remove("trade-board--swapping")
-    this.element.removeAttribute("data-live-refresh-hold")
+    holdLiveRefresh(this.element, false)
   }
 
   private play(): void {
@@ -96,7 +97,7 @@ export default class extends Controller<HTMLElement> {
 
   private finish(): void {
     this.element.classList.remove("trade-board--swapping")
-    this.element.removeAttribute("data-live-refresh-hold")
+    holdLiveRefresh(this.element, false)
     this.element.querySelector<HTMLElement>(".trade-board__message")?.focus({ preventScroll: true })
   }
 

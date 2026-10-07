@@ -1,9 +1,3 @@
-<%# The trade list (DESIGN.md, Trade list row): "EN ATTENTE DE VOUS", "EN
-    ATTENTE DE LEUR RÉPONSE", "TERMINÉS RÉCEMMENT", an empty group left out.
-    Each row is a link to its board: the friend's name, what for what, the
-    expiry or the outcome's age, and the status chip; the board shown is
-    the current page's row. Without a trade, one line points to the invite
-    panel on Amis. %>
 <nav class="trades__list" aria-label="<%= t("trades.list.label") %>">
   <% if trades.empty? %>
     <%= render PanelComponent.new(tag: :p, class: "trades__empty") do %><%= t("trades.list.empty") %> <%= link_to t("trades.list.empty_invite"), friends_path(anchor: "friends-invite") %><% end %>
@@ -19,7 +13,7 @@
                 data: { turbo_prefetch: false } do %>
             <%= pixel_icon("avatar-default", class: "trade-row__avatar") %>
             <span class="trade-row__text">
-              <span class="trade-row__name"><%= trade_friend_name(row.friend) %></span>
+              <span class="trade-row__name"><%= friend_name(row.friend) %></span>
               <span class="trade-row__what"><%= trade_what_for_what(row, cards) %></span>
               <span class="trade-row__when">
                 <%= row.open? ? t("trades.row.expires", count: trade_days_left(row)) : trade_outcome_age(row) %>

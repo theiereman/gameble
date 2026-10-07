@@ -1,26 +1,10 @@
-# The trades screen, "Échanges": the player's trades in three groups and one
-# trade's board, read only, and the board's actions, each a POST to a Game
-# operation that answers with a redirect to the board, the copy deck's toast
-# or, for a refusal, the operation's message inline and in a toast.
-#
-# A trade is addressed by its token. On a desktop the list sits beside a
-# board (the first trade's on the list itself); on a phone the list and the
-# board are separate views (trades.css). A board waiting for the player
-# carries the TradeBoard island, which turns it into a counter-proposal in
-# place; the counter-proposal also has a page of its own (`edit`), where a
-# refusal lands and which works without JavaScript. Each side takes any card
-# its holder holds. A new trade starts as a draft (`new`) that lives in the
-# browser until it is sent (`create`). Mutations are limited to 20 a minute
-# per player.
 class TradesController < ApplicationController
   rate_limit to: 20, within: 1.minute, only: %i[create counter accept decline cancel],
     by: -> { current_player&.id || request.remote_ip },
     with: -> { redirect_to trades_path, alert: t("trades.throttled"), status: :see_other }
 
-  # Failures that the copy deck names "EXEMPLAIRES INSUFFISANTS".
   INSUFFICIENT = %i[requested_cards_unavailable insufficient_copies].freeze
 
-  # GET /:locale/trades
   def index
     authorize :trade, :index?
     @trades = Game::TradesOf.call(current_player)
@@ -28,7 +12,6 @@ class TradesController < ApplicationController
     load_board(@trades, @trade)
   end
 
-  # GET /:locale/trades/:token
   def show
     authorize :trade, :show?
     @trade = find_trade!
@@ -36,15 +19,12 @@ class TradesController < ApplicationController
     load_board(@trades, @trade)
   end
 
-  # GET /:locale/trades/new?friend=<token>: the draft of a trade with a
-  # friend, or, when the two already have an open trade, that trade's board
-  # with the one-at-a-time refusal.
   def new
     authorize :trade, :new?
     @friend = tradable_friend(params[:friend]) or raise(ActiveRecord::RecordNotFound)
     @trades = Game::TradesOf.call(current_player)
     if (open = open_trade_with(@trades, @friend))
-      one_at_a_time(@friend)
+      show_refusal t("trades.one_at_a_time.text", name: helpers.friend_name(@friend)), title: t("trades.one_at_a_time.title")
       return redirect_to(trade_path(token: open.token))
     end
 
@@ -52,8 +32,6 @@ class TradesController < ApplicationController
     load_holdings(@friend)
   end
 
-  # POST /:locale/trades, with `friend` (their token), `give[<card key>]`
-  # and `take[<card key>]`: the draft sent as a proposal.
   def create
     authorize :trade, :create?
     friend = tradable_friend(params[:friend])
@@ -67,7 +45,7 @@ class TradesController < ApplicationController
     end
     if result.success?
       flash[:trade_forget] = helpers.trade_draft_key(current_player, friend)
-      toast t("trades.sent.title"), t("trades.sent.text", name: helpers.trade_friend_name(friend))
+      toast t("trades.sent.title"), t("trades.sent.text", name: helpers.friend_name(friend))
       redirect_to trade_path(token: result.value!.token), status: :see_other
     else
       refused(result.failure)
@@ -75,13 +53,10 @@ class TradesController < ApplicationController
     end
   end
 
-  # GET /:locale/trades/:token/counter: the counter-proposal form, only on
-  # the player's turn (else the board).
   def edit
     authorize :trade, :counter?
     @trade = find_trade!
     unless @trade.state == :yours
-      # A refused counter lands here first: its message goes on to the board.
       flash.keep
       return redirect_to(trade_path(token: @trade.token))
     end
@@ -89,14 +64,8 @@ class TradesController < ApplicationController
     @trades = Game::TradesOf.call(current_player)
     @cards = card_views(@trades, @trade)
     load_holdings(@trade.friend)
-    @own_max = @own_cards.transform_values(&:free)
-    @own_held = @own_cards.transform_values(&:quantity)
-    @friend_max = @friend_cards.transform_values(&:quantity)
   end
 
-  # POST /:locale/trades/:token/counter, with `give[<card key>]` and
-  # `take[<card key>]` quantities (0 removes the card): the player gives
-  # cards they hold and asks for cards the friend holds.
   def counter
     authorize :trade, :counter?
     trade = find_trade!
@@ -106,7 +75,7 @@ class TradesController < ApplicationController
     end
     if result.success?
       flash[:trade_forget] = helpers.trade_counter_key(current_player, trade)
-      toast t("trades.sent.title"), t("trades.sent.text", name: helpers.trade_friend_name(trade.friend))
+      toast t("trades.sent.title"), t("trades.sent.text", name: helpers.friend_name(trade.friend))
       redirect_to trade_path(token: trade.token), status: :see_other
     else
       refused(result.failure)
@@ -114,7 +83,6 @@ class TradesController < ApplicationController
     end
   end
 
-  # POST /:locale/trades/:token/accept
   def accept
     authorize :trade, :accept?
     trade = find_trade!
@@ -127,17 +95,15 @@ class TradesController < ApplicationController
     end
   end
 
-  # POST /:locale/trades/:token/decline
   def decline
     authorize :trade, :decline?
     trade = find_trade!
 
     answer(trade, Game::DeclineTrade.new.call(player: current_player, trade_id: trade.id)) do
-      toast t("trades.declined.title"), t("trades.declined.text", name: helpers.trade_friend_name(trade.friend))
+      toast t("trades.declined.title"), t("trades.declined.text", name: helpers.friend_name(trade.friend))
     end
   end
 
-  # POST /:locale/trades/:token/cancel
   def cancel
     authorize :trade, :cancel?
     trade = find_trade!
@@ -148,7 +114,6 @@ class TradesController < ApplicationController
   end
 
   private
-    # The player's trade named by the URL's token, or a 404.
     def find_trade!
       Game::TradesOf.find(current_player, params[:token]) || raise(ActiveRecord::RecordNotFound)
     end
@@ -159,14 +124,13 @@ class TradesController < ApplicationController
     end
 
     def tradable?(friend)
-      friend.present? && !friend.banned? && !friend.deleted? && Game::FriendshipBetween.call(current_player, friend)
+      friend.present? && !friend.removed? && Game::FriendshipBetween.call(current_player, friend)
     end
 
     def open_trade_with(trades, friend)
       (trades.yours + trades.theirs).find { |row| row.friend.id == friend.id }
     end
 
-    # The faces of every card the list and the board show, by card-season.
     def card_views(trades, trade)
       rows = [ trades.yours, trades.theirs, trades.recent, [ trade ] ].flatten.compact
       Catalog::CardViews.call(rows.flat_map(&:card_season_ids), locale: I18n.locale)
@@ -226,17 +190,13 @@ class TradesController < ApplicationController
       flash[:notice] = text
     end
 
-    def one_at_a_time(friend)
-      flash[:trade_error] = t("trades.one_at_a_time.text", name: helpers.trade_friend_name(friend))
-      flash[:toast_title] = t("trades.one_at_a_time.title")
-      flash[:alert] = flash[:trade_error]
+    def refused(code)
+      show_refusal Game::Operation.failure_message(code), title: (t("trades.insufficient") if INSUFFICIENT.include?(code))
     end
 
-    # The refusal's message, inline on the board and in a toast.
-    def refused(code)
-      message = Game::Operation.failure_message(code)
+    def show_refusal(message, title: nil)
       flash[:trade_error] = message
-      flash[:toast_title] = t("trades.insufficient") if INSUFFICIENT.include?(code)
+      flash[:toast_title] = title if title
       flash[:alert] = message
     end
 end

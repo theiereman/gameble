@@ -8,10 +8,7 @@ module Game
   # asks. The weekly contributions stay: anonymous counts once the record is
   # anonymised, they keep the community goal's total. Their first
   # discoveries stay too, their pack forgotten, so a card is never
-  # discovered twice in its season (story 6.7). First of all, their open
-  # trades are cancelled with every copy they reserved released, and their
-  # friendships and invitations deleted (Game::DropFriendsAndTrades, which
-  # takes the bank locks of the player and their partners in AD-10's order).
+  # discovered twice in its season (story 6.7).
   #
   # Run only by Game::Handlers::PlayerDeleted, inside Accounts::DeletePlayer's
   # transaction and before the record is anonymised, so it publishes nothing
@@ -25,7 +22,7 @@ module Game
   #   # => Success(player) | Failure(:player_required)
   class ReleasePlayer < Operation
     def call(player:)
-      player = step require_record(player)
+      player = step require_account(player)
 
       transaction do
         step DropFriendsAndTrades.new.call(player:)
@@ -41,13 +38,6 @@ module Game
         PlayerState.where(player_id: player.id).delete_all
         player
       end
-    end
-
-    private
-
-    # Not `require_player`: the record is anonymised after this runs.
-    def require_record(player)
-      player.is_a?(Accounts::Player) && player.persisted? ? Success(player) : Failure(:player_required)
     end
   end
 end

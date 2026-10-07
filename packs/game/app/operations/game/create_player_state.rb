@@ -14,18 +14,12 @@ module Game
   #   # => Success(state) | Failure(:player_required)
   class CreatePlayerState < Operation
     def call(player:)
-      player = step persisted_player(player)
+      player = step require_account(player)
 
       transaction do
         PlayerState.insert({ player_id: player.id }, unique_by: :player_id)
         PlayerState.find_by!(player_id: player.id)
       end
-    end
-
-    private
-
-    def persisted_player(player)
-      player.is_a?(Accounts::Player) && player.persisted? ? Success(player) : Failure(:player_required)
     end
   end
 end

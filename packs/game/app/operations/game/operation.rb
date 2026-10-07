@@ -56,6 +56,10 @@ module Game
       end
     end
 
+    def require_account(player)
+      player.is_a?(Accounts::Player) && player.persisted? ? Success(player) : Failure(:player_required)
+    end
+
     # Takes the player's bank lock (Game::BankLock; inside `transaction`),
     # then reads afresh whether the account was deleted meanwhile: a deletion
     # releases the bank under the same lock (Game::ReleasePlayer), so an

@@ -162,7 +162,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
   summary: Transitional: the phone tab bar's BOOSTER, ÉCHANGES and PLUS tabs render disabled (`aria-disabled`, not links), and the top bar's packs chip is not a link to the booster screen (EXPERIENCE.md, Packs chip), until their screens ship.
   evidence: Story 8.1 Design Notes; `app/views/shell/_tab_bar.html.erb`, `app/views/shell/_packs_chip.html.erb`.
-  resolved: In part by story 11: the BOOSTER tab and the packs chip link to the booster screen; ÉCHANGES and PLUS stay disabled until their screens ship. Story 10.4 makes PLUS a link to its rows (`more_path`); only ÉCHANGES stays disabled, until the trades screen (epic 5).
+  resolved: In part by story 11: the BOOSTER tab and the packs chip link to the booster screen; ÉCHANGES and PLUS stay disabled until their screens ship. Story 10.4 makes PLUS a link to its rows (`more_path`); only ÉCHANGES stays disabled, until the trades screen (epic 5). Story 5.6 makes ÉCHANGES a link to the trades screen, with its waiting badge; no tab stays disabled.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
   summary: Transitional: the packs chip's countdown stops at 00:00 and never refreshes the page (`countdown` controller with `refresh: false`); the new count appears on the next visit or when the hub's own countdown refreshes it.
   evidence: Story 8.1 Design Notes; `app/frontend/controllers/countdown_controller.ts`.
@@ -216,7 +216,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
   summary: Transitional: menu items 03 to 06 (Échanges, Amis, Fil d'activité, Succès) render disabled (`aria-disabled`, "bientôt disponible"), without their badge or meta, until their screens exist.
   evidence: Story 8.2 Design Notes; `app/views/pages/_menu.html.erb`.
-  resolved: In part: 04 Amis opens the Friends screen (story 5.1) and 05 Fil d'activité the public feed (story 6.1); 03 Échanges (epic 5) and 06 Succès stay disabled.
+  resolved: In part: 04 Amis opens the Friends screen (story 5.1) and 05 Fil d'activité the public feed (story 6.1); 03 Échanges (epic 5) and 06 Succès stayed disabled. Story 5.6: 03 Échanges opens the trades screen with its orange waiting badge; only 06 Succès stays disabled.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
   summary: Transitional: the showcase has no planet, rays or idle float, its card is the `card-xl` face (240 × 360, story 8.6) on the phone too where DESIGN.md asks `card-l`, and its line lacks the genre and the card number (DESIGN.md, Showcase), until the pixel assets (8.8), effects (8.6) and card face (8.3, 8.6) land.
   evidence: Story 8.2 Design Notes; `app/views/pages/_showcase.html.erb`, `app/frontend/styles/hub.css`.
@@ -335,3 +335,12 @@
   summary: The feed reads a window of 90 rows per pass, so hidden players' entries can crowd out older public ones.
   evidence: Game::FeedEntries filters by Game::Visibility in Ruby after reading WINDOW rows; unverified at scale, would be medium.
   resolved: Story 6.2: the feed reads pages of 90 rows, up to ten, until its window of visible entries is full, so hidden players no longer crowd out older public entries; only more than 900 hidden entries in a row could still empty it.
+- source_plan: `_bmad-output/initiative-gameble/epic-friends-and-trades/story-trade-board-island-the-draft-the-counter-and-the-swap-plan.md`
+  summary: A trade board waiting for the player (`/trades` when that trade comes first, `/trades/:token`) and the counter page carry, in the TradeBoard island's props, a card-s face (about 1.5 KB of HTML) for every card both players hold, so a very large collection makes a heavy page.
+  evidence: Deferred by stories 5.7 and 5.8 (medium, unverified) and kept by the epic 5 refactor sweep (story 5.12). `TradesHelper#trade_board_props` renders `CardComponent` for each `Game::HeldCopies` row of both players. What would settle it is the page weight of `/trades` for a player holding several hundred distinct cards; a fix would load the picker's faces when the edition opens (an endpoint per side) or page them.
+- source_plan: `_bmad-output/initiative-gameble/epic-friends-and-trades/story-a-private-stream-and-live-updates-plan.md`
+  summary: A ban set from the console reaches the banned player's friends and trade partners only at their next render, and their ties are dropped only when `bin/rails game:drop_friends_and_trades` runs.
+  evidence: Deferred by story 5.9 (low) and kept by the epic 5 refactor sweep (story 5.12). `PlayerStream` and `Game::Handlers::PlayerBanned` listen to `Accounts::PlayerBanned`, which nothing publishes yet; the moderation ban action (epic 7) only has to publish it inside its transaction.
+- source_plan: `_bmad-output/initiative-gameble/epic-friends-and-trades/story-trade-board-island-the-draft-the-counter-and-the-swap-plan.md`
+  summary: The friend row on Amis has no "PROPOSER UN ÉCHANGE", which EXPERIENCE.md's Friend row gives it (the trade already in progress with that friend, or a new draft); only the friend profile carries the button.
+  evidence: Story 5.8 left the row's layout to Amis ("The friend row on Amis gets no button here"); noted by the epic 5 refactor sweep (story 5.12) as a feature, not a cleanup. The link is `new_trade_path(friend: token)`, which already opens the open trade when there is one.

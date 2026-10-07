@@ -1,9 +1,5 @@
 require "test_helper"
 
-# Game::ProposeTrade, CancelTrade and DeclineTrade (AD-6, AD-8, AD-10, story
-# 5.4): friendship required, one open trade per pair, one to four cards per
-# side with quantities, the offer reserved from the copies owned minus those
-# reserved elsewhere, released on cancel and decline, one event each.
 class Game::TradeTest < ActiveSupport::TestCase
   setup do
     @alice = accounts_players(:player)

@@ -1,14 +1,3 @@
-/*
- * Échanges (DESIGN.md: Trade board, Layout per screen; EXPERIENCE.md:
- * Échanges, Trades on the phone; story 5.6): the trade list beside one
- * trade's board, server-rendered. From 1180px the list is 316px wide, from
- * 900px 250px, from 720px it stands above the board; under 720px (the
- * phone) the list page shows the list alone and a trade's page the board
- * alone (`.trades--list`, `.trades--board`). The board's sides face each
- * other, and stack when the board is under 700px wide (container query).
- * Hard edges, no animation of their own: the shell slides the screen.
- */
-
 .trades {
   display: flex;
   flex-direction: column;
@@ -29,8 +18,6 @@
   gap: var(--space-7);
   align-items: start;
 }
-
-/* ---- The list ---- */
 
 .trades__list {
   display: flex;
@@ -123,8 +110,6 @@
   color: var(--color-muted);
 }
 
-/* ---- The status chip: its label in a 2px frame of its colour ---- */
-
 .trade-chip {
   flex: none;
   padding: var(--space-1) var(--space-3);
@@ -139,8 +124,6 @@
 .trade-chip--accent { color: var(--color-accent); }
 .trade-chip--lime { color: var(--color-lime); }
 .trade-chip--muted { color: var(--color-muted); }
-
-/* ---- The board ---- */
 
 .trade-board {
   min-width: 0;
@@ -256,8 +239,6 @@
   outline: none;
 }
 
-/* ---- A side ---- */
-
 .trade-side {
   min-width: 0;
   min-height: 320px;
@@ -297,8 +278,6 @@
   color: var(--color-accent);
 }
 
-/* Nothing to place (EXPERIENCE.md, State Patterns): the no-card line and
-   its reason, over the side's cards (story 5.11). */
 .trade-side__none {
   margin: 0;
   color: var(--color-muted);
@@ -333,7 +312,6 @@
   gap: var(--space-4);
 }
 
-/* Several copies: a second card edge behind the face. */
 .trade-card--stack::before {
   content: "";
   position: absolute;
@@ -349,7 +327,6 @@
 .trade-card:has(.card--m) { --card-width: var(--card-m-width); --card-height: var(--card-m-height); }
 .trade-card:has(.card--s) { --card-width: var(--card-s-width); --card-height: var(--card-s-height); }
 
-/* The gold "×2" at the top left. */
 .trade-card__quantity {
   position: absolute;
   top: -8px;
@@ -364,7 +341,6 @@
   text-align: center;
 }
 
-/* "RÉSERVÉE": accent on a dark pill with a deep line. */
 .trade-card__reserved {
   padding: var(--space-1) var(--space-3);
   background: var(--color-panel-sunken);
@@ -385,7 +361,6 @@
   text-transform: uppercase;
 }
 
-/* The counter form's quantity: a dark pill with the field and "/max". */
 .trade-card__stepper {
   display: inline-flex;
   align-items: center;
@@ -732,8 +707,6 @@
   font: var(--font-body-small);
 }
 
-/* A board under 700px: the friend's side, the swap turned a quarter, the
-   player's side. */
 @container (max-width: 699px) {
   .trade-board__form {
     grid-template-columns: minmax(0, 1fr);
@@ -754,8 +727,6 @@
   }
 }
 
-/* ---- Widths ---- */
-
 @media (max-width: 1179px) {
   .trades__layout {
     grid-template-columns: 250px minmax(0, 1fr);
@@ -769,8 +740,6 @@
   }
 }
 
-/* The phone: the list alone, or the board alone with its actions pinned
-   at the bottom, above the tab bar. */
 @media (max-width: 719px) {
   .trades--list .trade-board,
   .trades--board .trades__list,
@@ -859,8 +828,6 @@
   }
 }
 
-/* ---- Discarding a counter-proposal's changes ---- */
-
 .trade-undo__text {
   margin: 0 0 var(--space-5);
   color: var(--color-text);
@@ -872,8 +839,6 @@
   flex-wrap: wrap;
   gap: var(--space-4);
 }
-
-/* ---- The swap ---- */
 
 .trade-board__middle {
   position: relative;

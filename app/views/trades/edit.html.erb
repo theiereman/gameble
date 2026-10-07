@@ -1,13 +1,3 @@
-<% content_for :back_button, true %>
-<% content_for :title, t("trades.board.heading", name: trade_friend_name(@trade.friend)) %>
-<% content_for :screen_title, t("trades.title") %>
-<% turbo_exempts_page_from_cache %>
-<%# The counter-proposal: the board with both sides in edition in the
-    TradeBoard island, with the card picker, over the quantity fields that
-    work without JavaScript. On a phone, back to the list. %>
-<% content_for :phone_back do %>
-  <%= render "trades/phone_back" %>
-<% end %>
+<% content_for :title, t("trades.board.heading", name: friend_name(@trade.friend)) %>
 <%= render "trades/screen", view: :board, trades: @trades, trade: @trade, cards: @cards,
-      board: trade_board_locals(@trade, cards: @cards, own_held: @own_cards, friend_held: @friend_cards, picks: @picks, editing: true,
-        own_max: @own_max, own_copies: @own_held, friend_max: @friend_max) %>
+      board: trade_board_locals(@trade, cards: @cards, own_held: @own_cards, friend_held: @friend_cards, picks: @picks, editing: true) %>

@@ -1,6 +1,3 @@
-# A player's private Turbo Stream, one per locale. Subscribed to the event
-# store, it only gathers notices inside the publishing transaction; they leave
-# together in one PlayerStreamJob once that transaction commits.
 module PlayerStream
   TRADE_EVENTS = [
     Game::TradeProposed, Game::TradeCountered, Game::TradeAccepted,

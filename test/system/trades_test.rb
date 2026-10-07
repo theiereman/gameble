@@ -1,12 +1,5 @@
 require "application_system_test_case"
 
-# The trades screen in a browser: on a desktop the list beside the board,
-# the actions as forms and the badge falling as the player answers; on a
-# phone the list, then the board alone with "◀ Liste"; the trade board
-# island with its card picker and steppers, by pointer, by keyboard and on a
-# phone; a draft kept in the browser until it is sent, a counter-proposal
-# written in place, and the swap after an acceptance; a visitor gets the
-# sign-in panel.
 class TradesTest < ApplicationSystemTestCase
   setup do
     @hugo = accounts_players(:player)
@@ -111,7 +104,6 @@ class TradesTest < ApplicationSystemTestCase
     assert_selector ".trade-row", text: /declined/, visible: true
   end
 
-  # The card picker's button for a card, by the start of its accessible name.
   def pick_toggle(title) = find(".trade-picker .trade-pick__toggle[aria-label^='#{title},']")
 
   test "on a desktop the picker places cards and quantities on both sides, within the limits" do
@@ -120,7 +112,6 @@ class TradesTest < ApplicationSystemTestCase
     hold(@hugo, crown, 1)
     [ soldier, crown, @portal ].each { hold(@lea, it, 1) }
     hold(@lea, hills, 3)
-    # Hugo's only Golden Crown and one of his four Portal are reserved in his trade with Max.
     propose(@hugo, @max, offer: { crown => 1, @portal => 1 }, request: { @depths => 1 })
     trade = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })
     sign_in @hugo
@@ -182,12 +173,10 @@ class TradesTest < ApplicationSystemTestCase
     sign_in @hugo
     visit counter_trade_path(token: trade.token, locale: :en)
 
-    # Countering puts the focus on the add slot of the player's side.
     assert_selector ".trade-side--own .trade-add"
     assert page.evaluate_script("document.activeElement.matches('.trade-side--own .trade-add')"), "focus on the player's add slot"
     page.active_element.send_keys(:enter)
     assert_selector ".trade-picker"
-    # The grid is one tab stop, on the card already placed: Portal, after Tin Soldier.
     assert_equal "Portal", page.active_element["aria-label"].split(",").first
     page.active_element.send_keys(:arrow_left)
     assert_equal "Tin Soldier", page.active_element["aria-label"].split(",").first
@@ -205,7 +194,6 @@ class TradesTest < ApplicationSystemTestCase
     assert_includes page.active_element[:class], "trade-add"
     within(".trade-side--own") { assert_selector ".stepper[aria-label='Copies of Tin Soldier'][aria-valuenow='2']" }
 
-    # Esc discards the picker's choice and gives the focus back.
     find(".trade-side--own .trade-add").send_keys(:enter)
     assert_selector ".trade-picker"
     page.active_element.send_keys(:enter)
@@ -214,7 +202,6 @@ class TradesTest < ApplicationSystemTestCase
     assert_includes page.active_element[:class], "trade-add"
     within(".trade-side--own") { assert_selector ".trade-card__remove", count: 2 }
 
-    # "✕" by keyboard: the focus goes to the next card on that side.
     find(".trade-side--own .trade-card__remove[aria-label='Remove Portal']").send_keys(:enter)
     assert_equal "Remove Tin Soldier", page.active_element["aria-label"]
   end

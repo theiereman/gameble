@@ -1,8 +1,3 @@
-# A friend's presence in words (EXPERIENCE.md, Copy deck, Presence; DESIGN.md,
-# Friend row), from a Game::FriendsPresence::Row: "En ligne", the activity
-# ("Ouvre un booster"), or the time since they were last seen, compact
-# ("Il y a 3 h"); "Hors ligne" when never seen. An activity key without
-# words reads as online.
 module PresenceHelper
   def presence_text(row, now: Time.current)
     case row.state

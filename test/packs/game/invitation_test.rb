@@ -1,8 +1,5 @@
 require "test_helper"
 
-# Friend invitations (AD-8, story 5.2): sending by code or by link, accepting
-# (the friendship is made in the same transaction), ignoring, and the query
-# the Friends screen reads.
 class Game::InvitationTest < ActiveSupport::TestCase
   setup do
     @alice = accounts_players(:player)

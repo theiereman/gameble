@@ -1,7 +1,6 @@
 require "test_helper"
 require_relative "../support/counting_rate_limit"
 
-# Invitations by code and by link (EXPERIENCE.md, Amis; story 5.2).
 class InvitationsControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
 

@@ -1,9 +1,6 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# The queries of a friend's profile (story 5.10): Game::FriendshipBetween,
-# asked by Game::Visibility and the profile, and Game::ShowcaseCards, the
-# profile's "VITRINE".
 class Game::FriendProfileQueriesTest < ActiveSupport::TestCase
   include CatalogSeeds
 

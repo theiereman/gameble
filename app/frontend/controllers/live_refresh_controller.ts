@@ -1,14 +1,11 @@
 import { Controller } from "@hotwired/stimulus"
 import { onGameble } from "../lib/events"
+import { LIVE_REFRESH_HOLD, liveRefreshHeld } from "../lib/live_refresh_hold"
 import { streamSignal } from "../lib/stream_actions"
 import "../lib/turbo"
 
 type SubmitEndDetail = { success: boolean; fetchResponse?: { header(name: string): string | null } }
 
-// Morphs the page again when its signal arrives, but never over a visit or a
-// submission in flight, unsent text, an open dialog or an element holding it
-// back (`data-live-refresh-hold`): it waits until those are over, since Turbo
-// drops a refresh asked for during a visit.
 export default class extends Controller<HTMLElement> {
   static values = { signal: String }
 
@@ -61,7 +58,7 @@ export default class extends Controller<HTMLElement> {
     // A dialog's close event does not bubble; it is caught on its way down.
     document.addEventListener("close", this.refreshWhenFree, true)
     this.holds = new MutationObserver(this.refreshWhenFree)
-    this.holds.observe(this.element, { subtree: true, attributes: true, attributeFilter: ["data-live-refresh-hold"] })
+    this.holds.observe(this.element, { subtree: true, attributes: true, attributeFilter: [LIVE_REFRESH_HOLD] })
   }
 
   disconnect(): void {
@@ -85,7 +82,7 @@ export default class extends Controller<HTMLElement> {
   }
 
   private heldBack(): boolean {
-    return this.element.querySelector("[data-live-refresh-hold]") !== null
+    return liveRefreshHeld(this.element)
   }
 
   private dialogOpen(): boolean {

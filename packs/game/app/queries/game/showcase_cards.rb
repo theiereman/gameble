@@ -1,12 +1,4 @@
 module Game
-  # A friend profile's "VITRINE" (DESIGN.md, Friend profile): the player's
-  # SIZE best cards of the given (published) season, the cards they hold
-  # (copies left) of the highest tier first, the most recently gained first
-  # on a tie, then by card-season id. Fewer when fewer are held. AD-2: Game
-  # reads Catalog's card-seasons. Empty, without a query, for nil (a
-  # visitor) or no season.
-  #
-  #   Game::ShowcaseCards.call(player, season:) # => [ card-season id, … ]
   module ShowcaseCards
     SIZE = 3
 

@@ -1,11 +1,6 @@
 require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 
-# A friend's profile: on the Friends screen a friend's name opens a dialog
-# whose body loads when it opens: the friend's showcase of three cards,
-# "PROPOSER UN ÉCHANGE" and "SIGNALER", which opens the report dialog and
-# comes back to the Friends screen once sent. On the phone the dialog is a
-# bottom sheet.
 class FriendsTest < ApplicationSystemTestCase
   include CatalogSeeds
 

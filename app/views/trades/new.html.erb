@@ -1,9 +1,3 @@
-<% content_for :back_button, true %>
-<% content_for :title, t("trades.board.heading", name: trade_friend_name(@friend)) %>
-<% content_for :screen_title, t("trades.title") %>
-<% turbo_exempts_page_from_cache %>
-<% content_for :phone_back do %>
-  <%= render "trades/phone_back" %>
-<% end %>
+<% content_for :title, t("trades.board.heading", name: friend_name(@friend)) %>
 <%= render "trades/screen", view: :board, trades: @trades, trade: nil, cards: @cards, draft: @friend,
       island: trade_draft_props(@friend, own_held: @own_cards, friend_held: @friend_cards, picks: @picks, error: flash[:trade_error]) %>

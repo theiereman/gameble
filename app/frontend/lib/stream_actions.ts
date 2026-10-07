@@ -11,7 +11,6 @@ export function streamSignal(value: string | null | undefined): StreamSignal | n
   return STREAM_SIGNALS.find((signal) => signal === value) ?? null
 }
 
-/** `<turbo-stream action="gameble-event" event="trades-updated">` raises `gameble:trades-updated` on `target`. */
 export function registerStreamActions(turbo: Pick<TurboGlobal, "StreamActions">, target: EventTarget = window): void {
   turbo.StreamActions[STREAM_EVENT_ACTION] = function (this: Element): void {
     const signal = streamSignal(this.getAttribute("event"))

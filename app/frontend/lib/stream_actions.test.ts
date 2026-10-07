@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest"
 import { STREAM_EVENT_ACTION, registerStreamActions, streamSignal } from "./stream_actions"
 import type { StreamAction } from "./turbo"
 
-// A <turbo-stream> element as the action sees it: its attributes.
 function streamElement(attributes: Record<string, string>): Element {
   return { getAttribute: (name: string) => attributes[name] ?? null } as unknown as Element
 }
