@@ -108,6 +108,12 @@ jobs:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432
         run: bin/rails db:create db:migrate && git diff --exit-code -- db/schema.rb
 
+      - name: Check eager loading
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432
+        run: bin/rails zeitwerk:check
+
       - name: Run tests
         env:
           RAILS_ENV: test
