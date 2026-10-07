@@ -68,13 +68,14 @@ class ApplicationController < ActionController::Base
 
     # The signed-in player, reloaded on each request from the player id the
     # encrypted session cookie holds (AD-14); nil when signed out. A banned
-    # player is signed out and the request goes on as a visitor's. Only the
-    # player id leaves the session: a sign-in in progress keeps its marker.
+    # player, or one whose account was deleted (from another browser too),
+    # is signed out and the request goes on as a visitor's. Only the player
+    # id leaves the session: a sign-in in progress keeps its marker.
     def current_player
       return @current_player if defined?(@current_player)
 
       player = Accounts::PlayerById.call(session[:player_id])
-      if player&.banned?
+      if player&.banned? || player&.deleted?
         session.delete(:player_id)
         player = nil
       end

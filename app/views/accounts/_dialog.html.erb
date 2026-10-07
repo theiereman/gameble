@@ -1,0 +1,34 @@
+<%# The delete dialog, "SUPPRIMER MON COMPTE" (DESIGN.md, Delete dialog;
+    EXPERIENCE.md, Delete dialog): a modal <dialog> (a bottom sheet on the
+    phone) opened from the settings' COMPTE row. The note says what is
+    erased; the field is labelled with the word to type, and "SUPPRIMER
+    DÉFINITIVEMENT" enables once the field holds it, in any case, typed or
+    pasted (confirm_word_controller.ts; the server checks the word again).
+    It posts to accounts#destroy as a full page load: the answer signs the
+    player out. %>
+<% word = t("accounts.dialog.word") %>
+<dialog id="delete-dialog" class="modal" aria-labelledby="delete-dialog-title" data-controller="dialog" data-action="click->dialog#closeOnScrim">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p id="delete-dialog-title" class="modal__title modal__title--alert"><%= t("accounts.dialog.title") %></p>
+      <button type="button" class="modal__close" aria-label="<%= t("accounts.dialog.close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <%= form_with url: account_path, method: :delete, class: "delete-dialog__form",
+          data: { turbo: false, controller: "confirm-word", confirm_word_word_value: word } do %>
+      <p id="delete-dialog-note" class="delete-dialog__note"><%= t("accounts.dialog.note") %></p>
+      <label for="delete-confirmation" class="delete-dialog__label"><%= t("accounts.dialog.label", word:) %></label>
+      <%= text_field_tag "confirmation", nil, id: "delete-confirmation", class: "delete-dialog__input", required: true,
+            autocomplete: "off", autocapitalize: "characters", spellcheck: false, autofocus: true,
+            aria: { describedby: "delete-dialog-note" },
+            data: { confirm_word_target: "field", action: "input->confirm-word#check" } %>
+      <div class="delete-dialog__actions">
+        <%= tag.button t("accounts.dialog.submit"), type: :submit, class: "button button--danger",
+              data: { confirm_word_target: "submit" } %>
+        <%= tag.button t("accounts.dialog.cancel"), type: :button, class: "button button--secondary", data: { action: "dialog#close" } %>
+      </div>
+    <% end %>
+  <% end %>
+</dialog>

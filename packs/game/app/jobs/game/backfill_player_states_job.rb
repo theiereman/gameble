@@ -11,10 +11,10 @@ module Game
   class BackfillPlayerStatesJob < ActiveJob::Base
     queue_as :default
 
-    # How many players, banned included, still have no row: what a run
-    # left behind (game:backfill_player_states reports it).
+    # How many players, banned included (deleted ones left out), still have
+    # no row: what a run left behind (game:backfill_player_states reports it).
     def self.players_without_a_row
-      Accounts::Player.where.not(id: PlayerState.select(:player_id)).count
+      Accounts::Player.where(deleted_at: nil).where.not(id: PlayerState.select(:player_id)).count
     end
 
     def perform

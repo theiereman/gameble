@@ -473,6 +473,9 @@ fr:
       session:
         label: "Session"
         sign_out: "Se déconnecter"
+      account:
+        label: "Compte"
+        delete: "Supprimer mon compte"
   feeds:
     show:
       title: "Fil d'activité"
@@ -524,6 +527,19 @@ fr:
     unknown:
       title: "Invitation"
       text: "Ce lien d'invitation n'est pas valide."
+  accounts:
+    dialog:
+      title: "Supprimer mon compte"
+      close: "Fermer"
+      note: "Votre collection, vos boosters et votre profil seront effacés définitivement. Cette action est irréversible."
+      word: "SUPPRIMER"
+      label: "Tapez %{word} pour confirmer"
+      submit: "Supprimer définitivement"
+      cancel: "Annuler"
+    destroy:
+      deleted: "Votre compte a été supprimé. Merci d'avoir joué."
+      wrong_word: "Tapez %{word} pour confirmer la suppression. Rien n'a été effacé."
+      throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
   reports:
     open: "SIGNALER"
     reasons:

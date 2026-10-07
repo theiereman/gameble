@@ -11,9 +11,10 @@
     each. LANGUE is two links to this screen in the other locale (a GET,
     read only); ANIMATIONS RÉDUITES is one form of three buttons (PATCH,
     a full page load so `html[data-motion]` is re-rendered); SE DÉCONNECTER
-    is the sign-out. Export, deletion and the card-back picker
-    come with their own stories. VISIBILITÉ DU PROFIL is a group of three
-    buttons (one pressed) that apply at once (PATCH, a full page load). %>
+    is the sign-out. Export and the card-back picker come with their own
+    stories. VISIBILITÉ DU PROFIL is a group of three buttons (one pressed)
+    that apply at once (PATCH, a full page load). COMPTE's danger button
+    opens the delete dialog (accounts/_dialog). %>
 <section class="settings" aria-labelledby="settings-heading">
   <h1 id="settings-heading" class="settings__title"><%= t(".title") %></h1>
   <%= render PanelComponent.new(brackets: true, class: "settings__panel") do %>
@@ -56,6 +57,12 @@
         <p id="settings-session" class="settings-row__label"><%= t(".session.label") %></p>
         <%= render ButtonComponent.new(variant: :secondary, size: :small, href: session_path, method: :delete, turbo: false) do %><%= t(".session.sign_out") %><% end %>
       </li>
+
+      <li class="settings-row">
+        <p id="settings-account" class="settings-row__label"><%= t(".account.label") %></p>
+        <%= render ButtonComponent.new(variant: :danger, size: :small, opens: "delete-dialog") do %><%= t(".account.delete") %><% end %>
+      </li>
     </ul>
   <% end %>
 </section>
+<%= render "accounts/dialog" %>

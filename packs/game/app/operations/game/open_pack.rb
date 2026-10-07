@@ -44,7 +44,7 @@ module Game
       step check_key(idempotency_key)
 
       transaction do
-        BankLock.acquire(player.id)
+        step lock_bank(player)
         replayed = idempotency_key && Pack.find_by(player_id: player.id, idempotency_key:)
         next replayed if replayed
 

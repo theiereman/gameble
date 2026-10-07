@@ -26,7 +26,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   # The settings screen
 
-  test "a player's settings screen: language, reduced motion and sign-out, the system chosen by default" do
+  test "a player's settings screen: language, visibility, reduced motion, sign-out and the account, the system chosen by default" do
     sign_in
 
     get settings_path(locale: :fr)
@@ -34,8 +34,8 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "title", /Profil et paramètres/
     assert_select "main h1", "Profil et paramètres"
-    assert_select ".settings-row", 4
-    assert_equal [ "Langue", "Visibilité du profil", "Animations réduites", "Session" ], css_select(".settings-row__label").map(&:text)
+    assert_select ".settings-row", 5
+    assert_equal [ "Langue", "Visibilité du profil", "Animations réduites", "Session", "Compte" ], css_select(".settings-row__label").map(&:text)
     assert_select "[role=group][aria-labelledby=settings-language] a.segmented__option", 2
     assert_select "a.segmented__option[href='/fr/settings'][aria-current=true][lang=fr]", "Français"
     assert_select "a.segmented__option[href='/en/settings'][lang=en]:not([aria-current])", "English"
@@ -59,7 +59,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get settings_path(locale: :en)
 
     assert_select "main h1", "Profile and settings"
-    assert_equal [ "Language", "Profile visibility", "Reduced motion", "Session" ], css_select(".settings-row__label").map(&:text)
+    assert_equal [ "Language", "Profile visibility", "Reduced motion", "Session", "Account" ], css_select(".settings-row__label").map(&:text)
     assert_select "button[name=reduced_motion][value=on][aria-pressed=true]", "Yes"
     assert_select "button[name=reduced_motion][value=system][aria-pressed=false]", "System"
     assert_select "button[name=reduced_motion][value=off][aria-pressed=false]", "No"

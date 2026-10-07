@@ -9,9 +9,10 @@ module Game
   class BackfillFriendCodesJob < ActiveJob::Base
     queue_as :default
 
-    # How many players, banned included, still have no code.
+    # How many players, banned included (deleted ones left out), still have
+    # no code.
     def self.players_without_a_code
-      Accounts::Player.where.not(id: FriendCode.select(:player_id)).count
+      Accounts::Player.where(deleted_at: nil).where.not(id: FriendCode.select(:player_id)).count
     end
 
     def perform
