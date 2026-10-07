@@ -1,0 +1,133 @@
+# tickets.toml — the stories of epic 6, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Feed tracer: a public feed of notable pulls"
+description = "Adds the feed entries table, one handler that selects the pulls of Épique or better from the pack-opened event, a public Fil d'activité screen (TOUS only, newest first, readable signed out) and enables menu 05 and the PLUS row; the thinnest path through event, handler, reading role and screen."
+verify = "A player opens a pack with an Épique or better and the pull appears in the feed for a signed-out visitor; no GET writes a row; lower rarities do not appear while the feed holds enough."
+covers = ["R4"]
+after = ["3.1", "7.2", "8.1"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Feed fallback, filters and empty states"
+description = "Adds the fallback to lower rarities when few players have played, the type filters (TOUT, TIRAGES, DÉCOUVERTES, ÉCHANGES, REPOSTS), the empty-filter line and the visibility check through Game::Visibility so a hidden or banned profile's entries do not show."
+verify = "With a handful of players the feed is never empty while any activity exists; each filter shows only its type; a profile set to private or banned disappears from the feed."
+covers = ["R4"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Weekly goal: contributions, the periodic sum and the hub panel"
+description = "Records one contribution per player and week from each pack-opened event (unique, no hot row), sums them in a periodic job into the gauge total, computes the target from the previous week's active players times 50 with a floor of 200 and a week starting Monday 00:00 UTC, and shows the goal panel on the hub in its in-progress state with the Brotherhood line."
+verify = "Openings by several players raise the total after the next job run; the target follows last week's active players with the floor; the panel shows n of the target and the single Brotherhood line in both languages; no row is written by every player."
+covers = ["R1", "R2"]
+after = ["3.1", "8.1"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Live broadcasts and the LIVE ticker"
+description = "Broadcasts the gauge about every 10 seconds and the feed entries in small batches on public streams, sent by jobs after commit and never inside a transaction, adds the LIVE ticker in the layout's slot (pulls of Épique or better, first discoveries, trades; never reposts) with pause on hover and focus and the reduced-motion rule, the 10-second status line announcement at most every 30 seconds, and fills the LIVE strip of the public card page."
+verify = "With two browsers open, an opening moves the gauge and adds a feed entry without a reload; the ticker shows the allowed kinds only, pauses on hover and stops under Animations réduites; no broadcast happens inside a transaction."
+covers = ["R1", "R4", "R5"]
+after = [1, 3]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Goal reward: reached, missed and rollover"
+description = "Adds the reached, missed and week-rollover states of the panel, the per-contributor operation run by a job that grants one reward booster per player and week (5 cards, at least one Épique or better, kind reward) held outside the cap of ten in a zone of its own, with its toast, and publishes the goal-reward event."
+verify = "When the week's total reaches the target every contributor gets one reward booster, once; a full reserve does not lose it; a missed week shows its final count and a new target; the reward booster opens like any pack."
+covers = ["R2", "R3"]
+after = [3]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Repost"
+description = "Adds the repost operation (ownership checked server-side, any rarity, no limit), the repost entries with their REPOST tag in the feed, and the REPOSTER button in the card detail first, then the revealed card after an opening and the hub showcase, with the toast \"Carte repostée dans le fil.\"."
+verify = "A player reposts a card they own and it shows in the feed and in their friends' Friends tab; reposting a card they do not own is refused; a repost stays after the card is traded away and disappears with a hidden or banned profile."
+covers = ["R5"]
+after = [1]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 7
+type = "story"
+title = "First discoveries and set completion"
+description = "Adds the first-discovery row (unique per card and season) and its event, Game::SetCompleted with its unique set-completion row, and the DÉCOUVERTES entries in the feed and ticker, keeping the opening within its time budget."
+verify = "The first player to pull a card is recorded once, even with two simultaneous openings; completing a set publishes SetCompleted once; the opening's budget holds."
+covers = ["R4", "R5", "R6"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 8
+type = "story"
+title = "The Friends tab"
+description = "Adds the AMIS tab to the feed, read at render from the friendship query, with the no-friends state and its \"AJOUTER DES AMIS\" button, the sign-in panel when signed out, and the combination with the type filters."
+verify = "A player with friends sees only their pulls, trades and reposts under AMIS and TOUS shows everyone's; without friends the invitation shows; signed out the tab opens the sign-in panel."
+covers = ["R4"]
+after = [2, "5.2"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 9
+type = "story"
+title = "Trades in the feed and the goal"
+description = "Handles the trade-accepted event of epic 5: ÉCHANGES entries in the feed and the ticker, and a contribution of 1 to the gauge counted once for the two players."
+verify = "A concluded trade shows once in the feed and the ticker and adds 1 to the gauge, not 2."
+covers = ["R1", "R4", "R5"]
+after = [3, 4, "5.5"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 10
+type = "story"
+title = "Achievements engine"
+description = "Adds the catalogue of ten achievements as a constant in Game (first booster, first Épique, first Légendaire, first complete set, first trade, 10, 100 and 500 boosters opened, three complete sets, first repost), unlock rows unique per player and achievement, and handlers granting them from the events with a private toast; publishes the achievement event."
+verify = "Each achievement is granted once when its condition is met and never twice; a player who already met a condition when the engine ships gets it granted by a backfill."
+covers = ["R6"]
+after = [1, 6, 7, "5.5"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 11
+type = "story"
+title = "The Succès screen"
+description = "Adds the SUCCÈS screen with its header count and one segment per achievement, the tiles grouped OBTENUS and À OBTENIR with progress bars, and enables menu 06 and the PLUS row, with the French and English copy."
+verify = "A player sees the ten achievements, which are earned and how far they are from the rest, on desktop and phone; a visitor is led to the sign-in panel."
+covers = ["R6"]
+after = [10]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 12
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
+verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+hitl = false
+risk = "low"

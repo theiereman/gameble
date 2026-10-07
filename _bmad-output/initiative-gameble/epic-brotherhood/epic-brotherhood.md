@@ -24,7 +24,12 @@ For every player: the feeling of playing alongside others, and a reason to contr
 
 ## Requirements
 
-Completed at this epic's inception. The source lines are CAP-12, CAP-13, CAP-17 and CAP-19 of the spec.
+- R1 (CAP-12; AD-9, AD-10, AD-13): the weekly gauge is the sum of per-player contributions (one booster opened = 1, one completed trade = 1 counted once), summed by a periodic job, shown on the hub with the target and broadcast about every 10 seconds; the week starts Monday 00:00 UTC; no row is written by every player.
+- R2 (CAP-12): the target is the number of players active the previous week (at least one booster opened) times 50, never below 200; reaching it grants every contributor of the week one reward booster; missed and week-rollover states are shown.
+- R3 (CAP-12; AD-7, AD-14): the reward booster holds 5 cards with at least one Épique or better, is a pack of kind `reward`, lives outside the cap of ten in its own zone, and is granted once per player and week by a per-player operation run by a job.
+- R4 (CAP-13; AD-11, AD-13): the feed shows pulls of Épique or better, first discoveries, trades and reposts, readable signed out through `Game::Visibility`; with few players it falls back to lower rarities and is never empty; a signed-in player's Friends tab shows only friends' events.
+- R5 (CAP-13, CAP-19): the LIVE ticker shows pulls of Épique or better, first discoveries and trades, never reposts; a player reposts any card they own, any number of times; reposts show in the feed only and disappear with a hidden or banned profile.
+- R6 (CAP-17): ten achievements are granted when their condition is met and show on the SUCCÈS screen; the set-completed, goal-reward and achievement events are published for the card-backs epic.
 
 ## Done when
 
@@ -52,3 +57,12 @@ Event handlers, the weekly goal, the feed, achievements and their broadcasts. No
 - Open question: how much a trade counts in the weekly goal, and the odds of the rare pack (spec).
 - Unknown: the weekly target formula (spine, Deferred).
 - The 2026-10-05 redesign: only the weekly goal carries a Brotherhood line (`brotherhood-tone.md`); `DESIGN.md` and `EXPERIENCE.md` do not cover the repost action or the Friends tab yet. Card backs (CAP-20) have their own epic after this one (epic-card-backs); this epic publishes the events they unlock on (Game::SetCompleted, goal rewards, achievements).
+- Decision (2026-10-07): a completed trade counts 1 in the gauge, once for the two players.
+- Decision (2026-10-07): the weekly target is the previous week's active players times 50, minimum 200; a constant tuned in play.
+- Decision (2026-10-07): the reward booster has 5 cards with at least one Épique or better.
+- Decision (2026-10-07): the week starts Monday 00:00 UTC.
+- Decision (2026-10-07): the reward booster is outside the cap of ten, in a zone of its own, so it is never lost.
+- Decision (2026-10-07): ten starting achievements: first booster, first Épique, first Légendaire, first complete set, first trade, 10, 100 and 500 boosters opened, three complete sets, first repost.
+- Decision (2026-10-07): the ticker follows the spec only; set completions and hourly totals are added later if the feed looks empty.
+- Decision (2026-10-07): reposts are not limited until measured in play.
+- Not built here: card backs (epic 9, after the launch) consume the events this epic publishes.
