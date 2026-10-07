@@ -382,7 +382,7 @@ class CardDetailTest < ApplicationSystemTestCase
   # card, so the length is read again for up to two seconds before it is judged.
   # Chrome keeps at most 50 entries: a session that already holds 50 stays at 50.
   def assert_history_length(expected)
-    expected = [expected, 50].min
+    expected = [ expected, 50 ].min
     deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 2
     length = evaluate_script("history.length")
     while length != expected && Process.clock_gettime(Process::CLOCK_MONOTONIC) < deadline
