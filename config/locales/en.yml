@@ -432,6 +432,13 @@ en:
       session:
         label: "Session"
         sign_out: "Sign out"
+  friends:
+    show:
+      title: "Friends"
+      more: "More"
+      code_label: "Your friend code"
+      empty: "No friends yet. Your code is how they will find you."
+      nameless: "Nameless officer"
   daily_bonuses:
     create:
       collected: "A booster joins your reserve. The next one will be ready at midnight (UTC)."

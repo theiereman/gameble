@@ -61,6 +61,8 @@ Rails.application.routes.draw do
     resource :settings, only: %i[show update]
     # The profile visibility row of the settings (CAP-14).
     patch "settings/visibility" => "settings#visibility", as: :settings_visibility
+    # The Friends screen (CAP-10): the player's friends and friend code.
+    resource :friends, only: :show
     # The phone's PLUS tab: the rest of the ship (EXPERIENCE.md, PLUS rows).
     get "more" => "pages#more", as: :more
 

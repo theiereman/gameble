@@ -87,7 +87,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     end
     # 03 to 06: no screen yet.
     disabled = css_select(".hub-menu span.menu-item[aria-disabled=true]")
-    assert_equal [ "Échanges", "Amis", "Fil d'activité", "Succès" ], disabled.map { it.at_css(".menu-item__label").text }
+    assert_equal [ "Échanges", "Fil d'activité", "Succès" ], disabled.map { it.at_css(".menu-item__label").text }
     assert disabled.all? { it.at_css(".visually-hidden").text == "bientôt disponible" }
 
     # The showcase: the tier 4 card of the pack, its rarity and its page.

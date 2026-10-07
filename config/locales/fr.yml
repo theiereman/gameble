@@ -446,6 +446,13 @@ fr:
       session:
         label: "Session"
         sign_out: "Se déconnecter"
+  friends:
+    show:
+      title: "Amis"
+      more: "Plus"
+      code_label: "Votre code ami"
+      empty: "Aucun ami pour l'instant. Votre code est la clé pour vous retrouver."
+      nameless: "Officier sans nom"
   daily_bonuses:
     create:
       collected: "Un booster rejoint votre réserve. Le prochain sera prêt à minuit (UTC)."
