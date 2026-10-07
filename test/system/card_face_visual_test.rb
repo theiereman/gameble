@@ -58,6 +58,17 @@ class CardFaceVisualTest < ApplicationSystemTestCase
       assert_card_settled(card)
       assert_matches_card_baseline(specimen, "tilted-#{size}")
     end
+
+    # The long title at xl: two VT323 lines inside the band.
+    specimen = find("[data-specimen=epic-xl]")
+    scroll_to(specimen, align: :center)
+    card = specimen.find(".card")
+    card.find(".card__art[data-art=drawn]", visible: :all)
+    rest_pointer_on(card)
+
+    assert_tilted(card)
+    assert_card_settled(card)
+    assert_matches_card_baseline(specimen, "tilted-xl-long")
   end
 
   test "a revealed face in the booster tilts under the pointer and matches its baseline at m" do

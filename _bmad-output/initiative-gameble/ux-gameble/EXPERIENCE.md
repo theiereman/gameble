@@ -368,7 +368,7 @@ Behavior only. Contrast values live in `DESIGN.md` (see Colors).
 - **No information only in a tooltip** (`title`).
 - **Moving content:** the ticker pauses on hover and focus and stops with "ANIMATIONS RÉDUITES"; every looping or blinking effect stops with it; nothing blinks faster than once a second.
 - **Touch:** at least 44 × 44 CSS px for every phone target, 8px apart.
-- **Readability:** no meaningful information below 10px in the pixel fonts; `{colors.dim}` is decorative only.
+- **Readability:** no meaningful information below 10px in the two fonts, and VT323 never under 20px; `{colors.dim}` is decorative only.
 - **Zoom and text spacing:** breakpoints are in CSS px of the viewport, so browser zoom reaches the phone layout; text is in rem; text rows use a minimum height so user text spacing never clips them.
 - **Language:** `<html lang>` follows the chosen language; text in another language (a Steam description) carries its own `lang`. A first visit uses the browser's language.
 - **Links and sign-in:** links that open a new tab or leave gameble say so; the Steam image's accessible name says it opens Steam.
@@ -479,7 +479,7 @@ Build rules found while prototyping and reviewing; they bind the build. Architec
 - **Dialogs and Esc:** every modal and bottom sheet is a native `<dialog>` opened with `showModal()`, in Stimulus and React; the hotkeys controller ignores events already handled, events while a dialog is open and events from form fields, so one Esc never both closes a dialog and navigates. Single-key shortcuts can be turned off.
 - **No inline style:** server HTML carries no `style` attribute (the CSP blocks it); progress bars and gauges get their values as CSS custom properties set by a controller.
 - **Large grids:** a collection grid beyond about 60 slots is paginated or virtualized, and only visible cards are filtered.
-- **Fonts:** the three font files are preloaded with `font-display: block` and a short block period, so a fallback swap never reflows two-line card titles.
+- **Fonts:** the three latin font files (Space Mono 400 and 700, VT323) are preloaded with `font-display: block` and a short block period, so a fallback swap never reflows two-line card titles.
 - **Daily booster arc:** runs from `turbo:before-stream-render` (both positions known before the DOM is replaced) and dispatches `gameble:bank-changed`.
 - **Daily bonus booster:** it holds 3 cards, so the revealed counter and hints count to 3 for it ("Cartes révélées : n / 3").
 

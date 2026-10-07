@@ -28,7 +28,7 @@
 .daily-booster { grid-area: daily; }
 .hub-sets { grid-area: sets; }
 
-/* ---- Kicker: an accent Silkscreen title and a VT323 subtitle ---- */
+/* ---- Kicker: an accent title with letter spacing and a subtitle below ---- */
 
 .hub__title {
   margin: 0;
@@ -353,7 +353,7 @@ button.menu-item:focus-visible:hover {
   color: var(--color-alert);
 }
 
-/* Collected: "Prochain dans", the clock in Pixelify Sans and a thin bar
+/* Collected: "Prochain dans", the clock in VT323 and a thin bar
    filling toward 00:00 UTC (the countdown controller). */
 .daily-booster__next {
   display: grid;

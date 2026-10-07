@@ -714,7 +714,7 @@ a.packs-chip:focus-visible {
   color: var(--color-on-alert);
 }
 
-/* A link: muted Silkscreen, accent with a pixel arrow on hover. */
+/* A link: muted Space Mono, accent with a pixel arrow on hover. */
 .button--link {
   min-height: var(--space-touch-min);
   padding: 0;

@@ -60,163 +60,160 @@ colors:
   rarity-legendaire-lo: '#8f5e0a'
 typography:
   screen-title:
-    fontFamily: Pixelify Sans
-    fontWeight: '700'
-    fontSize: 20px
-    letterSpacing: 1px
-  screen-title-phone:
-    fontFamily: Pixelify Sans
-    fontWeight: '700'
-    fontSize: 19px
-    letterSpacing: 1px
-  hero:
-    fontFamily: Pixelify Sans
-    fontWeight: '700'
-    fontSize: 34px
-    lineHeight: 38px
-  public-title:
-    fontFamily: Pixelify Sans
-    fontWeight: '700'
-    fontSize: 38px
-    lineHeight: 40px
-  public-title-phone:
-    fontFamily: Pixelify Sans
-    fontWeight: '700'
-    fontSize: 30px
-    lineHeight: 32px
-  banner:
-    fontFamily: Pixelify Sans
-    fontWeight: '700'
-    fontSize: 42px
-    lineHeight: 48px
-    letterSpacing: 2px
-  banner-small:
-    fontFamily: Pixelify Sans
-    fontWeight: '700'
-    fontSize: 28px
-    lineHeight: 34px
-    letterSpacing: 2px
-  showcase-name:
-    fontFamily: Pixelify Sans
-    fontWeight: '700'
+    fontFamily: VT323
+    fontWeight: '400'
     fontSize: 26px
-    letterSpacing: 1px
-  showcase-name-phone:
-    fontFamily: Pixelify Sans
-    fontWeight: '700'
-    fontSize: 23px
-    letterSpacing: 1px
-  count-large:
-    fontFamily: Pixelify Sans
-    fontWeight: '700'
+  screen-title-phone:
+    fontFamily: VT323
+    fontWeight: '400'
+    fontSize: 24px
+  hero:
+    fontFamily: VT323
+    fontWeight: '400'
     fontSize: 44px
     lineHeight: 44px
-  count-large-phone:
-    fontFamily: Pixelify Sans
-    fontWeight: '700'
+  public-title:
+    fontFamily: VT323
+    fontWeight: '400'
+    fontSize: 48px
+    lineHeight: 48px
+  public-title-phone:
+    fontFamily: VT323
+    fontWeight: '400'
     fontSize: 40px
     lineHeight: 40px
+  banner:
+    fontFamily: VT323
+    fontWeight: '400'
+    fontSize: 54px
+    lineHeight: 56px
+    letterSpacing: 2px
+  banner-small:
+    fontFamily: VT323
+    fontWeight: '400'
+    fontSize: 36px
+    lineHeight: 40px
+    letterSpacing: 2px
+  showcase-name:
+    fontFamily: VT323
+    fontWeight: '400'
+    fontSize: 32px
+  showcase-name-phone:
+    fontFamily: VT323
+    fontWeight: '400'
+    fontSize: 28px
+  count-large:
+    fontFamily: VT323
+    fontWeight: '400'
+    fontSize: 46px
+    lineHeight: 42px
+  count-large-phone:
+    fontFamily: VT323
+    fontWeight: '400'
+    fontSize: 40px
+    lineHeight: 36px
   number:
-    fontFamily: Pixelify Sans
-    fontWeight: '700'
-    fontSize: 18px
+    fontFamily: VT323
+    fontWeight: '400'
+    fontSize: 24px
   card-title-s:
-    fontFamily: Pixelify Sans
-    fontWeight: '600'
+    fontFamily: Space Mono
+    fontWeight: '700'
     fontSize: 10px
     lineHeight: 11px
   card-title-m:
-    fontFamily: Pixelify Sans
-    fontWeight: '600'
+    fontFamily: Space Mono
+    fontWeight: '700'
     fontSize: 12px
-    lineHeight: 13px
+    lineHeight: 14px
   card-title-l:
-    fontFamily: Pixelify Sans
-    fontWeight: '600'
-    fontSize: 15px
+    fontFamily: Space Mono
+    fontWeight: '700'
+    fontSize: 14px
     lineHeight: 16px
   card-title-xl:
-    fontFamily: Pixelify Sans
-    fontWeight: '600'
-    fontSize: 17px
-    lineHeight: 18px
-  card-meta:
-    fontFamily: Silkscreen
-    fontWeight: '400'
-    fontSize: 10px
-    letterSpacing: 1px
-  card-meta-xl:
-    fontFamily: Silkscreen
-    fontWeight: '400'
-    fontSize: 11px
-    letterSpacing: 1px
-  publisher-m:
-    fontFamily: VT323
-    fontWeight: '400'
-    fontSize: 13px
-  publisher-l:
-    fontFamily: VT323
-    fontWeight: '400'
-    fontSize: 16px
-  publisher-xl:
-    fontFamily: VT323
-    fontWeight: '400'
-    fontSize: 18px
-  menu:
-    fontFamily: Silkscreen
-    fontWeight: '400'
-    fontSize: 14px
-    letterSpacing: 1px
-  button:
-    fontFamily: Silkscreen
-    fontWeight: '400'
-    fontSize: 13px
-    letterSpacing: 1px
-  button-sm:
-    fontFamily: Silkscreen
-    fontWeight: '400'
-    fontSize: 11px
-    letterSpacing: 1px
-  kicker:
-    fontFamily: Silkscreen
-    fontWeight: '400'
-    fontSize: 12px
-    letterSpacing: 3px
-  kicker-phone:
-    fontFamily: Silkscreen
-    fontWeight: '400'
-    fontSize: 11px
-    letterSpacing: 3px
-  label:
-    fontFamily: Silkscreen
-    fontWeight: '400'
-    fontSize: 10px
-    letterSpacing: 2px
-  decorative-small:
-    fontFamily: Silkscreen
-    fontWeight: '400'
-    fontSize: 8px
-    letterSpacing: 1px
-  body:
-    fontFamily: VT323
-    fontWeight: '400'
-    fontSize: 20px
-    lineHeight: 24px
-  body-large:
     fontFamily: VT323
     fontWeight: '400'
     fontSize: 22px
-    lineHeight: 26px
-  body-large-phone:
-    fontFamily: VT323
-    fontWeight: '400'
-    fontSize: 21px
-    lineHeight: 25px
-  body-small:
-    fontFamily: VT323
-    fontWeight: '400'
-    fontSize: 17px
     lineHeight: 20px
+  card-meta:
+    fontFamily: Space Mono
+    fontWeight: '400'
+    fontSize: 10px
+    letterSpacing: 0.5px
+  card-meta-xl:
+    fontFamily: Space Mono
+    fontWeight: '400'
+    fontSize: 11px
+    letterSpacing: 0.5px
+  publisher-m:
+    fontFamily: Space Mono
+    fontWeight: '400'
+    fontSize: 10px
+    lineHeight: 12px
+  publisher-l:
+    fontFamily: Space Mono
+    fontWeight: '400'
+    fontSize: 11px
+  publisher-xl:
+    fontFamily: Space Mono
+    fontWeight: '400'
+    fontSize: 12px
+  menu:
+    fontFamily: Space Mono
+    fontWeight: '400'
+    fontSize: 13px
+    letterSpacing: 0.65px
+  button:
+    fontFamily: Space Mono
+    fontWeight: '700'
+    fontSize: 13px
+    letterSpacing: 1px
+  button-sm:
+    fontFamily: Space Mono
+    fontWeight: '700'
+    fontSize: 11px
+    letterSpacing: 1px
+  kicker:
+    fontFamily: Space Mono
+    fontWeight: '400'
+    fontSize: 11px
+    letterSpacing: 1.5px
+  kicker-phone:
+    fontFamily: Space Mono
+    fontWeight: '400'
+    fontSize: 10px
+    letterSpacing: 1.25px
+  label:
+    fontFamily: Space Mono
+    fontWeight: '400'
+    fontSize: 11px
+    letterSpacing: 0.5px
+  decorative-small:
+    fontFamily: Space Mono
+    fontWeight: '400'
+    fontSize: 8px
+    letterSpacing: 0.5px
+  body:
+    fontFamily: Space Mono
+    fontWeight: '400'
+    fontSize: 14px
+    lineHeight: 21px
+  body-large:
+    fontFamily: Space Mono
+    fontWeight: '400'
+    fontSize: 16px
+    lineHeight: 24px
+  body-large-phone:
+    fontFamily: Space Mono
+    fontWeight: '400'
+    fontSize: 15px
+    lineHeight: 23px
+  body-small:
+    fontFamily: Space Mono
+    fontWeight: '400'
+    fontSize: 12px
+    lineHeight: 18px
 rounded:
   DEFAULT: 0px
 spacing:
@@ -484,16 +481,15 @@ Each tier has a `-hi` and `-lo` shade for the lit and shaded edges of its icon. 
 
 ## Typography
 
-Three open-licensed (OFL) pixel fonts, self-hosted (subsetted woff2 with their license texts), each with one job. All cover French accents.
+Two open-licensed (OFL) fonts, self-hosted (subsetted woff2 with their license texts), each with one job. Both cover French accents.
 
-- **Pixelify Sans** (600, 700): screen titles, card titles (uppercase), big numbers and timers, the reveal banner, the player's name: `{typography.screen-title}`, `{typography.hero}`, `{typography.public-title}`, `{typography.banner}`, `{typography.banner-small}`, `{typography.showcase-name}`, `{typography.count-large}`, `{typography.number}`, and the card title ramp `card-title-s` to `card-title-xl`.
-- **Silkscreen**: interface labels in capitals with letter spacing: `{typography.menu}`, `{typography.button}`, `{typography.button-sm}`, `{typography.kicker}`, `{typography.label}`, and the card lines `{typography.card-meta}` / `{typography.card-meta-xl}`.
-- **VT323**: running text, hints, descriptions, feed lines (`{typography.body}`, `{typography.body-large}`, `{typography.body-small}`) and the publisher line (`publisher-m` to `publisher-xl`).
+- **VT323** (400): the large text only, never under 20px: the logo and screen titles, the hero and public titles, the player's and showcase names, the reveal banner, big numbers and timers, the card title at xl and the friend code: `{typography.screen-title}`, `{typography.hero}`, `{typography.public-title}`, `{typography.banner}`, `{typography.banner-small}`, `{typography.showcase-name}`, `{typography.count-large}`, `{typography.number}`, `{typography.card-title-xl}`.
+- **Space Mono** (400, 700): every small text. Bold for the card titles at s, m and l (`card-title-s` to `card-title-l`, uppercase) and the buttons (`{typography.button}`, `{typography.button-sm}`); regular for the menu, kickers, labels and chips in capitals with a light letter spacing (`{typography.menu}`, `{typography.kicker}`, `{typography.label}`), the card lines (`{typography.card-meta}` / `{typography.card-meta-xl}`), the publisher line (`publisher-m` to `publisher-xl`) and the running text, hints, descriptions and feed lines (`{typography.body}`, `{typography.body-large}`, `{typography.body-small}`).
 
 Rules:
 
-- **Readability floor:** no meaningful information below 10px in the pixel fonts: publisher, rarity, numbers, labels, status chips, tab labels, card lines. Only decorative text (`{typography.decorative-small}`, for example the word on a card back) may be smaller. There is no alternate-font setting.
-- Multi-line VT323 runs at a line height of at least 1.2.
+- **Readability floor:** no meaningful information below 10px: publisher, rarity, numbers, labels, status chips, tab labels, card lines. VT323 never goes under 20px, where it stops being readable; anything smaller is Space Mono. Only decorative text (`{typography.decorative-small}`, for example the word on a card back) may be smaller than 10px. There is no alternate-font setting.
+- Multi-line running text (the `body` styles) runs at a line height of 1.5; the large VT323 titles sit at 1.0 to 1.1, and the card title at xl at 22px on a 20px line so two lines fit its band.
 - Uppercase comes from `text-transform` over sentence-case source strings.
 - Card titles wrap to two lines at most; the title band may grow rather than clip.
 - **Glyphs the fonts lack** (◀ ▶ ▸ ◆ ⇄ ↗ ✕ ✓ ⧗) are drawn as pixel SVG icons, never typed as characters (◀ ▶ can render as color emoji).
@@ -585,7 +581,7 @@ Building blocks used on every screen.
 - **Reserve pips:** ten 10px cells, lime when a booster is in reserve.
 - **Thin progress bar:** 5 or 6px, accent fill on a track with a `{colors.line-deep}` edge (set progress, daily countdown); achievement tiles use a 4px `{colors.line-deep}` fill.
 - **Status light:** an 8px square lit steadily: blue at rest, orange when armed, gold during a Légendaire, lime when done; always with its state word ("SCELLÉ", "ARMEMENT", "ÉJECTION", "INVENTAIRE", "SIGNAL LÉGENDAIRE", "INVENTAIRE COMPLET", "EN ATTENTE").
-- **Kicker:** a small accent Silkscreen title with wide spacing ("PONT DE COMMANDEMENT") and a VT323 subtitle.
+- **Kicker:** a small accent Space Mono title with letter spacing ("PONT DE COMMANDEMENT") and a Space Mono subtitle.
 - **LIVE marker:** "LIVE" on an accent block with a dark square that blinks once per second, the only blinking element.
 
 #### Focus ring
@@ -599,7 +595,7 @@ One style for every focusable element: `{components.focus-ring.css}`, a 3px `{co
 - **Danger button:** `{colors.danger-bg}`, `{colors.danger-text}`, orange on hover.
 - **Disabled:** `{colors.disabled-bg}` with `{colors.disabled-text}`, no lift. A disabled button never carries information on its own; its reason is written next to it.
 - **Back button:** a small secondary button at the left of the top bar: "◀ PONT" on desktop; on the phone, contextual ("◀ GRILLE", "◀ LISTE", "◀ PLUS").
-- **Link:** Silkscreen in `{colors.muted}` (at least 10px), accent with a pixel arrow on hover ("TOUT VOIR ▸", "VOIR SUR STEAM ↗"); orange for "SIGNALER"; "Mentions légales" is a muted link.
+- **Link:** Space Mono bold in `{colors.muted}` (at least 10px), accent with a pixel arrow on hover ("TOUT VOIR ▸", "VOIR SUR STEAM ↗"); orange for "SIGNALER"; "Mentions légales" is a muted link.
 - **Remove:** a square "✕" at a card's top-right, orange on hover; on the phone, inside a 44 × 44 CSS px hit area.
 
 #### Tabs and filters
@@ -609,11 +605,11 @@ Rows of buttons (`{spacing.chip-height}`, `{typography.label}`) on `{colors.pane
 #### Dialogs, toasts, inputs
 
 - **Modal:** a scrim, a bracketed panel (`{components.modal.width}`, `{components.modal.width-wide}` for pickers) with an accent title row and a square "✕" close button. On the phone a bottom sheet with a `{components.modal.handle}` grab handle and a 2px line on its top edge.
-- **Share sheet:** "PARTAGER LA CARTE": a thumbnail, the title and rarity line, the link in a read-only field with "COPIER", a VT323 note that the preview shows the title and rarity without the game image, and "VOIR LA PAGE PUBLIQUE ▸".
+- **Share sheet:** "PARTAGER LA CARTE": a thumbnail, the title and rarity line, the link in a read-only field with "COPIER", a Space Mono note that the preview shows the title and rarity without the game image, and "VOIR LA PAGE PUBLIQUE ▸".
 - **Report dialog** and **delete dialog:** the modal with its title row in `{colors.alert}`. Report: a radio list of reasons. Delete: a text field and the danger button.
-- **Toast:** a small panel with a steady orange or accent light, an accent Silkscreen title, a VT323 line and a "✕". Bottom center on desktop, top on the phone.
-- **Inline error line:** VT323 in `{colors.alert}` under the control or action it concerns.
-- **Text field:** `{colors.input}` well with `{components.control-border.css}`, VT323 20px, accent border on focus.
+- **Toast:** a small panel with a steady orange or accent light, an accent Space Mono title, a Space Mono line and a "✕". Bottom center on desktop, top on the phone.
+- **Inline error line:** Space Mono in `{colors.alert}` under the control or action it concerns.
+- **Text field:** `{colors.input}` well with `{components.control-border.css}`, Space Mono `{typography.body}`, accent border on focus.
 - **Radio list:** rows with a square that fills accent when selected.
 
 #### Avatars and thumbnails
@@ -639,7 +635,7 @@ Everything drawn on or around a card.
 The Steam cover dominates. No stats, cost or effect text. Reference: [mockups/key-screens.html](mockups/key-screens.html), collection and booster.
 
 - **Frame:** the rarity color, inside the 4px outline, with the bevel.
-- **Title band** (top, `{colors.panel-raised}`, with a 3px rarity-colored tick on its left edge): the game title in Pixelify Sans uppercase, then the publisher in VT323 `{colors.publisher}`. The small and extra-small cards show the title only.
+- **Title band** (top, `{colors.panel-raised}`, with a 3px rarity-colored tick on its left edge): the game title in Space Mono bold uppercase (VT323 at xl), then the publisher in Space Mono `{colors.publisher}`. The small and extra-small cards show the title only.
 - **Art:** the game's cover through the pixel filter, with two small white corner brackets (top-left, bottom-right). Before it loads, a dark hatched box.
 - **Footer line 1:** the genre in the rarity color, left; the release year in `{colors.muted}`, right.
 - **Footer line 2:** the compact rarity icon (see Rarity icon), the rarity name in the rarity color, and the card number within its season, without a total: "S1 · #4 215" on `card-l` and `card-xl`, "#4 215" on `card-s` and `card-m`.
@@ -718,7 +714,7 @@ In the top bar: the five icons, each followed by the number of copies owned, in 
 
 #### Menu item
 
-The hub's numbered menu: rows of `{spacing.menu-item-height}` on `{colors.panel}` with `{components.control-border.css}`; the number (01 to 06) in small accent Silkscreen, the label in `{typography.menu}`, and on the right a count badge or a VT323 meta ("87/16 480", "2 en ligne", "En direct", "12/40"). Hover: fills with `{colors.accent}`, text `{colors.on-accent}`, slides 10px right, a pixel arrow appears. Pressed: `{colors.accent-press}`. The current item keeps a 6px accent bar on its left. Numbers belong to this desktop menu only; the phone's PLUS rows carry none.
+The hub's numbered menu: rows of `{spacing.menu-item-height}` on `{colors.panel}` with `{components.control-border.css}`; the number (01 to 06) in small accent Space Mono, the label in `{typography.menu}`, and on the right a count badge or a Space Mono meta ("87/16 480", "2 en ligne", "En direct", "12/40"). Hover: fills with `{colors.accent}`, text `{colors.on-accent}`, slides 10px right, a pixel arrow appears. Pressed: `{colors.accent-press}`. The current item keeps a 6px accent bar on its left. Numbers belong to this desktop menu only; the phone's PLUS rows carry none.
 
 - **Count badge:** `{colors.lime}` with `{colors.on-lime}`; orange with `{colors.on-alert}` when the player must act (a trade waiting); grayed at zero. Steady, no pulse.
 
@@ -742,11 +738,11 @@ The hub's center: the kicker "DERNIÈRE OBTENTION" in gold with a small gold squ
 
 #### Community goal panel
 
-The hub's key panel, with corner brackets: a steady accent light and "OBJECTIF COMMUNAUTAIRE"; the one Brotherhood line "Toute la Confrérie ouvre 50 000 boosters, ensemble." in VT323 `{colors.text-bright}`; "TOUS LES JOUEURS" with the shared count ("31 420 / 50 000"); a segmented gauge of 24 segments; then "RÉCOMPENSE" in lime and the reward in VT323. No per-player figures.
+The hub's key panel, with corner brackets: a steady accent light and "OBJECTIF COMMUNAUTAIRE"; the one Brotherhood line "Toute la Confrérie ouvre 50 000 boosters, ensemble." in Space Mono `{colors.text-bright}`; "TOUS LES JOUEURS" with the shared count ("31 420 / 50 000"); a segmented gauge of 24 segments; then "RÉCOMPENSE" in lime and the reward in Space Mono. No per-player figures.
 
 #### Daily booster panel
 
-A quiet panel under the hub menu: "BOOSTER QUOTIDIEN" with a state word on the right ("PRÊT" lime, "RÉCUPÉRÉ" muted, "RÉSERVE PLEINE" orange), a VT323 line and the small primary button "RÉCUPÉRER". Reserve full: the button is disabled and the line changes (copy: see `EXPERIENCE.md`, Copy deck). Once collected: "PROCHAIN DANS", the countdown in Pixelify Sans and a thin bar filling toward the day change.
+A quiet panel under the hub menu: "BOOSTER QUOTIDIEN" with a state word on the right ("PRÊT" lime, "RÉCUPÉRÉ" muted, "RÉSERVE PLEINE" orange), a Space Mono line and the small primary button "RÉCUPÉRER". Reserve full: the button is disabled and the line changes (copy: see `EXPERIENCE.md`, Copy deck). Once collected: "PROCHAIN DANS", the countdown in VT323 and a thin bar filling toward the day change.
 
 #### Signed-out hub
 
@@ -768,7 +764,7 @@ Desktop, in the info column (above the stage under 1260px, in one wrapping row):
 
 #### Result banner
 
-The tier name in Pixelify Sans in the rarity color, outlined in `{colors.outline}`, between two outlined rarity icons and two short hazard stripes in the rarity color. Épique: `{typography.banner-small}`. Légendaire: `{typography.banner}` with "!" and, below, the title and year in VT323. On the phone it plays inside the reveal caption plate, never over the card.
+The tier name in VT323 in the rarity color, outlined in `{colors.outline}`, between two outlined rarity icons and two short hazard stripes in the rarity color. Épique: `{typography.banner-small}`. Légendaire: `{typography.banner}` with "!" and, below, the title and year in Space Mono. On the phone it plays inside the reveal caption plate, never over the card.
 
 #### Reveal caption plate (phone)
 
@@ -789,18 +785,18 @@ An overlay with the card at `card-xl`, its name and rarity line, "VOIR LA FICHE"
 - **RAPPORT panel:** total cards, duplicates, and copies per rarity with icon, name and count in the rarity color. On the phone it folds to one line, "n cartes · n doublons", and adds a "CARTES UNIQUES" row when open.
 - **Copy badge:** "x3" in a small accent box at a card's top-right, from x2 (a single copy shows no badge; author, 2026-10-07). **NOUVEAU tag:** a small lime box at the top-left.
 - **Selected card:** a steady 3px accent frame around it.
-- **Missing-card slot:** the card shape with a dark hatched fill and a `{colors.line-deep}` border, a small pixel icon, the missing game's name (Pixelify Sans, muted) and its year. Nothing else.
-- **Card detail ("FICHE DE LA CARTE"):** a bracketed panel with the number at top right, the card at `card-l` with its effects, a ground shadow, rows of facts (label in muted Silkscreen left, value right, on `{colors.panel-sunken}`): title, publisher, rarity, genre, year, description, minted season, sets, copies owned. Buttons at the bottom: "VOIR SUR STEAM" (primary), "PARTAGER" and, for a card owned, "REPOSTER" (secondary). A card not owned shows the active card back at 55% opacity with its name and year. Phone: a sub-view with 44 × 64 CSS px ◀ ▶ buttons beside the card, a position line ("S1 · #4 215 · 3 / 13 · glissez pour parcourir") and actions pinned at the bottom.
+- **Missing-card slot:** the card shape with a dark hatched fill and a `{colors.line-deep}` border, a small pixel icon, the missing game's name (Space Mono, muted) and its year. Nothing else.
+- **Card detail ("FICHE DE LA CARTE"):** a bracketed panel with the number at top right, the card at `card-l` with its effects, a ground shadow, rows of facts (label in muted Space Mono left, value right, on `{colors.panel-sunken}`): title, publisher, rarity, genre, year, description, minted season, sets, copies owned. Buttons at the bottom: "VOIR SUR STEAM" (primary), "PARTAGER" and, for a card owned, "REPOSTER" (secondary). A card not owned shows the active card back at 55% opacity with its name and year. Phone: a sub-view with 44 × 64 CSS px ◀ ▶ buttons beside the card, a position line ("S1 · #4 215 · 3 / 13 · glissez pour parcourir") and actions pinned at the bottom.
 
 #### Trade board
 
 Reference: [mockups/key-screens.html](mockups/key-screens.html), Échanges.
 
-- **Trade list row:** avatar, friend's name, "what for what" in VT323, the expiry or outcome in muted VT323, and a status chip.
+- **Trade list row:** avatar, friend's name, "what for what" in Space Mono, the expiry or outcome in muted Space Mono, and a status chip.
 - **Status chip:** `{typography.label}` in a 2px frame of its color: "À VOUS" orange, "EN ATTENTE" and "BROUILLON" accent, "CONCLU" lime, "CLOS" muted.
 - **Trade board:** a bracketed panel with the header "Échange avec Léa", the status chip and the expiry ("Expire dans 5 j" with a pixel hourglass, days in orange). The friend's side and the player's side face each other on desktop (friend left) and stack on the phone (friend on top). A side being edited gets an accent border and "EN ÉDITION" in its header. Side labels: "LÉA DONNE" / "VOUS DONNEZ", "LÉA A REÇU" / "VOUS AVEZ REÇU", "LÉA PROPOSAIT". Between them a pixel swap icon (blue and gold) and a one-line status message. Actions centered below (pinned at the bottom on the phone).
 - **Stack:** several copies of a card show a second card edge behind it and a gold "×2" quantity badge at the top-left.
-- **Quantity stepper:** a dark pill under the card: "−", "×N" in Pixelify Sans, "+", then "/max" in muted VT323 (phone: "sur N" below the pill). Buttons `{components.quantity-stepper.button}` on desktop, `{components.quantity-stepper.button-phone}` with a 44px hit area on the phone.
+- **Quantity stepper:** a dark pill under the card: "−", "×N" in VT323, "+", then "/max" in muted Space Mono (phone: "sur N" below the pill). Buttons `{components.quantity-stepper.button}` on desktop, `{components.quantity-stepper.button-phone}` with a 44px hit area on the phone.
 - **Reserved tag:** "RÉSERVÉE" or "2 RÉSERVÉES" in accent on a dark pill with a `{colors.line-deep}` border.
 - **Add slot:** a hatched card-sized button with a large "+" and "PLACER MES CARTES" or "CHOISIR SES CARTES".
 - **Card picker:** a wide dialog (a full-height sheet on the phone) titled "PLACER MES CARTES" or "CHOISIR DANS LA COLLECTION DE LÉA" ("CARTES DE LÉA" on the phone), a grid of small cards with copy badges and reserved tags; a picked card gets a steady lime frame and check mark, and a stepper or "n disponibles" below; a counter "n cartes · n exemplaires (4 cartes au plus)".
@@ -809,7 +805,7 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Échanges.
 
 Reference: [mockups/key-screens.html](mockups/key-screens.html), Amis.
 
-- **Invite panel:** "INVITER UN AMI", "PAR LIEN" with the invite link in a read-only field and "COPIER" (lime "COPIÉ ✓" for a moment), "VOTRE CODE AMI" large in Pixelify Sans ("7K2Q-F3NX"), "AJOUTER AVEC UN CODE" with a field, "AJOUTER" and a message line below (orange for errors, lime for success).
+- **Invite panel:** "INVITER UN AMI", "PAR LIEN" with the invite link in a read-only field and "COPIER" (lime "COPIÉ ✓" for a moment), "VOTRE CODE AMI" large in VT323 ("7K2Q-F3NX"), "AJOUTER AVEC UN CODE" with a field, "AJOUTER" and a message line below (orange for errors, lime for success).
 - **Invitation row:** received: avatar, "Sam vous invite", "ACCEPTER" (primary) and "IGNORER"; sent: a pixel hourglass, "Envoyée à 8F2D-K9XM", the chip "EN ATTENTE".
 - **Friend row:** a 48px avatar, the name, a presence dot and text (lime "En ligne", blue with the activity, for example "Ouvre un booster", muted "Il y a 3 h"), the number of distinct cards owned, and "PROPOSER UN ÉCHANGE".
 - **Friend profile:** a dialog with a 64px avatar, name, presence, card count, "VITRINE" with three small cards, "PROPOSER UN ÉCHANGE" (primary) and the orange link "SIGNALER".
@@ -819,13 +815,13 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Amis.
 Reference: [mockups/key-screens.html](mockups/key-screens.html), Fil d'activité.
 
 - **Feed tabs:** two segmented tabs, "TOUS" and "AMIS", above the filter chips (`{typography.label}`, selected filled accent), the same control as the filter group.
-- **Feed entry:** a row on `{colors.panel}` (at least 68px tall): time in muted VT323, one or two avatars, a VT323 sentence with names and titles in white, one or two pixel thumbnails framed in the rarity color, and a right-aligned tag (rarity icon and name, or "⇄ ÉCHANGE"). A first discovery carries a gold "PREMIÈRE DÉCOUVERTE" chip. A repost entry carries a "REPOST" tag in `{colors.accent}` with the card's thumbnail framed in its rarity color. Lower-tier entries added to fill a quiet feed sit on `{colors.panel-sunken}`, never dimmed by opacity. No Brotherhood line on this screen.
-- **LIVE ticker:** a band on `{colors.steam-bar}` along the bottom of the hub: the LIVE marker on the left, then a VT323 line scrolling right to left, items separated by a pixel "◆", rarity names in their color.
+- **Feed entry:** a row on `{colors.panel}` (at least 68px tall): time in muted Space Mono, one or two avatars, a Space Mono sentence with names and titles in white, one or two pixel thumbnails framed in the rarity color, and a right-aligned tag (rarity icon and name, or "⇄ ÉCHANGE"). A first discovery carries a gold "PREMIÈRE DÉCOUVERTE" chip. A repost entry carries a "REPOST" tag in `{colors.accent}` with the card's thumbnail framed in its rarity color. Lower-tier entries added to fill a quiet feed sit on `{colors.panel-sunken}`, never dimmed by opacity. No Brotherhood line on this screen.
+- **LIVE ticker:** a band on `{colors.steam-bar}` along the bottom of the hub: the LIVE marker on the left, then a Space Mono line scrolling right to left, items separated by a pixel "◆", rarity names in their color.
 
 #### Achievements
 
 - **Header:** the count in `{typography.count-large}` ("12 / 40") beside a segmented gauge, one segment per achievement, under "SUCCÈS OBTENUS".
-- **Achievement tile:** grouped under "OBTENUS · 12" and "À OBTENIR · 28"; a 44px pixel icon in an accent-bordered well, the name in Silkscreen, the condition in VT323, a 4px progress bar and "64 / 100" when in progress, and, when it unlocks a card back, a tiny image of that card back labeled "DOS". Locked tiles are sunken, their icon gray. One column on the phone.
+- **Achievement tile:** grouped under "OBTENUS · 12" and "À OBTENIR · 28"; a 44px pixel icon in an accent-bordered well, the name in Space Mono, the condition in Space Mono, a 4px progress bar and "64 / 100" when in progress, and, when it unlocks a card back, a tiny image of that card back labeled "DOS". Locked tiles are sunken, their icon gray. One column on the phone.
 
 #### Profile and settings
 
@@ -855,7 +851,7 @@ Out of the redesign's scope: it keeps a plain, functional style (no atmosphere, 
 | Draw everything on the 2 CSS px art pixel, the canister included | Make an exception for decor |
 | Keep the card face to title, publisher, cover, genre, year, rarity and number | Add stats, cost, attack, health or effect text |
 | Show rarity by shape, name and color together; check icons in grayscale | Rely on color alone, or let two silhouettes look alike |
-| Keep information at 10px or more in the pixel fonts | Put a rarity, number, label or publisher below 10px |
+| Keep information at 10px or more, VT323 at 20px or more | Put a rarity, number, label or publisher below 10px |
 | Outside the booster screen, keep holo for the Légendaire only, without glow | Make every card shine, or glow outside the opening |
 | Open the booster as a metal canister whose solid-edged caps blow off | Draw a glowing seam or cut line, notches on the caps, or sparks along a line |
 | Move things fluidly and quickly; tick small effects in steps | Use slow, floaty animations |

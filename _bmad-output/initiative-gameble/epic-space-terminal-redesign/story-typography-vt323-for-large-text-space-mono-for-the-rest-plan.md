@@ -3,12 +3,12 @@ title: 'Typography: VT323 for large text, Space Mono for the rest'
 type: 'feature'
 ticket: '14'
 created: '2026-10-07'
-status: 'in-progress'
+status: 'built'
 baseline_revision: '69577d6a35f822de8e26a257005310e676d52cc2'
 route: 'full'
 route_source: 'auto'
-review: ''
-review_source: ''
+review: 'quick'
+review_source: 'pinned'
 lenses_ran: []
 review_loop_iteration: 0
 context: []
@@ -74,9 +74,29 @@ context: []
 
 ## Implementation Notes
 
+- 2026-10-07: implemented on `develop` from `69577d6`. Space Mono 400/700 from the fontsource 5.3.0 tarball (latin, latin-ext, `OFL-SpaceMono.txt`); Pixelify Sans and Silkscreen removed with their licences, faces and preloads. Every token re-valued per Design Notes; `--font-weight-semibold` dropped (no remaining use). Six raw family uses retargeted to VT323 (booster canister title, plate banner, tray count, zoom title, friend code, friend input).
+- Band fix: at m the title (2 × 14px) plus a publisher at `line-height: normal` (~13.95px) overflowed the 40px band, so `--font-publisher-m` carries an explicit 0.75rem line-height (28 + 12 = 40); no box changed. DESIGN.md frontmatter follows.
+- Review patches: `.friends__input` → `font: var(--font-body)` (was VT323 at the UA control size); `.invite-link__line` → `font: var(--font-screen-title)` (was a 24px line inheriting the body family); a `tilted-xl-long` baseline on the preview's long-title specimen; DESIGN.md Achievement tile wording.
+- Tests: `shell_test.rb` (system) asserts the font set is exactly Space Mono and VT323, every text on the hub sits at 10px or more and every VT323 text at 20px or more; the integration test asserts the three preloads. Seven card face baselines regenerated with `TOLERANCE` unchanged.
+- Environment: the container had Ruby 3.3.6 and the project needs 4.0.7 (`.ruby-version`); Ruby 4.0.7 was built from the GitHub tag into `/opt/rbenv/versions/4.0.7`. Baselines were rendered by the container's Chromium 141 with chromedriver 141 (no sandbox). CI's Chrome may differ by hinting: if `card_face_visual_test` fails there beyond `TOLERANCE`, regenerate the baselines on CI's renderer, never raise the tolerance.
+- Full verification after the patches: rubocop clean, typecheck clean, 175 JS tests, 1428 Rails tests and 117 system tests (serial) green. `test:system` with parallel workers flaked in this container on tests unrelated to fonts (library, booster, card detail timing); every one passed serially and alone.
+
 ## Plan Change Log
 
 ## Review Triage Log
+
+### 2026-10-07 — Review pass 1 (quick)
+
+Verdicts: 1 high, 1 medium, 2 low, 0 false, 0 maybe-false.
+
+| # | Finding | Verdict | Route | Evidence |
+|---|---|---|---|---|
+| 1 | `friends.css` `.friends__input`: VT323 with no size, so the UA control size (13.33px) draws VT323 under the 20px floor on both friends inputs | high | patch | Confirmed: the rule sets `font-family` only and no stylesheet resets input fonts; `card-detail.css` sets its field's font explicitly. Fix: `font: var(--font-body)` (DESIGN.md Text field). |
+| 2 | Acceptance "the revealed-xl screenshot shows a two-line title" unmet: the fixture title is one line; no baseline shows a two-line xl title under the new 22px/20px token | low | patch | Confirmed: `revealed-xl.png` and `tilted-xl.png` show one-line titles; the two-line behaviour is asserted by `card_preview_test.rb` at every size but with no image. Fix: a `tilted-xl-long` baseline on the preview's `epic-xl` long-title specimen. |
+| 3 | `friends.css` `.invite-link__line`: `font-size: 1.5rem` with the family inherited from body, now a 24px Space Mono sentence on the invite page, a large text outside the token pairs | medium | patch | Confirmed in `invite_links/show.html.erb` L10; before the change it inherited VT323. Fix: `font: var(--font-screen-title)` with its tracking. |
+| 4 | DESIGN.md Achievement tile names "Space Mono bold", a weight the Typography section reserves for card titles and buttons | low | patch | Confirmed; no achievement token or CSS exists. Fix: "Space Mono". |
+
+Routing: no intent_gap, no bad_plan; four patches sent to the implementer and applied: `.friends__input` → `font: var(--font-body)`; `.invite-link__line` → `font: var(--font-screen-title)` with its tracking; a `tilted-xl-long` baseline on the preview's `epic-xl` specimen (two VT323 lines, clamped, inside the band); DESIGN.md Achievement tile → "Space Mono". Full verification re-run after the patches (see Implementation Notes).
 
 ## Design Notes
 
@@ -91,7 +111,7 @@ Baselines are rendered by the container's Chromium; CI's Chrome may differ by hi
 
 ## Verification
 
-**Commands:** (in this container: `export DB_PORT=5432 CHROME_BIN=/opt/pw-browsers/chromium`; the test database is prepared; `npm ci` and `bundle install` are done)
+**Commands:** (in this container: `export PATH=/opt/rbenv/versions/4.0.7/bin:$PATH DB_PORT=5432 CHROME_BIN=/tmp/claude-0/-home-user-gameble/115b2f08-d056-569c-824a-568a5a17ae41/scratchpad/chromium-nosandbox.sh SE_CHROMEDRIVER=/tmp/claude-0/-home-user-gameble/115b2f08-d056-569c-824a-568a5a17ae41/scratchpad/chromedriver141/chromedriver-linux64/chromedriver SE_OFFLINE=true`; Ruby 4.0.7 built from source, gems installed, the test database prepared, `npm ci` done)
 - `grep -rni "pixelify\|silkscreen" app config test _bmad-output/initiative-gameble/ux-gameble/DESIGN.md` -- expected: no match.
 - `bin/rubocop && npm run typecheck && npm run test:js` -- expected: clean.
 - `bin/rails test test/integration/shell_test.rb` -- expected: pass.

@@ -28,8 +28,8 @@
 
 .friends__code {
   margin: 0;
-  font-family: var(--font-family-pixelify);
-  font-size: 2rem;
+  font-family: var(--font-family-vt323);
+  font-size: 2.5rem;
   letter-spacing: 0.1em;
   user-select: all;
 }
@@ -75,7 +75,7 @@
   border-radius: 0;
   background: transparent;
   color: inherit;
-  font-family: var(--font-family-pixelify);
+  font: var(--font-body);
 }
 
 .friends__input:focus-visible {
@@ -120,5 +120,6 @@
 
 .invite-link__line {
   margin: 0 0 var(--space-3);
-  font-size: 1.5rem;
+  font: var(--font-screen-title);
+  letter-spacing: var(--tracking-screen-title);
 }

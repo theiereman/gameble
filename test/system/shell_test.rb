@@ -2,14 +2,17 @@ require "application_system_test_case"
 require_relative "../support/game_packs"
 
 # The shell in a real browser (story 8.1): the top bar, the phone tab bar
-# under 720px only, no sideways scroll, toasts that close, the three pixel
-# fonts loaded, on a desktop and on the two reference phones; screenshots of
-# the hub, the library, a card, a pack and the back-office.
+# under 720px only, no sideways scroll, toasts that close, the two fonts
+# loaded (Space Mono for every small text, VT323 for the large text only,
+# never under 20px, nothing under 10px), on a desktop and on the two
+# reference phones; screenshots of the hub, the library, a card, a pack and
+# the back-office.
 class ShellTest < ApplicationSystemTestCase
   include GamePacks
 
   PHONES = { "390" => [ 390, 844 ], "360" => [ 360, 740 ] }.freeze
-  FONTS = [ '600 16px "Pixelify Sans"', '700 16px "Pixelify Sans"', '16px "Silkscreen"', '16px "VT323"' ].freeze
+  FONTS = [ '16px "Space Mono"', '700 16px "Space Mono"', '16px "VT323"' ].freeze
+  FAMILIES = [ "Space Mono", "VT323" ].freeze
 
   setup do
     OmniAuth.config.test_mode = true
@@ -41,14 +44,40 @@ class ShellTest < ApplicationSystemTestCase
       const [fonts, done] = arguments
       Promise.all(fonts.map((font) => document.fonts.load(font))).then(() => done(fonts.map((font) => document.fonts.check(font))))
     JS
-    assert_equal [ true ] * FONTS.size, loaded, "Pixelify Sans, Silkscreen and VT323 should be loaded"
+    assert_equal [ true ] * FONTS.size, loaded, "Space Mono and VT323 should be loaded"
+  end
+
+  # The faces the page declares: the two families, none of the old pixel fonts.
+  def assert_font_set
+    families = page.evaluate_script(<<~JS)
+      Array.from(new Set(Array.from(document.fonts, (face) => face.family.replace(/^"|"$/g, "")))).sort()
+    JS
+    assert_equal FAMILIES, families, "document.fonts should hold Space Mono and VT323 only"
+  end
+
+  # Every element with text of its own sits at 10px or more, and at 20px or
+  # more when it is set in VT323; a failure names the offending selectors.
+  def assert_text_sizes
+    offenders = page.evaluate_script(<<~JS)
+      Array.from(document.body.querySelectorAll("*"))
+        .filter((element) => Array.from(element.childNodes).some((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== ""))
+        .flatMap((element) => {
+          const style = getComputedStyle(element)
+          const size = parseFloat(style.fontSize)
+          const floor = /^"?VT323"?/.test(style.fontFamily) ? 20 : 10
+          if (size >= floor) return []
+          const selector = element.tagName.toLowerCase() + Array.from(element.classList, (name) => `.${name}`).join("")
+          return [`${selector}: ${size}px in ${style.fontFamily}, floor ${floor}px`]
+        })
+    JS
+    assert_empty offenders, "every text should sit at its floor:\n#{offenders.join("\n")}"
   end
 
   def computed(selector, property)
     page.evaluate_script("getComputedStyle(document.querySelector(#{selector.to_json})).#{property}")
   end
 
-  test "on a desktop: the top bar, no tab bar, the dark ground and the pixel fonts" do
+  test "on a desktop: the top bar, no tab bar, the dark ground, the two fonts and their size floors" do
     player = accounts_players(:player)
     3.times { create_pack(player) }
     create_pack(player, available_at: 5.minutes.from_now)
@@ -59,8 +88,10 @@ class ShellTest < ApplicationSystemTestCase
     assert_selector ".packs-chip__next", text: /\+1 in \d\d:\d\d/i, visible: true
     assert_no_selector ".tab-bar", visible: true
     assert_equal "rgb(11, 15, 21)", computed("body", "backgroundColor")
-    assert_match(/VT323/, computed("body", "fontFamily"))
+    assert_match(/Space Mono/, computed("body", "fontFamily"))
     assert_fonts_loaded
+    assert_font_set
+    assert_text_sizes
     assert_no_sideways_scroll
     take_screenshot
 

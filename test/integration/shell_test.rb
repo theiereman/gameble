@@ -28,7 +28,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     Game::Holding.create!(player_id: player.id, card_season_id: catalog_card_seasons(card_season).id, quantity:)
   end
 
-  test "the head: title, viewport for the notch, theme colour, view transitions, the four latin fonts preloaded" do
+  test "the head: title, viewport for the notch, theme colour, view transitions, the three latin fonts preloaded" do
     get home_path(locale: :fr)
 
     assert_select "title", "gameble"
@@ -36,8 +36,8 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=theme-color][content=?]", "#171a21"
     assert_select "meta[name=view-transition][content=same-origin]"
     preloads = css_select("link[rel=preload][as=font][type='font/woff2'][crossorigin]").map { it["href"] }
-    assert_equal 4, preloads.size
-    %w[pixelify-sans-latin-600 pixelify-sans-latin-700 silkscreen-latin-400 vt323-latin-400].each do |font|
+    assert_equal 3, preloads.size
+    %w[space-mono-latin-400 space-mono-latin-700 vt323-latin-400].each do |font|
       assert(preloads.any? { it.include?("/#{font}-normal") }, "#{font} should be preloaded")
     end
     assert_no_match(/fonts\.googleapis|fonts\.gstatic/, response.body)

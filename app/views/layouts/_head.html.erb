@@ -27,8 +27,8 @@
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icon.png">
 
-<%# The pixel fonts' latin files, before the stylesheet asks for them. %>
-<% %w[pixelify-sans-latin-600 pixelify-sans-latin-700 silkscreen-latin-400 vt323-latin-400].each do |font| %>
+<%# The two fonts' latin files, before the stylesheet asks for them. %>
+<% %w[space-mono-latin-400 space-mono-latin-700 vt323-latin-400].each do |font| %>
   <%= tag.link rel: "preload", href: vite_asset_path("fonts/#{font}-normal.woff2"), as: "font", type: "font/woff2", crossorigin: "anonymous" %>
 <% end %>
 
