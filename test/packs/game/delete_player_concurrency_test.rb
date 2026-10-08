@@ -80,6 +80,22 @@ class Game::DeletePlayerConcurrencyTest < ActiveSupport::TestCase
     end
   end
 
+  # Runs the blocks at once, each on its own connection, and returns their
+  # results in order; a thread that never returns fails the test.
+  def together(*blocks)
+    gate = Queue.new
+    threads = blocks.map do |block|
+      Thread.new do
+        ActiveRecord::Base.connection_pool.with_connection do
+          gate.pop
+          block.call
+        end
+      end
+    end
+    blocks.size.times { gate << :go }
+    threads.map { |thread| thread.join(20) ? thread.value : flunk("a thread is stuck: deadlock") }
+  end
+
   def delete_player = -> { Accounts::DeletePlayer.new.call(player: Accounts::Player.find(@player.id)) }
 
   # The opening's player is read before the deletion, as a request would.
@@ -125,21 +141,31 @@ class Game::DeletePlayerConcurrencyTest < ActiveSupport::TestCase
 
   test "openings and a deletion started together leave no row of the deleted player" do
     3.times { Game::OpenPack.new.call(player: @player) }
-    gate = Queue.new
     player = Accounts::Player.find(@player.id)
-    threads = [ open_pack(player), open_pack(player), delete_player ].map do |work|
-      Thread.new do
-        ActiveRecord::Base.connection_pool.with_connection do
-          gate.pop
-          work.call
-        end
-      end
-    end
-    3.times { gate << :go }
-    results = threads.map(&:value)
+
+    results = together(open_pack(player), open_pack(player), delete_player)
 
     assert results.last.success?
     results.first(2).select(&:failure?).each { |result| assert_includes %i[player_required no_pack_available], result.failure }
+    assert_equal none_left, leftovers
+  end
+
+  test "a deletion, an opening, a bonus and a heal started together leave no row of the deleted player" do
+    # A short bank of two available packs and three scheduled ones: the heal
+    # has packs to add, and the reserve never fills before the bonus.
+    Game::Pack.where(player_id: @player.id).delete_all
+    2.times { |index| create_pack(@player, available_at: (index + 1).minutes.ago) }
+    3.times { |index| create_pack(@player, available_at: (index + 1).minutes.from_now) }
+    player = Accounts::Player.find(@player.id)
+    bank_operations = [ Game::OpenPack, Game::CollectDailyBonus, Game::HealBank ]
+
+    deletion, *results = together(delete_player, *bank_operations.map { |operation| -> { operation.new.call(player:) } })
+
+    assert deletion.success?
+    assert_predicate @player.reload, :deleted?
+    results.zip(bank_operations).each do |result, operation|
+      assert result.success? || result == Dry::Monads::Failure(:player_required), "#{operation.name}: #{result.inspect}"
+    end
     assert_equal none_left, leftovers
   end
 end
