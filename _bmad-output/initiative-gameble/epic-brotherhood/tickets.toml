@@ -87,6 +87,7 @@ covers = ["R4"]
 after = [2, "5.2"]
 hitl = false
 risk = "low"
+notes = ["Decision (2026-10-08): the TOUS tab row is hidden by bug 13 until this story brings TOUS and AMIS together above the type filters (author)."]
 
 [[entry]]
 id = 9
