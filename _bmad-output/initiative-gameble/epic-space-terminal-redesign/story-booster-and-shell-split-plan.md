@@ -3,7 +3,7 @@ title: 'Booster and shell split'
 type: 'refactor'
 ticket: '15'
 created: '2026-10-08'
-status: 'built'
+status: done
 baseline_revision: 'df6e36dc6e6290439e566939e6aac4eee4a4a2a7'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'A private stream and live updates'
 type: 'feature'
 ticket: '9'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '9456caaec83deb65db340e76f3ac5648f565aba2'
 route: 'full'
 route_source: 'auto'

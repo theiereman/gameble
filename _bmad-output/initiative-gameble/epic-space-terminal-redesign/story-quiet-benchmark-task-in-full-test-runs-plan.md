@@ -3,7 +3,7 @@ title: 'Quiet benchmark task in full test runs'
 type: 'chore'
 ticket: '17'
 created: '2026-10-08'
-status: 'built'
+status: done
 baseline_revision: '7382c7668715311b5aae961bdc48d02cbf6dac44'
 route: 'oneshot'
 route_source: 'auto'
