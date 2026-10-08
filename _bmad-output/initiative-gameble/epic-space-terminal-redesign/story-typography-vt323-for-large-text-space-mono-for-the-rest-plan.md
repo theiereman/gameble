@@ -3,7 +3,7 @@ title: 'Typography: VT323 for large text, Space Mono for the rest'
 type: 'feature'
 ticket: '14'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '69577d6a35f822de8e26a257005310e676d52cc2'
 route: 'full'
 route_source: 'auto'

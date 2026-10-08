@@ -3,7 +3,7 @@ title: 'Airier spacing, a centred booster opening and a still star field'
 type: 'feature'
 ticket: '6'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '4cb65b1bf4c67092cb1a1bac6972c63a7c57f508'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'Drop dust_tier'
 type: 'chore'
 ticket: '7'
 created: '2026-10-06'
-status: 'built'
+status: done
 baseline_revision: '102a5f75ea22cbbd8cbd97001f353ead3ad5e187'
 route: 'full'
 route_source: 'auto'

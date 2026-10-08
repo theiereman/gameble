@@ -3,7 +3,7 @@ title: 'Profile visibility setting'
 type: 'feature'
 ticket: '2'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: 'fa1676d08778595dc0c244091066abb7b0b49786'
 route: 'full'
 route_source: 'auto'
