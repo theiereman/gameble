@@ -8,7 +8,7 @@ scope: 'The gameble MVP as a whole: one Rails application, its four domain packs
 status: final
 created: '2026-10-02'
 updated: '2026-10-08'
-binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21]
+binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22]
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/catalog-and-rarity.md
@@ -29,10 +29,10 @@ A **modular monolith with an operations layer**: one Rails application, four dom
 
 | Layer | Directory | Holds |
 | --- | --- | --- |
-| `Catalog` | `packs/catalog` | Cards, card texts per locale, genres, seasons, a card's rarity and number for a season, sets |
+| `Catalog` | `packs/catalog` | Cards, card texts per locale, the theme list, seasons, a card's rarity and number for a season, sets and their tiers |
 | `Steam` | `packs/steam` | Steam API client, import jobs, raw Steam data, import runs, sign-in verification |
 | `Accounts` | `packs/accounts` | Players, staff roles, last seen, profile visibility, preferences, bans, reports, data controls |
-| `Game` | `packs/game` | Pack bank, owned cards, trades, invitations, friendships, card backs, weekly goal, daily bonus, achievements, feed, presence activity, events and their handlers |
+| `Game` | `packs/game` | Pack bank, owned cards, trades, invitations, friendships, set tiers reached, card backs, profile titles, menu themes, weekly goal, daily bonus, achievements, feed, presence activity, events and their handlers |
 | Web layer | `app/` | Controllers, policies, view components, Stimulus controllers, React islands, back-office, legal page |
 | Image filter | `app/frontend/lib/card_art` | The card-art worker and renderer, on the `pixelcrush` npm package |
 
@@ -84,7 +84,9 @@ graph TD
 - **Rule:**
   - An import fills a draft season. `Catalog::PublishSeason` turns scores into the 5 tiers, gives every card of the season its number by a random shuffle (`SecureRandom`), builds the sets and makes the season visible at once. Only `PublishSeason` assigns numbers; a season published before numbers existed gets them once, by the same shuffle.
   - Draws read only the published season.
-  - Rarity, number and set memberships belong to the card-season and never change after publication. A card's genre in a season is the genre of its tome in that season; a card in no tome shows no genre.
+  - Rarity, number and set memberships belong to the card-season and never change after publication. A card's genre in a season is its main theme in that season; a card in the UFOs shows no genre.
+  - Set kinds are `theme`, `franchise`, `studio`, `hall_of_fame` and `ufo`. A season published with the retired kinds (`publisher`, `tome`, `best_of_year`) gets its sets rebuilt once, before the public launch, by a `Catalog` operation whose event a `Game` handler answers by dropping that season's set tiers.
+  - A set's kind decides its tiers: `theme` and `hall_of_fame` have bronze, silver and gold at fixed shares of the set's distinct cards, rounded up, gold being complete; the other kinds have only complete. The shares are one constant in `Catalog`, read by `Game`'s operations and by the collection's queries.
   - A card's identity (texts, publisher, release date, store and image URL) is shared by its seasons and follows Steam: it is refreshed by the import (`Catalog::UpsertDraftCard`) and by AD-19's image refresh, nothing else.
 
 ### AD-6 — Owned cards are counted, not listed `[ADOPTED]`
@@ -124,15 +126,15 @@ graph TD
 
 - **Binds:** CAP-12, CAP-13, CAP-16, CAP-17, CAP-21
 - **Prevents:** lock queues on a hot row.
-- **Rule:** Shared figures are derived from per-player rows. Uniqueness is left to the database: one daily-bonus row per player and UTC day, one first-discovery row per card-season, one reward row per player and week, one unlock row per player and card back.
+- **Rule:** Shared figures are derived from per-player rows. Uniqueness is left to the database: one daily-bonus row per player and UTC day, one first-discovery row per card-season, one reward row per player and week, one set-tier row per player, set and tier, one unlock row per player and card back, title or menu theme.
 
 ### AD-10 — Events are the only bridge to derived data `[ADOPTED]`
 
-- **Binds:** CAP-12, CAP-13, CAP-14, CAP-17, CAP-19, CAP-20, CAP-21
+- **Binds:** CAP-6, CAP-12, CAP-13, CAP-14, CAP-17, CAP-19, CAP-20, CAP-21, CAP-22
 - **Prevents:** a feed, gauge, unlock or achievement computed three different ways; personal data frozen in a log; a race or a duplicate aborting an opening.
 - **Rule:**
   - An operation that changes state publishes one primary Rails Event Store event inside its transaction; an operation that changes nothing publishes nothing, and housekeeping writes (last seen, the NOUVEAU watermark) publish none. Events are never modified.
-  - An operation that raises a player's quantities then publishes one `Game::SetCompleted` per set that player completes for the first time, decided by inserting a set-completion row (unique per player and set) with `ON CONFLICT DO NOTHING`.
+  - An operation that raises a player's quantities then publishes one `Game::SetTierReached` per tier of a set that player reaches for the first time and one `Game::SetCompleted` per set completed for the first time, each decided by inserting a set-tier row (unique per player, set and tier) with `ON CONFLICT DO NOTHING`. A tier once reached stays reached when cards leave.
   - A handler runs in that transaction, never publishes an event, and writes only rows of that player or new rows: a feed entry, a weekly contribution, an achievement, a card back unlock, the player's latest activity. Unique rows are inserted with `ON CONFLICT DO NOTHING`; a duplicate never fails the operation.
   - Lock order inside a transaction: each player's advisory lock (`Game::BankLock`) in ascending player id, then holdings in ascending player then card-season, then the players' `game_player_states` rows.
   - Totals across players (the gauge) are summed by one periodic job.
@@ -272,10 +274,11 @@ graph TD
 
 ### AD-25 — Card backs live in code `[ADOPTED]`
 
-- **Binds:** CAP-20
+- **Binds:** CAP-20, CAP-22
 - **Prevents:** two catalogues of backs; unlocks granted from several places.
 - **Rule:**
-  - The back catalogue is one constant in `Game`: each back has a key, an exported asset file and an unlock rule. Adding a back is a commit.
+  - The back catalogue is one constant in `Game`: each back has a key, an exported asset file and an unlock rule. Adding a back is a commit. A set's back unlocks on gold on that set.
+  - Profile titles and menu themes (CAP-22) follow the same rules: catalogues in code, unlock rows per player, one active choice on `game_player_states`, granted only by `Game` handlers. A title is rendered from a template per set kind and the set's name, never stored as text.
   - Unlocks are rows per player and back, unique. The active back is a column of the player's `game_player_states` row. Every account has `standard`.
   - Unlocks are granted only by `Game` handlers on events (AD-10), and by one administrator operation run from the console that grants a back to a group of players, one player per transaction.
   - An unlock is announced by the opening's response (AD-23) or the private stream (AD-13).
@@ -413,7 +416,9 @@ erDiagram
   ACCOUNTS_PLAYER ||--o{ GAME_INVITATION : sends
   ACCOUNTS_PLAYER ||--o{ GAME_FRIENDSHIP : has
   ACCOUNTS_PLAYER ||--o{ GAME_BACK_UNLOCK : unlocks
-  ACCOUNTS_PLAYER ||--o{ GAME_SET_COMPLETION : completes
+  ACCOUNTS_PLAYER ||--o{ GAME_SET_TIER : reaches
+  ACCOUNTS_PLAYER ||--o{ GAME_TITLE_UNLOCK : unlocks
+  ACCOUNTS_PLAYER ||--o{ GAME_THEME_UNLOCK : unlocks
   ACCOUNTS_PLAYER ||--o{ GAME_DAILY_BONUS_CLAIM : claims
   ACCOUNTS_PLAYER ||--o{ GAME_GOAL_CONTRIBUTION : contributes
   ACCOUNTS_PLAYER ||--o{ GAME_ACHIEVEMENT_UNLOCK : earns
@@ -427,6 +432,7 @@ erDiagram
   CATALOG_SEASON ||--o{ CATALOG_CARD_SEASON : contains
   CATALOG_SEASON ||--o{ CATALOG_SET : defines
   CATALOG_SET ||--o{ CATALOG_SET_MEMBERSHIP : lists
+  CATALOG_SET ||--o{ GAME_SET_TIER : "is reached in"
   CATALOG_CARD_SEASON ||--o{ CATALOG_SET_MEMBERSHIP : "belongs to"
   CATALOG_CARD_SEASON ||--o{ GAME_HOLDING : "is held as"
   CATALOG_CARD_SEASON ||--o{ GAME_PACK_CARD : "is drawn as"
@@ -466,7 +472,7 @@ gameble/
 | CAP-3 Rarity | `Steam` (score), `Catalog` (tiers) | AD-4, AD-5 |
 | CAP-4 Packs | `Game`, booster island | AD-3, AD-6, AD-7, AD-23 |
 | CAP-5 Reveal | booster island, image filter | AD-7, AD-16, AD-17, AD-23, AD-27 |
-| CAP-6 Collection and sets | `Game` (holdings), `Catalog` (sets) | AD-5, AD-6, AD-11, AD-26 |
+| CAP-6 Collection and sets | `Game` (holdings, set tiers), `Catalog` (sets, theme list) | AD-5, AD-6, AD-10, AD-11, AD-26 |
 | CAP-7 Card face and detail | web layer, `Catalog` | AD-5, AD-11, AD-15, AD-16, AD-18 |
 | CAP-8 Profile and visibility | web layer, `Accounts`, `Game` | AD-11, AD-14, AD-15 |
 | CAP-9 Share link | web layer, `Catalog` | AD-15 |
@@ -482,14 +488,15 @@ gameble/
 | CAP-19 Repost | `Game` | AD-3, AD-10, AD-13 |
 | CAP-20 Card backs | `Game`, booster island | AD-9, AD-10, AD-25 |
 | CAP-21 Presence | `Accounts` (last seen), `Game` (activity) | AD-9, AD-10, AD-24 |
+| CAP-22 Titles and menu themes (after the launch) | `Game`, web layer | AD-10, AD-18, AD-25 |
 | Legal page | web layer | AD-18 |
 
 ## Deferred
 
 - **Prestige formula and tier thresholds:** settled on the first real import: the tier shares in `Catalog::RarityThresholds` were kept, and the formula is `log10(review_count) + 4 × Wilson lower bound` (author, 2026-10-06, story 2.12; `catalog-and-rarity.md`, Rarity).
-- **Achievement list, the weekly goal pack's odds, weight of a trade in the weekly goal, the goal's reached, missed and rollover states:** product questions still open in the spec; the structures above hold whatever is chosen.
-- **Reward packs and the cap of ten:** whether the weekly goal's pack lands above 10 (spec open question); AD-7 holds either answer.
-- **Which card backs ship and their unlock rules:** open in the spec; AD-25's constant holds them.
+- **Which card backs ship beyond one per set at gold:** goal, achievement and event backs are open in the spec; AD-25's constant holds them.
+- **Set numbers on real data:** the theme list, the franchise and studio minimum, the hall of fame thresholds and the tier shares are set by the spike that opens epic-recognizable-sets; AD-5 fixes only where they live.
+- **Theme list as back-office data:** when Season preparation moves it out of code, theme names become catalog data, an AD-18 exception like card text; designed in an update run before that story.
 - **Feed selection thresholds and ticker events:** tuned with real activity; the rule lives in one handler (AD-13).
 - **Presence windows:** the "online" window and the activity's display time are tuned in play; AD-24 fixes only where they are read from.
 - **Reference low-end Android and the performance spike:** the device is chosen before the booster story, which starts with a spike on the opening, the Légendaire sequence and an idle hub (AD-27's budget).
@@ -500,7 +507,6 @@ gameble/
 - **Event retention and partitioning:** decide when the event tables pass 50 million rows.
 - **Read replica:** added when the primary's read load is measured as the limit; AD-11 makes it a configuration change.
 - **Dedicated real-time or job backend:** when Solid Cable or Solid Queue is measured as the limit; AD-12 makes it a configuration change.
-- **Weekly goal target formula:** how the target scales with weekly active players; the weekly goal row and the periodic job carry it.
 - **Production VPS, its registry, backup schedule and restore drill:** set before launch; staging exists since 2026-10-06.
 - **K3s:** only if Kamal on several servers stops being enough.
 - **Publishing the image filter:** an npm package, then a Rails gem wrapper; a side quest outside the MVP. AD-17 keeps it extractable.
