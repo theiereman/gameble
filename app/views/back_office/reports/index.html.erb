@@ -1,0 +1,85 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <section class="stack" aria-labelledby="report-queue" data-report-queue>
+    <h2 id="report-queue"><%= t(".queue") %></h2>
+
+    <% if @reports_by_player.empty? %>
+      <%= render PanelComponent.new(tag: :p) do %>
+        <%= t(".queue_empty") %>
+      <% end %>
+    <% end %>
+
+    <% @reports_by_player.each do |reported, reports| %>
+      <% name = public_profile_title(reported) %>
+      <section class="stack" data-reported="<%= reported.token %>">
+        <h3><%= Game::Visibility.visible?(nil, reported) ? link_to(name, brother_path(token: reported.token)) : name %></h3>
+        <table class="ledger">
+          <caption class="visually-hidden"><%= t(".reports_caption", name:) %></caption>
+          <thead>
+            <tr>
+              <th scope="col"><%= t(".reason") %></th>
+              <th scope="col"><%= t(".reporter") %></th>
+              <th scope="col"><%= t(".reported_at") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% reports.each do |report| %>
+              <tr data-report-reason="<%= report.reason %>">
+                <td><%= t("reports.reasons.#{report.reason}") %></td>
+                <td><%= public_profile_title(report.reporter) %></td>
+                <td><%= render "back_office/import_runs/time", time: report.created_at %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <% unless reported.administrator? || reported == current_player %>
+          <p>
+            <%= render ButtonComponent.new(variant: :danger, href: back_office_player_ban_path(token: reported.token), method: :post,
+                  confirm: t(".ban_confirm", name:)) do %><%= t(".ban", name:) %><% end %>
+          </p>
+        <% end %>
+      </section>
+    <% end %>
+  </section>
+
+  <section class="stack" aria-labelledby="banned-players" data-banned-players>
+    <h2 id="banned-players"><%= t(".banned") %></h2>
+
+    <% if @banned_players.empty? %>
+      <%= render PanelComponent.new(tag: :p) do %>
+        <%= t(".banned_empty") %>
+      <% end %>
+    <% else %>
+      <table class="ledger">
+        <caption class="visually-hidden"><%= t(".banned_caption") %></caption>
+        <thead>
+          <tr>
+            <th scope="col"><%= t(".player") %></th>
+            <th scope="col"><%= t(".banned_at") %></th>
+            <th scope="col"><span class="visually-hidden"><%= t(".unban_column") %></span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @banned_players.each do |player| %>
+            <% name = public_profile_title(player) %>
+            <tr data-banned="<%= player.token %>">
+              <td><%= name %></td>
+              <td><%= render "back_office/import_runs/time", time: player.banned_at %></td>
+              <td>
+                <%= render ButtonComponent.new(variant: :secondary, size: :small, href: back_office_player_unban_path(token: player.token), method: :post,
+                      confirm: t(".unban_confirm", name:)) do %><%= t(".unban", name:) %><% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  </section>
+</div>

@@ -19,14 +19,15 @@ module BackOffice
     end
 
     [ :moderator, :administrator ].each do |role|
-      test "a #{role} opens the empty back-office" do
+      test "a #{role} opens the back-office" do
         sign_in(accounts_players(role))
 
         get back_office_path(locale: :fr)
 
         assert_response :success
         assert_select "h1", "Le back-office de la Confrérie"
-        assert_select "main .panel", "Rien n'attend encore les officiers. Les registres sont vierges."
+        assert_select "main .panel", I18n.t("back_office.dashboard.show.intro", locale: :fr)
+        assert_select "a[href='/fr/back-office/reports']", "Les signalements"
         assert_select ".top-bar__start > a.button--secondary:first-child[href='/fr']", "Pont"
         assert_select "a[href='/fr/back-office']", false
         assert_select "body.is-back-office"

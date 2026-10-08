@@ -80,6 +80,26 @@ Sentry receives production errors only (no tracing, no profiling, no personal da
 
 `POST /auth/steam`, `GET /auth/steam/callback` and `GET /auth/failure` accept 10 requests a minute per client IP (Rack::Attack, counts in `Rails.cache`); the 11th gets 429. Page reads are never throttled. Behind Cloudflare, the client IP must be the visitor's real IP, not Cloudflare's: that is deployment work.
 
+### Staff accounts and bans
+
+Every account signs up as a player. A moderator reaches the back-office and its Reports page; an administrator also reaches the import, the seasons, the card press and the job queue. An account becomes staff from the production console (`bin/kamal console`), by the Steam id of its owner, who has signed in once:
+
+```ruby
+Accounts::Player.find_by!(steam_id: "76561197960287930").update!(role: :moderator)     # or :administrator
+Accounts::Player.find_by!(steam_id: "76561197960287930").update!(role: :player)        # back to a player
+```
+
+Staff ban and unban at `/<locale>/back-office/reports`: the reported players, the latest report first, and below them the banned players. A ban stops the player signing in, signs them out on their next request, hides their profile and ends their friendships, invitations and open trades; lifting it lets them sign in and shows their profile again, without what the ban ended. No one bans an administrator or themselves. A player who was never reported is banned from the console, through the same operation, by the token in their profile's URL (`/<locale>/brothers/<token>`), on behalf of a staff account:
+
+```ruby
+officer = Accounts::Player.find_by!(steam_id: "76561197960287930")
+player = Accounts::PlayerByToken.call("8fRbREJutTNEvhJdRHHihZ78")
+Accounts::BanPlayer.new.call(actor: officer, player:)    # => Success(player) or Failure(:code)
+Accounts::UnbanPlayer.new.call(actor: officer, player:)
+```
+
+Never set `banned_at` by hand: the operation publishes the ban, which ends the player's friendships and trades.
+
 ### Job queue
 
 Administrators open Mission Control Jobs at `/back-office/jobs` (linked from the back-office). Anyone else is refused.

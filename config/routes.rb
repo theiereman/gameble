@@ -100,8 +100,9 @@ Rails.application.routes.draw do
     # Staff only (R9): moderators and administrators.
     get "back-office" => "back_office/dashboard#show", as: :back_office
 
-    # The Steam import runs (AD-19), administrators only.
+    # The back-office pages, staff only; each policy says which staff role.
     scope "back-office", module: :back_office, as: :back_office do
+      # The Steam import runs, administrators only.
       resources :import_runs, path: "import-runs", only: %i[index show create] do
         post :resume, on: :member
         post :rescore, on: :member
@@ -115,6 +116,13 @@ Rails.application.routes.draw do
 
       # The card preview, both renderers side by side, administrators only.
       resources :cards, only: :index
+
+      # The reports, bans and unbans, moderators and administrators.
+      resources :reports, only: :index
+      post "players/:token/ban" => "bans#create", as: :player_ban,
+        constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+      post "players/:token/unban" => "bans#destroy", as: :player_unban,
+        constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     end
   end
 

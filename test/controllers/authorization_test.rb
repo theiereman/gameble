@@ -130,6 +130,24 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("errors.accounts.banned", locale: :en), flash[:alert]
   end
 
+  test "a player banned by a moderator is refused at sign-in, and signs in again once unbanned" do
+    player = accounts_players(:player)
+    moderator = accounts_players(:moderator)
+    Accounts::BanPlayer.new.call(actor: moderator, player:).value!
+
+    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
+    post "/auth/steam", params: { origin: "/en" }
+    follow_redirect!
+
+    assert_nil session[:player_id]
+    assert_equal I18n.t("errors.accounts.banned", locale: :en), flash[:alert]
+
+    Accounts::UnbanPlayer.new.call(actor: moderator, player:).value!
+    sign_in(player)
+
+    assert_equal I18n.t("sessions.create.welcome", locale: :en), flash[:notice]
+  end
+
   test "a refused player gets 403 with the translated message" do
     with_test_routes do
       sign_in(accounts_players(:player))

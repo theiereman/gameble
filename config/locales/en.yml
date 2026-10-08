@@ -173,11 +173,37 @@ en:
     dashboard:
       show:
         heading: "The Brotherhood's back-office"
-        empty: "Nothing awaits the officers yet. The ledgers lie blank."
+        intro: "The officers' quarters: the reports to weigh and the bans to keep, and for administrators the catalog's ledgers."
+        reports: "The reports"
         jobs: "The job queue"
         import_runs: "The Steam import"
         seasons: "The catalog seasons"
         cards: "The card press"
+    reports:
+      index:
+        heading: "The reports"
+        intro: "Players report a profile for its name or its conduct. A ban stops the player signing in, hides their profile and ends their friendships and open trades; lifting it lets them sign in and shows their profile again, without the friendships or the trades. An administrator cannot be banned, and no officer can ban themselves."
+        queue: "Reported players"
+        queue_empty: "No report waits, officer."
+        reports_caption: "Reports on %{name}, the latest first"
+        reason: "Reason"
+        reporter: "Reported by"
+        reported_at: "Date"
+        ban: "Ban %{name}"
+        ban_confirm: "Ban %{name}? They can no longer sign in, their profile is hidden, and their friendships and open trades end."
+        banned: "Banned players"
+        banned_empty: "No player is banned."
+        banned_caption: "Banned players, the latest ban first"
+        player: "Player"
+        banned_at: "Banned"
+        unban_column: "Lift the ban"
+        unban: "Unban %{name}"
+        unban_confirm: "Lift the ban on %{name}? They can sign in again and their profile shows again; their friendships and trades do not come back."
+    bans:
+      create:
+        banned: "The player is banned, officer. They can no longer sign in and their profile is hidden."
+      destroy:
+        unbanned: "The ban is lifted, officer. The player can sign in again."
     import_runs:
       statuses:
         pending: "Waiting"
@@ -1006,6 +1032,11 @@ en:
       player_not_found: "That profile could not be found."
       cannot_report_self: "You cannot report your own profile."
       rate_limited: "You have sent many reports today. Try again tomorrow."
+      staff_required: "Only an officer in good standing can ban a player or lift a ban."
+      cannot_ban_administrator: "An administrator cannot be banned, officer."
+      cannot_ban_self: "You cannot ban yourself, officer."
+      already_banned: "That player is already banned, officer."
+      not_banned: "That player is not banned, officer."
     catalog:
       missing_text: "The scribes need the card's title in every tongue of the Brotherhood before it can enter the ledger."
       invalid_card: "The scribes cannot enter that card in the ledger: its particulars are incomplete or out of order."

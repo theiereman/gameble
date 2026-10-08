@@ -4,7 +4,13 @@
   <h1><%= t(".heading") %></h1>
 
   <%= render PanelComponent.new(tag: :p) do %>
-    <%= t(".empty") %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <% if policy([ :back_office, :reports ]).index? %>
+    <p>
+      <%= render ButtonComponent.new(variant: :secondary, href: back_office_reports_path) do %><%= t(".reports") %><% end %>
+    </p>
   <% end %>
 
   <% if policy([ :back_office, :import_runs ]).index? %>

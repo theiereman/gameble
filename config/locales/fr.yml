@@ -178,11 +178,37 @@ fr:
     dashboard:
       show:
         heading: "Le back-office de la Confrérie"
-        empty: "Rien n'attend encore les officiers. Les registres sont vierges."
+        intro: "Le quartier des officiers : les signalements à examiner et les bannissements à tenir, et pour les administrateurs les registres du catalogue."
+        reports: "Les signalements"
         jobs: "La file des tâches"
         import_runs: "L'import Steam"
         seasons: "Les saisons du catalogue"
         cards: "La presse à cartes"
+    reports:
+      index:
+        heading: "Les signalements"
+        intro: "Les joueurs signalent un profil pour son nom ou sa conduite. Un bannissement empêche le joueur de se connecter, masque son profil et met fin à ses amitiés et à ses échanges en cours ; le lever lui rend la connexion et son profil, sans ses amitiés ni ses échanges. Un administrateur ne peut pas être banni, et aucun officier ne peut se bannir lui-même."
+        queue: "Joueurs signalés"
+        queue_empty: "Aucun signalement n'attend, officier."
+        reports_caption: "Signalements visant %{name}, les plus récents d'abord"
+        reason: "Motif"
+        reporter: "Signalé par"
+        reported_at: "Date"
+        ban: "Bannir %{name}"
+        ban_confirm: "Bannir %{name} ? Ce joueur ne pourra plus se connecter, son profil sera masqué, et ses amitiés et ses échanges en cours prendront fin."
+        banned: "Joueurs bannis"
+        banned_empty: "Aucun joueur n'est banni."
+        banned_caption: "Joueurs bannis, le bannissement le plus récent d'abord"
+        player: "Joueur"
+        banned_at: "Banni le"
+        unban_column: "Lever le bannissement"
+        unban: "Lever le bannissement de %{name}"
+        unban_confirm: "Lever le bannissement de %{name} ? Ce joueur pourra de nouveau se connecter et son profil sera de nouveau visible ; ses amitiés et ses échanges ne reviennent pas."
+    bans:
+      create:
+        banned: "Le joueur est banni, officier. Il ne peut plus se connecter et son profil est masqué."
+      destroy:
+        unbanned: "Le bannissement est levé, officier. Le joueur peut de nouveau se connecter."
     import_runs:
       statuses:
         pending: "En attente"
@@ -1028,6 +1054,11 @@ fr:
       player_not_found: "Ce profil est introuvable."
       cannot_report_self: "Vous ne pouvez pas signaler votre propre profil."
       rate_limited: "Vous avez envoyé beaucoup de signalements aujourd'hui. Réessayez demain."
+      staff_required: "Seul un officier en règle peut bannir un joueur ou lever un bannissement."
+      cannot_ban_administrator: "Un administrateur ne peut pas être banni, officier."
+      cannot_ban_self: "Tu ne peux pas te bannir toi-même, officier."
+      already_banned: "Ce joueur est déjà banni, officier."
+      not_banned: "Ce joueur n'est pas banni, officier."
     catalog:
       missing_text: "Les scribes ont besoin du titre de la carte dans chaque langue de la Confrérie avant de l'inscrire au registre."
       invalid_card: "Les scribes ne peuvent pas inscrire cette carte au registre : ses particularités sont incomplètes ou en désordre."
