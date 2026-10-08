@@ -7,7 +7,7 @@ paradigm: 'modular monolith with an operations layer'
 scope: 'The gameble MVP as a whole: one Rails application, its four domain packs, its web layer, the Steam import and the deployment.'
 status: final
 created: '2026-10-02'
-updated: '2026-10-05'
+updated: '2026-10-08'
 binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21]
 sources:
   - ../spec-gameble/spec-gameble.md
@@ -102,7 +102,7 @@ graph TD
   - Each pack kind (regular, daily bonus, weekly reward) fixes its card count and its odds table: 5 cards at the published odds for a regular pack, 3 at the bonus odds for the daily bonus.
   - A new player's bank is filled by a `Game` handler reacting to `Accounts::PlayerRegistered`, with the first-session guarantee of the spec.
   - A replacement pack becomes available ten minutes after the latest availability time in the bank, or ten minutes after the opening when the bank was full.
-  - `Game::OpenPack` takes the player's bank lock, consumes the oldest available pack of any kind, credits its cards, publishes its event, and tops the bank back up to ten in the same transaction (`Game::TopUpBank`): each replacement is drawn at once from the in-memory pool. The only other drawer is `Game::HealBanksJob`, which fills banks left short when a season is published, one player per transaction.
+  - `Game::OpenPack` takes the player's bank lock, consumes the oldest available pack of any kind, credits its cards, publishes its event, and, for a regular pack, draws its one replacement in the same transaction (`Game::TopUpBank`) at once from the in-memory pool. A bank already short of ten, left so by openings while no season was published, stays short: an opening never fills it. The only other drawer is `Game::HealBanksJob`, which, when a season is published, gives every short bank all its missing packs at once, available at once, one player per transaction.
   - A draw picks the tier by the pack kind's odds, then a card uniformly within the tier, with secure randomness, from an in-memory list of the published season.
   - The reserve shown to the player is every unopened pack, of any kind, already available. The daily bonus claim fails with `reserve_full` while it holds 10; the operation and the page read that from one query.
   - The reveal is a browser animation. The server keeps no flip state.
