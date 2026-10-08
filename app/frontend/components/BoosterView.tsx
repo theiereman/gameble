@@ -18,7 +18,8 @@ import type { Announcement } from "./useLiveRegion"
 import type { Rarity } from "../lib/card_types"
 import { formatNumber, t } from "../lib/i18n"
 import type { OpeningAnswer, OpeningCard } from "../lib/opening"
-import { faceSize, formatClock, pileDepth, topOfPile, utcTime, type Layout } from "../lib/booster"
+import { faceSize, formatClock, pileDepth, topOfPile, utcTime, zoomNeighbour, type Layout } from "../lib/booster"
+import { cardHref } from "../lib/booster_page"
 import type { BoosterBank, BoosterPhase, BoosterProps, BoosterStatus } from "../lib/booster_props"
 
 const RESERVE_PIPS = 10
@@ -72,6 +73,10 @@ export type BoosterViewHandlers = {
   storeTop: () => void
   openZoom: (index: number) => void
   closeZoom: () => void
+  /** The zoom's previous (-1) or next (1) filled tray slot. */
+  stepZoom: (step: -1 | 1) => void
+  /** "Voir la fiche" in the zoom. */
+  seeZoomed: (event: MouseEvent<HTMLAnchorElement>) => void
   endBanner: (key: number) => void
   /** The way back does nothing while the navigation is locked. */
   guardBack: (event: MouseEvent<HTMLAnchorElement>) => void
@@ -89,11 +94,11 @@ export type BoosterViewProps = {
 }
 
 export default function BoosterView({ props, state, left, elements, handlers }: BoosterViewProps) {
-  const { hubUrl, cardUrl, delimiter, season, packSize, rarityNames, rarityIcons, strings } = props
+  const { hubUrl, cardUrl, delimiter, season, packSize, rarityNames, rarityIcons, arrowIcons, strings } = props
   const { phase, status, bank, answer, revealed, revealedAt, stored, dealt, armed, headShown, canisterAway, dock, reason, legendary, banner } = state
   const { revealingAll, storing, locked, layout, stageKey, zoom, announcements } = state
   const { section, canister, shake, flash, fx, openButton, backLink, slotRefs, traySlotRef } = elements
-  const { open, revealAll, activateCard, storeTop, openZoom, closeZoom, endBanner, guardBack, gestures } = handlers
+  const { open, revealAll, activateCard, storeTop, openZoom, closeZoom, stepZoom, seeZoomed, endBanner, guardBack, gestures } = handlers
   const number = (value: number) => formatNumber(value, delimiter)
   const tierLabel = (tier: Rarity) => (tier === "legendary" ? t(strings.legendaryBanner, { rarity: rarityNames[tier] }) : rarityNames[tier])
 
@@ -366,18 +371,21 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
         </div>
       )}
 
-      {zoomed && zoom !== null && (
+      {zoomed && zoom !== null && answer && (
         <BoosterZoom
-          key={zoom}
           tier={zoomed.tier}
           title={zoomed.title}
           face={zoomed.faces.xl}
           icon={rarityIcons[zoomed.tier]}
           line={t(strings.zoomLine, { rarity: rarityNames[zoomed.tier], year: zoomed.year ?? "" })}
-          href={cardUrl.replace("SLUG", encodeURIComponent(zoomed.slug))}
+          href={cardHref(cardUrl, zoomed.slug, answer.pack.token, zoom)}
           seeCard={strings.seeCard}
           close={strings.close}
           tip={strings.zoomTip}
+          previous={{ label: strings.zoomPrevious, icon: arrowIcons.previous, enabled: zoomNeighbour(stored, zoom, -1) !== null }}
+          next={{ label: strings.zoomNext, icon: arrowIcons.next, enabled: zoomNeighbour(stored, zoom, 1) !== null }}
+          onStep={stepZoom}
+          onSee={seeZoomed}
           onClose={closeZoom}
         />
       )}

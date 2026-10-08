@@ -347,6 +347,17 @@ export function pileDepth(index: number, stored: boolean[]): number {
   return depth
 }
 
+/**
+ * The card zoom's neighbour: the filled tray slot before (`step` -1) or
+ * after (1) slot `index`, in booster order, or null when there is none.
+ */
+export function zoomNeighbour(stored: boolean[], index: number, step: -1 | 1): number | null {
+  for (let position = index + step; position >= 0 && position < stored.length; position += step) {
+    if (stored[position]) return position
+  }
+  return null
+}
+
 /** How far, in px, a finger travels on a revealed card before it drags it. */
 export const SWIPE_START = 10
 

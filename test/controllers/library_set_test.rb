@@ -76,11 +76,12 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     # A tome holds one genre: one genre chip.
     assert_equal [ "Action" ], css_select("[data-group=genre] .filter-chip__text").map(&:text)
     # Every face and missing slot leads to its card's detail in this season,
-    # browsing this set (its ◀ ▶, a card not held as the faded back); "xn"
-    # stays outside the link.
+    # walking this set's grid as shown (its ◀ ▶, a card not held as the
+    # faded back); "xn" stays outside the link.
     slugs = Catalog::CardSeason.where(id: members).includes(:card).index_by(&:id).transform_values { it.card.slug }
     links = css_select(".collection-grid > li > a.card-link")
-    assert_equal members.map { |id| "/en/cards/#{slugs.fetch(id)}/seasons/#{season.number}?set_key=action-1&set_kind=tome" },
+    grid = { grid: { kind: "tome", key: "action-1", q: "", state: %w[all] } }.to_query
+    assert_equal members.map { |id| "/en/cards/#{slugs.fetch(id)}/seasons/#{season.number}?#{grid}" },
       links.map { it["href"] }
     assert_equal members.map { |id| [ "false", id.in?([ members[0], members[3], members[24] ]) ? ".card" : ".missing-slot" ] },
       links.map { |link| [ link["data-turbo-prefetch"], link.at_css(".card") ? ".card" : ".missing-slot" ] }

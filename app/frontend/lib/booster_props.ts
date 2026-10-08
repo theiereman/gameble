@@ -1,9 +1,11 @@
 // The booster island's props, as BoostersHelper#booster_props writes them:
-// the URLs, the bank, the tiers' names and icons, and every word; and the
-// island's phase and status, which its view draws. Types only, so the
-// entrypoint can name them without loading the island.
+// the URLs, the bank, the tiers' names and icons, every word and an opened
+// pack to show again; and the island's phase and status, which its view
+// draws. Types only, so the entrypoint can name them without loading the
+// island.
 import type { Rarity } from "./card_types"
 import type { Template } from "./i18n"
+import type { OpeningAnswer } from "./opening"
 
 /** Where the island is: the canister sealed, the reserve empty, an opening running, cards dealt. */
 export type BoosterPhase = "sealed" | "empty" | "opening" | "dealt"
@@ -67,6 +69,8 @@ export type BoosterStrings = {
   seeCard: string
   close: string
   zoomTip: string
+  zoomPrevious: string
+  zoomNext: string
 }
 
 export type BoosterBank = {
@@ -94,5 +98,9 @@ export type BoosterProps = {
   rarityNames: Record<Rarity, string>
   /** Each tier's pixel icon, as HTML. */
   rarityIcons: Record<Rarity, string>
+  /** The card zoom's ◀ and ▶ pixel icons, as HTML. */
+  arrowIcons: { previous: string; next: string }
   strings: BoosterStrings
+  /** An opened pack to show dealt, every card face up (the way back from a card's detail), as the opening exchange answers it; null for the canister. */
+  opened: OpeningAnswer | null
 }

@@ -9,9 +9,9 @@
  * is wide enough (a container query, so a narrow right-hand panel stacks
  * them too); one column otherwise.
  *
- * Under 720px (the phone sub-view): ◀ ▶ beside the card, 44 × 64, the
- * position line shown and the header's number hidden (the line carries
- * it), the actions pinned above the tab bar. A step between cards
+ * ◀ ▶ beside the card, 44 × 64, at every width. Under 720px (the phone
+ * sub-view): the position line shown and the header's number hidden (the
+ * line carries it), the actions pinned above the tab bar. A step between cards
  * (sub_view_controller.ts) slides the card out toward the step and the
  * next one in with a slight turn, in a View Transition; under reduced
  * motion nothing moves (styles/shell.css drops every View Transition
@@ -110,10 +110,11 @@
   opacity: 0.7;
 }
 
-/* ◀ and ▶: shown on the phone only. A link, or a disabled button at an
-   end of the set (the position line says where the card stands). */
+/* ◀ and ▶, at every width: a link, or a disabled button at an end of
+   what the detail browses (on the phone the position line says where the
+   card stands). */
 .card-detail__nav {
-  display: none;
+  display: inline-flex;
   flex: none;
   align-items: center;
   justify-content: center;
@@ -476,10 +477,6 @@
 
   .card-detail__number {
     display: none;
-  }
-
-  .card-detail__nav {
-    display: inline-flex;
   }
 
   .card-detail__position {

@@ -1,12 +1,11 @@
 import { Controller } from "@hotwired/stimulus"
-import { backSteps, currentIndex, entryAfter, recordEntry, resetTrail, sessionTrailStorage } from "../lib/history_trail"
+import { currentIndex, entryAfter, recordEntry, resetTrail, sessionTrailStorage, stepsBackTo } from "../lib/history_trail"
 
-// A contextual back link (DESIGN.md, Back button: "◀ GRILLE" on a phone;
-// EXPERIENCE.md, Phone navigation): when the page it leads to, or one of
-// its alternates, is an earlier entry of this tab's history (the grid the
-// card detail was opened from, ◀ ▶ having only replaced entries since), it
-// goes back through history,
-// so Turbo restores that page at its scroll, as browser Back would. Else
+// A contextual back link (the phone's "◀ GRILLE" or "◀ BOOSTER" in the
+// top bar): when the page it leads to is an earlier entry of this tab's
+// history (the grid the card detail was opened from, ◀ ▶ having only
+// replaced entries since), it goes back through history, so Turbo
+// restores that page at its scroll, as browser Back would. Else
 // the link navigates as usual.
 //
 // The trail it reads (lib/history_trail.ts) must know every page, not only
@@ -56,25 +55,25 @@ function focusReturnLink(): void {
   link?.focus({ preventScroll: true })
 }
 
-// Alternates (`data-history-back-alternates-value`, pathnames): other pages
-// the link goes back to when the detail was opened from one of them (the
-// whole season's collection, whose links name each card's tome while the
-// link's href is that tome's grid), i.e. when one is the entry right before
-// the current one (◀ ▶ only replace entries). An alternate further back is
-// not where the detail came from and is ignored (lib/history_trail.ts,
-// backSteps). Else the href's page when it is an earlier entry; else the
-// link visits its href.
+// The trail matches pathnames only, so it goes back through history only
+// while the link's href is the one it was rendered with: the page the
+// detail was opened from. Once a step of the detail pointed it at another
+// page of the same grid (sub_view_controller.ts), it visits that href, so
+// the grid shows the page holding the card last shown.
 export default class extends Controller<HTMLAnchorElement> {
-  static values = { alternates: Array }
+  private renderedHref: string | null = null
 
-  declare readonly alternatesValue: string[]
+  connect(): void {
+    this.renderedHref = this.element.getAttribute("href")
+  }
 
   back(event: MouseEvent): void {
     // A new tab, a new window or a download keeps the browser's own way.
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    if (this.element.getAttribute("href") !== this.renderedHref) return
     const target = new URL(this.element.href, location.href)
     if (target.origin !== location.origin) return
-    const steps = backSteps(target.pathname, this.alternatesValue, currentIndex(), storage)
+    const steps = stepsBackTo(target.pathname, currentIndex(), storage)
     if (steps === null) return
     event.preventDefault()
     history.go(-steps)

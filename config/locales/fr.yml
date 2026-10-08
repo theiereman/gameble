@@ -474,6 +474,8 @@ fr:
       see_card: "Voir la fiche"
       close: "Fermer"
       zoom_tip: "Maintenez la carte pour l'incliner"
+      zoom_previous: "Carte précédente"
+      zoom_next: "Carte suivante"
   settings:
     show:
       title: "Profil et paramètres"
@@ -829,6 +831,7 @@ fr:
       sign_in: "Ouvrir mes premiers boosters"
       update_browser: "Votre navigateur est trop ancien pour se connecter à gameble. Mettez-le à jour pour jouer."
       grid: "Grille"
+      booster: "Booster"
       live:
         marker: "Live"
         title: "En ce moment sur gameble"

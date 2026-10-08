@@ -2,11 +2,11 @@
     epic 10 R2, R6): a bracketed panel with the number at top right, the
     card at card-l over a ground shadow, its title, the facts the card does
     not carry, the ownership notice and the actions ("Voir sur Steam", the
-    one primary, and "Partager" for a holder). On a phone (sub_view
-    controller) ◀ ▶ beside the card and a swipe on it step through the set
-    it browses, under a position line, with the actions pinned at the
-    bottom. It names no one but the viewer (CAP-9: a shared card shows only
-    the card). Locals:
+    one primary, and "Partager" for a holder). ◀ ▶ beside the card step
+    through what it browses (an opened pack, a grid, a set), and on a phone
+    (sub_view controller) a swipe on it too, under a position line, with
+    the actions pinned at the bottom. It names no one but the viewer (a
+    shared card shows only the card). Locals:
     - detail: a Catalog::CardDetail::Detail;
     - copies: how many copies of it the viewer holds, or nil;
     - signed_in: whether a player views it (default false): then the
@@ -17,8 +17,9 @@
     - share_url: the absolute link to this card-season's page, to share,
       or nil (the default) for no share button and no share sheet
       (cards/_share_sheet);
-    - browse: the Catalog::SetNeighbours::Neighbours of the set it browses,
-      or nil (the default) for no ◀ ▶ and no position line;
+    - browse: what it browses (a CardsController::Browse: the position,
+      the total, the neighbours' paths, the way back), or nil (the
+      default) for no ◀ ▶ and no position line;
     - faded: true to show the viewer's card back, faded, in place of the
       face, for a card they do not hold within a set (default false);
     - back_key: the viewer's active card back (Game::CardBacks). %>
@@ -33,6 +34,7 @@
 <% tier = Catalog::Rarity::TIERS.invert.fetch(view.rarity.to_sym) %>
 <% controllers = [ "sub-view", ("share" if share_url) ].compact.join(" ") %>
 <% data = { controller: controllers, sub_view_title_value: card_preview_title(view) } %>
+<% data[:sub_view_back_value] = browse.back.path if browse&.back %>
 <% data.merge!(share_copied_value: t("card_details.share.copied"), share_manual_value: t("card_details.share.manual")) if share_url %>
 <%= render PanelComponent.new(tag: :article, brackets: true, class: "card-detail", aria: { labelledby: "card-detail-heading" }, data:) do %>
   <header class="card-detail__header">
@@ -49,7 +51,7 @@
       <div class="card-detail__stage" data-sub-view-target="stage"
         data-action="pointerdown->sub-view#press pointermove->sub-view#drag pointerup->sub-view#release pointercancel->sub-view#cancel">
         <% if browse %>
-          <%= render "cards/detail_nav", browse:, view:, side: :previous %>
+          <%= render "cards/detail_nav", path: browse.previous, side: :previous %>
         <% end %>
         <div class="card-detail__card">
           <% if faded %>
@@ -69,7 +71,7 @@
           <span class="card-detail__shadow" aria-hidden="true"></span>
         </div>
         <% if browse %>
-          <%= render "cards/detail_nav", browse:, view:, side: :next %>
+          <%= render "cards/detail_nav", path: browse.next, side: :next %>
         <% end %>
       </div>
 

@@ -9,7 +9,8 @@
     shown, once the page is rendered (AD-26).
     - heading: the scope's name (the whole season, or the set's);
     - kind, set, spines, shelf: the list of sets (library/set_list);
-    - grid: the Catalog::CollectionGrid; slots, pagy: its page (library/grid);
+    - grid: the Catalog::CollectionGrid; slots, pagy: its page, context:
+      the filters its links carry (library/grid);
     - unique, season_cards, tier_counts: the viewer's figures;
     - seen_up_to: the latest gain among the new cards shown, or nil;
     - pagy also gives the count announced by the status line;
@@ -24,7 +25,7 @@
     <%= render "library/filters", kind:, shelf: shelf.page, set: grid.set, spines:, grid:, states: states, states_asked: states_asked, state_default: state_default, query: query %>
     <%= turbo_frame_tag "collection-results", target: "_top" do %>
       <p class="visually-hidden" role="status"><%= t("library.grid.result", count: pagy.count) %></p>
-      <%= render "library/grid", set: grid.set, slots:, pagy: pagy %>
+      <%= render "library/grid", context:, slots:, pagy: pagy %>
       <% if seen_up_to %>
         <div hidden data-controller="collection-seen" data-collection-seen-url-value="<%= library_seen_path %>"
           data-collection-seen-up-to-value="<%= seen_up_to.utc.iso8601(6) %>"></div>

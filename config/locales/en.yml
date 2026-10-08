@@ -456,6 +456,8 @@ en:
       see_card: "See the card"
       close: "Close"
       zoom_tip: "Hold the card to tilt it"
+      zoom_previous: "Previous card"
+      zoom_next: "Next card"
   settings:
     show:
       title: "Profile and settings"
@@ -809,6 +811,7 @@ en:
       sign_in: "Open my first boosters"
       update_browser: "Your browser is too old to sign in to gameble. Update it to play."
       grid: "Grid"
+      booster: "Booster"
       live:
         marker: "Live"
         title: "Right now on gameble"

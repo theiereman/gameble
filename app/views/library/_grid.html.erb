@@ -5,34 +5,31 @@
     collection, "Nouveau" in a lime box at the top-left; a missing one is a
     hatched slot with a padlock, naming its game and year. Each leads to its
     card's detail: a face's link is named by the card's title, rarity and
-    season, a missing slot's by its visible text and "Missing card"; within
-    a set, the link names it, and on the whole season, the card's tome (none
-    for a card in no tome), so the detail browses that set (◀ ▶) and shows
-    a card the viewer does not hold as their faded card back. No card: the
-    empty-filter line, or, past the last page of a scope that has cards,
-    the past-the-end line.
-    - set: the set shown (a Catalog::SetSlots::SetRef), nil for the whole
-      season;
-    - slots: [ [ Catalog::CardView, Game::CollectionSlots::Slot | nil,
-      the card's tome (a SetRef) | nil ], … ];
+    season, a missing slot's by its visible text and "Missing card"; each
+    carries the grid's filters, search and set, so the detail walks this
+    grid as shown (◀ ▶), leads back to it, and shows a card the viewer does
+    not hold as their faded card back. No card: the empty-filter line, or,
+    past the last page of a scope that has cards, the past-the-end line.
+    - context: the grid's filters, search and set, as a detail's `grid`
+      parameter carries them (CollectionGridLoading#grid_context);
+    - slots: [ [ Catalog::CardView, Game::CollectionSlots::Slot | nil ], … ];
     - pagy: the grid's page. %>
 <% strings = CardStrings.new %>
 <% if slots.empty? %>
   <p class="collection-grid__empty"><%= pagy.count.positive? ? t("library.grid.past_the_end") : t("library.grid.empty") %></p>
 <% else %>
   <ol class="collection-grid" aria-label="<%= t("library.grid.label") %>">
-    <% slots.each do |card, held, tome| %>
-      <% card_set = set || tome %>
+    <% slots.each do |card, held| %>
       <li class="collection-slot">
         <% if held %>
-          <%= link_to_card_detail(card, strings:, set: card_set) do %><%= render CardComponent.new(card:, size: :m) %><% end %>
+          <%= link_to_card_detail(card, strings:, context: { grid: context }) do %><%= render CardComponent.new(card:, size: :m) %><% end %>
           <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(held.copies) %></span>
           <span class="visually-hidden"><%= t("library.grid.copies", count: held.copies, number: number_with_delimiter(held.copies)) %></span>
           <% if held.new %>
             <span class="collection-slot__new"><%= t("library.grid.new") %></span>
           <% end %>
         <% else %>
-          <%= link_to_card_detail(card, set: card_set) do %>
+          <%= link_to_card_detail(card, context: { grid: context }) do %>
             <span class="missing-slot">
               <%= pixel_icon("lock", class: "missing-slot__icon") %>
               <span class="missing-slot__title"><%= card.title %></span>

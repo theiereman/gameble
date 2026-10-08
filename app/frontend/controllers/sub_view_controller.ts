@@ -18,8 +18,9 @@ import { swipeStep } from "../lib/swipe"
 //   (styles/card-detail.css); under reduced motion it is replaced at once;
 // - sets the page's title to the card's as soon as it shows (Turbo merges
 //   the response's head, layouts/turbo_rails/frame.html.erb, a moment
-//   later);
-// - on a phone (◀ ▶ shown), focuses the detail's heading as the sub-view
+//   later), and points the top bar's way back, outside the frame, at the
+//   page holding the card shown (a grid's page changes along its cards);
+// - on a phone (the sub-view, under 720px), focuses the detail's heading as the sub-view
 //   opens and after each step (EXPERIENCE.md, Focus after each step:
 //   "Sub-view opened (phone) → Its heading"), without scrolling; after a
 //   step pressed from the keyboard, it puts the focus back on the same
@@ -34,6 +35,9 @@ import { swipeStep } from "../lib/swipe"
 // the step.
 
 type Direction = "previous" | "next"
+
+/** The phone's width, where the detail is a sub-view. */
+const PHONE_WIDTH = "(max-width: 719px)"
 
 /** Ends a step even when its visit never loads (an error, a cancel). */
 const STEP_TIMEOUT_MS = 5000
@@ -94,7 +98,7 @@ type ViewTransitionDocument = Document & { startViewTransition?: (update: () => 
 
 export default class extends Controller<HTMLElement> {
   static targets = ["stage", "previous", "next", "heading"]
-  static values = { title: String }
+  static values = { title: String, back: String }
 
   declare readonly stageTarget: HTMLElement
   declare readonly hasStageTarget: boolean
@@ -105,18 +109,20 @@ export default class extends Controller<HTMLElement> {
   declare readonly headingTarget: HTMLElement
   declare readonly hasHeadingTarget: boolean
   declare readonly titleValue: string
+  declare readonly backValue: string
 
   private frame: HTMLElement | null = null
   private gesture: { id: number; x: number; y: number; tilted: boolean } | null = null
 
   connect(): void {
     if (this.titleValue && document.title !== this.titleValue) document.title = this.titleValue
+    if (this.backValue) document.querySelector<HTMLAnchorElement>(".top-bar__phone-back")?.setAttribute("href", this.backValue)
     this.frame = this.element.closest("turbo-frame")
     this.frame?.addEventListener("turbo:before-frame-render", this.beforeFrameRender)
     if (focusAfterStep) {
       this.focusControl(focusAfterStep)
       focusAfterStep = null
-    } else if (!document.documentElement.hasAttribute("data-turbo-preview") && this.hasHeadingTarget && this.navShown()) {
+    } else if (!document.documentElement.hasAttribute("data-turbo-preview") && this.hasHeadingTarget && this.subView()) {
       this.headingTarget.focus({ preventScroll: true })
     }
   }
@@ -157,8 +163,7 @@ export default class extends Controller<HTMLElement> {
     const step = swipeStep(event.clientX - gesture.x, event.clientY - gesture.y)
     if (step === 0) return
     const control = step > 0 ? (this.hasNextTarget ? this.nextTarget : null) : this.hasPreviousTarget ? this.previousTarget : null
-    // At an end the control is a disabled button: nothing happens. From
-    // 720px ◀ ▶ are hidden (no position line either): a swipe does nothing.
+    // At an end the control is a disabled button: nothing happens.
     if (!(control instanceof HTMLAnchorElement)) return
     if (shown(control)) control.click()
   }
@@ -179,9 +184,10 @@ export default class extends Controller<HTMLElement> {
     }
   }
 
-  // ◀ ▶ are shown: the phone layout (under 720px) of a detail browsing a set.
-  private navShown(): boolean {
-    return [this.hasPreviousTarget && this.previousTarget, this.hasNextTarget && this.nextTarget].some((control) => control && shown(control))
+  // The phone's sub-view: a detail browsing something, under 720px (where
+  // its position line shows).
+  private subView(): boolean {
+    return [this.hasPreviousTarget && this.previousTarget, this.hasNextTarget && this.nextTarget].some((control) => control && shown(control)) && window.matchMedia(PHONE_WIDTH).matches
   }
 
   private focusControl(direction: Direction): void {

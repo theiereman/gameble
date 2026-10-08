@@ -8,19 +8,17 @@
 <% content_for :head do %>
   <%= render "cards/share_tags", title:, url: card_public_url(view) %>
 <% end %>
-<%# On a phone, the way back is the grid of the set it browses ("◀ Grille"),
-    when that grid is in the library (the published season): back through
-    history when the grid is an earlier entry, so it shows at its scroll
-    (history_back_controller.ts), else a plain visit. Opened from the whole
-    season's collection (its links name the card's tome), it goes back to
-    that collection instead: its path is an alternate history target, taken
-    only when it is the entry right before the detail. %>
-<% if @browse && @detail.current_season && !@public %>
+<%# On a phone, the way back leads to where the cards it browses are shown
+    ("◀ Grille" to a grid, "◀ Booster" to the opened booster): back through
+    history when that page is an earlier entry, so it shows at its scroll
+    (history_back_controller.ts), else a plain visit. ◀ ▶ replace only the
+    detail's frame: the detail keeps this link's href on the page holding
+    its card (sub_view_controller.ts). %>
+<% if @browse&.back %>
   <% content_for :phone_back do %>
-    <%= link_to library_set_path(kind: @browse.set.kind, key: @browse.set.key),
-      class: "button button--secondary button--small top-bar__phone-back",
-      data: { controller: "history-back", action: "history-back#back", history_back_alternates_value: [ library_path ].to_json } do %>
-      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".grid") %></span>
+    <%= link_to @browse.back.path, class: "button button--secondary button--small top-bar__phone-back",
+      data: { controller: "history-back", action: "history-back#back" } do %>
+      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= @browse.back.label %></span>
     <% end %>
   <% end %>
 <% end %>

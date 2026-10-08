@@ -22,17 +22,14 @@
 #
 # Parameters: `kind`, the kind of the sets listed (the tomes for an
 # unknown, blank or repeated one; on a set's page, its own kind); `shelf`,
-# the page of that list; `page`, the page of the grid; the filters, each a
-# list, anything unknown ignored: `state[]` (owned, all, missing, new,
-# duplicates; none is owned), `rarity[]`, `sets[]` ("kind:key", whole season
-# only), `genre[]`; `q`, the text searched. A page past the last shows an
-# empty list or grid; a page that is not a number, the first.
+# the page of that list; `page`, the page of the grid; the grid's filters
+# and search (CollectionGridLoading). A page past the last shows an empty
+# list or grid; a page that is not a number, the first.
 class LibraryController < ApplicationController
   include PublicRead
   include ShelfLoading
+  include CollectionGridLoading
 
-  # The grid's slots per page.
-  GRID_SIZE = 60
   # The page parameter of the list of sets; `page` pages the grid.
   SHELF_KEY = "shelf".freeze
 
@@ -43,7 +40,7 @@ class LibraryController < ApplicationController
     return if @season.nil?
 
     @kind = KINDS.include?(params[:kind]) ? params[:kind] : KINDS.first
-    load_collection(Catalog::CollectionGrid.call(season: @season, **grid_filters))
+    load_collection(collection_grid(@season, params))
   end
 
   # GET /:locale/library/:kind/:key: one set. The route admits only the three
@@ -54,7 +51,7 @@ class LibraryController < ApplicationController
     @season = Catalog::PublishedSeason.call
     raise ActiveRecord::RecordNotFound if @season.nil?
 
-    grid = Catalog::CollectionGrid.call(season: @season, kind: params[:kind], key: params[:key], **grid_filters)
+    grid = collection_grid(@season, params, kind: params[:kind], key: params[:key])
     raise ActiveRecord::RecordNotFound if grid.nil?
 
     @kind = grid.set.kind
@@ -72,48 +69,35 @@ class LibraryController < ApplicationController
       load_grid(grid)
     end
 
-    # The filters asked, as Catalog::CollectionGrid takes them.
-    def grid_filters
-      @query = params[:q].to_s.strip.first(Catalog::CollectionGrid::MAX_QUERY)
-      { genres: list_param(:genre), rarities: list_param(:rarity), sets: list_param(:sets), query: @query, locale: I18n.locale }
-    end
-
-    # The strings of a list parameter, [] for anything else.
-    def list_param(key)
-      Array.wrap(params[key]).grep(String)
-    end
-
-    # The states shown: those asked, else the owned cards, or every slot
-    # when the viewer owns none yet.
-    def effective_states
-      asked = Game::CollectionStates.sanitize(list_param(:state))
-      asked.any? ? asked : [ default_state ]
-    end
-
-    # The state shown when none is asked: the owned cards, or every slot
-    # when the viewer owns none yet.
-    def default_state
-      @unique.positive? ? "owned" : "all"
-    end
-
-    # @grid_pagy and @slots: [ [ Catalog::CardView, Game::CollectionSlots::Slot | nil, SetRef | nil ], … ]
-    # in grid order, nil for a card the viewer does not hold; the third, for
-    # the whole season only, is the card's tome (nil in no tome), which its
-    # link names so the detail browses it and fades a card not held (a
-    # set's grid names its own set). @seen_up_to: the latest gain among the
-    # new cards shown, nil when none is.
+    # @grid_pagy and @slots: [ [ Catalog::CardView, Game::CollectionSlots::Slot | nil ], … ]
+    # in grid order, nil for a card the viewer does not hold; @grid_context,
+    # the filters, search and set each slot's link carries, so the card's
+    # detail walks this grid (CollectionGridLoading#grid_context), with the
+    # player's watermark when the grid shows new cards by filter: showing
+    # them moves it (collection_seen_controller.ts), and the detail judges
+    # new against the one this grid was shown against. The
+    # filters on: @query, @states (those asked, else @state_default) and
+    # @states_asked. @seen_up_to: the latest gain among the new cards
+    # shown, nil when none is.
     def load_grid(grid)
-      @states = effective_states
-      @states_asked = Game::CollectionStates.sanitize(list_param(:state)).any?
-      @state_default = default_state
-      cards = Game::CollectionStates.call(current_player, grid.card_seasons, states: @states, newest_first: grid.set.nil?)
-      @grid_pagy, page = pagy(:offset, cards, limit: GRID_SIZE, page: page_param)
+      @query = grid_query(params)
+      asked = grid_states_asked(params)
+      @states_asked = asked.any?
+      @state_default = grid_default_state(@unique)
+      @states = @states_asked ? asked : [ @state_default ]
+      @grid_context = grid_context(params, grid.set, seen: (shown_watermark if @states.include?("new")))
+      @grid_pagy, page = pagy(:offset, grid_cards(grid, @states), limit: GRID_SIZE, page: page_param)
       ids = page.pluck(:id)
       views = Catalog::CardViews.call(ids, locale: I18n.locale)
       held = Game::CollectionSlots.call(current_player, ids)
-      tomes = grid.set ? {} : Catalog::CardTomes.call(ids)
-      @slots = ids.filter_map { |id| [ views[id], held[id], tomes[id] ] if views.key?(id) }
+      @slots = ids.filter_map { |id| [ views[id], held[id] ] if views.key?(id) }
       @seen_up_to = held.values.select(&:new).map(&:gained_at).max
+    end
+
+    # The watermark this grid judges new cards against; for a player who
+    # has seen none yet, a time before any gain, so every gain stays new.
+    def shown_watermark
+      Game::CollectionWatermark.call(current_player) || NOTHING_SEEN
     end
 
     # The distinct cards held in the season (@unique) out of its cards

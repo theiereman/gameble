@@ -2,15 +2,16 @@ require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
 
-# A card's detail, "FICHE DE LA CARTE" (CAP-7, story 4.3; epic 10 R2, R6):
-# opened from a tome's owned face, from an empty slot (the faded card back,
-# from a set's grid and from the whole season's), from an opened pack's
-# faces; on a phone the sub-view: its heading takes the focus as it opens,
-# ◀ ▶ and a swipe step through the set, replacing the URL, "◀ Grille" and
-# browser Back return to the grid at its scroll with the focus on its link
-# to the card last shown (the whole season's collection when opened from
-# it, not the tome's grid), the actions stay in view; under reduced motion a
-# step does not move.
+# A card's detail, "FICHE DE LA CARTE": opened from a tome's owned face,
+# from an empty slot (the faded card back, from a set's grid and from the
+# whole season's), from an opened pack's faces, walking the card's tome on
+# the desktop too; from a filtered, searched grid, ◀ ▶ walk that grid as
+# shown and the way back returns to it with its filters; on a phone the
+# sub-view: its heading takes the focus as it opens, ◀ ▶ and a swipe step
+# through the grid, replacing the URL, "◀ Grille" and browser Back return
+# to the grid at its scroll with the focus on its link to the card last
+# shown, the actions stay in view; under reduced motion a step does not
+# move.
 class CardDetailTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GamePacks
@@ -43,6 +44,12 @@ class CardDetailTest < ApplicationSystemTestCase
   def title(id) = Catalog::CardSeason.find(id).card.texts.find_by!(locale: "en").title
 
   def in_tome_path(id, season) = "/en/cards/#{slug(id)}/seasons/#{season.number}?set_key=action-1&set_kind=tome"
+
+  # A card's detail walking the collection grid of `context` (its filters,
+  # search and set), as the grid's links write it.
+  def in_grid_path(id, season, context) = "/en/cards/#{slug(id)}/seasons/#{season.number}?#{{ grid: context }.to_query}"
+
+  def tome_grid = { key: "action-1", kind: "tome", q: "", state: %w[all] }
 
   def current_url_path = evaluate_script("location.pathname + location.search")
 
@@ -100,7 +107,7 @@ class CardDetailTest < ApplicationSystemTestCase
     visit library_set_path(locale: :en, kind: "tome", key: "action-1")
     find(".collection-grid a.card-link", match: :first).click
 
-    assert_current_path in_tome_path(id, season)
+    assert_current_path in_grid_path(id, season, tome_grid.except(:state))
     assert_selector ".card-detail h1", text: "Seed 0"
     assert_selector ".card-detail__kicker", text: "CARD FILE"
     assert_selector ".card-detail__card .card.card--l"
@@ -111,8 +118,10 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_equal [ card.store_url, "_blank" ], [ link[:href], link[:target] ]
     assert_equal "See on Steam (new tab)", link.evaluate_script("this.textContent").squish
     assert_selector ".card-detail__actions button", text: "SHARE"
-    # The desktop shows no ◀ ▶ nor position line; the number is in the header.
-    assert_no_selector ".card-detail__nav"
+    # The desktop shows ◀ ▶ (the grid of owned cards holds this one only),
+    # no position line; the number is in the header.
+    assert_selector "button.card-detail__nav--previous[disabled]"
+    assert_selector "button.card-detail__nav--next[disabled]"
     assert_no_selector ".card-detail__position"
     assert_no_selector ".top-bar__phone-back"
     assert_selector ".top-bar__start > a.button[href='/en']", text: "BRIDGE"
@@ -131,7 +140,7 @@ class CardDetailTest < ApplicationSystemTestCase
     visit library_set_path(locale: :fr, kind: "publisher", key: "p")
     find(".collection-grid a.card-link .missing-slot", match: :first).click
 
-    assert_current_path "/fr/cards/#{card.slug}/seasons/#{season.number}?set_key=p&set_kind=publisher"
+    assert_current_path "/fr/cards/#{card.slug}/seasons/#{season.number}?#{{ grid: { key: "p", kind: "publisher", q: "" } }.to_query}"
     assert_selector ".card-detail h1", text: card.texts.find_by!(locale: "fr").title
     assert_selector ".card-detail__back img[src*='back-standard']"
     assert_equal 0.55, find(".card-detail__back-image").evaluate_script("Number(getComputedStyle(this).opacity)")
@@ -159,21 +168,21 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_operator title_lines, :<=, 2
   end
 
-  test "from the whole season's collection, a missing slot opens its card on the faded back, browsing its tome" do
+  test "from the whole season's collection, a missing slot opens its card on the faded back, walking the collection" do
     season = publish_sets_draft
 
     visit library_path(locale: :en)
-    link = find(".collection-grid a.card-link[href*='set_kind=tome']", match: :first)
-    href = link[:href]
-    link.find(".missing-slot").click
+    links = all(".collection-grid a.card-link").map { it[:href] }
+    find(".collection-grid > li:nth-child(2) .missing-slot").click
 
-    assert_current_path URI(href).request_uri
-    assert_match(/\?set_key=[a-z]+-\d&set_kind=tome\z/, current_url_path)
+    assert_current_path URI(links[1]).request_uri
+    assert_match(/\?grid%5Bq%5D=\z/, current_url_path)
     assert_selector ".card-detail__back img[src*='back-standard']"
     assert_selector ".card-detail__not-owned", text: "NOT OWNED"
     assert_no_selector ".card-detail__card .card"
-    assert_selector ".card-detail__sets a", text: /TOME/i
     assert_equal season.number.to_s, current_url_path[%r{/seasons/(\d+)}, 1]
+    # ◀ ▶ lead to the collection's first and third cards, on the desktop too.
+    assert_equal [ links[0], links[2] ].map { URI(it).request_uri }, all("a.card-detail__nav").map { URI(it[:href]).request_uri }
   end
 
   test "an opened pack's faces lead to their cards" do
@@ -190,6 +199,9 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector ".card-detail__card .card.card--l"
     assert_selector ".card-detail__description", text: "A puzzle game of portals."
     assert_selector ".card-detail__sets a", text: "Valve"
+    # The pack's page keeps walking the card's set, on the desktop too.
+    assert_selector "button.card-detail__nav--previous[disabled]"
+    assert_selector "button.card-detail__nav--next[disabled]"
   end
 
   test "the links to a card take the keyboard focus with a visible outline" do
@@ -206,15 +218,16 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_not_equal "none", link.evaluate_script("getComputedStyle(this).outlineStyle")
   end
 
-  test "on a phone: ▶ and a swipe step through the tome replacing the URL, the actions in view; ◀ Grille and Back return to the grid at its scroll" do
+  test "on a phone: ▶ and a swipe step through the tome's grid replacing the URL, the actions in view; ◀ Grille and Back return to the grid at its scroll" do
     season = publish_sets_draft
     player = accounts_players(:player)
     ids = members(season, "action-1")
     ids.first(6).each { Game::Holding.create!(player_id: player.id, card_season_id: it, quantity: 1) }
     sign_in(player)
     page.driver.browser.manage.window.resize_to(*PHONE)
+    grid_path = library_set_path(locale: :en, kind: "tome", key: "action-1", state: %w[all])
 
-    visit library_set_path(locale: :en, kind: "tome", key: "action-1")
+    visit grid_path
     slot = find(".collection-grid > li:nth-child(4) a.card-link")
     slot.execute_script("this.scrollIntoView({ block: 'center' })")
     grid_scroll = scroll_y
@@ -222,7 +235,7 @@ class CardDetailTest < ApplicationSystemTestCase
     entries = evaluate_script("history.length")
     slot.click
 
-    assert_current_path in_tome_path(ids[3], season)
+    assert_current_path in_grid_path(ids[3], season, tome_grid)
     assert_selector ".card-detail h1", text: title(ids[3])
     # The sub-view opened: its heading has the focus.
     assert_focused ".card-detail h1"
@@ -244,7 +257,7 @@ class CardDetailTest < ApplicationSystemTestCase
 
     find(".card-detail__nav--next").click
     assert_selector ".card-detail__position", text: "· 5 / 25 ·"
-    assert_equal in_tome_path(ids[4], season), current_url_path
+    assert_equal in_grid_path(ids[4], season, tome_grid), current_url_path
     assert_history_length entries + 1
     # The page's title follows the card.
     assert_selector ".card-detail h1", text: title(ids[4])
@@ -259,7 +272,7 @@ class CardDetailTest < ApplicationSystemTestCase
 
     swipe(-120)
     assert_selector ".card-detail__position", text: "· 6 / 25 ·"
-    assert_equal in_tome_path(ids[5], season), current_url_path
+    assert_equal in_grid_path(ids[5], season, tome_grid), current_url_path
     swipe(120)
     assert_selector ".card-detail__position", text: "· 5 / 25 ·"
     # A vertical drag is no swipe.
@@ -272,7 +285,7 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector ".card-detail__position", text: "· 5 / 25 ·"
 
     find(".top-bar__phone-back").click
-    assert_current_path library_set_path(locale: :en, kind: "tome", key: "action-1")
+    assert_current_path grid_path
     assert_selector ".collection-grid"
     assert_scrolled_to grid_scroll
     # The focus is on the grid's link to the card last shown, the grid still
@@ -289,50 +302,97 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_scrolled_to 0
     wait_for_frames
     go_back
-    assert_current_path library_set_path(locale: :en, kind: "tome", key: "action-1")
+    assert_current_path grid_path
     assert_selector ".collection-grid"
     assert_scrolled_to grid_scroll
     assert_focused ".collection-grid > li:nth-child(5) a.card-link"
   end
 
-  test "on a phone, a card opened from the whole season's collection goes back there with ◀ Grille, not to its tome's grid" do
+  test "on a phone, from a filtered, searched collection ◀ ▶ walk it across its pages and ◀ Grille returns to it with its filters" do
     season = publish_sets_draft
     page.driver.browser.manage.window.resize_to(*PHONE)
+    filters = { state: %w[missing], genre: %w[action], q: "seed" }
+    # The 75 action cards: two pages, the 61st on the second.
+    shown = (1..2).flat_map do |number|
+      visit library_path(locale: :en, **filters, page: number)
+      all(".collection-grid a.card-link").map { URI(it[:href]).path[%r{\A/en/cards/([^/]+)/}, 1] }
+    end
+    assert_equal 75, shown.size
+    grid_path = library_path(locale: :en, **filters)
 
-    visit library_path(locale: :en)
-    # A card of this page whose next card in its tome is on the page too.
-    shown = all(".collection-grid a.card-link", visible: :all).map { URI(it[:href]) }
-      .to_h { [ it.path[%r{\A/en/cards/([^/]+)/}, 1], Rack::Utils.parse_query(it.query)["set_key"] ] }
-    key, from, to = shown.values.compact.uniq.filter_map { |tome|
-      slugs = members(season, tome).map { slug(it) }
-      pair = slugs.each_cons(2).reverse_each.find { |a, b| shown.key?(a) && shown.key?(b) }
-      [ tome, *pair ] if pair
-    }.first
-    assert key, "a card and the next one in its tome should be on the first page"
-
-    slot = find(".collection-grid a.card-link[href^='/en/cards/#{from}/']")
+    visit grid_path
+    slot = find(".collection-grid > li:nth-child(60) a.card-link")
     slot.execute_script("this.scrollIntoView({ block: 'center' })")
     grid_scroll = scroll_y
-    assert_operator grid_scroll, :>, 0
     slot.click
 
     assert_selector ".card-detail h1"
-    assert_match %r{\A/en/cards/#{from}/seasons/#{season.number}\?set_key=#{key}&set_kind=tome\z}, current_url_path
-    assert_focused ".card-detail h1"
+    assert_match %r{\A/en/cards/#{shown[59]}/seasons/#{season.number}\?grid}, current_url_path
+    assert_selector ".card-detail__position", text: "· 60 / 75 ·"
+    assert_selector ".top-bar__phone-back", text: "GRID"
     find(".card-detail__nav--next").click
-    assert_selector ".card-detail h1"
-    page.document.synchronize { raise Capybara::ExpectationNotMet unless current_url_path.start_with?("/en/cards/#{to}/") }
+    assert_selector ".card-detail__position", text: "· 61 / 75 ·"
+    page.document.synchronize { raise Capybara::ExpectationNotMet unless current_url_path.start_with?("/en/cards/#{shown[60]}/") }
+    assert_no_selector "html[data-sub-view-step]", visible: :all
+    # The way back follows the card to the grid's second page.
+    assert_selector ".top-bar__phone-back[href*='page=2']"
+    swipe(120)
+    assert_selector ".card-detail__position", text: "· 60 / 75 ·"
     assert_no_selector "html[data-sub-view-step]", visible: :all
 
-    # Its href is the tome's grid, but the season's collection, an earlier
-    # entry, is where the sub-view was opened: back through history to it.
-    assert_equal "/en/library/tome/#{key}", URI(find(".top-bar__phone-back")[:href]).path
+    # The grid, an earlier entry, is restored at its scroll with its filters.
     find(".top-bar__phone-back").click
-    assert_current_path library_path(locale: :en)
+    assert_current_path grid_path
     assert_selector ".collection-grid"
     assert_scrolled_to grid_scroll
-    assert_focused ".collection-grid a.card-link[href^='/en/cards/#{to}/']"
-    assert_scrolled_to grid_scroll
+    assert_focused ".collection-grid > li:nth-child(60) a.card-link"
+    assert_equal "seed", find("#collection-search").value
+  end
+
+  test "on a phone, once ◀ ▶ crossed onto another page of the grid, ◀ Grille leads to that page, showing the card last seen" do
+    season = publish_sets_draft
+    page.driver.browser.manage.window.resize_to(*PHONE)
+    filters = { state: %w[missing], genre: %w[action], q: "seed" }
+    visit library_path(locale: :en, **filters, page: 2)
+    second_page = all(".collection-grid a.card-link").map { URI(it[:href]).path }
+    assert_operator second_page.size, :>, 0
+
+    visit library_path(locale: :en, **filters)
+    find(".collection-grid > li:nth-child(60) a.card-link").click
+    assert_selector ".card-detail__position", text: "· 60 / 75 ·"
+    find(".card-detail__nav--next").click
+    assert_selector ".card-detail__position", text: "· 61 / 75 ·"
+    assert_no_selector "html[data-sub-view-step]", visible: :all
+
+    find(".top-bar__phone-back").click
+    page.document.synchronize do
+      raise Capybara::ExpectationNotMet, current_url_path unless URI(current_url_path).path == "/en/library" && Rack::Utils.parse_query(URI(current_url_path).query)["page"] == "2"
+    end
+    assert_selector ".collection-grid a.card-link[href^='#{second_page.first}']"
+    assert_equal "seed", find("#collection-search").value
+  end
+
+  test "on the desktop, from a filtered collection ◀ ▶ walk it, and Back returns to it with its filters" do
+    season = publish_sets_draft
+    filters = { state: %w[all], genre: %w[rpg], q: "seed 1" }
+    visit library_path(locale: :en, **filters)
+    shown = all(".collection-grid a.card-link").map { URI(it[:href]).path[%r{\A/en/cards/([^/]+)/}, 1] }
+    assert_operator shown.size, :>, 3
+
+    find(".collection-grid > li:nth-child(2) a.card-link").click
+    assert_selector ".card-detail h1"
+    assert_no_selector ".card-detail__position"
+    find(".card-detail__nav--next").click
+    page.document.synchronize { raise Capybara::ExpectationNotMet unless current_url_path.start_with?("/en/cards/#{shown[2]}/seasons/#{season.number}?") }
+    find(".card-detail__nav--previous").click
+    page.document.synchronize { raise Capybara::ExpectationNotMet unless current_url_path.start_with?("/en/cards/#{shown[1]}/") }
+    find(".card-detail__nav--previous").click
+    page.document.synchronize { raise Capybara::ExpectationNotMet unless current_url_path.start_with?("/en/cards/#{shown[0]}/") }
+    assert_selector "button.card-detail__nav--previous[disabled]"
+
+    go_back
+    assert_current_path library_path(locale: :en, **filters)
+    assert_equal "seed 1", find("#collection-search").value
   end
 
   test "on a phone the ends of a set are disabled, and a card opened without the grid goes back to it by a plain visit" do

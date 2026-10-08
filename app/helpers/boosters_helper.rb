@@ -8,10 +8,13 @@ module BoostersHelper
   # time of the page with the size of the pack the next opening opens
   # (`nextPackSize`, Game::NextPackSize: 3 for a daily bonus pack first in
   # line, nil when none is available), the rarity names and icons by tier
-  # code name, and every word of `boosters.island` (plural keys as their
-  # hash). No database id (AD-15). Times are UTC ISO 8601 with
-  # milliseconds, as the exchange answers them.
-  def booster_props(bank:, season:, next_pack_size:)
+  # code name, the card zoom's ◀ ▶ icons, every word of `boosters.island`
+  # (plural keys as their hash), and `opened`: the opening exchange's
+  # answer for an opened pack the island shows dealt and face up
+  # (PacksHelper#pack_opening_json), or nil for the canister. No database
+  # id. Times are UTC ISO 8601 with milliseconds, as the exchange answers
+  # them.
+  def booster_props(bank:, season:, next_pack_size:, opened: nil)
     {
       openUrl: packs_path,
       hubUrl: home_path,
@@ -28,11 +31,18 @@ module BoostersHelper
       },
       rarityNames: Catalog::Rarity::TIERS.values.to_h { [ it, t("catalog.rarity.#{it}") ] },
       rarityIcons: Catalog::Rarity::TIERS.to_h { |tier, code| [ code, pixel_icon("rarity-#{tier}", class: "booster-card__label-icon").to_str ] },
-      strings: booster_strings
+      arrowIcons: { previous: zoom_arrow("left"), next: zoom_arrow("right") },
+      strings: booster_strings,
+      opened:
     }
   end
 
   private
+
+  # The card zoom's ◀ or ▶ pixel icon, as HTML.
+  def zoom_arrow(direction)
+    pixel_icon("arrow-#{direction}", class: "booster-zoom__nav-icon").to_str
+  end
 
   # Every key of `boosters.island`, in lower camel case, nested groups and
   # plural hashes kept as they are.

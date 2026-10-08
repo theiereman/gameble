@@ -464,10 +464,59 @@
   animation: modal-rise 220ms var(--ease-out);
 }
 
+/* The card between ◀ and ▶; a horizontal swipe on it steps, a vertical
+   drag scrolls the dialog. */
+.booster-zoom__stage {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  touch-action: pan-y;
+}
+
 .booster-zoom__card {
   position: relative;
   width: var(--card-xl-width);
   height: var(--card-xl-height);
+}
+
+/* ◀ and ▶ as on the card detail: 44 × 64, disabled at an end. */
+.booster-zoom__nav {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-touch-min);
+  height: 64px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+  color: var(--color-text-bright);
+  cursor: pointer;
+}
+
+.booster-zoom__nav:active {
+  background: var(--color-accent-press);
+  color: var(--color-on-accent);
+}
+
+.booster-zoom__nav:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.booster-zoom__nav:disabled {
+  background: var(--color-disabled-bg);
+  box-shadow: none;
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
+.booster-zoom__nav-icon {
+  width: 8px;
+  height: 14px;
 }
 
 .booster-zoom__face .card {

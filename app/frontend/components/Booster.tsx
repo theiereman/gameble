@@ -8,9 +8,13 @@
 // either blows the caps and deals the pack's cards face down, or disarms
 // the canister and says why. One activation of a face-down card reveals
 // it; "Tout révéler" reveals the rest; "Ouvrir le suivant" sinks the cards
-// and docks a new canister. The faces are the server's HTML; the island
-// draws the back, the turn and the choreography, with WAAPI and CSS
-// keyframes on transform and opacity only. Every word comes in the props.
+// and docks a new canister. A revealed card leads to its detail, which
+// walks the pack: before leaving, the island names the pack in its own
+// history entry (`?pack=`), so Back shows the screen again with that pack
+// dealt and every card face up (`props.opened`; on the phone, every card
+// in the tray). The faces are the server's HTML; the island draws the
+// back, the turn and the choreography, with WAAPI and CSS keyframes on
+// transform and opacity only. Every word comes in the props.
 // The chrome follows through `gameble:*` events only: the counts as each
 // card shows (tier-revealed), the reserve on each answer (bank-changed),
 // and the navigation lock during an opening and each reveal.
@@ -118,6 +122,7 @@ import {
   swipeStores,
   tierIndex,
   topOfPile,
+  zoomNeighbour,
   type Layout,
   type TierCounts,
 } from "../lib/booster"
@@ -142,7 +147,7 @@ import {
   storeKeyframes,
   trembleKeyframes,
 } from "../lib/booster_keyframes"
-import { csrfToken, newKey, readLayout, visit } from "../lib/booster_page"
+import { cardHref, csrfToken, newKey, readLayout, rememberPack, visit } from "../lib/booster_page"
 import type { BoosterBank, BoosterPhase as Phase, BoosterProps, BoosterStatus as Status } from "../lib/booster_props"
 
 export type { BoosterBank, BoosterProps, BoosterStrings } from "../lib/booster_props"
@@ -152,24 +157,33 @@ const CLICK_AFTER_DRAG = 300
 
 export default function Booster(props: BoosterProps) {
   const { openUrl, cardUrl, delimiter, rarityNames, strings } = props
+  // The pack shown again: dealt, every card revealed past its guard (it
+  // leads to its detail at once), on the phone every card in the tray.
+  const [restored] = useState(() => {
+    const opened = props.opened
+    if (!opened) return null
+    const revealedAll = opened.cards.map(() => true)
+    const pastGuard = opened.cards.map(() => performance.now() - REVEAL_GUARD)
+    return { answer: opened, revealed: revealedAll, revealedAt: pastGuard, stored: storedAfterRebuild(revealedAll, [], readLayout()) }
+  })
 
   // ---- State, mirrored in refs for the choreography's async steps ----
 
   const [bank, setBank] = useState<BoosterBank>(props.bank)
   const bankRef = useRef(bank)
-  const [phase, setPhaseState] = useState<Phase>(props.bank.available > 0 ? "sealed" : "empty")
+  const [phase, setPhaseState] = useState<Phase>(restored ? "dealt" : props.bank.available > 0 ? "sealed" : "empty")
   const phaseRef = useRef(phase)
-  const [status, setStatus] = useState<Status>(props.bank.available > 0 ? "sealed" : "waiting")
-  const [answer, setAnswer] = useState<OpeningAnswer | null>(null)
-  const answerRef = useRef<OpeningAnswer | null>(null)
-  const [revealed, setRevealedState] = useState<boolean[]>([])
-  const revealedRef = useRef<boolean[]>([])
-  const [revealedAt, setRevealedAt] = useState<(number | undefined)[]>([])
-  const revealedAtRef = useRef<(number | undefined)[]>([])
-  const [dealt, setDealt] = useState(false)
+  const [status, setStatus] = useState<Status>(restored ? "complete" : props.bank.available > 0 ? "sealed" : "waiting")
+  const [answer, setAnswer] = useState<OpeningAnswer | null>(restored?.answer ?? null)
+  const answerRef = useRef<OpeningAnswer | null>(answer)
+  const [revealed, setRevealedState] = useState<boolean[]>(restored?.revealed ?? [])
+  const revealedRef = useRef<boolean[]>(revealed)
+  const [revealedAt, setRevealedAt] = useState<(number | undefined)[]>(restored?.revealedAt ?? [])
+  const revealedAtRef = useRef<(number | undefined)[]>(revealedAt)
+  const [dealt, setDealt] = useState(restored !== null)
   const [armed, setArmed] = useState(false)
-  const [headShown, setHeadShown] = useState(false)
-  const [canisterAway, setCanisterAway] = useState(false)
+  const [headShown, setHeadShown] = useState(restored !== null)
+  const [canisterAway, setCanisterAway] = useState(restored !== null)
   const [dock, setDock] = useState(0)
   const [reason, setReason] = useState<string | null>(null)
   const [legendary, setLegendary] = useState<number | null>(null)
@@ -192,8 +206,8 @@ export default function Booster(props: BoosterProps) {
   // Bumped by a rebuild: the cards are drawn again, fresh, at rest.
   const [stageKey, setStageKey] = useState(0)
   // The phone's tray: the cards stored, by position; a store running.
-  const [stored, setStoredState] = useState<boolean[]>([])
-  const storedRef = useRef<boolean[]>([])
+  const [stored, setStoredState] = useState<boolean[]>(restored?.stored ?? [])
+  const storedRef = useRef<boolean[]>(stored)
   const [storing, setStoringState] = useState(false)
   const storingRef = useRef(false)
   // The tray slot whose card the zoom shows, or null.
@@ -423,6 +437,8 @@ export default function Booster(props: BoosterProps) {
     setReason(null)
     lock()
     if (current === "dealt") await retract()
+    // A pack shown again is left behind: a reload shows the screen afresh.
+    rememberPack(null)
 
     setPhase("opening")
     setStatus("arming")
@@ -795,6 +811,27 @@ export default function Booster(props: BoosterProps) {
     setZoom(null)
   }
 
+  /** The zoom's ◀ ▶ and swipe: the previous or next filled tray slot, in booster order. */
+  const stepZoom = (step: -1 | 1) => {
+    setZoom((index) => (index === null ? null : (zoomNeighbour(storedRef.current, index, step) ?? index)))
+  }
+
+  /** A card's detail, walking the pack, once the screen's history entry names the pack. */
+  const leaveFor = (index: number) => {
+    const current = answerRef.current
+    const card = current?.cards[index]
+    if (!current || !card) return
+    rememberPack(current.pack.token)
+    visit(cardHref(cardUrl, card.slug, current.pack.token, index))
+  }
+
+  /** "Voir la fiche" in the zoom: the way out of a card; a new tab or window stays the browser's. */
+  const seeZoomed = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (zoom === null || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    event.preventDefault()
+    leaveFor(zoom)
+  }
+
   // ---- The layout: a width crossing 720 or 900px draws the island again ----
 
   /**
@@ -856,12 +893,12 @@ export default function Booster(props: BoosterProps) {
         if (lockDepth.current > 0 || opening.current || revealingAllRef.current) return
         const at = revealedAtRef.current[index]
         if (revealing.current.has(index) || at === undefined || performance.now() - at < REVEAL_GUARD) return
-        visit(cardUrl.replace("SLUG", encodeURIComponent(card.slug)))
+        leaveFor(index)
         return
       }
       void reveal(index, false)
     },
-    // reveal reads refs only; the card page's pattern is fixed.
+    // reveal and leaveFor read refs only; the card page's pattern is fixed.
     [cardUrl],
   )
 
@@ -896,7 +933,7 @@ export default function Booster(props: BoosterProps) {
       }}
       left={left}
       elements={{ section, canister, shake, flash, fx, openButton, backLink, slotRefs, traySlotRef }}
-      handlers={{ open, revealAll, activateCard, storeTop, openZoom, closeZoom, endBanner, guardBack, gestures: swipe.gestures }}
+      handlers={{ open, revealAll, activateCard, storeTop, openZoom, closeZoom, stepZoom, seeZoomed, endBanner, guardBack, gestures: swipe.gestures }}
     />
   )
 }

@@ -17,6 +17,8 @@
 # redirected to the pack's page, which shows the cards face up: "my last
 # booster"; a refusal goes back to the booster screen with its reason.
 class PacksController < ApplicationController
+  include PackCards
+
   # The rate limit's window, also the JSON answer's Retry-After.
   RATE_LIMIT_WINDOW = 1.minute
 
@@ -107,10 +109,5 @@ class PacksController < ApplicationController
         render_json_error(:too_many_requests, "throttled", message)
       end
     end
-  end
-
-  def cards_of(pack)
-    views = Catalog::CardViews.call(pack.card_season_ids, locale: I18n.locale)
-    pack.card_season_ids.map { |id| views.fetch(id) }
   end
 end

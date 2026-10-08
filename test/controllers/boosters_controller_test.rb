@@ -2,8 +2,8 @@ require "test_helper"
 require_relative "../support/game_packs"
 
 # The booster screen (EXPERIENCE.md, Ouverture de booster): the Booster
-# island with its props, the booster top bar, the no-JavaScript fallback,
-# and the visitor's refusal.
+# island with its props, an opened pack shown again, the booster top bar,
+# the no-JavaScript fallback, and the visitor's refusal.
 class BoostersControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
 
@@ -71,6 +71,9 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
       "nextPackSize" => 5 }, data["bank"])
     assert_equal({ "common" => "Common", "uncommon" => "Uncommon", "rare" => "Rare", "epic" => "Epic", "legendary" => "Legendary" }, data["rarityNames"])
     assert_equal %w[common uncommon rare epic legendary], data["rarityIcons"].keys
+    assert_equal %w[previous next], data["arrowIcons"].keys
+    data["arrowIcons"].each_value { |svg| assert_equal 1, Nokogiri::HTML5.fragment(svg).css("svg.pixel-icon.booster-zoom__nav-icon[aria-hidden=true]").size }
+    assert_nil data.fetch("opened")
     data["rarityIcons"].each_value { |svg| assert_equal 1, Nokogiri::HTML5.fragment(svg).css("svg.pixel-icon.booster-card__label-icon[aria-hidden=true]").size }
 
     strings = data["strings"]
@@ -79,6 +82,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Legendary signal", strings.dig("states", "legendarySignal")
     assert_equal({ "one" => "%{n} booster", "other" => "%{n} boosters" }, strings["reserveCount"])
     assert_equal "Card %{position} of %{total}, face down. Reveal.", strings["faceDown"]
+    assert_equal [ "Previous card", "Next card" ], strings.values_at("zoomPrevious", "zoomNext")
     assert_equal I18n.t("boosters.island", locale: :en).keys.map { it.to_s.camelize(:lower) }.sort, strings.keys.sort
     # No database id (AD-15).
     assert_empty json_keys(data).grep(/\Aid\z|Id\z/)
@@ -148,5 +152,42 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal 3, props.dig("bank", "nextPackSize")
     assert_equal 5, props["packSize"]
+  end
+
+  test "given one of the player's opened packs, the island is told to show it: its cards in drawn order, the current bank" do
+    pack = create_pack(@player, cards: fixture_tier_ids, opened_at: 1.minute.ago)
+    create_pack(@player, available_at: 1.hour.ago)
+    sign_in(@player)
+
+    assert_no_difference -> { Game::Pack.where(player_id: @player.id, opened_at: nil).count } do
+      get booster_path(locale: :fr, pack: pack.token)
+    end
+
+    assert_response :success
+    assert_select "meta[name=turbo-cache-control][content=no-cache]"
+    opened = props.fetch("opened")
+    assert_equal({ "token" => pack.token, "kind" => "regular", "cardBack" => "standard", "url" => "/fr/packs/#{pack.token}" }, opened["pack"])
+    assert_equal %w[tin-soldier green-hills blue-depths portal golden-crown], opened["cards"].map { it["slug"] }
+    assert_equal "Soldat de plomb", opened["cards"].first["title"]
+    assert_equal %w[s m xl], opened["cards"].first["faces"].keys
+    assert_equal 1, props.dig("bank", "available")
+    assert_empty json_keys(props).grep(/\Aid\z|Id\z/)
+    assert_select ".booster__fallback form[action='/fr/packs']"
+  end
+
+  test "another player's pack, one not opened or an unknown token shows the canister as without one" do
+    foreign = create_pack(accounts_players(:moderator), cards: fixture_tier_ids, opened_at: 1.minute.ago)
+    sealed = create_pack(@player, available_at: 1.hour.ago)
+    sign_in(@player)
+
+    [ foreign.token, sealed.token, "nope", "" ].each do |token|
+      get booster_path(locale: :en, pack: token)
+
+      assert_response :success, token
+      assert_nil props.fetch("opened"), token
+      assert_equal 1, props.dig("bank", "available"), token
+    end
+    get booster_path(locale: :en, pack: [ foreign.token ])
+    assert_nil props.fetch("opened")
   end
 end
