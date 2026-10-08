@@ -3,7 +3,7 @@ class TradesController < ApplicationController
     by: -> { current_player&.id || request.remote_ip },
     with: -> { redirect_to trades_path, alert: t("trades.throttled"), status: :see_other }
 
-  INSUFFICIENT = %i[requested_cards_unavailable insufficient_copies].freeze
+  INSUFFICIENT = %i[requested_cards_unavailable insufficient_copies request_exceeds_holdings].freeze
 
   def index
     authorize :trade, :index?
@@ -87,7 +87,7 @@ class TradesController < ApplicationController
     authorize :trade, :accept?
     trade = find_trade!
 
-    answer(trade, Game::AcceptTrade.new.call(player: current_player, trade_id: trade.id)) do
+    answer(trade, Game::AcceptTrade.new.call(player: current_player, trade_id: trade.id, revision: params[:revision])) do
       cards = Catalog::CardViews.call(trade.friend_side.map(&:card_season_id), locale: I18n.locale)
       gained = trade.friend_side.filter_map { |line| helpers.trade_line_title(line, cards) }
       toast t("trades.accepted.title"), t("trades.accepted.text", count: gained.size, cards: gained.to_sentence)
@@ -99,7 +99,7 @@ class TradesController < ApplicationController
     authorize :trade, :decline?
     trade = find_trade!
 
-    answer(trade, Game::DeclineTrade.new.call(player: current_player, trade_id: trade.id)) do
+    answer(trade, Game::DeclineTrade.new.call(player: current_player, trade_id: trade.id, revision: params[:revision])) do
       toast t("trades.declined.title"), t("trades.declined.text", name: helpers.friend_name(trade.friend))
     end
   end

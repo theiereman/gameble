@@ -60,7 +60,7 @@ class Game::DropFriendsAndTradesTest < ActiveSupport::TestCase
     assert_equal "cancelled", trade.reload.status
     assert_nil holding(@bob, @depths)
     assert_equal [ 3, 0 ], holding(@alice, @portal).slice(:quantity, :reserved).values
-    assert_equal Dry::Monads::Failure(:trade_not_open), Game::AcceptTrade.new.call(player: @alice, trade_id: trade.id)
+    assert_equal Dry::Monads::Failure(:trade_not_open), Game::AcceptTrade.new.call(player: @alice, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision)
   end
 
   test "a ban cancels the player's trades on both sides, releases every reservation and keeps their cards" do
@@ -166,5 +166,33 @@ class Game::DropFriendsAndTradesTest < ActiveSupport::TestCase
 
     assert_equal [ banned.id ], Game::DropFriendsAndTradesJob.players_with_ties.pluck(:id)
     assert_equal 0, ties_of(@bob)
+  end
+
+
+  test "a deadlock aborts one attempt and the operation tries again, keeping every tie dropped once" do
+    trade = propose(@alice, @bob, { @portal => 2 }, { @depths => 1 })
+    operation = Game::DropFriendsAndTrades.new
+    attempts = 0
+    lock = operation.method(:lock_open_trades)
+    operation.define_singleton_method(:lock_open_trades) do |player|
+      attempts += 1
+      raise ActiveRecord::Deadlocked, "deadlock detected" if attempts == 1
+
+      lock.call(player)
+    end
+
+    assert operation.call(player: @bob).success?
+
+    assert_equal 2, attempts
+    assert_equal "cancelled", trade.reload.status
+    assert_equal [ 3, 0 ], holding(@alice, @portal).slice(:quantity, :reserved).values
+    assert_not friends?(@alice, @bob)
+  end
+
+  test "a deadlock that keeps coming is raised after the attempts" do
+    operation = Game::DropFriendsAndTrades.new
+    operation.define_singleton_method(:lock_open_trades) { |_player| raise ActiveRecord::Deadlocked, "deadlock detected" }
+
+    assert_raises(ActiveRecord::Deadlocked) { operation.call(player: @bob) }
   end
 end

@@ -68,7 +68,7 @@ class Game::TradesOfTest < ActiveSupport::TestCase
     Game::CancelTrade.new.call(player: @alice, trade_id: cancelled.id).value!
     accepted = propose(@alice, @bob, offer: { @two => 1 }, request: { @three => 1 })
     travel 1.hour
-    Game::AcceptTrade.new.call(player: @bob, trade_id: accepted.id).value!
+    Game::AcceptTrade.new.call(player: @bob, trade_id: accepted.id, revision: Game::Trade.find(accepted.id).revision).value!
 
     recent = Game::TradesOf.call(@alice).recent
     assert_equal [ accepted.token, cancelled.token, declined.token ], recent.map(&:token)

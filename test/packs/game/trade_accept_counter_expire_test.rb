@@ -34,7 +34,7 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
     Game::ProposeTrade.new.call(player:, recipient:, offer:, request:).value!
   end
 
-  def accept(trade, player = @bob) = Game::AcceptTrade.new.call(player:, trade_id: trade.id)
+  def accept(trade, player = @bob, revision: Game::Trade.find(trade.id).revision) = Game::AcceptTrade.new.call(player:, trade_id: trade.id, revision:)
 
   def counter(trade, player = @bob, offer: { @three => 1 }, request: { @one => 1 })
     Game::CounterTrade.new.call(player:, trade_id: trade.id, offer:, request:)
@@ -97,6 +97,7 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
   test "a requested card no longer free refuses the acceptance and nothing moves" do
     trade = propose
     befriend(@bob, @carol)
+    hold(@carol, @one, 1)
     Game::ProposeTrade.new.call(player: @bob, recipient: @carol, offer: { @three => 1 }, request: { @one => 1 }).value!
     before = snapshot
 
@@ -107,7 +108,9 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
   end
 
   test "a requested card the friend no longer holds at all refuses the acceptance" do
+    hold(@bob, @four, 1)
     trade = propose(request: { @four => 1 })
+    Game::Holding.where(player_id: @bob.id, card_season_id: @four).delete_all
 
     assert_equal Dry::Monads::Failure(:requested_cards_unavailable), accept(trade)
     assert_equal [ 3, 2 ], holdings(@alice)[@one]
@@ -131,7 +134,7 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
 
     assert_equal Dry::Monads::Failure(:not_allowed), accept(trade, @alice)
     assert_equal Dry::Monads::Failure(:trade_not_found), accept(trade, @carol)
-    assert_equal Dry::Monads::Failure(:trade_not_found), Game::AcceptTrade.new.call(player: @bob, trade_id: 0)
+    assert_equal Dry::Monads::Failure(:trade_not_found), Game::AcceptTrade.new.call(player: @bob, trade_id: 0, revision: "")
     assert_equal Dry::Monads::Failure(:player_required), accept(trade, nil)
     Game::CancelTrade.new.call(player: @alice, trade_id: trade.id).value!
     assert_equal Dry::Monads::Failure(:trade_not_open), accept(trade)
@@ -213,6 +216,7 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
   test "copies the counterer has reserved elsewhere cannot be offered in the counter" do
     trade = propose
     befriend(@bob, @carol)
+    hold(@carol, @one, 1)
     Game::ProposeTrade.new.call(player: @bob, recipient: @carol, offer: { @three => 2 }, request: { @one => 1 }).value!
 
     assert_equal Dry::Monads::Failure(:insufficient_copies), counter(trade, offer: { @three => 1 })
@@ -293,6 +297,63 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
 
     %w[development production].each do |env|
       assert_equal "Game::ExpireTradesJob", recurring.dig(env, "expire_trades", "class"), env
+    end
+  end
+
+
+  test "accepting or declining terms the player did not see is refused and nothing moves" do
+    trade = propose
+    seen = Game::Trade.find(trade.id).revision
+    counter(trade, @bob).value!
+    counter(Game::Trade.find(trade.id), @alice, offer: { @one => 2 }, request: { @three => 1 }).value!
+    before = snapshot
+
+    assert_equal Dry::Monads::Failure(:trade_changed), accept(trade, revision: seen)
+    assert_equal Dry::Monads::Failure(:trade_changed), Game::DeclineTrade.new.call(player: @bob, trade_id: trade.id, revision: seen)
+    assert_equal Dry::Monads::Failure(:trade_changed), accept(trade, revision: nil)
+    assert_equal before, snapshot
+    assert Game::Trade.find(trade.id).open?
+    assert_empty events(Game::TradeAccepted)
+    assert accept(trade).success?
+  end
+
+  test "the terms of a trade change with every send and counter" do
+    trade = propose
+    first = Game::Trade.find(trade.id).revision
+
+    counter(trade, @bob).value!
+
+    assert_not_equal first, Game::Trade.find(trade.id).revision
+  end
+
+  test "a request beyond what the friend holds is refused when proposing and when countering" do
+    assert_equal Dry::Monads::Failure(:request_exceeds_holdings), Game::ProposeTrade.new.call(player: @alice, recipient: @bob, offer: { @one => 1 }, request: { @three => 3 })
+    assert_equal Dry::Monads::Failure(:request_exceeds_holdings), Game::ProposeTrade.new.call(player: @alice, recipient: @bob, offer: { @one => 1 }, request: { @four => 1 })
+    trade = propose
+    before = snapshot
+
+    assert_equal Dry::Monads::Failure(:request_exceeds_holdings), counter(trade, offer: { @three => 1 }, request: { @one => 4 })
+    assert_equal before, snapshot
+  end
+
+  test "proposing again to a friend whose trade is past its expiry closes that trade and releases its offer" do
+    expired = propose
+
+    travel_to(expired.expires_at + 1.second) do
+      fresh = propose(offer: { @one => 3 })
+
+      assert_equal "expired", expired.reload.status
+      assert_equal [ "open", 3 ], [ fresh.status, holding(@alice, @one).reserved ]
+      assert_equal 1, events(Game::TradeExpired).size
+      assert_equal 1, Game::Trade.in_progress.count
+    end
+  end
+
+  test "a trade not yet past its expiry still blocks a new proposal" do
+    propose
+
+    travel_to(Game::Trade.sole.expires_at - 1.second) do
+      assert_equal Dry::Monads::Failure(:trade_already_open), Game::ProposeTrade.new.call(player: @alice, recipient: @bob, offer: { @one => 1 }, request: { @three => 1 })
     end
   end
 end

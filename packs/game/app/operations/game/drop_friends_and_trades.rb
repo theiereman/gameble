@@ -2,27 +2,38 @@ module Game
   class DropFriendsAndTrades < Operation
     include TradeSteps
 
+    ATTEMPTS = 3
+
     def call(player:)
       player = step require_account(player)
+      attempts = 0
 
-      transaction do
-        now = Time.current
-        trades = lock_open_trades(player)
-        release_offers(trades, now)
-        Trade.where(id: trades.map(&:id)).update_all(status: "cancelled", closed_at: now, updated_at: now)
-        Invitation.where(sender_id: player.id).or(Invitation.where(recipient_id: player.id)).delete_all
-        Friendship.of(player.id).delete_all
-        player
+      begin
+        attempts += 1
+        transaction(requires_new: true) { drop(player) }
+      rescue ActiveRecord::Deadlocked
+        retry if attempts < ATTEMPTS
+        raise
       end
     end
 
     private
 
+    def drop(player)
+      now = Time.current
+      trades = lock_open_trades(player)
+      release_offers(trades, now)
+      Trade.where(id: trades.map(&:id)).update_all(status: "cancelled", closed_at: now, updated_at: now)
+      Invitation.where(sender_id: player.id).or(Invitation.where(recipient_id: player.id)).delete_all
+      Friendship.of(player.id).delete_all
+      player
+    end
+
     def open_trades(player)
       Trade.in_progress.where(proposer_id: player.id).or(Trade.in_progress.where(recipient_id: player.id))
     end
 
-    # A partner found after the player's own lock is locked out of order; Postgres aborts one side of a deadlock.
+    # A partner found after the player's own lock is locked out of order; Postgres aborts one side of a deadlock, which `call` retries.
     def lock_open_trades(player)
       held = []
       loop do

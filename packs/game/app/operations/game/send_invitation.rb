@@ -5,6 +5,7 @@ module Game
       recipient = step recipient_of(player, code, recipient_token)
 
       transaction do
+        TradeLocks.players(player.id, recipient.id)
         step not_friends(player, recipient)
         reverse = Invitation.pending.find_by(sender_id: recipient.id, recipient_id: player.id)
         next step(AcceptInvitation.new.call(player:, token: reverse.token)) if reverse

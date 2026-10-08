@@ -19,6 +19,11 @@ module Game
       Catalog::CardSeason.where(id: request.keys).count == request.size ? Success() : Failure(:invalid_request)
     end
 
+    def requestable(request, holder_id)
+      owned = Holding.where(player_id: holder_id, card_season_id: request.keys).pluck(:card_season_id, :quantity).to_h
+      request.all? { |card_season_id, quantity| quantity <= owned.fetch(card_season_id, 0) } ? Success() : Failure(:request_exceeds_holdings)
+    end
+
     def friends(player, other)
       !other.removed? && FriendshipBetween.call(player, other) ? Success() : Failure(:not_friends)
     end
@@ -39,6 +44,10 @@ module Game
 
     def still_open(trade)
       trade.open? ? Success() : Failure(:trade_not_open)
+    end
+
+    def current_terms(trade, revision)
+      trade.revision == revision ? Success() : Failure(:trade_changed)
     end
 
     def not_expired(trade, now)

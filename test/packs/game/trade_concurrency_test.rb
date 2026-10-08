@@ -59,13 +59,16 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
   end
 
   def accept(player, trade)
-    -> { Game::AcceptTrade.new.call(player: Accounts::Player.find(player.id), trade_id: trade.id) }
+    revision = Game::Trade.find(trade.id).revision
+    -> { Game::AcceptTrade.new.call(player: Accounts::Player.find(player.id), trade_id: trade.id, revision:) }
   end
 
   test "two proposals of the same copies to two friends at once: one reserves them, the other is refused" do
     befriend(@alice, @bob)
     befriend(@alice, @carol)
     hold(@alice, @card, 2)
+    hold(@bob, @other, 1)
+    hold(@carol, @other, 1)
 
     results = together(propose(@alice, @bob, { @card => 2 }, { @other => 1 }), propose(@alice, @carol, { @card => 2 }, { @other => 1 }))
 
@@ -83,6 +86,8 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     befriend(@carol, dave)
     hold(@alice, @card, 2)
     hold(@carol, @other, 1)
+    hold(dave, @other, 1)
+    hold(dave, @card, 1)
 
     results = together(-> { Accounts::DeletePlayer.new.call(player: Accounts::Player.find(dave.id)) },
       propose(@alice, dave, { @card => 2 }, { @other => 1 }), propose(@carol, dave, { @other => 1 }, { @card => 1 }))
@@ -101,6 +106,7 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     @created = friends
     friends.each { |friend| befriend(@alice, friend) }
     hold(@alice, @card, 3)
+    friends.each { |friend| hold(friend, @other, 1) }
 
     results = together(*friends.map { |friend| propose(@alice, friend, { @card => 1 }, { @other => 1 }) })
 
@@ -146,6 +152,7 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
   test "a cancel and a decline racing on one trade: exactly one closes it and releases once" do
     befriend(@alice, @bob)
     hold(@alice, @card, 2)
+    hold(@bob, @other, 1)
     trade = propose(@alice, @bob, { @card => 2 }, { @other => 1 }).call.value!
 
     results = together(
@@ -163,6 +170,8 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     befriend(@alice, @bob)
     befriend(@alice, @carol)
     hold(@alice, @card, 2)
+    hold(@bob, @other, 1)
+    hold(@carol, @other, 1)
     trade = propose(@alice, @bob, { @card => 2 }, { @other => 1 }).call.value!
 
     together(

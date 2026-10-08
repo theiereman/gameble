@@ -949,6 +949,8 @@ en:
       trade_not_open: "That trade is already closed."
       trade_expired: "That trade has expired: its 7 days are over."
       requested_cards_unavailable: "Not enough copies: a card asked for is no longer available. Nothing moved."
+      request_exceeds_holdings: "Your friend does not hold that many copies of a card you asked for."
+      trade_changed: "This trade changed since you opened it. Check its new terms, then answer again."
       trade_not_expired: "That trade has not expired yet."
       invalid_format: "Expected format: ABCD-1234."
       own_code: "That is your own code."

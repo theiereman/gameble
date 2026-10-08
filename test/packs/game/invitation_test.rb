@@ -134,4 +134,16 @@ class Game::InvitationTest < ActiveSupport::TestCase
     assert_equal [ @bob ], mine.sent.map(&:player)
     assert_equal [], Game::InvitationsOf.call(nil).received
   end
+
+
+  test "accepting closes the invitation the other way round that was left pending" do
+    sent = Game::Invitation.create!(sender_id: @alice.id, recipient_id: @bob.id)
+    mirror = Game::Invitation.create!(sender_id: @bob.id, recipient_id: @alice.id)
+
+    assert_equal "accepted", Game::AcceptInvitation.new.call(player: @bob, token: sent.token).value!.status
+
+    assert_equal "accepted", mirror.reload.status
+    assert_empty Game::InvitationsOf.call(@alice).received
+    assert_empty Game::InvitationsOf.call(@bob).sent
+  end
 end

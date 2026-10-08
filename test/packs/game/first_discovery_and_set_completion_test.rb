@@ -40,7 +40,7 @@ class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
 
   def trade(offer:, request:, from: @player, to: @other)
     trade = Game::ProposeTrade.new.call(player: from, recipient: to, offer:, request:).value!
-    Game::AcceptTrade.new.call(player: to, trade_id: trade.id).value!
+    Game::AcceptTrade.new.call(player: to, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision).value!
   end
 
   # First discoveries
