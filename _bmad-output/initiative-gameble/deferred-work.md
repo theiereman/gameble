@@ -359,3 +359,23 @@
 - source_plan: none
   summary: Redo the shine on cards above uncommon outside the booster (collection grid, card detail): it looks cheap, while the sweep across the booster canister looks right and is the reference to match.
   evidence: Author, 2026-10-08, asked for this redo and named the canister's sweep as the example to follow. Outside the booster, `CardComponent::HOLO` and `FOIL` (default context) give only the legendary tier the `.card__holo` band (`styles/card.css`: a 115° gradient tinted with the rarity colour, 4.8 s in 24 steps, opacity 0.6) and no tier the foil, so rare and epic get no effect at all there; the canister's `.booster-canister__sweep-band` (`styles/booster.css`) is a narrow, flat, untinted band at 22 % white, 2.8 s in 28 steps. Decide with the author which tiers get which effect outside the booster before planning; reduced motion still turns them all off.
+
+- source_plan: none
+  summary: Show the Steam review count and the share of positive reviews on the card itself, so a player who finds a card wants to go and look at the game on the store.
+  evidence: Author, 2026-10-08. The numbers already exist on `steam_apps` (`review_count`, `review_percent_positive`) and `Steam::CardMapping` carries the share as the card season's `rating`, but the card face shows neither; the count is not copied into `Catalog` yet. Decide the placement with a UX conversation (bmad-ux) before planning: the card face is small and the figures compete with the title, the rarity and the Steam link.
+
+- source_plan: none
+  summary: Make the special packs (daily bonus and community/reward packs) easier to tell apart from regular packs, above all while they are being opened.
+  evidence: Author, 2026-10-08. Decide the look of the special pack and of its opening with a UX conversation (bmad-ux) before planning.
+
+- source_plan: none
+  summary: Review the odds of the special packs: almost everyone got a Légendaire when opening them together on staging, which may be too generous.
+  evidence: Author, 2026-10-08, after a shared opening session on staging. `Game::DrawOdds::BONUS` gives a Légendaire 1 % per card and 5 % for Épique, and `REWARD` reuses it then forces one Épique-or-better card (`EPIC_OR_BETTER`, 1 Légendaire in 6), so a reward pack yields a Légendaire far more often than 1 %. The odds are recorded as an open product question; measure the real rate on staging, then settle the numbers with the author.
+
+- source_plan: none
+  summary: Store the player's session durably (a persistent session that survives releases and browser restarts, kept at least seven days) so a new release does not force them to sign in with Steam again.
+  evidence: Author, 2026-10-08: every deployed version asks to reconnect with Steam, and "surtout" the session must be stored. The app sets no session store or `expire_after` (default cookie session, which ends with the browser); find why a deploy invalidates it (cookie secret or session key changing between releases) and decide between a persistent cookie with a seven-day lifetime and a database-backed session store.
+
+- source_plan: none
+  summary: The community (weekly goal reward) pack is no longer added to the player's packs automatically: the player claims it with a button, which shows it has been collected and refuses to add it while the bank already holds `Game::Pack::BANK_SIZE` (10) packs.
+  evidence: Author, 2026-10-08. Today `Game::GrantGoalRewardsJob` / `Game::GrantGoalReward` grant it without the player acting (`Game::WaitingGoalReward` is the query for a reward waiting); claiming must go through a POST operation, and the full-bank refusal needs both locale keys and a clear state on the button.
