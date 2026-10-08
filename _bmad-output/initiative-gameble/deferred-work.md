@@ -348,6 +348,9 @@
 - source_plan: none
   summary: Replace the collection's tome (volume) system with another way to browse and organise the collection.
   evidence: Author, 2026-10-07: "il faut changer le système de collection en tome, c'est nul". The reasons and the replacement are not decided; start with a UX conversation (bmad-ux) before planning.
+- source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-popularity-led-prestige-score-plan.md`
+  summary: To verify (author, 2026-10-08) that a full import writes its draft cards with the current prestige formula (log10(review count) + 4 × Wilson), not the earlier Wilson + 0.01 × log10(count).
+  evidence: On staging (v0.0.1-beta.1, which carries story 2.12), the season 2 draft after an import still showed scores from 0.113 to 1.039 (Stardew Valley 1.039, the old formula; the new one gives about 9.8); "Rescore the cards" on the latest run fixed them. Whether the import had not reached its cards step yet or ran on an image older than 2.12 was not established. Check: after the next full import completes, the draft preview's scores run from about 2.7 to 10 without a rescore; otherwise trace the import role's image and the cards step.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-and-shell-split-plan.md`
   summary: Story 8.15's booster, shell and card-face system tests have only run on Ruby 3.3 with the app's `it` block parameters rewritten to `_1`, never on the app's Ruby 4.0.7 and unmodified source.
   evidence: Quick review of story 8.15, pass 2 (maybe-false; medium if true). The container had no Ruby 4.0.7 (download refused by the network policy). The CI run on the push to `develop` (`.github/workflows/ci.yml`, system tests job) settles it: green closes this entry, red is the story's to fix.
