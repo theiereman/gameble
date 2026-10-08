@@ -2,7 +2,7 @@
 name: gameble
 status: final
 created: 2026-10-01
-updated: '2026-10-07'
+updated: '2026-10-08'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/catalog-and-rarity.md
@@ -26,7 +26,9 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 |---|---|---|
 | Pont de commandement (hub) | Landing after sign-in; "◀ PONT" from any screen; PONT tab | Status at a glance and the way to everything else |
 | Ouverture de booster | Menu 01, the packs chip, the BOOSTER tab, the empty showcase | Open one booster at a time and reveal its five cards |
-| Collection | Menu 02, a set progress row on the hub, COLLECTION tab | Browse cards by set and genre, see progress and missing cards |
+| Collection | Menu 02, "TOUT VOIR ▸" on the hub, COLLECTION tab | See the sets being completed, discover others, search every set |
+| Set album | A set progress row (collection, hub, search), a set in the card detail, a public profile | One set's cards in order, its missing cards and its tiers or completion |
+| Toutes les cartes | "TOUTES LES CARTES ▸" in the collection | Every card with FILTRES and the search; later the trade and sale view |
 | Card detail ("FICHE DE LA CARTE") | A card in the collection, a revealed booster card, the showcase's "VOIR LA FICHE", the card zoom | Full card facts, Steam link, share |
 | Share sheet | "PARTAGER" in the card detail | Copy the share link, open the public page |
 | Échanges | Menu 03, "PROPOSER UN ÉCHANGE", ÉCHANGES tab | Trade list and trade board |
@@ -34,7 +36,7 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 | Amis | Menu 04; PLUS on the phone | Invite by link or code, answer invitations, list friends with their presence |
 | Friend profile | A friend row | Showcase, propose a trade, report |
 | Report dialog | "SIGNALER" in a friend profile | Report a username or profile |
-| Fil d'activité | Menu 05; PLUS on the phone; open without an account | Pulls, first discoveries, trades and reposts; tabs TOUS and AMIS (friends only) |
+| Fil d'activité | Menu 05; PLUS on the phone; open without an account | Pulls, first discoveries, trades, reposts, set tiers and completions; tabs TOUS and AMIS (friends only) |
 | Succès | Menu 06; PLUS on the phone | Achievements, earned and to earn |
 | Profil et paramètres | The player chip; PLUS on the phone | Public profile summary, settings, card-back picker, "Mentions légales" |
 | Public card page | A shared link, without an account | Show the shared card and invite the visitor to play |
@@ -49,7 +51,7 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 
 **Phone navigation.** A bottom tab bar: PONT · BOOSTER · COLLECTION · ÉCHANGES · PLUS. Tab roots have no back button; tapping the current tab returns to its root or scrolls it to the top. Sub-views slide over their screen with a contextual back: "◀ GRILLE" (card detail), "◀ LISTE" (trade board), "◀ PLUS" (Amis, Fil, Succès, Profil). The public card page has no tab bar.
 
-**Hub content.** Top bar: logo, rarity counter, packs chip, player chip. Left: kicker "PONT DE COMMANDEMENT" alone (no subtitle: the "Vaisseau-bibliothèque « Archiviste »" line was cut, author 2026-10-07), the menu, the daily booster panel. Center: the showcase. Right: the community goal panel and "PROGRESSION DES SETS" (four set progress rows, "TOUT VOIR ▸"). Bottom: the LIVE ticker. On the phone the same blocks stack in one scrolling column without the menu.
+**Hub content.** Top bar: logo, rarity counter, packs chip, player chip. Left: kicker "PONT DE COMMANDEMENT" alone (no subtitle: the "Vaisseau-bibliothèque « Archiviste »" line was cut, author 2026-10-07), the menu, the daily booster panel. Center: the showcase. Right: the community goal panel and "SETS EN COURS" (the player's four sets closest to their next tier, "TOUT VOIR ▸" opening the collection). Bottom: the LIVE ticker. On the phone the same blocks stack in one scrolling column without the menu.
 
 **Signed-out visitors** see everything that needs no account and cannot act: any such action opens the sign-in panel, and the collection shows every slot empty. The signed-out hub is described in `DESIGN.md` (see Signed-out hub).
 
@@ -83,7 +85,8 @@ The single source for every message the interface shows. Other sections name the
 | Face-down card name | "Carte 2 sur 5, face cachée. Révéler." |
 | Daily booster | "Un booster offert chaque jour. Il rejoint votre réserve." · "Un booster rejoint votre réserve. Le prochain sera prêt à minuit (UTC)." · full reserve: "RÉSERVE PLEINE" · "Ouvrez un booster pour récupérer celui du jour." |
 | Empty showcase | "OUVREZ VOTRE PREMIER BOOSTER" · "Votre plus belle carte s'affichera ici." · "OUVRIR UN BOOSTER" |
-| Collection | "Aucune carte de ce genre dans ce set pour l'instant." · "IMAGE INDISPONIBLE" |
+| Collection | "EN COURS" · "À DÉCOUVRIR" · "Chercher un set" · "TOUTES LES CARTES" · "◀ SETS" · kinds "THÈME", "FRANCHISE", "STUDIO", "PALMARÈS", "OVNI" · tiers "BRONZE", "ARGENT", "OR", "COMPLET" · "Aucune carte de ce genre dans ce set pour l'instant." · "IMAGE INDISPONIBLE" |
+| Set celebration | "PALIER ARGENT · Roguelike 31/62" · "SET COMPLET · Dark Souls" · "n PALIERS ATTEINTS" |
 | Trade board lines | "Léa vous propose cet échange." · "En attente de la réponse de Léa." · "Choisissez les cartes de chaque côté." · "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez." · "Échange en cours…" · "Échange conclu." · "Échange clos." · "Valable 7 jours après l'envoi" · "Expire dans n j" |
 | Trade toasts | "PROPOSITION ENVOYÉE" · "Léa a 7 jours pour répondre. Vos cartes sont réservées d'ici là." · "ÉCHANGE REFUSÉ · Votre réponse a été envoyée à Léa." · "PROPOSITION ANNULÉE · Vos cartes ne sont plus réservées." · "ÉCHANGE CONCLU · Dead Cells ×2 rejoint votre collection." |
 | Trade refusals (inline) | "4 CARTES AU PLUS · Retirez une carte avant d'en placer une autre." · "UN ÉCHANGE À LA FOIS · Un échange est déjà ouvert avec Léa." · "EXEMPLAIRES INSUFFISANTS" · "Vous n'avez plus assez d'exemplaires de Celeste." |
@@ -150,8 +153,8 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 | Showcase | The card the player chose, else automatically their latest pull of Épique rarity or better (author, 2026-10-07: the player can choose one card in addition to the automatic one). `[ASSUMPTION: the choice is made from the card detail of an owned card, "METTRE EN VITRINE", and "RETIRER DE LA VITRINE" returns to the automatic card]`. "VOIR LA FICHE" opens its card detail. Empty showcase: its copy (see Copy deck) and "OUVRIR UN BOOSTER", which opens the booster screen. |
 | Community goal panel | The shared weekly gauge for all players, the count and the reward. Fills with every booster opened and, a little, with trades. States: see State Patterns. |
 | Daily booster panel | "RÉCUPÉRER" sends one booster into the reserve (a small canister flies to the packs chip; on the phone, to the BOOSTER tab). Then "PROCHAIN DANS" with a countdown to the day change (midnight UTC). At 10 boosters the button is disabled, with the full-reserve state and line, until a booster is opened. Signed out: opens the sign-in panel. |
-| Set progress row | Opens the collection filtered on that set (hub) or filters the grid (collection). |
-| LIVE ticker | Scrolls notable activity: pulls of Épique or better, trades, set completions, hourly totals. New items join at the loop boundary. Pauses on hover and focus; stops with "Animations réduites". Hidden from assistive technology (the feed carries the same events). |
+| Set progress row | Opens that set's album. |
+| LIVE ticker | Scrolls notable activity: pulls of Épique or better, first discoveries, trades, set tiers reached and set completions; never reposts. New items join at the loop boundary. Pauses on hover and focus; stops with "Animations réduites". Hidden from assistive technology (the feed carries the same events). |
 
 ### Booster
 
@@ -171,8 +174,9 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 | Component | Behavioral rules |
 |---|---|
 | Card detail | Title, publisher, rarity, genre, year, short description, minted season, sets, copies owned. "VOIR SUR STEAM" opens the store page in a new tab (said in its accessible name). "PARTAGER" opens the share sheet; absent for a card not owned. Phone: ◀ ▶ buttons and swipe move to the previous or next card. |
-| Collection opening (author, 2026-10-07) | Opens on the cards the player owns, newest first (the ones tagged NOUVEAU in front). The state filter switches to TOUT, MANQUANTES, NOUVELLES or DOUBLONS; missing slots appear only then. |
-| Filter zone | A folded panel "FILTRES" with the count of active filters. Chips are switched on or off, several at once: OR within a group, AND across groups. Groups: state, rarity, set, genre. A "TOUT EFFACER" clears them. Changing a filter re-lays the grid and keeps focus on the zone. |
+| Collection opening (author, 2026-10-08, supersedes 2026-10-07) | Opens on "EN COURS": the player's sets sorted by the cards missing to their next tier or completion, plus those they just progressed in; then "À DÉCOUVRIR": a few sets the player's latest cards touched without progress yet, or popular ones for a new player; then a search over every set, applied as the player types. "TOUTES LES CARTES ▸" opens the card grid, which opens on the cards the player owns, newest first; the state filter switches to TOUT, MANQUANTES, NOUVELLES or DOUBLONS. |
+| Set album | The set's name, kind, owned / total and its tiers (each with its threshold, reached or not) or its COMPLET stamp; its cards in set order, owned cards face up, missing ones as missing-card slots. A card opens its detail. "◀ SETS" returns to the collection. Signed out, on a public profile, the album shows that player's cards. Reference: [mockups/key-collection-sets.html](mockups/key-collection-sets.html). |
+| Filter zone | A folded panel "FILTRES" with the count of active filters. Chips are switched on or off, several at once: OR within a group, AND across groups. Groups: state, rarity, set (a kind, then a set found by typing its name), genre. A "TOUT EFFACER" clears them. Changing a filter re-lays the grid and keeps focus on the zone. |
 | Search | Free text over the card title and publisher, applied as the player types and combined with the active filters; an empty result shows the empty-filter line. |
 | Missing-card slot | Shows the missing game's name and year; opens the card detail with the faded active card back. |
 | Copy badge / NOUVEAU tag | "x3" shows copies owned, from x2 (a single copy shows no badge; author, 2026-10-07). "NOUVEAU" marks cards obtained since the player last saw them. |
@@ -262,7 +266,8 @@ Messages quoted by key are in the Copy deck.
 | Image missing / loading | Any card | "IMAGE INDISPONIBLE" in the art box / a dark hatched box until the filtered cover is ready. |
 | Collection empty | Collection | Every slot is a missing-card slot naming its game. |
 | Filter empty | Collection | The empty-filter line (Copy deck, Collection). |
-| Set complete | Collection, hub | The set row shows owned = total; if the set unlocks a card back, a toast announces it. |
+| Set tier reached | Booster, collection, hub, feed | At opening, the set celebration after the last reveal, announced in the booster live region; the row and the album show the tier lit; a feed entry. |
+| Set complete | Booster, collection, hub, feed | The celebration "SET COMPLET"; the row shows owned = total, the album its COMPLET stamp (gold on a tiered set); a gold that unlocks a card back is announced with it. A tier stays reached when cards leave. |
 | Trade draft | Trade board | "BROUILLON", both sides editable, with the validity line. "ENVOYER LA PROPOSITION" enables once each side holds a card; "ABANDONNER" deletes the draft. |
 | Trade waiting for the player | Trade board, list, badge | "À VOUS", the proposal line and the expiry. The friend's offered copies are tagged reserved. Actions: "ACCEPTER", "CONTRE-PROPOSER", "REFUSER". |
 | Counter-proposal in progress | Trade board | Both sides become editable, marked "EN ÉDITION", with the counter-proposal line. "RENVOYER LA CONTRE-PROPOSITION" enables once each side holds a card; "ANNULER LES MODIFICATIONS" restores the received proposal, after a confirmation if anything changed. |
@@ -348,9 +353,9 @@ Movement is fluid at 60fps (transforms and opacity only; continuous loops never 
 ## Card backs
 
 - **What it is:** the image on the player's own face-down cards at opening, and the faded image of a card not owned in the card detail. Only the player sees it. Every account starts with "Standard".
-- **Earning:** product rules (completing a set, a successful community goal, some achievements, events or seasons) are listed in `ux-gameble.md`.
+- **Earning:** gold on a theme or hall of fame set (that set's back), a successful community goal, some achievements, events or seasons.
 - **Choosing:** one active card back at a time, in Profil et paramètres; it applies from the next booster, including when chosen during an opening.
-- **Locked card backs** are listed with their unlock condition ("Compléter le set Roguelite · vol. 1"); an achievement that unlocks one shows it on its tile.
+- **Locked card backs** are listed with their unlock condition ("Atteindre l'or du set Roguelike"); an achievement that unlocks one shows it on its tile.
 - **The prototype's eight** are examples; the shipping list is open (see `DESIGN.md`, Card backs).
 
 ## Accessibility Floor
@@ -449,12 +454,12 @@ Failure: she closes the sign-in panel or Steam refuses → she stays on the publ
 
 Failure: Léa refuses, Hugo cancels, or 7 days pass → "CLOS", reserved copies released. If a copy is no longer available when Hugo accepts → "EXEMPLAIRES INSUFFISANTS", nothing moves.
 
-### Flow 3 — Equipping a card back earned by completing a set (Inès, after a lucky week)
+### Flow 3 — Equipping a card back earned by reaching gold (Inès, after a lucky week)
 
-1. Inès reveals the last missing card of "Roguelite · vol. 1". The set row reaches 30/30.
-2. From her player chip she opens Profil et paramètres. In "DOS DE CARTE", Aurore is no longer grayed.
-3. She chooses it: the preview turns to Aurore, "DOS ACTIF"; the "DOS ÉQUIPÉ" toast.
-4. **Climax:** at her next booster, the five cards land face down under an aurora sky. Only she sees it.
+1. Inès reveals the last missing card of the theme Roguelike. After the reveal, "SET COMPLET · Roguelike" plays; the album shows 62/62 with OR lit.
+2. From her player chip she opens Profil et paramètres. In "DOS DE CARTE", the Roguelike back is no longer grayed.
+3. She chooses it: the preview turns to the Roguelike back, "DOS ACTIF"; the "DOS ÉQUIPÉ" toast.
+4. **Climax:** at her next booster, the five cards land face down wearing it. Only she sees it.
 
 Variants: she completes the set through a trade rather than a booster → the card back unlocks the same way. She chooses it while a booster is open → it applies to the next one.
 
@@ -488,8 +493,9 @@ Build rules found while prototyping and reviewing; they bind the build. Architec
 Non-blockers, left open.
 
 - **Achievements:** the mock's 40 are illustrative; which exist, and which unlock card backs.
-- **Card backs:** which ship, and whether every successful community goal grants one.
-- **Ticker events** beyond CAP-13 (set completions, hourly totals) and the ticker and feed thresholds.
+- **Card backs:** beyond one per theme or hall of fame set at gold, which ship, and whether every successful community goal grants one; each set back's design.
+- **Ticker and feed thresholds**; hourly totals in the ticker.
+- **Set numbers:** the theme list, the hall of fame thresholds and the tier shares come from the spike on real data; the mock's figures are illustrative.
 - **Special boosters:** whether the daily and goal boosters look different in the reserve, and whether a goal reward can exceed 10.
 - **Weekly goal lifecycle:** where the week boundary shows, and the reached, missed and rollover states (tagged above).
 - **Unmocked states:** cold load, offline, network error, banned account, non-staff back-office.
