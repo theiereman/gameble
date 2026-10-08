@@ -7,8 +7,9 @@ Referenced by CAP-2, CAP-3, CAP-4, CAP-6, CAP-7.
 - One card per Steam app of type `game` that passes the filters.
 - **Card text:** a title and a short description. The title is Steam's single store name, the same in every language (Steam does not localize game names); the short description is stored in every language the UI supports, from Steam's own localized store text.
 - **Release date:** imported with each game. It gives the year shown on the card; it drives nothing else.
-- **Genre:** the genre of the game's tome (see Sets), shown on the card. The Web API gives no store genres, so the genre comes from the tags. A game in no tome shows no genre.
-- **Tags:** Steam store tags are imported with each game, with their vote weights, as English keys. Whether French labels are needed is open (see the spec).
+- **Genre:** the name of the game's main theme (see Sets): the listed theme with the most votes among its 5 most-voted tags. A game in the UFOs shows no genre.
+- **Tags:** Steam store tags are imported with each game, with their vote weights, as English keys. Only theme names are shown, in French and English (see Sets).
+- **Developers and franchises:** imported with each game from GetItems' basic info, as Steam names them.
 - **Card number:** each card has a number within its season, shown without a total ("S1 · #4 215"; digits grouped with a no-break space).
 - **Card face:** title, publisher, cover, genre, release year, rarity (shape and name) and card number. No stats, cost or effect text. Layout in `DESIGN.md`, Card face.
 
@@ -56,13 +57,19 @@ Referenced by CAP-2, CAP-3, CAP-4, CAP-6, CAP-7.
 
 ## Sets
 
-A game can belong to several sets. Three kinds ship in the MVP:
+Every card belongs to at least one set; a card can belong to several. A set exists only if a player recognizes it from its name. Five kinds:
 
-- **Publisher sets:** one set per publisher with at least 5 games in the catalog.
-- **Tomes:** each genre is split into volumes of about thirty games, ordered by release date. The genres are a curated list of about twenty-five Steam genre tags kept in code (e.g. FPS, third-person shooter, platformer, puzzle, horror, roguelike, souls-like, stealth, rhythm, arcade, racing, strategy, RPG, survival). Broad tags (Action, Adventure, Casual, Indie) are not genres. A game sits in one tome, that of its most-voted tag in the list; a game with none of them sits in no tome.
-- **Best rated of the year:** for each release year, the 10 catalog games with the highest review score.
+- **Themes:** a curated list of about thirty Steam tags kept in code with French and English names (e.g. Souls-like, Metroidvania, Roguelike, Deckbuilder, Cosy, Horror, Zombies, Pirates, Space, Cyberpunk). A game joins every listed theme among its 5 most-voted tags. Broad tags (Action, Adventure, Casual, Indie) are never themes. Tiered.
+- **Franchises:** one set per Steam franchise with at least N games in the catalog (N set on real data, 2 or 3).
+- **Studios:** one set per developer with at least N games in the catalog.
+- **Hall of fame:** sets drawn from review stats, thresholds set on real data: Les Intouchables (very high score, very many reviews), Les Pépites (very high score, few reviews), Les Mal-aimés (mixed score, very many reviews), Les Phénomènes (the most reviewed). Tiered.
+- **The UFOs (Les OVNI):** every game with no listed theme among its 5 most-voted tags. Kept under about 5 % of the catalog by tuning the theme list, never by changing the rule.
 
-Completing a set can unlock a card back (CAP-20). Sets built from Steam store tags come later.
+**Tiers.** Theme and hall of fame sets have bronze (25 %), silver (50 %) and gold (100 %) of their distinct cards; percentages tuned in playtests. Franchise, studio and UFO sets are complete or not.
+
+**Rewards.** Bronze and silver: a celebration at opening and a feed line. Gold: that set's card back. Complete (franchise, studio, UFOs): a "complete" stamp on the album and a feed line. Profile titles and menu themes: CAP-22 of the spec.
+
+Tomes, publisher sets and "best rated of the year" sets are retired.
 
 ## Images
 
