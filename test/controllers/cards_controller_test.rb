@@ -272,12 +272,14 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
       [ "Copies", "None" ] ], facts
     assert_select "[data-controller~=share]", false
     assert_select ".card-detail__share-button", false
+    assert_select "form[action*='/repost']", false
 
     # A card held shows its face, and its share block, within the set too.
     get in_tome("portal")
     assert_select ".card-detail__card .card.card--l.card--rarity-epic"
     assert_select ".card-detail__back", false
     assert_select ".card-detail__share-button", "Share"
+    assert_select "form[action='/en/cards/portal/seasons/1/repost'] button", "Repost"
 
     get in_tome("tin-soldier", locale: :fr)
     assert_select ".card-detail__not-owned", "Non possédée"
@@ -366,8 +368,10 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     url = "http://www.example.com/en/cards/portal/seasons/1"
     detail = css_select(".card-detail[data-controller~=share]").sole
     assert_equal [ "Link copied", "Press Ctrl+C to copy" ], [ detail["data-share-copied-value"], detail["data-share-manual-value"] ]
-    assert_equal [ "card-detail__store", "card-detail__share-button" ],
-      css_select(".card-detail__actions > *").map { (it["class"].split & %w[card-detail__store card-detail__share-button]).sole }
+    assert_equal [ "card-detail__store", "card-detail__share-button", "button-form" ],
+      css_select(".card-detail__actions > *").map { (it["class"].split & %w[card-detail__store card-detail__share-button button-form]).sole }
+    # "Repost" posts to this card-season's repost, in Turbo Stream, and stays.
+    assert_select ".card-detail__actions form.button-form[method=post][action='/en/cards/portal/seasons/1/repost'] button.button--secondary", "Repost"
     # "Share" opens the sheet and copies the link in the same click.
     button = css_select(".card-detail__actions button.button--secondary[type=button]").sole
     assert_equal [ "Share", "dialog-opener#open share#copy", "share-sheet", "dialog" ],
@@ -396,6 +400,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_path(locale: :fr, slug: "portal")
     assert_select "#share-sheet input[value=?]", "http://www.example.com/fr/cards/portal/seasons/1"
     assert_select ".card-detail__share-button", "Partager"
+    assert_select ".card-detail__actions form[action='/fr/cards/portal/seasons/1/repost'] button", "Reposter"
     assert_select "#share-sheet #share-sheet-title", "Partager la carte"
     assert_select "#share-sheet .share-sheet__note", "L'aperçu du lien affiche le titre et la rareté de la carte, sans l'image du jeu."
     assert_select "#share-sheet button[data-action='share#copy']", "Copier"
@@ -414,9 +419,12 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#share-sheet input[value=?]", "https://gameble.example/en/cards/portal/seasons/1"
     assert_not_includes response.body, "evil.example"
 
+    assert_select "form[action='/en/cards/portal/seasons/1/repost']"
+
     # Season 2's portal is not held.
     get card_path(locale: :en, slug: "portal")
     assert_select ".card-detail__share", false
+    assert_select "form[action*='/repost']", false
   ensure
     Rails.configuration.x.public_url = @public_url
   end
@@ -430,11 +438,13 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_path(locale: :en, slug: "portal")
     assert_select "#share-sheet", false
     assert_select ".card-detail__share-button", false
+    assert_select "form[action*='/repost']", false
 
     delete session_path(locale: :en)
     get card_path(locale: :en, slug: "portal")
     assert_select "#share-sheet", false
     assert_select "[data-controller~=share]", false
+    assert_select "form[action*='/repost']", false
   end
 
   # The fixture season's five tiers, as an opened pack's cards, in drawn

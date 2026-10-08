@@ -36,7 +36,7 @@
     <%= render "pages/invitation" %>
     <%= render "pages/goal", goal: @goal %>
   <% else %>
-    <%= render "pages/showcase", card: @showcase, bank: @bank %>
+    <%= render "pages/showcase", card: @showcase, bank: @bank, repostable: @showcase_repostable %>
     <%= render "pages/goal", goal: @goal %>
     <%= render "pages/daily_booster", bank: @bank, primary: @showcase.present? if @bank[:bonus_collectable] || @bank[:bonus_collected] %>
   <% end %>

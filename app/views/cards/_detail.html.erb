@@ -2,7 +2,7 @@
     epic 10 R2, R6): a bracketed panel with the number at top right, the
     card at card-l over a ground shadow, its title, the facts the card does
     not carry and the actions ("Voir sur Steam", the
-    one primary, and "Partager" for a holder). ◀ ▶ beside the card step
+    one primary, and "Partager" and "Reposter" for a holder). ◀ ▶ beside the card step
     through what it browses (an opened pack, a grid, a set), and on a phone
     (sub_view controller) a swipe on it too, under a position line, with
     the actions pinned at the bottom. It names no one but the viewer (a
@@ -15,7 +15,7 @@
       the sets' names alone; the sets of a season other than the published
       one (the one the library shows) are never linked;
     - share_url: the absolute link to this card-season's page, to share,
-      or nil (the default) for no share button and no share sheet
+      or nil (the default) for no share or repost button and no share sheet
       (cards/_share_sheet);
     - browse: what it browses (a CardsController::Browse: the position,
       the total, the neighbours' paths, the way back), or nil (the
@@ -143,6 +143,7 @@
             <button type="button" class="button button--secondary card-detail__share-button" aria-haspopup="dialog"
               data-controller="dialog-opener" data-dialog-opener-dialog-value="share-sheet"
               data-action="dialog-opener#open share#copy"><%= t("card_details.share.button") %></button>
+            <%= render ButtonComponent.new(variant: :secondary, href: card_repost_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("reposts.button") %><% end %>
           <% end %>
         </div>
       </div>

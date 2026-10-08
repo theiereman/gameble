@@ -2,7 +2,9 @@
 # resolved here in the current locale.
 module BoostersHelper
   # The Booster island's props: where to open (the opening exchange), where
-  # to go back and where a revealed card leads (its slug replaces SLUG), the
+  # to go back, where a revealed card leads and where it is reposted (its
+  # slug and season number replace SLUG and NUMBER; no repost without a
+  # published season), the
   # locale's digit delimiter, the published season's number (nil without
   # one), the cards of a regular pack (the fallback size), the bank at the
   # time of the page with the size of the pack the next opening opens
@@ -19,6 +21,7 @@ module BoostersHelper
       openUrl: packs_path,
       hubUrl: home_path,
       cardUrl: card_path(slug: "SLUG"),
+      repostUrl: season && card_repost_path(slug: "SLUG", number: "NUMBER"),
       delimiter: t("number.format.delimiter"),
       season: season&.number,
       packSize: Game::Pack::SIZE,

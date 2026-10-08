@@ -528,6 +528,10 @@ fr:
       zoom_tip: "Maintenez la carte pour l'incliner"
       zoom_previous: "Carte précédente"
       zoom_next: "Carte suivante"
+      repost: "Reposter"
+      repost_card: "Reposter %{card}"
+      reposted: "Carte repostée dans le fil."
+      repost_failed: "Le repost n'a pas abouti. Vérifiez votre connexion, puis réessayez."
   settings:
     show:
       title: "Profil et paramètres"
@@ -572,6 +576,8 @@ fr:
       pulled_html: "%{name} a tiré %{card}"
       first_discovery: "Première découverte"
       discovered_html: "%{card}, trouvée par %{name} pour la première fois dans la communauté"
+      reposted_html: "%{name} a reposté %{card}."
+      repost_tag: "Repost"
   friends:
     public_profile:
       label: "Voir le profil"
@@ -839,6 +845,12 @@ fr:
     create:
       sent: "Merci. L'équipe de modération examinera ce profil. Le joueur ne verra pas qui l'a signalé."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
+  reposts:
+    button: "Reposter"
+    create:
+      reposted: "Carte repostée dans le fil."
+      not_found: "Cette carte n'existe pas."
+      throttled: "Trop de reposts en une minute. Réessayez dans un instant."
   daily_bonuses:
     create:
       collected: "Un booster rejoint votre réserve. Le prochain sera prêt à minuit (UTC)."
@@ -1043,6 +1055,7 @@ fr:
       already_friends: "Vous êtes déjà amis."
       already_sent: "Invitation déjà envoyée."
       not_found: "Cette invitation n'existe plus."
+      card_not_owned: "Vous ne possédez pas cette carte."
     steam:
       invalid_claimed_id: "La réponse de Steam n'a pas été reconnue. Connectez-vous à nouveau."
       sign_in_failed: "La connexion avec Steam n'a pas abouti. Réessayez."

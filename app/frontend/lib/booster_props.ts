@@ -71,6 +71,10 @@ export type BoosterStrings = {
   zoomTip: string
   zoomPrevious: string
   zoomNext: string
+  repost: string
+  repostCard: string
+  reposted: string
+  repostFailed: string
 }
 
 export type BoosterBank = {
@@ -88,6 +92,7 @@ export type BoosterProps = {
   hubUrl: string
   /** A card's page, its slug in place of SLUG. */
   cardUrl: string
+  repostUrl: string | null
   /** The locale's digit delimiter. */
   delimiter: string
   /** The published season's number, null without one. */

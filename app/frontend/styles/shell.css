@@ -609,6 +609,7 @@ button.tab-bar__tab {
 
 .toasts {
   position: fixed;
+  inset: auto;
   left: 50%;
   bottom: var(--space-7);
   z-index: 20;
@@ -616,6 +617,13 @@ button.tab-bar__tab {
   flex-direction: column;
   gap: var(--space-3);
   width: min(440px, calc(100vw - 2 * var(--space-gutter-phone)));
+  height: auto;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  color: inherit;
+  background: none;
   transform: translateX(-50%);
   pointer-events: none;
 }

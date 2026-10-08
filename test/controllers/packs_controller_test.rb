@@ -384,10 +384,10 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     views = Catalog::CardViews.call(pack.card_season_ids, locale: :en)
     cards = pack.card_season_ids.map { views.fetch(it) }
-    assert_equal cards.map { [ it.id, it.rarity, it.image_url, it.title, it.year ] },
-      body["cards"].map { it.values_at("slug", "tier", "coverUrl", "title", "year") }
+    assert_equal cards.map { [ it.id, it.season_number, it.rarity, it.image_url, it.title, it.year ] },
+      body["cards"].map { it.values_at("slug", "season", "tier", "coverUrl", "title", "year") }
     body["cards"].zip(cards).each do |card, view|
-      assert_equal %w[slug tier coverUrl title year label faces], card.keys
+      assert_equal %w[slug season tier coverUrl title year label faces], card.keys
       assert_equal %w[s m xl], card["faces"].keys
       card["faces"].each do |size, html|
         face = Nokogiri::HTML5.fragment(html)
@@ -399,7 +399,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     # No database id (AD-15): no id key, and the only integers are counts.
     assert_empty json_keys(body).grep(/\Aid\z|Id\z/)
-    assert_equal [ *Array.new(5, "cards.[].year"), "bank.available", "bank.nextPackSize", *%w[common uncommon rare epic legendary].map { "tierCountsBefore.#{it}" } ],
+    assert_equal [ *Array.new(5) { %w[cards.[].season cards.[].year] }.flatten, "bank.available", "bank.nextPackSize", *%w[common uncommon rare epic legendary].map { "tierCountsBefore.#{it}" } ],
       json_integers(body).map(&:first)
   end
 

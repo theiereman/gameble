@@ -55,6 +55,7 @@ Rails.application.routes.draw do
     # or in the season numbered (the form a share link takes, CAP-9).
     get "cards/:slug" => "cards#show", as: :card
     get "cards/:slug/seasons/:number" => "cards#show", as: :card_season, constraints: { number: /\d+/ }
+    post "cards/:slug/seasons/:number/repost" => "reposts#create", as: :card_repost
 
     # Collecting the daily bonus from the hub (CAP-16).
     resource :daily_bonus, path: "daily-bonus", only: :create

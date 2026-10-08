@@ -53,6 +53,7 @@ import { dispatchGameble } from "../lib/events"
 import { t } from "../lib/i18n"
 import { motionReduced } from "../lib/motion"
 import { sendOpening, type OpeningAnswer, type OpeningResult } from "../lib/opening"
+import { repostHref, sendRepost } from "../lib/repost"
 import {
   ARM_MS,
   ART_POLL,
@@ -156,7 +157,7 @@ export type { BoosterBank, BoosterProps, BoosterStrings } from "../lib/booster_p
 const CLICK_AFTER_DRAG = 300
 
 export default function Booster(props: BoosterProps) {
-  const { openUrl, cardUrl, delimiter, rarityNames, strings } = props
+  const { openUrl, cardUrl, repostUrl, delimiter, rarityNames, strings } = props
   // The pack shown again: dealt, every card revealed past its guard (it
   // leads to its detail at once), on the phone every card in the tray.
   const [restored] = useState(() => {
@@ -825,6 +826,18 @@ export default function Booster(props: BoosterProps) {
     visit(cardHref(cardUrl, card.slug, current.pack.token, index))
   }
 
+  const repost = useCallback(
+    async (index: number) => {
+      const card = answerRef.current?.cards[index]
+      if (!card || repostUrl === null) return ""
+      const result = await sendRepost({ url: repostHref(repostUrl, card.slug, card.season), csrfToken: csrfToken() })
+      const message = result.kind === "reposted" ? strings.reposted : result.kind === "refused" ? result.message : strings.repostFailed
+      dispatchGameble("gameble:toast", { message, tone: result.kind === "reposted" ? "notice" : "alert" })
+      return message
+    },
+    [repostUrl, strings],
+  )
+
   /** "Voir la fiche" in the zoom: the way out of a card; a new tab or window stays the browser's. */
   const seeZoomed = (event: MouseEvent<HTMLAnchorElement>) => {
     if (zoom === null || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
@@ -933,7 +946,7 @@ export default function Booster(props: BoosterProps) {
       }}
       left={left}
       elements={{ section, canister, shake, flash, fx, openButton, backLink, slotRefs, traySlotRef }}
-      handlers={{ open, revealAll, activateCard, storeTop, openZoom, closeZoom, stepZoom, seeZoomed, endBanner, guardBack, gestures: swipe.gestures }}
+      handlers={{ open, revealAll, activateCard, storeTop, openZoom, closeZoom, stepZoom, seeZoomed, repost, endBanner, guardBack, gestures: swipe.gestures }}
     />
   )
 }

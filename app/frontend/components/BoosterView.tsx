@@ -77,6 +77,7 @@ export type BoosterViewHandlers = {
   stepZoom: (step: -1 | 1) => void
   /** "Voir la fiche" in the zoom. */
   seeZoomed: (event: MouseEvent<HTMLAnchorElement>) => void
+  repost: (index: number) => Promise<string>
   endBanner: (key: number) => void
   /** The way back does nothing while the navigation is locked. */
   guardBack: (event: MouseEvent<HTMLAnchorElement>) => void
@@ -94,11 +95,11 @@ export type BoosterViewProps = {
 }
 
 export default function BoosterView({ props, state, left, elements, handlers }: BoosterViewProps) {
-  const { hubUrl, cardUrl, delimiter, season, packSize, rarityNames, rarityIcons, arrowIcons, strings } = props
+  const { hubUrl, cardUrl, repostUrl, delimiter, season, packSize, rarityNames, rarityIcons, arrowIcons, strings } = props
   const { phase, status, bank, answer, revealed, revealedAt, stored, dealt, armed, headShown, canisterAway, dock, reason, legendary, banner } = state
   const { revealingAll, storing, locked, layout, stageKey, zoom, announcements } = state
   const { section, canister, shake, flash, fx, openButton, backLink, slotRefs, traySlotRef } = elements
-  const { open, revealAll, activateCard, storeTop, openZoom, closeZoom, stepZoom, seeZoomed, endBanner, guardBack, gestures } = handlers
+  const { open, revealAll, activateCard, storeTop, openZoom, closeZoom, stepZoom, seeZoomed, repost, endBanner, guardBack, gestures } = handlers
   const number = (value: number) => formatNumber(value, delimiter)
   const tierLabel = (tier: Rarity) => (tier === "legendary" ? t(strings.legendaryBanner, { rarity: rarityNames[tier] }) : rarityNames[tier])
 
@@ -180,6 +181,9 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
         tierLabel={tierLabel(card.tier)}
         slotRef={slotRefs[index]}
         onActivate={activateCard}
+        repostLabel={strings.repost}
+        repostName={t(strings.repostCard, { card: card.title })}
+        onRepost={repostUrl === null ? null : repost}
         depth={phone ? pileDepth(index, stored) : null}
         gestures={phone && index === top && revealed[index] ? gestures : null}
       />
@@ -386,6 +390,7 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
           next={{ label: strings.zoomNext, icon: arrowIcons.next, enabled: zoomNeighbour(stored, zoom, 1) !== null }}
           onStep={stepZoom}
           onSee={seeZoomed}
+          repost={repostUrl === null ? null : { label: strings.repost, name: t(strings.repostCard, { card: zoomed.title }), onRepost: () => repost(zoom) }}
           onClose={closeZoom}
         />
       )}

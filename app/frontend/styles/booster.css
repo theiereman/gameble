@@ -834,6 +834,14 @@
   display: inline-flex;
 }
 
+.booster-card__repost {
+  margin: 0;
+}
+
+.booster-card:not([data-revealed]) .booster-card__repost {
+  visibility: hidden;
+}
+
 .booster-card__label-icon {
   width: 14px;
   height: 14px;

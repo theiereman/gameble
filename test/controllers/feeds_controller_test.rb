@@ -163,6 +163,52 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__chip", 0
   end
 
+  def repost(card_season_id)
+    Game::Holding.create!(player_id: @player.id, card_season_id:, quantity: 1)
+    Game::RepostCard.new.call(player: @player, card_season_id:).value!
+  end
+
+  test "a repost reads as a sentence with the REPOST tag and its thumbnail framed in its rarity, in French and English" do
+    repost(catalog_card_seasons(:portal_one).id)
+
+    get feed_path(locale: :fr)
+    assert_select ".feed__entry", 1
+    assert_select ".feed__sentence", "Hugo a reposté Portal."
+    assert_select ".feed__tag.feed__tag--repost", "Repost"
+    assert_select ".feed__tag--epic", 0
+    assert_select ".feed__chip", 0
+    assert_select "a.feed__thumb.feed__thumb--framed.feed__thumb--epic[href=?]", card_path(locale: :fr, slug: "portal")
+
+    get feed_path(locale: :en)
+    assert_select ".feed__sentence", "Hugo reposted Portal."
+    assert_select "[style]", 0
+  end
+
+  test "REPOSTS shows only the reposts, each with its tag" do
+    open_epic
+    repost(catalog_card_seasons(:common_card_one).id)
+
+    get feed_path(locale: :en, filter: "reposts")
+
+    assert_select ".feed__filter[aria-current]", "Reposts"
+    assert_select ".feed__entry", 1
+    assert_select ".feed__entry .feed__tag--repost", 1
+    assert_select ".feed__thumb--common", 1
+
+    get feed_path(locale: :en)
+    assert_select ".feed__entry", 6
+    assert_select ".feed__entry:first-child .feed__sentence", "Hugo reposted Tin Soldier."
+  end
+
+  test "a hidden player's repost is not shown" do
+    repost(catalog_card_seasons(:portal_one).id)
+    @player.update!(visibility: :private)
+
+    get feed_path(locale: :en, filter: "reposts")
+
+    assert_select ".feed__entry", 0
+  end
+
   test "menu 05 and the PLUS row link to the feed" do
     get home_path(locale: :en)
     assert_select "a.menu-item[href=?]", feed_path(locale: :en), /Activity feed/

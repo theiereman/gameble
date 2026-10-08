@@ -64,6 +64,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "/en/packs", data["openUrl"]
     assert_equal "/en", data["hubUrl"]
     assert_equal "/en/cards/SLUG", data["cardUrl"]
+    assert_equal "/en/cards/SLUG/seasons/NUMBER/repost", data["repostUrl"]
     assert_equal ",", data["delimiter"]
     assert_equal 1, data["season"]
     assert_equal 5, data["packSize"]
@@ -173,6 +174,18 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, props.dig("bank", "available")
     assert_empty json_keys(props).grep(/\Aid\z|Id\z/)
     assert_select ".booster__fallback form[action='/fr/packs']"
+  end
+
+  test "a pack shown again after a new season is published keeps each card's own season" do
+    pack = create_pack(@player, cards: fixture_tier_ids, opened_at: 1.minute.ago)
+    Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
+    sign_in(@player)
+
+    get booster_path(locale: :en, pack: pack.token)
+
+    assert_response :success
+    assert_equal 2, props["season"]
+    assert_equal [ 1 ] * 5, props.dig("opened", "cards").map { it["season"] }
   end
 
   test "another player's pack, one not opened or an unknown token shows the canister as without one" do

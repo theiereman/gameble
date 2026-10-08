@@ -38,10 +38,13 @@ class PagesController < ApplicationController
     end
 
     # The card of the player's latest notable pull, as a Catalog::CardView,
-    # or nil (the empty showcase).
+    # or nil (the empty showcase); @showcase_repostable while they hold it.
     def showcase
       id = Game::NotablePull.call(current_player, season: @season)
-      Catalog::CardViews.call([ id ], locale: I18n.locale)[id] if id
+      return if id.nil?
+
+      @showcase_repostable = Game::Quantities.call(current_player, [ id ]).key?(id)
+      Catalog::CardViews.call([ id ], locale: I18n.locale)[id]
     end
 
     # Menu 02's meta: distinct cards held in the season, out of its cards.

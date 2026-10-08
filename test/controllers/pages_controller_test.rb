@@ -7,7 +7,7 @@ require_relative "../support/game_packs"
 class PagesControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
 
-  PLAYER_HUB_QUERIES = 17
+  PLAYER_HUB_QUERIES = 18
   VISITOR_HUB_QUERIES = 5
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
@@ -82,6 +82,20 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-showcase__rarity span", "#{epic_name(:en)} · Puzzle"
   end
 
+  test "the showcase offers no repost once its card is traded away" do
+    create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
+    holding = Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
+    sign_in(@player)
+
+    get home_path(locale: :en)
+    assert_select ".hub-showcase form[action='/en/cards/portal/seasons/1/repost'] button", "Repost"
+
+    holding.update!(quantity: 0)
+    get home_path(locale: :en)
+    assert_select ".hub-showcase h2", "Portal"
+    assert_select ".hub-showcase form", false
+  end
+
   test "a player's hub: the menu, the latest notable pull, the daily panel and the set progress" do
     create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
     Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2)
@@ -133,6 +147,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".hub-showcase__rarity.hub-showcase__rarity--4 svg.pixel-icon"
       assert_select ".hub-showcase__rarity span", "#{epic_name(:fr)} · S1 · #4"
       assert_select "a.button.button--secondary[href='/fr/cards/portal']", "Voir la fiche"
+      assert_select "form.button-form[method=post][action='/fr/cards/portal/seasons/1/repost'] button.button--secondary", "Reposter"
     end
 
     # The daily panel, its button the view's one primary.
@@ -388,7 +403,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # Player lookup, published season, the weekly goal (one read once the job
     # has created the week's row), bank (count, next pack, daily claim), the
     # waiting goal reward,
-    # showcase (pull, card view), collection (owned, total), sets (progress,
+    # showcase (pull, the copies held, card view), collection (owned, total), sets (progress,
     # the started sets, the fill, which finds no other set here, so no sizes),
     # the top bar's copies per tier, menu 04's friends online and the trades
     # waiting (menu 03 and the tab bar share one count).

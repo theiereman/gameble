@@ -100,6 +100,20 @@
 .feed__tag--epic { color: var(--color-rarity-epique); }
 .feed__tag--legendary { color: var(--color-rarity-legendaire); }
 
+.feed__tag--repost { color: var(--color-accent); }
+
+.feed__thumb--framed {
+  justify-self: start;
+  outline: 2px solid var(--feed-frame);
+  outline-offset: 2px;
+}
+
+.feed__thumb--common { --feed-frame: var(--color-rarity-commune); }
+.feed__thumb--uncommon { --feed-frame: var(--color-rarity-peu-commune); }
+.feed__thumb--rare { --feed-frame: var(--color-rarity-rare); }
+.feed__thumb--epic { --feed-frame: var(--color-rarity-epique); }
+.feed__thumb--legendary { --feed-frame: var(--color-rarity-legendaire); }
+
 .feed__empty {
   margin: 0;
 }

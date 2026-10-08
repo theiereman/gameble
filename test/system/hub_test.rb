@@ -61,6 +61,18 @@ class HubTest < ApplicationSystemTestCase
     take_screenshot
   end
 
+  test "the showcase's card, still held, is reposted from under it with a toast" do
+    create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
+    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
+    sign_in
+
+    within(".hub-showcase") { click_on "Repost" }
+
+    assert_selector "#toasts .toast--notice", text: /card reposted to the feed\./i
+    assert_selector ".hub-showcase button", text: "REPOST"
+    assert_equal [ catalog_card_seasons(:portal_one).id ], Game::FeedEntry.where(kind: "repost").pluck(:card_season_id)
+  end
+
   test "on a desktop, a visitor sees the menu and the invitation" do
     visit home_path(locale: :fr)
 

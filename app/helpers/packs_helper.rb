@@ -27,7 +27,7 @@ module PacksHelper
     {
       pack: { token: pack.token, kind: pack.kind, cardBack: pack.card_back_key, url: pack_path(pack.token) },
       cards: cards.map do |card|
-        { slug: card.id, tier: card.rarity, coverUrl: card.image_url, title: card.title, year: card.year,
+        { slug: card.id, season: card.season_number, tier: card.rarity, coverUrl: card.image_url, title: card.title, year: card.year,
           label: pack_card_label(card), faces: pack_faces(card) }
       end,
       bank: { available:, reserveFull: Game::Reserve.full?(available), nextAvailableAt: scheduled.first, scheduledAt: scheduled,

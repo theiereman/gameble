@@ -419,14 +419,15 @@
   margin: 0;
 }
 
-/* "Voir sur Steam" (the one primary) and "Partager". */
+/* "Voir sur Steam" (the one primary), "Partager" and "Reposter". */
 .card-detail__actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
 }
 
-.card-detail__actions .button {
+.card-detail__actions .button,
+.card-detail__actions .button-form {
   margin: 0;
 }
 
@@ -482,6 +483,11 @@
     scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height));
   }
 
+  html:has(.card-detail__actions .button-form) {
+    scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height)
+      + var(--space-button-height-phone) + var(--space-4));
+  }
+
   /* Pinned above the tab bar while the information scrolls under them. */
   .card-detail__actions {
     position: sticky;
@@ -494,8 +500,13 @@
     box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line);
   }
 
-  .card-detail__actions .button {
+  .card-detail__actions .button,
+  .card-detail__actions .button-form {
     flex: 1 1 0;
+  }
+
+  .card-detail__actions .button-form .button {
+    width: 100%;
   }
 }
 

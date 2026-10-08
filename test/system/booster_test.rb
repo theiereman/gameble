@@ -208,6 +208,29 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector "#{card(4)} .booster-card__front .card.card--m.card--booster.card--rarity-epic"
   end
 
+  def reposts = Game::FeedEntry.where(kind: "repost").pluck(:card_season_id)
+
+  test "a revealed card is reposted from under it with a toast, the hand staying as it is" do
+    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one))
+    open_canister
+    assert_dealt(5)
+    assert_no_selector ".booster-card__repost"
+
+    find(hit(4)).click
+    assert_selector "#{card(4)}[data-revealed]"
+    assert_selector "#{card(4)} .booster-card__repost", count: 1
+    assert_equal "Repost Portal", find("#{card(4)} .booster-card__repost")["aria-label"]
+    assert_no_selector "#{card(1)} .booster-card__repost"
+
+    find("#{card(4)} .booster-card__repost").click
+
+    assert_selector "#toasts .toast--notice", text: /card reposted to the feed\./i
+    assert_current_path "/en/booster"
+    assert_selector "#{card(4)} .booster-card__repost"
+    assert_selector ".booster-card[data-revealed]", count: 1
+    assert_equal card_ids(:portal_one), reposts
+  end
+
   test "a revealed card ignores activation for 400 ms, then opens its card page" do
     open_screen(card_ids(*[ :rare_card_one ] * 5))
     open_canister
@@ -866,6 +889,40 @@ class BoosterTest < ApplicationSystemTestCase
     find(slot).click
     click_on "See the card"
     assert_current_path "/en/cards/blue-depths?pack=#{opened_token}&slot=1"
+  end
+
+  test "on a phone the card zoom reposts its card with a toast" do
+    on_phone
+    open_screen(card_ids(*[ :rare_card_one ] * 5))
+    open_canister
+    assert_pile(5)
+    assert_no_selector ".booster-card__repost"
+    page.send_keys(:enter)
+    assert_selector "#{phone_card(1)}[data-revealed]"
+    assert_no_selector ".booster-card__repost"
+    sleep 0.45
+    click_on "Store"
+
+    find(".booster-tray__slot--filled").click
+    assert_selector "dialog.booster-zoom[open]"
+    watch_toasts_over_modal
+    within("dialog.booster-zoom[open]") { click_on "Repost" }
+
+    assert_selector "#toasts .toast--notice", text: /card reposted to the feed\./i
+    assert_selector "dialog.booster-zoom[open] .booster-zoom__status[role=status]", text: "Card reposted to the feed.", visible: :all
+    page.document.synchronize { raise Capybara::ExpectationNotMet, "the toast is drawn under the card zoom" unless evaluate_script("window.toastsShownOverModal") }
+    assert_equal card_ids(:rare_card_one), reposts
+  end
+
+  # The top layer draws last what was shown last; a modal dialog leaves the
+  # rest of the page inert, so hit testing cannot tell what is drawn on top.
+  def watch_toasts_over_modal
+    execute_script(<<~JS)
+      window.toastsShownOverModal = false
+      document.getElementById("toasts").addEventListener("toggle", (event) => {
+        if (event.newState === "open" && document.querySelector("dialog:modal")) window.toastsShownOverModal = true
+      })
+    JS
   end
 
   # A finger moving `dx` px sideways across the zoom's card, as touch pointer events.

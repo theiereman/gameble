@@ -10,6 +10,7 @@ import { RARITIES, type Rarity } from "./card_types"
 /** A card of the opened pack, in drawn order (PacksHelper#pack_opening_json). */
 export type OpeningCard = {
   slug: string
+  season: number
   tier: Rarity
   coverUrl: string
   title: string
@@ -86,6 +87,7 @@ function isCard(value: unknown): value is OpeningCard {
   return (
     isRecord(value) &&
     typeof value.slug === "string" &&
+    Number.isInteger(value.season) &&
     RARITIES.includes(value.tier as Rarity) &&
     typeof value.title === "string" &&
     typeof value.label === "string" &&

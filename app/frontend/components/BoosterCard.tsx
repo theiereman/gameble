@@ -18,6 +18,7 @@
 //       __fx                   the burst and rings
 //       button.__hit           flat and transparent, on top: focus, activation
 //     __label                  "? ? ?", then the tier's icon and name
+//     button.__repost          "Reposter", in a row only, hidden until revealed
 //
 // No grouping property (opacity under 1, filter, overflow, clip-path, mask,
 // blend, isolation) sits on __flip or between __lift and the faces: it
@@ -59,6 +60,9 @@ export type BoosterCardProps = {
   tierLabel: string
   slotRef: Ref<HTMLLIElement>
   onActivate: (index: number) => void
+  repostLabel?: string
+  repostName?: string
+  onRepost?: ((index: number) => Promise<unknown>) | null
   /** On the phone: how deep the card lies in the pile (0 on top); null in a row. */
   depth?: number | null
   gestures?: CardGestures | null
@@ -78,6 +82,9 @@ function BoosterCard({
   tierLabel,
   slotRef,
   onActivate,
+  repostLabel = "",
+  repostName = "",
+  onRepost = null,
   depth = null,
   gestures = null,
 }: BoosterCardProps) {
@@ -91,6 +98,11 @@ function BoosterCard({
   const activate = (event: MouseEvent) => {
     event.preventDefault()
     onActivate(index)
+  }
+
+  const repostWithoutOpeningCard = (event: MouseEvent) => {
+    event.stopPropagation()
+    if (revealed) void onRepost?.(index)
   }
 
   // The pile: the pose of the card's depth, the top one above the rest.
@@ -148,6 +160,16 @@ function BoosterCard({
           "? ? ?"
         )}
       </p>
+      {onRepost && depth === null && (
+        <button
+          type="button"
+          className="button button--secondary button--small booster-card__repost"
+          aria-label={repostName}
+          onClick={repostWithoutOpeningCard}
+        >
+          {repostLabel}
+        </button>
+      )}
     </li>
   )
 }

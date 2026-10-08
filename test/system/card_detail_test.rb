@@ -131,6 +131,46 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector ".set-row[aria-current=page] .set-row__name", text: /\AAction · Tome 1\z/i
   end
 
+  test "a holder reposts a card from its detail: a toast, the button stays, and the feed opens on the repost" do
+    player = accounts_players(:player)
+    Game::Holding.create!(player_id: player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
+    sign_in(player)
+    player.update!(persona_name: "Hugo")
+
+    visit card_path(locale: :fr, slug: "portal")
+    within(".card-detail__actions") { click_on "Reposter" }
+
+    assert_selector "#toasts .toast--notice", text: /carte repostée dans le fil\./i
+    assert_selector ".card-detail__actions button", text: "REPOSTER"
+    assert_selector ".card-detail h1", text: "Portal"
+
+    within(".card-detail__actions") { click_on "Reposter" }
+    assert_selector "#toasts .toast--notice", text: /carte repostée dans le fil\./i, count: 2
+
+    visit feed_path(locale: :fr)
+    assert_selector ".feed__entry", count: 2
+    within(first(".feed__entry")) do
+      assert_selector ".feed__sentence", text: "Hugo a reposté Portal."
+      assert_selector ".feed__tag--repost", text: "REPOST"
+      assert_selector ".feed__thumb--framed.feed__thumb--epic"
+    end
+  end
+
+  test "no repost on a card not held, nor for a visitor" do
+    player = accounts_players(:player)
+    sign_in(player)
+
+    visit card_path(locale: :en, slug: "portal")
+    assert_selector ".card-detail h1", text: "Portal"
+    assert_no_button "Repost"
+
+    sign_out
+    assert_signed_out
+    visit card_path(locale: :en, slug: "portal", set_kind: "publisher", set_key: "valve")
+    assert_selector ".card-detail h1", text: "Portal"
+    assert_no_button "Repost"
+  end
+
   test "a visitor clicks an empty slot: the Standard back, faded, with the card's facts" do
     season = publish_sets_draft
     id = members(season, "p").first

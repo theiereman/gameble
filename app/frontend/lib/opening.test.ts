@@ -5,7 +5,7 @@ const KEY = "3c1f9a2e-7d4b-4c8a-b5e6-0f2d9e8a1b7c"
 
 const answer = {
   pack: { token: "abc", kind: "regular", cardBack: "standard", url: "/fr/packs/abc" },
-  cards: [{ slug: "portal", tier: "epic", coverUrl: "https://x/y.jpg", title: "Portal", year: 2007, label: "Portal — Valve, 2007", faces: { s: "<span></span>", m: "<span></span>", xl: "<span></span>" } }],
+  cards: [{ slug: "portal", season: 1, tier: "epic", coverUrl: "https://x/y.jpg", title: "Portal", year: 2007, label: "Portal — Valve, 2007", faces: { s: "<span></span>", m: "<span></span>", xl: "<span></span>" } }],
   bank: { available: 9, reserveFull: false, nextAvailableAt: null, scheduledAt: [], nextPackSize: 5 },
   serverTime: "2026-10-06T14:22:00.000Z",
   tierCountsBefore: { common: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0 },

@@ -510,6 +510,10 @@ en:
       zoom_tip: "Hold the card to tilt it"
       zoom_previous: "Previous card"
       zoom_next: "Next card"
+      repost: "Repost"
+      repost_card: "Repost %{card}"
+      reposted: "Card reposted to the feed."
+      repost_failed: "The repost did not go through. Check your connection, then try again."
   settings:
     show:
       title: "Profile and settings"
@@ -554,6 +558,8 @@ en:
       pulled_html: "%{name} pulled %{card}"
       first_discovery: "First discovery"
       discovered_html: "%{card}, found by %{name} for the first time in the community"
+      reposted_html: "%{name} reposted %{card}."
+      repost_tag: "Repost"
   friends:
     public_profile:
       label: "See the profile"
@@ -819,6 +825,12 @@ en:
     create:
       sent: "Thank you. The moderation team will review this profile. The player will not see who reported them."
       throttled: "Too many attempts in a minute. Try again in a moment."
+  reposts:
+    button: "Repost"
+    create:
+      reposted: "Card reposted to the feed."
+      not_found: "This card does not exist."
+      throttled: "Too many reposts in a minute. Try again in a moment."
   daily_bonuses:
     create:
       collected: "A booster joins your reserve. The next one will be ready at midnight (UTC)."
@@ -1021,6 +1033,7 @@ en:
       already_friends: "You are already friends."
       already_sent: "Invitation already sent."
       not_found: "That invitation is no longer there."
+      card_not_owned: "You do not own this card."
     steam:
       invalid_claimed_id: "Steam's answer was not recognised. Sign in again."
       sign_in_failed: "The sign-in through Steam did not go through. Try again."

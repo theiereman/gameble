@@ -2,7 +2,7 @@
 // Modal, Focus after each step): a native <dialog> opened with
 // showModal(), showing a stored card at card-xl (the answer's xl face drawn
 // a second time) between ◀ and ▶, its title, its rarity and year, "Voir la
-// fiche" (primary: the card's detail, walking the booster), "Fermer" and
+// fiche" (primary: the card's detail, walking the booster), "Reposter", "Fermer" and
 // the tip "Maintenez la carte pour l'incliner"; rays turn behind an Épique
 // or a Légendaire. ◀ ▶, or a horizontal swipe on the card, show the
 // previous or next stored card in booster order without closing; at an end
@@ -10,7 +10,7 @@
 // on the scrim closes it; the island then gives the focus back to the tray
 // slot shown (lib/dialog.ts's opener pattern, kept by the island since the
 // dialog lives in React).
-import { useEffect, useMemo, useRef, type MouseEvent, type PointerEvent } from "react"
+import { useEffect, useMemo, useRef, useState, type MouseEvent, type PointerEvent } from "react"
 import type { Rarity } from "../lib/card_types"
 import { swipeStep } from "../lib/swipe"
 
@@ -36,12 +36,29 @@ export type BoosterZoomProps = {
   onStep: (step: -1 | 1) => void
   /** "Voir la fiche" pressed. */
   onSee: (event: MouseEvent<HTMLAnchorElement>) => void
+  repost?: { label: string; name: string; onRepost: () => Promise<string> } | null
   onClose: () => void
 }
 
 type Gesture = { id: number; x: number; y: number; tilted: boolean }
 
-export default function BoosterZoom({ tier, title, face, icon, line, href, seeCard, close, tip, previous, next, onStep, onSee, onClose }: BoosterZoomProps) {
+export default function BoosterZoom({
+  tier,
+  title,
+  face,
+  icon,
+  line,
+  href,
+  seeCard,
+  close,
+  tip,
+  previous,
+  next,
+  onStep,
+  onSee,
+  repost = null,
+  onClose,
+}: BoosterZoomProps) {
   const dialog = useRef<HTMLDialogElement>(null)
   const see = useRef<HTMLAnchorElement>(null)
   const gesture = useRef<Gesture | null>(null)
@@ -49,6 +66,7 @@ export default function BoosterZoom({ tier, title, face, icon, line, href, seeCa
   const iconHtml = useMemo(() => ({ __html: icon }), [icon])
   const closed = useRef(onClose)
   closed.current = onClose
+  const [repostStatus, setRepostStatus] = useState("")
 
   useEffect(() => {
     const element = dialog.current
@@ -144,11 +162,26 @@ export default function BoosterZoom({ tier, title, face, icon, line, href, seeCa
           <a ref={see} className="button button--primary booster-zoom__see" href={href} onClick={onSee}>
             {seeCard}
           </a>
+          {repost && (
+            <button
+              type="button"
+              className="button button--secondary booster-zoom__repost"
+              aria-label={repost.name}
+              onClick={async () => setRepostStatus(await repost.onRepost())}
+            >
+              {repost.label}
+            </button>
+          )}
           <button type="button" className="button button--secondary booster-zoom__close" onClick={shut}>
             {close}
           </button>
         </div>
         <p className="booster-zoom__tip">{tip}</p>
+        {repost && (
+          <p className="visually-hidden booster-zoom__status" role="status">
+            {repostStatus}
+          </p>
+        )}
       </div>
     </dialog>
   )

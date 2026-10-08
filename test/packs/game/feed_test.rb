@@ -20,13 +20,13 @@ class Game::FeedTest < ActiveSupport::TestCase
 
   def entries = Game::FeedEntry.order(:id).pluck(:position, :notable, :rarity)
 
-  # Feed rows of `kind` written straight, newest last, on a pack of `player`
-  # (trades and reposts have no handler yet).
+  # Feed rows of `kind` written straight, newest last: pulls and discoveries
+  # on a pack of `player`, trades and reposts with none.
   def add_entries(player, count, kind: "pull", notable: true, from: 1.hour.ago)
-    pack = create_pack(player)
-    rows = Array.new(count) do |position|
-      at = from + position.seconds
-      { kind:, player_id: player.id, pack_id: pack.id, card_season_id: fixture_tier_ids[3], position:,
+    pack = create_pack(player) if %w[pull discovery].include?(kind)
+    rows = Array.new(count) do |index|
+      at = from + index.seconds
+      { kind:, player_id: player.id, pack_id: pack&.id, card_season_id: fixture_tier_ids[3], position: (index if pack),
         rarity: 4, notable:, occurred_at: at, created_at: at, updated_at: at }
     end
     Game::FeedEntry.insert_all!(rows)
@@ -139,11 +139,13 @@ class Game::FeedTest < ActiveSupport::TestCase
   test "a kind shows only its entries, the whole feed shows every kind" do
     open_pack(@player, [ fixture_tier_ids[3] ])
     add_entries(@other, 1, kind: "trade")
+    add_entries(@other, 2, kind: "repost")
 
     assert_equal [ "trade" ], Game::FeedEntries.call(nil, kind: "trade").map { |item| item.entry.kind }
     assert_equal [ "pull" ], Game::FeedEntries.call(nil, kind: "pull").map { |item| item.entry.kind }
-    assert_equal %w[pull trade], Game::FeedEntries.call(nil).map { |item| item.entry.kind }.uniq.sort
-    assert_empty Game::FeedEntries.call(nil, kind: "repost")
+    assert_equal %w[repost repost], Game::FeedEntries.call(nil, kind: "repost").map { |item| item.entry.kind }
+    assert_equal %w[pull repost trade], Game::FeedEntries.call(nil).map { |item| item.entry.kind }.uniq.sort
+    assert_empty Game::FeedEntries.call(nil, kind: "discovery")
   end
 
   test "fillers complete the whole feed and the pulls, never another kind" do

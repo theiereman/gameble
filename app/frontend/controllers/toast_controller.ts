@@ -41,6 +41,7 @@ export default class extends Controller<HTMLElement> {
     this.stopListening = onGameble("gameble:toast", (detail) => this.show(detail))
     this.element.addEventListener("turbo:before-morph-element", this.keepToast)
     this.connected = true
+    this.bringToTop()
     // The server's toasts are taken out and put back on the next frame,
     // once the region is in the page, so the live region announces them.
     const rendered = this.toasts().filter((toast) => !this.timers.has(toast))
@@ -145,6 +146,18 @@ export default class extends Controller<HTMLElement> {
     }
     this.timers.set(toast, timer)
     this.run(toast, timer)
+    this.bringToTop()
+  }
+
+  // An open modal dialog's top layer covers the region unless it is shown again after it.
+  private bringToTop(): void {
+    const region = this.element
+    if (!region.hasAttribute("popover") || typeof region.showPopover !== "function") return
+    if (region.matches(":popover-open")) {
+      if (document.querySelector("dialog:modal") === null) return
+      region.hidePopover()
+    }
+    region.showPopover()
   }
 
   private run(toast: HTMLElement, timer: Timer): void {
