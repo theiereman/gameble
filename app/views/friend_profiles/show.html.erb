@@ -23,6 +23,7 @@
     <% end %>
     <div class="friend-profile__actions">
       <%= render ButtonComponent.new(href: new_trade_path(friend: @owner.token)) do %><%= t(".propose_trade") %><% end %>
+      <%= render "friends/public_profile_link", friend: @owner %>
       <%= render ButtonComponent.new(variant: :link, size: :small, opens: "report-dialog-#{@owner.token}") do %><%= t("reports.open") %><% end %>
     </div>
     <%= render "reports/dialog", owner: @owner, id: "report-dialog-#{@owner.token}", from: "friends" %>

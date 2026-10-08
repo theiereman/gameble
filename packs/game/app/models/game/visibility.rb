@@ -9,10 +9,19 @@ module Game
   #   Game::Visibility.visible?(current_player, owner) # => true | false
   module Visibility
     def self.visible?(viewer, owner)
-      return false if owner.nil? || owner.banned? || owner.deleted?
+      return false unless in_good_standing?(owner)
       return true if viewer == owner || owner.visibility_public?
 
       owner.visibility_friends_only? && FriendshipBetween.call(viewer, owner)
     end
+
+    def self.shown_to_a_friend?(owner)
+      in_good_standing?(owner) && !owner.visibility_private?
+    end
+
+    def self.in_good_standing?(owner)
+      !(owner.nil? || owner.banned? || owner.deleted?)
+    end
+    private_class_method :in_good_standing?
   end
 end

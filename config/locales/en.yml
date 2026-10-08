@@ -555,6 +555,9 @@ en:
       first_discovery: "First discovery"
       discovered_html: "%{card}, found by %{name} for the first time in the community"
   friends:
+    public_profile:
+      label: "See the profile"
+      named: "See the profile of %{name}"
     show:
       title: "Friends"
       more: "More"

@@ -55,6 +55,26 @@ class FriendsTest < ApplicationSystemTestCase
     assert_equal 1, Accounts::Report.where(reporter_id: @player.id, reported_id: @friend.id).count
   end
 
+  test "a player opens a friends-only friend's public profile from the list, and the dialog offers the same link" do
+    sign_in
+
+    within(".friends__friend", text: "Lea") do
+      assert_selector "a.friends__profile-link", text: /see the profile/i
+    end
+    click_on "Lea"
+    within("dialog#friend-#{@friend.token}[open]") do
+      assert_selector "a.friends__profile-link[aria-label=\"See the profile of Lea\"]", text: /see the profile/i
+      find("a.friends__profile-link").click
+    end
+
+    assert_current_path brother_path(locale: :en, token: @friend.token)
+    assert_text "Lea"
+
+    visit friends_path(locale: :en)
+    within(".friends__friend", text: "Lea") { find("a.friends__profile-link").click }
+    assert_current_path brother_path(locale: :en, token: @friend.token)
+  end
+
   test "on a phone the profile is a bottom sheet that closes back on the friend's name" do
     resize_to(390, 844)
     sign_in

@@ -573,6 +573,9 @@ fr:
       first_discovery: "Première découverte"
       discovered_html: "%{card}, trouvée par %{name} pour la première fois dans la communauté"
   friends:
+    public_profile:
+      label: "Voir le profil"
+      named: "Voir le profil de %{name}"
     show:
       title: "Amis"
       more: "Plus"

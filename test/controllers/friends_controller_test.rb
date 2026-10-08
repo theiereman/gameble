@@ -49,6 +49,24 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friends__empty", 1, "only the no-invitation line"
   end
 
+  test "each friend links to their public profile, named for them, unless their profile is private" do
+    sam = accounts_players(:moderator)
+    sam.update!(persona_name: "Sam", visibility: "public")
+    lea = accounts_players(:administrator)
+    lea.update!(persona_name: "Léa", visibility: "friends_only")
+    [ sam, lea ].each { Game::Friendship.create!(low_player_id: [ @player.id, it.id ].min, high_player_id: [ @player.id, it.id ].max) }
+    sign_in
+
+    get friends_path(locale: :fr)
+    assert_select ".friends__friend a.friends__profile-link[href='#{brother_path(locale: :fr, token: sam.token)}'][aria-label='Voir le profil de Sam']", "Voir le profil"
+    assert_select ".friends__friend a.friends__profile-link[href='#{brother_path(locale: :fr, token: lea.token)}'][aria-label='Voir le profil de Léa']", "Voir le profil"
+
+    lea.update!(visibility: "private")
+    get friends_path(locale: :en)
+    assert_select ".friends__friend a.friends__profile-link", 1
+    assert_select ".friends__friend a.friends__profile-link[aria-label=\"See the profile of Sam\"]", "See the profile"
+  end
+
   test "each friend shows their presence, and menu 04 counts those online" do
     now = Time.utc(2026, 10, 7, 15, 0)
     friends = { moderator: "Ada", administrator: "Bob" }.map do |key, name|
