@@ -144,4 +144,4 @@ covers = ["R1"]
 after = [10]
 hitl = false
 risk = "low"
-notes = ["Asked by the author's acceptance check of 4.4 on 2026-10-08, which went to done.", "Assumption: a friend whose profile is private shows no button rather than a page saying it is private; confirm before the build."]
+notes = ["Asked by the author's acceptance check of 4.4 on 2026-10-08, which went to done.", "Decision (2026-10-08): a friend whose profile is private shows no button (author)."]
