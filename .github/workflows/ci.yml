@@ -3,8 +3,7 @@ name: CI
 # A push to develop runs only the quick jobs (lint and the non-system tests),
 # to spare the Actions minutes; the whole suite (security scans, system tests)
 # runs on main, on pull requests, and on demand (workflow_dispatch, e.g. on
-# develop before a merge into main). The production image is built and checked
-# by the Kamal deploy to staging, not here.
+# develop before a merge into main).
 on:
   pull_request:
   push:

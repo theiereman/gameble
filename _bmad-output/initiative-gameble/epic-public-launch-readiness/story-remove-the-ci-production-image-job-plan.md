@@ -3,20 +3,18 @@ title: 'Remove the CI production image job'
 type: 'chore'
 ticket: '13'
 created: '2026-10-08'
-status: blocked
+status: built
 baseline_revision: '5df87f9982b712eed9333e2cab05ca6e912dfd7e'
 route: 'oneshot'
 route_source: 'auto'
-review: ''
-review_source: ''
-lenses_ran: []
+review: 'quick'
+review_source: 'pinned'
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context: []
 warnings: []
 deferred: []
-blocked_at: "2026-10-08"
-blocked_reason: "no subagents"
 ---
 
 <intent-contract>
@@ -44,6 +42,11 @@ Oneshot: two files, under 20 lines removed, no code or test touches them.
 ## Plan Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Route | Evidence |
+|---|---|---|---|---|
+| 1 | The plan's Auto Run Result still says blocked and that no review ran, while the frontmatter says in-review | false (for this diff) | reject | The fix edits this build's plan, which triage rejects; the attended resume (bmad-build, 2026-10-08) records its own outcome in the plan when it presents. |
+| 2 | `.github/workflows/ci.yml` header: the added sentence pointing to the Kamal deploy explains rather than states an external constraint (AGENTS.md comment rule) | low | patch | The sentence records where a removed check went, which the repository rule keeps out of comments; the smallest fix deletes it, and the header still no longer lists the image. Applied by the orchestrating session (the implementation run had ended). |
 
 ## Verification
 
@@ -73,3 +76,7 @@ Oneshot: two files, under 20 lines removed, no code or test touches them.
   - No Docker daemon is available here, so the staging deploy cannot be exercised.
 - Residual risks: none known in the repo. The GitHub plan of this private repository has no branch protection (the API answers 403), so no required `docker-image` status check can keep pull requests waiting.
 - To unblock: re-dispatch this plan in a session that can launch subagents, which then runs only the review (status `in-review`). Alternatively, the author reviews the commit and sets the status himself.
+
+## Attended Resume
+
+- 2026-10-08, bmad-build in the orchestrating session: the review the unattended run could not launch ran here (quick lens); one low finding patched (the explanatory sentence in the CI header removed), verification re-run green (actionlint clean, no reference left, jobs scan_ruby, lint, test, system-test, rubocop clean). The Auto Run Result above records the earlier halt. The pull-request CI run and a staging deploy from a release remain the manual checks.
