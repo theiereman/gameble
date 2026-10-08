@@ -1,0 +1,28 @@
+<nav class="trades__list" aria-label="<%= t("trades.list.label") %>">
+  <% if trades.empty? %>
+    <%= render PanelComponent.new(tag: :p, class: "trades__empty") do %><%= t("trades.list.empty") %> <%= link_to t("trades.list.empty_invite"), friends_path(anchor: "friends-invite") %><% end %>
+  <% end %>
+  <% trade_groups(trades).each do |group, rows| %>
+    <% next if rows.empty? %>
+    <h2 class="trades__group" id="trades-group-<%= group %>"><%= t("trades.list.#{group}") %></h2>
+    <ul class="trades__rows" aria-labelledby="trades-group-<%= group %>">
+      <% rows.each do |row| %>
+        <% tone, chip = trade_chip(row) %>
+        <li>
+          <%= link_to trade_path(token: row.token), class: "trade-row", aria: { current: ("page" if current&.token == row.token) },
+                data: { turbo_prefetch: false } do %>
+            <%= pixel_icon("avatar-default", class: "trade-row__avatar") %>
+            <span class="trade-row__text">
+              <span class="trade-row__name"><%= friend_name(row.friend) %></span>
+              <span class="trade-row__what"><%= trade_what_for_what(row, cards) %></span>
+              <span class="trade-row__when">
+                <%= row.open? ? t("trades.row.expires", count: trade_days_left(row)) : trade_outcome_age(row) %>
+              </span>
+            </span>
+            <span class="trade-chip trade-chip--<%= tone %>"><%= chip %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</nav>

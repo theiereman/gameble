@@ -1,12 +1,6 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# What other players' operations meet once a player deleted their account
-# (CAP-14, story 7.8): until story 5.11 drops a deleted player's trades and
-# friendships, a trade with them cannot be accepted or countered (no
-# friend), declines and expires without releasing anything of theirs, and
-# never creates a row for them; the goal reward job and the presence write
-# skip them.
 class Game::DeletedPlayerPartnerTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include GamePacks
@@ -27,43 +21,37 @@ class Game::DeletedPlayerPartnerTest < ActiveSupport::TestCase
   def delete(player) = Accounts::DeletePlayer.new.call(player:).value!
   def rows_of(player) = Game::Holding.where(player_id: player.id).pluck(:card_season_id, :quantity, :reserved)
 
-  test "the recipient cannot accept or counter a trade whose proposer was deleted; nothing moves, no row is created for them" do
+  test "a deleted proposer's trade is cancelled: it cannot be accepted, countered or declined, and no row is created for them" do
     delete(@alice)
     bob_rows = rows_of(@bob)
 
-    assert_equal Dry::Monads::Failure(:not_friends), Game::AcceptTrade.new.call(player: @bob, trade_id: @trade.id)
-    assert_equal Dry::Monads::Failure(:not_friends),
+    assert_equal "cancelled", @trade.reload.status
+    assert_equal Dry::Monads::Failure(:trade_not_open), Game::AcceptTrade.new.call(player: @bob, trade_id: @trade.id)
+    assert_equal Dry::Monads::Failure(:trade_not_open),
       Game::CounterTrade.new.call(player: @bob, trade_id: @trade.id, offer: { @three => 1 }, request: { @one => 1 })
+    assert_equal Dry::Monads::Failure(:trade_not_open), Game::DeclineTrade.new.call(player: @bob, trade_id: @trade.id)
     assert_empty rows_of(@alice)
     assert_equal bob_rows, rows_of(@bob)
-    assert_predicate @trade.reload, :open?
   end
 
-  test "the recipient declines a trade whose proposer was deleted: it closes, nothing of theirs to release" do
-    delete(@alice)
+  test "a deleted recipient's trade is cancelled with the proposer's copies released, and a new one is refused" do
+    delete(@bob)
 
-    assert Game::DeclineTrade.new.call(player: @bob, trade_id: @trade.id).success?
-    assert_equal "declined", @trade.reload.status
-    assert_empty rows_of(@alice)
+    assert_equal "cancelled", @trade.reload.status
+    assert_equal [ [ @one, 3, 0 ] ], rows_of(@alice)
+    assert_equal Dry::Monads::Failure(:not_friends),
+      Game::ProposeTrade.new.call(player: @alice, recipient: Accounts::Player.find(@bob.id), offer: { @one => 1 }, request: { @three => 1 })
+    assert_empty rows_of(@bob)
   end
 
-  test "the expiry job closes a deleted proposer's trade without error" do
+  test "the expiry job finds nothing left to close" do
     delete(@alice)
 
     travel 8.days do
       assert_nothing_raised { Game::ExpireTradesJob.perform_now }
     end
-    assert_equal "expired", @trade.reload.status
+    assert_equal "cancelled", @trade.reload.status
     assert_empty rows_of(@alice)
-  end
-
-  test "a deleted recipient's partner cannot have the trade accepted for them, and the proposer may still cancel" do
-    delete(@bob)
-
-    assert_equal Dry::Monads::Failure(:player_required), Game::AcceptTrade.new.call(player: @bob, trade_id: @trade.id)
-    assert Game::CancelTrade.new.call(player: @alice, trade_id: @trade.id).success?
-    assert_equal [ [ @one, 3, 0 ] ], rows_of(@alice)
-    assert_empty rows_of(@bob)
   end
 
   test "the goal reward job skips a deleted contributor" do

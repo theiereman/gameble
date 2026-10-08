@@ -21,8 +21,8 @@ class Game::DeletePlayerConcurrencyTest < ActiveSupport::TestCase
   teardown do
     id = @player.id
     Game::WeeklyGoal.where(week_start: Date.current.beginning_of_week).delete_all
-    [ Game::FeedEntry, Game::DailyBonusClaim, Game::GoalReward, Game::Pack, Game::Holding, Game::FriendCode,
-      Game::WeeklyContribution, Game::PlayerState ].each { |model| model.where(player_id: id).delete_all }
+    [ Game::FeedEntry, Game::DailyBonusClaim, Game::GoalReward, Game::FirstDiscovery, Game::Pack, Game::Holding, Game::SetCompletion,
+      Game::FriendCode, Game::WeeklyContribution, Game::PlayerState ].each { |model| model.where(player_id: id).delete_all }
     connection = ActiveRecord::Base.connection
     streams = [ Game::Operation.stream_name(id), "Accounts::Player$#{id}" ]
     event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))

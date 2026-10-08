@@ -38,12 +38,26 @@ module Game
       Operation.stream_name(player_id)
     end
 
+    # One Game::SetCompleted per set the player completed for the first time
+    # (Game::SetCompletion's answer), on their stream (AD-10), after the
+    # operation's own event.
+    def publish_completions(player_id, set_ids)
+      set_ids.each do |set_id|
+        publish(SetCompleted.new(data: { player_id:, set_id: }), stream_name: stream_name(player_id))
+      end
+      Success()
+    end
+
     def require_player(player)
       if player.is_a?(Accounts::Player) && player.persisted? && !player.banned? && !player.deleted?
         Success(player)
       else
         Failure(:player_required)
       end
+    end
+
+    def require_account(player)
+      player.is_a?(Accounts::Player) && player.persisted? ? Success(player) : Failure(:player_required)
     end
 
     # Takes the player's bank lock (Game::BankLock; inside `transaction`),

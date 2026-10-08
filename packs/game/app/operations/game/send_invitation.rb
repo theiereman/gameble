@@ -1,23 +1,4 @@
 module Game
-  # Sends a friend invitation (CAP-10, AD-8): to the player who owns a friend
-  # code (`code:`, typed in the Friends screen) or to the player whose invite
-  # link was opened (`recipient_token:`, the player's token, AD-15). Exactly
-  # one of the two.
-  #
-  # A code is trimmed and upcased, then checked against the code format
-  # (:invalid_format). It refuses the player's own code or link (:own_code,
-  # :own_link), a code nobody holds or a banned owner (:unknown_code), a
-  # link of nobody or of a banned player (:unknown_player), a pair already
-  # friends (:already_friends) and an invitation still pending (:already_sent).
-  # When the recipient already invited the sender, both want it: that
-  # invitation is accepted instead (the friendship is created) and the
-  # result is that accepted invitation. Otherwise a pending invitation is
-  # created and Game::InvitationSent is published, in one transaction.
-  #
-  #   Game::SendInvitation.new.call(player:, code: "8F2D-K9XM")
-  #   # => Success(invitation) | Failure(:player_required) | Failure(:invalid_format) | Failure(:own_code)
-  #   #    | Failure(:own_link) | Failure(:unknown_code) | Failure(:unknown_player) | Failure(:already_friends)
-  #   #    | Failure(:already_sent)
   class SendInvitation < Operation
     def call(player:, code: nil, recipient_token: nil)
       player = step require_player(player)
@@ -59,8 +40,7 @@ module Game
     end
 
     def not_friends(player, recipient)
-      low, high = [ player.id, recipient.id ].minmax
-      Friendship.exists?(low_player_id: low, high_player_id: high) ? Failure(:already_friends) : Success()
+      FriendshipBetween.call(player, recipient) ? Failure(:already_friends) : Success()
     end
 
     def create_pending(player, recipient)

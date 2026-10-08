@@ -1,0 +1,13 @@
+# Every card of the fixture season was first pulled long ago, by the banned
+# player in a pack since forgotten (as an account deletion leaves it, story
+# 6.7), so a test's opening of fixture cards is an ordinary pull; a test of
+# a first discovery deletes the row it needs.
+_fixture:
+  model_class: Game::FirstDiscovery
+
+<% %i[portal_one common_card_one uncommon_card_one rare_card_one legendary_card_one].each do |name| %>
+<%= name %>:
+  card_season_id: <%= ActiveRecord::FixtureSet.identify(name) %>
+  player_id: <%= ActiveRecord::FixtureSet.identify(:banned) %>
+  discovered_at: <%= 2.weeks.ago.to_fs(:db) %>
+<% end %>

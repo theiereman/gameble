@@ -316,7 +316,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal [ [ "Whole season", "0/0" ] ], set_rows
-    assert_select ".collection-sets__empty", "No publisher has earned a set this season, Brother."
+    assert_select ".collection-sets__empty", "No publisher has a set this season."
     assert_select ".collection-sets .series-nav", false
     assert_select ".collection-grid__empty", "Nothing matches these filters."
     assert_select ".collection-pages", false
@@ -341,7 +341,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en, shelf: 9)
     assert_response :success
     assert_equal 1, set_rows.size
-    assert_select ".collection-sets__empty", "This shelf stands empty, Brother. The tomes end on an earlier one."
+    assert_select ".collection-sets__empty", "This list ends on an earlier page."
     assert_select ".collection-sets .series-nav a[href='/en/library?shelf=3']", minimum: 1
   end
 
@@ -400,8 +400,12 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en)
 
     assert_response :success
-    assert_select ".collection-none p.panel", "The shelves are bare, Brother: the Brotherhood has published no season of cards yet."
+    assert_select ".collection-none p.panel", "No season of cards is published yet."
     assert_select ".collection, .collection-status", false
+
+    get library_path(locale: :fr)
+
+    assert_select ".collection-none p.panel", "Aucune saison de cartes n'est publiée pour l'instant."
   end
 
   test "no set or card-season id reaches the page" do
@@ -421,7 +425,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a player's request costs fifteen queries, a visitor's nine" do
+  test "a player's request costs sixteen queries, a visitor's nine" do
     season = publish_sets_draft
     player = accounts_players(:player)
     hold(player, season_cards(season).first, 1, gained_at: 1.minute.ago)
@@ -432,8 +436,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # the query cache by the top bar; filtered by state it is its own query),
     # page, card views, the player's slots,
     # the cards' tomes (the whole season only: their links name them); the
-    # figures: unique cards, copies per tier.
-    assert_request_queries(15) { get library_path(locale: :en) }
+    # figures: unique cards, copies per tier; the tab bar's trades waiting.
+    assert_request_queries(16) { get library_path(locale: :en) }
 
     delete session_path(locale: :en)
     # The same without the lookup, the progress, the slots, the unique cards

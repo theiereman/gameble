@@ -6,16 +6,10 @@
     <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
   <% end %>
 <% end %>
-<%# Amis (EXPERIENCE.md, Amis; DESIGN.md, Friends): the invite panel (the
-    permanent link with COPIER, the player's own friend code, the field to
-    add a friend by code), the invitations and the friend list, each friend
-    with their presence: a dot (lime online, blue doing something, muted
-    away) and its words. The field answers on the line below it. A
-    friend's name opens their profile dialog (story 5.10). %>
 <% invite_url = public_url_for(invite_link_path(token: current_player.token)) %>
-<section class="friends" aria-labelledby="friends-heading">
+<section class="friends" aria-labelledby="friends-heading" data-controller="live-refresh" data-live-refresh-signal-value="friends-updated">
   <h1 id="friends-heading" class="friends__title"><%= t(".title") %></h1>
-  <%= render PanelComponent.new(brackets: true, class: "friends__panel") do %>
+  <%= render PanelComponent.new(brackets: true, class: "friends__panel", id: "friends-invite") do %>
     <h2 class="friends__heading"><%= t(".invite") %></h2>
     <div class="friends__field" data-controller="share" data-share-copied-value="<%= t(".copied") %>" data-share-manual-value="<%= t(".manual") %>">
       <label class="friends__label" for="invite-link"><%= t(".by_link") %></label>
@@ -47,7 +41,7 @@
     <ul class="friends__list">
       <% @invitations.received.each do |invitation| %>
         <li class="friends__row friends__invitation">
-          <span class="friends__who"><%= t(".invites_you", name: invitation.player.persona_name.presence || t(".nameless")) %></span>
+          <span class="friends__who"><%= t(".invites_you", name: friend_name(invitation.player)) %></span>
           <span class="friends__actions">
             <%= render ButtonComponent.new(href: accept_invitation_path(token: invitation.token), method: :post, size: :small) do %><%= t(".accept") %><% end %>
             <%= render ButtonComponent.new(variant: :secondary, href: ignore_invitation_path(token: invitation.token), method: :post, size: :small) do %><%= t(".ignore") %><% end %>
@@ -65,15 +59,13 @@
 
   <h2 class="friends__heading"><%= t(".friends") %></h2>
   <% if @friends.empty? %>
-    <%= render PanelComponent.new(tag: :p, class: "friends__empty") do %><%= t(".empty") %><% end %>
+    <%= render PanelComponent.new(tag: :p, class: "friends__empty") do %><%= t(".empty") %> <%= link_to t(".empty_invite"), "#friends-invite" %><% end %>
   <% else %>
     <ul class="friends__list">
       <% @friends.each do |friend| %>
         <li class="friends__row friends__friend">
           <button type="button" class="friends__name" aria-haspopup="dialog" data-controller="dialog-opener" data-action="dialog-opener#open" data-dialog-opener-dialog-value="<%= friend_dialog_id(friend.player.token) %>"><%= friend_name(friend.player) %></button>
-          <span class="friends__presence friends__presence--<%= friend.state %>">
-            <span class="friends__dot" aria-hidden="true"></span><%= presence_text(friend) %>
-          </span>
+          <%= render "friends/presence", presence: friend %>
         </li>
       <% end %>
     </ul>

@@ -29,7 +29,6 @@ Context for MVP design decisions that must not block these. Nothing here is buil
 - **Live trades:** both players at the trade board at the same time.
 - **Card marks:** favourite, to trade, personal categories.
 - **Feed reactions:** reacting to or commenting on a friend's pull or repost.
-- **Sets from Steam store tags.**
 - **Knowledge battles** (parked idea, unscheduled; detail in the brief addendum): live three-round matches on themes drawn from Steam data, played with cards picked from a random hand, rewarding knowledge of games rather than collection size; optionally a challenge market where players stake cards. It conflicts with the Combat non-goal and with the rule that currency comes only from destroying cards.
 - **Delisted games:** manual curation, since the store API returns little for them.
 - **Native apps:** App Store and Play Store. Store review may object to third-party art and random rewards, and iOS sign-in rules may apply. Reassess then.

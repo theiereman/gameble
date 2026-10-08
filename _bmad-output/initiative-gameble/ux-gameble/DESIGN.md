@@ -3,7 +3,7 @@ name: gameble
 description: Pixel-art trading card game of Steam games, presented as an elegant space terminal in Steam's colors. Real Steam covers under a fine pixel filter, sober panels, small effects that tick in steps.
 status: final
 created: 2026-10-01
-updated: '2026-10-07'
+updated: '2026-10-08'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../brief-gameble/brief-gameble.md
@@ -35,6 +35,8 @@ colors:
   on-lime: '#0f1a03'
   gold: '#f4c542'
   on-gold: '#120d05'
+  tier-bronze: '#c4945e'
+  tier-silver: '#bcc8d4'
   alert: '#e8833a'
   on-alert: '#1d0f03'
   danger-bg: '#3a1a12'
@@ -502,7 +504,7 @@ Rules:
 The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 
 - **Gutters:** `{spacing.gutter-desktop}` on desktop, `{spacing.gutter-phone}` on the phone. Panels pad `{spacing.panel-padding}`.
-- **Booster opening centred (author, 2026-10-07):** on a window taller or wider than the stage, the opening is centred horizontally and vertically in the space available, with more room between its components; nothing is resized.
+- **Booster opening at the top (author, 2026-10-07):** the opening starts at the top of the page like every other screen, with more room between its components; its hazard stripe is the first thing on screen, and nothing is resized. This replaces the earlier vertical centring, which made the stripe look misplaced.
 - **No scaling, anywhere.** The page never shrinks or grows to fit the window: every element keeps its size. A short window scrolls the page vertically, and the top bar and LIVE ticker scroll with it (they are not fixed). A narrower window reflows by width breakpoints. The booster stage is not scaled either.
 - **Width:** content (and the top bar's contents) is capped at `{spacing.content-max}` and centered; the ground, star field, top bar and ticker backgrounds run full width. The exact cap is 1280px; the decision is "below 1440px". Tablets follow the same width rules.
 - **Breakpoints** (CSS px of the viewport, so browser zoom reaches them):
@@ -682,7 +684,7 @@ What the player sees on their own face-down cards at opening, and in the collect
 | Centurion | Riveted gunmetal plate, an orange octagonal core with "100", an orange hazard band, "CENTURION" |
 | Soldes d'hiver | Icy blue frame, a large snowflake, falling snow, snowy pines on white ground, "HIVER" above |
 
-A locked back is grayed and darkened under a pixel padlock. The eight are the prototype's set; which backs ship is open. Backs, the canister, icons, avatars, the planet and the logo ship as exported pixel-art files (PNG or SVG), not as runtime drawing code.
+A locked back is grayed and darkened under a pixel padlock. Each theme and hall of fame set has its own back, unlocked on gold; the eight above are the prototype's set; the other backs that ship are open. Backs, the canister, icons, avatars, the planet and the logo ship as exported pixel-art files (PNG or SVG), not as runtime drawing code.
 
 #### Face-down card and revealed card
 
@@ -766,6 +768,8 @@ Desktop, in the info column (above the stage under 1260px, in one wrapping row):
 
 The tier name in VT323 in the rarity color, outlined in `{colors.outline}`, between two outlined rarity icons and two short hazard stripes in the rarity color. Épique: `{typography.banner-small}`. Légendaire: `{typography.banner}` with "!" and, below, the title and year in Space Mono. On the phone it plays inside the reveal caption plate, never over the card.
 
+**Set celebration:** after the last card's reveal, the same small banner reads "PALIER ARGENT · Roguelike 31/62" in the tier colour with that tier's notches, or "SET COMPLET · Dark Souls" in `{colors.lime}` with a small COMPLET stamp. Results never change on a timer. On desktop they stack, still, under the booster information panel. On the phone the reveal caption plate, grown to at least 60px, shows one result with "1 / 3" and a 44 × 44 "▸" button (accessible name "Résultat suivant") that shows the next one. More than three results become one line, "n PALIERS ATTEINTS". Results stay until the next booster opens. The set name wraps in the plate, which grows rather than cutting it.
+
 #### Reveal caption plate (phone)
 
 An opaque `{colors.panel}` plate, 52px tall with a 6px bar in the rarity color on its left, between the large card and the tray (`{colors.plate-legendaire}` for a Légendaire). It holds the rarity icon, the rarity name (with hazard ticks on Épique and Légendaire only), then the title and year. Under it, a "RANGER" button stores the card (a visible alternative to the swipe). Reference: [mockups/mobile.html](mockups/mobile.html), booster.
@@ -780,7 +784,13 @@ An overlay with the card at `card-xl`, its name and rarity line, "VOIR LA FICHE"
 
 #### Collection
 
-- **Set progress row:** name and "owned/total", a thin progress bar; the selected set has a 5px accent bar on its left. The same component lists sets on the hub ("PROGRESSION DES SETS", four sets, "TOUT VOIR ▸").
+Reference: [mockups/key-collection-sets.html](mockups/key-collection-sets.html), collection, set album and booster celebration (author, 2026-10-08). Where this mock differs from the rules (back button height, VT323 size of the total, row frame colour, link hit area, live-region role), the rules apply.
+
+- **Collection entry:** one centred column (at most 880px on desktop): "EN COURS", then "À DÉCOUVRIR", each a list of set progress rows; then the kicker "CHERCHER UN SET" (an h2 like the others) over the search field, which it labels, with "TOUTES LES CARTES ▸" on the same line. Results appear directly below, under the kicker "RÉSULTATS", as set progress rows. The same rows list the hub's "SETS EN COURS".
+- **Set progress row:** name, the kind in muted `{typography.label}` (THÈME, FRANCHISE, STUDIO, PALMARÈS, OVNI), "owned/total", a thin progress bar; the row of the album last opened has a 5px accent bar on its left and `aria-current="true"`. A tiered set's bar carries ticks at its bronze, silver and gold thresholds with 1, 2 and 3 pixel notches below them; a reached tier also shows its name and notches beside the count. Franchise, studio and OVNI rows have no ticks. Ticks are a visual aid hidden from assistive technology; the row's text carries the tiers. Notches are at least 4 × 8px with 2px gaps wherever they appear. Inside the row, the bar and ticks are hidden from assistive technology; the row's accessible name carries the value: "Roguelike, thème, 29 cartes sur 62, palier bronze, argent à 31" (untiered: "Dark Souls, franchise, 2 cartes sur 3"; done: "… complet"). Set names wrap to two lines and never truncate; on the phone the kind and the tier mark move to a second line.
+- **Tier marks:** bronze `{colors.tier-bronze}`, silver `{colors.tier-silver}`, gold `{colors.gold}`; always with the tier's name and its 1 to 3 notches, never colour alone (silver and gold match in greyscale). Reached and not reached differ by more than colour: a reached tier has filled notches and a pixel check "✓" before its name, and its name and frame are in the tier colour; a tier not yet reached has hollow notches (at least 6px wide, a 2px `{colors.line-deep}` outline around an empty centre) and its name in `{colors.muted}`. On a progress bar, a reached tick is solid and rises 4px above the track; a tick not yet reached is a dashed `{colors.line-deep}` line. A tier colour never marks anything but a tier: no expiry, warning or body text sits in bronze or silver, and a tier mark is never placed beside an alert-coloured element.
+- **Set album:** a header panel with corner brackets: the set's name in VT323, its kind, "owned/total", then a three-cell gauge BRONZE · ARGENT · OR, each cell showing its threshold in cards and marked reached as in Tier marks (✓, filled notches, tier-colour frame), or the "COMPLET" stamp for an untiered set; below, the set's cards in set order at `card-m` (6 columns on desktop), owned faces with their copy badge and NOUVEAU tag, missing ones as missing-card slots. The back button names where the album was opened (see EXPERIENCE.md, Set album). On the phone the three gauge cells share the width, each with its name over its threshold; below 360px they stack. A set name on two lines uses a line-height of at least 1.2.
+- **COMPLET stamp:** "COMPLET" in a 3px `{colors.lime}` frame with stepped pixel corners, rotated −6°, in the album header's kind and count row (on the phone too, never over the name). Rotated text appears only in VT323 at 24px or more; smaller uses (the feed, the celebration plate) show the frame without text next to the word "COMPLET" set straight. The stamp sits in the text flow with at least 6px clear on each side, so its rotated corners never touch the count.
 - **Filter zone (author, 2026-10-07):** replaces the rows of set and genre chips. A folded panel "FILTRES" (left column on desktop, a sheet on the phone) shows the count of active filters. Inside, groups of chips the player switches on or off: state (POSSÉDÉES, TOUT, MANQUANTES, NOUVELLES, DOUBLONS), rarity, set, genre; the chip style is the control row's (`aria-pressed`, filled with accent when on). A search field sits above the grid. Group names and the folded default.
 - **RAPPORT panel:** total cards, duplicates, and copies per rarity with icon, name and count in the rarity color. On the phone it folds to one line, "n cartes · n doublons", and adds a "CARTES UNIQUES" row when open.
 - **Copy badge:** "x3" in a small accent box at a card's top-right, from x2 (a single copy shows no badge; author, 2026-10-07). **NOUVEAU tag:** a small lime box at the top-left.
@@ -815,7 +825,7 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Amis.
 Reference: [mockups/key-screens.html](mockups/key-screens.html), Fil d'activité.
 
 - **Feed tabs:** two segmented tabs, "TOUS" and "AMIS", above the filter chips (`{typography.label}`, selected filled accent), the same control as the filter group.
-- **Feed entry:** a row on `{colors.panel}` (at least 68px tall): time in muted Space Mono, one or two avatars, a Space Mono sentence with names and titles in white, one or two pixel thumbnails framed in the rarity color, and a right-aligned tag (rarity icon and name, or "⇄ ÉCHANGE"). A first discovery carries a gold "PREMIÈRE DÉCOUVERTE" chip. A repost entry carries a "REPOST" tag in `{colors.accent}` with the card's thumbnail framed in its rarity color. Lower-tier entries added to fill a quiet feed sit on `{colors.panel-sunken}`, never dimmed by opacity. No Brotherhood line on this screen.
+- **Feed entry:** a row on `{colors.panel}` (at least 68px tall): time in muted Space Mono, one or two avatars, a Space Mono sentence with names and titles in white, one or two pixel thumbnails framed in the rarity color, and a right-aligned tag (rarity icon and name, or "⇄ ÉCHANGE"). A first discovery carries a gold "PREMIÈRE DÉCOUVERTE" chip. A set tier entry names the player, the set and the tier, with the tier's name and notches in its colour and no thumbnail; a completed set carries the COMPLET stamp. A repost entry carries a "REPOST" tag in `{colors.accent}` with the card's thumbnail framed in its rarity color. Lower-tier entries added to fill a quiet feed sit on `{colors.panel-sunken}`, never dimmed by opacity. No Brotherhood line on this screen.
 - **LIVE ticker:** a band on `{colors.steam-bar}` along the bottom of the hub: the LIVE marker on the left, then a Space Mono line scrolling right to left, items separated by a pixel "◆", rarity names in their color.
 
 #### Achievements
@@ -827,6 +837,7 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Fil d'activité
 
 - **Public profile summary:** avatar, name, card count, "VITRINE" of three cards, and the visibility line: "Visible par tous les joueurs", "Visible par vos amis seulement" or "Profil privé : vous seul le voyez" ("Vous seul le voyez" on the phone).
 - **Settings row:** a muted label on the left and a control on the right, separated by a 2px `{colors.line-soft}` rule. Controls: segmented groups (selected segment filled accent; `{components.control-border.css}`) for "LANGUE" (FRANÇAIS / ENGLISH), "VISIBILITÉ DU PROFIL" (PUBLIC / AMIS UNIQUEMENT / PRIVÉ, a radio group) and "ANIMATIONS RÉDUITES"; buttons for "MES DONNÉES" (EXPORTER), "SESSION" (SE DÉCONNECTER) and "COMPTE" (SUPPRIMER MON COMPTE, danger). A "Mentions légales" link closes the list.
+- **Title and menu theme pickers (after the launch, CAP-22):** the same grid as the back picker: each title or theme with its name and either "ACTIF", "Choisir" or its unlock condition.
 - **Back picker:** the active card back large (`card-l`, phone `card-m`) with its name and "DOS ACTIF" in lime; a grid of the backs, each with its name and either "ACTIF", "Choisir" or its unlock condition; the active card back has a steady lime frame.
 
 #### Public card page

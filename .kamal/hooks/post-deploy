@@ -1,0 +1,406 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Announces a deploy on Discord, with a simplified changelog of the release.
+#
+# A destination is deployed from a published release only (.kamal/hooks/pre-deploy,
+# .github/workflows/deploy-staging.yml), so the deployed version carries the
+# release's tag. The changelog is the commits since the version last deployed
+# to the destination, whatever release tags lie between: that version is the
+# tag deployed/<destination>, moved to the announced version after each
+# announcement (a rollback too) and pushed to origin, so a runner or a fresh
+# clone keeps the same history. Without it (the first announced deploy), the
+# nearest release below is used, and before any tag, the last commits.
+#
+# The message goes to the Discord webhook read from
+# config/discord_webhook.<destination>.key (git-ignored like master.key); a
+# destination without one, or no destination at all, announces nothing. A
+# `redeploy` (same version, new configuration) and a deploy of the version
+# already deployed announce nothing either; a `rollback` lists the changes
+# taken back.
+#
+# The hook never fails a deploy: a Discord or git error is printed and the
+# deploy stays done. Try it without deploying:
+#
+#   KAMAL_DESTINATION=staging KAMAL_VERSION=$(git rev-parse HEAD) \
+#     KAMAL_PERFORMER=$USER KAMAL_COMMAND=deploy .kamal/hooks/post-deploy --dry-run
+#
+# These environment variables are available:
+# KAMAL_RECORDED_AT
+# KAMAL_PERFORMER
+# KAMAL_VERSION
+# KAMAL_HOSTS
+# KAMAL_COMMAND
+# KAMAL_SUBCOMMAND
+# KAMAL_ROLES (if set)
+# KAMAL_DESTINATION (if set)
+# KAMAL_RUNTIME
+
+require "json"
+require "net/http"
+require "open3"
+require "uri"
+require "yaml"
+
+module DeployAnnouncement
+  # One commit subject, read as a conventional commit (`feat(scope): subject`)
+  # when it is one; the type decides the changelog section it lands in.
+  class Change
+    CONVENTIONAL = /\A(?<type>[a-z]+)(?:\([^)]*\))?!?:\s*(?<subject>.+)\z/
+    LINE_LENGTH = 140
+
+    attr_reader :type, :subject
+
+    def initialize(line)
+      match = CONVENTIONAL.match(line.strip)
+      @type = match ? match[:type] : nil
+      @subject = capitalize(match ? match[:subject] : line.strip)
+    end
+
+    def line
+      return "• #{subject}" if subject.length <= LINE_LENGTH
+
+      cut = subject[0, LINE_LENGTH - 1].sub(/\s+\S*\z/, "")
+      "• #{cut}…"
+    end
+
+    private
+      def capitalize(text)
+        text.sub(/\A\p{Lower}/) { |first| first.upcase }
+      end
+  end
+
+  # The commits of a release, grouped into the sections of the announcement.
+  # Maintenance commits (docs, chore, ci, tests, style, build) are counted,
+  # not listed: the channel reads what changed in the game, not in the repo.
+  class Changelog
+    SECTIONS = [
+      [ "✨ Nouveautés", %w[feat] ],
+      [ "🐛 Corrections", %w[fix] ],
+      [ "🔧 Autres changements", nil ]
+    ].freeze
+    MAINTENANCE = %w[docs chore ci test style build].freeze
+    LINES_PER_SECTION = 15
+
+    attr_reader :changes
+
+    def initialize(lines)
+      @changes = lines.map { |line| Change.new(line) }
+    end
+
+    def empty?
+      changes.empty?
+    end
+
+    def maintenance_count
+      changes.count { |change| MAINTENANCE.include?(change.type) }
+    end
+
+    def listed
+      changes.reject { |change| MAINTENANCE.include?(change.type) }
+    end
+
+    def to_markdown
+      sections = SECTIONS.filter_map do |title, types|
+        included = listed.select { |change| types ? types.include?(change.type) : !listed_elsewhere?(change) }
+        next if included.empty?
+
+        "**#{title}**\n#{lines_of(included)}"
+      end
+      sections << "_+ #{maintenance_count} commit(s) de maintenance (docs, chore…)_" if maintenance_count.positive?
+      sections.join("\n\n")
+    end
+
+    private
+      def listed_elsewhere?(change)
+        SECTIONS.any? { |_, types| types&.include?(change.type) }
+      end
+
+      def lines_of(changes)
+        lines = changes.first(LINES_PER_SECTION).map(&:line)
+        rest = changes.size - lines.size
+        lines << "… et #{rest} autre(s)" if rest.positive?
+        lines.join("\n")
+      end
+  end
+
+  # The git questions of the announcement, asked of the repository at `dir`.
+  class Repository
+    FALLBACK_COMMITS = 10
+
+    def initialize(dir = Dir.pwd)
+      @dir = dir
+    end
+
+    def commit?(sha)
+      _, status = git("rev-parse", "--verify", "--quiet", "#{sha}^{commit}")
+      status.success?
+    end
+
+    def deployed_tag(destination)
+      "deployed/#{destination}"
+    end
+
+    # The commit last deployed to the destination, or nil before the first
+    # announced deploy.
+    def deployed_version(destination)
+      sha, status = git("rev-parse", "--verify", "--quiet", "#{deployed_tag(destination)}^{commit}")
+      status.success? ? sha.strip : nil
+    end
+
+    # Moves the destination's tag to the deployed version and pushes it; a
+    # push that fails (offline, no permission) is reported, not fatal.
+    def record_deploy(destination, sha)
+      _, status = git("tag", "--force", deployed_tag(destination), sha)
+      return false unless status.success?
+
+      output, status = git("push", "--force", "origin", "refs/tags/#{deployed_tag(destination)}")
+      warn "post-deploy: tag #{deployed_tag(destination)} not pushed: #{output.strip}" unless status.success?
+      true
+    end
+
+    # The release tag of a commit: the highest of the tags pointing at it, a
+    # pre-release (v1.1.0-rc1) below its release (v1.1.0).
+    def release_at(sha)
+      output, status = git("-c", "versionsort.suffix=-", "tag", "--points-at", sha, "--sort=-version:refname")
+      status.success? ? output.lines(chomp: true).find { |tag| !tag.start_with?("deployed/") } : nil
+    end
+
+    # The nearest release tag reachable from `ref`, or nil before the first tag.
+    def nearest_release(ref)
+      output, status = git("describe", "--tags", "--abbrev=0", "--exclude=deployed/*", ref)
+      status.success? ? output.strip : nil
+    end
+
+    # The subjects of the commits reachable from `to` and not from `from`,
+    # newest first, merge commits left out.
+    def subjects(from, to)
+      output, status = git("log", "--no-merges", "--format=%s", "#{from}..#{to}")
+      status.success? ? output.lines(chomp: true).reject(&:empty?) : []
+    end
+
+    def last_subjects(to, count = FALLBACK_COMMITS)
+      output, status = git("log", "--no-merges", "--format=%s", "-n", count.to_s, to)
+      status.success? ? output.lines(chomp: true).reject(&:empty?) : []
+    end
+
+    def short(sha)
+      sha[0, 7]
+    end
+
+    def github_url
+      url, status = git("config", "--get", "remote.origin.url")
+      return nil unless status.success?
+
+      url = url.strip.delete_suffix(".git")
+      if url.start_with?("https://github.com/")
+        url
+      elsif url.start_with?("git@github.com:")
+        "https://github.com/#{url.delete_prefix('git@github.com:')}"
+      end
+    end
+
+    private
+      # Commit subjects are UTF-8 whatever the deploying shell's locale.
+      def git(*args)
+        output, status = Open3.capture2e("git", *args, chdir: @dir)
+        [ output.force_encoding(Encoding::UTF_8).scrub, status ]
+      end
+  end
+
+  # The announcement of one deploy: what Kamal told the hook, turned into a
+  # Discord message.
+  class Announcement
+    attr_reader :destination, :version, :command, :performer, :runtime, :repository, :public_url
+
+    def initialize(env, repository:, public_url: nil)
+      @destination = env.fetch("KAMAL_DESTINATION")
+      # A dirty checkout deploys "<sha>_uncommitted_<hash>": the sha is the commit.
+      @version = env.fetch("KAMAL_VERSION").sub(/_uncommitted_.*\z/, "")
+      @command = env.fetch("KAMAL_COMMAND", "deploy")
+      # From GitHub Actions, the person who published the release rather than the runner's user.
+      @performer = env["GITHUB_ACTOR"] || env["KAMAL_PERFORMER"]
+      @runtime = env["KAMAL_RUNTIME"]
+      @repository = repository
+      @public_url = public_url
+    end
+
+    def release
+      return @release if defined?(@release)
+
+      @release = repository.release_at(version)
+    end
+
+    # The commit the changelog starts from: the version last deployed to the
+    # destination; before the first recorded deploy, the nearest release
+    # below the deployed commit (skipping its own tag).
+    def previous_version
+      return @previous_version if defined?(@previous_version)
+
+      @previous_version = repository.deployed_version(destination) || repository.nearest_release(release ? "#{release}^" : version)
+    end
+
+    def previous_name
+      return nil if previous_version.nil?
+
+      repository.release_at(previous_version) || repository.short(previous_version)
+    end
+
+    def rollback?
+      command == "rollback"
+    end
+
+    # True when the destination already runs this commit (the deployed tag
+    # points at it): a re-run of the same release announces nothing.
+    def same_version?
+      repository.deployed_version(destination) == version
+    end
+
+    def changelog
+      @changelog ||= Changelog.new(subjects)
+    end
+
+    def payload
+      { content: content, allowed_mentions: { parse: [] } }
+    end
+
+    def content
+      [ headline, details, body, links ].compact.join("\n\n")
+    end
+
+    private
+      def subjects
+        return repository.last_subjects(version) if previous_version.nil?
+        return repository.subjects(version, previous_version) if rollback?
+
+        repository.subjects(previous_version, version)
+      end
+
+      def name
+        release || repository.short(version)
+      end
+
+      def headline
+        title = if rollback?
+          "⏪ **Gameble — retour arrière en #{destination} : #{name}**"
+        else
+          "🚀 **Gameble — nouvelle version en #{destination} : #{name}**"
+        end
+        public_url ? "#{title}\n<#{public_url}>" : title
+      end
+
+      def details
+        parts = [ release ? "Release `#{release}` (`#{repository.short(version)}`)" : "Version `#{repository.short(version)}`, sans tag" ]
+        parts << "par #{performer}" if performer && !performer.empty?
+        parts << "en #{runtime} s" if runtime && !runtime.empty?
+        parts.join(", ")
+      end
+
+      def body
+        if previous_version.nil?
+          "Première version annoncée : les #{Repository::FALLBACK_COMMITS} derniers commits.\n\n#{changelog.to_markdown}"
+        elsif changelog.empty?
+          "Aucun commit à lister depuis `#{previous_name}`."
+        elsif rollback?
+          "**Changements retirés** (retour de `#{previous_name}` à `#{name}`)\n\n#{changelog.to_markdown}"
+        else
+          "Depuis `#{previous_name}`, la dernière version déployée :\n\n#{changelog.to_markdown}"
+        end
+      end
+
+      def links
+        return nil if repository.github_url.nil?
+
+        lines = []
+        lines << "<#{repository.github_url}/releases/tag/#{release}>" if release
+        if previous_version
+          from, to = rollback? ? [ name, previous_name ] : [ previous_name, name ]
+          lines << "<#{repository.github_url}/compare/#{from}...#{to}>"
+        end
+        lines.join("\n") unless lines.empty?
+      end
+  end
+
+  # Posts a message to a Discord webhook. Discord caps a message at 2000
+  # characters: a longer one is cut, with a pointer to the compare link.
+  class Webhook
+    LIMIT = 2000
+
+    def initialize(url)
+      @uri = URI(url.strip)
+    end
+
+    def post(payload)
+      payload = payload.merge(content: cut(payload[:content]))
+      response = Net::HTTP.start(@uri.host, @uri.port, use_ssl: @uri.scheme == "https", open_timeout: 10, read_timeout: 10) do |http|
+        http.post(@uri.request_uri, JSON.generate(payload), "Content-Type" => "application/json")
+      end
+      raise "Discord answered #{response.code}: #{response.body.to_s.strip}" unless response.is_a?(Net::HTTPSuccess)
+    end
+
+    private
+      def cut(content)
+        return content if content.length <= LIMIT
+
+        suffix = "\n… (liste coupée, voir le lien de comparaison)"
+        "#{content[0, LIMIT - suffix.length]}#{suffix}"
+      end
+  end
+
+  class Hook
+    def initialize(env: ENV, root: Dir.pwd, out: $stdout, err: $stderr)
+      @env = env
+      @root = root
+      @out = out
+      @err = err
+    end
+
+    def run(dry_run: false)
+      destination = @env["KAMAL_DESTINATION"].to_s
+      return skip("no destination (bin/kamal ... -d <destination>)") if destination.empty?
+      return skip("a redeploy keeps the version") if @env["KAMAL_COMMAND"] == "redeploy"
+
+      webhook_file = File.join(@root, "config", "discord_webhook.#{destination}.key")
+      return skip("no #{webhook_file}") unless dry_run || File.exist?(webhook_file)
+
+      repository = Repository.new(@root)
+      announcement = Announcement.new(@env, repository: repository, public_url: public_url(destination))
+      return skip("#{announcement.version} is not a commit of this checkout") unless repository.commit?(announcement.version)
+      return skip("#{announcement.version} is the version already deployed") if announcement.same_version?
+
+      if dry_run
+        @out.puts announcement.content
+        return true
+      end
+
+      Webhook.new(File.read(webhook_file, encoding: Encoding::UTF_8)).post(announcement.payload)
+      @out.puts "post-deploy: #{destination} deploy announced on Discord"
+      repository.record_deploy(destination, announcement.version)
+      true
+    rescue StandardError => error
+      @err.puts "post-deploy: Discord announcement failed: #{error.message}"
+      false
+    end
+
+    private
+      def skip(reason)
+        @out.puts "post-deploy: no Discord announcement, #{reason}"
+        false
+      end
+
+      def public_url(destination)
+        file = File.join(@root, "config", "deploy.#{destination}.yml")
+        return nil unless File.exist?(file)
+
+        YAML.safe_load_file(file).dig("env", "clear", "PUBLIC_URL")
+      rescue StandardError
+        nil
+      end
+  end
+end
+
+if $PROGRAM_NAME == __FILE__
+  DeployAnnouncement::Hook.new.run(dry_run: ARGV.include?("--dry-run"))
+  # A failed announcement never fails the deploy.
+  exit 0
+end

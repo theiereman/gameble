@@ -7,8 +7,8 @@
   </head>
 
   <%# The shell (AD-28; DESIGN.md, Chrome): atmosphere under everything, the
-      top bar, the page, the phone tab bar, the toasts and, for a visitor,
-      the sign-in panel. The back-office keeps the tokens and the top bar
+      top bar, the page, the phone tab bar, the toasts, the deployed version
+      in the bottom-left corner and, for a visitor, the sign-in panel. The back-office keeps the tokens and the top bar
       only. The public card page (`content_for :public_page`) has the slim
       top bar and no tab bar. %>
   <body class="<%= class_names("is-back-office": back_office_page?, "is-public-page": content_for?(:public_page)) %>">
@@ -22,6 +22,8 @@
 
     <%= render "shell/tab_bar" unless back_office_page? || content_for?(:public_page) %>
     <%= render "shell/toasts" %>
+    <%= render "shell/version" %>
     <%= render "shell/sign_in_panel" unless current_player || back_office_page? %>
+    <%= player_stream_tag %>
   </body>
 </html>

@@ -1,11 +1,6 @@
 require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 
-# A friend's profile (story 5.10; EXPERIENCE.md, Friend profile): on the
-# Friends screen a friend's name opens a dialog whose body loads when it
-# opens: the friend's showcase of three cards, "PROPOSER UN ÉCHANGE" and
-# "SIGNALER", which opens the report dialog and comes back to the Friends
-# screen once sent. On the phone the dialog is a bottom sheet.
 class FriendsTest < ApplicationSystemTestCase
   include CatalogSeeds
 
@@ -46,7 +41,7 @@ class FriendsTest < ApplicationSystemTestCase
     within("dialog#friend-#{@friend.token}[open]") do
       assert_selector ".friend-profile__name", text: "Lea"
       assert_selector ".friend-profile__showcase .card", count: 3
-      assert_selector "button[disabled]", text: /propose a trade/i
+      assert_selector "a.button--primary[href='#{new_trade_path(locale: :en, friend: @friend.token)}']", text: /propose a trade/i
       take_screenshot
       click_on "REPORT"
     end

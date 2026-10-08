@@ -66,3 +66,4 @@ Event handlers, the weekly goal, the feed, achievements and their broadcasts. No
 - Decision (2026-10-07): the ticker follows the spec only; set completions and hourly totals are added later if the feed looks empty.
 - Decision (2026-10-07): reposts are not limited until measured in play.
 - Not built here: card backs (epic 9, after the launch) consume the events this epic publishes.
+- Decision (2026-10-08, author): set tier and set completion lines in the feed and the LIVE ticker are delivered by epic-recognizable-sets (13.6), which waits on 6.1, 6.2, 6.4 and 6.7; this epic's stories do not change.

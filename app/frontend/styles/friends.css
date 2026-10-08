@@ -1,8 +1,3 @@
-/*
- * Amis (DESIGN.md: Friends; EXPERIENCE.md: Amis; story 5.1): the player's
- * friend code, large, and the friend list. Hard edges, no animation.
- */
-
 .friends {
   display: flex;
   flex-direction: column;
@@ -42,9 +37,6 @@
   padding: 0;
   list-style: none;
 }
-
-/* Story 5.2: the invite panel (link, code field), the invitation rows and
-   the invite link page. */
 
 .friends__heading {
   margin: 0;
@@ -124,9 +116,6 @@
   letter-spacing: var(--tracking-screen-title);
 }
 
-/* Story 5.3: a friend's presence (DESIGN.md, Friend row): a square dot and
-   its words, lime online, blue doing something, muted away. */
-
 .friends__friend {
   display: flex;
   flex-wrap: wrap;
@@ -155,10 +144,6 @@
 .friends__presence--active {
   color: var(--color-accent);
 }
-
-/* Story 5.10: a friend's name opens their profile dialog (DESIGN.md,
-   Friend profile): the 64px avatar, the name and card count, "VITRINE"
-   with three small cards, the primary action and the orange "SIGNALER". */
 
 .friends__name {
   min-height: var(--space-touch-min);
@@ -214,6 +199,10 @@
   overflow-wrap: anywhere;
 }
 
+.friend-profile__presence {
+  margin: 0;
+}
+
 .friend-profile__count,
 .friend-profile__heading {
   margin: 0;
@@ -233,8 +222,7 @@
 }
 
 .friend-profile__empty,
-.friend-profile__loading,
-.friend-profile__soon {
+.friend-profile__loading {
   margin: 0;
   color: var(--color-muted);
 }
@@ -246,7 +234,6 @@
   gap: var(--space-3);
 }
 
-/* SIGNALER: the orange link (DESIGN.md, Link). */
 .friend-profile__actions .button--link {
   color: var(--color-alert);
 }

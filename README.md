@@ -39,11 +39,27 @@ bin/rails zeitwerk:check
 
 ## Branches and deployment
 
-- `develop` carries the work in progress and deploys to staging (https://gameble.dotsncircles.com) automatically once CI passes on it (`.github/workflows/deploy-staging.yml`).
-- `main` is kept for production and is never deployed to staging by the workflow. Merge `develop` into `main` only when the production deployment is meant to happen.
-- Feature branches start from `develop` and come back through a pull request.
+- `develop` carries the work in progress. Feature branches start from it and come back to it.
+- Staging (https://gameble.dotsncircles.com) changes once per release, never on a push: publishing a GitHub release whose tag is on `develop` deploys that tag (`.github/workflows/deploy-staging.yml`; a release whose tag is not on `develop` deploys nothing). On GitHub, Releases → Draft a new release → a new tag (`v1.2.0`) with target `develop` → Publish release, or `gh release create v1.2.0 --target develop --generate-notes`.
+- `main` is kept for production and is never deployed to staging. Merge `develop` into `main` only when the production deployment is meant to happen; production stays a manual `bin/kamal deploy -d production`.
 
-The staging workflow needs these repository secrets: `STAGING_SSH_KEY` (private key allowed on the LXC), `STAGING_SSH_KNOWN_HOSTS` (the host key line for `[gameble.dotsncircles.com]:2224`), `RAILS_MASTER_KEY`, `SENTRY_DSN`, `DATABASE_PASSWORD` and `STEAM_API_KEY`; they are written to the same `config/*.key` files that `.kamal/secrets.staging` reads.
+The staging workflow needs these secrets of the `staging` environment: `STAGING_SSH_KEY` (private key allowed on the LXC), `STAGING_SSH_KNOWN_HOSTS` (the host key line for `[gameble.dotsncircles.com]:2224`), `RAILS_MASTER_KEY`, `SENTRY_DSN`, `DATABASE_PASSWORD` and `STEAM_API_KEY` (written to the same `config/*.key` files that `.kamal/secrets.staging` reads), and `DISCORD_WEBHOOK_STAGING` (the webhook URL of the Discord channel: Edit channel → Integrations → Webhooks → New webhook).
+
+### Discord announcement
+
+After each staging deploy, `.kamal/hooks/post-deploy` posts one message to the channel: the release, who published it, the staging URL, and a simplified changelog. Commits are read as conventional commits: `feat` lands under "Nouveautés", `fix` under "Corrections", the rest under "Autres changements"; `docs`, `chore`, `ci`, `test`, `style` and `build` commits are counted, not listed.
+
+The changelog always starts at the version last deployed to staging, not at the previous tag: the hook keeps it as the tag `deployed/staging`, moved to the announced version after each announcement (a rollback too) and pushed to origin (a push that fails is printed, and the next changelog simply starts further back). A release tag never deployed, or a release on another branch, therefore never shortens a changelog. Before the first recorded deploy the nearest release below is used, and before any tag, the last 10 commits. A `redeploy`, or a deploy of the version already deployed, announces nothing; a `rollback` lists the changes taken back.
+
+The deployed version is shown in the bottom-left corner of every page (`ShellHelper.app_version`): the release tag, passed to the image build by `config/deploy.yml` (`builder.args.GAMEBLE_VERSION`, the tag of the deployed commit, else its short sha), `dev` locally.
+
+`.kamal/hooks/pre-deploy` refuses a deploy of a commit without a tag, or of a dirty checkout, for every destination (a rollback is let through), so a deploy from a machine follows the same rule. To deploy an untagged commit on purpose, `bin/kamal deploy -d staging --skip-hooks` (no announcement either).
+
+To deploy from a machine instead of the workflow, tag the commit first (`git tag v1.2.0 && git push origin v1.2.0`), put the webhook URL in `config/discord_webhook.staging.key` (git-ignored like `master.key`; without it the hook announces nothing, and a Discord error never fails the deploy), and `bin/kamal deploy -d staging`. The message can be read before deploying:
+```sh
+KAMAL_DESTINATION=staging KAMAL_VERSION=$(git rev-parse HEAD) KAMAL_PERFORMER=$USER KAMAL_COMMAND=deploy .kamal/hooks/post-deploy --dry-run
+```
+Another destination gets the same with its own `config/discord_webhook.<destination>.key` and `deployed/<destination>` tag. `test/lib/post_deploy_hook_test.rb` runs both hooks against a throwaway repository and a local webhook.
 
 ## Production checks
 

@@ -29,3 +29,5 @@ ignore_unused:
   - "pagy.*"
   # The Booster island's words, passed whole to its props (BoostersHelper#booster_props).
   - "boosters.island.*"
+  # The TradeBoard island's words, by side and passed whole to its props (TradesHelper#trade_board_props).
+  - "trades.island.*"

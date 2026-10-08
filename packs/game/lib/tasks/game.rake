@@ -24,8 +24,6 @@ namespace :game do
     puts "game:backfill_player_states: every player has their game_player_states row"
   end
 
-  # Meant for production: run once after the deploy that creates
-  # game_friend_codes (AD-8).
   desc "Runs Game::BackfillFriendCodesJob now: a friend code for every player without one, banned included; idempotent"
   task backfill_friend_codes: :environment do
     Game::BackfillFriendCodesJob.perform_now
@@ -33,5 +31,17 @@ namespace :game do
     abort "game:backfill_friend_codes: #{missing} player(s) still without a friend code; fix them and rerun" if missing.positive?
 
     puts "game:backfill_friend_codes: every player has their friend code"
+  end
+
+  desc "Runs Game::DropFriendsAndTradesJob now: deleted or banned players' open trades cancelled, their friendships and invitations dropped; idempotent"
+  task drop_friends_and_trades: :environment do
+    Game::DropFriendsAndTradesJob.perform_now
+    left = Game::DropFriendsAndTradesJob.players_with_ties.count
+    if left.positive?
+      abort "game:drop_friends_and_trades: #{left} deleted or banned player(s) still have friends, invitations or open trades " \
+        "(failures reported to the error tracker); fix them and rerun"
+    end
+
+    puts "game:drop_friends_and_trades: no deleted or banned player has friends, invitations or open trades left"
   end
 end

@@ -1,11 +1,4 @@
 module Game
-  # Closes the open trades 7 days after their last send or counter (AD-8),
-  # on a schedule (config/recurring.yml): one Game::ExpireTrade per due
-  # trade, each in its own transaction, for the trade's proposer (AD-14).
-  # A trade answered, cancelled or countered meanwhile is refused by the
-  # operation under its lock and left as it is; a trade whose expiry raises
-  # is reported and skipped, so the others still expire. A rerun finds
-  # nothing more to do.
   class ExpireTradesJob < ActiveJob::Base
     queue_as :default
 

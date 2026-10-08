@@ -2,9 +2,9 @@
 tracker_id: ""
 key: ""
 type: epic
-title: "Card backs"
+title: "Cosmetics: card backs, titles and menu themes"
 parent: initiative-gameble
-covers: [CAP-20]
+covers: [CAP-20, CAP-22]
 after: []
 assignee: ""
 risk: low
@@ -12,11 +12,11 @@ estimate: ""
 estimate_basis: ""
 ---
 
-# Card backs
+# Cosmetics: card backs, titles and menu themes
 
 ## Description
 
-Players earn card backs by completing sets, contributing to a successful weekly goal, some achievements, and events or seasons, and choose the one their face-down cards wear.
+Players earn card backs by reaching gold on a theme or hall of fame set, contributing to a successful weekly goal, some achievements, and events or seasons, and choose the one their face-down cards wear. They also earn profile titles, shown to everyone, from set completions and tiers, and rare menu themes from sets at gold.
 
 ## Outcome
 
@@ -24,14 +24,16 @@ For a player: a visible reward for completing sets and for taking part in the Br
 
 ## Requirements
 
-Completed at this epic's inception. The source line is CAP-20 of the spec; the back catalogue is in `DESIGN.md`, Card backs.
+Completed at this epic's inception. The source lines are CAP-20 and CAP-22 of the spec; the back catalogue is in `DESIGN.md`, Card backs.
 
 ## Done when
 
 1. Every account has the Standard back; a locked back states its unlock condition.
-2. Completing a set, contributing to a successful weekly goal and the listed achievements unlock their backs, once each.
+2. Reaching gold on a theme or hall of fame set, contributing to a successful weekly goal and the listed achievements unlock their backs, once each.
 3. The player picks one active back in the profile; it shows on their own face-down cards from the next pack opened, and faded on the detail of a card they do not own.
 4. An administrator can grant a back to a group of players for an event.
+5. Completing a franchise, studio or UFO set and each tier of a tiered set unlock a profile title; one active title shows on the profile, in the feed and in trades.
+6. Reaching gold on 3, 10 and 25 sets unlocks a menu theme; the player picks one; contrast is checked for each.
 
 ## Boundaries
 
@@ -49,3 +51,4 @@ The back catalogue in code, unlocks and the active back in `Game`, the back pick
 - Open question: which backs ship and their unlock rules (spec).
 - Decision (2026-10-05): its own epic after epic 6, once every unlocking event exists. Approved by the author.
 - Decision (2026-10-07): this epic is not part of the MVP; it is built after the public launch (author). Epics 5 and 6 publish the events it will consume (SetCompleted, the goal reward, achievements).
+- Decision (2026-10-08, author): renamed from "Card backs"; backs unlock on gold, titles and menu themes join (CAP-22, change-recognizable-sets). The folder keeps its name. Waits on epic-recognizable-sets for the set tier and completion events.

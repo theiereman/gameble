@@ -1,12 +1,5 @@
 require "test_helper"
 
-# The trade operations under concurrency (AD-6, AD-8, AD-10): the bank locks
-# taken in ascending player id, then the holdings in ascending card-season,
-# serialise proposals, acceptances and counters that touch the same player,
-# so a card is never reserved beyond what is owned, never spent twice, and
-# crossing trades never deadlock. Each
-# thread has its own connection, so the test commits for real and cleans up
-# after itself.
 class Game::TradeConcurrencyTest < ActiveSupport::TestCase
   self.use_transactional_tests = false
 
@@ -23,9 +16,10 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     Game::TradeItem.delete_all
     Game::Trade.delete_all
     Game::Holding.where(player_id: @players.map(&:id)).delete_all
+    Game::SetCompletion.where(player_id: @players.map(&:id)).delete_all
     Game::Friendship.delete_all
     Accounts::Player.where(id: @created.map(&:id)).delete_all if @created
-    streams = @players.map { |player| Game::Operation.stream_name(player.id) }
+    streams = @players.flat_map { |player| [ Game::Operation.stream_name(player.id), "Accounts::Player$#{player.id}" ] }
     connection = ActiveRecord::Base.connection
     event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))
     connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))
@@ -45,7 +39,6 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
 
   def quantity(player, card_season_id) = Game::Holding.uncached { Game::Holding.find_by(player_id: player.id, card_season_id:)&.quantity.to_i }
 
-  # Runs the blocks together, each on its own connection, released at once.
   # A deadlock would hang the threads: a timeout fails the test instead.
   def together(*blocks)
     gate = Queue.new
@@ -80,6 +73,26 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     assert_equal [ :insufficient_copies ], results.select(&:failure?).map(&:failure)
     assert_equal 2, reserved(@alice, @card)
     assert_equal 1, Game::Trade.count
+  end
+
+  test "a deletion racing proposals to the deleted player: no trade stays open, nothing stays reserved, no deadlock" do
+    dave = Accounts::Player.create!(steam_id: "76561197960288101", persona_name: "Dave")
+    @players += [ dave ]
+    @created = [ dave ]
+    befriend(@alice, dave)
+    befriend(@carol, dave)
+    hold(@alice, @card, 2)
+    hold(@carol, @other, 1)
+
+    results = together(-> { Accounts::DeletePlayer.new.call(player: Accounts::Player.find(dave.id)) },
+      propose(@alice, dave, { @card => 2 }, { @other => 1 }), propose(@carol, dave, { @other => 1 }, { @card => 1 }))
+
+    assert results.first.success?
+    results.drop(1).select(&:failure?).each { |result| assert_equal :not_friends, result.failure }
+    assert_equal 0, Game::Trade.in_progress.where(recipient_id: dave.id).count
+    assert_equal 0, reserved(@alice, @card)
+    assert_equal 0, reserved(@carol, @other)
+    assert_equal 0, Game::Friendship.of(dave.id).count
   end
 
   test "many proposals of single copies at once never reserve more than owned" do

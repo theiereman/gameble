@@ -23,8 +23,6 @@ sum_weekly_goal: &sum_weekly_goal
   queue: default
   schedule: every 10 seconds
 
-# A trade expires 7 days after its last send or counter (AD-8): its offer is
-# released by the next run, one trade per transaction.
 expire_trades: &expire_trades
   class: Game::ExpireTradesJob
   queue: default

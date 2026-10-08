@@ -158,25 +158,30 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
   summary: Transitional: the player chip opens a small popover menu (own public profile, back-office for staff, sign out) instead of Profil et paramètres (EXPERIENCE.md, Player chip), until that screen exists.
   evidence: Story 8.1 Design Notes; `app/views/shell/_player_chip.html.erb`.
+  resolved: In part by story 10.4: the popover's first entry opens Profil et paramètres (`settings_path`); the chip itself still opens the popover, not the screen.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
   summary: Transitional: the phone tab bar's BOOSTER, ÉCHANGES and PLUS tabs render disabled (`aria-disabled`, not links), and the top bar's packs chip is not a link to the booster screen (EXPERIENCE.md, Packs chip), until their screens ship.
   evidence: Story 8.1 Design Notes; `app/views/shell/_tab_bar.html.erb`, `app/views/shell/_packs_chip.html.erb`.
-  resolved: In part by story 11: the BOOSTER tab and the packs chip link to the booster screen; ÉCHANGES and PLUS stay disabled until their screens ship.
+  resolved: In part by story 11: the BOOSTER tab and the packs chip link to the booster screen; ÉCHANGES and PLUS stay disabled until their screens ship. Story 10.4 makes PLUS a link to its rows (`more_path`); only ÉCHANGES stays disabled, until the trades screen (epic 5). Story 5.6 makes ÉCHANGES a link to the trades screen, with its waiting badge; no tab stays disabled.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
   summary: Transitional: the packs chip's countdown stops at 00:00 and never refreshes the page (`countdown` controller with `refresh: false`); the new count appears on the next visit or when the hub's own countdown refreshes it.
   evidence: Story 8.1 Design Notes; `app/frontend/controllers/countdown_controller.ts`.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
   summary: Transitional: the `view-transition` meta is always rendered (AD-27 wants it only when motion is allowed); there is no stored "Animations réduites" setting yet, so CSS removes the screen-change animation under `prefers-reduced-motion` or `html[data-motion=reduced]`.
   evidence: Story 8.1 Design Notes; `app/views/layouts/application.html.erb`, `app/frontend/styles/shell.css`.
+  resolved: Story 10.4: `layouts/_head.html.erb` renders the meta only unless `motion_reduced?` (the stored setting or its cookie), and `html[data-motion=reduced]` is the one switch.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
   summary: The public card page (`cards#show` for a visitor, the share link) still wears the app chrome (back button, phone tab bar) where DESIGN.md asks for a slim top bar with the logo and the official Steam image, and EXPERIENCE.md hides the tab bar.
   evidence: Story 8.1 quick review, deferred as pre-existing (the old shell wrapped it too); the public card page belongs to epic-space-terminal-screens.
+  resolved: Story 10.3: a visitor's card page renders `cards/_public` under the slim top bar (`content_for :public_page`: the logo and the official Steam image, no back button, no tab bar).
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
   summary: The card page keeps a game-styled text button that posts to `/auth/steam` (`app/views/cards/show.html.erb:18`), while DESIGN.md makes Valve's official image the only link to Steam's sign-in.
   evidence: Story 8.1 quick review, deferred as pre-existing; story 8.2's sign-in panel replaces such calls to action.
+  resolved: Story 10.3: the public card page's invitation opens the sign-in panel (`opens: "sign-in-panel"`); `SteamSignInComponent`, Valve's image, is the only link to Steam's sign-in (top bar and panel).
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
   summary: The top bar reads `Game::BankSummary` on every signed-in page; its `bonus_collectable` part (published-season lookup, daily-claim check) is unused by the packs chip, so up to two queries per page are wasted.
   evidence: Story 8.1 quick review; the hub's duplicate read was patched (`shell_bank` reuses `@bank`), the rest needs a parameter or a narrower query.
+  resolved: Story 8.13: `Game::BankSummary.reserve` (reserve count, next pack: two queries) feeds the top bar's chips, the booster screen and the pack page, which also stopped reading the summary twice; the hub and the daily claim keep `call`. A signed-in card page runs 8 queries instead of 10, a profile 11 instead of 12; the chips read the summary's `reserve_full`.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-architecture-conformance-plan.md`
   summary: Enforce the Content-Security-Policy (AD-27). It runs report-only in every environment since this story; after one release, read the violations Sentry collected (`report-uri`, only where `SENTRY_DSN` is set), fix them, then set `config.content_security_policy_report_only = false` in `config/initializers/content_security_policy.rb` for production (development keeps its own Vite policy).
   evidence: AD-27 "It runs report-only for one release first". Known violations to settle before enforcing: Mission Control Jobs (`/back-office/jobs`) renders inline importmap scripts, which `script-src 'self'` refuses (give the engine its own policy through a controller-level `content_security_policy` block, or nonce its scripts); any server-rendered `style=""` attribute (none today; React's `style` props go through the CSSOM and are not affected). The nonce is the session id; a response that never loaded the session gets a random one.
@@ -192,15 +197,18 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-architecture-conformance-plan.md`
   summary: A font file under Vite's 4 KB inline limit becomes a `data:` URI, which `font-src 'self'` refuses once the CSP is enforced. None exists today; when the shell's subsetted woff2 files land, exclude fonts from `assetsInlineLimit` in `vite.config.ts` (as card images are) or check none is under the limit.
   evidence: Story 8.4 review (edge case, unverified): `vite.config.ts` excluded only `/images/card/` from inlining; story 11 removed that rule with the old card images, so `vite.config.ts` sets no `assetsInlineLimit` now.
+  resolved: Story 8.13: `vite.config.ts` sets `build.assetsInlineLimit` so a `.woff`/`.woff2` file is never inlined (checked with a 1 KB probe font emitted as its own file); the six woff2 files of story 8.14 weigh 15.8 to 17.9 KB anyway.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-pixel-filter-v2-plan.md`
   summary: The Content-Security-Policy of story 8.4 must allow the pixel filter's module worker (`worker-src 'self'`) and list the Steam image hosts in `connect-src` as well as `img-src`, because the worker loads covers with `fetch`; without them every cover falls back to the plain main-thread path without palette.
   evidence: Story 8.5 moves cover loading into `packages/pixel-art-filter/src/worker-job.ts` (`fetch` with `mode: "cors"`), started by `new Worker(new URL("./worker.ts", import.meta.url), { type: "module" })` in `src/renderer.ts`; no CSP is configured yet (feasibility M8, story 8.4).
+  resolved: Story 8.4: `config/initializers/content_security_policy.rb` sets `worker-src 'self' blob:` and lists `Steam::Cdn::IMAGE_SOURCES` in `connect-src` as well as `img-src`.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-tier-names-and-season-numbers-plan.md`
   summary: Contract step for card numbers (AD-28): once `catalog:number_seasons` has run on every database, add a migration making `catalog_card_seasons.number` required for published card-seasons (e.g. a check `rarity IS NULL OR number IS NOT NULL`, added `validate: false` then validated), and drop the nil case of `CardView#number`/`number_label` and the TypeScript `number: number | null`.
   evidence: Story 8.3 shipped the expand step only (nullable column); seasons published before it stay unnumbered until the backfill (pending-approvals.md, "Number the published seasons").
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-tier-names-and-season-numbers-plan.md`
   summary: Rake task tests load the tasks in `setup` outside `capture_io`; in the parallel suite some workers re-load `game_benchmark.rake` and print constant-redefinition warnings to stderr. Load the application's tasks once per process (guard on `Rake::Task.task_defined?`) in a shared test helper.
   evidence: Story 8.3 implementation (`test/lib/catalog_number_seasons_task_test.rb`); the same pattern predates it in the player-state backfill test, which does not assert on stderr.
+  resolved: In part by story 8.13: `test/support/rake_tasks.rb` (`RakeTasks#rake_task`, guarded on `Rake::Task.task_defined?`) is the one loader of the three rake-task tests, called outside `capture_io`. The warnings remain, once per worker of a full or directory run, and their cause is now known: `bin/rails test` without exact file arguments first runs `test:prepare` through `Rails::Command::RakeCommand`, in a Rake application of its own, so the .rake files' constants are defined in the forked workers but no task is, and each worker's first `load_tasks` redefines `OpenPackBenchmark`'s constants (20 warning lines in the 8.13 runs, none in a run of named files). A fix would move `OpenPackBenchmark` out of `packs/game/lib/tasks/game_benchmark.rake` into a file the task `require`s once.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
   summary: Transitional: the hub's menu 01 (and the empty showcase's "Ouvrir un booster") is the existing open-pack form, opening a booster straight to its reveal, not a link to the booster screen (EXPERIENCE.md, Ouverture de booster), until that screen exists.
   evidence: Story 8.2 Design Notes; `app/views/pages/_menu.html.erb`, `app/views/pages/_showcase.html.erb`.
@@ -208,15 +216,19 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
   summary: Transitional: menu items 03 to 06 (Échanges, Amis, Fil d'activité, Succès) render disabled (`aria-disabled`, "bientôt disponible"), without their badge or meta, until their screens exist.
   evidence: Story 8.2 Design Notes; `app/views/pages/_menu.html.erb`.
+  resolved: In part: 04 Amis opens the Friends screen (story 5.1) and 05 Fil d'activité the public feed (story 6.1); 03 Échanges (epic 5) and 06 Succès stayed disabled. Story 5.6: 03 Échanges opens the trades screen with its orange waiting badge; only 06 Succès stays disabled.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
   summary: Transitional: the showcase has no planet, rays or idle float, its card is the `card-xl` face (240 × 360, story 8.6) on the phone too where DESIGN.md asks `card-l`, and its line lacks the genre and the card number (DESIGN.md, Showcase), until the pixel assets (8.8), effects (8.6) and card face (8.3, 8.6) land.
   evidence: Story 8.2 Design Notes; `app/views/pages/_showcase.html.erb`, `app/frontend/styles/hub.css`.
+  resolved: In part: the card is the `card-xl` face (story 8.6), and since story 8.13 the line gives the rarity, the tome's genre and the number (`S1 · #4`), each left out when missing. The planet, the rays and the idle float (one shared piece of work with the card detail and the public card page, entries below) and `card-l` on the phone remain.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
   summary: Transitional: the phone hub shows no packs chip or rarity counter block of its own (the top bar's chip stays), no community goal panel and no LIVE ticker (epic 6, story 8.8); their slots are left out.
   evidence: Story 8.2 Design Notes and Never list; `app/views/pages/home.html.erb`.
+  resolved: In part by story 6.3: the community goal panel shows on the hub, phone included. The phone's own packs chip and rarity counter block and the LIVE ticker (epic 6) remain.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
   summary: Transitional: once the day's booster is collected the daily booster panel is hidden until the next UTC day, where DESIGN.md shows "RÉCUPÉRÉ" with the countdown and a thin bar (story 10.4).
   evidence: Story 8.2 Design Notes; `app/views/pages/home.html.erb`.
+  resolved: Story 10.4: the panel stays once collected, in its `collected` state with the countdown to the next 00:00 UTC (`pages/_daily_booster.html.erb`).
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-hub-and-sign-in-panel-plan.md`
   summary: `test/system/pack_reveal_test.rb` failed intermittently in 2 of 4 full system-suite runs during story 8.2 (once in setup, the top bar's Steam button not found; once at the end-of-reveal buttons), never when run alone; cause unknown, possibly pre-existing.
   evidence: Story 8.2 implementation report; the orchestrator's full runs passed.
@@ -230,6 +242,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-single-card-face-plan.md`
   summary: The card face visual baselines (`test/fixtures/files/card_faces/*.png`, mean difference ≤ 1.5 per channel) were captured with Manjaro's Chromium; CI's `system-test` job runs ubuntu-latest's Chrome, whose font rasterisation and 3D resampling may differ enough to fail `card_face_visual_test.rb` on CI only. If it does, regenerate the baselines on CI's browser (`UPDATE_CARD_BASELINES=1`) or pin one browser build for both.
   evidence: Story 8.6 review (unverified, medium if true): `test/support/card_baselines.rb`, `.github/workflows/ci.yml` (no `CHROME_BIN`); settle it with the first CI run after the commit.
+  resolved: Settled by CI: the `system-test` job, `card_face_visual_test.rb` included, passed on ubuntu-latest's Chrome with the baselines story 8.14 regenerated (pull request run 37627470120; develop run 37632657944 at e419296).
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-single-card-face-plan.md`
   summary: `script/card_art/generate.mjs` cannot run any more: it reads `ux-gameble/mockups/card-backs.html`, removed by the UX redesign (5de0377); the card backs and `sprite.svg` can only be edited by hand until story 8.11 redraws the backs.
   evidence: Story 8.6: re-running the script to drop the unused season seal and glyph symbols failed with ENOENT; those symbols were removed from `app/frontend/images/card/sprite.svg` by hand and from the script.
@@ -250,6 +263,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-collection-and-sets-plan.md`
   summary: Transitional: the public profile keeps the first direction's shelf and tome (`library/_shelf`, `library/_tome`, `ShelvesHelper#profile_shelf_links`, `library.css`, and the keys only they use: `library.tome.*`, `library.set.back_to_shelf`, `library.show.tabs.label`, `library.show.tabs.started`, `library.show.empty.started`, `library.show.progress`, `library.show.complete`) until story 10.3 redraws it; remove them then. The `library.show.*` keys the collection also uses (`tabs.tome|publisher|best_of_year`, `empty.tome|publisher|best_of_year`, `past_the_end`, `no_season`) stay, or move under the collection's own keys.
   evidence: Story 10.1 Never list; `app/views/public_profiles/*`, `app/frontend/styles/library.css` header.
+  resolved: Story 10.3 redrew the public profile on the collection's components and removed `library/_shelf`, `library/_tome`, `library.css` and the shelf's keys; story 10.5 removed the last two (`library.show.tabs.label`, `library.show.empty.started`) and reworded the shared `library.show.*` lines (empty lists, past the end, no season) without the old "Brother" wording. `library.show.tabs.*` stay: the collection and the profile both name their kind chips with them.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/tickets.toml` (entry 9, dropped)
   summary: Measure the booster, the filter worker on a 30-card page and the idle hub on a real low-end Android (AD-27's budget: frames, long tasks, at most six infinite animations per phone view); the spike 8.9 was dropped on 2026-10-06 (no physical device, emulation declined by the author).
   evidence: Epic 8 Notes, Decision of 2026-10-06; architecture Deferred, 'Reference low-end Android and the performance spike'.
@@ -282,6 +296,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-island-desktop-plan.md`
   summary: A pack whose cards were drawn in an earlier season (banked before a new season was published) makes the top bar's rarity counter overcount during its reveal: `tierCountsBefore` counts the published season only, the island adds one per revealed card. Corrected on the next page load; a per-card "counted" flag in the answer would fix it.
   evidence: Story 8.11 follow-up review (edge case; rejected low, season turnover only); `Game::TierCounts.before_opening`, `Booster.tsx` `mark`.
+  resolved: Reported by players after a new season was published (2026-10-08): full banks drawn in the earlier season kept crediting its cards, absent from the collection (published season only) and shown with the new season's rarity on the card's page. `Game::OpenPack` now draws a pack of an earlier season again in the published one as it opens, each card within its old card's tier (`Catalog::CardSeasonTiers`, `Game::Draw.in_tiers`), so no opening credits an earlier season's card and the counter no longer overcounts.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-island-phone-plan.md`
   summary: The phone booster's gestures (the swipe that stores the top card, a tap after the 400 ms guard, the 150 ms tilt hold that is never a swipe, the pile's `touch-action: none` beside the page's panning on the plate, tray and actions) were verified only with synthetic pointer events in headless Chromium; check them on an iOS Safari and an Android Chrome device, with the card zoom (native dialog, Esc or the scrim) and the Légendaire's sequence on a real phone.
   evidence: Story 8.12; `test/system/booster_test.rb` (`drag_top`, the tilt-hold test), `app/frontend/components/useCardSwipe.ts`.
@@ -297,12 +312,14 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-card-detail-plan.md`
   summary: Story 10.3: the card's faded back depends on a set in the query (a share link and the card's own page show the face to everyone, so a shared link still shows the card); once the public card page has its own layout or route, decide whether the in-app detail fades every card the viewer does not hold (AD-25) and drop the query rule.
   evidence: Story 10.2 Design Notes, "Set context and the faded back"; `CardsController#show` (`@faded`).
+  resolved: Story 10.5 decided to keep the query rule. The card's own page is what a share link opens: a visitor gets the public card page (story 10.3), and a signed-in player who does not hold the card must still see it there (CAP-9), so fading every card not held would hide shared cards; the showcase and pack faces lead to owned cards anyway. Within a set (grids, ◀ ▶) a card not held stays faded.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-card-detail-plan.md`
   summary: The phone sub-view's swipe, step View Transition and "◀ Grille" history back were verified only in headless Chromium with synthetic pointer events; check them on an iOS Safari and an Android Chrome device (swipe beside the 150ms tilt hold, the card's turn, Back to the grid at its scroll).
   evidence: Story 10.2 review, follow-up recommended; `test/system/card_detail_test.rb`.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-card-detail-plan.md`
   summary: The phone system test's browser-Back leg (`test/system/card_detail_test.rb`, "on a phone, ◀ ▶ and a swipe step through the set…", the last `assert_scrolled_to grid_scroll` after `go_forward` then `go_back`) sometimes finds the grid at scroll 0 when the whole file runs in parallel; likely Turbo filing the forward-restored detail's scroll-to-top under the grid's restoration entry when Back follows quickly. Find the race (or wait on Turbo's restoration data in the test) and decide whether a quick real Back can hit it.
   evidence: Run on 2026-10-06 in the 10.2 follow-up: at commit b7776c2 alone it failed 6 of 8 file runs; after the follow-up's `contain-intrinsic-size` fix 1 of 6 and 2 of 11 file runs, always green alone (6×) and in the full suites (81 runs).
+  resolved: Story 10.5 found the race in the test. Turbo files a page's scroll from `scroll` events (`ScrollObserver#onScroll` → `history.updateRestorationData`), which fire with the next frame; the test saw the restored detail at 0 and went back within that frame, so the pending event filed the detail's 0 under the grid's entry, which Turbo then restored. The test now waits two frames before going back (`wait_for_frames`); a person cannot press Back within one frame of the restore, so the app is unchanged.
 
 - source_plan: none
   summary: A donation link somewhere in the app, since the author intends to fund gameble only through donations.
@@ -319,3 +336,22 @@
   summary: The feed reads a window of 90 rows per pass, so hidden players' entries can crowd out older public ones.
   evidence: Game::FeedEntries filters by Game::Visibility in Ruby after reading WINDOW rows; unverified at scale, would be medium.
   resolved: Story 6.2: the feed reads pages of 90 rows, up to ten, until its window of visible entries is full, so hidden players no longer crowd out older public entries; only more than 900 hidden entries in a row could still empty it.
+- source_plan: `_bmad-output/initiative-gameble/epic-friends-and-trades/story-trade-board-island-the-draft-the-counter-and-the-swap-plan.md`
+  summary: A trade board waiting for the player (`/trades` when that trade comes first, `/trades/:token`) and the counter page carry, in the TradeBoard island's props, a card-s face (about 1.5 KB of HTML) for every card both players hold, so a very large collection makes a heavy page.
+  evidence: Deferred by stories 5.7 and 5.8 (medium, unverified) and kept by the epic 5 refactor sweep (story 5.12). `TradesHelper#trade_board_props` renders `CardComponent` for each `Game::HeldCopies` row of both players. What would settle it is the page weight of `/trades` for a player holding several hundred distinct cards; a fix would load the picker's faces when the edition opens (an endpoint per side) or page them.
+- source_plan: `_bmad-output/initiative-gameble/epic-friends-and-trades/story-a-private-stream-and-live-updates-plan.md`
+  summary: A ban set from the console reaches the banned player's friends and trade partners only at their next render, and their ties are dropped only when `bin/rails game:drop_friends_and_trades` runs.
+  evidence: Deferred by story 5.9 (low) and kept by the epic 5 refactor sweep (story 5.12). `PlayerStream` and `Game::Handlers::PlayerBanned` listen to `Accounts::PlayerBanned`, which nothing publishes yet; the moderation ban action (epic 7) only has to publish it inside its transaction.
+- source_plan: `_bmad-output/initiative-gameble/epic-friends-and-trades/story-trade-board-island-the-draft-the-counter-and-the-swap-plan.md`
+  summary: The friend row on Amis has no "PROPOSER UN ÉCHANGE", which EXPERIENCE.md's Friend row gives it (the trade already in progress with that friend, or a new draft); only the friend profile carries the button.
+  evidence: Story 5.8 left the row's layout to Amis ("The friend row on Amis gets no button here"); noted by the epic 5 refactor sweep (story 5.12) as a feature, not a cleanup. The link is `new_trade_path(friend: token)`, which already opens the open trade when there is one.
+
+- source_plan: none
+  summary: Replace the collection's tome (volume) system with another way to browse and organise the collection.
+  evidence: Author, 2026-10-07: "il faut changer le système de collection en tome, c'est nul". The reasons and the replacement are not decided; start with a UX conversation (bmad-ux) before planning.
+- source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-popularity-led-prestige-score-plan.md`
+  summary: To verify (author, 2026-10-08) that a full import writes its draft cards with the current prestige formula (log10(review count) + 4 × Wilson), not the earlier Wilson + 0.01 × log10(count).
+  evidence: On staging (v0.0.1-beta.1, which carries story 2.12), the season 2 draft after an import still showed scores from 0.113 to 1.039 (Stardew Valley 1.039, the old formula; the new one gives about 9.8); "Rescore the cards" on the latest run fixed them. Whether the import had not reached its cards step yet or ran on an image older than 2.12 was not established. Check: after the next full import completes, the draft preview's scores run from about 2.7 to 10 without a rescore; otherwise trace the import role's image and the cards step.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-and-shell-split-plan.md`
+  summary: Story 8.15's booster, shell and card-face system tests have only run on Ruby 3.3 with the app's `it` block parameters rewritten to `_1`, never on the app's Ruby 4.0.7 and unmodified source.
+  evidence: Quick review of story 8.15, pass 2 (maybe-false; medium if true). The container had no Ruby 4.0.7 (download refused by the network policy). CI runs no system tests on a push to `develop`, so what settles it is `bin/rails test:system` on `test/system/booster_test.rb`, `card_face_visual_test.rb` and `shell_test.rb` on Ruby 4.0.7 (the author's machine): green closes this entry, red is the story's to fix.

@@ -5,6 +5,14 @@ module Game
   # its cards are credited to the player's holdings in one upsert, ascending
   # card-season, each marked as gained at the opening (AD-26), and
   # Game::PackOpened is published.
+  # The first pull of a card in its season is recorded (Game::FirstDiscovery)
+  # and every set the cards complete for the player for the first time
+  # (Game::SetCompletion); Game::CardDiscovered and Game::SetCompleted follow
+  # Game::PackOpened, one per row inserted (AD-9, AD-10, story 6.7).
+  # A pack drawn in an earlier season (banked before the season now
+  # published) is drawn again in the published season as it opens, each card
+  # within its old card's tier, so the pack keeps its odds and any card it
+  # was guaranteed, and an opening only credits cards of the published season.
   # A pack that is not available yet is never opened. Opening a regular pack
   # replaces it in the same transaction (Game::TopUpBank), so a full bank
   # stays full; a bank already short stays short until the next season's
@@ -52,15 +60,38 @@ module Game
 
         now = Time.current
         pack = step next_pack(player, now)
-        pack.update!(opened_at: now, idempotency_key:, card_back: CardBacks.active_key(player))
+        pack.update!(opened_at: now, idempotency_key:, card_back: CardBacks.active_key(player), **drawn_in_published_season(pack))
         step credit(player, pack, now)
+        discovered = FirstDiscovery.record(pack, now)
+        completed = SetCompletion.record(player.id, pack.card_season_ids, now)
         TopUpBank.call(player_id: player.id, now:, random: @random) if pack.regular?
         step publish(PackOpened.new(data: { player_id: player.id, pack_id: pack.id }), stream_name: stream_name(player.id))
+        step publish_discoveries(player, pack, discovered)
+        step publish_completions(player.id, completed)
         pack
       end
     end
 
     private
+
+    # One Game::CardDiscovered per card-season the opening discovered.
+    def publish_discoveries(player, pack, card_season_ids)
+      card_season_ids.each do |card_season_id|
+        publish(CardDiscovered.new(data: { player_id: player.id, card_season_id:, pack_id: pack.id }), stream_name: stream_name(player.id))
+      end
+      Success()
+    end
+
+    # The season and cards of a pack drawn in an earlier season, drawn again
+    # in the published one; nothing for a pack of the published season, or
+    # with no season published.
+    def drawn_in_published_season(pack)
+      pool = DrawPool.current
+      return {} if pool.nil? || pack.season_id == pool.season_id
+
+      tiers = Catalog::CardSeasonTiers.call(pack.card_season_ids)
+      { season_id: pool.season_id, card_season_ids: Draw.in_tiers(pack.card_season_ids.map { tiers.fetch(it) }, random: @random, pool:) }
+    end
 
     def check_key(key)
       key.nil? || (key.is_a?(String) && key.match?(IDEMPOTENCY_KEY)) ? Success() : Failure(:invalid_idempotency_key)

@@ -1,11 +1,5 @@
 require "test_helper"
 
-# Game::AcceptTrade, CounterTrade, ExpireTrade and Game::ExpireTradesJob
-# (AD-6, AD-8, AD-10, AD-26, story 5.5): acceptance swaps both sides at once
-# or moves nothing, the requested cards checked free; a counter replaces both
-# sides, moves the reservation and hands the turn over, restarting the 7
-# days; a trade 7 days after its last send or counter expires and releases
-# its offer.
 class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
   setup do
     @alice = accounts_players(:player)
@@ -32,7 +26,6 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
 
   def holding(player, card_season_id) = Game::Holding.find_by(player_id: player.id, card_season_id:)
 
-  # { card_season_id => [ quantity, reserved ] } of the player's rows.
   def holdings(player)
     Game::Holding.where(player_id: player.id).order(:card_season_id).pluck(:card_season_id, :quantity, :reserved).to_h { |id, *counts| [ id, counts ] }
   end
@@ -55,8 +48,6 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
   def events(type, player = @alice) = Rails.configuration.event_store.read.stream(Game::Operation.stream_name(player.id)).of_type(type).to_a
 
   def snapshot = [ holdings(@alice), holdings(@bob), Game::TradeItem.order(:id).pluck(:side, :card_season_id, :quantity), Game::Trade.order(:id).pluck(:status, :proposer_id, :expires_at) ]
-
-  # Acceptance
 
   test "accepting swaps both sides at once, releases the offer, closes the trade and publishes once" do
     trade = propose
@@ -157,8 +148,6 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
     assert_equal [ 2, 0 ], holdings(@bob)[@three]
   end
 
-  # Counter-proposal
-
   test "a counter replaces both sides, moves the reservation, hands the turn over and restarts the 7 days" do
     trade = propose
 
@@ -228,8 +217,6 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
 
     assert_equal Dry::Monads::Failure(:insufficient_copies), counter(trade, offer: { @three => 1 })
   end
-
-  # Expiry
 
   test "expiring a due trade releases the offer and publishes once; a trade not yet due is refused" do
     trade = propose

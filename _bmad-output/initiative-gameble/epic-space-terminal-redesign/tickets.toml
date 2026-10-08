@@ -157,3 +157,39 @@ covers = []
 after = [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 14]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 15
+type = "story"
+title = "Booster and shell split"
+description = "Cleanup only, no behavior change: splits app/frontend/components/Booster.tsx (1,616 lines) into focused modules, and reviews app/frontend/styles/booster.css (1,564 lines) and app/frontend/styles/shell.css (1,262 lines) for the same, from finding F2 of the epic's retrospective. The rendered markup and the compiled CSS stay the same; no test is weakened or deleted."
+verify = "Booster.tsx is split into modules each with one reason to change, the booster and shell stylesheets are split or the decision to keep each whole is recorded with its reason, and the booster system tests, vitest, typecheck, lint, packwerk and the card-face visual baselines pass unchanged."
+covers = []
+after = [13]
+hitl = false
+risk = "low"
+references = ["epic-space-terminal-redesign/epic-space-terminal-redesign-retrospective.md"]
+
+[[entry]]
+id = 16
+type = "story"
+title = "Connection pools sized"
+description = "The reading role opens a second connection pool to the primary, so each web process may hold up to 2 x RAILS_MAX_THREADS primary connections. Counts every pool (web reading and writing, Solid Queue, Solid Cache, Solid Cable) per process and per host, sets the pool sizes so their total stays under Postgres max_connections on the staging host, and records the figures."
+verify = "A test or a check task computes the connections the configured pools can open and fails above a set limit; on staging, the author compares that total with Postgres max_connections and the figures are recorded in the epic Notes."
+covers = ["R7"]
+after = [13]
+hitl = true
+risk = "medium"
+references = ["epic-space-terminal-redesign/epic-space-terminal-redesign-retrospective.md", "deferred-work.md"]
+
+[[entry]]
+id = 17
+type = "story"
+title = "Quiet benchmark task in full test runs"
+description = "A full or directory run of bin/rails test prints the pack-opening benchmark's constant-redefinition warnings once per worker, because test:prepare loads the .rake files before the workers fork. Moves the benchmark class out of packs/game/lib/tasks/game_benchmark.rake into a file loaded once, so the task keeps its behavior and the warnings disappear."
+verify = "A full bin/rails test run prints no already-initialized-constant warning on stderr, and RAILS_ENV=test bin/rails game:benchmark_open_pack still runs and reports its p95."
+covers = []
+after = [13]
+hitl = false
+risk = "low"
+references = ["deferred-work.md"]

@@ -467,8 +467,8 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".collection-sets__list .set-row", minimum: 1
 
     sign_in(accounts_players(:moderator))
-    # The same, the viewer's lookup and the top bar's four (bank count, next
-    # pack, daily claim, copies per tier).
+    # The same, the viewer's lookup and the top bar's three (reserve count,
+    # next pack, copies per tier), and the tab bar's trades waiting.
     assert_request_queries(12) { get brother_path(locale: :en, token: @owner.token) }
     assert_response :success
   end
@@ -483,7 +483,8 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     sign_in(accounts_players(:moderator))
-    # The same, the viewer's lookup and the top bar's four.
+    # The same, the viewer's lookup, the top bar's three and the trades
+    # waiting.
     assert_request_queries(14) { get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1", tab: "started") }
     assert_response :success
   end

@@ -24,6 +24,25 @@ class Game::QueriesTest < ActiveSupport::TestCase
                    bonus_collected: false, next_bonus_at: now.utc.tomorrow.beginning_of_day }, Game::BankSummary.call(@player, now:))
   end
 
+  test "the reserve part alone is the summary without the daily bonus, in two queries" do
+    now = Time.current.change(usec: 0)
+    create_pack(@player)
+    bonus = create_pack(@player, kind: :bonus)
+    create_pack(@player, available_at: now + 1.hour)
+    Game::DailyBonusClaim.create!(player_id: @player.id, day: Game::DailyBonusClaim.day_of(now), pack_id: bonus.id)
+
+    reserve = nil
+    assert_queries_count(2) { reserve = Game::BankSummary.reserve(@player, now:) }
+
+    assert_equal({ available: 2, reserve_full: false, next_available_at: now + 1.hour }, reserve)
+    summary = Game::BankSummary.call(@player, now:)
+    assert_equal reserve, summary.slice(:available, :reserve_full, :next_available_at)
+    assert_equal [ false, true ], summary.values_at(:bonus_collectable, :bonus_collected)
+
+    10.times { create_pack(@player) }
+    assert Game::BankSummary.reserve(@player, now:)[:reserve_full]
+  end
+
   test "an opened pack is found by its token for its owner only" do
     opened = create_pack(@player, opened_at: 1.minute.ago)
     unopened = create_pack(@player)

@@ -1,0 +1,22 @@
+<% content_for :back_button, true %>
+<% content_for :screen_title, t("trades.title") %>
+<% turbo_exempts_page_from_cache %>
+<% if view == :board %>
+  <% content_for :phone_back do %>
+    <%= link_to trades_path, class: "button button--secondary button--small top-bar__phone-back" do %>
+      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t("trades.list.back") %></span>
+    <% end %>
+  <% end %>
+<% end %>
+<%= tag.section class: "trades trades--#{view}", aria: { labelledby: "trades-heading" },
+      data: { controller: "live-refresh", live_refresh_signal_value: "trades-updated" } do %>
+  <h1 id="trades-heading" class="trades__title"><%= t("trades.title") %></h1>
+  <div class="trades__layout">
+    <%= render "trades/list", trades:, current: (trade if view == :board), cards: %>
+    <% if local_assigns[:draft] %>
+      <%= render "trades/draft_board", friend: draft, island: %>
+    <% elsif trade %>
+      <%= render "trades/board", trade:, cards:, **local_assigns.fetch(:board, {}) %>
+    <% end %>
+  </div>
+<% end %>

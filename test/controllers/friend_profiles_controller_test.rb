@@ -2,13 +2,6 @@ require "test_helper"
 require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
 
-# A friend's profile (EXPERIENCE.md, Friend profile; story 5.10): the body of
-# the dialog a friend row opens, a Turbo frame named after the friend's
-# token; their name, card count, "VITRINE" of three cards, "PROPOSER UN
-# ÉCHANGE" waiting for the trade board, and "SIGNALER" opening the report
-# dialog that comes back to the Friends screen. Only a friend opens it, and
-# only while Game::Visibility shows the friend; anything else is the same
-# "not available" frame with a 404.
 class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
@@ -51,14 +44,14 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame##{frame_id(@friend)}[target=_top]" do
       assert_select ".friend-profile__name", "Léa"
       assert_select "svg.friend-profile__avatar"
+      assert_select ".friend-profile__presence .friends__presence--offline", "Hors ligne"
       assert_select ".friend-profile__count", "4 cartes collectionnées"
       assert_select ".friend-profile__heading", "Vitrine"
       assert_select ".friend-profile__showcase li .card", 3
       assert_select ".friend-profile__showcase li:nth-child(1) .card--s.card--rarity-legendary"
       assert_select ".friend-profile__showcase li:nth-child(2) .card--rarity-epic"
       assert_select ".friend-profile__showcase li:nth-child(3) .card--rarity-rare"
-      assert_select ".friend-profile__actions button.button--primary[disabled]", "Proposer un échange"
-      assert_select ".friend-profile__soon", "Bientôt disponible"
+      assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @friend.token), "Proposer un échange"
       assert_select ".friend-profile__actions button.button--link[aria-haspopup=dialog][data-dialog-opener-dialog-value=?]",
         "report-dialog-#{@friend.token}", "SIGNALER"
       assert_select "dialog#report-dialog-#{@friend.token} form[action=?]", brother_report_path(locale: :fr, token: @friend.token) do
@@ -70,15 +63,17 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
 
   test "a friend holding nothing shows an empty showcase, in English" do
     publish_sets_draft
+    @friend.update_columns(last_seen_at: 1.minute.ago)
     sign_in(@player)
 
     get friend_profile_path(locale: :en, token: @friend.token)
 
     assert_response :success
     assert_select ".friend-profile__count", "0 cards collected"
+    assert_select ".friend-profile__presence .friends__presence--online", "Online"
     assert_select ".friend-profile__showcase", false
     assert_select ".friend-profile__empty", "No card in the showcase."
-    assert_select ".friend-profile__actions button[disabled]", "Propose a trade"
+    assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :en, friend: @friend.token), "Propose a trade"
   end
 
   test "a friends-only friend is shown; a private one is the not-available frame" do

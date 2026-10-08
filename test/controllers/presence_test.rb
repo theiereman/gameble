@@ -1,8 +1,5 @@
 require "test_helper"
 
-# Last seen (CAP-21, AD-11, AD-24, story 5.3): a signed-in player's request
-# enqueues the last-seen write at most once a minute; the request itself,
-# a GET above all, writes no row.
 class PresenceTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
 

@@ -27,8 +27,6 @@ class ApplicationController < ActionController::Base
   MOTION_COOKIE = :motion
   MOTION_COOKIE_VALUES = { "reduced" => true, "full" => false }.freeze
 
-  # The session's mark of the last time a request enqueued the player's
-  # last-seen write (CAP-21, AD-24), in epoch seconds.
   PRESENCE_MARK = :seen_at
 
   helper_method :current_player, :motion_reduced?
@@ -116,11 +114,6 @@ class ApplicationController < ActionController::Base
       Sentry.set_user(id: current_player.id) if Sentry.initialized? && current_player
     end
 
-    # Notes that the signed-in player was seen: enqueues
-    # Accounts::NoteLastSeenJob with the request's time, at most once per
-    # Accounts::NoteLastSeen::THROTTLE for the session, and not when the
-    # account already shows a time that recent. Enqueuing is not a write
-    # (AD-11): a GET stays read only. The mark lives in the session cookie.
     def note_presence
       return unless current_player
 
