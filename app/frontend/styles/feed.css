@@ -1,8 +1,8 @@
 /*
- * The activity feed: the type filters (the segmented control of
- * settings.css), then one row per entry across the shell's content width,
- * at least 68px tall, a first discovery behind its gold chip. Hard edges,
- * no animation, no opacity to dim a filler.
+ * The activity feed: the All and Friends tabs, joined, and the type filters
+ * (the segmented control of settings.css), then one row per entry across
+ * the shell's content width, at least 68px tall, a first discovery behind
+ * its gold chip. Hard edges, no animation, no opacity to dim a filler.
  */
 
 .feed {
@@ -67,7 +67,7 @@
   font-weight: inherit;
 }
 
-/* A first discovery's chip: gold is kept for what is rare (DESIGN.md). */
+/* A first discovery's chip: gold is kept for what is rare. */
 .feed__chip {
   display: inline-block;
   margin-right: var(--space-2);
@@ -115,6 +115,17 @@
 .feed__thumb--legendary { --feed-frame: var(--color-rarity-legendaire); }
 
 .feed__empty {
+  margin: 0;
+}
+
+.feed__no-friends {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.feed__no-friends-text {
   margin: 0;
 }
 

@@ -564,6 +564,12 @@ fr:
       more: "Plus"
       empty: "Rien pour l'instant."
       empty_filter: "Rien pour l'instant dans ce filtre."
+      tabs_label: "Événements de"
+      tabs:
+        all: "Tous"
+        friends: "Amis"
+      no_friends: "Ajoutez des amis pour suivre leurs tirages."
+      add_friends: "Ajouter des amis"
       filters_label: "Filtrer par type"
       filters:
         all: "Tout"

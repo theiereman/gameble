@@ -546,6 +546,12 @@ en:
       more: "More"
       empty: "Nothing here yet."
       empty_filter: "Nothing in this filter yet."
+      tabs_label: "Whose events"
+      tabs:
+        all: "All"
+        friends: "Friends"
+      no_friends: "Add friends to follow their pulls."
+      add_friends: "Add friends"
       filters_label: "Filter by type"
       filters:
         all: "Everything"

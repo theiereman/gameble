@@ -1,9 +1,8 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# The activity feed (CAP-13, AD-10, AD-11, AD-13; stories 6.1, 6.2): the
-# handler's choice of entries and the read that filters them by kind and
-# through Game::Visibility.
+# The activity feed: the handler's choice of entries and the read that
+# filters them by kind, by player and through Game::Visibility.
 class Game::FeedTest < ActiveSupport::TestCase
   include GamePacks
 
@@ -97,7 +96,7 @@ class Game::FeedTest < ActiveSupport::TestCase
     assert_equal [ @other ], Game::FeedEntries.call(nil).map(&:player)
   end
 
-  test "a friends-only player's entries show to their friends only, asked once per player (story 5.10)" do
+  test "a friends-only player's entries show to their friends only, asked once per player" do
     add_entries(@other, 5)
     @other.update!(visibility: :friends_only)
     stranger = accounts_players(:administrator)
@@ -176,5 +175,40 @@ class Game::FeedTest < ActiveSupport::TestCase
 
     assert_equal [ @player ], shown.map(&:player)
     assert shown.all?(&:filler)
+  end
+
+  test "players restricts the notable entries to those players, under every kind" do
+    stranger = accounts_players(:administrator)
+    add_entries(@other, 2)
+    add_entries(@other, 1, kind: "trade")
+    add_entries(stranger, 3)
+    add_entries(stranger, 1, kind: "repost")
+
+    shown = Game::FeedEntries.call(@player, players: [ @other.id ])
+
+    assert_equal [ @other ], shown.map(&:player).uniq
+    assert_equal %w[pull trade], shown.map { |item| item.entry.kind }.uniq.sort
+    assert_equal [ @other ], Game::FeedEntries.call(@player, kind: "pull", players: [ @other.id ]).map(&:player).uniq
+    assert_empty Game::FeedEntries.call(@player, kind: "repost", players: [ @other.id ])
+    assert_empty Game::FeedEntries.call(@player, players: [])
+  end
+
+  test "players restricts the fillers too" do
+    stranger = accounts_players(:administrator)
+    add_entries(@other, 2, notable: false)
+    add_entries(stranger, 3, notable: false)
+
+    shown = Game::FeedEntries.call(@player, players: [ @other.id ])
+
+    assert_equal [ @other ] * 2, shown.map(&:player)
+    assert shown.all?(&:filler)
+    assert_equal [ @other ] * 2, Game::FeedEntries.call(@player, kind: "pull", players: [ @other.id ]).map(&:player)
+  end
+
+  test "players keeps Game::Visibility: a private one of them stays hidden" do
+    add_entries(@other, 2)
+    @other.update!(visibility: :private)
+
+    assert_empty Game::FeedEntries.call(@player, players: [ @other.id ])
   end
 end
