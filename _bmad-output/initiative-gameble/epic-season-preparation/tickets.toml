@@ -10,7 +10,7 @@ covers = ["CAP-2", "CAP-3"]
 after = ["2.12"]
 hitl = true
 risk = "high"
-notes = ["il faut pouvoir rollback et donc faire un import à côté en attendant de le valider ou qqch dans le genre"]
+notes = ["il faut pouvoir rollback et donc faire un import à côté en attendant de le valider ou qqch dans le genre", "vérifier que l'import utilise bien la nouvelle formule (2026-10-08 ; voir deferred-work.md)"]
 
 [[entry]]
 id = 2
