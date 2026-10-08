@@ -7,6 +7,7 @@ parent: initiative-gameble
 covers: [CAP-6, CAP-7, CAP-8, CAP-9, CAP-18]
 after: []
 assignee: ""
+status: done
 risk: medium
 estimate: ""
 estimate_basis: ""
@@ -59,5 +60,7 @@ The library, tome, card detail, public profile and share link. Not trades or the
 - Decision (2026-10-02): the status band's counts per rarity (EXPERIENCE.md) are not in this epic's Done when; left for a later story.
 - Decision (2026-10-02): a closing refactor sweep (story 6) follows the other stories.
 - Note (story 4.4): the player token is a public, non-secret handle (the profile link `/<locale>/brothers/<token>`); friend invites (epic 5) use a separate secret, never the token; revoking a profile link is "hide profile" (epic 7); the stored persona name (`accounts_players.persona_name`) is personal data that epic 7's export and deletion must include.
-
-
+- Decision (2026-10-08): R1's lectern and tomes on shelves, and R2's tome, are superseded by epic-space-terminal-redesign R1 (the hub replaces the attic) and epic-space-terminal-screens R1 and R7 (stories 10.1 and 10.7: the collection with set progress rows and a set grid); kinds, progress and empty slots naming the game are kept.
+- Decision (2026-10-08): the per-card ownership notice of R3 moves to the legal page (pending-approvals, settled 2026-10-05); story 7.3 removes `card_details.notice`.
+- Closed (2026-10-08): the status band's per-rarity counts were built by story 10.1 (the collection's report panel); link previews on Discord, X and WhatsApp were checked by the author on staging (pending-approvals, 2026-10-06), the Cloudflare rule for production remaining an open pending approval.
+- Closed (2026-10-08): all seven stories done, verified by the author; carried elsewhere: the persona name in the data export (story 7.7), throttling or caching public pages (story 7.10), a friend's public profile from the Friends screen (story 5.13), card detail previous and next (bug 10.8); the tome rework waits on the author (pending-approvals, "Tomes to rethink").

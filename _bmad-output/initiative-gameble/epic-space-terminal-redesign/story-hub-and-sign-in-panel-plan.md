@@ -3,7 +3,7 @@ title: 'Hub and sign-in panel'
 type: 'feature'
 ticket: '2'
 created: '2026-10-05'
-status: 'built'
+status: done
 baseline_revision: '783c82acb7aa06d7fd974cfcb35198a2000e946b'
 route: 'full'
 route_source: 'auto'

@@ -30,7 +30,7 @@ For a player: control over their data. For the author: a site he can open to peo
 - R4 (CAP-15; AD-14): a visitor reports a username or profile with one of four reasons, anonymously; staff reach a queue; moderators and administrators ban and unban, no one bans an administrator or themselves; staff accounts are made from the console.
 - R5 (Legal constraint): a legal page holds the no-affiliation notice, the ownership notice, the terms and the privacy notice.
 - R6 (AD-7): healing runs when a season is published and gives every player short of ten packs, or with none, the missing packs all available at once; nothing else heals a bank; races between open, register, bonus and heal are tested.
-- R7 (AD-21, AD-22, AD-27): the production image builds in CI, a backup is restored once, public pages are throttled or cached without caching private ones, and the CSP is enforced.
+- R7 (AD-21, AD-22, AD-27): the production image is built and answers /up in the Kamal deploy to staging before production is deployed, a backup is restored once, public pages are throttled or cached without caching private ones, and the CSP is enforced.
 
 ## Done when
 
@@ -40,7 +40,7 @@ For a player: control over their data. For the author: a site he can open to peo
 4. A database backup has been restored successfully at least once.
 5. A legal page, reached from "Mentions légales" in the profile and the public page footer, holds the notice that gameble has no affiliation with Steam or Valve, the ownership notice (« Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons. »), the terms of use and the privacy notice; the card detail then drops its per-card notice (`card_details.notice`).
 6. Before the first deploy (from the epic 3 retrospective, 2026-10-03; decided by the author on 2026-10-07): a season's publication gives every player short of ten packs, or with none, the missing packs all available at once; nothing else heals a bank, no retry and no fill on use; races between bank operations of different stories (open, register, bonus, heal) are tested.
-7. The production Docker image is built in CI or as a pre-deploy check.
+7. The production Docker image is built and answers /up in the Kamal deploy to staging before production is deployed; CI builds no image.
 8. Public pages are throttled or cached (never a private one) and the CSP is enforced after a run on staging.
 
 ## Boundaries
@@ -66,3 +66,4 @@ Data controls, reports and bans in `Accounts`, the moderation pages, backups and
 - Decision (2026-10-07): the CSP is enforced before opening to the public, after a run on staging checking its reports.
 - Not built here: the legal texts (terms of use, privacy notice) and the restore drill are the author's (hitl); the donation link's place is decided with the legal page.
 - Decision (2026-10-07): the existing fill of an empty bank before a daily bonus (`Game::CollectDailyBonus`, a player who never had a pack) is kept as the one exception to "healed only at a season's publication" (author).
+- Decision (2026-10-08): the production image is checked by the Kamal deploy to staging, not by a CI job, which only duplicated it; story 1 dropped, story 13 removes the job (author).

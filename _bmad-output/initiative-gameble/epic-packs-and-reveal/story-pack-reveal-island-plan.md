@@ -3,7 +3,7 @@ title: 'Pack reveal island'
 type: 'feature'
 ticket: '6'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: 'f922b426ea34cf0cd643c3a7eaf2bf95c8fcbfbd'
 route: 'full'
 route_source: 'auto'

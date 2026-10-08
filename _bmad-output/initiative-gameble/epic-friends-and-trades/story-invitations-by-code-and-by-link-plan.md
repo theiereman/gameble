@@ -3,7 +3,7 @@ title: 'Invitations by code and by link'
 type: 'feature'
 ticket: '2'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '47cea18b653361d83cd2a5ab133491a1eade4cca'
 route: 'full'
 route_source: 'auto'

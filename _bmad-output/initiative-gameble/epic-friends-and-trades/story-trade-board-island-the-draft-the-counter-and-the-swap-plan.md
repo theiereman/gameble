@@ -3,7 +3,7 @@ title: 'Trade board island: the draft, the counter and the swap'
 type: 'feature'
 ticket: '8'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '80054deb4c433a5fea1a5f195a1a531d950c28b6'
 route: 'full'
 route_source: 'auto'
