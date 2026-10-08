@@ -7,10 +7,10 @@ status: 'in-progress'
 baseline_revision: 'df6e36dc6e6290439e566939e6aac4eee4a4a2a7'
 route: 'full'
 route_source: 'auto'
-review: ''
-review_source: ''
-lenses_ran: []
-review_loop_iteration: 0
+review: 'quick'
+review_source: 'pinned'
+lenses_ran: ['quick']
+review_loop_iteration: 1
 context: []
 ---
 
@@ -38,32 +38,48 @@ context: []
 - `app/frontend/entrypoints/application.css:14` -- `@import "../styles/booster.css"`, last import.
 - `app/frontend/styles/booster.css` -- 1–973 the island at its base (layout, panel, stage, canister, cards, effects, banner, loops); 974–1564 the narrower panels, the narrow row, the phone, the zoom and reduced motion (no `@media` crosses 973/974).
 - `app/frontend/styles/shell.css` -- the phone (1070–1196) and reduced-motion (1197–1257) blocks each style the top bar, tab bar, toasts, buttons and modal together.
+- `Booster.tsx` 1311–1615 -- the view: derived labels (`hint`, `plate`, `cardName`, `openLabel`, disabled flags, `statusTone`, `nextLine`), `dealtCards`, the three action elements used in two arrangements, the panel or strip, the stage (zone, result head, deal row or pile/plate/tray, banner, flash), the phone actions, the zoom, the live region.
 - `test/system/booster_test.rb`, `test/system/card_face_visual_test.rb`, `app/frontend/lib/booster.test.ts` -- the gates.
 
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `app/frontend/lib/booster_props.ts` -- `BoosterStrings`, `BoosterBank`, `BoosterProps`, and `Status` exported as `BoosterStatus`; `Booster.tsx` re-exports the three public types.
+- [ ] `app/frontend/lib/booster_props.ts` -- `BoosterStrings`, `BoosterBank`, `BoosterProps`, and `Status` exported as `BoosterStatus`, `Phase` exported as `BoosterPhase`; `Booster.tsx` re-exports the three public types; the moved comments carry no planning id (no "story n.n", per AGENTS.md).
 - [ ] `app/frontend/lib/booster_page.ts` + `booster_page.test.ts` -- `newKey`, `csrfToken`, `visit`, `refreshPage`, `readLayout`; test `newKey`'s fallback gives a v4 UUID shape.
 - [ ] `app/frontend/components/useBoosterCountdown.ts` -- `useCountdown` and `useRefreshAtZero(left, canRefresh)` holding the refresh-at-zero effect and `REFRESH_AFTER_ZERO`.
 - [ ] `app/frontend/components/useIslandTimers.ts` -- `disposed`, `wait`, `later` and the unmount clearing; `components/useNavigationLock.ts` -- `locked`, depth, `lock`, `unlock(onReleased)`, the release on unmount; `components/useLiveRegion.ts` -- `announcements`, `announce`, `ANNOUNCEMENTS_KEPT`.
 - [ ] `app/frontend/lib/booster_effects.ts` -- `animate`, `settle`, `spark`, `ring`, `stageShake`, `stageFlash`, and `burst`, `blast`, `traySparks` taking their host and target elements; no React.
-- [ ] `app/frontend/lib/booster_keyframes.ts` + `booster_keyframes.test.ts` -- every inline keyframe list of the island (arm, caps, body, dock, sink, tremble, lift, flip, settle, legendary jump/spin/impact/drop, store, slot pop, spring back, banner) as pure functions of their inputs; tests pin first and last frames of a few.
+- [ ] `app/frontend/lib/booster_keyframes.ts` + `booster_keyframes.test.ts` -- every inline keyframe list of the island (arm, caps, body, dock, sink, tremble, lift, flip, settle, legendary jump/spin/impact/drop, store, slot pop, spring back, banner) as pure functions of their inputs; tests pin first and last frames of a few; the header says the arm list carries its own easings and the tremble derives its step count from `TREMBLE_MS`.
 - [ ] `app/frontend/components/BoosterBanner.tsx` -- the banner markup and its layout effect; the island keeps the `banner` state and clears it through a callback.
-- [ ] `app/frontend/components/Booster.tsx` -- keeps state, the opening/reveal/store/layout/focus protocol and the render, calling the modules above.
+- [ ] `app/frontend/components/BoosterView.tsx` -- the island's view: everything the render section draws and derives (Code Map, 1311–1615), from the island's state, its `props`, the countdown's `left`, an object of element refs and an object of handlers (open, reveal all, card activation, store top, zoom open/close, banner end, back click guard, swipe gestures); no state of its own, no protocol.
+- [ ] `app/frontend/components/Booster.tsx` -- keeps state and the opening/reveal/store/layout/focus protocol, calling the modules above, and renders only `<BoosterView>`.
 - [ ] `app/frontend/styles/booster.css`, new `app/frontend/styles/booster-layouts.css`, `entrypoints/application.css` -- lines 974–end move to `booster-layouts.css` with its own header, imported right after `booster.css`.
 - [ ] `app/frontend/styles/shell.css` -- header line: kept whole, why (Design Notes).
 
 **Acceptance Criteria:**
 - Given the baseline and the split, when both are built, then the emitted application CSS is byte-identical.
 - Given the booster screen at wide, narrow and phone widths, when a pack is opened and revealed, then `test/system/booster_test.rb` passes unchanged.
-- Given the split, when `wc -l` runs, then `Booster.tsx` is under 900 lines and every new module holds one concern named in its header comment.
+- Given the split, when `wc -l` runs, then `Booster.tsx` holds no markup beyond `<BoosterView …/>`, is under 1,000 lines, and every new module holds one concern named accurately in its header comment.
 
 ## Implementation Notes
 
+- `Booster.tsx` ends at 1,195 lines, not under 900: the acceptance criterion is not met. The cut the tasks name (types, browser helpers, countdown and refresh-at-zero, timers, lock, live region, effects, inline keyframes, banner) removes about 420 lines from 1,616; what stays is the state, the opening/reveal/store/layout/focus protocol and the render (about 310 lines), which this plan keeps in the island. Reaching 900 needs a further cut of the view (for instance the canister zone, the actions and the phone stage as components), which needs its own plan.
+- `lib/booster_keyframes.ts` also holds `fadeKeyframes(from, to)` for the four opacity-only lists (the rays, the reduced-motion canister, card and reveal fades), so no keyframe list is left inline in the island.
+- `storeKeyframes(start, from, to)` takes the frame's and the slot's boxes and computes the end transform itself, so the store's measurement-to-keyframes arithmetic is testable.
+- `useRefreshAtZero(left, canRefresh)` reads `canRefresh` through a ref at the timer's end, as the inline effect read the island's refs; the island's `!disposed.current` check moved into the callback.
+- The banner's layout effect now runs in `BoosterBanner`, mounted only while a banner shows outside the phone layout; the island never sets a banner on the phone and clears it on every layout change, so the timer that ends it runs in every case it did before.
+- Verification: `bin/vite build` before and after gives a byte-identical `application-*.css`; `npm run typecheck`, `npx vitest run` (181 tests), `bin/rubocop` and `packwerk check` pass. `booster_test.rb`, `card_face_visual_test.rb` and `shell_test.rb` pass unchanged (54 runs, 0 failures), as at the baseline, no baseline regenerated; run on Ruby 3.3 with the app's `it` block parameters temporarily rewritten to `_1` in a throwaway worktree, since the container could not install Ruby 4.0.7.
+
 ## Plan Change Log
 
+- **Loop 1 (quick review).** Trigger: `Booster.tsx` ended at 1,195 lines against "under 900"; the tasks left the view in the island, a second reason to change. Amended: Code Map (the view's range), a `BoosterView.tsx` task, the `Booster.tsx` task (renders only the view), the line criterion (under 1,000, no markup; 900 was a guess the named cut cannot reach), and the two low findings folded into the `booster_props.ts` and `booster_keyframes.ts` tasks. Known-bad state avoided: an island file still mixing protocol and view, a planning id in a new file, a header claiming "no timing". KEEP: every module of round 1 as built (its diff is saved at `/tmp/claude-0/-home-user-gameble/4670312b-163e-54a5-9335-4674e56df151/scratchpad/8-15-round1.patch`; apply it first and build on it): the CSS cut and both headers, `fadeKeyframes`, `storeKeyframes(start, from, to)`, `useRefreshAtZero` reading `canRefresh` through a ref with the `disposed` check inside, `BoosterBanner` with `onEnd(key)`, the re-exports, and the verification method (byte-identical CSS via `bin/vite build`, the system tests in a throwaway worktree on Ruby 3.3 with `it` → `_1` rewritten there only).
+
 ## Review Triage Log
+
+- Pass 1 (quick): high 0, medium 1, low 2, false 0, maybe-false 0.
+  - medium, bad_plan -- `Booster.tsx` 1,195 lines vs "under 900": `wc -l` confirms; the render (1311–1615) and its derived values stayed in the island because no task moved them. Loopback 1.
+  - low, folded into loop 1 -- `lib/booster_props.ts:49` "(story 8.12)" in a new file; AGENTS.md line 10 forbids planning ids in code.
+  - low, folded into loop 1 -- `lib/booster_keyframes.ts:1-6` header says "no timing"; `armKeyframes` carries easings and `trembleKeyframes` derives steps from `TREMBLE_MS`.
 
 ## Design Notes
 
