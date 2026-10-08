@@ -1,6 +1,19 @@
 # tickets.toml — the stories of the season preparation epic, in build order. tickets.py reads it.
 
 [[entry]]
+id = 3
+type = "story"
+title = "Rarity follows popularity, the rating only orders games of equal popularity"
+description = "Replaces Steam::PrestigeScore so the review count (the game's popularity) decides the rarity almost alone and the share of positive reviews only orders games of the same popularity, chosen by the author on the staging draft; the spec's rarity rule follows."
+verify = "On the staging draft preview, the Légendaires and Épiques are the best-known games, a much-reviewed game never ranks below a far less reviewed one for a better rating, and two games of the same popularity are ordered by their rating."
+covers = ["CAP-3"]
+after = ["2.12"]
+hitl = true
+risk = "medium"
+unknown = "How strictly popularity leads: popularity bands (for example by order of magnitude of reviews) with the rating ordering inside a band, or the count alone with the rating as a tie-break; the author chooses on the staging draft, as for story 2.12."
+notes = ["il faut encore revoir le calcul de rareté des cartes et passer quasiment totalement sur le nombre de joueurs / reviews parce que c'est encore trop bizarre", "la positivité des notes servira juste à classer les jeux de même popularité"]
+
+[[entry]]
 id = 1
 type = "story"
 title = "An import builds beside the draft and replaces it only once validated"
