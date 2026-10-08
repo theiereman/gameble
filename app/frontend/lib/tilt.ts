@@ -95,6 +95,7 @@ export function attachTilt(element: HTMLElement, { max }: { max: number }): () =
   let hold: Hold | null = null
   let box: Box | null = null
   let swallowClick = false
+  let glarePlaced = false
 
   const clear = () => {
     for (const property of PROPERTIES) element.style.removeProperty(property)
@@ -129,14 +130,22 @@ export function attachTilt(element: HTMLElement, { max }: { max: number }): () =
     if (frame === null) frame = requestAnimationFrame(step)
   }
 
+  const placeGlareUnderPointer = () => {
+    current = { ...current, glareDx: target.glareDx, glareDy: target.glareDy }
+    glarePlaced = true
+    write()
+  }
+
   const aim = (x: number, y: number) => {
     box ??= layoutBox(element)
     target = tiltTarget(x, y, box, max)
+    if (!glarePlaced) placeGlareUnderPointer()
     schedule()
   }
 
   const drive = (id: number, touch: boolean) => {
     driver = { id, touch }
+    glarePlaced = false
     element.dataset.tilting = ""
   }
 

@@ -144,9 +144,9 @@ class CardPreviewTest < ApplicationSystemTestCase
     assert_selector "#{booster} > .card[data-in-view]"
     assert_equal [ "card-holo", "1" ], [ style("#{booster} .card__holo", "animationName"), style("#{booster} .card__holo", "opacity") ]
     assert_equal [ "card-foil", "0.22" ], [ style("#{booster} .card__foil", "animationName"), style("#{booster} .card__foil", "opacity") ]
-    assert_equal "0.45", style("[data-specimen=rare-m-booster] .card__holo", "opacity")
-    assert_equal [ "0.7", "0.08" ], [ style("[data-specimen=epic-m-booster] .card__holo", "opacity"), style("[data-specimen=epic-m-booster] .card__foil", "opacity") ]
-    assert_no_selector "[data-specimen=rare-m-booster] .card__foil"
+    assert_no_selector "[data-specimen=rare-m-booster] .card__holo"
+    assert_no_selector "[data-specimen=epic-m-booster] .card__holo"
+    assert_no_selector "[data-specimen=epic-m-booster] .card__foil"
   end
 
   test "a Turbo restore visit draws the art again, from a clean face" do

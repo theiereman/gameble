@@ -663,11 +663,11 @@ A placeholder image (too small or single-channel) counts as missing. If cross-or
 |---|---|---|
 | Commune | None | None |
 | Peu commune | None | None |
-| Rare | Holo at 45% | None |
-| Épique | Holo 70%, faint foil, purple rays, small banner | Purple rays behind the card in the detail, the showcase and the public page |
+| Rare | None | None |
+| Épique | Purple rays, small banner | Purple rays behind the card in the detail, the showcase and the public page |
 | Légendaire | Full holo and foil, gold rays, gold glow, large banner | Holo sheen (and gold rays where Épique has purple ones); no glow |
 
-Holo is a diagonal light band sweeping across the card in steps; foil a slow rainbow blend. Under the pointer, cards get a soft glare that follows it.
+Holo is a diagonal light band sweeping across the card in steps; foil a slow rainbow blend. Only the Légendaire shines (author, 2026-10-08). Under the pointer, every card gets a soft glare that appears right under it and follows it.
 
 #### Card backs
 
