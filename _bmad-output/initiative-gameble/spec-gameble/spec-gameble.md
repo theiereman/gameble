@@ -57,15 +57,18 @@ gameble is an open-source passion project, and the game its author wants to play
     - "Tout révéler" reveals the remaining cards, and a Légendaire still plays its full sequence.
     - The five cards join the collection when the pack is opened. Leaving in the middle of a reveal loses nothing and does not resume.
 - **CAP-6**
-  - **intent:** A player can browse their collection by set, see their progress in each set, and see which cards are missing.
+  - **intent:** A player sees at a glance which sets they are completing, opens one as an album, and sees which cards are missing.
   - **success:**
-    - The sets are those defined in `catalog-and-rarity.md`: publisher sets, tomes and "best rated of the year" sets.
+    - The sets are those defined in `catalog-and-rarity.md`: themes, franchises, studios, hall of fame sets and the UFOs. Every card belongs to at least one set.
+    - The collection opens on the player's sets in progress, sorted by closeness to their next tier or completion, then a short "to discover" row, then a search over every set.
+    - A set opens as an album: owned cards, an empty slot naming each missing game, and its tiers or its completion.
     - Each set shows owned / total distinct cards. A card in several sets counts in each. Duplicates are counted per card.
-    - An empty slot names the missing game.
+    - Theme and hall of fame sets have three tiers (bronze, silver, gold); franchise, studio and UFO sets are only complete or not.
+    - The grid of every card, with its filters and search, stays reachable from the collection.
 - **CAP-7**
   - **intent:** A player sees a card's face at a glance and can open its detail view to see the game and its credits.
   - **success:**
-    - The card face shows the title, publisher, cover, genre, release year, rarity (shape and name) and card number, and no stats.
+    - The card face shows the title, publisher, cover, genre (its main theme), release year, rarity (shape and name) and card number, and no stats.
     - The card number is the card's number within its season, without a total ("S1 · #4 215").
     - The detail view shows the title, publisher, rarity, genre, release year, short description, minted season, sets, card number, copies owned, and a link to the game's Steam store page.
     - Card text appears in the player's UI language. The description appears only in the detail view, not on the card.
@@ -103,7 +106,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-13**
   - **intent:** A live Brotherhood feed shows what other players are doing, so the platform feels inhabited.
   - **success:**
-    - The feed shows notable pulls, first discoveries of a card, trades and reposts (CAP-19).
+    - The feed shows notable pulls, first discoveries of a card, trades, reposts (CAP-19), set completions and set tiers reached.
     - The feed is readable without an account.
     - With few players, it falls back to lower-rarity events and is never empty while any activity exists.
     - A signed-in player has a Friends tab showing only their friends' pulls, trades and reposts.
@@ -141,13 +144,19 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** A player earns card backs and chooses the one their face-down cards wear.
   - **success:**
     - Every account starts with the "Standard" card back.
-    - More are unlocked by completing a set, contributing to a successful weekly goal, some achievements, and events or seasons. A locked back states its unlock condition.
+    - More are unlocked by reaching gold on a theme or hall of fame set (one back per such set), contributing to a successful weekly goal, some achievements, and events or seasons. A locked back states its unlock condition.
     - The player picks one active back in the profile; it applies from the next pack opened.
     - Only the player sees it: on their own face-down cards at opening, and faded on the detail of a card they do not own.
     - The back catalogue is in `DESIGN.md`.
 - **CAP-21**
   - **intent:** A player can see which of their friends are around.
   - **success:** Friends see each other's status: online, current activity, or last seen. The friends menu item shows how many friends are online.
+- **CAP-22**
+  - **intent:** A player shows their collecting through a profile title and dresses their menus with a rare theme.
+  - **success:**
+    - Completing a franchise, studio or UFO set, and each tier of a theme or hall of fame set, unlocks a profile title built from one template per kind that needs no grammatical agreement ("Complétiste · Dark Souls"; Apprenti, Adepte, Maître for tiers).
+    - The player picks one active title; it shows on their profile, in the feed and in trades.
+    - Reaching gold on 3, 10 and 25 sets unlocks a menu theme each: an accent colour applied to the interface, with contrast checked. Only the player sees it.
 
 ## Constraints
 
@@ -183,7 +192,6 @@ gameble is an open-source passion project, and the game its author wants to play
 - Live trades with both players connected (later).
 - Card marks: favourite, to trade, personal categories (later).
 - Reactions or comments on feed events (later).
-- Sets built from Steam store tags (later).
 - Sign-in methods other than Steam.
 - Catalogs other than Steam.
 - Back-office features beyond moderation (set creation is V3).
@@ -211,13 +219,11 @@ The author plays gameble every day for a month alongside at least 10 active play
 - **Achievements (CAP-17):** which achievements exist?
 - **Weekly goal pack (CAP-12):** what are the odds of the weekly goal's rare pack?
 - **Weekly goal (CAP-12):** how much does a trade count compared with a pack opening?
-- **Tome genres, neighbours (CAP-6):** settled as a back-office curation step before publishing (backlog story genre curation); its design is open.
-- **Tag labels:** do French tag labels need importing once tags or genre tome names are shown to players?
 - **Feed flooding (CAP-19):** with unlimited reposts, how does the global feed stay readable: grouping, a per-player cap in the global view, or nothing until measured?
 - **Special packs and the cap (CAP-12, CAP-16):** does the weekly goal's rare pack land above 10 when the bank is full?
 - **Weekly goal lifecycle (CAP-12):** what happens when the goal is reached, missed, and at the week rollover? `EXPERIENCE.md` tags its answers as assumptions.
 - **Card backs (CAP-20):** which backs ship, and does every successful weekly goal grant one?
-- **Feed and ticker (CAP-13):** do set completions and hourly totals join pulls, first discoveries and trades? `EXPERIENCE.md`'s ticker assumes so.
 - **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.
 - **English copy (CAP-3, language constraint):** the English copy and the English tier names are not written yet. Who writes them before launch?
 - **Repost and Friends tab in the UX (CAP-13, CAP-19):** `DESIGN.md` and `EXPERIENCE.md` do not cover the repost action or the feed's Friends tab yet.
+- **Sets on real data (CAP-6):** the minimum size of franchise and studio sets, the reliability of Steam's franchise field, the hall of fame thresholds and the tier percentages are set on staging data; the UFOs stay under about 5 % of the catalog, else the theme list changes.
