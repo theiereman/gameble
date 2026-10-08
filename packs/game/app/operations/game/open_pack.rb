@@ -9,6 +9,10 @@ module Game
   # and every set the cards complete for the player for the first time
   # (Game::SetCompletion); Game::CardDiscovered and Game::SetCompleted follow
   # Game::PackOpened, one per row inserted (AD-9, AD-10, story 6.7).
+  # A pack drawn in an earlier season (banked before the season now
+  # published) is drawn again in the published season as it opens, each card
+  # within its old card's tier, so the pack keeps its odds and any card it
+  # was guaranteed, and an opening only credits cards of the published season.
   # A pack that is not available yet is never opened. Opening a regular pack
   # replaces it in the same transaction (Game::TopUpBank), so a full bank
   # stays full; a bank already short stays short until the next season's
@@ -56,7 +60,7 @@ module Game
 
         now = Time.current
         pack = step next_pack(player, now)
-        pack.update!(opened_at: now, idempotency_key:, card_back: CardBacks.active_key(player))
+        pack.update!(opened_at: now, idempotency_key:, card_back: CardBacks.active_key(player), **drawn_in_published_season(pack))
         step credit(player, pack, now)
         discovered = FirstDiscovery.record(pack, now)
         completed = SetCompletion.record(player.id, pack.card_season_ids, now)
@@ -76,6 +80,17 @@ module Game
         publish(CardDiscovered.new(data: { player_id: player.id, card_season_id:, pack_id: pack.id }), stream_name: stream_name(player.id))
       end
       Success()
+    end
+
+    # The season and cards of a pack drawn in an earlier season, drawn again
+    # in the published one; nothing for a pack of the published season, or
+    # with no season published.
+    def drawn_in_published_season(pack)
+      pool = DrawPool.current
+      return {} if pool.nil? || pack.season_id == pool.season_id
+
+      tiers = Catalog::CardSeasonTiers.call(pack.card_season_ids)
+      { season_id: pool.season_id, card_season_ids: Draw.in_tiers(pack.card_season_ids.map { tiers.fetch(it) }, random: @random, pool:) }
     end
 
     def check_key(key)
