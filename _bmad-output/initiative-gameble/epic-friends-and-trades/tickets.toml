@@ -133,3 +133,15 @@ covers = []
 after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 13
+type = "story"
+title = "A friend's public profile from the Friends screen"
+description = "Each friend on the Friends screen, and the friend profile dialog, gets a button that opens that friend's public profile page, as Game::Visibility lets a friend see it."
+verify = "A player opens the Friends screen, presses the button beside a friend and lands on that friend's public profile; a friends-only profile opens for a friend; the button reads the same from the dialog."
+covers = ["R1"]
+after = [10]
+hitl = false
+risk = "low"
+notes = ["Asked by the author's acceptance check of 4.4 on 2026-10-08, which went to done.", "Assumption: a friend whose profile is private shows no button rather than a page saying it is private; confirm before the build."]
