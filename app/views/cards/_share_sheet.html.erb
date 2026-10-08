@@ -38,7 +38,7 @@
       <%= link_to card_season_path(slug: view.id, number: view.season_number), class: "button button--link share-sheet__public",
         rel: "noopener noreferrer", target: "_blank", data: { turbo: false } do %>
         <span class="button__label"><%= t("card_details.share.public_page") %></span>
-        <span class="visually-hidden"><%= t("card_details.new_tab") %></span>
+        <span class="visually-hidden"><%= t("external_links.new_tab") %></span>
       <% end %>
     </div>
   <% end %>

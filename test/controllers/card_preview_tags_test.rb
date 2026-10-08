@@ -76,12 +76,10 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__end form[action='/auth/steam'] img.steam-sign-in__image"
     assert_select "nav.tab-bar", false
     assert_select "main form[action='/auth/steam']", false
-    # The placeholders: the LIVE strip, three inert entries, the legal notice.
     assert_select ".public-card__live-title", /Live\s+·\s+Right now on gameble/
     assert_select ".public-card__live-entry", 3
     assert_select ".public-card__live-list[aria-hidden=true]"
-    assert_select ".public-card__legal", "Legal notice"
-    assert_select ".public-card__footer a", false
+    assert_select ".public-card__footer a.public-card__legal[href=?]", "/en/legal", "Legal notice"
     assert_select ".library, .profile", false
     assert_not_includes response.body, "Gabe the Brave"
     assert_no_match(/collection of|No longer in/i, response.body)

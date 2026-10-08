@@ -126,6 +126,16 @@ class ShareCardTest < ApplicationSystemTestCase
     assert_selector ".hub__title", text: "COMMAND BRIDGE"
   end
 
+  test "a visitor follows the public card page's footer link to the legal page" do
+    visit card_path(locale: :en, slug: "portal")
+
+    within(".public-card__footer") { click_on "Legal notice" }
+
+    assert_current_path "/en/legal"
+    assert_selector "h1#legal-heading", text: /legal notice/i
+    assert_selector ".legal__ownership", text: "All artwork belongs to the games' publishers and their artists, whom we respect."
+  end
+
   test "on a 360 × 740 phone the public card page is one column, with no tab bar and no sideways scroll; the sheet is a bottom sheet" do
     page.driver.browser.manage.window.resize_to(360, 740)
     visit card_path(locale: :en, slug: "portal")

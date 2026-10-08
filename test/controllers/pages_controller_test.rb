@@ -10,15 +10,23 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   PLAYER_HUB_QUERIES = 17
   VISITOR_HUB_QUERIES = 5
 
+  OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
+
   setup do
     Game::DrawPool.reset!
     OmniAuth.config.test_mode = true
     @player = accounts_players(:player)
+    @legal = Rails.configuration.x.legal
   end
 
   teardown do
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
+    Rails.configuration.x.legal = @legal
+  end
+
+  def configure_legal(contact_email: nil, host_name: nil, host_address: nil)
+    Rails.configuration.x.legal = ActiveSupport::OrderedOptions.new.update(contact_email:, host_name:, host_address:)
   end
 
   def sign_in(player, origin: "/en")
@@ -464,5 +472,79 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get "/nope"
 
     assert_response :not_found
+  end
+
+  test "a visitor reads the French legal page: five sections, the exact ownership notice, the donation link in a new tab" do
+    configure_legal
+
+    get legal_path(locale: :fr)
+
+    assert_response :success
+    assert_select "html[lang=fr]"
+    assert_select "title", "Mentions légales"
+    assert_select "main h1#legal-heading", "Mentions légales"
+    assert_equal [ "Éditeur et hébergeur", "Steam, Valve et les jeux", "Conditions d'utilisation", "Confidentialité", "Soutenir gameble" ],
+      css_select("main section.legal__section h2").map(&:text)
+    assert_select ".legal__ownership", OWNERSHIP_NOTICE
+    assert_select ".legal__affiliation", /n'est affilié ni à Valve ni à Steam/
+    assert_select ".legal__section", text: /CNIL/
+    donation = css_select("main a.legal__donation").sole
+    assert_equal [ "https://buymeacoffee.com/theiereman", "_blank", "Offrir un café (nouvel onglet)" ],
+      [ donation["href"], donation["target"], donation.text.squish ]
+    assert_includes donation["rel"].split, "noopener"
+    assert_select "[style]", 0
+  end
+
+  test "a signed-in player reads the English legal page" do
+    configure_legal
+    sign_in(@player)
+
+    get legal_path(locale: :en)
+
+    assert_response :success
+    assert_select "html[lang=en]"
+    assert_select "main h1", "Legal notice"
+    assert_equal [ "Publisher and host", "Steam, Valve and the games", "Terms of use", "Privacy", "Support gameble" ],
+      css_select("main section.legal__section h2").map(&:text)
+    assert_select ".legal__ownership", "All artwork belongs to the games' publishers and their artists, whom we respect."
+  end
+
+  test "the configured contact is a mailto link, and the host's name and address are shown" do
+    configure_legal(contact_email: "contact@example.test", host_name: "Example Hosting", host_address: "1 rue de l'Exemple, 75000 Paris")
+
+    get legal_path(locale: :en)
+
+    assert_response :success
+    assert_select ".legal__contact a[href=?]", "mailto:contact@example.test", "contact@example.test"
+    assert_select ".legal__host-name", "Example Hosting"
+    assert_select ".legal__host-address", "1 rue de l'Exemple, 75000 Paris"
+    assert_select ".legal__access", "access: ask for a copy of your data by e-mail, at contact@example.test;"
+    assert_select ".legal__access a[href=?]", "mailto:contact@example.test"
+  end
+
+  test "without a configured contact or host, those lines are left out and the page still renders" do
+    configure_legal
+
+    get legal_path(locale: :en)
+
+    assert_response :success
+    assert_select ".legal__contact", false
+    assert_select ".legal__host", false
+    assert_select "a[href^='mailto:']", false
+    assert_select ".legal__fact dt", "Publisher"
+    assert_select ".legal__access", "access: ask the publisher for a copy of your data;"
+    assert_no_match(/contact address above/, response.body)
+
+    get legal_path(locale: :fr)
+    assert_select ".legal__access", "accès : demandez une copie de vos données à l'éditeur ;"
+  end
+
+  test "an older browser reads the legal page, which the public card page's footer links to" do
+    configure_legal
+
+    get legal_path(locale: :en), headers: { "User-Agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 11.6; rv:92.0) Gecko/20100101 Firefox/92.0" }
+
+    assert_response :success
+    assert_select ".legal__ownership"
   end
 end

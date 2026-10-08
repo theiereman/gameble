@@ -27,7 +27,16 @@ class PagesController < ApplicationController
     authorize :page, :show?
   end
 
+  def legal
+    authorize :page, :show?
+    @legal = Rails.configuration.x.legal
+  end
+
   private
+    def public_read?
+      action_name == "legal" && (request.get? || request.head?)
+    end
+
     # The card of the player's latest notable pull, as a Catalog::CardView,
     # or nil (the empty showcase).
     def showcase

@@ -20,6 +20,10 @@ proxy:
 env:
   clear:
     PUBLIC_URL: https://gameble.net
+    # The legal page's contact and host; each line is hidden while unset.
+    LEGAL_CONTACT_EMAIL: contact@gameble.net
+    # LEGAL_HOST_NAME: <host company name>
+    # LEGAL_HOST_ADDRESS: <host postal address>
 
 # registry:
 #   server: ghcr.io

@@ -115,6 +115,58 @@ en:
       title: "More"
       subtitle: "The rest of the ship"
       settings: "Profile and settings"
+    legal:
+      title: "Legal notice"
+      publisher:
+        title: "Publisher and host"
+        publisher: "Publisher"
+        anonymous: "A private individual, on a non-professional and non-commercial basis, who has chosen to remain anonymous. Their identity is known to the host."
+        contact: "Contact"
+        host: "Host"
+      ownership:
+        title: "Steam, Valve and the games"
+        affiliation: "gameble is not affiliated with Valve or Steam, and is not endorsed or sponsored by them. Steam and the Steam logo are trademarks of Valve Corporation."
+        artwork: "All artwork belongs to the games' publishers and their artists, whom we respect."
+        data: "The games' names, covers and descriptions come from Steam and remain the property of their rights holders."
+      terms:
+        title: "Terms of use"
+        free: "gameble is a free game, with no ads and no purchases."
+        no_money: "No real money flows through it: nothing is bought, nothing is sold."
+        no_property: "Cards, boosters and card backs are parts of the game: they are not your property and have no value, neither in money nor outside gameble."
+        fair_play: "Play fair: no bots, scripts or automation, no multiple accounts, no exploiting bugs."
+        moderation: "Moderators review reports and may ban an account that breaks these rules."
+        content: "The games, their names and their images belong to their rights holders, not to gameble or its players."
+        no_guarantee: "The service is provided as is, without warranty: it may be interrupted, changed or stopped at any time."
+        changes: "These terms may change; the version in force is always the one on this page."
+        law: "They are governed by French law."
+      privacy:
+        title: "Privacy"
+        stored:
+          intro: "To run the game, gameble keeps:"
+          steam: "your Steam id and your Steam profile name;"
+          activity: "your game activity: cards, boosters, trades, friends, activity feed entries and reports;"
+          settings: "your settings (profile visibility, reduced motion);"
+          last_seen: "the time of your last visit."
+        cookies: "Two cookies, both strictly necessary: the session cookie, which keeps you signed in, and the one that remembers your reduced motion choice. Your browser's local storage also keeps your trade drafts and the interface's state, on your device only. No trackers."
+        nothing_else: "No analytics, no ads, no real money. Your data is neither sold nor handed over."
+        services:
+          intro: "A few outside services take part:"
+          steam: "Steam (Valve) handles sign-in and provides your profile name;"
+          sentry: "Sentry receives technical errors, with your player id only;"
+          cloudflare: "Cloudflare sits in front of the site and sees its requests;"
+          images: "card images load from Steam's content delivery network, which your browser contacts directly."
+        deletion: "A deleted account is anonymised: your Steam id, your profile name and the time of your last visit are erased."
+        rights:
+          intro: "Your rights:"
+          access_html: "access: ask for a copy of your data by e-mail, at %{contact};"
+          access_publisher: "access: ask the publisher for a copy of your data;"
+          erasure: "deletion: from the settings, with \"Delete my account\";"
+          complaint_html: "complaint: to the %{authority}, the French data protection authority."
+          authority: "CNIL"
+      support:
+        title: "Support gameble"
+        text: "gameble is free and will stay free. If you enjoy the game, you can help pay for its hosting."
+        link: "Buy me a coffee"
   back_office:
     dashboard:
       show:
@@ -478,6 +530,10 @@ en:
       account:
         label: "Account"
         delete: "Delete my account"
+      support:
+        label: "Support"
+        link: "Buy me a coffee"
+      legal: "Legal notice"
   feeds:
     show:
       title: "Activity feed"
@@ -763,6 +819,8 @@ en:
     create:
       collected: "A booster joins your reserve. The next one will be ready at midnight (UTC)."
       throttled: "Too many attempts in a minute. Try again in a moment."
+  external_links:
+    new_tab: "(new tab)"
   card_details:
     open: "%{title}, %{rarity}, season %{season}"
     kicker: "Card file"
@@ -785,8 +843,6 @@ en:
     previous: "Previous card"
     next: "Next card"
     store: "See on Steam"
-    new_tab: "(new tab)"
-    notice: "This game and its image belong to their respective owners. gameble is not affiliated with Valve or Steam."
     preview:
       title: "%{title} — %{rarity}"
       description: "A card of gameble, your Steam games as collectible cards. Sign in through Steam: ten boosters wait for you."

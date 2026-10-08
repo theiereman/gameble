@@ -1,7 +1,7 @@
 <%# A card's detail, "FICHE DE LA CARTE" (CAP-7; DESIGN.md, Card detail;
     epic 10 R2, R6): a bracketed panel with the number at top right, the
     card at card-l over a ground shadow, its title, the facts the card does
-    not carry, the ownership notice and the actions ("Voir sur Steam", the
+    not carry and the actions ("Voir sur Steam", the
     one primary, and "Partager" for a holder). On a phone (sub_view
     controller) ◀ ▶ beside the card and a swipe on it step through the set
     it browses, under a position line, with the actions pinned at the
@@ -131,14 +131,9 @@
             </div>
           <% end %>
         </dl>
-        <p class="card-detail__notice"><%= t("card_details.notice") %></p>
         <div class="card-detail__actions">
-          <%= link_to card_detail_store_url(detail.store_url), class: "button button--primary card-detail__store",
-            rel: "noopener noreferrer external", target: "_blank" do %>
-            <span class="button__label"><%= t("card_details.store") %></span>
-            <span class="visually-hidden"><%= t("card_details.new_tab") %></span>
-            <%= pixel_icon("external", class: "button__icon") %>
-          <% end %>
+          <%= external_link_to t("card_details.store"), card_detail_store_url(detail.store_url), button: true,
+            class: "button button--primary card-detail__store" %>
           <% if share_url %>
             <%# Opens the share sheet and copies the link in the same click,
                 where the browser still allows the clipboard

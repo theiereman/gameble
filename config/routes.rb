@@ -94,6 +94,7 @@ Rails.application.routes.draw do
     end
     # The phone's PLUS tab: the rest of the ship (EXPERIENCE.md, PLUS rows).
     get "more" => "pages#more", as: :more
+    get "legal" => "pages#legal", as: :legal
 
     # Staff only (R9): moderators and administrators.
     get "back-office" => "back_office/dashboard#show", as: :back_office
