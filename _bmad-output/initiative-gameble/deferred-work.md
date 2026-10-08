@@ -348,3 +348,6 @@
 - source_plan: none
   summary: Replace the collection's tome (volume) system with another way to browse and organise the collection.
   evidence: Author, 2026-10-07: "il faut changer le système de collection en tome, c'est nul". The reasons and the replacement are not decided; start with a UX conversation (bmad-ux) before planning.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-and-shell-split-plan.md`
+  summary: Story 8.15's booster, shell and card-face system tests have only run on Ruby 3.3 with the app's `it` block parameters rewritten to `_1`, never on the app's Ruby 4.0.7 and unmodified source.
+  evidence: Quick review of story 8.15, pass 2 (maybe-false; medium if true). The container had no Ruby 4.0.7 (download refused by the network policy). The CI run on the push to `develop` (`.github/workflows/ci.yml`, system tests job) settles it: green closes this entry, red is the story's to fix.

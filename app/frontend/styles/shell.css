@@ -6,6 +6,10 @@
  *
  * Breakpoints (CSS px of the viewport): phone under 720, narrow under 900,
  * three columns from 1180. Text sizes in rem, art pixels in px.
+ *
+ * Kept whole: the phone and reduced-motion blocks each style the top bar,
+ * tab bar, toasts, buttons and modal together, so moving any of them to its
+ * own file would split those blocks or reorder their rules.
  */
 
 /* ---- Base ---- */
