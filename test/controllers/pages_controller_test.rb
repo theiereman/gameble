@@ -7,8 +7,8 @@ require_relative "../support/game_packs"
 class PagesControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
 
-  PLAYER_HUB_QUERIES = 18
-  VISITOR_HUB_QUERIES = 5
+  PLAYER_HUB_QUERIES = 19
+  VISITOR_HUB_QUERIES = 6
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
@@ -50,7 +50,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "html[lang=fr]"
     assert_select "title", "gameble"
-    assert_select "body > header.top-bar + main#main"
+    assert_select "body > header.top-bar + .ticker + main#main"
     assert_select "nav.tab-bar[aria-label=?]", "Navigation principale"
     assert_select "main h1.hub__title[tabindex='-1']", "Pont de commandement"
     assert_select "main .hub__kicker .hub__subtitle", false
@@ -388,6 +388,55 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#toasts > .toast", false
   end
 
+  def stream_names
+    css_select("turbo-cable-stream-source").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
+  end
+
+  def open_pack_of(player, card_season_id)
+    create_pack(player, cards: [ card_season_id ] * 5)
+    Game::OpenPack.new.call(player:).value!
+  end
+
+  test "the hub's LIVE ticker shows pulls of Epic or better, first discoveries and trades, never a repost nor a filler" do
+    @player.update!(persona_name: "Hugo")
+    quiet = accounts_players(:moderator).tap { it.update!(persona_name: "Quiet") }
+    open_pack_of(quiet, catalog_card_seasons(:rare_card_one).id)
+    open_pack_of(@player, fixture_tier_ids[3])
+    Game::FirstDiscovery.where(card_season_id: fixture_tier_ids[0]).delete_all
+    open_pack_of(@player, fixture_tier_ids[0])
+    Game::FeedEntry.create!(kind: "trade", player_id: @player.id, card_season_id: fixture_tier_ids[2], rarity: 3, notable: true,
+      occurred_at: Time.current)
+    Game::Holding.create!(player_id: @player.id, card_season_id: fixture_tier_ids[4], quantity: 1)
+    Game::RepostCard.new.call(player: @player, card_season_id: fixture_tier_ids[4]).value!
+
+    get home_path(locale: :en)
+
+    assert_select "body > header.top-bar + #live-ticker.ticker[aria-hidden=true][data-turbo-permanent][data-controller=ticker]" do
+      assert_select ".live-marker .live-marker__text", "Live"
+      assert_select ".ticker__run .ticker__item", 7
+      assert_select ".ticker__item .ticker__separator"
+      assert_select ".ticker__item .ticker__first", count: 1, text: "First discovery"
+      assert_select ".ticker__rarity--epic", count: 5, text: "Epic"
+      assert_select ".ticker__item", text: /reposted/, count: 0
+      assert_select ".ticker__item", text: /Quiet/, count: 0
+      assert_select "#live-ticker-queue[hidden]"
+      assert_select "a, button, [tabindex]", 0
+    end
+    assert_select "[style]", 0
+    assert_equal %w[live:en goal:en], stream_names
+  end
+
+  test "the hub listens to the French streams in French, for a visitor and a player" do
+    get home_path(locale: :fr)
+    assert_equal %w[live:fr goal:fr], stream_names
+    assert_select "#live-ticker .live-marker__text", "Live"
+
+    sign_in(@player, origin: "/fr")
+    get home_path(locale: :fr)
+    assert_includes stream_names, "goal:fr"
+    assert_select "#community-goal"
+  end
+
   def assert_hub_queries(count)
     ActiveRecord::Base.connection.clear_query_cache
     assert_queries_count(count) { get home_path(locale: :en) }
@@ -405,8 +454,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # waiting goal reward,
     # showcase (pull, the copies held, card view), collection (owned, total), sets (progress,
     # the started sets, the fill, which finds no other set here, so no sizes),
-    # the top bar's copies per tier, menu 04's friends online and the trades
-    # waiting (menu 03 and the tab bar share one count).
+    # the top bar's copies per tier, menu 04's friends online, the trades
+    # waiting (menu 03 and the tab bar share one count) and the LIVE ticker's
+    # entries (none here, so no players or cards).
     assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"
 
@@ -418,7 +468,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-showcase .card"
 
     delete session_path(locale: :en)
-    # Published season, collection total, sets fill and its totals.
+    # Published season, collection total, sets fill and its totals, the
+    # ticker's entries.
     assert_hub_queries(VISITOR_HUB_QUERIES)
   end
 

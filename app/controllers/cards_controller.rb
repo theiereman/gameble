@@ -28,7 +28,8 @@
 # card-season's own page, which carries the preview tags; it shows only the
 # card, never who shared or holds it. A visitor who opens that page,
 # without a context in the query, gets the public card page: the card, its
-# facts and the invitation to play, with no app chrome. A signed-in viewer,
+# facts, the invitation to play and the LIVE strip of the latest public
+# feed entries, with no app chrome. A signed-in viewer,
 # or a visitor browsing a context, gets the detail panel. Read from shared
 # links, it is open to any browser and link-preview crawler (PublicRead).
 class CardsController < ApplicationController
@@ -56,6 +57,7 @@ class CardsController < ApplicationController
     @share_url = share_url if @copies && current_player
     named = pack_browse || grid_browse || named_set_browse
     @public = current_player.nil? && named.nil?
+    @live_strip = LiveStream.strip_items if @public
     @browse = named || set_browse(@detail.sets.first) unless @public
     @faded = !named.nil? && @copies.nil?
     @back_key = Game::CardBacks.active_key(current_player)

@@ -1,6 +1,7 @@
 module Game
   # The activity feed's entries for a viewer: the newest notable entries
-  # first, of one kind when `kind` is given (the type filters), of the
+  # first, of one kind when `kind` is given (the type filters; a list of
+  # kinds gets no filler), of the
   # `players` ids only when given (the friends tab), each only if
   # Game::Visibility lets `viewer` (nil for a signed-out visitor) see the
   # player it names. When fewer than MIN notable entries show, the newest

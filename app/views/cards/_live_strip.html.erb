@@ -1,0 +1,18 @@
+<div id="live-strip" class="public-card__live-body">
+  <% if items.any? %>
+    <ul class="public-card__live-list">
+      <% items.each do |item, card| %>
+        <li class="<%= class_names("public-card__live-entry", "public-card__live-entry--filler": item.filler) %>">
+          <p class="public-card__live-sentence"><% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span> <% end %><%= feed_sentence(item, card) %></p>
+          <% if item.entry.kind == "repost" %>
+            <span class="feed__tag feed__tag--repost"><%= t("feeds.show.repost_tag") %></span>
+          <% else %>
+            <span class="feed__tag feed__tag--<%= card.rarity %>"><%= feed_rarity_name(card) %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="public-card__live-empty"><%= t("feeds.show.empty") %></p>
+  <% end %>
+</div>

@@ -21,6 +21,7 @@ Rails.configuration.to_prepare do
   # The notable pulls of an opening go to the activity feed (AD-10, AD-13).
   event_store.subscribe(Game::Handlers::PackOpenedFeed, to: [ Game::PackOpened ])
   event_store.subscribe(Game::Handlers::CardRepostedFeed, to: [ Game::CardReposted ])
+  event_store.subscribe(LiveStream, to: LiveStream::EVENTS)
   event_store.subscribe(Game::Handlers::PlayerActivity, to: Game::Handlers::PlayerActivity::EVENTS.keys)
 
   event_store.subscribe(PlayerStream, to: PlayerStream::EVENTS)

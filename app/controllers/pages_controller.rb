@@ -5,12 +5,14 @@
 # reward pack waits unopened. A read only page (AD-11): Catalog answers the
 # season, its size and the showcased card, Game the goal, the player's
 # reserve, reward, pull, collection, sets and how many of their friends are
-# online (menu 04).
+# online (menu 04); the LIVE ticker its first items, the latest public
+# entries it shows.
 class PagesController < ApplicationController
   def home
     authorize :page, :show?
     @season = Catalog::PublishedSeason.call
     @goal = Game::CurrentGoal.call
+    @ticker = LiveStream.ticker_items
     if current_player
       @bank = Game::BankSummary.call(current_player)
       @goal_reward_week = Game::WaitingGoalReward.call(current_player)

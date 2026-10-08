@@ -8,6 +8,7 @@ module PlayerStream
   CUT_OFF_EVENTS = [ Accounts::PlayerDeleted, Accounts::PlayerBanned ].freeze
 
   BATCHES = :player_stream_batches
+  BATCH = AfterCommitBatch.new(BATCHES) { |notices| PlayerStreamJob.perform_later(notices) }
 
   class << self
     def streamables(player, locale = I18n.locale)
@@ -23,7 +24,7 @@ module PlayerStream
     end
 
     def call(event)
-      collect(notices(event))
+      BATCH.add(notices(event))
     end
 
     def notices(event)
@@ -54,26 +55,6 @@ module PlayerStream
 
       counterparts = Game::Counterparts.call(player)
       counterparts[:trades].uniq.map { trades_notice(it) } + counterparts[:friends].map { friends_notice(it) }
-    end
-
-    def collect(notices)
-      return if notices.empty?
-
-      transaction = ApplicationRecord.current_transaction
-      return PlayerStreamJob.perform_later(notices) unless transaction.open?
-
-      batches = ActiveSupport::IsolatedExecutionState[BATCHES] ||= {}
-      key = transaction.uuid
-      if batches.key?(key)
-        batches[key].concat(notices)
-      else
-        batches[key] = batch = notices.dup
-        transaction.after_commit do
-          batches.delete(key)
-          PlayerStreamJob.perform_later(batch)
-        end
-        transaction.after_rollback { batches.delete(key) }
-      end
     end
   end
 end

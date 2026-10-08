@@ -1,8 +1,9 @@
 /*
  * The shell (AD-28; DESIGN.md: Chrome, Primitives, Layout & Spacing,
  * Elevation & Depth; EXPERIENCE.md: Motion): base, focus ring, top bar,
- * phone tab bar, atmosphere layers, toasts, buttons, panels, page widths,
- * screen-change transitions and the back-office variant.
+ * LIVE marker and ticker, phone tab bar, atmosphere layers, toasts,
+ * buttons, panels, page widths, screen-change transitions and the
+ * back-office variant.
  *
  * Breakpoints (CSS px of the viewport): phone under 720, narrow under 900,
  * three columns from 1180. Text sizes in rem, art pixels in px.
@@ -76,6 +77,10 @@ a {
 
 .stream-slot {
   display: contents;
+}
+
+turbo-cable-stream-source {
+  display: none;
 }
 
 /* ---- Page widths ---- */
@@ -497,6 +502,130 @@ a.packs-chip:focus-visible {
   display: block;
   width: 180px;
   height: 35px;
+}
+
+/* ---- LIVE marker and ticker ---- */
+
+.live-marker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.live-marker__dot {
+  width: 6px;
+  height: 6px;
+  background: var(--color-on-accent);
+  animation: live-blink 1s steps(1, end) infinite;
+}
+
+@keyframes live-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.ticker {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  margin-top: var(--space-unit);
+  background: var(--color-steam-bar);
+  box-shadow: var(--top-bar-rule);
+}
+
+.ticker__inner {
+  display: flex;
+  max-width: var(--space-content-max);
+  height: var(--space-ticker-height);
+  margin: 0 auto;
+  padding: 0 var(--space-gutter-desktop);
+}
+
+.ticker .live-marker {
+  flex: none;
+  gap: var(--space-3);
+  padding: 0 var(--space-4);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.ticker__window {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.ticker__track {
+  display: flex;
+  flex: none;
+  width: max-content;
+}
+
+.ticker[data-ticker-state="scrolling"] .ticker__track {
+  animation: ticker-scroll var(--ticker-duration, 60s) linear infinite;
+}
+
+.ticker:hover .ticker__track,
+.ticker:focus-within .ticker__track {
+  animation-play-state: paused;
+}
+
+@keyframes ticker-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker__run {
+  display: flex;
+  flex: none;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ticker__item {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-3);
+  padding-left: var(--space-6);
+  color: var(--color-text);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  white-space: nowrap;
+}
+
+.ticker__separator {
+  color: var(--color-accent);
+}
+
+.ticker__sentence strong {
+  color: var(--color-text-max);
+  font-weight: inherit;
+}
+
+.ticker__first {
+  color: var(--color-gold);
+  text-transform: uppercase;
+}
+
+.ticker__rarity--common { color: var(--color-rarity-commune); }
+.ticker__rarity--uncommon { color: var(--color-rarity-peu-commune); }
+.ticker__rarity--rare { color: var(--color-rarity-rare); }
+.ticker__rarity--epic { color: var(--color-rarity-epique); }
+.ticker__rarity--legendary { color: var(--color-rarity-legendaire); }
+
+.ticker__queue {
+  display: none;
 }
 
 /* ---- Phone tab bar ---- */
@@ -1099,6 +1228,12 @@ html[data-sub-view-step] .main {
     gap: var(--space-3);
   }
 
+  .ticker__inner {
+    max-width: var(--space-phone-column-max);
+    height: var(--space-ticker-height-phone);
+    padding: 0 var(--space-gutter-phone);
+  }
+
   .top-bar__brand,
   .top-bar__title {
     font: var(--font-screen-title-phone);
@@ -1208,10 +1343,16 @@ html[data-sub-view-step] .main {
 
 /* ---- Reduced motion (EXPERIENCE.md): the system's preference or the
    player's setting (html[data-motion=reduced], motion.ts) stops the star
-   twinkle, the screen slides and the toast rise. ---- */
+   twinkle, the screen slides, the toast rise and the ticker, which shows
+   its latest items still; the LIVE marker stays lit. ---- */
 
 @media (prefers-reduced-motion: reduce) {
   .atmosphere__twinkle > i {
+    animation: none;
+  }
+
+  .live-marker__dot,
+  .ticker[data-ticker-state] .ticker__track {
     animation: none;
   }
 
@@ -1241,6 +1382,11 @@ html[data-sub-view-step] .main {
 }
 
 html[data-motion="reduced"] .atmosphere__twinkle > i {
+  animation: none;
+}
+
+html[data-motion="reduced"] .live-marker__dot,
+html[data-motion="reduced"] .ticker[data-ticker-state] .ticker__track {
   animation: none;
 }
 

@@ -15,8 +15,13 @@
     Repost tag in place of the rarity. Fillers of a quiet feed sit on the
     sunken panel. Names and the order are already filtered by
     Game::Visibility. A filter with nothing says so in its own line; the
-    Friends tab without a friend invites to add some. No Brotherhood line here. %>
-<section class="feed" aria-labelledby="feed-heading">
+    Friends tab without a friend invites to add some. No Brotherhood line here.
+    All, without a filter, is live: the public stream prepends new entries
+    to its list, and a polite status line counts them in batches while the
+    list is not focused (feed_announcer_controller.ts). %>
+<%= tag.section class: "feed", aria: { labelledby: "feed-heading" },
+      data: ({ controller: "feed-announcer", feed_announcer_templates_value: t(".announcement").to_json,
+               feed_announcer_limit_value: Game::FeedEntries::LIMIT } if @live) do %>
   <h1 id="feed-heading" class="feed__title"><%= t(".title") %></h1>
   <nav class="feed__tabs segmented" aria-label="<%= t(".tabs_label") %>">
     <%= link_to t(".tabs.all"), feed_path(filter: @filter), class: "feed__tab segmented__option", aria: { current: ("true" unless @tab) } %>
@@ -39,37 +44,20 @@
       <p class="feed__no-friends-text"><%= t(".no_friends") %></p>
       <%= render ButtonComponent.new(href: friends_path) do %><%= t(".add_friends") %><% end %>
     <% end %>
-  <% elsif @items.empty? %>
-    <%= render PanelComponent.new(tag: :p, class: "feed__empty") do %><%= @filter ? t(".empty_filter") : t(".empty") %><% end %>
   <% else %>
-    <ul class="feed__list">
-      <% @items.each do |item, card| %>
-        <% tier = Catalog::Rarity::TIERS.key(card.rarity.to_sym) %>
-        <% name = item.player.persona_name.presence || t(".nameless") %>
-        <li class="<%= class_names("feed__entry", "feed__entry--filler": item.filler) %>">
-          <time class="feed__time" datetime="<%= item.entry.occurred_at.utc.iso8601 %>"><%= item.entry.occurred_at.utc.strftime(t(".time_format")) %></time>
-          <% repost = item.entry.kind == "repost" %>
-          <% if item.entry.kind == "discovery" %>
-            <p class="feed__sentence"><span class="feed__chip"><%= t(".first_discovery") %></span> <%= t(".discovered_html", name: tag.strong(name), card: tag.strong(card.title)) %></p>
-          <% elsif repost %>
-            <p class="feed__sentence"><%= t(".reposted_html", name: tag.strong(name), card: tag.strong(card.title)) %></p>
-          <% else %>
-            <p class="feed__sentence"><%= t(".pulled_html", name: tag.strong(name), card: tag.strong(card.title)) %></p>
-          <% end %>
-          <%= link_to card_path(slug: card.id), class: class_names("feed__thumb", "feed__thumb--framed feed__thumb--#{card.rarity}": repost),
-                aria: { label: card.title }, data: { turbo_prefetch: false } do %>
-            <%= render CardComponent.new(card:, size: :s) %>
-          <% end %>
-          <% if repost %>
-            <span class="feed__tag feed__tag--repost"><%= t(".repost_tag") %></span>
-          <% else %>
-            <span class="feed__tag feed__tag--<%= card.rarity %>">
-              <%= pixel_icon("rarity-#{tier}", class: "feed__tag-icon") %>
-              <span><%= t("catalog.rarity.#{Catalog::Rarity::TIERS.fetch(tier)}") %></span>
-            </span>
-          <% end %>
-        </li>
+    <% if @live || @items.any? %>
+      <%= tag.ul class: "feed__list", id: ("feed-entries" if @live), data: ({ feed_announcer_target: "list" } if @live) do %>
+        <% @items.each do |item, card| %>
+          <%= render "feeds/entry", item:, card: %>
+        <% end %>
       <% end %>
-    </ul>
+    <% end %>
+    <% if @items.empty? %>
+      <%= render PanelComponent.new(tag: :p, class: "feed__empty") do %><%= @filter ? t(".empty_filter") : t(".empty") %><% end %>
+    <% end %>
   <% end %>
-</section>
+  <% if @live %>
+    <p class="visually-hidden" role="status" data-feed-announcer-target="status"></p>
+    <%= turbo_stream_from(*LiveStream.feed_streamables) %>
+  <% end %>
+<% end %>

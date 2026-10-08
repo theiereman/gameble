@@ -38,6 +38,14 @@
   list-style: none;
 }
 
+.feed__list:not(:has(> li)) {
+  display: none;
+}
+
+.feed__list:has(> li) ~ .feed__empty {
+  display: none;
+}
+
 .feed__entry {
   display: grid;
   grid-template-columns: 5.5rem 1fr auto auto;

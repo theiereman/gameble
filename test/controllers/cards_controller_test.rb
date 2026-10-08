@@ -647,7 +647,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__phone-back", false
   end
 
-  test "a player's request costs nine queries, a visitor's two; a frame visit (◀ ▶) skips the top bar's" do
+  test "a player's request costs nine queries, a visitor's four; a frame visit (◀ ▶) skips the top bar's" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 2)
     sign_in(player)
@@ -663,8 +663,9 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame#card-detail .card-detail h1", "Portal"
 
     delete session_path(locale: :en)
-    # The public card page: the card detail and its sets; no neighbours.
-    assert_request_queries(2) { get card_path(locale: :en, slug: "portal") }
+    # The public card page: the card detail and its sets; no neighbours; the
+    # LIVE strip's entries, notable then fillers (none here).
+    assert_request_queries(4) { get card_path(locale: :en, slug: "portal") }
     assert_response :success
     assert_select ".public-card"
   end

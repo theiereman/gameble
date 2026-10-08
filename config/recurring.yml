@@ -23,6 +23,11 @@ sum_weekly_goal: &sum_weekly_goal
   queue: default
   schedule: every 10 seconds
 
+broadcast_goal: &broadcast_goal
+  class: LiveGoalJob
+  queue: default
+  schedule: every 10 seconds
+
 expire_trades: &expire_trades
   class: Game::ExpireTradesJob
   queue: default
@@ -31,11 +36,13 @@ expire_trades: &expire_trades
 development:
   recover_stalled_imports: *recover_stalled_imports
   sum_weekly_goal: *sum_weekly_goal
+  broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
 
 production:
   recover_stalled_imports: *recover_stalled_imports
   sum_weekly_goal: *sum_weekly_goal
+  broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"

@@ -12,9 +12,14 @@
     goal reward pack waits unopened gets the reward toast, which a browser
     shows once per week's reward.
     Never served from Turbo's cache; the packs chip's countdown refreshes it
-    by morphing, keeping the scroll. %>
+    by morphing, keeping the scroll. The LIVE ticker fills the layout's
+    ticker slot, and the public goal stream replaces the goal panel as the
+    periodic sum moves it. %>
 <% turbo_exempts_page_from_cache %>
 <% turbo_refreshes_with method: :morph, scroll: :preserve %>
+<% content_for :ticker do %>
+  <%= render "shell/ticker", items: @ticker %>
+<% end %>
 <div class="hub" data-controller="hub-menu" data-hub-menu-focus-first-value="<%= flash[:signed_in].present? %>">
   <header class="hub__kicker">
     <h1 class="hub__title" tabindex="-1" data-hub-menu-target="heading"><%= t(".kicker.title") %></h1>
@@ -43,3 +48,4 @@
 
   <%= render "pages/set_progress", sets: @sets if @sets.any? %>
 </div>
+<%= turbo_stream_from(*LiveStream.goal_streamables) %>

@@ -360,6 +360,47 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  def stream_names
+    css_select("turbo-cable-stream-source").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
+  end
+
+  test "All without a filter listens to the public stream, its list named for new entries, with a polite status line" do
+    open_epic
+
+    get feed_path(locale: :fr)
+
+    assert_equal %w[live:fr], stream_names
+    assert_select "section.feed[data-controller=feed-announcer][data-feed-announcer-limit-value=?]", Game::FeedEntries::LIMIT.to_s
+    assert_select "section.feed[data-controller=feed-announcer]" do |section|
+      templates = JSON.parse(section.sole["data-feed-announcer-templates-value"])
+      assert_equal "3 nouvelles entrées dans le fil.", templates["other"].sub("%{count}", "3")
+      assert_equal "1 nouvelle entrée dans le fil.", templates["one"]
+      assert templates["zero"]
+    end
+    assert_select "ul#feed-entries.feed__list[data-feed-announcer-target=list] > li.feed__entry", 5
+    assert_select ".feed p.visually-hidden[role=status][data-feed-announcer-target=status]", text: ""
+  end
+
+  test "an empty All keeps its live list for the first entry, beside the empty line" do
+    get feed_path(locale: :en)
+
+    assert_select "ul#feed-entries", 1
+    assert_select "ul#feed-entries > li", 0
+    assert_select ".feed__empty", "Nothing here yet."
+    assert_equal %w[live:en], stream_names
+  end
+
+  test "a filtered view and the Friends tab are read at render: no stream, no live list, no status line" do
+    friends_and_strangers
+
+    { feed_path(locale: :en, filter: "pulls") => 15, feed_path(locale: :en, tab: "friends") => 5 }.each do |path, entries|
+      get path
+      assert_select ".feed__entry", entries
+      assert_select "#feed-entries, .feed [role=status], [data-controller=feed-announcer]", 0
+      assert_equal [], stream_names - [ PlayerStream.name(@player, :en) ], path
+    end
+  end
+
   def add_repost(player)
     card_season_id = catalog_card_seasons(:portal_one).id
     Game::Holding.find_or_create_by!(player_id: player.id, card_season_id:) { it.quantity = 1 }

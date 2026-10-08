@@ -1,0 +1,15 @@
+<% if items.any? %>
+  <%= turbo_stream.prepend "feed-entries" do %>
+    <% items.each do |item, card| %>
+      <%= render "feeds/entry", item:, card: %>
+    <% end %>
+  <% end %>
+<% end %>
+<% if ticker.any? %>
+  <%= turbo_stream.prepend "live-ticker-queue" do %>
+    <% ticker.each do |item, card| %>
+      <%= render "shell/ticker_item", item:, card: %>
+    <% end %>
+  <% end %>
+<% end %>
+<%= turbo_stream.replace "live-strip", partial: "cards/live_strip", locals: { items: strip } %>

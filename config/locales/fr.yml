@@ -6,6 +6,8 @@ fr:
       title: "gameble"
       application_name: "gameble"
   shell:
+    live:
+      marker: "Live"
     top_bar:
       brand: "gameble"
       back: "Pont"
@@ -584,6 +586,10 @@ fr:
       discovered_html: "%{card}, trouvée par %{name} pour la première fois dans la communauté"
       reposted_html: "%{name} a reposté %{card}."
       repost_tag: "Repost"
+      announcement:
+        zero: "Aucune nouvelle entrée dans le fil."
+        one: "1 nouvelle entrée dans le fil."
+        other: "%{count} nouvelles entrées dans le fil."
   friends:
     public_profile:
       label: "Voir le profil"
@@ -909,7 +915,6 @@ fr:
       grid: "Grille"
       booster: "Booster"
       live:
-        marker: "Live"
         title: "En ce moment sur gameble"
       legal: "Mentions légales"
   catalog:

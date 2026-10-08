@@ -1,6 +1,7 @@
 require "test_helper"
 require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
+require_relative "../support/game_packs"
 
 # A card's page as a share link opens it (CAP-9, story 4.5, reworked by the
 # epic 4 retrospective fixes, redrawn by story 10.3): only the card, never
@@ -13,6 +14,7 @@ require_relative "../support/library_requests"
 class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
+  include GamePacks
 
   # Discordbot, the old Firefox Discord also fetches with, Twitterbot,
   # WhatsApp and an iOS 16 Safari.
@@ -77,12 +79,31 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select "nav.tab-bar", false
     assert_select "main form[action='/auth/steam']", false
     assert_select ".public-card__live-title", /Live\s+·\s+Right now on gameble/
-    assert_select ".public-card__live-entry", 3
-    assert_select ".public-card__live-list[aria-hidden=true]"
+    assert_select "#live-strip .public-card__live-empty", "Nothing here yet."
     assert_select ".public-card__footer a.public-card__legal[href=?]", "/en/legal", "Legal notice"
     assert_select ".library, .profile", false
     assert_not_includes response.body, "Gabe the Brave"
     assert_no_match(/collection of|No longer in/i, response.body)
+  end
+
+  test "the LIVE strip shows the three latest public feed entries and listens to the public stream" do
+    hugo = accounts_players(:moderator).tap { it.update!(persona_name: "Hugo") }
+    hidden = accounts_players(:administrator).tap { it.update!(persona_name: "Hidden") }
+    create_pack(hugo, cards: [ catalog_card_seasons(:portal_one).id ] * 5)
+    Game::OpenPack.new.call(player: hugo).value!
+    create_pack(hidden, cards: [ catalog_card_seasons(:portal_one).id ] * 5)
+    Game::OpenPack.new.call(player: hidden).value!
+    hidden.update!(visibility: :private)
+
+    get card_page(locale: :fr)
+
+    assert_select "#live-strip .public-card__live-list > li.public-card__live-entry", 3 do |entries|
+      entries.each { |entry| assert_equal "Hugo a tiré Portal", entry.at_css(".public-card__live-sentence").text }
+    end
+    assert_select "#live-strip .feed__tag--epic", count: 3, text: "Épique"
+    assert_select "#live-strip", text: /Hidden/, count: 0
+    assert_select "#live-strip [aria-hidden]", 0
+    assert_equal [ "live:fr" ], css_select("turbo-cable-stream-source").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
   end
 
   test "an older browser's line: in the markup beside the invitation, the stylesheet showing one or the other by :has() support, no script involved" do

@@ -18,7 +18,11 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
     assert_equal player.id, session[:player_id]
   end
 
-  def stream_source = css_select("turbo-cable-stream-source").sole
+  def stream_source = css_select("turbo-cable-stream-source[channel=PlayerStreamChannel]").sole
+
+  def public_stream_names
+    css_select("turbo-cable-stream-source:not([channel=PlayerStreamChannel])").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
+  end
 
   test "a player's pages subscribe to their own stream in the page's locale" do
     sign_in @player
@@ -33,9 +37,13 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
     assert_no_match @player.stream_key, response.body.remove(stream_source["signed-stream-name"]), "the key shows only signed"
   end
 
-  test "a visitor's page subscribes to nothing" do
+  test "a visitor's page subscribes to no player's stream, the hub only to the public ones" do
     get home_path(locale: :en)
 
+    assert_select "turbo-cable-stream-source[channel=PlayerStreamChannel]", 0
+    assert_equal %w[live:en goal:en], public_stream_names
+
+    get more_path(locale: :en)
     assert_select "turbo-cable-stream-source", 0
   end
 

@@ -737,7 +737,7 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   }
 }
 
-/* ---- LIVE · En ce moment sur gameble (placeholders) ---- */
+/* ---- LIVE strip of the public card page ---- */
 
 .public-card__live {
   display: flex;
@@ -756,31 +756,6 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   text-transform: uppercase;
 }
 
-/* The LIVE marker: the word on an accent block with a dark square that
-   blinks once a second, the only blinking element (DESIGN.md, Elevation).
-   It stays lit under reduced motion. */
-.live-marker {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1) var(--space-3);
-  background: var(--color-accent);
-  color: var(--color-on-accent);
-}
-
-.live-marker__dot {
-  width: 6px;
-  height: 6px;
-  background: var(--color-on-accent);
-  animation: live-blink 1s steps(1, end) infinite;
-}
-
-@keyframes live-blink {
-  50% {
-    opacity: 0;
-  }
-}
-
 .public-card__live-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -791,9 +766,34 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
 }
 
 .public-card__live-entry {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-3);
   min-height: 68px;
-  background: var(--color-panel-sunken);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel);
   box-shadow: var(--panel-soft-border);
+}
+
+.public-card__live-entry--filler {
+  background: var(--color-panel-sunken);
+}
+
+.public-card__live-sentence {
+  margin: 0;
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.public-card__live-sentence strong {
+  color: var(--color-text-max);
+  font-weight: inherit;
+}
+
+.public-card__live-empty {
+  margin: 0;
+  color: var(--color-muted);
 }
 
 .public-card__footer {
@@ -854,21 +854,4 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   html:has(.public-card) {
     scroll-padding-bottom: 0;
   }
-}
-
-/* The LIVE ticker (epics 5 and 6) is not built yet. Its hooks are here: the
-   marker's dot stops blinking, staying lit (the rule below, and the same
-   one under html[data-motion=reduced]), and its band keeps its height
-   token (--space-ticker-height, tokens.css) whatever the motion. The
-   ticker's own scrolling line must join both reduced-motion rules when it
-   is built (EXPERIENCE.md, LIVE ticker: stops, shows its latest items
-   still). */
-@media (prefers-reduced-motion: reduce) {
-  .live-marker__dot {
-    animation: none;
-  }
-}
-
-html[data-motion="reduced"] .live-marker__dot {
-  animation: none;
 }
