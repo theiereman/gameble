@@ -5,7 +5,8 @@ date: 2026-10-08
 trigger: _bmad-output/initiative-gameble/forge-card-series/forge-card-series.md
 mode: batch
 scope: moderate
-status: draft
+status: approved
+approved: 2026-10-08, by the author, unconditionally
 ---
 
 # Sprint Change Proposal: sets players recognize
@@ -261,3 +262,7 @@ NEW: `An administrator curates the theme list in the back-office before publishi
 4. A set opens as an album with its missing cards and its tiers or completion.
 5. Reaching a tier or completing a set shows at opening and in the feed.
 6. The filtered card grid is still reachable from the collection.
+
+## Approval and handoff log
+
+- 2026-10-08: approved by the author as written, with no conditions. Scope: moderate; routed to the product owner and the developer for the backlog reorganization (`bmad-ticket`), with the document edits of section 4 applied through `bmad-spec`, `bmad-architecture` and `bmad-ux`.
