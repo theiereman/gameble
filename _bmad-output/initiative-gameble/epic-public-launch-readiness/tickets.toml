@@ -164,6 +164,20 @@ risk = "low"
 notes = ["il faudrait qu'on trouve une solution pour rester en europe en vrai, quitte à auto héberger"]
 
 [[entry]]
+id = 16
+type = "story"
+title = "Public pages found by search engines"
+description = "Makes the public pages (home, public card pages, public profiles, library, legal page) findable and well presented in search results: titles and meta descriptions per page and language, hreflang between French and English, canonical links on PUBLIC_URL, a sitemap and robots.txt that leave private and back-office pages out, and structured data where it fits."
+verify = "Each public page has its own title and description in both languages with hreflang and canonical links; /sitemap.xml lists the public pages and no private one; robots.txt points to it and disallows the back-office and private screens."
+covers = ["R7"]
+after = [3]
+hitl = false
+risk = "low"
+refine = true
+unknown = "Which pages and how many tickets: to be refined with the author into several SEO tickets before building."
+notes = ["il faudra ajouter des tickets pour favoriser le SEO"]
+
+[[entry]]
 id = 12
 type = "story"
 title = "Refactor sweep"
