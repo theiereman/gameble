@@ -1,9 +1,10 @@
 name: CI
 
 # A push to develop runs only the quick jobs (lint and the non-system tests),
-# to spare the Actions minutes; the whole suite (security scans, production
-# image, system tests) runs on main, on pull requests, and on demand
-# (workflow_dispatch, e.g. on develop before a merge into main).
+# to spare the Actions minutes; the whole suite (security scans, system tests)
+# runs on main, on pull requests, and on demand (workflow_dispatch, e.g. on
+# develop before a merge into main). The production image is built and checked
+# by the Kamal deploy to staging, not here.
 on:
   pull_request:
   push:
@@ -34,20 +35,6 @@ jobs:
       
       - name: Scan for known security vulnerabilities in gems used
         run: bin/bundler-audit
-      
-  docker-image:
-    if: ${{ !(github.event_name == 'push' && github.ref_name == 'develop') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-
-      # Builds the production image (never pushed) and boots it with throw-away
-      # values (SECRET_KEY_BASE, PUBLIC_URL), no RAILS_MASTER_KEY, no database.
-      - name: Build the production image and check it answers /up
-        run: bin/docker-smoke
 
   lint:
     runs-on: ubuntu-latest
