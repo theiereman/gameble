@@ -15,11 +15,11 @@ notes = ["il faut pouvoir rollback et donc faire un import à côté en attendan
 [[entry]]
 id = 2
 type = "story"
-title = "An administrator curates the tome genres in the back-office before publishing"
-description = "A back-office screen lists every Steam tag the import met with its game count; the administrator maps each to a genre, makes it a genre of its own, or ignores it, manages genres with French and English labels (English tag name by default), and a draft with an unclassified tag cannot be published; replaces Steam::GenreTags, seeded from its 25 genres."
-verify = "Mapping Roguelite to Roguelike and rescoring moves those games into Roguelike tomes in the preview; a new unclassified tag blocks the publish with a reason; a renamed genre shows its labels on the tomes."
+title = "An administrator curates the theme list in the back-office before publishing"
+description = "A back-office screen lists every Steam tag the import met with its game count; the administrator marks each tag as a theme, with French and English names (English tag name by default), or as not a theme; the preview shows each theme's size and the UFOs' share; a draft with an unclassified tag, or whose UFOs exceed the agreed share, cannot be published; replaces the theme list in code (13.3), seeded from it."
+verify = "Marking Roguelite as a theme and rescoring moves those games into it in the preview and lowers the UFOs' share; a new unclassified tag, or a UFOs' share above the limit, blocks the publish with a reason; a renamed theme shows its names as the card's genre."
 covers = ["CAP-6"]
-after = [1]
+after = [1, "13.3"]
 hitl = true
 risk = "medium"
 notes = ["après un import et avant de publier une saison je peux voir tous les genres qui ont été ajoutés et c'est moi qui décide lesquels fusionner vers un genre", "il faut tout classer avant de pouvoir publier ; le nom anglais sert par défaut mais je dois pouvoir entrer les traductions manuellement"]

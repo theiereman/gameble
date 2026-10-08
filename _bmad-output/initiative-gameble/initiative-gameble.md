@@ -3,7 +3,7 @@ key: ""
 type: initiative
 title: "gameble MVP: a Steam card game played every day by the Brotherhood"
 parent: none
-covers: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21]
+covers: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22]
 after: []
 assignee: ""
 risk: high
@@ -30,7 +30,7 @@ The spec is the requirement source: `spec-gameble/spec-gameble.md`, capabilities
 ## Done when
 
 1. The author plays every day for a month alongside at least 10 active players, not all of them friends, and sees their pulls and trades in the feed.
-2. Every capability CAP-1 to CAP-21 is live in production, in French and in English.
+2. Every capability CAP-1 to CAP-22 except CAP-20 and CAP-22 is live in production, in French and in English; CAP-20 and CAP-22 follow the public launch (epic Cosmetics).
 3. Opening a pack answers within 200 ms at the 95th percentile.
 4. No blocking bug stays open for more than a day during the first month.
 
@@ -68,3 +68,5 @@ One Rails application and its Steam import, cut by capability. Not the V2 market
 - Open question: the reference low-end Android for the performance budget (architecture Deferred); epic-space-terminal-redesign's booster work waits on it.
 - Decision (2026-10-06, author): the MVP is built and validated on staging (gameble.dotsncircles.com); production (gameble.com on a VPS) is set up only at the very end, once the author has validated the MVP.
 - Decision (2026-10-07, author): a last epic, epic-human-readable-codebase (12), after every feature epic and before production, makes the code readable and maintainable by a developer working without AI before the repository opens to the public: packs renamed domains under app/domains (packwerk kept), self-explanatory code without planning references, oversized files cut, front-end linters, newcomer documentation, AGPL-3.0. The AI tooling and the git history stay public.
+- Decision (2026-10-08, author): sets players recognize (themes, franchises, studios, hall of fame, the UFOs, with tiers) replace tomes, publisher and best-of-year sets before the launch, in a new epic, epic-recognizable-sets, after epic 6 and before epic 11; source: change-recognizable-sets/change-recognizable-sets.md. Epic 7 does not wait on it.
+- Decision (2026-10-08, author): epic-card-backs becomes "Cosmetics: card backs, titles and menu themes" and also covers the new CAP-22; it stays after the public launch, and Done when 2 excludes CAP-20 and CAP-22.

@@ -266,3 +266,4 @@ NEW: `An administrator curates the theme list in the back-office before publishi
 ## Approval and handoff log
 
 - 2026-10-08: approved by the author as written, with no conditions. Scope: moderate; routed to the product owner and the developer for the backlog reorganization (`bmad-ticket`), with the document edits of section 4 applied through `bmad-spec`, `bmad-architecture` and `bmad-ux`.
+- 2026-10-08: section 4.7 applied through `bmad-ticket`: epic-recognizable-sets (id 13) with 10 entries after a validation pass (the review count kept for the hall of fame, the kind check contracted only after the rebuild, the rebuild split across Catalog and Game); Season preparation story 2 and Cosmetics rescoped; initiative Done when 2 excludes CAP-20 and CAP-22. Sections 4.1 to 4.6 are still to apply.
