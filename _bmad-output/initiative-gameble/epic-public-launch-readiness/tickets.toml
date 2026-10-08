@@ -140,6 +140,30 @@ risk = "low"
 notes = ["Decision (2026-10-08): the image is checked by the deploy, not by CI (author); 1 dropped."]
 
 [[entry]]
+id = 14
+type = "story"
+title = "Personal data kept only as long as the privacy notice says"
+description = "Purges what the privacy notice gives a period for: handled reports one year after they were handled, server logs after 30 days, and what a deleted account leaves (invitations, reports it made or received once handled) anonymised or removed, by a recurring job."
+verify = "A report handled more than a year ago and the invitations of a deleted account are gone after the job runs; logs older than 30 days are not kept on the server; nothing younger is touched."
+covers = ["R2"]
+after = [3, 5]
+hitl = false
+risk = "medium"
+notes = ["Decision (2026-10-08): the privacy notice states retention periods and a purge ticket lands before opening (author, 7.3 question 3)."]
+
+[[entry]]
+id = 15
+type = "story"
+title = "Error tracking kept in the European Union"
+description = "Moves error tracking to a service whose data stays in the EU, Sentry's EU region or a self-hosted Sentry-compatible tracker (GlitchTip, Bugsink), keeping the current privacy settings (no personal data beyond the internal player id), and updates the privacy notice's processors."
+verify = "An error raised on staging appears in the EU-hosted tracker with no IP or request data; the privacy notice lists no transfer outside the EU for error tracking."
+covers = ["R5"]
+after = [3]
+hitl = true
+risk = "low"
+notes = ["il faudrait qu'on trouve une solution pour rester en europe en vrai, quitte à auto héberger"]
+
+[[entry]]
 id = 12
 type = "story"
 title = "Refactor sweep"
