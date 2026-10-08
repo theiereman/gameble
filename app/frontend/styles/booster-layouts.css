@@ -1,0 +1,601 @@
+/*
+ * The booster screen at its other widths and under reduced motion: the
+ * narrower panels above the stage, the narrow row of card-s faces, the
+ * phone (information strip, pile, caption plate, tray, actions under the
+ * stage), the card zoom, and every loop stopped under reduced motion. The
+ * island at its base (layout, panel, stage, canister, cards, effects,
+ * banner, loops) is in booster.css, imported just before this file: these
+ * rules override it, so the order of the two files is part of the cascade.
+ */
+
+/* ---- Narrower widths: the info panels above the stage, in a wrapping row ---- */
+
+@media (max-width: 1259px) {
+  .booster {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
+  }
+
+  .booster__info {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-7) var(--space-8);
+  }
+
+  .booster__hazard,
+  .booster__counter {
+    flex: 1 1 100%;
+  }
+
+  .booster__id,
+  .booster__reserve {
+    flex: 1 1 200px;
+  }
+
+  .booster__panel,
+  .booster__actions {
+    flex: 1 1 260px;
+  }
+
+  .booster__title {
+    font-size: 1.625rem;
+    line-height: 1.875rem;
+  }
+
+  .booster__deal {
+    column-gap: var(--space-deal-gap-min);
+  }
+}
+
+/* ---- The narrow row (720 to 899px): card-s faces ---- */
+
+.booster[data-layout="narrow"] .booster-card,
+.booster[data-layout="narrow"] .booster-card__frame {
+  width: var(--card-s-width);
+}
+
+.booster[data-layout="narrow"] .booster-card__frame {
+  height: var(--card-s-height);
+}
+
+.booster[data-layout="narrow"] .booster-card__back--standard {
+  background-image: url("../images/pixel/back-standard-s.png");
+}
+
+/* ---- The phone (under 720px): strip, pile, plate, tray, actions ---- */
+
+.booster[data-layout="phone"] {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+/* The information strip: 44px, the kicker, mini pips and countdown, the status chip. */
+.booster-strip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 44px;
+  padding-top: var(--space-2);
+}
+
+.booster-strip__id {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.booster-strip__title {
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.booster-strip__reserve {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+  white-space: nowrap;
+}
+
+.booster-strip__pips {
+  display: flex;
+  flex: none;
+  gap: var(--space-1);
+  width: 84px;
+}
+
+.booster-strip__pips .booster__pip {
+  height: 8px;
+}
+
+.booster-strip__state {
+  flex: none;
+  min-height: 32px;
+  margin: 0;
+  padding: 0 10px;
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
+  font: var(--font-label);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* The stage: the pile over the plate band and the tray; the canister
+   (or the empty reserve) across the whole stage. A short screen scrolls. */
+.booster[data-layout="phone"] .booster__stage {
+  min-height: 510px;
+}
+
+.booster[data-layout="phone"] .booster__shake {
+  grid-template: minmax(0, 1fr) 52px auto / minmax(0, 1fr);
+  row-gap: var(--space-3);
+  min-height: 510px;
+  padding-bottom: 6px;
+}
+
+.booster[data-layout="phone"] .booster__shake > .booster__zone {
+  grid-area: 1 / 1 / -1 / -1;
+  gap: var(--space-4);
+  padding: 0 0 6%;
+}
+
+.booster[data-layout="phone"] .booster-canister {
+  touch-action: none;
+}
+
+.booster__canister-facts {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.booster__canister-facts[data-hidden] {
+  visibility: hidden;
+}
+
+.booster__pile-area {
+  grid-area: 1 / 1;
+  align-self: end;
+  display: flex;
+  justify-content: center;
+}
+
+/* The pile: every card in the same box, each at its depth's pose (read
+   from the custom properties BoosterCard sets), the pose easing into place
+   as the pile closes up. Only the pile takes every gesture. */
+.booster__pile {
+  position: relative;
+  width: var(--card-xl-width);
+  height: var(--card-xl-height);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  touch-action: none;
+}
+
+.booster__pile .card {
+  touch-action: none;
+}
+
+.booster[data-layout="phone"] .booster-card {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: auto;
+}
+
+.booster[data-layout="phone"] .booster-card__frame {
+  width: var(--card-xl-width);
+  height: var(--card-xl-height);
+}
+
+.booster[data-layout="phone"] .booster-card__travel {
+  transform: translate(0, var(--pile-y, 0px)) rotate(var(--pile-rotate, 0deg)) scale(var(--pile-scale, 1));
+  transition: transform 200ms var(--ease-spring);
+}
+
+.booster[data-layout="phone"] .booster-card__back--standard {
+  background-image: url("../images/pixel/back-standard-xl.png");
+}
+
+/* The tier shows on the plate, not under the card. */
+.booster[data-layout="phone"] .booster-card__label {
+  display: none;
+}
+
+/* At most six loops on a phone view: only the top card runs its sheen,
+   holo, foil and rays. */
+.booster[data-layout="phone"] .booster-card:not([data-top]) .booster-card__back::after,
+.booster[data-layout="phone"] .booster-card:not([data-top]) .booster-card__rays,
+.booster[data-layout="phone"] .booster-card:not([data-top]) .card__holo,
+.booster[data-layout="phone"] .booster-card:not([data-top]) .card__foil {
+  animation: none;
+}
+
+/* The plate band: the hint line, covered by the caption plate once the top
+   card shows. Above the stage's dim (a Légendaire's banner plays there),
+   under the cards (a stored card flies over it to the tray). */
+.booster-plate-band {
+  position: relative;
+  z-index: 6;
+  grid-area: 2 / 1;
+}
+
+.booster-plate-band__hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-4);
+}
+
+.booster-plate {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 0 var(--space-2) 0 var(--space-5);
+  background: var(--color-panel);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line), inset 6px 0 0 0 var(--booster-tier), 0 0 0 var(--space-unit) var(--color-outline);
+}
+
+.booster-plate[data-tier="legendary"] {
+  background: var(--color-plate-legendaire);
+}
+
+.booster-plate__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.booster-plate__tier {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--booster-tier);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Épique and Légendaire: the banner's name between hazard ticks. */
+.booster-plate__tier[data-banner] {
+  font: var(--font-weight-regular) 1.375rem / 1.5rem var(--font-family-vt323);
+  letter-spacing: 1px;
+}
+
+.booster-plate__tick {
+  flex: none;
+  width: 22px;
+  height: 8px;
+  background: repeating-linear-gradient(-45deg, var(--booster-tier) 0 8px, var(--color-panel-sunken) 8px 16px);
+}
+
+.booster-plate__icon {
+  display: inline-flex;
+}
+
+.booster-plate__line {
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text-max);
+  font: var(--font-card-title-l);
+  letter-spacing: var(--tracking-card-title-l);
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.booster .booster-plate__store {
+  flex: none;
+  min-height: var(--space-touch-min);
+  margin: 0;
+  padding: 0 var(--space-4);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+}
+
+/* The tray: "Carte n / N", then one 44 × 60 slot per card. */
+.booster-tray {
+  grid-area: 3 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.booster-tray__count {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0 6px 0 0;
+  white-space: nowrap;
+}
+
+.booster-tray__count-label {
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.booster-tray__count-value {
+  color: var(--color-text-max);
+  font: var(--font-weight-regular) 1.375rem / 1.5rem var(--font-family-vt323);
+}
+
+.booster-tray__slots {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.booster-tray__item {
+  display: block;
+}
+
+.booster-tray__slot {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 60px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: repeating-linear-gradient(45deg, var(--color-panel) 0 4px, var(--color-panel-sunken) 4px 8px);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-soft);
+}
+
+.booster-tray__slot[data-next] {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.booster-tray__slot--filled {
+  background: var(--color-panel-sunken);
+  box-shadow: 0 0 0 var(--space-unit) var(--booster-tier), 0 0 0 4px var(--color-outline);
+  cursor: pointer;
+}
+
+.booster-tray__slot--filled[aria-disabled="true"] {
+  cursor: default;
+}
+
+.booster-tray__cover {
+  display: block;
+  width: 44px;
+  height: 60px;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+.booster-tray__cover[hidden] {
+  display: none;
+}
+
+.booster-tray__icon {
+  position: absolute;
+  left: -6px;
+  bottom: -6px;
+  display: inline-flex;
+}
+
+/* The actions under the stage: the open button and Tout révéler, then the way back and the reason. */
+.booster__phone-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+}
+
+.booster__phone-actions .button {
+  margin: 0;
+}
+
+.booster__phone-actions .booster__actions-row {
+  gap: 12px;
+}
+
+.booster__phone-actions .booster__open {
+  flex: 1.55;
+  width: auto;
+}
+
+/* ---- The card zoom (phone): a modal dialog over a dark scrim ---- */
+
+.booster-zoom {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: var(--space-5);
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+}
+
+.booster-zoom[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.booster-zoom::backdrop {
+  background: rgb(4 7 10 / 88%);
+}
+
+.booster-zoom[open]::backdrop {
+  animation: modal-fade 160ms linear;
+}
+
+.booster-zoom__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto 0;
+  animation: modal-rise 220ms var(--ease-out);
+}
+
+.booster-zoom__card {
+  position: relative;
+  width: var(--card-xl-width);
+  height: var(--card-xl-height);
+}
+
+.booster-zoom__face .card {
+  display: block;
+}
+
+.booster-zoom__rays {
+  --booster-ray: color-mix(in srgb, var(--color-rarity-epique) 22%, transparent);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 520px;
+  height: 520px;
+  margin: -260px 0 0 -260px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(var(--booster-ray) 0deg 8deg, transparent 8deg 16deg);
+  mask-image: radial-gradient(circle, #000 25%, transparent 68%);
+  pointer-events: none;
+  animation: booster-spin 24s steps(96) infinite;
+}
+
+.booster-zoom[data-tier="legendary"] .booster-zoom__rays {
+  --booster-ray: color-mix(in srgb, var(--color-rarity-legendaire) 36%, transparent);
+  animation-duration: 14s;
+}
+
+.booster-zoom__title {
+  max-width: 358px;
+  margin: 22px 0 0;
+  color: var(--color-text-max);
+  font: var(--font-weight-regular) 1.75rem / 1.875rem var(--font-family-vt323);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.booster-zoom__line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 0;
+  color: var(--booster-tier);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.booster-zoom__icon {
+  display: inline-flex;
+}
+
+.booster-zoom__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.booster-zoom__actions .button {
+  margin: 0;
+}
+
+.booster-zoom__tip {
+  margin: 10px 0 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+/* ---- Reduced motion: every loop stops; no hover lift, no rays ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .booster-canister__idle,
+  .booster-canister__rays,
+  .booster-canister__sweep-band,
+  .booster-card[data-revealed] .booster-card__rays,
+  .booster-card__back::after,
+  .booster-zoom__rays,
+  .booster-zoom[open]::backdrop {
+    animation: none;
+  }
+
+  .booster-canister__sweep,
+  .booster-card__rays,
+  .booster-card__back::after,
+  .booster-zoom__rays {
+    display: none;
+  }
+
+  .booster-card__hover,
+  .booster[data-layout="phone"] .booster-card__travel {
+    transition: none;
+  }
+
+  /* The zoom only crossfades. */
+  .booster-zoom__panel {
+    animation-name: modal-fade;
+  }
+
+  .booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible) .booster-card__hover {
+    transform: none;
+  }
+}
+
+html[data-motion="reduced"] .booster-canister__idle,
+html[data-motion="reduced"] .booster-canister__rays,
+html[data-motion="reduced"] .booster-canister__sweep-band,
+html[data-motion="reduced"] .booster-card[data-revealed] .booster-card__rays,
+html[data-motion="reduced"] .booster-card__back::after,
+html[data-motion="reduced"] .booster-zoom__rays,
+html[data-motion="reduced"] .booster-zoom[open]::backdrop {
+  animation: none;
+}
+
+html[data-motion="reduced"] .booster-canister__sweep,
+html[data-motion="reduced"] .booster-card__rays,
+html[data-motion="reduced"] .booster-card__back::after,
+html[data-motion="reduced"] .booster-zoom__rays {
+  display: none;
+}
+
+html[data-motion="reduced"] .booster-card__hover,
+html[data-motion="reduced"] .booster[data-layout="phone"] .booster-card__travel {
+  transition: none;
+}
+
+html[data-motion="reduced"] .booster-zoom__panel {
+  animation-name: modal-fade;
+}
+
+html[data-motion="reduced"] .booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible) .booster-card__hover {
+  transform: none;
+}

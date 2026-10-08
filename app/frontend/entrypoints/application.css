@@ -12,6 +12,7 @@
 @import "../styles/card-detail.css";
 @import "../styles/card.css";
 @import "../styles/booster.css";
+@import "../styles/booster-layouts.css";
 
 /* Read by screen readers, not shown. */
 .visually-hidden {
