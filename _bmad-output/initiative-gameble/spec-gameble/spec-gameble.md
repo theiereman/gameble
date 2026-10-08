@@ -100,9 +100,10 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-12**
   - **intent:** The Brotherhood has a weekly shared goal that every player's pack openings advance, and trades to a lesser degree.
   - **success:**
-    - The target scales with the number of weekly active players.
+    - The week starts Monday 00:00 UTC. The target is the previous week's active players (at least one booster opened) × 50, never below 200.
+    - A booster opened counts 1; a completed trade counts 1, once for both players.
     - A shared gauge shows progress.
-    - When the goal is reached, every contributing player receives a rare pack.
+    - When the goal is reached, every contributing player receives a reward booster of 5 cards with at least one Épique or better, held outside the bank's cap of 10 in its own zone.
 - **CAP-13**
   - **intent:** A live Brotherhood feed shows what other players are doing, so the platform feels inhabited.
   - **success:**
@@ -110,6 +111,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - The feed is readable without an account.
     - With few players, it falls back to lower-rarity events and is never empty while any activity exists.
     - A signed-in player has a Friends tab showing only their friends' pulls, trades and reposts.
+    - The LIVE ticker shows pulls of Épique or better, first discoveries, trades, set completions and set tiers reached, never reposts.
 - **CAP-14**
   - **intent:** A player can manage their personal data from their profile.
   - **success:** From the profile, a player can delete their account, export their data, and set their profile's visibility (public, friends only, private). Each action works end to end.
@@ -127,7 +129,9 @@ gameble is an open-source passion project, and the game its author wants to play
     - When the bank holds 10 packs, the claim stays disabled until a pack is opened; nothing is lost.
 - **CAP-17**
   - **intent:** A player has simple achievements that mark their progress.
-  - **success:** An achievement is granted when its condition is met and shows as earned on the achievements screen.
+  - **success:**
+    - An achievement is granted when its condition is met and shows as earned on the achievements screen.
+    - Ten ship at launch: first booster, first Épique, first Légendaire, first complete set, first trade, 10, 100 and 500 boosters opened, three complete sets, first repost.
 - **CAP-18**
   - **intent:** A visitor without an account can look at everything that needs no account, but cannot act.
   - **success:**
@@ -161,7 +165,8 @@ gameble is an open-source passion project, and the game its author wants to play
 ## Constraints
 
 - **No real money**, anywhere: no purchases, no ads, no cash-out.
-- **French and English UI**, both complete at launch. Card text is available in every UI language. All repo text (code, comments, docs) is in English.
+- **French and English UI**, both complete at launch. Card text is available in every UI language. The English copy is translated by AI from the French. All repo text (code, comments, docs) is in English.
+- **Launch scope:** CAP-20 and CAP-22 are built after the public launch; every other capability is live at launch.
 - **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports.
 - **Player-facing words:** the interface says "booster" for pack, "réserve" for bank and "objectif communautaire" for the weekly goal. The spec and the code keep pack, bank and weekly goal.
 - **Cards are only pulled or traded.** Owning a game on Steam never grants its card.
@@ -209,21 +214,12 @@ The author plays gameble every day for a month alongside at least 10 active play
 
 ## Assumptions
 
-- The weekly-goal reward is one rare pack per contributor.
 - Per-card draw odds are those in `catalog-and-rarity.md` and are tuned in playtests.
 - Card text translations come from Steam's own localized store text, imported once per UI language.
 - A repost is a past event: it stays in the feed after the card is traded away, and disappears with a hidden or banned profile (CAP-14, CAP-15).
 
 ## Open Questions
 
-- **Achievements (CAP-17):** which achievements exist?
-- **Weekly goal pack (CAP-12):** what are the odds of the weekly goal's rare pack?
-- **Weekly goal (CAP-12):** how much does a trade count compared with a pack opening?
-- **Feed flooding (CAP-19):** with unlimited reposts, how does the global feed stay readable: grouping, a per-player cap in the global view, or nothing until measured?
-- **Special packs and the cap (CAP-12, CAP-16):** does the weekly goal's rare pack land above 10 when the bank is full?
-- **Weekly goal lifecycle (CAP-12):** what happens when the goal is reached, missed, and at the week rollover? `EXPERIENCE.md` tags its answers as assumptions.
-- **Card backs (CAP-20):** which backs ship, and does every successful weekly goal grant one?
+- **Card backs (CAP-20):** beyond one back per theme or hall of fame set at gold, which goal, achievement and event backs ship, and does every successful weekly goal grant one?
 - **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.
-- **English copy (CAP-3, language constraint):** the English copy and the English tier names are not written yet. Who writes them before launch?
-- **Repost and Friends tab in the UX (CAP-13, CAP-19):** `DESIGN.md` and `EXPERIENCE.md` do not cover the repost action or the feed's Friends tab yet.
 - **Sets on real data (CAP-6):** the minimum size of franchise and studio sets, the reliability of Steam's franchise field, the hall of fame thresholds and the tier percentages are set on staging data; the UFOs stay under about 5 % of the catalog, else the theme list changes.
