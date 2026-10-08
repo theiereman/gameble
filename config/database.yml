@@ -71,9 +71,14 @@ test:
 # Read https://guides.rubyonrails.org/configuring.html#configuring-a-database
 # for a full overview on how database connection configuration can be specified.
 #
+# Every pool a deploy destination opens is counted against its one Postgres
+# by ConnectionBudget (test/lib/connection_budget_test.rb, bin/rails
+# "db:connection_budget[staging]"): primary, cache and cable cover Puma's
+# threads, as config/puma.rb reads them.
 production:
   primary: &primary_production
     <<: *default
+    max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 3 } %>
     database: gameble_production
     host: <%= ENV.fetch("DB_HOST") { "localhost" } %>
     username: gameble
@@ -86,6 +91,8 @@ production:
     <<: *primary_production
     database: gameble_production_queue
     migrations_paths: db/queue_migrate
+    # Solid Queue's estimate for a worker of config/queue.yml: its 3 threads, its polling thread and its heartbeat.
+    max_connections: 5
   cable:
     <<: *primary_production
     database: gameble_production_cable
