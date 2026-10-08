@@ -35,9 +35,8 @@ class CardComponent < ViewComponent::Base
   PUBLISHER_SIZES = %i[m l xl].freeze
   LARGE_SIZES = %i[l xl].freeze
 
-  # Tiers with the holo sheen, and the foil, in each context.
-  HOLO = { default: %w[legendary], booster: %w[rare epic legendary] }.freeze
-  FOIL = { default: [], booster: %w[epic legendary] }.freeze
+  HOLO = { default: %w[legendary], booster: %w[legendary] }.freeze
+  FOIL = { default: [], booster: %w[legendary] }.freeze
 
   def initialize(card:, size: :m, booster: false)
     raise ArgumentError, "unknown card size: #{size.inspect}" unless SIZES.include?(size)

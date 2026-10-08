@@ -328,7 +328,7 @@ Movement is fluid at 60fps (transforms and opacity only; continuous loops never 
 | Booster opening (Explosion A) | about 1.2s | ARMEMENT squash while the request runs, then LEDs and hazard band orange, the caps blow off up and down with smoke jets ("ÉJECTION"), a ring, one short warm flash and a shake. Desktop: the five cards burst out in an arc and land in a row, 45ms apart, squashing with a little dust. Phone: they land as a stacked pile, bottom card first, with 5px offsets, ±1.4° tilt and 1.5 times the desktop stagger. |
 | Reveal, Commune | about 0.7s | A small lift, a flip with overshoot, a burst of pixels in the tier color, a settle. |
 | Reveal, Peu commune | about 0.8s | A short tremble first, one ring, a slightly bigger burst. |
-| Reveal, Rare | about 1.0s | Longer tremble, ring, bigger burst with confetti, holo on the face. |
+| Reveal, Rare | about 1.0s | Longer tremble, ring, bigger burst with confetti. |
 | Reveal, Épique | about 1.2s | Tremble with particles converging, two rings, purple rays, small "ÉPIQUE" banner. |
 | Reveal, Légendaire | about 2.45s | The stage dims ("SIGNAL LÉGENDAIRE", gold light); the card jumps up and charges (on the phone the jump stays inside the play area, 50px at most); a one-and-a-half spin; impact with a gold and confetti burst, three rings, a gold fan of rays, one flash and a strong shake; banner "LÉGENDAIRE !" with title and year; the card drops back with a bounce. |
 | Tout révéler | about 180ms between cards | Each card plays its own tier reveal; a Légendaire plays in full before the next. Flashes never overlap: at most one full-screen flash per sequence. |

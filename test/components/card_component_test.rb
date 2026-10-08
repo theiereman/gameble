@@ -107,8 +107,8 @@ class CardComponentTest < ViewComponent::TestCase
     end
   end
 
-  test "in the booster: holo from rare up, foil from epic up, a stronger tilt" do
-    expected = { common: [ false, false ], uncommon: [ false, false ], rare: [ true, false ], epic: [ true, true ], legendary: [ true, true ] }
+  test "in the booster: holo and foil on the legendary tier only, a stronger tilt" do
+    expected = { common: [ false, false ], uncommon: [ false, false ], rare: [ false, false ], epic: [ false, false ], legendary: [ true, true ] }
     expected.each do |rarity, (holo, foil)|
       render_card(card(rarity: rarity.to_s), booster: true)
 

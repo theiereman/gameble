@@ -390,12 +390,7 @@
   to { transform: translateX(33.333%); }
 }
 
-/* The booster's strengths (DESIGN.md, Rarity effects); elsewhere only the
-   legendary tier has its holo sheen. */
-.card--booster.card--rarity-rare .card__holo { opacity: 0.45; }
-.card--booster.card--rarity-epic .card__holo { opacity: 0.7; }
 .card--booster.card--rarity-legendary .card__holo { opacity: 1; }
-.card--booster.card--rarity-epic .card__foil { opacity: 0.08; }
 .card--booster.card--rarity-legendary .card__foil { opacity: 0.22; }
 
 /* ---- Reduced motion: no tilt, glare, holo or foil ---- */
