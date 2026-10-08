@@ -29,5 +29,11 @@ module Game
     def self.pack(odds:, size:, random: SecureRandom, pool: DrawPool.current)
       Array.new(size) { card(tier: tier(odds:, random:), random:, pool:) }
     end
+
+    # One card-season id per tier given, in that order, each drawn within its
+    # tier.
+    def self.in_tiers(tiers, random: SecureRandom, pool: DrawPool.current)
+      tiers.map { |tier| card(tier:, random:, pool:) }
+    end
   end
 end

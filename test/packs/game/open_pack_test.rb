@@ -1,9 +1,11 @@
 require "test_helper"
+require_relative "../../support/catalog_seeds"
 require_relative "../../support/game_packs"
 
 # Game::OpenPack (R4, AD-6, AD-7): the oldest available pack, its cards
 # counted into the holdings, and every failure.
 class Game::OpenPackTest < ActiveSupport::TestCase
+  include CatalogSeeds
   include GamePacks
 
   setup { @player = accounts_players(:player) }
@@ -115,6 +117,31 @@ class Game::OpenPackTest < ActiveSupport::TestCase
     [ nil, accounts_players(:banned) ].each do |player|
       assert_equal :player_required, Game::OpenPack.new.call(player:).failure
     end
+  end
+
+  test "a pack banked before a new season opens with cards of that season, each in its old card's tier" do
+    stale = create_pack(@player, cards: fixture_tier_ids)
+    stale_bonus = create_pack(@player, kind: :bonus, cards: fixture_tier_ids.last(3), available_at: 2.minutes.ago)
+    season = seed_card_seasons(distinct_scores(150))
+    Catalog::PublishSeason.new.call(number: season.number).value!
+
+    [ [ stale_bonus, [ 3, 4, 5 ] ], [ stale, [ 1, 2, 3, 4, 5 ] ] ].each do |pack, tiers|
+      assert_equal pack, open.value!
+      pack.reload
+      assert_equal season.id, pack.season_id
+      assert_equal tiers, Catalog::CardSeasonTiers.call(pack.card_season_ids).values_at(*pack.card_season_ids)
+      assert_equal [ season.id ], Catalog::CardSeason.where(id: pack.card_season_ids).distinct.pluck(:season_id)
+    end
+    assert_equal [ season.id ], Catalog::CardSeason.where(id: holdings.map(&:first)).distinct.pluck(:season_id)
+  end
+
+  test "a pack of the published season opens with the cards it was drawn with" do
+    pack = create_pack(@player, cards: fixture_tier_ids)
+
+    open.value!
+
+    assert_equal fixture_tier_ids, pack.reload.card_season_ids
+    assert_equal catalog_seasons(:one).id, pack.season_id
   end
 
   test "no_pack_available has a message in both locales" do

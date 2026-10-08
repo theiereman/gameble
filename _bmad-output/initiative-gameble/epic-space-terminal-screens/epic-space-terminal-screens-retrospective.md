@@ -55,7 +55,7 @@ Severity and disposition are given for each finding. Every finding below was re-
 
 ### Spec-to-implementation reconciliation
 
-- **S1. A filtered or paged view clears NOUVEAU on cards it never showed.** Medium-high; Done when 2. *Disposition: defer, author decision (open question 1).*
+- **S1. A filtered or paged view clears NOUVEAU on cards it never showed.** Medium-high; Done when 2. *Disposition: accept as-is (author, 2026-10-08: the watermark is not important).*
   - **The mechanism:** `LibraryController#load_grid` posts `@seen_up_to`, the latest gain among the new cards shown (`app/controllers/library_controller.rb:116`). That post goes through `app/views/library/_collection.html.erb:28-31`. `Game::MarkCollectionSeen` then raises one global watermark (`packs/game/app/operations/game/mark_collection_seen.rb:24-27`). From then on, every holding gained at or before that time is no longer new (`packs/game/app/queries/game/collection_slots.rb:17-19`).
   - **Why one pack goes all at once:** `Game::OpenPack` stamps the same time on every card of a pack.
   - **The scenario:** a player opens three packs, then types a search or ticks a rarity. The results frame reloads and posts. All fifteen cards lose NOUVEAU, though only the matching ones were shown.
@@ -69,17 +69,22 @@ Severity and disposition are given for each finding. Every finding below was re-
     - the hub's goal line "The whole Brotherhood…" comes from story 6.3 (`79e3cd3`);
     - `/brothers/:token` URLs and the `ShelfLoading`/`Spine` names were kept deliberately (10.5 plan, Sweep inventory).
 - **S4. 10.7 renders the phone filter zone in place, not as a sheet.** Low; R7 and 10.7's description say "(a sheet)". *Disposition: accept as-is.* It was decided with the author away (10.7 plan, Design Notes). The author later confirmed the filter assumptions ("all confirmed", `.memlog.md`, 2026-10-07). Recorded here so later runs stop re-flagging it.
-- **S5. NON in "Animations réduites" behaves the same as SYSTÈME.** Low. *Disposition: accept as-is, open question 2.* `motion_reduced?` tests only `== true` (`app/controllers/application_controller.rb:97-98`). This is documented: NON is stored so a later story can let it override the system (10.4 plan, Implementation Notes). A player who picks NON still gets reduced motion when their OS asks for it.
+- **S5. NON in "Animations réduites" behaves the same as SYSTÈME.** Low. *Disposition: fix now (author, 2026-10-08: NON overrides the OS).* `motion_reduced?` tests only `== true` (`app/controllers/application_controller.rb:97-98`). `motion.ts` and the `prefers-reduced-motion` media queries still follow the OS. The 10.4 plan stores NON precisely so a later story can let it override the system (Implementation Notes). A player who picks NON still gets reduced motion when their OS asks for it.
+- **S6. The collection hides missing slots by default, where the author asked for owned cards first, above the missing ones.** Medium; R7, Done when 6. *Disposition: fix now, with a spec reconciliation (author, 2026-10-08).*
+  - **How the intent changed:** the author's remark says "owned cards should come first" (`ux-gameble/.memlog.md:318`). The decision recorded right after it narrows that to "opens on the cards the player owns, newest first; a filter switches to ALL / MISSING" (`.memlog.md:322`). `EXPERIENCE.md:174` then states "missing slots appear only then". R7 and 10.7's description carry the same wording.
+  - **What was built:** 10.7 built that spec faithfully. The default state is `owned` (`library_controller.rb:95-97`), so missing slots disappear.
+  - **Where the defect sits:** in the UX spec, transcribed while the author was away and confirmed only as part of a batch ("all confirmed", `.memlog.md:332`). It is not in the build.
+  - **Effect on B1:** the default the author wants (every slot, owned first, newest first, then missing) also removes the cause of B1.
 
 ### Diff-scope review: the boundaries between tickets
 
 The `bmad-review` skill ran inline with its adversarial, edge-case and verification-gap lenses, in a sub-agent, without fanning out further.
 
-- **B1. A set's page opens empty for a player who holds cards elsewhere but none in that set.** Medium; boundary 10.1 / 10.7. *Disposition: fix now.*
+- **B1. A set's page opens empty for a player who holds cards elsewhere but none in that set.** Medium; boundary 10.1 / 10.7. *Disposition: fix now, moot once S6 lands (the default then shows every slot).*
   - **The cause:** `default_state` picks "owned" from `@unique`, which counts the whole season, not the set (`library_controller.rb:95-97`).
   - **What the player sees:** tapping a 0/25 set row shows "Nothing matches these filters". The filter count reads 0 and the zone is folded.
   - **Test gap:** the 10.7 tests pass `state: %w[all]` explicitly (`test/controllers/library_set_test.rb:54,131,136,149`). The no-parameter case has no test.
-- **B2. ◀ ▶ and the position line follow the whole tome, not the grid the card was opened from.** Medium; boundary 10.2 / 10.7. *Disposition: defer.*
+- **B2. ◀ ▶ and the position line follow the whole tome, not the grid the card was opened from.** Medium; boundary 10.2 / 10.7. *Disposition: fix now (author, 2026-10-08: ◀ ▶ browse the filtered view).*
   - **The cause:** `Catalog::SetNeighbours` walks the tome and ignores filters and holdings (`packs/catalog/app/queries/catalog/set_neighbours.rb:17-32`).
   - **What the player sees:** from the owned-only grid, ▶ lands on faded "NOT OWNED" backs, and the line reads "5 / 25" against a grid of 3. On return, `focusReturnLink` finds no link to the last card shown (`app/frontend/controllers/history_back_controller.ts:50-57`).
   - **Test gap:** the system tests that open a detail from the season grid run as a visitor (`test/system/card_detail_test.rb:162,299`).
@@ -133,6 +138,15 @@ Checked and clean:
   *Disposition: defer* to epic 12. The stale comment rides the S1 fix.
 - **A5. Architecture.** A manual grep found no dependency that breaks the pack diagram. `Game::CollectionStates` joins raw SQL on `catalog_card_seasons` (`collection_states.rb:43-50`); that direction (Game → Catalog) is allowed, and 10.5 recorded it as a decision. *Narrowed scope:* `bundle exec packwerk check` could not run here, because the gems are not installed (Ruby 4.0.7 is required, 3.3.6 is present). The plans of 10.1, 10.2 and 10.5 record it as clean.
 
+### Author decisions (2026-10-08)
+
+The author answered the open questions after the first version of this document:
+
+1. **The NOUVEAU watermark is not important.** S1 is accepted as-is: the global watermark stays, imprecision included.
+2. **NON overrides the OS.** S5 moves to fix now.
+3. **◀ ▶ browse the filtered view the card was opened from.** B2 moves to fix now.
+4. **Collection default:** "I had chosen to show the cards one owns first, above the missing ones, not to show only owned cards by default." This is S6.
+
 ## Behavior verification
 
 **Runtime behavior was not exercised by this retrospective.** The container has no Docker daemon (for Postgres 18 on 5433), no Ruby 4.0.7 and no `node_modules`, so neither the app nor the test suites could run.
@@ -165,47 +179,70 @@ From `epic-space-terminal-redesign-retrospective.md` (epic 8, dated 2026-10-08).
 
 ## Action items
 
-All items are proposed. This retrospective changed no code, ticket, plan, spec or `deferred-work.md`.
+All items are proposed. This retrospective changed no code, ticket, plan, spec or `deferred-work.md`. The author decided S1, S5, B2 and S6 on 2026-10-08.
 
-1. **Decide S1, then fix or record it.** Owner: author, then the dev loop. There are two options:
-   - Make the watermark move only when the unfiltered first page is shown.
-   - Accept the imprecision explicitly in the architecture and in Done when 2.
+1. **Fix S6: the collection opens on every slot, owned cards first (newest first), then the missing ones.**
+   - Change the default state from `owned` to `all`, sorted owned-first, in its four places (A2): `library_controller.rb:95`, `collection_states.rb:36`, `collection_filters_controller.ts:38,75` and `collection_helper.rb:184`.
+   - Update the tests that pin `owned` as the default.
+   - This removes B1.
 
-   Either way, add a test for filtered-out cards and correct `holding.rb:7`. *Proposed remediation, or a spec reconciliation.*
-2. **Fix B1:** compute the default state from the set's own owned count on a set page, and add the no-parameter test. Owner: dev loop. *Proposed remediation.*
-3. **Fix B6:** add the `zero` form to `fr.public_profiles.set.copies`. Owner: dev loop; it can ride item 2. *Proposed remediation.*
-4. **One collection-cleanup ticket** for A1, A2, B2, B3, B4 and B5:
+   Owner: dev loop. *Proposed remediation.*
+2. **Reconcile the spec with S6.** Owner: author, or `bmad-ux` with the author. *Proposed spec reconciliation.*
+   - Rewrite `EXPERIENCE.md:174` ("missing slots appear only then"), `.memlog.md:322`, R7 and Done when 6 to say "owned cards first, above the missing ones".
+   - The state filter keeps OWNED, MISSING, NEW and DUPLICATES as narrowings.
+3. **Fix B2: ◀ ▶ and the position line browse the filtered, sorted grid the detail was opened from.**
+   - Carry the grid's filters and search into the detail link, and walk the same `Game::CollectionStates` order instead of `Catalog::SetNeighbours`' tome order.
+   - Return focus to the last card shown.
+   - Add a system test from a signed-in player's filtered grid.
+
+   Owner: dev loop. *Proposed remediation.*
+4. **Fix S5: NON overrides the OS.**
+   - Signed in or by cookie, NON sets an explicit full-motion state on `<html>`, for example `data-motion=full`.
+   - `motion.ts` and the CSS reduced-motion rules then ignore `prefers-reduced-motion` under that state. Keep the view-transition meta under NON.
+   - Add a system test with reduced motion emulated at OS level and NON chosen.
+
+   Owner: dev loop. *Proposed remediation.*
+5. **Fix B6:** add the `zero` form to `fr.public_profiles.set.copies`. Owner: dev loop; it can ride item 1. *Proposed remediation.*
+6. **Record S1 as accepted.** Owner: author.
+   - Add one line to the epic Notes or to the architecture's watermark decision: a filtered or paged view may clear NOUVEAU on cards it did not show.
+   - Correct the stale `holding.rb:7` comment in the next change that touches it.
+
+   *Proposed spec reconciliation.*
+7. **One collection-cleanup ticket** for A1, A2, B3, B4 and B5:
    - one grid slot partial and one set list shared by the collection and the profile, with profile paging;
-   - one place for the default state;
    - the public card page's CSS out of `card-detail.css`;
-   - ◀ ▶ following the grid's own order, or a decision that they browse the tome.
+   - visitors' state chips limited to the states that can match.
 
-   Owner: dev loop, after the author accepts it; it fits after the tome rework (`pending-approvals.md:10`). *Proposed remediation.*
-5. **Reconcile Done when 6 and R7 with `6362b0f`**: the booster opening starts at the top. Record S3 (the pack page's copy waits on the tome rework) and S4 (the phone filters in place) in the epic Notes. Owner: author. *Proposed spec reconciliation.*
-6. **Close the epic.** Owner: author, through `bmad-ticket`, after reading this document: mark the seven `built` tickets `done`, or decide otherwise.
-7. **Process: run a review on every ticket, and record each system-test run.** 10.6 had no review, and neither 10.6 nor 10.7 records a system run. Owner: orchestrator (BMad configuration).
-8. **Process, carried forward a third time: record `built_revision` in every plan, and keep ticket builds in the shared history.** Epic 8's item 7 recurred: six of seven baselines here are not on `develop`. Owner: author and orchestrator.
-9. **Process: when a ticket's work becomes an input to a later ticket's view, the later plan should name the earlier invariant it must keep.** Two examples are the NOUVEAU watermark under filters (S1) and the default state on set pages (B1). Both defects sit where 10.7 changed what 10.1's views show, and 10.7's plan never names 10.1's watermark rule. Owner: author (story template or `bmad-ticket`).
+   It fits after the tome rework (`pending-approvals.md:10`). Owner: dev loop, after the author accepts it. *Proposed remediation.*
+8. **Reconcile Done when 6 and R7 with `6362b0f`** (the booster opening starts at the top). Record S3 and S4 in the epic Notes. Owner: author. *Proposed spec reconciliation.*
+9. **Close the epic.** Owner: author, through `bmad-ticket`: mark the seven `built` tickets `done` once items 1–4 have landed as new tickets, or close now and track 1–4 elsewhere.
+10. **Process: run a review on every ticket, and record each system-test run.** 10.6 had no review, and neither 10.6 nor 10.7 records a system run. Owner: orchestrator (BMad configuration).
+11. **Process, carried forward a third time: record `built_revision` in every plan, and keep ticket builds in the shared history.** Six of seven baselines here are not on `develop`. Owner: author and orchestrator.
+12. **Process: an author remark that becomes a spec decision while the author is away is quoted verbatim beside the decision and confirmed one by one, not in a batch.** S6 changed from "owned cards first" to "only owned cards" between `.memlog.md:318` and `:322`. The batch confirmation at `:332` did not catch it. Owner: author (`bmad-ux` usage).
+13. **Process: when a ticket changes what an earlier ticket's views show, its plan names the earlier invariant it must keep.** B1 and B2 sit where 10.7 changed the grid that 10.1 and 10.2 rely on. Owner: author (story template or `bmad-ticket`).
 
-Action-item count: **9**.
+Action-item count: **13**.
 
 ## Acceptance verdict
 
-**accepted-with-open-items** (machine verdict, criteria declared). It awaits the author's decision on open question 1.
+**accepted-with-open-items**, criteria declared. This is confirmed by the author's decisions of 2026-10-08.
 
 Every ticket is finished (`built`), so nothing forces a rejection. Against Done when:
 
 1. **The screens follow the design on desktop and phone.** Met per the plans and the code; not exercised here (see Behavior verification).
-2. **NOUVEAU marks exactly the cards gained since the last visit.** Met only under the global-watermark reading that 10.1 accepted. A filtered or paged view clears cards it did not show (S1), and no reservation marks one. Open item.
+2. **NOUVEAU marks exactly the cards gained since the last visit.** Met under the global watermark, which the author accepts with its imprecision (S1); no reservation marks a card.
 3. **The shared card page names no player and previews without an image.** Met: no player named, no image tags, both tested.
-4. **"Animations réduites" stops every effect, signed in or out.** Met for OUI and SYSTÈME. NON does not override the OS (S5, documented).
+4. **"Animations réduites" stops every effect, signed in or out.** Met for OUI and SYSTÈME. NON must override the OS, which is open item 4 (S5).
 5. **No medieval screen remains.** Met apart from the opened pack page's copy, which the author deferred (S3).
-6. **The collection, filters and search, the booster opening and the star field.** Met for the owned-first opening, the filters, the search and the still star field. The centring was superseded by the author (`6362b0f`; S2).
+6. **The collection, filters and search, the booster opening and the star field.**
+   - **Built to a spec that misread the author:** owned cards should come first, above the missing ones, not alone (S6, open items 1 and 2).
+   - **Superseded by the author:** the booster centring (`6362b0f`, S2).
+   - **Met:** the filters, the search and the still star field.
 
-If the author reads Done when 2 literally, S1 becomes blocking and the verdict becomes **rejected** until item 1 lands.
+Open items: action items 1–5. The rest is cleanup, spec reconciliation and process.
 
 ## Open questions
 
-1. **Is the global NOUVEAU watermark acceptable now that filters and search exist (S1)?** If not, Done when 2 is unmet and the verdict is rejected.
-2. **Should NON in "Animations réduites" override the OS's reduced-motion setting (S5)?** Today it is a choice that behaves like SYSTÈME.
-3. **Should ◀ ▶ on the card detail browse the grid it came from (filtered, owned-only), or the whole tome (B2)?** The answer shapes item 4.
+None left from the first version: the author answered all three on 2026-10-08 (see Author decisions).
+
+1. **Should a direct link to a card, outside any grid, still browse its tome with ◀ ▶?** Examples are a share link and the hub showcase. Item 3 covers only a detail opened from a grid.

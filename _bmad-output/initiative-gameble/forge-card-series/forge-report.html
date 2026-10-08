@@ -1,0 +1,70 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Forge: card series</title>
+<style>
+:root{--bg:#f6f3ea;--fg:#1d1b17;--muted:#6b665a;--line:#d9d3c3;--card:#fffdf7;--accent:#8c1d2b}
+@media (prefers-color-scheme:dark){:root{--bg:#14161c;--fg:#e8e6df;--muted:#b9b4a4;--line:#3a3d46;--card:#1c1f27;--accent:#d4a94a}}
+body{font:16px/1.55 system-ui,sans-serif;max-width:760px;margin:2rem auto;padding:0 16px;background:var(--bg);color:var(--fg)}
+h1{margin:0 0 .2rem;font-size:1.8rem}h2{margin-top:2rem;border-bottom:1px solid var(--line);padding-bottom:.2rem;font-size:1.2rem}
+.seal{float:right;margin:0 0 1rem 1rem}.who{color:var(--muted)}li{margin:.35rem 0}
+table{border-collapse:collapse;width:100%;font-size:.95rem}td,th{border-bottom:1px solid var(--line);padding:.4rem .5rem;text-align:left;vertical-align:top}
+.cast{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.6rem}
+.p{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:.6rem .7rem;font-size:.92rem}.p b{display:block}.p i{color:var(--muted)}
+@media (max-width:520px){.seal{float:none;display:block;margin:0 auto 1rem}}
+</style></head><body>
+<svg class="seal" width="140" height="140" viewBox="0 0 140 140" role="img" aria-label="HARDENED">
+<path d="M70 4c9 0 12 8 20 10s15-3 21 4 1 14 5 21 12 9 12 18-8 12-10 20 3 15-4 21-14 1-21 5-9 12-18 12-12-8-20-10-15 3-21-4-1-14-5-21S4 79 4 70s8-12 10-20-3-15 4-21 14-1 21-5 9-12 18-12z" fill="#8c1d2b" stroke="#5e121c" stroke-width="2"/>
+<circle cx="70" cy="70" r="46" fill="none" stroke="#d4a94a" stroke-width="2" stroke-dasharray="4 3"/>
+<text x="70" y="66" text-anchor="middle" font-family="serif" font-weight="bold" font-size="17" fill="#f3dfa2">HARDENED</text>
+<text x="70" y="86" text-anchor="middle" font-family="serif" font-size="11" fill="#f3dfa2">2026 · 10 · 08</text></svg>
+<h1>Card series that mean something</h1>
+<p class="who">Outcome: hardened. Tomes and the set list are replaced by recognizable series, a series-first collection and tiered rewards. Forged idea: <code>forge-card-series.md</code>.</p>
+
+<h2>Locked decisions</h2><ul>
+<li>Every card belongs to at least one series; recognition, not size, decides whether a series exists.</li>
+<li>Families: <b>Theme</b> (backbone, ~30 curated Steam tags, tiered), <b>Franchise</b> and <b>Studio</b> (small, finishable), <b>Hall of fame</b> from review stats (tiered).</li>
+<li>A game joins every listed theme among its 5 most-voted tags; one card can advance several series. Games with none join <b>the UFOs</b>.</li>
+<li>Bronze / silver / gold tiers keep large series motivating without volumes.</li>
+<li>The collection opens on series: "In progress", then "To discover", then search. A series is an album page with empty slots.</li>
+<li>The full filtered grid stays as a secondary view, for trades and sales later.</li>
+</ul>
+
+<h2>Rewards</h2>
+<table><tr><th>Reward</th><th>Seen by</th><th>Earned by</th></tr>
+<tr><td>Celebration + feed line</td><td>everyone</td><td>bronze, silver, complete</td></tr>
+<tr><td>Profile title</td><td>everyone</td><td>every complete and every tier ("Completionist · Dark Souls"), one active</td></tr>
+<tr><td>Card back</td><td>the player</td><td>gold on a theme or hall of fame series</td></tr>
+<tr><td>Menu theme</td><td>the player</td><td>rare meta goal: N series at gold</td></tr></table>
+
+<h2>Rejected, and why</h2><ul>
+<li>Tomes, publisher sets, best rated of the year: unrecognizable or absorbed by better families.</li>
+<li>Era series: too vague. Editorial series: stay V3.</li>
+<li>One theme per game: kills the "three series at once" moment. All 20 tags: fuzzy borders.</li>
+<li>A fixed list of major series: today's 30 rows with 25 empty. A purely personal list: empty for a new player.</li>
+<li>A card back per completed set: hundreds of backs to draw.</li>
+</ul>
+
+<h2>Weak points that survived</h2><ul>
+<li>Steam's <code>franchises</code> field may be dirty or tiny; minimum series size to set on real data.</li>
+<li>The UFOs must stay under ~5% of the catalog; if not, fix the theme list, not the rule.</li>
+<li>Generated titles must use a no-agreement template, or they read badly in French.</li>
+<li>Still to tune: theme list, hall of fame thresholds, tier percentages, link with seasons.</li>
+<li>Touches built work: <code>Catalog::SetBuilder</code>, library screens, the card back rule of the spec.</li>
+</ul>
+
+<h2>Who pressure-tested it</h2>
+<div class="cast">
+<div class="p"><b>📋 John · Product Manager</b><i>"If 70% of cards are in no series, 4 cards out of 5 advance nothing."</i></div>
+<div class="p"><b>🎨 Sally · UX Designer</b><i>"Major for whom? Show what I'm completing." Also championed the profile title.</i></div>
+<div class="p"><b>🏗️ Winston · Architect</b><i>"Tiers remove the size limit; recognition must filter instead."</i></div>
+<div class="p"><b>📊 Mary · Analyst</b><i>"Tag 15 with a handful of votes is not a theme." Led to the top-5 rule.</i></div>
+<div class="p"><b>😤 Grumbal · The Adversary</b><i>Broke coverage with Papers, Please; did the maths on hundreds of card backs.</i></div>
+<div class="p"><b>🃏 Inès · TCG collection designer</b><i>"An orphan card is a card you want to throw away."</i></div>
+<div class="p"><b>🎮 Kévin · 3,400 h on Steam</b><i>Proposed the bronze / silver / gold tiers.</i></div>
+<div class="p"><b>🧢 Margot · casual player</b><i>Asked for small series she can actually finish.</i></div>
+<div class="p"><b>🧭 Théo · mobile collection designer</b><i>"One card advancing three series is free dopamine."</i></div>
+<div class="p"><b>🎲 Clara · community manager</b><i>Turned the uncategorizable into the UFOs series.</i></div>
+<div class="p"><b>📦 Yann · figurine app PM</b><i>Insisted on a "To discover" row for new players.</i></div>
+<div class="p"><b>🗂️ Jeanne · Panini collector</b><i>"It's the empty slot that makes you want it."</i></div>
+<div class="p"><b>🏆 Hugo · rewards designer</b><i>Dosed rewards by tier.</i></div>
+<div class="p"><b>📺 Nadia · streamer</b><i>Wants the menu theme rare and readable.</i></div>
+</div>
+</body></html>
