@@ -3,7 +3,7 @@ title: 'Accept, counter and expire a trade'
 type: 'feature'
 ticket: '5'
 created: '2026-10-07'
-status: done
+status: 'built'
 baseline_revision: 'e419296bcc721682f3ba0eafef14b228311cacf9'
 route: 'full'
 route_source: 'auto'

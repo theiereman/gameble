@@ -3,7 +3,7 @@ title: 'Deleting or banning an account, and the empty states'
 type: 'feature'
 ticket: '11'
 created: '2026-10-07'
-status: done
+status: 'built'
 baseline_revision: '9456caaec83deb65db340e76f3ac5648f565aba2'
 route: 'full'
 route_source: 'auto'

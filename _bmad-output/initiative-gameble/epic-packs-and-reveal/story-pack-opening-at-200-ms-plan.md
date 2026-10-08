@@ -3,7 +3,7 @@ title: 'Pack opening at 200 ms'
 type: 'feature'
 ticket: '9'
 created: '2026-10-02'
-status: done
+status: 'built'
 baseline_revision: '4ddebaf7a8d5c4b6a3dbfa3c69c53496a8e77270'
 route: 'full'
 route_source: 'auto'

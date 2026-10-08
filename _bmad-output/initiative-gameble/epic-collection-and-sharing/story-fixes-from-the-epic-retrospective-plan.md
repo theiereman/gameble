@@ -3,7 +3,7 @@ title: 'Fixes from the epic retrospective'
 type: 'bugfix'
 ticket: '7'
 created: '2026-10-03'
-status: done
+status: 'built'
 baseline_revision: '6b66367fb08aa1b8e9deb965c28b8c8ea2201813'
 built_revision: '60929459f506af792b987b56ed19bed68af2e617' # the story's own commit
 route: 'full'

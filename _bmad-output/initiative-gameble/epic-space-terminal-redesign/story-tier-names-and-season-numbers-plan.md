@@ -3,7 +3,7 @@ title: 'Tier names and season numbers'
 type: 'feature'
 ticket: '3'
 created: '2026-10-05'
-status: done
+status: 'built'
 baseline_revision: '783c82acb7aa06d7fd974cfcb35198a2000e946b'
 route: 'full'
 route_source: 'auto'

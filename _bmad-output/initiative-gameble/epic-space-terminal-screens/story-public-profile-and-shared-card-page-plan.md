@@ -3,7 +3,7 @@ title: 'Public profile and shared card page'
 type: 'feature'
 ticket: '3'
 created: '2026-10-06'
-status: done
+status: 'built'
 baseline_revision: 'fadcde2e9e9acb74d6698bd611dea3c53aba86d7'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'Replacement packs and the timer'
 type: 'feature'
 ticket: '2'
 created: '2026-10-02'
-status: done
+status: 'built'
 baseline_revision: '9afcebe82e50137213c26121aeaccfcf8659914a'
 route: 'full'
 route_source: 'auto'

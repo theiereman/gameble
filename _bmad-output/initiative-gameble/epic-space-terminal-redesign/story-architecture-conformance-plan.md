@@ -3,7 +3,7 @@ title: 'Architecture conformance'
 type: 'refactor'
 ticket: '4'
 created: '2026-10-05'
-status: done
+status: 'built'
 baseline_revision: '3ba5bcf8289e6b5f6433f9190567c39b5cf0789c'
 route: 'full'
 route_source: 'auto'

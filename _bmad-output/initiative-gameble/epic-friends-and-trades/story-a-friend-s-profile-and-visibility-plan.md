@@ -3,7 +3,7 @@ title: "A friend's profile and visibility"
 type: 'feature'
 ticket: '10'
 created: '2026-10-07'
-status: done
+status: 'built'
 baseline_revision: '03a1649c139d3c67794f76e26ce00f2987968f34'
 route: 'full'
 route_source: 'auto'

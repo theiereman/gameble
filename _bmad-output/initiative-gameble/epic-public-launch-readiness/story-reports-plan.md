@@ -3,7 +3,7 @@ title: 'Reports'
 type: 'feature'
 ticket: '4'
 created: '2026-10-07'
-status: done
+status: 'built'
 baseline_revision: '47cea18'
 route: 'full'
 route_source: 'auto'

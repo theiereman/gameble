@@ -3,7 +3,7 @@ title: 'Signed-out attic'
 type: 'feature'
 ticket: '8'
 created: '2026-10-02'
-status: done
+status: 'built'
 baseline_revision: 'de6247a53c399a70acd6377b9f57cb4b3c4016c1'
 route: 'oneshot'
 route_source: 'auto'

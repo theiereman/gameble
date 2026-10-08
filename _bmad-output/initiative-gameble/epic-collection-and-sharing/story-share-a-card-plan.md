@@ -3,7 +3,7 @@ title: 'Share a card'
 type: 'feature'
 ticket: '5'
 created: '2026-10-02'
-status: done
+status: 'built'
 baseline_revision: 'd1c4c3cdb29a1a96a31c4e3659e571ab7a2841be'
 route: 'full'
 route_source: 'auto'

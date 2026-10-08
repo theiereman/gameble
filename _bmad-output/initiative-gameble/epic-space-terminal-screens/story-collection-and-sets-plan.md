@@ -3,7 +3,7 @@ title: 'Collection and sets'
 type: 'feature'
 ticket: '1'
 created: '2026-10-06'
-status: done
+status: 'built'
 baseline_revision: 'a26b1d7f8bba85fb953601df45311edab245d20f'
 route: 'full'
 route_source: 'auto'

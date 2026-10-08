@@ -3,7 +3,7 @@ title: 'The production image builds in CI'
 type: 'chore'
 ticket: '1'
 created: '2026-10-07'
-status: done
+status: 'built'
 baseline_revision: 'e419296bcc721682f3ba0eafef14b228311cacf9'
 route: 'oneshot'
 route_source: 'auto'

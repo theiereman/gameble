@@ -3,7 +3,7 @@ title: 'Library of sets'
 type: 'feature'
 ticket: '1'
 created: '2026-10-02'
-status: done
+status: 'built'
 baseline_revision: '9fcb676c45d10de4d706ceabb328a3c241be06f8'
 route: 'full'
 route_source: 'auto'

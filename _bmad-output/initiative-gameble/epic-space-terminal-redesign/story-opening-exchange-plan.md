@@ -3,7 +3,7 @@ title: 'Opening exchange'
 type: 'feature'
 ticket: '10'
 created: '2026-10-06'
-status: done
+status: 'built'
 baseline_revision: '102a5f75ea22cbbd8cbd97001f353ead3ad5e187'
 route: 'full'
 route_source: 'auto'

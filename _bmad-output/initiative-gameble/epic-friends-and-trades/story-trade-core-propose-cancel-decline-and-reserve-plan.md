@@ -3,7 +3,7 @@ title: 'Trade core: propose, cancel, decline and reserve'
 type: 'feature'
 ticket: '4'
 created: '2026-10-07'
-status: done
+status: 'built'
 baseline_revision: '47cea18b653361d83cd2a5ab133491a1eade4cca'
 route: 'full'
 route_source: 'auto'

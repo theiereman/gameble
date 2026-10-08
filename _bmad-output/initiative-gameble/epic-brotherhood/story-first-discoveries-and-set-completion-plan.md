@@ -3,7 +3,7 @@ title: 'First discoveries and set completion'
 type: 'feature'
 ticket: '7'
 created: '2026-10-07'
-status: done
+status: 'built'
 baseline_revision: 'aa1bffb533170a4246f2cb325c883286b5bbf6ef'
 route: 'full'
 route_source: 'auto'

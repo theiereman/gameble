@@ -3,7 +3,7 @@ title: 'Booster island, desktop'
 type: 'feature'
 ticket: '11'
 created: '2026-10-06'
-status: done
+status: 'built'
 baseline_revision: '0574a2640f0a1a2d7940f367d38b5e764a1a9658'
 route: 'full'
 route_source: 'auto'
