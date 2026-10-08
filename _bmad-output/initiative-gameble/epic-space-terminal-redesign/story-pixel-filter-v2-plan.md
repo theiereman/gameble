@@ -3,7 +3,7 @@ title: 'Pixel filter v2'
 type: 'feature'
 ticket: '5'
 created: '2026-10-05'
-status: 'built'
+status: done
 baseline_revision: '3ba5bcf8289e6b5f6433f9190567c39b5cf0789c'
 route: 'full'
 route_source: 'auto'

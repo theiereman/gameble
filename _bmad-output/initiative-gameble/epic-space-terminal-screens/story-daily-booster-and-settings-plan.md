@@ -3,7 +3,7 @@ title: 'Daily booster panel and settings screen with one motion switch'
 type: 'feature'
 ticket: '4'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '9823293ae75561ad358f80b57a6ca1047bad1c27'
 route: 'full'
 route_source: 'auto'

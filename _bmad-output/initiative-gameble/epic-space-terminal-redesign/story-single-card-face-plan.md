@@ -3,7 +3,7 @@ title: 'Single card face'
 type: 'feature'
 ticket: '6'
 created: '2026-10-05'
-status: 'built'
+status: done
 baseline_revision: 'e319f0ad3962253991a2c729bdd0249dda71fda8'
 route: 'full'
 route_source: 'auto'

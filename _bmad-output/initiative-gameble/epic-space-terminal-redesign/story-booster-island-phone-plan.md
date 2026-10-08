@@ -3,7 +3,7 @@ title: 'Booster island, phone'
 type: 'feature'
 ticket: '12'
 created: '2026-10-06'
-status: 'built'
+status: done
 baseline_revision: '264d96c3d0ca82768e984d2930d39b4f7f6ef66d'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'Flip all on a phone shows every card'
 type: 'bugfix'
 ticket: '11'
 created: '2026-10-03'
-status: 'built'
+status: done
 baseline_revision: '530566b5df8ddffb9ccbcc1a5364ed411c02f609'
 route: 'oneshot'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'Healing a bank at a season''s publication, all at once'
 type: 'feature'
 ticket: '6'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: 'e419296bcc721682f3ba0eafef14b228311cacf9'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'Public profile'
 type: 'feature'
 ticket: '4'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: 'aa79a41db73f41b8e6e125a29e79b3e958d7e51c'
 route: 'full'
 route_source: 'auto'
