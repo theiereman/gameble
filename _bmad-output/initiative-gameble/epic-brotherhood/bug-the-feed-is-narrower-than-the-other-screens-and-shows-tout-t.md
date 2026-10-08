@@ -5,7 +5,7 @@ title: "The feed is narrower than the other screens and shows « Tout » twice"
 parent: epic-brotherhood
 covers: [R4]
 after: [2]
-refined: false
+refined: true
 hitl: false
 risk: low
 severity: P3

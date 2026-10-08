@@ -5,7 +5,7 @@ title: "Cards of an opened booster cannot be browsed, and the card detail loses 
 parent: epic-space-terminal-screens
 covers: [R2]
 after: [2]
-refined: false
+refined: true
 hitl: false
 risk: medium
 severity: P2
@@ -81,5 +81,5 @@ The opened booster lives only in the booster island's memory. After the opening 
 - Decision (2026-10-08): coming back from a card's detail shows the booster with its five cards face up, even if the player had not revealed them all; the exact state left (tray, cards still hidden) is not restored (author).
 - Decision (2026-10-08): from the collection grid, ◀ ▶ walk the grid as shown, with its filters and search; opened from anywhere else they walk the card's tome as today (author).
 - Source conflict: EXPERIENCE.md says ◀ ▶ are phone only and that a left reveal resumes nothing on return; R2 says previous and next on the phone. The decisions above supersede both; this ticket updates EXPERIENCE.md (Card zoom, Card detail, Reveal abandoned) and the epic's R2 says so.
-- Assumption: leaving the booster any other way (the hub, a menu) still resumes nothing on return, as today; only the way back from a card's detail shows the booster.
-- Assumption: ◀ ▶ over the grid continue across its pages (60 cards per page) rather than stopping at the page's end.
+- Decision (2026-10-08): leaving the booster any other way (the hub, a menu) still resumes nothing on return, as today; only the way back from a card's detail shows the booster (author).
+- Decision (2026-10-08): ◀ ▶ over the grid continue across its pages (60 cards per page) rather than stopping at the page's end (author).
