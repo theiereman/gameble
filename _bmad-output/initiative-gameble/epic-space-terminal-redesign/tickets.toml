@@ -157,3 +157,15 @@ covers = []
 after = [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 14]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 15
+type = "story"
+title = "Booster and shell split"
+description = "Cleanup only, no behavior change: splits app/frontend/components/Booster.tsx (1,616 lines) into focused modules, and reviews app/frontend/styles/booster.css (1,564 lines) and app/frontend/styles/shell.css (1,262 lines) for the same, from finding F2 of the epic's retrospective. The rendered markup and the compiled CSS stay the same; no test is weakened or deleted."
+verify = "Booster.tsx is split into modules each with one reason to change, the booster and shell stylesheets are split or the decision to keep each whole is recorded with its reason, and the booster system tests, vitest, typecheck, lint, packwerk and the card-face visual baselines pass unchanged."
+covers = []
+after = [13]
+hitl = false
+risk = "low"
+references = ["epic-space-terminal-redesign/epic-space-terminal-redesign-retrospective.md"]

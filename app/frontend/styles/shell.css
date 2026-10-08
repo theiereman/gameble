@@ -70,6 +70,10 @@ a {
   image-rendering: pixelated;
 }
 
+.stream-slot {
+  display: contents;
+}
+
 /* ---- Page widths ---- */
 
 .main {
@@ -527,6 +531,32 @@ a.packs-chip:focus-visible {
   text-transform: uppercase;
 }
 
+/* A visitor's ÉCHANGES tab is a button opening the sign-in panel. */
+button.tab-bar__tab {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.tab-bar__badge {
+  position: absolute;
+  top: var(--space-2);
+  left: calc(50% + 6px);
+  min-width: 18px;
+  padding: 0 var(--space-1);
+  font: var(--font-button-sm);
+  letter-spacing: 0;
+  line-height: 16px;
+  text-align: center;
+}
+
+.tab-bar__badge--alert {
+  background: var(--color-alert);
+  color: var(--color-on-alert);
+}
+
 .tab-bar__icon {
   width: 22px;
   height: 22px;
@@ -554,6 +584,21 @@ a.packs-chip:focus-visible {
 .tab-bar__tab:focus-visible {
   outline-offset: calc(-1 * (var(--focus-ring-width) + var(--focus-ring-offset)));
   box-shadow: inset 0 0 0 calc(var(--focus-ring-width) + var(--focus-ring-offset)) var(--color-outline);
+}
+
+/* ---- Version ---- */
+
+.app-version {
+  position: fixed;
+  left: var(--space-gutter-desktop);
+  bottom: var(--space-3);
+  z-index: 2;
+  margin: 0;
+  color: var(--color-dim);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  pointer-events: none;
+  user-select: none;
 }
 
 /* ---- Toasts ---- */
@@ -1127,6 +1172,14 @@ html[data-sub-view-step] .main {
   .toasts {
     top: max(var(--space-3), env(safe-area-inset-top, 0px));
     bottom: auto;
+  }
+
+  .app-version {
+    left: var(--space-gutter-phone);
+  }
+
+  body:has(.tab-bar) .app-version {
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-2));
   }
 
   .toast {

@@ -1,8 +1,9 @@
 /*
  * Fil d'activité (DESIGN.md: Activity feed; EXPERIENCE.md: Fil d'activité;
- * stories 6.1, 6.2): the tab and the type filters (the segmented control of
- * settings.css), then one row per entry, at least 68px tall. Hard edges, no
- * animation, no opacity to dim a filler.
+ * stories 6.1, 6.2, 6.7): the tab and the type filters (the segmented
+ * control of settings.css), then one row per entry, at least 68px tall, a
+ * first discovery behind its gold chip. Hard edges, no animation, no opacity
+ * to dim a filler.
  */
 
 .feed {
@@ -70,6 +71,19 @@
 .feed__sentence strong {
   color: var(--color-text-max);
   font-weight: inherit;
+}
+
+/* A first discovery's chip: gold is kept for what is rare (DESIGN.md). */
+.feed__chip {
+  display: inline-block;
+  margin-right: var(--space-2);
+  padding: 2px var(--space-2);
+  background: var(--color-gold);
+  color: var(--color-on-gold);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  vertical-align: 2px;
 }
 
 .feed__thumb {

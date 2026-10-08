@@ -1,8 +1,5 @@
 require "test_helper"
 
-# Accounts::NoteLastSeen and its job (CAP-21, AD-24, story 5.3): a player's
-# last-seen time moves forward at most once a minute, never past now, in
-# one UPDATE that publishes nothing.
 class Accounts::NoteLastSeenTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 

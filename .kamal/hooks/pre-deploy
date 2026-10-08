@@ -1,0 +1,38 @@
+#!/usr/bin/env sh
+# A destination is deployed from a published release only: this refuses a
+# deploy whose version is not a tagged commit, so staging changes once per
+# release (.github/workflows/deploy-staging.yml deploys each one) and the
+# Discord announcement (post-deploy) is sent once per release, not per push.
+#
+# A rollback goes back to a version deployed before, tagged or not, and is
+# let through. To deploy a commit without a tag on purpose, skip the hooks:
+#
+#   bin/kamal deploy -d staging --skip-hooks
+#
+# These environment variables are available:
+# KAMAL_RECORDED_AT
+# KAMAL_PERFORMER
+# KAMAL_VERSION
+# KAMAL_HOSTS
+# KAMAL_COMMAND
+# KAMAL_SUBCOMMAND
+# KAMAL_ROLES (if set)
+# KAMAL_DESTINATION (if set)
+
+if [ -z "$KAMAL_DESTINATION" ] || [ "$KAMAL_COMMAND" = "rollback" ]; then
+  exit 0
+fi
+
+case "$KAMAL_VERSION" in
+  *_uncommitted_*)
+    echo "pre-deploy: $KAMAL_DESTINATION is deployed from a published release only, and the checkout has uncommitted changes" >&2
+    exit 1
+    ;;
+esac
+
+if [ -z "$(git tag --points-at "$KAMAL_VERSION")" ]; then
+  echo "pre-deploy: $KAMAL_DESTINATION is deployed from a published release only, and $KAMAL_VERSION carries no tag (publish a GitHub release, or --skip-hooks)" >&2
+  exit 1
+fi
+
+exit 0

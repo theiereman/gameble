@@ -1,12 +1,15 @@
 name: Deploy to staging
 
-# Deploys develop to https://gameble.dotsncircles.com once CI has passed on it.
-# main is never deployed here: production stays a manual `bin/kamal deploy -d production`.
+# Staging changes once per release: publishing a GitHub release whose tag is
+# on develop deploys that tag to https://gameble.dotsncircles.com, and
+# .kamal/hooks/post-deploy announces it on Discord with the commits since the
+# version last deployed (the tag deployed/staging, which the hook moves and
+# pushes). A release whose tag is not on develop, a tag without a release, or
+# a push to develop deploys nothing. main is never deployed here: production
+# stays a manual `bin/kamal deploy -d production`.
 on:
-  workflow_run:
-    workflows: [ CI ]
-    types: [ completed ]
-    branches: [ develop ]
+  release:
+    types: [ published ]
 
 concurrency:
   group: deploy-staging
@@ -14,27 +17,45 @@ concurrency:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
     runs-on: ubuntu-latest
     environment: staging
     permissions:
-      contents: read
+      contents: write   # the hook pushes the deployed/staging tag
+    env:
+      STAGING_BRANCH: develop
 
     steps:
-      - name: Checkout the commit CI validated
+      - name: Checkout the release
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event.release.tag_name }}
+          # The changelog reads the commits since the deployed/staging tag.
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Check the release is on the staging branch
+        id: gate
+        run: |
+          git fetch --quiet origin "$STAGING_BRANCH"
+          if git merge-base --is-ancestor HEAD "origin/$STAGING_BRANCH"; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Release $GITHUB_REF_NAME is not on $STAGING_BRANCH: nothing deployed to staging."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Set up Ruby
+        if: steps.gate.outputs.deploy == 'true'
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
       - name: Set up Docker Buildx
+        if: steps.gate.outputs.deploy == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Write the SSH access to the staging LXC
+        if: steps.gate.outputs.deploy == 'true'
         env:
           STAGING_SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
           STAGING_SSH_KNOWN_HOSTS: ${{ secrets.STAGING_SSH_KNOWN_HOSTS }}
@@ -44,18 +65,22 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           printf '%s\n' "$STAGING_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
-      - name: Write the secret files read by .kamal/secrets.staging
+      - name: Write the secret files read by .kamal/secrets.staging and the hook
+        if: steps.gate.outputs.deploy == 'true'
         env:
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
+          DISCORD_WEBHOOK_STAGING: ${{ secrets.DISCORD_WEBHOOK_STAGING }}
         run: |
           umask 077
           printf '%s' "$RAILS_MASTER_KEY" > config/master.key
           printf '%s' "$SENTRY_DSN" > config/sentry_dsn.key
           printf '%s' "$DATABASE_PASSWORD" > config/database_password.key
           printf '%s' "$STEAM_API_KEY" > config/steam_api.key
+          printf '%s' "$DISCORD_WEBHOOK_STAGING" > config/discord_webhook.staging.key
 
       - name: Deploy
+        if: steps.gate.outputs.deploy == 'true'
         run: bin/kamal deploy -d staging

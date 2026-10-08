@@ -34,7 +34,9 @@ en:
       collection: "Collection"
       trades: "Trades"
       more: "More"
-      soon: "coming soon"
+      trades_waiting:
+        one: "%{number} trade waiting for you"
+        other: "%{number} trades waiting for you"
     toast:
       region: "Notifications"
       close: "Close"
@@ -43,6 +45,8 @@ en:
     sign_in_panel:
       title: "Sign in to play"
       close: "Close"
+    version:
+      label: "Deployed version"
   pages:
     home:
       kicker:
@@ -59,6 +63,9 @@ en:
           one: "%{owned} unique card out of %{total}"
           other: "%{owned} unique cards out of %{total}"
         trades: "Trades"
+        trades_waiting:
+          one: "%{number} trade waiting for you"
+          other: "%{number} trades waiting for you"
         friends: "Friends"
         friends_online:
           one: "%{number} online"
@@ -320,20 +327,20 @@ en:
         next: "Next page"
     seen:
       throttled: "Too many requests in a minute. Try again in a moment."
+    # The collection's list of sets (library/set_list) and its no-season
+    # line (library/show); the public profile reads the tab names too.
     show:
       tabs:
-        label: "The kinds of sets"
         started: "Started"
         tome: "Tomes"
         publisher: "Publishers"
         best_of_year: "Best rated of the year"
       empty:
-        started: "No set started yet, Brother: this collection still awaits its first card."
-        tome: "No tome stands on these shelves yet, Brother. This season binds none."
-        publisher: "No publisher has earned a set this season, Brother."
-        best_of_year: "No year has had its best bound this season, Brother."
-      past_the_end: "This shelf stands empty, Brother. The tomes end on an earlier one."
-      no_season: "The shelves are bare, Brother: the Brotherhood has published no season of cards yet."
+        tome: "No tome in this season yet."
+        publisher: "No publisher has a set this season."
+        best_of_year: "No best-rated set this season."
+      past_the_end: "This list ends on an earlier page."
+      no_season: "No season of cards is published yet."
   public_profiles:
     title: "%{name}"
     fallback_title: "Player %{code}"
@@ -488,12 +495,15 @@ en:
       nameless: "Nameless officer"
       time_format: "%b %-d, %H:%M UTC"
       pulled_html: "%{name} pulled %{card}"
+      first_discovery: "First discovery"
+      discovered_html: "%{card}, found by %{name} for the first time in the community"
   friends:
     show:
       title: "Friends"
       more: "More"
       code_label: "Your friend code"
-      empty: "No friends yet. Your code is how they will find you."
+      empty: "No friends yet."
+      empty_invite: "Invite one with your link or your code."
       nameless: "Nameless officer"
       invite: "Invite a friend"
       by_link: "By link"
@@ -536,7 +546,6 @@ en:
       showcase: "Showcase"
       no_showcase: "No card in the showcase."
       propose_trade: "Propose a trade"
-      soon: "Coming soon"
     unavailable:
       body: "This profile is not available."
   invitations:
@@ -559,11 +568,173 @@ en:
     unknown:
       title: "Invitation"
       text: "This invitation link is not valid."
+  trades:
+    title: "Trades"
+    throttled: "Too many actions in one minute. Try again in a moment."
+    insufficient: "Not enough copies"
+    one_at_a_time:
+      title: "One trade at a time"
+      text: "A trade is already open with %{name}."
+    undo_dialog:
+      title: "Discard the changes?"
+      text: "What you changed will be lost, and %{name}'s proposal will come back as it was."
+      confirm: "Discard the changes"
+      keep: "Keep editing"
+      close: "Close"
+    list:
+      label: "Your trades"
+      back: "List"
+      empty: "No trades yet."
+      empty_invite: "Invite a friend to trade cards."
+      yours: "Waiting for you"
+      theirs: "Waiting for their answer"
+      recent: "Recently finished"
+    row:
+      what_for_what: "%{theirs} for %{yours}"
+      expires:
+        one: "expires in %{count} d"
+        other: "expires in %{count} d"
+    chip:
+      yours: "Your turn"
+      theirs: "Waiting"
+      concluded: "Done"
+      closed: "Closed"
+      editing: "Editing"
+      draft: "Draft"
+    outcome:
+      accepted: "done %{age}"
+      declined: "declined %{age}"
+      cancelled: "cancelled %{age}"
+      expired: "expired %{age}"
+    age:
+      now: "just now"
+      minutes:
+        one: "%{count} min ago"
+        other: "%{count} min ago"
+      hours:
+        one: "%{count} h ago"
+        other: "%{count} h ago"
+      days:
+        one: "%{count} d ago"
+        other: "%{count} d ago"
+    board:
+      heading: "Trade with %{name}"
+      expires_html: "Expires in %{days}"
+      days:
+        one: "%{count} d"
+        other: "%{count} d"
+      yours: "%{name} proposes this trade to you."
+      theirs: "Waiting for %{name}'s answer."
+      concluded: "Trade done."
+      closed: "Trade closed."
+      editing: "Change what you give and what you ask for, then send it back."
+      choose: "Choose the cards on each side."
+      valid: "Valid for 7 days once sent"
+    side:
+      friend_gives: "%{name} gives"
+      friend_received: "%{name} received"
+      friend_offered: "%{name} offered"
+      you_give: "You give"
+      you_received: "You received"
+      cards:
+        one: "%{count} card"
+        other: "%{count} cards"
+      cards_copies:
+        one: "%{cards} · %{copies} copies"
+        other: "%{cards} · %{copies} copies"
+      copies_label: "Copies:"
+      reserved:
+        one: "Reserved"
+        other: "%{count} reserved"
+      quantity_label: "Copies of %{title}"
+      max: "/%{max}"
+      new: "New"
+      none:
+        title: "No card available."
+        none_owned: "You no longer hold any of these cards."
+        all_reserved: "Your copies are all reserved in other trades."
+        friend_none_owned: "%{name} no longer holds any of these cards."
+    actions:
+      accept: "Accept"
+      counter: "Counter"
+      decline: "Decline"
+      cancel: "Cancel the proposal"
+      send_counter: "Send the counter-proposal"
+      undo: "Discard the changes"
+      send: "Send the proposal"
+      abandon: "Abandon"
+      again: "New trade with %{name}"
+    island:
+      add:
+        friend: "Choose their cards"
+        own: "Place my cards"
+      picker:
+        friend: "Choose from %{name}'s collection"
+        own: "Place my cards"
+      picker_short:
+        friend: "%{name}'s cards"
+        own: "My cards"
+      note:
+        friend: "Choose the cards, then how many copies to ask %{name} for."
+        own: "Choose the cards, then the number of copies. A copy you place stays reserved until the answer."
+      strings:
+        close: "Close"
+        place: "Place"
+        cancel: "Cancel"
+        remove: "Remove %{title}"
+        more: "One more copy"
+        fewer: "One copy fewer"
+        value_text: "%{count} of %{max}"
+        max_phone: "of %{max}"
+        available:
+          zero: "none available"
+          one: "1 available"
+          other: "%{count} available"
+        picked: "%{cards} · %{copies} (4 cards at most)"
+        picked_cards:
+          one: "%{count} card"
+          other: "%{count} cards"
+        picked_copies:
+          one: "%{count} copy"
+          other: "%{count} copies"
+        limit_title: "4 cards at most"
+        limit_text: "Remove a card before placing another."
+        card_label: "%{title}, %{owned}"
+        owned:
+          one: "1 copy"
+          other: "%{count} copies"
+        reserved_elsewhere:
+          one: "1 reserved in another trade"
+          other: "%{count} reserved in other trades"
+        unavailable: "none available"
+        search_label: "Search by title"
+        search_placeholder: "Search a title"
+        rarities_legend: "Rarity"
+        clear_filters: "Clear filters"
+        no_match: "No card matches these filters. Clear them to see every card again."
+        results:
+          zero: "No card shown."
+          one: "1 card shown."
+          other: "%{count} cards shown."
+    accepted:
+      title: "Trade done"
+      text:
+        one: "%{cards} joins your collection."
+        other: "%{cards} join your collection."
+    declined:
+      title: "Trade declined"
+      text: "Your answer was sent to %{name}."
+    cancelled:
+      title: "Proposal cancelled"
+      text: "Your cards are no longer reserved."
+    sent:
+      title: "Proposal sent"
+      text: "%{name} has 7 days to answer. Your cards are reserved until then."
   accounts:
     dialog:
       title: "Delete my account"
       close: "Close"
-      note: "Your collection, your boosters and your profile will be erased for good. This cannot be undone."
+      note: "Your collection, your boosters, your open trades and your profile will be erased for good. This cannot be undone."
       word: "DELETE"
       label: "Type %{word} to confirm"
       submit: "Delete for good"

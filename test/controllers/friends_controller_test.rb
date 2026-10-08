@@ -1,8 +1,5 @@
 require "test_helper"
 
-# The Friends screen (EXPERIENCE.md, Amis; story 5.1): the player's friend
-# code and an empty friends list; a visitor is sent home to sign in. Each
-# friend's presence and menu 04's online count (story 5.3).
 class FriendsControllerTest < ActionDispatch::IntegrationTest
   setup do
     OmniAuth.config.test_mode = true
@@ -30,7 +27,10 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select "main h1", "Amis"
     assert_select ".friends__label", "Votre code ami"
     assert_select ".friends__code", "7K2Q-F3NX"
-    assert_select ".friends__empty"
+    assert_select ".friends__empty", /Aucun ami pour l'instant\./ do
+      assert_select "a[href='#friends-invite']", "Invitez-en un avec votre lien ou votre code."
+    end
+    assert_select ".friends__panel#friends-invite .friends__heading", "Inviter un ami"
     assert_select ".friends__row", 0
   end
 
@@ -95,7 +95,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/fr/friends'] .menu-item__meta", "0 en ligne"
   end
 
-  test "a friend's name opens their profile dialog, whose frame loads the profile lazily (story 5.10)" do
+  test "a friend's name opens their profile dialog, whose frame loads the profile lazily" do
     other = accounts_players(:moderator)
     other.update!(persona_name: "Sam")
     Game::Friendship.create!(low_player_id: [ @player.id, other.id ].min, high_player_id: [ @player.id, other.id ].max)

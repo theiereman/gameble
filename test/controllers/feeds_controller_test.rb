@@ -1,8 +1,9 @@
 require "test_helper"
 require_relative "../support/game_packs"
 
-# The activity feed (CAP-13, CAP-18; stories 6.1, 6.2): readable signed out,
-# newest pulls first, under the type filters, a GET writes nothing (AD-11).
+# The activity feed (CAP-13, CAP-18; stories 6.1, 6.2, 6.7): readable signed
+# out, newest pulls and first discoveries first, under the type filters, a
+# GET writes nothing (AD-11).
 class FeedsControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
 
@@ -131,6 +132,35 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference -> { Game::FeedEntry.count + Rails.configuration.event_store.read.count + Game::Pack.count } do
       get feed_path(locale: :en, filter: "pulls")
     end
+  end
+
+  test "a first discovery shows with its gold chip under the whole feed and DÉCOUVERTES, in French and English" do
+    common = fixture_tier_ids[0]
+    Game::FirstDiscovery.where(card_season_id: common).delete_all
+    create_pack(@player, cards: [ common ] * 5)
+    Game::OpenPack.new.call(player: @player).value!
+
+    get feed_path(locale: :fr)
+    assert_select ".feed__entry", 1
+    assert_select ".feed__entry--filler", 0
+    assert_select ".feed__sentence .feed__chip", "Première découverte"
+    assert_select ".feed__sentence", /trouvée par Hugo pour la première fois dans la communauté/
+
+    get feed_path(locale: :en, filter: "discoveries")
+    assert_select ".feed__filter[aria-current]", "Discoveries"
+    assert_select ".feed__sentence .feed__chip", "First discovery"
+    assert_select ".feed__sentence", /found by Hugo for the first time in the community/
+
+    get feed_path(locale: :en, filter: "pulls")
+    assert_select ".feed__entry", 0
+  end
+
+  test "a pull carries no discovery chip" do
+    open_epic
+
+    get feed_path(locale: :en)
+
+    assert_select ".feed__chip", 0
   end
 
   test "menu 05 and the PLUS row link to the feed" do

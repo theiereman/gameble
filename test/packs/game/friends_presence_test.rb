@@ -1,8 +1,5 @@
 require "test_helper"
 
-# Game::FriendsPresence (CAP-21, AD-24, story 5.3): each friend is doing
-# something, online, or away since a time, read from their last-seen time
-# and their latest activity; the online count is what menu 04 shows.
 class Game::FriendsPresenceTest < ActiveSupport::TestCase
   setup do
     @player = accounts_players(:player)
@@ -22,7 +19,6 @@ class Game::FriendsPresenceTest < ActiveSupport::TestCase
     Game::PlayerState.where(player_id: friend.id).update_all(last_activity: activity, last_activity_at: at)
   end
 
-  # The online count, which the query and the rows agree on.
   def assert_online(count, now: @now)
     assert_equal count, Game::FriendsPresence.online_count(@player, now:)
     assert_equal count, Game::FriendsPresence.call(@player, now:).count(&:online?)
@@ -73,6 +69,22 @@ class Game::FriendsPresenceTest < ActiveSupport::TestCase
 
     assert_equal [ "Ada", "Sam" ], rows.map { it.player.persona_name }
     assert_equal [ [ :offline, nil ] ] * 2, rows.map { [ it.state, it.seen_at ] }
+    assert_online(0)
+  end
+
+  test "one friend's presence reads as their row does" do
+    acted(@sam, "trading", @now - 1.minute)
+    @ada.update_columns(last_seen_at: @now - 3.hours)
+
+    assert_equal presence["Sam"], Game::FriendsPresence.of(@sam, now: @now).to_h.except(:player)
+    assert_equal presence["Ada"], Game::FriendsPresence.of(@ada, now: @now).to_h.except(:player)
+  end
+
+  test "a deleted friend still in a friendship row is neither listed nor counted online" do
+    acted(@sam, "opening_pack", @now)
+    @sam.update_columns(steam_id: nil, deleted_at: @now)
+
+    assert_equal [ "Ada" ], Game::FriendsPresence.call(@player, now: @now).map { it.player.persona_name }
     assert_online(0)
   end
 

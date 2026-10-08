@@ -229,7 +229,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "a player's request costs fifteen queries, a visitor's ten" do
+  test "a player's request costs sixteen queries, a visitor's ten" do
     season = publish_sets_draft
     player = accounts_players(:player)
     hold(player, set_members(season, "action-1").first, 1)
@@ -238,8 +238,8 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     # Player lookup, published season; the grid: the set, its genres, count,
     # page, card views, the player's slots; the list: count, page, totals,
     # progress; the figures: unique cards, the season's cards, copies per
-    # tier.
-    assert_request_queries(15) { get library_set_path(locale: :en, kind: "tome", key: "action-1") }
+    # tier; the tab bar's trades waiting.
+    assert_request_queries(16) { get library_set_path(locale: :en, kind: "tome", key: "action-1") }
     assert_response :success
 
     delete session_path(locale: :en)

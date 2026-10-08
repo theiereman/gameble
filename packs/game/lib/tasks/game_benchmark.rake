@@ -1,11 +1,11 @@
 # The pack-opening benchmark (epic 3, R4; Done when 6): the spec asks the
 # opening to answer within 200 ms at the 95th percentile. This task builds a
-# 15,000-card published season and players with full banks in a database of
-# its own, then times, in-process and without concurrency, the opening
-# request (POST /en/packs, the gate: the booster's JSON exchange of AD-23,
-# a fresh Idempotency-Key per post, its faces rendered in the answer), the
-# result page that follows (GET of the answer's pack url) and the operation
-# alone (Game::OpenPack), three times; it exits non-zero when the worst POST
+# 15,000-card published season, with one set per publisher, and players
+# with full banks in a database of its own, then times, in-process and
+# without concurrency, the opening request (POST /en/packs, the gate: the
+# booster's JSON exchange of AD-23, a fresh Idempotency-Key per post, its
+# faces rendered in the answer), the result page that follows (GET of the
+# answer's pack url) and the operation alone (Game::OpenPack), three times; it exits non-zero when the worst POST
 # p95 reaches 200 ms. Never in CI.
 #
 #   RAILS_ENV=test bin/rails game:benchmark_open_pack
@@ -18,6 +18,7 @@
 class OpenPackBenchmark
   DATABASE = "gameble_benchmark".freeze
   CARDS = 15_000
+  PUBLISHERS = 900
   TIMED = 1_000
   WARM_UP = 50
   OPENINGS_PER_PLAYER = 10
@@ -161,7 +162,7 @@ class OpenPackBenchmark
     card_ids = Catalog::Card.insert_all!(Array.new(CARDS) do |index|
       { source_key: "benchmark:#{index}", slug: "benchmark-game-#{index}", release_date: release_dates[index],
         image_url: "https://images.example.test/#{index}.jpg", store_url: "https://store.example.test/#{index}",
-        publisher: "Publisher #{index % 900}", genres: [ "action" ] }
+        publisher: "Publisher #{index % PUBLISHERS}", genres: [ "action" ] }
     end, returning: :id).rows.flatten
     Catalog::CardText.insert_all!(card_ids.each_with_index.flat_map do |card_id, index|
       %w[en fr].map { |locale| { card_id:, locale:, title: "Benchmark game #{index} (#{locale})", short_description: "A game." } }
@@ -169,10 +170,24 @@ class OpenPackBenchmark
 
     scores = Array.new(CARDS) { |index| index + random.rand }.shuffle(random:)
     tiers = Catalog::RarityThresholds.tiers(scores) || refuse("the cut left a tier empty")
-    Catalog::CardSeason.insert_all!(card_ids.each_with_index.map do |card_id, index|
+    card_season_ids = Catalog::CardSeason.insert_all!(card_ids.each_with_index.map do |card_id, index|
       { card_id:, season_id:, prestige_score: scores[index], rating: random.rand(0..100), rarity: tiers[index] }
-    end)
+    end, returning: :id).rows.flatten
+    seed_sets(season_id, card_season_ids)
     season_id
+  end
+
+  # One set per publisher of the cards (about 17 cards each), so every
+  # opening checks the completion of its cards' sets (story 6.7) as in play.
+  def seed_sets(season_id, card_season_ids)
+    set_ids = Catalog::Set.insert_all!(Array.new(PUBLISHERS) do |publisher|
+      { season_id:, kind: "publisher", key: "benchmark-publisher-#{publisher}", params: { publisher: "Publisher #{publisher}" } }
+    end, returning: :id).rows.flatten
+    card_season_ids.each_with_index.each_slice(5_000) do |slice|
+      Catalog::SetMembership.insert_all!(slice.map do |card_season_id, index|
+        { set_id: set_ids.fetch(index % PUBLISHERS), card_season_id:, position: (index / PUBLISHERS) + 1 }
+      end)
+    end
   end
 
   # Players in separate groups per series and run, each with a full bank

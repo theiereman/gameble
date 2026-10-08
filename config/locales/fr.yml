@@ -34,7 +34,10 @@ fr:
       collection: "Collection"
       trades: "Échanges"
       more: "Plus"
-      soon: "bientôt disponible"
+      trades_waiting:
+        zero: "%{number} échange en attente de vous"
+        one: "%{number} échange en attente de vous"
+        other: "%{number} échanges en attente de vous"
     toast:
       region: "Notifications"
       close: "Fermer"
@@ -43,6 +46,8 @@ fr:
     sign_in_panel:
       title: "Connectez-vous pour jouer"
       close: "Fermer"
+    version:
+      label: "Version déployée"
   pages:
     home:
       kicker:
@@ -60,6 +65,10 @@ fr:
           one: "%{owned} carte unique sur %{total}"
           other: "%{owned} cartes uniques sur %{total}"
         trades: "Échanges"
+        trades_waiting:
+          zero: "%{number} échange en attente de vous"
+          one: "%{number} échange en attente de vous"
+          other: "%{number} échanges en attente de vous"
         friends: "Amis"
         # French keeps the singular for 0, which the plural rule here does not.
         friends_online:
@@ -330,20 +339,20 @@ fr:
         next: "Page suivante"
     seen:
       throttled: "Trop de requêtes en une minute. Réessayez dans un instant."
+    # The collection's list of sets (library/set_list) and its no-season
+    # line (library/show); the public profile reads the tab names too.
     show:
       tabs:
-        label: "Les sortes de collections"
         started: "Entamées"
         tome: "Tomes"
         publisher: "Éditeurs"
         best_of_year: "Les mieux notés de l'année"
       empty:
-        started: "Aucune collection entamée pour l'instant, Confrère : celle-ci attend encore sa première carte."
-        tome: "Aucun tome ne se dresse encore sur ces étagères, Confrère. Cette saison n'en relie aucun."
-        publisher: "Aucun éditeur n'a mérité sa collection cette saison, Confrère."
-        best_of_year: "Aucune année n'a vu ses meilleurs reliés cette saison, Confrère."
-      past_the_end: "Cette étagère est vide, Confrère. Les tomes s'arrêtent sur une étagère précédente."
-      no_season: "Les étagères sont nues, Confrère : la Confrérie n'a encore publié aucune saison de cartes."
+        tome: "Aucun tome dans cette saison pour l'instant."
+        publisher: "Aucun éditeur n'a de set cette saison."
+        best_of_year: "Aucun set des mieux notés cette saison."
+      past_the_end: "Cette liste s'arrête sur une page précédente."
+      no_season: "Aucune saison de cartes n'est publiée pour l'instant."
   public_profiles:
     title: "%{name}"
     fallback_title: "Joueur %{code}"
@@ -504,12 +513,15 @@ fr:
       nameless: "Officier sans nom"
       time_format: "%-d/%m, %H:%M UTC"
       pulled_html: "%{name} a tiré %{card}"
+      first_discovery: "Première découverte"
+      discovered_html: "%{card}, trouvée par %{name} pour la première fois dans la communauté"
   friends:
     show:
       title: "Amis"
       more: "Plus"
       code_label: "Votre code ami"
-      empty: "Aucun ami pour l'instant. Votre code est la clé pour vous retrouver."
+      empty: "Aucun ami pour l'instant."
+      empty_invite: "Invitez-en un avec votre lien ou votre code."
       nameless: "Officier sans nom"
       invite: "Inviter un ami"
       by_link: "Par lien"
@@ -552,7 +564,6 @@ fr:
       showcase: "Vitrine"
       no_showcase: "Aucune carte en vitrine."
       propose_trade: "Proposer un échange"
-      soon: "Bientôt disponible"
     unavailable:
       body: "Ce profil n'est pas disponible."
   invitations:
@@ -575,11 +586,175 @@ fr:
     unknown:
       title: "Invitation"
       text: "Ce lien d'invitation n'est pas valide."
+  trades:
+    title: "Échanges"
+    throttled: "Trop d'actions en une minute. Réessayez dans un instant."
+    insufficient: "Exemplaires insuffisants"
+    one_at_a_time:
+      title: "Un échange à la fois"
+      text: "Un échange est déjà ouvert avec %{name}."
+    undo_dialog:
+      title: "Annuler les modifications ?"
+      text: "Ce que vous avez changé sera perdu et la proposition de %{name} reviendra telle quelle."
+      confirm: "Annuler les modifications"
+      keep: "Continuer à modifier"
+      close: "Fermer"
+    list:
+      label: "Vos échanges"
+      back: "Liste"
+      empty: "Aucun échange pour l'instant."
+      empty_invite: "Invitez un ami pour échanger des cartes."
+      yours: "En attente de vous"
+      theirs: "En attente de leur réponse"
+      recent: "Terminés récemment"
+    row:
+      what_for_what: "%{theirs} contre %{yours}"
+      expires:
+        one: "expire dans %{count} j"
+        other: "expire dans %{count} j"
+    chip:
+      yours: "À vous"
+      theirs: "En attente"
+      concluded: "Conclu"
+      closed: "Clos"
+      editing: "En édition"
+      draft: "Brouillon"
+    outcome:
+      accepted: "conclu %{age}"
+      declined: "refusé %{age}"
+      cancelled: "annulé %{age}"
+      expired: "expiré %{age}"
+    age:
+      now: "à l'instant"
+      minutes:
+        one: "il y a %{count} min"
+        other: "il y a %{count} min"
+      hours:
+        one: "il y a %{count} h"
+        other: "il y a %{count} h"
+      days:
+        one: "il y a %{count} j"
+        other: "il y a %{count} j"
+    board:
+      heading: "Échange avec %{name}"
+      expires_html: "Expire dans %{days}"
+      days:
+        one: "%{count} j"
+        other: "%{count} j"
+      yours: "%{name} vous propose cet échange."
+      theirs: "En attente de la réponse de %{name}."
+      concluded: "Échange conclu."
+      closed: "Échange clos."
+      editing: "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez."
+      choose: "Choisissez les cartes de chaque côté."
+      valid: "Valable 7 jours après l'envoi"
+    side:
+      friend_gives: "%{name} donne"
+      friend_received: "%{name} a reçu"
+      friend_offered: "%{name} proposait"
+      you_give: "Vous donnez"
+      you_received: "Vous avez reçu"
+      cards:
+        one: "%{count} carte"
+        other: "%{count} cartes"
+      cards_copies:
+        one: "%{cards} · %{copies} ex."
+        other: "%{cards} · %{copies} ex."
+      copies_label: "Exemplaires :"
+      reserved:
+        one: "Réservée"
+        other: "%{count} réservées"
+      quantity_label: "Exemplaires de %{title}"
+      max: "/%{max}"
+      new: "Nouveau"
+      none:
+        title: "Aucune carte disponible."
+        none_owned: "Vous n'avez plus aucune de ces cartes."
+        all_reserved: "Vos exemplaires sont tous réservés dans d'autres échanges."
+        friend_none_owned: "%{name} n'a plus aucune de ces cartes."
+    actions:
+      accept: "Accepter"
+      counter: "Contre-proposer"
+      decline: "Refuser"
+      cancel: "Annuler la proposition"
+      send_counter: "Renvoyer la contre-proposition"
+      undo: "Annuler les modifications"
+      send: "Envoyer la proposition"
+      abandon: "Abandonner"
+      again: "Nouvel échange avec %{name}"
+    island:
+      add:
+        friend: "Choisir ses cartes"
+        own: "Placer mes cartes"
+      picker:
+        friend: "Choisir dans la collection de %{name}"
+        own: "Placer mes cartes"
+      picker_short:
+        friend: "Cartes de %{name}"
+        own: "Mes cartes"
+      note:
+        friend: "Choisissez les cartes, puis combien d'exemplaires demander à %{name}."
+        own: "Choisissez les cartes, puis le nombre d'exemplaires. Un exemplaire placé reste réservé jusqu'à la réponse."
+      strings:
+        close: "Fermer"
+        place: "Placer"
+        cancel: "Annuler"
+        remove: "Retirer %{title}"
+        more: "Un exemplaire de plus"
+        fewer: "Un exemplaire de moins"
+        value_text: "%{count} sur %{max}"
+        max_phone: "sur %{max}"
+        available:
+          zero: "aucun disponible"
+          one: "1 disponible"
+          other: "%{count} disponibles"
+        picked: "%{cards} · %{copies} (4 cartes au plus)"
+        picked_cards:
+          zero: "0 carte"
+          one: "%{count} carte"
+          other: "%{count} cartes"
+        picked_copies:
+          zero: "0 exemplaire"
+          one: "%{count} exemplaire"
+          other: "%{count} exemplaires"
+        limit_title: "4 cartes au plus"
+        limit_text: "Retirez une carte avant d'en placer une autre."
+        card_label: "%{title}, %{owned}"
+        owned:
+          one: "1 exemplaire"
+          other: "%{count} exemplaires"
+        reserved_elsewhere:
+          one: "1 réservé ailleurs"
+          other: "%{count} réservés ailleurs"
+        unavailable: "aucun disponible"
+        search_label: "Rechercher par titre"
+        search_placeholder: "Rechercher un titre"
+        rarities_legend: "Rareté"
+        clear_filters: "Effacer les filtres"
+        no_match: "Aucune carte ne correspond à ces filtres. Effacez-les pour revoir toutes les cartes."
+        results:
+          zero: "Aucune carte affichée."
+          one: "1 carte affichée."
+          other: "%{count} cartes affichées."
+    accepted:
+      title: "Échange conclu"
+      text:
+        one: "%{cards} rejoint votre collection."
+        other: "%{cards} rejoignent votre collection."
+    declined:
+      title: "Échange refusé"
+      text: "Votre réponse a été envoyée à %{name}."
+    cancelled:
+      title: "Proposition annulée"
+      text: "Vos cartes ne sont plus réservées."
+    sent:
+      title: "Proposition envoyée"
+      text: "%{name} a 7 jours pour répondre. Vos cartes sont réservées d'ici là."
   accounts:
     dialog:
       title: "Supprimer mon compte"
       close: "Fermer"
-      note: "Votre collection, vos boosters et votre profil seront effacés définitivement. Cette action est irréversible."
+      note: "Votre collection, vos boosters, vos échanges en cours et votre profil seront effacés définitivement. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
       submit: "Supprimer définitivement"

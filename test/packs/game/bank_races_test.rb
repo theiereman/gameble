@@ -35,7 +35,9 @@ class Game::BankRacesTest < ActiveSupport::TestCase
   teardown do
     Game::DrawPool.define_singleton_method(:current, @current)
     players = Accounts::Player.pluck(:id)
-    [ Game::DailyBonusClaim, Game::Holding, Game::FeedEntry, Game::WeeklyContribution, Game::Pack ].each do |model|
+    # First discoveries made by this test's packs (the fixture ones have none).
+    Game::FirstDiscovery.where(pack_id: Game::Pack.where(player_id: players).select(:id)).delete_all
+    [ Game::DailyBonusClaim, Game::Holding, Game::FeedEntry, Game::WeeklyContribution, Game::SetCompletion, Game::Pack ].each do |model|
       model.where(player_id: players).delete_all
     end
     Game::PlayerState.where(player_id: @created).delete_all

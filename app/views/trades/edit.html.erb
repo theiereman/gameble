@@ -1,0 +1,3 @@
+<% content_for :title, t("trades.board.heading", name: friend_name(@trade.friend)) %>
+<%= render "trades/screen", view: :board, trades: @trades, trade: @trade, cards: @cards,
+      board: trade_board_locals(@trade, cards: @cards, own_held: @own_cards, friend_held: @friend_cards, picks: @picks, editing: true) %>

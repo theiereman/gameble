@@ -4,7 +4,7 @@ module Accounts
   # released (the same Steam account signs up again as a new player), the
   # persona name and the last-seen time are erased, the public token is
   # replaced (every link that named the player leads nowhere) and
-  # `deleted_at` is set.
+  # `deleted_at` is set, which also rotates the private stream key.
   #
   # In one transaction: the player row is locked FOR NO KEY UPDATE, which
   # serialises two deletions of one player (the second finds the record

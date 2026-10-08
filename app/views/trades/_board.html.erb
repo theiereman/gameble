@@ -1,0 +1,76 @@
+<% editing = local_assigns.fetch(:editing, false) %>
+<% fresh = local_assigns.fetch(:fresh, nil) || [] %>
+<% friend_label, own_label = trade_side_labels(trade) %>
+<% friend_lines, own_lines = trade_board_lines(trade) %>
+<% tone, chip = trade_chip(trade) %>
+<% form_id = TradesHelper::COUNTER_FORM_ID %>
+<% yours = trade.state == :yours %>
+<% own_held = local_assigns[:own_held] %>
+<% friend_held = local_assigns[:friend_held] %>
+<% body = capture do %>
+  <header class="trade-board__header">
+    <%= pixel_icon("avatar-default", class: "trade-board__avatar") %>
+    <h2 id="trade-board-heading" class="trade-board__title" tabindex="-1"><%= t("trades.board.heading", name: friend_name(trade.friend)) %></h2>
+    <%= tag.span chip, class: "trade-chip trade-chip--#{tone}", hidden: editing, data: { trade_board_target: ("chip" if yours) } %>
+    <% if yours %>
+      <%= tag.span t("trades.chip.editing"), class: "trade-chip trade-chip--accent", hidden: !editing, data: { trade_board_target: "editingChip" } %>
+    <% end %>
+    <p class="trade-board__expiry">
+      <% if trade.open? %>
+        <%= pixel_icon("hourglass", class: "trade-board__hourglass") %>
+        <%= t("trades.board.expires_html", days: tag.b(t("trades.board.days", count: trade_days_left(trade)))) %>
+      <% else %>
+        <%= trade_outcome_age(trade) %>
+      <% end %>
+    </p>
+  </header>
+  <% sides = capture do %>
+    <%= render "trades/side", side: :friend, label: friend_label, lines: friend_lines, cards:, editing:, form: form_id,
+          reserved: yours, held: friend_held,
+          none: (trade_nothing_to_place(trade, :friend, friend_held) if editing) %>
+    <%= render "trades/board_middle", message: trade_message(trade, editing:) %>
+    <%= render "trades/side", side: :own, label: own_label, lines: own_lines, cards:, editing:, form: form_id,
+          reserved: trade.state == :theirs, held: own_held, fresh:,
+          none: (trade_nothing_to_place(trade, :own, own_held) if editing) %>
+  <% end %>
+  <% if local_assigns[:island] %>
+    <%= turbo_mount("TradeBoard", props: island, class: "trade-island") { sides } %>
+  <% else %>
+    <%= sides %>
+  <% end %>
+  <div class="trade-board__actions">
+    <% if yours %>
+      <%= tag.div class: "trade-board__action-set", hidden: editing, data: { trade_board_target: "readActions" } do %>
+        <%= render ButtonComponent.new(href: accept_trade_path(token: trade.token), method: :post) do %><%= t("trades.actions.accept") %><% end %>
+        <span class="trade-board__action" data-trade-board-target="editButton" data-action="click->trade-board#edit">
+          <%= render ButtonComponent.new(variant: :secondary, href: counter_trade_path(token: trade.token)) do %><%= t("trades.actions.counter") %><% end %>
+        </span>
+        <%= render ButtonComponent.new(variant: :secondary, href: decline_trade_path(token: trade.token), method: :post) do %><%= t("trades.actions.decline") %><% end %>
+      <% end %>
+      <%= form_with url: counter_trade_path(token: trade.token), method: :post, id: form_id, class: "trade-board__action-set",
+            html: { hidden: !editing }, data: { controller: "trade-send", trade_board_target: "editActions" } do %>
+        <%= render ButtonComponent.new(type: :submit) do %><%= t("trades.actions.send_counter") %><% end %>
+        <span class="trade-board__action" data-action="click->trade-board#undo">
+          <%= render ButtonComponent.new(variant: :secondary, href: trade_path(token: trade.token)) do %><%= t("trades.actions.undo") %><% end %>
+        </span>
+        <p id="trade-send-reason" class="trade-board__reason" data-trade-send-target="reason" hidden><%= t("trades.board.choose") %></p>
+      <% end %>
+    <% elsif trade.state == :theirs %>
+      <%= render ButtonComponent.new(variant: :secondary, href: cancel_trade_path(token: trade.token), method: :post) do %><%= t("trades.actions.cancel") %><% end %>
+    <% elsif trade.state == :closed && local_assigns[:trade_again] %>
+      <%= render ButtonComponent.new(href: new_trade_path(friend: trade.friend.token)) do %><%= t("trades.actions.again", name: friend_name(trade.friend)) %><% end %>
+    <% end %>
+  </div>
+  <% if yours %>
+    <%= render "trades/undo_dialog", trade: %>
+  <% end %>
+<% end %>
+<%= render PanelComponent.new(tag: :section, brackets: true, class: class_names("trade-board", "trade-board--editing": editing),
+      aria: { labelledby: "trade-board-heading" },
+      data: { controller: class_names("trade-board", "trade-swap": trade.state == :concluded),
+              trade_board_editing_value: editing, trade_board_focus_value: local_assigns.fetch(:focus, false),
+              trade_board_forget_value: local_assigns[:forget], trade_board_counter_url_value: (counter_trade_path(token: trade.token) if yours),
+              trade_board_board_url_value: (trade_path(token: trade.token) if yours),
+              trade_swap_play_value: (true if local_assigns[:swap] && trade.state == :concluded) }) do %>
+  <div class="trade-board__form"><%= body %></div>
+<% end %>

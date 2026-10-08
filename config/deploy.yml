@@ -76,6 +76,11 @@ asset_path: /rails/public/assets
 builder:
   arch: amd64
 
+  # Kamal reads this file through ERB: the version the shell shows is the
+  # release tag of the deployed commit, else its short sha, read at build time.
+  args:
+    GAMEBLE_VERSION: "<%= tag = `git describe --tags --exact-match --exclude 'deployed/*' HEAD 2>/dev/null`.strip; tag.empty? ? `git rev-parse --short HEAD`.strip : tag %>"
+
   # # Build image via remote server (useful for faster amd64 builds on arm64 computers)
   # remote: ssh://docker@docker-builder-server
   #

@@ -3,9 +3,8 @@ module Game
   # may `viewer` (nil for a signed-out visitor) see `owner`'s profile and
   # what is attributed to them? A missing, banned or deleted owner is never
   # visible, not even to themselves. Else the owner sees themselves; anyone
-  # sees a public owner; a friends-only owner is seen by their friends (the
-  # friendship query, Game::FriendshipBetween, asked only here for
-  # visibility); a private owner is seen by no one else.
+  # sees a public owner; a friends-only owner is seen by their friends; a
+  # private owner is seen by no one else.
   #
   #   Game::Visibility.visible?(current_player, owner) # => true | false
   module Visibility

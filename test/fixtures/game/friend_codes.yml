@@ -1,5 +1,3 @@
-# Every fixture player has their friend code, as a registered or backfilled
-# player does (AD-8).
 _fixture:
   model_class: Game::FriendCode
 

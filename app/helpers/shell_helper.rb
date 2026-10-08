@@ -38,18 +38,41 @@ module ShellHelper
     end
   end
 
+  def shell_version
+    ShellHelper.app_version
+  end
+
+  # The release tag given to the image build (config/deploy.yml, builder
+  # args), else the deployed commit, else "dev".
+  def self.app_version(env = ENV)
+    env["GAMEBLE_VERSION"].presence || env["KAMAL_VERSION"].to_s.sub(/_uncommitted_.*\z/, "")[0, 7].presence || "dev"
+  end
+
   # The back-office gets the tokens and the top bar, without the atmosphere
   # or the tab bar (DESIGN.md, Back-office).
   def back_office_page?
     controller_path.start_with?("back_office/")
   end
 
-  # The signed-in player's bank (Game::BankSummary), for the packs chip; nil
-  # for a visitor. Read once per request; the hub's own @bank is reused.
+  # The signed-in player's reserve (Game::BankSummary.reserve), for the
+  # packs and reserve chips; nil for a visitor. Read once per request; the
+  # page's own @bank (hub, booster screen, pack page) is reused.
   def shell_bank
     return @shell_bank if defined?(@shell_bank)
 
-    @shell_bank = @bank || (current_player && Game::BankSummary.call(current_player))
+    @shell_bank = @bank || (current_player && Game::BankSummary.reserve(current_player))
+  end
+
+  def shell_trades_waiting
+    return @shell_trades_waiting if defined?(@shell_trades_waiting)
+
+    @shell_trades_waiting = current_player && Game::TradesWaiting.call(current_player)
+  end
+
+  def player_stream_tag
+    return if current_player.nil? || back_office_page?
+
+    turbo_stream_from(*PlayerStream.streamables(current_player), channel: PlayerStreamChannel)
   end
 
   # Copies held per rarity tier in the published season (Game::TierCounts),
@@ -61,7 +84,7 @@ module ShellHelper
   # Whole seconds to the next pack of the bank, rounded up; nil when the
   # reserve is full or nothing is scheduled.
   def shell_next_pack_in(bank)
-    return if bank.nil? || shell_reserve_full?(bank) || bank[:next_available_at].nil?
+    return if bank.nil? || bank[:reserve_full] || bank[:next_available_at].nil?
 
     [ (bank[:next_available_at] - Time.current).ceil, 0 ].max
   end
@@ -86,11 +109,5 @@ module ShellHelper
   def bank_changed_json(bank)
     { available: bank[:available], reserveFull: bank[:reserve_full], nextAvailableAt: bank[:next_available_at]&.utc&.iso8601,
       serverTime: Time.current.utc.iso8601 }.to_json
-  end
-
-  # The reserve holds Game::Pack::BANK_SIZE boosters (EXPERIENCE.md, Reserve
-  # full): the countdown gives way to "Réserve pleine".
-  def shell_reserve_full?(bank)
-    bank[:available] >= Game::Pack::BANK_SIZE
   end
 end

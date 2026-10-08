@@ -1,19 +1,13 @@
 <% content_for :back_button, true %>
 <% content_for :title, friend_name(@owner) %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
-<%# A friend's profile (DESIGN.md, Friend profile; EXPERIENCE.md, Friend
-    profile): the body of the friend's dialog on the Friends screen, which
-    loads this frame when it opens; read alone, it is a page. The 64px
-    avatar, the name, the card count, "VITRINE" with up to three cards,
-    "PROPOSER UN ÉCHANGE" (primary, waiting for the trade board) and the
-    orange "SIGNALER", which opens the report dialog of story 7.4 and comes
-    back to the Friends screen. Presence comes with its own story. %>
 <%= turbo_frame_tag friend_profile_frame_id(@owner.token), target: "_top" do %>
   <section class="friend-profile" aria-labelledby="friend-profile-name-<%= @owner.token %>">
     <div class="friend-profile__head">
       <%= pixel_icon("avatar-default", class: "friend-profile__avatar") %>
       <div class="friend-profile__who">
         <h2 id="friend-profile-name-<%= @owner.token %>" class="friend-profile__name"><%= friend_name(@owner) %></h2>
+        <p class="friend-profile__presence"><%= render "friends/presence", presence: @presence %></p>
         <p class="friend-profile__count"><%= t("public_profiles.show.distinct_cards", count: @distinct_cards) %></p>
       </div>
     </div>
@@ -28,8 +22,7 @@
       <p class="friend-profile__empty"><%= t(".no_showcase") %></p>
     <% end %>
     <div class="friend-profile__actions">
-      <%= render ButtonComponent.new(disabled: true) do %><%= t(".propose_trade") %><% end %>
-      <p class="friend-profile__soon"><%= t(".soon") %></p>
+      <%= render ButtonComponent.new(href: new_trade_path(friend: @owner.token)) do %><%= t(".propose_trade") %><% end %>
       <%= render ButtonComponent.new(variant: :link, size: :small, opens: "report-dialog-#{@owner.token}") do %><%= t("reports.open") %><% end %>
     </div>
     <%= render "reports/dialog", owner: @owner, id: "report-dialog-#{@owner.token}", from: "friends" %>

@@ -1,0 +1,17 @@
+<li class="hub-menu__entry">
+  <% head = capture do %><span class="menu-item__number" aria-hidden="true">03</span><span class="menu-item__label"><%= t("pages.home.menu.trades") %></span><% end %>
+  <% arrow = pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
+  <% if waiting.nil? %>
+    <%= tag.button type: :button, class: "menu-item", aria: { haspopup: "dialog", keyshortcuts: "3" },
+          data: { hub_menu_target: "item", controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: "sign-in-panel" } do %>
+      <%= head %><%= arrow %>
+    <% end %>
+  <% else %>
+    <%= link_to trades_path, class: "menu-item", aria: { keyshortcuts: "3" },
+          data: { hub_menu_target: "item", action: "hub-menu#remember", turbo_prefetch: false } do %>
+      <%= head %>
+      <span id="menu-trades-badge" class="stream-slot"><%= render "pages/menu_trades_badge", waiting: %></span>
+      <%= arrow %>
+    <% end %>
+  <% end %>
+</li>

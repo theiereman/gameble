@@ -67,28 +67,31 @@ Rails.application.routes.draw do
     # Deleting the player's own account, from the settings' delete dialog
     # (CAP-14).
     resource :account, only: :destroy
-    # The Friends screen (CAP-10): the player's friends and friend code.
     resource :friends, only: :show
-    # A friend's profile (EXPERIENCE.md, Friend profile), by their token
-    # (AD-15): the body of the dialog a friend row opens.
     get "friends/:token" => "friend_profiles#show", as: :friend_profile,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
 
     # The activity feed (CAP-13): public, read only.
     get "feed" => "feeds#show", as: :feed
-    # Invitations, by friend code (a field of the Friends screen) and their
-    # answers; addressed by token (AD-15).
     post "friends/invitations" => "invitations#create", as: :invitations
     post "friends/invitations/:token/accept" => "invitations#accept", as: :accept_invitation,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     post "friends/invitations/:token/ignore" => "invitations#ignore", as: :ignore_invitation,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
-    # A player's permanent invite link (AD-15: their own token); a visitor
-    # signs in first and returns to it.
     get "invite/:token" => "invite_links#show", as: :invite_link,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     post "invite/:token" => "invite_links#create",
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    resources :trades, only: %i[index show new create], param: :token,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
+      member do
+        get :counter, action: :edit
+        post :counter
+        post :accept
+        post :decline
+        post :cancel
+      end
+    end
     # The phone's PLUS tab: the rest of the ship (EXPERIENCE.md, PLUS rows).
     get "more" => "pages#more", as: :more
 

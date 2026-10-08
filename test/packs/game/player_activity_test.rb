@@ -1,8 +1,5 @@
 require "test_helper"
 
-# Game::Handlers::PlayerActivity (CAP-21, AD-10, AD-24, story 5.3): a
-# player's own game actions become their latest activity, on their own
-# game state row, inside the operation's transaction.
 class Game::PlayerActivityTest < ActiveSupport::TestCase
   setup do
     Game::DrawPool.reset!
