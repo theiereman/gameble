@@ -24,7 +24,8 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "main h1", "Activity feed"
-    assert_select ".feed__tab[aria-current]", "All"
+    assert_select ".feed__tab", false
+    assert_select ".feed__filter[aria-current]", "Everything"
     assert_select ".feed__entry", 5
     assert_select ".feed__entry--filler", 0
     assert_select ".feed__sentence strong", text: "Hugo"
@@ -86,7 +87,6 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".feed__filter[aria-current]", "Pulls"
-    assert_select ".feed__tab[aria-current]", "All"
     assert_select ".feed__entry", 5
   end
 

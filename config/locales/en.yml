@@ -540,7 +540,6 @@ en:
     show:
       title: "Activity feed"
       more: "More"
-      all: "All"
       empty: "Nothing here yet."
       empty_filter: "Nothing in this filter yet."
       filters_label: "Filter by type"

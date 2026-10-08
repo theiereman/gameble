@@ -1,16 +1,14 @@
 /*
- * Fil d'activité (DESIGN.md: Activity feed; EXPERIENCE.md: Fil d'activité;
- * stories 6.1, 6.2, 6.7): the tab and the type filters (the segmented
- * control of settings.css), then one row per entry, at least 68px tall, a
- * first discovery behind its gold chip. Hard edges, no animation, no opacity
- * to dim a filler.
+ * The activity feed: the type filters (the segmented control of
+ * settings.css), then one row per entry across the shell's content width,
+ * at least 68px tall, a first discovery behind its gold chip. Hard edges,
+ * no animation, no opacity to dim a filler.
  */
 
 .feed {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  max-width: 720px;
 }
 
 .feed__title {
@@ -19,10 +17,6 @@
   font: var(--font-kicker);
   letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;
-}
-
-.feed__tabs {
-  margin: 0;
 }
 
 /* The five filters wrap on a narrow phone, spaced rather than joined. */

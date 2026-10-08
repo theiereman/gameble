@@ -7,7 +7,7 @@
   <% end %>
 <% end %>
 <%# Fil d'activité (EXPERIENCE.md, Fil d'activité; DESIGN.md, Activity feed):
-    the tab TOUS, the type filters (links, the chosen one current), then one
+    the type filters (links, the chosen one current), then one
     row per entry, newest first: time, a sentence naming the player (a first
     discovery's behind its gold "PREMIÈRE DÉCOUVERTE" chip), the card's
     thumbnail and its rarity. Fillers of a quiet feed sit on the
@@ -16,7 +16,6 @@
     Brotherhood line here. %>
 <section class="feed" aria-labelledby="feed-heading">
   <h1 id="feed-heading" class="feed__title"><%= t(".title") %></h1>
-  <p class="feed__tabs segmented"><span class="feed__tab segmented__option" aria-current="true"><%= t(".all") %></span></p>
   <nav class="feed__filters segmented" aria-label="<%= t(".filters_label") %>">
     <% [ nil, *FeedsController::FILTERS.keys ].each do |filter| %>
       <%= link_to t(".filters.#{filter || "all"}"), feed_path(filter:), class: "feed__filter segmented__option",

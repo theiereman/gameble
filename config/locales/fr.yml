@@ -558,7 +558,6 @@ fr:
     show:
       title: "Fil d'activité"
       more: "Plus"
-      all: "Tous"
       empty: "Rien pour l'instant."
       empty_filter: "Rien pour l'instant dans ce filtre."
       filters_label: "Filtrer par type"
