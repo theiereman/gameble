@@ -106,6 +106,11 @@ class TradesTest < ApplicationSystemTestCase
 
   def pick_toggle(title) = find(".trade-picker .trade-pick__toggle[aria-label^='#{title},']")
 
+  def place_picks
+    within(".trade-picker") { click_on "Place", exact: true }
+    assert_no_selector ".trade-picker", visible: true
+  end
+
   test "on a desktop the picker places cards and quantities on both sides, within the limits" do
     soldier, hills, crown = %i[common_card_one uncommon_card_one legendary_card_one].map { catalog_card_seasons(it).id }
     hold(@hugo, soldier, 1)
@@ -133,7 +138,7 @@ class TradesTest < ApplicationSystemTestCase
     assert_equal "false", crown_toggle["aria-pressed"]
     pick_toggle("Tin Soldier").click
     assert_selector ".trade-picker__count", text: "2 cards · 3 copies (4 cards at most)"
-    click_on "Place"
+    place_picks
     assert_no_selector ".trade-picker"
     within(".trade-side--own") do
       assert_selector ".trade-card__remove", count: 2
@@ -151,7 +156,7 @@ class TradesTest < ApplicationSystemTestCase
     assert_selector ".trade-picker__refusal", text: /4 cards at most · Remove a card before placing another\./i
     assert_equal "false", pick_toggle("Portal")["aria-pressed"]
     pick_toggle("Golden Crown").click
-    click_on "Place"
+    place_picks
     within(".trade-side--friend") do
       assert_selector ".trade-card__remove", count: 3
       find(".trade-card__remove[aria-label='Remove Tin Soldier']").click
@@ -211,7 +216,7 @@ class TradesTest < ApplicationSystemTestCase
     assert_selector ".trade-pick:last-child .trade-pick__toggle[tabindex='0']"
     uncheck "Legendary", allow_label_click: true
     uncheck "Common", allow_label_click: true
-    click_on "Place"
+    place_picks
     within(".trade-side--friend") { assert_selector ".trade-card__remove[aria-label='Remove Tin Soldier']" }
   end
 
@@ -273,11 +278,11 @@ class TradesTest < ApplicationSystemTestCase
     assert_in_delta page.evaluate_script("window.innerHeight"), height, 2
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "no sideways scroll"
     pick_toggle("Green Hills").click
-    click_on "Place"
+    place_picks
 
     find(".trade-side--own .trade-add").click
     pick_toggle("Portal").click
-    click_on "Place"
+    place_picks
     assert_no_selector "#trade-send-reason", visible: true
     click_on "Send the counter-proposal"
     assert_selector ".toast", text: /Lea has 7 days to answer/
@@ -312,10 +317,10 @@ class TradesTest < ApplicationSystemTestCase
     assert_selector "button[type=submit][disabled]", text: /Send the proposal/i
     find(".trade-side--friend .trade-add").click
     pick_toggle("Blue Depths").click
-    click_on "Place"
+    place_picks
     find(".trade-side--own .trade-add").click
     pick_toggle("Portal").click
-    click_on "Place"
+    place_picks
     within(".trade-side--own") do
       find(".stepper__button--more").click
       assert_selector ".stepper[aria-valuenow='2']"
@@ -356,7 +361,7 @@ class TradesTest < ApplicationSystemTestCase
     find(".trade-side--own .trade-card__remove[aria-label='Remove Blue Depths']").click
     find(".trade-side--own .trade-add").click
     pick_toggle("Green Hills").click
-    click_on "Place"
+    place_picks
     click_on "Discard the changes"
     within("#trade-undo-dialog") { click_on "Keep editing" }
     assert_no_selector "#trade-undo-dialog", visible: true
@@ -373,7 +378,7 @@ class TradesTest < ApplicationSystemTestCase
     find(".trade-side--own .trade-card__remove[aria-label='Remove Blue Depths']").click
     find(".trade-side--own .trade-add").click
     pick_toggle("Green Hills").click
-    click_on "Place"
+    place_picks
     click_on "Send the counter-proposal"
     assert_selector ".toast", text: /Hugo has 7 days to answer/
     assert_empty draft_entries
@@ -421,10 +426,10 @@ class TradesTest < ApplicationSystemTestCase
     find(".trade-side--friend .trade-add").click
     pick_toggle("Blue Depths").click
     pick_toggle("Green Hills").click
-    click_on "Place"
+    place_picks
     find(".trade-side--own .trade-add").click
     pick_toggle("Portal").click
-    click_on "Place"
+    place_picks
     Game::Holding.where(player_id: @lea.id, card_season_id: hills).update_all(quantity: 0)
 
     click_on "Send the proposal"
@@ -444,11 +449,11 @@ class TradesTest < ApplicationSystemTestCase
     within(".trade-board") { click_on "Counter" }
     find(".trade-side--friend .trade-add").click
     pick_toggle("Green Hills").click
-    click_on "Place"
+    place_picks
     find(".trade-side--own .trade-card__remove[aria-label='Remove Portal']").click
     find(".trade-side--own .trade-add").click
     pick_toggle("Tin Soldier").click
-    click_on "Place"
+    place_picks
     Game::Holding.where(player_id: @lea.id, card_season_id: hills).update_all(quantity: 0)
 
     click_on "Send the counter-proposal"
@@ -480,7 +485,7 @@ class TradesTest < ApplicationSystemTestCase
     visit new_trade_path(locale: :en, friend: @max.token)
     find(".trade-side--own .trade-add").click
     pick_toggle("Portal").click
-    click_on "Place"
+    place_picks
     assert_equal 1, draft_entries.size
 
     click_on "Abandon"

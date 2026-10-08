@@ -4,8 +4,8 @@
  * epic 10 R2, R6): a bracketed panel up to 720px wide, centred, its header
  * (kicker, number at top right), then the stage (the card at card-l over a
  * ground shadow, or the viewer's card back at 55% for a card not held) and
- * the information (title, position line, description, fact rows, notice,
- * share link, actions). Two columns, stage and information, when the panel
+ * the information (title, position line, description, fact rows, share
+ * link, actions). Two columns, stage and information, when the panel
  * is wide enough (a container query, so a narrow right-hand panel stacks
  * them too); one column otherwise.
  *
@@ -251,8 +251,7 @@
   text-transform: uppercase;
 }
 
-.card-detail__description,
-.card-detail__notice {
+.card-detail__description {
   margin: 0;
 }
 
@@ -320,12 +319,6 @@
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-/* The ownership notice, under the facts of every card. */
-.card-detail__notice {
-  color: var(--color-muted);
-  font: var(--font-body-small);
 }
 
 /* The share sheet, "PARTAGER LA CARTE" (DESIGN.md, Share sheet): a
@@ -578,8 +571,8 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
 
 /* ---- The public card page (DESIGN.md, Public card page; story 10.3): no
    app chrome. The card at card-xl and its information side by side, both
-   capped at 1180px and centred; one column under 720px. The LIVE strip and
-   the legal notice below are inert placeholders. ---- */
+   capped at 1180px and centred; one column under 720px. Below, the LIVE
+   strip, an inert placeholder, and the footer's link to the legal page. ---- */
 
 .public-card {
   display: flex;
@@ -797,12 +790,20 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   border-top: var(--space-unit) solid var(--color-line-soft);
 }
 
-/* "Mentions légales": a muted placeholder, no page behind it yet. */
+/* "Mentions légales": a muted link to the legal page, accent on hover. */
 .public-card__legal {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-touch-min);
   color: var(--color-muted);
   font: var(--font-button-sm);
   letter-spacing: var(--tracking-button-sm);
+  text-decoration: none;
   text-transform: uppercase;
+}
+
+.public-card__legal:hover {
+  color: var(--color-accent);
 }
 
 @media (max-width: 719px) {

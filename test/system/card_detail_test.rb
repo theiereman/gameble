@@ -113,7 +113,6 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector ".card-detail__card .card.card--l"
     assert_selector ".card-detail__description", text: "A seed of a game."
     assert_selector ".card-detail__fact", text: /COPIES\s+2 copies/
-    assert_selector ".card-detail__notice", text: "This game and its image belong to their respective owners. gameble is not affiliated with Valve or Steam."
     link = find(".card-detail__actions a.card-detail__store")
     assert_equal [ card.store_url, "_blank" ], [ link[:href], link[:target] ]
     assert_equal "See on Steam (new tab)", link.evaluate_script("this.textContent").squish

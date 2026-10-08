@@ -75,7 +75,10 @@ class Game::BankLockOrderRacesTest < ActiveSupport::TestCase
 
   def open(player) = -> { Game::OpenPack.new.call(player: Accounts::Player.find(player.id)) }
   def bonus(player) = -> { Game::CollectDailyBonus.new.call(player: Accounts::Player.find(player.id)) }
-  def accept(player, trade) = -> { Game::AcceptTrade.new.call(player: Accounts::Player.find(player.id), trade_id: trade.id) }
+  def accept(player, trade)
+    revision = Game::Trade.find(trade.id).revision
+    -> { Game::AcceptTrade.new.call(player: Accounts::Player.find(player.id), trade_id: trade.id, revision:) }
+  end
   def delete(player) = -> { Accounts::DeletePlayer.new.call(player: Accounts::Player.find(player.id)) }
 
   # The job reports a player's failure and goes on: a deadlock it swallowed

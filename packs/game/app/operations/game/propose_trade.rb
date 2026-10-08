@@ -12,10 +12,12 @@ module Game
       transaction do
         TradeLocks.players(player.id, recipient.id)
         step friends(player, recipient)
+        now = Time.current
+        expire_due_trade(player, recipient, now)
         step no_open_trade(player, recipient)
+        step requestable(request, recipient.id)
         holdings = TradeLocks.holdings(player.id, offer.keys)
         step enough_copies(offer, holdings)
-        now = Time.current
         trade = create_trade(player, recipient, now)
         create_items(trade, offer, request, now)
         reserve(offer, holdings, now)
@@ -33,6 +35,13 @@ module Game
 
     def other_player(player, recipient)
       recipient.is_a?(Accounts::Player) && recipient.persisted? && recipient.id != player.id ? Success() : Failure(:not_friends)
+    end
+
+    def expire_due_trade(player, recipient, now)
+      low, high = [ player.id, recipient.id ].minmax
+      due = Trade.due(now).find_by(low_player_id: low, high_player_id: high) or return
+
+      ExpireTrade.new.call(player: Accounts::Player.find(due.proposer_id), trade_id: due.id)
     end
 
     def no_open_trade(player, recipient)

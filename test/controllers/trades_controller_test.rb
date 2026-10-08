@@ -143,7 +143,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/fr/trades'] .visually-hidden", "1 échange en attente de vous"
     assert_select ".tab-bar a.tab-bar__tab[href='/fr/trades'] .tab-bar__badge--alert", "1"
 
-    post accept_trade_path(token: trade.token, locale: :fr)
+    post accept_trade_path(token: trade.token, locale: :fr), params: { revision: Game::Trade.find(trade.id).revision }
     assert_redirected_to trade_path(token: trade.token, locale: :fr)
     follow_redirect!
 
@@ -176,7 +176,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     Game::Holding.where(player_id: @alice.id, card_season_id: @portal).update_all(quantity: 1)
     sign_in @alice
 
-    post accept_trade_path(token: trade.token, locale: :fr)
+    post accept_trade_path(token: trade.token, locale: :fr), params: { revision: Game::Trade.find(trade.id).revision }
     follow_redirect!
 
     message = I18n.t("errors.game.requested_cards_unavailable", locale: :fr)
@@ -184,6 +184,66 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".toast--alert", /Exemplaires insuffisants/
     assert_select ".trade-chip--alert", "À vous"
     assert trade.reload.open?
+  end
+
+  test "the board's accept and decline carry the terms they were rendered with" do
+    trade = from_lea
+    sign_in @alice
+
+    get trade_path(token: trade.token, locale: :fr)
+
+    revision = Game::Trade.find(trade.id).revision
+    assert_select "form[action$='/accept'] input[name=revision][value=?]", revision
+    assert_select "form[action$='/decline'] input[name=revision][value=?]", revision
+  end
+
+  test "accepting or declining terms that changed since the board was opened is refused and nothing moves" do
+    trade = from_lea
+    sign_in @alice
+    get trade_path(token: trade.token, locale: :fr)
+    seen = css_select("form[action$='/accept'] input[name=revision]").first["value"]
+    Game::CounterTrade.new.call(player: @alice, trade_id: trade.id, offer: { @portal => 1 }, request: { @depths => 1 }).value!
+    Game::CounterTrade.new.call(player: @bob, trade_id: trade.id, offer: { @depths => 2 }, request: { @portal => 1 }).value!
+    before = [ holding(@alice, @portal).quantity, holding(@bob, @depths).quantity ]
+
+    post accept_trade_path(token: trade.token, locale: :fr), params: { revision: seen }
+    follow_redirect!
+
+    assert_select ".trade-board__error[role=alert]", I18n.t("errors.game.trade_changed", locale: :fr)
+    post accept_trade_path(token: trade.token, locale: :fr)
+    assert_equal I18n.t("errors.game.trade_changed", locale: :fr), flash[:alert]
+    post decline_trade_path(token: trade.token, locale: :fr), params: { revision: seen }
+    assert_equal I18n.t("errors.game.trade_changed", locale: :fr), flash[:alert]
+    assert Game::Trade.find(trade.id).open?
+    assert_equal before, [ holding(@alice, @portal).quantity, holding(@bob, @depths).quantity ]
+  end
+
+  test "proposing again to a friend whose trade expired but is not yet swept closes it and sends the new proposal" do
+    expired = propose(@alice, @bob, offer: { @portal => 3 }, request: { @depths => 1 })
+    sign_in @alice
+
+    travel_to(expired.expires_at + 1.second) do
+      get new_trade_path(locale: :fr, friend: @bob.token)
+      assert_response :success
+      post trades_path(locale: :fr), params: { friend: @bob.token, give: { "portal--s1" => "3" }, take: { "blue-depths--s1" => "1" } }
+    end
+
+    fresh = Game::Trade.order(:id).last
+    assert_redirected_to trade_path(token: fresh.token, locale: :fr)
+    assert_equal "expired", expired.reload.status
+    assert_equal [ "open", 3 ], [ fresh.status, holding(@alice, @portal).reserved ]
+    assert_equal 1, Game::Trade.in_progress.count
+  end
+
+  test "asking for more copies than the friend holds is refused and nothing is reserved" do
+    sign_in @alice
+
+    post trades_path(locale: :fr), params: { friend: @bob.token, give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "3" } }
+    follow_redirect!
+
+    assert_select ".trade-board__error[role=alert]", I18n.t("errors.game.request_exceeds_holdings", locale: :fr)
+    assert_equal 0, Game::Trade.count
+    assert_equal 0, holding(@alice, @portal).reserved
   end
 
   test "declining tells the friend's name" do

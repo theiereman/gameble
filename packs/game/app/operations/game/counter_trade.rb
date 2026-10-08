@@ -18,6 +18,7 @@ module Game
         step not_expired(trade, now)
         other_id = trade.proposer_id
         step friends(player, Accounts::Player.find(other_id))
+        step requestable(request, other_id)
         previous = side_of(trade, "offer")
         holdings = lock_holdings(other_id => previous.keys, player.id => offer.keys)
         step enough_copies(offer, holdings.fetch(player.id))

@@ -8,6 +8,7 @@ module Game
         low, high = [ invitation.sender_id, invitation.recipient_id ].minmax
         Friendship.insert({ low_player_id: low, high_player_id: high }, unique_by: %i[low_player_id high_player_id])
         invitation.update!(status: "accepted")
+        Invitation.pending.where(sender_id: player.id, recipient_id: invitation.sender_id).update_all(status: "accepted", updated_at: Time.current)
         step publish(InvitationAccepted.new(data: { invitation_id: invitation.id, sender_id: invitation.sender_id, recipient_id: player.id }),
           stream_name: stream_name(player.id))
         invitation

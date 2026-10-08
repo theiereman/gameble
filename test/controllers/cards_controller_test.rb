@@ -75,7 +75,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   def position = css_select(".card-detail__position").sole.text
 
-  test "a card of the published season: the bracketed panel, its face, every fact, the sets leading to their grids, the notice, the Steam link" do
+  test "a card of the published season: the bracketed panel, its face, every fact, the sets leading to their grids, no ownership notice, the Steam link" do
     add_a_tome
     sign_in_viewer
 
@@ -96,7 +96,8 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__rarity.card-detail__rarity--epic svg.card-detail__rarity-icon[aria-hidden=true]"
     assert_equal [ [ "Action · Tome 1", "/en/library/tome/action-1" ], [ "Valve", "/en/library/publisher/valve" ] ],
       css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
-    assert_equal "This game and its image belong to their respective owners. gameble is not affiliated with Valve or Steam.", css_select(".card-detail__notice").sole.text
+    assert_select ".card-detail__notice", false
+    assert_no_match(/not affiliated|belong to their/i, response.body)
     assert_equal [ "See on Steam (new tab)", "https://store.example.test/400", "noopener noreferrer external", "_blank" ],
       store_link.then { [ it.text.squish, it["href"], it["rel"], it["target"] ] }
     assert_includes store_link["class"], "button--primary"
@@ -118,7 +119,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", "Soldat de plomb — Commune"
     assert_select ".card-detail__kicker", "Fiche de la carte"
     assert_equal [ [ "Rareté", "Commune" ], [ "Genre", "Action" ], [ "Année", "2024" ], [ "Saison", "Saison 1" ], [ "Sets", "Action · Tome 1" ], [ "Exemplaires", "Aucun" ] ], facts
-    assert_select ".card-detail__notice", "Ce jeu et son image appartiennent à leurs propriétaires respectifs. gameble n'est affilié ni à Valve ni à Steam."
     assert_equal [ "Voir sur Steam (nouvel onglet)", "https://store.steampowered.com/app/401/Tin_Soldier/?snr=1_7&l=french" ],
       store_link.then { [ it.text.squish, it["href"] ] }
     assert_equal [ "Carte précédente", "Carte suivante" ], css_select(".card-detail__nav").map { it["aria-label"] }
@@ -141,7 +141,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__nav", false
     assert_select ".card-detail__position", false
     assert_select ".top-bar__phone-back", false
-    assert_select ".card-detail__notice", "This game and its image belong to their respective owners. gameble is not affiliated with Valve or Steam."
   end
 
   test "a player sees their copies: two, one, or None; in French too" do
