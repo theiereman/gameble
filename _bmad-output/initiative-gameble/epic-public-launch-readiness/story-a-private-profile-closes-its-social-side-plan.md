@@ -3,7 +3,7 @@ title: 'A private profile closes its social side'
 type: 'feature'
 ticket: '20'
 created: '2026-10-09'
-status: 'built'
+status: done
 baseline_revision: 'a3230dcdfb0565a540d1b9c76abe84b81129ebc7'
 route: 'full'
 route_source: 'auto'

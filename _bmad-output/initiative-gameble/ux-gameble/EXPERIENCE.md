@@ -156,7 +156,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 | Community goal panel | The shared weekly gauge for all players, the count and the reward. Fills with every booster opened and, a little, with trades. States: see State Patterns. |
 | Daily booster panel | "RÉCUPÉRER" sends one booster into the reserve (a small canister flies to the packs chip; on the phone, to the BOOSTER tab). Then "PROCHAIN DANS" with a countdown to the day change (midnight UTC). At 10 boosters the button is disabled, with the full-reserve state and line, until a booster is opened. Signed out: opens the sign-in panel. |
 | Set progress row | Opens that set's album. |
-| LIVE ticker | Scrolls notable activity: pulls of Épique or better, first discoveries, trades, set tiers reached and set completions; never reposts. New items join at the loop boundary. Pauses on hover and focus; stops with "Animations réduites". Hidden from assistive technology (the feed carries the same events). |
+| LIVE ticker | Scrolls notable activity: pulls of Épique or better, first discoveries, trades, set tiers reached and set completions; never reposts. New items join at the loop boundary. Pauses on hover; stops with "Animations réduites", the only way a keyboard user stops it. Hidden from assistive technology and holds nothing focusable (the feed carries the same events). |
 
 ### Booster
 
@@ -378,7 +378,7 @@ Behavior only. Contrast values live in `DESIGN.md` (see Colors).
 - **Card text order:** title, publisher, year, genre, rarity, number, then state (copies, NOUVEAU, reserved count). Cover canvases, thumbnails, rays and particles are hidden from assistive technology; avatars have empty alt text next to a visible name; rarity icons are hidden when the name is beside them. A missing-card slot reads "Manquante : Into the Breach, 2018".
 - **Gauges** are progress bars with a text value. Countdowns are not live; their accessible text changes at most once a minute.
 - **No information only in a tooltip** (`title`).
-- **Moving content:** the ticker pauses on hover and focus and stops with "ANIMATIONS RÉDUITES"; every looping or blinking effect stops with it; nothing blinks faster than once a second.
+- **Moving content:** the ticker pauses on hover and stops with "ANIMATIONS RÉDUITES"; every looping or blinking effect stops with it; nothing blinks faster than once a second.
 - **Touch:** at least 44 × 44 CSS px for every phone target, 8px apart.
 - **Readability:** no meaningful information below 10px in the two fonts, and VT323 never under 20px; `{colors.dim}` is decorative only.
 - **Zoom and text spacing:** breakpoints are in CSS px of the viewport, so browser zoom reaches the phone layout; text is in rem; text rows use a minimum height so user text spacing never clips them.
