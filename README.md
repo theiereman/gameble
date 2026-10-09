@@ -91,7 +91,7 @@ bin/kamal app exec --reuse 'bin/rails "accounts:set_role[76561197960287002,moder
 
 The task prints the new role, or aborts with the reason (unknown Steam id, deleted account, unknown role). Setting `player` takes a role away.
 
-- Moderators and administrators open the back-office: the queue of reported players at `/<locale>/back-office/reports` (BAN, or DISMISS to set the reports aside; a report from a player who has not reported them yet brings them back) and the banned players at `/<locale>/back-office/bans` (LIFT THE BAN).
+- Moderators and administrators open the back-office: every player at `/<locale>/back-office/players`, searched by part of the name or by the full Steam id, with each one's role, visibility and standing (BAN without waiting for a report, or LIFT THE BAN); the queue of reported players at `/<locale>/back-office/reports` (BAN, or DISMISS to set the reports aside; a report from a player who has not reported them yet brings them back) and the banned players at `/<locale>/back-office/bans` (LIFT THE BAN).
 - Staff act only on a lower rank (player < moderator < administrator): a moderator bans, unbans and dismisses the reports of players; an administrator also those of moderators; no one acts on an administrator. No one bans themselves or dismisses the reports against themselves.
 - Administrators alone also reach the Steam import, the seasons, the card press and the job queue.
 - Anyone not staff (a visitor, a player, a member of staff since banned) gets 404 on every back-office address, the same page as an unknown address. A moderator on an administrator's page gets 403.

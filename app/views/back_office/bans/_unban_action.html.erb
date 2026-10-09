@@ -1,0 +1,8 @@
+<%# locals: (player:, name:, back: {}) %>
+<% refusal = Accounts::UnbanPlayer.refusal(staff: current_player, player:) %>
+<% if refusal %>
+  <span data-unban-refusal="<%= refusal %>"><%= Accounts::UnbanPlayer.failure_message(refusal) %></span>
+<% else %>
+  <%= render ButtonComponent.new(variant: :secondary, size: :small, href: back_office_ban_path(token: player.token), method: :delete,
+        params: back, confirm: t("back_office.bans.actions.unban_confirm", name:)) do %><%= t("back_office.bans.actions.unban") %><% end %>
+<% end %>

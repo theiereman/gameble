@@ -7,6 +7,12 @@
     <%= t(".queue", count: @queue_size) %>
   <% end %>
 
+  <% if policy([ :back_office, :players ]).index? %>
+    <p>
+      <%= render ButtonComponent.new(variant: :secondary, href: back_office_players_path) do %><%= t(".players") %><% end %>
+    </p>
+  <% end %>
+
   <% if policy([ :back_office, :reports ]).index? %>
     <p>
       <%= render ButtonComponent.new(variant: :secondary, href: back_office_reports_path) do %><%= t(".reports") %><% end %>

@@ -24,18 +24,10 @@
       <tbody>
         <% @players.each do |player| %>
           <% name = public_profile_title(player) %>
-          <% refusal = Accounts::UnbanPlayer.refusal(staff: current_player, player:) %>
           <tr data-player-token="<%= player.token %>">
             <td><%= link_to name, brother_path(token: player.token) %></td>
             <td><%= render "back_office/import_runs/time", time: player.banned_at %></td>
-            <td>
-              <% if refusal %>
-                <span data-unban-refusal="<%= refusal %>"><%= Accounts::UnbanPlayer.failure_message(refusal) %></span>
-              <% else %>
-                <%= render ButtonComponent.new(variant: :secondary, size: :small, href: back_office_ban_path(token: player.token), method: :delete,
-                      confirm: t(".unban_confirm", name:)) do %><%= t(".unban") %><% end %>
-              <% end %>
-            </td>
+            <td><%= render "back_office/bans/unban_action", player:, name: %></td>
           </tr>
         <% end %>
       </tbody>

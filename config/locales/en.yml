@@ -123,6 +123,7 @@ en:
           zero: "No reported player awaits the officers."
           one: "One reported player awaits the officers."
           other: "%{count} reported players await the officers."
+        players: "The players"
         reports: "The reports"
         bans: "The banned players"
         jobs: "The job queue"
@@ -139,7 +140,6 @@ en:
         total: "Total"
         latest_at: "Latest report"
         ban: "BAN"
-        ban_confirm: "Ban %{name}? Their open trades will be cancelled and their friendships broken, even if the ban is lifted later."
         dismiss: "DISMISS"
         dismiss_confirm: "Dismiss the reports on %{name} without banning them?"
         banned_players: "The banned players"
@@ -154,12 +154,39 @@ en:
         player: "Player"
         banned_at: "Banned on"
         unban: "LIFT THE BAN"
-        unban_confirm: "Lift the ban on %{name}?"
         reports: "The reports"
+      actions:
+        ban: "BAN"
+        ban_confirm: "Ban %{name}? Their open trades will be cancelled and their friendships broken, even if the ban is lifted later."
+        unban: "LIFT THE BAN"
+        unban_confirm: "Lift the ban on %{name}?"
       create:
         banned: "%{name} is banned."
       destroy:
         unbanned: "The ban on %{name} is lifted."
+    players:
+      index:
+        heading: "The players"
+        intro: "Every player of the Brotherhood, banned ones included, the newest account first. Search for a player by part of their name or by their full Steam id. BAN suspends them without waiting for a report; LIFT THE BAN gives them back their sign-in and their profile. An officer acts only on a lower rank than their own."
+        search_label: "Search for a player"
+        search_placeholder: "Name or Steam id"
+        search_submit: "Search"
+        empty: "No player has an account yet."
+        no_match: "No player matches “%{query}”."
+        caption: "Players, the newest account first"
+        player: "Player"
+        role: "Role"
+        visibility: "Visibility"
+        state: "Standing"
+        action: "Ban or lift the ban"
+        roles:
+          player: "Player"
+          moderator: "Moderator"
+          administrator: "Administrator"
+        states:
+          good_standing: "In good standing"
+          banned: "Banned"
+        reports: "The reports"
     import_runs:
       statuses:
         pending: "Waiting"

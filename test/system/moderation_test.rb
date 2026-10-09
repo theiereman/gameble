@@ -80,6 +80,42 @@ class ModerationTest < ApplicationSystemTestCase
     end
   end
 
+  test "a moderator finds a player by part of the name or the Steam id and bans them from the list" do
+    steam_identity(@moderator)
+    visit home_path(locale: :fr)
+    click_steam_sign_in
+    assert_signed_in
+
+    visit back_office_path(locale: :fr)
+    click_on "Les joueurs"
+    assert_selector "h1", text: "Les joueurs"
+    within(row(accounts_players(:administrator))) do
+      assert_selector "[data-ban-refusal=outranked]"
+      assert_no_selector "button", text: "BANNIR"
+    end
+
+    fill_in "Chercher un joueur", with: "the rude"
+    click_on "Chercher"
+    assert_selector "tbody tr", count: 1
+    within(row(@reported)) do
+      assert_selector "td[data-player-state=good_standing]"
+      accept_confirm { click_on "BANNIR" }
+    end
+
+    assert_text "Gabe the Rude est banni."
+    assert_field "Chercher un joueur", with: "the rude"
+    within(row(@reported)) do
+      assert_selector "td[data-player-state=banned]", text: "Banni"
+      assert_selector "button", text: "LEVER LE BAN"
+    end
+    assert_predicate @reported.reload, :banned?
+
+    fill_in "Chercher un joueur", with: accounts_players(:administrator).steam_id
+    click_on "Chercher"
+    assert_selector "tbody tr", count: 1
+    assert_selector row(accounts_players(:administrator))
+  end
+
   test "a moderator opens a banned player's profile from the banned list; a visitor finds it unavailable" do
     Accounts::BanPlayer.new.call(staff: accounts_players(:administrator), player: @reported).value!
     steam_identity(@moderator)

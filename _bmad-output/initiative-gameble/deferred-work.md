@@ -369,3 +369,6 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-moderation-by-rank-a-hidden-back-office-and-staff-reading-ev-plan.md`
   summary: A member of staff reading a private, friends-only or banned profile sees it exactly as a public one: nothing says that players do not see it, so staff could share its link believing it public.
   evidence: Story 7.13 kept the profile page unchanged (no staff marker, by its plan). A line such as "Profil privé : visible des officiers seulement" needs copy in both locales and a place in the profile header.
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-a-searchable-list-of-players-in-the-back-office-plan.md`
+  summary: The back-office players search reads `persona_name ILIKE '%…%'` with no index, so each search scans `accounts_players`.
+  evidence: Story 7.14 added no migration (its plan rules out a search index); a scan is instant at launch's player count. Once players number in the hundreds of thousands, a `pg_trgm` GIN index on `persona_name` (the extension in one migration, the index built concurrently in its own) keeps the search fast.

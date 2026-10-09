@@ -78,6 +78,32 @@
   overflow-wrap: anywhere;
 }
 
+/* Back-office search: the field and its button on one row. */
+.ledger-search {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.ledger-search__field {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: var(--space-chip-height);
+  padding: var(--space-1) var(--space-4);
+  background: var(--color-panel-sunken);
+  border: 0;
+  box-shadow: var(--control-border);
+  color: var(--color-text-max);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.ledger-search__field:focus-visible {
+  outline: 0;
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
 /* Back-office card preview: every specimen of the card face, side by side,
    with room around each for its tilt. */
 .card-preview {

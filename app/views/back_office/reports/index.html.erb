@@ -29,7 +29,6 @@
       <tbody>
         <% @rows.each do |row| %>
           <% name = public_profile_title(row.player) %>
-          <% refusal = Accounts::BanPlayer.refusal(staff: current_player, player: row.player) %>
           <% dismiss_refusal = Accounts::DismissReports.refusal(staff: current_player, player: row.player) %>
           <tr data-player-token="<%= row.player.token %>">
             <td><%= link_to name, brother_path(token: row.player.token) %></td>
@@ -38,14 +37,7 @@
             <% end %>
             <td data-report-total="<%= row.total %>"><%= number_with_delimiter(row.total) %></td>
             <td><%= render "back_office/import_runs/time", time: row.latest_at %></td>
-            <td>
-              <% if refusal %>
-                <span data-ban-refusal="<%= refusal %>"><%= Accounts::BanPlayer.failure_message(refusal) %></span>
-              <% else %>
-                <%= render ButtonComponent.new(variant: :danger, size: :small, href: back_office_bans_path, method: :post,
-                      params: { token: row.player.token }, confirm: t(".ban_confirm", name:)) do %><%= t(".ban") %><% end %>
-              <% end %>
-            </td>
+            <td><%= render "back_office/bans/ban_action", player: row.player, name: %></td>
             <td>
               <% if dismiss_refusal %>
                 <span data-dismiss-refusal="<%= dismiss_refusal %>"><%= Accounts::DismissReports.failure_message(dismiss_refusal) %></span>

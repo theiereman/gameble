@@ -128,6 +128,7 @@ fr:
           zero: "Aucun joueur signalé n'attend les officiers."
           one: "Un joueur signalé attend les officiers."
           other: "%{count} joueurs signalés attendent les officiers."
+        players: "Les joueurs"
         reports: "Les signalements"
         bans: "Les bannis"
         jobs: "La file des tâches"
@@ -144,7 +145,6 @@ fr:
         total: "Total"
         latest_at: "Dernier signalement"
         ban: "BANNIR"
-        ban_confirm: "Bannir %{name} ? Ses échanges en cours seront annulés et ses amitiés rompues, même si le ban est levé plus tard."
         dismiss: "CLASSER"
         dismiss_confirm: "Classer les signalements de %{name} sans le bannir ?"
         banned_players: "Les bannis"
@@ -159,12 +159,39 @@ fr:
         player: "Joueur"
         banned_at: "Banni le"
         unban: "LEVER LE BAN"
-        unban_confirm: "Lever le ban de %{name} ?"
         reports: "Les signalements"
+      actions:
+        ban: "BANNIR"
+        ban_confirm: "Bannir %{name} ? Ses échanges en cours seront annulés et ses amitiés rompues, même si le ban est levé plus tard."
+        unban: "LEVER LE BAN"
+        unban_confirm: "Lever le ban de %{name} ?"
       create:
         banned: "%{name} est banni."
       destroy:
         unbanned: "Le ban de %{name} est levé."
+    players:
+      index:
+        heading: "Les joueurs"
+        intro: "Tous les joueurs de la Confrérie, bannis compris, le compte le plus récent en premier. Cherchez un joueur par une partie de son nom ou par son identifiant Steam complet. BANNIR le suspend sans attendre de signalement ; LEVER LE BAN lui rend la connexion et son profil. Un officier n'agit que sur un rang inférieur au sien."
+        search_label: "Chercher un joueur"
+        search_placeholder: "Nom ou identifiant Steam"
+        search_submit: "Chercher"
+        empty: "Aucun joueur n'a encore de compte."
+        no_match: "Aucun joueur ne correspond à « %{query} »."
+        caption: "Joueurs, le compte le plus récent en premier"
+        player: "Joueur"
+        role: "Rôle"
+        visibility: "Visibilité"
+        state: "État"
+        action: "Bannir ou lever le ban"
+        roles:
+          player: "Joueur"
+          moderator: "Modérateur"
+          administrator: "Administrateur"
+        states:
+          good_standing: "En règle"
+          banned: "Banni"
+        reports: "Les signalements"
     import_runs:
       statuses:
         pending: "En attente"
