@@ -3,7 +3,7 @@ title: 'Legal page'
 type: 'feature'
 ticket: '3'
 created: '2026-10-08'
-status: 'built'
+status: done
 baseline_revision: 'fb919801d88dddc123807f319f5372bf4923aa54'
 route: 'full'
 route_source: 'auto'
