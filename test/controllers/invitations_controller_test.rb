@@ -40,8 +40,8 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     post invitations_path(locale: :fr), params: { code: "8f2d-k9xm" }
     assert_redirected_to friends_path(locale: :fr)
     follow_redirect!
-    assert_select ".friends__message--sent", "Invitation envoyée à 8F2D-K9XM."
-    assert_select ".friends__invitation", /Envoyée à 8F2D-K9XM/
+    assert_select ".friends__message--sent", "Invitation envoyée à Sam."
+    assert_select ".friends__invitation", /Envoyée à Sam/
     assert_select ".friends__chip", "En attente"
 
     delete session_path
@@ -137,7 +137,28 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_select ".friends__message--sent", "Invitation envoyée à Sam."
+    assert_select ".friends__invitation", /Envoyée à Sam/
     assert_equal [ @alice.id, @bob.id ], Game::Invitation.pending.pick(:sender_id, :recipient_id)
+  end
+
+  test "an invitation to a player with no usable name shows their code" do
+    @bob.update!(persona_name: "\u200B")
+    sign_in @alice
+    post invitations_path(locale: :fr), params: { code: "8F2D-K9XM" }
+    follow_redirect!
+
+    assert_select ".friends__message--sent", "Invitation envoyée à 8F2D-K9XM."
+    assert_select ".friends__invitation", /Envoyée à 8F2D-K9XM/
+  end
+
+  test "a link invitation to a player with no usable name shows their code" do
+    @bob.update!(persona_name: "\u200B")
+    sign_in @alice
+    post invite_link_path(token: @bob.token, locale: :fr)
+    follow_redirect!
+
+    assert_select ".friends__message--sent", "Invitation envoyée à 8F2D-K9XM."
+    assert_select ".friends__invitation", /Envoyée à 8F2D-K9XM/
   end
 
   test "a player's own link, a repeat and an unknown link" do

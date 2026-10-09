@@ -16,7 +16,7 @@ class InviteLinksController < ApplicationController
     authorize :invite_link, :create?
 
     result = Game::SendInvitation.new.call(player: current_player, recipient_token: params[:token])
-    report_sent(result, to: helpers.friend_name(owner))
+    report_sent(result)
   end
 
   private

@@ -731,7 +731,7 @@ en:
       friends: "Friends"
       no_invitations: "No invitation pending."
       invites_you: "%{name} invites you"
-      sent_to: "Sent to %{code}"
+      sent_to: "Sent to %{name}"
       pending: "Pending"
       accept: "Accept"
       ignore: "Ignore"

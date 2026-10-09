@@ -2,13 +2,14 @@ module InvitationFeedback
   extend ActiveSupport::Concern
 
   private
-    def report_sent(result, to:)
+    def report_sent(result)
       if result.failure?
         flash[:invite_error] = Game::SendInvitation.failure_message(result.failure)
       elsif result.value!.status == "accepted"
         new_friend(result.value!.sender_id)
       else
-        flash[:invite_sent] = t("invitations.sent", to:)
+        recipient = Accounts::PlayerById.call(result.value!.recipient_id)
+        flash[:invite_sent] = t("invitations.sent", to: helpers.invited_name(recipient, Game::FriendCodeOf.call(recipient)))
       end
       redirect_to friends_path, status: :see_other
     end

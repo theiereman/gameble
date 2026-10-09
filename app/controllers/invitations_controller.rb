@@ -8,9 +8,8 @@ class InvitationsController < ApplicationController
   def create
     authorize :invitation, :create?
 
-    code = params[:code].to_s.strip.upcase
     result = Game::SendInvitation.new.call(player: current_player, code: params[:code].to_s)
-    report_sent(result, to: code)
+    report_sent(result)
   end
 
   def accept

@@ -50,7 +50,7 @@
       <% end %>
       <% @invitations.sent.each do |invitation| %>
         <li class="friends__row friends__invitation">
-          <span class="friends__who"><%= t(".sent_to", code: invitation.code) %></span>
+          <span class="friends__who"><%= t(".sent_to", name: invited_name(invitation.player, invitation.code)) %></span>
           <span class="friends__chip"><%= t(".pending") %></span>
         </li>
       <% end %>

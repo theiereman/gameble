@@ -749,7 +749,7 @@ fr:
       friends: "Amis"
       no_invitations: "Aucune invitation en cours."
       invites_you: "%{name} vous invite"
-      sent_to: "Envoyée à %{code}"
+      sent_to: "Envoyée à %{name}"
       pending: "En attente"
       accept: "Accepter"
       ignore: "Ignorer"
