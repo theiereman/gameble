@@ -32,7 +32,7 @@ gem "kamal", require: false
 gem "thruster", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-gem "image_processing", "~> 1.2"
+gem "image_processing", "~> 2.2"
 
 # Bundle and serve frontend assets with Vite [https://vite-ruby.netlify.app/]
 gem "vite_rails", "~> 3.11.1"
