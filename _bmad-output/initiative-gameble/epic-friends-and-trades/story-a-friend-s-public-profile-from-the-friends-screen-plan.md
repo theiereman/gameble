@@ -3,7 +3,7 @@ title: "A friend's public profile from the Friends screen"
 type: 'feature'
 ticket: '13'
 created: '2026-10-08'
-status: 'built'
+status: done
 baseline_revision: 'a3bb38cbbbe0d79bdc483824e5a99bbce48d4027'
 route: 'oneshot'
 route_source: 'auto'
