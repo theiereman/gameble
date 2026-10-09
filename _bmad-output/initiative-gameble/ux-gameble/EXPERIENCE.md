@@ -2,7 +2,7 @@
 name: gameble
 status: final
 created: 2026-10-01
-updated: '2026-10-08'
+updated: '2026-10-09'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/catalog-and-rarity.md
@@ -81,12 +81,12 @@ The single source for every message the interface shows. Other sections name the
 | Community goal | "Toute la Confrérie ouvre 50 000 boosters, ensemble." |
 | Booster hints | "Cliquez une carte pour la révéler · n restantes" (phone: "Touchez la carte pour la révéler", then "Glissez la carte pour la ranger · ou touchez-la") · "Booster inventorié · +5 cartes dans la collection" |
 | Booster states | "SCELLÉ" · "ARMEMENT" · "ÉJECTION" · "INVENTAIRE" · "SIGNAL LÉGENDAIRE" · "INVENTAIRE COMPLET" · "EN ATTENTE" · "RÉSERVE VIDE · Prochain booster dans …" · "Cartes révélées : n / 5" · "Réserve pleine" |
-| Booster live region | "Carte 2 : Hades — Supergiant Games, 2020, Roguelite. Épique." · "Signal légendaire" · "Palier argent atteint : Roguelike, 31 cartes sur 62." · "Set complet : Dark Souls, 3 cartes sur 3." · "Set complet : Roguelike, palier or, 62 cartes sur 62." · "4 paliers atteints : Roguelike, argent ; Metroidvania, or ; Les Pépites, bronze ; Dark Souls, complet." |
+| Booster live region | "Carte 2 : Hades — Supergiant Games, 2020, Roguelite. Épique." · "Signal légendaire" · "Palier argent atteint : Roguelike, 16 cartes sur 62." · "Palier or atteint : Roguelike, 31 cartes sur 62." · "Set complet : Dark Souls, 3 cartes sur 3." · "Set complet : Roguelike, 62 cartes sur 62." · "4 paliers atteints : Roguelike, argent ; Metroidvania, or ; Les Pépites, bronze ; Dark Souls, complet." |
 | Face-down card name | "Carte 2 sur 5, face cachée. Révéler." |
 | Daily booster | "Un booster offert chaque jour. Il rejoint votre réserve." · "Un booster rejoint votre réserve. Le prochain sera prêt à minuit (UTC)." · full reserve: "RÉSERVE PLEINE" · "Ouvrez un booster pour récupérer celui du jour." |
 | Empty showcase | "OUVREZ VOTRE PREMIER BOOSTER" · "Votre plus belle carte s'affichera ici." · "OUVRIR UN BOOSTER" |
 | Collection | "EN COURS" · "À DÉCOUVRIR" · "Chercher un set" · "TOUTES LES CARTES" · "◀ SETS" · kinds "THÈME", "FRANCHISE", "STUDIO", "PALMARÈS", "OVNI" · tiers "BRONZE", "ARGENT", "OR", "COMPLET" · "Aucune carte de ce genre dans ce set pour l'instant." · "IMAGE INDISPONIBLE" · set search: "Aucun set trouvé pour « … »." · "1 set trouvé" · "n sets trouvés" (zero, one and other forms) · set row name: "{set}, {kind}, {owned} cartes sur {total}[, palier {tier}][, {next} à {threshold}][, complet]" |
-| Set celebration | "PALIER ARGENT · Roguelike 31/62" · "SET COMPLET · Dark Souls" · "n PALIERS ATTEINTS" |
+| Set celebration | "PALIER ARGENT · Roguelike 16/62" · "SET COMPLET · Dark Souls" · "n PALIERS ATTEINTS" |
 | Trade board lines | "Léa vous propose cet échange." · "En attente de la réponse de Léa." · "Choisissez les cartes de chaque côté." · "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez." · "Échange en cours…" · "Échange conclu." · "Échange clos." · "Valable 7 jours après l'envoi" · "Expire dans n j" |
 | Trade toasts | "PROPOSITION ENVOYÉE" · "Léa a 7 jours pour répondre. Vos cartes sont réservées d'ici là." · "ÉCHANGE REFUSÉ · Votre réponse a été envoyée à Léa." · "PROPOSITION ANNULÉE · Vos cartes ne sont plus réservées." · "ÉCHANGE CONCLU · Dead Cells ×2 rejoint votre collection." |
 | Trade refusals (inline) | "4 CARTES AU PLUS · Retirez une carte avant d'en placer une autre." · "UN ÉCHANGE À LA FOIS · Un échange est déjà ouvert avec Léa." · "EXEMPLAIRES INSUFFISANTS" · "Vous n'avez plus assez d'exemplaires de Celeste." |
@@ -97,7 +97,7 @@ The single source for every message the interface shows. Other sections name the
 | Trades closed | "Votre profil est privé : les échanges sont fermés." (link "RÉGLAGES") · "Le profil de Léa est privé : échanges fermés." |
 | Going private | "Passer en privé annule vos 2 échanges en cours." · "PASSER EN PRIVÉ" · "ANNULER" |
 | Report | "Pseudo ou avatar inapproprié" · "Triche ou abus" · "Harcèlement" · "Autre" · "Merci. L'équipe de modération examinera ce profil. Léa ne verra pas qui l'a signalé." |
-| Feed | "Rien pour l'instant dans ce filtre." · Friends tab without friends: "Ajoutez des amis pour suivre leurs tirages." with "AJOUTER DES AMIS" · repost entry: "Hugo a reposté Elden Ring." · tag "REPOST" · set entries: "Léa atteint l'argent du set Roguelike." · "Léa complète le set Dark Souls." |
+| Feed | "Rien pour l'instant dans ce filtre." · Friends tab without friends: "Ajoutez des amis pour suivre leurs tirages." with "AJOUTER DES AMIS" · repost entry: "Hugo a reposté Elden Ring." · tag "REPOST" · set entries: "Léa atteint l'argent du set Roguelike." · "Léa complète le set Dark Souls." · several in one opening: "Léa atteint 4 paliers · Metroidvania OR" |
 | Repost | Action "REPOSTER" · confirmation toast "Carte repostée dans le fil." |
 | Back picker | "Vous seul le voyez, sur vos cartes face cachée à l'ouverture." · "DOS VERROUILLÉ" · "DOS ÉQUIPÉ" · "« Aurore » apparaîtra sur vos cartes face cachée." |
 | Profile visibility | "Visible par tous les joueurs" · "Visible par vos amis seulement" · "Profil privé : vous seul le voyez" |
@@ -156,7 +156,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 | Community goal panel | The shared weekly gauge for all players, the count and the reward. Fills with every booster opened and, a little, with trades. States: see State Patterns. |
 | Daily booster panel | "RÉCUPÉRER" sends one booster into the reserve (a small canister flies to the packs chip; on the phone, to the BOOSTER tab). Then "PROCHAIN DANS" with a countdown to the day change (midnight UTC). At 10 boosters the button is disabled, with the full-reserve state and line, until a booster is opened. Signed out: opens the sign-in panel. |
 | Set progress row | Opens that set's album. |
-| LIVE ticker | Scrolls notable activity: pulls of Épique or better, first discoveries, trades, set tiers reached and set completions; never reposts. New items join at the loop boundary. Pauses on hover; stops with "Animations réduites", the only way a keyboard user stops it. Hidden from assistive technology and holds nothing focusable (the feed carries the same events). |
+| LIVE ticker | Scrolls notable activity: pulls of Épique or better, first discoveries, trades, set tiers reached and set completions (the tiers and completions of one opening make one line, as in the feed); never reposts. New items join at the loop boundary. Pauses on hover; stops with "Animations réduites", the only way a keyboard user stops it. Hidden from assistive technology and holds nothing focusable (the feed carries the same events). |
 
 ### Booster
 
@@ -178,7 +178,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 |---|---|
 | Card detail | Title, publisher, rarity, genre, year, short description, minted season, sets, copies owned. "VOIR SUR STEAM" opens the store page in a new tab (said in its accessible name). "PARTAGER" opens the share sheet; absent for a card not owned. ◀ ▶ buttons (every width) and swipe (phone) move to the previous or next card of where the detail was opened from: an opened booster's cards in its order, back to the booster ("◀ BOOSTER"); the collection grid as shown, with its filters and search, across its pages, back to that grid's page ("◀ GRILLE"); anywhere else (feed, hub showcase, shared link, public profile, pack page), the card's tome. No ◀ on the first card, no ▶ on the last (author, 2026-10-08). |
 | Collection opening (author, 2026-10-08, supersedes 2026-10-07) | Opens on "EN COURS": the player's sets sorted by the cards missing to their next tier or completion, plus those they just progressed in; then "À DÉCOUVRIR": a few sets the player's latest cards touched without progress yet, or popular ones for a new player; then a search over every set, applied as the player types. "TOUTES LES CARTES ▸" opens the card grid, which opens on the cards the player owns, newest first; the state filter switches to TOUT, MANQUANTES, NOUVELLES or DOUBLONS. |
-| Set album | The set's name, kind, owned / total and its tiers (each with its threshold, reached or not) or its COMPLET stamp; its cards in set order, owned cards face up, missing ones as missing-card slots. A card opens its detail. The back button returns where the album was opened and names it: "◀ SETS" (collection or search), "◀ PONT" (hub), "◀ FICHE" (card detail), "◀ PROFIL" (public profile). The card grid is one tab stop with arrow keys inside, like the collection grid. Signed out, on a public profile, the album shows that player's cards. The header's bar is a progress bar named by the set's name, with the text value "31 cartes sur 62, palier argent" (untiered and done: "3 cartes sur 3, complet"). The tier gauge is a list of three items, read as "Bronze, 16 cartes, atteint" or "Or, 62 cartes, pas encore atteint". The COMPLET stamp is plain text. The album's h1 is the set's name (on a public profile: "Roguelike · Léa"), and the top bar's "COLLECTION" is not a heading there; the page title reads "Roguelike · Collection · gameble". On the collection entry the h1 is "COLLECTION", with h2s for EN COURS, À DÉCOUVRIR, CHERCHER UN SET and RÉSULTATS; Toutes les cartes has the h1 "TOUTES LES CARTES". Reference: [mockups/key-collection-sets.html](mockups/key-collection-sets.html). |
+| Set album | The set's name, kind, owned / total and its tiers (each with its threshold, reached or not), then its COMPLET stamp once it holds every card; an untiered set shows only the stamp; its cards in set order, owned cards face up, missing ones as missing-card slots. A card opens its detail. The back button returns where the album was opened and names it: "◀ SETS" (collection or search), "◀ PONT" (hub), "◀ FICHE" (card detail), "◀ PROFIL" (public profile). The card grid is one tab stop with arrow keys inside, like the collection grid. Signed out, on a public profile, the album shows that player's cards. The header's bar is a progress bar named by the set's name, with the text value "31 cartes sur 62, palier or" (untiered and done: "3 cartes sur 3, complet"). The tier gauge is a list of three items, read as "Bronze, 7 cartes, atteint" or "Or, 31 cartes, pas encore atteint". The COMPLET stamp is plain text. The album's h1 is the set's name (on a public profile: "Roguelike · Léa"), and the top bar's "COLLECTION" is not a heading there; the page title reads "Roguelike · Collection · gameble". On the collection entry the h1 is "COLLECTION", with h2s for EN COURS, À DÉCOUVRIR, CHERCHER UN SET and RÉSULTATS; Toutes les cartes has the h1 "TOUTES LES CARTES". Reference: [mockups/key-collection-sets.html](mockups/key-collection-sets.html). |
 | Set search | A `search` landmark. The field is labelled by "CHERCHER UN SET"; a placeholder never labels it. Applied after 300ms without typing, over set names and kinds. Results appear below the field and never move EN COURS or À DÉCOUVRIR. A polite status line beside the field gives the count once per pause in typing. Focus stays in the field. Esc clears the field when it has text. |
 | Filter zone | A folded panel "FILTRES" with the count of active filters. Chips are switched on or off, several at once: OR within a group, AND across groups. Groups: state, rarity, set (a kind, then a set found by typing its name), genre. A "TOUT EFFACER" clears them. Changing a filter re-lays the grid and keeps focus on the zone. |
 | Search | Free text over the card title and publisher, applied as the player types and combined with the active filters; an empty result shows the empty-filter line. |
@@ -207,7 +207,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 |---|---|
 | Invite panel | "COPIER" copies the invite link. The code field accepts the format of the codes in use (for example "7K2Q-F3NX", "8F2D-K9XM") (author, 2026-10-07: the code is purely random, 4 characters, a dash, 4 characters, never derived from the name), submits on Enter and answers on the line below. A valid code sends an invitation. |
 | Invitation row | Received: "ACCEPTER" creates the friendship for both; "IGNORER" dismisses it. Sent: "EN ATTENTE" until answered. The invite link sends an invitation the same way. |
-| Friend row | Shows the friend's presence (see Copy deck, Presence), or "Profil privé" for a private friend. The avatar or name opens the friend profile; "PROPOSER UN ÉCHANGE" opens the trade already in progress with that friend, or a new draft. When either profile is private, the "Trades closed" line replaces the button. |
+| Friend row | Shows the friend's presence (see Copy deck, Presence), or "Profil privé" for a private friend. "VOIR LE PROFIL" opens the friend profile; the name is not a link. "PROPOSER UN ÉCHANGE" opens the trade already in progress with that friend, or a new draft. When either profile is private, the "Trades closed" line replaces the button. |
 | Friend profile | A dialog: showcase of three cards, "PROPOSER UN ÉCHANGE", "SIGNALER". A private friend's dialog shows the name and says the profile is not available; when the viewer is private, the "Trades closed" line replaces "PROPOSER UN ÉCHANGE". |
 | Report dialog | A reason must be chosen before "ENVOYER LE SIGNALEMENT". The reported player never learns who reported them. |
 
@@ -271,8 +271,8 @@ Messages quoted by key are in the Copy deck.
 | Image missing / loading | Any card | "IMAGE INDISPONIBLE" in the art box / a dark hatched box until the filtered cover is ready. |
 | Collection empty | Collection | Every slot is a missing-card slot naming its game. |
 | Filter empty | Collection | The empty-filter line (Copy deck, Collection). |
-| Set tier reached | Booster, collection, hub, feed | At opening, the set celebration after the last reveal, announced in the booster live region; the row and the album show the tier lit; a feed entry. |
-| Set complete | Booster, collection, hub, feed | The celebration "SET COMPLET"; the row shows owned = total and the album its COMPLET stamp; on a tiered set, gold is completion: the celebration reads "SET COMPLET · Roguelike", the gauge shows OR reached, and the album adds the COMPLET stamp; the live message is "Set complet : Roguelike, palier or, 62 cartes sur 62." A gold that unlocks a card back is announced with it. A tier stays reached when cards leave. |
+| Set tier reached | Booster, collection, hub, feed | At opening, the set celebration after the last reveal, announced in the booster live region; the row and the album show the tier lit. The tiers and completions one opening reaches make one feed entry and one LIVE ticker line, naming the highest and the count ("Léa atteint 4 paliers · Metroidvania OR"); a single result keeps its own entry. |
+| Set complete | Booster, collection, hub, feed | The celebration "SET COMPLET"; the row shows owned = total and the album its COMPLET stamp; on a tiered set, completion comes after gold (50 %): at 100 % the celebration reads "SET COMPLET · Roguelike", the album adds the COMPLET stamp after its OR cell, and the live message is "Set complet : Roguelike, 62 cartes sur 62." A gold that unlocks a card back is announced with it. A tier stays reached when cards leave. |
 | Trade draft | Trade board | "BROUILLON", both sides editable, with the validity line. "ENVOYER LA PROPOSITION" enables once each side holds a card; "ABANDONNER" deletes the draft. |
 | Trade waiting for the player | Trade board, list, badge | "À VOUS", the proposal line and the expiry. The friend's offered copies are tagged reserved. Actions: "ACCEPTER", "CONTRE-PROPOSER", "REFUSER". |
 | Counter-proposal in progress | Trade board | Both sides become editable, marked "EN ÉDITION", with the counter-proposal line. "RENVOYER LA CONTRE-PROPOSITION" enables once each side holds a card; "ANNULER LES MODIFICATIONS" restores the received proposal, after a confirmation if anything changed. |
@@ -465,12 +465,12 @@ Failure: Léa refuses, Hugo cancels, or 7 days pass → "CLOS", reserved copies 
 
 ### Flow 3 — Equipping a card back earned by reaching gold (Inès, after a lucky week)
 
-1. Inès reveals the last missing card of the theme Roguelike. After the reveal, "SET COMPLET · Roguelike" plays; the album shows 62/62 with OR lit.
+1. Inès reveals the card that brings the theme Roguelike to 31 of its 62 cards. After the reveal, "PALIER OR · Roguelike 31/62" plays; the album shows OR lit.
 2. From her player chip she opens Profil et paramètres. In "DOS DE CARTE", the Roguelike back is no longer grayed.
 3. She chooses it: the preview turns to the Roguelike back, "DOS ACTIF"; the "DOS ÉQUIPÉ" toast.
 4. **Climax:** at her next booster, the five cards land face down wearing it. Only she sees it.
 
-Variants: she completes the set through a trade rather than a booster → the card back unlocks the same way. She chooses it while a booster is open → it applies to the next one.
+Variants: she reaches gold through a trade rather than a booster → the card back unlocks the same way. She chooses it while a booster is open → it applies to the next one.
 
 ### Flow 4 — Sharing a pull (Hugo, right after a Légendaire)
 
@@ -504,7 +504,6 @@ Non-blockers, left open.
 - **Achievements:** the mock's 40 are illustrative; which exist, and which unlock card backs.
 - **Card backs:** beyond one per theme or hall of fame set at gold, which ship, and whether every successful community goal grants one; each set back's design.
 - **Ticker and feed thresholds**; hourly totals in the ticker.
-- **Set numbers:** the theme list, the hall of fame thresholds and the tier shares come from the spike on real data; the mock's figures are illustrative.
 - **Special boosters:** whether the daily and goal boosters look different in the reserve, and whether a goal reward can exceed 10.
 - **Weekly goal lifecycle:** where the week boundary shows, and the reached, missed and rollover states (tagged above).
 - **Unmocked states:** cold load, offline, network error, banned account, non-staff back-office.
