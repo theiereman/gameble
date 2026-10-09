@@ -68,7 +68,7 @@ Every card belongs to at least one set; a card can belong to several. A set exis
 
 **Tiers.** Theme and hall of fame sets have bronze (10 %), silver (25 %) and gold (50 %) of their distinct cards; at the published odds, 100 % would need every Légendaire of the set, which packs alone never give. Percentages tuned in playtests. Franchise, studio and UFO sets are complete or not.
 
-**Rewards.** Bronze and silver: a celebration at opening and a feed line. Gold: that set's card back. Complete (franchise, studio, UFOs): a "complete" stamp on the album and a feed line. Profile titles and menu themes: CAP-22 of the spec.
+**Rewards.** Bronze and silver: a celebration at opening and a feed line. Gold: also that set's card back. Complete, for every kind (a theme or hall of fame set completes at 100 %, after gold): a celebration, a "complete" stamp on the album and a feed line. The tiers and completions one opening reaches make one feed line, naming the highest. Profile titles and menu themes: CAP-22 of the spec.
 
 Tomes, publisher sets and "best rated of the year" sets are retired.
 

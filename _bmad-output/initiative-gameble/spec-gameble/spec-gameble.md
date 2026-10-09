@@ -114,6 +114,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - With few players, it falls back to lower-rarity events and is never empty while any activity exists.
     - A signed-in player has a Friends tab showing only their friends' pulls, trades and reposts; a private friend's never show (CAP-8).
     - The LIVE ticker shows pulls of Épique or better, first discoveries, trades, set completions and set tiers reached, never reposts.
+    - The set tiers and completions one opening reaches make one feed entry and one ticker item, naming the highest and the count.
 - **CAP-14**
   - **intent:** A player can manage their personal data from their profile.
   - **success:** From the profile, a player can delete their account, export their data, and set their profile's visibility (public, friends only, private); going private cancels their open trades (CAP-11) and says so before applying. Each action works end to end.
