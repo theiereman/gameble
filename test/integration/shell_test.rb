@@ -68,6 +68,25 @@ class ShellTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "a visitor's sign-in panel says that signing in accepts the terms and the privacy notice, with a link to each" do
+    get home_path(locale: :fr)
+
+    assert_select "dialog#sign-in-panel .sign-in-panel__acceptance", "En vous connectant, vous acceptez les conditions et la confidentialité." do
+      assert_select "a[href=?]", "/fr/legal#legal-terms", "conditions"
+      assert_select "a[href=?]", "/fr/legal#legal-privacy", "confidentialité"
+    end
+  end
+
+  test "a signed-in player has no sign-in panel" do
+    sign_in(accounts_players(:player))
+
+    get home_path(locale: :fr)
+
+    assert_response :success
+    assert_select "dialog#sign-in-panel", false
+    assert_select ".sign-in-panel__acceptance", false
+  end
+
   test "a visitor elsewhere signs in back to that page" do
     get library_path(locale: :en)
 

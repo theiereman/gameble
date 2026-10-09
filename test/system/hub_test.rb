@@ -199,6 +199,21 @@ class HubTest < ApplicationSystemTestCase
     assert_selector ".top-bar .steam-sign-in__button"
   end
 
+  test "a visitor follows the terms link from the sign-in panel to the legal page's terms" do
+    visit home_path(locale: :en)
+
+    item("1").click
+    within("dialog#sign-in-panel[open]") do
+      assert_text "By signing in, you accept the terms and the privacy notice."
+      click_on "terms"
+    end
+
+    assert_current_path %r{/en/legal#legal-terms\z}, url: true
+    assert_selector "h1#legal-heading", text: /LEGAL NOTICE AND PRIVACY/i
+    assert_selector "h2#legal-terms", text: /TERMS OF USE/i
+    assert_text "By signing in with Steam, you accept these terms."
+  end
+
   test "the sign-in panel opens from a card page's pitch, and signing in from it lands on the hub" do
     create_pack(@player)
     visit card_path(locale: :en, slug: "portal")

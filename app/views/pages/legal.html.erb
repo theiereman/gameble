@@ -1,8 +1,10 @@
 <% content_for :back_button, true %>
 <% content_for :title, t(".title") %>
 <% content_for :screen_title, t(".title") %>
+<% contact = @legal.contact_email ? mail_to(@legal.contact_email, class: "legal__link") : t(".contact_fallback") %>
 <article class="legal" aria-labelledby="legal-heading">
   <h1 id="legal-heading" class="legal__title"><%= t(".title") %></h1>
+  <p class="legal__updated"><%= t(".updated") %></p>
 
   <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { labelledby: "legal-publisher" }) do %>
     <h2 id="legal-publisher" class="legal__heading"><%= t(".publisher.title") %></h2>
@@ -38,13 +40,14 @@
 
   <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { labelledby: "legal-terms" }) do %>
     <h2 id="legal-terms" class="legal__heading"><%= t(".terms.title") %></h2>
+    <p class="legal__acceptance"><%= t(".terms.acceptance") %></p>
     <ol class="legal__list">
       <li><%= t(".terms.free") %></li>
       <li><%= t(".terms.no_money") %></li>
       <li><%= t(".terms.no_property") %></li>
       <li><%= t(".terms.fair_play") %></li>
-      <li><%= t(".terms.moderation") %></li>
-      <li><%= t(".terms.content") %></li>
+      <li class="legal__moderation"><%= t(".terms.moderation_html", contact:) %></li>
+      <li class="legal__notice"><%= t(".terms.notice_html", contact:) %></li>
       <li><%= t(".terms.no_guarantee") %></li>
       <li><%= t(".terms.changes") %></li>
       <li><%= t(".terms.law") %></li>
@@ -57,9 +60,20 @@
     <ul class="legal__list">
       <li><%= t(".privacy.stored.steam") %></li>
       <li><%= t(".privacy.stored.activity") %></li>
+      <li><%= t(".privacy.stored.moderation") %></li>
       <li><%= t(".privacy.stored.settings") %></li>
       <li><%= t(".privacy.stored.last_seen") %></li>
+      <li><%= t(".privacy.stored.technical") %></li>
     </ul>
+    <p><%= t(".privacy.purposes.intro") %></p>
+    <ul class="legal__list">
+      <li><%= t(".privacy.purposes.game") %></li>
+      <li><%= t(".privacy.purposes.moderation") %></li>
+      <li><%= t(".privacy.purposes.security") %></li>
+      <li><%= t(".privacy.purposes.requests") %></li>
+    </ul>
+    <p><%= t(".privacy.purposes.no_automation") %></p>
+    <p class="legal__visibility"><%= t(".privacy.visibility") %></p>
     <p><%= t(".privacy.cookies") %></p>
     <p><%= t(".privacy.nothing_else") %></p>
     <p><%= t(".privacy.services.intro") %></p>
@@ -73,11 +87,15 @@
     <p><%= t(".privacy.rights.intro") %></p>
     <ul class="legal__list">
       <% if @legal.contact_email %>
-        <li class="legal__access"><%= t(".privacy.rights.access_html", contact: mail_to(@legal.contact_email, class: "legal__link")) %></li>
+        <li class="legal__access"><%= t(".privacy.rights.access_html", contact:) %></li>
       <% else %>
         <li class="legal__access"><%= t(".privacy.rights.access_publisher") %></li>
       <% end %>
+      <li class="legal__rectification"><%= t(".privacy.rights.rectification_html", contact:) %></li>
       <li><%= t(".privacy.rights.erasure") %></li>
+      <li class="legal__objection"><%= t(".privacy.rights.objection_html", contact:) %></li>
+      <li class="legal__death"><%= t(".privacy.rights.death_html", contact:) %></li>
+      <li class="legal__banned"><%= t(".privacy.rights.banned_html", contact:) %></li>
       <li><%= t(".privacy.rights.complaint_html", authority: external_link_to(t(".privacy.rights.authority"), "https://www.cnil.fr", class: "legal__link")) %></li>
     </ul>
   <% end %>

@@ -283,7 +283,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__start a.button", false
   end
 
-  test "a visitor gets the sign-in panel: its title, the official image focused first and the close button" do
+  test "a visitor gets the sign-in panel: its title, the official image focused first, the links to the terms and the privacy notice, and the close button" do
     get home_path(locale: :fr)
 
     assert_select "body > dialog#sign-in-panel.modal[aria-labelledby=sign-in-panel-title][data-controller=dialog]" do
@@ -292,7 +292,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select "button.modal__close[type=button][aria-label=Fermer][data-action='dialog#close'] svg.pixel-icon"
       assert_select "form.steam-sign-in[action='/auth/steam'] input[name=origin][value='/fr']"
       assert_select "button.steam-sign-in__button[autofocus] img[src*='sits_01']"
-      assert_select "a", false
+      assert_equal [ "/fr/legal#legal-terms", "/fr/legal#legal-privacy" ], css_select("dialog#sign-in-panel a").map { it["href"] }
     end
   end
 
@@ -547,8 +547,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "html[lang=fr]"
-    assert_select "title", "Mentions légales"
-    assert_select "main h1#legal-heading", "Mentions légales"
+    assert_select "title", "Mentions légales et confidentialité"
+    assert_select "main h1#legal-heading", "Mentions légales et confidentialité"
     assert_equal [ "Éditeur et hébergeur", "Steam, Valve et les jeux", "Conditions d'utilisation", "Confidentialité", "Soutenir gameble" ],
       css_select("main section.legal__section h2").map(&:text)
     assert_select ".legal__ownership", OWNERSHIP_NOTICE
@@ -569,7 +569,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "html[lang=en]"
-    assert_select "main h1", "Legal notice"
+    assert_select "main h1", "Legal notice and privacy"
     assert_equal [ "Publisher and host", "Steam, Valve and the games", "Terms of use", "Privacy", "Support gameble" ],
       css_select("main section.legal__section h2").map(&:text)
     assert_select ".legal__ownership", "All artwork belongs to the games' publishers and their artists, whom we respect."
@@ -603,6 +603,48 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get legal_path(locale: :fr)
     assert_select ".legal__access", "accès : demandez une copie de vos données à l'éditeur ;"
+  end
+
+  test "with a contact configured, every line that sends the reader to the publisher carries the mailto link" do
+    configure_legal(contact_email: "contact@example.test")
+
+    get legal_path(locale: :fr)
+
+    assert_response :success
+    assert_select ".legal__updated", "Dernière mise à jour : 9 octobre 2026"
+    %w[.legal__moderation .legal__notice .legal__rectification .legal__objection .legal__death .legal__banned].each do |line|
+      assert_select "#{line} a.legal__link[href=?]", "mailto:contact@example.test", "contact@example.test"
+    end
+    assert_select ".legal__moderation", /La décision est toujours prise par une personne/
+    assert_select ".legal__visibility", /public par défaut/
+    assert_select ".legal__section li", /\ASentry .* Données hébergées dans l'Union européenne ;\z/
+  end
+
+  test "without a contact, those lines name the publisher in plain words" do
+    configure_legal
+
+    get legal_path(locale: :en)
+
+    assert_response :success
+    assert_select ".legal__updated", "Last updated: 9 October 2026"
+    assert_select ".legal__moderation", /by writing to the publisher\.\z/
+    assert_select ".legal__notice", /write to the publisher with the page's address/
+    assert_select ".legal__rectification", /write to the publisher;\z/
+    assert_select ".legal__objection", "objection: make your profile private in the settings, or write to the publisher;"
+    assert_select ".legal__death", /\Aafter your death: tell the publisher who/
+    assert_select ".legal__banned", /write to the publisher to obtain your data/
+    assert_select "a[href^='mailto:']", false
+  end
+
+  test "neither locale calls a deleted account anonymised" do
+    configure_legal
+
+    %i[fr en].each do |locale|
+      get legal_path(locale:)
+
+      assert_response :success
+      assert_no_match(/anonymis/i, response.body)
+    end
   end
 
   test "an older browser reads the legal page, which the public card page's footer links to" do

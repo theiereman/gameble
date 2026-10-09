@@ -1112,6 +1112,29 @@ button.tab-bar__tab {
   justify-content: center;
 }
 
+.sign-in-panel__body {
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.sign-in-panel__acceptance {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  text-align: center;
+}
+
+.sign-in-panel__acceptance a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sign-in-panel__acceptance a:hover {
+  color: var(--color-accent-hi);
+}
+
 /* ---- Screen changes (EXPERIENCE.md, Motion): the old screen slides 32px
    away and fades in 170ms; the new one slides in from 48px in 260ms, 40ms
    later. The bars and the atmosphere do not move. ---- */

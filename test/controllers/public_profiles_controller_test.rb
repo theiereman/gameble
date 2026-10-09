@@ -422,7 +422,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
   test "the summary states who may see the profile" do
     get brother_path(locale: :en, token: @owner.token)
-    assert_select ".profile-summary__visibility", "Visible to all players"
+    assert_select ".profile-summary__visibility", "Visible to everyone, even without an account"
 
     @owner.update!(visibility: "private")
     sign_in(@owner)

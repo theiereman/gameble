@@ -48,6 +48,9 @@ fr:
     sign_in_panel:
       title: "Connectez-vous pour jouer"
       close: "Fermer"
+      acceptance_html: "En vous connectant, vous acceptez les %{terms} et la %{privacy}."
+      terms: "conditions"
+      privacy: "confidentialité"
     version:
       label: "Version déployée"
   pages:
@@ -123,7 +126,9 @@ fr:
       subtitle: "Le reste du vaisseau"
       settings: "Profil et paramètres"
     legal:
-      title: "Mentions légales"
+      title: "Mentions légales et confidentialité"
+      updated: "Dernière mise à jour : 9 octobre 2026"
+      contact_fallback: "l'éditeur"
       publisher:
         title: "Éditeur et hébergeur"
         publisher: "Éditeur"
@@ -134,45 +139,60 @@ fr:
         title: "Steam, Valve et les jeux"
         affiliation: "gameble n'est affilié ni à Valve ni à Steam, et n'est ni approuvé ni soutenu par eux. Steam et le logo Steam sont des marques de Valve Corporation."
         artwork: "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
-        data: "Les noms, couvertures et descriptions des jeux viennent de Steam et restent la propriété de leurs ayants droit."
+        data: "Les noms, couvertures et descriptions des jeux viennent de Steam et restent la propriété de leurs ayants droit. Sur demande d'un ayant droit, le jeu concerné est retiré sans délai."
       terms:
         title: "Conditions d'utilisation"
+        acceptance: "En vous connectant avec Steam, vous acceptez ces conditions."
         free: "gameble est un jeu gratuit, sans publicité et sans achat."
         no_money: "Aucun argent réel n'y circule : rien ne s'y achète, rien ne s'y vend."
-        no_property: "Les cartes, boosters et dos de cartes sont des éléments du jeu : ils ne sont pas votre propriété et n'ont aucune valeur, ni en argent ni hors de gameble."
+        no_property: "Les cartes, boosters et dos de cartes sont des éléments du jeu : ils ne sont pas votre propriété et n'ont aucune valeur, ni en argent ni hors de gameble. Aucune carte ne peut être vendue ou échangée contre de l'argent, dans gameble ou en dehors."
         fair_play: "Jouez loyalement : pas de bot, de script ni d'automatisation, pas de comptes multiples, pas d'exploitation de bug."
-        moderation: "Des modérateurs examinent les signalements et peuvent bannir un compte qui enfreint ces règles."
-        content: "Les jeux, leurs noms et leurs images appartiennent à leurs ayants droit, pas à gameble ni à ses joueurs."
-        no_guarantee: "Le service est fourni tel quel, sans garantie : il peut être interrompu, modifié ou arrêté à tout moment."
-        changes: "Ces conditions peuvent évoluer ; la version en vigueur est toujours celle de cette page."
+        moderation_html: "Les joueurs peuvent signaler un profil. Des modérateurs examinent chaque signalement et peuvent suspendre un compte qui enfreint ces règles. La décision est toujours prise par une personne. Le joueur suspendu peut en demander le motif et la contester en écrivant à %{contact}."
+        notice_html: "Même sans compte gameble, vous pouvez signaler un contenu illicite ou demander le retrait d'un jeu dont vous détenez les droits : écrivez à %{contact} en indiquant l'adresse de la page et la raison de votre demande."
+        no_guarantee: "Le service est gratuit et fourni tel quel. Il peut être interrompu pour maintenance ou modifié. S'il devait fermer définitivement, la fermeture serait annoncée sur le site au moins 30 jours à l'avance."
+        changes: "Ces conditions peuvent évoluer. Une modification importante est annoncée dans le jeu avant de s'appliquer. La version en vigueur est celle de cette page."
         law: "Elles sont régies par le droit français."
       privacy:
         title: "Confidentialité"
         stored:
           intro: "Pour faire fonctionner le jeu, gameble conserve :"
           steam: "votre identifiant Steam et votre nom de profil Steam ;"
-          activity: "votre activité de jeu : cartes, boosters, échanges, amis, entrées du fil d'activité et signalements ;"
+          activity: "votre activité de jeu : cartes, boosters, échanges, amis et invitations, code ami, entrées du fil d'activité ;"
+          moderation: "les signalements que vous faites, ceux qui visent votre profil (leur auteur ne vous est pas communiqué) et les décisions de modération qui vous concernent, avec leur motif ;"
           settings: "vos réglages (visibilité du profil, animations réduites) ;"
-          last_seen: "l'heure de votre dernière visite."
-        cookies: "Deux cookies, tous deux strictement nécessaires : celui de la session, qui vous garde connecté, et celui qui retient votre choix d'animations réduites. Le stockage local de votre navigateur garde aussi vos brouillons d'échange et l'état de l'interface, sur votre appareil seulement. Aucun traceur."
+          last_seen: "la date de création de votre compte et l'heure de votre dernière visite ;"
+          technical: "des données techniques : adresse IP et navigateur, dans les journaux du serveur et le suivi d'erreurs."
+        purposes:
+          intro: "Pourquoi et sur quelle base :"
+          game: "faire fonctionner votre compte et le jeu (collection, boosters, échanges, amis, profil, fil d'activité) : exécution des conditions d'utilisation que vous acceptez en vous connectant (art. 6.1.b du RGPD) ;"
+          moderation: "modérer la communauté (signalements, bannissements, historique de modération) : intérêt légitime de l'éditeur à faire respecter les règles et à protéger les joueurs (art. 6.1.f) ;"
+          security: "sécuriser le site et corriger les erreurs (journaux du serveur, limitation des abus, suivi d'erreurs, Cloudflare) : intérêt légitime à assurer la sécurité et le bon fonctionnement du service (art. 6.1.f) ;"
+          requests: "répondre à vos messages et à vos demandes sur vos données : obligation légale (art. 6.1.c)."
+          no_automation: "Aucune décision vous concernant n'est prise de façon automatisée."
+        visibility: "Votre profil est public par défaut : votre nom de profil, votre collection et vos entrées du fil d'activité sont visibles de tous, y compris des visiteurs non connectés. Vous pouvez le réserver à vos amis ou le rendre privé dans les paramètres. Les modérateurs de gameble peuvent consulter tout profil, quel que soit son réglage."
+        cookies: "gameble n'utilise que des cookies strictement nécessaires, exemptés de consentement : celui de la session, qui protège les formulaires et vous garde connecté jusqu'à la déconnexion ou la fermeture du navigateur, et celui qui retient votre choix d'animations réduites, pendant un an. Cloudflare peut y ajouter un cookie de sécurité qui filtre les robots. Le stockage de votre navigateur garde aussi vos brouillons d'échange et l'état de l'interface, sur votre appareil seulement. Aucun traceur publicitaire ni de mesure d'audience."
         nothing_else: "Pas de mesure d'audience, pas de publicité, pas d'argent réel. Vos données ne sont ni vendues ni cédées."
         services:
           intro: "Quelques services extérieurs interviennent :"
           steam: "Steam (Valve) gère la connexion et fournit votre nom de profil ;"
-          sentry: "Sentry reçoit les erreurs techniques, avec votre seul identifiant de joueur ;"
+          sentry: "Sentry (Functional Software, Inc.) reçoit les erreurs techniques : l'adresse de la page et celle d'où vous venez, le navigateur utilisé et sa langue, et votre identifiant interne de joueur, jamais votre nom ni votre identifiant Steam. Votre navigateur lui envoie aussi directement les rapports de sécurité de la page, avec votre adresse IP. Données hébergées dans l'Union européenne ;"
           cloudflare: "Cloudflare se place devant le site et voit passer ses requêtes ;"
           images: "les images des cartes se chargent depuis le réseau de diffusion de Steam, que votre navigateur contacte directement."
-        deletion: "Un compte supprimé est anonymisé : votre identifiant Steam, votre nom de profil et l'heure de votre dernière visite sont effacés."
+        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, votre nom de profil, l'heure de votre dernière visite, votre collection, vos boosters, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à l'objectif communautaire, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom."
         rights:
-          intro: "Vos droits :"
+          intro: "Vous pouvez accéder à vos données, les faire rectifier ou effacer, en limiter le traitement, vous opposer à un traitement fondé sur l'intérêt légitime et en recevoir une copie réutilisable. Vous pouvez aussi indiquer ce que deviennent vos données après votre décès. Nous répondons sous un mois."
           access_html: "accès : demandez une copie de vos données par e-mail, à %{contact} ;"
           access_publisher: "accès : demandez une copie de vos données à l'éditeur ;"
+          rectification_html: "rectification : votre nom de profil suit celui de Steam et il est relu à chaque connexion ; pour le reste, écrivez à %{contact} ;"
           erasure: "suppression : depuis les paramètres, avec « Supprimer mon compte » ;"
+          objection_html: "opposition : rendez votre profil privé dans les paramètres, ou écrivez à %{contact} ;"
+          death_html: "après votre décès : indiquez à %{contact} à qui vos données doivent être communiquées ou si elles doivent être effacées ;"
+          banned_html: "compte suspendu : il ne peut plus se connecter ; écrivez à %{contact} pour obtenir vos données, le motif de la suspension ou l'effacement de votre compte ;"
           complaint_html: "réclamation : auprès de la %{authority}."
           authority: "CNIL"
       support:
         title: "Soutenir gameble"
-        text: "gameble est gratuit et le restera. Si le jeu vous plaît, vous pouvez aider à payer son hébergement."
+        text: "gameble est gratuit et le restera. Si le jeu vous plaît, vous pouvez aider à payer son hébergement. Les dons sont facultatifs et ne donnent aucun avantage dans le jeu. Ils passent par Buy Me a Coffee, selon ses propres conditions. L'éditeur reçoit ce que vous choisissez d'y indiquer (nom, message)."
         link: "Offrir un café"
   back_office:
     dashboard:
@@ -507,7 +527,7 @@ fr:
     fallback_title: "Joueur %{code}"
     show:
       visibility:
-        public: "Visible par tous les joueurs"
+        public: "Visible par tous, même sans compte"
         friends_only: "Visible par vos amis et les officiers de la Confrérie seulement"
         private: "Profil privé : vous seul et les officiers de la Confrérie le voyez"
       counts: "La collection"
@@ -952,7 +972,7 @@ fr:
   reports:
     open: "SIGNALER"
     reasons:
-      inappropriate_name: "Pseudo ou avatar inapproprié"
+      inappropriate_name: "Pseudo inapproprié"
       cheating: "Triche ou abus"
       harassment: "Harcèlement"
       other: "Autre"

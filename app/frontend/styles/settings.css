@@ -228,6 +228,13 @@
   text-transform: uppercase;
 }
 
+.legal__updated {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
 .legal__section {
   display: flex;
   flex-direction: column;
