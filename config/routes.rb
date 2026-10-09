@@ -115,14 +115,15 @@ Rails.application.routes.draw do
       resources :cards, only: :index
 
       # Moderation, moderators and administrators: the queue of reported
-      # players, every player to search, and the banned players, each by
-      # token.
+      # players, every player to search, the banned players, each by token,
+      # and the history of every ban, lifted ban and dismissal.
       resources :players, only: :index
       resources :reports, only: :index
       post "reports/:token/dismiss" => "reports#dismiss", as: :dismiss_reports,
         constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
       resources :bans, only: %i[index create destroy], param: :token,
         constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+      get "history" => "history#index", as: :history
     end
   end
 

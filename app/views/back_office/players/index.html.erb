@@ -28,6 +28,7 @@
           <th scope="col"><%= t(".visibility") %></th>
           <th scope="col"><%= t(".state") %></th>
           <th scope="col"><span class="visually-hidden"><%= t(".action") %></span></th>
+          <th scope="col"><span class="visually-hidden"><%= t(".history_column") %></span></th>
         </tr>
       </thead>
       <tbody>
@@ -45,6 +46,7 @@
               <td data-player-state="good_standing"><%= t(".states.good_standing") %></td>
               <td><%= render "back_office/bans/ban_action", player:, name:, back: %></td>
             <% end %>
+            <td data-player-history><%= link_to t(".history_link"), back_office_history_path(player: player.token) %></td>
           </tr>
         <% end %>
       </tbody>
@@ -58,5 +60,8 @@
 
   <p>
     <%= render ButtonComponent.new(variant: :secondary, href: back_office_reports_path) do %><%= t(".reports") %><% end %>
+  </p>
+  <p>
+    <%= render ButtonComponent.new(variant: :secondary, href: back_office_history_path) do %><%= t(".history") %><% end %>
   </p>
 </div>

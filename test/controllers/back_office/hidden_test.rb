@@ -93,12 +93,12 @@ module BackOffice
 
       with_counting_rate_limit(BansController) do
         31.times do
-          post back_office_bans_path(locale: :fr), params: { token: @target.token }
+          post back_office_bans_path(locale: :fr), params: { token: @target.token, reason: "Rude name" }
           assert_unknown_address
         end
 
         sign_in(@moderator)
-        post back_office_bans_path(locale: :fr), params: { token: @target.token }
+        post back_office_bans_path(locale: :fr), params: { token: @target.token, reason: "Rude name" }
       end
 
       assert_redirected_to back_office_reports_path(locale: :fr)
@@ -107,13 +107,13 @@ module BackOffice
 
     test "the 404 comes before the forgery check: a forged POST is a 404 for a visitor and a player, a 422 for staff" do
       with_forgery_protection do
-        post back_office_bans_path(locale: :fr), params: { token: @target.token }
+        post back_office_bans_path(locale: :fr), params: { token: @target.token, reason: "Rude name" }
         assert_unknown_address
       end
 
       sign_in(@target)
       with_forgery_protection do
-        post back_office_bans_path(locale: :fr), params: { token: @moderator.token }
+        post back_office_bans_path(locale: :fr), params: { token: @moderator.token, reason: "Rude name" }
         assert_unknown_address
         post "/back-office/jobs/applications/#{TOKEN}/jobs/bulk_retries"
         assert_unknown_address
@@ -121,7 +121,7 @@ module BackOffice
 
       sign_in(@moderator)
       with_forgery_protection do
-        post back_office_bans_path(locale: :fr), params: { token: @target.token }
+        post back_office_bans_path(locale: :fr), params: { token: @target.token, reason: "Rude name" }
         assert_response :unprocessable_content
       end
       assert_not @target.reload.banned?

@@ -131,6 +131,7 @@ fr:
         players: "Les joueurs"
         reports: "Les signalements"
         bans: "Les bannis"
+        history: "L'historique"
         jobs: "La file des tâches"
         import_runs: "L'import Steam"
         seasons: "Les saisons du catalogue"
@@ -148,6 +149,7 @@ fr:
         dismiss: "CLASSER"
         dismiss_confirm: "Classer les signalements de %{name} sans le bannir ?"
         banned_players: "Les bannis"
+        history: "L'historique"
       dismiss:
         dismissed: "Les signalements de %{name} sont classés."
     bans:
@@ -160,11 +162,14 @@ fr:
         banned_at: "Banni le"
         unban: "LEVER LE BAN"
         reports: "Les signalements"
+        history: "L'historique"
       actions:
         ban: "BANNIR"
         ban_confirm: "Bannir %{name} ? Ses échanges en cours seront annulés et ses amitiés rompues, même si le ban est levé plus tard."
         unban: "LEVER LE BAN"
         unban_confirm: "Lever le ban de %{name} ?"
+        reason_label: "Raison du bannissement de %{name}"
+        reason_placeholder: "Raison du ban"
       create:
         banned: "%{name} est banni."
       destroy:
@@ -184,6 +189,8 @@ fr:
         visibility: "Visibilité"
         state: "État"
         action: "Bannir ou lever le ban"
+        history_column: "Historique du joueur"
+        history_link: "Historique"
         roles:
           player: "Joueur"
           moderator: "Modérateur"
@@ -192,6 +199,31 @@ fr:
           good_standing: "En règle"
           banned: "Banni"
         reports: "Les signalements"
+        history: "L'historique"
+    history:
+      index:
+        heading: "L'historique de modération"
+        heading_player: "L'historique de %{name}"
+        intro: "Chaque bannissement, levée de ban et classement de signalements, le plus récent en premier, avec l'officier qui a agi et, pour un bannissement, la raison qu'il a donnée. Rien ne s'efface de l'historique. Les bannissements faits avant que la raison soit demandée n'en ont pas."
+        empty: "Aucune action de modération n'est encore consignée."
+        player_empty: "Aucune action de modération ne concerne %{name}."
+        unknown_player: "Aucun joueur ne correspond à ce lien."
+        caption: "Actions de modération, la plus récente en premier"
+        date: "Date"
+        action: "Action"
+        player: "Joueur"
+        staff: "Par"
+        reason: "Raison"
+        kinds:
+          ban: "Bannissement"
+          unban: "Ban levé"
+          dismissal: "Signalements classés"
+        no_reason: "Raison non consignée"
+        deleted_account: "Compte supprimé"
+        whole_history: "Tout l'historique"
+        players: "Les joueurs"
+        reports: "Les signalements"
+        bans: "Les bannis"
     import_runs:
       statuses:
         pending: "En attente"
@@ -1015,6 +1047,8 @@ fr:
       already_banned: "Ce joueur est déjà banni, officier."
       not_banned: "Ce joueur n'est pas banni, officier."
       no_open_reports: "Ce joueur n'a plus de signalement en attente, officier."
+      reason_required: "Indiquez la raison du bannissement, officier."
+      reason_too_long: "La raison d'un bannissement tient en 500 caractères au plus, officier."
       invalid_role: "Ce rôle n'existe pas : player, moderator ou administrator."
     catalog:
       missing_text: "Les scribes ont besoin du titre de la carte dans chaque langue de la Confrérie avant de l'inscrire au registre."

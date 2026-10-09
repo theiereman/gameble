@@ -10,9 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_09_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_09_130001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "accounts_moderation_actions", force: :cascade do |t|
+    t.string "kind", null: false
+    t.bigint "player_id", null: false
+    t.bigint "staff_id", null: false
+    t.text "reason"
+    t.datetime "created_at", null: false
+    t.index ["created_at"], name: "index_accounts_moderation_actions_on_created_at"
+    t.index ["player_id", "created_at"], name: "index_accounts_moderation_actions_on_player_id_and_created_at"
+    t.index ["staff_id"], name: "index_accounts_moderation_actions_on_staff_id"
+    t.check_constraint "kind::text = ANY (ARRAY['ban'::character varying::text, 'unban'::character varying::text, 'dismissal'::character varying::text])", name: "accounts_moderation_actions_kind_check"
+    t.check_constraint "reason IS NULL OR char_length(reason) <= 500", name: "accounts_moderation_actions_reason_length_check"
+    t.check_constraint "reason IS NULL OR kind::text = 'ban'::text", name: "accounts_moderation_actions_reason_kind_check"
+  end
 
   create_table "accounts_players", force: :cascade do |t|
     t.string "steam_id"
@@ -413,6 +427,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_120000) do
     t.index ["tagid"], name: "index_steam_tags_on_tagid", unique: true
   end
 
+  add_foreign_key "accounts_moderation_actions", "accounts_players", column: "player_id"
+  add_foreign_key "accounts_moderation_actions", "accounts_players", column: "staff_id"
   add_foreign_key "accounts_reports", "accounts_players", column: "reported_id"
   add_foreign_key "accounts_reports", "accounts_players", column: "reporter_id"
   add_foreign_key "catalog_card_seasons", "catalog_cards", column: "card_id"

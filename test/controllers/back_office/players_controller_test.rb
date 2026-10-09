@@ -52,6 +52,8 @@ module BackOffice
         assert_select "input[name=_method][value=delete]"
         assert_select "button", "LEVER LE BAN"
       end
+      assert_select "#{row(@target)} td[data-player-history] a[href=?]", "/fr/back-office/history?player=#{@target.token}", "Historique"
+      assert_select "#{row(@banned)} td[data-player-history] a[href=?]", "/fr/back-office/history?player=#{@banned.token}", "Historique"
       assert_select "#{row(@administrator)} td[data-player-role=administrator]", "Administrateur"
       assert_select "#{row(@administrator)} form", false
       assert_select "#{row(@administrator)} [data-ban-refusal=outranked]", I18n.t("errors.accounts.outranked", locale: :fr)
@@ -133,7 +135,7 @@ module BackOffice
     test "a ban from a searched list comes back to it, the row banned and offering LEVER LE BAN" do
       sign_in(@moderator)
 
-      post back_office_bans_path(locale: :fr), params: { token: @target.token, return_to: "players", q: "rude", page: "2" }
+      post back_office_bans_path(locale: :fr), params: { token: @target.token, return_to: "players", q: "rude", page: "2", reason: "Rude name" }
 
       assert_redirected_to back_office_players_path(locale: :fr, q: "rude", page: 2)
       assert_equal "Gabe the Rude est banni.", flash[:notice]
@@ -164,7 +166,7 @@ module BackOffice
     test "a refusal from the list comes back to it with the alert" do
       sign_in(@moderator)
 
-      post back_office_bans_path(locale: :fr), params: { token: @administrator.token, return_to: "players", q: "x" }
+      post back_office_bans_path(locale: :fr), params: { token: @administrator.token, return_to: "players", q: "x", reason: "Rude name" }
 
       assert_redirected_to back_office_players_path(locale: :fr, q: "x")
       assert_equal I18n.t("errors.accounts.outranked", locale: :fr), flash[:alert]
@@ -179,7 +181,7 @@ module BackOffice
     test "any other return name leaves the queue's and the banned list's redirects as they are" do
       sign_in(@moderator)
 
-      post back_office_bans_path(locale: :fr), params: { token: @target.token, return_to: "https://example.com" }
+      post back_office_bans_path(locale: :fr), params: { token: @target.token, return_to: "https://example.com", reason: "Rude name" }
       assert_redirected_to back_office_reports_path(locale: :fr)
 
       delete back_office_ban_path(locale: :fr, token: @target.token), params: { return_to: "/fr/back-office/players" }

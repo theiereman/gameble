@@ -31,6 +31,7 @@ module BackOffice
         assert_select "main .panel[data-report-queue-size='0']", "Aucun joueur signalé n'attend les officiers."
         assert_select "a[href='/fr/back-office/reports']", "Les signalements"
         assert_select "a[href='/fr/back-office/bans']", "Les bannis"
+        assert_select "a[href='/fr/back-office/history']", "L'historique"
         assert_select ".top-bar__start > a.button--secondary:first-child[href='/fr']", "Pont"
         assert_select "a[href='/fr/back-office']", false
         assert_select "body.is-back-office"

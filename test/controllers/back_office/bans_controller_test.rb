@@ -35,7 +35,7 @@ module BackOffice
     test "a moderator bans a reported player: the player leaves the queue and joins the banned players" do
       sign_in(@moderator)
 
-      post back_office_bans_path(locale: :fr), params: { token: @target.token }
+      post back_office_bans_path(locale: :fr), params: { token: @target.token, reason: "Rude name" }
 
       assert_redirected_to back_office_reports_path(locale: :fr)
       assert_equal I18n.t("back_office.bans.create.banned", name: "Gabe", locale: :fr), flash[:notice]
@@ -55,6 +55,53 @@ module BackOffice
         assert_select "button", "LEVER LE BAN"
       end
       [ @target, @banned, @moderator ].each { |player| assert_not_includes response.body, player.id.to_s }
+    end
+
+    test "a ban without a reason, or with an overlong one, is refused with the alert and the player stays unbanned" do
+      sign_in(@moderator)
+
+      [ {}, { reason: "" }, { reason: " \u200B\u3000 " } ].each do |reason|
+        post back_office_bans_path(locale: :fr), params: { token: @target.token, **reason }
+
+        assert_redirected_to back_office_reports_path(locale: :fr)
+        assert_equal "Indiquez la raison du bannissement, officier.", flash[:alert]
+      end
+      post back_office_bans_path(locale: :fr), params: { token: @target.token, return_to: "players", reason: "a" * 501 }
+
+      assert_redirected_to back_office_players_path(locale: :fr)
+      assert_equal I18n.t("errors.accounts.reason_too_long", locale: :fr), flash[:alert]
+      assert_not @target.reload.banned?
+      assert_nil @report.reload.handled_at
+      assert_equal 0, Accounts::ModerationAction.count
+    end
+
+    test "the ban keeps its cleaned reason in the history, never in the notice" do
+      sign_in(@moderator)
+
+      post back_office_bans_path(locale: :fr), params: { token: @target.token, reason: "  Insults\u200B in the name " }
+
+      assert_equal "Gabe est banni.", flash[:notice]
+      assert_equal [ [ "ban", @target, @moderator, "Insults in the name" ] ],
+        Accounts::ModerationAction.all.map { [ it.kind, it.player, it.staff, it.reason ] }
+    end
+
+    test "the ban form asks for a reason, on the queue and on the players list; the lists link to the history" do
+      sign_in(@moderator)
+
+      [ back_office_reports_path(locale: :fr), back_office_players_path(locale: :fr) ].each do |path|
+        get path
+
+        assert_select "#{row(@target)} form.ban-form[action='/fr/back-office/bans'][method=post][data-turbo-confirm]" do
+          assert_select "label.visually-hidden[for='ban-reason-#{@target.token}']", "Raison du bannissement de Gabe"
+          assert_select "input#ban-reason-#{@target.token}[type=text][name=reason][required][maxlength='500'][autocomplete=off][placeholder='Raison du ban']"
+          assert_select "button.button--danger[type=submit]", "BANNIR"
+        end
+        assert_select "a[href='/fr/back-office/history']", "L'historique"
+      end
+
+      get back_office_bans_path(locale: :fr)
+      assert_select "form.ban-form", false
+      assert_select "a[href='/fr/back-office/history']", "L'historique"
     end
 
     test "a moderator lifts a ban: the player leaves the banned players" do
@@ -80,7 +127,7 @@ module BackOffice
         "A" * 24 => :player_not_found,
         "" => :player_not_found
       }.each do |token, code|
-        post back_office_bans_path(locale: :fr), params: { token: }
+        post back_office_bans_path(locale: :fr), params: { token:, reason: "Rude name" }
 
         assert_redirected_to back_office_reports_path(locale: :fr)
         assert_equal I18n.t("errors.accounts.#{code}", locale: :fr), flash[:alert], code
@@ -129,7 +176,7 @@ module BackOffice
     test "an administrator bans and lifts a ban, in English" do
       sign_in(@administrator)
 
-      post back_office_bans_path(locale: :en), params: { token: @target.token }
+      post back_office_bans_path(locale: :en), params: { token: @target.token, reason: "Rude name" }
       assert_equal "Gabe is banned.", flash[:notice]
 
       get back_office_bans_path(locale: :en)
@@ -164,11 +211,11 @@ module BackOffice
 
       with_counting_rate_limit(BansController) do
         30.times do
-          post back_office_bans_path(locale: :fr), params: { token: @target.token }
+          post back_office_bans_path(locale: :fr), params: { token: @target.token, reason: "Rude name" }
           assert_redirected_to back_office_reports_path(locale: :fr)
         end
 
-        post back_office_bans_path(locale: :fr), params: { token: @target.token }
+        post back_office_bans_path(locale: :fr), params: { token: @target.token, reason: "Rude name" }
       end
 
       assert_response :too_many_requests
@@ -179,7 +226,7 @@ module BackOffice
 
       get back_office_bans_path(locale: :fr)
       assert_unknown_address
-      post back_office_bans_path(locale: :fr), params: { token: @moderator.token }
+      post back_office_bans_path(locale: :fr), params: { token: @moderator.token, reason: "Rude name" }
       assert_unknown_address
       delete back_office_ban_path(locale: :fr, token: @banned.token)
       assert_unknown_address
@@ -191,7 +238,7 @@ module BackOffice
     test "a visitor gets the 404 of an unknown address from every action" do
       get back_office_bans_path(locale: :fr)
       assert_unknown_address
-      post back_office_bans_path(locale: :fr), params: { token: @target.token }
+      post back_office_bans_path(locale: :fr), params: { token: @target.token, reason: "Rude name" }
       assert_unknown_address
       delete back_office_ban_path(locale: :fr, token: @banned.token)
       assert_unknown_address

@@ -25,6 +25,7 @@ module Accounts
         step permitted(staff, player)
         step publish(PlayerUnbanned.new(data: { player_id: player.id, staff_id: staff.id }), stream_name: "Accounts::Player$#{player.id}")
         player.update!(banned_at: nil)
+        ModerationAction.create!(kind: :unban, player:, staff:)
         player
       end
     end

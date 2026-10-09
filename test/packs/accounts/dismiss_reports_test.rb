@@ -107,4 +107,25 @@ class Accounts::DismissReportsTest < ActiveSupport::TestCase
     assert_nil open.reload.handled_at
     assert dismiss(staff: accounts_players(:administrator)).success?
   end
+
+  test "the dismissal joins the moderation history, without a reason" do
+    report(@target, 16)
+
+    travel_to(Time.utc(2026, 10, 9, 14)) { dismiss }.value!
+
+    action = Accounts::ModerationAction.sole
+    assert_equal [ "dismissal", @target, @moderator, nil ], [ action.kind, action.player, action.staff, action.reason ]
+    assert_equal Time.utc(2026, 10, 9, 14), action.created_at
+  end
+
+  test "a refused dismissal, or one with no open report, leaves no line in the history" do
+    report(@target, 17).update!(handled_at: 1.day.ago)
+    administrator = accounts_players(:administrator)
+    report(administrator, 18)
+
+    assert_equal Dry::Monads::Failure(:no_open_reports), dismiss
+    assert_equal Dry::Monads::Failure(:outranked), dismiss(administrator)
+    assert_equal Dry::Monads::Failure(:staff_required), dismiss(staff: @target)
+    assert_equal 0, Accounts::ModerationAction.count
+  end
 end

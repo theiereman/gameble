@@ -85,7 +85,16 @@
   align-items: center;
 }
 
-.ledger-search__field {
+.ban-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin: 0;
+}
+
+.ledger-search__field,
+.ban-form__field {
   box-sizing: border-box;
   flex: 1 1 auto;
   min-width: 0;
@@ -99,7 +108,8 @@
   letter-spacing: var(--tracking-body);
 }
 
-.ledger-search__field:focus-visible {
+.ledger-search__field:focus-visible,
+.ban-form__field:focus-visible {
   outline: 0;
   box-shadow: var(--focus-ring-gap), var(--control-border);
 }

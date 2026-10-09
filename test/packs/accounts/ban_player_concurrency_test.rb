@@ -34,10 +34,11 @@ class Accounts::BanPlayerConcurrencyTest < ActiveSupport::TestCase
     event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))
     connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events_in_streams WHERE event_id IN (?)", event_ids ])) if event_ids.any?
     connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events WHERE event_id IN (?)", event_ids ])) if event_ids.any?
+    Accounts::ModerationAction.where(player_id: ids).delete_all
     Accounts::Player.where(id: ids).delete_all
   end
 
-  def ban = -> { Accounts::BanPlayer.new.call(staff: @moderator, player: Accounts::Player.find(@target.id)) }
+  def ban = -> { Accounts::BanPlayer.new.call(staff: @moderator, player: Accounts::Player.find(@target.id), reason: "Rude name") }
 
   def accept(friend = Accounts::Player.find(@friend.id)) = -> { Game::AcceptTrade.new.call(player: friend, trade_id: @trade.id, seen: @trade.proposed_at) }
 

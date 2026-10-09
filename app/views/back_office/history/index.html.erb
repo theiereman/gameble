@@ -1,0 +1,72 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= @player ? t(".heading_player", name: moderation_name(@player)) : t(".heading") %></h1>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <% if @filtered && @player.nil? %>
+    <%= render PanelComponent.new(tag: :p, data: { moderation_history_empty: "unknown_player" }) do %>
+      <%= t(".unknown_player") %>
+    <% end %>
+  <% elsif @actions.empty? %>
+    <%= render PanelComponent.new(tag: :p, data: { moderation_history_empty: @player ? "player" : "all" }) do %>
+      <%= @player ? t(".player_empty", name: moderation_name(@player)) : t(".empty") %>
+    <% end %>
+  <% else %>
+    <table class="ledger">
+      <caption class="visually-hidden"><%= t(".caption") %></caption>
+      <thead>
+        <tr>
+          <th scope="col"><%= t(".date") %></th>
+          <th scope="col"><%= t(".action") %></th>
+          <th scope="col"><%= t(".player") %></th>
+          <th scope="col"><%= t(".staff") %></th>
+          <th scope="col"><%= t(".reason") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @actions.each do |action| %>
+          <tr data-moderation-kind="<%= action.kind %>">
+            <td><%= render "back_office/import_runs/time", time: action.created_at %></td>
+            <td><%= t(".kinds.#{action.kind}") %></td>
+            <td data-moderation-player>
+              <% if action.player.deleted? %>
+                <%= moderation_name(action.player) %>
+              <% else %>
+                <%= link_to moderation_name(action.player), back_office_history_path(player: action.player.token) %>
+              <% end %>
+            </td>
+            <td data-moderation-staff><%= moderation_name(action.staff) %></td>
+            <td data-moderation-reason>
+              <% if action.ban? %><%= action.reason || t(".no_reason") %><% else %>—<% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% if @pagy.last > 1 %>
+      <%# Pagy writes its links escaped, from its own dictionary (the pagy keys of the locale files). %>
+      <%= @pagy.series_nav.html_safe %>
+    <% end %>
+  <% end %>
+
+  <% if @filtered %>
+    <p>
+      <%= render ButtonComponent.new(variant: :secondary, href: back_office_history_path) do %><%= t(".whole_history") %><% end %>
+    </p>
+  <% end %>
+
+  <p>
+    <%= render ButtonComponent.new(variant: :secondary, href: back_office_players_path) do %><%= t(".players") %><% end %>
+  </p>
+  <p>
+    <%= render ButtonComponent.new(variant: :secondary, href: back_office_reports_path) do %><%= t(".reports") %><% end %>
+  </p>
+  <p>
+    <%= render ButtonComponent.new(variant: :secondary, href: back_office_bans_path) do %><%= t(".bans") %><% end %>
+  </p>
+</div>

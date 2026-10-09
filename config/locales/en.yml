@@ -126,6 +126,7 @@ en:
         players: "The players"
         reports: "The reports"
         bans: "The banned players"
+        history: "The history"
         jobs: "The job queue"
         import_runs: "The Steam import"
         seasons: "The catalog seasons"
@@ -143,6 +144,7 @@ en:
         dismiss: "DISMISS"
         dismiss_confirm: "Dismiss the reports on %{name} without banning them?"
         banned_players: "The banned players"
+        history: "The history"
       dismiss:
         dismissed: "The reports on %{name} are dismissed."
     bans:
@@ -155,11 +157,14 @@ en:
         banned_at: "Banned on"
         unban: "LIFT THE BAN"
         reports: "The reports"
+        history: "The history"
       actions:
         ban: "BAN"
         ban_confirm: "Ban %{name}? Their open trades will be cancelled and their friendships broken, even if the ban is lifted later."
         unban: "LIFT THE BAN"
         unban_confirm: "Lift the ban on %{name}?"
+        reason_label: "Reason for banning %{name}"
+        reason_placeholder: "Reason for the ban"
       create:
         banned: "%{name} is banned."
       destroy:
@@ -179,6 +184,8 @@ en:
         visibility: "Visibility"
         state: "Standing"
         action: "Ban or lift the ban"
+        history_column: "The player's history"
+        history_link: "History"
         roles:
           player: "Player"
           moderator: "Moderator"
@@ -187,6 +194,31 @@ en:
           good_standing: "In good standing"
           banned: "Banned"
         reports: "The reports"
+        history: "The history"
+    history:
+      index:
+        heading: "The moderation history"
+        heading_player: "The history of %{name}"
+        intro: "Every ban, lifted ban and dismissal of reports, the latest first, with the officer who acted and, for a ban, the reason they gave. Nothing is erased from the history. Bans made before a reason was asked for have none."
+        empty: "No moderation action is recorded yet."
+        player_empty: "No moderation action concerns %{name}."
+        unknown_player: "No player matches this link."
+        caption: "Moderation actions, the latest first"
+        date: "Date"
+        action: "Action"
+        player: "Player"
+        staff: "By"
+        reason: "Reason"
+        kinds:
+          ban: "Ban"
+          unban: "Ban lifted"
+          dismissal: "Reports dismissed"
+        no_reason: "Reason not recorded"
+        deleted_account: "Deleted account"
+        whole_history: "The whole history"
+        players: "The players"
+        reports: "The reports"
+        bans: "The banned players"
     import_runs:
       statuses:
         pending: "Waiting"
@@ -992,6 +1024,8 @@ en:
       already_banned: "That player is already banned, officer."
       not_banned: "That player is not banned, officer."
       no_open_reports: "That player has no open report left, officer."
+      reason_required: "Give the reason for the ban, officer."
+      reason_too_long: "The reason for a ban holds 500 characters at most, officer."
       invalid_role: "That role does not exist: player, moderator or administrator."
     catalog:
       missing_text: "The scribes need the card's title in every tongue of the Brotherhood before it can enter the ledger."

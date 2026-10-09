@@ -77,7 +77,7 @@ module BackOffice
         assert_select "#{row(outranking)} [data-dismiss-refusal=outranked]"
       end
 
-      post back_office_bans_path(locale: :fr), params: { token: other_moderator.token }
+      post back_office_bans_path(locale: :fr), params: { token: other_moderator.token, reason: "Rude name" }
       assert_equal I18n.t("errors.accounts.outranked", locale: :fr), flash[:alert]
       post back_office_dismiss_reports_path(locale: :fr, token: other_moderator.token)
       assert_equal I18n.t("errors.accounts.outranked", locale: :fr), flash[:alert]
@@ -89,7 +89,7 @@ module BackOffice
 
       assert_select "#{row(other_moderator)} button", "BANNIR"
       assert_select "#{row(other_moderator)} button", "CLASSER"
-      post back_office_bans_path(locale: :fr), params: { token: other_moderator.token }
+      post back_office_bans_path(locale: :fr), params: { token: other_moderator.token, reason: "Rude name" }
       assert_redirected_to back_office_reports_path(locale: :fr)
       assert_predicate other_moderator.reload, :banned?
     end

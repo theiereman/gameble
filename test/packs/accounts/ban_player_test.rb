@@ -9,7 +9,9 @@ class Accounts::BanPlayerTest < ActiveSupport::TestCase
     @depths = catalog_card_seasons(:rare_card_one).id
   end
 
-  def ban(player = @target, staff: @moderator) = Accounts::BanPlayer.new.call(staff:, player:)
+  def ban(player = @target, staff: @moderator, reason: "Insults in the name") = Accounts::BanPlayer.new.call(staff:, player:, reason:)
+
+  def history = Accounts::ModerationAction.order(:id).map { [ it.kind, it.player, it.staff, it.reason ] }
 
   def stranger(number) = Accounts::Player.create!(steam_id: "7656119796031#{number.to_s.rjust(4, "0")}")
 
@@ -24,10 +26,10 @@ class Accounts::BanPlayerTest < ActiveSupport::TestCase
     Game::Friendship.create!(low_player_id: low, high_player_id: high)
   end
 
-  def assert_unchanged(player, code, staff: @moderator)
+  def assert_unchanged(player, code, staff: @moderator, reason: "Insults in the name")
     banned_at = player.reload.banned_at
-    assert_no_difference -> { events(Accounts::PlayerBanned).size } do
-      assert_equal Dry::Monads::Failure(code), ban(player, staff:)
+    assert_no_difference [ -> { events(Accounts::PlayerBanned).size }, -> { Accounts::ModerationAction.count } ] do
+      assert_equal Dry::Monads::Failure(code), ban(player, staff:, reason:)
     end
     assert_equal [ banned_at ], [ player.reload.banned_at ]
   end
@@ -133,5 +135,47 @@ class Accounts::BanPlayerTest < ActiveSupport::TestCase
     assert_nil Accounts::BanPlayer.refusal(staff: @administrator, player: @moderator)
     assert_equal :cannot_ban_self, Accounts::BanPlayer.refusal(staff: @moderator, player: @moderator)
     assert_equal :staff_required, Accounts::BanPlayer.refusal(staff: @target, player: @moderator)
+  end
+
+  test "the ban joins the moderation history with the player, the member of staff, the cleaned reason and its time" do
+    travel_to(Time.utc(2026, 10, 9, 12)) { ban(reason: "  Insults\u200B in\u00A0the   name ") }.value!
+
+    action = Accounts::ModerationAction.sole
+    assert_equal [ "ban", @target, @moderator, "Insults in the name" ], [ action.kind, action.player, action.staff, action.reason ]
+    assert_equal Time.utc(2026, 10, 9, 12), action.created_at
+    assert_equal @target.reload.banned_at, action.created_at
+  end
+
+  test "a ban without a reason is refused: missing, empty, blank or invisible" do
+    [ nil, "", "   ", "\u200B\u3000\u202E", 42, [ "Insults" ] ].each do |reason|
+      assert_unchanged(@target, :reason_required, reason:)
+    end
+    assert_empty history
+  end
+
+  test "a reason longer than 500 characters once cleaned is refused; 500 is kept" do
+    open = report(@target)
+
+    assert_unchanged(@target, :reason_too_long, reason: "a" * 501)
+    assert_nil open.reload.handled_at
+
+    assert ban(reason: " #{"a" * 500}\u200B ").success?
+    assert_equal [ [ "ban", @target, @moderator, "a" * 500 ] ], history
+  end
+
+  test "the refusals come before the reason, and a refused ban leaves no line in the history" do
+    assert_unchanged(@target, :staff_required, staff: stranger(6), reason: "")
+    assert_unchanged(@administrator, :outranked, reason: nil)
+    assert_unchanged(@moderator, :cannot_ban_self, reason: "")
+    assert_unchanged(accounts_players(:banned), :already_banned, reason: "a" * 501)
+    assert_empty history
+  end
+
+  test "a ban rolled back by a refusal read under the lock leaves no line in the history" do
+    stale = Accounts::Player.find(@target.id)
+    @target.update!(role: :moderator)
+
+    assert_unchanged(stale, :outranked)
+    assert_empty history
   end
 end

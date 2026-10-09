@@ -14,7 +14,7 @@ class Accounts::UnbanPlayerTest < ActiveSupport::TestCase
 
   test "a moderator lifts a ban: the player is in good standing again, the reports the ban handled stay handled" do
     report = Accounts::Report.create!(reporter: stranger(1), reported: @target, reason: "cheating")
-    Accounts::BanPlayer.new.call(staff: @moderator, player: @target).value!
+    Accounts::BanPlayer.new.call(staff: @moderator, player: @target, reason: "Rude name").value!
 
     result = unban
 
@@ -108,5 +108,26 @@ class Accounts::UnbanPlayerTest < ActiveSupport::TestCase
     end
     assert_predicate banned.reload, :banned?
     assert_empty unbanned_events
+  end
+
+  test "the lifted ban joins the moderation history, without a reason" do
+    banned = accounts_players(:banned)
+
+    travel_to(Time.utc(2026, 10, 9, 13)) { unban(banned) }.value!
+
+    action = Accounts::ModerationAction.sole
+    assert_equal [ "unban", banned, @moderator, nil ], [ action.kind, action.player, action.staff, action.reason ]
+    assert_equal Time.utc(2026, 10, 9, 13), action.created_at
+  end
+
+  test "a refused unban leaves no line in the history" do
+    banned = accounts_players(:banned)
+    stale = Accounts::Player.find(banned.id)
+    banned.update!(role: :moderator)
+
+    assert_equal Dry::Monads::Failure(:not_banned), unban
+    assert_equal Dry::Monads::Failure(:outranked), unban(stale)
+    assert_equal Dry::Monads::Failure(:staff_required), unban(banned, staff: @target)
+    assert_equal 0, Accounts::ModerationAction.count
   end
 end

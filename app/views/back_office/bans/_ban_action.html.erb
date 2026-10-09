@@ -3,6 +3,16 @@
 <% if refusal %>
   <span data-ban-refusal="<%= refusal %>"><%= Accounts::BanPlayer.failure_message(refusal) %></span>
 <% else %>
-  <%= render ButtonComponent.new(variant: :danger, size: :small, href: back_office_bans_path, method: :post,
-        params: { token: player.token, **back }, confirm: t("back_office.bans.actions.ban_confirm", name:)) do %><%= t("back_office.bans.actions.ban") %><% end %>
+  <%= form_with url: back_office_bans_path, method: :post, class: "ban-form",
+        data: { turbo_confirm: t("back_office.bans.actions.ban_confirm", name:) } do %>
+    <%= hidden_field_tag :token, player.token, id: nil %>
+    <% back.each do |key, value| %>
+      <%= hidden_field_tag key, value, id: nil %>
+    <% end %>
+    <% field_id = "ban-reason-#{player.token}" %>
+    <label class="visually-hidden" for="<%= field_id %>"><%= t("back_office.bans.actions.reason_label", name:) %></label>
+    <%= text_field_tag :reason, nil, id: field_id, class: "ban-form__field", required: true, maxlength: Accounts::BanReason::LENGTH,
+          autocomplete: "off", placeholder: t("back_office.bans.actions.reason_placeholder") %>
+    <%= render ButtonComponent.new(variant: :danger, size: :small, type: :submit) do %><%= t("back_office.bans.actions.ban") %><% end %>
+  <% end %>
 <% end %>

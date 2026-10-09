@@ -16,7 +16,7 @@ module BackOffice
       authorize [ :back_office, :bans ], :create?
 
       player = Accounts::PlayerByToken.call(params[:token])
-      result = Accounts::BanPlayer.new.call(staff: current_player, player:)
+      result = Accounts::BanPlayer.new.call(staff: current_player, player:, reason: params[:reason])
       if result.success?
         redirect_to return_path(back_office_reports_path), notice: t(".banned", name: helpers.public_profile_title(player)), status: :see_other
       else

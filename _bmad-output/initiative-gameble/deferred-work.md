@@ -356,6 +356,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-moderation-the-queue-bans-and-unbans-plan.md`
   summary: Bans and dismissals leave no record a page reads: no ban reason, no "banned by", no history of classed reports; only the event store keeps `PlayerBanned`, `PlayerUnbanned` and `ReportsDismissed` with the staff member's id.
   evidence: Story 7.5 review (blind hunter; rejected low, not asked by the ticket). Would answer "why was I banned?" once strangers play.
+  resolved: Story 7.15: a ban requires a reason the staff member types; `Accounts::BanPlayer`, `UnbanPlayer` and `DismissReports` write each action to `accounts_moderation_actions` (who acted, on whom, when, the ban's reason), shown newest first at `/<locale>/back-office/history`, filtered by player, linked from the dashboard, the queue, the banned list and each row of the players list. The actions recorded in the event store before it were copied by a data migration, without a reason.
 
 - source_plan: `_bmad-output/initiative-gameble/epic-friends-and-trades/story-fixes-from-the-epic-retrospective-plan.md`
   summary: A counter-proposal carries no version of the terms seen, so a stale tab's counter replaces the friend's newer terms unseen.

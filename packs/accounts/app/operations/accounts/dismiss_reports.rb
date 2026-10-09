@@ -30,6 +30,7 @@ module Accounts
         handled = Report.unhandled.where(reported: player).update_all(handled_at: now, updated_at: now)
         step any_handled(handled)
         step publish(ReportsDismissed.new(data: { player_id: player.id, staff_id: staff.id }), stream_name: "Accounts::Player$#{player.id}")
+        ModerationAction.create!(kind: :dismissal, player:, staff:, created_at: now)
         handled
       end
     end

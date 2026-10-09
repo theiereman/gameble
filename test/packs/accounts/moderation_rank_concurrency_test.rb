@@ -26,6 +26,7 @@ class Accounts::ModerationRankConcurrencyTest < ActiveSupport::TestCase
     event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))
     connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events_in_streams WHERE event_id IN (?)", event_ids ])) if event_ids.any?
     connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events WHERE event_id IN (?)", event_ids ])) if event_ids.any?
+    Accounts::ModerationAction.where(player_id: ids).delete_all
     Accounts::Player.where(id: ids).delete_all
   end
 
@@ -39,7 +40,7 @@ class Accounts::ModerationRankConcurrencyTest < ActiveSupport::TestCase
   test "a promotion that commits while a ban waits on the row refuses the ban" do
     stale = stale_target
 
-    _, banning = first_holding_the_lock(promote, -> { Accounts::BanPlayer.new.call(staff: @moderator, player: stale) })
+    _, banning = first_holding_the_lock(promote, -> { Accounts::BanPlayer.new.call(staff: @moderator, player: stale, reason: "Rude name") })
 
     assert_equal Dry::Monads::Failure(:outranked), banning
     assert_not @target.reload.banned?
@@ -59,7 +60,7 @@ class Accounts::ModerationRankConcurrencyTest < ActiveSupport::TestCase
 
   test "a dismissal that waits on a ban finds the reports handled" do
     stale = stale_target
-    ban = -> { Accounts::BanPlayer.new.call(staff: @moderator, player: Accounts::Player.find(@target.id)) }
+    ban = -> { Accounts::BanPlayer.new.call(staff: @moderator, player: Accounts::Player.find(@target.id), reason: "Rude name") }
 
     banning, dismissal = first_holding_the_lock(ban, -> { Accounts::DismissReports.new.call(staff: @moderator, player: stale) })
 
