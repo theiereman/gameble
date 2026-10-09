@@ -3,7 +3,7 @@ title: 'Races between bank operations'
 type: 'chore'
 ticket: '9'
 created: '2026-10-08'
-status: 'in-review'
+status: 'built'
 baseline_revision: 'bb7d881908b0e9a47bceca8aa8d5e6f4baffeddb'
 route: 'full'
 route_source: 'auto'
@@ -87,6 +87,15 @@ deferred: []
 
 ## Review Triage Log
 
+Quick review of the merge (2026-10-09), over the uncommitted diff on `ec261af`:
+
+| Finding | Verdict | Route | Evidence |
+|---|---|---|---|
+| `heal_banks_job.rb` header says a player banned meanwhile is skipped | low | patch | `lock_bank` re-reads only `deleted_at` (`operation.rb:53`), so a ban after the batch read still heals; the comment now says deleted only. |
+| Five runs of the merged race files, the Auto Run Result and the Code Review defer out of date | -- | rejected | Its fix edits this plan; the five runs were made after the patches (Verification). |
+| Intent comments above `lock_if_still_owner` and `both_still_here` | low | patch | AGENTS.md comments only external constraints; the `both_still_here` comment dropped, the sign-in one folded into the existing `find_or_create_player` comment. |
+| `by_link` computed twice in `send_invitation.rb` | low | patch | `call` and `recipient_of` both derived it; `call` computes it once and passes it. |
+
 ## Design Notes
 
 Postgres detects a deadlock between advisory and row locks and aborts one transaction with `ActiveRecord::Deadlocked`, so a deadlock shows as an error raised by `thread.value`; the join timeout catches what Postgres cannot see (a connection-pool wait, a thread blocked in Ruby). The slowed draw pool of `bank_races_test.rb` widens the window between reading the bank and writing it; reuse it for the one-player races. Outcomes that legitimately vary with commit order (an opening refused because a heal had not yet committed, a bonus refused at a full reserve) are asserted as a set of allowed results, then the invariants are asserted on the final state.
@@ -94,13 +103,15 @@ Postgres detects a deadlock between advisory and row locks and aborts one transa
 ## Verification
 
 **Commands:**
-- `for i in 1 2 3 4 5; do bin/rails test test/packs/game/bank_races_test.rb test/packs/game/delete_player_concurrency_test.rb test/packs/game/bank_lock_order_races_test.rb test/packs/game/trade_concurrency_test.rb || break; done` -- expected: five green runs
+- `for i in 1 2 3 4 5; do bin/rails test test/packs/game/bank_races_test.rb test/packs/game/delete_player_concurrency_test.rb test/packs/game/bank_lock_order_races_test.rb test/packs/game/trade_concurrency_test.rb test/packs/accounts/ban_player_concurrency_test.rb test/packs/game/mark_collection_seen_test.rb || break; done` -- expected: five green runs
 - `bin/rails test` -- expected: 0 failures, 0 errors
 - `bin/rubocop test/packs/game` -- expected: no offenses
 
 ## Auto Run Result
 
-Stopped after implementation at the author's request, before review: `status: in-review`, so the next run starts at the review step. Verification done here: the four race files three times in a row (28 runs each, green), `bin/rails test` 1722 runs with 0 failures and 0 errors, `bin/rubocop test/packs/game test/support` clean. No operation changed; tests only.
+Merge with the parallel build and review patches (2026-10-09): the merged race files five times in a row (56 runs each, green), `bin/rails test` 2058 runs with 0 failures and 0 errors, rubocop, packwerk and zeitwerk clean. A class-level constant naming models in a test file loaded `ApplicationRecord` before the parallel workers forked and made `ReadOnlyRequestsTest` fail; it is a method now.
+
+Earlier: stopped after implementation at the author's request, before review: `status: in-review`, so the next run starts at the review step. Verification done here: the four race files three times in a row (28 runs each, green), `bin/rails test` 1722 runs with 0 failures and 0 errors, `bin/rubocop test/packs/game test/support` clean. No operation changed; tests only.
 
 ## Code Review
 
@@ -114,7 +125,7 @@ Stopped after implementation at the author's request, before review: `status: in
 - [x] [Review][Patch] `together` now exists in three copies (plus `race`), so the previous fix must be made in each — move it to `test/support` beside `open_unpublished` and `assert_spent_once` [test/packs/game/delete_player_concurrency_test.rb:85] — the reconcile had already moved it to `LockRaces`; `race` now delegates to it
 - [x] [Review][Patch] The four-way deletion race checks five tables through `leftovers`/`none_left` while `bank_lock_order_races_test.rb:151-152` checks eight; its opening writes `game_player_states` and its bonus can write set completions — extend `leftovers` to `Game::PlayerState`, `Game::SetCompletion` and `Game::FriendCode`, which `Game::ReleasePlayer` deletes [test/packs/game/delete_player_concurrency_test.rb:34]
 - [x] [Review][Patch] `assert_spent_once` counts cards only for regular and bonus packs, so an opened `reward` pack (`Game::Pack` kind `reward`) makes it fail on correct behaviour — sum each opened pack's `card_season_ids.size` instead [test/support/game_packs.rb:46]
-- [x] [Review][Defer] `Game::HealBanksJob` reports an error when a player is deleted between its batch read and their heal: `HealBank`/`FillBank` return `Failure(:player_required)` under the bank lock and `.value!` raises, so `Rails.error.report` fires for a normal race [packs/game/app/jobs/game/heal_banks_job.rb:28] — deferred: pre-existing production code, not changed by this story; no race of the job against a deletion exists yet.
+- [x] [Review][Defer] (resolved by the merge with the parallel build: the job skips `:player_required` unreported) `Game::HealBanksJob` reports an error when a player is deleted between its batch read and their heal: `HealBank`/`FillBank` return `Failure(:player_required)` under the bank lock and `.value!` raises, so `Rails.error.report` fires for a normal race [packs/game/app/jobs/game/heal_banks_job.rb:28] — deferred: pre-existing production code, not changed by this story; no race of the job against a deletion exists yet.
 
 **Rejected**
 - `low` — The "accepted" and "cancelled" branches of the partner-deletion race and the "no pack available" branch of the job race are allowed but the plan notes only one of each was ever hit; forcing each order with `first_holding_the_lock` means new tests, and the re-check behind the cancelled branch is pinned by `trade_concurrency_test.rb`.

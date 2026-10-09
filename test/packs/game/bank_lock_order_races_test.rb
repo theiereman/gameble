@@ -4,15 +4,16 @@ require_relative "../../support/game_packs"
 
 # Bank operations of several players raced against each other: the
 # publication's healing (Game::HealBanksJob), openings, a daily bonus, a
-# trade's acceptance and an account deletion. An operation that locks
-# several players takes their bank locks in ascending player id, then their
-# holdings in ascending player and card-season, then their game state rows,
-# so no two of them wait on each other. A deadlock Postgres detects raises
-# ActiveRecord::Deadlocked from its thread, which fails the test; a thread
-# that never returns fails it too. The draw pool is slowed, as in
-# Game::BankRacesTest, to widen the window between reading a bank and
-# writing it. Each thread has its own connection, so the test commits for
-# real; it uses players of its own and removes every row it made.
+# trade's acceptance and an account deletion. Each race checks what must
+# hold across the players whatever the commit order: every bank healed
+# once, a trade's cards swapped once, nothing reserved by a cancelled trade,
+# nothing left of a deleted player. The order in which two operations that
+# each lock several players take their locks is raced by
+# Game::TradeConcurrencyTest. A thread that raises or never returns fails
+# the test. The draw pool is slowed, as in Game::BankRacesTest, to widen the
+# window between reading a bank and writing it. Each thread has its own
+# connection, so the test commits for real; it uses players of its own and
+# removes every row it made.
 class Game::BankLockOrderRacesTest < ActiveSupport::TestCase
   include GamePacks
   include LockRaces
@@ -77,6 +78,13 @@ class Game::BankLockOrderRacesTest < ActiveSupport::TestCase
   def filled(player) = game_events(player, Game::BankFilled).size
   def quantity(player, card_season_id) = Game::Holding.find_by(player_id: player.id, card_season_id:)&.quantity.to_i
 
+  # No row of the player in any table Game::ReleasePlayer empties.
+  def assert_nothing_left(player)
+    left = [ Game::Pack, Game::Holding, Game::FeedEntry, Game::DailyBonusClaim, Game::GoalReward, Game::SetCompletion, Game::PlayerState,
+      Game::FriendCode ].to_h { |model| [ model.name, model.where(player_id: player.id).count ] }
+    assert_equal left.transform_values { 0 }, left
+  end
+
   # Two friends, each with one available pack of five portal cards, and an
   # open trade: the higher id offers a rare card for the lower id's
   # uncommon one, so the acceptance and a deletion lock the recipient's bank
@@ -124,7 +132,7 @@ class Game::BankLockOrderRacesTest < ActiveSupport::TestCase
     [ @first, @second ].each { |player| assert_opened_once(player) }
   end
 
-  test "a partner's deletion while the other opens a pack and accepts their trade: no row of the deleted player, nothing reserved" do
+  test "a partner's deletion while the other opens a pack and accepts their trade: no row of the deleted player" do
     trade = offered_trade
 
     deletion, opening, accepted = together(delete(@second), open(@first), accept(@first, trade))
@@ -135,13 +143,25 @@ class Game::BankLockOrderRacesTest < ActiveSupport::TestCase
     assert accepted.success? || accepted.failure == :trade_not_open, accepted.inspect
     trade.reload
     assert_equal accepted.success? ? "accepted" : "cancelled", trade.status
-    left = [ Game::Pack, Game::Holding, Game::FeedEntry, Game::DailyBonusClaim, Game::GoalReward, Game::SetCompletion, Game::PlayerState,
-      Game::FriendCode ].to_h { |model| [ model.name, model.where(player_id: @second.id).count ] }
-    assert_equal left.transform_values { 0 }, left
+    assert_nothing_left(@second)
     assert_equal 0, Game::Friendship.of(@second.id).count
-    assert_equal 0, Game::Holding.where(player_id: @first.id).sum(:reserved)
     swapped = accepted.success? ? 1 : 0
     assert_equal [ swapped, 2 - swapped, 5 ], [ quantity(@first, @rare), quantity(@first, @uncommon), quantity(@first, @portal) ]
     assert_opened_once(@first)
+  end
+
+  test "the recipient's deletion while the proposer opens a pack: the trade cancelled, the proposer's copies released" do
+    trade = offered_trade
+
+    deletion, opening = together(delete(@first), open(@second))
+
+    assert_predicate deletion, :success?
+    assert_predicate opening, :success?
+    assert_equal "cancelled", trade.reload.status
+    assert_nothing_left(@first)
+    assert_equal 0, Game::Friendship.of(@second.id).count
+    assert_equal 0, Game::Holding.where(player_id: @second.id).sum(:reserved)
+    assert_equal [ 2, 5 ], [ quantity(@second, @rare), quantity(@second, @portal) ]
+    assert_opened_once(@second)
   end
 end

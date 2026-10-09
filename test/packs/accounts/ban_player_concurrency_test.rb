@@ -1,7 +1,8 @@
 require "test_helper"
 require_relative "../../support/lock_races"
 
-# A ban against a trade acceptance between the banned player and a friend.
+# A ban against a trade acceptance between the banned player and a friend,
+# and against an invitation to or from the banned player.
 # Each thread has its own connection, so the test commits for real; it uses
 # players of its own and removes them afterwards.
 class Accounts::BanPlayerConcurrencyTest < ActiveSupport::TestCase
@@ -28,6 +29,7 @@ class Accounts::BanPlayerConcurrencyTest < ActiveSupport::TestCase
     Game::TradeItem.where(trade_id: trades).delete_all
     Game::Trade.where(id: trades).delete_all
     Game::Friendship.where(low_player_id: ids).or(Game::Friendship.where(high_player_id: ids)).delete_all
+    Game::Invitation.where(sender_id: ids).or(Game::Invitation.where(recipient_id: ids)).delete_all
     [ Game::Holding, Game::SetCompletion, Game::PlayerState, Game::FeedEntry ].each { |model| model.where(player_id: ids).delete_all }
     connection = ActiveRecord::Base.connection
     streams = ids.flat_map { |id| [ Game::Operation.stream_name(id), "Accounts::Player$#{id}" ] }
@@ -69,5 +71,27 @@ class Accounts::BanPlayerConcurrencyTest < ActiveSupport::TestCase
     assert_equal 0, reserved(@target, @portal)
     assert_equal [ 2, 2 ], [ Game::Holding.find_by(player_id: @target.id, card_season_id: @portal).quantity,
       Game::Holding.find_by(player_id: @friend.id, card_season_id: @depths).quantity ]
+  end
+
+  def invitations_of_target = Game::Invitation.where(sender_id: @target.id).or(Game::Invitation.where(recipient_id: @target.id)).count
+
+  test "an invitation to a player being banned waits on the ban, then finds no one" do
+    stranger = Accounts::Player.find(accounts_players(:player).id)
+
+    banning, invitation = first_holding_the_lock(ban, -> { Game::SendInvitation.new.call(player: stranger, recipient_token: @target.token) })
+
+    assert banning.success?
+    assert_equal Dry::Monads::Failure(:unknown_player), invitation
+    assert_equal 0, invitations_of_target
+  end
+
+  test "an invitation sent by a player being banned waits on the ban, then is refused" do
+    target = Accounts::Player.find(@target.id)
+
+    banning, invitation = first_holding_the_lock(ban, -> { Game::SendInvitation.new.call(player: target, recipient_token: accounts_players(:player).token) })
+
+    assert banning.success?
+    assert_equal Dry::Monads::Failure(:player_required), invitation
+    assert_equal 0, invitations_of_target
   end
 end

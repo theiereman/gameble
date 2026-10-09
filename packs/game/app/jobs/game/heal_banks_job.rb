@@ -7,7 +7,8 @@ module Game
   # pack is available at once. Each player is served in their own
   # transaction; both operations do nothing for a bank served meanwhile. A
   # player whose fill fails is reported and skipped, so the others still get
-  # their bank; nothing retries it before the next publication.
+  # their bank; nothing retries it before the next publication. A player
+  # deleted since their batch was read is skipped unreported.
   #
   # Per batch of players, one query reads whether each had a pack and how
   # many their bank holds; a player whose bank is full costs nothing more.
@@ -25,11 +26,18 @@ module Game
           next if banks.fetch(player.id, 0) >= Pack::BANK_SIZE
 
           operation = banks.key?(player.id) ? HealBank : FillBank
-          operation.new.call(player:).value!
+          result = operation.new.call(player:)
+          result.value! unless left_meanwhile?(result)
         rescue StandardError => error
           Rails.error.report(error, context: { player_id: player.id })
         end
       end
+    end
+
+    private
+
+    def left_meanwhile?(result)
+      result.failure? && result.failure == :player_required
     end
   end
 end

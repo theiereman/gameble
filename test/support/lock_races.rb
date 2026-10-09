@@ -47,7 +47,8 @@ module LockRaces
 
   # Runs the blocks at once, each on its own connection, and returns their
   # results in order; a thread that never returns fails the test, as a
-  # deadlock would hang it.
+  # deadlock would hang it. Once one thread fails, the others are stopped,
+  # so none keeps its transaction and locks open into the teardown.
   def together(*blocks)
     gate = Queue.new
     threads = blocks.map do |block|
@@ -60,5 +61,7 @@ module LockRaces
     end
     blocks.size.times { gate << :go }
     threads.map { |thread| thread.join(20) ? thread.value : flunk("a thread is stuck: deadlock") }
+  ensure
+    threads&.each { |thread| thread.kill.join(5) }
   end
 end

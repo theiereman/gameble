@@ -1,18 +1,21 @@
 require "test_helper"
 require_relative "../../support/game_packs"
+require_relative "../../support/lock_races"
 
-# Bank operations of different stories raced against each other (epic 7 R6,
-# AD-7, the epic 3 retrospective's B2): an opening (Game::OpenPack), a
+# Bank operations raced against each other: an opening (Game::OpenPack), a
 # sign-up (Accounts::SignIn, whose handler fills the bank), a daily bonus
-# (Game::CollectDailyBonus) and the healing of a season's publication
-# (Game::HealBank, Game::FillBank, Game::HealBanksJob). The bank lock
-# serialises them whatever their order, so each assertion holds for both
-# orders. Every bank write reads the draw pool after reading the bank; the
-# pool is slowed here, so without the lock both threads would read the bank
-# before either writes. Each thread has its own connection, so the test
-# commits for real and cleans up after itself.
+# (Game::CollectDailyBonus), the healing of a season's publication
+# (Game::HealBank, Game::FillBank, Game::HealBanksJob), and two friends'
+# operations beside a trade between them (Game::AcceptTrade), which takes
+# both bank locks in ascending player order, then the holdings. The bank
+# lock serialises them whatever their order, so each assertion holds for
+# every order. Every bank write reads the draw pool after reading the bank;
+# the pool is slowed here, so without the lock both threads would read the
+# bank before either writes. Each thread has its own connection, so the
+# test commits for real and cleans up after itself.
 class Game::BankRacesTest < ActiveSupport::TestCase
   include GamePacks
+  include LockRaces
 
   self.use_transactional_tests = false
 
@@ -35,6 +38,10 @@ class Game::BankRacesTest < ActiveSupport::TestCase
   teardown do
     Game::DrawPool.define_singleton_method(:current, @current)
     players = Accounts::Player.pluck(:id)
+    trades = Game::Trade.where(proposer_id: players).or(Game::Trade.where(recipient_id: players))
+    Game::TradeItem.where(trade_id: trades.select(:id)).delete_all
+    trades.delete_all
+    Game::Friendship.where(low_player_id: players).or(Game::Friendship.where(high_player_id: players)).delete_all
     # First discoveries made by this test's packs (the fixture ones have none).
     Game::FirstDiscovery.where(pack_id: Game::Pack.where(player_id: players).select(:id)).delete_all
     [ Game::DailyBonusClaim, Game::Holding, Game::FeedEntry, Game::WeeklyContribution, Game::SetCompletion, Game::Pack ].each do |model|
@@ -50,22 +57,10 @@ class Game::BankRacesTest < ActiveSupport::TestCase
     connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events WHERE event_id IN (?)", event_ids ])) if event_ids.any?
   end
 
-  # Runs the blocks at once, each on its own connection with a fresh copy of
-  # the player, and returns their results in order. A deadlock Postgres
-  # detects raises ActiveRecord::Deadlocked from its thread; a thread that
-  # never returns fails the test instead of hanging it.
+  # Runs the blocks at once (LockRaces#together), each with a fresh copy of
+  # the player, and returns their results in order.
   def race(*blocks)
-    gate = Queue.new
-    threads = blocks.map do |block|
-      Thread.new do
-        ActiveRecord::Base.connection_pool.with_connection do
-          gate.pop
-          block.call(Accounts::Player.find(@player.id))
-        end
-      end
-    end
-    blocks.size.times { gate << :go }
-    threads.map { |thread| thread.join(20) ? thread.value : flunk("a thread is stuck: deadlock") }
+    together(*blocks.map { |block| -> { block.call(Accounts::Player.find(@player.id)) } })
   end
 
   def heal = ->(player) { Game::HealBank.new.call(player:) }
@@ -208,5 +203,55 @@ class Game::BankRacesTest < ActiveSupport::TestCase
     assert_equal 10, bank.count
     assert_equal 2 + opened.size, Game::Pack.where(player_id: @player.id).where.not(opened_at: nil).count
     assert_spent_once(@player)
+  end
+
+  test "two first sign-ins with one Steam id at once: one player, ten packs, filled and registered once" do
+    steam_id = "76561197960287998"
+
+    results = race(*Array.new(2) { ->(_player) { Accounts::SignIn.new.call(steam_id:) } })
+    @created.concat(Accounts::Player.where(steam_id:).ids)
+
+    assert results.all?(&:success?), results.inspect
+    signed_up = results.first.value!
+    assert_equal [ signed_up.id ], results.map { |result| result.value!.id }.uniq
+    assert_equal [ signed_up.id ], Accounts::Player.where(steam_id:).pluck(:id)
+    assert_equal 10, bank(signed_up).count
+    assert_equal 1, filled(signed_up)
+    assert_equal 1, Rails.configuration.event_store.read.stream("Accounts::Player$#{signed_up.id}").of_type([ Accounts::PlayerRegistered ]).count
+  end
+
+  def copies(*players) = Game::Holding.uncached { Game::Holding.where(player_id: players.map(&:id)).sum(:quantity) }
+
+  test "two friends opening, collecting, healing and trading at once: every copy accounted for" do
+    alice = @player
+    bob = Accounts::Player.find(accounts_players(:moderator).id)
+    portal = catalog_card_seasons(:portal_one).id
+    rare = catalog_card_seasons(:rare_card_one).id
+    low, high = [ alice.id, bob.id ].minmax
+    Game::Friendship.create!(low_player_id: low, high_player_id: high)
+    Game::Holding.create!(player_id: alice.id, card_season_id: portal, quantity: 2)
+    Game::Holding.create!(player_id: bob.id, card_season_id: rare, quantity: 1)
+    9.times { |index| create_pack(alice, available_at: (index + 1).minutes.ago) }
+    create_pack(alice, available_at: 5.minutes.from_now)
+    3.times { |index| create_pack(bob, available_at: (index + 1).minutes.ago) }
+    trade = Game::ProposeTrade.new.call(player: alice, recipient: bob, offer: { portal => 1 }, request: { rare => 1 }).value!
+    before = copies(alice, bob)
+
+    results = race(
+      ->(player) { [ open.call(player), bonus.call(player) ] },
+      ->(_player) { [ open.call(Accounts::Player.find(bob.id)), heal.call(Accounts::Player.find(bob.id)) ] },
+      ->(_player) { [ Game::AcceptTrade.new.call(player: Accounts::Player.find(bob.id), trade_id: trade.id, revision: trade.revision) ] }
+    ).flatten
+
+    assert results.all?(&:success?), results.inspect
+    opened = Game::Pack.where(player_id: [ alice.id, bob.id ]).where.not(opened_at: nil)
+    assert_equal({ alice.id => 1, bob.id => 1 }, opened.group(:player_id).count)
+    assert_equal before + (Game::Pack::SIZE * 2), copies(alice, bob)
+    assert_equal "accepted", trade.reload.status
+    held = Game::Holding.where(player_id: [ alice.id, bob.id ]).pluck(:player_id, :card_season_id, :quantity, :reserved)
+    assert_equal [ [ alice.id, portal, 6, 0 ], [ alice.id, rare, 1, 0 ], [ bob.id, portal, 6, 0 ], [ bob.id, rare, 0, 0 ] ].sort, held.sort
+    assert_equal 10, bank(alice).count
+    assert_equal 1, Game::Pack.where(player_id: alice.id).bonus.unopened.count
+    assert_equal 10, bank(bob).count
   end
 end

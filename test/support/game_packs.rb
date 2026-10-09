@@ -40,12 +40,10 @@ module GamePacks
   end
 
   # Every opened pack of a player who holds no other card was spent once:
-  # opened once, and its cards credited once, Game::Pack::SIZE per regular
-  # pack and Game::Pack::BONUS_SIZE per bonus pack.
+  # opened once, and each of its cards credited once.
   def assert_spent_once(player)
     assert_opened_once(player)
-    opened = Game::Pack.where(player_id: player.id).where.not(opened_at: nil)
-    cards = (opened.regular.count * Game::Pack::SIZE) + (opened.bonus.count * Game::Pack::BONUS_SIZE)
+    cards = Game::Pack.where(player_id: player.id).where.not(opened_at: nil).pluck(:card_season_ids).sum(&:size)
     assert_equal cards, Game::Holding.where(player_id: player.id).sum(:quantity), "the opened packs' cards should be credited once"
   end
 end

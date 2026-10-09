@@ -17,7 +17,7 @@ class Game::MarkCollectionSeenTest < ActiveSupport::TestCase
   # A time an hour ago, at the microsecond `usec`.
   def ago(usec, hours: 1) = (Time.current - hours.hours).change(usec:)
 
-  test "a first mark sets the watermark, to the microsecond, in one statement, publishing nothing" do
+  test "a first mark sets the watermark, to the microsecond, in one upsert under the bank lock, publishing nothing" do
     up_to = ago(123_456)
 
     result = nil
@@ -29,8 +29,10 @@ class Game::MarkCollectionSeenTest < ActiveSupport::TestCase
     assert_equal up_to, result.value!
     assert_equal up_to, watermark
     assert_equal 123456, watermark.usec
-    assert_equal 1, queries.size, queries.inspect
-    assert_match(/INSERT INTO "game_player_states".*ON CONFLICT \("player_id"\) DO UPDATE SET collection_seen_up_to = GREATEST/, queries.sole)
+    assert_match(/pg_advisory_xact_lock/, queries.first)
+    writes = queries.grep(/\A\s*(INSERT|UPDATE|DELETE)/i)
+    assert_equal 1, writes.size, queries.inspect
+    assert_match(/INSERT INTO "game_player_states".*ON CONFLICT \("player_id"\) DO UPDATE SET collection_seen_up_to = GREATEST/, writes.sole)
     assert_empty game_events(@player)
   end
 

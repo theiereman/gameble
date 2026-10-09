@@ -53,9 +53,17 @@ module Accounts
 
     # Two first sign-ins racing on the same Steam id meet the unique index:
     # create_or_find_by inserts in a savepoint and, on conflict, reads the
-    # row the other one created.
+    # row the other one created. A row found while a deletion held it has
+    # released its Steam id: the sign-in then signs up anew.
     def find_or_create_player(steam_id)
-      Success(Player.find_by(steam_id: steam_id) || Player.create_or_find_by!(steam_id: steam_id))
+      Success(lock_if_still_owner(Player.find_by(steam_id: steam_id), steam_id) || Player.create_or_find_by!(steam_id: steam_id))
+    end
+
+    def lock_if_still_owner(player, steam_id)
+      return nil unless player
+
+      player.lock!("FOR NO KEY UPDATE")
+      player if player.steam_id == steam_id
     end
   end
 end

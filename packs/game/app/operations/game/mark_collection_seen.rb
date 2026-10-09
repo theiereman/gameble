@@ -6,10 +6,10 @@ module Game
   # changes nothing. A time in the future is stored as now, so a forged one
   # cannot hide cards gained later. Full microsecond precision.
   #
-  # One statement: an upsert of the player's Game::PlayerState row (created
-  # when missing), ON CONFLICT keeping GREATEST of both values. It touches
-  # only that row, the last in AD-10's lock order. Housekeeping: it
-  # publishes no event (AD-10).
+  # Under the bank lock, so a deletion is seen and no row recreated for it:
+  # one upsert of the player's Game::PlayerState row (created when missing),
+  # ON CONFLICT keeping GREATEST of both values. Housekeeping: it publishes
+  # no event.
   #
   #   Game::MarkCollectionSeen.new.call(player:, up_to: Time)
   #   # => Success(watermark) | Failure(:player_required) | Failure(:invalid_time)
@@ -19,6 +19,7 @@ module Game
       up_to = step check_time(up_to)
 
       transaction do
+        step lock_bank(player)
         now = Time.current
         result = PlayerState.upsert(
           { player_id: player.id, collection_seen_up_to: [ up_to, now ].min, created_at: now, updated_at: now },

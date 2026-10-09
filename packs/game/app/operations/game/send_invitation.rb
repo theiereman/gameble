@@ -2,10 +2,12 @@ module Game
   class SendInvitation < Operation
     def call(player:, code: nil, recipient_token: nil)
       player = step require_player(player)
-      recipient = step recipient_of(player, code, recipient_token)
+      by_link = !recipient_token.nil?
+      recipient = step recipient_of(player, code, recipient_token, by_link:)
 
       transaction do
         TradeLocks.players(player.id, recipient.id)
+        step both_still_here(player, recipient, by_link:)
         step not_friends(player, recipient)
         reverse = Invitation.pending.find_by(sender_id: recipient.id, recipient_id: player.id)
         next step(AcceptInvitation.new.call(player:, token: reverse.token)) if reverse
@@ -16,8 +18,7 @@ module Game
 
     private
 
-    def recipient_of(player, code, token)
-      by_link = !token.nil?
+    def recipient_of(player, code, token, by_link:)
       recipient = by_link ? player_of_token(token) : player_of_code(code)
       return recipient if recipient.is_a?(Dry::Monads::Result)
 
@@ -38,6 +39,18 @@ module Game
     def player_of_token(token)
       found = Accounts::PlayerByToken.call(token)
       found && !found.banned? ? found : Failure(:unknown_player)
+    end
+
+    def both_still_here(player, recipient, by_link:)
+      return Failure(:player_required) if removed?(player)
+      return Failure(by_link ? :unknown_player : :unknown_code) if removed?(recipient)
+
+      Success()
+    end
+
+    def removed?(player)
+      current = Accounts::PlayerById.call(player.id)
+      current.nil? || current.removed?
     end
 
     def not_friends(player, recipient)
