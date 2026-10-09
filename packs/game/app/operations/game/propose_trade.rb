@@ -8,6 +8,7 @@ module Game
       request = step normalise(request, :invalid_request)
       step known_cards(request)
       step other_player(player, recipient)
+      step expire_due_trade(player, recipient)
 
       transaction do
         TradeLocks.players(player.id, recipient.id)
@@ -36,13 +37,25 @@ module Game
     end
 
     def no_open_trade(player, recipient)
+      Trade.in_progress.exists?(pair(player, recipient)) ? Failure(:trade_already_open) : Success()
+    end
+
+    def expire_due_trade(player, recipient)
+      trade_id, proposer_id = Trade.due(Time.current).where(pair(player, recipient)).pick(:id, :proposer_id)
+      return Success() unless trade_id
+
+      proposer = [ player, recipient ].find { it.id == proposer_id }
+      result = ExpireTrade.new.call(player: proposer, trade_id:)
+      result == ExpireTrade::CLOSED_MEANWHILE ? Success() : result
+    end
+
+    def pair(player, recipient)
       low, high = [ player.id, recipient.id ].minmax
-      Trade.in_progress.exists?(low_player_id: low, high_player_id: high) ? Failure(:trade_already_open) : Success()
+      { low_player_id: low, high_player_id: high }
     end
 
     def create_trade(player, recipient, now)
-      low, high = [ player.id, recipient.id ].minmax
-      Trade.create!(low_player_id: low, high_player_id: high, proposer_id: player.id, recipient_id: recipient.id,
+      Trade.create!(**pair(player, recipient), proposer_id: player.id, recipient_id: recipient.id,
         status: "open", proposed_at: now, expires_at: now + Trade::LIFETIME)
     end
   end

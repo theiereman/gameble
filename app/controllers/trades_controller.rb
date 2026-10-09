@@ -87,7 +87,7 @@ class TradesController < ApplicationController
     authorize :trade, :accept?
     trade = find_trade!
 
-    answer(trade, Game::AcceptTrade.new.call(player: current_player, trade_id: trade.id)) do
+    answer(trade, Game::AcceptTrade.new.call(player: current_player, trade_id: trade.id, seen: params[:seen])) do
       cards = Catalog::CardViews.call(trade.friend_side.map(&:card_season_id), locale: I18n.locale)
       gained = trade.friend_side.filter_map { |line| helpers.trade_line_title(line, cards) }
       toast t("trades.accepted.title"), t("trades.accepted.text", count: gained.size, cards: gained.to_sentence)
@@ -99,7 +99,7 @@ class TradesController < ApplicationController
     authorize :trade, :decline?
     trade = find_trade!
 
-    answer(trade, Game::DeclineTrade.new.call(player: current_player, trade_id: trade.id)) do
+    answer(trade, Game::DeclineTrade.new.call(player: current_player, trade_id: trade.id, seen: params[:seen])) do
       toast t("trades.declined.title"), t("trades.declined.text", name: helpers.friend_name(trade.friend))
     end
   end

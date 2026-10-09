@@ -1,25 +1,4 @@
 module Game
-  # Releases what a player whose account is being deleted holds (CAP-14,
-  # AD-14): under their bank lock, their feed entries (gone from the feed),
-  # daily bonus claims, goal rewards, packs (the bank and the opened ones),
-  # holdings (their cards), set completions, friend code and game state row
-  # (their latest activity and the NOUVEAU watermark) are deleted, in the
-  # order the foreign keys ask, the state row last as AD-10's lock order
-  # asks. The weekly contributions stay: anonymous counts once the record is
-  # anonymised, they keep the community goal's total. Their first
-  # discoveries stay too, their pack forgotten, so a card is never
-  # discovered twice in its season (story 6.7).
-  #
-  # Run only by Game::Handlers::PlayerDeleted, inside Accounts::DeletePlayer's
-  # transaction and before the record is anonymised, so it publishes nothing
-  # (AD-10) and takes the bank lock before the deletion locks the player row
-  # for its update (AD-10's lock order). Every bank operation re-checks the
-  # deletion once it holds that lock (Game::Operation#lock_bank): an opening
-  # that commits first has its rows deleted here, one that waits writes
-  # nothing.
-  #
-  #   Game::ReleasePlayer.new.call(player:)
-  #   # => Success(player) | Failure(:player_required)
   class ReleasePlayer < Operation
     def call(player:)
       player = step require_account(player)

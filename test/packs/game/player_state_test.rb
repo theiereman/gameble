@@ -2,9 +2,6 @@ require "test_helper"
 require_relative "../../support/game_packs"
 require_relative "../../support/rake_tasks"
 
-# A player's game state row (AD-10, AD-28): created by Game::CreatePlayerState
-# at sign-up, after the bank, and for the players who predate the table by
-# Game::BackfillPlayerStatesJob (game:backfill_player_states).
 class Game::PlayerStateTest < ActiveSupport::TestCase
   include GamePacks
 
@@ -63,8 +60,6 @@ class Game::PlayerStateTest < ActiveSupport::TestCase
   end
 end
 
-# Game::BackfillPlayerStatesJob (AD-14, AD-28): every player without a row
-# gets one, banned players included, one operation per player.
 class Game::BackfillPlayerStatesJobTest < ActiveSupport::TestCase
   include RakeTasks
 

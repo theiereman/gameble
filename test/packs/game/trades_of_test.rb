@@ -62,13 +62,13 @@ class Game::TradesOfTest < ActiveSupport::TestCase
   test "finished trades are recent, with their outcome and end, newest first, for 14 days" do
     declined = propose(@alice, @bob, offer: { @one => 1 }, request: { @three => 1 })
     travel 1.hour
-    Game::DeclineTrade.new.call(player: @bob, trade_id: declined.id).value!
+    Game::DeclineTrade.new.call(player: @bob, trade_id: declined.id, seen: declined.proposed_at).value!
     cancelled = propose(@alice, @carol, offer: { @one => 1 }, request: { @three => 1 })
     travel 1.hour
     Game::CancelTrade.new.call(player: @alice, trade_id: cancelled.id).value!
     accepted = propose(@alice, @bob, offer: { @two => 1 }, request: { @three => 1 })
     travel 1.hour
-    Game::AcceptTrade.new.call(player: @bob, trade_id: accepted.id).value!
+    Game::AcceptTrade.new.call(player: @bob, trade_id: accepted.id, seen: accepted.proposed_at).value!
 
     recent = Game::TradesOf.call(@alice).recent
     assert_equal [ accepted.token, cancelled.token, declined.token ], recent.map(&:token)

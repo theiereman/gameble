@@ -1,17 +1,4 @@
 module Game
-  # Base class of every Game operation (AD-14): each one acts for a player.
-  # Defining `call` without a required `player:` keyword raises ArgumentError
-  # when the class is loaded, and `require_player` refuses a missing, unsaved,
-  # banned or deleted player. An operation that writes a player's bank takes
-  # the bank lock through `lock_bank`, which refuses a player whose account
-  # was deleted while it waited (Accounts::DeletePlayer).
-  #
-  #   class Game::OpenPack < Game::Operation
-  #     def call(player:)
-  #       player = step require_player(player)
-  #       transaction { ... }
-  #     end
-  #   end
   class Operation < ApplicationOperation
     def self.method_added(name)
       if name == :call && self != Game::Operation
@@ -20,14 +7,13 @@ module Game
         method = instance_method(:call)
         method = method.super_method while method && method.owner != self
         unless method&.parameters&.include?([ :keyreq, :player ])
-          raise ArgumentError, "#{self.name || "A Game operation"}#call must take a required player: keyword (AD-14)"
+          raise ArgumentError, "#{self.name || "A Game operation"}#call must take a required player: keyword"
         end
       end
 
       super
     end
 
-    # The event stream of a player's game (AD-10).
     def self.stream_name(player_id)
       "Game::Player$#{player_id}"
     end
@@ -38,9 +24,6 @@ module Game
       Operation.stream_name(player_id)
     end
 
-    # One Game::SetCompleted per set the player completed for the first time
-    # (Game::SetCompletion's answer), on their stream (AD-10), after the
-    # operation's own event.
     def publish_completions(player_id, set_ids)
       set_ids.each do |set_id|
         publish(SetCompleted.new(data: { player_id:, set_id: }), stream_name: stream_name(player_id))

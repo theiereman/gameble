@@ -1,5 +1,3 @@
-# Every fixture player has their game state row, as a registered or
-# backfilled player does (AD-28).
 _fixture:
   model_class: Game::PlayerState
 

@@ -124,6 +124,72 @@ class Game::InvitationTest < ActiveSupport::TestCase
     assert_equal 1, Game::Invitation.count
   end
 
+  def invite(sender, recipient) = Game::Invitation.create!(sender_id: sender.id, recipient_id: recipient.id)
+
+  def accepted_events = Rails.configuration.event_store.read.of_type([ Game::InvitationAccepted ]).to_a
+
+  def between_pair = Game::Invitation.where(sender_id: [ @alice.id, @bob.id ], recipient_id: [ @alice.id, @bob.id ])
+
+  test "crossing invitations: accepting one closes the other, one friendship announced once" do
+    alices = invite(@alice, @bob)
+    bobs = invite(@bob, @alice)
+
+    assert_equal "accepted", Game::AcceptInvitation.new.call(player: @bob, token: alices.token).value!.status
+
+    assert friends?(@alice, @bob)
+    assert_equal [ "accepted" ], between_pair.distinct.pluck(:status)
+    assert_equal 1, accepted_events.size
+    assert_equal :not_found, Game::AcceptInvitation.new.call(player: @alice, token: bobs.token).failure
+    assert_equal 1, accepted_events.size
+  end
+
+  test "an invitation still pending between friends is closed when accepted, and announces nothing" do
+    invitation = invite(@alice, @bob)
+    Game::Friendship.create!(low_player_id: [ @alice.id, @bob.id ].min, high_player_id: [ @alice.id, @bob.id ].max)
+
+    assert_equal :already_friends, Game::AcceptInvitation.new.call(player: @bob, token: invitation.token).failure
+
+    assert_equal "accepted", invitation.reload.status
+    assert_empty accepted_events
+    assert_equal 1, Game::Friendship.count
+  end
+
+  test "an ignored invitation stays pending in the sender's view and cannot be sent again" do
+    invitation = send_by_code(@alice, "8F2D-K9XM").value!
+    Game::IgnoreInvitation.new.call(player: @bob, token: invitation.token).value!
+
+    assert_equal [ @bob ], Game::InvitationsOf.call(@alice).sent.map(&:player)
+    assert_empty Game::InvitationsOf.call(@bob).received
+    assert_equal :already_sent, send_by_code(@alice, "8F2D-K9XM").failure
+    assert_equal :already_sent, Game::SendInvitation.new.call(player: @alice, recipient_token: @bob.token).failure
+    assert_equal 1, Game::Invitation.count
+  end
+
+  test "the player who ignored an invitation may invite its sender later, who can accept" do
+    ignored = send_by_code(@alice, "8F2D-K9XM").value!
+    Game::IgnoreInvitation.new.call(player: @bob, token: ignored.token).value!
+
+    invitation = send_by_code(@bob, "7K2Q-F3NX").value!
+
+    assert_equal [ "pending", @bob.id, @alice.id ], [ invitation.status, invitation.sender_id, invitation.recipient_id ]
+    assert_not friends?(@alice, @bob)
+    assert_equal [ @bob ], Game::InvitationsOf.call(@alice).received.map(&:player)
+    Game::AcceptInvitation.new.call(player: @alice, token: invitation.token).value!
+    assert friends?(@alice, @bob)
+    assert_equal [ "accepted" ], between_pair.distinct.pluck(:status)
+    assert_empty Game::InvitationsOf.call(@alice).sent
+  end
+
+  test "an invitation from a sender banned since cannot be accepted" do
+    invitation = send_by_code(@alice, "8F2D-K9XM").value!
+    @alice.update_columns(banned_at: Time.current)
+
+    assert_equal :not_found, Game::AcceptInvitation.new.call(player: @bob, token: invitation.token).failure
+
+    assert_not friends?(@alice, @bob)
+    assert_equal "pending", invitation.reload.status
+  end
+
   test "the query lists received and sent invitations, banned players left out" do
     send_by_code(@alice, "8F2D-K9XM").value!
     send_by_code(accounts_players(:administrator), "7K2Q-F3NX").value!

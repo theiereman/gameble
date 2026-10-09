@@ -1,9 +1,6 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# The activity feed (CAP-13, AD-10, AD-11, AD-13; stories 6.1, 6.2): the
-# handler's choice of entries and the read that filters them by kind and
-# through Game::Visibility.
 class Game::FeedTest < ActiveSupport::TestCase
   include GamePacks
 
@@ -97,7 +94,7 @@ class Game::FeedTest < ActiveSupport::TestCase
     assert_equal [ @other ], Game::FeedEntries.call(nil).map(&:player)
   end
 
-  test "a friends-only player's entries show to their friends only, asked once per player (story 5.10)" do
+  test "a friends-only player's entries show to their friends only, asked once per player" do
     add_entries(@other, 5)
     @other.update!(visibility: :friends_only)
     stranger = accounts_players(:administrator)

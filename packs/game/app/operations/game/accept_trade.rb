@@ -2,7 +2,7 @@ module Game
   class AcceptTrade < Operation
     include TradeSteps
 
-    def call(player:, trade_id:)
+    def call(player:, trade_id:, seen:)
       player = step require_player(player)
       trade = step find_trade(player, trade_id)
       step turn(trade, player, :recipient_id)
@@ -13,6 +13,7 @@ module Game
         step still_open(trade)
         now = Time.current
         step not_expired(trade, now)
+        step same_terms(trade, seen)
         step friends(player, Accounts::Player.find(trade.proposer_id))
         offer = side_of(trade, "offer")
         request = side_of(trade, "request")

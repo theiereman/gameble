@@ -1,9 +1,6 @@
 require "test_helper"
 require_relative "../support/counting_rate_limit"
 
-# Reporting a profile (CAP-15, R4, story 7.4): the SIGNALER link and dialog of
-# the public profile, anonymous to the reported player, a visitor led to the
-# sign-in panel, and the limits.
 class ReportsControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
 
@@ -135,7 +132,7 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a report sent from a friend's profile comes back to the Friends screen (story 5.10)" do
+  test "a report sent from a friend's profile comes back to the Friends screen" do
     Game::Friendship.create!(low_player_id: [ @owner.id, @reporter.id ].min, high_player_id: [ @owner.id, @reporter.id ].max)
     @owner.update!(visibility: "friends_only")
     sign_in(@reporter)

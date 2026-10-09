@@ -1,6 +1,5 @@
 require "test_helper"
 
-# Game::Visibility (AD-13, AD-14): the one visibility question.
 class Game::VisibilityTest < ActiveSupport::TestCase
   setup do
     @owner = accounts_players(:player)

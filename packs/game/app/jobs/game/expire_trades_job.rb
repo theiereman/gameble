@@ -9,7 +9,8 @@ module Game
         trades = batch.pluck(:id, :proposer_id)
         proposers = Accounts::Player.where(id: trades.map(&:last)).index_by(&:id)
         trades.each do |trade_id, proposer_id|
-          ExpireTrade.new.call(player: proposers[proposer_id], trade_id:)
+          result = ExpireTrade.new.call(player: proposers[proposer_id], trade_id:)
+          result.value! unless result == ExpireTrade::CLOSED_MEANWHILE
         rescue StandardError => error
           Rails.error.report(error, context: { trade_id: })
         end

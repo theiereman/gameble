@@ -4,7 +4,6 @@ require_relative "../../support/catalog_seeds"
 require_relative "../../support/counting_rate_limit"
 
 module BackOffice
-  # The Steam import page of the back-office (AD-19), administrators only.
   class ImportRunsControllerTest < ActionDispatch::IntegrationTest
     include ActiveJob::TestHelper
     include SteamApiStubs
@@ -29,8 +28,7 @@ module BackOffice
       assert_equal player.id, session[:player_id]
     end
 
-    # No job is enqueued but the signed-in player's last-seen write, which
-    # any request may enqueue (story 5.3).
+    # Any request may enqueue the signed-in player's last-seen write.
     def assert_no_import_jobs(&)
       assert_no_enqueued_jobs(except: Accounts::NoteLastSeenJob, &)
     end

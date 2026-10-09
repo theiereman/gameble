@@ -9,7 +9,7 @@ module Game
     end
 
     def self.invited(id)
-      Invitation.pending.where(sender_id: id).pluck(:recipient_id) + Invitation.pending.where(recipient_id: id).pluck(:sender_id)
+      Invitation.pending.where(sender_id: id).pluck(:recipient_id) + Invitation.unanswered.where(recipient_id: id).pluck(:sender_id)
     end
 
     private_class_method :trade_partners, :invited

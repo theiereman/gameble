@@ -1,9 +1,3 @@
-# The player's settings screen, "Profil et paramètres" (EXPERIENCE.md, Settings
-# row): language (a link to the same screen in the other locale), "Visibilité
-# du profil" (Accounts::SetVisibility), "Animations réduites" and sign-out.
-# The motion preference is stored on the player (Accounts::UpdateSettings),
-# mirrored in the motion cookie so the signed-out hub keeps it
-# (ApplicationController#write_motion_cookie).
 class SettingsController < ApplicationController
   # The motion choices the form posts: SYSTÈME (nil, follow the system),
   # OUI (reduced) and NON (an explicit no). Anything else is refused.
@@ -16,8 +10,7 @@ class SettingsController < ApplicationController
     @visibility = current_player.visibility
   end
 
-  # PATCH /:locale/settings/visibility: who may see the profile (CAP-14),
-  # applied at once by the radio group.
+  # PATCH /:locale/settings/visibility
   def visibility
     authorize :settings, :visibility?
 

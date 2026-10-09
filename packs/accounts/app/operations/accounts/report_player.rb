@@ -1,16 +1,4 @@
 module Accounts
-  # A player reports another player's username or profile (CAP-15, AD-14),
-  # with one of four reasons: "inappropriate_name", "cheating", "harassment"
-  # or "other". It is anonymous to the reported player: nothing is published
-  # to them and the result names no one. Reusable: the public profile and the
-  # friend profile (epic 5) both call it. A player may report each other
-  # player once (a repeat succeeds and adds nothing, so the answer cannot
-  # tell) and at most LIMIT players per PERIOD. Housekeeping: it publishes no
-  # event (AD-10).
-  #
-  #   Accounts::ReportPlayer.new.call(reporter:, reported:, reason: "cheating")
-  #   # => Success(report) | Failure(:player_required | :player_not_found |
-  #   #    :cannot_report_self | :invalid_reason | :rate_limited)
   class ReportPlayer < ApplicationOperation
     LIMIT = 5
     PERIOD = 1.day

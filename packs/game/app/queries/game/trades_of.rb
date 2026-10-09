@@ -5,7 +5,7 @@ module Game
 
     Line = Data.define(:card_season_id, :quantity)
 
-    Row = Data.define(:id, :token, :friend, :state, :outcome, :friend_side, :own_side, :expires_at, :ended_at) do
+    Row = Data.define(:id, :token, :friend, :state, :outcome, :friend_side, :own_side, :proposed_at, :expires_at, :ended_at) do
       def open? = %i[yours theirs].include?(state)
       def card_season_ids = (friend_side + own_side).map(&:card_season_id).uniq
     end
@@ -58,7 +58,7 @@ module Game
         state, outcome, ended_at = state_of(trade, player, now)
         Row.new(id: trade.id, token: trade.token, friend:, state:, outcome:,
           friend_side: proposer ? request : offer, own_side: proposer ? offer : request,
-          expires_at: trade.expires_at, ended_at:)
+          proposed_at: trade.proposed_at, expires_at: trade.expires_at, ended_at:)
       end
     end
     private_class_method :rows

@@ -1,10 +1,6 @@
 require "test_helper"
 require_relative "../support/game_packs"
 
-# Deleting the account from the settings' delete dialog (CAP-14, story 7.8;
-# EXPERIENCE.md, Delete dialog and Account deleted): the typed word checked
-# on the server, the player signed out to the hub with a toast, their
-# profile gone, a visitor refused.
 class AccountsControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
 

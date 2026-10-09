@@ -114,6 +114,19 @@ class PlayerStreamTest < ActiveSupport::TestCase
     assert_equal "cancelled", Game::Trade.sole.status
   end
 
+  test "deleting a player tells a stranger whose invitation they ignored, still pending on the stranger's side" do
+    propose.value!
+    stranger = accounts_players(:administrator)
+    invitation = Game::SendInvitation.new.call(player: stranger, code: "7K2Q-F3NX").value!
+    Game::IgnoreInvitation.new.call(player: @alice, token: invitation.token).value!
+    clear_enqueued_jobs
+
+    assert Accounts::DeletePlayer.new.call(player: @alice).success?
+
+    expected = [ { player_id: @bob.id, topic: "trades" }, { player_id: @bob.id, topic: "friends" }, { player_id: stranger.id, topic: "friends" } ]
+    assert_equal [ expected ], stream_jobs.map { ActiveJob::Arguments.deserialize(it[:args]).first }
+  end
+
   test "a ban tells the banned player's friends" do
     banned = Accounts::PlayerBanned.new(data: { player_id: @alice.id })
 

@@ -1,6 +1,6 @@
 require "dry/operation/extensions/active_record"
 
-# Base class of every operation (AD-3). An operation wraps its writes and its
+# Base class of every operation. An operation wraps its writes and its
 # event in `transaction`, and returns Success(value) or Failure(:code).
 #
 #   class Game::OpenPack < Game::Operation
@@ -38,7 +38,7 @@ class ApplicationOperation < Dry::Operation
 
   private
 
-  # Publishes an event to the app's event store (AD-10). Call it inside
+  # Publishes an event to the app's event store. Call it inside
   # `transaction` so the event commits or rolls back with the rows. Events
   # carry identifiers only.
   def publish(event, stream_name:)

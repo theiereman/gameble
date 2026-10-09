@@ -60,7 +60,7 @@ class Game::DropFriendsAndTradesTest < ActiveSupport::TestCase
     assert_equal "cancelled", trade.reload.status
     assert_nil holding(@bob, @depths)
     assert_equal [ 3, 0 ], holding(@alice, @portal).slice(:quantity, :reserved).values
-    assert_equal Dry::Monads::Failure(:trade_not_open), Game::AcceptTrade.new.call(player: @alice, trade_id: trade.id)
+    assert_equal Dry::Monads::Failure(:trade_not_open), Game::AcceptTrade.new.call(player: @alice, trade_id: trade.id, seen: trade.proposed_at)
   end
 
   test "a ban cancels the player's trades on both sides, releases every reservation and keeps their cards" do

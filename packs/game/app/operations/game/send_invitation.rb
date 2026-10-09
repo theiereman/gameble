@@ -5,6 +5,7 @@ module Game
       recipient = step recipient_of(player, code, recipient_token)
 
       transaction do
+        TradeLocks.players(player.id, recipient.id)
         step not_friends(player, recipient)
         reverse = Invitation.pending.find_by(sender_id: recipient.id, recipient_id: player.id)
         next step(AcceptInvitation.new.call(player:, token: reverse.token)) if reverse
@@ -44,7 +45,7 @@ module Game
     end
 
     def create_pending(player, recipient)
-      return Failure(:already_sent) if Invitation.pending.exists?(sender_id: player.id, recipient_id: recipient.id)
+      return Failure(:already_sent) if Invitation.unanswered.exists?(sender_id: player.id, recipient_id: recipient.id)
 
       invitation = Invitation.transaction(requires_new: true) do
         Invitation.create!(sender_id: player.id, recipient_id: recipient.id)

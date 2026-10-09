@@ -1,4 +1,4 @@
-# Interface copy in French (AD-18), in the Brotherhood tone (brotherhood-tone.md).
+# Interface copy in French, in the Brotherhood tone (brotherhood-tone.md).
 # Every key here has its twin in en.yml; CI fails on a key missing in either.
 fr:
   layouts:
@@ -691,6 +691,7 @@ fr:
       you_give: "Vous donnez"
       you_received: "Vous avez reçu"
       cards:
+        zero: "0 carte"
         one: "%{count} carte"
         other: "%{count} cartes"
       cards_copies:
@@ -882,8 +883,8 @@ fr:
       with_years: "%{label} · %{years}"
     # Tome genres, by key; SetLabel humanises any other. The genre tags of
     # Steam::GenreTags first (racing, rpg, simulation, sports and strategy
-    # among the store genres below); then the store's genres, imported until
-    # story 2.10 and kept because seasons published before it name their
+    # among the store genres below); then the store's genres, imported before
+    # the genre tags and kept because older published seasons name their
     # tomes with them.
     genres:
       fps: "FPS"
@@ -952,7 +953,7 @@ fr:
   # Number formats (number_with_delimiter, number_with_precision,
   # number_to_percentage). Defined here so test and production render the
   # same (production falls back to en). The delimiter is a no-break space
-  # (U+00A0), as DESIGN.md groups digits ("31 420").
+  # (U+00A0), grouping digits as "31 420".
   number:
     format:
       separator: ","
@@ -1014,6 +1015,7 @@ fr:
       not_allowed: "Ce n'est pas à vous d'agir dans cet échange."
       trade_not_open: "Cet échange est déjà clos."
       trade_expired: "Cet échange a expiré : ses 7 jours sont écoulés."
+      trade_changed: "Cet échange a changé depuis que vous l'avez ouvert. Vérifiez ses nouvelles conditions avant de répondre."
       requested_cards_unavailable: "Exemplaires insuffisants : une carte demandée n'est plus disponible. Rien n'a bougé."
       trade_not_expired: "Cet échange n'a pas encore expiré."
       invalid_format: "Format attendu : ABCD-1234."

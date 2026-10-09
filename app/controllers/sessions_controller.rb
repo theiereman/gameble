@@ -1,16 +1,3 @@
-# Steam sign-in and sign-out (CAP-1, AD-14). The web layer orchestrates:
-# Steam turns the verified OpenID response into a Steam id and reads the
-# player's persona name, Accounts signs the player in and stores that name
-# (CAP-8), and the session keeps only the player id. The name is a bonus: a
-# Steam failure while reading it never blocks the sign-in.
-#
-# A successful sign-in lands on the hub (AD-14; EXPERIENCE.md, Steam
-# sign-in), in the locale of the page it started on (OmniAuth's origin, when
-# that is a local page under a locale), and asks the hub to focus its first
-# menu item. A failed or refused one returns to that page, else to the hub.
-# Only a successful sign-in touches the session; a failed or forged one
-# leaves it as it was. Signing out also lands on the hub, keeping the
-# player's motion preference in a cookie.
 class SessionsController < ApplicationController
   # Set in the session by the request phase (config/initializers/omniauth.rb)
   # and consumed by the callback: a callback this browser did not start is
@@ -20,15 +7,10 @@ class SessionsController < ApplicationController
   # Steam's return is a browser GET that rack-openid relabels as POST, so it
   # carries no authenticity token. Login CSRF is guarded by SIGN_IN_STARTED.
   skip_forgery_protection only: :create
-  # The callback signs the player in, which writes (Accounts::SignIn), so it
-  # never runs under the read-only role (AD-11). Through Steam it arrives as
-  # a POST anyway (rack-openid relabels the return with `_method=post`); it
-  # is a real GET only under OmniAuth's test mode, which is what this skip
-  # covers. `failure` and `destroy` keep the role.
+  # OmniAuth's test mode sends the callback as a real GET, and signing in writes.
   skip_around_action :read_only_unless_writing, only: :create
 
   ORIGIN_PATH = %r{\A/(?:#{I18n.available_locales.join("|")})(?:/[^\\\s]*)?\z}
-  # A player's invite link (CAP-10): a sign-in started there returns to it.
   INVITE_PATH = %r{\A/(?:#{I18n.available_locales.join("|")})/invite/[1-9A-HJ-NP-Za-km-z]{24}\z}
 
   # GET /auth/steam/callback, after OmniAuth has verified the response.
@@ -103,8 +85,6 @@ class SessionsController < ApplicationController
       params[:locale] || origin_path&.split("/")&.at(1)
     end
 
-    # The invite link the sign-in started from, else nil: a visitor who
-    # opened it lands back on it, signed in (AD-8).
     def invite_origin
       origin = origin_path
       origin if origin && INVITE_PATH.match?(origin)

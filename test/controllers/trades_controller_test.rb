@@ -38,6 +38,8 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
   def holding(player, card_season_id) = Game::Holding.find_by(player_id: player.id, card_season_id:)
 
+  def seen(trade) = { seen: Game::Trade.find(trade.id).proposed_at.iso8601(6) }
+
   def propose(player, recipient, offer:, request:)
     Game::ProposeTrade.new.call(player:, recipient:, offer:, request:).value!
   end
@@ -108,6 +110,8 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".trade-side--own .trade-side__count", "1 carte · 2 ex."
       assert_select ".trade-side--own .trade-card__reserved", 0
       assert_select "form[action=?] button", accept_trade_path(token: trade.token, locale: :fr), "Accepter"
+      assert_select "form[action=?] input[type=hidden][name=seen][value=?]", accept_trade_path(token: trade.token, locale: :fr), seen(trade)[:seen]
+      assert_select "form[action=?] input[type=hidden][name=seen][value=?]", decline_trade_path(token: trade.token, locale: :fr), seen(trade)[:seen]
       assert_select "a[href=?]", counter_trade_path(token: trade.token, locale: :fr), "Contre-proposer"
       assert_select "form[action=?] button", decline_trade_path(token: trade.token, locale: :fr), "Refuser"
     end
@@ -143,7 +147,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/fr/trades'] .visually-hidden", "1 échange en attente de vous"
     assert_select ".tab-bar a.tab-bar__tab[href='/fr/trades'] .tab-bar__badge--alert", "1"
 
-    post accept_trade_path(token: trade.token, locale: :fr)
+    post accept_trade_path(token: trade.token, locale: :fr), params: seen(trade)
     assert_redirected_to trade_path(token: trade.token, locale: :fr)
     follow_redirect!
 
@@ -176,7 +180,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     Game::Holding.where(player_id: @alice.id, card_season_id: @portal).update_all(quantity: 1)
     sign_in @alice
 
-    post accept_trade_path(token: trade.token, locale: :fr)
+    post accept_trade_path(token: trade.token, locale: :fr), params: seen(trade)
     follow_redirect!
 
     message = I18n.t("errors.game.requested_cards_unavailable", locale: :fr)
@@ -186,11 +190,43 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert trade.reload.open?
   end
 
+  test "an answer to terms countered since the board was shown is refused with the current board; nothing moves" do
+    trade = from_lea
+    shown = seen(trade)
+    travel(1.minute) { Game::CounterTrade.new.call(player: @alice, trade_id: trade.id, offer: { @portal => 1 }, request: { @depths => 1 }).value! }
+    travel(2.minutes) { Game::CounterTrade.new.call(player: @bob, trade_id: trade.id, offer: { @depths => 2 }, request: { @portal => 1 }).value! }
+    sign_in @alice
+
+    [ accept_trade_path(token: trade.token, locale: :fr), decline_trade_path(token: trade.token, locale: :fr) ].each do |path|
+      post path, params: shown
+      assert_redirected_to trade_path(token: trade.token, locale: :fr)
+      follow_redirect!
+
+      assert_select ".trade-board__error[role=alert]", I18n.t("errors.game.trade_changed", locale: :fr)
+      assert_select ".trade-chip--alert", "À vous"
+      assert_select ".trade-side--friend .trade-card__quantity", /×2/
+      assert_select "form[action=?] input[name=seen][value=?]", accept_trade_path(token: trade.token, locale: :fr), seen(trade)[:seen]
+    end
+    assert trade.reload.open?
+    assert_equal [ 3, 0 ], [ holding(@alice, @portal).quantity, holding(@alice, @portal).reserved ]
+  end
+
+  test "an answer without the version shown is refused" do
+    trade = from_lea
+    sign_in @alice
+
+    post accept_trade_path(token: trade.token, locale: :fr)
+    assert_equal I18n.t("errors.game.trade_changed", locale: :fr), flash[:alert]
+    post decline_trade_path(token: trade.token, locale: :fr)
+    assert_equal I18n.t("errors.game.trade_changed", locale: :fr), flash[:alert]
+    assert trade.reload.open?
+  end
+
   test "declining tells the friend's name" do
     trade = from_lea
     sign_in @alice
 
-    post decline_trade_path(token: trade.token, locale: :fr)
+    post decline_trade_path(token: trade.token, locale: :fr), params: seen(trade)
     follow_redirect!
 
     assert_select ".toast", /Échange refusé.*Votre réponse a été envoyée à Lea\./m
@@ -201,7 +237,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
   test "a closed trade offers a new one with the friend, while they are still friends" do
     trade = from_lea
     sign_in @alice
-    post decline_trade_path(token: trade.token, locale: :fr)
+    post decline_trade_path(token: trade.token, locale: :fr), params: seen(trade)
 
     get trade_path(token: trade.token, locale: :fr)
     assert_select ".trade-board__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @bob.token), "Nouvel échange avec Lea"
@@ -296,7 +332,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert props.fetch("editing")
     assert_equal "trade-counter-form", props.fetch("formId")
     assert_equal "#{@alice.token}:#{trade.token}:#{trade.reload.expires_at.to_i}", props.fetch("draftKey")
-    assert_equal({ "one" => "%{count} carte", "other" => "%{count} cartes" }, props.dig("strings", "cards"))
+    assert_equal({ "zero" => "0 carte", "one" => "%{count} carte", "other" => "%{count} cartes" }, props.dig("strings", "cards"))
     assert_equal "Retirer %{title}", props.dig("strings", "remove")
     assert_equal I18n.t("trades.side.none.friend_none_owned", name: "Lea", locale: :fr), friend.fetch("none")
     assert_equal I18n.t("trades.side.none.none_owned", locale: :fr), own.fetch("none")
@@ -405,6 +441,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".trade-side--editing", 2
       assert_select ".trade-side--friend .trade-side__label", "Lea donne"
       assert_select ".trade-side--own .trade-side__label", "Vous donnez"
+      assert_select ".trade-side__count", { count: 2, text: "0 carte" }
       assert_select ".trade-board__message", "Choisissez les cartes de chaque côté."
       assert_select "form#trade-draft-form[action=?][data-controller='trade-send']", trades_path(locale: :fr) do
         assert_select "input[type=hidden][name=friend][value=?]", @bob.token
@@ -598,7 +635,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     sign_in @alice
 
     with_counting_rate_limit(TradesController) do
-      21.times { post decline_trade_path(token: trade.token, locale: :fr) }
+      21.times { post decline_trade_path(token: trade.token, locale: :fr), params: seen(trade) }
     end
 
     assert_redirected_to trades_path(locale: :fr)

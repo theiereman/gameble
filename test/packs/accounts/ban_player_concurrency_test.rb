@@ -73,7 +73,7 @@ class Accounts::BanPlayerConcurrencyTest < ActiveSupport::TestCase
 
   def ban = -> { Accounts::BanPlayer.new.call(staff: @moderator, player: Accounts::Player.find(@target.id)) }
 
-  def accept(friend = Accounts::Player.find(@friend.id)) = -> { Game::AcceptTrade.new.call(player: friend, trade_id: @trade.id) }
+  def accept(friend = Accounts::Player.find(@friend.id)) = -> { Game::AcceptTrade.new.call(player: friend, trade_id: @trade.id, seen: @trade.proposed_at) }
 
   def reserved(player, card_season_id) = Game::Holding.find_by(player_id: player.id, card_season_id:)&.reserved
 

@@ -45,6 +45,18 @@ module Game
       trade.expired?(now) ? Failure(:trade_expired) : Success()
     end
 
+    def same_terms(trade, seen)
+      trade.proposed_at == seen_at(seen) ? Success() : Failure(:trade_changed)
+    end
+
+    def seen_at(seen)
+      return seen if seen.is_a?(Time)
+
+      Time.iso8601(seen) if seen.is_a?(String)
+    rescue ArgumentError
+      nil
+    end
+
     def enough_copies(lines, holdings, code = :insufficient_copies)
       free = lines.all? { |card_season_id, quantity| (holding = holdings[card_season_id]) && quantity <= holding.quantity - holding.reserved }
       free ? Success() : Failure(code)

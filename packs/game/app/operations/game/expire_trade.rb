@@ -3,6 +3,7 @@ module Game
     STATUS = "expired".freeze
     EVENT = TradeExpired
     PARTY = :proposer_id
+    CLOSED_MEANWHILE = Dry::Monads::Failure(:trade_not_open)
 
     private
 

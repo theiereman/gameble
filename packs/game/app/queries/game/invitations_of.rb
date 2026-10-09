@@ -6,7 +6,7 @@ module Game
     def self.call(player)
       return Result.new(received: [], sent: []) unless player
 
-      rows = Invitation.pending.where(sender_id: player.id).or(Invitation.pending.where(recipient_id: player.id)).order(id: :desc).to_a
+      rows = Invitation.unanswered.where(sender_id: player.id).or(Invitation.pending.where(recipient_id: player.id)).order(id: :desc).to_a
       others = rows.flat_map { |row| [ row.sender_id, row.recipient_id ] }.uniq - [ player.id ]
       players = Accounts::Player.in_good_standing.where(id: others).index_by(&:id)
       codes = FriendCode.where(player_id: others).pluck(:player_id, :code).to_h

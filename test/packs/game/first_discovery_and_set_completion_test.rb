@@ -1,10 +1,6 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-# First discoveries and set completions (AD-9, AD-10, story 6.7): the first
-# pull of a card in its season is recorded once and enters the feed as a
-# discovery; a player who holds every card of a set for the first time, by
-# an opening or an accepted trade, gets one Game::SetCompleted.
 class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
   include GamePacks
 
@@ -40,7 +36,7 @@ class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
 
   def trade(offer:, request:, from: @player, to: @other)
     trade = Game::ProposeTrade.new.call(player: from, recipient: to, offer:, request:).value!
-    Game::AcceptTrade.new.call(player: to, trade_id: trade.id).value!
+    Game::AcceptTrade.new.call(player: to, trade_id: trade.id, seen: trade.proposed_at).value!
   end
 
   # First discoveries

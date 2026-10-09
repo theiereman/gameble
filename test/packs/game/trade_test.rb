@@ -141,7 +141,7 @@ class Game::TradeTest < ActiveSupport::TestCase
   test "declining releases the proposer's offer, closes the trade and publishes once" do
     trade = propose.value!
 
-    result = Game::DeclineTrade.new.call(player: @bob, trade_id: trade.id)
+    result = Game::DeclineTrade.new.call(player: @bob, trade_id: trade.id, seen: trade.proposed_at)
 
     assert_equal "declined", result.value!.status
     assert_equal 0, reserved(@alice, @one)

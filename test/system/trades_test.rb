@@ -78,6 +78,27 @@ class TradesTest < ApplicationSystemTestCase
     assert_equal "accepted", Game::Trade.find(from_lea.id).status
   end
 
+  test "accepting terms countered since the board was shown moves nothing and shows the current terms" do
+    trade = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })
+    sign_in @hugo
+    visit trade_path(token: trade.token, locale: :en)
+    assert_selector ".trade-board .trade-chip--alert", text: /YOUR TURN/i
+    page.execute_script("document.querySelectorAll('turbo-cable-stream-source').forEach((source) => source.remove())")
+    Game::CounterTrade.new.call(player: @hugo, trade_id: trade.id, offer: { @portal => 1 }, request: { @depths => 1 }).value!
+    Game::CounterTrade.new.call(player: @lea, trade_id: trade.id, offer: { @depths => 2 }, request: { @portal => 1 }).value!
+
+    within(".trade-board") { click_on "Accept" }
+
+    assert_selector ".trade-board__error", text: "This trade changed since you opened it. Check its new terms before answering."
+    within(".trade-side--friend") { assert_selector ".trade-card__quantity", text: /×2/ }
+    assert trade.reload.open?
+    assert_equal 4, Game::Holding.find_by(player_id: @hugo.id, card_season_id: @portal).quantity
+
+    within(".trade-board") { click_on "Accept" }
+    assert_selector ".trade-board .trade-chip--lime", text: /DONE/i
+    assert_equal "accepted", trade.reload.status
+  end
+
   test "on a phone the board slides over the list, back with List" do
     resize_to(390, 844)
     trade = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })

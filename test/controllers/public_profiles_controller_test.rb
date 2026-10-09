@@ -2,12 +2,6 @@ require "test_helper"
 require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
 
-# A player's public profile (CAP-8, story 4.4, redrawn by story 10.3): their
-# avatar, name and counts, and their sets drawn with the collection's
-# components in read-only mode, open on the sets they have started, with
-# their progress and cards whoever looks; the unavailable page for an
-# unknown token or a banned owner; no database id, no Steam id; the queries
-# of a request; none of the old tome shelf or its "Brother" wording.
 class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
@@ -347,7 +341,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a friends-only owner is shown to a friend, a private one is not (story 5.10)" do
+  test "a friends-only owner is shown to a friend, a private one is not" do
     publish_sets_draft
     friend = accounts_players(:moderator)
     Game::Friendship.create!(low_player_id: [ @owner.id, friend.id ].min, high_player_id: [ @owner.id, friend.id ].max)

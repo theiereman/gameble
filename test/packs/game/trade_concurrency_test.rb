@@ -18,7 +18,12 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     Game::Holding.where(player_id: @players.map(&:id)).delete_all
     Game::SetCompletion.where(player_id: @players.map(&:id)).delete_all
     Game::Friendship.delete_all
+    Game::Invitation.delete_all
     Accounts::Player.where(id: @created.map(&:id)).delete_all if @created
+    delete_events
+  end
+
+  def delete_events
     streams = @players.flat_map { |player| [ Game::Operation.stream_name(player.id), "Accounts::Player$#{player.id}" ] }
     connection = ActiveRecord::Base.connection
     event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))
@@ -59,7 +64,8 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
   end
 
   def accept(player, trade)
-    -> { Game::AcceptTrade.new.call(player: Accounts::Player.find(player.id), trade_id: trade.id) }
+    seen = trade.proposed_at
+    -> { Game::AcceptTrade.new.call(player: Accounts::Player.find(player.id), trade_id: trade.id, seen:) }
   end
 
   test "two proposals of the same copies to two friends at once: one reserves them, the other is refused" do
@@ -150,7 +156,7 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
 
     results = together(
       -> { Game::CancelTrade.new.call(player: Accounts::Player.find(@alice.id), trade_id: trade.id) },
-      -> { Game::DeclineTrade.new.call(player: Accounts::Player.find(@bob.id), trade_id: trade.id) }
+      -> { Game::DeclineTrade.new.call(player: Accounts::Player.find(@bob.id), trade_id: trade.id, seen: trade.proposed_at) }
     )
 
     assert_equal 1, results.count(&:success?)
@@ -248,5 +254,47 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     assert_equal [ 1, 1, 1 ], @players.map { |player| quantity(player, @card) }
     assert_equal [ 1, 1, 1 ], @players.map { |player| quantity(player, @other) }
     assert_equal [ 0, 0, 0 ], @players.map { |player| reserved(player, @card) }
+  end
+
+  def accepted_invitations
+    @players.sum { |player| Rails.configuration.event_store.read.stream(Game::Operation.stream_name(player.id)).of_type([ Game::InvitationAccepted ]).count }
+  end
+
+  test "two players inviting each other at once become friends once, with no invitation left open" do
+    3.times do
+      results = together(
+        -> { Game::SendInvitation.new.call(player: Accounts::Player.find(@alice.id), recipient_token: @bob.token) },
+        -> { Game::SendInvitation.new.call(player: Accounts::Player.find(@bob.id), recipient_token: @alice.token) }
+      )
+
+      assert results.all?(&:success?), results.inspect
+      assert_equal 1, Game::Friendship.count
+      assert_equal 1, accepted_invitations
+      assert_equal [ "accepted" ], Game::Invitation.distinct.pluck(:status)
+      Game::Friendship.delete_all
+      Game::Invitation.delete_all
+      delete_events
+    end
+  end
+
+  test "crossing invitations accepted at once make one friendship, announced once" do
+    3.times do
+      alices = Game::Invitation.create!(sender_id: @alice.id, recipient_id: @bob.id)
+      bobs = Game::Invitation.create!(sender_id: @bob.id, recipient_id: @alice.id)
+
+      results = together(
+        -> { Game::AcceptInvitation.new.call(player: Accounts::Player.find(@bob.id), token: alices.token) },
+        -> { Game::AcceptInvitation.new.call(player: Accounts::Player.find(@alice.id), token: bobs.token) }
+      )
+
+      assert_equal 1, results.count(&:success?), results.inspect
+      assert_equal [ :not_found ], results.select(&:failure?).map(&:failure)
+      assert_equal 1, Game::Friendship.count
+      assert_equal 1, accepted_invitations
+      assert_equal [ "accepted" ], Game::Invitation.distinct.pluck(:status)
+      Game::Friendship.delete_all
+      Game::Invitation.delete_all
+      delete_events
+    end
   end
 end
