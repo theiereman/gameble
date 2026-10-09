@@ -3,7 +3,7 @@ title: 'Fixes from the epic retrospective'
 type: 'bugfix'
 ticket: '13'
 created: '2026-10-09'
-status: 'built'
+status: done
 baseline_revision: '746f3ce0d9443c2f7351cecb2df0bc877c82751f'
 route: 'full'
 route_source: 'auto'
