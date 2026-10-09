@@ -1,0 +1,48 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <% if @players.empty? %>
+    <%= render PanelComponent.new(tag: :p) do %>
+      <%= t(".empty") %>
+    <% end %>
+  <% else %>
+    <table class="ledger">
+      <caption class="visually-hidden"><%= t(".caption") %></caption>
+      <thead>
+        <tr>
+          <th scope="col"><%= t(".player") %></th>
+          <th scope="col"><%= t(".banned_at") %></th>
+          <th scope="col"><span class="visually-hidden"><%= t(".unban") %></span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @players.each do |player| %>
+          <% name = public_profile_title(player) %>
+          <tr data-player-token="<%= player.token %>">
+            <td><%= name %></td>
+            <td><%= render "back_office/import_runs/time", time: player.banned_at %></td>
+            <td>
+              <%= render ButtonComponent.new(variant: :secondary, size: :small, href: back_office_ban_path(token: player.token), method: :delete,
+                    confirm: t(".unban_confirm", name:)) do %><%= t(".unban") %><% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% if @pagy.last > 1 %>
+      <%# Pagy writes its links escaped, from its own dictionary (the pagy keys of the locale files). %>
+      <%= @pagy.series_nav.html_safe %>
+    <% end %>
+  <% end %>
+
+  <p>
+    <%= render ButtonComponent.new(variant: :secondary, href: back_office_reports_path) do %><%= t(".reports") %><% end %>
+  </p>
+</div>

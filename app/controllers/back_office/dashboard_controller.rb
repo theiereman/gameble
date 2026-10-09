@@ -1,9 +1,10 @@
 module BackOffice
-  # The staff back-office (R9). An empty shell for now: moderation arrives
-  # with epic 2, the catalog import with epic 7.
+  # The staff back-office: the size of the queue of reported players, and
+  # links to the pages the staff member's role opens.
   class DashboardController < ApplicationController
     def show
       authorize [ :back_office, :dashboard ], :show?
+      @queue_size = Accounts::ReportQueue.size
     end
   end
 end

@@ -119,11 +119,47 @@ en:
     dashboard:
       show:
         heading: "The Brotherhood's back-office"
-        empty: "Nothing awaits the officers yet. The ledgers lie blank."
+        queue:
+          zero: "No reported player awaits the officers."
+          one: "One reported player awaits the officers."
+          other: "%{count} reported players await the officers."
+        reports: "The reports"
+        bans: "The banned players"
         jobs: "The job queue"
         import_runs: "The Steam import"
         seasons: "The catalog seasons"
         cards: "The card press"
+    reports:
+      index:
+        heading: "The reports"
+        intro: "Each row is a reported player, the latest report first. BAN suspends them: they can no longer sign in, their profile disappears, their open trades are cancelled and their friendships broken. DISMISS sets their reports aside without touching the player; a report from a player who had not reported them yet brings them back here."
+        empty: "No report awaits the officers."
+        caption: "Reported players, the latest report first"
+        player: "Player"
+        total: "Total"
+        latest_at: "Latest report"
+        ban: "BAN"
+        ban_confirm: "Ban %{name}? Their open trades will be cancelled and their friendships broken, even if the ban is lifted later."
+        dismiss: "DISMISS"
+        dismiss_confirm: "Dismiss the reports on %{name} without banning them?"
+        banned_players: "The banned players"
+      dismiss:
+        dismissed: "The reports on %{name} are dismissed."
+    bans:
+      index:
+        heading: "The banned players"
+        intro: "The banned players, the latest first. LIFT THE BAN gives them back their sign-in and their profile; the friendships and trades they lost do not come back."
+        empty: "No player is banned."
+        caption: "Banned players, the latest first"
+        player: "Player"
+        banned_at: "Banned on"
+        unban: "LIFT THE BAN"
+        unban_confirm: "Lift the ban on %{name}?"
+        reports: "The reports"
+      create:
+        banned: "%{name} is banned."
+      destroy:
+        unbanned: "The ban on %{name} is lifted."
     import_runs:
       statuses:
         pending: "Waiting"
@@ -922,6 +958,14 @@ en:
       player_not_found: "That profile could not be found."
       cannot_report_self: "You cannot report your own profile."
       rate_limited: "You have sent many reports today. Try again tomorrow."
+      staff_required: "Only the Brotherhood's officers, moderators or administrators, can do that."
+      cannot_ban_self: "You cannot ban yourself, officer."
+      cannot_dismiss_self: "You cannot dismiss the reports against you, officer."
+      cannot_ban_administrator: "An administrator cannot be banned, officer."
+      already_banned: "That player is already banned, officer."
+      not_banned: "That player is not banned, officer."
+      no_open_reports: "That player has no open report left, officer."
+      invalid_role: "That role does not exist: player, moderator or administrator."
     catalog:
       missing_text: "The scribes need the card's title in every tongue of the Brotherhood before it can enter the ledger."
       invalid_card: "The scribes cannot enter that card in the ledger: its particulars are incomplete or out of order."

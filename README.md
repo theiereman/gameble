@@ -80,6 +80,23 @@ Sentry receives production errors only (no tracing, no profiling, no personal da
 
 `POST /auth/steam`, `GET /auth/steam/callback` and `GET /auth/failure` accept 10 requests a minute per client IP (Rack::Attack, counts in `Rails.cache`); the 11th gets 429. Page reads are never throttled. Behind Cloudflare, the client IP must be the visitor's real IP, not Cloudflare's: that is deployment work.
 
+### Staff accounts and moderation
+
+No page assigns roles. A player signs in with Steam once, then the role is set from their Steam id (`player`, `moderator` or `administrator`):
+
+```sh
+bin/rails "accounts:set_role[76561197960287002,moderator]"                          # locally
+bin/kamal app exec --reuse 'bin/rails "accounts:set_role[76561197960287002,moderator]"'  # in production
+```
+
+The task prints the new role, or aborts with the reason (unknown Steam id, deleted account, unknown role). Setting `player` takes a role away.
+
+- Moderators and administrators open the back-office: the queue of reported players at `/<locale>/back-office/reports` (BAN, or DISMISS to set the reports aside; a report from a player who has not reported them yet brings them back) and the banned players at `/<locale>/back-office/bans` (LIFT THE BAN). No one bans an administrator or themselves, and no one dismisses the reports against themselves.
+- Administrators alone also reach the Steam import, the seasons, the card press and the job queue.
+- A ban signs the player out, refuses their sign-in, hides their profile, cancels their open trades and drops their friendships and invitations. Lifting it gives back the sign-in and the profile, not the friendships or trades.
+
+Ban from the back-office, not from the console: setting `banned_at` by hand publishes nothing, so the player's trades and friendships stay until `bin/rails game:drop_friends_and_trades` runs.
+
 ### Job queue
 
 Administrators open Mission Control Jobs at `/back-office/jobs` (linked from the back-office). Anyone else is refused.

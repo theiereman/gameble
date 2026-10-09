@@ -42,6 +42,10 @@ module Accounts
     scope :in_good_standing, -> { where(banned_at: nil, deleted_at: nil) }
     scope :removed, -> { where.not(banned_at: nil).or(where.not(deleted_at: nil)) }
 
+    def self.acting_staff?(player)
+      player.is_a?(Player) && player.persisted? && player.staff? && !player.removed?
+    end
+
     def banned?
       banned_at.present?
     end

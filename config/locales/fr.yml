@@ -124,11 +124,47 @@ fr:
     dashboard:
       show:
         heading: "Le back-office de la Confrérie"
-        empty: "Rien n'attend encore les officiers. Les registres sont vierges."
+        queue:
+          zero: "Aucun joueur signalé n'attend les officiers."
+          one: "Un joueur signalé attend les officiers."
+          other: "%{count} joueurs signalés attendent les officiers."
+        reports: "Les signalements"
+        bans: "Les bannis"
         jobs: "La file des tâches"
         import_runs: "L'import Steam"
         seasons: "Les saisons du catalogue"
         cards: "La presse à cartes"
+    reports:
+      index:
+        heading: "Les signalements"
+        intro: "Chaque ligne est un joueur signalé, le signalement le plus récent en premier. BANNIR le suspend : il ne peut plus se connecter, son profil disparaît, ses échanges en cours sont annulés et ses amitiés rompues. CLASSER écarte ses signalements sans toucher au joueur ; un signalement d'un joueur qui ne l'avait pas encore signalé le ramène ici."
+        empty: "Aucun signalement n'attend les officiers."
+        caption: "Joueurs signalés, le signalement le plus récent en premier"
+        player: "Joueur"
+        total: "Total"
+        latest_at: "Dernier signalement"
+        ban: "BANNIR"
+        ban_confirm: "Bannir %{name} ? Ses échanges en cours seront annulés et ses amitiés rompues, même si le ban est levé plus tard."
+        dismiss: "CLASSER"
+        dismiss_confirm: "Classer les signalements de %{name} sans le bannir ?"
+        banned_players: "Les bannis"
+      dismiss:
+        dismissed: "Les signalements de %{name} sont classés."
+    bans:
+      index:
+        heading: "Les bannis"
+        intro: "Les joueurs bannis, le plus récent en premier. LEVER LE BAN leur rend la connexion et leur profil ; les amitiés et les échanges perdus ne reviennent pas."
+        empty: "Aucun joueur n'est banni."
+        caption: "Joueurs bannis, le plus récent en premier"
+        player: "Joueur"
+        banned_at: "Banni le"
+        unban: "LEVER LE BAN"
+        unban_confirm: "Lever le ban de %{name} ?"
+        reports: "Les signalements"
+      create:
+        banned: "%{name} est banni."
+      destroy:
+        unbanned: "Le ban de %{name} est levé."
     import_runs:
       statuses:
         pending: "En attente"
@@ -944,6 +980,14 @@ fr:
       player_not_found: "Ce profil est introuvable."
       cannot_report_self: "Vous ne pouvez pas signaler votre propre profil."
       rate_limited: "Vous avez envoyé beaucoup de signalements aujourd'hui. Réessayez demain."
+      staff_required: "Seuls les officiers de la Confrérie, modérateurs ou administrateurs, peuvent faire cela."
+      cannot_ban_self: "Vous ne pouvez pas vous bannir vous-même, officier."
+      cannot_dismiss_self: "Vous ne pouvez pas classer les signalements qui vous visent, officier."
+      cannot_ban_administrator: "Un administrateur ne peut pas être banni, officier."
+      already_banned: "Ce joueur est déjà banni, officier."
+      not_banned: "Ce joueur n'est pas banni, officier."
+      no_open_reports: "Ce joueur n'a plus de signalement en attente, officier."
+      invalid_role: "Ce rôle n'existe pas : player, moderator ou administrator."
     catalog:
       missing_text: "Les scribes ont besoin du titre de la carte dans chaque langue de la Confrérie avant de l'inscrire au registre."
       invalid_card: "Les scribes ne peuvent pas inscrire cette carte au registre : ses particularités sont incomplètes ou en désordre."

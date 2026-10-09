@@ -1,7 +1,8 @@
 module Accounts
-  # A player's report of another player's username or profile (CAP-15,
-  # AD-14). It names the reporter for the staff's queue; the reported player
-  # never learns of it. Written only by Accounts::ReportPlayer.
+  # A player's report of another player's username or profile, one per
+  # reporter and reported player. The reporter is kept; the reported player
+  # never learns of it. Created only by Accounts::ReportPlayer. The staff's
+  # queue counts the open ones; a ban or a dismissal sets `handled_at`.
   class Report < ApplicationRecord
     self.table_name = "accounts_reports"
 
@@ -15,5 +16,7 @@ module Accounts
 
     belongs_to :reporter, class_name: "Accounts::Player"
     belongs_to :reported, class_name: "Accounts::Player"
+
+    scope :unhandled, -> { where(handled_at: nil) }
   end
 end

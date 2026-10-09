@@ -1,0 +1,169 @@
+require "test_helper"
+require_relative "../../support/counting_rate_limit"
+
+module BackOffice
+  class BansControllerTest < ActionDispatch::IntegrationTest
+    include CountingRateLimit
+
+    setup do
+      OmniAuth.config.test_mode = true
+      @target = accounts_players(:player)
+      @target.update!(persona_name: "Gabe")
+      @moderator = accounts_players(:moderator)
+      @administrator = accounts_players(:administrator)
+      @banned = accounts_players(:banned)
+      reporter = Accounts::Player.create!(steam_id: "76561197960360001")
+      @report = Accounts::Report.create!(reporter:, reported: @target, reason: "cheating")
+    end
+
+    teardown do
+      OmniAuth.config.mock_auth.delete(:steam)
+      OmniAuth.config.test_mode = false
+    end
+
+    def sign_in(player)
+      OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
+      post "/auth/steam", params: { origin: "/fr" }
+      follow_redirect!
+      assert_equal player.id, session[:player_id]
+    end
+
+    def row(player) = "tr[data-player-token='#{player.token}']"
+
+    test "a moderator bans a reported player: the player leaves the queue and joins the banned players" do
+      sign_in(@moderator)
+
+      post back_office_bans_path(locale: :fr), params: { token: @target.token }
+
+      assert_redirected_to back_office_reports_path(locale: :fr)
+      assert_equal I18n.t("back_office.bans.create.banned", name: "Gabe", locale: :fr), flash[:notice]
+      assert_predicate @target.reload, :banned?
+      assert_not_nil @report.reload.handled_at
+      follow_redirect!
+      assert_select row(@target), false
+
+      get back_office_bans_path(locale: :fr)
+
+      assert_response :success
+      assert_select "h1", "Les bannis"
+      assert_select "tbody tr:first-child[data-player-token='#{@target.token}'] td:first-child", "Gabe"
+      assert_select row(@banned)
+      assert_select "#{row(@target)} form[action='/fr/back-office/bans/#{@target.token}'][data-turbo-confirm]" do
+        assert_select "input[name=_method][value=delete]"
+        assert_select "button", "LEVER LE BAN"
+      end
+      [ @target, @banned, @moderator ].each { |player| assert_not_includes response.body, player.id.to_s }
+    end
+
+    test "a moderator lifts a ban: the player leaves the banned players" do
+      sign_in(@moderator)
+
+      delete back_office_ban_path(locale: :fr, token: @banned.token)
+
+      assert_redirected_to back_office_bans_path(locale: :fr)
+      assert_match(/\ALe ban de Joueur \S+ est levé\.\z/, flash[:notice])
+      assert_not @banned.reload.banned?
+      follow_redirect!
+      assert_select row(@banned), false
+      assert_select "main .panel", I18n.t("back_office.bans.index.empty", locale: :fr)
+    end
+
+    test "the refusals come back as alerts and change nothing" do
+      sign_in(@moderator)
+
+      {
+        @administrator.token => :cannot_ban_administrator,
+        @moderator.token => :cannot_ban_self,
+        @banned.token => :already_banned,
+        "A" * 24 => :player_not_found,
+        "" => :player_not_found
+      }.each do |token, code|
+        post back_office_bans_path(locale: :fr), params: { token: }
+
+        assert_redirected_to back_office_reports_path(locale: :fr)
+        assert_equal I18n.t("errors.accounts.#{code}", locale: :fr), flash[:alert], code
+      end
+      assert_not @administrator.reload.banned?
+      assert_not @moderator.reload.banned?
+
+      delete back_office_ban_path(locale: :fr, token: @target.token)
+      assert_redirected_to back_office_bans_path(locale: :fr)
+      assert_equal I18n.t("errors.accounts.not_banned", locale: :fr), flash[:alert]
+    end
+
+    test "an administrator bans and lifts a ban, in English" do
+      sign_in(@administrator)
+
+      post back_office_bans_path(locale: :en), params: { token: @target.token }
+      assert_equal "Gabe is banned.", flash[:notice]
+
+      get back_office_bans_path(locale: :en)
+      assert_select "h1", "The banned players"
+
+      delete back_office_ban_path(locale: :en, token: @target.token)
+      assert_equal "The ban on Gabe is lifted.", flash[:notice]
+      assert_not @target.reload.banned?
+    end
+
+    test "the second page of the banned players holds the 51st, the oldest ban" do
+      50.times do |index|
+        Accounts::Player.create!(steam_id: "765611979603620#{index.to_s.rjust(2, "0")}", banned_at: (index + 1).minutes.ago)
+      end
+      sign_in(@moderator)
+
+      get back_office_bans_path(locale: :fr)
+      assert_select "tbody tr", 50
+      assert_select row(@banned), false
+      assert_select "a[href='/fr/back-office/bans?page=2']"
+
+      get back_office_bans_path(locale: :fr, page: 2)
+
+      assert_response :success
+      assert_select "tbody tr", 1
+      assert_select row(@banned)
+      assert_select "a[href='/fr/back-office/bans?page=1']"
+    end
+
+    test "more than 30 bans a minute are throttled" do
+      sign_in(@moderator)
+
+      with_counting_rate_limit(BansController) do
+        30.times do
+          post back_office_bans_path(locale: :fr), params: { token: @target.token }
+          assert_redirected_to back_office_reports_path(locale: :fr)
+        end
+
+        post back_office_bans_path(locale: :fr), params: { token: @target.token }
+      end
+
+      assert_response :too_many_requests
+    end
+
+    test "a player is refused every action with 403" do
+      sign_in(@target)
+
+      get back_office_bans_path(locale: :fr)
+      assert_response :forbidden
+      post back_office_bans_path(locale: :fr), params: { token: @moderator.token }
+      assert_response :forbidden
+      delete back_office_ban_path(locale: :fr, token: @banned.token)
+      assert_response :forbidden
+
+      assert_not @moderator.reload.banned?
+      assert_predicate @banned.reload, :banned?
+    end
+
+    test "a visitor is sent to sign in from every action" do
+      get back_office_bans_path(locale: :fr)
+      assert_redirected_to home_path(locale: :fr)
+      post back_office_bans_path(locale: :fr), params: { token: @target.token }
+      assert_redirected_to home_path(locale: :fr)
+      delete back_office_ban_path(locale: :fr, token: @banned.token)
+      assert_redirected_to home_path(locale: :fr)
+      assert_equal I18n.t("authorization.sign_in_required", locale: :fr), flash[:alert]
+
+      assert_not @target.reload.banned?
+      assert_predicate @banned.reload, :banned?
+    end
+  end
+end

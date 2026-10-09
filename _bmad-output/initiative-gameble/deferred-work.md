@@ -348,3 +348,10 @@
 - source_plan: none
   summary: Replace the collection's tome (volume) system with another way to browse and organise the collection.
   evidence: Author, 2026-10-07: "il faut changer le système de collection en tome, c'est nul". The reasons and the replacement are not decided; start with a UX conversation (bmad-ux) before planning.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-moderation-the-queue-bans-and-unbans-plan.md`
+  summary: A moderator cannot read a reported profile that is private or friends only: the queue's link opens the unavailable page, since `Game::Visibility` shows a hidden profile to no one but its owner.
+  evidence: Story 7.5 review (edge case; rejected low, the queue shows the name, which a name report concerns). Settling it means deciding whether staff see hidden profiles, a change to the one visibility question.
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-moderation-the-queue-bans-and-unbans-plan.md`
+  summary: Bans and dismissals leave no record a page reads: no ban reason, no "banned by", no history of classed reports; only the event store keeps `PlayerBanned`, `PlayerUnbanned` and `ReportsDismissed` with the staff member's id.
+  evidence: Story 7.5 review (blind hunter; rejected low, not asked by the ticket). Would answer "why was I banned?" once strangers play.

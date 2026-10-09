@@ -1,0 +1,71 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <% if @rows.empty? %>
+    <%= render PanelComponent.new(tag: :p) do %>
+      <%= t(".empty") %>
+    <% end %>
+  <% else %>
+    <table class="ledger">
+      <caption class="visually-hidden"><%= t(".caption") %></caption>
+      <thead>
+        <tr>
+          <th scope="col"><%= t(".player") %></th>
+          <% Accounts::Report.reasons.each_key do |reason| %>
+            <th scope="col"><%= t("reports.reasons.#{reason}") %></th>
+          <% end %>
+          <th scope="col"><%= t(".total") %></th>
+          <th scope="col"><%= t(".latest_at") %></th>
+          <th scope="col"><span class="visually-hidden"><%= t(".ban") %></span></th>
+          <th scope="col"><span class="visually-hidden"><%= t(".dismiss") %></span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @rows.each do |row| %>
+          <% name = public_profile_title(row.player) %>
+          <% refusal = Accounts::BanPlayer.refusal(staff: current_player, player: row.player) %>
+          <% dismiss_refusal = Accounts::DismissReports.refusal(staff: current_player, player: row.player) %>
+          <tr data-player-token="<%= row.player.token %>">
+            <td><%= link_to name, brother_path(token: row.player.token) %></td>
+            <% row.counts.each do |reason, count| %>
+              <td data-report-reason="<%= reason %>"><%= number_with_delimiter(count) %></td>
+            <% end %>
+            <td data-report-total="<%= row.total %>"><%= number_with_delimiter(row.total) %></td>
+            <td><%= render "back_office/import_runs/time", time: row.latest_at %></td>
+            <td>
+              <% if refusal %>
+                <span data-ban-refusal="<%= refusal %>"><%= Accounts::BanPlayer.failure_message(refusal) %></span>
+              <% else %>
+                <%= render ButtonComponent.new(variant: :danger, size: :small, href: back_office_bans_path, method: :post,
+                      params: { token: row.player.token }, confirm: t(".ban_confirm", name:)) do %><%= t(".ban") %><% end %>
+              <% end %>
+            </td>
+            <td>
+              <% if dismiss_refusal %>
+                <span data-dismiss-refusal="<%= dismiss_refusal %>"><%= Accounts::DismissReports.failure_message(dismiss_refusal) %></span>
+              <% else %>
+                <%= render ButtonComponent.new(variant: :secondary, size: :small, href: back_office_dismiss_reports_path(token: row.player.token),
+                      method: :post, confirm: t(".dismiss_confirm", name:)) do %><%= t(".dismiss") %><% end %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <% if @pagy.last > 1 %>
+      <%# Pagy writes its links escaped, from its own dictionary (the pagy keys of the locale files). %>
+      <%= @pagy.series_nav.html_safe %>
+    <% end %>
+  <% end %>
+
+  <p>
+    <%= render ButtonComponent.new(variant: :secondary, href: back_office_bans_path) do %><%= t(".banned_players") %><% end %>
+  </p>
+</div>
