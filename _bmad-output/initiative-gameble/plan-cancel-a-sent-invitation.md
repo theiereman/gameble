@@ -3,13 +3,13 @@ title: 'Cancel a sent invitation'
 type: 'feature'
 ticket: ''
 created: '2026-10-09'
-status: 'ready-for-dev'
-baseline_revision: ''
+status: 'built'
+baseline_revision: 'c64a6e8f45824ff2a66b0330979c6f83475fab92'
 route: 'full'
 route_source: 'auto'
-review: ''
-review_source: ''
-lenses_ran: []
+review: 'quick'
+review_source: 'pinned'
+lenses_ran: ['quick']
 review_loop_iteration: 0
 context: []
 ---
@@ -58,13 +58,13 @@ context: []
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `packs/game/app/events/game/invitation_cancelled.rb` -- the event: invitation_id, sender_id, recipient_id.
-- [ ] `packs/game/app/operations/game/cancel_invitation.rb` -- delete the sender's unanswered (pending or ignored) invitation by token and publish the event; `Failure(:not_found)` otherwise.
-- [ ] `app/models/player_stream.rb` -- the cancelled event refreshes both players' friends topic.
-- [ ] `config/routes.rb`, `app/policies/invitation_policy.rb`, `app/controllers/invitations_controller.rb` -- `POST friends/invitations/:token/cancel`; redirect to the Friends screen with "Invitation annulée." on the status line, or the failure message.
-- [ ] `app/views/friends/show.html.erb` -- the "Annuler" button on each sent row.
-- [ ] `config/locales/en.yml`, `config/locales/fr.yml` -- `friends.show.cancel`, `invitations.cancelled`.
-- [ ] `test/packs/game/invitation_test.rb`, `test/controllers/invitations_controller_test.rb`, `test/policies/invitation_policy_test.rb`, `test/models/player_stream_test.rb` -- the matrix rows, the event, the notices, the button and the line.
+- [x] `packs/game/app/events/game/invitation_cancelled.rb` -- the event: invitation_id, sender_id, recipient_id.
+- [x] `packs/game/app/operations/game/cancel_invitation.rb` -- delete the sender's unanswered (pending or ignored) invitation by token and publish the event; `Failure(:not_found)` otherwise.
+- [x] `app/models/player_stream.rb` -- the cancelled event refreshes both players' friends topic.
+- [x] `config/routes.rb`, `app/policies/invitation_policy.rb`, `app/controllers/invitations_controller.rb` -- `POST friends/invitations/:token/cancel`; redirect to the Friends screen with "Invitation annulée." on the status line, or the failure message.
+- [x] `app/views/friends/show.html.erb` -- the "Annuler" button on each sent row.
+- [x] `config/locales/en.yml`, `config/locales/fr.yml` -- `friends.show.cancel`, `invitations.cancelled`.
+- [x] `test/packs/game/invitation_test.rb`, `test/controllers/invitations_controller_test.rb`, `test/policies/invitation_policy_test.rb`, `test/models/player_stream_test.rb` -- the matrix rows, the event, the notices, the button and the line.
 
 **Acceptance Criteria:**
 - Given Lea sees "Envoyée à Sam · En attente", when she presses "Annuler", then the row is gone, the line reads "Invitation annulée.", and Sam's open Friends screen no longer shows "Lea vous invite".
@@ -72,9 +72,21 @@ context: []
 
 ## Implementation Notes
 
+- The status-line flash key was `invite_sent`; it is now `invite_done`, since the line also reports a cancel (`InvitationFeedback`, the view, the controller). The CSS class `friends__message--sent` is unchanged.
+- The "En attente" chip moved inside the sent row's `friends__actions` beside "Annuler", so `justify-content: space-between` keeps the chip and button together on the right instead of spreading three children.
+- The operation checks that the token belongs to the sender's unanswered invitation before locking, then re-reads it locked inside the transaction (as `IgnoreInvitation` does), so a cancel racing an accept fails `:not_found` and leaves the friendship.
+- Added a live-update system test: a cancelled invitation leaves the recipient's open Friends screen without a reload.
+
 ## Plan Change Log
 
 ## Review Triage Log
+
+| # | Lens | Finding | Verdict | Route | Evidence |
+|---|------|---------|---------|-------|----------|
+| 1 | quick | UX docs describe the sent row without "ANNULER" and list neither "Annuler" nor "Invitation annulée." | low | patch | `ux-gameble/DESIGN.md` Invitation row and `EXPERIENCE.md` Friends / Invite code messages rows checked: both predate the button. |
+| 2 | quick | Every sent row's "Annuler" has the same accessible name | low | patch | The friend rows on the same screen name their target with `aria_label`; `ButtonComponent` takes `aria_label`, so the fix is one argument and one string. |
+| 3 | quick | The ignored case of the resend criterion resends by link, not by code | low | patch | `invitation_test.rb` uses `recipient_token:`; the criterion says "sends Sam's code again". |
+| 4 | quick | No test covers the rate limit on `cancel` | low | reject | Test gap with no defect; the limit is one symbol in the shared `only:` list, and adding the test is more than a direct correction. |
 
 ## Verification
 

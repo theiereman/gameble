@@ -146,6 +146,20 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     assert not_reloaded?
   end
 
+  test "a cancelled invitation leaves the recipient's Friends screen without a reload" do
+    invitation = Game::SendInvitation.new.call(player: @max, code: "7K2Q-F3NX").value!
+    sign_in @hugo
+    visit friends_path(locale: :en)
+    assert_selector ".friends__invitation", text: "Max invites you"
+    listening
+
+    Game::CancelInvitation.new.call(player: @max, token: invitation.token).value!
+    deliver
+
+    assert_no_selector ".friends__invitation", text: "Max invites you"
+    assert not_reloaded?
+  end
+
   test "the Friends screen holds its refresh while a code is typed" do
     sign_in @hugo
     visit friends_path(locale: :en)

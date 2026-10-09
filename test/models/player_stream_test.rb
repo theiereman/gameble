@@ -39,11 +39,13 @@ class PlayerStreamTest < ActiveSupport::TestCase
     end
   end
 
-  test "an invitation tells both players, and its acceptance names the accepting friend to the sender" do
+  test "an invitation and its cancelling tell both players, and its acceptance names the accepting friend to the sender" do
     data = { invitation_id: 1, sender_id: @alice.id, recipient_id: @bob.id }
 
     assert_equal [ { player_id: @alice.id, topic: "friends" }, { player_id: @bob.id, topic: "friends" } ],
       PlayerStream.notices(Game::InvitationSent.new(data:))
+    assert_equal [ { player_id: @alice.id, topic: "friends" }, { player_id: @bob.id, topic: "friends" } ],
+      PlayerStream.notices(Game::InvitationCancelled.new(data:))
     assert_equal [ { player_id: @alice.id, topic: "friends", friend_id: @bob.id }, { player_id: @bob.id, topic: "friends" } ],
       PlayerStream.notices(Game::InvitationAccepted.new(data:))
   end
@@ -62,6 +64,15 @@ class PlayerStreamTest < ActiveSupport::TestCase
     assert_enqueued_with(job: PlayerStreamJob,
       args: [ [ { player_id: stranger.id, topic: "friends", friend_id: @alice.id }, { player_id: @alice.id, topic: "friends" } ] ]) do
       Game::AcceptInvitation.new.call(player: @alice, token: invitation.token).value!
+    end
+  end
+
+  test "cancelling an invitation enqueues a notice for each player" do
+    stranger = accounts_players(:administrator)
+    invitation = Game::SendInvitation.new.call(player: stranger, code: "7K2Q-F3NX").value!
+
+    assert_enqueued_with(job: PlayerStreamJob, args: [ [ { player_id: stranger.id, topic: "friends" }, { player_id: @alice.id, topic: "friends" } ] ]) do
+      Game::CancelInvitation.new.call(player: stranger, token: invitation.token).value!
     end
   end
 

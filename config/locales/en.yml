@@ -735,6 +735,8 @@ en:
       pending: "Pending"
       accept: "Accept"
       ignore: "Ignore"
+      cancel: "Cancel"
+      cancel_invitation_to: "Cancel the invitation to %{name}"
       see_profile: "See the profile"
       see_profile_of: "See the profile of %{name}"
       propose_trade: "Propose a trade"
@@ -770,6 +772,7 @@ en:
       body: "This profile is not available."
   invitations:
     sent: "Invitation sent to %{to}."
+    cancelled: "Invitation cancelled."
     throttled: "Too many attempts in a minute. Try again in a moment."
     new_friend:
       title: "New friend"

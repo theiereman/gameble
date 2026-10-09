@@ -79,6 +79,8 @@ Rails.application.routes.draw do
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     post "friends/invitations/:token/ignore" => "invitations#ignore", as: :ignore_invitation,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    post "friends/invitations/:token/cancel" => "invitations#cancel", as: :cancel_invitation,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     get "invite/:token" => "invite_links#show", as: :invite_link,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     post "invite/:token" => "invite_links#create",

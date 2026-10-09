@@ -9,7 +9,7 @@ module InvitationFeedback
         new_friend(result.value!.sender_id)
       else
         recipient = Accounts::PlayerById.call(result.value!.recipient_id)
-        flash[:invite_sent] = t("invitations.sent", to: helpers.invited_name(recipient, Game::FriendCodeOf.call(recipient)))
+        flash[:invite_done] = t("invitations.sent", to: helpers.invited_name(recipient, Game::FriendCodeOf.call(recipient)))
       end
       redirect_to friends_path, status: :see_other
     end

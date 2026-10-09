@@ -71,6 +71,50 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, Game::Friendship.count
   end
 
+  test "the sender cancels a sent invitation: the row is gone for both and the line says so" do
+    sign_in @alice
+    post invitations_path(locale: :fr), params: { code: "8F2D-K9XM" }
+    follow_redirect!
+    token = Game::Invitation.sole.token
+    assert_select ".friends__invitation form[action=?] button[aria-label=?]", cancel_invitation_path(token:, locale: :fr),
+      "Annuler l'invitation à Sam", text: "Annuler"
+
+    post cancel_invitation_path(token:, locale: :fr)
+    assert_redirected_to friends_path(locale: :fr)
+    follow_redirect!
+
+    assert_select ".friends__message--sent", "Invitation annulée."
+    assert_select ".friends__invitation", 0
+    delete session_path
+    sign_in @bob
+    get friends_path(locale: :fr)
+    assert_select ".friends__invitation", 0
+  end
+
+  test "cancelling an invitation already accepted changes nothing and says it is no longer there" do
+    invitation = Game::SendInvitation.new.call(player: @alice, code: "8F2D-K9XM").value!
+    Game::AcceptInvitation.new.call(player: @bob, token: invitation.token).value!
+    sign_in @alice
+
+    post cancel_invitation_path(token: invitation.token, locale: :fr)
+    follow_redirect!
+
+    assert_select ".friends__message--error", "Cette invitation n'existe plus."
+    assert_select ".friends__row .friends__name", "Sam"
+    assert_equal "accepted", invitation.reload.status
+  end
+
+  test "the recipient cannot cancel the invitation they received" do
+    invitation = Game::SendInvitation.new.call(player: @alice, code: "8F2D-K9XM").value!
+    sign_in @bob
+
+    post cancel_invitation_path(token: invitation.token, locale: :fr)
+    follow_redirect!
+
+    assert_select ".friends__message--error", "Cette invitation n'existe plus."
+    assert_equal "pending", invitation.reload.status
+  end
+
   test "the copy deck's refusals answer on the line under the field" do
     sign_in @alice
     {
@@ -97,10 +141,12 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friends__message--error", "Expected format: ABCD-1234."
   end
 
-  test "a visitor cannot send or answer" do
+  test "a visitor cannot send, answer or cancel" do
     post invitations_path(locale: :fr), params: { code: "8F2D-K9XM" }
     assert_redirected_to home_path(locale: :fr)
     post accept_invitation_path(token: "a" * 24, locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
+    post cancel_invitation_path(token: "a" * 24, locale: :fr)
     assert_redirected_to home_path(locale: :fr)
     assert_equal 0, Game::Invitation.count
   end

@@ -180,6 +180,59 @@ class Game::InvitationTest < ActiveSupport::TestCase
     assert_empty Game::InvitationsOf.call(@alice).sent
   end
 
+  def cancel(player, invitation) = Game::CancelInvitation.new.call(player:, token: invitation.token)
+
+  def cancelled_events = Rails.configuration.event_store.read.of_type([ Game::InvitationCancelled ]).to_a
+
+  test "the sender cancels a pending invitation: it is gone for both, announced once, and may be sent again" do
+    invitation = send_by_code(@alice, "8F2D-K9XM").value!
+
+    assert cancel(@alice, invitation).success?
+
+    assert_not Game::Invitation.exists?(invitation.id)
+    assert_empty Game::InvitationsOf.call(@alice).sent
+    assert_empty Game::InvitationsOf.call(@bob).received
+    assert_equal [ { invitation_id: invitation.id, sender_id: @alice.id, recipient_id: @bob.id } ], cancelled_events.map(&:data)
+    assert_equal 1, Rails.configuration.event_store.read.stream(Game::Operation.stream_name(@alice.id)).of_type([ Game::InvitationCancelled ]).count
+    assert_equal "pending", send_by_code(@alice, "8F2D-K9XM").value!.status
+  end
+
+  test "the sender cancels an ignored invitation, and the new one reaches the recipient" do
+    invitation = send_by_code(@alice, "8F2D-K9XM").value!
+    Game::IgnoreInvitation.new.call(player: @bob, token: invitation.token).value!
+
+    assert cancel(@alice, invitation).success?
+
+    assert_equal 0, Game::Invitation.count
+    again = send_by_code(@alice, "8F2D-K9XM").value!
+    assert_equal [ "pending", @alice.id, @bob.id ], [ again.status, again.sender_id, again.recipient_id ]
+    assert_equal [ @alice ], Game::InvitationsOf.call(@bob).received.map(&:player)
+  end
+
+  test "an invitation answered before the cancel stays answered, and the pair stays friends" do
+    invitation = send_by_code(@alice, "8F2D-K9XM").value!
+    Game::AcceptInvitation.new.call(player: @bob, token: invitation.token).value!
+
+    assert_equal :not_found, cancel(@alice, invitation).failure
+
+    assert_equal "accepted", invitation.reload.status
+    assert friends?(@alice, @bob)
+    assert_empty cancelled_events
+  end
+
+  test "only the sender may cancel" do
+    invitation = send_by_code(@alice, "8F2D-K9XM").value!
+
+    assert_equal :not_found, cancel(@bob, invitation).failure
+    assert_equal :not_found, cancel(accounts_players(:administrator), invitation).failure
+    assert_equal :not_found, Game::CancelInvitation.new.call(player: @alice, token: "nope").failure
+    assert_equal :not_found, Game::CancelInvitation.new.call(player: @alice, token: nil).failure
+    assert_equal :player_required, cancel(nil, invitation).failure
+
+    assert_equal "pending", invitation.reload.status
+    assert_empty cancelled_events
+  end
+
   test "an invitation from a sender banned since cannot be accepted" do
     invitation = send_by_code(@alice, "8F2D-K9XM").value!
     @alice.update_columns(banned_at: Time.current)

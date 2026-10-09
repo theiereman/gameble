@@ -31,7 +31,7 @@
         <%= form.button t(".add"), type: :submit, class: "button button--primary button--small" %>
       </div>
     <% end %>
-    <p id="invite-message" role="status" class="<%= class_names("friends__message", "friends__message--error": flash[:invite_error], "friends__message--sent": flash[:invite_sent]) %>"><%= flash[:invite_error] || flash[:invite_sent] %></p>
+    <p id="invite-message" role="status" class="<%= class_names("friends__message", "friends__message--error": flash[:invite_error], "friends__message--sent": flash[:invite_done]) %>"><%= flash[:invite_error] || flash[:invite_done] %></p>
   <% end %>
 
   <h2 class="friends__heading"><%= t(".invitations") %></h2>
@@ -50,8 +50,13 @@
       <% end %>
       <% @invitations.sent.each do |invitation| %>
         <li class="friends__row friends__invitation">
-          <span class="friends__who"><%= t(".sent_to", name: invited_name(invitation.player, invitation.code)) %></span>
-          <span class="friends__chip"><%= t(".pending") %></span>
+          <% invited = invited_name(invitation.player, invitation.code) %>
+          <span class="friends__who"><%= t(".sent_to", name: invited) %></span>
+          <span class="friends__actions">
+            <span class="friends__chip"><%= t(".pending") %></span>
+            <%= render ButtonComponent.new(variant: :secondary, href: cancel_invitation_path(token: invitation.token), method: :post, size: :small,
+                  aria_label: t(".cancel_invitation_to", name: invited)) do %><%= t(".cancel") %><% end %>
+          </span>
         </li>
       <% end %>
     </ul>
