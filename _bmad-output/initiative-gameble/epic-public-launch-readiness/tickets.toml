@@ -127,13 +127,38 @@ risk = "high"
 notes = ["the author chooses the server and the storage, runs the drill and signs it off"]
 
 [[entry]]
+id = 16
+type = "story"
+title = "A private profile closes its social side"
+description = "Going private publishes Accounts::VisibilityChanged, and Game cancels the player's open trades, releasing every reserved copy under the lock order, while the private stream tells the partners; the settings row asks to confirm when trades are open. Game::Visibility answers open_to_friends?, which every trade operation and the trades screen ask in both directions, refusing with a message that names whose profile is private. A private friend's presence reads \"Profil privé\" and never counts online, and the friend profile shows the trades-closed line when the viewer is private."
+verify = "Going private with two open trades cancels both, releases the copies and updates the partners live; nobody proposes, counters or accepts with a private player, from the screen or a forged POST; a private friend shows \"Profil privé\" and is left out of \"n en ligne\"; friends-only friends still trade."
+covers = ["R1"]
+after = [2]
+hitl = false
+risk = "high"
+references = ["change-profile-privacy/change-profile-privacy.md"]
+notes = ["Decision (2026-10-09): the author's profile privacy rule, recorded in the change proposal; build locally with a thorough review, since it takes trade locks. Do not reuse DropFriendsAndTrades as it is: it locks partners out of order."]
+
+[[entry]]
+id = 17
+type = "story"
+title = "Trade from the friend row"
+description = "Adds PROPOSER UN ÉCHANGE to each friend row of the Friends screen, opening the trade in progress with that friend or a new draft, and the trades-closed line in its place when either profile is private."
+verify = "From the Friends screen a player opens the trade in progress with a friend or starts one; with a private friend, or while private, the row shows the trades-closed line instead."
+covers = ["R1"]
+after = [16]
+hitl = false
+risk = "low"
+references = ["change-profile-privacy/change-profile-privacy.md"]
+
+[[entry]]
 id = 12
 type = "story"
 title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15]
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17]
 hitl = false
 risk = "low"
 

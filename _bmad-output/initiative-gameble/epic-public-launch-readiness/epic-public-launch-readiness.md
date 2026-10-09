@@ -24,7 +24,7 @@ For a player: control over their data. For the author: a site he can open to peo
 
 ## Requirements
 
-- R1 (CAP-14; AD-14, AD-13): a player sets their profile's visibility (public, friends only, private), kept in `Accounts` with a default, and `Game::Visibility.visible?(viewer, owner)` is the single visibility question; friends only counts no friend until epic 5 supplies the friendship query.
+- R1 (CAP-14; AD-14, AD-13): a player sets their profile's visibility (public, friends only, private), kept in `Accounts` with a default, and `Game::Visibility.visible?(viewer, owner)` is the single visibility question; friends only counts no friend until epic 5 supplies the friendship query. Private closes the social side: a private player keeps and adds friends, but friends see nothing of them and nobody trades with them, and going private cancels their open trades (CAP-8, CAP-11, CAP-21; AD-8, AD-13, AD-24).
 - R2 (CAP-14; AD-14): a player exports their data, assembled in the web layer from Accounts and Game queries; later epics add what they store.
 - R3 (CAP-14; AD-10, AD-14): a player deletes their account after typing SUPPRIMER (DELETE in English); the record is anonymised, the steam id is released, `Accounts::PlayerDeleted` lets Game release what the player holds.
 - R4 (CAP-15; AD-14): a visitor reports a username or profile with one of four reasons, anonymously; staff reach a queue; moderators and administrators ban and unban, no one bans an administrator or themselves; staff accounts are made from the console.

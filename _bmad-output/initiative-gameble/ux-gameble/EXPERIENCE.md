@@ -90,7 +90,9 @@ The single source for every message the interface shows. Other sections name the
 | Card picker | "n cartes · n exemplaires (4 cartes au plus)" · "n disponibles" · "Aucune carte disponible." |
 | Friends | "PAR LIEN" · "VOTRE CODE AMI" · "AJOUTER AVEC UN CODE" · "Sam vous invite" · "Envoyée à 8F2D-K9XM" · "NOUVEL AMI · Sam fait maintenant partie de vos amis." · "Aucune invitation en cours." |
 | Invite code messages | "Format attendu : ABCD-1234." · "C'est votre propre code." · "Invitation déjà envoyée." · "Invitation envoyée à 8F2D-K9XM." |
-| Presence | "En ligne" · "Ouvre un booster" · "Il y a 3 h" |
+| Presence | "En ligne" · "Ouvre un booster" · "Il y a 3 h" · "Profil privé" |
+| Trades closed | "Votre profil est privé : les échanges sont fermés." (link "RÉGLAGES") · "Le profil de Léa est privé : échanges fermés." |
+| Going private | "Passer en privé annule vos 2 échanges en cours." · "PASSER EN PRIVÉ" · "ANNULER" |
 | Report | "Pseudo ou avatar inapproprié" · "Triche ou abus" · "Harcèlement" · "Autre" · "Merci. L'équipe de modération examinera ce profil. Léa ne verra pas qui l'a signalé." |
 | Feed | "Rien pour l'instant dans ce filtre." · Friends tab without friends: "Ajoutez des amis pour suivre leurs tirages." with "AJOUTER DES AMIS" · repost entry: "Hugo a reposté Elden Ring." · tag "REPOST" |
 | Repost | Action "REPOSTER" · confirmation toast "Carte repostée dans le fil." |
@@ -199,8 +201,8 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 |---|---|
 | Invite panel | "COPIER" copies the invite link. The code field accepts the format of the codes in use (for example "7K2Q-F3NX", "8F2D-K9XM") (author, 2026-10-07: the code is purely random, 4 characters, a dash, 4 characters, never derived from the name), submits on Enter and answers on the line below. A valid code sends an invitation. |
 | Invitation row | Received: "ACCEPTER" creates the friendship for both; "IGNORER" dismisses it. Sent: "EN ATTENTE" until answered. The invite link sends an invitation the same way. |
-| Friend row | Shows the friend's presence (see Copy deck, Presence). The avatar or name opens the friend profile; "PROPOSER UN ÉCHANGE" opens the trade already in progress with that friend, or a new draft. |
-| Friend profile | A dialog: showcase of three cards, "PROPOSER UN ÉCHANGE", "SIGNALER". |
+| Friend row | Shows the friend's presence (see Copy deck, Presence), or "Profil privé" for a private friend. The avatar or name opens the friend profile; "PROPOSER UN ÉCHANGE" opens the trade already in progress with that friend, or a new draft. When either profile is private, the "Trades closed" line replaces the button. |
+| Friend profile | A dialog: showcase of three cards, "PROPOSER UN ÉCHANGE", "SIGNALER". A private friend's dialog shows the name and says the profile is not available; when the viewer is private, the "Trades closed" line replaces "PROPOSER UN ÉCHANGE". |
 | Report dialog | A reason must be chosen before "ENVOYER LE SIGNALEMENT". The reported player never learns who reported them. |
 
 ### Fil d'activité and Succès
@@ -216,7 +218,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 
 | Component | Behavioral rules |
 |---|---|
-| Settings row | "LANGUE" (FRANÇAIS / ENGLISH) switches at once. "VISIBILITÉ DU PROFIL" (PUBLIC / AMIS UNIQUEMENT / PRIVÉ, default PUBLIC) applies at once. "ANIMATIONS RÉDUITES" follows the system by default. "EXPORTER", "SE DÉCONNECTER", "SUPPRIMER MON COMPTE": see State Patterns. |
+| Settings row | "LANGUE" (FRANÇAIS / ENGLISH) switches at once. "VISIBILITÉ DU PROFIL" (PUBLIC / AMIS UNIQUEMENT / PRIVÉ, default PUBLIC) applies at once; choosing PRIVÉ with trades open first asks to confirm (see Copy deck, Going private). "ANIMATIONS RÉDUITES" follows the system by default. "EXPORTER", "SE DÉCONNECTER", "SUPPRIMER MON COMPTE": see State Patterns. |
 | Back picker | Choosing an unlocked card back makes it active at once; a locked one states its condition inline. |
 | Delete dialog | The field is labeled with the word to type; "SUPPRIMER DÉFINITIVEMENT" enables once the field holds that word (case-insensitive, paste allowed). |
 | Mentions légales link | Opens the legal page (also in the public card page footer). |
@@ -274,14 +276,15 @@ Messages quoted by key are in the Copy deck.
 | Trade done | Trade board, list | The swap plays; "CONCLU" and the concluded line; received cards tagged "NOUVEAU". The trade appears in the feed and counts toward the goal. |
 | Trade declined, canceled, expired | Trade board, list | "CLOS", with the outcome and its age ("refusé il y a 4 j"). Reserved copies are released. A proposal expires after a fixed 7 days. Action: "NOUVEL ÉCHANGE AVEC LÉA". |
 | Friend banned or deleted mid-trade | Trade board, list | The trade closes ("CLOS") and every reserved copy is released. |
+| Friend goes private mid-trade | Trade board, list | The trade closes ("CLOS") and every reserved copy is released; the board says the friend's profile is now private. |
 | Invite code invalid / own / repeated / sent | Amis | The matching line (Copy deck, Invite code messages). |
 | Invitation received / accepted / ignored | Amis | Received: the invitation row with "ACCEPTER" / "IGNORER". Accepted: the "NOUVEL AMI" toast and the friend in the list. Ignored: the row disappears. |
 | No invitation | Amis | The no-invitation line (Copy deck, Friends). |
 | No friend, no trade | Amis, Échanges | One line pointing to the invite panel. Not mocked. |
-| Friend presence | Amis, menu 04 | Online, current activity, or last seen. |
+| Friend presence | Amis, menu 04 | Online, current activity, or last seen; "Profil privé" for a private friend, never counted online. |
 | Quiet feed | Fil d'activité, ticker | With few players, lower-tier pulls fill in on a quieter background. Never empty while any activity exists. |
 | Feed filter empty | Fil d'activité | The empty-filter line (Copy deck, Feed). |
-| Profile visibility | Profile, public pages | PUBLIC: anyone, signed out included, sees the profile and its shared cards. AMIS UNIQUEMENT: friends only. PRIVÉ: nobody else. The summary states it. |
+| Profile visibility | Profile, public pages | PUBLIC: anyone, signed out included, sees the profile and its shared cards. AMIS UNIQUEMENT: friends only. PRIVÉ: nobody else, friends included; friendships stay and trades close (CAP-11). The summary states it. |
 | Profile not visible to this visitor, or banned | Public card page, public profile, friend profile | The page says the profile is not available. |
 | Card back locked / equipped | Back picker | Locked: the condition inline and the "DOS VERROUILLÉ" toast. Equipped: the preview turns to the new card back; the "DOS ÉQUIPÉ" toast. |
 | Export | Profil et paramètres | "PRÉPARATION…" on the button, then the "EXPORT PRÊT" toast with the download; a failure says so inline with a retry. |

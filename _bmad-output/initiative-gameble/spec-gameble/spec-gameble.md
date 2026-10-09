@@ -74,7 +74,8 @@ gameble is an open-source passion project, and the game its author wants to play
   - **success:**
     - Visibility is public (the default), friends only, or private.
     - Public: a logged-out visitor opening the profile link sees that player's collection and set progress.
-    - Friends only: only the player's friends see it. Private: nobody else sees it.
+    - Friends only: only the player's friends see it, and they trade as usual.
+    - Private: nobody else sees it, friends included. The player keeps their friends and can still add new ones, but a friend sees nothing beyond the friendship: no presence or activity, no collection, no profile, and no trade either way. A private player still sees what their friends show them.
     - The profile is titled with the player's Steam persona name, refreshed at each sign-in.
 - **CAP-9**
   - **intent:** A player can share a pull as a link that previews nicely on Discord, X and WhatsApp.
@@ -93,7 +94,8 @@ gameble is an open-source passion project, and the game its author wants to play
     - A card a player offers in an open trade is reserved: it cannot be used elsewhere until the trade ends. Cards requested from the friend are not reserved; acceptance checks they are still free.
     - Two friends have at most one open trade at a time.
     - On acceptance, all cards swap owners atomically with their minted rarity and season.
-    - Non-friends cannot trade.
+    - Non-friends cannot trade, and neither can a private player (CAP-8): nobody proposes to them and they propose to nobody. Where a trade would start, the screen says trades are closed while that profile is private, naming whose profile it is.
+    - Going private cancels the player's open trades at once: every reserved copy is released and the friend sees the trade closed.
 - **CAP-12**
   - **intent:** The Brotherhood has a weekly shared goal that every player's pack openings advance, and trades to a lesser degree.
   - **success:**
@@ -106,10 +108,10 @@ gameble is an open-source passion project, and the game its author wants to play
     - The feed shows notable pulls, first discoveries of a card, trades and reposts (CAP-19).
     - The feed is readable without an account.
     - With few players, it falls back to lower-rarity events and is never empty while any activity exists.
-    - A signed-in player has a Friends tab showing only their friends' pulls, trades and reposts.
+    - A signed-in player has a Friends tab showing only their friends' pulls, trades and reposts; a private friend's never show (CAP-8).
 - **CAP-14**
   - **intent:** A player can manage their personal data from their profile.
-  - **success:** From the profile, a player can delete their account, export their data, and set their profile's visibility (public, friends only, private). Each action works end to end.
+  - **success:** From the profile, a player can delete their account, export their data, and set their profile's visibility (public, friends only, private); going private cancels their open trades (CAP-11) and says so before applying. Each action works end to end.
 - **CAP-15**
   - **intent:** Players can report a username or profile, and a moderator can review reports in a back-office and ban accounts.
   - **success:**
@@ -134,7 +136,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** A player can repost a card they own to the Brotherhood feed to show it off, so flexing a collection happens in gameble rather than on Discord.
   - **success:**
     - Any card the player owns can be reposted, whatever its rarity, with no limit on the number of reposts.
-    - A repost appears in the global feed and in the Friends tab of the player's friends.
+    - A repost appears in the global feed and in the Friends tab of the player's friends, unless the player's profile hides it (CAP-8).
     - Reposting a card the player does not own is refused, whatever the client does.
     - Feed events carry no reactions or comments.
 - **CAP-20**
@@ -147,7 +149,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - The back catalogue is in `DESIGN.md`.
 - **CAP-21**
   - **intent:** A player can see which of their friends are around.
-  - **success:** Friends see each other's status: online, current activity, or last seen. The friends menu item shows how many friends are online.
+  - **success:** Friends see each other's status: online, current activity, or last seen. A private friend (CAP-8) shows "profil privé" instead, and never counts among those online. The friends menu item shows how many friends are online.
 
 ## Constraints
 

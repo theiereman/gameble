@@ -114,7 +114,7 @@ graph TD
 - **Prevents:** a card promised twice; partial transfers; deadlocks; a friend freezing a player's cards.
 - **Rule:**
   - A friendship is one row per pair, the lower player id first, unique. It exists once an invitation is accepted. An invitation (by link or by friend code) is pending, accepted or ignored; accepting creates the friendship in the same operation. Each player has a short random friend code in `Game`, never derived from an id.
-  - Every trade operation requires the two players to be friends.
+  - Every trade operation requires the two players to be friends and neither to be private (AD-13's `open_to_friends?`).
   - Two friends have at most one open trade. A proposal holds an offer and a request, each with at least one card, at most 4 distinct card-seasons per side, each with a quantity.
   - Only the current proposal's offer is reserved: sending it raises `reserved` on the sender's rows, up to `quantity - reserved`. A counter-proposal releases the previous offer and reserves the new one, then hands the turn over. Declining, cancelling and expiry release the offer.
   - Acceptance is one transaction: it refuses a proposal past its expiry, locks both players in the order of AD-10, checks that the requested cards are still free, moves both sides and closes the trade.
@@ -161,6 +161,7 @@ graph TD
   - Each player has one private Turbo Stream, named by an opaque random key held in `Accounts` and rotated on ban and deletion. It carries only what calls for an answer: trade proposals and their state changes, friend invitations, and card backs unlocked outside an opening. The cable connection identifies the player from the session and refuses a banned one.
   - The feed's Friends tab and friends' presence are read when the page renders; nothing is broadcast to every friend.
   - Every surface that names a player beside their cards asks one question, `Game::Visibility.visible?(viewer, owner)`, at render or at broadcast; nothing is stored on the entry. Public surfaces show an entry only if every player it names is public and not banned or deleted; the Friends tab also shows friends-only friends.
+  - A second question, `Game::Visibility.open_to_friends?(player)`, is false for a private player (and a banned or deleted one). Trades (AD-8), presence (AD-24) and the trade actions on the friend row and friend profile ask it; nothing else needs it, since `visible?` already hides a private player from friends.
 
 ### AD-14 — Identity and access `[ADOPTED]`
 
@@ -171,7 +172,7 @@ graph TD
   - The session is an encrypted cookie holding only the player id. Each request reloads the player and checks the ban.
   - Every controller action has a Pundit policy; a signed-out player is refused with `sign_in_required`. Every `Game` operation acts for one player given as input; work over many players is a job running that operation once per player, or a `Game::SystemOperation` that writes only rows belonging to no player.
   - Roles: signed-out visitor, player, moderator, administrator.
-  - Profile visibility is public, friends only or private, stored in `Accounts`. The profile policy and AD-13's visibility question combine it with `Game`'s friendship query.
+  - Profile visibility is public, friends only or private, stored in `Accounts`. The profile policy and AD-13's visibility questions combine it with `Game`'s friendship query. Setting it to private publishes `Accounts::VisibilityChanged`; `Game` handles it by cancelling the player's open trades and releasing their reservations under AD-10's lock order (bank locks of both players in ascending id, taken before any trade row), and `PlayerStream` tells the partners, as it does for a deletion.
   - Deleting an account publishes `Accounts::PlayerDeleted`; `Game` handles it by cancelling open trades, releasing reservations and dropping friendships, invitations and its private key. A ban hides the player everywhere through AD-13. The data export is assembled in the web layer from `Accounts` and `Game` queries.
 
 ### AD-15 — No internal id in a URL `[ADOPTED]`
@@ -268,7 +269,7 @@ graph TD
 - **Rule:**
   - "Last seen" is `last_seen_at` on the player's row in `Accounts`. A request enqueues a job that updates it, at most about once a minute per player. "Online" means seen within a short window.
   - The activity shown ("Ouvre un booster") is the player's latest game action and its time, written by a `Game` handler on the player's `game_player_states` row from the events of AD-10, and shown while recent.
-  - Presence is not built on Action Cable connections. It is read when the friends page or menu renders (AD-13).
+  - Presence is not built on Action Cable connections. It is read when the friends page or menu renders (AD-13). A private friend's presence is never read: the row says "profil privé" and the online count skips them.
 
 ### AD-25 — Card backs live in code `[ADOPTED]`
 
@@ -468,7 +469,7 @@ gameble/
 | CAP-5 Reveal | booster island, image filter | AD-7, AD-16, AD-17, AD-23, AD-27 |
 | CAP-6 Collection and sets | `Game` (holdings), `Catalog` (sets) | AD-5, AD-6, AD-11, AD-26 |
 | CAP-7 Card face and detail | web layer, `Catalog` | AD-5, AD-11, AD-15, AD-16, AD-18 |
-| CAP-8 Profile and visibility | web layer, `Accounts`, `Game` | AD-11, AD-14, AD-15 |
+| CAP-8 Profile and visibility | web layer, `Accounts`, `Game` | AD-8, AD-11, AD-13, AD-14, AD-15, AD-24 |
 | CAP-9 Share link | web layer, `Catalog` | AD-15 |
 | CAP-10 Friends and invitations | `Game` | AD-3, AD-8, AD-13, AD-15 |
 | CAP-11 Trades | `Game`, trade board island | AD-6, AD-8, AD-13, AD-16 |
