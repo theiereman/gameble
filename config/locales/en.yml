@@ -128,7 +128,7 @@ en:
       publisher:
         title: "Publisher and host"
         publisher: "Publisher"
-        anonymous: "A private individual, on a non-professional and non-commercial basis, who has chosen to remain anonymous. Their identity is known to the host."
+        individual: "Thomas Eyermann, a private individual, on a non-professional and non-commercial basis, whose personal details are known to the host."
         contact: "Contact"
         host: "Host"
       ownership:
@@ -143,7 +143,7 @@ en:
         no_money: "No real money flows through it: nothing is bought, nothing is sold."
         no_property: "Cards, boosters and card backs are parts of the game: they are not your property and have no value, neither in money nor outside gameble. No card may be sold or exchanged for money, in gameble or outside it."
         fair_play: "Play fair: no bots, scripts or automation, no multiple accounts, no exploiting bugs."
-        moderation_html: "Players can report a profile. Moderators review every report and may suspend an account that breaks these rules. The decision is always made by a person. A suspended player can ask for its reason and contest it by writing to %{contact}."
+        moderation_html: "Players can report a profile. Moderators review every report and may suspend an account that breaks these rules. The decision is always made by a person. A suspended player sees the reason for the decision when trying to sign in and can contest it by writing to %{contact}."
         notice_html: "Even without a gameble account, you can report illegal content or ask for the removal of a game whose rights you hold: write to %{contact} with the page's address and the reason for your request."
         no_guarantee: "The service is free and provided as is. It may be interrupted for maintenance or changed. Should it close for good, the closure would be announced on the site at least 30 days in advance."
         changes: "These terms may change. A significant change is announced in the game before it applies. The version in force is the one on this page."
@@ -185,7 +185,7 @@ en:
           erasure: "deletion: from the settings, with \"Delete my account\";"
           objection_html: "objection: make your profile private in the settings, or write to %{contact};"
           death_html: "after your death: tell %{contact} who your data should be passed on to or whether it should be erased;"
-          banned_html: "suspended account: it can no longer sign in; write to %{contact} to obtain your data, the reason for the suspension or the erasure of your account;"
+          banned_html: "suspended account: it can no longer sign in; the reason for the suspension is shown when you try to sign in; write to %{contact} to contest the decision, obtain your data or have your account erased;"
           complaint_html: "complaint: to the %{authority}, the French data protection authority."
           authority: "CNIL"
       support:

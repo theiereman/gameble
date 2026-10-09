@@ -635,7 +635,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".legal__rectification", /write to the publisher;\z/
     assert_select ".legal__objection", "objection: make your profile private in the settings, or write to the publisher;"
     assert_select ".legal__death", /\Aafter your death: tell the publisher who/
-    assert_select ".legal__banned", /write to the publisher to obtain your data/
+    assert_select ".legal__banned", /write to the publisher to contest the decision, obtain your data/
     assert_select "a[href^='mailto:']", false
   end
 
