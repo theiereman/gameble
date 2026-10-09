@@ -174,7 +174,7 @@ en:
           intro: "A few outside services take part:"
           steam: "Steam (Valve) handles sign-in and provides your profile name;"
           sentry: "Sentry (Functional Software, Inc.) receives technical errors: the page's address and the one you came from, the browser used and its language, and your internal player id, never your name or your Steam id. Your browser also sends it the page's security reports directly, with your IP address. Data hosted in the European Union;"
-          cloudflare: "Cloudflare sits in front of the site and sees its requests;"
+          cloudflare: "Cloudflare, Inc. sits in front of the site to protect and speed it up: it sees its requests, your IP address included, and processes them in the United States among other places. This transfer relies on the European Commission's adequacy decision of 10 July 2023 (Data Privacy Framework), to which Cloudflare adheres;"
           images: "card images load from Steam's content delivery network, which your browser contacts directly."
         deletion: "When you delete your account, your Steam id, your profile name, the time of your last visit, your collection, your boosters, your friendships, your invitations, your friend code and your activity feed entries are erased, your open trades are cancelled and your profile disappears. What also concerns other players, the community or moderation (past trades, first discoveries, contributions to the community goal, reports, moderation history, the log of game actions) is kept without your Steam id or your name."
         rights:

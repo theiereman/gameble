@@ -179,7 +179,7 @@ fr:
           intro: "Quelques services extérieurs interviennent :"
           steam: "Steam (Valve) gère la connexion et fournit votre nom de profil ;"
           sentry: "Sentry (Functional Software, Inc.) reçoit les erreurs techniques : l'adresse de la page et celle d'où vous venez, le navigateur utilisé et sa langue, et votre identifiant interne de joueur, jamais votre nom ni votre identifiant Steam. Votre navigateur lui envoie aussi directement les rapports de sécurité de la page, avec votre adresse IP. Données hébergées dans l'Union européenne ;"
-          cloudflare: "Cloudflare se place devant le site et voit passer ses requêtes ;"
+          cloudflare: "Cloudflare, Inc. se place devant le site pour le protéger et l'accélérer : il voit passer ses requêtes, dont votre adresse IP, et les traite notamment aux États-Unis. Ce transfert repose sur la décision d'adéquation de la Commission européenne du 10 juillet 2023 (Data Privacy Framework), à laquelle Cloudflare adhère ;"
           images: "les images des cartes se chargent depuis le réseau de diffusion de Steam, que votre navigateur contacte directement."
         deletion: "Quand vous supprimez votre compte, votre identifiant Steam, votre nom de profil, l'heure de votre dernière visite, votre collection, vos boosters, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à l'objectif communautaire, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom."
         rights:
