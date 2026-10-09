@@ -33,7 +33,7 @@ On 2026-10-09 the author settled the rule:
 
 | Epic | State | Impact |
 |---|---|---|
-| 5 Friends and trades | 12 done, 5.13 built | R5 and Done when 6 (presence) conflict, and R4 needs the private rule. The built work is not wrong, only incomplete under the new rule. Its stories are not reopened; the epic records the amendment in Notes. |
+| 5 Friends and trades | 12 done, 5.14 built | R5 and Done when 6 (presence) conflict, and R4 needs the private rule. The built work is not wrong, only incomplete under the new rule. Its stories are not reopened; the epic records the amendment in Notes. |
 | 7 Ready for the public | in progress; 7.2 (visibility setting) built | It owns `Game::Visibility` and the setting, so the new work lands here: two stories. R1 gains the rule. |
 | 6 The Brotherhood | in progress | Story 4 (the LIVE ticker) and story 8 (the Friends tab) are not built; they state the private exclusion. Story 6 (repost) is already consistent ("disappears with a hidden or banned profile"). |
 | 9, 10, 11, 12 | — | No impact. |
@@ -270,7 +270,7 @@ A private friend's dialog shows the avatar, the name and the "not available" lin
 
 Epic 5 (`epic-friends-and-trades.md`), Notes, added:
 ```
-- Amended (2026-10-09, change-profile-privacy): a private player cannot trade and a private friend's presence shows "profil privé", outside the online count; R4, R5 and Done when 5 and 6 read with that exception. Built by epic 7 (stories 16 and 17).
+- Amended (2026-10-09, change-profile-privacy): a private player cannot trade and a private friend's presence shows "profil privé", outside the online count; R4, R5 and Done when 5 and 6 read with that exception. Built by epic 7 (stories 20 and 21).
 ```
 
 Epic 7 (`epic-public-launch-readiness.md`), R1, appended:
@@ -281,7 +281,7 @@ Epic 7 (`epic-public-launch-readiness.md`), R1, appended:
 Epic 7, two new entries in `tickets.toml`:
 ```
 [[entry]]
-id = 16
+id = 20
 type = "story"
 title = "A private profile closes its social side"
 description = "Going private publishes Accounts::VisibilityChanged, and Game cancels the player's open trades, releasing every reserved copy under the lock order, while the private stream tells the partners; the settings row asks to confirm when trades are open. Game::Visibility answers open_to_friends?, which every trade operation and the trades screen ask in both directions, refusing with a message that names whose profile is private. A private friend's presence reads \"Profil privé\" and never counts online, and the friend profile shows the trades-closed line when the viewer is private."
@@ -292,17 +292,17 @@ hitl = false
 risk = "high"
 
 [[entry]]
-id = 17
+id = 21
 type = "story"
 title = "Trade from the friend row"
 description = "Adds PROPOSER UN ÉCHANGE to each friend row of the Friends screen, opening the trade in progress with that friend or a new draft, and the trades-closed line in its place when either profile is private."
 verify = "From the Friends screen a player opens the trade in progress with a friend or starts one; with a private friend, or while private, the row shows the trades-closed line instead."
 covers = ["R1"]
-after = [16]
+after = [20]
 hitl = false
 risk = "low"
 ```
-Both go before the refactor sweep (12) in build order, and the sweep's `after` gains 16 and 17.
+Both go before the refactor sweep (12) in build order, and the sweep's `after` gains 20 and 21.
 
 Epic 6 (`epic-brotherhood/tickets.toml`):
 - Story 4 (the LIVE ticker), appended to verify: "an entry naming a private or friends-only player never reaches the ticker."
@@ -312,14 +312,14 @@ Epic 6 (`epic-brotherhood/tickets.toml`):
 
 - **Scope: moderate.** Documents are amended directly; the backlog gains two stories and two story precisions.
 - **Documents (applied by the orchestrator on approval):** proposals 1 to 10 and the epic Notes and R1 text of 11.
-- **Backlog (`bmad-ticket`):** add entries 16 and 17 to epic 7 (build order before the sweep); amend the verify of epic 6 stories 4 and 8.
-- **Build (`bmad-build`):** 7.16, then 7.17, locally, with a `thorough` review for 7.16 (risk high: trade locks).
+- **Backlog (`bmad-ticket`):** add entries 20 and 21 to epic 7 (build order before the sweep); amend the verify of epic 6 stories 4 and 8.
+- **Build (`bmad-build`):** 7.20, then 7.21, locally, with a `thorough` review for 7.20 (risk high: trade locks).
 - **Success criteria:**
   - the spec, the architecture and the UX state one rule;
-  - after 7.16 and 7.17, a private player is invisible to friends beyond the friendship, cannot trade, and loses their open trades on going private;
+  - after 7.20 and 7.21, a private player is invisible to friends beyond the friendship, cannot trade, and loses their open trades on going private;
   - friends-only behaves as before.
 
 ## Notes
 
 - **The confirmation before going private (proposals 5, 7 and 8) is the orchestrator's addition,** approved in batch. Cancelling trades is not reversible, so the setting asks first when trades are open.
-- **Another session changed epic 7 while this correction ran** (stories 7.5, 7.13 and 7.14 were built). Story 7.5's `Accounts::BanPlayer` now publishes `Accounts::PlayerBanned`, so the retrospective's finding F2 is resolved there. New entries take ids 16 and 17, since 13 to 15 exist.
+- **Another session changed epic 7 while this correction ran** (stories 7.5, 7.17 and 7.18 were built). Story 7.5's `Accounts::BanPlayer` now publishes `Accounts::PlayerBanned`, so the retrospective's finding F2 is resolved there. New entries take ids 20 and 21, since 13 to 19 exist.

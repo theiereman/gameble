@@ -60,7 +60,7 @@ class Game::DropFriendsAndTradesTest < ActiveSupport::TestCase
     assert_equal "cancelled", trade.reload.status
     assert_nil holding(@bob, @depths)
     assert_equal [ 3, 0 ], holding(@alice, @portal).slice(:quantity, :reserved).values
-    assert_equal Dry::Monads::Failure(:trade_not_open), Game::AcceptTrade.new.call(player: @alice, trade_id: trade.id, seen: trade.proposed_at)
+    assert_equal Dry::Monads::Failure(:trade_not_open), Game::AcceptTrade.new.call(player: @alice, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision)
   end
 
   test "a ban cancels the player's trades on both sides, releases every reservation and keeps their cards" do
@@ -166,5 +166,41 @@ class Game::DropFriendsAndTradesTest < ActiveSupport::TestCase
 
     assert_equal [ banned.id ], Game::DropFriendsAndTradesJob.players_with_ties.pluck(:id)
     assert_equal 0, ties_of(@bob)
+  end
+
+  def flaky_cancel(failures:)
+    attempts = 0
+    operation = Game::CancelOpenTrades.new
+    lock = operation.method(:lock_open_trades)
+    operation.define_singleton_method(:lock_open_trades) do |player|
+      attempts += 1
+      raise ActiveRecord::Deadlocked, "deadlock detected" if attempts <= failures
+
+      lock.call(player)
+    end
+    [ operation, -> { attempts } ]
+  end
+
+  test "a deadlock aborts one attempt at cancelling the open trades, which tries again inside the drop's transaction, keeping every tie dropped once" do
+    trade = propose(@alice, @bob, { @portal => 2 }, { @depths => 1 })
+    cancel, attempts = flaky_cancel(failures: 1)
+    Game::CancelOpenTrades.define_singleton_method(:new) { cancel }
+    begin
+      assert Game::DropFriendsAndTrades.new.call(player: @bob).success?
+    ensure
+      Game::CancelOpenTrades.singleton_class.remove_method(:new)
+    end
+
+    assert_equal 2, attempts.call
+    assert_equal "cancelled", trade.reload.status
+    assert_equal [ 3, 0 ], holding(@alice, @portal).slice(:quantity, :reserved).values
+    assert_not friends?(@alice, @bob)
+  end
+
+  test "a deadlock that keeps coming is raised after the attempts" do
+    cancel, attempts = flaky_cancel(failures: Game::CancelOpenTrades::ATTEMPTS)
+
+    assert_raises(ActiveRecord::Deadlocked) { cancel.call(player: @bob) }
+    assert_equal Game::CancelOpenTrades::ATTEMPTS, attempts.call
   end
 end

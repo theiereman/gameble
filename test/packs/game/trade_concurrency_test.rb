@@ -48,34 +48,22 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
 
   def quantity(player, card_season_id) = Game::Holding.uncached { Game::Holding.find_by(player_id: player.id, card_season_id:)&.quantity.to_i }
 
-  # A deadlock would hang the threads: a timeout fails the test instead.
-  def together(*blocks)
-    gate = Queue.new
-    threads = blocks.map do |block|
-      Thread.new do
-        ActiveRecord::Base.connection_pool.with_connection do
-          gate.pop
-          block.call
-        end
-      end
-    end
-    blocks.size.times { gate << :go }
-    threads.map { |thread| thread.join(20) ? thread.value : flunk("a thread is stuck: deadlock") }
-  end
 
   def propose(from, to, offer, request)
     -> { Game::ProposeTrade.new.call(player: Accounts::Player.find(from.id), recipient: Accounts::Player.find(to.id), offer:, request:) }
   end
 
   def accept(player, trade)
-    seen = trade.proposed_at
-    -> { Game::AcceptTrade.new.call(player: Accounts::Player.find(player.id), trade_id: trade.id, seen:) }
+    revision = Game::Trade.find(trade.id).revision
+    -> { Game::AcceptTrade.new.call(player: Accounts::Player.find(player.id), trade_id: trade.id, revision:) }
   end
 
   test "two proposals of the same copies to two friends at once: one reserves them, the other is refused" do
     befriend(@alice, @bob)
     befriend(@alice, @carol)
     hold(@alice, @card, 2)
+    hold(@bob, @other, 1)
+    hold(@carol, @other, 1)
 
     results = together(propose(@alice, @bob, { @card => 2 }, { @other => 1 }), propose(@alice, @carol, { @card => 2 }, { @other => 1 }))
 
@@ -93,6 +81,8 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     befriend(@carol, dave)
     hold(@alice, @card, 2)
     hold(@carol, @other, 1)
+    hold(dave, @other, 1)
+    hold(dave, @card, 1)
 
     results = together(-> { Accounts::DeletePlayer.new.call(player: Accounts::Player.find(dave.id)) },
       propose(@alice, dave, { @card => 2 }, { @other => 1 }), propose(@carol, dave, { @other => 1 }, { @card => 1 }))
@@ -112,6 +102,7 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
   test "a proposal committed before its recipient goes private is cancelled by it, nothing left reserved" do
     befriend(@alice, @bob)
     hold(@bob, @other, 1)
+    hold(@alice, @card, 1)
 
     proposal, change = first_holding_the_lock(propose(@bob, @alice, { @other => 1 }, { @card => 1 }), go_private(@alice))
 
@@ -124,6 +115,7 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
   test "a proposal waiting behind its recipient going private is refused, nothing reserved" do
     befriend(@alice, @bob)
     hold(@bob, @other, 1)
+    hold(@alice, @card, 1)
 
     change, proposal = first_holding_the_lock(go_private(@alice), propose(@bob, @alice, { @other => 1 }, { @card => 1 }))
 
@@ -137,6 +129,7 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     befriend(@alice, @bob)
     befriend(@alice, @carol)
     hold(@alice, @card, 2)
+    hold(@bob, @other, 1)
     hold(@carol, @other, 1)
 
     results = together(go_private(@alice),
@@ -155,6 +148,7 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     @created = friends
     friends.each { |friend| befriend(@alice, friend) }
     hold(@alice, @card, 3)
+    friends.each { |friend| hold(friend, @other, 1) }
 
     results = together(*friends.map { |friend| propose(@alice, friend, { @card => 1 }, { @other => 1 }) })
 
@@ -200,11 +194,13 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
   test "a cancel and a decline racing on one trade: exactly one closes it and releases once" do
     befriend(@alice, @bob)
     hold(@alice, @card, 2)
+    hold(@bob, @other, 1)
     trade = propose(@alice, @bob, { @card => 2 }, { @other => 1 }).call.value!
+    revision = Game::Trade.find(trade.id).revision
 
     results = together(
       -> { Game::CancelTrade.new.call(player: Accounts::Player.find(@alice.id), trade_id: trade.id) },
-      -> { Game::DeclineTrade.new.call(player: Accounts::Player.find(@bob.id), trade_id: trade.id, seen: trade.proposed_at) }
+      -> { Game::DeclineTrade.new.call(player: Accounts::Player.find(@bob.id), trade_id: trade.id, revision:) }
     )
 
     assert_equal 1, results.count(&:success?)
@@ -217,6 +213,8 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     befriend(@alice, @bob)
     befriend(@alice, @carol)
     hold(@alice, @card, 2)
+    hold(@bob, @other, 1)
+    hold(@carol, @other, 1)
     trade = propose(@alice, @bob, { @card => 2 }, { @other => 1 }).call.value!
 
     together(

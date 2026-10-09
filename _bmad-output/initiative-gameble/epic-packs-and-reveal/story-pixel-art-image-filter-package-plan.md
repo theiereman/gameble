@@ -3,7 +3,7 @@ title: 'Pixel-art image filter package'
 type: 'feature'
 ticket: '4'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '6891e36fd0789b9e1669df9165148b3f79693c9d'
 route: 'full'
 route_source: 'auto'

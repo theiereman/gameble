@@ -5,7 +5,6 @@
 <% tone, chip = trade_chip(trade) %>
 <% form_id = TradesHelper::COUNTER_FORM_ID %>
 <% yours = trade.state == :yours %>
-<% seen = { seen: trade.proposed_at.iso8601(6) } %>
 <% own_held = local_assigns[:own_held] %>
 <% friend_held = local_assigns[:friend_held] %>
 <% body = capture do %>
@@ -42,11 +41,11 @@
   <div class="trade-board__actions">
     <% if yours %>
       <%= tag.div class: "trade-board__action-set", hidden: editing, data: { trade_board_target: "readActions" } do %>
-        <%= render ButtonComponent.new(href: accept_trade_path(token: trade.token), method: :post, params: seen) do %><%= t("trades.actions.accept") %><% end %>
+        <%= render ButtonComponent.new(href: accept_trade_path(token: trade.token), method: :post, params: { revision: trade.revision }) do %><%= t("trades.actions.accept") %><% end %>
         <span class="trade-board__action" data-trade-board-target="editButton" data-action="click->trade-board#edit">
           <%= render ButtonComponent.new(variant: :secondary, href: counter_trade_path(token: trade.token)) do %><%= t("trades.actions.counter") %><% end %>
         </span>
-        <%= render ButtonComponent.new(variant: :secondary, href: decline_trade_path(token: trade.token), method: :post, params: seen) do %><%= t("trades.actions.decline") %><% end %>
+        <%= render ButtonComponent.new(variant: :secondary, href: decline_trade_path(token: trade.token), method: :post, params: { revision: trade.revision }) do %><%= t("trades.actions.decline") %><% end %>
       <% end %>
       <%= form_with url: counter_trade_path(token: trade.token), method: :post, id: form_id, class: "trade-board__action-set",
             html: { hidden: !editing }, data: { controller: "trade-send", trade_board_target: "editActions" } do %>

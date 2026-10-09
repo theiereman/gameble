@@ -1,7 +1,8 @@
 <%# The showcase (DESIGN.md, Showcase; EXPERIENCE.md, Showcase): the
     player's latest pull of tier 4 or above (Game::NotablePull), its title,
     its line (rarity, genre and number, each left out when the card has
-    none) and "Voir la fiche". Without one, the empty showcase: a hatched
+    none), "Voir la fiche" and, while the player holds the card
+    (`repostable`), "Reposter". Without one, the empty showcase: a hatched
     frame holding a dashed card outline and the dimmed logo, its copy and
     the view's one primary button, which opens the booster screen (disabled
     with its reason when the reserve is empty). %>
@@ -19,7 +20,12 @@
       <%= pixel_icon("rarity-#{tier}", class: "hub-showcase__rarity-icon") %>
       <span><%= line.join(" · ") %></span>
     </p>
-    <%= render ButtonComponent.new(variant: :secondary, href: card_path(slug: card.id)) do %><%= t("pages.home.showcase.see_card") %><% end %>
+    <div class="hub-showcase__actions">
+      <%= render ButtonComponent.new(variant: :secondary, href: card_path(slug: card.id)) do %><%= t("pages.home.showcase.see_card") %><% end %>
+      <% if local_assigns.fetch(:repostable, false) %>
+        <%= render ButtonComponent.new(variant: :secondary, href: card_repost_path(slug: card.id, number: card.season_number), method: :post) do %><%= t("reposts.button") %><% end %>
+      <% end %>
+    </div>
   </section>
 <% else %>
   <section class="hub-showcase hub-showcase--empty" aria-labelledby="hub-showcase-name">

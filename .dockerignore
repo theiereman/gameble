@@ -47,8 +47,7 @@
 # Ignore CI service files.
 /.github
 
-# Ignore Kamal files.
-/config/deploy*.yml
+# Ignore Kamal files, but keep config/deploy*.yml: bin/rails db:connection_budget reads them in a container.
 /.kamal
 
 # Ignore development files

@@ -1,4 +1,4 @@
-# Production (AD-21): gameble.com on a VPS, not set up yet. Fill in the
+# Production: gameble.net on a VPS, not set up yet. Fill in the
 # server, then create .kamal/secrets.production (its own master key,
 # database password, Sentry DSN and Steam key) before
 #   bin/kamal deploy -d production
@@ -15,11 +15,15 @@ servers:
 
 proxy:
   ssl: true
-  host: gameble.com
+  host: gameble.net
 
 env:
   clear:
-    PUBLIC_URL: https://gameble.com
+    PUBLIC_URL: https://gameble.net
+    # The legal page's contact and host; each line is hidden while unset.
+    LEGAL_CONTACT_EMAIL: contact@gameble.net
+    # LEGAL_HOST_NAME: <host company name>
+    # LEGAL_HOST_ADDRESS: <host postal address>
 
 # registry:
 #   server: ghcr.io

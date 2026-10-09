@@ -4,14 +4,14 @@
  * epic 10 R2, R6): a bracketed panel up to 720px wide, centred, its header
  * (kicker, number at top right), then the stage (the card at card-l over a
  * ground shadow, or the viewer's card back at 55% for a card not held) and
- * the information (title, position line, description, fact rows, notice,
- * share link, actions). Two columns, stage and information, when the panel
+ * the information (title, position line, description, fact rows, share
+ * link, actions). Two columns, stage and information, when the panel
  * is wide enough (a container query, so a narrow right-hand panel stacks
  * them too); one column otherwise.
  *
- * Under 720px (the phone sub-view): ◀ ▶ beside the card, 44 × 64, the
- * position line shown and the header's number hidden (the line carries
- * it), the actions pinned above the tab bar. A step between cards
+ * ◀ ▶ beside the card, 44 × 64, at every width. Under 720px (the phone
+ * sub-view): the position line shown and the header's number hidden (the
+ * line carries it), the actions pinned above the tab bar. A step between cards
  * (sub_view_controller.ts) slides the card out toward the step and the
  * next one in with a slight turn, in a View Transition; under reduced
  * motion nothing moves (styles/shell.css drops every View Transition
@@ -110,10 +110,11 @@
   opacity: 0.7;
 }
 
-/* ◀ and ▶: shown on the phone only. A link, or a disabled button at an
-   end of the set (the position line says where the card stands). */
+/* ◀ and ▶, at every width: a link, or a disabled button at an end of
+   what the detail browses (on the phone the position line says where the
+   card stands). */
 .card-detail__nav {
-  display: none;
+  display: inline-flex;
   flex: none;
   align-items: center;
   justify-content: center;
@@ -250,8 +251,7 @@
   text-transform: uppercase;
 }
 
-.card-detail__description,
-.card-detail__notice {
+.card-detail__description {
   margin: 0;
 }
 
@@ -319,12 +319,6 @@
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-/* The ownership notice, under the facts of every card. */
-.card-detail__notice {
-  color: var(--color-muted);
-  font: var(--font-body-small);
 }
 
 /* The share sheet, "PARTAGER LA CARTE" (DESIGN.md, Share sheet): a
@@ -425,14 +419,15 @@
   margin: 0;
 }
 
-/* "Voir sur Steam" (the one primary) and "Partager". */
+/* "Voir sur Steam" (the one primary), "Partager" and "Reposter". */
 .card-detail__actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
 }
 
-.card-detail__actions .button {
+.card-detail__actions .button,
+.card-detail__actions .button-form {
   margin: 0;
 }
 
@@ -478,10 +473,6 @@
     display: none;
   }
 
-  .card-detail__nav {
-    display: inline-flex;
-  }
-
   .card-detail__position {
     display: block;
   }
@@ -490,6 +481,11 @@
      so a focused set link or share field is never hidden behind them. */
   html:has(.card-detail__actions) {
     scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height));
+  }
+
+  html:has(.card-detail__actions .button-form) {
+    scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height)
+      + var(--space-button-height-phone) + var(--space-4));
   }
 
   /* Pinned above the tab bar while the information scrolls under them. */
@@ -504,8 +500,13 @@
     box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line);
   }
 
-  .card-detail__actions .button {
+  .card-detail__actions .button,
+  .card-detail__actions .button-form {
     flex: 1 1 0;
+  }
+
+  .card-detail__actions .button-form .button {
+    width: 100%;
   }
 }
 
@@ -581,8 +582,8 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
 
 /* ---- The public card page (DESIGN.md, Public card page; story 10.3): no
    app chrome. The card at card-xl and its information side by side, both
-   capped at 1180px and centred; one column under 720px. The LIVE strip and
-   the legal notice below are inert placeholders. ---- */
+   capped at 1180px and centred; one column under 720px. Below, the LIVE
+   strip, an inert placeholder, and the footer's link to the legal page. ---- */
 
 .public-card {
   display: flex;
@@ -736,7 +737,7 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   }
 }
 
-/* ---- LIVE · En ce moment sur gameble (placeholders) ---- */
+/* ---- LIVE strip of the public card page ---- */
 
 .public-card__live {
   display: flex;
@@ -755,31 +756,6 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   text-transform: uppercase;
 }
 
-/* The LIVE marker: the word on an accent block with a dark square that
-   blinks once a second, the only blinking element (DESIGN.md, Elevation).
-   It stays lit under reduced motion. */
-.live-marker {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1) var(--space-3);
-  background: var(--color-accent);
-  color: var(--color-on-accent);
-}
-
-.live-marker__dot {
-  width: 6px;
-  height: 6px;
-  background: var(--color-on-accent);
-  animation: live-blink 1s steps(1, end) infinite;
-}
-
-@keyframes live-blink {
-  50% {
-    opacity: 0;
-  }
-}
-
 .public-card__live-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -790,9 +766,34 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
 }
 
 .public-card__live-entry {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-3);
   min-height: 68px;
-  background: var(--color-panel-sunken);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel);
   box-shadow: var(--panel-soft-border);
+}
+
+.public-card__live-entry--filler {
+  background: var(--color-panel-sunken);
+}
+
+.public-card__live-sentence {
+  margin: 0;
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.public-card__live-sentence strong {
+  color: var(--color-text-max);
+  font-weight: inherit;
+}
+
+.public-card__live-empty {
+  margin: 0;
+  color: var(--color-muted);
 }
 
 .public-card__footer {
@@ -800,12 +801,20 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   border-top: var(--space-unit) solid var(--color-line-soft);
 }
 
-/* "Mentions légales": a muted placeholder, no page behind it yet. */
+/* "Mentions légales": a muted link to the legal page, accent on hover. */
 .public-card__legal {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-touch-min);
   color: var(--color-muted);
   font: var(--font-button-sm);
   letter-spacing: var(--tracking-button-sm);
+  text-decoration: none;
   text-transform: uppercase;
+}
+
+.public-card__legal:hover {
+  color: var(--color-accent);
 }
 
 @media (max-width: 719px) {
@@ -845,21 +854,4 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   html:has(.public-card) {
     scroll-padding-bottom: 0;
   }
-}
-
-/* The LIVE ticker (epics 5 and 6) is not built yet. Its hooks are here: the
-   marker's dot stops blinking, staying lit (the rule below, and the same
-   one under html[data-motion=reduced]), and its band keeps its height
-   token (--space-ticker-height, tokens.css) whatever the motion. The
-   ticker's own scrolling line must join both reduced-motion rules when it
-   is built (EXPERIENCE.md, LIVE ticker: stops, shows its latest items
-   still). */
-@media (prefers-reduced-motion: reduce) {
-  .live-marker__dot {
-    animation: none;
-  }
-}
-
-html[data-motion="reduced"] .live-marker__dot {
-  animation: none;
 }

@@ -1,0 +1,6 @@
+<% if Game::Visibility.open_to_friends?(friend) %>
+  <%= link_to brother_path(token: friend.token), class: "button button--secondary button--small friends__profile-link",
+        aria: { label: t("friends.public_profile.named", name: friend_name(friend)) } do %>
+    <span class="button__label"><%= t("friends.public_profile.label") %></span>
+  <% end %>
+<% end %>

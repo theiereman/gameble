@@ -116,14 +116,12 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".missing-slot svg.pixel-icon.missing-slot__icon"
     assert_select ".missing-slot .visually-hidden", { count: 60 - expected.count { it.first == :owned }, text: "Missing card" }
     # Every face and missing slot leads to its card's detail in this season,
-    # browsing the card's tome (a card in no tome, without a set).
+    # carrying the grid's filters and search, so the detail walks this grid.
     slugs = Catalog::CardSeason.where(id: cards.first(60)).includes(:card).index_by(&:id).transform_values { it.card.slug }
-    tome_of = %w[action-1 action-2 action-3 rpg-1].flat_map { |key| set_members(season, key).map { [ it, key ] } }.to_h
     links = css_select(".collection-grid > li > a.card-link")
     assert_equal cards.first(60).map { |id|
-      "/en/cards/#{slugs.fetch(id)}/seasons/#{season.number}#{"?set_key=#{tome_of[id]}&set_kind=tome" if tome_of[id]}"
+      "/en/cards/#{slugs.fetch(id)}/seasons/#{season.number}?grid%5Bq%5D=&grid%5Bstate%5D%5B%5D=all"
     }, links.map { it["href"] }
-    assert links.any? { !it["href"].include?("?") }, "a card in no tome"
     assert links.all? { it["data-turbo-prefetch"] == "false" }
     assert_select "a.card-link .collection-slot__copies", false
     assert_select ".collection-pages[aria-label=?]", "Pages of cards" do
@@ -136,24 +134,56 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
-  test "on the whole season a held card's link and a missing one's name the card's tome, so its detail browses it" do
+  test "a held card's link and a missing one's carry the grid's filters and search; a set's page adds its set" do
     season = publish_sets_draft
     player = accounts_players(:player)
-    page_one = season_cards(season).first(60)
-    held, missing = page_one.select { it.in?(set_members(season, "rpg-1")) }.first(2)
-    assert missing, "two cards of rpg-1 on the first page"
+    held, missing = season_cards(season).first(2)
     hold(player, held, 1)
     sign_in(player)
-    href = ->(id) { "/en/cards/#{Catalog::CardSeason.find(id).card.slug}/seasons/#{season.number}?set_key=rpg-1&set_kind=tome" }
+    query = ->(params) { { grid: params }.to_query }
+    href = ->(id, params) { "/en/cards/#{Catalog::CardSeason.find(id).card.slug}/seasons/#{season.number}?#{query.(params)}" }
 
-    get library_path(locale: :en, state: %w[all])
+    get library_path(locale: :en, state: %w[all], rarity: %w[nope], q: " seed ", kind: "publisher", page: 1)
 
-    assert_select ".collection-grid a.card-link[href=?] .card", href.(held)
-    assert_select ".collection-grid a.card-link[href=?] .missing-slot", href.(missing)
+    context = { state: %w[all], rarity: %w[nope], q: "seed" }
+    assert_select ".collection-grid a.card-link[href=?] .card", href.(held, context)
+    assert_select ".collection-grid a.card-link[href=?] .missing-slot", href.(missing, context)
 
-    # A set's page names its own set, never the tome.
-    get library_set_path(locale: :en, kind: "publisher", key: "p", state: %w[all])
-    assert_equal [ "?set_key=p&set_kind=publisher" ] * 5, css_select(".collection-grid a.card-link").map { it["href"][/\?.*/] }
+    # The owned cards by default: only the search, always there.
+    get library_path(locale: :en)
+    assert_equal [ href.(held, { q: "" }) ], css_select(".collection-grid a.card-link").map { it["href"] }
+
+    get library_set_path(locale: :en, kind: "publisher", key: "p", state: %w[all], genre: %w[action])
+    assert_equal [ "?#{query.({ genre: %w[action], key: "p", kind: "publisher", q: "", state: %w[all] })}" ] * 3,
+      css_select(".collection-grid a.card-link").map { it["href"][/\?.*/] }
+  end
+
+  test "a grid filtered on new cards: its links carry the watermark it was shown against, at one query more; no other grid's do" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    first, second = season_cards(season).first(2)
+    hold(player, first, 1, gained_at: 2.hours.ago)
+    hold(player, second, 1, gained_at: 1.minute.ago)
+    watermark = Time.utc(2026, 10, 8, 9, 30, 15.123456r)
+    Game::PlayerState.where(player_id: player.id).update_all(collection_seen_up_to: watermark)
+    sign_in(player)
+
+    # The fifteen of a player's whole season, the state asked sparing the
+    # count read again from the query cache and adding the watermark.
+    assert_request_queries(16) { get library_path(locale: :en, state: %w[new duplicates]) }
+    seen = css_select(".collection-grid a.card-link").map { Rack::Utils.parse_nested_query(URI(it["href"]).query).dig("grid", "seen") }
+    assert_equal [ "2026-10-08T09:30:15.123456Z" ] * 2, seen
+
+    get library_path(locale: :en, state: %w[owned])
+    assert_select ".collection-grid a.card-link", 2
+    assert_select ".collection-grid a.card-link[href*=seen]", false
+
+    # A player who has seen no card yet: a watermark before any gain, so
+    # the detail still finds every card new once the grid has moved it.
+    Game::PlayerState.where(player_id: player.id).update_all(collection_seen_up_to: nil)
+    get library_path(locale: :en, state: %w[new])
+    seen = css_select(".collection-grid a.card-link").map { Rack::Utils.parse_nested_query(URI(it["href"]).query).dig("grid", "seen") }
+    assert_equal [ "1970-01-01T00:00:00.000000Z" ] * 2, seen
   end
 
   test "the grid's pages: sixty cards each, the rest on the last, past it the empty line" do
@@ -205,8 +235,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     player.update_columns(banned_at: Time.current)
 
     assert_no_queries_match(/game_holdings|game_player_states/) do
-      # The visitor's nine, after the lookup that finds the ban.
-      assert_request_queries(1 + 9) { get library_path(locale: :en) }
+      # The visitor's eight, after the lookup that finds the ban.
+      assert_request_queries(1 + 8) { get library_path(locale: :en) }
     end
 
     assert_response :success
@@ -425,7 +455,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a player's request costs sixteen queries, a visitor's nine" do
+  test "a player's request costs fifteen queries, a visitor's eight" do
     season = publish_sets_draft
     player = accounts_players(:player)
     hold(player, season_cards(season).first, 1, gained_at: 1.minute.ago)
@@ -434,15 +464,15 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # Player lookup, published season; the list: count, page, totals,
     # progress; the grid: genres, count (the season's cards, read again from
     # the query cache by the top bar; filtered by state it is its own query),
-    # page, card views, the player's slots,
-    # the cards' tomes (the whole season only: their links name them); the
-    # figures: unique cards, copies per tier; the tab bar's trades waiting.
-    assert_request_queries(16) { get library_path(locale: :en) }
+    # page, card views, the player's slots; the figures: unique cards,
+    # copies per tier; the tab bar's trades waiting. No tome per card: the
+    # links carry the grid, which the detail reads itself.
+    assert_request_queries(15) { get library_path(locale: :en) }
 
     delete session_path(locale: :en)
     # The same without the lookup, the progress, the slots, the unique cards
     # and the copies per tier.
-    assert_request_queries(9) { get library_path(locale: :en) }
+    assert_request_queries(8) { get library_path(locale: :en) }
   end
 
   test "the collection opens on the owned cards, newest gained first, FILTRES folded with no count" do

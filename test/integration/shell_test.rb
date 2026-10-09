@@ -188,7 +188,7 @@ class ShellTest < ActionDispatch::IntegrationTest
       assert_select ".atmosphere__scanlines"
       assert_select ".atmosphere__vignette"
     end
-    assert_select "body > header.top-bar + main#main.main"
+    assert_select "body > header.top-bar + #live-ticker.ticker + main#main.main"
     assert_select "body:not(.is-back-office)"
   end
 

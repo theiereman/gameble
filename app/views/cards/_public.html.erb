@@ -3,14 +3,17 @@
     The card at card-xl, tilting under the pointer, and beside it the
     title, publisher, the "rarity, genre, year, number" line, the
     description, "Voir sur Steam", and the invitation to play. Below, the
-    LIVE strip and the legal notice, both inert placeholders until the feed
-    and the legal page exist (epics 6 and 7). It names no one (CAP-9) and
-    shows no app chrome (the layout's top bar is the slim one).
+    LIVE strip of the three latest public feed entries, kept current by the
+    public live stream, and the footer's link to the legal page. It never
+    names who shared or holds the card (the strip names only the feed's
+    public players) and shows no app chrome (the layout's top bar is the
+    slim one).
     The invitation needs an account, which Steam's sign-in gives only to a
     modern browser: the invitation is hidden and the update line shown unless
     the browser supports :has() (styles/card-detail.css), so no script sniffs
     the browser. Locals:
-    - detail: a Catalog::CardDetail::Detail. %>
+    - detail: a Catalog::CardDetail::Detail;
+    - live: the strip's entries ([ entry, card ] pairs, FeedItems). %>
 <% view = detail.view %>
 <% strings = CardStrings.new %>
 <% tier = Catalog::Rarity::TIERS.invert.fetch(view.rarity.to_sym) %>
@@ -33,12 +36,8 @@
       <% if detail.short_description %>
         <p class="public-card__description"><%= detail.short_description %></p>
       <% end %>
-      <%= link_to card_detail_store_url(detail.store_url), class: "button button--link public-card__store",
-        rel: "noopener noreferrer external", target: "_blank" do %>
-        <span class="button__label"><%= t("card_details.store") %></span>
-        <span class="visually-hidden"><%= t("card_details.new_tab") %></span>
-        <%= pixel_icon("external", class: "button__icon") %>
-      <% end %>
+      <%= external_link_to t("card_details.store"), card_detail_store_url(detail.store_url), button: true,
+        class: "button button--link public-card__store" %>
 
       <%# Opens the sign-in panel; signing in lands on the hub, where the
           boosters wait. The page's one primary action. %>
@@ -53,18 +52,15 @@
 
   <section class="public-card__live" aria-labelledby="public-card-live">
     <h2 id="public-card-live" class="public-card__live-title">
-      <span class="live-marker"><span class="live-marker__text"><%= t("cards.show.live.marker") %></span><span class="live-marker__dot" aria-hidden="true"></span></span>
+      <%= render "shell/live_marker" %>
       <span aria-hidden="true">·</span>
       <%= t("cards.show.live.title") %>
     </h2>
-    <ul class="public-card__live-list" aria-hidden="true">
-      <li class="public-card__live-entry"></li>
-      <li class="public-card__live-entry"></li>
-      <li class="public-card__live-entry"></li>
-    </ul>
+    <%= render "cards/live_strip", items: live %>
+    <%= turbo_stream_from(*LiveStream.feed_streamables) %>
   </section>
 
   <footer class="public-card__footer">
-    <span class="public-card__legal"><%= t("cards.show.legal") %></span>
+    <%= link_to t("cards.show.legal"), legal_path, class: "public-card__legal" %>
   </footer>
 </article>

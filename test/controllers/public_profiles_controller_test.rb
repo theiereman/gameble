@@ -314,6 +314,24 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal unknown, css_select("main").to_html
   end
 
+  test "a profile banned by a moderator is the unavailable page, and shows again once unbanned" do
+    publish_sets_draft
+    moderator = accounts_players(:moderator)
+
+    Accounts::BanPlayer.new.call(staff: moderator, player: @owner, reason: "Cheating").value!
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_response :not_found
+    assert_select "title", "Profile not available"
+    assert_not_includes response.body, "Gabe the Brave"
+
+    Accounts::UnbanPlayer.new.call(staff: moderator, player: @owner).value!
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_response :success
+    assert_includes response.body, "Gabe the Brave"
+  end
+
   test "a private or friends-only owner is the unavailable page for a visitor and a stranger, not for the owner" do
     publish_sets_draft
     stranger = Accounts::Player.create!(steam_id: "76561197960390101")

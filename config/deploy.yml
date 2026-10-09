@@ -8,7 +8,7 @@ image: gameble
 # share; config/deploy.<destination>.yml adds their servers, host and
 # PUBLIC_URL, and .kamal/secrets.<destination> their secrets.
 #   bin/kamal deploy -d staging      # gameble.dotsncircles.com, home lab
-#   bin/kamal deploy -d production   # gameble.com, a VPS (not set up yet)
+#   bin/kamal deploy -d production   # gameble.net, a VPS (not set up yet)
 #
 # Roles, with their hosts in each destination file: web, and the Steam import
 # worker (AD-19, AD-21), the same image as one process with one thread on the

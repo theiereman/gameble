@@ -3,7 +3,7 @@ title: 'Feed tracer: a public feed of notable pulls'
 type: 'feature'
 ticket: '1'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '5f2234259ab0ab5c964a99fd280cd21363c940b5'
 route: 'full'
 route_source: 'auto'

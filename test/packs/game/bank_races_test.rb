@@ -51,7 +51,9 @@ class Game::BankRacesTest < ActiveSupport::TestCase
   end
 
   # Runs the blocks at once, each on its own connection with a fresh copy of
-  # the player, and returns their results in order.
+  # the player, and returns their results in order. A deadlock Postgres
+  # detects raises ActiveRecord::Deadlocked from its thread; a thread that
+  # never returns fails the test instead of hanging it.
   def race(*blocks)
     gate = Queue.new
     threads = blocks.map do |block|
@@ -63,7 +65,7 @@ class Game::BankRacesTest < ActiveSupport::TestCase
       end
     end
     blocks.size.times { gate << :go }
-    threads.map(&:value)
+    threads.map { |thread| thread.join(20) ? thread.value : flunk("a thread is stuck: deadlock") }
   end
 
   def heal = ->(player) { Game::HealBank.new.call(player:) }
@@ -169,5 +171,42 @@ class Game::BankRacesTest < ActiveSupport::TestCase
     assert_equal 1, Game::Pack.where(player_id: @player.id).bonus.unopened.count
     assert_empty topped_up
     assert_unique_schedule(Time.current)
+  end
+
+  test "an opening, a daily bonus and a heal at once on a short bank: both succeed, ten packs and the bonus, each pack spent once" do
+    4.times { |index| create_pack(@player, available_at: (index + 1).minutes.ago) }
+    2.times { |index| create_pack(@player, available_at: (index + 1).minutes.from_now) }
+    open_unpublished(@player, 3)
+
+    opening, collected, healing = race(open, bonus, heal)
+
+    # One available pack and the healed ones at most: the reserve is never
+    # full, and the opening takes the oldest pack, whichever runs first.
+    assert_predicate opening, :success?
+    assert_predicate opening.value!, :regular?
+    assert_predicate collected, :success?
+    assert_equal 7, healing.value!
+    assert_equal 10, bank.count
+    assert_equal 1, Game::Pack.where(player_id: @player.id).bonus.unopened.count
+    assert_equal [ { player_id: @player.id, packs: 7 } ], topped_up
+    assert_spent_once(@player)
+  end
+
+  test "two openings and a heal at once on the last available pack: each pack opened once, ten packs" do
+    3.times { |index| create_pack(@player, available_at: (index + 1).minutes.ago) }
+    open_unpublished(@player, 2)
+
+    *openings, healing = race(open, open, heal)
+
+    # Before the heal commits, the second opening finds only the last pack's
+    # scheduled replacement.
+    opened = openings.select(&:success?).map(&:value!)
+    assert_not_empty opened
+    assert_equal opened.map(&:id).uniq, opened.map(&:id)
+    openings.reject(&:success?).each { |refused| assert_equal :no_pack_available, refused.failure }
+    assert_equal 9, healing.value!
+    assert_equal 10, bank.count
+    assert_equal 2 + opened.size, Game::Pack.where(player_id: @player.id).where.not(opened_at: nil).count
+    assert_spent_once(@player)
   end
 end

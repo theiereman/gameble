@@ -54,7 +54,7 @@ class Game::PlayerActivityTest < ActiveSupport::TestCase
     end
 
     travel_to(@now + 2.minutes) do
-      Game::AcceptTrade.new.call(player: @alice, trade_id: trade.id, seen: trade.reload.proposed_at).value!
+      Game::AcceptTrade.new.call(player: @alice, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision).value!
       assert_equal [ "trading", @now + 2.minutes ], activity(@alice)
     end
   end
@@ -70,7 +70,7 @@ class Game::PlayerActivityTest < ActiveSupport::TestCase
       trade = Game::ProposeTrade.new.call(player: @alice, recipient: @bob, offer: { one => 1 }, request:).value!
       assert_equal [ "trading", @now ], activity(@alice)
 
-      Game::DeclineTrade.new.call(player: @bob, trade_id: trade.id, seen: trade.proposed_at).value!
+      Game::DeclineTrade.new.call(player: @bob, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision).value!
       assert_equal [ "trading", @now ], activity(@bob)
     end
 

@@ -1,20 +1,21 @@
 module Game
-  # An entry of the activity feed (CAP-13, AD-10): one card of an opened
-  # pack, named by the player who pulled it. `notable` entries are pulls of
-  # Épique or better; a filler is the best card of a pack that held none,
-  # kept so a quiet feed is never empty (R4). Unique per pack and position.
-  # Its `kind` is what the feed's type filters read (story 6.2); pulls and
-  # first discoveries (story 6.7, `notable` whatever their rarity) are
-  # written only by Game::Handlers::PackOpenedFeed, in the opening's
-  # transaction; visibility is not stored but asked when it is shown (AD-13).
+  # An entry of the activity feed, named by its player. A pull or a first
+  # discovery is one card of an opened pack, unique per pack and position,
+  # written only by Game::Handlers::PackOpenedFeed in the opening's
+  # transaction: `notable` pulls are Épique or better, a filler is the best
+  # card of a pack that held none, kept so a quiet feed is never empty, and a
+  # discovery is notable whatever its rarity. A repost is a card a player
+  # shared, with no pack, written only by Game::Handlers::CardRepostedFeed.
+  # Its `kind` is what the feed's type filters read; visibility is not
+  # stored but asked when it is shown.
   class FeedEntry < ApplicationRecord
     self.table_name = "game_feed_entries"
 
     # The lowest tier of a notable pull (Catalog::Rarity::TIERS: Épique).
     NOTABLE_TIER = 4
 
-    # The kinds of entry (the database checks the same list): pulls and
-    # first discoveries now, trades and reposts from their own stories.
+    # The kinds of entry (the database checks the same list); only pulls and
+    # discoveries carry a pack and a position.
     KINDS = %w[pull discovery trade repost].freeze
 
     scope :newest_first, -> { order(occurred_at: :desc, id: :desc) }
@@ -42,6 +43,12 @@ module Game
           notable:, occurred_at: now, created_at: now, updated_at: now }
       end
       insert_all(rows, unique_by: %i[pack_id position], record_timestamps: false)
+    end
+
+    def self.record_repost(player_id:, card_season_id:, at:)
+      rarity = Catalog::CardSeason.where(id: card_season_id).pick(:rarity)
+      create!(kind: "repost", player_id:, card_season_id:, rarity: Catalog::Rarity::TIERS.key(rarity.to_sym),
+        notable: true, occurred_at: at)
     end
   end
 end

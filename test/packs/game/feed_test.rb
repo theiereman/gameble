@@ -17,13 +17,13 @@ class Game::FeedTest < ActiveSupport::TestCase
 
   def entries = Game::FeedEntry.order(:id).pluck(:position, :notable, :rarity)
 
-  # Feed rows of `kind` written straight, newest last, on a pack of `player`
-  # (trades and reposts have no handler yet).
+  # Feed rows of `kind` written straight, newest last: pulls and discoveries
+  # on a pack of `player`, trades and reposts with none.
   def add_entries(player, count, kind: "pull", notable: true, from: 1.hour.ago)
-    pack = create_pack(player)
-    rows = Array.new(count) do |position|
-      at = from + position.seconds
-      { kind:, player_id: player.id, pack_id: pack.id, card_season_id: fixture_tier_ids[3], position:,
+    pack = create_pack(player) if %w[pull discovery].include?(kind)
+    rows = Array.new(count) do |index|
+      at = from + index.seconds
+      { kind:, player_id: player.id, pack_id: pack&.id, card_season_id: fixture_tier_ids[3], position: (index if pack),
         rarity: 4, notable:, occurred_at: at, created_at: at, updated_at: at }
     end
     Game::FeedEntry.insert_all!(rows)
@@ -148,11 +148,13 @@ class Game::FeedTest < ActiveSupport::TestCase
   test "a kind shows only its entries, the whole feed shows every kind" do
     open_pack(@player, [ fixture_tier_ids[3] ])
     add_entries(@other, 1, kind: "trade")
+    add_entries(@other, 2, kind: "repost")
 
     assert_equal [ "trade" ], Game::FeedEntries.call(nil, kind: "trade").map { |item| item.entry.kind }
     assert_equal [ "pull" ], Game::FeedEntries.call(nil, kind: "pull").map { |item| item.entry.kind }
-    assert_equal %w[pull trade], Game::FeedEntries.call(nil).map { |item| item.entry.kind }.uniq.sort
-    assert_empty Game::FeedEntries.call(nil, kind: "repost")
+    assert_equal %w[repost repost], Game::FeedEntries.call(nil, kind: "repost").map { |item| item.entry.kind }
+    assert_equal %w[pull repost trade], Game::FeedEntries.call(nil).map { |item| item.entry.kind }.uniq.sort
+    assert_empty Game::FeedEntries.call(nil, kind: "discovery")
   end
 
   test "fillers complete the whole feed and the pulls, never another kind" do
@@ -183,5 +185,40 @@ class Game::FeedTest < ActiveSupport::TestCase
 
     assert_equal [ @player ], shown.map(&:player)
     assert shown.all?(&:filler)
+  end
+
+  test "players restricts the notable entries to those players, under every kind" do
+    stranger = accounts_players(:administrator)
+    add_entries(@other, 2)
+    add_entries(@other, 1, kind: "trade")
+    add_entries(stranger, 3)
+    add_entries(stranger, 1, kind: "repost")
+
+    shown = Game::FeedEntries.call(@player, players: [ @other.id ])
+
+    assert_equal [ @other ], shown.map(&:player).uniq
+    assert_equal %w[pull trade], shown.map { |item| item.entry.kind }.uniq.sort
+    assert_equal [ @other ], Game::FeedEntries.call(@player, kind: "pull", players: [ @other.id ]).map(&:player).uniq
+    assert_empty Game::FeedEntries.call(@player, kind: "repost", players: [ @other.id ])
+    assert_empty Game::FeedEntries.call(@player, players: [])
+  end
+
+  test "players restricts the fillers too" do
+    stranger = accounts_players(:administrator)
+    add_entries(@other, 2, notable: false)
+    add_entries(stranger, 3, notable: false)
+
+    shown = Game::FeedEntries.call(@player, players: [ @other.id ])
+
+    assert_equal [ @other ] * 2, shown.map(&:player)
+    assert shown.all?(&:filler)
+    assert_equal [ @other ] * 2, Game::FeedEntries.call(@player, kind: "pull", players: [ @other.id ]).map(&:player)
+  end
+
+  test "players keeps Game::Visibility: a private one of them stays hidden" do
+    add_entries(@other, 2)
+    @other.update!(visibility: :private)
+
+    assert_empty Game::FeedEntries.call(@player, players: [ @other.id ])
   end
 end

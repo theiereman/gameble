@@ -6,7 +6,8 @@ module Accounts
   #
   # The row is locked FOR NO KEY UPDATE before publishing, as
   # Accounts::DeletePlayer does, and the refusal is read again from the
-  # locked row, so a promotion committed meanwhile counts. `banned_at` is
+  # locked row and a fresh read of the member of staff, so a promotion, a
+  # demotion or a ban committed meanwhile counts. `banned_at` is
   # written last: that write rotates the unique stream key, so it takes FOR
   # UPDATE.
   #
@@ -30,6 +31,7 @@ module Accounts
 
       transaction do
         player.lock!("FOR NO KEY UPDATE")
+        staff = Player.find_by(id: staff.id)
         step permitted(staff, player)
         step publish(PlayerBanned.new(data: { player_id: player.id, staff_id: staff.id }), stream_name: "Accounts::Player$#{player.id}")
         now = Time.current

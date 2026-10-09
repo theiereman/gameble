@@ -1,7 +1,9 @@
 require "application_system_test_case"
+require_relative "../support/game_packs"
 
 class LiveUpdatesTest < ApplicationSystemTestCase
   include ActiveJob::TestHelper
+  include GamePacks
 
   setup do
     @hugo = accounts_players(:player)
@@ -38,6 +40,30 @@ class LiveUpdatesTest < ApplicationSystemTestCase
   end
 
   def not_reloaded? = page.evaluate_script("window.liveMark === true")
+
+  def listening_to_all
+    assert_selector "turbo-cable-stream-source[connected]", visible: :all
+    assert_no_selector "turbo-cable-stream-source:not([connected])", visible: :all
+    page.execute_script("window.liveMark = true")
+  end
+
+  def open_epic(player)
+    create_pack(player, cards: [ @portal ] * 5)
+    Game::OpenPack.new.call(player:).value!
+  end
+
+  def goal_figures
+    goal = Game::CurrentGoal.call
+    [ goal[:total], goal[:target] ].map { ActiveSupport::NumberHelper.number_to_delimited(it) }.join(" / ")
+  end
+
+  def ticker_states = page.evaluate_script("document.querySelector('#live-ticker .ticker__track').getAnimations().map((a) => a.playState)")
+
+  def assert_ticker_states(expected)
+    page.document.synchronize do
+      raise Capybara::ExpectationNotMet, "ticker animations: #{ticker_states.inspect}" unless ticker_states == expected
+    end
+  end
 
   def deliver = perform_enqueued_jobs(only: PlayerStreamJob)
 
@@ -83,6 +109,7 @@ class LiveUpdatesTest < ApplicationSystemTestCase
   test "a friend going private closes the open trade on the partner's board without a reload" do
     befriend(@hugo, @lea)
     Game::Holding.create!(player_id: @hugo.id, card_season_id: @portal, quantity: 4, reserved: 0)
+    Game::Holding.create!(player_id: @lea.id, card_season_id: @depths, quantity: 1, reserved: 0)
     trade = Game::ProposeTrade.new.call(player: @hugo, recipient: @lea, offer: { @portal => 2 }, request: { @depths => 1 }).value!
 
     sign_in @lea
@@ -215,6 +242,103 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     assert_equal [ "outside the swap" ], page.evaluate_script("window.renders").uniq
     within(".trade-side--own") { assert_selector ".trade-card__new", text: /NEW/i }
     assert not_reloaded?
+  end
+
+  test "a public player's opening moves the other browsers' gauge at the next tick and tops their feed, without a reload" do
+    Game::SumWeeklyGoalJob.new.perform
+    visit home_path(locale: :en)
+    assert_selector "#community-goal .hub-goal__figures", text: goal_figures
+    listening_to_all
+    using_session("feed") do
+      visit feed_path(locale: :en)
+      assert_selector ".feed__empty", text: "Nothing here yet."
+      listening_to_all
+    end
+
+    open_epic(@hugo)
+    perform_enqueued_jobs(only: LiveFeedJob)
+    Game::SumWeeklyGoalJob.new.perform
+    LiveGoalJob.perform_now
+
+    assert_equal 1, Game::CurrentGoal.call[:total]
+    assert_selector "#community-goal .hub-goal__figures", text: goal_figures
+    assert_selector "#live-ticker [data-ticker-target=run] > .ticker__item", text: "Hugo pulled Portal", count: 5, visible: :all
+    assert not_reloaded?
+    using_session("feed") do
+      assert_selector "#feed-entries > li.feed__entry", count: 5
+      assert_selector "#feed-entries > li:first-child .feed__sentence", text: "Hugo pulled Portal"
+      assert_no_selector ".feed__empty"
+      assert not_reloaded?
+    end
+  end
+
+  test "the live feed keeps its newest entries up to the feed's limit" do
+    (Game::FeedEntries::LIMIT / 5).times { open_epic(@hugo) }
+    visit feed_path(locale: :en)
+    assert_selector "#feed-entries > li.feed__entry", count: Game::FeedEntries::LIMIT
+    listening_to_all
+
+    create_pack(@hugo, cards: [ catalog_card_seasons(:legendary_card_one).id ] * 5)
+    Game::OpenPack.new.call(player: @hugo).value!
+    perform_enqueued_jobs(only: LiveFeedJob)
+
+    assert_selector "#feed-entries > li.feed__entry:nth-child(-n+5) .feed__tag--legendary", count: 5
+    assert_selector "#feed-entries > li.feed__entry", count: Game::FeedEntries::LIMIT
+    assert not_reloaded?
+  end
+
+  test "the hub's ticker scrolls, joins new items at the loop boundary, pauses under the pointer and stands still under reduced motion" do
+    open_epic(@hugo)
+    visit home_path(locale: :en)
+
+    assert_selector "#live-ticker[data-ticker-state=scrolling] [data-ticker-target=run] > .ticker__item", count: 5, visible: :all
+    assert_ticker_states([ "running" ])
+
+    in_view = page.evaluate_script(<<~JS)
+      (() => {
+        const run = document.querySelector("#live-ticker [data-ticker-target=run]")
+        const items = Array.from(run.children)
+        items.forEach((item, place) => { item.dataset.place = place })
+        const width = document.querySelector("#live-ticker .ticker__window").clientWidth
+        return items.filter((item) => item.getBoundingClientRect().left - run.getBoundingClientRect().left < width).length
+      })()
+    JS
+    page.execute_script(<<~JS)
+      const queue = document.getElementById("live-ticker-queue")
+      const model = document.querySelector("#live-ticker [data-ticker-target=run] > .ticker__item")
+      for (let arrival = 0; arrival < 10; arrival += 1) {
+        const item = model.cloneNode(true)
+        delete item.dataset.place
+        item.dataset.arrived = arrival
+        queue.append(item)
+      }
+    JS
+    assert_selector "#live-ticker-queue > [data-arrived]", count: 10, visible: :all
+    assert_no_selector "#live-ticker [data-ticker-target=run] > [data-arrived]", visible: :all
+    page.execute_script(<<~JS)
+      const loop = document.querySelector("#live-ticker .ticker__track").getAnimations()[0]
+      loop.currentTime = loop.effect.getComputedTiming().duration - 100
+    JS
+    assert_selector "#live-ticker [data-ticker-target=run] > [data-arrived]", visible: :all
+    assert_no_selector "#live-ticker-queue > *", visible: :all
+    assert_selector "#live-ticker [data-ticker-target=run] > .ticker__item", count: 12, visible: :all
+    order = page.evaluate_script(<<~JS)
+      Array.from(document.querySelectorAll("#live-ticker [data-ticker-target=run] > .ticker__item"), (item) => item.dataset.place ?? `new${item.dataset.arrived}`)
+    JS
+    joining = [ 10, 12 - in_view ].min
+    assert_equal [ *(0...in_view).map(&:to_s), *(0...joining).map { "new#{it}" }, *(in_view...5).map(&:to_s) ].first(12), order
+
+    find("#live-ticker").hover
+    assert_ticker_states([ "paused" ])
+    find(".hub__title").hover
+    assert_ticker_states([ "running" ])
+
+    page.execute_script("document.documentElement.dataset.motion = 'reduced'")
+    assert_selector "#live-ticker[data-ticker-state=still]"
+    assert_ticker_states([])
+    assert_selector "#live-ticker [data-ticker-target=run] > .ticker__item", count: 12, visible: :all
+    assert_no_selector "#live-ticker .ticker__run--copy", visible: :all
+    assert_empty page.evaluate_script("document.querySelector('#live-ticker .live-marker__dot').getAnimations()")
   end
 
   def wait_until_renders(count)

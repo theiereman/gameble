@@ -14,6 +14,7 @@ module Game
 
     def open? = status == "open"
     def expired?(now) = expires_at <= now
+    def revision = proposed_at.utc.iso8601(6)
 
     def offer_items = items.select { |item| item.side == "offer" }
     def request_items = items.select { |item| item.side == "request" }

@@ -2,8 +2,9 @@ module Accounts
   # A moderator or an administrator lifts the ban of a player they outrank:
   # the player can sign in again and their profile shows again. Friendships
   # and trades dropped by the ban stay dropped, and the reports the ban
-  # handled stay handled. The refusal is read again from the locked row, as
-  # Accounts::BanPlayer does; the list of banned players asks it too.
+  # handled stay handled. The refusal is read again from the locked row and
+  # a fresh read of the member of staff, as Accounts::BanPlayer does; the
+  # list of banned players asks it too.
   #
   #   Accounts::UnbanPlayer.new.call(staff:, player:)
   #   # => Success(player) | Failure(:staff_required | :player_not_found |
@@ -22,6 +23,7 @@ module Accounts
 
       transaction do
         player.lock!("FOR NO KEY UPDATE")
+        staff = Player.find_by(id: staff.id)
         step permitted(staff, player)
         step publish(PlayerUnbanned.new(data: { player_id: player.id, staff_id: staff.id }), stream_name: "Accounts::Player$#{player.id}")
         player.update!(banned_at: nil)

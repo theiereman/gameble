@@ -66,6 +66,7 @@ class SettingsTest < ApplicationSystemTestCase
     Game::Holding.create!(player_id: @player.id, card_season_id: portal, quantity: 2)
     [ accounts_players(:moderator), accounts_players(:administrator) ].each do |friend|
       Game::Friendship.create!(low_player_id: [ @player.id, friend.id ].min, high_player_id: [ @player.id, friend.id ].max)
+      Game::Holding.create!(player_id: friend.id, card_season_id: depths, quantity: 1)
       Game::ProposeTrade.new.call(player: @player, recipient: friend, offer: { portal => 1 }, request: { depths => 1 }).value!
     end
     sign_in settings_path(locale: :fr)
@@ -177,6 +178,20 @@ class SettingsTest < ApplicationSystemTestCase
     assert_selector "h1", text: "PROFIL ET PARAMÈTRES"
     assert_selector "html[lang=fr]", visible: :all
     assert_selector "button[aria-pressed=true]", text: "NON"
+  end
+
+  test "the support row opens the donation page in a new tab, and the closing link opens the legal page in the player's locale" do
+    sign_in(settings_path(locale: :fr))
+
+    support = find(".settings-row", text: /SOUTENIR/).find("a")
+    assert_equal [ "https://buymeacoffee.com/theiereman", "_blank" ], [ support[:href], support[:target] ]
+    assert_includes support[:rel].split, "noopener"
+
+    find(".settings__list > li:last-child a", text: /mentions légales/i).click
+
+    assert_current_path "/fr/legal"
+    assert_selector "h1#legal-heading", text: /mentions légales/i
+    assert_selector ".legal__ownership", text: "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
   end
 
   test "sign-out from the settings screen lands on the signed-out hub" do

@@ -77,20 +77,6 @@ export function stepsBackTo(pathname: string, index: number, storage: TrailStora
 }
 
 /**
- * How many entries a contextual back goes back from the entry at `index`:
- * to the nearest earlier entry showing `pathname` (its href's), or to an
- * alternate only when that is the entry right before the current one (the
- * page the detail was opened from: ◀ ▶ only replace entries, so it stays
- * one step back). Null when neither is: the link visits its href.
- */
-export function backSteps(pathname: string, alternates: readonly string[], index: number, storage: TrailStorage | null): number | null {
-  const steps = stepsBackTo(pathname, index, storage)
-  if (steps === 1) return steps
-  if (alternates.includes(read(storage)[index - 1] ?? "")) return 1
-  return steps
-}
-
-/**
  * The pathname recorded for the entry right after the one at `index` (the
  * page the user came back from by a restore visit), or null when none is.
  */

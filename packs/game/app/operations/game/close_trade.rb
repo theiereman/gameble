@@ -2,7 +2,7 @@ module Game
   class CloseTrade < Operation
     include TradeSteps
 
-    def call(player:, trade_id:, seen: nil)
+    def call(player:, trade_id:, revision: nil)
       player = step acting_player(player)
       trade = step find_trade(player, trade_id)
       step turn(trade, player, self.class::PARTY)
@@ -11,7 +11,7 @@ module Game
         trade = lock_trade(trade)
         step turn(trade, player, self.class::PARTY)
         step still_open(trade)
-        step current_terms_seen(trade, seen)
+        step current_terms_seen(trade, revision)
         now = Time.current
         step closable(trade, now)
         offer = side_of(trade, "offer")
@@ -29,7 +29,7 @@ module Game
       require_player(player)
     end
 
-    def current_terms_seen(_trade, _seen)
+    def current_terms_seen(_trade, _revision)
       Success()
     end
 

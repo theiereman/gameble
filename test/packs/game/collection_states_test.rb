@@ -39,6 +39,21 @@ class Game::CollectionStatesTest < ActiveSupport::TestCase
     assert_equal ([ @b ] + (@cards.ids - [ @a, @b, @c ])).sort, ids(%w[new missing]).sort
   end
 
+  test "new judged against a watermark given in place of the player's" do
+    assert_equal [ @a, @b ], Game::CollectionStates.call(@player, @cards, states: %w[new], seen_up_to: 4.hours.ago).pluck(:id)
+    assert_empty Game::CollectionStates.call(@player, @cards, states: %w[new], seen_up_to: Time.current).pluck(:id)
+    assert_equal [ @b ], Game::CollectionStates.call(@player, @cards, states: %w[new duplicates], seen_up_to: Time.current).pluck(:id)
+  end
+
+  test "the player's watermark, nil before they see a card, and for a visitor without a query" do
+    seen = Time.utc(2026, 10, 8, 9, 30, 15.123456r)
+    Game::PlayerState.where(player_id: @player.id).update_all(collection_seen_up_to: seen)
+    assert_equal seen, Game::CollectionWatermark.call(@player)
+    Game::PlayerState.where(player_id: @player.id).update_all(collection_seen_up_to: nil)
+    assert_nil Game::CollectionWatermark.call(@player)
+    assert_no_queries { assert_nil Game::CollectionWatermark.call(nil) }
+  end
+
   test "newest first: by last gain, the never gained and the unheld after, then by number" do
     assert_equal [ @b, @a, @c ], ids(%w[owned], newest_first: true)
     assert_equal [ @b, @a, @c, @d ], ids(%w[all], newest_first: true).first(4)

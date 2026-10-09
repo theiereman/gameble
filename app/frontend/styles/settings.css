@@ -1,9 +1,9 @@
 /*
  * Profil et paramètres (DESIGN.md: Profile and settings; EXPERIENCE.md:
- * Settings row; story 10.4), and the phone's PLUS screen. A bracketed panel
- * of settings rows (a muted label on the left, a control on the right,
- * ruled with line-soft), segmented groups for the choices. Hard edges and
- * pixel outlines on the 2px grid; no animation of its own.
+ * Settings row), the phone's PLUS screen and the legal page. A
+ * bracketed panel of settings rows (a muted label on the left, a control on
+ * the right, ruled with line-soft), segmented groups for the choices. Hard
+ * edges and pixel outlines on the 2px grid; no animation of its own.
  */
 
 .settings {
@@ -211,4 +211,93 @@
   .delete-dialog__actions {
     flex-direction: column;
   }
+}
+
+.legal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  max-width: 760px;
+}
+
+.legal__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.legal__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  font: var(--font-body);
+}
+
+.legal__section p {
+  margin: 0;
+}
+
+.legal__heading {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.legal__facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.legal__fact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel-sunken);
+}
+
+.legal__fact dt {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.legal__fact dd {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.legal__ownership {
+  color: var(--color-text-bright);
+}
+
+.legal__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding-left: var(--space-6);
+}
+
+.legal__link {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal__link:hover {
+  color: var(--color-accent-hi);
+}
+
+.legal__donation {
+  align-self: flex-start;
+  margin: 0;
 }

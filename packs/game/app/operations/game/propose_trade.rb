@@ -14,6 +14,7 @@ module Game
         TradeLocks.players(player.id, recipient.id)
         step friends(player, recipient)
         step no_open_trade(player, recipient)
+        step requestable(request, recipient.id)
         holdings = TradeLocks.holdings(player.id, offer.keys)
         step enough_copies(offer, holdings)
         now = Time.current

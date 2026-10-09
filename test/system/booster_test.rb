@@ -9,7 +9,9 @@ require_relative "../support/game_packs"
 # why. On a phone the cards land in a pile, each revealed card is stored in
 # the tray (Store, a tap or a swipe) and a filled slot opens the card zoom;
 # from 720 to 899px the row deals small cards; a width crossing a
-# breakpoint draws the same hand again. Reduced motion is emulated in every
+# breakpoint draws the same hand again. A revealed card's detail walks the
+# booster's cards, and coming back from it shows the booster again, every
+# card face up; the phone's zoom steps through the tray. Reduced motion is emulated in every
 # test but those named "with motion" and the loop budget's.
 class BoosterTest < ApplicationSystemTestCase
   include GamePacks
@@ -206,6 +208,29 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector "#{card(4)} .booster-card__front .card.card--m.card--booster.card--rarity-epic"
   end
 
+  def reposts = Game::FeedEntry.where(kind: "repost").pluck(:card_season_id)
+
+  test "a revealed card is reposted from under it with a toast, the hand staying as it is" do
+    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one))
+    open_canister
+    assert_dealt(5)
+    assert_no_selector ".booster-card__repost"
+
+    find(hit(4)).click
+    assert_selector "#{card(4)}[data-revealed]"
+    assert_selector "#{card(4)} .booster-card__repost", count: 1
+    assert_equal "Repost Portal", find("#{card(4)} .booster-card__repost")["aria-label"]
+    assert_no_selector "#{card(1)} .booster-card__repost"
+
+    find("#{card(4)} .booster-card__repost").click
+
+    assert_selector "#toasts .toast--notice", text: /card reposted to the feed\./i
+    assert_current_path "/en/booster"
+    assert_selector "#{card(4)} .booster-card__repost"
+    assert_selector ".booster-card[data-revealed]", count: 1
+    assert_equal card_ids(:portal_one), reposts
+  end
+
   test "a revealed card ignores activation for 400 ms, then opens its card page" do
     open_screen(card_ids(*[ :rare_card_one ] * 5))
     open_canister
@@ -221,7 +246,104 @@ class BoosterTest < ApplicationSystemTestCase
 
     sleep 0.5
     find("#{card(2)} .booster-card__front .card").click
-    assert_current_path "/en/cards/blue-depths"
+    assert_current_path "/en/cards/blue-depths?pack=#{opened_token}&slot=2"
+  end
+
+  def current_url_path = evaluate_script("location.pathname + location.search")
+
+  def opened_token
+    Game::Pack.where(player_id: @player.id).where.not(opened_at: nil).order(:opened_at).last.token
+  end
+
+  # Waits for the detail of `title`, then steps once with ◀ or ▶.
+  def step_detail(side, to:)
+    find(".card-detail__nav--#{side}").click
+    assert_selector ".card-detail h1", text: to
+    assert_no_selector "html[data-sub-view-step]", visible: :all
+  end
+
+  # Waits for the history to hold `expected` entries (Turbo pushes an entry
+  # a moment after the page shows). Chrome keeps at most 50 entries.
+  def assert_history_entries(expected)
+    expected = [ expected, 50 ].min
+    page.document.synchronize do
+      length = evaluate_script("history.length")
+      raise Capybara::ExpectationNotMet, "#{length} history entries, not #{expected}" unless length == expected
+    end
+  end
+
+  test "a card's detail opened from the booster walks its five cards; Back shows the booster again, every card face up" do
+    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :legendary_card_one), more: true)
+    open_canister
+    assert_dealt(5)
+    # Two cards revealed of five: the rest shows face up on return all the same.
+    find(hit(1)).click
+    find(hit(2)).click
+    assert_selector ".booster-card[data-revealed]", count: 2
+    token = opened_token
+    entries = evaluate_script("history.length")
+    sleep 0.5
+    find("#{card(2)} .booster-card__front .card").click
+
+    assert_current_path "/en/cards/green-hills?pack=#{token}&slot=2"
+    assert_selector ".card-detail h1", text: "Green Hills"
+    assert_history_entries entries + 1
+    # ◀ ▶ on the desktop, through the booster's cards in its order, and no further.
+    step_detail(:next, to: "Blue Depths")
+    assert_equal "/en/cards/blue-depths/seasons/1?pack=#{token}&slot=3", current_url_path
+    step_detail(:next, to: "Portal")
+    step_detail(:next, to: "Golden Crown")
+    assert_selector "button.card-detail__nav--next[disabled]"
+    [ "Portal", "Blue Depths", "Green Hills", "Tin Soldier" ].each { step_detail(:previous, to: it) }
+    assert_selector "button.card-detail__nav--previous[disabled]"
+    assert_history_entries entries + 1
+
+    go_back
+    assert_current_path "/en/booster?pack=#{token}"
+    assert_selector ".booster-card[data-dealt][data-revealed]", count: 5
+    assert_selector ".booster-card__flip.is-up", count: 5, visible: :all
+    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    assert_selector ".booster__counter", text: "Cards revealed: 5 / 5"
+    assert_no_selector ".booster-canister"
+    assert_button "Open the next one"
+    assert_button "Reveal all", disabled: true
+    assert_equal 1, opened_packs
+
+    # Another card opens at once.
+    find("#{card(4)} .booster-card__front .card").click
+    assert_current_path "/en/cards/portal?pack=#{token}&slot=4"
+    assert_selector ".card-detail h1", text: "Portal"
+
+    # Back again, the next booster leaves the shown one behind.
+    go_back
+    assert_selector ".booster-card[data-revealed]", count: 5
+    click_on "Open the next one"
+    assert_dealt(5)
+    assert_current_path "/en/booster"
+    assert_equal 2, opened_packs
+  end
+
+  test "the booster's own entries start sealed: the tab bar and a pack of another player show no hand" do
+    create_pack(@player, available_at: 1.hour.ago)
+    foreign = create_pack(accounts_players(:moderator), cards: card_ids(*[ :rare_card_one ] * 5), opened_at: 1.minute.ago)
+
+    visit booster_path(locale: :en, pack: foreign.token)
+    assert_selector ".booster-canister"
+    assert_no_selector ".booster-card"
+    assert_selector ".booster__state", text: "SEALED"
+
+    # The player's own pack shown again, then the BOOSTER tab: sealed, no hand.
+    on_phone
+    own = create_pack(@player, cards: card_ids(*[ :common_card_one ] * 5), opened_at: 1.minute.ago)
+    visit booster_path(locale: :en, pack: own.token)
+    assert_selector ".booster-tray__slot--filled", count: 5
+    visit home_path(locale: :en)
+    find(".tab-bar a.tab-bar__tab", text: /BOOSTER/).click
+    assert_current_path "/en/booster"
+    assert_selector ".booster-canister"
+    assert_selector ".booster__state", text: "SEALED"
+    assert_no_selector ".booster-card"
+    assert_no_selector ".booster-tray__slot--filled"
   end
 
   test "Reveal all reveals the rest in order, holds the Légendaire, announces once and focuses the next booster" do
@@ -766,7 +888,109 @@ class BoosterTest < ApplicationSystemTestCase
 
     find(slot).click
     click_on "See the card"
-    assert_current_path "/en/cards/blue-depths"
+    assert_current_path "/en/cards/blue-depths?pack=#{opened_token}&slot=1"
+  end
+
+  test "on a phone the card zoom reposts its card with a toast" do
+    on_phone
+    open_screen(card_ids(*[ :rare_card_one ] * 5))
+    open_canister
+    assert_pile(5)
+    assert_no_selector ".booster-card__repost"
+    page.send_keys(:enter)
+    assert_selector "#{phone_card(1)}[data-revealed]"
+    assert_no_selector ".booster-card__repost"
+    sleep 0.45
+    click_on "Store"
+
+    find(".booster-tray__slot--filled").click
+    assert_selector "dialog.booster-zoom[open]"
+    watch_toasts_over_modal
+    within("dialog.booster-zoom[open]") { click_on "Repost" }
+
+    assert_selector "#toasts .toast--notice", text: /card reposted to the feed\./i
+    assert_selector "dialog.booster-zoom[open] .booster-zoom__status[role=status]", text: "Card reposted to the feed.", visible: :all
+    page.document.synchronize { raise Capybara::ExpectationNotMet, "the toast is drawn under the card zoom" unless evaluate_script("window.toastsShownOverModal") }
+    assert_equal card_ids(:rare_card_one), reposts
+  end
+
+  # The top layer draws last what was shown last; a modal dialog leaves the
+  # rest of the page inert, so hit testing cannot tell what is drawn on top.
+  def watch_toasts_over_modal
+    execute_script(<<~JS)
+      window.toastsShownOverModal = false
+      document.getElementById("toasts").addEventListener("toggle", (event) => {
+        if (event.newState === "open" && document.querySelector("dialog:modal")) window.toastsShownOverModal = true
+      })
+    JS
+  end
+
+  # A finger moving `dx` px sideways across the zoom's card, as touch pointer events.
+  def swipe_zoom(dx)
+    execute_script(<<~JS, dx)
+      const stage = document.querySelector(".booster-zoom__stage")
+      const box = stage.getBoundingClientRect()
+      const x = box.left + box.width / 2, y = box.top + box.height / 2
+      const event = (type, clientX) => new PointerEvent(type, { bubbles: true, pointerId: 9, pointerType: "touch", isPrimary: true, clientX, clientY: y })
+      stage.dispatchEvent(event("pointerdown", x))
+      stage.dispatchEvent(event("pointermove", x + arguments[0] / 2))
+      stage.dispatchEvent(event("pointerup", x + arguments[0]))
+    JS
+  end
+
+  test "on a phone the zoom steps through the tray with ◀ ▶ and a swipe; its detail walks the booster, and ◀ Booster brings it back stored" do
+    on_phone
+    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :legendary_card_one))
+    open_canister
+    assert_pile(5)
+    click_on "Reveal all"
+    assert_selector ".booster-tray__slot--filled", count: 5, wait: 20
+    assert_selector ".booster__state", text: "INVENTORY COMPLETE", wait: 10
+    token = opened_token
+
+    all(".booster-tray__slot--filled")[2].click
+    zoom = "dialog.booster-zoom[open]"
+    assert_selector "#{zoom} h2", text: "BLUE DEPTHS"
+    assert_equal [ "Previous card", "Next card" ], all("#{zoom} .booster-zoom__nav").map { it["aria-label"] }
+    find("#{zoom} .booster-zoom__nav--next").click
+    assert_selector "#{zoom} h2", text: "PORTAL"
+    find("#{zoom} .booster-zoom__nav--next").click
+    assert_selector "#{zoom} h2", text: "GOLDEN CROWN"
+    assert_selector "#{zoom} .booster-zoom__nav--next[disabled]"
+    # Swiping right shows the previous card, left the next; never past an end.
+    swipe_zoom(120)
+    assert_selector "#{zoom} h2", text: "PORTAL"
+    swipe_zoom(-120)
+    assert_selector "#{zoom} h2", text: "GOLDEN CROWN"
+    swipe_zoom(-120)
+    assert_selector "#{zoom} h2", text: "GOLDEN CROWN"
+    [ "PORTAL", "BLUE DEPTHS", "GREEN HILLS", "TIN SOLDIER" ].each do |title|
+      find("#{zoom} .booster-zoom__nav--previous").click
+      assert_selector "#{zoom} h2", text: title
+    end
+    assert_selector "#{zoom} .booster-zoom__nav--previous[disabled]"
+    assert_selector "#{zoom} .booster-zoom__card .card.card--xl.card--rarity-common", visible: :all
+    page.send_keys(:escape)
+    assert_no_selector "dialog.booster-zoom"
+    assert_focus ".booster-tray__item:nth-child(1) .booster-tray__slot"
+
+    all(".booster-tray__slot--filled")[1].click
+    click_on "See the card"
+    assert_current_path "/en/cards/green-hills?pack=#{token}&slot=2"
+    assert_selector ".card-detail__position", text: "· 2 / 5 · SWIPE TO BROWSE"
+    step_detail(:next, to: "Blue Depths")
+    assert_selector ".card-detail__position", text: "· 3 / 5 ·"
+    back = find(".top-bar__phone-back", text: "BOOSTER")
+    assert_equal "/en/booster?pack=#{token}", URI(back[:href]).request_uri
+
+    back.click
+    assert_current_path "/en/booster?pack=#{token}"
+    assert_selector ".booster[data-layout=phone]"
+    assert_selector ".booster-tray__slot--filled", count: 5
+    assert_no_selector ".booster__pile .booster-card"
+    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    all(".booster-tray__slot--filled")[4].click
+    assert_selector "dialog.booster-zoom[open] h2", text: "GOLDEN CROWN"
   end
 
   test "on a phone Reveal all reveals and stores every card in the tray, with one summary" do

@@ -26,7 +26,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   # The settings screen
 
-  test "a player's settings screen: language, visibility, reduced motion, sign-out and the account, the system chosen by default" do
+  test "a player's settings screen: language, visibility, reduced motion, sign-out, the account, support and the legal link, the system chosen by default" do
     sign_in
 
     get settings_path(locale: :fr)
@@ -34,8 +34,8 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "title", /Profil et paramètres/
     assert_select "main h1", "Profil et paramètres"
-    assert_select ".settings-row", 5
-    assert_equal [ "Langue", "Visibilité du profil", "Animations réduites", "Session", "Compte" ], css_select(".settings-row__label").map(&:text)
+    assert_select ".settings-row", 7
+    assert_equal [ "Langue", "Visibilité du profil", "Animations réduites", "Session", "Compte", "Soutenir" ], css_select(".settings-row__label").map(&:text)
     assert_select "[role=group][aria-labelledby=settings-language] a.segmented__option", 2
     assert_select "a.segmented__option[href='/fr/settings'][aria-current=true][lang=fr]", "Français"
     assert_select "a.segmented__option[href='/en/settings'][lang=en]:not([aria-current])", "English"
@@ -49,6 +49,11 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[name=reduced_motion][value=on][aria-pressed=false]", "Oui"
     assert_select "button[name=reduced_motion][value=off][aria-pressed=false]", "Non"
     assert_select "form[action=?][data-turbo=false] button", "/session?locale=fr", text: "Se déconnecter"
+    support = css_select("li.settings-row a.settings-row__support").sole
+    assert_equal [ "https://buymeacoffee.com/theiereman", "_blank", "Offrir un café (nouvel onglet)" ],
+      [ support["href"], support["target"], support.text.squish ]
+    assert_includes support["rel"].split, "noopener"
+    assert_select ".settings__list > li:last-child a.button--link[href='/fr/legal']", "Mentions légales"
     assert_select ".top-bar a.button[href='/fr']", /Pont/
   end
 
@@ -59,7 +64,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get settings_path(locale: :en)
 
     assert_select "main h1", "Profile and settings"
-    assert_equal [ "Language", "Profile visibility", "Reduced motion", "Session", "Account" ], css_select(".settings-row__label").map(&:text)
+    assert_equal [ "Language", "Profile visibility", "Reduced motion", "Session", "Account", "Support" ], css_select(".settings-row__label").map(&:text)
     assert_select "button[name=reduced_motion][value=on][aria-pressed=true]", "Yes"
     assert_select "button[name=reduced_motion][value=system][aria-pressed=false]", "System"
     assert_select "button[name=reduced_motion][value=off][aria-pressed=false]", "No"
@@ -129,6 +134,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     bob = accounts_players(:moderator)
     Game::Friendship.create!(low_player_id: [ @player.id, bob.id ].min, high_player_id: [ @player.id, bob.id ].max)
     Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
+    Game::Holding.create!(player_id: bob.id, card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 1)
     Game::ProposeTrade.new.call(player: @player, recipient: bob, offer: { catalog_card_seasons(:portal_one).id => 1 },
       request: { catalog_card_seasons(:rare_card_one).id => 1 }).value!
     sign_in

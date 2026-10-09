@@ -1,9 +1,8 @@
 <%# ◀ or ▶ beside the card of a detail (cards/_detail): a link to the card
-    before or after it in the set it browses, which replaces the
-    `card-detail` frame and the URL (sub_view_controller.ts), or a disabled
-    button at that end of the set. Locals: browse (Catalog::SetNeighbours),
-    view (the card's CardView), side (:previous or :next). %>
-<% path = card_detail_neighbour_path(browse, view, side) %>
+    before or after it in what it browses, which replaces the `card-detail`
+    frame and the URL (sub_view_controller.ts), or a disabled button at that
+    end. Locals: path (the neighbour's detail, nil at an end), side
+    (:previous or :next). %>
 <% label = t("card_details.#{side}") %>
 <% icon = pixel_icon(side == :previous ? "arrow-left" : "arrow-right", class: "card-detail__nav-icon") %>
 <% if path %>

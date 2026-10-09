@@ -55,6 +55,7 @@ Rails.application.routes.draw do
     # or in the season numbered (the form a share link takes, CAP-9).
     get "cards/:slug" => "cards#show", as: :card
     get "cards/:slug/seasons/:number" => "cards#show", as: :card_season, constraints: { number: /\d+/ }
+    post "cards/:slug/seasons/:number/repost" => "reposts#create", as: :card_repost
 
     # Collecting the daily bonus from the hub (CAP-16).
     resource :daily_bonus, path: "daily-bonus", only: :create
@@ -94,12 +95,14 @@ Rails.application.routes.draw do
     end
     # The phone's PLUS tab: the rest of the ship (EXPERIENCE.md, PLUS rows).
     get "more" => "pages#more", as: :more
+    get "legal" => "pages#legal", as: :legal
 
     # Staff only (R9): moderators and administrators.
     get "back-office" => "back_office/dashboard#show", as: :back_office
 
-    # The Steam import runs (AD-19), administrators only.
+    # The back-office pages, staff only; each policy says which staff role.
     scope "back-office", module: :back_office, as: :back_office do
+      # The Steam import runs, administrators only.
       resources :import_runs, path: "import-runs", only: %i[index show create] do
         post :resume, on: :member
         post :rescore, on: :member

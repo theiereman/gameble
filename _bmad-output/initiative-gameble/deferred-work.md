@@ -191,6 +191,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-architecture-conformance-plan.md`
   summary: The `reading` role opens a second connection pool to the primary, so each web process may hold up to 2 × `RAILS_MAX_THREADS` primary connections (a GET leases from `reading`, the event store's `ActiveRecord::Base` models from `writing`). Check Postgres `max_connections` on the test LXC against the web, Solid Queue, Solid Cache and Solid Cable pools.
   evidence: Story 8.4 review (blind, edge-case and verification-gap lenses), checked with `bin/rails runner` outside a test case; transactional tests share the pools and cannot show it.
+  resolved: Story 8.16: `ConnectionBudget` (`lib/connection_budget.rb`) counts every pool of every process of a destination from the committed configuration (the reading pool included); production pools sized to primary, cache and cable `RAILS_MAX_THREADS` (3), queue 5, so staging totals 65 against a limit of 80 (85 before). `test/lib/connection_budget_test.rb` fails above the limit or on an undersized pool; `bin/rails "db:connection_budget[staging]"` prints the figures against the live `max_connections` on the host (`.dockerignore` keeps `config/deploy*.yml` in the image for it).
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-architecture-conformance-plan.md`
   summary: No test builds the CSP `report-uri` (Sentry) or the development Vite policy; both are decided at boot. Before reading the report-only release's violations, check once that the deployed response's `Content-Security-Policy-Report-Only` header carries `report-uri https://…/api/<project>/security/?sentry_key=…`. Mission Control's inline scripts will report on every `/back-office/jobs` load meanwhile (administrators only).
   evidence: Story 8.4 review (verification gap); `test/initializers/sentry_test.rb` keeps `SENTRY_DSN` blank in the suite, so the branch never runs.
@@ -296,6 +297,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-island-desktop-plan.md`
   summary: A pack whose cards were drawn in an earlier season (banked before a new season was published) makes the top bar's rarity counter overcount during its reveal: `tierCountsBefore` counts the published season only, the island adds one per revealed card. Corrected on the next page load; a per-card "counted" flag in the answer would fix it.
   evidence: Story 8.11 follow-up review (edge case; rejected low, season turnover only); `Game::TierCounts.before_opening`, `Booster.tsx` `mark`.
+  resolved: Reported by players after a new season was published (2026-10-08): full banks drawn in the earlier season kept crediting its cards, absent from the collection (published season only) and shown with the new season's rarity on the card's page. `Game::OpenPack` now draws a pack of an earlier season again in the published one as it opens, each card within its old card's tier (`Catalog::CardSeasonTiers`, `Game::Draw.in_tiers`), so no opening credits an earlier season's card and the counter no longer overcounts.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-island-phone-plan.md`
   summary: The phone booster's gestures (the swipe that stores the top card, a tap after the 400 ms guard, the 150 ms tilt hold that is never a swipe, the pile's `touch-action: none` beside the page's panning on the plate, tray and actions) were verified only with synthetic pointer events in headless Chromium; check them on an iOS Safari and an Android Chrome device, with the card zoom (native dialog, Esc or the scrim) and the Légendaire's sequence on a real phone.
   evidence: Story 8.12; `test/system/booster_test.rb` (`drag_top`, the tilt-hold test), `app/frontend/components/useCardSwipe.ts`.
@@ -348,15 +350,47 @@
 - source_plan: none
   summary: Replace the collection's tome (volume) system with another way to browse and organise the collection.
   evidence: Author, 2026-10-07: "il faut changer le système de collection en tome, c'est nul". The reasons and the replacement are not decided; start with a UX conversation (bmad-ux) before planning.
+- source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-popularity-led-prestige-score-plan.md`
+  summary: To verify (author, 2026-10-08) that a full import writes its draft cards with the current prestige formula (log10(review count) + 4 × Wilson), not the earlier Wilson + 0.01 × log10(count).
+  evidence: On staging (v0.0.1-beta.1, which carries story 2.12), the season 2 draft after an import still showed scores from 0.113 to 1.039 (Stardew Valley 1.039, the old formula; the new one gives about 9.8); "Rescore the cards" on the latest run fixed them. Whether the import had not reached its cards step yet or ran on an image older than 2.12 was not established. Check: after the next full import completes, the draft preview's scores run from about 2.7 to 10 without a rescore; otherwise trace the import role's image and the cards step.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-booster-and-shell-split-plan.md`
+  summary: Story 8.15's booster, shell and card-face system tests have only run on Ruby 3.3 with the app's `it` block parameters rewritten to `_1`, never on the app's Ruby 4.0.7 and unmodified source.
+  evidence: Quick review of story 8.15, pass 2 (maybe-false; medium if true). The container had no Ruby 4.0.7 (download refused by the network policy). CI runs no system tests on a push to `develop`, so what settles it is `bin/rails test:system` on `test/system/booster_test.rb`, `card_face_visual_test.rb` and `shell_test.rb` on Ruby 4.0.7 (the author's machine): green closes this entry, red is the story's to fix.
+- source_plan: none
+  summary: Redo the shine on cards above uncommon outside the booster (collection grid, card detail): it looks cheap, while the sweep across the booster canister looks right and is the reference to match.
+  evidence: Author, 2026-10-08, asked for this redo and named the canister's sweep as the example to follow. Outside the booster, `CardComponent::HOLO` and `FOIL` (default context) give only the legendary tier the `.card__holo` band (`styles/card.css`: a 115° gradient tinted with the rarity colour, 4.8 s in 24 steps, opacity 0.6) and no tier the foil, so rare and epic get no effect at all there; the canister's `.booster-canister__sweep-band` (`styles/booster.css`) is a narrow, flat, untinted band at 22 % white, 2.8 s in 28 steps. Decide with the author which tiers get which effect outside the booster before planning; reduced motion still turns them all off.
+
+- source_plan: none
+  summary: Show the Steam review count and the share of positive reviews on the card itself, so a player who finds a card wants to go and look at the game on the store.
+  evidence: Author, 2026-10-08. The numbers already exist on `steam_apps` (`review_count`, `review_percent_positive`) and `Steam::CardMapping` carries the share as the card season's `rating`, but the card face shows neither; the count is not copied into `Catalog` yet. Decide the placement with a UX conversation (bmad-ux) before planning: the card face is small and the figures compete with the title, the rarity and the Steam link.
+
+- source_plan: none
+  summary: Make the special packs (daily bonus and community/reward packs) easier to tell apart from regular packs, above all while they are being opened.
+  evidence: Author, 2026-10-08. Decide the look of the special pack and of its opening with a UX conversation (bmad-ux) before planning.
+
+- source_plan: none
+  summary: Review the odds of the special packs: almost everyone got a Légendaire when opening them together on staging, which may be too generous.
+  evidence: Author, 2026-10-08, after a shared opening session on staging. `Game::DrawOdds::BONUS` gives a Légendaire 1 % per card and 5 % for Épique, and `REWARD` reuses it then forces one Épique-or-better card (`EPIC_OR_BETTER`, 1 Légendaire in 6), so a reward pack yields a Légendaire far more often than 1 %. The odds are recorded as an open product question; measure the real rate on staging, then settle the numbers with the author.
+
+- source_plan: none
+  summary: Store the player's session durably (a persistent session that survives releases and browser restarts, kept at least seven days) so a new release does not force them to sign in with Steam again.
+  evidence: Author, 2026-10-08: every deployed version asks to reconnect with Steam, and "surtout" the session must be stored. The app sets no session store or `expire_after` (default cookie session, which ends with the browser); find why a deploy invalidates it (cookie secret or session key changing between releases) and decide between a persistent cookie with a seven-day lifetime and a database-backed session store.
+
+- source_plan: none
+  summary: The community (weekly goal reward) pack is no longer added to the player's packs automatically: the player claims it with a button, which shows it has been collected and refuses to add it while the bank already holds `Game::Pack::BANK_SIZE` (10) packs.
+  evidence: Author, 2026-10-08. Today `Game::GrantGoalRewardsJob` / `Game::GrantGoalReward` grant it without the player acting (`Game::WaitingGoalReward` is the query for a reward waiting); claiming must go through a POST operation, and the full-bank refusal needs both locale keys and a clear state on the button.
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-races-between-bank-operations-plan.md`
+  summary: `Game::HealBanksJob` reports an error to `Rails.error` when a player is deleted between the job's batch read and that player's heal or fill, a normal race rather than a failure.
+  evidence: Code review of story-races-between-bank-operations-plan (2026-10-09). `Accounts::PlayersInBatches` reads the batch; a deletion then commits; `HealBank`/`FillBank` re-check under the bank lock (`Game::Operation#lock_bank`) and return `Failure(:player_required)`; `heal_banks_job.rb:28` calls `.value!`, which raises, and the rescue reports it. Pre-existing; story 7.9 races the job against openings and a bonus but not against a deletion.
 
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-moderation-the-queue-bans-and-unbans-plan.md`
   summary: A moderator cannot read a reported profile that is private or friends only: the queue's link opens the unavailable page, since `Game::Visibility` shows a hidden profile to no one but its owner.
   evidence: Story 7.5 review (edge case; rejected low, the queue shows the name, which a name report concerns). Settling it means deciding whether staff see hidden profiles, a change to the one visibility question.
-  resolved: Story 7.13: `Game::Visibility.visible?` shows staff in good standing every owner but a deleted one, private, friends-only and banned included; the public profile and the report endpoint use it, so the queue's link and the banned list's link open the profile. The feed and the friend profile opt out (`staff_sees_all: false`) and show staff what a player would see.
+  resolved: Story 7.17: `Game::Visibility.visible?` shows staff in good standing every owner but a deleted one, private, friends-only and banned included; the public profile and the report endpoint use it, so the queue's link and the banned list's link open the profile. The feed and the friend profile opt out (`staff_sees_all: false`) and show staff what a player would see.
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-moderation-the-queue-bans-and-unbans-plan.md`
   summary: Bans and dismissals leave no record a page reads: no ban reason, no "banned by", no history of classed reports; only the event store keeps `PlayerBanned`, `PlayerUnbanned` and `ReportsDismissed` with the staff member's id.
   evidence: Story 7.5 review (blind hunter; rejected low, not asked by the ticket). Would answer "why was I banned?" once strangers play.
-  resolved: Story 7.15: a ban requires a reason the staff member types; `Accounts::BanPlayer`, `UnbanPlayer` and `DismissReports` write each action to `accounts_moderation_actions` (who acted, on whom, when, the ban's reason), shown newest first at `/<locale>/back-office/history`, filtered by player, linked from the dashboard, the queue, the banned list and each row of the players list. The actions recorded in the event store before it were copied by a data migration, without a reason.
+  resolved: Story 7.19: a ban requires a reason the staff member types; `Accounts::BanPlayer`, `UnbanPlayer` and `DismissReports` write each action to `accounts_moderation_actions` (who acted, on whom, when, the ban's reason), shown newest first at `/<locale>/back-office/history`, filtered by player, linked from the dashboard, the queue, the banned list and each row of the players list. The actions recorded in the event store before it were copied by a data migration, without a reason.
 
 - source_plan: `_bmad-output/initiative-gameble/epic-friends-and-trades/story-fixes-from-the-epic-retrospective-plan.md`
   summary: A counter-proposal carries no version of the terms seen, so a stale tab's counter replaces the friend's newer terms unseen.
@@ -369,10 +403,10 @@
   evidence: AGENTS.md forbids them everywhere. The blind review of this story counted them; they belong to the epic 12 sweep.
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-moderation-by-rank-a-hidden-back-office-and-staff-reading-ev-plan.md`
   summary: A member of staff reading a private, friends-only or banned profile sees it exactly as a public one: nothing says that players do not see it, so staff could share its link believing it public.
-  evidence: Story 7.13 kept the profile page unchanged (no staff marker, by its plan). A line such as "Profil privé : visible des officiers seulement" needs copy in both locales and a place in the profile header.
+  evidence: Story 7.17 kept the profile page unchanged (no staff marker, by its plan). A line such as "Profil privé : visible des officiers seulement" needs copy in both locales and a place in the profile header.
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-a-searchable-list-of-players-in-the-back-office-plan.md`
   summary: The back-office players search reads `persona_name ILIKE '%…%'` with no index, so each search scans `accounts_players`.
-  evidence: Story 7.14 added no migration (its plan rules out a search index); a scan is instant at launch's player count. Once players number in the hundreds of thousands, a `pg_trgm` GIN index on `persona_name` (the extension in one migration, the index built concurrently in its own) keeps the search fast.
+  evidence: Story 7.18 added no migration (its plan rules out a search index); a scan is instant at launch's player count. Once players number in the hundreds of thousands, a `pg_trgm` GIN index on `persona_name` (the extension in one migration, the index built concurrently in its own) keeps the search fast.
 
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-a-private-profile-closes-its-social-side-plan.md`
   summary: Going private gives no feedback afterwards, and a trade opened after the settings page rendered (or with JavaScript off) is cancelled without the confirmation.

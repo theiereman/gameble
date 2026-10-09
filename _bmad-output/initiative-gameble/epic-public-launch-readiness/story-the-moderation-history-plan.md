@@ -1,7 +1,7 @@
 ---
 title: 'The moderation history'
 type: 'feature'
-ticket: '15'
+ticket: '19'
 created: '2026-10-09'
 status: 'built'
 baseline_revision: '82e9a6025bc8cd9fdea4831ae3f66ca8dd08b343'

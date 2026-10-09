@@ -3,7 +3,7 @@ title: 'Feed fallback, filters and empty states'
 type: 'feature'
 ticket: '2'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: 'e419296bcc721682f3ba0eafef14b228311cacf9'
 route: 'full'
 route_source: 'auto'

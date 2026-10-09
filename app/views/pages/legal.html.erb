@@ -1,0 +1,90 @@
+<% content_for :back_button, true %>
+<% content_for :title, t(".title") %>
+<% content_for :screen_title, t(".title") %>
+<article class="legal" aria-labelledby="legal-heading">
+  <h1 id="legal-heading" class="legal__title"><%= t(".title") %></h1>
+
+  <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { labelledby: "legal-publisher" }) do %>
+    <h2 id="legal-publisher" class="legal__heading"><%= t(".publisher.title") %></h2>
+    <dl class="legal__facts">
+      <div class="legal__fact">
+        <dt><%= t(".publisher.publisher") %></dt>
+        <dd><%= t(".publisher.anonymous") %></dd>
+      </div>
+      <% if @legal.contact_email %>
+        <div class="legal__fact legal__contact">
+          <dt><%= t(".publisher.contact") %></dt>
+          <dd><%= mail_to @legal.contact_email, class: "legal__link" %></dd>
+        </div>
+      <% end %>
+      <% if @legal.host_name || @legal.host_address %>
+        <div class="legal__fact legal__host">
+          <dt><%= t(".publisher.host") %></dt>
+          <dd>
+            <% if @legal.host_name %><span class="legal__host-name"><%= @legal.host_name %></span><% end %>
+            <% if @legal.host_address %><span class="legal__host-address"><%= @legal.host_address %></span><% end %>
+          </dd>
+        </div>
+      <% end %>
+    </dl>
+  <% end %>
+
+  <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { labelledby: "legal-ownership" }) do %>
+    <h2 id="legal-ownership" class="legal__heading"><%= t(".ownership.title") %></h2>
+    <p class="legal__affiliation"><%= t(".ownership.affiliation") %></p>
+    <p class="legal__ownership"><%= t(".ownership.artwork") %></p>
+    <p><%= t(".ownership.data") %></p>
+  <% end %>
+
+  <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { labelledby: "legal-terms" }) do %>
+    <h2 id="legal-terms" class="legal__heading"><%= t(".terms.title") %></h2>
+    <ol class="legal__list">
+      <li><%= t(".terms.free") %></li>
+      <li><%= t(".terms.no_money") %></li>
+      <li><%= t(".terms.no_property") %></li>
+      <li><%= t(".terms.fair_play") %></li>
+      <li><%= t(".terms.moderation") %></li>
+      <li><%= t(".terms.content") %></li>
+      <li><%= t(".terms.no_guarantee") %></li>
+      <li><%= t(".terms.changes") %></li>
+      <li><%= t(".terms.law") %></li>
+    </ol>
+  <% end %>
+
+  <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { labelledby: "legal-privacy" }) do %>
+    <h2 id="legal-privacy" class="legal__heading"><%= t(".privacy.title") %></h2>
+    <p><%= t(".privacy.stored.intro") %></p>
+    <ul class="legal__list">
+      <li><%= t(".privacy.stored.steam") %></li>
+      <li><%= t(".privacy.stored.activity") %></li>
+      <li><%= t(".privacy.stored.settings") %></li>
+      <li><%= t(".privacy.stored.last_seen") %></li>
+    </ul>
+    <p><%= t(".privacy.cookies") %></p>
+    <p><%= t(".privacy.nothing_else") %></p>
+    <p><%= t(".privacy.services.intro") %></p>
+    <ul class="legal__list">
+      <li><%= t(".privacy.services.steam") %></li>
+      <li><%= t(".privacy.services.sentry") %></li>
+      <li><%= t(".privacy.services.cloudflare") %></li>
+      <li><%= t(".privacy.services.images") %></li>
+    </ul>
+    <p><%= t(".privacy.deletion") %></p>
+    <p><%= t(".privacy.rights.intro") %></p>
+    <ul class="legal__list">
+      <% if @legal.contact_email %>
+        <li class="legal__access"><%= t(".privacy.rights.access_html", contact: mail_to(@legal.contact_email, class: "legal__link")) %></li>
+      <% else %>
+        <li class="legal__access"><%= t(".privacy.rights.access_publisher") %></li>
+      <% end %>
+      <li><%= t(".privacy.rights.erasure") %></li>
+      <li><%= t(".privacy.rights.complaint_html", authority: external_link_to(t(".privacy.rights.authority"), "https://www.cnil.fr", class: "legal__link")) %></li>
+    </ul>
+  <% end %>
+
+  <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { labelledby: "legal-support" }) do %>
+    <h2 id="legal-support" class="legal__heading"><%= t(".support.title") %></h2>
+    <p><%= t(".support.text") %></p>
+    <%= donation_link_to t(".support.link"), class: "button button--secondary button--small legal__donation" %>
+  <% end %>
+</article>

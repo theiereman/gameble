@@ -3,7 +3,7 @@ title: 'Card component'
 type: 'feature'
 ticket: '5'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '55ca9d310265c7cde281c613a1aa3e1fa7dcbed8'
 route: 'full'
 route_source: 'auto'

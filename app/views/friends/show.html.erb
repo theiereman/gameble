@@ -65,7 +65,10 @@
       <% @friends.each do |friend| %>
         <li class="friends__row friends__friend">
           <button type="button" class="friends__name" aria-haspopup="dialog" data-controller="dialog-opener" data-action="dialog-opener#open" data-dialog-opener-dialog-value="<%= friend_dialog_id(friend.player.token) %>"><%= friend_name(friend.player) %></button>
-          <%= render "friends/presence", presence: friend %>
+          <span class="friends__actions">
+            <%= render "friends/presence", presence: friend %>
+            <%= render "friends/public_profile_link", friend: friend.player %>
+          </span>
         </li>
       <% end %>
     </ul>

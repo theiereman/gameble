@@ -1,0 +1,114 @@
+# tickets.toml — the stories of the recognizable sets epic, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "spike"
+title = "Sets on real data"
+description = "On staging's imported catalog, confirms developers and franchises sit in steam_apps.details, counts games per franchise and studio, drafts the theme list from Steam::GenreTags and the tag counts, measures the UFOs' share and proposes hall of fame thresholds; the author settles the numbers and confirms the tier percentages."
+verify = "A short report beside the epic gives the counts, the proposed theme list with the UFOs' share under about 5 %, the franchise and studio minimum, and the hall of fame thresholds, and the tier percentages, each marked agreed by the author in the epic's Notes."
+covers = ["R1", "R2", "R3"]
+after = []
+hitl = true
+risk = "medium"
+
+[[entry]]
+id = 2
+type = "story"
+title = "The import keeps developers, franchises and the review count"
+description = "Reads developers and franchises from the raw item each Steam app already stores, keeps them on the card through the draft upsert, keeps each card-season's Steam review count for the hall of fame, frozen at publication, and fills developers and franchises once for the cards already imported from the stored Steam items, without a new import (AD-4, AD-5)."
+verify = "On a copy of staging's data every card whose Steam item names a developer or franchise has it and every card-season has its review count; a fresh import run fills them too; packwerk and the import tests pass."
+covers = ["R3"]
+after = [1, "2.10"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Themes, franchises, studios, hall of fame and the UFOs replace the old sets"
+description = "Replaces the set builder's kinds with the five new ones using the spike's numbers, moves the theme list with French and English names into code in place of Steam::GenreTags, records each card-season's main theme at publication, identifies sets by kind and key, writes each set's tier requirements as rows at publication, widens the set kind check (expand only; entry 4 narrows it), and adapts Catalog::DraftPreview and Catalog::CollectionGrid, which read tomes; the current collection screens show the new sets (AD-5)."
+verify = "Publishing a draft builds only the five kinds; every card is in at least one set and the UFOs stay under the agreed share; a card's genre is its main theme in both languages; the collection lists the new sets on staging."
+covers = ["R1", "R2", "R3", "R4"]
+after = [1, 2, "2.7"]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 4
+type = "story"
+title = "The published season gets its new sets once"
+description = "Catalog::RebuildSeasonSets rebuilds the sets of a season published with the retired kinds, once and with openings paused: it publishes Catalog::SeasonSetsRebuilt with the retired set ids, a Game handler deletes their completion rows, then the sets are replaced and the kind check narrowed to the five kinds; follows the numbering precedent (catalog:number_seasons) (AD-5, AD-10)."
+verify = "Run on a copy of staging's data, the published season holds only the new kinds and no old completion; a second run changes nothing; holdings, rarities and numbers are untouched; the kind check refuses a tome."
+covers = ["R10"]
+after = [3]
+hitl = true
+risk = "medium"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Tiers and the celebration at opening"
+description = "Replaces set completions with one row per player, set and tier reached, read against the tier rows written at publication; each new row publishes one event (bronze or silver Game::SetTierReached, gold or complete Game::SetCompleted); the opening's response carries the tiers reached (AD-10, AD-23); and adds a celebration banner after the reveal that the booster live region announces; builds on entry 4, which dropped the published season's old completions."
+verify = "Opening the pack that crosses 25 % of a theme shows the bronze celebration once and writes one row and one event; a second crossing writes nothing; a franchise completed shows the completion; the live region announces it."
+covers = ["R5", "R6"]
+after = [4, "6.7"]
+hitl = false
+risk = "medium"
+unknown = "The celebration banner is drawn with bmad-ux before the build."
+
+[[entry]]
+id = 6
+type = "story"
+title = "Tiers and completions in the feed and the LIVE ticker"
+description = "Adds feed entries and ticker items for a set tier reached and a set completed, from the events of entry 5, behind the feed's visibility rules; a set entry names the player, the set and the tier, with no pack or card (AD-13)."
+verify = "A player reaching silver on a theme appears in the feed and the ticker for a signed-out visitor; a private profile's tier does not appear."
+covers = ["R6"]
+after = [5, "6.1", "6.2", "6.4"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 7
+type = "story"
+title = "The collection opens on sets in progress"
+description = "Makes \"EN COURS\" (sets sorted by closeness to their next tier or completion, plus those just progressed in), \"À DÉCOUVRIR\" and a search over every set the collection's entry screen, on the player's own collection and on public and friends' profiles, and turns the hub panel into \"SETS EN COURS\"; adds no migration, reading tier rows and holdings' last_gained_at."
+verify = "A player with progress sees their closest sets first; a new player sees \"À DÉCOUVRIR\" filled; searching \"souls\" finds Souls-like; a signed-out visitor sees a public profile's sets in progress; the hub shows four sets in progress."
+covers = ["R7"]
+after = [5, "10.7"]
+hitl = true
+risk = "medium"
+unknown = "The screen design is drawn with bmad-ux before the build."
+
+[[entry]]
+id = 8
+type = "story"
+title = "The set album"
+description = "Opens a set as an album page: name, kind, owned / total, tier marks or the \"COMPLET\" stamp, its cards in set order with missing-card slots; reached from \"EN COURS\", the search, the hub and the card detail's sets."
+verify = "A theme at silver shows its tier marks with silver reached and its missing games named; a completed franchise shows \"COMPLET\"; the same album opens signed out on a public profile."
+covers = ["R8"]
+after = [7]
+hitl = true
+risk = "medium"
+unknown = "The album design is drawn with bmad-ux before the build."
+
+[[entry]]
+id = 9
+type = "story"
+title = "The card grid as the secondary view"
+description = "Moves the grid of every card with its filter zone and search behind \"TOUTES LES CARTES\" from the collection, its set filter choosing a kind then a set by search instead of listing every set as chips."
+verify = "From the collection, \"TOUTES LES CARTES\" opens the grid with its filters; filtering on one theme and one rarity combines as before; the set filter finds a franchise by typing its name."
+covers = ["R9"]
+after = [8, "10.7"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 10
+type = "story"
+title = "Refactor sweep"
+description = "Cleans up what this epic's build records and deferred review findings name, including the retired set kinds' leftovers; scope set when it starts."
+verify = "The full test suite, system tests for what was touched, packwerk and zeitwerk pass; no reference to tomes, publisher sets or best-of-year sets remains in app and pack code or in the locales (migrations aside)."
+covers = []
+after = [2, 3, 4, 5, 6, 7, 8, 9]
+hitl = false
+risk = "low"

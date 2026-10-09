@@ -25,7 +25,7 @@ For a player: every screen epics 1 to 4 built follows `DESIGN.md` and `EXPERIENC
 ## Requirements
 
 - R1 (CAP-6; AD-26): the collection shows the sets with their progress, owned faces with their copies, missing slots naming the game, and NOUVEAU on cards gained since the collection was last seen; grids beyond about 60 slots are paginated.
-- R2 (CAP-7): the card detail ("FICHE DE LA CARTE") shows its facts, "VOIR SUR STEAM" and "PARTAGER"; on the phone it is a sub-view with previous and next; a card not owned shows the Standard back faded.
+- R2 (CAP-7): the card detail ("FICHE DE LA CARTE") shows its facts, "VOIR SUR STEAM" and "PARTAGER"; on the phone it is a sub-view; previous and next on phone and desktop walk the opened booster or the collection grid it was opened from, else the card's tome, and the way back from it returns to the opened booster (amended 2026-10-08, bug 8); a card not owned shows the Standard back faded.
 - R3 (CAP-8, CAP-9; AD-15): the public profile and the shared card page follow the design; the shared page shows the card only and its preview carries title and rarity with no image.
 - R4 (CAP-16; AD-7): the daily booster panel claims a 3-card booster into the reserve, refuses at a full reserve, and counts down to midnight UTC.
 - R5 (Reduced motion and player-facing words constraints; AD-18, AD-27): the profile and settings screen holds language, "Animations réduites" and sign-out; one motion switch drives CSS, Stimulus, islands and View Transitions.
@@ -57,3 +57,4 @@ The web layer's screens and their Stimulus controllers, the NOUVEAU watermark in
 
 - Decision (2026-10-05): split from epic-space-terminal-redesign; approved by the author.
 - Decision (2026-10-07): the author's appearance remarks (ux-gameble/.memlog.md, entries of 2026-10-07; DESIGN.md and EXPERIENCE.md updated) become R7 and two stories, after story 4 and before the refactor sweep: global spacing, centred booster opening and the still star field first, then the collection's filter zone and search, so the two never edit the same stylesheets at once. Filter groups and the folded default are `[ASSUMPTION]` in the spines.
+- Decision (2026-10-08): R2's previous and next extend to the desktop and follow where the detail was opened from (the opened booster, the collection grid as shown, else the card's tome); coming back from a card's detail shows the opened booster with its cards face up; bug 8 carries it and updates EXPERIENCE.md (author).

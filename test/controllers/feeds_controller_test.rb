@@ -1,9 +1,9 @@
 require "test_helper"
 require_relative "../support/game_packs"
 
-# The activity feed (CAP-13, CAP-18; stories 6.1, 6.2, 6.7): readable signed
-# out, newest pulls and first discoveries first, under the type filters, a
-# GET writes nothing (AD-11).
+# The activity feed: readable signed out, newest pulls and first discoveries
+# first, under the All and Friends tabs and the type filters; a GET writes
+# nothing.
 class FeedsControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
 
@@ -12,12 +12,38 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     @player.update!(persona_name: "Hugo")
   end
 
-  def open_epic
-    create_pack(@player, cards: [ fixture_tier_ids[3] ] * 5)
-    Game::OpenPack.new.call(player: @player).value!
+  teardown do
+    OmniAuth.config.mock_auth.delete(:steam)
+    OmniAuth.config.test_mode = false
   end
 
-  test "a signed-out visitor reads the pulls of Épique or better" do
+  def open_epic(player = @player)
+    create_pack(player, cards: [ fixture_tier_ids[3] ] * 5)
+    Game::OpenPack.new.call(player:).value!
+  end
+
+  def sign_in(player)
+    OmniAuth.config.test_mode = true
+    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
+    post "/auth/steam", params: { origin: "/en" }
+    follow_redirect!
+  end
+
+  def befriend(first, second)
+    Game::Friendship.create!(low_player_id: [ first.id, second.id ].min, high_player_id: [ first.id, second.id ].max)
+  end
+
+  def friends_and_strangers(signed_in: true)
+    @friend = accounts_players(:moderator).tap { it.update!(persona_name: "Sam") }
+    @stranger = accounts_players(:administrator).tap { it.update!(persona_name: "Léa") }
+    befriend(@player, @friend)
+    [ @player, @friend, @stranger ].each { open_epic(it) }
+    sign_in(@player) if signed_in
+  end
+
+  def names = css_select(".feed__sentence strong:first-child").map(&:text).uniq.sort
+
+  test "a signed-out visitor reads the pulls of Epic or better" do
     open_epic
 
     get feed_path(locale: :en)
@@ -25,6 +51,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "main h1", "Activity feed"
     assert_select ".feed__tab[aria-current]", "All"
+    assert_select ".feed__filter[aria-current]", "Everything"
     assert_select ".feed__entry", 5
     assert_select ".feed__entry--filler", 0
     assert_select ".feed__sentence strong", text: "Hugo"
@@ -86,7 +113,6 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".feed__filter[aria-current]", "Pulls"
-    assert_select ".feed__tab[aria-current]", "All"
     assert_select ".feed__entry", 5
   end
 
@@ -134,7 +160,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a first discovery shows with its gold chip under the whole feed and DÉCOUVERTES, in French and English" do
+  test "a first discovery shows with its gold chip under the whole feed and Discoveries, in French and English" do
     common = fixture_tier_ids[0]
     Game::FirstDiscovery.where(card_season_id: common).delete_all
     create_pack(@player, cards: [ common ] * 5)
@@ -163,11 +189,221 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__chip", 0
   end
 
+  def repost(card_season_id)
+    Game::Holding.create!(player_id: @player.id, card_season_id:, quantity: 1)
+    Game::RepostCard.new.call(player: @player, card_season_id:).value!
+  end
+
+  test "a repost reads as a sentence with the REPOST tag and its thumbnail framed in its rarity, in French and English" do
+    repost(catalog_card_seasons(:portal_one).id)
+
+    get feed_path(locale: :fr)
+    assert_select ".feed__entry", 1
+    assert_select ".feed__sentence", "Hugo a reposté Portal."
+    assert_select ".feed__tag.feed__tag--repost", "Repost"
+    assert_select ".feed__tag--epic", 0
+    assert_select ".feed__chip", 0
+    assert_select "a.feed__thumb.feed__thumb--framed.feed__thumb--epic[href=?]", card_path(locale: :fr, slug: "portal")
+
+    get feed_path(locale: :en)
+    assert_select ".feed__sentence", "Hugo reposted Portal."
+    assert_select "[style]", 0
+  end
+
+  test "Reposts shows only the reposts, each with its tag" do
+    open_epic
+    repost(catalog_card_seasons(:common_card_one).id)
+
+    get feed_path(locale: :en, filter: "reposts")
+
+    assert_select ".feed__filter[aria-current]", "Reposts"
+    assert_select ".feed__entry", 1
+    assert_select ".feed__entry .feed__tag--repost", 1
+    assert_select ".feed__thumb--common", 1
+
+    get feed_path(locale: :en)
+    assert_select ".feed__entry", 6
+    assert_select ".feed__entry:first-child .feed__sentence", "Hugo reposted Tin Soldier."
+  end
+
+  test "a hidden player's repost is not shown" do
+    repost(catalog_card_seasons(:portal_one).id)
+    @player.update!(visibility: :private)
+
+    get feed_path(locale: :en, filter: "reposts")
+
+    assert_select ".feed__entry", 0
+  end
+
   test "menu 05 and the PLUS row link to the feed" do
     get home_path(locale: :en)
     assert_select "a.menu-item[href=?]", feed_path(locale: :en), /Activity feed/
 
     get more_path(locale: :en)
     assert_select "a.menu-item--plus[href=?]", feed_path(locale: :en)
+  end
+
+  test "All shows everyone's entries, current, beside Friends" do
+    friends_and_strangers
+
+    get feed_path(locale: :en)
+
+    assert_equal %w[All Friends], css_select(".feed__tabs .feed__tab").map { |tab| tab.text.strip }
+    assert_select ".feed__tabs[aria-label=?]", "Whose events"
+    assert_select ".feed__tab[aria-current]", count: 1, text: "All"
+    assert_select "a.feed__tab[href=?]", feed_path(locale: :en, tab: "friends"), text: "Friends"
+    assert_equal %w[Hugo Léa Sam], names
+  end
+
+  test "Friends shows only the friends' entries, not the player's own nor a stranger's" do
+    friends_and_strangers
+
+    get feed_path(locale: :en, tab: "friends")
+
+    assert_response :success
+    assert_select ".feed__tab[aria-current]", count: 1, text: "Friends"
+    assert_select ".feed__entry", 5
+    assert_equal %w[Sam], names
+    assert_select ".feed__no-friends", 0
+  end
+
+  test "Friends · Pulls shows the friends' pulls, each row keeping the other's choice" do
+    friends_and_strangers
+    add_repost(@friend)
+
+    get feed_path(locale: :fr, tab: "friends", filter: "pulls")
+
+    assert_select ".feed__tab[aria-current]", "Amis"
+    assert_select ".feed__filter[aria-current]", "Tirages"
+    assert_select ".feed__entry", 5
+    assert_select ".feed__tag--repost", 0
+    assert_equal %w[Sam], names
+    assert_select "a.feed__tab[href=?]", feed_path(locale: :fr, filter: "pulls"), text: "Tous"
+    assert_select "a.feed__tab[href=?]", feed_path(locale: :fr, tab: "friends", filter: "pulls"), text: "Amis"
+    assert_select "a.feed__filter[href=?]", feed_path(locale: :fr, tab: "friends"), text: "Tout"
+    %w[pulls discoveries trades reposts].each do |filter|
+      assert_select "a.feed__filter[href=?]", feed_path(locale: :fr, tab: "friends", filter:)
+    end
+
+    get feed_path(locale: :fr, tab: "friends", filter: "reposts")
+    assert_select ".feed__entry", 1
+    assert_select ".feed__sentence", "Sam a reposté Portal."
+  end
+
+  test "Friends without a friend invites to add some, in French and English" do
+    open_epic
+    sign_in(@player)
+
+    get feed_path(locale: :fr, tab: "friends")
+
+    assert_response :success
+    assert_select ".feed__entry", 0
+    assert_select ".feed__empty", 0
+    assert_select ".feed__no-friends" do
+      assert_select "p", "Ajoutez des amis pour suivre leurs tirages."
+      assert_select "a.button.button--primary[href=?]", friends_path(locale: :fr), "Ajouter des amis"
+    end
+
+    get feed_path(locale: :en, tab: "friends", filter: "trades")
+    assert_select ".feed__no-friends p", "Add friends to follow their pulls."
+    assert_select ".feed__no-friends a[href=?]", friends_path(locale: :en), "Add friends"
+  end
+
+  test "Friends with friends but nothing under the filter says the filter's empty line" do
+    friends_and_strangers
+
+    get feed_path(locale: :en, tab: "friends", filter: "trades")
+
+    assert_select ".feed__entry", 0
+    assert_select ".feed__no-friends", 0
+    assert_select ".feed__empty", "Nothing in this filter yet."
+  end
+
+  test "a private friend's entries are absent from the Friends tab" do
+    friends_and_strangers
+    @friend.update!(visibility: :private)
+
+    get feed_path(locale: :en, tab: "friends")
+
+    assert_select ".feed__entry", 0
+    assert_select ".feed__empty", "Nothing here yet."
+  end
+
+  test "signed out, Friends opens the sign-in panel and ?tab=friends reads All" do
+    friends_and_strangers(signed_in: false)
+
+    get feed_path(locale: :en, tab: "friends", filter: "pulls")
+
+    assert_response :success
+    assert_select ".feed__tab[aria-current]", count: 1, text: "All"
+    assert_select "a.feed__tab[href=?]", feed_path(locale: :en, filter: "pulls"), text: "All"
+    assert_select "button.feed__tab[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]", "Friends"
+    assert_select "a.feed__tab", 1
+    assert_select "a.feed__filter[href=?]", feed_path(locale: :en)
+    assert_equal %w[Hugo Léa Sam], names
+  end
+
+  test "an unknown tab is All" do
+    friends_and_strangers
+
+    get feed_path(locale: :en, tab: "zzz")
+
+    assert_select ".feed__tab[aria-current]", "All"
+    assert_equal %w[Hugo Léa Sam], names
+  end
+
+  test "a Friends GET writes no row" do
+    friends_and_strangers
+
+    assert_no_difference -> { Game::FeedEntry.count + Rails.configuration.event_store.read.count + Game::Pack.count + Game::Friendship.count } do
+      get feed_path(locale: :en, tab: "friends", filter: "pulls")
+    end
+  end
+
+  def stream_names
+    css_select("turbo-cable-stream-source").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
+  end
+
+  test "All without a filter listens to the public stream, its list named for new entries, with a polite status line" do
+    open_epic
+
+    get feed_path(locale: :fr)
+
+    assert_equal %w[live:fr], stream_names
+    assert_select "section.feed[data-controller=feed-announcer][data-feed-announcer-limit-value=?]", Game::FeedEntries::LIMIT.to_s
+    assert_select "section.feed[data-controller=feed-announcer]" do |section|
+      templates = JSON.parse(section.sole["data-feed-announcer-templates-value"])
+      assert_equal "3 nouvelles entrées dans le fil.", templates["other"].sub("%{count}", "3")
+      assert_equal "1 nouvelle entrée dans le fil.", templates["one"]
+      assert templates["zero"]
+    end
+    assert_select "ul#feed-entries.feed__list[data-feed-announcer-target=list] > li.feed__entry", 5
+    assert_select ".feed p.visually-hidden[role=status][data-feed-announcer-target=status]", text: ""
+  end
+
+  test "an empty All keeps its live list for the first entry, beside the empty line" do
+    get feed_path(locale: :en)
+
+    assert_select "ul#feed-entries", 1
+    assert_select "ul#feed-entries > li", 0
+    assert_select ".feed__empty", "Nothing here yet."
+    assert_equal %w[live:en], stream_names
+  end
+
+  test "a filtered view and the Friends tab are read at render: no stream, no live list, no status line" do
+    friends_and_strangers
+
+    { feed_path(locale: :en, filter: "pulls") => 15, feed_path(locale: :en, tab: "friends") => 5 }.each do |path, entries|
+      get path
+      assert_select ".feed__entry", entries
+      assert_select "#feed-entries, .feed [role=status], [data-controller=feed-announcer]", 0
+      assert_equal [], stream_names - [ PlayerStream.name(@player, :en) ], path
+    end
+  end
+
+  def add_repost(player)
+    card_season_id = catalog_card_seasons(:portal_one).id
+    Game::Holding.find_or_create_by!(player_id: player.id, card_season_id:) { it.quantity = 1 }
+    Game::RepostCard.new.call(player:, card_season_id:).value!
   end
 end

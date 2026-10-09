@@ -1,8 +1,9 @@
-# Two operations raced on two connections, for tests that commit for real
-# (use_transactional_tests = false): the first holds its transaction open
-# until the second waits on a lock, then commits.
+# Operations raced on their own connections, for tests that commit for real
+# (use_transactional_tests = false): either the first holds its transaction
+# open until the second waits on a lock, then commits, or all start at once.
 #
 #   first, second = first_holding_the_lock(-> { ban }, -> { dismiss })
+#   results = together(-> { open_pack }, -> { delete_player })
 module LockRaces
   # Runs `first` in a transaction that stays open until `second`, started on
   # another connection, waits on a lock; then commits it. Returns both
@@ -42,5 +43,22 @@ module LockRaces
 
       sleep 0.01
     end
+  end
+
+  # Runs the blocks at once, each on its own connection, and returns their
+  # results in order; a thread that never returns fails the test, as a
+  # deadlock would hang it.
+  def together(*blocks)
+    gate = Queue.new
+    threads = blocks.map do |block|
+      Thread.new do
+        ActiveRecord::Base.connection_pool.with_connection do
+          gate.pop
+          block.call
+        end
+      end
+    end
+    blocks.size.times { gate << :go }
+    threads.map { |thread| thread.join(20) ? thread.value : flunk("a thread is stuck: deadlock") }
   end
 end

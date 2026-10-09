@@ -7,6 +7,7 @@ parent: initiative-gameble
 covers: [CAP-4, CAP-5, CAP-16]
 after: []
 assignee: ""
+status: done
 risk: high
 estimate: ""
 estimate_basis: ""
@@ -67,3 +68,7 @@ The pack bank, draws and holdings in `Game`, the attic screen, the reveal React 
 - Measured (2026-10-02, story 9, `RAILS_ENV=test bin/rails game:benchmark_open_pack`): on a 15,000-card published season, 1,000 timed openings per series after 50 discarded, three runs, the worst POST `/en/packs` p95 is 9.3 ms (p50 7.8, p99 11.0, max 13.7; 15 queries per opening), the result page GET p95 4.8 ms (3 queries), `Game::OpenPack` alone p95 6.7 ms (14 queries); the cold `DrawPool` build on 15,000 rows takes 25–34 ms. An earlier run on the same machine, under load from a concurrent test suite, gave a worst POST p95 of 19.5 ms. Machine: Ruby 4.0.7, YJIT off; PostgreSQL 18.6 in Docker at localhost:5433; AMD Ryzen 5 3600, 12 CPUs. In-process, no concurrency, dev machine: a lower bound for production. No tuning was needed; the boot warm-up of the draw pool was not kept (cold build under 50 ms).
 - Unknown: the final art of the attic; the author generates it from `ux-gameble/art-prompts.md`.
 - Measured (2026-10-02, refactor sweep, after the reveal page): `game:benchmark_open_pack`, same machine — POST `/en/packs` worst p95 8.8 ms (15 queries per opening); the result page GET with the reveal (CardViews, CardStrings, BankSummary) p95 7.5–8.1 ms (7 queries); `Game::OpenPack` alone p95 6.3–6.4 ms; cold DrawPool build 24–30 ms.
+- Decision (2026-10-08): R5's dust, rarity seal and wipe, R7's React card and R9's attic are superseded by the redesign settled on 2026-10-05 (`pending-approvals.md`) and built in epic-space-terminal-redesign (8.2 hub, 8.6 single card face, 8.7 `dust_tier` dropped, 8.11 and 8.12 booster island); flip all holding a Légendaire and the phone one-card-at-a-time reveal stand in the booster.
+- Decision (2026-10-08): R6 and Done when 4 are superseded by 8.5 and AD-17 as amended: covers are reduced to 32 colours in a worker by the `pixelcrush` npm package; `packages/pixel-art-filter` is gone.
+- Decision (2026-10-08): R4's replacement rule stands as amended in AD-7 (2026-10-03) and by story 7.6 (2026-10-07): a bank short of ten stays short until a season's publication heals it; R8 also refuses the bonus at a full reserve (settled 2026-10-05).
+- Closed (2026-10-08): all eleven children done, verified by the author; browsing an opened booster's cards and returning to it from the card detail is carried by bug 10.8 (epic-space-terminal-screens), races between bank operations by story 7.9 (epic-public-launch-readiness).

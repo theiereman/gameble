@@ -19,6 +19,11 @@ module Game
       Catalog::CardSeason.where(id: request.keys).count == request.size ? Success() : Failure(:invalid_request)
     end
 
+    def requestable(request, holder_id)
+      owned = Holding.where(player_id: holder_id, card_season_id: request.keys).pluck(:card_season_id, :quantity).to_h
+      request.all? { |card_season_id, quantity| quantity <= owned.fetch(card_season_id, 0) } ? Success() : Failure(:request_exceeds_holdings)
+    end
+
     def friends(player, other)
       current = Accounts::Player.where(id: [ player.id, other.id ]).index_by(&:id)
       fresh_other = current[other.id]
@@ -48,20 +53,12 @@ module Game
       trade.open? ? Success() : Failure(:trade_not_open)
     end
 
+    def current_terms(trade, revision)
+      trade.revision == revision ? Success() : Failure(:trade_changed)
+    end
+
     def not_expired(trade, now)
       trade.expired?(now) ? Failure(:trade_expired) : Success()
-    end
-
-    def same_terms(trade, seen)
-      trade.proposed_at == seen_at(seen) ? Success() : Failure(:trade_changed)
-    end
-
-    def seen_at(seen)
-      return seen if seen.is_a?(Time)
-
-      Time.iso8601(seen) if seen.is_a?(String)
-    rescue ArgumentError
-      nil
     end
 
     def enough_copies(lines, holdings, code = :insufficient_copies)

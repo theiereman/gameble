@@ -124,4 +124,21 @@ class Game::VisibilityTest < ActiveSupport::TestCase
     assert_not Game::Visibility.open_to_friends?(@friend.reload)
     assert_not Game::Visibility.open_to_friends?(nil)
   end
+
+  test "open to friends: a public or friends-only owner, never a private, banned, deleted or missing one" do
+    assert Game::Visibility.open_to_friends?(@owner)
+    @owner.visibility_friends_only!
+    assert Game::Visibility.open_to_friends?(@owner)
+    @owner.visibility_private!
+    assert_not Game::Visibility.open_to_friends?(@owner)
+
+    banned = accounts_players(:banned)
+    banned.visibility_friends_only!
+    assert_not Game::Visibility.open_to_friends?(banned)
+    assert_not Game::Visibility.open_to_friends?(nil)
+
+    @owner.visibility_public!
+    Accounts::DeletePlayer.new.call(player: @owner).value!
+    assert_not Game::Visibility.open_to_friends?(@owner.reload)
+  end
 end

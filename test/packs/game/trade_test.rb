@@ -127,7 +127,9 @@ class Game::TradeTest < ActiveSupport::TestCase
 
   test "four different cards per side are accepted" do
     ids = [ @one, @two, catalog_card_seasons(:uncommon_card_one).id, catalog_card_seasons(:legendary_card_one).id ]
-    ids.each { |id| Game::Holding.find_or_create_by!(player_id: @alice.id, card_season_id: id) { |holding| holding.quantity = 1 } }
+    [ @alice, @bob ].each do |player|
+      ids.each { |id| Game::Holding.find_or_create_by!(player_id: player.id, card_season_id: id) { |holding| holding.quantity = 1 } }
+    end
 
     trade = propose(offer: ids.to_h { |id| [ id, 1 ] }, request: ids.to_h { |id| [ id, 1 ] }).value!
 
@@ -147,12 +149,14 @@ class Game::TradeTest < ActiveSupport::TestCase
   test "copies reserved in another trade are not offered again, a card fully reserved is refused" do
     carol = accounts_players(:administrator)
     befriend(@alice, carol)
+    hold(carol, @three, 1)
     propose(offer: { @one => 2 }).value!
 
     assert_equal Dry::Monads::Failure(:insufficient_copies), propose(@alice, carol, offer: { @one => 2 })
     assert propose(@alice, carol, offer: { @one => 1 }).success?
     dave = Accounts::Player.create!(steam_id: "76561197960287099", persona_name: "Dave")
     befriend(@alice, dave)
+    hold(dave, @three, 1)
     assert_equal Dry::Monads::Failure(:insufficient_copies), propose(@alice, dave, offer: { @one => 1 }), "all three copies are reserved"
     assert_equal 3, reserved(@alice, @one)
   end
@@ -173,7 +177,7 @@ class Game::TradeTest < ActiveSupport::TestCase
   test "declining releases the proposer's offer, closes the trade and publishes once" do
     trade = propose.value!
 
-    result = Game::DeclineTrade.new.call(player: @bob, trade_id: trade.id, seen: trade.proposed_at)
+    result = Game::DeclineTrade.new.call(player: @bob, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision)
 
     assert_equal "declined", result.value!.status
     assert_equal 0, reserved(@alice, @one)

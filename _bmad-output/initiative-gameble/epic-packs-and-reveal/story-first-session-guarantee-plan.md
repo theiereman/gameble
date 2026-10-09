@@ -3,7 +3,7 @@ title: 'First-session guarantee'
 type: 'feature'
 ticket: '3'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '3577e96d9e1792047be46235aaa7b8a59c5cb65a'
 route: 'oneshot'
 route_source: 'auto'

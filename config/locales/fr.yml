@@ -6,6 +6,8 @@ fr:
       title: "gameble"
       application_name: "gameble"
   shell:
+    live:
+      marker: "Live"
     top_bar:
       brand: "gameble"
       back: "Pont"
@@ -120,6 +122,58 @@ fr:
       title: "Plus"
       subtitle: "Le reste du vaisseau"
       settings: "Profil et paramètres"
+    legal:
+      title: "Mentions légales"
+      publisher:
+        title: "Éditeur et hébergeur"
+        publisher: "Éditeur"
+        anonymous: "Un particulier, à titre non professionnel et non commercial, qui a choisi de rester anonyme. Son identité est connue de l'hébergeur."
+        contact: "Contact"
+        host: "Hébergeur"
+      ownership:
+        title: "Steam, Valve et les jeux"
+        affiliation: "gameble n'est affilié ni à Valve ni à Steam, et n'est ni approuvé ni soutenu par eux. Steam et le logo Steam sont des marques de Valve Corporation."
+        artwork: "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
+        data: "Les noms, couvertures et descriptions des jeux viennent de Steam et restent la propriété de leurs ayants droit."
+      terms:
+        title: "Conditions d'utilisation"
+        free: "gameble est un jeu gratuit, sans publicité et sans achat."
+        no_money: "Aucun argent réel n'y circule : rien ne s'y achète, rien ne s'y vend."
+        no_property: "Les cartes, boosters et dos de cartes sont des éléments du jeu : ils ne sont pas votre propriété et n'ont aucune valeur, ni en argent ni hors de gameble."
+        fair_play: "Jouez loyalement : pas de bot, de script ni d'automatisation, pas de comptes multiples, pas d'exploitation de bug."
+        moderation: "Des modérateurs examinent les signalements et peuvent bannir un compte qui enfreint ces règles."
+        content: "Les jeux, leurs noms et leurs images appartiennent à leurs ayants droit, pas à gameble ni à ses joueurs."
+        no_guarantee: "Le service est fourni tel quel, sans garantie : il peut être interrompu, modifié ou arrêté à tout moment."
+        changes: "Ces conditions peuvent évoluer ; la version en vigueur est toujours celle de cette page."
+        law: "Elles sont régies par le droit français."
+      privacy:
+        title: "Confidentialité"
+        stored:
+          intro: "Pour faire fonctionner le jeu, gameble conserve :"
+          steam: "votre identifiant Steam et votre nom de profil Steam ;"
+          activity: "votre activité de jeu : cartes, boosters, échanges, amis, entrées du fil d'activité et signalements ;"
+          settings: "vos réglages (visibilité du profil, animations réduites) ;"
+          last_seen: "l'heure de votre dernière visite."
+        cookies: "Deux cookies, tous deux strictement nécessaires : celui de la session, qui vous garde connecté, et celui qui retient votre choix d'animations réduites. Le stockage local de votre navigateur garde aussi vos brouillons d'échange et l'état de l'interface, sur votre appareil seulement. Aucun traceur."
+        nothing_else: "Pas de mesure d'audience, pas de publicité, pas d'argent réel. Vos données ne sont ni vendues ni cédées."
+        services:
+          intro: "Quelques services extérieurs interviennent :"
+          steam: "Steam (Valve) gère la connexion et fournit votre nom de profil ;"
+          sentry: "Sentry reçoit les erreurs techniques, avec votre seul identifiant de joueur ;"
+          cloudflare: "Cloudflare se place devant le site et voit passer ses requêtes ;"
+          images: "les images des cartes se chargent depuis le réseau de diffusion de Steam, que votre navigateur contacte directement."
+        deletion: "Un compte supprimé est anonymisé : votre identifiant Steam, votre nom de profil et l'heure de votre dernière visite sont effacés."
+        rights:
+          intro: "Vos droits :"
+          access_html: "accès : demandez une copie de vos données par e-mail, à %{contact} ;"
+          access_publisher: "accès : demandez une copie de vos données à l'éditeur ;"
+          erasure: "suppression : depuis les paramètres, avec « Supprimer mon compte » ;"
+          complaint_html: "réclamation : auprès de la %{authority}."
+          authority: "CNIL"
+      support:
+        title: "Soutenir gameble"
+        text: "gameble est gratuit et le restera. Si le jeu vous plaît, vous pouvez aider à payer son hébergement."
+        link: "Offrir un café"
   back_office:
     dashboard:
       show:
@@ -569,6 +623,12 @@ fr:
       see_card: "Voir la fiche"
       close: "Fermer"
       zoom_tip: "Maintenez la carte pour l'incliner"
+      zoom_previous: "Carte précédente"
+      zoom_next: "Carte suivante"
+      repost: "Reposter"
+      repost_card: "Reposter %{card}"
+      reposted: "Carte repostée dans le fil."
+      repost_failed: "Le repost n'a pas abouti. Vérifiez votre connexion, puis réessayez."
   settings:
     show:
       title: "Profil et paramètres"
@@ -591,6 +651,10 @@ fr:
       account:
         label: "Compte"
         delete: "Supprimer mon compte"
+      support:
+        label: "Soutenir"
+        link: "Offrir un café"
+      legal: "Mentions légales"
     private_dialog:
       title: "Passer en privé ?"
       text:
@@ -604,9 +668,14 @@ fr:
     show:
       title: "Fil d'activité"
       more: "Plus"
-      all: "Tous"
       empty: "Rien pour l'instant."
       empty_filter: "Rien pour l'instant dans ce filtre."
+      tabs_label: "Événements de"
+      tabs:
+        all: "Tous"
+        friends: "Amis"
+      no_friends: "Ajoutez des amis pour suivre leurs tirages."
+      add_friends: "Ajouter des amis"
       filters_label: "Filtrer par type"
       filters:
         all: "Tout"
@@ -619,7 +688,16 @@ fr:
       pulled_html: "%{name} a tiré %{card}"
       first_discovery: "Première découverte"
       discovered_html: "%{card}, trouvée par %{name} pour la première fois dans la communauté"
+      reposted_html: "%{name} a reposté %{card}."
+      repost_tag: "Repost"
+      announcement:
+        zero: "Aucune nouvelle entrée dans le fil."
+        one: "1 nouvelle entrée dans le fil."
+        other: "%{count} nouvelles entrées dans le fil."
   friends:
+    public_profile:
+      label: "Voir le profil"
+      named: "Voir le profil de %{name}"
     show:
       title: "Amis"
       more: "Plus"
@@ -887,10 +965,18 @@ fr:
     create:
       sent: "Merci. L'équipe de modération examinera ce profil. Le joueur ne verra pas qui l'a signalé."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
+  reposts:
+    button: "Reposter"
+    create:
+      reposted: "Carte repostée dans le fil."
+      not_found: "Cette carte n'existe pas."
+      throttled: "Trop de reposts en une minute. Réessayez dans un instant."
   daily_bonuses:
     create:
       collected: "Un booster rejoint votre réserve. Le prochain sera prêt à minuit (UTC)."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
+  external_links:
+    new_tab: "(nouvel onglet)"
   card_details:
     open: "%{title}, %{rarity}, saison %{season}"
     kicker: "Fiche de la carte"
@@ -913,8 +999,6 @@ fr:
     previous: "Carte précédente"
     next: "Carte suivante"
     store: "Voir sur Steam"
-    new_tab: "(nouvel onglet)"
-    notice: "Ce jeu et son image appartiennent à leurs propriétaires respectifs. gameble n'est affilié ni à Valve ni à Steam."
     preview:
       title: "%{title} — %{rarity}"
       description: "Une carte de gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix boosters vous attendent."
@@ -937,8 +1021,8 @@ fr:
       sign_in: "Ouvrir mes premiers boosters"
       update_browser: "Votre navigateur est trop ancien pour se connecter à gameble. Mettez-le à jour pour jouer."
       grid: "Grille"
+      booster: "Booster"
       live:
-        marker: "Live"
         title: "En ce moment sur gameble"
       legal: "Mentions légales"
   catalog:
@@ -1091,8 +1175,9 @@ fr:
       not_allowed: "Ce n'est pas à vous d'agir dans cet échange."
       trade_not_open: "Cet échange est déjà clos."
       trade_expired: "Cet échange a expiré : ses 7 jours sont écoulés."
-      trade_changed: "Cet échange a changé depuis que vous l'avez ouvert. Vérifiez ses nouvelles conditions avant de répondre."
       requested_cards_unavailable: "Exemplaires insuffisants : une carte demandée n'est plus disponible. Rien n'a bougé."
+      request_exceeds_holdings: "Votre ami ne possède pas autant d'exemplaires d'une carte que vous demandez."
+      trade_changed: "Cet échange a changé depuis que vous l'avez ouvert. Relisez ses nouvelles conditions, puis répondez à nouveau."
       trade_not_expired: "Cet échange n'a pas encore expiré."
       invalid_format: "Format attendu : ABCD-1234."
       own_code: "C'est votre propre code."
@@ -1102,6 +1187,7 @@ fr:
       already_friends: "Vous êtes déjà amis."
       already_sent: "Invitation déjà envoyée."
       not_found: "Cette invitation n'existe plus."
+      card_not_owned: "Vous ne possédez pas cette carte."
     steam:
       invalid_claimed_id: "La réponse de Steam n'a pas été reconnue. Connectez-vous à nouveau."
       sign_in_failed: "La connexion avec Steam n'a pas abouti. Réessayez."

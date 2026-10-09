@@ -1,0 +1,1 @@
+<%= turbo_stream.append "toasts" do %><%= render ToastComponent.new(message: @message, tone: @tone) %><% end %>

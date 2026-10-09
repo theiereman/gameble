@@ -1,7 +1,7 @@
 ---
 title: 'A searchable list of players in the back-office'
 type: 'feature'
-ticket: '14'
+ticket: '18'
 created: '2026-10-09'
 status: 'built'
 baseline_revision: '398610cd8ae1d2b9c247ac193b441ddf160124a8'

@@ -3,7 +3,7 @@ title: 'Tome slots'
 type: 'feature'
 ticket: '2'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: 'e4debcffdab80ba7860dcfb5bba6336ddd954611'
 route: 'full'
 route_source: 'auto'

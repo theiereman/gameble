@@ -64,6 +64,21 @@ class Accounts::UnbanPlayerTest < ActiveSupport::TestCase
     assert_empty unbanned_events
   end
 
+  test "a member of staff demoted or banned since they were read is refused" do
+    banned = accounts_players(:banned)
+    demoted = stranger(5).tap { it.update!(role: :moderator) }
+    stale_demoted = Accounts::Player.find(demoted.id)
+    demoted.update!(role: :player)
+    sanctioned = stranger(6).tap { it.update!(role: :moderator) }
+    stale_sanctioned = Accounts::Player.find(sanctioned.id)
+    sanctioned.update!(banned_at: 1.minute.ago)
+
+    assert_equal Dry::Monads::Failure(:staff_required), unban(banned, staff: stale_demoted)
+    assert_equal Dry::Monads::Failure(:staff_required), unban(banned, staff: stale_sanctioned)
+    assert_predicate banned.reload, :banned?
+    assert_empty unbanned_events
+  end
+
   test "the refusal tells the banned list what it would answer" do
     banned = accounts_players(:banned)
 

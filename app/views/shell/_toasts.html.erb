@@ -5,7 +5,7 @@
     page adds its own toasts with `content_for :toasts` (the hub's goal
     reward). %>
 <% messages = flash.to_hash.slice("notice", "alert").compact_blank %>
-<div id="toasts" class="toasts" role="status" aria-live="polite" aria-label="<%= t("shell.toast.region") %>" data-controller="toast">
+<div id="toasts" class="toasts" popover="manual" role="status" aria-live="polite" aria-label="<%= t("shell.toast.region") %>" data-controller="toast">
   <% title = flash["toast_title"].presence %>
   <% messages.each do |type, message| %>
     <%= render ToastComponent.new(message:, title:, tone: type.to_sym) %>

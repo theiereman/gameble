@@ -1,16 +1,14 @@
 /*
- * Fil d'activité (DESIGN.md: Activity feed; EXPERIENCE.md: Fil d'activité;
- * stories 6.1, 6.2, 6.7): the tab and the type filters (the segmented
- * control of settings.css), then one row per entry, at least 68px tall, a
- * first discovery behind its gold chip. Hard edges, no animation, no opacity
- * to dim a filler.
+ * The activity feed: the All and Friends tabs, joined, and the type filters
+ * (the segmented control of settings.css), then one row per entry across
+ * the shell's content width, at least 68px tall, a first discovery behind
+ * its gold chip. Hard edges, no animation, no opacity to dim a filler.
  */
 
 .feed {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  max-width: 720px;
 }
 
 .feed__title {
@@ -19,10 +17,6 @@
   font: var(--font-kicker);
   letter-spacing: var(--tracking-kicker);
   text-transform: uppercase;
-}
-
-.feed__tabs {
-  margin: 0;
 }
 
 /* The five filters wrap on a narrow phone, spaced rather than joined. */
@@ -42,6 +36,14 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.feed__list:not(:has(> li)) {
+  display: none;
+}
+
+.feed__list:has(> li) ~ .feed__empty {
+  display: none;
 }
 
 .feed__entry {
@@ -73,7 +75,7 @@
   font-weight: inherit;
 }
 
-/* A first discovery's chip: gold is kept for what is rare (DESIGN.md). */
+/* A first discovery's chip: gold is kept for what is rare. */
 .feed__chip {
   display: inline-block;
   margin-right: var(--space-2);
@@ -106,7 +108,32 @@
 .feed__tag--epic { color: var(--color-rarity-epique); }
 .feed__tag--legendary { color: var(--color-rarity-legendaire); }
 
+.feed__tag--repost { color: var(--color-accent); }
+
+.feed__thumb--framed {
+  justify-self: start;
+  outline: 2px solid var(--feed-frame);
+  outline-offset: 2px;
+}
+
+.feed__thumb--common { --feed-frame: var(--color-rarity-commune); }
+.feed__thumb--uncommon { --feed-frame: var(--color-rarity-peu-commune); }
+.feed__thumb--rare { --feed-frame: var(--color-rarity-rare); }
+.feed__thumb--epic { --feed-frame: var(--color-rarity-epique); }
+.feed__thumb--legendary { --feed-frame: var(--color-rarity-legendaire); }
+
 .feed__empty {
+  margin: 0;
+}
+
+.feed__no-friends {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.feed__no-friends-text {
   margin: 0;
 }
 

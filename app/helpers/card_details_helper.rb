@@ -1,6 +1,6 @@
 # The words and links of a card's detail and of the links leading to it
-# (CAP-7, story 4.3; epic 10 R2: a set to browse, ◀ and ▶), its faded card
-# back (AD-25), and its link previews (CAP-9).
+# (with what it browses: a grid, an opened pack, a set), its faded card
+# back, and its link previews.
 module CardDetailsHelper
   # Open Graph's name of each locale of the URL.
   OG_LOCALES = { "en" => "en_US", "fr" => "fr_FR" }.freeze
@@ -43,27 +43,22 @@ module CardDetailsHelper
   # A card's face or empty slot, leading to its detail in its own season. A
   # face, given its `strings`, is named by card_detail_open_label; an empty
   # slot, without, by its visible text (title, year, "Missing card"), so a
-  # screen reader tells it from an owned face. Given the `set` (kind and
-  # key) of the grid it sits in, the detail browses that set and shows a
-  # card the viewer does not hold as their faded card back.
-  def link_to_card_detail(view, strings: nil, set: nil, &)
+  # screen reader tells it from an owned face. The `context` it carries
+  # (card_detail_path) is what the detail walks with ◀ ▶ and leads back to,
+  # and within it a card the viewer does not hold shows as their faded card
+  # back.
+  def link_to_card_detail(view, strings: nil, context: {}, &)
     aria = strings ? { label: card_detail_open_label(view, strings) } : {}
-    link_to(card_detail_path(view.id, view.season_number, set), class: "card-link", aria:,
+    link_to(card_detail_path(view.id, view.season_number, context), class: "card-link", aria:,
       data: { turbo_prefetch: false }, &)
   end
 
-  # The detail of the card `slug` of season `number`, browsing `set` (kind
-  # and key) when given: a card's own path, a grid's link, ◀ and ▶.
-  def card_detail_path(slug, number, set = nil)
-    query = set ? { set_kind: set.kind, set_key: set.key } : {}
-    card_season_path(slug:, number:, **query)
-  end
-
-  # The detail of the card before or after `view` in the set it browses
-  # (a Catalog::SetNeighbours), in the same season; nil at an end.
-  def card_detail_neighbour_path(browse, view, side)
-    slug = side == :previous ? browse.previous : browse.next
-    slug && card_detail_path(slug, view.season_number, browse.set)
+  # The detail of the card `slug` of season `number`, carrying its browse
+  # context in the query: `grid:` (the collection grid's filters, search and
+  # set), `pack:` and `slot:` (an opened pack's token and the card's place in
+  # it), or `set_kind:` and `set_key:` (a set); none for the card's own page.
+  def card_detail_path(slug, number, context = {})
+    card_season_path(slug:, number:, **context)
   end
 
   # The player's active card back (AD-25), at card-l size, decorative: the

@@ -6,8 +6,8 @@ module Game
 
     private
 
-    def current_terms_seen(trade, seen)
-      same_terms(trade, seen)
+    def current_terms_seen(trade, revision)
+      current_terms(trade, revision)
     end
   end
 end

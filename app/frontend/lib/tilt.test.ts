@@ -110,6 +110,25 @@ describe("attachTilt", () => {
     expect(card.properties.size).toBe(0)
   })
 
+  it("places the glare under the pointer at once, while the tilt eases", () => {
+    const { card } = attach()
+
+    card.dispatchEvent(pointer("pointermove", "mouse", 140, 260))
+    expect(card.properties.get("--glare-dx")).toBe("-40px")
+    expect(card.properties.get("--glare-dy")).toBe("-60px")
+    expect(card.properties.get("--tilt-rx")).toBe("0deg")
+    runFrames(1)
+    expect(card.dataset.tilt).toBe("moving")
+    expect(parseFloat(card.properties.get("--tilt-rx") ?? "0")).toBeGreaterThan(0)
+    expect(parseFloat(card.properties.get("--tilt-rx") ?? "0")).toBeLessThan(5)
+
+    card.dispatchEvent(pointer("pointerleave", "mouse", 300, 260))
+    runFrames()
+    card.dispatchEvent(pointer("pointermove", "mouse", 220, 380))
+    expect(card.properties.get("--glare-dx")).toBe("40px")
+    expect(card.properties.get("--glare-dy")).toBe("60px")
+  })
+
   it("marks a card driven but resting at its centre neither moving nor held", () => {
     const { card } = attach()
 

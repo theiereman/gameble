@@ -1,7 +1,7 @@
 ---
 title: 'A private profile closes its social side'
 type: 'feature'
-ticket: '16'
+ticket: '20'
 created: '2026-10-09'
 status: 'built'
 baseline_revision: 'a3230dcdfb0565a540d1b9c76abe84b81129ebc7'
@@ -51,7 +51,7 @@ The author's rule (change-profile-privacy, 2026-10-09):
 - No migration.
 - No change to `Game::Visibility.visible?` semantics or to the feed.
 - Cancel, decline and expiry stay open to a private player, so they can still close what is theirs.
-- The friend row's trade button belongs to story 17.
+- The friend row's trade button belongs to story 21.
 - Going public again restores nothing.
 
 ## I/O & Edge-Case Matrix

@@ -7,18 +7,26 @@ require_relative "../support/game_packs"
 class PagesControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
 
-  PLAYER_HUB_QUERIES = 17
-  VISITOR_HUB_QUERIES = 5
+  PLAYER_HUB_QUERIES = 19
+  VISITOR_HUB_QUERIES = 6
+
+  OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
   setup do
     Game::DrawPool.reset!
     OmniAuth.config.test_mode = true
     @player = accounts_players(:player)
+    @legal = Rails.configuration.x.legal
   end
 
   teardown do
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
+    Rails.configuration.x.legal = @legal
+  end
+
+  def configure_legal(contact_email: nil, host_name: nil, host_address: nil)
+    Rails.configuration.x.legal = ActiveSupport::OrderedOptions.new.update(contact_email:, host_name:, host_address:)
   end
 
   def sign_in(player, origin: "/en")
@@ -42,7 +50,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "html[lang=fr]"
     assert_select "title", "gameble"
-    assert_select "body > header.top-bar + main#main"
+    assert_select "body > header.top-bar + .ticker + main#main"
     assert_select "nav.tab-bar[aria-label=?]", "Navigation principale"
     assert_select "main h1.hub__title[tabindex='-1']", "Pont de commandement"
     assert_select "main .hub__kicker .hub__subtitle", false
@@ -72,6 +80,20 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     catalog_card_seasons(:portal_one).update_columns(number: nil)
     get home_path(locale: :en)
     assert_select ".hub-showcase__rarity span", "#{epic_name(:en)} · Puzzle"
+  end
+
+  test "the showcase offers no repost once its card is traded away" do
+    create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
+    holding = Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
+    sign_in(@player)
+
+    get home_path(locale: :en)
+    assert_select ".hub-showcase form[action='/en/cards/portal/seasons/1/repost'] button", "Repost"
+
+    holding.update!(quantity: 0)
+    get home_path(locale: :en)
+    assert_select ".hub-showcase h2", "Portal"
+    assert_select ".hub-showcase form", false
   end
 
   test "a player's hub: the menu, the latest notable pull, the daily panel and the set progress" do
@@ -125,6 +147,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".hub-showcase__rarity.hub-showcase__rarity--4 svg.pixel-icon"
       assert_select ".hub-showcase__rarity span", "#{epic_name(:fr)} · S1 · #4"
       assert_select "a.button.button--secondary[href='/fr/cards/portal']", "Voir la fiche"
+      assert_select "form.button-form[method=post][action='/fr/cards/portal/seasons/1/repost'] button.button--secondary", "Reposter"
     end
 
     # The daily panel, its button the view's one primary.
@@ -365,6 +388,55 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#toasts > .toast", false
   end
 
+  def stream_names
+    css_select("turbo-cable-stream-source").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
+  end
+
+  def open_pack_of(player, card_season_id)
+    create_pack(player, cards: [ card_season_id ] * 5)
+    Game::OpenPack.new.call(player:).value!
+  end
+
+  test "the hub's LIVE ticker shows pulls of Epic or better, first discoveries and trades, never a repost nor a filler" do
+    @player.update!(persona_name: "Hugo")
+    quiet = accounts_players(:moderator).tap { it.update!(persona_name: "Quiet") }
+    open_pack_of(quiet, catalog_card_seasons(:rare_card_one).id)
+    open_pack_of(@player, fixture_tier_ids[3])
+    Game::FirstDiscovery.where(card_season_id: fixture_tier_ids[0]).delete_all
+    open_pack_of(@player, fixture_tier_ids[0])
+    Game::FeedEntry.create!(kind: "trade", player_id: @player.id, card_season_id: fixture_tier_ids[2], rarity: 3, notable: true,
+      occurred_at: Time.current)
+    Game::Holding.create!(player_id: @player.id, card_season_id: fixture_tier_ids[4], quantity: 1)
+    Game::RepostCard.new.call(player: @player, card_season_id: fixture_tier_ids[4]).value!
+
+    get home_path(locale: :en)
+
+    assert_select "body > header.top-bar + #live-ticker.ticker[aria-hidden=true][data-turbo-permanent][data-controller=ticker]" do
+      assert_select ".live-marker .live-marker__text", "Live"
+      assert_select ".ticker__run .ticker__item", 7
+      assert_select ".ticker__item .ticker__separator"
+      assert_select ".ticker__item .ticker__first", count: 1, text: "First discovery"
+      assert_select ".ticker__rarity--epic", count: 5, text: "Epic"
+      assert_select ".ticker__item", text: /reposted/, count: 0
+      assert_select ".ticker__item", text: /Quiet/, count: 0
+      assert_select "#live-ticker-queue[hidden]"
+      assert_select "a, button, [tabindex]", 0
+    end
+    assert_select "[style]", 0
+    assert_equal %w[live:en goal:en], stream_names
+  end
+
+  test "the hub listens to the French streams in French, for a visitor and a player" do
+    get home_path(locale: :fr)
+    assert_equal %w[live:fr goal:fr], stream_names
+    assert_select "#live-ticker .live-marker__text", "Live"
+
+    sign_in(@player, origin: "/fr")
+    get home_path(locale: :fr)
+    assert_includes stream_names, "goal:fr"
+    assert_select "#community-goal"
+  end
+
   def assert_hub_queries(count)
     ActiveRecord::Base.connection.clear_query_cache
     assert_queries_count(count) { get home_path(locale: :en) }
@@ -380,10 +452,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # Player lookup, published season, the weekly goal (one read once the job
     # has created the week's row), bank (count, next pack, daily claim), the
     # waiting goal reward,
-    # showcase (pull, card view), collection (owned, total), sets (progress,
+    # showcase (pull, the copies held, card view), collection (owned, total), sets (progress,
     # the started sets, the fill, which finds no other set here, so no sizes),
-    # the top bar's copies per tier, menu 04's friends online and the trades
-    # waiting (menu 03 and the tab bar share one count).
+    # the top bar's copies per tier, menu 04's friends online, the trades
+    # waiting (menu 03 and the tab bar share one count) and the LIVE ticker's
+    # entries (none here, so no players or cards).
     assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"
 
@@ -395,7 +468,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-showcase .card"
 
     delete session_path(locale: :en)
-    # Published season, collection total, sets fill and its totals.
+    # Published season, collection total, sets fill and its totals, the
+    # ticker's entries.
     assert_hub_queries(VISITOR_HUB_QUERIES)
   end
 
@@ -464,5 +538,79 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get "/nope"
 
     assert_response :not_found
+  end
+
+  test "a visitor reads the French legal page: five sections, the exact ownership notice, the donation link in a new tab" do
+    configure_legal
+
+    get legal_path(locale: :fr)
+
+    assert_response :success
+    assert_select "html[lang=fr]"
+    assert_select "title", "Mentions légales"
+    assert_select "main h1#legal-heading", "Mentions légales"
+    assert_equal [ "Éditeur et hébergeur", "Steam, Valve et les jeux", "Conditions d'utilisation", "Confidentialité", "Soutenir gameble" ],
+      css_select("main section.legal__section h2").map(&:text)
+    assert_select ".legal__ownership", OWNERSHIP_NOTICE
+    assert_select ".legal__affiliation", /n'est affilié ni à Valve ni à Steam/
+    assert_select ".legal__section", text: /CNIL/
+    donation = css_select("main a.legal__donation").sole
+    assert_equal [ "https://buymeacoffee.com/theiereman", "_blank", "Offrir un café (nouvel onglet)" ],
+      [ donation["href"], donation["target"], donation.text.squish ]
+    assert_includes donation["rel"].split, "noopener"
+    assert_select "[style]", 0
+  end
+
+  test "a signed-in player reads the English legal page" do
+    configure_legal
+    sign_in(@player)
+
+    get legal_path(locale: :en)
+
+    assert_response :success
+    assert_select "html[lang=en]"
+    assert_select "main h1", "Legal notice"
+    assert_equal [ "Publisher and host", "Steam, Valve and the games", "Terms of use", "Privacy", "Support gameble" ],
+      css_select("main section.legal__section h2").map(&:text)
+    assert_select ".legal__ownership", "All artwork belongs to the games' publishers and their artists, whom we respect."
+  end
+
+  test "the configured contact is a mailto link, and the host's name and address are shown" do
+    configure_legal(contact_email: "contact@example.test", host_name: "Example Hosting", host_address: "1 rue de l'Exemple, 75000 Paris")
+
+    get legal_path(locale: :en)
+
+    assert_response :success
+    assert_select ".legal__contact a[href=?]", "mailto:contact@example.test", "contact@example.test"
+    assert_select ".legal__host-name", "Example Hosting"
+    assert_select ".legal__host-address", "1 rue de l'Exemple, 75000 Paris"
+    assert_select ".legal__access", "access: ask for a copy of your data by e-mail, at contact@example.test;"
+    assert_select ".legal__access a[href=?]", "mailto:contact@example.test"
+  end
+
+  test "without a configured contact or host, those lines are left out and the page still renders" do
+    configure_legal
+
+    get legal_path(locale: :en)
+
+    assert_response :success
+    assert_select ".legal__contact", false
+    assert_select ".legal__host", false
+    assert_select "a[href^='mailto:']", false
+    assert_select ".legal__fact dt", "Publisher"
+    assert_select ".legal__access", "access: ask the publisher for a copy of your data;"
+    assert_no_match(/contact address above/, response.body)
+
+    get legal_path(locale: :fr)
+    assert_select ".legal__access", "accès : demandez une copie de vos données à l'éditeur ;"
+  end
+
+  test "an older browser reads the legal page, which the public card page's footer links to" do
+    configure_legal
+
+    get legal_path(locale: :en), headers: { "User-Agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 11.6; rv:92.0) Gecko/20100101 Firefox/92.0" }
+
+    assert_response :success
+    assert_select ".legal__ownership"
   end
 end

@@ -129,6 +129,18 @@ class Accounts::BanPlayerTest < ActiveSupport::TestCase
     end
   end
 
+  test "a member of staff demoted or banned since they were read is refused" do
+    demoted = stranger(5).tap { it.update!(role: :moderator) }
+    stale_demoted = Accounts::Player.find(demoted.id)
+    demoted.update!(role: :player)
+    assert_unchanged(@target, :staff_required, staff: stale_demoted)
+
+    banned = stranger(6).tap { it.update!(role: :moderator) }
+    stale_banned = Accounts::Player.find(banned.id)
+    banned.update!(banned_at: 1.minute.ago)
+    assert_unchanged(@target, :staff_required, staff: stale_banned)
+  end
+
   test "the refusal tells the queue what it would answer" do
     assert_nil Accounts::BanPlayer.refusal(staff: @moderator, player: @target)
     assert_equal :outranked, Accounts::BanPlayer.refusal(staff: @moderator, player: @administrator)

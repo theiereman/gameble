@@ -177,9 +177,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_140000) do
 
   create_table "game_feed_entries", force: :cascade do |t|
     t.bigint "player_id", null: false
-    t.bigint "pack_id", null: false
+    t.bigint "pack_id"
     t.bigint "card_season_id", null: false
-    t.integer "position", null: false
+    t.integer "position"
     t.integer "rarity", null: false
     t.boolean "notable", default: true, null: false
     t.datetime "occurred_at", null: false
@@ -190,6 +190,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_140000) do
     t.index ["notable", "occurred_at", "id"], name: "index_game_feed_entries_on_notable_and_occurred_at_and_id"
     t.index ["pack_id", "position"], name: "index_game_feed_entries_on_pack_id_and_position", unique: true
     t.index ["player_id"], name: "index_game_feed_entries_on_player_id"
+    t.check_constraint "(kind::text = ANY (ARRAY['pull'::character varying::text, 'discovery'::character varying::text])) = (pack_id IS NOT NULL AND \"position\" IS NOT NULL)", name: "game_feed_entries_pack_check"
     t.check_constraint "kind::text = ANY (ARRAY['pull'::character varying::text, 'discovery'::character varying::text, 'trade'::character varying::text, 'repost'::character varying::text])", name: "game_feed_entries_kind_check"
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "game_feed_entries_rarity_check"
   end

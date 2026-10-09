@@ -38,7 +38,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
   def holding(player, card_season_id) = Game::Holding.find_by(player_id: player.id, card_season_id:)
 
-  def seen(trade) = { seen: Game::Trade.find(trade.id).proposed_at.iso8601(6) }
+  def revision(trade) = { revision: Game::Trade.find(trade.id).revision }
 
   def propose(player, recipient, offer:, request:)
     Game::ProposeTrade.new.call(player:, recipient:, offer:, request:).value!
@@ -110,8 +110,8 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".trade-side--own .trade-side__count", "1 carte · 2 ex."
       assert_select ".trade-side--own .trade-card__reserved", 0
       assert_select "form[action=?] button", accept_trade_path(token: trade.token, locale: :fr), "Accepter"
-      assert_select "form[action=?] input[type=hidden][name=seen][value=?]", accept_trade_path(token: trade.token, locale: :fr), seen(trade)[:seen]
-      assert_select "form[action=?] input[type=hidden][name=seen][value=?]", decline_trade_path(token: trade.token, locale: :fr), seen(trade)[:seen]
+      assert_select "form[action=?] input[type=hidden][name=revision][value=?]", accept_trade_path(token: trade.token, locale: :fr), revision(trade)[:revision]
+      assert_select "form[action=?] input[type=hidden][name=revision][value=?]", decline_trade_path(token: trade.token, locale: :fr), revision(trade)[:revision]
       assert_select "a[href=?]", counter_trade_path(token: trade.token, locale: :fr), "Contre-proposer"
       assert_select "form[action=?] button", decline_trade_path(token: trade.token, locale: :fr), "Refuser"
     end
@@ -147,7 +147,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/fr/trades'] .visually-hidden", "1 échange en attente de vous"
     assert_select ".tab-bar a.tab-bar__tab[href='/fr/trades'] .tab-bar__badge--alert", "1"
 
-    post accept_trade_path(token: trade.token, locale: :fr), params: seen(trade)
+    post accept_trade_path(token: trade.token, locale: :fr), params: revision(trade)
     assert_redirected_to trade_path(token: trade.token, locale: :fr)
     follow_redirect!
 
@@ -180,7 +180,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     Game::Holding.where(player_id: @alice.id, card_season_id: @portal).update_all(quantity: 1)
     sign_in @alice
 
-    post accept_trade_path(token: trade.token, locale: :fr), params: seen(trade)
+    post accept_trade_path(token: trade.token, locale: :fr), params: revision(trade)
     follow_redirect!
 
     message = I18n.t("errors.game.requested_cards_unavailable", locale: :fr)
@@ -192,7 +192,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
   test "an answer to terms countered since the board was shown is refused with the current board; nothing moves" do
     trade = from_lea
-    shown = seen(trade)
+    shown = revision(trade)
     travel(1.minute) { Game::CounterTrade.new.call(player: @alice, trade_id: trade.id, offer: { @portal => 1 }, request: { @depths => 1 }).value! }
     travel(2.minutes) { Game::CounterTrade.new.call(player: @bob, trade_id: trade.id, offer: { @depths => 2 }, request: { @portal => 1 }).value! }
     sign_in @alice
@@ -205,7 +205,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".trade-board__error[role=alert]", I18n.t("errors.game.trade_changed", locale: :fr)
       assert_select ".trade-chip--alert", "À vous"
       assert_select ".trade-side--friend .trade-card__quantity", /×2/
-      assert_select "form[action=?] input[name=seen][value=?]", accept_trade_path(token: trade.token, locale: :fr), seen(trade)[:seen]
+      assert_select "form[action=?] input[name=revision][value=?]", accept_trade_path(token: trade.token, locale: :fr), revision(trade)[:revision]
     end
     assert trade.reload.open?
     assert_equal [ 3, 0 ], [ holding(@alice, @portal).quantity, holding(@alice, @portal).reserved ]
@@ -222,11 +222,39 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert trade.reload.open?
   end
 
+  test "proposing again to a friend whose trade expired but is not yet swept closes it and sends the new proposal" do
+    expired = propose(@alice, @bob, offer: { @portal => 3 }, request: { @depths => 1 })
+    sign_in @alice
+
+    travel_to(expired.expires_at + 1.second) do
+      get new_trade_path(locale: :fr, friend: @bob.token)
+      assert_response :success
+      post trades_path(locale: :fr), params: { friend: @bob.token, give: { "portal--s1" => "3" }, take: { "blue-depths--s1" => "1" } }
+    end
+
+    fresh = Game::Trade.order(:id).last
+    assert_redirected_to trade_path(token: fresh.token, locale: :fr)
+    assert_equal "expired", expired.reload.status
+    assert_equal [ "open", 3 ], [ fresh.status, holding(@alice, @portal).reserved ]
+    assert_equal 1, Game::Trade.in_progress.count
+  end
+
+  test "asking for more copies than the friend holds is refused and nothing is reserved" do
+    sign_in @alice
+
+    post trades_path(locale: :fr), params: { friend: @bob.token, give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "3" } }
+    follow_redirect!
+
+    assert_select ".trade-board__error[role=alert]", I18n.t("errors.game.request_exceeds_holdings", locale: :fr)
+    assert_equal 0, Game::Trade.count
+    assert_equal 0, holding(@alice, @portal).reserved
+  end
+
   test "declining tells the friend's name" do
     trade = from_lea
     sign_in @alice
 
-    post decline_trade_path(token: trade.token, locale: :fr), params: seen(trade)
+    post decline_trade_path(token: trade.token, locale: :fr), params: revision(trade)
     follow_redirect!
 
     assert_select ".toast", /Échange refusé.*Votre réponse a été envoyée à Lea\./m
@@ -237,7 +265,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
   test "a closed trade offers a new one with the friend, while they are still friends" do
     trade = from_lea
     sign_in @alice
-    post decline_trade_path(token: trade.token, locale: :fr), params: seen(trade)
+    post decline_trade_path(token: trade.token, locale: :fr), params: revision(trade)
 
     get trade_path(token: trade.token, locale: :fr)
     assert_select ".trade-board__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @bob.token), "Nouvel échange avec Lea"
@@ -250,7 +278,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
   test "a closed trade with a private friend, or while private, shows why trades are closed instead" do
     trade = from_lea
     sign_in @alice
-    post decline_trade_path(token: trade.token, locale: :fr), params: seen(trade)
+    post decline_trade_path(token: trade.token, locale: :fr), params: revision(trade)
 
     @bob.update_columns(visibility: "private")
     get trade_path(token: trade.token, locale: :fr)
@@ -273,7 +301,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     sign_in @alice
     @bob.update_columns(visibility: "private")
 
-    post accept_trade_path(token: trade.token, locale: :fr), params: seen(trade)
+    post accept_trade_path(token: trade.token, locale: :fr), params: revision(trade)
     follow_redirect!
     assert_select ".toast--alert", /Le profil de Lea est privé : échanges fermés\./
     assert_equal "open", trade.reload.status
@@ -710,7 +738,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     sign_in @alice
 
     with_counting_rate_limit(TradesController) do
-      21.times { post decline_trade_path(token: trade.token, locale: :fr), params: seen(trade) }
+      21.times { post decline_trade_path(token: trade.token, locale: :fr), params: revision(trade) }
     end
 
     assert_redirected_to trades_path(locale: :fr)

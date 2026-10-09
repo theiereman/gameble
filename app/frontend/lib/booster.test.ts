@@ -47,6 +47,7 @@ import {
   storedAfterRebuild,
   swipeStores,
   topOfPile,
+  zoomNeighbour,
 } from "./booster"
 
 describe("timings", () => {
@@ -282,6 +283,26 @@ describe("storedAfterRebuild", () => {
   it("stores nothing in a row", () => {
     expect(storedAfterRebuild([true, true, false], [true, true, false], "wide")).toEqual([false, false, false])
     expect(storedAfterRebuild([true, false], [true, false], "narrow")).toEqual([false, false])
+  })
+})
+
+describe("zoomNeighbour", () => {
+  it("steps to the previous or next filled slot, in booster order", () => {
+    const stored = [true, true, true, true, true]
+    expect(zoomNeighbour(stored, 2, -1)).toBe(1)
+    expect(zoomNeighbour(stored, 2, 1)).toBe(3)
+  })
+
+  it("skips the empty slots between", () => {
+    expect(zoomNeighbour([true, false, false, true, false], 0, 1)).toBe(3)
+    expect(zoomNeighbour([true, false, false, true, false], 3, -1)).toBe(0)
+  })
+
+  it("has none before the first filled slot nor after the last", () => {
+    expect(zoomNeighbour([true, true, true], 0, -1)).toBeNull()
+    expect(zoomNeighbour([true, true, true], 2, 1)).toBeNull()
+    expect(zoomNeighbour([false, true, true, false], 1, -1)).toBeNull()
+    expect(zoomNeighbour([false, true, true, false], 2, 1)).toBeNull()
   })
 })
 

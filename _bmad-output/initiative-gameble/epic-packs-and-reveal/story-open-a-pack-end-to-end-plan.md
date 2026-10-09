@@ -3,7 +3,7 @@ title: 'Open a pack, end to end'
 type: 'feature'
 ticket: '1'
 created: '2026-10-02'
-status: 'built'
+status: done
 baseline_revision: '6891e36fd0789b9e1669df9165148b3f79693c9d'
 route: 'full'
 route_source: 'auto'

@@ -1,15 +1,17 @@
 module Game
   # The activity feed's entries for a viewer: the newest notable entries
-  # first, of one kind when `kind` is given (the type filters), each only if
-  # Game::Visibility lets `viewer` (nil for a signed-out visitor) see the
-  # player it names as a player would: staff read the community's stream as
-  # the community does. When fewer than MIN notable entries show, the newest
-  # fillers complete the list so the feed is not empty while any activity
-  # exists; fillers are pulls, so only the whole feed and the pulls get
-  # them. Reads only.
+  # first, of one kind when `kind` is given (the type filters; a list of
+  # kinds gets no filler), of the `players` ids only when given (the friends
+  # tab), each only if Game::Visibility lets `viewer` (nil for a signed-out
+  # visitor) see the player it names as a player would: staff read the
+  # community's stream as the community does. When fewer than MIN notable
+  # entries show, the newest fillers complete the list so the feed is not
+  # empty while any activity exists; fillers are pulls, so only the whole
+  # feed and the pulls get them. Reads only.
   #
   #   Game::FeedEntries.call(nil)
   #   Game::FeedEntries.call(viewer, kind: "trade")
+  #   Game::FeedEntries.call(viewer, players: friend_ids)
   #   # => [ Entry(entry, player, filler), … ] newest first
   module FeedEntries
     Entry = Data.define(:entry, :player, :filler)
@@ -23,12 +25,13 @@ module Game
     WINDOW = 90
     PASSES = 10
 
-    def self.call(viewer, kind: nil)
-      scope = kind ? FeedEntry.where(kind:) : FeedEntry.all
+    def self.call(viewer, kind: nil, players: nil)
+      entries = players ? FeedEntry.where(player_id: players) : FeedEntry.all
+      scope = kind ? entries.where(kind:) : entries
       notable = visible(scope.where(notable: true), viewer, LIMIT, filler: false)
       return notable if notable.size >= MIN || !(kind.nil? || kind == "pull")
 
-      fillers = visible(FeedEntry.where(kind: "pull", notable: false), viewer, MIN - notable.size, filler: true)
+      fillers = visible(entries.where(kind: "pull", notable: false), viewer, MIN - notable.size, filler: true)
       (notable + fillers).sort_by { |item| [ item.entry.occurred_at, item.entry.id ] }.reverse
     end
 
