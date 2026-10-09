@@ -3,7 +3,7 @@ title: 'Moderation by rank, a hidden back-office and staff reading every profile
 type: 'feature'
 ticket: '17'
 created: '2026-10-09'
-status: 'built'
+status: done
 baseline_revision: 'd08a06c886aee7effce227d50e49ff6c1957b82e'
 route: 'full'
 route_source: 'auto'

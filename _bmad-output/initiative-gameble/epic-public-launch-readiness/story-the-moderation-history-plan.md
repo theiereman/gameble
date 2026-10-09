@@ -3,7 +3,7 @@ title: 'The moderation history'
 type: 'feature'
 ticket: '19'
 created: '2026-10-09'
-status: 'built'
+status: done
 baseline_revision: '82e9a6025bc8cd9fdea4831ae3f66ca8dd08b343'
 route: 'full'
 route_source: 'auto'

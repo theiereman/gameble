@@ -382,6 +382,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-races-between-bank-operations-plan.md`
   summary: `Game::HealBanksJob` reports an error to `Rails.error` when a player is deleted between the job's batch read and that player's heal or fill, a normal race rather than a failure.
   evidence: Code review of story-races-between-bank-operations-plan (2026-10-09). `Accounts::PlayersInBatches` reads the batch; a deletion then commits; `HealBank`/`FillBank` re-check under the bank lock (`Game::Operation#lock_bank`) and return `Failure(:player_required)`; `heal_banks_job.rb:28` calls `.value!`, which raises, and the rescue reports it. Pre-existing; story 7.9 races the job against openings and a bonus but not against a deletion.
+  resolved: Story 7.9, ported from its parallel build: `Game::HealBanksJob` skips a `Failure(:player_required)` unreported (`left_meanwhile?`), raced in `delete_player_concurrency_test.rb` under `assert_no_error_reported`.
 
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-moderation-the-queue-bans-and-unbans-plan.md`
   summary: A moderator cannot read a reported profile that is private or friends only: the queue's link opens the unavailable page, since `Game::Visibility` shows a hidden profile to no one but its owner.
@@ -417,3 +418,6 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-a-private-profile-closes-its-social-side-plan.md`
   summary: The trades-closed line on the trades list page's board has no test.
   evidence: `trades/index.html.erb` passes `trades_closed`, but only `show` is asserted; dropping the local would pass every test.
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-races-between-bank-operations-plan.md`
+  summary: `Game::CreatePlayerState` and `Game::CreateFriendCode`, run by the backfill jobs, take no bank lock and do not re-check deletion, so an account deleted while a backfill runs can be left with a state row or a friend code.
+  evidence: Both insert under `require_account` only, after `BackfillPlayerStatesJob` or `BackfillFriendCodesJob` read the players in batches. The backfills are one-off deploy tasks, so the window is one deploy run. The fix is `lock_bank` in both operations, as story 7.9 did for `Game::MarkCollectionSeen`.

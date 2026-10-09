@@ -3,7 +3,7 @@ title: 'Moderation: the queue, bans and unbans'
 type: 'feature'
 ticket: '5'
 created: '2026-10-09'
-status: 'built'
+status: done
 baseline_revision: '58ab6e4edc99487a26f39faa1241e6d5967e9717'
 route: 'full'
 route_source: 'auto'
