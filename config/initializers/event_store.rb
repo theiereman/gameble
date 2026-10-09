@@ -4,7 +4,8 @@
 # Handlers subscribed here run synchronously, inside the publishing
 # transaction: a handler that raises rolls the operation back.
 Rails.configuration.to_prepare do
-  event_store = RailsEventStore::JSONClient.new
+  # The gem's default request metadata also records the client's IP address on every event.
+  event_store = RailsEventStore::JSONClient.new(request_metadata: ->(env) { { request_id: ActionDispatch::Request.new(env).uuid } })
 
   # A new player's bank is filled within the sign-up (AD-7).
   event_store.subscribe(Game::Handlers::PlayerRegistered, to: [ Accounts::PlayerRegistered ])
