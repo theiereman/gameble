@@ -133,6 +133,39 @@ title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 13
+type = "story"
+title = "Moderation by rank, a hidden back-office and staff reading every profile"
+description = "A staff member bans, unbans and dismisses the reports of only a lower rank: a moderator acts on players, an administrator on players and moderators, no one on an administrator or on themselves. Every back-office page, the jobs dashboard included, answers 404 to a signed-out visitor and to a player who is not staff, as if it did not exist. Game::Visibility lets staff see every profile and what is attributed to it, whatever its visibility and banned included, never a deleted one. Also closes the follow-up review story 5 asked for: the self-dismiss refusal and the queue's row skip under a concurrent action."
+verify = "A moderator cannot ban or dismiss the reports of another moderator, an administrator can; no one bans an administrator or themselves; a visitor and a non-staff player get 404 on every back-office address; a moderator opens a private, a friends-only and a banned player's profile; a non-staff viewer still sees them unavailable."
+covers = ["R4", "R1"]
+after = [5]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 14
+type = "story"
+title = "A searchable list of players in the back-office"
+description = "Adds a back-office page listing players, paginated, searchable by username or steam id, each row showing role, visibility, banned or not, with a link to the profile and the ban or unban action the viewer's rank allows, so staff ban without waiting for a report."
+verify = "A moderator finds a player by part of their username or by steam id and bans them from the list; the row then shows them banned with the unban action; an administrator's row offers no ban; deleted players are not listed."
+covers = ["R4"]
+after = [13]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 15
+type = "story"
+title = "The moderation history"
+description = "Records every ban, unban and dismissal with who acted, on whom and when, and shows it in the back-office newest first, paginated, filterable by player, reachable from the dashboard, the queue and the players list; bans set before this story appear from what the events already hold."
+verify = "A moderator bans then unbans a player and both lines appear in the history with the moderator's name and the times; a dismissal appears too; a non-staff player gets 404 on the history."
+covers = ["R4"]
+after = [13, 14]
 hitl = false
 risk = "low"
