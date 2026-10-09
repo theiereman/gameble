@@ -735,6 +735,8 @@ en:
       pending: "Pending"
       accept: "Accept"
       ignore: "Ignore"
+      propose_trade: "Propose a trade"
+      propose_trade_to: "Propose a trade to %{name}"
       presence:
         online: "Online"
         offline: "Offline"

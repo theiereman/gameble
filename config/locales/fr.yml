@@ -753,6 +753,8 @@ fr:
       pending: "En attente"
       accept: "Accepter"
       ignore: "Ignorer"
+      propose_trade: "Proposer un échange"
+      propose_trade_to: "Proposer un échange à %{name}"
       presence:
         online: "En ligne"
         offline: "Hors ligne"

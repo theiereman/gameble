@@ -64,11 +64,19 @@
     <ul class="friends__list">
       <% @friends.each do |friend| %>
         <li class="friends__row friends__friend">
-          <button type="button" class="friends__name" aria-haspopup="dialog" data-controller="dialog-opener" data-action="dialog-opener#open" data-dialog-opener-dialog-value="<%= friend_dialog_id(friend.player.token) %>"><%= friend_name(friend.player) %></button>
-          <span class="friends__actions">
+          <% name = friend_name(friend.player) %>
+          <span class="friends__name"><%= name %></span>
+          <div class="friends__actions">
             <%= render "friends/presence", presence: friend %>
-            <%= render "friends/public_profile_link", friend: friend.player %>
-          </span>
+            <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: friend_dialog_id(friend.player.token),
+                  aria_label: t("friends.public_profile.named", name:)) do %><%= t("friends.public_profile.label") %><% end %>
+            <% if (refusal = trades_refusal(friend.player)) %>
+              <%= trades_closed_line(refusal, friend.player) %>
+            <% else %>
+              <%= render ButtonComponent.new(variant: :secondary, size: :small, href: new_trade_path(friend: friend.player.token),
+                    aria_label: t(".propose_trade_to", name:)) do %><%= t(".propose_trade") %><% end %>
+            <% end %>
+          </div>
         </li>
       <% end %>
     </ul>

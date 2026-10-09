@@ -330,8 +330,7 @@ class TradesTest < ApplicationSystemTestCase
     sign_in @hugo
 
     visit friends_path(locale: :en)
-    click_on "Lea"
-    within(".friend-profile") { click_on "Propose a trade" }
+    within(".friends__friend", text: "Lea") { click_on "Propose a trade" }
     assert_selector ".trade-board .trade-chip--accent", text: /DRAFT/i
     assert_selector ".trade-board__expiry", text: "Valid for 7 days once sent"
     assert page.evaluate_script("document.activeElement.id === 'trade-board-heading'"), "focus on the board heading"

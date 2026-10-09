@@ -22,7 +22,7 @@ class TradesController < ApplicationController
   def new
     authorize :trade, :new?
     @friend = befriended(params[:friend]) or raise(ActiveRecord::RecordNotFound)
-    if (refusal = privacy_refusal(@friend))
+    if (refusal = helpers.trades_refusal(@friend))
       refused(refusal, @friend)
       return redirect_to(trades_path)
     end
@@ -40,7 +40,7 @@ class TradesController < ApplicationController
   def create
     authorize :trade, :create?
     friend = befriended(params[:friend])
-    refusal = friend ? privacy_refusal(friend) : :not_friends
+    refusal = friend ? helpers.trades_refusal(friend) : :not_friends
     if refusal
       refused(refusal, friend)
       return redirect_to(trades_path, status: :see_other)
@@ -133,12 +133,6 @@ class TradesController < ApplicationController
       friend.present? && !friend.removed? && Game::FriendshipBetween.call(current_player, friend)
     end
 
-    def privacy_refusal(friend)
-      if !Game::Visibility.open_to_friends?(current_player) then :own_profile_private
-      elsif !Game::Visibility.open_to_friends?(friend) then :friend_profile_private
-      end
-    end
-
     def open_trade_with(trades, friend)
       (trades.yours + trades.theirs).find { |row| row.friend.id == friend.id }
     end
@@ -157,7 +151,7 @@ class TradesController < ApplicationController
         @new_cards = Game::CollectionSlots.call(current_player, received).select { |_, slot| slot.new }.keys
       when :closed
         if befriended?(trade.friend)
-          @trades_closed = privacy_refusal(trade.friend)
+          @trades_closed = helpers.trades_refusal(trade.friend)
           @trade_again = @trades_closed.nil?
         end
       end

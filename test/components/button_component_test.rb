@@ -132,6 +132,23 @@ class ButtonComponentTest < ViewComponent::TestCase
     assert_no_selector "a"
   end
 
+  test "an aria label names every kind of button" do
+    render_inline(ButtonComponent.new(href: "/en/trades/new", aria_label: "Propose a trade to Sam")) { "Propose a trade" }
+    assert_selector "a[aria-label='Propose a trade to Sam']", text: "Propose a trade"
+
+    render_inline(ButtonComponent.new(opens: "friend-x", aria_label: "See the profile of Sam")) { "See the profile" }
+    assert_selector "button[aria-haspopup=dialog][aria-label='See the profile of Sam']"
+
+    render_inline(ButtonComponent.new(href: "/session", method: :delete, aria_label: "Stand down, Sam")) { "Stand down" }
+    assert_selector "form button[aria-label='Stand down, Sam']"
+
+    render_inline(ButtonComponent.new(disabled: true, aria_label: "Send to Sam")) { "Send" }
+    assert_selector "button[disabled][aria-label='Send to Sam']"
+
+    render_inline(ButtonComponent.new(aria_label: "Report Sam")) { "Report" }
+    assert_selector "button[aria-label='Report Sam']"
+  end
+
   test "a dialog opener is neither a link nor disabled" do
     assert_raises(ArgumentError) { ButtonComponent.new(opens: "sign-in-panel", href: "/en") }
     assert_raises(ArgumentError) { ButtonComponent.new(opens: "sign-in-panel", disabled: true) }

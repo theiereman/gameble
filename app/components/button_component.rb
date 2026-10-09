@@ -18,7 +18,7 @@ class ButtonComponent < ViewComponent::Base
   SIZES = %i[default small].freeze
 
   def initialize(variant: :primary, href: nil, type: :button, method: nil, params: {}, turbo: true, confirm: nil,
-    size: :default, icon: nil, disabled: false, opens: nil)
+    size: :default, icon: nil, disabled: false, opens: nil, aria_label: nil)
     raise ArgumentError, "unknown button variant: #{variant.inspect}" unless VARIANTS.include?(variant)
     raise ArgumentError, "unknown button size: #{size.inspect}" unless SIZES.include?(size)
     raise ArgumentError, "a form button needs an href" if method && href.nil?
@@ -36,6 +36,7 @@ class ButtonComponent < ViewComponent::Base
     @icon = icon
     @disabled = disabled
     @opens = opens
+    @aria_label = aria_label
   end
 
   private
@@ -51,8 +52,12 @@ class ButtonComponent < ViewComponent::Base
 
     # The attributes of a button opening a dialog (dialog_opener_controller.ts).
     def opener_options
-      { aria: { haspopup: "dialog" },
+      { aria: { haspopup: "dialog", label: @aria_label }.compact,
         data: { controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: @opens } }
+    end
+
+    def aria_options
+      @aria_label ? { aria: { label: @aria_label } } : {}
     end
 
     def form_options

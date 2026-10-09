@@ -49,22 +49,39 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friends__empty", 1, "only the no-invitation line"
   end
 
-  test "each friend links to their public profile, named for them, unless their profile is private" do
+  test "each friend's row opens their profile and proposes a trade, both named for them" do
     sam = accounts_players(:moderator)
     sam.update!(persona_name: "Sam", visibility: "public")
-    lea = accounts_players(:administrator)
-    lea.update!(persona_name: "Léa", visibility: "friends_only")
-    [ sam, lea ].each { Game::Friendship.create!(low_player_id: [ @player.id, it.id ].min, high_player_id: [ @player.id, it.id ].max) }
+    Game::Friendship.create!(low_player_id: [ @player.id, sam.id ].min, high_player_id: [ @player.id, sam.id ].max)
     sign_in
 
     get friends_path(locale: :fr)
-    assert_select ".friends__friend a.friends__profile-link[href='#{brother_path(locale: :fr, token: sam.token)}'][aria-label='Voir le profil de Sam']", "Voir le profil"
-    assert_select ".friends__friend a.friends__profile-link[href='#{brother_path(locale: :fr, token: lea.token)}'][aria-label='Voir le profil de Léa']", "Voir le profil"
 
-    lea.update!(visibility: "private")
+    assert_select ".friends__friend" do
+      assert_select "span.friends__name", "Sam"
+      assert_select "button.button[aria-haspopup=dialog][aria-label='Voir le profil de Sam'][data-dialog-opener-dialog-value=?]", "friend-#{sam.token}", "Voir le profil"
+      assert_select "a.button[href=?][aria-label='Proposer un échange à Sam']", new_trade_path(locale: :fr, friend: sam.token), "Proposer un échange"
+      assert_select "a[href=?]", brother_path(locale: :fr, token: sam.token), 0
+    end
+  end
+
+  test "a friend's row says trades are closed instead of proposing one when either profile is private" do
+    lea = accounts_players(:administrator)
+    lea.update!(persona_name: "Léa", visibility: "private")
+    Game::Friendship.create!(low_player_id: [ @player.id, lea.id ].min, high_player_id: [ @player.id, lea.id ].max)
+    sign_in
+
+    get friends_path(locale: :fr)
+    assert_select ".friends__friend .trades-closed", "Le profil de Léa est privé : échanges fermés."
+    assert_select ".friends__friend a[href=?]", new_trade_path(locale: :fr, friend: lea.token), 0
+
+    lea.update!(visibility: "public")
+    @player.update!(visibility: "private")
     get friends_path(locale: :en)
-    assert_select ".friends__friend a.friends__profile-link", 1
-    assert_select ".friends__friend a.friends__profile-link[aria-label=\"See the profile of Sam\"]", "See the profile"
+    assert_select ".friends__friend .trades-closed", /Your profile is private: trades are closed\./ do
+      assert_select "a.trades-closed__link[href=?]", settings_path(locale: :en)
+    end
+    assert_select ".friends__friend a[href=?]", new_trade_path(locale: :en, friend: lea.token), 0
   end
 
   test "each friend shows their presence, and menu 04 counts those online" do
@@ -132,7 +149,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/fr/friends'] .menu-item__meta", "0 en ligne"
   end
 
-  test "a friend's name opens their profile dialog, whose frame loads the profile lazily" do
+  test "a friend's profile button opens their profile dialog, whose frame loads the profile lazily" do
     other = accounts_players(:moderator)
     other.update!(persona_name: "Sam")
     Game::Friendship.create!(low_player_id: [ @player.id, other.id ].min, high_player_id: [ @player.id, other.id ].max)
@@ -140,7 +157,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
 
     get friends_path(locale: :fr)
 
-    assert_select ".friends__row button.friends__name[aria-haspopup=dialog][data-dialog-opener-dialog-value=?]", "friend-#{other.token}", "Sam"
+    assert_select ".friends__row button[aria-haspopup=dialog][data-dialog-opener-dialog-value=?]", "friend-#{other.token}", "Voir le profil"
     assert_select "dialog#friend-#{other.token}.modal[aria-label=Sam]" do
       assert_select ".modal__title", "Profil"
       assert_select "turbo-frame#friend-profile-#{other.token}[loading=lazy][target=_top][src=?]",

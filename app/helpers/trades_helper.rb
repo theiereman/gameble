@@ -2,6 +2,12 @@ module TradesHelper
   COUNTER_FORM_ID = "trade-counter-form"
   DRAFT_FORM_ID = "trade-draft-form"
 
+  def trades_refusal(friend)
+    if !Game::Visibility.open_to_friends?(current_player) then :own_profile_private
+    elsif !Game::Visibility.open_to_friends?(friend) then :friend_profile_private
+    end
+  end
+
   def trades_closed_line(refusal, friend)
     text = Game::Operation.failure_message(refusal, name: friend_name(friend))
     settings = link_to(t("trades.closed.settings"), settings_path, class: "trades-closed__link") if refusal == :own_profile_private

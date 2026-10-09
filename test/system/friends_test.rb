@@ -36,7 +36,7 @@ class FriendsTest < ApplicationSystemTestCase
   test "a player opens a friend's profile, sees the showcase and reports it from there" do
     sign_in
 
-    click_on "Lea"
+    within(".friends__friend", text: "Lea") { click_on "See the profile" }
 
     within("dialog#friend-#{@friend.token}[open]") do
       assert_selector ".friend-profile__name", text: "Lea"
@@ -55,31 +55,30 @@ class FriendsTest < ApplicationSystemTestCase
     assert_equal 1, Accounts::Report.where(reporter_id: @player.id, reported_id: @friend.id).count
   end
 
-  test "a player opens a friends-only friend's public profile from the list, and the dialog offers the same link" do
+  test "a player proposes a trade from a friend's row, and reaches the public profile from the friend profile" do
     sign_in
 
     within(".friends__friend", text: "Lea") do
-      assert_selector "a.friends__profile-link", text: /see the profile/i
+      assert_no_selector "a.friends__profile-link"
+      assert_no_button "Lea"
+      click_on "Propose a trade"
     end
-    click_on "Lea"
+    assert_current_path new_trade_path(locale: :en, friend: @friend.token)
+
+    visit friends_path(locale: :en)
+    within(".friends__friend", text: "Lea") { click_on "See the profile" }
     within("dialog#friend-#{@friend.token}[open]") do
       assert_selector "a.friends__profile-link[aria-label=\"See the profile of Lea\"]", text: /see the profile/i
       find("a.friends__profile-link").click
     end
-
-    assert_current_path brother_path(locale: :en, token: @friend.token)
-    assert_text "Lea"
-
-    visit friends_path(locale: :en)
-    within(".friends__friend", text: "Lea") { find("a.friends__profile-link").click }
     assert_current_path brother_path(locale: :en, token: @friend.token)
   end
 
-  test "on a phone the profile is a bottom sheet that closes back on the friend's name" do
+  test "on a phone the profile is a bottom sheet that closes back on the profile button" do
     resize_to(390, 844)
     sign_in
 
-    click_on "Lea"
+    within(".friends__friend", text: "Lea") { click_on "See the profile" }
     within("dialog#friend-#{@friend.token}[open]") do
       assert_selector ".friend-profile__showcase .card", count: 3
       take_screenshot
@@ -87,7 +86,7 @@ class FriendsTest < ApplicationSystemTestCase
     end
 
     assert_no_selector "dialog[open]"
-    assert_equal "Lea", page.evaluate_script("document.activeElement.textContent")
+    assert_selector ".friends__friend button[aria-label='See the profile of Lea']:focus"
     assert no_horizontal_scroll?
   end
 end
