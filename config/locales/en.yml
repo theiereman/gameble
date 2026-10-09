@@ -176,7 +176,16 @@ en:
           sentry: "Sentry (Functional Software, Inc.) receives technical errors: the page's address and the one you came from, the browser used and its language, and your internal player id, never your name or your Steam id. Your browser also sends it the page's security reports directly, with your IP address. Data hosted in the European Union;"
           cloudflare: "Cloudflare, Inc. sits in front of the site to protect and speed it up: it sees its requests, your IP address included, and processes them in the United States among other places. This transfer relies on the European Commission's adequacy decision of 10 July 2023 (Data Privacy Framework), to which Cloudflare adheres;"
           images: "card images load from Steam's content delivery network, which your browser contacts directly."
-        deletion: "When you delete your account, your Steam id, your profile name, the time of your last visit, your collection, your boosters, your friendships, your invitations, your friend code and your activity feed entries are erased, your open trades are cancelled and your profile disappears. What also concerns other players, the community or moderation (past trades, first discoveries, contributions to the community goal, reports, moderation history, the log of game actions) is kept without your Steam id or your name."
+        retention:
+          intro: "How long your data is kept:"
+          account: "your account, your game activity and your settings: as long as the account exists; an account with no signed-in visit for three years is deleted as if you had deleted it yourself, except those of moderators and administrators;"
+          reports: "a report: until a moderator handles it, then one year; if it targets an account deleted before it was handled, one year after the deletion;"
+          moderation: "the moderation history, reasons included: a ban as long as it lasts, then one year after it is lifted; a dismissal of reports, one year; the history of a deleted account, until one year after the deletion; the log of game actions keeps each decision's date and the accounts concerned, without the reason;"
+          banned_steam_id: "the Steam id of a suspended account: as long as the suspension lasts, to refuse a new sign-up;"
+          logs: "the server's logs: 30 days;"
+          errors: "technical errors received by Sentry: 90 days at most, depending on the publisher's Sentry plan;"
+          leftovers: "what a deleted account leaves behind that concerns other players or the community (past trades, first discoveries, contributions to the community goal, the log of game actions): as long as the game exists, without a Steam id or a name."
+        deletion: "When you delete your account, your Steam id, your profile name, the time of your last visit, your collection, your boosters, your friendships, your invitations, your friend code and your activity feed entries are erased, your open trades are cancelled and your profile disappears. What also concerns other players, the community or moderation (past trades, first discoveries, contributions to the community goal, reports, moderation history, the log of game actions) is kept without your Steam id or your name, for the periods given above."
         rights:
           intro: "You can access your data, have it rectified or erased, restrict its processing, object to processing based on legitimate interest and receive a reusable copy of it. You can also say what becomes of your data after your death. We reply within one month."
           access_html: "access: ask for a copy of your data by e-mail, at %{contact};"
@@ -277,7 +286,7 @@ en:
       index:
         heading: "The moderation history"
         heading_player: "The history of %{name}"
-        intro: "Every ban, lifted ban and dismissal of reports, the latest first, with the officer who acted and, for a ban, the reason they gave. Nothing is erased from the history. Bans made before a reason was asked for have none."
+        intro: "Every ban, lifted ban and dismissal of reports, the latest first, with the officer who acted and, for a ban, the reason they gave. Each row is erased one year after its end, as the privacy notice says. Bans made before a reason was asked for have none."
         empty: "No moderation action is recorded yet."
         player_empty: "No moderation action concerns %{name}."
         unknown_player: "No player matches this link."
@@ -1134,6 +1143,7 @@ en:
   errors:
     accounts:
       player_required: "Sign in with an active account to do that."
+      no_longer_idle: "That player is no longer idle: their account is not deleted."
       invalid_setting: "That setting could not be saved. Reload the page and try again."
       invalid_steam_id: "Your Steam ID could not be read. Sign in again."
       banned: "This account has been suspended. You can no longer sign in."

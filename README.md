@@ -92,7 +92,7 @@ bin/kamal app exec --reuse 'bin/rails "accounts:set_role[76561197960287002,moder
 The task prints the new role, or aborts with the reason (unknown Steam id, deleted account, unknown role). Setting `player` takes a role away.
 
 - Moderators and administrators open the back-office: every player at `/<locale>/back-office/players`, searched by part of the name or by the full Steam id, with each one's role, visibility and standing (BAN without waiting for a report, or LIFT THE BAN); the queue of reported players at `/<locale>/back-office/reports` (BAN, or DISMISS to set the reports aside; a report from a player who has not reported them yet brings them back) and the banned players at `/<locale>/back-office/bans` (LIFT THE BAN).
-- A ban requires a reason, typed in the field next to BAN (500 characters at most). Every ban, lifted ban and dismissal is kept, with who acted and when, in the moderation history at `/<locale>/back-office/history` (linked from the back-office and its lists), the latest first; each row of the players list opens that player's history (`?player=<token>`). The reason is shown there only, never in an event or a message. Bans, lifted bans and dismissals made before the history existed were copied from the event store, without a reason; a ban set by hand in the console never appears. Rows are never edited or deleted, and outlive a deleted account ("Deleted account").
+- A ban requires a reason, typed in the field next to BAN (500 characters at most). Every ban, lifted ban and dismissal is kept, with who acted and when, in the moderation history at `/<locale>/back-office/history` (linked from the back-office and its lists), the latest first; each row of the players list opens that player's history (`?player=<token>`). The reason is shown there only, never in an event or a message. Bans, lifted bans and dismissals made before the history existed were copied from the event store, without a reason; a ban set by hand in the console never appears. Rows are never edited; each is erased one year after its end, a ban lifted by hand in the console at the player's last update (see Retention below), and until then outlives a deleted account ("Deleted account").
 - Staff act only on a lower rank (player < moderator < administrator): a moderator bans, unbans and dismisses the reports of players; an administrator also those of moderators; no one acts on an administrator. No one bans themselves or dismisses the reports against themselves.
 - Administrators alone also reach the Steam import, the seasons, the card press and the job queue.
 - Anyone not staff (a visitor, a player, a member of staff since banned) gets 404 on every back-office address, the same page as an unknown address. A moderator on an administrator's page gets 403.
@@ -100,6 +100,38 @@ The task prints the new role, or aborts with the reason (unknown Steam id, delet
 - A ban signs the player out, refuses their sign-in, hides their profile, cancels their open trades and drops their friendships and invitations. Lifting it gives back the sign-in and the profile, not the friendships or trades.
 
 Ban from the back-office, not from the console: setting `banned_at` by hand publishes nothing, so the player's trades and friendships stay until `bin/rails game:drop_friends_and_trades` runs.
+
+### Retention
+
+Every day at 4am `Accounts::ApplyRetentionJob` (`config/recurring.yml`) keeps personal data no longer than the privacy notice says, and logs how many accounts, reports and history rows it removed:
+
+- an account with no signed-in visit and no change for three years (the later of `last_seen_at` and `updated_at`, which a sign-in, an unban, a role change or a setting moves) is deleted as `Accounts::DeletePlayer` deletes it. Staff accounts and banned accounts are exempt: a banned account keeps its Steam id while the ban lasts;
+- a report is erased one year after it was handled, or one year after the deletion of the account it targets. Once a handled report is erased, a new report from the same reporter brings the player back to the queue;
+- a moderation history row is erased one year after its end: a ban ends at the unban that lifts it (never while in force), or, lifted by hand in the console with no unban, at the player's last update; an unban or a dismissal ends when made; every row of a deleted account at its deletion.
+
+The server logs are kept 30 days. In production every container (app, import worker, database, kamal-proxy) logs to journald, which keeps them as long as the host says. Set it once, on the VPS:
+
+```sh
+sudo mkdir -p /etc/systemd/journald.conf.d
+printf '[Journal]\nMaxRetentionSec=30day\nMaxFileSec=1day\n' | sudo tee /etc/systemd/journald.conf.d/retention.conf
+sudo systemctl restart systemd-journald
+```
+
+A container keeps the log driver it was started with: on a host already running containers, move them all to journald from your machine:
+
+```sh
+bin/kamal proxy reboot -d production
+bin/kamal accessory reboot db -d production
+bin/kamal deploy -d production
+```
+
+Then, on the VPS, remove the stopped containers Kamal kept, which still hold their json-file logs:
+
+```sh
+docker container prune -f
+```
+
+Staging keeps Docker's default log driver. Sentry keeps errors for its plan's retention, 90 days at most.
 
 ### Job queue
 

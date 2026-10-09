@@ -37,6 +37,15 @@ class Accounts::SignInTest < ActiveSupport::TestCase
     assert_equal 1, registered_events.size
   end
 
+  test "a sign-in notes the visit at once" do
+    player = Accounts::SignIn.new.call(steam_id: STEAM_ID).value!
+    player.update_columns(last_seen_at: 4.years.ago)
+
+    travel_to(Time.utc(2026, 10, 9, 4)) { Accounts::SignIn.new.call(steam_id: STEAM_ID).value! }
+
+    assert_equal Time.utc(2026, 10, 9, 4), player.reload.last_seen_at
+  end
+
   test "a player created by a concurrent sign-in is reused through the unique index" do
     Accounts::Player.create!(steam_id: STEAM_ID)
     # The lookup misses, as if the other sign-in committed just after it.

@@ -22,6 +22,7 @@ module Accounts
         step refuse_banned(player)
         registered = player.previously_new_record?
         step store_persona_name(player, persona_name)
+        player.update_columns(last_seen_at: Time.current)
         if registered
           step publish(PlayerRegistered.new(data: { player_id: player.id }), stream_name: "Accounts::Player$#{player.id}")
         end

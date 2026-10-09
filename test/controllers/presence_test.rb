@@ -38,18 +38,24 @@ class PresenceTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "within a minute nothing more is enqueued, after it the next request enqueues again" do
+  test "the sign-in notes the visit itself; within a minute nothing more is enqueued, after it the next request enqueues again" do
     travel_to(@now) do
       sign_in
+      assert_equal @now, @player.reload.last_seen_at
       get home_path(locale: :fr)
-      assert_equal 1, last_seen_jobs
-
-      get friends_path(locale: :fr)
       travel 59.seconds
-      get home_path(locale: :fr)
-      assert_equal 1, last_seen_jobs
+      get friends_path(locale: :fr)
+      assert_equal 0, last_seen_jobs
 
       travel 2.seconds
+      get home_path(locale: :fr)
+      assert_equal 1, last_seen_jobs
+
+      travel 30.seconds
+      get home_path(locale: :fr)
+      assert_equal 1, last_seen_jobs
+
+      travel 31.seconds
       get home_path(locale: :fr)
       assert_equal 2, last_seen_jobs
     end

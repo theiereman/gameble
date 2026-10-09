@@ -13,9 +13,17 @@ servers:
     hosts: []    # - <VPS address>
     cmd: bin/jobs -c config/queue_import.yml --skip-recurring
 
+# Every container logs to journald, which the host keeps 30 days (README, Retention).
+logging:
+  driver: journald
+
 proxy:
   ssl: true
   host: gameble.net
+  run:
+    log_max_size: ""
+    options:
+      log-driver: journald
 
 env:
   clear:

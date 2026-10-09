@@ -33,17 +33,25 @@ expire_trades: &expire_trades
   queue: default
   schedule: every minute
 
+# Personal data is kept no longer than the privacy notice says.
+apply_retention: &apply_retention
+  class: Accounts::ApplyRetentionJob
+  queue: default
+  schedule: every day at 4am
+
 development:
   recover_stalled_imports: *recover_stalled_imports
   sum_weekly_goal: *sum_weekly_goal
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
+  apply_retention: *apply_retention
 
 production:
   recover_stalled_imports: *recover_stalled_imports
   sum_weekly_goal: *sum_weekly_goal
   broadcast_goal: *broadcast_goal
   expire_trades: *expire_trades
+  apply_retention: *apply_retention
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12

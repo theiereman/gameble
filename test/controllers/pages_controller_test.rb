@@ -639,6 +639,25 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href^='mailto:']", false
   end
 
+  test "the privacy section says how long each kind of data is kept, before the deletion paragraph that refers to it" do
+    configure_legal
+
+    get legal_path(locale: :fr)
+
+    assert_response :success
+    assert_select ".legal__retention li", 7
+    retention = css_select(".legal__retention").text
+    [ "trois ans", "un an", "30 jours", "90 jours au plus", "tant que la suspension dure" ].each { assert_includes retention, it }
+    assert_select ".legal__retention + p", /pendant les durées indiquées plus haut\.\z/
+
+    get legal_path(locale: :en)
+
+    assert_select ".legal__retention li", 7
+    retention = css_select(".legal__retention").text
+    [ "three years", "one year", "30 days", "90 days at most", "as long as the suspension lasts" ].each { assert_includes retention, it }
+    assert_select ".legal__retention + p", /for the periods given above\.\z/
+  end
+
   test "neither locale calls a deleted account anonymised" do
     configure_legal
 

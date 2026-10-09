@@ -181,7 +181,16 @@ fr:
           sentry: "Sentry (Functional Software, Inc.) reçoit les erreurs techniques : l'adresse de la page et celle d'où vous venez, le navigateur utilisé et sa langue, et votre identifiant interne de joueur, jamais votre nom ni votre identifiant Steam. Votre navigateur lui envoie aussi directement les rapports de sécurité de la page, avec votre adresse IP. Données hébergées dans l'Union européenne ;"
           cloudflare: "Cloudflare, Inc. se place devant le site pour le protéger et l'accélérer : il voit passer ses requêtes, dont votre adresse IP, et les traite notamment aux États-Unis. Ce transfert repose sur la décision d'adéquation de la Commission européenne du 10 juillet 2023 (Data Privacy Framework), à laquelle Cloudflare adhère ;"
           images: "les images des cartes se chargent depuis le réseau de diffusion de Steam, que votre navigateur contacte directement."
-        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, votre nom de profil, l'heure de votre dernière visite, votre collection, vos boosters, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à l'objectif communautaire, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom."
+        retention:
+          intro: "Combien de temps vos données sont conservées :"
+          account: "votre compte, votre activité de jeu et vos réglages : tant que le compte existe ; un compte sans aucune visite connectée depuis trois ans est supprimé comme si vous l'aviez supprimé vous-même, sauf ceux des modérateurs et des administrateurs ;"
+          reports: "un signalement : jusqu'à ce qu'un modérateur le traite, puis un an ; s'il vise un compte supprimé avant d'être traité, un an après la suppression ;"
+          moderation: "l'historique de modération, motifs compris : une suspension tant qu'elle dure, puis un an après sa levée ; un classement de signalements, un an ; l'historique d'un compte supprimé, jusqu'à un an après la suppression ; le journal des actions du jeu garde la date de chaque décision et les comptes concernés, sans le motif ;"
+          banned_steam_id: "l'identifiant Steam d'un compte suspendu : tant que la suspension dure, pour refuser une nouvelle inscription ;"
+          logs: "les journaux du serveur : 30 jours ;"
+          errors: "les erreurs techniques reçues par Sentry : 90 jours au plus, selon l'offre Sentry de l'éditeur ;"
+          leftovers: "ce qu'un compte supprimé laisse et qui concerne d'autres joueurs ou la communauté (échanges passés, premières découvertes, contributions à l'objectif communautaire, journal des actions du jeu) : tant que le jeu existe, sans identifiant Steam ni nom."
+        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, votre nom de profil, l'heure de votre dernière visite, votre collection, vos boosters, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à l'objectif communautaire, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
         rights:
           intro: "Vous pouvez accéder à vos données, les faire rectifier ou effacer, en limiter le traitement, vous opposer à un traitement fondé sur l'intérêt légitime et en recevoir une copie réutilisable. Vous pouvez aussi indiquer ce que deviennent vos données après votre décès. Nous répondons sous un mois."
           access_html: "accès : demandez une copie de vos données par e-mail, à %{contact} ;"
@@ -282,7 +291,7 @@ fr:
       index:
         heading: "L'historique de modération"
         heading_player: "L'historique de %{name}"
-        intro: "Chaque bannissement, levée de ban et classement de signalements, le plus récent en premier, avec l'officier qui a agi et, pour un bannissement, la raison qu'il a donnée. Rien ne s'efface de l'historique. Les bannissements faits avant que la raison soit demandée n'en ont pas."
+        intro: "Chaque bannissement, levée de ban et classement de signalements, le plus récent en premier, avec l'officier qui a agi et, pour un bannissement, la raison qu'il a donnée. Chaque ligne s'efface un an après sa fin, comme le dit la notice de confidentialité. Les bannissements faits avant que la raison soit demandée n'en ont pas."
         empty: "Aucune action de modération n'est encore consignée."
         player_empty: "Aucune action de modération ne concerne %{name}."
         unknown_player: "Aucun joueur ne correspond à ce lien."
@@ -1157,6 +1166,7 @@ fr:
   errors:
     accounts:
       player_required: "Connectez-vous avec un compte actif pour faire cela."
+      no_longer_idle: "Ce joueur n'est plus inactif : son compte n'est pas supprimé."
       invalid_setting: "Ce réglage n'a pas pu être enregistré. Rechargez la page et réessayez."
       invalid_steam_id: "Votre identifiant Steam n'a pas pu être lu. Connectez-vous à nouveau."
       banned: "Ce compte a été suspendu. Vous ne pouvez plus vous connecter."

@@ -44,6 +44,8 @@ module BackOffice
 
       assert_response :success
       assert_select "h1", "L'historique de modération"
+      assert_select "p", /Chaque ligne s'efface un an après sa fin, comme le dit la notice de confidentialité\./
+      assert_select "p", text: /Rien ne s'efface/, count: 0
       assert_select "thead th", %w[Date Action Joueur Par Raison].size
       assert_select "tbody tr", 3
       assert_select "tbody tr:nth-child(1)[data-moderation-kind=ban]" do

@@ -40,6 +40,27 @@ class QueueConfigTest < ActiveSupport::TestCase
     end
   end
 
+  test "the retention job runs every day in development and production" do
+    recurring = YAML.safe_load(Rails.root.join("config/recurring.yml").read, aliases: true)
+
+    %w[development production].each do |env|
+      assert_equal({ "class" => "Accounts::ApplyRetentionJob", "queue" => "default", "schedule" => "every day at 4am" },
+        recurring.dig(env, "apply_retention"), env)
+    end
+  end
+
+  test "production containers and its proxy log to journald, with no size limit journald would refuse; staging keeps the default" do
+    production = YAML.safe_load(Rails.root.join("config/deploy.production.yml").read, aliases: true)
+    staging = YAML.safe_load(Rails.root.join("config/deploy.staging.yml").read, aliases: true)
+    shared = YAML.safe_load(Rails.root.join("config/deploy.yml").read, aliases: true)
+
+    assert_equal({ "driver" => "journald" }, production["logging"])
+    assert_equal({ "log_max_size" => "", "options" => { "log-driver" => "journald" } }, production.dig("proxy", "run"))
+    assert_nil staging["logging"]
+    assert_nil staging.dig("proxy", "run")
+    assert_nil shared["logging"]
+  end
+
   test "each destination runs the import worker as its own role, with the Steam key" do
     shared = YAML.safe_load(Rails.root.join("config/deploy.yml").read, aliases: true)
     assert_includes shared.dig("env", "secret"), "STEAM_API_KEY"

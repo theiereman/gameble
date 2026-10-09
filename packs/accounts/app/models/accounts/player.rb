@@ -22,6 +22,8 @@ module Accounts
 
     STEAM_ID_FORMAT = /\A\d{17}\z/
 
+    IDLE_PERIOD = 3.years
+
     has_secure_token :token
 
     before_save :rotate_stream_key, if: :banned_or_deleted_now?
@@ -43,6 +45,12 @@ module Accounts
 
     scope :in_good_standing, -> { where(banned_at: nil, deleted_at: nil) }
     scope :removed, -> { where.not(banned_at: nil).or(where.not(deleted_at: nil)) }
+    # Idleness runs from the last signed-in visit or the last change to the
+    # account (sign-up, unban, role, settings), whichever is later: a ban or
+    # a staff role stops the visits being noted.
+    scope :idle, ->(now) {
+      where(role: :player).in_good_standing.where("GREATEST(last_seen_at, updated_at) < ?", now - IDLE_PERIOD)
+    }
 
     def self.acting_staff?(player)
       player.is_a?(Player) && player.persisted? && player.staff? && !player.removed?
