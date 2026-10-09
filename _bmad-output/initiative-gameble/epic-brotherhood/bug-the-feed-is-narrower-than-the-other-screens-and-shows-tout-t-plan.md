@@ -3,7 +3,7 @@ title: 'The feed is narrower than the other screens and shows « Tout » twice'
 type: 'bugfix'
 ticket: '13'
 created: '2026-10-08'
-status: 'built'
+status: done
 baseline_revision: '45c342c7ec2efd8d05778ab37fb81d56d2a9efa5'
 route: 'oneshot'
 route_source: 'auto'

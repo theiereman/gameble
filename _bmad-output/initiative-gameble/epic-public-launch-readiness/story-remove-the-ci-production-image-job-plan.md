@@ -3,7 +3,7 @@ title: 'Remove the CI production image job'
 type: 'chore'
 ticket: '13'
 created: '2026-10-08'
-status: built
+status: done
 baseline_revision: '5df87f9982b712eed9333e2cab05ca6e912dfd7e'
 route: 'oneshot'
 route_source: 'auto'

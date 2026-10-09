@@ -3,7 +3,7 @@ title: 'Cards of an opened booster cannot be browsed, and the card detail loses 
 type: 'bugfix'
 ticket: '8'
 created: '2026-10-08'
-status: 'built'
+status: done
 baseline_revision: 'ec6e3d71165fb04af7be0ecf22d4adfe78382ec6'
 route: 'full'
 route_source: 'auto'

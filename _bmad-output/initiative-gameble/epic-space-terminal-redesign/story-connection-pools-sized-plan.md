@@ -3,7 +3,7 @@ title: 'Connection pools sized'
 type: 'chore'
 ticket: '16'
 created: '2026-10-08'
-status: 'built'
+status: done
 baseline_revision: 'af237e89d44db446071249079f2e16c06edde397'
 route: 'full'
 route_source: 'auto'

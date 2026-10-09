@@ -3,7 +3,7 @@ title: 'The Friends tab'
 type: 'feature'
 ticket: '8'
 created: '2026-10-08'
-status: 'built'
+status: done
 baseline_revision: '5fedea5dce83b10b3a3c2d53b2e4ffa4c1da04d2'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'Repost'
 type: 'feature'
 ticket: '6'
 created: '2026-10-08'
-status: 'built'
+status: done
 baseline_revision: '787645219d6fa24c222b3da7fa0685c5937aab15'
 route: 'full'
 route_source: 'auto'
