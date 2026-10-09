@@ -24,7 +24,7 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 
 | Surface | Reached from | Purpose |
 |---|---|---|
-| Pont de commandement (hub) | Landing after sign-in; "◀ PONT" from any screen; PONT tab | Status at a glance and the way to everything else |
+| Pont de commandement (hub) | Landing after sign-in; the top bar's GAMEBLE link from any desktop screen; PONT tab | Status at a glance and the way to everything else |
 | Ouverture de booster | Menu 01, the packs chip, the BOOSTER tab, the empty showcase | Open one booster at a time and reveal its five cards |
 | Collection | Menu 02, "TOUT VOIR ▸" on the hub, COLLECTION tab | See the sets being completed, discover others, search every set |
 | Set album | A set progress row (collection, hub, search), a set in the card detail, a public profile | One set's cards in order, its missing cards and its tiers or completion |
@@ -47,7 +47,7 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 | Plus (phone only) | PLUS tab | PLUS rows: Amis, Fil d'activité, Succès, Profil et paramètres |
 | Back-office | Staff accounts only | Out of the redesign's scope: unchanged behavior (spec CAP-2, CAP-15), plain functional style, designed later |
 
-**Desktop navigation.** The hub is the only menu: 01 OUVRIR UN BOOSTER (boosters badge), 02 COLLECTION (unique cards owned / total), 03 ÉCHANGES (orange badge when a trade waits for the player), 04 AMIS ("n en ligne"), 05 FIL D'ACTIVITÉ ("En direct"), 06 SUCCÈS (earned / total). The player chip opens Profil et paramètres. Every other screen has "◀ PONT" at the left of its top bar. There is no permanent sidebar.
+**Desktop navigation.** The hub is the only menu: 01 OUVRIR UN BOOSTER (boosters badge), 02 COLLECTION (unique cards owned / total), 03 ÉCHANGES (orange badge when a trade waits for the player), 04 AMIS ("n en ligne"), 05 FIL D'ACTIVITÉ ("En direct"), 06 SUCCÈS (earned / total). The player chip opens Profil et paramètres. On every screen the top bar's logo and "GAMEBLE" are a link to the hub. Every other screen also has, after them, a back button to the previous screen (see Back button). There is no permanent sidebar.
 
 **Phone navigation.** A bottom tab bar: PONT · BOOSTER · COLLECTION · ÉCHANGES · PLUS. Tab roots have no back button; tapping the current tab returns to its root or scrolls it to the top. Sub-views slide over their screen with a contextual back: "◀ GRILLE" (card detail opened from a grid or a set), "◀ BOOSTER" (card detail opened from an opened booster), "◀ LISTE" (trade board), "◀ PLUS" (Amis, Fil, Succès, Profil). The public card page has no tab bar.
 
@@ -59,7 +59,7 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 
 This section covers microcopy only. Brand voice lives in `DESIGN.md` (see Brand & Style). All copy ships in French and English; the French below is the product's approved copy.
 
-- **Terminal labels:** short uppercase labels for actions and states ("OUVRIR LE BOOSTER", "TOUT RÉVÉLER", "◀ PONT", "SCELLÉ", "RÉSERVE VIDE").
+- **Terminal labels:** short uppercase labels for actions and states ("OUVRIR LE BOOSTER", "TOUT RÉVÉLER", "◀ COLLECTION", "SCELLÉ", "RÉSERVE VIDE").
 - **Plain sentences:** short and factual, always addressing the player as "vous", never "tu".
 - **The Brotherhood is discreet:** one line, on the community goal only. None in the feed. No title for the player.
 - **Errors say what happened and what to do,** inline where the action is.
@@ -144,7 +144,8 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 | Player chip | Opens Profil et paramètres. |
 | Menu item | Opens its screen. Keys 1 to 6 open the matching item only while focus is inside the menu (`aria-keyshortcuts`). Coming back to the hub focuses the item last used. |
 | Count badge | Boosters in reserve (lime); trades waiting for the player (orange). Grayed at zero in the menu; hidden at zero in the tab bar. Its number is part of the item's accessible name. |
-| Back button | Returns to the hub (desktop) or the parent view (phone). Disabled during an opening. |
+| GAMEBLE link | Desktop: the top bar's logo and "GAMEBLE" open the hub from any screen. Accessible name "GAMEBLE, pont de commandement" `[ASSUMPTION]`. Disabled during an opening. |
+| Back button | Desktop: returns to the previous screen, like the browser's Back, which comes back as it was left (scroll, filters, page). Its label names that screen by its short top-bar title ("◀ COLLECTION", "◀ FICHE", "◀ AMIS"; the collection entry reads "◀ SETS"). Hidden when the previous screen is the hub (the GAMEBLE link leads there) or when the tab holds no earlier gameble screen (a direct link, a new tab): a back never leaves gameble. Phone: returns to the parent view (see Phone navigation). Disabled during an opening. |
 | Tab bar | Switches between the five roots. Disabled during an opening. Hidden on the public card page. |
 | PLUS rows | Open Amis, Fil d'activité, Succès, Profil et paramètres. |
 
@@ -178,7 +179,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 |---|---|
 | Card detail | Title, publisher, rarity, genre, year, short description, minted season, sets, copies owned. "VOIR SUR STEAM" opens the store page in a new tab (said in its accessible name). "PARTAGER" opens the share sheet; absent for a card not owned. ◀ ▶ buttons (every width) and swipe (phone) move to the previous or next card of where the detail was opened from: an opened booster's cards in its order, back to the booster ("◀ BOOSTER"); the collection grid as shown, with its filters and search, across its pages, back to that grid's page ("◀ GRILLE"); anywhere else (feed, hub showcase, shared link, public profile, pack page), the card's tome. No ◀ on the first card, no ▶ on the last (author, 2026-10-08). |
 | Collection opening (author, 2026-10-08, supersedes 2026-10-07) | Opens on "EN COURS": the player's sets sorted by the cards missing to their next tier or completion, plus those they just progressed in; then "À DÉCOUVRIR": a few sets the player's latest cards touched without progress yet, or popular ones for a new player; then a search over every set, applied as the player types. "TOUTES LES CARTES ▸" opens the card grid, which opens on the cards the player owns, newest first; the state filter switches to TOUT, MANQUANTES, NOUVELLES or DOUBLONS. |
-| Set album | The set's name, kind, owned / total and its tiers (each with its threshold, reached or not), then its COMPLET stamp once it holds every card; an untiered set shows only the stamp; its cards in set order, owned cards face up, missing ones as missing-card slots. A card opens its detail. The back button returns where the album was opened and names it: "◀ SETS" (collection or search), "◀ PONT" (hub), "◀ FICHE" (card detail), "◀ PROFIL" (public profile). The card grid is one tab stop with arrow keys inside, like the collection grid. Signed out, on a public profile, the album shows that player's cards. The header's bar is a progress bar named by the set's name, with the text value "31 cartes sur 62, palier or" (untiered and done: "3 cartes sur 3, complet"). The tier gauge is a list of three items, read as "Bronze, 7 cartes, atteint" or "Or, 31 cartes, pas encore atteint". The COMPLET stamp is plain text. The album's h1 is the set's name (on a public profile: "Roguelike · Léa"), and the top bar's "COLLECTION" is not a heading there; the page title reads "Roguelike · Collection · gameble". On the collection entry the h1 is "COLLECTION", with h2s for EN COURS, À DÉCOUVRIR, CHERCHER UN SET and RÉSULTATS; Toutes les cartes has the h1 "TOUTES LES CARTES". Reference: [mockups/key-collection-sets.html](mockups/key-collection-sets.html). |
+| Set album | The set's name, kind, owned / total and its tiers (each with its threshold, reached or not), then its COMPLET stamp once it holds every card; an untiered set shows only the stamp; its cards in set order, owned cards face up, missing ones as missing-card slots. A card opens its detail. The back button returns where the album was opened and names it: "◀ SETS" (collection or search), "◀ FICHE" (card detail), "◀ PROFIL" (public profile); opened from the hub, none on desktop (the GAMEBLE link leads there) and "◀ PONT" on the phone. The card grid is one tab stop with arrow keys inside, like the collection grid. Signed out, on a public profile, the album shows that player's cards. The header's bar is a progress bar named by the set's name, with the text value "31 cartes sur 62, palier or" (untiered and done: "3 cartes sur 3, complet"). The tier gauge is a list of three items, read as "Bronze, 7 cartes, atteint" or "Or, 31 cartes, pas encore atteint". The COMPLET stamp is plain text. The album's h1 is the set's name (on a public profile: "Roguelike · Léa"), and the top bar's "COLLECTION" is not a heading there; the page title reads "Roguelike · Collection · gameble". On the collection entry the h1 is "COLLECTION", with h2s for EN COURS, À DÉCOUVRIR, CHERCHER UN SET and RÉSULTATS; Toutes les cartes has the h1 "TOUTES LES CARTES". Reference: [mockups/key-collection-sets.html](mockups/key-collection-sets.html). |
 | Set search | A `search` landmark. The field is labelled by "CHERCHER UN SET"; a placeholder never labels it. Applied after 300ms without typing, over set names and kinds. Results appear below the field and never move EN COURS or À DÉCOUVRIR. A polite status line beside the field gives the count once per pause in typing. Focus stays in the field. Esc clears the field when it has text. |
 | Filter zone | A folded panel "FILTRES" with the count of active filters. Chips are switched on or off, several at once: OR within a group, AND across groups. Groups: state, rarity, set (a kind, then a set found by typing its name), genre. A "TOUT EFFACER" clears them. Changing a filter re-lays the grid and keeps focus on the zone. |
 | Search | Free text over the card title and publisher, applied as the player types and combined with the active filters; an empty result shows the empty-filter line. |
@@ -389,9 +390,10 @@ Behavior only. Contrast values live in `DESIGN.md` (see Colors).
 
 | Step | Focus goes to |
 |---|---|
-| Booster screen opened | "OUVRIR LE BOOSTER" (or "◀ PONT" when the reserve is empty) |
+| Booster screen opened | "OUVRIR LE BOOSTER" (when the reserve is empty: the back button, or the GAMEBLE link when there is none) |
 | Set album opened (desktop and phone) | Its h1, the set's name |
 | Back from a set album | The set progress row that opened it |
+| Back button (desktop) | The control that opened the screen just left, when it is still there; otherwise the h1 `[ASSUMPTION]` |
 | Cards landed | Card 1 |
 | A card revealed | Stays on that card |
 | All five revealed (one by one or with Tout révéler) | "OUVRIR LE SUIVANT" |

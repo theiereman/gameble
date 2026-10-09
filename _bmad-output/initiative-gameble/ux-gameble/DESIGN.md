@@ -596,7 +596,7 @@ One style for every focusable element: `{components.focus-ring.css}`, a 3px `{co
 - **Primary button:** `{colors.primary}` fill, `{colors.on-lime}` text, `{colors.primary-hover}` on hover. One per view: "OUVRIR LE BOOSTER", "ACCEPTER", "RÉCUPÉRER", "VOIR SUR STEAM", "ENVOYER LA PROPOSITION", "OUVRIR MES PREMIERS BOOSTERS".
 - **Danger button:** `{colors.danger-bg}`, `{colors.danger-text}`, orange on hover.
 - **Disabled:** `{colors.disabled-bg}` with `{colors.disabled-text}`, no lift. A disabled button never carries information on its own; its reason is written next to it.
-- **Back button:** a small secondary button at the left of the top bar: "◀ PONT" on desktop; on the phone, contextual ("◀ GRILLE", "◀ LISTE", "◀ PLUS").
+- **Back button:** a small secondary button in the top bar, naming the screen it returns to: on desktop the previous screen ("◀ COLLECTION", "◀ FICHE"), after the GAMEBLE link; on the phone, contextual ("◀ GRILLE", "◀ LISTE", "◀ PLUS"), at the left.
 - **Link:** Space Mono bold in `{colors.muted}` (at least 10px), accent with a pixel arrow on hover ("TOUT VOIR ▸", "VOIR SUR STEAM ↗"); orange for "SIGNALER"; "Mentions légales" is a muted link.
 - **Remove:** a square "✕" at a card's top-right, orange on hover; on the phone, inside a 44 × 44 CSS px hit area.
 
@@ -696,7 +696,7 @@ Navigation and status around the screens.
 
 #### Top bar
 
-`{components.top-bar.height}` on `{colors.steam-bar}`. Left: the gameble logo and "GAMEBLE" (hub) or the back button and the screen title (other screens; shortened on the phone, for example "BOOSTER", "PROFIL"). Right, per screen:
+`{components.top-bar.height}` on `{colors.steam-bar}`. Left, on desktop: the gameble logo and "GAMEBLE" on every screen, a link to the hub on the others (hover as a link `[ASSUMPTION]`), then, off the hub, a vertical divider, the back button when shown and the screen title. Left, on the phone: the logo and "GAMEBLE" (hub) or the back button and the screen title (other screens; shortened, for example "BOOSTER", "PROFIL"). Mockups drawn with "◀ PONT" at the left of a desktop top bar predate this rule; the rule applies. Right, per screen:
 
 | Screen | Right side |
 |---|---|
