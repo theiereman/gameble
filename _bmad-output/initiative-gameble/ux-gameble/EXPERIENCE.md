@@ -208,7 +208,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 | Invite panel | "COPIER" copies the invite link. The code field accepts the format of the codes in use (for example "7K2Q-F3NX", "8F2D-K9XM") (author, 2026-10-07: the code is purely random, 4 characters, a dash, 4 characters, never derived from the name), submits on Enter and answers on the line below. A valid code sends an invitation. |
 | Invitation row | Received: "ACCEPTER" creates the friendship for both; "IGNORER" dismisses it. Sent: "EN ATTENTE" until answered. The invite link sends an invitation the same way. |
 | Friend row | Shows the friend's presence (see Copy deck, Presence), or "Profil privé" for a private friend. "VOIR LE PROFIL" opens the friend profile; the name is not a link. "PROPOSER UN ÉCHANGE" opens the trade already in progress with that friend, or a new draft. When either profile is private, the "Trades closed" line replaces the button. |
-| Friend profile | A dialog: showcase of three cards, "PROPOSER UN ÉCHANGE", "SIGNALER". A private friend's dialog shows the name and says the profile is not available; when the viewer is private, the "Trades closed" line replaces "PROPOSER UN ÉCHANGE". |
+| Friend profile | A dialog: showcase of three cards, "PROPOSER UN ÉCHANGE", "VOIR LA COLLECTION" (the public profile, unless the friend's profile is private), "SIGNALER". A private friend's dialog shows the name and says the profile is not available; when the viewer is private, the "Trades closed" line replaces "PROPOSER UN ÉCHANGE". |
 | Report dialog | A reason must be chosen before "ENVOYER LE SIGNALEMENT". The reported player never learns who reported them. |
 
 ### Fil d'activité and Succès
