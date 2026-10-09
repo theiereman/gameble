@@ -161,7 +161,7 @@ covers = ["R5"]
 after = [3]
 hitl = true
 risk = "low"
-notes = ["il faudrait qu'on trouve une solution pour rester en europe en vrai, quitte à auto héberger"]
+notes = ["il faudrait qu'on trouve une solution pour rester en europe en vrai, quitte à auto héberger", "Dropped (author, 2026-10-09): the author's Sentry data is already stored in Sentry's EU region; the privacy notice says so (story 22)."]
 
 [[entry]]
 id = 16
