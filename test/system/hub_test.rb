@@ -267,7 +267,7 @@ class HubTest < ApplicationSystemTestCase
     item("1").send_keys("2")
     assert_current_path library_path(locale: :en)
 
-    click_on "Bridge"
+    find(".top-bar__home").click
     assert_current_path home_path(locale: :en)
     assert_selector ".hub-menu"
     assert_equal "2", focused_item
@@ -287,7 +287,7 @@ class HubTest < ApplicationSystemTestCase
     find(".booster-canister").click
     assert_selector ".booster-card[data-dealt]", count: 5, wait: 10
     assert_selector ".booster__state", text: /\AINVENTORY\z/
-    find(".top-bar__start a.button").click
+    find(".top-bar__home").click
     assert_current_path home_path(locale: :en)
     assert_selector ".hub-menu .menu-item[aria-keyshortcuts='1']:not([aria-disabled]) .menu-item__badge--zero", text: "0"
     assert_equal "1", focused_item

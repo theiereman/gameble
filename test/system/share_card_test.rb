@@ -191,7 +191,7 @@ class ShareCardTest < ApplicationSystemTestCase
 
     send_keys :escape
     assert_no_selector "dialog#share-sheet[open]"
-    click_on "Bridge"
+    find(".top-bar__home").click
     assert_current_path "/en"
     go_back
 

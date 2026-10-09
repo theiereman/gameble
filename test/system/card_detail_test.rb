@@ -123,7 +123,8 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector "button.card-detail__nav--next[disabled]"
     assert_no_selector ".card-detail__position"
     assert_no_selector ".top-bar__phone-back"
-    assert_selector ".top-bar__start > a.button[href='/en']", text: "BRIDGE"
+    assert_selector ".top-bar__start > a.top-bar__home[href='/en']", text: "GAMEBLE"
+    assert_no_selector ".top-bar__start > a.top-bar__bridge"
     assert_selector ".card-detail__number", text: "S#{season.number} · #"
     take_screenshot
 

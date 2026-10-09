@@ -32,7 +32,8 @@ module BackOffice
         assert_select "a[href='/fr/back-office/reports']", "Les signalements"
         assert_select "a[href='/fr/back-office/bans']", "Les bannis"
         assert_select "a[href='/fr/back-office/history']", "L'historique"
-        assert_select ".top-bar__start > a.button--secondary:first-child[href='/fr']", "Pont"
+        assert_select ".top-bar__start > a.top-bar__home:first-child[href='/fr']"
+        assert_select ".top-bar__start > a.button--secondary[href='/fr']", "Pont"
         assert_select "a[href='/fr/back-office']", false
         assert_select "body.is-back-office"
         assert_select "#atmosphere", false

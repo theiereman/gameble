@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { TRAIL_KEY, TRAIL_SPAN, entryAfter, recordEntry, resetTrail, stepsBackTo, type TrailStorage } from "./history_trail"
+import { TRAIL_KEY, TRAIL_SPAN, entryAfter, entryBefore, labelBefore, recordEntry, resetTrail, stepsBackTo, type TrailStorage } from "./history_trail"
 
 function memory(): TrailStorage & { items: Map<string, string> } {
   const items = new Map<string, string>()
@@ -108,5 +108,64 @@ describe("history trail", () => {
     }
     expect(() => recordEntry(0, "/grid", refusing)).not.toThrow()
     expect(stepsBackTo("/grid", 1, refusing)).toBeNull()
+  })
+
+  it("names the screen right before the current entry, by the label it recorded", () => {
+    const storage = memory()
+    recordEntry(0, "/en", storage)
+    recordEntry(1, "/en/library", storage, "Collection")
+    recordEntry(2, "/en/cards/portal", storage, "Card")
+
+    expect(labelBefore(2, storage)).toBe("Collection")
+    expect(entryBefore(2, storage)).toBe("/en/library")
+    expect(labelBefore(1, storage)).toBeNull()
+    expect(entryBefore(1, storage)).toBe("/en")
+  })
+
+  it("keeps the label before a replaced entry: stepping through details names the screen they were opened from", () => {
+    const storage = memory()
+    recordEntry(0, "/en/library", storage, "Collection")
+    recordEntry(1, "/en/cards/a", storage, "Card")
+    recordEntry(1, "/en/cards/b", storage, "Card")
+
+    expect(labelBefore(1, storage)).toBe("Collection")
+    expect(stepsBackTo("/en/cards/b", 2, storage)).toBe(1)
+  })
+
+  it("names nothing before an entry it never recorded, after a reset, or with an empty label", () => {
+    const storage = memory()
+    recordEntry(3, "/en/cards/a", storage, "Card")
+    expect(labelBefore(3, storage)).toBeNull()
+    expect(entryBefore(3, storage)).toBeNull()
+    expect(labelBefore(0, storage)).toBeNull()
+
+    recordEntry(4, "/en/feed", storage, "")
+    expect(labelBefore(5, storage)).toBeNull()
+
+    recordEntry(5, "/en/friends", storage, "Friends")
+    resetTrail(storage)
+    expect(labelBefore(6, storage)).toBeNull()
+  })
+
+  it("names nothing without storage, with a refusing one, or from entries it cannot read", () => {
+    expect(labelBefore(1, null)).toBeNull()
+    expect(entryBefore(1, null)).toBeNull()
+
+    const refusing: TrailStorage = {
+      getItem: () => {
+        throw new Error("denied")
+      },
+      setItem: () => {
+        throw new Error("denied")
+      },
+    }
+    expect(() => recordEntry(0, "/en/library", refusing, "Collection")).not.toThrow()
+    expect(labelBefore(1, refusing)).toBeNull()
+
+    const odd = memory()
+    odd.items.set(TRAIL_KEY, JSON.stringify({ 0: "/en/library", 1: { pathname: "/en/feed", label: 7 } }))
+    expect(labelBefore(1, odd)).toBeNull()
+    expect(labelBefore(2, odd)).toBeNull()
+    expect(stepsBackTo("/en/library", 2, odd)).toBeNull()
   })
 })

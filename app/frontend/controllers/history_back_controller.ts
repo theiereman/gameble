@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { currentIndex, entryAfter, recordEntry, resetTrail, sessionTrailStorage, stepsBackTo } from "../lib/history_trail"
+import { currentIndex, currentScreenLabel, entryAfter, recordEntry, resetTrail, sessionTrailStorage, stepsBackTo } from "../lib/history_trail"
 
 // A contextual back link (the phone's "◀ GRILLE" or "◀ BOOSTER" in the
 // top bar): when the page it leads to is an earlier entry of this tab's
@@ -11,7 +11,9 @@ import { currentIndex, entryAfter, recordEntry, resetTrail, sessionTrailStorage,
 // The trail it reads (lib/history_trail.ts) must know every page, not only
 // those holding a back link: it is recorded once for the whole app, from
 // this module, on every page load and on every frame visit that changes
-// the URL. Those listeners live as long as the app, like Turbo's own.
+// the URL, with the screen's label for the desktop back button
+// (previous_screen_controller.ts). Those listeners live as long as the
+// app, like Turbo's own.
 // This module runs once per full document load. Turbo then reads its
 // restoration index back from history.state (a reload, a back/forward
 // document load), but the pages an earlier document recorded may no longer
@@ -27,7 +29,7 @@ import { currentIndex, entryAfter, recordEntry, resetTrail, sessionTrailStorage,
 // opened it"), without scrolling, so the scroll Turbo restores is kept.
 const storage = sessionTrailStorage()
 resetTrail(storage)
-const record = (): void => recordEntry(currentIndex(), location.pathname, storage)
+const record = (): void => recordEntry(currentIndex(), location.pathname, storage, currentScreenLabel())
 let restoring = false
 document.addEventListener("turbo:visit", (event) => {
   restoring = (event as CustomEvent<{ action?: string }>).detail?.action === "restore"

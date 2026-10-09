@@ -1,10 +1,15 @@
-<%# The top bar (DESIGN.md, Top bar): on the left the logo, or the back
-    button to the bridge (and the screen title, when the view gives one) on
-    every other page (`content_for :back_button`); on a phone a view may
-    give a contextual back in its place (`content_for :phone_back`, a
-    sub-view's "◀ Grille"), shown under 720px only; on the right the
-    player's rarity counter, packs chip and player chip, or the official
-    Steam sign-in image for a visitor. A screen with its own status
+<%# The top bar: on the left the logo, or, on every other page
+    (`content_for :back_button`), the logo and name as a link to the hub, a
+    divider, the back button to the previous screen (shown by
+    previous-screen once the tab's history names that screen) and the
+    screen title, when the view gives one. Under 720px the logo link,
+    divider and previous-screen button give way to the back button to the
+    bridge, or to a view's contextual back in its place
+    (`content_for :phone_back`, a sub-view's "◀ Grille"). The header
+    carries the screen's short name, recorded with each history entry for
+    the next screen's back button. On the right the player's rarity
+    counter, packs chip and player chip, or the official Steam sign-in
+    image for a visitor. A screen with its own status
     (`content_for :top_bar_status`, the collection's unique cards) shows it
     first, in place of the rarity counter and packs chip (on the phone, of
     the player chip too: collection.css). The booster screen
@@ -12,17 +17,37 @@
     reserve chip, both following its island's events. The back-office
     shows the player chip only. The start's links and buttons are locked
     while the booster island opens or reveals (navigation-lock). %>
-<header class="<%= class_names("top-bar", "top-bar--status": content_for?(:top_bar_status)) %>">
+<header class="<%= class_names("top-bar", "top-bar--status": content_for?(:top_bar_status)) %>" <%= tag.attributes(data: { screen_label: shell_screen_label }) %>>
   <div class="top-bar__inner">
     <div class="top-bar__start<%= " top-bar__start--phone-back" if content_for?(:phone_back) %>" data-controller="navigation-lock">
       <% if content_for?(:back_button) %>
-        <%= render ButtonComponent.new(variant: :secondary, size: :small, href: home_path, icon: "arrow-left") do %><%= t("shell.top_bar.back") %><% end %>
+        <%= link_to home_path, class: "top-bar__brand top-bar__home", aria: { label: t("shell.top_bar.home") } do %>
+          <%= pixel_icon("logo", class: "top-bar__logo") %>
+          <span class="top-bar__name"><%= t("shell.top_bar.brand") %></span>
+        <% end %>
+        <span class="top-bar__divider" aria-hidden="true"></span>
+        <%= link_to home_path, class: "button button--secondary button--small top-bar__bridge" do %>
+          <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t("shell.top_bar.back") %></span>
+        <% end %>
         <%= yield :phone_back %>
+        <a class="button button--secondary button--small top-bar__previous" hidden
+          data-controller="previous-screen" data-action="previous-screen#back turbo:morph@document->previous-screen#sync" data-turbo-prefetch="false">
+          <%= pixel_icon("arrow-left", class: "button__icon") %><span class="visually-hidden"><%= t("shell.top_bar.previous") %> </span><span class="button__label" data-previous-screen-target="label"></span>
+        </a>
         <% if content_for?(:screen_title) %>
           <p class="top-bar__title"><%= yield :screen_title %></p>
         <% end %>
-      <% else %>
+      <% elsif (controller_path == "pages" && action_name == "home") || content_for?(:public_page) %>
         <p class="top-bar__brand">
+          <%= pixel_icon("logo", class: "top-bar__logo") %>
+          <span class="top-bar__name"><%= t("shell.top_bar.brand") %></span>
+        </p>
+      <% else %>
+        <%= link_to home_path, class: "top-bar__brand top-bar__home", aria: { label: t("shell.top_bar.home") } do %>
+          <%= pixel_icon("logo", class: "top-bar__logo") %>
+          <span class="top-bar__name"><%= t("shell.top_bar.brand") %></span>
+        <% end %>
+        <p class="top-bar__brand top-bar__phone-brand">
           <%= pixel_icon("logo", class: "top-bar__logo") %>
           <span class="top-bar__name"><%= t("shell.top_bar.brand") %></span>
         </p>

@@ -162,7 +162,7 @@ class CardPreviewTest < ApplicationSystemTestCase
       card.dataset.tilt = "held"
       card.style.setProperty("--tilt-rx", "5deg")
     JS
-    click_on "Bridge"
+    find(".top-bar__home").click
     assert_selector ".hub"
 
     page.go_back

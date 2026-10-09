@@ -1,4 +1,5 @@
 require "application_system_test_case"
+require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
 
 # The shell in a real browser (story 8.1): the top bar, the phone tab bar
@@ -8,6 +9,7 @@ require_relative "../support/game_packs"
 # reference phones; screenshots of the hub, the library, a card, a pack and
 # the back-office.
 class ShellTest < ApplicationSystemTestCase
+  include CatalogSeeds
   include GamePacks
 
   PHONES = { "390" => [ 390, 844 ], "360" => [ 360, 740 ] }.freeze
@@ -245,7 +247,7 @@ class ShellTest < ApplicationSystemTestCase
     assert_no_selector "html[data-screen-change]", visible: :all
     assert_equal "none", computed(".main", "viewTransitionName")
 
-    find(".top-bar__start a").click
+    find(".top-bar__home").click
     assert_current_path home_path(locale: :en)
     assert_no_selector "body.is-back-office"
     assert_no_selector "html[data-screen-change]", visible: :all
@@ -354,7 +356,8 @@ class ShellTest < ApplicationSystemTestCase
     { library: library_path(locale: :en), card: card_path(locale: :en, slug: "portal"),
       pack: pack_path(locale: :en, token: pack.token), back_office: back_office_path(locale: :en) }.each do |name, path|
       visit path
-      assert_selector ".top-bar__start .button__label", text: /BRIDGE/i
+      assert_selector ".top-bar__start > a.top-bar__home", text: "GAMEBLE"
+      assert_no_selector ".top-bar__start > a.top-bar__bridge"
       assert_equal "rgb(11, 15, 21)", computed("body", "backgroundColor"), name
       assert_no_sideways_scroll
       take_screenshot
@@ -364,6 +367,113 @@ class ShellTest < ApplicationSystemTestCase
 
     resize_to(*PHONES["360"])
     visit card_path(locale: :en, slug: "portal")
+    assert_no_sideways_scroll
+    take_screenshot
+  end
+
+  PREVIOUS = ".top-bar__start > a.top-bar__previous".freeze
+
+  def sign_in_with_three_cards
+    season = publish_sets_draft
+    set = Catalog::Set.find_by!(season_id: season.id, key: "action-1")
+    player = accounts_players(:player)
+    Catalog::SetMembership.where(set_id: set.id).order(:position, :id).limit(3).pluck(:card_season_id).each do |card_season_id|
+      Game::Holding.create!(player_id: player.id, card_season_id:, quantity: 1)
+    end
+    sign_in(player)
+  end
+
+  def accessible_text(selector) = find(selector).evaluate_script("this.textContent").squish
+
+  test "on a desktop, the back button names the screen before this one and returns to it, through each card the detail steps to" do
+    sign_in_with_three_cards
+    assert_no_selector PREVIOUS
+    find(".hub-menu .menu-item[aria-keyshortcuts='2']").click
+    assert_current_path library_path(locale: :en)
+    assert_selector ".top-bar__start > a.top-bar__home", text: "GAMEBLE"
+    assert_no_selector PREVIOUS
+    assert_no_selector ".top-bar__bridge"
+
+    find(".collection-grid a.card-link", match: :first).click
+    assert_selector ".card-detail h1"
+    assert_selector PREVIOUS, text: "COLLECTION"
+    assert_equal "Back: Collection", accessible_text(PREVIOUS)
+    assert_equal "/en/library", URI(find(PREVIOUS)[:href]).path
+    take_screenshot
+
+    page.document.synchronize { raise Capybara::ExpectationNotMet, "visiting" if evaluate_script("!!Turbo.session.navigator.currentVisit") }
+    page.execute_script(<<~JS)
+      document.addEventListener("turbo:morph", () => { window.morphed = true }, { once: true })
+      Turbo.session.refresh(document.baseURI, { method: "morph", scroll: "preserve" })
+    JS
+    page.document.synchronize { raise Capybara::ExpectationNotMet, "not morphed" unless evaluate_script("window.morphed === true") }
+    assert_selector PREVIOUS, text: "COLLECTION"
+    assert_equal "/en/library", URI(find(PREVIOUS)[:href]).path
+
+    detail = current_path
+    find("a.card-detail__nav--next").click
+    assert_no_current_path detail
+    assert_selector PREVIOUS, text: "COLLECTION"
+
+    entries = evaluate_script("history.length")
+    find(PREVIOUS).click
+    assert_current_path library_path(locale: :en)
+    assert_selector ".collection-grid"
+    assert_equal entries, evaluate_script("history.length")
+    assert_no_selector PREVIOUS
+
+    find(".top-bar__home").click
+    assert_current_path home_path(locale: :en)
+    assert_selector ".hub-menu"
+  end
+
+  test "on a desktop, no back button after the hub, from a direct link or after a reload" do
+    sign_in_with_three_cards
+    find(".hub-menu .menu-item[aria-keyshortcuts='4']").click
+    assert_current_path friends_path(locale: :en)
+    assert_no_selector PREVIOUS
+    find(".top-bar__home").click
+    assert_current_path home_path(locale: :en)
+
+    find(".hub-menu .menu-item[aria-keyshortcuts='2']").click
+    find(".collection-grid a.card-link", match: :first).click
+    assert_selector PREVIOUS, text: "COLLECTION"
+    detail = current_url
+
+    refresh
+    assert_selector ".card-detail h1"
+    assert_no_selector PREVIOUS
+
+    visit detail
+    assert_selector ".card-detail h1"
+    assert_no_selector PREVIOUS
+  end
+
+  test "on a desktop, a storage that refuses leaves no back button" do
+    sign_in_with_three_cards
+    page.execute_script(<<~JS)
+      Object.defineProperty(window, "sessionStorage", { get() { throw new Error("denied") } })
+    JS
+    find(".hub-menu .menu-item[aria-keyshortcuts='2']").click
+    find(".collection-grid a.card-link", match: :first).click
+    assert_selector ".card-detail h1"
+    assert_no_selector PREVIOUS
+  end
+
+  test "on a phone, the top bar keeps the bridge button or the contextual back, never the GAMEBLE link nor the desktop back" do
+    resize_to(*PHONES["390"])
+    sign_in_with_three_cards
+    assert_selector ".top-bar__start > p.top-bar__brand", visible: true
+
+    find(".tab-bar a.tab-bar__tab[href='/en/library']").click
+    assert_current_path library_path(locale: :en)
+    assert_selector ".top-bar__start > a.top-bar__bridge", text: "BRIDGE"
+    assert_no_selector ".top-bar__home, .top-bar__divider", visible: true
+
+    find(".collection-grid a.card-link", match: :first).click
+    assert_selector ".top-bar__phone-back", text: "GRID"
+    assert_no_selector ".top-bar__bridge, .top-bar__home, .top-bar__divider", visible: true
+    assert_no_selector PREVIOUS, visible: true
     assert_no_sideways_scroll
     take_screenshot
   end

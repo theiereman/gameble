@@ -12,6 +12,10 @@ class ShellHelperTest < ActionView::TestCase
     @controller_path || super
   end
 
+  def action_name
+    @action_name || super
+  end
+
   test "an icon is its exported SVG, inlined, hidden and never focusable" do
     html = pixel_icon("arrow-left")
     svg = Nokogiri::HTML5.fragment(html).at("svg")
@@ -50,6 +54,32 @@ class ShellHelperTest < ActionView::TestCase
 
     @controller_path = "library"
     assert_not_predicate self, :back_office_page?
+  end
+
+  test "each screen's short name, by action or by controller; none for the hub or an unnamed screen" do
+    names = {
+      %w[library show] => "Collection", %w[library set] => "Set", %w[cards show] => "Card", %w[boosters show] => "Booster",
+      %w[packs show] => "Booster", %w[trades show] => "Trades", %w[trades edit] => "Trades", %w[friends show] => "Friends",
+      %w[friend_profiles show] => "Profile", %w[public_profiles show] => "Profile", %w[public_profiles set] => "Set",
+      %w[settings show] => "Profile", %w[feeds show] => "Feed", %w[pages legal] => "Legal notice", %w[pages more] => "More",
+      %w[back_office/dashboard show] => "Back-office", %w[back_office/import_runs index] => "Back-office",
+      %w[pages home] => nil, %w[invite_links show] => nil
+    }
+
+    names.each do |(path, action), name|
+      @controller_path, @action_name = path, action
+      if name
+        assert_equal name, shell_screen_label, "#{path}##{action}"
+      else
+        assert_nil shell_screen_label, "#{path}##{action}"
+      end
+    end
+    I18n.with_locale(:fr) do
+      @controller_path, @action_name = "cards", "show"
+      assert_equal "Fiche", shell_screen_label
+      @controller_path, @action_name = "pages", "legal"
+      assert_equal "Mentions légales", shell_screen_label
+    end
   end
 
   test "a visitor has no bank and zero copies per tier, without a query" do

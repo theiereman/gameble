@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { openDialog } from "../lib/dialog"
 import { dispatchGameble, onGameble } from "../lib/events"
-import { currentIndex, recordEntry, sessionTrailStorage } from "../lib/history_trail"
+import { currentIndex, currentScreenLabel, recordEntry, sessionTrailStorage } from "../lib/history_trail"
 import { holdLiveRefresh } from "../lib/live_refresh_hold"
 import { forgetDraft } from "../lib/trade_draft"
 
@@ -96,6 +96,6 @@ export default class extends Controller<HTMLElement> {
     const next = new URL(url, window.location.href)
     if (next.pathname === window.location.pathname) return
     window.history.replaceState(window.history.state, "", next)
-    recordEntry(currentIndex(), next.pathname, sessionTrailStorage())
+    recordEntry(currentIndex(), next.pathname, sessionTrailStorage(), currentScreenLabel())
   }
 }

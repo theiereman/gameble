@@ -13,26 +13,39 @@
 // error (private mode, quota) leaves it empty, and the back is a plain visit.
 //
 // Every page load and every frame visit that changes the URL records
-// { index → pathname }: a replaced entry (◀ ▶) overwrites its index, a new
-// entry its own. Entries before the current one are the pages history
-// would return to; the entry right after it, the page the user just came
-// back from.
+// { index → pathname and screen label }: a replaced entry (◀ ▶) overwrites
+// its index, a new entry its own. Entries before the current one are the
+// pages history would return to; the entry right before it, the screen the
+// desktop back button names; the entry right after it, the page the user
+// just came back from. The hub and unnamed screens record no label.
 
 export const TRAIL_KEY = "gameble:history-trail"
 /** How many entries are kept around the current one, either way. */
 export const TRAIL_SPAN = 100
 
 export type TrailStorage = Pick<Storage, "getItem" | "setItem">
-export type Trail = Record<string, string>
+export type TrailEntry = { pathname: string; label?: string }
+export type Trail = Record<string, TrailEntry>
 
 function read(storage: TrailStorage | null): Trail {
   if (!storage) return {}
   try {
     const parsed: unknown = JSON.parse(storage.getItem(TRAIL_KEY) ?? "{}")
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? (parsed as Trail) : {}
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {}
+    const trail: Trail = {}
+    for (const [index, entry] of Object.entries(parsed as Record<string, unknown>)) {
+      if (isTrailEntry(entry)) trail[index] = entry
+    }
+    return trail
   } catch {
     return {}
   }
+}
+
+function isTrailEntry(entry: unknown): entry is TrailEntry {
+  if (!entry || typeof entry !== "object") return false
+  const { pathname, label } = entry as Record<string, unknown>
+  return typeof pathname === "string" && (label === undefined || typeof label === "string")
 }
 
 /**
@@ -49,11 +62,14 @@ export function resetTrail(storage: TrailStorage | null): void {
   }
 }
 
-/** Records that the entry at `index` shows `pathname`, dropping entries far from it. */
-export function recordEntry(index: number, pathname: string, storage: TrailStorage | null): void {
+/**
+ * Records that the entry at `index` shows `pathname`, named `label` when the
+ * screen has a short name, dropping entries far from it.
+ */
+export function recordEntry(index: number, pathname: string, storage: TrailStorage | null, label?: string | null): void {
   if (!storage) return
   const trail = read(storage)
-  trail[index] = pathname
+  trail[index] = label ? { pathname, label } : { pathname }
   for (const key of Object.keys(trail)) {
     if (Math.abs(Number(key) - index) > TRAIL_SPAN) delete trail[key]
   }
@@ -71,7 +87,7 @@ export function recordEntry(index: number, pathname: string, storage: TrailStora
 export function stepsBackTo(pathname: string, index: number, storage: TrailStorage | null): number | null {
   const trail = read(storage)
   for (let earlier = index - 1; earlier >= Math.max(0, index - TRAIL_SPAN); earlier--) {
-    if (trail[earlier] === pathname) return index - earlier
+    if (trail[earlier]?.pathname === pathname) return index - earlier
   }
   return null
 }
@@ -81,7 +97,23 @@ export function stepsBackTo(pathname: string, index: number, storage: TrailStora
  * page the user came back from by a restore visit), or null when none is.
  */
 export function entryAfter(index: number, storage: TrailStorage | null): string | null {
-  return read(storage)[index + 1] ?? null
+  return read(storage)[index + 1]?.pathname ?? null
+}
+
+/**
+ * The pathname recorded for the entry right before the one at `index` (the
+ * page history goes back to), or null when none is.
+ */
+export function entryBefore(index: number, storage: TrailStorage | null): string | null {
+  return read(storage)[index - 1]?.pathname ?? null
+}
+
+/**
+ * The screen label recorded for the entry right before the one at `index`,
+ * or null when that entry is unknown or its screen has no label (the hub).
+ */
+export function labelBefore(index: number, storage: TrailStorage | null): string | null {
+  return read(storage)[index - 1]?.label ?? null
 }
 
 /** The tab's session storage, or null where reading it throws. */
@@ -97,4 +129,9 @@ export function sessionTrailStorage(): TrailStorage | null {
 export function currentIndex(): number {
   const index: unknown = (history.state as { turbo?: { restorationIndex?: unknown } } | null)?.turbo?.restorationIndex
   return typeof index === "number" ? index : 0
+}
+
+/** The short name of the screen shown, carried by the top bar; null for the hub and unnamed screens. */
+export function currentScreenLabel(): string | null {
+  return document.querySelector<HTMLElement>(".top-bar")?.dataset.screenLabel || null
 }

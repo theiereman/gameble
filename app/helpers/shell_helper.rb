@@ -54,6 +54,28 @@ module ShellHelper
     controller_path.start_with?("back_office/")
   end
 
+  SCREEN_LABELS = {
+    "library#show" => :collection,
+    "library#set" => :set,
+    "cards" => :card,
+    "boosters" => :booster,
+    "packs" => :booster,
+    "trades" => :trades,
+    "friends" => :friends,
+    "friend_profiles" => :profile,
+    "public_profiles#set" => :set,
+    "public_profiles" => :profile,
+    "settings" => :profile,
+    "feeds" => :feed,
+    "pages#legal" => :legal,
+    "pages#more" => :more
+  }.freeze
+
+  def shell_screen_label
+    key = back_office_page? ? :back_office : SCREEN_LABELS["#{controller_path}##{action_name}"] || SCREEN_LABELS[controller_path]
+    t("shell.screens.#{key}") if key
+  end
+
   # The signed-in player's reserve (Game::BankSummary.reserve), for the
   # packs and reserve chips; nil for a visitor. Read once per request; the
   # page's own @bank (hub, booster screen, pack page) is reused.

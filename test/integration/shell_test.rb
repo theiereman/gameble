@@ -56,10 +56,10 @@ class ShellTest < ActionDispatch::IntegrationTest
   test "a visitor on the hub: the logo and the official Steam image as a POST form back to this page" do
     get home_path(locale: :fr)
 
-    assert_select "body > header.top-bar" do
-      assert_select ".top-bar__start .top-bar__brand svg.pixel-icon.top-bar__logo"
+    assert_select "body > header.top-bar:not([data-screen-label])" do
+      assert_select ".top-bar__start p.top-bar__brand svg.pixel-icon.top-bar__logo"
       assert_select ".top-bar__start .top-bar__brand .top-bar__name", "gameble"
-      assert_select ".top-bar__start a.button", false
+      assert_select ".top-bar__start a", false
       assert_select ".top-bar__end form.steam-sign-in[action='/auth/steam'][method=post][data-turbo=false]" do
         assert_select "input[type=hidden][name=origin][value='/fr']"
         assert_select "button.steam-sign-in__button img[alt=?]", "Se connecter via Steam (ouvre Steam)"
@@ -112,11 +112,20 @@ class ShellTest < ActionDispatch::IntegrationTest
 
     get card_path(locale: :en, slug: "portal")
 
-    assert_select ".top-bar__start > a.button.button--secondary.button--small[href='/en']" do
+    assert_select "header.top-bar[data-screen-label=Card]"
+    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home:first-child[href='/en'][aria-label=?]", "gameble, command bridge" do
+      assert_select "svg.pixel-icon.top-bar__logo[aria-hidden=true]"
+      assert_select ".top-bar__name", "gameble"
+    end
+    assert_select ".top-bar__home + .top-bar__divider[aria-hidden=true]"
+    assert_select ".top-bar__start > a.button.button--secondary.button--small.top-bar__bridge[href='/en']" do
       assert_select "svg.pixel-icon.button__icon[aria-hidden=true]"
       assert_select ".button__label", "Bridge"
     end
-    assert_select ".top-bar__brand", false
+    assert_select ".top-bar__start > a.top-bar__previous[hidden][data-controller=previous-screen]:not([href])" do
+      assert_select ".visually-hidden", "Back:"
+      assert_select ".button__label[data-previous-screen-target=label]", ""
+    end
 
     assert_select ".rarity-counter button.rarity-counter__button[type=button][popovertarget=rarity-legend]" do
       assert_select ".rarity-counter__item", 5
@@ -155,6 +164,23 @@ class ShellTest < ActionDispatch::IntegrationTest
       assert_select "form button.player-menu__item", "Sign out"
     end
     assert_select ".top-bar form[action='/auth/steam']", false
+  end
+
+  test "a screen without a back button: the logo and name link to the hub on a desktop, the plain brand on a phone" do
+    sign_in(accounts_players(:player))
+
+    get more_path(locale: :en)
+
+    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home[href='/en'][aria-label=?]", "gameble, command bridge" do
+      assert_select "svg.pixel-icon.top-bar__logo"
+      assert_select ".top-bar__name", "gameble"
+    end
+    assert_select ".top-bar__start > p.top-bar__brand.top-bar__phone-brand .top-bar__name", "gameble"
+
+    get home_path(locale: :en)
+
+    assert_select ".top-bar__start a", false
+    assert_select ".top-bar__start > p.top-bar__brand:not(.top-bar__phone-brand)"
   end
 
   test "a full reserve shows instead of the countdown" do
@@ -268,6 +294,9 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "body.is-back-office"
     assert_select ".top-bar__start > a.button--secondary[href='/fr'] .button__label", "Pont"
+    assert_select ".top-bar__start > a.top-bar__home[href='/fr'][aria-label=?]", "gameble, pont de commandement"
+    assert_select ".top-bar__previous .visually-hidden", "Retour :"
+    assert_select "header.top-bar[data-screen-label=Back-office]"
     assert_select "#atmosphere, .atmosphere", false
     assert_select ".tab-bar", false
     assert_select ".rarity-counter, .packs-chip", false

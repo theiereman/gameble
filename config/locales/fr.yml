@@ -11,6 +11,20 @@ fr:
     top_bar:
       brand: "gameble"
       back: "Pont"
+      home: "gameble, pont de commandement"
+      previous: "Retour :"
+    screens:
+      collection: "Collection"
+      set: "Set"
+      card: "Fiche"
+      booster: "Booster"
+      trades: "Échanges"
+      friends: "Amis"
+      profile: "Profil"
+      feed: "Fil"
+      legal: "Mentions légales"
+      more: "Plus"
+      back_office: "Back-office"
     rarity:
       label: "Raretés"
       legend: "Raretés"

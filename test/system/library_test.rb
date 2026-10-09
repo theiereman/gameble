@@ -91,7 +91,7 @@ class LibraryTest < ApplicationSystemTestCase
     assert_no_sideways_scroll
     take_screenshot
 
-    click_on "Bridge"
+    find(".top-bar__home").click
     assert_current_path home_path(locale: :en)
   end
 

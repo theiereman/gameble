@@ -560,7 +560,7 @@ class BoosterTest < ApplicationSystemTestCase
       const recordingFetch = window.fetch
       window.fetch = (url, init) => new Promise((resolve) => setTimeout(() => resolve(recordingFetch(url, init)), 1500))
     JS
-    back = ".top-bar .top-bar__start a.button"
+    back = ".top-bar .top-bar__start a.top-bar__home"
     assert_no_selector "#{back}[aria-disabled]"
 
     open_canister
@@ -580,6 +580,27 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster__back:not([aria-disabled])"
   end
 
+  test "reached from a card, the back button to it is locked with the GAMEBLE link while the opening runs" do
+    create_pack(@player, cards: card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
+    visit card_path(locale: :en, slug: "portal")
+    find(".top-bar a.packs-chip").click
+    assert_selector ".booster"
+    previous = ".top-bar .top-bar__start a.top-bar__previous"
+    assert_selector previous, text: "CARD"
+    page.execute_script(<<~JS)
+      const recordingFetch = window.fetch
+      window.fetch = (url, init) => new Promise((resolve) => setTimeout(() => resolve(recordingFetch(url, init)), 1500))
+    JS
+
+    open_canister
+    assert_selector "#{previous}[aria-disabled=true][data-navigation-locked]"
+    assert_selector ".top-bar__home[aria-disabled=true][data-navigation-locked]"
+    find(previous).click
+    assert_current_path "/en/booster"
+    assert_dealt(5)
+    assert_no_selector "#{previous}[aria-disabled]"
+  end
+
   test "a reveal waiting for its art locks the navigation at once, and a Légendaire waiting holds every other activation" do
     open_screen(card_ids(:legendary_card_one, *[ :common_card_one ] * 4))
     open_canister
@@ -588,7 +609,7 @@ class BoosterTest < ApplicationSystemTestCase
     art = "#{card(1)} .booster-card__front .card__art"
     assert_selector "#{art}[data-art]", visible: :all
     page.execute_script("document.querySelector(#{art.to_json}).removeAttribute('data-art')")
-    back = ".top-bar .top-bar__start a.button"
+    back = ".top-bar .top-bar__start a.top-bar__home"
 
     find(hit(1)).click
     assert_selector "#{back}[aria-disabled=true]"

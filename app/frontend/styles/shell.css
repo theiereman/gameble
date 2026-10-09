@@ -221,6 +221,28 @@ turbo-cable-stream-source {
   display: none;
 }
 
+.top-bar__start > .top-bar__bridge,
+.top-bar__start > .top-bar__phone-brand,
+.top-bar__start > .top-bar__previous[hidden] {
+  display: none;
+}
+
+a.top-bar__home {
+  text-decoration: none;
+}
+
+a.top-bar__home:hover {
+  color: var(--color-accent);
+}
+
+.top-bar__divider {
+  flex: none;
+  align-self: center;
+  width: var(--space-unit);
+  height: var(--space-7);
+  background: var(--color-line);
+}
+
 .top-bar__brand {
   display: flex;
   align-items: center;
@@ -1301,6 +1323,20 @@ html[data-sub-view-step] .main {
 
   .rarity-counter {
     display: none;
+  }
+
+  .top-bar__start > .top-bar__home,
+  .top-bar__start > .top-bar__divider,
+  .top-bar__start > .top-bar__previous {
+    display: none;
+  }
+
+  .top-bar__start > .top-bar__bridge {
+    display: inline-flex;
+  }
+
+  .top-bar__start > .top-bar__phone-brand {
+    display: flex;
   }
 
   .top-bar__start--phone-back > .button:not(.top-bar__phone-back) {

@@ -11,6 +11,20 @@ en:
     top_bar:
       brand: "gameble"
       back: "Bridge"
+      home: "gameble, command bridge"
+      previous: "Back:"
+    screens:
+      collection: "Collection"
+      set: "Set"
+      card: "Card"
+      booster: "Booster"
+      trades: "Trades"
+      friends: "Friends"
+      profile: "Profile"
+      feed: "Feed"
+      legal: "Legal notice"
+      more: "More"
+      back_office: "Back-office"
     rarity:
       label: "Rarities"
       legend: "Rarities"
