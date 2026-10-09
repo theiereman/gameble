@@ -373,3 +373,13 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-a-searchable-list-of-players-in-the-back-office-plan.md`
   summary: The back-office players search reads `persona_name ILIKE '%…%'` with no index, so each search scans `accounts_players`.
   evidence: Story 7.14 added no migration (its plan rules out a search index); a scan is instant at launch's player count. Once players number in the hundreds of thousands, a `pg_trgm` GIN index on `persona_name` (the extension in one migration, the index built concurrently in its own) keeps the search fast.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-a-private-profile-closes-its-social-side-plan.md`
+  summary: Going private gives no feedback afterwards, and a trade opened after the settings page rendered (or with JavaScript off) is cancelled without the confirmation.
+  evidence: `SettingsController#visibility` redirects without a toast, and the dialog renders only when `Game::OpenTradeCount` was positive at page load. A toast such as "Profil privé : 2 échanges annulés" (count read before the PATCH) would cover all three cases; it needs new copy in both locales.
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-a-private-profile-closes-its-social-side-plan.md`
+  summary: The in-progress trades of a player are queried three times, and the settings dialog copies the modal markup and ButtonComponent's dialog-opener attributes.
+  evidence: `CancelOpenTrades#open_trades`, `Game::OpenTradeCount` and `Game::Counterparts.trade_partners` each write `Trade.in_progress` for proposer or recipient; `settings/_private_dialog.html.erb` repeats `trades/_undo_dialog.html.erb`. For the epic 7 refactor sweep.
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-a-private-profile-closes-its-social-side-plan.md`
+  summary: The trades-closed line on the trades list page's board has no test.
+  evidence: `trades/index.html.erb` passes `trades_closed`, but only `show` is asserted; dropping the local would pass every test.
