@@ -111,8 +111,7 @@ Rails.application.routes.draw do
         post :abandon, on: :member
       end
 
-      # The catalog seasons (AD-5), administrators only.
-      resources :seasons, only: :index do
+      resources :seasons, only: %i[index show], param: :number, constraints: { number: /\d+/ } do
         post :publish, on: :collection
       end
 

@@ -276,6 +276,102 @@ module BackOffice
       assert_predicate draft.reload, :draft?
     end
 
+    def preview_tier_cells
+      %w[legendary epic rare uncommon common].map { |name| css_select("[data-preview-tier=#{name}]").sole.text }
+    end
+
+    def database_rows
+      [ Catalog::Season, Catalog::CardSeason, Catalog::Set, Catalog::SetMembership ].map { |model| model.order(:id).pluck(Arel.sql("md5(#{model.table_name}::text)")) }
+    end
+
+    test "an administrator follows a published season from the list to its stored rarities, which match its row" do
+      sign_in(accounts_players(:administrator))
+      season_two = seed_sets_draft
+      post publish_back_office_seasons_path(locale: :en), params: { number: season_two.number }
+      season_three = seed_card_seasons(distinct_scores(300))
+      post publish_back_office_seasons_path(locale: :en), params: { number: season_three.number }
+
+      get back_office_seasons_path(locale: :en)
+      assert_select "tr[data-season-number='2'] td a[href='/en/back-office/seasons/2']", "2"
+      assert_select "tr[data-season-number='3'] td a[href='/en/back-office/seasons/3']", "3"
+      listed = tier_cells
+
+      rows_before = database_rows
+      get back_office_season_path(2, locale: :en)
+
+      assert_response :success
+      assert_equal rows_before, database_rows
+      assert_select "h1", "Season 2"
+      assert_select "dd[data-season-status=published]", "Published"
+      assert_select "dd time[datetime='#{season_two.reload.published_at.utc.iso8601}']"
+      assert_select "dd[data-season-score-versions=none]", "none recorded (scored before versions)"
+      assert_select "section[data-preview] h2", "Season 2, as published"
+      assert_equal listed, preview_tier_cells
+      assert_equal %w[2 6 15 37 90], preview_tier_cells
+      assert_equal %w[149.000 143.000 128.000 91.000], %w[legendary epic rare uncommon].map { |name| css_select("[data-preview-threshold=#{name}]").sole.text }
+      assert_select "[data-preview-threshold=common]", false
+      assert_equal %w[1.000 15.000 75.000 135.000 149.000 150.000], %w[min p10 p50 p90 p99 max].map { |p| css_select("[data-preview-percentile=#{p}]").sole.text }
+      assert_select "tr[data-preview-top='1'] td", "Seed 0"
+      assert_select "tr[data-preview-bottom='1'] td", "Seed 149"
+      assert_equal [ %w[action 75 3], %w[rpg 44 1], %w[none 31 0] ],
+        css_select("tr[data-preview-genre]").map { |row| [ row["data-preview-genre"], *row.css("td").map(&:text) ] }
+      assert_equal %w[1 4 3], %w[publisher tome best-of-year].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
+      assert_select "[data-preview-verdict]", false
+      assert_select "form[action$='/seasons/publish']", false
+      assert_select "a[href='/en/back-office/seasons']", "All the seasons"
+
+      get back_office_season_path(3, locale: :en)
+
+      assert_equal %w[3 12 30 75 180], preview_tier_cells
+    end
+
+    test "a published season scored by two formulas lists both versions" do
+      sign_in(accounts_players(:administrator))
+      season = seed_sets_draft
+      post publish_back_office_seasons_path(locale: :fr), params: { number: season.number }
+      Catalog::CardSeason.where(season_id: season.id).order(:id).limit(10).update_all(prestige_score_version: 2)
+
+      get back_office_season_path(season.number, locale: :fr)
+
+      assert_select "dd[data-season-score-versions='none 2']", "aucune notée (avant les versions), version 2"
+      assert_select "section[data-preview] h2", "La saison 2, telle que publiée"
+    end
+
+    test "the draft's page shows the panel the list previews, with its verdict, and no publish form" do
+      sign_in(accounts_players(:administrator))
+      draft = seed_card_seasons(distinct_scores(150), score_versions: Array.new(149, 2) + [ nil ])
+
+      get back_office_season_path(draft.number, locale: :en)
+
+      assert_response :success
+      assert_select "dd[data-season-status=draft]", "Draft"
+      assert_select "dd[data-season-score-versions='none 2']"
+      assert_select "section[data-preview] h2", "Season 2, if published now"
+      assert_select "[data-preview-verdict=mixed_score_versions]", I18n.t("errors.catalog.mixed_score_versions", locale: :en)
+      assert_equal %w[2 6 15 37 90], preview_tier_cells
+      assert_select "form[action$='/seasons/publish']", false
+    end
+
+    test "the page of a draft without card shows the empty_season verdict" do
+      sign_in(accounts_players(:administrator))
+      draft = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+
+      get back_office_season_path(draft.number, locale: :en)
+
+      assert_select "[data-preview-verdict=empty_season]", I18n.t("errors.catalog.empty_season", locale: :en)
+      assert_select "dd[data-season-score-versions='']", "—"
+    end
+
+    test "an unknown or non-numeric season number is a 404 for an administrator" do
+      sign_in(accounts_players(:administrator))
+
+      [ "/en/back-office/seasons/99", "/en/back-office/seasons/abc", "/en/back-office/seasons/publish" ].each do |path|
+        get path
+
+        assert_unknown_address path
+      end
+    end
+
     test "the back-office links to the seasons for an administrator only" do
       sign_in(accounts_players(:administrator))
       get back_office_path(locale: :fr)
@@ -290,6 +386,8 @@ module BackOffice
 
     def each_request(draft)
       yield :get, back_office_seasons_path(locale: :fr), {}
+      yield :get, back_office_season_path(1, locale: :fr), {}
+      yield :get, back_office_season_path(draft.number, locale: :fr), {}
       yield :post, publish_back_office_seasons_path(locale: :fr), { number: draft.number }
     end
 

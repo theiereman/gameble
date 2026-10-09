@@ -1,11 +1,4 @@
 module BackOffice
-  # The catalog seasons (AD-5), administrators only: the list of seasons and
-  # publishing the draft. The form sends the number of the draft it showed,
-  # so a stale page cannot publish another draft. Publishing is refused while
-  # the latest Steam import run has not completed (a failed run can still be
-  # resumed), so a run never spans two seasons. The page previews what
-  # publishing the draft now would produce (Catalog::DraftPreview), even
-  # while an import is unfinished, for calibration.
   class SeasonsController < BaseController
     rate_limit to: 10, within: 1.minute, only: :publish
 
@@ -14,6 +7,11 @@ module BackOffice
       @seasons = Catalog::SeasonSummaries.call
       @preview = Catalog::DraftPreview.call
       @import_unfinished = Steam::UnfinishedImportRun.call.present?
+    end
+
+    def show
+      authorize [ :back_office, :seasons ], :show?
+      @season = Catalog::SeasonScores.call(Integer(params[:number], 10)) or raise ActiveRecord::RecordNotFound
     end
 
     def publish

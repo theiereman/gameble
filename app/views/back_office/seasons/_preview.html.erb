@@ -1,24 +1,23 @@
-<%# What publishing the draft now would produce (Catalog::DraftPreview), for calibration. %>
-<section class="stack" aria-labelledby="draft-preview" data-preview>
-  <h2 id="draft-preview"><%= t(".heading", number:) %></h2>
+<section class="stack" aria-labelledby="score-panel" data-preview>
+  <h2 id="score-panel"><%= heading %></h2>
 
   <%= render PanelComponent.new(tag: :p) do %>
-    <%= t(".intro") %>
+    <%= intro %>
   <% end %>
 
-  <% if preview.empty_season? %>
+  <% if panel.empty_season? %>
     <%= render PanelComponent.new(tag: :p) do %>
       <span data-preview-verdict="empty_season"><%= Catalog::PublishSeason.failure_message(:empty_season) %></span>
     <% end %>
   <% else %>
     <h3><%= t(".scores") %></h3>
-    <p data-preview-card-count="<%= preview.card_count %>"><%= t(".card_count", count: preview.card_count, formatted: number_with_delimiter(preview.card_count)) %></p>
+    <p data-preview-card-count="<%= panel.card_count %>"><%= t(".card_count", count: panel.card_count, formatted: number_with_delimiter(panel.card_count)) %></p>
     <table class="ledger">
       <caption class="visually-hidden"><%= t(".scores_caption") %></caption>
       <thead>
         <tr>
           <th scope="col"><%= t(".min") %></th>
-          <% preview.percentiles.each_key do |p| %>
+          <% panel.percentiles.each_key do |p| %>
             <th scope="col"><%= t(".percentile", p:) %></th>
           <% end %>
           <th scope="col"><%= t(".max") %></th>
@@ -26,22 +25,22 @@
       </thead>
       <tbody>
         <tr>
-          <td data-preview-percentile="min"><%= number_with_precision(preview.min, precision: 3) %></td>
-          <% preview.percentiles.each do |p, score| %>
+          <td data-preview-percentile="min"><%= number_with_precision(panel.min, precision: 3) %></td>
+          <% panel.percentiles.each do |p, score| %>
             <td data-preview-percentile="p<%= p %>"><%= number_with_precision(score, precision: 3) %></td>
           <% end %>
-          <td data-preview-percentile="max"><%= number_with_precision(preview.max, precision: 3) %></td>
+          <td data-preview-percentile="max"><%= number_with_precision(panel.max, precision: 3) %></td>
         </tr>
       </tbody>
     </table>
 
     <h3><%= t(".tiers") %></h3>
-    <% if preview.score_version_verdict %>
+    <% if panel.score_version_verdict %>
       <%= render PanelComponent.new(tag: :p) do %>
-        <span data-preview-verdict="<%= preview.score_version_verdict %>"><%= Catalog::PublishSeason.failure_message(preview.score_version_verdict) %></span>
+        <span data-preview-verdict="<%= panel.score_version_verdict %>"><%= Catalog::PublishSeason.failure_message(panel.score_version_verdict) %></span>
       <% end %>
     <% end %>
-    <% if preview.tiers %>
+    <% if panel.tiers %>
       <table class="ledger">
         <caption class="visually-hidden"><%= t(".tiers") %></caption>
         <thead>
@@ -52,7 +51,7 @@
           </tr>
         </thead>
         <tbody>
-          <% preview.tiers.each do |tier| %>
+          <% panel.tiers.each do |tier| %>
             <% name = Catalog::Rarity::TIERS.fetch(tier.tier) %>
             <tr>
               <th scope="row"><%= t("catalog.rarity.#{name}") %></th>
@@ -72,10 +71,10 @@
       <% end %>
     <% end %>
 
-    <% [ [ :top, preview.top, t(".top", count: preview.top.size) ], [ :bottom, preview.bottom, t(".bottom", count: preview.bottom.size) ] ].each do |end_name, entries, heading| %>
-      <h3><%= heading %></h3>
+    <% [ [ :top, panel.top, t(".top", count: panel.top.size) ], [ :bottom, panel.bottom, t(".bottom", count: panel.bottom.size) ] ].each do |end_name, entries, end_heading| %>
+      <h3><%= end_heading %></h3>
       <table class="ledger">
-        <caption class="visually-hidden"><%= heading %></caption>
+        <caption class="visually-hidden"><%= end_heading %></caption>
         <thead>
           <tr>
             <th scope="col"><%= t(".rank") %></th>
@@ -108,7 +107,7 @@
         </tr>
       </thead>
       <tbody>
-        <% preview.genres.each do |genre| %>
+        <% panel.genres.each do |genre| %>
           <% key = genre.genre || "none" %>
           <tr data-preview-genre="<%= key %>">
             <th scope="row"><code><%= key %></code></th>
@@ -124,14 +123,14 @@
       <caption class="visually-hidden"><%= t(".sets") %></caption>
       <thead>
         <tr>
-          <% preview.set_counts.each_key do |kind| %>
+          <% panel.set_counts.each_key do |kind| %>
             <th scope="col"><%= t("back_office.seasons.index.sets.#{kind}") %></th>
           <% end %>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <% preview.set_counts.each do |kind, count| %>
+          <% panel.set_counts.each do |kind, count| %>
             <td data-preview-set-kind="<%= kind.dasherize %>"><%= number_with_delimiter(count) %></td>
           <% end %>
         </tr>

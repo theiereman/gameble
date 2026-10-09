@@ -415,11 +415,21 @@ en:
         confirm:
           one: "Publish season %{number} and its %{count} card? The card's rarity and number will never change again."
           other: "Publish season %{number} and its %{count} cards? Its rarities and numbers will never change again."
+      show:
+        heading: "Season %{number}"
+        all_seasons: "All the seasons"
+        status: "Status"
+        published_at: "Published"
+        score_versions: "Prestige formula versions"
+        score_version: "version %{version}"
+        no_score_version: "none recorded (scored before versions)"
+        published_heading: "Season %{number}, as published"
+        published_intro: "What publication stored for this season, read as it stands: each rarity's cards and lowest score, and the sets. Nothing here is written and nothing is cut again. The genres are read from the cards' first genre today."
       preview:
         heading: "Season %{number}, if published now"
         intro: "What publishing the draft would give today, read from its cards as they stand. Nothing here is written. The prestige formula, the tier shares and the tome size live in the code: change them, rescore the latest import if the formula changed, then read this again."
         scores: "Prestige scores"
-        scores_caption: "Prestige scores of the draft: lowest, percentiles, highest"
+        scores_caption: "Prestige scores of the season: lowest, percentiles, highest"
         card_count:
           one: "%{formatted} card"
           other: "%{formatted} cards"

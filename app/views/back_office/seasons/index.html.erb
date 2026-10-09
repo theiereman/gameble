@@ -31,7 +31,7 @@
       <tbody>
         <% @seasons.each do |season| %>
           <tr data-season-number="<%= season.number %>" data-season-status="<%= season.status %>">
-            <td><%= season.number %></td>
+            <td><%= link_to season.number, back_office_season_path(season.number) %></td>
             <td><%= t("back_office.seasons.statuses.#{season.status}") %></td>
             <td data-season-card-count="<%= season.card_count %>"><%= number_with_delimiter(season.card_count) %></td>
             <td><%= render "back_office/import_runs/time", time: season.published_at %></td>
@@ -58,7 +58,7 @@
   <% draft = @seasons.find(&:draft?) %>
   <% if draft %>
     <% if @preview %>
-      <%= render "preview", preview: @preview, number: draft.number %>
+      <%= render "preview", panel: @preview, heading: t("back_office.seasons.preview.heading", number: draft.number), intro: t("back_office.seasons.preview.intro") %>
     <% end %>
 
     <% if @import_unfinished %>

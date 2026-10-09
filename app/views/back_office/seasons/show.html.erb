@@ -1,0 +1,24 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading", number: @season.number) %></h1>
+
+  <p><%= link_to t(".all_seasons"), back_office_seasons_path %></p>
+
+  <dl class="ledger-entry">
+    <dt><%= t(".status") %></dt>
+    <dd data-season-status="<%= @season.status %>"><%= t("back_office.seasons.statuses.#{@season.status}") %></dd>
+    <dt><%= t(".published_at") %></dt>
+    <dd><%= render "back_office/import_runs/time", time: @season.published_at %></dd>
+    <dt><%= t(".score_versions") %></dt>
+    <dd data-season-score-versions="<%= @season.score_versions.map { |version| version || "none" }.join(" ") %>">
+      <%= @season.score_versions.map { |version| version ? t(".score_version", version:) : t(".no_score_version") }.join(", ").presence || "—" %>
+    </dd>
+  </dl>
+
+  <% if @season.published? %>
+    <%= render "preview", panel: @season.panel, heading: t(".published_heading", number: @season.number), intro: t(".published_intro") %>
+  <% else %>
+    <%= render "preview", panel: @season.panel, heading: t("back_office.seasons.preview.heading", number: @season.number), intro: t("back_office.seasons.preview.intro") %>
+  <% end %>
+</div>

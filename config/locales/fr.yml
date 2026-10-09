@@ -420,11 +420,21 @@ fr:
         confirm:
           one: "Publier la saison %{number} et sa seule carte ? La rareté et le numéro de cette carte ne changeront plus jamais."
           other: "Publier la saison %{number} et ses %{count} cartes ? Ses raretés et leurs numéros ne changeront plus jamais."
+      show:
+        heading: "La saison %{number}"
+        all_seasons: "Toutes les saisons"
+        status: "État"
+        published_at: "Publiée"
+        score_versions: "Versions de la formule de prestige"
+        score_version: "version %{version}"
+        no_score_version: "aucune notée (avant les versions)"
+        published_heading: "La saison %{number}, telle que publiée"
+        published_intro: "Ce que la publication a inscrit pour cette saison, lu tel quel : les cartes et le score minimal de chaque rareté, et les collections. Rien n'est écrit ici et rien n'est retaillé. Les genres sont lus sur le premier genre actuel des cartes."
       preview:
         heading: "La saison %{number}, si elle était publiée maintenant"
         intro: "Ce que donnerait la publication du brouillon aujourd'hui, lu sur ses cartes telles qu'elles sont. Rien n'est écrit ici. La formule de prestige, les parts des raretés et la taille des tomes vivent dans le code : change-les, recalcule le dernier import si la formule a changé, puis relis ceci."
         scores: "Scores de prestige"
-        scores_caption: "Scores de prestige du brouillon : le plus bas, les centiles, le plus haut"
+        scores_caption: "Scores de prestige de la saison : le plus bas, les centiles, le plus haut"
         card_count:
           one: "%{formatted} carte"
           other: "%{formatted} cartes"

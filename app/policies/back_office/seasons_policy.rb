@@ -6,6 +6,7 @@ module BackOffice
   #   authorize [ :back_office, :seasons ], :publish?
   class SeasonsPolicy < ApplicationPolicy
     def index? = administrator?
+    def show? = administrator?
     def publish? = administrator?
   end
 end
