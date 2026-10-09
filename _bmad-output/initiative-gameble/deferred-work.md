@@ -355,3 +355,13 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-moderation-the-queue-bans-and-unbans-plan.md`
   summary: Bans and dismissals leave no record a page reads: no ban reason, no "banned by", no history of classed reports; only the event store keeps `PlayerBanned`, `PlayerUnbanned` and `ReportsDismissed` with the staff member's id.
   evidence: Story 7.5 review (blind hunter; rejected low, not asked by the ticket). Would answer "why was I banned?" once strangers play.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-friends-and-trades/story-fixes-from-the-epic-retrospective-plan.md`
+  summary: A counter-proposal carries no version of the terms seen, so a stale tab's counter replaces the friend's newer terms unseen.
+  evidence: The counter form in `app/views/trades/_board.html.erb` and `Game::CounterTrade#call` take no `seen`; accept and decline now refuse `:trade_changed`, so counter is the one answer left unguarded.
+- source_plan: `_bmad-output/initiative-gameble/epic-friends-and-trades/story-fixes-from-the-epic-retrospective-plan.md`
+  summary: "One unanswered invitation per sender and recipient" is enforced only by app code under the pair lock; the unique index covers pending rows only.
+  evidence: `index_game_invitations_one_pending_per_pair` is partial on `status = 'pending'`, while `SendInvitation` now refuses `:already_sent` for ignored rows too. An index on `status IN ('pending', 'ignored')` needs an expand/contract migration.
+- source_plan: `_bmad-output/initiative-gameble/epic-friends-and-trades/story-fixes-from-the-epic-retrospective-plan.md`
+  summary: About 800 planning ids remain in the repo outside the files epic 5 touched (routes, CSS, TS, other packs).
+  evidence: AGENTS.md forbids them everywhere. The blind review of this story counted them; they belong to the epic 12 sweep.
