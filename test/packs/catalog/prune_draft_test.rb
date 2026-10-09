@@ -67,7 +67,7 @@ class Catalog::PruneDraftTest < ActiveSupport::TestCase
     keys.each_with_index do |key, index|
       Catalog::UpsertDraftCard.new.call(source_key: key, release_date: Date.new(2011, 1, 1), image_url: "https://i.example.test/#{index}.jpg",
         store_url: "https://s.example.test/#{index}", texts: { "en" => { title: "T #{index}" }, "fr" => { title: "T #{index}" } },
-        prestige_score: 0.5, rating: 50).value!
+        prestige_score: 0.5, prestige_score_version: 2, rating: 50).value!
     end
 
     assert_equal 1, prune(keys - [ "c,d" ]).value!

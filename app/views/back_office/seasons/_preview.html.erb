@@ -36,6 +36,11 @@
     </table>
 
     <h3><%= t(".tiers") %></h3>
+    <% if preview.score_version_verdict %>
+      <%= render PanelComponent.new(tag: :p) do %>
+        <span data-preview-verdict="<%= preview.score_version_verdict %>"><%= Catalog::PublishSeason.failure_message(preview.score_version_verdict) %></span>
+      <% end %>
+    <% end %>
     <% if preview.tiers %>
       <table class="ledger">
         <caption class="visually-hidden"><%= t(".tiers") %></caption>

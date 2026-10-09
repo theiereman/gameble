@@ -23,6 +23,7 @@ if Rails.env.development? && Catalog::PublishedSeason.call.nil?
         "fr" => { title: "Jeu témoin #{number}", short_description: "Un jeu générique pour le développement, numéro #{number}." }
       },
       prestige_score: number.to_f,
+      prestige_score_version: Steam::PrestigeScore::VERSION,
       rating: 50.0 + (index % 50),
       publisher: "Seed Publisher #{(index % 6) + 1}",
       genres: [ %w[fps rpg strategy].fetch(index % 3) ]

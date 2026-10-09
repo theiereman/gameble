@@ -12,7 +12,7 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
         "en" => { title: "Portal 2", short_description: "The sequel." },
         "fr" => { title: "Portal 2", short_description: "La suite." }
       },
-      prestige_score: 0.97, rating: 98.0
+      prestige_score: 0.97, prestige_score_version: 2, rating: 98.0
     }.merge(overrides)
   end
 
@@ -56,6 +56,7 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
       card.texts.to_h { |text| [ text.locale, [ text.title, text.short_description ] ] })
 
     assert_in_delta 0.97, card_season.prestige_score
+    assert_equal 2, card_season.prestige_score_version
     assert_equal BigDecimal("98.0"), card_season.rating
     assert_nil card_season.rarity
 
@@ -87,7 +88,7 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
 
     result = upsert(
       texts: { "en" => { title: "Portal 2: Remastered" }, "fr" => { title: "Portal 2 : Remasterisé", short_description: "Encore." } },
-      prestige_score: 0.5, rating: 75.25, genres: %w[adventure], publisher: "Valve Corporation"
+      prestige_score: 0.5, prestige_score_version: 3, rating: 75.25, genres: %w[adventure], publisher: "Valve Corporation"
     )
 
     assert result.success?
@@ -102,6 +103,7 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     assert_equal %w[adventure], card.genres
     assert_equal "Valve Corporation", card.publisher
     assert_in_delta 0.5, card_season.prestige_score
+    assert_equal 3, card_season.prestige_score_version
     assert_equal BigDecimal("75.25"), card_season.rating
     assert_equal 2, events_of(card_season.season).size
   end
@@ -198,6 +200,12 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     "a nil score" => { prestige_score: nil },
     "a score as a string" => { prestige_score: "0.97" },
     "an infinite score" => { prestige_score: Float::INFINITY },
+    "a score version of 0" => { prestige_score_version: 0 },
+    "a negative score version" => { prestige_score_version: -1 },
+    "a fractional score version" => { prestige_score_version: 1.5 },
+    "a score version as a string" => { prestige_score_version: "2" },
+    "a nil score version" => { prestige_score_version: nil },
+    "a score version beyond its column" => { prestige_score_version: 32_768 },
     "a nil rating" => { rating: nil },
     "a rating as a string" => { rating: "98" },
     "a rating below 0" => { rating: -0.5 },
@@ -220,6 +228,10 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
       assert_equal counts, row_counts
       assert_empty Rails.configuration.event_store.read.of_type(Catalog::DraftCardUpserted).to_a
     end
+  end
+
+  test "the score version is a required keyword" do
+    assert_raises(ArgumentError) { Catalog::UpsertDraftCard.new.call(**attributes.except(:prestige_score_version)) }
   end
 
   test "a blank publisher is stored as NULL" do

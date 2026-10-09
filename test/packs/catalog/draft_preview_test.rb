@@ -24,6 +24,7 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
     assert_equal 150, result.card_count
     assert_equal({ 10 => 15.0, 50 => 75.0, 90 => 135.0, 99 => 149.0 }, result.percentiles)
     assert_equal [ 1.0, 150.0 ], [ result.min, result.max ]
+    assert_nil result.score_version_verdict
     assert_nil result.tier_verdict
     assert_equal [ [ 5, 2, 149.0 ], [ 4, 6, 143.0 ], [ 3, 15, 128.0 ], [ 2, 37, 91.0 ], [ 1, 90, nil ] ],
       result.tiers.map { |tier| [ tier.tier, tier.card_count, tier.threshold ] }
@@ -48,6 +49,22 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
     assert_equal({ 10 => 2.0, 50 => 10.0, 90 => 18.0, 99 => 20.0 }, result.percentiles)
     assert_equal 10, result.top.size
     assert_equal({ "publisher" => 0, "tome" => 0, "best_of_year" => 1 }, result.set_counts)
+  end
+
+  test "a draft mixing two score versions shows the mixed_score_versions verdict, its tiers still cut" do
+    seed_card_seasons(distinct_scores(150), score_versions: Array.new(100, 2) + Array.new(50))
+
+    result = preview
+
+    assert_equal :mixed_score_versions, result.score_version_verdict
+    assert_nil result.tier_verdict
+    assert_equal [ 2, 6, 15, 37, 90 ], result.tiers.map(&:card_count)
+  end
+
+  test "a draft scored by one version has no score version verdict" do
+    seed_card_seasons(distinct_scores(150), score_versions: Array.new(150, 2))
+
+    assert_nil preview.score_version_verdict
   end
 
   test "a draft without card-season gives the empty_season verdict and no number" do

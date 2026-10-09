@@ -1044,6 +1044,7 @@ en:
       stale_draft: "That draft is no longer the one in the ledgers, officer. Reload the page and look again."
       empty_season: "The draft season holds no card yet, officer. Run an import first."
       empty_tier: "The draft season is too small to fill all five rarities, officer. Import more games first."
+      mixed_score_versions: "The draft season's cards were scored by more than one prestige formula, officer, so the rarities would be cut on mismatched scales. Open the latest import and press \"Rescore the cards\", then publish once its pass completes."
       no_published_season: "No published season bears that number, officer."
       already_numbered: "The cards of that season are numbered already, officer."
     game:

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_08_090001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_09_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -56,6 +56,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_090001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "number"
+    t.integer "prestige_score_version", limit: 2
     t.index ["card_id", "season_id"], name: "index_catalog_card_seasons_on_card_id_and_season_id", unique: true
     t.index ["season_id", "number"], name: "index_catalog_card_seasons_on_season_id_and_number", unique: true
     t.index ["season_id"], name: "index_catalog_card_seasons_on_season_id"

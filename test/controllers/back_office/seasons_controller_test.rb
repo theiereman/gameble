@@ -118,6 +118,35 @@ module BackOffice
       assert_select "tr[data-preview-top]", 10
     end
 
+    test "a draft mixing two score versions shows the verdict in the preview, and publishing it is refused with the same message" do
+      sign_in(accounts_players(:administrator))
+      draft = seed_card_seasons(distinct_scores(150), score_versions: Array.new(149, 2) + [ nil ])
+      message = I18n.t("errors.catalog.mixed_score_versions", locale: :fr)
+
+      get back_office_seasons_path(locale: :fr)
+
+      assert_select "[data-preview-verdict=mixed_score_versions]", message
+      assert_select "[data-preview-tier=legendary]", "2"
+      assert_select "form[action$='/seasons/publish']"
+
+      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number }
+
+      assert_redirected_to back_office_seasons_path(locale: :fr)
+      assert_equal message, flash[:alert]
+      assert_predicate draft.reload, :draft?
+      assert_equal 0, Catalog::CardSeason.where(season_id: draft.id).where.not(rarity: nil).count
+    end
+
+    test "a draft scored by one version shows no score version verdict" do
+      sign_in(accounts_players(:administrator))
+      seed_card_seasons(distinct_scores(150), score_versions: Array.new(150, 2))
+
+      get back_office_seasons_path(locale: :en)
+
+      assert_select "[data-preview-tier=legendary]", "2"
+      assert_select "[data-preview-verdict]", false
+    end
+
     test "the preview of a draft without card shows the empty_season verdict and no number" do
       sign_in(accounts_players(:administrator))
       Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)

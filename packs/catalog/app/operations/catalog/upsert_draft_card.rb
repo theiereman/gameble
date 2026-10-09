@@ -11,6 +11,10 @@ module Catalog
   # left as it is, and the draft gets its own. Every unique index met by a
   # concurrent writer is absorbed with a savepoint and a re-read.
   #
+  # `prestige_score_version` is an opaque positive Integer naming the formula
+  # that gave `prestige_score`; only the caller knows what it means.
+  # PublishSeason refuses a draft whose scores come from two formulas.
+  #
   # Publishes Catalog::DraftCardUpserted on every call, even when nothing
   # changed.
   #
@@ -18,18 +22,20 @@ module Catalog
   #     source_key: "src:620", release_date: Date.new(2011, 4, 18),
   #     image_url: "https://…", store_url: "https://…",
   #     texts: { "en" => { title: "Portal 2", short_description: "…" }, "fr" => { title: "Portal 2" } },
-  #     prestige_score: 0.97, rating: 98.0,
+  #     prestige_score: 0.97, prestige_score_version: 2, rating: 98.0,
   #     publisher: "…", genres: %w[action], tags: %w[puzzle]
   #   )
   #   # => Success(card_season) | Failure(:missing_text) | Failure(:invalid_card)
   class UpsertDraftCard < ApplicationOperation
     # Tries at an insert that meets a unique index before giving up.
     ATTEMPTS = 3
+    # The column is a smallint.
+    SCORE_VERSIONS = 1..32_767
 
-    def call(source_key:, release_date:, image_url:, store_url:, texts:, prestige_score:, rating:,
+    def call(source_key:, release_date:, image_url:, store_url:, texts:, prestige_score:, prestige_score_version:, rating:,
              publisher: nil, genres: [], tags: [])
       card_attributes = step validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, genres:, tags:)
-      scores = step validate_scores(prestige_score:, rating:)
+      scores = step validate_scores(prestige_score:, prestige_score_version:, rating:)
       texts = step validate_texts(texts)
 
       transaction do
@@ -60,9 +66,9 @@ module Catalog
     end
 
     # Scores are numbers as given, never parsed from strings.
-    def validate_scores(prestige_score:, rating:)
-      if real?(prestige_score) && real?(rating) && rating.between?(0, 100)
-        Success(prestige_score:, rating:)
+    def validate_scores(prestige_score:, prestige_score_version:, rating:)
+      if real?(prestige_score) && score_version?(prestige_score_version) && real?(rating) && rating.between?(0, 100)
+        Success(prestige_score:, prestige_score_version:, rating:)
       else
         Failure(:invalid_card)
       end
@@ -98,6 +104,10 @@ module Catalog
 
     def real?(value)
       value.is_a?(Numeric) && value.real? && value.finite?
+    end
+
+    def score_version?(value)
+      value.is_a?(Integer) && SCORE_VERSIONS.cover?(value)
     end
 
     # The draft season, locked FOR SHARE; created when there is none. Two
