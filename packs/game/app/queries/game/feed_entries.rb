@@ -1,11 +1,12 @@
 module Game
-  # The activity feed's entries for a viewer (CAP-13, AD-11, AD-13): the
-  # newest notable entries first, of one kind when `kind` is given (the type
-  # filters, story 6.2), each only if Game::Visibility lets `viewer` (nil for
-  # a signed-out visitor) see the player it names. When fewer than MIN
-  # notable entries show, the newest fillers complete the list so the feed is
-  # not empty while any activity exists (R4); fillers are pulls, so only the
-  # whole feed and the pulls get them. Reads only.
+  # The activity feed's entries for a viewer: the newest notable entries
+  # first, of one kind when `kind` is given (the type filters), each only if
+  # Game::Visibility lets `viewer` (nil for a signed-out visitor) see the
+  # player it names as a player would: staff read the community's stream as
+  # the community does. When fewer than MIN notable entries show, the newest
+  # fillers complete the list so the feed is not empty while any activity
+  # exists; fillers are pulls, so only the whole feed and the pulls get
+  # them. Reads only.
   #
   #   Game::FeedEntries.call(nil)
   #   Game::FeedEntries.call(viewer, kind: "trade")
@@ -37,7 +38,7 @@ module Game
       found = []
       players = {}
       # Asked once per player: a friends-only player costs a friendship query.
-      shown = Hash.new { |seen, id| seen[id] = Visibility.visible?(viewer, players[id]) }
+      shown = Hash.new { |seen, id| seen[id] = Visibility.visible?(viewer, players[id], staff_sees_all: false) }
       cursor = nil
       PASSES.times do
         page = scope.newest_first

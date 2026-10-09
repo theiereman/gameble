@@ -106,6 +106,23 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "staff see a friend's profile as a player would: a private or banned friend is the not-available frame" do
+    banned = accounts_players(:banned)
+    Game::Friendship.create!(low_player_id: [ @friend.id, banned.id ].min, high_player_id: [ @friend.id, banned.id ].max)
+    @player.update!(visibility: "private")
+    sign_in(@friend)
+
+    get friend_profile_path(locale: :en, token: @player.token)
+    unavailable_frame(@player.token)
+
+    get friend_profile_path(locale: :en, token: banned.token)
+    unavailable_frame(banned.token)
+
+    @player.update!(visibility: "friends_only")
+    get friend_profile_path(locale: :en, token: @player.token)
+    assert_response :success
+  end
+
   test "a visitor is sent home to sign in" do
     get friend_profile_path(locale: :fr, token: @friend.token)
 

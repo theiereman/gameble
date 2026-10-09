@@ -7,7 +7,7 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
   setup do
     OmniAuth.config.test_mode = true
     @owner = accounts_players(:player)
-    @reporter = accounts_players(:moderator)
+    @reporter = Accounts::Player.create!(steam_id: "76561197960390201")
   end
 
   teardown do
@@ -129,6 +129,22 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
       assert_response :not_found
       post brother_report_path(locale: :en, token: "1" * 24), params: { reason: "cheating" }
       assert_response :not_found
+    end
+  end
+
+  test "staff report a private, a friends-only and a banned profile they may read" do
+    banned = accounts_players(:banned)
+    sign_in(accounts_players(:moderator))
+
+    assert_difference "Accounts::Report.count", 2 do
+      @owner.update!(visibility: "private")
+      post report_path_of(@owner), params: { reason: "cheating" }
+      assert_redirected_to brother_path(locale: :en, token: @owner.token)
+      assert_predicate flash[:notice], :present?
+
+      post report_path_of(banned), params: { reason: "other" }
+      assert_redirected_to brother_path(locale: :en, token: banned.token)
+      assert_predicate flash[:notice], :present?
     end
   end
 

@@ -9,7 +9,7 @@ module Accounts
   # titles the public profile. Reports and moderation key on the token. It is
   # personal data: an account's export and deletion include it.
   #
-  # A player holds one role (AD-14): player, moderator or administrator; a
+  # A player holds one role, ranked: player, moderator, administrator; a
   # signed-out visitor is the absence of a player. A ban is the time it took
   # effect; a banned player cannot sign in and is signed out on their next
   # request.
@@ -26,8 +26,10 @@ module Accounts
 
     before_save :rotate_stream_key, if: :banned_or_deleted_now?
 
-    enum :role, { player: "player", moderator: "moderator", administrator: "administrator" },
-      default: :player, validate: true
+    # The roles, lowest rank first.
+    RANKS = %w[player moderator administrator].freeze
+
+    enum :role, RANKS.index_by(&:to_sym), default: :player, validate: true
 
     # Who may see the player's profile (CAP-14): everyone, their friends only
     # (decided by Game::Visibility, the friendships being Game's) or only
@@ -61,6 +63,12 @@ module Accounts
     # A moderator or an administrator.
     def staff?
       moderator? || administrator?
+    end
+
+    # Whether this player's role ranks above `other`'s: staff act only on
+    # those they outrank.
+    def outranks?(other)
+      RANKS.index(role) > RANKS.index(other.role)
     end
 
     private

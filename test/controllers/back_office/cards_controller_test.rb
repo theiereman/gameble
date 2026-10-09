@@ -1,8 +1,10 @@
 require "test_helper"
+require_relative "../../support/hidden_back_office"
 
 module BackOffice
   # The card preview of the back-office, administrators only.
   class CardsControllerTest < ActionDispatch::IntegrationTest
+    include HiddenBackOffice
     SPECIMENS = Catalog::Rarity::TIERS.values.product(%w[s m l xl]).map { |parts| parts.join("-") } +
       Catalog::Rarity::TIERS.values.map { |rarity| "#{rarity}-m-booster" }
 
@@ -49,10 +51,13 @@ module BackOffice
       assert_response :forbidden
     end
 
-    test "a visitor is asked to sign in" do
+    test "a visitor and a player get the 404 of an unknown address" do
       get back_office_cards_path(locale: :en)
+      assert_unknown_address
 
-      assert_redirected_to home_path(locale: :en)
+      sign_in(accounts_players(:player))
+      get back_office_cards_path(locale: :en)
+      assert_unknown_address
     end
   end
 end

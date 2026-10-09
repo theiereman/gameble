@@ -1,9 +1,12 @@
 require "test_helper"
+require_relative "../../support/lock_races"
 
 # A ban against a trade acceptance between the banned player and a friend.
 # Each thread has its own connection, so the test commits for real; it uses
 # players of its own and removes them afterwards.
 class Accounts::BanPlayerConcurrencyTest < ActiveSupport::TestCase
+  include LockRaces
+
   self.use_transactional_tests = false
 
   setup do
@@ -32,43 +35,6 @@ class Accounts::BanPlayerConcurrencyTest < ActiveSupport::TestCase
     connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events_in_streams WHERE event_id IN (?)", event_ids ])) if event_ids.any?
     connection.exec_delete(ActiveRecord::Base.sanitize_sql_array([ "DELETE FROM event_store_events WHERE event_id IN (?)", event_ids ])) if event_ids.any?
     Accounts::Player.where(id: ids).delete_all
-  end
-
-  # Runs `first` in a transaction that stays open until `second`, started on
-  # another connection, waits on a lock; then commits it. Returns both
-  # results.
-  def first_holding_the_lock(first, second)
-    held = Queue.new
-    release = Queue.new
-    first_thread = Thread.new do
-      ActiveRecord::Base.connection_pool.with_connection do
-        ActiveRecord::Base.transaction do
-          first.call
-        ensure
-          held << true
-          release.pop
-        end
-      end
-    end
-    held.pop
-    second_thread = Thread.new { ActiveRecord::Base.connection_pool.with_connection { second.call } }
-    begin
-      wait_for_a_lock_wait
-    ensure
-      release << true
-      results = [ first_thread.value, second_thread.value ]
-    end
-    results
-  end
-
-  def wait_for_a_lock_wait
-    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + 10
-    waiting = "SELECT count(*) FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'"
-    until ActiveRecord::Base.uncached { ActiveRecord::Base.connection.select_value(waiting) }.positive?
-      raise "the second operation never waited on a lock" if Process.clock_gettime(Process::CLOCK_MONOTONIC) > deadline
-
-      sleep 0.01
-    end
   end
 
   def ban = -> { Accounts::BanPlayer.new.call(staff: @moderator, player: Accounts::Player.find(@target.id)) }

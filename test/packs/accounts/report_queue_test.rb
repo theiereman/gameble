@@ -57,6 +57,27 @@ class Accounts::ReportQueueTest < ActiveSupport::TestCase
     assert_equal [ @alice ], Accounts::ReportQueue.rows(page).map(&:player)
   end
 
+  test "a player whose reports were handled then reported anew after the page was read shows the fresh reports only" do
+    report(@alice, stranger(1), "cheating", at: 2.hours.ago)
+    report(@alice, stranger(2), "other", at: 90.minutes.ago)
+    page = Accounts::ReportQueue.players.to_a
+
+    Accounts::Report.where(reported: @alice).update_all(handled_at: Time.current)
+    fresh = report(@alice, stranger(3), "harassment", at: 1.minute.ago)
+
+    row = Accounts::ReportQueue.rows(page).sole
+    assert_equal({ "inappropriate_name" => 0, "cheating" => 0, "harassment" => 1, "other" => 0 }, row.counts)
+    assert_equal 1, row.total
+    assert_equal fresh.created_at, row.latest_at
+  end
+
+  test "the counts, the total and the latest time come from one query" do
+    report(@alice, stranger(1), "cheating", at: 2.hours.ago)
+    page = Accounts::ReportQueue.players.to_a
+
+    assert_queries_count(1) { Accounts::ReportQueue.rows(page) }
+  end
+
   test "an empty queue" do
     assert_empty Accounts::ReportQueue.players
     assert_equal 0, Accounts::ReportQueue.size

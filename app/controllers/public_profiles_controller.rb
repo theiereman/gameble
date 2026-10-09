@@ -1,18 +1,19 @@
-# A player's public profile (CAP-8, story 4.4, redrawn by story 10.3), at a
-# link built on their token (AD-15): their collection, readable by anyone,
-# signed out included (CAP-18), drawn with the collection's components in
-# read-only mode. The list of sets opens on the ones they have started,
-# beside the three kinds, each with the owner's progress (never the
-# viewer's); a set opens beside the list with the owner's cards. The header counts
-# their distinct cards and complete sets. Accounts answers the owner, Game
-# whether their profile may be shown, Catalog the sets and cards, Game the
-# owner's progress, copies and counts.
+# A player's public profile, at a link built on their token: their
+# collection, readable by anyone, signed out included, drawn with the
+# collection's components in read-only mode. The list of sets opens on the
+# ones they have started, beside the three kinds, each with the owner's
+# progress (never the viewer's); a set opens beside the list with the
+# owner's cards. The header counts their distinct cards and complete sets.
+# Accounts answers the owner, Game whether their profile may be shown,
+# Catalog the sets and cards, Game the owner's progress, copies and counts.
 #
-# An unknown token and a profile that may not be shown (a banned owner, or
-# one whose visibility hides it from this viewer: Game::Visibility) render
-# the same unavailable page with a 404, so a ban cannot be told from a
-# missing player. These pages are read from shared links, so any browser
-# and link-preview crawler gets them (PublicRead).
+# An unknown token and a profile that may not be shown to this viewer
+# (Game::Visibility: a banned owner, or one whose visibility hides it, for
+# anyone but staff, whom the queue of reports sends here and who read every
+# profile but a deleted one's) render the same unavailable page with a 404,
+# so a ban cannot be told from a missing player. These pages are read from
+# shared links, so any browser and link-preview crawler gets them
+# (PublicRead).
 class PublicProfilesController < ApplicationController
   include PublicRead
   include ShelfLoading

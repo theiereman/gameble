@@ -33,6 +33,47 @@ class Accounts::UnbanPlayerTest < ActiveSupport::TestCase
     assert_not banned.reload.banned?
   end
 
+  test "a moderator does not lift a moderator's ban; an administrator does" do
+    banned_moderator = stranger(4).tap { it.update!(role: :moderator, banned_at: 1.day.ago) }
+
+    assert_equal Dry::Monads::Failure(:outranked), unban(banned_moderator)
+    assert_predicate banned_moderator.reload, :banned?
+    assert_empty unbanned_events
+
+    assert unban(banned_moderator, staff: accounts_players(:administrator)).success?
+    assert_not banned_moderator.reload.banned?
+  end
+
+  test "no one lifts an administrator's ban" do
+    banned_administrator = stranger(5).tap { it.update!(role: :administrator, banned_at: 1.day.ago) }
+
+    [ @moderator, accounts_players(:administrator) ].each do |staff|
+      assert_equal Dry::Monads::Failure(:outranked), unban(banned_administrator, staff:)
+    end
+    assert_predicate banned_administrator.reload, :banned?
+    assert_empty unbanned_events
+  end
+
+  test "a promotion read under the lock refuses the unban" do
+    banned = accounts_players(:banned)
+    stale = Accounts::Player.find(banned.id)
+    banned.update!(role: :moderator)
+
+    assert_equal Dry::Monads::Failure(:outranked), unban(stale)
+    assert_predicate banned.reload, :banned?
+    assert_empty unbanned_events
+  end
+
+  test "the refusal tells the banned list what it would answer" do
+    banned = accounts_players(:banned)
+
+    assert_nil Accounts::UnbanPlayer.refusal(staff: @moderator, player: banned)
+    assert_equal :not_banned, Accounts::UnbanPlayer.refusal(staff: @moderator, player: @target)
+    assert_equal :outranked, Accounts::UnbanPlayer.refusal(staff: @moderator, player: accounts_players(:administrator))
+    assert_equal :staff_required, Accounts::UnbanPlayer.refusal(staff: @target, player: banned)
+    assert_equal :player_not_found, Accounts::UnbanPlayer.refusal(staff: @moderator, player: nil)
+  end
+
   test "a player who is not banned is refused, without an event" do
     assert_no_difference -> { unbanned_events.size } do
       assert_equal Dry::Monads::Failure(:not_banned), unban

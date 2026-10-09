@@ -5,7 +5,7 @@ module BackOffice
   # one (its cards step again, after a change of the prestige formula). A
   # run's page reloads its frame every few seconds while the run is active
   # (poller_controller.ts). Runs are addressed by their token (AD-15).
-  class ImportRunsController < ApplicationController
+  class ImportRunsController < BaseController
     rate_limit to: 10, within: 1.minute, only: %i[create resume rescore abandon]
 
     before_action :set_import_run, only: %i[show resume rescore abandon]

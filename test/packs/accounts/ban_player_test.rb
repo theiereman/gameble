@@ -73,22 +73,30 @@ class Accounts::BanPlayerTest < ActiveSupport::TestCase
     assert_predicate @moderator.reload, :banned?
   end
 
-  test "a moderator bans another moderator" do
+  test "a moderator does not ban another moderator" do
     other_moderator = stranger(5).tap { it.update!(role: :moderator) }
+    open = report(other_moderator)
 
-    assert ban(other_moderator).success?
-    assert_predicate other_moderator.reload, :banned?
+    assert_unchanged(other_moderator, :outranked)
+    assert_nil open.reload.handled_at
   end
 
   test "no one bans an administrator" do
-    assert_unchanged(@administrator, :cannot_ban_administrator)
+    assert_unchanged(@administrator, :outranked)
     other_administrator = stranger(1).tap { it.update!(role: :administrator) }
-    assert_unchanged(other_administrator, :cannot_ban_administrator, staff: @administrator)
+    assert_unchanged(other_administrator, :outranked, staff: @administrator)
   end
 
-  test "no one bans themselves" do
+  test "no one bans themselves, which is said before the rank" do
     assert_unchanged(@moderator, :cannot_ban_self)
     assert_unchanged(@administrator, :cannot_ban_self, staff: @administrator)
+  end
+
+  test "a promotion read under the lock refuses the ban" do
+    stale = Accounts::Player.find(@target.id)
+    @target.update!(role: :moderator)
+
+    assert_unchanged(stale, :outranked)
   end
 
   test "a banned player is not banned twice" do
@@ -121,7 +129,8 @@ class Accounts::BanPlayerTest < ActiveSupport::TestCase
 
   test "the refusal tells the queue what it would answer" do
     assert_nil Accounts::BanPlayer.refusal(staff: @moderator, player: @target)
-    assert_equal :cannot_ban_administrator, Accounts::BanPlayer.refusal(staff: @moderator, player: @administrator)
+    assert_equal :outranked, Accounts::BanPlayer.refusal(staff: @moderator, player: @administrator)
+    assert_nil Accounts::BanPlayer.refusal(staff: @administrator, player: @moderator)
     assert_equal :cannot_ban_self, Accounts::BanPlayer.refusal(staff: @moderator, player: @moderator)
     assert_equal :staff_required, Accounts::BanPlayer.refusal(staff: @target, player: @moderator)
   end

@@ -127,7 +127,7 @@ class ShellTest < ApplicationSystemTestCase
   end
 
   test "a toast closes with its button, and a gameble:toast event adds one" do
-    visit back_office_path(locale: :en)
+    visit settings_path(locale: :en)
 
     assert_selector ".toasts .toast.toast--alert", text: I18n.t("authorization.sign_in_required", locale: :en)
     find(".toast .toast__close").click
@@ -338,7 +338,7 @@ class ShellTest < ApplicationSystemTestCase
 
   test "on a phone the toasts sit at the top" do
     resize_to(*PHONES["390"])
-    visit back_office_path(locale: :en)
+    visit settings_path(locale: :en)
 
     assert_selector ".toasts .toast"
     assert_operator page.evaluate_script("document.querySelector('.toasts').getBoundingClientRect().top"), :<, 40

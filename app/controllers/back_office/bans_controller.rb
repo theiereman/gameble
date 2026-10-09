@@ -1,5 +1,5 @@
 module BackOffice
-  class BansController < ApplicationController
+  class BansController < BaseController
     include Pagy::Method
 
     PAGE_SIZE = 50

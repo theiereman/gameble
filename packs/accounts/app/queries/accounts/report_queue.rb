@@ -2,8 +2,9 @@ module Accounts
   # The staff's queue of reported players: every player in good standing
   # with open reports, the latest open report first. `players` is the
   # relation to page; `rows` reads, for a page of it, each player's open
-  # reports per reason, their total and the latest one's time, skipping a
-  # player whose reports were handled since the page was read.
+  # reports per reason, their total and the latest one's time in one query,
+  # so they agree, skipping a player whose reports were handled since the
+  # page was read.
   #
   #   page = Accounts::ReportQueue.players.limit(50)
   #   Accounts::ReportQueue.rows(page) # => [Accounts::ReportQueue::Row, …]
@@ -20,13 +21,14 @@ module Accounts
 
     def self.rows(players)
       players = players.to_a
-      reports = Report.unhandled.where(reported_id: players.map(&:id))
-      counts = reports.group(:reported_id, :reason).count
-      latest = reports.group(:reported_id).maximum(:created_at)
+      groups = Report.unhandled.where(reported_id: players.map(&:id)).group(:reported_id, :reason)
+        .pluck(:reported_id, :reason, Arel.sql("COUNT(*)"), Arel.sql("MAX(created_at)"))
+        .group_by(&:first)
       players.filter_map do |player|
-        latest_at = latest[player.id] or next
-        per_reason = Report.reasons.keys.index_with { |reason| counts.fetch([ player.id, reason ], 0) }
-        Row.new(player:, counts: per_reason, total: per_reason.values.sum, latest_at:)
+        reasons = groups[player.id] or next
+        per_reason = Report.reasons.keys.index_with { 0 }
+        reasons.each { |_, reason, count, _| per_reason[reason] = count }
+        Row.new(player:, counts: per_reason, total: per_reason.values.sum, latest_at: reasons.map(&:last).max)
       end
     end
 

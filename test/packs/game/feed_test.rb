@@ -109,6 +109,18 @@ class Game::FeedTest < ActiveSupport::TestCase
     assert_empty Game::FeedEntries.call(nil)
   end
 
+  test "staff read the feed as a player does: a private or banned player's entries stay hidden" do
+    epic = fixture_tier_ids[3]
+    open_pack(@player, [ epic ])
+    open_pack(@other, [ epic ])
+    @player.update!(visibility: :private)
+
+    assert_equal [ @other ], Game::FeedEntries.call(accounts_players(:administrator)).map(&:player)
+
+    @player.update!(visibility: :public, banned_at: Time.current)
+    assert_equal [ @other ], Game::FeedEntries.call(accounts_players(:administrator)).map(&:player)
+  end
+
   test "lower rarities stay out while the feed holds enough, and fill it when it is quiet" do
     common = fixture_tier_ids[0]
     epic = fixture_tier_ids[3]

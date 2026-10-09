@@ -1,7 +1,8 @@
 require "application_system_test_case"
 
 # A moderator works the queue of reported players: a ban keeps the player
-# from signing in and hides their profile; lifting it gives both back.
+# from signing in and hides their profile from players; lifting it gives
+# both back. Staff still read a banned player's profile.
 class ModerationTest < ApplicationSystemTestCase
   setup do
     OmniAuth.config.test_mode = true
@@ -41,7 +42,7 @@ class ModerationTest < ApplicationSystemTestCase
     assert_text "2 joueurs signalés attendent les officiers."
     click_on "Les signalements"
     assert_selector "h1", text: "Les signalements"
-    assert_selector "#{row(accounts_players(:administrator))} [data-ban-refusal=cannot_ban_administrator]"
+    assert_selector "#{row(accounts_players(:administrator))} [data-ban-refusal=outranked]"
     assert_no_selector "#{row(accounts_players(:administrator))} button", text: "BANNIR"
     within(row(@reported)) do
       assert_selector "td[data-report-total='2']"
@@ -76,6 +77,25 @@ class ModerationTest < ApplicationSystemTestCase
 
       visit brother_path(locale: :fr, token: @reported.token)
       assert_selector "h1", text: "Gabe the Rude"
+    end
+  end
+
+  test "a moderator opens a banned player's profile from the banned list; a visitor finds it unavailable" do
+    Accounts::BanPlayer.new.call(staff: accounts_players(:administrator), player: @reported).value!
+    steam_identity(@moderator)
+    visit home_path(locale: :fr)
+    click_steam_sign_in
+    assert_signed_in
+
+    visit back_office_bans_path(locale: :fr)
+    within(row(@reported)) { click_on "Gabe the Rude" }
+
+    assert_selector "h1", text: "Gabe the Rude"
+    assert_current_path brother_path(locale: :fr, token: @reported.token)
+
+    using_session("visitor") do
+      visit brother_path(locale: :fr, token: @reported.token)
+      assert_selector "h1", text: "Profil indisponible"
     end
   end
 end

@@ -1,10 +1,12 @@
 require "test_helper"
+require_relative "../../support/hidden_back_office"
 
 module BackOffice
   # Mission Control Jobs at /back-office/jobs, administrators only (R7).
   # Tests run without Solid Queue, so the engine reads the test environment's
   # adapter: its dashboard renders, with no job in it.
   class JobsTest < ActionDispatch::IntegrationTest
+    include HiddenBackOffice
     setup do
       OmniAuth.config.test_mode = true
     end
@@ -40,22 +42,22 @@ module BackOffice
       assert_not_equal 401, response.status
     end
 
-    [ :moderator, :player ].each do |role|
-      test "a #{role} is refused the job queue with 403" do
-        sign_in(accounts_players(role))
+    test "a moderator is refused the job queue with 403" do
+      sign_in(accounts_players(:moderator))
 
-        get "/back-office/jobs"
-
-        assert_response :forbidden
-        assert_includes response.body, ERB::Util.html_escape(I18n.t("authorization.forbidden", locale: :en))
-      end
-    end
-
-    test "a visitor is sent to the hub and asked to sign in" do
       get "/back-office/jobs"
 
-      assert_redirected_to "/en"
-      assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
+      assert_response :forbidden
+      assert_includes response.body, ERB::Util.html_escape(I18n.t("authorization.forbidden", locale: :en))
+    end
+
+    test "a visitor and a player get the 404 of an unknown address" do
+      get "/back-office/jobs"
+      assert_unknown_address
+
+      sign_in(accounts_players(:player))
+      get "/back-office/jobs"
+      assert_unknown_address
     end
 
     test "the back-office links to the job queue for an administrator only" do

@@ -1,9 +1,11 @@
 require "test_helper"
 require_relative "../../support/counting_rate_limit"
+require_relative "../../support/hidden_back_office"
 
 module BackOffice
   class BansControllerTest < ActionDispatch::IntegrationTest
     include CountingRateLimit
+    include HiddenBackOffice
 
     setup do
       OmniAuth.config.test_mode = true
@@ -46,7 +48,7 @@ module BackOffice
 
       assert_response :success
       assert_select "h1", "Les bannis"
-      assert_select "tbody tr:first-child[data-player-token='#{@target.token}'] td:first-child", "Gabe"
+      assert_select "tbody tr:first-child[data-player-token='#{@target.token}'] td:first-child a[href='/fr/brothers/#{@target.token}']", "Gabe"
       assert_select row(@banned)
       assert_select "#{row(@target)} form[action='/fr/back-office/bans/#{@target.token}'][data-turbo-confirm]" do
         assert_select "input[name=_method][value=delete]"
@@ -72,7 +74,7 @@ module BackOffice
       sign_in(@moderator)
 
       {
-        @administrator.token => :cannot_ban_administrator,
+        @administrator.token => :outranked,
         @moderator.token => :cannot_ban_self,
         @banned.token => :already_banned,
         "A" * 24 => :player_not_found,
@@ -89,6 +91,39 @@ module BackOffice
       delete back_office_ban_path(locale: :fr, token: @target.token)
       assert_redirected_to back_office_bans_path(locale: :fr)
       assert_equal I18n.t("errors.accounts.not_banned", locale: :fr), flash[:alert]
+    end
+
+    test "a banned moderator's row shows the refusal to a moderator and LIFT THE BAN to an administrator" do
+      banned_moderator = Accounts::Player.create!(steam_id: "76561197960360099", role: :moderator, banned_at: 1.hour.ago)
+      sign_in(@moderator)
+
+      get back_office_bans_path(locale: :fr)
+
+      assert_select "#{row(banned_moderator)} form", false
+      assert_select "#{row(banned_moderator)} [data-unban-refusal=outranked]", I18n.t("errors.accounts.outranked", locale: :fr)
+      assert_select "#{row(@banned)} button", "LEVER LE BAN"
+      delete back_office_ban_path(locale: :fr, token: banned_moderator.token)
+      assert_equal I18n.t("errors.accounts.outranked", locale: :fr), flash[:alert]
+      assert_predicate banned_moderator.reload, :banned?
+
+      sign_in(@administrator)
+      get back_office_bans_path(locale: :en)
+
+      assert_select "#{row(banned_moderator)} button", "LIFT THE BAN"
+      delete back_office_ban_path(locale: :en, token: banned_moderator.token)
+      assert_not banned_moderator.reload.banned?
+    end
+
+    test "a moderator opens a banned player's profile from the banned list" do
+      @banned.update!(persona_name: "Exile")
+      sign_in(@moderator)
+
+      get back_office_bans_path(locale: :fr)
+      assert_select "#{row(@banned)} a[href='/fr/brothers/#{@banned.token}']", "Exile"
+
+      get brother_path(locale: :fr, token: @banned.token)
+      assert_response :success
+      assert_select "h1", "Exile"
     end
 
     test "an administrator bans and lifts a ban, in English" do
@@ -139,28 +174,27 @@ module BackOffice
       assert_response :too_many_requests
     end
 
-    test "a player is refused every action with 403" do
+    test "a player gets the 404 of an unknown address from every action" do
       sign_in(@target)
 
       get back_office_bans_path(locale: :fr)
-      assert_response :forbidden
+      assert_unknown_address
       post back_office_bans_path(locale: :fr), params: { token: @moderator.token }
-      assert_response :forbidden
+      assert_unknown_address
       delete back_office_ban_path(locale: :fr, token: @banned.token)
-      assert_response :forbidden
+      assert_unknown_address
 
       assert_not @moderator.reload.banned?
       assert_predicate @banned.reload, :banned?
     end
 
-    test "a visitor is sent to sign in from every action" do
+    test "a visitor gets the 404 of an unknown address from every action" do
       get back_office_bans_path(locale: :fr)
-      assert_redirected_to home_path(locale: :fr)
+      assert_unknown_address
       post back_office_bans_path(locale: :fr), params: { token: @target.token }
-      assert_redirected_to home_path(locale: :fr)
+      assert_unknown_address
       delete back_office_ban_path(locale: :fr, token: @banned.token)
-      assert_redirected_to home_path(locale: :fr)
-      assert_equal I18n.t("authorization.sign_in_required", locale: :fr), flash[:alert]
+      assert_unknown_address
 
       assert_not @target.reload.banned?
       assert_predicate @banned.reload, :banned?

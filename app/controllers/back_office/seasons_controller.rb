@@ -6,7 +6,7 @@ module BackOffice
   # resumed), so a run never spans two seasons. The page previews what
   # publishing the draft now would produce (Catalog::DraftPreview), even
   # while an import is unfinished, for calibration.
-  class SeasonsController < ApplicationController
+  class SeasonsController < BaseController
     rate_limit to: 10, within: 1.minute, only: :publish
 
     def index

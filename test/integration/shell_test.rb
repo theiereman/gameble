@@ -208,7 +208,7 @@ class ShellTest < ActionDispatch::IntegrationTest
   end
 
   test "an alert is an alert toast" do
-    get back_office_path(locale: :en)
+    get settings_path(locale: :en)
     follow_redirect!
 
     assert_select ".toasts > .toast.toast--alert .toast__message", I18n.t("authorization.sign_in_required", locale: :en)

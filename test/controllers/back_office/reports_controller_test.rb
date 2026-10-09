@@ -1,9 +1,11 @@
 require "test_helper"
 require_relative "../../support/counting_rate_limit"
+require_relative "../../support/hidden_back_office"
 
 module BackOffice
   class ReportsControllerTest < ActionDispatch::IntegrationTest
     include CountingRateLimit
+    include HiddenBackOffice
 
     setup do
       OmniAuth.config.test_mode = true
@@ -55,10 +57,41 @@ module BackOffice
         assert_select "button.button--danger", "BANNIR"
       end
       assert_select "#{row(@target)} form[action='/fr/back-office/reports/#{@target.token}/dismiss'][data-turbo-confirm] button", "CLASSER"
-      assert_select "#{row(@administrator)} form[action='/fr/back-office/bans']", false
-      assert_select "#{row(@administrator)} [data-ban-refusal=cannot_ban_administrator]",
-        I18n.t("errors.accounts.cannot_ban_administrator", locale: :fr)
+      assert_select "#{row(@administrator)} form", false
+      assert_select "#{row(@administrator)} [data-ban-refusal=outranked]", I18n.t("errors.accounts.outranked", locale: :fr)
+      assert_select "#{row(@administrator)} [data-dismiss-refusal=outranked]", I18n.t("errors.accounts.outranked", locale: :fr)
       [ @target, @administrator, moderator ].each { |player| assert_not_includes response.body, player.id.to_s }
+    end
+
+    test "a moderator sees the refusal on a reported moderator's row; an administrator sees both buttons and bans" do
+      moderator = accounts_players(:moderator)
+      other_moderator = Accounts::Player.create!(steam_id: "76561197960350009", role: :moderator)
+      report(other_moderator, @reporters[1], "cheating", 30.minutes.ago)
+      sign_in(moderator)
+
+      get back_office_reports_path(locale: :fr)
+
+      [ other_moderator, @administrator ].each do |outranking|
+        assert_select "#{row(outranking)} form", false
+        assert_select "#{row(outranking)} [data-ban-refusal=outranked]"
+        assert_select "#{row(outranking)} [data-dismiss-refusal=outranked]"
+      end
+
+      post back_office_bans_path(locale: :fr), params: { token: other_moderator.token }
+      assert_equal I18n.t("errors.accounts.outranked", locale: :fr), flash[:alert]
+      post back_office_dismiss_reports_path(locale: :fr, token: other_moderator.token)
+      assert_equal I18n.t("errors.accounts.outranked", locale: :fr), flash[:alert]
+      assert_not other_moderator.reload.banned?
+      assert Accounts::Report.where(reported: other_moderator, handled_at: nil).exists?
+
+      sign_in(@administrator)
+      get back_office_reports_path(locale: :fr)
+
+      assert_select "#{row(other_moderator)} button", "BANNIR"
+      assert_select "#{row(other_moderator)} button", "CLASSER"
+      post back_office_bans_path(locale: :fr), params: { token: other_moderator.token }
+      assert_redirected_to back_office_reports_path(locale: :fr)
+      assert_predicate other_moderator.reload, :banned?
     end
 
     test "an administrator reads the queue in English, their own row refused" do
@@ -155,24 +188,23 @@ module BackOffice
       assert_response :too_many_requests
     end
 
-    test "a player is refused the queue and classing with 403" do
+    test "a player gets the 404 of an unknown address for the queue and classing" do
       sign_in(@target)
 
       get back_office_reports_path(locale: :fr)
-      assert_response :forbidden
+      assert_unknown_address
 
       post back_office_dismiss_reports_path(locale: :fr, token: @administrator.token)
-      assert_response :forbidden
+      assert_unknown_address
       assert_nil Accounts::Report.find_by(reported: @administrator).handled_at
     end
 
-    test "a visitor is sent to sign in" do
+    test "a visitor gets the 404 of an unknown address" do
       get back_office_reports_path(locale: :fr)
-      assert_redirected_to home_path(locale: :fr)
-      assert_equal I18n.t("authorization.sign_in_required", locale: :fr), flash[:alert]
+      assert_unknown_address
 
       post back_office_dismiss_reports_path(locale: :fr, token: @target.token)
-      assert_redirected_to home_path(locale: :fr)
+      assert_unknown_address
       assert Accounts::Report.where(reported: @target, handled_at: nil).exists?
     end
   end

@@ -1,5 +1,5 @@
 module BackOffice
-  class ReportsController < ApplicationController
+  class ReportsController < BaseController
     include Pagy::Method
 
     PAGE_SIZE = 50

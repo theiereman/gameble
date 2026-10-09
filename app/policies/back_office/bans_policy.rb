@@ -1,6 +1,7 @@
 module BackOffice
   # Headless policy for banning and unbanning players: moderators and
-  # administrators. A visitor is asked to sign in; a player is refused (403).
+  # administrators. Whoever is not staff never reaches it: the back-office
+  # answers them 404. Whom a ban reaches is the operations' rank rule.
   #
   #   authorize [ :back_office, :bans ], :create?
   class BansPolicy < ApplicationPolicy

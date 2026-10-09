@@ -5,7 +5,7 @@ module BackOffice
   # cards are built here, without the database; their art is a sample
   # bundled with the application, except the uncommon's, a same-origin URL
   # that answers 404.
-  class CardsController < ApplicationController
+  class CardsController < BaseController
     PUBLISHERS = { common: nil, uncommon: "Hillside Works", rare: "Deepwater", epic: "Brotherhood Press", legendary: "Crown & Sons" }.freeze
     YEARS = { common: 2024, uncommon: 2019, rare: 2014, epic: 2007, legendary: 1998 }.freeze
     SEASONS = { common: 1, uncommon: 3, rare: 12, epic: 2, legendary: 1 }.freeze

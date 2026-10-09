@@ -1,9 +1,11 @@
 require "test_helper"
+require_relative "../../support/hidden_back_office"
 require_relative "../../support/catalog_seeds"
 
 module BackOffice
   # The catalog seasons page of the back-office (AD-5), administrators only.
   class SeasonsControllerTest < ActionDispatch::IntegrationTest
+    include HiddenBackOffice
     include CatalogSeeds
 
     setup { OmniAuth.config.test_mode = true }
@@ -262,29 +264,29 @@ module BackOffice
       yield :post, publish_back_office_seasons_path(locale: :fr), { number: draft.number }
     end
 
-    [ :player, :moderator ].each do |role|
-      test "a #{role} is refused every season action with 403" do
-        draft = seed_card_seasons(distinct_scores(21))
-        sign_in(accounts_players(role))
-
-        each_request(draft) do |verb, path, params|
-          public_send(verb, path, params:)
-
-          assert_response :forbidden, "#{verb} #{path}"
-          assert_includes response.body, ERB::Util.html_escape(I18n.t("authorization.forbidden", locale: :fr))
-        end
-        assert_predicate draft.reload, :draft?
-      end
-    end
-
-    test "a visitor is sent to the hub and asked to sign in for every season action" do
+    test "a moderator is refused every season action with 403" do
       draft = seed_card_seasons(distinct_scores(21))
+      sign_in(accounts_players(:moderator))
 
       each_request(draft) do |verb, path, params|
         public_send(verb, path, params:)
 
-        assert_redirected_to home_path(locale: :fr), "#{verb} #{path}"
-        assert_equal I18n.t("authorization.sign_in_required", locale: :fr), flash[:alert]
+        assert_response :forbidden, "#{verb} #{path}"
+        assert_includes response.body, ERB::Util.html_escape(I18n.t("authorization.forbidden", locale: :fr))
+      end
+      assert_predicate draft.reload, :draft?
+    end
+
+    test "a visitor and a player get the 404 of an unknown address for every season action" do
+      draft = seed_card_seasons(distinct_scores(21))
+
+      [ nil, accounts_players(:player) ].each do |player|
+        sign_in(player) if player
+        each_request(draft) do |verb, path, params|
+          public_send(verb, path, params:)
+
+          assert_unknown_address "#{verb} #{path}"
+        end
       end
       assert_predicate draft.reload, :draft?
     end

@@ -57,6 +57,47 @@ class Accounts::DismissReportsTest < ActiveSupport::TestCase
     assert_nil Accounts::DismissReports.refusal(staff: @moderator, player: @target)
   end
 
+  test "a moderator does not class a moderator's reports; an administrator does" do
+    other_moderator = stranger(10).tap { it.update!(role: :moderator) }
+    open = report(other_moderator, 11)
+
+    assert_equal Dry::Monads::Failure(:outranked), dismiss(other_moderator)
+    assert_nil open.reload.handled_at
+    assert_empty dismissed_events
+
+    assert_equal 1, dismiss(other_moderator, staff: accounts_players(:administrator)).value!
+    assert_not_nil open.reload.handled_at
+  end
+
+  test "no one classes an administrator's reports" do
+    administrator = accounts_players(:administrator)
+    other_administrator = stranger(12).tap { it.update!(role: :administrator) }
+    open = report(administrator, 13)
+
+    assert_equal Dry::Monads::Failure(:outranked), dismiss(administrator)
+    assert_equal Dry::Monads::Failure(:outranked), dismiss(administrator, staff: other_administrator)
+    assert_nil open.reload.handled_at
+    assert_empty dismissed_events
+  end
+
+  test "classing one's own reports is refused before the rank" do
+    administrator = accounts_players(:administrator)
+    report(administrator, 14)
+
+    assert_equal Dry::Monads::Failure(:cannot_dismiss_self), dismiss(administrator, staff: administrator)
+    assert_equal :outranked, Accounts::DismissReports.refusal(staff: @moderator, player: administrator)
+  end
+
+  test "a promotion read under the lock refuses the dismissal" do
+    open = report(@target, 15)
+    stale = Accounts::Player.find(@target.id)
+    @target.update!(role: :moderator)
+
+    assert_equal Dry::Monads::Failure(:outranked), dismiss(stale)
+    assert_nil open.reload.handled_at
+    assert_empty dismissed_events
+  end
+
   test "only a moderator or an administrator in good standing classes reports" do
     open = report(@target, 7)
 

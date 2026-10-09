@@ -1,9 +1,9 @@
 module BackOffice
   # Base controller of Mission Control Jobs (config/initializers/mission_control.rb).
-  # Every engine action passes here first: administrators only. A visitor is
-  # sent home to sign in, any other player gets 403, through
-  # ApplicationController's refusal path.
-  class JobsBaseController < ApplicationController
+  # Every engine action passes here first: administrators only. Whoever is
+  # not staff gets the 404 of an unknown address (BackOffice::BaseController);
+  # a moderator gets 403, through ApplicationController's refusal path.
+  class JobsBaseController < BaseController
     before_action :authorize_jobs
 
     # A refusal renders the app's layout inside the engine, whose views see

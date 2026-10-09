@@ -1,7 +1,9 @@
 require "test_helper"
+require_relative "../../support/hidden_back_office"
 
 module BackOffice
   class DashboardControllerTest < ActionDispatch::IntegrationTest
+    include HiddenBackOffice
     setup do
       OmniAuth.config.test_mode = true
     end
@@ -59,21 +61,19 @@ module BackOffice
       assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
     end
 
-    test "a player is refused the back-office with 403" do
+    test "a player gets the 404 of an unknown address" do
       sign_in(accounts_players(:player))
 
       get back_office_path(locale: :fr)
 
-      assert_response :forbidden
-      assert_includes response.body, ERB::Util.html_escape(I18n.t("authorization.forbidden", locale: :fr))
-      assert_select "h1", false
+      assert_unknown_address
     end
 
-    test "a visitor is sent to the hub and asked to sign in" do
+    test "a visitor gets the 404 of an unknown address" do
       get back_office_path(locale: :fr)
 
-      assert_redirected_to home_path(locale: :fr)
-      assert_equal I18n.t("authorization.sign_in_required", locale: :fr), flash[:alert]
+      assert_unknown_address
+      assert_nil flash[:alert]
     end
   end
 end

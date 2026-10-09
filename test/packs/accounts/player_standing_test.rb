@@ -17,4 +17,15 @@ class Accounts::PlayerStandingTest < ActiveSupport::TestCase
     assert_equal [ @player.id ], Accounts::Player.in_good_standing.where(id: ids).pluck(:id)
     assert_equal [ @banned.id, @deleted.id ].sort, Accounts::Player.removed.where(id: ids).pluck(:id).sort
   end
+
+  test "roles rank player, moderator, administrator; no role outranks itself" do
+    player, moderator, administrator = %w[player moderator administrator].map { Accounts::Player.new(role: it) }
+
+    assert moderator.outranks?(player)
+    assert administrator.outranks?(moderator)
+    assert administrator.outranks?(player)
+    [ player, moderator, administrator ].each { |role| assert_not role.outranks?(Accounts::Player.new(role: role.role)), role.role }
+    assert_not moderator.outranks?(administrator)
+    assert_not player.outranks?(moderator)
+  end
 end

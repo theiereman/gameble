@@ -137,7 +137,7 @@ fr:
     reports:
       index:
         heading: "Les signalements"
-        intro: "Chaque ligne est un joueur signalé, le signalement le plus récent en premier. BANNIR le suspend : il ne peut plus se connecter, son profil disparaît, ses échanges en cours sont annulés et ses amitiés rompues. CLASSER écarte ses signalements sans toucher au joueur ; un signalement d'un joueur qui ne l'avait pas encore signalé le ramène ici."
+        intro: "Chaque ligne est un joueur signalé, le signalement le plus récent en premier. BANNIR le suspend : il ne peut plus se connecter, son profil disparaît pour les joueurs, ses échanges en cours sont annulés et ses amitiés rompues. CLASSER écarte ses signalements sans toucher au joueur ; un signalement d'un joueur qui ne l'avait pas encore signalé le ramène ici. Un officier n'agit que sur un rang inférieur au sien."
         empty: "Aucun signalement n'attend les officiers."
         caption: "Joueurs signalés, le signalement le plus récent en premier"
         player: "Joueur"
@@ -153,7 +153,7 @@ fr:
     bans:
       index:
         heading: "Les bannis"
-        intro: "Les joueurs bannis, le plus récent en premier. LEVER LE BAN leur rend la connexion et leur profil ; les amitiés et les échanges perdus ne reviennent pas."
+        intro: "Les joueurs bannis, le plus récent en premier. LEVER LE BAN leur rend la connexion et leur profil ; les amitiés et les échanges perdus ne reviennent pas. Un officier n'agit que sur un rang inférieur au sien."
         empty: "Aucun joueur n'est banni."
         caption: "Joueurs bannis, le plus récent en premier"
         player: "Joueur"
@@ -395,8 +395,8 @@ fr:
     show:
       visibility:
         public: "Visible par tous les joueurs"
-        friends_only: "Visible par vos amis seulement"
-        private: "Profil privé : vous seul le voyez"
+        friends_only: "Visible par vos amis et les officiers de la Confrérie seulement"
+        private: "Profil privé : vous seul et les officiers de la Confrérie le voyez"
       counts: "La collection"
       pick: "Choisissez un set pour voir les cartes qu'il contient."
       complete: "Complet"
@@ -984,7 +984,7 @@ fr:
       staff_required: "Seuls les officiers de la Confrérie, modérateurs ou administrateurs, peuvent faire cela."
       cannot_ban_self: "Vous ne pouvez pas vous bannir vous-même, officier."
       cannot_dismiss_self: "Vous ne pouvez pas classer les signalements qui vous visent, officier."
-      cannot_ban_administrator: "Un administrateur ne peut pas être banni, officier."
+      outranked: "Ce joueur a un rang égal ou supérieur au vôtre, officier : vous ne pouvez pas agir sur lui."
       already_banned: "Ce joueur est déjà banni, officier."
       not_banned: "Ce joueur n'est pas banni, officier."
       no_open_reports: "Ce joueur n'a plus de signalement en attente, officier."

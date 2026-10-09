@@ -352,6 +352,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-moderation-the-queue-bans-and-unbans-plan.md`
   summary: A moderator cannot read a reported profile that is private or friends only: the queue's link opens the unavailable page, since `Game::Visibility` shows a hidden profile to no one but its owner.
   evidence: Story 7.5 review (edge case; rejected low, the queue shows the name, which a name report concerns). Settling it means deciding whether staff see hidden profiles, a change to the one visibility question.
+  resolved: Story 7.13: `Game::Visibility.visible?` shows staff in good standing every owner but a deleted one, private, friends-only and banned included; the public profile and the report endpoint use it, so the queue's link and the banned list's link open the profile. The feed and the friend profile opt out (`staff_sees_all: false`) and show staff what a player would see.
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-moderation-the-queue-bans-and-unbans-plan.md`
   summary: Bans and dismissals leave no record a page reads: no ban reason, no "banned by", no history of classed reports; only the event store keeps `PlayerBanned`, `PlayerUnbanned` and `ReportsDismissed` with the staff member's id.
   evidence: Story 7.5 review (blind hunter; rejected low, not asked by the ticket). Would answer "why was I banned?" once strangers play.
@@ -365,3 +366,6 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-friends-and-trades/story-fixes-from-the-epic-retrospective-plan.md`
   summary: About 800 planning ids remain in the repo outside the files epic 5 touched (routes, CSS, TS, other packs).
   evidence: AGENTS.md forbids them everywhere. The blind review of this story counted them; they belong to the epic 12 sweep.
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-moderation-by-rank-a-hidden-back-office-and-staff-reading-ev-plan.md`
+  summary: A member of staff reading a private, friends-only or banned profile sees it exactly as a public one: nothing says that players do not see it, so staff could share its link believing it public.
+  evidence: Story 7.13 kept the profile page unchanged (no staff marker, by its plan). A line such as "Profil privé : visible des officiers seulement" needs copy in both locales and a place in the profile header.

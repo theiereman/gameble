@@ -2,6 +2,7 @@ require "test_helper"
 require_relative "../../support/steam_api_stubs"
 require_relative "../../support/catalog_seeds"
 require_relative "../../support/counting_rate_limit"
+require_relative "../../support/hidden_back_office"
 
 module BackOffice
   class ImportRunsControllerTest < ActionDispatch::IntegrationTest
@@ -9,6 +10,7 @@ module BackOffice
     include SteamApiStubs
     include CatalogSeeds
     include CountingRateLimit
+    include HiddenBackOffice
 
     setup do
       OmniAuth.config.test_mode = true
@@ -546,37 +548,37 @@ module BackOffice
       yield :post, abandon_back_office_import_run_path(run, locale: :fr)
     end
 
-    [ :player, :moderator ].each do |role|
-      test "a #{role} is refused every import action with 403" do
-        run = failed_run
-        sign_in(accounts_players(role))
-
-        each_request(run) do |verb, path|
-          assert_no_import_jobs { public_send(verb, path) }
-
-          assert_response :forbidden, "#{verb} #{path}"
-          assert_includes response.body, ERB::Util.html_escape(I18n.t("authorization.forbidden", locale: :fr))
-        end
-        assert_predicate run.reload, :failed?
-        assert_equal 1, Steam::ImportRun.count
-      end
-    end
-
-    test "a visitor is sent to the hub and asked to sign in for every import action" do
+    test "a moderator is refused every import action with 403" do
       run = failed_run
+      sign_in(accounts_players(:moderator))
 
       each_request(run) do |verb, path|
-        public_send(verb, path)
+        assert_no_import_jobs { public_send(verb, path) }
 
-        assert_redirected_to home_path(locale: :fr), "#{verb} #{path}"
-        assert_equal I18n.t("authorization.sign_in_required", locale: :fr), flash[:alert]
+        assert_response :forbidden, "#{verb} #{path}"
+        assert_includes response.body, ERB::Util.html_escape(I18n.t("authorization.forbidden", locale: :fr))
       end
       assert_predicate run.reload, :failed?
       assert_equal 1, Steam::ImportRun.count
     end
 
-    test "a player is refused an unknown run with 403, not 404" do
-      sign_in(accounts_players(:player))
+    test "a visitor and a player get the 404 of an unknown address for every import action" do
+      run = failed_run
+
+      [ nil, accounts_players(:player) ].each do |player|
+        sign_in(player) if player
+        each_request(run) do |verb, path|
+          assert_no_import_jobs { public_send(verb, path) }
+
+          assert_unknown_address "#{verb} #{path}"
+        end
+      end
+      assert_predicate run.reload, :failed?
+      assert_equal 1, Steam::ImportRun.count
+    end
+
+    test "a moderator is refused an unknown run with 403, not 404" do
+      sign_in(accounts_players(:moderator))
 
       get back_office_import_run_path("nope", locale: :fr)
 

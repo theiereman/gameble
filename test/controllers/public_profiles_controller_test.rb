@@ -316,6 +316,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
   test "a private or friends-only owner is the unavailable page for a visitor and a stranger, not for the owner" do
     publish_sets_draft
+    stranger = Accounts::Player.create!(steam_id: "76561197960390101")
     get brother_path(locale: :en, token: "A" * 24)
     unknown = css_select("main").to_html
 
@@ -329,7 +330,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
       get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1")
       assert_response :not_found
 
-      sign_in(accounts_players(:moderator))
+      sign_in(stranger)
       get brother_path(locale: :en, token: @owner.token)
       assert_response :not_found
       delete session_path(locale: :en)
@@ -343,7 +344,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
   test "a friends-only owner is shown to a friend, a private one is not" do
     publish_sets_draft
-    friend = accounts_players(:moderator)
+    friend = Accounts::Player.create!(steam_id: "76561197960390102")
     Game::Friendship.create!(low_player_id: [ @owner.id, friend.id ].min, high_player_id: [ @owner.id, friend.id ].max)
     @owner.update!(visibility: "friends_only")
     sign_in(friend)
@@ -351,11 +352,54 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :en, token: @owner.token)
     assert_response :success
     assert_select "h1", "Gabe the Brave"
-    assert_select ".profile-summary__visibility", "Visible to your friends only"
+    assert_select ".profile-summary__visibility", "Visible to your friends and the Brotherhood's officers only"
 
     @owner.update!(visibility: "private")
     get brother_path(locale: :en, token: @owner.token)
     assert_response :not_found
+  end
+
+  test "staff read a private, a friends-only and a banned owner's profile, a deleted one's not" do
+    publish_sets_draft
+    banned = accounts_players(:banned)
+    banned.update_columns(persona_name: "Banned Brother")
+
+    [ :moderator, :administrator ].each do |role|
+      sign_in(accounts_players(role))
+
+      %w[private friends_only].each do |visibility|
+        @owner.update!(visibility:)
+        get brother_path(locale: :en, token: @owner.token)
+        assert_response :success, [ role, visibility ]
+        assert_select "h1", "Gabe the Brave"
+        get brother_set_path(locale: :en, token: @owner.token, kind: "tome", key: "action-1")
+        assert_response :success, [ role, visibility ]
+      end
+
+      get brother_path(locale: :en, token: banned.token)
+      assert_response :success, role
+      assert_select "h1", "Banned Brother"
+      delete session_path(locale: :en)
+    end
+
+    sign_in(accounts_players(:moderator))
+    Accounts::DeletePlayer.new.call(player: @owner).value!
+    get brother_path(locale: :en, token: @owner.reload.token)
+    assert_response :not_found
+    assert_select "h1", "Profile not available"
+  end
+
+  test "a banned member of staff reads a hidden profile as the visitor they become" do
+    publish_sets_draft
+    moderator = accounts_players(:moderator)
+    @owner.update!(visibility: "private")
+    sign_in(moderator)
+    moderator.update!(banned_at: Time.current)
+
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_response :not_found
+    assert_nil session[:player_id]
   end
 
   test "the summary states who may see the profile" do
@@ -365,7 +409,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     @owner.update!(visibility: "private")
     sign_in(@owner)
     get brother_path(locale: :fr, token: @owner.token)
-    assert_select ".profile-summary__visibility", "Profil privé : vous seul le voyez"
+    assert_select ".profile-summary__visibility", "Profil privé : vous seul et les officiers de la Confrérie le voyez"
   end
 
   test "in French: the fallback title, the French tabs and plurals" do
