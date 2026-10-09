@@ -116,7 +116,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("sessions.create.welcome", locale: :en), flash[:notice]
   end
 
-  test "from their own live session, a banned player signing in again is told they are banned" do
+  test "from their own live session, a banned player signing in again is told they are banned, signed out" do
     banned = accounts_players(:player)
     sign_in(banned)
     banned.update_columns(banned_at: Time.current)
@@ -126,8 +126,9 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_nil session[:player_id]
-    assert_redirected_to home_path(locale: :en)
-    assert_equal I18n.t("errors.accounts.banned", locale: :en), flash[:alert]
+    assert_response :forbidden
+    assert_select ".account-suspended__lead", I18n.t("errors.accounts.banned", locale: :en)
+    assert_select ".top-bar .steam-sign-in"
   end
 
   test "a player banned by a moderator is refused at sign-in, and signs in again once unbanned" do
@@ -140,7 +141,8 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_nil session[:player_id]
-    assert_equal I18n.t("errors.accounts.banned", locale: :en), flash[:alert]
+    assert_response :forbidden
+    assert_select ".account-suspended__reason", "Cheating"
 
     Accounts::UnbanPlayer.new.call(staff: moderator, player:).value!
     sign_in(player)

@@ -48,11 +48,12 @@ fr:
     sign_in_panel:
       title: "Connectez-vous pour jouer"
       close: "Fermer"
-      acceptance_html: "En vous connectant, vous acceptez les %{terms} et la %{privacy}."
-      terms: "conditions"
-      privacy: "confidentialité"
+      acceptance_html: "En vous connectant, vous acceptez les %{terms} et prenez connaissance de la %{privacy}."
+      terms: "conditions d'utilisation"
+      privacy: "politique de confidentialité"
     version:
       label: "Version déployée"
+      legal: "Mentions légales"
   pages:
     home:
       kicker:
@@ -154,6 +155,8 @@ fr:
         law: "Elles sont régies par le droit français."
       privacy:
         title: "Confidentialité"
+        controller_html: "Le responsable du traitement de vos données est Thomas Eyermann, éditeur de gameble, joignable à %{contact}."
+        controller: "Le responsable du traitement de vos données est Thomas Eyermann, éditeur de gameble."
         stored:
           intro: "Pour faire fonctionner le jeu, gameble conserve :"
           steam: "votre identifiant Steam et votre nom de profil Steam ;"
@@ -244,6 +247,7 @@ fr:
         unban_confirm: "Lever le ban de %{name} ?"
         reason_label: "Raison du bannissement de %{name}"
         reason_placeholder: "Raison du ban"
+        reason_hint: "Le joueur lira cette raison s'il tente de se connecter."
       create:
         banned: "%{name} est banni."
       destroy:
@@ -1118,6 +1122,11 @@ fr:
   sessions:
     create:
       welcome: "Bienvenue sur gameble. Vos boosters vous attendent."
+    banned:
+      title: "Compte suspendu"
+      reason_label: "Motif indiqué par le modérateur"
+      contest_html: "Pour contester cette décision, écrivez à %{contact}."
+      no_reason_html: "Pour connaître le motif de cette suspension ou la contester, écrivez à %{contact}."
     destroy:
       farewell: "Déconnexion effectuée. Votre collection vous attend."
   authorization:

@@ -1,0 +1,15 @@
+<% content_for :title, t(".title") %>
+<% content_for :head do %><meta name="robots" content="noindex"><% end %>
+<section class="account-suspended" aria-labelledby="account-suspended-heading">
+  <h1 id="account-suspended-heading"><%= t(".title") %></h1>
+  <%= render PanelComponent.new(class: "account-suspended__panel") do %>
+    <p class="account-suspended__lead"><%= t("errors.accounts.banned") %></p>
+    <% if @ban_reason %>
+      <p class="account-suspended__label"><%= t(".reason_label") %></p>
+      <blockquote class="account-suspended__reason"><%= @ban_reason %></blockquote>
+      <p class="account-suspended__contest"><%= t(".contest_html", contact: legal_contact) %></p>
+    <% else %>
+      <p class="account-suspended__contest"><%= t(".no_reason_html", contact: legal_contact) %></p>
+    <% end %>
+  <% end %>
+</section>

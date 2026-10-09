@@ -1,7 +1,7 @@
 <% content_for :back_button, true %>
 <% content_for :title, t(".title") %>
 <% content_for :screen_title, t(".title") %>
-<% contact = @legal.contact_email ? mail_to(@legal.contact_email, class: "legal__link") : t(".contact_fallback") %>
+<% contact = legal_contact %>
 <article class="legal" aria-labelledby="legal-heading">
   <h1 id="legal-heading" class="legal__title"><%= t(".title") %></h1>
   <p class="legal__updated"><%= t(".updated") %></p>
@@ -56,6 +56,11 @@
 
   <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { labelledby: "legal-privacy" }) do %>
     <h2 id="legal-privacy" class="legal__heading"><%= t(".privacy.title") %></h2>
+    <% if @legal.contact_email %>
+      <p class="legal__controller"><%= t(".privacy.controller_html", contact:) %></p>
+    <% else %>
+      <p class="legal__controller"><%= t(".privacy.controller") %></p>
+    <% end %>
     <p><%= t(".privacy.stored.intro") %></p>
     <ul class="legal__list">
       <li><%= t(".privacy.stored.steam") %></li>

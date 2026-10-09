@@ -90,6 +90,7 @@ class HubTest < ApplicationSystemTestCase
     ticker = rect("#live-ticker")
     assert_in_delta page_bottom, ticker[:bottom], 1, "the ticker should end the page"
     assert_operator rect(".app-version")[:bottom], :<=, ticker[:top], "the version label should clear the ticker"
+    assert_operator rect(".app-version__legal")[:bottom], :<=, ticker[:top], "the legal link should clear the ticker"
     assert_operator rect("#toasts")[:bottom], :<=, ticker[:top], "the toasts should clear the ticker"
     assert_no_sideways_scroll
     take_screenshot
@@ -110,6 +111,7 @@ class HubTest < ApplicationSystemTestCase
     assert_in_delta tab_bar[:top], ticker[:bottom], 1, "the ticker should rest on the tab bar"
     assert_in_delta page_bottom, tab_bar[:bottom], 1, "nothing should scroll under the tab bar after the ticker"
     assert_operator rect(".app-version")[:bottom], :<=, ticker[:top], "the version label should clear the ticker"
+    assert_operator rect(".app-version__legal")[:bottom], :<=, ticker[:top], "the legal link should clear the ticker"
     assert_no_sideways_scroll
     take_screenshot
   end
@@ -204,14 +206,33 @@ class HubTest < ApplicationSystemTestCase
 
     item("1").click
     within("dialog#sign-in-panel[open]") do
-      assert_text "By signing in, you accept the terms and the privacy notice."
-      click_on "terms"
+      assert_text "By signing in you accept the terms of use and acknowledge the privacy notice."
+      click_on "terms of use"
     end
 
     assert_current_path %r{/en/legal#legal-terms\z}, url: true
     assert_selector "h1#legal-heading", text: /LEGAL NOTICE AND PRIVACY/i
     assert_selector "h2#legal-terms", text: /TERMS OF USE/i
     assert_text "By signing in with Steam, you accept these terms."
+  end
+
+  test "on a phone, a visitor taps the legal link beside the version and reads the legal page" do
+    resize_to(*PHONES.fetch("390"))
+    visit home_path(locale: :fr)
+
+    find(".app-version__legal", text: "Mentions légales").click
+
+    assert_current_path "/fr/legal"
+    assert_selector "h1#legal-heading", text: /MENTIONS LÉGALES ET CONFIDENTIALITÉ/i
+  end
+
+  test "on a desktop, a player follows the legal link beside the version to the legal page" do
+    sign_in
+
+    click_on "Legal notice"
+
+    assert_current_path "/en/legal"
+    assert_selector "h1#legal-heading", text: /LEGAL NOTICE AND PRIVACY/i
   end
 
   test "the sign-in panel opens from a card page's pitch, and signing in from it lands on the hub" do

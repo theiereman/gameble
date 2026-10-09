@@ -21,8 +21,10 @@ class SessionsController < ApplicationController
     result = Steam::SignInIdentity.steam_id_from(request.env["omniauth.auth"])
     return fail_sign_in(Steam::SignInIdentity.failure_key(result.failure)) if result.failure?
 
-    result = sign_in(result.value!)
+    steam_id = result.value!
+    result = sign_in(steam_id)
     return fail_sign_in(Accounts::SignIn.failure_key(:sign_in_failed)) if result.nil?
+    return refuse_banned(steam_id) if result.failure == :banned
     return fail_sign_in(Accounts::SignIn.failure_key(result.failure)) if result.failure?
 
     reset_session
@@ -77,6 +79,11 @@ class SessionsController < ApplicationController
 
     def fail_sign_in(key)
       redirect_to return_path, alert: t(key)
+    end
+
+    def refuse_banned(steam_id)
+      @ban_reason = Accounts::CurrentBanReason.call(steam_id)
+      render :banned, status: :forbidden
     end
 
     # The callback and the failure carry no locale segment: the locale is the

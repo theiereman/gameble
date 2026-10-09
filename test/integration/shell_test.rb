@@ -71,9 +71,18 @@ class ShellTest < ActionDispatch::IntegrationTest
   test "a visitor's sign-in panel says that signing in accepts the terms and the privacy notice, with a link to each" do
     get home_path(locale: :fr)
 
-    assert_select "dialog#sign-in-panel .sign-in-panel__acceptance", "En vous connectant, vous acceptez les conditions et la confidentialité." do
-      assert_select "a[href=?]", "/fr/legal#legal-terms", "conditions"
-      assert_select "a[href=?]", "/fr/legal#legal-privacy", "confidentialité"
+    assert_select "dialog#sign-in-panel .sign-in-panel__acceptance",
+      "En vous connectant, vous acceptez les conditions d'utilisation et prenez connaissance de la politique de confidentialité." do
+      assert_select "a[href=?]", "/fr/legal#legal-terms", "conditions d'utilisation"
+      assert_select "a[href=?]", "/fr/legal#legal-privacy", "politique de confidentialité"
+    end
+
+    get home_path(locale: :en)
+
+    assert_select "dialog#sign-in-panel .sign-in-panel__acceptance",
+      "By signing in you accept the terms of use and acknowledge the privacy notice." do
+      assert_select "a[href=?]", "/en/legal#legal-terms", "terms of use"
+      assert_select "a[href=?]", "/en/legal#legal-privacy", "privacy notice"
     end
   end
 
@@ -264,5 +273,20 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select ".rarity-counter, .packs-chip", false
     assert_select ".player-chip"
     assert_select "link[rel=stylesheet][href*='/application-']"
+  end
+
+  test "the back-office keeps the legal page beside the version" do
+    sign_in(accounts_players(:administrator))
+
+    get back_office_path(locale: :fr)
+
+    assert_select "body > .app-version a.app-version__legal[href=?]", "/fr/legal", "Mentions légales"
+  end
+
+  test "the public card page keeps the legal page beside the version" do
+    get card_path(locale: :en, slug: "portal")
+
+    assert_select "body.is-public-page"
+    assert_select "body > .app-version a.app-version__legal[href=?]", "/en/legal", "Legal notice"
   end
 end

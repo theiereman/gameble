@@ -85,7 +85,7 @@ module BackOffice
         Accounts::ModerationAction.all.map { [ it.kind, it.player, it.staff, it.reason ] }
     end
 
-    test "the ban form asks for a reason, on the queue and on the players list; the lists link to the history" do
+    test "the ban form asks for a reason the player will read, on the queue and on the players list; the lists link to the history" do
       sign_in(@moderator)
 
       [ back_office_reports_path(locale: :fr), back_office_players_path(locale: :fr) ].each do |path|
@@ -94,6 +94,8 @@ module BackOffice
         assert_select "#{row(@target)} form.ban-form[action='/fr/back-office/bans'][method=post][data-turbo-confirm]" do
           assert_select "label.visually-hidden[for='ban-reason-#{@target.token}']", "Raison du bannissement de Gabe"
           assert_select "input#ban-reason-#{@target.token}[type=text][name=reason][required][maxlength='500'][autocomplete=off][placeholder='Raison du ban']"
+          assert_select "input#ban-reason-#{@target.token}[aria-describedby=?]", "ban-reason-hint-#{@target.token}"
+          assert_select "p.ban-form__hint#ban-reason-hint-#{@target.token}", "Le joueur lira cette raison s'il tente de se connecter."
           assert_select "button.button--danger[type=submit]", "BANNIR"
         end
         assert_select "a[href='/fr/back-office/history']", "L'historique"

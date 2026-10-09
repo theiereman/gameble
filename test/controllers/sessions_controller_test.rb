@@ -11,12 +11,18 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     OmniAuth.config.test_mode = true
     mock_steam(CLAIMED_ID)
     stub_steam_api
+    @legal = Rails.configuration.x.legal
   end
 
   teardown do
     OmniAuth.config.mock_auth.delete(:steam)
     OmniAuth.config.test_mode = false
     unstub_steam_api
+    Rails.configuration.x.legal = @legal
+  end
+
+  def configure_legal_contact(contact_email)
+    Rails.configuration.x.legal = ActiveSupport::OrderedOptions.new.update(contact_email:)
   end
 
   def mock_steam(uid)
@@ -305,18 +311,111 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a banned player's sign-in is refused and leaves the session as it was" do
+  def record_ban(kind, at, reason: nil)
+    Accounts::ModerationAction.create!(kind:, player: accounts_players(:banned), staff: accounts_players(:moderator), reason:, created_at: at)
+  end
+
+  def sign_in_banned(origin: "/fr")
+    mock_steam("https://steamcommunity.com/openid/id/#{accounts_players(:banned).steam_id}")
+    post "/auth/steam", params: { origin: }
+    follow_redirect!
+  end
+
+  test "a banned player's sign-in is refused on a page that shows the moderator's reason and the contact" do
+    configure_legal_contact("contact@example.test")
+    record_ban(:ban, 1.day.ago, reason: "Insults in the name")
     mock_steam("https://steamcommunity.com/openid/id/#{accounts_players(:banned).steam_id}")
     post "/auth/steam", params: { origin: "/fr" }
     session_id_before = session[:session_id]
 
     follow_redirect!
 
+    assert_response :forbidden
     assert_equal session_id_before, session[:session_id]
     assert_nil signed_in_player_id
     assert_empty registered_events
-    assert_redirected_to home_path(locale: :fr)
-    assert_equal I18n.t("errors.accounts.banned", locale: :fr), flash[:alert]
+    assert_empty flash
+    assert_select "html[lang=fr]"
+    assert_select "title", "Compte suspendu"
+    assert_select "meta[name=robots][content=noindex]"
+    assert_select "main h1", "Compte suspendu"
+    assert_select ".account-suspended__lead", "Ce compte a été suspendu. Vous ne pouvez plus vous connecter."
+    assert_select ".account-suspended__label", "Motif indiqué par le modérateur"
+    assert_select "blockquote.account-suspended__reason", "Insults in the name"
+    assert_select ".account-suspended__contest", "Pour contester cette décision, écrivez à contact@example.test."
+    assert_select ".account-suspended__contest a.legal__link[href=?]", "mailto:contact@example.test"
+    assert_select "[style]", 0
+  end
+
+  test "the banned page names neither the player's token, id nor Steam id" do
+    record_ban(:ban, 1.day.ago, reason: "Spam")
+    banned = accounts_players(:banned)
+
+    sign_in_banned
+
+    assert_response :forbidden
+    assert_no_match(/#{banned.token}|#{banned.steam_id}|\b#{banned.id}\b/, response.body)
+  end
+
+  test "a reason with markup is shown as plain text" do
+    record_ban(:ban, 1.day.ago, reason: "<b>x</b> & co")
+
+    sign_in_banned
+
+    assert_response :forbidden
+    assert_select ".account-suspended__reason", "<b>x</b> & co"
+    assert_select ".account-suspended__reason b", false
+  end
+
+  test "an old ban without a reason, or with no ban recorded, offers the contact to learn the reason" do
+    configure_legal_contact("contact@example.test")
+
+    sign_in_banned
+    assert_response :forbidden
+    assert_select ".account-suspended__reason", false
+    assert_select ".account-suspended__label", false
+    assert_select ".account-suspended__contest", "Pour connaître le motif de cette suspension ou la contester, écrivez à contact@example.test."
+
+    record_ban(:ban, 1.day.ago)
+    sign_in_banned
+    assert_select ".account-suspended__reason", false
+    assert_select ".account-suspended__contest", /\APour connaître le motif/
+  end
+
+  test "banned again, the player reads the reason of the latest ban" do
+    record_ban(:ban, 3.days.ago, reason: "Spam")
+    record_ban(:unban, 2.days.ago)
+    record_ban(:ban, 1.day.ago, reason: "Insults in the name")
+
+    sign_in_banned
+
+    assert_select ".account-suspended__reason", "Insults in the name"
+  end
+
+  test "banned from the console after an unban, the player is offered the contact only" do
+    record_ban(:ban, 3.days.ago, reason: "Spam")
+    record_ban(:unban, 2.days.ago)
+
+    sign_in_banned
+
+    assert_response :forbidden
+    assert_select ".account-suspended__reason", false
+    assert_select ".account-suspended__contest", /\APour connaître le motif/
+  end
+
+  test "without a contact, an English banned player is told to write to the publisher" do
+    configure_legal_contact(nil)
+    record_ban(:ban, 1.day.ago, reason: "Spam")
+
+    sign_in_banned(origin: "/en")
+
+    assert_response :forbidden
+    assert_select "html[lang=en]"
+    assert_select "main h1", "Account suspended"
+    assert_select ".account-suspended__lead", "This account has been suspended. You can no longer sign in."
+    assert_select ".account-suspended__label", "Reason given by the moderator"
+    assert_select ".account-suspended__contest", "To contest this decision, write to the publisher."
+    assert_select "a[href^='mailto:']", false
   end
 
   test "a signed-in player sees the sign-out button" do

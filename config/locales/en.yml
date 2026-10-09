@@ -47,11 +47,12 @@ en:
     sign_in_panel:
       title: "Sign in to play"
       close: "Close"
-      acceptance_html: "By signing in, you accept the %{terms} and the %{privacy}."
-      terms: "terms"
+      acceptance_html: "By signing in you accept the %{terms} and acknowledge the %{privacy}."
+      terms: "terms of use"
       privacy: "privacy notice"
     version:
       label: "Deployed version"
+      legal: "Legal notice"
   pages:
     home:
       kicker:
@@ -149,6 +150,8 @@ en:
         law: "They are governed by French law."
       privacy:
         title: "Privacy"
+        controller_html: "The controller of your data is Thomas Eyermann, publisher of gameble, reachable at %{contact}."
+        controller: "The controller of your data is Thomas Eyermann, publisher of gameble."
         stored:
           intro: "To run the game, gameble keeps:"
           steam: "your Steam id and your Steam profile name;"
@@ -239,6 +242,7 @@ en:
         unban_confirm: "Lift the ban on %{name}?"
         reason_label: "Reason for banning %{name}"
         reason_placeholder: "Reason for the ban"
+        reason_hint: "The player will read this reason if they try to sign in."
       create:
         banned: "%{name} is banned."
       destroy:
@@ -1097,6 +1101,11 @@ en:
   sessions:
     create:
       welcome: "Welcome to gameble. Your boosters are waiting."
+    banned:
+      title: "Account suspended"
+      reason_label: "Reason given by the moderator"
+      contest_html: "To contest this decision, write to %{contact}."
+      no_reason_html: "To learn the reason for this suspension or contest it, write to %{contact}."
     destroy:
       farewell: "You are signed out. Your collection will be waiting."
   authorization:

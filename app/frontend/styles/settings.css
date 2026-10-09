@@ -308,3 +308,41 @@
   align-self: flex-start;
   margin: 0;
 }
+
+.account-suspended {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.account-suspended > h1 {
+  margin: 0;
+}
+
+.account-suspended__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  font: var(--font-body);
+}
+
+.account-suspended__panel p {
+  margin: 0;
+}
+
+.account-suspended__label {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.account-suspended__reason {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel-sunken);
+  color: var(--color-text-bright);
+  overflow-wrap: anywhere;
+}

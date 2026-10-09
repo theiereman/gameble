@@ -54,7 +54,10 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "nav.tab-bar[aria-label=?]", "Navigation principale"
     assert_select "main h1.hub__title[tabindex='-1']", "Pont de commandement"
     assert_select "main .hub__kicker .hub__subtitle", false
-    assert_select "body > p.app-version[title=?]", "Version déployée", text: "Version déployée dev"
+    assert_select "body > div.app-version" do
+      assert_select "p.app-version__tag[title=?]", "Version déployée", text: "Version déployée dev"
+      assert_select "a.app-version__legal[href=?]", "/fr/legal", "Mentions légales"
+    end
   end
 
   test "the English hub renders in English and loads its Vite assets" do
@@ -645,6 +648,46 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_no_match(/anonymis/i, response.body)
     end
+  end
+
+  test "a signed-in player finds the legal page beside the version, in their locale" do
+    sign_in(@player)
+
+    get home_path(locale: :en)
+
+    assert_select "body > .app-version a.app-version__legal[href=?]", "/en/legal", "Legal notice"
+
+    get home_path(locale: :fr)
+
+    assert_select "body > .app-version a.app-version__legal[href=?]", "/fr/legal", "Mentions légales"
+  end
+
+  test "the privacy section opens by naming the controller of the data, with the contact when there is one" do
+    configure_legal(contact_email: "contact@example.test")
+
+    get legal_path(locale: :fr)
+
+    assert_select "#legal-privacy + p.legal__controller",
+      "Le responsable du traitement de vos données est Thomas Eyermann, éditeur de gameble, joignable à contact@example.test."
+    assert_select ".legal__controller a.legal__link[href=?]", "mailto:contact@example.test"
+
+    get legal_path(locale: :en)
+
+    assert_select "#legal-privacy + p.legal__controller",
+      "The controller of your data is Thomas Eyermann, publisher of gameble, reachable at contact@example.test."
+  end
+
+  test "without a contact, the controller line names the publisher only" do
+    configure_legal
+
+    get legal_path(locale: :fr)
+
+    assert_select "#legal-privacy + p.legal__controller", "Le responsable du traitement de vos données est Thomas Eyermann, éditeur de gameble."
+    assert_select ".legal__controller a", false
+
+    get legal_path(locale: :en)
+
+    assert_select "#legal-privacy + p.legal__controller", "The controller of your data is Thomas Eyermann, publisher of gameble."
   end
 
   test "an older browser reads the legal page, which the public card page's footer links to" do

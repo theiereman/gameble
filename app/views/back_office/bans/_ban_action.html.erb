@@ -10,9 +10,11 @@
       <%= hidden_field_tag key, value, id: nil %>
     <% end %>
     <% field_id = "ban-reason-#{player.token}" %>
+    <% hint_id = "ban-reason-hint-#{player.token}" %>
     <label class="visually-hidden" for="<%= field_id %>"><%= t("back_office.bans.actions.reason_label", name:) %></label>
     <%= text_field_tag :reason, nil, id: field_id, class: "ban-form__field", required: true, maxlength: Accounts::BanReason::LENGTH,
-          autocomplete: "off", placeholder: t("back_office.bans.actions.reason_placeholder") %>
+          autocomplete: "off", placeholder: t("back_office.bans.actions.reason_placeholder"), aria: { describedby: hint_id } %>
     <%= render ButtonComponent.new(variant: :danger, size: :small, type: :submit) do %><%= t("back_office.bans.actions.ban") %><% end %>
+    <p id="<%= hint_id %>" class="ban-form__hint"><%= t("back_office.bans.actions.reason_hint") %></p>
   <% end %>
 <% end %>

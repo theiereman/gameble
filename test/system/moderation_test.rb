@@ -56,7 +56,10 @@ class ModerationTest < ApplicationSystemTestCase
 
     using_session("reported") do
       sign_in_as_the_reported_player
+      assert_selector "h1", text: "Compte suspendu"
       assert_text I18n.t("errors.accounts.banned", locale: :fr)
+      assert_selector ".account-suspended__reason", text: "Insults in the name"
+      assert_text(/Pour contester cette décision, écrivez à .+\./)
       assert_signed_out
 
       visit brother_path(locale: :fr, token: @reported.token)

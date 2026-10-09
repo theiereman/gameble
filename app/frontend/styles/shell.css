@@ -736,12 +736,30 @@ button.tab-bar__tab {
   left: var(--space-gutter-desktop);
   bottom: var(--space-3);
   z-index: 2;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
   margin: 0;
   color: var(--color-dim);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   pointer-events: none;
+}
+
+.app-version__tag {
+  margin: 0;
   user-select: none;
+}
+
+.app-version__legal {
+  color: var(--color-dim);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  pointer-events: auto;
+}
+
+.app-version__legal:hover {
+  color: var(--color-text-bright);
 }
 
 /* ---- Toasts ---- */
