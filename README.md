@@ -59,7 +59,9 @@ To deploy from a machine instead of the workflow, tag the commit first (`git tag
 ```sh
 KAMAL_DESTINATION=staging KAMAL_VERSION=$(git rev-parse HEAD) KAMAL_PERFORMER=$USER KAMAL_COMMAND=deploy .kamal/hooks/post-deploy --dry-run
 ```
-Another destination gets the same with its own `config/discord_webhook.<destination>.key` and `deployed/<destination>` tag. `test/lib/post_deploy_hook_test.rb` runs both hooks against a throwaway repository and a local webhook.
+Another destination gets the same with its own `config/discord_webhook.<destination>.key` and `deployed/<destination>` tag.
+
+Always name the destination (`-d staging`, `-d production`). A Kamal command without one deploys containers named without the destination (`gameble-web-<version>`, `gameble-import-<version>`) that a later `bin/kamal deploy -d staging` neither replaces nor stops. They keep running their old code against the same database and take jobs from the same queues, so an import or a rescore is written by whichever version picks each page up. List what runs on the host with `bin/kamal server exec -d staging 'docker ps'`; stop and remove any `gameble-*` container whose name lacks the destination. `test/lib/post_deploy_hook_test.rb` runs both hooks against a throwaway repository and a local webhook.
 
 ## Production checks
 
@@ -153,7 +155,7 @@ Stopping the import worker gracefully (`TERM`) hands its job back, and the run g
 
 The prestige formula, the tier shares and the tome size are starting values; they are checked against the real catalog before a season is published.
 
-1. **Run the import where it will be published.** The first real import runs on the test server, after `bin/kamal deploy`; start it at `/<locale>/back-office/import-runs` and let it complete. The constants below live in the code, so a change made for that server needs a commit and another `bin/kamal deploy` before it takes effect there.
+1. **Run the import where it will be published.** The first real import runs on the test server, after `bin/kamal deploy -d staging`; start it at `/<locale>/back-office/import-runs` and let it complete. The constants below live in the code, so a change made for that server needs a commit and another `bin/kamal deploy -d staging` before it takes effect there.
 2. **Read the preview.** `/<locale>/back-office/seasons` shows, under the seasons, what publishing the draft now would produce (`Catalog::DraftPreview`): the prestige score percentiles, each rarity's size and lowest score, the ten highest and ten lowest cards, the cards and tomes per first genre, and the sets per kind. Nothing is written; the page computes it on every load, even while an import is unfinished.
 3. **Change the constant that is off:**
    - `Steam::PrestigeScore` (`packs/steam/app/models/steam/prestige_score.rb`): the formula, a function of the rating and the rating count only (`SHARE_WEIGHT` weighs the positive share against log10 of the count);

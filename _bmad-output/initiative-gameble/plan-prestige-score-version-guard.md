@@ -95,6 +95,8 @@ The guard sits in `PublishSeason`, not in the import, because the mix comes from
 
 ## Plan Change Log
 
+- 2026-10-09, after the fact: the cause stated in the intent was wrong. No deploy landed during the import. Two containers deployed on 2026-10-06 without `-d staging` (`gameble-web-d5227c7…`, `gameble-import-d5227c7…`) were still running the old formula against the staging database and took pages of the `import` queue. Every staging import since was partly written by them; a rescore was right only when the current worker took every page. Those old workers do not know `prestige_score_version`, so an update by them kept version 2 beside an old-scale score and the guard could not see the mix. The author stopped both containers; import run 4 then wrote all 12,336 cards of draft season 3 on the new scale (3.32 to 10.40) without a rescore. The README now says to always name the destination.
+
 ## Review Triage Log
 
 Pass 1 (quick lens): 0 high, 0 medium, 3 low, 0 false, 0 maybe-false.
