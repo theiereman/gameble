@@ -143,13 +143,13 @@ notes = ["Decision (2026-10-08): the image is checked by the deploy, not by CI (
 id = 14
 type = "story"
 title = "Personal data kept only as long as the privacy notice says"
-description = "Purges what the privacy notice gives a period for: handled reports one year after they were handled, server logs after 30 days, and what a deleted account leaves (invitations, reports it made or received once handled) anonymised or removed, by a recurring job."
-verify = "A report handled more than a year ago and the invitations of a deleted account are gone after the job runs; logs older than 30 days are not kept on the server; nothing younger is touched."
+description = "Purges what the privacy notice gives a period for, by a recurring job, and adds the periods to the privacy notice: an account with no sign-in for three years is deleted as if its player had deleted it; handled reports one year after they were handled; the moderation history of a player, ban reasons included, one year after the ban is lifted or the account deleted; a banned account's Steam id kept while the ban lasts, to refuse a new sign-up; server logs after 30 days; error reports for the retention of the Sentry plan; what a deleted account leaves (invitations, reports it made or received once handled) anonymised or removed."
+verify = "An account idle for three years is deleted by the job and one idle for less is not; a report handled more than a year ago, a moderation history row one year past its unban or deletion, and the invitations of a deleted account are gone after the job runs; logs older than 30 days are not kept on the server; nothing younger is touched; the privacy notice lists every period, in French and English."
 covers = ["R2"]
 after = [3, 5]
 hitl = false
 risk = "medium"
-notes = ["Decision (2026-10-08): the privacy notice states retention periods and a purge ticket lands before opening (author, 7.3 question 3)."]
+notes = ["Decision (2026-10-08): the privacy notice states retention periods and a purge ticket lands before opening (author, 7.3 question 3).", "Periods decided by the author on 2026-10-09 after the legal review: three years for idle accounts, one year for handled reports and for the moderation history after the unban or deletion, 30 days for server logs."]
 
 [[entry]]
 id = 15
@@ -264,12 +264,24 @@ risk = "medium"
 notes = ["From the legal review of the legal page (2026-10-09): the IP address is personal data, kept with no limit and undisclosed."]
 
 [[entry]]
+id = 24
+type = "story"
+title = "The publisher named, a banned player told why, the legal page linked from every page"
+description = "Three decisions of the author after the legal review (2026-10-09): the privacy notice names the data controller, Thomas Eyermann, reachable at the contact address (the publisher's postal address stays private); a banned player who tries to sign in sees the reason the moderator typed and the contact address to contest it, and the ban form tells the moderator the player will read the reason; a « Mentions légales » link sits beside the version label shown at the bottom of every page, signed in or out."
+verify = "The legal page names Thomas Eyermann as data controller with the contact address; a banned player's sign-in shows their ban reason and the contact address, and a ban made before reasons existed shows the contact address only; the ban form says the reason is shown to the player; every page, signed in and out, desktop and phone, links the legal page beside the version label; French and English carry the same text."
+covers = ["R2", "R7"]
+after = [19, 22]
+hitl = false
+risk = "low"
+notes = ["From the legal review of the legal page (2026-10-09), author's answers the same day."]
+
+[[entry]]
 id = 12
 type = "story"
 title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
 hitl = false
 risk = "low"
