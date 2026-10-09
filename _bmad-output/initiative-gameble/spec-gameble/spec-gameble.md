@@ -224,4 +224,3 @@ The author plays gameble every day for a month alongside at least 10 active play
 
 - **Card backs (CAP-20):** beyond one back per theme or hall of fame set at gold, which goal, achievement and event backs ship, and does every successful weekly goal grant one?
 - **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.
-- **Sets on real data (CAP-6):** the minimum size of franchise and studio sets, the reliability of Steam's franchise field, the hall of fame thresholds and the tier percentages are set on staging data; the UFOs stay under about 5 % of the catalog, else the theme list changes.

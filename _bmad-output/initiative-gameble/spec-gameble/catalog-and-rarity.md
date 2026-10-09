@@ -60,13 +60,13 @@ Referenced by CAP-2, CAP-3, CAP-4, CAP-6, CAP-7.
 
 Every card belongs to at least one set; a card can belong to several. A set exists only if a player recognizes it from its name. Five kinds:
 
-- **Themes:** a curated list of about thirty Steam tags kept in code with French and English names (e.g. Souls-like, Metroidvania, Roguelike, Deckbuilder, Cosy, Horror, Zombies, Pirates, Space, Cyberpunk). A game joins every listed theme among its 5 most-voted tags. Broad tags (Action, Adventure, Casual, Indie) are never themes. Tiered.
-- **Franchises:** one set per Steam franchise with at least N games in the catalog (N set on real data, 2 or 3).
-- **Studios:** one set per developer with at least N games in the catalog.
-- **Hall of fame:** sets drawn from review stats, thresholds set on real data: Les Intouchables (very high score, very many reviews), Les Pépites (very high score, few reviews), Les Mal-aimés (mixed score, very many reviews), Les Phénomènes (the most reviewed). Tiered.
+- **Themes:** a curated list of about forty themes kept in code with French and English names (e.g. Souls-like, Metroidvania, Roguelike, Deckbuilder, Cosy, Horror, Zombies, Pirates, Space, Cyberpunk, Simulation, Open world, Adult); a theme groups one or more Steam tags (Roguelike: Roguelike, Roguelite, Action Roguelike, Traditional Roguelike). A game joins every theme with one of its tags among its 5 most-voted tags. Broad tags (Action, Adventure, Casual, Indie, Singleplayer, Multiplayer, Free to Play) are never themes. Tiered.
+- **Franchises:** one set per Steam franchise with at least 3 games in the catalog. Steam's franchise field also holds publisher pages and cross-promotions, so a franchise named like a developer or publisher of the catalog is dropped, and so is one where no more than half of its games' titles share a whole word of its name. The name is shown without Steam's suffixes ("Franchise", "Series", "- Official").
+- **Studios:** one set per developer with at least 3 games in the catalog, counting each game under its first developer (porting houses come second), names normalized (legal suffixes, platform in brackets and case), and only when the studio's most-reviewed game has at least 20,000 reviews.
+- **Hall of fame:** sets drawn from the review score and count frozen at publication: Les Intouchables (at least 97 % positive and 20,000 reviews), Les Pépites (at least 98 % positive and under 1,000 reviews), Les Mal-aimés (40 to 69 % positive and at least 20,000 reviews), Les Phénomènes (at least 200,000 reviews). About 90 to 100 cards each on season 2's catalog. Tiered.
 - **The UFOs (Les OVNI):** every game with no listed theme among its 5 most-voted tags. Kept under about 5 % of the catalog by tuning the theme list, never by changing the rule.
 
-**Tiers.** Theme and hall of fame sets have bronze (25 %), silver (50 %) and gold (100 %) of their distinct cards; percentages tuned in playtests. Franchise, studio and UFO sets are complete or not.
+**Tiers.** Theme and hall of fame sets have bronze (10 %), silver (25 %) and gold (50 %) of their distinct cards; at the published odds, 100 % would need every Légendaire of the set, which packs alone never give. Percentages tuned in playtests. Franchise, studio and UFO sets are complete or not.
 
 **Rewards.** Bronze and silver: a celebration at opening and a feed line. Gold: that set's card back. Complete (franchise, studio, UFOs): a "complete" stamp on the album and a feed line. Profile titles and menu themes: CAP-22 of the spec.
 

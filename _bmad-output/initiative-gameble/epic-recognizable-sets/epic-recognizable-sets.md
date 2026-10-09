@@ -25,10 +25,10 @@ For every player: the collection shows what they are completing, with names they
 ## Requirements
 
 - R1 (CAP-6): every card of a published season belongs to at least one set; the kinds are themes, franchises, studios, hall of fame sets and the UFOs, as `catalog-and-rarity.md` Sets defines them; tomes, publisher sets and best-of-year sets are retired.
-- R2 (CAP-6): a game joins every listed theme among its 5 most-voted Steam tags; a game with none joins the UFOs; the theme list (about thirty tags, French and English names) lives in code; the UFOs hold under about 5 % of the catalog.
-- R3 (CAP-6): franchise and studio sets come from Steam's `franchises` and `developers`, kept on each card by the import, with a minimum size set on real data.
+- R2 (CAP-6): a game joins every listed theme among its 5 most-voted Steam tags; a game with none joins the UFOs; the theme list (about forty themes, each grouping one or more tags, French and English names) lives in code; the UFOs hold under about 5 % of the catalog.
+- R3 (CAP-6): franchise and studio sets come from Steam's `franchises` and `developers`, kept on each card by the import, with the minimum sizes and filters of `catalog-and-rarity.md` Sets.
 - R4 (CAP-7): a card's genre is its main theme (the listed theme with the most votes among its top 5 tags); a card in the UFOs shows no genre.
-- R5 (CAP-6; AD-10): theme and hall of fame sets have bronze, silver and gold tiers (25 %, 50 %, 100 % of their distinct cards); franchise, studio and UFO sets are complete or not; each tier or completion reached for the first time writes one row and publishes one event.
+- R5 (CAP-6; AD-10): theme and hall of fame sets have bronze, silver and gold tiers (10 %, 25 %, 50 % of their distinct cards); franchise, studio and UFO sets are complete or not; each tier or completion reached for the first time writes one row and publishes one event.
 - R6 (CAP-13): a tier reached or a set completed at opening shows a celebration after the reveal and a line in the feed and the LIVE ticker.
 - R7 (CAP-6, CAP-18): the collection opens on "EN COURS" (the player's sets by closeness to their next tier or completion, plus those just progressed in), then "À DÉCOUVRIR", then a search over every set; the hub shows "SETS EN COURS"; public and friends' profiles show the same, signed out included.
 - R8 (CAP-6, CAP-18): a set opens as an album: owned cards, empty slots naming the missing games, its tiers or its "COMPLET" stamp.

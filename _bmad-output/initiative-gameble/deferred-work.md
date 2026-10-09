@@ -427,6 +427,3 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/spike-sets-on-real-data-plan.md`
   summary: Percentage tiers make a player cross bronze, then silver, on most themes in the same few days, and "EN COURS" sorted by closeness shows near-equal bars.
   evidence: The spike's pack simulation (report section 6) puts 25 % of any theme, 48 or 2,084 cards, at 610 to 850 packs, because the share of a theme held follows the share of the catalog drawn. The agreed 10 / 25 / 50 % keeps this. Stories 5 and 6 (celebration, "EN COURS") should decide how to spread or group these crossings.
-- source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/spike-sets-on-real-data-plan.md`
-  summary: The spec and the epic's R2 and R5 still say about thirty themes, tiers of 25 / 50 / 100 % and studios of "at least N games", where the author agreed 42 themes (Simulation, Open world and Comedy among them), tiers of 10 / 25 / 50 % and a 20,000-review floor for studios.
-  evidence: The epic's Notes of 2026-10-09 record the decisions; `spec-gameble/catalog-and-rarity.md`, section Sets, and the epic's Requirements were not edited. Update them before story 3 is built so its builder does not read the old figures.
