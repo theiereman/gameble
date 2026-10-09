@@ -7,8 +7,10 @@ module Catalog
   # changes again, and no card-season is added to or removed from the season.
   # A card-season never moves to another card or season.
   #
-  # `prestige_score` is opaque here and only ordered; `rating` is the
-  # source's review score in percent.
+  # `prestige_score` is opaque here and only ordered;
+  # `prestige_score_version` names, as opaquely, the formula that gave it
+  # (nil before versions existed); `rating` is the source's review score in
+  # percent.
   class CardSeason < ApplicationRecord
     self.table_name = "catalog_card_seasons"
     # Dropped by RemoveDustTierFromCatalogCardSeasons (AD-28's contract step).
@@ -17,7 +19,7 @@ module Catalog
     self.ignored_columns = %w[dust_tier]
 
     # The columns frozen once the season is published.
-    SEASON_DATA = %w[prestige_score rating rarity number].freeze
+    SEASON_DATA = %w[prestige_score prestige_score_version rating rarity number].freeze
 
     attr_readonly :card_id, :season_id
 

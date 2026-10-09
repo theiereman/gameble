@@ -6,7 +6,7 @@ require "test_helper"
 class Catalog::SetBuilderTest < ActiveSupport::TestCase
   # Card-season ids start at 1_000 so they never equal a card id.
   def row(card_id, release_date: Date.new(2000, 1, 1), publisher: nil, genres: [], rating: 80, prestige_score: 1.0)
-    Catalog::SeasonRows::Row.new(id: 1_000 + card_id, card_id:, prestige_score:, rating: BigDecimal(rating.to_s),
+    Catalog::SeasonRows::Row.new(id: 1_000 + card_id, card_id:, prestige_score:, prestige_score_version: 2, rating: BigDecimal(rating.to_s),
       release_date:, publisher:, genres:)
   end
 

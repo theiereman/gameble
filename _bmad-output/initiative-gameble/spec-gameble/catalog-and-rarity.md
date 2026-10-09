@@ -34,6 +34,7 @@ Referenced by CAP-2, CAP-3, CAP-4, CAP-6, CAP-7.
 - The names steel, emerald, sapphire, amethyst and gold are retired. English names are not written yet.
 - **Inputs:** Steam review score and review count. Nothing else; Metacritic is not used.
 - **Formula:** combines review count and review score, popularity first: the base-10 logarithm of the review count plus 4 × the lower bound of the positive share (Wilson, 95 %). A tenfold count is worth one point and the score at most four, so the best-known games lead and, among games known alike, the better liked one ranks higher (author, 2026-10-06, after a simulation on the 12,326 games of the first real import). Tiers are cut by percentile of this score.
+- **One formula per season:** a season's cards are all scored by one formula; a draft that mixes them is not published until rescored.
 - **Player-facing rule:** a player must be able to guess a card's rarity in one sentence. "The better known and the better liked a game is, the rarer its card."
 - **Not obscurity:** a little-known game is never rare for being little known.
 

@@ -1069,6 +1069,7 @@ fr:
       stale_draft: "Ce brouillon n'est plus celui des registres, officier. Recharge la page et regarde à nouveau."
       empty_season: "La saison en brouillon ne contient encore aucune carte, officier. Lance d'abord un import."
       empty_tier: "La saison en brouillon est trop petite pour remplir les cinq raretés, officier. Importe d'abord plus de jeux."
+      mixed_score_versions: "Les cartes de la saison en brouillon ont été notées par plusieurs formules de prestige, officier : les raretés seraient taillées sur des échelles différentes. Ouvre le dernier import et appuie sur « Recalculer les cartes », puis publie une fois sa passe terminée."
       no_published_season: "Aucune saison publiée ne porte ce numéro, officier."
       already_numbered: "Les cartes de cette saison sont déjà numérotées, officier."
     game:

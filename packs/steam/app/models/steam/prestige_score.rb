@@ -19,8 +19,13 @@ module Steam
   # Légendaires. It applies from the next publication or rescore
   # (Steam::RescoreCards); a published season never changes.
   #
+  # VERSION names this formula on every card-season it scores, so a season
+  # is never published with scores of two formulas: bump it whenever the
+  # formula changes (the one this replaced was 1).
+  #
   #   Steam::PrestigeScore.call(percent_positive: 95, review_count: 1_000) # => 6.7387…
   module PrestigeScore
+    VERSION = 2
     Z = 1.96
     SHARE_WEIGHT = 4
 

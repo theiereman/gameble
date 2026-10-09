@@ -244,6 +244,54 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_nothing_written(season) { assert_equal :empty_tier, publish(season.number).failure }
   end
 
+  test "a draft scored by one formula publishes, and so does one scored before versions existed" do
+    versioned = seed_card_seasons(distinct_scores(21), score_versions: Array.new(21, 2))
+    assert publish(versioned.number).success?
+
+    legacy = seed_card_seasons(distinct_scores(21), prefix: "legacy")
+    assert_equal [ nil ], Catalog::CardSeason.where(season_id: legacy.id).distinct.pluck(:prestige_score_version)
+    assert publish(legacy.number).success?
+  end
+
+  {
+    "unversioned and versioned scores" => [ nil, 2 ],
+    "scores of two versions" => [ 1, 2 ]
+  }.each do |label, versions|
+    test "a draft mixing #{label} is mixed_score_versions and writes nothing" do
+      season = seed_card_seasons(distinct_scores(150), score_versions: Array.new(150) { |index| versions[index % 2] })
+
+      assert_nothing_written(season) { assert_equal :mixed_score_versions, publish(season.number).failure }
+      assert_predicate season.reload, :draft?
+      assert_empty Catalog::Set.where(season_id: season.id)
+    end
+  end
+
+  test "a mixed draft publishes once every card is scored again by the current formula" do
+    season = seed_card_seasons(distinct_scores(21), score_versions: Array.new(20, 2) + [ 1 ])
+    assert_equal :mixed_score_versions, publish(season.number).failure
+
+    Catalog::CardSeason.where(season_id: season.id).find_each do |card_season|
+      card = card_season.card
+      Catalog::UpsertDraftCard.new.call(
+        source_key: card.source_key, release_date: card.release_date, image_url: card.image_url, store_url: card.store_url,
+        texts: card.texts.to_h { |text| [ text.locale, { title: text.title } ] },
+        prestige_score: card_season.prestige_score, prestige_score_version: 2, rating: card_season.rating.to_f
+      ).value!
+    end
+
+    assert publish(season.number).success?
+  end
+
+  test "every failure code of the publication has a message in both locales" do
+    %i[en fr].each do |locale|
+      I18n.with_locale(locale) do
+        %i[no_draft stale_draft empty_season mixed_score_versions empty_tier].each do |code|
+          assert_not_includes Catalog::PublishSeason.failure_message(code), "Translation missing", "#{code} #{locale}"
+        end
+      end
+    end
+  end
+
   test "an upsert after the publication opens the next draft" do
     season = seed_card_seasons(distinct_scores(21))
     publish(season.number)
@@ -251,7 +299,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     card_season = Catalog::UpsertDraftCard.new.call(
       source_key: "test:seed-#{season.number}-0", release_date: Date.new(2000, 1, 1),
       image_url: "https://images.example.test/a.jpg", store_url: "https://store.example.test/a",
-      texts: { "en" => { title: "Seed" }, "fr" => { title: "Graine" } }, prestige_score: 1.0, rating: 50.0
+      texts: { "en" => { title: "Seed" }, "fr" => { title: "Graine" } }, prestige_score: 1.0, prestige_score_version: 2, rating: 50.0
     ).value!
 
     assert_equal season.number + 1, card_season.season.number

@@ -21,7 +21,9 @@ module Catalog
 
     # `verdict` is :empty_season (and every other field nil) for a draft
     # with no card-season, nil otherwise. `tier_verdict` is :empty_tier (and
-    # `tiers` nil) when a tier would hold no card.
+    # `tiers` nil) when a tier would hold no card. `score_version_verdict` is
+    # :mixed_score_versions when the scores come from two formulas
+    # (ScoreVersions), the rest still shown so the skew can be seen.
     #
     # - `percentiles`: { 10 => score, 50 => …, 90 => …, 99 => … }
     # - `tiers`: [ Tier(tier, card_count, threshold) ], legendary first; common's
@@ -30,7 +32,7 @@ module Catalog
     # - `genres`: [ Genre(genre, card_count, tome_count) ], the most cards
     #   first, then by genre; genre nil for the cards without one, last
     # - `set_counts`: { "publisher" => n, "tome" => n, "best_of_year" => n }
-    Preview = Data.define(:verdict, :card_count, :percentiles, :min, :max, :tier_verdict, :tiers,
+    Preview = Data.define(:verdict, :card_count, :percentiles, :min, :max, :score_version_verdict, :tier_verdict, :tiers,
       :top, :bottom, :genres, :set_counts) do
       def empty_season? = verdict == :empty_season
     end
@@ -58,6 +60,7 @@ module Catalog
         percentiles: PERCENTILES.index_with { |p| ranked_asc[((p * rows.size) + 99) / 100 - 1] },
         min: ranked_asc.first,
         max: ranked_asc.last,
+        score_version_verdict: ScoreVersions.mixed?(rows) ? :mixed_score_versions : nil,
         tier_verdict: tiers ? nil : :empty_tier,
         tiers:,
         top: entries(top, titles),

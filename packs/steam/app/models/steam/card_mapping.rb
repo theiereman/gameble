@@ -37,6 +37,7 @@ module Steam
         genres: GenreTags.call(app.tag_ids),
         tags: tag_keys(app.tag_ids, tag_names),
         prestige_score: PrestigeScore.call(percent_positive: app.review_percent_positive, review_count: app.review_count),
+        prestige_score_version: PrestigeScore::VERSION,
         rating: app.review_percent_positive
       )
     end

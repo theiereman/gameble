@@ -113,6 +113,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
       genres: %w[puzzle rpg],
       tags: %w[indie co_op action],
       prestige_score: Steam::PrestigeScore.call(percent_positive: 95, review_count: 1_000),
+      prestige_score_version: Steam::PrestigeScore::VERSION,
       rating: 95
     }, attributes)
 
@@ -180,6 +181,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     card_season = card.card_seasons.sole
     assert_equal draft, card_season.season
     assert_in_delta Steam::PrestigeScore.call(percent_positive: 90, review_count: 1_020), card_season.prestige_score
+    assert_equal Steam::PrestigeScore::VERSION, card_season.prestige_score_version
     assert_equal BigDecimal("90"), card_season.rating
 
     run.reload

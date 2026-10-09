@@ -11,6 +11,8 @@ module Catalog
   # The draft is locked FOR UPDATE, so publishing waits for the upserts in
   # flight (they hold it FOR SHARE) and a second publish finds no draft. The
   # caller sends the number of the draft it saw: another draft is refused.
+  # A draft whose prestige scores come from two formulas (ScoreVersions) is
+  # refused until its cards are scored again by one.
   # Every guard runs before any write. Season data is written in bulk while
   # the season is still a draft; once published, it is frozen (CardSeason).
   # The next upsert opens a new draft.
@@ -19,7 +21,7 @@ module Catalog
   #
   #   Catalog::PublishSeason.new.call(number: 2)
   #   # => Success(season) | Failure(:no_draft) | Failure(:stale_draft)
-  #   #    | Failure(:empty_season) | Failure(:empty_tier)
+  #   #    | Failure(:empty_season) | Failure(:mixed_score_versions) | Failure(:empty_tier)
   #
   # Raises ArgumentError, rolling the publication back, if a set key fails
   # Set::KEY_FORMAT; UpsertDraftCard refuses such genres, so only a writer
@@ -44,6 +46,7 @@ module Catalog
       transaction do
         season = step lock_draft(number)
         rows = step rows_of(season)
+        step require_one_score_version(rows)
         tiers = step cut(rows)
         now = Time.current
         step write_season_data(rows, tiers, now)
@@ -92,6 +95,10 @@ module Catalog
     def rows_of(season)
       rows = SeasonRows.call(season.id)
       rows.empty? ? Failure(:empty_season) : Success(rows)
+    end
+
+    def require_one_score_version(rows)
+      ScoreVersions.mixed?(rows) ? Failure(:mixed_score_versions) : Success()
     end
 
     def cut(card_seasons)

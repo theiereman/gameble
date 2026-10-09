@@ -83,6 +83,23 @@ class Steam::RescoreCardsTest < ActiveSupport::TestCase
     assert_not_equal before, draft_scores
   end
 
+  test "a draft scored partly by an earlier formula is stamped with the current version by the rescore, and then publishes" do
+    run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 0 }, counts: { "apps_listed" => 3 }, started_at: 1.hour.ago)
+    ready(run, *1..21)
+    perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
+    draft = Catalog::DraftSeason.call
+    assert_equal 21, draft.card_seasons.count
+    draft.card_seasons.joins(:card).where(catalog_cards: { source_key: "steam:10" }).update_all(prestige_score_version: Steam::PrestigeScore::VERSION - 1)
+    assert_equal :mixed_score_versions, Catalog::PublishSeason.new.call(number: draft.number).failure
+
+    rescore(run)
+    perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
+
+    assert_predicate run.reload, :completed?
+    assert_equal [ Steam::PrestigeScore::VERSION ], draft.card_seasons.distinct.pluck(:prestige_score_version)
+    assert Catalog::PublishSeason.new.call(number: draft.number).success?
+  end
+
   test "reopening clears the run's card marks and its removed count; a card the rescore now refuses leaves the draft" do
     run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 0 }, counts: { "apps_listed" => 3 }, started_at: 1.hour.ago)
     ready(run, 10, 20, 30)

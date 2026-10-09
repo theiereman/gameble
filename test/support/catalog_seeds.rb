@@ -4,9 +4,11 @@ module CatalogSeeds
   # A draft season (the next number) unless one is given, with one card and
   # card-season per score, and an `en` and `fr` title per card ("Seed <i>").
   # Per card, in the order of the scores: `release_dates` defaults to
-  # 2000-01-01, `publishers` to nil, `genres` to [] and `ratings` to 80.0.
+  # 2000-01-01, `publishers` to nil, `genres` to [], `ratings` to 80.0 and
+  # `score_versions` (the prestige score's version) to nil.
   # Returns the season.
-  def seed_card_seasons(scores, season: nil, release_dates: nil, publishers: nil, genres: nil, ratings: nil, prefix: "seed")
+  def seed_card_seasons(scores, season: nil, release_dates: nil, publishers: nil, genres: nil, ratings: nil, score_versions: nil,
+                        prefix: "seed")
     season ||= Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
     return season if scores.empty?
 
@@ -14,6 +16,7 @@ module CatalogSeeds
     publishers ||= Array.new(scores.size)
     genres ||= Array.new(scores.size) { [] }
     ratings ||= Array.new(scores.size, 80.0)
+    score_versions ||= Array.new(scores.size)
 
     cards = scores.each_index.map do |index|
       key = "#{prefix}-#{season.number}-#{index}"
@@ -25,7 +28,8 @@ module CatalogSeeds
       %w[en fr].map { |locale| { card_id:, locale:, title: "Seed #{index}" } }
     end)
     Catalog::CardSeason.insert_all!(ids.each_with_index.map do |card_id, index|
-      { card_id:, season_id: season.id, prestige_score: scores.fetch(index), rating: ratings.fetch(index) }
+      { card_id:, season_id: season.id, prestige_score: scores.fetch(index), prestige_score_version: score_versions.fetch(index),
+        rating: ratings.fetch(index) }
     end)
     season
   end
