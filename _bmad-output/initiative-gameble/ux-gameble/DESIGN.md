@@ -816,7 +816,7 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Échanges.
 Reference: [mockups/key-screens.html](mockups/key-screens.html), Amis.
 
 - **Invite panel:** "INVITER UN AMI", "PAR LIEN" with the invite link in a read-only field and "COPIER" (lime "COPIÉ ✓" for a moment), "VOTRE CODE AMI" large in VT323 ("7K2Q-F3NX"), "AJOUTER AVEC UN CODE" with a field, "AJOUTER" and a message line below (orange for errors, lime for success).
-- **Invitation row:** received: avatar, "Sam vous invite", "ACCEPTER" (primary) and "IGNORER"; sent: a pixel hourglass, "Envoyée à 8F2D-K9XM", the chip "EN ATTENTE".
+- **Invitation row:** received: avatar, "Sam vous invite", "ACCEPTER" (primary) and "IGNORER"; sent: a pixel hourglass, "Envoyée à Sam", the chip "EN ATTENTE".
 - **Friend row:** a 48px avatar, the name, a presence dot and text (lime "En ligne", blue with the activity, for example "Ouvre un booster", muted "Il y a 3 h"), the number of distinct cards owned, and "PROPOSER UN ÉCHANGE". A private friend's row shows the name, the muted "Profil privé" in place of the presence and no card count; when either profile is private, the muted "Trades closed" line stands where "PROPOSER UN ÉCHANGE" was.
 - **Friend profile:** a dialog with a 64px avatar, name, presence, card count, "VITRINE" with three small cards, "PROPOSER UN ÉCHANGE" (primary) and the orange link "SIGNALER". A private friend's dialog shows the avatar, the name and the "not available" line only.
 
