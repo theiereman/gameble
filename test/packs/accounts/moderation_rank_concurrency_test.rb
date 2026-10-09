@@ -2,10 +2,11 @@ require "test_helper"
 require_relative "../../support/lock_races"
 
 # The rank rule and the reports under the player's lock: a promotion that
-# commits while a ban or a dismissal waits makes it refuse, and a dismissal
-# that waits on a ban finds the reports handled. Each thread has its own
-# connection, so the test commits for real; it uses players of its own and
-# removes them afterwards.
+# commits while a ban or a dismissal waits makes it refuse, as does a
+# demotion of the member of staff while a ban waits on their row, and a
+# dismissal that waits on a ban finds the reports handled. Each thread has
+# its own connection, so the test commits for real; it uses players of its
+# own and removes them afterwards.
 class Accounts::ModerationRankConcurrencyTest < ActiveSupport::TestCase
   include LockRaces
 
@@ -19,7 +20,7 @@ class Accounts::ModerationRankConcurrencyTest < ActiveSupport::TestCase
   end
 
   teardown do
-    ids = [ @target.id, @reporter.id ]
+    ids = [ @target.id, @reporter.id, @staff&.id ].compact
     Accounts::Report.where(reported_id: ids).or(Accounts::Report.where(reporter_id: ids)).delete_all
     connection = ActiveRecord::Base.connection
     streams = ids.flat_map { |id| [ Game::Operation.stream_name(id), "Accounts::Player$#{id}" ] }
@@ -43,6 +44,19 @@ class Accounts::ModerationRankConcurrencyTest < ActiveSupport::TestCase
     _, banning = first_holding_the_lock(promote, -> { Accounts::BanPlayer.new.call(staff: @moderator, player: stale, reason: "Rude name") })
 
     assert_equal Dry::Monads::Failure(:outranked), banning
+    assert_not @target.reload.banned?
+    assert_nil @report.reload.handled_at
+    assert_empty events(Accounts::PlayerBanned)
+  end
+
+  test "a demotion of the member of staff that commits while a ban waits on their row refuses the ban" do
+    @staff = Accounts::Player.create!(steam_id: "76561197960390303", role: :moderator)
+    stale_staff = Accounts::Player.find(@staff.id)
+    demote = -> { Accounts::SetRole.new.call(steam_id: @staff.steam_id, role: "player").value! }
+
+    _, banning = first_holding_the_lock(demote, -> { Accounts::BanPlayer.new.call(staff: stale_staff, player: stale_target, reason: "Rude name") })
+
+    assert_equal Dry::Monads::Failure(:staff_required), banning
     assert_not @target.reload.banned?
     assert_nil @report.reload.handled_at
     assert_empty events(Accounts::PlayerBanned)

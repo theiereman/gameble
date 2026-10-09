@@ -5,11 +5,12 @@ module Accounts
   # them back. The reason is free text, so no event carries it.
   #
   # The row is locked FOR NO KEY UPDATE before publishing, as
-  # Accounts::DeletePlayer does, and the refusal is read again from the
-  # locked row and a fresh read of the member of staff, so a promotion, a
-  # demotion or a ban committed meanwhile counts. `banned_at` is
-  # written last: that write rotates the unique stream key, so it takes FOR
-  # UPDATE.
+  # Accounts::DeletePlayer does, then the member of staff's row is read FOR
+  # SHARE: that read waits for a change of their role or ban still
+  # uncommitted, and no such change commits before the ban does. The refusal
+  # is read again from both rows, so a promotion, a demotion or a ban
+  # committed meanwhile counts. `banned_at` is written last: that write
+  # rotates the unique stream key, so it takes FOR UPDATE.
   #
   #   Accounts::BanPlayer.new.call(staff:, player:, reason: "Insults in the name")
   #   # => Success(player) | Failure(:staff_required | :player_not_found |
@@ -31,7 +32,7 @@ module Accounts
 
       transaction do
         player.lock!("FOR NO KEY UPDATE")
-        staff = Player.find_by(id: staff.id)
+        staff = Player.lock("FOR SHARE").find_by(id: staff.id)
         step permitted(staff, player)
         step publish(PlayerBanned.new(data: { player_id: player.id, staff_id: staff.id }), stream_name: "Accounts::Player$#{player.id}")
         now = Time.current

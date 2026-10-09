@@ -26,6 +26,15 @@ class Accounts::BanPlayerTest < ActiveSupport::TestCase
     Game::Friendship.create!(low_player_id: low, high_player_id: high)
   end
 
+  def with_failing_ban_handler
+    handler = Game::Handlers::PlayerBanned
+    original = handler.method(:call)
+    handler.define_singleton_method(:call) { |_event| raise "the handler failed" }
+    yield
+  ensure
+    handler.define_singleton_method(:call, original)
+  end
+
   def assert_unchanged(player, code, staff: @moderator, reason: "Insults in the name")
     banned_at = player.reload.banned_at
     assert_no_difference [ -> { events(Accounts::PlayerBanned).size }, -> { Accounts::ModerationAction.count } ] do
@@ -68,6 +77,19 @@ class Accounts::BanPlayerTest < ActiveSupport::TestCase
     assert_equal 0, Game::Holding.find_by(player_id: friend.id, card_season_id: @portal).reserved
     assert_not Game::FriendshipBetween.call(@target, friend)
     assert Game::FriendshipBetween.call(@moderator, friend)
+  end
+
+  test "a handler that fails rolls the ban back, event included" do
+    open = report(@target)
+
+    with_failing_ban_handler do
+      assert_raises(RuntimeError) { ban }
+    end
+
+    assert_not @target.reload.banned?
+    assert_empty events(Accounts::PlayerBanned)
+    assert_empty history
+    assert_nil open.reload.handled_at
   end
 
   test "an administrator bans a moderator" do

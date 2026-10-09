@@ -29,8 +29,8 @@ module Game
       require_player(player)
     end
 
-    def current_terms_seen(_trade, _revision)
-      Success()
+    def current_terms_seen(trade, revision)
+      revision ? current_terms(trade, revision) : Success()
     end
 
     def closable(_trade, _now)

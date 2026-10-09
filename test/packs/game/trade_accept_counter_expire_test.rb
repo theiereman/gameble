@@ -275,6 +275,19 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
     assert_empty events(Game::TradeDeclined, @alice)
   end
 
+  test "a cancel given terms countered since they were seen is refused and nothing moves" do
+    trade = propose
+    seen = revision_of(trade)
+    travel(1.minute) { counter(trade).value! }
+    travel(2.minutes) { counter(trade, @alice, offer: { @one => 1 }, request: { @three => 1 }).value! }
+    before = snapshot
+
+    assert_equal Dry::Monads::Failure(:trade_changed), Game::CancelTrade.new.call(player: @alice, trade_id: trade.id, revision: seen)
+    assert_equal before, snapshot
+    assert trade.reload.open?
+    assert_empty events(Game::TradeCancelled, @alice)
+  end
+
   test "an accept or a decline that names no version, or an unreadable one, is refused" do
     trade = propose
 
