@@ -3,7 +3,7 @@ title: "Friends' presence"
 type: 'feature'
 ticket: '3'
 created: '2026-10-07'
-status: 'built'
+status: done
 baseline_revision: '2c2731fe2777c67e1a33931d1666fbe14d8db58a'
 route: 'full'
 route_source: 'auto'

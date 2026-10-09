@@ -133,3 +133,20 @@ covers = []
 after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 13
+type = "story"
+title = "Fixes from the epic retrospective"
+description = "Fixes the epic 5 retrospective's fix-now findings. Accepting or declining a trade checks the terms the player saw, and a trade countered since is refused with its own message instead of swapping cards nobody looked at. A trade past its expiry but not yet swept no longer blocks a new proposal between the same friends, and the expiry job reports a trade it fails to expire. Accepting an invitation when the two players are already friends closes the other pending invitation and announces nothing twice. An ignored invitation stays pending in the sender's view, and sending it again is refused as already sent. An empty trade side reads correctly in French. The epic's own lines carry no planning ids."
+verify = "From a stale tab, accepting a trade the friend has countered since is refused and nothing moves; a proposal sent just after the expiry, before the job runs, succeeds; two crossing invitations leave one friendship, no pending invitation and one NOUVEL AMI; after an ignore the sender still sees the invitation pending and cannot send it again; an invitation from a banned sender cannot be accepted; an empty side shows the French zero form; a search for planning ids finds none in the epic's code and tests."
+covers = ["R1", "R2", "R4"]
+after = [12]
+hitl = false
+risk = "high"
+references = ["epic-friends-and-trades/epic-friends-and-trades-retrospective.md, Action items 1-5 and 22"]
+notes = [
+  "Decision (2026-10-09): the sender of an ignored invitation keeps seeing it pending and cannot send it again; if the ignoring player invites the sender later, a new invitation is created as usual (author, epic 5 retrospective).",
+  "Decision (2026-10-09): built with a thorough review, in a local session with subagents; the trade operations are concurrency-sensitive (retrospective, lessons L1 and L2).",
+  "Not here: the ban (epic 7, moderation story), the profile privacy rule (bmad-correct-course), the friend row's trade button, and the structure findings deferred to epic 12.",
+]

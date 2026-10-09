@@ -2,6 +2,7 @@
 tracker_id: ""
 key: ""
 type: epic
+status: in-progress
 title: "Friends and trades"
 parent: initiative-gameble
 covers: [CAP-10, CAP-11, CAP-21]
