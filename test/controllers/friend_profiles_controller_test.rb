@@ -83,7 +83,7 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     get friend_profile_path(locale: :en, token: @friend.token)
     assert_response :success
     assert_select ".friend-profile__name", "Léa"
-    assert_select ".friend-profile__actions a.friends__profile-link[href='#{brother_path(locale: :en, token: @friend.token)}'][aria-label=\"See the profile of Léa\"]", "See the profile"
+    assert_select ".friend-profile__actions a.friends__profile-link[href='#{brother_path(locale: :en, token: @friend.token)}'][aria-label=\"See Léa's collection\"]", "See the collection"
 
     @friend.update!(visibility: "private")
     get friend_profile_path(locale: :en, token: @friend.token)

@@ -729,8 +729,8 @@ fr:
         other: "%{count} nouvelles entrées dans le fil."
   friends:
     public_profile:
-      label: "Voir le profil"
-      named: "Voir le profil de %{name}"
+      label: "Voir la collection"
+      named: "Voir la collection de %{name}"
     show:
       title: "Amis"
       more: "Plus"
@@ -753,6 +753,8 @@ fr:
       pending: "En attente"
       accept: "Accepter"
       ignore: "Ignorer"
+      see_profile: "Voir le profil"
+      see_profile_of: "Voir le profil de %{name}"
       propose_trade: "Proposer un échange"
       propose_trade_to: "Proposer un échange à %{name}"
       presence:

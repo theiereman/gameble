@@ -55,7 +55,7 @@ class FriendsTest < ApplicationSystemTestCase
     assert_equal 1, Accounts::Report.where(reporter_id: @player.id, reported_id: @friend.id).count
   end
 
-  test "a player proposes a trade from a friend's row, and reaches the public profile from the friend profile" do
+  test "a player proposes a trade from a friend's row, and reaches the friend's collection from the friend profile" do
     sign_in
 
     within(".friends__friend", text: "Lea") do
@@ -68,7 +68,7 @@ class FriendsTest < ApplicationSystemTestCase
     visit friends_path(locale: :en)
     within(".friends__friend", text: "Lea") { click_on "See the profile" }
     within("dialog#friend-#{@friend.token}[open]") do
-      assert_selector "a.friends__profile-link[aria-label=\"See the profile of Lea\"]", text: /see the profile/i
+      assert_selector "a.friends__profile-link[aria-label=\"See Lea's collection\"]", text: /see the collection/i
       find("a.friends__profile-link").click
     end
     assert_current_path brother_path(locale: :en, token: @friend.token)

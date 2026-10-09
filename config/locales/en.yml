@@ -711,8 +711,8 @@ en:
         other: "%{count} new entries in the feed."
   friends:
     public_profile:
-      label: "See the profile"
-      named: "See the profile of %{name}"
+      label: "See the collection"
+      named: "See %{name}'s collection"
     show:
       title: "Friends"
       more: "More"
@@ -735,6 +735,8 @@ en:
       pending: "Pending"
       accept: "Accept"
       ignore: "Ignore"
+      see_profile: "See the profile"
+      see_profile_of: "See the profile of %{name}"
       propose_trade: "Propose a trade"
       propose_trade_to: "Propose a trade to %{name}"
       presence:

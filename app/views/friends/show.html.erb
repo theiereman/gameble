@@ -69,7 +69,7 @@
           <div class="friends__actions">
             <%= render "friends/presence", presence: friend %>
             <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: friend_dialog_id(friend.player.token),
-                  aria_label: t("friends.public_profile.named", name:)) do %><%= t("friends.public_profile.label") %><% end %>
+                  aria_label: t(".see_profile_of", name:)) do %><%= t(".see_profile") %><% end %>
             <% if (refusal = trades_refusal(friend.player)) %>
               <%= trades_closed_line(refusal, friend.player) %>
             <% else %>
