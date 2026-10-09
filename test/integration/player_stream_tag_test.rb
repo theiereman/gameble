@@ -41,7 +41,7 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
     get home_path(locale: :en)
 
     assert_select "turbo-cable-stream-source[channel=PlayerStreamChannel]", 0
-    assert_equal %w[live:en goal:en], public_stream_names
+    assert_equal %w[goal:en live:en], public_stream_names
 
     get more_path(locale: :en)
     assert_select "turbo-cable-stream-source", 0

@@ -13,8 +13,8 @@
     shows once per week's reward.
     Never served from Turbo's cache; the packs chip's countdown refreshes it
     by morphing, keeping the scroll. The LIVE ticker fills the layout's
-    ticker slot, and the public goal stream replaces the goal panel as the
-    periodic sum moves it. %>
+    ticker slot, a band along the bottom of the hub, and the public goal
+    stream replaces the goal panel as the periodic sum moves it. %>
 <% turbo_exempts_page_from_cache %>
 <% turbo_refreshes_with method: :morph, scroll: :preserve %>
 <% content_for :ticker do %>

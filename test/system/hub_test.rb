@@ -61,6 +61,59 @@ class HubTest < ApplicationSystemTestCase
     take_screenshot
   end
 
+  def rect(selector)
+    page.evaluate_script("(() => { const r = document.querySelector(#{selector.to_json}).getBoundingClientRect(); " \
+      "return { top: r.top, bottom: r.bottom, left: r.left, width: r.width } })()").transform_keys(&:to_sym)
+  end
+
+  def scroll_to_end
+    page.execute_script("window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' })")
+  end
+
+  def page_bottom = page.evaluate_script("document.documentElement.scrollHeight - window.scrollY")
+
+  test "on a desktop, the LIVE ticker is a full-width band along the bottom of the hub, under its columns" do
+    create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
+    sign_in
+
+    assert_selector "#live-ticker .ticker__inner"
+    assert_selector ".hub-sets .set-row"
+    ticker = rect("#live-ticker")
+    assert_operator rect(".top-bar")[:bottom], :<=, rect(".hub")[:top]
+    %w[.hub__kicker .hub-menu .hub-showcase #community-goal .hub-sets].each do |column|
+      assert_operator rect(column)[:bottom], :<=, ticker[:top], "#{column} should sit above the ticker"
+    end
+    assert_equal 0, ticker[:left]
+    assert_in_delta page.evaluate_script("document.documentElement.clientWidth"), ticker[:width], 1
+
+    scroll_to_end
+    ticker = rect("#live-ticker")
+    assert_in_delta page_bottom, ticker[:bottom], 1, "the ticker should end the page"
+    assert_operator rect(".app-version")[:bottom], :<=, ticker[:top], "the version label should clear the ticker"
+    assert_operator rect("#toasts")[:bottom], :<=, ticker[:top], "the toasts should clear the ticker"
+    assert_no_sideways_scroll
+    take_screenshot
+  end
+
+  test "on a phone, the LIVE ticker is the last block of the hub, above the tab bar" do
+    create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
+    resize_to(*PHONES.fetch("390"))
+    sign_in
+
+    assert_selector ".hub-sets .set-row"
+    assert_selector "#live-ticker .ticker__inner"
+    assert_operator rect(".hub-sets")[:bottom], :<=, rect("#live-ticker")[:top]
+
+    scroll_to_end
+    ticker = rect("#live-ticker")
+    tab_bar = rect(".tab-bar")
+    assert_in_delta tab_bar[:top], ticker[:bottom], 1, "the ticker should rest on the tab bar"
+    assert_in_delta page_bottom, tab_bar[:bottom], 1, "nothing should scroll under the tab bar after the ticker"
+    assert_operator rect(".app-version")[:bottom], :<=, ticker[:top], "the version label should clear the ticker"
+    assert_no_sideways_scroll
+    take_screenshot
+  end
+
   test "the showcase's card, still held, is reposted from under it with a toast" do
     create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
     Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)

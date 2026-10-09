@@ -534,7 +534,17 @@ a.packs-chip:focus-visible {
   flex: none;
   margin-top: var(--space-unit);
   background: var(--color-steam-bar);
-  box-shadow: var(--top-bar-rule);
+  box-shadow: var(--ticker-rule);
+}
+
+body:has(> .ticker) .app-version {
+  bottom: calc(var(--space-ticker-height) + var(--space-3));
+}
+
+@media (min-width: 720px) {
+  body:has(> .ticker) .toasts {
+    bottom: calc(var(--space-ticker-height) + var(--space-7));
+  }
 }
 
 .ticker__inner {
@@ -1228,6 +1238,14 @@ html[data-sub-view-step] .main {
     gap: var(--space-3);
   }
 
+  .main:has(+ .ticker) {
+    padding-bottom: var(--space-7);
+  }
+
+  body:has(.tab-bar) > .ticker {
+    margin-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
+  }
+
   .ticker__inner {
     max-width: var(--space-phone-column-max);
     height: var(--space-ticker-height-phone);
@@ -1327,6 +1345,10 @@ html[data-sub-view-step] .main {
 
   body:has(.tab-bar) .app-version {
     bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-2));
+  }
+
+  body:has(.tab-bar):has(> .ticker) .app-version {
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-ticker-height-phone) + var(--space-2));
   }
 
   .toast {

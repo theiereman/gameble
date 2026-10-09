@@ -188,8 +188,26 @@ class ShellTest < ActionDispatch::IntegrationTest
       assert_select ".atmosphere__scanlines"
       assert_select ".atmosphere__vignette"
     end
-    assert_select "body > header.top-bar + #live-ticker.ticker + main#main.main"
+    assert_select "body > header.top-bar + main#main.main + #live-ticker.ticker"
     assert_select "body:not(.is-back-office)"
+  end
+
+  test "the LIVE ticker runs along the bottom of the hub and of no other screen" do
+    get home_path(locale: :en)
+    assert_select "body > main#main + #live-ticker.ticker", 1
+
+    get feed_path(locale: :en)
+    assert_select ".ticker", 0
+
+    sign_in(accounts_players(:player))
+    get home_path(locale: :en)
+    assert_select "body > main#main + #live-ticker.ticker", 1
+    [ library_path(locale: :en), feed_path(locale: :en), trades_path(locale: :en), friends_path(locale: :en),
+      settings_path(locale: :en), more_path(locale: :en) ].each do |path|
+      get path
+      assert_response :success
+      assert_select ".ticker", 0, "#{path} should carry no ticker"
+    end
   end
 
   test "the flash shows as toasts in a polite live region, with the template for later ones" do

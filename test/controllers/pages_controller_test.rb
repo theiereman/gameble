@@ -50,7 +50,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "html[lang=fr]"
     assert_select "title", "gameble"
-    assert_select "body > header.top-bar + .ticker + main#main"
+    assert_select "body > header.top-bar + main#main + .ticker"
     assert_select "nav.tab-bar[aria-label=?]", "Navigation principale"
     assert_select "main h1.hub__title[tabindex='-1']", "Pont de commandement"
     assert_select "main .hub__kicker .hub__subtitle", false
@@ -411,7 +411,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_select "body > header.top-bar + #live-ticker.ticker[aria-hidden=true][data-turbo-permanent][data-controller=ticker]" do
+    assert_select "body > main#main + #live-ticker.ticker[aria-hidden=true][data-turbo-permanent][data-controller=ticker]" do
       assert_select ".live-marker .live-marker__text", "Live"
       assert_select ".ticker__run .ticker__item", 7
       assert_select ".ticker__item .ticker__separator"
@@ -423,12 +423,12 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select "a, button, [tabindex]", 0
     end
     assert_select "[style]", 0
-    assert_equal %w[live:en goal:en], stream_names
+    assert_equal %w[goal:en live:en], stream_names
   end
 
   test "the hub listens to the French streams in French, for a visitor and a player" do
     get home_path(locale: :fr)
-    assert_equal %w[live:fr goal:fr], stream_names
+    assert_equal %w[goal:fr live:fr], stream_names
     assert_select "#live-ticker .live-marker__text", "Live"
 
     sign_in(@player, origin: "/fr")

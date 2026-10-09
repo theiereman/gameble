@@ -194,6 +194,7 @@
   --focus-ring-gap: 0 0 0 3px #06090d;
   --card-face-bevel: inset 3px 3px 0 0 rgba(255, 255, 255, 0.35), inset -3px -3px 0 0 rgba(0, 0, 0, 0.35);
   --top-bar-rule: 0 2px 0 0 #2a475e;
+  --ticker-rule: 0 -2px 0 0 #2a475e;
   --panel-border: inset 0 0 0 2px #2a475e;
   --panel-soft-border: inset 0 0 0 2px #1f3346;
   --control-border: inset 0 0 0 2px #2a6f9a;
