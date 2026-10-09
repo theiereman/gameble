@@ -61,8 +61,13 @@ For every player: the collection shows what they are completing, with names they
 
 - Decision (2026-10-08, author): approved through change-recognizable-sets; the term stays "set" in code, spec and UI.
 - Decision (2026-10-08): the spike opens the epic, since the minimum sizes, hall of fame thresholds and theme list decide the builder; story 3 is the tracer: the new kinds appear in today's collection screens on staging.
-- Unknown: whether Steam's raw item stored in `steam_apps.details` carries developers and franchises; the spike confirms, story 2 waits on it.
+- Settled (2026-10-09, spike): Steam's raw item in `steam_apps.details` carries developers (99.9 % of cards) and franchises (21.8 %) under `basic_info`, with HTML entities to unescape; story 2 reads them from there.
 - Unknown: the screens of "EN COURS", the album and the celebration banner are not drawn yet; `bmad-ux` draws them before stories 5, 7 and 8.
 - Waits on Steam catalog because: the import, the draft season and the publication.
 - Waits on Space terminal: screens because: the collection, its filter zone and search, the hub panel.
 - Waits on The Brotherhood because: set completion (6.7), the feed and its visibility (6.1, 6.2), the LIVE ticker (6.4).
+- Decision (2026-10-09, author, agreed from the spike report `spike-sets-on-real-data-report.md`): franchises need at least 3 games and are dropped when named like a developer or publisher of the catalog or when no more than half of their games' titles share a whole word of their name, with the fixes listed in the report's section 2 (about 188 sets).
+- Decision (2026-10-09, author, agreed): studios are the first developer only, names normalized, with at least 3 games and a most-reviewed game of at least 20,000 reviews (about 254 sets).
+- Decision (2026-10-09, author, agreed): the theme list is the 42 themes of `spike-sets-on-real-data-probes/probe-3.rb`, an Adult theme included; the UFOs hold 4.35 % of season 2's cards.
+- Decision (2026-10-09, author, agreed): hall of fame thresholds are Les Intouchables ≥ 97 % and ≥ 20,000 reviews, Les Pépites ≥ 98 % and < 1,000 reviews, Les Mal-aimés 40–69 % and ≥ 20,000 reviews, Les Phénomènes ≥ 200,000 reviews (about 90 to 100 cards each).
+- Decision (2026-10-09, author, agreed): tiers are bronze 10 %, silver 25 %, gold 50 % of a theme's or hall of fame set's distinct cards, replacing 25 / 50 / 100 %: at the published odds gold at 100 % needs every Légendaire of the set, which packs alone never give.
