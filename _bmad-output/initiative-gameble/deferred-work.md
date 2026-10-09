@@ -427,3 +427,6 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/spike-sets-on-real-data-plan.md`
   summary: Percentage tiers make a player cross bronze, then silver, on most themes in the same few days, and "EN COURS" sorted by closeness shows near-equal bars.
   evidence: The spike's pack simulation (report section 6) puts 25 % of any theme, 48 or 2,084 cards, at 610 to 850 packs, because the share of a theme held follows the share of the catalog drawn. The agreed 10 / 25 / 50 % keeps this. Stories 5 and 6 (celebration, "EN COURS") should decide how to spread or group these crossings.
+- source_plan: none
+  summary: Opening an invite link sends the invitation directly (the link page auto-submits its POST, the button stays as the no-JS fallback, a signed-out visitor's invitation goes out right after Steam sign-in) and lands on the Friends screen.
+  evidence: Split from the "cancel a sent invitation" build on 2026-10-09 at the author's choice; cancel ships first so an invitation sent by a link can be withdrawn.
