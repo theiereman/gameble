@@ -137,12 +137,26 @@ references = ["epic-brotherhood/story-feed-tracer-a-public-feed-of-notable-pulls
 notes = ["Found by the author's acceptance check of 6.1 on 2026-10-08, which went to done.", "Open question: with the AMIS tab to come, whether the TOUS tab row waits for it or the type filter's « all » is renamed; settle with the Friends tab story."]
 
 [[entry]]
+id = 14
+type = "bug"
+title = "The LIVE ticker sits under the top bar instead of along the bottom of the hub"
+description = "Reproduction: open the hub (Pont de commandement) on a desktop. The LIVE ticker is a band right under the top bar, filling the layout's ticker slot. Expected: a band along the bottom of the hub, under its three columns, as the design places it; on the phone it stays the last block of the hub, after the set progress rows. Cause: the hub fills a layout slot placed under the top bar, while only the hub shows a ticker."
+verify = "A system test at desktop width finds the ticker below the hub's columns and not between the top bar and them; at phone width it is the last block of the hub; live arrivals, hover pause and Animations réduites behave as before; no other screen gains or loses a ticker."
+covers = ["R5"]
+after = [4]
+hitl = false
+risk = "low"
+severity = "P3"
+references = ["epic-brotherhood/story-live-broadcasts-and-the-live-ticker-plan.md"]
+notes = ["Found by the author's acceptance review of 6.4 on 2026-10-09, which went to done: the ticker goes along the bottom of the hub."]
+
+[[entry]]
 id = 12
 type = "story"
 title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13]
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14]
 hitl = false
 risk = "low"

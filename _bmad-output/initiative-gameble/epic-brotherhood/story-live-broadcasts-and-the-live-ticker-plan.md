@@ -3,7 +3,7 @@ title: 'Live broadcasts and the LIVE ticker'
 type: 'feature'
 ticket: '4'
 created: '2026-10-08'
-status: 'built'
+status: done
 baseline_revision: '3da25457dc7f6391b95fb8f1c9100eff137b4b6a'
 route: 'full'
 route_source: 'auto'
