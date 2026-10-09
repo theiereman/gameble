@@ -42,5 +42,6 @@ A free web trading card game where every card is a Steam game. Rails 8 with doma
 
 - In system tests, assert timing-dependent state with retrying Capybara matchers, never a one-shot read, and restore anything a test changes globally (window size); four flaky-test fixes came from this.
 - French plural keys need a `zero` form.
+- Never name a model in a test class body (a constant such as `TABLES = [ Game::Pack ]`): it loads `ApplicationRecord` before the parallel workers fork, a worker's GET then writes unprevented, and `ReadOnlyRequestsTest` fails only in the full parallel run. Name models inside methods.
 
 <!-- /bmad:context -->
