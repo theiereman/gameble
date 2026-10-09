@@ -91,8 +91,8 @@ The single source for every message the interface shows. Other sections name the
 | Trade toasts | "PROPOSITION ENVOYÉE" · "Léa a 7 jours pour répondre. Vos cartes sont réservées d'ici là." · "ÉCHANGE REFUSÉ · Votre réponse a été envoyée à Léa." · "PROPOSITION ANNULÉE · Vos cartes ne sont plus réservées." · "ÉCHANGE CONCLU · Dead Cells ×2 rejoint votre collection." |
 | Trade refusals (inline) | "4 CARTES AU PLUS · Retirez une carte avant d'en placer une autre." · "UN ÉCHANGE À LA FOIS · Un échange est déjà ouvert avec Léa." · "EXEMPLAIRES INSUFFISANTS" · "Vous n'avez plus assez d'exemplaires de Celeste." |
 | Card picker | "n cartes · n exemplaires (4 cartes au plus)" · "n disponibles" · "Aucune carte disponible." |
-| Friends | "PAR LIEN" · "VOTRE CODE AMI" · "AJOUTER AVEC UN CODE" · "Sam vous invite" · "Envoyée à Sam" · "NOUVEL AMI · Sam fait maintenant partie de vos amis." · "Aucune invitation en cours." |
-| Invite code messages | "Format attendu : ABCD-1234." · "C'est votre propre code." · "Invitation déjà envoyée." · "Invitation envoyée à Sam." |
+| Friends | "PAR LIEN" · "VOTRE CODE AMI" · "AJOUTER AVEC UN CODE" · "Sam vous invite" · "Envoyée à Sam" · "ANNULER" · "NOUVEL AMI · Sam fait maintenant partie de vos amis." · "Aucune invitation en cours." |
+| Invite code messages | "Format attendu : ABCD-1234." · "C'est votre propre code." · "Invitation déjà envoyée." · "Invitation envoyée à Sam." · "Invitation annulée." |
 | Presence | "En ligne" · "Ouvre un booster" · "Il y a 3 h" · "Profil privé" |
 | Trades closed | "Votre profil est privé : les échanges sont fermés." (link "RÉGLAGES") · "Le profil de Léa est privé : échanges fermés." |
 | Going private | "Passer en privé annule vos 2 échanges en cours." · "PASSER EN PRIVÉ" · "ANNULER" |
