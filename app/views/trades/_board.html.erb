@@ -60,6 +60,8 @@
       <%= render ButtonComponent.new(variant: :secondary, href: cancel_trade_path(token: trade.token), method: :post) do %><%= t("trades.actions.cancel") %><% end %>
     <% elsif trade.state == :closed && local_assigns[:trade_again] %>
       <%= render ButtonComponent.new(href: new_trade_path(friend: trade.friend.token)) do %><%= t("trades.actions.again", name: friend_name(trade.friend)) %><% end %>
+    <% elsif trade.state == :closed && local_assigns[:trades_closed] %>
+      <%= trades_closed_line(local_assigns[:trades_closed], trade.friend) %>
     <% end %>
   </div>
   <% if yours %>

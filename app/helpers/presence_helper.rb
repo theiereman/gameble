@@ -3,6 +3,7 @@ module PresenceHelper
     case row.state
     when :active then t("friends.show.presence.activities.#{row.activity}", default: t("friends.show.presence.online"))
     when :online then t("friends.show.presence.online")
+    when :private then t("friends.show.presence.private")
     else row.seen_at ? presence_ago(now - row.seen_at) : t("friends.show.presence.offline")
     end
   end

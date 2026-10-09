@@ -86,6 +86,25 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "a private friend reads Profil privé and is left out of menu 04's count" do
+    ada = accounts_players(:moderator)
+    ada.update_columns(persona_name: "Ada", last_seen_at: Time.current, visibility: "private")
+    low, high = [ @player.id, ada.id ].minmax
+    Game::Friendship.create!(low_player_id: low, high_player_id: high)
+    sign_in
+
+    get friends_path(locale: :fr)
+    assert_select ".friends__friend .friends__presence--private", "Profil privé"
+    get home_path(locale: :fr)
+    assert_select ".hub-menu a.menu-item[href='/fr/friends'] .menu-item__meta", "0 en ligne"
+
+    ada.update_columns(visibility: "friends_only")
+    get friends_path(locale: :en)
+    assert_select ".friends__friend .friends__presence--online", "Online"
+    get home_path(locale: :fr)
+    assert_select ".hub-menu a.menu-item[href='/fr/friends'] .menu-item__meta", "1 en ligne"
+  end
+
   test "menu 04 shows zero online for a player without friends, nothing for a visitor" do
     get home_path(locale: :fr)
     assert_select ".hub-menu .menu-item__meta", { text: /en ligne/, count: 0 }

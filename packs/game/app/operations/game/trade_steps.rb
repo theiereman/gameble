@@ -20,7 +20,14 @@ module Game
     end
 
     def friends(player, other)
-      !other.removed? && FriendshipBetween.call(player, other) ? Success() : Failure(:not_friends)
+      current = Accounts::Player.where(id: [ player.id, other.id ]).index_by(&:id)
+      fresh_other = current[other.id]
+      return Failure(:not_friends) unless fresh_other && !fresh_other.removed? && FriendshipBetween.call(player, fresh_other)
+
+      if !Visibility.open_to_friends?(current[player.id]) then Failure(:own_profile_private)
+      elsif !Visibility.open_to_friends?(fresh_other) then Failure(:friend_profile_private)
+      else Success()
+      end
     end
 
     def find_trade(player, trade_id)

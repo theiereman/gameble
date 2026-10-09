@@ -11,6 +11,7 @@ class FriendProfilesController < ApplicationController
     end
 
     @presence = Game::FriendsPresence.of(@owner)
+    @trades_closed = :own_profile_private unless Game::Visibility.open_to_friends?(current_player)
     season = Catalog::PublishedSeason.call
     @distinct_cards = Game::CollectionSummary.distinct_cards(@owner, season:)
     ids = Game::ShowcaseCards.call(@owner, season:)

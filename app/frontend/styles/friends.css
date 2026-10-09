@@ -145,6 +145,14 @@
   color: var(--color-accent);
 }
 
+.friends__presence--private {
+  color: var(--color-muted);
+}
+
+.friends__presence--private .friends__dot {
+  display: none;
+}
+
 .friends__name {
   min-height: var(--space-touch-min);
   padding: 0;

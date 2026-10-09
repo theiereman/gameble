@@ -62,6 +62,38 @@ class Game::TradeTest < ActiveSupport::TestCase
     assert_empty events(Game::TradeProposed)
   end
 
+  test "a private player proposes to no one, and nobody proposes to them" do
+    @alice.update_columns(visibility: "private")
+    assert_equal Dry::Monads::Failure(:own_profile_private), propose
+    assert_equal Dry::Monads::Failure(:friend_profile_private), propose(@bob, @alice, offer: { @three => 1 }, request: { @one => 1 })
+    assert_equal 0, reserved(@alice, @one)
+    assert_equal 0, reserved(@bob, @three)
+    assert_not Game::Trade.exists?
+    assert_empty events(Game::TradeProposed)
+  end
+
+  test "the privacy check reads the visibility under the lock, not the player loaded before" do
+    stale_bob = Accounts::Player.find(@bob.id)
+    @bob.update_columns(visibility: "private")
+
+    assert_equal Dry::Monads::Failure(:friend_profile_private), propose(@alice, stale_bob)
+    assert_equal Dry::Monads::Failure(:own_profile_private), propose(stale_bob, @alice, offer: { @three => 1 }, request: { @one => 1 })
+  end
+
+  test "a friend banned since they were loaded is no friend, whatever their visibility" do
+    stale_bob = Accounts::Player.find(@bob.id)
+    @bob.update_columns(banned_at: Time.current, visibility: "private")
+
+    assert_equal Dry::Monads::Failure(:not_friends), propose(@alice, stale_bob)
+  end
+
+  test "a friends-only player trades as before" do
+    @alice.update_columns(visibility: "friends_only")
+    @bob.update_columns(visibility: "friends_only")
+
+    assert propose.success?
+  end
+
   test "a second open trade for the pair is refused, in either direction" do
     propose.value!
     hold(@bob, catalog_card_seasons(:uncommon_card_one).id, 1)

@@ -405,6 +405,23 @@
   text-align: center;
 }
 
+.trades-closed {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.trades-closed__link {
+  color: var(--color-accent);
+  font: var(--font-button-sm);
+  letter-spacing: var(--tracking-button-sm);
+}
+
+.trade-board__actions .trades-closed {
+  flex-basis: 100%;
+  text-align: center;
+}
+
 .trade-board__swap-box {
   display: inline-flex;
 }

@@ -60,6 +60,32 @@ class SettingsTest < ApplicationSystemTestCase
     end
   end
 
+  test "with trades open, going private asks first, then cancels them" do
+    portal = catalog_card_seasons(:portal_one).id
+    depths = catalog_card_seasons(:rare_card_one).id
+    Game::Holding.create!(player_id: @player.id, card_season_id: portal, quantity: 2)
+    [ accounts_players(:moderator), accounts_players(:administrator) ].each do |friend|
+      Game::Friendship.create!(low_player_id: [ @player.id, friend.id ].min, high_player_id: [ @player.id, friend.id ].max)
+      Game::ProposeTrade.new.call(player: @player, recipient: friend, offer: { portal => 1 }, request: { depths => 1 }).value!
+    end
+    sign_in settings_path(locale: :fr)
+
+    within("[role=group][aria-labelledby=settings-visibility]") { click_on "Privé" }
+    within("dialog#private-dialog[open]") do
+      assert_text "Passer en privé annule vos 2 échanges en cours."
+      click_on "Annuler"
+    end
+    assert_no_selector "dialog#private-dialog[open]"
+    assert_equal "public", @player.reload.visibility
+
+    within("[role=group][aria-labelledby=settings-visibility]") { click_on "Privé" }
+    within("dialog#private-dialog[open]") { click_on "Passer en privé" }
+    assert_selector "button[name=visibility][aria-pressed=true]", text: "PRIVÉ"
+    assert_equal "private", @player.reload.visibility
+    assert_equal [ "cancelled" ], Game::Trade.distinct.pluck(:status)
+    assert_equal 0, Game::Holding.find_by!(player_id: @player.id, card_season_id: portal).reserved
+  end
+
   test "a player deletes their account by typing the word, is signed out, and their profile shows as unavailable" do
     token = @player.token
     sign_in settings_path(locale: :fr)

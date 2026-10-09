@@ -91,6 +91,31 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "Léa"
   end
 
+  test "a friends-only player still gets the trade action on a friend's profile" do
+    @player.update!(visibility: "friends_only")
+    sign_in(@player)
+
+    get friend_profile_path(locale: :fr, token: @friend.token)
+
+    assert_response :success
+    assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @friend.token), "Proposer un échange"
+    assert_select ".trades-closed", 0
+  end
+
+  test "a private player still sees a friend's showcase, with the trades-closed line instead of the trade action" do
+    @player.update!(visibility: "private")
+    sign_in(@player)
+
+    get friend_profile_path(locale: :fr, token: @friend.token)
+
+    assert_response :success
+    assert_select ".friend-profile__heading", "Vitrine"
+    assert_select ".friend-profile__actions a.button--primary", 0
+    assert_select ".friend-profile__actions .trades-closed", /Votre profil est privé : les échanges sont fermés\./
+    assert_select ".friend-profile__actions .trades-closed a[href=?]", settings_path(locale: :fr), "RÉGLAGES"
+    assert_select ".friend-profile__actions button.button--link", "SIGNALER"
+  end
+
   test "a public player who is not a friend, a banned friend and an unknown token answer the same" do
     stranger = accounts_players(:administrator)
     banned = accounts_players(:banned)

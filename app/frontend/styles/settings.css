@@ -140,6 +140,24 @@
   }
 }
 
+.private-dialog__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.private-dialog__text {
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.private-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
 /* The delete dialog (DESIGN.md, Delete dialog): the title row in alert
    orange (.modal__title--alert), the note, the text field labelled with the
    word to type, the danger button (greyed while disabled, shell.css) and

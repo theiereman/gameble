@@ -8,11 +8,13 @@ Rails.configuration.to_prepare do
 
   # A new player's bank is filled within the sign-up (AD-7).
   event_store.subscribe(Game::Handlers::PlayerRegistered, to: [ Accounts::PlayerRegistered ])
-  # Handlers run in subscription order: PlayerStream reads the ties the PlayerDeleted and PlayerBanned handlers drop.
-  event_store.subscribe(PlayerStream, to: PlayerStream::CUT_OFF_EVENTS)
+  # Handlers run in subscription order: PlayerStream reads the ties the PlayerDeleted and PlayerBanned handlers drop,
+  # and the trade partners before the VisibilityChanged handler cancels the trades.
+  event_store.subscribe(PlayerStream, to: PlayerStream::CUT_OFF_EVENTS + PlayerStream::PRIVACY_EVENTS)
   # A deleted account's game is released within the deletion (AD-14).
   event_store.subscribe(Game::Handlers::PlayerDeleted, to: [ Accounts::PlayerDeleted ])
   event_store.subscribe(Game::Handlers::PlayerBanned, to: [ Accounts::PlayerBanned ])
+  event_store.subscribe(Game::Handlers::VisibilityChanged, to: [ Accounts::VisibilityChanged ])
   # Players left without a bank get one when a season is published.
   event_store.subscribe(Game::Handlers::SeasonPublished, to: [ Catalog::SeasonPublished ])
 

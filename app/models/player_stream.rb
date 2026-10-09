@@ -6,6 +6,7 @@ module PlayerStream
   INVITATION_EVENTS = [ Game::InvitationSent, Game::InvitationAccepted ].freeze
   EVENTS = (TRADE_EVENTS + INVITATION_EVENTS).freeze
   CUT_OFF_EVENTS = [ Accounts::PlayerDeleted, Accounts::PlayerBanned ].freeze
+  PRIVACY_EVENTS = [ Accounts::VisibilityChanged ].freeze
 
   BATCHES = :player_stream_batches
 
@@ -37,6 +38,8 @@ module PlayerStream
         [ data[:sender_id], data[:recipient_id] ].map { friends_notice(it) }
       when *CUT_OFF_EVENTS
         counterparts_notices(data[:player_id])
+      when Accounts::VisibilityChanged
+        data[:visibility] == "private" ? [ trades_notice(data[:player_id]) ] + trade_partners_notices(data[:player_id]) : []
       else
         []
       end
@@ -49,11 +52,17 @@ module PlayerStream
     def friends_notice(player_id) = { player_id:, topic: "friends" }
 
     def counterparts_notices(player_id)
-      player = Accounts::PlayerById.call(player_id)
-      return [] unless player
-
-      counterparts = Game::Counterparts.call(player)
+      counterparts = counterparts_of(player_id)
       counterparts[:trades].uniq.map { trades_notice(it) } + counterparts[:friends].map { friends_notice(it) }
+    end
+
+    def trade_partners_notices(player_id)
+      counterparts_of(player_id)[:trades].uniq.map { trades_notice(it) }
+    end
+
+    def counterparts_of(player_id)
+      player = Accounts::PlayerById.call(player_id)
+      player ? Game::Counterparts.call(player) : { trades: [], friends: [] }
     end
 
     def collect(notices)

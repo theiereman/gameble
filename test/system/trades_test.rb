@@ -496,6 +496,16 @@ class TradesTest < ApplicationSystemTestCase
     assert_selector ".trade-board__error", text: "A trade is already open with Lea."
   end
 
+  test "a draft for a private friend goes back to the list, which says why" do
+    @lea.update!(visibility: "private")
+    sign_in @hugo
+
+    visit new_trade_path(locale: :en, friend: @lea.token)
+
+    assert_current_path trades_path(locale: :en)
+    assert_selector ".toast", text: "Lea's profile is private: trades are closed."
+  end
+
   test "abandoning a draft forgets it" do
     sign_in @hugo
     visit new_trade_path(locale: :en, friend: @max.token)

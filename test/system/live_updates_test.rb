@@ -80,6 +80,25 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     end
   end
 
+  test "a friend going private closes the open trade on the partner's board without a reload" do
+    befriend(@hugo, @lea)
+    Game::Holding.create!(player_id: @hugo.id, card_season_id: @portal, quantity: 4, reserved: 0)
+    trade = Game::ProposeTrade.new.call(player: @hugo, recipient: @lea, offer: { @portal => 2 }, request: { @depths => 1 }).value!
+
+    sign_in @lea
+    visit trade_path(token: trade.token, locale: :en)
+    assert_selector ".trade-board .trade-chip", text: /YOUR TURN/i
+    listening
+
+    Accounts::SetVisibility.new.call(player: @hugo, visibility: "private").value!
+    deliver
+
+    assert_selector ".trade-board .trade-chip", text: /CLOSED/i
+    assert_selector ".trade-board .trades-closed", text: "Hugo's profile is private: trades are closed."
+    assert_no_button "Accept"
+    assert not_reloaded?
+  end
+
   test "an invitation reaches the Friends screen, and its acceptance tells the sender NOUVEL AMI" do
     sign_in @hugo
     visit friends_path(locale: :en)

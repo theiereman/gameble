@@ -152,6 +152,40 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
     assert_equal [ 2, 0 ], holdings(@bob)[@three]
   end
 
+  test "a trade left open with a private party can be neither accepted nor countered" do
+    trade = propose
+    @alice.update_columns(visibility: "private")
+
+    assert_equal Dry::Monads::Failure(:friend_profile_private), accept(trade)
+    assert_equal Dry::Monads::Failure(:friend_profile_private), counter(trade)
+    @alice.update_columns(visibility: "public")
+    @bob.update_columns(visibility: "private")
+    assert_equal Dry::Monads::Failure(:own_profile_private), accept(trade)
+    assert_equal Dry::Monads::Failure(:own_profile_private), counter(trade)
+    assert_equal({ @one => [ 3, 2 ], @two => [ 1, 1 ] }, holdings(@alice))
+    assert_equal({ @three => [ 2, 0 ] }, holdings(@bob))
+    assert Game::Trade.find(trade.id).open?
+  end
+
+  test "a private player can still cancel, decline and let expire what is theirs" do
+    cancelled = propose
+    @alice.update_columns(visibility: "private")
+    assert Game::CancelTrade.new.call(player: @alice, trade_id: cancelled.id).success?
+
+    @alice.update_columns(visibility: "public")
+    declined = propose
+    @bob.update_columns(visibility: "private")
+    assert decline(declined).success?
+
+    @bob.update_columns(visibility: "public")
+    expired = propose
+    @alice.update_columns(visibility: "private")
+    travel 8.days do
+      assert Game::ExpireTrade.new.call(player: @alice, trade_id: expired.id).success?
+    end
+    assert_equal({ @one => [ 3, 0 ], @two => [ 1, 0 ] }, holdings(@alice))
+  end
+
   test "a counter replaces both sides, moves the reservation, hands the turn over and restarts the 7 days" do
     trade = propose
 

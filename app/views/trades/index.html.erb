@@ -1,4 +1,4 @@
 <% content_for :title, t("trades.title") %>
 <%= render "trades/screen", view: :list, trades: @trades, trade: @trade, cards: @cards,
       board: trade_board_locals(@trade, cards: @cards, own_held: @own_cards, friend_held: @friend_cards, picks: @picks,
-        fresh: @new_cards, trade_again: @trade_again) %>
+        fresh: @new_cards, trade_again: @trade_again, trades_closed: @trades_closed) %>

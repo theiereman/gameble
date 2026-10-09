@@ -31,9 +31,10 @@ class ApplicationOperation < Dry::Operation
     "errors.#{name.split("::").first.underscore}.#{code}"
   end
 
-  # The translated message of a failure code in the current locale.
-  def self.failure_message(code)
-    I18n.t(failure_key(code))
+  # The translated message of a failure code in the current locale, with
+  # the values its message interpolates.
+  def self.failure_message(code, **values)
+    I18n.t(failure_key(code), **values)
   end
 
   private

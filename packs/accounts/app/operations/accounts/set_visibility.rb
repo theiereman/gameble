@@ -1,6 +1,10 @@
 module Accounts
-  # Sets who may see a player's profile (CAP-14, AD-14): "public",
-  # "friends_only" or "private". Housekeeping: it publishes no event (AD-10).
+  # Sets who may see a player's profile: "public", "friends_only" or
+  # "private". Locks the player row FOR NO KEY UPDATE first, as
+  # Accounts::BanPlayer and Accounts::DeletePlayer do, then publishes
+  # Accounts::VisibilityChanged (going private cancels the player's open
+  # trades in Game, under the bank locks), then writes the row. Setting the
+  # visibility the player already has publishes nothing.
   #
   #   Accounts::SetVisibility.new.call(player:, visibility: "private")
   #   # => Success(player) | Failure(:player_required) | Failure(:invalid_setting)
@@ -10,6 +14,11 @@ module Accounts
       visibility = step check(visibility)
 
       transaction do
+        player.lock!("FOR NO KEY UPDATE")
+        step require_player(player)
+        next player if player.visibility == visibility
+
+        step publish(VisibilityChanged.new(data: { player_id: player.id, visibility: }), stream_name: "Accounts::Player$#{player.id}")
         player.update!(visibility:)
         player
       end

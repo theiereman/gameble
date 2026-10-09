@@ -8,5 +8,9 @@ module Game
 
       owner.visibility_friends_only? && FriendshipBetween.call(viewer, owner)
     end
+
+    def self.open_to_friends?(player)
+      player.present? && !player.removed? && !player.visibility_private?
+    end
   end
 end

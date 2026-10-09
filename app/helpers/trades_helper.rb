@@ -2,6 +2,12 @@ module TradesHelper
   COUNTER_FORM_ID = "trade-counter-form"
   DRAFT_FORM_ID = "trade-draft-form"
 
+  def trades_closed_line(refusal, friend)
+    text = Game::Operation.failure_message(refusal, name: friend_name(friend))
+    settings = link_to(t("trades.closed.settings"), settings_path, class: "trades-closed__link") if refusal == :own_profile_private
+    tag.p(safe_join([ text, settings ].compact, " "), class: "trades-closed")
+  end
+
   def trade_groups(trades)
     { yours: trades.yours, theirs: trades.theirs, recent: trades.recent }
   end

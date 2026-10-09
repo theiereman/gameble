@@ -1,6 +1,9 @@
 require "test_helper"
+require_relative "../../support/lock_races"
 
 class Game::TradeConcurrencyTest < ActiveSupport::TestCase
+  include LockRaces
+
   self.use_transactional_tests = false
 
   setup do
@@ -20,6 +23,7 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     Game::Friendship.delete_all
     Game::Invitation.delete_all
     Accounts::Player.where(id: @created.map(&:id)).delete_all if @created
+    Accounts::Player.where(id: @players.map(&:id)).update_all(visibility: "public")
     delete_events
   end
 
@@ -99,6 +103,50 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     assert_equal 0, reserved(@alice, @card)
     assert_equal 0, reserved(@carol, @other)
     assert_equal 0, Game::Friendship.of(dave.id).count
+  end
+
+  def go_private(player)
+    -> { Accounts::SetVisibility.new.call(player: Accounts::Player.find(player.id), visibility: "private") }
+  end
+
+  test "a proposal committed before its recipient goes private is cancelled by it, nothing left reserved" do
+    befriend(@alice, @bob)
+    hold(@bob, @other, 1)
+
+    proposal, change = first_holding_the_lock(propose(@bob, @alice, { @other => 1 }, { @card => 1 }), go_private(@alice))
+
+    assert proposal.success?
+    assert change.success?
+    assert_equal "cancelled", Game::Trade.uncached { Game::Trade.sole.status }
+    assert_equal 0, reserved(@bob, @other)
+  end
+
+  test "a proposal waiting behind its recipient going private is refused, nothing reserved" do
+    befriend(@alice, @bob)
+    hold(@bob, @other, 1)
+
+    change, proposal = first_holding_the_lock(go_private(@alice), propose(@bob, @alice, { @other => 1 }, { @card => 1 }))
+
+    assert change.success?
+    assert_equal Dry::Monads::Failure(:friend_profile_private), proposal
+    assert_not Game::Trade.exists?
+    assert_equal 0, reserved(@bob, @other)
+  end
+
+  test "going private racing proposals both ways: no trade stays open, nothing stays reserved, no deadlock" do
+    befriend(@alice, @bob)
+    befriend(@alice, @carol)
+    hold(@alice, @card, 2)
+    hold(@carol, @other, 1)
+
+    results = together(go_private(@alice),
+      propose(@alice, @bob, { @card => 1 }, { @other => 1 }), propose(@carol, @alice, { @other => 1 }, { @card => 1 }))
+
+    assert results.first.success?
+    results.drop(1).select(&:failure?).each { |result| assert_includes %i[own_profile_private friend_profile_private], result.failure }
+    assert_equal 0, Game::Trade.in_progress.count
+    assert_equal 0, reserved(@alice, @card)
+    assert_equal 0, reserved(@carol, @other)
   end
 
   test "many proposals of single copies at once never reserve more than owned" do

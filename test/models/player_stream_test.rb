@@ -127,6 +127,31 @@ class PlayerStreamTest < ActiveSupport::TestCase
     assert_equal [ expected ], stream_jobs.map { ActiveJob::Arguments.deserialize(it[:args]).first }
   end
 
+  test "going private tells the player and their trade partners on either side, found before the trades are cancelled" do
+    carol = accounts_players(:administrator)
+    low, high = [ @alice.id, carol.id ].minmax
+    Game::Friendship.create!(low_player_id: low, high_player_id: high)
+    Game::Holding.create!(player_id: carol.id, card_season_id: @three, quantity: 1, reserved: 0)
+    propose.value!
+    Game::ProposeTrade.new.call(player: carol, recipient: @alice, offer: { @three => 1 }, request: { @one => 1 }).value!
+    clear_enqueued_jobs
+
+    assert Accounts::SetVisibility.new.call(player: @alice, visibility: "private").success?
+
+    notices = stream_jobs.map { ActiveJob::Arguments.deserialize(it[:args]).first }.sole
+    assert_equal trades_for(@alice, @bob, carol).sort_by { it[:player_id] }, notices.sort_by { it[:player_id] }
+    assert_equal %w[cancelled cancelled], Game::Trade.pluck(:status)
+  end
+
+  test "going friends only or public tells no one" do
+    propose.value!
+    clear_enqueued_jobs
+
+    Accounts::SetVisibility.new.call(player: @alice, visibility: "friends_only").value!
+
+    assert_empty stream_jobs
+  end
+
   test "a ban tells the banned player's friends" do
     banned = Accounts::PlayerBanned.new(data: { player_id: @alice.id })
 

@@ -573,6 +573,15 @@ en:
       account:
         label: "Account"
         delete: "Delete my account"
+    private_dialog:
+      title: "Go private?"
+      text:
+        zero: "Going private cancels none of your trades."
+        one: "Going private cancels your open trade."
+        other: "Going private cancels your %{count} open trades."
+      confirm: "Go private"
+      cancel: "Cancel"
+      close: "Close"
   feeds:
     show:
       title: "Activity feed"
@@ -618,6 +627,7 @@ en:
       presence:
         online: "Online"
         offline: "Offline"
+        private: "Private profile"
         minutes_ago:
           one: "%{count} min ago"
           other: "%{count} min ago"
@@ -759,6 +769,8 @@ en:
       send: "Send the proposal"
       abandon: "Abandon"
       again: "New trade with %{name}"
+    closed:
+      settings: "SETTINGS"
     island:
       add:
         friend: "Choose their cards"
@@ -1045,6 +1057,8 @@ en:
       reserve_full: "Your reserve is full: open a booster to collect today's."
       invalid_idempotency_key: "The opening request was malformed. Reload the page and try again."
       not_friends: "You can only trade with a friend."
+      own_profile_private: "Your profile is private: trades are closed."
+      friend_profile_private: "%{name}'s profile is private: trades are closed."
       invalid_offer: "Offer one to four different cards, with a quantity of at least one each."
       invalid_request: "Ask for one to four different cards, with a quantity of at least one each."
       trade_already_open: "You already have an open trade with this friend. Settle it first."

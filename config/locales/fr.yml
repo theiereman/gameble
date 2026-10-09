@@ -591,6 +591,15 @@ fr:
       account:
         label: "Compte"
         delete: "Supprimer mon compte"
+    private_dialog:
+      title: "Passer en privé ?"
+      text:
+        zero: "Passer en privé n'annule aucun de vos échanges."
+        one: "Passer en privé annule votre échange en cours."
+        other: "Passer en privé annule vos %{count} échanges en cours."
+      confirm: "Passer en privé"
+      cancel: "Annuler"
+      close: "Fermer"
   feeds:
     show:
       title: "Fil d'activité"
@@ -636,6 +645,7 @@ fr:
       presence:
         online: "En ligne"
         offline: "Hors ligne"
+        private: "Profil privé"
         minutes_ago:
           one: "Il y a %{count} min"
           other: "Il y a %{count} min"
@@ -778,6 +788,8 @@ fr:
       send: "Envoyer la proposition"
       abandon: "Abandonner"
       again: "Nouvel échange avec %{name}"
+    closed:
+      settings: "RÉGLAGES"
     island:
       add:
         friend: "Choisir ses cartes"
@@ -1068,6 +1080,8 @@ fr:
       reserve_full: "Votre réserve est pleine : ouvrez un booster pour récupérer celui du jour."
       invalid_idempotency_key: "La demande d'ouverture est mal formée. Rechargez la page et réessayez."
       not_friends: "Vous ne pouvez échanger qu'avec un ami."
+      own_profile_private: "Votre profil est privé : les échanges sont fermés."
+      friend_profile_private: "Le profil de %{name} est privé : échanges fermés."
       invalid_offer: "Proposez une à quatre cartes différentes, avec une quantité d'au moins un chacune."
       invalid_request: "Demandez une à quatre cartes différentes, avec une quantité d'au moins un chacune."
       trade_already_open: "Vous avez déjà un échange ouvert avec cet ami. Réglez-le d'abord."

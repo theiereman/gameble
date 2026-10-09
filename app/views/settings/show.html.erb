@@ -13,8 +13,10 @@
     a full page load so `html[data-motion]` is re-rendered); SE DÉCONNECTER
     is the sign-out. Export and the card-back picker come with their own
     stories. VISIBILITÉ DU PROFIL is a group of three buttons (one pressed)
-    that apply at once (PATCH, a full page load). COMPTE's danger button
-    opens the delete dialog (accounts/_dialog). %>
+    that apply at once (PATCH, a full page load); with trades open, PRIVÉ
+    first opens the private dialog, since going private cancels them
+    (without JavaScript it applies at once). COMPTE's danger button opens
+    the delete dialog (accounts/_dialog). %>
 <section class="settings" aria-labelledby="settings-heading">
   <h1 id="settings-heading" class="settings__title"><%= t(".title") %></h1>
   <%= render PanelComponent.new(brackets: true, class: "settings__panel") do %>
@@ -34,8 +36,10 @@
         <%= form_with url: settings_visibility_path, method: :patch, class: "settings-row__form", data: { turbo: false } do %>
           <div class="segmented" role="group" aria-labelledby="settings-visibility">
             <% Accounts::Player.visibilities.each_key do |choice| %>
+              <% confirm = choice == "private" && @visibility != choice && @open_trades.positive? %>
               <%= tag.button t(".visibility.#{choice}"), type: :submit, name: "visibility", value: choice, class: "segmented__option",
-                    aria: { pressed: (@visibility == choice).to_s } %>
+                    aria: { pressed: (@visibility == choice).to_s, haspopup: ("dialog" if confirm) },
+                    data: ({ controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: "private-dialog" } if confirm) %>
             <% end %>
           </div>
         <% end %>
@@ -66,3 +70,6 @@
   <% end %>
 </section>
 <%= render "accounts/dialog" %>
+<% if @visibility != "private" && @open_trades.positive? %>
+  <%= render "settings/private_dialog", open_trades: @open_trades %>
+<% end %>

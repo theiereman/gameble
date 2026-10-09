@@ -247,6 +247,44 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".trade-board__actions a", 0
   end
 
+  test "a closed trade with a private friend, or while private, shows why trades are closed instead" do
+    trade = from_lea
+    sign_in @alice
+    post decline_trade_path(token: trade.token, locale: :fr), params: seen(trade)
+
+    @bob.update_columns(visibility: "private")
+    get trade_path(token: trade.token, locale: :fr)
+    assert_select ".trade-board__actions a.button", 0
+    assert_select ".trade-board__actions .trades-closed", "Le profil de Lea est privé : échanges fermés."
+
+    @bob.update_columns(visibility: "friends_only")
+    get trade_path(token: trade.token, locale: :fr)
+    assert_select ".trade-board__actions a.button--primary", "Nouvel échange avec Lea"
+
+    @alice.update_columns(visibility: "private")
+    get trade_path(token: trade.token, locale: :fr)
+    assert_select ".trade-board__actions a.button", 0
+    assert_select ".trade-board__actions .trades-closed", /Votre profil est privé : les échanges sont fermés\./
+    assert_select ".trade-board__actions .trades-closed a[href=?]", settings_path(locale: :fr), "RÉGLAGES"
+  end
+
+  test "accepting or countering a trade whose proposer went private moves nothing and names them" do
+    trade = from_lea
+    sign_in @alice
+    @bob.update_columns(visibility: "private")
+
+    post accept_trade_path(token: trade.token, locale: :fr), params: seen(trade)
+    follow_redirect!
+    assert_select ".toast--alert", /Le profil de Lea est privé : échanges fermés\./
+    assert_equal "open", trade.reload.status
+
+    post counter_trade_path(token: trade.token, locale: :fr), params: { give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
+    follow_redirect!
+    assert_select ".toast--alert", /Le profil de Lea est privé : échanges fermés\./
+    assert_equal "open", trade.reload.status
+    assert_equal 2, holding(@bob, @depths).quantity
+  end
+
   test "the counter form edits both sides' quantities and sends the counter-proposal" do
     trade = from_lea
     sign_in @alice
@@ -476,6 +514,43 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     Game::Friendship.where(low_player_id: [ @alice.id, @carol.id ].min).delete_all
     get new_trade_path(locale: :fr, friend: @carol.token)
     assert_response :not_found
+  end
+
+  test "a draft for a private friend, or while private, goes back to the list with the reason" do
+    sign_in @alice
+    @bob.update_columns(visibility: "private")
+
+    get new_trade_path(locale: :fr, friend: @bob.token)
+    assert_redirected_to trades_path(locale: :fr)
+    follow_redirect!
+    assert_select ".toast--alert", /Le profil de Lea est privé : échanges fermés\./
+
+    @bob.update_columns(visibility: "public")
+    @alice.update_columns(visibility: "private")
+    get new_trade_path(locale: :fr, friend: @bob.token)
+    assert_redirected_to trades_path(locale: :fr)
+    follow_redirect!
+    assert_select ".toast--alert", /Votre profil est privé : les échanges sont fermés\./
+  end
+
+  test "a forged proposal to a private friend, or from a private player, is refused and reserves nothing" do
+    sign_in @alice
+    @bob.update_columns(visibility: "private")
+    params = { friend: @bob.token, give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
+
+    post trades_path(locale: :fr), params: params
+    assert_redirected_to trades_path(locale: :fr)
+    follow_redirect!
+    assert_select ".toast--alert", /Le profil de Lea est privé : échanges fermés\./
+
+    @bob.update_columns(visibility: "public")
+    @alice.update_columns(visibility: "private")
+    post trades_path(locale: :fr), params: params
+    assert_redirected_to trades_path(locale: :fr)
+    follow_redirect!
+    assert_select ".toast--alert", /Votre profil est privé : les échanges sont fermés\./
+    assert_equal 0, Game::Trade.count
+    assert_equal 0, holding(@alice, @portal).reserved
   end
 
   test "a visitor asking for a draft is sent home to sign in" do

@@ -21,7 +21,12 @@ class TradesController < ApplicationController
 
   def new
     authorize :trade, :new?
-    @friend = tradable_friend(params[:friend]) or raise(ActiveRecord::RecordNotFound)
+    @friend = befriended(params[:friend]) or raise(ActiveRecord::RecordNotFound)
+    if (refusal = privacy_refusal(@friend))
+      refused(refusal, @friend)
+      return redirect_to(trades_path)
+    end
+
     @trades = Game::TradesOf.call(current_player)
     if (open = open_trade_with(@trades, @friend))
       show_refusal t("trades.one_at_a_time.text", name: helpers.friend_name(@friend)), title: t("trades.one_at_a_time.title")
@@ -34,9 +39,10 @@ class TradesController < ApplicationController
 
   def create
     authorize :trade, :create?
-    friend = tradable_friend(params[:friend])
-    unless friend
-      refused(:not_friends)
+    friend = befriended(params[:friend])
+    refusal = friend ? privacy_refusal(friend) : :not_friends
+    if refusal
+      refused(refusal, friend)
       return redirect_to(trades_path, status: :see_other)
     end
 
@@ -48,7 +54,7 @@ class TradesController < ApplicationController
       toast t("trades.sent.title"), t("trades.sent.text", name: helpers.friend_name(friend))
       redirect_to trade_path(token: result.value!.token), status: :see_other
     else
-      refused(result.failure)
+      refused(result.failure, friend)
       redirect_to new_trade_path(friend: friend.token), status: :see_other
     end
   end
@@ -78,7 +84,7 @@ class TradesController < ApplicationController
       toast t("trades.sent.title"), t("trades.sent.text", name: helpers.friend_name(trade.friend))
       redirect_to trade_path(token: trade.token), status: :see_other
     else
-      refused(result.failure)
+      refused(result.failure, trade.friend)
       redirect_to counter_trade_path(token: trade.token), status: :see_other
     end
   end
@@ -118,13 +124,19 @@ class TradesController < ApplicationController
       Game::TradesOf.find(current_player, params[:token]) || raise(ActiveRecord::RecordNotFound)
     end
 
-    def tradable_friend(token)
+    def befriended(token)
       friend = Accounts::PlayerByToken.call(token)
-      friend if tradable?(friend)
+      friend if befriended?(friend)
     end
 
-    def tradable?(friend)
+    def befriended?(friend)
       friend.present? && !friend.removed? && Game::FriendshipBetween.call(current_player, friend)
+    end
+
+    def privacy_refusal(friend)
+      if !Game::Visibility.open_to_friends?(current_player) then :own_profile_private
+      elsif !Game::Visibility.open_to_friends?(friend) then :friend_profile_private
+      end
     end
 
     def open_trade_with(trades, friend)
@@ -143,7 +155,11 @@ class TradesController < ApplicationController
       when :concluded
         received = trade.friend_side.map(&:card_season_id)
         @new_cards = Game::CollectionSlots.call(current_player, received).select { |_, slot| slot.new }.keys
-      when :closed then @trade_again = tradable?(trade.friend)
+      when :closed
+        if befriended?(trade.friend)
+          @trades_closed = privacy_refusal(trade.friend)
+          @trade_again = @trades_closed.nil?
+        end
       end
     end
 
@@ -180,7 +196,7 @@ class TradesController < ApplicationController
       if result.success?
         yield
       else
-        refused(result.failure)
+        refused(result.failure, trade.friend)
       end
       redirect_to trade_path(token: trade.token), status: :see_other
     end
@@ -190,8 +206,9 @@ class TradesController < ApplicationController
       flash[:notice] = text
     end
 
-    def refused(code)
-      show_refusal Game::Operation.failure_message(code), title: (t("trades.insufficient") if INSUFFICIENT.include?(code))
+    def refused(code, friend = nil)
+      message = Game::Operation.failure_message(code, name: (helpers.friend_name(friend) if friend))
+      show_refusal message, title: (t("trades.insufficient") if INSUFFICIENT.include?(code))
     end
 
     def show_refusal(message, title: nil)

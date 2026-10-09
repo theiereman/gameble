@@ -88,6 +88,24 @@ class Game::FriendsPresenceTest < ActiveSupport::TestCase
     assert_online(0)
   end
 
+  test "a private friend reads as private, without activity or seen time, and is never counted online" do
+    acted(@sam, "opening_pack", @now - 1.minute)
+    @sam.update_columns(last_seen_at: @now, visibility: "private")
+    @ada.update_columns(last_seen_at: @now)
+
+    assert_equal({ state: :private, activity: nil, seen_at: nil }, presence["Sam"])
+    assert_equal presence["Sam"], Game::FriendsPresence.of(@sam, now: @now).to_h.except(:player)
+    assert_online(1)
+  end
+
+  test "a friends-only friend shows their presence as before" do
+    acted(@sam, "opening_pack", @now - 1.minute)
+    @sam.update_columns(visibility: "friends_only")
+
+    assert_equal :active, presence["Sam"][:state]
+    assert_online(1)
+  end
+
   test "a visitor or a player without friends has none" do
     assert_empty Game::FriendsPresence.call(nil)
     assert_empty Game::FriendsPresence.call(accounts_players(:banned))

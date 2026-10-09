@@ -1,4 +1,4 @@
 <% content_for :title, t("trades.board.heading", name: friend_name(@trade.friend)) %>
 <%= render "trades/screen", view: :board, trades: @trades, trade: @trade, cards: @cards,
       board: trade_board_locals(@trade, cards: @cards, own_held: @own_cards, friend_held: @friend_cards, picks: @picks,
-        fresh: @new_cards, trade_again: @trade_again, focus: true, swap: flash[:trade_swap], forget: flash[:trade_forget]) %>
+        fresh: @new_cards, trade_again: @trade_again, trades_closed: @trades_closed, focus: true, swap: flash[:trade_swap], forget: flash[:trade_forget]) %>

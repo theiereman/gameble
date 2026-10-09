@@ -108,4 +108,20 @@ class Game::VisibilityTest < ActiveSupport::TestCase
     assert_not visible?(banned_moderator)
     assert_not visible?(deleted_administrator.reload)
   end
+
+  test "a public or friends-only player is open to friends, a private one is not" do
+    assert Game::Visibility.open_to_friends?(@owner)
+    @owner.visibility_friends_only!
+    assert Game::Visibility.open_to_friends?(@owner)
+    @owner.visibility_private!
+    assert_not Game::Visibility.open_to_friends?(@owner)
+  end
+
+  test "a banned, deleted or missing player is open to no one" do
+    Accounts::DeletePlayer.new.call(player: @friend).value!
+
+    assert_not Game::Visibility.open_to_friends?(accounts_players(:banned))
+    assert_not Game::Visibility.open_to_friends?(@friend.reload)
+    assert_not Game::Visibility.open_to_friends?(nil)
+  end
 end

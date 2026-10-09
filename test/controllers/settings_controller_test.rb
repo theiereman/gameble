@@ -125,6 +125,42 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "with trades open, PRIVÉ first opens a dialog that says how many going private cancels" do
+    bob = accounts_players(:moderator)
+    Game::Friendship.create!(low_player_id: [ @player.id, bob.id ].min, high_player_id: [ @player.id, bob.id ].max)
+    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
+    Game::ProposeTrade.new.call(player: @player, recipient: bob, offer: { catalog_card_seasons(:portal_one).id => 1 },
+      request: { catalog_card_seasons(:rare_card_one).id => 1 }).value!
+    sign_in
+
+    get settings_path(locale: :fr)
+
+    assert_select "button[name=visibility][value=private][type=submit][aria-haspopup=dialog][data-dialog-opener-dialog-value=private-dialog]", "Privé"
+    assert_select "button[name=visibility][value=friends_only]:not([data-dialog-opener-dialog-value])"
+    assert_select "dialog#private-dialog form[action='/fr/settings/visibility'][data-turbo=false]" do
+      assert_select "input[name=_method][value=patch]"
+      assert_select "input[type=hidden][name=visibility][value=private]"
+      assert_select ".private-dialog__text", "Passer en privé annule votre échange en cours."
+      assert_select "button[type=submit]", "Passer en privé"
+      assert_select "button[type=button][data-action='dialog#close']", "Annuler"
+    end
+
+    patch settings_visibility_path(locale: :fr), params: { visibility: "private" }
+    assert_equal "cancelled", Game::Trade.sole.status
+    follow_redirect!
+    assert_select "dialog#private-dialog", 0
+    assert_select "button[name=visibility][value=private]:not([data-dialog-opener-dialog-value])"
+  end
+
+  test "with no trade open, PRIVÉ applies at once, without a dialog" do
+    sign_in
+
+    get settings_path(locale: :en)
+
+    assert_select "button[name=visibility][value=private]:not([aria-haspopup])", "Private"
+    assert_select "dialog#private-dialog", 0
+  end
+
   test "a visitor cannot set a visibility, and a GET writes nothing" do
     patch settings_visibility_path(locale: :en), params: { visibility: "private" }
     assert_redirected_to home_path(locale: :en)
