@@ -193,3 +193,16 @@ after = [13]
 hitl = false
 risk = "low"
 references = ["deferred-work.md"]
+
+[[entry]]
+id = 18
+type = "story"
+title = "A desktop back button to the previous screen, and the GAMEBLE logo leads to the hub"
+description = "On desktop, the top bar's logo and \"GAMEBLE\" become a link to the hub on every screen, replacing \"◀ PONT\", and every screen but the hub gets, after them, a back button to the previous screen that works like the browser's Back and names that screen by its short top-bar title (\"◀ COLLECTION\", \"◀ FICHE\", \"◀ AMIS\"; the collection entry reads \"◀ SETS\"). The back button is hidden when the previous screen is the hub or the tab holds no earlier gameble screen; both are disabled during an opening. Phone navigation is unchanged."
+verify = "System tests on desktop: hub → collection → a card detail shows \"◀ COLLECTION\", which returns to the collection as it was left (filters, page, scroll); a screen reached from the hub or opened by direct link shows no back button and its GAMEBLE link opens the hub; both are locked during an opening; on a phone viewport the tab bar and contextual backs behave as before."
+covers = ["R1"]
+after = [13]
+hitl = false
+risk = "medium"
+references = ["ux-gameble/EXPERIENCE.md#information-architecture", "ux-gameble/EXPERIENCE.md#component-patterns", "ux-gameble/DESIGN.md#top-bar"]
+notes = ["Open question: The booster island draws its own way back to the hub, and the focus table now sends focus there to the back button or the GAMEBLE link when the reserve is empty: decide at planning whether the island's link stays. The set album (13.8) names its origin with the same back button and builds on this one."]
