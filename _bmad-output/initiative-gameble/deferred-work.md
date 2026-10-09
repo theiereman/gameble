@@ -379,3 +379,6 @@
 - source_plan: none
   summary: The community (weekly goal reward) pack is no longer added to the player's packs automatically: the player claims it with a button, which shows it has been collected and refuses to add it while the bank already holds `Game::Pack::BANK_SIZE` (10) packs.
   evidence: Author, 2026-10-08. Today `Game::GrantGoalRewardsJob` / `Game::GrantGoalReward` grant it without the player acting (`Game::WaitingGoalReward` is the query for a reward waiting); claiming must go through a POST operation, and the full-bank refusal needs both locale keys and a clear state on the button.
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-races-between-bank-operations-plan.md`
+  summary: `Game::HealBanksJob` reports an error to `Rails.error` when a player is deleted between the job's batch read and that player's heal or fill, a normal race rather than a failure.
+  evidence: Code review of story-races-between-bank-operations-plan (2026-10-09). `Accounts::PlayersInBatches` reads the batch; a deletion then commits; `HealBank`/`FillBank` re-check under the bank lock (`Game::Operation#lock_bank`) and return `Failure(:player_required)`; `heal_banks_job.rb:28` calls `.value!`, which raises, and the rescue reports it. Pre-existing; story 7.9 races the job against openings and a bonus but not against a deletion.
