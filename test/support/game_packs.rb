@@ -1,12 +1,14 @@
 # Builds packs straight into a player's bank, for tests of opening and of the
-# bank. Cards default to the fixture season's portal_one, as many times as
-# the database allows the kind: five, three for a daily bonus pack. Also
+# bank, in the fixture season unless another is given (a pack of an older
+# season is re-drawn when it opens). Cards default to the fixture season's
+# portal_one, as many times as the database allows the kind: five, three
+# for a daily bonus pack. Also
 # leaves a bank short and checks that no pack was spent twice, for the races
 # between bank operations.
 module GamePacks
-  def create_pack(player, cards: nil, available_at: 1.minute.ago, kind: :regular, opened_at: nil)
+  def create_pack(player, cards: nil, available_at: 1.minute.ago, kind: :regular, opened_at: nil, season: catalog_seasons(:one))
     cards ||= Array.new(kind.to_s == "bonus" ? Game::Pack::BONUS_SIZE : Game::Pack::SIZE, catalog_card_seasons(:portal_one).id)
-    Game::Pack.create!(player_id: player.id, kind:, season_id: catalog_seasons(:one).id, card_season_ids: cards,
+    Game::Pack.create!(player_id: player.id, kind:, season_id: season.id, card_season_ids: cards,
       available_at:, opened_at:)
   end
 

@@ -186,7 +186,7 @@ class LibraryTest < ApplicationSystemTestCase
   end
 
   test "the cards of a pack just opened are new; once seen, the next visit shows them no longer" do
-    create_pack(@player, cards: @tome[3, 5], available_at: 1.year.ago)
+    create_pack(@player, cards: @tome[3, 5], available_at: 1.year.ago, season: @season)
     sign_in
     assert Game::OpenPack.new.call(player: @player).success?
 
