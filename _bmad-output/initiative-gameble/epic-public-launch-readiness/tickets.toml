@@ -239,12 +239,37 @@ risk = "low"
 references = ["change-profile-privacy/change-profile-privacy.md"]
 
 [[entry]]
+id = 22
+type = "story"
+title = "The legal page says what the app really does"
+description = "Rewrites the privacy notice and terms after the legal review of 2026-10-09: purposes and legal bases, the full list of rights (rectification, restriction, objection, portability, data after death, a banned player's requests), the data actually kept (reports received, moderation decisions and their reason, friend code, invitations, account creation date, IP address and browser in server logs and error tracking), what a deletion erases and what it keeps without the Steam id or name (no longer called anonymisation), what Sentry receives, the cookies including Cloudflare's security cookie, the public-by-default profile and staff reading every profile, a takedown channel for rights holders and illegal content open without an account, a human moderation decision that can be contested, donations giving no advantage, a last-updated date; the page title becomes legal notice and privacy; the sign-in panel says that signing in accepts the terms and privacy notice with links to both; the public profile's visibility label says visible to everyone, even without an account; the report reason no longer mentions an avatar."
+verify = "Every claim of the page matches the code (cookies, storage, what Sentry gets, what deletion erases); the sign-in panel links the terms and the privacy notice, signed out; French and English carry the same text; i18n-tasks clean; the parts awaiting the author (host, retention periods, controller identity, Sentry region, default visibility) are left as they are and listed."
+covers = ["R2", "R7"]
+after = [3]
+hitl = false
+risk = "low"
+references = ["epic-public-launch-readiness/story-legal-page-plan.md"]
+notes = ["From the legal review of the legal page (2026-10-09); the author asked to fix everything that needs no decision of theirs."]
+
+[[entry]]
+id = 23
+type = "story"
+title = "No IP address kept in the event store"
+description = "Rails Event Store's default request metadata adds the client's remote_ip to every event published during a request, kept forever in streams named after the player, and an account deletion leaves it. The event store keeps the request id only, and a data migration strips remote_ip from the metadata already stored."
+verify = "An event published in a request carries a request id and no remote_ip; after the migration no stored event's metadata holds remote_ip; the events and their other metadata are otherwise unchanged."
+covers = ["R2"]
+after = []
+hitl = false
+risk = "medium"
+notes = ["From the legal review of the legal page (2026-10-09): the IP address is personal data, kept with no limit and undisclosed."]
+
+[[entry]]
 id = 12
 type = "story"
 title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
 hitl = false
 risk = "low"
