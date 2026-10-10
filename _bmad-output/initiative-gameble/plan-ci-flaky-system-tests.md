@@ -3,7 +3,7 @@ title: 'Stable system tests on CI: the window size restored for every test, chro
 type: 'bugfix'
 ticket: ''
 created: '2026-10-07'
-status: 'built'
+status: 'done'
 baseline_revision: 'a1ca4cc7f9c8d70e976ba76570e589c2a48c9a0d'
 route: 'oneshot'
 route_source: 'auto'

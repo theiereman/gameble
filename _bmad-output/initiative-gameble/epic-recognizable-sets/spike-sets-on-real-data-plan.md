@@ -3,7 +3,7 @@ title: 'Sets on real data'
 type: 'chore'
 ticket: '1'
 created: '2026-10-09'
-status: 'built'
+status: done
 baseline_revision: '967301ec1970f2e5f5ddefa2f02e672549f23434'
 route: 'oneshot'
 route_source: 'auto'

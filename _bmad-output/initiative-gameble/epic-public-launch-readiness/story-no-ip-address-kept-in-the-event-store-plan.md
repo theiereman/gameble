@@ -3,7 +3,7 @@ title: 'No IP address kept in the event store'
 type: 'bugfix'
 ticket: '23'
 created: '2026-10-09'
-status: 'built'
+status: done
 baseline_revision: '1cf0684aebee0452c121667358a547eb86645888'
 route: 'oneshot'
 route_source: 'auto'

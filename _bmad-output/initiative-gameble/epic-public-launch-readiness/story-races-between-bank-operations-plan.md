@@ -3,7 +3,7 @@ title: 'Races between bank operations'
 type: 'chore'
 ticket: '9'
 created: '2026-10-08'
-status: 'built'
+status: done
 baseline_revision: 'bb7d881908b0e9a47bceca8aa8d5e6f4baffeddb'
 route: 'full'
 route_source: 'auto'
