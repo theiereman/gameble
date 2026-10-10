@@ -142,7 +142,7 @@ fr:
       settings: "Profil et paramètres"
     legal:
       title: "Mentions légales et confidentialité"
-      updated: "Dernière mise à jour : 9 octobre 2026"
+      updated: "Dernière mise à jour : 10 octobre 2026"
       contact_fallback: "l'éditeur"
       publisher:
         title: "Éditeur et hébergeur"
@@ -187,7 +187,7 @@ fr:
           requests: "répondre à vos messages et à vos demandes sur vos données : obligation légale (art. 6.1.c)."
           no_automation: "Aucune décision vous concernant n'est prise de façon automatisée."
         visibility: "Votre profil est public par défaut : votre nom de profil, votre collection et vos entrées du fil d'activité sont visibles de tous, y compris des visiteurs non connectés. Vous pouvez le réserver à vos amis ou le rendre privé dans les paramètres. Les modérateurs de gameble peuvent consulter tout profil, quel que soit son réglage."
-        cookies: "gameble n'utilise que des cookies strictement nécessaires, exemptés de consentement : celui de la session, qui protège les formulaires et vous garde connecté jusqu'à la déconnexion ou la fermeture du navigateur, et celui qui retient votre choix d'animations réduites, pendant un an. Cloudflare peut y ajouter un cookie de sécurité qui filtre les robots. Le stockage de votre navigateur garde aussi vos brouillons d'échange et l'état de l'interface, sur votre appareil seulement. Aucun traceur publicitaire ni de mesure d'audience."
+        cookies: "gameble n'utilise que des cookies strictement nécessaires, exemptés de consentement : celui de la session, qui protège les formulaires et vous garde connecté pendant 30 jours après votre dernière visite, ou jusqu'à la déconnexion, et celui qui retient votre choix d'animations réduites, pendant un an. Cloudflare peut y ajouter un cookie de sécurité qui filtre les robots. Le stockage de votre navigateur garde aussi vos brouillons d'échange et l'état de l'interface, sur votre appareil seulement. Aucun traceur publicitaire ni de mesure d'audience."
         nothing_else: "Pas de mesure d'audience, pas de publicité, pas d'argent réel. Vos données ne sont ni vendues ni cédées."
         services:
           intro: "Quelques services extérieurs interviennent :"

@@ -614,7 +614,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_response :success
-    assert_select ".legal__updated", "Dernière mise à jour : 9 octobre 2026"
+    assert_select ".legal__updated", "Dernière mise à jour : 10 octobre 2026"
     %w[.legal__moderation .legal__notice .legal__rectification .legal__objection .legal__death .legal__banned].each do |line|
       assert_select "#{line} a.legal__link[href=?]", "mailto:contact@example.test", "contact@example.test"
     end
@@ -629,7 +629,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :en)
 
     assert_response :success
-    assert_select ".legal__updated", "Last updated: 9 October 2026"
+    assert_select ".legal__updated", "Last updated: 10 October 2026"
     assert_select ".legal__moderation", /by writing to the publisher\.\z/
     assert_select ".legal__notice", /write to the publisher with the page's address/
     assert_select ".legal__rectification", /write to the publisher;\z/

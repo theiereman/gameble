@@ -137,7 +137,7 @@ en:
       settings: "Profile and settings"
     legal:
       title: "Legal notice and privacy"
-      updated: "Last updated: 9 October 2026"
+      updated: "Last updated: 10 October 2026"
       contact_fallback: "the publisher"
       publisher:
         title: "Publisher and host"
@@ -182,7 +182,7 @@ en:
           requests: "answering your messages and your requests about your data: legal obligation (Article 6(1)(c))."
           no_automation: "No decision about you is made by automated means."
         visibility: "Your profile is public by default: your profile name, your collection and your activity feed entries are visible to everyone, including visitors who are not signed in. You can restrict it to your friends or make it private in the settings. gameble's moderators can view any profile, whatever its setting."
-        cookies: "gameble only uses strictly necessary cookies, exempt from consent: the session cookie, which protects forms and keeps you signed in until you sign out or close your browser, and the one that remembers your reduced motion choice, for one year. Cloudflare may add a security cookie that filters out bots. Your browser's storage also keeps your trade drafts and the interface's state, on your device only. No advertising or audience measurement trackers."
+        cookies: "gameble only uses strictly necessary cookies, exempt from consent: the session cookie, which protects forms and keeps you signed in for 30 days after your last visit, or until you sign out, and the one that remembers your reduced motion choice, for one year. Cloudflare may add a security cookie that filters out bots. Your browser's storage also keeps your trade drafts and the interface's state, on your device only. No advertising or audience measurement trackers."
         nothing_else: "No analytics, no ads, no real money. Your data is neither sold nor handed over."
         services:
           intro: "A few outside services take part:"

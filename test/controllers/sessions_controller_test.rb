@@ -302,6 +302,77 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar form[action^='/session']", false
   end
 
+  def session_cookie
+    Array(response.headers["Set-Cookie"]).join("\n").lines.find { |cookie| cookie.start_with?("_gameble_session=") }
+  end
+
+  def session_cookie_expiry
+    assert session_cookie, "the response sets the session cookie"
+    expires = session_cookie[/expires=([^;\n]+)/i, 1]
+    assert expires, "the session cookie outlives the browser"
+    Time.httpdate(expires)
+  end
+
+  test "signing in keeps the player signed in for 30 days, in an HttpOnly cookie" do
+    freeze_time
+    sign_in_with_steam
+
+    assert_in_delta 30.days.from_now, session_cookie_expiry, 1.second
+    assert_match(/;\s*httponly/i, session_cookie)
+    assert_match(/;\s*samesite=lax/i, session_cookie)
+  end
+
+  test "each visit pushes the end of the session 30 days further" do
+    freeze_time
+    sign_in_with_steam
+    player_id = signed_in_player_id
+
+    travel 20.days
+    get home_path(locale: :en)
+
+    assert_equal player_id, signed_in_player_id
+    assert_in_delta 30.days.from_now, session_cookie_expiry, 1.second
+
+    travel 30.seconds
+    get legal_path(locale: :en)
+
+    assert_in_delta 30.days.from_now, session_cookie_expiry, 1.second
+  end
+
+  test "a player away for more than 30 days is signed out" do
+    sign_in_with_steam
+
+    travel 30.days + 1.minute
+    get home_path(locale: :en)
+
+    assert_nil signed_in_player_id
+    assert_select ".hub-invitation"
+  end
+
+  test "a session cookie replayed after its 30 days signs nobody in" do
+    sign_in_with_steam
+    expired_cookie = cookies["_gameble_session"]
+
+    travel 30.days + 1.minute
+    cookies["_gameble_session"] = expired_cookie
+    get home_path(locale: :en)
+
+    assert_nil signed_in_player_id
+  end
+
+  test "signing out ends the 30-day session at once" do
+    sign_in_with_steam
+
+    delete session_path(locale: :en)
+
+    assert session_cookie, "the sign-out replaces the session cookie"
+    assert_nil signed_in_player_id
+    travel 1.day
+    get home_path(locale: :en)
+    assert_nil signed_in_player_id
+    assert_select ".hub-invitation"
+  end
+
   test "a signed-out visitor sees the Steam sign-in button as a POST form" do
     get home_path(locale: :fr)
 
