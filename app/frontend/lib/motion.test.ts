@@ -46,6 +46,11 @@ describe("motionReduced", () => {
     expect(motionReduced()).toBe(true)
   })
 
+  it("is off when html[data-motion] says full, even when the system asks for reduced motion", () => {
+    stubPage("full", true)
+    expect(motionReduced()).toBe(false)
+  })
+
   it("follows the system when the attribute is absent", () => {
     stubPage(undefined, true)
     expect(motionReduced()).toBe(true)
@@ -75,6 +80,31 @@ describe("onMotionChange", () => {
     page.setMotion(undefined)
     expect(listener).toHaveBeenLastCalledWith(false)
     stop()
+  })
+
+  it("tells the listener when the attribute forces full motion over the system's reduced motion, and when it is removed", () => {
+    const page = stubPage(undefined, true)
+    const listener = vi.fn()
+    const stop = onMotionChange(listener)
+
+    page.setMotion("full")
+    expect(listener).toHaveBeenLastCalledWith(false)
+
+    page.setMotion(undefined)
+    expect(listener).toHaveBeenLastCalledWith(true)
+    expect(listener).toHaveBeenCalledTimes(2)
+    stop()
+  })
+
+  it("stays quiet when the system preference flips under a forced full motion", () => {
+    const page = stubPage("full", false)
+    const listener = vi.fn()
+    onMotionChange(listener)
+
+    vi.stubGlobal("window", { matchMedia: () => ({ matches: true, addEventListener: () => {}, removeEventListener: () => {} }) })
+    page.listeners.forEach((check) => check())
+
+    expect(listener).not.toHaveBeenCalled()
   })
 
   it("tells the listener when the system preference flips", () => {

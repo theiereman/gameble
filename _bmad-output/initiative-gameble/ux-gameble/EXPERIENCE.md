@@ -348,7 +348,7 @@ Movement is fluid at 60fps (transforms and opacity only; continuous loops never 
 | Dialog | 160ms scrim, 220ms panel | The panel rises 16px into place. |
 | Feed entry | 280ms | Slides down from the top. |
 
-**Reduced motion.** Applies when the system asks for it or when "ANIMATIONS RÉDUITES" is on in Profil et paramètres (default: follow the system). The rule: nothing translates, rotates, scales, shakes, flashes, blinks, sweeps or loops; state changes are 150 to 220ms crossfades; the ticker stops and shows its latest items still; the LIVE marker stays lit; the star field, rays, holo, sheen, canister breathing and idle floats stop; flashes are removed (not dimmed); tilt is off. Exceptions, spelled out:
+**Reduced motion.** Applies when "ANIMATIONS RÉDUITES" is OUI in Profil et paramètres, or when it is SYSTÈME (the default) and the system asks for it; NON plays the full motion even when the system asks for less. The rule: nothing translates, rotates, scales, shakes, flashes, blinks, sweeps or loops; state changes are 150 to 220ms crossfades; the ticker stops and shows its latest items still; the LIVE marker stays lit; the star field, rays, holo, sheen, canister breathing and idle floats stop; flashes are removed (not dimmed); tilt is off. Exceptions, spelled out:
 
 - **Opening:** the canister fades out in 200ms and the cards fade in (240ms, 40ms apart).
 - **Reveal:** each card crossfades to its face in 220ms; a Légendaire shows a still "LÉGENDAIRE !" banner for 1.4s instead of its sequence.

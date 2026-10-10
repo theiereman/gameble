@@ -1,8 +1,8 @@
 require "test_helper"
 
-# The settings screen and the motion switch (EXPERIENCE.md, Reduced motion;
-# AD-27): the player's setting, else the cookie, else the system, rendered as
-# `html[data-motion]` and in the view-transition meta.
+# The settings screen and the motion switch: the player's setting, else the
+# cookie, else the system, rendered as `html[data-motion]` ("reduced", "full"
+# or absent) and in the view-transition meta.
 class SettingsControllerTest < ActionDispatch::IntegrationTest
   setup do
     OmniAuth.config.test_mode = true
@@ -21,7 +21,8 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert session[:player_id]
   end
 
-  def reduced? = css_select("html[data-motion=reduced]").any?
+  def reduced? = forced_motion == "reduced"
+  def forced_motion = css_select("html").first["data-motion"]
   def transition_meta? = css_select("meta[name=view-transition]").any?
 
   # The settings screen
@@ -236,7 +237,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_not reduced?
+    assert_nil forced_motion
     assert transition_meta?
   end
 
@@ -252,14 +253,16 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a player's explicit no forces nothing" do
+  test "a player's explicit no forces full motion over the system's preference, view transitions included" do
     @player.update!(reduced_motion: false)
     sign_in
 
-    get home_path(locale: :en)
+    [ home_path(locale: :en), settings_path(locale: :fr) ].each do |path|
+      get path
 
-    assert_not reduced?
-    assert transition_meta?
+      assert_equal "full", forced_motion, path
+      assert transition_meta?, path
+    end
   end
 
   test "a visitor follows the cookie: reduced, no meta" do
@@ -267,16 +270,25 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert reduced?
+    assert_equal "reduced", forced_motion
     assert_not transition_meta?
   end
 
-  test "a visitor with an explicit-no cookie, or none, or a junk one, is forced nothing" do
-    [ "full", nil, "", "reduced ", "1" ].each do |value|
+  test "a visitor with an explicit-no cookie is forced full motion" do
+    cookies[:motion] = "full"
+
+    get home_path(locale: :en)
+
+    assert_equal "full", forced_motion
+    assert transition_meta?
+  end
+
+  test "a visitor with no cookie, or a junk one, is forced nothing" do
+    [ nil, "", "reduced ", "1", "Full" ].each do |value|
       cookies[:motion] = value
       get home_path(locale: :en)
 
-      assert_not reduced?, value.inspect
+      assert_nil forced_motion, value.inspect
       assert transition_meta?, value.inspect
     end
   end
@@ -288,23 +300,25 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
 
-    assert_not reduced?
+    assert_equal "full", forced_motion
 
     @player.update!(reduced_motion: true)
     cookies[:motion] = "full"
     get home_path(locale: :en)
 
-    assert reduced?
+    assert_equal "reduced", forced_motion
   end
 
   test "a signed-in player who follows the system ignores the cookie" do
     sign_in
-    cookies[:motion] = "reduced"
 
-    get home_path(locale: :en)
+    [ "reduced", "full" ].each do |value|
+      cookies[:motion] = value
+      get home_path(locale: :en)
 
-    assert_not reduced?
-    assert transition_meta?
+      assert_nil forced_motion, value
+      assert transition_meta?, value
+    end
   end
 
   test "a visitor does not see the settings row on the PLUS screen" do
@@ -344,6 +358,8 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     sign_in
     delete session_path(locale: :en)
     assert_equal "full", cookies[:motion]
+    follow_redirect!
+    assert_equal "full", forced_motion
 
     @player.update!(reduced_motion: nil)
     sign_in
@@ -352,7 +368,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_predicate cookies[:motion], :blank?
     follow_redirect!
-    assert_not reduced?
+    assert_nil forced_motion
   end
 
   test "the player menu links to the settings, and the tab bar's PLUS opens the rest of the ship" do

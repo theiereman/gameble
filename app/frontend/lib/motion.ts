@@ -1,15 +1,17 @@
-// The one switch for reduced motion (EXPERIENCE.md, Reduced motion; AD-27),
-// read by Stimulus controllers and islands. CSS reads the same two sources:
-// the system preference and `html[data-motion=reduced]`, which the server
-// renders from the player's "Animations réduites" setting, else its cookie
-// (ApplicationController#motion_reduced?).
+// The one switch for reduced motion, read by Stimulus controllers and
+// islands. CSS reads the same two sources: `html[data-motion]`, which the
+// server renders from the player's "Animations réduites" setting, else its
+// cookie (ApplicationController#forced_motion), and, when that attribute is
+// absent, the system preference.
 export const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)"
 
 // Whether motion is reduced right now: read at the moment of use, never
 // cached, so a change of the attribute or of the system preference is seen
 // by the next call.
 export function motionReduced(): boolean {
-  if (typeof document !== "undefined" && document.documentElement.dataset.motion === "reduced") return true
+  const forced = typeof document !== "undefined" ? document.documentElement.dataset.motion : undefined
+  if (forced === "reduced") return true
+  if (forced === "full") return false
   return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(REDUCED_MOTION_QUERY).matches
 }
 

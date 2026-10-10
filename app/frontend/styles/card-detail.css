@@ -571,7 +571,7 @@ html[data-sub-view-step="previous"]::view-transition-new(card-detail-card) {
    the controller starts none). ---- */
 
 @media (prefers-reduced-motion: reduce) {
-  html[data-sub-view-step] .card-detail__card {
+  html:not([data-motion="full"])[data-sub-view-step] .card-detail__card {
     view-transition-name: none;
   }
 }

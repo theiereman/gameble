@@ -20,16 +20,17 @@ class ApplicationController < ActionController::Base
 
   rescue_from Pundit::NotAuthorizedError, with: :refuse
 
-  # The motion preference's cookie (EXPERIENCE.md, Reduced motion; AD-27):
-  # the player's "Animations réduites" setting mirrored for the visitor they
-  # become at sign-out. "reduced" forces reduced motion, "full" is an
-  # explicit "no"; no cookie follows the system.
+  # The motion preference's cookie: the player's "Animations réduites"
+  # setting mirrored for the visitor they become at sign-out. No cookie
+  # follows the system.
   MOTION_COOKIE = :motion
-  MOTION_COOKIE_VALUES = { "reduced" => true, "full" => false }.freeze
+  # The motion a setting forces over the system's preference, by the name
+  # the cookie and `html[data-motion]` carry.
+  FORCED_MOTIONS = { "reduced" => true, "full" => false }.freeze
 
   PRESENCE_MARK = :seen_at
 
-  helper_method :current_player, :motion_reduced?
+  helper_method :current_player, :forced_motion, :motion_reduced?
 
   private
     # Whether this request reads a page meant to be opened from a shared
@@ -85,17 +86,20 @@ class ApplicationController < ActionController::Base
       @current_player = player
     end
 
-    # The motion preference: a signed-in player's own setting (nil follows
-    # the system), a visitor's cookie. true forces reduced motion.
+    # The motion preference: a signed-in player's own setting, else a
+    # visitor's cookie. true forces reduced motion, false full motion, nil
+    # follows the system.
     def motion_setting
-      current_player ? current_player.reduced_motion : MOTION_COOKIE_VALUES[cookies[MOTION_COOKIE]]
+      current_player ? current_player.reduced_motion : FORCED_MOTIONS[cookies[MOTION_COOKIE]]
     end
 
-    # Whether the server forces reduced motion: the layout sets
-    # `html[data-motion=reduced]` from it and drops the view-transition meta
-    # (AD-27). The system's own preference is read by CSS and motion.ts.
+    # "reduced", "full", or nil when CSS and motion.ts follow the system.
+    def forced_motion
+      FORCED_MOTIONS.key(motion_setting)
+    end
+
     def motion_reduced?
-      motion_setting == true
+      forced_motion == "reduced"
     end
 
     # Mirrors a setting (true, false, nil) in the motion cookie, which lives
@@ -104,7 +108,7 @@ class ApplicationController < ActionController::Base
       if setting.nil?
         cookies.delete(MOTION_COOKIE)
       else
-        cookies[MOTION_COOKIE] = { value: setting ? "reduced" : "full", expires: 1.year.from_now, httponly: true, same_site: :lax }
+        cookies[MOTION_COOKIE] = { value: FORCED_MOTIONS.key(setting), expires: 1.year.from_now, httponly: true, same_site: :lax }
       end
     end
 

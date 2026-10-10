@@ -396,15 +396,15 @@
 /* ---- Reduced motion: no tilt, glare, holo or foil ---- */
 
 @media (prefers-reduced-motion: reduce) {
-  .card[data-tilt] {
+  html:not([data-motion="full"]) .card[data-tilt] {
     transform: none;
   }
 
-  .card__glare,
-  .card__holo,
-  .card__foil,
-  .card[data-in-view] .card__holo,
-  .card[data-in-view] .card__foil {
+  html:not([data-motion="full"]) .card__glare,
+  html:not([data-motion="full"]) .card__holo,
+  html:not([data-motion="full"]) .card__foil,
+  html:not([data-motion="full"]) .card[data-in-view] .card__holo,
+  html:not([data-motion="full"]) .card[data-in-view] .card__foil {
     display: none;
     animation: none;
     transition: none;

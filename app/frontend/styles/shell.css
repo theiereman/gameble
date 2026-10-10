@@ -1440,42 +1440,43 @@ html[data-sub-view-step] .main {
   }
 }
 
-/* ---- Reduced motion (EXPERIENCE.md): the system's preference or the
-   player's setting (html[data-motion=reduced], motion.ts) stops the star
+/* ---- Reduced motion: the player's setting (html[data-motion=reduced],
+   motion.ts) or, unless the setting asks for full motion
+   (html[data-motion=full]), the system's preference stops the star
    twinkle, the screen slides, the toast rise and the ticker, which shows
    its latest items still; the LIVE marker stays lit. ---- */
 
 @media (prefers-reduced-motion: reduce) {
-  .atmosphere__twinkle > i {
+  html:not([data-motion="full"]) .atmosphere__twinkle > i {
     animation: none;
   }
 
-  .live-marker__dot,
-  .ticker[data-ticker-state] .ticker__track {
+  html:not([data-motion="full"]) .live-marker__dot,
+  html:not([data-motion="full"]) .ticker[data-ticker-state] .ticker__track {
     animation: none;
   }
 
-  .button {
+  html:not([data-motion="full"]) .button {
     transition: none;
   }
 
-  .toast {
+  html:not([data-motion="full"]) .toast {
     animation: none;
   }
 
   /* A dialog only crossfades. */
-  .modal[open] {
+  html:not([data-motion="full"]) .modal[open] {
     animation-name: modal-fade;
   }
 
-  .button:hover,
-  .button:active {
+  html:not([data-motion="full"]) .button:hover,
+  html:not([data-motion="full"]) .button:active {
     transform: none;
   }
 
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
+  html:not([data-motion="full"])::view-transition-group(*),
+  html:not([data-motion="full"])::view-transition-old(*),
+  html:not([data-motion="full"])::view-transition-new(*) {
     animation: none !important;
   }
 }

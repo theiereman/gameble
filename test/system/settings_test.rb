@@ -1,12 +1,13 @@
 require "application_system_test_case"
 require_relative "../support/game_packs"
 
-# The settings screen and the one motion switch (story 10.4; EXPERIENCE.md,
-# Reduced motion; AD-27): "Animations réduites" is SYSTÈME / OUI / NON, kept
-# on the player and mirrored in a cookie; the server renders it as
-# `html[data-motion=reduced]` (and drops the view-transition meta), and CSS,
-# Stimulus and the islands all read that one attribute: nothing loops and
-# nothing slides, signed in or out, and the switch is live.
+# The settings screen and the one motion switch: "Animations réduites" is
+# SYSTÈME / OUI / NON, kept on the player and mirrored in a cookie; the
+# server renders OUI as `html[data-motion=reduced]` (and drops the
+# view-transition meta) and NON as `html[data-motion=full]`, which overrides
+# the system's preference. CSS, Stimulus and the islands all read that one
+# attribute: nothing loops and nothing slides, signed in or out, and the
+# switch is live.
 class SettingsTest < ApplicationSystemTestCase
   include GamePacks
 
@@ -243,12 +244,19 @@ class SettingsTest < ApplicationSystemTestCase
     assert_not view_transition_meta?
   end
 
-  test "under the system's reduced motion nothing loops without the setting" do
+  test "under the system's reduced motion nothing loops without the setting, and an explicit no brings the loops back" do
     page.driver.browser.execute_cdp("Emulation.setEmulatedMedia", features: [ { name: "prefers-reduced-motion", value: "reduce" } ])
     visit card_path(locale: :en, slug: "portal")
 
     assert_not forced?
     assert_empty loops
+
+    page.driver.browser.manage.add_cookie(name: "motion", value: "full", path: "/")
+    visit card_path(locale: :en, slug: "portal")
+
+    assert_selector "html[data-motion=full] .live-marker__dot", visible: :all
+    assert_not_empty loops, "the LIVE marker blinks when the setting asks for full motion"
+    assert view_transition_meta?
   ensure
     page.driver.browser.execute_cdp("Emulation.setEmulatedMedia", features: [ { name: "prefers-reduced-motion", value: "" } ])
   end

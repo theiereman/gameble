@@ -589,34 +589,34 @@
 /* ---- Reduced motion: every loop stops; no hover lift, no rays ---- */
 
 @media (prefers-reduced-motion: reduce) {
-  .booster-canister__idle,
-  .booster-canister__rays,
-  .booster-canister__sweep-band,
-  .booster-card[data-revealed] .booster-card__rays,
-  .booster-card__back::after,
-  .booster-zoom__rays,
-  .booster-zoom[open]::backdrop {
+  html:not([data-motion="full"]) .booster-canister__idle,
+  html:not([data-motion="full"]) .booster-canister__rays,
+  html:not([data-motion="full"]) .booster-canister__sweep-band,
+  html:not([data-motion="full"]) .booster-card[data-revealed] .booster-card__rays,
+  html:not([data-motion="full"]) .booster-card__back::after,
+  html:not([data-motion="full"]) .booster-zoom__rays,
+  html:not([data-motion="full"]) .booster-zoom[open]::backdrop {
     animation: none;
   }
 
-  .booster-canister__sweep,
-  .booster-card__rays,
-  .booster-card__back::after,
-  .booster-zoom__rays {
+  html:not([data-motion="full"]) .booster-canister__sweep,
+  html:not([data-motion="full"]) .booster-card__rays,
+  html:not([data-motion="full"]) .booster-card__back::after,
+  html:not([data-motion="full"]) .booster-zoom__rays {
     display: none;
   }
 
-  .booster-card__hover,
-  .booster[data-layout="phone"] .booster-card__travel {
+  html:not([data-motion="full"]) .booster-card__hover,
+  html:not([data-motion="full"]) .booster[data-layout="phone"] .booster-card__travel {
     transition: none;
   }
 
   /* The zoom only crossfades. */
-  .booster-zoom__panel {
+  html:not([data-motion="full"]) .booster-zoom__panel {
     animation-name: modal-fade;
   }
 
-  .booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible) .booster-card__hover {
+  html:not([data-motion="full"]) .booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible) .booster-card__hover {
     transform: none;
   }
 }

@@ -596,12 +596,12 @@ button.menu-item:focus-visible:hover {
 /* ---- Reduced motion: no slide ---- */
 
 @media (prefers-reduced-motion: reduce) {
-  .menu-item {
+  html:not([data-motion="full"]) .menu-item {
     transition: none;
   }
 
-  a.menu-item:hover,
-  button.menu-item:hover {
+  html:not([data-motion="full"]) a.menu-item:hover,
+  html:not([data-motion="full"]) button.menu-item:hover {
     transform: none;
   }
 }
