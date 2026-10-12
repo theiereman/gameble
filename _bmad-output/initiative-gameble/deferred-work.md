@@ -49,9 +49,6 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-collection-and-sharing/story-fixes-from-the-epic-retrospective-plan.md`
   summary: Two small edge cases: `og_locale` reads `OG_LOCALES` with `fetch`, so a third locale added to the routes without its Open Graph name makes every card page a 500; and `SetLabel.for` gives a nil label for a publisher set whose `params` has no `publisher` name.
   evidence: Epic 4 retrospective O5, deferred (the import always sets the publisher name; adding a locale is a deliberate change). The third O5 point, a holder's own `/cards/…` address without preview tags, is resolved by story 4.7: the card's page is the share link and carries them.
-- source_plan: `_bmad-output/initiative-gameble/epic-collection-and-sharing/story-fixes-from-the-epic-retrospective-plan.md`
-  summary: The visitor invitation's `section` takes the whole visible sentence as its `aria-label`, so a screen reader reads it twice; it is also a `card-detail__` element outside the `.card-detail` block.
-  evidence: Story 4.7 review (blind hunter), deferred as pre-existing: story 4.5's `public_profiles/card.html.erb` had the same markup, moved as is to `cards/show.html.erb`. A fix would use `aria-labelledby` on the plate's paragraph; the UX redesign may replace the invitation.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
   summary: Transitional: the packs chip's countdown stops at 00:00 and never refreshes the page (`countdown` controller with `refresh: false`); the new count appears on the next visit or when the hub's own countdown refreshes it.
   evidence: Story 8.1 Design Notes; `app/frontend/controllers/countdown_controller.ts`.
@@ -75,9 +72,6 @@
   summary: On the phone the stage leaves about 16px above the large card at 510px, so a Légendaire's jump is about 9px (60 % of that room) and every reveal's swell is damped to a quarter (`phoneSwell`) to stay clear of the caption plate 8px below; a taller stage on taller phones would give the jump its room.
   evidence: Story 8.12; `app/frontend/lib/booster.ts` (`phoneJump`, `phoneSwell`), `app/frontend/styles/booster.css` (the phone's `.booster__shake` rows).
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-card-detail-plan.md`
-  summary: The card detail has no rays behind an Épique or Légendaire card and no idle float with a breathing ground shadow (DESIGN.md Elevation & Depth, EXPERIENCE.md Motion "Idle float"); the hub showcase lacks them too, so they belong in one shared piece of work.
-  evidence: Story 10.2 Never list; `app/frontend/styles/card-detail.css` draws a still ground shadow only.
-- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/story-card-detail-plan.md`
   summary: The phone sub-view's swipe, step View Transition and "◀ Grille" history back were verified only in headless Chromium with synthetic pointer events; check them on an iOS Safari and an Android Chrome device (swipe beside the 150ms tilt hold, the card's turn, Back to the grid at its scroll).
   evidence: Story 10.2 review, follow-up recommended; `test/system/card_detail_test.rb`.
   resolved: The author checked the swipe, transition and Back on a real iPhone and Android (2026-10-12): ok.
@@ -94,16 +88,10 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-friends-and-trades/story-fixes-from-the-epic-retrospective-plan.md`
   summary: "One unanswered invitation per sender and recipient" is enforced only by app code under the pair lock; the unique index covers pending rows only.
   evidence: `index_game_invitations_one_pending_per_pair` is partial on `status = 'pending'`, while `SendInvitation` now refuses `:already_sent` for ignored rows too. An index on `status IN ('pending', 'ignored')` needs an expand/contract migration.
-- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-moderation-by-rank-a-hidden-back-office-and-staff-reading-ev-plan.md`
-  summary: A member of staff reading a private, friends-only or banned profile sees it exactly as a public one: nothing says that players do not see it, so staff could share its link believing it public.
-  evidence: Story 7.17 kept the profile page unchanged (no staff marker, by its plan). A line such as "Profil privé : visible des officiers seulement" needs copy in both locales and a place in the profile header.
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-a-searchable-list-of-players-in-the-back-office-plan.md`
   summary: The back-office players search reads `persona_name ILIKE '%…%'` with no index, so each search scans `accounts_players`.
   evidence: Story 7.18 added no migration (its plan rules out a search index); a scan is instant at launch's player count. Once players number in the hundreds of thousands, a `pg_trgm` GIN index on `persona_name` (the extension in one migration, the index built concurrently in its own) keeps the search fast.
 
-- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-a-private-profile-closes-its-social-side-plan.md`
-  summary: Going private gives no feedback afterwards, and a trade opened after the settings page rendered (or with JavaScript off) is cancelled without the confirmation.
-  evidence: `SettingsController#visibility` redirects without a toast, and the dialog renders only when `Game::OpenTradeCount` was positive at page load. A toast such as "Profil privé : 2 échanges annulés" (count read before the PATCH) would cover all three cases; it needs new copy in both locales.
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-races-between-bank-operations-plan.md`
   summary: `Game::CreatePlayerState` and `Game::CreateFriendCode`, run by the backfill jobs, take no bank lock and do not re-check deletion, so an account deleted while a backfill runs can be left with a state row or a friend code.
   evidence: Both insert under `require_account` only, after `BackfillPlayerStatesJob` or `BackfillFriendCodesJob` read the players in batches. The backfills are one-off deploy tasks, so the window is one deploy run. The fix is `lock_bank` in both operations, as story 7.9 did for `Game::MarkCollectionSeen`.
