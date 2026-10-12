@@ -24,12 +24,17 @@ module Catalog
       unversioned + versioned.sort
     end
 
+    # The sets stored at publication: each kind's count, and the card count
+    # of each theme and of the UFOs.
     def self.published_panel(season_id, rows)
-      sets = Set.where(season_id:).group(:kind, Arel.sql("params ->> 'genre'")).count
+      kinds = Set.where(season_id:).group(:kind).count
+      members = SetMembership.joins(:set).where(catalog_sets: { season_id:, kind: %w[theme ufo] })
+        .group("catalog_sets.kind", "catalog_sets.key").count
       ScorePanel.build(rows,
         tiers: stored_tiers(season_id),
-        tome_counts: sets.filter_map { |(kind, genre), count| [ genre, count ] if kind == "tome" }.to_h,
-        set_counts: Set.kinds.keys.index_with { |kind| sets.sum { |(set_kind, _), count| set_kind == kind ? count : 0 } })
+        theme_counts: members.filter_map { |(kind, key), count| [ key, count ] if kind == "theme" }.to_h,
+        ufo_count: kinds.key?("theme") || kinds.key?("ufo") ? members.sum { |(kind, _), count| kind == "ufo" ? count : 0 } : nil,
+        set_counts: Set::BUILT_KINDS.index_with { |kind| kinds.fetch(kind, 0) })
     end
 
     def self.stored_tiers(season_id)

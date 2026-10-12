@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_12_110005) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_120003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -73,6 +73,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_110005) do
     t.integer "number"
     t.integer "prestige_score_version", limit: 2
     t.integer "review_count"
+    t.string "main_theme"
     t.index ["card_id", "season_id"], name: "index_catalog_card_seasons_on_card_id_and_season_id", unique: true
     t.index ["season_id", "number"], name: "index_catalog_card_seasons_on_season_id_and_number", unique: true
     t.index ["season_id"], name: "index_catalog_card_seasons_on_season_id"
@@ -132,6 +133,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_110005) do
     t.index ["set_id", "card_season_id"], name: "index_catalog_set_memberships_on_set_id_and_card_season_id", unique: true
   end
 
+  create_table "catalog_set_tiers", force: :cascade do |t|
+    t.bigint "set_id", null: false
+    t.string "tier", null: false
+    t.integer "required", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["set_id", "tier"], name: "index_catalog_set_tiers_on_set_id_and_tier", unique: true
+    t.check_constraint "required > 0", name: "catalog_set_tiers_required_check"
+    t.check_constraint "tier::text = ANY (ARRAY['bronze'::character varying::text, 'silver'::character varying::text, 'gold'::character varying::text, 'complete'::character varying::text])", name: "catalog_set_tiers_tier_check"
+  end
+
   create_table "catalog_sets", force: :cascade do |t|
     t.bigint "season_id", null: false
     t.string "kind", null: false
@@ -140,7 +152,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_110005) do
     t.datetime "updated_at", null: false
     t.jsonb "params", default: {}, null: false
     t.index ["season_id", "kind", "key"], name: "index_catalog_sets_on_season_id_and_kind_and_key", unique: true
-    t.check_constraint "kind::text = 'publisher'::text OR kind::text = 'tome'::text OR kind::text = 'best_of_year'::text", name: "catalog_sets_kind_check"
+    t.check_constraint "kind::text = ANY (ARRAY['publisher'::character varying::text, 'tome'::character varying::text, 'best_of_year'::character varying::text, 'theme'::character varying::text, 'franchise'::character varying::text, 'studio'::character varying::text, 'hall_of_fame'::character varying::text, 'ufo'::character varying::text])", name: "catalog_sets_kind_check"
   end
 
   create_table "event_store_events", force: :cascade do |t|
@@ -450,6 +462,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_110005) do
   add_foreign_key "catalog_card_texts", "catalog_cards", column: "card_id"
   add_foreign_key "catalog_set_memberships", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "catalog_set_memberships", "catalog_sets", column: "set_id"
+  add_foreign_key "catalog_set_tiers", "catalog_sets", column: "set_id"
   add_foreign_key "catalog_sets", "catalog_seasons", column: "season_id"
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
   add_foreign_key "game_daily_bonus_claims", "accounts_players", column: "player_id"

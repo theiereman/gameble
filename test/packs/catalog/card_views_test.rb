@@ -2,12 +2,10 @@ require "test_helper"
 
 # Catalog::CardViews: what a card shows, for a list of card-seasons.
 class Catalog::CardViewsTest < ActiveSupport::TestCase
-  # Puts the card-season in a tome of genre `genre` of its (published)
-  # season, with insert_all as a published season's sets can no longer change.
-  def in_tome(card_season, genre)
-    set_id = Catalog::Set.insert_all!([ { season_id: card_season.season_id, kind: "tome", key: "#{genre}-1",
-      params: { "genre" => genre, "volume" => 1, "volumes" => 1 } } ], returning: :id).rows.flatten.sole
-    Catalog::SetMembership.insert_all!([ { set_id:, card_season_id: card_season.id, position: 1 } ])
+  # Gives the card-season of a published season its main theme, with
+  # update_all as its season data can no longer change.
+  def with_main_theme(card_season, theme)
+    Catalog::CardSeason.where(id: card_season.id).update_all(main_theme: theme)
   end
 
   test "three card-seasons in French, with their years, seasons and rarities" do
@@ -23,14 +21,14 @@ class Catalog::CardViewsTest < ActiveSupport::TestCase
     assert_equal "Golden Crown", Catalog::CardViews.call([ legendary.id ], locale: "en").fetch(legendary.id).title
   end
 
-  test "the number of each card-season, and the genre of its tome, nil when in no tome" do
+  test "the number of each card-season, and its main theme as genre, nil without one" do
     portal, common = catalog_card_seasons(:portal_one), catalog_card_seasons(:common_card_one)
-    in_tome(portal, "puzzle")
+    with_main_theme(portal, "puzzle")
 
     views = Catalog::CardViews.call([ portal.id, common.id ], locale: :en)
 
     assert_equal [ 4, "puzzle" ], views.fetch(portal.id).then { [ it.number, it.genre ] }
-    assert_equal [ 1, nil ], views.fetch(common.id).then { [ it.number, it.genre ] }, "in the publisher set only"
+    assert_equal [ 1, nil ], views.fetch(common.id).then { [ it.number, it.genre ] }, "a season published before themes"
   end
 
   test "an unnumbered card-season has no number and no label" do
@@ -73,7 +71,7 @@ class Catalog::CardViewsTest < ActiveSupport::TestCase
 
   test "one query" do
     ids = catalog_card_seasons(:portal_one, :common_card_one, :legendary_card_one).map(&:id)
-    in_tome(catalog_card_seasons(:portal_one), "puzzle")
+    with_main_theme(catalog_card_seasons(:portal_one), "puzzle")
 
     queries = []
     callback = ->(*, payload) { queries << payload[:sql] unless payload[:name] == "SCHEMA" }

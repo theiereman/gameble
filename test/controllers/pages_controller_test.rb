@@ -72,11 +72,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "link[rel=stylesheet][href^='/vite-test/assets/application-'][href$='.css']"
   end
 
-  test "the showcase's line names the genre of the card's tome, and leaves out a missing number" do
+  test "the showcase's line names the card's main theme as its genre, and leaves out a missing number" do
     create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
-    set_id = Catalog::Set.insert_all!([ { season_id: catalog_seasons(:one).id, kind: "tome", key: "puzzle-1",
-      params: { "genre" => "puzzle", "volume" => 1, "volumes" => 1 } } ], returning: :id).rows.flatten.first
-    Catalog::SetMembership.insert_all!([ { set_id:, card_season_id: catalog_card_seasons(:portal_one).id, position: 1 } ])
+    Catalog::CardSeason.where(id: catalog_card_seasons(:portal_one).id).update_all(main_theme: "puzzle")
     sign_in(@player)
 
     get home_path(locale: :fr)

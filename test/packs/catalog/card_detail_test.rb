@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Catalog::CardDetail (CAP-7, story 4.3): a card's detail by its slug, in
+# Catalog::CardDetail: a card's detail by its slug, in
 # the published season or the season numbered, with its sets.
 class Catalog::CardDetailTest < ActiveSupport::TestCase
   include CatalogSeeds
@@ -89,25 +89,36 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert_nil Catalog::CardDetail.call(slug: "portal", locale: :en, season_number: 1)
   end
 
-  test "the sets come tome first, then publisher, then best of year, each by key" do
-    season = publish_sets_draft
-    id = Catalog::SetMembership.joins(:set).where(catalog_sets: { season_id: season.id, kind: "publisher", key: "p" }).pick(:card_season_id)
-    slug = Catalog::CardSeason.find(id).card.slug
-    expected = Catalog::Set.joins(:memberships).where(catalog_set_memberships: { card_season_id: id }).pluck(:kind, :key)
-      .sort_by { |kind, key| [ %w[tome publisher best_of_year].index(kind), key ] }
+  test "the sets come themes first, then the UFOs, then the retired kinds, each by key" do
+    season = seed_published_sets([
+      [ "best_of_year", "2011", { "year" => 2011 } ], [ "publisher", "a", { "publisher" => "A" } ], [ "tome", "rpg-1", { "genre" => "rpg", "volume" => 1, "volumes" => 1 } ],
+      [ "ufo", "ufos", {} ], [ "theme", "rpg", { "theme" => "rpg" } ], [ "theme", "horror", { "theme" => "horror" } ]
+    ])
+    Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.99, rating: 99, rarity: 5 } ])
+    card_season_id = Catalog::CardSeason.find_by!(season_id: season.id).id
+    Catalog::SetMembership.insert_all!(Catalog::Set.where(season_id: season.id).ids.map { |set_id| { set_id:, card_season_id:, position: 1 } })
 
-    detail = Catalog::CardDetail.call(slug:, locale: :en)
+    detail = Catalog::CardDetail.call(slug: "portal", locale: :en)
 
-    assert_equal expected, detail.sets.map { [ it.kind, it.key ] }
-    assert_includes detail.sets.map(&:kind), "tome"
-    assert_equal "publisher", detail.sets.find { it.key == "p" }.kind
-    assert_equal({ "publisher" => "P" }, detail.sets.find { it.key == "p" }.params)
+    assert_equal [ [ "theme", "horror" ], [ "theme", "rpg" ], [ "ufo", "ufos" ], [ "tome", "rpg-1" ], [ "publisher", "a" ], [ "best_of_year", "2011" ] ],
+      detail.sets.map { [ it.kind, it.key ] }
+    assert_equal({ "theme" => "horror" }, detail.sets.first.params)
   end
 
-  test "the view carries the card-season's number and the genre of its tome in that season" do
+  test "the main theme's set comes first, though its key sorts after the card's other theme" do
     season = publish_sets_draft
-    tome = Catalog::Set.find_by!(season_id: season.id, kind: "tome", key: "rpg-1")
-    card_season = tome.memberships.first.card_season
+    card_season = Catalog::CardSeason.find_by!(season_id: season.id, main_theme: "rpg")
+
+    detail = Catalog::CardDetail.call(slug: card_season.card.slug, locale: :en)
+
+    assert_equal %w[rpg roguelike], card_season.card.genres
+    assert_equal "rpg", detail.view.genre
+    assert_equal [ [ "theme", "rpg" ], [ "theme", "roguelike" ] ], detail.sets.map { [ it.kind, it.key ] }
+  end
+
+  test "the view carries the card-season's number and its main theme as genre" do
+    season = publish_sets_draft
+    card_season = Catalog::Set.find_by!(season_id: season.id, kind: "theme", key: "rpg").memberships.first.card_season
 
     view = Catalog::CardDetail.call(slug: card_season.card.slug, locale: :en).view
 
@@ -116,7 +127,17 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert_equal "S#{season.number} · ##{card_season.number}", view.number_label
   end
 
-  test "a card-season in no tome has no genre; one never numbered has no number" do
+  test "a card-season of the UFOs has no genre" do
+    season = publish_sets_draft
+    card_season = Catalog::Set.find_by!(season_id: season.id, kind: "ufo", key: "ufos").memberships.first.card_season
+
+    detail = Catalog::CardDetail.call(slug: card_season.card.slug, locale: :en)
+
+    assert_nil detail.view.genre
+    assert_equal [ [ "ufo", "ufos" ] ], detail.sets.map { [ it.kind, it.key ] }
+  end
+
+  test "a card-season of a season published before themes has no genre; one never numbered has no number" do
     publish_season_two_with_portal
 
     view = Catalog::CardDetail.call(slug: "portal", locale: :en).view

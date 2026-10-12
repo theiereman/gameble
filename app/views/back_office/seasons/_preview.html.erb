@@ -96,27 +96,42 @@
       </table>
     <% end %>
 
-    <h3><%= t(".genres") %></h3>
-    <table class="ledger">
-      <caption class="visually-hidden"><%= t(".genres") %></caption>
-      <thead>
-        <tr>
-          <th scope="col"><%= t(".genre") %></th>
-          <th scope="col"><%= t(".cards") %></th>
-          <th scope="col"><%= t(".tomes") %></th>
-        </tr>
-      </thead>
-      <tbody>
-        <% panel.genres.each do |genre| %>
-          <% key = genre.genre || "none" %>
-          <tr data-preview-genre="<%= key %>">
-            <th scope="row"><code><%= key %></code></th>
-            <td><%= number_with_delimiter(genre.card_count) %></td>
-            <td><%= number_with_delimiter(genre.tome_count) %></td>
-          </tr>
+    <h3><%= t(".themes") %></h3>
+    <% if panel.theme_verdict %>
+      <%= render PanelComponent.new(tag: :p) do %>
+        <span data-preview-verdict="<%= panel.theme_verdict %>"><%= Catalog::PublishSeason.failure_message(panel.theme_verdict) %></span>
+      <% end %>
+    <% end %>
+    <% if panel.ufo_count.nil? %>
+      <p data-preview-no-themes><%= t(".no_themes") %></p>
+    <% else %>
+      <p data-preview-ufo-count="<%= panel.ufo_count %>" <%= "data-preview-ufo-over-limit" if panel.ufo_share_over_limit? %>>
+        <%= t(".ufos", count: panel.ufo_count, formatted: number_with_delimiter(panel.ufo_count),
+          share: number_to_percentage(panel.ufo_share * 100, precision: 1)) %>
+        <% if panel.ufo_share_over_limit? %>
+          <%= t(".ufos_over_limit", limit: number_to_percentage(Catalog::Themes::UFO_SHARE_LIMIT * 100, precision: 0)) %>
         <% end %>
-      </tbody>
-    </table>
+      </p>
+    <% end %>
+    <% if panel.themes.any? %>
+      <table class="ledger">
+        <caption class="visually-hidden"><%= t(".themes") %></caption>
+        <thead>
+          <tr>
+            <th scope="col"><%= t(".theme") %></th>
+            <th scope="col"><%= t(".cards") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% panel.themes.each do |theme| %>
+            <tr data-preview-theme="<%= theme.theme %>">
+              <th scope="row"><%= SetLabel.genre(theme.theme) %></th>
+              <td><%= number_with_delimiter(theme.card_count) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
 
     <h3><%= t(".sets") %></h3>
     <table class="ledger">

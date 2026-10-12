@@ -34,13 +34,22 @@ module CatalogSeeds
     season
   end
 
-  # The sets acceptance draft (story 2.7), 150 distinct scores: publisher P with 5 cards and Q with 4; genre action
-  # 75, rpg 44, none 31; released in 2011 x 12, 2012 x 9, 2015 x 129.
+  # The sets acceptance draft, 150 distinct scores: publisher P with 5 cards and Q with 4; genres [roguelike] x 75
+  # (the even cards), [rpg, roguelike] x 44 (odd, below 88), [horror, pirates] x 8 (odd, 89 to 103), [horror] x 8
+  # (odd, 105 to 119), none x 15 (the UFOs); released in 2011 x 12, 2012 x 9, 2015 x 129. Published, it holds the
+  # theme sets roguelike (119 cards), rpg (44), horror (16) and pirates (8), and the UFOs (15).
   def seed_sets_draft
     release_dates = Array.new(12) { |i| Date.new(2011, 1 + i, 1) } + Array.new(9) { |i| Date.new(2012, 1 + i, 1) } +
       Array.new(129) { |i| Date.new(2015, 1, 1) + i }
     publishers = Array.new(150) { |i| if i.between?(140, 144) then "P" elsif i.between?(145, 148) then "Q" end }
-    genres = Array.new(150) { |i| if i.even? then [ "action" ] elsif i < 88 then [ "rpg", "action" ] else [] end }
+    genres = Array.new(150) do |i|
+      if i.even? then [ "roguelike" ]
+      elsif i < 88 then [ "rpg", "roguelike" ]
+      elsif i < 104 then [ "horror", "pirates" ]
+      elsif i < 120 then [ "horror" ]
+      else []
+      end
+    end
     ratings = Array.new(150) { |i| 50 + (i * 37 % 50) }
     seed_card_seasons(distinct_scores(150), release_dates:, publishers:, genres:, ratings:)
   end

@@ -1,7 +1,7 @@
 require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 
-# One set in the collection (CAP-6, story 10.1): its missing slots keep a
+# One set in the collection: its missing slots keep a
 # medium card's size and a long title to three lines; between 720 and
 # 1179px the sets are a strip above the grid; a large set's grid comes sixty
 # cards to a page, and draws its art only near the viewport.
@@ -36,11 +36,11 @@ class TomeTest < ApplicationSystemTestCase
   test "a missing slot is a medium card's size, hatched, its long title kept to three lines" do
     season = publish_sets_draft
     long = "The Long Chronicles of the Amethyst Archive and the Keys Its Keepers Lost at Sea"
-    Catalog::CardText.where(card_id: Catalog::CardSeason.find(members(season, "action-1").first).card_id, locale: "en").update_all(title: long)
+    Catalog::CardText.where(card_id: Catalog::CardSeason.find(members(season, "horror").first).card_id, locale: "en").update_all(title: long)
 
-    visit library_set_path(locale: :en, kind: "tome", key: "action-1")
+    visit library_set_path(locale: :en, kind: "theme", key: "horror")
 
-    assert_selector ".missing-slot", count: 25
+    assert_selector ".missing-slot", count: 16
     assert_equal [ 160, 240 ], page.evaluate_script("(() => { const r = document.querySelector('.missing-slot').getBoundingClientRect(); return [ r.width, r.height ] })()")
     title = find(".missing-slot__title", match: :first)
     assert_equal long, title.text(:all).strip
@@ -53,7 +53,7 @@ class TomeTest < ApplicationSystemTestCase
     publish_sets_draft
     page.driver.browser.manage.window.resize_to(900, 900)
 
-    visit library_set_path(locale: :en, kind: "tome", key: "action-1")
+    visit library_set_path(locale: :en, kind: "theme", key: "horror")
 
     widths = page.evaluate_script("[...document.querySelectorAll('.collection-sets__list .set-row')].map((row) => Math.round(row.getBoundingClientRect().width))")
     assert_equal [ 184 ] * 5, widths
@@ -65,14 +65,14 @@ class TomeTest < ApplicationSystemTestCase
     take_screenshot
   end
 
-  test "a publisher set of 300 cards comes sixty to a page and draws its art only near the viewport" do
-    season = seed_card_seasons(distinct_scores(300), publishers: Array.new(300, "Big"))
+  test "a theme of 300 cards comes sixty to a page and draws its art only near the viewport" do
+    season = seed_card_seasons(distinct_scores(300), genres: Array.new(300) { [ "rpg" ] })
     assert Catalog::PublishSeason.new.call(number: season.number).success?
     player = accounts_players(:player)
-    Game::Holding.insert_all!(members(season.reload, "big").map { |card_season_id| { player_id: player.id, card_season_id:, quantity: 1 } })
+    Game::Holding.insert_all!(members(season.reload, "rpg").map { |card_season_id| { player_id: player.id, card_season_id:, quantity: 1 } })
     sign_in(player)
 
-    visit library_set_path(locale: :en, kind: "publisher", key: "big")
+    visit library_set_path(locale: :en, kind: "theme", key: "rpg")
 
     # Sixty cards counted in one call (see library_test.rb).
     assert_selector ".collection-grid .card.card--m", count: 60, visible: :all
@@ -85,7 +85,7 @@ class TomeTest < ApplicationSystemTestCase
     assert_selector ".collection-grid > li:last-child .card__art[data-art]", visible: :all, wait: 10
 
     find(".collection-pages a[rel=next]").click
-    assert_current_path library_set_path(locale: :en, kind: "publisher", key: "big", page: 2)
+    assert_current_path library_set_path(locale: :en, kind: "theme", key: "rpg", page: 2)
     assert_selector ".collection-grid .card.card--m", count: 60, visible: :all
   end
 end

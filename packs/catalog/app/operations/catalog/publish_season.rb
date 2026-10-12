@@ -1,8 +1,9 @@
 module Catalog
-  # Publishes the draft season (CAP-3, AD-5): cuts its prestige scores into
-  # the five rarity tiers (RarityThresholds), gives each card-season its
-  # number in the season (R3), builds its sets (SetBuilder), then makes the
-  # season the published one, all in one transaction.
+  # Publishes the draft season: cuts its prestige scores into the five
+  # rarity tiers (RarityThresholds), gives each card-season its number in
+  # the season and its main theme (the card's first genre), builds its sets
+  # and their tiers (SetBuilder), then makes the season the published one,
+  # all in one transaction.
   #
   # Numbers are 1..n over the season's n card-seasons, shuffled with
   # SecureRandom (or the `random:` given, for tests) over the card-seasons in
@@ -12,7 +13,10 @@ module Catalog
   # flight (they hold it FOR SHARE) and a second publish finds no draft. The
   # caller sends the number of the draft it saw: another draft is refused.
   # A draft whose prestige scores come from two formulas (ScoreVersions) is
-  # refused until its cards are scored again by one.
+  # refused until its cards are scored again by one. A draft holding a card
+  # whose genre is no theme (written before themes) is refused until its
+  # cards' genres are filled again, so those cards never land in the UFOs
+  # unseen.
   # Every guard runs before any write. Season data is written in bulk while
   # the season is still a draft; once published, it is frozen (CardSeason).
   # The next upsert opens a new draft.
@@ -21,16 +25,12 @@ module Catalog
   #
   #   Catalog::PublishSeason.new.call(number: 2)
   #   # => Success(season) | Failure(:no_draft) | Failure(:stale_draft)
-  #   #    | Failure(:empty_season) | Failure(:mixed_score_versions) | Failure(:empty_tier)
-  #
-  # Raises ArgumentError, rolling the publication back, if a set key fails
-  # Set::KEY_FORMAT; UpsertDraftCard refuses such genres, so only a writer
-  # that bypasses it can cause this.
+  #   #    | Failure(:empty_season) | Failure(:mixed_score_versions) | Failure(:unknown_theme)
+  #   #    | Failure(:empty_tier)
   #
   # `number_published` numbers, once, a season published before card numbers
-  # existed (AD-28, the expand step; run by `catalog:number_seasons`), by the
-  # same shuffle, under a FOR UPDATE lock of the season. It publishes no
-  # event.
+  # existed (the expand step run by `catalog:number_seasons`), by the same
+  # shuffle, under a FOR UPDATE lock of the season. It publishes no event.
   #
   #   Catalog::PublishSeason.new.number_published(number: 1)
   #   # => Success(season) | Failure(:no_published_season) | Failure(:already_numbered)
@@ -47,6 +47,7 @@ module Catalog
         season = step lock_draft(number)
         rows = step rows_of(season)
         step require_one_score_version(rows)
+        step require_known_themes(rows)
         tiers = step cut(rows)
         now = Time.current
         step write_season_data(rows, tiers, now)
@@ -101,20 +102,31 @@ module Catalog
       ScoreVersions.mixed?(rows) ? Failure(:mixed_score_versions) : Success()
     end
 
+    def require_known_themes(rows)
+      rows.all? { |row| row.genres.all? { |genre| Themes.key?(genre) } } ? Success() : Failure(:unknown_theme)
+    end
+
     def cut(card_seasons)
       tiers = RarityThresholds.tiers(card_seasons.map(&:prestige_score))
       tiers ? Success(tiers) : Failure(:empty_tier)
     end
 
-    # One UPDATE per rarity, then one for the numbers. The rows come in id
-    # order (SeasonRows).
+    # One UPDATE per rarity, one per main theme, then one for the numbers.
+    # The rows come in id order (SeasonRows).
     def write_season_data(card_seasons, tiers, now)
       card_seasons.zip(tiers)
         .group_by { |_row, tier| tier }
         .each do |rarity, pairs|
           CardSeason.where(id: pairs.map { |row, _| row.id }).update_all(rarity:, updated_at: now)
         end
+      write_main_themes(card_seasons, now)
       number_card_seasons(card_seasons.map(&:id), now)
+    end
+
+    def write_main_themes(card_seasons, now)
+      card_seasons.reject { |row| row.genres.empty? }.group_by { |row| row.genres.first }.each do |main_theme, rows|
+        CardSeason.where(id: rows.map(&:id)).update_all(main_theme:, updated_at: now)
+      end
     end
 
     # Gives the card-seasons `ids` (ascending) the numbers 1..n in a shuffled
@@ -131,23 +143,20 @@ module Catalog
       Success()
     end
 
-    # The season's sets and their memberships (positions 1..n), written in
-    # bulk while the season is still a draft. A key outside Set::KEY_FORMAT
-    # raises, which rolls the publication back. A draft that yields no set
-    # still publishes.
+    # The season's sets, their memberships (positions 1..n) and their tiers,
+    # written in bulk while the season is still a draft.
     def build_sets(season, rows)
       built = SetBuilder.call(rows)
-      return Success() if built.empty?
-
-      invalid = built.reject { |set| Set::KEY_FORMAT.match?(set[:key]) }
-      raise ArgumentError, "set keys outside KEY_FORMAT: #{invalid.map { |set| [ set[:kind], set[:key] ] }.inspect}" if invalid.any?
-
       ids = Set.insert_all!(built.map { |set| set.slice(:kind, :key, :params).merge(season_id: season.id) }, returning: %w[id kind key])
         .rows.to_h { |id, kind, key| [ [ kind, key ], id ] }
       built.flat_map do |set|
         set_id = ids.fetch([ set[:kind], set[:key] ])
         set[:members].each_with_index.map { |card_season_id, index| { set_id:, card_season_id:, position: index + 1 } }
       end.each_slice(MEMBERSHIP_SLICE) { |slice| SetMembership.insert_all!(slice) }
+      SetTier.insert_all!(built.flat_map do |set|
+        set_id = ids.fetch([ set[:kind], set[:key] ])
+        set[:tiers].map { |tier, required| { set_id:, tier:, required: } }
+      end)
       Success()
     end
 

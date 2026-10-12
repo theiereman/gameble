@@ -400,7 +400,7 @@ en:
         published: "Published"
       index:
         heading: "The catalog seasons"
-        intro: "Imports fill the draft season. Publishing it cuts its cards into the five rarities, numbers them, binds them into publisher sets, genre tomes and the best of each year, and opens it to the draw, all at once. A published season never changes again."
+        intro: "Imports fill the draft season. Publishing it cuts its cards into the five rarities, numbers them, binds them into theme sets and the UFOs, and opens it to the draw, all at once. A published season never changes again."
         empty: "No season yet. The first import will open the draft."
         caption: "Catalog seasons, by number"
         number: "Season"
@@ -408,6 +408,8 @@ en:
         card_count: "Cards"
         published_at: "Published"
         sets:
+          theme: "Themes"
+          ufo: "UFOs"
           publisher: "Publisher sets"
           tome: "Tomes"
           best_of_year: "Best of the year"
@@ -424,10 +426,10 @@ en:
         score_version: "version %{version}"
         no_score_version: "none recorded (scored before versions)"
         published_heading: "Season %{number}, as published"
-        published_intro: "What publication stored for this season, read as it stands: each rarity's cards and lowest score, and the sets. Nothing here is written and nothing is cut again. The genres are read from the cards' first genre today."
+        published_intro: "What publication stored for this season, read as it stands: each rarity's cards and lowest score, and the sets. Nothing here is written and nothing is cut again. The themes and the UFOs are the sets stored at publication."
       preview:
         heading: "Season %{number}, if published now"
-        intro: "What publishing the draft would give today, read from its cards as they stand. Nothing here is written. The prestige formula, the tier shares and the tome size live in the code: change them, rescore the latest import if the formula changed, then read this again."
+        intro: "What publishing the draft would give today, read from its cards as they stand. Nothing here is written. The prestige formula, the tier shares and the theme list live in the code: change them, rescore the latest import if the formula changed, then read this again."
         scores: "Prestige scores"
         scores_caption: "Prestige scores of the season: lowest, percentiles, highest"
         card_count:
@@ -450,9 +452,13 @@ en:
         title: "Title"
         rating: "Rating"
         prestige_score: "Prestige score"
-        genres: "Cards by first genre"
-        genre: "Genre"
-        tomes: "Tomes"
+        themes: "Themes"
+        theme: "Theme"
+        ufos:
+          one: "%{formatted} card in the UFOs, %{share} of the season."
+          other: "%{formatted} cards in the UFOs, %{share} of the season."
+        ufos_over_limit: "More than the %{limit} aimed for: the theme list misses some of the season's games."
+        no_themes: "This season was published before themes: its cards have no theme and no UFO set."
         sets: "Sets"
       publish:
         published: "Season %{number} is published, officer. Its cards are ready for the draw."
@@ -538,10 +544,14 @@ en:
     show:
       tabs:
         started: "Started"
+        theme: "Themes"
+        ufo: "UFOs"
         tome: "Tomes"
         publisher: "Publishers"
         best_of_year: "Best rated of the year"
       empty:
+        theme: "No theme in this season."
+        ufo: "Every card of this season has a theme."
         tome: "No tome in this season yet."
         publisher: "No publisher has a set this season."
         best_of_year: "No best-rated set this season."
@@ -563,6 +573,8 @@ en:
         other: "%{count} cards owned out of %{total}"
       empty:
         started: "No set started yet: this collection still awaits its first card."
+        theme: "No theme in this season."
+        ufo: "Every card of this season has a theme."
         tome: "No tome in this season yet."
         publisher: "No publisher has a set this season."
         best_of_year: "No best-rated set this season."
@@ -1081,11 +1093,54 @@ en:
       tome: "%{genre} · Tome %{volume}"
       best_of_year: "Best rated of %{year}"
       with_years: "%{label} · %{years}"
-    # Tome genres, by key; SetLabel humanises any other. The genre tags of
-    # Steam::GenreTags first (racing, rpg, simulation, sports and strategy
-    # among the store genres below); then the store's genres, imported before
-    # the genre tags and kept because older published seasons name their
-    # tomes with them.
+      ufos: "The UFOs"
+    # Theme names, by key (Catalog::Themes); SetLabel humanises any other.
+    themes:
+      souls_like: "Souls-like"
+      metroidvania: "Metroidvania"
+      roguelike: "Roguelike"
+      deckbuilder: "Deckbuilder"
+      cosy: "Cosy"
+      farming: "Farming"
+      horror: "Horror"
+      zombies: "Zombies"
+      pirates: "Pirates"
+      space: "Space"
+      cyberpunk: "Cyberpunk"
+      fps: "FPS"
+      third_person_shooter: "Third-person shooter"
+      platformer: "Platformer"
+      puzzle: "Puzzle"
+      racing: "Racing"
+      sports: "Sports"
+      strategy: "Strategy"
+      rpg: "RPG"
+      survival: "Survival"
+      city_builder: "City builder"
+      visual_novel: "Visual novel"
+      point_and_click: "Point & click"
+      fighting: "Fighting"
+      stealth: "Stealth"
+      rhythm: "Rhythm"
+      shoot_em_up: "Shoot 'em up"
+      hack_and_slash: "Hack and slash"
+      post_apocalyptic: "Post-apocalyptic"
+      war: "War"
+      medieval: "Medieval"
+      anime: "Anime"
+      sandbox: "Sandbox"
+      tower_defense: "Tower defense"
+      mystery: "Mystery"
+      simulation: "Simulation"
+      comedy: "Comedy"
+      open_world: "Open world"
+      idle: "Idle"
+      walking_simulator: "Walking simulator"
+      vr: "VR"
+      adult: "Adult"
+    # The genres of the retired tomes, by key, kept because seasons
+    # published before themes name their tomes with them; SetLabel humanises
+    # any other.
     genres:
       fps: "FPS"
       platformer: "Platformer"
@@ -1205,6 +1260,7 @@ en:
       mixed_score_versions: "The draft season's cards were scored by more than one prestige formula, officer, so the rarities would be cut on mismatched scales. Open the latest import and press \"Rescore the cards\", then publish once its pass completes."
       no_published_season: "No published season bears that number, officer."
       already_numbered: "The cards of that season are numbered already, officer."
+      unknown_theme: "Some cards of the draft season still carry a genre from before themes, officer, so they would land in the UFOs unseen. Run steam:fill_card_sources, then publish."
     game:
       player_required: "Sign in with an active account to do that."
       invalid_time: "The time sent could not be read. Reload the page."

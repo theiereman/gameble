@@ -12,7 +12,7 @@ class Catalog::SeasonScoresTest < ActiveSupport::TestCase
     Catalog::CardSeason.where(season_id: season.id).order(:id).ids
   end
 
-  test "a published season shows its stored tiers, extremes, genres, sets and score versions" do
+  test "a published season shows its stored tiers, extremes, themes, UFOs, sets and score versions" do
     season = publish_sets_draft
 
     scores = Catalog::SeasonScores.call(season.number)
@@ -30,34 +30,26 @@ class Catalog::SeasonScoresTest < ActiveSupport::TestCase
     assert_equal [ [ 5, 2, 149.0 ], [ 4, 6, 143.0 ], [ 3, 15, 128.0 ], [ 2, 37, 91.0 ], [ 1, 90, nil ] ], tiers_of(scores)
     assert_equal (0..9).map { |i| "Seed #{i}" }, panel.top.map(&:title)
     assert_equal "Seed 149", panel.bottom.first.title
-    assert_equal [ [ "action", 75, 3 ], [ "rpg", 44, 1 ], [ nil, 31, 0 ] ],
-      panel.genres.map { |genre| [ genre.genre, genre.card_count, genre.tome_count ] }
-    assert_equal({ "publisher" => 1, "tome" => 4, "best_of_year" => 3 }, panel.set_counts)
+    assert_equal [ [ "roguelike", 119 ], [ "rpg", 44 ], [ "horror", 16 ], [ "pirates", 8 ] ], panel.themes.map { |theme| [ theme.theme, theme.card_count ] }
+    assert_equal 15, panel.ufo_count
+    assert_nil panel.theme_verdict
+    assert_equal({ "theme" => 4, "ufo" => 1, "tome" => 0, "publisher" => 0, "best_of_year" => 0 }, panel.set_counts)
   end
 
   test "a published season's tiers and sets are the stored ones, even where a new cut would differ" do
     season = publish_sets_draft
     lowest = card_season_ids(season).last
     Catalog::CardSeason.where(id: lowest).update_all(rarity: 5)
-    Catalog::Set.insert_all!([ { season_id: season.id, kind: "tome", key: "rpg-2", params: { "genre" => "rpg", "volume" => 2, "volumes" => 2 } } ])
+    set_id = Catalog::Set.insert_all!([ { season_id: season.id, kind: "theme", key: "zombies", params: { "theme" => "zombies" } } ], returning: :id)
+      .rows.flatten.sole
+    Catalog::SetMembership.insert_all!([ { set_id:, card_season_id: lowest, position: 1 } ])
 
     scores = Catalog::SeasonScores.call(season.number)
 
     assert_equal [ [ 5, 3, 1.0 ], [ 4, 6, 143.0 ], [ 3, 15, 128.0 ], [ 2, 37, 91.0 ], [ 1, 89, nil ] ], tiers_of(scores)
-    assert_equal [ [ "action", 75, 3 ], [ "rpg", 44, 2 ], [ nil, 31, 0 ] ],
-      scores.panel.genres.map { |genre| [ genre.genre, genre.card_count, genre.tome_count ] }
-    assert_equal({ "publisher" => 1, "tome" => 5, "best_of_year" => 3 }, scores.panel.set_counts)
-  end
-
-  test "a stored tome whose genre leads no card of the season is still listed, with no card" do
-    season = publish_sets_draft
-    Catalog::Set.insert_all!([ { season_id: season.id, kind: "tome", key: "strategy-1", params: { "genre" => "strategy", "volume" => 1, "volumes" => 1 } } ])
-
-    panel = Catalog::SeasonScores.call(season.number).panel
-
-    assert_equal [ [ "action", 75, 3 ], [ "rpg", 44, 1 ], [ "strategy", 0, 1 ], [ nil, 31, 0 ] ],
-      panel.genres.map { |genre| [ genre.genre, genre.card_count, genre.tome_count ] }
-    assert_equal panel.set_counts.fetch("tome"), panel.genres.sum(&:tome_count)
+    assert_equal [ [ "roguelike", 119 ], [ "rpg", 44 ], [ "horror", 16 ], [ "pirates", 8 ], [ "zombies", 1 ] ],
+      scores.panel.themes.map { |theme| [ theme.theme, theme.card_count ] }
+    assert_equal 5, scores.panel.set_counts.fetch("theme")
   end
 
   test "a published season too small for a new cut still shows the five rarities it stored" do
@@ -65,7 +57,8 @@ class Catalog::SeasonScoresTest < ActiveSupport::TestCase
 
     assert_nil Catalog::RarityThresholds.tiers(Catalog::CardSeason.where(season_id: catalog_seasons(:one).id).pluck(:prestige_score))
     assert_equal [ [ 5, 1, 0.99 ], [ 4, 1, 0.9 ], [ 3, 1, 0.7 ], [ 2, 1, 0.5 ], [ 1, 1, nil ] ], tiers_of(scores)
-    assert_equal({ "publisher" => 1, "tome" => 0, "best_of_year" => 0 }, scores.panel.set_counts)
+    assert_equal({ "theme" => 0, "ufo" => 0, "tome" => 0, "publisher" => 1, "best_of_year" => 0 }, scores.panel.set_counts)
+    assert_equal [ [], nil ], [ scores.panel.themes, scores.panel.ufo_count ]
   end
 
   test "a season scored before versions has none recorded" do

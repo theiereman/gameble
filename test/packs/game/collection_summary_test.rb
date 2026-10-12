@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Game::CollectionSummary (CAP-8): a player's distinct cards and complete
+# Game::CollectionSummary: a player's distinct cards and complete
 # sets in a season.
 class Game::CollectionSummaryTest < ActiveSupport::TestCase
   include CatalogSeeds
@@ -25,17 +25,17 @@ class Game::CollectionSummaryTest < ActiveSupport::TestCase
   end
 
   test "the distinct cards held in the season and the sets complete, in one query" do
-    members("p").each_with_index { |id, index| hold(@player, id, index + 1) }
-    extra = (members("rpg-1") - members("p")).first
+    members("pirates").each_with_index { |id, index| hold(@player, id, index + 1) }
+    extra = (members("rpg") - members("pirates")).first
     hold(@player, extra, 1)
-    hold(@player, (members("action-1") - members("p") - [ extra ]).first, 0)
-    hold(accounts_players(:moderator), members("2011").first, 1)
+    hold(@player, (members("horror") - members("pirates")).first, 0)
+    hold(accounts_players(:moderator), members("ufos").first, 1)
 
     result = nil
     assert_queries_count(1) { result = summary }
-    complete = @sets.keys.count { |key| (members(key) - members("p") - [ extra ]).empty? }
+    complete = @sets.keys.count { |key| (members(key) - members("pirates") - [ extra ]).empty? }
     assert_equal 1, complete
-    assert_equal Game::CollectionSummary::Summary.new(distinct_cards: 6, complete_sets: complete), result
+    assert_equal Game::CollectionSummary::Summary.new(distinct_cards: 9, complete_sets: complete), result
   end
 
   test "a card of another season is not counted" do
@@ -62,7 +62,7 @@ class Game::CollectionSummaryTest < ActiveSupport::TestCase
   end
 
   test "without a season given, the published one is looked up: two queries" do
-    hold(@player, members("p").first, 1)
+    hold(@player, members("pirates").first, 1)
 
     result = nil
     assert_queries_count(2) { result = Game::CollectionSummary.call(@player) }
@@ -70,10 +70,10 @@ class Game::CollectionSummaryTest < ActiveSupport::TestCase
   end
 
   test "the distinct cards alone, in one query that never reads the sets; 0 without a query for a visitor or no season" do
-    hold(@player, members("p").first, 2)
-    hold(@player, members("p").second, 0)
+    hold(@player, members("pirates").first, 2)
+    hold(@player, members("pirates").second, 0)
     hold(@player, catalog_card_seasons(:portal_one).id, 1)
-    hold(accounts_players(:moderator), members("p").last, 1)
+    hold(accounts_players(:moderator), members("pirates").last, 1)
 
     queries = []
     callback = ->(*, payload) { queries << payload[:sql] }

@@ -30,34 +30,34 @@ class Game::HubSetsTest < ActiveSupport::TestCase
     started = progress.select { |_set, owned, _total| owned.positive? }
       .sort_by { |set, owned, total| [ owned >= total ? 1 : 0, -owned.fdiv(total), -owned, set.id ] }.first(limit)
     fill = progress.reject { |_set, owned, _total| owned.positive? }
-      .sort_by { |set, _owned, _total| [ set.kind == "tome" ? 0 : 1, set.id ] }.first(limit - started.size)
+      .sort_by { |set, _owned, _total| [ set.kind == "theme" ? 0 : 1, set.id ] }.first(limit - started.size)
     (started + fill).map { |set, owned, total| [ set.key, owned, total ] }
   end
 
   test "started sets first, in progress before complete, then by share and count owned" do
-    held = members("p") + (members("rpg-1") - members("p")).first(2) + (members("action-1") - members("p")).first(1)
+    held = members("pirates") + (members("rpg") - members("pirates")).first(2) + (members("roguelike") - members("pirates")).first(1)
     held.uniq.each { |id| hold(@player, id) }
-    hold(accounts_players(:moderator), members("2012").first)
+    hold(accounts_players(:moderator), members("ufos").first)
 
     result = rows(limit: 50)
     assert_equal expected(held.uniq, limit: 50), result
     complete = result.index { |key, owned, total| owned == total }
     assert result.first(complete).all? { |_key, owned, total| owned < total }, "complete sets come after those in progress"
-    assert_includes result.map(&:first), "p"
+    assert_includes result.map(&:first), "pirates"
   end
 
-  test "a player with fewer than four started sets is filled with unstarted ones at 0, tomes first" do
-    hold(@player, members("2012").first)
+  test "a player with fewer than four started sets is filled with unstarted ones at 0, themes first" do
+    hold(@player, members("ufos").first)
 
     result = rows
     assert_equal 4, result.size
-    assert_equal expected([ members("2012").first ]), result
+    assert_equal expected([ members("ufos").first ]), result
     unstarted = result.select { |_key, owned, _total| owned.zero? }.map(&:first)
-    assert unstarted.all? { |key| @sets.fetch(key).kind == "tome" }, "the fill starts with tomes"
+    assert unstarted.all? { |key| @sets.fetch(key).kind == "theme" }, "the fill starts with themes"
   end
 
   test "a holding at 0 does not start a set" do
-    hold(@player, members("2012").first, 0)
+    hold(@player, members("ufos").first, 0)
 
     assert_equal expected([]), rows
   end
@@ -70,7 +70,7 @@ class Game::HubSetsTest < ActiveSupport::TestCase
   end
 
   test "a player who started four sets or more gets them in two queries" do
-    (members("p") + members("2012")).uniq.each { |id| hold(@player, id) }
+    (members("pirates") + members("ufos") + members("rpg").first(1)).uniq.each { |id| hold(@player, id) }
 
     result = nil
     assert_queries_count(2) { result = rows }

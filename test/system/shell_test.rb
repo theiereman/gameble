@@ -375,7 +375,7 @@ class ShellTest < ApplicationSystemTestCase
 
   def sign_in_with_three_cards
     season = publish_sets_draft
-    set = Catalog::Set.find_by!(season_id: season.id, key: "action-1")
+    set = Catalog::Set.find_by!(season_id: season.id, key: "horror")
     player = accounts_players(:player)
     Catalog::SetMembership.where(set_id: set.id).order(:position, :id).limit(3).pluck(:card_season_id).each do |card_season_id|
       Game::Holding.create!(player_id: player.id, card_season_id:, quantity: 1)

@@ -1,9 +1,37 @@
 require "test_helper"
 
-# SetLabel (epic 4 R7): a set's name from its kind and params, per locale.
+# SetLabel: a set's name from its kind and params, per locale, and a card's
+# genre from its main theme.
 class SetLabelTest < ActiveSupport::TestCase
   def label(kind, params, locale)
     I18n.with_locale(locale) { SetLabel.for(Catalog::Set.new(kind:, key: "k", params:)) }
+  end
+
+  test "a theme set is its theme's name in the locale" do
+    assert_equal "Vie à la ferme", label("theme", { "theme" => "farming" }, :fr)
+    assert_equal "Farming", label("theme", { "theme" => "farming" }, :en)
+    assert_equal "Réalité virtuelle", label("theme", { "theme" => "vr" }, :fr)
+  end
+
+  test "the UFOs are named in the locale" do
+    assert_equal "Les OVNI", label("ufo", {}, :fr)
+    assert_equal "The UFOs", label("ufo", {}, :en)
+  end
+
+  test "a card's genre is its main theme's name; an unknown key is humanised" do
+    assert_equal "Horreur", I18n.with_locale(:fr) { SetLabel.genre("horror") }
+    assert_equal "Third-person shooter", I18n.with_locale(:en) { SetLabel.genre("third_person_shooter") }
+    assert_equal "Board game", I18n.with_locale(:fr) { SetLabel.genre("board_game") }
+  end
+
+  test "every theme has its name in both locales, and no other key is there" do
+    %i[en fr].each do |locale|
+      assert_equal Catalog::Themes.keys.sort, I18n.t("catalog.themes", locale:).keys.map(&:to_s).sort, locale
+    end
+  end
+
+  test "a theme set without theme is refused" do
+    assert_raises(ArgumentError) { SetLabel.for(Catalog::Set.new(kind: "theme", key: "k", params: {})) }
   end
 
   test "a publisher set is named after its publisher, in every locale" do
@@ -34,14 +62,16 @@ class SetLabelTest < ActiveSupport::TestCase
     assert_equal "Best rated of 2011", label("best_of_year", { "year" => 2011 }, :en)
   end
 
-  test "every genre tag and every former store genre has its label in both locales" do
-    # The store's genres, imported until story 2.10: seasons published before
-    # it name their tomes with them.
+  test "every genre a retired tome may name has its label in both locales" do
+    # The store's genres, then the genre tags that followed them: seasons
+    # published before themes name their tomes with them.
     store_genres = %w[action adventure casual indie massively_multiplayer racing rpg simulation sports strategy free_to_play
       early_access violent gore nudity sexual_content utilities education design_illustration animation_modeling
       audio_production video_production photo_editing software_training web_publishing game_development accounting
       movie documentary episodic short tutorial 360_video]
-    genres = (store_genres + Steam::GenreTags::GENRES.values).uniq
+    genre_tags = %w[fps platformer metroidvania puzzle horror roguelike souls_like hack_and_slash fighting survival city_builder
+      sandbox visual_novel point_and_click card_game third_person_shooter stealth rhythm shoot_em_up arcade]
+    genres = (store_genres + genre_tags).uniq
 
     %i[en fr].each do |locale|
       assert_equal genres.sort, I18n.t("catalog.genres", locale:).keys.map(&:to_s).sort, locale

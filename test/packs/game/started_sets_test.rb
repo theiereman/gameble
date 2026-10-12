@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Game::StartedSets (CAP-8): the sets of which a player holds a card.
+# Game::StartedSets: the sets of which a player holds a card.
 class Game::StartedSetsTest < ActiveSupport::TestCase
   include CatalogSeeds
 
@@ -24,22 +24,21 @@ class Game::StartedSetsTest < ActiveSupport::TestCase
   end
 
   test "the sets with a card the player holds, in the order of the relation given" do
-    held = [ members("p").first, members("rpg-1").last ]
+    held = [ members("ufos").first, members("rpg").last ]
     held.each { |id| hold(@player, id, 2) }
-    hold(accounts_players(:moderator), members("action-2").first, 1)
+    hold(accounts_players(:moderator), members("pirates").first, 1)
 
     expected = Catalog::SeasonShelf.every_kind(season: @season).map(&:key).select { |key| (members(key) & held).any? }
-    assert_includes expected, "p"
-    assert_includes expected, "rpg-1"
+    assert_equal %w[roguelike rpg ufos], expected
     assert_equal expected, started(@player)
   end
 
   test "a card held at 0 starts nothing, and another player's cards are theirs" do
-    hold(@player, members("action-3").first, 0)
-    hold(accounts_players(:moderator), members("action-2").first, 1)
+    hold(@player, members("horror").first, 0)
+    hold(accounts_players(:moderator), members("pirates").first, 1)
 
     assert_empty started(@player)
-    assert_includes started(accounts_players(:moderator)), "action-2"
+    assert_includes started(accounts_players(:moderator)), "pirates"
   end
 
   test "a player with no card, or a visitor, has started nothing" do
@@ -48,7 +47,7 @@ class Game::StartedSetsTest < ActiveSupport::TestCase
   end
 
   test "the relation stays lazy: its count and a page are one query each" do
-    hold(@player, members("p").first, 1)
+    hold(@player, members("pirates").first, 1)
 
     relation = nil
     assert_queries_count(0) { relation = Game::StartedSets.relation(@player, Catalog::SeasonShelf.every_kind(season: @season)) }

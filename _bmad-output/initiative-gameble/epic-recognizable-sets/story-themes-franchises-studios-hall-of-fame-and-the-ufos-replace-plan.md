@@ -3,15 +3,24 @@ title: 'Themes and the UFOs replace the old sets'
 type: 'feature'
 ticket: '3'
 created: '2026-10-12'
-status: 'ready-for-dev'
+status: 'built'
 baseline_revision: '224cc3934833c61bacd0d4b7a95d6a1a2d065e08'
 route: 'full'
 route_source: 'auto'
-review: ''
-review_source: ''
-lenses_ran: []
+review: 'quick'
+review_source: 'pinned'
+lenses_ran: ['quick']
 review_loop_iteration: 0
 context: []
+followup_review_recommended: false
+deferred:
+  - summary: >-
+      The change adds explanatory header and constant comments, matching the surrounding code but not the AGENTS.md rule to comment only external constraints.
+    evidence: |-
+      themes.rb, set_tier.rb, set_builder.rb, set.rb (BUILT_KINDS), card_mapping.rb (TOP_TAGS), shelf_loading.rb (shelf_kinds) and fr.yml (zero form) carry such comments; the rest of the codebase does the same, so trimming only these files would split the style. Settling it is a repo-wide decision for the author.
+    location: >-
+      packs/catalog/app/models/catalog/themes.rb
+    severity: low
 ---
 
 <frozen-after-approval reason="human-owned intent — do not modify unless human renegotiates">
@@ -102,22 +111,22 @@ context: []
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `db/migrate/*`:
+- [x] `db/migrate/*`:
   - create `catalog_set_tiers`: `set_id` FK, `tier` check (bronze/silver/gold/complete), `required > 0`, unique `(set_id, tier)`;
   - add `catalog_card_seasons.main_theme`, a nullable string;
   - replace `catalog_sets_kind_check` with the eight kinds: added with `validate: false`, then validated in a second migration;
   - regenerate `db/schema.rb` on Postgres 18.
-- [ ] `packs/catalog/app/models/catalog/themes.rb`:
+- [x] `packs/catalog/app/models/catalog/themes.rb`:
   - the 42 themes as `key => [Steam tag names]`;
   - `of(tag_names)`: theme keys in tag order;
   - `key?`;
   - the constants for tier shares and the UFOs' share limit.
-- [ ] `packs/catalog/app/models/catalog/set_tier.rb`: frozen once published, like `SetMembership`.
-- [ ] Catalog builder, publication, upsert and fill, as in the Code Map.
-- [ ] Steam mapping, rake task and the GenreTags deletion.
-- [ ] Readers, web and locales. `i18n-tasks` must be clean. Add `errors.catalog.unknown_theme` by hand. French plurals need a `zero` form.
-- [ ] `_bmad-output/initiative-gameble/pending-approvals.md`: ask the author to rerun `steam:fill_card_sources` on staging after the deploy, before publishing a draft.
-- [ ] Tests:
+- [x] `packs/catalog/app/models/catalog/set_tier.rb`: frozen once published, like `SetMembership`.
+- [x] Catalog builder, publication, upsert and fill, as in the Code Map.
+- [x] Steam mapping, rake task and the GenreTags deletion.
+- [x] Readers, web and locales. `i18n-tasks` must be clean. Add `errors.catalog.unknown_theme` by hand. French plurals need a `zero` form.
+- [x] `_bmad-output/initiative-gameble/pending-approvals.md`: ask the author to rerun `steam:fill_card_sources` on staging after the deploy, before publishing a draft.
+- [x] Tests:
   - every row of the matrix: builder, CardMapping, upsert, fill, publication (guard, tier rows, main theme);
   - `schema_test` for the new checks;
   - adapt the existing tests: `set_label_test`, shelf, grid, hub, and the system tests that name tomes.
@@ -129,9 +138,24 @@ context: []
 
 ## Implementation Notes
 
+- `SetBuilder` returns each set's tiers beside its members (`Catalog::Themes.tiers`, integer percents rounded up with `ceildiv`, so 30 cards give bronze 3, not 4 through float error); `PublishSeason#build_sets` inserts them. The `Set::KEY_FORMAT` raise at publication is gone: theme keys and `ufos` are constants, and `unknown_theme` refuses any other genre first.
+- `Catalog::Set::BUILT_KINDS` (theme, ufo, then the retired three) are the kinds the back-office counts and labels; franchise, studio and hall of fame are valid enum values without a label until their builders come.
+- Library and public profile: `ShelfLoading#shelf_kinds` reads the kinds the season holds (`Catalog::SeasonShelf.kinds`), one more query per page; the request budgets in the tests go up by one. An old season opens on its first kind (tomes), its tab links carrying `kind=tome`.
+- `SetLabel.genre` reads `catalog.themes`; tome labels keep reading `catalog.genres` through a private `tome_genre`, so retired sets keep their names.
+- The back-office preview replaces the tomes table with the themes, the UFOs' count and share (flagged above `Catalog::Themes::UFO_SHARE_LIMIT`), and the `unknown_theme` verdict; a season published before themes says so.
+- The test draft (`seed_sets_draft`) now holds roguelike 119, rpg 44, horror 16, pirates 8 and the UFOs 15. Dev seeds leave every tenth card without theme, so the UFOs show.
+- `bin/rails test` passes with `TZ=UTC`; in Europe/Paris two time-based tests (sessions cookie expiry, finished trades) fail on the 25 October DST change, independently of this change.
+
 ## Plan Change Log
 
 ## Review Triage Log
+
+### 2026-10-12 — Review pass
+- verdicts: 3 findings — high 0, medium 1, low 2, false 0, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` A card of several themes browses, by default, its alphabetically first theme set rather than its main theme, the genre it shows (`CardDetail.sets` ordered by kind then key; `CardsController#show` takes `sets.first`); the controller header still said "tomes first" — `CardDetail.sets` now puts the main theme's set first (partition after the SQL order, still two queries), header reworded, test of a `["rpg", "roguelike"]` card added.
+  - `[low]` `[patch]` `ShelfLoading::Spine` comment still called a spine "a tome on the shelf" — reworded to "a set on the shelf".
+  - `[low]` `[defer]` New explanatory comments in themes.rb, set_tier.rb, set_builder.rb, set.rb, card_mapping.rb, shelf_loading.rb and fr.yml go beyond the AGENTS.md comment rule — the surrounding code carries the same style throughout, so this is a pre-existing repo-wide tension; deferred for the author's decision.
 
 ## Design Notes
 
@@ -146,3 +170,41 @@ context: []
 - `bin/rails test`, `bin/rails test:system` (library, card detail, public profile, tome), `npm run test:js` -- pass
 - `bundle exec packwerk check`, `bin/rails zeitwerk:check`, `bin/rubocop`, `bundle exec i18n-tasks health` -- clean
 - `RAILS_ENV=test bin/rails db:drop db:create db:migrate` -- the `db/schema.rb` diff holds only the new table, the new column and the check
+
+## Auto Run Result
+
+**Summary:** Publication now builds theme sets and the UFOs only, with tier rows (bronze/silver/gold at 10/25/50 % rounded up, plus complete; complete only for the UFOs) and each card-season's main theme. The 42 themes live in `Catalog::Themes`; the Steam import and `steam:fill_card_sources` derive a card's genres from its five most-voted tags. A draft still holding pre-theme genres is refused (`unknown_theme`). The set kind check widens to eight kinds (expand only). Library, set pages, card detail, public profile, hub and back-office list and name the new sets; a card's genre is its main theme. Old published seasons keep their sets and labels.
+
+**Files changed:**
+- `db/migrate/20261012120000..120003`, `db/schema.rb` — `catalog_set_tiers`, `catalog_card_seasons.main_theme`, widened kind check (added unvalidated, then validated).
+- `packs/catalog/app/models/catalog/themes.rb` — the theme list, `of`, `key?`, `tiers`, UFO share limit.
+- `packs/catalog/app/models/catalog/set_tier.rb`, `set.rb`, `card_season.rb` — tier model frozen once published, eight kinds, `main_theme` frozen.
+- `packs/catalog/app/models/catalog/set_builder.rb` — theme sets and the UFOs with their tiers.
+- `packs/catalog/app/operations/catalog/{publish_season,upsert_draft_card,fill_card_sources}.rb` — `unknown_theme` guard, main themes and tier rows; genres must be theme keys; fill refills genres.
+- `packs/catalog/app/queries/catalog/*` — readers on `main_theme`, theme counts and UFO share, every kind ordered, main theme's set first on a card.
+- `packs/steam/app/models/steam/card_mapping.rb`, `packs/steam/lib/tasks/steam.rake` — themes from the top 5 tags; `Steam::GenreTags` deleted.
+- `packs/game/app/queries/game/hub_sets.rb` — themes first.
+- `app/components/set_label.rb`, `app/controllers/*`, `app/helpers/*`, `app/views/*`, `config/routes.rb` — names, tabs only for kinds the season holds, routes, back-office themes table.
+- `config/locales/{en,fr}.yml`, `config/i18n-tasks.yml` — 42 themes, the UFOs, tabs, back-office keys, `errors.catalog.unknown_theme`.
+- `db/seeds.rb`, `packs/game/lib/open_pack_benchmark.rb`, tests and fixtures — theme keys.
+- `_bmad-output/initiative-gameble/pending-approvals.md` — rerun `steam:fill_card_sources` on staging before publishing a draft.
+
+**Review findings:** 3 findings (quick lens). Patched: 1 medium (card browses its main theme's set by default), 1 low (stale Spine comment). Deferred: 1 low (comment density vs. AGENTS.md rule). Rejected: none. Parent fix outside triage: the French `errors.catalog.unknown_theme` used "vous" where the back-office says "tu"; reworded.
+
+**Follow-up review recommended:** false — patched this pass: high 0, medium 1, low 1.
+
+**Verification:**
+- `bundle exec packwerk check`, `bin/rails zeitwerk:check`, `bin/rubocop` (666 files), `i18n-tasks missing` and `unused` — clean.
+- `TZ=UTC bin/rails test` — 2218 runs, 0 failures, 0 errors, 0 skips.
+- `bin/rails test` on the touched system tests (library, card detail, public profile, tome, shell) — 48 runs, 0 failures.
+- `npm run test:js` — 217 passed.
+- `RAILS_ENV=test bin/rails db:drop db:create db:migrate` — `db/schema.rb` unchanged (no drift).
+- `i18n-tasks check-consistent-interpolations` flags `back_office.seasons.index.confirm.one` (fr), present before this change.
+- Every I/O matrix row is covered by a test that ran and passed.
+
+**Residual risks:**
+- Staging: a draft imported before this deploy is refused until `steam:fill_card_sources` runs (pending approval added).
+- Library and public profile pages make one more query (the kinds the season holds).
+- `franchise`, `studio` and `hall_of_fame` are valid kinds without a label; `SetLabel` raises on such a set until their builders and names come.
+- The UFO share over 5 % is only flagged in the back-office preview, not enforced.
+- In the Europe/Paris timezone two time-based tests fail around the 25 October DST change, independently of this change; CI runs in UTC.

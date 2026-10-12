@@ -5,8 +5,8 @@ module Catalog
   # key. The set is answered as a SetRef (kind, key, params), enough for a
   # screen to name it.
   #
-  #   Catalog::SetSlots.call(season_id: season.id, kind: "tome", key: "action-1")
-  #   # => Slots(set: SetRef(kind: "tome", key: "action-1", params: { … }), card_season_ids: [ 12, 7, … ]) | nil
+  #   Catalog::SetSlots.call(season_id: season.id, kind: "theme", key: "rpg")
+  #   # => Slots(set: SetRef(kind: "theme", key: "rpg", params: { … }), card_season_ids: [ 12, 7, … ]) | nil
   module SetSlots
     SetRef = Data.define(:kind, :key, :params)
     Slots = Data.define(:set, :card_season_ids)

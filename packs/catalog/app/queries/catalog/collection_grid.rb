@@ -5,8 +5,8 @@ module Catalog
   #
   # - `set`: the set as a SetSlots::SetRef (kind, key, params), nil for the
   #   whole season;
-  # - `genres`: the genre keys of the scope's cards (their tomes' `genre`
-  #   param, CardViews::GENRE), sorted; one query;
+  # - `genres`: the main themes of the scope's cards (CardViews::GENRE),
+  #   sorted; one query;
   # - `chosen_genres`: the genres asked that are among `genres` (an unknown
   #   one is ignored);
   # - `chosen_rarities`: the rarity names asked that exist (others ignored);
@@ -23,19 +23,11 @@ module Catalog
   # and key. Its lookup is one more query.
   #
   #   Catalog::CollectionGrid.call(season:, genres: [ "rpg" ], rarities: [ "rare" ], query: "port", locale: "en")
-  #   Catalog::CollectionGrid.call(season:, kind: "tome", key: "action-1")
-  #   # => Grid(set: SetRef | nil, genres: [ "action", "rpg" ], chosen_genres: [ "rpg" ], chosen_rarities: [ "rare" ],
+  #   Catalog::CollectionGrid.call(season:, kind: "theme", key: "roguelike")
+  #   # => Grid(set: SetRef | nil, genres: [ "puzzle", "rpg" ], chosen_genres: [ "rpg" ], chosen_rarities: [ "rare" ],
   #   #         chosen_sets: [], card_seasons: relation) | nil
   module CollectionGrid
     Grid = Data.define(:set, :genres, :chosen_genres, :chosen_rarities, :chosen_sets, :card_seasons)
-
-    # The genres of a set's cards: their tomes, through a second membership.
-    SET_GENRES = <<~SQL.squish.freeze
-      SELECT DISTINCT tome.params->>'genre' FROM catalog_set_memberships member
-        JOIN catalog_set_memberships tome_member ON tome_member.card_season_id = member.card_season_id
-        JOIN catalog_sets tome ON tome.id = tome_member.set_id AND tome.kind = 'tome'
-       WHERE member.set_id = :set_id
-    SQL
 
     # The longest text searched.
     MAX_QUERY = 100
@@ -50,17 +42,13 @@ module Catalog
         return if set_id.nil?
 
         set = SetSlots::SetRef.new(kind: set_kind, key: set_key, params:)
-        genres_of_scope = Set.connection.select_values(Set.sanitize_sql_array([ SET_GENRES, { set_id: } ]), "Catalog::CollectionGrid")
         cards = cards.joins(:set_memberships).where(catalog_set_memberships: { set_id: })
-          .order(Arel.sql("catalog_set_memberships.position, catalog_set_memberships.id"))
-      else
-        genres_of_scope = Set.where(season_id: season.id, kind: "tome").distinct.pluck(Arel.sql("catalog_sets.params->>'genre'"))
-        cards = cards.order(:number, :id)
       end
 
-      genres = genres_of_scope.compact.sort
+      genres = cards.where.not(main_theme: nil).distinct.pluck(:main_theme).sort
+      cards = set ? cards.order(Arel.sql("catalog_set_memberships.position, catalog_set_memberships.id")) : cards.order(:number, :id)
       chosen_genres = genres & Array(genres_asked).map(&:to_s)
-      cards = cards.where("#{CardViews::GENRE} IN (?)", chosen_genres) if chosen_genres.any?
+      cards = cards.where(main_theme: chosen_genres) if chosen_genres.any?
 
       chosen_rarities = Rarity::TIERS.values.map(&:to_s) & Array(rarities).map(&:to_s)
       cards = cards.where(rarity: chosen_rarities) if chosen_rarities.any?

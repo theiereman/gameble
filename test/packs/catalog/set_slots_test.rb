@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Catalog::SetSlots (CAP-6, story 4.2): one set of a season by kind and key,
+# Catalog::SetSlots: one set of a season by kind and key,
 # with its card-seasons in slot order.
 class Catalog::SetSlotsTest < ActiveSupport::TestCase
   include CatalogSeeds
@@ -17,16 +17,16 @@ class Catalog::SetSlotsTest < ActiveSupport::TestCase
 
   test "a set comes with its kind, key and params and its card-seasons by position, in one query" do
     slots = nil
-    assert_queries_count(1) { slots = Catalog::SetSlots.call(season_id: @season.id, kind: "tome", key: "action-1") }
+    assert_queries_count(1) { slots = Catalog::SetSlots.call(season_id: @season.id, kind: "theme", key: "rpg") }
 
-    assert_equal Catalog::SetSlots::SetRef.new(kind: "tome", key: "action-1", params: { "genre" => "action", "volume" => 1, "volumes" => 3 }), slots.set
-    assert_equal members("action-1"), slots.card_season_ids
-    assert_equal 25, slots.card_season_ids.size
+    assert_equal Catalog::SetSlots::SetRef.new(kind: "theme", key: "rpg", params: { "theme" => "rpg" }), slots.set
+    assert_equal members("rpg"), slots.card_season_ids
+    assert_equal 44, slots.card_season_ids.size
   end
 
   test "each kind is found by its key, symbols accepted" do
-    assert_equal({ "publisher" => "P" }, Catalog::SetSlots.call(season_id: @season.id, kind: :publisher, key: "p").set.params)
-    assert_equal members("2015"), Catalog::SetSlots.call(season_id: @season.id, kind: "best_of_year", key: "2015").card_season_ids
+    assert_equal({ "theme" => "roguelike" }, Catalog::SetSlots.call(season_id: @season.id, kind: :theme, key: "roguelike").set.params)
+    assert_equal members("ufos"), Catalog::SetSlots.call(season_id: @season.id, kind: "ufo", key: "ufos").card_season_ids
   end
 
   test "the slots follow the membership positions, not the card-season ids" do
@@ -46,8 +46,8 @@ class Catalog::SetSlotsTest < ActiveSupport::TestCase
   end
 
   test "an unknown key, a key of another kind or another season is nothing" do
-    assert_nil Catalog::SetSlots.call(season_id: @season.id, kind: "tome", key: "nope")
-    assert_nil Catalog::SetSlots.call(season_id: @season.id, kind: "publisher", key: "action-1")
-    assert_nil Catalog::SetSlots.call(season_id: catalog_seasons(:one).id, kind: "tome", key: "action-1")
+    assert_nil Catalog::SetSlots.call(season_id: @season.id, kind: "theme", key: "nope")
+    assert_nil Catalog::SetSlots.call(season_id: @season.id, kind: "publisher", key: "rpg")
+    assert_nil Catalog::SetSlots.call(season_id: catalog_seasons(:one).id, kind: "theme", key: "rpg")
   end
 end

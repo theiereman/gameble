@@ -7,6 +7,10 @@ module Catalog
   # changes again, and no card-season is added to or removed from the season.
   # A card-season never moves to another card or season.
   #
+  # `main_theme` is the card's first theme (Catalog::Themes) when the season
+  # was published, nil for a card of no theme or a season published before
+  # themes.
+  #
   # `prestige_score` is opaque here and only ordered;
   # `prestige_score_version` names, as opaquely, the formula that gave it
   # (nil before versions existed); `rating` is the source's review score in
@@ -21,7 +25,7 @@ module Catalog
     self.ignored_columns = %w[dust_tier]
 
     # The columns frozen once the season is published.
-    SEASON_DATA = %w[prestige_score prestige_score_version rating review_count rarity number].freeze
+    SEASON_DATA = %w[prestige_score prestige_score_version rating review_count rarity number main_theme].freeze
     # The column is an integer.
     REVIEW_COUNTS = 1..2_147_483_647
 

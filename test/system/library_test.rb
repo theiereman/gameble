@@ -2,12 +2,12 @@ require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
 
-# The collection (CAP-6, story 10.1): a player reaches it from the hub's
+# The collection: a player reaches it from the hub's
 # menu 02 or the phone's COLLECTION tab, picks a set and sees its progress,
 # their faces with their copies and the missing cards named, on a desktop
 # and a 390 × 844 phone without sideways scroll; the cards of a pack just
 # opened are new, and no longer once seen; a visitor sees every slot
-# missing. Story 10.7: it opens on the owned cards, and the FILTRES zone and
+# missing. It opens on the owned cards, and the FILTRES zone and
 # the search narrow the grid without losing focus.
 class LibraryTest < ApplicationSystemTestCase
   include CatalogSeeds
@@ -16,8 +16,8 @@ class LibraryTest < ApplicationSystemTestCase
   setup do
     @season = publish_sets_draft
     @player = accounts_players(:player)
-    @tome = members("action-1")
-    @tome.first(3).each_with_index do |card_season_id, index|
+    @theme = members("horror")
+    @theme.first(3).each_with_index do |card_season_id, index|
       Game::Holding.create!(player_id: @player.id, card_season_id:, quantity: index == 1 ? 2 : 1)
     end
     OmniAuth.config.test_mode = true
@@ -46,7 +46,7 @@ class LibraryTest < ApplicationSystemTestCase
 
   def row(name) = find(".collection-sets .set-row", text: /\A#{Regexp.escape(name)}\b/i)
 
-  test "a player goes from menu 02 to a tome: its progress, their faces with their copies, the missing cards named" do
+  test "a player goes from menu 02 to a theme: its progress, their faces with their copies, the missing cards named" do
     sign_in
 
     within(".hub-menu") { click_on "Collection" }
@@ -59,20 +59,21 @@ class LibraryTest < ApplicationSystemTestCase
     assert_selector ".collection-grid > li", count: 3
     take_screenshot
 
-    row("Action · Tome 1").click
+    row("Horror").click
 
-    assert_current_path library_set_path(locale: :en, kind: "tome", key: "action-1")
-    assert_selector ".collection-sets .set-row[aria-current=page]", text: /ACTION · TOME 1\s*3\/25/
-    assert_selector ".collection-sets .set-row", text: %r{ACTION · TOME 2\s*0/25}
+    assert_current_path library_set_path(locale: :en, kind: "theme", key: "horror")
+    assert_selector ".collection-sets .set-row[aria-current=page]", text: %r{HORROR\s*3/16}
+    assert_selector ".collection-sets .set-row", text: %r{PIRATES\s*3/8}
+    assert_selector ".collection-sets .set-row", text: %r{RPG\s*0/44}
     assert_selector ".collection-grid > li", count: 3
     find(".filters__summary").click
     find(".filter-chip__text", text: /\AAll\z/i).click
-    assert_selector ".collection-grid > li", count: 25
+    assert_selector ".collection-grid > li", count: 16
     assert_selector ".collection-grid .card.card--m", count: 3
     assert_selector ".collection-slot__copies", count: 3
     assert_selector ".collection-slot__copies", text: "x2", count: 1
-    assert_selector ".missing-slot", count: 22
-    missing = Catalog::CardSeason.find(@tome[3])
+    assert_selector ".missing-slot", count: 13
+    missing = Catalog::CardSeason.find(@theme[3])
     within(all(".collection-grid > li")[3]) do
       assert_selector ".missing-slot__title", text: missing.card.texts.find_by!(locale: "en").title.upcase
       assert_selector ".missing-slot__year", text: missing.card.release_date.year.to_s
@@ -132,8 +133,8 @@ class LibraryTest < ApplicationSystemTestCase
     assert_selector ".report--fold[open] .report__row", text: /UNIQUE CARDS\s*3/
     take_screenshot
 
-    row("Action · Tome 1").click
-    assert_selector ".collection-sets .set-row[aria-current=page]", text: %r{3/25}
+    row("Horror").click
+    assert_selector ".collection-sets .set-row[aria-current=page]", text: %r{3/16}
     assert_selector ".collection-grid .card.card--m", count: 3
     assert_no_sideways_scroll
     take_screenshot
@@ -172,7 +173,7 @@ class LibraryTest < ApplicationSystemTestCase
     # The search narrows as it is typed, and keeps the focus in the field.
     find(".filters__clear").click
     assert_selector ".collection-grid > li", count: 3
-    title = Catalog::CardSeason.find(@tome.first).card.texts.find_by!(locale: "en").title
+    title = Catalog::CardSeason.find(@theme.first).card.texts.find_by!(locale: "en").title
     field = find("#collection-search")
     field.click
     field.send_keys(title)
@@ -186,20 +187,20 @@ class LibraryTest < ApplicationSystemTestCase
   end
 
   test "the cards of a pack just opened are new; once seen, the next visit shows them no longer" do
-    create_pack(@player, cards: @tome[3, 5], available_at: 1.year.ago, season: @season)
+    create_pack(@player, cards: @theme[3, 5], available_at: 1.year.ago, season: @season)
     sign_in
     assert Game::OpenPack.new.call(player: @player).success?
 
-    visit library_set_path(locale: :en, kind: "tome", key: "action-1")
+    visit library_set_path(locale: :en, kind: "theme", key: "horror")
 
     assert_selector ".collection-slot__new", count: 5, text: "NEW"
-    assert_equal @tome[3, 5].map { Catalog::CardSeason.find(it).card.texts.find_by!(locale: "en").title.upcase },
+    assert_equal @theme[3, 5].map { Catalog::CardSeason.find(it).card.texts.find_by!(locale: "en").title.upcase },
       all(".collection-slot:has(.collection-slot__new) .card__title").map(&:text)
     take_screenshot
-    gained = Game::Holding.where(player_id: @player.id, card_season_id: @tome[3, 5]).maximum(:last_gained_at)
+    gained = Game::Holding.where(player_id: @player.id, card_season_id: @theme[3, 5]).maximum(:last_gained_at)
     assert_equal gained, wait_for_watermark
 
-    visit library_set_path(locale: :en, kind: "tome", key: "action-1")
+    visit library_set_path(locale: :en, kind: "theme", key: "horror")
 
     assert_selector ".collection-grid .card.card--m", count: 8
     assert_no_selector ".collection-slot__new"

@@ -4,7 +4,7 @@ module Game
   # each and its size. First the sets the player has started, those in
   # progress before the complete ones, then by share owned (descending),
   # cards owned (descending) and id; then, to fill up to `limit`, sets not
-  # started yet at 0, tomes first, then by id. A nil player (a visitor) gets
+  # started yet at 0, themes first, then by id. A nil player (a visitor) gets
   # the fill only.
   #
   # Reads the player's holdings joined to the season's memberships (AD-2:
@@ -59,7 +59,7 @@ module Game
       return [] if count <= 0
 
       sets = Catalog::Set.where(season_id: season.id).where.not(id: exclude)
-        .order(Arel.sql("catalog_sets.kind = 'tome' DESC, catalog_sets.id")).limit(count).to_a
+        .order(Arel.sql("catalog_sets.kind = 'theme' DESC, catalog_sets.id")).limit(count).to_a
       totals = Catalog::SetTotals.call(sets.map(&:id))
       sets.map { |set| Row.new(set:, owned: 0, total: totals.fetch(set.id, 0)) }
     end

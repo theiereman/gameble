@@ -2,7 +2,7 @@ module Steam
   # Reopens the latest completed import run on its cards step, cursor 0, and
   # enqueues its first page (AD-19; story 2.8): the cards step writes every
   # game the run carried through again, so a change of Steam::PrestigeScore
-  # or of the genre list (Steam::GenreTags) rewrites the draft's scores and
+  # or of the theme list (Catalog::Themes) rewrites the draft's scores and
   # genres without calling Steam. The run's card counts start again from 0
   # and its card marks (Steam::App.carded_by) are cleared, so the end of the
   # pass keeps in the draft only the cards this pass writes: a card it now

@@ -5,7 +5,8 @@
 # Development only: a small published season of generic cards, so packs can
 # be opened without running a Steam import. Only while no season is
 # published; a run that stopped midway is resumed: the upserts are idempotent
-# by source key and fill the existing draft, which is then published.
+# by source key and fill the existing draft, which is then published. Every
+# tenth card has no theme, so the season holds the UFOs beside its themes.
 # Publishing it fills the banks of the players already there
 # (Catalog::SeasonPublished).
 if Rails.env.development? && Catalog::PublishedSeason.call.nil?
@@ -26,7 +27,7 @@ if Rails.env.development? && Catalog::PublishedSeason.call.nil?
       prestige_score_version: Steam::PrestigeScore::VERSION,
       rating: 50.0 + (index % 50),
       publisher: "Seed Publisher #{(index % 6) + 1}",
-      genres: [ %w[fps rpg strategy].fetch(index % 3) ]
+      genres: number % 10 == 0 ? [] : [ %w[fps rpg strategy].fetch(index % 3) ]
     ).value!
   end
 

@@ -25,6 +25,7 @@ ignore_unused:
   - "number.*"
   # Genre labels, looked up by the genre key a tome's params carry (SetLabel).
   - "catalog.genres.*"
+  - "catalog.themes.*"
   # Pagy's dictionary, read by Pagy::I18n, not by the I18n gem.
   - "pagy.*"
   # The Booster island's words, passed whole to its props (BoostersHelper#booster_props).

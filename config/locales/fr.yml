@@ -405,7 +405,7 @@ fr:
         published: "Publiée"
       index:
         heading: "Les saisons du catalogue"
-        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, les numérote, les relie en éditeurs, en tomes de genre et en meilleurs de chaque année, et l'ouvre au tirage, d'un seul coup. Une saison publiée ne change plus jamais."
+        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, les numérote, les relie en thèmes et en OVNI, et l'ouvre au tirage, d'un seul coup. Une saison publiée ne change plus jamais."
         empty: "Aucune saison pour l'instant. Le premier import ouvrira le brouillon."
         caption: "Saisons du catalogue, par numéro"
         number: "Saison"
@@ -413,6 +413,8 @@ fr:
         card_count: "Cartes"
         published_at: "Publiée"
         sets:
+          theme: "Thèmes"
+          ufo: "OVNI"
           publisher: "Éditeurs"
           tome: "Tomes"
           best_of_year: "Meilleurs de l'année"
@@ -429,10 +431,10 @@ fr:
         score_version: "version %{version}"
         no_score_version: "aucune notée (avant les versions)"
         published_heading: "La saison %{number}, telle que publiée"
-        published_intro: "Ce que la publication a inscrit pour cette saison, lu tel quel : les cartes et le score minimal de chaque rareté, et les collections. Rien n'est écrit ici et rien n'est retaillé. Les genres sont lus sur le premier genre actuel des cartes."
+        published_intro: "Ce que la publication a inscrit pour cette saison, lu tel quel : les cartes et le score minimal de chaque rareté, et les collections. Rien n'est écrit ici et rien n'est retaillé. Les thèmes et les OVNI sont les collections inscrites à la publication."
       preview:
         heading: "La saison %{number}, si elle était publiée maintenant"
-        intro: "Ce que donnerait la publication du brouillon aujourd'hui, lu sur ses cartes telles qu'elles sont. Rien n'est écrit ici. La formule de prestige, les parts des raretés et la taille des tomes vivent dans le code : change-les, recalcule le dernier import si la formule a changé, puis relis ceci."
+        intro: "Ce que donnerait la publication du brouillon aujourd'hui, lu sur ses cartes telles qu'elles sont. Rien n'est écrit ici. La formule de prestige, les parts des raretés et la liste des thèmes vivent dans le code : change-les, recalcule le dernier import si la formule a changé, puis relis ceci."
         scores: "Scores de prestige"
         scores_caption: "Scores de prestige de la saison : le plus bas, les centiles, le plus haut"
         card_count:
@@ -455,9 +457,15 @@ fr:
         title: "Titre"
         rating: "Note"
         prestige_score: "Score de prestige"
-        genres: "Cartes par premier genre"
-        genre: "Genre"
-        tomes: "Tomes"
+        themes: "Thèmes"
+        theme: "Thème"
+        # French keeps the singular for 0, which the plural rule here does not.
+        ufos:
+          zero: "%{formatted} carte dans les OVNI, %{share} de la saison."
+          one: "%{formatted} carte dans les OVNI, %{share} de la saison."
+          other: "%{formatted} cartes dans les OVNI, %{share} de la saison."
+        ufos_over_limit: "Plus que les %{limit} visés : la liste des thèmes manque des jeux de la saison."
+        no_themes: "Cette saison a été publiée avant les thèmes : ses cartes n'ont pas de thème et pas de set OVNI."
         sets: "Collections"
       publish:
         published: "La saison %{number} est publiée, officier. Ses cartes sont prêtes pour le tirage."
@@ -550,10 +558,14 @@ fr:
     show:
       tabs:
         started: "Entamées"
+        theme: "Thèmes"
+        ufo: "OVNI"
         tome: "Tomes"
         publisher: "Éditeurs"
         best_of_year: "Les mieux notés de l'année"
       empty:
+        theme: "Aucun thème dans cette saison."
+        ufo: "Toutes les cartes de cette saison ont un thème."
         tome: "Aucun tome dans cette saison pour l'instant."
         publisher: "Aucun éditeur n'a de set cette saison."
         best_of_year: "Aucun set des mieux notés cette saison."
@@ -577,6 +589,8 @@ fr:
         other: "%{count} cartes possédées sur %{total}"
       empty:
         started: "Aucun set entamé pour l'instant : cette collection attend encore sa première carte."
+        theme: "Aucun thème dans cette saison."
+        ufo: "Toutes les cartes de cette saison ont un thème."
         tome: "Aucun tome dans cette saison pour l'instant."
         publisher: "Aucun éditeur n'a de set cette saison."
         best_of_year: "Aucun set des mieux notés cette saison."
@@ -1102,11 +1116,54 @@ fr:
       tome: "%{genre} · Tome %{volume}"
       best_of_year: "Les mieux notés de %{year}"
       with_years: "%{label} · %{years}"
-    # Tome genres, by key; SetLabel humanises any other. The genre tags of
-    # Steam::GenreTags first (racing, rpg, simulation, sports and strategy
-    # among the store genres below); then the store's genres, imported before
-    # the genre tags and kept because older published seasons name their
-    # tomes with them.
+      ufos: "Les OVNI"
+    # Theme names, by key (Catalog::Themes); SetLabel humanises any other.
+    themes:
+      souls_like: "Souls-like"
+      metroidvania: "Metroidvania"
+      roguelike: "Roguelike"
+      deckbuilder: "Deckbuilding"
+      cosy: "Cosy"
+      farming: "Vie à la ferme"
+      horror: "Horreur"
+      zombies: "Zombies"
+      pirates: "Pirates"
+      space: "Espace"
+      cyberpunk: "Cyberpunk"
+      fps: "FPS"
+      third_person_shooter: "Tir à la troisième personne"
+      platformer: "Plates-formes"
+      puzzle: "Réflexion"
+      racing: "Course"
+      sports: "Sport"
+      strategy: "Stratégie"
+      rpg: "RPG"
+      survival: "Survie"
+      city_builder: "City builder"
+      visual_novel: "Visual novel"
+      point_and_click: "Point & click"
+      fighting: "Combat"
+      stealth: "Infiltration"
+      rhythm: "Rythme"
+      shoot_em_up: "Shoot 'em up"
+      hack_and_slash: "Hack and slash"
+      post_apocalyptic: "Post-apocalyptique"
+      war: "Guerre"
+      medieval: "Médiéval"
+      anime: "Anime"
+      sandbox: "Bac à sable"
+      tower_defense: "Tower defense"
+      mystery: "Enquête"
+      simulation: "Simulation"
+      comedy: "Humour"
+      open_world: "Monde ouvert"
+      idle: "Idle"
+      walking_simulator: "Walking simulator"
+      vr: "Réalité virtuelle"
+      adult: "Adulte"
+    # The genres of the retired tomes, by key, kept because seasons
+    # published before themes name their tomes with them; SetLabel humanises
+    # any other.
     genres:
       fps: "FPS"
       platformer: "Plateforme"
@@ -1228,6 +1285,7 @@ fr:
       mixed_score_versions: "Les cartes de la saison en brouillon ont été notées par plusieurs formules de prestige, officier : les raretés seraient taillées sur des échelles différentes. Ouvre le dernier import et appuie sur « Recalculer les cartes », puis publie une fois sa passe terminée."
       no_published_season: "Aucune saison publiée ne porte ce numéro, officier."
       already_numbered: "Les cartes de cette saison sont déjà numérotées, officier."
+      unknown_theme: "Des cartes de la saison en brouillon portent encore un genre d'avant les thèmes, officier : elles tomberaient dans les OVNI sans qu'on le voie. Lance steam:fill_card_sources, puis publie."
     game:
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       invalid_time: "L'heure envoyée n'a pas pu être lue. Rechargez la page."

@@ -42,6 +42,7 @@ class Steam::GenresStepMigrationTest < ActiveSupport::TestCase
   test "a resumed legacy run writes its cards and completes" do
     run = legacy_run
     ready(run, 10, 20)
+    Steam::Tag.insert_all([ { tagid: 1664, name: "Puzzle" } ])
     migrate
 
     perform_enqueued_jobs { assert Steam::ResumeImport.new.call(import_run_id: run.id).success? }

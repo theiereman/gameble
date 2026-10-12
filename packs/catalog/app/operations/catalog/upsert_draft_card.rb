@@ -1,6 +1,6 @@
 module Catalog
-  # Writes a card into the draft season (CAP-2, AD-5), whatever its source:
-  # the card is keyed by an opaque source key the caller builds (AD-4).
+  # Writes a card into the draft season, whatever its source: the card is
+  # keyed by an opaque source key the caller builds.
   # Idempotent: the same source key again updates the card, its texts and its
   # card-season in place.
   #
@@ -15,8 +15,9 @@ module Catalog
   # that gave `prestige_score`; only the caller knows what it means.
   # PublishSeason refuses a draft whose scores come from two formulas.
   #
-  # `developers` and `franchises` are lists of names, part of the card's
-  # identity; `review_count`, the source's number of reviews, is season data
+  # `genres` are theme keys (Catalog::Themes), most-voted first; a genre
+  # outside the list is refused. `developers` and `franchises` are lists of
+  # names, part of the card's identity; `review_count`, the source's number of reviews, is season data
   # like the scores (nil when the source has none to give).
   #
   # Publishes Catalog::DraftCardUpserted on every call, even when nothing
@@ -27,7 +28,7 @@ module Catalog
   #     image_url: "https://…", store_url: "https://…",
   #     texts: { "en" => { title: "Portal 2", short_description: "…" }, "fr" => { title: "Portal 2" } },
   #     prestige_score: 0.97, prestige_score_version: 2, rating: 98.0,
-  #     publisher: "…", genres: %w[action], tags: %w[puzzle],
+  #     publisher: "…", genres: %w[puzzle], tags: %w[puzzle],
   #     developers: %w[Valve], franchises: [ "Portal" ], review_count: 1_000
   #   )
   #   # => Success(card_season) | Failure(:missing_text) | Failure(:invalid_card)
@@ -58,14 +59,12 @@ module Catalog
 
     private
 
-    # Genres name tomes (SetBuilder), so each must be a valid set key:
-    # one malformed genre would otherwise stop the season's publication.
     def validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, genres:, tags:, developers:, franchises:)
       valid = [ source_key, image_url, store_url ].all? { |value| present_string?(value) } &&
         release_date.is_a?(Date) &&
         (publisher.nil? || publisher.is_a?(String)) &&
         [ genres, tags, developers, franchises ].all? { |list| list.is_a?(Array) && list.all? { |item| present_string?(item) } } &&
-        genres.all? { |genre| Set::KEY_FORMAT.match?(genre) }
+        genres.all? { |genre| Themes.key?(genre) }
       return Failure(:invalid_card) unless valid
 
       Success(source_key:, release_date:, image_url:, store_url:, publisher: publisher.presence, genres:, tags:, developers:, franchises:)
