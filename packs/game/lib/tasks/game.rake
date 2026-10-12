@@ -33,6 +33,13 @@ namespace :game do
     puts "game:backfill_friend_codes: every player has their friend code"
   end
 
+  desc "Runs Game::BackfillAchievementsJob now: every achievement a player in good standing already met is granted, without a toast; idempotent"
+  task backfill_achievements: :environment do
+    Game::BackfillAchievementsJob.perform_now
+
+    puts "game:backfill_achievements: done; any failure went to the error tracker, and a rerun grants only what is missing"
+  end
+
   desc "Runs Game::DropFriendsAndTradesJob now: deleted or banned players' open trades cancelled, their friendships and invitations dropped; idempotent"
   task drop_friends_and_trades: :environment do
     Game::DropFriendsAndTradesJob.perform_now

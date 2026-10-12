@@ -10,12 +10,13 @@ class ToastComponent < ViewComponent::Base
   # `once`: a key for a toast a page brings on every render while its state
   # lasts (the goal reward); a browser shows the toast of a key once
   # (toast_controller.ts).
-  def initialize(message:, title: nil, tone: :notice, once: nil)
+  def initialize(message:, title: nil, tone: :notice, once: nil, after_reveal: false)
     raise ArgumentError, "unknown toast tone: #{tone.inspect}" unless TONES.include?(tone)
 
     @message = message
     @title = title
     @tone = tone
     @once = once
+    @after_reveal = after_reveal
   end
 end

@@ -4,6 +4,7 @@
 // ("Arcade" study, key-screens.html: openA, arcadeDeal, revealV3, legendV3)
 // multiplied by TIME_SCALE; the others, the reduced-motion ones included
 // (RM_*), are EXPERIENCE.md's own values, unscaled.
+import type { BoosterStatus } from "./booster_props"
 import { RARITIES, type Rarity } from "./card_types"
 import { formatNumber, t, type Template } from "./i18n"
 
@@ -114,6 +115,12 @@ export const ART_POLL = 50
 /** A tier's place, from 0 (common) to 4 (legendary). */
 export function tierIndex(tier: Rarity): number {
   return RARITIES.indexOf(tier)
+}
+
+const REVEALING_STATUSES: readonly BoosterStatus[] = ["arming", "ejecting", "inventory", "legendarySignal"]
+
+export function revealingOpening(status: BoosterStatus): boolean {
+  return REVEALING_STATUSES.includes(status)
 }
 
 /** The order cards leave the canister: centre out (5: 2, 1, 3, 0, 4). */

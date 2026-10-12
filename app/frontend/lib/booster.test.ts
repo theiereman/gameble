@@ -27,6 +27,7 @@ import {
   formatClock,
   keyAfter,
   planRevealAll,
+  revealingOpening,
   revealSummary,
   scaled,
   secondsUntil,
@@ -49,6 +50,7 @@ import {
   topOfPile,
   zoomNeighbour,
 } from "./booster"
+import type { BoosterStatus } from "./booster_props"
 
 describe("timings", () => {
   it("are the prototype's, multiplied by 1.18 and rounded", () => {
@@ -82,6 +84,19 @@ describe("timings", () => {
     expect(TREMBLE_MS).toEqual([0, 90, 170, 280].map((base) => Math.round(base * 1.18)))
     expect(FLIP_MS).toEqual([300, 340, 380, 420].map((base) => Math.round(base * 1.18)))
     expect(SETTLE_MS).toEqual([380, 440, 500, 560].map((base) => Math.round(base * 1.18)))
+  })
+})
+
+describe("revealingOpening", () => {
+  it("is revealing from the canister arming until every card is shown", () => {
+    const revealing: BoosterStatus[] = ["arming", "ejecting", "inventory", "legendarySignal"]
+    revealing.forEach((status) => expect(revealingOpening(status)).toBe(true))
+  })
+
+  it("is not revealing while sealed, waiting for a pack or complete", () => {
+    expect(revealingOpening("sealed")).toBe(false)
+    expect(revealingOpening("waiting")).toBe(false)
+    expect(revealingOpening("complete")).toBe(false)
   })
 })
 

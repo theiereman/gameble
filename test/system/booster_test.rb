@@ -231,6 +231,30 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal card_ids(:portal_one), reposts
   end
 
+  def stream_toast_waiting_for_the_reveal(message)
+    toast = ApplicationController.render(ToastComponent.new(title: "Achievement unlocked", message:, after_reveal: true), layout: false)
+    page.execute_script(<<~JS, toast)
+      document.body.insertAdjacentHTML("beforeend", `<turbo-stream action="append" target="toasts"><template>${arguments[0]}</template></turbo-stream>`)
+    JS
+  end
+
+  test "a toast marked to wait for the reveal, arriving during it, shows only once every card is revealed" do
+    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :common_card_one))
+    open_canister
+    assert_dealt(5)
+
+    stream_toast_waiting_for_the_reveal("First booster")
+    (1..4).each do |position|
+      find(hit(position)).click
+      assert_selector "#{card(position)}[data-revealed]"
+      assert_no_selector "#toasts .toast", text: "First booster"
+    end
+
+    find(hit(5)).click
+    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
+    assert_selector "#toasts .toast[data-toast-after-reveal]", text: "First booster"
+  end
+
   test "a revealed card ignores activation for 400 ms, then opens its card page" do
     open_screen(card_ids(*[ :rare_card_one ] * 5))
     open_canister

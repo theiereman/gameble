@@ -35,3 +35,27 @@ export function firstShowing(key: string, storage: OnceStorage | null = browserS
   }
   return true
 }
+
+export class RevealHold<T> {
+  private revealing = false
+  private held: T[] = []
+
+  hold(toast: T, afterReveal: boolean): boolean {
+    if (!afterReveal || !this.revealing) return false
+    this.held.push(toast)
+    return true
+  }
+
+  revealingChanged(revealing: boolean): T[] {
+    this.revealing = revealing
+    if (revealing) return []
+    const released = this.held
+    this.held = []
+    return released
+  }
+
+  clear(): void {
+    this.revealing = false
+    this.held = []
+  }
+}

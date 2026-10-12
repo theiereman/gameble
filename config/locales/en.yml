@@ -815,6 +815,20 @@ en:
     new_friend:
       title: "New friend"
       text: "%{name} is now one of your friends."
+  achievements:
+    unlocked:
+      title: "Achievement unlocked"
+    names:
+      first_booster: "First booster"
+      first_epic: "First Epic"
+      first_legendary: "First Legendary"
+      first_complete_set: "First complete set"
+      first_trade: "First trade"
+      boosters_10: "10 boosters"
+      boosters_100: "100 boosters"
+      boosters_500: "500 boosters"
+      three_complete_sets: "Three complete sets"
+      first_repost: "First repost"
   invite_links:
     show:
       title: "%{name} invites you"

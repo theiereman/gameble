@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { onGameble, type ToastDetail } from "../lib/events"
-import { firstShowing, toastDuration } from "../lib/toast"
+import { RevealHold, firstShowing, toastDuration } from "../lib/toast"
 
 type Timer = { remaining: number; startedAt?: number; handle?: number; hovered: boolean; focused: boolean; cleanup: () => void }
 
@@ -19,6 +19,8 @@ export default class extends Controller<HTMLElement> {
 
   private timers = new Map<HTMLElement, Timer>()
   private stopListening?: () => void
+  private stopRevealing?: () => void
+  private readonly revealHold = new RevealHold<HTMLElement>()
   private frame?: number
   private connected = false
 
@@ -39,6 +41,7 @@ export default class extends Controller<HTMLElement> {
 
   connect(): void {
     this.stopListening = onGameble("gameble:toast", (detail) => this.show(detail))
+    this.stopRevealing = onGameble("gameble:opening-revealing", (detail) => this.revealingChanged(detail?.revealing === true))
     this.element.addEventListener("turbo:before-morph-element", this.keepToast)
     this.connected = true
     this.bringToTop()
@@ -56,13 +59,16 @@ export default class extends Controller<HTMLElement> {
   // A toast arriving any other way (a morph refresh) is timed too. The
   // server's toasts present at connect are handled by connect().
   toastTargetConnected(toast: HTMLElement): void {
-    if (this.connected) this.track(toast)
+    if (this.connected && !this.heldForReveal(toast)) this.track(toast)
   }
 
   disconnect(): void {
     this.connected = false
     this.stopListening?.()
     this.stopListening = undefined
+    this.stopRevealing?.()
+    this.stopRevealing = undefined
+    this.revealHold.clear()
     this.element.removeEventListener("turbo:before-morph-element", this.keepToast)
     if (this.frame !== undefined) window.cancelAnimationFrame(this.frame)
     this.frame = undefined
@@ -99,8 +105,19 @@ export default class extends Controller<HTMLElement> {
   }
 
   private add(toast: HTMLElement): void {
+    if (this.heldForReveal(toast)) return
     this.element.insertBefore(toast, this.templateTarget)
     this.track(toast)
+  }
+
+  private heldForReveal(toast: HTMLElement): boolean {
+    if (this.timers.has(toast) || !this.revealHold.hold(toast, toast.hasAttribute("data-toast-after-reveal"))) return false
+    toast.remove()
+    return true
+  }
+
+  private revealingChanged(revealing: boolean): void {
+    this.revealHold.revealingChanged(revealing).forEach((toast) => this.add(toast))
   }
 
   private track(toast: HTMLElement): void {

@@ -6,6 +6,10 @@
   <%= turbo_stream.append "toasts", ToastComponent.new(title: t("invitations.new_friend.title"),
         message: t("invitations.new_friend.text", name: friend_name(friend))) %>
 <% end %>
+<% achievements.each do |achievement| %>
+  <%= turbo_stream.append "toasts", ToastComponent.new(title: t("achievements.unlocked.title"), message: t("achievements.names.#{achievement}"),
+        after_reveal: true) %>
+<% end %>
 <% signals.each do |signal| %>
   <%= turbo_stream_action_tag "gameble-event", event: signal %>
 <% end %>

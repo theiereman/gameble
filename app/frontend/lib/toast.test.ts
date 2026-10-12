@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { TOAST_BASE_MS, TOAST_ONCE_PREFIX, firstShowing, toastDuration } from "./toast"
+import { RevealHold, TOAST_BASE_MS, TOAST_ONCE_PREFIX, firstShowing, toastDuration } from "./toast"
 
 describe("toastDuration", () => {
   it("stays the base time for an empty text", () => {
@@ -50,5 +50,48 @@ describe("firstShowing", () => {
     }
     expect(firstShowing("goal-reward-2026-10-05", refusing)).toBe(true)
     expect(firstShowing("goal-reward-2026-10-05", refusing)).toBe(true)
+  })
+})
+
+describe("RevealHold", () => {
+  it("holds a marked toast while an opening is revealing and releases the held ones in arrival order", () => {
+    const hold = new RevealHold<string>()
+    expect(hold.revealingChanged(true)).toEqual([])
+    expect(hold.hold("Première Épique", true)).toBe(true)
+    expect(hold.hold("Premier set complet", true)).toBe(true)
+    expect(hold.revealingChanged(false)).toEqual(["Première Épique", "Premier set complet"])
+    expect(hold.revealingChanged(false)).toEqual([])
+  })
+
+  it("never holds an unmarked toast", () => {
+    const hold = new RevealHold<string>()
+    hold.revealingChanged(true)
+    expect(hold.hold("Proposition envoyée", false)).toBe(false)
+    expect(hold.revealingChanged(false)).toEqual([])
+  })
+
+  it("lets a marked toast through when no opening is revealing", () => {
+    const hold = new RevealHold<string>()
+    expect(hold.hold("Premier booster", true)).toBe(false)
+    hold.revealingChanged(true)
+    hold.revealingChanged(false)
+    expect(hold.hold("Premier échange", true)).toBe(false)
+  })
+
+  it("keeps holding while the reveal goes on", () => {
+    const hold = new RevealHold<string>()
+    hold.revealingChanged(true)
+    hold.hold("Premier booster", true)
+    expect(hold.revealingChanged(true)).toEqual([])
+    expect(hold.revealingChanged(false)).toEqual(["Premier booster"])
+  })
+
+  it("drops the held toasts and stops holding once cleared", () => {
+    const hold = new RevealHold<string>()
+    hold.revealingChanged(true)
+    hold.hold("Premier booster", true)
+    hold.clear()
+    expect(hold.hold("Première Légendaire", true)).toBe(false)
+    expect(hold.revealingChanged(false)).toEqual([])
   })
 })

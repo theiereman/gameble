@@ -118,6 +118,7 @@ import {
   planRevealAll,
   pose,
   revealSummary,
+  revealingOpening,
   scaled,
   storedAfterRebuild,
   swipeStores,
@@ -213,6 +214,10 @@ export default function Booster(props: BoosterProps) {
   const storingRef = useRef(false)
   // The tray slot whose card the zoom shows, or null.
   const [zoom, setZoom] = useState<number | null>(null)
+
+  const revealingNow = revealingOpening(status)
+  useEffect(() => dispatchGameble("gameble:opening-revealing", { revealing: revealingNow }), [revealingNow])
+  useEffect(() => () => dispatchGameble("gameble:opening-revealing", { revealing: false }), [])
 
   const setPhase = (next: Phase) => {
     phaseRef.current = next
