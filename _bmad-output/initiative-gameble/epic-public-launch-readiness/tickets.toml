@@ -446,12 +446,24 @@ references = ["plan-ci-flaky-system-tests.md"]
 notes = ["Raised by the author on 2026-10-12 while the Dependabot pull requests were reviewed.", "Three local runs of both tests passed: the failures have only shown under CI's load."]
 
 [[entry]]
+id = 39
+type = "story"
+title = "System tests rebuilt to be stable"
+description = "The system tests (about 180 tests in 20 files, headless Chrome) fail at random often enough that nobody trusts them, so they are disabled in CI and as a check of work. They are rebuilt to be fully stable and useful: find why each one is flaky (timing reads instead of retrying matchers, animations and View Transitions, global state such as window size left changed, the Vite build, parallel workers, Chrome driver), fix the harness and the tests, drop or move down to request and vitest tests what does not need a browser, then switch them back on in CI on every push and restore the rule asking agents to run them for what they touch."
+verify = "The whole system suite passes ten full runs in a row locally and five CI runs in a row with no failure and no retry; the CI system-test job runs again; AGENTS.md asks again for the system tests of what a change touches; the full suite, vitest, packwerk and zeitwerk pass."
+covers = []
+after = [38]
+hitl = false
+risk = "medium"
+notes = ["Decision (author, 2026-10-12): the system tests are disabled until this lands, in CI and in the agents' checks.", "Bug 38 fixes the two live update tests first; this story takes on the rest of the suite.", "Evidence: merging the achievements engine (2026-10-12), three booster tests failed in one run and passed in the next two, and passed on develop alone."]
+
+[[entry]]
 id = 12
 type = "story"
 title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
 hitl = false
 risk = "low"
