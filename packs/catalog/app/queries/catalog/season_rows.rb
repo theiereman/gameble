@@ -11,14 +11,14 @@ module Catalog
     # `rating` is the source's review score in percent; `genres` the card's
     # genres, the first one first; `prestige_score_version` the formula that
     # gave the score, nil for a card-season scored before versions existed.
-    Row = Data.define(:id, :card_id, :prestige_score, :prestige_score_version, :rating, :release_date, :publisher, :genres)
+    Row = Data.define(:id, :card_id, :prestige_score, :prestige_score_version, :rating, :release_date, :genres)
 
     def self.call(season_id)
       CardSeason.where(season_id:).joins(:card).order(:id)
         .pluck(:id, :card_id, :prestige_score, :prestige_score_version, :rating,
-          "catalog_cards.release_date", "catalog_cards.publisher", "catalog_cards.genres")
-        .map do |id, card_id, prestige_score, prestige_score_version, rating, release_date, publisher, genres|
-          Row.new(id:, card_id:, prestige_score:, prestige_score_version:, rating:, release_date:, publisher:, genres:)
+          "catalog_cards.release_date", "catalog_cards.genres")
+        .map do |id, card_id, prestige_score, prestige_score_version, rating, release_date, genres|
+          Row.new(id:, card_id:, prestige_score:, prestige_score_version:, rating:, release_date:, genres:)
         end
     end
   end
