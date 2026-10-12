@@ -208,3 +208,29 @@ deferred:
 - `franchise`, `studio` and `hall_of_fame` are valid kinds without a label; `SetLabel` raises on such a set until their builders and names come.
 - The UFO share over 5 % is only flagged in the back-office preview, not enforced.
 - In the Europe/Paris timezone two time-based tests fail around the 25 October DST change, independently of this change; CI runs in UTC.
+
+## Code Review
+
+### 2026-10-12 — Domain, database and tests (commit 42075b2, first of two chunks)
+
+Code review: 1 `decision-needed`, 4 `patch`, 1 `defer`, 11 rejected. Lenses: blind-hunter, edge-case-hunter, verification-gap, intent-alignment.
+
+- [x] [Review][Decision] The `unknown_theme` guard does not catch a draft that was never refilled — 23 of the 25 old `Steam::GenreTags` keys are also theme keys (only `card_game` and `arcade` are not), so a card imported before themes and not refilled by `steam:fill_card_sources` passes the guard with genres from the old rule (every listed tag, any rank) and its `main_theme` is frozen wrong at publication. The tests only use `action`, which the old list never produced. Accept the operational step (the pending approval), or carry a marker (themes version) on the card that publication requires. — resolved (author, 2026-10-12): risk accepted; no draft spans the deploy, and the next import writes themes directly.
+- [x] [Review][Patch] The hub's fill puts publisher sets before tomes on a season published before themes, where tomes came first [packs/game/app/queries/game/hub_sets.rb:62] — dismissed (author, 2026-10-12): a new season with themes is being published.
+- [x] [Review][Patch] README still describes `Steam::GenreTags`, tomes and `TOME_SIZE` for season preparation [README.md:148] — dismissed (author, 2026-10-12): the README will be rewritten, and season preparation will move to a contributor guide.
+- [x] [Review][Patch] i18n-tasks comment above `catalog.themes.*` speaks only of tomes [config/i18n-tasks.yml:26]
+- [x] [Review][Patch] `SeasonRows::Row#publisher` and the `publisher:` parameter of the set builder test helper are dead since publisher sets are no longer built [packs/catalog/app/queries/catalog/season_rows.rb:14]
+- [x] [Review][Defer] Planning ids remain in files this change touched (`config/routes.rb`, `set_neighbours.rb`, `hub_sets.rb`, `rescore_cards.rb`, `season_summaries.rb`) [config/routes.rb] — deferred: pre-existing, the change adds none
+
+Rejected:
+- The live pre-themes season loses its card genre and genre filter (`main_theme` NULL) — false: the plan's matrix states "Old published season … its cards show no genre"; story 13.4 rebuilds it.
+- The genre filter keeps a card's main theme, not set membership — false: "a card's genre is its main theme", tested deliberately (75 of the 119 roguelike cards).
+- Tag names matched exactly, unchecked against `Steam::Tag` — low: the names are the probe's, run on real data; a check would add tooling.
+- A tag listed in two themes silently keeps the last — false: no tag appears twice in `Themes::TAGS`.
+- Kind lists duplicated (route regex, `KIND_ORDER`, `EVERY_KIND_ORDER`, `BUILT_KINDS`); routes refuse franchise/studio/hall_of_fame — low: no builder makes those kinds yet, and the follow-ups fail loudly in tests until they add them.
+- `set_counts` keyed differently in `DraftPreview` and `SeasonScores` — low: only a test merge pays for it.
+- `steam:fill_card_sources` empties genres when `Steam::Tag` is empty — low: every import fills the tags first; a guard adds a branch.
+- No minimum theme size, a 1-card theme gives 1/1/1/1 tiers — false: the tier rule is the plan's; changing it edits the plan.
+- `main_theme` has no index or check — low: the season scope is small and upserts validate keys.
+- The kind check migration's comment speaks of a rebuild the plan excludes — false: story 13.4 rebuilds the published season once; the comment holds for the epic.
+- Additions beyond the intent (UFO share limit, theme verdict, main theme set first) — false: recorded in the plan's notes, no boundary crossed.

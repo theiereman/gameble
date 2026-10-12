@@ -98,3 +98,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/spike-sets-on-real-data-plan.md`
   summary: Percentage tiers make a player cross bronze, then silver, on most themes in the same few days, and "EN COURS" sorted by closeness shows near-equal bars.
   evidence: The spike's pack simulation (report section 6) puts 25 % of any theme, 48 or 2,084 cards, at 610 to 850 packs, because the share of a theme held follows the share of the catalog drawn. The agreed 10 / 25 / 50 % keeps this. Stories 5 and 6 (celebration, "EN COURS") should decide how to spread or group these crossings.
+
+## Deferred from: code review of story-themes-franchises-studios-hall-of-fame-and-the-ufos-replace-plan (2026-10-12)
+
+- Planning ids (AD-n, CAP-n, story n.n) remain in comments of `config/routes.rb`, `packs/catalog/app/queries/catalog/set_neighbours.rb`, `packs/game/app/queries/game/hub_sets.rb`, `packs/steam/app/operations/steam/rescore_cards.rb` and `packs/catalog/app/queries/catalog/season_summaries.rb`, against the AGENTS.md policy; pre-existing, the themes change added none. A sweep across the repo would settle it.
