@@ -102,3 +102,5 @@
 ## Deferred from: code review of story-themes-franchises-studios-hall-of-fame-and-the-ufos-replace-plan (2026-10-12)
 
 - Planning ids (AD-n, CAP-n, story n.n) remain in comments of `config/routes.rb`, `packs/catalog/app/queries/catalog/set_neighbours.rb`, `packs/game/app/queries/game/hub_sets.rb`, `packs/steam/app/operations/steam/rescore_cards.rb` and `packs/catalog/app/queries/catalog/season_summaries.rb`, against the AGENTS.md policy; pre-existing, the themes change added none. A sweep across the repo would settle it.
+- No test renders the French back-office season preview with zero UFOs, which relies on the plural `zero` form of `back_office.seasons.preview.ufos`; add it to the French verdict test of `test/controllers/back_office/seasons_controller_test.rb` with a draft whose every card has a theme.
+- Planning ids also remain in comments of `app/helpers/collection_helper.rb`, `app/views/library/_set_list.html.erb`, `app/views/public_profiles/_set_list.html.erb`, `app/views/library/_collection.html.erb` and `app/views/public_profiles/show.html.erb`; pre-existing, to fold into the same sweep.

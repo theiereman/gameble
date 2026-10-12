@@ -3,7 +3,7 @@ title: 'Themes and the UFOs replace the old sets'
 type: 'feature'
 ticket: '3'
 created: '2026-10-12'
-status: 'built'
+status: done
 baseline_revision: '224cc3934833c61bacd0d4b7a95d6a1a2d065e08'
 route: 'full'
 route_source: 'auto'
@@ -234,3 +234,29 @@ Rejected:
 - `main_theme` has no index or check — low: the season scope is small and upserts validate keys.
 - The kind check migration's comment speaks of a rebuild the plan excludes — false: story 13.4 rebuilds the published season once; the comment holds for the epic.
 - Additions beyond the intent (UFO share limit, theme verdict, main theme set first) — false: recorded in the plan's notes, no boundary crossed.
+
+### 2026-10-12 — Views, components, controllers and locales (commit 42075b2, second of two chunks)
+
+Code review: 1 `decision-needed`, 2 `patch`, 2 `defer`, 14 rejected. Lenses: blind-hunter, edge-case-hunter, verification-gap, intent-alignment.
+
+- [x] [Review][Decision] Themes are ordered by their English key, not by their name — the library shelf (`SeasonShelf` `BY_KEY`, paged in SQL by `SHELF_SIZE`) and the genre chips (`.sort` on `main_theme` keys) list the 42 themes in key order, so the French library reads « Vie à la ferme » (farming) between « Deckbuilding » and « Combat », and « Réflexion » (puzzle) before « Course » (racing); the tests pass only because their sample falls in order. Keep key order, or order by the localized name (an SQL `CASE` built from the locale for the paged shelf, a sort by label for the chips). — resolved (author, 2026-10-12): key order kept.
+- [x] [Review][Patch] No test asserts the tabs of a collection page opened from a profile (`brother_set_path`), for a themed season (Started, Themes, UFOs) or a season published before themes [test/controllers/public_profiles_controller_test.rb]
+- [x] [Review][Patch] The French back-office line for a season published before themes says « set OVNI » where the same panel says « Collections » [config/locales/fr.yml:468]
+- [x] [Review][Defer] No test renders the French preview with zero UFOs, which needs the plural `zero` form [app/views/back_office/seasons/_preview.html.erb:109] — deferred: admin-only copy; add to the French verdict test with a draft whose every card has a theme
+- [x] [Review][Defer] Planning ids remain in comments of `app/helpers/collection_helper.rb`, `app/views/library/_set_list.html.erb`, `app/views/public_profiles/_set_list.html.erb`, `app/views/library/_collection.html.erb` and `app/views/public_profiles/show.html.erb` — deferred: pre-existing, the change adds none
+
+Rejected:
+- Empty `<nav>` of kinds when a season holds no set — low: a published season always holds sets; a guard adds a branch.
+- Empty-state strings `empty.ufo` and the retired kinds' can no longer show — low: harmless copy; removing it trades a dead key for a latent missing translation.
+- Links on a season published before themes carry `kind=tome` though it is that season's default — low: both URLs show the same page, and the next season is themed.
+- French theme names differ from `catalog.genres` (« Plates-formes », « City builder », « Idle ») — false: they are the spike report's table, as the intent requires.
+- One more query per library and profile page (`shelf_kinds`) — low: one small grouped query; caching adds state.
+- `@tabs` built twice in `PublicProfilesController` — low: one line.
+- `SetLabel` raises on franchise, studio and hall of fame — low: no builder makes those kinds yet; the follow-ups fail loudly in tests.
+- Back-office index shows columns that stay at 0 — low: `BUILT_KINDS` by design; hiding columns adds logic.
+- `panel.ufo_share * 100` with a nil share — false: a nil share needs a published season with theme sets and no card, which publication cannot produce; an empty draft stops at `empty_season?`.
+- The live pre-themes season loses its genres without an approval entry — false: the plan's matrix states it; the author knows and is publishing a themed season.
+- The plan cites system tests as verification — rejected: its fix edits the plan.
+- `pending-approvals.md` speaks of a rebuild the plan excludes — false: story 13.4 rebuilds the published season once.
+- A UFO card's missing genre is tested only through a pre-themes fixture — low: the same nil `main_theme` path.
+- Integration tests set `main_theme` by `update_all` on tome fixtures — low: they test the read; publication sets it in the domain tests.
