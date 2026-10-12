@@ -36,6 +36,7 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
       claims: Game::DailyBonusClaim.where(player_id: player.id).count,
       codes: Game::FriendCode.where(player_id: player.id).count,
       rewards: Game::GoalReward.where(player_id: player.id).count,
+      achievements: Game::AchievementUnlock.where(player_id: player.id).count,
       states: Game::PlayerState.where(player_id: player.id).count }
   end
 
@@ -60,9 +61,10 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     assert_equal({ player_id: @player.id }, events.first.data)
   end
 
-  test "what the player held is released, goal rewards and the state row included; the weekly contribution stays; another player is untouched" do
+  test "what the player held is released, goal rewards, achievements and the state row included; the weekly contribution stays; another player is untouched" do
     play(@player)
     play(@other)
+    [ @player, @other ].each { Game::GrantAchievementsJob.perform_now(it.id) }
     Game::CreatePlayerState.new.call(player: @player).value!
     Game::CreatePlayerState.new.call(player: @other).value!
     week = Game::WeeklyContribution.where(player_id: @player.id).pick(:week_start)
@@ -73,7 +75,7 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
 
     assert delete.success?
 
-    assert_equal({ packs: 0, holdings: 0, feed: 0, claims: 0, codes: 0, rewards: 0, states: 0 }, game_rows(@player))
+    assert_equal({ packs: 0, holdings: 0, feed: 0, claims: 0, codes: 0, rewards: 0, achievements: 0, states: 0 }, game_rows(@player))
     assert Game::WeeklyContribution.exists?(player_id: @player.id)
     assert_equal before, game_rows(@other)
   end

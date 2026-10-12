@@ -819,6 +819,20 @@ fr:
     new_friend:
       title: "Nouvel ami"
       text: "%{name} fait maintenant partie de vos amis."
+  achievements:
+    unlocked:
+      title: "Succès débloqué"
+    names:
+      first_booster: "Premier booster"
+      first_epic: "Première Épique"
+      first_legendary: "Première Légendaire"
+      first_complete_set: "Premier set complet"
+      first_trade: "Premier échange"
+      boosters_10: "10 boosters"
+      boosters_100: "100 boosters"
+      boosters_500: "500 boosters"
+      three_complete_sets: "Trois sets complets"
+      first_repost: "Premier repost"
   invite_links:
     show:
       title: "%{name} vous invite"

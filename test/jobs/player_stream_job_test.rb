@@ -60,6 +60,21 @@ class PlayerStreamJobTest < ActiveSupport::TestCase
     assert_empty streams(received(@lea, :en), "append"), "the accepting player has their own toast already"
   end
 
+  test "an unlocked achievement sends its player the toast in each locale, and no signal" do
+    PlayerStreamJob.perform_now([ { player_id: @hugo.id, achievement: "first_booster" }, { player_id: @hugo.id, achievement: "boosters_10" } ])
+
+    french = received(@hugo, :fr)
+    toasts = streams(french, "append", "toasts").map { template(it) }
+    assert_equal [ "Succès débloqué" ] * 2, toasts.map { it.at_css(".toast__title").text }
+    assert_equal [ "Premier booster", "10 boosters" ], toasts.map { it.at_css(".toast__message").text }
+    assert toasts.all? { it.at_css(".toast[data-toast-after-reveal]") }, "an achievement waits for the opening's reveal"
+    assert_empty streams(french, "gameble-event")
+    assert_empty streams(french, "update")
+    english = template(streams(received(@hugo, :en), "append", "toasts").first)
+    assert_equal [ "Achievement unlocked", "First booster" ], [ english.at_css(".toast__title").text, english.at_css(".toast__message").text ]
+    assert_no_broadcasts PlayerStream.name(@lea, :fr)
+  end
+
   test "a player's notices go in one message per locale" do
     PlayerStreamJob.perform_now([ { player_id: @hugo.id, topic: "trades" }, { player_id: @hugo.id, topic: "friends", friend_id: @lea.id },
       { player_id: @hugo.id, topic: "trades" } ])

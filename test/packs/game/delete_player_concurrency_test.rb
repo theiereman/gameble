@@ -44,7 +44,7 @@ class Game::DeletePlayerConcurrencyTest < ActiveSupport::TestCase
 
   # Every table Game::ReleasePlayer empties of the player's rows.
   def released = [ Game::Pack, Game::Holding, Game::FeedEntry, Game::DailyBonusClaim, Game::GoalReward, Game::SetCompletion,
-    Game::PlayerState, Game::FriendCode ]
+    Game::AchievementUnlock, Game::PlayerState, Game::FriendCode ]
 
   def leftovers = released.to_h { |model| [ model.name, model.where(player_id: @player.id).count ] }
 

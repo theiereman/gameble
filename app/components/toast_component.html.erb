@@ -1,4 +1,4 @@
-<div class="toast toast--<%= @tone %>" data-toast-target="toast" data-turbo-temporary<% if @once %> data-toast-once="<%= @once %>"<% end %>>
+<div class="toast toast--<%= @tone %>" data-toast-target="toast" data-turbo-temporary<% if @once %> data-toast-once="<%= @once %>"<% end %><% if @after_reveal %> data-toast-after-reveal<% end %>>
   <span class="toast__light" aria-hidden="true"></span>
   <div class="toast__body">
     <% unless @title.nil? %><p class="toast__title" data-toast-part="title"><%= @title %></p><% end %>
