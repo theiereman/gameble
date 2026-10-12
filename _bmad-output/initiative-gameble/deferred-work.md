@@ -433,3 +433,6 @@
 - source_plan: `epic-recognizable-sets/story-the-import-keeps-developers-franchises-and-the-review-count-plan.md`
   summary: Two tests fail on a machine whose local time zone changes clocks within their window: `SessionsControllerTest` "signing in keeps the player signed in for 30 days" (off by 3,600 s) and `Game::TradesOfTest` "finished trades are recent ... for 14 days".
   evidence: Both fail on the baseline too, run on 2026-10-12 in Europe/Paris, whose clocks go back on 2026-10-25, inside both windows; CI runs in UTC and does not see it. Settle by comparing in UTC or freezing time in those tests.
+- source_plan: `epic-recognizable-sets/story-the-import-keeps-developers-franchises-and-the-review-count-plan.md`
+  summary: Remove `steam:fill_card_sources` (`packs/steam/lib/tasks/steam.rake`), `Catalog::FillCardSources`, its event `Catalog::CardSourcesFilled`, `Steam::CardMapping.sources` and their tests, in the epic's refactor sweep.
+  evidence: The author ran the task on staging on 2026-10-12 and production's first import stores developers, franchises and review counts itself, so nothing will ever call them again (author, 2026-10-12).
