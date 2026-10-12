@@ -3,7 +3,7 @@ title: 'Franchise and studio sets'
 type: 'feature'
 ticket: '11'
 created: '2026-10-12'
-status: 'built'
+status: done
 baseline_revision: 'ae4ec1481d866d0b4c28b001955c3891f398b5e4'
 route: 'full'
 route_source: 'auto'
