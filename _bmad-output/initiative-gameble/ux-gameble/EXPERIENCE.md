@@ -31,7 +31,7 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 | Toutes les cartes | "TOUTES LES CARTES ▸" in the collection | Every card with FILTRES and the search; later the trade and sale view |
 | Card detail ("FICHE DE LA CARTE") | A card in the collection, a revealed booster card, the showcase's "VOIR LA FICHE", the card zoom | Full card facts, Steam link, share |
 | Share sheet | "PARTAGER" in the card detail | Copy the share link, open the public page |
-| Échanges | Menu 03, "PROPOSER UN ÉCHANGE", ÉCHANGES tab | Trade list and trade board |
+| Échanges | Menu 03, "ÉCHANGE" on a friend row or friend profile, ÉCHANGES tab | Trade list and trade board |
 | Card picker | "PLACER MES CARTES" / "CHOISIR SES CARTES" on the trade board | Choose cards and copies for one side |
 | Amis | Menu 04; PLUS on the phone | Invite by link or code, answer invitations, list friends with their presence |
 | Friend profile | A friend row | Showcase, propose a trade, report |
@@ -208,8 +208,8 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 |---|---|
 | Invite panel | "COPIER" copies the invite link. The code field accepts the format of the codes in use (for example "7K2Q-F3NX", "8F2D-K9XM") (author, 2026-10-07: the code is purely random, 4 characters, a dash, 4 characters, never derived from the name), submits on Enter and answers on the line below. A valid code sends an invitation. |
 | Invitation row | Received: "ACCEPTER" creates the friendship for both; "IGNORER" dismisses it. Sent: "EN ATTENTE" until answered. The invite link sends an invitation the same way. |
-| Friend row | Shows the friend's presence (see Copy deck, Presence), or "Profil privé" for a private friend. "VOIR LE PROFIL" opens the friend profile; the name is not a link. "PROPOSER UN ÉCHANGE" opens the trade already in progress with that friend, or a new draft. When either profile is private, the "Trades closed" line replaces the button. |
-| Friend profile | A dialog: showcase of three cards, "PROPOSER UN ÉCHANGE", "VOIR LA COLLECTION" (the public profile, unless the friend's profile is private), "SIGNALER". A private friend's dialog shows the name and says the profile is not available; when the viewer is private, the "Trades closed" line replaces "PROPOSER UN ÉCHANGE". |
+| Friend row | Shows the friend's presence (see Copy deck, Presence), or "Profil privé" for a private friend. "VOIR LE PROFIL" opens the friend profile; the name is not a link. "ÉCHANGE" (accessible name "Échange avec <name>") opens the trade already in progress with that friend, or a new draft. When either profile is private, the "Trades closed" line replaces the button. |
+| Friend profile | A dialog: showcase of three cards, "ÉCHANGE" (the trade in progress with that friend, or a new draft), "VOIR LA COLLECTION" (the public profile, unless the friend's profile is private), "SIGNALER". A private friend's dialog shows the name and says the profile is not available; when the viewer is private, the "Trades closed" line replaces "ÉCHANGE". |
 | Report dialog | A reason must be chosen before "ENVOYER LE SIGNALEMENT". The reported player never learns who reported them. |
 
 ### Fil d'activité and Succès
@@ -279,7 +279,7 @@ Messages quoted by key are in the Copy deck.
 | Counter-proposal in progress | Trade board | Both sides become editable, marked "EN ÉDITION", with the counter-proposal line. "RENVOYER LA CONTRE-PROPOSITION" enables once each side holds a card; "ANNULER LES MODIFICATIONS" restores the received proposal, after a confirmation if anything changed. |
 | Counter-proposal sent | Trade board | The 7-day expiry restarts; the player's reserved copies become exactly those on the player's side; copies the player removed are released. |
 | Trade waiting for the friend | Trade board, list | "EN ATTENTE", the waiting line, the player's copies tagged "RÉSERVÉE". Action: "ANNULER LA PROPOSITION". |
-| One trade per pair | Friend row, friend profile | Proposing to a friend with a trade in progress opens that trade, with the one-at-a-time refusal. |
+| One trade per pair | Friend row, friend profile | With a trade in progress with that friend, "ÉCHANGE" opens that trade directly, without a refusal; a page left open from before the trade lands on it with the one-at-a-time refusal. |
 | Not enough copies | Trade board | Accepting when a copy is no longer available: "EXEMPLAIRES INSUFFISANTS" inline and in a toast; nothing moves. |
 | Nothing to place | Card picker | The no-card line (Copy deck, Card picker) with the reason (none owned, or all reserved). |
 | Trade done | Trade board, list | The swap plays; "CONCLU" and the concluded line; received cards tagged "NOUVEAU". The trade appears in the feed and counts toward the goal. |
@@ -453,7 +453,7 @@ Failure: she closes the sign-in panel or Steam refuses → she stays on the publ
 ### Flow 2 — A trade with quantities (Hugo and Léa, a few days later)
 
 1. Léa entered Hugo's code 7K2Q-F3NX in Amis; Hugo saw her invitation and pressed "ACCEPTER". They are friends.
-2. In Amis, Hugo presses "PROPOSER UN ÉCHANGE" on Léa's row. The trade board opens as "BROUILLON".
+2. In Amis, Hugo presses "ÉCHANGE" on Léa's row. The trade board opens as "BROUILLON".
 3. "CHOISIR SES CARTES": from Léa's collection he picks Disco Elysium, one copy.
 4. "PLACER MES CARTES": he picks Slay the Spire; he owns three, so a stepper appears; he sets ×2 ("/3") and presses "PLACER". His side shows a stack with "×2" and "1 carte · 2 ex.".
 5. "ENVOYER LA PROPOSITION". The "PROPOSITION ENVOYÉE" toast confirms; his two copies are tagged "2 RÉSERVÉES".

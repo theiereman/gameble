@@ -781,8 +781,8 @@ fr:
       cancel_invitation_to: "Annuler l'invitation à %{name}"
       see_profile: "Voir le profil"
       see_profile_of: "Voir le profil de %{name}"
-      propose_trade: "Proposer un échange"
-      propose_trade_to: "Proposer un échange à %{name}"
+      trade: "Échange"
+      trade_with: "Échange avec %{name}"
       presence:
         online: "En ligne"
         offline: "Hors ligne"
@@ -809,7 +809,7 @@ fr:
     show:
       showcase: "Vitrine"
       no_showcase: "Aucune carte en vitrine."
-      propose_trade: "Proposer un échange"
+      trade: "Échange"
     unavailable:
       body: "Ce profil n'est pas disponible."
   invitations:

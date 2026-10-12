@@ -60,9 +60,29 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friends__friend" do
       assert_select "span.friends__name", "Sam"
       assert_select "button.button[aria-haspopup=dialog][aria-label='Voir le profil de Sam'][data-dialog-opener-dialog-value=?]", "friend-#{sam.token}", "Voir le profil"
-      assert_select "a.button[href=?][aria-label='Proposer un échange à Sam']", new_trade_path(locale: :fr, friend: sam.token), "Proposer un échange"
+      assert_select "a.button[href=?][aria-label='Échange avec Sam']", new_trade_path(locale: :fr, friend: sam.token), "Échange"
       assert_select "a[href=?]", brother_path(locale: :fr, token: sam.token), 0
     end
+  end
+
+  test "a friend's row opens the trade in progress with them, whoever proposed it, and a new draft once it is closed" do
+    sam = accounts_players(:moderator)
+    sam.update!(persona_name: "Sam", visibility: "public")
+    Game::Friendship.create!(low_player_id: [ @player.id, sam.id ].min, high_player_id: [ @player.id, sam.id ].max)
+    portal = catalog_card_seasons(:portal_one).id
+    soldier = catalog_card_seasons(:common_card_one).id
+    Game::Holding.create!(player_id: sam.id, card_season_id: portal, quantity: 1, reserved: 0)
+    Game::Holding.create!(player_id: @player.id, card_season_id: soldier, quantity: 1, reserved: 0)
+    trade = Game::ProposeTrade.new.call(player: sam, recipient: @player, offer: { portal => 1 }, request: { soldier => 1 }).value!
+    sign_in
+
+    get friends_path(locale: :fr)
+    assert_select ".friends__friend a.button[href=?][aria-label='Échange avec Sam']", trade_path(locale: :fr, token: trade.token), "Échange"
+    assert_select ".friends__friend a[href=?]", new_trade_path(locale: :fr, friend: sam.token), 0
+
+    Game::CancelTrade.new.call(player: sam, trade_id: trade.id).value!
+    get friends_path(locale: :fr)
+    assert_select ".friends__friend a.button[href=?]", new_trade_path(locale: :fr, friend: sam.token), "Échange"
   end
 
   test "a friend's row says trades are closed instead of proposing one when either profile is private" do
