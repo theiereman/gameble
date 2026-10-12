@@ -27,6 +27,8 @@ ignore_unused:
   - "catalog.genres.*"
   # Theme names, looked up by a theme set's key and a card's main theme (SetLabel).
   - "catalog.themes.*"
+  # Hall of fame set names, looked up by a hall of fame set's key (SetLabel).
+  - "catalog.hall_of_fame.*"
   # Pagy's dictionary, read by Pagy::I18n, not by the I18n gem.
   - "pagy.*"
   # The Booster island's words, passed whole to its props (BoostersHelper#booster_props).

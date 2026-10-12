@@ -22,7 +22,7 @@ Rails.application.routes.draw do
     # The collection, reached from the hub's menu: the whole season (CAP-6).
     resource :library, controller: :library, only: :show
     # The collection of one set, by kind and key (AD-15).
-    get "library/:kind/:key" => "library#set", as: :library_set, constraints: { kind: /theme|franchise|studio|ufo|tome|publisher|best_of_year/ }
+    get "library/:kind/:key" => "library#set", as: :library_set, constraints: { kind: /theme|franchise|studio|hall_of_fame|ufo|tome|publisher|best_of_year/ }
     # The collection's watermark (AD-26): the page posts the latest gain it
     # showed as new.
     post "library/seen" => "collection_seen#create", as: :library_seen
@@ -36,7 +36,7 @@ Rails.application.routes.draw do
     post "brothers/:token/report" => "reports#create", as: :brother_report,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     get "brothers/:token/library/:kind/:key" => "public_profiles#set", as: :brother_set,
-      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/, kind: /theme|franchise|studio|ufo|tome|publisher|best_of_year/ }
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/, kind: /theme|franchise|studio|hall_of_fame|ufo|tome|publisher|best_of_year/ }
     # The share links of story 4.5, which named the sharer's token, lead to
     # the card's own page (CAP-9: a shared link shows only the card), on the
     # public base (PUBLIC_URL), never the request's Host. The token is

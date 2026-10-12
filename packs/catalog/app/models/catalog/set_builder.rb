@@ -9,14 +9,14 @@ module Catalog
   # of its games carry (the alphabetically first on a tie) and keyed by that
   # name's form; sets whose keys are equal merge.
   #
-  #   Catalog::SetBuilder.call(rows) # => theme sets, franchises, studios, then the UFOs
+  #   Catalog::SetBuilder.call(rows) # => theme sets, franchises, studios, hall of fame, then the UFOs
   module SetBuilder
     UFOS = "ufos".freeze
     MIN_GAMES = 3
     STUDIO_REVIEW_FLOOR = 20_000
 
     def self.call(rows)
-      themes(rows) + franchises(rows) + studios(rows) + ufos(rows)
+      themes(rows) + franchises(rows) + studios(rows) + hall_of_fame(rows) + ufos(rows)
     end
 
     # One set per theme among the cards' genres, in the order of the theme
@@ -51,6 +51,17 @@ module Catalog
       named(rows) { |row| row.developers.first(1).map { |name| SetNames.company(name) } }
         .select { |set| set[:rows].size >= MIN_GAMES && set[:rows].map { |row| row.review_count.to_i }.max >= STUDIO_REVIEW_FLOOR }
         .map { |set| complete_only("studio", set) }
+    end
+
+    # One set per hall of fame rule some card meets, in HallOfFame's order,
+    # tiered like a theme.
+    def self.hall_of_fame(rows)
+      HallOfFame.keys.filter_map do |key|
+        ordered = by_release(rows.select { |row| HallOfFame.selects?(key, row) })
+        next if ordered.empty?
+
+        { kind: "hall_of_fame", key:, params: { "hall_of_fame" => key }, members: ordered, tiers: Themes.tiers(ordered.size) }
+      end
     end
 
     # The cards of no theme, in one set; none when every card has a theme.

@@ -15,6 +15,10 @@ class Catalog::SeasonShelfTest < ActiveSupport::TestCase
       [ "theme", "rpg", { "theme" => "rpg" } ],
       [ "theme", "horror", { "theme" => "horror" } ],
       [ "ufo", "ufos", {} ],
+      [ "hall_of_fame", "phenomenes", { "hall_of_fame" => "phenomenes" } ],
+      [ "hall_of_fame", "intouchables", { "hall_of_fame" => "intouchables" } ],
+      [ "hall_of_fame", "mal-aimes", { "hall_of_fame" => "mal-aimes" } ],
+      [ "hall_of_fame", "pepites", { "hall_of_fame" => "pepites" } ],
       [ "tome", "adventure-1", { "genre" => "adventure", "volume" => 1, "volumes" => 1 } ],
       [ "tome", "action-10", { "genre" => "action", "volume" => 10, "volumes" => 10 } ],
       [ "tome", "action-2", { "genre" => "action", "volume" => 2, "volumes" => 10 } ],
@@ -26,6 +30,7 @@ class Catalog::SeasonShelfTest < ActiveSupport::TestCase
 
     assert_equal %w[horror rpg], keys("theme")
     assert_equal %w[ufos], keys(:ufo)
+    assert_equal %w[intouchables pepites mal-aimes phenomenes], keys("hall_of_fame")
     assert_equal %w[action-2 action-10 adventure-1], keys("tome")
     assert_equal %w[activision valve], keys(:publisher)
     assert_equal %w[2015 2011], keys("best_of_year")
@@ -88,9 +93,13 @@ class Catalog::SeasonShelfTest < ActiveSupport::TestCase
     assert_queries_count(0) { assert_equal({}, Catalog::SetTotals.call([])) }
   end
 
-  test "every kind: themes, the UFOs, then tomes, publishers and best of year, each in its own order, lazily" do
+  test "every kind: themes, franchises, studios, hall of fame, the UFOs, then tomes, publishers and best of year, each in its own order, lazily" do
     season = seed_published_sets([
       [ "ufo", "ufos", {} ],
+      [ "hall_of_fame", "pepites", { "hall_of_fame" => "pepites" } ],
+      [ "studio", "capcom", { "studio" => "Capcom" } ],
+      [ "hall_of_fame", "intouchables", { "hall_of_fame" => "intouchables" } ],
+      [ "franchise", "halo", { "franchise" => "Halo" } ],
       [ "theme", "rpg", { "theme" => "rpg" } ],
       [ "best_of_year", "2011", { "year" => 2011 } ],
       [ "publisher", "valve", { "publisher" => "Valve" } ],
@@ -104,7 +113,7 @@ class Catalog::SeasonShelfTest < ActiveSupport::TestCase
 
     relation = nil
     assert_queries_count(0) { relation = Catalog::SeasonShelf.every_kind(season:) }
-    assert_equal %w[horror rpg ufos action-2 action-10 adventure-1 activision valve 2015 2011], relation.map(&:key)
+    assert_equal %w[horror rpg halo capcom intouchables pepites ufos action-2 action-10 adventure-1 activision valve 2015 2011], relation.map(&:key)
     assert_empty relation.group_values
   end
 

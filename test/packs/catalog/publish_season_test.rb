@@ -116,6 +116,27 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_equal [ [ "franchise", "complete", 3 ], [ "studio", "complete", 3 ] ], tiers.sort
   end
 
+  test "publishing builds the hall of fame sets, members in release order, each with bronze, silver, gold and complete" do
+    season = seed_hall_of_fame_draft
+
+    assert publish(season.number).success?
+
+    sets = sets_of(season).where(kind: "hall_of_fame").index_by(&:key)
+    titles = sets.transform_values { |set| member_rows(set).map { |card_season| card_season.card.text("en").title } }
+    assert_equal({ "intouchables" => [ "Seed 0", "Seed 5" ], "pepites" => [ "Seed 1" ], "mal-aimes" => [ "Seed 2", "Seed 3" ],
+      "phenomenes" => [ "Seed 4", "Seed 5" ] }, titles)
+    assert_equal({ "hall_of_fame" => "mal-aimes" }, sets["mal-aimes"].params)
+
+    tiers = Catalog::SetTier.joins(:set).where(catalog_sets: { season_id: season.id, kind: "hall_of_fame" })
+      .pluck("catalog_sets.key", :tier, :required).group_by(&:first).transform_values { |rows| rows.to_h { |_, tier, required| [ tier, required ] } }
+    assert_equal({
+      "intouchables" => { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 2 },
+      "pepites" => { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 1 },
+      "mal-aimes" => { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 2 },
+      "phenomenes" => { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 2 }
+    }, tiers)
+  end
+
   test "a theme of 7 cards gets the tiers 1, 2, 4 and 7" do
     season = seed_card_seasons(distinct_scores(21), genres: Array.new(21) { |index| index < 7 ? [ "pirates" ] : [ "rpg" ] })
 

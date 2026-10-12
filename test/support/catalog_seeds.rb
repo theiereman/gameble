@@ -100,6 +100,29 @@ module CatalogSeeds
     season.reload
   end
 
+  # A draft of 24 distinct scores, every card an RPG, released a month apart
+  # in card order, the first eight at a rating and review count: 0 at 97 %
+  # and 20,000 reviews, 1 at 98 % and 999, 2 at 69 % and 20,000, 3 at 40 %
+  # and 20,000, 4 at 85 % and 200,000, 5 at 98 % and 250,000, 6 at 96 % and
+  # 50,000, 7 at 99 % unreviewed; the others at 80 % unreviewed. Published,
+  # it holds the theme rpg (24 cards) and the hall of fame sets intouchables
+  # (cards 0 and 5), pepites (1), mal-aimes (2 and 3) and phenomenes (4 and
+  # 5).
+  def seed_hall_of_fame_draft
+    count = 24
+    seed_card_seasons(distinct_scores(count), genres: Array.new(count) { [ "rpg" ] },
+      ratings: [ 97, 98, 69, 40, 85, 98, 96, 99 ] + Array.new(count - 8, 80),
+      review_counts: [ 20_000, 999, 20_000, 20_000, 200_000, 250_000, 50_000, nil ] + Array.new(count - 8),
+      release_dates: Array.new(count) { |index| Date.new(2000, 1, 1) >> index })
+  end
+
+  # The hall of fame draft, published. Returns the season.
+  def publish_hall_of_fame_draft
+    season = seed_hall_of_fame_draft
+    assert Catalog::PublishSeason.new.call(number: season.number).success?
+    season.reload
+  end
+
   # A new published season (the next number) holding exactly these sets,
   # without members: `sets` is [ [ kind, key, params ], … ]. Written with
   # insert_all, as a published season's sets can no longer be created.

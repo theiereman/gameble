@@ -140,6 +140,21 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".collection-kind[aria-current=true]", "Studios"
   end
 
+  test "a hall of fame set opens under its name, the hall of fame tab current, in English and French" do
+    season = publish_hall_of_fame_draft
+
+    get library_set_path(locale: :en, kind: "hall_of_fame", key: "phenomenes")
+    assert_select "h1", "The Phenomena"
+    assert_equal [ "The Phenomena", "0/2" ], current_row
+    assert_select ".collection-kind[aria-current=true]", "Hall of fame"
+    assert_equal set_members(season, "phenomenes").map { title(it) }, slots.map(&:second)
+
+    get library_set_path(locale: :fr, kind: "hall_of_fame", key: "mal-aimes")
+    assert_select "h1", "Les Mal-aimés"
+    assert_equal [ "Les Mal-aimés", "0/2" ], current_row
+    assert_select ".collection-kind[aria-current=true]", "Panthéon"
+  end
+
   test "a set of a season published before themes still opens, named as before" do
     season = seed_published_sets([ [ "best_of_year", "2011", { "year" => 2011 } ], [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
 

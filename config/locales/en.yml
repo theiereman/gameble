@@ -400,7 +400,7 @@ en:
         published: "Published"
       index:
         heading: "The catalog seasons"
-        intro: "Imports fill the draft season. Publishing it cuts its cards into the five rarities, numbers them, binds them into theme, franchise and studio sets and the UFOs, and opens it to the draw, all at once. A published season never changes again."
+        intro: "Imports fill the draft season. Publishing it cuts its cards into the five rarities, numbers them, binds them into theme, franchise, studio and hall of fame sets and the UFOs, and opens it to the draw, all at once. A published season never changes again."
         empty: "No season yet. The first import will open the draft."
         caption: "Catalog seasons, by number"
         number: "Season"
@@ -411,6 +411,7 @@ en:
           theme: "Themes"
           franchise: "Franchises"
           studio: "Studios"
+          hall_of_fame: "Hall of fame"
           ufo: "UFOs"
           publisher: "Publisher sets"
           tome: "Tomes"
@@ -549,6 +550,7 @@ en:
         theme: "Themes"
         franchise: "Franchises"
         studio: "Studios"
+        hall_of_fame: "Hall of fame"
         ufo: "UFOs"
         tome: "Tomes"
         publisher: "Publishers"
@@ -557,6 +559,7 @@ en:
         theme: "No theme in this season."
         franchise: "No franchise has a set this season."
         studio: "No studio has a set this season."
+        hall_of_fame: "No hall of fame set this season."
         ufo: "Every card of this season has a theme."
         tome: "No tome in this season yet."
         publisher: "No publisher has a set this season."
@@ -583,6 +586,7 @@ en:
         theme: "No theme in this season."
         franchise: "No franchise has a set this season."
         studio: "No studio has a set this season."
+        hall_of_fame: "No hall of fame set this season."
         ufo: "Every card of this season has a theme."
         tome: "No tome in this season yet."
         publisher: "No publisher has a set this season."
@@ -1117,6 +1121,12 @@ en:
       best_of_year: "Best rated of %{year}"
       with_years: "%{label} · %{years}"
       ufos: "The UFOs"
+    # Hall of fame set names, by key (Catalog::HallOfFame).
+    hall_of_fame:
+      intouchables: "The Untouchables"
+      pepites: "Hidden Gems"
+      mal-aimes: "The Unloved"
+      phenomenes: "The Phenomena"
     # Theme names, by key (Catalog::Themes); SetLabel humanises any other.
     themes:
       souls_like: "Souls-like"

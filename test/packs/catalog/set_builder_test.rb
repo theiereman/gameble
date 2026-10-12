@@ -1,7 +1,8 @@
 require "test_helper"
 
-# Catalog::SetBuilder: the theme, franchise and studio sets and the UFOs of
-# a season, built from its rows without the database, with their tiers.
+# Catalog::SetBuilder: the theme, franchise, studio and hall of fame sets
+# and the UFOs of a season, built from its rows without the database, with
+# their tiers.
 class Catalog::SetBuilderTest < ActiveSupport::TestCase
   # Card-season ids start at 1_000 so they never equal a card id.
   def row(card_id, release_date: Date.new(2000, 1, 1), genres: [], rating: 80, prestige_score: 1.0, title: "Game #{card_id}",
@@ -221,16 +222,75 @@ class Catalog::SetBuilderTest < ActiveSupport::TestCase
     assert_equal 1, Catalog::SetBuilder.studios(studio_rows("Quiet River", [ 20_000, nil, nil ])).size
   end
 
+  # Hall of fame
+
+  def hall_of_fame_keys(rating, review_count)
+    Catalog::SetBuilder.hall_of_fame([ row(1, rating:, review_count:) ]).map { |set| set[:key] }
+  end
+
+  {
+    [ 97, 20_000 ] => [ "intouchables" ], [ 98, 999 ] => [ "pepites" ], [ 69, 20_000 ] => [ "mal-aimes" ],
+    [ 40, 20_000 ] => [ "mal-aimes" ], [ 85, 200_000 ] => [ "phenomenes" ], [ 98, 250_000 ] => [ "intouchables", "phenomenes" ],
+    [ 96, 50_000 ] => [], [ 98, 1_000 ] => [], [ 70, 20_000 ] => [], [ 39, 20_000 ] => [], [ 85, 199_999 ] => [], [ 99, nil ] => []
+  }.each do |(rating, review_count), expected|
+    test "a card at #{rating} % and #{review_count.inspect} reviews is in the hall of fame sets #{expected.inspect}" do
+      assert_equal expected, hall_of_fame_keys(rating, review_count)
+    end
+  end
+
+  test "the hall of fame sets follow their fixed order, members by release date, tiered like a theme" do
+    rows = [
+      row(4, rating: 50, review_count: 300_000, release_date: Date.new(2015, 1, 1)),
+      row(3, rating: 99, review_count: 500, release_date: Date.new(2010, 1, 1)),
+      row(2, rating: 97, review_count: 210_000, release_date: Date.new(2012, 1, 1)),
+      row(1, rating: 98, review_count: 30_000, release_date: Date.new(2012, 1, 1))
+    ]
+
+    assert_equal [
+      { kind: "hall_of_fame", key: "intouchables", params: { "hall_of_fame" => "intouchables" }, members: ids(1, 2),
+        tiers: { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 2 } },
+      { kind: "hall_of_fame", key: "pepites", params: { "hall_of_fame" => "pepites" }, members: ids(3),
+        tiers: { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 1 } },
+      { kind: "hall_of_fame", key: "mal-aimes", params: { "hall_of_fame" => "mal-aimes" }, members: ids(4),
+        tiers: { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 1 } },
+      { kind: "hall_of_fame", key: "phenomenes", params: { "hall_of_fame" => "phenomenes" }, members: ids(2, 4),
+        tiers: { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 2 } }
+    ], Catalog::SetBuilder.hall_of_fame(rows)
+  end
+
+  test "a hall of fame rule no card meets builds no set" do
+    rows = [ row(1, rating: 98, review_count: 30_000), row(2, rating: 99, review_count: 10), row(3, rating: 50, review_count: 40_000) ]
+
+    assert_equal %w[intouchables pepites mal-aimes], Catalog::SetBuilder.hall_of_fame(rows).map { |set| set[:key] }
+  end
+
+  test "a hall of fame set of 30 cards needs 3, 8 and 15 of them for bronze, silver and gold, and 30 to complete" do
+    rows = (1..30).map { |id| row(id, rating: 60, review_count: 25_000) }
+
+    assert_equal({ "bronze" => 3, "silver" => 8, "gold" => 15, "complete" => 30 }, Catalog::SetBuilder.hall_of_fame(rows).sole[:tiers])
+  end
+
+  test "every hall of fame key is a well-formed set key" do
+    assert_equal %w[intouchables pepites mal-aimes phenomenes], Catalog::HallOfFame.keys
+    assert Catalog::HallOfFame.keys.all? { |key| Catalog::Set::KEY_FORMAT.match?(key) }
+  end
+
+  test "a hall of fame card of no theme stays in the UFOs" do
+    rows = [ row(1, rating: 99, review_count: 300_000) ]
+
+    assert_equal ids(1), Catalog::SetBuilder.ufos(rows).sole[:members]
+  end
+
   # All kinds
 
-  test "a publication builds the theme sets, the franchises, the studios, then the UFOs, every card in at least one" do
-    rows = [ row(1, genres: %w[roguelike deckbuilder horror]), row(2), row(3, genres: %w[rpg]) ] +
+  test "a publication builds the theme sets, the franchises, the studios, the hall of fame, then the UFOs, every card in at least one" do
+    rows = [ row(1, genres: %w[roguelike deckbuilder horror]), row(2, rating: 99, review_count: 200), row(3, genres: %w[rpg]) ] +
       franchise_rows("Halo", [ "Halo 3", "Halo Wars", "Halo Infinite" ], first: 4, developers: [ "Bungie" ], review_count: 90_000)
 
     sets = Catalog::SetBuilder.call(rows)
 
     assert_equal [ [ "theme", "roguelike" ], [ "theme", "deckbuilder" ], [ "theme", "horror" ], [ "theme", "rpg" ], [ "franchise", "halo" ],
-      [ "studio", "bungie" ], [ "ufo", "ufos" ] ], sets.map { |set| [ set[:kind], set[:key] ] }
+      [ "studio", "bungie" ], [ "hall_of_fame", "pepites" ], [ "ufo", "ufos" ] ], sets.map { |set| [ set[:kind], set[:key] ] }
     assert_equal ids(1, 2, 3, 4, 5, 6), sets.flat_map { |set| set[:members] }.uniq.sort
   end
 

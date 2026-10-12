@@ -348,6 +348,23 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Thèmes", "Franchises", "Studios", "OVNI" ], css_select(".collection-kinds a.collection-kind").map(&:text)
   end
 
+  test "the hall of fame has its tab and lists its sets in their fixed order, by name, in English and French" do
+    publish_hall_of_fame_draft
+
+    get library_path(locale: :en)
+    assert_equal [ "Themes", "Hall of fame" ], css_select(".collection-kinds a.collection-kind").map(&:text)
+
+    get library_path(locale: :en, kind: "hall_of_fame")
+    assert_select ".collection-kind[aria-current=true]", "Hall of fame"
+    assert_equal [ [ "Whole season", "0/24" ], [ "The Untouchables", "0/2" ], [ "Hidden Gems", "0/1" ], [ "The Unloved", "0/2" ],
+      [ "The Phenomena", "0/2" ] ], set_rows
+    assert_equal "/en/library/hall_of_fame/mal-aimes", css_select(".collection-sets .set-row")[3]["href"]
+
+    get library_path(locale: :fr, kind: "hall_of_fame")
+    assert_select ".collection-kind[aria-current=true]", "Panthéon"
+    assert_equal [ "Toute la saison", "Les Intouchables", "Les Pépites", "Les Mal-aimés", "Les Phénomènes" ], set_rows.map(&:first)
+  end
+
   test "a season published before themes keeps its kinds' tabs, opening on the first, each kind in its order" do
     seed_published_sets([
       [ "best_of_year", "2011", { "year" => 2011 } ], [ "publisher", "valve", { "publisher" => "Valve" } ],

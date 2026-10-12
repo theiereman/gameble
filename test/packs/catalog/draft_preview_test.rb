@@ -38,7 +38,7 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
     assert_in_delta 0.1, result.ufo_share
     assert_predicate result, :ufo_share_over_limit?
     assert_nil result.theme_verdict
-    assert_equal({ "theme" => 4, "franchise" => 0, "studio" => 0, "ufo" => 1 }, result.set_counts)
+    assert_equal({ "theme" => 4, "franchise" => 0, "studio" => 0, "hall_of_fame" => 0, "ufo" => 1 }, result.set_counts)
   end
 
   test "a draft whose UFOs stay under the limit says so" do
@@ -69,13 +69,19 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
     assert_equal 20, result.card_count
     assert_equal({ 10 => 2.0, 50 => 10.0, 90 => 18.0, 99 => 20.0 }, result.percentiles)
     assert_equal 10, result.top.size
-    assert_equal({ "theme" => 0, "franchise" => 0, "studio" => 0, "ufo" => 1 }, result.set_counts)
+    assert_equal({ "theme" => 0, "franchise" => 0, "studio" => 0, "hall_of_fame" => 0, "ufo" => 1 }, result.set_counts)
   end
 
   test "a draft with franchises and studios counts their sets as publishing would build them" do
     seed_franchises_and_studios_draft
 
-    assert_equal({ "theme" => 1, "franchise" => 1, "studio" => 1, "ufo" => 1 }, preview.set_counts)
+    assert_equal({ "theme" => 1, "franchise" => 1, "studio" => 1, "hall_of_fame" => 0, "ufo" => 1 }, preview.set_counts)
+  end
+
+  test "a draft with hall of fame cards counts their sets as publishing would build them" do
+    seed_hall_of_fame_draft
+
+    assert_equal({ "theme" => 1, "franchise" => 0, "studio" => 0, "hall_of_fame" => 4, "ufo" => 0 }, preview.set_counts)
   end
 
   test "a draft mixing two score versions shows the mixed_score_versions verdict, its tiers still cut" do

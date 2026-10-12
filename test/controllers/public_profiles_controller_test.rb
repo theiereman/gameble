@@ -109,6 +109,22 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert set_rows.all? { it["href"].end_with?("?page=1&tab=started") }
   end
 
+  test "the hall of fame has its tab, its sets in their fixed order and after the themes on the Started shelf, in English and French" do
+    season = publish_hall_of_fame_draft
+    hold(@owner, set_members(season, "phenomenes").last, 1)
+
+    get brother_path(locale: :en, token: @owner.token)
+    assert_equal [ "Started", "Themes", "Hall of fame" ], tabs.map(&:text)
+    assert_equal [ [ "RPG", "1 / 24" ], [ "The Untouchables", "1 / 2" ], [ "The Phenomena", "1 / 2" ] ], spines
+
+    get brother_path(locale: :fr, token: @owner.token, kind: "hall_of_fame")
+    assert_equal "Panthéon", open_tab
+    assert_equal [ [ "Les Intouchables", "1 / 2" ], [ "Les Pépites", "0 / 1" ], [ "Les Mal-aimés", "0 / 2" ], [ "Les Phénomènes", "1 / 2" ] ], spines
+
+    get brother_set_path(locale: :en, token: @owner.token, kind: "hall_of_fame", key: "pepites", page: 1)
+    assert_equal "Hidden Gems", heading
+  end
+
   test "a shelf of more than fifty sets pages, its page links unprefetched" do
     seed_published_sets((1..60).map { |volume| [ "tome", "action-#{volume}", { "genre" => "action", "volume" => volume, "volumes" => 60 } ] })
 

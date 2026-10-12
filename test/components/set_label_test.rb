@@ -21,6 +21,23 @@ class SetLabelTest < ActiveSupport::TestCase
     assert_equal "CAPCOM", heading("studio", { "studio" => "CAPCOM" }, [ 2001, 2005 ])
   end
 
+  test "a hall of fame set is named in the locale" do
+    assert_equal "Les Pépites", label("hall_of_fame", { "hall_of_fame" => "pepites" }, :fr)
+    assert_equal "Hidden Gems", label("hall_of_fame", { "hall_of_fame" => "pepites" }, :en)
+    assert_equal "Les Mal-aimés", label("hall_of_fame", { "hall_of_fame" => "mal-aimes" }, :fr)
+    assert_equal "The Unloved", label("hall_of_fame", { "hall_of_fame" => "mal-aimes" }, :en)
+  end
+
+  test "every hall of fame set has its name in both locales, and no other key is there" do
+    %i[en fr].each do |locale|
+      assert_equal Catalog::HallOfFame.keys.sort, I18n.t("catalog.hall_of_fame", locale:).keys.map(&:to_s).sort, locale
+    end
+  end
+
+  test "a hall of fame set without its key is refused" do
+    assert_raises(ArgumentError) { SetLabel.for(Catalog::Set.new(kind: "hall_of_fame", key: "k", params: {})) }
+  end
+
   test "the UFOs are named in the locale" do
     assert_equal "Les OVNI", label("ufo", {}, :fr)
     assert_equal "The UFOs", label("ufo", {}, :en)

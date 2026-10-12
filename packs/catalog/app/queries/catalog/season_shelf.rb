@@ -2,16 +2,17 @@ module Catalog
   # The published season's sets of one kind, in shelf order, for the
   # library: an ungrouped, ordered Catalog::Set relation the web layer
   # pages, or nil when no season is published. Themes, franchises, studios
-  # and the UFOs by key; the retired kinds as before: publisher sets by key,
+  # and the UFOs by key, hall of fame sets in HallOfFame's order; the
+  # retired kinds as before: publisher sets by key,
   # tomes by genre key then volume (the English genre key in every locale),
   # best of year the latest year first; any other kind by key. The caller that already holds
   # the published season passes it (nil for none); without it, it is looked
   # up.
   #
   # `every_kind` is the season's sets of every kind on one shelf, for a
-  # public profile's "Started" tab: themes, franchises, studios, then the
-  # UFOs, then the retired tomes, publishers and best of year, each kind in
-  # its own order.
+  # public profile's "Started" tab: themes, franchises, studios, hall of
+  # fame, then the UFOs, then the retired tomes, publishers and best of year,
+  # each kind in its own order.
   #
   # `kinds` is the kinds the season holds sets of, unordered; none without a
   # season.
@@ -21,16 +22,23 @@ module Catalog
   #   Catalog::SeasonShelf.kinds(season:)                   # => [ "theme", "ufo" ]
   module SeasonShelf
     BY_KEY = Arel.sql("catalog_sets.key")
+    # A hall of fame set's rank in HallOfFame's order; null for other kinds.
+    HALL_OF_FAME_ORDER = Arel.sql(
+      "CASE WHEN catalog_sets.kind = 'hall_of_fame' THEN CASE catalog_sets.key " \
+      "#{HallOfFame.keys.each_with_index.map { |key, index| "WHEN '#{key}' THEN #{index}" }.join(" ")} END END"
+    ).freeze
     ORDER = {
+      "hall_of_fame" => Arel.sql("#{HALL_OF_FAME_ORDER}, catalog_sets.key"),
       "tome" => Arel.sql("catalog_sets.params->>'genre', (catalog_sets.params->>'volume')::int"),
       "best_of_year" => Arel.sql("catalog_sets.key DESC")
     }.freeze
 
     # The kinds on a shelf of every kind, then each kind's ORDER.
     EVERY_KIND_ORDER = Arel.sql(<<~SQL.squish).freeze
-      CASE catalog_sets.kind WHEN 'theme' THEN 0 WHEN 'franchise' THEN 1 WHEN 'studio' THEN 2 WHEN 'ufo' THEN 3
-        WHEN 'tome' THEN 4 WHEN 'publisher' THEN 5 WHEN 'best_of_year' THEN 6 ELSE 7 END,
+      CASE catalog_sets.kind WHEN 'theme' THEN 0 WHEN 'franchise' THEN 1 WHEN 'studio' THEN 2 WHEN 'hall_of_fame' THEN 3
+        WHEN 'ufo' THEN 4 WHEN 'tome' THEN 5 WHEN 'publisher' THEN 6 WHEN 'best_of_year' THEN 7 ELSE 8 END,
       catalog_sets.kind,
+      #{HALL_OF_FAME_ORDER},
       CASE WHEN catalog_sets.kind = 'tome' THEN catalog_sets.params->>'genre' END,
       CASE WHEN catalog_sets.kind = 'tome' THEN (catalog_sets.params->>'volume')::int END,
       CASE WHEN catalog_sets.kind = 'best_of_year' THEN catalog_sets.key END DESC,

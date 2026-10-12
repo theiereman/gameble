@@ -128,6 +128,19 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
       css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
   end
 
+  test "a card's hall of fame sets are named in their fixed order and lead to their grids, in English and French" do
+    season = publish_hall_of_fame_draft
+    sign_in_viewer
+
+    get card_path(locale: :en, slug: "seed-#{season.number}-5")
+    assert_equal [ [ "RPG", "/en/library/theme/rpg" ], [ "The Untouchables", "/en/library/hall_of_fame/intouchables" ],
+      [ "The Phenomena", "/en/library/hall_of_fame/phenomenes" ] ], css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
+
+    get card_path(locale: :fr, slug: "seed-#{season.number}-1")
+    assert_equal [ [ "RPG", "/fr/library/theme/rpg" ], [ "Les Pépites", "/fr/library/hall_of_fame/pepites" ] ],
+      css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
+  end
+
   test "in French every fact, the title, description and Steam page are French" do
     add_a_tome
     with_main_theme(:common_card_one, "horror")

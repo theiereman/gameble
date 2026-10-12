@@ -89,10 +89,12 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert_nil Catalog::CardDetail.call(slug: "portal", locale: :en, season_number: 1)
   end
 
-  test "the sets come themes first, then the UFOs, then the retired kinds, each by key" do
+  test "the sets come themes first, then the hall of fame in its fixed order, the UFOs, then the retired kinds, each by key" do
     season = seed_published_sets([
       [ "best_of_year", "2011", { "year" => 2011 } ], [ "publisher", "a", { "publisher" => "A" } ], [ "tome", "rpg-1", { "genre" => "rpg", "volume" => 1, "volumes" => 1 } ],
-      [ "ufo", "ufos", {} ], [ "theme", "rpg", { "theme" => "rpg" } ], [ "theme", "horror", { "theme" => "horror" } ]
+      [ "ufo", "ufos", {} ], [ "theme", "rpg", { "theme" => "rpg" } ], [ "theme", "horror", { "theme" => "horror" } ],
+      [ "hall_of_fame", "phenomenes", { "hall_of_fame" => "phenomenes" } ], [ "hall_of_fame", "mal-aimes", { "hall_of_fame" => "mal-aimes" } ],
+      [ "hall_of_fame", "pepites", { "hall_of_fame" => "pepites" } ], [ "hall_of_fame", "intouchables", { "hall_of_fame" => "intouchables" } ]
     ])
     Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.99, rating: 99, rarity: 5 } ])
     card_season_id = Catalog::CardSeason.find_by!(season_id: season.id).id
@@ -100,7 +102,8 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
 
     detail = Catalog::CardDetail.call(slug: "portal", locale: :en)
 
-    assert_equal [ [ "theme", "horror" ], [ "theme", "rpg" ], [ "ufo", "ufos" ], [ "tome", "rpg-1" ], [ "publisher", "a" ], [ "best_of_year", "2011" ] ],
+    assert_equal [ [ "theme", "horror" ], [ "theme", "rpg" ], [ "hall_of_fame", "intouchables" ], [ "hall_of_fame", "pepites" ],
+      [ "hall_of_fame", "mal-aimes" ], [ "hall_of_fame", "phenomenes" ], [ "ufo", "ufos" ], [ "tome", "rpg-1" ], [ "publisher", "a" ], [ "best_of_year", "2011" ] ],
       detail.sets.map { [ it.kind, it.key ] }
     assert_equal({ "theme" => "horror" }, detail.sets.first.params)
   end

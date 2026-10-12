@@ -405,7 +405,7 @@ fr:
         published: "Publiée"
       index:
         heading: "Les saisons du catalogue"
-        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, les numérote, les relie en thèmes, franchises, studios et OVNI, et l'ouvre au tirage, d'un seul coup. Une saison publiée ne change plus jamais."
+        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, les numérote, les relie en thèmes, franchises, studios, panthéon et OVNI, et l'ouvre au tirage, d'un seul coup. Une saison publiée ne change plus jamais."
         empty: "Aucune saison pour l'instant. Le premier import ouvrira le brouillon."
         caption: "Saisons du catalogue, par numéro"
         number: "Saison"
@@ -416,6 +416,7 @@ fr:
           theme: "Thèmes"
           franchise: "Franchises"
           studio: "Studios"
+          hall_of_fame: "Panthéon"
           ufo: "OVNI"
           publisher: "Éditeurs"
           tome: "Tomes"
@@ -563,6 +564,7 @@ fr:
         theme: "Thèmes"
         franchise: "Franchises"
         studio: "Studios"
+        hall_of_fame: "Panthéon"
         ufo: "OVNI"
         tome: "Tomes"
         publisher: "Éditeurs"
@@ -571,6 +573,7 @@ fr:
         theme: "Aucun thème dans cette saison."
         franchise: "Aucune franchise n'a de set cette saison."
         studio: "Aucun studio n'a de set cette saison."
+        hall_of_fame: "Aucun set du panthéon cette saison."
         ufo: "Toutes les cartes de cette saison ont un thème."
         tome: "Aucun tome dans cette saison pour l'instant."
         publisher: "Aucun éditeur n'a de set cette saison."
@@ -599,6 +602,7 @@ fr:
         theme: "Aucun thème dans cette saison."
         franchise: "Aucune franchise n'a de set cette saison."
         studio: "Aucun studio n'a de set cette saison."
+        hall_of_fame: "Aucun set du panthéon cette saison."
         ufo: "Toutes les cartes de cette saison ont un thème."
         tome: "Aucun tome dans cette saison pour l'instant."
         publisher: "Aucun éditeur n'a de set cette saison."
@@ -1140,6 +1144,12 @@ fr:
       best_of_year: "Les mieux notés de %{year}"
       with_years: "%{label} · %{years}"
       ufos: "Les OVNI"
+    # Hall of fame set names, by key (Catalog::HallOfFame).
+    hall_of_fame:
+      intouchables: "Les Intouchables"
+      pepites: "Les Pépites"
+      mal-aimes: "Les Mal-aimés"
+      phenomenes: "Les Phénomènes"
     # Theme names, by key (Catalog::Themes); SetLabel humanises any other.
     themes:
       souls_like: "Souls-like"
