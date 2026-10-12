@@ -11,7 +11,8 @@ A free web trading card game where every card is a Steam game. Rails 8 with doma
 - Write code that reads without comments: carry intent in names, extracted methods and objects. Comment only an external constraint the code cannot state (a Steam API limit, a browser bug), in one line.
 - Write all repo text in English, whatever language the conversation is in; French belongs only in `config/locales/fr.yml`.
 - Work on `develop` or a branch cut from it; never push or merge to `main`, which is the author's production release.
-- Before starting any work, run `git fetch origin` and bring local `develop` level with `origin/develop`. Other sessions, local and cloud, push there, and the ticket you are about to build may already be built. If local `develop` has diverged from `origin/develop`, stop and reconcile before building. Push finished work promptly so the next session starts from it.
+- Before starting any work, run `git fetch origin` and bring local `develop` level with `origin/develop`. Other sessions, local and cloud, change it, and the ticket you are about to build may already be built. If local `develop` has diverged from `origin/develop`, stop and reconcile before building.
+- Unless the session works for the author (GitHub user `theiereman`), work on a branch cut from `develop` and finish by opening a pull request to `develop`; never push to `develop`. The author reviews and merges.
 - Never commit `config/*.key`.
 - Never hand-edit `app/frontend/images/pixel/`; run `node script/pixel_art/export.mjs` (`--check` verifies).
 - Never edit a plan's `<frozen-after-approval>` block or settle an entry in `pending-approvals.md`; only the author does.

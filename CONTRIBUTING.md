@@ -50,3 +50,52 @@ Give a few example games: they show quickly whether the set holds up.
 ## What happens next
 
 Every form becomes an issue on GitHub. Its author reads each one, may ask you questions in the comments, and labels it once it is planned. Not every idea gets built, but every one is read.
+
+## Build with an AI agent (Claude, ChatGPT and others)
+
+You can also change the game itself without knowing how to code, by asking an AI coding agent to do it for you. The author reviews every change before it reaches the game.
+
+### What you need
+
+- Access to the repository: accept the author's invitation on GitHub.
+- An AI agent that works on a GitHub repository, such as [Claude Code on the web](https://claude.ai/code) or [Codex in ChatGPT](https://chatgpt.com/codex). Both need a paid plan of their tool; nothing to install on your computer.
+
+Connect the agent to your GitHub account, then open a session on the `gameble` repository, starting from the `develop` branch.
+
+### What to work on
+
+Start small, and grow from there:
+
+- **A bug or an idea from the issues**: give the agent the issue's link.
+- **The look and the texts**: a colour, a spacing, a sentence that reads wrong. The French texts live in `config/locales/fr.yml`.
+- **Set ideas**: a theme or a hall of fame, with its games.
+- **Designing the game**: a new mechanic, a screen, a reward. Talk it through with the agent before any code.
+
+Leave the database and the game's rules (anything under `db/` or `packs/`) for later, or ask the author first.
+
+### How a session goes
+
+1. Tell the agent what you want in plain words, in French if you like: what you saw, what you want instead.
+2. Let it work. It reads `AGENTS.md`, the repository's rules, which tell it to work on its own branch and never on `develop` or `main`.
+3. Ask it to run the tests. If it cannot, say so in the pull request: GitHub runs them anyway.
+4. Ask it to open a **pull request** to `develop`: the proposed change, waiting for the author.
+5. The author reads it, may ask questions in its comments, and merges it or not. The game on the test site changes at the author's next release, not at the merge.
+
+### Designing with Claude
+
+In Claude Code, the repository brings its own planning tools (the BMad skills in `.claude/skills/`). Ask for them by name:
+
+| You want to | Ask for |
+| --- | --- |
+| Find ideas on a topic | `bmad-brainstorming` |
+| Test an idea before anyone builds it | `bmad-forge-idea` |
+| Hear several points of view argue it out | `bmad-party-mode` |
+| Sketch how a screen looks and behaves | `bmad-ux` |
+
+What they write lands in `_bmad-output/` and comes to the author through the same pull request. Other agents can read those files too.
+
+### Never
+
+- Push to `develop` or `main`, or merge your own pull request.
+- Commit a key or a password, such as the files `config/*.key`.
+- Mark a plan as approved: only the author approves plans.
