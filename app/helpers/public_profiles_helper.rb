@@ -14,4 +14,11 @@ module PublicProfilesHelper
       t("public_profiles.fallback_title", code: Accounts::PublicProfile.code(player.token))
     end
   end
+
+  # Who may see the profile. A banned owner's profile reaches staff only, so
+  # it says so in place of the visibility the owner chose.
+  def public_profile_visibility(owner)
+    key = owner.banned? ? "banned" : owner.visibility
+    t("public_profiles.show.visibility.#{key}")
+  end
 end

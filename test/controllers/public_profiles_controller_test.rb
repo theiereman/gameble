@@ -398,12 +398,6 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
       assert_response :success, role
       assert_select "h1", "Banned Brother"
       assert_select ".profile-summary__visibility", "Banned player: visible to the Brotherhood's officers only"
-
-      @owner.update!(visibility: "public")
-      get brother_path(locale: :en, token: @owner.token)
-      assert_response :success, role
-      assert_select ".profile-summary__visibility", "Visible to everyone, even without an account"
-      assert_no_match(/Banned player/, response.body, role)
       delete session_path(locale: :en)
     end
 
@@ -412,6 +406,17 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :en, token: @owner.reload.token)
     assert_response :not_found
     assert_select "h1", "Profile not available"
+  end
+
+  test "staff read a public profile with its owner's visibility, without the banned line" do
+    publish_sets_draft
+    @owner.update!(visibility: "public")
+    sign_in(accounts_players(:moderator))
+
+    get brother_path(locale: :en, token: @owner.token)
+    assert_response :success
+    assert_select ".profile-summary__visibility", "Visible to everyone, even without an account"
+    assert_no_match(/Banned player/, response.body)
   end
 
   test "a banned member of staff reads a hidden profile as the visitor they become" do
@@ -446,7 +451,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :fr, token: banned.token)
     assert_response :success
     assert_select "h1", "Banned Brother"
-    assert_select ".profile-summary__visibility", "Joueur banni : visible des officiers de la Confrérie seulement"
+    assert_select ".profile-summary__visibility", "Joueur banni : visible par les officiers de la Confrérie seulement"
   end
 
   test "in French: the fallback title, the French tabs and plurals" do
