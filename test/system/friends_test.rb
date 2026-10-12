@@ -74,6 +74,18 @@ class FriendsTest < ApplicationSystemTestCase
     assert_current_path brother_path(locale: :en, token: @friend.token)
   end
 
+  test "a player opens the trade in progress with a friend from their row" do
+    offered, requested = Game::Holding.where(player_id: @friend.id).order(:card_season_id).limit(2).pluck(:card_season_id)
+    Game::Holding.create!(player_id: @player.id, card_season_id: requested, quantity: 1)
+    trade = Game::ProposeTrade.new.call(player: @friend, recipient: @player, offer: { offered => 1 }, request: { requested => 1 }).value!
+    sign_in
+
+    within(".friends__friend", text: "Lea") { click_on "Propose a trade" }
+
+    assert_current_path trade_path(locale: :en, token: trade.token)
+    assert_no_selector ".toast", text: /one trade at a time/i
+  end
+
   test "on a phone the profile is a bottom sheet that closes back on the profile button" do
     resize_to(390, 844)
     sign_in

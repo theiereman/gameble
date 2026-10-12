@@ -279,7 +279,7 @@ Messages quoted by key are in the Copy deck.
 | Counter-proposal in progress | Trade board | Both sides become editable, marked "EN ÉDITION", with the counter-proposal line. "RENVOYER LA CONTRE-PROPOSITION" enables once each side holds a card; "ANNULER LES MODIFICATIONS" restores the received proposal, after a confirmation if anything changed. |
 | Counter-proposal sent | Trade board | The 7-day expiry restarts; the player's reserved copies become exactly those on the player's side; copies the player removed are released. |
 | Trade waiting for the friend | Trade board, list | "EN ATTENTE", the waiting line, the player's copies tagged "RÉSERVÉE". Action: "ANNULER LA PROPOSITION". |
-| One trade per pair | Friend row, friend profile | Proposing to a friend with a trade in progress opens that trade, with the one-at-a-time refusal. |
+| One trade per pair | Friend row, friend profile | With a trade in progress with that friend, "PROPOSER UN ÉCHANGE" opens that trade directly, without a refusal; a page left open from before the trade lands on it with the one-at-a-time refusal. |
 | Not enough copies | Trade board | Accepting when a copy is no longer available: "EXEMPLAIRES INSUFFISANTS" inline and in a toast; nothing moves. |
 | Nothing to place | Card picker | The no-card line (Copy deck, Card picker) with the reason (none owned, or all reserved). |
 | Trade done | Trade board, list | The swap plays; "CONCLU" and the concluded line; received cards tagged "NOUVEAU". The trade appears in the feed and counts toward the goal. |

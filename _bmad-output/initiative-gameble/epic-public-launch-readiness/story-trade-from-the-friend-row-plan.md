@@ -3,7 +3,7 @@ title: 'Trade from the friend row'
 type: 'feature'
 ticket: '21'
 created: '2026-10-12'
-status: blocked
+status: in-progress
 baseline_revision: '224cc3934833c61bacd0d4b7a95d6a1a2d065e08'
 route: 'oneshot'
 route_source: 'auto'
@@ -15,8 +15,6 @@ followup_review_recommended: false
 context: ['{project-root}/AGENTS.md', '{project-root}/_bmad-output/initiative-gameble/change-profile-privacy/change-profile-privacy.md']
 warnings: []
 deferred: []
-blocked_at: "2026-10-12"
-blocked_reason: "intent gap: EXPERIENCE.md:282 wants the friend row to open an open trade with the one-at-a-time refusal, which develop already does (c6f022e built the row, its draft link and the trades-closed line); the plan instead linked the row straight to the trade. Author decides: close 7.21 as already built, or amend EXPERIENCE.md:282 and apply the saved patch (aligning the friend profile dialog too)."
 ---
 
 <intent-contract>
@@ -26,6 +24,8 @@ blocked_reason: "intent gap: EXPERIENCE.md:282 wants the friend row to open an o
 **Problem:** The friend row already carries PROPOSER UN ÉCHANGE and the trades-closed line (commit c6f022e, `plan-friend-row-actions.md`, built outside the ticket tree), but the button always links to the new-draft URL. With a trade already open with that friend, the click lands on that trade through `TradesController#new`'s "Un échange à la fois" refusal toast, so the row does not simply open the trade in progress as the UX says ("opens the trade already in progress with that friend, or a new draft").
 
 **Approach:** The Friends screen reads the player's open, unexpired trades once, keyed by friend; a row whose friend has one links PROPOSER UN ÉCHANGE straight to that trade, any other row keeps the new-draft link, and the trades-closed line keeps its place when either profile is private. `TradesController#new`'s redirect stays as the fallback for a stale page.
+
+**Decision (author, 2026-10-12):** the friend row opens the trade in progress directly, with no one-at-a-time refusal; `EXPERIENCE.md` "One trade per pair" is amended to say so. The friend profile dialog's PROPOSER UN ÉCHANGE (`app/views/friend_profiles/show.html.erb`, `FriendProfilesController#show`) is aligned the same way: it links straight to the trade in progress with that friend, or to a new draft. The saved patch, applied, holds the row's part.
 
 </intent-contract>
 

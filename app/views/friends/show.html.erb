@@ -78,7 +78,9 @@
             <% if (refusal = trades_refusal(friend.player)) %>
               <%= trades_closed_line(refusal, friend.player) %>
             <% else %>
-              <%= render ButtonComponent.new(variant: :secondary, size: :small, href: new_trade_path(friend: friend.player.token),
+              <% open_trade = @open_trades[friend.player.id] %>
+              <%= render ButtonComponent.new(variant: :secondary, size: :small,
+                    href: open_trade ? trade_path(token: open_trade) : new_trade_path(friend: friend.player.token),
                     aria_label: t(".propose_trade_to", name:)) do %><%= t(".propose_trade") %><% end %>
             <% end %>
           </div>
