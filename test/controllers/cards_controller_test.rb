@@ -115,6 +115,19 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
   end
 
+  test "a card's franchise and studio sets are named and lead to their grids, in English and French" do
+    season = publish_franchises_and_studios_draft
+    sign_in_viewer
+
+    get card_path(locale: :en, slug: "seed-#{season.number}-0")
+    assert_equal [ [ "RPG", "/en/library/theme/rpg" ], [ "Tom Clancy", "/en/library/franchise/tom-clancy" ] ],
+      css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
+
+    get card_path(locale: :fr, slug: "seed-#{season.number}-3")
+    assert_equal [ [ "RPG", "/fr/library/theme/rpg" ], [ "CAPCOM", "/fr/library/studio/capcom" ] ],
+      css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
+  end
+
   test "in French every fact, the title, description and Steam page are French" do
     add_a_tome
     with_main_theme(:common_card_one, "horror")

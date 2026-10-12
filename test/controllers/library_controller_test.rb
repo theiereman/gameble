@@ -331,6 +331,23 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "/fr/library?kind=ufo", "/fr/library/ufo/ufos" ], css_select(".collection-sets .set-row").map { it["href"] }
   end
 
+  test "franchises and studios have their tabs and list their sets by name, in English and French" do
+    publish_franchises_and_studios_draft
+
+    get library_path(locale: :en)
+    assert_equal [ "Themes", "Franchises", "Studios", "UFOs" ], css_select(".collection-kinds a.collection-kind").map(&:text)
+
+    get library_path(locale: :en, kind: "franchise")
+    assert_select ".collection-kind[aria-current=true]", "Franchises"
+    assert_equal [ [ "Whole season", "0/24" ], [ "Tom Clancy", "0/3" ] ], set_rows
+    assert_equal "/en/library/franchise/tom-clancy", css_select(".collection-sets .set-row").last["href"]
+
+    get library_path(locale: :fr, kind: "studio")
+    assert_select ".collection-kind[aria-current=true]", "Studios"
+    assert_equal [ [ "Toute la saison", "0/24" ], [ "CAPCOM", "0/3" ] ], set_rows
+    assert_equal [ "Thèmes", "Franchises", "Studios", "OVNI" ], css_select(".collection-kinds a.collection-kind").map(&:text)
+  end
+
   test "a season published before themes keeps its kinds' tabs, opening on the first, each kind in its order" do
     seed_published_sets([
       [ "best_of_year", "2011", { "year" => 2011 } ], [ "publisher", "valve", { "publisher" => "Valve" } ],

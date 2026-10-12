@@ -6,7 +6,9 @@
 # be opened without running a Steam import. Only while no season is
 # published; a run that stopped midway is resumed: the upserts are idempotent
 # by source key and fill the existing draft, which is then published. Every
-# tenth card has no theme, so the season holds the UFOs beside its themes.
+# tenth card has no theme, so the season holds the UFOs beside its themes;
+# every seventh and eleventh card belong to a franchise, and four studios
+# share the cards, so the season holds franchise and studio sets too.
 # Publishing it fills the banks of the players already there
 # (Catalog::SeasonPublished).
 if Rails.env.development? && Catalog::PublishedSeason.call.nil?
@@ -26,7 +28,10 @@ if Rails.env.development? && Catalog::PublishedSeason.call.nil?
       prestige_score: number.to_f,
       prestige_score_version: Steam::PrestigeScore::VERSION,
       rating: 50.0 + (index % 50),
+      review_count: 1_000 * number,
       publisher: "Seed Publisher #{(index % 6) + 1}",
+      developers: [ "Seed Studio #{(index % 4) + 1} Ltd." ],
+      franchises: [ ("Seed Chronicles" if number % 7 == 0), ("Seed Legends Series" if number % 11 == 0) ].compact,
       genres: number % 10 == 0 ? [] : [ %w[fps rpg strategy].fetch(index % 3) ]
     ).value!
   end

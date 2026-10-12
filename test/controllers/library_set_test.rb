@@ -125,6 +125,21 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".collection-kind[aria-current=true]", "Thèmes"
   end
 
+  test "a franchise and a studio open under their names, their kind's tab current, in English and French" do
+    season = publish_franchises_and_studios_draft
+
+    get library_set_path(locale: :en, kind: "franchise", key: "tom-clancy")
+    assert_select "h1", "Tom Clancy"
+    assert_equal [ "Tom Clancy", "0/3" ], current_row
+    assert_select ".collection-kind[aria-current=true]", "Franchises"
+    assert_equal set_members(season, "tom-clancy").map { title(it) }, slots.map(&:second)
+
+    get library_set_path(locale: :fr, kind: "studio", key: "capcom")
+    assert_select "h1", "CAPCOM"
+    assert_equal [ "CAPCOM", "0/3" ], current_row
+    assert_select ".collection-kind[aria-current=true]", "Studios"
+  end
+
   test "a set of a season published before themes still opens, named as before" do
     season = seed_published_sets([ [ "best_of_year", "2011", { "year" => 2011 } ], [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
 

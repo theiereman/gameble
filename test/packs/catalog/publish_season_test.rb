@@ -97,6 +97,25 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     }, tiers)
   end
 
+  test "publishing builds the franchise and studio sets, members in release order, each complete only at its size" do
+    season = seed_franchises_and_studios_draft
+
+    assert publish(season.number).success?
+
+    sets = sets_of(season).index_by { |set| [ set.kind, set.key ] }
+    assert_equal [ [ "franchise", "tom-clancy" ], [ "studio", "capcom" ], [ "theme", "rpg" ], [ "ufo", "ufos" ] ], sets.keys
+    assert_equal({ "franchise" => "Tom Clancy" }, sets[[ "franchise", "tom-clancy" ]].params)
+    assert_equal({ "studio" => "CAPCOM" }, sets[[ "studio", "capcom" ]].params)
+    assert_equal [ "Tom Clancy's Rainbow Six", "Tom Clancy's The Division", "Tom Clancy's Ghost Recon" ],
+      member_rows(sets[[ "franchise", "tom-clancy" ]]).map { |card_season| card_season.card.text("en").title }
+    assert_equal [ [ "CAPCOM Co., Ltd." ], [ "CAPCOM Co., Ltd." ], [ "Capcom" ] ],
+      member_rows(sets[[ "studio", "capcom" ]]).map { |card_season| card_season.card.developers }
+
+    tiers = Catalog::SetTier.joins(:set).where(catalog_sets: { season_id: season.id, kind: %w[franchise studio] })
+      .pluck("catalog_sets.kind", :tier, :required)
+    assert_equal [ [ "franchise", "complete", 3 ], [ "studio", "complete", 3 ] ], tiers.sort
+  end
+
   test "a theme of 7 cards gets the tiers 1, 2, 4 and 7" do
     season = seed_card_seasons(distinct_scores(21), genres: Array.new(21) { |index| index < 7 ? [ "pirates" ] : [ "rpg" ] })
 

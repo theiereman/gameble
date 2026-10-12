@@ -405,7 +405,7 @@ fr:
         published: "Publiée"
       index:
         heading: "Les saisons du catalogue"
-        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, les numérote, les relie en thèmes et en OVNI, et l'ouvre au tirage, d'un seul coup. Une saison publiée ne change plus jamais."
+        intro: "Les imports remplissent la saison en brouillon. La publier répartit ses cartes entre les cinq raretés, les numérote, les relie en thèmes, franchises, studios et OVNI, et l'ouvre au tirage, d'un seul coup. Une saison publiée ne change plus jamais."
         empty: "Aucune saison pour l'instant. Le premier import ouvrira le brouillon."
         caption: "Saisons du catalogue, par numéro"
         number: "Saison"
@@ -414,6 +414,8 @@ fr:
         published_at: "Publiée"
         sets:
           theme: "Thèmes"
+          franchise: "Franchises"
+          studio: "Studios"
           ufo: "OVNI"
           publisher: "Éditeurs"
           tome: "Tomes"
@@ -559,12 +561,16 @@ fr:
       tabs:
         started: "Entamées"
         theme: "Thèmes"
+        franchise: "Franchises"
+        studio: "Studios"
         ufo: "OVNI"
         tome: "Tomes"
         publisher: "Éditeurs"
         best_of_year: "Les mieux notés de l'année"
       empty:
         theme: "Aucun thème dans cette saison."
+        franchise: "Aucune franchise n'a de set cette saison."
+        studio: "Aucun studio n'a de set cette saison."
         ufo: "Toutes les cartes de cette saison ont un thème."
         tome: "Aucun tome dans cette saison pour l'instant."
         publisher: "Aucun éditeur n'a de set cette saison."
@@ -591,6 +597,8 @@ fr:
       empty:
         started: "Aucun set entamé pour l'instant : cette collection attend encore sa première carte."
         theme: "Aucun thème dans cette saison."
+        franchise: "Aucune franchise n'a de set cette saison."
+        studio: "Aucun studio n'a de set cette saison."
         ufo: "Toutes les cartes de cette saison ont un thème."
         tome: "Aucun tome dans cette saison pour l'instant."
         publisher: "Aucun éditeur n'a de set cette saison."

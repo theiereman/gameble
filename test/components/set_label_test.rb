@@ -13,6 +13,14 @@ class SetLabelTest < ActiveSupport::TestCase
     assert_equal "Réalité virtuelle", label("theme", { "theme" => "vr" }, :fr)
   end
 
+  test "a franchise or studio set is named after its franchise or studio, in every locale" do
+    assert_equal "Tom Clancy", label("franchise", { "franchise" => "Tom Clancy" }, :fr)
+    assert_equal "Tom Clancy", label("franchise", { "franchise" => "Tom Clancy" }, :en)
+    assert_equal "CAPCOM", label("studio", { "studio" => "CAPCOM" }, :fr)
+    assert_equal "CAPCOM", label("studio", { "studio" => "CAPCOM" }, :en)
+    assert_equal "CAPCOM", heading("studio", { "studio" => "CAPCOM" }, [ 2001, 2005 ])
+  end
+
   test "the UFOs are named in the locale" do
     assert_equal "Les OVNI", label("ufo", {}, :fr)
     assert_equal "The UFOs", label("ufo", {}, :en)

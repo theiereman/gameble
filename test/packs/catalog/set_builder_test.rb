@@ -1,13 +1,26 @@
 require "test_helper"
 
-# Catalog::SetBuilder: the theme sets and the UFOs of a season, built from
-# its rows without the database, with their tiers.
+# Catalog::SetBuilder: the theme, franchise and studio sets and the UFOs of
+# a season, built from its rows without the database, with their tiers.
 class Catalog::SetBuilderTest < ActiveSupport::TestCase
   # Card-season ids start at 1_000 so they never equal a card id.
-  def row(card_id, release_date: Date.new(2000, 1, 1), genres: [], rating: 80, prestige_score: 1.0)
+  def row(card_id, release_date: Date.new(2000, 1, 1), genres: [], rating: 80, prestige_score: 1.0, title: "Game #{card_id}",
+          developers: [], franchises: [], publisher: nil, review_count: nil)
     Catalog::SeasonRows::Row.new(id: 1_000 + card_id, card_id:, prestige_score:, prestige_score_version: 2, rating: BigDecimal(rating.to_s),
-      release_date:, genres:)
+      release_date:, genres:, title:, developers:, franchises:, publisher:, review_count:)
   end
+
+  # Rows of the franchise `name`, one per title, card ids from `first`.
+  def franchise_rows(name, titles, first: 1, **options)
+    titles.each_with_index.map { |title, index| row(first + index, title:, franchises: [ name ], **options) }
+  end
+
+  # Rows of the first developer `name`, one per review count, card ids from `first`.
+  def studio_rows(name, review_counts, first: 1)
+    review_counts.each_with_index.map { |review_count, index| row(first + index, developers: [ name ], review_count:) }
+  end
+
+  def summary(sets) = sets.map { |set| [ set[:key], set[:params], set[:members] ] }
 
   def ids(*card_ids) = card_ids.map { |card_id| 1_000 + card_id }
 
@@ -75,23 +88,165 @@ class Catalog::SetBuilderTest < ActiveSupport::TestCase
     assert_equal ids(1), Catalog::SetBuilder.ufos(rows).sole[:members]
   end
 
+  # Franchises
+
+  test "a franchise of 3 games whose titles carry its name is a set, its suffix dropped, complete only" do
+    rows = franchise_rows("Tom Clancy Franchise", [ "Tom Clancy's Rainbow Six", "Tom Clancy's The Division", "Tom Clancy's Ghost Recon" ])
+    rows[0] = rows[0].with(release_date: Date.new(2010, 1, 1))
+
+    assert_equal [ { kind: "franchise", key: "tom-clancy", params: { "franchise" => "Tom Clancy" }, members: ids(2, 3, 1),
+      tiers: { "complete" => 3 } } ], Catalog::SetBuilder.franchises(rows)
+  end
+
+  test "names differing by case or suffix make one set, named after the variant most games carry" do
+    rows = franchise_rows("FINAL FANTASY", [ "FINAL FANTASY VII", "FINAL FANTASY X" ]) +
+      franchise_rows("Final Fantasy Series", [ "Final Fantasy XIV" ], first: 3)
+
+    assert_equal [ [ "final-fantasy", { "franchise" => "FINAL FANTASY" }, ids(1, 2, 3) ] ], summary(Catalog::SetBuilder.franchises(rows))
+  end
+
+  test "names differing only by punctuation inside a word make one set, keyed by the chosen name" do
+    rows = franchise_rows("Watch_Dogs", [ "Watch_Dogs", "Watch_Dogs 2" ]) + franchise_rows("WatchDogs", [ "Watch Dogs: Legion" ], first: 3) +
+      franchise_rows("S.T.A.L.K.E.R.", [ "S.T.A.L.K.E.R.: Shadow of Chernobyl" ], first: 4) +
+      franchise_rows("STALKER", [ "STALKER 2", "STALKER Clear Sky" ], first: 5) +
+      franchise_rows("Yu-Gi-Oh!", [ "Yu-Gi-Oh! Master Duel", "Yu-Gi-Oh! Duel Links" ], first: 7) +
+      franchise_rows("YuGiOh", [ "YuGiOh Legacy" ], first: 9)
+
+    assert_equal [ [ "stalker", { "franchise" => "STALKER" }, ids(4, 5, 6) ], [ "watch-dogs", { "franchise" => "Watch_Dogs" }, ids(1, 2, 3) ],
+      [ "yu-gi-oh", { "franchise" => "Yu-Gi-Oh!" }, ids(7, 8, 9) ] ], summary(Catalog::SetBuilder.franchises(rows))
+  end
+
+  test "a studio's names differing only by punctuation make one set" do
+    rows = studio_rows("Re-Logic", [ 50_000, nil ]) + studio_rows("ReLogic Inc.", [ nil ], first: 3)
+
+    assert_equal [ [ "re-logic", { "studio" => "Re-Logic" }, ids(1, 2, 3) ] ], summary(Catalog::SetBuilder.studios(rows))
+  end
+
+  test "names whose keys are equal make one set" do
+    rows = franchise_rows("Pokémon", [ "Pokémon Snap", "Pokémon Go" ]) + franchise_rows("Pokemon", [ "Pokemon Ranger" ], first: 3)
+
+    assert_equal [ [ "pokemon", { "franchise" => "Pokémon" }, ids(1, 2, 3) ] ], summary(Catalog::SetBuilder.franchises(rows))
+  end
+
+  test "partly transliterable names of unrelated franchises keep apart" do
+    rows = franchise_rows("ファイナルファンタジー 7", [ "ファイナルファンタジー 7", "ファイナルファンタジー 7 R", "ファイナルファンタジー 7 CC" ]) +
+      franchise_rows("ドラゴンクエスト 7", [ "ドラゴンクエスト 7", "ドラゴンクエスト 7 R", "ドラゴンクエスト 7 3DS" ], first: 4)
+
+    assert_equal 2, Catalog::SetBuilder.franchises(rows).map { |set| set[:key] }.uniq.size
+  end
+
+  test "on a tie the alphabetically first variant names the set; a game naming two variants counts once" do
+    rows = [ row(1, title: "Sonic Mania", franchises: [ "SONIC™", "Sonic" ]), row(2, title: "Sonic Adventure", franchises: [ "Sonic" ]),
+      row(3, title: "Sonic Frontiers", franchises: [ "sonic Series" ]) ]
+
+    assert_equal [ [ "sonic", { "franchise" => "SONIC" }, ids(1, 2, 3) ] ], summary(Catalog::SetBuilder.franchises(rows))
+  end
+
+  test "a franchise of 2 games is no set" do
+    assert_empty Catalog::SetBuilder.franchises(franchise_rows("Portal", [ "Portal", "Portal 2" ]))
+  end
+
+  test "a franchise named like a developer or a publisher of the season is no set" do
+    developed = franchise_rows("Team17", [ "Team17 Worms", "Team17 Golf", "Team17 Overcooked" ])
+    developed[0] = developed[0].with(developers: [ "Studio", "Team17" ])
+    published = franchise_rows("Team17 Digital", [ "Team17 Digital A", "Team17 Digital B", "Team17 Digital C" ], first: 4)
+    published << row(7, publisher: "Team17 Digital Ltd")
+
+    assert_empty Catalog::SetBuilder.franchises(developed + published)
+  end
+
+  test "a franchise over unrelated titles sharing only a stopword is no set" do
+    rows = franchise_rows("Estate Agent Simulator", [ "Clothing Store Simulator", "Supercar Collection Simulator", "Table Battle Simulator" ])
+
+    assert_empty Catalog::SetBuilder.franchises(rows)
+  end
+
+  test "a franchise needs more than half of its titles to match" do
+    rows = franchise_rows("Risen", [ "Risen", "Risen 2", "Dark Waters", "Elex" ])
+
+    assert_empty Catalog::SetBuilder.franchises(rows)
+    assert_equal [ "risen" ], Catalog::SetBuilder.franchises(rows.values_at(0, 1, 3)).map { |set| set[:key] }
+  end
+
+  test "a one-word name matches however short; a separator-free name matches the joined title words" do
+    rows = franchise_rows("Ys", [ "Ys VIII", "Ys IX", "Ys Origin" ]) +
+      franchise_rows("WatchDogs Franchise", [ "Watch_Dogs", "Watch_Dogs 2", "Watch Dogs: Legion" ], first: 4)
+
+    assert_equal [ [ "watchdogs", { "franchise" => "WatchDogs" }, ids(4, 5, 6) ], [ "ys", { "franchise" => "Ys" }, ids(1, 2, 3) ] ],
+      summary(Catalog::SetBuilder.franchises(rows))
+  end
+
+  test "Science Adventure and World of Darkness need no title to match" do
+    rows = franchise_rows("Science Adventure Series", [ "Steins;Gate", "Chaos;Head", "Robotics;Notes" ]) +
+      franchise_rows("World of Darkness", [ "Vampire: Bloodlines", "Werewolf: Earthblood", "Wraith" ], first: 4)
+
+    assert_equal [ [ "science-adventure", { "franchise" => "Science Adventure" } ], [ "world-of-darkness", { "franchise" => "World of Darkness" } ] ],
+      Catalog::SetBuilder.franchises(rows).map { |set| [ set[:key], set[:params] ] }
+  end
+
+  test "a card without an English title never matches" do
+    assert_empty Catalog::SetBuilder.franchises(franchise_rows("Hitman", [ "Hitman", "Hitman 2", nil, nil ]))
+  end
+
+  test "a name with no Latin letter or digit still gets a valid key, unique to it" do
+    rows = franchise_rows("ファイナルファンタジー", [ "ファイナルファンタジー VII", "ファイナルファンタジー X", "ファイナルファンタジー XII" ]) +
+      franchise_rows("ドラゴンクエスト", [ "ドラゴンクエスト XI", "ドラゴンクエスト VIII", "ドラゴンクエスト III" ], first: 4)
+
+    sets = Catalog::SetBuilder.franchises(rows)
+
+    assert_equal [ "ドラゴンクエスト", "ファイナルファンタジー" ].sort, sets.map { |set| set[:params]["franchise"] }.sort
+    assert sets.all? { |set| set[:key].match?(/\Ax-\h{12}\z/) && Catalog::Set::KEY_FORMAT.match?(set[:key]) }
+    assert_equal 2, sets.map { |set| set[:key] }.uniq.size
+  end
+
+  # Studios
+
+  test "a studio's names are one set once normalized, named after the variant most games carry, complete only" do
+    rows = studio_rows("CAPCOM Co., Ltd.", [ 100, 25_000 ]) + studio_rows("Capcom", [ nil ], first: 3)
+
+    assert_equal [ { kind: "studio", key: "capcom", params: { "studio" => "CAPCOM" }, members: ids(1, 2, 3), tiers: { "complete" => 3 } } ],
+      Catalog::SetBuilder.studios(rows)
+  end
+
+  test "a game counts under its first developer only" do
+    rows = studio_rows("Valve", [ 30_000, nil, nil ]) + studio_rows("Feral Interactive", [ 30_000, nil ], first: 4)
+    rows[0] = rows[0].with(developers: [ "Valve", "Feral Interactive (Mac)" ])
+
+    assert_equal [ [ "valve", { "studio" => "Valve" }, ids(1, 2, 3) ] ], summary(Catalog::SetBuilder.studios(rows))
+  end
+
+  test "a studio whose most-reviewed game is under 20,000 reviews, or of 2 games, is no set" do
+    assert_empty Catalog::SetBuilder.studios(studio_rows("Quiet River", [ 19_999, 10, nil, 5_000, 1 ]))
+    assert_empty Catalog::SetBuilder.studios(studio_rows("Big", [ 500_000, 400_000 ]))
+    assert_equal 1, Catalog::SetBuilder.studios(studio_rows("Quiet River", [ 20_000, nil, nil ])).size
+  end
+
   # All kinds
 
-  test "a publication builds the theme sets, then the UFOs, every card in at least one" do
-    rows = [ row(1, genres: %w[roguelike deckbuilder horror]), row(2), row(3, genres: %w[rpg]) ]
+  test "a publication builds the theme sets, the franchises, the studios, then the UFOs, every card in at least one" do
+    rows = [ row(1, genres: %w[roguelike deckbuilder horror]), row(2), row(3, genres: %w[rpg]) ] +
+      franchise_rows("Halo", [ "Halo 3", "Halo Wars", "Halo Infinite" ], first: 4, developers: [ "Bungie" ], review_count: 90_000)
 
     sets = Catalog::SetBuilder.call(rows)
 
-    assert_equal [ [ "theme", "roguelike" ], [ "theme", "deckbuilder" ], [ "theme", "horror" ], [ "theme", "rpg" ], [ "ufo", "ufos" ] ],
-      sets.map { |set| [ set[:kind], set[:key] ] }
-    assert_equal ids(1, 2, 3), sets.flat_map { |set| set[:members] }.uniq.sort
+    assert_equal [ [ "theme", "roguelike" ], [ "theme", "deckbuilder" ], [ "theme", "horror" ], [ "theme", "rpg" ], [ "franchise", "halo" ],
+      [ "studio", "bungie" ], [ "ufo", "ufos" ] ], sets.map { |set| [ set[:kind], set[:key] ] }
+    assert_equal ids(1, 2, 3, 4, 5, 6), sets.flat_map { |set| set[:members] }.uniq.sort
+  end
+
+  test "a card of a franchise or a studio but of no theme stays in the UFOs" do
+    rows = franchise_rows("Halo", [ "Halo 3", "Halo Wars", "Halo Infinite" ], developers: [ "Bungie" ], review_count: 90_000)
+
+    assert_equal ids(1, 2, 3), Catalog::SetBuilder.ufos(rows).sole[:members]
   end
 
   test "15,000 rows build quickly, every card in a set and every key well-formed" do
     themes = Catalog::Themes.keys
     rows = (1..15_000).map do |id|
       genres = id % 25 == 0 ? [] : [ themes[id % themes.size], themes[(id * 7) % themes.size] ].uniq
-      row(id, genres:, prestige_score: (id * 7_919 % 15_000).to_f, release_date: Date.new(1990 + id % 36, 1 + id % 12, 1))
+      row(id, genres:, prestige_score: (id * 7_919 % 15_000).to_f, release_date: Date.new(1990 + id % 36, 1 + id % 12, 1),
+        title: "Series #{id % 500} Episode #{id}", franchises: id.even? ? [ "Series #{id % 500}" ] : [],
+        developers: [ "Studio #{id % 1_000} Co., Ltd.", "Porter (Mac)" ], publisher: "Publisher #{id % 300}", review_count: id * 3)
     end
 
     started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -101,6 +256,8 @@ class Catalog::SetBuilderTest < ActiveSupport::TestCase
     assert_operator elapsed, :<, 5
     by_kind = sets.group_by { |set| set[:kind] }
     assert_equal 42, by_kind["theme"].size
+    assert_equal 250, by_kind["franchise"].size
+    assert_equal 1_000, by_kind["studio"].size
     assert_equal 600, by_kind["ufo"].sole[:members].size
     assert_equal rows.map(&:id).sort, sets.flat_map { |set| set[:members] }.uniq.sort
     assert sets.all? { |set| Catalog::Set::KEY_FORMAT.match?(set[:key]) }

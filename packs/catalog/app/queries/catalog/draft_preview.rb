@@ -25,12 +25,14 @@ module Catalog
       return ScorePanel.empty_season if rows.empty?
 
       themes = SetBuilder.themes(rows)
+      franchises = SetBuilder.franchises(rows)
+      studios = SetBuilder.studios(rows)
       ufos = SetBuilder.ufos(rows)
       ScorePanel.build(rows,
         tiers: tiers_of(rows.map(&:prestige_score)),
         theme_counts: themes.to_h { |set| [ set[:key], set[:members].size ] },
         ufo_count: ufos.sum { |set| set[:members].size },
-        set_counts: { "theme" => themes.size, "ufo" => ufos.size },
+        set_counts: { "theme" => themes.size, "franchise" => franchises.size, "studio" => studios.size, "ufo" => ufos.size },
         score_version_verdict: ScoreVersions.mixed?(rows) ? :mixed_score_versions : nil,
         theme_verdict: unknown_theme?(rows) ? :unknown_theme : nil)
     end

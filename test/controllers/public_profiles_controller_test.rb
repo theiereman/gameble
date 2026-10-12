@@ -234,6 +234,25 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_acceptable
   end
 
+  test "a profile offers the franchise and studio tabs and names their sets, in English and French" do
+    season = publish_franchises_and_studios_draft
+    hold(@owner, set_members(season, "capcom").first, 1)
+
+    get brother_path(locale: :fr, token: @owner.token, kind: "franchise")
+    assert_equal [ "Entamées", "Thèmes", "Franchises", "Studios", "OVNI" ], tabs.map(&:text)
+    assert_equal "Franchises", open_tab
+    assert_equal [ [ "Tom Clancy", "0 / 3" ] ], spines
+
+    get brother_path(locale: :en, token: @owner.token, kind: "studio")
+    assert_equal [ "Started", "Themes", "Franchises", "Studios", "UFOs" ], tabs.map(&:text)
+    assert_equal "Studios", open_tab
+    assert_equal [ [ "CAPCOM", "1 / 3" ] ], spines
+
+    get brother_set_path(locale: :en, token: @owner.token, kind: "studio", key: "capcom", page: 1)
+    assert_equal "CAPCOM", heading
+    assert_equal "1 / 3", progress
+  end
+
   test "a set of a season published before themes offers that season's kinds as tabs" do
     seed_published_sets([ [ "best_of_year", "2011", { "year" => 2011 } ], [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
 

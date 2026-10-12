@@ -1,11 +1,11 @@
 module Catalog
-  # A set of a season: the games of a theme, or the UFOs, the games of no
-  # theme. Seasons published before themes hold the retired kinds: a
-  # publisher's games, a volume of a genre's tome, or the best rated of a
-  # release year. The franchise, studio and hall of fame kinds have no set
-  # yet. Its key is URL-safe and unique within its season and kind; `params`
-  # holds what a screen needs to name it (theme; publisher, genre and volume,
-  # year). Built when the season is published (SetBuilder), with its tiers,
+  # A set of a season: the games of a theme, of a franchise or of a studio,
+  # or the UFOs, the games of no theme. Seasons published before themes hold
+  # the retired kinds: a publisher's games, a volume of a genre's tome, or
+  # the best rated of a release year. The hall of fame kind has no set yet.
+  # Its key is URL-safe and unique within its season and kind; `params` holds
+  # what a screen needs to name it (theme, franchise, studio; publisher,
+  # genre and volume, year). Built when the season is published (SetBuilder), with its tiers,
   # and never changed afterwards.
   class Set < ApplicationRecord
     self.table_name = "catalog_sets"
@@ -23,7 +23,7 @@ module Catalog
     }, validate: true
 
     # The kinds some publication has built, today's then the retired ones.
-    BUILT_KINDS = %w[theme ufo tome publisher best_of_year].freeze
+    BUILT_KINDS = %w[theme franchise studio ufo tome publisher best_of_year].freeze
 
     belongs_to :season, class_name: "Catalog::Season", inverse_of: :sets
     has_many :memberships, class_name: "Catalog::SetMembership", inverse_of: :set, dependent: nil

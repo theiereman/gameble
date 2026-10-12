@@ -400,7 +400,7 @@ en:
         published: "Published"
       index:
         heading: "The catalog seasons"
-        intro: "Imports fill the draft season. Publishing it cuts its cards into the five rarities, numbers them, binds them into theme sets and the UFOs, and opens it to the draw, all at once. A published season never changes again."
+        intro: "Imports fill the draft season. Publishing it cuts its cards into the five rarities, numbers them, binds them into theme, franchise and studio sets and the UFOs, and opens it to the draw, all at once. A published season never changes again."
         empty: "No season yet. The first import will open the draft."
         caption: "Catalog seasons, by number"
         number: "Season"
@@ -409,6 +409,8 @@ en:
         published_at: "Published"
         sets:
           theme: "Themes"
+          franchise: "Franchises"
+          studio: "Studios"
           ufo: "UFOs"
           publisher: "Publisher sets"
           tome: "Tomes"
@@ -545,12 +547,16 @@ en:
       tabs:
         started: "Started"
         theme: "Themes"
+        franchise: "Franchises"
+        studio: "Studios"
         ufo: "UFOs"
         tome: "Tomes"
         publisher: "Publishers"
         best_of_year: "Best rated of the year"
       empty:
         theme: "No theme in this season."
+        franchise: "No franchise has a set this season."
+        studio: "No studio has a set this season."
         ufo: "Every card of this season has a theme."
         tome: "No tome in this season yet."
         publisher: "No publisher has a set this season."
@@ -575,6 +581,8 @@ en:
       empty:
         started: "No set started yet: this collection still awaits its first card."
         theme: "No theme in this season."
+        franchise: "No franchise has a set this season."
+        studio: "No studio has a set this season."
         ufo: "Every card of this season has a theme."
         tome: "No tome in this season yet."
         publisher: "No publisher has a set this season."

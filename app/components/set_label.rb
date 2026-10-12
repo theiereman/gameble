@@ -1,6 +1,7 @@
 # The name of a set on a screen, in the current locale, built from its kind
-# and `params`, never from its key: a theme set is its theme's name, the
-# UFOs "The UFOs". The retired kinds keep their names: a publisher set is the
+# and `params`, never from its key: a theme set is its theme's name, a
+# franchise or studio set the franchise's or studio's own name, the UFOs
+# "The UFOs". The retired kinds keep their names: a publisher set is the
 # publisher's own name; a tome "<genre> · Tome <volume>", its genre from
 # `catalog.genres`; a best of year "Best rated of <year>". A theme or genre
 # missing from the locales is its key humanised, in English whatever the
@@ -23,6 +24,8 @@ module SetLabel
       raise ArgumentError, "a theme set without theme: #{params.inspect}" if params["theme"].blank?
 
       genre(params["theme"])
+    when "franchise" then params["franchise"]
+    when "studio" then params["studio"]
     when "ufo" then I18n.t("catalog.sets.ufos")
     when "publisher" then params["publisher"]
     when "tome"

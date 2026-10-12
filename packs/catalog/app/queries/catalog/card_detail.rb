@@ -10,8 +10,8 @@ module Catalog
   #
   # Two queries: the card, its text, card-season and season (the published
   # season folded in as a subquery); then its sets, the main theme's first,
-  # the others in the library's tab order (theme, ufo, then the retired tome,
-  # publisher, best_of_year), then by key.
+  # the others in the library's tab order (theme, franchise, studio, ufo,
+  # then the retired tome, publisher, best_of_year), then by key.
   #
   #   Catalog::CardDetail.call(slug: "portal", locale: "fr")
   #   # => Detail(view: CardView(…), short_description: "…", sets: [ SetRef(…) ], current_season: true, …) | nil
@@ -31,8 +31,8 @@ module Catalog
       "catalog_seasons.number = #{LATEST}", "catalog_card_seasons.number", CardViews::GENRE
     ].freeze
 
-    KIND_ORDER = Arel.sql("CASE catalog_sets.kind WHEN 'theme' THEN 0 WHEN 'ufo' THEN 1 WHEN 'tome' THEN 2 " \
-      "WHEN 'publisher' THEN 3 WHEN 'best_of_year' THEN 4 ELSE 5 END")
+    KIND_ORDER = Arel.sql("CASE catalog_sets.kind WHEN 'theme' THEN 0 WHEN 'franchise' THEN 1 WHEN 'studio' THEN 2 " \
+      "WHEN 'ufo' THEN 3 WHEN 'tome' THEN 4 WHEN 'publisher' THEN 5 WHEN 'best_of_year' THEN 6 ELSE 7 END")
 
     def self.call(slug:, locale:, season_number: nil)
       row = card_season(slug.to_s, locale.to_s, season_number)

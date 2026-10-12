@@ -64,12 +64,15 @@ module BackOffice
 
       get back_office_seasons_path(locale: :en)
       assert_select "tr[data-season-number='2'] td[data-season-sets-theme]", false
-      assert_equal [ "Themes", "UFOs", "Tomes", "Publisher sets", "Best of the year" ], css_select("table.ledger").first.css("thead th").map(&:text).last(5)
+      assert_equal [ "Themes", "Franchises", "Studios", "UFOs", "Tomes", "Publisher sets", "Best of the year" ],
+        css_select("table.ledger").first.css("thead th").map(&:text).last(7)
 
       post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
       follow_redirect!
 
       assert_select "tr[data-season-number='2'] td[data-season-sets-theme='4']", "4"
+      assert_select "tr[data-season-number='2'] td[data-season-sets-franchise='0']", "0"
+      assert_select "tr[data-season-number='2'] td[data-season-sets-studio='0']", "0"
       assert_select "tr[data-season-number='2'] td[data-season-sets-ufo='1']", "1"
       assert_select "tr[data-season-number='2'] td[data-season-sets-tome='0']", "0"
       assert_select "tr[data-season-number='2'] td[data-season-sets-publisher='0']", "0"
@@ -102,7 +105,7 @@ module BackOffice
         css_select("tr[data-preview-theme]").map { |row| [ row["data-preview-theme"], row.at_css("th").text, *row.css("td").map(&:text) ] }
       assert_select "p[data-preview-ufo-count='15'][data-preview-ufo-over-limit]",
         /15 cards in the UFOs, 10.0% of the season\. More than the 5% aimed for/
-      assert_equal %w[4 1], %w[theme ufo].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
+      assert_equal %w[4 0 0 1], %w[theme franchise studio ufo].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
 
       post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
       follow_redirect!

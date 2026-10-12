@@ -33,7 +33,7 @@ class Catalog::SeasonScoresTest < ActiveSupport::TestCase
     assert_equal [ [ "roguelike", 119 ], [ "rpg", 44 ], [ "horror", 16 ], [ "pirates", 8 ] ], panel.themes.map { |theme| [ theme.theme, theme.card_count ] }
     assert_equal 15, panel.ufo_count
     assert_nil panel.theme_verdict
-    assert_equal({ "theme" => 4, "ufo" => 1, "tome" => 0, "publisher" => 0, "best_of_year" => 0 }, panel.set_counts)
+    assert_equal({ "theme" => 4, "franchise" => 0, "studio" => 0, "ufo" => 1, "tome" => 0, "publisher" => 0, "best_of_year" => 0 }, panel.set_counts)
   end
 
   test "a published season's tiers and sets are the stored ones, even where a new cut would differ" do
@@ -57,7 +57,7 @@ class Catalog::SeasonScoresTest < ActiveSupport::TestCase
 
     assert_nil Catalog::RarityThresholds.tiers(Catalog::CardSeason.where(season_id: catalog_seasons(:one).id).pluck(:prestige_score))
     assert_equal [ [ 5, 1, 0.99 ], [ 4, 1, 0.9 ], [ 3, 1, 0.7 ], [ 2, 1, 0.5 ], [ 1, 1, nil ] ], tiers_of(scores)
-    assert_equal({ "theme" => 0, "ufo" => 0, "tome" => 0, "publisher" => 1, "best_of_year" => 0 }, scores.panel.set_counts)
+    assert_equal({ "theme" => 0, "franchise" => 0, "studio" => 0, "ufo" => 0, "tome" => 0, "publisher" => 1, "best_of_year" => 0 }, scores.panel.set_counts)
     assert_equal [ [], nil ], [ scores.panel.themes, scores.panel.ufo_count ]
   end
 

@@ -2,13 +2,14 @@
 # for tests that need many cards without going through UpsertDraftCard.
 module CatalogSeeds
   # A draft season (the next number) unless one is given, with one card and
-  # card-season per score, and an `en` and `fr` title per card ("Seed <i>").
-  # Per card, in the order of the scores: `release_dates` defaults to
-  # 2000-01-01, `publishers` to nil, `genres` to [], `ratings` to 80.0 and
-  # `score_versions` (the prestige score's version) to nil.
+  # card-season per score, and an `en` and `fr` title per card.
+  # Per card, in the order of the scores: `titles` defaults to "Seed <i>",
+  # `release_dates` to 2000-01-01, `publishers` to nil, `genres`,
+  # `developers` and `franchises` to [], `ratings` to 80.0, `review_counts`
+  # to nil and `score_versions` (the prestige score's version) to nil.
   # Returns the season.
   def seed_card_seasons(scores, season: nil, release_dates: nil, publishers: nil, genres: nil, ratings: nil, score_versions: nil,
-                        prefix: "seed")
+                        titles: nil, developers: nil, franchises: nil, review_counts: nil, prefix: "seed")
     season ||= Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
     return season if scores.empty?
 
@@ -17,19 +18,24 @@ module CatalogSeeds
     genres ||= Array.new(scores.size) { [] }
     ratings ||= Array.new(scores.size, 80.0)
     score_versions ||= Array.new(scores.size)
+    titles ||= Array.new(scores.size) { |index| "Seed #{index}" }
+    developers ||= Array.new(scores.size) { [] }
+    franchises ||= Array.new(scores.size) { [] }
+    review_counts ||= Array.new(scores.size)
 
     cards = scores.each_index.map do |index|
       key = "#{prefix}-#{season.number}-#{index}"
       { source_key: "test:#{key}", slug: key, release_date: release_dates.fetch(index), publisher: publishers.fetch(index),
-        genres: genres.fetch(index), image_url: "https://images.example.test/#{key}.jpg", store_url: "https://store.example.test/#{key}" }
+        genres: genres.fetch(index), developers: developers.fetch(index), franchises: franchises.fetch(index),
+        image_url: "https://images.example.test/#{key}.jpg", store_url: "https://store.example.test/#{key}" }
     end
     ids = Catalog::Card.insert_all!(cards, returning: :id).rows.flatten
     Catalog::CardText.insert_all!(ids.each_with_index.flat_map do |card_id, index|
-      %w[en fr].map { |locale| { card_id:, locale:, title: "Seed #{index}" } }
+      %w[en fr].map { |locale| { card_id:, locale:, title: titles.fetch(index) } }
     end)
     Catalog::CardSeason.insert_all!(ids.each_with_index.map do |card_id, index|
       { card_id:, season_id: season.id, prestige_score: scores.fetch(index), prestige_score_version: score_versions.fetch(index),
-        rating: ratings.fetch(index) }
+        rating: ratings.fetch(index), review_count: review_counts.fetch(index) }
     end)
     season
   end
@@ -58,6 +64,38 @@ module CatalogSeeds
   # sets are built by Catalog::PublishSeason. Returns the season.
   def publish_sets_draft
     season = seed_sets_draft
+    assert Catalog::PublishSeason.new.call(number: season.number).success?
+    season.reload
+  end
+
+  # A draft of 24 distinct scores, every card an RPG but the last two (the
+  # UFOs), released a month apart in card order: cards 0 to 2 of the
+  # franchise "Tom Clancy Franchise", titled "Tom Clancy's …"; cards 3 to 5
+  # developed by "CAPCOM Co., Ltd." twice then "Capcom", the first with
+  # 25,000 reviews; cards 6 to 8 of the franchise "Team17", developed by
+  # "Team17", titled "Team17 …", none reviewed. Published, it holds the
+  # theme rpg (22 cards), the franchise tom-clancy ("Tom Clancy", 3 cards),
+  # the studio capcom ("CAPCOM", 3 cards) and the UFOs (2): Team17 is
+  # named like a studio, and too little reviewed to be one.
+  def seed_franchises_and_studios_draft
+    count = 24
+    titles = Array.new(count) { |index| "Seed #{index}" }
+    titles[0, 3] = [ "Tom Clancy's Rainbow Six", "Tom Clancy's The Division", "Tom Clancy's Ghost Recon" ]
+    titles[6, 3] = [ "Team17 Worms", "Team17 Overcooked", "Team17 Golf" ]
+    franchises = Array.new(count) { |index| if index < 3 then [ "Tom Clancy Franchise" ] elsif index.between?(6, 8) then [ "Team17" ] else [] end }
+    developers = Array.new(count) { [] }
+    developers[3, 3] = [ [ "CAPCOM Co., Ltd." ], [ "CAPCOM Co., Ltd." ], [ "Capcom" ] ]
+    developers[6, 3] = Array.new(3) { [ "Team17" ] }
+    review_counts = Array.new(count)
+    review_counts[3] = 25_000
+    seed_card_seasons(distinct_scores(count), titles:, franchises:, developers:, review_counts:,
+      release_dates: Array.new(count) { |index| Date.new(2000, 1, 1) >> index },
+      genres: Array.new(count) { |index| index < count - 2 ? [ "rpg" ] : [] })
+  end
+
+  # The franchises and studios draft, published. Returns the season.
+  def publish_franchises_and_studios_draft
+    season = seed_franchises_and_studios_draft
     assert Catalog::PublishSeason.new.call(number: season.number).success?
     season.reload
   end
