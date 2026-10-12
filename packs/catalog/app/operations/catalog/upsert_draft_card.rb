@@ -15,6 +15,10 @@ module Catalog
   # that gave `prestige_score`; only the caller knows what it means.
   # PublishSeason refuses a draft whose scores come from two formulas.
   #
+  # `developers` and `franchises` are lists of names, part of the card's
+  # identity; `review_count`, the source's number of reviews, is season data
+  # like the scores (nil when the source has none to give).
+  #
   # Publishes Catalog::DraftCardUpserted on every call, even when nothing
   # changed.
   #
@@ -23,7 +27,8 @@ module Catalog
   #     image_url: "https://…", store_url: "https://…",
   #     texts: { "en" => { title: "Portal 2", short_description: "…" }, "fr" => { title: "Portal 2" } },
   #     prestige_score: 0.97, prestige_score_version: 2, rating: 98.0,
-  #     publisher: "…", genres: %w[action], tags: %w[puzzle]
+  #     publisher: "…", genres: %w[action], tags: %w[puzzle],
+  #     developers: %w[Valve], franchises: [ "Portal" ], review_count: 1_000
   #   )
   #   # => Success(card_season) | Failure(:missing_text) | Failure(:invalid_card)
   class UpsertDraftCard < ApplicationOperation
@@ -33,9 +38,10 @@ module Catalog
     SCORE_VERSIONS = 1..32_767
 
     def call(source_key:, release_date:, image_url:, store_url:, texts:, prestige_score:, prestige_score_version:, rating:,
-             publisher: nil, genres: [], tags: [])
-      card_attributes = step validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, genres:, tags:)
-      scores = step validate_scores(prestige_score:, prestige_score_version:, rating:)
+             publisher: nil, genres: [], tags: [], developers: [], franchises: [], review_count: nil)
+      card_attributes = step validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, genres:, tags:,
+        developers:, franchises:)
+      scores = step validate_scores(prestige_score:, prestige_score_version:, rating:, review_count:)
       texts = step validate_texts(texts)
 
       transaction do
@@ -54,21 +60,22 @@ module Catalog
 
     # Genres name tomes (SetBuilder), so each must be a valid set key:
     # one malformed genre would otherwise stop the season's publication.
-    def validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, genres:, tags:)
+    def validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, genres:, tags:, developers:, franchises:)
       valid = [ source_key, image_url, store_url ].all? { |value| present_string?(value) } &&
         release_date.is_a?(Date) &&
         (publisher.nil? || publisher.is_a?(String)) &&
-        [ genres, tags ].all? { |list| list.is_a?(Array) && list.all? { |item| present_string?(item) } } &&
+        [ genres, tags, developers, franchises ].all? { |list| list.is_a?(Array) && list.all? { |item| present_string?(item) } } &&
         genres.all? { |genre| Set::KEY_FORMAT.match?(genre) }
       return Failure(:invalid_card) unless valid
 
-      Success(source_key:, release_date:, image_url:, store_url:, publisher: publisher.presence, genres:, tags:)
+      Success(source_key:, release_date:, image_url:, store_url:, publisher: publisher.presence, genres:, tags:, developers:, franchises:)
     end
 
-    # Scores are numbers as given, never parsed from strings.
-    def validate_scores(prestige_score:, prestige_score_version:, rating:)
-      if real?(prestige_score) && score_version?(prestige_score_version) && real?(rating) && rating.between?(0, 100)
-        Success(prestige_score:, prestige_score_version:, rating:)
+    # Scores and counts are numbers as given, never parsed from strings.
+    def validate_scores(prestige_score:, prestige_score_version:, rating:, review_count:)
+      if real?(prestige_score) && score_version?(prestige_score_version) && real?(rating) && rating.between?(0, 100) &&
+          (review_count.nil? || review_count?(review_count))
+        Success(prestige_score:, prestige_score_version:, rating:, review_count:)
       else
         Failure(:invalid_card)
       end
@@ -108,6 +115,10 @@ module Catalog
 
     def score_version?(value)
       value.is_a?(Integer) && SCORE_VERSIONS.cover?(value)
+    end
+
+    def review_count?(value)
+      value.is_a?(Integer) && CardSeason::REVIEW_COUNTS.cover?(value)
     end
 
     # The draft season, locked FOR SHARE; created when there is none. Two

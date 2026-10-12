@@ -64,6 +64,31 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
     end
   end
 
+  test "the database refuses a review count below 1, and a card-season may have none" do
+    refused(ActiveRecord::CheckViolation) { Catalog::CardSeason.where(id: card_season.id).update_all(review_count: 0) }
+    assert_equal 1, Catalog::CardSeason.where(id: card_season.id).update_all(review_count: 1)
+    assert_equal 1, Catalog::CardSeason.where(id: card_season.id).update_all(review_count: nil)
+  end
+
+  test "the model refuses a review count below 1 or fractional" do
+    [ 0, 1.5 ].each do |count|
+      card_season.review_count = count
+      card_season.validate
+
+      assert_predicate card_season.errors[:review_count], :present?, count
+    end
+    card_season.review_count = 1
+    card_season.validate
+    assert_empty card_season.errors[:review_count]
+  end
+
+  test "a card-season's review count is frozen once its season is published" do
+    card_season.review_count = 10
+
+    assert_not card_season.valid?
+    assert_includes card_season.errors.details[:base], { error: :frozen_once_published }
+  end
+
   test "rarity and number may stay NULL, scores may not" do
     Catalog::CardSeason.where(id: card_season.id).update_all(rarity: nil, number: nil)
 
@@ -139,6 +164,14 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
     assert_equal [], bare.genres
     assert_equal [], bare.tags
     refused(ActiveRecord::NotNullViolation) { Catalog::Card.where(id: card.id).update_all(genres: nil) }
+  end
+
+  test "developers and franchises default to empty lists, never NULL" do
+    card = catalog_cards(:portal)
+
+    assert_equal [ [], [] ], [ card.developers, card.franchises ]
+    refused(ActiveRecord::NotNullViolation) { Catalog::Card.where(id: card.id).update_all(developers: nil) }
+    refused(ActiveRecord::NotNullViolation) { Catalog::Card.where(id: card.id).update_all(franchises: nil) }
   end
 
   test "a set key is URL-safe" do

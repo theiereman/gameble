@@ -1,0 +1,27 @@
+namespace :steam do
+  # Meant for production: run once after the deploy that gives cards their
+  # developers and franchises and card-seasons their review count, so the
+  # ones imported before it get them without a new import. An app without a
+  # review count still gives its card the names.
+  desc "Fills every card's developers and franchises, and its card-seasons' missing review counts, " \
+    "from the stored Steam apps (Catalog::FillCardSources); idempotent"
+  task fill_card_sources: :environment do
+    batch_size = 1_000
+    apps = Steam::App.where.not(details: nil).select(:id, :appid, :details, :review_count).order(:appid)
+    filled = { cards: 0, card_seasons: 0 }
+    last_appid = 0
+
+    loop do
+      batch = apps.where("appid > ?", last_appid).limit(batch_size).to_a
+      break if batch.empty?
+
+      result = Catalog::FillCardSources.new.call(rows: batch.map { |app| Steam::CardMapping.sources(app) })
+      abort "steam:fill_card_sources: the apps after appid #{last_appid} failed: #{result.failure}" if result.failure?
+
+      filled.merge!(result.value!) { |_key, total, count| total + count }
+      last_appid = batch.last.appid
+    end
+
+    puts "steam:fill_card_sources: #{filled[:cards]} card(s) and #{filled[:card_seasons]} card-season(s) filled"
+  end
+end

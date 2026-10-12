@@ -430,3 +430,6 @@
 - source_plan: none
   summary: Opening an invite link sends the invitation directly (the link page auto-submits its POST, the button stays as the no-JS fallback, a signed-out visitor's invitation goes out right after Steam sign-in) and lands on the Friends screen.
   evidence: Split from the "cancel a sent invitation" build on 2026-10-09 at the author's choice; cancel ships first so an invitation sent by a link can be withdrawn.
+- source_plan: `epic-recognizable-sets/story-the-import-keeps-developers-franchises-and-the-review-count-plan.md`
+  summary: Two tests fail on a machine whose local time zone changes clocks within their window: `SessionsControllerTest` "signing in keeps the player signed in for 30 days" (off by 3,600 s) and `Game::TradesOfTest` "finished trades are recent ... for 14 days".
+  evidence: Both fail on the baseline too, run on 2026-10-12 in Europe/Paris, whose clocks go back on 2026-10-25, inside both windows; CI runs in UTC and does not see it. Settle by comparing in UTC or freezing time in those tests.

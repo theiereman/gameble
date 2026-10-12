@@ -339,6 +339,46 @@ class Steam::StoreDetailsTest < ActiveSupport::TestCase
     assert_empty Steam::App.ready_by(run)
   end
 
+  # DetailsPolicy.developers and .franchises
+
+  def listing(key, *entries)
+    { "basic_info" => { key => entries } }
+  end
+
+  test "developers and franchises are the names an item lists, in Steam's order" do
+    item = { "basic_info" => { "developers" => [ { "name" => "Valve", "creator_clan_account_id" => 4 }, { "name" => "Hidden Path" } ],
+      "franchises" => [ { "name" => "Half-Life" } ] } }
+
+    assert_equal [ "Valve", "Hidden Path" ], Steam::DetailsPolicy.developers(item)
+    assert_equal [ "Half-Life" ], Steam::DetailsPolicy.franchises(item)
+  end
+
+  test "names are unescaped and stripped; blank, malformed and repeated entries are dropped" do
+    item = listing("franchises", { "name" => " Command &amp; Conquer " }, { "name" => " " }, { "name" => "&#0;" }, "Red Alert",
+      { "name" => 7 }, nil, { "other" => "x" }, { "name" => "Command & Conquer" }, { "name" => "Tiberian\u0000 Sun" })
+
+    assert_equal [ "Command & Conquer", "Tiberian Sun" ], Steam::DetailsPolicy.franchises(item)
+  end
+
+  test "an item without basic_info or the list, or with a malformed one, names nobody" do
+    [ nil, {}, [ 1 ], { "basic_info" => "x" }, { "basic_info" => {} }, listing("developers"), { "basic_info" => { "developers" => "Valve" } } ].each do |item|
+      assert_equal [], Steam::DetailsPolicy.developers(item), item.inspect
+      assert_equal [], Steam::DetailsPolicy.franchises(item), item.inspect
+    end
+  end
+
+  test "a detailed app reads its developers and franchises from its stored details" do
+    run = run_on("details")
+    keep(run, 620)
+    stub_get_items_by_language("english" => { 620 => detailed_item(620).deep_merge("basic_info" => { "franchises" => [ { "name" => "Portal" } ] }) },
+      "french" => { 620 => french_item(620) })
+
+    details_page(run)
+
+    app = Steam::App.find_by!(appid: 620)
+    assert_equal [ [ "Studio 620" ], [ "Portal" ] ], [ app.developers, app.franchises ]
+  end
+
   # PlainText
 
   test "plain text decodes entities and turns line breaks and block ends into spaces" do

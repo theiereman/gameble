@@ -2,7 +2,8 @@ module Catalog
   # A card (CAP-2): one game of the catalog, whatever source it came from.
   # Its fields and texts are its identity, updated in place by every import,
   # published seasons included; what belongs to a season lives on its
-  # Catalog::CardSeason.
+  # Catalog::CardSeason. Among them, `developers` and `franchises` are the
+  # source's names, in its order, empty when it names none.
   #
   # Keyed by an opaque source key built by the writer (AD-4). Addressed in
   # URLs by a slug, set once from the English title and never changed, so

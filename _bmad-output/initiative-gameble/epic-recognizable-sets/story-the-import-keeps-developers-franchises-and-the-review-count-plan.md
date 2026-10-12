@@ -3,13 +3,13 @@ title: 'The import keeps developers, franchises and the review count'
 type: 'feature'
 ticket: '2'
 created: '2026-10-09'
-status: 'ready-for-dev'
-baseline_revision: ''
+status: 'built'
+baseline_revision: '0a34aa0aed83af7787797c8569839da7f5d51bc3'
 route: 'full'
 route_source: 'auto'
-review: ''
-review_source: ''
-lenses_ran: []
+review: 'quick'
+review_source: 'pinned'
+lenses_ran: [quick]
 review_loop_iteration: 0
 context: []
 ---
@@ -58,13 +58,13 @@ context: []
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `db/migrate/*_add_developers_and_franchises_to_catalog_cards.rb` -- string arrays, default `[]`, NOT NULL.
-- [ ] `db/migrate/*_add_review_count_to_catalog_card_seasons.rb` then `*_validate_…` -- integer, nullable; check `review_count IS NULL OR review_count >= 1` added `validate: false`, validated in the second migration; regenerate `db/schema.rb` on Postgres 18.
-- [ ] `packs/steam/app/models/steam/details_policy.rb`, `app.rb`, `card_mapping.rb` -- read and pass the three values.
-- [ ] `packs/catalog/app/operations/catalog/upsert_draft_card.rb`, `models/catalog/card_season.rb`, `card.rb` -- accept, validate, store; review count frozen with the season data.
-- [ ] `packs/catalog/app/operations/catalog/fill_card_sources.rb` + event `Catalog::CardSourcesFilled` -- given rows `{ source_key:, developers:, franchises:, review_count: }`, in one transaction: set each existing card's developers and franchises, and the review count of its card-seasons where NULL (`update_all`, the documented one-off exception to frozen season data); one event with the counts; idempotent.
-- [ ] `packs/steam/lib/tasks/steam.rake` -- `steam:fill_card_sources`: walks `Steam::App` rows holding details and a review count in appid batches, builds the rows with `CardMapping`, calls the operation per batch, prints the counts, aborts on a Failure; check the task is loaded like the other packs' tasks.
-- [ ] Tests -- DetailsPolicy readers (entities, blanks, malformed, missing keys), CardMapping, upsert (stored, invalid values refused, published card-season untouched), fill operation (fills, idempotent, unknown key ignored, published card-season gets its NULL count once), the import end to end, schema test for the check.
+- [x] `db/migrate/*_add_developers_and_franchises_to_catalog_cards.rb` -- string arrays, default `[]`, NOT NULL.
+- [x] `db/migrate/*_add_review_count_to_catalog_card_seasons.rb` then `*_validate_…` -- integer, nullable; check `review_count IS NULL OR review_count >= 1` added `validate: false`, validated in the second migration; regenerate `db/schema.rb` on Postgres 18.
+- [x] `packs/steam/app/models/steam/details_policy.rb`, `app.rb`, `card_mapping.rb` -- read and pass the three values.
+- [x] `packs/catalog/app/operations/catalog/upsert_draft_card.rb`, `models/catalog/card_season.rb`, `card.rb` -- accept, validate, store; review count frozen with the season data.
+- [x] `packs/catalog/app/operations/catalog/fill_card_sources.rb` + event `Catalog::CardSourcesFilled` -- given rows `{ source_key:, developers:, franchises:, review_count: }`, in one transaction: set each existing card's developers and franchises, and the review count of its card-seasons where NULL (`update_all`, the documented one-off exception to frozen season data); one event with the counts; idempotent.
+- [x] `packs/steam/lib/tasks/steam.rake` -- `steam:fill_card_sources`: walks `Steam::App` rows holding details and a review count in appid batches, builds the rows with `CardMapping`, calls the operation per batch, prints the counts, aborts on a Failure; check the task is loaded like the other packs' tasks.
+- [x] Tests -- DetailsPolicy readers (entities, blanks, malformed, missing keys), CardMapping, upsert (stored, invalid values refused, published card-season untouched), fill operation (fills, idempotent, unknown key ignored, published card-season gets its NULL count once), the import end to end, schema test for the check.
 
 **Acceptance Criteria:**
 - Given a fresh import run, when its cards pass ends, then every card whose stored item names developers or franchises has them, and every draft card-season has its review count.
@@ -73,9 +73,22 @@ context: []
 
 ## Implementation Notes
 
+- `Steam::DetailsPolicy.publishers` is unchanged (strip only); `developers` and `franchises` share a private `names` reader that unescapes, strips and dedupes. They read either a raw item or the stored `details` (whose `basic_info` is the English item's).
+- `Steam::CardMapping.sources(app)` builds the fill's row; a stored review count below 1 maps to nil, so the row fills the names but no card-season.
+- The review count's bounds (`Catalog::CardSeason::REVIEW_COUNTS`, the integer column) are shared by the model, the upsert and the fill.
+- `Catalog::FillCardSources` refuses a malformed row with the existing `:invalid_card` code (no new string); duplicate source keys in one call keep the last row. It writes in two `update_all` joined to `jsonb_to_recordset`, touching only cards whose names differ and card-seasons whose count is NULL, so a second run changes no row. Its event goes on the stream `Catalog::CardSources`, once per call, counts only.
+- `steam:fill_card_sources` walks apps holding details and a review count, 1,000 by appid, one operation call (and one event) per batch; queued in `pending-approvals.md` for staging and production.
+- Two suite failures are pre-existing and date-dependent (they fail on the baseline too, on 2026-10-12, across the end of daylight saving time): `SessionsControllerTest` "signing in keeps the player signed in for 30 days" and `Game::TradesOfTest` "finished trades are recent ... for 14 days".
+
 ## Plan Change Log
 
 ## Review Triage Log
+
+### 2026-10-12 — Review pass
+- verdicts: 2 findings — high 0, medium 1, low 1, false 0, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` (quick) `steam:fill_card_sources` walked only apps holding a review count, so an app a later reviews run marked unavailable (`ImportReviewsPage` writes `review_count` NULL and keeps `details`) never gave its existing card developers and franchises, against the matrix's Backfill row — the task now filters on `details` only; a NULL count fills the names and no card-season.
+  - `[low]` `[patch]` (quick) `FillCardSources#valid_row?` sorted the row's keys, so a row mixing String and Symbol keys raised `ArgumentError` instead of `Failure(:invalid_card)` — keys compared as sets.
 
 ## Design Notes
 

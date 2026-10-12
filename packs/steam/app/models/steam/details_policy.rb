@@ -17,6 +17,13 @@ module Steam
   # exclusion (no_title, no_vertical_image, no_release_date), a malformed
   # publisher or tag is dropped, and NUL bytes are removed from the strings
   # and from the raw item stored in `details`.
+  #
+  # `developers` and `franchises` read the names an item lists, from a raw
+  # item or from the `details` stored on a Steam::App: HTML entities decoded,
+  # stripped, in Steam's order, each once; a blank or malformed entry is
+  # dropped.
+  #
+  #   Steam::DetailsPolicy.franchises(app.details) # => ["Command & Conquer"]
   module DetailsPolicy
     UNAVAILABLE = "unavailable".freeze
     NOT_A_GAME = "not_a_game".freeze
@@ -97,6 +104,25 @@ module Steam
       list.filter_map { |publisher| text(publisher["name"]) if publisher.is_a?(Hash) }
     end
 
+    def self.developers(item)
+      names(item, "developers")
+    end
+
+    def self.franchises(item)
+      names(item, "franchises")
+    end
+
+    def self.names(item, key)
+      list = RawValue.object(RawValue.object(item)["basic_info"])[key]
+      return [] unless list.is_a?(Array)
+
+      list.filter_map { |entry| unescaped_text(entry["name"]) if entry.is_a?(Hash) }.uniq
+    end
+
+    def self.unescaped_text(value)
+      RawValue.string(value)&.then { |string| text(CGI.unescapeHTML(string)) }
+    end
+
     # The earliest known date: a game released before Steam keeps its
     # original date, whose year the card shows. A date that is not a timestamp
     # from 1970 to the end of year 9999 is ignored.
@@ -127,6 +153,7 @@ module Steam
       [ tagid, weight ] if tagid && weight
     end
 
-    private_class_method :unavailable, :exclusion, :text, :description, :publishers, :release_on, :tag_ids, :tag_weight
+    private_class_method :unavailable, :exclusion, :text, :description, :publishers, :names, :unescaped_text,
+      :release_on, :tag_ids, :tag_weight
   end
 end

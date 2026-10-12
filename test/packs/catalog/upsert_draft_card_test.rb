@@ -6,13 +6,13 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
   def attributes(**overrides)
     {
       source_key: "src:620", publisher: "Valve", release_date: Date.new(2011, 4, 18),
-      genres: %w[action adventure], tags: %w[puzzle co-op],
+      genres: %w[action adventure], tags: %w[puzzle co-op], developers: [ "Valve", "Hidden Path" ], franchises: [ "Portal" ],
       image_url: "https://images.example.test/620.jpg", store_url: "https://store.example.test/620",
       texts: {
         "en" => { title: "Portal 2", short_description: "The sequel." },
         "fr" => { title: "Portal 2", short_description: "La suite." }
       },
-      prestige_score: 0.97, prestige_score_version: 2, rating: 98.0
+      prestige_score: 0.97, prestige_score_version: 2, rating: 98.0, review_count: 1_000
     }.merge(overrides)
   end
 
@@ -50,6 +50,7 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     assert_equal "Valve", card.publisher
     assert_equal %w[action adventure], card.genres
     assert_equal %w[puzzle co-op], card.tags
+    assert_equal [ [ "Valve", "Hidden Path" ], [ "Portal" ] ], [ card.developers, card.franchises ]
     assert_equal "https://images.example.test/620.jpg", card.image_url
     assert_equal "https://store.example.test/620", card.store_url
     assert_equal({ "en" => [ "Portal 2", "The sequel." ], "fr" => [ "Portal 2", "La suite." ] },
@@ -58,6 +59,7 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     assert_in_delta 0.97, card_season.prestige_score
     assert_equal 2, card_season.prestige_score_version
     assert_equal BigDecimal("98.0"), card_season.rating
+    assert_equal 1_000, card_season.review_count
     assert_nil card_season.rarity
 
     events = events_of(season)
@@ -88,7 +90,8 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
 
     result = upsert(
       texts: { "en" => { title: "Portal 2: Remastered" }, "fr" => { title: "Portal 2 : Remasterisé", short_description: "Encore." } },
-      prestige_score: 0.5, prestige_score_version: 3, rating: 75.25, genres: %w[adventure], publisher: "Valve Corporation"
+      prestige_score: 0.5, prestige_score_version: 3, rating: 75.25, genres: %w[adventure], publisher: "Valve Corporation",
+      developers: [ "Valve" ], franchises: [], review_count: 2_500
     )
 
     assert result.success?
@@ -102,6 +105,8 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     assert_equal "Portal 2 : Remasterisé", card.text("fr").title
     assert_equal %w[adventure], card.genres
     assert_equal "Valve Corporation", card.publisher
+    assert_equal [ [ "Valve" ], [] ], [ card.developers, card.franchises ]
+    assert_equal 2_500, card_season.review_count
     assert_in_delta 0.5, card_season.prestige_score
     assert_equal 3, card_season.prestige_score_version
     assert_equal BigDecimal("75.25"), card_season.rating
@@ -126,11 +131,15 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     before = published.attributes
 
     result = upsert(source_key: "src:400", release_date: Date.new(2007, 10, 10),
-      texts: { "en" => { title: "Portal (2007)" }, "fr" => { title: "Portal (2007)" } }, prestige_score: 0.1, rating: 10)
+      texts: { "en" => { title: "Portal (2007)" }, "fr" => { title: "Portal (2007)" } }, prestige_score: 0.1, rating: 10,
+      developers: [ "Valve" ], franchises: [ "Portal" ], review_count: 4_000)
 
     assert result.success?
     card_season = result.value!
     assert_equal portal, card_season.card
+    assert_equal 4_000, card_season.review_count
+    assert_equal [ [ "Valve" ], [ "Portal" ] ], [ portal.reload.developers, portal.franchises ]
+    assert_nil published.reload.review_count
     assert_not_equal published, card_season
     assert_predicate card_season.season, :draft?
     assert_equal "Portal (2007)", portal.reload.text("en").title
@@ -216,6 +225,15 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     "genres that are not strings" => { genres: [ :action ] },
     "a genre that is not a set key" => { genres: [ "Free To Play" ] },
     "nil tags" => { tags: nil },
+    "nil developers" => { developers: nil },
+    "a developer that is not a string" => { developers: [ :valve ] },
+    "a blank franchise" => { franchises: [ "Portal", " " ] },
+    "franchises that are not a list" => { franchises: "Portal" },
+    "a review count of 0" => { review_count: 0 },
+    "a negative review count" => { review_count: -1 },
+    "a fractional review count" => { review_count: 10.0 },
+    "a review count as a string" => { review_count: "1000" },
+    "a review count beyond its column" => { review_count: 2**31 },
     "a numeric title" => { texts: { "en" => { title: 2 }, "fr" => { title: "Portal 2" } } },
     "an array title" => { texts: { "en" => { title: "Portal 2" }, "fr" => { title: [] } } }
   }.each do |label, overrides|
@@ -232,6 +250,13 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
 
   test "the score version is a required keyword" do
     assert_raises(ArgumentError) { Catalog::UpsertDraftCard.new.call(**attributes.except(:prestige_score_version)) }
+  end
+
+  test "without developers, franchises or review count, a card has empty lists and its card-season no count" do
+    card_season = Catalog::UpsertDraftCard.new.call(**attributes.except(:developers, :franchises, :review_count)).value!.reload
+
+    assert_equal [ [], [] ], [ card_season.card.developers, card_season.card.franchises ]
+    assert_nil card_season.review_count
   end
 
   test "a blank publisher is stored as NULL" do

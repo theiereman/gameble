@@ -13,6 +13,13 @@ module Steam
   #
   #   Steam::CardMapping.call(app, tag_names: { 19 => "Action" })
   #   # => Success({ source_key: "steam:620", ... }) | Failure(:no_reviews) | Failure(:invalid_reviews)
+  #
+  # `sources` maps any detailed app onto a row of Catalog::FillCardSources,
+  # for cards written before they carried their developers, franchises and
+  # review count; a review count below 1 maps to nil.
+  #
+  #   Steam::CardMapping.sources(app)
+  #   # => { source_key: "steam:620", developers: ["Valve"], franchises: ["Portal"], review_count: 1000 }
   module CardMapping
     extend Dry::Monads[:result]
 
@@ -34,12 +41,24 @@ module Steam
         image_url: app.image_url,
         store_url: app.store_url,
         publisher: Array(app.publishers).first,
+        developers: app.developers,
+        franchises: app.franchises,
         genres: GenreTags.call(app.tag_ids),
         tags: tag_keys(app.tag_ids, tag_names),
         prestige_score: PrestigeScore.call(percent_positive: app.review_percent_positive, review_count: app.review_count),
         prestige_score_version: PrestigeScore::VERSION,
-        rating: app.review_percent_positive
+        rating: app.review_percent_positive,
+        review_count: app.review_count
       )
+    end
+
+    def self.sources(app)
+      {
+        source_key: source_key(app.appid),
+        developers: app.developers,
+        franchises: app.franchises,
+        review_count: app.review_count&.then { |count| count if count >= 1 }
+      }
     end
 
     # The opaque key of the card of `appid` in Catalog.

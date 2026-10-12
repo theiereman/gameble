@@ -50,5 +50,15 @@ module Steam
     def store_url
       STORE_URL_BASE + (store_url_path.present? ? store_url_path.delete_prefix("/") : "app/#{appid}/")
     end
+
+    # The developers the stored store item names (Steam::DetailsPolicy).
+    def developers
+      DetailsPolicy.developers(details)
+    end
+
+    # The franchises the stored store item names (Steam::DetailsPolicy).
+    def franchises
+      DetailsPolicy.franchises(details)
+    end
   end
 end

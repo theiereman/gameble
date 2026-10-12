@@ -10,7 +10,9 @@ module Catalog
   # `prestige_score` is opaque here and only ordered;
   # `prestige_score_version` names, as opaquely, the formula that gave it
   # (nil before versions existed); `rating` is the source's review score in
-  # percent.
+  # percent; `review_count` its number of reviews (nil when the source gave
+  # none). Catalog::FillCardSources fills, once, a review count left NULL by
+  # an import that did not carry it, published seasons included.
   class CardSeason < ApplicationRecord
     self.table_name = "catalog_card_seasons"
     # Dropped by RemoveDustTierFromCatalogCardSeasons (AD-28's contract step).
@@ -19,7 +21,9 @@ module Catalog
     self.ignored_columns = %w[dust_tier]
 
     # The columns frozen once the season is published.
-    SEASON_DATA = %w[prestige_score prestige_score_version rating rarity number].freeze
+    SEASON_DATA = %w[prestige_score prestige_score_version rating review_count rarity number].freeze
+    # The column is an integer.
+    REVIEW_COUNTS = 1..2_147_483_647
 
     attr_readonly :card_id, :season_id
 
@@ -32,6 +36,7 @@ module Catalog
     validates :prestige_score, numericality: true
     validates :rating, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
     validates :number, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
+    validates :review_count, numericality: { only_integer: true, in: REVIEW_COUNTS }, allow_nil: true
     validate :season_data_frozen_once_published
     before_destroy :refuse_destroy_once_published
 

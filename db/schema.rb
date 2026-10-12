@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_09_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_100002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -72,12 +72,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_150000) do
     t.datetime "updated_at", null: false
     t.integer "number"
     t.integer "prestige_score_version", limit: 2
+    t.integer "review_count"
     t.index ["card_id", "season_id"], name: "index_catalog_card_seasons_on_card_id_and_season_id", unique: true
     t.index ["season_id", "number"], name: "index_catalog_card_seasons_on_season_id_and_number", unique: true
     t.index ["season_id"], name: "index_catalog_card_seasons_on_season_id"
     t.check_constraint "number > 0", name: "catalog_card_seasons_number_check"
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "catalog_card_seasons_rarity_check"
     t.check_constraint "rating >= 0::numeric AND rating <= 100::numeric", name: "catalog_card_seasons_rating_check"
+    t.check_constraint "review_count IS NULL OR review_count >= 1", name: "catalog_card_seasons_review_count_check"
   end
 
   create_table "catalog_card_texts", force: :cascade do |t|
@@ -103,6 +105,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_150000) do
     t.string "tags", default: [], null: false, array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "developers", default: [], null: false, array: true
+    t.string "franchises", default: [], null: false, array: true
     t.index ["slug"], name: "index_catalog_cards_on_slug", unique: true
     t.index ["source_key"], name: "index_catalog_cards_on_source_key", unique: true
   end

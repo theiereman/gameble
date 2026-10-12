@@ -23,7 +23,9 @@ class Steam::CardsTest < ActiveSupport::TestCase
         review_count: 1_000 + appid, review_percent_positive: 90,
         name_en: "Game #{appid}", name_fr: "Jeu #{appid}", short_description_en: "The game #{appid}.", short_description_fr: "Le jeu #{appid}.",
         publishers: [ "Publisher #{appid}", "Other" ], release_on: Date.new(2011, 4, 19), tag_ids: [ 492, 1664, 19, 122 ],
-        store_url_path: "app/#{appid}/Game_#{appid}/", image_url: "https://example.test/#{appid}.jpg" }.merge(overrides)
+        store_url_path: "app/#{appid}/Game_#{appid}/", image_url: "https://example.test/#{appid}.jpg",
+        details: { "basic_info" => { "developers" => [ { "name" => "Studio #{appid}" } ], "franchises" => [ { "name" => "Series #{appid}" } ] } } }
+        .merge(overrides)
     end)
   end
 
@@ -110,11 +112,14 @@ class Steam::CardsTest < ActiveSupport::TestCase
       image_url: "https://example.test/620.jpg",
       store_url: "https://store.steampowered.com/app/620/Portal_2/",
       publisher: "Publisher 620",
+      developers: [ "Studio 620" ],
+      franchises: [ "Series 620" ],
       genres: %w[puzzle rpg],
       tags: %w[indie co_op action],
       prestige_score: Steam::PrestigeScore.call(percent_positive: 95, review_count: 1_000),
       prestige_score_version: Steam::PrestigeScore::VERSION,
-      rating: 95
+      rating: 95,
+      review_count: 1_000
     }, attributes)
 
     plain = [ String, Date, Integer, Float, Array, Hash, NilClass ]
@@ -137,6 +142,28 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_equal "https://store.steampowered.com/app/7/", attributes[:store_url]
     assert_nil attributes[:publisher]
     assert_equal [], attributes[:tags]
+  end
+
+  test "developers and franchises map from the stored item, unescaped and once each, or to empty lists without one" do
+    run = run_on("cards")
+    ready(run, 7, details: { "basic_info" => { "developers" => [ { "name" => "Westwood &amp; EA" }, { "name" => " " }, { "name" => "Westwood & EA" } ] } })
+    ready(run, 8, details: { "name" => "No basic info" })
+
+    seven = Steam::CardMapping.call(Steam::App.find_by!(appid: 7), tag_names: {}).value!
+    eight = Steam::CardMapping.call(Steam::App.find_by!(appid: 8), tag_names: {}).value!
+
+    assert_equal [ [ "Westwood & EA" ], [] ], seven.values_at(:developers, :franchises)
+    assert_equal [ [], [] ], eight.values_at(:developers, :franchises)
+  end
+
+  test "a detailed app maps onto a row of the card sources fill, an invalid review count to nil" do
+    run = run_on("cards")
+    ready(run, 7, 8)
+    Steam::App.where(appid: 8).update_all(review_count: 0)
+
+    assert_equal({ source_key: "steam:7", developers: [ "Studio 7" ], franchises: [ "Series 7" ], review_count: 1_007 },
+      Steam::CardMapping.sources(Steam::App.find_by!(appid: 7)))
+    assert_nil Steam::CardMapping.sources(Steam::App.find_by!(appid: 8))[:review_count]
   end
 
   test "a game without a review score or count is refused" do
@@ -176,6 +203,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_equal [ Date.new(2011, 4, 19), "https://example.test/20.jpg", "https://store.steampowered.com/app/20/Game_20/" ],
       [ card.release_date, card.image_url, card.store_url ]
     assert_equal [ "Publisher 20", %w[puzzle rpg], %w[indie action] ], [ card.publisher, card.genres, card.tags ]
+    assert_equal [ [ "Studio 20" ], [ "Series 20" ] ], [ card.developers, card.franchises ]
     assert_equal({ "en" => [ "Game 20", "The game 20." ], "fr" => [ "Jeu 20", "Le jeu 20." ] },
       card.texts.to_h { |text| [ text.locale, [ text.title, text.short_description ] ] })
     card_season = card.card_seasons.sole
@@ -183,6 +211,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_in_delta Steam::PrestigeScore.call(percent_positive: 90, review_count: 1_020), card_season.prestige_score
     assert_equal Steam::PrestigeScore::VERSION, card_season.prestige_score_version
     assert_equal BigDecimal("90"), card_season.rating
+    assert_equal 1_020, card_season.review_count
 
     run.reload
     assert_predicate run, :running?
@@ -231,16 +260,20 @@ class Steam::CardsTest < ActiveSupport::TestCase
     published = draft
     Catalog::CardSeason.where(season: published).update_all(rarity: 1)
     published.update_columns(status: "published", published_at: Time.current)
-    frozen = Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rating, :updated_at)
+    frozen = Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rating, :review_count, :updated_at)
 
-    Steam::App.update_all(review_percent_positive: 50, name_fr: "Nouveau")
+    Steam::App.update_all(review_percent_positive: 50, review_count: 7_000, name_fr: "Nouveau",
+      details: { "basic_info" => { "developers" => [ { "name" => "New Studio" } ], "franchises" => [] } })
     second = rerun([ 10, 20 ])
     cards_page(second)
 
     assert_not_equal published, draft
-    assert_equal frozen, Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rating, :updated_at)
+    assert_equal frozen, Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rating, :review_count, :updated_at)
+    assert_equal [ 1_010, 1_020 ], frozen.map { |row| row[3] }
     assert_equal 2, draft.card_seasons.count
     assert_equal [ BigDecimal("50") ] * 2, draft.card_seasons.pluck(:rating)
+    assert_equal [ 7_000 ] * 2, draft.card_seasons.pluck(:review_count)
+    assert_equal [ [ [ "New Studio" ], [] ] ] * 2, steam_cards.pluck(:developers, :franchises)
     assert_equal 2, steam_cards.count
     assert_equal [ "Nouveau" ] * 2, Catalog::CardText.where(locale: "fr", card: steam_cards).pluck(:title)
   end
