@@ -144,25 +144,62 @@ const RARITY_COMPACT_SHAPES = {
   ],
 }
 
+const WORDMARK_GLYPHS = {
+  G: [".######", "#######", "##.....", "##.....", "##..###", "##..###", "##...##", "#######", ".######"],
+  A: [".#####.", "#######", "##...##", "##...##", "#######", "#######", "##...##", "##...##", "##...##"],
+  M: ["##...##", "###.###", "#######", "##.#.##", "##.#.##", "##...##", "##...##", "##...##", "##...##"],
+  E: ["#######", "#######", "##.....", "######.", "######.", "##.....", "##.....", "#######", "#######"],
+  B: ["######.", "#######", "##...##", "######.", "######.", "##...##", "##...##", "#######", "######."],
+  L: ["##....", "##....", "##....", "##....", "##....", "##....", "##....", "######", "######"],
+}
+const WORDMARK_SPACING = 3
+const GOLD_TIERS = ["#fff3c4", "#f4c542", "#d99a1f", "#8f5e0a"]
+const GOLD_LIFTS = ["#ffffff", "#fff3c4", "#ffe08a", "#d99a1f"]
+const GOLD_EDGE = "#fff3c4"
+
+function goldTier(y, rows) {
+  const t = y / rows
+  return t < 0.2 ? 0 : t < 0.52 ? 1 : t < 0.78 ? 2 : 3
+}
+
+function setLetters(word) {
+  const glyphs = [...word].map((letter) => WORDMARK_GLYPHS[letter])
+  const rows = glyphs[0].length
+  const lines = Array.from({ length: rows }, (_, y) => glyphs.map((glyph) => glyph[y]).join(".".repeat(WORDMARK_SPACING)))
+  return lines.map((line) => [...line].map((cell) => cell === "#"))
+}
+
+function goldColours(mask, shineStart = null) {
+  const rows = mask.length
+  const shines = (x, y) => {
+    if (shineStart === null) return false
+    const s = x + y - shineStart
+    return (s >= 0 && s < 2) || s === 3
+  }
+  return mask.map((line, y) => line.map((on, x) => {
+    if (!on) return null
+    const tier = goldTier(y, rows)
+    if (shines(x, y)) return GOLD_LIFTS[tier]
+    if (y === 0 || !mask[y - 1][x]) return GOLD_EDGE
+    return GOLD_TIERS[tier]
+  }))
+}
+
+function wordmarkIcon() {
+  const mask = setLetters("GAMEBLE")
+  const cols = mask[0].length
+  const middle = Math.round(cols * 0.17) + Math.round(mask.length / 2)
+  const colours = goldColours(mask, middle - 2)
+  const palette = [...new Set([...GOLD_TIERS, ...GOLD_LIFTS])]
+  const symbol = (colour) => colour === null ? "." : String(palette.indexOf(colour))
+  return {
+    legend: Object.fromEntries(palette.map((colour, i) => [String(i), colour])),
+    grid: colours.map((line) => line.map(symbol).join("")),
+  }
+}
+
 const ICONS = {
-  // The gameble logo: two stacked cards and a gold mark (12 × 12).
-  logo: {
-    legend: { T: "#3d6c8c", B: "#2a475e", H: "#b5e2ff", F: "#66c0f4", D: "#171a21", G: "#f4c542" },
-    grid: [
-      "....TTTTTTT.",
-      "....BBBBBBB.",
-      "....BBBBBBB.",
-      ".HHHHHHHBBB.",
-      ".FDDDDDFBBB.",
-      ".FDDDDDFBBB.",
-      ".FDDGDDFBBB.",
-      ".FDGGGDFBBB.",
-      ".FDDGDDFBBB.",
-      ".FDDDDDF....",
-      ".FDDDDDF....",
-      ".FFFFFFF....",
-    ],
-  },
+  wordmark: wordmarkIcon(),
   ...Object.fromEntries(Object.entries(RARITY_SHAPES).map(([tier, grid]) => [`rarity-${tier}`, { legend: RARITY[tier], grid }])),
   ...Object.fromEntries(Object.entries(RARITY_COMPACT_SHAPES).map(([tier, grid]) => [`rarity-compact-${tier}`, { legend: RARITY[tier], grid }])),
   // A card's missing art (10 × 8): a frame, a sun and a mountain.
@@ -565,11 +602,15 @@ function ptextS(g, str, x, y, col, s) {
     cx += 6 * s
   }
 }
-// The logo (stacked cards and a gold mark), k art pixels per logo pixel.
-function drawLogo(g, x, y, k) {
-  const R_ = (a, b, w, h, c) => { g.fillStyle = c; g.fillRect(x + a * k, y + b * k, w * k, h * k) }
-  R_(4, 0, 7, 9, "#2a475e"); R_(4, 0, 7, 1, "#3d6c8c"); R_(1, 2, 7, 9, "#66c0f4"); R_(1, 2, 7, 1, "#b5e2ff")
-  R_(2, 3, 5, 7, "#171a21"); R_(4, 5, 1, 3, "#f4c542"); R_(3, 6, 3, 1, "#f4c542")
+const MONOGRAM = goldColours(setLetters("G"))
+const MONOGRAM_WIDTH = MONOGRAM[0].length
+const MONOGRAM_HEIGHT = MONOGRAM.length
+function drawMonogram(g, x, y, k) {
+  MONOGRAM.forEach((line, row) => line.forEach((colour, col) => {
+    if (!colour) return
+    g.fillStyle = colour
+    g.fillRect(x + col * k, y + row * k, k, k)
+  }))
 }
 
 // Card backs (DESIGN.md, Card backs). `id` is the prototype's id: its length
@@ -808,7 +849,7 @@ function backCanvas(id, w, h) {
         for (let r = r0; r <= r1; r += 0.5) P(cx + Math.cos(a) * r, sy + Math.sin(a) * r, bg ? "#f4c542" : "#3d6c8c")
       }
       const k = Math.max(1, Math.round(Rr / 11.5))
-      drawLogo(g, Math.round(cx - 6 * k + 0.5 * k), Math.round(sy - 5.5 * k), k)
+      drawMonogram(g, Math.round(cx - (MONOGRAM_WIDTH * k - 1) / 2), Math.round(sy - (MONOGRAM_HEIGHT * k - 1) / 2), k)
       const ty = h - b - 12
       if (w >= 50) { const tx = Math.round((w - ptw("GAMEBLE")) / 2); ptext(g, "GAMEBLE", tx, ty + 1, "#06090d"); ptext(g, "GAMEBLE", tx, ty, "#3d6c8c") }
       for (let x = b + 4; x < w - b - 4; x += 3) P(x, ty - 4, "#1f3346")
@@ -879,7 +920,8 @@ const CANISTER = (() => {
       for (let x = wx + 2; x < wx + ww - 2; x++) pc(g, x, y, mixc("#1c3954", "#0b1119", Math.min(1, Math.hypot(x - (wx + ww / 2 - 0.5), y - (wy + wh / 2 - 0.5)) / 15)))
     }
     rc(g, wx + 2, wy + 2, ww - 4, 1, "#06090d"); rc(g, wx + 2, wy + 2, 1, wh - 4, "#06090d")
-    drawLogo(g, 38, 60, 2)
+    const mk = 2
+    drawMonogram(g, wx + (ww - MONOGRAM_WIDTH * mk) / 2, wy + (wh - MONOGRAM_HEIGHT * mk) / 2, mk)
     for (const [x, y] of [[5, 7], [93, 7], [5, 100], [93, 100]]) { rc(g, x, y, 2, 2, "#8f98a0"); pc(g, x, y, "#f2f7fb"); pc(g, x + 1, y + 1, "#3d4a57") } // rivets
     rc(g, 65, 89, 28, 12, "#06090d"); rc(g, 66, 90, 26, 10, "#121a24"); rc(g, 66, 99, 26, 1, "#2a475e") // LED plate (the LEDs are a page layer)
     rc(g, 7, 89, 48, 8, "#06090d") // hazard frame (the band is a page layer)
@@ -973,7 +1015,7 @@ function avatarCanvas(k) {
 // since one art pixel is 2 CSS px. The drawing depends on the size, so each
 // size is its own file.
 const BACK_DESIGNS = [
-  { name: "standard", id: "std", title: "Standard", look: "slate frame, diagonal weave, blue ring with gold ticks, the logo, GAMEBLE" },
+  { name: "standard", id: "std", title: "Standard", look: "slate frame, diagonal weave, blue ring with gold ticks, the gold G monogram, GAMEBLE" },
   { name: "saison-1", id: "s1", title: "Saison 1", look: "blueprint grid, engraved 1 in a ring of blue and gold dots, SAISON, GAMEBLE" },
   { name: "semaine-38", id: "w38", title: "Semaine 38", look: "gold-edged pennant, gold ring and five stars, 38, orange hazard band, SEMAINE" },
   { name: "etoile-dor", id: "gold", title: "Étoile d'or", look: "gold frame, gold sunburst, large shaded gold star, sparkles, LEGENDE" },
@@ -1084,7 +1126,7 @@ for (const [key, colour] of Object.entries(AVATARS)) files.set(`avatar-${colour}
 const TIER_NAMES = ["Commune", "Peu commune", "Rare", "Épique", "Légendaire"]
 const TIER_SHAPES = ["solid disc", "ring inside a ring", "diamond", "triangle", "star"]
 const DESCRIPTIONS = {
-  "logo.svg": "The gameble logo: two stacked cards and a gold mark, 12 × 12",
+  "wordmark.svg": "The gameble wordmark: flat gold GAMEBLE with a lit top edge and a diagonal shine, 66 × 9",
   ...Object.fromEntries(TIER_NAMES.map((tier, i) => [`rarity-${i + 1}.svg`, `${tier} rarity icon, ${TIER_SHAPES[i]}, 7 × 7`])),
   ...Object.fromEntries(TIER_NAMES.map((tier, i) => [`rarity-compact-${i + 1}.svg`, `${tier} rarity icon for card faces, ${TIER_SHAPES[i]}, 5 × 5`])),
   "picture.svg": "Missing cover art: a frame, a sun and a mountain (text colour)",
@@ -1109,7 +1151,7 @@ const DESCRIPTIONS = {
   ...Object.fromEntries(BACK_DESIGNS.flatMap(({ name, title }) => Object.entries(CARD_SIZES).map(([size, [w, h]]) =>
     [`back-${name}-${size}.png`, `${title} back for card-${size}, ${w / 2 | 0} × ${h / 2 | 0} art px`]))),
   "canister-cap-top.png": "Canister top cap: steel grip, collar, indicator window, 100 × 20",
-  "canister-body.png": "Canister body: slate cylinder, label band, emblem window with the gold logo, rivets, LED plate, barcode, 100 × 110",
+  "canister-body.png": "Canister body: slate cylinder, label band, emblem window with the gold G monogram, rivets, LED plate, barcode, 100 × 110",
   "canister-cap-bottom.png": "Canister bottom cap: steel grip and collar, 100 × 20",
   "planet.png": "Ringed planet under the hub showcase: slate and blue bands, a lit ring, 200 × 200",
   ...Object.fromEntries(Object.entries(AVATARS).map(([key, colour]) => [`avatar-${colour}.png`, `Avatar, ${colour} palette (“${key}” in the prototype), 16 × 16`])),

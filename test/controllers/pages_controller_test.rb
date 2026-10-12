@@ -186,7 +186,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".hub-showcase.hub-showcase--empty" do
       assert_select ".hub-showcase__kicker", false
-      assert_select ".hub-showcase__frame[aria-hidden=true] .hub-showcase__outline svg.hub-showcase__logo"
+      assert_select ".hub-showcase__frame[aria-hidden=true] .hub-showcase__outline svg.hub-showcase__wordmark"
       assert_select "h2.hub-showcase__name", "Open your first booster"
       assert_select ".hub-showcase__line", "Your finest card will show here."
       assert_select "a.button.button--primary[href='/en/booster']", "Open a booster"

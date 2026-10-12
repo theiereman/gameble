@@ -53,11 +53,11 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
-  test "a visitor on the hub: the logo and the official Steam image as a POST form back to this page" do
+  test "a visitor on the hub: the wordmark and the official Steam image as a POST form back to this page" do
     get home_path(locale: :fr)
 
     assert_select "body > header.top-bar:not([data-screen-label])" do
-      assert_select ".top-bar__start p.top-bar__brand svg.pixel-icon.top-bar__logo"
+      assert_select ".top-bar__start p.top-bar__brand svg.pixel-icon.top-bar__wordmark"
       assert_select ".top-bar__start .top-bar__brand .top-bar__name", "gameble"
       assert_select ".top-bar__start a", false
       assert_select ".top-bar__end form.steam-sign-in[action='/auth/steam'][method=post][data-turbo=false]" do
@@ -114,7 +114,7 @@ class ShellTest < ActionDispatch::IntegrationTest
 
     assert_select "header.top-bar[data-screen-label=Card]"
     assert_select ".top-bar__start > a.top-bar__brand.top-bar__home:first-child[href='/en'][aria-label=?]", "gameble, command bridge" do
-      assert_select "svg.pixel-icon.top-bar__logo[aria-hidden=true]"
+      assert_select "svg.pixel-icon.top-bar__wordmark[aria-hidden=true]"
       assert_select ".top-bar__name", "gameble"
     end
     assert_select ".top-bar__home + .top-bar__divider[aria-hidden=true]"
@@ -166,13 +166,13 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar form[action='/auth/steam']", false
   end
 
-  test "a screen without a back button: the logo and name link to the hub on a desktop, the plain brand on a phone" do
+  test "a screen without a back button: the wordmark links to the hub on a desktop, the plain brand on a phone" do
     sign_in(accounts_players(:player))
 
     get more_path(locale: :en)
 
     assert_select ".top-bar__start > a.top-bar__brand.top-bar__home[href='/en'][aria-label=?]", "gameble, command bridge" do
-      assert_select "svg.pixel-icon.top-bar__logo"
+      assert_select "svg.pixel-icon.top-bar__wordmark"
       assert_select ".top-bar__name", "gameble"
     end
     assert_select ".top-bar__start > p.top-bar__brand.top-bar__phone-brand .top-bar__name", "gameble"

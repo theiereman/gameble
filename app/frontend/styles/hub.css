@@ -257,7 +257,7 @@ button.menu-item:focus-visible:hover {
   margin: 0;
 }
 
-/* The empty frame: hatched, a dashed card outline, the logo dimmed. */
+/* The empty frame: hatched, a dashed card outline, the wordmark dimmed. */
 .hub-showcase__frame {
   display: flex;
   align-items: center;
@@ -277,9 +277,8 @@ button.menu-item:focus-visible:hover {
   border: var(--space-unit) dashed var(--color-line);
 }
 
-.hub-showcase__logo {
-  width: 24px;
-  height: 24px;
+.hub-showcase__wordmark {
+  display: block;
   opacity: 0.35;
 }
 

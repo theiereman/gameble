@@ -1,6 +1,6 @@
 <% view = @detail.view %>
 <% title = card_preview_title(view) %>
-<%# The public card page has no app chrome: the logo, not the way back to
+<%# The public card page has no app chrome: the wordmark, not the way back to
     the bridge, and no tab bar (layouts/application). %>
 <% content_for :back_button, true unless @public %>
 <% content_for :public_page, true if @public %>

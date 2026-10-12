@@ -231,10 +231,6 @@ a.top-bar__home {
   text-decoration: none;
 }
 
-a.top-bar__home:hover {
-  color: var(--color-accent);
-}
-
 .top-bar__divider {
   flex: none;
   align-self: center;
@@ -246,17 +242,11 @@ a.top-bar__home:hover {
 .top-bar__brand {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
   margin: 0;
-  color: var(--color-text-max);
-  font: var(--font-screen-title);
-  letter-spacing: var(--tracking-screen-title);
-  text-transform: uppercase;
 }
 
-.top-bar__logo {
-  width: 24px;
-  height: 24px;
+.top-bar__wordmark {
+  display: block;
 }
 
 .top-bar__title {
@@ -1322,7 +1312,6 @@ html[data-sub-view-step] .main {
     padding: 0 var(--space-gutter-phone);
   }
 
-  .top-bar__brand,
   .top-bar__title {
     font: var(--font-screen-title-phone);
     letter-spacing: var(--tracking-screen-title-phone);

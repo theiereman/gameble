@@ -1,3 +1,5 @@
+<p align="center"><img src=".github/assets/gameble-header.gif" width="800" alt="gameble"></p>
+
 # gameble
 
 A Rails 8.1 application: four domain packs under `packs/` (`catalog`, `steam`, `accounts`, `game`) and a thin web layer in `app/`. Assets are served by Vite.
