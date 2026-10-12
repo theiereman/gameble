@@ -54,6 +54,10 @@ jobs:
         if: steps.gate.outputs.deploy == 'true'
         uses: docker/setup-buildx-action@v3
 
+      - name: Expose the Actions cache to the image build
+        if: steps.gate.outputs.deploy == 'true'
+        uses: crazy-max/ghaction-github-runtime@v3
+
       - name: Write the SSH access to the staging LXC
         if: steps.gate.outputs.deploy == 'true'
         env:

@@ -30,3 +30,10 @@ env:
 accessories:
   db:
     host: gameble.dotsncircles.com
+
+# Staging deploys from GitHub Actions, on a fresh runner each time: the build
+# layers are kept in the Actions cache (the workflow exposes its runtime).
+builder:
+  cache:
+    type: gha
+    options: mode=max
