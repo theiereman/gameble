@@ -465,7 +465,7 @@ fr:
           one: "%{formatted} carte dans les OVNI, %{share} de la saison."
           other: "%{formatted} cartes dans les OVNI, %{share} de la saison."
         ufos_over_limit: "Plus que les %{limit} visés : la liste des thèmes manque des jeux de la saison."
-        no_themes: "Cette saison a été publiée avant les thèmes : ses cartes n'ont pas de thème et pas de set OVNI."
+        no_themes: "Cette saison a été publiée avant les thèmes : ses cartes n'ont pas de thème et pas de collection OVNI."
         sets: "Collections"
       publish:
         published: "La saison %{number} est publiée, officier. Ses cartes sont prêtes pour le tirage."

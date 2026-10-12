@@ -190,6 +190,9 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".missing-slot svg.missing-slot__icon"
     assert_select "a.profile__owner[href=?]", "/en/brothers/#{@owner.token}?kind=theme&page=1", "The collection of Gabe the Brave"
     assert_select ".collection__aside .collection-kind[aria-current=true]", "Themes"
+    assert_equal [ "Started", "Themes", "UFOs" ], tabs.map(&:text)
+    token = @owner.token
+    assert_equal [ "/en/brothers/#{token}", "/en/brothers/#{token}?kind=theme", "/en/brothers/#{token}?kind=ufo" ], tabs.map { it["href"] }
     assert_select ".collection__aside .set-row[aria-current=page] .set-row__name", "Horror"
     assert_select ".profile-summary", false
     assert_select ".library, .open-tome, .tome, .slot", false
@@ -229,6 +232,16 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en), headers: old
     assert_response :not_acceptable
+  end
+
+  test "a set of a season published before themes offers that season's kinds as tabs" do
+    seed_published_sets([ [ "best_of_year", "2011", { "year" => 2011 } ], [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
+
+    get brother_set_path(locale: :en, token: @owner.token, kind: "best_of_year", key: "2011")
+
+    assert_response :success
+    assert_equal "Best rated of the year", open_tab
+    assert_equal [ "Started", "Tomes", "Best rated of the year" ], tabs.map(&:text)
   end
 
   test "a set opened from the Started shelf keeps the Started shelf beside it" do
