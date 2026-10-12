@@ -26,11 +26,12 @@ class Accounts::BanPlayerConcurrencyTest < ActiveSupport::TestCase
   teardown do
     ids = [ @target.id, @friend.id ]
     trades = Game::Trade.where(proposer_id: ids).or(Game::Trade.where(recipient_id: ids)).ids
+    Game::FeedEntry.where(trade_id: trades).delete_all
     Game::TradeItem.where(trade_id: trades).delete_all
     Game::Trade.where(id: trades).delete_all
     Game::Friendship.where(low_player_id: ids).or(Game::Friendship.where(high_player_id: ids)).delete_all
     Game::Invitation.where(sender_id: ids).or(Game::Invitation.where(recipient_id: ids)).delete_all
-    [ Game::Holding, Game::SetCompletion, Game::PlayerState, Game::FeedEntry ].each { |model| model.where(player_id: ids).delete_all }
+    [ Game::Holding, Game::SetCompletion, Game::PlayerState, Game::FeedEntry, Game::WeeklyContribution ].each { |model| model.where(player_id: ids).delete_all }
     connection = ActiveRecord::Base.connection
     streams = ids.flat_map { |id| [ Game::Operation.stream_name(id), "Accounts::Player$#{id}" ] }
     event_ids = connection.select_values(ActiveRecord::Base.sanitize_sql_array([ "SELECT event_id FROM event_store_events_in_streams WHERE stream IN (?)", streams ]))

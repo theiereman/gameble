@@ -1,8 +1,10 @@
 require "test_helper"
 require_relative "../../support/game_packs"
+require_relative "../../support/game_trades"
 
 class Game::FeedTest < ActiveSupport::TestCase
   include GamePacks
+  include GameTrades
 
   setup do
     @player = accounts_players(:player)
@@ -17,8 +19,12 @@ class Game::FeedTest < ActiveSupport::TestCase
 
   def entries = Game::FeedEntry.order(:id).pluck(:position, :notable, :rarity)
 
+  def trade_cards(proposer, recipient, offer: { fixture_tier_ids[3] => 1 }, request: { fixture_tier_ids[2] => 1 })
+    conclude_trade(proposer, recipient, offer:, request:)
+  end
+
   # Feed rows of `kind` written straight, newest last: pulls and discoveries
-  # on a pack of `player`, trades and reposts with none.
+  # on a pack of `player`, reposts with none.
   def add_entries(player, count, kind: "pull", notable: true, from: 1.hour.ago)
     pack = create_pack(player) if %w[pull discovery].include?(kind)
     rows = Array.new(count) do |index|
@@ -147,7 +153,7 @@ class Game::FeedTest < ActiveSupport::TestCase
 
   test "a kind shows only its entries, the whole feed shows every kind" do
     open_pack(@player, [ fixture_tier_ids[3] ])
-    add_entries(@other, 1, kind: "trade")
+    trade_cards(@other, accounts_players(:administrator))
     add_entries(@other, 2, kind: "repost")
 
     assert_equal [ "trade" ], Game::FeedEntries.call(nil, kind: "trade").map { |item| item.entry.kind }
@@ -190,7 +196,7 @@ class Game::FeedTest < ActiveSupport::TestCase
   test "players restricts the notable entries to those players, under every kind" do
     stranger = accounts_players(:administrator)
     add_entries(@other, 2)
-    add_entries(@other, 1, kind: "trade")
+    trade_cards(@other, stranger)
     add_entries(stranger, 3)
     add_entries(stranger, 1, kind: "repost")
 
@@ -220,5 +226,105 @@ class Game::FeedTest < ActiveSupport::TestCase
     @other.update!(visibility: :private)
 
     assert_empty Game::FeedEntries.call(@player, players: [ @other.id ])
+  end
+
+  def accepted_trade(proposer, recipient)
+    low, high = [ proposer.id, recipient.id ].minmax
+    Game::Trade.create!(low_player_id: low, high_player_id: high, proposer_id: proposer.id, recipient_id: recipient.id,
+      status: "accepted", proposed_at: 1.hour.ago, expires_at: 1.day.from_now, closed_at: Time.current)
+  end
+
+  def kinds(shown) = shown.map { |item| item.entry.kind }
+
+  test "a concluded trade is one entry naming its proposer, its recipient as partner and the best card each gave" do
+    common, _, rare, epic, = fixture_tier_ids
+
+    trade = conclude_trade(@player, @other, offer: { common => 2, epic => 1 }, request: { rare => 1 })
+
+    entry = Game::FeedEntry.sole
+    assert_equal [ "trade", @player.id, @other.id, trade.id, epic, rare, 4, true, nil, nil ],
+      entry.values_at(:kind, :player_id, :partner_id, :trade_id, :card_season_id, :partner_card_season_id, :rarity, :notable,
+        :pack_id, :position)
+    shown = Game::FeedEntries.call(nil).sole
+    assert_equal [ @player, @other, false ], [ shown.player, shown.partner, shown.filler ]
+  end
+
+  test "a side's best card is its highest tier, the lowest card-season id on a tie, and the rarity is the higher side's" do
+    common, uncommon, rare, _, legendary = fixture_tier_ids
+    low, high = [ uncommon, rare ].sort
+    trade = accepted_trade(@player, @other)
+
+    recorded = Game::FeedEntry.record_trade(trade_id: trade.id, proposer_id: @player.id, recipient_id: @other.id,
+      offer: [ high, common, low ], request: [ legendary ], rarities: { low => 3, high => 3, common => 1, legendary => 5 }, at: Time.current)
+
+    assert recorded
+    assert_equal [ low, legendary, 5 ], Game::FeedEntry.sole.values_at(:card_season_id, :partner_card_season_id, :rarity)
+  end
+
+  test "the same trade event handled twice adds no entry, counts the trade once and never fails" do
+    conclude_trade(@player, @other, offer: { fixture_tier_ids[3] => 1 }, request: { fixture_tier_ids[2] => 1 })
+    event = game_events(@player, Game::TradeAccepted).sole
+
+    assert_no_changes -> { [ Game::FeedEntry.count, Game::WeeklyContribution.order(:player_id).pluck(:player_id, :trades) ] } do
+      Game::Handlers::TradeAccepted.call(event)
+    end
+    assert_equal 1, Game::FeedEntry.where(kind: "trade").count
+  end
+
+  test "a trade rolled back leaves no entry and no contribution" do
+    ApplicationRecord.transaction do
+      conclude_trade(@player, @other, offer: { fixture_tier_ids[3] => 1 }, request: { fixture_tier_ids[2] => 1 })
+      raise ActiveRecord::Rollback
+    end
+
+    assert_not Game::FeedEntry.exists?
+    assert_not Game::WeeklyContribution.exists?
+  end
+
+  test "a trade shows only to a viewer who may see both its players" do
+    conclude_trade(@player, @other, offer: { fixture_tier_ids[3] => 1 }, request: { fixture_tier_ids[2] => 1 })
+    friend = accounts_players(:administrator)
+    Game::Friendship.create!(low_player_id: [ friend.id, @other.id ].min, high_player_id: [ friend.id, @other.id ].max)
+    assert_equal [ "trade" ], kinds(Game::FeedEntries.call(nil, kind: "trade"))
+
+    @other.update!(visibility: :friends_only)
+    assert_empty Game::FeedEntries.call(nil)
+    assert_equal [ [ @player, @other ] ], Game::FeedEntries.call(friend).map { |item| [ item.player, item.partner ] }
+
+    @player.update!(visibility: :private)
+    assert_empty Game::FeedEntries.call(friend)
+    assert_empty Game::FeedEntries.call(nil, kind: "trade")
+
+    @player.update!(visibility: :public)
+    @other.update!(visibility: :public, banned_at: Time.current)
+    assert_empty Game::FeedEntries.call(nil)
+    assert_empty Game::FeedEntries.call(friend)
+  end
+
+  test "players finds a trade by either of its players" do
+    conclude_trade(@player, @other, offer: { fixture_tier_ids[3] => 1 }, request: { fixture_tier_ids[2] => 1 })
+    viewer = accounts_players(:administrator)
+
+    assert_equal [ "trade" ], kinds(Game::FeedEntries.call(viewer, players: [ @other.id ]))
+    assert_equal [ "trade" ], kinds(Game::FeedEntries.call(viewer, players: [ @player.id ]))
+    assert_equal [ "trade" ], kinds(Game::FeedEntries.call(viewer, kind: "trade", players: [ @other.id ]))
+    assert_empty Game::FeedEntries.call(viewer, players: [ viewer.id ])
+  end
+
+  test "the database keeps a trade, its partner and the partner's card for trades only, one entry per trade" do
+    trade = accepted_trade(@player, @other)
+    row = { player_id: @player.id, card_season_id: fixture_tier_ids[3], rarity: 4, notable: true, occurred_at: Time.current }
+    traded = { trade_id: trade.id, partner_id: @other.id, partner_card_season_id: fixture_tier_ids[2] }
+    refused = ->(error, **columns) do
+      assert_raises(error) do
+        Game::FeedEntry.transaction(requires_new: true) { Game::FeedEntry.create!(**row, **columns) }
+      end
+    end
+
+    refused.(ActiveRecord::CheckViolation, kind: "trade")
+    refused.(ActiveRecord::CheckViolation, kind: "trade", **traded, partner_id: nil)
+    refused.(ActiveRecord::CheckViolation, kind: "repost", **traded)
+    assert Game::FeedEntry.create!(**row, kind: "trade", **traded)
+    refused.(ActiveRecord::RecordNotUnique, kind: "trade", **traded)
   end
 end

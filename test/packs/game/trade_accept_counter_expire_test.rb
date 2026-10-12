@@ -111,6 +111,21 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
     assert_empty events(Game::TradeAccepted)
   end
 
+  test "an accepted trade goes to the feed once and counts once in the week's goal; a refused acceptance writes neither" do
+    trade = propose
+    Game::Holding.where(player_id: @bob.id, card_season_id: @three).update_all(quantity: 1)
+
+    assert_equal Dry::Monads::Failure(:requested_cards_unavailable), accept(trade)
+    assert_not Game::FeedEntry.exists?
+    assert_not Game::WeeklyContribution.exists?
+
+    Game::Holding.where(player_id: @bob.id, card_season_id: @three).update_all(quantity: 2)
+    accept(trade).value!
+
+    assert_equal [ [ "trade", @alice.id, @bob.id, trade.id ] ], Game::FeedEntry.pluck(:kind, :player_id, :partner_id, :trade_id)
+    assert_equal({ @alice.id => 0, @bob.id => 1 }, Game::WeeklyContribution.pluck(:player_id, :trades).to_h)
+  end
+
   test "a requested card the friend no longer holds at all refuses the acceptance" do
     hold(@bob, @four, 1)
     trade = propose(request: { @four => 1 })

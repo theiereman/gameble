@@ -109,6 +109,12 @@
 .feed__tag--legendary { color: var(--color-rarity-legendaire); }
 
 .feed__tag--repost { color: var(--color-accent); }
+.feed__tag--trade { color: var(--color-accent); }
+
+.feed__thumbs {
+  display: flex;
+  gap: var(--space-3);
+}
 
 .feed__thumb--framed {
   justify-self: start;

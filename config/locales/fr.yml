@@ -124,7 +124,7 @@ fr:
         title: "Objectif communautaire"
         line: "Toute la Confrérie ouvre %{target} boosters, ensemble."
         players: "Tous les joueurs"
-        progress: "%{total} boosters ouverts sur %{target} cette semaine"
+        progress: "%{total} contributions sur %{target} cette semaine"
         reward: "Récompense"
         reward_text: "Un booster rare pour chaque contributeur"
         reached: "Objectif atteint"
@@ -747,6 +747,8 @@ fr:
       discovered_html: "%{card}, trouvée par %{name} pour la première fois dans la communauté"
       reposted_html: "%{name} a reposté %{card}."
       repost_tag: "Repost"
+      traded_html: "%{name} et %{partner} ont échangé %{card} contre %{partner_card}"
+      trade_tag: "Échange"
       announcement:
         zero: "Aucune nouvelle entrée dans le fil."
         one: "1 nouvelle entrée dans le fil."

@@ -1,11 +1,13 @@
 require "test_helper"
 require_relative "../support/game_packs"
+require_relative "../support/game_trades"
 
 # The activity feed: readable signed out, newest pulls and first discoveries
 # first, under the All and Friends tabs and the type filters; a GET writes
 # nothing.
 class FeedsControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
+  include GameTrades
 
   setup do
     @player = accounts_players(:player)
@@ -405,5 +407,58 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     card_season_id = catalog_card_seasons(:portal_one).id
     Game::Holding.find_or_create_by!(player_id: player.id, card_season_id:) { it.quantity = 1 }
     Game::RepostCard.new.call(player:, card_season_id:).value!
+  end
+
+  def trade_with(partner)
+    conclude_trade(@player, partner, offer: { catalog_card_seasons(:portal_one).id => 1 },
+      request: { catalog_card_seasons(:rare_card_one).id => 1 })
+  end
+
+  test "a trade reads as both players trading their best cards, both thumbnails framed, with the Trade tag, under All and Trades" do
+    open_epic
+    trade_with(accounts_players(:moderator).tap { it.update!(persona_name: "Sam") })
+
+    get feed_path(locale: :fr, filter: "trades")
+    assert_select ".feed__filter[aria-current]", "Échanges"
+    assert_select ".feed__entry", 1
+    assert_select ".feed__sentence", "Hugo et Sam ont échangé Portal contre Profondeurs bleues"
+    assert_select ".feed__tag.feed__tag--trade", /Échange/
+    assert_select ".feed__tag.feed__tag--trade .pixel-icon"
+    assert_select ".feed__thumbs a.feed__thumb.feed__thumb--framed.feed__thumb--epic[href=?]", card_path(locale: :fr, slug: "portal")
+    assert_select ".feed__thumbs a.feed__thumb.feed__thumb--framed.feed__thumb--rare", 1
+    assert_select ".feed__tag--epic", 0
+
+    get feed_path(locale: :en)
+    assert_select ".feed__entry", 6
+    assert_select ".feed__entry:first-child .feed__sentence", "Hugo and Sam traded Portal for Blue Depths"
+    assert_select ".feed__entry:first-child .feed__tag--trade", /Trade/
+    assert_select "[style]", 0
+  end
+
+  test "a trade with a hidden player is not shown to a visitor" do
+    sam = accounts_players(:moderator)
+    trade_with(sam)
+    sam.update!(visibility: :friends_only)
+
+    get feed_path(locale: :en, filter: "trades")
+    assert_select ".feed__entry", 0
+
+    get feed_path(locale: :en)
+    assert_select ".feed__entry", 0
+  end
+
+  test "Friends shows a trade with a friend on either side, under Trades too" do
+    friend = accounts_players(:moderator).tap { it.update!(persona_name: "Sam") }
+    viewer = accounts_players(:administrator)
+    befriend(viewer, friend)
+    friend.update!(visibility: :friends_only)
+    trade_with(friend)
+    sign_in(viewer)
+
+    [ feed_path(locale: :en, tab: "friends"), feed_path(locale: :en, tab: "friends", filter: "trades") ].each do |path|
+      get path
+      assert_select ".feed__entry", 1
+      assert_select ".feed__sentence", "Hugo and Sam traded Portal for Blue Depths"
+    end
   end
 end

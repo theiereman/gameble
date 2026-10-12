@@ -45,6 +45,7 @@ class Game::BankLockOrderRacesTest < ActiveSupport::TestCase
     players = Accounts::Player.pluck(:id)
     created = @created.map(&:id)
     trades = Game::Trade.where(proposer_id: created).or(Game::Trade.where(recipient_id: created))
+    Game::FeedEntry.where(trade_id: trades.select(:id)).delete_all
     Game::TradeItem.where(trade_id: trades.select(:id)).delete_all
     trades.delete_all
     Game::Friendship.where(low_player_id: created).or(Game::Friendship.where(high_player_id: created)).delete_all

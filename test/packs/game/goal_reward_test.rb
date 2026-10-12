@@ -1,5 +1,6 @@
 require "test_helper"
 require_relative "../../support/game_packs"
+require_relative "../../support/game_trades"
 
 # The weekly goal's reward (CAP-12, AD-7, AD-9; story 6.5): a reached goal
 # rewards each contributor of its week with one reward pack (five cards, an
@@ -9,6 +10,7 @@ require_relative "../../support/game_packs"
 class Game::GoalRewardTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include GamePacks
+  include GameTrades
 
   MONDAY = Time.utc(2026, 10, 5)
   WEEK = MONDAY.to_date
@@ -171,5 +173,16 @@ class Game::GoalRewardTest < ActiveSupport::TestCase
 
     Game::OpenPack.new.call(player: @player).value!
     assert_nil Game::WaitingGoalReward.call(@player)
+  end
+
+  test "a player whose only contribution of a reached week is a trade gets the reward, as does the other trader" do
+    travel_to(MONDAY + 1.hour) do
+      conclude_trade(@player, @other, offer: { fixture_tier_ids[3] => 1 }, request: { fixture_tier_ids[2] => 1 })
+    end
+    goal
+
+    Game::GrantGoalRewardsJob.perform_now(week_start: WEEK)
+
+    assert_equal [ @other.id, @player.id ].sort, Game::GoalReward.where(week_start: WEEK).pluck(:player_id).sort
   end
 end

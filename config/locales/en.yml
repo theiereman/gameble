@@ -119,7 +119,7 @@ en:
         title: "Community goal"
         line: "The whole Brotherhood opens %{target} boosters, together."
         players: "All players"
-        progress: "%{total} of %{target} boosters opened this week"
+        progress: "%{total} contributions of %{target} this week"
         reward: "Reward"
         reward_text: "A rare booster for every contributor"
         reached: "Goal reached"
@@ -729,6 +729,8 @@ en:
       discovered_html: "%{card}, found by %{name} for the first time in the community"
       reposted_html: "%{name} reposted %{card}."
       repost_tag: "Repost"
+      traded_html: "%{name} and %{partner} traded %{card} for %{partner_card}"
+      trade_tag: "Trade"
       announcement:
         zero: "No new entries in the feed."
         one: "1 new entry in the feed."
