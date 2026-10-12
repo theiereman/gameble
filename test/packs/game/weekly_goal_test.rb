@@ -1,10 +1,12 @@
 require "test_helper"
 require_relative "../../support/game_packs"
+require_relative "../../support/game_trades"
 
 # The weekly goal (CAP-12, AD-9, AD-10, AD-12; story 6.3): a contribution row
 # per player and week from each opening, the periodic sum and the target.
 class Game::WeeklyGoalTest < ActiveSupport::TestCase
   include GamePacks
+  include GameTrades
 
   MONDAY = Time.utc(2026, 10, 5)
 
@@ -102,5 +104,32 @@ class Game::WeeklyGoalTest < ActiveSupport::TestCase
     Game::WeeklyGoal.create!(week_start: MONDAY.to_date + 7, total: 12, target: 250)
     assert_equal({ total: 12, target: 250, reached: false, previous: { total: 180, target: 200, reached: false } },
       Game::CurrentGoal.call(now: MONDAY + 7.days))
+  end
+
+  def trade_at(at, proposer: @player, recipient: @other)
+    travel_to(at) { conclude_trade(proposer, recipient, offer: { fixture_tier_ids[3] => 1 }, request: { fixture_tier_ids[2] => 1 }) }
+  end
+
+  test "a trade counts once for the pair: credited to its recipient, both players with a row" do
+    2.times { open_for(@player, at: MONDAY + 1.hour) }
+    2.times { open_for(@other, at: MONDAY + 1.hour) }
+    trade_at(MONDAY + 2.hours)
+
+    Game::SumWeeklyGoalJob.new.perform(now: MONDAY + 1.day)
+
+    assert_equal 5, goal(MONDAY.to_date).total
+    rows = Game::WeeklyContribution.where(week_start: MONDAY.to_date)
+    assert_equal({ @player.id => [ 2, 0 ], @other.id => [ 2, 1 ] }, rows.pluck(:player_id, :openings, :trades).to_h { |id, *counts| [ id, counts ] })
+  end
+
+  test "a player who only traded has a row, but is not active for the next week's target" do
+    trade_at(MONDAY + 1.hour)
+    active = Array.new(4) { |index| Accounts::Player.create!(steam_id: "7656119800000020#{index}") }
+    active.each { |player| Game::WeeklyContribution.create!(player_id: player.id, week_start: MONDAY.to_date, openings: 1) }
+
+    assert_equal [ [ 0, 0 ], [ 0, 1 ] ], [ @player, @other ].map { |player|
+      Game::WeeklyContribution.find_by!(player_id: player.id, week_start: MONDAY.to_date).values_at(:openings, :trades)
+    }
+    assert_equal 200, Game::WeeklyGoal.target_for(MONDAY.to_date + 7)
   end
 end

@@ -6,8 +6,10 @@ module Game
   # card of a pack that held none, kept so a quiet feed is never empty, and a
   # discovery is notable whatever its rarity. A repost is a card a player
   # shared, with no pack, written only by Game::Handlers::CardRepostedFeed.
-  # Its `kind` is what the feed's type filters read; visibility is not
-  # stored but asked when it is shown.
+  # A trade names its proposer and, as partner, its recipient, with the best
+  # card each gave, unique per trade, written only by
+  # Game::Handlers::TradeAccepted. Its `kind` is what the feed's type filters
+  # read; visibility is not stored but asked when it is shown.
   class FeedEntry < ApplicationRecord
     self.table_name = "game_feed_entries"
 
@@ -50,5 +52,21 @@ module Game
       create!(kind: "repost", player_id:, card_season_id:, rarity: Catalog::Rarity::TIERS.key(rarity.to_sym),
         notable: true, occurred_at: at)
     end
+
+    def self.record_trade(trade_id:, proposer_id:, recipient_id:, offer:, request:, rarities:, at:)
+      card = best_card(offer, rarities)
+      partner_card = best_card(request, rarities)
+      return false unless card && partner_card
+
+      row = { kind: "trade", player_id: proposer_id, partner_id: recipient_id, trade_id:, card_season_id: card,
+        partner_card_season_id: partner_card, rarity: [ rarities[card], rarities[partner_card] ].max, notable: true,
+        occurred_at: at, created_at: at, updated_at: at }
+      insert_all([ row ], unique_by: :trade_id, record_timestamps: false).rows.any?
+    end
+
+    def self.best_card(card_season_ids, rarities)
+      card_season_ids.select { rarities[it] }.min_by { |id| [ -rarities[id], id ] }
+    end
+    private_class_method :best_card
   end
 end

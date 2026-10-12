@@ -1,5 +1,5 @@
 module LiveStream
-  EVENTS = [ Game::PackOpened, Game::CardReposted ].freeze
+  EVENTS = [ Game::PackOpened, Game::CardReposted, Game::TradeAccepted ].freeze
 
   TICKER_KINDS = %w[pull discovery trade].freeze
   TICKER_SIZE = 12
@@ -25,6 +25,8 @@ module LiveStream
         [ { pack_id: data[:pack_id] } ]
       when Game::CardReposted
         [ { player_id: data[:player_id], card_season_id: data[:card_season_id], at: event.metadata[:timestamp] } ]
+      when Game::TradeAccepted
+        [ { trade_id: data[:trade_id] } ]
       else
         []
       end

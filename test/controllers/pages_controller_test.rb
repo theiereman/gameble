@@ -1,11 +1,13 @@
 require "test_helper"
 require_relative "../support/game_packs"
+require_relative "../support/game_trades"
 
 # The hub, "Pont de commandement" (story 8.2; DESIGN.md: Menu item, Showcase,
 # Daily booster panel, Set progress row, Signed-out hub, Sign-in panel), as
 # the server renders it for a player and for a visitor.
 class PagesControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
+  include GameTrades
 
   PLAYER_HUB_QUERIES = 19
   VISITOR_HUB_QUERIES = 6
@@ -407,8 +409,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     open_pack_of(@player, fixture_tier_ids[3])
     Game::FirstDiscovery.where(card_season_id: fixture_tier_ids[0]).delete_all
     open_pack_of(@player, fixture_tier_ids[0])
-    Game::FeedEntry.create!(kind: "trade", player_id: @player.id, card_season_id: fixture_tier_ids[2], rarity: 3, notable: true,
-      occurred_at: Time.current)
+    partner = accounts_players(:administrator).tap { it.update!(persona_name: "Léa") }
+    conclude_trade(@player, partner, offer: { fixture_tier_ids[2] => 1 }, request: { fixture_tier_ids[1] => 1 })
     Game::Holding.create!(player_id: @player.id, card_season_id: fixture_tier_ids[4], quantity: 1)
     Game::RepostCard.new.call(player: @player, card_season_id: fixture_tier_ids[4]).value!
 
@@ -420,6 +422,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".ticker__item .ticker__separator"
       assert_select ".ticker__item .ticker__first", count: 1, text: "First discovery"
       assert_select ".ticker__rarity--epic", count: 5, text: "Epic"
+      assert_select ".ticker__item", count: 1, text: /Hugo and Léa traded Blue Depths for Green Hills/
+      assert_select ".ticker__trade", count: 1, text: "Trade"
       assert_select ".ticker__item", text: /reposted/, count: 0
       assert_select ".ticker__item", text: /Quiet/, count: 0
       assert_select "#live-ticker-queue[hidden]"

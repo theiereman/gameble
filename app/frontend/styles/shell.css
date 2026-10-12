@@ -656,6 +656,13 @@ body:has(> .ticker) .app-version {
 .ticker__rarity--epic { color: var(--color-rarity-epique); }
 .ticker__rarity--legendary { color: var(--color-rarity-legendaire); }
 
+.ticker__trade {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-accent);
+}
+
 .ticker__queue {
   display: none;
 }

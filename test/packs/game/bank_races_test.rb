@@ -39,6 +39,7 @@ class Game::BankRacesTest < ActiveSupport::TestCase
     Game::DrawPool.define_singleton_method(:current, @current)
     players = Accounts::Player.pluck(:id)
     trades = Game::Trade.where(proposer_id: players).or(Game::Trade.where(recipient_id: players))
+    Game::FeedEntry.where(trade_id: trades.select(:id)).delete_all
     Game::TradeItem.where(trade_id: trades.select(:id)).delete_all
     trades.delete_all
     Game::Friendship.where(low_player_id: players).or(Game::Friendship.where(high_player_id: players)).delete_all

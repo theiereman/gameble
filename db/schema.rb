@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_12_100002) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_110005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -190,10 +190,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100002) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "kind", default: "pull", null: false
+    t.bigint "trade_id"
+    t.bigint "partner_id"
+    t.bigint "partner_card_season_id"
     t.index ["kind", "notable", "occurred_at"], name: "index_game_feed_entries_on_kind_and_notable_and_occurred_at"
     t.index ["notable", "occurred_at", "id"], name: "index_game_feed_entries_on_notable_and_occurred_at_and_id"
     t.index ["pack_id", "position"], name: "index_game_feed_entries_on_pack_id_and_position", unique: true
+    t.index ["partner_id"], name: "index_game_feed_entries_on_partner_id"
     t.index ["player_id"], name: "index_game_feed_entries_on_player_id"
+    t.index ["trade_id"], name: "index_game_feed_entries_on_trade_id", unique: true, where: "(trade_id IS NOT NULL)"
+    t.check_constraint "(kind::text = 'trade'::text) = (trade_id IS NOT NULL AND partner_id IS NOT NULL AND partner_card_season_id IS NOT NULL)", name: "game_feed_entries_trade_check"
     t.check_constraint "(kind::text = ANY (ARRAY['pull'::character varying::text, 'discovery'::character varying::text])) = (pack_id IS NOT NULL AND \"position\" IS NOT NULL)", name: "game_feed_entries_pack_check"
     t.check_constraint "kind::text = ANY (ARRAY['pull'::character varying::text, 'discovery'::character varying::text, 'trade'::character varying::text, 'repost'::character varying::text])", name: "game_feed_entries_kind_check"
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "game_feed_entries_rarity_check"
@@ -351,9 +357,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100002) do
     t.integer "openings", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "trades", default: 0, null: false
     t.index ["player_id", "week_start"], name: "index_game_weekly_contributions_on_player_id_and_week_start", unique: true
     t.index ["week_start"], name: "index_game_weekly_contributions_on_week_start"
     t.check_constraint "openings >= 0", name: "game_weekly_contributions_openings_check"
+    t.check_constraint "trades >= 0", name: "game_weekly_contributions_trades_check"
   end
 
   create_table "game_weekly_goals", force: :cascade do |t|
@@ -446,8 +454,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100002) do
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
   add_foreign_key "game_daily_bonus_claims", "accounts_players", column: "player_id"
   add_foreign_key "game_daily_bonus_claims", "game_packs", column: "pack_id"
+  add_foreign_key "game_feed_entries", "accounts_players", column: "partner_id"
   add_foreign_key "game_feed_entries", "accounts_players", column: "player_id"
+  add_foreign_key "game_feed_entries", "catalog_card_seasons", column: "partner_card_season_id"
   add_foreign_key "game_feed_entries", "game_packs", column: "pack_id"
+  add_foreign_key "game_feed_entries", "game_trades", column: "trade_id"
   add_foreign_key "game_first_discoveries", "accounts_players", column: "player_id"
   add_foreign_key "game_first_discoveries", "game_packs", column: "pack_id"
   add_foreign_key "game_friend_codes", "accounts_players", column: "player_id"

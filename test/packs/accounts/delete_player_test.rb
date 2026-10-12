@@ -1,5 +1,6 @@
 require "test_helper"
 require_relative "../../support/game_packs"
+require_relative "../../support/game_trades"
 
 # Accounts::DeletePlayer (CAP-14, AD-14) and the Game handler it triggers
 # (Game::Handlers::PlayerDeleted, Game::ReleasePlayer): the record stays,
@@ -7,6 +8,7 @@ require_relative "../../support/game_packs"
 # other players are untouched.
 class Accounts::DeletePlayerTest < ActiveSupport::TestCase
   include GamePacks
+  include GameTrades
 
   setup do
     Game::DrawPool.reset!
@@ -76,6 +78,19 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     assert_equal({ packs: 0, holdings: 0, feed: 0, claims: 0, codes: 0, rewards: 0, states: 0 }, game_rows(@player))
     assert Game::WeeklyContribution.exists?(player_id: @player.id)
     assert_equal before, game_rows(@other)
+  end
+
+  test "the trades naming the player on either side leave the feed; a trade between others stays" do
+    third = accounts_players(:administrator)
+    portal = catalog_card_seasons(:portal_one).id
+    rare = catalog_card_seasons(:rare_card_one).id
+    conclude_trade(@player, @other, offer: { portal => 1 }, request: { rare => 1 })
+    conclude_trade(@other, @player, offer: { portal => 1 }, request: { rare => 1 })
+    kept = conclude_trade(@other, third, offer: { portal => 1 }, request: { rare => 1 })
+
+    assert delete.success?
+
+    assert_equal [ kept.id ], Game::FeedEntry.where(kind: "trade").pluck(:trade_id)
   end
 
   test "set completions are deleted; first discoveries stay, their pack forgotten, so the card is not discovered again" do

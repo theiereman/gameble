@@ -13,7 +13,7 @@
     the browser supports :has() (styles/card-detail.css), so no script sniffs
     the browser. Locals:
     - detail: a Catalog::CardDetail::Detail;
-    - live: the strip's entries ([ entry, card ] pairs, FeedItems). %>
+    - live: the strip's entries ([ entry, card, partner card ], FeedItems). %>
 <% view = detail.view %>
 <% strings = CardStrings.new %>
 <% tier = Catalog::Rarity::TIERS.invert.fetch(view.rarity.to_sym) %>

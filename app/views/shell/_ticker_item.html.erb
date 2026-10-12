@@ -1,6 +1,10 @@
 <li class="ticker__item">
   <%= pixel_icon("diamond", class: "ticker__separator") %>
   <% if item.entry.kind == "discovery" %><span class="ticker__first"><%= t("feeds.show.first_discovery") %></span><% end %>
-  <span class="ticker__sentence"><%= feed_sentence(item, card) %></span>
-  <span class="ticker__rarity ticker__rarity--<%= card.rarity %>"><%= feed_rarity_name(card) %></span>
+  <span class="ticker__sentence"><%= feed_sentence(item, card, partner_card) %></span>
+  <% if item.entry.kind == "trade" %>
+    <span class="ticker__trade"><%= pixel_icon("swap", class: "ticker__trade-icon") %><%= t("feeds.show.trade_tag") %></span>
+  <% else %>
+    <span class="ticker__rarity ticker__rarity--<%= card.rarity %>"><%= feed_rarity_name(card) %></span>
+  <% end %>
 </li>
