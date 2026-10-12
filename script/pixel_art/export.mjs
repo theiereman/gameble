@@ -198,20 +198,16 @@ function wordmarkIcon() {
   }
 }
 
-const FAVICON_GROUND = "#0b0f15"
-const FAVICON_MARGIN = { x: 2, y: 1 }
+const FAVICON_SIDE_MARGIN = 1
 
 function faviconIcon() {
   const colours = goldColours(setLetters("G"))
-  const width = colours[0].length + 2 * FAVICON_MARGIN.x
-  const palette = [...new Set([FAVICON_GROUND, ...GOLD_TIERS, GOLD_EDGE])]
-  const symbol = (colour) => String(palette.indexOf(colour ?? FAVICON_GROUND))
-  const groundRow = symbol(null).repeat(width)
-  const side = symbol(null).repeat(FAVICON_MARGIN.x)
-  const margin = Array(FAVICON_MARGIN.y).fill(groundRow)
+  const palette = [...new Set([...GOLD_TIERS, GOLD_EDGE])]
+  const symbol = (colour) => colour === null ? "." : String(palette.indexOf(colour))
+  const side = ".".repeat(FAVICON_SIDE_MARGIN)
   return {
     legend: Object.fromEntries(palette.map((colour, i) => [String(i), colour])),
-    grid: [...margin, ...colours.map((line) => side + line.map(symbol).join("") + side), ...margin],
+    grid: colours.map((line) => side + line.map(symbol).join("") + side),
   }
 }
 
@@ -632,11 +628,9 @@ function drawMonogram(g, x, y, k) {
 }
 
 const FAVICON_PNG_SIZE = 180
-const FAVICON_PNG_SCALE = 16
+const FAVICON_PNG_SCALE = 20
 function faviconPng() {
   const g = canvas(FAVICON_PNG_SIZE, FAVICON_PNG_SIZE)
-  g.fillStyle = FAVICON_GROUND
-  g.fillRect(0, 0, FAVICON_PNG_SIZE, FAVICON_PNG_SIZE)
   const centred = (length) => (FAVICON_PNG_SIZE - length * FAVICON_PNG_SCALE) / 2
   drawMonogram(g, centred(MONOGRAM_WIDTH), centred(MONOGRAM_HEIGHT), FAVICON_PNG_SCALE)
   return g
@@ -1157,7 +1151,7 @@ const TIER_NAMES = ["Commune", "Peu commune", "Rare", "Épique", "Légendaire"]
 const TIER_SHAPES = ["solid disc", "ring inside a ring", "diamond", "triangle", "star"]
 const DESCRIPTIONS = {
   "wordmark.svg": "The gameble wordmark: flat gold GAMEBLE with a lit top edge and a diagonal shine, 66 × 9",
-  "favicon.svg": "Favicon: the wordmark's gold G on the dark ground, 11 × 11",
+  "favicon.svg": "Favicon: the wordmark's gold G, 9 × 9",
   ...Object.fromEntries(TIER_NAMES.map((tier, i) => [`rarity-${i + 1}.svg`, `${tier} rarity icon, ${TIER_SHAPES[i]}, 7 × 7`])),
   ...Object.fromEntries(TIER_NAMES.map((tier, i) => [`rarity-compact-${i + 1}.svg`, `${tier} rarity icon for card faces, ${TIER_SHAPES[i]}, 5 × 5`])),
   "picture.svg": "Missing cover art: a frame, a sun and a mountain (text colour)",
@@ -1185,7 +1179,7 @@ const DESCRIPTIONS = {
   "canister-body.png": "Canister body: slate cylinder, label band, emblem window with the gold G monogram, rivets, LED plate, barcode, 100 × 110",
   "canister-cap-bottom.png": "Canister bottom cap: steel grip and collar, 100 × 20",
   "planet.png": "Ringed planet under the hub showcase: slate and blue bands, a lit ring, 200 × 200",
-  "favicon.png": "Home-screen icon: the wordmark's gold G on the dark ground, 16 screen pixels per glyph pixel, 180 × 180",
+  "favicon.png": "Home-screen icon: the wordmark's gold G, 20 screen pixels per glyph pixel, 180 × 180",
   ...Object.fromEntries(Object.entries(AVATARS).map(([key, colour]) => [`avatar-${colour}.png`, `Avatar, ${colour} palette (“${key}” in the prototype), 16 × 16`])),
 }
 for (const file of files.keys()) if (!DESCRIPTIONS[file]) throw new Error(`${file}: no description in DESCRIPTIONS`)
