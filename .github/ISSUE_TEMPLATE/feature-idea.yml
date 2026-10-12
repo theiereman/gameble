@@ -1,0 +1,59 @@
+name: Feature idea
+description: Suggest something new for the game, or a way to make an existing part better.
+title: "[Idea] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing an idea! Start from what you wanted to do while playing: the problem matters more than the solution.
+
+        To suggest a new set of cards, use the "Set idea" form instead.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What were you trying to do?
+      description: The moment in the game when you missed something, or felt something could be better.
+      placeholder: I wanted to show my rarest cards to a friend, but I had to scroll through my whole collection.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: How would it work? A sketch or a screenshot from another game is welcome.
+      placeholder: A "favourites" shelf at the top of my profile where I pin up to five cards.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Part of the game
+      options:
+        - Packs and reveal
+        - Collection and album
+        - Friends and trades
+        - Profile
+        - Something else
+    validations:
+      required: true
+
+  - type: dropdown
+    id: importance
+    attributes:
+      label: How much would it change your game?
+      options:
+        - I would play more because of it
+        - Nice to have
+        - Small detail
+    validations:
+      required: true
+
+  - type: textarea
+    id: inspiration
+    attributes:
+      label: Seen elsewhere?
+      description: Another game or app that does something similar, if any.

@@ -1,0 +1,69 @@
+name: Set idea
+description: Suggest a new set of cards for the collection album.
+title: "[Set idea] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping grow the album! A set only works if a player recognizes it from its name alone.
+
+        Two kinds of sets can be suggested:
+        - **Theme**: games that share a Steam tag (Souls-like, Pirates, Cyberpunk…). Broad tags such as Action, Adventure, Casual, Indie or Multiplayer never make a theme.
+        - **Hall of fame**: games picked by their Steam reviews (Les Intouchables, Les Pépites…).
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of set
+      options:
+        - Theme
+        - Hall of fame
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: name-fr
+    attributes:
+      label: Name in French
+      placeholder: Les Pépites
+    validations:
+      required: true
+
+  - type: input
+    id: name-en
+    attributes:
+      label: Name in English
+      description: Leave empty if you are not sure, it can be translated later.
+      placeholder: Hidden Gems
+
+  - type: textarea
+    id: rule
+    attributes:
+      label: Which games belong to it?
+      description: |
+        For a theme, list the Steam tags it groups (you can see them on a game's Steam store page, under "Popular user-defined tags").
+        For a hall of fame set, describe the rule with Steam reviews (for example "at least 95 % positive and under 5,000 reviews").
+      placeholder: |
+        Steam tags: Pirates, Naval, Naval Combat
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Example games
+      description: Three to five games you would expect in this set, with a link to their Steam page if you have it.
+      placeholder: |
+        - Sea of Thieves
+        - Assassin's Creed IV Black Flag
+        - Return to Monkey Island
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why would players enjoy collecting it?
+      placeholder: Everyone has a favourite pirate game, and the set mixes big hits with small indie gems.

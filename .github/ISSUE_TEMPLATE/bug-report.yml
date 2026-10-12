@@ -1,0 +1,78 @@
+name: Bug report
+description: Something in the game broke or did not do what you expected.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Describe what you saw as if you were telling a friend: no technical words needed.
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: What did you do?
+      description: The steps that led to the problem, in order.
+      placeholder: |
+        1. Opened a pack from the home page
+        2. Clicked the third card
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      placeholder: The card turns over and shows its game.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead?
+      placeholder: Nothing happened, the card stayed face down.
+    validations:
+      required: true
+
+  - type: input
+    id: page
+    attributes:
+      label: Page address
+      description: Copy the address from your browser's address bar.
+      placeholder: https://...
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device
+      options:
+        - Computer
+        - Phone
+        - Tablet
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      placeholder: Firefox, Chrome, Safari…
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Does it happen every time?
+      options:
+        - Every time
+        - Sometimes
+        - Only once
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or video
+      description: Drag and drop images or a short video here. They help a lot.
