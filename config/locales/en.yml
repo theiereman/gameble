@@ -565,6 +565,7 @@ en:
         public: "Visible to everyone, even without an account"
         friends_only: "Visible to your friends and the Brotherhood's officers only"
         private: "Private profile: only you and the Brotherhood's officers can see it"
+        banned: "Banned player: visible to the Brotherhood's officers only"
       counts: "The collection"
       pick: "Pick a set to see the cards it holds."
       complete: "Complete"
