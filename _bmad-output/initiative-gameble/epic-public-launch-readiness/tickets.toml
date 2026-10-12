@@ -276,12 +276,168 @@ risk = "low"
 notes = ["From the legal review of the legal page (2026-10-09), author's answers the same day."]
 
 [[entry]]
+id = 25
+type = "story"
+title = "Real client addresses behind Cloudflare"
+description = "Behind Cloudflare every request comes from a Cloudflare address, so the Rack::Attack sign-in throttle would put every visitor under one shared limit; the app restores the client's address, trusting Cloudflare's published ranges as proxies or reading CF-Connecting-IP from them only, before the throttle reads it."
+verify = "A request from a Cloudflare address carrying CF-Connecting-IP is throttled under the client's address; a request from outside Cloudflare's ranges cannot choose its address with the header; sign-in throttling tests pass."
+covers = ["R7"]
+after = []
+hitl = false
+risk = "medium"
+notes = ["From the deferred work triage (author, 2026-10-12). Cloudflare is not set up yet; this lands before production goes behind it."]
+
+[[entry]]
+id = 26
+type = "story"
+title = "The language redirect is never cached at the edge"
+description = "Cloudflare's cache ignores Vary: Accept-Language, so a cached root redirect would send every visitor to the first visitor's language; the root redirect to a locale sends Cache-Control: private, no-store."
+verify = "The root redirect answers with Cache-Control: private, no-store and Vary: Accept-Language; a French and an English browser each land on their own locale."
+covers = ["R7"]
+after = []
+hitl = false
+risk = "low"
+notes = ["From the deferred work triage (author, 2026-10-12)."]
+
+[[entry]]
+id = 27
+type = "story"
+title = "The persona lookup keeps one deadline and reports a broken Steam key"
+description = "The sign-in persona lookup sets separate 5 s connect and read timeouts, so a Steam slow at both can hold a sign-in about 10 s; and a missing or invalid Steam key only logs a warning, so every profile silently falls back to its « Brother » code name. The lookup gets one total deadline and a key failure is reported to error tracking; sign-in still goes on with the fallback name."
+verify = "A Steam stub slow to connect and to answer ends the lookup within the deadline and the player is signed in with the fallback name; a rejected key reports one error and sign-in succeeds."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["From the deferred work triage (author, 2026-10-12).", "Open question: a boot check of the key in production as well as the reported error; settle while planning."]
+
+[[entry]]
+id = 28
+type = "story"
+title = "Persona names are cut on whole characters"
+description = "A persona name is cut to 64 code points, which can split a letter from its combining mark, an emoji from its skin-tone modifier or a flag's pair; Accounts::PersonaName cuts to 64 grapheme clusters instead."
+verify = "A name longer than 64 characters ending in combining marks, modified emoji and flags is cut to 64 whole graphemes; a name under the limit is unchanged."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["From the deferred work triage (author, 2026-10-12)."]
+
+[[entry]]
+id = 29
+type = "story"
+title = "A counter-proposal from a stale tab is refused"
+description = "A counter-proposal carries no version of the terms seen, so a stale tab's counter replaces the friend's newer terms unseen; the counter form sends the version seen and Game::CounterTrade refuses with :trade_changed, as accept and decline already do."
+verify = "With one trade open in two tabs, the friend changes the terms and the stale tab's counter is refused with the trade-changed message and the board showing the new terms; a counter from a fresh board goes through."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["From the deferred work triage (author, 2026-10-12)."]
+
+[[entry]]
+id = 30
+type = "story"
+title = "Opening an invite link sends the invitation"
+description = "Opening an invite link sends the invitation directly: the link page submits its POST on load, the button stays as the fallback without JavaScript, a signed-out visitor's invitation goes out right after Steam sign-in, and the player lands on the Friends screen. Cancelling a sent invitation is already built, so a link opened by mistake can be withdrawn."
+verify = "Opening a friend's link signed in sends one invitation and lands on Friends with it listed as sent; signed out, it goes out right after sign-in; with JavaScript off the button sends it; opening the link again sends no second invitation."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["From the deferred work triage (author, 2026-10-12)."]
+
+[[entry]]
+id = 31
+type = "story"
+title = "The booster bank refreshes after a dealt hand or a refusal"
+description = "The booster screen's bank goes stale until a reload in two cases: the countdown reaching zero while cards are dealt (the refresh runs only while the island is idle, so an empty reserve keeps showing 00:00 with the next pack disabled), and a no_pack_available refusal keeping the page's old next-pack time. The island fetches a fresh bank once the hand is put away and with a refusal; a dealt hand is never refreshed away."
+verify = "With an empty reserve, the countdown reaching zero while cards are dealt offers the new pack once the hand is put away; a refusal shows the current bank and its countdown; the existing test that a dealt hand is never refreshed away still passes."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["From the deferred work triage (author, 2026-10-12)."]
+
+[[entry]]
+id = 32
+type = "story"
+title = "The phone tray's thumbnails in pixel art"
+description = "The phone booster tray shows each card's raw Steam cover scaled into 44 × 60 instead of the pixel filter's palette-reduced art that the design asks for every thumbnail; the tray draws them with the pixel filter worker at 22 × 30 art pixels."
+verify = "On a phone the tray's thumbnails show the filtered pixel art; a cover that fails to load keeps the slot's frame and rarity icon; the booster system tests pass."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["From the deferred work triage (author, 2026-10-12)."]
+
+[[entry]]
+id = 33
+type = "story"
+title = "Steam reviews on the card detail"
+description = "The card detail shows the card season's Steam review count and its share of positive reviews, both frozen at publication, so a player who finds a card wants to look at the game on the store; the card face stays as it is."
+verify = "A card with 12,345 reviews at 93 % shows both on its detail page in French and English number formats; a card with no review count shows neither; the card face and the shared card page's preview are unchanged."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["From the deferred work triage (author, 2026-10-12).", "Decision (author, 2026-10-12): on the card detail only, not on the card face.", "Assumption: shown beside the Steam store link; no layout is drawn."]
+
+[[entry]]
+id = 34
+type = "story"
+title = "Contract migrations owed by the import rework and the dust tier"
+description = "Drops the columns the import rework left ignored for the rollout (steam_apps genres, credit, app_details, genres_run_id with its foreign key to the import runs, genres_exclusion with its check; catalog_cards credit), then removes them and dust_tier, already dropped, from the models' ignored_columns."
+verify = "After migrating, those columns are gone from db/schema.rb, no model ignores a column that no longer exists, the import and publication tests pass, and staging migrates on deploy."
+covers = []
+after = []
+hitl = false
+risk = "medium"
+notes = ["From the deferred work triage (author, 2026-10-12)."]
+
+[[entry]]
+id = 35
+type = "story"
+title = "db/schema.rb round-trips the Steam checks"
+description = "A database loaded from db/schema.rb deparses the three steam checks (the details and review exclusion checks and the import run status check) in another form than a database migrated from scratch, so a migration run on a schema-loaded database rewrites them and CI's drift step fails; the checks are rewritten in a form that dumps the same both ways."
+verify = "Loading db/schema.rb, running a new migration and dumping leaves the three checks unchanged; CI's drift step passes from a fresh migrate and from a schema load."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["From the deferred work triage (author, 2026-10-12)."]
+
+[[entry]]
+id = 36
+type = "story"
+title = "Request-test helpers shared"
+description = "The request-test helpers that hold a Steam sign-in and sign a player in are still copied in about 30 test files beside the shared support module; every test uses the shared one."
+verify = "No test file defines its own copy of those helpers; the full suite passes in parallel."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["From the deferred work triage (author, 2026-10-12)."]
+
+[[entry]]
+id = 37
+type = "story"
+title = "Tests that cross a clock change"
+description = "Two tests fail on a machine whose local time zone changes clocks within their window (a sign-in kept for 30 days, off by 3,600 s, and finished trades recent for 14 days), which CI in UTC never sees; they compare in UTC or freeze time."
+verify = "Both tests pass with TZ=Europe/Paris on a date whose window crosses 2026-10-25, and with TZ=UTC."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["From the deferred work triage (author, 2026-10-12)."]
+
+[[entry]]
 id = 12
 type = "story"
 title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37]
 hitl = false
 risk = "low"

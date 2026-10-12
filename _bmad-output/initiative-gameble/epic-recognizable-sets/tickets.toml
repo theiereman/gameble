@@ -34,13 +34,37 @@ hitl = false
 risk = "high"
 
 [[entry]]
+id = 11
+type = "story"
+title = "Franchise and studio sets"
+description = "Builds franchise and studio sets at publication with the spike's agreed filters: franchises of at least 3 games, not named like a developer or publisher, titles sharing a whole word with separator-free matching, a keep-list for Science Adventure and World of Darkness, suffixes stripped; studios by first developer, names normalized, at least 3 games and a most-reviewed game of 20,000 reviews. Each set has its key and name, a complete tier row, and its label on every screen that shows sets."
+verify = "Publishing a staging-like draft builds the franchise and studio sets the spike's report lists, each with one complete tier row; a franchise named like its developer builds no set; the collection names them in both languages."
+covers = ["R1", "R2", "R3"]
+after = [3]
+hitl = false
+risk = "medium"
+notes = ["Split from entry 3 at the author's choice (2026-10-12); entry 3 already widened the kind check for these kinds."]
+
+[[entry]]
+id = 12
+type = "story"
+title = "Hall of fame sets"
+description = "Builds the hall of fame sets at publication from each card season's frozen rating and review count: Les Intouchables (at least 97 % and 20,000 reviews), Les Pépites (at least 98 % and under 1,000), Les Mal-aimés (40 to 69 % and at least 20,000), Les Phénomènes (at least 200,000), with fixed keys, bronze, silver, gold and complete tier rows, and their French and English names."
+verify = "Publishing a staging-like draft builds the four sets with the cards their thresholds select and four tier rows each; a card at exactly a threshold is in; the collection names them in both languages."
+covers = ["R1", "R2", "R3"]
+after = [3]
+hitl = false
+risk = "low"
+notes = ["Split from entry 3 at the author's choice (2026-10-12), with the franchise and studio sets."]
+
+[[entry]]
 id = 4
 type = "story"
 title = "The published season gets its new sets once"
 description = "Catalog::RebuildSeasonSets rebuilds the sets of a season published with the retired kinds, once and with openings paused: it publishes Catalog::SeasonSetsRebuilt with the retired set ids, a Game handler deletes their completion rows, then the sets are replaced and the kind check narrowed to the five kinds; follows the numbering precedent (catalog:number_seasons) (AD-5, AD-10)."
 verify = "Run on a copy of staging's data, the published season holds only the new kinds and no old completion; a second run changes nothing; holdings, rarities and numbers are untouched; the kind check refuses a tome."
 covers = ["R10"]
-after = [3]
+after = [3, 11, 12]
 hitl = true
 risk = "medium"
 
@@ -103,12 +127,36 @@ hitl = false
 risk = "low"
 
 [[entry]]
+id = 13
+type = "story"
+title = "The card grid fills its row"
+description = "The collection grid shows fixed 160 × 240 card faces in as many columns as fit, where the design asks cards resized between 120 and 170 px wide to fill the row, the small face layout under 140 px, and the pixel filter run again at the rendered art size after a resize."
+verify = "At several window widths the grid's row is filled with cards between 120 and 170 px wide; under 140 px the small face layout shows; after a resize the art is redrawn at its new size."
+covers = ["R9"]
+after = [9]
+hitl = false
+risk = "low"
+notes = ["From the deferred work triage (author, 2026-10-12)."]
+
+[[entry]]
+id = 14
+type = "story"
+title = "The card detail beside the grid on tablet and desktop"
+description = "From 1180 px a grid slot opens the card detail in the screen beside the grid (340 px, 300 px below that width) instead of a separate page, with an accent frame on the selected card; it browses the set shown and fades a card not held; Back returns to the grid at its scroll. On a phone the slot keeps opening the detail page."
+verify = "On a desktop, choosing a card shows its detail beside the grid with the card framed, and the next card in the set replaces it; on a phone the detail page opens as before; Back returns to the grid where it was."
+covers = ["R9"]
+after = [9]
+hitl = false
+risk = "medium"
+notes = ["From the deferred work triage (author, 2026-10-12)."]
+
+[[entry]]
 id = 10
 type = "story"
 title = "Refactor sweep"
 description = "Cleans up what this epic's build records and deferred review findings name, including the retired set kinds' leftovers; scope set when it starts."
 verify = "The full test suite, system tests for what was touched, packwerk and zeitwerk pass; no reference to tomes, publisher sets or best-of-year sets remains in app and pack code or in the locales (migrations aside)."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14]
 hitl = false
 risk = "low"

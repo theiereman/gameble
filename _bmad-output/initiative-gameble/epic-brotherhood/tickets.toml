@@ -165,12 +165,36 @@ references = ["epic-brotherhood/bug-the-live-ticker-sits-under-the-top-bar-inste
 notes = ["Found by the author's acceptance review of 6.14 on 2026-10-12, which went to done: the band's place at the bottom of the hub stays.", "Author, 2026-10-12: only the ticker's LIVE marker turns red; the feed's marker shares the .live-marker class and keeps its dark square."]
 
 [[entry]]
+id = 16
+type = "story"
+title = "Reward packs get their own odds"
+description = "A reward pack reuses the daily bonus odds and then forces an Épique or better, so about one reward pack in 6 holds a Légendaire; the reward pack gets its own odds in Game::DrawOdds, aimed at one Légendaire in 50 reward packs."
+verify = "Over a large seeded draw, reward packs hold a Légendaire about once in 50 and always hold at least one Épique or better; the daily and bonus odds are unchanged."
+covers = ["R3"]
+after = [5]
+hitl = false
+risk = "low"
+notes = ["From the deferred work triage (author, 2026-10-12).", "Decision (author, 2026-10-08, pending-approvals): one Légendaire in 50 reward packs.", "Open question: whether the daily bonus, at about one Légendaire in 34 packs, comes down too; pending-approvals holds it."]
+
+[[entry]]
+id = 17
+type = "story"
+title = "The community pack is claimed with a button"
+description = "The weekly goal's reward pack is no longer added to the player's packs automatically: it waits until the player claims it with a button, which then shows it collected, and the claim is refused while the bank already holds ten packs."
+verify = "When the goal is reached the reward waits; the player's claim adds it to their packs and the button shows it collected; with ten packs the claim is refused with a clear message in both languages; a second claim adds nothing."
+covers = ["R2", "R3"]
+after = [5]
+hitl = false
+risk = "medium"
+notes = ["From the deferred work triage (author, 2026-10-12).", "Assumption: the button sits on the hub's weekly goal panel; no layout is drawn."]
+
+[[entry]]
 id = 12
 type = "story"
 title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15]
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17]
 hitl = false
 risk = "low"
