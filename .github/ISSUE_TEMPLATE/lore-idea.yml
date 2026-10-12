@@ -1,0 +1,70 @@
+name: Lore idea
+description: Suggest a piece of the game's world, the Grand Gamblers' Brotherhood and its space terminal.
+title: "[Lore] "
+labels: ["lore"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping build gameble's world! Players belong to *La Grande Confrérie des Gamblers*, the Grand Gamblers' Brotherhood, and play from a space terminal.
+
+        A few rules keep the tone consistent:
+        - **Light and mock-solemn**: a wink at the games industry's drift toward investor profit over game quality, never a nation or a country.
+        - **Discreet**: the game carries little text. A short line often works better than a long story.
+        - **No real company names** in the story; publishers only appear on the cards.
+        - **No terms borrowed from other games** (Helldivers' "Super Earth", "Managed Democracy"…).
+        - Players are addressed as **"vous"**, never "tu".
+
+        You can write in French. The author decides what goes into the game and may rework the wording.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is it about?
+      options:
+        - The Brotherhood (its history, its rituals, its officers)
+        - The space terminal and the world around it
+        - A set, a rarity or a kind of card
+        - A season or an event
+        - Something else
+    validations:
+      required: true
+
+  - type: input
+    id: title
+    attributes:
+      label: A short title
+      placeholder: The first booster ever opened
+    validations:
+      required: true
+
+  - type: textarea
+    id: lore
+    attributes:
+      label: Your lore
+      description: The story, the fact or the line itself, as you imagine a player reading it.
+      placeholder: |
+        Nobody remembers who opened the first booster. The Brotherhood keeps its empty wrapper under glass, on the command bridge.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where could players meet it?
+      description: Pick every place that fits, or "Not sure".
+      multiple: true
+      options:
+        - The weekly goal of the Brotherhood
+        - Opening a booster
+        - A set in the album
+        - A card back, a title or a menu theme
+        - An achievement
+        - The start of a season
+        - Not sure
+
+  - type: textarea
+    id: inspiration
+    attributes:
+      label: Inspiration
+      description: Optional. A game, a film or a book this reminds you of, and why.

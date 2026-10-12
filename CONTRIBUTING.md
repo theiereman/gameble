@@ -47,6 +47,12 @@ A set only works if a player recognizes it from its name alone. Two kinds can be
 
 Give a few example games: they show quickly whether the set holds up.
 
+## Suggest lore
+
+Players belong to *La Grande Confrérie des Gamblers*, the Grand Gamblers' Brotherhood, and play from a space terminal: pick **Lore idea** to add to that world.
+
+Keep it light and short: a wink at the games industry, never a long saga, with no real company names and no terms borrowed from other games. The form gives the rules and asks where players could meet your idea.
+
 ## What happens next
 
 Every form becomes an issue on GitHub. Its author reads each one, may ask you questions in the comments, and labels it once it is planned. Not every idea gets built, but every one is read.
