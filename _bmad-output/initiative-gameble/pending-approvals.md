@@ -49,6 +49,7 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
 ## Staging and production (2026-10-06)
 
 - **Production later (after the author validates the MVP on staging).** Fill `config/deploy.production.yml` (VPS address, registry such as ghcr.io), create `.kamal/secrets.production` with its own keys, point gameble.com at the VPS (Cloudflare in Full mode if used), then `bin/kamal deploy -d production`.
+- **Log retention before production (story 7.14, 2026-10-09; author 2026-10-12: with the production setup).** On the production VPS: install the journald drop-in the README gives (30-day retention, `MaxFileSec=1day`), then `bin/kamal accessory reboot db -d production` and `docker container prune -f` after the first deploy, so no container keeps json-file logs. Still to decide then: whether staging's size-rotated json-file logs get an age limit too, and which Sentry plan production uses, so the legal page's "90 days at most, depending on the plan" names the plan's real retention (Developer 30 days, Team 90 days).
 - Staging deployed and the first full real import run there (2026-10-06, 55 min, 12,307 cards); season 1 published on staging with the starting calibration (epic 2 Notes).
 
 ## Settled on 2026-10-06

@@ -3,7 +3,7 @@ title: 'The legal page says what the app really does'
 type: 'feature'
 ticket: '22'
 created: '2026-10-09'
-status: 'built'
+status: done
 baseline_revision: '1cf0684aebee0452c121667358a547eb86645888'
 route: 'full'
 route_source: 'auto'

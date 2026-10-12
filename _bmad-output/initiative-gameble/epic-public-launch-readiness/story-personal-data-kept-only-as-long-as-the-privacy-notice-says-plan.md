@@ -3,7 +3,7 @@ title: 'Personal data kept only as long as the privacy notice says'
 type: 'feature'
 ticket: '14'
 created: '2026-10-09'
-status: 'built'
+status: done
 baseline_revision: 'be6fe2e1380f634944f88d199c71133fd82e0778'
 route: 'full'
 route_source: 'auto'

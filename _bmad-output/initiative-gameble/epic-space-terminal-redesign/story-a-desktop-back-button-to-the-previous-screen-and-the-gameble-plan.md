@@ -3,7 +3,7 @@ title: 'A desktop back button to the previous screen, and the GAMEBLE logo leads
 type: 'feature'
 ticket: '18'
 created: '2026-10-09'
-status: 'built'
+status: done
 baseline_revision: '24ff3e7d5c6d8d698c5f66d8d22d1d4ccf268683'
 route: 'full'
 route_source: 'auto'

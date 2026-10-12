@@ -3,7 +3,7 @@ title: 'The publisher named, a banned player told why, the legal page linked fro
 type: 'feature'
 ticket: '24'
 created: '2026-10-09'
-status: 'built'
+status: done
 baseline_revision: '5ba943c832e3872ce3416166502b22acd7b79687'
 route: 'full'
 route_source: 'auto'

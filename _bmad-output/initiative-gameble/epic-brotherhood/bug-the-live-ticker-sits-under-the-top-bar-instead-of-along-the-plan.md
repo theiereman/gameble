@@ -3,7 +3,7 @@ title: 'The LIVE ticker sits under the top bar instead of along the bottom of th
 type: 'bugfix'
 ticket: '14'
 created: '2026-10-09'
-status: 'built'
+status: done
 baseline_revision: '1c2c77e989f64c74103e4de74f6b8d3dd2da1dfa'
 route: 'oneshot'
 route_source: 'auto'

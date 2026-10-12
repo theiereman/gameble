@@ -151,12 +151,26 @@ references = ["epic-brotherhood/story-live-broadcasts-and-the-live-ticker-plan.m
 notes = ["Found by the author's acceptance review of 6.4 on 2026-10-09, which went to done: the ticker goes along the bottom of the hub."]
 
 [[entry]]
+id = 15
+type = "bug"
+title = "The LIVE ticker spans the whole window and its blinking square is red"
+description = "Reproduction: open the hub on a desktop wider than the content width. The ticker's band runs full width, but its LIVE marker and scrolling sentences stay inside the content width (`.ticker__inner` is capped at `--space-content-max`), and the marker's blinking square is the dark on-accent colour. Expected (author, 2026-10-12): the marker and the scrolling sentences use the whole window width, the marker against the window's left edge, and the blinking square is red. The red square is a design change: DESIGN.md's LIVE marker says a dark square on the accent block, so the rule and the tokens gain a red that reads on the accent fill."
+verify = "A system test at 1400px finds the LIVE marker at the window's left edge and the ticker window reaching its right edge; the blinking square's computed colour is the new red token; at phone width the ticker is unchanged apart from the red square; reduced motion still stops the blink."
+covers = ["R5"]
+after = [14]
+hitl = false
+risk = "low"
+severity = "P3"
+references = ["epic-brotherhood/bug-the-live-ticker-sits-under-the-top-bar-instead-of-along-the-plan.md"]
+notes = ["Found by the author's acceptance review of 6.14 on 2026-10-12, which went to done: the band's place at the bottom of the hub stays.", "Open when built: whether the feed's LIVE marker turns red too (one shared .live-marker class today); the author's request named the ticker."]
+
+[[entry]]
 id = 12
 type = "story"
 title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14]
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15]
 hitl = false
 risk = "low"
