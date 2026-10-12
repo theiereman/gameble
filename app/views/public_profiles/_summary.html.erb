@@ -14,7 +14,8 @@
       <li><%= t("public_profiles.show.distinct_cards", count: summary.distinct_cards) %></li>
       <li><%= t("public_profiles.show.complete_sets", count: summary.complete_sets) %></li>
     </ul>
-    <p class="profile-summary__visibility"><%= t("public_profiles.show.visibility.#{owner.visibility}") %></p>
+    <% visibility_key = owner.banned? && Accounts::Player.acting_staff?(current_player) ? "banned" : owner.visibility %>
+    <p class="profile-summary__visibility"><%= t("public_profiles.show.visibility.#{visibility_key}") %></p>
     <%# SIGNALER (CAP-15): a visitor is led to the sign-in panel, a player to the report dialog; the owner reports no one. %>
     <% if current_player.nil? %>
       <%= render ButtonComponent.new(variant: :link, size: :small, opens: "sign-in-panel") do %><%= t("reports.open") %><% end %>
