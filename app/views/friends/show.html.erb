@@ -1,4 +1,5 @@
 <% content_for :back_button, true %>
+<% turbo_exempts_page_from_cache %>
 <% content_for :title, t(".title") %>
 <% content_for :screen_title, t(".title") %>
 <% content_for :phone_back do %>
@@ -78,10 +79,10 @@
             <% if (refusal = trades_refusal(friend.player)) %>
               <%= trades_closed_line(refusal, friend.player) %>
             <% else %>
-              <% open_trade = @open_trades[friend.player.id] %>
+              <% open_trade_token = @open_trade_tokens[friend.player.id] %>
               <%= render ButtonComponent.new(variant: :secondary, size: :small,
-                    href: open_trade ? trade_path(token: open_trade) : new_trade_path(friend: friend.player.token),
-                    aria_label: t(".propose_trade_to", name:)) do %><%= t(".propose_trade") %><% end %>
+                    href: open_trade_token ? trade_path(token: open_trade_token) : new_trade_path(friend: friend.player.token),
+                    aria_label: t(".trade_with", name:)) do %><%= t(".trade") %><% end %>
             <% end %>
           </div>
         </li>

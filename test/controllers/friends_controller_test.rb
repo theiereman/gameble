@@ -60,7 +60,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friends__friend" do
       assert_select "span.friends__name", "Sam"
       assert_select "button.button[aria-haspopup=dialog][aria-label='Voir le profil de Sam'][data-dialog-opener-dialog-value=?]", "friend-#{sam.token}", "Voir le profil"
-      assert_select "a.button[href=?][aria-label='Proposer un échange à Sam']", new_trade_path(locale: :fr, friend: sam.token), "Proposer un échange"
+      assert_select "a.button[href=?][aria-label='Échange avec Sam']", new_trade_path(locale: :fr, friend: sam.token), "Échange"
       assert_select "a[href=?]", brother_path(locale: :fr, token: sam.token), 0
     end
   end
@@ -77,12 +77,12 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     sign_in
 
     get friends_path(locale: :fr)
-    assert_select ".friends__friend a.button[href=?][aria-label='Proposer un échange à Sam']", trade_path(locale: :fr, token: trade.token), "Proposer un échange"
+    assert_select ".friends__friend a.button[href=?][aria-label='Échange avec Sam']", trade_path(locale: :fr, token: trade.token), "Échange"
     assert_select ".friends__friend a[href=?]", new_trade_path(locale: :fr, friend: sam.token), 0
 
     Game::CancelTrade.new.call(player: sam, trade_id: trade.id).value!
     get friends_path(locale: :fr)
-    assert_select ".friends__friend a.button[href=?]", new_trade_path(locale: :fr, friend: sam.token), "Proposer un échange"
+    assert_select ".friends__friend a.button[href=?]", new_trade_path(locale: :fr, friend: sam.token), "Échange"
   end
 
   test "a friend's row says trades are closed instead of proposing one when either profile is private" do

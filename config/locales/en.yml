@@ -763,8 +763,8 @@ en:
       cancel_invitation_to: "Cancel the invitation to %{name}"
       see_profile: "See the profile"
       see_profile_of: "See the profile of %{name}"
-      propose_trade: "Propose a trade"
-      propose_trade_to: "Propose a trade to %{name}"
+      trade: "Trade"
+      trade_with: "Trade with %{name}"
       presence:
         online: "Online"
         offline: "Offline"
@@ -791,7 +791,7 @@ en:
     show:
       showcase: "Showcase"
       no_showcase: "No card in the showcase."
-      propose_trade: "Propose a trade"
+      trade: "Trade"
     unavailable:
       body: "This profile is not available."
   invitations:

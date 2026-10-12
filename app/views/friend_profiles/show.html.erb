@@ -25,7 +25,7 @@
       <% if @trades_closed %>
         <%= trades_closed_line(@trades_closed, @owner) %>
       <% else %>
-        <%= render ButtonComponent.new(href: new_trade_path(friend: @owner.token)) do %><%= t(".propose_trade") %><% end %>
+        <%= render ButtonComponent.new(href: @open_trade_token ? trade_path(token: @open_trade_token) : new_trade_path(friend: @owner.token)) do %><%= t(".trade") %><% end %>
       <% end %>
       <%= render "friends/public_profile_link", friend: @owner %>
       <%= render ButtonComponent.new(variant: :link, size: :small, opens: "report-dialog-#{@owner.token}") do %><%= t("reports.open") %><% end %>
