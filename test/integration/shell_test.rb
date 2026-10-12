@@ -28,10 +28,13 @@ class ShellTest < ActionDispatch::IntegrationTest
     Game::Holding.create!(player_id: player.id, card_season_id: catalog_card_seasons(card_season).id, quantity:)
   end
 
-  test "the head: title, viewport for the notch, theme colour, view transitions, the three latin fonts preloaded" do
+  test "the head: title, the gold G favicon, viewport for the notch, theme colour, view transitions, the three latin fonts preloaded" do
     get home_path(locale: :fr)
 
     assert_select "title", "gameble"
+    assert_select "link[rel=icon][type='image/svg+xml'][href*='/favicon-'][href$='.svg']"
+    assert_select "link[rel=icon][type='image/png'][sizes='180x180'][href*='/favicon-'][href$='.png']"
+    assert_select "link[rel=apple-touch-icon][href*='/favicon-'][href$='.png']"
     assert_select "meta[name=viewport][content=?]", "width=device-width,initial-scale=1,viewport-fit=cover"
     assert_select "meta[name=theme-color][content=?]", "#171a21"
     assert_select "meta[name=view-transition][content=same-origin]"
