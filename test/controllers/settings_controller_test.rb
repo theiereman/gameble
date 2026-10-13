@@ -41,7 +41,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[name=reduced_motion][value=off][aria-pressed=false]", "Non"
     assert_select "form[action=?][data-turbo=false] button", "/session?locale=fr", text: "Se déconnecter"
     support = css_select("li.settings-row a.settings-row__support").sole
-    assert_equal [ "https://buymeacoffee.com/theiereman", "_blank", "Offrir un café (nouvel onglet)" ],
+    assert_equal [ "https://buymeacoffee.com/theiereman", "_blank", "Soutenir (nouvel onglet)" ],
       [ support["href"], support["target"], support.text.squish ]
     assert_includes support["rel"].split, "noopener"
     assert_select ".settings__list > li:last-child a.button--link[href='/fr/legal']", "Mentions légales"
@@ -59,6 +59,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[name=reduced_motion][value=on][aria-pressed=true]", "Yes"
     assert_select "button[name=reduced_motion][value=system][aria-pressed=false]", "System"
     assert_select "button[name=reduced_motion][value=off][aria-pressed=false]", "No"
+    assert_select "li.settings-row a.settings-row__support", "Support (new tab)"
   end
 
   test "an explicit no is marked too" do

@@ -214,7 +214,7 @@ en:
       support:
         title: "Support gameble"
         text: "gameble is free and will stay free. If you enjoy the game, you can help pay for its hosting. Donations are optional and give no advantage in the game. They go through Buy Me a Coffee, under its own terms. The publisher receives whatever you choose to enter there (name, message)."
-        link: "Buy me a coffee"
+        link: "Support"
   back_office:
     dashboard:
       show:
@@ -717,7 +717,7 @@ en:
         delete: "Delete my account"
       support:
         label: "Support"
-        link: "Buy me a coffee"
+        link: "Support"
       legal: "Legal notice"
     private_dialog:
       title: "Go private?"

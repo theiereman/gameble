@@ -552,9 +552,10 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".legal__affiliation", /n'est affilié ni à Valve ni à Steam/
     assert_select ".legal__section", text: /CNIL/
     donation = css_select("main a.legal__donation").sole
-    assert_equal [ "https://buymeacoffee.com/theiereman", "_blank", "Offrir un café (nouvel onglet)" ],
+    assert_equal [ "https://buymeacoffee.com/theiereman", "_blank", "Soutenir (nouvel onglet)" ],
       [ donation["href"], donation["target"], donation.text.squish ]
     assert_includes donation["rel"].split, "noopener"
+    assert_select "section[aria-labelledby=legal-support]", text: /Ils passent par Buy Me a Coffee/
     assert_select "[style]", 0
   end
 
@@ -570,6 +571,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Publisher and host", "Steam, Valve and the games", "Terms of use", "Privacy", "Support gameble" ],
       css_select("main section.legal__section h2").map(&:text)
     assert_select ".legal__ownership", "All artwork belongs to the games' publishers and their artists, whom we respect."
+    assert_equal "Support (new tab)", css_select("main a.legal__donation").sole.text.squish
+    assert_select "section[aria-labelledby=legal-support]", text: /They go through Buy Me a Coffee/
   end
 
   test "the configured contact is a mailto link, and the host's name and address are shown" do

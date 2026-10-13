@@ -219,7 +219,7 @@ fr:
       support:
         title: "Soutenir gameble"
         text: "gameble est gratuit et le restera. Si le jeu vous plaît, vous pouvez aider à payer son hébergement. Les dons sont facultatifs et ne donnent aucun avantage dans le jeu. Ils passent par Buy Me a Coffee, selon ses propres conditions. L'éditeur reçoit ce que vous choisissez d'y indiquer (nom, message)."
-        link: "Offrir un café"
+        link: "Soutenir"
   back_office:
     dashboard:
       show:
@@ -737,7 +737,7 @@ fr:
         delete: "Supprimer mon compte"
       support:
         label: "Soutenir"
-        link: "Offrir un café"
+        link: "Soutenir"
       legal: "Mentions légales"
     private_dialog:
       title: "Passer en privé ?"
