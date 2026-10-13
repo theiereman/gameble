@@ -39,6 +39,12 @@ module CollectionHelper
     set ? collection_set_path(kind: set.kind, key: set.key, shelf:) : collection_season_path(kind:, shelf:)
   end
 
+  # The name of a set's filter chip: the one its spine carries, else the
+  # set's own label, else its key humanised when it has no params to label it.
+  def set_chip_label(ref, spine_labels)
+    spine_labels[[ ref.kind, ref.key ]] || (SetLabel.for(ref) if ref.params) || ref.key.to_s.humanize
+  end
+
   private
     def collection_list_params(kind:, shelf:)
       { kind: (kind unless kind == ShelfLoading::KINDS.first), shelf: (shelf if shelf > 1) }.compact

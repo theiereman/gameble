@@ -1,8 +1,6 @@
 require "test_helper"
 
-# The words and links of a card's detail and of the links leading to it
-# (with what it browses: a grid, an opened pack, a set), its faded card
-# back, and its link previews.
+# The name of a page's locale in its link previews.
 class CardDetailsHelperTest < ActionView::TestCase
   test "og_locale names each served locale as Open Graph does" do
     assert_equal "en_US", I18n.with_locale(:en) { og_locale }
@@ -14,9 +12,8 @@ class CardDetailsHelperTest < ActionView::TestCase
   end
 
   test "a locale without an Open Graph name keeps its own code" do
-    I18n.available_locales += [ :de ]
-    assert_equal "de", I18n.with_locale(:de) { og_locale }
-  ensure
-    I18n.available_locales -= [ :de ]
+    I18n.stub :locale, :de do
+      assert_equal "de", og_locale
+    end
   end
 end
