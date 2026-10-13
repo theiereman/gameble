@@ -193,8 +193,8 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
   test "an answer to terms countered since the board was shown is refused with the current board; nothing moves" do
     trade = from_lea
     shown = revision(trade)
-    travel(1.minute) { Game::CounterTrade.new.call(player: @alice, trade_id: trade.id, offer: { @portal => 1 }, request: { @depths => 1 }).value! }
-    travel(2.minutes) { Game::CounterTrade.new.call(player: @bob, trade_id: trade.id, offer: { @depths => 2 }, request: { @portal => 1 }).value! }
+    travel(1.minute) { Game::CounterTrade.new.call(player: @alice, trade_id: trade.id, **revision(trade), offer: { @portal => 1 }, request: { @depths => 1 }).value! }
+    travel(2.minutes) { Game::CounterTrade.new.call(player: @bob, trade_id: trade.id, **revision(trade), offer: { @depths => 2 }, request: { @portal => 1 }).value! }
     sign_in @alice
 
     [ accept_trade_path(token: trade.token, locale: :fr), decline_trade_path(token: trade.token, locale: :fr) ].each do |path|
@@ -219,7 +219,50 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("errors.game.trade_changed", locale: :fr), flash[:alert]
     post decline_trade_path(token: trade.token, locale: :fr)
     assert_equal I18n.t("errors.game.trade_changed", locale: :fr), flash[:alert]
+    post counter_trade_path(token: trade.token, locale: :fr), params: { give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
+    assert_equal I18n.t("errors.game.trade_changed", locale: :fr), flash[:alert]
     assert trade.reload.open?
+    assert_equal @bob.id, trade.proposer_id
+  end
+
+  def counter_form_revision
+    css_select("form#trade-counter-form input[type=hidden][name=revision]").sole["value"]
+  end
+
+  test "a counter from a tab showing terms the friend has since changed is refused on the board's new terms; one from the fresh board goes through" do
+    trade = from_lea
+    sign_in @alice
+    get trade_path(token: trade.token, locale: :fr)
+    stale_tab = counter_form_revision
+    travel(1.minute) do
+      post counter_trade_path(token: trade.token, locale: :fr),
+        params: { revision: stale_tab, give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
+    end
+    travel(2.minutes) { Game::CounterTrade.new.call(player: @bob, trade_id: trade.id, **revision(trade), offer: { @depths => 2 }, request: { @portal => 1 }).value! }
+    lea_terms = trade.items.reload.map { [ it.side, it.card_season_id, it.quantity ] }.sort
+
+    travel(3.minutes) do
+      post counter_trade_path(token: trade.token, locale: :fr),
+        params: { revision: stale_tab, give: { "portal--s1" => "3" }, take: { "blue-depths--s1" => "1" } }
+    end
+    assert_redirected_to trade_path(token: trade.token, locale: :fr)
+    follow_redirect!
+
+    assert_select ".trade-board__error[role=alert]", I18n.t("errors.game.trade_changed", locale: :fr)
+    assert_select ".trade-chip--alert", "À vous"
+    assert_select ".trade-side--friend .trade-card__quantity", /×2/
+    assert_equal revision(trade)[:revision], counter_form_revision
+    trade.reload
+    assert_equal [ @bob.id, lea_terms ], [ trade.proposer_id, trade.items.map { [ it.side, it.card_season_id, it.quantity ] }.sort ]
+    assert_equal [ 0, 2 ], [ holding(@alice, @portal).reserved, holding(@bob, @depths).reserved ]
+
+    travel(4.minutes) do
+      post counter_trade_path(token: trade.token, locale: :fr),
+        params: { revision: counter_form_revision, give: { "portal--s1" => "3" }, take: { "blue-depths--s1" => "1" } }
+    end
+    assert_redirected_to trade_path(token: trade.token, locale: :fr)
+    assert_equal @alice.id, trade.reload.proposer_id
+    assert_equal [ 3, 0 ], [ holding(@alice, @portal).reserved, holding(@bob, @depths).reserved ]
   end
 
   test "proposing again to a friend whose trade expired but is not yet swept closes it and sends the new proposal" do
@@ -306,7 +349,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".toast--alert", /Le profil de Lea est privé : échanges fermés\./
     assert_equal "open", trade.reload.status
 
-    post counter_trade_path(token: trade.token, locale: :fr), params: { give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
+    post counter_trade_path(token: trade.token, locale: :fr), params: { **revision(trade), give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
     follow_redirect!
     assert_select ".toast--alert", /Le profil de Lea est privé : échanges fermés\./
     assert_equal "open", trade.reload.status
@@ -319,7 +362,8 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
     get counter_trade_path(token: trade.token, locale: :fr)
     assert_response :success
-    assert_select ".trade-board--editing form[action=?][method=post]", counter_trade_path(token: trade.token, locale: :fr)
+    assert_select ".trade-board--editing form[action=?][method=post] input[type=hidden][name=revision][value=?]",
+      counter_trade_path(token: trade.token, locale: :fr), revision(trade)[:revision]
     assert_select ".trade-side--editing", 2
     assert_select ".trade-board__message", "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez."
     assert_select "input[name='give[portal--s1]'][value='2'][min='0'][max='3']"
@@ -328,7 +372,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", trade_path(token: trade.token, locale: :fr), "Annuler les modifications"
 
     round = "#{@alice.token}:#{trade.token}:#{trade.expires_at.to_i}"
-    post counter_trade_path(token: trade.token, locale: :fr), params: { give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "2" } }
+    post counter_trade_path(token: trade.token, locale: :fr), params: { **revision(trade), give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "2" } }
     assert_redirected_to trade_path(token: trade.token, locale: :fr)
     follow_redirect!
 
@@ -347,7 +391,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     trade = from_lea
     sign_in @alice
 
-    post counter_trade_path(token: trade.token, locale: :fr), params: { give: { "portal--s1" => "0" }, take: { "blue-depths--s1" => "1" } }
+    post counter_trade_path(token: trade.token, locale: :fr), params: { **revision(trade), give: { "portal--s1" => "0" }, take: { "blue-depths--s1" => "1" } }
 
     assert_redirected_to counter_trade_path(token: trade.token, locale: :fr)
     follow_redirect!
@@ -411,7 +455,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     sign_in @alice
 
     post counter_trade_path(token: trade.token, locale: :fr),
-      params: { give: { "portal--s1" => "1", "tin-soldier--s1" => "1" }, take: { "tin-soldier--s1" => "2" } }
+      params: { **revision(trade), give: { "portal--s1" => "1", "tin-soldier--s1" => "1" }, take: { "tin-soldier--s1" => "2" } }
 
     assert_redirected_to trade_path(token: trade.token, locale: :fr)
     trade.reload
@@ -426,13 +470,13 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     trade = from_lea
     sign_in @alice
 
-    post counter_trade_path(token: trade.token, locale: :fr), params: { give: { "blue-depths--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
+    post counter_trade_path(token: trade.token, locale: :fr), params: { **revision(trade), give: { "blue-depths--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
     assert_redirected_to counter_trade_path(token: trade.token, locale: :fr)
     follow_redirect!
     assert_select ".trade-board__error", I18n.t("errors.game.invalid_offer", locale: :fr)
     assert_equal I18n.t("errors.game.invalid_offer", locale: :fr), island_props.fetch("error")
 
-    post counter_trade_path(token: trade.token, locale: :fr), params: { give: { "portal--s1" => "1" }, take: { "golden-crown--s1" => "1" } }
+    post counter_trade_path(token: trade.token, locale: :fr), params: { **revision(trade), give: { "portal--s1" => "1" }, take: { "golden-crown--s1" => "1" } }
     follow_redirect!
     assert_select ".trade-board__error", I18n.t("errors.game.invalid_request", locale: :fr)
     assert_equal @bob.id, trade.reload.proposer_id
@@ -446,7 +490,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     get counter_trade_path(token: trade.token, locale: :fr)
     assert_redirected_to trade_path(token: trade.token, locale: :fr)
 
-    post counter_trade_path(token: trade.token, locale: :fr), params: { give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
+    post counter_trade_path(token: trade.token, locale: :fr), params: { **revision(trade), give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
     follow_redirect!
     follow_redirect!
     assert_select ".trade-board__error", I18n.t("errors.game.not_allowed", locale: :fr)

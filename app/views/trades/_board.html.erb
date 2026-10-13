@@ -49,6 +49,7 @@
       <% end %>
       <%= form_with url: counter_trade_path(token: trade.token), method: :post, id: form_id, class: "trade-board__action-set",
             html: { hidden: !editing }, data: { controller: "trade-send", trade_board_target: "editActions" } do %>
+        <%= hidden_field_tag :revision, trade.revision, id: nil %>
         <%= render ButtonComponent.new(type: :submit) do %><%= t("trades.actions.send_counter") %><% end %>
         <span class="trade-board__action" data-action="click->trade-board#undo">
           <%= render ButtonComponent.new(variant: :secondary, href: trade_path(token: trade.token)) do %><%= t("trades.actions.undo") %><% end %>

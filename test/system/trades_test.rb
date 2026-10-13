@@ -84,8 +84,8 @@ class TradesTest < ApplicationSystemTestCase
     visit trade_path(token: trade.token, locale: :en)
     assert_selector ".trade-board .trade-chip--alert", text: /YOUR TURN/i
     page.execute_script("document.querySelectorAll('turbo-cable-stream-source').forEach((source) => source.remove())")
-    Game::CounterTrade.new.call(player: @hugo, trade_id: trade.id, offer: { @portal => 1 }, request: { @depths => 1 }).value!
-    Game::CounterTrade.new.call(player: @lea, trade_id: trade.id, offer: { @depths => 2 }, request: { @portal => 1 }).value!
+    Game::CounterTrade.new.call(player: @hugo, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision, offer: { @portal => 1 }, request: { @depths => 1 }).value!
+    Game::CounterTrade.new.call(player: @lea, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision, offer: { @depths => 2 }, request: { @portal => 1 }).value!
 
     within(".trade-board") { click_on "Accept" }
 

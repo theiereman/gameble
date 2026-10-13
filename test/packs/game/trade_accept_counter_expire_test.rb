@@ -40,8 +40,8 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
 
   def decline(trade, player = @bob, revision: revision_of(trade)) = Game::DeclineTrade.new.call(player:, trade_id: trade.id, revision:)
 
-  def counter(trade, player = @bob, offer: { @three => 1 }, request: { @one => 1 })
-    Game::CounterTrade.new.call(player:, trade_id: trade.id, offer:, request:)
+  def counter(trade, player = @bob, offer: { @three => 1 }, request: { @one => 1 }, revision: revision_of(trade))
+    Game::CounterTrade.new.call(player:, trade_id: trade.id, revision:, offer:, request:)
   end
 
   def sides(trade)
@@ -290,6 +290,21 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
     assert_empty events(Game::TradeDeclined, @alice)
   end
 
+  test "a counter on terms countered since they were seen is refused and nothing moves; one on the current terms goes through" do
+    trade = propose
+    seen = revision_of(trade)
+    travel(1.minute) { counter(trade).value! }
+    travel(2.minutes) { counter(trade, @alice, offer: { @one => 1 }, request: { @three => 1 }).value! }
+    before = snapshot
+
+    assert_equal Dry::Monads::Failure(:trade_changed), counter(trade, offer: { @three => 2 }, request: { @two => 1 }, revision: seen)
+    assert_equal before, snapshot
+    assert_equal 1, events(Game::TradeCountered, @bob).size
+
+    travel(3.minutes) { counter(trade, offer: { @three => 2 }, request: { @two => 1 }).value! }
+    assert_equal({ "offer" => { @three => 2 }, "request" => { @two => 1 } }, sides(trade))
+  end
+
   test "a cancel given terms countered since they were seen is refused and nothing moves" do
     trade = propose
     seen = revision_of(trade)
@@ -303,12 +318,13 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
     assert_empty events(Game::TradeCancelled, @alice)
   end
 
-  test "an accept or a decline that names no version, or an unreadable one, is refused" do
+  test "an accept, a decline or a counter that names no version, or an unreadable one, is refused" do
     trade = propose
 
     [ nil, "", "nope", 42, [ revision_of(trade) ] ].each do |unreadable|
       assert_equal Dry::Monads::Failure(:trade_changed), accept(trade, revision: unreadable), unreadable.inspect
       assert_equal Dry::Monads::Failure(:trade_changed), decline(trade, revision: unreadable), unreadable.inspect
+      assert_equal Dry::Monads::Failure(:trade_changed), counter(trade, revision: unreadable), unreadable.inspect
     end
     assert_equal Dry::Monads::Failure(:trade_changed), Game::DeclineTrade.new.call(player: @bob, trade_id: trade.id)
     assert trade.reload.open?

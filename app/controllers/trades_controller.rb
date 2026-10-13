@@ -77,7 +77,7 @@ class TradesController < ApplicationController
     trade = find_trade!
 
     result = with_sides(trade.friend) do |offer, request|
-      Game::CounterTrade.new.call(player: current_player, trade_id: trade.id, offer:, request:)
+      Game::CounterTrade.new.call(player: current_player, trade_id: trade.id, revision: params[:revision], offer:, request:)
     end
     if result.success?
       flash[:trade_forget] = helpers.trade_counter_key(current_player, trade)
@@ -85,7 +85,7 @@ class TradesController < ApplicationController
       redirect_to trade_path(token: trade.token), status: :see_other
     else
       refused(result.failure, trade.friend)
-      redirect_to counter_trade_path(token: trade.token), status: :see_other
+      redirect_to counter_refused_path(trade, result.failure), status: :see_other
     end
   end
 
@@ -184,6 +184,10 @@ class TradesController < ApplicationController
         value = value.to_s.strip
         side[id] = value unless value.empty? || value == "0"
       end
+    end
+
+    def counter_refused_path(trade, code)
+      code == :trade_changed ? trade_path(token: trade.token) : counter_trade_path(token: trade.token)
     end
 
     def answer(trade, result)

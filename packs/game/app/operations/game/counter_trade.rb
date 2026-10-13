@@ -2,7 +2,7 @@ module Game
   class CounterTrade < Operation
     include TradeSteps
 
-    def call(player:, trade_id:, offer:, request:)
+    def call(player:, trade_id:, revision:, offer:, request:)
       player = step require_player(player)
       offer = step normalise(offer, :invalid_offer)
       request = step normalise(request, :invalid_request)
@@ -14,6 +14,7 @@ module Game
         trade = lock_trade(trade)
         step turn(trade, player, :recipient_id)
         step still_open(trade)
+        step current_terms(trade, revision)
         now = Time.current
         step not_expired(trade, now)
         other_id = trade.proposer_id

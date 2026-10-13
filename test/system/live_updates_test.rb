@@ -94,7 +94,7 @@ class LiveUpdatesTest < ApplicationSystemTestCase
       assert not_reloaded?
     end
 
-    Game::CounterTrade.new.call(player: @hugo, trade_id: trade.id, offer: { @portal => 1 }, request: { @depths => 1 }).value!
+    Game::CounterTrade.new.call(player: @hugo, trade_id: trade.id, revision: Game::Trade.find(trade.id).revision, offer: { @portal => 1 }, request: { @depths => 1 }).value!
     deliver
 
     assert_selector ".hub-menu a.menu-item .menu-item__badge--zero", text: "0"

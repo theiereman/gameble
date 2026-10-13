@@ -269,9 +269,10 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
 
     4.times do
       trade = propose(@alice, @bob, { @card => 1 }, { @other => 1 }).call.value!
+      revision = Game::Trade.find(trade.id).revision
       results = together(
         accept(@bob, trade),
-        -> { Game::CounterTrade.new.call(player: Accounts::Player.find(@bob.id), trade_id: trade.id, offer: { @other => 1 }, request: { @card => 1 }) },
+        -> { Game::CounterTrade.new.call(player: Accounts::Player.find(@bob.id), trade_id: trade.id, revision:, offer: { @other => 1 }, request: { @card => 1 }) },
         -> { Game::CancelTrade.new.call(player: Accounts::Player.find(@alice.id), trade_id: trade.id) }
       )
 

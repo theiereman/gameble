@@ -28,7 +28,7 @@ class Game::DeletedPlayerPartnerTest < ActiveSupport::TestCase
     assert_equal "cancelled", @trade.reload.status
     assert_equal Dry::Monads::Failure(:trade_not_open), Game::AcceptTrade.new.call(player: @bob, trade_id: @trade.id, revision: Game::Trade.find(@trade.id).revision)
     assert_equal Dry::Monads::Failure(:trade_not_open),
-      Game::CounterTrade.new.call(player: @bob, trade_id: @trade.id, offer: { @three => 1 }, request: { @one => 1 })
+      Game::CounterTrade.new.call(player: @bob, trade_id: @trade.id, revision: Game::Trade.find(@trade.id).revision, offer: { @three => 1 }, request: { @one => 1 })
     assert_equal Dry::Monads::Failure(:trade_not_open), Game::DeclineTrade.new.call(player: @bob, trade_id: @trade.id)
     assert_empty rows_of(@alice)
     assert_equal bob_rows, rows_of(@bob)
