@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_12_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_13_090001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,7 +23,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140000) do
     t.index ["created_at"], name: "index_accounts_moderation_actions_on_created_at"
     t.index ["player_id", "created_at"], name: "index_accounts_moderation_actions_on_player_id_and_created_at"
     t.index ["staff_id"], name: "index_accounts_moderation_actions_on_staff_id"
-    t.check_constraint "kind::text = ANY (ARRAY['ban'::character varying::text, 'unban'::character varying::text, 'dismissal'::character varying::text])", name: "accounts_moderation_actions_kind_check"
+    t.check_constraint "kind::text = 'ban'::text OR kind::text = 'unban'::text OR kind::text = 'dismissal'::text", name: "accounts_moderation_actions_kind_check"
     t.check_constraint "reason IS NULL OR char_length(reason) <= 500", name: "accounts_moderation_actions_reason_length_check"
     t.check_constraint "reason IS NULL OR kind::text = 'ban'::text", name: "accounts_moderation_actions_reason_kind_check"
   end
@@ -46,7 +46,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140000) do
     t.index ["token"], name: "index_accounts_players_on_token", unique: true
     t.check_constraint "(steam_id IS NULL) = (deleted_at IS NOT NULL)", name: "accounts_players_deleted_check"
     t.check_constraint "role::text = 'player'::text OR role::text = 'moderator'::text OR role::text = 'administrator'::text", name: "accounts_players_role_check"
-    t.check_constraint "visibility::text = ANY (ARRAY['public'::character varying::text, 'friends_only'::character varying::text, 'private'::character varying::text])", name: "accounts_players_visibility_check"
+    t.check_constraint "visibility::text = 'public'::text OR visibility::text = 'friends_only'::text OR visibility::text = 'private'::text", name: "accounts_players_visibility_check"
   end
 
   create_table "accounts_reports", force: :cascade do |t|
@@ -59,7 +59,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140000) do
     t.index ["reported_id"], name: "index_accounts_reports_on_reported_id"
     t.index ["reporter_id", "created_at"], name: "index_accounts_reports_on_reporter_id_and_created_at"
     t.index ["reporter_id", "reported_id"], name: "index_accounts_reports_on_reporter_id_and_reported_id", unique: true
-    t.check_constraint "reason::text = ANY (ARRAY['inappropriate_name'::character varying::text, 'cheating'::character varying::text, 'harassment'::character varying::text, 'other'::character varying::text])", name: "accounts_reports_reason_check"
+    t.check_constraint "reason::text = 'inappropriate_name'::text OR reason::text = 'cheating'::text OR reason::text = 'harassment'::text OR reason::text = 'other'::text", name: "accounts_reports_reason_check"
   end
 
   create_table "catalog_card_seasons", force: :cascade do |t|
@@ -141,7 +141,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140000) do
     t.datetime "updated_at", null: false
     t.index ["set_id", "tier"], name: "index_catalog_set_tiers_on_set_id_and_tier", unique: true
     t.check_constraint "required > 0", name: "catalog_set_tiers_required_check"
-    t.check_constraint "tier::text = ANY (ARRAY['bronze'::character varying::text, 'silver'::character varying::text, 'gold'::character varying::text, 'complete'::character varying::text])", name: "catalog_set_tiers_tier_check"
+    t.check_constraint "tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'complete'::text", name: "catalog_set_tiers_tier_check"
   end
 
   create_table "catalog_sets", force: :cascade do |t|
@@ -152,7 +152,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140000) do
     t.datetime "updated_at", null: false
     t.jsonb "params", default: {}, null: false
     t.index ["season_id", "kind", "key"], name: "index_catalog_sets_on_season_id_and_kind_and_key", unique: true
-    t.check_constraint "kind::text = ANY (ARRAY['publisher'::character varying::text, 'tome'::character varying::text, 'best_of_year'::character varying::text, 'theme'::character varying::text, 'franchise'::character varying::text, 'studio'::character varying::text, 'hall_of_fame'::character varying::text, 'ufo'::character varying::text])", name: "catalog_sets_kind_check"
+    t.check_constraint "kind::text = 'publisher'::text OR kind::text = 'tome'::text OR kind::text = 'best_of_year'::text OR kind::text = 'theme'::text OR kind::text = 'franchise'::text OR kind::text = 'studio'::text OR kind::text = 'hall_of_fame'::text OR kind::text = 'ufo'::text", name: "catalog_sets_kind_check"
   end
 
   create_table "event_store_events", force: :cascade do |t|
@@ -220,9 +220,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140000) do
     t.index ["partner_id"], name: "index_game_feed_entries_on_partner_id"
     t.index ["player_id"], name: "index_game_feed_entries_on_player_id"
     t.index ["trade_id"], name: "index_game_feed_entries_on_trade_id", unique: true, where: "(trade_id IS NOT NULL)"
+    t.check_constraint "(kind::text = 'pull'::text OR kind::text = 'discovery'::text) = (pack_id IS NOT NULL AND \"position\" IS NOT NULL)", name: "game_feed_entries_pack_check"
     t.check_constraint "(kind::text = 'trade'::text) = (trade_id IS NOT NULL AND partner_id IS NOT NULL AND partner_card_season_id IS NOT NULL)", name: "game_feed_entries_trade_check"
-    t.check_constraint "(kind::text = ANY (ARRAY['pull'::character varying::text, 'discovery'::character varying::text])) = (pack_id IS NOT NULL AND \"position\" IS NOT NULL)", name: "game_feed_entries_pack_check"
-    t.check_constraint "kind::text = ANY (ARRAY['pull'::character varying::text, 'discovery'::character varying::text, 'trade'::character varying::text, 'repost'::character varying::text])", name: "game_feed_entries_kind_check"
+    t.check_constraint "kind::text = 'pull'::text OR kind::text = 'discovery'::text OR kind::text = 'trade'::text OR kind::text = 'repost'::text", name: "game_feed_entries_kind_check"
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "game_feed_entries_rarity_check"
   end
 
@@ -294,7 +294,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140000) do
     t.index ["sender_id"], name: "index_game_invitations_on_sender_id"
     t.index ["token"], name: "index_game_invitations_on_token", unique: true
     t.check_constraint "sender_id <> recipient_id", name: "game_invitations_distinct_check"
-    t.check_constraint "status::text = ANY (ARRAY['pending'::character varying::text, 'accepted'::character varying::text, 'ignored'::character varying::text])", name: "game_invitations_status_check"
+    t.check_constraint "status::text = 'pending'::text OR status::text = 'accepted'::text OR status::text = 'ignored'::text", name: "game_invitations_status_check"
   end
 
   create_table "game_packs", force: :cascade do |t|
@@ -348,7 +348,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140000) do
     t.index ["card_season_id"], name: "index_game_trade_items_on_card_season_id"
     t.index ["trade_id", "side", "card_season_id"], name: "index_game_trade_items_on_trade_id_and_side_and_card_season_id", unique: true
     t.check_constraint "quantity > 0", name: "game_trade_items_quantity_check"
-    t.check_constraint "side::text = ANY (ARRAY['offer'::character varying::text, 'request'::character varying::text])", name: "game_trade_items_side_check"
+    t.check_constraint "side::text = 'offer'::text OR side::text = 'request'::text", name: "game_trade_items_side_check"
   end
 
   create_table "game_trades", force: :cascade do |t|
@@ -369,7 +369,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140000) do
     t.index ["token"], name: "index_game_trades_on_token", unique: true
     t.check_constraint "low_player_id < high_player_id", name: "game_trades_order_check"
     t.check_constraint "proposer_id = low_player_id AND recipient_id = high_player_id OR proposer_id = high_player_id AND recipient_id = low_player_id", name: "game_trades_parties_check"
-    t.check_constraint "status::text = ANY (ARRAY['open'::character varying::text, 'cancelled'::character varying::text, 'declined'::character varying::text, 'accepted'::character varying::text, 'expired'::character varying::text])", name: "game_trades_status_check"
+    t.check_constraint "status::text = 'open'::text OR status::text = 'cancelled'::text OR status::text = 'declined'::text OR status::text = 'accepted'::text OR status::text = 'expired'::text", name: "game_trades_status_check"
   end
 
   create_table "game_weekly_contributions", force: :cascade do |t|
@@ -432,9 +432,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140000) do
     t.index ["details_run_id", "appid"], name: "index_steam_apps_detailed_by_run", where: "(details_exclusion IS NULL)"
     t.index ["import_run_id"], name: "index_steam_apps_on_import_run_id"
     t.index ["reviewed_run_id", "appid"], name: "index_steam_apps_kept_by_run", where: "(review_exclusion IS NULL)"
-    t.check_constraint "details_exclusion IS NULL OR (details_exclusion::text = ANY (ARRAY['unavailable'::character varying::text, 'not_a_game'::character varying::text, 'no_title'::character varying::text, 'no_vertical_image'::character varying::text, 'no_release_date'::character varying::text]))", name: "steam_apps_details_exclusion_check"
+    t.check_constraint "details_exclusion IS NULL OR details_exclusion::text = 'unavailable'::text OR details_exclusion::text = 'not_a_game'::text OR details_exclusion::text = 'no_title'::text OR details_exclusion::text = 'no_vertical_image'::text OR details_exclusion::text = 'no_release_date'::text", name: "steam_apps_details_exclusion_check"
     t.check_constraint "genres_exclusion IS NULL OR genres_exclusion::text = 'unavailable'::text", name: "steam_apps_genres_exclusion_check"
-    t.check_constraint "review_exclusion IS NULL OR (review_exclusion::text = ANY (ARRAY['too_few_reviews'::character varying::text, 'unavailable'::character varying::text, 'malformed_reviews'::character varying::text]))", name: "steam_apps_review_exclusion_check"
+    t.check_constraint "review_exclusion IS NULL OR review_exclusion::text = 'too_few_reviews'::text OR review_exclusion::text = 'unavailable'::text OR review_exclusion::text = 'malformed_reviews'::text", name: "steam_apps_review_exclusion_check"
   end
 
   create_table "steam_import_runs", force: :cascade do |t|
@@ -451,7 +451,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_140000) do
     t.index "(true)", name: "index_steam_import_runs_one_active", unique: true, where: "(((status)::text = 'pending'::text) OR ((status)::text = 'running'::text))"
     t.index ["created_at"], name: "index_steam_import_runs_on_created_at"
     t.index ["token"], name: "index_steam_import_runs_on_token", unique: true
-    t.check_constraint "status::text = ANY (ARRAY['pending'::character varying::text, 'running'::character varying::text, 'completed'::character varying::text, 'failed'::character varying::text, 'abandoned'::character varying::text])", name: "steam_import_runs_status_check"
+    t.check_constraint "status::text = 'pending'::text OR status::text = 'running'::text OR status::text = 'completed'::text OR status::text = 'failed'::text OR status::text = 'abandoned'::text", name: "steam_import_runs_status_check"
   end
 
   create_table "steam_tags", force: :cascade do |t|
