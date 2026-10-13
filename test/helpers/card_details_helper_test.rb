@@ -12,8 +12,6 @@ class CardDetailsHelperTest < ActionView::TestCase
   end
 
   test "a locale without an Open Graph name keeps its own code" do
-    I18n.stub :locale, :de do
-      assert_equal "de", og_locale
-    end
+    assert_equal "de", og_locale_for("de")
   end
 end
