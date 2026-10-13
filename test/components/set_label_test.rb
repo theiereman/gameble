@@ -64,6 +64,11 @@ class SetLabelTest < ActiveSupport::TestCase
     assert_equal "Valve", label("publisher", { "publisher" => "Valve" }, :en)
   end
 
+  test "a publisher set without its name is refused" do
+    assert_raises(ArgumentError) { label("publisher", {}, :en) }
+    assert_raises(ArgumentError) { SetLabel.for(Catalog::Set.new(kind: "publisher", key: "k", params: nil)) }
+  end
+
   test "a tome is its genre and volume" do
     assert_equal "Gratuit · Tome 2", label("tome", { "genre" => "free_to_play", "volume" => 2 }, :fr)
     assert_equal "Free to Play · Tome 2", label("tome", { "genre" => "free_to_play", "volume" => 2 }, :en)
@@ -80,6 +85,11 @@ class SetLabelTest < ActiveSupport::TestCase
     set = Catalog::Set.new(key: "k", params: {})
     set.define_singleton_method(:kind) { "nope" }
     assert_raises(ArgumentError) { SetLabel.for(set) }
+  end
+
+  test "a set whose params are nil is refused, not a NoMethodError" do
+    assert_raises(ArgumentError) { SetLabel.for(Catalog::Set.new(kind: "theme", key: "k", params: nil)) }
+    assert_raises(ArgumentError) { SetLabel.for(Catalog::Set.new(kind: "publisher", key: "k", params: nil)) }
   end
 
   test "a best of year names its year" do

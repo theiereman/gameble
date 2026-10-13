@@ -17,9 +17,10 @@ module CardDetailsHelper
     public_url_for(card_season_path(slug: view.id, number: view.season_number))
   end
 
-  # The page's locale as Open Graph names it: "en_US", "fr_FR".
+  # The page's locale as Open Graph names it: "en_US", "fr_FR"; one the app
+  # serves without a name here is its own code.
   def og_locale
-    OG_LOCALES.fetch(I18n.locale.to_s)
+    OG_LOCALES.fetch(I18n.locale.to_s, I18n.locale.to_s)
   end
 
   # The game's Steam store page, in French on a French page (Steam reads

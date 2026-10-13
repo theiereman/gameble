@@ -7,7 +7,8 @@
 # `catalog.genres`; a best of year "Best rated of <year>". A theme or genre
 # missing from the locales is its key humanised, in English whatever the
 # locale. A malformed set (a kind without a name, a theme or hall of fame
-# set without its param, a tome without genre) raises ArgumentError.
+# set without its param, a publisher set without its name, a tome without
+# genre) raises ArgumentError.
 #
 #   SetLabel.for(set) # => "Roguelike"
 #
@@ -19,7 +20,7 @@
 # `genre` names a card's genre, its main theme.
 module SetLabel
   def self.for(set)
-    params = set.params
+    params = set.params || {}
     case set.kind
     when "theme"
       raise ArgumentError, "a theme set without theme: #{params.inspect}" if params["theme"].blank?
@@ -32,7 +33,10 @@ module SetLabel
 
       I18n.t(params["hall_of_fame"], scope: "catalog.hall_of_fame")
     when "ufo" then I18n.t("catalog.sets.ufos")
-    when "publisher" then params["publisher"]
+    when "publisher"
+      raise ArgumentError, "a publisher set without its name: #{params.inspect}" if params["publisher"].blank?
+
+      params["publisher"]
     when "tome"
       raise ArgumentError, "a tome without genre: #{params.inspect}" if params["genre"].blank?
 
