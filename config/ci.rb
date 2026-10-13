@@ -10,7 +10,8 @@ CI.run do
 
   step "Security: Gem audit", "bin/bundler-audit"
   step "Security: Brakeman code analysis", "bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error"
-  step "Migrations: safety", "env RAILS_ENV=test bin/rails db:drop db:create db:migrate && git diff --exit-code -- db/schema.rb"
+  step "Migrations: build db/schema.rb", "rm -f tmp/migrated_schema.rb && env RAILS_ENV=test SCHEMA=tmp/migrated_schema.rb bin/rails db:drop db:create db:migrate && diff -u db/schema.rb tmp/migrated_schema.rb"
+  step "Migrations: db/schema.rb round trip", "env RAILS_ENV=test bin/rails db:drop db:create db:schema:load db:schema:dump && git diff --exit-code -- db/schema.rb"
   step "Tests: Rails", "bin/rails test"
   step "Tests: Seeds", "env RAILS_ENV=test bin/rails db:seed:replant"
 

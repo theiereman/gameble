@@ -130,10 +130,12 @@
   summary: Nothing stops a new migration from writing a check as `col IN (...)` on a varchar column, whose dumped form CI's load-and-dump drift step rewrites; a line under "Known pitfalls" in AGENTS.md (write list checks as `col = 'a' OR col = 'b'`) or a lint rule would close it.
   evidence: This plan's quick review; the only guard is the comment in `db/migrate/20261002210000_create_catalog.rb`, which twelve later migrations missed. The fix edits agent-context files, which the build defers to the author.
   decision: Author, 2026-10-13: no AGENTS.md rule; the CI step of ticket 43 catches such a check.
+  resolved: Ticket 43 (2026-10-13, `story-ci-s-drift-step-replays-the-migrations-plan.md`): CI's "Check the migrations build db/schema.rb" step fails on a new `IN` check when db/schema.rb holds the load-stable form, and the round-trip step fails when it holds the migrated form.
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-db-schema-rb-round-trips-the-steam-checks-plan.md`
   summary: CI's drift step (`bin/rails db:create db:migrate && git diff --exit-code -- db/schema.rb`) never runs the existing migrations: on an empty database Rails 8.1's `db:migrate` loads db/schema.rb first, so the step checks only that a load dumps the same file; pointing `SCHEMA` at a missing file for the migrate and diffing that dump would test the migrations themselves.
   evidence: `ActiveRecord::Tasks::DatabaseTasks#initialize_database` (activerecord 8.1.4) loads the schema file when `schema_migrations` does not exist; the same applies to AGENTS.md's regeneration command. Found while building this ticket, 2026-10-13.
   decision: Author, 2026-10-13: fix the CI step, ticket 43 of epic-public-launch-readiness.
+  resolved: Ticket 43 (2026-10-13, `story-ci-s-drift-step-replays-the-migrations-plan.md`): CI runs every migration with `SCHEMA` at a missing file and diffs that dump against db/schema.rb, then checks the load round trip on an empty database; `bin/ci` runs the same two checks. AGENTS.md's regeneration command still loads the schema first, unchanged by decision.
 
 ## Deferred from: code review of story-persona-names-are-cut-on-whole-characters-plan (2026-10-13)
 

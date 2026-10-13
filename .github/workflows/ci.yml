@@ -113,11 +113,19 @@ jobs:
       - name: Run JavaScript tests
         run: npm run test:js
 
-      - name: Check migrations are safe
+      - name: Check the migrations build db/schema.rb
         env:
           RAILS_ENV: test
           DATABASE_URL: postgres://postgres:postgres@localhost:5432
-        run: bin/rails db:create db:migrate && git diff --exit-code -- db/schema.rb
+          # db:migrate loads the SCHEMA file into an empty database when it exists; a missing one makes it run every migration and dump there.
+          SCHEMA: tmp/migrated_schema.rb
+        run: rm -f "$SCHEMA" && bin/rails db:drop db:create db:migrate && diff -u db/schema.rb "$SCHEMA"
+
+      - name: Check db/schema.rb loads and dumps unchanged
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432
+        run: bin/rails db:drop db:create db:schema:load db:schema:dump && git diff --exit-code -- db/schema.rb
 
       - name: Check eager loading
         env:
