@@ -132,3 +132,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-db-schema-rb-round-trips-the-steam-checks-plan.md`
   summary: CI's drift step (`bin/rails db:create db:migrate && git diff --exit-code -- db/schema.rb`) never runs the existing migrations: on an empty database Rails 8.1's `db:migrate` loads db/schema.rb first, so the step checks only that a load dumps the same file; pointing `SCHEMA` at a missing file for the migrate and diffing that dump would test the migrations themselves.
   evidence: `ActiveRecord::Tasks::DatabaseTasks#initialize_database` (activerecord 8.1.4) loads the schema file when `schema_migrations` does not exist; the same applies to AGENTS.md's regeneration command. Found while building this ticket, 2026-10-13.
+
+## Deferred from: code review of story-persona-names-are-cut-on-whole-characters-plan (2026-10-13)
+
+- Planning ids also remain in the comments of `packs/accounts/app/models/accounts/persona_name.rb`, `packs/accounts/app/operations/accounts/sign_in.rb` and `test/packs/accounts/persona_name_test.rb` (CAP-8, epic 4 retrospective B4); pre-existing, to fold into the same repo-wide sweep.

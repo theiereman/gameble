@@ -2,7 +2,7 @@ require "test_helper"
 
 # A Steam persona name made fit to show (CAP-8; epic 4 retrospective B4):
 # invisible characters dropped, spaces made plain and squished, cut to 64
-# characters, and nil when nothing visible remains. Every character other
+# graphemes, and nil when nothing visible remains. Every character other
 # than ASCII is written as a \u escape.
 class Accounts::PersonaNameTest < ActiveSupport::TestCase
   def clean(value) = Accounts::PersonaName.clean(value)
@@ -45,10 +45,33 @@ class Accounts::PersonaNameTest < ActiveSupport::TestCase
     end
   end
 
-  test "a long name is cut to 64 characters, then stripped" do
+  test "a long name is cut to 64 graphemes, then stripped" do
     assert_equal "a" * 64, clean("  #{"a" * 70}  ")
     assert_equal "a" * 63, clean("#{"a" * 63} b")
     assert_equal "a" * 64, clean("\u200B" * 10 + "a" * 70)
+  end
+
+  ACCENTED = "e\u0301\u0302"
+  THUMBS_UP = "\u{1F44D}\u{1F3FD}"
+  FLAG = "\u{1F1EB}\u{1F1F7}"
+
+  [ ACCENTED, THUMBS_UP, FLAG ].each do |grapheme|
+    test "a long name ending in #{grapheme.inspect} is cut after a whole one" do
+      assert_equal "a" * 63 + grapheme, clean("a" * 63 + grapheme * 2)
+    end
+  end
+
+  test "a long name of combining marks, modified emoji and flags is cut to 64 whole graphemes" do
+    cleaned = clean((ACCENTED + THUMBS_UP + FLAG) * 22)
+
+    assert_equal 64, cleaned.grapheme_clusters.size
+    assert_equal (ACCENTED + THUMBS_UP + FLAG) * 21 + ACCENTED, cleaned
+  end
+
+  [ ACCENTED * 64, FLAG * 64, (ACCENTED + THUMBS_UP + FLAG) * 21 + ACCENTED ].each do |name|
+    test "#{name.grapheme_clusters.size} graphemes in #{name.length} code points are kept" do
+      assert_equal name, clean(name)
+    end
   end
 
   test "bytes that are not UTF-8 are dropped; a UTF-8 name tagged binary keeps its characters" do

@@ -11,7 +11,9 @@ module Accounts
   #   Braille pattern U+2800 are removed;
   # - every other space (\p{Zs}: the ideographic space U+3000, the no-break
   #   space U+00A0) becomes a plain one, and runs of spaces are squished;
-  # - the name is cut to LENGTH characters and stripped.
+  # - the name is cut to LENGTH graphemes, so a letter keeps its combining
+  #   marks, an emoji its skin-tone modifier and a flag both its halves,
+  #   then stripped.
   #
   # What remains must hold a letter, digit, symbol or punctuation mark, or
   # there is no name (nil). Dropping default-ignorables also drops the ZWJ
@@ -34,7 +36,7 @@ module Accounts
       return nil unless value.is_a?(String)
 
       name = value.dup.force_encoding(Encoding::UTF_8).scrub("")
-      name = name.gsub(INVISIBLE, "").gsub(SPACE, " ").squish.first(LENGTH).strip
+      name = name.gsub(INVISIBLE, "").gsub(SPACE, " ").squish.each_grapheme_cluster.first(LENGTH).join.strip
       name if VISIBLE.match?(name)
     end
   end

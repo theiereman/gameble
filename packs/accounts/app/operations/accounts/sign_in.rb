@@ -6,7 +6,7 @@ module Accounts
   # The persona name the web layer read from Steam for this sign-in (CAP-8)
   # becomes the player's display name: cleaned by Accounts::PersonaName
   # (invisible characters dropped, spaces squished, cut to
-  # Accounts::PersonaName::LENGTH characters), it replaces a different
+  # Accounts::PersonaName::LENGTH graphemes), it replaces a different
   # stored one, so a renamed Steam account is picked up here; nil, or a name
   # that cleans to nothing, keeps the stored name (Steam failed or gave none
   # worth showing). Accounts never calls Steam itself.
