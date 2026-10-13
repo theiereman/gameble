@@ -1,13 +1,12 @@
-<%# The delete dialog, "SUPPRIMER MON COMPTE" (DESIGN.md, Delete dialog;
-    EXPERIENCE.md, Delete dialog): a modal <dialog> (a bottom sheet on the
-    phone) opened from the settings' COMPTE row. The note says what is
-    erased; the field is labelled with the word to type, and "SUPPRIMER
-    DÉFINITIVEMENT" enables once the field holds it, in any case, typed or
-    pasted (confirm_word_controller.ts; the server checks the word again).
-    It posts to accounts#destroy as a full page load: the answer signs the
-    player out. %>
+<%# The delete dialog, "SUPPRIMER MON COMPTE": a modal <dialog> (a bottom
+    sheet on the phone) opened from the settings' COMPTE row. The note says
+    what is erased; the field is labelled with the word to type, and
+    "SUPPRIMER DÉFINITIVEMENT" enables once the field holds it, in any case,
+    typed or pasted (confirm_word_controller.ts; the server checks the word
+    again). It posts to accounts#destroy as a full page load: the answer
+    signs the player out. %>
 <% word = t("accounts.dialog.word") %>
-<dialog id="delete-dialog" class="modal" aria-labelledby="delete-dialog-title" data-controller="dialog" data-action="click->dialog#closeOnScrim">
+<dialog id="delete-dialog" class="modal delete-dialog" aria-labelledby="delete-dialog-title" data-controller="dialog" data-action="click->dialog#closeOnScrim">
   <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
     <span class="modal__handle" aria-hidden="true"></span>
     <div class="modal__head">
@@ -19,10 +18,11 @@
     <%= form_with url: account_path, method: :delete, class: "delete-dialog__form",
           data: { turbo: false, controller: "confirm-word", confirm_word_word_value: word } do %>
       <p id="delete-dialog-note" class="delete-dialog__note"><%= t("accounts.dialog.note") %></p>
+      <p id="delete-dialog-kept" class="delete-dialog__note"><%= t("accounts.dialog.kept") %></p>
       <label for="delete-confirmation" class="delete-dialog__label"><%= t("accounts.dialog.label", word:) %></label>
       <%= text_field_tag "confirmation", nil, id: "delete-confirmation", class: "delete-dialog__input", required: true,
             autocomplete: "off", autocapitalize: "characters", spellcheck: false, autofocus: true,
-            aria: { describedby: "delete-dialog-note" },
+            aria: { describedby: "delete-dialog-note delete-dialog-kept" },
             data: { confirm_word_target: "field", action: "input->confirm-word#check" } %>
       <div class="delete-dialog__actions">
         <%= tag.button t("accounts.dialog.submit"), type: :submit, class: "button button--danger",

@@ -1174,7 +1174,8 @@ fr:
     dialog:
       title: "Supprimer mon compte"
       close: "Fermer"
-      note: "Votre collection, vos boosters, vos échanges en cours et votre profil seront effacés définitivement. Cette action est irréversible."
+      note: "Seront effacés définitivement : votre identifiant Steam, votre nom, votre profil et son lien, l'heure de votre dernière visite et votre dernière activité, votre collection, vos sets complétés et vos succès, vos boosters, ouverts ou non, vos bonus du jour et vos récompenses de l'objectif communautaire, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
+      kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à l'objectif communautaire, les signalements, l'historique de modération et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
       submit: "Supprimer définitivement"

@@ -159,10 +159,16 @@
   gap: var(--space-4);
 }
 
-/* The delete dialog (DESIGN.md, Delete dialog): the title row in alert
-   orange (.modal__title--alert), the note, the text field labelled with the
-   word to type, the danger button (greyed while disabled, shell.css) and
+/* The delete dialog: the title row in alert orange
+   (.modal__title--alert), the note, the text field labelled with the word
+   to type, the danger button (greyed while disabled, shell.css) and
    ANNULER, stacked on the phone. */
+.delete-dialog {
+  max-height: calc(100dvh - 2 * var(--space-gutter-phone));
+  padding: calc(-1 * var(--corner-brackets-offset));
+  overflow-y: auto;
+}
+
 .delete-dialog__form {
   display: flex;
   flex-direction: column;
@@ -209,6 +215,11 @@
 }
 
 @media (max-width: 719px) {
+  .delete-dialog {
+    max-height: 100dvh;
+    padding: 0;
+  }
+
   .delete-dialog__actions {
     flex-direction: column;
   }

@@ -22,7 +22,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
       assert_select "form[action='/fr/account'][data-turbo=false][data-controller=confirm-word][data-confirm-word-word-value=SUPPRIMER]"
       assert_select "input[name=_method][value=delete]", visible: :all
       assert_select "label[for=delete-confirmation]", "Tapez SUPPRIMER pour confirmer"
-      assert_select "input#delete-confirmation[name=confirmation][autocomplete=off][aria-describedby=delete-dialog-note]"
+      assert_select "input#delete-confirmation[name=confirmation][autocomplete=off]"
       assert_select "button[type=submit].button--danger:not([disabled])", "Supprimer définitivement"
       assert_select "button[type=button][data-action='dialog#close']", "Annuler"
     end
@@ -30,6 +30,59 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     get settings_path(locale: :en)
     assert_select "form[action='/en/account'][data-confirm-word-word-value=DELETE]"
     assert_select "label[for=delete-confirmation]", "Type DELETE to confirm"
+  end
+
+  ERASED_OR_CANCELLED = {
+    "accounts_players" => { fr: [ "votre identifiant Steam", "votre nom", "votre profil et son lien", "l'heure de votre dernière visite" ],
+                            en: [ "your Steam id", "your name", "your profile and its link", "the time of your last visit" ] },
+    "game_player_states" => { fr: [ "votre dernière activité" ], en: [ "your latest activity" ] },
+    "game_holdings" => { fr: [ "votre collection" ], en: [ "your collection" ] },
+    "game_set_completions" => { fr: [ "vos sets complétés" ], en: [ "your completed sets" ] },
+    "game_achievement_unlocks" => { fr: [ "vos succès" ], en: [ "your achievements" ] },
+    "game_packs" => { fr: [ "vos boosters, ouverts ou non" ], en: [ "your boosters, opened or not" ] },
+    "game_daily_bonus_claims" => { fr: [ "vos bonus du jour" ], en: [ "your daily bonuses" ] },
+    "game_goal_rewards" => { fr: [ "vos récompenses de l'objectif communautaire" ], en: [ "your community goal rewards" ] },
+    "game_friendships" => { fr: [ "vos amis" ], en: [ "your friends" ] },
+    "game_invitations" => { fr: [ "vos invitations" ], en: [ "your invitations" ] },
+    "game_friend_codes" => { fr: [ "votre code ami" ], en: [ "your friend code" ] },
+    "game_feed_entries" => { fr: [ "vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment" ],
+                             en: [ "your activity feed entries: pulls, discoveries, reposts and every trade that names you" ] },
+    "game_trades" => { fr: [ "Vos échanges en cours seront annulés" ], en: [ "Your open trades will be cancelled" ] }
+  }.freeze
+
+  KEPT = {
+    "game_trades" => { fr: [ "vos échanges passés" ], en: [ "your past trades" ] },
+    "game_first_discoveries" => { fr: [ "vos premières découvertes" ], en: [ "your first discoveries" ] },
+    "game_weekly_contributions" => { fr: [ "vos contributions à l'objectif communautaire" ], en: [ "your contributions to the community goal" ] },
+    "accounts_reports" => { fr: [ "les signalements" ], en: [ "reports" ] },
+    "accounts_moderation_actions" => { fr: [ "l'historique de modération" ], en: [ "the moderation history" ] },
+    "event_store_events" => { fr: [ "le journal des actions du jeu" ], en: [ "the log of game actions" ] }
+  }.freeze
+
+  def tables_naming_a_player
+    connection = ActiveRecord::Base.connection
+    keyed = connection.tables.select { |table| connection.foreign_keys(table).any? { it.to_table == "accounts_players" } }
+    keyed + [ "accounts_players", "event_store_events" ]
+  end
+
+  test "the delete dialog names what deletion does to every table that names a player, in both locales" do
+    assert_equal tables_naming_a_player.sort, (ERASED_OR_CANCELLED.keys | KEPT.keys).sort
+    sign_in(@player)
+
+    %i[fr en].each do |locale|
+      get settings_path(locale:)
+
+      note = css_select("#delete-dialog-note").text
+      kept = css_select("#delete-dialog-kept").text
+      ERASED_OR_CANCELLED.each_value { |words| words[locale].each { assert_includes note, it } }
+      KEPT.each_value do |words|
+        words[locale].each do |phrase|
+          assert_includes kept, phrase
+          assert_not_includes note, phrase
+        end
+      end
+      assert_select "dialog#delete-dialog input#delete-confirmation[aria-describedby='delete-dialog-note delete-dialog-kept']"
+    end
   end
 
   [ "SUPPRIMER", "supprimer", "  Supprimer \n" ].each do |word|

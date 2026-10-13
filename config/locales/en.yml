@@ -1131,7 +1131,8 @@ en:
     dialog:
       title: "Delete my account"
       close: "Close"
-      note: "Your collection, your boosters, your open trades and your profile will be erased for good. This cannot be undone."
+      note: "Erased for good: your Steam id, your name, your profile and its link, the time of your last visit and your latest activity, your collection, your completed sets and your achievements, your boosters, opened or not, your daily bonuses and your community goal rewards, your friends, your invitations and your friend code, and your activity feed entries: pulls, discoveries, reposts and every trade that names you. Your open trades will be cancelled."
+      kept: "Kept, without your Steam id or your name: your past trades, your first discoveries, your contributions to the community goal, reports, the moderation history and the log of game actions. This cannot be undone."
       word: "DELETE"
       label: "Type %{word} to confirm"
       submit: "Delete for good"
