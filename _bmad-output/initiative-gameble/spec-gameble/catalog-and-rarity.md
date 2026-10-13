@@ -34,9 +34,9 @@ Referenced by CAP-2, CAP-3, CAP-4, CAP-6, CAP-7.
 
 - The names steel, emerald, sapphire, amethyst and gold are retired. English names are not written yet.
 - **Inputs:** Steam review score and review count. Nothing else; Metacritic is not used.
-- **Formula:** combines review count and review score, popularity first: the base-10 logarithm of the review count plus 4 × the lower bound of the positive share (Wilson, 95 %). A tenfold count is worth one point and the score at most four, so the best-known games lead and, among games known alike, the better liked one ranks higher (author, 2026-10-06, after a simulation on the 12,326 games of the first real import). Tiers are cut by percentile of this score.
+- **Formula:** the review count alone ranks the games; the positive percent, as Steam gives it (a whole number), only orders games with exactly the same count, with no rating floor. The score is the review count plus that percent in thousandths (5,000 reviews at 98 % score 5000.098), so a game with one more review always ranks higher, whatever the ratings (author, 2026-10-13, after a simulation on staging season 4, 12,345 cards, with the published tier sizes: Légendaire from about 174,000 reviews, Épique from about 36,000, Rare from about 9,500, and about 24 % of cards changing tier; supersedes log10(count) + 4 × Wilson lower bound of 2026-10-06). Tiers are cut by percentile of this score.
 - **One formula per season:** a season's cards are all scored by one formula; a draft that mixes them is not published until rescored.
-- **Player-facing rule:** a player must be able to guess a card's rarity in one sentence. "The better known and the better liked a game is, the rarer its card."
+- **Player-facing rule:** a player must be able to guess a card's rarity in one sentence. "The more reviews a game has on Steam, the rarer its card."
 - **Not obscurity:** a little-known game is never rare for being little known.
 
 ## Draw

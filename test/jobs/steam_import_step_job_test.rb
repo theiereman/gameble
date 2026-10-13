@@ -305,13 +305,13 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_equal [ "steam:10", %w[puzzle fps], nil ], [ card.source_key, card.genres, Catalog::Card.where(id: card.id).pick(Arel.sql("credit")) ]
   end
 
-  # Replaces Steam::PrestigeScore::SHARE_WEIGHT for the block.
-  def with_share_weight(weight)
-    original = Steam::PrestigeScore::SHARE_WEIGHT
-    silence_warnings { Steam::PrestigeScore.const_set(:SHARE_WEIGHT, weight) }
+  # Replaces the prestige formula for the block.
+  def with_formula(formula)
+    original = Steam::PrestigeScore.method(:call)
+    Steam::PrestigeScore.define_singleton_method(:call, &formula)
     yield
   ensure
-    silence_warnings { Steam::PrestigeScore.const_set(:SHARE_WEIGHT, original) }
+    Steam::PrestigeScore.define_singleton_method(:call, original)
   end
 
   # Records the Steam answers of a full run over `appids`, each with `reviews` reviews.
@@ -334,7 +334,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_equal %w[steam:10 steam:20], draft_scores.keys
 
     record_run([ 20, 30 ], reviews:)
-    second = with_share_weight(1) do
+    second = with_formula(->(percent_positive:, review_count:) { review_count.fdiv(1_000_000) }) do
       run = perform_enqueued_jobs { start_run }
       expected = [ 20, 30 ].to_h { |appid| [ "steam:#{appid}", Steam::PrestigeScore.call(percent_positive: 90, review_count: reviews.fetch(appid)) ] }
       assert_equal expected.keys, draft_scores.keys

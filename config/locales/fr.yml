@@ -238,14 +238,14 @@ fr:
         seasons: "Chaque nouvelle saison relit Steam : les jeux qui remplissent ces conditions à ce moment-là deviennent ses cartes."
       rarity:
         title: "La rareté"
-        rule: "La rareté d'une carte vient de son jeu sur Steam : plus le jeu est connu et apprécié, plus sa carte est rare."
-        score: "Chaque jeu reçoit un score. Le nombre d'évaluations compte d'abord : le score gagne un point chaque fois que ce nombre est multiplié par dix. La part d'évaluations positives s'y ajoute, multipliée par %{weight}, et départage les jeux connus de façon semblable. Sur peu d'évaluations, cette part est estimée avec prudence."
+        rule: "Plus un jeu a d'évaluations sur Steam, plus sa carte est rare."
+        score: "Seul le nombre d'évaluations classe les jeux. La part d'évaluations positives ne départage que des jeux qui ont exactement le même nombre d'évaluations : le plus apprécié passe devant."
         # French keeps the singular for 0, which the plural rule here does not.
         cut:
-          zero: "À la publication d'une saison, ses cartes sont classées par score, du plus haut au plus bas, puis réparties en %{count} rareté dans ces proportions :"
-          one: "À la publication d'une saison, ses cartes sont classées par score, du plus haut au plus bas, puis réparties en %{count} rareté dans ces proportions :"
-          other: "À la publication d'une saison, ses cartes sont classées par score, du plus haut au plus bas, puis réparties en %{count} raretés dans ces proportions :"
-        ties: "Deux jeux de même score ont toujours la même rareté : les proportions réelles peuvent donc s'écarter un peu de celles-ci."
+          zero: "À la publication d'une saison, ses cartes sont classées ainsi, du jeu le plus évalué au moins évalué, puis réparties en %{count} rareté dans ces proportions :"
+          one: "À la publication d'une saison, ses cartes sont classées ainsi, du jeu le plus évalué au moins évalué, puis réparties en %{count} rareté dans ces proportions :"
+          other: "À la publication d'une saison, ses cartes sont classées ainsi, du jeu le plus évalué au moins évalué, puis réparties en %{count} raretés dans ces proportions :"
+        ties: "Deux jeux qui ont le même nombre d'évaluations et la même part d'évaluations positives ont toujours la même rareté : les proportions réelles peuvent donc s'écarter un peu de celles-ci."
       packs:
         title: "Boosters et probabilités"
         # French keeps the singular for 0, which the plural rule here does not.

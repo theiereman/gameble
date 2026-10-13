@@ -185,3 +185,9 @@
 - source_plan: `_bmad-output/initiative-gameble/plan-previous-screen-skips-same-screen.md`
   summary: Switching language on the settings screen still shows the desktop back button ("◀ PROFILE") leading back to the same settings screen in the other language, since same-screen is judged by the translated label ("Profile" vs "Profil").
   evidence: `shell_screen_label` returns `t("shell.screens.…")`; the LANGUE links in `app/views/settings/show.html.erb` are Turbo visits, so the trail is not reset. Pre-existing (the old button showed it too). A fix records a language-independent screen key on the top bar and in each trail entry and compares that key.
+
+## Deferred from: build of story-rarity-follows-popularity-the-rating-only-orders-games-of-eq (2026-10-13)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-season-preparation/story-rarity-follows-popularity-the-rating-only-orders-games-of-eq-plan.md`
+  summary: The development seeds stamp the current prestige VERSION on scores the formula never computed (`prestige_score: number.to_f`, review counts set apart), so local rarities contradict the rule the how-it-works screen states.
+  evidence: `db/seeds.rb:31-34`. Pre-existing; more visible now that the score is the review count. A fix computes the score with `Steam::PrestigeScore.call(percent_positive:, review_count:)`.

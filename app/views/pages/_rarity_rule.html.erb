@@ -3,7 +3,7 @@
     from HowItWorksHelper#rarity_shares; a change of the rule edits only
     them and this partial. %>
 <p><%= t("pages.how_it_works.rarity.rule") %></p>
-<p><%= t("pages.how_it_works.rarity.score", weight: number_with_delimiter(Steam::PrestigeScore::SHARE_WEIGHT)) %></p>
+<p><%= t("pages.how_it_works.rarity.score") %></p>
 <p><%= t("pages.how_it_works.rarity.cut", count: Catalog::Rarity::TIERS.size) %></p>
 <ul class="how-it-works__shares" data-rarity-shares>
   <% rarity_shares.each do |key, percent| %>

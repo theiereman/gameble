@@ -231,12 +231,12 @@ en:
         seasons: "Each new season reads Steam again: the games that meet these conditions at that moment become its cards."
       rarity:
         title: "Rarity"
-        rule: "A card's rarity comes from its game on Steam: the better known and the better liked the game, the rarer its card."
-        score: "Each game gets a score. The review count comes first: the score gains one point each time that count is multiplied by ten. The share of positive reviews is added, multiplied by %{weight}, and separates games that are known alike. On few reviews, that share is estimated cautiously."
+        rule: "The more reviews a game has on Steam, the rarer its card."
+        score: "The review count alone ranks the games. The share of positive reviews only orders games with exactly the same number of reviews: the better liked one ranks higher."
         cut:
-          one: "When a season is published, its cards are ranked by score, from the highest to the lowest, then split into %{count} rarity in these proportions:"
-          other: "When a season is published, its cards are ranked by score, from the highest to the lowest, then split into %{count} rarities in these proportions:"
-        ties: "Two games with the same score always share a rarity, so the actual proportions can differ slightly from these."
+          one: "When a season is published, its cards are ranked this way, from the most reviewed game to the least, then split into %{count} rarity in these proportions:"
+          other: "When a season is published, its cards are ranked this way, from the most reviewed game to the least, then split into %{count} rarities in these proportions:"
+        ties: "Two games with the same number of reviews and the same share of positive reviews always share a rarity, so the actual proportions can differ slightly from these."
       packs:
         title: "Boosters and odds"
         regular:

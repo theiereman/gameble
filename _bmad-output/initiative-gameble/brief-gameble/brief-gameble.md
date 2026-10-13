@@ -9,7 +9,7 @@ updated: 2026-10-02
 
 ## Executive Summary
 
-gameble is a free web trading card game (TCG) where every card is a Steam game. Every 10 minutes, players open a 5-card booster pack drawn from the whole Steam catalog. The better known and the better liked a game is, the rarer its card. Players show off their best pulls and trade with friends. gameble ships in French and English.
+gameble is a free web trading card game (TCG) where every card is a Steam game. Every 10 minutes, players open a 5-card booster pack drawn from the whole Steam catalog. The more reviews a game has on Steam, the rarer its card. Players show off their best pulls and trade with friends. gameble ships in French and English.
 
 "Collect Wikipedia" card games such as WikiMasters proved that this loop is fun. gameble brings it to gamers, with cards they care about and the execution those games lack. Its lasting edge is community: every player joins *La Grande Confrérie des Gamblers* (the Brotherhood). It is an open-source passion project and the game its author wants to play. Success means he plays it daily alongside at least ten other players.
 

@@ -65,16 +65,15 @@ class Steam::CardsTest < ActiveSupport::TestCase
     Steam::PrestigeScore.call(percent_positive: percent, review_count: count)
   end
 
-  test "the prestige score lets popularity lead and acclaim separate" do
-    assert_in_delta 6.739, score(95, 1_000), 0.0005
-    assert_in_delta 6.927, score(99, 1_000), 0.0005
-    assert_in_delta 2.699, score(0, 500), 0.0005
-    assert_in_delta 9.654, score(87, 1_500_000), 0.0005
-    assert_in_delta 7.602, score(98, 5_000), 0.0005
-    assert_operator score(98, 5_000), :<, score(87, 1_500_000), "a blockbuster ranks above a small acclaimed game"
-    assert_operator score(95, 10_000), :<, score(92, 200_000), "twenty times the reviews outweigh three points of score"
-    assert_operator score(95, 1_000), :<, score(99, 1_000), "among games known alike, the better liked ranks higher"
-    assert_operator score(100, 500), :<, score(95, 10_000), "a perfect score does not lift a little-known game above a well-known, well-liked one"
+  test "the prestige score ranks by review count, the positive share only ordering equal counts" do
+    assert_equal [ 3, 5_000.098 ], [ Steam::PrestigeScore::VERSION, score(98, 5_000).round(3) ]
+    assert_in_delta 1.0, score(0, 1), 1e-9
+    assert_in_delta 1_500_000.04, score(40, 1_500_000), 1e-9
+    assert_operator score(99, 5_000), :<, score(40, 1_500_000), "a much-reviewed, badly rated game ranks above a less-reviewed, well-liked one"
+    assert_operator score(60, 20_000), :<, score(95, 20_000), "among games with the same count, the better liked ranks higher"
+    [ 1, 2, 500, 20_000, 100_000_000 ].each do |count|
+      assert_operator score(100, count), :<, score(0, count + 1), "#{count + 1} reviews at 0 % rank above #{count} at 100 %"
+    end
   end
 
   test "the prestige score is strictly increasing in each input over a grid of the domain" do
@@ -93,6 +92,28 @@ class Steam::CardsTest < ActiveSupport::TestCase
     [ [ nil, 10 ], [ 50, nil ], [ -1, 10 ], [ 101, 10 ], [ 50.0, 10 ], [ "50", 10 ], [ 50, 0 ], [ 50, -3 ], [ 50, 10.0 ] ].each do |percent, count|
       assert_raises(ArgumentError, "#{percent.inspect}, #{count.inspect}") { score(percent, count) }
     end
+  end
+
+  test "a published season gives the higher rarity to the more reviewed game, and to the better liked of two equal counts" do
+    run = run_on("cards")
+    ready(run, 1, review_count: 1_500_000, review_percent_positive: 40)
+    ready(run, 2, review_count: 1_000_000)
+    ready(run, 3, review_count: 500_000)
+    ready(run, 4, review_count: 30_000, review_percent_positive: 95)
+    ready(run, 5, review_count: 30_000, review_percent_positive: 60)
+    (6..20).each { |appid| ready(run, appid, review_count: 30_000 - 1_000 * appid) }
+    ready(run, 21, review_count: 5_000, review_percent_positive: 99)
+    cards_page(run)
+    season = draft
+
+    result = Catalog::PublishSeason.new.call(number: season.number)
+    assert result.success?, result.inspect
+
+    rarities = Catalog::CardSeason.where(season:).joins(:card).pluck("catalog_cards.source_key", :rarity).to_h
+    expected = { 1 => "legendary", 2 => "epic", 3 => "rare", 4 => "rare", 5 => "uncommon", 21 => "common" }
+    expected.each { |appid, rarity| assert_equal rarity, rarities.fetch("steam:#{appid}"), "steam:#{appid}" }
+    assert_equal [ "uncommon" ] * 4, (6..9).map { |appid| rarities.fetch("steam:#{appid}") }
+    assert_equal [ "common" ] * 11, (10..20).map { |appid| rarities.fetch("steam:#{appid}") }
   end
 
   # CardMapping

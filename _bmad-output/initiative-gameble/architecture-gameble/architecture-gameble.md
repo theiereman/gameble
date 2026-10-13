@@ -496,7 +496,7 @@ gameble/
 
 ## Deferred
 
-- **Prestige formula and tier thresholds:** settled on the first real import: the tier shares in `Catalog::RarityThresholds` were kept, and the formula is `log10(review_count) + 4 × Wilson lower bound` (author, 2026-10-06, story 2.12; `catalog-and-rarity.md`, Rarity).
+- **Prestige formula and tier thresholds:** settled: the tier shares in `Catalog::RarityThresholds` were kept on the first real import, and the formula is `review_count + percent_positive / 1000`, the count ranking and the rating only ordering equal counts (author, 2026-10-13; `catalog-and-rarity.md`, Rarity). It replaced `log10(review_count) + 4 × Wilson lower bound` (2026-10-06).
 - **Which card backs ship beyond one per set at gold:** goal, achievement and event backs are open in the spec; AD-25's constant holds them.
 - **Set numbers on real data:** the theme list, the franchise and studio minimum, the hall of fame thresholds and the tier shares are set by the spike that opens epic-recognizable-sets; AD-5 fixes only where they live.
 - **Import staging beside the draft (Season preparation story 1):** a run builds its cards beside the current draft and replaces it only once validated; AD-5 and AD-19 change in an update run before that story.

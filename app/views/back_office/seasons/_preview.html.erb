@@ -25,11 +25,11 @@
       </thead>
       <tbody>
         <tr>
-          <td data-preview-percentile="min"><%= number_with_precision(panel.min, precision: 3) %></td>
+          <td data-preview-percentile="min"><%= number_with_precision(panel.min, precision: 3, delimiter: t("number.format.delimiter")) %></td>
           <% panel.percentiles.each do |p, score| %>
-            <td data-preview-percentile="p<%= p %>"><%= number_with_precision(score, precision: 3) %></td>
+            <td data-preview-percentile="p<%= p %>"><%= number_with_precision(score, precision: 3, delimiter: t("number.format.delimiter")) %></td>
           <% end %>
-          <td data-preview-percentile="max"><%= number_with_precision(panel.max, precision: 3) %></td>
+          <td data-preview-percentile="max"><%= number_with_precision(panel.max, precision: 3, delimiter: t("number.format.delimiter")) %></td>
         </tr>
       </tbody>
     </table>
@@ -57,7 +57,7 @@
               <th scope="row"><%= t("catalog.rarity.#{name}") %></th>
               <td data-preview-tier="<%= name %>"><%= number_with_delimiter(tier.card_count) %></td>
               <% if tier.threshold %>
-                <td data-preview-threshold="<%= name %>"><%= number_with_precision(tier.threshold, precision: 3) %></td>
+                <td data-preview-threshold="<%= name %>"><%= number_with_precision(tier.threshold, precision: 3, delimiter: t("number.format.delimiter")) %></td>
               <% else %>
                 <td>—</td>
               <% end %>
@@ -89,7 +89,7 @@
               <td><%= rank %></td>
               <td><%= entry.title || "—" %></td>
               <td><%= number_to_percentage(entry.rating, precision: 0) %></td>
-              <td><%= number_with_precision(entry.prestige_score, precision: 3) %></td>
+              <td><%= number_with_precision(entry.prestige_score, precision: 3, delimiter: t("number.format.delimiter")) %></td>
             </tr>
           <% end %>
         </tbody>

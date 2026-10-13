@@ -69,6 +69,12 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_equal 100, rows.sum { |_, percent| shown_value(percent) }
   end
 
+  def assert_rarity_rule(locale)
+    %w[rule score].each do |key|
+      assert_select "section[aria-labelledby=how-it-works-rarity] p", I18n.t("pages.how_it_works.rarity.#{key}", locale:)
+    end
+  end
+
   def assert_numbers(locale)
     minutes = ->(count) { I18n.t("pages.how_it_works.minutes", count:, locale:) }
     reviews = ActiveSupport::NumberHelper.number_to_delimited(Steam::ReviewPolicy::MIN_REVIEWS, locale:)
@@ -103,6 +109,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     end
     assert_every_odds_table(:fr)
     assert_rarity_shares(:fr)
+    assert_rarity_rule(:fr)
     assert_numbers(:fr)
     Catalog::HallOfFame.keys.each do |key|
       assert_select ".how-it-works__hall-of-fame li", /#{Regexp.escape(I18n.t("catalog.hall_of_fame.#{key}", locale: :fr))}/
@@ -122,6 +129,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_equal ENGLISH_HEADINGS, css_select("main section.how-it-works__section > h2").map { it.text.strip }
     assert_every_odds_table(:en)
     assert_rarity_shares(:en)
+    assert_rarity_rule(:en)
     assert_numbers(:en)
     assert_select "[style]", false
   end
