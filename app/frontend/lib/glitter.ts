@@ -110,12 +110,7 @@ function groupElement(document: Document, twinkle: Twinkle): HTMLElement {
   return element
 }
 
-/**
- * Draws the flakes of a card `width` × `height` px into `container`, each in
- * its twinkle group; returns how to light them and to take them away. A
- * flashing flake leaves its group for `container`, so the group's twinkle
- * opacity does not dim its flash, and goes back when the flash ends.
- */
+/** Draws the flakes of a card `width` × `height` px into `container`, each in its twinkle group; returns how to light them and to take them away. */
 export function attachGlitter(container: HTMLElement, { seed, width, height }: { seed: number; width: number; height: number }): Glitter {
   const document = container.ownerDocument
   const field = flakeField(seed, width, height)
@@ -131,6 +126,7 @@ export function attachGlitter(container: HTMLElement, { seed, width, height }: {
         const flashing = flash > FLASH_THRESHOLD
         if (flashing !== entry.flashing) {
           entry.element.toggleAttribute("data-flash", flashing)
+          // A group's opacity dims its whole subtree, so a flashing flake waits outside it.
           const parent = flashing ? container : entry.group
           parent.append(entry.element)
           entry.flashing = flashing

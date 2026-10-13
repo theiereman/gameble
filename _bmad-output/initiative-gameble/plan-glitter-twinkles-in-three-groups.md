@@ -11,7 +11,7 @@ review: 'quick'
 review_source: 'pinned'
 lenses_ran: ['quick']
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context: ['{project-root}/AGENTS.md']
 warnings: ['oversized']
 deferred: []
@@ -86,6 +86,15 @@ deferred: []
   - `[high]` `[patch]` Reduced motion no longer stops the twinkle: `.card[data-in-view] .card__flake-group` (0,3,0) beats `html[data-motion="reduced"] .card__flake-group` and `html:not([data-motion="full"]) .card__flake-group` (0,2,1); the face-down booster rule only ties and wins by import order — verified by specificity; fixed by wrapping the group in `:where()` (0,2,0), as the old rule did, and pinning that selector in the stylesheet test.
   - `[low]` `[reject]` Empty groups still run an infinite animation (about 1 card-s seed in 13 leaves a group empty; a zero-size face runs 3 animations on nothing) — still within 3 per face, an empty span's stepped opacity costs nothing visible, and the plan's matrix pins exactly 3 groups; the fix would add filtering for no user-visible gain.
 
+### 2026-10-13 — Review pass (follow-up)
+- verdicts: 5 findings — high 0, medium 0, low 5, false 0, maybe-false 0
+- findings:
+  - `[low]` `[reject]` The stylesheet tests pin selector text, not the cascade: nothing compares a still rule's specificity with the twinkle's, and the system-preference check matches the rule by its indent, so moving it out of `@media (prefers-reduced-motion: reduce)` or writing a new still rule with `:where()` would pass — the cascade itself is right today, checked in headless Chromium against the real `application.css`: the group stops (`animation-name: none`, no running animation) and a flashing glint sits at 0.18 on an in-view face under reduced motion chosen and from the system (and not when `data-motion="full"` overrides the system), on a face-down booster card and a phone's lower card, while a revealed and a top card twinkle and an out-of-view face does not; proving the cascade in vitest needs a specificity helper or a DOM with a cascade, more than a direct correction, for a regression that takes a deliberate rewrite of these rules.
+  - `[low]` `[reject]` The "at most 3 animations" tests search only the `animation:` shorthand in three stylesheets — no other stylesheet names `.card__flake` or the twinkle (grep of `app/frontend`), no longhand exists, and Chromium runs one animation per group; widening the scan guards a hypothetical for no current defect.
+  - `[low]` `[reject]` The flash move is tested once, never twice in the same state nor after `detach` — an `update` after `detach` cannot happen: `tilt_controller.ts` disconnect detaches the tilt (cancelling its frame and hold timer) before the glitter and then drops it; the move only on a state change is guarded by `flashing !== entry.flashing`; more tests add nothing a user would meet.
+  - `[low]` `[patch]` `test/system/card_preview_test.rb`: the reduced-motion assertion passes when any one of the three groups stops — added `count: 3` so all three must have `animation-name: none` (not run: system tests disabled).
+  - `[low]` `[patch]` `app/frontend/lib/glitter.ts`: the `attachGlitter` doc comment grew to a five-line narration, against the one-line comment rule — back to its one-line summary, and the browser constraint (a group's opacity dims its whole subtree) moved as one line onto the DOM move; the longer `card.css` section comment follows that file's established section-comment style and stays.
+
 ## Design Notes
 
 CSS opacity composites a whole subtree, so a group's twinkle opacity caps a flashing flake inside it. Hence a flashing flake leaves its group for the bare `.card__glitter` container while it flashes (a DOM move only when its flash state changes) and returns after. Visual identity with today: rest = group 0.18 × glint 1 × level 0.5 (was glint 0.18 × level 0.5); twinkle peak = group 1 (was glint 1); flash = glint 1 × level, outside any group. The group gets `mix-blend-mode: screen` because an isolated group would otherwise blend its flakes against transparency instead of the art. Still states keep the group at its resting 0.18 and pin a flashing glint at 0.18, as the old rules pinned every glint.
@@ -113,3 +122,14 @@ CSS opacity composites a whole subtree, so a group's twinkle opacity caps a flas
 - **Follow-up review recommended:** true — the patched high (CSS specificity) is proven only by a selector-text test; that reduced motion really stops the twinkle on a face in view is unverified in a browser while system tests are disabled.
 - **Verification:** `npm run test:js` 277 passed; `npm run typecheck` clean; `bin/rails test` 2414 runs, 0 failures; `bin/rails zeitwerk:check`, `bundle exec packwerk check`, `bin/rubocop` clean (rerun after the patch).
 - **Residual risks:** blending the group as a whole with `screen` may look very slightly different from each flake screened alone; not looked at in a browser.
+
+### Follow-up review (2026-10-13)
+
+- **Summary:** follow-up quick review of the built change, focused on reduced motion, the booster's still states, the in-view gating and the flash/regroup DOM moves. No defect found in the behaviour; two small patches.
+- **Files:**
+  - `app/frontend/lib/glitter.ts` — `attachGlitter`'s doc comment back to one line; the opacity constraint as one line on the DOM move.
+  - `test/system/card_preview_test.rb` — the reduced-motion assertion requires all three groups to stop (`count: 3`).
+- **Review:** 2 patches (both low), 0 deferred, 3 rejected (low: selector-text stylesheet tests, narrow animation scan, flash-move test coverage; reasons in the triage log).
+- **Follow-up review recommended:** false — no high patched on this follow-up pass; patched: high 0, medium 0, low 2.
+- **Verification:** the risk the first pass left open is now checked in a real browser: headless Chromium loading `app/frontend/entrypoints/application.css` on hand-built faces, under `data-motion` full / reduced / unset with and without `--force-prefers-reduced-motion`: every still state stops the group and pins a flashing glint at 0.18, the twinkle runs only on an in-view, moving, revealed (or top) face, one animation per group. `npm run test:js` 277 passed; `npm run typecheck` clean; `bin/rails test` 2414 runs, 0 failures; `bin/rails zeitwerk:check`, `bundle exec packwerk check`, `bin/rubocop` clean.
+- **Residual risks:** the cascade is proven by that manual browser check, not by an automated test while system tests are disabled; the patched system assertion is unrun. The screen blend of a whole group against the art is still not compared visually with the old per-flake blend.

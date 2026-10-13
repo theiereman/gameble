@@ -137,7 +137,7 @@ class CardPreviewTest < ApplicationSystemTestCase
     scroll_to(find(specimen), align: :center)
     assert_selector "#{specimen} > .card[data-in-view]"
     reduce_motion(true)
-    assert_selector group, style: { "animation-name" => "none" }
+    assert_selector group, count: 3, style: { "animation-name" => "none" }
     assert_equal "block", style("#{specimen} .card__reflection--strips", "display")
     reduce_motion(false)
 
