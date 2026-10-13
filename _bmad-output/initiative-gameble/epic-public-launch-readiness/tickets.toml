@@ -554,12 +554,36 @@ risk = "low"
 notes = ["Requested by the author on 2026-10-13, after iterating on the canvas « Spot au survol d'une carte » at https://claude.ai/artifact/H58TT5MJVgfuTCLGrorGEx; the artboard « G · Retenu » is the reference, with its defaults chosen by the author: intensity 0.5, steps 7, travel 2.5, width 2, ceiling 0.25.", "Model of « G · Retenu », for a card W × H with the pointer at (x, y) in 0–1 (dx = x − 0.5, dy = y − 0.5), tilt2 = min(1, (dx² + dy²) / 0.5), fresnel = 0.8 + 0.6 × tilt2, finish = 0.5 + 0.5 × gloss with gloss 0.2, 0.4, 0.6, 0.8, 1 from Commune to Légendaire. Strips: centre c = 30 − dx × travel × 55 − dy × travel × 30 (% along a 118° gradient), peak = 0.13 × intensity × finish × fresnel, half-width = (20 + (1 − gloss) × 14) × width %, stepped in `steps` rings each side with alpha peak × (1 − (k − 1)/steps)^(0.8 + 1.4 × gloss); the echo sits at c + 48 with half-width × 0.35, peak × 0.6 and half the steps. Ceiling: a 174° gradient, full alpha 0.17 × finish × ceiling above a horizon at −0.32 H − dy × travel × H − 0.2 × dx × travel × W, then `steps` bands of 0.85 H / steps fading as (1 − k/(steps + 1))^1.4.", "Replaces the earlier version of this ticket (stepped spot and gold band on the Légendaire), which the author dropped while iterating.", "Decision (author, 2026-10-13): the Légendaire also gets a light iridescent shine inside the reflection: a pastel rainbow at 118° (#ff9ad5 #c9a6ff #9ac8ff #9affe0 #d8ff9a #fff09a #ffc49a, hard stops, repeated 3 times over a 300% wide background) whose position-x is 50 + (dx × 0.6 + dy × 0.3) × travel × 100 %, masked by the main strip band (half-width × 1.15), under the white strips, screen blend, opacity 0.42 × fresnel; artboard « G · Retenu », setting iridescence 1.", "Decision (author, 2026-10-13): the reflection is always on, light enough to stay at rest: every card shows it at its flat position (and the Légendaire its iridescence) without any hover; hovering moves it with the tilt; leaving eases the card back to flat over about 650 ms and the reflection follows it back to its rest position, never fading out or jumping. Under reduced motion the static rest reflection stays and nothing moves. The animated holo stays the Légendaire's alone.", "Decisions (author, 2026-10-13, later the same day): the entry is as smooth as the exit, the card easing toward the pointer (about 600 ms to settle, 0.08 of the gap per 60 fps frame) and back to flat (about 650 ms, 0.075), the reflection always computed from the eased tilt; on the Légendaire the iridescence replaces the animated holo sweep and the foil drift at rest: its hues cycle with hue-rotate over 12 s in 48 steps, only in view and never under reduced motion; the booster's rays, glow and banner stay.", "Decision (author, 2026-10-13): the iridescence strength is 0.5, so its opacity is 0.21 × fresnel; artboards « G · Retenu » and « H · Le Légendaire au repos ».", "Decision (author, 2026-10-13, last): no hue cycle; the iridescence stays static (0.5); the Légendaire gets small glitter flakes instead: about 28 per 200 × 300 face, 2 px pixels (a third small crosses), white, pale gold and a little pastel, each a tiny mirror with a random normal in ±0.45 that flashes when the eased tilt comes within 0.14 of it, and at rest blinks briefly now and then (period 2.4 to 6 s, stepped), only in view and never under reduced motion; positions fixed per card by a seed.", "The glare fix of 2026-10-13 (plan-glare-fades-in-place.md: the light fades where it is on pointer leave) is on develop; keep that behaviour for the reflection."]
 
 [[entry]]
+id = 48
+type = "story"
+title = "The account deletion dialog names everything it erases"
+description = "The account deletion dialog says that deleting erases the account and every piece of data tied to it; its copy is checked against what deletion actually erases today (the Accounts::PlayerDeleted handlers: trades, friendships, invitations, feed entries, reposts, card backs, achievements, holdings, packs and anything added since) and corrected in French and English so it promises nothing it does not do and omits nothing it does."
+verify = "Every kind of data the deletion operations and their handlers erase or anonymise is named in the dialog, nothing it does not erase is promised, both locales match, and a test pins the dialog copy to that list; the full suite passes."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["Decision (author, 2026-10-13): settles the pending approval on account deletion (story 7.8); the build checks and corrects the copy."]
+
+[[entry]]
+id = 49
+type = "story"
+title = "The opened pack page speaks like every other screen"
+description = "The opened pack page (packs.show) still reads « Ton paquet, Confrère », « Ton bonus du jour » and « Les cartes de ton paquet » in French, and « Your pack, Brother » in English, in the medieval direction's tu and Confrère; it speaks like every other screen, in vous, without Confrère, in both locales."
+verify = "The opened pack page's heading, bonus heading and cards line use vous and no Confrère or Brother in French and English, as EXPERIENCE.md's voice says; the controller tests that asserted the old strings assert the new ones; the full suite passes."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["Decision (author, 2026-10-13): fix it now; the tomes rework it waited on is done (epic-recognizable-sets replaced tomes with themes, franchises and studios)."]
+
+[[entry]]
 id = 12
 type = "story"
 title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49]
 hitl = false
 risk = "low"
