@@ -64,11 +64,15 @@ class SessionsController < ApplicationController
       nil
     end
 
-    # The player's Steam persona name, or nil when Steam fails (a warning in
-    # the log) or anything else goes wrong (reported); either way the
-    # sign-in goes on and the stored name is kept.
+    # The player's Steam persona name, or nil when Steam fails or is slow (a
+    # warning in the log), when the Steam key is missing or rejected, or when
+    # anything else goes wrong (both reported); either way the sign-in goes on
+    # and the stored name is kept.
     def persona_name(steam_id)
       Steam::WebApi.new.get_player_summary(steamid: steam_id)
+    rescue Steam::WebApi::BrokenKey => error
+      Rails.error.report(error)
+      nil
     rescue Steam::WebApi::Error => error
       Rails.logger.warn("Steam persona name not read at sign-in: #{error.message}")
       nil

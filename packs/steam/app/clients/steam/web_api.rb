@@ -2,9 +2,10 @@ require "faraday"
 require "faraday/retry"
 
 module Steam
-  # The Steam Web API (AD-4, AD-19), over Faraday. A 429 or 5xx is retried
-  # with exponential backoff by faraday-retry; once the retries are spent, or
-  # on any other failure, it raises Steam::WebApi::Error.
+  # The Steam Web API, over Faraday. A 429 or 5xx is retried with exponential
+  # backoff by faraday-retry; once the retries are spent, or on any other
+  # failure, it raises Steam::WebApi::Error. A missing key, or a key Steam
+  # rejects (401 or 403), raises its subclass Steam::WebApi::BrokenKey.
   #
   # The API key comes from config.x.steam.api_key (config/initializers/steam.rb)
   # and travels as the `key` query parameter. It never leaves this class: every
@@ -34,6 +35,7 @@ module Steam
     RETRY_STATUSES = [ 429, 500, 502, 503, 504 ].freeze
 
     class Error < StandardError; end
+    class BrokenKey < Error; end
 
     # `malformed` counts the entries dropped for want of a valid appid.
     AppListPage = Data.define(:apps, :have_more_results, :last_appid, :malformed)
@@ -43,6 +45,9 @@ module Steam
     class_attribute :adapter, default: [ Faraday.default_adapter ]
     # Seconds before the first retry; doubled on each retry.
     class_attribute :retry_interval, default: 2.0
+    # Seconds a persona name lookup may take in all: connecting, TLS and
+    # reading the answer.
+    class_attribute :player_summary_deadline, default: 5.0
 
     def initialize(api_key: Rails.configuration.x.steam.api_key)
       @api_key = api_key.to_s
@@ -57,7 +62,7 @@ module Steam
     # valid last_appid raises: the cursor could not move past it, and ending
     # the list there would cut the catalog short.
     def get_app_list(last_appid:, max_results:)
-      body = get("/IStoreService/GetAppList/v1/", include_games: true, last_appid: last_appid, max_results: max_results)
+      body = get("/IStoreService/GetAppList/v1/", { include_games: true, last_appid: last_appid, max_results: max_results })
       response = body["response"] if body.is_a?(Hash)
       # An empty last page still has a `response` object; anything else is
       # not an answer, and must not end the run as if the list were done.
@@ -84,7 +89,7 @@ module Steam
     # it, defensively (Steam::RawValue).
     def get_items(appids:, context:, data_request:)
       input = { ids: appids.map { |appid| { appid: appid } }, context: context, data_request: data_request }
-      body = get("/IStoreBrowseService/GetItems/v1/", input_json: input.to_json)
+      body = get("/IStoreBrowseService/GetItems/v1/", { input_json: input.to_json })
       response = body["response"] if body.is_a?(Hash)
       raise Error, "GetItems answered without a response object" unless response.is_a?(Hash)
 
@@ -105,7 +110,7 @@ module Steam
     # An answer without a response object, without a tag list, or whose
     # list names no tag raises.
     def get_tag_list(language:)
-      body = get("/IStoreService/GetTagList/v1/", language: language)
+      body = get("/IStoreService/GetTagList/v1/", { language: language })
       response = body["response"] if body.is_a?(Hash)
       raise Error, "GetTagList answered without a response object" unless response.is_a?(Hash)
       raise Error, "GetTagList answered tags that are not a list" unless response["tags"].is_a?(Array)
@@ -121,12 +126,12 @@ module Steam
     end
 
     # The persona name of one player, from ISteamUser/GetPlayerSummaries, for
-    # a sign-in (CAP-8): one attempt, no retry, a 5 s timeout, so a slow
-    # Steam never holds a sign-in long. Stripped; nil when Steam answers no
-    # player with that id or an empty name. A failure or a malformed answer
-    # raises Steam::WebApi::Error, the key redacted.
+    # a sign-in: one attempt, no retry, within player_summary_deadline, so a
+    # slow Steam never holds a sign-in long. Stripped; nil when Steam answers
+    # no player with that id or an empty name. A failure, an expired deadline
+    # or a malformed answer raises Steam::WebApi::Error, the key redacted.
     def get_player_summary(steamid:)
-      body = get("/ISteamUser/GetPlayerSummaries/v2/", { steamids: steamid }, summary_connection)
+      body = get("/ISteamUser/GetPlayerSummaries/v2/", { steamids: steamid }, summary_connection, deadline: player_summary_deadline)
       response = body["response"] if body.is_a?(Hash)
       raise Error, "GetPlayerSummaries answered without a response object" unless response.is_a?(Hash)
       raise Error, "GetPlayerSummaries answered players that are not a list" unless response["players"].is_a?(Array)
@@ -154,10 +159,15 @@ module Steam
 
     private
 
-    def get(path, params, connection = self.connection)
-      raise Error, "STEAM_API_KEY is not set" if @api_key.empty?
+    # Net::HTTP bounds each phase of a request apart; only Timeout bounds them together.
+    def get(path, params, connection = self.connection, deadline: nil)
+      raise BrokenKey, "STEAM_API_KEY is not set" if @api_key.empty?
 
-      connection.get(path, params.merge(key: @api_key)).body
+      Timeout.timeout(deadline, Faraday::TimeoutError, "no answer within #{deadline} s") do
+        connection.get(path, params.merge(key: @api_key)).body
+      end
+    rescue Faraday::UnauthorizedError, Faraday::ForbiddenError => error
+      raise BrokenKey.new(redact("#{error.class}: #{error.message}")), cause: nil
     rescue Faraday::Error, JSON::ParserError => error
       raise Error.new(redact("#{error.class}: #{error.message}")), cause: nil
     end
@@ -195,10 +205,10 @@ module Steam
       end
     end
 
-    # For a request made while a player waits (a sign-in): no retry and a
-    # short timeout.
+    # For a request made while a player waits (a sign-in): no retry, bounded
+    # by the caller's deadline.
     def summary_connection
-      @summary_connection ||= Faraday.new(url: BASE_URL, request: { timeout: 5, open_timeout: 5 }) do |f|
+      @summary_connection ||= Faraday.new(url: BASE_URL) do |f|
         f.response :raise_error
         f.response :json
         f.adapter(*adapter)

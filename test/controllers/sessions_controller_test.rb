@@ -520,7 +520,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Gaben", new_players.sole.persona_name
   end
 
-  [ 503, 403, :connection_failed ].each do |failure|
+  [ 503, :connection_failed ].each do |failure|
     test "a Steam failure (#{failure}) while reading the name signs the player in and keeps the stored name" do
       stub_player_summary(STEAM_ID, "Gabe")
       sign_in_with_steam
@@ -535,6 +535,59 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       assert_redirected_to home_path(locale: :en)
       assert_equal I18n.t("sessions.create.welcome", locale: :en), flash[:notice]
     end
+  end
+
+  test "a Steam slow to connect and to answer ends the lookup at its deadline and signs the player in without a name" do
+    Steam::WebApi.player_summary_deadline = 0.1
+    phases = stub_slow_player_summary(STEAM_ID, "Gabe", connect: 0.08, answer: 0.08)
+
+    assert_no_error_reported { sign_in_with_steam }
+
+    assert_not_includes phases, :answered
+    assert_equal new_players.sole.id, signed_in_player_id
+    assert_nil new_players.sole.persona_name
+    assert_redirected_to home_path(locale: :en)
+  end
+
+  [ 401, 403 ].each do |status|
+    test "a Steam key rejected (#{status}) while reading the name is reported once, and the sign-in keeps the stored name" do
+      stub_player_summary(STEAM_ID, "Gabe")
+      sign_in_with_steam
+      delete session_path(locale: :en)
+      stub_player_summary_failure(status)
+
+      reports = capture_error_reports { sign_in_with_steam }
+
+      assert_equal [ Steam::WebApi::BrokenKey ], reports.map { it.error.class }
+      assert_not_includes reports.sole.error.message, API_KEY
+      assert_equal new_players.sole.id, signed_in_player_id
+      assert_equal "Gabe", new_players.sole.persona_name
+      assert_redirected_to home_path(locale: :en)
+    end
+  end
+
+  test "a missing Steam key is reported once, and the first sign-in goes on without a name" do
+    Rails.configuration.x.steam.api_key = nil
+
+    reports = capture_error_reports { sign_in_with_steam }
+
+    assert_equal [ Steam::WebApi::BrokenKey ], reports.map { it.error.class }
+    assert_equal new_players.sole.id, signed_in_player_id
+    assert_nil new_players.sole.persona_name
+    assert_redirected_to home_path(locale: :en)
+  end
+
+  test "a missing Steam key is reported once, and the sign-in keeps the stored name" do
+    stub_player_summary(STEAM_ID, "Gabe")
+    sign_in_with_steam
+    delete session_path(locale: :en)
+    Rails.configuration.x.steam.api_key = nil
+
+    reports = capture_error_reports { sign_in_with_steam }
+
+    assert_equal [ Steam::WebApi::BrokenKey ], reports.map { it.error.class }
+    assert_equal new_players.sole.id, signed_in_player_id
+    assert_equal "Gabe", new_players.sole.persona_name
   end
 
   test "a first sign-in whose name Steam fails to give leaves none" do

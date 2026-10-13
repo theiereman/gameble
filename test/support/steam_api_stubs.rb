@@ -11,7 +11,7 @@ module SteamApiStubs
   attr_reader :steam_stubs
 
   def stub_steam_api
-    @steam_api_was = [ Steam::WebApi.adapter, Steam::WebApi.retry_interval, Rails.configuration.x.steam.api_key ]
+    @steam_api_was = [ Steam::WebApi.adapter, Steam::WebApi.retry_interval, Steam::WebApi.player_summary_deadline, Rails.configuration.x.steam.api_key ]
     @steam_stubs = Faraday::Adapter::Test::Stubs.new
     Steam::WebApi.adapter = [ :test, @steam_stubs ]
     Steam::WebApi.retry_interval = 0
@@ -19,7 +19,7 @@ module SteamApiStubs
   end
 
   def unstub_steam_api
-    Steam::WebApi.adapter, Steam::WebApi.retry_interval, Rails.configuration.x.steam.api_key = @steam_api_was
+    Steam::WebApi.adapter, Steam::WebApi.retry_interval, Steam::WebApi.player_summary_deadline, Rails.configuration.x.steam.api_key = @steam_api_was
   end
 
   # A GetAppList page answered for the request that starts after `after`.
@@ -141,6 +141,22 @@ module SteamApiStubs
       [ 200, { "Content-Type" => "application/json" }, { "response" => { "players" => players } }.to_json ]
     end
     calls
+  end
+
+  # Answers GetPlayerSummaries for `steam_id` with `name`, as a Steam slow at
+  # both phases of a request: `connect` seconds before the connection is
+  # open, then `answer` seconds before the answer. Returns the phases
+  # reached, :connected then :answered.
+  def stub_slow_player_summary(steam_id, name, connect:, answer:)
+    phases = []
+    steam_stubs.get(PLAYER_SUMMARIES_PATH) do
+      sleep connect
+      phases << :connected
+      sleep answer
+      phases << :answered
+      [ 200, { "Content-Type" => "application/json" }, { "response" => { "players" => [ { "steamid" => steam_id, "personaname" => name } ] } }.to_json ]
+    end
+    phases
   end
 
   # Answers GetPlayerSummaries with `status`, or raises a connection failure

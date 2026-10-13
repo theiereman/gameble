@@ -117,14 +117,14 @@ class Steam::WebApiTest < ActiveSupport::TestCase
     end
   end
 
-  test "a 403 is not retried and raises an error without the key" do
+  test "a 403 is not retried and raises a broken key without the key" do
     calls = 0
     steam_stubs.get(APP_LIST_PATH) do
       calls += 1
       [ 403, {}, "" ]
     end
 
-    error = assert_raises(Steam::WebApi::Error) { Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 100) }
+    error = assert_raises(Steam::WebApi::BrokenKey) { Steam::WebApi.new.get_app_list(last_appid: 0, max_results: 100) }
 
     assert_equal 1, calls
     assert_not_includes error.message, API_KEY
@@ -139,8 +139,8 @@ class Steam::WebApiTest < ActiveSupport::TestCase
     assert_nil error.cause
   end
 
-  test "a missing key raises before any call" do
-    error = assert_raises(Steam::WebApi::Error) { Steam::WebApi.new(api_key: nil).get_app_list(last_appid: 0, max_results: 100) }
+  test "a missing key raises a broken key before any call" do
+    error = assert_raises(Steam::WebApi::BrokenKey) { Steam::WebApi.new(api_key: nil).get_app_list(last_appid: 0, max_results: 100) }
 
     assert_equal "STEAM_API_KEY is not set", error.message
   end
@@ -308,11 +308,49 @@ class Steam::WebApiTest < ActiveSupport::TestCase
     assert_nil error.cause
   end
 
-  test "get_player_summary waits five seconds at most" do
-    options = Steam::WebApi.new.send(:summary_connection).options
+  test "get_player_summary waits five seconds at most, in all" do
+    assert_equal 5.0, Steam::WebApi.player_summary_deadline
+  end
 
-    assert_equal 5, options.timeout
-    assert_equal 5, options.open_timeout
+  test "get_player_summary ends at its deadline when Steam is slow to connect and to answer, each under it" do
+    Steam::WebApi.player_summary_deadline = 0.1
+    phases = stub_slow_player_summary(STEAM_ID, "Gabe", connect: 0.08, answer: 0.08)
+
+    error = assert_raises(Steam::WebApi::Error) { player_summary }
+
+    assert_not_includes phases, :answered
+    assert_not_kind_of Steam::WebApi::BrokenKey, error
+    assert_includes error.message, "Faraday::TimeoutError"
+    assert_not_includes error.message, API_KEY
+    assert_nil error.cause
+  end
+
+  test "get_player_summary returns the name when Steam answers before the deadline" do
+    Steam::WebApi.player_summary_deadline = 1
+    stub_slow_player_summary(STEAM_ID, "Gabe", connect: 0.01, answer: 0.01)
+
+    assert_equal "Gabe", player_summary
+  end
+
+  [ 401, 403 ].each do |status|
+    test "get_player_summary raises a broken key, without the key, when Steam rejects it (#{status})" do
+      calls = stub_player_summary_failure(status)
+
+      error = assert_raises(Steam::WebApi::BrokenKey) { player_summary }
+
+      assert_equal 1, calls.size
+      assert_includes error.message, status.to_s
+      assert_not_includes error.message, API_KEY
+      assert_nil error.cause
+    end
+  end
+
+  test "get_player_summary raises a broken key, calling no one, when no key is set" do
+    Rails.configuration.x.steam.api_key = nil
+    calls = stub_player_summary(STEAM_ID, "Gabe")
+
+    assert_raises(Steam::WebApi::BrokenKey) { player_summary }
+    assert_empty calls
   end
 
   [ "not json", "{}", { "response" => [] }.to_json, { "response" => {} }.to_json, { "response" => { "players" => {} } }.to_json,
