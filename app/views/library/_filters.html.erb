@@ -60,7 +60,7 @@
           <% set_refs.each do |ref| %>
             <label class="filter-chip">
               <%= check_box_tag "sets[]", "#{ref.kind}:#{ref.key}", chosen_set_keys.include?("#{ref.kind}:#{ref.key}"), id: nil, class: "filter-chip__box" %>
-              <span class="filter-chip__text"><%= labelled_sets[[ ref.kind, ref.key ]] || SetLabel.for(ref) %></span>
+              <span class="filter-chip__text"><%= labelled_sets[[ ref.kind, ref.key ]] || (ref.params ? SetLabel.for(ref) : ref.key.to_s.humanize) %></span>
             </label>
           <% end %>
         </fieldset>

@@ -55,6 +55,7 @@
   summary: Two small edge cases: `og_locale` reads `OG_LOCALES` with `fetch`, so a third locale added to the routes without its Open Graph name makes every card page a 500; and `SetLabel.for` gives a nil label for a publisher set whose `params` has no `publisher` name.
   evidence: Epic 4 retrospective O5, deferred (the import always sets the publisher name; adding a locale is a deliberate change). The third O5 point, a holder's own `/cards/…` address without preview tags, is resolved by story 4.7: the card's page is the share link and carries them.
   issue: GitHub #36, opened 2026-10-12 to be built.
+  resolved: The fix (2026-10-13) makes `og_locale` fall back to the locale's own code and pins `OG_LOCALES` on `I18n.available_locales` with a test; `SetLabel.for` refuses a publisher set without its name and reads nil `params` as an empty hash; the collection's filter chips stop reaching `SetLabel` when the params are absent.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/story-shell-and-tokens-plan.md`
   summary: Transitional: the packs chip's countdown stops at 00:00 and never refreshes the page (`countdown` controller with `refresh: false`); the new count appears on the next visit or when the hub's own countdown refreshes it.
   evidence: Story 8.1 Design Notes; `app/frontend/controllers/countdown_controller.ts`.

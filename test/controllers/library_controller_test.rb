@@ -386,6 +386,10 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :fr, kind: "best_of_year")
     assert_equal [ "Toute la saison", "Les mieux notés de 2015", "Les mieux notés de 2011" ], set_rows.map(&:first)
 
+    get library_path(locale: :en, kind: "publisher")
+    assert_equal [ "Whole season", "Valve" ], set_rows.map(&:first)
+    assert_equal [ "Valve" ], css_select("[data-group=sets] .filter-chip__text").map(&:text)
+
     get library_path(locale: :en, kind: "theme")
     assert_select ".collection-kind[aria-current=true]", "Tomes"
   end
