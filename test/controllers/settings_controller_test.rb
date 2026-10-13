@@ -316,9 +316,12 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get more_path(locale: :en)
 
     assert_response :success
-    assert_select ".plus__list > li", 4
+    assert_select ".plus__list > li", 5
     assert_select ".plus__list a[href='/en/settings']", false
     assert_select ".plus__list a.menu-item[href='/en/how-it-works']", /How it works/
+    assert_select ".plus__list > li:last-child a.menu-item.menu-item--plus[href='https://buymeacoffee.com/theiereman'][target=_blank]", "Support (new tab)" do
+      assert_select "svg.menu-item__external"
+    end
   end
 
   test "the public pages and the signed-out card page follow the cookie too" do
@@ -380,8 +383,11 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "main h1", "Pont de commandement"
     assert_select ".hub__subtitle", "Le reste du vaisseau"
-    assert_select ".plus__list > li", 5
+    assert_select ".plus__list > li", 6
     assert_select ".plus__list a.menu-item[href='/fr/settings']", /Profil et paramètres/
+    assert_select ".plus__list > li:last-child a.menu-item[href='https://buymeacoffee.com/theiereman'][target=_blank]", "Soutenir (nouvel onglet)" do
+      assert_select "svg.menu-item__external"
+    end
     assert_select ".plus__list a.menu-item[href='/fr/how-it-works']", /Comment ça marche/
     assert_select ".plus__list a.menu-item[href='/fr/friends']", /Amis/
     assert_select ".plus__list a.menu-item[href='/fr/feed']", /Fil d'activité/

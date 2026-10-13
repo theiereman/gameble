@@ -1,0 +1,7 @@
+<%# Menu 08, "Soutenir" (see pages/_menu): the donation page in a new tab,
+    for a player and for a visitor alike. Not remembered for the way back,
+    as the hub stays open behind the new tab. %>
+<li class="hub-menu__entry">
+  <%= donation_menu_item_to t("pages.home.menu.support"), number: "08", class: "menu-item",
+        aria: { keyshortcuts: "8" }, data: { hub_menu_target: "item" } %>
+</li>

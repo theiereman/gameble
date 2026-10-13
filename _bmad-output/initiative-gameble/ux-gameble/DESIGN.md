@@ -716,7 +716,7 @@ In the top bar: the five icons, each followed by the number of copies owned, in 
 
 #### Menu item
 
-The hub's numbered menu: rows of `{spacing.menu-item-height}` on `{colors.panel}` with `{components.control-border.css}`; the number (01 to 07) in small accent Space Mono, the label in `{typography.menu}`, and on the right a count badge or a Space Mono meta ("87/16 480", "2 en ligne", "En direct", "12/40"). Hover: fills with `{colors.accent}`, text `{colors.on-accent}`, slides 10px right, a pixel arrow appears. Pressed: `{colors.accent-press}`. The current item keeps a 6px accent bar on its left. Numbers belong to this desktop menu only; the phone's PLUS rows carry none.
+The hub's numbered menu: rows of `{spacing.menu-item-height}` on `{colors.panel}` with `{components.control-border.css}`; the number (01 to 08) in small accent Space Mono, the label in `{typography.menu}`, and on the right a count badge or a Space Mono meta ("87/16 480", "2 en ligne", "En direct", "12/40"); SOUTENIR, which leaves for another site, shows the pixel external icon on the right at rest instead. Hover: fills with `{colors.accent}`, text `{colors.on-accent}`, slides 10px right, a pixel arrow appears (SOUTENIR keeps its external icon and gets no arrow). Pressed: `{colors.accent-press}`. The current item keeps a 6px accent bar on its left. Numbers belong to this desktop menu only; the phone's PLUS rows carry none.
 
 - **Count badge:** `{colors.lime}` with `{colors.on-lime}`; orange with `{colors.on-alert}` when the player must act (a trade waiting); grayed at zero. Steady, no pulse.
 
@@ -726,7 +726,7 @@ The hub's numbered menu: rows of `{spacing.menu-item-height}` on `{colors.panel}
 
 #### PLUS rows (phone)
 
-Menu-item rows of `{spacing.plus-row-height}` without numbers: AMIS, FIL D'ACTIVITÉ, SUCCÈS, COMMENT ÇA MARCHE, PROFIL ET PARAMÈTRES, under the kicker "PONT DE COMMANDEMENT" and the subtitle "Le reste du vaisseau".
+Menu-item rows of `{spacing.plus-row-height}` without numbers: AMIS, FIL D'ACTIVITÉ, SUCCÈS, COMMENT ÇA MARCHE, PROFIL ET PARAMÈTRES, SOUTENIR (with the external icon), under the kicker "PONT DE COMMANDEMENT" and the subtitle "Le reste du vaisseau".
 
 ### Screens
 

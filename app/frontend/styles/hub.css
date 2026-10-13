@@ -123,6 +123,12 @@
   visibility: hidden;
 }
 
+.menu-item__external {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
 a.menu-item:hover,
 button.menu-item:hover {
   background: var(--color-accent);
