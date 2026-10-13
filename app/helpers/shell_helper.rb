@@ -125,6 +125,14 @@ module ShellHelper
     format("%02d:%02d:%02d", seconds / 3600, seconds % 3600 / 60, seconds % 60)
   end
 
+  # "H:MM:SS" from an hour, else "MM:SS", the packs chip's clock.
+  def format_remaining(seconds)
+    seconds = [ seconds.to_i, 0 ].max
+    hours, rest = seconds.divmod(3600)
+    minutes, seconds = rest.divmod(60)
+    hours.positive? ? format("%d:%02d:%02d", hours, minutes, seconds) : format("%02d:%02d", minutes, seconds)
+  end
+
   # The detail of `gameble:bank-changed` for a bank (events.ts,
   # BankChangedDetail), as the claim's answer carries it to
   # bonus_arc_controller.ts.

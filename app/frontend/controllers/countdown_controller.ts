@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import "../lib/turbo"
+import { formatClock } from "../lib/booster"
 
 // After a refresh that brought no new countdown (failed, or the same value),
 // the next try.
@@ -19,8 +20,9 @@ const BUSY_RETRY_MS = 250
 // next page load, or until the submission ends without one.
 //
 // The daily booster panel's countdown to 00:00 UTC (CAP-16) is the same
-// controller: `hours` writes "HH:MM:SS", and a `bar` target (a <progress>
-// of `total` seconds) fills as the clock runs down.
+// controller: `hours` writes "HH:MM:SS"; without it the clock reads
+// "H:MM:SS" from an hour, else "MM:SS" (the packs chip). A `bar` target (a
+// <progress> of `total` seconds) fills as the clock runs down.
 //
 // With `refresh` false (the packs chip on any page but the hub), the clock
 // stops at 00:00 and the page is never refreshed: the next visit brings the
@@ -113,7 +115,7 @@ export default class extends Controller<HTMLElement> {
     const minutes = Math.floor(seconds / 60)
     this.clockTarget.textContent = this.hoursValue
       ? `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}:${pad(seconds % 60)}`
-      : `${pad(minutes)}:${pad(seconds % 60)}`
+      : formatClock(seconds)
     if (this.hasBarTarget && this.totalValue > 0) this.barTarget.value = Math.max(0, this.totalValue - seconds)
   }
 
