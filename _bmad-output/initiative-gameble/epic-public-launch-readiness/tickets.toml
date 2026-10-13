@@ -506,12 +506,48 @@ risk = "low"
 notes = ["Decision (author, 2026-10-13): fix the CI step; no AGENTS.md rule on list checks.", "Found while building the schema round-trip story: ActiveRecord::Tasks::DatabaseTasks#initialize_database loads the schema file when schema_migrations does not exist."]
 
 [[entry]]
+id = 44
+type = "story"
+title = "A screen explains how the game works"
+description = "A new screen, COMMENT ÇA MARCHE / HOW IT WORKS, opened from a new entry of the hub menu and a PLUS row on the phone, open to visitors too, explains the rules a player meets: how the games of a season are chosen from Steam, what decides a card's rarity, the chance of each rarity in a regular pack, the daily bonus and a reward pack, how packs come back over time, what a season is and why a published season never changes, the kinds of sets (themes, franchises, studios, hall of fame, UFOs) and how a set is completed. Every number on it (odds, bank size, pack timing) is read from the code that applies it, so the page cannot drift from the game."
+verify = "From the hub menu on desktop and from PLUS on the phone, signed in or not, the screen opens and covers game selection, rarity, odds per pack kind, pack timing, seasons, set kinds and completion, in French and English; a test fails if a number shown differs from Game::DrawOdds, the bank size or the pack timing constants; the full suite, vitest, packwerk and zeitwerk pass."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["Requested by the author on 2026-10-13.", "Assumption: the menu entry comes after the existing ones (07 on desktop, its key 7), and the copy follows EXPERIENCE.md's voice (vous, plain sentences, no 'Confrère').", "The rarity rule (11.3) and the set tiers (13.5) may still change: the screen describes what the code does when it is built, and those tickets update it when they change the rule."]
+
+[[entry]]
+id = 45
+type = "story"
+title = "The hub menu offers to support gameble"
+description = "The hub menu gets a last entry, SOUTENIR / SUPPORT, with a button that opens the donation page (the same external link as the legal page and the settings, ExternalLinksHelper#donation_link_to) in a new tab; the phone gets the same row under PLUS. It says nothing more than the legal page does: donations are optional and give no advantage in the game."
+verify = "The hub menu on desktop and PLUS on the phone show SOUTENIR / SUPPORT, signed in or not; it opens the donation page in a new tab with the external link's rel attributes; its keyboard shortcut follows the menu's numbering; strings exist in French and English; the full suite, vitest, packwerk and zeitwerk pass."
+covers = []
+after = [44]
+hitl = false
+risk = "low"
+notes = ["Requested by the author on 2026-10-13.", "Assumption: the entry is the menu's last one (after the how-it-works entry), styled as a menu item whose action is the donation link, not a separate call to action."]
+
+[[entry]]
+id = 46
+type = "story"
+title = "The donation links read SOUTENIR, not Offrir un café"
+description = "The donation buttons of the legal page (section Soutenir gameble) and of the settings' SOUTENIR row read « Offrir un café » / « Buy me a coffee »; they read « Soutenir » / « Support » instead. The legal text that names Buy Me a Coffee as the payment provider stays, since it states where donations go."
+verify = "The legal page's and the settings' donation buttons read Soutenir in French and Support in English; no 'Offrir un café' or 'Buy me a coffee' label remains in the locales; the legal text still names Buy Me a Coffee as the provider; the full suite passes."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["Requested by the author on 2026-10-13."]
+
+[[entry]]
 id = 12
 type = "story"
 title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46]
 hitl = false
 risk = "low"
