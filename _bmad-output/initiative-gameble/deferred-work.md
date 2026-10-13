@@ -129,9 +129,11 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-db-schema-rb-round-trips-the-steam-checks-plan.md`
   summary: Nothing stops a new migration from writing a check as `col IN (...)` on a varchar column, whose dumped form CI's load-and-dump drift step rewrites; a line under "Known pitfalls" in AGENTS.md (write list checks as `col = 'a' OR col = 'b'`) or a lint rule would close it.
   evidence: This plan's quick review; the only guard is the comment in `db/migrate/20261002210000_create_catalog.rb`, which twelve later migrations missed. The fix edits agent-context files, which the build defers to the author.
+  decision: Author, 2026-10-13: no AGENTS.md rule; the CI step of ticket 43 catches such a check.
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-db-schema-rb-round-trips-the-steam-checks-plan.md`
   summary: CI's drift step (`bin/rails db:create db:migrate && git diff --exit-code -- db/schema.rb`) never runs the existing migrations: on an empty database Rails 8.1's `db:migrate` loads db/schema.rb first, so the step checks only that a load dumps the same file; pointing `SCHEMA` at a missing file for the migrate and diffing that dump would test the migrations themselves.
   evidence: `ActiveRecord::Tasks::DatabaseTasks#initialize_database` (activerecord 8.1.4) loads the schema file when `schema_migrations` does not exist; the same applies to AGENTS.md's regeneration command. Found while building this ticket, 2026-10-13.
+  decision: Author, 2026-10-13: fix the CI step, ticket 43 of epic-public-launch-readiness.
 
 ## Deferred from: code review of story-persona-names-are-cut-on-whole-characters-plan (2026-10-13)
 
@@ -142,6 +144,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-opening-an-invite-link-sends-the-invitation-plan.md`
   summary: A page on another site can send a signed-in player to an invite link, which now sends the invitation, or accepts the owner's pending one, without a click; once accepted, no path removes the friendship.
   evidence: The session cookie is SameSite=Lax, so a top-level cross-site GET arrives signed in and the page's own POST carries a valid CSRF token. The auto-send is what the ticket asks for, and invite links are opened from chat apps on other sites, so the page cannot tell them from a hostile redirect. Author to decide: keep it, never auto-accept the owner's pending invitation (show the button instead), or add removing a friend.
+  decision: Author, 2026-10-13: add removing a friend, ticket 42 of epic-public-launch-readiness; the automatic send stays.
 
 ## Deferred from: build of story-request-test-helpers-shared-plan (2026-10-13)
 
