@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { currentIndex, entryBefore, labelBefore, sessionTrailStorage } from "../lib/history_trail"
+import { currentIndex, currentScreenLabel, previousScreen, readTrail, sessionTrailStorage, type PreviousScreen } from "../lib/history_trail"
 
 export default class extends Controller<HTMLAnchorElement> {
   static targets = ["label"]
@@ -11,23 +11,26 @@ export default class extends Controller<HTMLAnchorElement> {
   }
 
   sync(): void {
-    const storage = sessionTrailStorage()
-    const index = currentIndex()
-    const label = labelBefore(index, storage)
-    const pathname = entryBefore(index, storage)
-    if (!label || !pathname) {
+    const screen = this.previousScreen()
+    if (!screen) {
       this.element.hidden = true
       this.element.removeAttribute("href")
       return
     }
-    this.labelTarget.textContent = label
-    this.element.setAttribute("href", pathname)
+    this.labelTarget.textContent = screen.label
+    this.element.setAttribute("href", screen.pathname)
     this.element.hidden = false
   }
 
   back(event: MouseEvent): void {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    const screen = this.previousScreen()
+    if (!screen) return
     event.preventDefault()
-    history.back()
+    history.go(-screen.steps)
+  }
+
+  private previousScreen(): PreviousScreen | null {
+    return previousScreen(readTrail(sessionTrailStorage()), currentIndex(), currentScreenLabel())
   }
 }

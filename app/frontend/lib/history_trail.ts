@@ -15,9 +15,11 @@
 // Every page load and every frame visit that changes the URL records
 // { index → pathname and screen label }: a replaced entry (◀ ▶) overwrites
 // its index, a new entry its own. Entries before the current one are the
-// pages history would return to; the entry right before it, the screen the
-// desktop back button names; the entry right after it, the page the user
-// just came back from. The hub and unnamed screens record no label.
+// pages history would return to; the nearest of them showing another screen,
+// the one the desktop back button names (earlier pages of the current screen,
+// such as the collection's other pages, are skipped); the entry right after
+// it, the page the user just came back from. The hub and unnamed screens
+// record no label.
 
 export const TRAIL_KEY = "gameble:history-trail"
 /** How many entries are kept around the current one, either way. */
@@ -27,7 +29,7 @@ export type TrailStorage = Pick<Storage, "getItem" | "setItem">
 export type TrailEntry = { pathname: string; label?: string }
 export type Trail = Record<string, TrailEntry>
 
-function read(storage: TrailStorage | null): Trail {
+export function readTrail(storage: TrailStorage | null): Trail {
   if (!storage) return {}
   try {
     const parsed: unknown = JSON.parse(storage.getItem(TRAIL_KEY) ?? "{}")
@@ -68,7 +70,7 @@ export function resetTrail(storage: TrailStorage | null): void {
  */
 export function recordEntry(index: number, pathname: string, storage: TrailStorage | null, label?: string | null): void {
   if (!storage) return
-  const trail = read(storage)
+  const trail = readTrail(storage)
   trail[index] = label ? { pathname, label } : { pathname }
   for (const key of Object.keys(trail)) {
     if (Math.abs(Number(key) - index) > TRAIL_SPAN) delete trail[key]
@@ -85,7 +87,7 @@ export function recordEntry(index: number, pathname: string, storage: TrailStora
  * from the entry at `index`; null when no earlier entry shows it.
  */
 export function stepsBackTo(pathname: string, index: number, storage: TrailStorage | null): number | null {
-  const trail = read(storage)
+  const trail = readTrail(storage)
   for (let earlier = index - 1; earlier >= Math.max(0, index - TRAIL_SPAN); earlier--) {
     if (trail[earlier]?.pathname === pathname) return index - earlier
   }
@@ -97,23 +99,25 @@ export function stepsBackTo(pathname: string, index: number, storage: TrailStora
  * page the user came back from by a restore visit), or null when none is.
  */
 export function entryAfter(index: number, storage: TrailStorage | null): string | null {
-  return read(storage)[index + 1]?.pathname ?? null
+  return readTrail(storage)[index + 1]?.pathname ?? null
 }
 
-/**
- * The pathname recorded for the entry right before the one at `index` (the
- * page history goes back to), or null when none is.
- */
-export function entryBefore(index: number, storage: TrailStorage | null): string | null {
-  return read(storage)[index - 1]?.pathname ?? null
-}
+export type PreviousScreen = { label: string; pathname: string; steps: number }
 
 /**
- * The screen label recorded for the entry right before the one at `index`,
- * or null when that entry is unknown or its screen has no label (the hub).
+ * The nearest entry before the one at `index` showing a screen other than
+ * `currentLabel`, skipping the entries of the current screen; null when that
+ * entry is unknown or its screen has no label (the hub).
  */
-export function labelBefore(index: number, storage: TrailStorage | null): string | null {
-  return read(storage)[index - 1]?.label ?? null
+export function previousScreen(trail: Trail, index: number, currentLabel: string | null): PreviousScreen | null {
+  for (let earlier = index - 1; earlier >= Math.max(0, index - TRAIL_SPAN); earlier--) {
+    const entry = trail[earlier]
+    if (!entry) return null
+    if (currentLabel && entry.label === currentLabel) continue
+    if (!entry.label) return null
+    return { label: entry.label, pathname: entry.pathname, steps: index - earlier }
+  }
+  return null
 }
 
 /** The tab's session storage, or null where reading it throws. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { TRAIL_KEY, TRAIL_SPAN, entryAfter, entryBefore, labelBefore, recordEntry, resetTrail, stepsBackTo, type TrailStorage } from "./history_trail"
+import { TRAIL_KEY, TRAIL_SPAN, entryAfter, previousScreen, readTrail, recordEntry, resetTrail, stepsBackTo, type TrailStorage } from "./history_trail"
 
 function memory(): TrailStorage & { items: Map<string, string> } {
   const items = new Map<string, string>()
@@ -110,62 +110,89 @@ describe("history trail", () => {
     expect(stepsBackTo("/grid", 1, refusing)).toBeNull()
   })
 
-  it("names the screen right before the current entry, by the label it recorded", () => {
-    const storage = memory()
-    recordEntry(0, "/en", storage)
-    recordEntry(1, "/en/library", storage, "Collection")
-    recordEntry(2, "/en/cards/portal", storage, "Card")
-
-    expect(labelBefore(2, storage)).toBe("Collection")
-    expect(entryBefore(2, storage)).toBe("/en/library")
-    expect(labelBefore(1, storage)).toBeNull()
-    expect(entryBefore(1, storage)).toBe("/en")
-  })
-
-  it("keeps the label before a replaced entry: stepping through details names the screen they were opened from", () => {
-    const storage = memory()
-    recordEntry(0, "/en/library", storage, "Collection")
-    recordEntry(1, "/en/cards/a", storage, "Card")
-    recordEntry(1, "/en/cards/b", storage, "Card")
-
-    expect(labelBefore(1, storage)).toBe("Collection")
-    expect(stepsBackTo("/en/cards/b", 2, storage)).toBe(1)
-  })
-
-  it("names nothing before an entry it never recorded, after a reset, or with an empty label", () => {
-    const storage = memory()
-    recordEntry(3, "/en/cards/a", storage, "Card")
-    expect(labelBefore(3, storage)).toBeNull()
-    expect(entryBefore(3, storage)).toBeNull()
-    expect(labelBefore(0, storage)).toBeNull()
-
-    recordEntry(4, "/en/feed", storage, "")
-    expect(labelBefore(5, storage)).toBeNull()
-
-    recordEntry(5, "/en/friends", storage, "Friends")
-    resetTrail(storage)
-    expect(labelBefore(6, storage)).toBeNull()
-  })
-
-  it("names nothing without storage, with a refusing one, or from entries it cannot read", () => {
-    expect(labelBefore(1, null)).toBeNull()
-    expect(entryBefore(1, null)).toBeNull()
-
-    const refusing: TrailStorage = {
-      getItem: () => {
-        throw new Error("denied")
-      },
-      setItem: () => {
-        throw new Error("denied")
-      },
+  describe("the previous screen", () => {
+    function trailOf(...entries: Array<[string, string?]>): ReturnType<typeof readTrail> {
+      const storage = memory()
+      entries.forEach(([pathname, label], index) => recordEntry(index, pathname, storage, label))
+      return readTrail(storage)
     }
-    expect(() => recordEntry(0, "/en/library", refusing, "Collection")).not.toThrow()
-    expect(labelBefore(1, refusing)).toBeNull()
 
-    const odd = memory()
-    odd.items.set(TRAIL_KEY, JSON.stringify({ 0: "/en/library", 1: { pathname: "/en/feed", label: 7 } }))
-    expect(labelBefore(1, odd)).toBeNull()
-    expect(labelBefore(2, odd)).toBeNull()
-    expect(stepsBackTo("/en/library", 2, odd)).toBeNull()
+    it("is the entry right before, one step back, when it shows another screen", () => {
+      const trail = trailOf(["/en"], ["/en/library", "Collection"], ["/en/cards/portal", "Card"])
+
+      expect(previousScreen(trail, 2, "Card")).toEqual({ label: "Collection", pathname: "/en/library", steps: 1 })
+    })
+
+    it("is hidden on a later page of a screen reached from the hub", () => {
+      const trail = trailOf(["/en"], ["/en/library", "Collection"], ["/en/library", "Collection"], ["/en/library", "Collection"])
+
+      expect(previousScreen(trail, 3, "Collection")).toBeNull()
+    })
+
+    it("names the grid page a card detail was opened from, one step back", () => {
+      const trail = trailOf(["/en"], ["/en/library", "Collection"], ["/en/library", "Collection"], ["/en/cards/portal", "Card"])
+
+      expect(previousScreen(trail, 3, "Card")).toEqual({ label: "Collection", pathname: "/en/library", steps: 1 })
+    })
+
+    it("goes back past the pages of the current screen to the screen before them", () => {
+      const trail = trailOf(["/en"], ["/en/cards/portal", "Card"], ["/en/library", "Collection"], ["/en/library", "Collection"])
+
+      expect(previousScreen(trail, 3, "Collection")).toEqual({ label: "Card", pathname: "/en/cards/portal", steps: 2 })
+    })
+
+    it("stops at the hub, even with a labelled screen before it", () => {
+      const trail = trailOf(["/en/friends", "Friends"], ["/en"], ["/en/library", "Collection"])
+
+      expect(previousScreen(trail, 2, "Collection")).toBeNull()
+    })
+
+    it("is hidden when the entry it reaches was never recorded", () => {
+      const storage = memory()
+      recordEntry(3, "/en/library", storage, "Collection")
+      recordEntry(4, "/en/library", storage, "Collection")
+
+      expect(previousScreen(readTrail(storage), 4, "Collection")).toBeNull()
+      expect(previousScreen(readTrail(storage), 0, "Collection")).toBeNull()
+      expect(previousScreen({}, 2, "Card")).toBeNull()
+    })
+
+    it("keeps the screen a detail was opened from while ◀ ▶ replace its entry", () => {
+      const storage = memory()
+      recordEntry(0, "/en/library", storage, "Collection")
+      recordEntry(1, "/en/cards/a", storage, "Card")
+      recordEntry(1, "/en/cards/b", storage, "Card")
+
+      expect(previousScreen(readTrail(storage), 1, "Card")).toEqual({ label: "Collection", pathname: "/en/library", steps: 1 })
+    })
+
+    it("treats an empty label as none, and skips nothing on an unnamed screen", () => {
+      expect(previousScreen(trailOf(["/en/library", "Collection"], ["/en/feed", ""]), 2, "Card")).toBeNull()
+      expect(previousScreen(trailOf(["/en"], ["/en/library", "Collection"]), 2, null)).toEqual({ label: "Collection", pathname: "/en/library", steps: 1 })
+    })
+
+    it("finds nothing after a reset, without storage, or from entries it cannot read", () => {
+      const storage = memory()
+      recordEntry(0, "/en/friends", storage, "Friends")
+      resetTrail(storage)
+      expect(previousScreen(readTrail(storage), 1, "Card")).toBeNull()
+      expect(previousScreen(readTrail(null), 1, "Card")).toBeNull()
+
+      const refusing: TrailStorage = {
+        getItem: () => {
+          throw new Error("denied")
+        },
+        setItem: () => {
+          throw new Error("denied")
+        },
+      }
+      expect(() => recordEntry(0, "/en/library", refusing, "Collection")).not.toThrow()
+      expect(previousScreen(readTrail(refusing), 1, "Card")).toBeNull()
+
+      const odd = memory()
+      odd.items.set(TRAIL_KEY, JSON.stringify({ 0: "/en/library", 1: { pathname: "/en/feed", label: 7 } }))
+      expect(previousScreen(readTrail(odd), 2, "Card")).toBeNull()
+      expect(stepsBackTo("/en/library", 2, odd)).toBeNull()
+    })
   })
 })

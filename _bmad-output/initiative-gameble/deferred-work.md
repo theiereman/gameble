@@ -179,3 +179,9 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/epic-space-terminal-redesign-retrospective.md`
   summary: The card tilt still registers a non-passive `touchmove` listener, which can delay scrolling on a phone.
   evidence: `app/frontend/` tilt.ts registers it; its earlier deferred entry was removed in the 2026-10-12 triage (7285ddc) with no other home. Found by the epic's closure check.
+
+## Deferred from: build of plan-previous-screen-skips-same-screen (2026-10-13)
+
+- source_plan: `_bmad-output/initiative-gameble/plan-previous-screen-skips-same-screen.md`
+  summary: Switching language on the settings screen still shows the desktop back button ("◀ PROFILE") leading back to the same settings screen in the other language, since same-screen is judged by the translated label ("Profile" vs "Profil").
+  evidence: `shell_screen_label` returns `t("shell.screens.…")`; the LANGUE links in `app/views/settings/show.html.erb` are Turbo visits, so the trail is not reset. Pre-existing (the old button showed it too). A fix records a language-independent screen key on the top bar and in each trail entry and compares that key.
