@@ -309,14 +309,14 @@ fr:
           other: "Les thèmes : %{count} thèmes regroupent les jeux par genre, d'après leurs tags Steam les plus votés."
         # French keeps the singular for 0, which the plural rule here does not.
         franchises:
-          zero: "Les franchises : une série d'au moins %{count} jeu."
-          one: "Les franchises : une série d'au moins %{count} jeu."
-          other: "Les franchises : une série d'au moins %{count} jeux."
+          zero: "Les franchises : une série d'au moins %{count} jeu, dont le nom figure d'ordinaire dans leurs titres et n'est pas celui d'un studio ou d'un éditeur."
+          one: "Les franchises : une série d'au moins %{count} jeu, dont le nom figure d'ordinaire dans leurs titres et n'est pas celui d'un studio ou d'un éditeur."
+          other: "Les franchises : une série d'au moins %{count} jeux, dont le nom figure d'ordinaire dans leurs titres et n'est pas celui d'un studio ou d'un éditeur."
         # French keeps the singular for 0, which the plural rule here does not.
         studios:
-          zero: "Les studios : au moins %{count} jeu d'un même studio, dont l'un compte au moins %{reviews} évaluations."
-          one: "Les studios : au moins %{count} jeu d'un même studio, dont l'un compte au moins %{reviews} évaluations."
-          other: "Les studios : au moins %{count} jeux d'un même studio, dont l'un compte au moins %{reviews} évaluations."
+          zero: "Les studios : au moins %{count} jeu d'un même studio principal, dont l'un compte au moins %{reviews} évaluations."
+          one: "Les studios : au moins %{count} jeu d'un même studio principal, dont l'un compte au moins %{reviews} évaluations."
+          other: "Les studios : au moins %{count} jeux d'un même studio principal, dont l'un compte au moins %{reviews} évaluations."
         hall_of_fame:
           intro: "Le panthéon, d'après la note et le nombre d'évaluations sur Steam :"
           row: "%{name} : %{rule}"
@@ -324,7 +324,7 @@ fr:
             intouchables: "les jeux très connus et presque unanimement salués ;"
             pepites: "les jeux presque unanimement salués mais encore peu connus ;"
             mal-aimes: "les jeux très connus mais à l'accueil mitigé ;"
-            phenomenes: "les jeux qui comptent le plus d'évaluations."
+            phenomenes: "les jeux qui comptent un nombre énorme d'évaluations."
         ufos: "%{name} : les jeux qui n'entrent dans aucun thème."
         tiers: "Les thèmes et le panthéon ont des paliers : bronze à %{bronze} de leurs cartes, argent à %{silver}, or à %{gold}, puis la complétion. Les autres sets se complètent seulement."
       completion:

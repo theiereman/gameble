@@ -287,11 +287,11 @@ en:
           one: "Themes: %{count} theme groups games by genre, from their most-voted Steam tags."
           other: "Themes: %{count} themes group games by genre, from their most-voted Steam tags."
         franchises:
-          one: "Franchises: a series of at least %{count} game."
-          other: "Franchises: a series of at least %{count} games."
+          one: "Franchises: a series of at least %{count} game, its name usually in their titles and not a studio's or a publisher's."
+          other: "Franchises: a series of at least %{count} games, its name usually in their titles and not a studio's or a publisher's."
         studios:
-          one: "Studios: at least %{count} game from the same studio, one of them with at least %{reviews} reviews."
-          other: "Studios: at least %{count} games from the same studio, one of them with at least %{reviews} reviews."
+          one: "Studios: at least %{count} game with the same lead studio, one of them with at least %{reviews} reviews."
+          other: "Studios: at least %{count} games with the same lead studio, one of them with at least %{reviews} reviews."
         hall_of_fame:
           intro: "The hall of fame, from the rating and the review count on Steam:"
           row: "%{name}: %{rule}"
@@ -299,7 +299,7 @@ en:
             intouchables: "very well-known games acclaimed almost unanimously;"
             pepites: "games acclaimed almost unanimously but still little known;"
             mal-aimes: "very well-known games with a mixed reception;"
-            phenomenes: "the games with the most reviews."
+            phenomenes: "the games with a huge number of reviews."
         ufos: "%{name}: the games that fit no theme."
         tiers: "Themes and the hall of fame have tiers: bronze at %{bronze} of their cards, silver at %{silver}, gold at %{gold}, then completion. The other sets are only completed."
       completion:

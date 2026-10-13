@@ -11,7 +11,7 @@ review: 'quick'
 review_source: 'pinned'
 lenses_ran: ['quick']
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context: []
 warnings: ['oversized']
 deferred: []
@@ -100,6 +100,14 @@ deferred: []
   - `[low]` `[patch]` the selection rule stated its conditions as sufficient but `Steam::DetailsPolicy` also requires a title and a release date — added both to the sentence.
   - `[low]` `[patch]` new intent-only comments in `HowItWorksHelper` and `PagesController#how_it_works`, and a false "sharing one layout" in the `settings.css` header — deleted the helper and controller comments and the false clause; the view header comments follow the repo's view convention and the `_rarity_rule` one is the pointer the rarity-rule change needs.
 
+### 2026-10-13 — Review pass (follow-up)
+- verdicts: 4 findings — high 0, medium 0, low 4, false 0, maybe-false 0
+- findings:
+  - `[low]` `[patch]` the franchise sentence stated the game count as sufficient, while `Catalog::SetBuilder.franchises` also drops a franchise named after a studio or publisher of the season and one whose name is in no more than half its titles — the sentence now says the name usually appears in the titles and is not a studio's or a publisher's, in both locales.
+  - `[low]` `[patch]` the studio sentence said "from the same studio" while `SetBuilder.studios` counts a game under its first developer only — now "with the same lead studio" / "d'un même studio principal".
+  - `[low]` `[patch]` the Phénomènes rule read as a ranking ("the games with the most reviews") while `Catalog::HallOfFame::RULES["phenomenes"]` is a fixed review floor — now "the games with a huge number of reviews" / "un nombre énorme d'évaluations", still without the number.
+  - `[low]` `[patch]` `test/system/hub_test.rb` still asserted 6 hub menu entries (two tests) and named its key test "keys 1 to 6" — counts now 7 and the test is named "number keys act only inside the menu"; not run, system tests are disabled.
+
 ## Design Notes
 
 The rarity explanation lives in `app/views/pages/_rarity_rule.html.erb` (with its strings under `pages.how_it_works.rarity` and the shares from `HowItWorksHelper#rarity_shares`): the rarity-rule change rewrites that partial and those keys only.
@@ -140,3 +148,13 @@ The first-session guarantee is left out: the spec says nothing shows it. Hall of
 **Verification:** after the patches, `bin/rails test` 2412 runs 0 failures, `npm run test:js` 254 passed, `npm run typecheck` clean, `bin/rails zeitwerk:check` all good, `bundle exec packwerk check` no violations, `bin/rubocop` no offenses, `bundle exec i18n-tasks missing` none.
 
 **Residual risks:** the screen was not looked at in a browser (no system test by rule); the spec's non-goal "A guide or tutorial" (`spec-gameble.md`) still reads as excluding guides, for the author to narrow; the copy (French and English) is new and unreviewed by the author.
+
+### Follow-up pass (2026-10-13)
+
+**Review:** 4 findings from the quick lens, all low, all patched (copy of the franchise, studio and Phénomènes sentences in `config/locales/en.yml` and `fr.yml`; the stale hub menu count in `test/system/hub_test.rb`); none deferred, none rejected. The earlier pass's bank/reserve copy and the back-button label were checked against `Game::TopUpBank`, `Game::Reserve` and `ShellHelper::SCREEN_LABELS` and found correct.
+
+**Follow-up review recommended:** false — this follow-up pass patched no high finding (low 4).
+
+**Verification:** `bin/rails test` 2412 runs 0 failures, `npm run test:js` 255 passed, `npm run typecheck` clean, `bin/rails zeitwerk:check` all good, `bundle exec packwerk check` no violations, `bin/rubocop` no offenses, `bundle exec i18n-tasks missing` none. System tests not run, by rule.
+
+**Residual risks:** unchanged — the screen not seen in a browser; the spec's non-goal "A guide or tutorial" left to the author; the new copy unreviewed by the author.

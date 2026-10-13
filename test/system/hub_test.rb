@@ -44,7 +44,7 @@ class HubTest < ApplicationSystemTestCase
     2.times { create_pack(@player) }
     sign_in
 
-    assert_selector ".hub-menu .menu-item", count: 6
+    assert_selector ".hub-menu .menu-item", count: 7
     assert_selector ".hub-showcase .card--xl"
     assert_selector ".daily-booster"
     assert_selector ".hub-sets .set-row"
@@ -127,7 +127,7 @@ class HubTest < ApplicationSystemTestCase
   test "on a desktop, a visitor sees the menu and the invitation" do
     visit home_path(locale: :fr)
 
-    assert_selector ".hub-menu .menu-item", count: 6
+    assert_selector ".hub-menu .menu-item", count: 7
     assert_selector ".hub-invitation", text: "Vos jeux Steam, en cartes à collectionner."
     assert_no_selector ".daily-booster"
     assert_selector ".top-bar .steam-sign-in__button"
@@ -248,7 +248,7 @@ class HubTest < ApplicationSystemTestCase
     assert_equal "1", focused_item
   end
 
-  test "keys 1 to 6 act only inside the menu, never on a disabled item; the item used is focused on the way back" do
+  test "number keys act only inside the menu, never on a disabled item; the item used is focused on the way back" do
     create_pack(@player)
     sign_in
     # Signing in focuses menu 01.
