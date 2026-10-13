@@ -5,7 +5,7 @@ gem "rails", "~> 8.1.4"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use postgresql as the database for Active Record
-gem "pg", "~> 1.1"
+gem "pg", "~> 1.7"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
@@ -65,7 +65,7 @@ gem "view_component", "~> 4.15.0"
 gem "http_accept_language", "~> 2.1.1"
 
 # Page long lists, such as the library's shelves (Consistency Conventions: Pagination) [https://github.com/ddnexus/pagy]
-gem "pagy", "~> 43.6.3"
+gem "pagy", "~> 43.7.0"
 
 # Sign in with Steam over OpenID 2.0, POST-only and CSRF-protected (AD-14) [https://github.com/omniauth/omniauth]
 gem "omniauth", "~> 2.1.4"
