@@ -14,9 +14,9 @@ class CardDetailsHelperTest < ActionView::TestCase
   end
 
   test "a locale without an Open Graph name keeps its own code" do
-    I18n.available_locales += [ :de ]
+    I18n.available_locales += [:de]
     assert_equal "de", I18n.with_locale(:de) { og_locale }
   ensure
-    I18n.available_locales -= [ :de ]
+    I18n.available_locales -= [:de]
   end
 end
