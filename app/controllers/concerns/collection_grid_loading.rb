@@ -6,8 +6,8 @@
 #
 # The parameters, read from `source` (the request's parameters, or the
 # detail's `grid`), anything unknown ignored: the filters, each a list,
-# `state[]` (owned, all, missing, new, duplicates; none asked is owned, or
-# every slot for a viewer who owns no card of the season yet), `rarity[]`,
+# `state[]` (owned, all, missing, new, duplicates; none asked is every
+# slot, Game::CollectionStates::DEFAULT), `rarity[]`,
 # `sets[]` ("kind:key", whole season only), `genre[]`; `q`, the text
 # searched; `seen`, on the detail's `grid` only, the watermark the grid was
 # shown against (ISO 8601), so the new cards it showed stay new while the
@@ -50,12 +50,6 @@ module CollectionGridLoading
     # The states `source` asks for, in Game::CollectionStates order.
     def grid_states_asked(source)
       Game::CollectionStates.sanitize(grid_list(source, :state))
-    end
-
-    # The state shown when none is asked: the owned cards, or every slot
-    # when the viewer owns none of the season's `unique` cards yet.
-    def grid_default_state(unique)
-      unique.positive? ? "owned" : "all"
     end
 
     # The text searched, stripped and cut to Catalog::CollectionGrid::MAX_QUERY.

@@ -108,6 +108,23 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__end form.steam-sign-in"
   end
 
+  test "with no state asked a player sees every slot of a set in slot order, even of a set they hold none of" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    horror = set_members(season, "horror")
+    pirates = set_members(season, "pirates")
+    held = (horror - pirates)[3]
+    hold(player, held, 1, gained_at: 1.minute.ago)
+    sign_in(player)
+
+    get library_set_path(locale: :en, kind: "theme", key: "horror")
+    assert_equal horror.map { |id| id == held ? [ :owned, title(id), "x1" ] : [ :missing, title(id), year(id) ] }, slots
+    assert_select ".filters__count[hidden]"
+
+    get library_set_path(locale: :en, kind: "theme", key: "pirates")
+    assert_equal pirates.map { |id| [ :missing, title(id), year(id) ] }, slots
+  end
+
   test "each kind: the UFOs, a theme; the list is the set's kind" do
     season = publish_sets_draft
 

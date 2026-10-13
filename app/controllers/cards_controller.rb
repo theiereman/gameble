@@ -94,8 +94,7 @@ class CardsController < ApplicationController
 
     # The collection grid the query's `grid` names, as it was shown, when it
     # holds the card; only for a card of the published season, the one the
-    # library shows. The state shown without one asked costs the viewer's
-    # count of cards held.
+    # library shows.
     def grid_browse
       source = params[:grid]
       return unless source.is_a?(ActionController::Parameters) && @detail.current_season
@@ -104,10 +103,8 @@ class CardsController < ApplicationController
       grid = named_grid(season, source)
       return if grid.nil?
 
-      asked = grid_states_asked(source)
-      states = asked.any? ? asked : [ grid_default_state(Game::CollectionSummary.distinct_cards(current_player, season:)) ]
       seen = grid_seen(source)
-      ids = grid_cards(grid, states, seen_up_to: seen).pluck(:id)
+      ids = grid_cards(grid, grid_states_asked(source), seen_up_to: seen).pluck(:id)
       index = ids.index(@detail.card_season_id)
       return if index.nil?
 

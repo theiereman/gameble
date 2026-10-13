@@ -8,6 +8,7 @@ import { Controller } from "@hotwired/stimulus"
 // "clear all" link follow the chips without a round trip. Without
 // JavaScript the form still works with its "apply" button.
 const TYPING_PAUSE_MS = 250
+const ALL_STATE = "all"
 
 export default class extends Controller<HTMLFormElement> {
   static targets = ["search", "count", "number", "group", "clear"]
@@ -25,17 +26,21 @@ export default class extends Controller<HTMLFormElement> {
     window.clearTimeout(this.timer)
   }
 
-  // A chip was switched. The state group never stays empty: with every
-  // state off, its default comes back (owned, or all for a viewer who owns
-  // nothing), as when the page opens.
+  // A chip was switched. In the state group "all" and the other states
+  // exclude each other, and the group never stays empty: with every state
+  // off, its default (every slot) comes back, as when the page opens.
   changed(event: Event): void {
     const box = event.target as HTMLInputElement
     if (box.type !== "checkbox") return
     const state = this.groupTargets.find((group) => group.dataset.group === "state")
     if (state && state.contains(box)) {
       const boxes = this.boxes(state)
+      if (box.checked) {
+        const everything = box.value === ALL_STATE
+        for (const other of boxes) if (other !== box && (other.value === ALL_STATE) !== everything) other.checked = false
+      }
       if (!boxes.some((b) => b.checked)) {
-        const fallback = boxes.find((b) => b.value === (state.dataset.default ?? "owned"))
+        const fallback = boxes.find((b) => b.value === (state.dataset.default ?? ALL_STATE))
         if (fallback) fallback.checked = true
       }
     }
@@ -72,7 +77,7 @@ export default class extends Controller<HTMLFormElement> {
     for (const group of this.groupTargets) {
       const checked = this.boxes(group).filter((b) => b.checked).map((b) => b.value)
       if (group.dataset.group === "state") {
-        const fallback = group.dataset.default ?? "owned"
+        const fallback = group.dataset.default ?? ALL_STATE
         if (!(checked.length === 1 && checked[0] === fallback)) count += checked.length
       } else {
         count += checked.length

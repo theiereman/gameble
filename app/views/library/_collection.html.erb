@@ -14,7 +14,7 @@
     - unique, season_cards, tier_counts: the viewer's figures;
     - seen_up_to: the latest gain among the new cards shown, or nil;
     - pagy also gives the count announced by the status line;
-    - states, states_asked, state_default, query: the filters on (library/filters). %>
+    - states, states_asked, query: the filters on (library/filters). %>
 <div class="collection">
   <h1 class="visually-hidden"><%= heading %></h1>
   <aside class="collection__aside" aria-labelledby="collection-sets-title">
@@ -22,7 +22,7 @@
     <%= render "library/report", counts: tier_counts, unique: unique %>
   </aside>
   <section class="collection__main" aria-label="<%= heading %>">
-    <%= render "library/filters", kind:, shelf: shelf.page, set: grid.set, spines:, grid:, states: states, states_asked: states_asked, state_default: state_default, query: query %>
+    <%= render "library/filters", kind:, shelf: shelf.page, set: grid.set, spines:, grid:, states: states, states_asked: states_asked, query: query %>
     <%= turbo_frame_tag "collection-results", target: "_top" do %>
       <p class="visually-hidden" role="status"><%= t("library.grid.result", count: pagy.count) %></p>
       <%= render "library/grid", context:, slots:, pagy: pagy %>

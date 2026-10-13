@@ -11,7 +11,7 @@ module Game
   # - `duplicates`: two copies or more;
   # - `all`: no restriction.
   #
-  # No state asked is `owned`. A visitor (nil) holds nothing: `owned`, `new`
+  # No state asked is DEFAULT, every card. A visitor (nil) holds nothing: `owned`, `new`
   # and `duplicates` match no card, `missing` and `all` every one. Newest
   # first replaces the relation's order: the held cards before the unheld,
   # by last gain (those never gained last), then the season number and id.
@@ -20,6 +20,7 @@ module Game
   #   Game::CollectionStates.call(player, relation, states: %w[new], seen_up_to: Time)
   module CollectionStates
     STATES = %w[owned all missing new duplicates].freeze
+    DEFAULT = "all"
 
     CONDITIONS = {
       "owned" => "game_holdings.id IS NOT NULL",
@@ -28,9 +29,11 @@ module Game
       "duplicates" => "game_holdings.quantity >= 2"
     }.freeze
 
-    # The states asked that exist, in STATES order.
+    # The states asked that exist, in STATES order; `all` beside another
+    # state gives way to it, so a state chosen from the default narrows.
     def self.sanitize(asked)
-      STATES & Array(asked).map(&:to_s)
+      states = STATES & Array(asked).map(&:to_s)
+      states.size > 1 ? states - [ DEFAULT ] : states
     end
 
     # Gained since `seen_up_to`, in place of the player's watermark.
@@ -38,7 +41,7 @@ module Game
 
     def self.call(player, relation, states: [], newest_first: false, seen_up_to: nil)
       states = sanitize(states)
-      states = %w[owned] if states.empty?
+      states = [ DEFAULT ] if states.empty?
       all = states.include?("all")
 
       if player.nil?

@@ -9,14 +9,14 @@
     collection-filters controller submits on change and keeps the count.
     - kind, shelf: the list of sets, kept by the form;
     - grid: the Catalog::CollectionGrid (chosen values, genres);
-    - states, states_asked, state_default: the states shown, whether the player
-      chose them, and those shown when none is chosen ("owned" or "all");
+    - states, states_asked: the states shown, and whether the player chose
+      them (none chosen shows every slot);
     - spines: the sets listed beside the grid, offered as the set chips;
     - query: the text searched. %>
 <% set_refs = (spines.map { Catalog::SetSlots::SetRef.new(kind: it.kind, key: it.key, params: nil) } + grid.chosen_sets).uniq { [ it.kind, it.key ] } %>
 <% labelled_sets = spines.to_h { [ [ it.kind, it.key ], it.label ] } %>
 <% chosen_set_keys = grid.chosen_sets.map { "#{it.kind}:#{it.key}" } %>
-<% count = collection_filter_count(grid:, states:, states_asked:, state_default:) %>
+<% count = collection_filter_count(grid:, states:, states_asked:) %>
 <% clear_path = collection_clear_path(kind:, shelf:, set:) %>
 <%= form_with url: request.path, method: :get, class: "filters", html: { role: "search" }, data: {
   controller: "collection-filters", turbo_frame: "collection-results", turbo_action: "replace",
@@ -36,7 +36,7 @@
       <span class="filters__count" data-collection-filters-target="count" <%= "hidden" if count.zero? %>><span class="visually-hidden"><%= t("library.filters.active") %></span> <span data-collection-filters-target="number"><%= count %></span></span>
     </summary>
     <div class="filters__groups">
-      <fieldset class="filters__group" data-collection-filters-target="group" data-group="state" data-default="<%= state_default %>">
+      <fieldset class="filters__group" data-collection-filters-target="group" data-group="state" data-default="<%= Game::CollectionStates::DEFAULT %>">
         <legend class="filters__legend"><%= t("library.filters.groups.state") %></legend>
         <% Game::CollectionStates::STATES.each do |state| %>
           <label class="filter-chip">

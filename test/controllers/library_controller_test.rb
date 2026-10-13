@@ -50,6 +50,10 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  def owned_slots
+    slots.select { it.first == :owned }
+  end
+
   def report
     css_select(".report--panel .report__row").to_h { [ it.at_css("dt").text.strip, it.at_css("dd").text ] }
   end
@@ -150,9 +154,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".collection-grid a.card-link[href=?] .card", href.(held, context)
     assert_select ".collection-grid a.card-link[href=?] .missing-slot", href.(missing, context)
 
-    # The owned cards by default: only the search, always there.
+    # Every slot by default, the held card first: only the search, always there.
     get library_path(locale: :en)
-    assert_equal [ href.(held, { q: "" }) ], css_select(".collection-grid a.card-link").map { it["href"] }
+    assert_equal [ href.(held, { q: "" }), href.(missing, { q: "" }) ], css_select(".collection-grid a.card-link").first(2).map { it["href"] }
 
     get library_set_path(locale: :en, kind: "theme", key: "pirates", state: %w[all], genre: %w[horror])
     assert_equal [ "?#{query.({ genre: %w[horror], key: "pirates", kind: "theme", q: "", state: %w[all] })}" ] * 8,
@@ -261,9 +265,11 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :fr)
 
-    # Owned cards only, newest gained first, the one never gained last.
+    # Owned cards first, newest gained first, the one never gained last,
+    # then the missing ones.
     assert_equal [ [ :owned, title(second, "fr"), "x1", "Nouveau" ], [ :owned, title(first, "fr"), "x2", "Nouveau" ],
-      [ :owned, title(fourth, "fr"), "x1", nil ], [ :owned, title(third, "fr"), "x1", nil ] ], slots
+      [ :owned, title(fourth, "fr"), "x1", nil ], [ :owned, title(third, "fr"), "x1", nil ] ], slots.first(4)
+    assert_equal :missing, slots[4].first
     assert_select "div[hidden][data-controller=collection-seen][data-collection-seen-url-value='/fr/library/seen']" do |element|
       assert_equal latest.utc.iso8601(6), element.first["data-collection-seen-up-to-value"]
     end
@@ -521,7 +527,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_request_queries(9) { get library_path(locale: :en) }
   end
 
-  test "the collection opens on the owned cards, newest gained first, FILTRES folded with no count" do
+  test "the collection opens on every slot, the owned cards first, newest gained first, FILTRES folded with no count" do
     season = publish_sets_draft
     player = accounts_players(:player)
     first, second, third = season_cards(season).first(3)
@@ -532,16 +538,32 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :en)
 
-    assert_equal [ second, first, third ].map { [ :owned, title(it), nil ] }, slots.map { [ it[0], it[1], nil ] }
+    assert_equal [ second, first, third ].map { [ :owned, title(it), nil ] }, slots.first(3).map { [ it[0], it[1], nil ] }
+    assert_equal [ :missing ] * 57, slots.drop(3).map(&:first)
     assert_select "form.filters[method=get][data-controller=collection-filters][data-turbo-frame=collection-results]"
     assert_select "details.filters__zone:not([open]) summary", /Filters/
     assert_select ".filters__count[hidden]"
     assert_select ".filters__clear[hidden]"
     assert_select "turbo-frame#collection-results[target=_top] .collection-grid"
     assert_select "input[type=search][name=q]#collection-search"
-    assert_equal [ "Owned" ], css_select("[data-group=state] .filter-chip__box[checked]").map { it.parent.text.strip }
+    assert_equal [ "All" ], css_select("[data-group=state] .filter-chip__box[checked]").map { it.parent.text.strip }
     assert_equal [ "Common", "Uncommon", "Rare", "Epic", "Legendary" ], css_select("[data-group=rarity] .filter-chip__text").map(&:text)
     assert_equal [ "Horror", "Pirates", "Roguelike", "RPG" ], css_select("[data-group=sets] .filter-chip__text").map(&:text)
+  end
+
+  test "a state chosen beside the default every slot narrows the grid to it, counted once" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    first, second = season_cards(season).first(2)
+    hold(player, first, 1, gained_at: 1.hour.ago)
+    hold(player, second, 1, gained_at: 1.minute.ago)
+    sign_in(player)
+
+    get library_path(locale: :en, state: %w[all owned])
+
+    assert_equal [ second, first ].map { title(it) }, slots.map(&:second)
+    assert_equal [ "Owned" ], css_select("[data-group=state] .filter-chip__box[checked]").map { it.parent.text.strip }
+    assert_select ".filters__count:not([hidden])", /1/
   end
 
   test "the missing state shows the empty slots naming the game; owned plus missing is every slot" do
@@ -583,7 +605,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ second, first, third ].map { title(it) }, slots.map(&:second)
 
     get library_path(locale: :en, state: %w[bogus])
-    assert_equal 3, slots.size
+    assert_equal [ second, first, third ].map { title(it) }, owned_slots.map(&:second)
+    assert_equal 60, slots.size
   end
 
   test "two genre chips show either genre; a rarity chip then narrows to both" do
@@ -597,15 +620,15 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     sign_in(player)
 
     get library_path(locale: :en, genre: %w[rpg])
-    assert_equal rpg.first(6).map { title(it) }.sort, slots.map(&:second).sort
+    assert_equal rpg.first(6).map { title(it) }.sort, owned_slots.map(&:second).sort
 
     get library_path(locale: :en, genre: %w[rpg roguelike])
-    assert_equal sample.size, slots.size
+    assert_equal sample.size, owned_slots.size
 
     rarity = Catalog::CardSeason.where(id: sample).pick(:rarity)
     both = Catalog::CardSeason.where(id: sample, rarity:).count
     get library_path(locale: :en, genre: %w[rpg roguelike], rarity: [ rarity ])
-    assert_equal both, slots.size
+    assert_equal both, owned_slots.size
     assert_operator both, :<, sample.size
     assert_select ".filters__count", /3/
   end
@@ -619,11 +642,11 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     sign_in(player)
 
     get library_path(locale: :en, sets: %w[theme:horror theme:rpg])
-    assert_equal 5, slots.size
+    assert_equal 5, owned_slots.size
     assert_equal [ "Horror", "RPG" ], css_select("[data-group=sets] .filter-chip__box[checked]").map { it.parent.text.strip }
 
     get library_path(locale: :en, sets: %w[theme:rpg])
-    assert_equal 2, slots.size
+    assert_equal 2, owned_slots.size
   end
 
   test "a search over title and publisher narrows the grid with the other filters; an empty result shows the empty-filter line" do
@@ -690,7 +713,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     sign_in(player)
 
     get library_set_path(locale: :en, kind: "theme", key: "roguelike", rarity: Catalog::Rarity::TIERS.values.map(&:to_s))
-    assert_equal [ title(members[3]) ], slots.map(&:second)
+    assert_equal [ title(members[3]) ], owned_slots.map(&:second)
     assert_select ".filters__clear[href=?]", "/en/library/theme/roguelike"
   end
 end

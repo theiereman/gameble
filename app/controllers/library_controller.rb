@@ -79,15 +79,14 @@ class LibraryController < ApplicationController
     # player's watermark when the grid shows new cards by filter: showing
     # them moves it (collection_seen_controller.ts), and the detail judges
     # new against the one this grid was shown against. The
-    # filters on: @query, @states (those asked, else @state_default) and
+    # filters on: @query, @states (those asked, else every slot) and
     # @states_asked. @seen_up_to: the latest gain among the new cards
     # shown, nil when none is.
     def load_grid(grid)
       @query = grid_query(params)
       asked = grid_states_asked(params)
       @states_asked = asked.any?
-      @state_default = grid_default_state(@unique)
-      @states = @states_asked ? asked : [ @state_default ]
+      @states = @states_asked ? asked : [ Game::CollectionStates::DEFAULT ]
       @grid_context = grid_context(params, grid.set, seen: (shown_watermark if @states.include?("new")))
       @grid_pagy, page = pagy(:offset, grid_cards(grid, @states), limit: GRID_SIZE, page: page_param)
       ids = page.pluck(:id)

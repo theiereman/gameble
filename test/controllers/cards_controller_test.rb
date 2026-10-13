@@ -599,10 +599,10 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "61 / 150", position[%r{\d+ / \d+}]
     assert_equal "/en/library?page=2&state%5B%5D=all", css_select(".top-bar__phone-back").sole["href"]
 
-    # The newest held card opens the grid; the owned cards by default.
+    # The newest held card opens the grid; every slot by default.
     get grid_detail(slugs[0], season.number, { q: "" })
     assert_equal [ [ "button", "disabled" ], [ "a", grid_detail(slugs[1], season.number, { q: "" }) ] ], navs
-    assert_equal "1 / 3", position[%r{\d+ / \d+}]
+    assert_equal "1 / 150", position[%r{\d+ / \d+}]
     assert_equal "/en/library", css_select(".top-bar__phone-back").sole["href"]
     assert_select ".card-detail__card .card.card--l"
   end
@@ -705,7 +705,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".public-card"
   end
 
-  test "an opened pack in place of the set costs one query more, the collection grid five more" do
+  test "an opened pack in place of the set costs one query more, the collection grid four more" do
     player = accounts_players(:player)
     pack = create_pack(player, cards: fixture_tier_ids, opened_at: 1.minute.ago)
     sign_in(player)
@@ -716,11 +716,10 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "S1 · #3 · 3 / 5 · swipe to browse", position
 
     # The set's neighbours replaced by the published season, the grid's
-    # genres, the viewer's count of cards held (no state asked), the grid's
-    # cards in order and its two neighbours' cards.
-    assert_request_queries(13) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "" }) }
+    # genres, the grid's cards in order and its two neighbours' cards,
+    # whether a state is asked or not.
+    assert_request_queries(12) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "" }) }
     assert_select ".card-detail__nav", 2
-    # A state asked spares the count of cards held.
     assert_request_queries(12) { get card_season_path(locale: :en, slug: "blue-depths", number: 1, grid: { q: "", state: %w[all] }) }
   end
 

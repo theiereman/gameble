@@ -22,15 +22,15 @@ class Game::CollectionStatesTest < ActiveSupport::TestCase
     Game::CollectionStates.call(player, @cards, states:, newest_first:).pluck(:id)
   end
 
-  test "no state is the owned cards; a held card at zero copies is not owned" do
-    assert_equal [ @a, @b, @c ], ids([])
+  test "no state is every card; a held card at zero copies is not owned" do
+    assert_equal @cards.ids, ids([])
     assert_equal [ @a, @b, @c ], ids(%w[owned])
   end
 
-  test "missing is every other card, all is every card" do
+  test "missing is every other card, all is every card; all beside another state gives way to it" do
     assert_equal @cards.ids - [ @a, @b, @c ], ids(%w[missing])
     assert_equal 150, ids(%w[all]).size
-    assert_equal 150, ids(%w[all owned]).size
+    assert_equal [ @a, @b, @c ], ids(%w[all owned])
   end
 
   test "new is gained after the watermark; duplicates is two copies or more; states are an OR" do
@@ -66,8 +66,10 @@ class Game::CollectionStatesTest < ActiveSupport::TestCase
   end
 
   test "unknown states are ignored and sanitized in order" do
-    assert_equal [ @a, @b, @c ], ids(%w[bogus])
+    assert_equal @cards.ids, ids(%w[bogus])
     assert_equal %w[owned missing], Game::CollectionStates.sanitize(%w[missing nope owned owned])
+    assert_equal %w[missing], Game::CollectionStates.sanitize(%w[all missing])
+    assert_equal %w[all], Game::CollectionStates.sanitize(%w[all nope])
   end
 
   test "a visitor holds nothing: only missing and all match, with no holdings query" do
@@ -81,7 +83,7 @@ class Game::CollectionStatesTest < ActiveSupport::TestCase
   end
 
   test "another player's holdings do not count" do
-    assert_empty ids([], player: accounts_players(:moderator))
+    assert_empty ids(%w[owned], player: accounts_players(:moderator))
     assert_equal 150, ids(%w[missing], player: accounts_players(:moderator)).size
   end
 end
