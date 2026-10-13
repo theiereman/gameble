@@ -9,7 +9,9 @@ class InviteLinksController < ApplicationController
     authorize :invite_link, :show?
 
     @owner = owner
-    render :unknown, status: :not_found unless @owner
+    return render :unknown, status: :not_found unless @owner
+
+    @relation = relation_to(@owner)
   end
 
   def create
@@ -23,5 +25,18 @@ class InviteLinksController < ApplicationController
     def owner
       found = Accounts::PlayerByToken.call(params[:token])
       found unless found&.banned?
+    end
+
+    def relation_to(owner)
+      return if current_player.nil? || current_player.id == owner.id
+
+      return :friends if Game::FriendshipBetween.call(current_player, owner)
+      return if invited_by?(owner)
+
+      :invited if Game::InvitationAwaiting.call(current_player, owner)
+    end
+
+    def invited_by?(owner)
+      Game::InvitationsOf.call(current_player).received.any? { |row| row.player.id == owner.id }
     end
 end

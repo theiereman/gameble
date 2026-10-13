@@ -853,6 +853,8 @@ en:
       send: "Send an invitation"
       own_link: "This is your own link."
       to_friends: "To your friends"
+      already_invited: "Invitation already sent to %{name}."
+      already_friends: "You and %{name} are already friends."
     unknown:
       title: "Invitation"
       text: "This invitation link is not valid."

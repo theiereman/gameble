@@ -873,6 +873,8 @@ fr:
       send: "Envoyer une invitation"
       own_link: "C'est votre propre lien."
       to_friends: "Vers vos amis"
+      already_invited: "Invitation déjà envoyée à %{name}."
+      already_friends: "%{name} et vous êtes déjà amis."
     unknown:
       title: "Invitation"
       text: "Ce lien d'invitation n'est pas valide."

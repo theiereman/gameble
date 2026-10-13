@@ -136,3 +136,9 @@
 ## Deferred from: code review of story-persona-names-are-cut-on-whole-characters-plan (2026-10-13)
 
 - Planning ids also remain in the comments of `packs/accounts/app/models/accounts/persona_name.rb`, `packs/accounts/app/operations/accounts/sign_in.rb` and `test/packs/accounts/persona_name_test.rb` (CAP-8, epic 4 retrospective B4); pre-existing, to fold into the same repo-wide sweep.
+
+## Deferred from: code review of story-opening-an-invite-link-sends-the-invitation-plan (2026-10-13)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-opening-an-invite-link-sends-the-invitation-plan.md`
+  summary: A page on another site can send a signed-in player to an invite link, which now sends the invitation, or accepts the owner's pending one, without a click; once accepted, no path removes the friendship.
+  evidence: The session cookie is SameSite=Lax, so a top-level cross-site GET arrives signed in and the page's own POST carries a valid CSRF token. The auto-send is what the ticket asks for, and invite links are opened from chat apps on other sites, so the page cannot tell them from a hostile redirect. Author to decide: keep it, never auto-accept the owner's pending invitation (show the button instead), or add removing a friend.

@@ -173,7 +173,94 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
 
     assert_equal link, path
-    assert_select "form[action=?] button", link, text: "Envoyer une invitation"
+    assert_select "[data-controller=auto-submit] form[action=?][method=post] button", link, text: "Envoyer une invitation"
+    assert_equal 0, Game::Invitation.count
+  end
+
+  test "a signed-in player opening a link gets a form that sends itself, and the page writes nothing" do
+    link = invite_link_path(token: @bob.token, locale: :fr)
+    sign_in @alice
+
+    get link
+
+    assert_response :success
+    assert_select "[data-controller=auto-submit] form[action=?][method=post] button", link, text: "Envoyer une invitation"
+    assert_equal 0, Game::Invitation.count
+
+    post link
+    follow_redirect!
+    assert_select ".friends__message--sent", "Invitation envoyée à Sam."
+    assert_select ".friends__invitation", /Envoyée à Sam/
+  end
+
+  test "reopening a link after sending says it is already sent and sends nothing" do
+    link = invite_link_path(token: @bob.token, locale: :fr)
+    sign_in @alice
+    post link
+
+    get link
+
+    assert_select ".friends__message", "Invitation déjà envoyée à Sam."
+    assert_select "a[href=?]", friends_path(locale: :fr), text: "Vers vos amis"
+    assert_select "[data-controller=auto-submit]", 0
+    assert_select "form[action=?]", link, 0
+    assert_equal 1, Game::Invitation.count
+  end
+
+  test "an ignored invitation still reads as already sent on the link" do
+    invitation = Game::SendInvitation.new.call(player: @alice, recipient_token: @bob.token).value!
+    Game::IgnoreInvitation.new.call(player: @bob, token: invitation.token).value!
+    sign_in @alice
+
+    get invite_link_path(token: @bob.token, locale: :fr)
+
+    assert_select ".friends__message", "Invitation déjà envoyée à Sam."
+    assert_select "[data-controller=auto-submit]", 0
+  end
+
+  test "an ignored invitation gives way to the owner's pending one: the link offers the form, which accepts it" do
+    ignored = Game::SendInvitation.new.call(player: @alice, recipient_token: @bob.token).value!
+    Game::IgnoreInvitation.new.call(player: @bob, token: ignored.token).value!
+    Game::SendInvitation.new.call(player: @bob, recipient_token: @alice.token).value!
+    link = invite_link_path(token: @bob.token, locale: :fr)
+    sign_in @alice
+
+    get link
+
+    assert_select "[data-controller=auto-submit] form[action=?]", link
+    assert_select ".friends__message", 0
+
+    post link
+    follow_redirect!
+    assert_select ".friends__row .friends__name", "Sam"
+  end
+
+  test "a friend opening the link is told they are already friends, with no form" do
+    link = invite_link_path(token: @bob.token, locale: :en)
+    invitation = Game::SendInvitation.new.call(player: @alice, recipient_token: @bob.token).value!
+    Game::AcceptInvitation.new.call(player: @bob, token: invitation.token).value!
+    sign_in @alice
+
+    get link
+
+    assert_select ".friends__message", "You and Sam are already friends."
+    assert_select "a[href=?]", friends_path(locale: :en), text: "To your friends"
+    assert_select "[data-controller=auto-submit]", 0
+    assert_select "form[action=?]", link, 0
+  end
+
+  test "a player the owner invited gets the sending form, which accepts the invitation" do
+    Game::SendInvitation.new.call(player: @bob, recipient_token: @alice.token).value!
+    link = invite_link_path(token: @bob.token, locale: :fr)
+    sign_in @alice
+
+    get link
+    assert_select "[data-controller=auto-submit] form[action=?]", link
+
+    post link
+    follow_redirect!
+    assert_select ".toast", /Nouvel ami/i
+    assert_select ".friends__row .friends__name", "Sam"
   end
 
   test "sending from a link invites the owner" do

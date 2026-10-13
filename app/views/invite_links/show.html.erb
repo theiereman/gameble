@@ -5,14 +5,24 @@
   <h1 id="invite-link-heading" class="friends__title"><%= t(".heading") %></h1>
   <%= render PanelComponent.new(brackets: true, class: "friends__panel") do %>
     <p class="invite-link__line"><%= t(".invites_you", name:) %></p>
-    <p class="friends__label"><%= current_player ? t(".send_text", name:) : t(".sign_in_text") %></p>
     <% if current_player.nil? %>
+      <p class="friends__label"><%= t(".sign_in_text") %></p>
       <%= render ButtonComponent.new(opens: "sign-in-panel") do %><%= t(".sign_in") %><% end %>
     <% elsif current_player.id == @owner.id %>
+      <p class="friends__label"><%= t(".send_text", name:) %></p>
       <p class="friends__message friends__message--error"><%= t(".own_link") %></p>
       <%= render ButtonComponent.new(variant: :secondary, href: friends_path, size: :small) do %><%= t(".to_friends") %><% end %>
+    <% elsif @relation == :friends %>
+      <p class="friends__message"><%= t(".already_friends", name:) %></p>
+      <%= render ButtonComponent.new(variant: :secondary, href: friends_path, size: :small) do %><%= t(".to_friends") %><% end %>
+    <% elsif @relation == :invited %>
+      <p class="friends__message"><%= t(".already_invited", name:) %></p>
+      <%= render ButtonComponent.new(variant: :secondary, href: friends_path, size: :small) do %><%= t(".to_friends") %><% end %>
     <% else %>
-      <%= render ButtonComponent.new(href: request.path, method: :post) do %><%= t(".send") %><% end %>
+      <p class="friends__label"><%= t(".send_text", name:) %></p>
+      <%= tag.div data: { controller: "auto-submit" } do %>
+        <%= render ButtonComponent.new(href: request.path, method: :post) do %><%= t(".send") %><% end %>
+      <% end %>
     <% end %>
   <% end %>
 </section>
