@@ -107,7 +107,44 @@ describe("attachTilt", () => {
     expect(card.dataset.tilting).toBeUndefined()
     runFrames()
     expect(card.dataset.tilt).toBeUndefined()
-    expect(card.properties.size).toBe(0)
+    expect(Object.fromEntries(card.properties)).toEqual({ "--glare-dx": "-40px", "--glare-dy": "-60px" })
+  })
+
+  it("fades the glare out where it is while the tilt eases back to rest", () => {
+    const { card } = attach()
+    const glare = () => [card.properties.get("--glare-dx"), card.properties.get("--glare-dy")]
+    const tilt = () => ["--tilt-rx", "--tilt-ry"].map((name) => Math.abs(parseFloat(card.properties.get(name) ?? "0")))
+
+    card.dispatchEvent(pointer("pointermove", "mouse", 140, 260))
+    runFrames()
+    card.dispatchEvent(pointer("pointermove", "mouse", 260, 440))
+    runFrames(2)
+    const glareAtLeave = glare()
+    expect(glareAtLeave).not.toEqual(["-40px", "-60px"])
+    expect(glareAtLeave).not.toEqual(["80px", "120px"])
+
+    card.dispatchEvent(pointer("pointerleave", "mouse", 300, 440))
+    let easedFrames = 0
+    let previousTilt = tilt()
+    while (frames.size > 0 && card.properties.has("--tilt-rx")) {
+      runFrames(1)
+      expect(glare()).toEqual(glareAtLeave)
+      if (!card.properties.has("--tilt-rx")) break
+      tilt().forEach((angle, axis) => expect(angle).toBeLessThan(previousTilt[axis]))
+      previousTilt = tilt()
+      easedFrames++
+    }
+    expect(easedFrames).toBeGreaterThan(5)
+    expect(frames.size).toBe(0)
+    expect(card.dataset.tilt).toBeUndefined()
+    expect(card.dataset.tilting).toBeUndefined()
+    expect(card.properties.has("--tilt-rx")).toBe(false)
+    expect(card.properties.has("--tilt-ry")).toBe(false)
+    expect(glare()).toEqual(glareAtLeave)
+
+    card.dispatchEvent(pointer("pointermove", "mouse", 220, 380))
+    expect(glare()).toEqual(["40px", "60px"])
+    expect(card.dataset.tilting).toBe("")
   })
 
   it("places the glare under the pointer at once, while the tilt eases", () => {

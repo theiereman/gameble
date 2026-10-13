@@ -8,11 +8,14 @@
 //   data-tilting            while a pointer drives it
 //   data-tilt="moving"      while it eases
 //   data-tilt="held"        once settled on a target other than rest
-// Everything is removed once it is back at rest. A mouse or pen tilts it
-// as it moves over it; a finger held still for HOLD_MS tilts it until
-// released (the click that follows is swallowed, so a card in a link does
-// not open), and a drag before then scrolls the page. Under reduced motion
-// (motionReduced() when a pointer starts) nothing happens.
+// When the pointer lets go, only the tilt eases back: the glare keeps its
+// offset, so it fades out where it was. Back at rest, everything but that
+// offset is removed; the next pointer places the glare under it again.
+// A mouse or pen tilts it as it moves over it; a finger held still for
+// HOLD_MS tilts it until released (the click that follows is swallowed, so
+// a card in a link does not open), and a drag before then scrolls the page.
+// Under reduced motion (motionReduced() when a pointer starts) nothing
+// happens.
 import { motionReduced } from "./motion"
 
 export type Tilt = { rx: number; ry: number; glareDx: number; glareDy: number }
@@ -31,7 +34,8 @@ const SNAP_PIXELS = 0.1
 
 export const REST: Tilt = { rx: 0, ry: 0, glareDx: 0, glareDy: 0 }
 
-const PROPERTIES = ["--tilt-rx", "--tilt-ry", "--glare-dx", "--glare-dy"] as const
+const TILT_PROPERTIES = ["--tilt-rx", "--tilt-ry"] as const
+const GLARE_PROPERTIES = ["--glare-dx", "--glare-dy"] as const
 
 const unit = (value: number) => Math.min(1, Math.max(0, value))
 
@@ -97,10 +101,15 @@ export function attachTilt(element: HTMLElement, { max }: { max: number }): () =
   let swallowClick = false
   let glarePlaced = false
 
-  const clear = () => {
-    for (const property of PROPERTIES) element.style.removeProperty(property)
+  const settleAtRest = () => {
+    for (const property of TILT_PROPERTIES) element.style.removeProperty(property)
     delete element.dataset.tilt
     delete element.dataset.tilting
+  }
+
+  const clear = () => {
+    settleAtRest()
+    for (const property of GLARE_PROPERTIES) element.style.removeProperty(property)
   }
 
   const write = () => {
@@ -114,9 +123,8 @@ export function attachTilt(element: HTMLElement, { max }: { max: number }): () =
     frame = null
     current = easeToward(current, target)
     const still = settled(current, target)
-    if (still && driver === null && atRest(target)) {
-      current = REST
-      clear()
+    if (still && driver === null) {
+      settleAtRest()
       return
     }
     write()
@@ -153,7 +161,7 @@ export function attachTilt(element: HTMLElement, { max }: { max: number }): () =
     driver = null
     box = null
     delete element.dataset.tilting
-    target = REST
+    target = { ...REST, glareDx: current.glareDx, glareDy: current.glareDy }
     schedule()
   }
 
