@@ -19,7 +19,7 @@
     <span class="packs-chip__divider" aria-hidden="true"></span>
     <span class="packs-chip__next" data-controller="countdown" data-countdown-seconds-value="<%= seconds %>" data-countdown-refresh-value="<%= refresh %>">
       <span aria-hidden="true"><%= t("shell.packs.next_in") %>
-        <span class="packs-chip__clock" data-countdown-target="clock"><%= format("%02d:%02d", *seconds.divmod(60)) %></span></span>
+        <span class="packs-chip__clock" data-countdown-target="clock"><%= format_remaining(seconds) %></span></span>
       <span class="visually-hidden"><%= t("shell.packs.next_at", time: bank[:next_available_at].utc.strftime("%H:%M")) %></span>
     </span>
   <% end %>

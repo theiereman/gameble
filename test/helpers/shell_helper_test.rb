@@ -127,4 +127,14 @@ class ShellHelperTest < ActionView::TestCase
     assert_nil shell_next_pack_in(bank.merge(next_available_at: nil))
     assert_nil shell_next_pack_in(nil)
   end
+
+  test "the remaining time reads hours from an hour, else minutes" do
+    assert_equal "00:59", format_remaining(59)
+    assert_equal "10:00", format_remaining(600)
+    assert_equal "59:59", format_remaining(3599)
+    assert_equal "1:00:00", format_remaining(3600)
+    assert_equal "1:30:00", format_remaining(5400)
+    assert_equal "24:00:00", format_remaining(86_400)
+    assert_equal "00:00", format_remaining(-4)
+  end
 end

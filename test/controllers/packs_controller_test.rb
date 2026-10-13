@@ -290,6 +290,20 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, countdown.size
   end
 
+  test "a pack more than an hour away counts down in hours, not in total minutes" do
+    player = accounts_players(:player)
+    now = Time.utc(2026, 10, 2, 14, 22)
+    travel_to(now) { create_pack(player, available_at: now + 90.minutes) }
+    sign_in(player.steam_id)
+
+    travel_to(now) { get home_path(locale: :en) }
+
+    assert_equal "5400", countdown.sole["data-countdown-seconds-value"]
+    assert_select ".packs-chip__next [aria-hidden=true]", text: /\+1 in\s+1:30:00/
+    assert_select ".packs-chip__next [data-countdown-target=clock]", "1:30:00"
+    assert_select ".packs-chip__next .visually-hidden", "Next booster at 15:52 (UTC)"
+  end
+
   test "a full bank with bonus packs shows no countdown" do
     player = accounts_players(:player)
     Game::FillBank.new.call(player:).value!
