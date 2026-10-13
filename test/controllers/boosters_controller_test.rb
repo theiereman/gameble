@@ -3,7 +3,7 @@ require_relative "../support/game_packs"
 
 # The booster screen (EXPERIENCE.md, Ouverture de booster): the Booster
 # island with its props, an opened pack shown again, the booster top bar,
-# the no-JavaScript fallback, and the visitor's refusal.
+# the no-JavaScript fallback, the bank in JSON, and the visitor's refusal.
 class BoostersControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
 
@@ -65,6 +65,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "/en", data["hubUrl"]
     assert_equal "/en/cards/SLUG", data["cardUrl"]
     assert_equal "/en/cards/SLUG/seasons/NUMBER/repost", data["repostUrl"]
+    assert_equal "/en/booster.json", data["bankUrl"]
     assert_equal ",", data["delimiter"]
     assert_equal 1, data["season"]
     assert_equal 5, data["packSize"]
@@ -108,6 +109,30 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
       assert_select "form[action='/en/packs'][method=post] button.button--primary", "Open the booster"
       assert_select "a.button--secondary[href='/en']", "Back to the bridge"
     end
+  end
+
+  test "in JSON, a player gets the bank alone, as the island's props carry it, and nothing is written" do
+    now = Time.utc(2026, 10, 6, 14, 22)
+    travel_to(now) { Game::FillBank.new.call(player: @player).value! }
+    travel_to(now) { Game::OpenPack.new.call(player: @player).value! }
+    sign_in(@player)
+
+    assert_no_difference -> { Game::Pack.where(player_id: @player.id, opened_at: nil).count } do
+      travel_to(now + 4.minutes) { get booster_path(locale: :en, format: :json) }
+    end
+
+    assert_response :success
+    assert_equal "application/json", response.media_type
+    assert_equal({ "bank" => { "available" => 9, "reserveFull" => false, "nextAvailableAt" => "2026-10-06T14:32:00.000Z",
+      "serverTime" => "2026-10-06T14:26:00.000Z", "nextPackSize" => 5 } }, response.parsed_body)
+    assert_empty json_keys(response.parsed_body).grep(/\Aid\z|Id\z/)
+  end
+
+  test "in JSON, a visitor is refused and asked to sign in" do
+    get booster_path(locale: :en, format: :json)
+
+    assert_response :unauthorized
+    assert_equal({ "error" => { "code" => "sign_in_required", "message" => I18n.t("authorization.sign_in_required", locale: :en) } }, response.parsed_body)
   end
 
   test "without a published season, the island gets no season number and the fallback stays" do

@@ -18,6 +18,10 @@
 // The chrome follows through `gameble:*` events only: the counts as each
 // card shows (tier-revealed), the reserve on each answer (bank-changed),
 // and the navigation lock during an opening and each reveal.
+// The bank is read again from the server (lib/booster_bank.ts) after a
+// refusal, and when the countdown reaches zero: the screen is refreshed
+// with no hand at rest, else the bank is fetched once the hand is put
+// away; a dealt hand is never refreshed away.
 //
 // Three layouts (story 8.12), read from two media queries and carried as
 // `data-layout` (the stylesheet sizes the stage from it): the wide row of
@@ -43,7 +47,7 @@ import { flushSync } from "react-dom"
 import type { Banner } from "./BoosterBanner"
 import type { CanisterParts } from "./BoosterCanister"
 import BoosterView from "./BoosterView"
-import { useCountdown, useRefreshAtZero } from "./useBoosterCountdown"
+import { useAtZero, useCountdown } from "./useBoosterCountdown"
 import { useCardSwipe } from "./useCardSwipe"
 import { useIslandTimers } from "./useIslandTimers"
 import { useLiveRegion } from "./useLiveRegion"
@@ -128,6 +132,7 @@ import {
   type Layout,
   type TierCounts,
 } from "../lib/booster"
+import { atZero, fetchBank, handPutAway, owedBankDue, phaseForBank, type IslandMoment } from "../lib/booster_bank"
 import { animate, blast, burst, ring, settle, stageFlash, stageShake, traySparks } from "../lib/booster_effects"
 import {
   armKeyframes,
@@ -149,7 +154,7 @@ import {
   storeKeyframes,
   trembleKeyframes,
 } from "../lib/booster_keyframes"
-import { cardHref, csrfToken, newKey, readLayout, rememberPack, visit } from "../lib/booster_page"
+import { cardHref, csrfToken, newKey, readLayout, refreshPage, rememberPack, visit } from "../lib/booster_page"
 import type { BoosterBank, BoosterPhase as Phase, BoosterProps, BoosterStatus as Status } from "../lib/booster_props"
 
 export type { BoosterBank, BoosterProps, BoosterStrings } from "../lib/booster_props"
@@ -158,7 +163,7 @@ export type { BoosterBank, BoosterProps, BoosterStrings } from "../lib/booster_p
 const CLICK_AFTER_DRAG = 300
 
 export default function Booster(props: BoosterProps) {
-  const { openUrl, cardUrl, repostUrl, delimiter, rarityNames, strings } = props
+  const { openUrl, bankUrl, cardUrl, repostUrl, delimiter, rarityNames, strings } = props
   // The pack shown again: dealt, every card revealed past its guard (it
   // leads to its detail at once), on the phone every card in the tray.
   const [restored] = useState(() => {
@@ -173,6 +178,8 @@ export default function Booster(props: BoosterProps) {
 
   const [bank, setBank] = useState<BoosterBank>(props.bank)
   const bankRef = useRef(bank)
+  const bankOwed = useRef(false)
+  const bankGeneration = useRef(0)
   const [phase, setPhaseState] = useState<Phase>(restored ? "dealt" : props.bank.available > 0 ? "sealed" : "empty")
   const phaseRef = useRef(phase)
   const [status, setStatus] = useState<Status>(restored ? "complete" : props.bank.available > 0 ? "sealed" : "waiting")
@@ -268,7 +275,7 @@ export default function Booster(props: BoosterProps) {
 
   const { disposed, wait, later } = useIslandTimers()
   const { locked, depth: lockDepth, lock, unlock: releaseLock } = useNavigationLock()
-  const unlock = () => releaseLock(applyLayout)
+  const unlock = () => releaseLock(whenIdle)
   const { announcements, announce } = useLiveRegion()
 
   // ---- Focus (EXPERIENCE.md, Focus after each step): asked for by a step,
@@ -319,16 +326,32 @@ export default function Booster(props: BoosterProps) {
   // ---- Bank ----
 
   const changeBank = (next: BoosterBank) => {
+    bankGeneration.current += 1
     setBankBoth(next)
     const { available, reserveFull, nextAvailableAt, serverTime } = next
     dispatchGameble("gameble:bank-changed", { available, reserveFull, nextAvailableAt, serverTime })
   }
 
+  const refreshBank = async () => {
+    const generation = bankGeneration.current
+    const fresh = await fetchBank({ url: bankUrl })
+    if (!fresh || disposed.current || generation !== bankGeneration.current) return
+    changeBank(fresh)
+    const current = phaseRef.current
+    const next = phaseForBank(current, fresh.available)
+    if (next === current) return
+    setPhase(next)
+    setStatus(next === "sealed" ? "sealed" : "waiting")
+    setReason(null)
+  }
+
   // ---- Opening ----
 
   const refuse = (result: Exclude<OpeningResult, { kind: "opened" }>) => {
-    const message = result.kind === "refused" ? result.message : strings.failed
-    if (result.kind === "refused" && result.code === "no_pack_available") changeBank({ ...bankRef.current, available: 0, reserveFull: false, nextPackSize: null })
+    const refused = result.kind === "refused"
+    const message = refused ? result.message : strings.failed
+    if (refused) bankOwed.current = false
+    if (refused && result.code === "no_pack_available") changeBank({ ...bankRef.current, available: 0, reserveFull: false, nextPackSize: null })
     const empty = bankRef.current.available <= 0
     // The canister disarms without blowing: its squash is undone.
     settle(canister.current?.move)
@@ -342,6 +365,7 @@ export default function Booster(props: BoosterProps) {
     unlock()
     // The canister leaves with an empty reserve: the focus goes to the way back.
     if (empty) requestFocus("back")
+    if (refused) void refreshBank()
   }
 
   /** The cards sink and fade, then a new canister docks in (Ouvrir le suivant). */
@@ -685,7 +709,7 @@ export default function Booster(props: BoosterProps) {
       ),
     )
     if (allRevealed()) complete()
-    applyLayout()
+    whenIdle()
   }
 
   // ---- The phone: the pile, the tray, the zoom ----
@@ -717,12 +741,25 @@ export default function Booster(props: BoosterProps) {
       announce(revealSummary(shown, { summary: strings.summary, summaryTier: strings.summaryTier, rarityNames, delimiter }))
     }
     if (storedRef.current.every(Boolean)) complete()
-    applyLayout()
+    whenIdle()
   }
 
   /** Nothing runs: no opening, no reveal, no Tout révéler, no store. */
   const idle = () =>
     !opening.current && revealing.current.size === 0 && !revealingAllRef.current && !storingRef.current && lockDepth.current === 0 && phaseRef.current !== "opening"
+
+  const islandMoment = (): IslandMoment => ({
+    phase: phaseRef.current,
+    idle: idle(),
+    handPutAway: handPutAway(layoutRef.current, revealedRef.current, storedRef.current),
+  })
+
+  const whenIdle = () => {
+    applyLayout()
+    if (!bankOwed.current || !owedBankDue(islandMoment())) return
+    bankOwed.current = false
+    void refreshBank()
+  }
 
   /**
    * The phone's revealed top card may be stored now: by a tap, a swipe or
@@ -775,7 +812,7 @@ export default function Booster(props: BoosterProps) {
     if (everyStored && !fromAll) complete()
     else if (!fromAll) requestFocus("card")
     setStoring(false)
-    applyLayout()
+    whenIdle()
   }
 
   /** A short drag let go: the card springs back to the top of the pile, still revealed. */
@@ -883,7 +920,7 @@ export default function Booster(props: BoosterProps) {
     const narrow = window.matchMedia(NARROW_QUERY)
     const onChange = () => {
       pendingLayout.current = layoutFor(phone.matches, narrow.matches)
-      applyLayout()
+      whenIdle()
     }
     phone.addEventListener("change", onChange)
     narrow.addEventListener("change", onChange)
@@ -893,7 +930,7 @@ export default function Booster(props: BoosterProps) {
       phone.removeEventListener("change", onChange)
       narrow.removeEventListener("change", onChange)
     }
-    // applyLayout reads refs only.
+    // whenIdle reads refs only.
   }, [])
 
   /** A face-down card reveals; a revealed one opens its card page once its guard is over. */
@@ -924,18 +961,13 @@ export default function Booster(props: BoosterProps) {
 
   const left = useCountdown(bank.nextAvailableAt, bank.serverTime)
 
-  // The countdown reaching zero refreshes the screen a second later only
-  // while the island is idle (canister at rest or reserve empty, nothing
-  // running).
-  useRefreshAtZero(
-    left,
-    () =>
-      (phaseRef.current === "sealed" || phaseRef.current === "empty") &&
-      lockDepth.current === 0 &&
-      !opening.current &&
-      revealing.current.size === 0 &&
-      !disposed.current,
-  )
+  useAtZero(left, () => {
+    if (disposed.current) return
+    const action = atZero(islandMoment())
+    if (action === "page") refreshPage()
+    else if (action === "bank") void refreshBank()
+    else bankOwed.current = true
+  })
 
   /** The way back does nothing while the navigation is locked. */
   const guardBack = (event: MouseEvent<HTMLAnchorElement>) => {

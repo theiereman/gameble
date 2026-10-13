@@ -10,16 +10,24 @@
 # cards' details (the island writes the token into its history entry
 # before leaving for a card). Another player's pack, one not opened or an
 # unknown token is ignored: the canister, sealed or empty, as without one.
+#
+# In JSON the screen answers the player's bank alone, as the island's props
+# carry it, so the island reads it again without leaving its hand.
 class BoostersController < ApplicationController
   include PackCards
 
-  # GET /:locale/booster
+  # GET /:locale/booster(.json)
   def show
     authorize :booster, :show?
     @bank = Game::BankSummary.reserve(current_player)
     @next_pack_size = Game::NextPackSize.call(current_player)
-    @season = Catalog::PublishedSeason.call
-    @opened = opened_pack
+    respond_to do |format|
+      format.html do
+        @season = Catalog::PublishedSeason.call
+        @opened = opened_pack
+      end
+      format.json { render json: { bank: helpers.booster_bank(bank: @bank, next_pack_size: @next_pack_size) } }
+    end
   end
 
   private

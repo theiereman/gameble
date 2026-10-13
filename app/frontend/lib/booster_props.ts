@@ -1,5 +1,6 @@
 // The booster island's props, as BoostersHelper#booster_props writes them:
-// the URLs, the bank, the tiers' names and icons, every word and an opened
+// the URLs, the bank (BoostersHelper#booster_bank, also the screen's JSON
+// answer), the tiers' names and icons, every word and an opened
 // pack to show again; and the island's phase and status, which its view
 // draws. Types only, so the entrypoint can name them without loading the
 // island.
@@ -77,6 +78,7 @@ export type BoosterStrings = {
   repostFailed: string
 }
 
+/** The player's reserve, in the props and as the booster screen answers it in JSON (lib/booster_bank.ts). */
 export type BoosterBank = {
   available: number
   reserveFull: boolean
@@ -93,6 +95,8 @@ export type BoosterProps = {
   /** A card's page, its slug in place of SLUG. */
   cardUrl: string
   repostUrl: string | null
+  /** The booster screen's bank, in JSON (lib/booster_bank.ts, fetchBank). */
+  bankUrl: string
   /** The locale's digit delimiter. */
   delimiter: string
   /** The published season's number, null without one. */

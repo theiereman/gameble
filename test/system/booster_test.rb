@@ -58,7 +58,8 @@ class BoosterTest < ApplicationSystemTestCase
       window.boosterKeys = []
       const realFetch = window.fetch
       window.fetch = (url, init) => {
-        window.boosterKeys.push(init && init.headers && init.headers["Idempotency-Key"])
+        const key = init && init.headers && init.headers["Idempotency-Key"]
+        if (key) window.boosterKeys.push(key)
         return realFetch(url, init)
       }
     JS
