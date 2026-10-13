@@ -94,4 +94,29 @@ class Game::DrawTest < ActiveSupport::TestCase
       assert_in_delta n * p, by_tier.fetch(tier, 0), 4 * sigma, "tier #{tier}"
     end
   end
+
+  test "the reward pack odds: its own tables, each summing to ten thousand" do
+    assert_equal({ 2 => 7_000, 3 => 2_400, 4 => 588, 5 => 12 }, Game::DrawOdds::REWARD)
+    assert_equal({ 4 => 9_809, 5 => 191 }, Game::DrawOdds::EPIC_OR_BETTER)
+    assert_equal Game::DrawOdds::TOTAL, Game::DrawOdds::REWARD.values.sum
+    assert_equal Game::DrawOdds::TOTAL, Game::DrawOdds::EPIC_OR_BETTER.values.sum
+  end
+
+  test "50,000 reward packs hold a Légendaire about once in 50, and each an Épique or better" do
+    pool = pool_in_memory(cards_per_tier: 20)
+    random = Random.new(20_261_013)
+    n = 50_000
+
+    packs = Array.new(n) { Game::RewardDraw.cards(pool:, random:).map { |id| pool.tier_of(id) } }
+
+    assert packs.all? { |tiers| tiers.size == Game::Pack::SIZE && tiers.max >= Game::RewardDraw::MIN_TIER }
+    p = 1.fdiv(50)
+    assert_in_delta n * p, packs.count { |tiers| tiers.include?(5) }, 4 * Math.sqrt(n * p * (1 - p))
+  end
+
+  def pool_in_memory(cards_per_tier:)
+    tiers = Catalog::Rarity::TIERS.keys.to_h { |tier| [ tier, Array.new(cards_per_tier) { |i| tier * 1_000 + i } ] }
+    tier_by_id = tiers.flat_map { |tier, ids| ids.map { |id| [ id, tier ] } }.to_h
+    Game::DrawPool::Snapshot.new(key: nil, season_id: nil, tiers:, tier_by_id:)
+  end
 end

@@ -19,14 +19,13 @@ module Game
     # Notes and pending-approvals.md, held here and nowhere else.
     BONUS = { 2 => 7_000, 3 => 2_400, 4 => 500, 5 => 100 }.freeze
 
-    # The weekly goal's reward pack (CAP-12): the bonus odds for each card,
+    # The weekly goal's reward pack, aimed at one Légendaire in 50 packs:
+    # uncommon 70 %, rare 24 %, epic 5.88 %, legendary 0.12 % for each card,
     # then one card from EPIC_OR_BETTER when none of them is (Game::RewardDraw).
-    # The reward odds are an open product question (spec); like BONUS, this
-    # is an assumption held here and nowhere else.
-    REWARD = BONUS
+    REWARD = { 2 => 7_000, 3 => 2_400, 4 => 588, 5 => 12 }.freeze
 
-    # The card forced into a reward pack without an Épique or better: tiers
-    # 4 and 5 in the bonus odds' proportions (500 : 100).
-    EPIC_OR_BETTER = { 4 => 8_333, 5 => 1_667 }.freeze
+    # The card forced into a reward pack without an Épique or better; its
+    # legendary share is what brings the reward pack to one Légendaire in 50.
+    EPIC_OR_BETTER = { 4 => 9_809, 5 => 191 }.freeze
   end
 end
