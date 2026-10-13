@@ -720,12 +720,12 @@
   bottom: 0;
   left: 0;
   width: 60%;
-  background: linear-gradient(115deg,
+  background: linear-gradient(90deg,
     transparent 20%,
     color-mix(in srgb, var(--color-accent-hi) 16%, transparent) 45%,
     color-mix(in srgb, var(--color-accent-hi) 5%, transparent) 60%,
     transparent 80%);
-  transform: translateX(-100%);
+  transform: translateX(-150%) skewX(-20deg);
   animation: booster-back-sheen 5.2s cubic-bezier(.45, 0, .25, 1) infinite;
   pointer-events: none;
 }
@@ -980,6 +980,6 @@
 }
 
 @keyframes booster-back-sheen {
-  0%, 55% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
+  0%, 55% { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(220%) skewX(-20deg); }
 }
