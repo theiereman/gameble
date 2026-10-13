@@ -191,6 +191,13 @@ export function formatClock(seconds: number): string {
   return hours > 0 ? `${hours}:${pad(minutes)}:${pad(rest)}` : `${pad(minutes)}:${pad(rest)}`
 }
 
+/** The daily booster's countdown: always "HH:MM:SS". */
+export function formatDailyClock(seconds: number): string {
+  const whole = Math.max(0, Math.ceil(seconds))
+  const pad = (value: number) => String(value).padStart(2, "0")
+  return `${pad(Math.floor(whole / 3600))}:${pad(Math.floor((whole % 3600) / 60))}:${pad(whole % 60)}`
+}
+
 /** "HH:MM" of an ISO time, in UTC, for the countdown's accessible text. */
 export function utcTime(iso: string): string {
   const date = new Date(iso)

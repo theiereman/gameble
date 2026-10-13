@@ -121,5 +121,5 @@
   summary: The disabled system test "the FILTRES zone: chips narrow the grid…" in `test/system/library_test.rb` still pins the old owned default (3 slots on opening, a count of 2 after MISSING, "Back to the owned cards"); rewrite it for the every-slot default when system tests are rebuilt.
   evidence: The collection now opens on every slot, and a state chip switched on from TOUT replaces it; the test was left as it is because system tests are disabled and cannot be run to verify an edit.
 - source_plan: `_bmad-output/initiative-gameble/plan-packs-chip-hours.md`
-  summary: No vitest covers a Stimulus controller, so `countdown_controller.ts`'s clock formatting has no unit test of its own; the packs chip's clock is now the tested `formatClock`, and the daily `hours` branch is pre-existing output.
-  evidence: This plan's quick review finding 2, patched by reusing `formatClock`; the repo still has only `app/frontend/lib/*.test.ts`, with no Stimulus-controller test harness.
+  summary: No vitest covers a Stimulus controller, so `countdown_controller.ts`'s tick and refresh logic has no unit test of its own; its clock formats are the tested `formatClock` and `formatDailyClock`.
+  evidence: This plan's quick review finding 2, patched by reusing `formatClock`; the repo still has only `app/frontend/lib/*.test.ts` in a node environment, with no Stimulus-controller test harness.

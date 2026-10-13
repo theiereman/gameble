@@ -25,6 +25,7 @@ import {
   dealKeyframes,
   dealOrder,
   formatClock,
+  formatDailyClock,
   keyAfter,
   planRevealAll,
   revealingOpening,
@@ -167,6 +168,16 @@ describe("formatClock", () => {
     expect(formatClock(3600)).toBe("1:00:00")
     expect(formatClock(6130)).toBe("1:42:10")
     expect(formatClock(-4)).toBe("00:00")
+  })
+})
+
+describe("formatDailyClock", () => {
+  it("always shows two-digit hours, minutes and seconds", () => {
+    expect(formatDailyClock(0)).toBe("00:00:00")
+    expect(formatDailyClock(59)).toBe("00:00:59")
+    expect(formatDailyClock(3600)).toBe("01:00:00")
+    expect(formatDailyClock(86399)).toBe("23:59:59")
+    expect(formatDailyClock(-4)).toBe("00:00:00")
   })
 })
 

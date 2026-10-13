@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import "../lib/turbo"
-import { formatClock } from "../lib/booster"
+import { formatClock, formatDailyClock } from "../lib/booster"
 
 // After a refresh that brought no new countdown (failed, or the same value),
 // the next try.
@@ -111,11 +111,7 @@ export default class extends Controller<HTMLElement> {
 
   // The clock, and the bar when there is one.
   private show(seconds: number): void {
-    const pad = (n: number): string => String(n).padStart(2, "0")
-    const minutes = Math.floor(seconds / 60)
-    this.clockTarget.textContent = this.hoursValue
-      ? `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}:${pad(seconds % 60)}`
-      : formatClock(seconds)
+    this.clockTarget.textContent = this.hoursValue ? formatDailyClock(seconds) : formatClock(seconds)
     if (this.hasBarTarget && this.totalValue > 0) this.barTarget.value = Math.max(0, this.totalValue - seconds)
   }
 
