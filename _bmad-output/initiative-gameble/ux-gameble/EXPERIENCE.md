@@ -2,7 +2,7 @@
 name: gameble
 status: final
 created: 2026-10-01
-updated: '2026-10-09'
+updated: '2026-10-13'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/catalog-and-rarity.md
@@ -72,7 +72,7 @@ This section covers microcopy only. Brand voice lives in `DESIGN.md` (see Brand 
 | "Léa a 7 jours pour répondre. Vos cartes sont réservées d'ici là." | Vague errors ("Erreur", "Échec de l'opération") |
 | "Vous n'avez plus assez d'exemplaires de Celeste." | "Tu", "Confrère", "Capitaine" or any title |
 | "Merci. L'équipe de modération examinera ce profil. Léa ne verra pas qui l'a signalé." | Helldivers terms ("Ordre majeur", "Super Earth", "Démocratie") |
-| Name the rarity in words next to its shape | Name a real company in the copy (publishers appear only as card credits and set names) |
+| Name the rarity in words next to its shape | Name a real company in the copy (studios and publishers appear only as card credits and set names) |
 
 ### Copy deck
 
@@ -89,6 +89,7 @@ The single source for every message the interface shows. Other sections name the
 | Empty showcase | "OUVREZ VOTRE PREMIER BOOSTER" · "Votre plus belle carte s'affichera ici." · "OUVRIR UN BOOSTER" |
 | Collection | "EN COURS" · "À DÉCOUVRIR" · "Chercher un set" · "TOUTES LES CARTES" · "◀ SETS" · kinds "THÈME", "FRANCHISE", "STUDIO", "PALMARÈS", "OVNI" · tiers "BRONZE", "ARGENT", "OR", "COMPLET" · "Aucune carte de ce genre dans ce set pour l'instant." · "IMAGE INDISPONIBLE" · set search: "Aucun set trouvé pour « … »." · "1 set trouvé" · "n sets trouvés" (zero, one and other forms) · set row name: "{set}, {kind}, {owned} cartes sur {total}[, palier {tier}][, {next} à {threshold}][, complet]" |
 | Set celebration | "PALIER ARGENT · Roguelike 16/62" · "SET COMPLET · Dark Souls" · "n PALIERS ATTEINTS" |
+| Trade list summary | One line per side: the first game, then "+n" for the others: "Red Dead Redemption 2 +2" |
 | Trade board lines | "Léa vous propose cet échange." · "En attente de la réponse de Léa." · "Choisissez les cartes de chaque côté." · "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez." · "Échange en cours…" · "Échange conclu." · "Échange clos." · "Valable 7 jours après l'envoi" · "Expire dans n j" |
 | Trade toasts | "PROPOSITION ENVOYÉE" · "Léa a 7 jours pour répondre. Vos cartes sont réservées d'ici là." · "ÉCHANGE REFUSÉ · Votre réponse a été envoyée à Léa." · "PROPOSITION ANNULÉE · Vos cartes ne sont plus réservées." · "ÉCHANGE CONCLU · Dead Cells ×2 rejoint votre collection." |
 | Trade refusals (inline) | "4 CARTES AU PLUS · Retirez une carte avant d'en placer une autre." · "UN ÉCHANGE À LA FOIS · Un échange est déjà ouvert avec Léa." · "EXEMPLAIRES INSUFFISANTS" · "Vous n'avez plus assez d'exemplaires de Celeste." |
@@ -109,6 +110,7 @@ The single source for every message the interface shows. Other sections name the
 | Public page | "Vos jeux Steam, en cartes à collectionner." · "Ouvrez des boosters, complétez des sets, échangez avec vos amis." · "LIVE · En ce moment sur gameble" |
 | Sign-in panel | "CONNECTEZ-VOUS POUR JOUER" |
 | PLUS | "Le reste du vaisseau" |
+| Phone top-bar titles | Profil et paramètres under 720px: "PROFIL" ("PROFILE" in English); "Profil et paramètres" on wider screens and in the browser tab |
 | Links | "(nouvel onglet)" |
 
  Shorter phone labels are allowed where the mock uses them ("ÉCHANGER", "SIGNALER CE PROFIL", "SUPPRIMER", "PROFIL"). The English copy is not written yet; it follows the same rules.
@@ -195,7 +197,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 
 | Component | Behavioral rules |
 |---|---|
-| Trade list row | Three groups: "EN ATTENTE DE VOUS", "EN ATTENTE DE LEUR RÉPONSE", "TERMINÉS RÉCEMMENT". Opens its trade board. |
+| Trade list row | Three groups: "EN ATTENTE DE VOUS", "EN ATTENTE DE LEUR RÉPONSE", "TERMINÉS RÉCEMMENT". Sums up each side on one line, its first game and "+n" for the others (see Copy deck, Trade list summary); the full content shows when the trade opens. Opens its trade board. |
 | Trade board | A proposal holds an offer and a request. At most 4 different cards per side. Actions by state: see State Patterns. |
 | Add slot | Opens the card picker for its side. |
 | Remove | Removes that card (all its copies) from the side. |
@@ -380,12 +382,12 @@ Behavior only. Contrast values live in `DESIGN.md` (see Colors).
 - **Feed and ticker:** the feed list is not a live region; while the feed is not focused, a status line announces new entries in batches at most every 30s; with "ANIMATIONS RÉDUITES" on, these announcements stop. The ticker is hidden from assistive technology.
 - **Toasts** are polite status messages; errors also stay inline until the next action.
 - **Rarity** is never carried by color alone: shape and name accompany it; where only the icon fits (rarity counter, tray, thumbnails), the name is in the accessible name and in the "RARETÉS" legend.
-- **Card text order:** title, publisher, year, genre, rarity, number, then state (copies, NOUVEAU, reserved count). Cover canvases, thumbnails, rays and particles are hidden from assistive technology; avatars have empty alt text next to a visible name; rarity icons are hidden when the name is beside them. A missing-card slot reads "Manquante : Into the Breach, 2018".
+- **Card text order:** title, studio (the developer), year, genre, rarity, number, then state (copies, NOUVEAU, reserved count). A card's accessible name always holds the full title, the studio, the year and the number, whatever its face shows or cuts with an ellipsis. Cover canvases, thumbnails, rays and particles are hidden from assistive technology; avatars have empty alt text next to a visible name; rarity icons are hidden when the name is beside them. A missing-card slot reads "Manquante : Into the Breach, 2018".
 - **Gauges** are progress bars with a text value. Countdowns are not live; their accessible text changes at most once a minute.
 - **No information only in a tooltip** (`title`).
 - **Moving content:** the ticker pauses on hover and stops with "ANIMATIONS RÉDUITES"; every looping or blinking effect stops with it; nothing blinks faster than once a second.
 - **Touch:** at least 44 × 44 CSS px for every phone target, 8px apart.
-- **Readability:** no meaningful information below 10px in the two fonts, and VT323 never under 20px; `{colors.dim}` is decorative only.
+- **Readability:** no meaningful information below 10px in the two fonts; meaningful text at 12px and below is bold; VT323 never under 20px and never for figures, which are in JetBrains Mono bold; `{colors.dim}` is decorative only (see `DESIGN.md`, Typography).
 - **Zoom and text spacing:** breakpoints are in CSS px of the viewport, so browser zoom reaches the phone layout; text is in rem; text rows use a minimum height so user text spacing never clips them.
 - **Language:** `<html lang>` follows the chosen language; text in another language (a Steam description) carries its own `lang`. A first visit uses the browser's language.
 - **Links and sign-in:** links that open a new tab or leave gameble say so; the Steam image's accessible name says it opens Steam.
@@ -420,7 +422,7 @@ The layout rules (no scaling, page scroll, breakpoints at 720 and 1180px, conten
 - **Phone:** portrait only; held sideways, nothing changes, and the installed web app declares `"orientation": "portrait"` in its manifest (a browser tab cannot be locked). Document scroll; sub-views slide over their screen; dialogs are bottom sheets; toasts appear at the top; safe areas are respected. Checked at 390 × 844 and 360 × 740.
 - **Hub on the phone:** kicker, packs chip and rarity counter, showcase, community goal panel, daily booster panel, set progress rows, LIVE ticker. The menu lives in the tab bar and the PLUS rows (no numbers).
 - **Booster on the phone:** the cards land as a pile; one large card at a time; tap to reveal; the caption plate shows rarity, title and year; tap, swipe or "RANGER" stores the card in the tray; "Tout révéler" reveals and stores the rest; a filled slot opens the card zoom.
-- **Collection on the phone:** two columns with the publisher visible; the FILTRES sheet and the search field; the RAPPORT panel folds; the card detail slides over with "◀ GRILLE" (or "◀ BOOSTER" when opened from a booster), ◀ ▶ buttons and a position line.
+- **Collection on the phone:** two columns with the studio visible; the FILTRES sheet and the search field; the RAPPORT panel folds; the card detail slides over with "◀ GRILLE" (or "◀ BOOSTER" when opened from a booster), ◀ ▶ buttons and a position line.
 - **Trades on the phone:** the list first; the trade board slides over ("◀ LISTE") with the friend's side on top and actions pinned at the bottom; the card picker is a full-height sheet.
 - **Browsers:** the modern-browser floor of the architecture (AD-27); the public pages a link opens also serve older browsers. Native store apps stay possible later.
 
@@ -499,7 +501,7 @@ Build rules found while prototyping and reviewing; they bind the build. Architec
 - **Dialogs and Esc:** every modal and bottom sheet is a native `<dialog>` opened with `showModal()`, in Stimulus and React; the hotkeys controller ignores events already handled, events while a dialog is open and events from form fields, so one Esc never both closes a dialog and navigates. Single-key shortcuts can be turned off.
 - **No inline style:** server HTML carries no `style` attribute (the CSP blocks it); progress bars and gauges get their values as CSS custom properties set by a controller.
 - **Large grids:** a collection grid beyond about 60 slots is paginated or virtualized, and only visible cards are filtered.
-- **Fonts:** the three latin font files (Space Mono 400 and 700, VT323) are preloaded with `font-display: block` and a short block period, so a fallback swap never reflows two-line card titles.
+- **Fonts:** the three latin font files (JetBrains Mono 400 and 700, VT323) are preloaded with `font-display: block` and a short block period, so a fallback swap never reflows two-line card titles.
 - **Daily booster arc:** runs from `turbo:before-stream-render` (both positions known before the DOM is replaced) and dispatches `gameble:bank-changed`.
 - **Daily bonus booster:** it holds 3 cards, so the revealed counter and hints count to 3 for it ("Cartes révélées : n / 3").
 
