@@ -31,7 +31,7 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 | Toutes les cartes | "TOUTES LES CARTES ▸" in the collection | Every card with FILTRES and the search; later the trade and sale view |
 | Card detail ("FICHE DE LA CARTE") | A card in the collection, a revealed booster card, the showcase's "VOIR LA FICHE", the card zoom | Full card facts, Steam link, share |
 | Share sheet | "PARTAGER" in the card detail | Copy the share link, open the public page |
-| Échanges | Menu 03, "PROPOSER UN ÉCHANGE", ÉCHANGES tab | Trade list and trade board |
+| Échanges | Menu 03, "ÉCHANGE" on a friend row or friend profile, ÉCHANGES tab | Trade list and trade board |
 | Card picker | "PLACER MES CARTES" / "CHOISIR SES CARTES" on the trade board | Choose cards and copies for one side |
 | Amis | Menu 04; PLUS on the phone | Invite by link or code, answer invitations, list friends with their presence |
 | Friend profile | A friend row | Showcase, propose a trade, report |
@@ -47,11 +47,11 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 | Plus (phone only) | PLUS tab | PLUS rows: Amis, Fil d'activité, Succès, Profil et paramètres |
 | Back-office | Staff accounts only | Out of the redesign's scope: unchanged behavior (spec CAP-2, CAP-15), plain functional style, designed later |
 
-**Desktop navigation.** The hub is the only menu: 01 OUVRIR UN BOOSTER (boosters badge), 02 COLLECTION (unique cards owned / total), 03 ÉCHANGES (orange badge when a trade waits for the player), 04 AMIS ("n en ligne"), 05 FIL D'ACTIVITÉ ("En direct"), 06 SUCCÈS (earned / total). The player chip opens Profil et paramètres. On every screen the top bar's logo and "GAMEBLE" are a link to the hub. Every other screen also has, after them, a back button to the previous screen (see Back button). There is no permanent sidebar.
+**Desktop navigation.** The hub is the only menu: 01 OUVRIR UN BOOSTER (boosters badge), 02 COLLECTION (unique cards owned / total), 03 ÉCHANGES (orange badge when a trade waits for the player), 04 AMIS ("n en ligne"), 05 FIL D'ACTIVITÉ ("En direct"), 06 SUCCÈS (earned / total). The player chip opens Profil et paramètres. On every screen the top bar's gold GAMEBLE wordmark is a link to the hub. Every other screen also has, after it, a back button to the previous screen (see Back button). There is no permanent sidebar.
 
 **Phone navigation.** A bottom tab bar: PONT · BOOSTER · COLLECTION · ÉCHANGES · PLUS. Tab roots have no back button; tapping the current tab returns to its root or scrolls it to the top. Sub-views slide over their screen with a contextual back: "◀ GRILLE" (card detail opened from a grid or a set), "◀ BOOSTER" (card detail opened from an opened booster), "◀ LISTE" (trade board), "◀ PLUS" (Amis, Fil, Succès, Profil). The public card page has no tab bar.
 
-**Hub content.** Top bar: logo, rarity counter, packs chip, player chip. Left: kicker "PONT DE COMMANDEMENT" alone (no subtitle: the "Vaisseau-bibliothèque « Archiviste »" line was cut, author 2026-10-07), the menu, the daily booster panel. Center: the showcase. Right: the community goal panel and "SETS EN COURS" (the player's four sets closest to their next tier, "TOUT VOIR ▸" opening the collection). Bottom: the LIVE ticker. On the phone the same blocks stack in one scrolling column without the menu.
+**Hub content.** Top bar: the wordmark, rarity counter, packs chip, player chip. Left: kicker "PONT DE COMMANDEMENT" alone (no subtitle: the "Vaisseau-bibliothèque « Archiviste »" line was cut, author 2026-10-07), the menu, the daily booster panel. Center: the showcase. Right: the community goal panel and "SETS EN COURS" (the player's four sets closest to their next tier, "TOUT VOIR ▸" opening the collection). Bottom: the LIVE ticker. On the phone the same blocks stack in one scrolling column without the menu.
 
 **Signed-out visitors** see everything that needs no account and cannot act: any such action opens the sign-in panel, and the collection shows every slot empty. The signed-out hub is described in `DESIGN.md` (see Signed-out hub).
 
@@ -144,7 +144,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 | Player chip | Opens Profil et paramètres. |
 | Menu item | Opens its screen. Keys 1 to 6 open the matching item only while focus is inside the menu (`aria-keyshortcuts`). Coming back to the hub focuses the item last used. |
 | Count badge | Boosters in reserve (lime); trades waiting for the player (orange). Grayed at zero in the menu; hidden at zero in the tab bar. Its number is part of the item's accessible name. |
-| GAMEBLE link | Desktop: the top bar's logo and "GAMEBLE" open the hub from any screen. Accessible name "GAMEBLE, pont de commandement" `[ASSUMPTION]`. Disabled during an opening. |
+| GAMEBLE link | Desktop: the top bar's wordmark opens the hub from any screen. Accessible name "GAMEBLE, pont de commandement" `[ASSUMPTION]`. Disabled during an opening. |
 | Back button | Desktop: returns to the previous screen, like the browser's Back, which comes back as it was left (scroll, filters, page). Its label names that screen by its short top-bar title ("◀ COLLECTION", "◀ FICHE", "◀ AMIS"; the collection entry reads "◀ SETS"). Hidden when the previous screen is the hub (the GAMEBLE link leads there) or when the tab holds no earlier gameble screen (a direct link, a new tab): a back never leaves gameble. Phone: returns to the parent view (see Phone navigation). Disabled during an opening. |
 | Tab bar | Switches between the five roots. Disabled during an opening. Hidden on the public card page. |
 | PLUS rows | Open Amis, Fil d'activité, Succès, Profil et paramètres. |
@@ -208,8 +208,8 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 |---|---|
 | Invite panel | "COPIER" copies the invite link. The code field accepts the format of the codes in use (for example "7K2Q-F3NX", "8F2D-K9XM") (author, 2026-10-07: the code is purely random, 4 characters, a dash, 4 characters, never derived from the name), submits on Enter and answers on the line below. A valid code sends an invitation. |
 | Invitation row | Received: "ACCEPTER" creates the friendship for both; "IGNORER" dismisses it. Sent: "EN ATTENTE" until answered. The invite link sends an invitation the same way. |
-| Friend row | Shows the friend's presence (see Copy deck, Presence), or "Profil privé" for a private friend. "VOIR LE PROFIL" opens the friend profile; the name is not a link. "PROPOSER UN ÉCHANGE" opens the trade already in progress with that friend, or a new draft. When either profile is private, the "Trades closed" line replaces the button. |
-| Friend profile | A dialog: showcase of three cards, "PROPOSER UN ÉCHANGE", "VOIR LA COLLECTION" (the public profile, unless the friend's profile is private), "SIGNALER". A private friend's dialog shows the name and says the profile is not available; when the viewer is private, the "Trades closed" line replaces "PROPOSER UN ÉCHANGE". |
+| Friend row | Shows the friend's presence (see Copy deck, Presence), or "Profil privé" for a private friend. "VOIR LE PROFIL" opens the friend profile; the name is not a link. "ÉCHANGE" (accessible name "Échange avec <name>") opens the trade already in progress with that friend, or a new draft. When either profile is private, the "Trades closed" line replaces the button. |
+| Friend profile | A dialog: showcase of three cards, "ÉCHANGE" (the trade in progress with that friend, or a new draft), "VOIR LA COLLECTION" (the public profile, unless the friend's profile is private), "SIGNALER". A private friend's dialog shows the name and says the profile is not available; when the viewer is private, the "Trades closed" line replaces "ÉCHANGE". |
 | Report dialog | A reason must be chosen before "ENVOYER LE SIGNALEMENT". The reported player never learns who reported them. |
 
 ### Fil d'activité and Succès
@@ -279,7 +279,7 @@ Messages quoted by key are in the Copy deck.
 | Counter-proposal in progress | Trade board | Both sides become editable, marked "EN ÉDITION", with the counter-proposal line. "RENVOYER LA CONTRE-PROPOSITION" enables once each side holds a card; "ANNULER LES MODIFICATIONS" restores the received proposal, after a confirmation if anything changed. |
 | Counter-proposal sent | Trade board | The 7-day expiry restarts; the player's reserved copies become exactly those on the player's side; copies the player removed are released. |
 | Trade waiting for the friend | Trade board, list | "EN ATTENTE", the waiting line, the player's copies tagged "RÉSERVÉE". Action: "ANNULER LA PROPOSITION". |
-| One trade per pair | Friend row, friend profile | Proposing to a friend with a trade in progress opens that trade, with the one-at-a-time refusal. |
+| One trade per pair | Friend row, friend profile | With a trade in progress with that friend, "ÉCHANGE" opens that trade directly, without a refusal; a page left open from before the trade lands on it with the one-at-a-time refusal. |
 | Not enough copies | Trade board | Accepting when a copy is no longer available: "EXEMPLAIRES INSUFFISANTS" inline and in a toast; nothing moves. |
 | Nothing to place | Card picker | The no-card line (Copy deck, Card picker) with the reason (none owned, or all reserved). |
 | Trade done | Trade board, list | The swap plays; "CONCLU" and the concluded line; received cards tagged "NOUVEAU". The trade appears in the feed and counts toward the goal. |
@@ -453,7 +453,7 @@ Failure: she closes the sign-in panel or Steam refuses → she stays on the publ
 ### Flow 2 — A trade with quantities (Hugo and Léa, a few days later)
 
 1. Léa entered Hugo's code 7K2Q-F3NX in Amis; Hugo saw her invitation and pressed "ACCEPTER". They are friends.
-2. In Amis, Hugo presses "PROPOSER UN ÉCHANGE" on Léa's row. The trade board opens as "BROUILLON".
+2. In Amis, Hugo presses "ÉCHANGE" on Léa's row. The trade board opens as "BROUILLON".
 3. "CHOISIR SES CARTES": from Léa's collection he picks Disco Elysium, one copy.
 4. "PLACER MES CARTES": he picks Slay the Spire; he owns three, so a stepper appears; he sets ×2 ("/3") and presses "PLACER". His side shows a stack with "×2" and "1 carte · 2 ex.".
 5. "ENVOYER LA PROPOSITION". The "PROPOSITION ENVOYÉE" toast confirms; his two copies are tagged "2 RÉSERVÉES".

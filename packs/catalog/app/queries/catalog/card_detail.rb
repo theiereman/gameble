@@ -9,8 +9,10 @@ module Catalog
   # or a card without text in the locale is nil.
   #
   # Two queries: the card, its text, card-season and season (the published
-  # season and the tome genre folded in as subqueries); then its sets, in the library's tab
-  # order (tome, publisher, best_of_year), then by key.
+  # season folded in as a subquery); then its sets, the main theme's first,
+  # the others in the library's tab order (theme, franchise, studio,
+  # hall_of_fame, ufo, then the retired tome, publisher, best_of_year), the
+  # hall of fame in its fixed order, the others by key.
   #
   #   Catalog::CardDetail.call(slug: "portal", locale: "fr")
   #   # => Detail(view: CardView(…), short_description: "…", sets: [ SetRef(…) ], current_season: true, …) | nil
@@ -30,7 +32,8 @@ module Catalog
       "catalog_seasons.number = #{LATEST}", "catalog_card_seasons.number", CardViews::GENRE
     ].freeze
 
-    KIND_ORDER = Arel.sql("CASE catalog_sets.kind WHEN 'tome' THEN 0 WHEN 'publisher' THEN 1 ELSE 2 END")
+    KIND_ORDER = Arel.sql("CASE catalog_sets.kind WHEN 'theme' THEN 0 WHEN 'franchise' THEN 1 WHEN 'studio' THEN 2 " \
+      "WHEN 'hall_of_fame' THEN 3 WHEN 'ufo' THEN 4 WHEN 'tome' THEN 5 WHEN 'publisher' THEN 6 WHEN 'best_of_year' THEN 7 ELSE 8 END")
 
     def self.call(slug:, locale:, season_number: nil)
       row = card_season(slug.to_s, locale.to_s, season_number)
@@ -41,7 +44,7 @@ module Catalog
       view = CardView.new(id: slug, title:, publisher:, year: release_date.year, season_number:,
         rarity:, image_url:, number:, genre:)
       Detail.new(view:, short_description: description.presence, publisher:, store_url:,
-        sets: sets(id), card_season_id: id, current_season: current)
+        sets: sets(id, main_theme: genre), card_season_id: id, current_season: current)
     end
 
     def self.card_season(slug, locale, season_number)
@@ -54,11 +57,13 @@ module Catalog
     end
     private_class_method :card_season
 
-    def self.sets(card_season_id)
+    # The set of the main theme first, then the others in KIND_ORDER.
+    def self.sets(card_season_id, main_theme:)
       Set.joins(:memberships).where(catalog_set_memberships: { card_season_id: })
-        .order(KIND_ORDER, :key)
+        .order(KIND_ORDER, SeasonShelf::HALL_OF_FAME_ORDER, :key)
         .pluck(:kind, :key, :params)
         .map { |kind, key, params| SetSlots::SetRef.new(kind:, key:, params:) }
+        .partition { |set| set.kind == "theme" && set.key == main_theme }.flatten
     end
     private_class_method :sets
   end

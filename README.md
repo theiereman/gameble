@@ -1,3 +1,5 @@
+<p align="center"><img src=".github/assets/gameble-header.gif" width="800" alt="gameble"></p>
+
 # gameble
 
 A Rails 8.1 application: four domain packs under `packs/` (`catalog`, `steam`, `accounts`, `game`) and a thin web layer in `app/`. Assets are served by Vite.
@@ -43,7 +45,7 @@ bin/rails zeitwerk:check
 - Staging (https://gameble.dotsncircles.com) changes once per release, never on a push: publishing a GitHub release whose tag is on `develop` deploys that tag (`.github/workflows/deploy-staging.yml`; a release whose tag is not on `develop` deploys nothing). On GitHub, Releases → Draft a new release → a new tag (`v1.2.0`) with target `develop` → Publish release, or `gh release create v1.2.0 --target develop --generate-notes`.
 - `main` is kept for production and is never deployed to staging. Merge `develop` into `main` only when the production deployment is meant to happen; production stays a manual `bin/kamal deploy -d production`.
 
-The staging workflow needs these secrets of the `staging` environment: `STAGING_SSH_KEY` (private key allowed on the LXC), `STAGING_SSH_KNOWN_HOSTS` (the host key line for `[gameble.dotsncircles.com]:2224`), `RAILS_MASTER_KEY`, `SENTRY_DSN`, `DATABASE_PASSWORD` and `STEAM_API_KEY` (written to the same `config/*.key` files that `.kamal/secrets.staging` reads), and `DISCORD_WEBHOOK_STAGING` (the webhook URL of the Discord channel: Edit channel → Integrations → Webhooks → New webhook).
+The staging workflow needs these secrets of the `staging` environment: `STAGING_SSH_KEY` (private key allowed on the LXC), `STAGING_SSH_KNOWN_HOSTS` (the host key line for `[gameble.dotsncircles.com]:2224`), `RAILS_MASTER_KEY`, `SENTRY_DSN`, `DATABASE_PASSWORD` and `STEAM_API_KEY` (written to the same `config/*.key` files that `.kamal/secrets.staging` reads), and `DISCORD_WEBHOOK_STAGING` (the webhook URL of the Discord channel: Edit channel → Integrations → Webhooks → New webhook). The image and its build cache are pushed to GitHub's container registry (`ghcr.io/theiereman/gameble` and `gameble-build-cache`) with the job's own `GITHUB_TOKEN`, so no secret is needed for them; the workflow keeps the last five images and drops the build caches replaced.
 
 ### Discord announcement
 
@@ -55,7 +57,7 @@ The deployed version is shown in the bottom-left corner of every page (`ShellHel
 
 `.kamal/hooks/pre-deploy` refuses a deploy of a commit without a tag, or of a dirty checkout, for every destination (a rollback is let through), so a deploy from a machine follows the same rule. To deploy an untagged commit on purpose, `bin/kamal deploy -d staging --skip-hooks` (no announcement either).
 
-To deploy from a machine instead of the workflow, tag the commit first (`git tag v1.2.0 && git push origin v1.2.0`), put the webhook URL in `config/discord_webhook.staging.key` (git-ignored like `master.key`; without it the hook announces nothing, and a Discord error never fails the deploy), and `bin/kamal deploy -d staging`. The message can be read before deploying:
+To deploy from a machine instead of the workflow, tag the commit first (`git tag v1.2.0 && git push origin v1.2.0`), put a GitHub token allowed to write packages in `config/registry_password.key` (`gh auth refresh -s write:packages && gh auth token > config/registry_password.key`), put the webhook URL in `config/discord_webhook.staging.key` (git-ignored like `master.key`; without it the hook announces nothing, and a Discord error never fails the deploy), and `bin/kamal deploy -d staging`. The message can be read before deploying:
 ```sh
 KAMAL_DESTINATION=staging KAMAL_VERSION=$(git rev-parse HEAD) KAMAL_PERFORMER=$USER KAMAL_COMMAND=deploy .kamal/hooks/post-deploy --dry-run
 ```

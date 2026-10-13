@@ -4,12 +4,13 @@
     - owner: the profile's player;
     - title: the profile's title (public_profile_title);
     - summary: the owner's Game::CollectionSummary;
-    - kind, spines, pagy: the sets, as ShelfLoading loads them. %>
+    - kind, spines, pagy: the sets, as ShelfLoading loads them;
+    - tabs: the tabs of the list of sets. %>
 <section class="profile" aria-labelledby="profile-heading">
   <%= render "public_profiles/summary", owner:, title: title, summary: summary %>
   <div class="collection">
     <aside class="collection__aside" aria-labelledby="collection-sets-title">
-      <%= render "public_profiles/set_list", kind:, set: nil, spines:, pagy:, links: profile_shelf_links(owner.token, kind) %>
+      <%= render "public_profiles/set_list", kind:, set: nil, spines:, pagy:, links: profile_shelf_links(owner.token, kind, tabs) %>
     </aside>
     <section class="collection__main profile__pick" aria-label="<%= t("library.sets.title") %>">
       <% if spines.present? %>

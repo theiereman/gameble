@@ -284,7 +284,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
 
   test "a full stubbed run keeps only the normal game ready, with all its card fields" do
     stub_app_list_page(after: 0, appids: [ 10, 20, 30 ], more: false)
-    stub_get_tag_list
+    stub_get_tag_list(19 => "Action", 492 => "Indie", 1664 => "Puzzle", 1663 => "FPS")
     tags = [ { "tagid" => 492, "weight" => 1200 }, { "tagid" => 1664, "weight" => 900 }, { "tagid" => 1663, "weight" => 700 } ]
     english = { 10 => detailed_item(10, tags:, reviews: 9_000), 20 => detailed_item(20, type: 4, reviews: 9_000),
       30 => detailed_item(30, capsule: nil, reviews: 9_000) }
@@ -294,7 +294,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
 
     run.reload
     assert_predicate run, :completed?
-    assert_equal [ 3, 3, 2 ], [ run.tags_named, run.apps_detailed, run.apps_excluded_details ]
+    assert_equal [ 4, 3, 2 ], [ run.tags_named, run.apps_detailed, run.apps_excluded_details ]
     app = Steam::App.ready_by(run).sole
     assert_equal 10, app.appid
     assert_equal [ "The best game 10.", "Le meilleur jeu 10." ], [ app.short_description_en, app.short_description_fr ]
@@ -379,7 +379,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     3 => [ [ 999_999, 2000 ], [ 122, 10 ] ]
   }.freeze
 
-  test "a full stubbed run goes through every step without the store API, and each card's tome after publish is its most-voted genre tag" do
+  test "a full stubbed run goes through every step without the store API, and each card's main theme after publish is its most-voted theme" do
     appids = (1..21).to_a
     stub_app_list_page(after: 0, appids:, more: false)
     stub_get_tag_list(19 => "Action", 492 => "Indie", 1664 => "Puzzle", 1663 => "FPS", 122 => "RPG")
@@ -403,8 +403,12 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     draft = Catalog::DraftSeason.call
     assert Catalog::PublishSeason.new.call(number: draft.number).success?
 
-    tomes = Catalog::Set.where(season_id: draft.id, kind: "tome").includes(memberships: { card_season: :card })
-      .to_h { |set| [ set.params["genre"], set.memberships.map { |membership| membership.card_season.card.source_key }.sort ] }
-    assert_equal({ "puzzle" => [ "steam:1" ], "rpg" => [ "steam:2", "steam:3" ] }, tomes)
+    main_themes = Catalog::CardSeason.where(season_id: draft.id).where.not(main_theme: nil).joins(:card)
+      .pluck(:main_theme, "catalog_cards.source_key").group_by(&:first).transform_values { |pairs| pairs.map(&:last).sort }
+    assert_equal({ "puzzle" => [ "steam:1" ], "rpg" => [ "steam:2", "steam:3" ] }, main_themes)
+    sets = Catalog::Set.where(season_id: draft.id).includes(memberships: { card_season: :card })
+      .to_h { |set| [ set.key, set.memberships.map { |membership| membership.card_season.card.source_key }.sort ] }
+    assert_equal({ "puzzle" => [ "steam:1" ], "fps" => [ "steam:1", "steam:2" ], "rpg" => [ "steam:2", "steam:3" ],
+      "ufos" => (4..21).map { |appid| "steam:#{appid}" }.sort }, sets)
   end
 end

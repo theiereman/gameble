@@ -2,8 +2,8 @@ require "test_helper"
 require_relative "../../support/rake_tasks"
 
 # steam:fill_card_sources: the cards and card-seasons an import wrote before
-# they carried developers, franchises and review counts get them from the
-# stored Steam apps, without a new import.
+# they carried developers, franchises, themes and review counts get them
+# from the stored Steam apps, without a new import.
 class Steam::FillCardSourcesTaskTest < ActiveSupport::TestCase
   include RakeTasks
 
@@ -58,6 +58,18 @@ class Steam::FillCardSourcesTaskTest < ActiveSupport::TestCase
 
     assert_includes fill_card_sources, "0 card(s) and 0 card-season(s) filled"
     assert_equal before, snapshot.call
+  end
+
+  test "a card imported with a genre from before themes gets the themes of its five most-voted tags" do
+    imported_before(10, 20)
+    Steam::Tag.insert_all([ { tagid: 1664, name: "Puzzle" }, { tagid: 492, name: "Indie" }, { tagid: 122, name: "RPG" } ])
+    Steam::App.where(appid: 10).update_all(tag_ids: [ 492, 1664, 1, 2, 3, 122 ])
+    Catalog::Card.where(source_key: %w[steam:10 steam:20]).update_all(genres: [ "action" ])
+
+    fill_card_sources
+
+    assert_equal [ %w[puzzle], [] ], [ card(10).genres, card(20).genres ]
+    assert_includes fill_card_sources, "0 card(s) and 0 card-season(s) filled"
   end
 
   test "an app whose review count is gone still gives its card the names; its card-seasons keep no count" do

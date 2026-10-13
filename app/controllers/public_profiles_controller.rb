@@ -1,7 +1,7 @@
 # A player's public profile, at a link built on their token: their
 # collection, readable by anyone, signed out included, drawn with the
 # collection's components in read-only mode. The list of sets opens on the
-# ones they have started, beside the three kinds, each with the owner's
+# ones they have started, beside the kinds the season holds, each with the owner's
 # progress (never the viewer's); a set opens beside the list with the
 # owner's cards. The header counts their distinct cards and complete sets.
 # Accounts answers the owner, Game whether their profile may be shown,
@@ -18,9 +18,8 @@ class PublicProfilesController < ApplicationController
   include PublicRead
   include ShelfLoading
 
-  # The tab of the sets the owner has started, before the three kinds.
+  # The tab of the sets the owner has started, before the kinds.
   STARTED = "started".freeze
-  TABS = [ STARTED, *KINDS ].freeze
 
   before_action :authorize_page
   before_action :load_owner
@@ -29,7 +28,8 @@ class PublicProfilesController < ApplicationController
   # kind or with any kind it does not know.
   def show
     season = Catalog::PublishedSeason.call
-    @kind = TABS.include?(params[:kind]) ? params[:kind] : STARTED
+    @tabs = [ STARTED, *shelf_kinds(season) ]
+    @kind = @tabs.include?(params[:kind]) ? params[:kind] : STARTED
     load_shelf(shelf_relation(season), owner: @owner)
     @summary = Game::CollectionSummary.call(@owner, season:)
   end
@@ -42,6 +42,7 @@ class PublicProfilesController < ApplicationController
   def set
     season = Catalog::PublishedSeason.call
     load_set(season, owner: @owner)
+    @tabs = [ STARTED, *shelf_kinds(season) ]
     @kind = params[:tab] == STARTED ? STARTED : @set.kind
     @shelf_page = page_param if params[:page].present?
     load_shelf(shelf_relation(season), owner: @owner)

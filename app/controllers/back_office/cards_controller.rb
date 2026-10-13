@@ -11,7 +11,7 @@ module BackOffice
     SEASONS = { common: 1, uncommon: 3, rare: 12, epic: 2, legendary: 1 }.freeze
     # Card numbers in their season; the epic's is not given yet.
     NUMBERS = { common: 4_215, uncommon: 7, rare: 1_000_000, epic: nil, legendary: 1 }.freeze
-    # Tome genres (catalog.genres keys); the common card is in no tome.
+    # Main themes (Catalog::Themes keys); the common card has none.
     GENRES = { common: nil, uncommon: "platformer", rare: "puzzle", epic: "visual_novel", legendary: "fps" }.freeze
     MISSING_ART = :uncommon
 

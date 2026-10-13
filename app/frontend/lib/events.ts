@@ -24,6 +24,8 @@ export type BankChangedDetail = { available: number; reserveFull: boolean; nextA
 // bar) while it opens a booster or reveals a card, and unlocks it after.
 export type NavigationLockedDetail = { locked: boolean }
 
+export type OpeningRevealingDetail = { revealing: boolean }
+
 export type StreamUpdatedDetail = Record<string, never>
 export type TradeChangedDetail = { give: SideCount; take: SideCount; changed: boolean }
 
@@ -34,6 +36,7 @@ export interface GamebleEventMap {
   "gameble:tier-revealed": TierRevealedDetail
   "gameble:bank-changed": BankChangedDetail
   "gameble:navigation-locked": NavigationLockedDetail
+  "gameble:opening-revealing": OpeningRevealingDetail
   "gameble:trades-updated": StreamUpdatedDetail
   "gameble:friends-updated": StreamUpdatedDetail
   "gameble:trade-changed": TradeChangedDetail

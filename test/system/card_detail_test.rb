@@ -2,9 +2,9 @@ require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
 
-# A card's detail, "FICHE DE LA CARTE": opened from a tome's owned face,
+# A card's detail, "FICHE DE LA CARTE": opened from a theme's owned face,
 # from an empty slot (the faded card back, from a set's grid and from the
-# whole season's), from an opened pack's faces, walking the card's tome on
+# whole season's), from an opened pack's faces, walking the card's theme on
 # the desktop too; from a filtered, searched grid, ◀ ▶ walk that grid as
 # shown and the way back returns to it with its filters; on a phone the
 # sub-view: its heading takes the focus as it opens, ◀ ▶ and a swipe step
@@ -43,13 +43,13 @@ class CardDetailTest < ApplicationSystemTestCase
 
   def title(id) = Catalog::CardSeason.find(id).card.texts.find_by!(locale: "en").title
 
-  def in_tome_path(id, season) = "/en/cards/#{slug(id)}/seasons/#{season.number}?set_key=action-1&set_kind=tome"
+  def in_set_path(id, season) = "/en/cards/#{slug(id)}/seasons/#{season.number}?set_key=horror&set_kind=theme"
 
   # A card's detail walking the collection grid of `context` (its filters,
   # search and set), as the grid's links write it.
   def in_grid_path(id, season, context) = "/en/cards/#{slug(id)}/seasons/#{season.number}?#{{ grid: context }.to_query}"
 
-  def tome_grid = { key: "action-1", kind: "tome", q: "", state: %w[all] }
+  def set_grid = { key: "horror", kind: "theme", q: "", state: %w[all] }
 
   def current_url_path = evaluate_script("location.pathname + location.search")
 
@@ -95,20 +95,22 @@ class CardDetailTest < ApplicationSystemTestCase
     JS
   end
 
-  test "a player opens an owned card from a tome: its face, every fact, their copies, the Steam link, its sets back to the tome" do
+  test "a player opens an owned card from a theme: its face, every fact, their copies, the Steam link, its sets back to the theme" do
     season = publish_sets_draft
     player = accounts_players(:player)
-    id = members(season, "action-1").first
+    id = members(season, "horror").first
     card = Catalog::CardSeason.find(id).card
     Catalog::CardText.where(card_id: card.id, locale: "en").update_all(short_description: "A seed of a game.")
     Game::Holding.create!(player_id: player.id, card_season_id: id, quantity: 2)
     sign_in(player)
 
-    visit library_set_path(locale: :en, kind: "tome", key: "action-1")
+    visit library_set_path(locale: :en, kind: "theme", key: "horror")
     find(".collection-grid a.card-link", match: :first).click
 
-    assert_current_path in_grid_path(id, season, tome_grid.except(:state))
-    assert_selector ".card-detail h1", text: "Seed 0"
+    assert_current_path in_grid_path(id, season, set_grid.except(:state))
+    assert_selector ".card-detail h1", text: title(id)
+    assert_selector ".card-detail__fact", text: /GENRE\s+Horror/i
+    assert_equal [ "Horror", "Pirates" ], all(".card-detail__sets a").map { it.text.strip }
     assert_selector ".card-detail__kicker", text: "CARD FILE"
     assert_selector ".card-detail__card .card.card--l"
     assert_selector ".card-detail__description", text: "A seed of a game."
@@ -123,13 +125,13 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector "button.card-detail__nav--next[disabled]"
     assert_no_selector ".card-detail__position"
     assert_no_selector ".top-bar__phone-back"
-    assert_selector ".top-bar__start > a.top-bar__home[href='/en']", text: "GAMEBLE"
+    assert_selector ".top-bar__start > a.top-bar__home[href='/en'][aria-label='gameble, command bridge']"
     assert_no_selector ".top-bar__start > a.top-bar__bridge"
     assert_selector ".card-detail__number", text: "S#{season.number} · #"
     take_screenshot
 
-    click_on "Action · Tome 1"
-    assert_selector ".set-row[aria-current=page] .set-row__name", text: /\AAction · Tome 1\z/i
+    click_on "Horror"
+    assert_selector ".set-row[aria-current=page] .set-row__name", text: /\AHorror\z/i
   end
 
   test "a holder reposts a card from its detail: a toast, the button stays, and the feed opens on the repost" do
@@ -174,13 +176,13 @@ class CardDetailTest < ApplicationSystemTestCase
 
   test "a visitor clicks an empty slot: the Standard back, faded, with the card's facts" do
     season = publish_sets_draft
-    id = members(season, "p").first
+    id = members(season, "pirates").first
     card = Catalog::CardSeason.find(id).card
 
-    visit library_set_path(locale: :fr, kind: "publisher", key: "p")
+    visit library_set_path(locale: :fr, kind: "theme", key: "pirates")
     find(".collection-grid a.card-link .missing-slot", match: :first).click
 
-    assert_current_path "/fr/cards/#{card.slug}/seasons/#{season.number}?#{{ grid: { key: "p", kind: "publisher", q: "" } }.to_query}"
+    assert_current_path "/fr/cards/#{card.slug}/seasons/#{season.number}?#{{ grid: { key: "pirates", kind: "theme", q: "" } }.to_query}"
     assert_selector ".card-detail h1", text: card.texts.find_by!(locale: "fr").title
     assert_selector ".card-detail__back img[src*='back-standard']"
     assert_equal 0.55, find(".card-detail__back-image").evaluate_script("Number(getComputedStyle(this).opacity)")
@@ -258,14 +260,14 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_not_equal "none", link.evaluate_script("getComputedStyle(this).outlineStyle")
   end
 
-  test "on a phone: ▶ and a swipe step through the tome's grid replacing the URL, the actions in view; ◀ Grille and Back return to the grid at its scroll" do
+  test "on a phone: ▶ and a swipe step through the theme's grid replacing the URL, the actions in view; ◀ Grille and Back return to the grid at its scroll" do
     season = publish_sets_draft
     player = accounts_players(:player)
-    ids = members(season, "action-1")
+    ids = members(season, "horror")
     ids.first(6).each { Game::Holding.create!(player_id: player.id, card_season_id: it, quantity: 1) }
     sign_in(player)
     page.driver.browser.manage.window.resize_to(*PHONE)
-    grid_path = library_set_path(locale: :en, kind: "tome", key: "action-1", state: %w[all])
+    grid_path = library_set_path(locale: :en, kind: "theme", key: "horror", state: %w[all])
 
     visit grid_path
     slot = find(".collection-grid > li:nth-child(4) a.card-link")
@@ -275,11 +277,11 @@ class CardDetailTest < ApplicationSystemTestCase
     entries = evaluate_script("history.length")
     slot.click
 
-    assert_current_path in_grid_path(ids[3], season, tome_grid)
+    assert_current_path in_grid_path(ids[3], season, set_grid)
     assert_selector ".card-detail h1", text: title(ids[3])
     # The sub-view opened: its heading has the focus.
     assert_focused ".card-detail h1"
-    assert_selector ".card-detail__position", text: "· 4 / 25 · SWIPE TO BROWSE"
+    assert_selector ".card-detail__position", text: "· 4 / 16 · SWIPE TO BROWSE"
     assert_no_selector ".card-detail__number"
     assert_selector ".top-bar__phone-back", text: "GRID"
     assert_no_selector ".top-bar__start > a.button[href='/en']"
@@ -296,8 +298,8 @@ class CardDetailTest < ApplicationSystemTestCase
     take_screenshot
 
     find(".card-detail__nav--next").click
-    assert_selector ".card-detail__position", text: "· 5 / 25 ·"
-    assert_equal in_grid_path(ids[4], season, tome_grid), current_url_path
+    assert_selector ".card-detail__position", text: "· 5 / 16 ·"
+    assert_equal in_grid_path(ids[4], season, set_grid), current_url_path
     assert_history_length entries + 1
     # The page's title follows the card.
     assert_selector ".card-detail h1", text: title(ids[4])
@@ -311,10 +313,10 @@ class CardDetailTest < ApplicationSystemTestCase
     JS
 
     swipe(-120)
-    assert_selector ".card-detail__position", text: "· 6 / 25 ·"
-    assert_equal in_grid_path(ids[5], season, tome_grid), current_url_path
+    assert_selector ".card-detail__position", text: "· 6 / 16 ·"
+    assert_equal in_grid_path(ids[5], season, set_grid), current_url_path
     swipe(120)
-    assert_selector ".card-detail__position", text: "· 5 / 25 ·"
+    assert_selector ".card-detail__position", text: "· 5 / 16 ·"
     # A vertical drag is no swipe.
     execute_script(<<~JS)
       const stage = document.querySelector(".card-detail__stage")
@@ -322,7 +324,7 @@ class CardDetailTest < ApplicationSystemTestCase
       stage.dispatchEvent(event("pointerdown", 300)); stage.dispatchEvent(event("pointerup", 100))
     JS
     assert_history_length entries + 1
-    assert_selector ".card-detail__position", text: "· 5 / 25 ·"
+    assert_selector ".card-detail__position", text: "· 5 / 16 ·"
 
     find(".top-bar__phone-back").click
     assert_current_path grid_path
@@ -335,7 +337,7 @@ class CardDetailTest < ApplicationSystemTestCase
 
     # Browser Back from the detail does the same.
     go_forward
-    assert_selector ".card-detail__position", text: "· 5 / 25 ·"
+    assert_selector ".card-detail__position", text: "· 5 / 16 ·"
     # Turbo renders the cached detail, then scrolls it to its top, and files
     # that scroll from the `scroll` event the next frame fires: going back
     # before that event would file the detail's 0 under the grid's entry.
@@ -351,8 +353,8 @@ class CardDetailTest < ApplicationSystemTestCase
   test "on a phone, from a filtered, searched collection ◀ ▶ walk it across its pages and ◀ Grille returns to it with its filters" do
     season = publish_sets_draft
     page.driver.browser.manage.window.resize_to(*PHONE)
-    filters = { state: %w[missing], genre: %w[action], q: "seed" }
-    # The 75 action cards: two pages, the 61st on the second.
+    filters = { state: %w[missing], genre: %w[roguelike], q: "seed" }
+    # The 75 cards whose main theme is roguelike: two pages, the 61st on the second.
     shown = (1..2).flat_map do |number|
       visit library_path(locale: :en, **filters, page: number)
       all(".collection-grid a.card-link").map { URI(it[:href]).path[%r{\A/en/cards/([^/]+)/}, 1] }
@@ -392,7 +394,7 @@ class CardDetailTest < ApplicationSystemTestCase
   test "on a phone, once ◀ ▶ crossed onto another page of the grid, ◀ Grille leads to that page, showing the card last seen" do
     season = publish_sets_draft
     page.driver.browser.manage.window.resize_to(*PHONE)
-    filters = { state: %w[missing], genre: %w[action], q: "seed" }
+    filters = { state: %w[missing], genre: %w[roguelike], q: "seed" }
     visit library_path(locale: :en, **filters, page: 2)
     second_page = all(".collection-grid a.card-link").map { URI(it[:href]).path }
     assert_operator second_page.size, :>, 0
@@ -437,37 +439,37 @@ class CardDetailTest < ApplicationSystemTestCase
 
   test "on a phone the ends of a set are disabled, and a card opened without the grid goes back to it by a plain visit" do
     season = publish_sets_draft
-    ids = members(season, "action-1")
+    ids = members(season, "horror")
     page.driver.browser.manage.window.resize_to(*PHONE)
 
-    visit in_tome_path(ids.first, season)
+    visit in_set_path(ids.first, season)
     assert_selector ".card-detail__nav--previous[disabled]"
     swipe(120)
-    assert_selector ".card-detail__position", text: "· 1 / 25 ·"
-    assert_equal in_tome_path(ids.first, season), current_url_path
+    assert_selector ".card-detail__position", text: "· 1 / 16 ·"
+    assert_equal in_set_path(ids.first, season), current_url_path
 
     find(".top-bar__phone-back").click
-    assert_current_path library_set_path(locale: :en, kind: "tome", key: "action-1")
+    assert_current_path library_set_path(locale: :en, kind: "theme", key: "horror")
   end
 
   test "a step from the keyboard keeps the focus on the same control" do
     season = publish_sets_draft
-    ids = members(season, "action-1")
+    ids = members(season, "horror")
     page.driver.browser.manage.window.resize_to(*PHONE)
 
-    visit in_tome_path(ids[1], season)
+    visit in_set_path(ids[1], season)
     find(".card-detail__nav--next").execute_script("this.focus()")
     find(".card-detail__nav--next").send_keys(:enter)
 
-    assert_selector ".card-detail__position", text: "· 3 / 25 ·"
+    assert_selector ".card-detail__position", text: "· 3 / 16 ·"
     assert evaluate_script("document.activeElement.matches('.card-detail__nav--next')"), "the focus should stay on ▶"
   end
 
   test "a step runs in a View Transition, none under reduced motion" do
     season = publish_sets_draft
-    ids = members(season, "action-1")
+    ids = members(season, "horror")
     page.driver.browser.manage.window.resize_to(*PHONE)
-    visit in_tome_path(ids[1], season)
+    visit in_set_path(ids[1], season)
     count_transitions = <<~JS
       window.transitions = 0
       const start = document.startViewTransition.bind(document)
@@ -476,14 +478,14 @@ class CardDetailTest < ApplicationSystemTestCase
 
     execute_script(count_transitions)
     find(".card-detail__nav--next").click
-    assert_selector ".card-detail__position", text: "· 3 / 25 ·"
+    assert_selector ".card-detail__position", text: "· 3 / 16 ·"
     assert_equal 1, evaluate_script("window.transitions")
     # The star field did not shift: the screen did not change.
     assert_no_selector ".atmosphere__stars[style*='--star-shift']", visible: :all
 
     execute_script("document.documentElement.dataset.motion = 'reduced'")
     find(".card-detail__nav--next").click
-    assert_selector ".card-detail__position", text: "· 4 / 25 ·"
+    assert_selector ".card-detail__position", text: "· 4 / 16 ·"
     assert_equal 1, evaluate_script("window.transitions")
     assert_no_selector "html[data-sub-view-step]", visible: :all
     assert_equal "same-origin", evaluate_script("document.querySelector('meta[name=view-transition]').content")

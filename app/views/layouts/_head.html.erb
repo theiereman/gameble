@@ -24,9 +24,9 @@
 <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
 <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-<link rel="icon" href="/icon.png" type="image/png">
-<link rel="icon" href="/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/icon.png">
+<link rel="icon" href="<%= vite_asset_path("images/pixel/favicon.svg") %>" type="image/svg+xml">
+<link rel="icon" href="<%= vite_asset_path("images/pixel/favicon.png") %>" type="image/png" sizes="180x180">
+<link rel="apple-touch-icon" href="<%= vite_asset_path("images/pixel/favicon.png") %>">
 
 <%# The two fonts' latin files, before the stylesheet asks for them. %>
 <% %w[space-mono-latin-400 space-mono-latin-700 vt323-latin-400].each do |font| %>

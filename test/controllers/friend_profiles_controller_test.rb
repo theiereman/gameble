@@ -51,7 +51,7 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".friend-profile__showcase li:nth-child(1) .card--s.card--rarity-legendary"
       assert_select ".friend-profile__showcase li:nth-child(2) .card--rarity-epic"
       assert_select ".friend-profile__showcase li:nth-child(3) .card--rarity-rare"
-      assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @friend.token), "Proposer un échange"
+      assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @friend.token), "Échange"
       assert_select ".friend-profile__actions button.button--link[aria-haspopup=dialog][data-dialog-opener-dialog-value=?]",
         "report-dialog-#{@friend.token}", "SIGNALER"
       assert_select "dialog#report-dialog-#{@friend.token} form[action=?]", brother_report_path(locale: :fr, token: @friend.token) do
@@ -73,7 +73,7 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friend-profile__presence .friends__presence--online", "Online"
     assert_select ".friend-profile__showcase", false
     assert_select ".friend-profile__empty", "No card in the showcase."
-    assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :en, friend: @friend.token), "Propose a trade"
+    assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :en, friend: @friend.token), "Trade"
   end
 
   test "a friends-only friend is shown; a private one is the not-available frame" do
@@ -99,8 +99,25 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     get friend_profile_path(locale: :fr, token: @friend.token)
 
     assert_response :success
-    assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @friend.token), "Proposer un échange"
+    assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @friend.token), "Échange"
     assert_select ".trades-closed", 0
+  end
+
+  test "a friend's profile opens the trade in progress with them, whoever proposed it, and a new draft once it is closed" do
+    portal = catalog_card_seasons(:portal_one).id
+    soldier = catalog_card_seasons(:common_card_one).id
+    hold(@friend, portal, 1)
+    hold(@player, soldier, 1)
+    trade = Game::ProposeTrade.new.call(player: @friend, recipient: @player, offer: { portal => 1 }, request: { soldier => 1 }).value!
+    sign_in(@player)
+
+    get friend_profile_path(locale: :fr, token: @friend.token)
+    assert_select ".friend-profile__actions a.button--primary[href=?]", trade_path(locale: :fr, token: trade.token), "Échange"
+    assert_select ".friend-profile__actions a[href=?]", new_trade_path(locale: :fr, friend: @friend.token), 0
+
+    Game::CancelTrade.new.call(player: @friend, trade_id: trade.id).value!
+    get friend_profile_path(locale: :fr, token: @friend.token)
+    assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @friend.token), "Échange"
   end
 
   test "a private player still sees a friend's showcase, with the trades-closed line instead of the trade action" do

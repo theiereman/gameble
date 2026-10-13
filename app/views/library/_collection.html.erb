@@ -8,7 +8,7 @@
     their player, the collection-seen controller posts the latest gain
     shown, once the page is rendered (AD-26).
     - heading: the scope's name (the whole season, or the set's);
-    - kind, set, spines, shelf: the list of sets (library/set_list);
+    - kind, kinds, set, spines, shelf: the list of sets (library/set_list);
     - grid: the Catalog::CollectionGrid; slots, pagy: its page, context:
       the filters its links carry (library/grid);
     - unique, season_cards, tier_counts: the viewer's figures;
@@ -18,7 +18,7 @@
 <div class="collection">
   <h1 class="visually-hidden"><%= heading %></h1>
   <aside class="collection__aside" aria-labelledby="collection-sets-title">
-    <%= render "library/set_list", kind:, set:, spines:, pagy: shelf, unique:, season_cards: season_cards %>
+    <%= render "library/set_list", kind:, kinds:, set:, spines:, pagy: shelf, unique:, season_cards: season_cards %>
     <%= render "library/report", counts: tier_counts, unique: unique %>
   </aside>
   <section class="collection__main" aria-label="<%= heading %>">

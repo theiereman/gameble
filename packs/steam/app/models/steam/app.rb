@@ -13,7 +13,7 @@ module Steam
   # Steam::DetailsPolicy::EXCLUSIONS, NULL when the game can become a card).
   # Steam::ImportCardsPage writes the apps ready by the run into the draft
   # season as cards (Steam::CardMapping), their genres derived from their
-  # tags (Steam::GenreTags), and marks each app whose card it wrote with the
+  # tags (Catalog::Themes), and marks each app whose card it wrote with the
   # run (carded_run_id); the end of the cards pass keeps only those cards in
   # the draft. A rescore (Steam::RescoreCards) clears the run's marks first.
   #

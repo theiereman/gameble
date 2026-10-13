@@ -143,7 +143,7 @@ class Game::RepostCardTest < ActiveSupport::TestCase
     refused.(kind: "repost", pack_id: pack.id, position: 0)
     refused.(kind: "pull")
     refused.(kind: "discovery", pack_id: pack.id)
-    assert Game::FeedEntry.create!(**row, kind: "trade")
+    assert Game::FeedEntry.create!(**row, kind: "repost")
     assert Game::FeedEntry.create!(**row, kind: "pull", pack_id: pack.id, position: 0)
   end
 end

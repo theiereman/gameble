@@ -119,6 +119,48 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
     refused(ActiveRecord::CheckViolation) { Catalog::Set.where(id: catalog_sets(:valve_one).id).update_all(kind: "tag") }
   end
 
+  test "the database takes every set kind, the retired ones included, and the model knows them all" do
+    kinds = %w[theme franchise studio hall_of_fame ufo publisher tome best_of_year]
+    assert_equal kinds.sort, Catalog::Set.kinds.keys.sort
+
+    season_id = catalog_seasons(:one).id
+    assert_equal kinds.size, Catalog::Set.insert_all!(kinds.map { |kind| { season_id:, kind:, key: "any" } }).length
+  end
+
+  def set_tier(**attributes)
+    { set_id: catalog_sets(:valve_one).id, tier: "complete", required: 1 }.merge(attributes)
+  end
+
+  test "the database takes a set's four tiers once each, with a positive requirement" do
+    assert_equal 4, Catalog::SetTier.insert_all!(%w[bronze silver gold complete].map { |tier| set_tier(tier:) }).length
+
+    refused(ActiveRecord::RecordNotUnique) { Catalog::SetTier.insert_all!([ set_tier(tier: "gold", required: 9) ]) }
+  end
+
+  test "the database refuses an unknown tier, a requirement below 1, and a tier of no set" do
+    refused(ActiveRecord::CheckViolation) { Catalog::SetTier.insert_all!([ set_tier(tier: "platinum") ]) }
+    refused(ActiveRecord::CheckViolation) { Catalog::SetTier.insert_all!([ set_tier(required: 0) ]) }
+    refused(ActiveRecord::NotNullViolation) { Catalog::SetTier.insert_all!([ set_tier(required: nil) ]) }
+    refused(ActiveRecord::InvalidForeignKey) { Catalog::SetTier.insert_all!([ set_tier(set_id: -1) ]) }
+  end
+
+  test "the model refuses an unknown tier or a requirement that is not a positive integer" do
+    draft_set = Catalog::Set.create!(season: draft, kind: "theme", key: "rpg", params: { "theme" => "rpg" })
+    assert Catalog::SetTier.new(set: draft_set, tier: "bronze", required: 3).valid?
+
+    [ { tier: "platinum" }, { required: 0 }, { required: 1.5 } ].each do |attributes|
+      assert_not Catalog::SetTier.new(set: draft_set, tier: "bronze", required: 3, **attributes).valid?, attributes
+    end
+  end
+
+  test "a card-season's main theme may stay NULL and is frozen once its season is published" do
+    assert_nil card_season.main_theme
+    card_season.main_theme = "puzzle"
+
+    assert_not card_season.valid?
+    assert_includes card_season.errors.details[:base], { error: :frozen_once_published }
+  end
+
   test "the database refuses a set key twice in a season and kind, but not across kinds" do
     season_id = catalog_seasons(:one).id
     refused(ActiveRecord::RecordNotUnique) { Catalog::Set.insert_all!([ { season_id:, kind: "publisher", key: "valve" } ]) }

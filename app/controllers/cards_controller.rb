@@ -9,7 +9,7 @@
 #
 # The page browses one context, ◀ ▶ stepping through it and the phone's
 # way back leading to it: the first one the query names that holds the
-# card, else the card's first set (tomes first).
+# card, else the card's first set (its main theme's set first).
 #
 # - `pack` (and `slot`, the card's place in it from 1, as a pack can hold a
 #   card twice): the viewer's own opened pack, in drawn order, back to the

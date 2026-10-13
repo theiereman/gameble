@@ -3,7 +3,7 @@ title: 'The import keeps developers, franchises and the review count'
 type: 'feature'
 ticket: '2'
 created: '2026-10-09'
-status: 'built'
+status: done
 baseline_revision: '0a34aa0aed83af7787797c8569839da7f5d51bc3'
 route: 'full'
 route_source: 'auto'

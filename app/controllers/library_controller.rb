@@ -20,8 +20,9 @@
 # sets lead here, so, like the card's page, it is open to any browser
 # (PublicRead).
 #
-# Parameters: `kind`, the kind of the sets listed (the tomes for an
-# unknown, blank or repeated one; on a set's page, its own kind); `shelf`,
+# Parameters: `kind`, the kind of the sets listed (the first kind the
+# season holds for an unknown, blank or repeated one, or one it holds no set
+# of; on a set's page, its own kind); `shelf`,
 # the page of that list; `page`, the page of the grid; the grid's filters
 # and search (CollectionGridLoading). A page past the last shows an empty
 # list or grid; a page that is not a number, the first.
@@ -39,12 +40,13 @@ class LibraryController < ApplicationController
     @season = Catalog::PublishedSeason.call
     return if @season.nil?
 
-    @kind = KINDS.include?(params[:kind]) ? params[:kind] : KINDS.first
+    @kinds = shelf_kinds(@season)
+    @kind = @kinds.include?(params[:kind]) ? params[:kind] : (@kinds.first || KINDS.first)
     load_collection(collection_grid(@season, params))
   end
 
-  # GET /:locale/library/:kind/:key: one set. The route admits only the three
-  # kinds; a key the published season holds under no set of this kind, or no
+  # GET /:locale/library/:kind/:key: one set. The route admits only the
+  # KINDS; a key the published season holds under no set of this kind, or no
   # published season, is not found.
   def set
     authorize :page, :show?
@@ -54,6 +56,7 @@ class LibraryController < ApplicationController
     grid = collection_grid(@season, params, kind: params[:kind], key: params[:key])
     raise ActiveRecord::RecordNotFound if grid.nil?
 
+    @kinds = shelf_kinds(@season)
     @kind = grid.set.kind
     load_collection(grid)
   end

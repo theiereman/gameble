@@ -8,8 +8,8 @@ module Catalog
   # - `rarity`: the Rarity::TIERS name, as a string ("rare")
   # - `image_url`: the card art's source
   # - `number`: the card's number in its season (R3), nil while unnumbered
-  # - `genre`: the `genre` param of the card-season's tome in that season
-  #   (a curated genre key, "puzzle"), nil when it is in no tome
+  # - `genre`: the card-season's main theme (a Catalog::Themes key,
+  #   "puzzle"), nil when it has none
   CardView = Data.define(:id, :title, :publisher, :year, :season_number, :rarity, :image_url, :number, :genre) do
     # "S1 · #4 215" (or "#4 215" without the season): the number, its digits
     # grouped by three with a no-break space, no total; nil without a number.

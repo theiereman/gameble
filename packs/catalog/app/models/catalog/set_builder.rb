@@ -1,76 +1,114 @@
 module Catalog
   # Builds a season's sets from its rows (SeasonRows::Row) when it is
-  # published (CAP-6, AD-5). Pure functions, one per kind, each returning
-  # `[{ kind:, key:, params:, members: [card_season_id, …] }]` with the
-  # members in their set's order. `params` holds what a later screen needs to
-  # name the set; a key is never parsed back.
+  # published. Pure functions, one per kind, each returning
+  # `[{ kind:, key:, params:, members: [card_season_id, …], tiers: { tier => required } }]`
+  # with the members in their set's order, by release date then card id.
+  # `params` holds what a later screen needs to name the set; a key is never
+  # parsed back. Names and keys of franchises and studios follow SetNames:
+  # names whose merge forms are equal make one set, named after the name most
+  # of its games carry (the alphabetically first on a tie) and keyed by that
+  # name's form; sets whose keys are equal merge.
   #
-  #   Catalog::SetBuilder.call(rows) # => publisher sets, tomes, best-of-years
+  #   Catalog::SetBuilder.call(rows) # => theme sets, franchises, studios, hall of fame, then the UFOs
   module SetBuilder
-    # A publisher needs this many cards for a set.
-    PUBLISHER_MIN_CARDS = 5
-    # A tome's volumes hold about this many cards.
-    TOME_SIZE = 30
-    # A best-of-year set holds at most this many cards.
-    BEST_OF_YEAR_SIZE = 10
+    UFOS = "ufos".freeze
+    MIN_GAMES = 3
+    STUDIO_REVIEW_FLOOR = 20_000
 
     def self.call(rows)
-      publishers(rows) + tomes(rows) + best_of_year(rows)
+      themes(rows) + franchises(rows) + studios(rows) + hall_of_fame(rows) + ufos(rows)
     end
 
-    # One set per exact publisher name with at least PUBLISHER_MIN_CARDS
-    # cards, its cards by release date then card id. Publishers are taken in
-    # byte order; each takes the first unused of `base`, `base-2`, `base-3`, …
-    # where `base` is the parameterized name, or "publisher" when nothing
-    # Latin is left of it.
-    def self.publishers(rows)
-      used = ::Set.new
-      rows.reject { |row| row.publisher.nil? }.group_by(&:publisher)
-        .select { |_, members| members.size >= PUBLISHER_MIN_CARDS }
-        .sort_by { |name, _| name }
-        .map do |name, members|
-          base = name.parameterize(locale: :en).presence || "publisher"
-          key = base
-          suffix = 1
-          key = "#{base}-#{suffix += 1}" while used.include?(key)
-          used << key
-          { kind: "publisher", key:, params: { "publisher" => name }, members: by_release(members) }
-        end
-    end
-
-    # A card sits in the tome of its first genre; a card without genre in
-    # none. A genre's n cards, by release date then card id, are split into
-    # v = max((n + TOME_SIZE / 2) / TOME_SIZE, 1) volumes of consecutive
-    # cards, the first n % v volumes one card larger.
-    def self.tomes(rows)
-      rows.reject { |row| row.genres.empty? }.group_by { |row| row.genres.first }
-        .sort_by { |genre, _| genre }
-        .flat_map do |genre, members|
-          ordered = by_release(members)
-          n = ordered.size
-          v = [ (n + TOME_SIZE / 2) / TOME_SIZE, 1 ].max
-          offset = 0
-          (1..v).map do |volume|
-            size = n / v + (volume <= n % v ? 1 : 0)
-            slice = ordered[offset, size]
-            offset += size
-            { kind: "tome", key: "#{genre}-#{volume}", params: { "genre" => genre, "volume" => volume, "volumes" => v }, members: slice }
-          end
-        end
-    end
-
-    # One set per release year, its BEST_OF_YEAR_SIZE best cards (fewer when
-    # the year has fewer) by rating, then prestige score, then card id.
-    def self.best_of_year(rows)
-      rows.group_by { |row| row.release_date.year }.sort.map do |year, members|
-        ranked = members.sort_by { |row| [ -row.rating, -row.prestige_score, row.card_id ] }.first(BEST_OF_YEAR_SIZE)
-        { kind: "best_of_year", key: year.to_s, params: { "year" => year }, members: ranked.map(&:id) }
+    # One set per theme among the cards' genres, in the order of the theme
+    # list, holding every card that has it; a genre outside the list is
+    # ignored.
+    def self.themes(rows)
+      members = rows.each_with_object(Hash.new { |hash, theme| hash[theme] = [] }) do |row, by_theme|
+        row.genres.uniq.each { |genre| by_theme[genre] << row if Themes.key?(genre) }
       end
+      Themes.keys.filter_map do |theme|
+        next unless members.key?(theme)
+
+        ordered = by_release(members[theme])
+        { kind: "theme", key: theme, params: { "theme" => theme }, members: ordered, tiers: Themes.tiers(ordered.size) }
+      end
+    end
+
+    # One set per franchise of at least MIN_GAMES games, by key, unless it is
+    # named like a developer or publisher of the season or no more than half
+    # of its games' English titles match its name.
+    def self.franchises(rows)
+      companies = rows.flat_map { |row| [ *row.developers, row.publisher ] }.compact.to_set { |name| SetNames.company_form(name) }
+      named(rows) { |row| row.franchises.map { |name| SetNames.franchise(name) } }
+        .select { |set| set[:rows].size >= MIN_GAMES && companies.exclude?(SetNames.company_form(set[:name])) && named_in_titles?(set) }
+        .map { |set| complete_only("franchise", set) }
+    end
+
+    # One set per studio of at least MIN_GAMES games, by key, a game counting
+    # under its first developer only, when its most-reviewed game has
+    # STUDIO_REVIEW_FLOOR reviews.
+    def self.studios(rows)
+      named(rows) { |row| row.developers.first(1).map { |name| SetNames.company(name) } }
+        .select { |set| set[:rows].size >= MIN_GAMES && set[:rows].map { |row| row.review_count.to_i }.max >= STUDIO_REVIEW_FLOOR }
+        .map { |set| complete_only("studio", set) }
+    end
+
+    # One set per hall of fame rule some card meets, in HallOfFame's order,
+    # tiered like a theme.
+    def self.hall_of_fame(rows)
+      HallOfFame.keys.filter_map do |key|
+        ordered = by_release(rows.select { |row| HallOfFame.selects?(key, row) })
+        next if ordered.empty?
+
+        { kind: "hall_of_fame", key:, params: { "hall_of_fame" => key }, members: ordered, tiers: Themes.tiers(ordered.size) }
+      end
+    end
+
+    # The cards of no theme, in one set; none when every card has a theme.
+    def self.ufos(rows)
+      ordered = by_release(rows.reject { |row| row.genres.any? { |genre| Themes.key?(genre) } })
+      return [] if ordered.empty?
+
+      [ { kind: "ufo", key: UFOS, params: {}, members: ordered, tiers: { Themes::COMPLETE => ordered.size } } ]
     end
 
     def self.by_release(rows)
       rows.sort_by { |row| [ row.release_date, row.card_id ] }.map(&:id)
     end
-    private_class_method :by_release
+
+    # The rows grouped under the names the block gives each of them, by key:
+    # `{ key:, name:, rows: }`. A name whose merge form is blank is no name.
+    def self.named(rows, &names)
+      by_merge_form = rows.each_with_object({}) do |row, groups|
+        names.call(row).filter_map { |name| SetNames.merge_form(name).presence&.then { |merge_form| [ merge_form, name ] } }
+          .uniq(&:first).each do |merge_form, name|
+            group = groups[merge_form] ||= { names: Hash.new(0), rows: [] }
+            group[:names][name] += 1
+            group[:rows] << row
+          end
+      end
+      by_merge_form.values.group_by { |group| SetNames.key(SetNames.form(most_carried(group[:names]))) }.sort.map do |key, groups|
+        names = groups.map { |group| group[:names] }.reduce { |merged, more| merged.merge(more) { |_, count, other| count + other } }
+        { key:, name: most_carried(names), rows: groups.flat_map { |group| group[:rows] }.uniq }
+      end
+    end
+
+    # The name the most games carry, the alphabetically first on a tie.
+    def self.most_carried(counts)
+      counts.min_by { |name, count| [ -count, name ] }.first
+    end
+
+    def self.named_in_titles?(set)
+      return true if SetNames.exempt_from_titles?(set[:name])
+
+      set[:rows].count { |row| SetNames.title_matches?(row.title, set[:name]) } * 2 > set[:rows].size
+    end
+
+    def self.complete_only(kind, set)
+      ordered = by_release(set[:rows])
+      { kind:, key: set[:key], params: { kind => set[:name] }, members: ordered, tiers: { Themes::COMPLETE => ordered.size } }
+    end
+
+    private_class_method :by_release, :named, :most_carried, :named_in_titles?, :complete_only
   end
 end

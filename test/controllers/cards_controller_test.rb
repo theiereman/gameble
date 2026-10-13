@@ -52,6 +52,12 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     season
   end
 
+  # Gives a card-season of the fixture season a main theme, as a season
+  # published with themes would have.
+  def with_main_theme(card_season, theme)
+    Catalog::CardSeason.where(id: catalog_card_seasons(card_season).id).update_all(main_theme: theme)
+  end
+
   def in_tome(slug, locale: :en, number: 1) = card_season_path(locale:, slug:, number:, set_kind: "tome", set_key: "action-1")
 
   # The fact rows, as [ label, value ] pairs; the sets joined by " | ".
@@ -77,6 +83,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "a card of the published season: the bracketed panel, its face, every fact, the sets leading to their grids, no ownership notice, the Steam link" do
     add_a_tome
+    with_main_theme(:portal_one, "puzzle")
     sign_in_viewer
 
     get card_path(locale: :en, slug: "portal")
@@ -91,7 +98,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__back", false
     assert_select "[style]", 0
     assert_select ".card-detail__description", "A puzzle game of portals."
-    assert_equal [ [ "Publisher", "Valve" ], [ "Rarity", "Epic" ], [ "Genre", "Action" ], [ "Year", "2007" ], [ "Season", "Season 1" ],
+    assert_equal [ [ "Publisher", "Valve" ], [ "Rarity", "Epic" ], [ "Genre", "Puzzle" ], [ "Year", "2007" ], [ "Season", "Season 1" ],
       [ "Sets", "Action · Tome 1 | Valve" ], [ "Copies", "None" ] ], facts
     assert_select ".card-detail__rarity.card-detail__rarity--epic svg.card-detail__rarity-icon[aria-hidden=true]"
     assert_equal [ [ "Action · Tome 1", "/en/library/tome/action-1" ], [ "Valve", "/en/library/publisher/valve" ] ],
@@ -108,8 +115,36 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
   end
 
+  test "a card's franchise and studio sets are named and lead to their grids, in English and French" do
+    season = publish_franchises_and_studios_draft
+    sign_in_viewer
+
+    get card_path(locale: :en, slug: "seed-#{season.number}-0")
+    assert_equal [ [ "RPG", "/en/library/theme/rpg" ], [ "Tom Clancy", "/en/library/franchise/tom-clancy" ] ],
+      css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
+
+    get card_path(locale: :fr, slug: "seed-#{season.number}-3")
+    assert_equal [ [ "RPG", "/fr/library/theme/rpg" ], [ "CAPCOM", "/fr/library/studio/capcom" ] ],
+      css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
+  end
+
+  test "a card's hall of fame sets are named in their fixed order and lead to their grids, in English and French" do
+    season = publish_hall_of_fame_draft
+    sign_in_viewer
+
+    get card_path(locale: :en, slug: "seed-#{season.number}-5")
+    assert_equal [ [ "RPG", "/en/library/theme/rpg" ], [ "The Untouchables", "/en/library/hall_of_fame/intouchables" ],
+      [ "The Phenomena", "/en/library/hall_of_fame/phenomenes" ] ], css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
+
+    get card_path(locale: :fr, slug: "seed-#{season.number}-1")
+    assert_equal [ [ "RPG", "/fr/library/theme/rpg" ], [ "Les Pépites", "/fr/library/hall_of_fame/pepites" ] ],
+      css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
+  end
+
   test "in French every fact, the title, description and Steam page are French" do
     add_a_tome
+    with_main_theme(:common_card_one, "horror")
+    with_main_theme(:portal_one, "puzzle")
     sign_in_viewer
     catalog_cards(:common_card).update_columns(store_url: "https://store.steampowered.com/app/401/Tin_Soldier/?snr=1_7&l=english")
 
@@ -118,7 +153,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail h1", "Soldat de plomb"
     assert_select "title", "Soldat de plomb — Commune"
     assert_select ".card-detail__kicker", "Fiche de la carte"
-    assert_equal [ [ "Rareté", "Commune" ], [ "Genre", "Action" ], [ "Année", "2024" ], [ "Saison", "Saison 1" ], [ "Sets", "Action · Tome 1" ], [ "Exemplaires", "Aucun" ] ], facts
+    assert_equal [ [ "Rareté", "Commune" ], [ "Genre", "Horreur" ], [ "Année", "2024" ], [ "Saison", "Saison 1" ], [ "Sets", "Action · Tome 1" ], [ "Exemplaires", "Aucun" ] ], facts
     assert_equal [ "Voir sur Steam (nouvel onglet)", "https://store.steampowered.com/app/401/Tin_Soldier/?snr=1_7&l=french" ],
       store_link.then { [ it.text.squish, it["href"] ] }
     assert_equal [ "Carte précédente", "Carte suivante" ], css_select(".card-detail__nav").map { it["aria-label"] }
@@ -268,8 +303,8 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__back-year[aria-hidden=true]", "2024"
     assert_select ".card-detail__not-owned", "Not owned"
     assert_select ".card-detail h1", "Tin Soldier"
-    assert_equal [ [ "Rarity", "Common" ], [ "Genre", "Action" ], [ "Year", "2024" ], [ "Season", "Season 1" ], [ "Sets", "Action · Tome 1" ],
-      [ "Copies", "None" ] ], facts
+    # A season published before themes: its cards show no genre.
+    assert_equal [ [ "Rarity", "Common" ], [ "Year", "2024" ], [ "Season", "Season 1" ], [ "Sets", "Action · Tome 1" ], [ "Copies", "None" ] ], facts
     assert_select "[data-controller~=share]", false
     assert_select ".card-detail__share-button", false
     assert_select "form[action*='/repost']", false
@@ -574,30 +609,30 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "a filtered, searched grid is walked as shown, a set's grid too; a grid without the card, or an unknown set, is ignored" do
     season = publish_sets_draft
-    filters = { state: %w[all missing], genre: %w[action], q: "Seed 1" }
+    filters = { state: %w[all missing], genre: %w[roguelike], q: "Seed 1" }
     slugs = grid_slugs(filters)
     assert_operator slugs.size, :>, 2
-    context = { genre: %w[action], q: "Seed 1", state: %w[all missing] }
+    context = { genre: %w[roguelike], q: "Seed 1", state: %w[all missing] }
 
     get grid_detail(slugs[1], season.number, context)
     assert_equal [ [ "a", grid_detail(slugs[0], season.number, context) ], [ "a", grid_detail(slugs[2], season.number, context) ] ], navs
     assert_equal "2 / #{slugs.size}", position[%r{\d+ / \d+}]
-    assert_equal "/en/library?genre%5B%5D=action&q=Seed+1&state%5B%5D=all&state%5B%5D=missing", css_select(".top-bar__phone-back").sole["href"]
+    assert_equal "/en/library?genre%5B%5D=roguelike&q=Seed+1&state%5B%5D=all&state%5B%5D=missing", css_select(".top-bar__phone-back").sole["href"]
     # A visitor browsing a grid gets the detail, the card as the faded back.
     assert_select ".card-detail__back img[src*='back-standard']"
     assert_select ".public-card", false
 
-    set_slugs = grid_slugs({ state: %w[all], rarity: %w[common rare] }, kind: "tome", key: "action-1")
+    set_slugs = grid_slugs({ state: %w[all], rarity: %w[common rare] }, kind: "theme", key: "rpg")
     assert_operator set_slugs.size, :>, 2
-    set_context = { key: "action-1", kind: "tome", q: "", rarity: %w[common rare], state: %w[all] }
+    set_context = { key: "rpg", kind: "theme", q: "", rarity: %w[common rare], state: %w[all] }
     get grid_detail(set_slugs.last, season.number, set_context)
     assert_equal [ [ "a", grid_detail(set_slugs[-2], season.number, set_context) ], [ "button", "disabled" ] ], navs
     assert_equal "#{set_slugs.size} / #{set_slugs.size}", position[%r{\d+ / \d+}]
-    assert_equal "/en/library/tome/action-1?rarity%5B%5D=common&rarity%5B%5D=rare&state%5B%5D=all", css_select(".top-bar__phone-back").sole["href"]
+    assert_equal "/en/library/theme/rpg?rarity%5B%5D=common&rarity%5B%5D=rare&state%5B%5D=all", css_select(".top-bar__phone-back").sole["href"]
 
     # A grid that does not show the card, an unknown set or kind, a set
     # named in part: no context, so the visitor gets the public card page.
-    [ { q: "nothing like it" }, { kind: "tome", key: "nope", q: "" }, { kind: "shelf", key: "action-1" }, { kind: "tome", q: "" } ].each do |other|
+    [ { q: "nothing like it" }, { kind: "theme", key: "nope", q: "" }, { kind: "shelf", key: "roguelike" }, { kind: "theme", q: "" } ].each do |other|
       get grid_detail(slugs[1], season.number, other)
       assert_response :success, other.inspect
       assert_select ".public-card", 1, other.inspect

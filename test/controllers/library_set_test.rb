@@ -2,7 +2,7 @@ require "test_helper"
 require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
 
-# The collection of one set (CAP-6, story 10.1): its row current among its
+# The collection of one set: its row current among its
 # kind's, its cards in slot order, owned faces with their copies and missing
 # slots naming their games, for a player and a visitor; its genres; the
 # sets that are not found; the queries of a request.
@@ -44,27 +44,27 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
   test "a player sees the set's cards in slot order: faces with their copies, missing slots naming the rest" do
     season = publish_sets_draft
     player = accounts_players(:player)
-    members = set_members(season, "action-1")
+    members = set_members(season, "horror")
     hold(player, members[0], 1)
     hold(player, members[3], 2)
-    hold(player, members[24], 1)
+    hold(player, members[15], 1)
     hold(player, members[5], 0)
     sign_in(player)
 
-    get library_set_path(locale: :en, kind: "tome", key: "action-1", state: %w[all])
+    get library_set_path(locale: :en, kind: "theme", key: "horror", state: %w[all])
 
     assert_response :success
-    assert_select "title", "Action · Tome 1"
-    assert_select "h1", "Action · Tome 1"
+    assert_select "title", "Horror"
+    assert_select "h1", "Horror"
     assert_select ".top-bar__title", "Collection"
     assert_select ".collection-status__value", "3 / 150"
-    assert_equal [ "Action · Tome 1", "3/25" ], current_row
-    assert_select ".collection-kind[aria-current=true]", "Tomes"
-    assert_equal [ "/en/library", "/en/library/tome/action-1", "/en/library/tome/action-2", "/en/library/tome/action-3", "/en/library/tome/rpg-1" ],
+    assert_equal [ "Horror", "3/16" ], current_row
+    assert_select ".collection-kind[aria-current=true]", "Themes"
+    assert_equal [ "/en/library", "/en/library/theme/horror", "/en/library/theme/pirates", "/en/library/theme/roguelike", "/en/library/theme/rpg" ],
       css_select(".collection-sets .set-row").map { it["href"] }
     expected = members.each_with_index.map do |id, index|
       case index
-      when 0, 24 then [ :owned, title(id), "x1" ]
+      when 0, 15 then [ :owned, title(id), "x1" ]
       when 3 then [ :owned, title(id), "x2" ]
       else [ :missing, title(id), year(id) ]
       end
@@ -73,87 +73,130 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".collection-grid .card.card--m", 3
     assert_select ".collection-slot__copies[aria-hidden=true] + .visually-hidden", "2 copies"
     assert_select "[style]", 0
-    # A tome holds one genre: one genre chip.
-    assert_equal [ "Action" ], css_select("[data-group=genre] .filter-chip__text").map(&:text)
+    # Every card of this theme has it as its main theme: one genre chip.
+    assert_equal [ "Horror" ], css_select("[data-group=genre] .filter-chip__text").map(&:text)
     # Every face and missing slot leads to its card's detail in this season,
     # walking this set's grid as shown (its ◀ ▶, a card not held as the
     # faded back); "xn" stays outside the link.
     slugs = Catalog::CardSeason.where(id: members).includes(:card).index_by(&:id).transform_values { it.card.slug }
     links = css_select(".collection-grid > li > a.card-link")
-    grid = { grid: { kind: "tome", key: "action-1", q: "", state: %w[all] } }.to_query
+    grid = { grid: { kind: "theme", key: "horror", q: "", state: %w[all] } }.to_query
     assert_equal members.map { |id| "/en/cards/#{slugs.fetch(id)}/seasons/#{season.number}?#{grid}" },
       links.map { it["href"] }
-    assert_equal members.map { |id| [ "false", id.in?([ members[0], members[3], members[24] ]) ? ".card" : ".missing-slot" ] },
+    assert_equal members.map { |id| [ "false", id.in?([ members[0], members[3], members[15] ]) ? ".card" : ".missing-slot" ] },
       links.map { |link| [ link["data-turbo-prefetch"], link.at_css(".card") ? ".card" : ".missing-slot" ] }
     rarity = Catalog::CardViews.call([ members[3] ], locale: :en).fetch(members[3]).rarity
     assert_equal "#{title(members[3])}, #{I18n.t("catalog.rarity.#{rarity}", locale: :en)}, season #{season.number}", links[3]["aria-label"]
     # A face's link is named by its label; a missing slot's by its visible
     # text, so a screen reader says "Missing card".
-    assert_equal members.map { |id| id.in?([ members[0], members[3], members[24] ]) }, links.map { it["aria-label"].present? }
+    assert_equal members.map { |id| id.in?([ members[0], members[3], members[15] ]) }, links.map { it["aria-label"].present? }
     assert_equal "#{title(members[1])} #{year(members[1])} Missing card", links[1].text.squish
     assert_select ".collection-pages", false
   end
 
   test "a visitor sees the same set with every slot missing" do
     season = publish_sets_draft
-    members = set_members(season, "action-1")
+    members = set_members(season, "horror")
     hold(accounts_players(:player), members.first, 1, gained_at: 1.minute.ago)
 
-    get library_set_path(locale: :en, kind: "tome", key: "action-1")
+    get library_set_path(locale: :en, kind: "theme", key: "horror")
 
     assert_response :success
-    assert_equal [ "Action · Tome 1", "0/25" ], current_row
+    assert_equal [ "Horror", "0/16" ], current_row
     assert_select ".collection-grid .card, .collection-slot__new", false
     assert_equal members.map { |id| [ :missing, title(id), year(id) ] }, slots
     assert_select ".top-bar__end form.steam-sign-in"
   end
 
-  test "each kind: a best of year with its genres, a publisher; the list is the set's kind" do
+  test "each kind: the UFOs, a theme; the list is the set's kind" do
     season = publish_sets_draft
 
-    get library_set_path(locale: :en, kind: "best_of_year", key: "2015")
-    assert_select "h1", "Best rated of 2015"
-    assert_equal [ "Best rated of 2015", "0/10" ], current_row
-    assert_select ".collection-kind[aria-current=true]", "Best rated of the year"
-    assert_equal set_members(season, "2015").map { title(it) }, slots.map(&:second)
-    assert_equal "/en/library?kind=best_of_year", css_select(".collection-sets .set-row").first["href"]
+    get library_set_path(locale: :en, kind: "ufo", key: "ufos")
+    assert_select "h1", "The UFOs"
+    assert_equal [ "The UFOs", "0/15" ], current_row
+    assert_select ".collection-kind[aria-current=true]", "UFOs"
+    assert_equal set_members(season, "ufos").map { title(it) }, slots.map(&:second)
+    assert_equal "/en/library?kind=ufo", css_select(".collection-sets .set-row").first["href"]
+    assert_select "[data-group=genre]", false
 
-    get library_set_path(locale: :fr, kind: "publisher", key: "p")
-    assert_select "h1", "P"
-    assert_equal [ "P", "0/5" ], current_row
-    assert_select ".collection-kind[aria-current=true]", "Éditeurs"
+    get library_set_path(locale: :fr, kind: "theme", key: "pirates")
+    assert_select "h1", "Pirates"
+    assert_equal [ "Pirates", "0/8" ], current_row
+    assert_select ".collection-kind[aria-current=true]", "Thèmes"
+  end
+
+  test "a franchise and a studio open under their names, their kind's tab current, in English and French" do
+    season = publish_franchises_and_studios_draft
+
+    get library_set_path(locale: :en, kind: "franchise", key: "tom-clancy")
+    assert_select "h1", "Tom Clancy"
+    assert_equal [ "Tom Clancy", "0/3" ], current_row
+    assert_select ".collection-kind[aria-current=true]", "Franchises"
+    assert_equal set_members(season, "tom-clancy").map { title(it) }, slots.map(&:second)
+
+    get library_set_path(locale: :fr, kind: "studio", key: "capcom")
+    assert_select "h1", "CAPCOM"
+    assert_equal [ "CAPCOM", "0/3" ], current_row
+    assert_select ".collection-kind[aria-current=true]", "Studios"
+  end
+
+  test "a hall of fame set opens under its name, the hall of fame tab current, in English and French" do
+    season = publish_hall_of_fame_draft
+
+    get library_set_path(locale: :en, kind: "hall_of_fame", key: "phenomenes")
+    assert_select "h1", "The Phenomena"
+    assert_equal [ "The Phenomena", "0/2" ], current_row
+    assert_select ".collection-kind[aria-current=true]", "Hall of fame"
+    assert_equal set_members(season, "phenomenes").map { title(it) }, slots.map(&:second)
+
+    get library_set_path(locale: :fr, kind: "hall_of_fame", key: "mal-aimes")
+    assert_select "h1", "Les Mal-aimés"
+    assert_equal [ "Les Mal-aimés", "0/2" ], current_row
+    assert_select ".collection-kind[aria-current=true]", "Panthéon"
+  end
+
+  test "a set of a season published before themes still opens, named as before" do
+    season = seed_published_sets([ [ "best_of_year", "2011", { "year" => 2011 } ], [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
+
+    get library_set_path(locale: :fr, kind: "best_of_year", key: "2011")
+    assert_select "h1", "Les mieux notés de 2011"
+    assert_equal [ "Les mieux notés de 2011", "0/0" ], current_row
+    assert_select ".collection-kind[aria-current=true]", "Les mieux notés de l'année"
+    assert_equal [ "Tomes", "Les mieux notés de l'année" ], css_select(".collection-kinds a").map(&:text)
+    assert_equal season, Catalog::PublishedSeason.call
   end
 
   test "a set's genre chips filter its cards, keep the list and offer no set group" do
     season = publish_sets_draft
-    members = set_members(season, "2011")
+    members = set_members(season, "roguelike")
     genres = members.to_h { |id| [ id, Catalog::CardViews.call([ id ], locale: :en).fetch(id).genre ] }
 
-    get library_set_path(locale: :en, kind: "best_of_year", key: "2011", shelf: 1, state: %w[all])
-    assert_equal [ "Action", "RPG" ], css_select("[data-group=genre] .filter-chip__text").map(&:text)
+    get library_set_path(locale: :en, kind: "theme", key: "roguelike", shelf: 1, state: %w[all])
+    assert_equal [ "Roguelike", "RPG" ], css_select("[data-group=genre] .filter-chip__text").map(&:text)
     assert_select "[data-group=sets]", false
-    assert_select "form.filters[action=?]", "/en/library/best_of_year/2011"
+    assert_select "form.filters[action=?]", "/en/library/theme/roguelike"
 
-    get library_set_path(locale: :en, kind: "best_of_year", key: "2011", genre: [ "rpg" ], state: %w[all])
+    get library_set_path(locale: :en, kind: "theme", key: "roguelike", genre: [ "rpg" ], state: %w[all])
     assert_equal members.select { genres[it] == "rpg" }.map { title(it) }, slots.map(&:second)
-    assert_equal [ "Best rated of 2011", "0/10" ], current_row
+    assert_equal 44, slots.size
+    assert_equal [ "Roguelike", "0/119" ], current_row
   end
 
   test "in French the titles and words are French" do
     season = publish_sets_draft
     player = accounts_players(:player)
-    members = set_members(season, "2011")
+    members = set_members(season, "pirates")
     Catalog::CardText.where(card_id: Catalog::CardSeason.find(members.first).card_id, locale: "fr").update_all(title: "La Graine")
     hold(player, members.second, 3)
     sign_in(player)
 
-    get library_set_path(locale: :fr, kind: "best_of_year", key: "2011", state: %w[all])
+    get library_set_path(locale: :fr, kind: "theme", key: "pirates", state: %w[all])
 
-    assert_select "h1", "Les mieux notés de 2011"
-    assert_equal [ "Les mieux notés de 2011", "1/10" ], current_row
-    assert_select ".collection-sets .set-row[aria-current=page] .visually-hidden", "1 carte possédée sur 10"
+    assert_select "h1", "Pirates"
+    assert_equal [ "Pirates", "1/8" ], current_row
+    assert_select ".collection-sets .set-row[aria-current=page] .visually-hidden", "1 carte possédée sur 8"
     assert_equal "La Graine", slots.first.second
-    assert_select ".missing-slot .visually-hidden", { count: 9, text: "Carte manquante" }
+    assert_select ".missing-slot .visually-hidden", { count: 7, text: "Carte manquante" }
     assert_select ".collection-slot__copies + .visually-hidden", "3 exemplaires"
     assert_select ".collection-sets .set-row", text: /Toute la saison/
   end
@@ -165,7 +208,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal [ "Action · Tome 55", "0/0" ], current_row
     assert_equal 11, css_select(".collection-sets .set-row").size
-    assert_equal "/en/library?shelf=2", css_select(".collection-sets .set-row").first["href"]
+    assert_equal "/en/library?kind=tome&shelf=2", css_select(".collection-sets .set-row").first["href"]
     assert_equal "/en/library/tome/action-51?shelf=2", css_select(".collection-sets .set-row")[1]["href"]
     assert_select ".collection-grid__empty", "Nothing matches these filters."
 
@@ -178,75 +221,75 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
   test "the old shelf parameter, ?page, now pages the grid: the URL still opens the set" do
     season = publish_sets_draft
 
-    get library_set_path(locale: :en, kind: "tome", key: "rpg-1", page: 1)
+    get library_set_path(locale: :en, kind: "theme", key: "rpg", page: 1)
 
     assert_response :success
-    assert_equal set_members(season, "rpg-1").map { title(it) }, slots.map(&:second)
+    assert_equal set_members(season, "rpg").map { title(it) }, slots.map(&:second)
 
     # An old bookmark's shelf page, past the grid's last: the past-the-end
     # line (not the empty-genre one) and the way back.
-    get library_set_path(locale: :fr, kind: "tome", key: "rpg-1", page: 2)
+    get library_set_path(locale: :fr, kind: "theme", key: "rpg", page: 2)
 
     assert_response :success
     assert_empty slots
     assert_select ".collection-grid__empty", "Plus aucune carte ici : la grille s'arrête sur une page précédente. Revenez à la dernière page."
-    assert_select ".collection-pages a[rel=prev][href=?]", "/fr/library/tome/rpg-1?page=1"
-    assert_select ".collection-pages a:not([rel])[href=?]", "/fr/library/tome/rpg-1?page=1", "Page 1"
+    assert_select ".collection-pages a[rel=prev][href=?]", "/fr/library/theme/rpg?page=1"
+    assert_select ".collection-pages a:not([rel])[href=?]", "/fr/library/theme/rpg?page=1", "Page 1"
   end
 
   test "a set of more than sixty cards is paged" do
-    season = seed_card_seasons(distinct_scores(130), publishers: Array.new(130, "Big"))
+    season = seed_card_seasons(distinct_scores(130), genres: Array.new(130) { [ "rpg" ] })
     assert Catalog::PublishSeason.new.call(number: season.number).success?
-    members = set_members(season.reload, "big")
+    members = set_members(season.reload, "rpg")
 
-    get library_set_path(locale: :en, kind: "publisher", key: "big")
+    get library_set_path(locale: :en, kind: "theme", key: "rpg")
     assert_equal members.first(60).map { title(it) }, slots.map(&:second)
-    assert_select ".collection-pages a[rel=next][href=?]", "/en/library/publisher/big?page=2"
+    assert_select ".collection-pages a[rel=next][href=?]", "/en/library/theme/rpg?page=2"
 
-    get library_set_path(locale: :en, kind: "publisher", key: "big", page: 3)
+    get library_set_path(locale: :en, kind: "theme", key: "rpg", page: 3)
     assert_equal members.last(10).map { title(it) }, slots.map(&:second)
   end
 
   test "an unknown kind, an unknown key or a key of another kind is not found" do
     publish_sets_draft
 
-    get "/en/library/nope/action-1"
+    get "/en/library/nope/rpg"
     assert_response :not_found
 
-    get library_set_path(locale: :en, kind: "tome", key: "action-9")
+    get library_set_path(locale: :en, kind: "theme", key: "action")
     assert_response :not_found
 
-    get library_set_path(locale: :en, kind: "publisher", key: "action-1")
+    get library_set_path(locale: :en, kind: "publisher", key: "rpg")
     assert_response :not_found
 
-    get library_set_path(locale: :en, kind: "best_of_year", key: "p")
+    get library_set_path(locale: :en, kind: "ufo", key: "rpg")
     assert_response :not_found
   end
 
   test "with no season published no set is found" do
     catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
 
-    get library_set_path(locale: :en, kind: "tome", key: "action-1")
+    get library_set_path(locale: :en, kind: "theme", key: "rpg")
     assert_response :not_found
   end
 
-  test "a player's request costs sixteen queries, a visitor's ten" do
+  test "a player's request costs seventeen queries, a visitor's eleven" do
     season = publish_sets_draft
     player = accounts_players(:player)
-    hold(player, set_members(season, "action-1").first, 1)
+    hold(player, set_members(season, "rpg").first, 1)
     sign_in(player)
 
     # Player lookup, published season; the grid: the set, its genres, count,
-    # page, card views, the player's slots; the list: count, page, totals,
-    # progress; the figures: unique cards, the season's cards, copies per
-    # tier; the tab bar's trades waiting.
-    assert_request_queries(16) { get library_set_path(locale: :en, kind: "tome", key: "action-1") }
+    # page, card views, the player's slots; the list: the kinds the season
+    # holds, count, page, totals, progress; the figures: unique cards, the
+    # season's cards, copies per tier; the tab bar's trades waiting.
+    assert_request_queries(17) { get library_set_path(locale: :en, kind: "theme", key: "rpg") }
     assert_response :success
 
     delete session_path(locale: :en)
     # The same without the lookup, the slots, the progress, the unique cards
     # and the copies per tier.
-    assert_request_queries(10) { get library_set_path(locale: :en, kind: "tome", key: "action-1") }
+    assert_request_queries(11) { get library_set_path(locale: :en, kind: "theme", key: "rpg") }
     assert_response :success
   end
 end

@@ -12,8 +12,9 @@
     first: time, a sentence naming the player (a first discovery's behind
     its gold "First discovery" chip), the card's thumbnail and its
     rarity; a repost's thumbnail framed in its rarity's colour, with a
-    Repost tag in place of the rarity. Fillers of a quiet feed sit on the
-    sunken panel. Names and the order are already filtered by
+    Repost tag in place of the rarity; a trade names both players and shows
+    the best card each gave, both framed, with a Trade tag. Fillers of a
+    quiet feed sit on the sunken panel. Names and the order are already filtered by
     Game::Visibility. A filter with nothing says so in its own line; the
     Friends tab without a friend invites to add some. No Brotherhood line here.
     All, without a filter, is live: the public stream prepends new entries
@@ -47,8 +48,8 @@
   <% else %>
     <% if @live || @items.any? %>
       <%= tag.ul class: "feed__list", id: ("feed-entries" if @live), data: ({ feed_announcer_target: "list" } if @live) do %>
-        <% @items.each do |item, card| %>
-          <%= render "feeds/entry", item:, card: %>
+        <% @items.each do |item, card, partner_card| %>
+          <%= render "feeds/entry", item:, card:, partner_card: %>
         <% end %>
       <% end %>
     <% end %>

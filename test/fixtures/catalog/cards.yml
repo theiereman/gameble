@@ -8,7 +8,7 @@ portal:
   image_url: "https://images.example.test/400.jpg"
   store_url: "https://store.example.test/400"
   publisher: "Valve"
-  genres: ["action"]
+  genres: ["puzzle"]
   tags: ["puzzle", "first-person"]
 
 # One card-season per other tier in the published season, so a draw works

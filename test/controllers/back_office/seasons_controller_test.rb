@@ -63,16 +63,23 @@ module BackOffice
       draft = seed_sets_draft
 
       get back_office_seasons_path(locale: :en)
-      assert_select "tr[data-season-number='2'] td[data-season-sets-publisher]", false
-      assert_select "th", "Publisher sets"
+      assert_select "tr[data-season-number='2'] td[data-season-sets-theme]", false
+      assert_equal [ "Themes", "Franchises", "Studios", "Hall of fame", "UFOs", "Tomes", "Publisher sets", "Best of the year" ],
+        css_select("table.ledger").first.css("thead th").map(&:text).last(8)
 
       post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
       follow_redirect!
 
-      assert_select "tr[data-season-number='2'] td[data-season-sets-publisher='1']", "1"
-      assert_select "tr[data-season-number='2'] td[data-season-sets-tome='4']", "4"
-      assert_select "tr[data-season-number='2'] td[data-season-sets-best-of-year='3']", "3"
+      assert_select "tr[data-season-number='2'] td[data-season-sets-theme='4']", "4"
+      assert_select "tr[data-season-number='2'] td[data-season-sets-franchise='0']", "0"
+      assert_select "tr[data-season-number='2'] td[data-season-sets-studio='0']", "0"
+      assert_select "tr[data-season-number='2'] td[data-season-sets-hall-of-fame='0']", "0"
+      assert_select "tr[data-season-number='2'] td[data-season-sets-ufo='1']", "1"
+      assert_select "tr[data-season-number='2'] td[data-season-sets-tome='0']", "0"
+      assert_select "tr[data-season-number='2'] td[data-season-sets-publisher='0']", "0"
+      assert_select "tr[data-season-number='2'] td[data-season-sets-best-of-year='0']", "0"
       assert_select "tr[data-season-number='1'] td[data-season-sets-publisher='1']"
+      assert_select "tr[data-season-number='1'] td[data-season-sets-theme='0']"
     end
 
     test "the draft's preview follows the seasons, the publish form below it, and publishing gives what it showed" do
@@ -95,15 +102,17 @@ module BackOffice
       assert_select "tr[data-preview-top='10'] td", "Seed 9"
       assert_select "tr[data-preview-bottom='1'] td", "Seed 149"
       assert_select "th", "Rating"
-      assert_equal [ %w[action 75 3], %w[rpg 44 1], %w[none 31 0] ],
-        css_select("tr[data-preview-genre]").map { |row| [ row["data-preview-genre"], *row.css("td").map(&:text) ] }
-      assert_equal %w[1 4 3], %w[publisher tome best-of-year].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
+      assert_equal [ %w[roguelike Roguelike 119], %w[rpg RPG 44], %w[horror Horror 16], %w[pirates Pirates 8] ],
+        css_select("tr[data-preview-theme]").map { |row| [ row["data-preview-theme"], row.at_css("th").text, *row.css("td").map(&:text) ] }
+      assert_select "p[data-preview-ufo-count='15'][data-preview-ufo-over-limit]",
+        /15 cards in the UFOs, 10.0% of the season\. More than the 5% aimed for/
+      assert_equal %w[4 0 0 0 1], %w[theme franchise studio hall-of-fame ufo].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
 
       post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
       follow_redirect!
 
       assert_equal %w[2 6 15 37 90], tier_cells
-      assert_select "tr[data-season-number='2'] td[data-season-sets-tome='4']", "4"
+      assert_select "tr[data-season-number='2'] td[data-season-sets-theme='4']", "4"
       assert_select "section[data-preview]", false
     end
 
@@ -137,6 +146,34 @@ module BackOffice
       assert_equal message, flash[:alert]
       assert_predicate draft.reload, :draft?
       assert_equal 0, Catalog::CardSeason.where(season_id: draft.id).where.not(rarity: nil).count
+    end
+
+    test "a draft holding a genre from before themes shows the verdict in the preview, and publishing it is refused with the same message" do
+      sign_in(accounts_players(:administrator))
+      draft = seed_card_seasons(distinct_scores(150), genres: Array.new(150) { |index| index.zero? ? [ "action" ] : [ "rpg" ] })
+      message = I18n.t("errors.catalog.unknown_theme", locale: :fr)
+
+      get back_office_seasons_path(locale: :fr)
+
+      assert_select "[data-preview-verdict=unknown_theme]", message
+      assert_select "p[data-preview-ufo-count='1']:not([data-preview-ufo-over-limit])", /1 carte dans les OVNI/
+
+      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number }
+
+      assert_redirected_to back_office_seasons_path(locale: :fr)
+      assert_equal message, flash[:alert]
+      assert_predicate draft.reload, :draft?
+      assert_empty Catalog::Set.where(season_id: draft.id)
+    end
+
+    test "a season published before themes says its cards have no theme" do
+      sign_in(accounts_players(:administrator))
+
+      get back_office_season_path(1, locale: :en)
+
+      assert_select "[data-preview-no-themes]", "This season was published before themes: its cards have no theme and no UFO set."
+      assert_select "tr[data-preview-theme], [data-preview-ufo-count]", false
+      assert_equal %w[0 0 0 1 0], %w[theme ufo tome publisher best-of-year].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
     end
 
     test "a draft scored by one version shows no score version verdict" do
@@ -313,9 +350,10 @@ module BackOffice
       assert_equal %w[1.000 15.000 75.000 135.000 149.000 150.000], %w[min p10 p50 p90 p99 max].map { |p| css_select("[data-preview-percentile=#{p}]").sole.text }
       assert_select "tr[data-preview-top='1'] td", "Seed 0"
       assert_select "tr[data-preview-bottom='1'] td", "Seed 149"
-      assert_equal [ %w[action 75 3], %w[rpg 44 1], %w[none 31 0] ],
-        css_select("tr[data-preview-genre]").map { |row| [ row["data-preview-genre"], *row.css("td").map(&:text) ] }
-      assert_equal %w[1 4 3], %w[publisher tome best-of-year].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
+      assert_equal [ %w[roguelike 119], %w[rpg 44], %w[horror 16], %w[pirates 8] ],
+        css_select("tr[data-preview-theme]").map { |row| [ row["data-preview-theme"], *row.css("td").map(&:text) ] }
+      assert_select "[data-preview-ufo-count='15']"
+      assert_equal %w[4 1 0 0 0], %w[theme ufo tome publisher best-of-year].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
       assert_select "[data-preview-verdict]", false
       assert_select "form[action$='/seasons/publish']", false
       assert_select "a[href='/en/back-office/seasons']", "All the seasons"

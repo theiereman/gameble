@@ -356,7 +356,7 @@ class ShellTest < ApplicationSystemTestCase
     { library: library_path(locale: :en), card: card_path(locale: :en, slug: "portal"),
       pack: pack_path(locale: :en, token: pack.token), back_office: back_office_path(locale: :en) }.each do |name, path|
       visit path
-      assert_selector ".top-bar__start > a.top-bar__home", text: "GAMEBLE"
+      assert_selector ".top-bar__start > a.top-bar__home[aria-label='gameble, command bridge']"
       assert_no_selector ".top-bar__start > a.top-bar__bridge"
       assert_equal "rgb(11, 15, 21)", computed("body", "backgroundColor"), name
       assert_no_sideways_scroll
@@ -375,7 +375,7 @@ class ShellTest < ApplicationSystemTestCase
 
   def sign_in_with_three_cards
     season = publish_sets_draft
-    set = Catalog::Set.find_by!(season_id: season.id, key: "action-1")
+    set = Catalog::Set.find_by!(season_id: season.id, key: "horror")
     player = accounts_players(:player)
     Catalog::SetMembership.where(set_id: set.id).order(:position, :id).limit(3).pluck(:card_season_id).each do |card_season_id|
       Game::Holding.create!(player_id: player.id, card_season_id:, quantity: 1)
@@ -390,7 +390,7 @@ class ShellTest < ApplicationSystemTestCase
     assert_no_selector PREVIOUS
     find(".hub-menu .menu-item[aria-keyshortcuts='2']").click
     assert_current_path library_path(locale: :en)
-    assert_selector ".top-bar__start > a.top-bar__home", text: "GAMEBLE"
+    assert_selector ".top-bar__start > a.top-bar__home[aria-label='gameble, command bridge']"
     assert_no_selector PREVIOUS
     assert_no_selector ".top-bar__bridge"
 

@@ -41,7 +41,7 @@ class FriendsTest < ApplicationSystemTestCase
     within("dialog#friend-#{@friend.token}[open]") do
       assert_selector ".friend-profile__name", text: "Lea"
       assert_selector ".friend-profile__showcase .card", count: 3
-      assert_selector "a.button--primary[href='#{new_trade_path(locale: :en, friend: @friend.token)}']", text: /propose a trade/i
+      assert_selector "a.button--primary[href='#{new_trade_path(locale: :en, friend: @friend.token)}']", text: /\Atrade\z/i
       take_screenshot
       click_on "REPORT"
     end
@@ -61,7 +61,7 @@ class FriendsTest < ApplicationSystemTestCase
     within(".friends__friend", text: "Lea") do
       assert_no_selector "a.friends__profile-link"
       assert_no_button "Lea"
-      click_on "Propose a trade"
+      click_on "Trade"
     end
     assert_current_path new_trade_path(locale: :en, friend: @friend.token)
 
@@ -72,6 +72,31 @@ class FriendsTest < ApplicationSystemTestCase
       find("a.friends__profile-link").click
     end
     assert_current_path brother_path(locale: :en, token: @friend.token)
+  end
+
+  test "a player opens the trade in progress with a friend from their row" do
+    offered, requested = Game::Holding.where(player_id: @friend.id).order(:card_season_id).limit(2).pluck(:card_season_id)
+    Game::Holding.create!(player_id: @player.id, card_season_id: requested, quantity: 1)
+    trade = Game::ProposeTrade.new.call(player: @friend, recipient: @player, offer: { offered => 1 }, request: { requested => 1 }).value!
+    sign_in
+
+    within(".friends__friend", text: "Lea") { click_on "Trade" }
+
+    assert_current_path trade_path(locale: :en, token: trade.token)
+    assert_no_selector ".toast", text: /one trade at a time/i
+  end
+
+  test "a player opens the trade in progress with a friend from the friend profile" do
+    offered, requested = Game::Holding.where(player_id: @friend.id).order(:card_season_id).limit(2).pluck(:card_season_id)
+    Game::Holding.create!(player_id: @player.id, card_season_id: requested, quantity: 1)
+    trade = Game::ProposeTrade.new.call(player: @friend, recipient: @player, offer: { offered => 1 }, request: { requested => 1 }).value!
+    sign_in
+
+    within(".friends__friend", text: "Lea") { click_on "See the profile" }
+    within("dialog#friend-#{@friend.token}[open]") { click_on "Trade" }
+
+    assert_current_path trade_path(locale: :en, token: trade.token)
+    assert_no_selector ".toast", text: /one trade at a time/i
   end
 
   test "on a phone the profile is a bottom sheet that closes back on the profile button" do

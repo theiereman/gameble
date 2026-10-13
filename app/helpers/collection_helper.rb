@@ -1,7 +1,7 @@
 # The links of the collection screen (CAP-6; DESIGN.md, Collection): the
 # whole season and its sets by the kind listed and the list's page, the
 # way to clear the filters and the grid's page links. Defaults are left out
-# of the URLs: the tomes, the first page.
+# of the URLs: the first kind, the first page.
 module CollectionHelper
   # The pages of the grid's links around the current one: the first, the
   # last, the current and its neighbours, :gap where pages are skipped.

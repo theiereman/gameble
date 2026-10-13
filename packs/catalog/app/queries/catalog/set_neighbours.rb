@@ -9,8 +9,8 @@ module Catalog
   # and key, or when that set does not hold the card-season. The set is
   # found by its kind and key, never by id (AD-15).
   #
-  #   Catalog::SetNeighbours.call(card_season_id: 12, kind: "tome", key: "action-1", locale: "fr")
-  #   # => Neighbours(set: SetRef(kind: "tome", …), position: 3, total: 13, previous: "portal", next: "celeste") | nil
+  #   Catalog::SetNeighbours.call(card_season_id: 12, kind: "theme", key: "rpg", locale: "fr")
+  #   # => Neighbours(set: SetRef(kind: "theme", …), position: 3, total: 13, previous: "portal", next: "celeste") | nil
   module SetNeighbours
     Neighbours = Data.define(:set, :position, :total, :previous, :next)
 

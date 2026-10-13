@@ -1,9 +1,9 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Catalog::PublishSeason (AD-3, AD-5): publishing the draft, every failure,
-# the event, the card numbers (R3) and their one-time backfill, and the
-# published-season query the draw reads.
+# Catalog::PublishSeason: publishing the draft, every failure, the event,
+# the card numbers, main themes, sets and tiers, the numbers' one-time
+# backfill, and the published-season query the draw reads.
 class Catalog::PublishSeasonTest < ActiveSupport::TestCase
   include CatalogSeeds
 
@@ -16,7 +16,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
   end
 
   def season_data(season)
-    Catalog::CardSeason.where(season_id: season.id).order(:id).pluck(:rarity, :number, :updated_at)
+    Catalog::CardSeason.where(season_id: season.id).order(:id).pluck(:rarity, :number, :main_theme, :updated_at)
   end
 
   def assert_nothing_written(season, &block)
@@ -58,69 +58,135 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     set.memberships.sort_by(&:position).map(&:card_season)
   end
 
-  test "publishing builds the season's publisher sets, tomes and best-of-years, members in order" do
+  test "publishing builds the season's theme sets and the UFOs, members in order, every card-season in one" do
     season = seed_sets_draft
 
     assert publish(season.number).success?
 
-    sets = sets_of(season).group_by(&:kind)
-    assert_equal({ "publisher" => 1, "tome" => 4, "best_of_year" => 3 }, sets.transform_values(&:size))
+    sets = sets_of(season).index_by { |set| [ set.kind, set.key ] }
+    expected = { [ "theme", "roguelike" ] => 119, [ "theme", "rpg" ] => 44, [ "theme", "horror" ] => 16, [ "theme", "pirates" ] => 8,
+      [ "ufo", "ufos" ] => 15 }
+    assert_equal expected, sets.transform_values { |set| set.memberships.size }
+    assert_equal({ "theme" => "roguelike" }, sets[[ "theme", "roguelike" ]].params)
+    assert_equal({}, sets[[ "ufo", "ufos" ]].params)
 
-    publisher = sets["publisher"].sole
-    assert_equal [ "p", { "publisher" => "P" } ], [ publisher.key, publisher.params ]
-    assert_equal 5, publisher.memberships.size
-
-    tomes = sets["tome"].sort_by { |set| [ set.params["genre"], set.params["volume"] ] }
-    assert_equal %w[action-1 action-2 action-3 rpg-1], tomes.map(&:key)
-    assert_equal [ 25, 25, 25, 44 ], tomes.map { |set| set.memberships.size }
-    assert_equal({ "genre" => "action", "volume" => 2, "volumes" => 3 }, tomes[1].params)
-
-    best = sets["best_of_year"].sort_by(&:key)
-    assert_equal [ [ "2011", 10 ], [ "2012", 9 ], [ "2015", 10 ] ], best.map { |set| [ set.key, set.memberships.size ] }
-    assert_equal [ { "year" => 2011 }, { "year" => 2012 }, { "year" => 2015 } ], best.map(&:params)
-
-    sets.values.flatten.each do |set|
+    sets.each_value do |set|
       assert_equal (1..set.memberships.size).to_a, set.memberships.map(&:position).sort, set.key
-    end
-    (sets["publisher"] + tomes).each do |set|
       cards = member_rows(set).map(&:card)
       assert_equal cards.sort_by { |card| [ card.release_date, card.id ] }, cards, set.key
     end
-    best.each do |set|
-      ranked = member_rows(set)
-      assert_equal ranked.sort_by { |cs| [ -cs.rating, -cs.prestige_score, cs.card_id ] }, ranked, set.key
-    end
-    action = Catalog::CardSeason.where(season_id: season.id).joins(:card).where("catalog_cards.genres[1] = 'action'").ids.sort
-    assert_equal action, tomes.first(3).flat_map { |set| set.memberships.map(&:card_season_id) }.sort
+    card_seasons = Catalog::CardSeason.where(season_id: season.id)
+    assert_empty card_seasons.where.not(id: Catalog::SetMembership.select(:card_season_id))
+    themeless = card_seasons.joins(:card).where("cardinality(catalog_cards.genres) = 0").ids.sort
+    assert_equal themeless, sets[[ "ufo", "ufos" ]].memberships.map(&:card_season_id).sort
   end
 
-  test "a draft that yields no publisher set and no tome still publishes, with its years' best" do
-    season = seed_card_seasons(distinct_scores(21), release_dates: Array.new(21) { |i| Date.new(2010 + i % 2, 1, 1) })
+  test "publishing writes each set's tiers: bronze, silver, gold and complete for a theme, complete for the UFOs" do
+    season = seed_sets_draft
 
     assert publish(season.number).success?
 
-    assert_predicate season.reload, :published?
-    assert_equal [ [ "best_of_year", "2010" ], [ "best_of_year", "2011" ] ], sets_of(season).map { |set| [ set.kind, set.key ] }
+    tiers = Catalog::SetTier.joins(:set).where(catalog_sets: { season_id: season.id }).pluck("catalog_sets.key", :tier, :required)
+      .group_by(&:first).transform_values { |rows| rows.to_h { |_, tier, required| [ tier, required ] } }
+    assert_equal({
+      "roguelike" => { "bronze" => 12, "silver" => 30, "gold" => 60, "complete" => 119 },
+      "rpg" => { "bronze" => 5, "silver" => 11, "gold" => 22, "complete" => 44 },
+      "horror" => { "bronze" => 2, "silver" => 4, "gold" => 8, "complete" => 16 },
+      "pirates" => { "bronze" => 1, "silver" => 2, "gold" => 4, "complete" => 8 },
+      "ufos" => { "complete" => 15 }
+    }, tiers)
   end
 
-  test "a set key outside KEY_FORMAT raises and nothing is published" do
-    season = seed_card_seasons(distinct_scores(21), genres: Array.new(21) { [ "Free To Play" ] })
+  test "publishing builds the franchise and studio sets, members in release order, each complete only at its size" do
+    season = seed_franchises_and_studios_draft
 
-    assert_nothing_written(season) do
-      assert_raises(ArgumentError) { publish(season.number) }
-    end
+    assert publish(season.number).success?
+
+    sets = sets_of(season).index_by { |set| [ set.kind, set.key ] }
+    assert_equal [ [ "franchise", "tom-clancy" ], [ "studio", "capcom" ], [ "theme", "rpg" ], [ "ufo", "ufos" ] ], sets.keys
+    assert_equal({ "franchise" => "Tom Clancy" }, sets[[ "franchise", "tom-clancy" ]].params)
+    assert_equal({ "studio" => "CAPCOM" }, sets[[ "studio", "capcom" ]].params)
+    assert_equal [ "Tom Clancy's Rainbow Six", "Tom Clancy's The Division", "Tom Clancy's Ghost Recon" ],
+      member_rows(sets[[ "franchise", "tom-clancy" ]]).map { |card_season| card_season.card.text("en").title }
+    assert_equal [ [ "CAPCOM Co., Ltd." ], [ "CAPCOM Co., Ltd." ], [ "Capcom" ] ],
+      member_rows(sets[[ "studio", "capcom" ]]).map { |card_season| card_season.card.developers }
+
+    tiers = Catalog::SetTier.joins(:set).where(catalog_sets: { season_id: season.id, kind: %w[franchise studio] })
+      .pluck("catalog_sets.kind", :tier, :required)
+    assert_equal [ [ "franchise", "complete", 3 ], [ "studio", "complete", 3 ] ], tiers.sort
+  end
+
+  test "publishing builds the hall of fame sets, members in release order, each with bronze, silver, gold and complete" do
+    season = seed_hall_of_fame_draft
+
+    assert publish(season.number).success?
+
+    sets = sets_of(season).where(kind: "hall_of_fame").index_by(&:key)
+    titles = sets.transform_values { |set| member_rows(set).map { |card_season| card_season.card.text("en").title } }
+    assert_equal({ "intouchables" => [ "Seed 0", "Seed 5" ], "pepites" => [ "Seed 1" ], "mal-aimes" => [ "Seed 2", "Seed 3" ],
+      "phenomenes" => [ "Seed 4", "Seed 5" ] }, titles)
+    assert_equal({ "hall_of_fame" => "mal-aimes" }, sets["mal-aimes"].params)
+
+    tiers = Catalog::SetTier.joins(:set).where(catalog_sets: { season_id: season.id, kind: "hall_of_fame" })
+      .pluck("catalog_sets.key", :tier, :required).group_by(&:first).transform_values { |rows| rows.to_h { |_, tier, required| [ tier, required ] } }
+    assert_equal({
+      "intouchables" => { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 2 },
+      "pepites" => { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 1 },
+      "mal-aimes" => { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 2 },
+      "phenomenes" => { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 2 }
+    }, tiers)
+  end
+
+  test "a theme of 7 cards gets the tiers 1, 2, 4 and 7" do
+    season = seed_card_seasons(distinct_scores(21), genres: Array.new(21) { |index| index < 7 ? [ "pirates" ] : [ "rpg" ] })
+
+    assert publish(season.number).success?
+
+    pirates = Catalog::Set.find_by!(season_id: season.id, kind: "theme", key: "pirates")
+    assert_equal [ [ "bronze", 1 ], [ "silver", 2 ], [ "gold", 4 ], [ "complete", 7 ] ], pirates.tiers.order(:required, :tier).pluck(:tier, :required)
+  end
+
+  test "publishing gives each card-season its first genre as main theme, none without genre" do
+    season = seed_sets_draft
+
+    assert publish(season.number).success?
+
+    main_themes = Catalog::CardSeason.where(season_id: season.id).joins(:card).pluck(:main_theme, "catalog_cards.genres")
+    assert main_themes.all? { |main_theme, genres| main_theme == genres.first }
+    assert_equal({ "roguelike" => 75, "rpg" => 44, "horror" => 16, nil => 15 }, main_themes.map(&:first).tally)
+  end
+
+  test "a draft whose every card has a theme publishes without UFOs" do
+    season = seed_card_seasons(distinct_scores(21), genres: Array.new(21) { [ "rpg" ] })
+
+    assert publish(season.number).success?
+
+    assert_equal [ [ "theme", "rpg" ] ], sets_of(season).map { |set| [ set.kind, set.key ] }
+  end
+
+  test "a draft holding a card whose genre is no theme is unknown_theme and writes nothing" do
+    season = seed_card_seasons(distinct_scores(21), genres: Array.new(21) { |index| index.zero? ? [ "rpg", "action" ] : [ "rpg" ] })
+
+    assert_nothing_written(season) { assert_equal :unknown_theme, publish(season.number).failure }
     assert_predicate season.reload, :draft?
-    assert_equal 0, Catalog::Set.where(season_id: season.id).count
+    assert_empty Catalog::Set.where(season_id: season.id)
   end
 
-  test "the sets of a published season are frozen" do
+  test "the sets, tiers and main themes of a published season are frozen" do
     season = seed_sets_draft
     publish(season.number)
 
-    set = Catalog::Set.find_by!(season_id: season.id, kind: :tome, key: "rpg-1")
+    set = Catalog::Set.find_by!(season_id: season.id, kind: :theme, key: "rpg")
     assert_not set.update(key: "rpg-2")
     assert_not set.destroy
     assert_not set.memberships.first.destroy
+    tier = set.tiers.find_by!(tier: "bronze")
+    assert_not tier.update(required: 1)
+    assert_includes tier.errors.details[:base], { error: :frozen_once_published }
+    assert_not tier.destroy
+    assert_not Catalog::SetTier.new(set:, tier: "complete", required: 1).valid?
+    card_season = Catalog::CardSeason.find_by!(season_id: season.id, main_theme: "rpg")
+    assert_not card_season.update(main_theme: "roguelike")
   end
 
   test "a published season's data is frozen" do
@@ -285,7 +351,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
   test "every failure code of the publication has a message in both locales" do
     %i[en fr].each do |locale|
       I18n.with_locale(locale) do
-        %i[no_draft stale_draft empty_season mixed_score_versions empty_tier].each do |code|
+        %i[no_draft stale_draft empty_season mixed_score_versions unknown_theme empty_tier].each do |code|
           assert_not_includes Catalog::PublishSeason.failure_message(code), "Translation missing", "#{code} #{locale}"
         end
       end

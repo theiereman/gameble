@@ -1,11 +1,11 @@
 require "test_helper"
 
-# Catalog::FillCardSources: the one-off fill of the developers and franchises
-# of cards, and of the review counts their card-seasons lack, from rows a
-# source builds.
+# Catalog::FillCardSources: the fill of the developers, franchises and
+# genres of cards, and of the review counts their card-seasons lack, from
+# rows a source builds.
 class Catalog::FillCardSourcesTest < ActiveSupport::TestCase
-  def row(source_key, developers: [ "Valve" ], franchises: [ "Portal" ], review_count: 1_000)
-    { source_key:, developers:, franchises:, review_count: }
+  def row(source_key, developers: [ "Valve" ], franchises: [ "Portal" ], genres: [ "puzzle" ], review_count: 1_000)
+    { source_key:, developers:, franchises:, genres:, review_count: }
   end
 
   def fill(*rows)
@@ -27,7 +27,7 @@ class Catalog::FillCardSourcesTest < ActiveSupport::TestCase
     in_draft = draft_card_season_of(portal)
     before = published.attributes.except("review_count", "updated_at")
 
-    result = fill(row("src:400"), row("src:401", developers: [ "Studio &amp; Co" ], franchises: [], review_count: nil))
+    result = fill(row("src:400"), row("src:401", developers: [ "Studio &amp; Co" ], franchises: [], genres: [], review_count: nil))
 
     assert_equal({ cards: 2, card_seasons: 2 }, result.value!)
     assert_equal [ [ "Valve" ], [ "Portal" ] ], [ portal.reload.developers, portal.franchises ]
@@ -46,6 +46,20 @@ class Catalog::FillCardSourcesTest < ActiveSupport::TestCase
 
     assert_equal updated_at, [ catalog_cards(:portal).reload.updated_at, catalog_card_seasons(:portal_one).reload.updated_at ]
     assert_equal [ { cards: 1, card_seasons: 1 }, { cards: 0, card_seasons: 0 } ], filled_events.map(&:data)
+  end
+
+  test "a card's genres follow the source, its published card-season's main theme never does" do
+    published = catalog_card_seasons(:portal_one)
+    Catalog::CardSeason.where(id: published.id).update_all(main_theme: "puzzle")
+    fill(row("src:400"))
+
+    assert_equal({ cards: 1, card_seasons: 0 }, fill(row("src:400", genres: %w[comedy puzzle])).value!)
+
+    assert_equal %w[comedy puzzle], catalog_cards(:portal).reload.genres
+    assert_equal "puzzle", published.reload.main_theme
+    assert_equal({ cards: 0, card_seasons: 0 }, fill(row("src:400", genres: %w[comedy puzzle])).value!)
+    assert_equal({ cards: 1, card_seasons: 0 }, fill(row("src:400", genres: [])).value!)
+    assert_equal [], catalog_cards(:portal).reload.genres
   end
 
   test "a card-season that has a review count keeps it; a card's names follow the source" do
@@ -73,20 +87,22 @@ class Catalog::FillCardSourcesTest < ActiveSupport::TestCase
   {
     "rows that are not a list" => { "src:400" => {} },
     "a row that is not a hash" => [ "src:400" ],
-    "a row missing a key" => [ { source_key: "src:400", developers: [], franchises: [] } ],
-    "a row mixing string and symbol keys" => [ { "source_key" => "src:400", developers: [], franchises: [], review_count: nil } ],
-    "a row with an unknown key" => [ { source_key: "src:400", developers: [], franchises: [], review_count: nil, publisher: "x" } ],
-    "a blank source key" => [ { source_key: " ", developers: [], franchises: [], review_count: nil } ],
-    "a developer that is not a string" => [ { source_key: "src:400", developers: [ 1 ], franchises: [], review_count: nil } ],
-    "a blank franchise" => [ { source_key: "src:400", developers: [], franchises: [ "" ], review_count: nil } ],
-    "a review count of 0" => [ { source_key: "src:400", developers: [], franchises: [], review_count: 0 } ],
-    "a review count as a string" => [ { source_key: "src:400", developers: [], franchises: [], review_count: "10" } ]
+    "a row missing a key" => [ { source_key: "src:400", developers: [], franchises: [], genres: [] } ],
+    "a row mixing string and symbol keys" => [ { "source_key" => "src:400", developers: [], franchises: [], genres: [], review_count: nil } ],
+    "a row with an unknown key" => [ { source_key: "src:400", developers: [], franchises: [], genres: [], review_count: nil, publisher: "x" } ],
+    "a blank source key" => [ { source_key: " ", developers: [], franchises: [], genres: [], review_count: nil } ],
+    "a developer that is not a string" => [ { source_key: "src:400", developers: [ 1 ], franchises: [], genres: [], review_count: nil } ],
+    "a blank franchise" => [ { source_key: "src:400", developers: [], franchises: [ "" ], genres: [], review_count: nil } ],
+    "a review count of 0" => [ { source_key: "src:400", developers: [], franchises: [], genres: [], review_count: 0 } ],
+    "a genre outside the theme list" => [ { source_key: "src:400", developers: [], franchises: [], genres: [ "action" ], review_count: nil } ],
+    "genres that are not a list" => [ { source_key: "src:400", developers: [], franchises: [], genres: "rpg", review_count: nil } ],
+    "a review count as a string" => [ { source_key: "src:400", developers: [], franchises: [], genres: [], review_count: "10" } ]
   }.each do |label, rows|
     test "#{label} fails with invalid_card and writes nothing" do
       result = Catalog::FillCardSources.new.call(rows:)
 
       assert_equal :invalid_card, result.failure
-      assert_equal [], catalog_cards(:portal).reload.developers
+      assert_equal [ [], [ "puzzle" ] ], [ catalog_cards(:portal).reload.developers, catalog_cards(:portal).genres ]
       assert_nil catalog_card_seasons(:portal_one).reload.review_count
       assert_empty filled_events
     end

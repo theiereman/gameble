@@ -10,7 +10,7 @@
   </section>
 <% else %>
   <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
-  <%= render "library/collection", heading: t("library.sets.whole_season"), kind: @kind, set: nil, spines: @spines, shelf: @pagy,
+  <%= render "library/collection", heading: t("library.sets.whole_season"), kind: @kind, kinds: @kinds, set: nil, spines: @spines, shelf: @pagy,
     grid: @grid, slots: @slots, pagy: @grid_pagy, context: @grid_context, unique: @unique, season_cards: @season_cards, tier_counts: @tier_counts,
     seen_up_to: @seen_up_to, states: @states, states_asked: @states_asked, state_default: @state_default, query: @query %>
 <% end %>

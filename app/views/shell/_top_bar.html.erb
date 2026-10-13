@@ -1,8 +1,8 @@
-<%# The top bar: on the left the logo, or, on every other page
-    (`content_for :back_button`), the logo and name as a link to the hub, a
+<%# The top bar: on the left the wordmark, or, on every other page
+    (`content_for :back_button`), the wordmark as a link to the hub, a
     divider, the back button to the previous screen (shown by
     previous-screen once the tab's history names that screen) and the
-    screen title, when the view gives one. Under 720px the logo link,
+    screen title, when the view gives one. Under 720px the wordmark link,
     divider and previous-screen button give way to the back button to the
     bridge, or to a view's contextual back in its place
     (`content_for :phone_back`, a sub-view's "◀ Grille"). The header
@@ -22,8 +22,8 @@
     <div class="top-bar__start<%= " top-bar__start--phone-back" if content_for?(:phone_back) %>" data-controller="navigation-lock">
       <% if content_for?(:back_button) %>
         <%= link_to home_path, class: "top-bar__brand top-bar__home", aria: { label: t("shell.top_bar.home") } do %>
-          <%= pixel_icon("logo", class: "top-bar__logo") %>
-          <span class="top-bar__name"><%= t("shell.top_bar.brand") %></span>
+          <%= pixel_icon("wordmark", class: "top-bar__wordmark") %>
+          <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
         <% end %>
         <span class="top-bar__divider" aria-hidden="true"></span>
         <%= link_to home_path, class: "button button--secondary button--small top-bar__bridge" do %>
@@ -39,17 +39,17 @@
         <% end %>
       <% elsif (controller_path == "pages" && action_name == "home") || content_for?(:public_page) %>
         <p class="top-bar__brand">
-          <%= pixel_icon("logo", class: "top-bar__logo") %>
-          <span class="top-bar__name"><%= t("shell.top_bar.brand") %></span>
+          <%= pixel_icon("wordmark", class: "top-bar__wordmark") %>
+          <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
         </p>
       <% else %>
         <%= link_to home_path, class: "top-bar__brand top-bar__home", aria: { label: t("shell.top_bar.home") } do %>
-          <%= pixel_icon("logo", class: "top-bar__logo") %>
-          <span class="top-bar__name"><%= t("shell.top_bar.brand") %></span>
+          <%= pixel_icon("wordmark", class: "top-bar__wordmark") %>
+          <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
         <% end %>
         <p class="top-bar__brand top-bar__phone-brand">
-          <%= pixel_icon("logo", class: "top-bar__logo") %>
-          <span class="top-bar__name"><%= t("shell.top_bar.brand") %></span>
+          <%= pixel_icon("wordmark", class: "top-bar__wordmark") %>
+          <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
         </p>
       <% end %>
     </div>

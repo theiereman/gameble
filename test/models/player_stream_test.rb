@@ -50,6 +50,25 @@ class PlayerStreamTest < ActiveSupport::TestCase
       PlayerStream.notices(Game::InvitationAccepted.new(data:))
   end
 
+  test "an unlocked achievement tells its player alone, with no topic; a retroactive one tells no one" do
+    data = { player_id: @alice.id, achievement: "first_booster" }
+
+    assert_equal [ { player_id: @alice.id, achievement: "first_booster" } ], PlayerStream.notices(Game::AchievementUnlocked.new(data:))
+    assert_empty PlayerStream.notices(Game::AchievementUnlocked.new(data: data.merge(retroactive: true)))
+  end
+
+  test "an unlock enqueues its notice once it commits; a retroactive one enqueues nothing" do
+    Game::Pack.create!(player_id: @alice.id, kind: :regular, season_id: catalog_seasons(:one).id, available_at: 1.minute.ago,
+      opened_at: Time.current, card_season_ids: [ @one ] * Game::Pack::SIZE)
+
+    assert_enqueued_with(job: PlayerStreamJob, args: [ [ { player_id: @alice.id, achievement: "first_booster" } ] ]) do
+      Game::GrantAchievement.new.call(player: @alice, achievement: :first_booster).value!
+    end
+    assert_no_enqueued_jobs(only: PlayerStreamJob) do
+      Game::GrantAchievement.new.call(player: @alice, achievement: :first_epic, retroactive: true).value!
+    end
+  end
+
   test "other events tell nothing" do
     assert_empty PlayerStream.notices(Game::PackOpened.new(data: { player_id: @alice.id, pack_id: 1 }))
   end

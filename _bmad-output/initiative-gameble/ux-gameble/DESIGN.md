@@ -485,7 +485,7 @@ Each tier has a `-hi` and `-lo` shade for the lit and shaded edges of its icon. 
 
 Two open-licensed (OFL) fonts, self-hosted (subsetted woff2 with their license texts), each with one job. Both cover French accents.
 
-- **VT323** (400): the large text only, never under 20px: the logo and screen titles, the hero and public titles, the player's and showcase names, the reveal banner, big numbers and timers, the card title at xl and the friend code: `{typography.screen-title}`, `{typography.hero}`, `{typography.public-title}`, `{typography.banner}`, `{typography.banner-small}`, `{typography.showcase-name}`, `{typography.count-large}`, `{typography.number}`, `{typography.card-title-xl}`.
+- **VT323** (400): the large text only, never under 20px: the screen titles, the hero and public titles, the player's and showcase names, the reveal banner, big numbers and timers, the card title at xl and the friend code: `{typography.screen-title}`, `{typography.hero}`, `{typography.public-title}`, `{typography.banner}`, `{typography.banner-small}`, `{typography.showcase-name}`, `{typography.count-large}`, `{typography.number}`, `{typography.card-title-xl}`.
 - **Space Mono** (400, 700): every small text. Bold for the card titles at s, m and l (`card-title-s` to `card-title-l`, uppercase) and the buttons (`{typography.button}`, `{typography.button-sm}`); regular for the menu, kickers, labels and chips in capitals with a light letter spacing (`{typography.menu}`, `{typography.kicker}`, `{typography.label}`), the card lines (`{typography.card-meta}` / `{typography.card-meta-xl}`), the publisher line (`publisher-m` to `publisher-xl`) and the running text, hints, descriptions and feed lines (`{typography.body}`, `{typography.body-large}`, `{typography.body-small}`).
 
 Rules:
@@ -675,7 +675,7 @@ What the player sees on their own face-down cards at opening, and in the collect
 
 | Back | Look |
 |---|---|
-| Standard (default) | Slate frame, dark diagonal-weave field, a blue ring with a dotted outer ring and gold ticks, the gameble logo in the center, "GAMEBLE" below |
+| Standard (default) | Slate frame, dark diagonal-weave field, a blue ring with a dotted outer ring and gold ticks, the wordmark's gold "G" monogram in the center, "GAMEBLE" below |
 | Saison 1 | Steam blueprint grid, a large engraved "1" in a ring of blue and gold dots, "SAISON" above, "GAMEBLE" below |
 | Semaine 38 | A pennant edged in gold, a gold ring and five small stars, "38" in gold, an orange hazard band, "SEMAINE" |
 | Étoile d'or | Gold frame, a gold sunburst, a large shaded gold star, sparkles, "LEGENDE" |
@@ -684,7 +684,7 @@ What the player sees on their own face-down cards at opening, and in the collect
 | Centurion | Riveted gunmetal plate, an orange octagonal core with "100", an orange hazard band, "CENTURION" |
 | Soldes d'hiver | Icy blue frame, a large snowflake, falling snow, snowy pines on white ground, "HIVER" above |
 
-A locked back is grayed and darkened under a pixel padlock. Each theme and hall of fame set has its own back, unlocked on gold; the eight above are the prototype's set; the other backs that ship are open. Backs, the canister, icons, avatars, the planet and the logo ship as exported pixel-art files (PNG or SVG), not as runtime drawing code.
+A locked back is grayed and darkened under a pixel padlock. Each theme and hall of fame set has its own back, unlocked on gold; the eight above are the prototype's set; the other backs that ship are open. Backs, the canister, icons, avatars, the planet and the wordmark ship as exported pixel-art files (PNG or SVG), not as runtime drawing code.
 
 #### Face-down card and revealed card
 
@@ -696,7 +696,7 @@ Navigation and status around the screens.
 
 #### Top bar
 
-`{components.top-bar.height}` on `{colors.steam-bar}`. Left, on desktop: the gameble logo and "GAMEBLE" on every screen, a link to the hub on the others (hover as a link `[ASSUMPTION]`), then, off the hub, a vertical divider, the back button when shown and the screen title. Left, on the phone: the logo and "GAMEBLE" (hub) or the back button and the screen title (other screens; shortened, for example "BOOSTER", "PROFIL"). Mockups drawn with "◀ PONT" at the left of a desktop top bar predate this rule; the rule applies. Right, per screen:
+`{components.top-bar.height}` on `{colors.steam-bar}`. Left, on desktop: the gold GAMEBLE wordmark on every screen, a link to the hub on the others (hover as a link `[ASSUMPTION]`), then, off the hub, a vertical divider, the back button when shown and the screen title. Left, on the phone: the wordmark (hub) or the back button and the screen title (other screens; shortened, for example "BOOSTER", "PROFIL"). Mockups drawn with "◀ PONT" at the left of a desktop top bar predate this rule; the rule applies. Right, per screen:
 
 | Screen | Right side |
 |---|---|
@@ -705,7 +705,7 @@ Navigation and status around the screens.
 | Collection | "Cartes uniques : 87 / 16 480" with a progress bar (180px; 48px on the phone) |
 | Échanges | "Entre amis · une proposition expire après 7 jours" |
 | Fil d'activité | LIVE marker |
-| Public card page | Logo only on the left; the official Steam sign-in image on the right |
+| Public card page | The wordmark only on the left; the official Steam sign-in image on the right |
 
 - **Packs chip:** a small canister icon, the reserve count, "BOOSTERS", a divider and "+1 dans" with the countdown, or "Réserve pleine" at 10 (for narrower widths, see Layout & Spacing).
 - **Player chip:** the 32px pixel avatar with an outline, the name, a lime online dot.
@@ -736,7 +736,7 @@ Parts specific to one screen, in hub, booster, collection, trade, friends, feed,
 
 The hub's center: the kicker "DERNIÈRE OBTENTION" in gold with a small gold square, the card (`card-xl` desktop, `card-l` phone) above a ringed pixel planet (200 × 200 art pixels, slate and blue bands, a lit ring) that floats 2px at most, rays for Épique and Légendaire, a ground shadow, the title in `{typography.showcase-name}` and a line with the rarity icon, rarity name, genre and number in the rarity color. Secondary button "VOIR LA FICHE".
 
-**Empty showcase** (no notable pull yet): a hatched frame with a dashed inner card outline and a dimmed logo, no rays; the title "OUVREZ VOTRE PREMIER BOOSTER" in `{typography.showcase-name}`, its line and the primary button "OUVRIR UN BOOSTER" (copy: see `EXPERIENCE.md`, Copy deck).
+**Empty showcase** (no notable pull yet): a hatched frame with a dashed inner card outline and the dimmed wordmark, no rays; the title "OUVREZ VOTRE PREMIER BOOSTER" in `{typography.showcase-name}`, its line and the primary button "OUVRIR UN BOOSTER" (copy: see `EXPERIENCE.md`, Copy deck).
 
 #### Community goal panel
 
@@ -755,7 +755,7 @@ The hub with the official Steam sign-in image in place of the packs and player c
 The pack is a machine-like metal canister, not a paper wrapper. Reference: [mockups/key-screens.html](mockups/key-screens.html), booster screen. It is drawn at 100 × 150 art pixels on the 2 CSS px grid (`{components.canister.size}`).
 
 - **Caps** (top and bottom): a steel gradient (`{components.canister.cap-steel-from}` to `{components.canister.cap-steel-to}`) with solid, clean edges: a crisp dark outline, a light rim, a collar and a band of grip ridges. No notches or dots. The top cap carries a small indicator window with one LED.
-- **Body:** a slate-blue cylinder gradient (`{components.canister.body-from}` to `{components.canister.body-to}`) with rim bands, a vertical gloss, four rivets, a blue label (`{colors.accent}`) reading "SAISON 1 / GRAND CATALOGUE", an emblem window holding the gold gameble logo, a hazard band, an LED plate with three LEDs and a barcode.
+- **Body:** a slate-blue cylinder gradient (`{components.canister.body-from}` to `{components.canister.body-to}`) with rim bands, a vertical gloss, four rivets, a blue label (`{colors.accent}`) reading "SAISON 1 / GRAND CATALOGUE", an emblem window holding the wordmark's gold "G" monogram, a hazard band, an LED plate with three LEDs and a barcode.
 - **At rest:** LEDs lit steadily in blue; the canister breathes 2px; a light band sweeps across it; blue rays turn slowly behind it. A steady hint below: "CLIQUEZ POUR OUVRIR" ("TOUCHEZ POUR OUVRIR" on the phone).
 - **Armed** (after a successful opening request): LEDs and the hazard band turn orange.
 - **Opening:** the same caps blow off up and down with smoke jets, a ring, a short warm flash and a shake; then the five cards burst out (see `EXPERIENCE.md`, Motion).
@@ -817,8 +817,8 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Amis.
 
 - **Invite panel:** "INVITER UN AMI", "PAR LIEN" with the invite link in a read-only field and "COPIER" (lime "COPIÉ ✓" for a moment), "VOTRE CODE AMI" large in VT323 ("7K2Q-F3NX"), "AJOUTER AVEC UN CODE" with a field, "AJOUTER" and a message line below (orange for errors, lime for success).
 - **Invitation row:** received: avatar, "Sam vous invite", "ACCEPTER" (primary) and "IGNORER"; sent: a pixel hourglass, "Envoyée à Sam", the chip "EN ATTENTE", "ANNULER" (secondary).
-- **Friend row:** a 48px avatar, the name, a presence dot and text (lime "En ligne", blue with the activity, for example "Ouvre un booster", muted "Il y a 3 h"), the number of distinct cards owned, "VOIR LE PROFIL", which opens the friend profile, and "PROPOSER UN ÉCHANGE"; the name is not a link. A private friend's row shows the name, the muted "Profil privé" in place of the presence and no card count; when either profile is private, the muted "Trades closed" line stands where "PROPOSER UN ÉCHANGE" was.
-- **Friend profile:** a dialog with a 64px avatar, name, presence, card count, "VITRINE" with three small cards, "PROPOSER UN ÉCHANGE" (primary), "VOIR LA COLLECTION" (secondary, to the public profile) and the orange link "SIGNALER". A private friend's dialog shows the avatar, the name and the "not available" line only.
+- **Friend row:** a 48px avatar, the name, a presence dot and text (lime "En ligne", blue with the activity, for example "Ouvre un booster", muted "Il y a 3 h"), the number of distinct cards owned, "VOIR LE PROFIL", which opens the friend profile, and "ÉCHANGE"; the name is not a link. A private friend's row shows the name, the muted "Profil privé" in place of the presence and no card count; when either profile is private, the muted "Trades closed" line stands where "ÉCHANGE" was.
+- **Friend profile:** a dialog with a 64px avatar, name, presence, card count, "VITRINE" with three small cards, "ÉCHANGE" (primary), "VOIR LA COLLECTION" (secondary, to the public profile) and the orange link "SIGNALER". A private friend's dialog shows the avatar, the name and the "not available" line only.
 
 #### Activity feed
 
@@ -842,7 +842,7 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Fil d'activité
 
 #### Public card page
 
-No app chrome: a slim top bar with the logo and the official Steam sign-in image. Left: the shared card at `card-xl`, tilting under the pointer, with rays from Épique up. The page never names who shared or owns the card (spec CAP-9). Right: the title in `{typography.public-title}`, the publisher, a line with rarity, genre, year and number, the description in `{typography.body-large}`, the link "VOIR SUR STEAM ↗", and a call-to-action panel with a two-line pitch (copy: see `EXPERIENCE.md`, Copy deck) and the primary button "OUVRIR MES PREMIERS BOOSTERS". Below, "LIVE · En ce moment sur gameble" with three compact feed entries. A footer link "Mentions légales".
+No app chrome: a slim top bar with the wordmark and the official Steam sign-in image. Left: the shared card at `card-xl`, tilting under the pointer, with rays from Épique up. The page never names who shared or owns the card (spec CAP-9). Right: the title in `{typography.public-title}`, the publisher, a line with rarity, genre, year and number, the description in `{typography.body-large}`, the link "VOIR SUR STEAM ↗", and a call-to-action panel with a two-line pitch (copy: see `EXPERIENCE.md`, Copy deck) and the primary button "OUVRIR MES PREMIERS BOOSTERS". Below, "LIVE · En ce moment sur gameble" with three compact feed entries. A footer link "Mentions légales".
 
 #### Legal page
 

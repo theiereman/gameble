@@ -162,7 +162,7 @@ class OpenPackBenchmark
     card_ids = Catalog::Card.insert_all!(Array.new(CARDS) do |index|
       { source_key: "benchmark:#{index}", slug: "benchmark-game-#{index}", release_date: release_dates[index],
         image_url: "https://images.example.test/#{index}.jpg", store_url: "https://store.example.test/#{index}",
-        publisher: "Publisher #{index % PUBLISHERS}", genres: [ "action" ] }
+        publisher: "Publisher #{index % PUBLISHERS}", genres: [ "rpg" ] }
     end, returning: :id).rows.flatten
     Catalog::CardText.insert_all!(card_ids.each_with_index.flat_map do |card_id, index|
       %w[en fr].map { |locale| { card_id:, locale:, title: "Benchmark game #{index} (#{locale})", short_description: "A game." } }

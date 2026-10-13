@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_12_100002) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -73,6 +73,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100002) do
     t.integer "number"
     t.integer "prestige_score_version", limit: 2
     t.integer "review_count"
+    t.string "main_theme"
     t.index ["card_id", "season_id"], name: "index_catalog_card_seasons_on_card_id_and_season_id", unique: true
     t.index ["season_id", "number"], name: "index_catalog_card_seasons_on_season_id_and_number", unique: true
     t.index ["season_id"], name: "index_catalog_card_seasons_on_season_id"
@@ -132,6 +133,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100002) do
     t.index ["set_id", "card_season_id"], name: "index_catalog_set_memberships_on_set_id_and_card_season_id", unique: true
   end
 
+  create_table "catalog_set_tiers", force: :cascade do |t|
+    t.bigint "set_id", null: false
+    t.string "tier", null: false
+    t.integer "required", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["set_id", "tier"], name: "index_catalog_set_tiers_on_set_id_and_tier", unique: true
+    t.check_constraint "required > 0", name: "catalog_set_tiers_required_check"
+    t.check_constraint "tier::text = ANY (ARRAY['bronze'::character varying::text, 'silver'::character varying::text, 'gold'::character varying::text, 'complete'::character varying::text])", name: "catalog_set_tiers_tier_check"
+  end
+
   create_table "catalog_sets", force: :cascade do |t|
     t.bigint "season_id", null: false
     t.string "kind", null: false
@@ -140,7 +152,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100002) do
     t.datetime "updated_at", null: false
     t.jsonb "params", default: {}, null: false
     t.index ["season_id", "kind", "key"], name: "index_catalog_sets_on_season_id_and_kind_and_key", unique: true
-    t.check_constraint "kind::text = 'publisher'::text OR kind::text = 'tome'::text OR kind::text = 'best_of_year'::text", name: "catalog_sets_kind_check"
+    t.check_constraint "kind::text = ANY (ARRAY['publisher'::character varying::text, 'tome'::character varying::text, 'best_of_year'::character varying::text, 'theme'::character varying::text, 'franchise'::character varying::text, 'studio'::character varying::text, 'hall_of_fame'::character varying::text, 'ufo'::character varying::text])", name: "catalog_sets_kind_check"
   end
 
   create_table "event_store_events", force: :cascade do |t|
@@ -169,6 +181,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100002) do
     t.index ["stream", "position"], name: "index_event_store_events_in_streams_on_stream_and_position", unique: true
   end
 
+  create_table "game_achievement_unlocks", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.string "achievement", null: false
+    t.datetime "unlocked_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id", "achievement"], name: "index_game_achievement_unlocks_on_player_id_and_achievement", unique: true
+  end
+
   create_table "game_daily_bonus_claims", force: :cascade do |t|
     t.bigint "player_id", null: false
     t.date "day", null: false
@@ -190,10 +211,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100002) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "kind", default: "pull", null: false
+    t.bigint "trade_id"
+    t.bigint "partner_id"
+    t.bigint "partner_card_season_id"
     t.index ["kind", "notable", "occurred_at"], name: "index_game_feed_entries_on_kind_and_notable_and_occurred_at"
     t.index ["notable", "occurred_at", "id"], name: "index_game_feed_entries_on_notable_and_occurred_at_and_id"
     t.index ["pack_id", "position"], name: "index_game_feed_entries_on_pack_id_and_position", unique: true
+    t.index ["partner_id"], name: "index_game_feed_entries_on_partner_id"
     t.index ["player_id"], name: "index_game_feed_entries_on_player_id"
+    t.index ["trade_id"], name: "index_game_feed_entries_on_trade_id", unique: true, where: "(trade_id IS NOT NULL)"
+    t.check_constraint "(kind::text = 'trade'::text) = (trade_id IS NOT NULL AND partner_id IS NOT NULL AND partner_card_season_id IS NOT NULL)", name: "game_feed_entries_trade_check"
     t.check_constraint "(kind::text = ANY (ARRAY['pull'::character varying::text, 'discovery'::character varying::text])) = (pack_id IS NOT NULL AND \"position\" IS NOT NULL)", name: "game_feed_entries_pack_check"
     t.check_constraint "kind::text = ANY (ARRAY['pull'::character varying::text, 'discovery'::character varying::text, 'trade'::character varying::text, 'repost'::character varying::text])", name: "game_feed_entries_kind_check"
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "game_feed_entries_rarity_check"
@@ -351,9 +378,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100002) do
     t.integer "openings", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "trades", default: 0, null: false
     t.index ["player_id", "week_start"], name: "index_game_weekly_contributions_on_player_id_and_week_start", unique: true
     t.index ["week_start"], name: "index_game_weekly_contributions_on_week_start"
     t.check_constraint "openings >= 0", name: "game_weekly_contributions_openings_check"
+    t.check_constraint "trades >= 0", name: "game_weekly_contributions_trades_check"
   end
 
   create_table "game_weekly_goals", force: :cascade do |t|
@@ -442,12 +471,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_12_100002) do
   add_foreign_key "catalog_card_texts", "catalog_cards", column: "card_id"
   add_foreign_key "catalog_set_memberships", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "catalog_set_memberships", "catalog_sets", column: "set_id"
+  add_foreign_key "catalog_set_tiers", "catalog_sets", column: "set_id"
   add_foreign_key "catalog_sets", "catalog_seasons", column: "season_id"
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
+  add_foreign_key "game_achievement_unlocks", "accounts_players", column: "player_id"
   add_foreign_key "game_daily_bonus_claims", "accounts_players", column: "player_id"
   add_foreign_key "game_daily_bonus_claims", "game_packs", column: "pack_id"
+  add_foreign_key "game_feed_entries", "accounts_players", column: "partner_id"
   add_foreign_key "game_feed_entries", "accounts_players", column: "player_id"
+  add_foreign_key "game_feed_entries", "catalog_card_seasons", column: "partner_card_season_id"
   add_foreign_key "game_feed_entries", "game_packs", column: "pack_id"
+  add_foreign_key "game_feed_entries", "game_trades", column: "trade_id"
   add_foreign_key "game_first_discoveries", "accounts_players", column: "player_id"
   add_foreign_key "game_first_discoveries", "game_packs", column: "pack_id"
   add_foreign_key "game_friend_codes", "accounts_players", column: "player_id"

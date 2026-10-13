@@ -1,6 +1,6 @@
 module Catalog
   # What publishing the draft season now would produce, for calibrating the
-  # prestige formula, the tier shares and the tome size before a season is
+  # prestige formula, the tier shares and the themes before a season is
   # published: a ScorePanel. Reads the draft without a lock and writes
   # nothing; uses the same rules as PublishSeason (RarityThresholds,
   # SetBuilder), so publishing a draft unchanged since gives the tier sizes
@@ -24,12 +24,19 @@ module Catalog
     def self.of(rows)
       return ScorePanel.empty_season if rows.empty?
 
-      tomes = SetBuilder.tomes(rows)
+      themes = SetBuilder.themes(rows)
+      franchises = SetBuilder.franchises(rows)
+      studios = SetBuilder.studios(rows)
+      hall_of_fame = SetBuilder.hall_of_fame(rows)
+      ufos = SetBuilder.ufos(rows)
       ScorePanel.build(rows,
         tiers: tiers_of(rows.map(&:prestige_score)),
-        tome_counts: tomes.map { |set| set[:params].fetch("genre") }.tally,
-        set_counts: { "publisher" => SetBuilder.publishers(rows).size, "tome" => tomes.size, "best_of_year" => SetBuilder.best_of_year(rows).size },
-        score_version_verdict: ScoreVersions.mixed?(rows) ? :mixed_score_versions : nil)
+        theme_counts: themes.to_h { |set| [ set[:key], set[:members].size ] },
+        ufo_count: ufos.sum { |set| set[:members].size },
+        set_counts: { "theme" => themes.size, "franchise" => franchises.size, "studio" => studios.size,
+          "hall_of_fame" => hall_of_fame.size, "ufo" => ufos.size },
+        score_version_verdict: ScoreVersions.mixed?(rows) ? :mixed_score_versions : nil,
+        theme_verdict: unknown_theme?(rows) ? :unknown_theme : nil)
     end
 
     # Each tier's card count and threshold, legendary first, as PublishSeason
@@ -43,6 +50,10 @@ module Catalog
       Rarity::TIERS.keys.reverse.map { |tier| ScorePanel::Tier.new(tier:, card_count: counts.fetch(tier), threshold: thresholds[tier]) }
     end
 
-    private_class_method :tiers_of
+    def self.unknown_theme?(rows)
+      rows.any? { |row| row.genres.any? { |genre| !Themes.key?(genre) } }
+    end
+
+    private_class_method :tiers_of, :unknown_theme?
   end
 end

@@ -8,6 +8,7 @@ class ToastComponentTest < ViewComponent::TestCase
     assert_selector ".toast > .toast__light[aria-hidden=true]"
     assert_selector ".toast__message", text: "Proposition envoyée."
     assert_no_selector ".toast__title"
+    assert_no_selector ".toast[data-toast-after-reveal]"
     assert_selector "button.toast__close[type=button][aria-label=Fermer][data-action='toast#close'] svg.pixel-icon[aria-hidden=true]"
   end
 
@@ -18,6 +19,12 @@ class ToastComponentTest < ViewComponent::TestCase
     assert_selector ".toast__title", text: "Not enough copies"
     assert_selector ".toast__message", text: "Nothing moved."
     assert_selector "button.toast__close[aria-label=Close]"
+  end
+
+  test "a toast that waits out an opening's reveal is marked for the region" do
+    I18n.with_locale(:fr) { render_inline(ToastComponent.new(title: "Succès débloqué", message: "Premier booster", after_reveal: true)) }
+
+    assert_selector ".toast.toast--notice[data-toast-after-reveal]"
   end
 
   test "an unknown tone is refused" do

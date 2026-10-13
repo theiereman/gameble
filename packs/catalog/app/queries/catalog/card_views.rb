@@ -1,17 +1,15 @@
 module Catalog
   # The CardViews of card-seasons, in one query: title in a locale, publisher,
-  # release year and art of the card, rarity, number and tome genre of the
+  # release year and art of the card, rarity, number and main theme of the
   # card-season, number of its season. A card-season without rarity (a
   # draft) is left out, as is an unknown id.
   #
   #   Catalog::CardViews.call([ 12, 7 ], locale: "fr")
   #   # => { 12 => CardView(title: "Portal", rarity: "epic", …), 7 => … }
   module CardViews
-    # The genre of the card-season's tome (its sets are those of its season),
-    # nil when it is in no tome; a card-season sits in one tome at most.
-    GENRE = "(SELECT tome.params->>'genre' FROM catalog_set_memberships membership " \
-      "JOIN catalog_sets tome ON tome.id = membership.set_id " \
-      "WHERE membership.card_season_id = catalog_card_seasons.id AND tome.kind = 'tome' LIMIT 1)".freeze
+    # A card-season's genre: its main theme, nil for a card of no theme or a
+    # season published before themes.
+    GENRE = "catalog_card_seasons.main_theme".freeze
 
     COLUMNS = [
       "catalog_card_seasons.id", "catalog_cards.slug", "catalog_card_texts.title", "catalog_cards.publisher",

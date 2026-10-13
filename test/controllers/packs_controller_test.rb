@@ -526,10 +526,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   test "a daily bonus pack answers its three cards, each with its three faces" do
     player = accounts_players(:player)
     create_pack(player, kind: :bonus, cards: fixture_tier_ids.last(3), available_at: 1.day.ago)
-    # Portal in an action tome: its genre ends its spoken label.
-    set_id = Catalog::Set.insert_all!([ { season_id: catalog_seasons(:one).id, kind: "tome", key: "action-1",
-      params: { "genre" => "action", "volume" => 1, "volumes" => 1 } } ], returning: :id).rows.flatten.first
-    Catalog::SetMembership.insert_all!([ { set_id:, card_season_id: catalog_card_seasons(:portal_one).id, position: 1 } ])
+    # Portal's main theme, its genre, ends its spoken label.
+    Catalog::CardSeason.where(id: catalog_card_seasons(:portal_one).id).update_all(main_theme: "puzzle")
     sign_in(player.steam_id)
 
     open_json
@@ -538,7 +536,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "bonus", body.dig("pack", "kind")
     assert_equal %w[rare epic legendary], body["cards"].map { it["tier"] }
     # Spoken as the booster's live region says them: title — publisher, year, genre.
-    assert_equal [ "Blue Depths — 2014", "Portal — Valve, 2007, Action", "Golden Crown — 1998" ], body["cards"].map { it["label"] }
+    assert_equal [ "Blue Depths — 2014", "Portal — Valve, 2007, Puzzle", "Golden Crown — 1998" ], body["cards"].map { it["label"] }
     # Nothing left to open: no next pack size.
     assert_nil body.dig("bank", "nextPackSize")
     body["cards"].each do |card|

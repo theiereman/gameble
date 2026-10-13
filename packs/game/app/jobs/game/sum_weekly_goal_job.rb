@@ -27,7 +27,7 @@ module Game
     # A goal whose total moved and reached its target rewards its
     # contributors, the new ones included (Game::GrantGoalRewardsJob).
     def sum(week, now)
-      total = WeeklyContribution.where(week_start: week).sum(:openings)
+      total = WeeklyContribution.where(week_start: week).sum(Arel.sql("openings + trades"))
       goal = WeeklyGoal.where(week_start: week)
       changed = goal.where.not(total:).update_all([ "total = ?, summed_at = ?, updated_at = ?", total, now, now ])
       GrantGoalRewardsJob.perform_later(week_start: week) if changed.positive? && goal.reached.exists?

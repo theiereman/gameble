@@ -39,7 +39,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
   end
 
   def name_tags
-    Steam::Tag.insert_all([ { tagid: 19, name: "Action" }, { tagid: 492, name: "Indie" } ])
+    Steam::Tag.insert_all([ { tagid: 19, name: "Action" }, { tagid: 492, name: "Indie" }, { tagid: 1664, name: "Puzzle" }, { tagid: 122, name: "RPG" } ])
   end
 
   def cards_page(run, **options)
@@ -101,7 +101,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     run = run_on("cards")
     ready(run, 620, review_percent_positive: 95, review_count: 1_000, store_url_path: "/app/620/Portal_2/",
       tag_ids: [ 1, 492, 1664, 2, 3, 19, 4, 122 ])
-    tag_names = { 492 => "Indie", 2 => "!!!", 3 => "Co-op", 19 => "Action", 4 => "Co op" }
+    tag_names = { 492 => "Indie", 1664 => "Puzzle", 2 => "!!!", 3 => "Co-op", 19 => "Action", 4 => "Co op", 122 => "RPG" }
 
     attributes = Steam::CardMapping.call(Steam::App.find_by!(appid: 620), tag_names: tag_names).value!
 
@@ -114,8 +114,8 @@ class Steam::CardsTest < ActiveSupport::TestCase
       publisher: "Publisher 620",
       developers: [ "Studio 620" ],
       franchises: [ "Series 620" ],
-      genres: %w[puzzle rpg],
-      tags: %w[indie co_op action],
+      genres: %w[puzzle],
+      tags: %w[indie puzzle co_op action rpg],
       prestige_score: Steam::PrestigeScore.call(percent_positive: 95, review_count: 1_000),
       prestige_score_version: Steam::PrestigeScore::VERSION,
       rating: 95,
@@ -156,14 +156,41 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_equal [ [], [] ], eight.values_at(:developers, :franchises)
   end
 
-  test "a detailed app maps onto a row of the card sources fill, an invalid review count to nil" do
+  test "a detailed app maps onto a row of the card sources fill, its themes included, an invalid review count to nil" do
     run = run_on("cards")
     ready(run, 7, 8)
     Steam::App.where(appid: 8).update_all(review_count: 0)
+    tag_names = { 492 => "Indie", 1664 => "Puzzle", 122 => "RPG" }
 
-    assert_equal({ source_key: "steam:7", developers: [ "Studio 7" ], franchises: [ "Series 7" ], review_count: 1_007 },
-      Steam::CardMapping.sources(Steam::App.find_by!(appid: 7)))
-    assert_nil Steam::CardMapping.sources(Steam::App.find_by!(appid: 8))[:review_count]
+    assert_equal({ source_key: "steam:7", developers: [ "Studio 7" ], franchises: [ "Series 7" ], genres: %w[puzzle rpg], review_count: 1_007 },
+      Steam::CardMapping.sources(Steam::App.find_by!(appid: 7), tag_names:))
+    assert_nil Steam::CardMapping.sources(Steam::App.find_by!(appid: 8), tag_names:)[:review_count]
+  end
+
+  # The themes of a game, as named by Steam's tags, keyed by made-up tagids.
+  THEME_TAGS = { 1 => "Indie", 2 => "Roguelite", 3 => "Deckbuilding", 4 => "Pixel Graphics", 5 => "Horror", 6 => "RPG",
+    7 => "Action", 8 => "Adventure", 9 => "Casual", 10 => "Singleplayer" }.freeze
+
+  def genres_of(tag_ids)
+    run = run_on("cards")
+    ready(run, 99, tag_ids:)
+    Steam::CardMapping.call(Steam::App.find_by!(appid: 99), tag_names: THEME_TAGS).value![:genres]
+  end
+
+  test "a game's genres are the themes among its five most-voted tags, most-voted first; the sixth does not count" do
+    assert_equal %w[roguelike deckbuilder horror], genres_of([ 1, 2, 3, 4, 5, 6 ])
+  end
+
+  test "a tag missing from the tag names keeps its place among the five, and the sixth is not promoted" do
+    assert_equal %w[roguelike deckbuilder], genres_of([ 1, 404, 2, 3, 4, 5 ])
+  end
+
+  test "a game whose five most-voted tags are broad has no genre" do
+    assert_equal [], genres_of([ 7, 8, 1, 9, 10, 6 ])
+  end
+
+  test "two tags of one theme give it once, at the first one's place" do
+    assert_equal %w[rpg roguelike], Catalog::Themes.of([ "JRPG", "Roguelite", "Action RPG", "Roguelike" ])
   end
 
   test "a game without a review score or count is refused" do
@@ -202,7 +229,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     card = card_of(20)
     assert_equal [ Date.new(2011, 4, 19), "https://example.test/20.jpg", "https://store.steampowered.com/app/20/Game_20/" ],
       [ card.release_date, card.image_url, card.store_url ]
-    assert_equal [ "Publisher 20", %w[puzzle rpg], %w[indie action] ], [ card.publisher, card.genres, card.tags ]
+    assert_equal [ "Publisher 20", %w[puzzle rpg], %w[indie puzzle action rpg] ], [ card.publisher, card.genres, card.tags ]
     assert_equal [ [ "Studio 20" ], [ "Series 20" ] ], [ card.developers, card.franchises ]
     assert_equal({ "en" => [ "Game 20", "The game 20." ], "fr" => [ "Jeu 20", "Le jeu 20." ] },
       card.texts.to_h { |text| [ text.locale, [ text.title, text.short_description ] ] })

@@ -12,13 +12,15 @@ module ShelfLoading
 
   include Pagy::Method
 
-  # The kinds of sets, in their tab order; the first is the library's default.
-  KINDS = %w[tome publisher best_of_year].freeze
+  # The kinds of sets, in their tab order: today's, then the retired ones a
+  # season published before themes holds. A kind has a tab only when the
+  # season holds sets of it (shelf_kinds).
+  KINDS = %w[theme franchise studio hall_of_fame ufo tome publisher best_of_year].freeze
   SHELF_SIZE = 50
   # No shelf goes this far; a larger page would overflow the OFFSET.
   MAX_PAGE = 100_000
 
-  # A tome on the shelf: its set's kind and key, its name and the owner's
+  # A set on the shelf: its kind and key, its name and the owner's
   # owned / total cards.
   Spine = Data.define(:kind, :key, :label, :owned, :total)
 
@@ -55,6 +57,11 @@ module ShelfLoading
       views = Catalog::CardViews.call(slots.card_season_ids, locale: I18n.locale)
       @slots = slots.card_season_ids.each_with_object({}) { |id, ordered| ordered[id] = views[id] if views.key?(id) }
       @quantities = Game::Quantities.call(owner, @slots.keys)
+    end
+
+    # The KINDS `season` holds sets of, in tab order; none without a season.
+    def shelf_kinds(season)
+      KINDS & Catalog::SeasonShelf.kinds(season:)
     end
 
     # The page asked for in the parameter `key`: a number from 1 to

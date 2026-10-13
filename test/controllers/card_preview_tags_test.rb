@@ -71,9 +71,9 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select "main .button--primary", 1
     link = css_select("main a.public-card__store.button--link").sole
     assert_equal [ "See on Steam (new tab)", "noopener noreferrer external", "_blank" ], [ link.text.squish, link["rel"], link["target"] ]
-    # The slim top bar: the logo and the Steam sign-in image, no way back to
+    # The slim top bar: the wordmark and the Steam sign-in image, no way back to
     # the bridge, no tab bar.
-    assert_select ".top-bar__brand .top-bar__logo"
+    assert_select ".top-bar__brand svg.pixel-icon.top-bar__wordmark"
     assert_select ".top-bar__start > a", false
     assert_select ".top-bar__end form[action='/auth/steam'] img.steam-sign-in__image"
     assert_select "nav.tab-bar", false

@@ -6,7 +6,7 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
   def attributes(**overrides)
     {
       source_key: "src:620", publisher: "Valve", release_date: Date.new(2011, 4, 18),
-      genres: %w[action adventure], tags: %w[puzzle co-op], developers: [ "Valve", "Hidden Path" ], franchises: [ "Portal" ],
+      genres: %w[puzzle comedy], tags: %w[puzzle co-op], developers: [ "Valve", "Hidden Path" ], franchises: [ "Portal" ],
       image_url: "https://images.example.test/620.jpg", store_url: "https://store.example.test/620",
       texts: {
         "en" => { title: "Portal 2", short_description: "The sequel." },
@@ -48,7 +48,7 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     assert_equal "portal-2", card.slug
     assert_equal Date.new(2011, 4, 18), card.release_date
     assert_equal "Valve", card.publisher
-    assert_equal %w[action adventure], card.genres
+    assert_equal %w[puzzle comedy], card.genres
     assert_equal %w[puzzle co-op], card.tags
     assert_equal [ [ "Valve", "Hidden Path" ], [ "Portal" ] ], [ card.developers, card.franchises ]
     assert_equal "https://images.example.test/620.jpg", card.image_url
@@ -90,7 +90,7 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
 
     result = upsert(
       texts: { "en" => { title: "Portal 2: Remastered" }, "fr" => { title: "Portal 2 : Remasterisé", short_description: "Encore." } },
-      prestige_score: 0.5, prestige_score_version: 3, rating: 75.25, genres: %w[adventure], publisher: "Valve Corporation",
+      prestige_score: 0.5, prestige_score_version: 3, rating: 75.25, genres: %w[comedy], publisher: "Valve Corporation",
       developers: [ "Valve" ], franchises: [], review_count: 2_500
     )
 
@@ -103,7 +103,7 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     assert_equal "Portal 2: Remastered", card.text("en").title
     assert_nil card.text("en").short_description
     assert_equal "Portal 2 : Remasterisé", card.text("fr").title
-    assert_equal %w[adventure], card.genres
+    assert_equal %w[comedy], card.genres
     assert_equal "Valve Corporation", card.publisher
     assert_equal [ [ "Valve" ], [] ], [ card.developers, card.franchises ]
     assert_equal 2_500, card_season.review_count
@@ -222,8 +222,9 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     "a NaN rating" => { rating: Float::NAN },
     "a third locale" => { texts: { "en" => { title: "Portal 2" }, "fr" => { title: "Portal 2" }, "de" => { title: "Portal 2" } } },
     "texts that are not a hash" => { texts: [ "Portal 2" ] },
-    "genres that are not strings" => { genres: [ :action ] },
-    "a genre that is not a set key" => { genres: [ "Free To Play" ] },
+    "genres that are not strings" => { genres: [ :rpg ] },
+    "a genre outside the theme list" => { genres: [ "action" ] },
+    "a theme's name in place of its key" => { genres: [ "Souls-like" ] },
     "nil tags" => { tags: nil },
     "nil developers" => { developers: nil },
     "a developer that is not a string" => { developers: [ :valve ] },

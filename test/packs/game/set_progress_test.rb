@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Game::SetProgress (CAP-6): a player's distinct owned cards per set.
+# Game::SetProgress: a player's distinct owned cards per set.
 class Game::SetProgressTest < ActiveSupport::TestCase
   include CatalogSeeds
 
@@ -23,40 +23,39 @@ class Game::SetProgressTest < ActiveSupport::TestCase
     Game::SetProgress.call(player, @sets.values_at(*keys).map(&:id)).transform_keys { |id| @sets.values.find { |set| set.id == id }.key }
   end
 
-  test "a player owning 3 of a tome's cards, one twice, has 3 of it" do
-    first, second, third = members("action-1").first(3)
+  test "a player owning 3 of a theme's cards, one twice, has 3 of it" do
+    first, second, third = members("horror").first(3)
     hold(@player, first, 1)
     hold(@player, second, 2)
     hold(@player, third, 1)
 
-    assert_equal({ "action-1" => 3 }, progress(@player, "action-1", "action-2"))
+    assert_equal({ "horror" => 3 }, progress(@player, "horror", "ufos"))
   end
 
-  test "a card in a publisher set and a tome counts in both" do
-    card = members("p").first
-    tome = @sets.values.find { |set| set.kind == "tome" && members(set.key).include?(card) }
+  test "a card in two themes counts in both" do
+    card = members("pirates").first
     hold(@player, card, 1)
 
-    assert_equal({ "p" => 1, tome.key => 1 }, progress(@player, "p", tome.key))
+    assert_equal({ "pirates" => 1, "horror" => 1 }, progress(@player, "pirates", "horror", "rpg"))
   end
 
   test "a holding at 0 is not counted" do
-    hold(@player, members("rpg-1").first, 0)
+    hold(@player, members("rpg").first, 0)
 
-    assert_equal({}, progress(@player, "rpg-1"))
+    assert_equal({}, progress(@player, "rpg"))
   end
 
   test "another player's cards are theirs, and only the sets asked about are answered" do
-    hold(accounts_players(:moderator), members("rpg-1").first, 1)
-    hold(@player, (members("rpg-1") - members("2011")).last, 1)
+    hold(accounts_players(:moderator), members("rpg").first, 1)
+    hold(@player, members("rpg").last, 1)
 
-    assert_equal({ "rpg-1" => 1 }, progress(accounts_players(:moderator), "rpg-1"))
-    assert_equal({ "rpg-1" => 1 }, progress(@player, "rpg-1", "2011"))
-    assert_equal({}, progress(@player, "2011", "p"))
+    assert_equal({ "rpg" => 1 }, progress(accounts_players(:moderator), "rpg"))
+    assert_equal({ "rpg" => 1 }, progress(@player, "rpg", "ufos"))
+    assert_equal({}, progress(@player, "ufos", "pirates"))
   end
 
   test "one query for a player, none for a visitor or no set" do
-    hold(@player, members("p").first, 1)
+    hold(@player, members("pirates").first, 1)
     ids = @sets.values.map(&:id)
 
     assert_queries_count(1) { Game::SetProgress.call(@player, ids) }

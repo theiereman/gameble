@@ -1,10 +1,12 @@
 require "test_helper"
 require_relative "../support/game_packs"
+require_relative "../support/game_trades"
 
 class LiveStreamTest < ActiveSupport::TestCase
   include ActionCable::TestHelper
   include ActiveJob::TestHelper
   include GamePacks
+  include GameTrades
 
   setup do
     @hugo = accounts_players(:player)
@@ -112,5 +114,73 @@ class LiveStreamTest < ActiveSupport::TestCase
 
   test "other events tell nothing" do
     assert_empty LiveStream.notices(Game::TradeProposed.new(data: { trade_id: 1, proposer_id: @hugo.id, recipient_id: @hugo.id }))
+  end
+
+  def trade(proposer = @hugo, recipient = @sam)
+    conclude_trade(proposer, recipient, offer: { @epic => 1 }, request: { catalog_card_seasons(:rare_card_one).id => 1 })
+  end
+
+  def template(stream, target) = Nokogiri::HTML5.fragment(stream.css("turbo-stream[target=#{target}] template").sole.inner_html)
+
+  test "a trade enqueues one job after its commit, naming its trade" do
+    @sam = accounts_players(:moderator)
+    accepted = nil
+    assert_enqueued_jobs(1, only: LiveFeedJob) { accepted = trade }
+
+    assert_equal [ [ { trade_id: accepted.id } ] ], live_jobs.map { ActiveJob::Arguments.deserialize(it[:args]).first }
+    assert_empty batches
+  end
+
+  test "a public trade reaches the feed, the ticker queue and the strip, naming both players and both cards" do
+    @sam = accounts_players(:moderator).tap { it.update!(persona_name: "Sam") }
+
+    perform_enqueued_jobs(only: LiveFeedJob) { trade }
+
+    english = received(:en)
+    sentence = "Hugo and Sam traded Portal for Blue Depths"
+    feed = template(english, "feed-entries")
+    assert_equal sentence, feed.at_css(".feed__sentence").text
+    assert_equal 2, feed.css(".feed__thumbs .feed__thumb--framed").size
+    assert_equal "Trade", feed.at_css(".feed__tag--trade").text.strip
+    ticker = template(english, "live-ticker-queue")
+    assert_equal sentence, ticker.at_css(".ticker__sentence").text
+    assert_equal "Trade", ticker.at_css(".ticker__trade").text.strip
+    assert_empty ticker.css(".ticker__rarity")
+    assert_equal sentence, template(english, "live-strip").at_css(".public-card__live-sentence").text
+    assert_equal "Hugo et Sam ont échangé Portal contre Profondeurs bleues",
+      template(received(:fr), "feed-entries").at_css(".feed__sentence").text
+  end
+
+  test "a trade is not broadcast when either of its players is hidden from a visitor" do
+    @sam = accounts_players(:moderator)
+    trade
+    @sam.update!(visibility: :friends_only)
+    perform_enqueued_jobs(only: LiveFeedJob)
+    assert_no_broadcasts live(:en)
+
+    @sam.update!(visibility: :public)
+    trade(@sam, @hugo)
+    @hugo.update!(banned_at: Time.current)
+    perform_enqueued_jobs(only: LiveFeedJob)
+    assert_no_broadcasts live(:en)
+    assert_no_broadcasts live(:fr)
+  end
+
+  test "a trade rolled back enqueues nothing" do
+    @sam = accounts_players(:moderator)
+
+    ApplicationRecord.transaction do
+      trade
+      raise ActiveRecord::Rollback
+    end
+
+    assert_empty live_jobs
+    assert_empty batches
+  end
+
+  test "a trade's notice carries its trade" do
+    event = Game::TradeAccepted.new(data: { trade_id: 7, proposer_id: @hugo.id, recipient_id: @hugo.id })
+
+    assert_equal [ { trade_id: 7 } ], LiveStream.notices(event)
   end
 end

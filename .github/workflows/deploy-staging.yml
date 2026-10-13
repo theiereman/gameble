@@ -21,6 +21,7 @@ jobs:
     environment: staging
     permissions:
       contents: write   # the hook pushes the deployed/staging tag
+      packages: write   # the image and its build cache live on ghcr.io
     env:
       STAGING_BRANCH: develop
 
@@ -54,10 +55,6 @@ jobs:
         if: steps.gate.outputs.deploy == 'true'
         uses: docker/setup-buildx-action@v3
 
-      - name: Expose the Actions cache to the image build
-        if: steps.gate.outputs.deploy == 'true'
-        uses: crazy-max/ghaction-github-runtime@v3
-
       - name: Write the SSH access to the staging LXC
         if: steps.gate.outputs.deploy == 'true'
         env:
@@ -77,6 +74,7 @@ jobs:
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
           DISCORD_WEBHOOK_STAGING: ${{ secrets.DISCORD_WEBHOOK_STAGING }}
+          REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
           umask 077
           printf '%s' "$RAILS_MASTER_KEY" > config/master.key
@@ -84,7 +82,27 @@ jobs:
           printf '%s' "$DATABASE_PASSWORD" > config/database_password.key
           printf '%s' "$STEAM_API_KEY" > config/steam_api.key
           printf '%s' "$DISCORD_WEBHOOK_STAGING" > config/discord_webhook.staging.key
+          printf '%s' "$REGISTRY_PASSWORD" > config/registry_password.key
 
       - name: Deploy
         if: steps.gate.outputs.deploy == 'true'
         run: bin/kamal deploy -d staging
+
+      # Every release adds an image and leaves the cache it replaced untagged.
+      - name: Keep the last five staging images
+        if: steps.gate.outputs.deploy == 'true'
+        continue-on-error: true
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: gameble
+          package-type: container
+          min-versions-to-keep: 5
+
+      - name: Drop the replaced build caches
+        if: steps.gate.outputs.deploy == 'true'
+        continue-on-error: true
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: gameble-build-cache
+          package-type: container
+          delete-only-untagged-versions: true

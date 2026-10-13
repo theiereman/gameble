@@ -2,13 +2,14 @@
 # for tests that need many cards without going through UpsertDraftCard.
 module CatalogSeeds
   # A draft season (the next number) unless one is given, with one card and
-  # card-season per score, and an `en` and `fr` title per card ("Seed <i>").
-  # Per card, in the order of the scores: `release_dates` defaults to
-  # 2000-01-01, `publishers` to nil, `genres` to [], `ratings` to 80.0 and
-  # `score_versions` (the prestige score's version) to nil.
+  # card-season per score, and an `en` and `fr` title per card.
+  # Per card, in the order of the scores: `titles` defaults to "Seed <i>",
+  # `release_dates` to 2000-01-01, `publishers` to nil, `genres`,
+  # `developers` and `franchises` to [], `ratings` to 80.0, `review_counts`
+  # to nil and `score_versions` (the prestige score's version) to nil.
   # Returns the season.
   def seed_card_seasons(scores, season: nil, release_dates: nil, publishers: nil, genres: nil, ratings: nil, score_versions: nil,
-                        prefix: "seed")
+                        titles: nil, developers: nil, franchises: nil, review_counts: nil, prefix: "seed")
     season ||= Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
     return season if scores.empty?
 
@@ -17,30 +18,44 @@ module CatalogSeeds
     genres ||= Array.new(scores.size) { [] }
     ratings ||= Array.new(scores.size, 80.0)
     score_versions ||= Array.new(scores.size)
+    titles ||= Array.new(scores.size) { |index| "Seed #{index}" }
+    developers ||= Array.new(scores.size) { [] }
+    franchises ||= Array.new(scores.size) { [] }
+    review_counts ||= Array.new(scores.size)
 
     cards = scores.each_index.map do |index|
       key = "#{prefix}-#{season.number}-#{index}"
       { source_key: "test:#{key}", slug: key, release_date: release_dates.fetch(index), publisher: publishers.fetch(index),
-        genres: genres.fetch(index), image_url: "https://images.example.test/#{key}.jpg", store_url: "https://store.example.test/#{key}" }
+        genres: genres.fetch(index), developers: developers.fetch(index), franchises: franchises.fetch(index),
+        image_url: "https://images.example.test/#{key}.jpg", store_url: "https://store.example.test/#{key}" }
     end
     ids = Catalog::Card.insert_all!(cards, returning: :id).rows.flatten
     Catalog::CardText.insert_all!(ids.each_with_index.flat_map do |card_id, index|
-      %w[en fr].map { |locale| { card_id:, locale:, title: "Seed #{index}" } }
+      %w[en fr].map { |locale| { card_id:, locale:, title: titles.fetch(index) } }
     end)
     Catalog::CardSeason.insert_all!(ids.each_with_index.map do |card_id, index|
       { card_id:, season_id: season.id, prestige_score: scores.fetch(index), prestige_score_version: score_versions.fetch(index),
-        rating: ratings.fetch(index) }
+        rating: ratings.fetch(index), review_count: review_counts.fetch(index) }
     end)
     season
   end
 
-  # The sets acceptance draft (story 2.7), 150 distinct scores: publisher P with 5 cards and Q with 4; genre action
-  # 75, rpg 44, none 31; released in 2011 x 12, 2012 x 9, 2015 x 129.
+  # The sets acceptance draft, 150 distinct scores: publisher P with 5 cards and Q with 4; genres [roguelike] x 75
+  # (the even cards), [rpg, roguelike] x 44 (odd, below 88), [horror, pirates] x 8 (odd, 89 to 103), [horror] x 8
+  # (odd, 105 to 119), none x 15 (the UFOs); released in 2011 x 12, 2012 x 9, 2015 x 129. Published, it holds the
+  # theme sets roguelike (119 cards), rpg (44), horror (16) and pirates (8), and the UFOs (15).
   def seed_sets_draft
     release_dates = Array.new(12) { |i| Date.new(2011, 1 + i, 1) } + Array.new(9) { |i| Date.new(2012, 1 + i, 1) } +
       Array.new(129) { |i| Date.new(2015, 1, 1) + i }
     publishers = Array.new(150) { |i| if i.between?(140, 144) then "P" elsif i.between?(145, 148) then "Q" end }
-    genres = Array.new(150) { |i| if i.even? then [ "action" ] elsif i < 88 then [ "rpg", "action" ] else [] end }
+    genres = Array.new(150) do |i|
+      if i.even? then [ "roguelike" ]
+      elsif i < 88 then [ "rpg", "roguelike" ]
+      elsif i < 104 then [ "horror", "pirates" ]
+      elsif i < 120 then [ "horror" ]
+      else []
+      end
+    end
     ratings = Array.new(150) { |i| 50 + (i * 37 % 50) }
     seed_card_seasons(distinct_scores(150), release_dates:, publishers:, genres:, ratings:)
   end
@@ -49,6 +64,61 @@ module CatalogSeeds
   # sets are built by Catalog::PublishSeason. Returns the season.
   def publish_sets_draft
     season = seed_sets_draft
+    assert Catalog::PublishSeason.new.call(number: season.number).success?
+    season.reload
+  end
+
+  # A draft of 24 distinct scores, every card an RPG but the last two (the
+  # UFOs), released a month apart in card order: cards 0 to 2 of the
+  # franchise "Tom Clancy Franchise", titled "Tom Clancy's …"; cards 3 to 5
+  # developed by "CAPCOM Co., Ltd." twice then "Capcom", the first with
+  # 25,000 reviews; cards 6 to 8 of the franchise "Team17", developed by
+  # "Team17", titled "Team17 …", none reviewed. Published, it holds the
+  # theme rpg (22 cards), the franchise tom-clancy ("Tom Clancy", 3 cards),
+  # the studio capcom ("CAPCOM", 3 cards) and the UFOs (2): Team17 is
+  # named like a studio, and too little reviewed to be one.
+  def seed_franchises_and_studios_draft
+    count = 24
+    titles = Array.new(count) { |index| "Seed #{index}" }
+    titles[0, 3] = [ "Tom Clancy's Rainbow Six", "Tom Clancy's The Division", "Tom Clancy's Ghost Recon" ]
+    titles[6, 3] = [ "Team17 Worms", "Team17 Overcooked", "Team17 Golf" ]
+    franchises = Array.new(count) { |index| if index < 3 then [ "Tom Clancy Franchise" ] elsif index.between?(6, 8) then [ "Team17" ] else [] end }
+    developers = Array.new(count) { [] }
+    developers[3, 3] = [ [ "CAPCOM Co., Ltd." ], [ "CAPCOM Co., Ltd." ], [ "Capcom" ] ]
+    developers[6, 3] = Array.new(3) { [ "Team17" ] }
+    review_counts = Array.new(count)
+    review_counts[3] = 25_000
+    seed_card_seasons(distinct_scores(count), titles:, franchises:, developers:, review_counts:,
+      release_dates: Array.new(count) { |index| Date.new(2000, 1, 1) >> index },
+      genres: Array.new(count) { |index| index < count - 2 ? [ "rpg" ] : [] })
+  end
+
+  # The franchises and studios draft, published. Returns the season.
+  def publish_franchises_and_studios_draft
+    season = seed_franchises_and_studios_draft
+    assert Catalog::PublishSeason.new.call(number: season.number).success?
+    season.reload
+  end
+
+  # A draft of 24 distinct scores, every card an RPG, released a month apart
+  # in card order, the first eight at a rating and review count: 0 at 97 %
+  # and 20,000 reviews, 1 at 98 % and 999, 2 at 69 % and 20,000, 3 at 40 %
+  # and 20,000, 4 at 85 % and 200,000, 5 at 98 % and 250,000, 6 at 96 % and
+  # 50,000, 7 at 99 % unreviewed; the others at 80 % unreviewed. Published,
+  # it holds the theme rpg (24 cards) and the hall of fame sets intouchables
+  # (cards 0 and 5), pepites (1), mal-aimes (2 and 3) and phenomenes (4 and
+  # 5).
+  def seed_hall_of_fame_draft
+    count = 24
+    seed_card_seasons(distinct_scores(count), genres: Array.new(count) { [ "rpg" ] },
+      ratings: [ 97, 98, 69, 40, 85, 98, 96, 99 ] + Array.new(count - 8, 80),
+      review_counts: [ 20_000, 999, 20_000, 20_000, 200_000, 250_000, 50_000, nil ] + Array.new(count - 8),
+      release_dates: Array.new(count) { |index| Date.new(2000, 1, 1) >> index })
+  end
+
+  # The hall of fame draft, published. Returns the season.
+  def publish_hall_of_fame_draft
+    season = seed_hall_of_fame_draft
     assert Catalog::PublishSeason.new.call(number: season.number).success?
     season.reload
   end
