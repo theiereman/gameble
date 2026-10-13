@@ -1,6 +1,7 @@
 require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 require_relative "../support/steam_api_stubs"
+require_relative "../support/steam_sign_in"
 
 # A player's public profile: a player signs in, their
 # Steam persona name is stored, and they find the link to their profile in
@@ -10,6 +11,7 @@ require_relative "../support/steam_api_stubs"
 class PublicProfileTest < ApplicationSystemTestCase
   include CatalogSeeds
   include SteamApiStubs
+  include SteamSignIn
 
   setup do
     stub_steam_api
@@ -19,13 +21,10 @@ class PublicProfileTest < ApplicationSystemTestCase
     pirates = Catalog::Set.find_by!(season_id: @season.id, key: "pirates")
     @owned = Catalog::SetMembership.where(set_id: pirates.id).order(:position, :id).pluck(:card_season_id)
     @owned.each_with_index { |id, index| Game::Holding.create!(player_id: @player.id, card_season_id: id, quantity: index.zero? ? 2 : 1) }
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{@player.steam_id}")
+    mock_steam_sign_in(@player.steam_id)
   end
 
   teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
     unstub_steam_api
   end
 

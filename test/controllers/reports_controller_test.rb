@@ -1,25 +1,14 @@
 require "test_helper"
 require_relative "../support/counting_rate_limit"
+require_relative "../support/steam_sign_in"
 
 class ReportsControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
+  include SteamSignIn
 
   setup do
-    OmniAuth.config.test_mode = true
     @owner = accounts_players(:player)
     @reporter = Accounts::Player.create!(steam_id: "76561197960390201")
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
-  def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
-    assert session[:player_id]
   end
 
   def report_path_of(owner, locale: :en) = brother_report_path(locale:, token: owner.token)

@@ -1,29 +1,18 @@
 require "test_helper"
 require_relative "../support/counting_rate_limit"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # The hub's daily booster panel and its collection (CAP-16, R8): end to
 # end, the result page of a bonus pack, and every refusal.
 class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
   include GamePacks
+  include SteamSignIn
 
   setup do
     Game::DrawPool.reset!
-    OmniAuth.config.test_mode = true
     @player = accounts_players(:player)
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
-  def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
-    assert session[:player_id]
   end
 
   def reserve_badge

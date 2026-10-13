@@ -142,3 +142,10 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-opening-an-invite-link-sends-the-invitation-plan.md`
   summary: A page on another site can send a signed-in player to an invite link, which now sends the invitation, or accepts the owner's pending one, without a click; once accepted, no path removes the friendship.
   evidence: The session cookie is SameSite=Lax, so a top-level cross-site GET arrives signed in and the page's own POST carries a valid CSRF token. The auto-send is what the ticket asks for, and invite links are opened from chat apps on other sites, so the page cannot tell them from a hostile redirect. Author to decide: keep it, never auto-accept the owner's pending invitation (show the button instead), or add removing a friend.
+
+## Deferred from: build of story-request-test-helpers-shared-plan (2026-10-13)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-request-test-helpers-shared-plan.md`
+  summary: The `hold` test helper is still copied in about 20 test files (the game pack unit tests, the trades and reposts controller tests, the integration shell test, the trades system test) beside `LibraryRequests#hold`, with differing signatures (`reserved:`, `gained_at:`, a `player:` default).
+  evidence: `grep -rn "def hold" test`; named with the sign-in copies in the collection-and-sharing retrospective (D2); the request-test helpers ticket shared the sign-in helpers only.
+- The `hold` comment in `test/support/library_requests.rb` still names AD-26; pre-existing, to fold into the repo-wide planning-id sweep.

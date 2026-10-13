@@ -1,6 +1,7 @@
 require "test_helper"
 require_relative "../../support/counting_rate_limit"
 require_relative "../../support/hidden_back_office"
+require_relative "../../support/steam_sign_in"
 
 module BackOffice
   # To whoever is not staff, every back-office address, Mission Control's
@@ -9,6 +10,7 @@ module BackOffice
   class HiddenTest < ActionDispatch::IntegrationTest
     include CountingRateLimit
     include HiddenBackOffice
+    include SteamSignIn
 
     TOKEN = "A" * 24
     VERBS = %i[get head post patch put delete].freeze
@@ -24,22 +26,11 @@ module BackOffice
       (app + engine).map { filled(it) }.uniq
     end
 
+    def sign_in_origin = "/fr"
+
     setup do
-      OmniAuth.config.test_mode = true
       @moderator = accounts_players(:moderator)
       @target = accounts_players(:player)
-    end
-
-    teardown do
-      OmniAuth.config.mock_auth.delete(:steam)
-      OmniAuth.config.test_mode = false
-    end
-
-    def sign_in(player)
-      OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-      post "/auth/steam", params: { origin: "/fr" }
-      follow_redirect!
-      assert_equal player.id, session[:player_id]
     end
 
     def unknown_address_body

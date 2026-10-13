@@ -1,5 +1,6 @@
 require "test_helper"
 require_relative "../support/steam_api_stubs"
+require_relative "../support/steam_sign_in"
 require Rails.root.join("db/migrate/20261009150000_strip_remote_ip_from_event_store_metadata").to_s
 
 # The event store keeps no IP address: events published during a request
@@ -7,19 +8,17 @@ require Rails.root.join("db/migrate/20261009150000_strip_remote_ip_from_event_st
 # events stored before.
 class EventStoreMetadataTest < ActionDispatch::IntegrationTest
   include SteamApiStubs
+  include SteamSignIn
 
   IP = "203.0.113.7".freeze
   STEAM_ID = "76561197960287930".freeze
 
   setup do
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{STEAM_ID}")
+    mock_steam_sign_in(STEAM_ID)
     stub_steam_api
   end
 
   teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
     unstub_steam_api
   end
 

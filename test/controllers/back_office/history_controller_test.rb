@@ -1,12 +1,15 @@
 require "test_helper"
 require_relative "../../support/hidden_back_office"
+require_relative "../../support/steam_sign_in"
 
 module BackOffice
   class HistoryControllerTest < ActionDispatch::IntegrationTest
     include HiddenBackOffice
+    include SteamSignIn
+
+    def sign_in_origin = "/fr"
 
     setup do
-      OmniAuth.config.test_mode = true
       @target = accounts_players(:player)
       @target.update!(persona_name: "Gabe the Rude")
       @moderator = accounts_players(:moderator)
@@ -14,18 +17,6 @@ module BackOffice
       @administrator = accounts_players(:administrator)
       @banned = accounts_players(:banned)
       @banned.update!(persona_name: "Exile")
-    end
-
-    teardown do
-      OmniAuth.config.mock_auth.delete(:steam)
-      OmniAuth.config.test_mode = false
-    end
-
-    def sign_in(player)
-      OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-      post "/auth/steam", params: { origin: "/fr" }
-      follow_redirect!
-      assert_equal player.id, session[:player_id]
     end
 
     def action(kind, player, at, staff: @moderator, reason: nil)

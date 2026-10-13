@@ -1,5 +1,6 @@
 require "test_helper"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # The shell around every page (story 8.1; AD-28; DESIGN.md, Chrome;
 # EXPERIENCE.md, Toast): the head's metas and font preloads, the top bar for
@@ -7,22 +8,7 @@ require_relative "../support/game_packs"
 # that replace the flash, and the back-office variant.
 class ShellTest < ActionDispatch::IntegrationTest
   include GamePacks
-
-  setup do
-    OmniAuth.config.test_mode = true
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
-  def sign_in(player, origin: "/en")
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: origin }
-    follow_redirect!
-    assert_equal player.id, session[:player_id]
-  end
+  include SteamSignIn
 
   def hold(player, card_season, quantity)
     Game::Holding.create!(player_id: player.id, card_season_id: catalog_card_seasons(card_season).id, quantity:)

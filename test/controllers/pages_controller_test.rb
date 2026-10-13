@@ -1,6 +1,7 @@
 require "test_helper"
 require_relative "../support/game_packs"
 require_relative "../support/game_trades"
+require_relative "../support/steam_sign_in"
 
 # The hub, "Pont de commandement" (story 8.2; DESIGN.md: Menu item, Showcase,
 # Daily booster panel, Set progress row, Signed-out hub, Sign-in panel), as
@@ -8,6 +9,7 @@ require_relative "../support/game_trades"
 class PagesControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
   include GameTrades
+  include SteamSignIn
 
   PLAYER_HUB_QUERIES = 19
   VISITOR_HUB_QUERIES = 6
@@ -16,26 +18,16 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
   setup do
     Game::DrawPool.reset!
-    OmniAuth.config.test_mode = true
     @player = accounts_players(:player)
     @legal = Rails.configuration.x.legal
   end
 
   teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
     Rails.configuration.x.legal = @legal
   end
 
   def configure_legal(contact_email: nil, host_name: nil, host_address: nil)
     Rails.configuration.x.legal = ActiveSupport::OrderedOptions.new.update(contact_email:, host_name:, host_address:)
-  end
-
-  def sign_in(player, origin: "/en")
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: origin }
-    follow_redirect!
-    assert_equal player.id, session[:player_id]
   end
 
   def epic_name(locale)

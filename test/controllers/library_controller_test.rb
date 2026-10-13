@@ -1,6 +1,7 @@
 require "test_helper"
 require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
+require_relative "../support/steam_sign_in"
 
 # The collection of the whole season: the top bar's unique cards, the
 # kinds of sets the season holds and the sets of one kind as progress rows
@@ -10,15 +11,7 @@ require_relative "../support/library_requests"
 class LibraryControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
-
-  setup do
-    OmniAuth.config.test_mode = true
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
+  include SteamSignIn
 
   # The season's cards in grid order.
   def season_cards(season) = Catalog::CardSeason.where(season_id: season.id).where.not(rarity: nil).order(:number, :id).ids

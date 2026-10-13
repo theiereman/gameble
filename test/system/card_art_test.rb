@@ -1,10 +1,13 @@
 require "application_system_test_case"
+require_relative "../support/steam_sign_in"
 
 # The card art through pixelcrush (AD-17): filtered in the card-art worker with
 # 32 colours, Steam's grey placeholder counted as missing, a CORS refusal
 # drawn on the main thread without palette. The back-office card preview is
 # the host page; card-art elements are added to it by script.
 class CardArtTest < ApplicationSystemTestCase
+  include SteamSignIn
+
   SAMPLE_CARD = "[data-specimen=common-s] .card__art".freeze
 
   # Adds one card-art element per URL, at the small art size, pinned to the
@@ -33,19 +36,13 @@ class CardArtTest < ApplicationSystemTestCase
   JS
 
   setup do
-    OmniAuth.config.test_mode = true
     administrator = accounts_players(:administrator)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{administrator.steam_id}")
+    mock_steam_sign_in(administrator.steam_id)
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
     visit back_office_cards_path(locale: :en)
     assert_selector SAMPLE_CARD, visible: :all
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
   end
 
   def sample_path

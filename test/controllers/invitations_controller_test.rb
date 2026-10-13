@@ -1,26 +1,16 @@
 require "test_helper"
 require_relative "../support/counting_rate_limit"
+require_relative "../support/steam_sign_in"
 
 class InvitationsControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
+  include SteamSignIn
 
   setup do
-    OmniAuth.config.test_mode = true
     @alice = accounts_players(:player)
     @bob = accounts_players(:moderator)
     @bob.update!(persona_name: "Sam")
     @alice.update!(persona_name: "Lea")
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
-  def sign_in(player, origin: "/en")
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: }
-    follow_redirect!
   end
 
   test "the Friends screen shows the link, the field and no invitation" do

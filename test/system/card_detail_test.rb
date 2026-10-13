@@ -1,6 +1,7 @@
 require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # A card's detail, "FICHE DE LA CARTE": opened from a theme's owned face,
 # from an empty slot (the faded card back, from a set's grid and from the
@@ -15,20 +16,12 @@ require_relative "../support/game_packs"
 class CardDetailTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GamePacks
+  include SteamSignIn
 
   PHONE = [ 390, 844 ].freeze
 
-  setup do
-    OmniAuth.config.test_mode = true
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
   def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
+    mock_steam_sign_in(player.steam_id)
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in

@@ -1,5 +1,6 @@
 require "application_system_test_case"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # The settings screen and the one motion switch: "Animations réduites" is
 # SYSTÈME / OUI / NON, kept on the player and mirrored in a cookie; the
@@ -10,16 +11,11 @@ require_relative "../support/game_packs"
 # switch is live.
 class SettingsTest < ApplicationSystemTestCase
   include GamePacks
+  include SteamSignIn
 
   setup do
     @player = accounts_players(:player)
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{@player.steam_id}")
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
+    mock_steam_sign_in(@player.steam_id)
   end
 
   def sign_in(path = nil)

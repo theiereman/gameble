@@ -2,6 +2,7 @@ require "test_helper"
 require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # A card's page as a share link opens it (CAP-9, story 4.5, reworked by the
 # epic 4 retrospective fixes, redrawn by story 10.3): only the card, never
@@ -15,6 +16,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
   include GamePacks
+  include SteamSignIn
 
   # Discordbot, the old Firefox Discord also fetches with, Twitterbot,
   # WhatsApp and an iOS 16 Safari.
@@ -30,14 +32,11 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     # A PUBLIC_URL exported in the shell would replace the request's base.
     @public_url = Rails.configuration.x.public_url
     Rails.configuration.x.public_url = nil
-    OmniAuth.config.test_mode = true
     @sharer = accounts_players(:player)
     @sharer.update_columns(persona_name: "Gabe the Brave")
   end
 
   teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
     Rails.configuration.x.public_url = @public_url
   end
 
@@ -222,7 +221,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_equal URI(card_page).path, origin
 
     newcomer = accounts_players(:moderator)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{newcomer.steam_id}")
+    mock_steam_sign_in(newcomer.steam_id)
     post form["action"], params: { origin: }
     follow_redirect!
 

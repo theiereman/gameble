@@ -3,6 +3,7 @@ require_relative "../../support/steam_api_stubs"
 require_relative "../../support/catalog_seeds"
 require_relative "../../support/counting_rate_limit"
 require_relative "../../support/hidden_back_office"
+require_relative "../../support/steam_sign_in"
 
 module BackOffice
   class ImportRunsControllerTest < ActionDispatch::IntegrationTest
@@ -11,23 +12,16 @@ module BackOffice
     include CatalogSeeds
     include CountingRateLimit
     include HiddenBackOffice
+    include SteamSignIn
+
+    def sign_in_origin = "/fr"
 
     setup do
-      OmniAuth.config.test_mode = true
       stub_steam_api
     end
 
     teardown do
       unstub_steam_api
-      OmniAuth.config.mock_auth.delete(:steam)
-      OmniAuth.config.test_mode = false
-    end
-
-    def sign_in(player)
-      OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-      post "/auth/steam", params: { origin: "/fr" }
-      follow_redirect!
-      assert_equal player.id, session[:player_id]
     end
 
     # Any request may enqueue the signed-in player's last-seen write.

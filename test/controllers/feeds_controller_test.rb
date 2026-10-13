@@ -1,6 +1,7 @@
 require "test_helper"
 require_relative "../support/game_packs"
 require_relative "../support/game_trades"
+require_relative "../support/steam_sign_in"
 
 # The activity feed: readable signed out, newest pulls and first discoveries
 # first, under the All and Friends tabs and the type filters; a GET writes
@@ -8,27 +9,16 @@ require_relative "../support/game_trades"
 class FeedsControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
   include GameTrades
+  include SteamSignIn
 
   setup do
     @player = accounts_players(:player)
     @player.update!(persona_name: "Hugo")
   end
 
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
   def open_epic(player = @player)
     create_pack(player, cards: [ fixture_tier_ids[3] ] * 5)
     Game::OpenPack.new.call(player:).value!
-  end
-
-  def sign_in(player)
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
   end
 
   def befriend(first, second)

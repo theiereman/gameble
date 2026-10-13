@@ -1,11 +1,14 @@
 require "test_helper"
 require_relative "../support/counting_rate_limit"
+require_relative "../support/steam_sign_in"
 
 class TradesControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
+  include SteamSignIn
+
+  def sign_in_origin = "/fr"
 
   setup do
-    OmniAuth.config.test_mode = true
     @alice = accounts_players(:player)
     @bob = accounts_players(:moderator)
     @carol = accounts_players(:administrator)
@@ -20,11 +23,6 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     hold(@alice, @soldier, 1)
     hold(@bob, @depths, 2)
     hold(@carol, @depths, 1)
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
   end
 
   def befriend(first, second)
@@ -42,12 +40,6 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
   def propose(player, recipient, offer:, request:)
     Game::ProposeTrade.new.call(player:, recipient:, offer:, request:).value!
-  end
-
-  def sign_in(player, origin: "/fr")
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: }
-    follow_redirect!
   end
 
   def from_lea = propose(@bob, @alice, offer: { @depths => 1 }, request: { @portal => 2 })

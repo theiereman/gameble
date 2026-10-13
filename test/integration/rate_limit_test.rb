@@ -1,9 +1,12 @@
 require "test_helper"
+require_relative "../support/steam_sign_in"
 
 # The sign-in throttle (config/initializers/rack_attack.rb): 10 sign-in
 # requests a minute per IP across POST /auth/steam, the callback and the
 # failure endpoint; page reads are never throttled.
 class RateLimitTest < ActionDispatch::IntegrationTest
+  include SteamSignIn
+
   IP = "203.0.113.7"
   OTHER_IP = "203.0.113.8"
 
@@ -15,15 +18,12 @@ class RateLimitTest < ActionDispatch::IntegrationTest
     @cache_store = Rack::Attack.cache.store
     Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
     Rack::Attack.reset!
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{accounts_players(:player).steam_id}")
+    mock_steam_sign_in(accounts_players(:player).steam_id)
   end
 
   teardown do
     Rack::Attack.reset!
     Rack::Attack.cache.store = @cache_store
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
   end
 
   # One sign-in request of each kind, in turn.

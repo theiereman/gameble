@@ -1,24 +1,14 @@
 require "test_helper"
+require_relative "../support/steam_sign_in"
 
 # The settings screen and the motion switch: the player's setting, else the
 # cookie, else the system, rendered as `html[data-motion]` ("reduced", "full"
 # or absent) and in the view-transition meta.
 class SettingsControllerTest < ActionDispatch::IntegrationTest
+  include SteamSignIn
+
   setup do
-    OmniAuth.config.test_mode = true
     @player = accounts_players(:player)
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
-  def sign_in(player = @player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
-    assert session[:player_id]
   end
 
   def reduced? = forced_motion == "reduced"
@@ -28,7 +18,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   # The settings screen
 
   test "a player's settings screen: language, visibility, reduced motion, sign-out, the account, support and the legal link, the system chosen by default" do
-    sign_in
+    sign_in(@player)
 
     get settings_path(locale: :fr)
 
@@ -60,7 +50,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   test "the settings screen in English, and the player's choice marked" do
     @player.update!(reduced_motion: true)
-    sign_in
+    sign_in(@player)
 
     get settings_path(locale: :en)
 
@@ -73,7 +63,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   test "an explicit no is marked too" do
     @player.update!(reduced_motion: false)
-    sign_in
+    sign_in(@player)
 
     get settings_path(locale: :en)
 
@@ -93,7 +83,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "reading the settings writes nothing: no cookie, no setting" do
-    sign_in
+    sign_in(@player)
 
     get settings_path(locale: :en)
 
@@ -106,7 +96,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   %w[private friends_only public].each do |choice|
     test "choosing #{choice} stores it at once and marks it" do
       @player.update!(visibility: "private") if choice == "public"
-      sign_in
+      sign_in(@player)
 
       patch settings_visibility_path(locale: :en), params: { visibility: choice }
 
@@ -121,7 +111,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   [ nil, "", "everyone", "Private", [ "private" ] ].each do |choice|
     test "#{choice.inspect} is no visibility: refused with its message, nothing changes" do
-      sign_in
+      sign_in(@player)
 
       patch settings_visibility_path(locale: :fr), params: { visibility: choice }
 
@@ -138,7 +128,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     Game::Holding.create!(player_id: bob.id, card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 1)
     Game::ProposeTrade.new.call(player: @player, recipient: bob, offer: { catalog_card_seasons(:portal_one).id => 1 },
       request: { catalog_card_seasons(:rare_card_one).id => 1 }).value!
-    sign_in
+    sign_in(@player)
 
     get settings_path(locale: :fr)
 
@@ -160,7 +150,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "with no trade open, PRIVÉ applies at once, without a dialog" do
-    sign_in
+    sign_in(@player)
 
     get settings_path(locale: :en)
 
@@ -174,7 +164,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
     assert_equal "public", @player.reload.visibility
 
-    sign_in
+    sign_in(@player)
     get settings_path(locale: :en, visibility: "private")
     assert_equal "public", @player.reload.visibility
   end
@@ -183,7 +173,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   { "on" => [ true, "reduced" ], "off" => [ false, "full" ] }.each do |choice, (value, cookie)|
     test "choosing #{choice} stores #{value} on the player and mirrors it in the cookie" do
-      sign_in
+      sign_in(@player)
 
       patch settings_path(locale: :en), params: { reduced_motion: choice }
 
@@ -197,7 +187,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   test "choosing the system empties the setting and removes the cookie" do
     @player.update!(reduced_motion: true)
-    sign_in
+    sign_in(@player)
     cookies[:motion] = "reduced"
 
     patch settings_path(locale: :en), params: { reduced_motion: "system" }
@@ -210,7 +200,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   [ nil, "", "yes", "true", "reduced", [ "on" ] ].each do |choice|
     test "#{choice.inspect} is no choice: refused with its message, nothing changes" do
       @player.update!(reduced_motion: true)
-      sign_in
+      sign_in(@player)
 
       patch settings_path(locale: :fr), params: { reduced_motion: choice }
 
@@ -222,7 +212,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a change is a PATCH: no GET writes it" do
-    sign_in
+    sign_in(@player)
 
     get settings_path(locale: :en, reduced_motion: "on")
 
@@ -233,7 +223,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   # The one switch: setting, else cookie, else system
 
   test "by default nothing is forced: no data-motion, and the view-transition meta renders" do
-    sign_in
+    sign_in(@player)
 
     get home_path(locale: :en)
 
@@ -243,7 +233,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   test "a player's reduced motion sets html[data-motion=reduced] and renders no view-transition meta, on every page" do
     @player.update!(reduced_motion: true)
-    sign_in
+    sign_in(@player)
 
     [ home_path(locale: :en), settings_path(locale: :en), booster_path(locale: :en), library_path(locale: :fr) ].each do |path|
       get path
@@ -255,7 +245,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   test "a player's explicit no forces full motion over the system's preference, view transitions included" do
     @player.update!(reduced_motion: false)
-    sign_in
+    sign_in(@player)
 
     [ home_path(locale: :en), settings_path(locale: :fr) ].each do |path|
       get path
@@ -295,7 +285,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   test "the player's setting wins over a cookie that says otherwise" do
     @player.update!(reduced_motion: false)
-    sign_in
+    sign_in(@player)
     cookies[:motion] = "reduced"
 
     get home_path(locale: :en)
@@ -310,7 +300,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a signed-in player who follows the system ignores the cookie" do
-    sign_in
+    sign_in(@player)
 
     [ "reduced", "full" ].each do |value|
       cookies[:motion] = value
@@ -342,7 +332,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   test "signing out writes the player's setting to the cookie, and the signed-out hub follows it" do
     @player.update!(reduced_motion: true)
-    sign_in
+    sign_in(@player)
 
     delete session_path(locale: :en)
 
@@ -355,14 +345,14 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   test "signing out with an explicit no keeps it as a cookie; with the system, removes the cookie" do
     @player.update!(reduced_motion: false)
-    sign_in
+    sign_in(@player)
     delete session_path(locale: :en)
     assert_equal "full", cookies[:motion]
     follow_redirect!
     assert_equal "full", forced_motion
 
     @player.update!(reduced_motion: nil)
-    sign_in
+    sign_in(@player)
     cookies[:motion] = "reduced"
     delete session_path(locale: :en)
 
@@ -372,7 +362,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the player menu links to the settings, and the tab bar's PLUS opens the rest of the ship" do
-    sign_in
+    sign_in(@player)
 
     get home_path(locale: :en)
 
@@ -381,7 +371,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the PLUS screen lists the screens that are not tabs, settings among them" do
-    sign_in
+    sign_in(@player)
 
     get more_path(locale: :fr)
 
@@ -397,7 +387,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the settings screen is under the PLUS tab, with a contextual phone back" do
-    sign_in
+    sign_in(@player)
 
     get settings_path(locale: :fr)
 
@@ -407,7 +397,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the hub tab is current on the hub only" do
-    sign_in
+    sign_in(@player)
 
     get more_path(locale: :en)
 

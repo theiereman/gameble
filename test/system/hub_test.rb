@@ -1,5 +1,6 @@
 require "application_system_test_case"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # The hub, "Pont de commandement" (story 8.2): its layout on a desktop and
 # two phones, signed in and out; the sign-in panel and its focus; the menu's
@@ -7,18 +8,13 @@ require_relative "../support/game_packs"
 # signing in and out.
 class HubTest < ApplicationSystemTestCase
   include GamePacks
+  include SteamSignIn
 
   PHONES = { "390" => [ 390, 844 ], "360" => [ 360, 740 ] }.freeze
 
   setup do
     @player = accounts_players(:player)
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{@player.steam_id}")
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
+    mock_steam_sign_in(@player.steam_id)
   end
 
   def assert_no_sideways_scroll

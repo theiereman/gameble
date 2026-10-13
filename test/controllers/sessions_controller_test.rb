@@ -1,22 +1,20 @@
 require "test_helper"
 require_relative "../support/steam_api_stubs"
+require_relative "../support/steam_sign_in"
 
 class SessionsControllerTest < ActionDispatch::IntegrationTest
   include SteamApiStubs
+  include SteamSignIn
 
   STEAM_ID = "76561197960287930".freeze
-  CLAIMED_ID = "https://steamcommunity.com/openid/id/#{STEAM_ID}".freeze
 
   setup do
-    OmniAuth.config.test_mode = true
-    mock_steam(CLAIMED_ID)
+    mock_steam_sign_in(STEAM_ID)
     stub_steam_api
     @legal = Rails.configuration.x.legal
   end
 
   teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
     unstub_steam_api
     Rails.configuration.x.legal = @legal
   end
@@ -212,7 +210,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "the sign-in marker is consumed by the callback" do
     sign_in_with_steam
     delete session_path(locale: :en)
-    mock_steam("https://steamcommunity.com/openid/id/76561197960287931")
+    mock_steam_sign_in("76561197960287931")
 
     get steam_callback_path
 
@@ -387,7 +385,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   def sign_in_banned(origin: "/fr")
-    mock_steam("https://steamcommunity.com/openid/id/#{accounts_players(:banned).steam_id}")
+    mock_steam_sign_in(accounts_players(:banned).steam_id)
     post "/auth/steam", params: { origin: }
     follow_redirect!
   end
@@ -395,7 +393,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "a banned player's sign-in is refused on a page that shows the moderator's reason and the contact" do
     configure_legal_contact("contact@example.test")
     record_ban(:ban, 1.day.ago, reason: "Insults in the name")
-    mock_steam("https://steamcommunity.com/openid/id/#{accounts_players(:banned).steam_id}")
+    mock_steam_sign_in(accounts_players(:banned).steam_id)
     post "/auth/steam", params: { origin: "/fr" }
     session_id_before = session[:session_id]
 
@@ -624,7 +622,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "a banned player's name is not stored" do
     banned = accounts_players(:banned)
     stub_player_summary(banned.steam_id, "Banned Brother")
-    mock_steam("https://steamcommunity.com/openid/id/#{banned.steam_id}")
+    mock_steam_sign_in(banned.steam_id)
 
     sign_in_with_steam(origin: "/fr")
 

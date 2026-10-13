@@ -1,22 +1,18 @@
 require "test_helper"
 require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
+require_relative "../support/steam_sign_in"
 
 class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
+  include SteamSignIn
 
   setup do
-    OmniAuth.config.test_mode = true
     @player = accounts_players(:player)
     @friend = accounts_players(:moderator)
     @friend.update_columns(persona_name: "Léa")
     Game::Friendship.create!(low_player_id: [ @player.id, @friend.id ].min, high_player_id: [ @player.id, @friend.id ].max)
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
   end
 
   def frame_id(player) = "friend-profile-#{player.token}"

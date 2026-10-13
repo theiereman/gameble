@@ -1,28 +1,17 @@
 require "test_helper"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 class AccountsControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
+  include SteamSignIn
 
   setup do
-    OmniAuth.config.test_mode = true
     @player = accounts_players(:player)
   end
 
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
-  def sign_in(steam_id = @player.steam_id)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
-    assert session[:player_id]
-  end
-
   test "the settings screen has the COMPTE row and the delete dialog, the button disabled by script only" do
-    sign_in
+    sign_in(@player)
 
     get settings_path(locale: :fr)
 
@@ -47,7 +36,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     test "typing #{word.inspect} deletes the account, signs the player out and lands on the hub with a toast" do
       create_pack(@player)
       token = @player.token
-      sign_in
+      sign_in(@player)
 
       delete account_path(locale: :fr), params: { confirmation: word }
 
@@ -67,7 +56,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
 
   test "the English word is DELETE, and the player's motion preference stays as a cookie" do
     @player.update!(reduced_motion: true)
-    sign_in
+    sign_in(@player)
 
     delete account_path(locale: :en), params: { confirmation: "delete" }
 
@@ -80,7 +69,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
   [ nil, "", "SUPPRIME", "SUPPRIMER DÉFINITIVEMENT", "DELETE", [ "SUPPRIMER" ] ].each do |word|
     test "#{word.inspect} is not the word: nothing is deleted, back to the settings with the reason" do
       create_pack(@player)
-      sign_in
+      sign_in(@player)
 
       delete account_path(locale: :fr), params: { confirmation: word }
 
@@ -101,7 +90,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "another browser still signed in as the deleted player becomes a visitor" do
-    sign_in
+    sign_in(@player)
     other_browser = open_session
     other_browser.post "/auth/steam", params: { origin: "/en" }
     other_browser.follow_redirect!
@@ -118,10 +107,10 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
 
   test "the Steam id signs in again as a new player" do
     steam_id = @player.steam_id
-    sign_in
+    sign_in(@player)
     delete account_path(locale: :en), params: { confirmation: "DELETE" }
 
-    sign_in(steam_id)
+    sign_in_new_player(steam_id)
 
     assert_not_equal @player.id, session[:player_id]
     assert_equal steam_id, Accounts::Player.find(session[:player_id]).steam_id

@@ -1,5 +1,6 @@
 require "test_helper"
 require_relative "../../support/hidden_back_office"
+require_relative "../../support/steam_sign_in"
 
 module BackOffice
   # Mission Control Jobs at /back-office/jobs, administrators only (R7).
@@ -7,21 +8,9 @@ module BackOffice
   # adapter: its dashboard renders, with no job in it.
   class JobsTest < ActionDispatch::IntegrationTest
     include HiddenBackOffice
-    setup do
-      OmniAuth.config.test_mode = true
-    end
+    include SteamSignIn
 
-    teardown do
-      OmniAuth.config.mock_auth.delete(:steam)
-      OmniAuth.config.test_mode = false
-    end
-
-    def sign_in(player)
-      OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-      post "/auth/steam", params: { origin: "/fr" }
-      follow_redirect!
-      assert_equal player.id, session[:player_id]
-    end
+    def sign_in_origin = "/fr"
 
     test "an administrator opens the Mission Control dashboard" do
       sign_in(accounts_players(:administrator))

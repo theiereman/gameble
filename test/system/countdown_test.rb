@@ -1,21 +1,17 @@
 require "application_system_test_case"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # The countdown to the next pack in the top bar's packs chip, on the hub
 # (R4): it ticks, and one second after zero the page refreshes by morphing,
 # the new pack counted in menu 01 and the page's elements kept.
 class CountdownTest < ApplicationSystemTestCase
   include GamePacks
+  include SteamSignIn
 
   setup do
     @player = accounts_players(:player)
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{@player.steam_id}")
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
+    mock_steam_sign_in(@player.steam_id)
   end
 
   COUNTDOWN = ".top-bar .packs-chip__next[data-controller=countdown]".freeze

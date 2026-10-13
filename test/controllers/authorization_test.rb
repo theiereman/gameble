@@ -1,4 +1,5 @@
 require "test_helper"
+require_relative "../support/steam_sign_in"
 
 # A controller action that forgets its policy decision (AD-14).
 class UnguardedController < ApplicationController
@@ -16,21 +17,7 @@ class StaffOnlyController < ApplicationController
 end
 
 class AuthorizationTest < ActionDispatch::IntegrationTest
-  setup do
-    OmniAuth.config.test_mode = true
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
-  def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
-    assert_equal player.id, session[:player_id]
-  end
+  include SteamSignIn
 
   # The app's routes the tests need, plus the test-only controllers.
   def with_test_routes
@@ -121,7 +108,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     sign_in(banned)
     banned.update_columns(banned_at: Time.current)
 
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{banned.steam_id}")
+    mock_steam_sign_in(banned.steam_id)
     post "/auth/steam", params: { origin: "/en" }
     follow_redirect!
 
@@ -136,7 +123,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     moderator = accounts_players(:moderator)
     Accounts::BanPlayer.new.call(staff: moderator, player:, reason: "Cheating").value!
 
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
+    mock_steam_sign_in(player.steam_id)
     post "/auth/steam", params: { origin: "/en" }
     follow_redirect!
 

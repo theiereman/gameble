@@ -1,5 +1,6 @@
 require "application_system_test_case"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # The activity feed's frame: as wide as the hub on a desktop, signed in and
 # out, the All and Friends tabs above one "all" filter; on a phone, its
@@ -8,19 +9,14 @@ require_relative "../support/game_packs"
 # add some, and opens the sign-in panel for a visitor.
 class FeedTest < ApplicationSystemTestCase
   include GamePacks
+  include SteamSignIn
 
   PHONE = [ 390, 844 ].freeze
 
   setup do
     @player = accounts_players(:player)
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{@player.steam_id}")
+    mock_steam_sign_in(@player.steam_id)
     open_epic(@player)
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
   end
 
   test "signed out, the feed's list spans the hub's width under one choice of everything" do

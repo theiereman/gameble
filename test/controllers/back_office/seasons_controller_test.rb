@@ -1,26 +1,16 @@
 require "test_helper"
 require_relative "../../support/hidden_back_office"
 require_relative "../../support/catalog_seeds"
+require_relative "../../support/steam_sign_in"
 
 module BackOffice
   # The catalog seasons page of the back-office (AD-5), administrators only.
   class SeasonsControllerTest < ActionDispatch::IntegrationTest
     include HiddenBackOffice
     include CatalogSeeds
+    include SteamSignIn
 
-    setup { OmniAuth.config.test_mode = true }
-
-    teardown do
-      OmniAuth.config.mock_auth.delete(:steam)
-      OmniAuth.config.test_mode = false
-    end
-
-    def sign_in(player)
-      OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-      post "/auth/steam", params: { origin: "/fr" }
-      follow_redirect!
-      assert_equal player.id, session[:player_id]
-    end
+    def sign_in_origin = "/fr"
 
     def tier_cells
       %w[legendary epic rare uncommon common].map { |name| css_select("tr[data-season-number='2'] td[data-season-tier=#{name}]").first&.text }

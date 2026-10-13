@@ -1,5 +1,6 @@
 require "application_system_test_case"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # The booster screen (stories 8.11 and 8.12; EXPERIENCE.md: Booster,
 # Opening protocol): the canister sends the opening exchange and deals the
@@ -15,13 +16,13 @@ require_relative "../support/game_packs"
 # test but those named "with motion" and the loop budget's.
 class BoosterTest < ApplicationSystemTestCase
   include GamePacks
+  include SteamSignIn
 
   PHONE = [ 390, 844 ].freeze
 
   setup do
     @player = accounts_players(:player)
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{@player.steam_id}")
+    mock_steam_sign_in(@player.steam_id)
     reduce_motion(true)
     visit home_path(locale: :en)
     click_steam_sign_in
@@ -30,8 +31,6 @@ class BoosterTest < ApplicationSystemTestCase
 
   teardown do
     reduce_motion(false)
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
   end
 
   def reduce_motion(on)

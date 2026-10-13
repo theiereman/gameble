@@ -1,5 +1,6 @@
 require "application_system_test_case"
 require_relative "../support/steam_api_stubs"
+require_relative "../support/steam_sign_in"
 
 # Sharing a card (CAP-9, story 4.5, redrawn by story 10.3; EXPERIENCE Flow
 # 1, Flow 4): a holder opens the "Partager la carte" sheet from the card's
@@ -10,6 +11,7 @@ require_relative "../support/steam_api_stubs"
 # selected and copied by execCommand, or the player is told to copy it.
 class ShareCardTest < ApplicationSystemTestCase
   include SteamApiStubs
+  include SteamSignIn
 
   setup do
     # A PUBLIC_URL exported in the shell would replace the server's base.
@@ -19,18 +21,15 @@ class ShareCardTest < ApplicationSystemTestCase
     @holder = accounts_players(:player)
     stub_player_summary(@holder.steam_id, "Gabe the Brave")
     Game::Holding.create!(player_id: @holder.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
-    OmniAuth.config.test_mode = true
   end
 
   teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
     unstub_steam_api
     Rails.configuration.x.public_url = @public_url
   end
 
   def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
+    mock_steam_sign_in(player.steam_id)
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
@@ -117,7 +116,7 @@ class ShareCardTest < ApplicationSystemTestCase
     take_screenshot
 
     newcomer = accounts_players(:moderator)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{newcomer.steam_id}")
+    mock_steam_sign_in(newcomer.steam_id)
     within(".public-card__pitch") { click_on "Open my first boosters" }
     within("dialog#sign-in-panel[open]") { find(".steam-sign-in__button").click }
 

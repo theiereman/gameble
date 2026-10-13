@@ -1,11 +1,13 @@
 require "application_system_test_case"
+require_relative "../support/steam_sign_in"
 
 # A moderator works the queue of reported players: a ban keeps the player
 # from signing in and hides their profile from players; lifting it gives
 # both back. Staff still read a banned player's profile.
 class ModerationTest < ApplicationSystemTestCase
+  include SteamSignIn
+
   setup do
-    OmniAuth.config.test_mode = true
     @moderator = accounts_players(:moderator)
     @reported = accounts_players(:player)
     @reported.update!(persona_name: "Gabe the Rude")
@@ -15,13 +17,8 @@ class ModerationTest < ApplicationSystemTestCase
     Accounts::Report.create!(reporter: reporters[0], reported: accounts_players(:administrator), reason: "other")
   end
 
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
   def steam_identity(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
+    mock_steam_sign_in(player.steam_id)
   end
 
   def row(player) = "tr[data-player-token='#{player.token}']"

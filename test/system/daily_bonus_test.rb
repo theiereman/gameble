@@ -1,4 +1,5 @@
 require "application_system_test_case"
+require_relative "../support/steam_sign_in"
 
 # The hub's daily booster panel (CAP-16, story 10.4): collected in one press,
 # the claim answers in Turbo Stream, the canister arcs to the packs chip (and
@@ -7,17 +8,13 @@ require "application_system_test_case"
 # reserve (AD-7) it says so, in orange, and its button is disabled. Under
 # reduced motion no canister flies.
 class DailyBonusTest < ApplicationSystemTestCase
+  include SteamSignIn
+
   BADGE = ".hub-menu .menu-item[aria-keyshortcuts='1'] .menu-item__badge".freeze
 
   setup do
     @player = accounts_players(:player)
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{@player.steam_id}")
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
+    mock_steam_sign_in(@player.steam_id)
   end
 
   test "a player collects the daily booster from the hub" do

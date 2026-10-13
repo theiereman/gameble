@@ -1,6 +1,7 @@
 require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # The collection: a player reaches it from the hub's
 # menu 02 or the phone's COLLECTION tab, picks a set and sees its progress,
@@ -12,6 +13,7 @@ require_relative "../support/game_packs"
 class LibraryTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GamePacks
+  include SteamSignIn
 
   setup do
     @season = publish_sets_draft
@@ -20,13 +22,7 @@ class LibraryTest < ApplicationSystemTestCase
     @theme.first(3).each_with_index do |card_season_id, index|
       Game::Holding.create!(player_id: @player.id, card_season_id:, quantity: index == 1 ? 2 : 1)
     end
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{@player.steam_id}")
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
+    mock_steam_sign_in(@player.steam_id)
   end
 
   def members(key)

@@ -1,9 +1,11 @@
 require "application_system_test_case"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 class LiveUpdatesTest < ApplicationSystemTestCase
   include ActiveJob::TestHelper
   include GamePacks
+  include SteamSignIn
 
   setup do
     @hugo = accounts_players(:player)
@@ -14,12 +16,6 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     @max.update!(persona_name: "Max")
     @portal = catalog_card_seasons(:portal_one).id
     @depths = catalog_card_seasons(:rare_card_one).id
-    OmniAuth.config.test_mode = true
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
   end
 
   def befriend(first, second)
@@ -28,7 +24,7 @@ class LiveUpdatesTest < ApplicationSystemTestCase
   end
 
   def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
+    mock_steam_sign_in(player.steam_id)
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in

@@ -1,17 +1,19 @@
 require "application_system_test_case"
+require_relative "../support/steam_sign_in"
 
 # The card face as the server draws it at every size (back-office card
 # preview, administrators only): its art, the missing image, a long title,
 # the holo sheen in and out of the viewport, a Turbo restore.
 class CardPreviewTest < ApplicationSystemTestCase
+  include SteamSignIn
+
   SIZES = { "s" => [ 112, 168, 50, 51 ], "m" => [ 160, 240, 72, 74 ], "l" => [ 208, 312, 94, 97 ], "xl" => [ 240, 360, 109, 112 ] }.freeze
   SPECIMENS = Catalog::Rarity::TIERS.values.product(SIZES.keys).map { |parts| parts.join("-") } +
     Catalog::Rarity::TIERS.values.map { |rarity| "#{rarity}-m-booster" }
 
   setup do
-    OmniAuth.config.test_mode = true
     administrator = accounts_players(:administrator)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{administrator.steam_id}")
+    mock_steam_sign_in(administrator.steam_id)
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in
@@ -19,8 +21,6 @@ class CardPreviewTest < ApplicationSystemTestCase
 
   teardown do
     reduce_motion(false)
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
   end
 
   def reduce_motion(on)

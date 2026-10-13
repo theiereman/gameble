@@ -1,21 +1,11 @@
 require "test_helper"
+require_relative "../support/steam_sign_in"
 
 class PlayerStreamTagTest < ActionDispatch::IntegrationTest
+  include SteamSignIn
+
   setup do
-    OmniAuth.config.test_mode = true
     @player = accounts_players(:player)
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
-  def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
-    assert_equal player.id, session[:player_id]
   end
 
   def stream_source = css_select("turbo-cable-stream-source[channel=PlayerStreamChannel]").sole

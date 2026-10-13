@@ -1,6 +1,7 @@
 require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # The shell in a real browser (story 8.1): the top bar, the phone tab bar
 # under 720px only, no sideways scroll, toasts that close, the two fonts
@@ -11,22 +12,14 @@ require_relative "../support/game_packs"
 class ShellTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GamePacks
+  include SteamSignIn
 
   PHONES = { "390" => [ 390, 844 ], "360" => [ 360, 740 ] }.freeze
   FONTS = [ '16px "Space Mono"', '700 16px "Space Mono"', '16px "VT323"' ].freeze
   FAMILIES = [ "Space Mono", "VT323" ].freeze
 
-  setup do
-    OmniAuth.config.test_mode = true
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
   def sign_in(player, locale: :en)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
+    mock_steam_sign_in(player.steam_id)
     visit home_path(locale:)
     find(".top-bar .steam-sign-in__button").click
     assert_selector ".top-bar .player-chip"

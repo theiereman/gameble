@@ -1,6 +1,7 @@
 require "test_helper"
 require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
+require_relative "../support/steam_sign_in"
 
 # The collection of one set: its row current among its
 # kind's, its cards in slot order, owned faces with their copies and missing
@@ -9,15 +10,7 @@ require_relative "../support/library_requests"
 class LibrarySetTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
-
-  setup do
-    OmniAuth.config.test_mode = true
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
+  include SteamSignIn
 
   def title(card_season_id, locale = "en")
     Catalog::CardText.find_by!(card_id: Catalog::CardSeason.find(card_season_id).card_id, locale:).title

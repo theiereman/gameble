@@ -1,15 +1,7 @@
 # Helpers of the request tests of the library, the public profile and the
-# card detail (epic 4): signing a player in through the Steam mock, giving
-# them copies, reading a set's members, and counting a request's queries.
-# The including test turns OmniAuth's test mode on and off.
+# card detail: giving a player copies, reading a set's members, and counting
+# a request's queries. The including test signs in with SteamSignIn.
 module LibraryRequests
-  def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
-    assert_equal player.id, session[:player_id]
-  end
-
   # Copies of a card-season, last gained at `gained_at` (nil: before AD-26,
   # never new).
   def hold(player, card_season_id, quantity, gained_at: nil)

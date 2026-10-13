@@ -1,26 +1,16 @@
 require "test_helper"
 require_relative "../../support/hidden_back_office"
+require_relative "../../support/steam_sign_in"
 
 module BackOffice
   # The card preview of the back-office, administrators only.
   class CardsControllerTest < ActionDispatch::IntegrationTest
     include HiddenBackOffice
+    include SteamSignIn
     SPECIMENS = Catalog::Rarity::TIERS.values.product(%w[s m l xl]).map { |parts| parts.join("-") } +
       Catalog::Rarity::TIERS.values.map { |rarity| "#{rarity}-m-booster" }
 
-    setup { OmniAuth.config.test_mode = true }
-
-    teardown do
-      OmniAuth.config.mock_auth.delete(:steam)
-      OmniAuth.config.test_mode = false
-    end
-
-    def sign_in(player)
-      OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-      post "/auth/steam", params: { origin: "/fr" }
-      follow_redirect!
-      assert_equal player.id, session[:player_id]
-    end
+    def sign_in_origin = "/fr"
 
     test "an administrator sees every tier's face at each size, then at m with the booster's effects, all from the server" do
       sign_in(accounts_players(:administrator))

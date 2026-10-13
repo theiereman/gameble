@@ -1,28 +1,18 @@
 require "test_helper"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # The booster screen (EXPERIENCE.md, Ouverture de booster): the Booster
 # island with its props, an opened pack shown again, the booster top bar,
 # the no-JavaScript fallback, the bank in JSON, and the visitor's refusal.
 class BoostersControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
+  include SteamSignIn
 
   ISLAND = "[data-controller=turbo-mount-booster][data-turbo-mount-booster-component-value=Booster]".freeze
 
   setup do
     @player = accounts_players(:player)
-    OmniAuth.config.test_mode = true
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
-  def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
   end
 
   def props

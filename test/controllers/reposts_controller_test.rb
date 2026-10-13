@@ -1,27 +1,16 @@
 require "test_helper"
 require_relative "../support/counting_rate_limit"
+require_relative "../support/steam_sign_in"
 
 # Reposting a card from its detail, the booster and the hub: the answers in
 # Turbo Stream, HTML and JSON, and every refusal.
 class RepostsControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
+  include SteamSignIn
 
   setup do
-    OmniAuth.config.test_mode = true
     @player = accounts_players(:player)
     @portal = catalog_card_seasons(:portal_one).id
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
-  def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
-    assert session[:player_id]
   end
 
   def hold(card_season_id, quantity: 1)

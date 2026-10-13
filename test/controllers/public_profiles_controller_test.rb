@@ -1,20 +1,16 @@
 require "test_helper"
 require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
+require_relative "../support/steam_sign_in"
 
 class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
+  include SteamSignIn
 
   setup do
-    OmniAuth.config.test_mode = true
     @owner = accounts_players(:player)
     @owner.update_columns(persona_name: "Gabe the Brave")
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
   end
 
   # The list of sets as [ name, "owned / total" ] pairs, in order.

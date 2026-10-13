@@ -1,8 +1,10 @@
 require "application_system_test_case"
 require_relative "../support/catalog_seeds"
+require_relative "../support/steam_sign_in"
 
 class FriendsTest < ApplicationSystemTestCase
   include CatalogSeeds
+  include SteamSignIn
 
   setup do
     @player = accounts_players(:player)
@@ -13,13 +15,7 @@ class FriendsTest < ApplicationSystemTestCase
     Catalog::CardSeason.where(season_id: season.id).order(rarity: :desc, id: :asc).limit(4).pluck(:id).each do |id|
       Game::Holding.create!(player_id: @friend.id, card_season_id: id, quantity: 1)
     end
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{@player.steam_id}")
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
+    mock_steam_sign_in(@player.steam_id)
   end
 
   def sign_in

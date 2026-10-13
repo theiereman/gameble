@@ -2,6 +2,7 @@ require "test_helper"
 require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # A card's detail page (CAP-7, story 4.3; "FICHE DE LA CARTE", epic 10 R2,
 # R6): every fact in the viewer's language, the viewer's copies, the sets
@@ -18,17 +19,15 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
   include GamePacks
+  include SteamSignIn
 
   setup do
     # A PUBLIC_URL exported in the shell would replace the request's base.
     @public_url = Rails.configuration.x.public_url
     Rails.configuration.x.public_url = nil
-    OmniAuth.config.test_mode = true
   end
 
   teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
     Rails.configuration.x.public_url = @public_url
   end
 

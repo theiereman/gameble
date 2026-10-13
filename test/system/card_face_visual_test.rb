@@ -1,6 +1,7 @@
 require "application_system_test_case"
 require_relative "../support/card_baselines"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # The card face, pixel for pixel (story "Single card face"): tilted under a
 # resting pointer, at each size in the back-office preview and revealed in
@@ -13,19 +14,14 @@ require_relative "../support/game_packs"
 class CardFaceVisualTest < ApplicationSystemTestCase
   include CardBaselines
   include GamePacks
+  include SteamSignIn
 
   setup do
-    OmniAuth.config.test_mode = true
     page.driver.browser.execute_cdp("Emulation.setEmulatedMedia", features: [ { name: "prefers-reduced-motion", value: "" } ])
   end
 
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
   def sign_in(player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
+    mock_steam_sign_in(player.steam_id)
     visit home_path(locale: :en)
     click_steam_sign_in
     assert_signed_in

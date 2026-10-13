@@ -1,9 +1,12 @@
 require "test_helper"
+require_relative "../support/steam_sign_in"
 
 # The Content-Security-Policy (AD-27, config/initializers/content_security_policy.rb):
 # report-only for now, no inline script, nonces on styles only, Steam's
 # image hosts and the cable's ws(s) origin allowed.
 class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
+  include SteamSignIn
+
   setup { @public_url = Rails.configuration.x.public_url }
   teardown { Rails.configuration.x.public_url = @public_url }
 
@@ -49,20 +52,13 @@ class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
   end
 
   test "within a session the nonce stays the same from page to page, as Turbo visits need" do
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam",
-      uid: "https://steamcommunity.com/openid/id/#{accounts_players(:player).steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
+    sign_in(accounts_players(:player))
 
     get home_path(locale: :en)
     first = directive("style-src").second
     get library_path(locale: :en)
 
     assert_equal first, directive("style-src").second
-  ensure
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
   end
 
   test "connect-src allows the cable's origin from the public URL, wss for https and ws for http" do

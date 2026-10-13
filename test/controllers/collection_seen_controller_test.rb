@@ -1,6 +1,7 @@
 require "test_helper"
 require_relative "../support/counting_rate_limit"
 require_relative "../support/library_requests"
+require_relative "../support/steam_sign_in"
 
 # POST /:locale/library/seen (AD-26, story 10.1): the collection page posts
 # the latest gain it showed as new; the watermark keeps the greater value,
@@ -8,15 +9,10 @@ require_relative "../support/library_requests"
 class CollectionSeenControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
   include LibraryRequests
+  include SteamSignIn
 
   setup do
-    OmniAuth.config.test_mode = true
     @player = accounts_players(:player)
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
   end
 
   def mark(up_to, locale: :en)

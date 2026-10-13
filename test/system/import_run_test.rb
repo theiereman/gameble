@@ -1,16 +1,13 @@
 require "application_system_test_case"
+require_relative "../support/steam_sign_in"
 
 # The import run page follows its run without a manual reload (AD-19).
 class ImportRunTest < ApplicationSystemTestCase
-  setup do
-    OmniAuth.config.test_mode = true
-    administrator = accounts_players(:administrator)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{administrator.steam_id}")
-  end
+  include SteamSignIn
 
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
+  setup do
+    administrator = accounts_players(:administrator)
+    mock_steam_sign_in(administrator.steam_id)
   end
 
   test "an administrator starts an import and watches the app count grow, until the run completes" do

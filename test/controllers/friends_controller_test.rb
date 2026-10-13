@@ -1,24 +1,15 @@
 require "test_helper"
+require_relative "../support/steam_sign_in"
 
 class FriendsControllerTest < ActionDispatch::IntegrationTest
+  include SteamSignIn
+
   setup do
-    OmniAuth.config.test_mode = true
     @player = accounts_players(:player)
   end
 
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
-  def sign_in(player = @player)
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{player.steam_id}")
-    post "/auth/steam", params: { origin: "/en" }
-    follow_redirect!
-  end
-
   test "a player sees their code and an empty friends list" do
-    sign_in
+    sign_in(@player)
 
     get friends_path(locale: :fr)
 
@@ -38,7 +29,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     other = accounts_players(:moderator)
     other.update!(persona_name: "Sam")
     Game::Friendship.create!(low_player_id: [ @player.id, other.id ].min, high_player_id: [ @player.id, other.id ].max)
-    sign_in
+    sign_in(@player)
 
     get friends_path(locale: :en)
 
@@ -53,7 +44,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     sam = accounts_players(:moderator)
     sam.update!(persona_name: "Sam", visibility: "public")
     Game::Friendship.create!(low_player_id: [ @player.id, sam.id ].min, high_player_id: [ @player.id, sam.id ].max)
-    sign_in
+    sign_in(@player)
 
     get friends_path(locale: :fr)
 
@@ -74,7 +65,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     Game::Holding.create!(player_id: sam.id, card_season_id: portal, quantity: 1, reserved: 0)
     Game::Holding.create!(player_id: @player.id, card_season_id: soldier, quantity: 1, reserved: 0)
     trade = Game::ProposeTrade.new.call(player: sam, recipient: @player, offer: { portal => 1 }, request: { soldier => 1 }).value!
-    sign_in
+    sign_in(@player)
 
     get friends_path(locale: :fr)
     assert_select ".friends__friend a.button[href=?][aria-label='Échange avec Sam']", trade_path(locale: :fr, token: trade.token), "Échange"
@@ -89,7 +80,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     lea = accounts_players(:administrator)
     lea.update!(persona_name: "Léa", visibility: "private")
     Game::Friendship.create!(low_player_id: [ @player.id, lea.id ].min, high_player_id: [ @player.id, lea.id ].max)
-    sign_in
+    sign_in(@player)
 
     get friends_path(locale: :fr)
     assert_select ".friends__friend .trades-closed", "Le profil de Léa est privé : échanges fermés."
@@ -119,7 +110,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
       Game::FillBank.new.call(player: ada).value!
       Game::OpenPack.new.call(player: ada).value!
       bob.update_columns(last_seen_at: now - 3.hours)
-      sign_in
+      sign_in(@player)
 
       get friends_path(locale: :fr)
       assert_select ".friends__friend", 2
@@ -146,7 +137,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     ada.update_columns(persona_name: "Ada", last_seen_at: Time.current, visibility: "private")
     low, high = [ @player.id, ada.id ].minmax
     Game::Friendship.create!(low_player_id: low, high_player_id: high)
-    sign_in
+    sign_in(@player)
 
     get friends_path(locale: :fr)
     assert_select ".friends__friend .friends__presence--private", "Profil privé"
@@ -164,7 +155,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :fr)
     assert_select ".hub-menu .menu-item__meta", { text: /en ligne/, count: 0 }
 
-    sign_in
+    sign_in(@player)
     get home_path(locale: :fr)
     assert_select ".hub-menu a.menu-item[href='/fr/friends'] .menu-item__meta", "0 en ligne"
   end
@@ -173,7 +164,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     other = accounts_players(:moderator)
     other.update!(persona_name: "Sam")
     Game::Friendship.create!(low_player_id: [ @player.id, other.id ].min, high_player_id: [ @player.id, other.id ].max)
-    sign_in
+    sign_in(@player)
 
     get friends_path(locale: :fr)
 
@@ -192,7 +183,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "menu 04 and the PLUS row lead a player to Amis" do
-    sign_in
+    sign_in(@player)
 
     get home_path(locale: :fr)
     assert_select ".hub-menu a.menu-item[href='/fr/friends'][aria-keyshortcuts='4']"

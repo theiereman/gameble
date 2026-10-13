@@ -1,6 +1,7 @@
 require "test_helper"
 require_relative "../support/counting_rate_limit"
 require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
 
 # Opening a pack (R9, CAP-4): the booster's opening exchange (JSON, AD-23),
 # the form the booster screen falls back to without JavaScript, the pack's
@@ -8,24 +9,12 @@ require_relative "../support/game_packs"
 class PacksControllerTest < ActionDispatch::IntegrationTest
   include CountingRateLimit
   include GamePacks
+  include SteamSignIn
 
   NEW_STEAM_ID = "76561197960287930".freeze
 
   setup do
     Game::DrawPool.reset!
-    OmniAuth.config.test_mode = true
-  end
-
-  teardown do
-    OmniAuth.config.mock_auth.delete(:steam)
-    OmniAuth.config.test_mode = false
-  end
-
-  def sign_in(steam_id, origin: "/en")
-    OmniAuth.config.mock_auth[:steam] = OmniAuth::AuthHash.new(provider: "steam", uid: "https://steamcommunity.com/openid/id/#{steam_id}")
-    post "/auth/steam", params: { origin: }
-    follow_redirect!
-    assert session[:player_id]
   end
 
   # Menu 01 of the hub: the link to the booster screen.
@@ -45,7 +34,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a new player opens a pack with the form: it lands on the pack's page, face up, on every visit" do
-    sign_in(NEW_STEAM_ID)
+    sign_in_new_player(NEW_STEAM_ID)
     player = Accounts::Player.find_by!(steam_id: NEW_STEAM_ID)
 
     get home_path(locale: :en)
@@ -88,7 +77,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     player = accounts_players(:player)
     legendary = catalog_card_seasons(:legendary_card_one).id
     pack = create_pack(player, cards: [ legendary ] * 5, opened_at: 1.minute.ago)
-    sign_in(player.steam_id)
+    sign_in(player)
 
     get pack_path(pack.token, locale: :fr)
 
@@ -103,7 +92,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     player = accounts_players(:player)
     legendary = catalog_card_seasons(:legendary_card_one).id
     create_pack(player, cards: [ legendary ] * 5, available_at: 1.day.ago)
-    sign_in(player.steam_id)
+    sign_in(player)
 
     open_json(locale: :fr)
 
@@ -118,7 +107,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   test "with no pack left, the pack's page ends on the way back to the hub alone" do
     player = accounts_players(:player)
     pack = create_pack(player, available_at: 1.day.ago)
-    sign_in(player.steam_id)
+    sign_in(player)
 
     post packs_path(locale: :en)
     follow_redirect!
@@ -132,7 +121,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     player = accounts_players(:player)
     pack = create_pack(player, opened_at: 1.minute.ago)
     3.times { create_pack(player) }
-    sign_in(player.steam_id)
+    sign_in(player)
 
     assert_queries_match(/SELECT COUNT\(\*\) FROM "game_packs"/, count: 1) do
       assert_no_queries_match(/game_daily_bonus_claims/) { get pack_path(pack.token, locale: :en) }
@@ -144,7 +133,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   test "a daily bonus pack opened with the form shows its three cards" do
     player = accounts_players(:player)
     create_pack(player, kind: :bonus, cards: fixture_tier_ids.last(3), available_at: 1.day.ago)
-    sign_in(player.steam_id)
+    sign_in(player)
 
     post packs_path(locale: :en)
     follow_redirect!
@@ -155,7 +144,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the flash's notices and alerts still show, and nothing else of it" do
-    sign_in(NEW_STEAM_ID)
+    sign_in_new_player(NEW_STEAM_ID)
     follow_redirect!
 
     assert_select ".toasts > .toast", 1
@@ -166,7 +155,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     player = accounts_players(:player)
     foreign = create_pack(accounts_players(:moderator), opened_at: 1.minute.ago)
     unopened = create_pack(player)
-    sign_in(player.steam_id)
+    sign_in(player)
 
     [ foreign.token, unopened.token, "unknown-token" ].each do |token|
       get pack_path(token, locale: :en)
@@ -186,7 +175,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   test "an empty reserve greys menu 01's badge, and opening is refused back to the booster screen with an alert" do
     player = accounts_players(:player)
     create_pack(player, available_at: 1.day.from_now)
-    sign_in(player.steam_id)
+    sign_in(player)
 
     get home_path(locale: :fr)
     assert_equal "/fr/booster", open_item["href"]
@@ -220,7 +209,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   test "more than 30 openings a minute by one player are sent back to the hub with an alert" do
     player = accounts_players(:player)
     31.times { |index| create_pack(player, available_at: (index + 1).minutes.ago) }
-    sign_in(player.steam_id)
+    sign_in(player)
     with_counting_rate_limit(PacksController) do
       30.times do
         post packs_path(locale: :en)
@@ -245,7 +234,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     player = accounts_players(:player)
     now = Time.utc(2026, 10, 2, 14, 22)
     travel_to(now) { Game::FillBank.new.call(player:).value! }
-    sign_in(player.steam_id)
+    sign_in(player)
 
     travel_to(now) do
       post packs_path(locale: :en)
@@ -267,7 +256,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     player = accounts_players(:player)
     now = Time.utc(2026, 10, 2, 9, 0)
     travel_to(now) { Game::FillBank.new.call(player:).value! }
-    sign_in(player.steam_id)
+    sign_in(player)
     travel_to(now) { 10.times { post packs_path(locale: :fr) } }
 
     travel_to(now + 35.minutes) { get home_path(locale: :fr) }
@@ -281,7 +270,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   test "with no pack available now, menu 01's badge reads 0 and the countdown shows" do
     player = accounts_players(:player)
     create_pack(player, available_at: 4.minutes.from_now)
-    sign_in(player.steam_id)
+    sign_in(player)
 
     get home_path(locale: :en)
 
@@ -294,7 +283,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     player = accounts_players(:player)
     now = Time.utc(2026, 10, 2, 14, 22)
     travel_to(now) { create_pack(player, available_at: now + 90.minutes) }
-    sign_in(player.steam_id)
+    sign_in(player)
 
     travel_to(now) { get home_path(locale: :en) }
 
@@ -309,7 +298,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     Game::FillBank.new.call(player:).value!
     create_pack(player, kind: :bonus)
     create_pack(player, kind: :bonus, available_at: 5.minutes.from_now)
-    sign_in(player.steam_id)
+    sign_in(player)
 
     get home_path(locale: :en)
 
@@ -375,7 +364,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     travel_to(now) { Game::FillBank.new.call(player:).value! }
     oldest = Game::Pack.where(player_id: player.id).available(now).first
     counts_before = Game::TierCounts.call(player)
-    sign_in(player.steam_id)
+    sign_in(player)
 
     travel_to(now) { open_json }
 
@@ -421,7 +410,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     player = accounts_players(:player)
     10.times { |index| create_pack(player, available_at: (index + 1).minutes.ago) }
     bonus = create_pack(player, kind: :bonus, available_at: 1.hour.ago)
-    sign_in(player.steam_id)
+    sign_in(player)
 
     open_json
 
@@ -434,7 +423,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     player = accounts_players(:player)
     first = create_pack(player, cards: fixture_tier_ids, available_at: 2.minutes.ago)
     create_pack(player)
-    sign_in(player.steam_id)
+    sign_in(player)
     open_json
     answer = body
 
@@ -460,7 +449,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   test "replays are not counted by the rate limit, and replay past it; a 31st new key is throttled with Retry-After" do
     player = accounts_players(:player)
     31.times { |index| create_pack(player, available_at: (index + 1).minutes.ago) }
-    sign_in(player.steam_id)
+    sign_in(player)
     keys = Array.new(31) { SecureRandom.uuid }
 
     with_counting_rate_limit(PacksController) do
@@ -493,7 +482,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     Game::OpenPack.new.call(player: moderator, idempotency_key: KEY).value!
     player = accounts_players(:player)
     mine = create_pack(player)
-    sign_in(player.steam_id)
+    sign_in(player)
 
     open_json
 
@@ -505,7 +494,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   test "an empty reserve answers 422 no_pack_available and writes nothing" do
     player = accounts_players(:player)
     create_pack(player, available_at: 1.day.from_now)
-    sign_in(player.steam_id)
+    sign_in(player)
 
     assert_no_changes -> { written(player) } do
       open_json(locale: :fr)
@@ -527,7 +516,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   test "a JSON opening without a key, or with one that is not a UUID, answers 400 invalid_idempotency_key" do
     player = accounts_players(:player)
     create_pack(player)
-    sign_in(player.steam_id)
+    sign_in(player)
 
     [ nil, "", "not-a-uuid", KEY.delete("-") ].each do |key|
       assert_no_changes -> { written(player) } do
@@ -542,7 +531,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     create_pack(player, kind: :bonus, cards: fixture_tier_ids.last(3), available_at: 1.day.ago)
     # Portal's main theme, its genre, ends its spoken label.
     Catalog::CardSeason.where(id: catalog_card_seasons(:portal_one).id).update_all(main_theme: "puzzle")
-    sign_in(player.steam_id)
+    sign_in(player)
 
     open_json
 
@@ -562,7 +551,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   test "the form's opening keeps the standard card back and no key" do
     player = accounts_players(:player)
     pack = create_pack(player)
-    sign_in(player.steam_id)
+    sign_in(player)
 
     post packs_path(locale: :en)
 
@@ -573,7 +562,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   test "the pack's page after a JSON opening shows the cards face up, without the reveal" do
     player = accounts_players(:player)
     create_pack(player)
-    sign_in(player.steam_id)
+    sign_in(player)
     open_json
 
     get body.dig("pack", "url")
