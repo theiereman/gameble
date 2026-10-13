@@ -812,6 +812,8 @@ fr:
       see_profile_of: "Voir le profil de %{name}"
       trade: "Échange"
       trade_with: "Échange avec %{name}"
+      remove: "Retirer"
+      remove_friend: "Retirer %{name} de vos amis"
       presence:
         online: "En ligne"
         offline: "Hors ligne"
@@ -834,6 +836,17 @@ fr:
       title: "Profil"
       close: "Fermer"
       loading: "Chargement du profil…"
+    remove_dialog:
+      title: "Retirer %{name} ?"
+      text: "%{name} quitte vos amis et vous quittez les siens. Aucun message n'est envoyé ; chacun de vous pourra réinviter l'autre."
+      trade: "Votre échange en cours avec %{name} est annulé et ses cartes sont libérées."
+      confirm: "Retirer"
+      cancel: "Annuler"
+      close: "Fermer"
+    removed:
+      title: "Ami retiré"
+      text: "%{name} ne fait plus partie de vos amis."
+    throttled: "Trop de retraits en une minute. Réessayez dans un instant."
   friend_profiles:
     show:
       showcase: "Vitrine"
@@ -1350,6 +1363,7 @@ fr:
       unknown_code: "Aucun joueur n'a ce code."
       unknown_player: "Ce lien d'invitation n'est pas valide."
       already_friends: "Vous êtes déjà amis."
+      not_a_friend: "Ce joueur ne fait pas partie de vos amis."
       already_sent: "Invitation déjà envoyée."
       not_found: "Cette invitation n'existe plus."
       card_not_owned: "Vous ne possédez pas cette carte."

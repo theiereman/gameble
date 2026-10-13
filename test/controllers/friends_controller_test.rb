@@ -1,7 +1,10 @@
 require "test_helper"
+require_relative "../support/counting_rate_limit"
 require_relative "../support/steam_sign_in"
 
 class FriendsControllerTest < ActionDispatch::IntegrationTest
+  include ActiveJob::TestHelper
+  include CountingRateLimit
   include SteamSignIn
 
   setup do
@@ -174,6 +177,166 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
       assert_select "turbo-frame#friend-profile-#{other.token}[loading=lazy][target=_top][src=?]",
         friend_profile_path(locale: :fr, token: other.token)
     end
+  end
+
+  def befriend_sam
+    sam = accounts_players(:moderator)
+    sam.update!(persona_name: "Sam", visibility: "public")
+    @player.update!(persona_name: "Lea")
+    Game::Friendship.create!(low_player_id: [ @player.id, sam.id ].min, high_player_id: [ @player.id, sam.id ].max)
+    sam
+  end
+
+  def open_trade_with(sam)
+    portal = catalog_card_seasons(:portal_one).id
+    soldier = catalog_card_seasons(:common_card_one).id
+    Game::Holding.create!(player_id: @player.id, card_season_id: portal, quantity: 2, reserved: 0)
+    Game::Holding.create!(player_id: sam.id, card_season_id: soldier, quantity: 1, reserved: 0)
+    trade = Game::ProposeTrade.new.call(player: @player, recipient: sam, offer: { portal => 2 }, request: { soldier => 1 }).value!
+    [ trade, Game::Holding.find_by(player_id: @player.id, card_season_id: portal) ]
+  end
+
+  test "each friend's row offers to remove them, through a dialog that posts to their token and warns of a trade in progress only when there is one" do
+    sam = befriend_sam
+    sign_in(@player)
+
+    get friends_path(locale: :fr)
+
+    assert_select ".friends__friend .friends__actions button.button--secondary[aria-haspopup=dialog][aria-label='Retirer Sam de vos amis'][data-dialog-opener-dialog-value=?]",
+      "remove-friend-#{sam.token}", "Retirer"
+    assert_select "dialog#remove-friend-#{sam.token}.modal[aria-labelledby=?][aria-describedby=?]", "remove-friend-#{sam.token}-title", "remove-friend-#{sam.token}-text" do
+      assert_select "#remove-friend-#{sam.token}-title.modal__title", "Retirer Sam ?"
+      assert_select "button.modal__close[aria-label=Fermer][data-action='dialog#close']"
+      assert_select "form[method=post][action=?][data-turbo=false]", remove_friend_path(locale: :fr, token: sam.token) do
+        assert_select "#remove-friend-#{sam.token}-text", /Sam quitte vos amis et vous quittez les siens\. Aucun message n'est envoyé/
+        assert_select ".remove-friend-dialog__trade", 0
+        assert_select "button.button--primary[type=submit]", "Retirer"
+        assert_select "button.button--secondary[type=button][data-action='dialog#close']", "Annuler"
+      end
+    end
+
+    open_trade_with(sam)
+    get friends_path(locale: :fr)
+    assert_select "dialog#remove-friend-#{sam.token} .remove-friend-dialog__trade", "Votre échange en cours avec Sam est annulé et ses cartes sont libérées."
+    assert Game::FriendshipBetween.call(@player, sam), "the GET removes nothing"
+  end
+
+  test "a private friend's row still offers the removal after the trades-closed line" do
+    sam = befriend_sam
+    sam.update!(visibility: "private")
+    sign_in(@player)
+
+    get friends_path(locale: :fr)
+
+    assert_select ".friends__friend .friends__actions .trades-closed + button[data-dialog-opener-dialog-value=?]", "remove-friend-#{sam.token}", "Retirer"
+
+    sam.update!(visibility: "public")
+    @player.update!(visibility: "private")
+    get friends_path(locale: :fr)
+    assert_select ".friends__friend .friends__actions .trades-closed", /Votre profil est privé/
+    assert_select ".friends__friend .friends__actions .trades-closed + button[data-dialog-opener-dialog-value=?]", "remove-friend-#{sam.token}", "Retirer"
+  end
+
+  test "confirming the removal ends the friendship for both, cancels the trade in progress and frees its copies, silently for the former friend" do
+    sam = befriend_sam
+    trade, holding = open_trade_with(sam)
+    assert_equal 2, holding.reserved
+    sign_in(@player)
+    get friend_profile_path(locale: :fr, token: sam.token)
+    assert_response :success
+    get feed_path(locale: :fr, tab: "friends")
+    assert_select ".feed__no-friends", 0
+    clear_enqueued_jobs
+
+    post remove_friend_path(locale: :fr, token: sam.token)
+
+    assert_redirected_to friends_path(locale: :fr)
+    assert_response :see_other
+    assert_not Game::FriendshipBetween.call(@player, sam)
+    assert_equal "cancelled", trade.reload.status
+    assert_equal 0, holding.reload.reserved
+    stream_args = enqueued_jobs.select { it[:job] == PlayerStreamJob }.flat_map { ActiveJob::Arguments.deserialize(it[:args]).sole }
+    assert_includes stream_args, { player_id: sam.id, topic: "friends" }
+    assert_includes stream_args, { player_id: sam.id, topic: "trades" }
+    assert stream_args.none? { it.key?(:friend_id) }, "no new-friend toast"
+
+    follow_redirect!
+    assert_select ".toasts > .toast--notice" do
+      assert_select ".toast__title", "Ami retiré"
+      assert_select ".toast__message", "Sam ne fait plus partie de vos amis."
+    end
+    assert_select ".friends__friend", 0
+    get friend_profile_path(locale: :fr, token: sam.token)
+    assert_response :not_found
+    get feed_path(locale: :fr, tab: "friends")
+    assert_select ".feed__no-friends"
+
+    sign_in(sam)
+    get friends_path(locale: :fr)
+    assert_select ".friends__friend", 0
+    assert_select ".toast__title", { text: "Ami retiré", count: 0 }
+    assert_no_match(/ne fait plus partie/, response.body)
+    get friend_profile_path(locale: :fr, token: @player.token)
+    assert_response :not_found
+    get feed_path(locale: :fr, tab: "friends")
+    assert_select ".feed__no-friends"
+  end
+
+  test "removing a player who is not a friend changes nothing and says so" do
+    sam = befriend_sam
+    stranger = accounts_players(:administrator)
+    sign_in(@player)
+
+    post remove_friend_path(locale: :fr, token: stranger.token)
+    assert_redirected_to friends_path(locale: :fr)
+    follow_redirect!
+    assert_select ".toasts > .toast--alert .toast__message", "Ce joueur ne fait pas partie de vos amis."
+
+    post remove_friend_path(locale: :en, token: "a" * 24)
+    follow_redirect!
+    assert_select ".toasts > .toast--alert .toast__message", "This player is not one of your friends."
+    assert Game::FriendshipBetween.call(@player, sam)
+  end
+
+  test "in English the removal reads in English" do
+    sam = befriend_sam
+    open_trade_with(sam)
+    sign_in(@player)
+
+    get friends_path(locale: :en)
+    assert_select ".friends__friend button[aria-label='Remove Sam from your friends']", "Remove"
+    assert_select "dialog#remove-friend-#{sam.token}" do
+      assert_select ".modal__title", "Remove Sam?"
+      assert_select ".remove-friend-dialog__trade", "Your trade in progress with Sam is cancelled and its cards are freed."
+      assert_select "button[type=submit]", "Remove"
+      assert_select "button[type=button]", "Cancel"
+    end
+
+    post remove_friend_path(locale: :en, token: sam.token)
+    follow_redirect!
+    assert_select ".toast__title", "Friend removed"
+    assert_select ".toast__message", "Sam is no longer one of your friends."
+  end
+
+  test "a visitor cannot remove a friend" do
+    sam = befriend_sam
+
+    post remove_friend_path(locale: :fr, token: sam.token)
+
+    assert_redirected_to home_path(locale: :fr)
+    assert_equal I18n.t("authorization.sign_in_required", locale: :fr), flash[:alert]
+    assert Game::FriendshipBetween.call(@player, sam)
+  end
+
+  test "removals are limited to 20 a minute" do
+    sign_in(@player)
+
+    with_counting_rate_limit(FriendsController) do
+      21.times { post remove_friend_path(locale: :fr, token: "a" * 24) }
+    end
+
+    assert_redirected_to friends_path(locale: :fr)
+    assert_equal I18n.t("friends.throttled", locale: :fr), flash[:alert]
   end
 
   test "a visitor is sent home to sign in" do

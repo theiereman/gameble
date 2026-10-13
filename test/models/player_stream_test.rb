@@ -95,6 +95,26 @@ class PlayerStreamTest < ActiveSupport::TestCase
     end
   end
 
+  test "a removed friendship refreshes both players' friends, and their trades only when a trade was cancelled, naming no friend" do
+    friends = [ { player_id: @alice.id, topic: "friends" }, { player_id: @bob.id, topic: "friends" } ]
+    data = { player_id: @alice.id, friend_id: @bob.id }
+
+    assert_equal friends, PlayerStream.notices(Game::FriendRemoved.new(data: data.merge(trade_ids: [])))
+    assert_equal friends + trades_for(@alice, @bob), PlayerStream.notices(Game::FriendRemoved.new(data: data.merge(trade_ids: [ 1 ])))
+  end
+
+  test "removing a friend enqueues the notices once it commits, with the trades of the cancelled trade" do
+    propose.value!
+    clear_enqueued_jobs
+
+    notices = [ { player_id: @bob.id, topic: "friends" }, { player_id: @alice.id, topic: "friends" } ] + trades_for(@bob, @alice)
+
+    assert_enqueued_with(job: PlayerStreamJob, args: [ notices ]) do
+      Game::RemoveFriend.new.call(player: @bob, friend: @alice).value!
+    end
+    assert_equal 1, stream_jobs.size
+  end
+
   test "a refused operation enqueues nothing" do
     assert_no_enqueued_jobs(only: PlayerStreamJob) do
       assert propose(@alice, accounts_players(:administrator)).failure?

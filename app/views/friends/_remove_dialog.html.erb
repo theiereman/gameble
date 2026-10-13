@@ -1,0 +1,26 @@
+<% dialog_id = remove_friend_dialog_id(friend.token) %>
+<% name = friend_name(friend) %>
+<dialog id="<%= dialog_id %>" class="modal" aria-labelledby="<%= dialog_id %>-title" aria-describedby="<%= dialog_id %>-text"
+        data-controller="dialog" data-action="click->dialog#closeOnScrim">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p id="<%= dialog_id %>-title" class="modal__title"><%= t(".title", name:) %></p>
+      <button type="button" class="modal__close" aria-label="<%= t(".close") %>" data-action="dialog#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <%= form_with url: remove_friend_path(token: friend.token), class: "remove-friend-dialog__form", data: { turbo: false } do %>
+      <div id="<%= dialog_id %>-text" class="remove-friend-dialog__text">
+        <p><%= t(".text", name:) %></p>
+        <% if open_trade %>
+          <p class="remove-friend-dialog__trade"><%= t(".trade", name:) %></p>
+        <% end %>
+      </div>
+      <div class="remove-friend-dialog__actions">
+        <%= tag.button t(".confirm"), type: :submit, class: "button button--primary" %>
+        <%= tag.button t(".cancel"), type: :button, class: "button button--secondary", data: { action: "dialog#close" } %>
+      </div>
+    <% end %>
+  <% end %>
+</dialog>

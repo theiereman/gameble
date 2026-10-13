@@ -4,7 +4,8 @@ module PlayerStream
     Game::TradeDeclined, Game::TradeCancelled, Game::TradeExpired
   ].freeze
   INVITATION_EVENTS = [ Game::InvitationSent, Game::InvitationAccepted, Game::InvitationCancelled ].freeze
-  EVENTS = (TRADE_EVENTS + INVITATION_EVENTS + [ Game::AchievementUnlocked ]).freeze
+  FRIENDSHIP_EVENTS = [ Game::FriendRemoved ].freeze
+  EVENTS = (TRADE_EVENTS + INVITATION_EVENTS + FRIENDSHIP_EVENTS + [ Game::AchievementUnlocked ]).freeze
   CUT_OFF_EVENTS = [ Accounts::PlayerDeleted, Accounts::PlayerBanned ].freeze
   PRIVACY_EVENTS = [ Accounts::VisibilityChanged ].freeze
 
@@ -37,6 +38,8 @@ module PlayerStream
         [ friends_notice(data[:sender_id]).merge(friend_id: data[:recipient_id]), friends_notice(data[:recipient_id]) ]
       when Game::InvitationSent, Game::InvitationCancelled
         [ data[:sender_id], data[:recipient_id] ].map { friends_notice(it) }
+      when Game::FriendRemoved
+        former_friends_notices(data)
       when Game::AchievementUnlocked
         data[:retroactive] ? [] : [ { player_id: data[:player_id], achievement: data[:achievement] } ]
       when *CUT_OFF_EVENTS
@@ -53,6 +56,12 @@ module PlayerStream
     def trades_notice(player_id) = { player_id:, topic: "trades" }
 
     def friends_notice(player_id) = { player_id:, topic: "friends" }
+
+    def former_friends_notices(data)
+      pair = [ data[:player_id], data[:friend_id] ]
+      notices = pair.map { friends_notice(it) }
+      data[:trade_ids].empty? ? notices : notices + pair.map { trades_notice(it) }
+    end
 
     def counterparts_notices(player_id)
       counterparts = counterparts_of(player_id)

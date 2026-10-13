@@ -71,6 +71,8 @@ Rails.application.routes.draw do
     resource :friends, only: :show
     get "friends/:token" => "friend_profiles#show", as: :friend_profile,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    post "friends/:token/remove" => "friends#remove", as: :remove_friend,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
 
     # The activity feed (CAP-13): public, read only.
     get "feed" => "feeds#show", as: :feed

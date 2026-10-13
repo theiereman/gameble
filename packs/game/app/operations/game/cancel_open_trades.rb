@@ -4,13 +4,13 @@ module Game
 
     ATTEMPTS = 3
 
-    def call(player:)
+    def call(player:, partner: nil)
       player = step require_account(player)
       attempts = 0
 
       begin
         attempts += 1
-        transaction(requires_new: true) { cancel(player) }
+        transaction(requires_new: true) { cancel(player, partner) }
       rescue ActiveRecord::Deadlocked
         retry if attempts < ATTEMPTS
         raise
@@ -19,29 +19,33 @@ module Game
 
     private
 
-    def cancel(player)
+    def cancel(player, partner)
       now = Time.current
-      trades = lock_open_trades(player)
+      trades = lock_open_trades(player, partner)
       release_offers(trades, now)
       Trade.where(id: trades.map(&:id)).update_all(status: "cancelled", closed_at: now, updated_at: now)
       trades
     end
 
-    def open_trades(player)
-      Trade.in_progress.where(proposer_id: player.id).or(Trade.in_progress.where(recipient_id: player.id))
+    def open_trades(player, partner)
+      proposed = Trade.in_progress.where(proposer_id: player.id)
+      received = Trade.in_progress.where(recipient_id: player.id)
+      return proposed.or(received) unless partner
+
+      proposed.where(recipient_id: partner.id).or(received.where(proposer_id: partner.id))
     end
 
     # A partner found after the player's own lock is locked out of order; Postgres aborts one side of a deadlock, which `call` retries from its savepoint.
-    def lock_open_trades(player)
+    def lock_open_trades(player, partner)
       held = []
       loop do
-        missing = ([ player.id ] + open_trades(player).pluck(:proposer_id, :recipient_id).flatten).uniq - held
+        missing = ([ player.id ] + open_trades(player, partner).pluck(:proposer_id, :recipient_id).flatten).uniq - held
         break if missing.empty?
 
         TradeLocks.players(*missing)
         held.concat(missing)
       end
-      open_trades(player).order(:id).lock.to_a
+      open_trades(player, partner).order(:id).lock.to_a
     end
 
     def release_offers(trades, now)

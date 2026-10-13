@@ -84,12 +84,15 @@
                     href: open_trade_token ? trade_path(token: open_trade_token) : new_trade_path(friend: friend.player.token),
                     aria_label: t(".trade_with", name:)) do %><%= t(".trade") %><% end %>
             <% end %>
+            <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: remove_friend_dialog_id(friend.player.token),
+                  aria_label: t(".remove_friend", name:)) do %><%= t(".remove") %><% end %>
           </div>
         </li>
       <% end %>
     </ul>
     <% @friends.each do |friend| %>
       <%= render "friends/profile_dialog", friend: friend.player %>
+      <%= render "friends/remove_dialog", friend: friend.player, open_trade: @open_trade_tokens.key?(friend.player.id) %>
     <% end %>
   <% end %>
 </section>

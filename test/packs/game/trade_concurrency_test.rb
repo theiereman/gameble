@@ -346,4 +346,39 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
       delete_events
     end
   end
+
+  def removals
+    @players.sum { |player| Rails.configuration.event_store.read.stream(Game::Operation.stream_name(player.id)).of_type([ Game::FriendRemoved ]).count }
+  end
+
+  test "two friends removing each other at once end the friendship once, announced once" do
+    3.times do
+      befriend(@alice, @bob)
+
+      results = together(
+        -> { Game::RemoveFriend.new.call(player: Accounts::Player.find(@alice.id), friend: Accounts::Player.find(@bob.id)) },
+        -> { Game::RemoveFriend.new.call(player: Accounts::Player.find(@bob.id), friend: Accounts::Player.find(@alice.id)) }
+      )
+
+      assert_equal 1, results.count(&:success?), results.inspect
+      assert_equal [ :not_a_friend ], results.select(&:failure?).map(&:failure)
+      assert_equal 0, Game::Friendship.count
+      assert_equal 1, removals
+      delete_events
+    end
+  end
+
+  test "a removal that waited on the other's lock finds the friendship gone and announces nothing" do
+    befriend(@alice, @bob)
+
+    first, second = first_holding_the_lock(
+      -> { Game::RemoveFriend.new.call(player: Accounts::Player.find(@alice.id), friend: Accounts::Player.find(@bob.id)) },
+      -> { Game::RemoveFriend.new.call(player: Accounts::Player.find(@bob.id), friend: Accounts::Player.find(@alice.id)) }
+    )
+
+    assert_predicate first, :success?
+    assert_equal Dry::Monads::Failure(:not_a_friend), second
+    assert_equal 0, Game::Friendship.count
+    assert_equal 1, removals
+  end
 end

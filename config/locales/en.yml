@@ -792,6 +792,8 @@ en:
       see_profile_of: "See the profile of %{name}"
       trade: "Trade"
       trade_with: "Trade with %{name}"
+      remove: "Remove"
+      remove_friend: "Remove %{name} from your friends"
       presence:
         online: "Online"
         offline: "Offline"
@@ -814,6 +816,17 @@ en:
       title: "Profile"
       close: "Close"
       loading: "Loading the profile…"
+    remove_dialog:
+      title: "Remove %{name}?"
+      text: "%{name} leaves your friends and you leave theirs. No message is sent; either of you can invite the other again."
+      trade: "Your trade in progress with %{name} is cancelled and its cards are freed."
+      confirm: "Remove"
+      cancel: "Cancel"
+      close: "Close"
+    removed:
+      title: "Friend removed"
+      text: "%{name} is no longer one of your friends."
+    throttled: "Too many removals in a minute. Try again in a moment."
   friend_profiles:
     show:
       showcase: "Showcase"
@@ -1325,6 +1338,7 @@ en:
       unknown_code: "No player has that code."
       unknown_player: "This invitation link is not valid."
       already_friends: "You are already friends."
+      not_a_friend: "This player is not one of your friends."
       already_sent: "Invitation already sent."
       not_found: "That invitation is no longer there."
       card_not_owned: "You do not own this card."

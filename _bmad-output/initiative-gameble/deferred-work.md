@@ -147,6 +147,7 @@
   summary: A page on another site can send a signed-in player to an invite link, which now sends the invitation, or accepts the owner's pending one, without a click; once accepted, no path removes the friendship.
   evidence: The session cookie is SameSite=Lax, so a top-level cross-site GET arrives signed in and the page's own POST carries a valid CSRF token. The auto-send is what the ticket asks for, and invite links are opened from chat apps on other sites, so the page cannot tell them from a hostile redirect. Author to decide: keep it, never auto-accept the owner's pending invitation (show the button instead), or add removing a friend.
   decision: Author, 2026-10-13: add removing a friend, ticket 42 of epic-public-launch-readiness; the automatic send stays.
+  resolved: Ticket 42 (2026-10-13, `story-a-player-removes-a-friend-plan.md`): each friend row has "RETIRER" behind a confirmation dialog; it ends the friendship for both, cancels the open trade between them and releases its copies, silently for the former friend.
 
 ## Deferred from: build of story-request-test-helpers-shared-plan (2026-10-13)
 

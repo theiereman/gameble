@@ -230,3 +230,31 @@
 .friend-profile__actions .button--link {
   color: var(--color-alert);
 }
+
+.remove-friend-dialog__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.remove-friend-dialog__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--color-text);
+  font: var(--font-body);
+}
+
+.remove-friend-dialog__text p {
+  margin: 0;
+}
+
+.remove-friend-dialog__trade {
+  color: var(--color-accent);
+}
+
+.remove-friend-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}

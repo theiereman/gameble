@@ -172,11 +172,11 @@ class Game::DropFriendsAndTradesTest < ActiveSupport::TestCase
     attempts = 0
     operation = Game::CancelOpenTrades.new
     lock = operation.method(:lock_open_trades)
-    operation.define_singleton_method(:lock_open_trades) do |player|
+    operation.define_singleton_method(:lock_open_trades) do |player, partner|
       attempts += 1
       raise ActiveRecord::Deadlocked, "deadlock detected" if attempts <= failures
 
-      lock.call(player)
+      lock.call(player, partner)
     end
     [ operation, -> { attempts } ]
   end
