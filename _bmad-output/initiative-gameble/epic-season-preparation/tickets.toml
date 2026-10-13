@@ -8,10 +8,9 @@ description = "Replaces Steam::PrestigeScore so the review count (the game's pop
 verify = "On the staging draft preview, the Légendaires and Épiques are the best-known games, a much-reviewed game never ranks below a far less reviewed one for a better rating, and two games of the same popularity are ordered by their rating."
 covers = ["CAP-3"]
 after = ["2.12"]
-hitl = true
+hitl = false
 risk = "medium"
-unknown = "How strictly popularity leads: popularity bands (for example by order of magnitude of reviews) with the rating ordering inside a band, or the count alone with the rating as a tie-break; the author chooses on the staging draft, as for story 2.12."
-notes = ["il faut encore revoir le calcul de rareté des cartes et passer quasiment totalement sur le nombre de joueurs / reviews parce que c'est encore trop bizarre", "la positivité des notes servira juste à classer les jeux de même popularité"]
+notes = ["il faut encore revoir le calcul de rareté des cartes et passer quasiment totalement sur le nombre de joueurs / reviews parce que c'est encore trop bizarre", "la positivité des notes servira juste à classer les jeux de même popularité", "Decision (author, 2026-10-13): the review count alone ranks the games and the share of positive reviews only breaks ties between equal counts; no rating floor. Simulated on the 12,345 cards of staging season 4 with the published tier sizes: Légendaire from about 174,000 reviews, Épique from about 36,000, Rare from about 9,500; about 24 % of cards change tier against the current formula (PUBG, Apex Legends, War Thunder, Overwatch enter Légendaire; Balatro, Stray, Dead Cells leave).", "The how-it-works screen (epic-public-launch-readiness, ticket 44) explains the rarity rule from one place, which this ticket updates."]
 
 [[entry]]
 id = 1
