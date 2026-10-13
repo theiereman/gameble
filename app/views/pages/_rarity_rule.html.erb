@@ -1,0 +1,20 @@
+<%# How a card's rarity is decided: the one place the screens explain the
+    rule. Its words are under pages.how_it_works.rarity and its shares come
+    from HowItWorksHelper#rarity_shares; a change of the rule edits only
+    them and this partial. %>
+<p><%= t("pages.how_it_works.rarity.rule") %></p>
+<p><%= t("pages.how_it_works.rarity.score", weight: number_with_delimiter(Steam::PrestigeScore::SHARE_WEIGHT)) %></p>
+<p><%= t("pages.how_it_works.rarity.cut", count: Catalog::Rarity::TIERS.size) %></p>
+<ul class="how-it-works__shares" data-rarity-shares>
+  <% rarity_shares.each do |key, percent| %>
+    <% tier = Catalog::Rarity::TIERS.key(key) %>
+    <li class="how-it-works__tier how-it-works__tier--<%= tier %>" data-tier="<%= key %>">
+      <span class="how-it-works__rarity">
+        <%= pixel_icon("rarity-#{tier}", class: "how-it-works__icon") %>
+        <span class="how-it-works__name"><%= t("catalog.rarity.#{key}") %></span>
+      </span>
+      <span class="how-it-works__percent"><%= percent %></span>
+    </li>
+  <% end %>
+</ul>
+<p><%= t("pages.how_it_works.rarity.ties") %></p>

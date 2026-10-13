@@ -24,6 +24,7 @@ fr:
       feed: "Fil"
       legal: "Mentions légales"
       more: "Plus"
+      how_it_works: "Comment ça marche"
       back_office: "Back-office"
     rarity:
       label: "Raretés"
@@ -98,6 +99,7 @@ fr:
         feed: "Fil d'activité"
         achievements: "Succès"
         soon: "bientôt disponible"
+        how_it_works: "Comment ça marche"
       showcase:
         kicker: "Dernière obtention"
         see_card: "Voir la fiche"
@@ -220,6 +222,115 @@ fr:
         title: "Soutenir gameble"
         text: "gameble est gratuit et le restera. Si le jeu vous plaît, vous pouvez aider à payer son hébergement. Les dons sont facultatifs et ne donnent aucun avantage dans le jeu. Ils passent par Buy Me a Coffee, selon ses propres conditions. L'éditeur reçoit ce que vous choisissez d'y indiquer (nom, message)."
         link: "Soutenir"
+    how_it_works:
+      title: "Comment ça marche"
+      more: "Plus"
+      intro: "Les règles du jeu, telles qu'il les applique."
+      # French keeps the singular for 0, which the plural rule here does not.
+      minutes:
+        zero: "%{count} minute"
+        one: "%{count} minute"
+        other: "%{count} minutes"
+      selection:
+        title: "Quels jeux deviennent des cartes"
+        rule: "Chaque carte est un jeu Steam. Un jeu devient une carte s'il est bien un jeu (ni un logiciel, ni une démo, ni un contenu additionnel), s'il a un titre, une date de sortie et une image verticale sur Steam, et s'il compte au moins %{reviews} évaluations."
+        seasons: "Chaque nouvelle saison relit Steam : les jeux qui remplissent ces conditions à ce moment-là deviennent ses cartes."
+      rarity:
+        title: "La rareté"
+        rule: "La rareté d'une carte vient de son jeu sur Steam : plus le jeu est connu et apprécié, plus sa carte est rare."
+        score: "Chaque jeu reçoit un score. Le nombre d'évaluations compte d'abord : le score gagne un point chaque fois que ce nombre est multiplié par dix. La part d'évaluations positives s'y ajoute, multipliée par %{weight}, et départage les jeux connus de façon semblable. Sur peu d'évaluations, cette part est estimée avec prudence."
+        # French keeps the singular for 0, which the plural rule here does not.
+        cut:
+          zero: "À la publication d'une saison, ses cartes sont classées par score, du plus haut au plus bas, puis réparties en %{count} rareté dans ces proportions :"
+          one: "À la publication d'une saison, ses cartes sont classées par score, du plus haut au plus bas, puis réparties en %{count} rareté dans ces proportions :"
+          other: "À la publication d'une saison, ses cartes sont classées par score, du plus haut au plus bas, puis réparties en %{count} raretés dans ces proportions :"
+        ties: "Deux jeux de même score ont toujours la même rareté : les proportions réelles peuvent donc s'écarter un peu de celles-ci."
+      packs:
+        title: "Boosters et probabilités"
+        # French keeps the singular for 0, which the plural rule here does not.
+        regular:
+          zero: "Un booster contient %{count} carte. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
+          one: "Un booster contient %{count} carte. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
+          other: "Un booster contient %{count} cartes. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
+        bonus: "Le booster quotidien a de meilleures chances et ne contient jamais de carte %{common} :"
+        reward: "Le booster de récompense de l'objectif communautaire :"
+        forced: "S'il ne contient aucune carte %{rarity} ou mieux, l'une de ses cartes, au hasard, est remplacée par une carte tirée avec ces chances :"
+        rarity: "Rareté"
+        chance: "Chance par carte"
+        tables:
+          regular: "Booster standard"
+          bonus: "Booster quotidien"
+          reward: "Booster de récompense"
+          epic_or_better: "Carte de remplacement"
+      timing:
+        title: "Le rythme des boosters"
+        # French keeps the singular for 0, which the plural rule here does not.
+        bank:
+          zero: "Au plus %{count} booster standard vous attend à la fois, prêt ou à venir."
+          one: "Au plus %{count} booster standard vous attend à la fois, prêt ou à venir."
+          other: "Au plus %{count} boosters standard vous attendent à la fois, prêts ou à venir."
+        replace: "Chaque booster ouvert est remplacé %{minutes} après le dernier booster en attente, ou après l'ouverture si tous étaient prêts."
+        refill: "Des boosters standard ouverts d'un coup sont donc tous de retour en %{minutes}."
+        season: "À la publication d'une nouvelle saison, les boosters standard qui vous manquent sont donnés aussitôt."
+      daily:
+        title: "Le booster quotidien"
+        once: "Une fois par jour, un booster offert vous attend sur le pont. Le jour se compte en temps universel (UTC)."
+        # French keeps the singular for 0, which the plural rule here does not.
+        content:
+          zero: "Il contient %{count} carte, aucune %{common}."
+          one: "Il contient %{count} carte, aucune %{common}."
+          other: "Il contient %{count} cartes, aucune %{common}."
+        outside: "Il s'ajoute aux boosters standard, sans compter dans leur limite et sans les retarder."
+        # French keeps the singular for 0, which the plural rule here does not.
+        full:
+          zero: "Il est refusé tant que votre réserve compte %{count} booster ou plus prêt à ouvrir : ouvrez-en un d'abord."
+          one: "Il est refusé tant que votre réserve compte %{count} booster ou plus prêt à ouvrir : ouvrez-en un d'abord."
+          other: "Il est refusé tant que votre réserve compte %{count} boosters ou plus prêts à ouvrir : ouvrez-en un d'abord."
+      goal:
+        title: "L'objectif communautaire"
+        week: "Chaque semaine, du lundi à minuit (UTC) au dimanche soir, tous les joueurs visent ensemble un même objectif."
+        counts: "Chaque booster ouvert y compte, de même que chaque échange conclu, qui fait des deux joueurs des contributeurs."
+        # French keeps the singular for 0, which the plural rule here does not.
+        reward:
+          zero: "Si l'objectif est atteint, chaque joueur qui y a contribué reçoit un booster de récompense : %{count} carte, dont au moins une %{rarity} ou mieux."
+          one: "Si l'objectif est atteint, chaque joueur qui y a contribué reçoit un booster de récompense : %{count} carte, dont au moins une %{rarity} ou mieux."
+          other: "Si l'objectif est atteint, chaque joueur qui y a contribué reçoit un booster de récompense : %{count} cartes, dont au moins une %{rarity} ou mieux."
+      seasons:
+        title: "Les saisons"
+        frozen: "Une saison est tirée de Steam. Dès sa publication, la rareté, le numéro et les sets de chacune de ses cartes sont figés : ils ne changent plus pendant la saison."
+        next: "La saison suivante relit Steam : de nouveaux jeux entrent, les scores sont recalculés et la rareté d'un même jeu peut changer d'une saison à l'autre."
+      sets:
+        title: "Les sets"
+        intro: "Chaque saison regroupe ses cartes en sets, et une carte peut appartenir à plusieurs d'entre eux."
+        # French keeps the singular for 0, which the plural rule here does not.
+        themes:
+          zero: "Les thèmes : %{count} thème regroupe les jeux par genre, d'après leurs tags Steam les plus votés."
+          one: "Les thèmes : %{count} thème regroupe les jeux par genre, d'après leurs tags Steam les plus votés."
+          other: "Les thèmes : %{count} thèmes regroupent les jeux par genre, d'après leurs tags Steam les plus votés."
+        # French keeps the singular for 0, which the plural rule here does not.
+        franchises:
+          zero: "Les franchises : une série d'au moins %{count} jeu."
+          one: "Les franchises : une série d'au moins %{count} jeu."
+          other: "Les franchises : une série d'au moins %{count} jeux."
+        # French keeps the singular for 0, which the plural rule here does not.
+        studios:
+          zero: "Les studios : au moins %{count} jeu d'un même studio, dont l'un compte au moins %{reviews} évaluations."
+          one: "Les studios : au moins %{count} jeu d'un même studio, dont l'un compte au moins %{reviews} évaluations."
+          other: "Les studios : au moins %{count} jeux d'un même studio, dont l'un compte au moins %{reviews} évaluations."
+        hall_of_fame:
+          intro: "Le panthéon, d'après la note et le nombre d'évaluations sur Steam :"
+          row: "%{name} : %{rule}"
+          rules:
+            intouchables: "les jeux très connus et presque unanimement salués ;"
+            pepites: "les jeux presque unanimement salués mais encore peu connus ;"
+            mal-aimes: "les jeux très connus mais à l'accueil mitigé ;"
+            phenomenes: "les jeux qui comptent le plus d'évaluations."
+        ufos: "%{name} : les jeux qui n'entrent dans aucun thème."
+        tiers: "Les thèmes et le panthéon ont des paliers : bronze à %{bronze} de leurs cartes, argent à %{silver}, or à %{gold}, puis la complétion. Les autres sets se complètent seulement."
+      completion:
+        title: "Compléter un set"
+        rule: "Un set est complet quand vous possédez en même temps toutes ses cartes. Les doubles ne comptent qu'une fois, et une carte compte dans chaque set où elle figure."
+        once: "Une complétion n'est enregistrée qu'une fois : une carte échangée puis récupérée ne complète rien de nouveau. Votre profil compte les sets que vous possédez complets en ce moment."
   back_office:
     dashboard:
       show:

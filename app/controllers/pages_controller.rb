@@ -34,6 +34,10 @@ class PagesController < ApplicationController
     @legal = Rails.configuration.x.legal
   end
 
+  def how_it_works
+    authorize :page, :show?
+  end
+
   private
     def public_read?
       action_name == "legal" && (request.get? || request.head?)

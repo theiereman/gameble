@@ -24,6 +24,7 @@ en:
       feed: "Feed"
       legal: "Legal notice"
       more: "More"
+      how_it_works: "How it works"
       back_office: "Back-office"
     rarity:
       label: "Rarities"
@@ -93,6 +94,7 @@ en:
         feed: "Activity feed"
         achievements: "Achievements"
         soon: "coming soon"
+        how_it_works: "How it works"
       showcase:
         kicker: "Latest pull"
         see_card: "View the card"
@@ -215,6 +217,95 @@ en:
         title: "Support gameble"
         text: "gameble is free and will stay free. If you enjoy the game, you can help pay for its hosting. Donations are optional and give no advantage in the game. They go through Buy Me a Coffee, under its own terms. The publisher receives whatever you choose to enter there (name, message)."
         link: "Support"
+    how_it_works:
+      title: "How it works"
+      more: "More"
+      intro: "The rules of the game, as it applies them."
+      minutes:
+        one: "%{count} minute"
+        other: "%{count} minutes"
+      selection:
+        title: "Which games become cards"
+        rule: "Every card is a Steam game. A game becomes a card when it is a game (not software, a demo or downloadable content), has a title, a release date and a vertical image on Steam, and counts at least %{reviews} reviews."
+        seasons: "Each new season reads Steam again: the games that meet these conditions at that moment become its cards."
+      rarity:
+        title: "Rarity"
+        rule: "A card's rarity comes from its game on Steam: the better known and the better liked the game, the rarer its card."
+        score: "Each game gets a score. The review count comes first: the score gains one point each time that count is multiplied by ten. The share of positive reviews is added, multiplied by %{weight}, and separates games that are known alike. On few reviews, that share is estimated cautiously."
+        cut:
+          one: "When a season is published, its cards are ranked by score, from the highest to the lowest, then split into %{count} rarity in these proportions:"
+          other: "When a season is published, its cards are ranked by score, from the highest to the lowest, then split into %{count} rarities in these proportions:"
+        ties: "Two games with the same score always share a rarity, so the actual proportions can differ slightly from these."
+      packs:
+        title: "Boosters and odds"
+        regular:
+          one: "A booster holds %{count} card. Each card is drawn on its own: first its rarity, with the odds below, then a game of that rarity. The same card can therefore come up more than once."
+          other: "A booster holds %{count} cards. Each card is drawn on its own: first its rarity, with the odds below, then a game of that rarity. The same card can therefore come up more than once."
+        bonus: "The daily booster has better odds and never holds a %{common} card:"
+        reward: "The community goal's reward booster:"
+        forced: "When none of its cards is %{rarity} or better, one of them, at random, is replaced by a card drawn with these odds:"
+        rarity: "Rarity"
+        chance: "Chance per card"
+        tables:
+          regular: "Standard booster"
+          bonus: "Daily booster"
+          reward: "Reward booster"
+          epic_or_better: "Replacement card"
+      timing:
+        title: "The pace of boosters"
+        bank:
+          one: "At most %{count} standard booster waits for you at a time, ready or on its way."
+          other: "At most %{count} standard boosters wait for you at a time, ready or on their way."
+        replace: "Each booster opened is replaced %{minutes} after the last booster waiting, or after the opening when all of them were ready."
+        refill: "Standard boosters opened all at once are therefore all back within %{minutes}."
+        season: "When a new season is published, the standard boosters you are missing are given at once."
+      daily:
+        title: "The daily booster"
+        once: "Once a day, a free booster waits for you on the bridge. The day is counted in universal time (UTC)."
+        content:
+          one: "It holds %{count} card, never a %{common} one."
+          other: "It holds %{count} cards, never a %{common} one."
+        outside: "It comes on top of the standard boosters, without counting toward their limit and without delaying them."
+        full:
+          one: "It is refused while your reserve holds %{count} booster or more ready to open: open one first."
+          other: "It is refused while your reserve holds %{count} boosters or more ready to open: open one first."
+      goal:
+        title: "The community goal"
+        week: "Every week, from Monday at midnight (UTC) to Sunday night, all players aim at one goal together."
+        counts: "Every booster opened counts toward it, and so does every completed trade, which makes both players contributors."
+        reward:
+          one: "When the goal is reached, every player who contributed gets a reward booster: %{count} card, at least one of them %{rarity} or better."
+          other: "When the goal is reached, every player who contributed gets a reward booster: %{count} cards, at least one of them %{rarity} or better."
+      seasons:
+        title: "Seasons"
+        frozen: "A season is drawn from Steam. Once it is published, the rarity, number and sets of each of its cards are fixed: they no longer change during the season."
+        next: "The next season reads Steam again: new games come in, scores are computed again, and the same game's rarity can change from one season to the next."
+      sets:
+        title: "Sets"
+        intro: "Each season groups its cards into sets, and a card can belong to several of them."
+        themes:
+          one: "Themes: %{count} theme groups games by genre, from their most-voted Steam tags."
+          other: "Themes: %{count} themes group games by genre, from their most-voted Steam tags."
+        franchises:
+          one: "Franchises: a series of at least %{count} game."
+          other: "Franchises: a series of at least %{count} games."
+        studios:
+          one: "Studios: at least %{count} game from the same studio, one of them with at least %{reviews} reviews."
+          other: "Studios: at least %{count} games from the same studio, one of them with at least %{reviews} reviews."
+        hall_of_fame:
+          intro: "The hall of fame, from the rating and the review count on Steam:"
+          row: "%{name}: %{rule}"
+          rules:
+            intouchables: "very well-known games acclaimed almost unanimously;"
+            pepites: "games acclaimed almost unanimously but still little known;"
+            mal-aimes: "very well-known games with a mixed reception;"
+            phenomenes: "the games with the most reviews."
+        ufos: "%{name}: the games that fit no theme."
+        tiers: "Themes and the hall of fame have tiers: bronze at %{bronze} of their cards, silver at %{silver}, gold at %{gold}, then completion. The other sets are only completed."
+      completion:
+        title: "Completing a set"
+        rule: "A set is complete when you hold all of its cards at the same time. Duplicates count once, and a card counts in every set it belongs to."
+        once: "A completion is recorded only once: a card traded away and gained again completes nothing new. Your profile counts the sets you hold complete right now."
   back_office:
     dashboard:
       show:

@@ -716,7 +716,7 @@ In the top bar: the five icons, each followed by the number of copies owned, in 
 
 #### Menu item
 
-The hub's numbered menu: rows of `{spacing.menu-item-height}` on `{colors.panel}` with `{components.control-border.css}`; the number (01 to 06) in small accent Space Mono, the label in `{typography.menu}`, and on the right a count badge or a Space Mono meta ("87/16 480", "2 en ligne", "En direct", "12/40"). Hover: fills with `{colors.accent}`, text `{colors.on-accent}`, slides 10px right, a pixel arrow appears. Pressed: `{colors.accent-press}`. The current item keeps a 6px accent bar on its left. Numbers belong to this desktop menu only; the phone's PLUS rows carry none.
+The hub's numbered menu: rows of `{spacing.menu-item-height}` on `{colors.panel}` with `{components.control-border.css}`; the number (01 to 07) in small accent Space Mono, the label in `{typography.menu}`, and on the right a count badge or a Space Mono meta ("87/16 480", "2 en ligne", "En direct", "12/40"). Hover: fills with `{colors.accent}`, text `{colors.on-accent}`, slides 10px right, a pixel arrow appears. Pressed: `{colors.accent-press}`. The current item keeps a 6px accent bar on its left. Numbers belong to this desktop menu only; the phone's PLUS rows carry none.
 
 - **Count badge:** `{colors.lime}` with `{colors.on-lime}`; orange with `{colors.on-alert}` when the player must act (a trade waiting); grayed at zero. Steady, no pulse.
 
@@ -726,7 +726,7 @@ The hub's numbered menu: rows of `{spacing.menu-item-height}` on `{colors.panel}
 
 #### PLUS rows (phone)
 
-Menu-item rows of `{spacing.plus-row-height}` without numbers: AMIS, FIL D'ACTIVITÉ, SUCCÈS, PROFIL ET PARAMÈTRES, under the kicker "PONT DE COMMANDEMENT" and the subtitle "Le reste du vaisseau".
+Menu-item rows of `{spacing.plus-row-height}` without numbers: AMIS, FIL D'ACTIVITÉ, SUCCÈS, COMMENT ÇA MARCHE, PROFIL ET PARAMÈTRES, under the kicker "PONT DE COMMANDEMENT" and the subtitle "Le reste du vaisseau".
 
 ### Screens
 
@@ -844,6 +844,10 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Fil d'activité
 #### Public card page
 
 No app chrome: a slim top bar with the wordmark and the official Steam sign-in image. Left: the shared card at `card-xl`, tilting under the pointer, with rays from Épique up. The page never names who shared or owns the card (spec CAP-9). Right: the title in `{typography.public-title}`, the publisher, a line with rarity, genre, year and number, the description in `{typography.body-large}`, the link "VOIR SUR STEAM ↗", and a call-to-action panel with a two-line pitch (copy: see `EXPERIENCE.md`, Copy deck) and the primary button "OUVRIR MES PREMIERS BOOSTERS". Below, "LIVE · En ce moment sur gameble" with three compact feed entries. A footer link "Mentions légales".
+
+#### How it works
+
+A plain panel page in the game's tokens, laid out like the legal page: the title "COMMENT ÇA MARCHE" in the kicker style, then one panel per subject (which games become cards, rarity, boosters and odds, booster timing, the daily booster, the community goal, seasons, sets, completion), its heading in `{typography.label}`. The odds are tables, one per booster kind, each row a rarity's icon and name in its rarity color beside the chance per card in `{typography.number}` on `{colors.panel-sunken}`; the rarity shares of a season are rows of the same kind. Rarity is always named in words beside its icon. On the phone it is a PLUS sub-view with "◀ PLUS".
 
 #### Legal page
 

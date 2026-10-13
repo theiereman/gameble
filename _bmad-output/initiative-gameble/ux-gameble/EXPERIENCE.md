@@ -38,18 +38,19 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 | Report dialog | "SIGNALER" in a friend profile | Report a username or profile |
 | Fil d'activité | Menu 05; PLUS on the phone; open without an account | Pulls, first discoveries, trades, reposts, set tiers and completions; tabs TOUS and AMIS (friends only) |
 | Succès | Menu 06; PLUS on the phone | Achievements, earned and to earn |
+| Comment ça marche | Menu 07; PLUS on the phone; open without an account | The rules of the game: which games become cards, rarity, the odds of each booster, booster timing, the daily booster, the weekly goal's reward, seasons, sets and their completion; every number read from what the game applies |
 | Profil et paramètres | The player chip; PLUS on the phone | Public profile summary, settings, card-back picker, "Mentions légales" |
 | Public card page | A shared link, without an account | Show the shared card and invite the visitor to play |
 | Public profile | A player's link | A player's collection and set progress, per their visibility (spec CAP-8) |
 | Sign-in panel | Any game-styled action that needs an account | One title line and Valve's official Steam sign-in button |
 | Steam sign-in | The official image, wherever it appears | Create or reuse the account (Steam's own page) |
 | Legal page | "Mentions légales" in Profil et paramètres and the public page footer | No-affiliation notice, ownership notice ("Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."), terms of use, privacy notice |
-| Plus (phone only) | PLUS tab | PLUS rows: Amis, Fil d'activité, Succès, Profil et paramètres |
+| Plus (phone only) | PLUS tab | PLUS rows: Amis, Fil d'activité, Succès, Comment ça marche, Profil et paramètres |
 | Back-office | Staff accounts only | Out of the redesign's scope: unchanged behavior (spec CAP-2, CAP-15), plain functional style, designed later |
 
-**Desktop navigation.** The hub is the only menu: 01 OUVRIR UN BOOSTER (boosters badge), 02 COLLECTION (unique cards owned / total), 03 ÉCHANGES (orange badge when a trade waits for the player), 04 AMIS ("n en ligne"), 05 FIL D'ACTIVITÉ ("En direct"), 06 SUCCÈS (earned / total). The player chip opens Profil et paramètres. On every screen the top bar's gold GAMEBLE wordmark is a link to the hub. Every other screen also has, after it, a back button to the previous screen (see Back button). There is no permanent sidebar.
+**Desktop navigation.** The hub is the only menu: 01 OUVRIR UN BOOSTER (boosters badge), 02 COLLECTION (unique cards owned / total), 03 ÉCHANGES (orange badge when a trade waits for the player), 04 AMIS ("n en ligne"), 05 FIL D'ACTIVITÉ ("En direct"), 06 SUCCÈS (earned / total), 07 COMMENT ÇA MARCHE. The player chip opens Profil et paramètres. On every screen the top bar's gold GAMEBLE wordmark is a link to the hub. Every other screen also has, after it, a back button to the previous screen (see Back button). There is no permanent sidebar.
 
-**Phone navigation.** A bottom tab bar: PONT · BOOSTER · COLLECTION · ÉCHANGES · PLUS. Tab roots have no back button; tapping the current tab returns to its root or scrolls it to the top. Sub-views slide over their screen with a contextual back: "◀ GRILLE" (card detail opened from a grid or a set), "◀ BOOSTER" (card detail opened from an opened booster), "◀ LISTE" (trade board), "◀ PLUS" (Amis, Fil, Succès, Profil). The public card page has no tab bar.
+**Phone navigation.** A bottom tab bar: PONT · BOOSTER · COLLECTION · ÉCHANGES · PLUS. Tab roots have no back button; tapping the current tab returns to its root or scrolls it to the top. Sub-views slide over their screen with a contextual back: "◀ GRILLE" (card detail opened from a grid or a set), "◀ BOOSTER" (card detail opened from an opened booster), "◀ LISTE" (trade board), "◀ PLUS" (Amis, Fil, Succès, Comment ça marche, Profil). The public card page has no tab bar.
 
 **Hub content.** Top bar: the wordmark, rarity counter, packs chip, player chip. Left: kicker "PONT DE COMMANDEMENT" alone (no subtitle: the "Vaisseau-bibliothèque « Archiviste »" line was cut, author 2026-10-07), the menu, the daily booster panel. Center: the showcase. Right: the community goal panel and "SETS EN COURS" (the player's four sets closest to their next tier, "TOUT VOIR ▸" opening the collection). Bottom: the LIVE ticker. On the phone the same blocks stack in one scrolling column without the menu.
 
@@ -143,12 +144,12 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 | Rarity counter | Copies owned per rarity; a count updates as each card is revealed, never before. The "RARETÉS" legend (icon, name, count per tier) opens below the counter on hover (desktop) and on activation, and stays open after a click; Esc, a second activation or leaving it closes it (author, 2026-10-07). Keyboard focus opens it too. |
 | Packs chip | Reserve count and the countdown to the next booster, or "Réserve pleine" at 10. Opens the booster screen. |
 | Player chip | Opens Profil et paramètres. |
-| Menu item | Opens its screen. Keys 1 to 6 open the matching item only while focus is inside the menu (`aria-keyshortcuts`). Coming back to the hub focuses the item last used. |
+| Menu item | Opens its screen. Keys 1 to 7 open the matching item only while focus is inside the menu (`aria-keyshortcuts`). Coming back to the hub focuses the item last used. |
 | Count badge | Boosters in reserve (lime); trades waiting for the player (orange). Grayed at zero in the menu; hidden at zero in the tab bar. Its number is part of the item's accessible name. |
 | GAMEBLE link | Desktop: the top bar's wordmark opens the hub from any screen. Accessible name "GAMEBLE, pont de commandement" `[ASSUMPTION]`. Disabled during an opening. |
 | Back button | Desktop: returns to the previous screen, like the browser's Back, which comes back as it was left (scroll, filters, page). Its label names that screen by its short top-bar title ("◀ COLLECTION", "◀ FICHE", "◀ AMIS"; the collection entry reads "◀ SETS"). Hidden when the previous screen is the hub (the GAMEBLE link leads there) or when the tab holds no earlier gameble screen (a direct link, a new tab): a back never leaves gameble. Phone: returns to the parent view (see Phone navigation). Disabled during an opening. |
 | Tab bar | Switches between the five roots. Disabled during an opening. Hidden on the public card page. |
-| PLUS rows | Open Amis, Fil d'activité, Succès, Profil et paramètres. |
+| PLUS rows | Open Amis, Fil d'activité, Succès, Comment ça marche, Profil et paramètres. |
 
 ### Hub
 
@@ -315,9 +316,9 @@ Messages quoted by key are in the Copy deck.
 - **Tilt:** cards lean toward the pointer, up to about 10° (16° in the booster); on the phone only under a finger held still for 150ms. Cards in scrolling content keep vertical panning (`touch-action: pan-y`); only the booster stage captures every gesture.
 - **Hover is a lift; touch is a press.**
 - **Swipe, always with a button:** on the phone a revealed card swipes into the tray ("RANGER" does the same); in the card detail, swipe or the ◀ ▶ buttons move between cards. Long-press is never required.
-- **Keyboard:** Tab order follows reading order. Keys 1 to 6 open menu items only while focus is in the hub menu. Arrow keys move focus within the collection grid (Up and Down move one row, whatever the column count), the card picker grid, and radio and segmented groups; in a stepper they change the quantity. Enter submits the friend code.
+- **Keyboard:** Tab order follows reading order. Keys 1 to 7 open menu items only while focus is in the hub menu. Arrow keys move focus within the collection grid (Up and Down move one row, whatever the column count), the card picker grid, and radio and segmented groups; in a stepper they change the quantity. Enter submits the friend code.
 - **Esc:** closes the topmost overlay (dialog, sheet, zoom, legend, toast) and nothing else. With no overlay open, it cancels a counter-proposal edit after confirmation. Otherwise, when no edit is pending and no text field has focus, it returns to the hub (except during an opening).
-- **Not in the MVP:** bulk opening, live trades, card marks, a guide, and any input at opening that improves the odds (noted for later).
+- **Not in the MVP:** bulk opening, live trades, card marks, a guide (a tour of what to do; the rules reference "Comment ça marche" is not one, author 2026-10-13), and any input at opening that improves the odds (noted for later).
 
 ## Motion
 
@@ -431,7 +432,7 @@ Visual inspirations and rejections live in `DESIGN.md` (see Brand & Style and Do
 - **Rejected — dust and two surprises per card:** one activation reveals everything.
 - **Rejected — the stratagem-like arrow code to open a pack.**
 - **Rejected — the generator's filler mechanics:** combat, decks, card stats, market, sales, currencies, recycling.
-- **Rejected — a guide, and opening every booster at once.**
+- **Rejected — a guide (a tour of what to do; the rules reference "Comment ça marche" was asked for by the author on 2026-10-13), and opening every booster at once.**
 
 ## Key Flows
 

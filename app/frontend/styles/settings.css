@@ -1,6 +1,7 @@
 /*
  * Profil et paramètres (DESIGN.md: Profile and settings; EXPERIENCE.md:
- * Settings row), the phone's PLUS screen and the legal page. A
+ * Settings row), the phone's PLUS screen, the legal page and the
+ * how-it-works page. A
  * bracketed panel of settings rows (a muted label on the left, a control on
  * the right, ruled with line-soft), segmented groups for the choices. Hard
  * edges and pixel outlines on the 2px grid; no animation of its own.
@@ -307,6 +308,142 @@
 .legal__donation {
   align-self: flex-start;
   margin: 0;
+}
+
+.how-it-works {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  max-width: 760px;
+}
+
+.how-it-works__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.how-it-works__intro {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.how-it-works__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  font: var(--font-body);
+}
+
+.how-it-works__section p {
+  margin: 0;
+}
+
+.how-it-works__heading {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.how-it-works__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding-left: var(--space-6);
+}
+
+.how-it-works__list .how-it-works__list {
+  margin-top: var(--space-3);
+}
+
+.how-it-works__odds {
+  width: 100%;
+  max-width: 420px;
+  border-collapse: separate;
+  border-spacing: 0 var(--space-1);
+}
+
+.how-it-works__caption {
+  padding-bottom: var(--space-2);
+  color: var(--color-accent);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.how-it-works__odds thead th {
+  padding: 0 var(--space-4) var(--space-1);
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.how-it-works__odds tbody th,
+.how-it-works__odds tbody td {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-panel-sunken);
+  font-weight: normal;
+  text-align: left;
+}
+
+.how-it-works__odds .how-it-works__chance {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.how-it-works__shares {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: 420px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.how-it-works__shares .how-it-works__tier {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-panel-sunken);
+}
+
+.how-it-works__rarity {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.how-it-works__name {
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.how-it-works__tier--1 .how-it-works__name { color: var(--color-rarity-commune); }
+.how-it-works__tier--2 .how-it-works__name { color: var(--color-rarity-peu-commune); }
+.how-it-works__tier--3 .how-it-works__name { color: var(--color-rarity-rare); }
+.how-it-works__tier--4 .how-it-works__name { color: var(--color-rarity-epique); }
+.how-it-works__tier--5 .how-it-works__name { color: var(--color-rarity-legendaire); }
+
+.how-it-works__percent {
+  color: var(--color-text-max);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .account-suspended {

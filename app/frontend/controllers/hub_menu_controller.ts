@@ -1,11 +1,13 @@
 import { Controller } from "@hotwired/stimulus"
+import { menuDigit } from "../lib/menu_key"
 
 // The session key holding the number of the menu item last used.
 const STORAGE_KEY = "gameble:hub-menu-item"
 
 // The hub's numbered menu (EXPERIENCE.md, Menu item). While the focus is
-// inside the menu, keys 1 to 6 (without Ctrl, Alt or Meta) activate the item whose
-// `aria-keyshortcuts` is that key, unless it is disabled. Using an item
+// inside the menu, a digit key from 1 to 9 (without Ctrl, Alt or Meta)
+// activates the item whose `aria-keyshortcuts` is that digit, unless it is
+// disabled; a digit no item carries does nothing. Using an item
 // remembers its number for the session (sessionStorage), and coming back to
 // the hub focuses it, once (the first enabled item when it is disabled by
 // then). Right after signing in (`focus-first`) the hub
@@ -40,12 +42,9 @@ export default class extends Controller<HTMLElement> {
     }
   }
 
-  // keydown inside the menu. The digit is read from the key, or from the
-  // physical digit row for layouts that type digits with Shift (AZERTY);
-  // never from the numpad's code, whose keys are arrows with NumLock off.
+  // keydown inside the menu.
   press(event: KeyboardEvent): void {
-    if (event.ctrlKey || event.metaKey || event.altKey || event.repeat) return
-    const digit = /^[1-6]$/.test(event.key) ? event.key : /^Digit([1-6])$/.exec(event.code)?.[1]
+    const digit = menuDigit(event)
     if (!digit) return
 
     const item = this.item(digit)

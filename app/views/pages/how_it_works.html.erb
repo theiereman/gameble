@@ -1,0 +1,96 @@
+<% content_for :back_button, true %>
+<% content_for :title, t(".title") %>
+<% content_for :screen_title, t(".title") %>
+<% content_for :phone_back do %>
+  <%= link_to more_path, class: "button button--secondary button--small top-bar__phone-back" do %>
+    <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
+  <% end %>
+<% end %>
+<%# The rules of the game, for a visitor and a player alike: one panel per
+    subject. Every number is read from the constant the game applies
+    (HowItWorksHelper), never written in the copy. %>
+<% rarity = ->(tier) { t("catalog.rarity.#{Catalog::Rarity::TIERS.fetch(tier)}") } %>
+<% common = rarity.(Catalog::RarityThresholds::COMMON) %>
+<% reward_min = rarity.(Game::RewardDraw::MIN_TIER) %>
+<article class="how-it-works" aria-labelledby="how-it-works-heading">
+  <h1 id="how-it-works-heading" class="how-it-works__title"><%= t(".title") %></h1>
+  <p class="how-it-works__intro"><%= t(".intro") %></p>
+
+  <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-selection" }) do %>
+    <h2 id="how-it-works-selection" class="how-it-works__heading"><%= t(".selection.title") %></h2>
+    <p class="how-it-works__review-floor"><%= t(".selection.rule", reviews: number_with_delimiter(Steam::ReviewPolicy::MIN_REVIEWS)) %></p>
+    <p><%= t(".selection.seasons") %></p>
+  <% end %>
+
+  <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-rarity" }) do %>
+    <h2 id="how-it-works-rarity" class="how-it-works__heading"><%= t(".rarity.title") %></h2>
+    <%= render "pages/rarity_rule" %>
+  <% end %>
+
+  <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-packs" }) do %>
+    <h2 id="how-it-works-packs" class="how-it-works__heading"><%= t(".packs.title") %></h2>
+    <p class="how-it-works__pack-size"><%= t(".packs.regular", count: Game::Pack::SIZE) %></p>
+    <%= render "pages/odds_table", name: "regular", odds: Game::DrawOdds::REGULAR %>
+    <p><%= t(".packs.bonus", common:) %></p>
+    <%= render "pages/odds_table", name: "bonus", odds: Game::DrawOdds::BONUS %>
+    <p><%= t(".packs.reward") %></p>
+    <%= render "pages/odds_table", name: "reward", odds: Game::DrawOdds::REWARD %>
+    <p><%= t(".packs.forced", rarity: reward_min) %></p>
+    <%= render "pages/odds_table", name: "epic_or_better", odds: Game::DrawOdds::EPIC_OR_BETTER %>
+  <% end %>
+
+  <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-timing" }) do %>
+    <h2 id="how-it-works-timing" class="how-it-works__heading"><%= t(".timing.title") %></h2>
+    <p class="how-it-works__bank"><%= t(".timing.bank", count: Game::Pack::BANK_SIZE) %></p>
+    <p class="how-it-works__interval"><%= t(".timing.replace", minutes: t(".minutes", count: pack_interval_minutes)) %></p>
+    <p class="how-it-works__refill"><%= t(".timing.refill", minutes: t(".minutes", count: bank_refill_minutes)) %></p>
+    <p><%= t(".timing.season") %></p>
+  <% end %>
+
+  <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-daily" }) do %>
+    <h2 id="how-it-works-daily" class="how-it-works__heading"><%= t(".daily.title") %></h2>
+    <p><%= t(".daily.once") %></p>
+    <p class="how-it-works__bonus-size"><%= t(".daily.content", count: Game::Pack::BONUS_SIZE, common:) %></p>
+    <p><%= t(".daily.outside") %></p>
+    <p class="how-it-works__reserve"><%= t(".daily.full", count: Game::Reserve::FULL) %></p>
+  <% end %>
+
+  <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-goal" }) do %>
+    <h2 id="how-it-works-goal" class="how-it-works__heading"><%= t(".goal.title") %></h2>
+    <p><%= t(".goal.week") %></p>
+    <p><%= t(".goal.counts") %></p>
+    <p class="how-it-works__reward-size"><%= t(".goal.reward", count: Game::Pack::SIZE, rarity: reward_min) %></p>
+  <% end %>
+
+  <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-seasons" }) do %>
+    <h2 id="how-it-works-seasons" class="how-it-works__heading"><%= t(".seasons.title") %></h2>
+    <p><%= t(".seasons.frozen") %></p>
+    <p><%= t(".seasons.next") %></p>
+  <% end %>
+
+  <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-sets" }) do %>
+    <h2 id="how-it-works-sets" class="how-it-works__heading"><%= t(".sets.title") %></h2>
+    <p><%= t(".sets.intro") %></p>
+    <ul class="how-it-works__list">
+      <li class="how-it-works__themes"><%= t(".sets.themes", count: Catalog::Themes.keys.size) %></li>
+      <li class="how-it-works__franchises"><%= t(".sets.franchises", count: Catalog::SetBuilder::MIN_GAMES) %></li>
+      <li class="how-it-works__studios"><%= t(".sets.studios", count: Catalog::SetBuilder::MIN_GAMES, reviews: number_with_delimiter(Catalog::SetBuilder::STUDIO_REVIEW_FLOOR)) %></li>
+      <li>
+        <%= t(".sets.hall_of_fame.intro") %>
+        <ul class="how-it-works__list how-it-works__hall-of-fame">
+          <% Catalog::HallOfFame.keys.each do |key| %>
+            <li><%= t(".sets.hall_of_fame.row", name: t("catalog.hall_of_fame.#{key}"), rule: t(".sets.hall_of_fame.rules.#{key}")) %></li>
+          <% end %>
+        </ul>
+      </li>
+      <li class="how-it-works__ufos"><%= t(".sets.ufos", name: t("catalog.sets.ufos")) %></li>
+    </ul>
+    <p class="how-it-works__set-tiers"><%= t(".sets.tiers", **set_tier_percents.symbolize_keys) %></p>
+  <% end %>
+
+  <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-completion" }) do %>
+    <h2 id="how-it-works-completion" class="how-it-works__heading"><%= t(".completion.title") %></h2>
+    <p><%= t(".completion.rule") %></p>
+    <p><%= t(".completion.once") %></p>
+  <% end %>
+</article>

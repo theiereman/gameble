@@ -1,0 +1,26 @@
+<%# One draw's odds on the how-it-works screen: a row per tier, from the
+    most common, its icon and name beside its chance per card. `name`
+    (regular, bonus, reward, epic_or_better) names the table and its
+    caption; `odds` is the Game::DrawOdds table. %>
+<table class="how-it-works__odds" data-odds="<%= name %>">
+  <caption class="how-it-works__caption"><%= t("pages.how_it_works.packs.tables.#{name}") %></caption>
+  <thead>
+    <tr>
+      <th scope="col"><%= t("pages.how_it_works.packs.rarity") %></th>
+      <th scope="col" class="how-it-works__chance"><%= t("pages.how_it_works.packs.chance") %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% odds_rows(odds).each do |row| %>
+      <tr class="how-it-works__tier how-it-works__tier--<%= row.tier %>" data-tier="<%= row.key %>">
+        <th scope="row">
+          <span class="how-it-works__rarity">
+            <%= pixel_icon("rarity-#{row.tier}", class: "how-it-works__icon") %>
+            <span class="how-it-works__name"><%= t("catalog.rarity.#{row.key}") %></span>
+          </span>
+        </th>
+        <td class="how-it-works__chance how-it-works__percent"><%= row.percent %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

@@ -61,7 +61,7 @@ class ShellHelperTest < ActionView::TestCase
       %w[library show] => "Collection", %w[library set] => "Set", %w[cards show] => "Card", %w[boosters show] => "Booster",
       %w[packs show] => "Booster", %w[trades show] => "Trades", %w[trades edit] => "Trades", %w[friends show] => "Friends",
       %w[friend_profiles show] => "Profile", %w[public_profiles show] => "Profile", %w[public_profiles set] => "Set",
-      %w[settings show] => "Profile", %w[feeds show] => "Feed", %w[pages legal] => "Legal notice", %w[pages more] => "More",
+      %w[settings show] => "Profile", %w[feeds show] => "Feed", %w[pages legal] => "Legal notice", %w[pages how_it_works] => "How it works", %w[pages more] => "More",
       %w[back_office/dashboard show] => "Back-office", %w[back_office/import_runs index] => "Back-office",
       %w[pages home] => nil, %w[invite_links show] => nil
     }

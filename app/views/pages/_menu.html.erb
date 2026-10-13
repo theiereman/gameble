@@ -1,12 +1,13 @@
 <%# The hub's numbered menu (DESIGN.md, Menu item; EXPERIENCE.md, Menu
-    item): keys 1 to 6 open an item while focus is inside the menu
+    item): keys 1 to 7 open an item while focus is inside the menu
     (hub_menu_controller.ts). 01 opens the booster screen (for a player, a
     link with the reserve as a lime badge, greyed at zero; for a visitor,
     the sign-in panel); 02 opens the collection, with the unique
     cards owned out of the season's; 03 opens the trades screen, with the
     trades waiting for the player as an orange badge, and 04 the Friends
     screen, with how many friends are online (for a visitor, each the
-    sign-in panel); 05 opens the public feed; 06 has no screen yet.
+    sign-in panel); 05 opens the public feed; 06 has no screen yet; 07
+    opens the rules of the game, for a visitor too.
     Hidden on the phone, where the tab bar navigates. %>
 <nav class="hub-menu" aria-label="<%= t("pages.home.menu.label") %>" data-hub-menu-target="menu" data-action="keydown->hub-menu#press">
   <% arrow = pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
@@ -41,5 +42,6 @@
         </li>
       <% end %>
     <% end %>
+    <%= render "pages/menu_how_it_works" %>
   </ol>
 </nav>

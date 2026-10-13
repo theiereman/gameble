@@ -101,9 +101,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".hub[data-controller=hub-menu]"
-    assert_select "nav.hub-menu[aria-label=?] ol.hub-menu__list > li", "Menu du pont", count: 6
-    assert_equal %w[1 2 3 4 5 6], menu_items.map { it["aria-keyshortcuts"] }
-    assert_equal %w[01 02 03 04 05 06], css_select(".hub-menu .menu-item__number").map(&:text)
+    assert_select "nav.hub-menu[aria-label=?] ol.hub-menu__list > li", "Menu du pont", count: 7
+    assert_equal %w[1 2 3 4 5 6 7], menu_items.map { it["aria-keyshortcuts"] }
+    assert_equal %w[01 02 03 04 05 06 07], css_select(".hub-menu .menu-item__number").map(&:text)
 
     # 01: the booster screen, its reserve in a lime badge.
     assert_select ".hub-menu a.menu-item[href='/fr/booster'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
@@ -121,6 +121,10 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # 05: the public feed.
     assert_select ".hub-menu a.menu-item[href='/fr/feed'][aria-keyshortcuts='5']" do
       assert_select ".menu-item__label", "Fil d'activité"
+    end
+    # 07: the rules of the game.
+    assert_select ".hub-menu a.menu-item[href='/fr/how-it-works'][aria-keyshortcuts='7'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+      assert_select ".menu-item__label", "Comment ça marche"
     end
     # 03: the trades screen, the waiting count greyed at zero.
     assert_select ".hub-menu a.menu-item[href='/fr/trades'][aria-keyshortcuts='3']" do
@@ -264,6 +268,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select item, ".menu-item__badge", false
     end
     assert_select ".hub-menu a.menu-item[href='/en/library'] .menu-item__meta", "0/5"
+    assert_select ".hub-menu a.menu-item[href='/en/how-it-works'][aria-keyshortcuts='7']", /How it works/
 
     assert_select ".hub-invitation" do
       assert_select "h2.hub-invitation__title", "Your Steam games, as collectible cards."

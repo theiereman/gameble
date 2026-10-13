@@ -316,8 +316,9 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get more_path(locale: :en)
 
     assert_response :success
-    assert_select ".plus__list > li", 3
+    assert_select ".plus__list > li", 4
     assert_select ".plus__list a[href='/en/settings']", false
+    assert_select ".plus__list a.menu-item[href='/en/how-it-works']", /How it works/
   end
 
   test "the public pages and the signed-out card page follow the cookie too" do
@@ -379,8 +380,9 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "main h1", "Pont de commandement"
     assert_select ".hub__subtitle", "Le reste du vaisseau"
-    assert_select ".plus__list > li", 4
+    assert_select ".plus__list > li", 5
     assert_select ".plus__list a.menu-item[href='/fr/settings']", /Profil et paramètres/
+    assert_select ".plus__list a.menu-item[href='/fr/how-it-works']", /Comment ça marche/
     assert_select ".plus__list a.menu-item[href='/fr/friends']", /Amis/
     assert_select ".plus__list a.menu-item[href='/fr/feed']", /Fil d'activité/
     assert_select ".plus__list .menu-item[aria-disabled=true]", 1

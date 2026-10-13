@@ -68,6 +68,7 @@ module ShellHelper
     "settings" => :profile,
     "feeds" => :feed,
     "pages#legal" => :legal,
+    "pages#how_it_works" => :how_it_works,
     "pages#more" => :more
   }.freeze
 

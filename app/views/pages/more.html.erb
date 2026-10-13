@@ -2,7 +2,9 @@
 <%# The phone's PLUS tab (DESIGN.md, PLUS rows): menu-item rows, without
     numbers, for the screens that are not tabs, under the kicker and
     "Le reste du vaisseau". Amis opens its screen (a visitor gets the sign-in panel);
-    Fil d'activité opens the public feed; Succès has no screen yet; the tab bar only shows on the phone, and the screen reads the same
+    Fil d'activité opens the public feed; Succès has no screen yet;
+    Comment ça marche opens the rules of the game, for a visitor too; the
+    tab bar only shows on the phone, and the screen reads the same
     on a desktop that opens its address. %>
 <% turbo_exempts_page_from_cache %>
 <section class="plus" aria-labelledby="plus-heading">
@@ -36,6 +38,12 @@
         <span class="menu-item__label"><%= t("pages.home.menu.achievements") %></span>
         <span class="visually-hidden"><%= t("pages.home.menu.soon") %></span>
       </span>
+    </li>
+    <li>
+      <%= link_to how_it_works_path, class: "menu-item menu-item--plus", data: { turbo_prefetch: false } do %>
+        <span class="menu-item__label"><%= t("pages.home.menu.how_it_works") %></span>
+        <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
+      <% end %>
     </li>
     <% if current_player %>
     <li>

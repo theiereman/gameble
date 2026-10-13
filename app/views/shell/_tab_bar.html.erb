@@ -1,7 +1,8 @@
 <%# The phone tab bar (DESIGN.md, Tab bar): five roots, each a pixel icon
     over its label; the current one marked. PLUS opens the rest of the ship
-    (settings among its rows). ÉCHANGES carries the trades waiting for the
-    player as an orange badge at the icon's top right, hidden at zero, its
+    (settings among its rows) and stays current on the screens of its
+    rows. ÉCHANGES carries the trades waiting for the player as an orange
+    badge at the icon's top right, hidden at zero, its
     number in the tab's accessible name; for a visitor it is a button
     opening the sign-in panel. Its links are locked while the booster
     island opens or reveals (navigation-lock). Hidden from 720px up. %>
@@ -11,7 +12,7 @@
      [ :booster, "tab-booster", booster_path, controller_path == "boosters" ],
      [ :collection, "tab-collection", library_path, %w[library cards].include?(controller_path) ],
      [ :trades, "tab-trades", (trades_path if current_player), controller_path == "trades" ],
-     [ :more, "tab-more", more_path, (controller_path == "pages" && action_name == "more") || %w[settings friends feeds].include?(controller_path) ]
+     [ :more, "tab-more", more_path, (controller_path == "pages" && %w[more how_it_works].include?(action_name)) || %w[settings friends feeds].include?(controller_path) ]
    ] %>
 <nav class="tab-bar" aria-label="<%= t("shell.tabs.label") %>" data-controller="navigation-lock">
   <ul class="tab-bar__list">
