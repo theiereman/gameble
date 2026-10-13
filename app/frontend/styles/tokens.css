@@ -58,6 +58,13 @@
   --color-rarity-legendaire: #f4c542;
   --color-rarity-legendaire-hi: #fff3c4;
   --color-rarity-legendaire-lo: #8f5e0a;
+  --color-iridescence-1: #ff9ad5;
+  --color-iridescence-2: #c9a6ff;
+  --color-iridescence-3: #9ac8ff;
+  --color-iridescence-4: #9affe0;
+  --color-iridescence-5: #d8ff9a;
+  --color-iridescence-6: #fff09a;
+  --color-iridescence-7: #ffc49a;
 
   /* ---- Typography ---- */
   --font-family-space-mono: "Space Mono", monospace;

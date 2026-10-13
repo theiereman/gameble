@@ -314,7 +314,7 @@ Messages quoted by key are in the Copy deck.
 
 - **One activation reveals:** click, tap, Enter or Space on a face-down card reveals rarity and game together. One surprise per card.
 - **Guard:** a just-revealed card ignores activation for 400ms, so a double activation never skips the reveal or leaves the screen.
-- **Tilt:** cards lean toward the pointer, up to about 10° (16° in the booster); on the phone only under a finger held still for 150ms. Cards in scrolling content keep vertical panning (`touch-action: pan-y`); only the booster stage captures every gesture.
+- **Tilt:** cards lean toward the pointer, up to about 10° (16° in the booster); on the phone only under a finger held still for 150ms. The card eases toward the pointer as it enters (about 600ms to settle) and back to flat as it leaves (about 650ms); the varnish's reflection rides that eased tilt in and out, sliding opposite it, so nothing jumps and nothing fades. Cards in scrolling content keep vertical panning (`touch-action: pan-y`); only the booster stage captures every gesture.
 - **Hover is a lift; touch is a press.**
 - **Swipe, always with a button:** on the phone a revealed card swipes into the tray ("RANGER" does the same); in the card detail, swipe or the ◀ ▶ buttons move between cards. Long-press is never required.
 - **Keyboard:** Tab order follows reading order. Keys 1 to 8 open menu items only while focus is in the hub menu. Arrow keys move focus within the collection grid (Up and Down move one row, whatever the column count), the card picker grid, and radio and segmented groups; in a stepper they change the quantity. Enter submits the friend code.
@@ -351,7 +351,7 @@ Movement is fluid at 60fps (transforms and opacity only; continuous loops never 
 | Dialog | 160ms scrim, 220ms panel | The panel rises 16px into place. |
 | Feed entry | 280ms | Slides down from the top. |
 
-**Reduced motion.** Applies when "ANIMATIONS RÉDUITES" is OUI in Profil et paramètres, or when it is SYSTÈME (the default) and the system asks for it; NON plays the full motion even when the system asks for less. The rule: nothing translates, rotates, scales, shakes, flashes, blinks, sweeps or loops; state changes are 150 to 220ms crossfades; the ticker stops and shows its latest items still; the LIVE marker stays lit; the star field, rays, holo, sheen, canister breathing and idle floats stop; flashes are removed (not dimmed); tilt is off. Exceptions, spelled out:
+**Reduced motion.** Applies when "ANIMATIONS RÉDUITES" is OUI in Profil et paramètres, or when it is SYSTÈME (the default) and the system asks for it; NON plays the full motion even when the system asks for less. The rule: nothing translates, rotates, scales, shakes, flashes, blinks, sweeps or loops; state changes are 150 to 220ms crossfades; the ticker stops and shows its latest items still; the LIVE marker stays lit; the star field, rays, the Légendaire's glitter twinkle, sheen, canister breathing and idle floats stop; flashes are removed (not dimmed); tilt is off. Exceptions, spelled out:
 
 - **Opening:** the canister fades out in 200ms and the cards fade in (240ms, 40ms apart).
 - **Reveal:** each card crossfades to its face in 220ms; a Légendaire shows a still "LÉGENDAIRE !" banner for 1.4s instead of its sequence.
@@ -360,6 +360,7 @@ Movement is fluid at 60fps (transforms and opacity only; continuous loops never 
 - **Set celebration:** each result crossfades in over 200ms and stays still. The COMPLET stamp keeps its fixed −6° tilt (a static tilt is not motion) and never drops, bounces or rotates into place.
 - **Screen changes, sheets, sub-views, toasts, feed entries:** instant or crossfaded, no slide.
 - **App start:** no brightening.
+- **Card reflection:** every card face keeps its studio reflection, still, at its rest position (the flat card's); a Légendaire's glitter stays as still, faint flakes.
 
 ## Card backs
 

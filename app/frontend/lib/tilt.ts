@@ -1,16 +1,19 @@
-// A card face's tilt under the pointer, and the glare that follows it
-// (DESIGN.md, Rarity effects; EXPERIENCE.md, Implementation notes; AD-27).
-// The face eases toward its target in animation frames and writes it as
-// custom properties the stylesheet reads (styles/card.css):
-//   --tilt-rx, --tilt-ry    the rotation, in degrees
-//   --glare-dx, --glare-dy  the glare's offset from the card's centre, in px
+// A card face's tilt under the pointer, and the studio reflection on its
+// varnish that rides it. The face eases toward its target in animation
+// frames and writes it as custom properties the stylesheet reads
+// (styles/card.css):
+//   --tilt-rx, --tilt-ry   the rotation, in degrees
+//   --reflection-strip     the strips' centre, in % of their gradient line
+//   --reflection-fresnel   how much the varnish brightens with the tilt
+//   --reflection-horizon   the ceiling's edge, as a share of the card's height
+//   --reflection-hue       the iridescence's offset, in % (background-position-x)
 // and marks the face:
-//   data-tilting            while a pointer drives it
-//   data-tilt="moving"      while it eases
-//   data-tilt="held"        once settled on a target other than rest
-// When the pointer lets go, only the tilt eases back: the glare keeps its
-// offset, so it fades out where it was. Back at rest, everything but that
-// offset is removed; the next pointer places the glare under it again.
+//   data-tilting           while a pointer drives it
+//   data-tilt="moving"     while it eases
+//   data-tilt="held"       once settled on a target other than rest
+// The reflection follows the displayed, eased tilt, never the pointer, so it
+// slides in as the card tilts and back as it lets go. Back at rest every
+// property goes: the stylesheet's defaults draw the flat card's reflection.
 // A mouse or pen tilts it as it moves over it; a finger held still for
 // HOLD_MS tilts it until released (the click that follows is swallowed, so
 // a card in a link does not open), and a drag before then scrolls the page.
@@ -18,59 +21,93 @@
 // happens.
 import { motionReduced } from "./motion"
 
-export type Tilt = { rx: number; ry: number; glareDx: number; glareDy: number }
+export type Tilt = { rx: number; ry: number }
 export type Box = { left: number; top: number; width: number; height: number }
+export type Reflection = { strip: number; fresnel: number; horizon: number; hue: number }
 
-/** The share of the remaining way covered each frame. */
-export const EASE = 0.16
+/** The share of the remaining way covered each frame while a pointer drives the card. */
+export const EASE_ENTER = 0.08
+/** The share of the remaining way covered each frame once it lets go. */
+export const EASE_LEAVE = 0.075
 /** How long a finger stays still before it tilts the card. */
 export const HOLD_MS = 150
 /** How far a finger moves, in px, before the hold gives way to a scroll. */
 export const TOUCH_SLOP = 6
+/** How far the reflection slides for a given tilt. */
+export const TRAVEL = 2.5
 
-/** Close enough to snap: in degrees, then in px. */
+/** Close enough to snap, in degrees. */
 const SNAP_DEGREES = 0.01
-const SNAP_PIXELS = 0.1
+/** A card face's width over its height, until one is measured. */
+const CARD_ASPECT = 2 / 3
 
-export const REST: Tilt = { rx: 0, ry: 0, glareDx: 0, glareDy: 0 }
+export const REST: Tilt = { rx: 0, ry: 0 }
 
-const TILT_PROPERTIES = ["--tilt-rx", "--tilt-ry"] as const
-const GLARE_PROPERTIES = ["--glare-dx", "--glare-dy"] as const
+export const TILT_PROPERTIES = [
+  "--tilt-rx",
+  "--tilt-ry",
+  "--reflection-strip",
+  "--reflection-fresnel",
+  "--reflection-horizon",
+  "--reflection-hue",
+] as const
 
 const unit = (value: number) => Math.min(1, Math.max(0, value))
 
+const withoutNegativeZero = (value: number) => value + 0
+
 /**
  * The tilt for a pointer at (`x`, `y`) over a card laid out at `rect`: the
- * side under the pointer goes down, up to `max` degrees at an edge
- * (EXPERIENCE.md, Motion: about 10°, 16° in the booster); the glare's
- * centre sits under the pointer.
+ * side under the pointer goes down, up to `max` degrees at an edge.
  */
 export function tiltTarget(x: number, y: number, rect: Box, max: number): Tilt {
   const px = rect.width > 0 ? unit((x - rect.left) / rect.width) : 0.5
   const py = rect.height > 0 ? unit((y - rect.top) / rect.height) : 0.5
+  return { rx: withoutNegativeZero(-(py - 0.5) * 2 * max), ry: withoutNegativeZero((px - 0.5) * 2 * max) }
+}
+
+/**
+ * The reflection of a card tilted toward (`dx`, `dy`), each from -0.5 to
+ * 0.5 (the side brought down, as a share of the card from its centre), on
+ * a card `aspect` times as wide as it is tall: the strips and the ceiling
+ * slide opposite the tilt, and the varnish brightens as the tilt grows.
+ */
+export function reflection(dx: number, dy: number, aspect: number): Reflection {
+  const tilt2 = Math.min(1, (dx * dx + dy * dy) / 0.5)
   return {
-    rx: -(py - 0.5) * 2 * max + 0,
-    ry: (px - 0.5) * 2 * max + 0,
-    glareDx: (px - 0.5) * rect.width + 0,
-    glareDy: (py - 0.5) * rect.height + 0,
+    strip: withoutNegativeZero(30 - dx * TRAVEL * 55 - dy * TRAVEL * 30),
+    fresnel: withoutNegativeZero(0.8 + 0.6 * tilt2),
+    horizon: withoutNegativeZero(-0.32 - dy * TRAVEL - 0.2 * dx * TRAVEL * aspect),
+    hue: withoutNegativeZero(50 + (dx * 0.6 + dy * 0.3) * TRAVEL * 100),
   }
 }
 
-const settled = (a: Tilt, b: Tilt) =>
-  Math.abs(a.rx - b.rx) < SNAP_DEGREES &&
-  Math.abs(a.ry - b.ry) < SNAP_DEGREES &&
-  Math.abs(a.glareDx - b.glareDx) < SNAP_PIXELS &&
-  Math.abs(a.glareDy - b.glareDy) < SNAP_PIXELS
+/** The flat card's reflection, which the stylesheet draws by default. */
+export const REST_REFLECTION = reflection(0, 0, CARD_ASPECT)
+
+/**
+ * Where a card showing `tilt`, out of `max` degrees at an edge, leans: the
+ * side brought down, from -0.5 to 0.5 across (`dx`) and down (`dy`).
+ */
+export function leaning(tilt: Tilt, max: number): { dx: number; dy: number } {
+  return { dx: withoutNegativeZero(tilt.ry / (2 * max)), dy: withoutNegativeZero(-tilt.rx / (2 * max)) }
+}
+
+/** The reflection of a card showing `tilt`, out of `max` degrees at an edge. */
+export function reflectionOf(tilt: Tilt, max: number, aspect: number): Reflection {
+  const { dx, dy } = leaning(tilt, max)
+  return reflection(dx, dy, aspect)
+}
+
+const settled = (a: Tilt, b: Tilt) => Math.abs(a.rx - b.rx) < SNAP_DEGREES && Math.abs(a.ry - b.ry) < SNAP_DEGREES
 
 const atRest = (tilt: Tilt) => settled(tilt, REST)
 
 /** One frame of easing from `current` toward `target`, snapping onto it when close. */
-export function easeToward(current: Tilt, target: Tilt, factor = EASE): Tilt {
+export function easeToward(current: Tilt, target: Tilt, factor: number): Tilt {
   const next = {
     rx: current.rx + (target.rx - current.rx) * factor,
     ry: current.ry + (target.ry - current.ry) * factor,
-    glareDx: current.glareDx + (target.glareDx - current.glareDx) * factor,
-    glareDy: current.glareDy + (target.glareDy - current.glareDy) * factor,
   }
   return settled(next, target) ? { ...target } : next
 }
@@ -90,41 +127,49 @@ function layoutBox(element: HTMLElement): Box {
 
 type Hold = { id: number; startX: number; startY: number; x: number; y: number; timer: ReturnType<typeof setTimeout> }
 
-/** Tilts `element` under the pointer; returns the function that undoes it all. */
-export function attachTilt(element: HTMLElement, { max }: { max: number }): () => void {
+/**
+ * Tilts `element` under the pointer; returns the function that undoes it
+ * all. `onTilt` hears where the eased tilt leans on every frame it draws,
+ * and (0, 0) once it is back at rest or detached.
+ */
+export function attachTilt(
+  element: HTMLElement,
+  { max, onTilt }: { max: number; onTilt?: (dx: number, dy: number) => void },
+): () => void {
   let current = REST
   let target = REST
   let frame: number | null = null
   let driver: { id: number; touch: boolean } | null = null
   let hold: Hold | null = null
   let box: Box | null = null
+  let aspect = CARD_ASPECT
   let swallowClick = false
-  let glarePlaced = false
 
-  const settleAtRest = () => {
+  const clear = () => {
     for (const property of TILT_PROPERTIES) element.style.removeProperty(property)
     delete element.dataset.tilt
     delete element.dataset.tilting
-  }
-
-  const clear = () => {
-    settleAtRest()
-    for (const property of GLARE_PROPERTIES) element.style.removeProperty(property)
+    onTilt?.(0, 0)
   }
 
   const write = () => {
+    const { dx, dy } = leaning(current, max)
+    const { strip, fresnel, horizon, hue } = reflection(dx, dy, aspect)
     element.style.setProperty("--tilt-rx", `${current.rx}deg`)
     element.style.setProperty("--tilt-ry", `${current.ry}deg`)
-    element.style.setProperty("--glare-dx", `${current.glareDx}px`)
-    element.style.setProperty("--glare-dy", `${current.glareDy}px`)
+    element.style.setProperty("--reflection-strip", `${strip}%`)
+    element.style.setProperty("--reflection-fresnel", `${fresnel}`)
+    element.style.setProperty("--reflection-horizon", `${horizon}`)
+    element.style.setProperty("--reflection-hue", `${hue}%`)
+    onTilt?.(dx, dy)
   }
 
   const step = () => {
     frame = null
-    current = easeToward(current, target)
+    current = easeToward(current, target, driver === null ? EASE_LEAVE : EASE_ENTER)
     const still = settled(current, target)
     if (still && driver === null) {
-      settleAtRest()
+      clear()
       return
     }
     write()
@@ -138,22 +183,20 @@ export function attachTilt(element: HTMLElement, { max }: { max: number }): () =
     if (frame === null) frame = requestAnimationFrame(step)
   }
 
-  const placeGlareUnderPointer = () => {
-    current = { ...current, glareDx: target.glareDx, glareDy: target.glareDy }
-    glarePlaced = true
-    write()
+  const measure = () => {
+    const measured = layoutBox(element)
+    if (measured.width > 0 && measured.height > 0) aspect = measured.width / measured.height
+    return measured
   }
 
   const aim = (x: number, y: number) => {
-    box ??= layoutBox(element)
+    box ??= measure()
     target = tiltTarget(x, y, box, max)
-    if (!glarePlaced) placeGlareUnderPointer()
     schedule()
   }
 
   const drive = (id: number, touch: boolean) => {
     driver = { id, touch }
-    glarePlaced = false
     element.dataset.tilting = ""
   }
 
@@ -161,7 +204,7 @@ export function attachTilt(element: HTMLElement, { max }: { max: number }): () =
     driver = null
     box = null
     delete element.dataset.tilting
-    target = { ...REST, glareDx: current.glareDx, glareDy: current.glareDy }
+    target = REST
     schedule()
   }
 

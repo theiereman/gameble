@@ -10,7 +10,7 @@ module CardBaselines
   TOLERANCE = 1.5
 
   # Waits until the face is still: fonts loaded, art settled, the tilt held
-  # and no animation or transition left under it (the glare's fade over).
+  # and no animation or transition left under it.
   def assert_card_settled(card)
     page.document.synchronize(10) do
       ready = card.evaluate_script(<<~JS)

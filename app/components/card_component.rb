@@ -8,9 +8,9 @@
 #
 # `card` is a Catalog::CardView. Four sizes: s, m, l, xl. The art is drawn
 # in the browser by the card-art Stimulus controller (pixelcrush), the
-# tilt, glare and holo/foil run by the tilt controller. `booster: true`
-# gives a face the booster opening's effects (Rarity effects) and a stronger
-# tilt.
+# tilt, the reflection on the varnish and a Légendaire's glitter run by the
+# tilt controller. `booster: true` gives a face the booster opening's
+# effects (Rarity effects) and a stronger tilt.
 class CardComponent < ViewComponent::Base
   SIZES = %i[s m l xl].freeze
 
@@ -35,8 +35,11 @@ class CardComponent < ViewComponent::Base
   PUBLISHER_SIZES = %i[m l xl].freeze
   LARGE_SIZES = %i[l xl].freeze
 
-  HOLO = { default: %w[legendary], booster: %w[legendary] }.freeze
-  FOIL = { default: [], booster: %w[legendary] }.freeze
+  # Tiers whose reflection shows pastel hues, under glitter.
+  IRIDESCENT = %w[legendary].freeze
+
+  # Room for every card number in a season, so no two cards share a glitter.
+  GLITTER_SEED_SEASON_STRIDE = 1_000_000
 
   def initialize(card:, size: :m, booster: false)
     raise ArgumentError, "unknown card size: #{size.inspect}" unless SIZES.include?(size)
@@ -57,10 +60,9 @@ class CardComponent < ViewComponent::Base
 
     def art = ART.fetch(size)
 
-    def context = booster ? :booster : :default
+    def iridescent? = IRIDESCENT.include?(card.rarity)
 
-    def holo? = HOLO.fetch(context).include?(card.rarity)
-    def foil? = FOIL.fetch(context).include?(card.rarity)
+    def glitter_seed = card.season_number.to_i * GLITTER_SEED_SEASON_STRIDE + card.number.to_i
 
     def publisher? = PUBLISHER_SIZES.include?(size) && card.publisher.present?
 

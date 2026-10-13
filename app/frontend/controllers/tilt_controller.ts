@@ -1,36 +1,56 @@
 import { Controller } from "@hotwired/stimulus"
-import { attachTilt } from "../lib/tilt"
+import { TILT_PROPERTIES, attachTilt } from "../lib/tilt"
+import { attachGlitter, glitterSeed, type Glitter } from "../lib/glitter"
 import { observeInView } from "../lib/in_view"
 
-// A card face's tilt, glare and in-view mark (CardComponent; lib/tilt.ts):
-// holo and foil run only while `data-in-view` is set (styles/card.css). A
-// Turbo snapshot keeps the attributes and properties of the moment it was
-// taken: each connect starts from a clean face, each disconnect leaves one.
+// A card face's tilt, reflection, glitter and in-view mark (CardComponent;
+// lib/tilt.ts, lib/glitter.ts): a Légendaire's flakes twinkle only while
+// `data-in-view` is set (styles/card.css). A Turbo snapshot keeps the
+// attributes, properties and flakes of the moment it was taken: each
+// connect starts from a clean face, each disconnect leaves one.
 export default class extends Controller<HTMLElement> {
   static values = { max: { type: Number, default: 10 } }
+  static targets = ["glitter"]
 
   declare readonly maxValue: number
+  declare readonly hasGlitterTarget: boolean
+  declare readonly glitterTarget: HTMLElement
 
   private detach?: () => void
   private unobserve?: () => void
+  private glitter?: Glitter
 
   connect(): void {
     this.reset()
     this.unobserve = observeInView(this.element, (inView) => {
       this.element.toggleAttribute("data-in-view", inView)
     })
-    this.detach = attachTilt(this.element, { max: this.maxValue })
+    this.glitter = this.attachGlitter()
+    this.glitter?.update(0, 0)
+    this.detach = attachTilt(this.element, { max: this.maxValue, onTilt: this.glitter?.update })
   }
 
   disconnect(): void {
     this.detach?.()
     this.unobserve?.()
-    this.detach = this.unobserve = undefined
+    this.glitter?.detach()
+    this.detach = this.unobserve = this.glitter = undefined
     this.reset()
   }
 
+  // The face's size from its custom properties, which hold even while it is hidden.
+  private attachGlitter(): Glitter | undefined {
+    if (!this.hasGlitterTarget) return undefined
+    const style = getComputedStyle(this.element)
+    return attachGlitter(this.glitterTarget, {
+      seed: glitterSeed(this.glitterTarget.dataset.glitterSeed),
+      width: Number.parseFloat(style.getPropertyValue("--card-width")) || 0,
+      height: Number.parseFloat(style.getPropertyValue("--card-height")) || 0,
+    })
+  }
+
   private reset(): void {
-    for (const property of ["--tilt-rx", "--tilt-ry", "--glare-dx", "--glare-dy"]) this.element.style.removeProperty(property)
+    for (const property of TILT_PROPERTIES) this.element.style.removeProperty(property)
     this.element.removeAttribute("data-in-view")
     this.element.removeAttribute("data-tilt")
     this.element.removeAttribute("data-tilting")

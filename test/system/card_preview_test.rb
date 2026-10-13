@@ -3,7 +3,7 @@ require_relative "../support/steam_sign_in"
 
 # The card face as the server draws it at every size (back-office card
 # preview, administrators only): its art, the missing image, a long title,
-# the holo sheen in and out of the viewport, a Turbo restore.
+# a Légendaire's glitter in and out of the viewport, a Turbo restore.
 class CardPreviewTest < ApplicationSystemTestCase
   include SteamSignIn
 
@@ -118,35 +118,37 @@ class CardPreviewTest < ApplicationSystemTestCase
     assert_equal page.evaluate_script("parseFloat(getComputedStyle(document.querySelector(#{short.to_json})).lineHeight)"), box(short)[1]
   end
 
-  test "the holo sheen runs only while the face is in view, and never under reduced motion" do
+  test "a legendary face's glitter twinkles only while in view, never under reduced motion; the reflection stays" do
     visit_preview
-    holo = "[data-specimen=legendary-xl] .card__holo"
+    specimen = "[data-specimen=legendary-xl]"
+    glint = "#{specimen} .card__flake:not([data-flash]) .card__flake-glint"
 
-    scroll_to(find("[data-specimen=legendary-xl]"), align: :center)
-    assert_selector "[data-specimen=legendary-xl] > .card[data-in-view]"
-    assert_equal "card-holo", style(holo, "animationName")
-    assert_no_selector "[data-specimen=rare-xl] .card__holo"
+    scroll_to(find(specimen), align: :center)
+    assert_selector "#{specimen} > .card[data-in-view]"
+    assert_selector glint, style: { "animation-name" => "card-glitter-twinkle" }
+    assert_selector "#{specimen} .card__reflection--iridescence"
+    assert_no_selector "[data-specimen=rare-xl] .card__glitter, [data-specimen=rare-xl] .card__reflection--iridescence"
+    assert_no_selector ".card__holo, .card__foil, .card__glare", visible: :all
 
     page.execute_script("window.scrollTo(0, 0)")
-    assert_no_selector "[data-specimen=legendary-xl] > .card[data-in-view]"
-    assert_equal "none", style(holo, "animationName")
+    assert_no_selector "#{specimen} > .card[data-in-view]"
+    assert_equal "none", style(glint, "animationName")
 
-    scroll_to(find("[data-specimen=legendary-xl]"), align: :center)
-    assert_selector "[data-specimen=legendary-xl] > .card[data-in-view]"
+    scroll_to(find(specimen), align: :center)
+    assert_selector "#{specimen} > .card[data-in-view]"
     reduce_motion(true)
-    assert_equal "none", style(holo, "animationName")
-    assert_equal "none", style(holo, "display")
-    assert_equal "none", style("[data-specimen=legendary-xl] .card__glare", "display")
+    assert_selector glint, style: { "animation-name" => "none" }
+    assert_equal "block", style("#{specimen} .card__reflection--strips", "display")
     reduce_motion(false)
 
     booster = "[data-specimen=legendary-m-booster]"
     scroll_to(find(booster), align: :center)
     assert_selector "#{booster} > .card[data-in-view]"
-    assert_equal [ "card-holo", "1" ], [ style("#{booster} .card__holo", "animationName"), style("#{booster} .card__holo", "opacity") ]
-    assert_equal [ "card-foil", "0.22" ], [ style("#{booster} .card__foil", "animationName"), style("#{booster} .card__foil", "opacity") ]
-    assert_no_selector "[data-specimen=rare-m-booster] .card__holo"
-    assert_no_selector "[data-specimen=epic-m-booster] .card__holo"
-    assert_no_selector "[data-specimen=epic-m-booster] .card__foil"
+    assert_selector "#{booster} .card__glitter .card__flake"
+    assert_selector "#{booster} .card__flake:not([data-flash]) .card__flake-glint", style: { "animation-name" => "card-glitter-twinkle" }
+    %w[rare epic].each do |rarity|
+      assert_no_selector "[data-specimen=#{rarity}-m-booster] .card__glitter, [data-specimen=#{rarity}-m-booster] .card__reflection--iridescence"
+    end
   end
 
   test "a Turbo restore visit draws the art again, from a clean face" do

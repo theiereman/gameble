@@ -1,18 +1,32 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { HOLD_MS, REST, TOUCH_SLOP, attachTilt, easeToward, tiltTarget } from "./tilt"
+import cardStylesheet from "../styles/card.css?raw"
+import {
+  EASE_ENTER,
+  EASE_LEAVE,
+  HOLD_MS,
+  REST,
+  REST_REFLECTION,
+  TOUCH_SLOP,
+  attachTilt,
+  easeToward,
+  reflection,
+  reflectionOf,
+  tiltTarget,
+} from "./tilt"
 
 const RECT = { left: 100, top: 200, width: 160, height: 240 }
+const ASPECT = RECT.width / RECT.height
 
 describe("tiltTarget", () => {
   it("is at rest with the pointer at the centre", () => {
     expect(tiltTarget(180, 320, RECT, 10)).toEqual(REST)
   })
 
-  it("lowers the side under the pointer, glare under it", () => {
+  it("lowers the side under the pointer", () => {
     // 25 % across, 25 % down.
-    expect(tiltTarget(140, 260, RECT, 10)).toEqual({ rx: 5, ry: -5, glareDx: -40, glareDy: -60 })
+    expect(tiltTarget(140, 260, RECT, 10)).toEqual({ rx: 5, ry: -5 })
     // The bottom right corner, a booster's strength.
-    expect(tiltTarget(260, 440, RECT, 16)).toEqual({ rx: -16, ry: 16, glareDx: 80, glareDy: 120 })
+    expect(tiltTarget(260, 440, RECT, 16)).toEqual({ rx: -16, ry: 16 })
   })
 
   it("stays within the card's edges", () => {
@@ -22,16 +36,53 @@ describe("tiltTarget", () => {
 
 describe("easeToward", () => {
   it("covers part of the way each frame, then snaps onto the target", () => {
-    const target = { rx: 5, ry: -5, glareDx: 40, glareDy: -60 }
-    let current = easeToward(REST, target)
-    expect(current.rx).toBeCloseTo(0.8)
+    const target = { rx: 5, ry: -5 }
+    let current = easeToward(REST, target, EASE_ENTER)
+    expect(current.rx).toBeCloseTo(5 * EASE_ENTER)
     let frames = 1
-    while (JSON.stringify(current) !== JSON.stringify(target) && frames < 200) {
-      current = easeToward(current, target)
+    while (JSON.stringify(current) !== JSON.stringify(target) && frames < 500) {
+      current = easeToward(current, target, EASE_ENTER)
       frames++
     }
     expect(current).toEqual(target)
-    expect(frames).toBeLessThan(100)
+    expect(frames).toBeLessThan(200)
+  })
+})
+
+describe("reflection", () => {
+  it("rests at the flat card's position", () => {
+    expect(reflection(0, 0, 2 / 3)).toEqual({ strip: 30, fresnel: 0.8, horizon: -0.32, hue: 50 })
+    expect(REST_REFLECTION).toEqual({ strip: 30, fresnel: 0.8, horizon: -0.32, hue: 50 })
+  })
+
+  it("slides opposite a corner brought down, and brightens up to a cap", () => {
+    const corner = reflection(0.5, 0.5, 2 / 3)
+    expect(corner.strip).toBeCloseTo(30 - 68.75 - 37.5)
+    expect(corner.fresnel).toBeCloseTo(1.4)
+    expect(corner.horizon).toBeCloseTo(-0.32 - 1.25 - 0.25 * (2 / 3))
+    expect(corner.hue).toBeCloseTo(50 + 0.45 * 250)
+    expect(reflection(0.5, -0.5, 2 / 3).fresnel).toBeCloseTo(1.4)
+    expect(reflection(0.25, 0, 2 / 3).fresnel).toBeCloseTo(0.875)
+  })
+
+  it("weighs the ceiling's sideways slide by the card's shape", () => {
+    expect(reflection(0.5, 0, 1).horizon).toBeCloseTo(-0.32 - 0.25)
+    expect(reflection(0.5, 0, 0.5).horizon).toBeCloseTo(-0.32 - 0.125)
+  })
+
+  it("shifts the hues with the tilt, whatever the tilt's strength", () => {
+    expect(reflectionOf({ rx: -10, ry: 10 }, 10, 2 / 3).hue).toBeCloseTo(162.5)
+    expect(reflectionOf({ rx: 5, ry: -5 }, 10, 2 / 3).hue).toBeCloseTo(-6.25)
+    expect(reflectionOf({ rx: -16, ry: 16 }, 16, 2 / 3)).toEqual(reflectionOf({ rx: -10, ry: 10 }, 10, 2 / 3))
+  })
+
+  it("is drawn at rest by the stylesheet's defaults", () => {
+    const card = cardStylesheet.match(/^\.card \{([^}]*)\}/m)?.[1] ?? ""
+    const value = (name: string) => card.match(new RegExp(`--reflection-${name}:\\s*([^;]+);`))?.[1].trim()
+    expect(value("strip")).toBe(`${REST_REFLECTION.strip}%`)
+    expect(value("fresnel")).toBe(`${REST_REFLECTION.fresnel}`)
+    expect(value("horizon")).toBe(`${REST_REFLECTION.horizon}`)
+    expect(value("hue")).toBe(`${REST_REFLECTION.hue}%`)
   })
 })
 
@@ -89,6 +140,9 @@ describe("attachTilt", () => {
     return { card, detach }
   }
 
+  const strip = (card: FakeCard) => parseFloat(card.properties.get("--reflection-strip") ?? "NaN")
+  const hue = (card: FakeCard) => parseFloat(card.properties.get("--reflection-hue") ?? "NaN")
+
   it("follows a mouse, holds once settled, and lets go at rest", () => {
     const { card } = attach()
 
@@ -98,72 +152,115 @@ describe("attachTilt", () => {
     expect(card.dataset.tilt).toBe("moving")
     runFrames()
     expect(card.dataset.tilt).toBe("held")
-    expect(card.properties.get("--tilt-rx")).toBe("5deg")
-    expect(card.properties.get("--tilt-ry")).toBe("-5deg")
-    expect(card.properties.get("--glare-dx")).toBe("-40px")
-    expect(card.properties.get("--glare-dy")).toBe("-60px")
+    const held = reflectionOf({ rx: 5, ry: -5 }, 10, ASPECT)
+    expect(Object.fromEntries(card.properties)).toEqual({
+      "--tilt-rx": "5deg",
+      "--tilt-ry": "-5deg",
+      "--reflection-strip": `${held.strip}%`,
+      "--reflection-fresnel": `${held.fresnel}`,
+      "--reflection-horizon": `${held.horizon}`,
+      "--reflection-hue": `${held.hue}%`,
+    })
 
     card.dispatchEvent(pointer("pointerleave", "mouse", 300, 260))
     expect(card.dataset.tilting).toBeUndefined()
     runFrames()
     expect(card.dataset.tilt).toBeUndefined()
-    expect(Object.fromEntries(card.properties)).toEqual({ "--glare-dx": "-40px", "--glare-dy": "-60px" })
+    expect(card.properties.size).toBe(0)
   })
 
-  it("fades the glare out where it is while the tilt eases back to rest", () => {
+  it("eases the reflection in from rest with the tilt, never jumping to the pointer", () => {
     const { card } = attach()
-    const glare = () => [card.properties.get("--glare-dx"), card.properties.get("--glare-dy")]
+    const atCorner = reflectionOf({ rx: -10, ry: 10 }, 10, ASPECT)
+
+    card.dispatchEvent(pointer("pointermove", "mouse", 260, 440))
+    expect(card.properties.size).toBe(0)
+    runFrames(1)
+    const rest = REST_REFLECTION
+    expect(strip(card)).toBeCloseTo(rest.strip + (atCorner.strip - rest.strip) * EASE_ENTER)
+    expect(hue(card)).toBeCloseTo(rest.hue + (atCorner.hue - rest.hue) * EASE_ENTER)
+    expect(parseFloat(card.properties.get("--reflection-fresnel") ?? "NaN")).toBeLessThan(atCorner.fresnel)
+
+    let easedFrames = 1
+    let previous = strip(card)
+    while (card.dataset.tilt === "moving") {
+      runFrames(1)
+      expect(strip(card)).toBeLessThan(previous)
+      expect(strip(card)).toBeGreaterThanOrEqual(atCorner.strip)
+      previous = strip(card)
+      easedFrames++
+    }
+    expect(easedFrames).toBeGreaterThan(20)
+    expect(card.dataset.tilt).toBe("held")
+    expect(card.properties.get("--reflection-strip")).toBe(`${atCorner.strip}%`)
+  })
+
+  it("eases the reflection back with the tilt once the pointer leaves, then clears it all", () => {
+    const { card } = attach()
     const tilt = () => ["--tilt-rx", "--tilt-ry"].map((name) => Math.abs(parseFloat(card.properties.get(name) ?? "0")))
 
-    card.dispatchEvent(pointer("pointermove", "mouse", 140, 260))
-    runFrames()
     card.dispatchEvent(pointer("pointermove", "mouse", 260, 440))
-    runFrames(2)
-    const glareAtLeave = glare()
-    expect(glareAtLeave).not.toEqual(["-40px", "-60px"])
-    expect(glareAtLeave).not.toEqual(["80px", "120px"])
-
+    runFrames()
     card.dispatchEvent(pointer("pointerleave", "mouse", 300, 440))
+
     let easedFrames = 0
+    let previousStrip = strip(card)
     let previousTilt = tilt()
-    while (frames.size > 0 && card.properties.has("--tilt-rx")) {
+    while (frames.size > 0) {
       runFrames(1)
-      expect(glare()).toEqual(glareAtLeave)
-      if (!card.properties.has("--tilt-rx")) break
+      if (card.properties.size === 0) break
+      expect(strip(card) - REST_REFLECTION.strip).toBeCloseTo((previousStrip - REST_REFLECTION.strip) * (1 - EASE_LEAVE))
       tilt().forEach((angle, axis) => expect(angle).toBeLessThan(previousTilt[axis]))
+      previousStrip = strip(card)
       previousTilt = tilt()
       easedFrames++
     }
-    expect(easedFrames).toBeGreaterThan(5)
+    expect(easedFrames).toBeGreaterThan(20)
     expect(frames.size).toBe(0)
+    expect(card.properties.size).toBe(0)
     expect(card.dataset.tilt).toBeUndefined()
     expect(card.dataset.tilting).toBeUndefined()
-    expect(card.properties.has("--tilt-rx")).toBe(false)
-    expect(card.properties.has("--tilt-ry")).toBe(false)
-    expect(glare()).toEqual(glareAtLeave)
+  })
 
-    card.dispatchEvent(pointer("pointermove", "mouse", 220, 380))
-    expect(glare()).toEqual(["40px", "60px"])
+  it("picks the reflection up where it is when the pointer comes back mid-way", () => {
+    const { card } = attach()
+
+    card.dispatchEvent(pointer("pointermove", "mouse", 260, 440))
+    runFrames()
+    card.dispatchEvent(pointer("pointerleave", "mouse", 300, 440))
+    runFrames(10)
+    const leaving = strip(card)
+    card.dispatchEvent(pointer("pointermove", "mouse", 260, 440))
+    expect(strip(card)).toBe(leaving)
+    runFrames(1)
+    expect(strip(card)).toBeLessThan(leaving)
     expect(card.dataset.tilting).toBe("")
   })
 
-  it("places the glare under the pointer at once, while the tilt eases", () => {
-    const { card } = attach()
+  it("tells where the eased tilt leans on every frame, and (0, 0) back at rest or detached", () => {
+    const card = new FakeCard()
+    const onTilt = vi.fn()
+    const detach = attachTilt(card as unknown as HTMLElement, { max: 16, onTilt })
 
-    card.dispatchEvent(pointer("pointermove", "mouse", 140, 260))
-    expect(card.properties.get("--glare-dx")).toBe("-40px")
-    expect(card.properties.get("--glare-dy")).toBe("-60px")
-    expect(card.properties.get("--tilt-rx")).toBe("0deg")
+    card.dispatchEvent(pointer("pointermove", "mouse", 260, 440))
+    expect(onTilt).not.toHaveBeenCalled()
     runFrames(1)
-    expect(card.dataset.tilt).toBe("moving")
-    expect(parseFloat(card.properties.get("--tilt-rx") ?? "0")).toBeGreaterThan(0)
-    expect(parseFloat(card.properties.get("--tilt-rx") ?? "0")).toBeLessThan(5)
-
-    card.dispatchEvent(pointer("pointerleave", "mouse", 300, 260))
+    expect(onTilt).toHaveBeenCalledTimes(1)
+    const [dx, dy] = onTilt.mock.calls[0]
+    expect(dx).toBeCloseTo(0.5 * EASE_ENTER)
+    expect(dy).toBeCloseTo(0.5 * EASE_ENTER)
     runFrames()
-    card.dispatchEvent(pointer("pointermove", "mouse", 220, 380))
-    expect(card.properties.get("--glare-dx")).toBe("40px")
-    expect(card.properties.get("--glare-dy")).toBe("60px")
+    expect(onTilt).toHaveBeenLastCalledWith(0.5, 0.5)
+
+    card.dispatchEvent(pointer("pointerleave", "mouse", 300, 440))
+    runFrames()
+    expect(onTilt).toHaveBeenLastCalledWith(0, 0)
+
+    card.dispatchEvent(pointer("pointermove", "mouse", 260, 440))
+    runFrames(3)
+    onTilt.mockClear()
+    detach()
+    expect(onTilt).toHaveBeenCalledExactlyOnceWith(0, 0)
   })
 
   it("marks a card driven but resting at its centre neither moving nor held", () => {
@@ -189,11 +286,13 @@ describe("attachTilt", () => {
     runFrames()
     expect(card.dataset.tilt).toBe("held")
     expect(card.properties.get("--tilt-rx")).toBe("-10deg")
+    expect(card.properties.get("--reflection-strip")).toBe(`${reflectionOf({ rx: -10, ry: 10 }, 10, ASPECT).strip}%`)
 
     card.dispatchEvent(pointer("pointerup", "touch", 260, 440))
     runFrames()
     expect(card.dataset.tilt).toBeUndefined()
     expect(card.dataset.tilting).toBeUndefined()
+    expect(card.properties.size).toBe(0)
   })
 
   it("swallows the click that follows a finger's tilt, and only that one", () => {
@@ -225,6 +324,7 @@ describe("attachTilt", () => {
     runFrames()
     expect(card.dataset.tilting).toBeUndefined()
     expect(card.dataset.tilt).toBeUndefined()
+    expect(card.properties.size).toBe(0)
   })
 
   it("lets go when the browser cancels the pointer", () => {
@@ -255,6 +355,7 @@ describe("attachTilt", () => {
 
     card.dispatchEvent(pointer("pointermove", "mouse", 140, 260))
     runFrames(3)
+    expect(card.properties.size).toBe(6)
     detach()
     expect(card.dataset.tilt).toBeUndefined()
     expect(card.dataset.tilting).toBeUndefined()

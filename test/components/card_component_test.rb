@@ -93,30 +93,41 @@ class CardComponentTest < ViewComponent::TestCase
     assert_equal title, page.find(".card__title").text
   end
 
-  test "outside the booster only the legendary tier has its holo sheen, and no tier its foil" do
+  def assert_reflection(rarity)
+    shining = rarity.to_s == "legendary"
+    assert_selector ".card > .card__effects[aria-hidden=true] > .card__reflection--ceiling:first-child"
+    assert_selector ".card__effects > .card__reflection--strips"
+    assert_equal shining, page.has_selector?(".card__reflection--ceiling + .card__reflection--iridescence + .card__reflection--strips"), "#{rarity} iridescence"
+    assert_equal shining, page.has_selector?(".card__reflection--strips + .card__glitter[data-tilt-target=glitter][data-glitter-seed]:last-child"), "#{rarity} glitter"
+    assert_no_selector ".card__holo, .card__foil, .card__glare"
+  end
+
+  test "every tier reflects the studio on its varnish; only the legendary one adds iridescence and glitter" do
     Catalog::Rarity::TIERS.each_value do |rarity|
       render_card(card(rarity: rarity.to_s))
 
-      assert_selector ".card > .card__effects[aria-hidden=true] > .card__glare"
-      if rarity == :legendary
-        assert_selector ".card__effects > .card__holo"
-      else
-        assert_no_selector ".card__holo"
-      end
-      assert_no_selector ".card__foil"
+      assert_reflection(rarity)
     end
   end
 
-  test "in the booster: holo and foil on the legendary tier only, a stronger tilt" do
-    expected = { common: [ false, false ], uncommon: [ false, false ], rare: [ false, false ], epic: [ false, false ], legendary: [ true, true ] }
-    expected.each do |rarity, (holo, foil)|
+  test "in the booster: the same reflection, iridescence and glitter, and a stronger tilt" do
+    Catalog::Rarity::TIERS.each_value do |rarity|
       render_card(card(rarity: rarity.to_s), booster: true)
 
       assert_selector ".card.card--booster.card--rarity-#{rarity}[data-tilt-max-value='16']"
-      assert_equal holo, page.has_selector?(".card__holo"), "#{rarity} holo"
-      assert_equal foil, page.has_selector?(".card__foil"), "#{rarity} foil"
-      assert_selector ".card__glare"
+      assert_reflection(rarity)
     end
+  end
+
+  test "a legendary card's glitter is seeded from its season and number, the same on every render" do
+    render_card(card(rarity: "legendary", season_number: 2, number: 42))
+    assert_selector ".card__glitter[data-glitter-seed='2000042']"
+
+    render_card(card(rarity: "legendary", season_number: 2, number: 42), size: :xl, booster: true)
+    assert_selector ".card__glitter[data-glitter-seed='2000042']"
+
+    render_card(card(rarity: "legendary", season_number: 1, number: nil))
+    assert_selector ".card__glitter[data-glitter-seed='1000000']"
   end
 
   test "each tier's icon and name" do

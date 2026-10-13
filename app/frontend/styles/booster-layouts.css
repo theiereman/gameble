@@ -216,13 +216,16 @@
   display: none;
 }
 
-/* At most six loops on a phone view: only the top card runs its sheen,
-   holo, foil and rays. */
+/* On a phone view only the top card runs its sheen, glitter twinkle and
+   rays. */
 .booster[data-layout="phone"] .booster-card:not([data-top]) .booster-card__back::after,
-.booster[data-layout="phone"] .booster-card:not([data-top]) .booster-card__rays,
-.booster[data-layout="phone"] .booster-card:not([data-top]) .card__holo,
-.booster[data-layout="phone"] .booster-card:not([data-top]) .card__foil {
+.booster[data-layout="phone"] .booster-card:not([data-top]) .booster-card__rays {
   animation: none;
+}
+
+.booster[data-layout="phone"] .booster-card:not([data-top]) .card__flake-glint {
+  animation: none;
+  opacity: 0.18;
 }
 
 /* The plate band: the hint line, covered by the caption plate once the top

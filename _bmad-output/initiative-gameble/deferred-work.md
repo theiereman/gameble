@@ -191,3 +191,12 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-season-preparation/story-rarity-follows-popularity-the-rating-only-orders-games-of-eq-plan.md`
   summary: The development seeds stamp the current prestige VERSION on scores the formula never computed (`prestige_score: number.to_f`, review counts set apart), so local rarities contradict the rule the how-it-works screen states.
   evidence: `db/seeds.rb:31-34`. Pre-existing; more visible now that the score is the review count. A fix computes the score with `Steam::PrestigeScore.call(percent_positive:, review_count:)`.
+
+## Deferred from: build of story-the-hover-light-becomes-a-studio-reflection-on-the-card-s-va-plan (2026-10-13)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-the-hover-light-becomes-a-studio-reflection-on-the-card-s-va-plan.md`
+  summary: The card face baselines (`test/fixtures/files/card_faces/*.png`) predate the studio reflection and the Légendaire's glitter, which now show on every face at rest; regenerate them with `UPDATE_CARD_BASELINES=1` when the system tests are rebuilt.
+  evidence: System tests are disabled until they are rebuilt (AGENTS.md); the build could not run them to refresh the baselines.
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-the-hover-light-becomes-a-studio-reflection-on-the-card-s-va-plan.md`
+  summary: The Légendaire's glitter twinkle runs one infinite animation per flake (9 on a card-s, 18 on a card-m, 40 on a card-xl), which breaks the architecture's budget of at most six infinite animations visible at once on a phone view; that line also still names holo and foil. The author needs to decide: amend the budget for this cheap stepped opacity, or twinkle fewer flakes (only the top card, a cap per view, or one animation per card).
+  evidence: `architecture-gameble.md` line 308; the author's glitter spec gives each flake its own period (2.4 to 6 s) and a negative delay, so each needs its own animation; `card.css` twinkle rule, `glitter.ts` FLAKES_PER_CARD. The booster's lower phone cards and face-down cards are kept still.

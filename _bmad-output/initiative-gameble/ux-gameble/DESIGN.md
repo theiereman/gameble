@@ -60,6 +60,13 @@ colors:
   rarity-legendaire: '#f4c542'
   rarity-legendaire-hi: '#fff3c4'
   rarity-legendaire-lo: '#8f5e0a'
+  iridescence-1: '#ff9ad5'
+  iridescence-2: '#c9a6ff'
+  iridescence-3: '#9ac8ff'
+  iridescence-4: '#9affe0'
+  iridescence-5: '#d8ff9a'
+  iridescence-6: '#fff09a'
+  iridescence-7: '#ffc49a'
 typography:
   screen-title:
     fontFamily: VT323
@@ -665,9 +672,11 @@ A placeholder image (too small or single-channel) counts as missing. If cross-or
 | Peu commune | None | None |
 | Rare | None | None |
 | Épique | Purple rays, small banner | Purple rays behind the card in the detail, the showcase and the public page |
-| Légendaire | Full holo and foil, gold rays, gold glow, large banner | Holo sheen (and gold rays where Épique has purple ones); no glow |
+| Légendaire | Glitter over an iridescent reflection, gold rays, gold glow, large banner | Glitter over an iridescent reflection (and gold rays where Épique has purple ones); no glow |
 
-Holo is a diagonal light band sweeping across the card in steps; foil a slow rainbow blend. Only the Légendaire shines (author, 2026-10-08). Under the pointer, every card gets a soft glare that appears right under it and follows it.
+Every card's varnish reflects a studio, always, at rest as under the pointer (author, 2026-10-13): two diagonal white strip lights, the second a narrow echo of the first, and a faint bright ceiling, drawn in hard steps. The varnish gets glossier with the rarity: a Commune's strips are broad and dim, a Légendaire's tight and bright. When the card tilts, the reflection slides opposite the tilt and brightens a little, riding the card's eased tilt in and out. On the Légendaire, pastel hues show through its main strip, a static iridescence whose colors shift with the tilt (`{colors.iridescence-1}` to `{colors.iridescence-7}`).
+
+The Légendaire's animated effect is its glitter (author, 2026-10-13), in the booster and everywhere else, in place of the former holo sweep and foil: small flakes of white, pale gold, violet and blue, some with four arms, scattered over the card the same way on every render of it. Each is a tiny mirror: it flashes when the tilt faces it, and otherwise twinkles now and then while the card is on screen. Only the Légendaire shines (author, 2026-10-08): no other tier has glitter or iridescence.
 
 #### Card backs
 
@@ -868,7 +877,7 @@ Out of the redesign's scope: it keeps a plain, functional style (no atmosphere, 
 | Keep the card face to title, publisher, cover, genre, year, rarity and number | Add stats, cost, attack, health or effect text |
 | Show rarity by shape, name and color together; check icons in grayscale | Rely on color alone, or let two silhouettes look alike |
 | Keep information at 10px or more, VT323 at 20px or more | Put a rarity, number, label or publisher below 10px |
-| Outside the booster screen, keep holo for the Légendaire only, without glow | Make every card shine, or glow outside the opening |
+| Give glitter and iridescence to the Légendaire only, and keep it without glow outside the booster screen | Make every card shine, or glow outside the opening |
 | Open the booster as a metal canister whose solid-edged caps blow off | Draw a glowing seam or cut line, notches on the caps, or sparks along a line |
 | Move things fluidly and quickly; tick small effects in steps | Use slow, floaty animations |
 | Keep idle float, the planet included, to 2px at most | Make cards or scenery bob strongly |

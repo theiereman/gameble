@@ -735,10 +735,10 @@
   animation: none;
 }
 
-/* A face-down card's face keeps still: no holo, no foil. */
-.booster-card:not([data-revealed]) .card__holo,
-.booster-card:not([data-revealed]) .card__foil {
+/* A face-down card's face keeps still: its glitter neither twinkles nor flashes. */
+.booster-card:not([data-revealed]) .card__flake-glint {
   animation: none;
+  opacity: 0.18;
 }
 
 /* Rays (Épique purple, Légendaire gold) and a Légendaire's glow, behind the card once revealed. */
