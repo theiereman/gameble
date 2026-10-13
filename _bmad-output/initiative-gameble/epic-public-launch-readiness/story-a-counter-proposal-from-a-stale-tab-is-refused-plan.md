@@ -3,7 +3,7 @@ title: 'A counter-proposal from a stale tab is refused'
 type: 'bugfix'
 ticket: '29'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '500c21f9089bc31ce468985f32be2e131d99a4f4'
 route: 'oneshot'
 route_source: 'auto'

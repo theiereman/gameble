@@ -3,7 +3,7 @@ title: 'db/schema.rb round-trips the Steam checks'
 type: 'bugfix'
 ticket: '35'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '1f4d44e8a2bb74fb2585682c8edaf9f2e8609443'
 route: 'oneshot'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'Opening an invite link sends the invitation'
 type: 'feature'
 ticket: '30'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '4b1584fd04a547ca8d905a0a0f447a1b345d972a'
 route: 'full'
 route_source: 'auto'

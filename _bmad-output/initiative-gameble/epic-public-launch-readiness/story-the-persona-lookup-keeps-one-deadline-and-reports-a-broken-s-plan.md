@@ -3,7 +3,7 @@ title: 'The persona lookup keeps one deadline and reports a broken Steam key'
 type: 'bugfix'
 ticket: '27'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '15e235688305dba6f26baf097fd8d69d47244daf'
 route: 'oneshot'
 route_source: 'auto'

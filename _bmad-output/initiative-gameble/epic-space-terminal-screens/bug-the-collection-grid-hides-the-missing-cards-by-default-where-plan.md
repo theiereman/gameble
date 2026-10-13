@@ -3,7 +3,7 @@ title: 'The collection grid hides the missing cards by default, where owned card
 type: 'bugfix'
 ticket: '9'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '2cec8912b67deec6bd190f3e0392d48eaf574748'
 route: 'oneshot'
 route_source: 'auto'

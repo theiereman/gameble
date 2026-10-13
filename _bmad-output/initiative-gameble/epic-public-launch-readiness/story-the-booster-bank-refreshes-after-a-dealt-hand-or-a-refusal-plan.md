@@ -3,7 +3,7 @@ title: 'The booster bank refreshes after a dealt hand or a refusal'
 type: 'bugfix'
 ticket: '31'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '47f2a2ed70e0b08f8d0d427b43d2de6210df4380'
 route: 'full'
 route_source: 'auto'

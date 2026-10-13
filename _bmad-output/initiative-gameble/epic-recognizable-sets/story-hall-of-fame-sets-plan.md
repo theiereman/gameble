@@ -3,7 +3,7 @@ title: 'Hall of fame sets'
 type: 'feature'
 ticket: '12'
 created: '2026-10-12'
-status: 'built'
+status: done
 baseline_revision: '1b5213d0d606cb291440982bf8b013bede252eef'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'Trades in the feed and the goal'
 type: 'feature'
 ticket: '9'
 created: '2026-10-12'
-status: 'built'
+status: done
 baseline_revision: '224cc3934833c61bacd0d4b7a95d6a1a2d065e08'
 route: 'full'
 route_source: 'auto'

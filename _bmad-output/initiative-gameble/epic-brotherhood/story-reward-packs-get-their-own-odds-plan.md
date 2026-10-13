@@ -3,7 +3,7 @@ title: 'Reward packs get their own odds'
 type: 'feature'
 ticket: '16'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '42d2480d5c839476627a830077b3a7cc5254dde2'
 route: 'oneshot'
 route_source: 'auto'

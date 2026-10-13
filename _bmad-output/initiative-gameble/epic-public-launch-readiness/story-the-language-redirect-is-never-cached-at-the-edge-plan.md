@@ -3,7 +3,7 @@ title: 'The language redirect is never cached at the edge'
 type: 'bugfix'
 ticket: '26'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '769b063f4b7d94d2d901e04e86b9fac1100523d6'
 route: 'oneshot'
 route_source: 'auto'

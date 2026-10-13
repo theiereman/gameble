@@ -3,7 +3,7 @@ title: 'Request-test helpers shared'
 type: 'refactor'
 ticket: '36'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: 'd24977f28ef19afe83a370d8fbea155d8eed2a13'
 route: 'full'
 route_source: 'auto'

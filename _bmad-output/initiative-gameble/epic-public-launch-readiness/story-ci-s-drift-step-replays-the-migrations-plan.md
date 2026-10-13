@@ -3,7 +3,7 @@ title: "CI's drift step replays the migrations"
 type: 'chore'
 ticket: '43'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '4ab2658436ebb8e6c5d74a166e473bef90cd75b7'
 route: 'oneshot'
 route_source: 'auto'

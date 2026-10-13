@@ -3,7 +3,7 @@ title: 'A player removes a friend'
 type: 'feature'
 ticket: '42'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '4ab2658436ebb8e6c5d74a166e473bef90cd75b7'
 route: 'full'
 route_source: 'auto'
