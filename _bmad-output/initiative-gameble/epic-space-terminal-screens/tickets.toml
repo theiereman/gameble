@@ -92,3 +92,18 @@ risk = "medium"
 severity = "P2"
 references = ["epic-space-terminal-screens/story-card-detail-plan.md", "epic-packs-and-reveal/bug-flip-all-on-a-phone-shows-every-card-plan.md"]
 notes = ["Found by the author's acceptance check of 3.11 and 10.2 on 2026-10-08, which both went to done with this bug carrying the fix.", "Decision (2026-10-08): the card detail gets both previous and next and a return to the opened booster (author)."]
+
+[[entry]]
+id = 9
+type = "bug"
+title = "The collection grid hides the missing cards by default, where owned cards should come first"
+description = "Reproduction: a signed-in player who owns cards of the season opens TOUTES LES CARTES with no filter; the grid shows only the cards they own, and the missing slots appear only after switching the state filter to TOUT. A set's grid opened by the same player is empty when they own no card of that set. Cause hypothesis: the default state is owned whenever the player holds any card of the whole season, as the spec said after it misread the author's remark. Expected: with no state asked, the grid shows every slot, owned cards first, newest first, then the missing ones; the state filter keeps POSSÉDÉES, MANQUANTES, NOUVELLES and DOUBLONS as narrowings."
+verify = "Opening the grid with no filter shows owned cards newest first, then the missing slots; a set's grid shows every slot of the set even when none is owned; the filter count reads zero on opening; the card detail opened from that grid walks the same slots; or proof that no change is needed."
+covers = ["R7", "R1"]
+after = [7]
+hitl = false
+risk = "low"
+severity = "P2"
+refine = true
+references = ["epic-space-terminal-screens/epic-space-terminal-screens-retrospective.md", "epic-space-terminal-screens/story-collection-opens-on-owned-cards-with-a-filter-zone-and-a-sea-plan.md"]
+notes = ["Retrospective findings S6 and B1 of this epic; the author decided S6 on 2026-10-08: fix now."]
