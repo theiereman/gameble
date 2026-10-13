@@ -1,6 +1,6 @@
 require "test_helper"
 
-# Catalog::UpsertDraftCard (AD-3, AD-5): every row of its matrix, the event it
+# Catalog::UpsertDraftCard: every row of its matrix, the event it
 # publishes, and the races it absorbs on its unique indexes.
 class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
   def attributes(**overrides)
@@ -40,24 +40,22 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     racer
   end
 
-  # Forces the first (or every) `create_card` save to meet the slug index the
-  # racer holds, as the racing writer would: its slug was computed before the
-  # racer's row existed. Returns the array counting the create_card calls.
-  def colliding_card_stub(operation, racer, collide_every_time: false)
-    calls = []
-    operation.define_singleton_method(:create_card) do |attributes, texts|
-      calls << true
-      card = Catalog::Card.new(attributes)
-      texts.each { |locale, text| card.texts.build(locale: locale, **text) }
-      card.slug = racer.slug if collide_every_time || calls.one?
-      begin
-        Catalog::Card.transaction(requires_new: true) { card.save! }
-      rescue ActiveRecord::RecordNotUnique
-        return nil
+  # Makes the first (or every) card built inside the block carry the slug the
+  # racer holds, as the racing writer's card would: its slug was computed before
+  # the racer's row existed. The operation's own `create_card` then meets the
+  # real unique index. Yields the array of the cards built.
+  def with_colliding_slug(racer, collide_every_time: false)
+    built = []
+    original = Catalog::Card.method(:new)
+    Catalog::Card.define_singleton_method(:new) do |*args, &block|
+      original.call(*args, &block).tap do |card|
+        built << card
+        card.slug = racer.slug if collide_every_time || built.size == 1
       end
-      card
     end
-    calls
+    yield built
+  ensure
+    Catalog::Card.singleton_class.send(:remove_method, :new)
   end
 
   # New card
@@ -363,32 +361,35 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     Catalog::Season.create!(status: :draft, number: 2)
     racer = racer_card
     before = row_counts
-    operation = Catalog::UpsertDraftCard.new
-    calls = colliding_card_stub(operation, racer)
 
-    result = operation.call(**attributes)
+    result = with_colliding_slug(racer) do |built|
+      outcome = Catalog::UpsertDraftCard.new.call(**attributes)
+      assert_equal 2, built.size
+      outcome
+    end
 
-    assert_equal 2, calls.size
     assert result.success?
-    assert_equal "portal-2-2011", result.value!.card.slug
+    card_season = result.value!
+    assert_equal "portal-2-2011", card_season.card.slug
     assert_equal "portal-2", racer.reload.slug
     assert_equal [ before[0], before[1] + 1, before[2] + 2, before[3] + 1 ], row_counts
-    events = events_of(result.value!.season)
+    events = events_of(card_season.season)
     assert_equal [ Catalog::DraftCardUpserted ], events.map(&:class)
-    assert_equal({ card_id: result.value!.card.id, season_id: result.value!.season.id, card_season_id: result.value!.id }, events.first.data)
+    assert_equal({ card_id: card_season.card.id, season_id: card_season.season.id, card_season_id: card_season.id }, events.first.data)
   end
 
   test "a slug colliding on every attempt gives up after its attempts" do
     Catalog::Season.create!(status: :draft, number: 2)
     racer = racer_card
     before = row_counts
-    operation = Catalog::UpsertDraftCard.new
-    calls = colliding_card_stub(operation, racer, collide_every_time: true)
 
-    error = assert_raises(ActiveRecord::RecordNotUnique) { operation.call(**attributes) }
+    with_colliding_slug(racer, collide_every_time: true) do |built|
+      error = assert_raises(ActiveRecord::RecordNotUnique) { Catalog::UpsertDraftCard.new.call(**attributes) }
 
-    assert_equal Catalog::UpsertDraftCard::ATTEMPTS, calls.size
-    assert_match(/no card after #{Catalog::UpsertDraftCard::ATTEMPTS} attempts/, error.message)
+      assert_equal Catalog::UpsertDraftCard::ATTEMPTS, built.size
+      assert_match(/no card after #{Catalog::UpsertDraftCard::ATTEMPTS} attempts/, error.message)
+    end
+
     assert_equal "portal-2", racer.reload.slug
     assert_equal before, row_counts
     assert_empty Rails.configuration.event_store.read.of_type(Catalog::DraftCardUpserted).to_a
