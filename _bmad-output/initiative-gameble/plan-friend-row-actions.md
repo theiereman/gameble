@@ -3,7 +3,7 @@ title: 'A friend row offers a trade and opens the friend profile from one button
 type: 'feature'
 ticket: ''
 created: '2026-10-09'
-status: 'built'
+status: 'done'
 baseline_revision: 'd480add057b3b7d4fdd21148ebcf5fd582ce887a'
 route: 'oneshot'
 route_source: 'auto'

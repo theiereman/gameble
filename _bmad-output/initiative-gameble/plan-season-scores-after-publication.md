@@ -3,7 +3,7 @@ title: 'Any season''s prestige scores can be read in the back-office, published 
 type: 'feature'
 ticket: ''
 created: '2026-10-09'
-status: 'built'
+status: 'done'
 baseline_revision: '4b05ce7e1f05164758e066752e00fafb17fddd55'
 route: 'full'
 route_source: 'auto'
