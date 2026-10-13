@@ -562,9 +562,9 @@ en:
     create:
       throttled: "Too many openings in a minute. Try again in a moment."
     show:
-      heading: "Your pack, Brother"
-      heading_bonus: "Your daily bonus"
-      cards: "The cards of your pack"
+      heading: "Your booster"
+      heading_bonus: "Your daily booster"
+      cards: "The cards of your booster"
       open_booster: "Open a booster"
       back_to_hub: "Back to the bridge"
   library:

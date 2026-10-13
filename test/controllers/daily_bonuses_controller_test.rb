@@ -226,11 +226,11 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/en/packs/#{bonus.token}"
     follow_redirect!
-    assert_select "h1", "Your daily bonus"
+    assert_select "h1", "Your daily booster"
     assert_select ".pack-result__card .card.card--m", 3
 
     get pack_path(bonus.token, locale: :fr)
-    assert_select "h1", I18n.t("packs.show.heading_bonus", locale: :fr)
+    assert_select "h1", "Votre booster du jour"
     assert_select ".pack-result__card .card.card--m", 3
   end
 

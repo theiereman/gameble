@@ -589,9 +589,9 @@ fr:
     create:
       throttled: "Trop d'ouvertures en une minute. Réessayez dans un instant."
     show:
-      heading: "Ton paquet, Confrère"
-      heading_bonus: "Ton bonus du jour"
-      cards: "Les cartes de ton paquet"
+      heading: "Votre booster"
+      heading_bonus: "Votre booster du jour"
+      cards: "Les cartes de votre booster"
       open_booster: "Ouvrir un booster"
       back_to_hub: "Retour au pont"
   library:

@@ -47,7 +47,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_response :see_other
     follow_redirect!
     assert_response :success
-    assert_select "h1", "Your pack, Brother"
+    assert_select "h1", "Your booster"
+    assert_select "ol.pack-result__cards[aria-label=?]", "The cards of your booster"
     assert_select ".toasts > .toast", 0
     assert_select ISLAND, 0
     assert_not_equal "no-store", response.headers["Cache-Control"]
@@ -81,7 +82,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     get pack_path(pack.token, locale: :fr)
 
-    assert_select "h1", "Ton paquet, Confrère"
+    assert_select "h1", "Votre booster"
+    assert_select "ol.pack-result__cards[aria-label=?]", "Les cartes de votre booster"
     assert_equal [ "Couronne d'or" ] * 5, css_select(".card__title").map(&:text)
     assert_equal [ "Légendaire" ] * 5, css_select(".card .card__rarity").map(&:text)
     assert_equal [ "Couronne d'or, Légendaire, saison 1" ] * 5, css_select(".pack-result__card > a.card-link").map { it["aria-label"] }
@@ -138,7 +140,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     post packs_path(locale: :en)
     follow_redirect!
 
-    assert_select "h1", "Your daily bonus"
+    assert_select "h1", "Your daily booster"
     assert_equal %w[RARE EPIC LEGENDARY], css_select(".pack-result__card .card__rarity").map { it.text.upcase }
     assert_select ISLAND, 0
   end
