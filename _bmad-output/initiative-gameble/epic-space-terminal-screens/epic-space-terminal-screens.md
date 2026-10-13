@@ -7,6 +7,7 @@ parent: initiative-gameble
 covers: [CAP-6, CAP-7, CAP-8, CAP-9, CAP-16, CAP-18]
 after: []
 assignee: ""
+status: done
 risk: medium
 estimate: ""
 estimate_basis: ""
@@ -30,7 +31,7 @@ For a player: every screen epics 1 to 4 built follows `DESIGN.md` and `EXPERIENC
 - R4 (CAP-16; AD-7): the daily booster panel claims a 3-card booster into the reserve, refuses at a full reserve, and counts down to midnight UTC.
 - R5 (Reduced motion and player-facing words constraints; AD-18, AD-27): the profile and settings screen holds language, "Animations réduites" and sign-out; one motion switch drives CSS, Stimulus, islands and View Transitions.
 - R6 (CAP-18): signed out, these screens show what needs no account and lead to the sign-in panel for the rest.
-- R7 (CAP-6; UX update of 2026-10-07): the interface breathes more (panel padding and gaps up about one step), the booster opening is centred in the window without resizing, the star field stays still at screen changes and only twinkles, and the collection's card grid opens on every card, owned cards first (newest first), above the missing ones (amended 2026-10-13, bug 9), with a FILTRES zone of toggleable chips (state, rarity, set, genre) and a search over title and publisher in place of the rows of chips.
+- R7 (CAP-6; UX update of 2026-10-07): the interface breathes more (panel padding and gaps up about one step), the booster opening starts at the top of the page like every other screen, nothing resized (amended 2026-10-13, author decision of 2026-10-07), the star field stays still at screen changes and only twinkles, and the collection's card grid opens on every card, owned cards first (newest first), above the missing ones (amended 2026-10-13, bug 9), with a FILTRES zone of toggleable chips (state, rarity, set, genre) and a search over title and publisher in place of the rows of chips.
 
 ## Done when
 
@@ -39,7 +40,7 @@ For a player: every screen epics 1 to 4 built follows `DESIGN.md` and `EXPERIENC
 3. The shared card page names no player and previews without an image on Discord, X and WhatsApp.
 4. "Animations réduites" stops every looping or blinking effect, the ticker and the View Transitions, signed in or out.
 5. No screen of the medieval direction remains.
-6. The collection's card grid opens on every card, owned cards first, above the missing ones; a player filters it by state, rarity, set and genre from one zone and searches by title or publisher; the booster opening is centred on a large window; the star field does not move at screen changes.
+6. The collection's card grid opens on every card, owned cards first, above the missing ones; a player filters it by state, rarity, set and genre from one zone and searches by title or publisher; the booster opening starts at the top of the page like every other screen; the star field does not move at screen changes.
 
 ## Boundaries
 
@@ -59,3 +60,5 @@ The web layer's screens and their Stimulus controllers, the NOUVEAU watermark in
 - Decision (2026-10-07): the author's appearance remarks (ux-gameble/.memlog.md, entries of 2026-10-07; DESIGN.md and EXPERIENCE.md updated) become R7 and two stories, after story 4 and before the refactor sweep: global spacing, centred booster opening and the still star field first, then the collection's filter zone and search, so the two never edit the same stylesheets at once. Filter groups and the folded default are `[ASSUMPTION]` in the spines.
 - Decision (2026-10-08): R2's previous and next extend to the desktop and follow where the detail was opened from (the opened booster, the collection grid as shown, else the card's tome); coming back from a card's detail shows the opened booster with its cards face up; bug 8 carries it and updates EXPERIENCE.md (author).
 - Decision (2026-10-08, recorded 2026-10-13): the collection's card grid opens on every slot, owned cards first, newest first, then the missing ones, not on owned cards only; R7 and Done when 6 amended, bug 9 carries the fix and updates EXPERIENCE.md (author, retrospective S6).
+- Decision (2026-10-07, recorded 2026-10-13): the booster opening starts at the top of the page like every other screen, superseding the vertical centring (ux-gameble/.memlog.md, DESIGN.md "Booster opening at the top", commit 6362b0f); R7 and Done when 6 amended.
+- Closed (2026-10-13, author): every ticket done; the closure check met Done when 1, 3 and 4, and 2, 5 and 6 with accepted deviations: a filtered or paged collection view clears NOUVEAU on cards it never showed (author, 2026-10-08: the watermark is not important); the opened pack page still reads "Ton paquet, Confrère", tied by the author to the tomes rework (pending-approvals.md); the phone's filter zone sits in place rather than in a sheet (retrospective S4). The retrospective's items without a home are in deferred-work.md.

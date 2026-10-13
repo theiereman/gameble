@@ -155,3 +155,27 @@
   summary: The `hold` test helper is still copied in about 20 test files (the game pack unit tests, the trades and reposts controller tests, the integration shell test, the trades system test) beside `LibraryRequests#hold`, with differing signatures (`reserved:`, `gained_at:`, a `player:` default).
   evidence: `grep -rn "def hold" test`; named with the sign-in copies in the collection-and-sharing retrospective (D2); the request-test helpers ticket shared the sign-in helpers only.
 - The `hold` comment in `test/support/library_requests.rb` still names AD-26; pre-existing, to fold into the repo-wide planning-id sweep.
+
+## Deferred from: closure of epic-space-terminal-redesign and epic-space-terminal-screens (2026-10-13)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/epic-space-terminal-screens-retrospective.md`
+  summary: From a card opened on another player's profile set, the contextual back ("◀ Grille") leads to the viewer's own set of that name, since the profile's set links carry no context and the fallback back is `library_set_path`.
+  evidence: Retrospective B3; `app/controllers/cards_controller.rb` (fallback back). Found open by the epic's closure check.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/epic-space-terminal-screens-retrospective.md`
+  summary: A public profile's set page loads every slot of the set at once, with no paging, where the player's own collection pages.
+  evidence: Retrospective B4; `shelf_loading.rb` loads every slot. Found open by the epic's closure check.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/epic-space-terminal-screens-retrospective.md`
+  summary: A visitor's collection filter zone offers the OWNED, NEW and DUPLICATES state chips, which can never match for someone who owns nothing.
+  evidence: Retrospective B5; `app/views/library/_filters.html.erb` renders every `STATES` value. Found open by the epic's closure check.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/epic-space-terminal-screens-retrospective.md`
+  summary: `fr.public_profiles.set.copies` has no `zero` form, against the French plural rule; it is only called with a positive count today.
+  evidence: Retrospective B6; `config/locales/fr.yml` (public_profiles.set.copies, one and other only). A one-line `zero:` addition.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/epic-space-terminal-screens-retrospective.md`
+  summary: The comment in `packs/game/app/models/game/holding.rb` says only `Game::OpenPack` sets `last_gained_at`, but `Game::AcceptTrade` sets it too.
+  evidence: Retrospective item 6b; `accept_trade.rb` writes `last_gained_at` for the cards a trade brings.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/epic-space-terminal-redesign-retrospective.md`
+  summary: Entry 5 of epic-space-terminal-redesign and its plan still name `packages/pixel-art-filter`, which the `pixelcrush` npm package replaced; the architecture and the epic's closure note record the substitution.
+  evidence: Retrospective item 2; commit 6c6ee61; architecture-gameble.md amended. Found open by the epic's closure check.
+- source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-redesign/epic-space-terminal-redesign-retrospective.md`
+  summary: The card tilt still registers a non-passive `touchmove` listener, which can delay scrolling on a phone.
+  evidence: `app/frontend/` tilt.ts registers it; its earlier deferred entry was removed in the 2026-10-12 triage (7285ddc) with no other home. Found by the epic's closure check.
