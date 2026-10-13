@@ -27,6 +27,7 @@
   summary: `Catalog::UpsertDraftCard`'s slug-index race (two new cards taking the same slug at once) has no test of its own.
   evidence: Story 2.2 review finding 6, rejected (low). Handled by the shared `RecordNotUnique` retry loop; a concurrent slug collision is unlikely with one import writer, and the test needs plumbing only.
   issue: GitHub #39, opened 2026-10-12 to be built.
+  resolved: PR #40 (2026-10-13) forces the slug collision beneath the real `create_card` in `Catalog::UpsertDraftCard`'s test; issue closed.
 - source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-refactor-sweep-plan.md`
   summary: `Catalog::UpsertDraftCard` given texts under both `"en"` and `:en` keeps one silently.
   evidence: Story 2.2 review finding 7, rejected (low). `Steam::CardMapping`, the only caller, builds string keys; a guard would add a branch for no current caller.
@@ -37,6 +38,7 @@
   summary: The attic countdown shows mm:ss only; a pack scheduled more than an hour ahead (test-built or odd data) would read like "1440:00".
   evidence: `app/views/pages/home.html.erb` formats `"%02d:%02d", *@next_pack_in.divmod(60)`; packs made by the replacement rule are never more than ten minutes away (story 3.2 plan, Boundaries).
   issue: GitHub #35 (the packs chip's countdown, where the clock now lives), opened 2026-10-12 to be built.
+  resolved: PR #45 (2026-10-13, `plan-packs-chip-hours.md`) shows H:MM:SS from an hour on the server-rendered chip and the client tick, through the shared `formatClock`.
 - source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-import-hardening-before-season-1-plan.md`
   summary: Two malformed inputs still fail a page after story 2.11: a store title long enough to break the slug's unique index (about 2.7 kB) still fails the cards page that writes it, and a whole Steam answer that is not valid JSON still fails the page that asked for it (retried, then the run fails, as before).
   evidence: Story 2.11 hardens the values inside a well-formed answer (`Steam::RawValue`, `Steam::ReviewPolicy`, `Steam::DetailsPolicy`, `Steam::WebApi`, `Steam::ImportAppListPage`) and leaves the slug index and the JSON parse error out of its scope.
@@ -117,6 +119,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/bug-the-collection-grid-hides-the-missing-cards-by-default-where-plan.md`
   summary: `Game::TradesOfTest` "finished trades are recent … for 14 days" and `SessionsControllerTest` "signing in keeps the player signed in for 30 days" fail when the 14 or 30 days cross a daylight saving change, as from 2026-10-11 to 2026-10-25.
   evidence: Both fail on the baseline of this bug, untouched by it: the session expiry is one hour off `30.days.from_now` (3600 s against a 1 s delta) and the 14-day window drops the accepted trade, so a calendar-day duration meets a fixed-seconds one across the change of hour. Run on 2026-10-13.
+  resolved: `test/test_helper.rb` sets `TZ=UTC` (2026-10-13, 0b489fa); both tests pass with TZ=Europe/Paris and TZ=UTC on 2026-10-13, whose windows cross 2026-10-25.
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/bug-the-collection-grid-hides-the-missing-cards-by-default-where-plan.md`
   summary: The disabled system test "the FILTRES zone: chips narrow the grid…" in `test/system/library_test.rb` still pins the old owned default (3 slots on opening, a count of 2 after MISSING, "Back to the owned cards"); rewrite it for the every-slot default when system tests are rebuilt.
   evidence: The collection now opens on every slot, and a state chip switched on from TOUT replaces it; the test was left as it is because system tests are disabled and cannot be run to verify an edit.

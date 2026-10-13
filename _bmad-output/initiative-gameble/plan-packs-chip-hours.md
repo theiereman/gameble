@@ -3,7 +3,7 @@ title: 'The packs chip reads the countdown in total minutes (1440:00) for a pack
 type: 'bugfix'
 ticket: ''
 created: '2026-10-13'
-status: 'built'
+status: 'done'
 baseline_revision: 'c0473bc78ea7d9844d0be56b9b652d8811a20a84'
 route: 'oneshot'
 route_source: 'auto'
