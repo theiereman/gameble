@@ -1,4 +1,7 @@
 ENV["RAILS_ENV"] ||= "test"
+# Time.now + n.days advances the wall clock in the system zone, so a daylight
+# saving change within a test's window would shift it by an hour off CI's UTC.
+ENV["TZ"] = "UTC"
 require_relative "../config/environment"
 require "rails/test_help"
 
