@@ -28,6 +28,38 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     [ Catalog::Season, Catalog::Card, Catalog::CardText, Catalog::CardSeason ].map(&:count)
   end
 
+  # A competing card that already holds the slug a "Portal 2" card would take:
+  # the other writer of the slug race.
+  def racer_card
+    racer = Catalog::Card.new(source_key: "src:racer", release_date: Date.new(2011, 4, 18),
+      image_url: "https://images.example.test/620.jpg", store_url: "https://store.example.test/620",
+      genres: %w[puzzle], tags: %w[puzzle])
+    racer.texts.build(locale: "en", title: "Portal 2")
+    racer.texts.build(locale: "fr", title: "Portal 2")
+    racer.save!
+    racer
+  end
+
+  # Forces the first (or every) `create_card` save to meet the slug index the
+  # racer holds, as the racing writer would: its slug was computed before the
+  # racer's row existed. Returns the array counting the create_card calls.
+  def colliding_card_stub(operation, racer, collide_every_time: false)
+    calls = []
+    operation.define_singleton_method(:create_card) do |attributes, texts|
+      calls << true
+      card = Catalog::Card.new(attributes)
+      texts.each { |locale, text| card.texts.build(locale: locale, **text) }
+      card.slug = racer.slug if collide_every_time || calls.one?
+      begin
+        Catalog::Card.transaction(requires_new: true) { card.save! }
+      rescue ActiveRecord::RecordNotUnique
+        return nil
+      end
+      card
+    end
+    calls
+  end
+
   # New card
 
   test "a first card with no draft opens the next season and writes the card, its texts and its card-season" do
@@ -325,6 +357,41 @@ class Catalog::UpsertDraftCardTest < ActiveSupport::TestCase
     assert result.success?
     assert_equal 2, first.card.texts.count
     assert_equal "Portal Two", first.card.reload.text("en").title
+  end
+
+  test "a new card racing another on its slug retries and succeeds with the title and year" do
+    Catalog::Season.create!(status: :draft, number: 2)
+    racer = racer_card
+    before = row_counts
+    operation = Catalog::UpsertDraftCard.new
+    calls = colliding_card_stub(operation, racer)
+
+    result = operation.call(**attributes)
+
+    assert_equal 2, calls.size
+    assert result.success?
+    assert_equal "portal-2-2011", result.value!.card.slug
+    assert_equal "portal-2", racer.reload.slug
+    assert_equal [ before[0], before[1] + 1, before[2] + 2, before[3] + 1 ], row_counts
+    events = events_of(result.value!.season)
+    assert_equal [ Catalog::DraftCardUpserted ], events.map(&:class)
+    assert_equal({ card_id: result.value!.card.id, season_id: result.value!.season.id, card_season_id: result.value!.id }, events.first.data)
+  end
+
+  test "a slug colliding on every attempt gives up after its attempts" do
+    Catalog::Season.create!(status: :draft, number: 2)
+    racer = racer_card
+    before = row_counts
+    operation = Catalog::UpsertDraftCard.new
+    calls = colliding_card_stub(operation, racer, collide_every_time: true)
+
+    error = assert_raises(ActiveRecord::RecordNotUnique) { operation.call(**attributes) }
+
+    assert_equal Catalog::UpsertDraftCard::ATTEMPTS, calls.size
+    assert_match(/no card after #{Catalog::UpsertDraftCard::ATTEMPTS} attempts/, error.message)
+    assert_equal "portal-2", racer.reload.slug
+    assert_equal before, row_counts
+    assert_empty Rails.configuration.event_store.read.of_type(Catalog::DraftCardUpserted).to_a
   end
 
   test "every failure code has a message in both locales" do
