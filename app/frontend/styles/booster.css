@@ -736,8 +736,11 @@
 }
 
 /* A face-down card's face keeps still: its glitter neither twinkles nor flashes. */
-.booster-card:not([data-revealed]) .card__flake-glint {
+.booster-card:not([data-revealed]) .card__flake-group {
   animation: none;
+}
+
+.booster-card:not([data-revealed]) .card__flake[data-flash] .card__flake-glint {
   opacity: 0.18;
 }
 

@@ -223,8 +223,11 @@
   animation: none;
 }
 
-.booster[data-layout="phone"] .booster-card:not([data-top]) .card__flake-glint {
+.booster[data-layout="phone"] .booster-card:not([data-top]) .card__flake-group {
   animation: none;
+}
+
+.booster[data-layout="phone"] .booster-card:not([data-top]) .card__flake[data-flash] .card__flake-glint {
   opacity: 0.18;
 }
 

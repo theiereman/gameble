@@ -121,23 +121,23 @@ class CardPreviewTest < ApplicationSystemTestCase
   test "a legendary face's glitter twinkles only while in view, never under reduced motion; the reflection stays" do
     visit_preview
     specimen = "[data-specimen=legendary-xl]"
-    glint = "#{specimen} .card__flake:not([data-flash]) .card__flake-glint"
+    group = "#{specimen} .card__flake-group"
 
     scroll_to(find(specimen), align: :center)
     assert_selector "#{specimen} > .card[data-in-view]"
-    assert_selector glint, style: { "animation-name" => "card-glitter-twinkle" }
+    assert_selector group, style: { "animation-name" => "card-glitter-twinkle" }
     assert_selector "#{specimen} .card__reflection--iridescence"
     assert_no_selector "[data-specimen=rare-xl] .card__glitter, [data-specimen=rare-xl] .card__reflection--iridescence"
     assert_no_selector ".card__holo, .card__foil, .card__glare", visible: :all
 
     page.execute_script("window.scrollTo(0, 0)")
     assert_no_selector "#{specimen} > .card[data-in-view]"
-    assert_equal "none", style(glint, "animationName")
+    assert_equal "none", style(group, "animationName")
 
     scroll_to(find(specimen), align: :center)
     assert_selector "#{specimen} > .card[data-in-view]"
     reduce_motion(true)
-    assert_selector glint, style: { "animation-name" => "none" }
+    assert_selector group, style: { "animation-name" => "none" }
     assert_equal "block", style("#{specimen} .card__reflection--strips", "display")
     reduce_motion(false)
 
@@ -145,7 +145,7 @@ class CardPreviewTest < ApplicationSystemTestCase
     scroll_to(find(booster), align: :center)
     assert_selector "#{booster} > .card[data-in-view]"
     assert_selector "#{booster} .card__glitter .card__flake"
-    assert_selector "#{booster} .card__flake:not([data-flash]) .card__flake-glint", style: { "animation-name" => "card-glitter-twinkle" }
+    assert_selector "#{booster} .card__flake-group", style: { "animation-name" => "card-glitter-twinkle" }
     %w[rare epic].each do |rarity|
       assert_no_selector "[data-specimen=#{rarity}-m-booster] .card__glitter, [data-specimen=#{rarity}-m-booster] .card__reflection--iridescence"
     end

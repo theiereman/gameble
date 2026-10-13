@@ -1,8 +1,10 @@
 // A Légendaire's glitter: small flakes on the varnish, tiny mirrors each
 // facing its own way. A flake flashes when the card's eased tilt faces its
-// normal; otherwise it twinkles now and then (styles/card.css), while the
-// face is in view and never under reduced motion. The field is drawn from
-// the card's seed, so a card shows the same flakes on every render.
+// normal; otherwise it twinkles now and then with its group (styles/card.css),
+// while the face is in view and never under reduced motion. The flakes fall
+// into TWINKLE_GROUPS groups, each twinkling to its own rhythm, so a face
+// runs no more twinkles than that. The field is drawn from the card's seed,
+// so a card shows the same flakes, groups and rhythms on every render.
 
 export type FlakeColour = "white" | "gold" | "violet" | "blue"
 
@@ -13,9 +15,12 @@ export type Flake = {
   ny: number
   cross: boolean
   colour: FlakeColour
-  period: number
-  delay: number
+  group: number
 }
+
+export type Twinkle = { period: number; delay: number }
+
+export type FlakeField = { groups: Twinkle[]; flakes: Flake[] }
 
 export type Glitter = { update(dx: number, dy: number): void; detach(): void }
 
@@ -23,6 +28,8 @@ export type Glitter = { update(dx: number, dy: number): void; detach(): void }
 export const DEFAULT_SEED = 20261013
 /** How many flakes cover a 200 × 300 px card; a card of another size gets as many per area. */
 export const FLAKES_PER_CARD = 28
+/** How many groups a face's flakes twinkle in, one animation each. */
+export const TWINKLE_GROUPS = 3
 /** How far, in tilt, a flake keeps flashing around its normal. */
 export const FLASH_REACH = 0.14
 /** How bright a flash marks its flake as flashing. */
@@ -54,20 +61,24 @@ export function glitterSeed(value: string | undefined): number {
 
 const onPixelGrid = (value: number) => Math.round(value / ART_PIXEL) * ART_PIXEL
 
-/** The flakes of a card `width` × `height` px, the same for the same seed. */
-export function flakeField(seed: number, width: number, height: number): Flake[] {
+/** The flakes of a card `width` × `height` px and the rhythms of their twinkle groups, the same for the same seed. */
+export function flakeField(seed: number, width: number, height: number): FlakeField {
   const random = randomFrom(seed)
+  const groups = Array.from({ length: TWINKLE_GROUPS }, () => ({
+    period: 2.4 + random() * 3.6,
+    delay: -random() * 6,
+  }))
   const count = Math.round((FLAKES_PER_CARD * width * height) / REFERENCE_AREA)
-  return Array.from({ length: count }, () => ({
+  const flakes = Array.from({ length: count }, () => ({
     x: onPixelGrid(EDGE + random() * (width - 2 * EDGE)),
     y: onPixelGrid(EDGE + random() * (height - 2 * EDGE)),
     nx: (random() - 0.5) * NORMAL_SPREAD,
     ny: (random() - 0.5) * NORMAL_SPREAD,
     cross: random() < CROSS_SHARE,
     colour: COLOURS[Math.floor(random() * COLOURS.length)],
-    period: 2.4 + random() * 3.6,
-    delay: -random() * 6,
+    group: Math.floor(random() * TWINKLE_GROUPS),
   }))
+  return { groups, flakes }
 }
 
 /** How brightly `flake` flashes on a card tilted toward (`dx`, `dy`): 1 facing its normal, 0 beyond FLASH_REACH. */
@@ -85,24 +96,45 @@ function flakeElement(document: Document, flake: Flake): HTMLElement {
   element.className = `card__flake card__flake--${flake.colour}${flake.cross ? " card__flake--cross" : ""}`
   element.style.setProperty("left", `${flake.x}px`)
   element.style.setProperty("top", `${flake.y}px`)
-  element.style.setProperty("--flake-period", `${flake.period}s`)
-  element.style.setProperty("--flake-delay", `${flake.delay}s`)
   const glint = document.createElement("span")
   glint.className = "card__flake-glint"
   element.append(glint)
   return element
 }
 
-/** Draws the flakes of a card `width` × `height` px into `container`; returns how to light them and to take them away. */
+function groupElement(document: Document, twinkle: Twinkle): HTMLElement {
+  const element = document.createElement("span")
+  element.className = "card__flake-group"
+  element.style.setProperty("--flake-period", `${twinkle.period}s`)
+  element.style.setProperty("--flake-delay", `${twinkle.delay}s`)
+  return element
+}
+
+/**
+ * Draws the flakes of a card `width` × `height` px into `container`, each in
+ * its twinkle group; returns how to light them and to take them away. A
+ * flashing flake leaves its group for `container`, so the group's twinkle
+ * opacity does not dim its flash, and goes back when the flash ends.
+ */
 export function attachGlitter(container: HTMLElement, { seed, width, height }: { seed: number; width: number; height: number }): Glitter {
-  const flakes = flakeField(seed, width, height).map((flake) => ({ flake, element: flakeElement(container.ownerDocument, flake), level: "" }))
-  container.replaceChildren(...flakes.map(({ element }) => element))
+  const document = container.ownerDocument
+  const field = flakeField(seed, width, height)
+  const groups = field.groups.map((twinkle) => groupElement(document, twinkle))
+  const flakes = field.flakes.map((flake) => ({ flake, element: flakeElement(document, flake), group: groups[flake.group], flashing: false, level: "" }))
+  for (const { element, group } of flakes) group.append(element)
+  container.replaceChildren(...groups)
 
   return {
     update(dx: number, dy: number) {
       for (const entry of flakes) {
         const flash = flakeFlash(entry.flake, dx, dy)
-        entry.element.toggleAttribute("data-flash", flash > FLASH_THRESHOLD)
+        const flashing = flash > FLASH_THRESHOLD
+        if (flashing !== entry.flashing) {
+          entry.element.toggleAttribute("data-flash", flashing)
+          const parent = flashing ? container : entry.group
+          parent.append(entry.element)
+          entry.flashing = flashing
+        }
         const level = `${flakeLevel(flash)}`
         if (level === entry.level) continue
         entry.element.style.setProperty("--flake-level", level)

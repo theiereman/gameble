@@ -11,10 +11,10 @@
  * filter, an opacity under 1, clip-path, mask, mix-blend-mode or isolation,
  * which would flatten the 3D stack. The reflection's layers and a
  * Légendaire's glitter are clipped inside .card__effects. The only infinite
- * animation left on a face is the glitter's twinkle, a stepped opacity, run
- * only while the face is in the viewport ([data-in-view],
- * tilt_controller.ts). Under reduced motion there is no tilt and no
- * twinkle; the reflection stays, still, at its rest position.
+ * animations left on a face are the glitter's twinkles, a stepped opacity on
+ * each of its three flake groups, run only while the face is in the viewport
+ * ([data-in-view], tilt_controller.ts). Under reduced motion there is no
+ * tilt and no twinkle; the reflection stays, still, at its rest position.
  */
 
 :root {
@@ -459,10 +459,19 @@
 
 /* A Légendaire's glitter (lib/glitter.ts draws the flakes): each flake a
    2px mirror, crosses with four arms, at --flake-level; it flashes while
-   the tilt faces it, and otherwise twinkles now and then while in view. */
+   the tilt faces it, and otherwise twinkles now and then with its group
+   while in view. A flashing flake sits outside its group, whose opacity
+   would dim it; the group blends as a whole, as its flakes would alone. */
 .card__glitter {
   position: absolute;
   inset: 0;
+}
+
+.card__flake-group {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+  opacity: 0.18;
 }
 
 .card__flake {
@@ -483,7 +492,6 @@
   width: 2px;
   height: 2px;
   background: var(--flake-colour);
-  opacity: 0.18;
 }
 
 .card__flake--cross .card__flake-glint {
@@ -491,11 +499,7 @@
   box-shadow: 2px 0 0 var(--flake-arm), -2px 0 0 var(--flake-arm), 0 2px 0 var(--flake-arm), 0 -2px 0 var(--flake-arm);
 }
 
-.card__flake[data-flash] .card__flake-glint {
-  opacity: 1;
-}
-
-.card[data-in-view] :where(.card__flake:not([data-flash])) .card__flake-glint {
+.card[data-in-view] :where(.card__flake-group) {
   animation: card-glitter-twinkle var(--flake-period) steps(1) var(--flake-delay) infinite;
 }
 
@@ -514,8 +518,11 @@
     transform: none;
   }
 
-  html:not([data-motion="full"]) .card__flake .card__flake-glint {
+  html:not([data-motion="full"]) .card__flake-group {
     animation: none;
+  }
+
+  html:not([data-motion="full"]) .card__flake[data-flash] .card__flake-glint {
     opacity: 0.18;
   }
 }
@@ -524,7 +531,10 @@ html[data-motion="reduced"] .card[data-tilt] {
   transform: none;
 }
 
-html[data-motion="reduced"] .card__flake .card__flake-glint {
+html[data-motion="reduced"] .card__flake-group {
   animation: none;
+}
+
+html[data-motion="reduced"] .card__flake[data-flash] .card__flake-glint {
   opacity: 0.18;
 }
