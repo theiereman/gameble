@@ -315,20 +315,4 @@ class HubTest < ApplicationSystemTestCase
     assert_text I18n.t("sessions.destroy.farewell", locale: :en)
     assert_nil page.evaluate_script("window.sameDocument"), "signing out should load a new page"
   end
-
-  test "a contributor's goal reward toast shows on the hub once, not again on the next visit" do
-    week = Game::WeeklyGoal.week_start(Time.current) - 7
-    Game::WeeklyGoal.create!(week_start: week, total: 200, target: 200)
-    Game::WeeklyContribution.create!(player_id: @player.id, week_start: week, openings: 1)
-    Game::GrantGoalReward.new.call(player: @player, week_start: week).value!
-
-    sign_in
-
-    assert_selector ".toasts > .toast", text: /GOAL REACHED.*A rare booster joins your reserve\./m
-    visit home_path(locale: :en)
-    assert_selector ".hub-goal"
-    # Past the frame in which the region puts the server's toasts back.
-    page.evaluate_async_script("const done = arguments[0]; requestAnimationFrame(() => requestAnimationFrame(() => done()))")
-    assert_no_selector ".toasts > .toast", text: /A rare booster joins your reserve/, wait: 0
-  end
 end

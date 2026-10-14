@@ -1,7 +1,8 @@
 # Collecting the daily booster from the hub's panel (CAP-16): the bonus pack
 # joins the reserve. From the hub the claim answers in Turbo Stream, which
-# replaces the panel, the packs chip, menu 01 and the empty showcase's action
-# and adds a toast (bonus_arc_controller.ts flies the canister from the
+# replaces the panel, the packs chip, menu 01, the empty showcase's action
+# and, once the reserve is full, a waiting goal reward's claim slot, and adds
+# a toast (bonus_arc_controller.ts flies the canister from the
 # `turbo:before-stream-render`), whose time of the next booster reads in the
 # player's own time; without JavaScript it redirects to the hub, the time in
 # UTC.
@@ -21,6 +22,7 @@ class DailyBonusesController < ApplicationController
     respond_to do |format|
       format.turbo_stream do
         @bank = Game::BankSummary.call(current_player)
+        @goal_reward = Game::GoalRewardStatus.call(current_player) if @bank[:reserve_full]
         @message = helpers.local_time_sentence(@bank[:next_bonus_at]) { message(result, time: it) }
         @tone = tone
         @collected = result.success?

@@ -128,9 +128,10 @@ en:
         reached: "Goal reached"
         previous_reached: "Last week: %{total} / %{target} · goal reached"
         previous_missed: "Last week: %{total} / %{target} · goal missed"
-      goal_reward:
-        title: "Goal reached"
-        message: "A rare booster joins your reserve."
+        collect: "Collect"
+        collect_label: "Collect the reward booster"
+        collected: "Collected"
+        full_text: "Open a booster to collect your rare booster."
       sets:
         title: "Set progress"
         see_all: "See all"
@@ -275,8 +276,8 @@ en:
         week: "Every week, for seven days from %{time}, all players aim at one goal together."
         counts: "Every booster opened counts toward it, and so does every completed trade, which makes both players contributors."
         reward:
-          one: "When the goal is reached, every player who contributed gets a reward booster: %{count} card, at least one of them %{rarity} or better."
-          other: "When the goal is reached, every player who contributed gets a reward booster: %{count} cards, at least one of them %{rarity} or better."
+          one: "When the goal is reached, every player who contributed earns a reward booster: %{count} card, at least one of them %{rarity} or better. If you contributed, you collect it on the hub while your reserve holds fewer than %{full} boosters."
+          other: "When the goal is reached, every player who contributed earns a reward booster: %{count} cards, at least one of them %{rarity} or better. If you contributed, you collect it on the hub while your reserve holds fewer than %{full} boosters."
       seasons:
         title: "Seasons"
         frozen: "A season is drawn from Steam. Once it is published, the rarity, number and sets of each of its cards are fixed: they no longer change during the season."
@@ -1177,6 +1178,10 @@ en:
     create:
       collected: "A booster joins your reserve. The next one will be ready on %{time}."
       throttled: "Too many attempts in a minute. Try again in a moment."
+  goal_rewards:
+    create:
+      collected: "Your rare booster joins your reserve."
+      throttled: "Too many attempts in a minute. Try again in a moment."
   external_links:
     new_tab: "(new tab)"
   card_details:
@@ -1425,6 +1430,10 @@ en:
       already_collected: "You have already collected today's booster. The next one will be ready on %{time}."
       no_season: "No season of cards is open yet. Come back later for the daily booster."
       reserve_full: "Your reserve is full: open a booster to collect today's."
+      reward_reserve_full: "Your reserve is full: open a booster to collect your rare booster."
+      reward_already_claimed: "You have already collected this rare booster."
+      reward_not_earned: "No rare booster waits for you for that week."
+      reward_no_season: "No card season is open. Come back later for your rare booster."
       invalid_idempotency_key: "The opening request was malformed. Reload the page and try again."
       not_friends: "You can only trade with a friend."
       own_profile_private: "Your profile is private: trades are closed."

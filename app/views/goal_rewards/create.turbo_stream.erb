@@ -1,0 +1,15 @@
+<%# The goal reward claim's answer (see GoalRewardsController): the hub's
+    parts that read the reserve or the reward, replaced with their new state,
+    and the result as a toast. The daily booster panel changes only when the
+    reserve is full; a target the page does not hold (the empty showcase's
+    action) is skipped by Turbo. %>
+<%= turbo_stream.replace "goal-reward" do %>
+  <%= render "pages/goal_reward", reward: @reward, bank: @bank if @reward %>
+<% end %>
+<% if @bank[:reserve_full] && (@bank[:bonus_collectable] || @bank[:bonus_collected]) %>
+  <%= turbo_stream.replace "daily-booster", partial: "pages/daily_booster", locals: { bank: @bank, primary: false } %>
+<% end %>
+<%= turbo_stream.replace "packs-chip", partial: "shell/packs_chip", locals: { bank: @bank, refresh: true } %>
+<%= turbo_stream.replace "hub-menu-booster", partial: "pages/menu_booster", locals: { bank: @bank } %>
+<%= turbo_stream.replace "hub-showcase-actions", partial: "pages/showcase_actions", locals: { bank: @bank } %>
+<%= turbo_stream.append "toasts" do %><%= render ToastComponent.new(message: @message, tone: @tone) %><% end %>

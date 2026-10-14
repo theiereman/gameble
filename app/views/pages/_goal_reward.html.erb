@@ -1,0 +1,20 @@
+<%# The claim slot of a player's weekly goal reward, under the goal panel's
+    reward line, never part of the public broadcast. Waiting: a small
+    "Récupérer" sends the reward booster to the reserve. Reserve full: the
+    button is disabled and the orange line says why. Collected: the state
+    word "Récupéré" in lime. The claim answers in Turbo Stream, which
+    replaces this slot (goal_rewards/create.turbo_stream.erb).
+    Locals: reward (Game::GoalRewardStatus), bank (Game::BankSummary). %>
+<% state = reward[:claimed] ? :collected : (bank[:reserve_full] ? :full : :ready) %>
+<div id="goal-reward" class="hub-goal__claim hub-goal__claim--<%= state %>">
+  <% case state %>
+  <% when :collected %>
+    <p class="hub-goal__claim-state"><%= t("pages.home.goal.collected") %></p>
+  <% when :full %>
+    <%= render ButtonComponent.new(variant: :secondary, size: :small, disabled: true, aria_label: t("pages.home.goal.collect_label")) do %><%= t("pages.home.goal.collect") %><% end %>
+    <p class="hub-goal__claim-text"><%= t("pages.home.goal.full_text") %></p>
+  <% else %>
+    <%= render ButtonComponent.new(variant: :secondary, size: :small, href: goal_reward_path(week: reward[:week_start].iso8601), method: :post,
+          aria_label: t("pages.home.goal.collect_label")) do %><%= t("pages.home.goal.collect") %><% end %>
+  <% end %>
+</div>

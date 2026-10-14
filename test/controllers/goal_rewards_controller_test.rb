@@ -1,0 +1,162 @@
+require "test_helper"
+require_relative "../support/counting_rate_limit"
+require_relative "../support/game_packs"
+require_relative "../support/steam_sign_in"
+
+# Claiming a weekly goal reward from the hub's goal panel: end to end, in
+# Turbo Stream and in HTML, and every refusal.
+class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
+  include CountingRateLimit
+  include GamePacks
+  include SteamSignIn
+
+  setup do
+    Game::DrawPool.reset!
+    @player = accounts_players(:player)
+    @week = Game::WeeklyGoal.week_start(Time.current) - 7
+    Game::WeeklyGoal.create!(week_start: @week, total: 200, target: 200)
+    Game::WeeklyContribution.create!(player_id: @player.id, week_start: @week, openings: 1)
+    Game::GrantGoalReward.new.call(player: @player, week_start: @week).value!
+  end
+
+  def claim_path(week = @week, locale: :en) = goal_reward_path(week: week.to_s, locale:)
+
+  def reserve_badge
+    css_select("#hub-menu-booster .menu-item__badge").sole.text
+  end
+
+  def reward_pack_count = Game::Pack.where(player_id: @player.id).reward.count
+
+  test "a player claims the reward from the hub: one more pack, the slot collected, and it stays so on reload" do
+    Game::FillBank.new.call(player: @player).value!
+    Game::OpenPack.new.call(player: @player).value!
+    sign_in(@player)
+
+    get home_path(locale: :en)
+    assert_equal "9", reserve_badge
+    assert_select "#goal-reward form[action='/en/goal-rewards/#{@week.iso8601}'] button", "Collect"
+
+    post claim_path
+
+    assert_redirected_to home_path(locale: :en)
+    assert_response :see_other
+    assert_equal "Your rare booster joins your reserve.", flash[:notice]
+    follow_redirect!
+    assert_equal "10", reserve_badge
+    assert_select "#goal-reward .hub-goal__claim-state", "Collected"
+
+    get home_path(locale: :en)
+    assert_select "#goal-reward .hub-goal__claim-state", "Collected"
+
+    post claim_path
+    assert_equal "You have already collected this rare booster.", flash[:alert]
+    assert_equal 1, reward_pack_count
+  end
+
+  def stream_post(week = @week, locale: :en)
+    post claim_path(week, locale:), as: :turbo_stream
+    assert_response :success
+    assert_equal Mime[:turbo_stream], response.media_type
+  end
+
+  test "from Turbo, the claim answers in Turbo Stream: the slot collected, the chip, menu 01, the showcase's action and a toast" do
+    sign_in(@player)
+
+    assert_difference -> { reward_pack_count }, 1 do
+      stream_post
+    end
+
+    assert_select "turbo-stream[action=replace][target=goal-reward] template #goal-reward.hub-goal__claim--collected .hub-goal__claim-state", "Collected"
+    assert_select "turbo-stream[action=replace][target=packs-chip] template a#packs-chip .packs-chip__count", "1"
+    assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge", "1"
+    assert_select "turbo-stream[action=replace][target=hub-showcase-actions] template #hub-showcase-actions"
+    assert_select "turbo-stream[target=daily-booster]", false
+    assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--notice .toast__message",
+      "Your rare booster joins your reserve."
+  end
+
+  test "from Turbo, a claim at a full reserve is refused in both languages: the slot full, the daily panel full, an alert toast" do
+    Game::FillBank.new.call(player: @player).value!
+    sign_in(@player)
+
+    { en: "Your reserve is full: open a booster to collect your rare booster.",
+      fr: "Votre réserve est pleine : ouvrez un booster pour récupérer votre booster rare." }.each do |locale, message|
+      assert_no_difference -> { Game::Pack.count } do
+        stream_post(locale:)
+      end
+
+      assert_select "turbo-stream[action=replace][target=goal-reward] template #goal-reward.hub-goal__claim--full button[disabled]"
+      assert_select "turbo-stream[action=replace][target=daily-booster] template .daily-booster--full"
+      assert_select "turbo-stream[action=append][target=toasts] template .toast--alert .toast__message", message
+    end
+    assert_equal [ nil ], Game::GoalReward.where(player_id: @player.id).pluck(:pack_id)
+  end
+
+  test "with a full reserve an HTML claim is sent back with the reason in the page's language; after an opening it succeeds" do
+    Game::FillBank.new.call(player: @player).value!
+    sign_in(@player)
+
+    post claim_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
+    assert_equal "Votre réserve est pleine : ouvrez un booster pour récupérer votre booster rare.", flash[:alert]
+    assert_equal 0, reward_pack_count
+
+    Game::OpenPack.new.call(player: @player).value!
+    post claim_path(locale: :fr)
+    assert_equal "Votre booster rare rejoint votre réserve.", flash[:notice]
+    assert_equal 1, reward_pack_count
+  end
+
+  test "a week not earned or a date that does not parse is refused as not earned; a malformed week is no route" do
+    sign_in(@player)
+
+    post claim_path(@week - 7)
+    assert_equal "No rare booster waits for you for that week.", flash[:alert]
+
+    post claim_path("2026-13-45", locale: :fr)
+    assert_equal "Aucun booster rare ne vous attend pour cette semaine.", flash[:alert]
+
+    post "/en/goal-rewards/#{@week.iso8601}x"
+    assert_response :not_found
+    assert_equal 0, reward_pack_count
+  end
+
+  test "without a published season the claim is refused and the reward waits" do
+    catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
+    Game::DrawPool.reset!
+    sign_in(@player)
+
+    post claim_path(locale: :fr)
+
+    assert_equal "Aucune saison de cartes n'est ouverte. Revenez plus tard pour votre booster rare.", flash[:alert]
+    assert_equal [ nil ], Game::GoalReward.where(player_id: @player.id).pluck(:pack_id)
+  end
+
+  test "a visitor's claim is redirected with the sign-in message, nothing written" do
+    assert_no_difference -> { Game::Pack.count } do
+      post claim_path
+    end
+    assert_redirected_to home_path(locale: :en)
+    assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
+
+    post claim_path, as: :turbo_stream
+    assert_redirected_to home_path(locale: :en)
+    assert_equal 0, reward_pack_count
+  end
+
+  test "more than 5 claims a minute by one player are sent back with their own message" do
+    sign_in(@player)
+    with_counting_rate_limit(GoalRewardsController) do
+      5.times do
+        post claim_path
+        assert_response :see_other
+        assert_not_equal I18n.t("goal_rewards.create.throttled", locale: :en), flash[:alert]
+      end
+
+      post claim_path
+    end
+
+    assert_redirected_to home_path(locale: :en)
+    assert_equal I18n.t("goal_rewards.create.throttled", locale: :en), flash[:alert]
+  end
+end

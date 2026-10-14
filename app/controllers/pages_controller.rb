@@ -1,11 +1,10 @@
-# The hub, "Pont de commandement" (EXPERIENCE.md, Hub content): the numbered
-# menu, the showcase of the player's latest notable pull (or the invitation
-# to sign in), the daily booster panel, the community goal panel and the
-# set progress rows, with the goal reward's toast while a contributor's
-# reward pack waits unopened. A read only page (AD-11): Catalog answers the
+# The hub, "Pont de commandement": the numbered menu, the showcase of the
+# player's latest notable pull (or the invitation to sign in), the daily
+# booster panel, the community goal panel with a contributor's reward claim
+# slot, and the set progress rows. A read only page: Catalog answers the
 # season, its size and the showcased card, Game the goal, the player's
-# reserve, reward, pull, collection, sets and how many of their friends are
-# online (menu 04); the LIVE ticker its first items, the latest public
+# reserve, goal reward, pull, collection, sets and how many of their friends
+# are online (menu 04); the LIVE ticker its first items, the latest public
 # entries it shows.
 class PagesController < ApplicationController
   def home
@@ -15,7 +14,7 @@ class PagesController < ApplicationController
     @ticker = LiveStream.ticker_items
     if current_player
       @bank = Game::BankSummary.call(current_player)
-      @goal_reward_week = Game::WaitingGoalReward.call(current_player)
+      @goal_reward = Game::GoalRewardStatus.call(current_player)
       @friends_online = Game::FriendsPresence.online_count(current_player)
       @showcase = showcase if @season
     end

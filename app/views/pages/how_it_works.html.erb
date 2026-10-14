@@ -59,7 +59,7 @@
     <h2 id="how-it-works-goal" class="how-it-works__heading"><%= t(".goal.title") %></h2>
     <p><%= local_time_sentence(Game::CurrentGoal.next_week_start, :weekday_time, suffix: t(".local_time")) { t(".goal.week", time: it) } %></p>
     <p><%= t(".goal.counts") %></p>
-    <p class="how-it-works__reward-size"><%= t(".goal.reward", count: Game::Pack::SIZE, rarity: reward_min) %></p>
+    <p class="how-it-works__reward-size"><%= t(".goal.reward", count: Game::Pack::SIZE, rarity: reward_min, full: Game::Reserve::FULL) %></p>
   <% end %>
 
   <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-seasons" }) do %>

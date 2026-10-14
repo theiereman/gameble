@@ -379,25 +379,62 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#community-goal .hub-goal__previous", text: "Last week: 260 / 200 · goal reached"
   end
 
-  test "a contributor whose goal reward waits unopened gets the reward toast, keyed by its week; others do not" do
+  def earn_goal_reward(player = @player)
     week = Game::WeeklyGoal.week_start(Time.current) - 7
-    Game::WeeklyGoal.create!(week_start: week, total: 200, target: 200)
-    Game::WeeklyContribution.create!(player_id: @player.id, week_start: week, openings: 1)
-    Game::GrantGoalReward.new.call(player: @player, week_start: week).value!
+    Game::WeeklyGoal.find_or_create_by!(week_start: week) { it.assign_attributes(total: 200, target: 200) }
+    Game::WeeklyContribution.create!(player_id: player.id, week_start: week, openings: 1)
+    Game::GrantGoalReward.new.call(player:, week_start: week).value!
+    week
+  end
+
+  test "a contributor's waiting goal reward shows its claim slot in the goal panel, outside the broadcast part" do
+    week = earn_goal_reward
+    Game::WeeklyGoal.create!(week_start: week + 7, total: 0, target: 250)
 
     get home_path(locale: :en)
-    assert_select "#toasts > .toast", false
+    assert_select "#goal-reward", false
 
     sign_in(@player, origin: "/fr")
     get home_path(locale: :fr)
-    assert_select "#toasts > .toast[data-toast-once='goal-reward-#{week.iso8601}']" do
-      assert_select ".toast__title", text: "Objectif atteint"
-      assert_select ".toast__message", text: "Un booster rare rejoint votre réserve."
+
+    assert_select "#community-goal > #community-goal-progress + #goal-reward.hub-goal__claim--ready" do
+      assert_select "form[action='/fr/goal-rewards/#{week.iso8601}'][method=post] button.button--secondary.button--small" \
+                    "[aria-label=?]", "Récupérer le booster de récompense", text: "Récupérer"
     end
+    assert_select "#community-goal-progress #goal-reward", false
+    assert_select "#community-goal-progress .hub-goal__previous"
+    assert_select "#toasts .toast[data-toast-once]", false
+    assert_select "[style]", 0
+
+    sign_in(accounts_players(:moderator))
+    get home_path(locale: :en)
+    assert_select "#goal-reward", false
+  end
+
+  test "with a full reserve the claim slot disables its button and says why; collected, it reads Collected" do
+    week = earn_goal_reward
+    Game::FillBank.new.call(player: @player).value!
+    sign_in(@player)
+
+    get home_path(locale: :en)
+    assert_select "#goal-reward.hub-goal__claim--full" do
+      assert_select "button[disabled][aria-label=?]", "Collect the reward booster", text: "Collect"
+      assert_select "form", 0
+      assert_select ".hub-goal__claim-text", "Open a booster to collect your rare booster."
+    end
+    get home_path(locale: :fr)
+    assert_select "#goal-reward .hub-goal__claim-text", "Ouvrez un booster pour récupérer votre booster rare."
 
     Game::OpenPack.new.call(player: @player).value!
+    Game::ClaimGoalReward.new.call(player: @player, week_start: week).value!
+
     get home_path(locale: :fr)
-    assert_select "#toasts > .toast", false
+    assert_select "#goal-reward.hub-goal__claim--collected" do
+      assert_select ".hub-goal__claim-state", "Récupéré"
+      assert_select "form, button", 0
+    end
+    get home_path(locale: :en)
+    assert_select "#goal-reward .hub-goal__claim-state", "Collected"
   end
 
   def stream_names
@@ -461,11 +498,12 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     create_pack(@player, cards: fixture_tier_ids, opened_at: 2.hours.ago)
     Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2)
     sign_in(@player)
+    earn_goal_reward
     Game::SumWeeklyGoalJob.new.perform
 
     # Player lookup, published season, the weekly goal (one read once the job
     # has created the week's row), bank (count, next pack, daily claim), the
-    # waiting goal reward,
+    # goal reward's claim slot,
     # showcase (pull, the copies held, card view), collection (owned, total), sets (progress,
     # the started sets, the fill, which finds no other set here, so no sizes),
     # the top bar's copies per tier, menu 04's friends online, the trades

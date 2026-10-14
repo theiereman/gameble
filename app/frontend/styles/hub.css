@@ -699,10 +699,45 @@ html[data-motion="reduced"] button.menu-item:hover {
 }
 
 .hub-goal__previous {
+  order: 1;
   margin: 0;
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-line-soft);
   color: var(--color-muted);
   font: var(--font-body);
   letter-spacing: var(--tracking-body);
+}
+
+/* The public part the goal stream replaces lays its children out in the
+   panel itself, so the player's claim slot sits under the reward line and
+   the previous week's count stays last. */
+.hub-goal__progress { display: contents; }
+
+/* A contributor's reward claim: the small button, disabled with the orange
+   line saying why while the reserve is full, then the lime state word. */
+.hub-goal__claim {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.hub-goal__claim .button,
+.hub-goal__claim .button-form {
+  margin: 0;
+}
+
+.hub-goal__claim-state {
+  margin: 0;
+  color: var(--color-lime);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.hub-goal__claim-text {
+  margin: 0;
+  color: var(--color-alert);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
 }

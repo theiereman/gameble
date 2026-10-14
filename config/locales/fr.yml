@@ -133,9 +133,10 @@ fr:
         reached: "Objectif atteint"
         previous_reached: "Semaine dernière : %{total} / %{target} · objectif atteint"
         previous_missed: "Semaine dernière : %{total} / %{target} · objectif manqué"
-      goal_reward:
-        title: "Objectif atteint"
-        message: "Un booster rare rejoint votre réserve."
+        collect: "Récupérer"
+        collect_label: "Récupérer le booster de récompense"
+        collected: "Récupéré"
+        full_text: "Ouvrez un booster pour récupérer votre booster rare."
       sets:
         title: "Progression des sets"
         see_all: "Tout voir"
@@ -293,9 +294,9 @@ fr:
         counts: "Chaque booster ouvert y compte, de même que chaque échange conclu, qui fait des deux joueurs des contributeurs."
         # French keeps the singular for 0, which the plural rule here does not.
         reward:
-          zero: "Si l'objectif est atteint, chaque joueur qui y a contribué reçoit un booster de récompense : %{count} carte, dont au moins une %{rarity} ou mieux."
-          one: "Si l'objectif est atteint, chaque joueur qui y a contribué reçoit un booster de récompense : %{count} carte, dont au moins une %{rarity} ou mieux."
-          other: "Si l'objectif est atteint, chaque joueur qui y a contribué reçoit un booster de récompense : %{count} cartes, dont au moins une %{rarity} ou mieux."
+          zero: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne un booster de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous le récupérez sur le pont tant que votre réserve compte moins de %{full} boosters."
+          one: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne un booster de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous le récupérez sur le pont tant que votre réserve compte moins de %{full} boosters."
+          other: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne un booster de récompense : %{count} cartes, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous le récupérez sur le pont tant que votre réserve compte moins de %{full} boosters."
       seasons:
         title: "Les saisons"
         frozen: "Une saison est tirée de Steam. Dès sa publication, la rareté, le numéro et les sets de chacune de ses cartes sont figés : ils ne changent plus pendant la saison."
@@ -1220,6 +1221,10 @@ fr:
     create:
       collected: "Un booster rejoint votre réserve. Le prochain sera prêt le %{time}."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
+  goal_rewards:
+    create:
+      collected: "Votre booster rare rejoint votre réserve."
+      throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
   external_links:
     new_tab: "(nouvel onglet)"
   card_details:
@@ -1471,6 +1476,10 @@ fr:
       already_collected: "Vous avez déjà récupéré le booster du jour. Le prochain sera prêt le %{time}."
       no_season: "Aucune saison de cartes n'est encore ouverte. Revenez plus tard pour le booster du jour."
       reserve_full: "Votre réserve est pleine : ouvrez un booster pour récupérer celui du jour."
+      reward_reserve_full: "Votre réserve est pleine : ouvrez un booster pour récupérer votre booster rare."
+      reward_already_claimed: "Vous avez déjà récupéré ce booster rare."
+      reward_not_earned: "Aucun booster rare ne vous attend pour cette semaine."
+      reward_no_season: "Aucune saison de cartes n'est ouverte. Revenez plus tard pour votre booster rare."
       invalid_idempotency_key: "La demande d'ouverture est mal formée. Rechargez la page et réessayez."
       not_friends: "Vous ne pouvez échanger qu'avec un ami."
       own_profile_private: "Votre profil est privé : les échanges sont fermés."

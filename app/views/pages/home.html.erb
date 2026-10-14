@@ -1,20 +1,18 @@
-<%# The hub, "Pont de commandement" (DESIGN.md: Kicker, Menu item, Showcase,
-    Daily booster panel, Set progress row, Signed-out hub; EXPERIENCE.md,
-    Hub content). Desktop: the kicker, menu and daily booster panel on the
-    left, the showcase in the centre, the set progress on the right (from
-    1180px; under it in the left column). Phone: one column without the
-    menu, the tab bar navigating. A visitor sees the same menu and an
-    invitation instead of the showcase, without the daily booster panel,
-    which a player keeps once the day's booster is collected (the
-    countdown to the next one). The daily claim's Turbo Stream answer
+<%# The hub, "Pont de commandement". Desktop: the kicker, menu and daily
+    booster panel on the left, the showcase in the centre, the set progress
+    on the right (from 1180px; under it in the left column). Phone: one
+    column without the menu, the tab bar navigating. A visitor sees the same
+    menu and an invitation instead of the showcase, without the daily
+    booster panel, which a player keeps once the day's booster is collected
+    (the countdown to the next one). The daily claim's Turbo Stream answer
     replaces the panel, the packs chip, menu 01 and the empty showcase's
-    action (bonus_arc_controller.ts flies the canister). A contributor whose
-    goal reward pack waits unopened gets the reward toast, which a browser
-    shows once per week's reward.
+    action (bonus_arc_controller.ts flies the canister). A contributor's
+    weekly goal reward shows its claim slot in the goal panel.
     Never served from Turbo's cache; the packs chip's countdown refreshes it
     by morphing, keeping the scroll. The LIVE ticker fills the layout's
     ticker slot, a band along the bottom of the hub, and the public goal
-    stream replaces the goal panel as the periodic sum moves it. %>
+    stream replaces the goal panel's public part as the periodic sum moves
+    it. %>
 <% turbo_exempts_page_from_cache %>
 <% turbo_refreshes_with method: :morph, scroll: :preserve %>
 <% content_for :ticker do %>
@@ -31,18 +29,12 @@
     <span hidden data-controller="bonus-arc" data-action="turbo:before-stream-render@document->bonus-arc#render"></span>
   <% end %>
 
-  <% if @goal_reward_week %>
-    <% content_for :toasts do %>
-      <%= render ToastComponent.new(title: t(".goal_reward.title"), message: t(".goal_reward.message"), once: "goal-reward-#{@goal_reward_week.iso8601}") %>
-    <% end %>
-  <% end %>
-
   <% if current_player.nil? %>
     <%= render "pages/invitation" %>
     <%= render "pages/goal", goal: @goal %>
   <% else %>
     <%= render "pages/showcase", card: @showcase, bank: @bank, repostable: @showcase_repostable %>
-    <%= render "pages/goal", goal: @goal %>
+    <%= render "pages/goal", goal: @goal, reward: @goal_reward, bank: @bank %>
     <%= render "pages/daily_booster", bank: @bank, primary: @showcase.present? if @bank[:bonus_collectable] || @bank[:bonus_collected] %>
   <% end %>
 

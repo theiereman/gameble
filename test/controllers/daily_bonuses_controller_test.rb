@@ -134,6 +134,41 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, Game::DailyBonusClaim.count
   end
 
+  def earn_goal_reward
+    week = Game::WeeklyGoal.week_start(Time.current) - 7
+    Game::WeeklyGoal.create!(week_start: week, total: 200, target: 200)
+    Game::WeeklyContribution.create!(player_id: @player.id, week_start: week, openings: 1)
+    Game::GrantGoalReward.new.call(player: @player, week_start: week).value!
+  end
+
+  test "from Turbo, a bonus that fills the reserve turns a waiting goal reward's claim slot full" do
+    earn_goal_reward
+    Game::FillBank.new.call(player: @player).value!
+    Game::OpenPack.new.call(player: @player).value!
+    sign_in(@player)
+
+    get home_path(locale: :en)
+    assert_select "#goal-reward.hub-goal__claim--ready"
+
+    stream_post
+
+    assert_select "turbo-stream[action=replace][target=goal-reward] template #goal-reward.hub-goal__claim--full" do
+      assert_select "button[disabled]", "Collect"
+      assert_select ".hub-goal__claim-text", "Open a booster to collect your rare booster."
+    end
+  end
+
+  test "from Turbo, a bonus that leaves room in the reserve does not touch the goal reward's claim slot" do
+    earn_goal_reward
+    Game::FillBank.new.call(player: @player).value!
+    2.times { Game::OpenPack.new.call(player: @player).value! }
+    sign_in(@player)
+
+    stream_post
+
+    assert_select "turbo-stream[target=goal-reward]", false
+  end
+
   test "from Turbo, a visitor's claim is refused with the sign-in message, nothing written" do
     assert_no_difference -> { Game::DailyBonusClaim.count } do
       post daily_bonus_path(locale: :en), as: :turbo_stream
