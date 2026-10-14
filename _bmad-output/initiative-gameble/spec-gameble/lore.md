@@ -11,5 +11,5 @@ Author's idea, 2026-10-14. Background for the world; nothing here changes the co
 
 ## Open questions
 
-- How much of this the interface shows is being reviewed in another session.
+- How much of this the interface shows: the landing (CAP-24) is its first place, with the mission premise only (games were lost; the Brotherhood finds them, never said to come back as cards); its lore text is written in a dedicated session, in French and English, and the landing waits for it.
 - The regime's name, and whether its decision-makers are ever named or shown: to settle later.

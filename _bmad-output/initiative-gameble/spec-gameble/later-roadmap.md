@@ -27,7 +27,6 @@ Context for MVP design decisions that must not block these. Nothing here is buil
 - **Steam library bonuses:** bonuses on the cards of games a player owns, from playtime and achievements. They are bonuses only; the library never grants a card. Reading a player's library may depend on their Steam profile privacy settings; verify before designing.
 - **Library info on a shared card:** show the owner's Steam library info when they own the game.
 - **Live trades:** both players at the trade board at the same time.
-- **Pioneer (author, 2026-10-14; scope not decided):** the player who discovers a card of a season first is recorded as its pioneer; every player who opens that card afterwards sees the name in its details. First discoveries stay per card and season, so each edition has its own pioneer. The name follows the pioneer's profile visibility: a viewer allowed to see that profile, a signed-out visitor included for a public one, sees it; anyone else sees « anonyme », as for a banned or deleted account.
 - **Card marks:** favourite, to trade, personal categories.
 - **Feed reactions:** reacting to or commenting on a friend's pull or repost.
 - **Knowledge battles** (parked idea, unscheduled; detail in the brief addendum): live three-round matches on themes drawn from Steam data, played with cards picked from a random hand, rewarding knowledge of games rather than collection size; optionally a challenge market where players stake cards. It conflicts with the Combat non-goal and with the rule that currency comes only from destroying cards.

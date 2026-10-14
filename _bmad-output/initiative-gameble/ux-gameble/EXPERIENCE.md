@@ -658,7 +658,6 @@ Non-blockers, left open.
 - **Landing language and meta:** whether the landing offers a FR/EN switch or only the URL segment; its page title, meta description and link-preview image.
 - **Landing license line:** which license the repository takes, and whether 07's "Licence libre." names it.
 - **Landing copy points for the author:** moved to `review-copy-2026-10-14.md`, under Copy points carried from EXPERIENCE.md (2026-10-14).
-- **Spec follow-up pending:** CAP-1's sign-out destination, the landing exception (and Valve named in its footer) in `brotherhood-tone.md`, and a capability for the landing and one for the roadmap; a spec update follows the UX close.
 - **Avatars:** the source (Steam avatar through the pixel filter?) is not decided.
 - **English copy** and English rarity names are not written.
 - **Skip control:** whether a "Passer" control (and Esc) jumps an opening or reveal sequence to its end state (accessibility review M11).

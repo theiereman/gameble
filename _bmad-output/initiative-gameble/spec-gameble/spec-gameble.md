@@ -4,6 +4,7 @@ companions:
   - catalog-and-rarity.md
   - brotherhood-tone.md
   - later-roadmap.md
+  - lore.md
   - ../ux-gameble/DESIGN.md
   - ../ux-gameble/EXPERIENCE.md
   - ../ux-gameble/ux-gameble.md
@@ -30,7 +31,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **success:**
     - Steam sign-in creates the account or reuses the one tied to that Steam account. No other sign-in method exists, and gameble stores no password.
     - The only link to Steam's sign-in is Valve's official "Sign in through Steam" image, unmodified. A game-styled call to action that needs an account opens a sign-in panel holding one title line and that image.
-    - Signing in lands on the hub; signing out lands on the hub, signed out.
+    - Signing in lands on the hub. Signed out, the root (/fr, /en), signing out and deleting the account land on the visitor landing (CAP-24); a signed-in player never sees it. The signed-out hub stays reachable from the landing and the public card page.
 - **CAP-2**
   - **intent:** The system builds a card catalog from the Steam catalog, keeping established games only.
   - **success:** An import run produces cards that match the inclusion and exclusion rules in `catalog-and-rarity.md`, each with its title, short description, release date, genre, store tags, sets and Steam image address, all stored in gameble's own database. An administrator starts an import by hand and can watch its progress.
@@ -118,6 +119,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - A signed-in player has a Friends tab showing only their friends' pulls, trades and reposts; a private friend's never show (CAP-8).
     - The LIVE ticker shows pulls of Épique or better, first discoveries, trades, set completions and set tiers reached, never reposts.
     - The set tiers and completions one opening reaches make one feed entry and one ticker item, naming the highest and the count.
+    - The first player to discover a card of a season is its pioneer, shown in the card's details to every later viewer allowed to see that player's profile (CAP-8); anyone else, a signed-out visitor included, sees « anonyme », as for a banned or deleted account. Each edition has its own pioneer.
 - **CAP-14**
   - **intent:** A player can manage their personal data from their profile.
   - **success:** From the profile, a player can delete their account, export their data, and set their profile's visibility (public, friends only, private); going private cancels their open trades (CAP-11) and says so before applying. Each action works end to end.
@@ -176,12 +178,26 @@ gameble is an open-source passion project, and the game its author wants to play
     - One Brotherhood line heads the screen; the rest is plain copy.
     - A player with no card from an earlier season, traded ones included, sees no allocation.
     - A set shows its latest mark and a count of seasons ("Or · 12 saisons"), the per-season detail on demand. No season chip appears in the collection grid.
+- **CAP-24**
+  - **intent:** A signed-out visitor meets a landing that gives the Brotherhood's mission, says what gameble is and makes them want to play.
+  - **success:**
+    - Signed out, /fr and /en show the landing in their language; its sign-in actions open the Steam sign-in panel (CAP-1) and « Embarquer sur le pont » opens the signed-out hub.
+    - It shows live activity from the game (the feed's latest entries, the season, the weekly goal) and sets out how the game works, what there is to unlock, the open-source project with its call for artists, narrators and developers through the repository, and the free, ad-free, data-respecting model kept alive by support.
+    - It works on phone and desktop under the enforced CSP, with its own « Animations réduites » switch for visitors, remembered and carried into the account at sign-in.
+    - Look, copy and behaviour follow `DESIGN.md` and `EXPERIENCE.md` (Landing).
+- **CAP-25**
+  - **intent:** A visitor sees where the game is going: what is done, in progress and to come.
+  - **success:**
+    - The landing's roadmap shows epics and, under each, a few player-facing stories with their status (done, in progress, to come).
+    - Its data derives from the BMad initiative semi-automatically: the author chooses what appears and writes its player-facing wording in both languages; the shown roadmap cannot drift from the initiative unnoticed.
+    - A link leads to the full roadmap page, designed later.
 
 ## Constraints
 
 - **No real money**, anywhere: no purchases, no ads, no cash-out.
 - **French and English UI**, both complete at launch. Card text is available in every UI language. The English copy is translated by AI from the French. All repo text (code, comments, docs) is in English.
 - **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability is live at launch. CAP-23 is live before the second season is published in production.
+- **Landing ship conditions:** CAP-24 and CAP-25 go live only once the lore text exists in French and English (`lore.md`), the pioneer (CAP-13) is built, the repository is public with a license file, the roadmap sync exists and the app uses JetBrains Mono.
 - **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports.
 - **Player-facing words:** the interface says "booster" for pack, "réserve" for bank and "objectif communautaire" for the weekly goal. The spec and the code keep pack, bank and weekly goal.
 - **Cards are only pulled or traded.** Owning a game on Steam never grants its card.
@@ -198,7 +214,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **Images:** loaded from Steam's CDN, never copied. In the browser, at display time, the vertical cover is cropped to the card's art box, pixelated at 2 CSS px per image pixel and reduced to about 32 colours, with no dithering. The publisher is shown on the card; the ownership notice is on the legal page. There is no fallback art.
 - **Legal:** the notice that gameble has no affiliation with Steam or Valve, the ownership notice (in substance: « Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons. »), the terms of use and the privacy notice live on a legal page reached from "Mentions légales" (profile and public page footer).
 - **Look and behaviour** follow `DESIGN.md` and `EXPERIENCE.md`. The back-office is outside them: plain functional style, behaviour unchanged, designed later.
-- **Reduced motion:** an in-app "Animations réduites" setting follows the system preference by default. When on, it also stops the LIVE ticker and every looping or blinking effect.
+- **Reduced motion:** an in-app "Animations réduites" setting follows the system preference by default. When on, it also stops the LIVE ticker and every looping or blinking effect. Signed-out visitors get the same switch on the landing (CAP-24).
 - **Bots:** edge bot protection from day one; trades are limited to friends.
 - **Platforms:** responsive desktop and phone web. Phones are portrait only, with no landscape layout and no overlay; the installed web app is locked to portrait by its manifest. On every size the interface is never scaled: pages scroll and reflow by width. Native store apps must remain possible later.
 - **Tone and naming** follow `brotherhood-tone.md`.
