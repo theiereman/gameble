@@ -243,6 +243,8 @@ describe("the glitter's stylesheet", () => {
       expect(rule(stylesheet, `${card} .card__flake-group`)).toContain("animation: none")
       expect(rule(stylesheet, `${card} .card__flake[data-flash] .card__flake-glint`)).toContain("opacity: 0.18")
     }
-    expect(rule(boosterLayoutsStylesheet, '.booster[data-layout="phone"] .booster-card:not([data-top]) .booster-card__rays')).not.toContain("opacity")
+    const lowerRays = rule(boosterLayoutsStylesheet, '.booster[data-layout="phone"] .booster-card:not([data-top]) .booster-card__rays')
+    expect(lowerRays).toContain("display: none")
+    expect(lowerRays).not.toContain("opacity")
   })
 })
