@@ -99,6 +99,26 @@ class CardArtTest < ApplicationSystemTestCase
     assert_selector "[data-test-art] canvas", visible: :hidden
   end
 
+  test "a grayscale cover with tonal variation is drawn" do
+    grayscale = page.evaluate_script(<<~JS)
+      (() => {
+        const canvas = document.createElement("canvas")
+        canvas.width = 300
+        canvas.height = 450
+        const context = canvas.getContext("2d")
+        const gradient = context.createLinearGradient(0, 0, 300, 0)
+        gradient.addColorStop(0, "rgb(0, 0, 0)")
+        gradient.addColorStop(1, "rgb(255, 255, 255)")
+        context.fillStyle = gradient
+        context.fillRect(0, 0, 300, 450)
+        return canvas.toDataURL("image/png")
+      })()
+    JS
+    add_arts([ grayscale ])
+
+    assert_selector "[data-test-art][data-art=drawn] canvas:not([hidden])", visible: :all
+  end
+
   test "a cover refused by CORS is drawn on the main thread without palette" do
     port = Capybara.current_session.server.port
     add_arts([ "http://localhost:#{port}#{sample_path}" ])

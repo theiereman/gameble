@@ -27,7 +27,7 @@ context:
 
 ## Implementation Notes
 
-The fix is routed as oneshot because it is a focused TypeScript predicate and regression-test change, estimated below 100 modified lines. Update the adopted architecture wording from "single channel" to the narrower placeholder rule so code and design remain consistent. Do not add system tests because this repository currently disables them; cover behavior at the pure predicate and worker-job levels.
+The fix is routed as oneshot because it is a focused TypeScript predicate and regression-test change, estimated below 100 modified lines. Update the adopted architecture wording from "single channel" to the narrower placeholder rule so code and design remain consistent. Cover behavior at the pure predicate and worker-job levels, plus one system test in `test/system/card_art_test.rb` (added on request, although system tests are currently disabled).
 
 - Replaced the all-grayscale rejection with `isFlatGrey`: pixels must stay grey and within a 24-level tonal range. The known Steam placeholder spans 18 tone values; the reported Gato Roboto and Hidden Folks covers span the full 0–255 range.
 - Updated `placeholder.ts`, its unit tests, the worker job and its regression tests, plus AD-17's wording. The raw booster thumbnail and all server/catalog paths remain unchanged.
