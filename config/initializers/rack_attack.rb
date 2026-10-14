@@ -1,9 +1,11 @@
-# Sign-in throttle (abuse convention). The request phase POST /auth/steam is
-# OmniAuth middleware that no controller `rate_limit` reaches, so the three
-# sign-in endpoints are throttled here, per client IP: 10 requests a minute
-# across them. Page reads are never throttled. Counts live in Rails.cache.
-# The client's address is Rails' remote IP, which looks past Cloudflare
-# (config/initializers/trusted_proxies.rb).
+# The request phase POST /auth/steam is OmniAuth middleware that no controller
+# `rate_limit` reaches, so sign-in is throttled here, with the shared pages.
+module ClientAddress
+  def self.of(request)
+    ActionDispatch::Request.new(request.env).remote_ip
+  end
+end
+
 module SignInThrottle
   LIMIT = 10
   PERIOD = 1.minute
@@ -16,27 +18,48 @@ module SignInThrottle
   def self.sign_in?(request)
     PATHS.fetch(request.request_method, []).include?(request.path.downcase.chomp("/"))
   end
+end
 
-  def self.client_ip(request)
-    ActionDispatch::Request.new(request.env).remote_ip
+module PublicReadThrottle
+  LIMIT = 120
+  PERIOD = 1.minute
+  PAGES = %w[cards brothers library].freeze
+
+  def self.public_read?(request)
+    return false unless request.get? || request.head?
+
+    locale, page = request.path.split("/", 4)[1, 2]
+    I18n.available_locales.map(&:to_s).include?(locale) && PAGES.include?(page.to_s.split(".").first)
   end
 end
 
 Rack::Attack.cache.store = Rails.cache
 
 Rack::Attack.throttle("sign-in/ip", limit: SignInThrottle::LIMIT, period: SignInThrottle::PERIOD) do |request|
-  SignInThrottle.client_ip(request) if SignInThrottle.sign_in?(request)
+  ClientAddress.of(request) if SignInThrottle.sign_in?(request)
 end
 
-# 429 with a short plain-text body. These paths carry no locale; the default
-# one answers.
+Rack::Attack.throttle("public-read/ip", limit: PublicReadThrottle::LIMIT, period: PublicReadThrottle::PERIOD) do |request|
+  ClientAddress.of(request) if PublicReadThrottle.public_read?(request)
+end
+
+# A throttled Turbo Frame request gets its frame back, or Turbo shows "Content missing".
 Rack::Attack.throttled_responder = lambda do |request|
   match = request.env["rack.attack.match_data"] || {}
   period = match[:period] || SignInThrottle::PERIOD.to_i
   retry_after = period - (Time.now.to_i % period)
-  body = I18n.t("rate_limit.throttled", locale: I18n.default_locale)
+  locale = request.path[%r{\A/([^/]+)/}, 1]
+  locale = I18n.default_locale unless I18n.available_locales.map(&:to_s).include?(locale)
+  key = request.env["rack.attack.matched"] == "public-read/ip" ? "rate_limit.reading_throttled" : "rate_limit.throttled"
+  message = I18n.t(key, locale:)
+  headers = { "retry-after" => retry_after.to_s }
 
-  [ 429, { "content-type" => "text/plain; charset=utf-8", "retry-after" => retry_after.to_s }, [ body ] ]
+  if (frame = request.env["HTTP_TURBO_FRAME"].presence)
+    body = %(<turbo-frame id="#{ERB::Util.html_escape(frame)}"><p>#{ERB::Util.html_escape(message)}</p></turbo-frame>)
+    [ 429, headers.merge("content-type" => "text/html; charset=utf-8"), [ body ] ]
+  else
+    [ 429, headers.merge("content-type" => "text/plain; charset=utf-8"), [ message ] ]
+  end
 end
 
 # The Rack::Attack railtie appends it to the stack; it must run before

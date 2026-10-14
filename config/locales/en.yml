@@ -1361,6 +1361,7 @@ en:
     forbidden: "Your account has no access to this page."
   rate_limit:
     throttled: "Too many sign-in attempts. Try again in a minute."
+    reading_throttled: "Too many pages read in a minute. Try again in a moment."
   # Number formats (number_with_delimiter, number_with_precision,
   # number_to_percentage), as Rails' own defaults; the twin of fr.yml's.
   number:

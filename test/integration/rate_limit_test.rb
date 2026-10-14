@@ -1,9 +1,7 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
 
-# The sign-in throttle (config/initializers/rack_attack.rb): 10 sign-in
-# requests a minute per IP across POST /auth/steam, the callback and the
-# failure endpoint; page reads are never throttled.
+# The throttles of config/initializers/rack_attack.rb.
 class RateLimitTest < ActionDispatch::IntegrationTest
   include SteamSignIn
 
@@ -39,6 +37,10 @@ class RateLimitTest < ActionDispatch::IntegrationTest
     when 1 then get "/auth/steam/callback", env: env
     else get "/auth/failure", params: { message: "invalid_credentials" }, env: env
     end
+  end
+
+  def exhaust_public_reads(ip)
+    PublicReadThrottle::LIMIT.times { Rack::Attack.cache.count("public-read/ip:#{ip}", PublicReadThrottle::PERIOD) }
   end
 
   # What the app sees behind Cloudflare: the client, then the Cloudflare
@@ -121,7 +123,7 @@ class RateLimitTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "page reads are never throttled" do
+  test "other page reads are never throttled" do
     10.times { |index| sign_in_request(index) }
 
     30.times do
@@ -156,5 +158,68 @@ class RateLimitTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :too_many_requests
+  end
+
+  test "the 121st read of the shared pages from one address within a minute gets 429, in the page's locale" do
+    PublicReadThrottle::LIMIT.times do |index|
+      get "/fr/library", env: { "REMOTE_ADDR" => IP }
+
+      assert_not_equal 429, response.status, "read #{index + 1}"
+    end
+
+    get "/fr/library", env: { "REMOTE_ADDR" => IP }
+
+    assert_response :too_many_requests
+    assert_equal I18n.t("rate_limit.reading_throttled", locale: :fr), response.body
+    assert response.headers["retry-after"].to_i.between?(1, 60)
+  end
+
+  test "another address reads the shared pages meanwhile" do
+    exhaust_public_reads(IP)
+    get "/en/library", env: { "REMOTE_ADDR" => IP }
+    assert_response :too_many_requests
+
+    get "/en/library", env: { "REMOTE_ADDR" => OTHER_IP }
+
+    assert_response :success
+  end
+
+  test "a shared page is never cached for other visitors" do
+    get "/en/library", env: { "REMOTE_ADDR" => IP }
+
+    assert_response :success
+    assert_includes response.headers["cache-control"], "private"
+  end
+
+  test "a throttled read of a frame gets that frame back with the message" do
+    exhaust_public_reads(IP)
+
+    get "/en/library", params: { q: "hades" }, headers: { "Turbo-Frame" => "collection-results" }, env: { "REMOTE_ADDR" => IP }
+
+    assert_response :too_many_requests
+    assert_equal "text/html", response.media_type
+    assert_select "turbo-frame#collection-results p", text: I18n.t("rate_limit.reading_throttled", locale: :en)
+  end
+
+  test "pages outside the shared ones are read while the shared ones are throttled" do
+    exhaust_public_reads(IP)
+    get "/en/library", env: { "REMOTE_ADDR" => IP }
+    assert_response :too_many_requests
+
+    get "/en", env: { "REMOTE_ADDR" => IP }
+
+    assert_response :success
+  end
+
+  test "the shared pages are counted on GET and HEAD, with or without a format, and nothing else is" do
+    read = ->(method, path) { PublicReadThrottle.public_read?(Rack::Request.new(Rack::MockRequest.env_for(path, method:))) }
+
+    %w[/fr/cards/hades /en/brothers/abc /en/brothers/abc/library/theme/roguelike /fr/library /fr/library/ /fr/library.html /fr/library/theme/roguelike].each do |path|
+      assert read.("GET", path), path
+    end
+    assert read.("HEAD", "/fr/cards/hades")
+    assert_not read.("POST", "/fr/library/seen")
+    assert_not read.("POST", "/fr/cards/hades/seasons/1/repost")
+    %w[/fr /fr/feed /fr/friends /de/cards/hades /fr/cardsx].each { |path| assert_not read.("GET", path), path }
   end
 end

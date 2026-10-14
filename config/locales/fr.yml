@@ -1404,6 +1404,7 @@ fr:
     forbidden: "Votre compte n'a pas accès à cette page."
   rate_limit:
     throttled: "Trop de tentatives de connexion. Réessayez dans une minute."
+    reading_throttled: "Trop de pages consultées en une minute. Réessayez dans un instant."
   # Number formats (number_with_delimiter, number_with_precision,
   # number_to_percentage). Defined here so test and production render the
   # same (production falls back to en). The delimiter is a no-break space
