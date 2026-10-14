@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Season Carryover Forge</title>
+<style>
+  :root {
+    --bg: #f6f1e7; --paper: #fffdf8; --ink: #2a2420; --muted: #6d6258;
+    --line: #e2d8c8; --seal: #9e2b25; --seal-dark: #7a1f1a; --ok: #2f6b3a; --warn: #a2611a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1b1815; --paper: #25211d; --ink: #eee6da; --muted: #a99d8f;
+      --line: #3a332c; --seal: #c4463e; --seal-dark: #8e2a24; --ok: #6fb07c; --warn: #d89a52;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1b1815; --paper: #25211d; --ink: #eee6da; --muted: #a99d8f;
+    --line: #3a332c; --seal: #c4463e; --seal-dark: #8e2a24; --ok: #6fb07c; --warn: #d89a52;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.55 Georgia, "Iowan Old Style", serif; padding: 32px 16px; }
+  main { max-width: 860px; margin: 0 auto; background: var(--paper); border: 1px solid var(--line);
+    border-radius: 6px; padding: 40px clamp(16px, 5vw, 56px); }
+  header { display: flex; gap: 28px; align-items: center; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 24px; }
+  header svg { flex: 0 0 auto; width: 150px; height: 150px; }
+  h1 { margin: 0 0 6px; font-size: 1.9rem; }
+  .kicker { text-transform: uppercase; letter-spacing: .12em; font-size: .75rem; color: var(--muted); margin: 0 0 6px; }
+  .lead { margin: 0; color: var(--muted); }
+  h2 { font-size: 1.15rem; margin: 32px 0 10px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+  ul { padding-left: 1.2em; margin: 0; }
+  li { margin: 6px 0; }
+  li b { color: var(--ink); }
+  .rej li::marker { content: "✕  "; color: var(--seal); }
+  .weak li::marker { content: "!  "; color: var(--warn); font-weight: bold; }
+  .locks li::marker { content: "◆  "; color: var(--ok); }
+  .cast { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .who { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
+  .who .n { font-weight: bold; }
+  .who .r { font-size: .85rem; color: var(--muted); }
+  .who q { display: block; margin-top: 6px; font-style: italic; font-size: .92rem; }
+  footer { margin-top: 32px; font-size: .85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <svg viewBox="0 0 160 160" role="img" aria-label="Hardened seal">
+      <defs>
+        <radialGradient id="wax" cx="40%" cy="35%" r="70%">
+          <stop offset="0" stop-color="var(--seal)"/>
+          <stop offset="1" stop-color="var(--seal-dark)"/>
+        </radialGradient>
+      </defs>
+      <path fill="url(#wax)" d="M80 6c10 0 14 8 23 10s17-3 23 4 2 16 7 24 14 9 15 19-7 14-7 23 8 14 4 23-14 7-21 13-6 17-15 20-15-5-25-5-16 8-25 4-6-14-14-20-17-3-21-12 4-15 3-24-9-14-5-23 13-9 18-17 2-17 9-22 14 1 23-3S70 6 80 6z"/>
+      <circle cx="80" cy="80" r="52" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2" stroke-dasharray="3 4"/>
+      <text x="80" y="76" text-anchor="middle" fill="#fff" font-family="Georgia, serif" font-size="17" font-weight="bold" letter-spacing="2">HARDENED</text>
+      <text x="80" y="96" text-anchor="middle" fill="#fff" fill-opacity=".85" font-family="Georgia, serif" font-size="10" letter-spacing="1.5">FORGED · 2026-10-14</text>
+    </svg>
+    <div>
+      <p class="kicker">gameble · forge</p>
+      <h1>Seasons carry the collection over</h1>
+      <p class="lead">Publishing a season left players with an empty collection, sets back to zero and the total counter at 0. The idea came out hardened: seasons become reprints, and nothing earned is ever wiped.</p>
+    </div>
+  </header>
+
+  <h2>Locked decisions</h2>
+  <ul class="locks">
+    <li><b>Season = reprint.</b> Sets are the same across seasons; any edition of a game counts for them. A new season recomputes rarities and adds games; progress carries on.</li>
+    <li><b>Editions.</b> A copy keeps its minted rarity and season. Destruction value follows the minted rarity (no arbitrage); market value is left to players, who see the edition.</li>
+    <li><b>Earned stays earned.</b> Tiers and rewards are kept forever with their season's mark. A lost tier is earned again with the new season's mark, which is what veterans chase.</li>
+    <li><b>Live percentage.</b> Recomputed on the current set; a drop reads as new cards to find, never a loss.</li>
+    <li><b>Seasonal allocation screen.</b> Rocket League style, at the first visit after a publication: what you unlocked last season and what follows you. One Brotherhood line heads it.</li>
+    <li><b>Counter and grid.</b> The total counts distinct games across editions and never drops. One tile per game, best rarity owned, an edition count.</li>
+    <li><b>No clutter at 30 seasons.</b> No season chips in the grid; a set shows its latest mark and a count (“Gold · 12 seasons”), detail on demand.</li>
+  </ul>
+
+  <h2>Rejected</h2>
+  <ul class="rej">
+    <li><b>Season = expansion.</b> Sets are themes and franchises, not dated expansions; several “Roguelike” sets side by side would confuse.</li>
+    <li><b>Showing the highest tier ever reached.</b> Replaced by the live tier plus past season marks.</li>
+    <li><b>A chip season selector in the collection.</b> Loses its purpose and saturates; at most an edition filter.</li>
+  </ul>
+
+  <h2>Weak points that survived</h2>
+  <ul class="weak">
+    <li><b>Migration cost is unknown.</b> Set and tier rows are per season today; whether production has real players decides how heavy the change is.</li>
+    <li><b>Season marks may cost art.</b> A watermark over the existing back is cheap; a new style per season is not.</li>
+    <li><b>The Brotherhood rule was loosened.</b> “At most one line per screen, at collective moments” must hold, or the satire spreads everywhere.</li>
+    <li><b>First discoveries and V2 prices</b> are still counted per card-season; whether they move to per game is open.</li>
+  </ul>
+
+  <h2>Who pressure-tested it</h2>
+  <div class="cast">
+    <div class="who"><span class="n">📋 John</span> <span class="r">Product manager</span><q>Carry progress over and the veteran opens the season already full: what is left to chase?</q></div>
+    <div class="who"><span class="n">📊 Mary</span> <span class="r">Analyst</span><q>Make the minted season an edition: old copies become scarce by construction.</q></div>
+    <div class="who"><span class="n">🏗️ Winston</span> <span class="r">Architect</span><q>Sets are rebuilt every season; a gold player can drop to 41 % without losing anything.</q></div>
+    <div class="who"><span class="n">🎨 Sally</span> <span class="r">UX designer</span><q>The grid never shows a season, only how many.</q></div>
+    <div class="who"><span class="n">💻 Amelia</span> <span class="r">Developer</span><q>Distinct games across editions is one DISTINCT, nothing heavy.</q></div>
+    <div class="who"><span class="n">😤 Grumbal</span> <span class="r">The adversary</span><q>You swapped “my collection is empty” for “I was demoted overnight”.</q></div>
+    <div class="who"><span class="n">🃏 Odile</span> <span class="r">Pokémon TCG collector</span><q>A new expansion never empties my binder.</q></div>
+    <div class="who"><span class="n">💰 Bastien</span> <span class="r">F2P economist</span><q>Destruction on current rarity is a money printer.</q></div>
+    <div class="who"><span class="n">🎲 Théo</span> <span class="r">Returning casual player</span><q>Three celebrations in one pack for things I did months ago?</q></div>
+    <div class="who"><span class="n">🧙 Léna</span> <span class="r">Hearthstone veteran</span><q>Nobody wants 30 identical backs; show the streak.</q></div>
+  </div>
+
+  <footer>Forged idea: forge-season-carryover.md · next step: bmad-correct-course with it as input.</footer>
+</main>
+</body>
+</html>

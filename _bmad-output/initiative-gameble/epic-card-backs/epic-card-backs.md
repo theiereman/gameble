@@ -29,10 +29,10 @@ Completed at this epic's inception. The source lines are CAP-20 and CAP-22 of th
 ## Done when
 
 1. Every account has the Standard back; a locked back states its unlock condition.
-2. Reaching gold on a theme or hall of fame set, contributing to a successful weekly goal and the listed achievements unlock their backs, once each.
-3. The player picks one active back in the profile; it shows on their own face-down cards from the next pack opened, and faded on the detail of a card they do not own.
+2. Reaching gold on a theme or hall of fame set, contributing to a successful weekly goal and the listed achievements unlock their backs, once each. A back earned again in a later season gains that season's mark, not a second unlock.
+3. The player picks one active back in the profile; it shows on their own face-down cards from the next pack opened, and faded on the detail of a card they do not own. The player picks the season mark the active back wears.
 4. An administrator can grant a back to a group of players for an event.
-5. Completing a franchise, studio or UFO set and each tier of a tiered set unlock a profile title; one active title shows on the profile, in the feed and in trades.
+5. Completing a franchise, studio or UFO set and each tier of a tiered set unlock a profile title; one active title shows on the profile, in the feed and in trades. A title is earned once per set and tier across seasons.
 6. Reaching gold on 3, 10 and 25 sets unlocks a menu theme; the player picks one; contrast is checked for each.
 
 ## Boundaries
@@ -52,3 +52,4 @@ The back catalogue in code, unlocks and the active back in `Game`, the back pick
 - Decision (2026-10-05): its own epic after epic 6, once every unlocking event exists. Approved by the author.
 - Decision (2026-10-07): this epic is not part of the MVP; it is built after the public launch (author). Epics 5 and 6 publish the events it will consume (SetCompleted, the goal reward, achievements).
 - Decision (2026-10-08, author): renamed from "Card backs"; backs unlock on gold, titles and menu themes join (CAP-22, change-recognizable-sets). The folder keeps its name. Waits on epic-recognizable-sets for the set tier and completion events.
+- Decision (2026-10-14, author): backs and titles carry season marks; a back is unlocked once and gains a mark per season it is earned in; titles are counted by set kind, key and tier across seasons (change-season-carryover). epic-seasons-carry-over waits on this epic for the backs its recap lists.

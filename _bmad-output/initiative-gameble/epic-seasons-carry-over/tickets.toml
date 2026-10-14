@@ -1,0 +1,59 @@
+# tickets.toml — the stories of the seasons carry over epic, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Carried tiers are received once per season, silently"
+description = "Adds Game::ReceiveSeasonAllocation, which inserts the tier rows a player already meets in the published season's sets and publishes one Game::SeasonAllocationReceived and no tier event, the received and seen seasons on game_player_states, and the silent receipt at the start of the two operations that raise quantities (the opening, and both players of an accepted trade); existing players and new accounts start with both seasons at the published one; the screen of entry 2 calls the same operation."
+unknown = "Whether a concurrent opening and trade can both receive the same allocation; the unique receipt must publish one Game::SeasonAllocationReceived."
+verify = "After a publication in a test, a player's first opening receives the tiers they met with the new season and celebrates only the tiers the opening crosses; a friend's accepted trade does the same with no feed entry; a second receipt writes nothing; a player with no holding from an earlier season receives nothing."
+covers = ["R2", "R3", "R5"]
+after = ["13.5", "13.6", "epic-human-readable-codebase"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 2
+type = "story"
+title = "The seasonal allocation screen"
+description = "Designs the screen with the author, then builds it: the Brotherhood line, the ended season's tiers, backs, achievements and goal rewards, the sets that follow with their new mark and the tiers to win back; the hub and the booster page redirect to it while the published season is unseen, and its POST receives the allocation through entry 1's operation if still pending and marks it seen; owns the season mark stamp entry 3 reuses."
+unknown = "The screen and the season mark are drawn with bmad-ux and the author before the build."
+verify = "On staging after a publication, a returning player is led to the screen once, also when opening the booster page first, and then reaches the hub; a player with no card from an earlier season goes straight to the hub; the screen reads in French and English on a phone and a desktop."
+covers = ["R1", "R2", "R4", "R5"]
+after = [1, "13.7", "epic-card-backs"]
+hitl = true
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "Season marks on tiers"
+description = "Shows on each tier of the set album, the public profile and the hub its latest season mark and the number of seasons it was earned in, the per-season list on demand, and \"à reconquérir\" for a tier earned before but not met in the current season, read from the player's tier rows across the set's seasons; reuses entry 2's season mark stamp."
+verify = "A player with gold on Roguelike in seasons 1 and 2 sees \"Or · 2 saisons\" with both seasons on demand; one whose Roguelike grew below gold sees it \"à reconquérir\"; no season chip shows in the collection grid."
+covers = ["R6"]
+after = [2, "13.8"]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Refactor sweep"
+description = "Cleans up what this epic's build records and deferred review findings name; scope set when it starts."
+verify = "The full test suite, packwerk and zeitwerk pass."
+covers = []
+after = [1, 2, 3]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "A season change rehearsed on staging"
+description = "Publishes a season on a copy of staging that holds players with progress and checks the season change end to end, with the author: counters, carried tiers, the allocation, the feed and the opening time."
+verify = "No total counter drops, carried tiers are received once with no feed entry, each returning player sees the allocation once, and POST /packs stays under 200 ms at p95."
+covers = ["R1", "R2", "R3", "R5", "R6"]
+after = [4]
+unknown = "How the p95 is measured on the staging copy; no measuring script exists yet."
+hitl = true
+risk = "medium"

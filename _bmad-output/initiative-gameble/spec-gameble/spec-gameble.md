@@ -63,6 +63,9 @@ gameble is an open-source passion project, and the game its author wants to play
     - The collection opens on the player's sets in progress, sorted by closeness to their next tier or completion, then a short "to discover" row, then a search over every set.
     - A set opens as an album: owned cards, an empty slot naming each missing game, and its tiers or its completion.
     - Each set shows owned / total distinct cards. A card in several sets counts in each. Duplicates are counted per card.
+    - A set is the same set from one season to the next (same kind and key). A copy of a game counts for the set whatever season it was minted in. Only the published season's sets earn tiers; a tier earned stays earned, marked with the season it was earned in, and can be earned again in a later season with that season's mark.
+    - A set's progress is read against the published season's set and may drop when the set grows; it is shown as new cards to find, never as a loss. A game that leaves a set stops counting for that set only.
+    - The collection shows one card per game: its best minted rarity among the copies owned, the copies owned across editions, and a mark when several editions are held. The total counter counts distinct games across editions and never drops when a season is published.
     - Theme and hall of fame sets have three tiers (bronze, silver, gold); franchise, studio and UFO sets are only complete or not.
     - The grid of every card, with its filters and search, stays reachable from the collection.
 - **CAP-7**
@@ -70,7 +73,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **success:**
     - The card face shows the title, publisher, cover, genre (its main theme), release year, rarity (shape and name) and card number, and no stats.
     - The card number is the card's number within its season, without a total ("S1 · #4 215").
-    - The detail view shows the title, publisher, rarity, genre, release year, short description, minted season, sets, card number, copies owned, and a link to the game's Steam store page.
+    - The detail view shows the title, publisher, rarity, genre, release year, short description, minted season, sets, card number, copies owned, the editions owned grouped by rarity (folded beyond a few lines), and a link to the game's Steam store page.
     - Card text appears in the player's UI language. The description appears only in the detail view, not on the card.
 - **CAP-8**
   - **intent:** Each player has a collection profile reachable by link, visible to whom they choose.
@@ -151,7 +154,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** A player earns card backs and chooses the one their face-down cards wear.
   - **success:**
     - Every account starts with the "Standard" card back.
-    - More are unlocked by reaching gold on a theme or hall of fame set (one back per such set), contributing to a successful weekly goal, some achievements, and events or seasons. A locked back states its unlock condition.
+    - More are unlocked by reaching gold on a theme or hall of fame set (one back per such set), contributing to a successful weekly goal, some achievements, and events or seasons. A locked back states its unlock condition. A back earned on a set carries the mark of each season it was earned in; the player picks which season's mark the active back wears.
     - The player picks one active back in the profile; it applies from the next pack opened.
     - Only the player sees it: on their own face-down cards at opening, and faded on the detail of a card they do not own.
     - The back catalogue is in `DESIGN.md`.
@@ -161,19 +164,28 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-22**
   - **intent:** A player shows their collecting through a profile title and dresses their menus with a rare theme.
   - **success:**
-    - Completing a franchise, studio or UFO set, and each tier of a theme or hall of fame set, unlocks a profile title built from one template per kind that needs no grammatical agreement ("Complétiste · Dark Souls"; Apprenti, Adepte, Maître for tiers).
+    - Completing a franchise, studio or UFO set, and each tier of a theme or hall of fame set, unlocks a profile title built from one template per kind that needs no grammatical agreement ("Complétiste · Dark Souls"; Apprenti, Adepte, Maître for tiers). A title is earned once per set and tier, whatever the seasons; it shows the latest season it was earned in.
     - The player picks one active title; it shows on their profile, in the feed and in trades.
     - Reaching gold on 3, 10 and 25 sets unlocks a menu theme each: an accent colour applied to the interface, with contrast checked. Only the player sees it.
+- **CAP-23**
+  - **intent:** When a new season is published, a returning player receives the Brotherhood's seasonal allocation: what they unlocked in the season that ended and the sets that follow them into the new one.
+  - **success:**
+    - At a player's first visit after a publication, before the hub and before any opening, a dedicated screen recaps the season that ended: tiers reached (with that season's mark), card backs, achievements and weekly goal rewards earned during it.
+    - The same screen lists the tiers the player still meets in the new season's sets, received at once with the new season's mark, and the tiers to win back.
+    - Tiers carried into the new season are never celebrated at an opening or announced in the feed; an opening or a trade celebrates only the tiers it crosses itself.
+    - One Brotherhood line heads the screen; the rest is plain copy.
+    - A player who joined in the current season sees no allocation.
+    - A set shows its latest mark and a count of seasons ("Or · 12 saisons"), the per-season detail on demand. No season chip appears in the collection grid.
 
 ## Constraints
 
 - **No real money**, anywhere: no purchases, no ads, no cash-out.
 - **French and English UI**, both complete at launch. Card text is available in every UI language. The English copy is translated by AI from the French. All repo text (code, comments, docs) is in English.
-- **Launch scope:** CAP-20 and CAP-22 are built after the public launch; every other capability is live at launch.
+- **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability is live at launch. CAP-23 is live before the second season is published in production.
 - **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports.
 - **Player-facing words:** the interface says "booster" for pack, "réserve" for bank and "objectif communautaire" for the weekly goal. The spec and the code keep pack, bank and weekly goal.
 - **Cards are only pulled or traded.** Owning a game on Steam never grants its card.
-- **Card copies:** a player can own several copies of a card. Copies are counted per card and season, so each keeps the rarity and season it was minted with, and a V2 market and V3 seasons need no migration.
+- **Card copies:** a player can own several copies of a card. Copies are counted per card and season, so each keeps the rarity and season it was minted with, and a V2 market needs no migration. The minted season is the copy's edition. Draws give only the published season's cards; earlier editions change hands only by trade.
 - **Forkable engine:** the game engine (packs, rarity tiers, collection, trades, goals, feed) is independent of the catalog source. Steam is one adapter.
 - **Open source.** Infrastructure components (queues, caches, streaming) are added only when measured load justifies them.
 - **Architecture:** the rules of `architecture-gameble.md` bind every build. The stack is Ruby on Rails and PostgreSQL, with React components embedded for the booster and the trade board; versions and deployment are in that file.
@@ -206,7 +218,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - Guilds.
 - Numbered or otherwise unique individual copies of a card.
 - Any currency, auction house, card destruction, listing fee or sale commission (V2, see `later-roadmap.md`).
-- Brotherhood Pass, seasonal catalog recompute, community-voted themed sets (V3).
+- Brotherhood Pass, community-voted themed sets (V3).
 - Bonuses from the player's Steam library, playtime or achievements (later).
 - Curation of games delisted from Steam (later).
 - Native App Store and Play Store apps.

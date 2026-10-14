@@ -47,3 +47,5 @@ The browsing and the search of the game's cards. Not the player's collection and
 - Open question: which seasons it covers (the published one only, or past seasons too) and what a card shows to a player who does not own it (face, missing slot, owned count).
 - Open question: whether searching goes beyond the game's name (studio, franchise, theme, rarity filters), and whether this needs a new capability in the spec; `covers` is empty until then.
 - Waits on epic 10 because: the collection's card grid, its filters and the card detail screen exist there.
+- Decision (2026-10-14, author): the screen reads one card per game across editions, as the collection does (13.15, change-season-carryover); this settles the seasons part of the open question above for owned cards.
+- Waits on epic 13 because: one card per game across editions (13.15).

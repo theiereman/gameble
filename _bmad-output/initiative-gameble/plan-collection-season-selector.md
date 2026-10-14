@@ -3,7 +3,7 @@ title: 'Collection season selector'
 type: 'feature'
 ticket: ''
 created: '2026-10-08'
-status: 'ready-for-dev'
+status: 'dropped'
 baseline_revision: ''
 route: 'full'
 route_source: 'auto'
@@ -94,3 +94,7 @@ The published season keeps `/library` so links from the hub, the booster and sha
 ## Plan Change Log
 
 ## Review Triage Log
+
+## Notes
+
+- Dropped: (2026-10-14, author) superseded by change-season-carryover: every edition shows in the collection, one card per game (epic-recognizable-sets, entry 15), so there is no earlier season to switch to; a chip selector would also crowd at many seasons.

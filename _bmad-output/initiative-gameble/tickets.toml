@@ -88,7 +88,7 @@ id = 14
 slug = "epic-card-catalog"
 title = "Every card of the game, browsable and searchable"
 covers = []
-after = [{ epic = 10, needs = "the collection's card grid, its filters and the card detail screen" }]
+after = [{ epic = 10, needs = "the collection's card grid, its filters and the card detail screen" }, { epic = 13, needs = "one card per game across editions (13.15)" }]
 
 [[epic]]
 id = 16
@@ -103,6 +103,13 @@ slug = "epic-human-readable-codebase"
 title = "Readable by humans: the codebase before the public release"
 covers = []
 after = [{ epic = 7, needs = "every feature written" }, { epic = 5, needs = "every feature written" }, { epic = 6, needs = "every feature written" }, { epic = 11, needs = "every feature written" }, { epic = 9, needs = "every feature written" }, { epic = 13, needs = "every feature written" }, { epic = 14, needs = "every feature written" }, { epic = 16, needs = "the screens walked through and the fixes before the release decided" }]
+
+[[epic]]
+id = 17
+slug = "epic-seasons-carry-over"
+title = "Seasons carry over"
+covers = ["CAP-23"]
+after = [{ epic = 12, needs = "production open on its first season" }, { epic = 9, needs = "card backs and their unlocks, for the recap" }, { epic = 13, needs = "tiers across editions (13.5), tiers in the feed (13.6), the hub panel (13.7), the album (13.8), the collection across editions (13.15)" }]
 
 [[epic]]
 id = 15

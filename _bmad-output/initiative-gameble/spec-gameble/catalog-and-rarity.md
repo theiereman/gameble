@@ -1,6 +1,6 @@
 # Catalog and rarity
 
-Referenced by CAP-2, CAP-3, CAP-4, CAP-6, CAP-7.
+Referenced by CAP-2, CAP-3, CAP-4, CAP-6, CAP-7, CAP-23.
 
 ## Card identity
 
@@ -71,6 +71,13 @@ Every card belongs to at least one set; a card can belong to several. A set exis
 **Rewards.** Bronze and silver: a celebration at opening and a feed line. Gold: also that set's card back. Complete, for every kind (a theme or hall of fame set completes at 100 %, after gold): a celebration, a "complete" stamp on the album and a feed line. The tiers and completions one opening reaches make one feed line, naming the highest. Profile titles and menu themes: CAP-22 of the spec.
 
 Tomes, publisher sets and "best rated of the year" sets are retired.
+
+## Seasons
+
+- **A season is a reprint.** Each publication re-imports every game, recomputes rarities, numbers the cards and rebuilds the sets; games enter or leave the catalog. Nothing a player owns is removed or changed.
+- **Editions.** A copy keeps the rarity and season it was minted with. The same game can be held in several editions of different rarities.
+- **Sets across seasons.** A set keeps its kind and key from one season to the next; its members follow each season's rules. Any edition of a member game counts for it. Tiers are cut on the published season's set and earned there only.
+- **Earned stays earned.** A tier reached in a season keeps that season's mark forever. A tier the player still meets when a new season is published is received again with the new season's mark at the seasonal allocation; one below its threshold is won back by play.
 
 ## Images
 
