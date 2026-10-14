@@ -713,7 +713,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".trades__group", "Terminés récemment"
     assert_select ".trade-row", 2
-    assert_select ".trade-row__name", /Officier sans nom/
+    assert_select ".trade-row__name", /Joueur sans nom/
     assert_select ".trade-row .trade-chip--muted", text: "Clos", count: 2
     assert_select ".trade-row__when", /annulé/
     assert_select ".tab-bar__badge", 0
@@ -722,7 +722,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     [ yours, theirs ].each do |trade|
       get trade_path(token: trade.token, locale: :fr)
       assert_response :success
-      assert_select ".trade-board__title", "Échange avec Officier sans nom"
+      assert_select ".trade-board__title", "Échange avec Joueur sans nom"
       assert_select ".trade-board__message", "Échange clos."
       assert_select ".trade-board__actions form, .trade-board__actions a", 0
     end

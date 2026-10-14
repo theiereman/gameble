@@ -414,7 +414,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :en, token: @owner.token)
     assert_response :success
     assert_select "h1", "Gabe the Brave"
-    assert_select ".profile-summary__visibility", "Visible to your friends and the Brotherhood's officers only"
+    assert_select ".profile-summary__visibility", "Visible to your friends and the moderation team only"
 
     @owner.update!(visibility: "private")
     get brother_path(locale: :en, token: @owner.token)
@@ -441,7 +441,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
       get brother_path(locale: :en, token: banned.token)
       assert_response :success, role
       assert_select "h1", "Banned Brother"
-      assert_select ".profile-summary__visibility", "Banned player: visible to the Brotherhood's officers only"
+      assert_select ".profile-summary__visibility", "Banned player: visible to the moderation team only"
       delete session_path(locale: :en)
     end
 
@@ -483,7 +483,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     @owner.update!(visibility: "private")
     sign_in(@owner)
     get brother_path(locale: :fr, token: @owner.token)
-    assert_select ".profile-summary__visibility", "Profil privé : vous seul et les officiers de la Confrérie le voyez"
+    assert_select ".profile-summary__visibility", "Profil privé : vous seul et la modération le voyez"
   end
 
   test "in French, a staff member sees the banned line on a banned player's profile" do
@@ -495,7 +495,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :fr, token: banned.token)
     assert_response :success
     assert_select "h1", "Banned Brother"
-    assert_select ".profile-summary__visibility", "Joueur banni : visible par les officiers de la Confrérie seulement"
+    assert_select ".profile-summary__visibility", "Joueur banni : visible par la modération seulement"
   end
 
   test "in French: the fallback title, the French tabs and plurals" do
