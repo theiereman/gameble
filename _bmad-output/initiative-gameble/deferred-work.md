@@ -201,3 +201,9 @@
   summary: The Légendaire's glitter twinkle runs one infinite animation per flake (9 on a card-s, 18 on a card-m, 40 on a card-xl), which breaks the architecture's budget of at most six infinite animations visible at once on a phone view; that line also still names holo and foil. The author needs to decide: amend the budget for this cheap stepped opacity, or twinkle fewer flakes (only the top card, a cap per view, or one animation per card).
   evidence: `architecture-gameble.md` line 308; the author's glitter spec gives each flake its own period (2.4 to 6 s) and a negative delay, so each needs its own animation; `card.css` twinkle rule, `glitter.ts` FLAKES_PER_CARD. The booster's lower phone cards and face-down cards are kept still.
   resolved: The author chose one animation per group (2026-10-13, `plan-glitter-twinkles-in-three-groups.md`): a face's flakes twinkle in three seeded groups, each a single stepped opacity animation with its own rhythm, so a Légendaire face runs at most three; AD-27 counts the glitter apart from the six-animation phone budget and no longer names holo and foil.
+
+## Deferred from: split of story 7.10 at the start of its build (2026-10-14)
+
+- source_plan: none
+  summary: Throttle or cache the public profile, card page and library reads without ever caching a private or hidden page (the throttling half of "Public pages throttled or cached, CSP enforced").
+  evidence: The author split the ticket; this half shares no file with the CSP switch, and a per-IP throttle on page reads waits for "Real client addresses behind Cloudflare", or every visitor behind Cloudflare would share one limit.

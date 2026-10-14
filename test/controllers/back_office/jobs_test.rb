@@ -22,6 +22,20 @@ module BackOffice
       assert_select "title", /Mission control/
     end
 
+    test "the dashboard's inline importmap carries the nonce its policy allows scripts by" do
+      sign_in(accounts_players(:administrator))
+
+      get "/back-office/jobs"
+      follow_redirect! while response.redirect? && response.location.include?("/back-office/jobs")
+
+      assert_response :success
+      script_src = response.headers["Content-Security-Policy"].split(/;\s*/).find { it.start_with?("script-src ") }.split.drop(1)
+      importmap_nonce = css_select("script[type=importmap]").sole["nonce"]
+      assert_predicate importmap_nonce, :present?
+      assert_includes script_src, "'nonce-#{importmap_nonce}'"
+      assert_equal [ importmap_nonce ], css_select("script[type=module]").map { it["nonce"] }.uniq
+    end
+
     test "the engine's HTTP basic auth is off" do
       sign_in(accounts_players(:administrator))
 

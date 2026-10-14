@@ -1,9 +1,10 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
 
-# The Content-Security-Policy (AD-27, config/initializers/content_security_policy.rb):
-# report-only for now, no inline script, nonces on styles only, Steam's
-# image hosts and the cable's ws(s) origin allowed.
+# The Content-Security-Policy (config/initializers/content_security_policy.rb):
+# enforced, styles nonced, scripts nonced only for Mission Control Jobs (other
+# pages keep script-src 'self'), Steam's image hosts and the cable's ws(s)
+# origin allowed.
 class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
   include SteamSignIn
 
@@ -11,19 +12,27 @@ class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
   teardown { Rails.configuration.x.public_url = @public_url }
 
   def policy
-    response.headers["Content-Security-Policy-Report-Only"]
+    response.headers["Content-Security-Policy"]
   end
 
   def directive(name)
     policy.split(/;\s*/).find { |entry| entry.split.first == name }&.split&.drop(1)
   end
 
-  test "a page carries the policy report-only, never enforced" do
+  test "a page carries the policy enforced, never report-only" do
     get home_path(locale: :en)
 
     assert_response :success
     assert_predicate policy, :present?
-    assert_nil response.headers["Content-Security-Policy"]
+    assert_nil response.headers["Content-Security-Policy-Report-Only"]
+  end
+
+  test "a player's page runs scripts from its own origin only, without a nonce" do
+    sign_in(accounts_players(:player))
+    get library_path(locale: :en)
+
+    assert_response :success
+    assert_equal %w['self'], directive("script-src")
   end
 
   test "the directives: self by default, no inline script, nonced styles, Steam images, workers from blobs" do
@@ -38,7 +47,7 @@ class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
     assert_match(/\A'nonce-.+'\z/, directive("style-src").second)
     assert_equal 2, directive("style-src").size
     assert_equal %w['self' data: https://*.steamstatic.com], directive("img-src")
-    assert_equal %w['self'], directive("font-src")
+    assert_equal %w['self' data:], directive("font-src")
     assert_equal %w['self' blob:], directive("worker-src")
     assert_equal %w['self' https://*.steamstatic.com], directive("connect-src")
     assert_nil directive("report-uri")

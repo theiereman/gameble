@@ -1,12 +1,13 @@
-# The Content-Security-Policy (AD-27). It runs report-only in every
-# environment for one release: violations are reported (to Sentry where
-# SENTRY_DSN is set), nothing is blocked. Enforcement is a later step.
+# The Content-Security-Policy, enforced in every environment; violations are
+# reported to Sentry where SENTRY_DSN is set.
 #
-# No inline script anywhere: script-src is 'self'. Nonces cover styles only
-# (Turbo's progress bar style reads its nonce from csp_meta_tag). Card images
-# come from Steam's CDN, read by the pixel-art filter with crossOrigin, hence
-# the Steam hosts in img-src and connect-src; the cable connects to the
-# public origin over ws(s). Vite may inline small assets as data: URIs.
+# No inline script: script-src is 'self'. Nonces cover styles (Turbo's
+# progress bar style reads its nonce from csp_meta_tag); scripts are nonced
+# only for Mission Control Jobs, whose importmap is inline
+# (BackOffice::JobsBaseController). Card images come from Steam's CDN, read
+# by the pixel-art filter with crossOrigin, hence the Steam hosts in img-src
+# and connect-src; the cable connects to the public origin over ws(s). Vite
+# may inline small assets as data: URIs; fonts are allowed as data: URIs too.
 #
 # Sources that read app code or configuration are procs, resolved per
 # request: nothing is autoloaded at boot, and config.x.public_url is read as
@@ -38,7 +39,7 @@ Rails.application.configure do
     policy.script_src :self, *dev_scripts
     policy.style_src :self, *dev_styles
     policy.img_src :self, :data, steam_images
-    policy.font_src :self
+    policy.font_src :self, :data
     policy.worker_src :self, :blob
     policy.connect_src :self, steam_images, cable, *dev_connections
 
@@ -57,6 +58,4 @@ Rails.application.configure do
     request.session.id.to_s.presence || SecureRandom.base64(16)
   end
   config.content_security_policy_nonce_directives = Rails.env.development? ? [] : %w[style-src]
-
-  config.content_security_policy_report_only = true
 end
