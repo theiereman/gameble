@@ -44,6 +44,9 @@
   text-align: left;
   /* A vertical drag scrolls the page; a finger held still tilts the face. */
   touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
   /* The flat card's reflection, until lib/tilt.ts writes a tilted one. */
   --reflection-strip: 30%;
   --reflection-fresnel: 0.8;
