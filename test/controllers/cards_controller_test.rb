@@ -325,6 +325,10 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get in_tome("portal")
     assert_select ".card-detail__back img[src*='back-standard']"
     assert_select ".card-detail__card .card", false
+    assert_select "section.card-invitation[aria-labelledby=card-invitation-text]:not([aria-label])" do
+      assert_select "p#card-invitation-text", I18n.t("cards.show.invitation")
+      assert_select "[aria-label]", false
+    end
     assert_not_includes facts.map(&:first), "Copies"
     assert_includes facts, [ "Rarity", "Epic" ]
 

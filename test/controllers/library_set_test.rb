@@ -79,7 +79,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_equal members.map { |id| [ "false", id.in?([ members[0], members[3], members[15] ]) ? ".card" : ".missing-slot" ] },
       links.map { |link| [ link["data-turbo-prefetch"], link.at_css(".card") ? ".card" : ".missing-slot" ] }
     rarity = Catalog::CardViews.call([ members[3] ], locale: :en).fetch(members[3]).rarity
-    assert_equal "#{title(members[3])}, #{I18n.t("catalog.rarity.#{rarity}", locale: :en)}, season #{season.number}", links[3]["aria-label"]
+    assert_equal "#{title(members[3])}, #{year(members[3])}, #{I18n.t("catalog.rarity.#{rarity}", locale: :en)}, season #{season.number}", links[3]["aria-label"]
     # A face's link is named by its label; a missing slot's by its visible
     # text, so a screen reader says "Missing card".
     assert_equal members.map { |id| id.in?([ members[0], members[3], members[15] ]) }, links.map { it["aria-label"].present? }

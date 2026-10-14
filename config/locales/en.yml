@@ -1170,7 +1170,7 @@ en:
   external_links:
     new_tab: "(new tab)"
   card_details:
-    open: "%{title}, %{rarity}, season %{season}"
+    open: "%{title}, %{year}, %{rarity}, season %{season}"
     kicker: "Card file"
     facts:
       publisher: "Publisher"

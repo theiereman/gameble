@@ -448,7 +448,7 @@
 /* ---- For a visitor, below the detail and as wide, centred: the
    invitation to play ---- */
 
-.card-detail__invitation {
+.card-invitation {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -458,7 +458,7 @@
   margin: var(--space-7) auto 0;
 }
 
-.card-detail__invitation .button {
+.card-invitation .button {
   margin: 0;
 }
 
