@@ -3,7 +3,7 @@ title: 'The CSP is enforced'
 type: 'feature'
 ticket: '10'
 created: '2026-10-14'
-status: 'built'
+status: done
 baseline_revision: 'b40b779b11dc63944cdaf67e3bb298a226b7a42c'
 route: 'full'
 route_source: 'auto'
