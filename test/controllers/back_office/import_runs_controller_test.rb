@@ -358,14 +358,35 @@ module BackOffice
 
       get back_office_import_run_path(latest, locale: :fr)
 
-      assert_select "form[action='/fr/back-office/import-runs/#{latest.token}/rescore'][data-turbo-confirm] button", "Recalculer les cartes"
-      assert_select "turbo-frame form[action$='/rescore']", false
+      assert_select "turbo-frame#import_run[target=_top] form[action='/fr/back-office/import-runs/#{latest.token}/rescore'][data-turbo-confirm] button", "Recalculer les cartes"
 
       get back_office_import_run_path(older, locale: :fr)
       assert_select "form[action$='/rescore']", false
 
       get back_office_import_run_path(failed_run, locale: :fr)
       assert_select "form[action$='/rescore']", false
+    end
+
+    test "the frame the poller reloads brings a finished run's actions back without a manual reload" do
+      sign_in(accounts_players(:administrator))
+      Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+      run = running_run
+
+      get back_office_import_run_path(run, locale: :en)
+      assert_select "[data-controller=poller]"
+      assert_select "turbo-frame#import_run form[action$='/rescore']", false
+      assert_select "turbo-frame#import_run form[action$='/abandon']", false
+
+      run.update!(status: :completed, step: "cards", finished_at: Time.current)
+
+      get back_office_import_run_path(run, locale: :en)
+      assert_select "[data-controller=poller]", false
+      assert_select "turbo-frame#import_run[target=_top] form[action$='/rescore'][data-turbo-confirm]", 1
+
+      run.update!(status: :failed)
+
+      get back_office_import_run_path(run, locale: :en)
+      assert_select "turbo-frame#import_run[target=_top] form[action$='/abandon'][data-turbo-confirm]", 1
     end
 
     test "once the draft is published the latest run's page no longer offers to rescore" do
@@ -431,8 +452,7 @@ module BackOffice
         started_at: 1.hour.ago, finished_at: 1.minute.ago, error_messages: [ { "at" => 1.minute.ago.utc.iso8601, "message" => "Steam::WebApi::Error: boom" } ])
 
       get back_office_import_run_path(run, locale: :fr)
-      assert_select "form[action='/fr/back-office/import-runs/#{run.token}/abandon'][data-turbo-confirm] button", "Abandonner cette passe"
-      assert_select "turbo-frame form[action$='/abandon']", false
+      assert_select "turbo-frame#import_run[target=_top] form[action='/fr/back-office/import-runs/#{run.token}/abandon'][data-turbo-confirm] button", "Abandonner cette passe"
 
       post abandon_back_office_import_run_path(run, locale: :fr)
 
