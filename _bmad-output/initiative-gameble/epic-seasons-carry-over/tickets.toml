@@ -4,9 +4,8 @@
 id = 1
 type = "story"
 title = "Carried tiers are received once per season, silently"
-description = "Adds Game::ReceiveSeasonAllocation, which inserts the tier rows a player already meets in the published season's sets and publishes one Game::SeasonAllocationReceived and no tier event, the received and seen seasons on game_player_states, and the silent receipt at the start of the two operations that raise quantities (the opening, and both players of an accepted trade); existing players and new accounts start with both seasons at the published one; the screen of entry 2 calls the same operation."
-unknown = "Whether a concurrent opening and trade can both receive the same allocation; the unique receipt must publish one Game::SeasonAllocationReceived."
-verify = "After a publication in a test, a player's first opening receives the tiers they met with the new season and celebrates only the tiers the opening crosses; a friend's accepted trade does the same with no feed entry; a second receipt writes nothing; a player with no holding from an earlier season receives nothing."
+description = "Adds Game::ReceiveSeasonAllocation, which inserts the tier rows a player already meets in the published season's sets, marked as reached by the allocation, records the received season even when nothing is carried, and publishes one Game::SeasonAllocationReceived carrying the inserted rows and no tier event; the card back and achievement handlers answer it, the feed handler does not. Adds the received and seen seasons on game_player_states as season numbers (null means none; existing players and new accounts start at the published one). Game::OpenPack and Game::AcceptTrade (both players) receive the pending allocation as a step of their own transaction, after the bank locks and before any credit, under the season they read once; the check under the bank lock makes concurrent operations receive once. The screen of entry 2 calls the same operation (AD-9, AD-10, AD-25)."
+verify = "After a publication in a test, a player's first opening receives the tiers they met with the new season and celebrates only the tiers the opening crosses; a friend's accepted trade does the same with no feed entry; a gold first reached at the receipt unlocks its set's card back; a concurrent opening and trade receive once; a second receipt writes nothing; a player with no holding from an earlier season receives nothing."
 covers = ["R2", "R3", "R5"]
 after = ["13.5", "13.6", "epic-human-readable-codebase"]
 hitl = false
@@ -16,7 +15,7 @@ risk = "medium"
 id = 2
 type = "story"
 title = "The seasonal allocation screen"
-description = "Designs the screen with the author, then builds it: the Brotherhood line, the ended season's tiers, backs, achievements and goal rewards, the sets that follow with their new mark and the tiers to win back; the hub and the booster page redirect to it while the published season is unseen, and its POST receives the allocation through entry 1's operation if still pending and marks it seen; owns the season mark stamp entry 3 reuses."
+description = "Designs the screen with the author, then builds it: the Brotherhood line, the ended season's tiers, backs, achievements and goal rewards, the sets that follow with their new mark and the tiers to win back; the hub and the booster page redirect to it while the published season is unseen, reading that check from the primary, and its POST receives the allocation through entry 1's operation if still pending and marks it seen, a write that publishes nothing; the recap reads tier rows reached in play, the carried list the allocation's rows; owns the season mark stamp entry 3 reuses."
 unknown = "The screen and the season mark are drawn with bmad-ux and the author before the build."
 verify = "On staging after a publication, a returning player is led to the screen once, also when opening the booster page first, and then reaches the hub; a player with no card from an earlier season goes straight to the hub; the screen reads in French and English on a phone and a desktop."
 covers = ["R1", "R2", "R4", "R5"]
@@ -36,13 +35,24 @@ hitl = false
 risk = "low"
 
 [[entry]]
+id = 6
+type = "story"
+title = "Unopened packs are redrawn in the published season"
+description = "When a season is published, Game::HealBanksJob also redraws every unopened pack of an earlier season in the published one, with the same kind, odds, guarantees and availability time, one player per transaction under the bank lock, so an opening after a publication gives only the published season's cards (AD-7)."
+verify = "In a test, a player with ten banked packs and a weekly reward pack from season N sees, after season N+1 is published and the job runs, the same packs with the same availability times holding only season N+1 cards, the reward pack still holding an Épique or better; an opened pack is untouched; running the job twice changes nothing."
+covers = ["R7"]
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
 id = 4
 type = "story"
 title = "Refactor sweep"
 description = "Cleans up what this epic's build records and deferred review findings name; scope set when it starts."
 verify = "The full test suite, packwerk and zeitwerk pass."
 covers = []
-after = [1, 2, 3]
+after = [1, 2, 3, 6]
 hitl = false
 risk = "low"
 

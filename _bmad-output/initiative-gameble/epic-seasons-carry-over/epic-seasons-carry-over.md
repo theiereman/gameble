@@ -32,6 +32,7 @@ The lines of CAP-23 (spec), with the season rules of `catalog-and-rarity.md`, Se
 - R4 (CAP-23): one Brotherhood line heads the screen; the rest is plain copy.
 - R5 (CAP-23): a player with no card from an earlier season sees no allocation.
 - R6 (CAP-23): a set shows its latest mark and a count of seasons ("Or · 12 saisons"), the per-season detail on demand; no season chip appears in the collection grid.
+- R7 (Card copies constraint; AD-7): draws give only the published season's cards; a pack drawn before a publication and still unopened is redrawn in the published season.
 
 ## Done when
 
@@ -41,16 +42,17 @@ The lines of CAP-23 (spec), with the season rules of `catalog-and-rarity.md`, Se
 4. A player with no card from an earlier season goes straight to the hub.
 5. Opening a pack answers within 200 ms at the 95th percentile after a publication.
 6. All of it is live in production before production's second season is published.
+7. After a publication, an opening never gives a card of an earlier season.
 
 ## Boundaries
 
-The season change for players: receiving carried tiers, the allocation screen, season marks on tiers. Not the publication itself (epic-season-preparation), not the holding rule across editions and the collection's tiles (epic-recognizable-sets, entries 5 and 15), not season marks on card backs and titles (epic-card-backs).
+The season change for players: receiving carried tiers, the allocation screen, season marks on tiers, and unopened packs redrawn at publication. Not the publication itself (epic-season-preparation), not the holding rule across editions and the collection's tiles (epic-recognizable-sets, entries 5 and 15), not season marks on card backs and titles (epic-card-backs).
 
 ## References
 
 - parent — _bmad-output/initiative-gameble/initiative-gameble.md, section Requirements
 - spec — _bmad-output/initiative-gameble/spec-gameble/spec-gameble.md, CAP-23; catalog-and-rarity.md, Seasons
-- architecture — _bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md, AD-5, AD-10, AD-11, AD-25
+- architecture — _bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md, AD-5, AD-7, AD-9, AD-10, AD-11, AD-25
 - design — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Seasonal allocation; DESIGN.md, Season mark
 - change — _bmad-output/initiative-gameble/change-season-carryover/change-season-carryover.md, sections 4.1 to 4.8
 
@@ -60,6 +62,7 @@ The season change for players: receiving carried tiers, the allocation screen, s
 - Decision (2026-10-14, author): the allocation is received and seen apart; every operation that raises quantities first receives a pending allocation silently, and the hub and booster page lead to the screen while it is unseen.
 - Decision (2026-10-14): tracer bullet is entry 1 (carried tiers received silently), so the screen and the marks build on rows that already exist.
 - Decision (2026-10-14): the rehearsal follows the refactor sweep so it runs on the final code.
+- Decision (2026-10-14, author, through the architecture review): unopened packs of an earlier season are redrawn in the published season at publication (entry 6), rather than opening old editions; the receipt's concurrency is settled by AD-10 (the received season checked under the bank lock).
 - Decision (2026-10-14, author): the allocation goes to every player holding a card from an earlier season, traded ones included, not only to players who played that season (the architecture's rule).
 - Decision (2026-10-14, author): built after epic 12, once production is open on its first season; epics 16 and 12 do not wait on it.
 - Waits on epic 12 because: production opens after it, on its first season.
