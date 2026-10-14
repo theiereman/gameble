@@ -180,16 +180,14 @@ notes = ["Requested by the author on 2026-10-14.", "Decision (author, 2026-10-14
 [[entry]]
 id = 16
 type = "story"
-title = "Public pages found by search engines"
-description = "Makes the public pages (home and its landing, public card pages, public profiles, library, legal page) findable and well presented in search results: titles and meta descriptions per page and language, hreflang between French and English, canonical links on PUBLIC_URL, a sitemap and robots.txt that leave private and back-office pages out, and structured data where it fits."
-verify = "Each public page has its own title and description in both languages with hreflang and canonical links; /sitemap.xml lists the public pages and no private one; robots.txt points to it and disallows the back-office and private screens."
+title = "The landing found by search engines"
+description = "Makes the landing the page search engines find and present well: its title and meta description in both languages, hreflang between /fr and /en, canonical links on PUBLIC_URL, structured data for the game, a sitemap listing the landing and the legal page, and a robots.txt that points to it and disallows the back-office and private screens. Public card pages, public profiles and the library keep their sharing previews and stay indexable, with no further search work."
+verify = "The landing has its own title and description in each language with hreflang and canonical links and valid structured data; /sitemap.xml lists the landing and the legal page in both languages and no private page; robots.txt points to the sitemap and disallows the back-office and private screens; public card pages and profiles are not marked noindex."
 covers = ["R7"]
 after = [3, 56]
 hitl = false
 risk = "low"
-refine = true
-unknown = "Which pages and how many tickets: to be refined with the author into several SEO tickets before building."
-notes = ["il faudra ajouter des tickets pour favoriser le SEO"]
+notes = ["il faudra ajouter des tickets pour favoriser le SEO", "Decision (author, 2026-10-14): search work aims at the landing; public card pages, public profiles and the library stay indexable but get no search work, and are not marked noindex."]
 
 [[entry]]
 id = 17
