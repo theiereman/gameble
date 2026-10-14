@@ -1,0 +1,21 @@
+name: Close pull requests to main
+
+# main is the production release: only the author merges into it, from develop.
+on:
+  pull_request_target:
+    types: [opened, reopened, edited]
+    branches: [main]
+
+jobs:
+  close:
+    if: github.event.pull_request.user.login != 'theiereman'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Close the pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr close "$NUMBER" --comment "main is the production release and only takes the author's merges from develop. Please open your pull request against develop."
