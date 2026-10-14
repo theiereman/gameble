@@ -13,6 +13,9 @@ module Catalog
   class Card < ApplicationRecord
     self.table_name = "catalog_cards"
 
+    # The slug's btree index rejects values above about 2.7 kB.
+    SLUG_TITLE_LIMIT = 100
+
     extend FriendlyId
     friendly_id :slug_candidates, use: :slugged
 
@@ -34,15 +37,24 @@ module Catalog
     # suffix. A title that leaves nothing once parameterized (a non-Latin
     # title) goes straight to the year and a random suffix.
     def slug_candidates
-      title = text("en")&.title.to_s
+      title = truncated_title(text("en")&.title.to_s)
       year = release_date&.year
       suffix = -> { SecureRandom.alphanumeric(6).downcase }
 
-      if normalize_friendly_id(title).blank?
+      if title.blank?
         [ [ year, suffix ] ]
       else
         [ title, [ title, year ], [ title, year, suffix ] ]
       end
+    end
+
+    def truncated_title(title)
+      slug = normalize_friendly_id(title)
+      return slug if slug.length <= SLUG_TITLE_LIMIT
+
+      head = slug[0, SLUG_TITLE_LIMIT]
+      word = head.sub(/-[^-]*\z/, "")
+      word.empty? ? head : word
     end
   end
 end
