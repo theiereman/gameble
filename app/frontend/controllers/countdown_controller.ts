@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import "../lib/turbo"
 import { formatClock, formatDailyClock } from "../lib/booster"
+import { atZero, fetchChip } from "../lib/countdown"
 
 // After a refresh that brought no new countdown (failed, or the same value),
 // the next try.
@@ -82,15 +83,19 @@ export default class extends Controller<HTMLElement> {
     window.clearTimeout(this.timer)
     const left = (this.deadline ?? 0) - performance.now()
     if (left <= -1000) {
-      if (this.submitting) {
-        this.schedule(BUSY_RETRY_MS)
-      } else if (this.refreshValue) {
-        window.Turbo.visit(location.href, { action: "replace" })
-        this.schedule(RETRY_MS)
-      } else if (this.refreshUrlValue) {
-        this.refreshChip()
-      } else {
-        this.show(0)
+      switch (atZero({ submitting: this.submitting, refreshPage: this.refreshValue, refreshUrl: this.refreshUrlValue })) {
+        case "wait":
+          this.schedule(BUSY_RETRY_MS)
+          break
+        case "visit":
+          window.Turbo.visit(location.href, { action: "replace" })
+          this.schedule(RETRY_MS)
+          break
+        case "fetchChip":
+          void this.refreshChip()
+          break
+        case "stop":
+          this.show(0)
       }
       return
     }
@@ -101,15 +106,12 @@ export default class extends Controller<HTMLElement> {
     this.schedule(left > 0 ? left - (seconds - 1) * 1000 : left + 1000)
   }
 
-  private refreshChip(): void {
-    fetch(this.refreshUrlValue, { headers: { Accept: "text/vnd.turbo-stream.html" } })
-      .then((response) => (response.ok ? response.text() : Promise.reject(new Error(String(response.status)))))
-      .then((html) => {
-        if (!this.gone) window.Turbo.renderStreamMessage(html)
-      })
-      .catch(() => {
-        if (!this.gone) this.schedule(RETRY_MS)
-      })
+  private async refreshChip(): Promise<void> {
+    const refresh = await fetchChip(this.refreshUrlValue)
+    if (this.gone) return
+    if (refresh.kind === "render") window.Turbo.renderStreamMessage(refresh.html)
+    else if (refresh.kind === "retry") this.schedule(RETRY_MS)
+    else this.show(0)
   }
 
   // The clock, and the bar when there is one.
