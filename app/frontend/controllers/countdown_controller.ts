@@ -11,9 +11,12 @@ const BUSY_RETRY_MS = 250
 // The countdown to the next pack, in the top bar's packs chip (R4). The server
 // renders the whole seconds left; the clock counts down against a
 // performance.now() deadline, so a throttled timer or a changed system clock
-// never drifts it. One second after zero the page refreshes with a morph,
-// keeping its scroll, and shows the new pack and the next countdown; until a
-// new value arrives, the refresh is tried again every few seconds.
+// never drifts it. One second after zero the chip shows the new pack and the
+// next countdown: on the hub the whole page refreshes with a morph, keeping its
+// scroll (`refresh`); elsewhere the chip alone is fetched from `refreshUrl` and
+// swapped in (a Turbo Stream answered by a GET that writes nothing), so a form
+// being filled loses nothing. Until a new value arrives, the refresh is tried
+// again every few seconds.
 //
 // A refresh would cancel a form submission in flight (the hub's daily
 // booster, "Récupérer"), so none starts from a submission's start until the
@@ -23,16 +26,13 @@ const BUSY_RETRY_MS = 250
 // controller: `hours` writes "HH:MM:SS"; without it the clock reads
 // "H:MM:SS" from an hour, else "MM:SS" (the packs chip). A `bar` target (a
 // <progress> of `total` seconds) fills as the clock runs down.
-//
-// With `refresh` false (the packs chip on any page but the hub), the clock
-// stops at 00:00 and the page is never refreshed: the next visit brings the
-// new value.
 export default class extends Controller<HTMLElement> {
-  static values = { seconds: Number, refresh: { type: Boolean, default: true }, hours: Boolean, total: Number }
+  static values = { seconds: Number, refresh: { type: Boolean, default: true }, refreshUrl: String, hours: Boolean, total: Number }
   static targets = ["clock", "bar"]
 
   declare readonly secondsValue: number
   declare readonly refreshValue: boolean
+  declare readonly refreshUrlValue: string
   declare readonly hoursValue: boolean
   declare readonly totalValue: number
   declare readonly clockTarget: HTMLElement
@@ -43,6 +43,7 @@ export default class extends Controller<HTMLElement> {
   private seconds?: number
   private timer?: number
   private submitting = false
+  private gone = false
 
   private readonly submitStarted = (): void => {
     this.submitting = true
@@ -70,6 +71,7 @@ export default class extends Controller<HTMLElement> {
   }
 
   connect(): void {
+    this.gone = false
     document.addEventListener("turbo:submit-start", this.submitStarted)
     document.addEventListener("turbo:submit-end", this.submitEnded)
     document.addEventListener("turbo:load", this.loaded)
@@ -78,6 +80,7 @@ export default class extends Controller<HTMLElement> {
   }
 
   disconnect(): void {
+    this.gone = true
     document.removeEventListener("turbo:submit-start", this.submitStarted)
     document.removeEventListener("turbo:submit-end", this.submitEnded)
     document.removeEventListener("turbo:load", this.loaded)
@@ -88,17 +91,16 @@ export default class extends Controller<HTMLElement> {
   private tick(): void {
     window.clearTimeout(this.timer)
     const left = (this.deadline ?? 0) - performance.now()
-    if (!this.refreshValue && left <= 0) {
-      // Stopped; a new value morphed in starts it again.
-      this.show(0)
-      return
-    }
     if (left <= -1000) {
       if (this.submitting) {
         this.schedule(BUSY_RETRY_MS)
-      } else {
+      } else if (this.refreshValue) {
         window.Turbo.visit(location.href, { action: "replace" })
         this.schedule(RETRY_MS)
+      } else if (this.refreshUrlValue) {
+        this.refreshChip()
+      } else {
+        this.show(0)
       }
       return
     }
@@ -107,6 +109,17 @@ export default class extends Controller<HTMLElement> {
     this.show(seconds)
     // Wake at the next whole second, or at the refresh.
     this.schedule(left > 0 ? left - (seconds - 1) * 1000 : left + 1000)
+  }
+
+  private refreshChip(): void {
+    fetch(this.refreshUrlValue, { headers: { Accept: "text/vnd.turbo-stream.html" } })
+      .then((response) => (response.ok ? response.text() : Promise.reject(new Error(String(response.status)))))
+      .then((html) => {
+        if (!this.gone) window.Turbo.renderStreamMessage(html)
+      })
+      .catch(() => {
+        if (!this.gone) this.schedule(RETRY_MS)
+      })
   }
 
   // The clock, and the bar when there is one.

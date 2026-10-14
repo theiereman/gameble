@@ -215,15 +215,16 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "main form[action='/en/packs']", false
   end
 
-  test "on the hub the packs chip's countdown refreshes the page; elsewhere it stops" do
+  test "on the hub the packs chip's countdown refreshes the page; elsewhere it refreshes the chip alone" do
     create_pack(@player, available_at: 5.minutes.from_now)
     sign_in(@player)
 
     get home_path(locale: :en)
     assert_select ".top-bar .packs-chip__next[data-controller=countdown][data-countdown-refresh-value=true]"
+    assert_select ".top-bar .packs-chip__next[data-countdown-refresh-url-value='/en/packs-chip']"
 
     get card_path(locale: :en, slug: "portal")
-    assert_select ".top-bar .packs-chip__next[data-controller=countdown][data-countdown-refresh-value=false]"
+    assert_select ".top-bar .packs-chip__next[data-controller=countdown][data-countdown-refresh-value=false][data-countdown-refresh-url-value='/en/packs-chip']"
   end
 
   test "a full reserve: the daily panel says so in orange and its button is disabled" do

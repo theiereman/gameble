@@ -80,7 +80,7 @@ class CountdownTest < ApplicationSystemTestCase
     assert_selector BADGE, text: "3", wait: 10
   end
 
-  test "elsewhere the packs chip's countdown stops at zero without refreshing the page" do
+  test "elsewhere the chip alone refreshes at zero: the count rises without a page visit" do
     create_pack(@player)
     visit home_path(locale: :en)
     click_steam_sign_in
@@ -89,9 +89,12 @@ class CountdownTest < ApplicationSystemTestCase
     create_pack(@player, available_at: 2.seconds.from_now)
     visit card_path(locale: :en, slug: "portal")
     page.execute_script("window.refreshes = 0; document.addEventListener('turbo:load', () => window.refreshes++)")
+    page.execute_script("document.querySelector('main').testMark = 'kept'")
 
-    assert_selector "#{COUNTDOWN} [data-countdown-target=clock]", text: "00:00", visible: :all, wait: 5
-    sleep 2
+    assert_selector COUNTDOWN, visible: :all, wait: 5
+    assert_selector ".top-bar .packs-chip__count", text: "2", wait: 10
+    assert_no_selector COUNTDOWN, visible: :all
     assert_equal 0, page.evaluate_script("window.refreshes")
+    assert_equal "kept", page.evaluate_script("document.querySelector('main').testMark"), "the chip should refresh alone, without a page visit"
   end
 end

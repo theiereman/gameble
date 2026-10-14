@@ -1,12 +1,4 @@
-<%# The packs chip (DESIGN.md, Packs chip): the boosters in reserve and the
-    countdown to the next one, or "Réserve pleine" once the reserve is full
-    (Game::Reserve::FULL, EXPERIENCE.md, Reserve full).
-    A link to the booster screen. The ticking clock is hidden
-    from screen readers, which read the static time. On the hub it refreshes
-    the page by morphing at zero (the new booster counted in the menu);
-    elsewhere it stops at zero (`refresh`, the hub by default; the daily
-    claim's Turbo Stream answer replaces the chip on the hub). %>
-<% refresh = local_assigns.fetch(:refresh, controller_path == "pages") %>
+<% refresh = local_assigns.fetch(:refresh, controller_path == "pages" && action_name == "home") %>
 <% seconds = shell_next_pack_in(bank) %>
 <%= link_to booster_path, id: "packs-chip", class: "packs-chip", data: { turbo_prefetch: false } do %>
   <%= pixel_icon("canister-small", class: "packs-chip__icon") %>
@@ -17,7 +9,8 @@
     <span class="packs-chip__next packs-chip__next--full"><%= t("shell.packs.full") %></span>
   <% elsif seconds %>
     <span class="packs-chip__divider" aria-hidden="true"></span>
-    <span class="packs-chip__next" data-controller="countdown" data-countdown-seconds-value="<%= seconds %>" data-countdown-refresh-value="<%= refresh %>">
+    <span class="packs-chip__next" data-controller="countdown" data-countdown-seconds-value="<%= seconds %>"
+          data-countdown-refresh-value="<%= refresh %>" data-countdown-refresh-url-value="<%= packs_chip_path %>">
       <span aria-hidden="true"><%= t("shell.packs.next_in") %>
         <span class="packs-chip__clock" data-countdown-target="clock"><%= format_remaining(seconds) %></span></span>
       <span class="visually-hidden"><%= local_time_sentence(bank[:next_available_at]) { t("shell.packs.next_at", time: it) } %></span>

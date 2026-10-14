@@ -18,6 +18,7 @@ Rails.application.routes.draw do
     # The booster screen (EXPERIENCE.md, Ouverture de booster): the island
     # sends the opening exchange to packs#create.
     resource :booster, only: :show
+    resource :packs_chip, path: "packs-chip", only: :show
 
     # The collection, reached from the hub's menu: the whole season (CAP-6).
     resource :library, controller: :library, only: :show
