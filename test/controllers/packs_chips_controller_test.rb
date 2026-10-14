@@ -20,7 +20,10 @@ class PacksChipsControllerTest < ActionDispatch::IntegrationTest
 
   test "a player's refresh answers the chip alone with the new count and countdown, writing nothing" do
     now = Time.utc(2026, 10, 2, 14, 22)
-    travel_to(now) { create_pack(@player, available_at: now + 10.minutes) }
+    travel_to(now) do
+      create_pack(@player, available_at: now)
+      create_pack(@player, available_at: now + 10.minutes)
+    end
     sign_in(@player)
 
     travel_to(now) do
