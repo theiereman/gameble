@@ -2,601 +2,509 @@
 
 - **DESIGN.md:** `/home/teyermann/projets/gameble/_bmad-output/initiative-gameble/ux-gameble/DESIGN.md`
 - **EXPERIENCE.md:** `/home/teyermann/projets/gameble/_bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md`
-- **Run at:** 2026-10-05
+- **Run at:** 2026-10-14T15:45:49+02:00
+- **Scope:** the 2026-10-14 update that added the visitor landing page to both spines
 
 ## Overall verdict
 
-The pair is a strong contract for the player-facing game. The token set is complete, every reference resolves, the contrast claims check out, and the booster and trade surfaces are specified down to keys, states and copy. The main gap is the staff side. The back-office (moderation, catalog import, season publish) has no flow, no components and no states, and the spine sends readers to "the previous run", whose content is no longer in the spine. Below that sit about a dozen medium gaps: missing state families (special boosters against the 10-booster cap, the weekly goal lifecycle, data export, trade edge cases), a focus ring that disappears on same-coloured card frames, component names that drift between the two spines, a broken file reference and a stale canister description.
+This run validates the 2026-10-14 update that added the visitor landing page to `DESIGN.md` and `EXPERIENCE.md`, read against the rest of the pair and the reference render `mockups/landing.html`. Issues that predate the landing and do not touch it are not reported again. The landing is well integrated in structure. It has a full DESIGN.md Landing section, a matching EXPERIENCE.md Landing component table, a Copy deck block, Motion and reduced-motion rows, Responsive bullets, two new flows, and updated IA rows for sign-out and account deletion. Every `{token}` reference resolves, and the five new tokens are well formed. A consumer still cannot build it cleanly, for three reasons. First, the source spec has no capability for the landing or the roadmap, and CAP-1 still contradicts the new sign-out destination. Second, the live modules have no empty, cold-load or failure states, and the root route for a signed-in player is not committed. Third, the DESIGN Landing section gives about fifteen type sizes as raw px, several of which duplicate existing tokens or contradict them.
 
-The three extra reviewers move the picture from "complete" to "complete but not yet safe to build from". The accessibility lens found 3 critical issues the rubric could not see from the text alone: Commune and Peu commune icons are pixel-identical at small sizes, the reveal is never announced to screen readers, and moving or blinking content has no pause control or in-app motion setting (WCAG 2.2.2, Level A). It also raises two of the rubric's mediums, the focus ring and the phone touch sizes, to high. The feasibility lens found 2 critical gaps: cover images are built from Steam's legacy path, which silently fails for recent games, and the fluid desktop and phone layouts are still undecided, so there is no layout to port. Its 5 high findings are decisions for `bmad-architecture`, whose final spine predates the redesign. The mockups-vs-spines lens found nothing blocking. It found stale spine text (notched canister caps "to be redrawn", counter-proposal and visibility notes, a contradictory `motto` token), decided copy the spines lack, three mock faults to fix later, and 15 implicit decisions for the author to confirm. Across all four reviewers: **5 critical, 15 high, 50 medium, 60 low**.
+The three extra reviewers move the picture from "not yet clean to extract" to "not yet safe to build or ship". The accessibility lens found 2 critical gaps the rubric could not see from the text alone: the power-on rule leaves a module taller than about eight viewports invisible (which happens at 400% zoom), and a signed-out visitor has no way to pause the lamp, the self-updating feed and the other moving content (WCAG 2.2.2, Level A), which brings back the old C3 finding. Its 3 high findings are moving cards that can hide the focused element, hero text over lamp-lit art at 1.2 to 3.4:1 on the phone, and Valve's sign-in image whose accessible name does not contain its visible words. The feasibility lens finds the landing buildable under the repo's rules (no React island, no write on GET, CSP holds through CSSOM), but the mock is not a safe blueprint: the lamp repaints a mask every frame and never idles (AD-27), the moving cards cover controls, and the most visited page has no caching or throttling story. The roadmap sync and the lore gate also collide with the repo's rules and its develop-to-main release train; expect about ten stories, not one. The copy lens finds the voice rules intact, but the landing promises what launch does not have (the pioneer's engraved name, card backs and set rewards, a free licence on a repository that is still private) and shows the live weekly goal twice, word for word.
+
+Several findings converge across lenses: the moving cards (accessibility, feasibility, rubric), the missing visitor motion control (accessibility, feasibility), the undefined live data and its states (rubric, feasibility), the signed-in root and signed-out entry points (rubric, feasibility), the source of the sample cards (rubric, feasibility), the hero title size (rubric, feasibility), the star-field drift (rubric, feasibility, accessibility) and the final call's hub link label (rubric, accessibility, copy, feasibility). Across all four reviewers: **2 critical, 16 high, 38 medium, 44 low** (15 distinct high findings once the moving-cards high, raised by both accessibility and feasibility, is merged).
 
 ## Category verdicts
 
 - Flow coverage — adequate
-- Token completeness — adequate
+- Token completeness — thin
 - Component coverage — adequate
-- State coverage — adequate
-- Visual reference coverage — adequate
+- State coverage — thin
+- Visual reference coverage — strong
 - Bloat & overspecification — adequate
-- Inheritance discipline — adequate
+- Inheritance discipline — thin
 - Shape fit — strong
 
 ## Severity totals
 
 | Reviewer | Critical | High | Medium | Low |
 |---|---|---|---|---|
-| Rubric walker | 0 | 1 | 14 | 11 |
-| Accessibility | 3 | 9 | 11 | 8 |
-| Feasibility | 2 | 5 | 12 | 12 |
-| Mockups vs spines | 0 | 0 | 13 | 29 |
-| **Total** | **5** | **15** | **50** | **60** |
-
-The mockups reviewer sorts by kind (a/b/c/d), not severity; the mapping used here is stated under Reviewer notes.
+| Rubric walker | 0 | 4 | 10 | 11 |
+| Accessibility | 2 | 3 | 5 | 7 |
+| Feasibility | 0 | 5 | 11 | 8 |
+| Copy | 0 | 4 | 12 | 18 |
+| **Total** | **2** | **16** | **38** | **44** |
 
 ## Findings by severity
 
-### Critical (5)
-
-**[Accessibility]** — C1 — Commune and Peu commune icons are the same shape (§ DESIGN.md › Rarity icon; EXPERIENCE.md › Accessibility Floor; mocks inShape())
-Rasterised at 7 × 7 and 9 × 9 art pixels, "circle" and "octagon" give the same silhouette; only grey vs jade tells them apart. The icon appears without a readable name in the top-bar counter, tray slots, feed thumbnails, small missing-card slots and the ticker, and the rarity name on `card-s` is 7 px Silkscreen. The spine's own rule, "colour never stands alone", is broken.
-Fix: Silhouettes differ by at least 8 art pixels at 7 × 7 and stay distinct in greyscale (Commune a hollow ring or plain square; Peu commune keeps flat-cut corners). Add a greyscale render check. Add a visible label or legend for the top-bar counter.
-
-**[Accessibility]** — C2 — The reveal is silent for screen-reader users (§ EXPERIENCE.md › Accessibility Floor, Face-down card, Tout révéler, Result banner, Cards dealt)
-Only the focused button's accessible name changes, which screen readers do not reliably announce. "Tout révéler" reveals unfocused cards, so nothing is said at all. The Légendaire signal is visual only. For a blind player, the core moment of the product yields no feedback.
-Fix: Every reveal posts one polite message to a dedicated booster live region ("Carte 2 : Hades — Supergiant Games, 2020, Roguelite. Épique."). Tout révéler posts one summary. A Légendaire posts "Signal légendaire" at start and the result on landing. Focus stays on the revealed card.
-
-**[Accessibility]** — C3 — Moving and blinking content cannot be paused; no in-app motion setting (§ DESIGN.md › Activity feed, Elevation & Depth, LEDs, blinkers; EXPERIENCE.md › LIVE ticker, Motion › Reduced motion)
-The ticker loops for 60 s and pauses only on mouse hover. At least eight blinkers and pulses run indefinitely on the hub; the feed adds entries on its own. The only off switch is the OS setting. WCAG 2.2.2 (Level A) requires a pause/stop/hide control for anything moving longer than 5 s.
-Fix: (1) A focusable pause/play button next to LIVE; pause on focus-within and touch. (2) A "Mettre en pause le direct" feed toggle that buffers entries. (3) An "Animations réduites" setting (default: follow the system). (4) Ambient blinkers stop after 5 s or only mark state changes.
-
-**[Feasibility]** — C1 — Cover URLs built from the old path: recent games get no art or a silent grey placeholder (§ DESIGN.md › Pixel filter; mocks CDN + id + '/library_600x900.jpg')
-For apps whose assets moved to hashed paths, the legacy path returns 404 (PEAK) or, worse, 200 with a 300 × 450 grey JPEG (Battlefield 6) that `loadImg` accepts. Recent, popular games — the most desirable cards — are the ones affected.
-Fix: Import stores the hashed `library_capsule_2x` URL (fallback `library_capsule`) and refreshes it periodically; the CAP-2 exclusion tests the API asset list; `Catalog` exposes an opaque `image_url`; the filter treats < 300 × 450 or single-channel images as missing. DESIGN.md says "the vertical capsule URL recorded at import".
-
-**[Feasibility]** — C2 — The fluid desktop and phone layouts cannot be coded without guessing (§ DESIGN.md › Layout & Spacing ("Open: max width, breakpoint, tablets"); EXPERIENCE.md › Responsive & Platform; mocks position:absolute stages)
-There is no layout to port, only a picture of one. Undecided: short desktop viewports (1366 × 768 leaves ≈650 px; hub centre and 600 px booster stage do not fit), medium widths (hub needs ≈1150 px, booster ≈1300 px), phone landscape (844 × 390 gets the desktop layout), tablets.
-Fix: Write concrete rules: phone below 720 px or coarse pointer under 500 px tall; two columns 720–1179; three from 1180; max 1440; fixed top bar and ticker; a fixed logical booster stage (884 × 600) scaled by integer-friendly factors; pick phone-landscape behaviour; tablets follow width rules.
-
-### High (15)
-
-**[Rubric · Flow coverage]** — No flow covers the staff journeys (§ EXPERIENCE.md › IA (Back-office row); State Patterns)
-Report → moderator review → ban (CAP-15), the administrator starting and watching a catalog import (CAP-2), and publishing a season have no flow. The Back-office IA row says "Behaviour unchanged from the previous run", but the 2026-10-05 rewrite replaced that run's spine, so a consumer has nothing to extract. "Not staff" and "Banned account" are the only staff-side content.
-Fix: Bring the back-office behaviour back into this spine: a Key Flow "Moderator reviews a report and bans" with a failure path, Component Patterns rows (report queue, report detail, ban action, import run and progress, season publish) and states (empty queue, import running, import failed, ban confirmation).
-
-**[Accessibility]** — H1 — Single-key shortcuts 1–6 without an off switch (§ EXPERIENCE.md › Menu item, Interaction Primitives › Keyboard)
-Hub-wide single-character shortcuts fail WCAG 2.1.4 (Level A). Speech-input users dictating digits and stray typing trigger navigation.
-Fix: Keys 1–6 work only while focus is in the hub menu, or with a modifier; a setting can turn them off; expose `aria-keyshortcuts`.
-
-**[Accessibility]** — H2 — The vignette and scanlines sit above all content (§ DESIGN.md › Elevation & Depth › Atmosphere; mock z-index 89/90 over ticker, top bar, toasts)
-The vignette darkens edges by ≈0.36–0.45 black, exactly where the top bar, ticker, toasts and phone tab bar sit. Documented ratios no longer hold there (≈2.5–4.2:1). The status and navigation chrome becomes the least readable part of the screen.
-Fix: Vignette and stars sit under the content and never cover chrome, toasts or dialogs; scanlines ≤ 11 % and excluded from text-bearing chrome. Every ratio in Colors is measured with every overlay applied.
-
-**[Accessibility]** — H3 — Reduced motion misses many animations and still flashes (§ EXPERIENCE.md › Motion › Reduced motion; DESIGN.md › Elevation & Depth)
-The list leaves out the trade swap, daily arc, back equip, the shake of a locked back, the app-start flicker, star twinkle and parallax shift, lock-in overshoot, toasts, feed, holo/foil/glow, sheen, canister breathing and phone slides. "Flashes drop to 30 %" still flashes the whole screen. The mock shakes the stage on every reveal, contradicting DESIGN.
-Fix: Rule plus exceptions: under reduced motion nothing translates, rotates, scales, shakes, flashes, blinks, sweeps or loops; state changes are 150–220 ms crossfades. Spell out the Légendaire, trade swap and locked-back versions. Flashes go to 0. Reconcile or remove per-tier reveal shakes.
-
-**[Accessibility]** — H4 — Focus indicator is ambiguous, sometimes invisible, and can be obscured (§ EXPERIENCE.md › State Patterns › Focus; DESIGN.md › Menu item, Buttons, Tabs)
-Accent ring on accent-filled items is 1.0:1 and focus looks identical to hover; gold ring on a Légendaire is 1.0:1; the mock prototyped 2 px inset rings and colour-only link focus (1.45:1); nothing stops sticky chrome from covering the focused element (WCAG 2.4.11).
-Fix: A 3 px `{colors.text-max}` ring with a 3 px `{colors.outline}` gap on every focusable element, separate from hover, never colour alone; `scroll-padding` equal to top bar, ticker, tab bar and pinned actions.
-
-**[Accessibility]** — H5 — Toasts carry essential messages for 2.8 s (§ EXPERIENCE.md › Toast, refusal states, Motion)
-Errors and refusals ("EXEMPLAIRES INSUFFISANTS", "UN ÉCHANGE À LA FOIS", "DOS VERROUILLÉ", network failures) vanish and cannot be paused or recalled. In the mock, one Esc dismisses the toast and navigates to the hub.
-Fix: Toasts confirm only; errors also appear inline until the next action. Toasts last ≥ 5 s + 1 s per 10 words, pause on hover/focus, have a close button; Esc closes the toast and nothing else.
-
-**[Accessibility]** — H6 — Pixel fonts at 7–9 px carry essential information (§ DESIGN.md › Typography, Status chip, Tab bar)
-Silkscreen caps are 4–5 px tall at 7–8 px and blur off-grid. Rarity names on `card-s`, status chips and phone tab labels are information carriers at these sizes. Long tracked uppercase labels remove word shape; VT323 line-height is 1.0.
-Fix: No text below 8 px; information carriers ≥ 10 px; multi-line VT323 line-height ≥ 1.2; uppercase via `text-transform` over sentence-case source; offer a "Police lisible" setting swapping the pixel fonts for a legible sans.
-
-**[Accessibility]** — H7 — Focus management in booster and trade is unspecified; a double activation exits the reveal (§ EXPERIENCE.md › State Patterns, Revealed card, Reveal abandoned)
-Focus destinations after opening, Tout révéler, Ouvrir le suivant, ✕, picker close, swap end, sub-views and Steam return are unstated. A second click on a just-revealed card leaves the booster screen, and nothing resumes on return: a player with a tremor skips the remaining reveals.
-Fix: Add a Focus column (cards land → card 1; Tout révéler → OUVRIR LE SUIVANT; ✕ → next card or add slot; swap → status line; sub-view → heading; back → opener). A revealed card ignores activation for 400 ms and opens its detail as a dialog over the booster.
-
-**[Accessibility]** — H8 — Feed live region will flood screen readers (§ EXPERIENCE.md › Accessibility Floor; mock #fdList aria-live)
-A polite region receiving an entry every few seconds queues speech without end.
-Fix: The feed is not a live region; a status line announces batches at most every 30 s while unfocused; the pause toggle stops announcements; the ticker is `aria-hidden`.
-
-**[Accessibility]** — H9 — Phone touch targets below 44 px in spine and mock (§ DESIGN.md › Tabs and filters, Buttons, Trade board › Remove, Modal ✕; phone mock)
-34 px chips and small buttons, a 44 × 36 stepper, a 32 × 32 remove ✕ overlapping the card edge, 36 px top-bar chips contradict the spine's own floor.
-Fix: Every phone target has a 44 × 44 hit area with 8 px spacing; add `chip-height-touch: 44px`.
-
-**[Feasibility]** — H1 — Main-thread cost of the pixel filter, worst during the opening (§ DESIGN.md › Pixel filter; AD-17; mocks getArt / medianCut / quantize)
-≈2.5–12 ms per image for quantisation alone on desktop, 5–10× on low-end Android, plus the 600 × 900 decode. Five cards filter during the 1.2 s explosion: up to ≈0.5 s of blocking inside the hero animation; on slow links the flip shows the placeholder, repeating the v2-3 bug.
-Fix: Web Worker + OffscreenCanvas; lazy with a concurrency cap; one palette per game; start fetching on the open response and never flip before art is ready or failed; optionally store the 32-colour palette at import.
-
-**[Feasibility]** — H2 — The opening protocol (latency, refusal, double trigger) is not specified (§ EXPERIENCE.md › Opening refused, Motion, Implementation notes; AD-7)
-If the explosion starts on click, a refusal arrives after the caps have blown, contradicting "nothing opens"; if it waits, the click feels dead. A double click can open two packs, one never shown.
-Fix: Request on click; the ARMEMENT charge phase (≈300 ms) masks latency; caps blow only on success, else disarm and toast; lock the trigger and use an idempotency key; define the JSON response (five cards, reserve and availability times, pre-open tier counts).
-
-**[Feasibility]** — H3 — AD-16's "two islands" understates the client work; no contract links islands and chrome (§ AD-16; EXPERIENCE.md › Component Patterns)
-The booster island is two choreographies (desktop row, phone pile + tray). The rarity counter, packs chip and badges live in server-rendered chrome; teams will invent ad-hoc globals that AD-16 forbids.
-Fix: Islands: booster (layout mode) and trade board. Named Stimulus controllers. A DOM event contract (`gameble:tier-revealed`, `gameble:reserve-changed`, `gameble:toast`, `gameble:trade-badge`). Shared filter, tilt and reduced-motion modules.
-
-**[Feasibility]** — H4 — Screen-change motion and phone slide-overs do not come for free with Turbo Drive (§ EXPERIENCE.md › Motion (screen change, app start, sub-views, blocked navigation))
-Turbo swaps the body; cached previews replay lock-ins; the flicker plays on every full load; staggered lock-in adds 0.5–1 s; browser Back cannot be blocked; cached booster/trade snapshots go stale.
-Fix: View Transitions through Turbo; permanent atmosphere layers; skip lock-in on previews and cap the stagger at ≈400 ms; flicker once per session; `no-cache` on booster and trade; phone sub-views as URL-advancing Turbo Frames. Spine: "in-app back controls are disabled; browser Back is allowed and loses nothing".
-
-**[Feasibility]** — H5 — The spines add server mechanisms the final architecture does not hold (§ ux-gameble.md › Changes; EXPERIENCE.md; DESIGN.md; architecture-gameble.md)
-The architecture (status: final) says 16 colours, steel…gold tiers, proposer-set expiry, two surprises per card. Presence, card backs, NOUVEAU "seen" (a write on a read role), per-season numbers, invitations and three-way visibility have no home.
-Fix: Run `bmad-spec` with the change list, then `bmad-architecture` in update mode with the "For the architecture" list, before slicing the redesign epics.
-
-### Medium (50)
-
-**[Rubric · Flow coverage]** — Capabilities with a product promise have no flow (§ EXPERIENCE.md › Key Flows)
-The brag from the sharer's side (detail → PARTAGER → link copied → pasted on Discord; CAP-9, the brief's "brag" moment), the weekly goal reached and the rare booster arriving (CAP-12), an achievement unlocking (CAP-17), and exporting data or deleting the account (CAP-14 "each action works end to end").
-Fix: Add a short flow for the share and one for the goal reward. Fold achievement unlock and data export into State Patterns rows if a flow feels too heavy.
-
-**[Rubric · Token completeness]** — The focus ring has no token and vanishes on same-coloured frames (§ EXPERIENCE.md › State Patterns "Focus"; DESIGN.md › Colors: Gold)
-EXPERIENCE sets focus to "3px `{colors.accent}` … gold `{colors.gold}` on cards in grids". Gold on a Légendaire frame is 1.0:1 and accent on a Rare frame is 1.0:1, so focus vanishes exactly on the cards that matter. Gold-as-focus also breaks DESIGN's rule that gold "is never a general accent".
-Fix: Add a `focus-ring` component token (e.g. a 2px `{colors.outline}` gap plus a 3px `{colors.accent-hi}` or `{colors.text-max}` ring with an offset), check it against all five rarity frames, panels and accent fills, and use it in both spines.
-
-**[Rubric · Token completeness]** — Type sizes used in prose have no typography token (§ DESIGN.md › Components: Public card page, Result banner; Typography)
-Public page title "Pixelify Sans 38px", description "VT323 22px", Épique banner "small (28px)", card micro lines "7 to 10px" under a single 8px `micro` token, small-card footer at 7px.
-Fix: Add `public-title`, `body-large`, `banner-small` and a `micro` ramp per card size (as done for `card-title-*`), and reference them by name.
-
-**[Rubric · Component coverage]** — EXPERIENCE components with no visual spec in DESIGN (§ EXPERIENCE.md › Component Patterns, State Patterns)
-Invitation (received and sent rows), the hub's "PROGRESSION DES SETS" panel, Face-down card and Revealed card, the Public profile page, the signed-out hub invitation to sign in, and the booster screen's "RÉSERVE VIDE" replacement for the canister.
-Fix: Add short DESIGN entries for each, or state explicitly which existing entry they reuse.
-
-**[Rubric · Component coverage]** — Interactive DESIGN components with no behavioural row (§ DESIGN.md › Components; EXPERIENCE.md › Component Patterns)
-Text field (validation, max length, submit on Enter, error line), Radio list, Link, the button family (one-primary rule, press, disabled), Add slot, Remove "✕", Status chip, Stack, the RAPPORT panel (folds on the phone).
-Fix: Add rows. A single "Buttons" row can carry the one-primary rule and the pressed and disabled behaviour.
-
-**[Rubric · Component coverage]** — Phone touch sizes contradict the 44px Accessibility Floor (§ DESIGN.md › Tabs and filters, Buttons → Back button, Trade board → Remove)
-Tabs and filters are 34px and serve as the phone's chip rows; the Back button is `button-height-sm` (34px); the remove "✕" is a "small square".
-Fix: Give each a phone size of `{spacing.touch-min}`, or a 44px hit area around the 34px visual, in DESIGN.
-
-**[Rubric · State coverage]** — Special boosters and the 10-booster cap are undefined (§ EXPERIENCE.md › State Patterns "Goal reached", "Daily booster with a full reserve"; Component Patterns "Booster canister")
-The daily booster (spec: "small", "better odds") and the goal reward ("rare booster") land in the same reserve. Nothing says how they look among identical canisters, whether they open first, whether the daily one still has 5 cards, or what happens to a goal reward when the reserve is full.
-Fix: Add states for a special booster in the reserve and for a goal reward arriving with a full reserve; add the cap rule for rewards to the spec-change list.
-
-**[Rubric · State coverage]** — The weekly community goal lifecycle is missing (§ DESIGN.md › Community goal panel; EXPERIENCE.md › Component Patterns "Community goal")
-The spec's goal is weekly with a target scaling with weekly active players; no spine says "weekly". No state for week end, reset, reached goal on the panel, missed goal, or non-contributor. DESIGN removes any countdown.
-Fix: Add rows for goal reached (panel look), week rollover, goal missed and non-contributor, and state where the week boundary is visible, if anywhere.
-
-**[Rubric · State coverage]** — Profil et paramètres has no states for its data actions (§ EXPERIENCE.md › Component Patterns "Settings row", "Delete dialog")
-Export in progress, ready, failed; where sign-out lands; where the player lands after deleting the account; the effect of a language switch. CAP-14 requires each action to work end to end.
-Fix: Add rows for each.
-
-**[Rubric · State coverage]** — Trade edge cases are missing (§ EXPERIENCE.md › State Patterns, trade rows)
-Friend banned or deleted mid-trade; whether the 7-day expiry restarts on a counter-proposal; how reservations move when a counter changes quantities (Flow 2 step 7); a card picker with nothing to place.
-Fix: Add four rows.
-
-**[Rubric · Visual reference coverage]** — Broken reference to a retired file (§ EXPERIENCE.md › Inspiration & Anti-patterns)
-"Rejected — the medieval archives direction" cites `reconcile-hearthstone-card-back-reference.md`, which the memlog records as retired (git history only).
-Fix: Drop the filename or say "(git history)".
-
-**[Rubric · Inheritance discipline]** — Component names drift between the spines (§ EXPERIENCE.md › Component Patterns vs DESIGN.md › Components)
-EXPERIENCE claims "(same names)" but: Community goal ↔ Community goal panel; Set progress row ↔ Set row; Trade list ↔ List row; Trade board ↔ Board; Friend profile ↔ Friend profile dialog; Report / Delete dialog ↔ Report and delete dialogs; Face-down / Revealed card ↔ Card face / Card backs.
-Fix: Pick one name per component and use it in both spines and in the frontmatter `components` keys.
-
-**[Rubric · Inheritance discipline]** — Canister description is stale against the memlog (§ DESIGN.md › Components: Booster canister)
-DESIGN says "Two notched metal caps" and "it is redrawn … (the author reviews it)". The memlog records the notches removed (solid edges, grip ridges kept) and the 2px redraw done and approved in v3-4.
-Fix: Describe solid-edged caps with grip ridges, and drop the pending-review sentence.
-
-**[Rubric · Inheritance discipline]** — Spec divergences not listed in ux-gameble.md (§ ux-gameble.md › Changes; spines throughout)
-(a) Glossary: the spec says "pack", the spines say "booster", `ux-gameble.md` mixes both. (b) Weekly goal → "community goal". (c) Daily booster size and odds not reflected. (d) The spec's "no affiliation with Steam or Valve" terms constraint has no UX surface.
-Fix: Add a pack = booster glossary line and the requested spec change; list (b) and (c); add a Terms/legal surface (IA row, footer link on public pages and in Profil et paramètres).
-
-**[Accessibility]** — M1 — Low-contrast tokens used for information (§ DESIGN.md › Colors (dim, publisher), Activity feed, Status chip, Daily booster)
-Feed times in dim, "CLOS" at 3.2/2.7:1 and 8 px, dimmed feed rows at 4.35 and 2.57, publisher at 4.29, "RÉSERVE PLEINE" only as disabled text (2.64).
-Fix: Set `publisher` to `#8a96a2`; `dim` for decoration only; times and CLOS in muted; dim feed rows by background, never opacity; a muted line under the disabled claim.
-
-**[Accessibility]** — M2 — Non-text contrast of controls (WCAG 1.4.11) (§ DESIGN.md › Text field, Tabs, Settings segments, Radio list, Stepper, Progress track)
-Boundaries in `line` (1.8–2.0:1) and `line-soft` (1.35:1) are below 3:1.
-Fix: Interactive boundaries use `{colors.line-deep}` (3.2:1) or brighter; progress tracks show a 3:1 edge or a text value.
-
-**[Accessibility]** — M3 — Blink rates are unbounded; the mock blinks at 4–7 Hz (§ DESIGN.md › Status LED, Canister)
-Small areas pass 2.3.1, but they sit next to full-screen flashes and shakes, in the photosensitive band.
-Fix: Nothing blinks faster than 2 Hz; at most one full-screen flash per sequence, never 3 in a second; flashes never overlap when Tout révéler chains cards.
-
-**[Accessibility]** — M4 — Hub cognitive load and structure (§ EXPERIENCE.md › IA › Hub content; DESIGN.md › Layout & Spacing)
-About a dozen things move at once on the hub; no heading, landmark or reading order is defined.
-Fix: A Structure line per screen (h1, nav, main, complementary, ticker hidden; reading order). At most two ambient animations outside the booster; countdowns update per minute above one hour.
-
-**[Accessibility]** — M5 — Esc does too much (§ EXPERIENCE.md › Keyboard, Counter-proposal, IA)
-Esc silently discards a counter-proposal and navigates away from any screen; it collides with IME and browser uses.
-Fix: Esc closes the topmost overlay only; cancels a counter only after confirmation; returns to the hub only when nothing consumed it and no edit or text field is active.
-
-**[Accessibility]** — M6 — Dialogs, picker and stepper semantics (§ DESIGN.md / EXPERIENCE.md › Dialogs, Card picker, Quantity stepper)
-Dialog name, initial focus and ✕ name unspecified (the mock names every dialog "Fenêtre"); picker arrows conflict between grid movement and quantity.
-Fix: `aria-labelledby` from the title; initial focus never on ✕; ✕ named "Fermer"; picker grid one tab stop; stepper a `spinbutton`; refusals and COPIÉ announced politely.
-
-**[Accessibility]** — M7 — Reflow, zoom and text spacing (§ DESIGN.md › Typography, Layout; EXPERIENCE.md › Responsive)
-Nothing states that 400 % zoom yields the phone layout, that the default font size is honoured, or that user text spacing does not clip fixed-height rows.
-Fix: Breakpoints in CSS px; rem text from a 16 px root (art pixel in px); `min-height`, never `height`, on text rows; verify with the 1.4.12 bookmarklet.
-
-**[Accessibility]** — M8 — Card and media semantics are incomplete (§ EXPERIENCE.md › Accessibility Floor; DESIGN.md › Pixel filter, Avatars, Gauges, Countdown)
-A card's exposed text lacks number, copies, NOUVEAU and reserved count; canvases, thumbnails, avatars, rays and gauges unspecified; the packs chip label rewrites every second.
-Fix: Define a card's text order; canvases and thumbnails `aria-hidden`; gauges `role=progressbar`; countdown text changes at most per minute.
-
-**[Accessibility]** — M9 — Time limits and their wording (§ EXPERIENCE.md › Voice, Daily booster, Trade states)
-"Minuit UTC" forces mental arithmetic; whether an uncollected daily booster lapses is unsaid; no warning before a proposal expires.
-Fix: Local time ("prêt à 02 h 00"); state whether the daily lapses; hours under 24 h with a "bientôt" cue.
-
-**[Accessibility]** — M10 — Gestures and touch alternatives on the phone (§ EXPERIENCE.md › Interaction Primitives, Revealed card, Card detail; DESIGN.md › Reveal caption plate)
-Tap is overloaded on the top card (a double tap stores it unseen); the "◀ ▶" hint looks like a control; held-finger tilt competes with scrolling.
-Fix: Every swipe has a visible button (RANGER; 44 × 64 ◀ ▶ in detail); 400 ms tap guard after a flip; tilt after 150 ms without vertical movement; long-press never required.
-
-**[Accessibility]** — M11 — Long sequences cannot be skipped (§ EXPERIENCE.md › Tout révéler, Opening in progress)
-Navigation is blocked through each sequence; players distressed by the effects have no escape but the OS setting.
-Fix: A "Passer" control (and Esc) jumps to the end state.
-
-**[Feasibility]** — M1 — The 2 CSS px art pixel goes uneven at fractional DPR (§ DESIGN.md › art-pixel, image-rendering: pixelated)
-At DPR 1.25 / 1.75 and some Android ratios, columns alternate 2/3 px and outlines blur — hitting the identity's first idea. The mocks hide this with `fit()`.
-Fix: Spike on a 125 % Windows laptop; accept, snap backing stores to round(2·dpr), or snap only large cards; record the choice in DESIGN.md.
-
-**[Feasibility]** — M2 — The pixel fonts lack the interface glyphs the copy uses (§ DESIGN.md › Typography; copy "◀ PONT", "TOUT VOIR ▸", "↗", "⇄", "✕", "✓", "◆")
-None of the three fonts has ◀ ▶ ▸ ◆ ⇄ ↗ ✕ ✓ or U+202F (the French group separator); they fall back with mismatched metrics, and ◀ ▶ can render as colour emoji.
-Fix: Draw them as pixel SVG icons; group digits with U+00A0; note the rule under Typography.
-
-**[Feasibility]** — M3 — The documented CORS fallback can never trigger as coded (§ DESIGN.md › Pixel filter fallback; mocks crossOrigin + try/catch)
-With `crossOrigin` set and no ACAO, the load itself fails; the try/catch never runs. `IMGP` caches failures forever.
-Fix: Retry once without `crossOrigin` and draw unquantised; do not cache failures for the session; never add headers to image fetches.
-
-**[Feasibility]** — M4 — The continuous-animation and paint budget is unbounded (§ DESIGN.md › Elevation & Depth, Rarity effects; mocks scan, tcgHolo, bFrame rAF loop)
-`background-position` animations repaint the main thread; the hub stacks 10+ infinite loops; an rAF loop runs forever on every screen.
-Fix: Loops animate only transform/opacity; rAF only while something moves; `content-visibility: auto`; a budget (≤ 6 visible infinite animations on the phone); a low-end Android spike.
-
-**[Feasibility]** — M5 — touch-action: none on large cards traps scrolling on the phone (§ mobile.html .show, .d-card, .pub-card, .z-card)
-A drag starting on the showcase or public card does not scroll the page.
-Fix: Cards in scrolling content use `pan-y`; tilt follows only horizontal drag or long press; `none` only on the booster stage.
-
-**[Feasibility]** — M6 — The mocks' code is not safe to port into Turbo/Stimulus lifecycles (§ key-screens.html, mobile.html)
-53 and 68 `addEventListener`, 0 removals; uncleared intervals; module-level mutable state; unbounded caches. Turbo visits pile them up.
-Fix: Implementation notes: mocks are a reference for look and timing, never source; listeners and timers registered in connect() and removed in disconnect(); LRU-bounded caches.
-
-**[Feasibility]** — M7 — i18n inside the islands needs interpolation and plurals (§ AD-16, AD-18)
-Pre-translated props cannot hold counts; French and English pluralise 0 differently.
-Fix: Scoped key → template maps with one/other forms; a shared `t()` with `Intl.PluralRules`; server-rendered `<time>`; uppercase in CSS.
-
-**[Feasibility]** — M8 — No Content-Security-Policy is defined (§ config/initializers/content_security_policy.rb)
-The redesign widens what must be allowed (Steam image hosts, workers, fonts).
-Fix: Adopt a policy now (img/connect to Steam hosts, worker-src blob:, self-hosted fonts, nonces), report-only for one release.
-
-**[Feasibility]** — M9 — The 3D pitfall is narrower than the actual rule (§ EXPERIENCE.md › Implementation notes)
-Any grouping property (opacity < 1, filter, overflow, clip-path, mask, blend mode…) on or between tilt/flip layers flattens 3D and brings back the mirrored back. One refactor reintroduces the v2-3 bug.
-Fix: Extend the note to all grouping properties; add a visual regression test of a tilted, revealed card.
-
-**[Feasibility]** — M10 — Some tokens are not CSS values, and one is ambiguous (§ DESIGN.md frontmatter (panel.border, bevel, card-back.sheen, idle-float, hazard-stripe, pixel outline, blink))
-`panel.border: inset 2px` read literally draws a bevel; prose tokens force guessing; the three outline widths will drift.
-Fix: Give each token the exact CSS value from the mocks; move prose effects to an Effects section; state the custom-property naming (`--color-*`).
-
-**[Feasibility]** — M11 — Backs, canister, icons, avatars and logo exist only as procedural drawing code (§ mocks backCanvas, canister canvases, iconSVG; DESIGN.md › Card backs)
-Production either ships runtime canvas drawing or someone redraws the art by hand and it drifts.
-Fix: A one-off export script renders each asset to PNG/SVG under `app/frontend/images/pixel/`; the author reviews the sheet once.
-
-**[Feasibility]** — M12 — Phone shell model and safe areas (§ mobile.html inner scroll; DESIGN.md "tab bar plus the safe area"; epic 1 viewport meta)
-Without `viewport-fit=cover`, safe-area insets are 0 on iOS; an inner-scroll app shell breaks Turbo scroll restoration and the iOS URL bar.
-Fix: Document scroll, sticky top bar, fixed tab bar with safe-area padding; `viewport-fit=cover`; `dvh` for the booster stage.
-
-**[Mockups]** — b1 — Canister caps described as notched (§ DESIGN.md › Booster canister)
-The mock caps have solid, clean edges: crisp outline, light rim, knurled grip, collar, no notches.
-Fix: Rewrite the cap description (memlog 260, 261).
-
-**[Mockups]** — b2 — Canister "to be redrawn" is stale; approved anatomy and tokens missing (§ DESIGN.md › Booster canister, components.canister)
-The redraw (100 × 150 art px at 2 CSS px) is done and approved. Missing: indicator window, rim bands, gloss, rivets, LED plate, barcode, emblem window. Caps are a steel gradient, not `muted`; the body a slate-blue gradient, not flat `panel-raised`.
-Fix: Drop the sentence, describe the approved art, update the tokens or mark them as art (memlog 259, 262).
-
-**[Mockups]** — b4 — The motto token contradicts the goal panel (§ DESIGN.md › Colors (Motto) vs Community goal panel)
-Colors says `motto` carries the Brotherhood line; the panel section says `text-bright`; both mocks render it in `#e6eef5`, brass only in dead CSS.
-Fix: Remove the `motto` token and its bullet, or say where it is used.
-
-**[Mockups]** — b5 — Counter-proposal note is stale (§ EXPERIENCE.md › State Patterns "Counter-proposal in progress")
-"The mock only opened my side" and the `[ASSUMPTION: copy]` are stale: the mocks open both sides with "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez."; the send button stays disabled until each side holds a card; focus goes to my add slot.
-Fix: Remove the note and tag; adopt the mock copy and enable rule.
-
-**[Mockups]** — b6 — Visibility labels still marked to write (§ DESIGN.md › Profile and settings; EXPERIENCE.md › Settings row)
-The mocks ship VISIBILITÉ DU PROFIL with PUBLIC / AMIS UNIQUEMENT / PRIVÉ (radio group, default PUBLIC) and the three summary lines.
-Fix: Write the labels and summary lines in; drop the tag.
-
-**[Mockups]** — b7 — Daily booster with a full reserve lacks its copy (§ DESIGN.md › Daily booster panel; EXPERIENCE.md › State)
-State word "RÉSERVE PLEINE" in orange and line "Ouvrez un booster pour récupérer celui du jour.".
-Fix: Add the word, colour and line; add "full reserve" to orange's uses.
-
-**[Mockups]** — b8 — Empty showcase lacks its copy (§ DESIGN.md › Showcase; EXPERIENCE.md › "No notable pull yet")
-Hatched frame, "OUVREZ VOTRE PREMIER BOOSTER", "Votre plus belle carte s'affichera ici.", button "OUVRIR UN BOOSTER", no rays.
-Fix: Add the copy; button colour per c4.
-
-**[Mockups]** — b11 — Phone booster behaviour omitted (§ DESIGN.md › Reveal caption plate, Tray; EXPERIENCE.md › Responsive, Motion)
-Pile deal with offsets and tilt; tap/swipe hints; 40 × 54 tray thumbnails with spark burst; plate ticks and Légendaire plate colour; tray zoom overlay; Tout révéler stores in the tray; daily flyer to the BOOSTER tab; tab bar disabled during opening.
-Fix: Add to DESIGN (plate, tray, zoom) and EXPERIENCE (Responsive, Motion, Tab bar).
-
-**[Mockups]** — b12 — Phone sizes and type ramp not in tokens (§ DESIGN.md › spacing / typography; Layout)
-Buttons 48 (small 44), stepper 44 × 36, ticker 30, PLUS rows 52, set chips 132 × 48; smaller type ramp (screen title 19, showcase 23, public title 30…).
-Fix: Add the phone values as tokens or a phone note.
-
-**[Mockups]** — b13 — Card-size rules for trade and phone pickers (§ DESIGN.md › Layout; EXPERIENCE.md › Responsive)
-Single-card trade side uses `card-m`; phone pickers `card-s`, `card-xs` only under 372 px; back grid `card-xs`; phone back preview `card-m` (DESIGN says `card-l`).
-Fix: Align the size list and the phone rule.
-
-**[Mockups]** — b19 — Approved copy the build needs is missing (§ EXPERIENCE.md › State Patterns, Voice)
-Trade toasts, side labels, picker titles and counter, board lines, invite labels, public pitch, PLUS subtitle.
-Fix: Record the strings.
-
-**[Mockups]** — c1 — Card detail lacks description, season, sets and copyright (§ Both mocks, card detail)
-Contradicts memlog 63, CAP-7 and EXPERIENCE Card detail.
-Fix: Add the four facts to both details (mock).
-
-**[Mockups]** — c2 — makePack() still forces a Rare into every booster (§ Both mocks, demo code)
-Invisible, but anyone porting the code inherits a per-booster guarantee (contradicts memlog 243).
-Fix: Remove the line (mock).
-
-### Low (60)
-
-**[Rubric · Flow coverage]** — Flow 3 has no failure path; Flow 1's climax is conditional (§ EXPERIENCE.md › Key Flows 1 and 3)
-Flow 3 (Inès) could fail if she equips the back during an opening, or if the set is completed through a trade. Flow 1's climax ("If it is an Épique…") weakens it as an acceptance anchor.
-Fix: Add a one-line failure path to Flow 3, and pin Flow 1's climax to the guaranteed Rare-or-better reveal.
-
-**[Rubric · Token completeness]** — Four colour tokens have no stated role (§ DESIGN.md frontmatter)
-`accent-hi`, `accent-press`, `on-alert` and `star` are defined but not referenced in the body.
-Fix: Give each a use in Colors, or remove it.
-
-**[Rubric · Token completeness]** — No global contrast target; dark-only never stated (§ DESIGN.md › Colors)
-EXPERIENCE's floor implies 4.5:1 text; nothing states 3:1 for non-text UI (focus rings, input borders, gauge segments).
-Fix: Add one line to Colors: "Dark only. Text ≥ 4.5:1, UI boundaries and focus ≥ 3:1, except `dim` and `publisher`, which carry redundant information only."
-
-**[Rubric · Token completeness]** — Token-shape oddities a resolver will trip on (§ DESIGN.md frontmatter)
-`typography.publisher` has only a `note` and no `fontSize`; easings live under `components.motion`; `hazard-stripe.pattern` embeds `{colors.accent}` inside a composite string.
-Fix: Split `publisher` into per-size tokens, move easings to a top-level `motion` group (or note the convention), and give the stripe colours their own keys.
-
-**[Rubric · State coverage]** — Smaller state gaps (§ EXPERIENCE.md › State Patterns)
-Succès has no state rows; the share sheet has no state for clipboard refusal; a signed-in visitor on the public card page; a signed-out visitor on the card detail (CAP-18).
-Fix: One row each.
-
-**[Rubric · Visual reference coverage]** — Mockups linked only globally, not at the sections they illustrate (§ DESIGN.md › Brand & Style; EXPERIENCE.md › Foundation)
-`mobile.html` is not linked at Reveal caption plate, Tray, Tab bar, Responsive & Platform. `key-screens.html` is not cited at Trade board, Friends, Activity feed, Achievements, Profile and settings, Public card page.
-Fix: Add one-line "Reference: …, <screen>" pointers at those sections.
-
-**[Rubric · Visual reference coverage]** — ref-01…ref-04 cited only as a range (§ DESIGN.md › Brand & Style)
-Nothing says what each shows (hub, booster, collection, rarity scale); ref-04's four-tier scale is superseded.
-Fix: Name each at its section, with a note that ref-04's four-tier scale is superseded.
-
-**[Rubric · Bloat & overspecification]** — DESIGN.md carries timings it says live in EXPERIENCE (§ DESIGN.md › Components)
-Holo 34 steps / 3.4s, back sheen 5.2s, art fade 600ms, "COPIÉ ✓" 1.6s, count bump 0.5s, ticker 60s, canister breath (duplicated). Prose restates token values ("34px, Silkscreen 10px", "24 × 26px").
-Fix: Move the timings to EXPERIENCE Motion, and cite tokens instead of raw values in prose.
-
-**[Rubric · Bloat & overspecification]** — Project history and a prototype selector in EXPERIENCE (§ EXPERIENCE.md › Foundation, Implementation notes)
-Foundation carries "replaces the 2026-10-02 medieval direction… Epic 1 must be reworked"; Implementation notes quotes `.screen:not(.on) *`.
-Fix: Move the history to `ux-gameble.md` or the memlog; keep the rule ("hide every descendant of an inactive screen") and drop the selector.
-
-**[Rubric · Bloat & overspecification]** — Card backs states product rules (§ EXPERIENCE.md › Card backs)
-How backs are earned belongs in the spec once `bmad-spec` absorbs the capability.
-Fix: After absorption, shrink it to a pointer plus the UX-only rules.
-
-**[Rubric · Inheritance discipline]** — Sources frontmatter incomplete (§ EXPERIENCE.md and DESIGN.md frontmatter)
-EXPERIENCE omits the spec companions (`catalog-and-rarity.md`, `brotherhood-tone.md`) and the brief addendum; DESIGN.md has no `sources`.
-Fix: List the companions, or state that the spec's `companions:` are inherited.
-
-**[Accessibility]** — L1 — Rare equals the accent colour; jade sits next to lime (§ DESIGN.md › Colors, Rarity)
-Rare-coloured text reads as interactive; jade and lime differ by hue only (1.10:1).
-Fix: State that rarity-coloured text is never interactive.
-
-**[Accessibility]** — L2 — Hover-only title tooltips (§ Mock badges and rarity counter)
-Hover-only information is lost on touch and keyboard.
-Fix: No information lives only in `title`.
-
-**[Accessibility]** — L3 — App-start whole-screen flicker (§ EXPERIENCE.md › Motion › App start)
-A 0 → 1.5 brightness overshoot over the whole screen; single, but unpleasant.
-Fix: List it in the reduced-motion profile and cap the overshoot at 1.1.
-
-**[Accessibility]** — L4 — Pointer-only copy (§ EXPERIENCE.md › Cards dealt; canister)
-"Cliquez une carte…" and "CLIQUEZ POUR OUVRIR" address pointer users only.
-Fix: Device-neutral copy; state that Space and Enter both activate.
-
-**[Accessibility]** — L5 — Language (§ EXPERIENCE.md › Foundation, Accessibility Floor, Card detail)
-Steam descriptions may differ in language from the UI; English copy and rarity names do not exist yet.
-Fix: `<html lang>` follows the chosen language; foreign blocks carry their own `lang`; write the English rarity names.
-
-**[Accessibility]** — L6 — State shown by border only (§ DESIGN.md › Trade board, Settings)
-The edited side is shown by an accent border only; segments mix `aria-pressed` and radio semantics.
-Fix: Add "EN ÉDITION" to the side header; pick one segment semantic.
-
-**[Accessibility]** — L7 — Links that open new tabs or leave the site (§ "VOIR SUR STEAM ↗", Steam sign-in)
-Players are not told a link opens a new tab or leaves the site.
-Fix: Accessible names add "(nouvel onglet)"; the sign-in button says it opens Steam.
-
-**[Accessibility]** — L8 — Typed delete confirmation (§ EXPERIENCE.md › Delete dialog)
-Case, paste and language are unspecified.
-Fix: Case-insensitive, paste allowed, word localised, field labelled with the word to type.
-
-**[Feasibility]** — L1 — One palette per size (§ mocks ARTP)
-The same card can show different colours at s and xl.
-Fix: Per-game palette (H1).
-
-**[Feasibility]** — L2 — Collection arrow keys hard-code 5 columns (§ mocks ArrowDown:5)
-Fluid grids break it.
-Fix: Compute rows from offsetTop or the computed grid columns.
-
-**[Feasibility]** — L3 — Esc precedence is spread across components (§ EXPERIENCE.md › Keyboard)
-A native dialog and a document-level hotkeys controller both see one Esc.
-Fix: Native `<dialog>` everywhere; hotkeys ignore defaultPrevented, open dialogs and form fields; 1–6 need an off switch.
-
-**[Feasibility]** — L4 — LIVE ticker and live updates (§ mock ticker translateX(-50%))
-Inserting items mid-loop makes the strip jump.
-Fix: Apply incoming items on `animationiteration`.
-
-**[Feasibility]** — L5 — Pixel fonts at sizes off their grid (§ DESIGN.md › Typography)
-Silkscreen at 7–14 px and Pixelify 600 render antialiased.
-Fix: Self-host subsetted woff2, preload, `font-display: block`; record licences (OFL) as a decision.
-
-**[Feasibility]** — L6 — Hotlinking dependence (§ Steam CDN)
-Valve could add referer checks or change hosts.
-Fix: Build URLs from import data; one host config value; `referrerPolicy: no-referrer`; never cache covers in storage.
-
-**[Feasibility]** — L7 — Countdowns and pack credit on the client (§ "+1 dans", "PROCHAIN DANS", expiry)
-A skewed device clock shows wrong numbers.
-Fix: Pass `server_now` and availability times; the server stays the authority.
-
-**[Feasibility]** — L8 — Accessibility details that touch implementation (§ mocks #fx canvas; reveal)
-Art and FX canvases are not `aria-hidden`; a reveal only changes the focused card's name.
-Fix: aria-hide canvases; send reveals to the polite live region; never draw text into a canvas.
-
-**[Feasibility]** — L9 — The pedestal drifts 6 px (§ mock .pedestal drift 8s)
-Breaks the "idle float 2 px at most" rule; the unused 10 px `bob` must not be ported.
-Fix: Cap at 2 px or record the scenery exception.
-
-**[Feasibility]** — L10 — allow_browser :modern (§ ApplicationController)
-Safari 17.2+ / Chrome 120+ / Firefox 121+; shuts out iPhones on iOS 16.
-Fix: State the supported-browser floor in EXPERIENCE.md › Responsive & Platform.
-
-**[Feasibility]** — L11 — The daily-booster arc and Turbo Streams (§ EXPERIENCE.md › Motion (daily))
-The arc needs both positions before the stream replaces the DOM.
-Fix: Run it from `turbo:before-stream-render` and dispatch `gameble:reserve-changed`.
-
-**[Feasibility]** — L12 — Grid scale (§ Collection grid)
-Large publisher sets far exceed the mock's 30 cards.
-Fix: Paginate or virtualise beyond ≈60 slots.
-
-**[Mockups]** — b3 — Hazard band turns orange when armed (§ DESIGN.md › Booster canister; EXPERIENCE.md › Motion)
-Not in the spine.
-Fix: Add.
-
-**[Mockups]** — b9 — Achievements gauge and tiles differ (§ DESIGN.md › Achievements, gauge-segmented)
-One segment per achievement (40), 10 px tall; tiles grouped OBTENUS / À OBTENIR; tile bar 4 px in `line-deep`; one column on the phone.
-Fix: Amend the gauge rule and tile spec.
-
-**[Mockups]** — b10 — Reveal label under dealt cards (§ DESIGN.md › Rarity icon / Result banner)
-"? ? ?" face down, then icon and tier name on reveal; mentioned only in passing.
-Fix: Describe it as a component.
-
-**[Mockups]** — b14 — Phone sheets and tab behaviour (§ DESIGN.md › Dialogs; EXPERIENCE.md › Motion, Tab bar)
-Grab handle; full-height picker; 240 ms rise (spine 220); sub-view slides 260/200 ms; current tab returns to root.
-Fix: Add.
-
-**[Mockups]** — b15 — Phone card detail controls (§ DESIGN.md › Collection (card detail))
-44 × 64 ◀ ▶ buttons, position line, actions pinned at the bottom.
-Fix: Add.
-
-**[Mockups]** — b16 — Per-screen top-bar contents (§ DESIGN.md › Top bar)
-Reserve chip on booster, unique-cards bar on collection, trade note, LIVE chip on the feed; shortened phone titles.
-Fix: List them.
-
-**[Mockups]** — b17 — Booster information panel has no spec (§ DESIGN.md › Panels)
-Kicker, GRAND CATALOGUE title, bracketed info panel, reserve pips, revealed counter; phone 44 px strip.
-Fix: Add a component entry.
-
-**[Mockups]** — b18 — The pixel pedestal is a ringed planet (§ DESIGN.md › Showcase / Shapes)
-200 × 200 art px planet with a lit ring.
-Fix: Describe it.
-
-**[Mockups]** — b20 — Selected grid card and phone RAPPORT fold (§ DESIGN.md › Collection)
-Pulsing 3 px accent frame with `aria-pressed`; fold shows "n cartes · n doublons" and a CARTES UNIQUES row.
-Fix: Add.
-
-**[Mockups]** — b21 — Small motion details (§ EXPERIENCE.md › Motion)
-Peu commune ring; public card idle float over a breathing shadow; detail re-entry 260 ms with a turn.
-Fix: Add to the table.
-
-**[Mockups]** — b22 — Card-back word position (§ DESIGN.md › Card backs)
-Words sit at the top or bottom, not only the bottom.
-Fix: Say "at the top or bottom".
-
-**[Mockups]** — c3 — Phone tray progress reads "1/5" (§ Phone mock, booster tray)
-The decision and EXPERIENCE say "CARTE n / 5".
-Fix: Add "CARTE", or the author accepts "n/5" and the spine is amended.
-
-**[Mockups]** — c4 — Two lime primaries on the empty-showcase hub (§ Both mocks, hub)
-"OUVRIR UN BOOSTER" and "RÉCUPÉRER" both lime; DESIGN says never more than one per view.
-Fix: Make the showcase button secondary, or write the exception into the spine.
-
-**[Mockups]** — c5 — Phone zoom draws rays behind low tiers (§ Phone mock, tray zoom)
-Blue rays on Commune, Peu commune and Rare; DESIGN allows no rays below Épique.
-Fix: No rays below Épique (mock).
-
-**[Mockups]** — d1 — Reserve countdown at 10/10 (§ EXPERIENCE `[ASSUMPTION]`)
-The mock keeps counting; the spine hides it.
-Fix: Visible or hidden?
-
-**[Mockups]** — d2 — Card-number threshold (§ DESIGN.md › Card face)
-Short "#4 215" on s and m; full form only on l/xl. DESIGN: full form from medium.
-Fix: Pick a threshold.
-
-**[Mockups]** — d3 — Missing-card slot label (§ DESIGN / EXPERIENCE collection)
-Mock shows "NON OBTENUE" instead of the number.
-Fix: Number, NON OBTENUE, or both?
-
-**[Mockups]** — d4 — Copy badge from x1 (§ Collection grid)
-The mock badges every owned card.
-Fix: From x1 or duplicates only?
-
-**[Mockups]** — d5 — Friend code format (§ Amis)
-Mock accepts 3–5 chars, dash, 4; spine says "ABCD-1234".
-Fix: Fix the format.
-
-**[Mockups]** — d6 — Sign-out landing (§ Settings)
-The mock lands on the public card page of the last pull; spine silent.
-Fix: Where does sign-out land?
-
-**[Mockups]** — d7 — Focus styles per element (§ EXPERIENCE › Focus)
-Hover fill + 6 px halo on controls, 3 px gold on grid cards, accent with offset on canister and dealt cards.
-Fix: Confirm and document per element (see the accessibility H4).
-
-**[Mockups]** — d8 — Pedestal drifts 6 px (§ Hub)
-Spine caps bobbing at 2 px (for cards).
-Fix: Confirm 6 px for scenery, or cap at 2 px.
-
-**[Mockups]** — d9 — Légendaire glow in showcase and public page (§ DESIGN › Rarity effects)
-The mock shows no glow there; the spine says it does.
-Fix: Add the glow to the mock, or narrow the spine.
-
-**[Mockups]** — d10 — Ticker and feed thresholds (§ EXPERIENCE `[ASSUMPTION]`)
-Ticker sample includes a Rare; feed fills in with dimmed lower tiers.
-Fix: Confirm the thresholds.
-
-**[Mockups]** — d11 — 6 px Silkscreen on card-xs (§ DESIGN › Typography)
-Below the stated 7 px floor; legibility unchecked.
-Fix: Confirm or raise (see accessibility H6).
-
-**[Mockups]** — d12 — Second back button on the booster (§ Desktop booster)
-"RETOUR AU PONT" beside "◀ PONT".
-Fix: Keep or drop.
-
-**[Mockups]** — d13 — Shorter phone labels and Amis order (§ Phone mock)
-"ÉCHANGER", "SIGNALER CE PROFIL", "SUPPRIMER", "CONNEXION STEAM".
-Fix: May phone copy differ?
-
-**[Mockups]** — d14 — Asynchronous export (§ Settings)
-"PRÉPARATION…" then toast "EXPORT PRÊT".
-Fix: Confirm the async export (CAP-14).
-
-**[Mockups]** — d15 — Friend showcase selection (§ EXPERIENCE `[ASSUMPTION]`)
-The player's summary takes the three rarest automatically.
-Fix: Confirm automatic, or let the player choose.
+### Critical (2)
+
+**[Accessibility]** — C1 — A module taller than about eight viewports never powers on, so its content stays invisible (spine and mock) (§ EXPERIENCE.md › Landing › Module; Motion › Landing module power-on; mock IntersectionObserver threshold 0.12)  
+An IntersectionObserver ratio is a share of the target's area. A module taller than viewport / 0.12 (8.3 viewports) can never reach 0.12, so its title and content stay at opacity 0. At 1280 × 720 at 400% (a 320 × 180 CSS px viewport) the limit is 1 500px; modules 02 and 05 in one column, and most modules with English copy or user text spacing, exceed it. Fails 1.4.10, 1.4.4, and 2.4.7 for keyboard users tabbing onto invisible links.  
+Fix: Replace the Module's first sentence: power on once when the top edge passes 85% of the viewport height, whatever the module's height, and at once when the module holds focus, is a jump target or is above the viewport on load; content is never held invisible longer than the power-on (about 0.6s); without JavaScript or the observer, modules are on from the start. Reduced motion keeps the 180ms fade under the same trigger.
+
+**[Accessibility]** — C2 — Signed out, nothing on the landing can pause what moves, blinks or updates (spine; brings back C3) (§ EXPERIENCE.md › Motion › Reduced motion; Accessibility Floor › Moving content; Landing › Lamp field, Live feed list, Moving cards)  
+"Animations réduites" lives in Profil et paramètres, which a visitor cannot reach; only the OS `prefers-reduced-motion` applies. The lamp sweeps forever beside (on the phone, behind) the h1; the live list adds an entry every 8s; the LIVE marker blinks; the 03 countdown ticks; rays turn behind the Épique and Légendaire moving cards; stars twinkle and drift. Fails 2.2.2 Pause, Stop, Hide (A) on the first screen.  
+Fix: Add a "Motion control" row: an "Animations réduites" toggle (`aria-pressed`) in the landing's top bar, first after the wordmark, 44 × 44 on the phone, applying the whole reduced-motion profile at once, kept in a first-party cookie so the server renders the reduced form, and carried into the account at sign-in. Append to Reduced motion: "For a visitor without an account: the landing's toggle when set, otherwise the system." The live list pauses on hover and focus; the lamp stops on the last card found and never runs more than 30s without a pointer.  
+Also raised: Feasibility (medium): auto-moving content with no signed-out control.
+
+### High (16)
+
+**[Rubric · Token completeness]** — The landing's type is given as raw sizes, not tokens (§ DESIGN.md › Components › Screens › Landing)  
+VT323 at 26, 22, 24, 36, 28 and 32px, and JetBrains Mono bold at 13, 16, 14, 11 and 10px, across 02–09 and the side gauge. Most match existing tokens (`screen-title` 26, `card-title-xl` 22, `screen-title-phone` 24, `banner-small` 36, `showcase-name-phone` 28, `showcase-name` 32, `button` 13/700, `card-title-l` 14/700, `kicker`/`label` 11/700, `kicker-phone` 10/700). A builder will hard-code them or guess which token was meant.  
+Fix: Name the token for each size, or add a small set of landing typography tokens (for example `landing-module-title`, `landing-panel-title`, `landing-figure`) and reference them.
+
+**[Rubric · State coverage]** — The live modules have no empty, low-activity, cold-load or failure states (§ EXPERIENCE.md › State Patterns; Open questions › Landing live module)  
+04's feed list ("five latest entries") has no rule for zero to four entries. The season facts can be zero (« Premières découvertes cette semaine ») or have no active season. The goal panels in 02 and 04 have no state for a missing goal, and the roadmap has none for missing data. The landing is the root for every signed-out visitor and goes live when the community is smallest.  
+Fix: Add State Patterns rows for the landing: feed with 0–4 entries, season or goal unavailable, zero counts (French `zero` plural forms), roadmap data missing, cold load (does the generic "—" rule apply?).  
+Also raised: Feasibility (medium): the live module's data definitions are also underspecified.
+
+**[Rubric · State coverage]** — The root route for a signed-in player is not committed (§ EXPERIENCE.md › IA, Landing and hub rows; Open questions › Signed-in players and the landing)  
+The hub's IA row no longer says it is the root after sign-in. The landing row covers only signed-out visitors, and "/fr and /en open the hub for them" is an `[ASSUMPTION]`. Routing is load-bearing for the first build ticket.  
+Fix: Commit the rule in the IA and in State Patterns (for example "Signed in: /fr and /en open the hub; the landing is not reachable" or "reachable through …").  
+Also raised: Feasibility (medium): many other signed-out entry points are also undecided.
+
+**[Rubric · Inheritance discipline]** — The spines have moved past their sources (§ spec CAP-1; brotherhood-tone.md; EXPERIENCE.md › State Patterns › Sign out / Account deleted; Open questions › Spec follow-ups)  
+`spec-gameble.md` has no capability for the landing, the roadmap or the roadmap data. CAP-1 still reads "signing out lands on the hub, signed out", while EXPERIENCE now lands sign-out and deletion on the landing. `brotherhood-tone.md` ("at most one line per screen") does not record the landing exception. EXPERIENCE lists these only as non-blocking "Spec follow-ups", so a story built from CAP-1's acceptance criteria will implement the wrong redirect.  
+Fix: Update the spec (a landing and roadmap capability, CAP-1's sign-out destination) and `brotherhood-tone.md` before ticketing, or mark the follow-up as blocking the landing.
+
+**[Accessibility]** — H1 — Moving cards can hide the focused element and the text, are gated by width rather than by pointer, and block scrolling on touch (spine and mock) (§ DESIGN.md › Landing › Moving cards; EXPERIENCE.md › Landing › Moving cards; Accessibility Floor › Landing; Responsive › Landing on desktop)  
+A 208 × 312 `card-l` near the edges covers the start of the 1120px column, where every heading, link and button is left-aligned; Tab scrolls a link into view and a card can rest on it (2.4.11). At 200% zoom on 1440px the viewport is 720 CSS px and the cards cover about a third of the column. Tablets from 720px get the cards, and `touch-action: none` turns a scroll into a drag. A click aimed at a link under a card grabs the card.  
+Fix: Show the cards only with `(hover: hover) and (pointer: fine)` and from a width where a card overlaps the column by at most 48px (about 1440 CSS px). A card fades out while focus is inside main and never rests over a focused element, lets pointer events through outside its own box, never sets `touch-action: none`, and always moves relative to the content when scrolling. Replace the Floor's `[ASSUMPTION]` with a pointer to that rule.  
+Also raised: Feasibility (high): the moving cards can rest over text, links and calls to action.
+
+**[Accessibility]** — H2 — On the phone the hero text sits over lamp-lit card art at 1.2 to 3.4:1 (spine and mock) (§ DESIGN.md › Landing › Lamp field; Layout › Landing on the phone; EXPERIENCE.md › Responsive › Landing on the phone)  
+The lamp opens the veil to 0 in its inner disc and to .38 in the next ring. Over a bright cover `{colors.text-bright}` falls to 1.17–3.35:1, below 1.4.3 and against the spine's "every overlay applied" rule. A 12px blurred halo is not a background. On the phone the lamp always sweeps, so the background behind the h1 keeps changing.  
+Fix: On the phone the lamp never opens the veil behind the hero copy: the copy's box (kicker, hook, line, button, plus 8px) keeps the full `{components.lamp.veil}`, and no card's lit part falls under it. Measure text contrast over the brightest cover with the lamp at its worst position.  
+Also raised: Rubric (medium): no contrast target for text over the lamp field.
+
+**[Accessibility]** — H3 — The Steam image's accessible name does not contain its visible words (spine; app-wide) (§ EXPERIENCE.md › Copy deck › Landing › Top bar; Accessibility Floor › Links and sign-in; DESIGN.md › Steam sign-in)  
+Valve's image shows "Sign in through STEAM", in English. Its accessible name, "Se connecter avec Steam (ouvre Steam)", starts with French words not in the image, so a speech-input user saying "click Sign in through Steam" gets no match (2.5.3, A) on the page's only sign-in path.  
+Fix: Valve's image gets `alt=""`, and the link's name is visually hidden text that starts with the image's words: `<span lang="en">Sign in through Steam</span> : se connecter avec Steam (ouvre Steam)`, everywhere the image appears.
+
+**[Feasibility]** — The lamp as mocked breaks AD-27 and never goes idle (§ DESIGN.md › Landing › Lamp field; EXPERIENCE.md › Landing › Lamp field; mock heroLamp)  
+The mock moves the veil's hole by rewriting custom properties inside a `mask-image: radial-gradient(...)` every rAF frame: a full repaint of the masked layer, not a compositor-only change. AD-27 allows infinite animations only on `transform` or `opacity` and requires loops to stop when nothing moves. Once every card is found the lamp wanders forever, and the frame loop keeps running while the hero is off-screen.  
+Fix: Draw the veil as one oversized element with a fixed radial hole and move it with `translate3d`; run the power-on as five class swaps; run the rAF loop only while the hero intersects the viewport and the tab is visible; settle on the last card and stop, and drop the endless wander from the spine; replace the 18% bottom `mask-image` fade with a ground-colour gradient overlay; put the motion maths in a pure `lib/` module with vitest coverage.  
+Also raised: Accessibility C2 asks the lamp to stop for the same reason.
+
+**[Feasibility]** — The moving cards can rest over text, links and calls to action (§ DESIGN.md › Landing › Moving cards; EXPERIENCE.md › Landing › Moving cards, Accessibility)  
+The cards catch the pointer and sit "near the left and right edges" over the 1120px column; below about 1540px they overlap content and can rest on the hero's lime button, 08's « Soutenir » or Valve's image, where a click drags the card. Tab scrolls the focused link into view, the scroll moves the cards, and a card can land on the focused element (2.4.11). The "user scrolls past" `[ASSUMPTION]` holds while scrolling, not at rest.  
+Fix: Pick one rule: (a) cards live only in the gutters outside `{spacing.landing-content-max}` and appear only when both gutters can hold a `card-m` (cheaper, testable); or (b) exclusion zones around interactive elements, and a card intersecting the focused element fades and stops catching the pointer.  
+Also raised: Accessibility H1 (same finding).
+
+**[Feasibility]** — The most visited page has no caching or throttling story (§ EXPERIENCE.md › Landing › Live feed list, Goal panels; DESIGN.md › 04)  
+Every signed-out hit on /fr or /en reads the season, the goal, `Game::FeedEntries.call(nil)`, five feed cards, 15–30 sample cards, three aggregate counts, the odds and the roadmap. The page cannot be edge-cached (CSRF on Valve's POST form, session-derived CSP nonce, session cookie). `PublicReadThrottle` does not cover the root, and every visitor opens an Action Cable websocket.  
+Fix: Fragment-cache each data block per locale (feed keyed on the latest entry, goal on its count, sample cards on the published season, roadmap on its file digest; 30–60s TTL for aggregates). Extend the throttle to signed-out GETs of `/:locale`. Subscribe to the cable stream only when module 04 comes into view, or poll a cached Turbo Frame every 30–60s. Record the choice in the plan.
+
+**[Feasibility]** — The roadmap sync collides with three repo rules and with parallel work (§ EXPERIENCE.md › Landing › Roadmap; Implementation notes › Landing roadmap data; memlog "Roadmap sync")  
+The generated data must carry French and English wording, but AGENTS.md puts every string in `en.yml` and `fr.yml`; it must not carry planning ids, yet epics are identified by them; the status source is unstated; and a committed generated file that changes on nearly every story PR would conflict across parallel sessions and fail CI drift checks.  
+Fix: Shape it like `script/pixel_art/export.mjs`: opt-in frontmatter `roadmap: { key, order, fr, en }`; status from the plan's `status:` only; a generator writing `config/roadmap.yml` and `config/locales/roadmap.{fr,en}.yml`, read by `i18n-tasks`, with the AGENTS.md i18n rule amended; `--check` in CI; only opted-in entries written. The alternative (generate at Kamal pre-build, never commit) is the author's call.
+
+**[Feasibility]** — The lore gate does not fit a develop-to-main release train (§ EXPERIENCE.md › Landing › Lore panel; States › Lore text not written)  
+Whatever merges to `develop` ships with the next release, and the repo uses no feature flags (AD-28). If the root switch merges before the lore exists, the landing ships with an empty slot. The lore also needs an English text, which nothing mentions, and its unknown length decides whether the lore panel balances the goal panel.  
+Fix: Make the routing switch its own last story, after the lore story; until then serve the landing on a staff-only route. Ask the lore session for French and English text and a length bound.
+
+**[Copy]** — The « Découvrez » tile promises a feature that is not in the MVP (§ 02 · La Confrérie, « Le premier joueur à tirer un jeu y grave son nom… »)  
+Recording the first discoverer's name is the « Pioneer » item of `later-roadmap.md` ("Nothing here is built in the MVP"). At launch a first discovery is only a feed entry and its « Première découverte » chip. « y » also has no clear antecedent.  
+Fix: Until Pioneer is scoped: « Le premier joueur à tirer un jeu l'annonce dans le fil, pour toute la Confrérie. »
+
+**[Copy]** — Module 05 sells post-launch features as things to unlock now (§ 05 · « Dos de cartes », « Sets et paliers »)  
+CAP-20 (card backs) and CAP-22 (titles, menu themes) come after the public launch. At launch bronze and silver tiers give only a celebration and a feed line. The page contradicts itself: 06 shows « Dos de cartes et thèmes » as « À venir ».  
+Fix: Make the card-back tile conditional on CAP-20 or mark it « Bientôt » to match 06; for sets: « … et franchissez les paliers bronze, argent et or. » with no reward claim.
+
+**[Copy]** — The open-source claims are not true yet (§ 07 « Le code est entièrement libre… », « Licence libre… »; footer « Code source »; « Voir le projet »)  
+The repository has no LICENSE file and is still private. Shipped as written, the landing would name a licence that does not exist and link to a private repository.  
+Fix: Add a ship gate next to the lore one in State Patterns: the repository is public and licensed before the landing ships. Name the licence in the line.
+
+**[Copy]** — The live weekly goal appears twice, word for word (§ 02 goal panel; 04 season panel; 05 tile and subtitle; 02 subtitle)  
+Both 02 and 04 show « Toute la Confrérie ouvre 50 000 boosters, ensemble. », « 31 420 / 50 000 », the same gauge and « Fin lundi à … »; the goal comes up three more times. A visitor sees the same block twice within two screens, which reads like a layout bug.  
+Fix: Keep the live goal in 02; give 04's right column the season facts plus one other item (the week's latest first discovery, the number of participants).
+
+### Medium (38)
+
+**[Rubric · Flow coverage]** — No flow walks the landing's main entry (§ EXPERIENCE.md › Key Flows 5–6; IA › Landing row)  
+The IA makes the landing the root at /fr and /en, but Flows 5 and 6 both arrive through a shared card and « Découvrir ». No flow covers a visitor who types the address or follows a plain link, or the hero's « Embarquer sur le pont » → signed-out hub → sign-in panel branch.  
+Fix: Add a short variant to Flow 5, or a Flow 7, for a direct visitor at /fr, including the detour through the signed-out hub and its sign-in panel.
+
+**[Rubric · Flow coverage]** — Flow 5's climax depends on an achievement toast that is not specified (§ EXPERIENCE.md › Flow 5 step 7; Open questions › Achievement toast)  
+"Toasts and her first achievements come quickly" is tagged `[GAP: no achievement-earned toast is specified yet]`. A consumer cannot build the journey's payoff.  
+Fix: Specify the achievement-earned toast (Component Patterns row, Copy deck key, DESIGN toast variant), or restate the climax with existing components (set-tier toasts, the Succès counts).
+
+**[Rubric · Token completeness]** — The title sizes contradict their tokens (§ DESIGN.md › Landing › Module header, Hero; Layout & Spacing › per-screen table, Landing row)  
+The module title is "44px on a 48px line, the `{typography.hero}` size", but `hero` is 44px on a 44px line, and the 32px phone size has no token. The hero hook is at `{typography.public-title}` size, while the Layout table commits "title 42px" at 900–1179px, and the same bullet notes the mock sets 42px and 38px.  
+Fix: Commit one value per width as a token (for example `public-title-medium: 42px`, a module-title token with its own line height and phone size), and drop the mock commentary once settled.  
+Also raised: Feasibility (low): the hero's title size is ambiguous.
+
+**[Rubric · Token completeness]** — No contrast target for text over the lamp field on the phone (§ DESIGN.md › Landing › Lamp field; Layout & Spacing › Landing on the phone)  
+The hero text sits on the field, the lamp opens the veil (`{components.lamp.veil}`) behind it, and only a "soft `{colors.ground}` text shadow" with no value protects it. The "measured with every overlay applied" rule cannot be checked while the lamp moves.  
+Fix: State that the hero text keeps 4.5:1 with the lamp fully open behind it, give the text shadow's value, or keep the lamp's opening off the text block.  
+Also raised: Accessibility H2 measures it at 1.17–3.35:1.
+
+**[Rubric · Component coverage]** — Nothing says where the sample cards come from (§ EXPERIENCE.md › Landing; memlog "Landing content")  
+The lamp field cards, the moving cards, the 01 rarity cards and the reveal demo's "next sample" are all shown, and the 01 cards' accessible name must give title, studio, year, genre, rarity and number. Neither spine says who chooses them, from which pool, whether they are real catalog cards of the current season, or how they follow a season change.  
+Fix: Add a "Landing sample cards" row: a curated list of real catalog cards, chosen by whom, refreshed when, and what happens if one leaves the catalog.  
+Also raised: Feasibility (medium) proposes `config/landing.yml` with a slug per slot and a season fallback.
+
+**[Rubric · State coverage]** — Focus after each step has no landing rows (§ EXPERIENCE.md › Accessibility Floor › Focus after each step)  
+A side-gauge marker jump (focus to the module's h2?), « Participer à l'écriture » scrolling to 07, the reveal demo after « Révéler » / « Recommencer », and the account-deleted toast arriving on the landing.  
+Fix: Add these rows.  
+Also raised: Accessibility M1 proposes the gauge jump rule.
+
+**[Rubric · State coverage]** — Touch at desktop widths is not covered for the moving cards (§ EXPERIENCE.md › Landing › Moving cards; Responsive › Landing on desktop)  
+Moving cards appear "from 720px" and move by "a pointer drag", but a touch tablet at or above 720px gets no rule: does a touch drag move the card or scroll the page, and can a touch user move a card that covers text?  
+Fix: Turn moving cards off for coarse pointers, or state the touch-drag rule.  
+Also raised: Accessibility H1 and Feasibility (high, medium) raise the same gate.
+
+**[Rubric · Bloat & overspecification]** — DESIGN.md › Landing duplicates the Copy deck (§ DESIGN.md › Landing; EXPERIENCE.md › Copy deck › Landing)  
+About thirty French strings are quoted in DESIGN (« MISSION EN COURS », « JEUX RETROUVÉS », « ARCHIVE 001 », « SOUTENIR GAMEBLE »…), sometimes in a different form: « TROUVÉ » vs "Trouvé", « Réserve 10 / 10 » vs "Réserve : 10 / 10". Two sources for copy will drift.  
+Fix: DESIGN names the slot and its style only; the strings live in EXPERIENCE › Copy deck › Landing, and one line states that kickers and labels render in capitals through style.  
+Also raised: Copy (low) asks for the same sentence-case rule.
+
+**[Rubric · Inheritance discipline]** — The landing's star-field drift contradicts DESIGN (§ EXPERIENCE.md › Motion; DESIGN.md › Elevation & Depth)  
+EXPERIENCE lists the two drifting star layers as a landing-only exception under `[ASSUMPTION]`; DESIGN still says the star field "stays still … (no sideways shift)" and records no exception.  
+Fix: The author decides: record the exception in DESIGN's atmosphere bullet and the Landing section, or drop the drift.  
+Also raised: Feasibility (medium): the drift also contradicts AD-27; drop it.
+
+**[Rubric · Inheritance discipline]** — The lime rule is reinterpreted, not amended (§ DESIGN.md › Colors; Buttons › Primary button; Landing › Lime)  
+"Never more than one lime button per view" and "Primary button … One per view" are unchanged, while the Landing has two lime buttons under an `[ASSUMPTION]` that "view" means a screenful.  
+Fix: Confirm with the author, then state the per-screenful reading once in Colors and add « Embarquer sur le pont » and « Soutenir » to the Primary button list.  
+Also raised: Feasibility (low): a tall viewport can still show both.
+
+**[Accessibility]** — M1 — Side gauge: names break Label in Name in the mock; focus after a jump, tab position and target width are open (both) (§ EXPERIENCE.md › Landing › Side gauge; Copy deck › Side gauge; Interaction Primitives › Keyboard; mock #readout-list)  
+The mock's `aria-label="Mission"` replaces the visible "00" (2.5.3). Nothing says where focus goes after a jump (2.4.3). The ten links come before main in the DOM: ten tab stops before the hero's action. Markers are about 21px wide (2.5.8 passes only through the spacing exception).  
+Fix: Each marker's name starts with its visible number ("00 · Mission"; drop the `[ASSUMPTION]`). A jump moves focus to the module's h2 (`tabindex="-1"`, scroll-margin), instantly under reduced motion. `aria-current="location"` on the current marker only. The gauge follows main in the DOM and each marker is at least 24 × 24.  
+Also raised: Rubric (medium): focus after each step has no landing rows.
+
+**[Accessibility]** — M2 — The live list updates under the reader with no pause and no stated announcement rule (spine) (§ EXPERIENCE.md › Landing › Live feed list; Accessibility Floor › Feed and ticker)  
+2.2.2 for auto-updating content. A screen-reader user reading in browse mode loses their place when every row shifts (the mock re-renders the whole list every 8s). The spine does not say whether the Floor's 30s status line runs on the landing.  
+Fix: Insert new entries as one node at the top and remove the last; never re-render. Pause while hovered, while focus is inside the module, and under the motion control; buffered entries arrive together on resume. No status line on the landing. « Boosters ouverts aujourd'hui » follows the same pause.
+
+**[Accessibility]** — M3 — The 01 rarity row cannot be swiped sideways on the phone when the finger starts on a card (spine) (§ EXPERIENCE.md › Interaction Primitives › Tilt; Landing › Rarity cards; DESIGN.md › Layout › Landing on the phone)  
+Under the house tilt rule cards accept only vertical panning (`pan-y`), so a horizontal swipe on a card is lost and the Rare, Épique and Légendaire cards cannot be reached by touch. The row's one tab stop also stays on desktop, where it does not scroll.  
+Fix: In the phone's sideways row the cards do not tilt and use `touch-action: pan-x pan-y`. The row is a tab stop only while it overflows. Same for the 06 roadmap row.
+
+**[Accessibility]** — M4 — « Embarquer sur le pont » and « Découvrir » do not say where they lead, and one destination has two names (spine) (§ DESIGN.md › Landing › Hero, Public card page; EXPERIENCE.md › Copy deck › Landing, Public page; Open questions › Landing final call)  
+The hero's lime button opens the signed-out hub, but its name gives no hint of "look around without an account", next to a Steam image that does sign in (2.4.4, 2.4.6). « Découvrir » has no object. The signed-out hub is « Embarquer sur le pont » on the hero and public page but « Visiter le pont sans compte » in 09 (3.2.4).  
+Fix: Hero and public page: accessible name « Embarquer sur le pont, visiter le jeu sans compte ». Public page: « Découvrir gameble ». 09's hub link uses the same visible text and name as the hero's.  
+Also raised: Copy (medium) suggests the opposite resolution for 09: keep « Visiter le pont sans compte ».
+
+**[Accessibility]** — M5 — Examples read as real events and real progress to a screen reader (both) (§ EXPERIENCE.md › Accessibility Floor › Landing; DESIGN.md › Landing › 02 tiles, 05 panels)  
+04 shows the real feed in the same sentence forms as 02's tiles (« Nina a reposté Hades ») and 05's goal and achievement rows (« Premier booster obtenu »), none prefixed. A screen-reader user cannot tell illustrations from live data (1.3.1). The spine names only two examples.  
+Fix: Every example (02's four tiles, 03's illustrations, 05's six visuals) is either hidden from assistive technology or named as one block starting « Exemple : ». Only 04 and the goal panels carry real data.
+
+**[Feasibility]** — Mock patterns the CSP blocks (§ DESIGN.md › Landing › Lamp field, Side gauge; mock <head>)  
+Inline `<script>` adding `.js` before first paint, inline `<style>`, `style="--k:…"` through `innerHTML`, `el.style.left/top`, and the full 92KB JetBrains Mono as `data:` URIs, twice. Under `script-src 'self'` there is no pre-paint hook.  
+Fix: Modules visible by default, with the power-on armed at connect only for modules not yet in view; hero entrance in pure CSS; lamp slots as nth-child or modifier classes in `landing.css`; staggers via nth-child or `el.style.setProperty`; self-hosted subsetted woff2.
+
+**[Feasibility]** — JetBrains Mono is not in the app (§ DESIGN.md › Typography; app/frontend/fonts/)  
+The app ships Space Mono; no ticket covers the switch DESIGN.md made on 2026-10-13. Built alone, the landing would be the only JetBrains Mono page, or would carry an app-wide font change.  
+Fix: A shell story before the landing: latin and latin-ext subsets at 400 and 700 with the OFL text, preload, Space Mono removed, a pass over fixed-width chips and top-bar titles.
+
+**[Feasibility]** — The signed-out root switch leaves many entry points undecided (§ EXPERIENCE.md › IA, Signed-out visitors, States; DESIGN.md › Signed-out hub)  
+Not settled: the signed-out hub's own URL; where `refuse_in_locale` sends a signed-out deep link; the phone tab bar's PONT; Esc "returns to the hub"; the back button rule; `sessions#failure`'s fallback; whether a signed-in player can see the landing. The landing GET must be `public_read?`, and there is no `<title>`, meta description or Open Graph image.  
+Fix: Add a table listing each entry point and its target (landing or signed-out hub at `/:locale/bridge` or similar); one `hub_path` helper; branch `PagesController#home` on `current_player`; add the meta copy to the copy deck.  
+Also raised: Rubric (high): the signed-in root is not committed.
+
+**[Feasibility]** — The live module's data is underspecified (§ DESIGN.md › 04; EXPERIENCE.md › Landing › Live feed list; Open questions)  
+« Joueurs actifs cette semaine »: calendar week or last seven days, which zone? « Boosters ouverts aujourd'hui » and « Premières découvertes cette semaine »: whose day or week? Whether figures update live (no broadcast exists). `LiveFeedJob` replaces `#live-strip` wholesale, which cannot slide one entry in.  
+Fix: Settle each figure as a UTC goal week or a rolling 24h; read figures at page load, cached ≤ 60s, no live update; extend `LiveFeedJob` to prepend to a `landing-feed` target and trim to five with a custom stream action; with fewer than five entries use the feed's empty copy.  
+Also raised: Rubric (high): the live modules have no empty or failure states.
+
+**[Feasibility]** — Nothing says where the sample cards come from (§ memlog "Landing content"; DESIGN.md › Lamp field, 01, Moving cards; EXPERIENCE.md › Reveal demo)  
+Cards appear in the lamp, 01, the moving cards, the reveal samples and thumbnails in 02, 03 and 05, "chosen" by no stated rule. A random pick defeats caching and tests; a fixed slug can disappear when seasons change.  
+Fix: `config/landing.yml` names a slug per slot, falling back to the published season's top card of the slot's rarity; a test checks the list against fixtures.  
+Also raised: Rubric (medium), same finding.
+
+**[Feasibility]** — Cover weight on phones (§ DESIGN.md › Landing; AD-27 budget)  
+Production art is Steam's `library_600x900.jpg` (about 80–200KB each) through the pixel filter; the mock's tiny placeholders prove nothing. Counted naively the landing shows about 30 covers, five on the phone's first screen.  
+Fix: Reuse a curated set of 8 to 10 games across modules; keep lazy drawing and `content-visibility: auto`; measure LCP, frame time while the lamp sweeps and bytes on the reference low-end Android.
+
+**[Feasibility]** — The star-field drift contradicts AD-27 (§ EXPERIENCE.md › Motion › Landing star field)  
+The app's star field is one fixed, still, `data-turbo-permanent` layer. The mock translates two page-tall (about 9000px) box-shadow layers on scroll: huge composited layers, and a transform left on the permanent layer would follow the visitor into the hub.  
+Fix: Drop the drift; if kept, use a landing-only viewport-fixed tileable layer translated modulo its tile height, removed on disconnect, and amend AD-27.  
+Also raised: Rubric (medium): the drift contradicts DESIGN.
+
+**[Feasibility]** — The roadmap module's size and target are open (§ DESIGN.md › 06; EXPERIENCE.md › Roadmap, Open questions)  
+Is "one row of six" a cap? "A few stories (two in the mock)" clashes with the balance rule once data varies. « Voir toute la feuille de route » points to a page that is "decided, not designed".  
+Fix: At most six milestones by `order`, exactly two stories each; hide the link until the roadmap page exists, or build a plain list page in the sync ticket.
+
+**[Feasibility]** — The English copy is unwritten and has no review gate (§ EXPERIENCE.md › Open questions)  
+About 150 strings plus the English rarity names, still open app-wide; `i18n-tasks` checks presence, not voice.  
+Fix: Mark the landing's copy as HITL in its plan, or write it in a copy ticket ahead of the build.
+
+**[Feasibility]** — Auto-moving content, and no way to stop it for a signed-out visitor (§ EXPERIENCE.md › Landing; Accessibility)  
+The lamp sweeps well over 5s and the live list updates by itself (2.2.2); « Animations réduites » lives in signed-in settings.  
+Fix: The lamp stops once every card is found; give the live list a pause, or update it only when the module comes into view; write the choice into the spine.  
+Also raised: Accessibility C2 (critical), same gap.
+
+**[Feasibility]** — "Desktop" and "touch" are defined by width in one place and by input in another (§ EXPERIENCE.md › Landing › Moving cards, Lamp field; mock pointerType gate)  
+On a 1024px iPad or a touchscreen laptop, a touch-draggable card needs `touch-action: none`, and a scroll that starts on it drags the card instead.  
+Fix: Gate the moving cards and the pointer-driven lamp on `(min-width: 720px) and (hover: hover) and (pointer: fine)` and write that into the spine.  
+Also raised: Accessibility H1; Rubric (medium) touch at desktop widths.
+
+**[Copy]** — Agreement error: « Collectionnez-les toutes » (§ 05 « Sets et paliers »)  
+« les » stands for a masculine or mixed list, so it takes « tous ». Tiers are crossed, not "progressed"; franchise, studio and OVNI sets have no tiers. The phrase echoes a Pokémon slogan.  
+Fix: « Complétez-les tous et franchissez leurs paliers. »
+
+**[Copy]** — Factual slip: « Chaque booster cache cinq cartes face cachée » (§ 03)  
+The daily booster holds 3 cards (CAP-16), and « cache … cachée » repeats itself.  
+Fix: « Un booster contient cinq cartes face cachée. Retournez-les pour les découvrir. »  
+Also raised: Rubric (low): conflicts with the rule against game figures.
+
+**[Copy]** — The 03 subtitle does not match the steps (§ 03, « Ouvrir, révéler, collectionner, échanger. »)  
+The four steps are « Rejoignez-la », « Accumulez des boosters », « Découvrez de nouvelles cartes », « Agrandissez votre collection ».  
+Fix: « Rejoindre, accumuler, révéler, collectionner. », or align the step titles.
+
+**[Copy]** — The end day can be wrong in the visitor's time zone (§ 02 and 04, « Fin lundi à {heure}. »)  
+The week ends Monday 00:00 UTC; in the Americas that is still Sunday evening locally. « aujourd'hui » has the same question.  
+Fix: « Fin {jour} à {heure} » with the day computed locally, or « Se termine dans {durée} »; state which day « aujourd'hui » counts.
+
+**[Copy]** — The spec's term for the weekly goal is not used consistently (§ 04, 02, 05, 06)  
+The spec makes « objectif communautaire » the player-facing term; the landing also uses « Objectif de la semaine » and « Un objectif pour tous ». « Remplissez des objectifs » clashes too.  
+Fix: Label 04 « Objectif communautaire »; card backs: « Atteignez l'or d'un set ou réussissez un objectif communautaire pour en débloquer d'autres. »
+
+**[Copy]** — The brand's case varies (§ Hero; 08; footer; public page)  
+« Gameble est un jeu… » (hero) vs « gameble est gratuit et ouvert. » (08) and the spec's « gameble ».  
+Fix: Pick one rule (always lowercase, or a capital at sentence start only), record it in Voice and Tone, align hero and 08.
+
+**[Copy]** — The hero line is ambiguous (§ Hero, « … basé sur la bibliothèque publique de jeux Steam. »)  
+On Steam « bibliothèque » means a player's own games, but owning a game never grants its card.  
+Fix: Author's call: « … basé sur le catalogue de jeux Steam. »
+
+**[Copy]** — The narrators' and artists' calls lead nowhere (§ 02 « Participer à l'écriture »; 07 « Artistes », « Narrateurs et scribes »)  
+The link only scrolls to 07, whose only action is « Voir le projet » (GitHub).  
+Fix: Name a channel for non-developers and link to it; if the link only scrolls, label it « Voir les postes ouverts ».
+
+**[Copy]** — The feed's tier entry builds broken French (§ mock entryHTML; Copy deck › Feed)  
+It produces « Léa atteint l'bronze du set … »; the copy deck gives only the argent example.  
+Fix: Write all three forms: « atteint le bronze / l'argent / l'or du set {set}. »
+
+**[Copy]** — The season note can be misread (§ 01, « Une rareté par saison » / « À chaque saison, les raretés sont recalculées. »)  
+The title reads as "one rarity tier per season", and the line can make a visitor fear their cards will be downgraded, while each copy keeps its minted rarity.  
+Fix: Title « Des raretés de saison »; line « … recalculées ; vos cartes gardent la leur. »
+
+**[Copy]** — The « Contribuez » tile does not match its title (§ 02, « Tirages notables, découvertes, échanges, sets complétés : tout s'y affiche, en direct. »)  
+Already flagged `[ASSUMPTION]`. « y » has no antecedent, and the text describes the feed that 04 shows in full.  
+Fix: Point it at contributing (« Récit, dessin, musique, code : la Confrérie se construit aussi avec vos talents. ») and link to 07.
+
+**[Copy]** — The hero action does not do what the hook asks (§ Hero « Rejoignez-la. » / « Embarquer sur le pont »; 09 hub link)  
+The button opens the signed-out hub, so a visitor may read « Embarquer » as joining; « embarquer sur le pont » is an odd idiom. The label is author-approved. For 09, a second « Embarquer… » beside Valve's image would read as the sign-up.  
+Fix: Settle 09 on « Visiter le pont sans compte »; optionally consider « Visiter le pont » for the hero.  
+Also raised: Accessibility M4 recommends one name for both links instead.
+
+### Low (44)
+
+**[Rubric · Flow coverage]** — Flows 5 and 6 rest on four assumptions (§ EXPERIENCE.md › Flow 5 steps 1, 4, 5; Flow 6 step 2)  
+Who shared the card, which items Camille plays with, which Steam entry she uses, and whether Yanis uses the gauge are all `[ASSUMPTION]`s, so the steps read as illustrative rather than committed.  
+Fix: Confirm them, or rephrase as "for example" so no one reads them as required behavior.
+
+**[Rubric · Token completeness]** — Several visual values have no token (§ DESIGN.md › Landing; Layout & Spacing › Landing on the phone)  
+"Faint accent glow", "hard dark drop shadow 18px below", the soft text shadow, the lamp field's ~500px height, 224/184px illustration heights, 46px step squares, 24px roadmap nodes, 216px roadmap columns and the 176px example minimum height. The hero's "capped at 1120px" restates `{spacing.landing-content-max}` as a number.  
+Fix: Move the reused ones into `components.lamp` or new `landing-*` spacing tokens, and refer to `landing-content-max` by name.
+
+**[Rubric · Component coverage]** — The same parts have different names across the two files (§ DESIGN.md › Landing; EXPERIENCE.md › Landing)  
+DESIGN "Module header" / EXPERIENCE "Module"; "Hero" / "Hero action"; "Lamp field" / "Lamp field (the lamp hero)"; DESIGN "06 · Feuille de route (the roadmap)" and "09 · Embarquement (the final call)" / EXPERIENCE "Roadmap (06)" and "Final call (09)".  
+Fix: Use one name per part in both files.
+
+**[Rubric · Component coverage]** — No in-row keyboard rule for the rarity row and the roadmap row (§ EXPERIENCE.md › Landing › Rarity cards, Roadmap; Interaction Primitives › Keyboard)  
+Each row is "one tab stop", but nothing says how a keyboard user moves between the cards or milestones inside it. The Keyboard primitive lists only the gauge markers for the landing.  
+Fix: Add the in-row keys (arrow keys, or "the container scrolls; items are not focusable") to the Keyboard primitive.  
+Also raised: Accessibility M3 adds: tab stop only while the row overflows.
+
+**[Rubric · State coverage]** — No way to switch language on the landing (§ EXPERIENCE.md › Landing; Accessibility Floor › Language)  
+A signed-out visitor has no settings, and the landing is both /fr and /en; nothing says how a visitor who arrived on the wrong locale changes it.  
+Fix: State whether the landing (or its footer) carries a FR/EN switch, or that the URL segment is the only way.
+
+**[Rubric · Visual reference coverage]** — Inspiration cites direction letters no reader can open (§ EXPERIENCE.md › Inspiration, "Lifted from the landing renders")  
+"Direction C's console" and "direction A's card field" name no file; the renders are in `.working/landing-direction-a.html` / `-c.html`.  
+Fix: Link the two `.working` files, or describe what was lifted without the direction letters.
+
+**[Rubric · Bloat & overspecification]** — A copy rule sits in Do's and Don'ts (§ DESIGN.md › Do's and Don'ts)  
+The row on money, game figures and technical details repeats EXPERIENCE › Voice and Tone almost word for word. It is a copy rule, not a visual one.  
+Fix: Keep it in Voice and Tone and point to it.
+
+**[Rubric · Bloat & overspecification]** — The roadmap's build process appears twice (§ EXPERIENCE.md › Landing › Roadmap row; Implementation notes › Landing roadmap data)  
+Opt-in fields, generating script, drift check and the sync rule are ticket material, not behavior.  
+Fix: One line in the Roadmap row: "reads app roadmap data; its sync is a prerequisite ticket".
+
+**[Rubric · Bloat & overspecification]** — The phone landing is spread over three places (§ DESIGN.md › Layout per-screen table; "Landing on the phone" bullet; Landing section)  
+The 216px roadmap column appears only in the "Landing on the phone" bullet.  
+Fix: Keep phone variants in the Landing section and point to them from Layout.
+
+**[Rubric · Inheritance discipline]** — `lore.md` is missing from DESIGN's sources (§ DESIGN.md frontmatter)  
+DESIGN's Landing framing (the Brotherhood's console, the lamp searching for lost games) draws on it, but only EXPERIENCE lists it.  
+Fix: Add it to DESIGN's sources.
+
+**[Rubric · Inheritance discipline]** — Two approved lines conflict with the rule against game figures (§ EXPERIENCE.md › Voice and Tone; Copy deck › Landing)  
+03 « Chaque booster cache cinq cartes » and 04 « Récompense : un booster de cinq cartes, au moins une Épique ». Voice and Tone exempts only « Dix boosters vous attendent. »  
+Fix: List them as kept exceptions, or reword.  
+Also raised: Copy (medium) also finds « Chaque booster » factually wrong.
+
+**[Accessibility]** — L1 — Module labels are outside the headings; some heading-like lines are paragraphs (both) (§ DESIGN.md › Landing › Module header, 07, 08; EXPERIENCE.md › Accessibility Floor › Landing)  
+The gauge says "Concept" while the h2 says « Chaque carte est un jeu Steam. ». 07's « Nous recrutons… » and 08's support line look like headings but are paragraphs. The mock makes about thirteen region landmarks.  
+Fix: Include the module label in the h2's accessible name; make 08's support line an h3; only main, the gauge's nav, the top bar and the footer are landmarks.
+
+**[Accessibility]** — L2 — External and new-tab links lack their hidden copy (spine) (§ EXPERIENCE.md › Copy deck › Landing (07, 08, footer); Accessibility Floor › Links and sign-in)  
+Only « Voir le projet » names its new tab; « Soutenir » and « Code source » also leave for another site in a new tab.  
+Fix: Add hidden suffixes « (GitHub, nouvel onglet) » and « (site de dons, nouvel onglet) ».
+
+**[Accessibility]** — L3 — Language of parts (spine) (§ EXPERIENCE.md › Accessibility Floor › Language; Copy deck › Landing)  
+« LIVE » and « REPOST » are read with French pronunciation on a French page (3.1.2).  
+Fix: The interface's English words carry `lang="en"`.
+
+**[Accessibility]** — L4 — Under reduced motion the lamp freezes on « 2 / 6 » and the pointer no longer steers it (spine and mock) (§ EXPERIENCE.md › Motion › Reduced motion › Landing)  
+No content is lost, but a reduced-motion visitor gets a counter that never moves and four cards no one can find.  
+Fix: Under reduced motion the lamp jumps without travelling to the pointer's position, and a card under it is found; without a pointer it rests on the first card.
+
+**[Accessibility]** — L5 — Decorative words in the lamp readout sit in the field's fade (spine and mock) (§ DESIGN.md › Landing › Lamp field)  
+The readout falls inside the 82–100% mask fade and the sweep mode is `{colors.dim}` (3.51:1); acceptable only as decoration.  
+Fix: State that the readout is decorative, like the field, and sits above the fade.
+
+**[Accessibility]** — L6 — Phone targets below the house floor (mock only) (§ mockups/landing.html)  
+« Révéler » at 34px on the phone, footer links wrapping with a 4px row gap, the top bar wordmark link about 24px tall.  
+Fix: None in the spine; note these in the mock's header comment.
+
+**[Accessibility]** — L7 — Visible text clipped at narrow widths (mock only) (§ mockups/landing.html (.mini__row, .tag, .chip-gold))  
+At 320 CSS px, « Inès complète Dark Souls » is cut without an ellipsis (1.4.10, 1.4.12).  
+Fix: Let these lines wrap; note it in the mock's header comment.
+
+**[Feasibility]** — `CardComponent` has no `xs` face (§ app/components/card_component.rb; DESIGN.md › Lamp field)  
+`SIZES = %i[s m l xl]`, but the lamp field uses two `card-xs`.  
+Fix: Add `xs` to the component, or use `card-s`.
+
+**[Feasibility]** — Landing breakpoints fall outside AD-27's set (§ DESIGN.md frontmatter)  
+`{spacing.breakpoint-landing-gauge}` (1440px) and the 1120px cap are outside the 720/1180/1280 set.  
+Fix: Note them as a landing exception in the architecture.
+
+**[Feasibility]** — Where the landing CSS goes is unstated (§ AD-28)  
+A second stylesheet is ruled out, so about 30–40KB of landing CSS joins `application.css` for every page.  
+Fix: Accept it and say so in the plan, so no one adds a tracked head asset.
+
+**[Feasibility]** — The reveal demo must not reuse the booster island (§ EXPERIENCE.md › Reveal demo; AD-16)  
+A new island needs an amendment, and the booster island posts packs.  
+Fix: A Stimulus controller with server-rendered `CardComponent` faces, a CSS flip, and server-rendered announcements in a polite live region.
+
+**[Feasibility]** — Small decisions to settle before two builders diverge (§ EXPERIENCE.md › Copy deck, Landing; DESIGN.md › Landing)  
+The final call's hub link label; the side gauge's accessible names; "one lime per view, read per screenful" on tall viewports; the wordmark returning to the top; where the public card page's two new links sit; the « Terminal en ligne » status.  
+Fix: Settle each in the spine.  
+Also raised: Rubric mechanical notes list the same open labels.
+
+**[Feasibility]** — The hero's title size is ambiguous (§ DESIGN.md › Landing › Hero)  
+The spine names the `{typography.public-title}` tokens but also quotes the mock's 42px and 38px.  
+Fix: State which one binds.  
+Also raised: Rubric (medium): the title sizes contradict their tokens.
+
+**[Feasibility]** — The mock's feed shows entry kinds the feed does not have (§ mockups/landing.html; Game::FeedEntries)  
+The mock shows set-tier and set-completion entries; `Game::FeedEntries` has pulls, discoveries, trades and reposts only.  
+Fix: None in the spine; the builder should not add feed kinds for the landing.
+
+**[Feasibility]** — The landing's behaviour can only be checked by unit and controller tests (§ AGENTS.md (system tests disabled))  
+System tests are disabled, so no browser check covers the landing.  
+Fix: Keep the lamp, moving-card, gauge and power-on logic as pure `lib/*.ts` functions with vitest; controller tests check both roots, the policies, both locales and that the HTML has no `style` attribute.
+
+**[Copy]** — French typography: spaces before « : » and inside guillemets (§ Copy deck; mock)  
+Plain spaces can let « : » or « » » wrap onto a line of its own.  
+Fix: Use U+202F or U+00A0 in the landing's `fr.yml` strings.
+
+**[Copy]** — Final periods are inconsistent on titles (§ 06, 07 titles)  
+Most titles end with « . », two do not.  
+Fix: Add the periods, or drop them everywhere.
+
+**[Copy]** — « faites par IA » should read « par l'IA » (§ 07)  
+Matches the title « développé avec l'IA »; the AI line may also read warily to artists (author's call).  
+Fix: « … par l'IA ».
+
+**[Copy]** — One destination has two labels (§ 07 « Voir le projet »; footer « Code source »)  
+Both open the repository, and « Voir le projet » is vague.  
+Fix: « Voir le code source », or keep the label with a fuller accessible name.
+
+**[Copy]** — « relue par l'auteur » names an unknown person (§ 07)  
+A visitor does not know who « l'auteur » is.  
+Fix: « … relue par l'auteur du jeu » or « … avant d'être intégrée ».
+
+**[Copy]** — « Nous recrutons » suggests paid jobs (§ 07)  
+On a volunteer project, « Poste ouvert » reads as employment.  
+Fix: « Nous cherchons des bénévoles… » / « Appel ouvert ».
+
+**[Copy]** — « plus que nécessaire » can mean "more than needed" (§ 02)  
+Author-approved.  
+Fix: « indispensable » would remove the doubt.
+
+**[Copy]** — « Un travail de longue haleine vous attend » sounds like a chore (§ 03)  
+Author-approved; flagged only.  
+Fix: None required.
+
+**[Copy]** — « créez votre compte automatiquement » misstates who acts (§ 03)  
+The visitor does not create anything automatically.  
+Fix: « Connectez-vous avec Steam : votre compte est créé automatiquement. »
+
+**[Copy]** — The lamp readout counts the card back and mixes verbs (§ Lamp readout)  
+The mock counts the Standard card back among found "games"; the tag and counter use different verbs.  
+Fix: Leave the back out (or « Cartes retrouvées ») and make the tag « Retrouvé ».
+
+**[Copy]** — 01 notes repeat themselves and break rarity naming (§ 01)  
+« Plus rare, plus vivante » says the same thing twice; « la plus courante » vs « commune »; « légendaire » lower-cased.  
+Fix: A note that adds information; « De la plus commune à la Légendaire ».
+
+**[Copy]** — 01 subtitle misdescribes the import rule (§ 01 subtitle)  
+« triés sur le volet » means hand-picked; the player-facing rule speaks of review count. Author-approved.  
+Fix: Optional: « … plus un jeu a d'avis sur Steam, plus sa carte est rare. »
+
+**[Copy]** — The odds shown are the normal booster's (§ 01, « {n} % par carte »)  
+The daily booster's odds differ, and odds are tuned in playtests.  
+Fix: Read them from game data; optionally « par carte de booster ».
+
+**[Copy]** — « au moins une Épique » can read as excluding a Légendaire (§ 04, 05)  
+The spec says "Épique or better".  
+Fix: « au moins une Épique ou mieux ».
+
+**[Copy]** — 05 list wording (§ 05)  
+« set complété » breaks the « premier… » series; collections are not completed, sets are.  
+Fix: « premier set complété »; « … pour compléter vos sets. »
+
+**[Copy]** — The mock and the copy deck disagree in small places (§ Mini rows; « {n} participants »; « Tous les joueurs »)  
+Mini rows differ from the Feed copy; « participants » needs one and zero forms; « Tous les joueurs » has no clear meaning, and 1 128 appears under two labels.  
+Fix: Align the mini rows; add the plural forms; drop or rename « Tous les joueurs ».
+
+**[Copy]** — Smaller repetitions across modules (§ 02, 03, 05, 07)  
+« doubles », the narrators' call, « semaine après semaine » and « Le code est ouvert » each appear two or three times.  
+Fix: Say each once, where it carries the most weight.
+
+**[Copy]** — Odds and ends (§ 06; footer; 08; DESIGN.md labels; public card page)  
+06 suggests players shape the catalogue; the footer's « ni à Steam ni à Valve » order; the Valve mention needs a recorded tone exception; « ni revendues ni exploitées » is literally false; DESIGN writes labels in capitals while the deck uses sentence case; « Découvrir » is vague.  
+Fix: « Le jeu se construit avec sa communauté. »; « n'est affilié ni à Steam ni à Valve »; record the exception; « ni vendues ni utilisées à d'autres fins que le jeu »; strings in sentence case with CSS capitals; « Découvrir le jeu ».
 
 ## Reviewer notes
 
-### Accessibility review (`review-accessibility.md`)
+### Accessibility review (`review-accessibility-2026-10-14.md`)
 
-**Verdict (reviewer's words):** The spines have a real accessibility floor (rarity named in words, a named face-down card, inert screens, focus return, a reduced-motion paragraph, 44 px touch targets for the stepper), and the base token contrasts are good. But several guarantees do not hold when checked against the prototypes: the Commune and Peu commune icons are drawn pixel-identical, so "shape + name + colour" fails where names are absent or set in 7 px; the reveal, the core of the game, is never announced to screen readers; and auto-moving and blinking content has no pause control or in-app motion setting (WCAG 2.2.2, Level A). **Not ready as a builder contract until the critical and high items are written into the spines.**
+**Verdict (reviewer's words):** The landing's structure is sound: one h1 and one h2 per module, a named reveal demo with its own polite region, a side gauge built as a navigation landmark, roadmap statuses written in text, and the lamp and moving cards kept out of the accessibility tree. Two gaps block the build: the power-on rule leaves a whole module invisible once it is taller than about eight viewports (400% zoom), and a signed-out visitor cannot reach "Animations réduites", so the lamp sweep, the self-updating feed, the blinking LIVE marker and the rotating rays cannot be paused. **Not ready until both critical findings and the three high findings are written into the spines. The mediums should land before the landing's build story.**
 
-Computed failures worth keeping in view: `publisher` on the title band 4.29:1; `dim` 2.7–3.5:1 for text; `line` and `line-soft` control boundaries 1.35–2.0:1; accent ring on accent fill and gold ring on a Légendaire frame both 1.0:1; chrome under the vignette ≈2.5–4.2:1 (estimate); lime vs Peu commune jade 1.10:1 (hue only).
+Baseline: WCAG 2.2 AA plus the house floor. Computed contrast: `{colors.text-bright}` over a lit card falls to 1.17–1.39:1 in the lamp's inner disc and 2.21–3.35:1 in the next ring (fails); 5.91–7.86:1 in the outer ring and ≥ 13.9:1 under the full veil (pass). `{colors.muted}` on the side gauge plate 6.32:1 (pass; the spine fixes the mock's 3.38:1 dim numbers). Each finding says whether the gap is in the spine, the mock, or both.
 
-### Technical feasibility review (`review-feasibility.md`)
+### Technical feasibility review (`review-feasibility-2026-10-14.md`)
 
-**Verdict (reviewer's words):** **Conditional pass: buildable, but not yet without guessing.** The look and motion can be built on the recorded stack (Rails + ViewComponent + Hotwire, two React islands through Turbo Mount, plain CSS tokens); nothing needs a stack change, and the Steam CDN answers `Access-Control-Allow-Origin: *`, so the in-browser pixel filter works. Before the first story starts, two things must be settled: where each cover image comes from, and the fluid layout rules. "There is no layout to port, only a picture of one." Five high findings are decisions the architecture must take; the medium and low findings are spine fixes or build rules.
+**Verdict (reviewer's words):** The landing can be built cleanly under the repository's rules. It needs no React island: everything is server HTML plus Stimulus controllers, it writes nothing on GET, and the CSP holds as long as per-element values go through CSSOM or CSS classes. The mock is not a safe blueprint, though, for three pieces: the lamp repaints a mask on every frame and never stops, which breaks AD-27; the moving cards can cover controls and focused links; and the live data has no caching story on what will be the most visited page. The landing also depends on three pieces of work outside the page: the roadmap sync, the lore text (French and English) and an app-wide switch to JetBrains Mono. **Expect about ten stories, not one.**
 
-Evidence: `curl` against six Steam CDN hosts (ACAO `*` on 200s, none on 404s, preflight 405); a Node benchmark of the mocks' `medianCut` + `quantize`; `fc-query` glyph coverage of the three fonts. The review also carries a 14-item "For the architecture" list (AD-17 rewrite, image source, AD-16 islands and event contract, opening endpoint, Turbo motion, layout system, real-time and presence, new domain data, tier names, CSP, island i18n, pixel-art assets, performance budget, housekeeping) and a 12-item Epic 1 rework list (tokens, fonts, attic removal, layout, ButtonComponent, TextPlate, locales, focus style, back-office, sign-in landing, CSP, tickets).
+Holds without change: GET never writes; Pundit `PagePolicy#show?` admits anyone; packwerk dependencies stay web layer → Game, Catalog, Accounts queries; no new `gameble:*` events; no database ids; Valve's image reuses `SteamSignInComponent`. Suggested slicing: (1) JetBrains Mono app-wide, (2) roadmap generated from the initiative, (3) the landing's data, cached, (4) the static landing behind a staff-only route, (5) the lamp field, (6) the moving cards, (7) the live module and playable items, (8) the roadmap module, (9) the lore in French and English, (10) signed out, the root is the landing, after 8 and 9.
 
-### Mockups vs spines review (`review-mockups.md`)
+### Copy and tone review (`review-copy-2026-10-14.md`)
 
-**Verdict (reviewer's words):** The spines and the approved mocks agree on structure, tokens, motion and almost every behaviour. All 50 colour tokens appear in both mocks; every Motion timing matches the code within rounding. **No divergence blocks the build.** The divergences that matter are spine text that went stale after the v3-3 / v3-4 / mobile-v1-3 rounds (notched canister caps "to be redrawn", the counter-proposal and visibility notes that say "the mock" lacks them, a `motto` token that contradicts the goal panel), decided states without their copy, and phone booster details the spines leave out. The mocks have three real faults: the card detail lacks description, season, sets and copyright; the empty showcase shows two lime buttons; the phone zoom draws rays behind low tiers.
+**Verdict (reviewer's words):** The landing keeps the core voice rules: « vous » throughout, no « tu », no title for the player, no exclamation mark, no Helldivers term, no money hammering, and the hook and mission premise are as approved. It does not yet match the game's facts. It promises things the launch does not have: the pioneer's name, card backs, set rewards, and a free licence that does not exist yet. It also shows the live weekly goal twice, word for word, and has one clear grammar error (« Collectionnez-les toutes »). **Settle the four high findings before the copy goes into `fr.yml`. The mediums should land before the landing's build story.**
 
-This reviewer sorts by kind, not severity: (a) spine right, mock convenience — 6; (b) fix the spine — 22; (c) fix the mock later — 5; (d) implicit decisions to confirm — 15. For the severity totals, this synthesis maps stale or contradicting spine text, missing decided copy and phone layout rules to *medium*, other (b) omissions to *low*, (c) to *medium* where a builder porting the mock would inherit the fault (c1, c2) and *low* otherwise, and every (d) to *low*. The six (a) items carry no action and are not counted; a5 (dead CSS encoding dropped decisions: `.g-motto`, `.tgl`, `bob`, `.g-time`) must not be ported.
+The author's approved wording is not rewritten; every fix is a suggestion. Checked and clean: « vous » everywhere; no exclamation mark; « gratuit » appears once; no Helldivers term; the hook matches the author's wording; « Dix boosters vous attendent. » and « Réserve : 10 / 10 » match CAP-4; rarity names and house terms are spelled correctly; both spines block release until the lore is written.
 
 ## Mechanical notes
 
-- DESIGN.md frontmatter is valid YAML. 68/68 DESIGN and 7/7 EXPERIENCE token references resolve. All colours are hex. No Mermaid in either spine.
-- Broken cross-reference: `reconcile-hearthstone-card-back-reference.md` (EXPERIENCE.md, Inspiration & Anti-patterns), retired per the memlog.
-- Dangling reference: "Behaviour unchanged from the previous run" (EXPERIENCE.md, IA, Back-office) points to superseded spine content.
-- Name inconsistencies across spines: see Inheritance discipline, first finding.
-- Card size conflict: Responsive & Platform puts the phone hub showcase at `card-l`; DESIGN Layout lists `card-xl` for the hub showcase with no phone exception.
-- Focus colour: EXPERIENCE uses `{colors.gold}` for focus on grid cards, while DESIGN Colors excludes gold from general use.
-- `ux-gameble.md` uses both "pack" and "booster" for the same object within one bullet list.
-- Frontmatter: DESIGN.md has no `sources` (optional). Typography weights are YAML integers (700) where the examples use strings ('700'); harmless, but should be consistent.
+- Token references: every `{colors|typography|spacing|components|rounded.*}` reference in both files resolves against the DESIGN.md frontmatter (checked by script).
+- Name inconsistencies: Module header / Module; Hero / Hero action; Lamp field / Lamp field (the lamp hero); « Réserve 10 / 10 » (DESIGN 09) vs « Réserve : 10 / 10 » (Copy deck); « TROUVÉ », « MISSION EN COURS » (DESIGN) vs « Trouvé », « Mission en cours » (Copy deck). The capitalization convention is not stated once.
+- Token mismatch: module title "44px on a 48px line, the `{typography.hero}` size" vs `hero.lineHeight: 44px`.
+- Open labels carried as assumptions: 09's hub link (« Visiter le pont sans compte » vs « Embarquer sur le pont »), the 02 « Contribuez » line, the side-gauge marker names, the top bar's « Terminal en ligne », and the wordmark's accessible name on the landing (« gameble, accueil ») vs the app's (« GAMEBLE, pont de commandement »).
+- Frontmatter: both `updated: '2026-10-14'`. EXPERIENCE `sources` gains `lore.md` (it resolves); DESIGN `sources` does not.
+- Mermaid: none in the changed content.
 
 ## Reviewer files
 
-- `review-rubric.md`
-- `review-accessibility.md`
-- `review-feasibility.md`
-- `review-mockups.md`
+- `review-rubric-2026-10-14.md`
+- `review-accessibility-2026-10-14.md`
+- `review-feasibility-2026-10-14.md`
+- `review-copy-2026-10-14.md`

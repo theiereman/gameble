@@ -2,11 +2,12 @@
 name: gameble
 status: final
 created: 2026-10-01
-updated: '2026-10-13'
+updated: '2026-10-14'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/catalog-and-rarity.md
   - ../spec-gameble/brotherhood-tone.md
+  - ../spec-gameble/lore.md
   - ../brief-gameble/brief-gameble.md
 ---
 
@@ -16,7 +17,7 @@ sources:
 
 A responsive web game for desktop and phone (portrait only), in French and English. Every flow works on both form factors; the layouts differ: a hub with a numbered menu on desktop, a bottom tab bar on the phone. This document names no UI component library: the stack renders pages on the server and embeds interactive components for the booster opening and the trade board (see the spec's architecture and `ux-gameble.md`, For the architecture). `DESIGN.md` is the visual identity reference; this document is the experience. Tokens are referenced by name, for example `{colors.accent}`; component names are the same in both documents.
 
-Visual references: [mockups/key-screens.html](mockups/key-screens.html) (desktop prototype: every screen, the chosen "Explosion A" opening on the booster screen, the signed-out public card page) and [mockups/mobile.html](mockups/mobile.html) (phone prototype). DESIGN.md and EXPERIENCE.md take precedence over any mock when they conflict. The mocks are a reference for look and timing, never source code. Their sample data (a 16 480-card season, three-hour timers, demo odds, a scripted first pack) is illustrative; the spec's numbers rule.
+Visual references: [mockups/key-screens.html](mockups/key-screens.html) (desktop prototype: every screen, the chosen "Explosion A" opening on the booster screen, the signed-out public card page), [mockups/mobile.html](mockups/mobile.html) (phone prototype) and [mockups/landing.html](mockups/landing.html) (the visitor landing, desktop and phone, with its motion and reduced-motion form; its REVUE toolbar and note pins are a review aid, not part of the design). DESIGN.md and EXPERIENCE.md take precedence over any mock when they conflict. The mocks are a reference for look and timing, never source code. Their sample data (a 16 480-card season, three-hour timers, demo odds, a scripted first pack) is illustrative; the spec's numbers rule.
 
 In this document, "booster" is the player-facing word for the spec's "pack", and "réserve" for its "bank". Items tagged `[ASSUMPTION]` are not confirmed in the decisions log. Open questions close the file.
 
@@ -24,7 +25,8 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 
 | Surface | Reached from | Purpose |
 |---|---|---|
-| Pont de commandement (hub) | Landing after sign-in; the top bar's GAMEBLE link from any desktop screen; PONT tab | Status at a glance and the way to everything else |
+| Landing | /fr and /en signed out (signed in, they open the hub: a signed-in player never sees the landing; author, 2026-10-14, triage); the GAMEBLE link signed out; after sign-out; after account deletion; "Découvrir" on the public card page (author, 2026-10-14) | The signed-out root: the Brotherhood's mission, what the game is, how it works, what happens live, what there is to do and unlock, the roadmap, open source and contributions, a free game and its support, then the call to sign in |
+| Pont de commandement (hub) | /fr and /en signed in; Steam sign-in's return; the top bar's GAMEBLE link from any desktop screen (signed in); PONT tab. Signed out: "Embarquer sur le pont" (landing hero, public card page) and the final call's hub link | Status at a glance and the way to everything else |
 | Ouverture de booster | Menu 01, the packs chip, the BOOSTER tab, the empty showcase | Open one booster at a time and reveal its five cards |
 | Collection | Menu 02, "TOUT VOIR ▸" on the hub, COLLECTION tab | See the sets being completed, discover others, search every set |
 | Set album | A set progress row (collection, hub, search), a set in the card detail, a public profile | One set's cards in order, its missing cards and its tiers or completion |
@@ -37,26 +39,28 @@ In this document, "booster" is the player-facing word for the spec's "pack", and
 | Amis | Menu 04; PLUS on the phone | Invite by link or code, answer invitations, list friends with their presence |
 | Friend profile | A friend row | Showcase, propose a trade, report |
 | Report dialog | "SIGNALER" in a friend profile | Report a username or profile |
-| Fil d'activité | Menu 05; PLUS on the phone; open without an account | Pulls, first discoveries, trades, reposts, set tiers and completions; tabs TOUS and AMIS (friends only) |
+| Fil d'activité | Menu 05; PLUS on the phone; "Ouvrir le fil d'activité" in the landing's live module; open without an account | Pulls, first discoveries, trades, reposts, set tiers and completions; tabs TOUS and AMIS (friends only) |
 | Succès | Menu 06; PLUS on the phone | Achievements, earned and to earn |
 | Comment ça marche | Menu 07; PLUS on the phone; open without an account | The rules of the game: which games become cards, rarity, the odds of each booster, booster timing, the daily booster, the weekly goal's reward, seasons, sets and their completion; every number read from what the game applies |
 | Profil et paramètres | The player chip; PLUS on the phone | Public profile summary, settings, card-back picker, "Mentions légales" |
-| Public card page | A shared link, without an account | Show the shared card and invite the visitor to play |
+| Public card page | A shared link, without an account | Show the shared card and invite the visitor to play; "Découvrir" leads to the landing, "Embarquer sur le pont" to the signed-out hub |
 | Public profile | A player's link | A player's collection and set progress, per their visibility (spec CAP-8) |
 | Sign-in panel | Any game-styled action that needs an account | One title line and Valve's official Steam sign-in button |
 | Steam sign-in | The official image, wherever it appears | Create or reuse the account (Steam's own page) |
-| Legal page | "Mentions légales" in Profil et paramètres and the public page footer | No-affiliation notice, ownership notice ("Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."), terms of use, privacy notice |
-| Soutenir | Menu 08; PLUS on the phone; open without an account | The donation page, on another site, in a new tab (the same link as the legal page and Profil et paramètres); optional, it gives no advantage in the game |
+| Legal page | "Mentions légales" in Profil et paramètres, the public page footer and the landing footer | No-affiliation notice, ownership notice ("Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."), terms of use, privacy notice |
+| Soutenir | Menu 08; PLUS on the phone; "Soutenir" in the landing's module 08 and footer; open without an account | The donation page, on another site, in a new tab (the same link as the legal page and Profil et paramètres); optional, it gives no advantage in the game |
+| Roadmap page | "Voir toute la feuille de route" in the landing's module 06 | The full roadmap. Decided, not designed (author, 2026-10-14; see Open questions) |
+| Code repository | "Voir le projet" in the landing's module 07, "Code source" in the landing footer | The open-source project on GitHub, in a new tab. Artists, narrators and developers answer the landing's calls there, through issues, discussions and contributions (author, 2026-10-14, triage) |
 | Plus (phone only) | PLUS tab | PLUS rows: Amis, Fil d'activité, Succès, Comment ça marche, Profil et paramètres, Soutenir |
 | Back-office | Staff accounts only | Out of the redesign's scope: unchanged behavior (spec CAP-2, CAP-15), plain functional style, designed later |
 
-**Desktop navigation.** The hub is the only menu: 01 OUVRIR UN BOOSTER (boosters badge), 02 COLLECTION (unique cards owned / total), 03 ÉCHANGES (orange badge when a trade waits for the player), 04 AMIS ("n en ligne"), 05 FIL D'ACTIVITÉ ("En direct"), 06 SUCCÈS (earned / total), 07 COMMENT ÇA MARCHE, 08 SOUTENIR (the donation page in a new tab). The player chip opens Profil et paramètres. On every screen the top bar's gold GAMEBLE wordmark is a link to the hub. Every other screen also has, after it, a back button to the previous screen (see Back button). There is no permanent sidebar.
+**Desktop navigation.** The hub is the only menu: 01 OUVRIR UN BOOSTER (boosters badge), 02 COLLECTION (unique cards owned / total), 03 ÉCHANGES (orange badge when a trade waits for the player), 04 AMIS ("n en ligne"), 05 FIL D'ACTIVITÉ ("En direct"), 06 SUCCÈS (earned / total), 07 COMMENT ÇA MARCHE, 08 SOUTENIR (the donation page in a new tab). The player chip opens Profil et paramètres. On every screen the top bar's gold GAMEBLE wordmark is a link to the hub; for a signed-out visitor it leads to the landing. Every other screen also has, after it, a back button to the previous screen (see Back button). There is no permanent sidebar.
 
 **Phone navigation.** A bottom tab bar: PONT · BOOSTER · COLLECTION · ÉCHANGES · PLUS. Tab roots have no back button; tapping the current tab returns to its root or scrolls it to the top. Sub-views slide over their screen with a contextual back: "◀ GRILLE" (card detail opened from a grid or a set), "◀ BOOSTER" (card detail opened from an opened booster), "◀ LISTE" (trade board), "◀ PLUS" (Amis, Fil, Succès, Comment ça marche, Profil). The public card page has no tab bar.
 
 **Hub content.** Top bar: the wordmark, rarity counter, packs chip, player chip. Left: kicker "PONT DE COMMANDEMENT" alone (no subtitle: the "Vaisseau-bibliothèque « Archiviste »" line was cut, author 2026-10-07), the menu, the daily booster panel. Center: the showcase. Right: the community goal panel and "SETS EN COURS" (the player's four sets closest to their next tier, "TOUT VOIR ▸" opening the collection). Bottom: the LIVE ticker. On the phone the same blocks stack in one scrolling column without the menu.
 
-**Signed-out visitors** see everything that needs no account and cannot act: any such action opens the sign-in panel, and the collection shows every slot empty. The signed-out hub is described in `DESIGN.md` (see Signed-out hub).
+**Signed-out visitors** meet the landing at the root (author, 2026-10-14): /fr, /en, the GAMEBLE link, after sign-out and after account deletion. From the landing ("Embarquer sur le pont") or the public card page's play link they can still browse the signed-out hub and everything that needs no account, and cannot act: any such action opens the sign-in panel, and the collection shows every slot empty. The landing and the signed-out hub are described in `DESIGN.md` (see Landing and Signed-out hub).
 
 ## Voice and Tone
 
@@ -64,7 +68,10 @@ This section covers microcopy only. Brand voice lives in `DESIGN.md` (see Brand 
 
 - **Terminal labels:** short uppercase labels for actions and states ("OUVRIR LE BOOSTER", "TOUT RÉVÉLER", "◀ COLLECTION", "SCELLÉ", "RÉSERVE VIDE").
 - **Plain sentences:** short and factual, always addressing the player as "vous", never "tu".
-- **The Brotherhood is discreet:** one line at collective moments only, the community goal and the seasonal allocation. None in the feed. No title for the player.
+- **The Brotherhood is discreet:** one line at collective moments only, the community goal and the seasonal allocation. None in the feed. No title for the player. The landing is the one approved exception (author, 2026-10-14): it presents the Brotherhood, its mission and its story to come at length; inside the app the rule stands, and no Helldivers terms or trademarks appear anywhere.
+- **The landing speaks in the app's voice** (author, 2026-10-14; no landing-only exception): short and factual, few or no exclamation marks, always "vous". It never hammers on money ("0 €", "pas d'argent", "pas de dépense"), never sells with game figures (the starting reserve, cards per daily booster, a price of 0), and never cites technical details ("chaque image est pixelisée puis rendue"). The author kept two figures because they explain how an opening works: the final call's "Dix boosters vous attendent." and 03's five cards per booster. It promises nothing the game does not have when the landing ships: what comes later carries "Bientôt" or sits in the roadmap.
+- **The name** is written "gameble", in lower case everywhere, at the start of a sentence too; capitals come only from style (a kicker, the wordmark).
+- **French punctuation:** a narrow no-break space (U+202F) before « : ; ? ! » and inside « », so no sign wraps onto a line of its own.
 - **Errors say what happened and what to do,** inline where the action is.
 
 | Do | Don't |
@@ -102,19 +109,50 @@ The single source for every message the interface shows. Other sections name the
 | Trades closed | "Votre profil est privé : les échanges sont fermés." (link "RÉGLAGES") · "Le profil de Léa est privé : échanges fermés." |
 | Going private | "Passer en privé annule vos 2 échanges en cours." · "PASSER EN PRIVÉ" · "ANNULER" |
 | Report | "Pseudo ou avatar inapproprié" · "Triche ou abus" · "Harcèlement" · "Autre" · "Merci. L'équipe de modération examinera ce profil. Léa ne verra pas qui l'a signalé." |
-| Feed | "Rien pour l'instant dans ce filtre." · Friends tab without friends: "Ajoutez des amis pour suivre leurs tirages." with "AJOUTER DES AMIS" · repost entry: "Hugo a reposté Elden Ring." · tag "REPOST" · set entries: "Léa atteint l'argent du set Roguelike." · "Léa complète le set Dark Souls." · several in one opening: "Léa atteint 4 paliers · Metroidvania OR" |
+| Feed | "Rien pour l'instant dans ce filtre." · Friends tab without friends: "Ajoutez des amis pour suivre leurs tirages." with "AJOUTER DES AMIS" · repost entry: "Hugo a reposté Elden Ring." · tag "REPOST" · set entries: "Léa atteint le bronze du set Roguelike." / "… l'argent du set …" / "… l'or du set …" · "Léa complète le set Dark Souls." · several in one opening: "Léa atteint 4 paliers · Metroidvania OR" |
 | Repost | Action "REPOSTER" · confirmation toast "Carte repostée dans le fil." |
+| Achievement toast | "SUCCÈS DÉBLOQUÉ" ("Achievement unlocked" in English) · the achievement's name as the Succès screen gives it: "Premier booster", "Première Épique", "Première Légendaire", "Premier set complet", "Premier échange", "Premier repost", "10 boosters", "Trois sets complets" |
 | Back picker | "Vous seul le voyez, sur vos cartes face cachée à l'ouverture." · "DOS VERROUILLÉ" · "DOS ÉQUIPÉ" · "« Aurore » apparaîtra sur vos cartes face cachée." |
 | Profile visibility | "Visible par tous les joueurs" · "Visible par vos amis seulement" · "Profil privé : vous seul le voyez" |
 | Settings | "PRÉPARATION…" · "EXPORT PRÊT" · delete word: "SUPPRIMER" ("DELETE" in English) |
 | Share and copy | "COPIÉ ✓" · "Copiez le lien manuellement." |
-| Public page | "Vos jeux Steam, en cartes à collectionner." · "Ouvrez des boosters, complétez des sets, échangez avec vos amis." · "LIVE · En ce moment sur gameble" |
+| Public page | "Vos jeux Steam, en cartes à collectionner." · "Ouvrez des boosters, complétez des sets, échangez avec vos amis." · "LIVE · En ce moment sur gameble" · links "Découvrir" (accessible name "Découvrir gameble", to the landing) and "Embarquer sur le pont" (accessible name "Embarquer sur le pont, visiter le jeu sans compte", to the signed-out hub) |
 | Sign-in panel | "CONNECTEZ-VOUS POUR JOUER" |
 | PLUS | "Le reste du vaisseau" |
 | Phone top-bar titles | Profil et paramètres under 720px: "PROFIL" ("PROFILE" in English); "Profil et paramètres" on wider screens and in the browser tab |
 | Links | "(nouvel onglet)" |
 
  Shorter phone labels are allowed where the mock uses them ("ÉCHANGER", "SIGNALER CE PROFIL", "SUPPRIMER", "PROFIL"). The English copy is not written yet; it follows the same rules.
+
+#### Landing
+
+Every rule in this section is the author's decision of 2026-10-14 unless tagged `[ASSUMPTION]`.
+
+The landing's approved French copy, in page order. It speaks in the app's voice (see the bullets above); where the author's review wording and the mock differ, this table follows the decisions log. `{…}` marks live data.
+
+| Key | Copy |
+|---|---|
+| Top bar | The wordmark (accessible name "gameble, accueil" `[ASSUMPTION]`) · motion switch "Animations réduites" (a toggle, `aria-pressed`) · Valve's image (see Steam sign-in name below) |
+| Steam sign-in name | The link around Valve's image: "Sign in through Steam, se connecter avec Steam (ouvre Steam)", wherever the image appears (top bar, 09, sign-in panel, public card page, signed-out hub) |
+| Module headers | "01 · Concept" · "02 · La Confrérie" · "03 · Comment ça marche" · "04 · En direct" · "05 · À faire et à débloquer" · "06 · Feuille de route" · "07 · Open source et contributions" · "08 · Un jeu libre" · "09 · Embarquement" |
+| Hero | Kicker "Mission en cours" · hook "Des jeux ont été perdus. La Confrérie part les retrouver. Rejoignez-la." · line "gameble est un jeu de cartes à collectionner basé sur la bibliothèque publique de jeux Steam." · button "Embarquer sur le pont" (accessible name "Embarquer sur le pont, visiter le jeu sans compte") · lamp readout "Jeux retrouvés {n} / {total}" with "· Balayage auto", "· Balayage manuel" or "· Balayage fixe" · found tag "Trouvé" |
+| 01 · Concept | Title "Chaque carte est un jeu Steam." · subtitle "Les jeux sont triés sur le volet et importés selon un principe simple : plus un jeu est populaire, plus sa carte sera rare." · under each card its rarity name and "{n} % par carte" (the normal booster's odds, read from what the game applies, as in Comment ça marche) · notes "Cinq raretés" / "De la plus commune à la légendaire." · "Plus rare, plus vivante" / "Plus la carte est rare, plus elle prend vie." · "Une rareté par saison" / "À chaque saison, les raretés sont recalculées." · card row accessible name "Les cinq raretés, de la plus commune à la plus rare" |
+| 02 · La Confrérie | Title "La Grande Confrérie des Gamblers" · subtitle "Votre présence est plus que nécessaire. La Confrérie avance ensemble, semaine après semaine, et son histoire s'écrit avec ses membres." |
+| 02 · lore panel | "Archive 001" · "Le récit de la Confrérie" · the lore text (from the lore session) · "La suite s'écrit avec vous. La Confrérie cherche des narrateurs et des scribes pour faire vivre son histoire." · link "Participer à l'écriture" |
+| 02 · goal panel | "Cette semaine" · "Un objectif pour tous" · "Chaque booster ouvert et chaque échange conclu font avancer la même jauge. Objectif atteint : tous les participants sont récompensés." · the Community goal line · "{n} participants" (zero, one and other forms: "0 participant", "1 participant") · "Fin {jour} à {heure}. Le prochain objectif s'ouvre aussitôt." (day and hour in the visitor's own time zone, so the week's end may show as Sunday; the mock's "00:00 UTC" breaks this rule) |
+| 02 · tiles | "Découvrez" / "Le premier joueur à tirer un jeu y grave son nom, pour toute la Confrérie." (kept: the pioneer feature ships first, see Implementation notes, Landing ship conditions) · "Échangez" / "Vos doubles font le bonheur d'un ami. Proposez, contre-proposez, concluez." · "Partagez" / "Une belle carte se montre. Repostez-la dans le fil et exposez vos trouvailles." · "Contribuez" / "Tirages notables, découvertes, échanges, sets complétés : tout s'y affiche, en direct." `[ASSUMPTION: the mock's line, untouched in the review; it describes the feed rather than contributing]` · the tiles' example rows use the Feed copy ("Inès complète le set Dark Souls.", "Nina a reposté Hades.") |
+| 03 · Comment ça marche | Title "Un travail de longue haleine vous attend." · subtitle "Ouvrir, révéler, collectionner, échanger. Ces quatre gestes vous suffiront à faire progresser la mission de la Confrérie." · "Rejoignez-la" / "Connectez-vous et créez votre compte automatiquement avec Steam." (badge "Nouveau membre") · "Accumulez des boosters" / "Des boosters arrivent dans votre réserve au fil du temps, même quand vous n'êtes pas là." ("Prochain booster dans {durée}") · "Découvrez de nouvelles cartes" / "Un booster contient cinq cartes face cachée. Retournez-les pour les découvrir." (buttons "Révéler", then "Recommencer"; live line "Carte révélée : {titre} — {studio}, {année}, {genre}. {rareté}.") · "Agrandissez votre collection" / "Chaque carte rejoint votre collection. Complétez des sets, échangez vos doubles avec vos amis." ("Set Roguelike · en cours") |
+| 04 · En direct | Title "La Confrérie joue en ce moment." · subtitle "Les dernières entrées du fil d'activité, et la saison en cours." · "Fil d'activité" with the LIVE marker · entries as in Feed · link "Ouvrir le fil d'activité" · "Saison en cours" · "{saison}" ("Saison 1 · Grand Catalogue") · "Joueurs actifs cette semaine" · "Boosters ouverts aujourd'hui" · "Premières découvertes cette semaine" (each count with its zero and one forms). No weekly goal here: it is live only in 02 (author, 2026-10-14, triage) |
+| 05 · À faire et à débloquer | Title "De quoi remplir la soute." · subtitle "Des sets à compléter, des amis avec qui échanger, un objectif commun chaque semaine." |
+| 05 · tiles | "Sets et paliers" (tag "Bientôt") / "Thèmes, franchises, studios, palmarès et OVNI. Collectionnez-les tous et faites progresser les paliers de sets pour débloquer des récompenses." · "Échanges entre amis" / "Échangez les cartes qui ne vous intéressent pas contre celles qui vous permettront d'avoir la collection de vos rêves." · "Objectif communautaire" / "Chaque lundi, un nouvel objectif pour toute la Confrérie. Chaque booster ouvert et chaque échange comptent." · "Succès" / "Premier booster, première Épique, première Légendaire, premier set complet, premier échange…" · "Dos de cartes" (tag "Bientôt") / "Vos cartes face cachée portent le dos de votre choix. Remplissez des objectifs pour en débloquer de nouveaux." · "Collection" / "Voyez en un coup d'œil les cartes qui vous manquent pour compléter votre collection." · the "Bientôt" tags match the roadmap's "À venir" |
+| 05 · tile examples | Objectif communautaire, a past week with no live figure: "Semaine 41" · "Atteint" · "Chaque participant a reçu un booster avec au moins une Épique." · Succès, the achievements' own names: "Premier booster", "Premier échange", "Première Légendaire", "Premier set complet", "À obtenir" · Collection: "Cartes uniques" · example names start with "Exemple : " |
+| 06 · Feuille de route | Title "Un aperçu des prochaines évolutions." · subtitle "La collection se construit avec la communauté, le jeu aussi." · statuses "Fait", "En cours", "À venir" · link "Voir toute la feuille de route" · milestones and stories in the author's player-facing wording, from the roadmap data |
+| 07 · Open source | Title "Open source et développé avec l'IA." · subtitle "Le code est entièrement libre et tout le monde peut contribuer au projet. Les tâches fastidieuses sont faites par l'IA, le reste est construit par des humains, pour des humains." · "Nous recrutons des personnes dévouées à la Confrérie." · "Poste ouvert" · "Artistes" / "Musique, sons, dos de cartes, illustrations… La liste est longue. Elle attend des personnes de talent." · "Narrateurs et scribes" / "Une voix, des personnages, une histoire qui avance semaine après semaine. Nous avons besoin de vous pour relater les faits marquants de la Confrérie." · "Développeurs" / "Le code est ouvert. Chacun peut proposer une correction ou une idée, quelle qu'elle soit." · button "Voir le projet" (accessible name "Voir le projet (GitHub, nouvel onglet)") · "Licence libre. Chaque contribution est relue par l'auteur." |
+| 08 · Un jeu libre | Title "Un jeu libre, qui vous respecte." · "gameble est gratuit et ouvert. Tout le monde y joue à égalité, et chacun peut voir comment il fonctionne." · "Vos données ne sont ni revendues ni exploitées. Aucune publicité ne s'intercale entre vous et vos cartes." · support panel "Soutenir gameble" · "Pour continuer de tourner, le projet a besoin de soutien." · "Si gameble vous plaît, vous pouvez l'aider." · button "Soutenir" (accessible name "Soutenir (site de dons, nouvel onglet)") |
+| 09 · Embarquement | Title "Dix boosters vous attendent." · "Ils sont dans votre réserve dès votre première connexion." · "Réserve : 10 / 10" · Valve's image · hub link "Embarquer sur le pont", with the hero's accessible name (one label wherever the hub link appears) |
+| Footer | "Mentions légales" · "Soutenir" (accessible name "Soutenir (site de dons, nouvel onglet)") · "Code source" (accessible name "Code source (GitHub, nouvel onglet)") · "gameble n'est affilié ni à Steam ni à Valve. Les illustrations appartiennent aux éditeurs des jeux et à leurs artistes." |
+| Side gauge | Navigation "Position sur la page"; each marker named by its visible number and its module's header name: "00 · Mission" (the hero), "01 · Concept", "02 · La Confrérie" … "09 · Embarquement" (the mock's names omit the number, which breaks WCAG label-in-name) |
+| Landing live states | No feed entry: "Aucune activité pour l'instant." `[ASSUMPTION: new line, not reviewed]` · a figure that cannot be read: "—" |
 
 ## Component Patterns
 
@@ -131,7 +169,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 | Toast | Confirms an action and is never the only place an error appears. Shown at least 5s plus 1s per 10 words; pauses on hover and focus; has a close button; announced politely. |
 | Text field | Errors appear on the line below until the next edit. |
 | Radio list | One choice; arrow keys move within it. |
-| Steam sign-in | The official image opens Steam's sign-in (its accessible name says so). On return the player lands on the hub. |
+| Steam sign-in | The official image opens Steam's sign-in; its accessible name starts with the image's own words and says it opens Steam (see Copy deck, Landing, Steam sign-in name). On return the player lands on the hub. |
 
 ### Cards
 
@@ -150,7 +188,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 | Player chip | Opens Profil et paramètres. |
 | Menu item | Opens its screen; SOUTENIR opens the donation page in a new tab and the hub stays, so it is not the item focused on the way back. Keys 1 to 8 open the matching item only while focus is inside the menu (`aria-keyshortcuts`). Coming back to the hub focuses the item last used. |
 | Count badge | Boosters in reserve (lime); trades waiting for the player (orange). Grayed at zero in the menu; hidden at zero in the tab bar. Its number is part of the item's accessible name. |
-| GAMEBLE link | Desktop: the top bar's wordmark opens the hub from any screen. Accessible name "GAMEBLE, pont de commandement" `[ASSUMPTION]`. Disabled during an opening. |
+| GAMEBLE link | Desktop: the top bar's wordmark opens the hub from any screen. Accessible name "GAMEBLE, pont de commandement" `[ASSUMPTION]`. Disabled during an opening. Signed out, it opens the landing (on the landing itself it returns to the page's top `[ASSUMPTION]`). |
 | Back button | Desktop: returns to the previous screen, like the browser's Back, which comes back as it was left (scroll, filters, page). Its label names that screen by its short top-bar title ("◀ COLLECTION", "◀ FICHE", "◀ AMIS"; the collection entry reads "◀ SETS"). Hidden when the previous screen is the hub (the GAMEBLE link leads there) or when the tab holds no earlier gameble screen (a direct link, a new tab): a back never leaves gameble. Phone: returns to the parent view (see Phone navigation). Disabled during an opening. |
 | Tab bar | Switches between the five roots. Disabled during an opening. Hidden on the public card page. |
 | PLUS rows | Open Amis, Fil d'activité, Succès, Comment ça marche, Profil et paramètres; Soutenir, last, opens the donation page in a new tab. |
@@ -232,11 +270,36 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 
 | Component | Behavioral rules |
 |---|---|
-| Settings row | "LANGUE" (FRANÇAIS / ENGLISH) switches at once. "VISIBILITÉ DU PROFIL" (PUBLIC / AMIS UNIQUEMENT / PRIVÉ, default PUBLIC) applies at once; choosing PRIVÉ with trades open first asks to confirm (see Copy deck, Going private). "ANIMATIONS RÉDUITES" follows the system by default. "EXPORTER", "SE DÉCONNECTER", "SUPPRIMER MON COMPTE": see State Patterns. |
+| Settings row | "LANGUE" (FRANÇAIS / ENGLISH) switches at once. "VISIBILITÉ DU PROFIL" (PUBLIC / AMIS UNIQUEMENT / PRIVÉ, default PUBLIC) applies at once; choosing PRIVÉ with trades open first asks to confirm (see Copy deck, Going private). "ANIMATIONS RÉDUITES" follows the system by default; a visitor's landing motion switch, when on, sets it to OUI at sign-in. "EXPORTER", "SE DÉCONNECTER", "SUPPRIMER MON COMPTE": see State Patterns. |
 | Back picker | Choosing an unlocked card back makes it active at once; a locked one states its condition inline. A back earned in several seasons lists them, and the player picks the season whose mark it wears. |
 | Title and theme pickers (after the launch) | Each is a radio group named by its heading. The active option is checked. A locked option stays focusable, with its condition in its accessible name ("Pirates, verrouillé : atteindre l'or du set Pirates"); choosing it shows the condition inline. Every menu theme meets the Colors contrast floor on its own colours, never recolours rarity or tier colours, and stops its animation under ANIMATIONS RÉDUITES. A title always appears as text. |
 | Delete dialog | A note names everything deletion erases: the Steam id, the name, the profile and its link, the last visit and latest activity, the collection, completed sets, achievements, boosters opened or not, daily bonuses and goal rewards, friends, invitations, friend code and every feed entry that names the player (pulls, discoveries, reposts, trades); open trades are cancelled. A second line names what stays without the Steam id or the name (past trades, first discoveries, contributions to the community goal, reports, moderation history, the log of game actions) and says the action cannot be undone. When the screen is too short for it, the dialog scrolls. The field is labeled with the word to type; "SUPPRIMER DÉFINITIVEMENT" enables once the field holds that word (case-insensitive, paste allowed). |
 | Mentions légales link | Opens the legal page (also in the public card page footer). |
+
+### Landing
+
+Every rule in this section is the author's decision of 2026-10-14 unless tagged `[ASSUMPTION]`.
+
+The landing is interactive but a little frustrating on purpose: the visitor scrolls to understand the game and plays with items that give a taste of it (the lamp, the moving cards, the rarity cards, the reveal demo), never the real thing, so they want an account to try it for real. Steam sign-in appears only in the top bar and the final call (09); the hero has none.
+
+| Component | Behavioral rules |
+|---|---|
+| Module | Powers on once, when its top edge passes 85% of the viewport height, whatever the module's height (a fixed position, never a share of its area), and at once when it holds keyboard focus, is the target of a jump (side gauge, in-page link, URL fragment) or is above the viewport on load. Power-on (brackets, contents, gauges and pips; see Motion) never keeps content invisible longer than its own duration, and a module never powers off. The content is in the page from the start; without JavaScript every module is on. |
+| Motion switch | "Animations réduites" in the landing's top bar, for every visitor: a toggle button (`aria-pressed`), first in the tab order after the wordmark. On: the whole Reduced motion profile applies at once, the landing's form included. Its state is kept in a first-party cookie, so the server renders the reduced form from the first paint of the next visit and on every signed-out page. Off: the system preference applies, read in CSS so it holds from the first frame. At sign-in an "on" switch becomes the account's "ANIMATIONS RÉDUITES" setting, OUI; off, the account's setting is unchanged. |
+| Hero | "Embarquer sur le pont" opens the signed-out hub. |
+| Lamp field | With a pointer that hovers and is fine: the lamp follows the pointer while it moves over the field; 2.5s after the pointer stops or leaves, it sweeps on its own. Phone and touch: it always sweeps on its own. On its own it heads for the next card not yet found and holds about 1.6s on a find. A card is found when the lamp's center passes over it: it gets its corner marks and "Trouvé", and the counter "Jeux retrouvés n / n" goes up. Once every card is found, the lamp settles on the last one and stops; it also runs only while the hero is in view and the tab visible. The sweep mode word shows the current mode: auto, manual or still. Everything resets on reload. The field is decoration: hidden from assistive technology, nothing in it focusable, and it never catches a click. |
+| 01 · Concept, rarity cards | Each card tilts toward the pointer like any card face (see Card face). The row is a list named by the copy deck; each card's accessible name gives the title, studio, year, genre, rarity and number. On the phone the row scrolls sideways: there the cards do not tilt and accept sideways and vertical panning (`touch-action: pan-x pan-y`). The row is one tab stop only while it overflows (see Interaction Primitives, Keyboard). The chance under each card is the normal booster's, read from what the game applies. |
+| 02 · La Confrérie, lore panel | Holds the Brotherhood's story, in French and English. Its text waits for the dedicated lore session, with a length bound so the 8-column panel balances the goal panel; the landing ships only with its text (see Implementation notes, Landing ship conditions). "Participer à l'écriture" scrolls to 07 and moves focus to its h2. |
+| 02 · La Confrérie, goal panel | The real weekly goal, the landing's only live one: its line, count, target, gauge and participants; the end day and hour in the visitor's own time zone, never with "UTC". 04 shows no goal; 05's goal tile is a fixed example of a past week, without live figures. |
+| 03 · Comment ça marche, reveal demo | "Révéler" flips the face-down card to a sample card face and announces it politely (see Copy deck); the button then reads "Recommencer", which turns the card face down again and readies the next sample. Focus stays on the button. It never opens a booster or adds a card to anything. |
+| 04 · En direct, live feed list | The real activity feed's five latest entries, with the Feed entry's rules and the Quiet feed fill. A new entry is inserted as one node at the top and the last node removed; the list is never re-rendered. It receives entries only while the module is in view, and pauses while hovered or while focus is inside the module; buffered entries arrive together when it resumes. Not a live region, and no status line on the landing (the full feed is one link away). "Ouvrir le fil d'activité" opens the feed. The season facts are real data, read when the page is served (cached, see Implementation notes); they do not tick live. No LIVE ticker in this module. States: see State Patterns, Landing live data. |
+| Roadmap (06 · Feuille de route) | Shows the app's roadmap data, derived from the initiative and curated by the author: epics as milestones and, under each, a few stories that matter to a player, each with its status ("Fait", "En cours", "À venir"), in the author's player-facing wording; not everything in the initiative appears. On the phone the row scrolls sideways and is one tab stop only while it overflows. Each story's status is in its text, not only in its marker. "Voir toute la feuille de route" opens the roadmap page. |
+| 07 · Open source et contributions | "Voir le projet" opens the GitHub repository in a new tab (said in its accessible name). Artists, narrators and scribes, and developers all answer through it: issues, discussions, contributions. |
+| 08 · Un jeu libre, support panel | "Soutenir" opens the donation page in a new tab, the same link as menu 08. |
+| Final call (09 · Embarquement) | Valve's image opens Steam's sign-in; on return the player lands on the hub, as everywhere. "Embarquer sur le pont" opens the signed-out hub. |
+| Landing footer | "Mentions légales" opens the legal page; "Soutenir" and "Code source" open the donation page and the repository in a new tab. |
+| Moving cards | Only with a pointer that hovers and is fine (`(hover: hover) and (pointer: fine)`), only where both gutters beside the content column can hold them, never on the phone and never under "Animations réduites". A few cards pass down the gutters, never over the content column, faster than the scroll, their position driven by the scroll. A pointer drag moves a card aside; it stays where it is dropped, keeping that offset as the page scrolls, until the page reloads. A card catches the pointer only on its own visible box. While keyboard focus is inside the page content the cards fade out, so none ever rests over a focused element. They never tilt toward the pointer. Hidden from assistive technology, never focusable, no keyboard equivalent; nothing depends on moving them. |
+| Side gauge | Wide desktop only (from `{spacing.breakpoint-landing-gauge}`). A navigation region named "Position sur la page", after `<main>` in the DOM and placed with CSS: each marker is a link that jumps to its module (00 to the hero) and moves focus to the module's h2 (`tabindex="-1"`, its scroll margin keeping it clear of the top bar), instantly under reduced motion. Only the current marker carries `aria-current="location"`. The track follows the scroll and is hidden from assistive technology. Accessible names: see Copy deck, Landing. |
 
 ### Seasonal allocation (after the launch)
 
@@ -248,7 +311,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 
 | Component | Behavioral rules |
 |---|---|
-| Public card page | The card tilts under the pointer. "VOIR SUR STEAM ↗" opens the store page. "OUVRIR MES PREMIERS BOOSTERS" opens the sign-in panel. The LIVE strip shows the three latest feed entries. |
+| Public card page | The card tilts under the pointer. "VOIR SUR STEAM ↗" opens the store page. "OUVRIR MES PREMIERS BOOSTERS" opens the sign-in panel, beside the two links (author, 2026-10-14). "Découvrir" opens the landing; "Embarquer sur le pont" opens the signed-out hub, where every action asks for sign-in (author, 2026-10-14). The LIVE strip shows the three latest feed entries. |
 | Sign-in panel | Holds only its title line (see Copy deck) and Valve's horizontal official button, the only link to Steam's sign-in. "✕", Esc or the scrim returns to the page, still signed out. |
 
 ## Opening protocol
@@ -266,7 +329,8 @@ Messages quoted by key are in the Copy deck.
 
 | State | Surface | Treatment |
 |---|---|---|
-| Signed out | Everywhere | Everything visible. An action that needs an account opens the sign-in panel; closing it returns to the same page, still signed out. |
+| Signed out | Everywhere | The root is the landing (see Information Architecture). Everything else visible. An action that needs an account opens the sign-in panel; closing it returns to the same page, still signed out. |
+| Signed in at the root | /fr, /en | The hub. A signed-in player never sees the landing (author, 2026-10-14, triage). |
 | First session | Hub, booster | The reserve holds 10 boosters. A Rare or better is guaranteed by the 10th booster, without any visible sign. No booster ever promises a rarity. |
 | Reserve full | Hub, booster | 10 pips lit; the countdown is replaced by "Réserve pleine" (packs chip, booster panel). The daily booster claim is disabled until a booster is opened (Copy deck, Daily booster). |
 | Special booster in the reserve | Hub, booster | The daily booster (better odds) and the goal's rare booster join the same reserve and open with the same ritual; they are not told apart among the canisters. Whether a goal reward is added above 10 is open. |
@@ -308,10 +372,11 @@ Messages quoted by key are in the Copy deck.
 | Feed filter empty | Fil d'activité | The empty-filter line (Copy deck, Feed). |
 | Profile visibility | Profile, public pages | PUBLIC: anyone, signed out included, sees the profile and its shared cards. AMIS UNIQUEMENT: friends only. PRIVÉ: nobody else, friends included; friendships stay and trades close (CAP-11). The summary states it. |
 | Profile not visible to this visitor, or banned | Public card page, public profile, friend profile | The page says the profile is not available. |
+| Achievement earned | Any signed-in screen | The achievement toast (Copy deck, Achievement toast), one per achievement, as the app already shows it. During a card reveal it waits until the reveal ends, so it never spoils a card; the Succès screen shows the tile earned. |
 | Card back locked / equipped | Back picker | Locked: the condition inline and the "DOS VERROUILLÉ" toast. Equipped: the preview turns to the new card back; the "DOS ÉQUIPÉ" toast. |
 | Export | Profil et paramètres | "PRÉPARATION…" on the button, then the "EXPORT PRÊT" toast with the download; a failure says so inline with a retry. |
-| Sign out | Profil et paramètres | Lands on the hub in signed-out mode. |
-| Account deleted | Delete dialog | Lands on the signed-out hub with a toast confirming the deletion. |
+| Sign out | Profil et paramètres | Opens the landing (author, 2026-10-14; supersedes the signed-out hub). |
+| Account deleted | Delete dialog | Opens the landing with a toast confirming the deletion (author, 2026-10-14: the landing replaces the signed-out hub). |
 | Language switched | Profil et paramètres | The interface and card text change at once; `<html lang>` follows. |
 | Clipboard refused | Share sheet, invite panel | The link stays selected in its field with the manual-copy line inline. |
 | Cold load | Every screen | Panels appear as their data arrives; counts show "—" until known. Not mocked. |
@@ -319,15 +384,17 @@ Messages quoted by key are in the Copy deck.
 | Banned account | Steam sign-in | Sign-in is refused with a one-line explanation (spec CAP-15). Not mocked. |
 | Not staff | Back-office | The address answers as if it did not exist. |
 | Phone held sideways | Every screen (phone) | Nothing happens (see Responsive & Platform). |
+| Landing live data | Landing (02, 04) | Fewer than five feed entries: the list shows those there are, the Quiet feed fill included, and keeps its column's height. No entry at all: the no-activity line (Copy deck, Landing live states). A count of zero shows "0" with its zero form ("0 participant"). A figure or block that cannot be read shows "—" and the rest of the page renders. No weekly goal open: the 02 goal panel keeps its title and explanation and shows "—" for the line, count and gauge `[ASSUMPTION]`. The roadmap data ships with the app and is checked at build, so 06 never renders empty. |
 
 ## Interaction Primitives
 
 - **One activation reveals:** click, tap, Enter or Space on a face-down card reveals rarity and game together. One surprise per card.
 - **Guard:** a just-revealed card ignores activation for 400ms, so a double activation never skips the reveal or leaves the screen.
-- **Tilt:** cards lean toward the pointer, up to about 10° (16° in the booster); on the phone only under a finger held still for 150ms. The card eases toward the pointer as it enters (about 600ms to settle) and back to flat as it leaves (about 650ms); the varnish's reflection rides that eased tilt in and out, sliding opposite it, so nothing jumps and nothing fades. Cards in scrolling content keep vertical panning (`touch-action: pan-y`); only the booster stage captures every gesture.
+- **Tilt:** cards lean toward the pointer, up to about 10° (16° in the booster); on the phone only under a finger held still for 150ms. The card eases toward the pointer as it enters (about 600ms to settle) and back to flat as it leaves (about 650ms); the varnish's reflection rides that eased tilt in and out, sliding opposite it, so nothing jumps and nothing fades. Cards in scrolling content keep vertical panning (`touch-action: pan-y`); in a row that scrolls sideways (the landing's 01 and 06 on the phone) cards do not tilt and keep both pannings (`pan-x pan-y`); only the booster stage captures every gesture.
 - **Hover is a lift; touch is a press.**
+- **Drag (landing only):** with a fine pointer, a moving card follows a pointer drag and stays where it is dropped. Nothing else is dragged, and nothing needs a drag.
 - **Swipe, always with a button:** on the phone a revealed card swipes into the tray ("RANGER" does the same); in the card detail, swipe or the ◀ ▶ buttons move between cards. Long-press is never required.
-- **Keyboard:** Tab order follows reading order. Keys 1 to 8 open menu items only while focus is in the hub menu. Arrow keys move focus within the collection grid (Up and Down move one row, whatever the column count), the card picker grid, and radio and segmented groups; in a stepper they change the quantity. Enter submits the friend code.
+- **Keyboard:** Tab order follows reading order. Keys 1 to 8 open menu items only while focus is in the hub menu. On the landing, the side gauge's markers are ordinary links, after the page content in the tab order; a sideways-scrolling row (01 and 06 on the phone) is one tab stop only while it overflows, the arrow keys scroll it, and its items are not focusable. Arrow keys move focus within the collection grid (Up and Down move one row, whatever the column count), the card picker grid, and radio and segmented groups; in a stepper they change the quantity. Enter submits the friend code.
 - **Esc:** closes the topmost overlay (dialog, sheet, zoom, legend, toast) and nothing else. With no overlay open, it cancels a counter-proposal edit after confirmation. Otherwise, when no edit is pending and no text field has focus, it returns to the hub (except during an opening).
 - **Not in the MVP:** bulk opening, live trades, card marks, a guide (a tour of what to do; the rules reference "Comment ça marche" is not one, author 2026-10-13), and any input at opening that improves the odds (noted for later).
 
@@ -360,8 +427,14 @@ Movement is fluid at 60fps (transforms and opacity only; continuous loops never 
 | Toast | 250ms in | Rises into place. |
 | Dialog | 160ms scrim, 220ms panel | The panel rises 16px into place. |
 | Feed entry | 280ms | Slides down from the top. |
+| Landing hero entrance | 420ms each, 80ms apart | Kicker, hook, line and button rise 14px into place (`{components.motion.ease-lock}`). |
+| Landing lamp | until every card is found | Powers on in five steps over 300ms, 350ms after load; follows the pointer quickly or sweeps slowly; a found card's marks lock in over 240ms in four steps. |
+| Landing moving cards | scroll-driven | 1.5 to 1.9 times the scroll speed with a slow sideways sway and a slow turn, within the gutters; a dragged card lifts in 120ms and settles in 220ms; a card fades out in 150ms when keyboard focus enters the content and back when it leaves. |
+| Landing module power-on | about 0.6s, once, when the module's top edge passes 85% of the viewport height | Corner brackets grow in five steps (360ms); contents fade (260ms) and rise 14px (420ms), 70ms apart; gauge segments and pips light one by one, 40 to 45ms apart. |
+| Landing reveal demo | 700ms | The sample card flips (`{components.motion.ease-lock}`). |
+| Landing star field | scroll-driven | The two star layers drift with the scroll at 0.12 and 0.05 of it, a landing-only exception to the still star field (author, 2026-10-14); still under reduced motion. |
 
-**Reduced motion.** Applies when "ANIMATIONS RÉDUITES" is OUI in Profil et paramètres, or when it is SYSTÈME (the default) and the system asks for it; NON plays the full motion even when the system asks for less. The rule: nothing translates, rotates, scales, shakes, flashes, blinks, sweeps or loops; state changes are 150 to 220ms crossfades; the ticker stops and shows its latest items still; the LIVE marker stays lit; the star field, rays, the Légendaire's glitter twinkle, sheen, canister breathing and idle floats stop; flashes are removed (not dimmed); tilt is off. Exceptions, spelled out:
+**Reduced motion.** Applies when "ANIMATIONS RÉDUITES" is OUI in Profil et paramètres, or when it is SYSTÈME (the default) and the system asks for it; NON plays the full motion even when the system asks for less. For a visitor without an account, it applies when the landing's motion switch is on (its cookie), otherwise when the system asks for it. The rule: nothing translates, rotates, scales, shakes, flashes, blinks, sweeps or loops; state changes are 150 to 220ms crossfades; the ticker stops and shows its latest items still; the LIVE marker stays lit; the star field, rays, the Légendaire's glitter twinkle, sheen, canister breathing and idle floats stop; flashes are removed (not dimmed); tilt is off. Exceptions, spelled out:
 
 - **Opening:** the canister fades out in 200ms and the cards fade in (240ms, 40ms apart).
 - **Reveal:** each card crossfades to its face in 220ms; a Légendaire shows a still "LÉGENDAIRE !" banner for 1.4s instead of its sequence.
@@ -370,6 +443,7 @@ Movement is fluid at 60fps (transforms and opacity only; continuous loops never 
 - **Set celebration:** each result crossfades in over 200ms and stays still. The COMPLET stamp keeps its fixed −6° tilt (a static tilt is not motion) and never drops, bounces or rotates into place.
 - **Screen changes, sheets, sub-views, toasts, feed entries:** instant or crossfaded, no slide.
 - **App start:** no brightening.
+- **Landing:** no moving cards; the lamp does not travel: while the pointer is over the field it jumps to the pointer and finds the card there, otherwise it rests on the first card, with the first two cards already found; modules fade in over 180ms without rising, under the same trigger as the full power-on, and their brackets, gauges and pips appear at once; the reveal demo crossfades in 220ms; new feed entries appear without sliding; the star field stays still; the 03 countdown stops (as in the mock).
 - **Card reflection:** every card face keeps its studio reflection, still, at its rest position (the flat card's); a Légendaire's glitter stays as still, faint flakes.
 
 ## Card backs
@@ -394,12 +468,13 @@ Behavior only. Contrast values live in `DESIGN.md` (see Colors).
 - **Card text order:** title, studio (the developer), year, genre, rarity, number, then state (copies, NOUVEAU, reserved count). A card's accessible name always holds the full title, the studio, the year and the number, whatever its face shows or cuts with an ellipsis. Cover canvases, thumbnails, rays and particles are hidden from assistive technology; avatars have empty alt text next to a visible name; rarity icons are hidden when the name is beside them. A missing-card slot reads "Manquante : Into the Breach, 2018".
 - **Gauges** are progress bars with a text value. Countdowns are not live; their accessible text changes at most once a minute.
 - **No information only in a tooltip** (`title`).
-- **Moving content:** the ticker pauses on hover and stops with "ANIMATIONS RÉDUITES"; every looping or blinking effect stops with it; nothing blinks faster than once a second.
+- **Moving content:** the ticker pauses on hover and stops with "ANIMATIONS RÉDUITES"; every looping or blinking effect stops with it; nothing blinks faster than once a second. A visitor without an account stops them with the landing's motion switch (see Landing, Motion switch).
 - **Touch:** at least 44 × 44 CSS px for every phone target, 8px apart.
 - **Readability:** no meaningful information below 10px in the two fonts; meaningful text at 12px and below is bold; VT323 never under 20px and never for figures, which are in JetBrains Mono bold; `{colors.dim}` is decorative only (see `DESIGN.md`, Typography).
 - **Zoom and text spacing:** breakpoints are in CSS px of the viewport, so browser zoom reaches the phone layout; text is in rem; text rows use a minimum height so user text spacing never clips them.
-- **Language:** `<html lang>` follows the chosen language; text in another language (a Steam description) carries its own `lang`. A first visit uses the browser's language.
-- **Links and sign-in:** links that open a new tab or leave gameble say so; the Steam image's accessible name says it opens Steam.
+- **Language:** `<html lang>` follows the chosen language; text in another language (a Steam description, the interface's English words "LIVE" and "REPOST", the Steam image's words in its link name) carries its own `lang`. A first visit uses the browser's language.
+- **Links and sign-in:** links that open a new tab or leave gameble say so (see Copy deck, Landing, for the landing's hidden suffixes); Valve's image has empty alt text, and its link's name starts with the image's own words, "Sign in through Steam", marked English (`lang="en"`), and says it opens Steam (see Copy deck, Landing, Steam sign-in name).
+- **Landing:** one h1 (the hook) and one h2 per module, its accessible name holding the module label and the title ("01 · Concept, Chaque carte est un jeu Steam."); headline-sized lines are headings too: 07's recruiting line (h3, the roles under it h4) and 08's support line (h3). Landmarks are only main, the side gauge's navigation, the top bar and the footer: modules are `<section>` elements without an accessible name. The lamp field, the moving cards and the gauge's track are hidden from assistive technology. Every example (02's four tiles, 03's illustrations, 05's six visuals) is either hidden from assistive technology or named as one block starting "Exemple : " ("Exemple : Hugo a fait la première découverte de Hollow Knight"); only 04 and the 02 goal panel carry real data. The reveal demo announces its card politely. Roadmap statuses are written, not only drawn.
 
 ### Focus after each step
 
@@ -422,6 +497,10 @@ Behavior only. Contrast values live in `DESIGN.md` (see Colors).
 | Sub-view opened (phone) | Its heading |
 | Back or dialog closed | The element that opened it |
 | Return from Steam sign-in | The hub's first menu item (phone: the PONT heading) |
+| Side gauge marker (landing) | The module's h2 |
+| "Participer à l'écriture" (landing) | 07's h2 |
+| "Révéler" or "Recommencer" (landing reveal demo) | Stays on the button |
+| Landing after sign-out or account deletion | The landing's h1; the deletion toast is announced politely |
 
 ## Responsive & Platform
 
@@ -433,6 +512,8 @@ The layout rules (no scaling, page scroll, breakpoints at 720 and 1180px, conten
 - **Booster on the phone:** the cards land as a pile; one large card at a time; tap to reveal; the caption plate shows rarity, title and year; tap, swipe or "RANGER" stores the card in the tray; "Tout révéler" reveals and stores the rest; a filled slot opens the card zoom.
 - **Collection on the phone:** two columns with the studio visible; the FILTRES sheet and the search field; the RAPPORT panel folds; the card detail slides over with "◀ GRILLE" (or "◀ BOOSTER" when opened from a booster), ◀ ▶ buttons and a position line.
 - **Trades on the phone:** the list first; the trade board slides over ("◀ LISTE") with the friend's side on top and actions pinned at the bottom; the card picker is a full-height sheet.
+- **Landing on desktop:** moving cards only with a fine hovering pointer and where both gutters can hold them (a touch tablet or a zoomed window gets none); the side gauge from `{spacing.breakpoint-landing-gauge}`; the lamp follows a fine hovering pointer and sweeps on its own for touch.
+- **Landing on the phone:** no moving cards; the lamp sweeps on its own and is visible on the first screen (the field sits behind and around the hero text, never opening behind the copy, see `DESIGN.md`, Landing, Lamp field); the motion switch is an icon in the top bar; the 01 card row and the roadmap scroll sideways; no side gauge; sign-in through the top bar's Steam image and the final call.
 - **Browsers:** the modern-browser floor of the architecture (AD-27); the public pages a link opens also serve older browsers. Native store apps stay possible later.
 
 ## Inspiration & Anti-patterns
@@ -445,6 +526,9 @@ Visual inspirations and rejections live in `DESIGN.md` (see Brand & Style and Do
 - **Rejected — dust and two surprises per card:** one activation reveals everything.
 - **Rejected — the stratagem-like arrow code to open a pack.**
 - **Rejected — the generator's filler mechanics:** combat, decks, card stats, market, sales, currencies, recycling.
+- **Lifted from the landing renders (2026-10-14):** the console with numbered modules of [.working/landing-direction-c.html](.working/landing-direction-c.html) for the page, and the card field of [.working/landing-direction-a.html](.working/landing-direction-a.html) for the hero (reworked into the lamp) and its near layer of moving cards (now kept to the gutters).
+- **Rejected — a profusion of cards on the landing:** the mission is to find lost cards, so only a few cards move.
+- **Rejected — a LIVE ticker in the landing's live module** (it duplicated the feed list), **a Steam button in the hero**, and **status readouts beside module titles**.
 - **Rejected — a guide (a tour of what to do; the rules reference "Comment ça marche" was asked for by the author on 2026-10-13), and opening every booster at once.**
 
 ## Key Flows
@@ -452,8 +536,8 @@ Visual inspirations and rejections live in `DESIGN.md` (see Brand & Style and Do
 ### Flow 1 — First session (Léa, on her PC, clicks a link Hugo posted on Discord)
 
 1. Léa clicks Hugo's link. Discord's preview showed the card's title and rarity, no image.
-2. Signed out, she lands on the public card page: Hollow Knight large and tilting under her pointer, its publisher, "LÉGENDAIRE", genre, year, number, the short description and "VOIR SUR STEAM ↗".
-3. Below, the LIVE strip shows pulls and trades with their rarities. She can open the feed and browse the sets, all slots empty.
+2. Signed out, she lands on the public card page: Hollow Knight large and tilting under her pointer, its publisher, "LÉGENDAIRE", genre, year, number, the short description and "VOIR SUR STEAM ↗". The page also offers "Découvrir" (the landing) and "Embarquer sur le pont" (the signed-out hub); she follows neither (Flows 5 and 6 do).
+3. Below, the LIVE strip shows pulls and trades with their rarities. Through the signed-out hub she could open the feed and browse the sets, all slots empty.
 4. She presses "OUVRIR MES PREMIERS BOOSTERS". The sign-in panel opens with its title line and Valve's official button; she signs in with Steam.
 5. She lands on the Pont de commandement. The packs chip reads 10 BOOSTERS with "Réserve pleine"; menu 01 carries a lime "10"; the empty showcase invites her to open her first booster.
 6. She opens the booster screen and activates the canister: it charges, the caps blow off, five cards land face down wearing the Standard card back.
@@ -498,6 +582,29 @@ Variants: she reaches gold through a trade rather than a booster → the card ba
 
 Failure: the clipboard is refused → the link stays selected in its field with the manual-copy line.
 
+### Flow 5 — From a shared card to the first boosters (Camille, a player, through the landing)
+
+1. Camille opens a shared card's link (who shared it, and where, does not change the flow). Signed out, she lands on the public card page.
+2. She follows "Découvrir" and arrives on the landing.
+3. She scrolls to understand the game: the hook "Des jeux ont été perdus. La Confrérie part les retrouver. Rejoignez-la.", the lamp finding cards in the dark, then the modules powering on one after another, from the concept to the roadmap.
+4. She plays with the items, for example the lamp, a moving card she drags aside and the card she flips in 03. Each gives a taste, never the real thing; a little frustrated, as the landing intends, she wants to try it for real.
+5. She creates her account with Steam, from the final call or the top bar's image, which do the same. Steam's sign-in returns her to the Pont de commandement with a full reserve.
+6. She opens her first booster; five cards land face down and she reveals them.
+7. **Climax:** booster after booster she sees her collection and a few sets build up and progress; toasts and her first achievements come quickly (author, 2026-10-14): "SUCCÈS DÉBLOQUÉ · Premier booster" after her first opening, set celebrations as her first tiers come, and soon "Première Épique", each achievement toast waiting until the reveal on screen ends.
+
+Failure: Steam refuses, or she leaves Steam's page → she is back on the landing, still signed out `[ASSUMPTION]`.
+
+Variant — a direct visitor: Camille types gameble's address or follows a plain link, and meets the landing at /fr. « Embarquer sur le pont » takes her to the signed-out hub; she browses it, and the first action that needs an account opens the sign-in panel and its Steam image. Closing the panel leaves her on the hub, still signed out.
+
+### Flow 6 — From a shared card to the code (Yanis, a developer)
+
+1. Yanis arrives as Camille does: a shared card's link, the public card page, "Découvrir", the landing.
+2. He scrolls to 07 · Open source et contributions (on a wide screen he could also jump there with the side gauge).
+3. He reads that the code is entirely free, that tedious tasks are done by AI and the rest by humans, and the developers' role: anyone can propose a fix or an idea.
+4. **Climax:** "Voir le projet" opens the GitHub repository in a new tab (author, 2026-10-14); the landing stays open in its own tab.
+
+Supporting the project comes later, in a second phase, and is not part of these flows (author, 2026-10-14).
+
 ## Implementation notes
 
 Build rules found while prototyping and reviewing; they bind the build. Architecture-level items are listed in `ux-gameble.md` (see For the architecture).
@@ -510,8 +617,23 @@ Build rules found while prototyping and reviewing; they bind the build. Architec
 - **Dialogs and Esc:** every modal and bottom sheet is a native `<dialog>` opened with `showModal()`, in Stimulus and React; the hotkeys controller ignores events already handled, events while a dialog is open and events from form fields, so one Esc never both closes a dialog and navigates. Single-key shortcuts can be turned off.
 - **No inline style:** server HTML carries no `style` attribute (the CSP blocks it); progress bars and gauges get their values as CSS custom properties set by a controller.
 - **Large grids:** a collection grid beyond about 60 slots is paginated or virtualized, and only visible cards are filtered.
-- **Fonts:** the three latin font files (JetBrains Mono 400 and 700, VT323) are preloaded with `font-display: block` and a short block period, so a fallback swap never reflows two-line card titles.
+- **Fonts:** the app moves from Space Mono to JetBrains Mono in its own ticket (see Landing ship conditions). The three latin font files (JetBrains Mono 400 and 700, VT323) are preloaded with `font-display: block` and a short block period, so a fallback swap never reflows two-line card titles.
 - **Daily booster arc:** runs from `turbo:before-stream-render` (both positions known before the DOM is replaced) and dispatches `gameble:bank-changed`.
+- **Landing ship conditions:** the landing goes live (the root switch, the landing's last story) only once all of these hold: the lore text exists in French and English; the pioneer feature is built, so the « Découvrez » tile tells the truth; the repository is public with a license file, so 07's and the footer's open-source claims hold; the roadmap sync and the switch to JetBrains Mono are built first (author, 2026-10-14, triage).
+- **Landing roadmap data:** `_bmad-output` is not in the production image, so the roadmap the landing shows is app data generated from the initiative; that sync is its own build ticket (see Landing ship conditions).
+- **Landing data load:** the landing is the most visited page. Each data block (feed, season facts, goal, sample cards, roadmap) is cached per locale with a short cache lifetime, and signed-out GETs of the root are throttled like the other public pages. Like them, the landing also serves link previews and older browsers. The feed list subscribes to its updates only once module 04 comes into view.
+- **Landing motion cost:** the lamp's veil is one oversized element with a fixed hole, moved by `translate3d` (never a mask repainted each frame); its frame loop runs only while the lamp runs (see Component Patterns, Landing, Lamp field). The field's bottom fade is a ground-colored gradient laid over it, not a mask. Lamp, moving-card, gauge and power-on maths live in pure modules with unit tests.
+- **Landing without inline style or script:** modules are visible by default and the power-on controller arms only those not yet in view when it connects; the hero entrance is pure CSS; per-element values (lamp slots, rotations, staggers) come from CSS classes or are set through the CSSOM by a controller; fonts are self-hosted subsetted woff2, never `data:` URIs. The reveal demo is a Stimulus controller over server-rendered card faces, not the booster island, and its announcements are rendered by the server.
+- **Landing covers:** a small set of games is reused across the lamp, 01, the moving cards and the examples, so cached covers and filtered bitmaps are reused; covers draw lazily and modules use `content-visibility: auto`. Their cost is measured on the reference low-end phone (load, frame time while the lamp sweeps, bytes).
+- **Landing mock deviations (do not copy from `mockups/landing.html`):**
+  - its 34px « Révéler » on the phone (`{spacing.button-height-sm-phone}` applies);
+  - its footer links wrapping with a 4px gap (`{spacing.touch-gap}` applies), and its 24px-tall wordmark link on the phone;
+  - its `nowrap` example rows that clip at 320px, and its example feed rows « Inès complète Dark Souls » and « Nina a reposté Hades » without a period (the Feed copy applies);
+  - its side gauge marker names without the visible number, which break WCAG label-in-name (see Copy deck, Landing, Side gauge), and its marker numbers in `{colors.dim}`: they are the markers' only visible text, so they use `{colors.muted}`;
+  - its rotated 11px text in the COMPLET stamp of 05 (rotated text only in VT323 at 24px or more, see `DESIGN.md`, Collection, COMPLET stamp);
+  - its goal end « Fin lundi à 00:00 UTC » (the visitor's own time zone applies, never "UTC"), and its second weekly goal (« Tous les joueurs ») in 04 (the goal is live only in 02);
+  - its module power-on triggered by a share of the module's area (the fixed 85% line applies, see Component Patterns, Landing, Module), its feed list re-rendered every 8s, and its mask-repainting lamp;
+  - its « TERMINAL EN LIGNE » status in the top bar: no decision settles it `[ASSUMPTION: dropped]` (see Open questions, Landing top bar).
 - **Daily bonus booster:** it holds 3 cards, so the revealed counter and hints count to 3 for it ("Cartes révélées : n / 3").
 
 ## Open questions
@@ -525,6 +647,18 @@ Non-blockers, left open.
 - **Weekly goal lifecycle:** where the week boundary shows, and the reached, missed and rollover states (tagged above).
 - **Unmocked states:** cold load, offline, network error, banned account, non-staff back-office.
 - **Public profile page** (CAP-8) and the **signed-out hub** are not mocked.
+- **Roadmap page:** reached from "Voir toute la feuille de route"; decided, not designed. Whether the link is hidden until the page exists, and whether 06 caps at six milestones with two stories each.
+- **Roadmap sync shape** (for its ticket): a committed generated file with a CI check, or generation at image build; where the player-facing strings live, given every string belongs in `en.yml` and `fr.yml`.
+- **Landing copy in English:** written at the build, under the same rules as the French, and approved by the author in the pull request, or written first in a copy ticket.
+- **Landing top bar:** the mock's "Terminal en ligne" status beside the Steam image, kept or dropped.
+- **Motion switch beyond the landing:** whether the signed-out hub and the public card page also carry the switch (its cookie already applies there).
+- **Landing sample cards:** who picks the cards shown in the lamp, 01, the moving cards and the reveal demo, from which pool, and how they follow a season change (the feasibility review suggests a curated list of real games, one per slot, falling back to the published season's top card of that rarity).
+- **Landing live figures:** what "cette semaine" (calendar goal week or the last seven days) and "aujourd'hui" (the game's UTC day or the visitor's) count for the 04 facts.
+- **Signed-out entry points:** the signed-out hub's own address; where a signed-out deep link that needs an account, a failed Steam return and Esc lead (landing or signed-out hub); the phone tab bar and back button on the signed-out hub.
+- **Landing language and meta:** whether the landing offers a FR/EN switch or only the URL segment; its page title, meta description and link-preview image.
+- **Landing license line:** which license the repository takes, and whether 07's "Licence libre." names it.
+- **Landing copy points for the author:** moved to `review-copy-2026-10-14.md`, under Copy points carried from EXPERIENCE.md (2026-10-14).
+- **Spec follow-up pending:** CAP-1's sign-out destination, the landing exception (and Valve named in its footer) in `brotherhood-tone.md`, and a capability for the landing and one for the roadmap; a spec update follows the UX close.
 - **Avatars:** the source (Steam avatar through the pixel filter?) is not decided.
 - **English copy** and English rarity names are not written.
 - **Skip control:** whether a "Passer" control (and Esc) jumps an opening or reveal sequence to its end state (accessibility review M11).

@@ -3,10 +3,11 @@ name: gameble
 description: Pixel-art trading card game of Steam games, presented as an elegant space terminal in Steam's colors. Real Steam covers under a fine pixel filter, sober panels, small effects that tick in steps.
 status: final
 created: 2026-10-01
-updated: '2026-10-13'
+updated: '2026-10-14'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../brief-gameble/brief-gameble.md
+  - ../spec-gameble/lore.md
 colors:
   backdrop: '#05070a'
   ground: '#0b0f15'
@@ -227,6 +228,37 @@ typography:
     fontWeight: '700'
     fontSize: 12px
     lineHeight: 18px
+  landing-hook-medium:
+    fontFamily: VT323
+    fontWeight: '400'
+    fontSize: 42px
+    lineHeight: 42px
+    letterSpacing: 2px
+  landing-module-title:
+    fontFamily: VT323
+    fontWeight: '400'
+    fontSize: 44px
+    lineHeight: 48px
+    letterSpacing: 2px
+  landing-module-title-phone:
+    fontFamily: VT323
+    fontWeight: '400'
+    fontSize: 32px
+    lineHeight: 36px
+    letterSpacing: 2px
+  landing-tile-title:
+    fontFamily: JetBrains Mono
+    fontWeight: '700'
+    fontSize: 13px
+    letterSpacing: 1px
+  landing-figure:
+    fontFamily: JetBrains Mono
+    fontWeight: '700'
+    fontSize: 16px
+  landing-figure-small:
+    fontFamily: JetBrains Mono
+    fontWeight: '700'
+    fontSize: 14px
 rounded:
   DEFAULT: 0px
 spacing:
@@ -252,6 +284,7 @@ spacing:
   button-height-sm: 34px
   button-height-phone: 48px
   button-height-sm-phone: 44px
+  button-height-lg: 52px
   chip-height: 34px
   chip-height-touch: 44px
   touch-min: 44px
@@ -273,6 +306,17 @@ spacing:
   grid-card-max: 170px
   deal-gap-max: 14px
   deal-gap-min: 8px
+  landing-content-max: 1120px
+  landing-module-gap: 112px
+  landing-module-gap-phone: 64px
+  breakpoint-landing-gauge: 1440px
+  landing-hero-height: 500px
+  landing-illustration-height: 224px
+  landing-illustration-height-phone: 184px
+  landing-example-min-height: 176px
+  landing-step-marker: 46px
+  landing-roadmap-node: 24px
+  landing-roadmap-column-phone: 216px
 components:
   art-pixel:
     size: '{spacing.unit}'
@@ -458,6 +502,12 @@ components:
   scanlines:
     css: 'repeating-linear-gradient(0deg, rgba(0,0,0,.11) 0 1px, transparent 1px 3px)'
     layer: under content
+  lamp:
+    veil: 'rgba(5, 7, 10, .9)'
+    radii-desktop: 70px 96px 124px
+    radii-phone: 50px 70px 90px
+    reticle: 56px
+    found-opacity: 0.42
   vignette:
     desktop: 'box-shadow: inset 0 0 180px 30px rgba(0,0,0,.7)'
     phone: 'box-shadow: inset 0 0 110px 16px rgba(0,0,0,.62)'
@@ -485,7 +535,7 @@ Three ideas hold it together:
 
 Movement is fluid; small effects tick in steps; only genuinely live things blink. Timings live in `EXPERIENCE.md` (see Motion).
 
-Visual references: [mockups/key-screens.html](mockups/key-screens.html) (desktop prototype, every screen, including the chosen "Explosion A" opening on the booster screen) and [mockups/mobile.html](mockups/mobile.html) (phone prototype). DESIGN.md and EXPERIENCE.md take precedence over any mock or import when they conflict. The mocks are a reference for look and timing, never source code.
+Visual references: [mockups/key-screens.html](mockups/key-screens.html) (desktop prototype, every screen, including the chosen "Explosion A" opening on the booster screen), [mockups/mobile.html](mockups/mobile.html) (phone prototype) and [mockups/landing.html](mockups/landing.html) (the visitor landing, desktop and its 390px phone form; its gray REVUE toolbar, note pins and editable outlines are a review aid, not part of the design). DESIGN.md and EXPERIENCE.md take precedence over any mock or import when they conflict. The mocks are a reference for look and timing, never source code.
 
 ## Colors
 
@@ -498,7 +548,7 @@ Dark only. Text reaches a contrast ratio of at least 4.5:1, and interface bounda
 - **Accent (`{colors.accent}`)** is the terminal's voice: kickers, menu numbers, corner brackets, hazard stripes, gauge fills, hover fills and the LIVE label. Text on an accent fill is `{colors.on-accent}` (9.1:1). `{colors.accent-hi}` lights the edge of a hovered menu row and the card-back sheen; `{colors.accent-press}` is a pressed menu row. Rarity-colored text (Rare shares the accent hue) is never interactive.
 - **Text:** `{colors.text}` for running text (12.8:1 on the ground), `{colors.text-bright}` on buttons, `{colors.text-max}` for titles and the focus ring, `{colors.muted}` for secondary text (6.0:1 on a panel), `{colors.publisher}` for the studio line on card faces, over the card veil (4.5:1 or more there, measured over the brightest art). `{colors.dim}` (3.2:1) is for decoration only, never for words a player needs.
 - **Outline (`{colors.outline}`)** draws every pixel border and the gap inside the focus ring.
-- **Lime** is the single primary action: `{colors.primary}` as the button fill (text `{colors.on-lime}`, 6.2:1), `{colors.lime}` for count badges, the online dot, reserve pips, "PRÊT", "NOUVEAU" and the active card back. Never more than one lime button per view.
+- **Lime** is the single primary action: `{colors.primary}` as the button fill (text `{colors.on-lime}`, 6.2:1), `{colors.lime}` for count badges, the online dot, reserve pips, "PRÊT", "NOUVEAU" and the active card back. Never more than one lime button in view at once: a long page such as the landing may hold several, far apart (author, 2026-10-14).
 - **Gold (`{colors.gold}`)** belongs to the Légendaire tier, the "PREMIÈRE DÉCOUVERTE" chip, the quantity badge and the "DERNIÈRE OBTENTION" kicker. It is never a general accent. The phone's Légendaire caption plate sits on `{colors.plate-legendaire}`.
 - **Orange (`{colors.alert}`)** is for alerts only: a trade waiting for the player (badge text `{colors.on-alert}`), the armed canister, expiry, "RÉSERVE PLEINE", report and delete, inline errors.
 - **Danger:** `{colors.danger-bg}` with `{colors.danger-text}`, turning orange on hover; only for deleting the account.
@@ -521,8 +571,8 @@ Each tier has a `-hi` and `-lo` shade for the lit and shaded edges of its icon. 
 
 Two open-licensed (OFL) fonts, self-hosted (subsetted woff2 with their license texts), each with one job. Both cover French accents.
 
-- **VT323** (400): the titles, never under 20px: the screen titles, the hero and public titles, the player's and showcase names, the reveal banner, the card title at xl and the friend code: `{typography.screen-title}`, `{typography.hero}`, `{typography.public-title}`, `{typography.banner}`, `{typography.banner-small}`, `{typography.showcase-name}`, `{typography.card-title-xl}`.
-- **JetBrains Mono** (400, 700): every other text, and every figure (author, 2026-10-13). Bold for the card titles at s, m and l (`card-title-s` to `card-title-l`, uppercase), the buttons (`{typography.button}`, `{typography.button-sm}`), the figures, and every style at 12px and below: kickers, labels and chips in capitals with a light letter spacing (`{typography.kicker}`, `{typography.label}`), the card lines (`{typography.card-meta}` / `{typography.card-meta-xl}`), the studio line (`publisher-m` to `publisher-xl`) and the small running text (`{typography.body-small}`, sentences included). Regular for the menu (`{typography.menu}`) and the running text, hints, descriptions and feed lines (`{typography.body}`, `{typography.body-large}`).
+- **VT323** (400): the titles, never under 20px: the screen titles, the hero and public titles, the landing's hook and module titles, the player's and showcase names, the reveal banner, the card title at xl and the friend code: `{typography.screen-title}`, `{typography.hero}`, `{typography.public-title}`, `{typography.banner}`, `{typography.banner-small}`, `{typography.showcase-name}`, `{typography.card-title-xl}`, and on the landing `{typography.landing-hook-medium}` and `{typography.landing-module-title}`.
+- **JetBrains Mono** (400, 700): every other text, and every figure (author, 2026-10-13). Bold for the card titles at s, m and l (`card-title-s` to `card-title-l`, uppercase), the buttons (`{typography.button}`, `{typography.button-sm}`), the figures, and every style at 12px and below: kickers, labels and chips in capitals with a light letter spacing (`{typography.kicker}`, `{typography.label}`), the card lines (`{typography.card-meta}` / `{typography.card-meta-xl}`), the studio line (`publisher-m` to `publisher-xl`) and the small running text (`{typography.body-small}`, sentences included), and on the landing its tile titles and figures (`{typography.landing-tile-title}`, `{typography.landing-figure}`, `{typography.landing-figure-small}`). Regular for the menu (`{typography.menu}`) and the running text, hints, descriptions and feed lines (`{typography.body}`, `{typography.body-large}`).
 
 Rules:
 
@@ -533,7 +583,7 @@ Rules:
 - Card titles wrap to two lines at most, then end with an ellipsis; the full title stays in the accessible name and the card detail.
 - **Glyphs the fonts lack** (◀ ▶ ▸ ◆ ⇄ ↗ ✕ ✓ ⧗) are drawn as pixel SVG icons, never typed as characters (◀ ▶ can render as color emoji).
 - **Digit grouping** uses U+00A0 (no-break space): "31 420", "#4 215".
-- **Phone ramp:** `{typography.screen-title-phone}`, `{typography.showcase-name-phone}`, `{typography.public-title-phone}`, `{typography.kicker-phone}`, `{typography.count-large-phone}`, `{typography.body-large-phone}`; other sizes are shared.
+- **Phone ramp:** `{typography.screen-title-phone}`, `{typography.showcase-name-phone}`, `{typography.public-title-phone}`, `{typography.kicker-phone}`, `{typography.count-large-phone}`, `{typography.body-large-phone}`, `{typography.landing-module-title-phone}`; other sizes are shared.
 - Text sizes are set in rem from a 16px root; the art pixel stays in px. Rows holding text use a minimum height, never a fixed one.
 
 ## Layout & Spacing
@@ -564,6 +614,7 @@ The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 | Profil et paramètres | Summary and settings 360px · back picker fluid | Left 300 to 340px | One column |
 | Succès | Tiles fill columns of at least 260px | Same | Same |
 | Public card page | Card · info (capped at 1180px), LIVE strip and footer below | Same | One column: card, info, LIVE, footer |
+| Landing | Modules capped at `{spacing.landing-content-max}`, each laid out as in Components, Landing; the hero's text beside the lamp field; the side gauge from `{spacing.breakpoint-landing-gauge}` | Hero still side by side; each module's medium-width form is in Components, Landing | Same as 900 to 1179px |
 
 - **Breathing room (author, 2026-10-07):** the whole interface breathes more. Panels get more padding (`{spacing.panel-padding}`), and the gaps between panels, rows, chips and cards go up by about one step of the scale. The exact gap values are tuned on the built screens; information must stay easy to tell apart at a glance.
 - **Booster stage:** as wide as its column. The five dealt cards sit in one row with gaps from `{spacing.deal-gap-max}` down to `{spacing.deal-gap-min}`; when even that does not fit, they wrap into a row of 3 and a row of 2 and the stage grows taller.
@@ -573,6 +624,7 @@ The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 - **Showcase rays** are clipped by the center column between 1180 and 1279px.
 - **Phone composition:** portrait only. A single scrolling column per screen between the top bar and the bottom tab bar (`{spacing.tabbar-height}` plus the safe area). Reference sizes 390 × 844 and 360 × 740. A phone held sideways shows no overlay and no landscape layout: the phone layout stays a portrait-width column (at most `{spacing.phone-column-max}`), centered, scrolling. The installed web app declares portrait orientation in its manifest; a browser tab cannot be locked. Phone sizes: buttons `{spacing.button-height-phone}` (small `{spacing.button-height-sm-phone}`), ticker `{spacing.ticker-height-phone}`, PLUS rows `{spacing.plus-row-height}`, set chips `{components.set-chip-phone.size}`.
 - **Touch:** every phone target has at least a `{spacing.touch-min}` × `{spacing.touch-min}` CSS px hit area and `{spacing.touch-gap}` from its neighbors, even when its visual is smaller (chips: `{spacing.chip-height}` visual, `{spacing.chip-height-touch}` hit area).
+- **Landing on the phone** (reference: [mockups/landing.html](mockups/landing.html), "Largeur téléphone"): one column with `{spacing.gutter-phone}` gutters and `{spacing.landing-module-gap-phone}` between modules; no tab bar (the landing has its own slim top bar); every grid stacks except the 01 card row and the 06 roadmap, which scroll sideways. Each part's phone form is in Components, Landing.
 - **Card sizes**, all 2:3. The art box is always twice the image's pixel resolution, so the art pixel stays 2 CSS px.
 
 | Size | Pixels | Used for |
@@ -594,8 +646,8 @@ Depth is drawn in pixels, not in soft shadows.
 - **Bevel:** the card frame has `{components.card-face.bevel}`; buttons have `{components.button-primary.inset}` along the bottom, which moves to the top when pressed.
 - **Panels** are flat, separated by an inset line, not by elevation.
 - **Ground shadows:** a showcased card floats over a flat dark bar that breathes with its idle float.
-- **Glow is rare:** a Légendaire gets a blurred gold glow only inside the booster opening. Rays (pixel sunbursts) turn behind Épique and Légendaire cards in the booster, the card detail, the hub showcase and the public card page; never behind lower tiers. Dialogs and toasts have one soft drop shadow so they sit above the screen.
-- **Atmosphere, under the content:** a star field of 2 and 4px stars that stays still when the screen changes and only twinkles softly, a few stars at a time (no sideways shift); faint scanlines (`{components.scanlines.css}`); a vignette (`{components.vignette.desktop}`, phone `{components.vignette.phone}`). All three sit on the background and the art only, never over text, bars, toasts, dialogs or the tab bar.
+- **Glow is rare:** a Légendaire gets a blurred gold glow only inside the booster opening. Rays (pixel sunbursts) turn behind Épique and Légendaire cards in the booster, the card detail, the hub showcase and the public card page, and, as an approved exception (author, 2026-10-14), behind the Épique and Légendaire moving cards of the landing; never behind lower tiers. Dialogs and toasts have one soft drop shadow so they sit above the screen.
+- **Atmosphere, under the content:** a star field of 2 and 4px stars that stays still when the screen changes and only twinkles softly, a few stars at a time (no sideways shift; on the landing only, it drifts slightly with the scroll, see `EXPERIENCE.md`, Motion); faint scanlines (`{components.scanlines.css}`); a vignette (`{components.vignette.desktop}`, phone `{components.vignette.phone}`). All three sit on the background and the art only, never over text, bars, toasts, dialogs or the tab bar.
 - **Flash and shake** exist only inside the booster opening and the trade swap.
 - **Blinking** is reserved for genuinely live things: the LIVE marker. Status lights, kickers, badges, timers, the focus frame and decorative pulses are steady. Nothing blinks faster than `{components.motion.blink-max-rate}`.
 
@@ -630,7 +682,7 @@ One style for every focusable element: `{components.focus-ring.css}`, a 3px `{co
 #### Buttons
 
 - **Secondary button** (default): `{colors.line}` fill, `{colors.text-bright}` text, pixel outline, dark bottom inset, `{spacing.button-height}` tall (`{spacing.button-height-sm}` small; phone `{spacing.button-height-phone}` / `{spacing.button-height-sm-phone}`). Hover lifts 3px and fills with accent. Pressed drops 2px, the inset moves to the top.
-- **Primary button:** `{colors.primary}` fill, `{colors.on-lime}` text, `{colors.primary-hover}` on hover. One per view: "OUVRIR LE BOOSTER", "ACCEPTER", "RÉCUPÉRER", "VOIR SUR STEAM", "ENVOYER LA PROPOSITION", "OUVRIR MES PREMIERS BOOSTERS".
+- **Primary button:** `{colors.primary}` fill, `{colors.on-lime}` text, `{colors.primary-hover}` on hover. One in view at once: "OUVRIR LE BOOSTER", "ACCEPTER", "RÉCUPÉRER", "VOIR SUR STEAM", "ENVOYER LA PROPOSITION", "OUVRIR MES PREMIERS BOOSTERS", and on the landing « Embarquer sur le pont » and « Soutenir », never in view together.
 - **Danger button:** `{colors.danger-bg}`, `{colors.danger-text}`, orange on hover.
 - **Disabled:** `{colors.disabled-bg}` with `{colors.disabled-text}`, no lift. A disabled button never carries information on its own; its reason is written next to it.
 - **Back button:** a small secondary button in the top bar, naming the screen it returns to: on desktop the previous screen ("◀ COLLECTION", "◀ FICHE"), after the GAMEBLE link; on the phone, contextual ("◀ GRILLE", "◀ LISTE", "◀ PLUS"), at the left.
@@ -661,7 +713,7 @@ The tier's pixel shape (see Rarity). On card faces it is a compact set: 5 × 5 a
 
 #### Steam sign-in
 
-The only element that links to Steam's sign-in is Valve's official "Sign in through Steam" image, used unmodified (no restyle, no pixel filter, no relabel): `imports/sits_01.png` (180 × 35, horizontal), in bars and in the sign-in panel alike. The stacked `imports/sits_02.png` (109 × 66) is not used. The image sits inside a hit area of at least 44px high with the focus ring around it.
+The only element that links to Steam's sign-in is Valve's official "Sign in through Steam" image, used unmodified (no restyle, no pixel filter, no relabel): `imports/sits_01.png` (180 × 35, horizontal), in bars, in the sign-in panel and in the landing's final call alike. The stacked `imports/sits_02.png` (109 × 66) is not used. The image sits inside a hit area of at least 44px high with the focus ring around it.
 
 **Sign-in panel:** game-styled calls to action that need an account (for example "OUVRIR MES PREMIERS BOOSTERS") open a small dialog (a bottom sheet on the phone) holding one title line, "CONNECTEZ-VOUS POUR JOUER", the official horizontal button and the close "✕". No reassurance or other copy.
 
@@ -712,7 +764,7 @@ A placeholder image (too small or single-channel) counts as missing. If cross-or
 | Commune | None | None |
 | Peu commune | None | None |
 | Rare | None | None |
-| Épique | Purple rays, small banner | Purple rays behind the card in the detail, the showcase and the public page |
+| Épique | Purple rays, small banner | Purple rays behind the card in the detail, the showcase, the public page and the landing's moving cards |
 | Légendaire | Glitter over an iridescent reflection, gold rays, gold glow, large banner | Glitter over an iridescent reflection (and gold rays where Épique has purple ones); no glow |
 
 Every card's varnish reflects a studio, always, at rest as under the pointer (author, 2026-10-13): two diagonal white strip lights, the second a narrow echo of the first, and a faint bright ceiling, drawn in hard steps. The varnish gets glossier with the rarity: a Commune's strips are broad and dim, a Légendaire's tight and bright. When the card tilts, the reflection slides opposite the tilt and brightens a little, riding the card's eased tilt in and out. On the Légendaire, pastel hues show through its main strip, a static iridescence whose colors shift with the tilt (`{colors.iridescence-1}` to `{colors.iridescence-7}`).
@@ -746,7 +798,7 @@ Navigation and status around the screens.
 
 #### Top bar
 
-`{components.top-bar.height}` on `{colors.steam-bar}`. Left, on desktop: the gold GAMEBLE wordmark on every screen, a link to the hub on the others (hover as a link `[ASSUMPTION]`), then, off the hub, a vertical divider, the back button when shown and the screen title. Left, on the phone: the wordmark (hub) or the back button and the screen title (other screens; shortened, for example "BOOSTER", "PROFIL"). On the phone the chips on the right keep their width and never overlap the title: the title takes the space left and ends with an ellipsis when it does not fit (author, 2026-10-13). The settings screen's phone title is "PROFIL" and its player chip stays (copy: see `EXPERIENCE.md`, Copy deck). Mockups drawn with "◀ PONT" at the left of a desktop top bar predate this rule; the rule applies. Right, per screen:
+`{components.top-bar.height}` on `{colors.steam-bar}`. Left, on desktop: the gold GAMEBLE wordmark on every screen, a link to the hub on the others, and to the landing for a signed-out visitor (hover as a link `[ASSUMPTION]`), then, off the hub, a vertical divider, the back button when shown and the screen title. Left, on the phone: the wordmark (hub) or the back button and the screen title (other screens; shortened, for example "BOOSTER", "PROFIL"). On the phone the chips on the right keep their width and never overlap the title: the title takes the space left and ends with an ellipsis when it does not fit (author, 2026-10-13). The settings screen's phone title is "PROFIL" and its player chip stays (copy: see `EXPERIENCE.md`, Copy deck). Mockups drawn with "◀ PONT" at the left of a desktop top bar predate this rule; the rule applies. Right, per screen:
 
 | Screen | Right side |
 |---|---|
@@ -756,6 +808,7 @@ Navigation and status around the screens.
 | Échanges | "Entre amis · une proposition expire après 7 jours" |
 | Fil d'activité | LIVE marker |
 | Public card page | The wordmark only on the left; the official Steam sign-in image on the right |
+| Landing | The wordmark only on the left; the « Animations réduites » motion switch, then the official Steam sign-in image, on the right (see Landing) |
 
 - **Packs chip:** a small canister icon, the reserve count in `{typography.number}`, "BOOSTERS", a divider and "+1 dans" with the countdown, or "Réserve pleine" at 10 (for narrower widths, see Layout & Spacing).
 - **Player chip:** the 32px pixel avatar with an outline, the name, a lime online dot.
@@ -784,7 +837,7 @@ Menu-item rows of `{spacing.plus-row-height}` without numbers: AMIS, FIL D'ACTIV
 
 ### Screens
 
-Parts specific to one screen, in hub, booster, collection, trade, friends, feed, achievements, profile and public order.
+Parts specific to one screen, in hub, booster, collection, trade, friends, feed, achievements, profile, landing and public order.
 
 #### Showcase
 
@@ -802,7 +855,7 @@ A quiet panel under the hub menu: "BOOSTER QUOTIDIEN" with a state word on the r
 
 #### Signed-out hub
 
-The hub with the official Steam sign-in image in place of the packs and player chips; the daily booster panel and the showcase are replaced by a short invitation to sign in.
+The hub as a visitor without an account sees it, to look around before signing in: the official Steam sign-in image in place of the packs and player chips, and a short invitation to sign in in place of the daily booster panel and the showcase. It is no longer the signed-out root: the landing is (see Landing; author, 2026-10-14). Not mocked.
 
 #### Booster canister
 
@@ -895,13 +948,43 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Fil d'activité
 - **Title and menu theme pickers (after the launch, CAP-22):** the same grid as the back picker: each title or theme with its name and either "ACTIF", "Choisir" or its unlock condition.
 - **Back picker:** the active card back large (`card-l`, phone `card-m`) with its name and "DOS ACTIF" in lime; a grid of the backs, each with its name and either "ACTIF", "Choisir" or its unlock condition; the active card back has a steady lime frame.
 
+#### Landing
+
+Every rule in this section is the author's decision of 2026-10-14 unless tagged `[ASSUMPTION]`.
+
+What a signed-out visitor meets at /fr and /en. Reference: [mockups/landing.html](mockups/landing.html), desktop and its 390px phone form; DESIGN.md and EXPERIENCE.md win where it differs (its known deviations: see `EXPERIENCE.md`, Implementation notes, Landing mock deviations). Copy: see `EXPERIENCE.md`, Copy deck, Landing, the single source of the landing's strings. The strings quoted below only name a slot; the copy deck writes them in sentence case and capitals come from style (kickers, labels, tags, footer links).
+
+- **The page as the ship's console:** the app's own space-terminal style (star field, scanlines and vignette under the content, panels, corner brackets, hazard stripes, segmented gauges), made lively by motion and a few interactive items. The hero, then nine numbered modules in one column, capped at `{spacing.landing-content-max}` and separated by a uniform `{spacing.landing-module-gap}` (`{spacing.landing-module-gap-phone}` on the phone), then a footer.
+- **Module** (its header; each module powers on as its top edge enters the view, see `EXPERIENCE.md`, Landing): « 0n · Nom » in `{typography.kicker}` accent capitals ("01 · CONCEPT"), followed by a 2px `{colors.line-soft}` rule to the end of the line; below it the title in `{typography.landing-module-title}` `{colors.text-max}` (`{typography.landing-module-title-phone}` on the phone), on its own line; below the title, its subtitle in `{typography.body-large}` `{colors.text}`. Title and subtitle are never side by side. No status word, status light, square or gray label beside a title.
+- **Balance:** within each module, columns and tiles have matching weight and height; no half-empty tile beside a full one; example visuals sit at the foot of their tile so tiles of a row align; the same spacing between every module, on desktop and phone.
+- **Top bar:** slim, `{components.top-bar.height}` on `{colors.steam-bar}` with its 2px rule: the gold wordmark on the left; on the right the motion switch, then Valve's official Steam sign-in image (see Steam sign-in). No chips. The **motion switch** (« Animations réduites ») shows to every visitor: a pixel motion icon, the label in `{typography.label}` `{colors.muted}` and a square that fills accent when on, `{spacing.chip-height}` tall with `{components.control-border.css}`; on the phone the icon alone, its name kept in its accessible name, in a `{spacing.touch-min}` hit area. No decision settles the mock's « TERMINAL EN LIGNE », a status light left of the Steam image `[ASSUMPTION: dropped, in line with the no-status-words rule]` (see `EXPERIENCE.md`, Open questions).
+- **Hero:** text on the left, the lamp field on the right (`{spacing.landing-hero-height}` tall), capped at `{spacing.landing-content-max}`. The kicker « Mission en cours » with a steady accent status light; the hook as the page's h1, with a 3px `{colors.outline}` text shadow, in `{typography.public-title}` from 1180px, `{typography.landing-hook-medium}` from 720 to 1179px and `{typography.public-title-phone}` on the phone, letter spacing 2px; the line that says what the game is in `{typography.body-large}` `{colors.text-bright}`; one large primary button, « Embarquer sur le pont », `{spacing.button-height-lg}` tall. No Steam button in the hero.
+- **Lamp field:**
+  - **Cards and veil:** a few cards (six on desktop: `card-l`, two `card-m`, `card-s`, two `card-xs`, one of them a Standard card back; five smaller ones on the phone) scattered with slight rotations (up to about ±14°), under a dark veil (`{components.lamp.veil}`). The field fades out over its bottom 18% under a `{colors.ground}` gradient laid over it.
+  - **Lamp and reticle:** the lamp opens the veil in three hard steps (radii `{components.lamp.radii-desktop}`, phone `{components.lamp.radii-phone}`) with a faint accent glow, and carries a `{components.lamp.reticle}` reticle of four accent corner ticks around a `{colors.accent-hi}` center pixel.
+  - **Found card:** framed by two 16px accent corner marks, 3px thick, and a « Trouvé » tag (`{typography.kicker-phone}`, accent on `{colors.panel-sunken}` with a `{colors.line-deep}` border); once the lamp moves on, the card stays faintly visible (`{components.lamp.found-opacity}`) and its tag hides.
+  - **Readout:** under the field, a steady status light, « Jeux retrouvés » in muted `{typography.label}` and « n / n » in `{colors.text-max}`, then the sweep mode in `{colors.dim}` (hidden on the phone). It is decorative, like the field, and sits above the field's fade.
+  - **Phone copy box:** on the phone the field spreads behind and around the text, but the hero copy keeps a solid backing: the lamp never opens the veil over the copy's box (kicker, hook, line and button, plus 8px), which always stays under at least the full `{components.lamp.veil}`, and no card is placed so that its lit part falls under that box. The copy keeps 4.5:1, measured over the brightest cover with the lamp at its worst position.
+- **01 · Concept:** one bracketed panel. On top, the rarity cards: five real card faces on one level at the same size, Commune to Légendaire (`card-m` from 1180px, `card-s` below), with their rarity frame, varnish and the Légendaire's glitter; under each, the rarity icon and name in the rarity color and its chance per card in muted `{typography.label}`. Below a 2px `{colors.line-soft}` rule, three notes in three columns separated by the same rule: a title in `{typography.landing-tile-title}` capitals `{colors.text-max}` and a line in `{typography.body-small}`. On the phone the cards scroll sideways and the notes stack.
+- **02 · La Confrérie:** a twelve-column grid. The lore panel (8 columns, with corner brackets): the kicker « Archive 001 », a `{typography.screen-title}` title, the lore text (until the lore session writes it, a dashed `{colors.line-deep}` slot), and under a rule the call to narrators with a link. Beside it the goal panel (4 columns), the landing's only live weekly goal: kicker, a title in `{typography.screen-title}`, a `{typography.body-small}` line, the Brotherhood's goal line in `{typography.screen-title-phone}` `{colors.text-max}`, the participants and the shared count in `{typography.landing-figure}`, the 24-segment gauge and a foot line. Below, four quiet panels titled with verbs in `{typography.card-title-xl}`, each with its line and an example at its foot: a large thumbnail with the gold « Première découverte » chip; two avatars and two thumbnails around the swap icon; a thumbnail with the « Repost » tag; two compact feed rows, which wrap rather than clip. At medium widths (720 to 1179px) the lore and goal panels go full width and the tiles sit two by two.
+- **03 · Comment ça marche:** four illustrated steps joined by a dotted `{colors.line-deep}` line through `{spacing.landing-step-marker}` numbered squares (accent outline, "01" to "04" in `{typography.landing-tile-title}` accent). Each step is a panel: an illustration area of fixed height (`{spacing.landing-illustration-height}`, `{spacing.landing-illustration-height-phone}` on the phone), the step title in `{typography.screen-title}`, its text in `{typography.body-small}` `{colors.text}`; titles and texts are left-aligned. Illustrations: a 64px avatar with a « Nouveau membre » badge; large reserve pips with « Prochain booster dans » and a countdown in `{typography.clock}`; the reveal demo, a face-down `card-s` above a small « Révéler » button (`{spacing.button-height-sm-phone}` on the phone); thumbnails and empty slots over « Set Roguelike · en cours ». At medium widths the steps sit two by two, without the dotted line.
+- **04 · En direct:** two columns (about 1.4 to 1) of matching height. Left, the live feed list: the kicker « Fil d'activité » with the LIVE marker, the five latest Feed entries (see Activity feed), and the link to the feed at the foot. Right, the season panel with corner brackets: the kicker, the season's name in `{typography.banner-small}`, and three fact rows on `{colors.panel-sunken}` (muted label, figure in `{typography.landing-figure-small}` `{colors.text-max}`). At medium widths the feed sits above the season panel. The weekly goal is not repeated here: it is live only in 02. No LIVE ticker in this module.
+- **05 · À faire et à débloquer:** six panels in three columns, two rows (two columns at medium widths): Sets et paliers, Échanges entre amis, Objectif communautaire, Succès, Dos de cartes, Collection. Each has a title in `{typography.landing-tile-title}` capitals, its text in `{typography.body-small}`, and an example visual at least `{spacing.landing-example-min-height}` tall: set progress rows (one with its tier ticks and marks, one with the COMPLET stamp); a trade strip (« Léa donne » / « Vous donnez » with large thumbnails around the swap icon); a past goal, with no live figure (« Semaine 41 », « Atteint », its line, a full gauge, its reward line); four achievement rows, two earned with a pixel check and two « À obtenir »; a fan of four card backs, two locked (grayed under the padlock); a row of thumbnails and empty slots with the « Cartes uniques » count and a thin bar. The Sets et paliers and Dos de cartes tiles carry a « Bientôt » tag after their title: `{typography.kicker-phone}` muted inside a 2px `{colors.line-deep}` outline, the look of the roadmap's « À venir ». Tier marks and the COMPLET stamp follow their own rules (see Collection); the mock's rotated 11px stamp text breaks them (see `EXPERIENCE.md`, Implementation notes, Landing mock deviations).
+- **Roadmap (06 · Feuille de route):** a progress line of milestones (the initiative's epics), one row of six on desktop, two rows of three at medium widths, a sideways-scrolling row on the phone (columns `{spacing.landing-roadmap-column-phone}` wide, with snap points). Each milestone has a `{spacing.landing-roadmap-node}` node on the line: done, filled accent with a check; in progress, an accent outline around a 10px accent square; to come, a `{colors.line-deep}` outline on the ground. The segment after a node is solid accent after a done one, dotted accent after one in progress, dotted `{colors.line-deep}` after one to come; the last segment fades out. Under the node: the status word in `{typography.kicker-phone}` (done `{colors.text-bright}`, in progress accent, to come muted), the epic's name in `{typography.card-title-xl}`, and a few player-facing stories (two in the mock) in `{typography.label}`, in sentence case, each with an 8px marker (filled when done, half-filled in progress, outlined to come). At the foot, under a rule, the legend (« Fait », « En cours », « À venir ») and the link « Voir toute la feuille de route ».
+- **07 · Open source et contributions:** the subtitle, then the recruiting line in `{typography.showcase-name-phone}` `{colors.text-max}`, then three role panels (artists, narrators and scribes, developers): a « Poste ouvert » line in kicker style with a steady accent light, the role in `{typography.screen-title}`, its text. At medium widths two roles sit side by side and the third goes full width. At the foot, the secondary button « Voir le projet » with the pixel external icon, through which every role answers, and a `{typography.body-small}` line. No numbered list of arguments about AI.
+- **08 · Un jeu libre:** the title, then two text columns in `{typography.body-large}` `{colors.text-bright}` separated by a 2px `{colors.line-soft}` rule (one column on the phone); then the emphasized support panel: corner brackets, a hazard stripe on top, the kicker « Soutenir gameble », a line in `{typography.banner-small}` (`{typography.showcase-name-phone}` on the phone), a `{typography.body-large}` line and the large primary button « Soutenir » with the external icon, on the right (below on the phone).
+- **Final call (09 · Embarquement):** one bracketed panel with a hazard stripe on top: the title in `{typography.banner}` (`{typography.public-title-phone}` on the phone), its line, and the « Réserve : 10 / 10 » visual beside the title: ten lit reserve pips and that label. On the right (below on the phone): Valve's official Steam sign-in image and, under it, the link to the signed-out hub, « Embarquer sur le pont », as a link, never a lime button.
+- **Landing footer:** a `{colors.steam-bar}` band with a 2px `{colors.line}` rule on top: the wordmark (24px), the links « Mentions légales », « Soutenir » and « Code source » (the last two with the external icon), and the no-affiliation and ownership line in muted `{typography.label}`. On the phone the links keep `{spacing.touch-gap}` between rows.
+- **Moving cards (wide desktop only):** a few cards (five in the mock: an Épique and a Légendaire face, a Standard card back, a Peu commune and a Rare, at `card-m` and `card-l`) pass down the gutters on either side of the content column, never over it, each with a slight rotation (within about ±11°) and a hard dark drop shadow 18px below. They show their rarity effects; the Épique and Légendaire ones keep their rays behind them, an approved exception to the rays rule (author, 2026-10-14). Under the pointer the cursor is a grab hand; a dragged card lifts (scale 1.06, 3°). When they appear, how they move and drag, and how they give way to keyboard focus: see `EXPERIENCE.md`, Landing, Moving cards.
+- **Side gauge (wide desktop only):** from `{spacing.breakpoint-landing-gauge}`, fixed at the left edge, centered vertically, on a translucent `{colors.panel-sunken}` plate with a `{colors.line-soft}` border: a 6px track of 24 segments filling with the scroll position (accent on `{colors.panel-raised}`) beside ten numbered markers, « 00 » (the hero) to « 09 », in `{typography.kicker-phone}` `{colors.muted}`, each at least 24 × 24px; the current marker is `{colors.text-max}` with a 3px accent bar on its left and its number in accent. No labels and no percentage.
+
 #### Seasonal allocation (after the launch, CAP-23)
 
 A panel page in the shell's tokens, one scrolling column on the phone. Its layout is designed with the author before the screen is built.
 
 #### Public card page
 
-No app chrome: a slim top bar with the wordmark and the official Steam sign-in image. Left: the shared card at `card-xl`, tilting under the pointer, with rays from Épique up. The page never names who shared or owns the card (spec CAP-9). Right: the title in `{typography.public-title}`, the publisher, a line with rarity, genre, year and number, the description in `{typography.body-large}`, the link "VOIR SUR STEAM ↗", and a call-to-action panel with a two-line pitch (copy: see `EXPERIENCE.md`, Copy deck) and the primary button "OUVRIR MES PREMIERS BOOSTERS". Below, "LIVE · En ce moment sur gameble" with three compact feed entries. A footer link "Mentions légales".
+No app chrome: a slim top bar with the wordmark (a link to the landing) and the official Steam sign-in image. Left: the shared card at `card-xl`, tilting under the pointer, with rays from Épique up. The page never names who shared or owns the card (spec CAP-9). Right: the title in `{typography.public-title}`, the publisher, a line with rarity, genre, year and number, the description in `{typography.body-large}`, the link "VOIR SUR STEAM ↗", and a call-to-action panel with a two-line pitch (copy: see `EXPERIENCE.md`, Copy deck) and the primary button "OUVRIR MES PREMIERS BOOSTERS" (it stays beside the two links described next; author, 2026-10-14). Two more links (author, 2026-10-14): « Découvrir », to the landing, and a play link, « Embarquer sur le pont », to the signed-out hub. They are links or secondary buttons, never a second lime button; their place on the page is not mocked. Below, "LIVE · En ce moment sur gameble" with three compact feed entries. A footer link "Mentions légales".
 
 #### How it works
 
@@ -935,6 +1018,9 @@ Out of the redesign's scope: it keeps a plain, functional style (no atmosphere, 
 | Use one lime primary action per view | Use lime or jade as decoration |
 | Keep gold for the Légendaire and true rewards | Use gold as a general accent or as a focus color |
 | Use Valve's official sign-in image, untouched | Restyle, pixelate or translate the Steam sign-in button |
-| Keep the Brotherhood to one line on the community goal, none in the feed | Give the player a title ("Capitaine", "Confrère") |
+| Keep the Brotherhood to one line on the community goal, none in the feed; the landing alone presents it and its story to come (approved exception, author 2026-10-14) | Give the player a title ("Capitaine", "Confrère"), or carry the landing's Brotherhood story into the app |
+| On the landing, let a few moving cards pass down the gutters beside the content on wide desktop with a fine pointer, draggable aside | Fill the landing with cards, lay them over the content column, tilt them with the pointer, or show them on the phone or to touch |
+| On the landing, say what the game is and why it is free and open, in the app's voice | Break the landing's copy rules (see `EXPERIENCE.md`, Voice and Tone) |
+| Give each landing module a numbered header, its title, then its subtitle below | Put status words, status lights or gray labels beside a module title |
 | Stay in the space-terminal direction | Bring back parchment, leather, brass, wax seals, dust or any medieval decor |
 | Leave out what is not in the spec's scope | Show decks, combat, a market, sales, currencies or recycling from the generated canvas |

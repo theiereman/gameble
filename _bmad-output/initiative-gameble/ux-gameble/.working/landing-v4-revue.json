@@ -1,0 +1,110 @@
+{
+  "file": "landing-v4.html",
+  "exported_at": "2026-10-14T12:54:03.118Z",
+  "modules": [
+    {
+      "id": "hero",
+      "title": "Des jeux ont été perdus. La Confrérie part les retrouver. Rejoignez-la.",
+      "note": "enlève le bouton steam dans le hero et laisse juste l'autre bouton",
+      "edits": [
+        { "path": "hero.lead.1", "before": "gameble est un jeu de cartes gratuit où chaque carte est un jeu Steam.", "after": "Gameble est un jeu de cartes à collectionner basé sur la bibliothèque publique de jeux Steam." },
+        { "path": "hero.label.1", "before": "Connexion par Steam uniquement", "after": "" },
+        { "path": "hero.link.1", "before": "Visiter le pont sans compte", "after": "embarquer sur le pont" }
+      ]
+    },
+    {
+      "id": "01-concept",
+      "title": "Chaque carte est un jeu Steam.",
+      "note": "pour les cartes et leur rareté affiche le vrai modèle de carte (rebord coloré + shine)",
+      "edits": [
+        { "path": "01-concept.lead.1", "before": "La jaquette du jeu devient l'illustration de la carte. Pas de statistiques, pas de combat : le jeu est la récompense.", "after": "Les jeux sont triées sur le volet et importé selon un principe simple : plus un un jeu est populaire plus sa carte sera rare." },
+        { "path": "01-concept.body.1", "before": "La rareté vient du nombre d'avis Steam. Plus un jeu est joué et commenté, plus sa carte est rare. Un jeu peu connu n'est jamais rare pour cette raison.", "after": "" },
+        { "path": "01-concept.small.1", "before": "Commune, Peu commune, Rare, Épique, Légendaire. Chacune a sa forme, son nom et sa couleur.", "after": "De la plus commune à la légendaire" },
+        { "path": "01-concept.small.2", "before": "Une Commune reste calme, une Légendaire scintille. Plus la carte est rare, plus elle prend vie.", "after": "Plus la carte est rare, plus elle prend vie" },
+        { "path": "01-concept.h3.3", "before": "Le jeu ne suffit pas", "after": "Une rareté par saison" },
+        { "path": "01-concept.small.3", "before": "Avoir le jeu sur Steam ne donne pas sa carte. Elle se tire ou s'échange.", "after": "A chaque saison les raretés sont recalculées" }
+      ]
+    },
+    {
+      "id": "02-confrerie",
+      "title": "La Grande Confrérie des Gamblers",
+      "note": "",
+      "edits": [
+        { "path": "02-confrerie.lead.1", "before": "Chaque joueur en fait partie dès sa première connexion. Elle avance ensemble, semaine après semaine, et son histoire s'écrit avec ses membres.", "after": "Votre présence est plus que nécessaire. La confrérie avance ensemble, semaine après semaine, et son histoire s'écrit avec ses membres." },
+        { "path": "02-confrerie.h3.3", "before": "Premières découvertes", "after": "Décrouvrez" },
+        { "path": "02-confrerie.small.4", "before": "Le premier joueur à tirer un jeu y laisse son nom, pour toute la Confrérie.", "after": "Le premier joueur à tirer un jeu y grave son nom, pour toute la Confrérie." },
+        { "path": "02-confrerie.h3.4", "before": "Échanges entre amis", "after": "Echangez" },
+        { "path": "02-confrerie.h3.5", "before": "Reposts", "after": "Partagez" },
+        { "path": "02-confrerie.small.6", "before": "Une belle carte se montre. Repostez-la dans le fil, toute la Confrérie la verra.", "after": "Une belle carte se montre. Repostez-la dans le fil et exposez vos trouvailles." },
+        { "path": "02-confrerie.h3.6", "before": "Le fil commun", "after": "Contribuez" }
+      ]
+    },
+    {
+      "id": "03-comment",
+      "title": "Un travail de longue haleine vous attend.",
+      "note": "aligne les texte de description à gauche",
+      "edits": [
+        { "path": "03-comment.h2.1", "before": "De la première connexion à la collection.", "after": "Un travail de longue haleine vous attend." },
+        { "path": "03-comment.lead.1", "before": "Le jeu tient en une boucle : ouvrir, révéler, collectionner, échanger. Quatre gestes, et vous êtes à bord.", "after": "Ouvrir, révéler, collectionner, échanger. Ces quatre gestes vous suffiront à faire progresser la mission de la confrérie." },
+        { "path": "03-comment.h3.1", "before": "Rejoignez-nous", "after": "Rejoignez la" },
+        { "path": "03-comment.small.1", "before": "Connectez-vous avec votre compte Steam. Votre place dans la Confrérie est prête aussitôt, sans mot de passe à retenir.", "after": "Connectez-vous et créez votre compte automatiquement avec Steam." },
+        { "path": "03-comment.h3.2", "before": "Votre réserve", "after": "Accumulez des boosters" },
+        { "path": "03-comment.small.2", "before": "Des boosters arrivent dans votre réserve au fil du temps, même quand vous n'êtes pas là. Un booster offert s'y ajoute chaque jour.", "after": "Des boosters arrivent dans votre réserve au fil du temps, même quand vous n'êtes pas là." },
+        { "path": "03-comment.h3.3", "before": "La révélation", "after": "Découvrez de nouvelles cartes" },
+        { "path": "03-comment.small.3", "before": "Chaque booster cache cinq cartes face cachée. Retournez-les : la rareté et le jeu apparaissent d'un coup.", "after": "Chaque booster cache cinq cartes face cachée. Retournez-les pour les découvrir" },
+        { "path": "03-comment.h3.4", "before": "Votre collection", "after": "Agrandissez votre collection" }
+      ]
+    },
+    {
+      "id": "05-faire",
+      "title": "De quoi remplir la soute.",
+      "note": "",
+      "edits": [
+        { "path": "05-faire.small.1", "before": "Thèmes, franchises, studios, palmarès et OVNI. Les thèmes et les palmarès ont trois paliers : bronze, argent et or.", "after": "Thèmes, franchises, studios, palmarès et OVNI. Collectionnez les toutes et faites progresser les paliers de sets pour débloquer des récompenses." },
+        { "path": "05-faire.small.2", "before": "Jusqu'à quatre cartes de chaque côté. Votre ami a sept jours pour accepter ou contre-proposer. Vos cartes sont réservées d'ici là.", "after": "Echanger les cartes qui ne vous intéressent pas contre celles qui vous permettront d'avoir la collection de vos rêves." },
+        { "path": "05-faire.small.3", "before": "Chaque lundi, un nouvel objectif pour toute la Confrérie. Un booster ouvert compte, un échange conclu aussi.", "after": "Chaque lundi, un nouvel objectif pour toute la Confrérie. Chaque action compte alors n'attendez pas." },
+        { "path": "05-faire.small.5", "before": "Premier booster, premier Épique, premier Légendaire, premier set complet, premier échange…", "after": "Premier booster, première Épique, première Légendaire, set completé, premier échange…" },
+        { "path": "05-faire.small.12", "before": "Vos cartes face cachée portent le dos de votre choix. On en gagne à l'or d'un set, avec un objectif réussi ou certains succès. Ils arrivent après le lancement.", "after": "Vos cartes face cachée portent le dos de votre choix. Remplissez des objectifs pour en débloquer de nouveaux." },
+        { "path": "05-faire.small.13", "before": "Chaque exemplaire garde sa rareté et sa saison. Les cases vides attendent leur jeu.", "after": "Voyez en un coup d'oeil les cartes qui vous manquent pour compléter votre collection." }
+      ]
+    },
+    {
+      "id": "06-roadmap",
+      "title": "Un aperçu des prochaines évolutions",
+      "note": "",
+      "edits": [
+        { "path": "06-roadmap.h2.1", "before": "Ce qui est fait, ce qui arrive.", "after": "Un aperçu des prochaines évolutions" },
+        { "path": "06-roadmap.lead.1", "before": "Le jeu se construit en public. Voici où en est la route.", "after": "La collection se construit avec la communauté, le jeu aussi." }
+      ]
+    },
+    {
+      "id": "07-opensource",
+      "title": "Open source et développé avec l'IA.",
+      "note": "enlève la section 1.2.3",
+      "edits": [
+        { "path": "07-opensource.h2.1", "before": "Open source, et développé avec l'IA.", "after": "Open source et développé avec l'IA." },
+        { "path": "07-opensource.lead.1", "before": "Le code de gameble est public et chacun peut le lire, le corriger, proposer la suite. Une IA l'écrit avec son auteur, et c'est un choix assumé : l'IA tient la plume, l'auteur garde le cap.", "after": "Le code est entièrement libre et tout le monde peut contribuer au projet librement. Les tâches fastidieuses sont faites par IA, le reste est construit par les humains pour les humains." },
+        { "path": "07-opensource.os-human.1", "before": "Ce qu'elle n'apporte pas, des humains le donnent.", "after": "Nous recrutons des personnes dévouées à la confrérie" },
+        { "path": "07-opensource.small.1", "before": "Musique, sons, visuels. Le vaisseau est encore silencieux.", "after": "Musique, sons, dos de cartes, artworks... La liste est longue est n'attend qu'à être complétée par des personnes talentueuses !" },
+        { "path": "07-opensource.h3.2", "before": "Narrateurs et maîtres du jeu", "after": "Narrateurs et scribes" },
+        { "path": "07-opensource.small.2", "before": "Une voix, des personnages, une histoire qui avance semaine après semaine.", "after": "Une voix, des personnages, une histoire qui avance semaine après semaine. Nous avons besoin de vous pour relater les faits marquants de la confrérie." },
+        { "path": "07-opensource.small.3", "before": "Le code est ouvert. Chacun peut proposer une correction ou une idée.", "after": "Le code est ouvert. Chacun peut proposer une correction ou une idée, quelle qu'elle soit." },
+        { "path": "07-opensource.btn.1", "before": "Voir le code source", "after": "Voir le projet" }
+      ]
+    },
+    {
+      "id": "08-jeu-libre",
+      "title": "Un jeu libre, qui vous respecte.",
+      "note": "accentue la section \"soutenir\"",
+      "edits": []
+    },
+    {
+      "id": "09-cta",
+      "title": "Dix boosters vous attendent.",
+      "note": "",
+      "edits": [
+        { "path": "09-cta.lead.1", "before": "Un nouveau compte démarre avec une réserve pleine. Connectez-vous avec Steam, c'est tout.", "after": "N'attendez pas une seconde de plus pour les ouvrir !" }
+      ]
+    }
+  ]
+}
