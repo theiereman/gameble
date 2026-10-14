@@ -169,33 +169,47 @@ function setLetters(word) {
   return lines.map((line) => [...line].map((cell) => cell === "#"))
 }
 
+// The diagonal shine: a 2 px band, a 1 px gap and a 1 px thin band, from
+// the diagonal x + y = start.
+function shines(x, y, start) {
+  if (start === null) return false
+  const s = x + y - start
+  return (s >= 0 && s < 2) || s === 3
+}
+
 function goldColours(mask, shineStart = null) {
   const rows = mask.length
-  const shines = (x, y) => {
-    if (shineStart === null) return false
-    const s = x + y - shineStart
-    return (s >= 0 && s < 2) || s === 3
-  }
   return mask.map((line, y) => line.map((on, x) => {
     if (!on) return null
     const tier = goldTier(y, rows)
-    if (shines(x, y)) return GOLD_LIFTS[tier]
+    if (shines(x, y, shineStart)) return GOLD_LIFTS[tier]
     if (y === 0 || !mask[y - 1][x]) return GOLD_EDGE
     return GOLD_TIERS[tier]
   }))
 }
 
+const wordmarkMask = () => setLetters("GAMEBLE")
+const WORDMARK_PALETTE = [...new Set([...GOLD_TIERS, ...GOLD_LIFTS])]
+const WORDMARK_LEGEND = Object.fromEntries(WORDMARK_PALETTE.map((colour, i) => [String(i), colour]))
+const wordmarkGrid = (colours) => colours.map((line) => line.map((colour) => colour === null ? "." : String(WORDMARK_PALETTE.indexOf(colour))).join(""))
+
+// Where the shine rests, in the wordmark's first third.
+function wordmarkRestShine(mask) {
+  const middle = Math.round(mask[0].length * 0.17) + Math.round(mask.length / 2)
+  return middle - 2
+}
+
+// The band's starts, frame by frame, as the hover sweep plays them after
+// the rest frame: rightward 4 art pixels a frame past the last letter, then
+// in from the left, ending one step short of the rest shine.
+const WORDMARK_SWEEP = [
+  ...Array.from({ length: 16 }, (_, i) => 18 + 4 * i),
+  ...Array.from({ length: 6 }, (_, i) => -10 + 4 * i),
+]
+
 function wordmarkIcon() {
-  const mask = setLetters("GAMEBLE")
-  const cols = mask[0].length
-  const middle = Math.round(cols * 0.17) + Math.round(mask.length / 2)
-  const colours = goldColours(mask, middle - 2)
-  const palette = [...new Set([...GOLD_TIERS, ...GOLD_LIFTS])]
-  const symbol = (colour) => colour === null ? "." : String(palette.indexOf(colour))
-  return {
-    legend: Object.fromEntries(palette.map((colour, i) => [String(i), colour])),
-    grid: colours.map((line) => line.map(symbol).join("")),
-  }
+  const mask = wordmarkMask()
+  return { legend: WORDMARK_LEGEND, grid: wordmarkGrid(goldColours(mask, wordmarkRestShine(mask))) }
 }
 
 const FAVICON_SIDE_MARGIN = 1
@@ -469,10 +483,9 @@ const ICONS = {
   },
 }
 
-function iconSvg(name, { grid, legend = {} }) {
-  const height = grid.length
+// One run-length path per fill: each row's runs of a symbol, `top` rows down.
+function rowRuns(name, grid, legend = {}, paths = new Map(), top = 0) {
   const width = grid[0].length
-  const paths = new Map()
   grid.forEach((row, y) => {
     if (row.length !== width) throw new Error(`${name}: row ${y} is ${row.length} wide, not ${width}`)
     let x = 0
@@ -484,13 +497,37 @@ function iconSvg(name, { grid, legend = {} }) {
         const fill = ch === "c" ? "currentColor" : legend[ch]
         if (!fill) throw new Error(`${name}: no colour for "${ch}"`)
         if (!paths.has(fill)) paths.set(fill, [])
-        paths.get(fill).push(`M${x} ${y}h${end - x}v1h-${end - x}z`)
+        paths.get(fill).push(`M${x} ${top + y}h${end - x}v1h-${end - x}z`)
       }
       x = end
     }
   })
-  const body = [...paths.entries()].map(([fill, d]) => `<path fill="${fill}" d="${d.join("")}"/>`).join("")
+  return paths
+}
+
+const pathsSvg = (paths) => [...paths.entries()].map(([fill, d]) => `<path fill="${fill}" d="${d.join("")}"/>`).join("")
+
+function pixelSvg(width, height, body) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width * ART_PIXEL}" height="${height * ART_PIXEL}" shape-rendering="crispEdges">${body}</svg>\n`
+}
+
+function iconSvg(name, { grid, legend = {} }) {
+  return pixelSvg(grid[0].length, grid.length, pathsSvg(rowRuns(name, grid, legend)))
+}
+
+// The top bar's wordmark under a hovering mouse: the wordmark without its
+// shine, then a strip of shine overlays one wordmark high each, frame 0 the
+// rest shine and the next ones the band's sweep. The SVG clips the strip to
+// frame 0; the stylesheet steps it up a frame at a time (styles/shell.css).
+function wordmarkSweepSvg() {
+  const mask = wordmarkMask()
+  const rows = mask.length
+  const shineOnly = (start) => mask.map((line, y) => line.map((on, x) => on && shines(x, y, start) ? GOLD_LIFTS[goldTier(y, rows)] : null))
+  const frames = new Map()
+  ;[wordmarkRestShine(mask), ...WORDMARK_SWEEP].forEach((start, frame) =>
+    rowRuns("wordmark-sweep", wordmarkGrid(shineOnly(start)), WORDMARK_LEGEND, frames, frame * rows))
+  const base = pathsSvg(rowRuns("wordmark-sweep", wordmarkGrid(goldColours(mask)), WORDMARK_LEGEND))
+  return pixelSvg(mask[0].length, rows, `${base}<g class="wordmark-sweep__frames">${pathsSvg(frames)}</g>`)
 }
 
 // A small seeded generator (mulberry32), so the star field never changes
@@ -1134,6 +1171,7 @@ function decodePng(buf) {
 // Every exported file: an SVG string or a PNG's pixels ({width, height, rgba}).
 
 const files = new Map(Object.entries(ICONS).map(([name, icon]) => [`${name}.svg`, iconSvg(name, icon)]))
+files.set("wordmark-sweep.svg", wordmarkSweepSvg())
 files.set("starfield.svg", starfieldSvg())
 for (const { name, id } of BACK_DESIGNS) {
   for (const [size, [w, h]] of Object.entries(CARD_SIZES)) files.set(`back-${name}-${size}.png`, backCanvas(id, w / 2 | 0, h / 2 | 0))
@@ -1151,6 +1189,7 @@ const TIER_NAMES = ["Commune", "Peu commune", "Rare", "Épique", "Légendaire"]
 const TIER_SHAPES = ["solid disc", "ring inside a ring", "diamond", "triangle", "star"]
 const DESCRIPTIONS = {
   "wordmark.svg": "The gameble wordmark: flat gold GAMEBLE with a lit top edge and a diagonal shine, 66 × 9",
+  "wordmark-sweep.svg": "The top bar's wordmark under a hovering mouse: the wordmark without shine and a strip of 23 shine frames, the rest shine then the 22-step sweep, 66 × 9",
   "favicon.svg": "Favicon: the wordmark's gold G, 9 × 9",
   ...Object.fromEntries(TIER_NAMES.map((tier, i) => [`rarity-${i + 1}.svg`, `${tier} rarity icon, ${TIER_SHAPES[i]}, 7 × 7`])),
   ...Object.fromEntries(TIER_NAMES.map((tier, i) => [`rarity-compact-${i + 1}.svg`, `${tier} rarity icon for card faces, ${TIER_SHAPES[i]}, 5 × 5`])),

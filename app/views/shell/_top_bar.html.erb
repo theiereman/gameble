@@ -2,7 +2,8 @@
     (`content_for :back_button`), the wordmark as a link to the hub, a
     divider, the back button to the previous screen (shown by
     previous-screen once the tab's history names that screen) and the
-    screen title, when the view gives one. Under 720px the wordmark link,
+    screen title, when the view gives one. A mouse over the wordmark link
+    sweeps its shine once (wordmark-shine). Under 720px the wordmark link,
     divider and previous-screen button give way to the back button to the
     bridge, or to a view's contextual back in its place
     (`content_for :phone_back`, a sub-view's "◀ Grille"). The header
@@ -17,12 +18,13 @@
     reserve chip, both following its island's events. The back-office
     shows the player chip only. The start's links and buttons are locked
     while the booster island opens or reveals (navigation-lock). %>
+<% wordmark_shine = { controller: "wordmark-shine", action: "pointerenter->wordmark-shine#sweep animationend->wordmark-shine#end animationcancel->wordmark-shine#end" } %>
 <header class="<%= class_names("top-bar", "top-bar--status": content_for?(:top_bar_status)) %>" <%= tag.attributes(data: { screen_label: shell_screen_label }) %>>
   <div class="top-bar__inner">
     <div class="top-bar__start<%= " top-bar__start--phone-back" if content_for?(:phone_back) %>" data-controller="navigation-lock">
       <% if content_for?(:back_button) %>
-        <%= link_to home_path, class: "top-bar__brand top-bar__home", aria: { label: t("shell.top_bar.home") } do %>
-          <%= pixel_icon("wordmark", class: "top-bar__wordmark") %>
+        <%= link_to home_path, class: "top-bar__brand top-bar__home", aria: { label: t("shell.top_bar.home") }, data: wordmark_shine do %>
+          <%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %>
           <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
         <% end %>
         <span class="top-bar__divider" aria-hidden="true"></span>
@@ -43,8 +45,8 @@
           <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
         </p>
       <% else %>
-        <%= link_to home_path, class: "top-bar__brand top-bar__home", aria: { label: t("shell.top_bar.home") } do %>
-          <%= pixel_icon("wordmark", class: "top-bar__wordmark") %>
+        <%= link_to home_path, class: "top-bar__brand top-bar__home", aria: { label: t("shell.top_bar.home") }, data: wordmark_shine do %>
+          <%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %>
           <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
         <% end %>
         <p class="top-bar__brand top-bar__phone-brand">

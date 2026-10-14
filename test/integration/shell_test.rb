@@ -14,6 +14,17 @@ class ShellTest < ActionDispatch::IntegrationTest
     Game::Holding.create!(player_id: player.id, card_season_id: catalog_card_seasons(card_season).id, quantity:)
   end
 
+  def assert_wordmark_sweeps_on_hover
+    sweep = "a.top-bar__home[data-controller=wordmark-shine]"
+    assert_select "#{sweep}[data-action=?]", "pointerenter->wordmark-shine#sweep animationend->wordmark-shine#end animationcancel->wordmark-shine#end"
+    assert_select "#{sweep} svg.top-bar__wordmark g.wordmark-sweep__frames"
+  end
+
+  def assert_static_wordmark(brand)
+    assert_select "#{brand}:not([data-controller]) svg.top-bar__wordmark"
+    assert_select "#{brand} .wordmark-sweep__frames", false
+  end
+
   test "the head: title, the gold G favicon, viewport for the notch, theme colour, view transitions, the three latin fonts preloaded" do
     get home_path(locale: :fr)
 
@@ -106,6 +117,7 @@ class ShellTest < ActionDispatch::IntegrationTest
       assert_select "svg.pixel-icon.top-bar__wordmark[aria-hidden=true]"
       assert_select ".top-bar__name", "gameble"
     end
+    assert_wordmark_sweeps_on_hover
     assert_select ".top-bar__home + .top-bar__divider[aria-hidden=true]"
     assert_select ".top-bar__start > a.button.button--secondary.button--small.top-bar__bridge[href='/en']" do
       assert_select "svg.pixel-icon.button__icon[aria-hidden=true]"
@@ -166,11 +178,14 @@ class ShellTest < ActionDispatch::IntegrationTest
       assert_select ".top-bar__name", "gameble"
     end
     assert_select ".top-bar__start > p.top-bar__brand.top-bar__phone-brand .top-bar__name", "gameble"
+    assert_wordmark_sweeps_on_hover
+    assert_static_wordmark ".top-bar__start > p.top-bar__phone-brand"
 
     get home_path(locale: :en)
 
     assert_select ".top-bar__start a", false
     assert_select ".top-bar__start > p.top-bar__brand:not(.top-bar__phone-brand)"
+    assert_static_wordmark ".top-bar__start > p.top-bar__brand"
   end
 
   test "a full reserve shows instead of the countdown" do

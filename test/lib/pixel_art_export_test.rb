@@ -123,7 +123,37 @@ class PixelArtExportTest < ActiveSupport::TestCase
     AVATAR_COLOURS.each { |colour| assert_equal [ 16, 16 ], png_size("avatar-#{colour}.png"), colour }
   end
 
+  test "the top bar's sweep strip holds the rest frame and 22 sweep frames, and rests on the wordmark" do
+    sweep = PIXEL_DIR.join("wordmark-sweep.svg").read
+    base, frames = sweep.split('<g class="wordmark-sweep__frames">')
+    wordmark = PIXEL_DIR.join("wordmark.svg").read
+
+    assert_equal svg_size(wordmark), svg_size(sweep)
+    assert_equal 23, (frame_rows(frames).max / 9) + 1
+    at_rest = paint(base).merge(paint(frames).select { |(_, y), _| y < 9 })
+    assert_equal paint(wordmark), at_rest
+    assert_not_equal at_rest, paint(base), "the rest frame lights the shine"
+  end
+
   private
+
+  # Every art pixel's fill, from the run-length paths ("M<x> <y>h<w>v1h-<w>z"),
+  # a later path painted over an earlier one.
+  def paint(svg)
+    svg.scan(/<path fill="([^"]+)" d="([^"]+)"/).each_with_object({}) do |(fill, d), pixels|
+      d.scan(/M(\d+) (\d+)h(\d+)v1h-\d+z/).each do |x, y, width|
+        width.to_i.times { |dx| pixels[[ x.to_i + dx, y.to_i ]] = fill }
+      end
+    end
+  end
+
+  def frame_rows(svg)
+    svg.scan(/M\d+ (\d+)h/).flatten.map(&:to_i)
+  end
+
+  def svg_size(svg)
+    svg[/viewBox="([^"]+)" width="(\d+)" height="(\d+)"/, 0]
+  end
 
   def export(*args)
     Open3.capture2e("node", "script/pixel_art/export.mjs", *args, chdir: Rails.root.to_s)

@@ -249,6 +249,23 @@ a.top-bar__home {
   display: block;
 }
 
+/* A mouse over the wordmark link (wordmark-shine): the strip of shine
+   frames steps up one wordmark height every 40 ms, then drops back to its
+   rest frame. Its units are art pixels. */
+@keyframes wordmark-sweep {
+  from {
+    transform: translateY(-9px);
+  }
+
+  to {
+    transform: translateY(-198px);
+  }
+}
+
+.top-bar__home[data-sweeping] .wordmark-sweep__frames {
+  animation: wordmark-sweep 880ms steps(22, jump-none);
+}
+
 .top-bar__title {
   margin: 0;
   overflow: hidden;
@@ -1443,8 +1460,9 @@ html[data-sub-view-step] .main {
 /* ---- Reduced motion: the player's setting (html[data-motion=reduced],
    motion.ts) or, unless the setting asks for full motion
    (html[data-motion=full]), the system's preference stops the star
-   twinkle, the screen slides, the toast rise and the ticker, which shows
-   its latest items still; the LIVE marker stays lit. ---- */
+   twinkle, the screen slides, the toast rise, the wordmark's sweep and
+   the ticker, which shows its latest items still; the LIVE marker stays
+   lit. ---- */
 
 @media (prefers-reduced-motion: reduce) {
   html:not([data-motion="full"]) .atmosphere__twinkle > i {
@@ -1461,6 +1479,10 @@ html[data-sub-view-step] .main {
   }
 
   html:not([data-motion="full"]) .toast {
+    animation: none;
+  }
+
+  html:not([data-motion="full"]) .wordmark-sweep__frames {
     animation: none;
   }
 
@@ -1495,6 +1517,10 @@ html[data-motion="reduced"] .button {
 }
 
 html[data-motion="reduced"] .toast {
+  animation: none;
+}
+
+html[data-motion="reduced"] .wordmark-sweep__frames {
   animation: none;
 }
 

@@ -8,6 +8,6 @@ export default defineConfig({
     include: ['app/frontend/**/*.test.ts'],
     environment: 'node',
     // Vitest empties every stylesheet a test imports, raw ones included, unless listed here.
-    css: { include: [/styles\/(card|booster|booster-layouts)\.css/] },
+    css: { include: [/styles\/(card|booster|booster-layouts|shell)\.css/] },
   },
 })
