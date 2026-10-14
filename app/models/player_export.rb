@@ -5,6 +5,10 @@ class PlayerExport
     @now = now
   end
 
+  def exported_at
+    @now
+  end
+
   def filename
     "gameble-export-#{@now.utc.to_date.iso8601}.json"
   end
@@ -52,7 +56,8 @@ class PlayerExport
       profile = accounts.profile
       { steamId: profile.steam_id, personaName: profile.persona_name, visibility: profile.visibility,
         reducedMotion: profile.reduced_motion, friendCode: game.friend_code,
-        createdAt: time(profile.created_at), lastSeenAt: time(profile.last_seen_at) }
+        createdAt: time(profile.created_at), lastSeenAt: time(profile.last_seen_at),
+        lastExportedAt: time(profile.last_exported_at) }
     end
 
     def collection

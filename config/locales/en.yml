@@ -175,7 +175,7 @@ en:
           activity: "your game activity: cards, boosters, trades, friends and invitations, friend code, activity feed entries;"
           moderation: "the reports you make, those aimed at your profile (their author is not disclosed to you) and the moderation decisions that concern you, with their reason;"
           settings: "your settings (profile visibility, reduced motion);"
-          last_seen: "the date your account was created and the time of your last visit;"
+          last_seen: "the date your account was created, the time of your last visit and that of your last data export;"
           technical: "technical data: IP address and browser, in the server logs and error tracking."
         purposes:
           intro: "Why, and on what basis:"
@@ -202,7 +202,7 @@ en:
           logs: "the server's logs: 30 days;"
           errors: "technical errors received by Sentry: 90 days at most, depending on the publisher's Sentry plan;"
           leftovers: "what a deleted account leaves behind that concerns other players or the community (past trades, first discoveries, contributions to the community goal, the log of game actions): as long as the game exists, without a Steam id or a name."
-        deletion: "When you delete your account, your Steam id, your profile name, the time of your last visit, your collection, your boosters, your friendships, your invitations, your friend code and your activity feed entries are erased, your open trades are cancelled and your profile disappears. What also concerns other players, the community or moderation (past trades, first discoveries, contributions to the community goal, reports, moderation history, the log of game actions) is kept without your Steam id or your name, for the periods given above."
+        deletion: "When you delete your account, your Steam id, your profile name, the time of your last visit and of your last export, your collection, your boosters, your friendships, your invitations, your friend code and your activity feed entries are erased, your open trades are cancelled and your profile disappears. What also concerns other players, the community or moderation (past trades, first discoveries, contributions to the community goal, reports, moderation history, the log of game actions) is kept without your Steam id or your name, for the periods given above."
         rights:
           intro: "You can access your data, have it rectified or erased, restrict its processing, object to processing based on legitimate interest and receive a reusable copy of it. You can also say what becomes of your data after your death. We reply within one month."
           access: "access: from the settings, with \"Export\" under \"My data\", which downloads a copy of your data in a reusable file;"
@@ -812,6 +812,8 @@ en:
         ready_title: "Export ready"
         ready: "A copy of your data is waiting, in a JSON file."
         download: "Download"
+        last_export: "Last export:"
+        time_format: "%Y-%m-%d at %H:%M UTC"
       account:
         label: "Account"
         delete: "Delete my account"
@@ -1139,7 +1141,7 @@ en:
     dialog:
       title: "Delete my account"
       close: "Close"
-      note: "Erased for good: your Steam id, your name, your profile and its link, the time of your last visit and your latest activity, your collection, your completed sets and your achievements, your boosters, opened or not, your daily bonuses and your community goal rewards, your friends, your invitations and your friend code, and your activity feed entries: pulls, discoveries, reposts and every trade that names you. Your open trades will be cancelled."
+      note: "Erased for good: your Steam id, your name, your profile and its link, the time of your last visit, that of your last export and your latest activity, your collection, your completed sets and your achievements, your boosters, opened or not, your daily bonuses and your community goal rewards, your friends, your invitations and your friend code, and your activity feed entries: pulls, discoveries, reposts and every trade that names you. Your open trades will be cancelled."
       kept: "Kept, without your Steam id or your name: your past trades, your first discoveries, your contributions to the community goal, reports, the moderation history and the log of game actions. This cannot be undone."
       word: "DELETE"
       label: "Type %{word} to confirm"

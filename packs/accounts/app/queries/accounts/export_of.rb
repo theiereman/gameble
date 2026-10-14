@@ -1,6 +1,6 @@
 module Accounts
   module ExportOf
-    Profile = Data.define(:steam_id, :persona_name, :visibility, :reduced_motion, :created_at, :last_seen_at)
+    Profile = Data.define(:steam_id, :persona_name, :visibility, :reduced_motion, :created_at, :last_seen_at, :last_exported_at)
     ReportFiled = Data.define(:reason, :created_at)
     ReportReceived = Data.define(:reason, :created_at, :handled_at)
     Decision = Data.define(:kind, :created_at, :reason)
@@ -21,7 +21,8 @@ module Accounts
 
     def self.profile(player)
       Profile.new(steam_id: player.steam_id, persona_name: player.persona_name, visibility: player.visibility,
-        reduced_motion: player.reduced_motion, created_at: player.created_at, last_seen_at: player.last_seen_at)
+        reduced_motion: player.reduced_motion, created_at: player.created_at, last_seen_at: player.last_seen_at,
+        last_exported_at: player.last_exported_at)
     end
     private_class_method :profile
   end

@@ -80,7 +80,22 @@
   text-align: right;
 }
 
+.settings-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.settings-row__note {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  text-align: right;
+}
+
 .settings-row__error[hidden],
+.settings-row__note[hidden],
 .settings-row__download[hidden] {
   display: none;
 }

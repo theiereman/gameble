@@ -106,6 +106,7 @@ deferred: []
 
 - A pack not opened yet is listed without its cards or card back, so the export never spoils an upcoming booster.
 - After a successful export, the row keeps a TÉLÉCHARGER link to the file while the page stays open, beside the EXPORT PRÊT toast's link, so closing the toast loses nothing (author, 2026-10-14); toasts keep their usual timer. An export failure is shown inline and in an alert toast; the data-export controller revokes its object URL on a new export and on disconnect. Toast actions accept only `blob:` URLs and site paths. The legal page's update date moves to 14 October 2026 for the access bullet.
+- The time of a player's last export is kept in `accounts_players.last_exported_at`, written by `Accounts::NoteExport` (housekeeping, no event) when the file is built, erased by `Accounts::DeletePlayer`, shown under EXPORTER and TÉLÉCHARGER as "Dernier export : 04/10/2026 à 07:05 UTC" (server-rendered, then filled by the script from the file's `exportedAt` with the same locale pattern), and exported as `profile.lastExportedAt`. The privacy notice's stored data, its deletion paragraph and the delete dialog name it.
 - Set completions also carry the set's season number, since a set key is unique only within its season and kind.
 - Weekly contributions carry week and openings only, as listed; the `trades` counter of the same row is left out.
 - The privacy notice's access bullet is one plain key (`access`), the same for every configuration; its "last updated" date was not changed.
@@ -113,6 +114,7 @@ deferred: []
 ## Plan Change Log
 
 - 2026-10-14, author: the export also holds the reports received (reason, dates) and the moderation decisions concerning the player (kind, date, reason), without the reporter or the staff member, since the privacy notice lists them among stored data; achievements and each pack's card back are added as the player's own data; trade feed entries drop the partner. The system test task is dropped: system tests are disabled and new ones are not added.
+- 2026-10-14, author: TÉLÉCHARGER sits beside EXPORTER, and the time of the last export is stored and shown below them, so the export's file stays the only thing not kept server-side.
 
 ## Review Triage Log
 

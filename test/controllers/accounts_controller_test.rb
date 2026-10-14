@@ -33,8 +33,8 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
   end
 
   ERASED_OR_CANCELLED = {
-    "accounts_players" => { fr: [ "votre identifiant Steam", "votre nom", "votre profil et son lien", "l'heure de votre dernière visite" ],
-                            en: [ "your Steam id", "your name", "your profile and its link", "the time of your last visit" ] },
+    "accounts_players" => { fr: [ "votre identifiant Steam", "votre nom", "votre profil et son lien", "l'heure de votre dernière visite", "celle de votre dernier export" ],
+                            en: [ "your Steam id", "your name", "your profile and its link", "the time of your last visit", "that of your last export" ] },
     "game_player_states" => { fr: [ "votre dernière activité" ], en: [ "your latest activity" ] },
     "game_holdings" => { fr: [ "votre collection" ], en: [ "your collection" ] },
     "game_set_completions" => { fr: [ "vos sets complétés" ], en: [ "your completed sets" ] },

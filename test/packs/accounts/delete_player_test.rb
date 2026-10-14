@@ -116,11 +116,12 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     assert_empty game_events(@other, Game::CardDiscovered)
   end
 
-  test "the last-seen time is erased, and a last-seen write queued before the deletion writes nothing" do
-    @player.update_columns(last_seen_at: 10.minutes.ago)
+  test "the last-seen and last-export times are erased, and a last-seen write queued before the deletion writes nothing" do
+    @player.update_columns(last_seen_at: 10.minutes.ago, last_exported_at: 1.day.ago)
     delete
 
     assert_nil @player.reload.last_seen_at
+    assert_nil @player.last_exported_at
     assert_equal Dry::Monads::Success(false), Accounts::NoteLastSeen.new.call(player_id: @player.id, at: Time.current)
     assert_nil @player.reload.last_seen_at
   end

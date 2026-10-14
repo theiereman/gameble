@@ -1,19 +1,22 @@
 import { Controller } from "@hotwired/stimulus"
 import { dispatchGameble } from "../lib/events"
-import { type ExportPhase, exportButton, exportFilename, failureMessage } from "../lib/data_export"
+import { type ExportPhase, exportButton, exportFilename, exportedAt, failureMessage, formatUtc } from "../lib/data_export"
 
 export default class extends Controller<HTMLFormElement> {
-  static targets = ["error", "download"]
-  static values = { preparing: String, retry: String, failed: String, readyTitle: String, ready: String, download: String }
+  static targets = ["error", "download", "lastExport", "time"]
+  static values = { preparing: String, retry: String, failed: String, readyTitle: String, ready: String, download: String, timeFormat: String }
 
   declare readonly errorTarget: HTMLElement
   declare readonly downloadTarget: HTMLAnchorElement
+  declare readonly lastExportTarget: HTMLElement
+  declare readonly timeTarget: HTMLTimeElement
   declare readonly preparingValue: string
   declare readonly retryValue: string
   declare readonly failedValue: string
   declare readonly readyTitleValue: string
   declare readonly readyValue: string
   declare readonly downloadValue: string
+  declare readonly timeFormatValue: string
 
   private idleLabel = ""
   private running = false
@@ -43,6 +46,7 @@ export default class extends Controller<HTMLFormElement> {
       this.objectUrl = URL.createObjectURL(blob)
       const download = exportFilename(response.headers.get("Content-Disposition"))
       this.offerDownload(this.objectUrl, download)
+      this.showLastExport(exportedAt(await blob.text()))
       dispatchGameble("gameble:toast", {
         title: this.readyTitleValue,
         message: this.readyValue,
@@ -89,6 +93,13 @@ export default class extends Controller<HTMLFormElement> {
     this.downloadTarget.href = href
     this.downloadTarget.download = filename
     this.downloadTarget.hidden = false
+  }
+
+  private showLastExport(at: Date | null): void {
+    if (!at) return
+    this.timeTarget.dateTime = at.toISOString()
+    this.timeTarget.textContent = formatUtc(at, this.timeFormatValue)
+    this.lastExportTarget.hidden = false
   }
 
   private revoke(): void {

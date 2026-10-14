@@ -59,10 +59,24 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
       %w[preparing retry ready-title download].map { form["data-data-export-#{it}-value"] }
     assert_select form, "button[type=submit].button--secondary.button--small", "Exporter"
     assert_select form, "p.settings-row__error[role=alert][hidden][data-data-export-target=error]", ""
-    assert_select form, "a.settings-row__download[hidden][data-data-export-target=download]:not([href])", "Télécharger"
+    assert_select form, ".settings-row__actions button[type=submit] + a.settings-row__download[hidden][data-data-export-target=download]:not([href])", "Télécharger"
+    assert_equal "%d/%m/%Y à %H:%M UTC", form["data-data-export-time-format-value"]
+    assert_select form, "p.settings-row__note[hidden][data-data-export-target=lastExport]"
 
     get settings_path(locale: :en)
     assert_select "form[action='/en/settings/export'] button[type=submit]", "Export"
+  end
+
+  test "the time of the last export shows under the buttons, in UTC" do
+    @player.update_columns(last_exported_at: Time.utc(2026, 10, 4, 7, 5))
+    sign_in(@player)
+
+    get settings_path(locale: :fr)
+    assert_select "p.settings-row__note:not([hidden])", /Dernier export :\s+04\/10\/2026 à 07:05 UTC/
+    assert_select "p.settings-row__note time[datetime='2026-10-04T07:05:00Z']", "04/10/2026 à 07:05 UTC"
+
+    get settings_path(locale: :en)
+    assert_select "p.settings-row__note time", "2026-10-04 at 07:05 UTC"
   end
 
   test "the settings screen in English, and the player's choice marked" do

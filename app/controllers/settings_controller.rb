@@ -8,6 +8,7 @@ class SettingsController < ApplicationController
     authorize :settings, :show?
     @reduced_motion = current_player.reduced_motion
     @visibility = current_player.visibility
+    @last_exported_at = current_player.last_exported_at
     @open_trades = Game::OpenTradeCount.call(current_player)
   end
 

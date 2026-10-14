@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FALLBACK_FILENAME, exportButton, exportFilename, failureMessage } from "./data_export"
+import { FALLBACK_FILENAME, exportButton, exportFilename, exportedAt, failureMessage, formatUtc } from "./data_export"
 
 const labels = { idle: "Exporter", preparing: "Préparation…", retry: "Réessayer" }
 
@@ -50,5 +50,25 @@ describe("failureMessage", () => {
     expect(failureMessage({ error: "throttled" }, "Échec")).toBe("Échec")
     expect(failureMessage({ error: { message: "  " } }, "Échec")).toBe("Échec")
     expect(failureMessage({ error: { message: 42 } }, "Échec")).toBe("Échec")
+  })
+})
+
+describe("exportedAt", () => {
+  it("reads the export's time from the file", () => {
+    expect(exportedAt(JSON.stringify({ exportedAt: "2026-10-14T09:30:00Z" }))?.toISOString()).toBe("2026-10-14T09:30:00.000Z")
+  })
+
+  it("gives nothing for a file it cannot read", () => {
+    expect(exportedAt("not json")).toBeNull()
+    expect(exportedAt(JSON.stringify({}))).toBeNull()
+    expect(exportedAt(JSON.stringify({ exportedAt: "yesterday" }))).toBeNull()
+  })
+})
+
+describe("formatUtc", () => {
+  it("writes the time in UTC with the locale's pattern, as the server does", () => {
+    const at = new Date("2026-10-04T07:05:00Z")
+    expect(formatUtc(at, "%d/%m/%Y à %H:%M UTC")).toBe("04/10/2026 à 07:05 UTC")
+    expect(formatUtc(at, "%Y-%m-%d at %H:%M UTC")).toBe("2026-10-04 at 07:05 UTC")
   })
 })

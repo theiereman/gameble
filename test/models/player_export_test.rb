@@ -71,7 +71,7 @@ class PlayerExportTest < ActiveSupport::TestCase
     assert_equal SECTIONS, hash.keys
     assert_equal "2026-10-14T09:30:00Z", hash[:exportedAt]
     assert_equal({ steamId: "76561197960287001", personaName: "Léa", visibility: "public", reducedMotion: nil,
-      friendCode: "7K2Q-F3NX", createdAt: @player.created_at.utc.iso8601, lastSeenAt: nil }, hash[:profile])
+      friendCode: "7K2Q-F3NX", createdAt: @player.created_at.utc.iso8601, lastSeenAt: nil, lastExportedAt: nil }, hash[:profile])
     portal = hash[:collection].find { it[:slug] == "portal" }
     assert_equal({ slug: "portal", season: 1, title: "Portal", quantity: 3 }, portal.except(:lastGainedAt))
     assert_includes hash[:collection].map { it[:title] }, "Profondeurs bleues"
