@@ -9,10 +9,10 @@ class Catalog::CardSlugTest < ActiveSupport::TestCase
     card
   end
 
-  test "a five-thousand character title saves with a short slug" do
+  test "a five-thousand character title saves with a slug bounded by the title limit" do
     card = card(title: "A malformed store title " * 210, source_key: "src:long")
 
-    assert_operator card.slug.length, :<=, 120
+    assert_operator card.slug.length, :<=, Catalog::Card::SLUG_TITLE_LIMIT
   end
 
   test "two long titles sharing their first hundred characters get different slugs" do
@@ -40,6 +40,12 @@ class Catalog::CardSlugTest < ActiveSupport::TestCase
 
     assert_equal 100, card.slug.length
     assert card.slug.end_with?("-spaceship1")
+  end
+
+  test "a cut landing inside a word drops that word" do
+    card = card(title: "#{"Spaceship " * 9}Spaceshipyard Next", source_key: "src:mid-word")
+
+    assert_equal ("spaceship-" * 9).chomp("-"), card.slug
   end
 
   test "a single word longer than the limit is cut inside the word" do
