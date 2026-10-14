@@ -3,7 +3,7 @@ title: 'The hub menu offers to support gameble'
 type: 'feature'
 ticket: '45'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '29eea28a4995b0e839fe09f1318e0306ac743e5b'
 route: 'oneshot'
 route_source: 'auto'

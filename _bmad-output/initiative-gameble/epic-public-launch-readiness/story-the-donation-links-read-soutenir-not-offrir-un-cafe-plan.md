@@ -3,7 +3,7 @@ title: 'The donation links read SOUTENIR, not Offrir un café'
 type: 'feature'
 ticket: '46'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '8da410f4e605291643985cbafa846a24cc109e64'
 route: 'oneshot'
 route_source: 'auto'

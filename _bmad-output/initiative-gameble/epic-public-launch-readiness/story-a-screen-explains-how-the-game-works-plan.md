@@ -3,7 +3,7 @@ title: 'A screen explains how the game works'
 type: 'feature'
 ticket: '44'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '9dd2e8bcb042fa32c78cce117b0bd4cd6ed10383'
 route: 'full'
 route_source: 'auto'

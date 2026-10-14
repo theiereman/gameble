@@ -3,7 +3,7 @@ title: 'The opened pack page speaks like every other screen'
 type: 'feature'
 ticket: '49'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: 'd4bb544d9e4230af98367803ead0077e33a5dc53'
 route: 'oneshot'
 route_source: 'auto'

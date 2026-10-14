@@ -3,7 +3,7 @@ title: "The hover light becomes a studio reflection on the card's varnish"
 type: 'feature'
 ticket: '47'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '0eca469120178c9e03f4b56ee96ed23510718701'
 route: 'full'
 route_source: 'auto'

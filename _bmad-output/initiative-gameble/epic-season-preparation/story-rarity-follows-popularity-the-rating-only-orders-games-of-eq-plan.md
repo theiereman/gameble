@@ -3,7 +3,7 @@ title: 'Rarity follows popularity, the rating only orders games of equal popular
 type: 'feature'
 ticket: '3'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: '61230dc9be4810be1ea8692c56f220103afffb82'
 route: 'full'
 route_source: 'auto'

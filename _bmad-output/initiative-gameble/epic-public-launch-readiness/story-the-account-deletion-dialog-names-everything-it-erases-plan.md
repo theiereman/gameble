@@ -3,7 +3,7 @@ title: 'The account deletion dialog names everything it erases'
 type: 'feature'
 ticket: '48'
 created: '2026-10-13'
-status: 'built'
+status: done
 baseline_revision: 'd4bb544d9e4230af98367803ead0077e33a5dc53'
 route: 'oneshot'
 route_source: 'auto'
