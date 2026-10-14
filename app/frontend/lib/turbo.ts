@@ -4,6 +4,7 @@ export type StreamAction = (this: Element) => void
 
 export interface TurboGlobal {
   visit(location: string, options?: { action?: "advance" | "replace" }): void
+  renderStreamMessage(message: string): void
   session: {
     refresh(url: string, options?: { method?: "morph" | "replace"; scroll?: "preserve" | "reset" }): void
   }
