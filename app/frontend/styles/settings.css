@@ -80,7 +80,8 @@
   text-align: right;
 }
 
-.settings-row__error[hidden] {
+.settings-row__error[hidden],
+.settings-row__download[hidden] {
   display: none;
 }
 

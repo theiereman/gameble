@@ -105,7 +105,7 @@ deferred: []
 ## Implementation Notes
 
 - A pack not opened yet is listed without its cards or card back, so the export never spoils an upcoming booster.
-- The toast region dispatches a new declared event, `gameble:toast-dismissed` (`{ actionHref }`), when a toast with an action closes (its close button or Esc; such a toast has no timer, so the file is not lost while the rate limit refuses a new export). An export failure is shown inline and in an alert toast; the data-export controller revokes its object URL on it and on disconnect. Toast actions accept only `blob:` URLs and site paths.
+- After a successful export, the row keeps a TÉLÉCHARGER link to the file while the page stays open, beside the EXPORT PRÊT toast's link, so closing the toast loses nothing (author, 2026-10-14); toasts keep their usual timer. An export failure is shown inline and in an alert toast; the data-export controller revokes its object URL on a new export and on disconnect. Toast actions accept only `blob:` URLs and site paths. The legal page's update date moves to 14 October 2026 for the access bullet.
 - Set completions also carry the set's season number, since a set key is unique only within its season and kind.
 - Weekly contributions carry week and openings only, as listed; the `trades` counter of the same row is left out.
 - The privacy notice's access bullet is one plain key (`access`), the same for every configuration; its "last updated" date was not changed.

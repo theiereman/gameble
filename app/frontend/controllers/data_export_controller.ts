@@ -1,12 +1,13 @@
 import { Controller } from "@hotwired/stimulus"
-import { dispatchGameble, onGameble } from "../lib/events"
+import { dispatchGameble } from "../lib/events"
 import { type ExportPhase, exportButton, exportFilename, failureMessage } from "../lib/data_export"
 
 export default class extends Controller<HTMLFormElement> {
-  static targets = ["error"]
+  static targets = ["error", "download"]
   static values = { preparing: String, retry: String, failed: String, readyTitle: String, ready: String, download: String }
 
   declare readonly errorTarget: HTMLElement
+  declare readonly downloadTarget: HTMLAnchorElement
   declare readonly preparingValue: string
   declare readonly retryValue: string
   declare readonly failedValue: string
@@ -17,18 +18,12 @@ export default class extends Controller<HTMLFormElement> {
   private idleLabel = ""
   private running = false
   private objectUrl?: string
-  private stopListening?: () => void
 
   connect(): void {
     this.idleLabel = this.button()?.textContent ?? ""
-    this.stopListening = onGameble("gameble:toast-dismissed", ({ actionHref }) => {
-      if (actionHref === this.objectUrl) this.revoke()
-    })
   }
 
   disconnect(): void {
-    this.stopListening?.()
-    this.stopListening = undefined
     this.revoke()
   }
 
@@ -46,10 +41,12 @@ export default class extends Controller<HTMLFormElement> {
       const blob = await response.blob()
       this.revoke()
       this.objectUrl = URL.createObjectURL(blob)
+      const download = exportFilename(response.headers.get("Content-Disposition"))
+      this.offerDownload(this.objectUrl, download)
       dispatchGameble("gameble:toast", {
         title: this.readyTitleValue,
         message: this.readyValue,
-        action: { label: this.downloadValue, href: this.objectUrl, download: exportFilename(response.headers.get("Content-Disposition")) },
+        action: { label: this.downloadValue, href: this.objectUrl, download },
       })
       this.show("idle")
     } catch {
@@ -88,8 +85,16 @@ export default class extends Controller<HTMLFormElement> {
     return this.element.querySelector<HTMLButtonElement>("button[type=submit]")
   }
 
+  private offerDownload(href: string, filename: string): void {
+    this.downloadTarget.href = href
+    this.downloadTarget.download = filename
+    this.downloadTarget.hidden = false
+  }
+
   private revoke(): void {
     if (this.objectUrl) URL.revokeObjectURL(this.objectUrl)
     this.objectUrl = undefined
+    this.downloadTarget.hidden = true
+    this.downloadTarget.removeAttribute("href")
   }
 }

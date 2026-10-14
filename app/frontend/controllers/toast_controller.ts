@@ -1,18 +1,15 @@
 import { Controller } from "@hotwired/stimulus"
-import { dispatchGameble, onGameble, type ToastAction, type ToastDetail } from "../lib/events"
+import { onGameble, type ToastAction, type ToastDetail } from "../lib/events"
 import { RevealHold, firstShowing, toastActionHref, toastDuration } from "../lib/toast"
 
-type Timer = { remaining: number; startedAt?: number; handle?: number; hovered: boolean; focused: boolean; untilClosed: boolean; cleanup: () => void }
+type Timer = { remaining: number; startedAt?: number; handle?: number; hovered: boolean; focused: boolean; cleanup: () => void }
 
 // The shell's toast region (EXPERIENCE.md, Toast): a polite live region
 // holding the server's flash messages and any toast asked for with a
 // `gameble:toast` event, built from the region's server-rendered template.
 // Each toast stays toastDuration(its text), pauses while hovered or focused,
-// and closes with its "✕" or Esc. A toast carrying an action link has no
-// timer: it stays until closed, and closing it says so with
-// `gameble:toast-dismissed`, so its owner can let go of the link's target.
-// A morph refresh of the page (the hub) keeps the toasts on screen and
-// brings its own, which are timed as well.
+// and closes with its "✕" or Esc. A morph refresh of the page (the hub)
+// keeps the toasts on screen and brings its own, which are timed as well.
 // A toast with a once key (`data-toast-once`) shows once per browser.
 // Every listener and timer goes on disconnect.
 export default class extends Controller<HTMLElement> {
@@ -120,7 +117,6 @@ export default class extends Controller<HTMLElement> {
     link.setAttribute("href", href)
     if (typeof action.download === "string" && action.download !== "") link.setAttribute("download", action.download)
     else link.removeAttribute("download")
-    link.dataset.toastActionHref = href
   }
 
   private add(toast: HTMLElement): void {
@@ -178,7 +174,6 @@ export default class extends Controller<HTMLElement> {
       remaining: toastDuration(toast.textContent ?? ""),
       hovered: false,
       focused: false,
-      untilClosed: toast.querySelector("[data-toast-action-href]") !== null,
       cleanup: () => listeners.forEach(([type, listener]) => toast.removeEventListener(type, listener)),
     }
     this.timers.set(toast, timer)
@@ -199,7 +194,6 @@ export default class extends Controller<HTMLElement> {
 
   private run(toast: HTMLElement, timer: Timer): void {
     window.clearTimeout(timer.handle)
-    if (timer.untilClosed) return
     timer.startedAt = performance.now()
     timer.handle = window.setTimeout(() => this.dismiss(toast), timer.remaining)
   }
@@ -220,8 +214,6 @@ export default class extends Controller<HTMLElement> {
       this.timers.delete(toast)
     }
     toast.remove()
-    const actionHref = toast.querySelector<HTMLElement>("[data-toast-action-href]")?.dataset.toastActionHref
-    if (actionHref) dispatchGameble("gameble:toast-dismissed", { actionHref })
   }
 
   private toasts(): HTMLElement[] {

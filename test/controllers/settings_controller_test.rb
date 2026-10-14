@@ -59,6 +59,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
       %w[preparing retry ready-title download].map { form["data-data-export-#{it}-value"] }
     assert_select form, "button[type=submit].button--secondary.button--small", "Exporter"
     assert_select form, "p.settings-row__error[role=alert][hidden][data-data-export-target=error]", ""
+    assert_select form, "a.settings-row__download[hidden][data-data-export-target=download]:not([href])", "Télécharger"
 
     get settings_path(locale: :en)
     assert_select "form[action='/en/settings/export'] button[type=submit]", "Export"
