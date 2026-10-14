@@ -216,10 +216,9 @@
   display: none;
 }
 
-/* On a phone view only the top card runs its sheen, glitter twinkle and
-   rays. */
-.booster[data-layout="phone"] .booster-card:not([data-top]) .booster-card__back::after,
-.booster[data-layout="phone"] .booster-card:not([data-top]) .booster-card__rays {
+/* On a phone view only the top card runs its sheen and glitter twinkle,
+   and shows its rays. */
+.booster[data-layout="phone"] .booster-card:not([data-top]) .booster-card__back::after {
   animation: none;
 }
 
