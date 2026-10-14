@@ -34,4 +34,17 @@ class Catalog::CardSlugTest < ActiveSupport::TestCase
     assert_not card.slug.end_with?("-")
     assert_equal "spaceship", card.slug.split("-").last
   end
+
+  test "a cut landing on a word boundary keeps the last whole word" do
+    card = card(title: "#{"Spaceship " * 9}Spaceship1 Next", source_key: "src:boundary")
+
+    assert_equal 100, card.slug.length
+    assert card.slug.end_with?("-spaceship1")
+  end
+
+  test "a single word longer than the limit is cut inside the word" do
+    card = card(title: "x" * 150, source_key: "src:one-word")
+
+    assert_equal "x" * 100, card.slug
+  end
 end

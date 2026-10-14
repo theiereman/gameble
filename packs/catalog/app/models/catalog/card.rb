@@ -37,7 +37,7 @@ module Catalog
     # suffix. A title that leaves nothing once parameterized (a non-Latin
     # title) goes straight to the year and a random suffix.
     def slug_candidates
-      title = truncated_title(text("en")&.title.to_s)
+      title = slug_base(text("en")&.title.to_s)
       year = release_date&.year
       suffix = -> { SecureRandom.alphanumeric(6).downcase }
 
@@ -48,13 +48,15 @@ module Catalog
       end
     end
 
-    def truncated_title(title)
+    def slug_base(title)
       slug = normalize_friendly_id(title)
       return slug if slug.length <= SLUG_TITLE_LIMIT
 
       head = slug[0, SLUG_TITLE_LIMIT]
-      word = head.sub(/-[^-]*\z/, "")
-      word.empty? ? head : word
+      return head if slug[SLUG_TITLE_LIMIT] == "-"
+
+      whole_words = head.sub(/-[^-]*\z/, "")
+      whole_words.empty? ? head : whole_words
     end
   end
 end
