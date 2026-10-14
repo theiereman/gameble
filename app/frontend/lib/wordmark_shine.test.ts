@@ -124,7 +124,7 @@ describe("the stylesheet and the exported frames", () => {
   })
 
   it("steps through every frame after the rest frame, one step at a time", () => {
-    expect(rule(".top-bar__home[data-sweeping] .wordmark-sweep__frames")).toContain(
+    expect(rule(".top-bar__brand[data-sweeping] .wordmark-sweep__frames")).toContain(
       `animation: ${SWEEP_ANIMATION} ${SWEEP_STEPS * STEP_MS}ms steps(${SWEEP_STEPS}, jump-none);`
     )
     expect(keyframes).toMatch(new RegExp(`from \\{\\s*transform: translateY\\(-${FRAME_ROWS}px\\);`))

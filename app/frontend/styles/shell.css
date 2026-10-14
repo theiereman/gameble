@@ -249,7 +249,7 @@ a.top-bar__home {
   display: block;
 }
 
-/* A mouse over the wordmark link (wordmark-shine): the strip of shine
+/* A mouse over a top-bar wordmark (wordmark-shine): the strip of shine
    frames steps up one wordmark height every 40 ms, then drops back to its
    rest frame. Its units are art pixels. */
 @keyframes wordmark-sweep {
@@ -262,7 +262,7 @@ a.top-bar__home {
   }
 }
 
-.top-bar__home[data-sweeping] .wordmark-sweep__frames {
+.top-bar__brand[data-sweeping] .wordmark-sweep__frames {
   animation: wordmark-sweep 880ms steps(22, jump-none);
 }
 

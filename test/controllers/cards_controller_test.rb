@@ -237,7 +237,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail", false
     assert_select ".card-detail__copies", false
     assert_select ".top-bar__start > a.button--secondary", false
-    assert_select ".top-bar__brand"
+    assert_select ".top-bar__brand[data-controller=wordmark-shine] svg.top-bar__wordmark g.wordmark-sweep__frames"
     assert_select "nav.tab-bar", false
     assert_select "body.is-public-page"
     assert_select ".top-bar__end form.steam-sign-in"

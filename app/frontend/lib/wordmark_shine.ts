@@ -1,4 +1,4 @@
-// The top bar wordmark's hover sweep: while `data-sweeping` is on the link,
+// The top bar wordmark's hover sweep: while `data-sweeping` is on its brand,
 // the stylesheet steps the wordmark's strip of shine frames
 // (images/pixel/wordmark-sweep.svg, styles/shell.css) once, then the strip
 // falls back to its rest frame. A sweep runs to its end once started; under

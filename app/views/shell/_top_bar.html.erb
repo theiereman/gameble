@@ -2,10 +2,10 @@
     (`content_for :back_button`), the wordmark as a link to the hub, a
     divider, the back button to the previous screen (shown by
     previous-screen once the tab's history names that screen) and the
-    screen title, when the view gives one. A mouse over the wordmark link
-    sweeps its shine once (wordmark-shine). Under 720px the wordmark link,
-    divider and previous-screen button give way to the back button to the
-    bridge, or to a view's contextual back in its place
+    screen title, when the view gives one. A mouse over any of its
+    wordmarks sweeps the shine once (wordmark-shine). Under 720px the
+    wordmark link, divider and previous-screen button give way to the back
+    button to the bridge, or to a view's contextual back in its place
     (`content_for :phone_back`, a sub-view's "◀ Grille"). The header
     carries the screen's short name, recorded with each history entry for
     the next screen's back button. On the right the player's rarity
@@ -40,19 +40,19 @@
           <p class="top-bar__title"><%= yield :screen_title %></p>
         <% end %>
       <% elsif (controller_path == "pages" && action_name == "home") || content_for?(:public_page) %>
-        <p class="top-bar__brand">
-          <%= pixel_icon("wordmark", class: "top-bar__wordmark") %>
+        <%= tag.p class: "top-bar__brand", data: wordmark_shine do %>
+          <%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %>
           <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
-        </p>
+        <% end %>
       <% else %>
         <%= link_to home_path, class: "top-bar__brand top-bar__home", aria: { label: t("shell.top_bar.home") }, data: wordmark_shine do %>
           <%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %>
           <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
         <% end %>
-        <p class="top-bar__brand top-bar__phone-brand">
-          <%= pixel_icon("wordmark", class: "top-bar__wordmark") %>
+        <%= tag.p class: "top-bar__brand top-bar__phone-brand", data: wordmark_shine do %>
+          <%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %>
           <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
-        </p>
+        <% end %>
       <% end %>
     </div>
 

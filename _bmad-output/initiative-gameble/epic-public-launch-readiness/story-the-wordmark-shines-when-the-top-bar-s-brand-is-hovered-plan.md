@@ -24,6 +24,8 @@ context: ['{project-root}/AGENTS.md']
 
 **Decisions (author, 2026-10-14):** Only a mouse hovering the brand link sweeps, on a computer: keyboard focus and a touch tap do not, and nothing sweeps under 720px, where the top bar has no brand link (this replaces the ticket's "hovering or focusing", and "on the phone" in its check). No sweep while the booster locks navigation (the link `aria-disabled`).
 
+**Decision (author, 2026-10-14, after the first build):** Every top-bar wordmark sweeps on a mouse hover, link or not: the brand link, the hub's and the public card page's brand, and the phone brand shown under 720px. This replaces "only the brand link" above and the Never rule against animating the hub's and the public card page's brand; the hub showcase's dimmed wordmark stays still.
+
 ## Boundaries & Constraints
 
 **Always:** Every frame is pixel art from `script/pixel_art/export.mjs`, never hand-edited: the band is 2 px, a 1 px gap, a 1 px thin band, each lit pixel in its gold tier's lifted colour, exactly as the static shine. At rest the link's wordmark is pixel-identical to `wordmark.svg`. One sweep runs to its end once started; leaving the link does not cut it. Reduced motion (system preference, or the player's setting through `html[data-motion]`) means no sweep, read with `motionReduced()` and mirrored in CSS like the shell's other animations. No `style` attribute in server HTML.
@@ -110,3 +112,10 @@ SVG `transform` units are user units (1 art pixel); the inline SVG clips the str
 
 **Manual checks (if no CLI):**
 - Desktop, `bin/dev`: hovering the brand link plays one sweep ending on the static shine; Tab to it plays none; hovering again mid-sweep does not restart it; with "Animations réduites" on, or the OS reduced-motion setting, nothing moves.
+
+### Pass 2 (quick, follow-up for every top-bar wordmark, 2026-10-14) — high 0, medium 0, low 4, false 0, maybe-false 0
+
+- `low` reject — on the hub, a morph refresh during a sweep copies the server attributes and drops `data-sweeping`, cutting the band short; the hub morphs only when the packs chip's countdown reaches zero (the goal broadcast replaces its panel, it does not refresh the page), so it takes that moment inside an 880 ms sweep, and the fix is a permanent element across morphs.
+- `low` patch — nothing checked that the hub showcase's dimmed wordmark stays still once the static-wordmark helper went; `pages_controller_test.rb` asserts it has no controller and no sweep strip.
+- `low` patch — the public card page's brand, named by the decision, was not checked; `cards_controller_test.rb` asserts its controller and sweep strip.
+- `low` patch — two rewritten comments (the controller's header, the top bar's) ran past their block's width; re-wrapped.

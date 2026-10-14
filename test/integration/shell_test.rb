@@ -14,15 +14,10 @@ class ShellTest < ActionDispatch::IntegrationTest
     Game::Holding.create!(player_id: player.id, card_season_id: catalog_card_seasons(card_season).id, quantity:)
   end
 
-  def assert_wordmark_sweeps_on_hover
-    sweep = "a.top-bar__home[data-controller=wordmark-shine]"
+  def assert_wordmark_sweeps_on_hover(brand = "a.top-bar__home")
+    sweep = "#{brand}[data-controller=wordmark-shine]"
     assert_select "#{sweep}[data-action=?]", "pointerenter->wordmark-shine#sweep animationend->wordmark-shine#end animationcancel->wordmark-shine#end"
     assert_select "#{sweep} svg.top-bar__wordmark g.wordmark-sweep__frames"
-  end
-
-  def assert_static_wordmark(brand)
-    assert_select "#{brand}:not([data-controller]) svg.top-bar__wordmark"
-    assert_select "#{brand} .wordmark-sweep__frames", false
   end
 
   test "the head: title, the gold G favicon, viewport for the notch, theme colour, view transitions, the three latin fonts preloaded" do
@@ -168,7 +163,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar form[action='/auth/steam']", false
   end
 
-  test "a screen without a back button: the wordmark links to the hub on a desktop, the plain brand on a phone" do
+  test "a screen without a back button: the wordmark links to the hub on a desktop, the plain brand on a phone, each sweeping on hover" do
     sign_in(accounts_players(:player))
 
     get more_path(locale: :en)
@@ -179,13 +174,13 @@ class ShellTest < ActionDispatch::IntegrationTest
     end
     assert_select ".top-bar__start > p.top-bar__brand.top-bar__phone-brand .top-bar__name", "gameble"
     assert_wordmark_sweeps_on_hover
-    assert_static_wordmark ".top-bar__start > p.top-bar__phone-brand"
+    assert_wordmark_sweeps_on_hover ".top-bar__start > p.top-bar__phone-brand"
 
     get home_path(locale: :en)
 
     assert_select ".top-bar__start a", false
     assert_select ".top-bar__start > p.top-bar__brand:not(.top-bar__phone-brand)"
-    assert_static_wordmark ".top-bar__start > p.top-bar__brand"
+    assert_wordmark_sweeps_on_hover ".top-bar__start > p.top-bar__brand"
   end
 
   test "a full reserve shows instead of the countdown" do
