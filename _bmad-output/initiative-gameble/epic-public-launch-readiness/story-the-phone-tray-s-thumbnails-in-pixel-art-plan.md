@@ -3,7 +3,7 @@ title: "The phone tray's thumbnails in pixel art"
 type: 'feature'
 ticket: '32'
 created: '2026-10-14'
-status: built
+status: done
 baseline_revision: '2d934a6'
 route: 'oneshot'
 route_source: 'auto'

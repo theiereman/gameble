@@ -3,7 +3,7 @@ title: 'The Succès screen'
 type: 'feature'
 ticket: '11'
 created: '2026-10-14'
-status: 'built'
+status: done
 baseline_revision: '673ab9a'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'No player screen speaks of officers or the Brotherhood'
 type: 'feature'
 ticket: '50'
 created: '2026-10-14'
-status: built
+status: done
 baseline_revision: '47391d3'
 route: 'oneshot'
 route_source: 'auto'
