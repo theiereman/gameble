@@ -19,11 +19,6 @@ module Catalog
   # an import that did not carry it, published seasons included.
   class CardSeason < ApplicationRecord
     self.table_name = "catalog_card_seasons"
-    # Dropped by RemoveDustTierFromCatalogCardSeasons (AD-28's contract step).
-    # Kept until every environment has run that migration, so a process
-    # booted before it never reads or writes the column.
-    self.ignored_columns = %w[dust_tier]
-
     # The columns frozen once the season is published.
     SEASON_DATA = %w[prestige_score prestige_score_version rating review_count rarity number main_theme].freeze
     # The column is an integer.

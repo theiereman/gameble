@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -110,7 +110,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_100000) do
     t.string "image_url", null: false
     t.string "store_url", null: false
     t.string "publisher"
-    t.string "credit"
     t.string "genres", default: [], null: false, array: true
     t.string "tags", default: [], null: false, array: true
     t.datetime "created_at", null: false
@@ -430,11 +429,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_100000) do
     t.jsonb "details"
     t.bigint "details_run_id"
     t.string "details_exclusion"
-    t.string "genres", array: true
-    t.text "credit"
-    t.jsonb "app_details"
-    t.bigint "genres_run_id"
-    t.string "genres_exclusion"
     t.bigint "carded_run_id"
     t.index ["appid"], name: "index_steam_apps_on_appid", unique: true
     t.index ["carded_run_id", "appid"], name: "index_steam_apps_carded_by_run"
@@ -442,7 +436,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_100000) do
     t.index ["import_run_id"], name: "index_steam_apps_on_import_run_id"
     t.index ["reviewed_run_id", "appid"], name: "index_steam_apps_kept_by_run", where: "(review_exclusion IS NULL)"
     t.check_constraint "details_exclusion IS NULL OR details_exclusion::text = 'unavailable'::text OR details_exclusion::text = 'not_a_game'::text OR details_exclusion::text = 'no_title'::text OR details_exclusion::text = 'no_vertical_image'::text OR details_exclusion::text = 'no_release_date'::text", name: "steam_apps_details_exclusion_check"
-    t.check_constraint "genres_exclusion IS NULL OR genres_exclusion::text = 'unavailable'::text", name: "steam_apps_genres_exclusion_check"
     t.check_constraint "review_exclusion IS NULL OR review_exclusion::text = 'too_few_reviews'::text OR review_exclusion::text = 'unavailable'::text OR review_exclusion::text = 'malformed_reviews'::text", name: "steam_apps_review_exclusion_check"
   end
 
@@ -516,7 +509,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_100000) do
   add_foreign_key "game_weekly_contributions", "accounts_players", column: "player_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "carded_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "details_run_id"
-  add_foreign_key "steam_apps", "steam_import_runs", column: "genres_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "import_run_id"
   add_foreign_key "steam_apps", "steam_import_runs", column: "reviewed_run_id"
 end

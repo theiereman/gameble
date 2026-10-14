@@ -302,7 +302,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert [ app.name_en, app.name_fr, app.release_on, app.store_url, app.image_url ].all?(&:present?)
     assert_equal [ 1, 0 ], [ run.cards_written, run.cards_refused ]
     card = Catalog::DraftSeason.call.card_seasons.sole.card
-    assert_equal [ "steam:10", %w[puzzle fps], nil ], [ card.source_key, card.genres, Catalog::Card.where(id: card.id).pick(Arel.sql("credit")) ]
+    assert_equal [ "steam:10", %w[puzzle fps] ], [ card.source_key, card.genres ]
   end
 
   # Replaces the prestige formula for the block.

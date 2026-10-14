@@ -16,13 +16,8 @@ module Steam
   # tags (Catalog::Themes), and marks each app whose card it wrote with the
   # run (carded_run_id); the end of the cards pass keeps only those cards in
   # the draft. A rescore (Steam::RescoreCards) clears the run's marks first.
-  #
-  # The columns the store API's genres step wrote (genres, credit,
-  # app_details, genres_run_id, genres_exclusion) are ignored until a
-  # contract migration drops them.
   class App < ApplicationRecord
     self.table_name = "steam_apps"
-    self.ignored_columns = %w[genres credit app_details genres_run_id genres_exclusion]
 
     belongs_to :import_run, class_name: "Steam::ImportRun", inverse_of: :apps
     belongs_to :reviewed_run, class_name: "Steam::ImportRun", optional: true

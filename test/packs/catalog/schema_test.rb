@@ -35,12 +35,12 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
       connection.check_constraint_exists?(:catalog_card_seasons, name: "catalog_card_seasons_dust_tier_check") ]
   end
 
-  test "a card-season has no dust tier, nor its check (AD-28)" do
+  test "a card-season has no dust tier, nor its check" do
     assert_equal [ false, false ], dust_tier
   end
 
   # PostgreSQL DDL is transactional: the round trip is rolled back with the
-  # test. The model ignores the column, so none of its queries names it.
+  # test. The writes are SQL strings, and the model forgets the column after.
   test "the dust tier's removal rolls back to a nullable smallint checked 0 to 4, and runs again" do
     migration = RemoveDustTierFromCatalogCardSeasons.new
     migration.suppress_messages { migration.migrate(:down) }

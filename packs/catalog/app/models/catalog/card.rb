@@ -10,12 +10,8 @@ module Catalog
   # card links stay stable (AD-15).
   #
   # Written only through the operations of this pack (AD-3).
-  #
-  # The credit column (the source's legal notice, no longer written since
-  # story 2.10) is ignored until a contract migration drops it.
   class Card < ApplicationRecord
     self.table_name = "catalog_cards"
-    self.ignored_columns = %w[credit]
 
     extend FriendlyId
     friendly_id :slug_candidates, use: :slugged
