@@ -852,6 +852,10 @@ button.tab-bar__tab {
   overflow-wrap: anywhere;
 }
 
+.toast__action {
+  margin-top: var(--space-3);
+}
+
 .toast__close {
   flex: none;
   display: inline-flex;

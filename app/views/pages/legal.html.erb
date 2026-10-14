@@ -101,11 +101,7 @@
     <p><%= t(".privacy.deletion") %></p>
     <p><%= t(".privacy.rights.intro") %></p>
     <ul class="legal__list">
-      <% if @legal.contact_email %>
-        <li class="legal__access"><%= t(".privacy.rights.access_html", contact:) %></li>
-      <% else %>
-        <li class="legal__access"><%= t(".privacy.rights.access_publisher") %></li>
-      <% end %>
+      <li class="legal__access"><%= t(".privacy.rights.access") %></li>
       <li class="legal__rectification"><%= t(".privacy.rights.rectification_html", contact:) %></li>
       <li><%= t(".privacy.rights.erasure") %></li>
       <li class="legal__objection"><%= t(".privacy.rights.objection_html", contact:) %></li>

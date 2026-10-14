@@ -25,8 +25,8 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "title", /Profil et paramètres/
     assert_select "main h1", "Profil et paramètres"
-    assert_select ".settings-row", 7
-    assert_equal [ "Langue", "Visibilité du profil", "Animations réduites", "Session", "Compte", "Soutenir" ], css_select(".settings-row__label").map(&:text)
+    assert_select ".settings-row", 8
+    assert_equal [ "Langue", "Visibilité du profil", "Animations réduites", "Session", "Mes données", "Compte", "Soutenir" ], css_select(".settings-row__label").map(&:text)
     assert_select "[role=group][aria-labelledby=settings-language] a.segmented__option", 2
     assert_select "a.segmented__option[href='/fr/settings'][aria-current=true][lang=fr]", "Français"
     assert_select "a.segmented__option[href='/en/settings'][lang=en]:not([aria-current])", "English"
@@ -48,6 +48,22 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar a.button[href='/fr']", /Pont/
   end
 
+  test "the MES DONNÉES row posts the export, a full page load without JavaScript, with the strings its script shows" do
+    sign_in(@player)
+
+    get settings_path(locale: :fr)
+
+    form = css_select("form[action='/fr/settings/export'][method=post][data-turbo=false][data-controller=data-export]").sole
+    assert_equal "submit->data-export#export", form["data-action"]
+    assert_equal [ "Préparation…", "Réessayer", "Export prêt", "Télécharger" ],
+      %w[preparing retry ready-title download].map { form["data-data-export-#{it}-value"] }
+    assert_select form, "button[type=submit].button--secondary.button--small", "Exporter"
+    assert_select form, "p.settings-row__error[role=alert][hidden][data-data-export-target=error]", ""
+
+    get settings_path(locale: :en)
+    assert_select "form[action='/en/settings/export'] button[type=submit]", "Export"
+  end
+
   test "the settings screen in English, and the player's choice marked" do
     @player.update!(reduced_motion: true)
     sign_in(@player)
@@ -55,7 +71,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     get settings_path(locale: :en)
 
     assert_select "main h1", "Profile and settings"
-    assert_equal [ "Language", "Profile visibility", "Reduced motion", "Session", "Account", "Support" ], css_select(".settings-row__label").map(&:text)
+    assert_equal [ "Language", "Profile visibility", "Reduced motion", "Session", "My data", "Account", "Support" ], css_select(".settings-row__label").map(&:text)
     assert_select "button[name=reduced_motion][value=on][aria-pressed=true]", "Yes"
     assert_select "button[name=reduced_motion][value=system][aria-pressed=false]", "System"
     assert_select "button[name=reduced_motion][value=off][aria-pressed=false]", "No"

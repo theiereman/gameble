@@ -1,6 +1,7 @@
 <%# The toast region (EXPERIENCE.md, Toast): a polite live region holding
     the flash messages as toasts, and the template a `gameble:toast` event
-    is built from. Only notice and alert are messages; the flash carries
+    is built from, with a title and an action link the event may fill or
+    leave out. Only notice and alert are messages; the flash carries
     other data, such as the pack to reveal, that never reaches the page. A
     page adds its own toasts with `content_for :toasts` (the hub's goal
     reward). %>
@@ -11,5 +12,5 @@
     <%= render ToastComponent.new(message:, title:, tone: type.to_sym) %>
   <% end %>
   <%= content_for(:toasts) %>
-  <template data-toast-target="template"><%= render ToastComponent.new(message: "", title: "") %></template>
+  <template data-toast-target="template"><%= render ToastComponent.new(message: "", title: "", action: { label: "", href: "#" }) %></template>
 </div>

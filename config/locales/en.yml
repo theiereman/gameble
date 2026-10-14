@@ -205,8 +205,7 @@ en:
         deletion: "When you delete your account, your Steam id, your profile name, the time of your last visit, your collection, your boosters, your friendships, your invitations, your friend code and your activity feed entries are erased, your open trades are cancelled and your profile disappears. What also concerns other players, the community or moderation (past trades, first discoveries, contributions to the community goal, reports, moderation history, the log of game actions) is kept without your Steam id or your name, for the periods given above."
         rights:
           intro: "You can access your data, have it rectified or erased, restrict its processing, object to processing based on legitimate interest and receive a reusable copy of it. You can also say what becomes of your data after your death. We reply within one month."
-          access_html: "access: ask for a copy of your data by e-mail, at %{contact};"
-          access_publisher: "access: ask the publisher for a copy of your data;"
+          access: "access: from the settings, with \"Export\" under \"My data\", which downloads a copy of your data in a reusable file;"
           rectification_html: "rectification: your profile name follows your Steam one and is read again at each sign-in; for anything else, write to %{contact};"
           erasure: "deletion: from the settings, with \"Delete my account\";"
           objection_html: "objection: make your profile private in the settings, or write to %{contact};"
@@ -804,6 +803,15 @@ en:
       session:
         label: "Session"
         sign_out: "Sign out"
+      data:
+        label: "My data"
+        export: "Export"
+        preparing: "Preparing…"
+        retry: "Retry"
+        failed: "The export did not go through. Check your connection, then try again."
+        ready_title: "Export ready"
+        ready: "A copy of your data is waiting, in a JSON file."
+        download: "Download"
       account:
         label: "Account"
         delete: "Delete my account"
@@ -1141,6 +1149,9 @@ en:
       deleted: "Your account has been deleted. Thank you for playing."
       wrong_word: "Type %{word} to confirm the deletion. Nothing was erased."
       throttled: "Too many attempts in a minute. Try again in a moment."
+  data_exports:
+    create:
+      throttled: "One export every 5 minutes at most. Try again in a few minutes."
   reports:
     open: "REPORT"
     reasons:

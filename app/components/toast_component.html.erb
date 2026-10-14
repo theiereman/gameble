@@ -3,6 +3,7 @@
   <div class="toast__body">
     <% unless @title.nil? %><p class="toast__title" data-toast-part="title"><%= @title %></p><% end %>
     <p class="toast__message" data-toast-part="message"><%= @message %></p>
+    <% if @action %><%= link_to @action[:label], @action[:href], class: "button button--secondary button--small toast__action", data: { toast_part: "action" }, download: @action[:download] %><% end %>
   </div>
   <button type="button" class="toast__close" data-action="toast#close" aria-label="<%= t("shell.toast.close") %>"><%= helpers.pixel_icon("close") %></button>
 </div>

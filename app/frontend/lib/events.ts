@@ -4,13 +4,18 @@
 import type { Rarity } from "./card_types"
 import type { SideCount } from "./trade_board"
 
+export type ToastAction = { label: string; href: string; download?: string }
+
 // A toast to show (EXPERIENCE.md, Toast): the shell's toast region appends
 // it from its server-rendered template.
 export type ToastDetail = {
   message: string
   title?: string
   tone?: "notice" | "alert"
+  action?: ToastAction
 }
+
+export type ToastDismissedDetail = { actionHref: string }
 
 // The booster island revealed a card of `tier`: the player's copies per
 // tier now, read by the top bar's rarity counter.
@@ -33,6 +38,7 @@ export type TradeEditingDetail = { editing: boolean }
 
 export interface GamebleEventMap {
   "gameble:toast": ToastDetail
+  "gameble:toast-dismissed": ToastDismissedDetail
   "gameble:tier-revealed": TierRevealedDetail
   "gameble:bank-changed": BankChangedDetail
   "gameble:navigation-locked": NavigationLockedDetail

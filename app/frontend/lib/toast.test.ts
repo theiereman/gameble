@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { RevealHold, TOAST_BASE_MS, TOAST_ONCE_PREFIX, firstShowing, toastDuration } from "./toast"
+import { RevealHold, TOAST_BASE_MS, TOAST_ONCE_PREFIX, firstShowing, toastActionHref, toastDuration } from "./toast"
 
 describe("toastDuration", () => {
   it("stays the base time for an empty text", () => {
@@ -16,6 +16,22 @@ describe("toastDuration", () => {
 
   it("counts words across any whitespace", () => {
     expect(toastDuration("  Léa a\n7 jours\tpour répondre. ")).toBe(6000)
+  })
+})
+
+describe("toastActionHref", () => {
+  it("takes an object URL or a path of the site", () => {
+    expect(toastActionHref("blob:https://gameble.example/0b6e2c4a")).toBe("blob:https://gameble.example/0b6e2c4a")
+    expect(toastActionHref("/fr/settings")).toBe("/fr/settings")
+  })
+
+  it("refuses any other target", () => {
+    expect(toastActionHref("javascript:alert(1)")).toBeNull()
+    expect(toastActionHref("https://elsewhere.example/")).toBeNull()
+    expect(toastActionHref("//elsewhere.example/")).toBeNull()
+    expect(toastActionHref("/\\elsewhere.example/")).toBeNull()
+    expect(toastActionHref("")).toBeNull()
+    expect(toastActionHref(undefined)).toBeNull()
   })
 })
 

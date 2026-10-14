@@ -8,6 +8,11 @@ export function toastDuration(text: string): number {
   return TOAST_BASE_MS + Math.ceil(words / 10) * TOAST_MS_PER_TEN_WORDS
 }
 
+export function toastActionHref(href: unknown): string | null {
+  if (typeof href !== "string") return null
+  return /^blob:/.test(href) || /^\/(?![/\\])/.test(href) ? href : null
+}
+
 // A toast a page brings on every render while its state lasts (the hub's
 // goal reward) carries a key (`data-toast-once`): a browser shows it once.
 // The first showing of a key records it and answers true, later ones false.

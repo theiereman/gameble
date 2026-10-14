@@ -598,8 +598,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".legal__contact a[href=?]", "mailto:contact@example.test", "contact@example.test"
     assert_select ".legal__host-name", "Example Hosting"
     assert_select ".legal__host-address", "1 rue de l'Exemple, 75000 Paris"
-    assert_select ".legal__access", "access: ask for a copy of your data by e-mail, at contact@example.test;"
-    assert_select ".legal__access a[href=?]", "mailto:contact@example.test"
+    assert_select ".legal__access", 'access: from the settings, with "Export" under "My data", which downloads a copy of your data in a reusable file;'
+    assert_select ".legal__access a", false
   end
 
   test "without a configured contact or host, those lines are left out and the page still renders" do
@@ -612,11 +612,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".legal__host", false
     assert_select "a[href^='mailto:']", false
     assert_select ".legal__fact dt", "Publisher"
-    assert_select ".legal__access", "access: ask the publisher for a copy of your data;"
+    assert_select ".legal__access", 'access: from the settings, with "Export" under "My data", which downloads a copy of your data in a reusable file;'
     assert_no_match(/contact address above/, response.body)
 
     get legal_path(locale: :fr)
-    assert_select ".legal__access", "accès : demandez une copie de vos données à l'éditeur ;"
+    assert_select ".legal__access", "accès : depuis les paramètres, avec « Exporter » dans « Mes données », qui télécharge une copie de vos données dans un fichier réutilisable ;"
   end
 
   test "with a contact configured, every line that sends the reader to the publisher carries the mailto link" do

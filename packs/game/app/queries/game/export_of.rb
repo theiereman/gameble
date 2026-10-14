@@ -1,0 +1,95 @@
+module Game
+  module ExportOf
+    HeldCard = Data.define(:card_season_id, :quantity, :last_gained_at)
+    PackRow = Data.define(:token, :kind, :season_number, :card_back, :available_at, :opened_at, :card_season_ids)
+    Contribution = Data.define(:week_start, :openings)
+    CompletedSet = Data.define(:season_number, :kind, :key, :completed_at)
+    Discovery = Data.define(:card_season_id, :discovered_at)
+    Entry = Data.define(:kind, :card_season_id, :occurred_at)
+    Unlock = Data.define(:achievement, :unlocked_at)
+    Line = Data.define(:card_season_id, :quantity)
+    TradeRow = Data.define(:status, :proposed_at, :closed_at, :offered)
+    Invitations = Data.define(:received, :sent)
+
+    Result = Data.define(:friend_code, :held_cards, :packs, :daily_bonus_days, :goal_reward_weeks, :contributions,
+      :completed_sets, :discoveries, :feed_entries, :unlocks, :friend_count, :invitations, :trades) do
+      def card_season_ids
+        (held_cards.map(&:card_season_id) + packs.flat_map(&:card_season_ids) + discoveries.map(&:card_season_id) +
+          feed_entries.map(&:card_season_id) + trades.flat_map { |trade| trade.offered.map(&:card_season_id) }).uniq
+      end
+    end
+
+    def self.call(player, now: Time.current)
+      invitations = InvitationsOf.call(player)
+      Result.new(
+        friend_code: FriendCodeOf.call(player),
+        held_cards: held_cards(player),
+        packs: packs(player),
+        daily_bonus_days: DailyBonusClaim.where(player_id: player.id).order(:day).pluck(:day),
+        goal_reward_weeks: GoalReward.where(player_id: player.id).order(:week_start).pluck(:week_start),
+        contributions: WeeklyContribution.where(player_id: player.id).order(:week_start)
+          .pluck(:week_start, :openings).map { |week_start, openings| Contribution.new(week_start:, openings:) },
+        completed_sets: completed_sets(player),
+        discoveries: FirstDiscovery.where(player_id: player.id).order(:discovered_at, :card_season_id)
+          .pluck(:card_season_id, :discovered_at).map { |id, at| Discovery.new(card_season_id: id, discovered_at: at) },
+        feed_entries: feed_entries(player),
+        unlocks: AchievementUnlock.where(player_id: player.id).order(:unlocked_at, :achievement)
+          .pluck(:achievement, :unlocked_at).map { |achievement, unlocked_at| Unlock.new(achievement:, unlocked_at:) },
+        friend_count: FriendsOf.call(player).size,
+        invitations: Invitations.new(received: invitations.received.size, sent: invitations.sent.size),
+        trades: trades(player, now)
+      )
+    end
+
+    def self.held_cards(player)
+      Holding.where(player_id: player.id).where(Holding.arel_table[:quantity].gt(0)).order(:card_season_id)
+        .pluck(:card_season_id, :quantity, :last_gained_at)
+        .map { |id, quantity, last_gained_at| HeldCard.new(card_season_id: id, quantity:, last_gained_at:) }
+    end
+
+    def self.packs(player)
+      rows = Pack.where(player_id: player.id).order(:available_at, :id)
+        .pluck(:token, :kind, :season_id, :card_back, :available_at, :opened_at, :card_season_ids)
+      numbers = Catalog::Season.where(id: rows.map { it[2] }.uniq).pluck(:id, :number).to_h
+      rows.map do |token, kind, season_id, card_back, available_at, opened_at, card_season_ids|
+        unopened = opened_at.nil?
+        PackRow.new(token:, kind:, season_number: numbers[season_id], available_at:, opened_at:,
+          card_back: unopened ? nil : card_back || CardBacks::STANDARD,
+          card_season_ids: unopened ? [] : card_season_ids)
+      end
+    end
+
+    def self.completed_sets(player)
+      completions = SetCompletion.where(player_id: player.id).order(:completed_at, :set_id).pluck(:set_id, :completed_at)
+      sets = Catalog::Set.where(id: completions.map(&:first)).joins(:season)
+        .pluck(:id, "catalog_seasons.number", :kind, :key).to_h { |id, *set| [ id, set ] }
+      completions.filter_map do |set_id, completed_at|
+        season_number, kind, key = sets[set_id]
+        CompletedSet.new(season_number:, kind:, key:, completed_at:) if kind
+      end
+    end
+
+    def self.feed_entries(player)
+      FeedEntry.where(player_id: player.id).or(FeedEntry.where(partner_id: player.id)).order(:occurred_at, :id)
+        .pluck(:kind, :player_id, :card_season_id, :partner_card_season_id, :occurred_at)
+        .map do |kind, player_id, card_season_id, partner_card_season_id, occurred_at|
+          own = player_id == player.id ? card_season_id : partner_card_season_id
+          Entry.new(kind:, card_season_id: own, occurred_at:)
+        end
+    end
+
+    def self.trades(player, now)
+      trades = Trade.where(proposer_id: player.id).or(Trade.where(recipient_id: player.id)).order(:proposed_at, :id).to_a
+      items = TradeItem.where(trade_id: trades.map(&:id)).order(:card_season_id).group_by(&:trade_id)
+      trades.map do |trade|
+        side = trade.proposer_id == player.id ? "offer" : "request"
+        offered = items.fetch(trade.id, []).select { it.side == side }
+          .map { Line.new(card_season_id: it.card_season_id, quantity: it.quantity) }
+        status = trade.open? && trade.expired?(now) ? "expired" : trade.status
+        TradeRow.new(status:, proposed_at: trade.proposed_at, closed_at: trade.closed_at, offered:)
+      end
+    end
+
+    private_class_method :held_cards, :packs, :completed_sets, :feed_entries, :trades
+  end
+end

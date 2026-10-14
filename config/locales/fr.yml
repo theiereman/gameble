@@ -210,8 +210,7 @@ fr:
         deletion: "Quand vous supprimez votre compte, votre identifiant Steam, votre nom de profil, l'heure de votre dernière visite, votre collection, vos boosters, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à l'objectif communautaire, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
         rights:
           intro: "Vous pouvez accéder à vos données, les faire rectifier ou effacer, en limiter le traitement, vous opposer à un traitement fondé sur l'intérêt légitime et en recevoir une copie réutilisable. Vous pouvez aussi indiquer ce que deviennent vos données après votre décès. Nous répondons sous un mois."
-          access_html: "accès : demandez une copie de vos données par e-mail, à %{contact} ;"
-          access_publisher: "accès : demandez une copie de vos données à l'éditeur ;"
+          access: "accès : depuis les paramètres, avec « Exporter » dans « Mes données », qui télécharge une copie de vos données dans un fichier réutilisable ;"
           rectification_html: "rectification : votre nom de profil suit celui de Steam et il est relu à chaque connexion ; pour le reste, écrivez à %{contact} ;"
           erasure: "suppression : depuis les paramètres, avec « Supprimer mon compte » ;"
           objection_html: "opposition : rendez votre profil privé dans les paramètres, ou écrivez à %{contact} ;"
@@ -844,6 +843,15 @@ fr:
       session:
         label: "Session"
         sign_out: "Se déconnecter"
+      data:
+        label: "Mes données"
+        export: "Exporter"
+        preparing: "Préparation…"
+        retry: "Réessayer"
+        failed: "L'export n'a pas abouti. Vérifiez votre connexion, puis réessayez."
+        ready_title: "Export prêt"
+        ready: "Une copie de vos données vous attend, dans un fichier JSON."
+        download: "Télécharger"
       account:
         label: "Compte"
         delete: "Supprimer mon compte"
@@ -1184,6 +1192,9 @@ fr:
       deleted: "Votre compte a été supprimé. Merci d'avoir joué."
       wrong_word: "Tapez %{word} pour confirmer la suppression. Rien n'a été effacé."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
+  data_exports:
+    create:
+      throttled: "Un export toutes les 5 minutes au plus. Réessayez dans quelques minutes."
   reports:
     open: "SIGNALER"
     reasons:
