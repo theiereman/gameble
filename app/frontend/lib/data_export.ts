@@ -1,4 +1,4 @@
-export type ExportPhase = "idle" | "preparing" | "failed"
+export type ExportPhase = "idle" | "preparing" | "failed" | "waiting"
 
 export type ExportLabels = { idle: string; preparing: string; retry: string }
 
@@ -10,6 +10,8 @@ export function exportButton(phase: ExportPhase, labels: ExportLabels): ExportBu
       return { label: labels.preparing, disabled: true }
     case "failed":
       return { label: labels.retry, disabled: false }
+    case "waiting":
+      return { label: labels.idle, disabled: true }
     default:
       return { label: labels.idle, disabled: false }
   }
@@ -37,6 +39,15 @@ function decodedOrNull(value: string): string | null {
 function plainFilename(name: string): string {
   const base = name.split(/[\\/]/).pop() ?? ""
   return base === "" ? FALLBACK_FILENAME : base
+}
+
+export function nextExportAt(body: unknown): Date | null {
+  if (typeof body !== "object" || body === null) return null
+  const error = (body as { error?: unknown }).error
+  if (typeof error !== "object" || error === null) return null
+  const value = (error as { nextExportAt?: unknown }).nextExportAt
+  const date = typeof value === "string" ? new Date(value) : null
+  return date && !Number.isNaN(date.getTime()) ? date : null
 }
 
 export function failureMessage(body: unknown, fallback: string): string {

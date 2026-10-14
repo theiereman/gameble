@@ -9,8 +9,12 @@ class PlayerExport
     @now
   end
 
+  def self.filename(exported_at)
+    "gameble-export-#{exported_at.utc.to_date.iso8601}.json"
+  end
+
   def filename
-    "gameble-export-#{@now.utc.to_date.iso8601}.json"
+    self.class.filename(@now)
   end
 
   def to_h

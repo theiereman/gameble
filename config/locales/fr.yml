@@ -180,7 +180,7 @@ fr:
           activity: "votre activité de jeu : cartes, boosters, échanges, amis et invitations, code ami, entrées du fil d'activité ;"
           moderation: "les signalements que vous faites, ceux qui visent votre profil (leur auteur ne vous est pas communiqué) et les décisions de modération qui vous concernent, avec leur motif ;"
           settings: "vos réglages (visibilité du profil, animations réduites) ;"
-          last_seen: "la date de création de votre compte, l'heure de votre dernière visite et celle de votre dernier export de données ;"
+          last_seen: "la date de création de votre compte, l'heure de votre dernière visite, et votre dernier export de données (son fichier et son heure), gardé jusqu'à l'export suivant ;"
           technical: "des données techniques : adresse IP et navigateur, dans les journaux du serveur et le suivi d'erreurs."
         purposes:
           intro: "Pourquoi et sur quelle base :"
@@ -207,7 +207,7 @@ fr:
           logs: "les journaux du serveur : 30 jours ;"
           errors: "les erreurs techniques reçues par Sentry : 90 jours au plus, selon l'offre Sentry de l'éditeur ;"
           leftovers: "ce qu'un compte supprimé laisse et qui concerne d'autres joueurs ou la communauté (échanges passés, premières découvertes, contributions à l'objectif communautaire, journal des actions du jeu) : tant que le jeu existe, sans identifiant Steam ni nom."
-        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, votre nom de profil, l'heure de votre dernière visite et de votre dernier export, votre collection, vos boosters, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à l'objectif communautaire, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
+        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, votre collection, vos boosters, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à l'objectif communautaire, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
         rights:
           intro: "Vous pouvez accéder à vos données, les faire rectifier ou effacer, en limiter le traitement, vous opposer à un traitement fondé sur l'intérêt légitime et en recevoir une copie réutilisable. Vous pouvez aussi indiquer ce que deviennent vos données après votre décès. Nous répondons sous un mois."
           access: "accès : depuis les paramètres, avec « Exporter » dans « Mes données », qui télécharge une copie de vos données dans un fichier réutilisable ;"
@@ -853,6 +853,7 @@ fr:
         ready: "Une copie de vos données vous attend, dans un fichier JSON."
         download: "Télécharger"
         last_export: "Dernier export :"
+        next_export: "Prochain export :"
         time_format: "%d/%m/%Y à %H:%M UTC"
       account:
         label: "Compte"
@@ -1184,7 +1185,7 @@ fr:
     dialog:
       title: "Supprimer mon compte"
       close: "Fermer"
-      note: "Seront effacés définitivement : votre identifiant Steam, votre nom, votre profil et son lien, l'heure de votre dernière visite, celle de votre dernier export et votre dernière activité, votre collection, vos sets complétés et vos succès, vos boosters, ouverts ou non, vos bonus du jour et vos récompenses de l'objectif communautaire, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
+      note: "Seront effacés définitivement : votre identifiant Steam, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données et votre dernière activité, votre collection, vos sets complétés et vos succès, vos boosters, ouverts ou non, vos bonus du jour et vos récompenses de l'objectif communautaire, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
       kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à l'objectif communautaire, les signalements, l'historique de modération et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
@@ -1194,9 +1195,6 @@ fr:
       deleted: "Votre compte a été supprimé. Merci d'avoir joué."
       wrong_word: "Tapez %{word} pour confirmer la suppression. Rien n'a été effacé."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
-  data_exports:
-    create:
-      throttled: "Un export toutes les 5 minutes au plus. Réessayez dans quelques minutes."
   reports:
     open: "SIGNALER"
     reasons:
@@ -1430,6 +1428,7 @@ fr:
   errors:
     accounts:
       player_required: "Connectez-vous avec un compte actif pour faire cela."
+      export_too_soon: "Un export toutes les 5 minutes au plus. Réessayez dans quelques minutes."
       no_longer_idle: "Ce joueur n'est plus inactif : son compte n'est pas supprimé."
       invalid_setting: "Ce réglage n'a pas pu être enregistré. Rechargez la page et réessayez."
       invalid_steam_id: "Votre identifiant Steam n'a pas pu être lu. Connectez-vous à nouveau."

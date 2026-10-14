@@ -24,7 +24,14 @@ module Accounts
 
     IDLE_PERIOD = 3.years
 
+    EXPORT_INTERVAL = 5.minutes
+
     has_secure_token :token
+
+    def next_export_at(now = Time.current)
+      next_at = last_exported_at && last_exported_at + EXPORT_INTERVAL
+      next_at if next_at && next_at > now
+    end
 
     before_save :rotate_stream_key, if: :banned_or_deleted_now?
 

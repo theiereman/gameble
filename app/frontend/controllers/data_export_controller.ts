@@ -1,15 +1,27 @@
 import { Controller } from "@hotwired/stimulus"
 import { dispatchGameble } from "../lib/events"
-import { type ExportPhase, exportButton, exportFilename, exportedAt, failureMessage, formatUtc } from "../lib/data_export"
+import { type ExportPhase, exportButton, exportFilename, exportedAt, failureMessage, formatUtc, nextExportAt } from "../lib/data_export"
 
 export default class extends Controller<HTMLFormElement> {
-  static targets = ["error", "download", "lastExport", "time"]
-  static values = { preparing: String, retry: String, failed: String, readyTitle: String, ready: String, download: String, timeFormat: String }
+  static targets = ["error", "download", "lastExport", "time", "nextExport", "nextTime"]
+  static values = {
+    preparing: String,
+    retry: String,
+    failed: String,
+    readyTitle: String,
+    ready: String,
+    download: String,
+    timeFormat: String,
+    interval: Number,
+    nextExportAt: String,
+  }
 
   declare readonly errorTarget: HTMLElement
   declare readonly downloadTarget: HTMLAnchorElement
   declare readonly lastExportTarget: HTMLElement
   declare readonly timeTarget: HTMLTimeElement
+  declare readonly nextExportTarget: HTMLElement
+  declare readonly nextTimeTarget: HTMLTimeElement
   declare readonly preparingValue: string
   declare readonly retryValue: string
   declare readonly failedValue: string
@@ -17,42 +29,51 @@ export default class extends Controller<HTMLFormElement> {
   declare readonly readyValue: string
   declare readonly downloadValue: string
   declare readonly timeFormatValue: string
+  declare readonly intervalValue: number
+  declare readonly nextExportAtValue: string
 
   private idleLabel = ""
   private running = false
-  private objectUrl?: string
+  private unlockTimer?: number
 
   connect(): void {
     this.idleLabel = this.button()?.textContent ?? ""
+    const next = this.nextExportAtValue ? new Date(this.nextExportAtValue) : null
+    if (next && !Number.isNaN(next.getTime())) this.waitUntil(next)
   }
 
   disconnect(): void {
-    this.revoke()
+    window.clearTimeout(this.unlockTimer)
   }
 
   async export(event: Event): Promise<void> {
     event.preventDefault()
-    if (this.running) return
+    if (this.running || this.button()?.disabled) return
     this.running = true
     this.show("preparing")
     try {
       const response = await fetch(this.element.action, { method: "POST", headers: this.headers(), credentials: "same-origin" })
       if (!response.ok) {
-        this.fail(failureMessage(await response.json().catch(() => null), this.failedValue))
+        const body: unknown = await response.json().catch(() => null)
+        const next = nextExportAt(body)
+        if (next) this.waitUntil(next)
+        else this.fail(failureMessage(body, this.failedValue))
         return
       }
-      const blob = await response.blob()
-      this.revoke()
-      this.objectUrl = URL.createObjectURL(blob)
+      const at = exportedAt(await response.text())
       const download = exportFilename(response.headers.get("Content-Disposition"))
-      this.offerDownload(this.objectUrl, download)
-      this.showLastExport(exportedAt(await blob.text()))
+      this.offerDownload(download)
       dispatchGameble("gameble:toast", {
         title: this.readyTitleValue,
         message: this.readyValue,
-        action: { label: this.downloadValue, href: this.objectUrl, download },
+        action: { label: this.downloadValue, href: this.downloadTarget.getAttribute("href") ?? "", download },
       })
-      this.show("idle")
+      if (at) {
+        this.showTime(this.lastExportTarget, this.timeTarget, at)
+        this.waitUntil(new Date(at.getTime() + this.intervalValue * 1000))
+      } else {
+        this.show("idle")
+      }
     } catch {
       this.fail(this.failedValue)
     } finally {
@@ -66,10 +87,24 @@ export default class extends Controller<HTMLFormElement> {
   }
 
   private fail(message: string): void {
+    const alreadyShown = !this.errorTarget.hidden && this.errorTarget.textContent === message
     this.show("failed")
     this.errorTarget.textContent = message
     this.errorTarget.hidden = false
-    dispatchGameble("gameble:toast", { message, tone: "alert" })
+    if (!alreadyShown) dispatchGameble("gameble:toast", { message, tone: "alert" })
+  }
+
+  private waitUntil(next: Date): void {
+    window.clearTimeout(this.unlockTimer)
+    const remaining = next.getTime() - Date.now()
+    if (remaining <= 0) {
+      this.nextExportTarget.hidden = true
+      this.show("idle")
+      return
+    }
+    this.show("waiting")
+    this.showTime(this.nextExportTarget, this.nextTimeTarget, next)
+    this.unlockTimer = window.setTimeout(() => this.waitUntil(next), remaining)
   }
 
   private show(phase: ExportPhase): void {
@@ -89,23 +124,14 @@ export default class extends Controller<HTMLFormElement> {
     return this.element.querySelector<HTMLButtonElement>("button[type=submit]")
   }
 
-  private offerDownload(href: string, filename: string): void {
-    this.downloadTarget.href = href
+  private offerDownload(filename: string): void {
     this.downloadTarget.download = filename
     this.downloadTarget.hidden = false
   }
 
-  private showLastExport(at: Date | null): void {
-    if (!at) return
-    this.timeTarget.dateTime = at.toISOString()
-    this.timeTarget.textContent = formatUtc(at, this.timeFormatValue)
-    this.lastExportTarget.hidden = false
-  }
-
-  private revoke(): void {
-    if (this.objectUrl) URL.revokeObjectURL(this.objectUrl)
-    this.objectUrl = undefined
-    this.downloadTarget.hidden = true
-    this.downloadTarget.removeAttribute("href")
+  private showTime(line: HTMLElement, time: HTMLTimeElement, at: Date): void {
+    time.dateTime = at.toISOString()
+    time.textContent = formatUtc(at, this.timeFormatValue)
+    line.hidden = false
   }
 }

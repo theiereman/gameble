@@ -2,7 +2,8 @@ module Accounts
   # Deletes a player's account (CAP-14, AD-14). The record stays, as the
   # target of the rows that name it, but is anonymised: the Steam id is
   # released (the same Steam account signs up again as a new player), the
-  # persona name, the last-seen and last-export times are erased, the public token is
+  # persona name, the last-seen time and the last export (its time and its
+  # file) are erased, the public token is
   # replaced (every link that named the player leads nowhere) and
   # `deleted_at` is set, which also rotates the private stream key.
   #
@@ -29,6 +30,7 @@ module Accounts
         player.lock!("FOR NO KEY UPDATE")
         step require_player(player)
         step publish(PlayerDeleted.new(data: { player_id: player.id }), stream_name: "Accounts::Player$#{player.id}")
+        DataExport.where(player_id: player.id).delete_all
         player.update!(steam_id: nil, persona_name: nil, last_seen_at: nil, last_exported_at: nil, token: Player.generate_unique_secure_token,
           deleted_at: Time.current)
         player

@@ -59,24 +59,44 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
       %w[preparing retry ready-title download].map { form["data-data-export-#{it}-value"] }
     assert_select form, "button[type=submit].button--secondary.button--small", "Exporter"
     assert_select form, "p.settings-row__error[role=alert][hidden][data-data-export-target=error]", ""
-    assert_select form, ".settings-row__actions button[type=submit] + a.settings-row__download[hidden][data-data-export-target=download]:not([href])", "Télécharger"
+    assert_select form, ".settings-row__actions button[type=submit] + a.settings-row__download[hidden][data-data-export-target=download][href='/fr/settings/export']:not([download])", "Télécharger"
     assert_equal "%d/%m/%Y à %H:%M UTC", form["data-data-export-time-format-value"]
     assert_select form, "p.settings-row__note[hidden][data-data-export-target=lastExport]"
+    assert_select form, "p.settings-row__note[hidden][data-data-export-target=nextExport]"
+    assert_select form, "button[type=submit]:not([disabled])"
+    assert_equal [ "300", nil ], [ form["data-data-export-interval-value"], form["data-data-export-next-export-at-value"] ]
 
     get settings_path(locale: :en)
     assert_select "form[action='/en/settings/export'] button[type=submit]", "Export"
   end
 
   test "the time of the last export shows under the buttons, in UTC" do
-    @player.update_columns(last_exported_at: Time.utc(2026, 10, 4, 7, 5))
+    Accounts::RecordExport.new.call(player: @player, at: Time.utc(2026, 10, 4, 7, 5), file: "{}").value!
     sign_in(@player)
 
     get settings_path(locale: :fr)
     assert_select "p.settings-row__note:not([hidden])", /Dernier export :\s+04\/10\/2026 à 07:05 UTC/
     assert_select "p.settings-row__note time[datetime='2026-10-04T07:05:00Z']", "04/10/2026 à 07:05 UTC"
 
+    assert_select "a.settings-row__download:not([hidden])[href='/fr/settings/export'][download='gameble-export-2026-10-04.json']", "Télécharger"
+
     get settings_path(locale: :en)
     assert_select "p.settings-row__note time", "2026-10-04 at 07:05 UTC"
+  end
+
+  test "within five minutes of the last export, EXPORTER is disabled and says when the next export is allowed" do
+    sign_in(@player)
+
+    travel_to Time.utc(2026, 10, 14, 9, 32) do
+      Accounts::RecordExport.new.call(player: @player, at: Time.utc(2026, 10, 14, 9, 30), file: "{}").value!
+      get settings_path(locale: :fr)
+    end
+
+    form = css_select("form[data-controller=data-export]").sole
+    assert_select form, "button[type=submit][disabled]", "Exporter"
+    assert_select form, "p.settings-row__note:not([hidden]) time[datetime='2026-10-14T09:35:00Z']", "14/10/2026 à 09:35 UTC"
+    assert_select form, "p.settings-row__note:not([hidden])", /Prochain export :/
+    assert_equal "2026-10-14T09:35:00Z", form["data-data-export-next-export-at-value"]
   end
 
   test "the settings screen in English, and the player's choice marked" do

@@ -10,9 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "accounts_data_exports", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.text "file", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["player_id"], name: "index_accounts_data_exports_on_player_id", unique: true
+  end
 
   create_table "accounts_moderation_actions", force: :cascade do |t|
     t.string "kind", null: false
@@ -463,6 +471,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_090000) do
     t.index ["tagid"], name: "index_steam_tags_on_tagid", unique: true
   end
 
+  add_foreign_key "accounts_data_exports", "accounts_players", column: "player_id"
   add_foreign_key "accounts_moderation_actions", "accounts_players", column: "player_id"
   add_foreign_key "accounts_moderation_actions", "accounts_players", column: "staff_id"
   add_foreign_key "accounts_reports", "accounts_players", column: "reported_id"

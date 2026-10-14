@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FALLBACK_FILENAME, exportButton, exportFilename, exportedAt, failureMessage, formatUtc } from "./data_export"
+import { FALLBACK_FILENAME, exportButton, exportFilename, exportedAt, failureMessage, formatUtc, nextExportAt } from "./data_export"
 
 const labels = { idle: "Exporter", preparing: "Préparation…", retry: "Réessayer" }
 
@@ -10,6 +10,10 @@ describe("exportButton", () => {
 
   it("is disabled and says so while the export is prepared", () => {
     expect(exportButton("preparing", labels)).toEqual({ label: "Préparation…", disabled: true })
+  })
+
+  it("is disabled under its usual label until the next export is allowed", () => {
+    expect(exportButton("waiting", labels)).toEqual({ label: "Exporter", disabled: true })
   })
 
   it("offers a retry after a failure", () => {
@@ -70,5 +74,18 @@ describe("formatUtc", () => {
     const at = new Date("2026-10-04T07:05:00Z")
     expect(formatUtc(at, "%d/%m/%Y à %H:%M UTC")).toBe("04/10/2026 à 07:05 UTC")
     expect(formatUtc(at, "%Y-%m-%d at %H:%M UTC")).toBe("2026-10-04 at 07:05 UTC")
+  })
+})
+
+describe("nextExportAt", () => {
+  it("reads when the next export is allowed from a refusal", () => {
+    const body = { error: { code: "export_too_soon", message: "…", nextExportAt: "2026-10-14T09:35:00Z" } }
+    expect(nextExportAt(body)?.toISOString()).toBe("2026-10-14T09:35:00.000Z")
+  })
+
+  it("gives nothing for any other failure", () => {
+    expect(nextExportAt(null)).toBeNull()
+    expect(nextExportAt({ error: { code: "player_required", message: "…" } })).toBeNull()
+    expect(nextExportAt({ error: { nextExportAt: "soon" } })).toBeNull()
   })
 })
