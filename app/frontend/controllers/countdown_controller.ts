@@ -8,16 +8,6 @@ const RETRY_MS = 5000
 // While a form is being submitted, the next look at whether it is over.
 const BUSY_RETRY_MS = 250
 
-// The countdown to the next pack, in the top bar's packs chip (R4). The server
-// renders the whole seconds left; the clock counts down against a
-// performance.now() deadline, so a throttled timer or a changed system clock
-// never drifts it. One second after zero the chip shows the new pack and the
-// next countdown: on the hub the whole page refreshes with a morph, keeping its
-// scroll (`refresh`); elsewhere the chip alone is fetched from `refreshUrl` and
-// swapped in (a Turbo Stream answered by a GET that writes nothing), so a form
-// being filled loses nothing. Until a new value arrives, the refresh is tried
-// again every few seconds.
-//
 // A refresh would cancel a form submission in flight (the hub's daily
 // booster, "Récupérer"), so none starts from a submission's start until the
 // next page load, or until the submission ends without one.
