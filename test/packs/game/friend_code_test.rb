@@ -44,7 +44,6 @@ class Game::FriendCodeTest < ActiveSupport::TestCase
 
   test "an account deleted after it was read gets no code and recreates none" do
     player = new_player
-    Game::CreateFriendCode.new.call(player:).value!
     stale = Accounts::Player.find(player.id)
 
     Accounts::DeletePlayer.new.call(player:).value!
@@ -101,6 +100,28 @@ class Game::FriendCodeTest < ActiveSupport::TestCase
     code = Game::FriendCodeOf.call(player)
     Game::BackfillFriendCodesJob.perform_now
     assert_equal code, Game::FriendCodeOf.call(player)
+  end
+
+  # Accounts::PlayersInBatches yields `players` as its one batch while the
+  # block runs, as a batch read before they were deleted would.
+  def reading_the_batch(players)
+    original = Accounts::PlayersInBatches.method(:call)
+    Accounts::PlayersInBatches.define_singleton_method(:call) { |**, &block| block.call(players) }
+    yield
+  ensure
+    Accounts::PlayersInBatches.define_singleton_method(:call, original)
+  end
+
+  test "the backfill skips unreported a player deleted since their batch was read" do
+    player = new_player
+    stale = Accounts::Player.find(player.id)
+    Accounts::DeletePlayer.new.call(player:).value!
+
+    reading_the_batch([ stale ]) do
+      assert_no_error_reported { Game::BackfillFriendCodesJob.perform_now }
+    end
+
+    assert_not Game::FriendCode.exists?(player_id: player.id)
   end
 
   test "signing up gives the new player a code" do
