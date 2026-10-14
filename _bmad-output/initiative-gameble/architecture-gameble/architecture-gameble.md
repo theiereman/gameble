@@ -7,8 +7,8 @@ paradigm: 'modular monolith with an operations layer'
 scope: 'The gameble MVP as a whole: one Rails application, its four domain packs, its web layer, the Steam import and the deployment.'
 status: final
 created: '2026-10-02'
-updated: '2026-10-08'
-binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22]
+updated: '2026-10-14'
+binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23]
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/catalog-and-rarity.md
@@ -79,8 +79,8 @@ graph TD
 
 ### AD-5 — The catalog is published by season `[ADOPTED]`
 
-- **Binds:** CAP-2, CAP-3, CAP-4, CAP-6, CAP-7, CAP-20, CAP-22
-- **Prevents:** a half-imported catalog being drawn from; rarities, numbers, genres, sets or tier thresholds drifting under owned cards; two readers computing a theme or a tier two ways.
+- **Binds:** CAP-2, CAP-3, CAP-4, CAP-6, CAP-7, CAP-20, CAP-22, CAP-23
+- **Prevents:** a half-imported catalog being drawn from; rarities, numbers, genres, sets or tier thresholds drifting under owned cards; two readers computing a theme or a tier two ways; editions counted differently by the counter, the album and the tier pass.
 - **Rule:**
   - An import fills a draft season. `Catalog::PublishSeason` turns scores into the 5 tiers, gives every card of the season its number by a random shuffle (`SecureRandom`), builds the sets and makes the season visible at once. Only `PublishSeason` assigns numbers; a season published before numbers existed gets them once, by the same shuffle.
   - Draws read only the published season.
@@ -88,6 +88,7 @@ graph TD
   - Set kinds are `theme`, `franchise`, `studio`, `hall_of_fame` and `ufo`. A set is identified across seasons and rebuilds by its kind and key: a theme's key is the theme list's key, never a tag name; a franchise's or studio's key is its parameterized Steam name; hall of fame keys are fixed; the UFOs' key is `ufos`. Display names are stored in the set's params at publication; theme and hall of fame names come from the locale files. Code catalogues and a player's chosen title name sets by kind and key.
   - The theme list (keys, French and English names) and the set constants (franchise and studio minimum, hall of fame thresholds, tier shares, the UFOs' share limit) live in `Catalog`, in code until Season preparation moves the theme list to back-office data.
   - Tiers: `theme` and `hall_of_fame` sets have `bronze`, `silver` and `gold`; the other kinds have only `complete`; `gold` and `complete` complete the set. `PublishSeason` writes each set's tiers as rows (set, tier, distinct cards required, rounded up from the shares); `Game` and every query read those rows, so tuning the shares changes only later publications. A player holds a card when its quantity is above zero.
+  - A player holds a set's member when they hold, with quantity above zero, a card-season of that member's card in any season. Holdings stay one row per card-season (AD-6): the minted season is the copy's edition. Readers use one of two measures, neither filtered by season: games, through `Game::HeldGames` (distinct games at their best minted rarity: the collection tile, the total counter, set progress, the album, and the tier pass, which shares its SQL), and copies (quantities per minted rarity across editions: the rarity counter and AD-23's counts before opening).
   - A season published with the retired kinds (`publisher`, `tome`, `best_of_year`) gets its sets rebuilt once, before the public launch, with openings paused, by `Catalog::RebuildSeasonSets`, the one writer allowed to change a published season's sets; it refuses a second run. It first publishes `Catalog::SeasonSetsRebuilt` with the retired set ids, which a `Game` handler answers by deleting those sets' completion rows in one statement (the AD-10 exception), then replaces the sets. The set kind check is widened before it and narrowed after it.
   - A card's identity (texts, publisher, developers, franchises, release date, store and image URL) is shared by its seasons and follows Steam: it is refreshed by the import (`Catalog::UpsertDraftCard`), by AD-19's image refresh, and once by the backfill of developers and franchises from the stored Steam items, nothing else.
 
@@ -99,14 +100,14 @@ graph TD
 
 ### AD-7 — Packs are pre-drawn `[ADOPTED]`
 
-- **Binds:** CAP-4, CAP-5, CAP-12, CAP-16
-- **Prevents:** draws at click time, per-player scheduled tasks, and several ways of granting a pack.
+- **Binds:** CAP-4, CAP-5, CAP-12, CAP-16, CAP-23
+- **Prevents:** draws at click time, per-player scheduled tasks, several ways of granting a pack, and an earlier edition drawn after a publication.
 - **Rule:**
   - A player's bank holds ten pre-drawn regular packs, each with its cards and an availability time. Pack credit is read from those times; no task runs per player. A new player's ten packs are all available at once.
   - Each pack kind (regular, daily bonus, weekly reward) fixes its card count and its odds table: 5 cards at the published odds for a regular pack, 3 at the bonus odds for the daily bonus.
   - A new player's bank is filled by a `Game` handler reacting to `Accounts::PlayerRegistered`, with the first-session guarantee of the spec.
   - A replacement pack becomes available ten minutes after the latest availability time in the bank, or ten minutes after the opening when the bank was full.
-  - `Game::OpenPack` takes the player's bank lock, consumes the oldest available pack of any kind, credits its cards, publishes its event, and, for a regular pack, draws its one replacement in the same transaction (`Game::TopUpBank`) at once from the in-memory pool. A bank already short of ten, left so by openings while no season was published, stays short: an opening never fills it. The only other drawer is `Game::HealBanksJob`, which, when a season is published, gives every short bank all its missing packs at once, available at once, one player per transaction.
+  - `Game::OpenPack` takes the player's bank lock, consumes the oldest available pack of any kind, credits its cards, publishes its event, and, for a regular pack, draws its one replacement in the same transaction (`Game::TopUpBank`) at once from the in-memory pool. A bank already short of ten, left so by openings while no season was published, stays short: an opening never fills it. The only other drawer is `Game::HealBanksJob`, which, when a season is published, gives every short bank all its missing packs at once, available at once, and redraws every unopened pack of an earlier season in the published one, with the same kind, odds, guarantees and availability time, one player per transaction under the bank lock.
   - A draw picks the tier by the pack kind's odds, then a card uniformly within the tier, with secure randomness, from an in-memory list of the published season.
   - The reserve shown to the player is every unopened pack, of any kind, already available. The daily bonus claim fails with `reserve_full` while it holds 10; the operation and the page read that from one query.
   - The reveal is a browser animation. The server keeps no flip state.
@@ -126,17 +127,20 @@ graph TD
 
 ### AD-9 — No row is written by every player `[ADOPTED]`
 
-- **Binds:** CAP-6, CAP-12, CAP-13, CAP-16, CAP-17, CAP-21
+- **Binds:** CAP-6, CAP-12, CAP-13, CAP-16, CAP-17, CAP-21, CAP-23
 - **Prevents:** lock queues on a hot row.
-- **Rule:** Shared figures are derived from per-player rows. Uniqueness is left to the database: one daily-bonus row per player and UTC day, one first-discovery row per card-season, one reward row per player and week, one set-tier row per player, set and tier, one unlock row per player and card back.
+- **Rule:** Shared figures are derived from per-player rows. Uniqueness is left to the database: one daily-bonus row per player and UTC day, one first-discovery row per card-season, one reward row per player and week, one set-tier row per player, set and tier, one unlock row per player and card back. The last season whose allocation a player received and the last one they saw are on their `game_player_states` row, as season numbers; null means none.
 
 ### AD-10 — Events are the only bridge to derived data `[ADOPTED]`
 
-- **Binds:** CAP-6, CAP-12, CAP-13, CAP-14, CAP-17, CAP-19, CAP-20, CAP-21, CAP-22
+- **Binds:** CAP-6, CAP-12, CAP-13, CAP-14, CAP-17, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23
 - **Prevents:** a feed, gauge, unlock or achievement computed three different ways; personal data frozen in a log; a race or a duplicate aborting an opening.
 - **Rule:**
   - An operation that changes state publishes one primary Rails Event Store event inside its transaction; an operation that changes nothing publishes nothing, and housekeeping writes (last seen, the NOUVEAU watermark) publish none. Events are never modified.
-  - An operation that raises a player's quantities then inserts a set-tier row (unique per player, set and tier) with `ON CONFLICT DO NOTHING` for each tier whose required count the player now holds, and each new row publishes exactly one event: `bronze`, `silver` or `gold` publishes `Game::SetTierReached`, `complete` publishes `Game::SetCompleted`. A tiered set has a `complete` row too, at 100 % of its cards, after `gold` at 50 %. A tier once reached stays reached when cards leave. `game_set_tiers` replaces `game_set_completions`, with no backfill: the rebuild (AD-5) drops the old rows.
+  - An operation that raises a player's quantities then inserts a set-tier row (unique per player, set and tier) with `ON CONFLICT DO NOTHING` for each tier of a published-season set whose required count the player now holds, counting any edition of each member (AD-5); it finds those sets through each credited card's card-season in the published season, so an earlier edition received by trade crosses current tiers. Each new row records once how it was reached (a pack, a trade or the allocation): the opening's response and its replay read the rows of that pack, the allocation screen reads the allocation's rows, the season recap reads the rows reached in play. Each new row publishes exactly one event: `bronze`, `silver` or `gold` publishes `Game::SetTierReached`, `complete` publishes `Game::SetCompleted`. A tiered set has a `complete` row too, at 100 % of its cards, after `gold` at 50 %. A tier once reached stays reached when cards leave. `game_set_tiers` replaces `game_set_completions`, with no backfill: the rebuild (AD-5) drops the old rows. A tier row's season is its set's season: that is the tier's mark. Sets of earlier seasons earn no new tier. Achievements that count sets (first complete set, three complete sets) count distinct set kind and key; those that count cards count games (AD-5).
+  - `Game::ReceiveSeasonAllocation` runs once per player and published season. It inserts the tier rows the player already meets in the published season's sets, records the received season even when nothing is carried, and publishes one `Game::SeasonAllocationReceived` carrying the inserted rows; the carried rows publish no `Game::SetTierReached` or `Game::SetCompleted`. The card back and achievement handlers answer it; the feed handler does not. A player with no holding from an earlier season receives nothing.
+  - Every operation that raises a player's quantities (`Game::OpenPack`, and `Game::AcceptTrade` for both players) reads the published season once, right after its bank locks, and passes it to the receipt, the draw (`Game::DrawPool` for that season), the tier pass and its response. It then receives each player's pending allocation as a step of its own transaction, before any credit, so it celebrates only the tiers it crosses itself; the allocation's event precedes the caller's. The received season is checked under the bank lock, so concurrent operations receive once.
+  - The allocation is received and seen apart. While the player's last seen season is below the published one and they hold a card-season of an earlier season, the hub and the booster page redirect to the allocation screen (a GET that writes nothing, AD-11, reading this check from the primary); the screen's POST receives the allocation if still pending and marks it seen, a housekeeping write that publishes nothing.
   - The one handler allowed to write other players' rows answers `Catalog::SeasonSetsRebuilt` by deleting the retired sets' completion rows; feed entries and unlocks stay.
   - A handler runs in that transaction, never publishes an event, and writes only rows of that player or new rows: a feed entry, a weekly contribution, an achievement, a card back unlock, the player's latest activity. Unique rows are inserted with `ON CONFLICT DO NOTHING`; a duplicate never fails the operation.
   - Lock order inside a transaction: each player's advisory lock (`Game::BankLock`) in ascending player id, then holdings in ascending player then card-season, then the players' `game_player_states` rows.
@@ -147,7 +151,7 @@ graph TD
 
 ### AD-11 — A separate read path `[ADOPTED]`
 
-- **Binds:** CAP-6, CAP-7, CAP-8, CAP-13, CAP-18, CAP-21
+- **Binds:** CAP-6, CAP-7, CAP-8, CAP-13, CAP-18, CAP-21, CAP-23
 - **Prevents:** a rewrite when a read replica is added.
 - **Rule:** Requests that only read and tolerate a second of delay run under the database `reading` role, declared from the start and pointing to the primary. A GET never writes the primary: it runs with writes prevented, and a write a page needs after rendering (the NOUVEAU watermark) is a separate POST to an operation. Enqueuing a job is not a write to the primary.
 
@@ -178,7 +182,7 @@ graph TD
   - Every controller action has a Pundit policy; a signed-out player is refused with `sign_in_required`. Every `Game` operation acts for one player given as input; work over many players is a job running that operation once per player, or a `Game::SystemOperation` that writes only rows belonging to no player.
   - Roles: signed-out visitor, player, moderator, administrator.
   - Profile visibility is public, friends only or private, stored in `Accounts`. The profile policy and AD-13's visibility questions combine it with `Game`'s friendship query. Setting it to private publishes `Accounts::VisibilityChanged`; `Game` handles it by cancelling the player's open trades and releasing their reservations under AD-10's lock order (bank locks of both players in ascending id, taken before any trade row), and `PlayerStream` tells the partners, as it does for a deletion.
-  - Deleting an account publishes `Accounts::PlayerDeleted`; `Game` handles it by cancelling open trades, releasing reservations and dropping friendships, invitations, set tiers, card back unlocks and its private key. A ban hides the player everywhere through AD-13. The data export is assembled in the web layer from `Accounts` and `Game` queries.
+  - Deleting an account publishes `Accounts::PlayerDeleted`; `Game` handles it by cancelling open trades, releasing reservations and dropping friendships, invitations, set tiers, card back unlocks and its private key. First discoveries keep their player, so the card's first discoverer reads as anonymous. A ban hides the player everywhere through AD-13. The data export is assembled in the web layer from `Accounts` and `Game` queries.
 
 ### AD-15 — No internal id in a URL `[ADOPTED]`
 
@@ -264,7 +268,7 @@ graph TD
   - The booster island sends `POST /:locale/packs` as JSON with an idempotency key generated per activation, and locks its trigger until the answer.
   - Success returns the pack's kind and its 3 or 5 cards in drawn order (each as its server-rendered face plus slug, tier and cover URL), the bank count and availability times, the server time, the pack's card back, the per-tier counts before the opening, the set tiers reached and sets completed by it (each with the set's kind, key, name and tier), and any card back unlocked by it.
   - Failure uses the JSON error convention with the codes `no_pack_available`, `throttled`, `sign_in_required`.
-  - The key and the active card back are stored on the opened pack; the key is unique per player. A repeated key returns that pack as it was opened, before any throttle or availability check, and opens nothing more.
+  - The key and the active card back, with the season mark it wears, are stored on the opened pack; the key is unique per player. A repeated key returns that pack as it was opened, before any throttle or availability check, and opens nothing more.
   - The opened pack's page (`/:locale/packs/:token`) stays as "mon dernier booster": cards face up, no reveal.
 
 ### AD-24 — Presence is read, not tracked `[ADOPTED]`
@@ -278,11 +282,11 @@ graph TD
 
 ### AD-25 — Card backs live in code `[ADOPTED]`
 
-- **Binds:** CAP-20, CAP-22
-- **Prevents:** two catalogues of backs; unlocks granted from several places.
+- **Binds:** CAP-20, CAP-22, CAP-23
+- **Prevents:** two catalogues of backs; unlocks granted from several places; a back or a title duplicated per season.
 - **Rule:**
-  - The back catalogue is one constant in `Game`: each back has a key, an exported asset file and an unlock rule. Adding a back is a commit. A set's back unlocks on gold on that set.
-  - Profile titles and menu themes (CAP-22) are read from the player's set-tier rows, not stored as unlocks: a title per row, rendered from a template per kind and tier and the set's name, never stored as text; a menu theme when the player's `gold` rows reach its count. The active title (set kind, key and tier) and the active menu theme are columns of `game_player_states`; a menu theme's accent colours are one constant in code, contrast checked.
+  - The back catalogue is one constant in `Game`: each back has a key, an exported asset file and an unlock rule. Adding a back is a commit. A set's back unlocks on gold on that set, once; the seasons it was earned in are read from the player's `gold` tier rows of that set, and the active back records the season whose mark it wears.
+  - Profile titles and menu themes (CAP-22) are read from the player's set-tier rows, not stored as unlocks: a title per distinct set kind, key and tier across seasons, showing the latest season it was reached in, rendered from a template per kind and tier and the set's name, never stored as text; a menu theme when the player's distinct set kinds and keys with a `gold` row reach its count. The active title (set kind, key and tier) and the active menu theme are columns of `game_player_states`; a menu theme's accent colours are one constant in code, contrast checked.
   - Unlocks are rows per player and back, unique. The active back is a column of the player's `game_player_states` row. Every account has `standard`.
   - Unlocks are granted only by `Game` handlers on events (AD-10), and by one administrator operation run from the console that grants a back to a group of players, one player per transaction.
   - An unlock is announced by the opening's response (AD-23) or the private stream (AD-13).
@@ -425,7 +429,7 @@ erDiagram
   ACCOUNTS_PLAYER ||--o{ GAME_GOAL_CONTRIBUTION : contributes
   ACCOUNTS_PLAYER ||--o{ GAME_ACHIEVEMENT_UNLOCK : earns
   ACCOUNTS_PLAYER ||--o{ GAME_FEED_ENTRY : "appears in"
-  ACCOUNTS_PLAYER ||--o| GAME_PLAYER_STATE : "has activity, active back, seen watermark"
+  ACCOUNTS_PLAYER ||--o| GAME_PLAYER_STATE : "has activity, active back, seen watermark, allocation received and seen up to"
   ACCOUNTS_PLAYER ||--o{ ACCOUNTS_REPORT : "is reported by"
   GAME_WEEKLY_GOAL ||--o{ GAME_GOAL_CONTRIBUTION : receives
   GAME_TRADE ||--o{ GAME_TRADE_ITEM : "offers and requests"
@@ -476,7 +480,7 @@ gameble/
 | CAP-4 Packs | `Game`, booster island | AD-3, AD-6, AD-7, AD-23 |
 | CAP-5 Reveal | booster island, image filter | AD-7, AD-16, AD-17, AD-23, AD-27 |
 | CAP-6 Collection and sets | `Game` (holdings, set tiers), `Catalog` (sets, theme list) | AD-5, AD-6, AD-10, AD-11, AD-26 |
-| CAP-7 Card face and detail | web layer, `Catalog` | AD-5, AD-11, AD-15, AD-16, AD-18 |
+| CAP-7 Card face and detail | web layer, `Catalog`, `Game` (editions owned) | AD-5, AD-11, AD-15, AD-16, AD-18 |
 | CAP-8 Profile and visibility | web layer, `Accounts`, `Game` | AD-8, AD-11, AD-13, AD-14, AD-15, AD-24 |
 | CAP-9 Share link | web layer, `Catalog` | AD-15 |
 | CAP-10 Friends and invitations | `Game` | AD-3, AD-8, AD-13, AD-15 |
@@ -492,6 +496,7 @@ gameble/
 | CAP-20 Card backs | `Game`, booster island | AD-9, AD-10, AD-25 |
 | CAP-21 Presence | `Accounts` (last seen), `Game` (activity) | AD-9, AD-10, AD-24 |
 | CAP-22 Titles and menu themes (after the launch) | `Game`, web layer | AD-10, AD-18, AD-25 |
+| CAP-23 Seasonal allocation (after the launch) | `Game`, web layer | AD-5, AD-9, AD-10, AD-11, AD-18, AD-25 |
 | Legal page | web layer | AD-18 |
 
 ## Deferred
@@ -515,4 +520,5 @@ gameble/
 - **K3s:** only if Kamal on several servers stops being enough.
 - **Publishing the image filter:** an npm package, then a Rails gem wrapper; a side quest outside the MVP. AD-17 keeps it extractable.
 - **Admin interface gem and the back-office design:** the back-office stays plain Rails pages plus Mission Control Jobs, outside the redesign.
-- **Market, seasons after the first, native apps:** later versions; AD-5, AD-6 and AD-7 already carry the season.
+- **Market and native apps:** later versions. Seasons after the first are carried by AD-5's holding rule and CAP-23's allocation.
+- **Pioneer (`later-roadmap.md`):** `game_first_discoveries` already keeps the discovering player per card-season through a deletion (AD-14), so the feature needs no migration; the web layer composes the card detail with that player's name from `Accounts`, shown when the viewer may see that player's profile (`Game::Visibility`, AD-13) and as anonymous (a locale key) otherwise, a deleted player included.

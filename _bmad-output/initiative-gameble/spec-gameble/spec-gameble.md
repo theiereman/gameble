@@ -174,7 +174,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - The same screen lists the tiers the player still meets in the new season's sets, received at once with the new season's mark, and the tiers to win back.
     - Tiers carried into the new season are never celebrated at an opening or announced in the feed; an opening or a trade celebrates only the tiers it crosses itself.
     - One Brotherhood line heads the screen; the rest is plain copy.
-    - A player who joined in the current season sees no allocation.
+    - A player with no card from an earlier season, traded ones included, sees no allocation.
     - A set shows its latest mark and a count of seasons ("Or · 12 saisons"), the per-season detail on demand. No season chip appears in the collection grid.
 
 ## Constraints
