@@ -8,8 +8,10 @@ module BoostersHelper
   # (`bankUrl`), the locale's digit delimiter, the published season's
   # number (nil without one), the cards of a regular pack (the fallback
   # size), the bank at the time of the page (#booster_bank), the rarity
-  # names and icons by tier code name, the card zoom's ◀ ▶ icons, every
-  # word of `boosters.island` (plural keys as their hash), and `opened`:
+  # names and icons by tier code name, the size in art pixels a card's
+  # palette is computed at (the tray's thumbnails share the faces' colours),
+  # the card zoom's ◀ ▶ icons, every word of `boosters.island` (plural keys
+  # as their hash), and `opened`:
   # the opening exchange's answer for an opened pack the island shows dealt
   # and face up (PacksHelper#pack_opening_json), or nil for the canister.
   # No database id. Times are UTC ISO 8601 with milliseconds, as the
@@ -27,6 +29,7 @@ module BoostersHelper
       bank: booster_bank(bank:, next_pack_size:),
       rarityNames: Catalog::Rarity::TIERS.values.to_h { [ it, t("catalog.rarity.#{it}") ] },
       rarityIcons: Catalog::Rarity::TIERS.to_h { |tier, code| [ code, pixel_icon("rarity-#{tier}", class: "booster-card__label-icon").to_str ] },
+      artPalette: CardComponent::PALETTE,
       arrowIcons: { previous: zoom_arrow("left"), next: zoom_arrow("right") },
       strings: booster_strings,
       opened:

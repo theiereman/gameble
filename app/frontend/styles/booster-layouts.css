@@ -394,7 +394,6 @@
   display: block;
   width: 44px;
   height: 60px;
-  object-fit: cover;
   image-rendering: pixelated;
 }
 

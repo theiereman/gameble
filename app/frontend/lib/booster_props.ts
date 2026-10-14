@@ -107,6 +107,8 @@ export type BoosterProps = {
   rarityNames: Record<Rarity, string>
   /** Each tier's pixel icon, as HTML. */
   rarityIcons: Record<Rarity, string>
+  /** The size, in art pixels, a card's palette is computed at, so a thumbnail shows its face's colours. */
+  artPalette: { width: number; height: number }
   /** The card zoom's ◀ and ▶ pixel icons, as HTML. */
   arrowIcons: { previous: string; next: string }
   strings: BoosterStrings

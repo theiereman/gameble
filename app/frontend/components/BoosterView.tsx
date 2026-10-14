@@ -98,7 +98,7 @@ export type BoosterViewProps = {
 }
 
 export default function BoosterView({ props, state, left, elements, handlers }: BoosterViewProps) {
-  const { hubUrl, cardUrl, repostUrl, delimiter, season, packSize, rarityNames, rarityIcons, arrowIcons, strings } = props
+  const { hubUrl, cardUrl, repostUrl, delimiter, season, packSize, rarityNames, rarityIcons, artPalette, arrowIcons, strings } = props
   const { phase, status, bank, answer, revealed, revealedAt, stored, dealt, armed, headShown, canisterAway, dock, reason, legendary, banner } = state
   const { revealingAll, storing, locked, layout, stageKey, zoom, announcements } = state
   const { section, canister, shake, flash, fx, openButton, backLink, slotRefs, traySlotRef } = elements
@@ -338,6 +338,7 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
                       }))}
                       stored={stored}
                       rarityIcons={rarityIcons}
+                      artPalette={artPalette}
                       busy={busy}
                       slotRef={traySlotRef}
                       onOpen={openZoom}

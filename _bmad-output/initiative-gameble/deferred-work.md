@@ -208,3 +208,7 @@
   summary: Throttle or cache the public profile, card page and library reads without ever caching a private or hidden page (the throttling half of "Public pages throttled or cached, CSP enforced").
   evidence: The author split the ticket; this half shares no file with the CSP switch, and a per-IP throttle on page reads waits for "Real client addresses behind Cloudflare", or every visitor behind Cloudflare would share one limit.
   resolved: Became entry 55 of epic-public-launch-readiness, after real client addresses behind Cloudflare (author, 2026-10-14).
+
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-the-phone-tray-s-thumbnails-in-pixel-art-plan.md`
+  summary: Cover the phone tray's filtered thumbnails with a test (a filled slot marked `data-art="drawn"` or `"plain"`, a failed cover leaving the canvas hidden and the frame and rarity icon).
+  evidence: Vitest runs in a node environment with no DOM, so no component test can render the tray, and the system tests that would assert it are disabled until they are rebuilt; the quick review found no test of the thumbnail beyond the palette prop.

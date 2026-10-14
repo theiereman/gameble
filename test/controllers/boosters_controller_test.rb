@@ -63,6 +63,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
       "nextPackSize" => 5 }, data["bank"])
     assert_equal({ "common" => "Common", "uncommon" => "Uncommon", "rare" => "Rare", "epic" => "Epic", "legendary" => "Legendary" }, data["rarityNames"])
     assert_equal %w[common uncommon rare epic legendary], data["rarityIcons"].keys
+    assert_equal({ "width" => 109, "height" => 112 }, data["artPalette"])
     assert_equal %w[previous next], data["arrowIcons"].keys
     data["arrowIcons"].each_value { |svg| assert_equal 1, Nokogiri::HTML5.fragment(svg).css("svg.pixel-icon.booster-zoom__nav-icon[aria-hidden=true]").size }
     assert_nil data.fetch("opened")
