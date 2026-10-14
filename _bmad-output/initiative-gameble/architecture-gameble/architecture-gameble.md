@@ -209,7 +209,7 @@ graph TD
   - The filter runs in a Web Worker with `OffscreenCanvas`, lazily, with 2 to 4 jobs at once. One palette per game is computed from the largest size needed and reused at every size. A browser without these APIs (public pages are open to older browsers) gets the cover pixelated without palette on the main thread.
   - Filtered bitmaps are kept in a bounded in-memory cache and closed when evicted. Images are loaded from Steam's CDN, never stored, never in a service worker or browser storage, and no palette or other image-derived data is stored server-side.
   - Image requests carry no added header and no referrer. A CORS failure is retried once on the main thread with a plain image and drawn pixelated without palette; a failure is not cached for the session.
-  - A decoded image under 300 × 450 or with a single channel counts as missing.
+  - A decoded image under 300 × 450 or whose grey tones are nearly uniform counts as missing; legitimate grayscale covers remain valid.
 
 ### AD-18 — One place for copy `[ADOPTED]`
 

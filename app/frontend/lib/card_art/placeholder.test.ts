@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { isPlaceholder, isSingleChannel, isTooSmall, MIN_SOURCE } from "./placeholder"
+import { isFlatGrey, isPlaceholder, isTooSmall, MIN_SOURCE } from "./placeholder"
 import { fromPixels, image } from "./test_helpers"
 
 describe("placeholder", () => {
@@ -11,17 +11,21 @@ describe("placeholder", () => {
     expect(isTooSmall(600, 900)).toBe(false)
   })
 
-  it("counts an image whose channels stay within 2 of each other as single-channel", () => {
-    expect(isSingleChannel(fromPixels(2, 1, [[128, 130, 129, 255], [0, 2, 1, 255]]))).toBe(true)
-    expect(isSingleChannel(fromPixels(2, 1, [[128, 131, 129, 255], [0, 0, 0, 255]]))).toBe(false)
+  it("counts near-uniform grey pixels as flat grey", () => {
+    expect(isFlatGrey(fromPixels(2, 1, [[128, 130, 129, 255], [132, 134, 133, 255]]))).toBe(true)
+    expect(isFlatGrey(fromPixels(2, 1, [[128, 131, 129, 255], [128, 128, 128, 255]]))).toBe(false)
   })
 
-  it("ignores transparent pixels, and counts an image with no other as single-channel", () => {
-    expect(isSingleChannel(fromPixels(2, 1, [[255, 0, 0, 0], [9, 9, 9, 255]]))).toBe(true)
-    expect(isSingleChannel(fromPixels(1, 1, [[255, 0, 0, 0]]))).toBe(true)
+  it("accepts grayscale art with meaningful tonal variation", () => {
+    expect(isFlatGrey(fromPixels(2, 1, [[0, 0, 0, 255], [255, 255, 255, 255]]))).toBe(false)
   })
 
-  it("calls a small or grey image a placeholder", () => {
+  it("ignores transparent pixels, and counts an image with no other as flat grey", () => {
+    expect(isFlatGrey(fromPixels(2, 1, [[255, 0, 0, 0], [9, 9, 9, 255]]))).toBe(true)
+    expect(isFlatGrey(fromPixels(1, 1, [[255, 0, 0, 0]]))).toBe(true)
+  })
+
+  it("calls a small or flat grey image a placeholder", () => {
     const colour = (x: number, y: number): [number, number, number, number] => [x % 256, y % 256, 50, 255]
     expect(isPlaceholder(image(300, 450, colour))).toBe(false)
     expect(isPlaceholder(image(300, 449, colour))).toBe(true)

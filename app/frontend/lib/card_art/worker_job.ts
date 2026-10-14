@@ -1,6 +1,6 @@
 import { applyPalette, buildPalette, pixelate, type Color, type Pixels } from "pixelcrush"
 import { downscale } from "./downscale"
-import { isSingleChannel, isTooSmall } from "./placeholder"
+import { isFlatGrey, isTooSmall } from "./placeholder"
 
 /** One art to draw: `url` at `width × height`, with the game's palette computed at `paletteWidth × paletteHeight`. */
 export type ArtJob = {
@@ -144,7 +144,7 @@ export async function runJob(job: ArtJob, environment: JobEnvironment): Promise<
         ? art
         : artPixels(bitmap, job.paletteWidth, job.paletteHeight, environment)
       if (!atPaletteSize) return UNSUPPORTED
-      if (isSingleChannel(atPaletteSize)) return MISSING
+      if (isFlatGrey(atPaletteSize)) return MISSING
       palette = buildPalette(atPaletteSize, job.colors)
       environment.palettes.set(job.url, job.colors, palette)
     }

@@ -156,6 +156,16 @@ describe("runJob", () => {
     expect(environment.palettes.size).toBe(0)
   })
 
+  it("draws a grayscale cover with a full tonal range", async () => {
+    images.set("https://cdn.test/grayscale.jpg", image(300, 450, (x, y) => {
+      const tone = (x + y) % 256
+      return [tone, tone, tone, 255]
+    }))
+
+    expect((await runJob(job("https://cdn.test/grayscale.jpg"), environment)).status).toBe("drawn")
+    expect(environment.palettes.size).toBe(1)
+  })
+
   it("checks for grey at the palette size, not at the art size", async () => {
     // 300 × 900, grey but for the top 42 rows: the art's crop (from row 178)
     // leaves them out; a palette size of the image's own ratio keeps them.
