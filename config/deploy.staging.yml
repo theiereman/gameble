@@ -1,4 +1,4 @@
-# Staging (AD-21): the home lab LXC behind the author's Traefik, which
+# Staging: the home lab LXC behind the author's Traefik, which
 # terminates TLS for gameble.dotsncircles.com and forwards plain HTTP to
 # kamal-proxy on 192.168.1.6:80.
 #   bin/kamal deploy -d staging
@@ -21,6 +21,7 @@ proxy:
 
 env:
   clear:
+    SENTRY_ENVIRONMENT: staging
     PUBLIC_URL: https://gameble.dotsncircles.com
     # The legal page's contact and host; each line is hidden while unset.
     # LEGAL_CONTACT_EMAIL: <contact address>
