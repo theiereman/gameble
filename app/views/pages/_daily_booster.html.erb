@@ -21,13 +21,13 @@
   </div>
   <% case state %>
   <% when :collected %>
-    <p class="daily-booster__text"><%= t("daily_bonuses.create.collected") %></p>
+    <p class="daily-booster__text"><%= local_time_sentence(bank[:next_bonus_at]) { t("daily_bonuses.create.collected", time: it) } %></p>
     <div class="daily-booster__next" data-controller="countdown" data-countdown-seconds-value="<%= seconds %>" data-countdown-hours-value="true"
          data-countdown-total-value="<%= ShellHelper::DAY_SECONDS %>">
       <p class="daily-booster__next-label" aria-hidden="true"><%= t("pages.home.daily.next_in") %></p>
       <p class="daily-booster__clock" aria-hidden="true" data-countdown-target="clock"><%= format_clock(seconds) %></p>
       <progress class="daily-booster__bar" aria-hidden="true" max="<%= ShellHelper::DAY_SECONDS %>" value="<%= ShellHelper::DAY_SECONDS - seconds %>" data-countdown-target="bar"></progress>
-      <span class="visually-hidden"><%= t("pages.home.daily.next_at") %></span>
+      <span class="visually-hidden"><%= local_time_sentence(bank[:next_bonus_at]) { t("pages.home.daily.next_at", time: it) } %></span>
     </div>
   <% when :full %>
     <p class="daily-booster__text"><%= t("pages.home.daily.full_text") %></p>

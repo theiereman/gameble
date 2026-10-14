@@ -1,7 +1,7 @@
 <% repost = item.entry.kind == "repost" %>
 <% trade = item.entry.kind == "trade" %>
 <li class="<%= class_names("feed__entry", "feed__entry--filler": item.filler) %>">
-  <time class="feed__time" datetime="<%= item.entry.occurred_at.utc.iso8601 %>"><%= item.entry.occurred_at.utc.strftime(t("feeds.show.time_format")) %></time>
+  <%= local_time_tag(item.entry.occurred_at, class: "feed__time") %>
   <p class="feed__sentence"><% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span> <% end %><%= feed_sentence(item, card, partner_card) %></p>
   <% if trade %>
     <span class="feed__thumbs">

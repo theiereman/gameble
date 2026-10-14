@@ -18,11 +18,14 @@ import type { Announcement } from "./useLiveRegion"
 import type { Rarity } from "../lib/card_types"
 import { formatNumber, t } from "../lib/i18n"
 import type { OpeningAnswer, OpeningCard } from "../lib/opening"
-import { faceSize, formatClock, pileDepth, topOfPile, utcTime, zoomNeighbour, type Layout } from "../lib/booster"
+import { faceSize, formatClock, pileDepth, topOfPile, zoomNeighbour, type Layout } from "../lib/booster"
+import { formatLocalTime } from "../lib/local_time"
 import { cardHref } from "../lib/booster_page"
 import type { BoosterBank, BoosterPhase, BoosterProps, BoosterStatus } from "../lib/booster_props"
 
 const RESERVE_PIPS = 10
+
+const localTime = (iso: string): string => formatLocalTime(iso, "datetime", { locale: document.documentElement.lang }) ?? iso
 
 /** The island's state, as the view draws it. */
 export type BoosterViewState = {
@@ -127,7 +130,7 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
 
   const statusTone = status === "arming" || status === "ejecting" ? "alert" : status === "legendarySignal" ? "gold" : status === "complete" ? "done" : "rest"
   const clock = left === null ? null : formatClock(left)
-  const nextLine = !bank.reserveFull && clock !== null && bank.nextAvailableAt ? { clock, spoken: t(strings.nextAt, { time: utcTime(bank.nextAvailableAt) }) } : null
+  const nextLine = !bank.reserveFull && clock !== null && bank.nextAvailableAt ? { clock, spoken: t(strings.nextAt, { time: localTime(bank.nextAvailableAt) }) } : null
 
   // The phone's pile: the cards not stored, the first on top.
   const top = phase === "dealt" && total > 0 ? topOfPile(revealed, stored) : null
@@ -275,7 +278,7 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
                   {clock !== null && bank.nextAvailableAt && (
                     <span className="booster__empty-next">
                       <span aria-hidden="true">{t(strings.emptyNext, { time: clock })}</span>
-                      <span className="visually-hidden">{t(strings.nextAt, { time: utcTime(bank.nextAvailableAt) })}</span>
+                      <span className="visually-hidden">{t(strings.nextAt, { time: localTime(bank.nextAvailableAt) })}</span>
                     </span>
                   )}
                 </p>

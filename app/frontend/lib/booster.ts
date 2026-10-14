@@ -198,13 +198,6 @@ export function formatDailyClock(seconds: number): string {
   return `${pad(Math.floor(whole / 3600))}:${pad(Math.floor((whole % 3600) / 60))}:${pad(whole % 60)}`
 }
 
-/** "HH:MM" of an ISO time, in UTC, for the countdown's accessible text. */
-export function utcTime(iso: string): string {
-  const date = new Date(iso)
-  const pad = (value: number) => String(value).padStart(2, "0")
-  return `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`
-}
-
 /** Whole seconds from the server's time to the next booster, rounded up; null when none is scheduled. */
 export function secondsUntil(nextAvailableAt: string | null, serverTime: string): number | null {
   if (nextAvailableAt === null) return null

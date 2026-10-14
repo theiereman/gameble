@@ -246,15 +246,18 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     travel_to(Time.current.utc.change(hour: 22, min: 30, sec: 15)) do
       get home_path(locale: :en)
+      next_day = Time.current.utc.tomorrow.beginning_of_day
 
       assert_select ".daily-booster.daily-booster--collected" do
         assert_select ".daily-booster__state", "Collected"
-        assert_select ".daily-booster__text", "A booster joins your reserve. The next one will be ready at midnight (UTC)."
+        assert_select ".daily-booster__text", "A booster joins your reserve. The next one will be ready on #{next_day.strftime("%Y-%m-%d")} 00:00 UTC."
+        assert_select ".daily-booster__text time[datetime='#{next_day.iso8601}'][data-controller=local-time]"
         assert_select ".daily-booster__next[data-controller=countdown][data-countdown-seconds-value='5385'][data-countdown-hours-value=true]" do
           assert_select ".daily-booster__next-label", "Next in"
           assert_select ".daily-booster__clock[data-countdown-target=clock]", "01:29:45"
           assert_select "progress.daily-booster__bar[max='86400'][value='81015']"
-          assert_select ".visually-hidden", "Next booster at midnight (UTC)"
+          assert_select ".visually-hidden", "Next booster: #{next_day.strftime("%Y-%m-%d")} 00:00 UTC"
+          assert_select ".visually-hidden time[datetime='#{next_day.iso8601}']"
         end
         assert_select "button, a.button, form", false
       end

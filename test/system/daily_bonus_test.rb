@@ -28,7 +28,7 @@ class DailyBonusTest < ApplicationSystemTestCase
 
     within(".daily-booster") { click_on "Collect" }
 
-    assert_text I18n.t("daily_bonuses.create.collected", locale: :en)
+    assert_text I18n.t("daily_bonuses.create.collected", locale: :en, time: "%{time}").partition("%{time}").first.strip
     assert_selector BADGE, text: "10", wait: 10
     within(".daily-booster") do
       assert_text "COLLECTED"
@@ -108,7 +108,7 @@ class DailyBonusTest < ApplicationSystemTestCase
 
     within(".daily-booster") { click_on "Collect" }
 
-    assert_text I18n.t("errors.game.already_collected", locale: :en)
+    assert_text I18n.t("errors.game.already_collected", locale: :en, time: "%{time}").partition("%{time}").first.strip
     assert_selector ".daily-booster--collected"
     assert_selector BADGE, text: "10", wait: 10
     sleep 0.8

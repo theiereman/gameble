@@ -33,7 +33,6 @@ import {
   scaled,
   secondsUntil,
   shakeKeyframes,
-  utcTime,
   DEAL_STAGGER as ROW_STAGGER,
   PHONE_DEAL_STAGGER,
   SWIPE_START,
@@ -187,10 +186,6 @@ describe("secondsUntil", () => {
     expect(secondsUntil("2026-10-06T14:32:00.000Z", "2026-10-06T14:31:59.500Z")).toBe(1)
     expect(secondsUntil("2026-10-06T14:22:00.000Z", "2026-10-06T14:23:00.000Z")).toBe(0)
     expect(secondsUntil(null, "2026-10-06T14:22:00.000Z")).toBeNull()
-  })
-
-  it("reads the UTC time of a booster", () => {
-    expect(utcTime("2026-10-06T09:40:00.000Z")).toBe("09:40")
   })
 })
 

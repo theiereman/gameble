@@ -49,7 +49,7 @@
 
   <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-daily" }) do %>
     <h2 id="how-it-works-daily" class="how-it-works__heading"><%= t(".daily.title") %></h2>
-    <p><%= t(".daily.once") %></p>
+    <p><%= local_time_sentence(Game::BankSummary.next_bonus_at, :time, suffix: t(".local_time")) { t(".daily.once", time: it) } %></p>
     <p class="how-it-works__bonus-size"><%= t(".daily.content", count: Game::Pack::BONUS_SIZE, common:) %></p>
     <p><%= t(".daily.outside") %></p>
     <p class="how-it-works__reserve"><%= t(".daily.full", count: Game::Reserve::FULL) %></p>
@@ -57,7 +57,7 @@
 
   <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-goal" }) do %>
     <h2 id="how-it-works-goal" class="how-it-works__heading"><%= t(".goal.title") %></h2>
-    <p><%= t(".goal.week") %></p>
+    <p><%= local_time_sentence(Game::CurrentGoal.next_week_start, :weekday_time, suffix: t(".local_time")) { t(".goal.week", time: it) } %></p>
     <p><%= t(".goal.counts") %></p>
     <p class="how-it-works__reward-size"><%= t(".goal.reward", count: Game::Pack::SIZE, rarity: reward_min) %></p>
   <% end %>

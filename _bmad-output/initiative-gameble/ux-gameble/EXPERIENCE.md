@@ -68,7 +68,7 @@ This section covers microcopy only. Brand voice lives in `DESIGN.md` (see Brand 
 
 | Do | Don't |
 |---|---|
-| "Un booster rejoint votre réserve. Le prochain sera prêt à minuit (UTC)." | Exclamation marks ("!" is reserved for the Légendaire banner) |
+| "Un booster rejoint votre réserve. Le prochain sera prêt le 15 oct., 02:00." | Exclamation marks ("!" is reserved for the Légendaire banner) |
 | "Léa a 7 jours pour répondre. Vos cartes sont réservées d'ici là." | Vague errors ("Erreur", "Échec de l'opération") |
 | "Vous n'avez plus assez d'exemplaires de Celeste." | "Tu", "Confrère", "Capitaine" or any title |
 | "Merci. L'équipe de modération examinera ce profil. Léa ne verra pas qui l'a signalé." | Helldivers terms ("Ordre majeur", "Super Earth", "Démocratie") |
@@ -85,7 +85,7 @@ The single source for every message the interface shows. Other sections name the
 | Booster states | "SCELLÉ" · "ARMEMENT" · "ÉJECTION" · "INVENTAIRE" · "SIGNAL LÉGENDAIRE" · "INVENTAIRE COMPLET" · "EN ATTENTE" · "RÉSERVE VIDE · Prochain booster dans …" · "Cartes révélées : n / 5" · "Réserve pleine" |
 | Booster live region | "Carte 2 : Hades — Supergiant Games, 2020, Roguelite. Épique." · "Signal légendaire" · "Palier argent atteint : Roguelike, 16 cartes sur 62." · "Palier or atteint : Roguelike, 31 cartes sur 62." · "Set complet : Dark Souls, 3 cartes sur 3." · "Set complet : Roguelike, 62 cartes sur 62." · "4 paliers atteints : Roguelike, argent ; Metroidvania, or ; Les Pépites, bronze ; Dark Souls, complet." |
 | Face-down card name | "Carte 2 sur 5, face cachée. Révéler." |
-| Daily booster | "Un booster offert chaque jour. Il rejoint votre réserve." · "Un booster rejoint votre réserve. Le prochain sera prêt à minuit (UTC)." · full reserve: "RÉSERVE PLEINE" · "Ouvrez un booster pour récupérer celui du jour." |
+| Daily booster | "Un booster offert chaque jour. Il rejoint votre réserve." · "Un booster rejoint votre réserve. Le prochain sera prêt le 15 oct., 02:00." · full reserve: "RÉSERVE PLEINE" · "Ouvrez un booster pour récupérer celui du jour." |
 | Empty showcase | "OUVREZ VOTRE PREMIER BOOSTER" · "Votre plus belle carte s'affichera ici." · "OUVRIR UN BOOSTER" |
 | Collection | "EN COURS" · "À DÉCOUVRIR" · "Chercher un set" · "TOUTES LES CARTES" · "◀ SETS" · kinds "THÈME", "FRANCHISE", "STUDIO", "PALMARÈS", "OVNI" · tiers "BRONZE", "ARGENT", "OR", "COMPLET" · "Aucune carte de ce genre dans ce set pour l'instant." · "IMAGE INDISPONIBLE" · set search: "Aucun set trouvé pour « … »." · "1 set trouvé" · "n sets trouvés" (zero, one and other forms) · set row name: "{set}, {kind}, {owned} cartes sur {total}[, palier {tier}][, {next} à {threshold}][, complet]" |
 | Set celebration | "PALIER ARGENT · Roguelike 16/62" · "SET COMPLET · Dark Souls" · "n PALIERS ATTEINTS" |
@@ -160,7 +160,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 |---|---|
 | Showcase | The card the player chose, else automatically their latest pull of Épique rarity or better (author, 2026-10-07: the player can choose one card in addition to the automatic one). `[ASSUMPTION: the choice is made from the card detail of an owned card, "METTRE EN VITRINE", and "RETIRER DE LA VITRINE" returns to the automatic card]`. "VOIR LA FICHE" opens its card detail. Empty showcase: its copy (see Copy deck) and "OUVRIR UN BOOSTER", which opens the booster screen. |
 | Community goal panel | The shared weekly gauge for all players, the count and the reward. Fills with every booster opened and, a little, with trades. States: see State Patterns. |
-| Daily booster panel | "RÉCUPÉRER" sends one booster into the reserve (a small canister flies to the packs chip; on the phone, to the BOOSTER tab). Then "PROCHAIN DANS" with a countdown to the day change (midnight UTC). At 10 boosters the button is disabled, with the full-reserve state and line, until a booster is opened. Signed out: opens the sign-in panel. |
+| Daily booster panel | "RÉCUPÉRER" sends one booster into the reserve (a small canister flies to the packs chip; on the phone, to the BOOSTER tab). Then "PROCHAIN DANS" with a countdown to the day change (midnight UTC; every time a player reads shows in the browser's own time zone, never with "UTC"). At 10 boosters the button is disabled, with the full-reserve state and line, until a booster is opened. Signed out: opens the sign-in panel. |
 | Set progress row | Opens that set's album. |
 | LIVE ticker | Scrolls notable activity: pulls of Épique or better, first discoveries, trades, set tiers reached and set completions (the tiers and completions of one opening make one line, as in the feed); never reposts. New items join at the loop boundary. Pauses on hover; stops with "Animations réduites", the only way a keyboard user stops it. Hidden from assistive technology and holds nothing focusable (the feed carries the same events). |
 

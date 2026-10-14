@@ -67,15 +67,3 @@ export function exportedAt(file: string): Date | null {
     return null
   }
 }
-
-export function formatUtc(date: Date, pattern: string): string {
-  const pad = (value: number) => String(value).padStart(2, "0")
-  const parts: Record<string, string> = {
-    d: pad(date.getUTCDate()),
-    m: pad(date.getUTCMonth() + 1),
-    Y: String(date.getUTCFullYear()),
-    H: pad(date.getUTCHours()),
-    M: pad(date.getUTCMinutes()),
-  }
-  return pattern.replace(/%([dmYHM])/g, (_, key: string) => parts[key])
-}

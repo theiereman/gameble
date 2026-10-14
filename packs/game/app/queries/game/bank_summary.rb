@@ -23,6 +23,7 @@ module Game
   #   # => { available: n, reserve_full: true | false, next_available_at: Time | nil,
   #   #      bonus_collectable: true | false, bonus_collected: true | false,
   #   #      next_bonus_at: Time }
+  #   Game::BankSummary.next_bonus_at   # => the next 00:00 UTC
   module BankSummary
     def self.reserve(player, now: Time.current)
       available = Reserve.count(player.id, now:)
@@ -35,8 +36,12 @@ module Game
       reserve(player, now:).merge(
         bonus_collectable: !collected && Catalog::PublishedSeason.call.present?,
         bonus_collected: collected,
-        next_bonus_at: day.next_day.in_time_zone("UTC")
+        next_bonus_at: next_bonus_at(now)
       )
+    end
+
+    def self.next_bonus_at(now = Time.current)
+      DailyBonusClaim.day_of(now).next_day.in_time_zone("UTC")
     end
   end
 end

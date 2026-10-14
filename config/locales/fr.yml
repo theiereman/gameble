@@ -32,7 +32,7 @@ fr:
     packs:
       label: "Boosters"
       next_in: "+1 dans"
-      next_at: "Prochain booster à %{time} (UTC)"
+      next_at: "Prochain booster : %{time}"
       full: "Réserve pleine"
       in_reserve:
         one: "%{number} en réserve"
@@ -122,7 +122,7 @@ fr:
         collect: "Récupérer"
         collected: "Récupéré"
         next_in: "Prochain dans"
-        next_at: "Prochain booster à minuit (UTC)"
+        next_at: "Prochain booster : %{time}"
       goal:
         title: "Objectif communautaire"
         line: "Toute la Confrérie ouvre %{target} boosters, ensemble."
@@ -226,6 +226,7 @@ fr:
       title: "Comment ça marche"
       more: "Plus"
       intro: "Les règles du jeu, telles qu'il les applique."
+      local_time: ", heure locale"
       # French keeps the singular for 0, which the plural rule here does not.
       minutes:
         zero: "%{count} minute"
@@ -274,7 +275,7 @@ fr:
         season: "À la publication d'une nouvelle saison, les boosters standard qui vous manquent sont donnés aussitôt."
       daily:
         title: "Le booster quotidien"
-        once: "Une fois par jour, un booster offert vous attend sur le pont. Le jour se compte en temps universel (UTC)."
+        once: "Une fois par jour, un booster offert vous attend sur le pont. Le jour change à %{time}."
         # French keeps the singular for 0, which the plural rule here does not.
         content:
           zero: "Il contient %{count} carte, aucune %{common}."
@@ -288,7 +289,7 @@ fr:
           other: "Il est refusé tant que votre réserve compte %{count} boosters ou plus prêts à ouvrir : ouvrez-en un d'abord."
       goal:
         title: "L'objectif communautaire"
-        week: "Chaque semaine, du lundi à minuit (UTC) au dimanche soir, tous les joueurs visent ensemble un même objectif."
+        week: "Chaque semaine, pendant sept jours à partir du %{time}, tous les joueurs visent ensemble un même objectif."
         counts: "Chaque booster ouvert y compte, de même que chaque échange conclu, qui fait des deux joueurs des contributeurs."
         # French keeps the singular for 0, which the plural rule here does not.
         reward:
@@ -766,7 +767,7 @@ fr:
         waiting: "En attente"
       reserve: "Réserve"
       next_in: "+1 dans"
-      next_at: "Prochain booster à %{time} (UTC)"
+      next_at: "Prochain booster : %{time}"
       reserve_full: "Réserve pleine"
       open: "Ouvrir le booster"
       open_next: "Ouvrir le suivant"
@@ -854,7 +855,6 @@ fr:
         download: "Télécharger"
         last_export: "Dernier export :"
         next_export: "Prochain export :"
-        time_format: "%d/%m/%Y à %H:%M UTC"
       account:
         label: "Compte"
         delete: "Supprimer mon compte"
@@ -891,7 +891,6 @@ fr:
         trades: "Échanges"
         reposts: "Reposts"
       nameless: "Officier sans nom"
-      time_format: "%-d/%m, %H:%M UTC"
       pulled_html: "%{name} a tiré %{card}"
       first_discovery: "Première découverte"
       discovered_html: "%{card}, trouvée par %{name} pour la première fois dans la communauté"
@@ -1219,7 +1218,7 @@ fr:
       throttled: "Trop de reposts en une minute. Réessayez dans un instant."
   daily_bonuses:
     create:
-      collected: "Un booster rejoint votre réserve. Le prochain sera prêt à minuit (UTC)."
+      collected: "Un booster rejoint votre réserve. Le prochain sera prêt le %{time}."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
   external_links:
     new_tab: "(nouvel onglet)"
@@ -1463,7 +1462,7 @@ fr:
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       invalid_time: "L'heure envoyée n'a pas pu être lue. Rechargez la page."
       no_pack_available: "Votre réserve est vide. Le prochain booster arrive bientôt."
-      already_collected: "Vous avez déjà récupéré le booster du jour. Le prochain sera prêt à minuit (UTC)."
+      already_collected: "Vous avez déjà récupéré le booster du jour. Le prochain sera prêt le %{time}."
       no_season: "Aucune saison de cartes n'est encore ouverte. Revenez plus tard pour le booster du jour."
       reserve_full: "Votre réserve est pleine : ouvrez un booster pour récupérer celui du jour."
       invalid_idempotency_key: "La demande d'ouverture est mal formée. Rechargez la page et réessayez."

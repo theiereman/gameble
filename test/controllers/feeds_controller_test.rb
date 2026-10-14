@@ -181,6 +181,15 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__chip", 0
   end
 
+  test "an entry's time is the instant in UTC, for the browser to show in its own time" do
+    travel_to(Time.utc(2026, 10, 14, 23, 30)) { open_epic }
+
+    get feed_path(locale: :fr)
+
+    assert_select ".feed__entry time.feed__time[datetime='2026-10-14T23:30:00Z'][data-controller=local-time][data-local-time-style-value=datetime]",
+      text: "2026-10-14 23:30 UTC"
+  end
+
   def repost(card_season_id)
     Game::Holding.create!(player_id: @player.id, card_season_id:, quantity: 1)
     Game::RepostCard.new.call(player: @player, card_season_id:).value!

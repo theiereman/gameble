@@ -41,7 +41,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
 
       assert_redirected_to home_path(locale: :en)
       assert_response :see_other
-      assert_equal "A booster joins your reserve. The next one will be ready at midnight (UTC).", flash[:notice]
+      assert_equal "A booster joins your reserve. The next one will be ready on 2026-10-03 00:00 UTC.", flash[:notice]
       follow_redirect!
       assert_equal "10", reserve_badge
       assert_select ".daily-booster.daily-booster--collected .daily-booster__state", "Collected"
@@ -51,7 +51,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       post daily_bonus_path(locale: :en)
 
       assert_redirected_to home_path(locale: :en)
-      assert_equal I18n.t("errors.game.already_collected", locale: :en), flash[:alert]
+      assert_equal "You have already collected today's booster. The next one will be ready on 2026-10-03 00:00 UTC.", flash[:alert]
       assert_equal 1, Game::DailyBonusClaim.where(player_id: @player.id).count
     end
 
@@ -94,7 +94,8 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge", "10"
       assert_select "turbo-stream[action=replace][target=hub-showcase-actions] template #hub-showcase-actions"
       assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--notice .toast__message",
-        "A booster joins your reserve. The next one will be ready at midnight (UTC)."
+        "A booster joins your reserve. The next one will be ready on 2026-10-03 00:00 UTC."
+      assert_select "turbo-stream[action=append][target=toasts] template .toast__message time[datetime='2026-10-03T00:00:00Z'][data-controller=local-time]"
     end
   end
 
@@ -109,7 +110,10 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "turbo-stream[action=replace][target=daily-booster] template .daily-booster--collected .daily-booster__clock"
     assert_select "[data-bonus-arc-collected]", false
-    assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--alert .toast__message", I18n.t("errors.game.already_collected", locale: :en)
+    next_day = Game::BankSummary.next_bonus_at.utc
+    assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--alert .toast__message",
+      I18n.t("errors.game.already_collected", locale: :en, time: next_day.strftime("%Y-%m-%d %H:%M UTC"))
+    assert_select "turbo-stream[action=append][target=toasts] template .toast__message time[datetime='#{next_day.iso8601}']"
     assert_equal 1, Game::DailyBonusClaim.count
   end
 

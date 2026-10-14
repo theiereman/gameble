@@ -73,7 +73,6 @@
                       data_export_preparing_value: t(".data.preparing"), data_export_retry_value: t(".data.retry"),
                       data_export_failed_value: t(".data.failed"), data_export_ready_title_value: t(".data.ready_title"),
                       data_export_ready_value: t(".data.ready"), data_export_download_value: t(".data.download"),
-                      data_export_time_format_value: t(".data.time_format"),
                       data_export_interval_value: Accounts::Player::EXPORT_INTERVAL.to_i,
                       data_export_next_export_at_value: @next_export_at&.utc&.iso8601 } do %>
           <div class="settings-row__actions">
@@ -85,11 +84,11 @@
           <% last_exported_at = @last_export&.exported_at %>
           <p class="settings-row__note" data-data-export-target="lastExport" <%= "hidden" unless last_exported_at %>>
             <%= t(".data.last_export") %>
-            <time data-data-export-target="time" datetime="<%= last_exported_at&.utc&.iso8601 %>"><%= last_exported_at&.utc&.strftime(t(".data.time_format")) %></time>
+            <%= local_time_tag(last_exported_at, :date_time_year, data: { data_export_target: "time" }) %>
           </p>
           <p class="settings-row__note" data-data-export-target="nextExport" <%= "hidden" unless @next_export_at %>>
             <%= t(".data.next_export") %>
-            <time data-data-export-target="nextTime" datetime="<%= @next_export_at&.utc&.iso8601 %>"><%= @next_export_at&.utc&.strftime(t(".data.time_format")) %></time>
+            <%= local_time_tag(@next_export_at, :date_time_year, data: { data_export_target: "nextTime" }) %>
           </p>
           <p class="settings-row__error" role="alert" data-data-export-target="error" hidden></p>
         <% end %>

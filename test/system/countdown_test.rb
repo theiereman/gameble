@@ -76,7 +76,7 @@ class CountdownTest < ApplicationSystemTestCase
     JS
     within(".daily-booster") { click_on "Collect" }
 
-    assert_text I18n.t("daily_bonuses.create.collected", locale: :en), wait: 10
+    assert_text I18n.t("daily_bonuses.create.collected", locale: :en, time: "%{time}").partition("%{time}").first.strip, wait: 10
     assert_selector BADGE, text: "3", wait: 10
   end
 

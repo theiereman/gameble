@@ -43,6 +43,9 @@ class LiveFeedJobTest < ActiveSupport::TestCase
     assert_empty english.css("[style]")
 
     assert_equal "/en/cards/portal", feed.at_css("a.feed__thumb")["href"]
+    time = feed.at_css("time.feed__time[data-controller=local-time][data-local-time-style-value=datetime]")
+    occurred_at = Time.iso8601(time["datetime"])
+    assert_equal occurred_at.utc.strftime("%Y-%m-%d %H:%M UTC"), time.text
 
     french = received(:fr)
     assert_equal "Hugo a tiré Portal", template(french, "prepend", "feed-entries").at_css(".feed__sentence").text

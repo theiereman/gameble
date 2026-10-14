@@ -137,7 +137,8 @@ class ShellTest < ActionDispatch::IntegrationTest
         assert_in_delta 125, next_in.first["data-countdown-seconds-value"].to_i, 2
       end
       assert_select ".packs-chip__next [aria-hidden=true]", /\+1 in/
-      assert_select ".packs-chip__next .visually-hidden", /\ANext booster at \d\d:\d\d \(UTC\)\z/
+      assert_select ".packs-chip__next .visually-hidden", /\ANext booster: \d{4}-\d\d-\d\d \d\d:\d\d UTC\z/
+      assert_select ".packs-chip__next .visually-hidden time[data-controller=local-time][data-local-time-style-value=datetime][datetime]"
     end
     assert_select ".packs-chip a, p.packs-chip", false
 

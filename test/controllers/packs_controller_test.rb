@@ -248,7 +248,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "true", countdown.sole["data-countdown-refresh-value"]
     assert_select ".packs-chip__next [aria-hidden=true]", text: /\+1 in\s+10:00/
     assert_select ".packs-chip__next [data-countdown-target=clock]", "10:00"
-    assert_select ".packs-chip__next .visually-hidden", "Next booster at 14:32 (UTC)"
+    assert_select ".packs-chip__next .visually-hidden", "Next booster: 2026-10-02 14:32 UTC"
+    assert_select ".packs-chip__next .visually-hidden time[datetime='2026-10-02T14:32:00Z'][data-controller=local-time]"
     assert_select "meta[name=turbo-refresh-method][content=morph]"
     assert_select "meta[name=turbo-refresh-scroll][content=preserve]"
     assert_select "meta[name=turbo-cache-control][content=no-cache]"
@@ -266,7 +267,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "3", reserve_badge
     assert_equal "300", countdown.sole["data-countdown-seconds-value"]
     assert_select ".packs-chip__next [aria-hidden=true]", text: /\+1 dans\s+05:00/
-    assert_select ".packs-chip__next .visually-hidden", "Prochain booster à 09:40 (UTC)"
+    assert_select ".packs-chip__next .visually-hidden", "Prochain booster : 2026-10-02 09:40 UTC"
+    assert_select ".packs-chip__next .visually-hidden time[datetime='2026-10-02T09:40:00Z']"
   end
 
   test "with no pack available now, menu 01's badge reads 0 and the countdown shows" do
@@ -292,7 +294,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "5400", countdown.sole["data-countdown-seconds-value"]
     assert_select ".packs-chip__next [aria-hidden=true]", text: /\+1 in\s+1:30:00/
     assert_select ".packs-chip__next [data-countdown-target=clock]", "1:30:00"
-    assert_select ".packs-chip__next .visually-hidden", "Next booster at 15:52 (UTC)"
+    assert_select ".packs-chip__next .visually-hidden", "Next booster: 2026-10-02 15:52 UTC"
+    assert_select ".packs-chip__next .visually-hidden time[datetime='2026-10-02T15:52:00Z']"
   end
 
   test "a full bank with bonus packs shows no countdown" do

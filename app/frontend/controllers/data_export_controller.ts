@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { dispatchGameble } from "../lib/events"
-import { type ExportPhase, exportButton, exportFilename, exportedAt, failureMessage, formatUtc, nextExportAt } from "../lib/data_export"
+import { type ExportPhase, exportButton, exportFilename, exportedAt, failureMessage, nextExportAt } from "../lib/data_export"
+import { formatLocalTime } from "../lib/local_time"
 
 export default class extends Controller<HTMLFormElement> {
   static targets = ["error", "download", "lastExport", "time", "nextExport", "nextTime"]
@@ -11,7 +12,6 @@ export default class extends Controller<HTMLFormElement> {
     readyTitle: String,
     ready: String,
     download: String,
-    timeFormat: String,
     interval: Number,
     nextExportAt: String,
   }
@@ -28,7 +28,6 @@ export default class extends Controller<HTMLFormElement> {
   declare readonly readyTitleValue: string
   declare readonly readyValue: string
   declare readonly downloadValue: string
-  declare readonly timeFormatValue: string
   declare readonly intervalValue: number
   declare readonly nextExportAtValue: string
 
@@ -131,7 +130,7 @@ export default class extends Controller<HTMLFormElement> {
 
   private showTime(line: HTMLElement, time: HTMLTimeElement, at: Date): void {
     time.dateTime = at.toISOString()
-    time.textContent = formatUtc(at, this.timeFormatValue)
+    time.textContent = formatLocalTime(at, "date-time-year", { locale: document.documentElement.lang }) ?? time.dateTime
     line.hidden = false
   }
 }

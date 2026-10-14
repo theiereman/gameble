@@ -134,6 +134,18 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
+  test "the day and week rules give the next day change and week start for the browser to show in its own time" do
+    travel_to(Time.utc(2026, 10, 14, 10)) { get how_it_works_path(locale: :fr) }
+
+    assert_select "p", "Une fois par jour, un booster offert vous attend sur le pont. Le jour change à 00:00 UTC."
+    assert_select "p time[datetime='2026-10-15T00:00:00Z'][data-controller=local-time][data-local-time-style-value=time]" \
+      "[data-local-time-suffix-value=', heure locale']", "00:00 UTC"
+    assert_select "p time[datetime='2026-10-19T00:00:00Z'][data-controller=local-time][data-local-time-style-value=weekday-time]" \
+      "[data-local-time-suffix-value=', heure locale']", "2026-10-19 00:00 UTC"
+    assert_select "p", /\AChaque semaine, pendant sept jours à partir du 2026-10-19 00:00 UTC, tous les joueurs/
+    assert_select "p", text: /heure locale/, count: 0
+  end
+
   test "the screen sits under the PLUS tab, its phone back to PLUS" do
     get how_it_works_path(locale: :fr)
 
