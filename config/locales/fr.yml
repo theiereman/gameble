@@ -22,6 +22,7 @@ fr:
       friends: "Amis"
       profile: "Profil"
       feed: "Fil"
+      achievements: "Succès"
       legal: "Mentions légales"
       more: "Plus"
       how_it_works: "Comment ça marche"
@@ -98,7 +99,10 @@ fr:
           other: "%{number} en ligne"
         feed: "Fil d'activité"
         achievements: "Succès"
-        soon: "bientôt disponible"
+        achievements_meta:
+          zero: "%{earned} succès obtenu sur %{total}"
+          one: "%{earned} succès obtenu sur %{total}"
+          other: "%{earned} succès obtenus sur %{total}"
         how_it_works: "Comment ça marche"
         support: "Soutenir"
       showcase:
@@ -998,6 +1002,29 @@ fr:
       boosters_500: "500 boosters"
       three_complete_sets: "Trois sets complets"
       first_repost: "Premier repost"
+    show:
+      title: "Succès"
+      more: "Plus"
+      summary:
+        zero: "%{earned} succès obtenu sur %{total}"
+        one: "%{earned} succès obtenu sur %{total}"
+        other: "%{earned} succès obtenus sur %{total}"
+      earned_label: "Succès obtenus"
+      groups:
+        earned: "Obtenus · %{count}"
+        to_earn: "À obtenir · %{count}"
+      progress: "%{progress} sur %{threshold}"
+    conditions:
+      first_booster: "Ouvrir un booster"
+      first_epic: "Obtenir une carte Épique"
+      first_legendary: "Obtenir une carte Légendaire"
+      first_complete_set: "Compléter un set"
+      first_trade: "Conclure un échange"
+      boosters_10: "Ouvrir 10 boosters"
+      boosters_100: "Ouvrir 100 boosters"
+      boosters_500: "Ouvrir 500 boosters"
+      three_complete_sets: "Compléter 3 sets"
+      first_repost: "Reposter une carte"
   invite_links:
     show:
       title: "%{name} vous invite"

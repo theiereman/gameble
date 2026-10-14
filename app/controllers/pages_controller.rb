@@ -3,9 +3,9 @@
 # booster panel, the community goal panel with a contributor's reward claim
 # slot, and the set progress rows. A read only page: Catalog answers the
 # season, its size and the showcased card, Game the goal, the player's
-# reserve, goal reward, pull, collection, sets and how many of their friends
-# are online (menu 04); the LIVE ticker its first items, the latest public
-# entries it shows.
+# reserve, goal reward, pull, collection, sets, how many of their friends
+# are online (menu 04) and the achievements they earned (menu 06); the LIVE
+# ticker its first items, the latest public entries it shows.
 class PagesController < ApplicationController
   def home
     authorize :page, :show?
@@ -16,6 +16,7 @@ class PagesController < ApplicationController
       @bank = Game::BankSummary.call(current_player)
       @goal_reward = Game::GoalRewardStatus.call(current_player)
       @friends_online = Game::FriendsPresence.online_count(current_player)
+      @achievements = Game::AchievementBoard.summary(current_player)
       @showcase = showcase if @season
     end
     @collection = collection if @season

@@ -1,8 +1,8 @@
 <% content_for :title, t(".title") %>
-<%# The phone's PLUS tab (DESIGN.md, PLUS rows): menu-item rows, without
-    numbers, for the screens that are not tabs, under the kicker and
-    "Le reste du vaisseau". Amis opens its screen (a visitor gets the sign-in panel);
-    Fil d'activité opens the public feed; Succès has no screen yet;
+<%# The phone's PLUS tab: menu-item rows, without numbers, for the screens
+    that are not tabs, under the kicker and "Le reste du vaisseau". Amis and
+    Succès open their screens (a visitor gets the sign-in panel);
+    Fil d'activité opens the public feed;
     Comment ça marche opens the rules of the game, for a visitor too;
     Soutenir, last, opens the donation page in a new tab; the tab bar
     only shows on the phone, and the screen reads the same on a desktop
@@ -35,10 +35,18 @@
       <% end %>
     </li>
     <li>
-      <span class="menu-item menu-item--plus" aria-disabled="true">
-        <span class="menu-item__label"><%= t("pages.home.menu.achievements") %></span>
-        <span class="visually-hidden"><%= t("pages.home.menu.soon") %></span>
-      </span>
+      <% if current_player %>
+        <%= link_to achievements_path, class: "menu-item menu-item--plus", data: { turbo_prefetch: false } do %>
+          <span class="menu-item__label"><%= t("pages.home.menu.achievements") %></span>
+          <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
+        <% end %>
+      <% else %>
+        <%= tag.button type: :button, class: "menu-item menu-item--plus", aria: { haspopup: "dialog" },
+              data: { controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: "sign-in-panel" } do %>
+          <span class="menu-item__label"><%= t("pages.home.menu.achievements") %></span>
+          <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
+        <% end %>
+      <% end %>
     </li>
     <li>
       <%= link_to how_it_works_path, class: "menu-item menu-item--plus", data: { turbo_prefetch: false } do %>

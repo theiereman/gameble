@@ -22,6 +22,7 @@ en:
       friends: "Friends"
       profile: "Profile"
       feed: "Feed"
+      achievements: "Achievements"
       legal: "Legal notice"
       more: "More"
       how_it_works: "How it works"
@@ -93,7 +94,9 @@ en:
           other: "%{number} online"
         feed: "Activity feed"
         achievements: "Achievements"
-        soon: "coming soon"
+        achievements_meta:
+          one: "%{earned} achievement earned out of %{total}"
+          other: "%{earned} achievements earned out of %{total}"
         how_it_works: "How it works"
         support: "Support"
       showcase:
@@ -958,6 +961,28 @@ en:
       boosters_500: "500 boosters"
       three_complete_sets: "Three complete sets"
       first_repost: "First repost"
+    show:
+      title: "Achievements"
+      more: "More"
+      summary:
+        one: "%{earned} achievement earned out of %{total}"
+        other: "%{earned} achievements earned out of %{total}"
+      earned_label: "Achievements earned"
+      groups:
+        earned: "Earned · %{count}"
+        to_earn: "To earn · %{count}"
+      progress: "%{progress} of %{threshold}"
+    conditions:
+      first_booster: "Open a booster"
+      first_epic: "Get an Epic card"
+      first_legendary: "Get a Legendary card"
+      first_complete_set: "Complete a set"
+      first_trade: "Complete a trade"
+      boosters_10: "Open 10 boosters"
+      boosters_100: "Open 100 boosters"
+      boosters_500: "Open 500 boosters"
+      three_complete_sets: "Complete 3 sets"
+      first_repost: "Repost a card"
   invite_links:
     show:
       title: "%{name} invites you"

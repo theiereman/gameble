@@ -225,11 +225,36 @@ function faviconIcon() {
   }
 }
 
+const ACHIEVEMENT_GLYPHS = {
+  pack: [".#####.", "#######", "#.....#", "#.###.#", "#.#.#.#", "#.....#", "#######"],
+  gem: ["...#...", "..###..", ".#####.", "#######", ".#####.", "..###..", "...#..."],
+  star: ["...#...", "...#...", "#######", ".#####.", "..###..", ".##.##.", "##...##"],
+  set: ["###.###", "#.#.#.#", "###.###", ".......", "###.###", "#.#.#.#", "###.###"],
+  trade: ["....#..", "######.", "....#..", ".......", "..#....", ".######", "..#...."],
+  card: [".####..", "#....#.", "#.##.##", "#....##", "#.##.##", "#....##", ".######"],
+}
+const ACHIEVEMENT_EARNED = { h: "#d2efff", b: "#66c0f4", s: "#2a6f9a" }
+const ACHIEVEMENT_LOCKED = { h: "#8f98a0", b: "#5d6b78", s: "#3d4a57" }
+
+function achievementIcon(cells, legend) {
+  const side = cells.length * 2
+  const filled = (x, y) => x >= 0 && y >= 0 && x < side && y < side && cells[y >> 1][x >> 1] === "#"
+  const shade = (x, y) => !filled(x, y - 1) ? "h" : !filled(x, y + 1) || !filled(x + 1, y) ? "s" : "b"
+  const grid = Array.from({ length: side }, (_, y) => Array.from({ length: side }, (_, x) => filled(x, y) ? shade(x, y) : ".").join(""))
+  return { legend, grid }
+}
+
+const achievementIcons = () => Object.fromEntries(Object.entries(ACHIEVEMENT_GLYPHS).flatMap(([glyph, cells]) => [
+  [`achievement-${glyph}`, achievementIcon(cells, ACHIEVEMENT_EARNED)],
+  [`achievement-${glyph}-locked`, achievementIcon(cells, ACHIEVEMENT_LOCKED)],
+]))
+
 const ICONS = {
   wordmark: wordmarkIcon(),
   favicon: faviconIcon(),
   ...Object.fromEntries(Object.entries(RARITY_SHAPES).map(([tier, grid]) => [`rarity-${tier}`, { legend: RARITY[tier], grid }])),
   ...Object.fromEntries(Object.entries(RARITY_COMPACT_SHAPES).map(([tier, grid]) => [`rarity-compact-${tier}`, { legend: RARITY[tier], grid }])),
+  ...achievementIcons(),
   // A card's missing art (10 × 8): a frame, a sun and a mountain.
   picture: {
     grid: [
@@ -1193,6 +1218,10 @@ const DESCRIPTIONS = {
   "favicon.svg": "Favicon: the wordmark's gold G, 9 × 9",
   ...Object.fromEntries(TIER_NAMES.map((tier, i) => [`rarity-${i + 1}.svg`, `${tier} rarity icon, ${TIER_SHAPES[i]}, 7 × 7`])),
   ...Object.fromEntries(TIER_NAMES.map((tier, i) => [`rarity-compact-${i + 1}.svg`, `${tier} rarity icon for card faces, ${TIER_SHAPES[i]}, 5 × 5`])),
+  ...Object.fromEntries(Object.entries(ACHIEVEMENT_GLYPHS).flatMap(([glyph]) => [
+    [`achievement-${glyph}.svg`, `Achievement icon, ${glyph}, earned (blue), 14 × 14`],
+    [`achievement-${glyph}-locked.svg`, `Achievement icon, ${glyph}, not yet earned (grey), 14 × 14`],
+  ])),
   "picture.svg": "Missing cover art: a frame, a sun and a mountain (text colour)",
   "lock.svg": "A missing card's padlock on its empty slot (10 × 12, text colour)",
   "arrow-left.svg": "◀ arrow (text colour)",

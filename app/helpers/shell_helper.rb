@@ -67,6 +67,7 @@ module ShellHelper
     "public_profiles" => :profile,
     "settings" => :profile,
     "feeds" => :feed,
+    "achievements" => :achievements,
     "pages#legal" => :legal,
     "pages#how_it_works" => :how_it_works,
     "pages#more" => :more

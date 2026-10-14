@@ -443,7 +443,8 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".plus__list a.menu-item[href='/fr/how-it-works']", /Comment ça marche/
     assert_select ".plus__list a.menu-item[href='/fr/friends']", /Amis/
     assert_select ".plus__list a.menu-item[href='/fr/feed']", /Fil d'activité/
-    assert_select ".plus__list .menu-item[aria-disabled=true]", 1
+    assert_select ".plus__list a.menu-item[href='/fr/achievements']", /Succès/
+    assert_select ".plus__list .menu-item[aria-disabled]", false
     assert_select "a.tab-bar__tab[href='/fr/more'][aria-current=page]"
   end
 

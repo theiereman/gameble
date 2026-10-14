@@ -37,3 +37,5 @@ ignore_unused:
   - "trades.island.*"
   # Achievement names, looked up by the key an unlock carries (the player stream's toast).
   - "achievements.names.*"
+  # Achievement conditions, read by catalogue key on the achievements screen.
+  - "achievements.conditions.*"

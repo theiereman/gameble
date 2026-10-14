@@ -11,7 +11,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   include GameTrades
   include SteamSignIn
 
-  PLAYER_HUB_QUERIES = 19
+  PLAYER_HUB_QUERIES = 20
   VISITOR_HUB_QUERIES = 6
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
@@ -140,10 +140,13 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".menu-item__badge.menu-item__badge--alert.menu-item__badge--zero", "0"
       assert_select ".visually-hidden", "0 échange en attente de vous"
     end
-    # 06: no screen yet.
-    disabled = css_select(".hub-menu span.menu-item[aria-disabled=true]")
-    assert_equal [ "Succès" ], disabled.map { it.at_css(".menu-item__label").text }
-    assert disabled.all? { it.at_css(".visually-hidden").text == "bientôt disponible" }
+    # 06: the achievements screen, none earned yet.
+    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='6'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
+      assert_select ".menu-item__label", "Succès"
+      assert_select ".menu-item__meta[aria-hidden=true]", "0/10"
+      assert_select ".visually-hidden", "0 succès obtenu sur 10"
+    end
+    assert_select ".hub-menu [aria-disabled]", false
 
     # The showcase: the tier 4 card of the pack, its line (rarity and
     # number; no tome, so no genre) and its page.
@@ -506,7 +509,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # goal reward's claim slot,
     # showcase (pull, the copies held, card view), collection (owned, total), sets (progress,
     # the started sets, the fill, which finds no other set here, so no sizes),
-    # the top bar's copies per tier, menu 04's friends online, the trades
+    # the top bar's copies per tier, menu 04's friends online, menu 06's
+    # achievements earned, the trades
     # waiting (menu 03 and the tab bar share one count) and the LIVE ticker's
     # entries (none here, so no players or cards).
     assert_hub_queries(PLAYER_HUB_QUERIES)
