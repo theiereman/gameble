@@ -223,6 +223,10 @@
   animation: none;
 }
 
+.booster[data-layout="phone"] .booster-card:not([data-top]) .booster-card__rays {
+  display: none;
+}
+
 .booster[data-layout="phone"] .booster-card:not([data-top]) .card__flake-group {
   animation: none;
 }
