@@ -2,7 +2,8 @@
 # OmniAuth middleware that no controller `rate_limit` reaches, so the three
 # sign-in endpoints are throttled here, per client IP: 10 requests a minute
 # across them. Page reads are never throttled. Counts live in Rails.cache.
-# Client IP is request.ip; Cloudflare's real-IP handling is deployment work.
+# The client's address is Rails' remote IP, which looks past Cloudflare
+# (config/initializers/trusted_proxies.rb).
 module SignInThrottle
   LIMIT = 10
   PERIOD = 1.minute
@@ -15,12 +16,16 @@ module SignInThrottle
   def self.sign_in?(request)
     PATHS.fetch(request.request_method, []).include?(request.path.downcase.chomp("/"))
   end
+
+  def self.client_ip(request)
+    ActionDispatch::Request.new(request.env).remote_ip
+  end
 end
 
 Rack::Attack.cache.store = Rails.cache
 
 Rack::Attack.throttle("sign-in/ip", limit: SignInThrottle::LIMIT, period: SignInThrottle::PERIOD) do |request|
-  request.ip if SignInThrottle.sign_in?(request)
+  SignInThrottle.client_ip(request) if SignInThrottle.sign_in?(request)
 end
 
 # 429 with a short plain-text body. These paths carry no locale; the default

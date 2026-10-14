@@ -20,6 +20,7 @@ logging:
 proxy:
   ssl: true
   host: gameble.net
+  forward_headers: true            # keep Cloudflare's X-Forwarded-For: the client's address
   run:
     log_max_size: ""
     options:

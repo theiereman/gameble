@@ -9,6 +9,10 @@ class RateLimitTest < ActionDispatch::IntegrationTest
 
   IP = "203.0.113.7"
   OTHER_IP = "203.0.113.8"
+  LOCAL_PROXY = "172.18.0.3"
+  CLOUDFLARE_EDGE = "162.158.12.34"
+  CLOUDFLARE_EDGE_V6 = "2606:4700:10::6816:1234"
+  OUTSIDE_CLOUDFLARE = "198.51.100.9"
 
   setup do
     # Rack::Attack counts in windows aligned on the clock minute: a test that
@@ -27,12 +31,20 @@ class RateLimitTest < ActionDispatch::IntegrationTest
   end
 
   # One sign-in request of each kind, in turn.
-  def sign_in_request(index, ip: IP)
+  def sign_in_request(index, ip: IP, forwarded_for: nil)
+    env = { "REMOTE_ADDR" => ip }
+    env["HTTP_X_FORWARDED_FOR"] = forwarded_for if forwarded_for
     case index % 3
-    when 0 then post "/auth/steam", params: { origin: "/en" }, env: { "REMOTE_ADDR" => ip }
-    when 1 then get "/auth/steam/callback", env: { "REMOTE_ADDR" => ip }
-    else get "/auth/failure", params: { message: "invalid_credentials" }, env: { "REMOTE_ADDR" => ip }
+    when 0 then post "/auth/steam", params: { origin: "/en" }, env: env
+    when 1 then get "/auth/steam/callback", env: env
+    else get "/auth/failure", params: { message: "invalid_credentials" }, env: env
     end
+  end
+
+  # What the app sees behind Cloudflare: the client, then the Cloudflare
+  # edge, forwarded by the local proxies.
+  def through_cloudflare(index, client:, edge: CLOUDFLARE_EDGE)
+    sign_in_request(index, ip: LOCAL_PROXY, forwarded_for: "#{client}, #{edge}")
   end
 
   test "Rack::Attack runs before OmniAuth" do
@@ -117,5 +129,32 @@ class RateLimitTest < ActionDispatch::IntegrationTest
 
       assert_response :success
     end
+  end
+
+  test "two clients behind the same Cloudflare edge are counted apart" do
+    11.times { |index| through_cloudflare(index, client: IP) }
+    assert_response :too_many_requests
+
+    through_cloudflare(0, client: OTHER_IP)
+
+    assert_response :redirect
+  end
+
+  test "a client behind an IPv6 Cloudflare edge is counted under its own address" do
+    10.times { |index| through_cloudflare(index, client: IP, edge: CLOUDFLARE_EDGE_V6) }
+    through_cloudflare(0, client: OTHER_IP, edge: CLOUDFLARE_EDGE_V6)
+    assert_response :redirect
+
+    through_cloudflare(1, client: IP, edge: CLOUDFLARE_EDGE_V6)
+
+    assert_response :too_many_requests
+  end
+
+  test "a client outside Cloudflare cannot choose its address with the header" do
+    11.times do |index|
+      sign_in_request(index, ip: LOCAL_PROXY, forwarded_for: "203.0.113.#{100 + index}, #{OUTSIDE_CLOUDFLARE}")
+    end
+
+    assert_response :too_many_requests
   end
 end
