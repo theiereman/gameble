@@ -12,11 +12,18 @@ module Game
         players.each do |player|
           next if with_code.include?(player.id)
 
-          CreateFriendCode.new.call(player:).value!
+          result = CreateFriendCode.new.call(player:)
+          result.value! unless left_meanwhile?(result)
         rescue StandardError => error
           Rails.error.report(error, context: { player_id: player.id })
         end
       end
+    end
+
+    private
+
+    def left_meanwhile?(result)
+      result.failure? && result.failure == :player_required
     end
   end
 end

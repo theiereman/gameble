@@ -45,11 +45,11 @@ class Game::PlayerStateTest < ActiveSupport::TestCase
   end
 
   test "a player deleted since their row was read fails player_required and keeps no row" do
-    deleted = @player
-    Accounts::DeletePlayer.new.call(player: Accounts::Player.find(deleted.id)).value!
+    stale = @player
+    Accounts::DeletePlayer.new.call(player: Accounts::Player.find(stale.id)).value!
 
-    assert_equal Dry::Monads::Failure(:player_required), create(deleted)
-    assert_not Game::PlayerState.exists?(player_id: deleted.id)
+    assert_equal Dry::Monads::Failure(:player_required), create(stale)
+    assert_not Game::PlayerState.exists?(player_id: stale.id)
   end
 
   test "the sign-up handler creates the new player's row after their bank" do
@@ -111,6 +111,27 @@ class Game::BackfillPlayerStatesJobTest < ActiveSupport::TestCase
 
   def run_task
     rake_task("game:backfill_player_states").execute
+  end
+
+  # Accounts::PlayersInBatches yields `players` as its one batch while the
+  # block runs, as a batch read before they were deleted would.
+  def reading_the_batch(players)
+    original = Accounts::PlayersInBatches.method(:call)
+    Accounts::PlayersInBatches.define_singleton_method(:call) { |**, &block| block.call(players) }
+    yield
+  ensure
+    Accounts::PlayersInBatches.define_singleton_method(:call, original)
+  end
+
+  test "a player deleted since their batch was read is skipped unreported" do
+    stale = Accounts::Player.find(accounts_players(:player).id)
+    Accounts::DeletePlayer.new.call(player: accounts_players(:player)).value!
+
+    reading_the_batch([ stale ]) do
+      assert_no_error_reported { Game::BackfillPlayerStatesJob.perform_now }
+    end
+
+    assert_not Game::PlayerState.exists?(player_id: stale.id)
   end
 
   test "a player whose creation raises is reported and skipped; the others still get their row" do
