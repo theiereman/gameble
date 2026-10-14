@@ -265,6 +265,10 @@ export function attachTilt(
     if (driver?.touch && event.cancelable) event.preventDefault()
   }
 
+  const onContextMenu = (event: Event) => {
+    if (driver?.touch) event.preventDefault()
+  }
+
   const onScroll = () => {
     box = null
   }
@@ -278,6 +282,7 @@ export function attachTilt(
   element.addEventListener("pointercancel", onPointerEnd)
   element.addEventListener("touchmove", onTouchMove, { passive: false })
   element.addEventListener("click", onClick, { capture: true })
+  element.addEventListener("contextmenu", onContextMenu)
 
   return () => {
     view?.removeEventListener("scroll", onScroll, { capture: true })
@@ -288,6 +293,7 @@ export function attachTilt(
     element.removeEventListener("pointercancel", onPointerEnd)
     element.removeEventListener("touchmove", onTouchMove)
     element.removeEventListener("click", onClick, { capture: true })
+    element.removeEventListener("contextmenu", onContextMenu)
     cancelHold()
     if (frame !== null) cancelAnimationFrame(frame)
     frame = null

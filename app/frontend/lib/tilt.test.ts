@@ -337,6 +337,25 @@ describe("attachTilt", () => {
     expect(card.dataset.tilt).toBeUndefined()
   })
 
+  it("swallows a finger's link menu while it tilts, and lets the mouse's through", () => {
+    const { card } = attach()
+    const menu = () => {
+      const event = new Event("contextmenu", { cancelable: true })
+      card.dispatchEvent(event)
+      return event.defaultPrevented
+    }
+
+    card.dispatchEvent(pointer("pointerdown", "touch", 140, 260))
+    vi.advanceTimersByTime(HOLD_MS)
+    expect(menu()).toBe(true)
+    card.dispatchEvent(pointer("pointerup", "touch", 140, 260))
+    expect(menu()).toBe(false)
+
+    card.dispatchEvent(pointer("pointermove", "mouse", 140, 260))
+    runFrames(1)
+    expect(menu()).toBe(false)
+  })
+
   it("does nothing under reduced motion", () => {
     vi.stubGlobal("document", { documentElement: { dataset: { motion: "reduced" } } })
     const { card } = attach()
@@ -350,8 +369,23 @@ describe("attachTilt", () => {
     expect(card.properties.size).toBe(0)
   })
 
+  it("keeps the card face unselectable and without the touch callout, and only the face", () => {
+    const rule = (selector: string) => {
+      const at = cardStylesheet.indexOf(`${selector} {`)
+      return at < 0 ? undefined : cardStylesheet.slice(at, cardStylesheet.indexOf("}", at))
+    }
+
+    const card = rule(".card") ?? ""
+    expect(card).toContain("-webkit-user-select: none")
+    expect(card).toContain("user-select: none")
+    expect(card).toContain("-webkit-touch-callout: none")
+    expect(cardStylesheet.match(/^\s*user-select: none;/gm)).toHaveLength(1)
+    expect(cardStylesheet.match(/^\s*-webkit-touch-callout: none;/gm)).toHaveLength(1)
+  })
+
   it("undoes everything when detached, listeners included", () => {
     const { card, detach } = attach()
+    const removeListener = vi.spyOn(card, "removeEventListener")
 
     card.dispatchEvent(pointer("pointermove", "mouse", 140, 260))
     runFrames(3)
@@ -361,6 +395,7 @@ describe("attachTilt", () => {
     expect(card.dataset.tilting).toBeUndefined()
     expect(card.properties.size).toBe(0)
     expect(frames.size).toBe(0)
+    expect(removeListener).toHaveBeenCalledWith("contextmenu", expect.any(Function))
 
     card.dispatchEvent(pointer("pointermove", "mouse", 140, 260))
     runFrames()
