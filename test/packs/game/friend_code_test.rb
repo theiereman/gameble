@@ -42,6 +42,18 @@ class Game::FriendCodeTest < ActiveSupport::TestCase
     assert_equal Dry::Monads::Failure(:player_required), Game::CreateFriendCode.new.call(player: Accounts::Player.new)
   end
 
+  test "an account deleted after it was read gets no code and recreates none" do
+    player = new_player
+    Game::CreateFriendCode.new.call(player:).value!
+    stale = Accounts::Player.find(player.id)
+
+    Accounts::DeletePlayer.new.call(player:).value!
+
+    assert_predicate stale, :persisted?
+    assert_equal Dry::Monads::Failure(:player_required), Game::CreateFriendCode.new.call(player: stale)
+    assert_not Game::FriendCode.exists?(player_id: player.id)
+  end
+
   test "the database refuses a malformed or repeated code" do
     other = accounts_players(:moderator)
     assert_raises(ActiveRecord::StatementInvalid) do
