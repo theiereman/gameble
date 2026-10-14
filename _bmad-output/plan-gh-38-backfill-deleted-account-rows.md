@@ -26,7 +26,7 @@ context: []
 
 ## Implementation Notes
 
-Oneshot is appropriate because the fix is limited to two operations and focused regression coverage. Both operations now acquire `lock_bank` in their transaction; friend-code collision attempts remain savepoint-scoped. DeepSeek agents added stale-account regression tests and lock-race coverage for both operations.
+Oneshot is appropriate because the fix is limited to two operations and focused regression coverage. Both operations now acquire `lock_bank` in their transaction; friend-code collision attempts remain savepoint-scoped. Stale-account regression tests and lock-race tests cover both operations.
 
 ## Review Triage Log
 
