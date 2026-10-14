@@ -213,7 +213,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # visible text, whoever looks.
     links = css_select(".collection-grid > li > a.card-link")
     face, missing = Catalog::CardViews.call(members, locale: :en).values_at(members[3], members[1])
-    assert_equal "#{face.title}, #{I18n.t("catalog.rarity.#{face.rarity}", locale: :en)}, season #{season.number}", links[3]["aria-label"]
+    assert_equal "#{face.title}, #{face.year}, #{I18n.t("catalog.rarity.#{face.rarity}", locale: :en)}, season #{season.number}", links[3]["aria-label"]
     assert_equal members.map { |id| id.in?([ members[0], members[3] ]) }, links.map { it["aria-label"].present? }
     assert_equal "#{missing.title} #{missing.year} Missing card", links[1].text.squish
   end

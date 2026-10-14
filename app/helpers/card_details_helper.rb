@@ -40,9 +40,8 @@ module CardDetailsHelper
     url
   end
 
-  # The name of a link to a card's detail: "Portal, Epic, season 1".
   def card_detail_open_label(view, strings)
-    t("card_details.open", title: view.title, rarity: strings.rarity_name(view.rarity), season: view.season_number)
+    t("card_details.open", title: view.title, year: view.year, rarity: strings.rarity_name(view.rarity), season: view.season_number)
   end
 
   # A card's face or empty slot, leading to its detail in its own season. A

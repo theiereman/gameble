@@ -198,7 +198,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     sign_in(viewer)
     get card_page
     assert_response :success
-    assert_select ".card-detail__invitation", false
+    assert_select ".card-invitation", false
     assert_select ".card-detail__copies", "None"
     assert_select ".card-detail__share", false
     # The card's own page shows the face to a viewer who does not hold it.
@@ -208,7 +208,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
 
     sign_in(@sharer)
     get card_page
-    assert_select ".card-detail__invitation", false
+    assert_select ".card-invitation", false
     assert_select ".card-detail__copies", "2 copies"
     assert_select "#share-sheet input[value=?]", season_url
   end

@@ -145,6 +145,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     context = { state: %w[all], rarity: %w[nope], q: "seed" }
     assert_select ".collection-grid a.card-link[href=?] .card", href.(held, context)
+    view = Catalog::CardViews.call([ held ], locale: :en).fetch(held)
+    label = "#{view.title}, #{view.year}, #{I18n.t("catalog.rarity.#{view.rarity}", locale: :en)}, season #{season.number}"
+    assert_select ".collection-grid a.card-link[href=?][aria-label=?]", href.(held, context), label
     assert_select ".collection-grid a.card-link[href=?] .missing-slot", href.(missing, context)
 
     # Every slot by default, the held card first: only the search, always there.

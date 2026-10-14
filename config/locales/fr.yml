@@ -1213,7 +1213,7 @@ fr:
   external_links:
     new_tab: "(nouvel onglet)"
   card_details:
-    open: "%{title}, %{rarity}, saison %{season}"
+    open: "%{title}, %{year}, %{rarity}, saison %{season}"
     kicker: "Fiche de la carte"
     facts:
       publisher: "Éditeur"

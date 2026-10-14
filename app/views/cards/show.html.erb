@@ -38,8 +38,8 @@
       set_url: ->(set) { library_set_path(kind: set.kind, key: set.key) }, browse: @browse, faded: @faded, back_key: @back_key %>
   <% end %>
   <% unless current_player %>
-    <section class="card-detail__invitation" aria-label="<%= t(".invitation") %>">
-      <%= render PanelComponent.new(tag: :p) do %><%= t(".invitation") %><% end %>
+    <section class="card-invitation" aria-labelledby="card-invitation-text">
+      <%= render PanelComponent.new(tag: :p, id: "card-invitation-text") do %><%= t(".invitation") %><% end %>
       <%# Opens the sign-in panel; signing in lands on the hub, where the
           boosters wait. Secondary: "Voir sur Steam" is the page's one primary. %>
       <%= render ButtonComponent.new(variant: :secondary, opens: "sign-in-panel") do %><%= t(".sign_in") %><% end %>

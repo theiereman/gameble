@@ -86,7 +86,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_select "ol.pack-result__cards[aria-label=?]", "Les cartes de votre booster"
     assert_equal [ "Couronne d'or" ] * 5, css_select(".card__title").map(&:text)
     assert_equal [ "Légendaire" ] * 5, css_select(".card .card__rarity").map(&:text)
-    assert_equal [ "Couronne d'or, Légendaire, saison 1" ] * 5, css_select(".pack-result__card > a.card-link").map { it["aria-label"] }
+    assert_equal [ "Couronne d'or, 1998, Légendaire, saison 1" ] * 5, css_select(".pack-result__card > a.card-link").map { it["aria-label"] }
     assert_equal [ "/fr/cards/golden-crown/seasons/1" ] * 5, css_select(".pack-result__card > a.card-link").map { it["href"] }
   end
 
