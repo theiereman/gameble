@@ -4,6 +4,7 @@ module Game
       player = step require_account(player)
 
       transaction do
+        step lock_bank(player)
         PlayerState.insert({ player_id: player.id }, unique_by: :player_id)
         PlayerState.find_by!(player_id: player.id)
       end

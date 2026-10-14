@@ -189,6 +189,26 @@ class Game::DeletePlayerConcurrencyTest < ActiveSupport::TestCase
     assert_not Game::PlayerState.exists?(player_id: @player.id)
   end
 
+  test "a player-state backfill that waits on the deletion recreates no row" do
+    player = Accounts::Player.find(@player.id)
+
+    deletion, state = first_holding_the_lock(delete_player, -> { Game::CreatePlayerState.new.call(player:) })
+
+    assert deletion.success?
+    assert_equal Dry::Monads::Failure(:player_required), state
+    assert_not Game::PlayerState.exists?(player_id: @player.id)
+  end
+
+  test "a friend-code backfill that waits on the deletion recreates no code" do
+    player = Accounts::Player.find(@player.id)
+
+    deletion, code = first_holding_the_lock(delete_player, -> { Game::CreateFriendCode.new.call(player:) })
+
+    assert deletion.success?
+    assert_equal Dry::Monads::Failure(:player_required), code
+    assert_not Game::FriendCode.exists?(player_id: @player.id)
+  end
+
   test "openings and a deletion started together leave no row of the deleted player" do
     3.times { Game::OpenPack.new.call(player: @player) }
     player = Accounts::Player.find(@player.id)

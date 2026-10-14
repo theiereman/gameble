@@ -44,6 +44,14 @@ class Game::PlayerStateTest < ActiveSupport::TestCase
     assert_raises(ActiveRecord::RecordNotUnique) { Game::PlayerState.create!(player_id: @player.id) }
   end
 
+  test "a player deleted since their row was read fails player_required and keeps no row" do
+    deleted = @player
+    Accounts::DeletePlayer.new.call(player: Accounts::Player.find(deleted.id)).value!
+
+    assert_equal Dry::Monads::Failure(:player_required), create(deleted)
+    assert_not Game::PlayerState.exists?(player_id: deleted.id)
+  end
+
   test "the sign-up handler creates the new player's row after their bank" do
     player = Accounts::Player.create!(steam_id: "76561197960287889")
 
