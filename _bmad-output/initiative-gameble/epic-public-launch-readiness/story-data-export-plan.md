@@ -3,7 +3,7 @@ title: 'Data export'
 type: 'feature'
 ticket: '7'
 created: '2026-10-08'
-status: 'built'
+status: done
 baseline_revision: 'a2d729261632006dbffd868554482f19a424b45c'
 route: 'full'
 route_source: 'auto'
