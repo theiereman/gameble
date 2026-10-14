@@ -29,6 +29,15 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert_equal [ Catalog::SetSlots::SetRef.new(kind: "publisher", key: "valve", params: { "publisher" => "Valve" }) ], detail.sets
     assert_equal portal.id, detail.card_season_id
     assert detail.current_season
+    assert_nil detail.steam_reviews
+  end
+
+  test "a card-season's review count and share of positive reviews are its Steam reviews" do
+    catalog_card_seasons(:portal_one).update_columns(review_count: 12_345, rating: 93.4)
+
+    reviews = Catalog::CardDetail.call(slug: "portal", locale: :en).steam_reviews
+
+    assert_equal [ 12_345, BigDecimal("93.4") ], [ reviews.count, reviews.positive_percent ]
   end
 
   test "in French the title and description are French" do

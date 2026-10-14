@@ -177,6 +177,28 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__phone-back", false
   end
 
+  test "a card-season with a review count shows its Steam reviews last, in each locale's number format; the visitor's page and the face do not" do
+    Catalog::CardSeason.where(id: catalog_card_seasons(:portal_one).id).update_all(review_count: 12_345, rating: 93.4)
+
+    get card_path(locale: :en, slug: "portal")
+    assert_select ".public-card"
+    assert_no_match(/Steam reviews|positive ·/, response.body)
+
+    sign_in_viewer
+
+    get card_path(locale: :en, slug: "portal")
+    assert_equal [ "Steam reviews", "93% positive · 12,345 reviews" ], facts.last
+    assert_select ".card-detail .card", text: /12,345|93%/, count: 0
+
+    get card_path(locale: :fr, slug: "portal")
+    assert_equal [ "Avis Steam", "93 % positifs · 12 345 avis" ], facts.last
+    assert_includes response.body, "93\u00A0% positifs · 12\u00A0345 avis"
+
+    Catalog::CardSeason.where(id: catalog_card_seasons(:portal_one).id).update_all(review_count: 1, rating: 99.8)
+    get card_path(locale: :en, slug: "portal")
+    assert_equal [ "Steam reviews", "99% positive · 1 review" ], facts.last
+  end
+
   test "a player sees their copies: two, one, or None; in French too" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 2)

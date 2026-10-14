@@ -132,6 +132,12 @@
               <dd class="card-detail__copies"><%= copies ? t("card_details.copies", count: copies) : t("card_details.no_copies") %></dd>
             </div>
           <% end %>
+          <% if detail.steam_reviews %>
+            <div class="card-detail__fact">
+              <dt><%= t("card_details.facts.steam_reviews") %></dt>
+              <dd><%= card_detail_steam_reviews(detail.steam_reviews) %></dd>
+            </div>
+          <% end %>
         </dl>
         <div class="card-detail__actions">
           <%= external_link_to t("card_details.store"), card_detail_store_url(detail.store_url), button: true,

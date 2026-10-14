@@ -1190,7 +1190,11 @@ en:
       season: "Season"
       sets: "Sets"
       copies: "Copies"
+      steam_reviews: "Steam reviews"
     season_number: "Season %{number}"
+    steam_reviews:
+      one: "%{percent} positive · %{reviews} review"
+      other: "%{percent} positive · %{reviews} reviews"
     copies:
       one: "%{count} copy"
       other: "%{count} copies"

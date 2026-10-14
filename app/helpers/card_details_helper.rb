@@ -40,6 +40,13 @@ module CardDetailsHelper
     url
   end
 
+  # "93% positive · 12,345 reviews", in the locale's number format; the
+  # share is rounded down, so a few negative reviews never read as 100%.
+  def card_detail_steam_reviews(reviews)
+    t("card_details.steam_reviews", count: reviews.count, reviews: number_with_delimiter(reviews.count),
+      percent: number_to_percentage(reviews.positive_percent.floor, precision: 0))
+  end
+
   def card_detail_open_label(view, strings)
     t("card_details.open", title: view.title, year: view.year, rarity: strings.rarity_name(view.rarity), season: view.season_number)
   end

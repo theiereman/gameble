@@ -1,10 +1,11 @@
 module Catalog
-  # A card's detail (CAP-7): its CardView in one card-season, with what only
-  # the detail shows (the short description, the store link) and
+  # A card's detail: its CardView in one card-season, with what only
+  # the detail shows (the short description, the store link, the Steam
+  # reviews frozen with the card-season, nil without a review count) and
   # the sets of that season holding it. The card is found by its slug alone
-  # (AD-15: never by id, never through FriendlyId's fallback to the primary
-  # key); the card-season is that of the season numbered `season_number`, or
-  # of the published season without one. Only a published season is read;
+  # (never by id, never through FriendlyId's fallback to the primary key);
+  # the card-season is that of the season numbered `season_number`, or of
+  # the published season without one. Only a published season is read;
   # an unknown slug, a season not published, a card absent from the season
   # or a card without text in the locale is nil.
   #
@@ -21,7 +22,9 @@ module Catalog
   # never reaches a page. `current_season` is true when the card-season is
   # the published season's.
   module CardDetail
-    Detail = Data.define(:view, :short_description, :publisher, :store_url, :sets, :card_season_id, :current_season)
+    Detail = Data.define(:view, :short_description, :publisher, :store_url, :steam_reviews, :sets, :card_season_id, :current_season)
+
+    SteamReviews = Data.define(:count, :positive_percent)
 
     LATEST = "(SELECT MAX(published.number) FROM catalog_seasons published WHERE published.status = 'published')".freeze
 
@@ -29,7 +32,8 @@ module Catalog
       "catalog_card_seasons.id", "catalog_cards.slug", "catalog_card_texts.title", "catalog_card_texts.short_description",
       "catalog_cards.publisher", "catalog_cards.store_url", "catalog_cards.release_date",
       "catalog_seasons.number", "catalog_card_seasons.rarity", "catalog_cards.image_url",
-      "catalog_seasons.number = #{LATEST}", "catalog_card_seasons.number", CardViews::GENRE
+      "catalog_seasons.number = #{LATEST}", "catalog_card_seasons.number", CardViews::GENRE,
+      "catalog_card_seasons.review_count", "catalog_card_seasons.rating"
     ].freeze
 
     KIND_ORDER = Arel.sql("CASE catalog_sets.kind WHEN 'theme' THEN 0 WHEN 'franchise' THEN 1 WHEN 'studio' THEN 2 " \
@@ -40,10 +44,11 @@ module Catalog
       return if row.nil?
 
       id, slug, title, description, publisher, store_url, release_date, season_number, rarity, image_url, current,
-        number, genre = row
+        number, genre, review_count, rating = row
       view = CardView.new(id: slug, title:, publisher:, year: release_date.year, season_number:,
         rarity:, image_url:, number:, genre:)
-      Detail.new(view:, short_description: description.presence, publisher:, store_url:,
+      steam_reviews = review_count && SteamReviews.new(count: review_count, positive_percent: rating)
+      Detail.new(view:, short_description: description.presence, publisher:, store_url:, steam_reviews:,
         sets: sets(id, main_theme: genre), card_season_id: id, current_season: current)
     end
 
