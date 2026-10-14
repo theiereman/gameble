@@ -4,33 +4,21 @@ on:
   pull_request:
     types: [opened, synchronize, ready_for_review, reopened]
 
-# Queued rather than cancelled: the autofix push starts the next run while this one is still finishing.
 concurrency:
   group: claude-review-${{ github.event.pull_request.number }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   claude-review:
     # Fork pull requests get no secrets, so the token would be missing.
     if: github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     permissions:
-      contents: write
+      contents: read
       pull-requests: write
       issues: read
       id-token: write
-      actions: read
-
-    services:
-      postgres:
-        image: postgres:18
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Checkout repository
@@ -38,65 +26,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Decide whether to autofix
-        id: mode
-        env:
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          author=$(git log -1 --format=%an "$HEAD_SHA")
-          if [ "$author" = "claude[bot]" ]; then
-            echo "autofix=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "autofix=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Install packages
-        if: steps.mode.outputs.autofix == 'true'
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libpq-dev libvips
-
-      - name: Set up Ruby
-        if: steps.mode.outputs.autofix == 'true'
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-
-      - name: Set up Node
-        if: steps.mode.outputs.autofix == 'true'
-        uses: actions/setup-node@v7
-        with:
-          node-version-file: .tool-versions
-          cache: npm
-
-      - name: Install JavaScript packages
-        if: steps.mode.outputs.autofix == 'true'
-        run: npm ci
-
-      - name: Prepare the test database
-        if: steps.mode.outputs.autofix == 'true'
-        env:
-          RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432
-        run: bin/rails db:test:prepare
-
       - name: Run Claude Code Review
         uses: anthropics/claude-code-action@v1
-        env:
-          RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           track_progress: true
-          additional_permissions: |
-            actions: read
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
             BASE: ${{ github.event.pull_request.base.ref }}
-            HEAD BRANCH: ${{ github.event.pull_request.head.ref }}
             HEAD SHA: ${{ github.event.pull_request.head.sha }}
-            AUTOFIX: ${{ steps.mode.outputs.autofix }}
 
-            Review this pull request the way a senior engineer on this repo would before merging it, then, when AUTOFIX is true, fix what you found.
+            Review this pull request the way a senior engineer on this repo would before merging it. Do not edit any file: the author of the pull request makes the fixes.
 
             ## Read before reviewing
             - `AGENTS.md`: the repo's rules. Its "Rules that break other files" section lists the rules a change must not break.
@@ -118,21 +59,11 @@ jobs:
             - **Nits**: at most five.
             - **Checked**: one line on what you verified and found sound.
             Omit an empty section. Every point cites `path:line` and says why it matters.
-            For each Blocking or Should fix point you do not fix, also post an inline comment with `mcp__github_inline_comment__create_inline_comment` (with `confirmed: true`), with a suggestion block when the fix is small and complete.
+            For each Blocking or Should fix point, also post an inline comment with `mcp__github_inline_comment__create_inline_comment` (with `confirmed: true`), with a suggestion block when the fix is small and complete.
 
             Do not invent problems to fill a section: an empty Blocking section is a valid outcome, but a review that found nothing at all must say what it checked.
-            If you reviewed this PR before, say which of your earlier points the new commits resolve and review only what changed since.
-
-            ## Autofix
-            When AUTOFIX is false, do not edit any file: the last commit is your own autofix. Review only, and say which of your earlier points the autofix resolved.
-            When AUTOFIX is true:
-            - Fix every Blocking and Should fix point you are confident about, on the PR branch. Leave Refactor and Nits as suggestions.
-            - Follow `AGENTS.md` in the code you write: no planning ids, English only, no comments where a name can carry the intent, writes only through operations, strings in both `en.yml` and `fr.yml`.
-            - Never touch `config/*.key`, `app/frontend/images/pixel/` or `db/schema.rb`, and never push to `main` or `develop`.
-            - Add or update the test that pins each fix, then verify before committing: run the tests that cover what you changed (`bin/rails test <files>`, `npm run test:js`, `npm run typecheck`), then `bin/rubocop` and `bundle exec packwerk check` on the changed files. Do not run system tests. If a fix cannot be made to pass, revert it and report it as not fixed.
-            - Commit all fixes as one commit in the repo's style (`fix(<scope>): <what now behaves differently>`), with a body listing each point fixed, and push it to the PR branch.
-            - In the tracking comment, mark each fixed point **Fixed in `<short sha>`**, and list what you ran and its result.
-            - If nothing needs fixing, do not commit.
+            If you reviewed this PR before, start with which of your earlier points the new commits resolve and which remain open, then review what changed since. Do not repeat an inline comment you already posted on unchanged code.
+            You cannot run the test suites here; do not claim a test passes.
           claude_args: |
             --model claude-opus-5-5
-            --allowedTools "Read,Grep,Glob,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git status:*),Bash(git fetch:*),mcp__github_inline_comment__create_inline_comment${{ steps.mode.outputs.autofix == 'true' && ',Edit,Write,MultiEdit,Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(bin/rails test:*),Bash(npm run test:js:*),Bash(npm run typecheck:*),Bash(bin/rubocop:*),Bash(bundle exec packwerk check:*)' || '' }}"
+            --allowedTools "Read,Grep,Glob,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git status:*),mcp__github_inline_comment__create_inline_comment"
