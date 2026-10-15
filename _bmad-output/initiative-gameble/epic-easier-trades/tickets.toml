@@ -1,0 +1,60 @@
+# tickets.toml — the stories of epic 18, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "A new trade from the Trades tab"
+description = "A new-trade action on the Trades list and its empty state opens a friend chooser listing each friend with their presence (Game::FriendsPresence, the friends presence partial, Game::OpenTradesByFriend), each leading to the existing draft board, with today's refusals for a private friend or an open trade between the pair, a link to the invitation when the player has no friend, and the chooser's copy added to the Trades entry of EXPERIENCE.md."
+verify = "From the Trades tab with no trade and with trades, a player chooses a friend and lands on the draft board; a private friend or one with an open trade shows today's refusal; a player with no friend is led to the invitation; the friend row's trade button still works; the chooser's GET writes nothing and every new action has a Pundit policy."
+covers = ["R1"]
+after = ["5.6"]
+hitl = false
+risk = "low"
+unknown = "the chooser as trades#new with no friend, or its own action or a dialog on the Trades screen; the button's wording"
+
+[[entry]]
+id = 2
+type = "story"
+title = "Trade filters across both collections"
+description = "Each picker card carries the other player's copy count, keyed by trade_card_key and never a database id, and filterCards gains six chips (their duplicates, missing from mine, both own; my duplicates, missing from theirs, available) that AND together and with rarity and search, comparing cards in the unit the collection shows; it shapes the filter state one per side, which entry 3 lifts to the board, and the per-card counts entry 4 must keep."
+verify = "Vitest covers every filter and their combinations; on the board, Rare and Epic with their duplicates and missing from mine shows exactly those cards, a placed card filtered out stays placed and is submitted, and a single copy can still be offered; a player holding one edition of a game does not see another edition of it as missing."
+covers = ["R2"]
+after = ["5.7", "13.15"]
+hitl = false
+risk = "medium"
+references = ["_bmad-output/initiative-gameble/plan-trade-picker-filters.md", "packs/game/app/queries/game/collection_states.rb"]
+
+[[entry]]
+id = 3
+type = "story"
+title = "The picker's filters on the phone and across reopenings"
+description = "At phone width the picker's filters fold into a collapsible section that keeps the match count and the clear action in view, and the per-side filter state entry 2 shapes moves from the picker, which TradeBoard unmounts on close, to the board, so reopening the picker during the same trade finds it as left."
+verify = "At phone width a player folds and unfolds the filters and still sees the match count and the clear action; they close and reopen the picker in the same trade and find the same filters; another trade starts with none."
+covers = ["R3"]
+after = [2]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "A light trade board with thousands of cards"
+description = "Seeds players holding thousands of distinct cards, measures the page weight of /trades, /trades/:token, /trades/new and the counter page, then stops sending a server-rendered face for every held card in the island props (faces fetched when a side's picker opens, paged, or rendered on demand, still from CardComponent), keeping the per-card counts entry 2 added."
+verify = "The page weights before and after and the chosen threshold are recorded in the plan; at phone width the picker opens, scrolls and filters within that threshold with the seeded players; any new endpoint is a GET on the reading role with a Pundit policy that writes nothing and exposes no database id."
+covers = ["R4"]
+after = [2, 3]
+hitl = false
+risk = "high"
+unknown = "the approach (an endpoint per side, paging, or a virtualized grid) and the threshold, chosen from the measurement"
+references = ["_bmad-output/initiative-gameble/deferred-work.md, the TradeBoard island page weight item", "_bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md, AD-16"]
+
+[[entry]]
+id = 5
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
+verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
+covers = []
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"
