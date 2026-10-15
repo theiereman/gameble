@@ -78,4 +78,5 @@ For every player: the collection shows what they are completing, with names they
 - Decision (2026-10-14, author): the season mark and season count on a tier ("Or · 12 saisons") move from entry 8 to epic-seasons-carry-over, entry 3; production has one season at launch.
 - Unknown: the edition count on the tile and the ÉDITIONS row are drawn with bmad-ux before entry 15.
 - Decision (2026-10-15, author): no rebuild of season 1. Staging published a themed season 2, so season 1's retired sets show only on its own card pages and earn no tier; entry 4 becomes a migration that deletes the retired kinds' sets and completions, narrows the kind check, and removes the retired-kind code (AD-5, AD-10 amended).
-- Decision (2026-10-15, author): the tier celebration banner as built on staging looks bad; entries 16 (redrawn with bmad-ux, hitl) and 17 (rebuilt to it) follow entry 5, which stays at built until its staging p95 is measured.
+- Decision (2026-10-15, author): the tier celebration banner as built on staging looks bad; entries 16 (redrawn with bmad-ux, hitl) and 17 (rebuilt to it) follow entry 5.
+- Settled (2026-10-15, author): entry 5 done; staging's POST /packs over 14 openings on seasons 1 to 4: p50 67 ms, max 189 ms (the first, cold, after deploy), 45 to 60 queries each.
