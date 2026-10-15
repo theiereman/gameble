@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open trade request — forge report</title>
+<style>
+  :root { --ink: #1f1a14; --paper: #f6f0e4; --muted: #6b5f50; --wax: #8e1b1b; --line: #d9ccb4; --lock: #2f5d3a; --crack: #9a6a12; }
+  @media (prefers-color-scheme: dark) { :root { --ink: #ece4d4; --paper: #1b1813; --muted: #a89a86; --line: #3a332a; --lock: #7fbf8c; --crack: #e0b04a; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 Georgia, "Times New Roman", serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+  header { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; border-bottom: 2px solid var(--line); padding-bottom: 20px; }
+  header svg { flex: 0 0 auto; }
+  h1 { margin: 0 0 4px; font-size: 1.9rem; }
+  .sub { color: var(--muted); margin: 0; }
+  h2 { font-size: 1.15rem; margin: 32px 0 8px; letter-spacing: .02em; }
+  ul { padding-left: 20px; margin: 0; }
+  li { margin: 6px 0; }
+  .lock li::marker { content: "🔒  "; }
+  .rej li::marker { content: "✕  "; color: var(--wax); }
+  .crack li::marker { content: "⚠  "; color: var(--crack); }
+  .voices { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; padding: 0; list-style: none; }
+  .voices li { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 0; }
+  .voices b { display: block; }
+  .voices span { color: var(--muted); font-size: .92rem; }
+  footer { margin-top: 40px; color: var(--muted); font-size: .9rem; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <svg width="132" height="132" viewBox="0 0 132 132" role="img" aria-label="Hardened seal">
+      <path d="M66 6 C80 4 92 14 100 12 C112 20 114 34 124 42 C126 56 120 66 126 78 C120 92 108 98 104 112 C90 118 80 124 66 126 C52 128 40 118 28 116 C18 106 12 94 6 84 C6 70 12 60 8 48 C14 34 26 26 32 14 C44 10 54 8 66 6 Z" fill="#8e1b1b"/>
+      <circle cx="66" cy="66" r="44" fill="none" stroke="#c9584f" stroke-width="2"/>
+      <circle cx="66" cy="66" r="36" fill="none" stroke="#c9584f" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="66" y="62" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#f6e3d0" letter-spacing="1">HARDENED</text>
+      <text x="66" y="80" text-anchor="middle" font-family="Georgia, serif" font-size="9" fill="#f6e3d0">2026-10-15</text>
+    </svg>
+    <div>
+      <h1>Open trade request</h1>
+      <p class="sub">GitHub issue 63, point 5: let the friend choose what they want in return. Tested before it goes into the spec.</p>
+    </div>
+  </header>
+
+  <h2>Outcome</h2>
+  <p>The idea holds, and shrinks to one rule. At every send the sender may leave their own side empty; a trade with an empty side cannot be accepted, only answered by choosing cards or declined. Everything else already exists as the counter-proposal.</p>
+
+  <h2>Locked</h2>
+  <ul class="lock">
+    <li>No gift: an open request is never accepted as it stands; a swap always has two sides.</li>
+    <li>Only the sender's own side may be empty, never the side asked of the other player, never both.</li>
+    <li>The rule applies at every send, so "not that one, pick something else" stays inside the trade.</li>
+    <li>The recipient sees a text asking them to choose in place of ACCEPTER; the server refuses the acceptance too.</li>
+    <li>No separate gesture, no stored mode, no new state, no new reservation rule.</li>
+    <li>The open request ships without a note; a trade discussion window is a separate idea.</li>
+  </ul>
+
+  <h2>Rejected, and why</h2>
+  <ul class="rej">
+    <li>Gifts: they turn ACCEPTER into "I give" and are not a trade.</li>
+    <li>An empty request side: finding what to ask for is the job of the epic 18 filters.</li>
+    <li>An empty offer only on the first proposal: one rule at every send is simpler and more useful.</li>
+    <li>A note on the proposal: player-written text needs moderation; it became the trade discussion idea.</li>
+  </ul>
+
+  <h2>Weak points that survived</h2>
+  <ul class="crack">
+    <li>An empty offer can read as begging; the recipient's text frames it as an invitation, and the discussion idea may help later.</li>
+    <li>A forgotten offer goes out as an open request without warning; accepted because it costs nothing and is cancellable.</li>
+    <li>Multi-account funnelling stays possible through lopsided trades, as today; sign-in through Steam is the only friction.</li>
+    <li>CAP-11 changes in two lines, and epic 5's "at least one card per side" with it.</li>
+  </ul>
+
+  <h2>Voices in the room</h2>
+  <ul class="voices">
+    <li><b>🗡️ Rémi</b><span>Sceptical collector, generated outside voice: begging, gifts, multi-accounts, the cost of a chat.</span></li>
+    <li><b>📋 John</b><span>Product manager: the real need, and the one rule at every send.</span></li>
+    <li><b>🎨 Sally</b><span>UX designer: ACCEPTER must not mean "I give"; how the recipient is invited to choose.</span></li>
+    <li><b>🏗️ Winston</b><span>Architect: an empty side breaks the atomic swap unless acceptance is refused.</span></li>
+    <li><b>📊 Mary</b><span>Analyst: the symmetric case of an empty request.</span></li>
+  </ul>
+
+  <footer>Forged idea: forge-open-trade-request.md, beside this report. Next: fold it into CAP-11 with bmad-spec.</footer>
+</main>
+</body>
+</html>
