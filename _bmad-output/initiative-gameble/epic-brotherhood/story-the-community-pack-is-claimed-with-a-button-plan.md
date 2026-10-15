@@ -3,7 +3,7 @@ title: 'The community pack is claimed with a button'
 type: 'feature'
 ticket: '17'
 created: '2026-10-14'
-status: 'built'
+status: done
 baseline_revision: '703461a'
 route: 'full'
 route_source: 'auto'

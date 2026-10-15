@@ -3,7 +3,7 @@ title: 'An open trade request'
 type: 'feature'
 ticket: '6'
 created: '2026-10-15'
-status: 'built'
+status: done
 baseline_revision: 'fa43567e68bcfc3f8f9802c5dc68ca3c6b1a95c2'
 route: 'full'
 route_source: 'auto'

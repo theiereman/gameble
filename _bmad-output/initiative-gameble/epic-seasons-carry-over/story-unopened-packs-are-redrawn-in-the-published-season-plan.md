@@ -3,7 +3,7 @@ title: 'Unopened packs are redrawn in the published season'
 type: 'feature'
 ticket: '6'
 created: '2026-10-15'
-status: 'built'
+status: done
 baseline_revision: '3c25b58a9514612eddf1b7b9163f3f93929f9be7'
 route: 'full'
 route_source: 'auto'
