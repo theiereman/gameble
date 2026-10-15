@@ -42,6 +42,10 @@ Oneshot: about 60 lines across `history_trail.ts` (a pure `previousScreen(trail,
 - `back` recomputes the step count at click time rather than trusting what `sync` saw, so a frame visit that advanced history since the last sync still goes back the right number of entries.
 - Same screen means same label, as the intent says; the screens sharing a label (settings, a friend's profile and a public profile all read "Profile") therefore count as one screen for this button.
 
+## Plan Change Log
+
+- 2026-10-15, after the author's staging review: switching the language in Profil et paramètres pushed /en/settings after /fr/settings, and since « PROFIL » and « PROFILE » differ the button offered « ◀ PROFIL » back to the French page. The previous screen now stops at an entry read in another language (the URL's locale segment), so the button is hidden right after a language change.
+
 ## Review Triage Log
 
 ### 2026-10-13 — Review pass

@@ -107,12 +107,14 @@ export type PreviousScreen = { label: string; pathname: string; steps: number }
 /**
  * The nearest entry before the one at `index` showing a screen other than
  * `currentLabel`, skipping the entries of the current screen; null when that
- * entry is unknown or its screen has no label (the hub).
+ * entry is unknown, its screen has no label (the hub), or it was read in
+ * another language than `currentPathname`'s.
  */
-export function previousScreen(trail: Trail, index: number, currentLabel: string | null): PreviousScreen | null {
+export function previousScreen(trail: Trail, index: number, currentLabel: string | null, currentPathname: string): PreviousScreen | null {
   for (let earlier = index - 1; earlier >= Math.max(0, index - TRAIL_SPAN); earlier--) {
     const entry = trail[earlier]
     if (!entry) return null
+    if (localeOf(entry.pathname) !== localeOf(currentPathname)) return null
     if (currentLabel && entry.label === currentLabel) continue
     if (!entry.label) return null
     return { label: entry.label, pathname: entry.pathname, steps: index - earlier }
@@ -138,4 +140,8 @@ export function currentIndex(): number {
 /** The short name of the screen shown, carried by the top bar; null for the hub and unnamed screens. */
 export function currentScreenLabel(): string | null {
   return document.querySelector<HTMLElement>(".top-bar")?.dataset.screenLabel || null
+}
+
+function localeOf(pathname: string): string {
+  return pathname.split("/")[1] ?? ""
 }

@@ -31,6 +31,6 @@ export default class extends Controller<HTMLAnchorElement> {
   }
 
   private previousScreen(): PreviousScreen | null {
-    return previousScreen(readTrail(sessionTrailStorage()), currentIndex(), currentScreenLabel())
+    return previousScreen(readTrail(sessionTrailStorage()), currentIndex(), currentScreenLabel(), location.pathname)
   }
 }
