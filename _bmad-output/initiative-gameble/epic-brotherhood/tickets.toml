@@ -189,12 +189,38 @@ risk = "medium"
 notes = ["From the deferred work triage (author, 2026-10-12).", "Assumption: the button sits on the hub's weekly goal panel; no layout is drawn."]
 
 [[entry]]
+id = 18
+type = "story"
+title = "Players read capsule, and the Brotherhood is the Gameblers"
+description = "Every text a player reads says capsule (capsule in English) where it says booster or pack, with French agreements in the feminine; the Brotherhood is La Grande Confrérie des Gameblers / The Great Brotherhood of Gameblers and every Gambler form becomes Gamebler, in the copy, the lore issue template and CONTRIBUTING.md; the weekly goal panel and its reward notice take the Brotherhood's new lines. Internal names (code, database, events, URLs, CSS) stay."
+verify = "No player-facing French or English string says booster, pack or Gamblers; the goal panel reads the new invitation line with the week's target and contributors get the Management thank-you notice; i18n-tasks finds nothing missing or unused; the goal's mechanics and their tests are unchanged."
+covers = ["R1", "R7"]
+after = []
+hitl = false
+risk = "low"
+references = ["spec — _bmad-output/initiative-gameble/spec-gameble/spec-gameble.md, Constraints (Player-facing words)", "ux — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Voice and Tone and Copy deck"]
+notes = ["From lore issues #57, #59 and #61 (author, 2026-10-15).", "Decision (author, 2026-10-15): the interface keeps carte / card; only booster and pack become capsule.", "Open question: the reward notice says the capsule joined the reserve, while entry 17 would make the reward claimed with a button; whichever ships second adjusts the notice."]
+
+[[entry]]
+id = 19
+type = "story"
+title = "A new player is welcomed by the Brotherhood once"
+description = "At a new player's first arrival on the hub after creating their account, a panel at the top of the hub shows the Brotherhood's welcome message in their language and closes with one button; it takes the place of the sign-in welcome toast that time and never shows again, on any device. Existing players never see it."
+verify = "A new account's first hub shows the panel and no welcome toast; after closing it, or at any later visit or another device, it is gone; an account created before the release never sees it; the panel reads in French and English and works on phone and desktop."
+covers = ["R7"]
+after = [18]
+hitl = false
+risk = "low"
+references = ["spec — _bmad-output/initiative-gameble/spec-gameble/spec-gameble.md, CAP-26", "ux — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Hub (Welcome panel) and Copy deck (Welcome message)"]
+notes = ["From lore issue #58 (author, 2026-10-15).", "Assumption: the panel's placement and its closing button (the issue leaves them to development), recorded in EXPERIENCE.md."]
+
+[[entry]]
 id = 12
 type = "story"
 title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17]
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19]
 hitl = false
 risk = "low"

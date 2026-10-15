@@ -4,7 +4,7 @@ key: ""
 type: epic
 title: "The Brotherhood"
 parent: initiative-gameble
-covers: [CAP-12, CAP-13, CAP-17, CAP-19]
+covers: [CAP-12, CAP-13, CAP-17, CAP-19, CAP-26]
 after: []
 assignee: ""
 risk: medium
@@ -30,6 +30,7 @@ For every player: the feeling of playing alongside others, and a reason to contr
 - R4 (CAP-13; AD-11, AD-13): the feed shows pulls of Épique or better, first discoveries, trades and reposts, readable signed out through `Game::Visibility`; with few players it falls back to lower rarities and is never empty; a signed-in player's Friends tab shows only friends' events.
 - R5 (CAP-13, CAP-19): the LIVE ticker shows pulls of Épique or better, first discoveries and trades, never reposts; a player reposts any card they own, any number of times; reposts show in the feed only and disappear with a hidden or banned profile.
 - R6 (CAP-17): ten achievements are granted when their condition is met and show on the SUCCÈS screen; the set-completed, goal-reward and achievement events are published for the card-backs epic.
+- R7 (CAP-12, CAP-26; brotherhood-tone.md): the Brotherhood speaks in its institutional voice where the spec places it: the weekly goal's panel and reward notice, and a one-time welcome to each new player; players read capsule for pack and the Gameblers' name (Constraints, Player-facing words).
 
 ## Done when
 

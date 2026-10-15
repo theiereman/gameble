@@ -683,12 +683,26 @@ risk = "medium"
 notes = ["Split from entry 10 by the author on 2026-10-14, at the start of its build."]
 
 [[entry]]
+id = 58
+type = "story"
+title = "A credits section names gameble's inspirations"
+description = "A credits section, reachable from the app, names every inspiration recorded in the planning documents and the contributors to the lore, each with what it inspired, worded as inspiration and never as affiliation, in French and English."
+verify = "Every inspiration listed in the planning documents (a sweep of the brief, the forge, the spec, the UX spines and their logs) appears with what it inspired, rejected references excluded; the section is reached from where the author chose; the no-affiliation notice still holds and the copy respects the tone's limit on company names."
+covers = ["R5"]
+after = []
+hitl = true
+risk = "low"
+references = ["ux — _bmad-output/initiative-gameble/ux-gameble/DESIGN.md, Brand & Style and Do's and Don'ts", "ux — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Inspiration & Anti-patterns", "spec — _bmad-output/initiative-gameble/spec-gameble/brotherhood-tone.md, Hard limits"]
+unknown = "Where the credits live (the legal page, the landing footer, PLUS « Le reste du vaisseau », or a page of their own) and whether contributors appear beside inspirations; the author settles both before the build."
+notes = ["Requested by the author on 2026-10-15.", "Known so far: WikiMasters and Wikigacha (the collect-and-show loop), Steam Trading Cards (the gap gameble fills), Steam's client colors, Helldivers 2's interaction terminals (panels and readouts), Balatro and Dead Cells (fine pixel art over detailed material), Hearthstone (an early card-back reference, retired), the author's canvas « Steam TCG — Concepts UI », the lore guidelines by skyoraa (issues #57, #58, #59, #61). The build completes the list by sweeping the documents.", "Rejected references (the stratagem arrow code, the medieval direction) are not credits.", "hitl: the author approves the list and its wording before release."]
+
+[[entry]]
 id = 12
 type = "story"
 title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58]
 hitl = false
 risk = "low"
