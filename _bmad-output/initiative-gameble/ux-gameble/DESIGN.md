@@ -614,6 +614,7 @@ The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 | Profil et paramètres | Summary and settings 360px · back picker fluid | Left 300 to 340px | One column |
 | Succès | Tiles fill columns of at least 260px | Same | Same |
 | Public card page | Card · info (capped at 1180px), LIVE strip and footer below | Same | One column: card, info, LIVE, footer |
+| Public profile | One column: identity band (key numbers on its right), VITRINE in one centred row of `card-l`, stats, SUCCÈS in four columns, SETS in two columns (author, 2026-10-15) | Same; the VITRINE row wraps, centred | Same |
 | Landing | Modules capped at `{spacing.landing-content-max}`, each laid out as in Components, Landing; the hero's text beside the lamp field; the side gauge from `{spacing.breakpoint-landing-gauge}` | Hero still side by side; each module's medium-width form is in Components, Landing | Same as 900 to 1179px |
 
 - **Breathing room (author, 2026-10-07):** the whole interface breathes more. Panels get more padding (`{spacing.panel-padding}`), and the gaps between panels, rows, chips and cards go up by about one step of the scale. The exact gap values are tuned on the built screens; information must stay easy to tell apart at a glance.
@@ -632,9 +633,9 @@ The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 | `card-s` | 112 × 168 | Trade sides with two or more cards, pickers (desktop and phone), dealt cards under 900px |
 | Grid card | 120 to 170 wide | Desktop collection grid (see Collection grid) |
 | `card-m` | 160 × 240 | Capsule deal (desktop), phone collection, a trade side with a single card, phone back preview |
-| `card-l` | 208 × 312 | Card detail, desktop back preview, phone hub showcase |
+| `card-l` | 208 × 312 | Card detail, desktop back preview, phone hub showcase, desktop public profile VITRINE |
 | `card-xl` | 240 × 360 | Desktop hub showcase, public card page, phone capsule card and zoom |
-| `card-xs` | 100 × 150 | Phone back grid; phone pickers and trade sides under 372px wide |
+| `card-xs` | 100 × 150 | Phone back grid; phone pickers and trade sides under 372px wide; phone public profile VITRINE |
 
 On the phone capsule screen the card is always `card-xl`; a short screen scrolls.
 
@@ -666,7 +667,7 @@ Building blocks used on every screen.
 #### Panels and terminal details
 
 - **Panel:** `{components.panel.background}` with `{components.panel.border}`. **Quiet panel:** `{components.panel-soft.background}` with `{components.panel-soft.border}`.
-- **Corner brackets:** two 14px L-shapes in 3px `{colors.accent}`, top-left and bottom-right, 5px outside the panel. Only on the key panel of a screen (goal, capsule information, card detail, trade board, dialogs).
+- **Corner brackets:** two 14px L-shapes in 3px `{colors.accent}`, top-left and bottom-right, 5px outside the panel. Only on the key panel of a screen (goal, capsule information, card detail, trade board, the public profile's identity band, dialogs).
 - **Hazard stripe:** an 8px band of -45° stripes, 8px of `{components.hazard-stripe.color-a}` then 8px of `{components.hazard-stripe.color-b}`; a gold variant exists.
 - **Segmented gauge:** 2px gaps, filled segments in accent on `{colors.panel-raised}`, with a text value beside it. The community goal uses 24 segments, 12px tall; the achievements header one segment per achievement, 10px tall.
 - **Reserve pips:** ten 10px cells, lime when a capsule is in reserve.
@@ -841,7 +842,7 @@ Parts specific to one screen, in hub, capsule, collection, trade, friends, feed,
 
 #### Showcase
 
-The hub's center: the kicker "DERNIÈRE OBTENTION" in gold with a small gold square, the card (`card-xl` desktop, `card-l` phone) above a ringed pixel planet (200 × 200 art pixels, slate and blue bands, a lit ring) that floats 2px at most, rays for Épique and Légendaire, a ground shadow, the title in `{typography.showcase-name}` and a line with the rarity icon, rarity name, genre and number in the rarity color. Secondary button "VOIR LA FICHE".
+The hub's center: the kicker "DERNIÈRE OBTENTION" in gold with a small gold square ("VITRINE" when the player chose the card; author, 2026-10-15), the card (`card-xl` desktop, `card-l` phone) above a ringed pixel planet (200 × 200 art pixels, slate and blue bands, a lit ring) that floats 2px at most, rays for Épique and Légendaire, a ground shadow, the title in `{typography.showcase-name}` and a line with the rarity icon, rarity name, genre and number in the rarity color. Secondary button "VOIR LA FICHE".
 
 **Empty showcase** (no notable pull yet): a hatched frame with a dashed inner card outline and the dimmed wordmark, no rays; the title "OUVREZ VOTRE PREMIÈRE CAPSULE" in `{typography.showcase-name}`, its line and the primary button "OUVRIR UNE CAPSULE" (copy: see `EXPERIENCE.md`, Copy deck).
 
@@ -903,7 +904,7 @@ Reference: [mockups/key-collection-sets.html](mockups/key-collection-sets.html),
 - **Copy badge:** "x3" in a small accent box at a card's top-right, from x2 (a single copy shows no badge; author, 2026-10-07), counting every edition; a card held in several editions adds "3 éd." in the same box style below it. **NOUVEAU tag:** a small lime box at the top-left.
 - **Selected card:** a steady 3px accent frame around it.
 - **Missing-card slot:** the card shape with a dark hatched fill and a `{colors.line-deep}` border, a small pixel icon, the missing game's name (JetBrains Mono, muted) and its year. Nothing else.
-- **Card detail ("FICHE DE LA CARTE"):** a bracketed panel with the number at top right, the card at `card-l` with its effects, a ground shadow, rows of facts (label in muted JetBrains Mono left, value right, on `{colors.panel-sunken}`): title, publisher, rarity, genre, year, description, minted season, sets, copies owned, then an "ÉDITIONS" row listing the editions owned grouped by rarity, folded beyond three lines. Buttons at the bottom: "VOIR SUR STEAM" (primary), "PARTAGER" and, for a card owned, "REPOSTER" (secondary). A card not owned shows the active card back at 55% opacity with its name and year. Phone: a sub-view with 44 × 64 CSS px ◀ ▶ buttons beside the card, a position line ("S1 · #4 215 · 3 / 13 · glissez pour parcourir") and actions pinned at the bottom.
+- **Card detail ("FICHE DE LA CARTE"):** a bracketed panel with the number at top right, the card at `card-l` with its effects, a ground shadow, rows of facts (label in muted JetBrains Mono left, value right, on `{colors.panel-sunken}`): title, publisher, rarity, genre, year, description, minted season, sets, copies owned, then an "ÉDITIONS" row listing the editions owned grouped by rarity, folded beyond three lines. Buttons at the bottom: "VOIR SUR STEAM" (primary), "PARTAGER" and, for a card owned, "REPOSTER" and "METTRE EN VITRINE" or "RETIRER DE LA VITRINE" (secondary; author, 2026-10-15). A card not owned shows the active card back at 55% opacity with its name and year. Phone: a sub-view with 44 × 64 CSS px ◀ ▶ buttons beside the card, a position line ("S1 · #4 215 · 3 / 13 · glissez pour parcourir") and actions pinned at the bottom.
 
 #### Trade board
 
@@ -926,7 +927,7 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Amis.
 - **Invitation row:** received: avatar, "Sam vous invite", "ACCEPTER" (primary) and "IGNORER"; sent: a pixel hourglass, "Envoyée à Sam", the chip "EN ATTENTE", "ANNULER" (secondary).
 - **Friend row:** a 48px avatar, the name, a presence dot and text (lime "En ligne", blue with the activity, for example "Ouvre une capsule", muted "Il y a 3 h"), the number of distinct cards owned, "VOIR LE PROFIL", which opens the friend profile, and "ÉCHANGE"; the name is not a link. A private friend's row shows the name, the muted "Profil privé" in place of the presence and no card count; when either profile is private, the muted "Trades closed" line stands where "ÉCHANGE" was. "RETIRER" (secondary, small) follows "ÉCHANGE" or that line.
 - **Remove-friend dialog:** the modal of the private dialog: the title "Retirer Sam ?", the text, the trade line in blue when a trade is in progress, "RETIRER" (primary; the danger button stays for account deletion) and "ANNULER" (secondary).
-- **Friend profile:** a dialog with a 64px avatar, name, presence, card count, "VITRINE" with three small cards, "ÉCHANGE" (primary), "VOIR LA COLLECTION" (secondary, to the public profile) and the orange link "SIGNALER". A private friend's dialog shows the avatar, the name and the "not available" line only.
+- **Friend profile:** a dialog with a 64px avatar, name, presence, card count, "ÉCHANGE" (primary), "VOIR LE PROFIL" and "VOIR LA COLLECTION" (secondary) and the orange link "SIGNALER"; no showcase (author, 2026-10-15). A private friend's dialog shows the avatar, the name and the "not available" line only.
 
 #### Activity feed
 
@@ -943,7 +944,7 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Fil d'activité
 
 #### Profile and settings
 
-- **Public profile summary:** avatar, name, card count, "VITRINE" of three cards, and the visibility line: "Visible par tous les joueurs", "Visible par vos amis seulement" or "Profil privé : vous seul le voyez" ("Vous seul le voyez" on the phone).
+- **Public profile summary:** avatar, name, card count, "VITRINE" with the chosen showcase cards (absent when none is chosen; author, 2026-10-15), and the visibility line: "Visible par tous les joueurs", "Visible par vos amis seulement" or "Profil privé : vous seul le voyez" ("Vous seul le voyez" on the phone).
 - **Settings row:** a muted label on the left and a control on the right, separated by a 2px `{colors.line-soft}` rule. Controls: segmented groups (selected segment filled accent; `{components.control-border.css}`) for "LANGUE" (FRANÇAIS / ENGLISH), "VISIBILITÉ DU PROFIL" (PUBLIC / AMIS UNIQUEMENT / PRIVÉ, a radio group) and "ANIMATIONS RÉDUITES"; buttons for "MES DONNÉES" (EXPORTER), "SESSION" (SE DÉCONNECTER) and "COMPTE" (SUPPRIMER MON COMPTE, danger). A "Mentions légales" link closes the list.
 - **Title and menu theme pickers (after the launch, CAP-22):** the same grid as the back picker: each title or theme with its name and either "ACTIF", "Choisir" or its unlock condition.
 - **Back picker:** the active card back large (`card-l`, phone `card-m`) with its name and "DOS ACTIF" in lime; a grid of the backs, each with its name and either "ACTIF", "Choisir" or its unlock condition; the active card back has a steady lime frame.
@@ -985,6 +986,18 @@ A panel page in the shell's tokens, one scrolling column on the phone. Its layou
 #### Public card page
 
 No app chrome: a slim top bar with the wordmark (a link to the landing) and the official Steam sign-in image. Left: the shared card at `card-xl`, tilting under the pointer, with rays from Épique up. The page never names who shared or owns the card (spec CAP-9). Right: the title in `{typography.public-title}`, the publisher, a line with rarity, genre, year and number, the description in `{typography.body-large}`, the link "VOIR SUR STEAM ↗", and a call-to-action panel with a two-line pitch (copy: see `EXPERIENCE.md`, Copy deck) and the primary button "OUVRIR MES PREMIÈRES CAPSULES" (it stays beside the two links described next; author, 2026-10-14). Two more links (author, 2026-10-14): « Découvrir », to the landing, and a play link, « Embarquer sur le pont », to the signed-out hub. They are links or secondary buttons, never a second lime button; their place on the page is not mocked. Below, "LIVE · En ce moment sur gameble" with three compact feed entries. A footer link "Mentions légales".
+
+#### Public profile
+
+A player's showcase, read top to bottom: identity band, VITRINE, stats, SUCCÈS, SETS (author, 2026-10-15). The look comes from Monkeytype's profile: big figures under small muted labels, no level, XP or ranking. Reference: [mockups/key-public-profile.html](mockups/key-public-profile.html) (desktop, the action by relation, phone at 390px, the unavailable page). Where this mock differs from the rules, the rules apply: its header notes ("no action but SIGNALER") predate the relation action, and its inactive "EN ATTENTE" is drawn in `{colors.line}` with `{colors.muted}` text. Behaviour and copy: see `EXPERIENCE.md`, Public profile.
+
+- **Top bar:** the back button naming the previous screen ("◀ AMIS" in the mock) and the player's name as the screen title; on the phone the tab bar stays.
+- **Identity band:** a panel with corner brackets. Left: the 64px avatar; beside it the name in `{typography.public-title}` (`{typography.public-title-phone}` on the phone), under it one line in muted `{typography.body-small}`, "Membre depuis mars 2026", followed by the orange link "SIGNALER" (the Link style, discreet); under that line, the relation action, a small button (`{spacing.button-height-sm}`, phone `{spacing.button-height-sm-phone}`): "AJOUTER EN AMI", "ACCEPTER" and "ÉCHANGE" are primary; "EN ATTENTE" is inactive, in the Disabled style; in place of a button, the muted Trades closed line in `{typography.body-small}`. On the right, three key numbers separated by 2px `{colors.line-soft}` rules: "CARTES" (owned over the season's total, "184/412"), "SETS COMPLETS", "SUCCÈS" (earned over total, "12/40"), each a muted `{typography.label}` over its figure in `{typography.count-large}` `{colors.text-max}`, the "/total" part in `{typography.number}` `{colors.muted}`. Phone: the band stacks; the key numbers move under the identity in three equal columns below a 2px `{colors.line-soft}` rule, figures in `{typography.count-large-phone}`.
+- **VITRINE:** the kicker "VITRINE", then the one to five chosen cards in one centred row, each over a flat ground shadow, with the effects of its rarity and no rays: `card-l` on desktop, `card-xs` on the phone, wrapping three over two so five show without a sideways scroll. Never an empty slot; with no card chosen the section is absent (see `EXPERIENCE.md`, State Patterns). On the owner's own profile, a pair of small secondary "◀" "▶" buttons sits under each card to reorder it.
+- **Stats:** one panel without brackets, two bands separated by a 2px `{colors.line-soft}` rule: "RARETÉS" and "ACTIVITÉ". On desktop each band's kicker sits in a left column and its figures in a five-column grid; on the phone the kicker sits above, the rarities in three columns and the activity in two. A figure is a muted `{typography.label}` over a `{typography.count-large}` number (`{typography.count-large-phone}` on the phone). RARETÉS: one figure per rarity, its label the rarity icon and name, label and number in the rarity's colour. ACTIVITÉ: "Capsules ouvertes", "Premières découvertes", "Échanges conclus", numbers in `{colors.text-max}`.
+- **SUCCÈS:** the kicker, then the Achievements header (the count "12 / 40" in `{typography.count-large}` beside the segmented gauge under "SUCCÈS OBTENUS"; stacked on the phone), then the muted label "DERNIERS OBTENUS" over the four latest as earned Achievement tiles (icon well, name, condition; no progress bar, no date), in four columns on desktop, one on the phone.
+- **SETS:** the kicker "SETS" with "13 sets entamés" beside it in muted `{typography.body-small}`; on desktop the small secondary button "VOIR LA COLLECTION COMPLÈTE" at the right of that heading line. Below, the started sets as Set progress rows (tier ticks and marks as in Collection), in two columns on desktop, one on the phone (kind and tier mark on a second line). A complete set shows the small COMPLET mark (the frame beside the word, see COMPLET stamp) in place of its tier mark. On the phone "VOIR LA COLLECTION COMPLÈTE" is a full-width secondary button under the list.
+- **Unavailable profile:** the same page for every case, in the shell: a narrow centred quiet panel holding the avatar placeholder dimmed, the title in `{typography.showcase-name}` capitals and its line in `{typography.body}` (copy: see `EXPERIENCE.md`, Copy deck, Public profile).
 
 #### How it works
 
