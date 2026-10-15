@@ -123,7 +123,7 @@ class Catalog::CollectionGridTest < ActiveSupport::TestCase
 
   test "a set the season does not hold under that kind and key is nil" do
     assert_nil Catalog::CollectionGrid.call(season: @season, kind: "theme", key: "action")
-    assert_nil Catalog::CollectionGrid.call(season: @season, kind: "publisher", key: "rpg")
+    assert_nil Catalog::CollectionGrid.call(season: @season, kind: "studio", key: "rpg")
     assert_nil Catalog::CollectionGrid.call(season: catalog_seasons(:one), kind: "theme", key: "rpg")
   end
 

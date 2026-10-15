@@ -19,51 +19,44 @@ class Catalog::SeasonShelfTest < ActiveSupport::TestCase
       [ "hall_of_fame", "intouchables", { "hall_of_fame" => "intouchables" } ],
       [ "hall_of_fame", "mal-aimes", { "hall_of_fame" => "mal-aimes" } ],
       [ "hall_of_fame", "pepites", { "hall_of_fame" => "pepites" } ],
-      [ "tome", "adventure-1", { "genre" => "adventure", "volume" => 1, "volumes" => 1 } ],
-      [ "tome", "action-10", { "genre" => "action", "volume" => 10, "volumes" => 10 } ],
-      [ "tome", "action-2", { "genre" => "action", "volume" => 2, "volumes" => 10 } ],
-      [ "publisher", "valve", { "publisher" => "Valve" } ],
-      [ "publisher", "activision", { "publisher" => "Activision" } ],
-      [ "best_of_year", "2011", { "year" => 2011 } ],
-      [ "best_of_year", "2015", { "year" => 2015 } ]
+      [ "franchise", "halo", { "franchise" => "Halo" } ],
+      [ "franchise", "doom", { "franchise" => "Doom" } ]
     ])
 
     assert_equal %w[horror rpg], keys("theme")
     assert_equal %w[ufos], keys(:ufo)
     assert_equal %w[intouchables pepites mal-aimes phenomenes], keys("hall_of_fame")
-    assert_equal %w[action-2 action-10 adventure-1], keys("tome")
-    assert_equal %w[activision valve], keys(:publisher)
-    assert_equal %w[2015 2011], keys("best_of_year")
+    assert_equal %w[doom halo], keys(:franchise)
   end
 
   test "the relation is ungrouped and costs one query, for the published season" do
-    seed_published_sets([ [ "publisher", "valve", { "publisher" => "Valve" } ] ])
+    seed_published_sets([ [ "studio", "valve", { "studio" => "Valve" } ] ])
 
     relation = nil
-    assert_queries_count(1) { relation = Catalog::SeasonShelf.relation(kind: "publisher") }
+    assert_queries_count(1) { relation = Catalog::SeasonShelf.relation(kind: "studio") }
     assert_empty relation.group_values
     assert_equal 1, relation.count
   end
 
   test "a season given is not looked up again, and none given as nil answers nothing" do
-    season = seed_published_sets([ [ "publisher", "valve", { "publisher" => "Valve" } ] ])
+    season = seed_published_sets([ [ "studio", "valve", { "studio" => "Valve" } ] ])
 
     relation = nil
-    assert_queries_count(0) { relation = Catalog::SeasonShelf.relation(kind: "publisher", season:) }
+    assert_queries_count(0) { relation = Catalog::SeasonShelf.relation(kind: "studio", season:) }
     assert_equal %w[valve], relation.map(&:key)
-    assert_queries_count(0) { assert_nil Catalog::SeasonShelf.relation(kind: "publisher", season: nil) }
+    assert_queries_count(0) { assert_nil Catalog::SeasonShelf.relation(kind: "studio", season: nil) }
   end
 
   test "a season with no set of that kind gives an empty relation" do
-    seed_published_sets([ [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
+    seed_published_sets([ [ "theme", "rpg", { "theme" => "rpg" } ] ])
 
-    assert_empty keys("publisher")
+    assert_empty keys("studio")
   end
 
   test "nothing is answered when no season is published" do
     catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
 
-    assert_nil Catalog::SeasonShelf.relation(kind: "tome")
+    assert_nil Catalog::SeasonShelf.relation(kind: "theme")
   end
 
   test "a kind without a shelf order of its own is by key; an unknown kind holds nothing" do
@@ -77,7 +70,7 @@ class Catalog::SeasonShelfTest < ActiveSupport::TestCase
     season = seed_published_sets([ [ "theme", "rpg", { "theme" => "rpg" } ], [ "theme", "horror", { "theme" => "horror" } ], [ "ufo", "ufos", {} ] ])
 
     assert_equal %w[theme ufo], Catalog::SeasonShelf.kinds(season:).sort
-    assert_equal %w[publisher], Catalog::SeasonShelf.kinds(season: catalog_seasons(:one))
+    assert_equal %w[studio], Catalog::SeasonShelf.kinds(season: catalog_seasons(:one))
     assert_queries_count(0) { assert_equal [], Catalog::SeasonShelf.kinds(season: nil) }
   end
 
@@ -93,7 +86,7 @@ class Catalog::SeasonShelfTest < ActiveSupport::TestCase
     assert_queries_count(0) { assert_equal({}, Catalog::SetTotals.call([])) }
   end
 
-  test "every kind: themes, franchises, studios, hall of fame, the UFOs, then tomes, publishers and best of year, each in its own order, lazily" do
+  test "every kind: themes, franchises, studios, hall of fame, then the UFOs, each in its own order, lazily" do
     season = seed_published_sets([
       [ "ufo", "ufos", {} ],
       [ "hall_of_fame", "pepites", { "hall_of_fame" => "pepites" } ],
@@ -101,19 +94,14 @@ class Catalog::SeasonShelfTest < ActiveSupport::TestCase
       [ "hall_of_fame", "intouchables", { "hall_of_fame" => "intouchables" } ],
       [ "franchise", "halo", { "franchise" => "Halo" } ],
       [ "theme", "rpg", { "theme" => "rpg" } ],
-      [ "best_of_year", "2011", { "year" => 2011 } ],
-      [ "publisher", "valve", { "publisher" => "Valve" } ],
-      [ "tome", "adventure-1", { "genre" => "adventure", "volume" => 1, "volumes" => 1 } ],
-      [ "best_of_year", "2015", { "year" => 2015 } ],
-      [ "tome", "action-10", { "genre" => "action", "volume" => 10, "volumes" => 10 } ],
-      [ "publisher", "activision", { "publisher" => "Activision" } ],
-      [ "tome", "action-2", { "genre" => "action", "volume" => 2, "volumes" => 10 } ],
+      [ "studio", "activision", { "studio" => "Activision" } ],
+      [ "franchise", "doom", { "franchise" => "Doom" } ],
       [ "theme", "horror", { "theme" => "horror" } ]
     ])
 
     relation = nil
     assert_queries_count(0) { relation = Catalog::SeasonShelf.every_kind(season:) }
-    assert_equal %w[horror rpg halo capcom intouchables pepites ufos action-2 action-10 adventure-1 activision valve 2015 2011], relation.map(&:key)
+    assert_equal %w[horror rpg doom halo activision capcom intouchables pepites ufos], relation.map(&:key)
     assert_empty relation.group_values
   end
 

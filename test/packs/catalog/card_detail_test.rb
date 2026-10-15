@@ -26,7 +26,7 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert_equal "A puzzle game of portals.", detail.short_description
     assert_equal "Valve", detail.publisher
     assert_equal "https://store.example.test/400", detail.store_url
-    assert_equal [ Catalog::SetSlots::SetRef.new(kind: "publisher", key: "valve", params: { "publisher" => "Valve" }) ], detail.sets
+    assert_equal [ Catalog::SetSlots::SetRef.new(kind: "studio", key: "valve", params: { "studio" => "Valve" }) ], detail.sets
     assert_equal portal.id, detail.card_season_id
     assert detail.current_season
     assert_nil detail.steam_reviews
@@ -98,9 +98,9 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert_nil Catalog::CardDetail.call(slug: "portal", locale: :en, season_number: 1)
   end
 
-  test "the sets come themes first, then the hall of fame in its fixed order, the UFOs, then the retired kinds, each by key" do
+  test "the sets come themes first, then franchises, studios, the hall of fame in its fixed order and the UFOs, each by key" do
     season = seed_published_sets([
-      [ "best_of_year", "2011", { "year" => 2011 } ], [ "publisher", "a", { "publisher" => "A" } ], [ "tome", "rpg-1", { "genre" => "rpg", "volume" => 1, "volumes" => 1 } ],
+      [ "studio", "b", { "studio" => "B" } ], [ "franchise", "a", { "franchise" => "A" } ], [ "studio", "a", { "studio" => "A" } ],
       [ "ufo", "ufos", {} ], [ "theme", "rpg", { "theme" => "rpg" } ], [ "theme", "horror", { "theme" => "horror" } ],
       [ "hall_of_fame", "phenomenes", { "hall_of_fame" => "phenomenes" } ], [ "hall_of_fame", "mal-aimes", { "hall_of_fame" => "mal-aimes" } ],
       [ "hall_of_fame", "pepites", { "hall_of_fame" => "pepites" } ], [ "hall_of_fame", "intouchables", { "hall_of_fame" => "intouchables" } ]
@@ -111,8 +111,9 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
 
     detail = Catalog::CardDetail.call(slug: "portal", locale: :en)
 
-    assert_equal [ [ "theme", "horror" ], [ "theme", "rpg" ], [ "hall_of_fame", "intouchables" ], [ "hall_of_fame", "pepites" ],
-      [ "hall_of_fame", "mal-aimes" ], [ "hall_of_fame", "phenomenes" ], [ "ufo", "ufos" ], [ "tome", "rpg-1" ], [ "publisher", "a" ], [ "best_of_year", "2011" ] ],
+    assert_equal [ [ "theme", "horror" ], [ "theme", "rpg" ], [ "franchise", "a" ], [ "studio", "a" ], [ "studio", "b" ],
+      [ "hall_of_fame", "intouchables" ], [ "hall_of_fame", "pepites" ], [ "hall_of_fame", "mal-aimes" ], [ "hall_of_fame", "phenomenes" ],
+      [ "ufo", "ufos" ] ],
       detail.sets.map { [ it.kind, it.key ] }
     assert_equal({ "theme" => "horror" }, detail.sets.first.params)
   end

@@ -6,7 +6,7 @@ require_relative "../support/steam_sign_in"
 # medium card's size and a long title to three lines; between 720 and
 # 1179px the sets are a strip above the grid; a large set's grid comes sixty
 # cards to a page, and draws its art only near the viewport.
-class TomeTest < ApplicationSystemTestCase
+class CollectionSetTest < ApplicationSystemTestCase
   include CatalogSeeds
   include SteamSignIn
 

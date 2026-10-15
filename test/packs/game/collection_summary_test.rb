@@ -45,7 +45,7 @@ class Game::CollectionSummaryTest < ActiveSupport::TestCase
   end
 
   test "a set without members is never complete" do
-    season = seed_published_sets([ [ "publisher", "empty", { "publisher" => "Empty" } ] ])
+    season = seed_published_sets([ [ "studio", "empty", { "studio" => "Empty" } ] ])
 
     assert_equal 0, Game::CollectionSummary.call(@player, season:).complete_sets
   end

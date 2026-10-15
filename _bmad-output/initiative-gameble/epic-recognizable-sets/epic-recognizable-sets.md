@@ -33,7 +33,7 @@ For every player: the collection shows what they are completing, with names they
 - R7 (CAP-6, CAP-18): the collection opens on "EN COURS" (the player's sets by closeness to their next tier or completion, plus those just progressed in), then "À DÉCOUVRIR", then a search over every set; the hub shows "SETS EN COURS"; public and friends' profiles show the same, signed out included.
 - R8 (CAP-6, CAP-18): a set opens as an album: owned cards, empty slots naming the missing games, its tiers or its "COMPLET" stamp.
 - R9 (CAP-6): the grid of every card with its filters and search stays reachable from the collection as "TOUTES LES CARTES".
-- R10 (AD-5): the season published with the retired kinds gets its sets rebuilt once, before the public launch; its set completions are dropped.
+- R10 (AD-5): the retired kinds are removed before the public launch, with their sets' completions; the set kind check holds only the five kinds.
 - R11 (CAP-6, CAP-7; AD-5): any edition of a member counts for a set; the collection shows one card per game, its best owned rarity and copies across editions; the total counter never drops at publication.
 
 ## Done when
@@ -77,3 +77,4 @@ For every player: the collection shows what they are completing, with names they
 - Decision (2026-10-14, author): any edition counts for a set and the collection shows one card per game (change-season-carryover, R11); entries 5, 7 and 8 amended, entry 15 added, entries 13 and 14 after it; the collection season selector plan is dropped.
 - Decision (2026-10-14, author): the season mark and season count on a tier ("Or · 12 saisons") move from entry 8 to epic-seasons-carry-over, entry 3; production has one season at launch.
 - Unknown: the edition count on the tile and the ÉDITIONS row are drawn with bmad-ux before entry 15.
+- Decision (2026-10-15, author): no rebuild of season 1. Staging published a themed season 2, so season 1's retired sets show only on its own card pages and earn no tier; entry 4 becomes a migration that deletes the retired kinds' sets and completions, narrows the kind check, and removes the retired-kind code (AD-5, AD-10 amended).

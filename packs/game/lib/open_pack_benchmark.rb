@@ -1,6 +1,6 @@
 # The pack-opening benchmark: an opening must answer within 200 ms at the
 # 95th percentile. It builds a 15,000-card published season, with one set
-# per publisher, and players with full banks in a database of its own, then
+# per studio, and players with full banks in a database of its own, then
 # times, in-process and without concurrency, the opening request (POST
 # /en/packs, the gate: the booster's JSON exchange, a fresh Idempotency-Key
 # per post, its faces rendered in the answer), the result page that follows
@@ -18,7 +18,7 @@
 class OpenPackBenchmark
   DATABASE = "gameble_benchmark".freeze
   CARDS = 15_000
-  PUBLISHERS = 900
+  STUDIOS = 900
   TIMED = 1_000
   WARM_UP = 50
   OPENINGS_PER_PLAYER = 10
@@ -162,7 +162,7 @@ class OpenPackBenchmark
     card_ids = Catalog::Card.insert_all!(Array.new(CARDS) do |index|
       { source_key: "benchmark:#{index}", slug: "benchmark-game-#{index}", release_date: release_dates[index],
         image_url: "https://images.example.test/#{index}.jpg", store_url: "https://store.example.test/#{index}",
-        publisher: "Publisher #{index % PUBLISHERS}", genres: [ "rpg" ] }
+        publisher: "Publisher #{index % STUDIOS}", developers: [ "Studio #{index % STUDIOS}" ], genres: [ "rpg" ] }
     end, returning: :id).rows.flatten
     Catalog::CardText.insert_all!(card_ids.each_with_index.flat_map do |card_id, index|
       %w[en fr].map { |locale| { card_id:, locale:, title: "Benchmark game #{index} (#{locale})", short_description: "A game." } }
@@ -177,15 +177,15 @@ class OpenPackBenchmark
     season_id
   end
 
-  # One set per publisher of the cards (about 17 cards each), so every
+  # One studio set per studio of the cards (about 17 cards each), so every
   # opening checks the completion of its cards' sets as in play.
   def seed_sets(season_id, card_season_ids)
-    set_ids = Catalog::Set.insert_all!(Array.new(PUBLISHERS) do |publisher|
-      { season_id:, kind: "publisher", key: "benchmark-publisher-#{publisher}", params: { publisher: "Publisher #{publisher}" } }
+    set_ids = Catalog::Set.insert_all!(Array.new(STUDIOS) do |studio|
+      { season_id:, kind: "studio", key: "benchmark-studio-#{studio}", params: { studio: "Studio #{studio}" } }
     end, returning: :id).rows.flatten
     card_season_ids.each_with_index.each_slice(5_000) do |slice|
       Catalog::SetMembership.insert_all!(slice.map do |card_season_id, index|
-        { set_id: set_ids.fetch(index % PUBLISHERS), card_season_id:, position: (index / PUBLISHERS) + 1 }
+        { set_id: set_ids.fetch(index % STUDIOS), card_season_id:, position: (index / STUDIOS) + 1 }
       end)
     end
   end

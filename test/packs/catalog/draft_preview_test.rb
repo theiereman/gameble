@@ -153,6 +153,6 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
 
     summary = Catalog::SeasonSummaries.call.find { |season| season.number == draft.number }
     assert_equal expected.tiers.to_h { |tier| [ tier.tier, tier.card_count ] }, summary.tier_counts
-    assert_equal expected.set_counts.merge("tome" => 0, "publisher" => 0, "best_of_year" => 0), summary.set_counts
+    assert_equal expected.set_counts, summary.set_counts
   end
 end

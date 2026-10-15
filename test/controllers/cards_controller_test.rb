@@ -31,12 +31,12 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     Rails.configuration.x.public_url = @public_url
   end
 
-  # A tome of the fixture season holding, in slot order, tin-soldier,
+  # A theme set of the fixture season holding, in slot order, tin-soldier,
   # portal and blue-depths (positions 2, 1, 3 by id), beside portal's
-  # publisher set.
-  def add_a_tome
-    set_id = Catalog::Set.insert_all!([ { season_id: catalog_seasons(:one).id, kind: "tome", key: "action-1",
-      params: { "genre" => "action", "volume" => 1, "volumes" => 1 } } ], returning: :id).rows.flatten.first
+  # studio set.
+  def add_a_theme_set
+    set_id = Catalog::Set.insert_all!([ { season_id: catalog_seasons(:one).id, kind: "theme", key: "puzzle",
+      params: { "theme" => "puzzle" } } ], returning: :id).rows.flatten.first
     Catalog::SetMembership.insert_all!([ [ :portal_one, 2 ], [ :common_card_one, 1 ], [ :rare_card_one, 3 ] ].map do |card_season, position|
       { set_id:, card_season_id: catalog_card_seasons(card_season).id, position: }
     end)
@@ -44,7 +44,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   # A published season numbered 2 holding portal (legendary).
   def publish_season_two_with_portal
-    season = seed_published_sets([ [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
+    season = seed_published_sets([ [ "theme", "puzzle", { "theme" => "puzzle" } ] ])
     card_season_id = Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.99,
       rating: 99, rarity: 5 } ], returning: :id).rows.flatten.first
     Catalog::SetMembership.insert_all!([ { set_id: Catalog::Set.find_by!(season_id: season.id).id, card_season_id:, position: 1 } ])
@@ -57,7 +57,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     Catalog::CardSeason.where(id: catalog_card_seasons(card_season).id).update_all(main_theme: theme)
   end
 
-  def in_tome(slug, locale: :en, number: 1) = card_season_path(locale:, slug:, number:, set_kind: "tome", set_key: "action-1")
+  def in_theme(slug, locale: :en, number: 1) = card_season_path(locale:, slug:, number:, set_kind: "theme", set_key: "puzzle")
 
   # The fact rows, as [ label, value ] pairs; the sets joined by " | ".
   def facts
@@ -81,7 +81,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   def position = css_select(".card-detail__position").sole.text
 
   test "a card of the published season: the bracketed panel, its face, every fact, the sets leading to their grids, no ownership notice, the Steam link" do
-    add_a_tome
+    add_a_theme_set
     with_main_theme(:portal_one, "puzzle")
     sign_in_viewer
 
@@ -98,9 +98,9 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", 0
     assert_select ".card-detail__description", "A puzzle game of portals."
     assert_equal [ [ "Publisher", "Valve" ], [ "Rarity", "Epic" ], [ "Genre", "Puzzle" ], [ "Year", "2007" ], [ "Season", "Season 1" ],
-      [ "Sets", "Action · Tome 1 | Valve" ], [ "Copies", "None" ] ], facts
+      [ "Sets", "Puzzle | Valve" ], [ "Copies", "None" ] ], facts
     assert_select ".card-detail__rarity.card-detail__rarity--epic svg.card-detail__rarity-icon[aria-hidden=true]"
-    assert_equal [ [ "Action · Tome 1", "/en/library/tome/action-1" ], [ "Valve", "/en/library/publisher/valve" ] ],
+    assert_equal [ [ "Puzzle", "/en/library/theme/puzzle" ], [ "Valve", "/en/library/studio/valve" ] ],
       css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
     assert_select ".card-detail__notice", false
     assert_no_match(/not affiliated|belong to their/i, response.body)
@@ -141,7 +141,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "in French every fact, the title, description and Steam page are French" do
-    add_a_tome
+    add_a_theme_set
     with_main_theme(:common_card_one, "horror")
     with_main_theme(:portal_one, "puzzle")
     sign_in_viewer
@@ -152,7 +152,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail h1", "Soldat de plomb"
     assert_select "title", "Soldat de plomb — Commune"
     assert_select ".card-detail__kicker", "Fiche de la carte"
-    assert_equal [ [ "Rareté", "Commune" ], [ "Genre", "Horreur" ], [ "Année", "2024" ], [ "Saison", "Saison 1" ], [ "Sets", "Action · Tome 1" ], [ "Exemplaires", "Aucun" ] ], facts
+    assert_equal [ [ "Rareté", "Commune" ], [ "Genre", "Horreur" ], [ "Année", "2024" ], [ "Saison", "Saison 1" ], [ "Sets", "Réflexion" ], [ "Exemplaires", "Aucun" ] ], facts
     assert_equal [ "Voir sur Steam (nouvel onglet)", "https://store.steampowered.com/app/401/Tin_Soldier/?snr=1_7&l=french" ],
       store_link.then { [ it.text.squish, it["href"] ] }
     assert_equal [ "Carte précédente", "Carte suivante" ], css_select(".card-detail__nav").map { it["aria-label"] }
@@ -243,21 +243,21 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__end form.steam-sign-in"
   end
 
-  test "the card's own page browses its first set, tomes first: ◀ ▶ carry that set, the position line, the phone's way back to its grid" do
-    add_a_tome
+  test "the card's own page browses its first set, themes first: ◀ ▶ carry that set, the position line, the phone's way back to its grid" do
+    add_a_theme_set
     sign_in_viewer
 
     get card_path(locale: :en, slug: "portal")
 
-    assert_equal [ [ "a", in_tome("tin-soldier") ], [ "a", in_tome("blue-depths") ] ], navs
+    assert_equal [ [ "a", in_theme("tin-soldier") ], [ "a", in_theme("blue-depths") ] ], navs
     assert_equal [ "Previous card", "Next card" ], css_select(".card-detail__nav").map { it["aria-label"] }
     css_select("a.card-detail__nav").each do |link|
       assert_equal [ "card-detail", "replace", "false" ], [ link["data-turbo-frame"], link["data-turbo-action"], link["data-turbo-prefetch"] ]
     end
     assert_equal "S1 · #4 · 2 / 3 · swipe to browse", position
     back = css_select(".top-bar__start.top-bar__start--phone-back > a.top-bar__phone-back").sole
-    assert_equal [ "/en/library/tome/action-1", "history-back", "Grid" ], [ back["href"], back["data-controller"], back.text.squish ]
-    assert_equal "/en/library/tome/action-1", css_select(".card-detail").sole["data-sub-view-back-value"]
+    assert_equal [ "/en/library/theme/puzzle", "history-back", "Grid" ], [ back["href"], back["data-controller"], back.text.squish ]
+    assert_equal "/en/library/theme/puzzle", css_select(".card-detail").sole["data-sub-view-back-value"]
     # The bridge stays, for the desktop.
     assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
     # Without a set in the query, the face shows to everyone.
@@ -265,39 +265,39 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a set named in the query is browsed; its ends are disabled buttons; a card alone in its set has no swipe hint" do
-    add_a_tome
+    add_a_theme_set
 
-    get in_tome("tin-soldier")
-    assert_equal [ [ "button", "disabled" ], [ "a", in_tome("portal") ] ], navs
+    get in_theme("tin-soldier")
+    assert_equal [ [ "button", "disabled" ], [ "a", in_theme("portal") ] ], navs
     assert_equal "S1 · #1 · 1 / 3 · swipe to browse", position
 
-    get in_tome("blue-depths")
-    assert_equal [ [ "a", in_tome("portal") ], [ "button", "disabled" ] ], navs
+    get in_theme("blue-depths")
+    assert_equal [ [ "a", in_theme("portal") ], [ "button", "disabled" ] ], navs
 
-    valve = card_season_path(locale: :en, slug: "portal", number: 1, set_kind: "publisher", set_key: "valve")
+    valve = card_season_path(locale: :en, slug: "portal", number: 1, set_kind: "studio", set_key: "valve")
     get valve
     assert_equal [ [ "button", "disabled" ], [ "button", "disabled" ] ], navs
     assert_equal "S1 · #4 · 1 / 1", position
-    assert_equal "/en/library/publisher/valve", css_select(".top-bar__phone-back").sole["href"]
+    assert_equal "/en/library/studio/valve", css_select(".top-bar__phone-back").sole["href"]
   end
 
   test "an unnumbered card's position line keeps its season, and its header shows no number" do
-    add_a_tome
+    add_a_theme_set
     Catalog::CardSeason.where(id: catalog_card_seasons(:portal_one).id).update_all(number: nil)
 
-    get in_tome("portal")
+    get in_theme("portal")
 
     assert_equal "S1 · 2 / 3 · swipe to browse", position
     assert_select ".card-detail__number", false
   end
 
   test "an unknown kind, or a set that does not hold the card, is ignored: the first set, the face" do
-    add_a_tome
+    add_a_theme_set
     player = accounts_players(:player)
     sign_in(player)
 
-    [ { set_kind: "nope", set_key: "action-1" }, { set_kind: "publisher", set_key: "nope" }, { set_kind: "tome", set_key: "valve" },
-      { set_kind: [ "tome" ], set_key: "action-1" }, { set_kind: "tome" } ].each do |query|
+    [ { set_kind: "nope", set_key: "puzzle" }, { set_kind: "studio", set_key: "nope" }, { set_kind: "theme", set_key: "valve" },
+      { set_kind: [ "theme" ], set_key: "puzzle" }, { set_kind: "theme" } ].each do |query|
       get card_season_path(locale: :en, slug: "portal", number: 1, **query)
 
       assert_response :success, query.inspect
@@ -308,13 +308,13 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "within a set, a card the viewer does not hold is their card back, faded, with its title, year and rarity" do
-    add_a_tome
+    add_a_theme_set
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 1)
     hold(player, catalog_card_seasons(:common_card_one).id, 0)
     sign_in(player)
 
-    get in_tome("tin-soldier")
+    get in_theme("tin-soldier")
 
     assert_select ".card-detail__card .card", false
     back = css_select(".card-detail__back img.card-detail__back-image").sole
@@ -324,27 +324,27 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__back-year[aria-hidden=true]", "2024"
     assert_select ".card-detail__not-owned", "Not owned"
     assert_select ".card-detail h1", "Tin Soldier"
-    # A season published before themes: its cards show no genre.
-    assert_equal [ [ "Rarity", "Common" ], [ "Year", "2024" ], [ "Season", "Season 1" ], [ "Sets", "Action · Tome 1" ], [ "Copies", "None" ] ], facts
+    # A card-season without a main theme shows no genre.
+    assert_equal [ [ "Rarity", "Common" ], [ "Year", "2024" ], [ "Season", "Season 1" ], [ "Sets", "Puzzle" ], [ "Copies", "None" ] ], facts
     assert_select "[data-controller~=share]", false
     assert_select ".card-detail__share-button", false
     assert_select "form[action*='/repost']", false
 
     # A card held shows its face, and its share block, within the set too.
-    get in_tome("portal")
+    get in_theme("portal")
     assert_select ".card-detail__card .card.card--l.card--rarity-epic"
     assert_select ".card-detail__back", false
     assert_select ".card-detail__share-button", "Share"
     assert_select "form[action='/en/cards/portal/seasons/1/repost'] button", "Repost"
 
-    get in_tome("tin-soldier", locale: :fr)
+    get in_theme("tin-soldier", locale: :fr)
     assert_select ".card-detail__not-owned", "Non possédée"
   end
 
   test "a visitor within a set sees every card as the Standard back, without a copies row; the card's own page shows the face" do
-    add_a_tome
+    add_a_theme_set
 
-    get in_tome("portal")
+    get in_theme("portal")
     assert_select ".card-detail__back img[src*='back-standard']"
     assert_select ".card-detail__card .card", false
     assert_select "section.card-invitation[aria-labelledby=card-invitation-text]:not([aria-label])" do
@@ -372,7 +372,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_path(locale: :en, slug: "portal")
     assert_select ".card-detail__card .card.card--rarity-legendary"
     assert_equal [ "Legendary", "Season 2" ], facts.to_h.values_at("Rarity", "Season")
-    assert_equal [ [ "Action · Tome 1", "/en/library/tome/action-1" ] ], css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
+    assert_equal [ [ "Puzzle", "/en/library/theme/puzzle" ] ], css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
     assert_select ".top-bar__phone-back"
 
     get card_season_path(locale: :en, slug: "portal", number: 1)
@@ -384,6 +384,19 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "S1 · #4 · 1 / 1", position
     assert_select ".top-bar__phone-back", false
     assert_select ".top-bar__start--phone-back", false
+  end
+
+  test "a card-season of an older season holding no set and no main theme shows neither sets nor genre" do
+    publish_season_two_with_portal
+    sign_in_viewer
+
+    get card_season_path(locale: :en, slug: "tin-soldier", number: 1)
+
+    assert_response :success
+    assert_equal [ "Rarity", "Year", "Season", "Copies" ], facts.map(&:first)
+    assert_equal "Season 1", facts.to_h["Season"]
+    assert_select ".card-detail__sets", false
+    assert_select ".card-detail__nav", false
   end
 
   test "an unknown slug, a numeric slug, a card id, a card absent from the season or an unknown season is not found" do
@@ -514,7 +527,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "opened from the player's opened pack: ◀ ▶ walk its cards in drawn order, no further; the phone's way back is the booster" do
-    add_a_tome
+    add_a_theme_set
     player = accounts_players(:player)
     fixture_tier_ids.each { hold(player, it, 1) }
     pack = create_pack(player, cards: fixture_tier_ids, opened_at: 1.minute.ago)
@@ -559,10 +572,10 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "another player's pack, one not opened, an unknown token, or a pack without the card is ignored: the card's first set" do
-    add_a_tome
+    add_a_theme_set
     player = accounts_players(:player)
     sign_in(player)
-    tome = [ [ "a", in_tome("tin-soldier") ], [ "a", in_tome("blue-depths") ] ]
+    first_set = [ [ "a", in_theme("tin-soldier") ], [ "a", in_theme("blue-depths") ] ]
     foreign = create_pack(accounts_players(:moderator), cards: fixture_tier_ids, opened_at: 1.minute.ago)
     sealed = create_pack(player, cards: fixture_tier_ids)
     without = create_pack(player, cards: Array.new(5, catalog_card_seasons(:common_card_one).id), opened_at: 1.minute.ago)
@@ -571,15 +584,15 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
       get card_season_path(locale: :en, slug: "portal", number: 1, pack: token, slot: 4)
 
       assert_response :success, token
-      assert_equal tome, navs, token
+      assert_equal first_set, navs, token
       assert_equal "S1 · #4 · 2 / 3 · swipe to browse", position, token
-      assert_equal "/en/library/tome/action-1", css_select(".top-bar__phone-back").sole["href"], token
+      assert_equal "/en/library/theme/puzzle", css_select(".top-bar__phone-back").sole["href"], token
       assert_select ".card-detail__back", false
     end
 
     get card_season_path(locale: :en, slug: "portal", number: 1, pack: { token: foreign.token })
     assert_response :success
-    assert_equal tome, navs
+    assert_equal first_set, navs
 
     # A visitor names no pack of theirs: the public card page.
     delete session_path(locale: :en)
@@ -697,7 +710,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a grid of an older season's card is ignored: the library shows the published season only" do
-    add_a_tome
+    add_a_theme_set
     publish_season_two_with_portal
     sign_in_viewer
 
@@ -749,14 +762,14 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "no database id reaches the page" do
-    add_a_tome
+    add_a_theme_set
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 2)
     sign_in(player)
     ids = [ catalog_cards(:portal).id, catalog_card_seasons(:portal_one).id, catalog_seasons(:one).id, catalog_sets(:valve_one).id,
       catalog_card_texts(:portal_en).id, catalog_card_seasons(:common_card_one).id, catalog_card_seasons(:rare_card_one).id, player.id ]
 
-    get in_tome("portal")
+    get in_theme("portal")
 
     assert_select ".card-detail [data-id]", false
     html = css_select(".card-detail").sole.to_html

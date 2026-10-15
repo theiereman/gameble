@@ -64,7 +64,7 @@ class PublicProfileTest < ApplicationSystemTestCase
     assert_selector ".collection-slot__copies", count: 8
     assert_selector ".collection-slot__copies", text: "x2", count: 1
     assert_selector ".collection__aside .set-row[aria-current=page]", text: /\APirates/i
-    assert_no_selector ".shelf, .tome, .library"
+    assert_no_selector ".shelf, .library"
     take_screenshot
 
     click_on "The collection of Gabe the Brave"

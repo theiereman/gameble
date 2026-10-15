@@ -119,12 +119,20 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
     refused(ActiveRecord::CheckViolation) { Catalog::Set.where(id: catalog_sets(:valve_one).id).update_all(kind: "tag") }
   end
 
-  test "the database takes every set kind, the retired ones included, and the model knows them all" do
-    kinds = %w[theme franchise studio hall_of_fame ufo publisher tome best_of_year]
-    assert_equal kinds.sort, Catalog::Set.kinds.keys.sort
+  test "the database takes every set kind, and the model knows them all, in their tab order" do
+    kinds = %w[theme franchise studio hall_of_fame ufo]
+    assert_equal kinds, Catalog::Set.kinds.keys
 
     season_id = catalog_seasons(:one).id
     assert_equal kinds.size, Catalog::Set.insert_all!(kinds.map { |kind| { season_id:, kind:, key: "any" } }).length
+  end
+
+  test "the database refuses the kinds no publication builds any more" do
+    season_id = catalog_seasons(:one).id
+
+    %w[tome publisher best_of_year].each do |kind|
+      refused(ActiveRecord::CheckViolation) { Catalog::Set.insert_all!([ { season_id:, kind:, key: "any" } ]) }
+    end
   end
 
   def set_tier(**attributes)
@@ -163,9 +171,9 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
 
   test "the database refuses a set key twice in a season and kind, but not across kinds" do
     season_id = catalog_seasons(:one).id
-    refused(ActiveRecord::RecordNotUnique) { Catalog::Set.insert_all!([ { season_id:, kind: "publisher", key: "valve" } ]) }
+    refused(ActiveRecord::RecordNotUnique) { Catalog::Set.insert_all!([ { season_id:, kind: "studio", key: "valve" } ]) }
 
-    assert Catalog::Set.insert_all!([ { season_id:, kind: "tome", key: "valve" } ])
+    assert Catalog::Set.insert_all!([ { season_id:, kind: "franchise", key: "valve" } ])
   end
 
   test "the database refuses a card-season twice for the same card and season" do
@@ -217,10 +225,10 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
   end
 
   test "a set key is URL-safe" do
-    set = Catalog::Set.new(season: draft, kind: :tome, key: "Action Vol 1")
+    set = Catalog::Set.new(season: draft, kind: :franchise, key: "Half Life 2")
 
     assert_not set.valid?
-    set.key = "action-1"
+    set.key = "half-life-2"
     assert_predicate set, :valid?
     set.key = "Foo_Bar Studio".parameterize
     assert_equal "foo_bar-studio", set.key
@@ -228,7 +236,7 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
   end
 
   test "a membership's card-season and set share a season" do
-    set = Catalog::Set.create!(season: draft, kind: :tome, key: "action-1")
+    set = Catalog::Set.create!(season: draft, kind: :theme, key: "action")
     membership = Catalog::SetMembership.new(set: set, card_season: card_season, position: 1)
 
     assert_not membership.valid?
@@ -295,8 +303,8 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
 
     assert_not set.update(key: "valve-2")
     assert_includes set.errors.details[:base], { error: :frozen_once_published }
-    assert_not set.update(params: { "publisher" => "Other" })
-    assert_not Catalog::Set.new(season: catalog_seasons(:one), kind: :tome, key: "action-1").valid?
+    assert_not set.update(params: { "studio" => "Other" })
+    assert_not Catalog::Set.new(season: catalog_seasons(:one), kind: :theme, key: "action").valid?
   end
 
   test "a set of a published season is never destroyed" do
@@ -308,17 +316,17 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
   end
 
   test "a set of a draft season can change" do
-    set = Catalog::Set.create!(season: draft, kind: :tome, key: "action-1")
+    set = Catalog::Set.create!(season: draft, kind: :theme, key: "action")
 
-    assert set.update(key: "action-2", params: { "genre" => "action" })
+    assert set.update(key: "rpg", params: { "theme" => "rpg" })
     assert set.destroy
   end
 
   test "params default to an empty object, never NULL" do
-    Catalog::Set.insert_all!([ { season_id: draft.id, kind: "tome", key: "action-1" } ])
+    Catalog::Set.insert_all!([ { season_id: draft.id, kind: "theme", key: "action" } ])
 
-    assert_equal({}, Catalog::Set.find_by!(key: "action-1").params)
-    assert_equal({ "publisher" => "Valve" }, catalog_sets(:valve_one).params)
+    assert_equal({}, Catalog::Set.find_by!(key: "action").params)
+    assert_equal({ "studio" => "Valve" }, catalog_sets(:valve_one).params)
     refused(ActiveRecord::NotNullViolation) { Catalog::Set.where(id: catalog_sets(:valve_one).id).update_all(params: nil) }
   end
 

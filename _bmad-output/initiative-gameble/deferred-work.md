@@ -218,3 +218,6 @@
 - source_plan: none
   summary: The trade list row sums each side up as "first game +n" in EXPERIENCE.md (Copy deck, Trade list summary), but `TradesHelper#trade_side_title` joins every title.
   evidence: Found while slicing the open trade request; entry 18.6 adds only "À choisir" for an empty side (author, 2026-10-15).
+- source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-published-season-gets-its-new-sets-once-plan.md`
+  summary: `bundle exec i18n-tasks unused` reports `rate_limit.reading_throttled` and `rate_limit.throttled` in en and fr, which `config/initializers/rack_attack.rb` reads dynamically; add them to `ignore_unused` in `config/i18n-tasks.yml`.
+  evidence: The quick review of the retired set kinds removal ran the command; a clean worktree at the baseline gives the same four keys, so the check fails independently of that change.

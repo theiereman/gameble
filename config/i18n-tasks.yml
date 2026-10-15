@@ -23,8 +23,6 @@ ignore_unused:
   - "activerecord.errors.messages.*"
   # Number formats, read by the number helpers (number_with_delimiter, …).
   - "number.*"
-  # Genre labels, looked up by the genre key a tome's params carry (SetLabel).
-  - "catalog.genres.*"
   # Theme names, looked up by a theme set's key and a card's main theme (SetLabel).
   - "catalog.themes.*"
   # Hall of fame set names, looked up by a hall of fame set's key (SetLabel).

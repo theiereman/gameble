@@ -149,7 +149,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu [aria-disabled]", false
 
     # The showcase: the tier 4 card of the pack, its line (rarity and
-    # number; no tome, so no genre) and its page.
+    # number; no main theme, so no genre) and its page.
     assert_select ".hub-showcase:not(.hub-showcase--empty)" do
       assert_select ".hub-showcase__kicker", "Dernière obtention"
       assert_select ".card.card--xl", 1
@@ -171,7 +171,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     # The set progress: the season's one set, owned out of its size.
     assert_select ".hub-sets h2", "Progression des sets"
-    assert_select ".hub-sets a.set-row[href='/fr/library/publisher/valve']" do
+    assert_select ".hub-sets a.set-row[href='/fr/library/studio/valve']" do
       assert_select ".set-row__name", "Valve"
       assert_select ".set-row__count", "1/1"
       assert_select ".visually-hidden", "1 carte possédée sur 1"

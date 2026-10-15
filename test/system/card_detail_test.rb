@@ -162,7 +162,7 @@ class CardDetailTest < ApplicationSystemTestCase
 
     sign_out
     assert_signed_out
-    visit card_path(locale: :en, slug: "portal", set_kind: "publisher", set_key: "valve")
+    visit card_path(locale: :en, slug: "portal", set_kind: "studio", set_key: "valve")
     assert_selector ".card-detail h1", text: "Portal"
     assert_no_button "Repost"
   end

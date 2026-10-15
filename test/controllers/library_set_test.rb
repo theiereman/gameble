@@ -165,17 +165,6 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".collection-kind[aria-current=true]", "Panthéon"
   end
 
-  test "a set of a season published before themes still opens, named as before" do
-    season = seed_published_sets([ [ "best_of_year", "2011", { "year" => 2011 } ], [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
-
-    get library_set_path(locale: :fr, kind: "best_of_year", key: "2011")
-    assert_select "h1", "Les mieux notés de 2011"
-    assert_equal [ "Les mieux notés de 2011", "0/0" ], current_row
-    assert_select ".collection-kind[aria-current=true]", "Les mieux notés de l'année"
-    assert_equal [ "Tomes", "Les mieux notés de l'année" ], css_select(".collection-kinds a").map(&:text)
-    assert_equal season, Catalog::PublishedSeason.call
-  end
-
   test "a set's genre chips filter its cards, keep the list and offer no set group" do
     season = publish_sets_draft
     members = set_members(season, "roguelike")
@@ -212,17 +201,17 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
   end
 
   test "the rows lead to their set at the list's page; the set's page lists that page, the current row marked" do
-    seed_published_sets((1..60).map { |volume| [ "tome", "action-#{volume}", { "genre" => "action", "volume" => volume, "volumes" => 60 } ] })
+    seed_published_sets((1..60).map { |number| [ "studio", format("studio-%02d", number), { "studio" => format("Studio %02d", number) } ] })
 
-    get library_set_path(locale: :en, kind: "tome", key: "action-55", shelf: 2)
+    get library_set_path(locale: :en, kind: "studio", key: "studio-55", shelf: 2)
     assert_response :success
-    assert_equal [ "Action · Tome 55", "0/0" ], current_row
+    assert_equal [ "Studio 55", "0/0" ], current_row
     assert_equal 11, css_select(".collection-sets .set-row").size
-    assert_equal "/en/library?kind=tome&shelf=2", css_select(".collection-sets .set-row").first["href"]
-    assert_equal "/en/library/tome/action-51?shelf=2", css_select(".collection-sets .set-row")[1]["href"]
+    assert_equal "/en/library?kind=studio&shelf=2", css_select(".collection-sets .set-row").first["href"]
+    assert_equal "/en/library/studio/studio-51?shelf=2", css_select(".collection-sets .set-row")[1]["href"]
     assert_select ".collection-grid__empty", "Nothing matches these filters."
 
-    get library_set_path(locale: :en, kind: "tome", key: "action-55")
+    get library_set_path(locale: :en, kind: "studio", key: "studio-55")
     assert_response :success
     assert_equal 51, css_select(".collection-sets .set-row").size
     assert_select ".collection-sets .set-row[aria-current]", false
@@ -266,10 +255,13 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     get "/en/library/nope/rpg"
     assert_response :not_found
 
+    get "/en/library/tome/action-1"
+    assert_response :not_found
+
     get library_set_path(locale: :en, kind: "theme", key: "action")
     assert_response :not_found
 
-    get library_set_path(locale: :en, kind: "publisher", key: "rpg")
+    get library_set_path(locale: :en, kind: "studio", key: "rpg")
     assert_response :not_found
 
     get library_set_path(locale: :en, kind: "ufo", key: "rpg")

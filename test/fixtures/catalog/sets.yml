@@ -3,6 +3,6 @@ _fixture:
 
 valve_one:
   season: one
-  kind: publisher
+  kind: studio
   key: "valve"
-  params: { "publisher": "Valve" }
+  params: { "studio": "Valve" }

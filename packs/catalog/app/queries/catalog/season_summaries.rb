@@ -3,8 +3,8 @@ module Catalog
   # count per rarity tier and per set kind, for the back-office (AD-3).
   module SeasonSummaries
     # `tier_counts` is { 1 => count, …, 5 => count } once published, nil for
-    # the draft. `set_counts` is { kind => count } for each of
-    # Set::BUILT_KINDS once published, nil for the draft.
+    # the draft. `set_counts` is { kind => count } for each set kind once
+    # published, nil for the draft.
     Summary = Data.define(:number, :status, :published_at, :card_count, :tier_counts, :set_counts) do
       def draft? = status == "draft"
       def published? = status == "published"
@@ -22,7 +22,7 @@ module Catalog
           published_at: season.published_at,
           card_count: by_rarity.values.sum,
           tier_counts: season.published? ? Rarity::TIERS.keys.index_with { |tier| by_rarity.fetch(tier, 0) } : nil,
-          set_counts: season.published? ? Set::BUILT_KINDS.index_with { |kind| set_counts.fetch([ season.id, kind ], 0) } : nil
+          set_counts: season.published? ? Set.kinds.keys.index_with { |kind| set_counts.fetch([ season.id, kind ], 0) } : nil
         )
       end
     end

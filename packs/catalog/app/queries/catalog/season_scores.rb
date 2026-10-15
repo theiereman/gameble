@@ -34,7 +34,7 @@ module Catalog
         tiers: stored_tiers(season_id),
         theme_counts: members.filter_map { |(kind, key), count| [ key, count ] if kind == "theme" }.to_h,
         ufo_count: kinds.key?("theme") || kinds.key?("ufo") ? members.sum { |(kind, _), count| kind == "ufo" ? count : 0 } : nil,
-        set_counts: Set::BUILT_KINDS.index_with { |kind| kinds.fetch(kind, 0) })
+        set_counts: Set.kinds.keys.index_with { |kind| kinds.fetch(kind, 0) })
     end
 
     def self.stored_tiers(season_id)

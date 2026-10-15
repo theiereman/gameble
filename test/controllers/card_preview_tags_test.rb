@@ -295,8 +295,8 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
 
       assert_response :success
       assert_equal "Portal — Epic", og("title")
-      # The public page shows no sets: portal's publisher set is in the library.
-      set_link = library_set_path(locale: :en, kind: "publisher", key: "valve")
+      # The public page shows no sets: portal's studio set is in the library.
+      set_link = library_set_path(locale: :en, kind: "studio", key: "valve")
 
       get set_link, headers: { "User-Agent" => user_agent }
       assert_response :success

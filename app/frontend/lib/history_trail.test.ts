@@ -14,10 +14,10 @@ describe("history trail", () => {
   it("finds the nearest earlier entry showing a path", () => {
     const storage = memory()
     recordEntry(0, "/en", storage)
-    recordEntry(1, "/en/library/tome/action-1", storage)
+    recordEntry(1, "/en/library/theme/rpg", storage)
     recordEntry(2, "/en/cards/portal/seasons/1", storage)
 
-    expect(stepsBackTo("/en/library/tome/action-1", 2, storage)).toBe(1)
+    expect(stepsBackTo("/en/library/theme/rpg", 2, storage)).toBe(1)
     expect(stepsBackTo("/en", 2, storage)).toBe(2)
   })
 

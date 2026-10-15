@@ -141,7 +141,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     query = ->(params) { { grid: params }.to_query }
     href = ->(id, params) { "/en/cards/#{Catalog::CardSeason.find(id).card.slug}/seasons/#{season.number}?#{query.(params)}" }
 
-    get library_path(locale: :en, state: %w[all], rarity: %w[nope], q: " seed ", kind: "publisher", page: 1)
+    get library_path(locale: :en, state: %w[all], rarity: %w[nope], q: " seed ", kind: "studio", page: 1)
 
     context = { state: %w[all], rarity: %w[nope], q: "seed" }
     assert_select ".collection-grid a.card-link[href=?] .card", href.(held, context)
@@ -308,7 +308,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-controller=collection-seen]"
   end
 
-  [ nil, "", "nope", [ "ufo" ], "publisher" ].each do |kind|
+  [ nil, "", "nope", [ "ufo" ], "studio" ].each do |kind|
     test "a kind of #{kind.inspect} lists the themes" do
       publish_sets_draft
 
@@ -367,27 +367,23 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Toute la saison", "Les Intouchables", "Les Pépites", "Les Mal-aimés", "Les Phénomènes" ], set_rows.map(&:first)
   end
 
-  test "a season published before themes keeps its kinds' tabs, opening on the first, each kind in its order" do
+  test "a season without themes keeps its kinds' tabs, opening on the first, each kind in its order" do
     seed_published_sets([
-      [ "best_of_year", "2011", { "year" => 2011 } ], [ "publisher", "valve", { "publisher" => "Valve" } ],
-      [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ], [ "best_of_year", "2015", { "year" => 2015 } ]
+      [ "studio", "valve", { "studio" => "Valve" } ], [ "franchise", "halo", { "franchise" => "Halo" } ],
+      [ "franchise", "doom", { "franchise" => "Doom" } ]
     ])
 
     get library_path(locale: :en)
-    assert_equal [ [ "Tomes", "/en/library?kind=tome", "true" ], [ "Publishers", "/en/library?kind=publisher", nil ],
-      [ "Best rated of the year", "/en/library?kind=best_of_year", nil ] ],
+    assert_equal [ [ "Franchises", "/en/library?kind=franchise", "true" ], [ "Studios", "/en/library?kind=studio", nil ] ],
       css_select(".collection-kinds a.collection-kind").map { [ it.text, it["href"], it["aria-current"] ] }
-    assert_equal [ [ "Whole season", "0/0" ], [ "Action · Tome 1", "0/0" ] ], set_rows
+    assert_equal [ [ "Whole season", "0/0" ], [ "Doom", "0/0" ], [ "Halo", "0/0" ] ], set_rows
 
-    get library_path(locale: :fr, kind: "best_of_year")
-    assert_equal [ "Toute la saison", "Les mieux notés de 2015", "Les mieux notés de 2011" ], set_rows.map(&:first)
-
-    get library_path(locale: :en, kind: "publisher")
+    get library_path(locale: :en, kind: "studio")
     assert_equal [ "Whole season", "Valve" ], set_rows.map(&:first)
     assert_equal [ "Valve" ], css_select("[data-group=sets] .filter-chip__text").map(&:text)
 
     get library_path(locale: :en, kind: "theme")
-    assert_select ".collection-kind[aria-current=true]", "Tomes"
+    assert_select ".collection-kind[aria-current=true]", "Franchises"
   end
 
   test "a season without sets says so" do
@@ -404,21 +400,21 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".collection-pages", false
   end
 
-  test "120 tomes come fifty to a list page (shelf), kept by the rows' links; past the last the list says so" do
-    seed_published_sets((1..120).map { |volume| [ "tome", "action-#{volume}", { "genre" => "action", "volume" => volume, "volumes" => 120 } ] })
+  test "120 studios come fifty to a list page (shelf), kept by the rows' links; past the last the list says so" do
+    seed_published_sets((1..120).map { |number| [ "studio", format("studio-%03d", number), { "studio" => format("Studio %03d", number) } ] })
 
     get library_path(locale: :en)
     assert_equal 51, set_rows.size
-    assert_equal "Action · Tome 1", set_rows.second.first
+    assert_equal "Studio 001", set_rows.second.first
     assert_select ".collection-sets .series-nav a[aria-current=page]", "1"
     assert_select ".collection-sets .series-nav a[href='/en/library?shelf=2']", minimum: 1
     assert_select ".collection-sets .series-nav a[href]:not([data-turbo-prefetch=false])", false
 
     get library_path(locale: :en, shelf: 3)
-    assert_equal [ "Whole season", "Action · Tome 101" ], set_rows.first(2).map(&:first)
+    assert_equal [ "Whole season", "Studio 101" ], set_rows.first(2).map(&:first)
     assert_equal 21, set_rows.size
-    assert_equal "/en/library?kind=tome&shelf=3", css_select(".collection-sets .set-row").first["href"]
-    assert_equal "/en/library/tome/action-101?shelf=3", css_select(".collection-sets .set-row")[1]["href"]
+    assert_equal "/en/library?kind=studio&shelf=3", css_select(".collection-sets .set-row").first["href"]
+    assert_equal "/en/library/studio/studio-101?shelf=3", css_select(".collection-sets .set-row")[1]["href"]
 
     get library_path(locale: :en, shelf: 9)
     assert_response :success
@@ -503,7 +499,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[collection-sets-title collection-report-title collection-search collection-results], css_select(".collection [id]").map { it["id"] }
     html = css_select(".collection").sole.to_html
     ids.each do |id|
-      assert_no_match(/\b#{id}\b/, html.gsub(/Tome \d+|\d+\/\d+|\d+ (cards?|copies|copy|duplicates?) |out of \d+|\b(19|20)\d\d\b|x\d+|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|viewbox="[\d ]+"|\?(page|shelf)=\d+|\/seasons\/\d+|value="\d+"|max="\d+"|[Ss]eason \d+|#\d+|Page<\/span> \d+|<dd>\d+<\/dd>|[MmHhVvZz][\d.-]+/, ""))
+      assert_no_match(/\b#{id}\b/, html.gsub(/\d+\/\d+|\d+ (cards?|copies|copy|duplicates?) |out of \d+|\b(19|20)\d\d\b|x\d+|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|viewbox="[\d ]+"|\?(page|shelf)=\d+|\/seasons\/\d+|value="\d+"|max="\d+"|[Ss]eason \d+|#\d+|Page<\/span> \d+|<dd>\d+<\/dd>|[MmHhVvZz][\d.-]+/, ""))
     end
   end
 
@@ -517,7 +513,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # count, page, totals, progress; the grid: genres, count (the season's cards, read again from
     # the query cache by the top bar; filtered by state it is its own query),
     # page, card views, the player's slots; the figures: unique cards,
-    # copies per tier; the tab bar's trades waiting. No tome per card: the
+    # copies per tier; the tab bar's trades waiting. No set per card: the
     # links carry the grid, which the detail reads itself.
     assert_request_queries(16) { get library_path(locale: :en) }
 

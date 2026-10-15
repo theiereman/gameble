@@ -12,10 +12,9 @@ module ShelfLoading
 
   include Pagy::Method
 
-  # The kinds of sets, in their tab order: today's, then the retired ones a
-  # season published before themes holds. A kind has a tab only when the
+  # The kinds of sets, in their tab order. A kind has a tab only when the
   # season holds sets of it (shelf_kinds).
-  KINDS = %w[theme franchise studio hall_of_fame ufo tome publisher best_of_year].freeze
+  KINDS = %w[theme franchise studio hall_of_fame ufo].freeze
   SHELF_SIZE = 50
   # No shelf goes this far; a larger page would overflow the OFFSET.
   MAX_PAGE = 100_000

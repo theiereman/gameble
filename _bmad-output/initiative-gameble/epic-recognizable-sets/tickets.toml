@@ -60,12 +60,12 @@ notes = ["Split from entry 3 at the author's choice (2026-10-12), with the franc
 [[entry]]
 id = 4
 type = "story"
-title = "The published season gets its new sets once"
-description = "Catalog::RebuildSeasonSets rebuilds the sets of a season published with the retired kinds, once and with openings paused: it publishes Catalog::SeasonSetsRebuilt with the retired set ids, a Game handler deletes their completion rows, then the sets are replaced and the kind check narrowed to the five kinds; follows the numbering precedent (catalog:number_seasons) (AD-5, AD-10)."
-verify = "Run on a copy of staging's data, the published season holds only the new kinds and no old completion; a second run changes nothing; holdings, rarities and numbers are untouched; the kind check refuses a tome."
+title = "The retired set kinds removed"
+description = "A migration deletes the sets of the retired kinds (tome, publisher, best_of_year) in every season, with their memberships, tiers and completion rows, then narrows the set kind check to the five kinds (added unvalidated, validated in the next migration); the retired-kind code (Catalog::Set enum and BUILT_KINDS, SetLabel, routes, shelf and card-detail orders, back-office, locales, catalog.genres) and its tests and fixtures go (AD-5, AD-10)."
+verify = "Migrating a database holding a season of retired kinds leaves no retired set, membership, tier or their completion rows, every other set and completion untouched; the kind check refuses a tome; that season's card pages render with no set and no genre; the published season's screens are unchanged."
 covers = ["R10"]
 after = [3, 11, 12]
-hitl = true
+hitl = false
 risk = "medium"
 
 [[entry]]

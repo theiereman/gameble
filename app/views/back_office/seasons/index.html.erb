@@ -23,7 +23,7 @@
           <% Catalog::Rarity::TIERS.each_value do |name| %>
             <th scope="col"><%= t("catalog.rarity.#{name}") %></th>
           <% end %>
-          <% Catalog::Set::BUILT_KINDS.each do |kind| %>
+          <% Catalog::Set.kinds.each_key do |kind| %>
             <th scope="col"><%= t(".sets.#{kind}") %></th>
           <% end %>
         </tr>
@@ -42,7 +42,7 @@
                 <td>—</td>
               <% end %>
             <% end %>
-            <% Catalog::Set::BUILT_KINDS.each do |kind| %>
+            <% Catalog::Set.kinds.each_key do |kind| %>
               <% if season.set_counts %>
                 <td data-season-sets-<%= kind.dasherize %>="<%= season.set_counts.fetch(kind) %>"><%= number_with_delimiter(season.set_counts.fetch(kind)) %></td>
               <% else %>

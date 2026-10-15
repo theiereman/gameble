@@ -7,10 +7,10 @@ require_relative "../../support/catalog_seeds"
 class Catalog::SetNeighboursTest < ActiveSupport::TestCase
   include CatalogSeeds
 
-  # A published season with one publisher set "valve" holding three
+  # A published season with one studio set "valve" holding three
   # card-seasons at positions 3, 1, 2 (by id order): returns [ season, ids ].
   def three_in_a_set
-    season = seed_published_sets([ [ "publisher", "valve", { "publisher" => "Valve" } ] ])
+    season = seed_published_sets([ [ "studio", "valve", { "studio" => "Valve" } ] ])
     other = seed_card_seasons([ 3.0, 2.0, 1.0 ])
     ids = Catalog::CardSeason.where(season_id: other.id).order(:id).ids
     Catalog::CardSeason.where(id: ids).update_all(season_id: season.id, rarity: 1)
@@ -21,7 +21,7 @@ class Catalog::SetNeighboursTest < ActiveSupport::TestCase
 
   def slug(id) = Catalog::CardSeason.find(id).card.slug
 
-  def neighbours(id, kind: "publisher", key: "valve", locale: :en)
+  def neighbours(id, kind: "studio", key: "valve", locale: :en)
     Catalog::SetNeighbours.call(card_season_id: id, kind:, key:, locale:)
   end
 
@@ -31,7 +31,7 @@ class Catalog::SetNeighboursTest < ActiveSupport::TestCase
 
     assert_queries_count(1) { result = neighbours(ids[2]) }
 
-    assert_equal Catalog::SetSlots::SetRef.new(kind: "publisher", key: "valve", params: { "publisher" => "Valve" }), result.set
+    assert_equal Catalog::SetSlots::SetRef.new(kind: "studio", key: "valve", params: { "studio" => "Valve" }), result.set
     assert_equal [ 2, 3, slug(ids[1]), slug(ids[0]) ], [ result.position, result.total, result.previous, result.next ]
   end
 
@@ -69,11 +69,11 @@ class Catalog::SetNeighboursTest < ActiveSupport::TestCase
 
   test "a set that does not hold the card, an unknown set or a set of another season is nothing" do
     season, ids = three_in_a_set
-    Catalog::Set.insert_all!([ { season_id: season.id, kind: "tome", key: "action-1", params: { "genre" => "action", "volume" => 1, "volumes" => 1 } } ])
+    Catalog::Set.insert_all!([ { season_id: season.id, kind: "theme", key: "action", params: { "theme" => "action" } } ])
 
-    assert_nil neighbours(ids[0], kind: "tome", key: "action-1")
+    assert_nil neighbours(ids[0], kind: "theme", key: "action")
     assert_nil neighbours(ids[0], key: "nope")
-    assert_nil neighbours(ids[0], kind: "best_of_year")
+    assert_nil neighbours(ids[0], kind: "franchise")
     # Season 1 has its own "valve" set, holding portal only: its card-seasons
     # are looked up there, never in the newer season's "valve".
     portal = neighbours(catalog_card_seasons(:portal_one).id)

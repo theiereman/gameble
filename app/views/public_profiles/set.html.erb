@@ -21,7 +21,7 @@
   </aside>
   <section class="collection__main" aria-labelledby="profile-set-heading">
     <header class="profile-set__header">
-      <h1 id="profile-set-heading" class="profile-set__heading"><%= SetLabel.heading(@set, @slots.values.map(&:year)) %></h1>
+      <h1 id="profile-set-heading" class="profile-set__heading"><%= SetLabel.for(@set) %></h1>
       <p class="profile-set__progress">
         <span aria-hidden="true"><%= owned %> / <%= @slots.size %></span>
         <span class="visually-hidden"><%= t("public_profiles.show.progress", count: owned, owned:, total: @slots.size) %></span>

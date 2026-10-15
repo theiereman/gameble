@@ -54,8 +54,8 @@ module BackOffice
 
       get back_office_seasons_path(locale: :en)
       assert_select "tr[data-season-number='2'] td[data-season-sets-theme]", false
-      assert_equal [ "Themes", "Franchises", "Studios", "Hall of fame", "UFOs", "Tomes", "Publisher sets", "Best of the year" ],
-        css_select("table.ledger").first.css("thead th").map(&:text).last(8)
+      assert_equal [ "Themes", "Franchises", "Studios", "Hall of fame", "UFOs" ],
+        css_select("table.ledger").first.css("thead th").map(&:text).last(5)
 
       post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
       follow_redirect!
@@ -65,10 +65,7 @@ module BackOffice
       assert_select "tr[data-season-number='2'] td[data-season-sets-studio='0']", "0"
       assert_select "tr[data-season-number='2'] td[data-season-sets-hall-of-fame='0']", "0"
       assert_select "tr[data-season-number='2'] td[data-season-sets-ufo='1']", "1"
-      assert_select "tr[data-season-number='2'] td[data-season-sets-tome='0']", "0"
-      assert_select "tr[data-season-number='2'] td[data-season-sets-publisher='0']", "0"
-      assert_select "tr[data-season-number='2'] td[data-season-sets-best-of-year='0']", "0"
-      assert_select "tr[data-season-number='1'] td[data-season-sets-publisher='1']"
+      assert_select "tr[data-season-number='1'] td[data-season-sets-studio='1']"
       assert_select "tr[data-season-number='1'] td[data-season-sets-theme='0']"
     end
 
@@ -163,7 +160,7 @@ module BackOffice
 
       assert_select "[data-preview-no-themes]", "This season was published before themes: its cards have no theme and no UFO set."
       assert_select "tr[data-preview-theme], [data-preview-ufo-count]", false
-      assert_equal %w[0 0 0 1 0], %w[theme ufo tome publisher best-of-year].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
+      assert_equal %w[0 0 1 0 0], %w[theme franchise studio hall-of-fame ufo].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
     end
 
     test "a draft scored by one version shows no score version verdict" do
@@ -343,7 +340,7 @@ module BackOffice
       assert_equal [ %w[roguelike 119], %w[rpg 44], %w[horror 16], %w[pirates 8] ],
         css_select("tr[data-preview-theme]").map { |row| [ row["data-preview-theme"], *row.css("td").map(&:text) ] }
       assert_select "[data-preview-ufo-count='15']"
-      assert_equal %w[4 1 0 0 0], %w[theme ufo tome publisher best-of-year].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
+      assert_equal %w[4 0 0 0 1], %w[theme franchise studio hall-of-fame ufo].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
       assert_select "[data-preview-verdict]", false
       assert_select "form[action$='/seasons/publish']", false
       assert_select "a[href='/en/back-office/seasons']", "All the seasons"

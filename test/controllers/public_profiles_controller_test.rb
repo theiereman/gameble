@@ -43,9 +43,9 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", "Gabe the Brave"
     assert_select "h1", "Gabe the Brave"
     assert_select "meta[name=robots][content=noindex]"
-    # The summary: the avatar, the name, the counts; no tome shelf.
+    # The summary: the avatar, the name, the counts; no shelf.
     assert_select "header.profile-summary.panel--brackets svg.profile-summary__avatar[aria-hidden=true]"
-    assert_select ".library, .shelf, .tome, .library__room", false
+    assert_select ".library, .shelf, .library__room", false
     held = pirates + [ rpg ]
     started = every_kind(season).select { |key| (set_members(season, key) & held).any? }
     complete = every_kind(season).count { |key| (set_members(season, key) - held).empty? }
@@ -122,16 +122,16 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a shelf of more than fifty sets pages, its page links unprefetched" do
-    seed_published_sets((1..60).map { |volume| [ "tome", "action-#{volume}", { "genre" => "action", "volume" => volume, "volumes" => 60 } ] })
+    seed_published_sets((1..60).map { |number| [ "studio", "studio-#{number}", { "studio" => "Studio #{number}" } ] })
 
-    get brother_path(locale: :en, token: @owner.token, kind: "tome")
+    get brother_path(locale: :en, token: @owner.token, kind: "studio")
 
     assert_select ".collection-sets__list .set-row", 50
-    assert_select ".series-nav a[href=?][data-turbo-prefetch=false]", "/en/brothers/#{@owner.token}?kind=tome&page=2", minimum: 1
+    assert_select ".series-nav a[href=?][data-turbo-prefetch=false]", "/en/brothers/#{@owner.token}?kind=studio&page=2", minimum: 1
     assert_select ".series-nav a[href]:not([data-turbo-prefetch=false])", false
   end
 
-  [ nil, "", "nope", [ "theme" ], "publisher", "started" ].each do |kind|
+  [ nil, "", "nope", [ "theme" ], "studio", "started" ].each do |kind|
     test "a kind of #{kind.inspect} opens the Started tab" do
       publish_sets_draft
 
@@ -207,7 +207,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "/en/brothers/#{token}", "/en/brothers/#{token}?kind=theme", "/en/brothers/#{token}?kind=ufo" ], tabs.map { it["href"] }
     assert_select ".collection__aside .set-row[aria-current=page] .set-row__name", "Horror"
     assert_select ".profile-summary", false
-    assert_select ".library, .open-tome, .tome, .slot", false
+    assert_select ".library, .slot", false
     assert_select ".collection-grid > li > a.card-link[data-turbo-prefetch=false]", 16
     # The owner's faces are named by their label; an empty slot by its
     # visible text, whoever looks.
@@ -265,14 +265,14 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "1 / 3", progress
   end
 
-  test "a set of a season published before themes offers that season's kinds as tabs" do
-    seed_published_sets([ [ "best_of_year", "2011", { "year" => 2011 } ], [ "tome", "action-1", { "genre" => "action", "volume" => 1, "volumes" => 1 } ] ])
+  test "a set of a season without themes offers that season's kinds as tabs" do
+    seed_published_sets([ [ "studio", "valve", { "studio" => "Valve" } ], [ "franchise", "halo", { "franchise" => "Halo" } ] ])
 
-    get brother_set_path(locale: :en, token: @owner.token, kind: "best_of_year", key: "2011")
+    get brother_set_path(locale: :en, token: @owner.token, kind: "studio", key: "valve")
 
     assert_response :success
-    assert_equal "Best rated of the year", open_tab
-    assert_equal [ "Started", "Tomes", "Best rated of the year" ], tabs.map(&:text)
+    assert_equal "Studios", open_tab
+    assert_equal [ "Started", "Franchises", "Studios" ], tabs.map(&:text)
   end
 
   test "a set opened from the Started shelf keeps the Started shelf beside it" do
@@ -301,7 +301,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "action")
     assert_response :not_found
 
-    get brother_set_path(locale: :en, token: @owner.token, kind: "publisher", key: "rpg")
+    get brother_set_path(locale: :en, token: @owner.token, kind: "studio", key: "rpg")
     assert_response :not_found
   end
 
@@ -575,7 +575,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
       assert_not_includes without_urls, @owner.token
       html = css_select("main").sole.to_html
       ids.each do |id|
-        assert_no_match(/\b#{id}\b/, html.gsub(/Tome \d+|\d+ \/ \d+|\d+ of \d+|\d+ cards?|\d+ sets?|\b(19|20)\d\d\b|×\d+|\d+ cop(y|ies)|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|\?page=\d+|page=\d+|\/seasons\/\d+|[Ss]eason \d+/, ""))
+        assert_no_match(/\b#{id}\b/, html.gsub(/\d+ \/ \d+|\d+ of \d+|\d+ cards?|\d+ sets?|\b(19|20)\d\d\b|×\d+|\d+ cop(y|ies)|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|\?page=\d+|page=\d+|\/seasons\/\d+|[Ss]eason \d+/, ""))
       end
     end
   end

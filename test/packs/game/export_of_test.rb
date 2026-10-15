@@ -62,7 +62,7 @@ class Game::ExportOfTest < ActiveSupport::TestCase
     assert_equal [ Time.current.utc.to_date ], export.daily_bonus_days
     assert_equal [ Date.new(2026, 10, 5) ], export.goal_reward_weeks
     set = export.completed_sets.sole
-    assert_equal [ 1, "publisher", "valve", Time.utc(2026, 10, 6) ], [ set.season_number, set.kind, set.key, set.completed_at ]
+    assert_equal [ 1, "studio", "valve", Time.utc(2026, 10, 6) ], [ set.season_number, set.kind, set.key, set.completed_at ]
     assert_equal [ [ "first_booster", Time.utc(2026, 10, 7) ] ], export.unlocks.map { [ it.achievement, it.unlocked_at ] }
   end
 
