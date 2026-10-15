@@ -33,8 +33,8 @@ module BackOffice
       @target = accounts_players(:player)
     end
 
-    def unknown_address_body
-      get "/fr/back-office/nonexistent"
+    def unknown_address_body(locale_prefix)
+      get "#{locale_prefix}/back-office/nonexistent"
       assert_response :not_found
       response.body
     end
@@ -63,7 +63,7 @@ module BackOffice
     { visitor: nil, player: :player }.each do |who, fixture|
       test "a #{who} gets the body of an unknown address from every back-office address, with every verb, and changes nothing" do
         Accounts::Report.create!(reporter: accounts_players(:administrator), reported: @target, reason: "cheating")
-        unknown = unknown_address_body
+        unknown = [ "/fr", "" ].index_with { unknown_address_body(it) }
         sign_in(accounts_players(fixture)) if fixture
         before = state
 
@@ -72,7 +72,7 @@ module BackOffice
             public_send(verb, path, params: { token: @target.token, number: 1 })
 
             assert_response :not_found, "#{verb} #{path}"
-            assert_equal unknown, response.body, "#{verb} #{path}" unless verb == :head
+            assert_equal unknown.fetch(path[%r{\A/fr(?=/)}].to_s), response.body, "#{verb} #{path}" unless verb == :head
           end
         end
         assert_equal before, state

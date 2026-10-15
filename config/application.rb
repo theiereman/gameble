@@ -27,5 +27,8 @@ module Gameble
     # Every page exists in French and English; English is the fallback (AD-18).
     config.i18n.available_locales = %i[en fr]
     config.i18n.default_locale = :en
+
+    # Read at request time: ErrorPage is reloadable app code.
+    config.exceptions_app = ->(env) { ErrorPage.call(env) }
   end
 end

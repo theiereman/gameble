@@ -1,6 +1,7 @@
 # The back-office answers whoever is not staff as an unknown address does:
-# the static 404 page. Errors render here as in production, not as the test
-# environment's detailed page, so the body can be compared.
+# the static 404 page, in the locale of the address. Errors render here as
+# in production, not as the test environment's detailed page, so the body
+# can be compared.
 #
 #   get back_office_path(locale: :fr)
 #   assert_unknown_address
@@ -17,6 +18,10 @@ module HiddenBackOffice
 
   def assert_unknown_address(message = nil)
     assert_response :not_found, message
-    assert_equal Rails.public_path.join("404.html").read, response.body, message
+    assert_equal Rails.public_path.join("404.#{address_locale}.html").read, response.body, message
+  end
+
+  def address_locale
+    request.path[%r{\A/(en|fr)(?=/|\z)}, 1] || I18n.default_locale
   end
 end

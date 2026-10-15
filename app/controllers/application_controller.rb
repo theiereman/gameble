@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
   # Pages meant to be read from a shared link (the PublicRead concern's
   # public_read?) are open to any browser, so link previews (Discord, X,
   # WhatsApp) and older browsers get them.
-  allow_browser versions: :modern, unless: :public_read?
+  allow_browser versions: :modern, unless: :public_read?, block: :refuse_unsupported_browser
 
   # First, so everything the request reads (the player included) runs on
   # the role it chose.
@@ -38,6 +38,10 @@ class ApplicationController < ActionController::Base
     # PublicRead concern opens a controller's GET and HEAD requests.
     def public_read?
       false
+    end
+
+    def refuse_unsupported_browser
+      render file: ErrorPage.unsupported_browser_file(request), layout: false, status: :not_acceptable
     end
 
     # A GET or HEAD reads (AD-11): it runs under the `reading` role with
