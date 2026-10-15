@@ -61,14 +61,16 @@ class WelcomesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a hub prefetched behind a hovered link shows the welcome without closing it" do
+  test "while a welcome is pending, pages turn link prefetching off, so the hub is never read ahead of a click" do
     sign_up
-    clear_enqueued_jobs
 
-    get home_path(locale: :fr), headers: { "X-Sec-Purpose" => "prefetch" }
+    get home_path(locale: :fr)
+    assert_select "meta[name='turbo-prefetch'][content='false']"
+    assert_select "[data-turbo-permanent]#welcome-panel"
 
-    assert_select "#welcome-panel"
-    assert_empty close_jobs
+    perform_enqueued_jobs
+    get home_path(locale: :fr)
+    assert_select "meta[name='turbo-prefetch']", count: 0
   end
 
   test "the close button closes the welcome for good: from Turbo the panel is removed, without JavaScript the hub comes back without it" do

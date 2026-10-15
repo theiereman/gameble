@@ -3,7 +3,7 @@ title: 'A new player is welcomed by the Brotherhood once'
 type: 'feature'
 ticket: '19'
 created: '2026-10-15'
-status: 'in-review'
+status: 'built'
 baseline_revision: '758d704e606c265b82ea1dcdafcf744a34cd6ec4'
 route: 'full'
 route_source: 'auto'
@@ -81,7 +81,15 @@ context: ['{project-root}/AGENTS.md']
 
 ## Plan Change Log
 
+- 2026-10-15, after review pass 1: the frozen assumption that a Turbo prefetch skips the close job let a hovered-then-clicked hub link show the panel without marking it seen (intent gap). The author chose (2026-10-15) to turn link prefetching off on every page while a welcome is pending (`turbo-prefetch` meta in the head), so every hub render that shows the panel is a real visit and enqueues the close job; the prefetch check in `PagesController#home` is gone. The frozen block still states the earlier assumption; only the author edits it.
+
 ## Review Triage Log
+
+### 2026-10-15 — Review pass (quick)
+
+- `medium` · intent_gap → resolved by the author: a hovered hub link was prefetched with `X-Sec-Purpose: prefetch`, skipped the close job, and a click reused that response, so the panel could show again (Turbo 8 reuses a prefetched response on click). Fixed by the author's choice: no prefetching while a welcome is pending; the test now checks the meta and its absence once closed.
+- `low` · patch: a daily-countdown morph refresh after the close job ran would remove the panel under the reader; the panel is now `data-turbo-permanent`, so a morph keeps it until its button or the next visit.
+- `low` · patch: new explanatory comments broke AGENTS.md's comment rule; removed from the new controller, policy, operation, partial, Stimulus controller, route and stylesheet. Updates to existing comment blocks (hub controller and view headers, sign-in operation) were kept so they stay accurate.
 
 ## Verification
 

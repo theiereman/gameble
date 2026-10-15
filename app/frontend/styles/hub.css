@@ -24,7 +24,6 @@
   align-items: start;
 }
 
-/* A new player's welcome panel takes a first row across every column. */
 .hub:has(> .hub-welcome) {
   grid-template-rows: auto auto auto auto 1fr;
   grid-template-areas:
@@ -41,8 +40,6 @@
 .hub-showcase { grid-area: showcase; }
 .daily-booster { grid-area: daily; }
 .hub-sets { grid-area: sets; }
-
-/* ---- Welcome panel: the Brotherhood's message to a new player, once ---- */
 
 .hub-welcome {
   display: flex;

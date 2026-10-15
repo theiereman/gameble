@@ -20,7 +20,7 @@ class PagesController < ApplicationController
       @achievements = Game::AchievementBoard.summary(current_player)
       @showcase = showcase if @season
       @welcome = current_player.welcome_pending
-      close_welcome_once_shown if @welcome
+      Accounts::CloseWelcomeJob.perform_later(current_player.id) if @welcome
     end
     @collection = collection if @season
     @sets = @season ? set_rows : []
@@ -44,12 +44,6 @@ class PagesController < ApplicationController
   private
     def public_read?
       action_name == "legal" && (request.get? || request.head?)
-    end
-
-    # The welcome panel shows once: this render closes it for the next
-    # visit, unless Turbo is only prefetching the hub behind a hovered link.
-    def close_welcome_once_shown
-      Accounts::CloseWelcomeJob.perform_later(current_player.id) unless request.headers["X-Sec-Purpose"] == "prefetch"
     end
 
     # The card of the player's latest notable pull, as a Catalog::CardView,
