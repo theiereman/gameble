@@ -1027,6 +1027,15 @@ en:
       yours: "Waiting for you"
       theirs: "Waiting for their answer"
       recent: "Recently finished"
+      new: "New trade"
+    chooser:
+      title: "New trade"
+      line: "Choose the friend to trade with."
+      label: "Your friends"
+      trade: "Trade"
+      trade_with: "Trade with %{name}"
+      empty: "No friends yet."
+      empty_invite: "Invite one with your link or your code."
     row:
       what_for_what: "%{theirs} for %{yours}"
       expires:

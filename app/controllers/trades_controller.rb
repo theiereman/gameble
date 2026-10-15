@@ -21,6 +21,8 @@ class TradesController < ApplicationController
 
   def new
     authorize :trade, :new?
+    return choose_friend unless params.key?(:friend)
+
     @friend = befriended(params[:friend]) or raise(ActiveRecord::RecordNotFound)
     if (refusal = helpers.trades_refusal(@friend))
       refused(refusal, @friend)
@@ -120,6 +122,13 @@ class TradesController < ApplicationController
   end
 
   private
+    def choose_friend
+      @trades = Game::TradesOf.call(current_player)
+      @cards = card_views(@trades, nil)
+      @friends = Game::FriendsPresence.call(current_player)
+      render :choose
+    end
+
     def find_trade!
       Game::TradesOf.find(current_player, params[:token]) || raise(ActiveRecord::RecordNotFound)
     end

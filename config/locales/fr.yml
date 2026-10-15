@@ -1069,6 +1069,15 @@ fr:
       yours: "En attente de vous"
       theirs: "En attente de leur réponse"
       recent: "Terminés récemment"
+      new: "Nouvel échange"
+    chooser:
+      title: "Nouvel échange"
+      line: "Choisissez l'ami avec qui échanger."
+      label: "Vos amis"
+      trade: "Échanger"
+      trade_with: "Échange avec %{name}"
+      empty: "Aucun ami pour l'instant."
+      empty_invite: "Invitez-en un avec votre lien ou votre code."
     row:
       what_for_what: "%{theirs} contre %{yours}"
       expires:

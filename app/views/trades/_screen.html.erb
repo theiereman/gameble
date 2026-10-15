@@ -13,7 +13,9 @@
   <h1 id="trades-heading" class="trades__title"><%= t("trades.title") %></h1>
   <div class="trades__layout">
     <%= render "trades/list", trades:, current: (trade if view == :board), cards: %>
-    <% if local_assigns[:draft] %>
+    <% if local_assigns.key?(:chooser) %>
+      <%= render "trades/chooser", friends: chooser %>
+    <% elsif local_assigns[:draft] %>
       <%= render "trades/draft_board", friend: draft, island: %>
     <% elsif trade %>
       <%= render "trades/board", trade:, cards:, **local_assigns.fetch(:board, {}) %>

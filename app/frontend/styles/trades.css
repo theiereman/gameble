@@ -30,6 +30,63 @@
   color: var(--color-muted);
 }
 
+.trades__new {
+  display: flex;
+  margin-bottom: var(--space-2);
+}
+
+.trade-chooser {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.trade-chooser__title {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-screen-title);
+  letter-spacing: var(--tracking-screen-title);
+}
+
+.trade-chooser__line,
+.trade-chooser__empty {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body);
+}
+
+.trade-chooser__friends {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.trade-chooser__friend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  box-shadow: inset 0 2px 0 var(--color-line-soft);
+}
+
+.trade-chooser__name {
+  overflow-wrap: anywhere;
+  color: var(--color-text);
+}
+
+.trade-chooser__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
 .trades__group {
   margin: var(--space-4) 0 var(--space-1);
   color: var(--color-muted);
@@ -795,6 +852,15 @@
   .trades--board .trades__list,
   .trades--board .trades__title {
     display: none;
+  }
+
+  .trades__new .button {
+    flex: 1;
+  }
+
+  .trade-chooser__actions {
+    flex-basis: 100%;
+    justify-content: space-between;
   }
 
   .trade-picker {

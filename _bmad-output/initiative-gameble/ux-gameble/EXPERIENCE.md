@@ -34,7 +34,7 @@ In this document, "capsule" is the player-facing word for the spec's "pack", and
 | Card detail ("FICHE DE LA CARTE") | A card in the collection, a revealed capsule card, the showcase's "VOIR LA FICHE", the card zoom | Full card facts, Steam link, share |
 | Seasonal allocation (after the launch) | The first visit after a season is published, before the hub; the hub and the capsule page lead there while it is unseen | What the ended season gave and the sets that follow into the new one |
 | Share sheet | "PARTAGER" in the card detail | Copy the share link, open the public page |
-| Échanges | Menu 03, "ÉCHANGE" on a friend row or friend profile, ÉCHANGES tab | Trade list and trade board |
+| Échanges | Menu 03, "ÉCHANGE" on a friend row or friend profile, "NOUVEL ÉCHANGE" at the top of the trade list, ÉCHANGES tab | Trade list and trade board |
 | Card picker | "PLACER MES CARTES" / "CHOISIR SES CARTES" on the trade board | Choose cards and copies for one side |
 | Amis | Menu 04; PLUS on the phone | Invite by link or code, answer invitations, list friends with their presence |
 | Friend profile | A friend row | Showcase, propose a trade, report |
@@ -103,6 +103,7 @@ The single source for every message the interface shows. Other sections name the
 | Trade list summary | One line per side: the first game, then "+n" for the others: "Red Dead Redemption 2 +2"; an empty side reads "À choisir" |
 | Trade board lines | "Léa vous propose cet échange." · "En attente de la réponse de Léa." · "Choisissez les cartes de chaque côté." · "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez." · "Échange en cours…" · "Échange conclu." · "Échange clos." · "Valable 7 jours après l'envoi" · "Expire dans n j" · open request: "Laissez ce côté vide : Léa choisira ce qu'elle veut en retour." (under the player's empty side while editing) · "Hugo vous laisse choisir. Prenez ce que vous voulez dans sa collection, puis renvoyez." · the empty side "À choisir par Léa" (sender) and "À vous de choisir" (recipient) |
 | Trade toasts | "PROPOSITION ENVOYÉE" · "Léa a 7 jours pour répondre. Vos cartes sont réservées d'ici là." (with the player's side empty: "Léa a 7 jours pour choisir ce qu'elle veut en retour.") · "ÉCHANGE REFUSÉ · Votre réponse a été envoyée à Léa." · "PROPOSITION ANNULÉE · Vos cartes ne sont plus réservées." · "ÉCHANGE CONCLU · Dead Cells ×2 rejoint votre collection." |
+| Friend chooser | "NOUVEL ÉCHANGE" (trade list action and chooser title) · "Choisissez l'ami avec qui échanger." · list name "Vos amis" · "ÉCHANGER" (accessible name "Échange avec Léa") · no friend: "Aucun ami pour l'instant." with the link "Invitez-en un avec votre lien ou votre code." |
 | Trade refusals (inline) | "4 CARTES AU PLUS · Retirez une carte avant d'en placer une autre." · "UN ÉCHANGE À LA FOIS · Un échange est déjà ouvert avec Léa." · "EXEMPLAIRES INSUFFISANTS" · "Vous n'avez plus assez d'exemplaires de Celeste." |
 | Card picker | "n cartes · n exemplaires (4 cartes au plus)" · "n disponibles" · "Aucune carte disponible." |
 | Friends | "PAR LIEN" · "VOTRE CODE AMI" · "AJOUTER AVEC UN CODE" · "Sam vous invite" · "Envoyée à Sam" · "ANNULER" · "NOUVEL AMI · Sam fait maintenant partie de vos amis." · "Aucune invitation en cours." |
@@ -242,6 +243,7 @@ Behavior only. Visual specs live in `DESIGN.md` (see Components), under the same
 | Component | Behavioral rules |
 |---|---|
 | Trade list row | Three groups: "EN ATTENTE DE VOUS", "EN ATTENTE DE LEUR RÉPONSE", "TERMINÉS RÉCEMMENT". Sums up each side on one line, its first game and "+n" for the others (see Copy deck, Trade list summary); the full content shows when the trade opens. Opens its trade board. |
+| Friend chooser | "NOUVEL ÉCHANGE" at the top of the trade list, with or without trades, opens it in the board's place beside the list (on the phone, alone with "◀ LISTE"). One row per friend: the name, the presence (see Copy deck, Presence) and "ÉCHANGER", which opens the draft with that friend, or the trade already in progress with them under the one-at-a-time refusal. When either profile is private, the "Trades closed" line replaces the button. With no friend, the no-friend line points to the invite panel (see Copy deck, Friend chooser). |
 | Trade board | A proposal holds an offer and a request. At most 4 different cards per side. At every send the friend's side holds a card; the sender's own side may stay empty, which asks the friend to choose what they want in return (the open request, no separate gesture). A trade with an empty side cannot be accepted. Actions by state: see State Patterns. |
 | Add slot | Opens the card picker for its side. |
 | Remove | Removes that card (all its copies) from the side. |

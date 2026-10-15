@@ -570,7 +570,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
     get new_trade_path(locale: :fr, friend: "1" * 24)
     assert_response :not_found
-    get new_trade_path(locale: :fr)
+    get new_trade_path(locale: :fr, friend: "")
     assert_response :not_found
     befriend(@alice, accounts_players(:banned))
     get new_trade_path(locale: :fr, friend: accounts_players(:banned).token)
@@ -578,6 +578,118 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     Game::Friendship.where(low_player_id: [ @alice.id, @carol.id ].min).delete_all
     get new_trade_path(locale: :fr, friend: @carol.token)
     assert_response :not_found
+  end
+
+  test "a new trade without a friend opens the chooser beside the list, one row per friend leading to the draft" do
+    sign_in @alice
+
+    get new_trade_path(locale: :fr)
+
+    assert_response :success
+    assert_select "title", /Nouvel échange/
+    assert_select ".trades--board .trades__list"
+    assert_select ".top-bar__phone-back[href=?]", trades_path(locale: :fr)
+    assert_select ".trade-board", 0
+    assert_select "section.trade-chooser.panel--brackets[aria-labelledby=trade-chooser-heading]" do
+      assert_select "h2#trade-chooser-heading", "Nouvel échange"
+      assert_select ".trade-chooser__line", "Choisissez l'ami avec qui échanger."
+      assert_select "ul.trade-chooser__friends[aria-label=?] li.trade-chooser__friend", "Vos amis", 2
+    end
+    { @bob => "Lea", @carol => "Max" }.each do |friend, name|
+      row = css_select(".trade-chooser__friend").find { it.at_css(".trade-chooser__name").text == name }
+      assert row.at_css(".friends__presence"), "#{name}'s row shows their presence"
+      link = row.at_css("a.button")
+      assert_equal new_trade_path(friend: friend.token, locale: :fr), link["href"]
+      assert_equal "Échange avec #{name}", link["aria-label"]
+      assert_equal "Échanger", link.text.strip
+    end
+
+    get css_select(".trade-chooser__friend a.button").first["href"]
+    assert_response :success
+    assert_select ".trade-board--editing .trade-board__title", /Échange avec (Lea|Max)/
+  end
+
+  test "the chooser shows a private friend's closed line instead of the trade button" do
+    sign_in @alice
+    @bob.update_columns(visibility: "private")
+
+    get new_trade_path(locale: :fr)
+
+    lea, max = %w[Lea Max].map { |name| css_select(".trade-chooser__friend").find { it.at_css(".trade-chooser__name").text == name } }
+    assert_equal "Profil privé", lea.at_css(".friends__presence--private").text.strip
+    assert_equal "Le profil de Lea est privé : échanges fermés.", lea.at_css(".trades-closed").text.strip
+    assert_nil lea.at_css("a.button")
+    assert_equal new_trade_path(friend: @carol.token, locale: :fr), max.at_css("a.button")["href"]
+  end
+
+  test "the chooser of a private player shows the own-private closed line with its settings link on every row" do
+    sign_in @alice
+    @alice.update_columns(visibility: "private")
+
+    get new_trade_path(locale: :fr)
+
+    assert_select ".trade-chooser__friend", 2
+    assert_select ".trade-chooser__friend a.button", 0
+    assert_select ".trade-chooser__friend .trades-closed", text: /Votre profil est privé : les échanges sont fermés\./, count: 2
+    assert_select ".trade-chooser__friend .trades-closed a[href=?]", settings_path(locale: :fr), text: "RÉGLAGES", count: 2
+  end
+
+  test "the chooser leads a friend already trading to that trade, one at a time" do
+    trade = from_lea
+    sign_in @alice
+
+    get new_trade_path(locale: :fr)
+    lea = css_select(".trade-chooser__friend").find { it.at_css(".trade-chooser__name").text == "Lea" }
+    assert_equal new_trade_path(friend: @bob.token, locale: :fr), lea.at_css("a.button")["href"]
+
+    get lea.at_css("a.button")["href"]
+    assert_redirected_to trade_path(token: trade.token, locale: :fr)
+    follow_redirect!
+    assert_select ".toast--alert", /Un échange à la fois/
+  end
+
+  test "the chooser of a player without friends points to the invite panel" do
+    Game::Friendship.delete_all
+    sign_in @alice
+
+    get new_trade_path(locale: :fr)
+
+    assert_response :success
+    assert_select ".trade-chooser__friend", 0
+    assert_select ".trade-chooser__empty", /Aucun ami pour l'instant\./ do
+      assert_select "a[href=?]", friends_path(locale: :fr, anchor: "friends-invite"), "Invitez-en un avec votre lien ou votre code."
+    end
+  end
+
+  test "the list opens a new trade, with and without trades" do
+    sign_in @alice
+
+    get trades_path(locale: :fr)
+    assert_select ".trades__list > .trades__new:first-child a.button[href=?]", new_trade_path(locale: :fr), "Nouvel échange"
+    assert_select ".trades__list > .trades__new + .trades__empty"
+
+    from_lea
+    get trades_path(locale: :fr)
+    assert_select ".trades__list > .trades__new:first-child a.button[href=?]", new_trade_path(locale: :fr), "Nouvel échange"
+    assert_select ".trades__list > .trades__new + .trades__group"
+  end
+
+  test "the chooser reads in English" do
+    sign_in @alice, origin: "/en"
+
+    get new_trade_path(locale: :en)
+
+    assert_select ".trades__new a", "New trade"
+    assert_select "#trade-chooser-heading", "New trade"
+    assert_select ".trade-chooser__line", "Choose the friend to trade with."
+    assert_select "ul.trade-chooser__friends[aria-label=?]", "Your friends"
+    assert_select ".trade-chooser__friend a.button[aria-label=?]", "Trade with Lea", "Trade"
+
+    Game::Friendship.delete_all
+    get new_trade_path(locale: :en)
+    assert_select ".trade-chooser__empty", /No friends yet\./ do
+      assert_select "a", "Invite one with your link or your code."
+    end
   end
 
   test "a draft for a private friend, or while private, goes back to the list with the reason" do
@@ -618,6 +730,8 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a visitor asking for a draft is sent home to sign in" do
+    get new_trade_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     get new_trade_path(locale: :fr, friend: @bob.token)
     assert_redirected_to home_path(locale: :fr)
     post trades_path(locale: :fr), params: { friend: @bob.token, give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "1" } }

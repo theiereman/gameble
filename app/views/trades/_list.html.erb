@@ -1,4 +1,7 @@
 <nav class="trades__list" aria-label="<%= t("trades.list.label") %>">
+  <div class="trades__new">
+    <%= render ButtonComponent.new(variant: :secondary, href: new_trade_path, size: :small) do %><%= t("trades.list.new") %><% end %>
+  </div>
   <% if trades.empty? %>
     <%= render PanelComponent.new(tag: :p, class: "trades__empty") do %><%= t("trades.list.empty") %> <%= link_to t("trades.list.empty_invite"), friends_path(anchor: "friends-invite") %><% end %>
   <% end %>

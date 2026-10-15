@@ -1,0 +1,25 @@
+<%= render PanelComponent.new(tag: :section, brackets: true, class: "trade-chooser", aria: { labelledby: "trade-chooser-heading" }) do %>
+  <h2 id="trade-chooser-heading" class="trade-chooser__title"><%= t("trades.chooser.title") %></h2>
+  <p class="trade-chooser__line"><%= t("trades.chooser.line") %></p>
+  <% if friends.empty? %>
+    <p class="trade-chooser__empty"><%= t("trades.chooser.empty") %> <%= link_to t("trades.chooser.empty_invite"), friends_path(anchor: "friends-invite") %></p>
+  <% else %>
+    <ul class="trade-chooser__friends" aria-label="<%= t("trades.chooser.label") %>">
+      <% friends.each do |friend| %>
+        <% name = friend_name(friend.player) %>
+        <li class="trade-chooser__friend">
+          <span class="trade-chooser__name"><%= name %></span>
+          <div class="trade-chooser__actions">
+            <%= render "friends/presence", presence: friend %>
+            <% if (refusal = trades_refusal(friend.player)) %>
+              <%= trades_closed_line(refusal, friend.player) %>
+            <% else %>
+              <%= render ButtonComponent.new(variant: :secondary, size: :small, href: new_trade_path(friend: friend.player.token),
+                    aria_label: t("trades.chooser.trade_with", name:)) do %><%= t("trades.chooser.trade") %><% end %>
+            <% end %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>
