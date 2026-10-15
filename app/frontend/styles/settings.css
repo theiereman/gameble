@@ -352,7 +352,8 @@
   color: var(--color-accent-hi);
 }
 
-.legal__donation {
+.legal__donation,
+.legal__source {
   align-self: flex-start;
   margin: 0;
 }

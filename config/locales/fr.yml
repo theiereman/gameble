@@ -157,7 +157,7 @@ fr:
       settings: "Profil et paramètres"
     legal:
       title: "Mentions légales et confidentialité"
-      updated: "Dernière mise à jour : 14 octobre 2026"
+      updated: "Dernière mise à jour : 15 octobre 2026"
       contact_fallback: "l'éditeur"
       publisher:
         title: "Éditeur et hébergeur"
@@ -230,6 +230,10 @@ fr:
           banned_html: "compte suspendu : il ne peut plus se connecter ; le motif de la suspension s'affiche quand vous tentez de vous connecter ; écrivez à %{contact} pour contester la décision, obtenir vos données ou l'effacement de votre compte ;"
           complaint_html: "réclamation : auprès de la %{authority}."
           authority: "CNIL"
+      source:
+        title: "Code source"
+        text: "Le code de gameble est libre, sous licence GNU AGPL v3.0. Son pixel art est sous licence Creative Commons BY-NC-SA 4.0 : réutilisable en citant gameble, jamais à des fins commerciales. Le nom gameble et son logo restent réservés."
+        link: "Code source"
       support:
         title: "Soutenir gameble"
         text: "gameble est gratuit et le restera. Si le jeu vous plaît, vous pouvez aider à payer son hébergement. Les dons sont facultatifs et ne donnent aucun avantage dans le jeu. Ils passent par Buy Me a Coffee, selon ses propres conditions. L'éditeur reçoit ce que vous choisissez d'y indiquer (nom, message)."

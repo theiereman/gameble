@@ -620,7 +620,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "a visitor reads the French legal page: five sections, the exact ownership notice, the donation link in a new tab" do
+  test "a visitor reads the French legal page: six sections, the exact ownership notice, the donation link in a new tab" do
     configure_legal
 
     get legal_path(locale: :fr)
@@ -629,7 +629,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "html[lang=fr]"
     assert_select "title", "Mentions légales et confidentialité"
     assert_select "main h1#legal-heading", "Mentions légales et confidentialité"
-    assert_equal [ "Éditeur et hébergeur", "Steam, Valve et les jeux", "Conditions d'utilisation", "Confidentialité", "Soutenir gameble" ],
+    assert_equal [ "Éditeur et hébergeur", "Steam, Valve et les jeux", "Conditions d'utilisation", "Confidentialité", "Code source", "Soutenir gameble" ],
       css_select("main section.legal__section h2").map(&:text)
     assert_select ".legal__ownership", OWNERSHIP_NOTICE
     assert_select ".legal__affiliation", /n'est affilié ni à Valve ni à Steam/
@@ -639,6 +639,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       [ donation["href"], donation["target"], donation.text.squish ]
     assert_includes donation["rel"].split, "noopener"
     assert_select "section[aria-labelledby=legal-support]", text: /Ils passent par Buy Me a Coffee/
+    source = css_select("main a.legal__source").sole
+    assert_equal [ "https://github.com/theiereman/gameble", "_blank", "Code source (nouvel onglet)" ],
+      [ source["href"], source["target"], source.text.squish ]
+    assert_includes source["rel"].split, "noopener"
+    assert_select "section[aria-labelledby=legal-source]", text: /sous licence GNU AGPL v3\.0/
     assert_select "[style]", 0
   end
 
@@ -651,11 +656,13 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "html[lang=en]"
     assert_select "main h1", "Legal notice and privacy"
-    assert_equal [ "Publisher and host", "Steam, Valve and the games", "Terms of use", "Privacy", "Support gameble" ],
+    assert_equal [ "Publisher and host", "Steam, Valve and the games", "Terms of use", "Privacy", "Source code", "Support gameble" ],
       css_select("main section.legal__section h2").map(&:text)
     assert_select ".legal__ownership", "All artwork belongs to the games' publishers and their artists, whom we respect."
     assert_equal "Support (new tab)", css_select("main a.legal__donation").sole.text.squish
     assert_select "section[aria-labelledby=legal-support]", text: /They go through Buy Me a Coffee/
+    assert_equal "Source code (new tab)", css_select("main a.legal__source").sole.text.squish
+    assert_select "section[aria-labelledby=legal-source]", text: /under the GNU AGPL v3\.0 license/
   end
 
   test "the configured contact is a mailto link, and the host's name and address are shown" do
@@ -694,7 +701,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_response :success
-    assert_select ".legal__updated", "Dernière mise à jour : 14 octobre 2026"
+    assert_select ".legal__updated", "Dernière mise à jour : 15 octobre 2026"
     %w[.legal__moderation .legal__notice .legal__rectification .legal__objection .legal__death .legal__banned].each do |line|
       assert_select "#{line} a.legal__link[href=?]", "mailto:contact@example.test", "contact@example.test"
     end
@@ -709,7 +716,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :en)
 
     assert_response :success
-    assert_select ".legal__updated", "Last updated: 14 October 2026"
+    assert_select ".legal__updated", "Last updated: 15 October 2026"
     assert_select ".legal__moderation", /by writing to the publisher\.\z/
     assert_select ".legal__notice", /write to the publisher with the page's address/
     assert_select ".legal__rectification", /write to the publisher;\z/

@@ -1,5 +1,6 @@
 module ExternalLinksHelper
   DONATION_URL = "https://buymeacoffee.com/theiereman".freeze
+  SOURCE_CODE_URL = "https://github.com/theiereman/gameble".freeze
   NEW_TAB = { rel: "noopener noreferrer external", target: "_blank" }.freeze
 
   def external_link_to(name, url, button: false, **options)
