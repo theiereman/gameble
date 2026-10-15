@@ -133,6 +133,25 @@ notes = [
   "To do in Cloudflare: the A record gameble.net proxied, SSL/TLS mode Full (strict).",
   "To do on the deploying machine: config/master.key, sentry_dsn.key, steam_api.key and registry_password.key as staging has them, plus `bin/rails secret > config/secret_key_base.production.key` and `openssl rand -hex 32 > config/database_password.production.key`, both saved in the password manager; LEGAL_HOST_NAME and LEGAL_HOST_ADDRESS set in config/deploy.production.yml.",
   "First deploy: `bin/kamal setup -d production` from a tagged release (the pre-deploy hook refuses an untagged commit).",
+  "To do tonight (author, 2026-10-15), with the rest of this server setup: run the first production `bin/kamal setup -d production --skip-push` by hand from the author's machine, as RELEASING.md's Setup section says (the release flow of entry 58 never runs setup); and create the GitHub environment production, its secrets and the deploy key that entry 58 needs.",
+]
+
+[[entry]]
+id = 58
+type = "story"
+title = "A release candidate tested on staging is the release production runs"
+description = "Replaces the release flow: a GitHub pre-release vX.Y.Z-rc.N on develop runs the full CI, then deploys staging and marks its commit with a staging status; bin/promote fast-forwards main to an accepted candidate and publishes the release vX.Y.Z on the same commit; publishing it starts a production workflow that waits for the author's approval, checks the tag, main and the staging status, and deploys the image staging ran without building it again. The version shown is read at deploy time, so one image shows the candidate on staging and the release in production. RELEASING.md documents the whole flow. The author sets up the GitHub environment production, its secrets and the deploy key, and runs the first production setup by hand."
+verify = "A pre-release on develop runs the full CI and deploys staging, which shows the candidate's tag, and its commit gets a successful staging status; a release that is not a pre-release deploys nothing to staging; bin/promote refuses a candidate without the staging status or a release that exists, and otherwise moves main without a merge commit and publishes the release; the production workflow refuses a tag that is not main's head or has no staging status, and once approved deploys without building; a release's image is never deleted from the registry by the staging cleanup; the hooks' tests cover the production rule and the version naming."
+covers = ["R7"]
+after = []
+hitl = true
+risk = "medium"
+notes = [
+  "Decision (author, 2026-10-15): GitHub Actions deploys production after the author's approval in the environment production; the approval stands for the manual acceptance on staging.",
+  "Decision (author, 2026-10-15): main is fast-forwarded to the accepted candidate's commit, never merged; the first production version is v1.0.0.",
+  "Decision (author, 2026-10-15): a candidate is promoted once the full CI passes, staging deploys and the author accepts it on staging.",
+  "Decision (author, 2026-10-15): the first production setup is run by hand from the author's machine (kamal setup); the workflow only deploys and rolls back.",
+  "The author creates the environment production (required reviewer, tags v*.*.*), its secrets and the deploy key allowed on the production LXC, as RELEASING.md lists them.",
 ]
 
 [[entry]]
