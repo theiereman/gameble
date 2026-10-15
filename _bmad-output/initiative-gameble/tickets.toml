@@ -124,3 +124,10 @@ slug = "epic-back-office-ux"
 title = "Staff find their way around the back-office"
 covers = []
 after = [{ epic = 12, needs = "the public release, with every back-office page written" }]
+
+[[epic]]
+id = 19
+slug = "epic-special-packs"
+title = "Special packs stand apart"
+covers = ["CAP-4", "CAP-5", "CAP-12", "CAP-16"]
+after = [{ epic = 12, needs = "the public release" }, { epic = 13, needs = "the opening celebration (13.5) and the collection across editions (13.15) on the booster island" }, { epic = 17, needs = "the opening changed for carried tiers (17.1)" }]

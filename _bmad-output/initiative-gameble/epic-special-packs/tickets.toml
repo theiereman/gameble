@@ -1,0 +1,71 @@
+# tickets.toml — the stories of epic 19, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "Special packs designed"
+description = "bmad-ux adds to DESIGN.md and EXPERIENCE.md the special reserve's hub counter and packs chip, the capsule screen's switch, each origin's look and the intro, with copy in fr and en; bmad-spec updates CAP-4, CAP-12 and CAP-16 and bmad-architecture AD-7 to the epic's decisions."
+verify = "The documents name every state of the counter, switch, look and intro, and neither the spec nor the architecture contradicts the epic."
+covers = ["R1", "R2", "R3", "R4", "R5"]
+after = ["epic-human-readable-codebase"]
+hitl = true
+risk = "low"
+unknown = "whether the special reserve shows one count or one per origin"
+
+[[entry]]
+id = 2
+type = "story"
+title = "A special reserve without cap"
+description = "The shown reserve, its cap and the « Réserve pleine » chip count regular packs only; special packs are counted apart and shown on the hub and the packs chip; the daily bonus and goal reward claims lose their full-reserve refusal, their codes, copy and the panels' full-reserve swaps; « Comment ça marche » follows; opening keeps taking the oldest available pack of any kind and the capsule screen counts both reserves for its empty state until entry 3."
+verify = "Operation tests show both claims succeeding with 10 regular packs, the regular refill still stopping at 10 regular packs, healing unchanged, and the hub and the chip showing both counts; a player holding only special packs still opens them; the hub GET writes nothing."
+covers = ["R1", "R2"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "The capsule screen switches reserves"
+description = "The capsule screen offers regular and special packs, opens the chosen reserve's oldest pack through the unchanged reveal, and keeps the regular one by default."
+verify = "A player with both kinds opens a special pack from the switch and the regular reserve is untouched; with no special pack the switch shows its empty state per EXPERIENCE.md."
+covers = ["R3"]
+after = [2, "13.5", "13.15", "17.1"]
+hitl = false
+risk = "medium"
+unknown = "how the opening JSON exchange and the gameble:bank-changed event name the reserve"
+
+[[entry]]
+id = 4
+type = "story"
+title = "Each origin has its look"
+description = "The pixel art export draws each special kind's canister and the screens that show a pack use it."
+verify = "node script/pixel_art/export.mjs --check passes and a goal reward and a daily bonus show their own looks on the capsule screen."
+covers = ["R4"]
+after = [3]
+hitl = false
+risk = "low"
+unknown = "whether the hub and the packs chip carry the origin's look"
+
+[[entry]]
+id = 5
+type = "story"
+title = "An intro names the origin"
+description = "Opening a special pack plays its intro from EXPERIENCE.md before the five cards, a regular pack plays none, and reduced motion shortens it."
+verify = "Opening each kind on desktop and phone shows the right intro or none, and vitest covers the intro's choice by kind and reduced motion."
+covers = ["R5"]
+after = [4]
+hitl = false
+risk = "low"
+unknown = "how the intro chains with the canister's keyframes"
+
+[[entry]]
+id = 6
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
+verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
+covers = []
+after = [1, 2, 3, 4, 5]
+hitl = false
+risk = "low"
