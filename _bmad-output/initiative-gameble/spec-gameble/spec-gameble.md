@@ -77,10 +77,11 @@ gameble is an open-source passion project, and the game its author wants to play
     - The detail view shows the title, publisher, rarity, genre, release year, short description, minted season, sets, card number, copies owned, the editions owned grouped by rarity (folded beyond a few lines), and a link to the game's Steam store page.
     - Card text appears in the player's UI language. The description appears only in the detail view, not on the card.
 - **CAP-8**
-  - **intent:** Each player has a collection profile reachable by link, visible to whom they choose.
+  - **intent:** Each player has a profile reachable by link that shows off their collection, visible to whom they choose.
   - **success:**
     - Visibility is public (the default), friends only, or private.
-    - Public: a logged-out visitor opening the profile link sees that player's collection and set progress.
+    - Public: a logged-out visitor opening the profile link sees that player's showcase, stats, latest achievements and started sets, and can open their full collection, read-only.
+    - The player puts up to five owned cards in their showcase and orders them; with none chosen the profile shows no showcase.
     - Friends only: only the player's friends see it, and they trade as usual.
     - Private: nobody else sees it, friends included. The player keeps their friends and can still add new ones, but a friend sees nothing beyond the friendship: no presence or activity, no collection, no profile, and no trade either way. A private player still sees what their friends show them.
     - The profile is titled with the player's Steam persona name, refreshed at each sign-in.
@@ -88,8 +89,8 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** A player can share a pull as a link that previews nicely on Discord, X and WhatsApp.
   - **success:** Pasting the link on each of the three platforms shows a preview with the card title and its rarity, and no image at all. The shared page shows the card only, never who shared or owns it.
 - **CAP-10**
-  - **intent:** Players can become friends through an invite link or a friend code.
-  - **success:** A valid link or code sends an invitation. Once the other player accepts it, the friendship exists and is visible to both. They can also ignore it.
+  - **intent:** Players can become friends through an invite link, a friend code, or another player's profile.
+  - **success:** A valid link or code, or the add-friend action on a player's profile, sends an invitation. Once the other player accepts it, the friendship exists and is visible to both. They can also ignore it.
 - **CAP-11**
   - **intent:** Friends can trade cards directly and asynchronously, one or several cards on each side, with no currency.
   - **success:**
