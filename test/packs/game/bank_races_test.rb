@@ -45,7 +45,7 @@ class Game::BankRacesTest < ActiveSupport::TestCase
     Game::Friendship.where(low_player_id: players).or(Game::Friendship.where(high_player_id: players)).delete_all
     # First discoveries made by this test's packs (the fixture ones have none).
     Game::FirstDiscovery.where(pack_id: Game::Pack.where(player_id: players).select(:id)).delete_all
-    [ Game::DailyBonusClaim, Game::Holding, Game::FeedEntry, Game::WeeklyContribution, Game::SetCompletion, Game::Pack ].each do |model|
+    [ Game::DailyBonusClaim, Game::Holding, Game::FeedEntry, Game::WeeklyContribution, Game::SetTier, Game::Pack ].each do |model|
       model.where(player_id: players).delete_all
     end
     Game::PlayerState.where(player_id: @created).delete_all

@@ -18,6 +18,9 @@
 // The chrome follows through `gameble:*` events only: the counts as each
 // card shows (tier-revealed), the reserve on each answer (bank-changed),
 // and the navigation lock during an opening and each reveal.
+// Once the hand is complete and no banner plays, the set tiers the opening
+// reached are celebrated and announced once (BoosterCelebration); they stay
+// until the next capsule opens. A pack shown again celebrates nothing.
 // The bank is read again from the server (lib/booster_bank.ts) after a
 // refusal, and when the countdown reaches zero: the screen is refreshed
 // with no hand at rest, else the bank is fetched once the hand is put
@@ -56,7 +59,8 @@ import type { Rarity } from "../lib/card_types"
 import { dispatchGameble } from "../lib/events"
 import { t } from "../lib/i18n"
 import { motionReduced } from "../lib/motion"
-import { sendOpening, type OpeningAnswer, type OpeningResult } from "../lib/opening"
+import { celebrationAnnouncement, celebrationResults, type CelebrationResult } from "../lib/celebration"
+import { sendOpening, type OpeningAnswer, type OpeningResult, type OpeningSetTier } from "../lib/opening"
 import { repostHref, sendRepost } from "../lib/repost"
 import {
   ARM_MS,
@@ -221,6 +225,12 @@ export default function Booster(props: BoosterProps) {
   const storingRef = useRef(false)
   // The tray slot whose card the zoom shows, or null.
   const [zoom, setZoom] = useState<number | null>(null)
+  // The set celebration: the tiers this island's opening reached, waiting
+  // for the hand to complete; then its results, shown once no banner plays
+  // and announced once, until the next capsule opens.
+  const celebrationPending = useRef<OpeningSetTier[] | null>(null)
+  const [celebration, setCelebration] = useState<CelebrationResult[] | null>(null)
+  const celebrationAnnounced = useRef(false)
 
   const revealingNow = revealingOpening(status)
   useEffect(() => dispatchGameble("gameble:opening-revealing", { revealing: revealingNow }), [revealingNow])
@@ -323,6 +333,26 @@ export default function Booster(props: BoosterProps) {
   }
   const endBanner = useCallback((key: number) => setBanner((current) => (current?.key === key ? null : current)), [])
 
+  // ---- The set celebration (BoosterCelebration.tsx, lib/celebration.ts) ----
+
+  /** The hand is complete: the tiers its opening reached, if any, are celebrated. */
+  const celebrate = () => {
+    const reached = celebrationPending.current
+    celebrationPending.current = null
+    if (!reached) return
+    const results = celebrationResults(reached, document.documentElement.lang || undefined)
+    if (results.length === 0) return
+    celebrationAnnounced.current = false
+    setCelebration(results)
+  }
+
+  const celebrationShown = celebration !== null && banner === null
+  useEffect(() => {
+    if (!celebrationShown || celebration === null || celebrationAnnounced.current) return
+    celebrationAnnounced.current = true
+    announce(celebrationAnnouncement(celebration, strings.celebration, delimiter))
+  }, [celebrationShown, celebration, announce, strings, delimiter])
+
   // ---- Bank ----
 
   const changeBank = (next: BoosterBank) => {
@@ -397,6 +427,7 @@ export default function Booster(props: BoosterProps) {
       setStored([])
       setDealt(false)
       setArmed(false)
+      setCelebration(null)
       setCanisterAway(false)
       setStatus("sealed")
       setDock((value) => value + 1)
@@ -465,6 +496,8 @@ export default function Booster(props: BoosterProps) {
 
     opening.current = true
     setReason(null)
+    celebrationPending.current = null
+    setCelebration(null)
     lock()
     if (current === "dealt") await retract()
     // A pack shown again is left behind: a reload shows the screen afresh.
@@ -493,6 +526,7 @@ export default function Booster(props: BoosterProps) {
       nextPackSize: next.bank.nextPackSize ?? null,
     })
     counts.current = { ...next.tierCountsBefore }
+    celebrationPending.current = next.setTiers
     answerRef.current = next
     revealedRef.current = next.cards.map(() => false)
     revealedAtRef.current = next.cards.map(() => undefined)
@@ -653,10 +687,11 @@ export default function Booster(props: BoosterProps) {
 
   const allRevealed = () => revealedRef.current.length > 0 && revealedRef.current.every(Boolean)
 
-  /** Every card shown: INVENTAIRE COMPLET, the focus on what comes next. */
+  /** Every card shown: INVENTAIRE COMPLET, the focus on what comes next, the set celebration. */
   const complete = () => {
     setStatus("complete")
     requestFocus(bankRef.current.available > 0 ? "open" : "back")
+    celebrate()
   }
 
   const reveal = async (index: number, fromAll: boolean): Promise<void> => {
@@ -907,7 +942,10 @@ export default function Booster(props: BoosterProps) {
     if (focused) requestFocus("card")
     setStored(storedAfterRebuild(revealedRef.current, storedRef.current, next))
     // Every card shown (on the phone, a last one left on the pile): the hand is complete in either layout.
-    if (phaseRef.current === "dealt" && allRevealed()) setStatus("complete")
+    if (phaseRef.current === "dealt" && allRevealed()) {
+      setStatus("complete")
+      celebrate()
+    }
     setLayoutState(next)
     setStageKey((value) => value + 1)
     setZoom(null)
@@ -980,6 +1018,7 @@ export default function Booster(props: BoosterProps) {
       state={{
         phase, status, bank, answer, revealed, revealedAt, stored, dealt, armed, headShown, canisterAway, dock, reason, legendary, banner,
         revealingAll, storing, locked, layout, stageKey, zoom, announcements,
+        celebration: celebrationShown ? celebration : null,
       }}
       left={left}
       elements={{ section, canister, shake, flash, fx, openButton, backLink, slotRefs, traySlotRef }}

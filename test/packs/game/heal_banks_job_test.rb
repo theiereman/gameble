@@ -233,13 +233,7 @@ class Game::HealBanksJobTest < ActiveSupport::TestCase
     now = Time.current.change(usec: 0)
 
     # No season published at the opening: the pool is empty.
-    current = Game::DrawPool.method(:current)
-    Game::DrawPool.define_singleton_method(:current) { nil }
-    begin
-      travel_to(now) { Game::OpenPack.new.call(player:).value! }
-    ensure
-      Game::DrawPool.define_singleton_method(:current, current)
-    end
+    without_published_season { travel_to(now) { Game::OpenPack.new.call(player:).value! } }
     assert_equal 0, Game::Pack.bank(player.id).count
 
     season = seed_card_seasons(distinct_scores(150))

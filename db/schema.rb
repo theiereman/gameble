@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_15_130002) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_15_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -347,6 +347,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_130002) do
     t.index ["player_id", "set_id"], name: "index_game_set_completions_on_player_id_and_set_id", unique: true
   end
 
+  create_table "game_set_tiers", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "set_id", null: false
+    t.string "tier", null: false
+    t.string "reached_by", null: false
+    t.bigint "pack_id"
+    t.datetime "reached_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["pack_id"], name: "index_game_set_tiers_on_pack_id"
+    t.index ["player_id", "set_id", "tier"], name: "index_game_set_tiers_on_player_id_and_set_id_and_tier", unique: true
+    t.check_constraint "(reached_by::text = 'pack'::text) = (pack_id IS NOT NULL)", name: "game_set_tiers_pack_check"
+    t.check_constraint "reached_by::text = 'pack'::text OR reached_by::text = 'trade'::text", name: "game_set_tiers_reached_by_check"
+    t.check_constraint "tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'complete'::text", name: "game_set_tiers_tier_check"
+  end
+
   create_table "game_trade_items", force: :cascade do |t|
     t.bigint "trade_id", null: false
     t.string "side", null: false
@@ -501,6 +517,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_130002) do
   add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
   add_foreign_key "game_player_states", "accounts_players", column: "player_id"
   add_foreign_key "game_set_completions", "accounts_players", column: "player_id"
+  add_foreign_key "game_set_tiers", "accounts_players", column: "player_id"
+  add_foreign_key "game_set_tiers", "game_packs", column: "pack_id", on_delete: :cascade
   add_foreign_key "game_trade_items", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_trade_items", "game_trades", column: "trade_id"
   add_foreign_key "game_trades", "accounts_players", column: "high_player_id"

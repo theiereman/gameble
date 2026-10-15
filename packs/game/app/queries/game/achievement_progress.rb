@@ -3,9 +3,17 @@ module Game
     METRICS = %i[packs_opened epics_obtained legendaries_obtained sets_completed trades_accepted reposts].freeze
 
     OBTAINED_SQL = <<~SQL.squish.freeze
-      SELECT COUNT(*) FROM game_holdings
+      SELECT COUNT(DISTINCT catalog_card_seasons.card_id) FROM game_holdings
         JOIN catalog_card_seasons ON catalog_card_seasons.id = game_holdings.card_season_id
        WHERE game_holdings.player_id = :player_id AND catalog_card_seasons.rarity = %d
+    SQL
+
+    # A set comes back each season under the same kind and key: completing
+    # it again in another season is not another set.
+    SETS_COMPLETED_SQL = <<~SQL.squish.freeze
+      SELECT COUNT(DISTINCT (catalog_sets.kind, catalog_sets.key)) FROM game_set_tiers
+        JOIN catalog_sets ON catalog_sets.id = game_set_tiers.set_id
+       WHERE game_set_tiers.player_id = :player_id AND game_set_tiers.tier = 'complete'
     SQL
 
     SQL = <<~SQL.squish.freeze
@@ -13,7 +21,7 @@ module Game
         (SELECT COUNT(*) FROM game_packs WHERE player_id = :player_id AND opened_at IS NOT NULL),
         (#{format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:epic))}),
         (#{format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:legendary))}),
-        (SELECT COUNT(*) FROM game_set_completions WHERE player_id = :player_id),
+        (#{SETS_COMPLETED_SQL}),
         (SELECT COUNT(*) FROM game_trades WHERE status = 'accepted' AND (proposer_id = :player_id OR recipient_id = :player_id)),
         (SELECT COUNT(*) FROM game_feed_entries WHERE player_id = :player_id AND kind = 'repost')
     SQL

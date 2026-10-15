@@ -9,6 +9,7 @@ module Game
 
       transaction do
         trade = lock_trade(trade)
+        season = Catalog::PublishedSeason.call
         step turn(trade, player, :recipient_id)
         step still_open(trade)
         step current_terms(trade, revision)
@@ -22,11 +23,11 @@ module Game
         step enough_copies(request, holdings.fetch(trade.recipient_id), :requested_cards_unavailable)
         move(trade.proposer_id, holdings.fetch(trade.proposer_id), given: offer, gained: request, released: offer, now:)
         move(trade.recipient_id, holdings.fetch(trade.recipient_id), given: request, gained: offer, released: {}, now:)
-        completed = completions(trade, offer, request, now)
+        reached = tiers_reached(trade, offer, request, season, now)
         trade.update!(status: "accepted", closed_at: now)
         step publish(TradeAccepted.new(data: { trade_id: trade.id, proposer_id: trade.proposer_id, recipient_id: trade.recipient_id }),
           stream_name: stream_name(trade.proposer_id))
-        completed.each { |player_id, set_ids| step publish_completions(player_id, set_ids) }
+        reached.each { |player_id, tiers| step publish_tiers(player_id, tiers) }
         trade
       end
     end
@@ -42,9 +43,15 @@ module Game
       [ trade.low_player_id, trade.high_player_id ].to_h { |player_id| [ player_id, TradeLocks.holdings(player_id, cards) ] }
     end
 
-    def completions(trade, offer, request, now)
+    # Each player's new tiers, the lower player id first; none with no
+    # season published.
+    def tiers_reached(trade, offer, request, season, now)
+      return {} if season.nil?
+
       gained = { trade.proposer_id => request.keys, trade.recipient_id => offer.keys }
-      [ trade.low_player_id, trade.high_player_id ].to_h { |player_id| [ player_id, SetCompletion.record(player_id, gained.fetch(player_id), now) ] }
+      [ trade.low_player_id, trade.high_player_id ].to_h do |player_id|
+        [ player_id, SetTier.record(player_id:, card_season_ids: gained.fetch(player_id), season_id: season.id, reached_by: "trade", pack_id: nil, now:) ]
+      end
     end
 
     def move(player_id, holdings, given:, gained:, released:, now:)

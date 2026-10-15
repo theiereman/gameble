@@ -21,7 +21,7 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
     Game::TradeItem.delete_all
     Game::Trade.delete_all
     Game::Holding.where(player_id: @players.map(&:id)).delete_all
-    Game::SetCompletion.where(player_id: @players.map(&:id)).delete_all
+    Game::SetTier.where(player_id: @players.map(&:id)).delete_all
     Game::Friendship.delete_all
     Game::Invitation.delete_all
     Accounts::Player.where(id: @created.map(&:id)).delete_all if @created

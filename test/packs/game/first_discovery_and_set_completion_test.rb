@@ -22,10 +22,13 @@ class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
 
   def entries(pack) = Game::FeedEntry.where(pack_id: pack.id).order(:position).pluck(:position, :kind, :notable)
 
-  # The valve set gains `ids` beside portal_one.
+  # The valve set gains `ids` beside portal_one, and its complete tier asks for every card.
   def add_to_valve(*ids)
     Catalog::SetMembership.insert_all!(ids.each_with_index.map { |id, index| { set_id: @valve, card_season_id: id, position: index + 2 } })
+    Catalog::SetTier.where(set_id: @valve, tier: "complete").update_all(required: ids.size + 1)
   end
+
+  def completed(player) = Game::SetTier.where(player_id: player.id, tier: "complete").pluck(:set_id)
 
   def befriend(first, second)
     low, high = [ first.id, second.id ].minmax
@@ -111,15 +114,15 @@ class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
     assert_empty Game::FeedEntries.call(nil, kind: "pull")
   end
 
-  test "the opening's budget: three statements more, whatever its cards discover or complete" do
+  test "the opening's budget: three statements more, whatever its cards discover or reach" do
     add_to_valve(@common, @rare)
     undiscover(@common, @uncommon, @rare)
     # The schema cache warmed, so a worker's first introspection of the two
     # tables is not counted; schema queries are skipped anyway.
-    [ Game::FirstDiscovery, Game::SetCompletion ].each(&:columns)
+    [ Game::FirstDiscovery, Game::SetTier ].each(&:columns)
     statements = []
     counter = lambda do |*, payload|
-      statements << payload[:sql] if payload[:name] != "SCHEMA" && payload[:sql].match?(/game_first_discoveries|game_set_completions/)
+      statements << payload[:sql] if payload[:name] != "SCHEMA" && payload[:sql].match?(/game_first_discoveries|game_set_tiers/)
     end
 
     ActiveSupport::Notifications.subscribed(counter, "sql.active_record") do
@@ -127,7 +130,7 @@ class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
     end
 
     assert_equal 3, statements.size, statements.join("\n")
-    assert_equal [ @valve ], Game::SetCompletion.where(player_id: @player.id).pluck(:set_id)
+    assert_equal [ @valve ], completed(@player)
     assert_equal 3, game_events(@player, Game::CardDiscovered).size
   end
 
@@ -136,14 +139,14 @@ class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
   test "an opening that completes a set records it and publishes SetCompleted once, after the opening" do
     open_pack(@player, [ @portal ] * 5)
 
-    assert_equal [ @valve ], Game::SetCompletion.where(player_id: @player.id).pluck(:set_id)
+    assert_equal [ @valve ], completed(@player)
     assert_equal [ Game::PackOpened, Game::SetCompleted ], game_events(@player).last(2).map(&:class)
     assert_equal({ player_id: @player.id, set_id: @valve }, game_events(@player, Game::SetCompleted).sole.data)
 
     open_pack(@player, [ @portal ] * 5)
 
     assert_equal 1, game_events(@player, Game::SetCompleted).size
-    assert_equal 1, Game::SetCompletion.where(player_id: @player.id).count
+    assert_equal 1, Game::SetTier.where(player_id: @player.id).count
   end
 
   test "a set completes only with its last missing card, held with copies left" do
@@ -161,7 +164,7 @@ class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
   test "an opening touching no set records no completion" do
     open_pack(@player, [ @legendary ] * 5)
 
-    assert_empty Game::SetCompletion.all
+    assert_empty Game::SetTier.all
     assert_empty game_events(@player, Game::SetCompleted)
   end
 
@@ -169,7 +172,7 @@ class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
     open_pack(@player, [ @portal ] * 5)
     open_pack(@other, [ @portal ] * 5)
 
-    assert_equal [ @player.id, @other.id ].sort, Game::SetCompletion.where(set_id: @valve).pluck(:player_id).sort
+    assert_equal [ @player.id, @other.id ].sort, Game::SetTier.where(set_id: @valve).pluck(:player_id).sort
     assert_equal 1, game_events(@other, Game::SetCompleted).size
   end
 
@@ -183,7 +186,7 @@ class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
     assert_equal [ @valve ], game_events(@other, Game::SetCompleted).map { it.data[:set_id] }
     assert_equal [ Game::TradeAccepted, Game::SetCompleted ], Rails.configuration.event_store.read.to_a.last(2).map(&:class)
     assert_empty game_events(@player, Game::SetCompleted), "the proposer gained a card in no set"
-    assert_equal [ [ @other.id, @valve ] ], Game::SetCompletion.pluck(:player_id, :set_id)
+    assert_equal [ [ @other.id, @valve, "trade", nil ] ], Game::SetTier.pluck(:player_id, :set_id, :reached_by, :pack_id)
   end
 
   test "a card traded away and gained back completes nothing new" do

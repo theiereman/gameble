@@ -1,6 +1,8 @@
 # The pack-opening benchmark: an opening must answer within 200 ms at the
 # 95th percentile. It builds a 15,000-card published season, with one set
-# per studio, and players with full banks in a database of its own, then
+# per studio and theme sets, each with its tiers, an earlier season holding
+# a third of its games, and players with full banks holding cards of both
+# seasons in a database of its own, then
 # times, in-process and without concurrency, the opening request (POST
 # /en/packs, the gate: the booster's JSON exchange, a fresh Idempotency-Key
 # per post, its faces rendered in the answer), the result page that follows
@@ -19,10 +21,16 @@ class OpenPackBenchmark
   DATABASE = "gameble_benchmark".freeze
   CARDS = 15_000
   STUDIOS = 900
+  THEMES = 40
+  # A theme's bronze, silver and gold, as shares of its cards; its complete
+  # tier asks for every card, as a studio's does.
+  THEME_TIER_SHARES = { "bronze" => 0.10, "silver" => 0.25, "gold" => 0.50 }.freeze
+  EARLIER_CARDS = 5_000
   TIMED = 1_000
   WARM_UP = 50
   OPENINGS_PER_PLAYER = 10
   HOLDINGS_PER_PLAYER = 300
+  EARLIER_HOLDINGS_PER_PLAYER = 100
   RUNS = 3
   LIMIT_MS = 200.0
   PERCENTILES = [ 50, 95, 99 ].freeze
@@ -150,13 +158,15 @@ class OpenPackBenchmark
   # --- Seeding --------------------------------------------------------------
 
   # A published season of CARDS cards, all five tiers filled by the
-  # publication's cut (Catalog::RarityThresholds), numbered above any other.
+  # publication's cut (Catalog::RarityThresholds), numbered above any other,
+  # and before it an earlier season of its first EARLIER_CARDS games.
   def seed_catalog
     check_database!
     random = Random.new(9)
     now = Time.current
     number = (Catalog::Season.maximum(:number) || 0) + 1
-    season_id = Catalog::Season.insert_all!([ { number:, status: "published", published_at: now } ], returning: :id).rows.flatten.sole
+    earlier_id = Catalog::Season.insert_all!([ { number:, status: "published", published_at: now - 90.days } ], returning: :id).rows.flatten.sole
+    season_id = Catalog::Season.insert_all!([ { number: number + 1, status: "published", published_at: now } ], returning: :id).rows.flatten.sole
 
     release_dates = Array.new(CARDS) { Date.new(1990, 1, 1) + random.rand(13_000) }
     card_ids = Catalog::Card.insert_all!(Array.new(CARDS) do |index|
@@ -174,24 +184,41 @@ class OpenPackBenchmark
       { card_id:, season_id:, prestige_score: scores[index], rating: random.rand(0..100), rarity: tiers[index] }
     end, returning: :id).rows.flatten
     seed_sets(season_id, card_season_ids)
+    Catalog::CardSeason.insert_all!(card_ids.first(EARLIER_CARDS).each_with_index.map do |card_id, index|
+      { card_id:, season_id: earlier_id, prestige_score: scores[index], rating: random.rand(0..100), rarity: tiers[index] }
+    end)
     season_id
   end
 
-  # One studio set per studio of the cards (about 17 cards each), so every
-  # opening checks the completion of its cards' sets as in play.
+  # One studio set per studio of the cards (about 17 cards each), complete
+  # only, and THEMES theme sets (375 cards each) with their four tiers, so
+  # every opening runs the tier pass over its cards' sets as in play.
   def seed_sets(season_id, card_season_ids)
-    set_ids = Catalog::Set.insert_all!(Array.new(STUDIOS) do |studio|
-      { season_id:, kind: "studio", key: "benchmark-studio-#{studio}", params: { studio: "Studio #{studio}" } }
+    studios = seed_kind(season_id, card_season_ids, "studio", STUDIOS) { |studio| [ "benchmark-studio-#{studio}", { studio: "Studio #{studio}" } ] }
+    themes = seed_kind(season_id, card_season_ids, "theme", THEMES) { |theme| [ "benchmark-theme-#{theme}", { theme: "benchmark-theme-#{theme}" } ] }
+    Catalog::SetTier.insert_all!(studios.map { |set_id, size| { set_id:, tier: "complete", required: size } })
+    Catalog::SetTier.insert_all!(themes.flat_map do |set_id, size|
+      THEME_TIER_SHARES.map { |tier, share| { set_id:, tier:, required: (size * share).ceil } } + [ { set_id:, tier: "complete", required: size } ]
+    end)
+  end
+
+  # `count` sets of the kind sharing the cards in turn; { set_id => size }.
+  def seed_kind(season_id, card_season_ids, kind, count)
+    set_ids = Catalog::Set.insert_all!(Array.new(count) do |index|
+      key, params = yield(index)
+      { season_id:, kind:, key:, params: }
     end, returning: :id).rows.flatten
     card_season_ids.each_with_index.each_slice(5_000) do |slice|
       Catalog::SetMembership.insert_all!(slice.map do |card_season_id, index|
-        { set_id: set_ids.fetch(index % STUDIOS), card_season_id:, position: (index / STUDIOS) + 1 }
+        { set_id: set_ids.fetch(index % count), card_season_id:, position: (index / count) + 1 }
       end)
     end
+    card_season_ids.each_index.map { set_ids.fetch(it % count) }.tally
   end
 
   # Players in separate groups per series and run, each with a full bank
-  # (Game::FillBank) and HOLDINGS_PER_PLAYER holdings.
+  # (Game::FillBank), HOLDINGS_PER_PLAYER holdings of the published season
+  # and EARLIER_HOLDINGS_PER_PLAYER of the earlier one.
   def seed_players(season_id)
     check_database!
     per_group = ((TIMED + WARM_UP) / OPENINGS_PER_PLAYER.to_f).ceil
@@ -210,6 +237,7 @@ class OpenPackBenchmark
 
     players = groups.values.flatten(2)
     card_season_ids = Catalog::CardSeason.where(season_id:).pluck(:id)
+    earlier_ids = Catalog::CardSeason.where.not(season_id:).pluck(:id)
     random = Random.new(11)
     players.each do |player|
       Game::FillBank.new.call(player:).value! == Game::Pack::BANK_SIZE || refuse("player #{player.id}: bank not filled")
@@ -217,7 +245,7 @@ class OpenPackBenchmark
     now = Time.current
     players.each_slice(50) do |slice|
       Game::Holding.insert_all!(slice.flat_map do |player|
-        card_season_ids.sample(HOLDINGS_PER_PLAYER, random:).map do |card_season_id|
+        (card_season_ids.sample(HOLDINGS_PER_PLAYER, random:) + earlier_ids.sample(EARLIER_HOLDINGS_PER_PLAYER, random:)).map do |card_season_id|
           { player_id: player.id, card_season_id:, quantity: random.rand(1..4), created_at: now, updated_at: now }
         end
       end)

@@ -24,9 +24,11 @@ module Game
       Operation.stream_name(player_id)
     end
 
-    def publish_completions(player_id, set_ids)
-      set_ids.each do |set_id|
-        publish(SetCompleted.new(data: { player_id:, set_id: }), stream_name: stream_name(player_id))
+    # One event per tier row the operation inserted (Game::SetTier.record).
+    def publish_tiers(player_id, reached)
+      reached.each do |set_id, tier|
+        event = tier == "complete" ? SetCompleted.new(data: { player_id:, set_id: }) : SetTierReached.new(data: { player_id:, set_id:, tier: })
+        publish(event, stream_name: stream_name(player_id))
       end
       Success()
     end

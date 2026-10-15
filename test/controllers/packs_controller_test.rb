@@ -380,7 +380,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "standard", pack.card_back
     assert_equal [ pack.id ], game_events(player, Game::PackOpened).map { it.data[:pack_id] }
 
-    assert_equal %w[pack cards bank serverTime tierCountsBefore unlockedCardBacks], body.keys
+    assert_equal %w[pack cards bank serverTime tierCountsBefore setTiers unlockedCardBacks], body.keys
     assert_equal({ "token" => pack.token, "kind" => "regular", "cardBack" => "standard", "url" => "/en/packs/#{pack.token}" }, body["pack"])
     scheduled = (now + 10.minutes).iso8601(3)
     assert_equal({ "available" => 9, "reserveFull" => false, "nextAvailableAt" => scheduled, "scheduledAt" => [ scheduled ], "nextPackSize" => 5 },
@@ -407,8 +407,32 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     # No database id (AD-15): no id key, and the only integers are counts.
     assert_empty json_keys(body).grep(/\Aid\z|Id\z/)
-    assert_equal [ *Array.new(5) { %w[cards.[].season cards.[].year] }.flatten, "bank.available", "bank.nextPackSize", *%w[common uncommon rare epic legendary].map { "tierCountsBefore.#{it}" } ],
+    assert_equal [ *Array.new(5) { %w[cards.[].season cards.[].year] }.flatten, "bank.available", "bank.nextPackSize", *%w[common uncommon rare epic legendary].map { "tierCountsBefore.#{it}" },
+      *Array.new(body["setTiers"].size) { %w[setTiers.[].required setTiers.[].total] }.flatten ],
       json_integers(body).map(&:first)
+  end
+
+  test "a JSON opening answers the set tiers it reached, by set then tier, named in the locale and with no id" do
+    player = accounts_players(:player)
+    common, uncommon, rare, = fixture_tier_ids
+    theme = Catalog::Set.insert_all!([ { season_id: catalog_seasons(:one).id, kind: "theme", key: "roguelike", params: { "theme" => "roguelike" } } ],
+      returning: :id).rows.flatten.sole
+    Catalog::SetMembership.insert_all!([ common, uncommon, rare ].each_with_index.map { |id, index| { set_id: theme, card_season_id: id, position: index + 1 } })
+    Catalog::SetTier.insert_all!({ bronze: 1, silver: 1, gold: 2, complete: 3 }.map { |tier, required| { set_id: theme, tier:, required: } })
+    create_pack(player, cards: [ common ] * 5)
+    sign_in(player)
+
+    open_json
+    first = body["setTiers"]
+    open_json
+
+    expected = %w[bronze silver].zip([ 1, 1 ]).map do |tier, required|
+      { "kind" => "theme", "key" => "roguelike", "name" => "Roguelike", "tier" => tier, "required" => required, "total" => 3 }
+    end
+    assert_equal expected, first
+    assert_equal expected, body["setTiers"]
+    assert_equal 2, game_events(player, Game::SetTierReached).size
+    assert_empty json_keys(body).grep(/\Aid\z|Id\z/)
   end
 
   test "a JSON opening that leaves the reserve full and nothing scheduled answers so" do
@@ -436,7 +460,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
       open_json
     end
     assert_response :ok
-    assert_equal answer.slice("pack", "cards", "tierCountsBefore"), body.slice("pack", "cards", "tierCountsBefore")
+    assert_equal answer.slice("pack", "cards", "tierCountsBefore", "setTiers"), body.slice("pack", "cards", "tierCountsBefore", "setTiers")
+    assert_equal [ { "kind" => "studio", "key" => "valve", "name" => "Valve", "tier" => "complete", "required" => 1, "total" => 1 } ], body["setTiers"]
     assert_equal first.token, body.dig("pack", "token")
     assert_equal %w[common uncommon rare epic legendary], body["cards"].map { it["tier"] }
 

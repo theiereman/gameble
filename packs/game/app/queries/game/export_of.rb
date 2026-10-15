@@ -3,7 +3,7 @@ module Game
     HeldCard = Data.define(:card_season_id, :quantity, :last_gained_at)
     PackRow = Data.define(:token, :kind, :season_number, :card_back, :available_at, :opened_at, :card_season_ids)
     Contribution = Data.define(:week_start, :openings)
-    CompletedSet = Data.define(:season_number, :kind, :key, :completed_at)
+    ReachedTier = Data.define(:season_number, :kind, :key, :tier, :reached_by, :reached_at)
     Discovery = Data.define(:card_season_id, :discovered_at)
     Entry = Data.define(:kind, :card_season_id, :occurred_at)
     Unlock = Data.define(:achievement, :unlocked_at)
@@ -12,7 +12,7 @@ module Game
     Invitations = Data.define(:received, :sent)
 
     Result = Data.define(:friend_code, :held_cards, :packs, :daily_bonus_days, :goal_reward_weeks, :contributions,
-      :completed_sets, :discoveries, :feed_entries, :unlocks, :friend_count, :invitations, :trades) do
+      :set_tiers, :discoveries, :feed_entries, :unlocks, :friend_count, :invitations, :trades) do
       def card_season_ids
         (held_cards.map(&:card_season_id) + packs.flat_map(&:card_season_ids) + discoveries.map(&:card_season_id) +
           feed_entries.map(&:card_season_id) + trades.flat_map { |trade| trade.offered.map(&:card_season_id) }).uniq
@@ -29,7 +29,7 @@ module Game
         goal_reward_weeks: GoalReward.where(player_id: player.id).order(:week_start).pluck(:week_start),
         contributions: WeeklyContribution.where(player_id: player.id).order(:week_start)
           .pluck(:week_start, :openings).map { |week_start, openings| Contribution.new(week_start:, openings:) },
-        completed_sets: completed_sets(player),
+        set_tiers: set_tiers(player),
         discoveries: FirstDiscovery.where(player_id: player.id).order(:discovered_at, :card_season_id)
           .pluck(:card_season_id, :discovered_at).map { |id, at| Discovery.new(card_season_id: id, discovered_at: at) },
         feed_entries: feed_entries(player),
@@ -59,13 +59,13 @@ module Game
       end
     end
 
-    def self.completed_sets(player)
-      completions = SetCompletion.where(player_id: player.id).order(:completed_at, :set_id).pluck(:set_id, :completed_at)
-      sets = Catalog::Set.where(id: completions.map(&:first)).joins(:season)
+    def self.set_tiers(player)
+      tiers = SetTier.where(player_id: player.id).order(:reached_at, :set_id, :id).pluck(:set_id, :tier, :reached_by, :reached_at)
+      sets = Catalog::Set.where(id: tiers.map(&:first)).joins(:season)
         .pluck(:id, "catalog_seasons.number", :kind, :key).to_h { |id, *set| [ id, set ] }
-      completions.filter_map do |set_id, completed_at|
+      tiers.filter_map do |set_id, tier, reached_by, reached_at|
         season_number, kind, key = sets[set_id]
-        CompletedSet.new(season_number:, kind:, key:, completed_at:) if kind
+        ReachedTier.new(season_number:, kind:, key:, tier:, reached_by:, reached_at:) if kind
       end
     end
 
@@ -90,6 +90,6 @@ module Game
       end
     end
 
-    private_class_method :held_cards, :packs, :completed_sets, :feed_entries, :trades
+    private_class_method :held_cards, :packs, :set_tiers, :feed_entries, :trades
   end
 end

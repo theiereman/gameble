@@ -76,6 +76,8 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal({ "one" => "%{n} capsule", "other" => "%{n} capsules" }, strings["reserveCount"])
     assert_equal "Card %{position} of %{total}, face down. Reveal.", strings["faceDown"]
     assert_equal [ "Previous card", "Next card" ], strings.values_at("zoomPrevious", "zoomNext")
+    assert_equal [ "%{tier} TIER", "SET COMPLETE", "Next result" ], strings["celebration"].values_at("tierTitle", "completeTitle", "next")
+    assert_equal({ "bronze" => "BRONZE", "silver" => "SILVER", "gold" => "GOLD" }, strings.dig("celebration", "tiers"))
     assert_equal I18n.t("boosters.island", locale: :en).keys.map { it.to_s.camelize(:lower) }.sort, strings.keys.sort
     # No database id (AD-15).
     assert_empty json_keys(data).grep(/\Aid\z|Id\z/)
@@ -153,6 +155,10 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal " ", data["delimiter"]
     assert_equal "Ouvrir la capsule", data.dig("strings", "open")
     assert_equal "Réserve vide", data.dig("strings", "reserveEmpty")
+    celebration = data.dig("strings", "celebration")
+    assert_equal [ "PALIER %{tier}", "SET COMPLET", "Résultat suivant", " ; " ], celebration.values_at("tierTitle", "completeTitle", "next", "announceSeparator")
+    assert_equal({ "zero" => "%{count} PALIER ATTEINT", "one" => "%{count} PALIER ATTEINT", "other" => "%{count} PALIERS ATTEINTS" }, celebration["folded"])
+    assert_equal "argent", celebration.dig("spokenTiers", "silver")
     assert_equal "/fr/cards/SLUG", data["cardUrl"]
     assert_select ".booster__fallback form", 0
     assert_select ".booster__fallback a[href='/fr']", "Retour au pont"

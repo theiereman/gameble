@@ -27,9 +27,15 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     Game::Holding.create!(player_id: player.id, card_season_id:, quantity:)
   end
 
-  def complete_sets(count, player: @player)
-    count.times { |index| Game::SetCompletion.create!(player_id: player.id, set_id: 1_000 + index, completed_at: Time.current) }
+  # Completes `count` franchise sets of the season, each under a key of its own unless `keys` names them.
+  def complete_sets(count, player: @player, season: catalog_seasons(:one), keys: nil)
+    keys ||= Array.new(count) { "done-#{player.id}-#{Catalog::Set.count + it}" }
+    set_ids = Catalog::Set.insert_all!(keys.map { |key| { season_id: season.id, kind: "franchise", key:, params: { "franchise" => key } } },
+      returning: :id).rows.flatten
+    Game::SetTier.insert_all!(set_ids.map { |set_id| { player_id: player.id, set_id:, tier: "complete", reached_by: "trade", reached_at: Time.current } })
   end
+
+  def second_season = Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
 
   def open_with_jobs(cards, player: @player)
     create_pack(player, cards:)
@@ -97,11 +103,39 @@ class Game::AchievementsTest < ActiveSupport::TestCase
     assert_equal [ 1, 1 ], progress.values_at(:epics_obtained, :legendaries_obtained)
   end
 
+  test "an Épique held in two seasons is one game obtained" do
+    portal_two = Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: second_season.id, prestige_score: 0.9,
+      rating: 95, rarity: 4, number: 1 } ], returning: :id).rows.flatten.sole
+    hold(@epic)
+    hold(portal_two)
+
+    assert_equal 1, progress[:epics_obtained]
+  end
+
   test "sets completed count the player's completions" do
     complete_sets(2)
     complete_sets(1, player: @other)
 
     assert_equal 2, progress[:sets_completed]
+  end
+
+  test "sets completed count a set's kind and key once, whatever the seasons it was completed in; a tier below complete counts nothing" do
+    complete_sets(1, keys: [ "dark-souls" ])
+    complete_sets(1, season: second_season, keys: [ "dark-souls" ])
+    Game::SetTier.insert_all!([ { player_id: @player.id, set_id: catalog_sets(:valve_one).id, tier: "gold", reached_by: "trade", reached_at: Time.current } ])
+
+    assert_equal 1, progress[:sets_completed]
+  end
+
+  test "a set completed again in a later season grants the first complete set once and never advances three complete sets" do
+    complete_sets(1, keys: [ "dark-souls" ])
+    complete_sets(1, season: second_season, keys: [ "dark-souls", "portal" ])
+
+    Game::GrantAchievementsJob.perform_now(@player.id)
+
+    assert_equal 2, progress[:sets_completed]
+    assert_includes unlocked, "first_complete_set"
+    assert_not_includes unlocked, "three_complete_sets"
   end
 
   test "trades accepted count the accepted trades on either side, never an open one" do

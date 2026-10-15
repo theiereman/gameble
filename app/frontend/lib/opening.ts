@@ -30,12 +30,27 @@ export type OpeningBank = {
   nextPackSize: number | null
 }
 
+export const SET_TIERS = ["bronze", "silver", "gold", "complete"] as const
+export type SetTierName = (typeof SET_TIERS)[number]
+
+/** A set tier the opening reached: "Roguelike", silver at 16 of its 62 cards. */
+export type OpeningSetTier = {
+  kind: string
+  key: string
+  name: string
+  tier: SetTierName
+  required: number
+  total: number
+}
+
 export type OpeningAnswer = {
   pack: { token: string; kind: string; cardBack: string; url: string }
   cards: OpeningCard[]
   bank: OpeningBank
   serverTime: string
   tierCountsBefore: Record<Rarity, number>
+  /** Every set tier row the opening inserted, by set then tier. */
+  setTiers: OpeningSetTier[]
   unlockedCardBacks: unknown[]
 }
 
@@ -96,6 +111,18 @@ function isCard(value: unknown): value is OpeningCard {
   )
 }
 
+function isSetTier(value: unknown): value is OpeningSetTier {
+  return (
+    isRecord(value) &&
+    typeof value.kind === "string" &&
+    typeof value.key === "string" &&
+    typeof value.name === "string" &&
+    SET_TIERS.includes(value.tier as SetTierName) &&
+    Number.isInteger(value.required) &&
+    Number.isInteger(value.total)
+  )
+}
+
 function isAnswer(value: unknown): value is OpeningAnswer {
   return (
     isRecord(value) &&
@@ -107,7 +134,9 @@ function isAnswer(value: unknown): value is OpeningAnswer {
     typeof value.bank.available === "number" &&
     typeof value.serverTime === "string" &&
     isRecord(value.tierCountsBefore) &&
-    RARITIES.every((tier) => typeof (value.tierCountsBefore as Record<string, unknown>)[tier] === "number")
+    RARITIES.every((tier) => typeof (value.tierCountsBefore as Record<string, unknown>)[tier] === "number") &&
+    Array.isArray(value.setTiers) &&
+    value.setTiers.every(isSetTier)
   )
 }
 

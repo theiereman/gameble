@@ -9,6 +9,7 @@ import type { MouseEvent, Ref } from "react"
 import BoosterBanner, { type Banner } from "./BoosterBanner"
 import BoosterCanister, { type CanisterParts } from "./BoosterCanister"
 import BoosterCard, { type CardGestures } from "./BoosterCard"
+import BoosterCelebration from "./BoosterCelebration"
 import BoosterPanel from "./BoosterPanel"
 import BoosterPlate, { type PlateCard } from "./BoosterPlate"
 import BoosterStrip from "./BoosterStrip"
@@ -16,6 +17,7 @@ import BoosterTray from "./BoosterTray"
 import BoosterZoom from "./BoosterZoom"
 import type { Announcement } from "./useLiveRegion"
 import type { Rarity } from "../lib/card_types"
+import type { CelebrationResult } from "../lib/celebration"
 import { formatNumber, t } from "../lib/i18n"
 import type { OpeningAnswer, OpeningCard } from "../lib/opening"
 import { faceSize, formatClock, pileDepth, topOfPile, zoomNeighbour, type Layout } from "../lib/booster"
@@ -53,6 +55,8 @@ export type BoosterViewState = {
   stageKey: number
   zoom: number | null
   announcements: Announcement[]
+  /** The set celebration's results once the hand is complete and no banner plays, else null. */
+  celebration: CelebrationResult[] | null
 }
 
 /** The elements the island animates, measures or focuses. */
@@ -100,7 +104,7 @@ export type BoosterViewProps = {
 export default function BoosterView({ props, state, left, elements, handlers }: BoosterViewProps) {
   const { hubUrl, cardUrl, repostUrl, delimiter, season, packSize, rarityNames, rarityIcons, artPalette, arrowIcons, strings } = props
   const { phase, status, bank, answer, revealed, revealedAt, stored, dealt, armed, headShown, canisterAway, dock, reason, legendary, banner } = state
-  const { revealingAll, storing, locked, layout, stageKey, zoom, announcements } = state
+  const { revealingAll, storing, locked, layout, stageKey, zoom, announcements, celebration } = state
   const { section, canister, shake, flash, fx, openButton, backLink, slotRefs, traySlotRef } = elements
   const { open, revealAll, activateCard, storeTop, openZoom, closeZoom, stepZoom, seeZoomed, repost, endBanner, guardBack, gestures } = handlers
   const number = (value: number) => formatNumber(value, delimiter)
@@ -227,6 +231,10 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
 
   const zoomed = zoom !== null && phone ? cards[zoom] : null
 
+  const celebrationResults = celebration && (
+    <BoosterCelebration key={answer?.pack.token} results={celebration} strings={strings.celebration} delimiter={delimiter} phone={phone} />
+  )
+
   return (
     <section ref={section} className="booster" aria-labelledby="booster-title" data-phase={phase} data-layout={layout}>
       {phone ? (
@@ -262,6 +270,7 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
             </>
           }
           counter={t(strings.revealedCount, { revealed: phase === "dealt" ? number(revealedCount) : "—", total: number(shownSize) })}
+          celebration={celebrationResults}
         />
       )}
 
@@ -325,7 +334,7 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
                 </div>
                 {dealt && (
                   <>
-                    <BoosterPlate plate={plate} hint={hint} storeLabel={strings.store} storeBusy={busy} onStore={storeTop} />
+                    <BoosterPlate plate={plate} hint={hint} storeLabel={strings.store} storeBusy={busy} onStore={storeTop} celebration={celebrationResults} />
                     <BoosterTray
                       key={stageKey}
                       label={strings.tray}

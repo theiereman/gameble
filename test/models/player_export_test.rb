@@ -6,7 +6,7 @@ class PlayerExportTest < ActiveSupport::TestCase
   include GamePacks
   include GameTrades
 
-  SECTIONS = %i[exportedAt profile collection packs dailyBonusDays goalRewardWeeks weeklyContributions setCompletions
+  SECTIONS = %i[exportedAt profile collection packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers
     firstDiscoveries feedEntries achievements friends pendingInvitations trades reportsFiled reportsReceived
     moderationDecisions].freeze
   COUNTING_KEYS = %i[season quantity openings count received sent].freeze
@@ -79,8 +79,8 @@ class PlayerExportTest < ActiveSupport::TestCase
     assert_equal [ opened.token, "regular", 1, "standard" ], pack.values_at(:token, :kind, :season, :cardBack)
     assert_equal [ "portal", "portal", "tin-soldier", "blue-depths", "portal" ], pack[:cards].map { it[:slug] }
     assert_equal [ { week: Game::WeeklyGoal.week_start(Time.current.utc).iso8601, openings: 1 } ], hash[:weeklyContributions]
-    assert_equal [ [ 1, "studio", "valve" ] ], hash[:setCompletions].map { it.values_at(:season, :kind, :key) }
-    assert hash[:setCompletions].sole[:completedAt]
+    assert_equal [ [ 1, "studio", "valve", "complete", "pack" ] ], hash[:setTiers].map { it.values_at(:season, :kind, :key, :tier, :reachedBy) }
+    assert hash[:setTiers].sole[:reachedAt]
     assert_equal [ { achievement: "first_booster", unlockedAt: "2026-10-07T00:00:00Z" } ], hash[:achievements]
     trade_entry = hash[:feedEntries].find { it[:kind] == "trade" }
     assert_equal({ slug: "tin-soldier", season: 1 }, trade_entry[:card])
@@ -96,7 +96,7 @@ class PlayerExportTest < ActiveSupport::TestCase
     hash = export.to_h
 
     assert_equal SECTIONS, hash.keys
-    %i[collection packs dailyBonusDays goalRewardWeeks weeklyContributions setCompletions firstDiscoveries feedEntries
+    %i[collection packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers firstDiscoveries feedEntries
        achievements trades reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
     assert_equal({ count: 0 }, hash[:friends])
     assert_equal({ received: 0, sent: 0 }, hash[:pendingInvitations])

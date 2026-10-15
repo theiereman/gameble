@@ -6,8 +6,9 @@
 // title and year, and "Ranger", which stores the card as the swipe does.
 // The plate is where the Épique and Légendaire banners play on the phone:
 // it pops in (PLATE_POP_MS, longer for a Légendaire; no pop under reduced
-// motion) and never covers the card.
-import { useLayoutEffect, useMemo, useRef } from "react"
+// motion) and never covers the card. Once the hand is complete, the set
+// celebration takes the hint's place and the band grows to hold it.
+import { useLayoutEffect, useMemo, useRef, type ReactNode } from "react"
 import type { Rarity } from "../lib/card_types"
 import { PLATE_POP_LEGENDARY_MS, PLATE_POP_MS } from "../lib/booster"
 import { motionReduced } from "../lib/motion"
@@ -31,12 +32,16 @@ export type BoosterPlateProps = {
   /** Something runs (an opening, Tout révéler, a lock or a store): "Ranger" says so and ignores activation. During the 400ms guard a press is ignored by the island. */
   storeBusy: boolean
   onStore: () => void
+  /** The set celebration, shown in place of the hint while no card's plate is up; or null. */
+  celebration: ReactNode
 }
 
-export default function BoosterPlate({ plate, hint, storeLabel, storeBusy, onStore }: BoosterPlateProps) {
+export default function BoosterPlate({ plate, hint, storeLabel, storeBusy, onStore, celebration }: BoosterPlateProps) {
+  const celebrating = Boolean(celebration) && !plate
   return (
     <div className="booster-plate-band">
-      {hint && (
+      {celebrating && celebration}
+      {hint && !celebrating && (
         <p className="booster__hint booster-plate-band__hint" aria-hidden={plate ? "true" : undefined}>
           {hint}
         </p>

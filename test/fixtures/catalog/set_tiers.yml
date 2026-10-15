@@ -1,0 +1,7 @@
+_fixture:
+  model_class: Catalog::SetTier
+
+valve_one_complete:
+  set: valve_one
+  tier: complete
+  required: 1

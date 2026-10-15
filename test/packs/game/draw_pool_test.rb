@@ -57,6 +57,36 @@ class Game::DrawPoolTest < ActiveSupport::TestCase
     assert_equal [ catalog_card_seasons(:common_card_one).id, added.id ].sort, pool.tiers.fetch(1).sort
   end
 
+  test "of serves the snapshot of the season it is given, without reading the published season again" do
+    season = catalog_seasons(:one)
+    first = Game::DrawPool.of(season)
+
+    assert_equal [ season.id, season.published_at ], first.key
+    assert_equal tier_ids(:legendary_card_one), first.tiers.fetch(5)
+    assert_no_queries_match(/catalog_seasons|catalog_card_seasons/) { assert_same first, Game::DrawPool.of(season) }
+    assert_same first, Game::DrawPool.current
+    assert_nil Game::DrawPool.of(nil)
+  end
+
+  test "of builds a new snapshot when the season's id and publication time change" do
+    season = catalog_seasons(:one)
+    first = Game::DrawPool.of(season)
+    season.update_columns(published_at: season.published_at + 1.day)
+
+    pool = Game::DrawPool.of(season)
+
+    assert_not_same first, pool
+    assert_equal [ season.id, season.published_at ], pool.key
+
+    later = seed_card_seasons(distinct_scores(150))
+    Catalog::PublishSeason.new.call(number: later.number).value!
+    other = Game::DrawPool.of(later.reload)
+
+    assert_not_same pool, other
+    assert_equal later.id, other.season_id
+    assert_equal 150, other.tiers.values.sum(&:size)
+  end
+
   test "no published season gives no pool" do
     catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
 

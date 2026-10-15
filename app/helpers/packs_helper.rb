@@ -10,7 +10,7 @@ module PacksHelper
     REVEAL_SIZES.to_h { |size| [ size, render(CardComponent.new(card:, size:, booster: true)).to_str ] }
   end
 
-  # The answer of the opening exchange (AD-23), for a first opening and a
+  # The answer of the opening exchange, for a first opening and a
   # replay alike. The pack (by its token), its card back and its cards (by
   # slug, in drawn order, with their display fields and faces) are the pack
   # as it was opened. The bank at `now` (the count, whether the reserve is
@@ -18,9 +18,10 @@ module PacksHelper
   # next opening opens, nil when none is available) and the server time
   # are the current ones. The per-tier counts before the opening are recomputed on
   # each answer (the current counts minus the pack's cards), so on a replay
-  # they drift if the player gained cards since. `unlockedCardBacks` stays
-  # empty until card backs can be unlocked (epic 9). No database id
-  # (AD-15). Times are UTC ISO 8601 with milliseconds.
+  # they drift if the player gained cards since. `setTiers` are the set
+  # tiers the opening reached, the same on a replay. `unlockedCardBacks` stays
+  # empty until card backs can be unlocked. No database id. Times are UTC
+  # ISO 8601 with milliseconds.
   def pack_opening_json(pack, cards:, player:, now:)
     available = Game::Reserve.count(player.id, now:)
     scheduled = Game::BankSchedule.call(player, now:).map { opening_time(it) }
@@ -34,8 +35,17 @@ module PacksHelper
               nextPackSize: Game::NextPackSize.call(player, now:) },
       serverTime: opening_time(now),
       tierCountsBefore: Game::TierCounts.before_opening(player, pack).transform_keys { Catalog::Rarity::TIERS.fetch(it) },
+      setTiers: pack_set_tiers(pack),
       unlockedCardBacks: []
     }
+  end
+
+  # The set tiers the opening reached, read back by its pack: a replay
+  # answers the same ones.
+  def pack_set_tiers(pack)
+    Game::PackSetTiers.call(pack).map do |row|
+      { kind: row.kind, key: row.key, name: SetLabel.for(row), tier: row.tier, required: row.required, total: row.total }
+    end
   end
 
   # The card as the booster speaks it (EXPERIENCE.md, Booster live region):

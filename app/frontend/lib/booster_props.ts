@@ -5,6 +5,7 @@
 // draws. Types only, so the entrypoint can name them without loading the
 // island.
 import type { Rarity } from "./card_types"
+import type { CelebrationStrings } from "./celebration"
 import type { Template } from "./i18n"
 import type { OpeningAnswer } from "./opening"
 
@@ -76,6 +77,8 @@ export type BoosterStrings = {
   repostCard: string
   reposted: string
   repostFailed: string
+  /** The set celebration after an opening (lib/celebration.ts). */
+  celebration: CelebrationStrings
 }
 
 /** The player's reserve, in the props and as the booster screen answers it in JSON (lib/booster_bank.ts). */

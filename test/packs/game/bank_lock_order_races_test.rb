@@ -50,7 +50,7 @@ class Game::BankLockOrderRacesTest < ActiveSupport::TestCase
     trades.delete_all
     Game::Friendship.where(low_player_id: created).or(Game::Friendship.where(high_player_id: created)).delete_all
     Game::FirstDiscovery.where(pack_id: Game::Pack.where(player_id: players).select(:id)).delete_all
-    [ Game::DailyBonusClaim, Game::GoalReward, Game::Holding, Game::FeedEntry, Game::WeeklyContribution, Game::SetCompletion,
+    [ Game::DailyBonusClaim, Game::GoalReward, Game::Holding, Game::FeedEntry, Game::WeeklyContribution, Game::SetTier,
       Game::Pack ].each { |model| model.where(player_id: players).delete_all }
     [ Game::PlayerState, Game::FriendCode ].each { |model| model.where(player_id: created).delete_all }
     streams = players.map { |id| Game::Operation.stream_name(id) } + created.map { |id| "Accounts::Player$#{id}" }
@@ -81,7 +81,7 @@ class Game::BankLockOrderRacesTest < ActiveSupport::TestCase
 
   # No row of the player in any table Game::ReleasePlayer empties.
   def assert_nothing_left(player)
-    left = [ Game::Pack, Game::Holding, Game::FeedEntry, Game::DailyBonusClaim, Game::GoalReward, Game::SetCompletion, Game::PlayerState,
+    left = [ Game::Pack, Game::Holding, Game::FeedEntry, Game::DailyBonusClaim, Game::GoalReward, Game::SetTier, Game::PlayerState,
       Game::FriendCode ].to_h { |model| [ model.name, model.where(player_id: player.id).count ] }
     assert_equal left.transform_values { 0 }, left
   end

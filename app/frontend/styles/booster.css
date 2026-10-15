@@ -966,6 +966,133 @@
   text-shadow: 0 2px 0 var(--color-outline);
 }
 
+/* ---- The set celebration: each set's tier reached, still, after the hand ---- */
+
+.booster-celebration {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.booster-celebration__result {
+  --celebration-tier: var(--color-tier-bronze);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 60px;
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-5);
+  background: var(--color-panel);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line), inset 6px 0 0 0 var(--celebration-tier), 0 0 0 var(--space-unit) var(--color-outline);
+  animation: booster-celebration-in 360ms cubic-bezier(.2, 1.35, .35, 1) both;
+}
+
+.booster-celebration__result[data-tier="silver"] {
+  --celebration-tier: var(--color-tier-silver);
+}
+
+.booster-celebration__result[data-tier="gold"] {
+  --celebration-tier: var(--color-gold);
+}
+
+.booster-celebration__result[data-tier="complete"] {
+  --celebration-tier: var(--color-lime);
+}
+
+.booster-celebration__mark {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+}
+
+/* One to three notches, at least 4 × 8 with 2px gaps, rising. */
+.booster-celebration__notches {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.booster-celebration__notches i {
+  display: block;
+  width: 4px;
+  height: 8px;
+  background: var(--celebration-tier);
+}
+
+.booster-celebration__notches i:nth-child(2) {
+  height: 10px;
+}
+
+.booster-celebration__notches i:nth-child(3) {
+  height: 12px;
+}
+
+/* The COMPLET stamp's frame, small: the word stays straight in the title. */
+.booster-celebration__stamp {
+  display: block;
+  width: 22px;
+  height: 14px;
+  box-shadow: inset 0 0 0 3px var(--color-lime), 0 0 0 var(--space-unit) var(--color-outline);
+  transform: rotate(-6deg);
+}
+
+.booster-celebration__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.booster-celebration__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--celebration-tier);
+  font: var(--font-weight-regular) 1.625rem / 1.5rem var(--font-family-vt323);
+  letter-spacing: var(--tracking-banner-small);
+  text-transform: uppercase;
+  text-shadow: 2px 0 0 var(--color-outline), -2px 0 0 var(--color-outline), 0 2px 0 var(--color-outline), 0 -2px 0 var(--color-outline);
+}
+
+.booster-celebration__tick {
+  flex: none;
+  width: 22px;
+  height: var(--hazard-stripe-height);
+  background: repeating-linear-gradient(var(--hazard-stripe-angle),
+    var(--celebration-tier) 0 var(--hazard-stripe-band),
+    var(--color-panel-sunken) var(--hazard-stripe-band) calc(2 * var(--hazard-stripe-band)));
+}
+
+/* The set's name wraps rather than being cut. */
+.booster-celebration__set {
+  color: var(--color-text-max);
+  font: var(--font-card-title-l);
+  letter-spacing: var(--tracking-card-title-l);
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.booster-celebration__count {
+  color: var(--color-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+@keyframes booster-celebration-in {
+  from { transform: scale(1.06, 0.4); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@keyframes booster-celebration-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* ---- Loops: transform only ---- */
 
 @keyframes booster-spin {

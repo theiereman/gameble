@@ -26,8 +26,8 @@ class PlayerExport
       dailyBonusDays: game.daily_bonus_days.map(&:iso8601),
       goalRewardWeeks: game.goal_reward_weeks.map(&:iso8601),
       weeklyContributions: game.contributions.map { { week: it.week_start.iso8601, openings: it.openings } },
-      setCompletions: game.completed_sets.map do
-        { season: it.season_number, kind: it.kind, key: it.key, completedAt: time(it.completed_at) }
+      setTiers: game.set_tiers.map do
+        { season: it.season_number, kind: it.kind, key: it.key, tier: it.tier, reachedBy: it.reached_by, reachedAt: time(it.reached_at) }
       end,
       firstDiscoveries: game.discoveries.map { { card: card(it.card_season_id), discoveredAt: time(it.discovered_at) } },
       feedEntries: game.feed_entries.map { { kind: it.kind, card: card(it.card_season_id), occurredAt: time(it.occurred_at) } },

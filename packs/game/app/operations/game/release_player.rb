@@ -10,6 +10,7 @@ module Game
         DailyBonusClaim.where(player_id: player.id).delete_all
         GoalReward.where(player_id: player.id).delete_all
         FirstDiscovery.where(player_id: player.id).update_all(pack_id: nil, updated_at: Time.current)
+        SetTier.where(player_id: player.id).delete_all
         Pack.where(player_id: player.id).delete_all
         Holding.where(player_id: player.id).delete_all
         SetCompletion.where(player_id: player.id).delete_all

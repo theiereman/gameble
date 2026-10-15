@@ -26,7 +26,7 @@ class Game::FirstDiscoveryConcurrencyTest < ActiveSupport::TestCase
     Game::Holding.where(player_id: ids).delete_all
     Game::FeedEntry.where(player_id: ids).delete_all
     Game::WeeklyContribution.where(player_id: ids).delete_all
-    Game::SetCompletion.where(player_id: ids).delete_all
+    Game::SetTier.where(player_id: ids).delete_all
     Game::Pack.where(player_id: ids).delete_all
     streams = ids.map { |id| Game::Operation.stream_name(id) }
     connection = ActiveRecord::Base.connection

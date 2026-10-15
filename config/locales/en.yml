@@ -784,6 +784,31 @@ en:
       repost_card: "Repost %{card}"
       reposted: "Card reposted to the feed."
       repost_failed: "The repost did not go through. Check your connection, then try again."
+      celebration:
+        tier_title: "%{tier} TIER"
+        complete_title: "SET COMPLETE"
+        count: "%{owned}/%{total}"
+        tiers:
+          bronze: "BRONZE"
+          silver: "SILVER"
+          gold: "GOLD"
+        folded:
+          one: "%{count} TIER REACHED"
+          other: "%{count} TIERS REACHED"
+        position: "%{index} / %{count}"
+        next: "Next result"
+        announce_tier: "%{tier} tier reached: %{set}, %{owned} cards of %{total}."
+        announce_complete: "Set complete: %{set}, %{owned} cards of %{total}."
+        announce_folded:
+          one: "%{count} tier reached: %{list}."
+          other: "%{count} tiers reached: %{list}."
+        announce_item: "%{set}, %{tier}"
+        announce_separator: "; "
+        spoken_tiers:
+          bronze: "bronze"
+          silver: "silver"
+          gold: "gold"
+          complete: "complete"
   settings:
     show:
       title: "Profile and settings"
@@ -1179,7 +1204,7 @@ en:
     dialog:
       title: "Delete my account"
       close: "Close"
-      note: "Erased for good: your Steam id, your name, your profile and its link, the time of your last visit, your last data export and your latest activity, your collection, your completed sets and your achievements, your capsules, opened or not, your daily bonuses and your community goal rewards, your friends, your invitations and your friend code, and your activity feed entries: pulls, discoveries, reposts and every trade that names you. Your open trades will be cancelled."
+      note: "Erased for good: your Steam id, your name, your profile and its link, the time of your last visit, your last data export and your latest activity, your collection, your set tiers, your completed sets and your achievements, your capsules, opened or not, your daily bonuses and your community goal rewards, your friends, your invitations and your friend code, and your activity feed entries: pulls, discoveries, reposts and every trade that names you. Your open trades will be cancelled."
       kept: "Kept, without your Steam id or your name: your past trades, your first discoveries, your contributions to the community goal, reports, the moderation history and the log of game actions. This cannot be undone."
       word: "DELETE"
       label: "Type %{word} to confirm"

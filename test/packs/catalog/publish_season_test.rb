@@ -377,6 +377,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
 
   test "the published season's card-seasons by tier, the draft left out" do
     Catalog::SetMembership.delete_all
+    Catalog::SetTier.delete_all
     Catalog::Set.delete_all
     Catalog::CardSeason.delete_all
     Catalog::Season.delete_all

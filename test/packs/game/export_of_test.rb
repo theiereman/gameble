@@ -20,7 +20,7 @@ class Game::ExportOfTest < ActiveSupport::TestCase
     export = Game::ExportOf.call(@player)
 
     assert_equal "7K2Q-F3NX", export.friend_code
-    %i[held_cards packs daily_bonus_days goal_reward_weeks contributions completed_sets discoveries feed_entries unlocks trades].each do
+    %i[held_cards packs daily_bonus_days goal_reward_weeks contributions set_tiers discoveries feed_entries unlocks trades].each do
       assert_empty export.public_send(it), it
     end
     assert_equal 0, export.friend_count
@@ -50,19 +50,21 @@ class Game::ExportOfTest < ActiveSupport::TestCase
     assert_not_includes export.card_season_ids, nil
   end
 
-  test "bonuses, rewards, completed sets and achievements are listed by date" do
+  test "bonuses, rewards, set tiers and achievements are listed by date" do
     Game::CollectDailyBonus.new.call(player: @player).value!
     reward_pack = create_pack(@stranger, kind: :reward)
     Game::GoalReward.create!(player_id: @player.id, week_start: Date.new(2026, 10, 5), pack_id: reward_pack.id)
-    Game::SetCompletion.create!(player_id: @player.id, set_id: catalog_sets(:valve_one).id, completed_at: Time.utc(2026, 10, 6))
+    Game::SetTier.create!(player_id: @player.id, set_id: catalog_sets(:valve_one).id, tier: "complete", reached_by: "trade",
+      reached_at: Time.utc(2026, 10, 6))
     Game::AchievementUnlock.record(@player.id, :first_booster, Time.utc(2026, 10, 7))
 
     export = Game::ExportOf.call(@player)
 
     assert_equal [ Time.current.utc.to_date ], export.daily_bonus_days
     assert_equal [ Date.new(2026, 10, 5) ], export.goal_reward_weeks
-    set = export.completed_sets.sole
-    assert_equal [ 1, "studio", "valve", Time.utc(2026, 10, 6) ], [ set.season_number, set.kind, set.key, set.completed_at ]
+    tier = export.set_tiers.sole
+    assert_equal [ 1, "studio", "valve", "complete", "trade", Time.utc(2026, 10, 6) ],
+      [ tier.season_number, tier.kind, tier.key, tier.tier, tier.reached_by, tier.reached_at ]
     assert_equal [ [ "first_booster", Time.utc(2026, 10, 7) ] ], export.unlocks.map { [ it.achievement, it.unlocked_at ] }
   end
 

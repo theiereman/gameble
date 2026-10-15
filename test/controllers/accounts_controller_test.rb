@@ -38,6 +38,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     "accounts_data_exports" => { fr: [ "votre dernier export de données" ], en: [ "your last data export" ] },
     "game_player_states" => { fr: [ "votre dernière activité" ], en: [ "your latest activity" ] },
     "game_holdings" => { fr: [ "votre collection" ], en: [ "your collection" ] },
+    "game_set_tiers" => { fr: [ "vos paliers de sets" ], en: [ "your set tiers" ] },
     "game_set_completions" => { fr: [ "vos sets complétés" ], en: [ "your completed sets" ] },
     "game_achievement_unlocks" => { fr: [ "vos succès" ], en: [ "your achievements" ] },
     "game_packs" => { fr: [ "vos capsules, ouvertes ou non" ], en: [ "your capsules, opened or not" ] },

@@ -140,7 +140,8 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
   end
 
   test "the database takes a set's four tiers once each, with a positive requirement" do
-    assert_equal 4, Catalog::SetTier.insert_all!(%w[bronze silver gold complete].map { |tier| set_tier(tier:) }).length
+    assert_equal 3, Catalog::SetTier.insert_all!(%w[bronze silver gold].map { |tier| set_tier(tier:) }).length
+    assert_equal 4, Catalog::SetTier.where(set_id: catalog_sets(:valve_one).id).count
 
     refused(ActiveRecord::RecordNotUnique) { Catalog::SetTier.insert_all!([ set_tier(tier: "gold", required: 9) ]) }
   end
@@ -356,6 +357,7 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
   test "there is no draft season and no published season when the catalog is empty" do
     assert_nil Catalog::DraftSeason.call
     Catalog::SetMembership.delete_all
+    Catalog::SetTier.delete_all
     Catalog::Set.delete_all
     Catalog::CardSeason.delete_all
     Catalog::Season.delete_all

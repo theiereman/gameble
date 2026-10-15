@@ -1,14 +1,15 @@
 module Game
-  # Opens a player's next pack (CAP-4, AD-6, AD-7): under the bank lock, the
-  # oldest available pack of any kind (by availability time, then id) is
-  # marked opened, with the card back the player has on (Game::CardBacks),
-  # its cards are credited to the player's holdings in one upsert, ascending
-  # card-season, each marked as gained at the opening (AD-26), and
-  # Game::PackOpened is published.
+  # Opens a player's next pack: under the bank lock, the oldest available
+  # pack of any kind (by availability time, then id) is marked opened, with
+  # the card back the player has on (Game::CardBacks), its cards are
+  # credited to the player's holdings in one upsert, ascending card-season,
+  # each marked as gained at the opening, and Game::PackOpened is published.
+  # The published season is read once, right after the lock, and serves the
+  # redraw, the top-up and the tier pass alike.
   # The first pull of a card in its season is recorded (Game::FirstDiscovery)
-  # and every set the cards complete for the player for the first time
-  # (Game::SetCompletion); Game::CardDiscovered and Game::SetCompleted follow
-  # Game::PackOpened, one per row inserted (AD-9, AD-10, story 6.7).
+  # and every set tier the cards reach for the player for the first time
+  # (Game::SetTier); Game::CardDiscovered, then Game::SetTierReached or
+  # Game::SetCompleted follow Game::PackOpened, one per row inserted.
   # A pack still of an earlier season, opened before the publication's job
   # redrew it, is drawn again in the published season as it opens
   # (Game::PackRedraw), so an opening only credits cards of the published
@@ -19,8 +20,8 @@ module Game
   # publication heals it (Game::HealBanksJob). A bonus or reward pack
   # replaces nothing.
   #
-  # The booster's JSON exchange (AD-23) passes the request's Idempotency-Key,
-  # a UUID, stored on the opened pack. Under the bank lock (AD-10), before the
+  # The booster's JSON exchange passes the request's Idempotency-Key, a
+  # UUID, stored on the opened pack. Under the bank lock, before the
   # availability check, a pack of the player's that already carries the key
   # is returned as it is: a replay opens nothing, credits nothing, tops up
   # nothing and publishes nothing, even with no pack available. A request
@@ -55,19 +56,21 @@ module Game
 
       transaction do
         step lock_bank(player)
+        season = Catalog::PublishedSeason.call
         replayed = idempotency_key && Pack.find_by(player_id: player.id, idempotency_key:)
         next replayed if replayed
 
         now = Time.current
         pack = step next_pack(player, now)
-        pack.update!(opened_at: now, idempotency_key:, card_back: CardBacks.active_key(player), **drawn_in_published_season(pack))
+        pool = DrawPool.of(season)
+        pack.update!(opened_at: now, idempotency_key:, card_back: CardBacks.active_key(player), **drawn_in_published_season(pack, pool))
         step credit(player, pack, now)
         discovered = FirstDiscovery.record(pack, now)
-        completed = SetCompletion.record(player.id, pack.card_season_ids, now)
-        TopUpBank.call(player_id: player.id, now:, random: @random) if pack.regular?
+        reached = tiers_reached(player, pack, season, now)
+        TopUpBank.call(player_id: player.id, now:, pool:, random: @random) if pack.regular?
         step publish(PackOpened.new(data: { player_id: player.id, pack_id: pack.id }), stream_name: stream_name(player.id))
         step publish_discoveries(player, pack, discovered)
-        step publish_completions(player.id, completed)
+        step publish_tiers(player.id, reached)
         pack
       end
     end
@@ -85,11 +88,16 @@ module Game
     # The season and cards of a pack drawn in an earlier season, drawn again
     # in the published one; nothing for a pack of the published season, or
     # with no season published.
-    def drawn_in_published_season(pack)
-      pool = DrawPool.current
+    def drawn_in_published_season(pack, pool)
       return {} if pool.nil?
 
       PackRedraw.call([ pack ], pool:, random: @random).fetch(pack, {})
+    end
+
+    def tiers_reached(player, pack, season, now)
+      return [] if season.nil?
+
+      SetTier.record(player_id: player.id, card_season_ids: pack.card_season_ids, season_id: season.id, reached_by: "pack", pack_id: pack.id, now:)
     end
 
     def check_key(key)
@@ -102,8 +110,8 @@ module Game
     end
 
     # One row per card-season, in ascending order so concurrent writers lock
-    # holdings in the same order (AD-6); a card drawn twice adds 2. Every
-    # credited holding gained copies now (AD-26: its NOUVEAU tag), whether
+    # holdings in the same order; a card drawn twice adds 2. Every
+    # credited holding gained copies now (its NOUVEAU tag), whether
     # inserted or raised.
     def credit(player, pack, now)
       rows = pack.card_season_ids.tally.sort.map do |card_season_id, quantity|

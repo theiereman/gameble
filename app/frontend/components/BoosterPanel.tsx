@@ -1,8 +1,9 @@
-// The booster's information column in the rows (wide and narrow layouts;
-// DESIGN.md, Booster information panel): the hazard stripe, the kicker and
+// The booster's information column in the rows (wide and narrow layouts):
+// the hazard stripe, the kicker and
 // the title, the bracketed panel (cards per booster, reserve, state with
 // its steady light), the reserve's pips with "+1 dans …" or "Réserve
-// pleine", the actions the island hands over, and "Cartes révélées : n / N".
+// pleine", the actions the island hands over, "Cartes révélées : n / N",
+// and under it the set celebration once the hand is complete.
 // The phone shows the same facts in BoosterStrip.
 import type { ReactNode } from "react"
 
@@ -21,9 +22,12 @@ export type BoosterPanelProps = {
   pips: number
   actions: ReactNode
   counter: string
+  /** The set celebration, or null. */
+  celebration: ReactNode
 }
 
-export default function BoosterPanel({ kicker, title, cardsPerPack, inReserve, state, reserve, reserveFull, next, lit, pips, actions, counter }: BoosterPanelProps) {
+export default function BoosterPanel(props: BoosterPanelProps) {
+  const { kicker, title, cardsPerPack, inReserve, state, reserve, reserveFull, next, lit, pips, actions, counter, celebration } = props
   return (
     <aside className="booster__info">
       <div className="booster__hazard" aria-hidden="true" />
@@ -78,6 +82,7 @@ export default function BoosterPanel({ kicker, title, cardsPerPack, inReserve, s
       <div className="booster__actions">{actions}</div>
 
       <p className="booster__counter">{counter}</p>
+      {celebration}
     </aside>
   )
 }

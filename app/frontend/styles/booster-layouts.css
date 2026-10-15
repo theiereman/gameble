@@ -24,7 +24,8 @@
   }
 
   .booster__hazard,
-  .booster__counter {
+  .booster__counter,
+  .booster-celebration {
     flex: 1 1 100%;
   }
 
@@ -139,7 +140,7 @@
 }
 
 .booster[data-layout="phone"] .booster__shake {
-  grid-template: minmax(0, 1fr) 52px auto / minmax(0, 1fr);
+  grid-template: minmax(0, 1fr) minmax(52px, auto) auto / minmax(0, 1fr);
   row-gap: var(--space-3);
   min-height: 510px;
   padding-bottom: 6px;
@@ -313,6 +314,44 @@
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+/* The set celebration in the band once the hand is complete: one result
+   at a time, at least 60px tall, growing with a name on two lines; its
+   position and "▸" beside it. */
+.booster-celebration--phone {
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.booster-celebration--phone .booster-celebration__result {
+  flex: 1;
+  min-width: 0;
+}
+
+.booster-celebration__step {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+}
+
+.booster-celebration__position {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  white-space: nowrap;
+}
+
+.booster .booster-celebration__next {
+  width: var(--space-touch-min);
+  min-width: var(--space-touch-min);
+  height: var(--space-touch-min);
+  min-height: var(--space-touch-min);
+  margin: 0;
+  padding: 0;
 }
 
 .booster .booster-plate__store {
@@ -624,6 +663,11 @@
     animation-name: modal-fade;
   }
 
+  /* Each celebration result only crossfades in. */
+  html:not([data-motion="full"]) .booster-celebration__result {
+    animation: booster-celebration-fade 200ms linear both;
+  }
+
   html:not([data-motion="full"]) .booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible) .booster-card__hover {
     transform: none;
   }
@@ -653,6 +697,10 @@ html[data-motion="reduced"] .booster[data-layout="phone"] .booster-card__travel 
 
 html[data-motion="reduced"] .booster-zoom__panel {
   animation-name: modal-fade;
+}
+
+html[data-motion="reduced"] .booster-celebration__result {
+  animation: booster-celebration-fade 200ms linear both;
 }
 
 html[data-motion="reduced"] .booster-card:not([data-revealed]):has(.booster-card__hit:hover, .booster-card__hit:focus-visible) .booster-card__hover {

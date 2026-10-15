@@ -825,6 +825,33 @@ fr:
       repost_card: "Reposter %{card}"
       reposted: "Carte repostée dans le fil."
       repost_failed: "Le repost n'a pas abouti. Vérifiez votre connexion, puis réessayez."
+      celebration:
+        tier_title: "PALIER %{tier}"
+        complete_title: "SET COMPLET"
+        count: "%{owned}/%{total}"
+        tiers:
+          bronze: "BRONZE"
+          silver: "ARGENT"
+          gold: "OR"
+        folded:
+          zero: "%{count} PALIER ATTEINT"
+          one: "%{count} PALIER ATTEINT"
+          other: "%{count} PALIERS ATTEINTS"
+        position: "%{index} / %{count}"
+        next: "Résultat suivant"
+        announce_tier: "Palier %{tier} atteint : %{set}, %{owned} cartes sur %{total}."
+        announce_complete: "Set complet : %{set}, %{owned} cartes sur %{total}."
+        announce_folded:
+          zero: "%{count} palier atteint : %{list}."
+          one: "%{count} palier atteint : %{list}."
+          other: "%{count} paliers atteints : %{list}."
+        announce_item: "%{set}, %{tier}"
+        announce_separator: " ; "
+        spoken_tiers:
+          bronze: "bronze"
+          silver: "argent"
+          gold: "or"
+          complete: "complet"
   settings:
     show:
       title: "Profil et paramètres"
@@ -1224,7 +1251,7 @@ fr:
     dialog:
       title: "Supprimer mon compte"
       close: "Fermer"
-      note: "Seront effacés définitivement : votre identifiant Steam, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données et votre dernière activité, votre collection, vos sets complétés et vos succès, vos capsules, ouvertes ou non, vos bonus du jour et vos récompenses de l'objectif communautaire, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
+      note: "Seront effacés définitivement : votre identifiant Steam, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données et votre dernière activité, votre collection, vos paliers de sets, vos sets complétés et vos succès, vos capsules, ouvertes ou non, vos bonus du jour et vos récompenses de l'objectif communautaire, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
       kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à l'objectif communautaire, les signalements, l'historique de modération et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"

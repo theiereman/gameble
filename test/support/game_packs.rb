@@ -25,11 +25,15 @@ module GamePacks
   # Opens packs while no season is published, so nothing replaces them: the
   # bank is left short, as the publication's healing finds it.
   def open_unpublished(player, count)
-    current = Game::DrawPool.method(:current)
-    Game::DrawPool.define_singleton_method(:current) { nil }
-    count.times { Game::OpenPack.new.call(player:).value! }
+    without_published_season { count.times { Game::OpenPack.new.call(player:).value! } }
+  end
+
+  def without_published_season
+    published = Catalog::PublishedSeason.method(:call)
+    Catalog::PublishedSeason.define_singleton_method(:call) { nil }
+    yield
   ensure
-    Game::DrawPool.define_singleton_method(:current, current)
+    Catalog::PublishedSeason.define_singleton_method(:call, published)
   end
 
   # Every opened pack of the player was announced by one Game::PackOpened.

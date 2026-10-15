@@ -30,8 +30,19 @@ class Catalog::DeleteRetiredSetKindsMigrationTest < ActiveSupport::TestCase
     set_id = Catalog::Set.insert_all!([ { season_id:, kind:, key:, params: } ], returning: :id).rows.flatten.sole
     Catalog::SetMembership.insert_all!(card_season_ids.each_with_index.map { |card_season_id, index| { set_id:, card_season_id:, position: index + 1 } })
     Catalog::SetTier.insert_all!([ { set_id:, tier: "complete", required: card_season_ids.size } ])
-    Game::SetCompletion.create!(player_id: accounts_players(:player).id, set_id:, completed_at: Time.current)
+    insert_completion(set_id)
     set_id
+  end
+
+  def insert_completion(set_id)
+    ActiveRecord::Base.connection.execute(ActiveRecord::Base.sanitize_sql_array([
+      "INSERT INTO game_set_completions (player_id, set_id, completed_at, created_at, updated_at) VALUES (?, ?, NOW(), NOW(), NOW())",
+      accounts_players(:player).id, set_id
+    ]))
+  end
+
+  def completed_set_ids
+    ActiveRecord::Base.connection.select_values("SELECT set_id FROM game_set_completions").map(&:to_i)
   end
 
   def retired_season
@@ -82,18 +93,18 @@ class Catalog::DeleteRetiredSetKindsMigrationTest < ActiveSupport::TestCase
     assert_empty Catalog::Set.where(kind: RETIRED_KINDS)
     assert_empty Catalog::SetMembership.where(set_id: retired)
     assert_empty Catalog::SetTier.where(set_id: retired)
-    assert_empty Game::SetCompletion.where(set_id: retired)
+    assert_empty completed_set_ids & retired
     assert_equal kept.sort, Catalog::Set.ids.sort
     assert_equal kept_memberships, Catalog::SetMembership.where(set_id: kept).count
-    assert_equal themed.sort, Catalog::SetTier.distinct.pluck(:set_id).sort
-    assert_equal themed.sort, Game::SetCompletion.pluck(:set_id).sort
+    assert_equal kept.sort, Catalog::SetTier.distinct.pluck(:set_id).sort
+    assert_equal themed.sort, completed_set_ids.sort
     assert_equal counts, untouched_counts
   end
 
   test "a database with no retired set loses nothing, and its kind check then refuses a tome" do
     widen_kind_check
     themed_season
-    rows = -> { [ Catalog::Set, Catalog::SetMembership, Catalog::SetTier, Game::SetCompletion ].map(&:count) }
+    rows = -> { [ Catalog::Set, Catalog::SetMembership, Catalog::SetTier ].map(&:count) + [ completed_set_ids.size ] }
     before = rows.call
 
     migrate

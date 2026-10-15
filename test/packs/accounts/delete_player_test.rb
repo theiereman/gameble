@@ -95,7 +95,7 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     assert_equal [ kept.id ], Game::FeedEntry.where(kind: "trade").pluck(:trade_id)
   end
 
-  test "set completions are deleted; first discoveries stay, their pack forgotten, so the card is not discovered again" do
+  test "set tiers are deleted; first discoveries stay, their pack forgotten, so the card is not discovered again" do
     common = fixture_tier_ids[0]
     Game::FirstDiscovery.where(card_season_id: common).delete_all
     create_pack(@player, cards: [ common ] * 5)
@@ -104,13 +104,13 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
     Game::OpenPack.new.call(player: @player).value!
     create_pack(@other, cards: [ catalog_card_seasons(:portal_one).id ] * 5)
     Game::OpenPack.new.call(player: @other).value!
-    assert Game::SetCompletion.exists?(player_id: @player.id)
+    assert Game::SetTier.exists?(player_id: @player.id)
 
     assert delete.success?
 
     assert_equal [ [ @player.id, nil ] ], Game::FirstDiscovery.where(card_season_id: common).pluck(:player_id, :pack_id)
-    assert_not Game::SetCompletion.exists?(player_id: @player.id)
-    assert Game::SetCompletion.exists?(player_id: @other.id)
+    assert_not Game::SetTier.exists?(player_id: @player.id)
+    assert Game::SetTier.exists?(player_id: @other.id)
     create_pack(@other, cards: [ common ] * 5)
     Game::OpenPack.new.call(player: @other).value!
     assert_empty game_events(@other, Game::CardDiscovered)

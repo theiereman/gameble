@@ -31,7 +31,7 @@ class Game::DeletePlayerConcurrencyTest < ActiveSupport::TestCase
     Game::WeeklyGoal.where(week_start: Date.current.beginning_of_week).delete_all
     Game::Invitation.where(sender_id: players).or(Game::Invitation.where(recipient_id: players)).delete_all
     Game::FirstDiscovery.where(player_id: created).delete_all
-    [ Game::FeedEntry, Game::DailyBonusClaim, Game::GoalReward, Game::Pack, Game::Holding, Game::SetCompletion,
+    [ Game::FeedEntry, Game::DailyBonusClaim, Game::GoalReward, Game::SetTier, Game::Pack, Game::Holding,
       Game::WeeklyContribution ].each { |model| model.where(player_id: players).delete_all }
     [ Game::FriendCode, Game::PlayerState ].each { |model| model.where(player_id: created).delete_all }
     connection = ActiveRecord::Base.connection
@@ -43,7 +43,7 @@ class Game::DeletePlayerConcurrencyTest < ActiveSupport::TestCase
   end
 
   # Every table Game::ReleasePlayer empties of the player's rows.
-  def released = [ Game::Pack, Game::Holding, Game::FeedEntry, Game::DailyBonusClaim, Game::GoalReward, Game::SetCompletion,
+  def released = [ Game::Pack, Game::Holding, Game::FeedEntry, Game::DailyBonusClaim, Game::GoalReward, Game::SetTier,
     Game::AchievementUnlock, Game::PlayerState, Game::FriendCode ]
 
   def leftovers = released.to_h { |model| [ model.name, model.where(player_id: @player.id).count ] }
