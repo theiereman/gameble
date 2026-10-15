@@ -2,7 +2,7 @@
 title: "UX: gameble"
 status: final
 created: 2026-10-01
-updated: 2026-10-05
+updated: '2026-10-15'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../brief-gameble/brief-gameble.md
@@ -19,7 +19,7 @@ Decisions taken during the UX work that change the product contract. They reach 
 
 ### Changed by the 2026-10-05 redesign
 
-- **Glossary:** the interface says "booster" for the spec's "pack", "réserve" for its "bank", and "objectif communautaire" for the weekly goal.
+- **Glossary:** the interface says "booster" for the spec's "pack", "réserve" for its "bank", and "objectif communautaire" for the weekly goal (superseded on 2026-10-15: the interface says "capsule" for the pack; see `lore.md`).
 - **Steam sign-in (CAP-1):** the only link to Steam's sign-in is Valve's official "Sign in through Steam" image, unmodified. Game-styled calls to action open a small sign-in panel holding one title line ("CONNECTEZ-VOUS POUR JOUER") and the horizontal official button, with no reassurance copy. Sign-out lands on the hub in signed-out mode.
 - **Rarity (CAP-3, CAP-4, `catalog-and-rarity.md`):** Commune, Peu commune, Rare, Épique, Légendaire replace steel, emerald, sapphire, amethyst, gold. Each tier also has a shape (circle, double circle, diamond, triangle, star), drawn smaller on card faces. Odds unchanged.
 - **Packs (CAP-4):** no per-pack rarity promise; the only guarantee is a Rare or better by a new account's 10th pack, without any visible sign.
@@ -37,7 +37,7 @@ Decisions taken during the UX work that change the product contract. They reach 
 - **Images (Constraints):** never copied; pixelated at 2 CSS px per pixel and reduced to about 32 colors per image (was 16), no dithering, in the browser at display time. The vertical cover is cropped to the card's art box.
 - **Legal (Constraints):** the "no affiliation with Steam or Valve" notice, the terms of use and the privacy notice live on a legal page reached from "Mentions légales" (profile and public page footer).
 - **Platforms (Constraints):** on phones, portrait only: no landscape layout and no overlay; the installed web app is locked to portrait by its manifest. On every size, the interface is never scaled; pages scroll and reflow by width.
-- **Brotherhood tone (`brotherhood-tone.md`):** far more discreet. Only the community goal carries a Brotherhood line; the feed carries none. Players are not addressed as "Confrères" and get no title. All UI copy says "vous", never "tu" (the file's example line uses "ta"). Add "Ordre majeur" to the forbidden Helldivers terms.
+- **Brotherhood tone (`brotherhood-tone.md`):** far more discreet. Only the community goal carries a Brotherhood line; the feed carries none. Players are not addressed as "Confrères" and get no title. All UI copy says "vous", never "tu" (the file's example line uses "ta"). Add "Ordre majeur" to the forbidden Helldivers terms. Superseded on 2026-10-15 by `brotherhood-tone.md`: a corporate, falsely benevolent voice with a secondary presence, and no terms from other games or fictional universes.
 - **Later (`later-roadmap.md`):** an input at opening that improves the odds of a good card (the stratagem-like arrow code is rejected as too close to Helldivers).
 
 ### Carried from the 2026-10-01/02 run
