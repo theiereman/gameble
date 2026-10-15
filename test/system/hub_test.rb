@@ -146,7 +146,7 @@ class HubTest < ApplicationSystemTestCase
       assert_no_sideways_scroll
       take_screenshot
 
-      click_on "Open my first boosters"
+      click_on "Open my first capsules"
       assert_selector "dialog#sign-in-panel[open]"
       assert_selector "#sign-in-panel .modal__handle"
       # The sheet rises from below, then rests on the bottom edge.
@@ -188,7 +188,7 @@ class HubTest < ApplicationSystemTestCase
     assert_no_selector "dialog#sign-in-panel[open]"
     assert focused?(".hub-menu .menu-item[aria-keyshortcuts='1']"), "the focus should return to menu 01"
 
-    within(".hub-invitation") { click_on "Open my first boosters" }
+    within(".hub-invitation") { click_on "Open my first capsules" }
     assert_selector "dialog#sign-in-panel[open]"
     # A click at the top left corner of the window lands on the scrim.
     page.driver.browser.action.move_to_location(5, 5).click.perform
@@ -235,12 +235,12 @@ class HubTest < ApplicationSystemTestCase
     create_pack(@player)
     visit card_path(locale: :en, slug: "portal")
 
-    within(".public-card__pitch") { click_on "Open my first boosters" }
+    within(".public-card__pitch") { click_on "Open my first capsules" }
     find("#sign-in-panel .modal__close").send_keys(:escape)
     assert_no_selector "dialog#sign-in-panel[open]"
     assert focused?(".public-card__pitch .button"), "the focus should return to the invitation's button"
 
-    within(".public-card__pitch") { click_on "Open my first boosters" }
+    within(".public-card__pitch") { click_on "Open my first capsules" }
     within("dialog#sign-in-panel[open]") { find(".steam-sign-in__button").click }
 
     assert_signed_in

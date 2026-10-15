@@ -34,7 +34,7 @@ class PacksChipsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#{CHIP} a#packs-chip .packs-chip__count", "1"
     assert_select "#{CHIP} .packs-chip__next [data-countdown-target=clock]", "10:00"
-    assert_select "#{CHIP} .packs-chip__next .visually-hidden", "Next booster: 2026-10-02 14:32 UTC"
+    assert_select "#{CHIP} .packs-chip__next .visually-hidden", "Next capsule: 2026-10-02 14:32 UTC"
 
     refresh = css_select("#{CHIP} .packs-chip__next[data-controller=countdown]").sole
     assert_equal "600", refresh["data-countdown-seconds-value"]
@@ -62,7 +62,7 @@ class PacksChipsControllerTest < ActionDispatch::IntegrationTest
       get_chip(locale: :fr)
 
       assert_select "#{CHIP} .packs-chip__next [aria-hidden=true]", text: /\+1 dans\s+05:00/
-      assert_select "#{CHIP} .packs-chip__next .visually-hidden", "Prochain booster : 2026-10-02 09:05 UTC"
+      assert_select "#{CHIP} .packs-chip__next .visually-hidden", "Prochaine capsule : 2026-10-02 09:05 UTC"
       assert_equal "/fr/packs-chip", css_select("#{CHIP} .packs-chip__next[data-controller=countdown]").sole["data-countdown-refresh-url-value"]
     end
   end

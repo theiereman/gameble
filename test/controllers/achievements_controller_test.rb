@@ -45,19 +45,19 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".achievements__segment--lit", 3
     assert_select "h2#achievements-earned", "Obtenus · 3"
     assert_select "h2#achievements-to_earn", "À obtenir · 7"
-    assert_equal [ "Premier booster", "Première Épique", "10 boosters" ], group_names(:earned)
-    assert_equal [ "Première Légendaire", "Premier set complet", "Premier échange", "100 boosters", "500 boosters",
+    assert_equal [ "Première capsule", "Première Épique", "10 capsules" ], group_names(:earned)
+    assert_equal [ "Première Légendaire", "Premier set complet", "Premier échange", "100 capsules", "500 capsules",
       "Trois sets complets", "Premier repost" ], group_names(:to_earn)
 
-    hundred = tile(:to_earn, "100 boosters")
-    assert_equal "Ouvrir 100 boosters", hundred.at_css(".achievement__condition").text
+    hundred = tile(:to_earn, "100 capsules")
+    assert_equal "Ouvrir 100 capsules", hundred.at_css(".achievement__condition").text
     bar = hundred.at_css("progress.achievement__bar[aria-hidden=true]")
     assert_equal [ "64", "100" ], [ bar["value"], bar["max"] ]
     assert_equal "64 / 100", hundred.at_css(".achievement__progress[aria-hidden=true]").text
     assert_equal "64 sur 100", hundred.at_css(".visually-hidden").text
-    assert_equal "Ouvrir 500 boosters", tile(:to_earn, "500 boosters").at_css(".achievement__condition").text
+    assert_equal "Ouvrir 500 capsules", tile(:to_earn, "500 capsules").at_css(".achievement__condition").text
 
-    earned = tile(:earned, "10 boosters")
+    earned = tile(:earned, "10 capsules")
     assert_nil earned.at_css("progress")
     assert_not earned["class"].include?("achievement--locked")
     assert earned.at_css("svg.pixel-icon.achievement__glyph")
@@ -79,8 +79,8 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "0", "10" ], [ "0", "100" ], [ "0", "500" ], [ "0", "3" ] ],
       css_select("progress.achievement__bar").map { [ it["value"], it["max"] ] }
     assert_equal [ "0 / 10", "0 / 100", "0 / 500", "0 / 3" ], css_select(".achievement__progress").map(&:text)
-    assert_equal "0 of 10", tile(:to_earn, "10 boosters").at_css(".visually-hidden").text
-    assert_equal "Open a booster", tile(:to_earn, "First booster").at_css(".achievement__condition").text
+    assert_equal "0 of 10", tile(:to_earn, "10 capsules").at_css(".visually-hidden").text
+    assert_equal "Open a capsule", tile(:to_earn, "First capsule").at_css(".achievement__condition").text
   end
 
   test "every achievement earned: a full gauge and no group to earn" do
@@ -113,7 +113,7 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
 
     get achievements_path(locale: :fr)
 
-    ten = tile(:to_earn, "10 boosters")
+    ten = tile(:to_earn, "10 capsules")
     bar = ten.at_css("progress")
     assert_equal [ "10", "10" ], [ bar["value"], bar["max"] ]
     assert_equal "10 / 10", ten.at_css(".achievement__progress").text

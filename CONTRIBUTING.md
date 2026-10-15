@@ -2,7 +2,7 @@
 
 You do not need to code to help gameble grow: playing, reporting what goes wrong and suggesting ideas is enough.
 
-gameble is a free web trading card game where every card is a Steam game. You open packs, complete sets in your album and trade cards with your friends.
+gameble is a free web trading card game where every card is a Steam game. You open capsules, complete sets in your album and trade cards with your friends.
 
 ## Before you start
 
@@ -22,7 +22,7 @@ Tell it as you would tell a friend, no technical words needed. Three questions m
 
 | Question | Example |
 | --- | --- |
-| What did you do? | Opened a pack, then clicked the third card |
+| What did you do? | Opened a capsule, then clicked the third card |
 | What did you expect? | The card turns over and shows its game |
 | What happened instead? | Nothing, the card stayed face down |
 
@@ -49,7 +49,7 @@ Give a few example games: they show quickly whether the set holds up.
 
 ## Suggest lore
 
-Players belong to *La Grande Confrérie des Gamblers*, the Grand Gamblers' Brotherhood, and play from a space terminal: pick **Lore idea** to add to that world.
+Players belong to *La Grande Confrérie des Gameblers*, the Great Brotherhood of Gameblers, and play from a space terminal: pick **Lore idea** to add to that world.
 
 Keep it light and short: a wink at the games industry, never a long saga, with no real company names and no terms borrowed from other games. The form gives the rules and asks where players could meet your idea.
 

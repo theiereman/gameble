@@ -47,8 +47,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_response :see_other
     follow_redirect!
     assert_response :success
-    assert_select "h1", "Your booster"
-    assert_select "ol.pack-result__cards[aria-label=?]", "The cards of your booster"
+    assert_select "h1", "Your capsule"
+    assert_select "ol.pack-result__cards[aria-label=?]", "The cards of your capsule"
     assert_select ".toasts > .toast", 0
     assert_select ISLAND, 0
     assert_not_equal "no-store", response.headers["Cache-Control"]
@@ -62,8 +62,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_select ".pack-result__card > a.card-link[data-turbo-prefetch=false] > .card.card--m", 5
     assert_select ".pack-result__card .card--booster", 0
     assert_select "[style]", 0
-    assert_equal [ "Open a booster", "Back to the bridge" ], end_buttons
-    assert_select ".pack-end a.button--primary[href='/en/booster']", "Open a booster"
+    assert_equal [ "Open a capsule", "Back to the bridge" ], end_buttons
+    assert_select ".pack-end a.button--primary[href='/en/booster']", "Open a capsule"
     assert_select ".pack-end form", 0
 
     get pack_path(pack.token, locale: :en)
@@ -82,8 +82,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     get pack_path(pack.token, locale: :fr)
 
-    assert_select "h1", "Votre booster"
-    assert_select "ol.pack-result__cards[aria-label=?]", "Les cartes de votre booster"
+    assert_select "h1", "Votre capsule"
+    assert_select "ol.pack-result__cards[aria-label=?]", "Les cartes de votre capsule"
     assert_equal [ "Couronne d'or" ] * 5, css_select(".card__title").map(&:text)
     assert_equal [ "Légendaire" ] * 5, css_select(".card .card__rarity").map(&:text)
     assert_equal [ "Couronne d'or, 1998, Légendaire, saison 1" ] * 5, css_select(".pack-result__card > a.card-link").map { it["aria-label"] }
@@ -128,7 +128,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_queries_match(/SELECT COUNT\(\*\) FROM "game_packs"/, count: 1) do
       assert_no_queries_match(/game_daily_bonus_claims/) { get pack_path(pack.token, locale: :en) }
     end
-    assert_equal [ "Open a booster", "Back to the bridge" ], end_buttons
+    assert_equal [ "Open a capsule", "Back to the bridge" ], end_buttons
     assert_select ".packs-chip__count", "3"
   end
 
@@ -140,7 +140,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     post packs_path(locale: :en)
     follow_redirect!
 
-    assert_select "h1", "Your daily booster"
+    assert_select "h1", "Your daily capsule"
     assert_equal %w[RARE EPIC LEGENDARY], css_select(".pack-result__card .card__rarity").map { it.text.upcase }
     assert_select ISLAND, 0
   end
@@ -248,7 +248,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "true", countdown.sole["data-countdown-refresh-value"]
     assert_select ".packs-chip__next [aria-hidden=true]", text: /\+1 in\s+10:00/
     assert_select ".packs-chip__next [data-countdown-target=clock]", "10:00"
-    assert_select ".packs-chip__next .visually-hidden", "Next booster: 2026-10-02 14:32 UTC"
+    assert_select ".packs-chip__next .visually-hidden", "Next capsule: 2026-10-02 14:32 UTC"
     assert_select ".packs-chip__next .visually-hidden time[datetime='2026-10-02T14:32:00Z'][data-controller=local-time]"
     assert_select "meta[name=turbo-refresh-method][content=morph]"
     assert_select "meta[name=turbo-refresh-scroll][content=preserve]"
@@ -267,7 +267,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "3", reserve_badge
     assert_equal "300", countdown.sole["data-countdown-seconds-value"]
     assert_select ".packs-chip__next [aria-hidden=true]", text: /\+1 dans\s+05:00/
-    assert_select ".packs-chip__next .visually-hidden", "Prochain booster : 2026-10-02 09:40 UTC"
+    assert_select ".packs-chip__next .visually-hidden", "Prochaine capsule : 2026-10-02 09:40 UTC"
     assert_select ".packs-chip__next .visually-hidden time[datetime='2026-10-02T09:40:00Z']"
   end
 
@@ -294,7 +294,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal "5400", countdown.sole["data-countdown-seconds-value"]
     assert_select ".packs-chip__next [aria-hidden=true]", text: /\+1 in\s+1:30:00/
     assert_select ".packs-chip__next [data-countdown-target=clock]", "1:30:00"
-    assert_select ".packs-chip__next .visually-hidden", "Next booster: 2026-10-02 15:52 UTC"
+    assert_select ".packs-chip__next .visually-hidden", "Next capsule: 2026-10-02 15:52 UTC"
     assert_select ".packs-chip__next .visually-hidden time[datetime='2026-10-02T15:52:00Z']"
   end
 

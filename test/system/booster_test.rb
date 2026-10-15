@@ -137,7 +137,7 @@ class BoosterTest < ApplicationSystemTestCase
     find(".hub-menu .menu-item[aria-keyshortcuts='1']").click
 
     assert_current_path "/en/booster"
-    assert_selector ".booster-canister[aria-label='Open the booster Season 1, grand catalogue, 5 cards']"
+    assert_selector ".booster-canister[aria-label='Open the capsule Season 1, grand catalogue, 5 cards']"
     assert_selector ".booster__canister-hint", text: "CLICK TO OPEN"
     within(".booster__info") do
       assert_selector ".booster__kicker", text: "BOOSTER · SEASON 1"
@@ -147,7 +147,7 @@ class BoosterTest < ApplicationSystemTestCase
       assert_selector ".booster__state", text: "SEALED"
       assert_selector ".booster__pip[data-lit]", count: 3
       assert_selector ".booster__pip", count: 10
-      assert_button "Open the booster"
+      assert_button "Open the capsule"
       assert_button "Reveal all", disabled: true
       assert_link "Back to the bridge", href: "/en"
       assert_selector ".booster__counter", text: "Cards revealed: — / 5"
@@ -243,16 +243,16 @@ class BoosterTest < ApplicationSystemTestCase
     open_canister
     assert_dealt(5)
 
-    stream_toast_waiting_for_the_reveal("First booster")
+    stream_toast_waiting_for_the_reveal("First capsule")
     (1..4).each do |position|
       find(hit(position)).click
       assert_selector "#{card(position)}[data-revealed]"
-      assert_no_selector "#toasts .toast", text: "First booster"
+      assert_no_selector "#toasts .toast", text: "First capsule"
     end
 
     find(hit(5)).click
     assert_selector ".booster__state", text: "INVENTORY COMPLETE"
-    assert_selector "#toasts .toast[data-toast-after-reveal]", text: "First booster"
+    assert_selector "#toasts .toast[data-toast-after-reveal]", text: "First capsule"
   end
 
   test "a revealed card ignores activation for 400 ms, then opens its card page" do
@@ -389,7 +389,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_operator revealed_at(4) - revealed_at(3), :<, 1400
     assert_includes announcements, "Legendary signal"
     assert_selector ".booster__state", text: "INVENTORY COMPLETE"
-    assert_selector ".booster__hint", text: "Booster inventoried · +5 cards in the collection"
+    assert_selector ".booster__hint", text: "Capsule inventoried · +5 cards in the collection"
     assert_selector "#{card(2)} .booster-card__label", text: "LEGENDARY!"
     assert_focus ".booster__open"
     assert_button "Open the next one"
@@ -459,7 +459,7 @@ class BoosterTest < ApplicationSystemTestCase
     visit booster_path(locale: :en)
 
     assert_selector ".booster__empty", text: /RESERVE EMPTY/
-    assert_selector ".booster__empty-next", text: /Next booster in 1:59:\d\d|Next booster in 2:00:00/
+    assert_selector ".booster__empty-next", text: /Next capsule in 1:59:\d\d|Next capsule in 2:00:00/
     assert_no_selector ".booster-canister"
     assert_button "Reserve empty", disabled: true
     assert_selector ".booster__state", text: "WAITING"
@@ -473,7 +473,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_button "Reserve empty", disabled: true
 
     assert_selector ".booster-canister", wait: 10
-    assert_button "Open the booster", disabled: false
+    assert_button "Open the capsule", disabled: false
     assert_selector ".booster__state", text: "SEALED"
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "1"
   end
@@ -821,7 +821,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster__canister-facts", text: "5 cards"
     assert_no_selector ".booster__info"
     assert_no_selector ".booster__counter"
-    assert_button "Open the booster"
+    assert_button "Open the capsule"
     assert_button "Reveal all", disabled: true
 
     open_canister
@@ -892,7 +892,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal 5, filled_slots
     assert_no_selector ".booster__pile .booster-card"
     assert_selector ".booster__state", text: "INVENTORY COMPLETE"
-    assert_selector ".booster-plate-band__hint", text: "Booster inventoried · +5 cards in the collection"
+    assert_selector ".booster-plate-band__hint", text: "Capsule inventoried · +5 cards in the collection"
     assert_focus ".booster__open"
     assert_button "Open the next one"
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
@@ -1191,7 +1191,7 @@ class BoosterTest < ApplicationSystemTestCase
   test "before the answer, a daily bonus pack first in line is counted as three cards" do
     open_screen(card_ids(:rare_card_one, :portal_one, :legendary_card_one), kind: :bonus)
 
-    assert_selector ".booster-canister[aria-label='Open the booster Season 1, grand catalogue, 3 cards']"
+    assert_selector ".booster-canister[aria-label='Open the capsule Season 1, grand catalogue, 3 cards']"
     assert_selector ".booster__row", text: /CARDS PER BOOSTER\s+3/
     assert_selector ".booster__counter", text: "Cards revealed: — / 3"
 

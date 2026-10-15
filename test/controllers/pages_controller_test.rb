@@ -107,9 +107,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     # 01: the booster screen, its reserve in a lime badge.
     assert_select ".hub-menu a.menu-item[href='/fr/booster'][data-hub-menu-target=item][data-turbo-prefetch=false]" do
-      assert_select ".menu-item__label", "Ouvrir un booster"
+      assert_select ".menu-item__label", "Ouvrir une capsule"
       assert_select ".menu-item__badge[aria-hidden=true]", "3"
-      assert_select ".visually-hidden", "3 boosters en réserve"
+      assert_select ".visually-hidden", "3 capsules en réserve"
       assert_select "svg.menu-item__arrow"
     end
     # 02: the collection, unique cards owned out of the season's.
@@ -162,9 +162,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     # The daily panel, its button the view's one primary.
     assert_select "section.daily-booster.panel--quiet[aria-labelledby=daily-booster-title]" do
-      assert_select "h2#daily-booster-title", "Booster quotidien"
-      assert_select ".daily-booster__state--ready", "Prêt"
-      assert_select ".daily-booster__text", "Un booster offert chaque jour. Il rejoint votre réserve."
+      assert_select "h2#daily-booster-title", "Capsule quotidienne"
+      assert_select ".daily-booster__state--ready", "Prête"
+      assert_select ".daily-booster__text", "Une capsule offerte chaque jour. Elle rejoint votre réserve."
       assert_select "form[action='/fr/daily-bonus'][method=post] button.button--primary.button--small", "Récupérer"
     end
     assert_select "main .button--primary", 1
@@ -195,9 +195,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".hub-showcase__kicker", false
       assert_select ".hub-showcase__frame[aria-hidden=true] .hub-showcase__outline svg.hub-showcase__wordmark"
       assert_select ".hub-showcase__outline [data-controller~=wordmark-shine], .hub-showcase__outline .wordmark-sweep__frames", false
-      assert_select "h2.hub-showcase__name", "Open your first booster"
+      assert_select "h2.hub-showcase__name", "Open your first capsule"
       assert_select ".hub-showcase__line", "Your finest card will show here."
-      assert_select "a.button.button--primary[href='/en/booster']", "Open a booster"
+      assert_select "a.button.button--primary[href='/en/booster']", "Open a capsule"
     end
     # One lime action: the daily panel's button turns secondary.
     assert_select ".daily-booster form button.button--secondary.button--small", "Collect"
@@ -214,7 +214,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".visually-hidden", "Reserve empty"
     end
     assert_select ".hub-menu form[action='/en/packs']", false
-    assert_select ".hub-showcase--empty button.button[type=button][disabled]", "Open a booster"
+    assert_select ".hub-showcase--empty button.button[type=button][disabled]", "Open a capsule"
     assert_select ".hub-showcase--empty .hub-showcase__reason", "Reserve empty"
     assert_select "main form[action='/en/packs']", false
   end
@@ -239,7 +239,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".daily-booster" do
       assert_select ".daily-booster__state--full", "Réserve pleine"
-      assert_select ".daily-booster__text", "Ouvrez un booster pour récupérer celui du jour."
+      assert_select ".daily-booster__text", "Ouvrez une capsule pour récupérer celle du jour."
       assert_select "button.button.button--small[type=button][disabled]", "Récupérer"
       assert_select "form", false
     end
@@ -255,13 +255,13 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
       assert_select ".daily-booster.daily-booster--collected" do
         assert_select ".daily-booster__state", "Collected"
-        assert_select ".daily-booster__text", "A booster joins your reserve. The next one will be ready on #{next_day.strftime("%Y-%m-%d")} 00:00 UTC."
+        assert_select ".daily-booster__text", "A capsule joins your reserve. The next one will be ready on #{next_day.strftime("%Y-%m-%d")} 00:00 UTC."
         assert_select ".daily-booster__text time[datetime='#{next_day.iso8601}'][data-controller=local-time]"
         assert_select ".daily-booster__next[data-controller=countdown][data-countdown-seconds-value='5385'][data-countdown-hours-value=true]" do
           assert_select ".daily-booster__next-label", "Next in"
           assert_select ".daily-booster__clock[data-countdown-target=clock]", "01:29:45"
           assert_select "progress.daily-booster__bar[max='86400'][value='81015']"
-          assert_select ".visually-hidden", "Next booster: #{next_day.strftime("%Y-%m-%d")} 00:00 UTC"
+          assert_select ".visually-hidden", "Next capsule: #{next_day.strftime("%Y-%m-%d")} 00:00 UTC"
           assert_select ".visually-hidden time[datetime='#{next_day.iso8601}']"
         end
         assert_select "button, a.button, form", false
@@ -280,7 +280,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_equal "dialog-opener", item["data-controller"]
       assert_equal "dialog-opener#open", item["data-action"]
       assert_equal "sign-in-panel", item["data-dialog-opener-dialog-value"]
-      assert_select item, ".menu-item__label", "Open a booster"
+      assert_select item, ".menu-item__label", "Open a capsule"
       assert_select item, ".menu-item__badge", false
     end
     assert_select ".hub-menu a.menu-item[href='/en/library'] .menu-item__meta", "0/5"
@@ -289,8 +289,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".hub-invitation" do
       assert_select "h2.hub-invitation__title", "Your Steam games, as collectible cards."
-      assert_select ".hub-showcase__line", "Open boosters, complete sets, trade with your friends."
-      assert_select "button.button.button--primary[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]", "Open my first boosters"
+      assert_select ".hub-showcase__line", "Open capsules, complete sets, trade with your friends."
+      assert_select "button.button.button--primary[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]", "Open my first capsules"
     end
     assert_select ".hub-showcase:not(.hub-invitation)", false
     assert_select ".daily-booster", false
@@ -343,13 +343,13 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     Game::WeeklyGoal.where(week_start: Game::WeeklyGoal.week_start(Time.current)).update_all(total: 100, target: 50_000)
 
     get home_path(locale: :en)
-    assert_select "#community-goal .hub-goal__line", text: "The whole Brotherhood opens 50,000 boosters, together."
+    assert_select "#community-goal .hub-goal__line", text: "The Brotherhood invites its members to join forces and open 50,000 capsules this week."
     assert_select "#community-goal .hub-goal__figures", text: "100 / 50,000"
     assert_select "#community-goal .hub-goal__segment", count: 24
     assert_select "#community-goal .hub-goal__segment--lit", count: 0
 
     get home_path(locale: :fr)
-    assert_select "#community-goal .hub-goal__line", text: /\AToute la Confrérie ouvre 50[\s\u00a0\u202f]000 boosters, ensemble\.\z/
+    assert_select "#community-goal .hub-goal__line", text: /\ALa Confrérie invite ses membres à unir leurs efforts pour ouvrir 50[\s\u00a0\u202f]000 capsules cette semaine\.\z/
   end
 
   test "a reached goal reads Objectif atteint with a full gauge, for a visitor and a player, in both languages" do
@@ -404,7 +404,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "#community-goal > #community-goal-progress + #goal-reward.hub-goal__claim--ready" do
       assert_select "form[action='/fr/goal-rewards/#{week.iso8601}'][method=post] button.button--secondary.button--small" \
-                    "[aria-label=?]", "Récupérer le booster de récompense", text: "Récupérer"
+                    "[aria-label=?]", "Récupérer la capsule de récompense", text: "Récupérer"
     end
     assert_select "#community-goal-progress #goal-reward", false
     assert_select "#community-goal-progress .hub-goal__previous"
@@ -423,19 +423,19 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :en)
     assert_select "#goal-reward.hub-goal__claim--full" do
-      assert_select "button[disabled][aria-label=?]", "Collect the reward booster", text: "Collect"
+      assert_select "button[disabled][aria-label=?]", "Collect the reward capsule", text: "Collect"
       assert_select "form", 0
-      assert_select ".hub-goal__claim-text", "Open a booster to collect your rare booster."
+      assert_select ".hub-goal__claim-text", "Open a capsule to collect your rare capsule."
     end
     get home_path(locale: :fr)
-    assert_select "#goal-reward .hub-goal__claim-text", "Ouvrez un booster pour récupérer votre booster rare."
+    assert_select "#goal-reward .hub-goal__claim-text", "Ouvrez une capsule pour récupérer votre capsule rare."
 
     Game::OpenPack.new.call(player: @player).value!
     Game::ClaimGoalReward.new.call(player: @player, week_start: week).value!
 
     get home_path(locale: :fr)
     assert_select "#goal-reward.hub-goal__claim--collected" do
-      assert_select ".hub-goal__claim-state", "Récupéré"
+      assert_select ".hub-goal__claim-state", "Récupérée"
       assert_select "form, button", 0
     end
     get home_path(locale: :en)

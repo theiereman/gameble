@@ -34,14 +34,14 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     travel_to(now) do
       get home_path(locale: :en)
       assert_equal "9", reserve_badge
-      assert_select ".daily-booster h2", "Daily booster"
+      assert_select ".daily-booster h2", "Daily capsule"
       assert_select ".daily-booster form[action='/en/daily-bonus'][method=post] button", "Collect"
 
       post daily_bonus_path(locale: :en)
 
       assert_redirected_to home_path(locale: :en)
       assert_response :see_other
-      assert_equal "A booster joins your reserve. The next one will be ready on 2026-10-03 00:00 UTC.", flash[:notice]
+      assert_equal "A capsule joins your reserve. The next one will be ready on 2026-10-03 00:00 UTC.", flash[:notice]
       follow_redirect!
       assert_equal "10", reserve_badge
       assert_select ".daily-booster.daily-booster--collected .daily-booster__state", "Collected"
@@ -51,7 +51,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       post daily_bonus_path(locale: :en)
 
       assert_redirected_to home_path(locale: :en)
-      assert_equal "You have already collected today's booster. The next one will be ready on 2026-10-03 00:00 UTC.", flash[:alert]
+      assert_equal "You have already collected today's capsule. The next one will be ready on 2026-10-03 00:00 UTC.", flash[:alert]
       assert_equal 1, Game::DailyBonusClaim.where(player_id: @player.id).count
     end
 
@@ -94,7 +94,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       assert_select "turbo-stream[action=replace][target=hub-menu-booster] template li#hub-menu-booster .menu-item__badge", "10"
       assert_select "turbo-stream[action=replace][target=hub-showcase-actions] template #hub-showcase-actions"
       assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--notice .toast__message",
-        "A booster joins your reserve. The next one will be ready on 2026-10-03 00:00 UTC."
+        "A capsule joins your reserve. The next one will be ready on 2026-10-03 00:00 UTC."
       assert_select "turbo-stream[action=append][target=toasts] template .toast__message time[datetime='2026-10-03T00:00:00Z'][data-controller=local-time]"
     end
   end
@@ -154,7 +154,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "turbo-stream[action=replace][target=goal-reward] template #goal-reward.hub-goal__claim--full" do
       assert_select "button[disabled]", "Collect"
-      assert_select ".hub-goal__claim-text", "Open a booster to collect your rare booster."
+      assert_select ".hub-goal__claim-text", "Open a capsule to collect your rare capsule."
     end
   end
 
@@ -183,14 +183,14 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     get home_path(locale: :en)
-    assert_select ".daily-booster h2", "Daily booster"
+    assert_select ".daily-booster h2", "Daily capsule"
     assert_select ".daily-booster .daily-booster__state", "Reserve full"
-    assert_select ".daily-booster .daily-booster__text", "Open a booster to collect today's."
+    assert_select ".daily-booster .daily-booster__text", "Open a capsule to collect today's."
     assert_select ".daily-booster button[disabled]", "Collect"
     assert_select ".daily-booster form", 0
 
     get home_path(locale: :fr)
-    assert_select ".daily-booster .daily-booster__text", "Ouvrez un booster pour récupérer celui du jour."
+    assert_select ".daily-booster .daily-booster__text", "Ouvrez une capsule pour récupérer celle du jour."
 
     assert_no_difference -> { Game::Pack.count } do
       post daily_bonus_path(locale: :fr)
@@ -206,9 +206,9 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :fr)
 
-    assert_select ".daily-booster h2", "Booster quotidien"
-    assert_select ".daily-booster .daily-booster__state", "Prêt"
-    assert_select ".daily-booster .daily-booster__text", "Un booster offert chaque jour. Il rejoint votre réserve."
+    assert_select ".daily-booster h2", "Capsule quotidienne"
+    assert_select ".daily-booster .daily-booster__state", "Prête"
+    assert_select ".daily-booster .daily-booster__text", "Une capsule offerte chaque jour. Elle rejoint votre réserve."
     assert_select ".daily-booster button", "Récupérer"
   end
 
@@ -265,11 +265,11 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to "/en/packs/#{bonus.token}"
     follow_redirect!
-    assert_select "h1", "Your daily booster"
+    assert_select "h1", "Your daily capsule"
     assert_select ".pack-result__card .card.card--m", 3
 
     get pack_path(bonus.token, locale: :fr)
-    assert_select "h1", "Votre booster du jour"
+    assert_select "h1", "Votre capsule du jour"
     assert_select ".pack-result__card .card.card--m", 3
   end
 
@@ -279,6 +279,6 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :en)
 
     assert_empty panel
-    assert_select ".hub-menu button.menu-item[data-dialog-opener-dialog-value=sign-in-panel] .menu-item__label", "Open a booster"
+    assert_select ".hub-menu button.menu-item[data-dialog-opener-dialog-value=sign-in-panel] .menu-item__label", "Open a capsule"
   end
 end

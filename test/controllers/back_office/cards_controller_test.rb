@@ -28,7 +28,7 @@ module BackOffice
       assert_select "[data-specimen=common-m] .card__genre", 0
       assert_select "[data-specimen=epic-m] .card__number", 0
       assert_select "[data-specimen=rare-l] .card__number", "S12 · #1 000 000"
-      assert_select "[data-specimen=legendary-m-booster] figcaption", "Légendaire, taille M, booster"
+      assert_select "[data-specimen=legendary-m-booster] figcaption", "Légendaire, taille M, capsule"
       assert_select "[data-turbo-mount-card-preview-component-value], [data-controller~=turbo-mount-card-preview]", 0
       assert_select "[style]", 0
       assert_no_match %r{steam}i, response.body.scan(/data-card-art-url-value="[^"]*"/).join

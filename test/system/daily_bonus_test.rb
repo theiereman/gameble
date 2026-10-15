@@ -125,7 +125,7 @@ class DailyBonusTest < ApplicationSystemTestCase
 
     within(".daily-booster") do
       assert_text "RESERVE FULL"
-      assert_text "Open a booster to collect today's."
+      assert_text "Open a capsule to collect today's."
       assert_button "Collect", disabled: true
     end
     take_screenshot

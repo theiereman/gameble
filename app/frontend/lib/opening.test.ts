@@ -44,11 +44,11 @@ describe("sendOpening", () => {
   })
 
   it("reads a refusal's code and message", async () => {
-    const { send } = fake(json(422, { error: { code: "no_pack_available", message: "Plus de booster." } }))
+    const { send } = fake(json(422, { error: { code: "no_pack_available", message: "Plus de capsule." } }))
     expect(await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })).toEqual({
       kind: "refused",
       code: "no_pack_available",
-      message: "Plus de booster.",
+      message: "Plus de capsule.",
     })
   })
 

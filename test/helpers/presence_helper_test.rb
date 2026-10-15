@@ -11,9 +11,9 @@ class PresenceHelperTest < ActionView::TestCase
 
   test "online, an activity, and an unknown activity read as online" do
     assert_equal "En ligne", text(:online, seen_at: @now)
-    assert_equal "Ouvre un booster", text(:active, activity: "opening_pack")
+    assert_equal "Ouvre une capsule", text(:active, activity: "opening_pack")
     assert_equal "Négocie un échange", text(:active, activity: "trading")
-    assert_equal "Collecting the daily booster", text(:active, activity: "collecting_daily", locale: :en)
+    assert_equal "Collecting the daily capsule", text(:active, activity: "collecting_daily", locale: :en)
     assert_equal "En ligne", text(:active, activity: "retired_activity")
   end
 

@@ -527,7 +527,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "S1 · #3 · 3 / 5 · swipe to browse", position
     assert_select ".card-detail__card .card.card--l"
     back = css_select(".top-bar__phone-back").sole
-    assert_equal [ "/en/booster?pack=#{pack.token}", "history-back", "Booster" ], [ back["href"], back["data-controller"], back.text.squish ]
+    assert_equal [ "/en/booster?pack=#{pack.token}", "history-back", "Capsule" ], [ back["href"], back["data-controller"], back.text.squish ]
     assert_equal back["href"], css_select(".card-detail").sole["data-sub-view-back-value"]
 
     get pack_detail("tin-soldier", pack, slot: 1)
@@ -536,7 +536,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     get pack_detail("golden-crown", pack, slot: 5, locale: :fr)
     assert_equal [ [ "a", pack_detail("portal", pack, slot: 4, locale: :fr) ], [ "button", "disabled" ] ], navs
-    assert_equal "Booster", css_select(".top-bar__phone-back").sole.text.squish
+    assert_equal "Capsule", css_select(".top-bar__phone-back").sole.text.squish
     assert_equal "/fr/booster?pack=#{pack.token}", css_select(".top-bar__phone-back").sole["href"]
   end
 

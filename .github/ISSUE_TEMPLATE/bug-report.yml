@@ -14,7 +14,7 @@ body:
       label: What did you do?
       description: The steps that led to the problem, in order.
       placeholder: |
-        1. Opened a pack from the home page
+        1. Opened a capsule from the home page
         2. Clicked the third card
         3. ...
     validations:

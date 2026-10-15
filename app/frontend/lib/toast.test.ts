@@ -88,7 +88,7 @@ describe("RevealHold", () => {
 
   it("lets a marked toast through when no opening is revealing", () => {
     const hold = new RevealHold<string>()
-    expect(hold.hold("Premier booster", true)).toBe(false)
+    expect(hold.hold("Première capsule", true)).toBe(false)
     hold.revealingChanged(true)
     hold.revealingChanged(false)
     expect(hold.hold("Premier échange", true)).toBe(false)
@@ -97,15 +97,15 @@ describe("RevealHold", () => {
   it("keeps holding while the reveal goes on", () => {
     const hold = new RevealHold<string>()
     hold.revealingChanged(true)
-    hold.hold("Premier booster", true)
+    hold.hold("Première capsule", true)
     expect(hold.revealingChanged(true)).toEqual([])
-    expect(hold.revealingChanged(false)).toEqual(["Premier booster"])
+    expect(hold.revealingChanged(false)).toEqual(["Première capsule"])
   })
 
   it("drops the held toasts and stops holding once cleared", () => {
     const hold = new RevealHold<string>()
     hold.revealingChanged(true)
-    hold.hold("Premier booster", true)
+    hold.hold("Première capsule", true)
     hold.clear()
     expect(hold.hold("Première Légendaire", true)).toBe(false)
     expect(hold.revealingChanged(false)).toEqual([])

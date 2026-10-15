@@ -17,7 +17,7 @@ fr:
       collection: "Collection"
       set: "Set"
       card: "Fiche"
-      booster: "Booster"
+      booster: "Capsule"
       trades: "Échanges"
       friends: "Amis"
       profile: "Profil"
@@ -31,9 +31,9 @@ fr:
       label: "Raretés"
       legend: "Raretés"
     packs:
-      label: "Boosters"
+      label: "Capsules"
       next_in: "+1 dans"
-      next_at: "Prochain booster : %{time}"
+      next_at: "Prochaine capsule : %{time}"
       full: "Réserve pleine"
       in_reserve:
         one: "%{number} en réserve"
@@ -48,7 +48,7 @@ fr:
     tabs:
       label: "Navigation principale"
       hub: "Pont"
-      booster: "Booster"
+      booster: "Capsule"
       collection: "Collection"
       trades: "Échanges"
       more: "Plus"
@@ -76,10 +76,10 @@ fr:
         title: "Pont de commandement"
       menu:
         label: "Menu du pont"
-        open_booster: "Ouvrir un booster"
+        open_booster: "Ouvrir une capsule"
         reserve:
-          one: "%{number} booster en réserve"
-          other: "%{number} boosters en réserve"
+          one: "%{number} capsule en réserve"
+          other: "%{number} capsules en réserve"
         reserve_empty: "Réserve vide"
         collection: "Collection"
         collection_meta:
@@ -109,38 +109,38 @@ fr:
         kicker: "Dernière obtention"
         see_card: "Voir la fiche"
         empty:
-          title: "Ouvrez votre premier booster"
+          title: "Ouvrez votre première capsule"
           text: "Votre plus belle carte s'affichera ici."
-          open: "Ouvrir un booster"
+          open: "Ouvrir une capsule"
           reserve_empty: "Réserve vide"
       invitation:
         title: "Vos jeux Steam, en cartes à collectionner."
-        text: "Ouvrez des boosters, complétez des sets, échangez avec vos amis."
-        open: "Ouvrir mes premiers boosters"
+        text: "Ouvrez des capsules, complétez des sets, échangez avec vos amis."
+        open: "Ouvrir mes premières capsules"
       daily:
-        title: "Booster quotidien"
-        ready: "Prêt"
+        title: "Capsule quotidienne"
+        ready: "Prête"
         full: "Réserve pleine"
-        text: "Un booster offert chaque jour. Il rejoint votre réserve."
-        full_text: "Ouvrez un booster pour récupérer celui du jour."
+        text: "Une capsule offerte chaque jour. Elle rejoint votre réserve."
+        full_text: "Ouvrez une capsule pour récupérer celle du jour."
         collect: "Récupérer"
-        collected: "Récupéré"
-        next_in: "Prochain dans"
-        next_at: "Prochain booster : %{time}"
+        collected: "Récupérée"
+        next_in: "Prochaine dans"
+        next_at: "Prochaine capsule : %{time}"
       goal:
         title: "Objectif communautaire"
-        line: "Toute la Confrérie ouvre %{target} boosters, ensemble."
+        line: "La Confrérie invite ses membres à unir leurs efforts pour ouvrir %{target} capsules cette semaine."
         players: "Tous les joueurs"
         progress: "%{total} contributions sur %{target} cette semaine"
         reward: "Récompense"
-        reward_text: "Un booster rare pour chaque contributeur"
+        reward_text: "Une capsule rare pour chaque contributeur"
         reached: "Objectif atteint"
         previous_reached: "Semaine dernière : %{total} / %{target} · objectif atteint"
         previous_missed: "Semaine dernière : %{total} / %{target} · objectif manqué"
         collect: "Récupérer"
-        collect_label: "Récupérer le booster de récompense"
-        collected: "Récupéré"
-        full_text: "Ouvrez un booster pour récupérer votre booster rare."
+        collect_label: "Récupérer la capsule de récompense"
+        collected: "Récupérée"
+        full_text: "Ouvrez une capsule pour récupérer votre capsule rare."
       sets:
         title: "Progression des sets"
         see_all: "Tout voir"
@@ -168,7 +168,7 @@ fr:
         acceptance: "En vous connectant avec Steam, vous acceptez ces conditions."
         free: "gameble est un jeu gratuit, sans publicité et sans achat."
         no_money: "Aucun argent réel n'y circule : rien ne s'y achète, rien ne s'y vend."
-        no_property: "Les cartes, boosters et dos de cartes sont des éléments du jeu : ils ne sont pas votre propriété et n'ont aucune valeur, ni en argent ni hors de gameble. Aucune carte ne peut être vendue ou échangée contre de l'argent, dans gameble ou en dehors."
+        no_property: "Les cartes, capsules et dos de cartes sont des éléments du jeu : ils ne sont pas votre propriété et n'ont aucune valeur, ni en argent ni hors de gameble. Aucune carte ne peut être vendue ou échangée contre de l'argent, dans gameble ou en dehors."
         fair_play: "Jouez loyalement : pas de bot, de script ni d'automatisation, pas de comptes multiples, pas d'exploitation de bug."
         moderation_html: "Les joueurs peuvent signaler un profil. Des modérateurs examinent chaque signalement et peuvent suspendre un compte qui enfreint ces règles. La décision est toujours prise par une personne. Le joueur suspendu voit le motif de la décision quand il tente de se connecter et peut la contester en écrivant à %{contact}."
         notice_html: "Même sans compte gameble, vous pouvez signaler un contenu illicite ou demander le retrait d'un jeu dont vous détenez les droits : écrivez à %{contact} en indiquant l'adresse de la page et la raison de votre demande."
@@ -182,14 +182,14 @@ fr:
         stored:
           intro: "Pour faire fonctionner le jeu, gameble conserve :"
           steam: "votre identifiant Steam et votre nom de profil Steam ;"
-          activity: "votre activité de jeu : cartes, boosters, échanges, amis et invitations, code ami, entrées du fil d'activité ;"
+          activity: "votre activité de jeu : cartes, capsules, échanges, amis et invitations, code ami, entrées du fil d'activité ;"
           moderation: "les signalements que vous faites, ceux qui visent votre profil (leur auteur ne vous est pas communiqué) et les décisions de modération qui vous concernent, avec leur motif ;"
           settings: "vos réglages (visibilité du profil, animations réduites) ;"
           last_seen: "la date de création de votre compte, l'heure de votre dernière visite, et votre dernier export de données (son fichier et son heure), gardé jusqu'à l'export suivant ;"
           technical: "des données techniques : adresse IP et navigateur, dans les journaux du serveur et le suivi d'erreurs."
         purposes:
           intro: "Pourquoi et sur quelle base :"
-          game: "faire fonctionner votre compte et le jeu (collection, boosters, échanges, amis, profil, fil d'activité) : exécution des conditions d'utilisation que vous acceptez en vous connectant (art. 6.1.b du RGPD) ;"
+          game: "faire fonctionner votre compte et le jeu (collection, capsules, échanges, amis, profil, fil d'activité) : exécution des conditions d'utilisation que vous acceptez en vous connectant (art. 6.1.b du RGPD) ;"
           moderation: "modérer la communauté (signalements, bannissements, historique de modération) : intérêt légitime de l'éditeur à faire respecter les règles et à protéger les joueurs (art. 6.1.f) ;"
           security: "sécuriser le site et corriger les erreurs (journaux du serveur, limitation des abus, suivi d'erreurs, Cloudflare) : intérêt légitime à assurer la sécurité et le bon fonctionnement du service (art. 6.1.f) ;"
           requests: "répondre à vos messages et à vos demandes sur vos données : obligation légale (art. 6.1.c)."
@@ -212,7 +212,7 @@ fr:
           logs: "les journaux du serveur : 30 jours ;"
           errors: "les erreurs techniques reçues par Sentry : 90 jours au plus, selon l'offre Sentry de l'éditeur ;"
           leftovers: "ce qu'un compte supprimé laisse et qui concerne d'autres joueurs ou la communauté (échanges passés, premières découvertes, contributions à l'objectif communautaire, journal des actions du jeu) : tant que le jeu existe, sans identifiant Steam ni nom."
-        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, votre collection, vos boosters, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à l'objectif communautaire, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
+        deletion: "Quand vous supprimez votre compte, votre identifiant Steam, votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, votre collection, vos capsules, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à l'objectif communautaire, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
         rights:
           intro: "Vous pouvez accéder à vos données, les faire rectifier ou effacer, en limiter le traitement, vous opposer à un traitement fondé sur l'intérêt légitime et en recevoir une copie réutilisable. Vous pouvez aussi indiquer ce que deviennent vos données après votre décès. Nous répondons sous un mois."
           access: "accès : depuis les paramètres, avec « Exporter » dans « Mes données », qui télécharge une copie de vos données dans un fichier réutilisable ;"
@@ -252,55 +252,55 @@ fr:
           other: "À la publication d'une saison, ses cartes sont classées ainsi, du jeu le plus évalué au moins évalué, puis réparties en %{count} raretés dans ces proportions :"
         ties: "Deux jeux qui ont le même nombre d'évaluations et la même part d'évaluations positives ont toujours la même rareté : les proportions réelles peuvent donc s'écarter un peu de celles-ci."
       packs:
-        title: "Boosters et probabilités"
+        title: "Capsules et probabilités"
         # French keeps the singular for 0, which the plural rule here does not.
         regular:
-          zero: "Un booster contient %{count} carte. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
-          one: "Un booster contient %{count} carte. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
-          other: "Un booster contient %{count} cartes. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
-        bonus: "Le booster quotidien a de meilleures chances et ne contient jamais de carte %{common} :"
-        reward: "Le booster de récompense de l'objectif communautaire :"
-        forced: "S'il ne contient aucune carte %{rarity} ou mieux, l'une de ses cartes, au hasard, est remplacée par une carte tirée avec ces chances :"
+          zero: "Une capsule contient %{count} carte. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
+          one: "Une capsule contient %{count} carte. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
+          other: "Une capsule contient %{count} cartes. Chaque carte est tirée séparément : d'abord sa rareté, avec les chances ci-dessous, puis un jeu de cette rareté. Une même carte peut donc sortir plusieurs fois."
+        bonus: "La capsule quotidienne a de meilleures chances et ne contient jamais de carte %{common} :"
+        reward: "La capsule de récompense de l'objectif communautaire :"
+        forced: "Si elle ne contient aucune carte %{rarity} ou mieux, l'une de ses cartes, au hasard, est remplacée par une carte tirée avec ces chances :"
         rarity: "Rareté"
         chance: "Chance par carte"
         tables:
-          regular: "Booster standard"
-          bonus: "Booster quotidien"
-          reward: "Booster de récompense"
+          regular: "Capsule standard"
+          bonus: "Capsule quotidienne"
+          reward: "Capsule de récompense"
           epic_or_better: "Carte de remplacement"
       timing:
-        title: "Le rythme des boosters"
+        title: "Le rythme des capsules"
         # French keeps the singular for 0, which the plural rule here does not.
         bank:
-          zero: "Au plus %{count} booster standard vous attend à la fois, prêt ou à venir."
-          one: "Au plus %{count} booster standard vous attend à la fois, prêt ou à venir."
-          other: "Au plus %{count} boosters standard vous attendent à la fois, prêts ou à venir."
-        replace: "Chaque booster ouvert est remplacé %{minutes} après le dernier booster en attente, ou après l'ouverture si tous étaient prêts."
-        refill: "Des boosters standard ouverts d'un coup sont donc tous de retour en %{minutes}."
-        season: "À la publication d'une nouvelle saison, les boosters standard qui vous manquent sont donnés aussitôt."
+          zero: "Au plus %{count} capsule standard vous attend à la fois, prête ou à venir."
+          one: "Au plus %{count} capsule standard vous attend à la fois, prête ou à venir."
+          other: "Au plus %{count} capsules standard vous attendent à la fois, prêtes ou à venir."
+        replace: "Chaque capsule ouverte est remplacée %{minutes} après la dernière capsule en attente, ou après l'ouverture si toutes étaient prêtes."
+        refill: "Des capsules standard ouvertes d'un coup sont donc toutes de retour en %{minutes}."
+        season: "À la publication d'une nouvelle saison, les capsules standard qui vous manquent sont données aussitôt."
       daily:
-        title: "Le booster quotidien"
-        once: "Une fois par jour, un booster offert vous attend sur le pont. Le jour change à %{time}."
+        title: "La capsule quotidienne"
+        once: "Une fois par jour, une capsule offerte vous attend sur le pont. Le jour change à %{time}."
         # French keeps the singular for 0, which the plural rule here does not.
         content:
-          zero: "Il contient %{count} carte, aucune %{common}."
-          one: "Il contient %{count} carte, aucune %{common}."
-          other: "Il contient %{count} cartes, aucune %{common}."
-        outside: "Il s'ajoute aux boosters standard, sans compter dans leur limite et sans les retarder."
+          zero: "Elle contient %{count} carte, aucune %{common}."
+          one: "Elle contient %{count} carte, aucune %{common}."
+          other: "Elle contient %{count} cartes, aucune %{common}."
+        outside: "Elle s'ajoute aux capsules standard, sans compter dans leur limite et sans les retarder."
         # French keeps the singular for 0, which the plural rule here does not.
         full:
-          zero: "Il est refusé tant que votre réserve compte %{count} booster ou plus prêt à ouvrir : ouvrez-en un d'abord."
-          one: "Il est refusé tant que votre réserve compte %{count} booster ou plus prêt à ouvrir : ouvrez-en un d'abord."
-          other: "Il est refusé tant que votre réserve compte %{count} boosters ou plus prêts à ouvrir : ouvrez-en un d'abord."
+          zero: "Elle est refusée tant que votre réserve compte %{count} capsule ou plus prête à ouvrir : ouvrez-en une d'abord."
+          one: "Elle est refusée tant que votre réserve compte %{count} capsule ou plus prête à ouvrir : ouvrez-en une d'abord."
+          other: "Elle est refusée tant que votre réserve compte %{count} capsules ou plus prêtes à ouvrir : ouvrez-en une d'abord."
       goal:
         title: "L'objectif communautaire"
         week: "Chaque semaine, pendant sept jours à partir du %{time}, tous les joueurs visent ensemble un même objectif."
-        counts: "Chaque booster ouvert y compte, de même que chaque échange conclu, qui fait des deux joueurs des contributeurs."
+        counts: "Chaque capsule ouverte y compte, de même que chaque échange conclu, qui fait des deux joueurs des contributeurs."
         # French keeps the singular for 0, which the plural rule here does not.
         reward:
-          zero: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne un booster de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous le récupérez sur le pont tant que votre réserve compte moins de %{full} boosters."
-          one: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne un booster de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous le récupérez sur le pont tant que votre réserve compte moins de %{full} boosters."
-          other: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne un booster de récompense : %{count} cartes, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous le récupérez sur le pont tant que votre réserve compte moins de %{full} boosters."
+          zero: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont tant que votre réserve compte moins de %{full} capsules."
+          one: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} carte, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont tant que votre réserve compte moins de %{full} capsules."
+          other: "Si l'objectif est atteint, chaque joueur qui y a contribué gagne une capsule de récompense : %{count} cartes, dont au moins une %{rarity} ou mieux. Si vous y avez contribué, vous la récupérez sur le pont tant que votre réserve compte moins de %{full} capsules."
       seasons:
         title: "Les saisons"
         frozen: "Une saison est tirée de Steam. Dès sa publication, la rareté, le numéro et les sets de chacune de ses cartes sont figés : ils ne changent plus pendant la saison."
@@ -502,9 +502,9 @@ fr:
     cards:
       index:
         heading: "La presse à cartes"
-        intro: "La face de chaque rareté aux quatre tailles, puis chaque rareté en taille M avec les effets du booster. Survolez une carte pour l'incliner. L'image est un échantillon du coffre de la Confrérie ; celle de la peu commune manque exprès, pour montrer une carte sans image."
+        intro: "La face de chaque rareté aux quatre tailles, puis chaque rareté en taille M avec les effets de la capsule. Survolez une carte pour l'incliner. L'image est un échantillon du coffre de la Confrérie ; celle de la peu commune manque exprès, pour montrer une carte sans image."
         label: "%{rarity}, %{size}"
-        booster_label: "%{rarity}, %{size}, booster"
+        booster_label: "%{rarity}, %{size}, capsule"
         sizes:
           s: "taille S"
           m: "taille M"
@@ -594,10 +594,10 @@ fr:
     create:
       throttled: "Trop d'ouvertures en une minute. Réessayez dans un instant."
     show:
-      heading: "Votre booster"
-      heading_bonus: "Votre booster du jour"
-      cards: "Les cartes de votre booster"
-      open_booster: "Ouvrir un booster"
+      heading: "Votre capsule"
+      heading_bonus: "Votre capsule du jour"
+      cards: "Les cartes de votre capsule"
+      open_booster: "Ouvrir une capsule"
       back_to_hub: "Retour au pont"
   library:
     collection:
@@ -747,23 +747,23 @@ fr:
       body: "Ce profil n'est pas disponible. Le lien ne mène nulle part, ou son propriétaire ne le montre plus."
   boosters:
     show:
-      title: "Ouverture de booster"
+      title: "Ouverture de capsule"
     # The Booster island's words (BoostersHelper#booster_props), uppercase by
     # CSS where the design shows capitals; plural keys read by the island's
     # t() (app/frontend/lib/i18n.ts).
     island:
-      kicker: "Booster · Saison %{number}"
-      kicker_plain: "Booster"
+      kicker: "Capsule · Saison %{number}"
+      kicker_plain: "Capsule"
       title: "Grand catalogue"
-      cards_per_pack: "Cartes par booster"
+      cards_per_pack: "Cartes par capsule"
       in_reserve: "En réserve"
       reserve_count:
-        zero: "%{n} booster"
-        one: "%{n} booster"
-        other: "%{n} boosters"
+        zero: "%{n} capsule"
+        one: "%{n} capsule"
+        other: "%{n} capsules"
       state: "État"
       states:
-        sealed: "Scellé"
+        sealed: "Scellée"
         arming: "Armement"
         ejecting: "Éjection"
         inventory: "Inventaire"
@@ -772,26 +772,26 @@ fr:
         waiting: "En attente"
       reserve: "Réserve"
       next_in: "+1 dans"
-      next_at: "Prochain booster : %{time}"
+      next_at: "Prochaine capsule : %{time}"
       reserve_full: "Réserve pleine"
-      open: "Ouvrir le booster"
-      open_next: "Ouvrir le suivant"
+      open: "Ouvrir la capsule"
+      open_next: "Ouvrir la suivante"
       reserve_empty: "Réserve vide"
-      empty_next: "Prochain booster dans %{time}"
+      empty_next: "Prochaine capsule dans %{time}"
       reveal_all: "Tout révéler"
       back: "Retour au pont"
       revealed_count: "Cartes révélées : %{revealed} / %{total}"
-      canister_label: "Ouvrir le booster Saison %{season}, grand catalogue, %{count} cartes"
-      canister_label_plain: "Ouvrir le booster, grand catalogue, %{count} cartes"
+      canister_label: "Ouvrir la capsule Saison %{season}, grand catalogue, %{count} cartes"
+      canister_label_plain: "Ouvrir la capsule, grand catalogue, %{count} cartes"
       canister_hint: "Cliquez pour ouvrir"
       canister_season: "Saison %{number}"
-      result: "Résultat du booster"
+      result: "Résultat de la capsule"
       hint_remaining:
         one: "Cliquez une carte pour la révéler · %{n} restante"
         other: "Cliquez une carte pour la révéler · %{n} restantes"
       hint_done:
-        one: "Booster inventorié · +%{n} carte dans la collection"
-        other: "Booster inventorié · +%{n} cartes dans la collection"
+        one: "Capsule inventoriée · +%{n} carte dans la collection"
+        other: "Capsule inventoriée · +%{n} cartes dans la collection"
       face_down: "Carte %{position} sur %{total}, face cachée. Révéler."
       face_up: "%{card}, %{rarity}. Voir la fiche."
       card_label: "%{title} — %{details}"
@@ -804,7 +804,7 @@ fr:
       banner_line: "%{title} · %{year}"
       refused_title: "Ouverture annulée"
       failed: "L'ouverture n'a pas abouti. Vérifiez votre connexion ou rechargez la page, puis réessayez."
-      island_failed: "Le booster n'a pas pu s'afficher. Vos cartes sont dans votre collection."
+      island_failed: "La capsule n'a pas pu s'afficher. Vos cartes sont dans votre collection."
       reload: "Recharger"
       strip_title: "Saison %{number} · Grand catalogue"
       strip_title_plain: "Grand catalogue"
@@ -955,8 +955,8 @@ fr:
           one: "Il y a %{count} j"
           other: "Il y a %{count} j"
         activities:
-          opening_pack: "Ouvre un booster"
-          collecting_daily: "Récupère son booster du jour"
+          opening_pack: "Ouvre une capsule"
+          collecting_daily: "Récupère sa capsule du jour"
           trading: "Négocie un échange"
           making_friends: "Se fait des amis"
     profile_dialog:
@@ -992,14 +992,14 @@ fr:
     unlocked:
       title: "Succès débloqué"
     names:
-      first_booster: "Premier booster"
+      first_booster: "Première capsule"
       first_epic: "Première Épique"
       first_legendary: "Première Légendaire"
       first_complete_set: "Premier set complet"
       first_trade: "Premier échange"
-      boosters_10: "10 boosters"
-      boosters_100: "100 boosters"
-      boosters_500: "500 boosters"
+      boosters_10: "10 capsules"
+      boosters_100: "100 capsules"
+      boosters_500: "500 capsules"
       three_complete_sets: "Trois sets complets"
       first_repost: "Premier repost"
     show:
@@ -1015,14 +1015,14 @@ fr:
         to_earn: "À obtenir · %{count}"
       progress: "%{progress} sur %{threshold}"
     conditions:
-      first_booster: "Ouvrir un booster"
+      first_booster: "Ouvrir une capsule"
       first_epic: "Obtenir une carte Épique"
       first_legendary: "Obtenir une carte Légendaire"
       first_complete_set: "Compléter un set"
       first_trade: "Conclure un échange"
-      boosters_10: "Ouvrir 10 boosters"
-      boosters_100: "Ouvrir 100 boosters"
-      boosters_500: "Ouvrir 500 boosters"
+      boosters_10: "Ouvrir 10 capsules"
+      boosters_100: "Ouvrir 100 capsules"
+      boosters_500: "Ouvrir 500 capsules"
       three_complete_sets: "Compléter 3 sets"
       first_repost: "Reposter une carte"
   invite_links:
@@ -1212,7 +1212,7 @@ fr:
     dialog:
       title: "Supprimer mon compte"
       close: "Fermer"
-      note: "Seront effacés définitivement : votre identifiant Steam, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données et votre dernière activité, votre collection, vos sets complétés et vos succès, vos boosters, ouverts ou non, vos bonus du jour et vos récompenses de l'objectif communautaire, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
+      note: "Seront effacés définitivement : votre identifiant Steam, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données et votre dernière activité, votre collection, vos sets complétés et vos succès, vos capsules, ouvertes ou non, vos bonus du jour et vos récompenses de l'objectif communautaire, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
       kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à l'objectif communautaire, les signalements, l'historique de modération et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
@@ -1246,11 +1246,12 @@ fr:
       throttled: "Trop de reposts en une minute. Réessayez dans un instant."
   daily_bonuses:
     create:
-      collected: "Un booster rejoint votre réserve. Le prochain sera prêt le %{time}."
+      collected: "Une capsule rejoint votre réserve. La prochaine sera prête le %{time}."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
   goal_rewards:
     create:
-      collected: "Votre booster rare rejoint votre réserve."
+      title: "Objectif atteint"
+      collected: "La Direction vous remercie pour votre participation. Une capsule rare a rejoint votre réserve."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
   external_links:
     new_tab: "(nouvel onglet)"
@@ -1283,7 +1284,7 @@ fr:
     store: "Voir sur Steam"
     preview:
       title: "%{title} — %{rarity}"
-      description: "Une carte de gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix boosters vous attendent."
+      description: "Une carte de gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix capsules vous attendent."
     share:
       button: "Partager"
       title: "Partager la carte"
@@ -1298,12 +1299,12 @@ fr:
     face:
       image_missing: "Image indisponible"
     show:
-      invitation: "Ouvrez des boosters, complétez des sets, échangez avec vos amis."
+      invitation: "Ouvrez des capsules, complétez des sets, échangez avec vos amis."
       pitch_title: "Vos jeux Steam, en cartes à collectionner."
-      sign_in: "Ouvrir mes premiers boosters"
+      sign_in: "Ouvrir mes premières capsules"
       update_browser: "Votre navigateur est trop ancien pour se connecter à gameble. Mettez-le à jour pour jouer."
       grid: "Grille"
-      booster: "Booster"
+      booster: "Capsule"
       live:
         title: "En ce moment sur gameble"
       legal: "Mentions légales"
@@ -1428,7 +1429,7 @@ fr:
       "360_video": "Vidéo 360"
   sessions:
     create:
-      welcome: "Bienvenue sur gameble. Vos boosters vous attendent."
+      welcome: "Bienvenue sur gameble. Vos capsules vous attendent."
     banned:
       title: "Compte suspendu"
       reason_label: "Motif indiqué par le modérateur"
@@ -1499,14 +1500,14 @@ fr:
     game:
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       invalid_time: "L'heure envoyée n'a pas pu être lue. Rechargez la page."
-      no_pack_available: "Votre réserve est vide. Le prochain booster arrive bientôt."
-      already_collected: "Vous avez déjà récupéré le booster du jour. Le prochain sera prêt le %{time}."
-      no_season: "Aucune saison de cartes n'est encore ouverte. Revenez plus tard pour le booster du jour."
-      reserve_full: "Votre réserve est pleine : ouvrez un booster pour récupérer celui du jour."
-      reward_reserve_full: "Votre réserve est pleine : ouvrez un booster pour récupérer votre booster rare."
-      reward_already_claimed: "Vous avez déjà récupéré ce booster rare."
-      reward_not_earned: "Aucun booster rare ne vous attend pour cette semaine."
-      reward_no_season: "Aucune saison de cartes n'est ouverte. Revenez plus tard pour votre booster rare."
+      no_pack_available: "Votre réserve est vide. La prochaine capsule arrive bientôt."
+      already_collected: "Vous avez déjà récupéré la capsule du jour. La prochaine sera prête le %{time}."
+      no_season: "Aucune saison de cartes n'est encore ouverte. Revenez plus tard pour la capsule du jour."
+      reserve_full: "Votre réserve est pleine : ouvrez une capsule pour récupérer celle du jour."
+      reward_reserve_full: "Votre réserve est pleine : ouvrez une capsule pour récupérer votre capsule rare."
+      reward_already_claimed: "Vous avez déjà récupéré cette capsule rare."
+      reward_not_earned: "Aucune capsule rare ne vous attend pour cette semaine."
+      reward_no_season: "Aucune saison de cartes n'est ouverte. Revenez plus tard pour votre capsule rare."
       invalid_idempotency_key: "La demande d'ouverture est mal formée. Rechargez la page et réessayez."
       not_friends: "Vous ne pouvez échanger qu'avec un ami."
       own_profile_private: "Votre profil est privé : les échanges sont fermés."

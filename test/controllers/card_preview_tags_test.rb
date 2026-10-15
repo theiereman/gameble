@@ -63,9 +63,9 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select ".public-card__line", "Rare · 2014 · S1 · #3"
     assert_select ".card-detail, .card-detail__copies, #share-sheet, .card-detail__share", false
     assert_select ".public-card__pitch-title", "Your Steam games, as collectible cards."
-    assert_select ".public-card__pitch-text", "Open boosters, complete sets, trade with your friends."
+    assert_select ".public-card__pitch-text", "Open capsules, complete sets, trade with your friends."
     assert_select ".public-card__pitch button.button--primary[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]",
-      "Open my first boosters"
+      "Open my first capsules"
     # The page's one primary action; "See on Steam" is a link.
     assert_select "main .button--primary", 1
     link = css_select("main a.public-card__store.button--link").sole
@@ -129,7 +129,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
 
     assert_equal "Blue Depths — Rare", og("title")
     assert_select "title", "Blue Depths — Rare"
-    description = "A card of gameble, your Steam games as collectible cards. Sign in through Steam: ten boosters wait for you."
+    description = "A card of gameble, your Steam games as collectible cards. Sign in through Steam: ten capsules wait for you."
     assert_equal description, og("description")
     assert_equal description, meta("name", "description")
     assert_equal "website", og("type")
@@ -152,10 +152,10 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select "title", "Profondeurs bleues — Rare"
     assert_equal "fr_FR", og("locale")
     assert_equal season_url(locale: :fr), og("url")
-    assert_equal "Une carte de gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix boosters vous attendent.", og("description")
+    assert_equal "Une carte de gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix capsules vous attendent.", og("description")
     assert_select ".public-card__pitch-title", "Vos jeux Steam, en cartes à collectionner."
-    assert_select ".public-card__pitch-text", "Ouvrez des boosters, complétez des sets, échangez avec vos amis."
-    assert_select ".public-card__pitch button", "Ouvrir mes premiers boosters"
+    assert_select ".public-card__pitch-text", "Ouvrez des capsules, complétez des sets, échangez avec vos amis."
+    assert_select ".public-card__pitch button", "Ouvrir mes premières capsules"
     assert_select ".public-card__update", "Votre navigateur est trop ancien pour se connecter à gameble. Mettez-le à jour pour jouer."
     assert_select ".public-card__live-title", /En ce moment sur gameble/
     assert_select ".public-card__legal", "Mentions légales"

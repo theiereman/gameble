@@ -33,7 +33,7 @@ body:
     attributes:
       label: Part of the game
       options:
-        - Packs and reveal
+        - Capsules and reveal
         - Collection and album
         - Friends and trades
         - Profile

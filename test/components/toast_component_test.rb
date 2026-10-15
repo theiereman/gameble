@@ -23,7 +23,7 @@ class ToastComponentTest < ViewComponent::TestCase
   end
 
   test "a toast that waits out an opening's reveal is marked for the region" do
-    I18n.with_locale(:fr) { render_inline(ToastComponent.new(title: "Succès débloqué", message: "Premier booster", after_reveal: true)) }
+    I18n.with_locale(:fr) { render_inline(ToastComponent.new(title: "Succès débloqué", message: "Première capsule", after_reveal: true)) }
 
     assert_selector ".toast.toast--notice[data-toast-after-reveal]"
   end

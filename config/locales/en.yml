@@ -17,7 +17,7 @@ en:
       collection: "Collection"
       set: "Set"
       card: "Card"
-      booster: "Booster"
+      booster: "Capsule"
       trades: "Trades"
       friends: "Friends"
       profile: "Profile"
@@ -31,9 +31,9 @@ en:
       label: "Rarities"
       legend: "Rarities"
     packs:
-      label: "Boosters"
+      label: "Capsules"
       next_in: "+1 in"
-      next_at: "Next booster: %{time}"
+      next_at: "Next capsule: %{time}"
       full: "Reserve full"
       in_reserve:
         one: "%{number} in reserve"
@@ -48,7 +48,7 @@ en:
     tabs:
       label: "Main navigation"
       hub: "Bridge"
-      booster: "Booster"
+      booster: "Capsule"
       collection: "Collection"
       trades: "Trades"
       more: "More"
@@ -75,10 +75,10 @@ en:
         title: "Command bridge"
       menu:
         label: "Bridge menu"
-        open_booster: "Open a booster"
+        open_booster: "Open a capsule"
         reserve:
-          one: "%{number} booster in reserve"
-          other: "%{number} boosters in reserve"
+          one: "%{number} capsule in reserve"
+          other: "%{number} capsules in reserve"
         reserve_empty: "Reserve empty"
         collection: "Collection"
         collection_meta:
@@ -103,38 +103,38 @@ en:
         kicker: "Latest pull"
         see_card: "View the card"
         empty:
-          title: "Open your first booster"
+          title: "Open your first capsule"
           text: "Your finest card will show here."
-          open: "Open a booster"
+          open: "Open a capsule"
           reserve_empty: "Reserve empty"
       invitation:
         title: "Your Steam games, as collectible cards."
-        text: "Open boosters, complete sets, trade with your friends."
-        open: "Open my first boosters"
+        text: "Open capsules, complete sets, trade with your friends."
+        open: "Open my first capsules"
       daily:
-        title: "Daily booster"
+        title: "Daily capsule"
         ready: "Ready"
         full: "Reserve full"
-        text: "A free booster every day. It joins your reserve."
-        full_text: "Open a booster to collect today's."
+        text: "A free capsule every day. It joins your reserve."
+        full_text: "Open a capsule to collect today's."
         collect: "Collect"
         collected: "Collected"
         next_in: "Next in"
-        next_at: "Next booster: %{time}"
+        next_at: "Next capsule: %{time}"
       goal:
         title: "Community goal"
-        line: "The whole Brotherhood opens %{target} boosters, together."
+        line: "The Brotherhood invites its members to join forces and open %{target} capsules this week."
         players: "All players"
         progress: "%{total} contributions of %{target} this week"
         reward: "Reward"
-        reward_text: "A rare booster for every contributor"
+        reward_text: "A rare capsule for every contributor"
         reached: "Goal reached"
         previous_reached: "Last week: %{total} / %{target} · goal reached"
         previous_missed: "Last week: %{total} / %{target} · goal missed"
         collect: "Collect"
-        collect_label: "Collect the reward booster"
+        collect_label: "Collect the reward capsule"
         collected: "Collected"
-        full_text: "Open a booster to collect your rare booster."
+        full_text: "Open a capsule to collect your rare capsule."
       sets:
         title: "Set progress"
         see_all: "See all"
@@ -162,7 +162,7 @@ en:
         acceptance: "By signing in with Steam, you accept these terms."
         free: "gameble is a free game, with no ads and no purchases."
         no_money: "No real money flows through it: nothing is bought, nothing is sold."
-        no_property: "Cards, boosters and card backs are parts of the game: they are not your property and have no value, neither in money nor outside gameble. No card may be sold or exchanged for money, in gameble or outside it."
+        no_property: "Cards, capsules and card backs are parts of the game: they are not your property and have no value, neither in money nor outside gameble. No card may be sold or exchanged for money, in gameble or outside it."
         fair_play: "Play fair: no bots, scripts or automation, no multiple accounts, no exploiting bugs."
         moderation_html: "Players can report a profile. Moderators review every report and may suspend an account that breaks these rules. The decision is always made by a person. A suspended player sees the reason for the decision when trying to sign in and can contest it by writing to %{contact}."
         notice_html: "Even without a gameble account, you can report illegal content or ask for the removal of a game whose rights you hold: write to %{contact} with the page's address and the reason for your request."
@@ -176,14 +176,14 @@ en:
         stored:
           intro: "To run the game, gameble keeps:"
           steam: "your Steam id and your Steam profile name;"
-          activity: "your game activity: cards, boosters, trades, friends and invitations, friend code, activity feed entries;"
+          activity: "your game activity: cards, capsules, trades, friends and invitations, friend code, activity feed entries;"
           moderation: "the reports you make, those aimed at your profile (their author is not disclosed to you) and the moderation decisions that concern you, with their reason;"
           settings: "your settings (profile visibility, reduced motion);"
           last_seen: "the date your account was created, the time of your last visit, and your last data export (its file and its time), kept until the next one;"
           technical: "technical data: IP address and browser, in the server logs and error tracking."
         purposes:
           intro: "Why, and on what basis:"
-          game: "running your account and the game (collection, boosters, trades, friends, profile, activity feed): performance of the terms of use you accept by signing in (GDPR Article 6(1)(b));"
+          game: "running your account and the game (collection, capsules, trades, friends, profile, activity feed): performance of the terms of use you accept by signing in (GDPR Article 6(1)(b));"
           moderation: "moderating the community (reports, bans, moderation history): the publisher's legitimate interest in enforcing the rules and protecting players (Article 6(1)(f));"
           security: "securing the site and fixing errors (server logs, abuse limiting, error tracking, Cloudflare): legitimate interest in keeping the service secure and working properly (Article 6(1)(f));"
           requests: "answering your messages and your requests about your data: legal obligation (Article 6(1)(c))."
@@ -206,7 +206,7 @@ en:
           logs: "the server's logs: 30 days;"
           errors: "technical errors received by Sentry: 90 days at most, depending on the publisher's Sentry plan;"
           leftovers: "what a deleted account leaves behind that concerns other players or the community (past trades, first discoveries, contributions to the community goal, the log of game actions): as long as the game exists, without a Steam id or a name."
-        deletion: "When you delete your account, your Steam id, your profile name, the time of your last visit, your last data export, your collection, your boosters, your friendships, your invitations, your friend code and your activity feed entries are erased, your open trades are cancelled and your profile disappears. What also concerns other players, the community or moderation (past trades, first discoveries, contributions to the community goal, reports, moderation history, the log of game actions) is kept without your Steam id or your name, for the periods given above."
+        deletion: "When you delete your account, your Steam id, your profile name, the time of your last visit, your last data export, your collection, your capsules, your friendships, your invitations, your friend code and your activity feed entries are erased, your open trades are cancelled and your profile disappears. What also concerns other players, the community or moderation (past trades, first discoveries, contributions to the community goal, reports, moderation history, the log of game actions) is kept without your Steam id or your name, for the periods given above."
         rights:
           intro: "You can access your data, have it rectified or erased, restrict its processing, object to processing based on legitimate interest and receive a reusable copy of it. You can also say what becomes of your data after your death. We reply within one month."
           access: "access: from the settings, with \"Export\" under \"My data\", which downloads a copy of your data in a reusable file;"
@@ -242,45 +242,45 @@ en:
           other: "When a season is published, its cards are ranked this way, from the most reviewed game to the least, then split into %{count} rarities in these proportions:"
         ties: "Two games with the same number of reviews and the same share of positive reviews always share a rarity, so the actual proportions can differ slightly from these."
       packs:
-        title: "Boosters and odds"
+        title: "Capsules and odds"
         regular:
-          one: "A booster holds %{count} card. Each card is drawn on its own: first its rarity, with the odds below, then a game of that rarity. The same card can therefore come up more than once."
-          other: "A booster holds %{count} cards. Each card is drawn on its own: first its rarity, with the odds below, then a game of that rarity. The same card can therefore come up more than once."
-        bonus: "The daily booster has better odds and never holds a %{common} card:"
-        reward: "The community goal's reward booster:"
+          one: "A capsule holds %{count} card. Each card is drawn on its own: first its rarity, with the odds below, then a game of that rarity. The same card can therefore come up more than once."
+          other: "A capsule holds %{count} cards. Each card is drawn on its own: first its rarity, with the odds below, then a game of that rarity. The same card can therefore come up more than once."
+        bonus: "The daily capsule has better odds and never holds a %{common} card:"
+        reward: "The community goal's reward capsule:"
         forced: "When none of its cards is %{rarity} or better, one of them, at random, is replaced by a card drawn with these odds:"
         rarity: "Rarity"
         chance: "Chance per card"
         tables:
-          regular: "Standard booster"
-          bonus: "Daily booster"
-          reward: "Reward booster"
+          regular: "Standard capsule"
+          bonus: "Daily capsule"
+          reward: "Reward capsule"
           epic_or_better: "Replacement card"
       timing:
-        title: "The pace of boosters"
+        title: "The pace of capsules"
         bank:
-          one: "At most %{count} standard booster waits for you at a time, ready or on its way."
-          other: "At most %{count} standard boosters wait for you at a time, ready or on their way."
-        replace: "Each booster opened is replaced %{minutes} after the last booster waiting, or after the opening when all of them were ready."
-        refill: "Standard boosters opened all at once are therefore all back within %{minutes}."
-        season: "When a new season is published, the standard boosters you are missing are given at once."
+          one: "At most %{count} standard capsule waits for you at a time, ready or on its way."
+          other: "At most %{count} standard capsules wait for you at a time, ready or on their way."
+        replace: "Each capsule opened is replaced %{minutes} after the last capsule waiting, or after the opening when all of them were ready."
+        refill: "Standard capsules opened all at once are therefore all back within %{minutes}."
+        season: "When a new season is published, the standard capsules you are missing are given at once."
       daily:
-        title: "The daily booster"
-        once: "Once a day, a free booster waits for you on the bridge. The day changes at %{time}."
+        title: "The daily capsule"
+        once: "Once a day, a free capsule waits for you on the bridge. The day changes at %{time}."
         content:
           one: "It holds %{count} card, never a %{common} one."
           other: "It holds %{count} cards, never a %{common} one."
-        outside: "It comes on top of the standard boosters, without counting toward their limit and without delaying them."
+        outside: "It comes on top of the standard capsules, without counting toward their limit and without delaying them."
         full:
-          one: "It is refused while your reserve holds %{count} booster or more ready to open: open one first."
-          other: "It is refused while your reserve holds %{count} boosters or more ready to open: open one first."
+          one: "It is refused while your reserve holds %{count} capsule or more ready to open: open one first."
+          other: "It is refused while your reserve holds %{count} capsules or more ready to open: open one first."
       goal:
         title: "The community goal"
         week: "Every week, for seven days from %{time}, all players aim at one goal together."
-        counts: "Every booster opened counts toward it, and so does every completed trade, which makes both players contributors."
+        counts: "Every capsule opened counts toward it, and so does every completed trade, which makes both players contributors."
         reward:
-          one: "When the goal is reached, every player who contributed earns a reward booster: %{count} card, at least one of them %{rarity} or better. If you contributed, you collect it on the hub while your reserve holds fewer than %{full} boosters."
-          other: "When the goal is reached, every player who contributed earns a reward booster: %{count} cards, at least one of them %{rarity} or better. If you contributed, you collect it on the hub while your reserve holds fewer than %{full} boosters."
+          one: "When the goal is reached, every player who contributed earns a reward capsule: %{count} card, at least one of them %{rarity} or better. If you contributed, you collect it on the hub while your reserve holds fewer than %{full} capsules."
+          other: "When the goal is reached, every player who contributed earns a reward capsule: %{count} cards, at least one of them %{rarity} or better. If you contributed, you collect it on the hub while your reserve holds fewer than %{full} capsules."
       seasons:
         title: "Seasons"
         frozen: "A season is drawn from Steam. Once it is published, the rarity, number and sets of each of its cards are fixed: they no longer change during the season."
@@ -476,9 +476,9 @@ en:
     cards:
       index:
         heading: "The card press"
-        intro: "Every rarity's face at the four sizes, then each rarity at size M with the booster's effects. Hover a card to tilt it. The art is a sample from the Brotherhood's own chest; the uncommon's art is missing on purpose, to show a card without it."
+        intro: "Every rarity's face at the four sizes, then each rarity at size M with the capsule's effects. Hover a card to tilt it. The art is a sample from the Brotherhood's own chest; the uncommon's art is missing on purpose, to show a card without it."
         label: "%{rarity}, %{size}"
-        booster_label: "%{rarity}, %{size}, booster"
+        booster_label: "%{rarity}, %{size}, capsule"
         sizes:
           s: "size S"
           m: "size M"
@@ -566,10 +566,10 @@ en:
     create:
       throttled: "Too many openings in a minute. Try again in a moment."
     show:
-      heading: "Your booster"
-      heading_bonus: "Your daily booster"
-      cards: "The cards of your booster"
-      open_booster: "Open a booster"
+      heading: "Your capsule"
+      heading_bonus: "Your daily capsule"
+      cards: "The cards of your capsule"
+      open_booster: "Open a capsule"
       back_to_hub: "Back to the bridge"
   library:
     collection:
@@ -707,19 +707,19 @@ en:
       body: "This profile is not available. The link leads nowhere, or its owner no longer shows it."
   boosters:
     show:
-      title: "Booster opening"
+      title: "Capsule opening"
     # The Booster island's words (BoostersHelper#booster_props), uppercase by
     # CSS where the design shows capitals; plural keys read by the island's
     # t() (app/frontend/lib/i18n.ts).
     island:
-      kicker: "Booster · Season %{number}"
-      kicker_plain: "Booster"
+      kicker: "Capsule · Season %{number}"
+      kicker_plain: "Capsule"
       title: "Grand catalogue"
-      cards_per_pack: "Cards per booster"
+      cards_per_pack: "Cards per capsule"
       in_reserve: "In reserve"
       reserve_count:
-        one: "%{n} booster"
-        other: "%{n} boosters"
+        one: "%{n} capsule"
+        other: "%{n} capsules"
       state: "State"
       states:
         sealed: "Sealed"
@@ -731,26 +731,26 @@ en:
         waiting: "Waiting"
       reserve: "Reserve"
       next_in: "+1 in"
-      next_at: "Next booster: %{time}"
+      next_at: "Next capsule: %{time}"
       reserve_full: "Reserve full"
-      open: "Open the booster"
+      open: "Open the capsule"
       open_next: "Open the next one"
       reserve_empty: "Reserve empty"
-      empty_next: "Next booster in %{time}"
+      empty_next: "Next capsule in %{time}"
       reveal_all: "Reveal all"
       back: "Back to the bridge"
       revealed_count: "Cards revealed: %{revealed} / %{total}"
-      canister_label: "Open the booster Season %{season}, grand catalogue, %{count} cards"
-      canister_label_plain: "Open the booster, grand catalogue, %{count} cards"
+      canister_label: "Open the capsule Season %{season}, grand catalogue, %{count} cards"
+      canister_label_plain: "Open the capsule, grand catalogue, %{count} cards"
       canister_hint: "Click to open"
       canister_season: "Season %{number}"
-      result: "Booster result"
+      result: "Capsule result"
       hint_remaining:
         one: "Click a card to reveal it · %{n} left"
         other: "Click a card to reveal it · %{n} left"
       hint_done:
-        one: "Booster inventoried · +%{n} card in the collection"
-        other: "Booster inventoried · +%{n} cards in the collection"
+        one: "Capsule inventoried · +%{n} card in the collection"
+        other: "Capsule inventoried · +%{n} cards in the collection"
       face_down: "Card %{position} of %{total}, face down. Reveal."
       face_up: "%{card}, %{rarity}. See the card."
       card_label: "%{title} — %{details}"
@@ -763,7 +763,7 @@ en:
       banner_line: "%{title} · %{year}"
       refused_title: "Opening cancelled"
       failed: "The opening did not go through. Check your connection or reload the page, then try again."
-      island_failed: "The booster could not be shown. Your cards are in your collection."
+      island_failed: "The capsule could not be shown. Your cards are in your collection."
       reload: "Reload"
       strip_title: "Season %{number} · Grand catalogue"
       strip_title_plain: "Grand catalogue"
@@ -914,8 +914,8 @@ en:
           one: "%{count} day ago"
           other: "%{count} days ago"
         activities:
-          opening_pack: "Opening a booster"
-          collecting_daily: "Collecting the daily booster"
+          opening_pack: "Opening a capsule"
+          collecting_daily: "Collecting the daily capsule"
           trading: "Negotiating a trade"
           making_friends: "Making friends"
     profile_dialog:
@@ -951,14 +951,14 @@ en:
     unlocked:
       title: "Achievement unlocked"
     names:
-      first_booster: "First booster"
+      first_booster: "First capsule"
       first_epic: "First Epic"
       first_legendary: "First Legendary"
       first_complete_set: "First complete set"
       first_trade: "First trade"
-      boosters_10: "10 boosters"
-      boosters_100: "100 boosters"
-      boosters_500: "500 boosters"
+      boosters_10: "10 capsules"
+      boosters_100: "100 capsules"
+      boosters_500: "500 capsules"
       three_complete_sets: "Three complete sets"
       first_repost: "First repost"
     show:
@@ -973,14 +973,14 @@ en:
         to_earn: "To earn · %{count}"
       progress: "%{progress} of %{threshold}"
     conditions:
-      first_booster: "Open a booster"
+      first_booster: "Open a capsule"
       first_epic: "Get an Epic card"
       first_legendary: "Get a Legendary card"
       first_complete_set: "Complete a set"
       first_trade: "Complete a trade"
-      boosters_10: "Open 10 boosters"
-      boosters_100: "Open 100 boosters"
-      boosters_500: "Open 500 boosters"
+      boosters_10: "Open 10 capsules"
+      boosters_100: "Open 100 capsules"
+      boosters_500: "Open 500 capsules"
       three_complete_sets: "Complete 3 sets"
       first_repost: "Repost a card"
   invite_links:
@@ -1167,7 +1167,7 @@ en:
     dialog:
       title: "Delete my account"
       close: "Close"
-      note: "Erased for good: your Steam id, your name, your profile and its link, the time of your last visit, your last data export and your latest activity, your collection, your completed sets and your achievements, your boosters, opened or not, your daily bonuses and your community goal rewards, your friends, your invitations and your friend code, and your activity feed entries: pulls, discoveries, reposts and every trade that names you. Your open trades will be cancelled."
+      note: "Erased for good: your Steam id, your name, your profile and its link, the time of your last visit, your last data export and your latest activity, your collection, your completed sets and your achievements, your capsules, opened or not, your daily bonuses and your community goal rewards, your friends, your invitations and your friend code, and your activity feed entries: pulls, discoveries, reposts and every trade that names you. Your open trades will be cancelled."
       kept: "Kept, without your Steam id or your name: your past trades, your first discoveries, your contributions to the community goal, reports, the moderation history and the log of game actions. This cannot be undone."
       word: "DELETE"
       label: "Type %{word} to confirm"
@@ -1201,11 +1201,12 @@ en:
       throttled: "Too many reposts in a minute. Try again in a moment."
   daily_bonuses:
     create:
-      collected: "A booster joins your reserve. The next one will be ready on %{time}."
+      collected: "A capsule joins your reserve. The next one will be ready on %{time}."
       throttled: "Too many attempts in a minute. Try again in a moment."
   goal_rewards:
     create:
-      collected: "Your rare booster joins your reserve."
+      title: "Goal reached"
+      collected: "Management thanks you for your contribution. A rare capsule has been added to your reserve."
       throttled: "Too many attempts in a minute. Try again in a moment."
   external_links:
     new_tab: "(new tab)"
@@ -1237,7 +1238,7 @@ en:
     store: "See on Steam"
     preview:
       title: "%{title} — %{rarity}"
-      description: "A card of gameble, your Steam games as collectible cards. Sign in through Steam: ten boosters wait for you."
+      description: "A card of gameble, your Steam games as collectible cards. Sign in through Steam: ten capsules wait for you."
     share:
       button: "Share"
       title: "Share the card"
@@ -1252,12 +1253,12 @@ en:
     face:
       image_missing: "Image unavailable"
     show:
-      invitation: "Open boosters, complete sets, trade with your friends."
+      invitation: "Open capsules, complete sets, trade with your friends."
       pitch_title: "Your Steam games, as collectible cards."
-      sign_in: "Open my first boosters"
+      sign_in: "Open my first capsules"
       update_browser: "Your browser is too old to sign in to gameble. Update it to play."
       grid: "Grid"
-      booster: "Booster"
+      booster: "Capsule"
       live:
         title: "Right now on gameble"
       legal: "Legal notice"
@@ -1382,7 +1383,7 @@ en:
       "360_video": "360 Video"
   sessions:
     create:
-      welcome: "Welcome to gameble. Your boosters are waiting."
+      welcome: "Welcome to gameble. Your capsules are waiting."
     banned:
       title: "Account suspended"
       reason_label: "Reason given by the moderator"
@@ -1451,14 +1452,14 @@ en:
     game:
       player_required: "Sign in with an active account to do that."
       invalid_time: "The time sent could not be read. Reload the page."
-      no_pack_available: "Your reserve is empty. The next booster is on its way."
-      already_collected: "You have already collected today's booster. The next one will be ready on %{time}."
-      no_season: "No season of cards is open yet. Come back later for the daily booster."
-      reserve_full: "Your reserve is full: open a booster to collect today's."
-      reward_reserve_full: "Your reserve is full: open a booster to collect your rare booster."
-      reward_already_claimed: "You have already collected this rare booster."
-      reward_not_earned: "No rare booster waits for you for that week."
-      reward_no_season: "No card season is open. Come back later for your rare booster."
+      no_pack_available: "Your reserve is empty. The next capsule is on its way."
+      already_collected: "You have already collected today's capsule. The next one will be ready on %{time}."
+      no_season: "No season of cards is open yet. Come back later for the daily capsule."
+      reserve_full: "Your reserve is full: open a capsule to collect today's."
+      reward_reserve_full: "Your reserve is full: open a capsule to collect your rare capsule."
+      reward_already_claimed: "You have already collected this rare capsule."
+      reward_not_earned: "No rare capsule waits for you for that week."
+      reward_no_season: "No card season is open. Come back later for your rare capsule."
       invalid_idempotency_key: "The opening request was malformed. Reload the page and try again."
       not_friends: "You can only trade with a friend."
       own_profile_private: "Your profile is private: trades are closed."

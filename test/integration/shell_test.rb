@@ -139,12 +139,12 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__end a.packs-chip[href='/en/booster'][data-turbo-prefetch=false]" do
       assert_select "svg.pixel-icon.packs-chip__icon"
       assert_select ".packs-chip__count", "3"
-      assert_select ".packs-chip__label", "Boosters"
+      assert_select ".packs-chip__label", "Capsules"
       assert_select ".packs-chip__next[data-controller=countdown][data-countdown-refresh-value=false]" do |next_in|
         assert_in_delta 125, next_in.first["data-countdown-seconds-value"].to_i, 2
       end
       assert_select ".packs-chip__next [aria-hidden=true]", /\+1 in/
-      assert_select ".packs-chip__next .visually-hidden", /\ANext booster: \d{4}-\d\d-\d\d \d\d:\d\d UTC\z/
+      assert_select ".packs-chip__next .visually-hidden", /\ANext capsule: \d{4}-\d\d-\d\d \d\d:\d\d UTC\z/
       assert_select ".packs-chip__next .visually-hidden time[data-controller=local-time][data-local-time-style-value=datetime][datetime]"
     end
     assert_select ".packs-chip a, p.packs-chip", false
@@ -218,9 +218,9 @@ class ShellTest < ActionDispatch::IntegrationTest
     get library_path(locale: :fr)
 
     assert_select "nav.tab-bar[aria-label=?] ul.tab-bar__list > li.tab-bar__item", "Navigation principale", 5
-    assert_equal [ "Pont", "Booster", "Collection", "Échanges", "Plus" ], css_select(".tab-bar__label").map(&:text)
+    assert_equal [ "Pont", "Capsule", "Collection", "Échanges", "Plus" ], css_select(".tab-bar__label").map(&:text)
     assert_select "a.tab-bar__tab[href='/fr']:not([aria-current])", /Pont/
-    assert_select "a.tab-bar__tab[href='/fr/booster']:not([aria-current])", /Booster/
+    assert_select "a.tab-bar__tab[href='/fr/booster']:not([aria-current])", /Capsule/
     assert_select "a.tab-bar__tab[href='/fr/library'][aria-current=page]", /Collection/
     assert_select "a.tab-bar__tab[href='/fr/more']:not([aria-current])", /Plus/
     assert_select "span.tab-bar__tab[aria-disabled=true]", 0

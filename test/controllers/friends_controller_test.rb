@@ -118,7 +118,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
       get friends_path(locale: :fr)
       assert_select ".friends__friend", 2
       assert_select ".friends__friend:nth-child(1) .friends__name", "Ada"
-      assert_select ".friends__friend:nth-child(1) .friends__presence--active", "Ouvre un booster"
+      assert_select ".friends__friend:nth-child(1) .friends__presence--active", "Ouvre une capsule"
       assert_select ".friends__friend:nth-child(2) .friends__presence--offline", "Il y a 3 h"
       assert_select ".friends__dot[aria-hidden=true]", 2
 

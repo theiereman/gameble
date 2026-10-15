@@ -8,13 +8,13 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
   include SteamSignIn
 
   FRENCH_HEADINGS = [
-    "Quels jeux deviennent des cartes", "La rareté", "Boosters et probabilités", "Le rythme des boosters",
-    "Le booster quotidien", "L'objectif communautaire", "Les saisons", "Les sets", "Compléter un set"
+    "Quels jeux deviennent des cartes", "La rareté", "Capsules et probabilités", "Le rythme des capsules",
+    "La capsule quotidienne", "L'objectif communautaire", "Les saisons", "Les sets", "Compléter un set"
   ].freeze
 
   ENGLISH_HEADINGS = [
-    "Which games become cards", "Rarity", "Boosters and odds", "The pace of boosters",
-    "The daily booster", "The community goal", "Seasons", "Sets", "Completing a set"
+    "Which games become cards", "Rarity", "Capsules and odds", "The pace of capsules",
+    "The daily capsule", "The community goal", "Seasons", "Sets", "Completing a set"
   ].freeze
 
   # `parts` out of `whole` as a percent with at most two decimals, written
@@ -137,7 +137,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
   test "the day and week rules give the next day change and week start for the browser to show in its own time" do
     travel_to(Time.utc(2026, 10, 14, 10)) { get how_it_works_path(locale: :fr) }
 
-    assert_select "p", "Une fois par jour, un booster offert vous attend sur le pont. Le jour change à 00:00 UTC."
+    assert_select "p", "Une fois par jour, une capsule offerte vous attend sur le pont. Le jour change à 00:00 UTC."
     assert_select "p time[datetime='2026-10-15T00:00:00Z'][data-controller=local-time][data-local-time-style-value=time]" \
       "[data-local-time-suffix-value=', heure locale']", "00:00 UTC"
     assert_select "p time[datetime='2026-10-19T00:00:00Z'][data-controller=local-time][data-local-time-style-value=weekday-time]" \

@@ -124,9 +124,9 @@ class ButtonComponentTest < ViewComponent::TestCase
   end
 
   test "a dialog opener is a plain button that opens the dialog it names" do
-    render_inline(ButtonComponent.new(opens: "sign-in-panel")) { "Open my first boosters" }
+    render_inline(ButtonComponent.new(opens: "sign-in-panel")) { "Open my first capsules" }
 
-    assert_selector "button.button.button--primary[type=button][aria-haspopup=dialog]", text: "Open my first boosters"
+    assert_selector "button.button.button--primary[type=button][aria-haspopup=dialog]", text: "Open my first capsules"
     assert_selector "button[data-controller=dialog-opener][data-action='dialog-opener#open'][data-dialog-opener-dialog-value=sign-in-panel]"
     assert_no_selector "form"
     assert_no_selector "a"

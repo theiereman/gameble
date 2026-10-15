@@ -40,7 +40,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     "game_holdings" => { fr: [ "votre collection" ], en: [ "your collection" ] },
     "game_set_completions" => { fr: [ "vos sets complétés" ], en: [ "your completed sets" ] },
     "game_achievement_unlocks" => { fr: [ "vos succès" ], en: [ "your achievements" ] },
-    "game_packs" => { fr: [ "vos boosters, ouverts ou non" ], en: [ "your boosters, opened or not" ] },
+    "game_packs" => { fr: [ "vos capsules, ouvertes ou non" ], en: [ "your capsules, opened or not" ] },
     "game_daily_bonus_claims" => { fr: [ "vos bonus du jour" ], en: [ "your daily bonuses" ] },
     "game_goal_rewards" => { fr: [ "vos récompenses de l'objectif communautaire" ], en: [ "your community goal rewards" ] },
     "game_friendships" => { fr: [ "vos amis" ], en: [ "your friends" ] },

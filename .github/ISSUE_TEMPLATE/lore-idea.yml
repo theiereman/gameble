@@ -1,12 +1,12 @@
 name: Lore idea
-description: Suggest a piece of the game's world, the Grand Gamblers' Brotherhood and its space terminal.
+description: Suggest a piece of the game's world, the Great Brotherhood of Gameblers and its space terminal.
 title: "[Lore] "
 labels: ["lore"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for helping build gameble's world! Players belong to *La Grande Confrérie des Gamblers*, the Grand Gamblers' Brotherhood, and play from a space terminal.
+        Thanks for helping build gameble's world! Players belong to *La Grande Confrérie des Gameblers*, the Great Brotherhood of Gameblers, and play from a space terminal.
 
         A few rules keep the tone consistent:
         - **Light and mock-solemn**: a wink at the games industry's drift toward investor profit over game quality, never a nation or a country.
@@ -34,7 +34,7 @@ body:
     id: title
     attributes:
       label: A short title
-      placeholder: The first booster ever opened
+      placeholder: The first capsule ever opened
     validations:
       required: true
 
@@ -44,7 +44,7 @@ body:
       label: Your lore
       description: The story, the fact or the line itself, as you imagine a player reading it.
       placeholder: |
-        Nobody remembers who opened the first booster. The Brotherhood keeps its empty wrapper under glass, on the command bridge.
+        Nobody remembers who opened the first capsule. The Brotherhood keeps its empty shell under glass, on the command bridge.
     validations:
       required: true
 
@@ -56,7 +56,7 @@ body:
       multiple: true
       options:
         - The weekly goal of the Brotherhood
-        - Opening a booster
+        - Opening a capsule
         - A set in the album
         - A card back, a title or a menu theme
         - An achievement

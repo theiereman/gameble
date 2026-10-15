@@ -12,4 +12,4 @@
 <%= turbo_stream.replace "packs-chip", partial: "shell/packs_chip", locals: { bank: @bank, refresh: true } %>
 <%= turbo_stream.replace "hub-menu-booster", partial: "pages/menu_booster", locals: { bank: @bank } %>
 <%= turbo_stream.replace "hub-showcase-actions", partial: "pages/showcase_actions", locals: { bank: @bank } %>
-<%= turbo_stream.append "toasts" do %><%= render ToastComponent.new(message: @message, tone: @tone) %><% end %>
+<%= turbo_stream.append "toasts" do %><%= render ToastComponent.new(message: @message, title: @title, tone: @tone) %><% end %>

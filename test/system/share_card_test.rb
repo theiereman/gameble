@@ -103,7 +103,7 @@ class ShareCardTest < ApplicationSystemTestCase
     assert_title "Portal — Epic"
     assert_selector "main > .public-card h1", text: "Portal"
     assert_selector ".public-card .card.card--xl"
-    assert_selector ".public-card__pitch", text: "Open boosters, complete sets, trade with your friends."
+    assert_selector ".public-card__pitch", text: "Open capsules, complete sets, trade with your friends."
     assert_selector ".public-card__pitch", text: "Your Steam games, as collectible cards."
     assert_no_selector ".public-card__update"
     assert_selector ".public-card__live-title", text: /LIVE/
@@ -117,7 +117,7 @@ class ShareCardTest < ApplicationSystemTestCase
 
     newcomer = accounts_players(:moderator)
     mock_steam_sign_in(newcomer.steam_id)
-    within(".public-card__pitch") { click_on "Open my first boosters" }
+    within(".public-card__pitch") { click_on "Open my first capsules" }
     within("dialog#sign-in-panel[open]") { find(".steam-sign-in__button").click }
 
     assert_signed_in

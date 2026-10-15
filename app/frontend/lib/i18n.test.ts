@@ -7,10 +7,10 @@ describe("t", () => {
   })
 
   it("picks one at 1 and other otherwise, zero only when the template has it", () => {
-    const template = { one: "%{n} booster", other: "%{n} boosters" }
-    expect(t(template, { count: 1, n: "1" })).toBe("1 booster")
-    expect(t(template, { count: 2, n: "2" })).toBe("2 boosters")
-    expect(t(template, { count: 0, n: "0" })).toBe("0 boosters")
+    const template = { one: "%{n} capsule", other: "%{n} capsules" }
+    expect(t(template, { count: 1, n: "1" })).toBe("1 capsule")
+    expect(t(template, { count: 2, n: "2" })).toBe("2 capsules")
+    expect(t(template, { count: 0, n: "0" })).toBe("0 capsules")
     expect(t({ zero: "Aucun", one: "Un", other: "%{n}" }, { count: 0 })).toBe("Aucun")
   })
 

@@ -40,16 +40,18 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to home_path(locale: :en)
     assert_response :see_other
-    assert_equal "Your rare booster joins your reserve.", flash[:notice]
+    assert_equal "Management thanks you for your contribution. A rare capsule has been added to your reserve.", flash[:notice]
     follow_redirect!
     assert_equal "10", reserve_badge
+    assert_select "#toasts .toast--notice .toast__title", "Goal reached"
     assert_select "#goal-reward .hub-goal__claim-state", "Collected"
 
     get home_path(locale: :en)
     assert_select "#goal-reward .hub-goal__claim-state", "Collected"
 
     post claim_path
-    assert_equal "You have already collected this rare booster.", flash[:alert]
+    assert_equal "You have already collected this rare capsule.", flash[:alert]
+    assert_nil flash[:toast_title]
     assert_equal 1, reward_pack_count
   end
 
@@ -59,7 +61,7 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal Mime[:turbo_stream], response.media_type
   end
 
-  test "from Turbo, the claim answers in Turbo Stream: the slot collected, the chip, menu 01, the showcase's action and a toast" do
+  test "from Turbo, the claim answers in Turbo Stream: the slot collected, the chip, menu 01, the showcase's action and a titled toast" do
     sign_in(@player)
 
     assert_difference -> { reward_pack_count }, 1 do
@@ -72,15 +74,16 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-stream[action=replace][target=hub-showcase-actions] template #hub-showcase-actions"
     assert_select "turbo-stream[target=daily-booster]", false
     assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--notice .toast__message",
-      "Your rare booster joins your reserve."
+      "Management thanks you for your contribution. A rare capsule has been added to your reserve."
+    assert_select "turbo-stream[action=append][target=toasts] template .toast.toast--notice .toast__title", "Goal reached"
   end
 
   test "from Turbo, a claim at a full reserve is refused in both languages: the slot full, the daily panel full, an alert toast" do
     Game::FillBank.new.call(player: @player).value!
     sign_in(@player)
 
-    { en: "Your reserve is full: open a booster to collect your rare booster.",
-      fr: "Votre réserve est pleine : ouvrez un booster pour récupérer votre booster rare." }.each do |locale, message|
+    { en: "Your reserve is full: open a capsule to collect your rare capsule.",
+      fr: "Votre réserve est pleine : ouvrez une capsule pour récupérer votre capsule rare." }.each do |locale, message|
       assert_no_difference -> { Game::Pack.count } do
         stream_post(locale:)
       end
@@ -88,6 +91,7 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
       assert_select "turbo-stream[action=replace][target=goal-reward] template #goal-reward.hub-goal__claim--full button[disabled]"
       assert_select "turbo-stream[action=replace][target=daily-booster] template .daily-booster--full"
       assert_select "turbo-stream[action=append][target=toasts] template .toast--alert .toast__message", message
+      assert_select "turbo-stream[action=append][target=toasts] template .toast__title", false
     end
     assert_equal [ nil ], Game::GoalReward.where(player_id: @player.id).pluck(:pack_id)
   end
@@ -98,12 +102,13 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
 
     post claim_path(locale: :fr)
     assert_redirected_to home_path(locale: :fr)
-    assert_equal "Votre réserve est pleine : ouvrez un booster pour récupérer votre booster rare.", flash[:alert]
+    assert_equal "Votre réserve est pleine : ouvrez une capsule pour récupérer votre capsule rare.", flash[:alert]
     assert_equal 0, reward_pack_count
 
     Game::OpenPack.new.call(player: @player).value!
     post claim_path(locale: :fr)
-    assert_equal "Votre booster rare rejoint votre réserve.", flash[:notice]
+    assert_equal "La Direction vous remercie pour votre participation. Une capsule rare a rejoint votre réserve.", flash[:notice]
+    assert_equal "Objectif atteint", flash[:toast_title]
     assert_equal 1, reward_pack_count
   end
 
@@ -111,10 +116,10 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     post claim_path(@week - 7)
-    assert_equal "No rare booster waits for you for that week.", flash[:alert]
+    assert_equal "No rare capsule waits for you for that week.", flash[:alert]
 
     post claim_path("2026-13-45", locale: :fr)
-    assert_equal "Aucun booster rare ne vous attend pour cette semaine.", flash[:alert]
+    assert_equal "Aucune capsule rare ne vous attend pour cette semaine.", flash[:alert]
 
     post "/en/goal-rewards/#{@week.iso8601}x"
     assert_response :not_found
@@ -128,7 +133,7 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
 
     post claim_path(locale: :fr)
 
-    assert_equal "Aucune saison de cartes n'est ouverte. Revenez plus tard pour votre booster rare.", flash[:alert]
+    assert_equal "Aucune saison de cartes n'est ouverte. Revenez plus tard pour votre capsule rare.", flash[:alert]
     assert_equal [ nil ], Game::GoalReward.where(player_id: @player.id).pluck(:pack_id)
   end
 

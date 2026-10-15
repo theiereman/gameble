@@ -2,8 +2,9 @@
 # the reward booster joins the reserve. From the hub the claim answers in
 # Turbo Stream, which replaces the claim slot, the packs chip, menu 01, the
 # empty showcase's action and, once the reserve is full, the daily booster
-# panel, and adds a toast; without JavaScript it redirects to the hub. A
-# refusal answers the same way, with the slot as the server shows it.
+# panel, and adds a toast, titled when the reward is collected; without
+# JavaScript it redirects to the hub. A refusal answers the same way, with
+# the slot as the server shows it.
 class GoalRewardsController < ApplicationController
   rate_limit to: 5, within: 1.minute, only: :create,
     by: -> { current_player&.id || request.remote_ip },
@@ -16,15 +17,20 @@ class GoalRewardsController < ApplicationController
     result = Game::ClaimGoalReward.new.call(player: current_player, week_start: week)
     tone = result.success? ? :notice : :alert
     message = result.success? ? t("goal_rewards.create.collected") : Game::ClaimGoalReward.failure_message(result.failure)
+    title = t("goal_rewards.create.title") if result.success?
 
     respond_to do |format|
       format.turbo_stream do
         @bank = Game::BankSummary.call(current_player)
         @reward = Game::GoalRewardStatus.call(current_player)
         @message = message
+        @title = title
         @tone = tone
       end
-      format.html { redirect_to home_path, tone => message, status: :see_other }
+      format.html do
+        flash[:toast_title] = title if title
+        redirect_to home_path, tone => message, status: :see_other
+      end
     end
   end
 

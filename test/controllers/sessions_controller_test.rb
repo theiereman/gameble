@@ -55,7 +55,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ { player_id: player.id } ], registered_events.map(&:data)
     assert_equal player.id, signed_in_player_id
     assert_redirected_to home_path(locale: :en)
-    assert_equal "Welcome to gameble. Your boosters are waiting.", flash[:notice]
+    assert_equal "Welcome to gameble. Your capsules are waiting.", flash[:notice]
     assert flash[:signed_in], "the hub is asked to focus its first menu item"
 
     follow_redirect!
@@ -155,7 +155,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     sign_in_with_steam(origin: "/fr")
 
     assert_redirected_to home_path(locale: :fr)
-    assert_equal "Bienvenue sur gameble. Vos boosters vous attendent.", flash[:notice]
+    assert_equal "Bienvenue sur gameble. Vos capsules vous attendent.", flash[:notice]
   end
 
   test "a malformed claimed id signs nobody in" do

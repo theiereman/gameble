@@ -44,9 +44,9 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     travel_to(now) { get booster_path(locale: :en) }
 
     assert_response :success
-    assert_select "title", "Booster opening"
-    assert_select "main h1.visually-hidden", "Booster opening"
-    assert_select ".top-bar .top-bar__title", "Booster opening"
+    assert_select "title", "Capsule opening"
+    assert_select "main h1.visually-hidden", "Capsule opening"
+    assert_select ".top-bar .top-bar__title", "Capsule opening"
     assert_select "meta[name=turbo-cache-control][content=no-cache]"
     assert_select "[style]", 0
 
@@ -70,10 +70,10 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     data["rarityIcons"].each_value { |svg| assert_equal 1, Nokogiri::HTML5.fragment(svg).css("svg.pixel-icon.booster-card__label-icon[aria-hidden=true]").size }
 
     strings = data["strings"]
-    assert_equal "Open the booster", strings["open"]
+    assert_equal "Open the capsule", strings["open"]
     assert_equal "Reveal all", strings["revealAll"]
     assert_equal "Legendary signal", strings.dig("states", "legendarySignal")
-    assert_equal({ "one" => "%{n} booster", "other" => "%{n} boosters" }, strings["reserveCount"])
+    assert_equal({ "one" => "%{n} capsule", "other" => "%{n} capsules" }, strings["reserveCount"])
     assert_equal "Card %{position} of %{total}, face down. Reveal.", strings["faceDown"]
     assert_equal [ "Previous card", "Next card" ], strings.values_at("zoomPrevious", "zoomNext")
     assert_equal I18n.t("boosters.island", locale: :en).keys.map { it.to_s.camelize(:lower) }.sort, strings.keys.sort
@@ -97,7 +97,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
 
     # Without JavaScript, the form and the way back; hidden once the island draws.
     assert_select ".booster-island + .booster__fallback" do
-      assert_select "form[action='/en/packs'][method=post] button.button--primary", "Open the booster"
+      assert_select "form[action='/en/packs'][method=post] button.button--primary", "Open the capsule"
       assert_select "a.button--secondary[href='/en']", "Back to the bridge"
     end
   end
@@ -135,9 +135,9 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_nil props.fetch("season")
-    assert_equal "Booster", props.dig("strings", "kickerPlain")
-    assert_equal "Open the booster, grand catalogue, %{count} cards", props.dig("strings", "canisterLabelPlain")
-    assert_select ".booster__fallback form[action='/en/packs'] button", "Open the booster"
+    assert_equal "Capsule", props.dig("strings", "kickerPlain")
+    assert_equal "Open the capsule, grand catalogue, %{count} cards", props.dig("strings", "canisterLabelPlain")
+    assert_select ".booster__fallback form[action='/en/packs'] button", "Open the capsule"
     assert_select ".booster__fallback a[href='/en']", "Back to the bridge"
   end
 
@@ -151,7 +151,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     data = props
     assert_equal 0, data.dig("bank", "available")
     assert_equal " ", data["delimiter"]
-    assert_equal "Ouvrir le booster", data.dig("strings", "open")
+    assert_equal "Ouvrir la capsule", data.dig("strings", "open")
     assert_equal "Réserve vide", data.dig("strings", "reserveEmpty")
     assert_equal "/fr/cards/SLUG", data["cardUrl"]
     assert_select ".booster__fallback form", 0
