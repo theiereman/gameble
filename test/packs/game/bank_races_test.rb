@@ -89,7 +89,7 @@ class Game::BankRacesTest < ActiveSupport::TestCase
     assert_equal 7, results.first.value!
     assert_equal 10, bank.count
     assert_equal 1, Game::Pack.where(player_id: @player.id).where.not(opened_at: nil).count
-    assert_equal [ { player_id: @player.id, packs: 7 } ], topped_up
+    assert_equal [ { player_id: @player.id, packs: 7, redrawn: 0 } ], topped_up
     assert_equal 7, bank.where(available_at: started..Time.current).count
     assert_unique_schedule(Time.current)
   end
@@ -101,7 +101,7 @@ class Game::BankRacesTest < ActiveSupport::TestCase
 
     assert_equal [ 0, 9 ], results.map(&:value!).sort
     assert_equal 10, bank.count
-    assert_equal [ { player_id: @player.id, packs: 9 } ], topped_up
+    assert_equal [ { player_id: @player.id, packs: 9, redrawn: 0 } ], topped_up
   end
 
   test "the publication's fill and heal at once for a player with no pack: ten packs, filled once" do
@@ -152,7 +152,7 @@ class Game::BankRacesTest < ActiveSupport::TestCase
     assert results.all?(&:success?)
     assert_equal 10, bank.count
     assert_equal 1, Game::Pack.where(player_id: @player.id).bonus.count
-    assert_equal [ { player_id: @player.id, packs: 7 } ], topped_up
+    assert_equal [ { player_id: @player.id, packs: 7, redrawn: 0 } ], topped_up
   end
 
   test "an opening and a daily bonus at once: both succeed, the bank stays at ten" do
@@ -184,7 +184,7 @@ class Game::BankRacesTest < ActiveSupport::TestCase
     assert_equal 7, healing.value!
     assert_equal 10, bank.count
     assert_equal 1, Game::Pack.where(player_id: @player.id).bonus.unopened.count
-    assert_equal [ { player_id: @player.id, packs: 7 } ], topped_up
+    assert_equal [ { player_id: @player.id, packs: 7, redrawn: 0 } ], topped_up
     assert_spent_once(@player)
   end
 

@@ -156,7 +156,7 @@ class Game::TopUpBankTest < ActiveSupport::TestCase
       assert_equal 0, Game::HealBank.new.call(player: @player).value!
     end
     events = game_events(@player, Game::BankToppedUp)
-    assert_equal [ { player_id: @player.id, packs: 10 } ], events.map(&:data)
+    assert_equal [ { player_id: @player.id, packs: 10, redrawn: 0 } ], events.map(&:data)
   end
 
   test "healing leaves alone a player who never had a pack, and a missing or banned player fails" do

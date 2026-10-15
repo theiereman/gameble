@@ -9,10 +9,10 @@ module Game
   # and every set the cards complete for the player for the first time
   # (Game::SetCompletion); Game::CardDiscovered and Game::SetCompleted follow
   # Game::PackOpened, one per row inserted (AD-9, AD-10, story 6.7).
-  # A pack drawn in an earlier season (banked before the season now
-  # published) is drawn again in the published season as it opens, each card
-  # within its old card's tier, so the pack keeps its odds and any card it
-  # was guaranteed, and an opening only credits cards of the published season.
+  # A pack still of an earlier season, opened before the publication's job
+  # redrew it, is drawn again in the published season as it opens
+  # (Game::PackRedraw), so an opening only credits cards of the published
+  # season.
   # A pack that is not available yet is never opened. Opening a regular pack
   # replaces it in the same transaction (Game::TopUpBank), so a full bank
   # stays full; a bank already short stays short until the next season's
@@ -87,10 +87,9 @@ module Game
     # with no season published.
     def drawn_in_published_season(pack)
       pool = DrawPool.current
-      return {} if pool.nil? || pack.season_id == pool.season_id
+      return {} if pool.nil?
 
-      tiers = Catalog::CardSeasonTiers.call(pack.card_season_ids)
-      { season_id: pool.season_id, card_season_ids: Draw.in_tiers(pack.card_season_ids.map { tiers.fetch(it) }, random: @random, pool:) }
+      PackRedraw.call([ pack ], pool:, random: @random).fetch(pack, {})
     end
 
     def check_key(key)
