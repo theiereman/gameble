@@ -3,7 +3,7 @@ title: 'The retired set kinds removed'
 type: 'refactor'
 ticket: '4'
 created: '2026-10-15'
-status: 'built'
+status: done
 baseline_revision: '747c7f2b4e7d4d3d73b2d86d0979553e5a3a6484'
 route: 'full'
 route_source: 'auto'
