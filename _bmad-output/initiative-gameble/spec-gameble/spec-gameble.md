@@ -93,9 +93,10 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-11**
   - **intent:** Friends can trade cards directly and asynchronously, one or several cards on each side, with no currency.
   - **success:**
-    - A proposal holds an offer and a request, and is sent only when each side holds a card.
+    - A proposal holds an offer and a request. At every send, proposal or counter-proposal, the side asked of the other player holds at least one card; the sender's own side may be empty, which asks the other player to choose what they want in return.
     - At most 4 different cards per side. With several copies of a card, the player chooses how many to place: on their side, up to copies owned minus copies reserved in other trades; on the friend's side, up to what the friend owns.
     - The recipient can accept a proposal, decline it, or answer with a counter-proposal that may change both sides. A counter-proposal can be accepted, declined or countered in turn.
+    - A trade with an empty side cannot be accepted: the recipient chooses at least one card from the sender's collection and counters, or declines, and the screen says so where accepting would be. Cards never change hands one way.
     - Neither player needs to be connected at the same time as the other.
     - The proposer can cancel it. A proposal expires after a fixed 7 days.
     - A card a player offers in an open trade is reserved: it cannot be used elsewhere until the trade ends. Cards requested from the friend are not reserved; acceptance checks they are still free.
@@ -233,6 +234,8 @@ gameble is an open-source passion project, and the game its author wants to play
 - Bulk pack opening.
 - Any input at opening that improves the odds (later).
 - Live trades with both players connected (later).
+- Gifts: giving cards with nothing in return.
+- A discussion window on trades, or any free-text message between players (later, see `later-roadmap.md`).
 - Card marks: favourite, to trade, personal categories (later).
 - Reactions or comments on feed events (later).
 - Sign-in methods other than Steam.

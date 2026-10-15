@@ -28,6 +28,7 @@ Context for MVP design decisions that must not block these. Nothing here is buil
 - **Steam library bonuses:** bonuses on the cards of games a player owns, from playtime and achievements. They are bonuses only; the library never grants a card. Reading a player's library may depend on their Steam profile privacy settings; verify before designing.
 - **Library info on a shared card:** show the owner's Steam library info when they own the game.
 - **Live trades:** both players at the trade board at the same time.
+- **Trade discussion:** a free-text discussion between the two players on a trade, raised while forging the open trade request (2026-10-15); to be forged on its own. Player-written text needs reports, hiding and back-office reading (CAP-15), export and erasure with the account (CAP-14), bans, private profiles, an unread badge, live delivery and rate limits.
 - **Card marks:** favourite, to trade, personal categories.
 - **Feed reactions:** reacting to or commenting on a friend's pull or repost.
 - **Knowledge battles** (parked idea, unscheduled; detail in the brief addendum): live three-round matches on themes drawn from Steam data, played with cards picked from a random hand, rewarding knowledge of games rather than collection size; optionally a challenge market where players stake cards. It conflicts with the Combat non-goal and with the rule that currency comes only from destroying cards.
