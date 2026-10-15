@@ -48,12 +48,14 @@ class TradesController < ApplicationController
       return redirect_to(trades_path, status: :see_other)
     end
 
+    sent_offer = nil
     result = with_sides(friend) do |offer, request|
+      sent_offer = offer
       Game::ProposeTrade.new.call(player: current_player, recipient: friend, offer:, request:)
     end
     if result.success?
       flash[:trade_forget] = helpers.trade_draft_key(current_player, friend)
-      toast t("trades.sent.title"), t("trades.sent.text", name: helpers.friend_name(friend))
+      toast_sent(friend, sent_offer)
       redirect_to trade_path(token: result.value!.token), status: :see_other
     else
       refused(result.failure, friend)
@@ -78,12 +80,14 @@ class TradesController < ApplicationController
     authorize :trade, :counter?
     trade = find_trade!
 
+    sent_offer = nil
     result = with_sides(trade.friend) do |offer, request|
+      sent_offer = offer
       Game::CounterTrade.new.call(player: current_player, trade_id: trade.id, revision: params[:revision], offer:, request:)
     end
     if result.success?
       flash[:trade_forget] = helpers.trade_counter_key(current_player, trade)
-      toast t("trades.sent.title"), t("trades.sent.text", name: helpers.friend_name(trade.friend))
+      toast_sent(trade.friend, sent_offer)
       redirect_to trade_path(token: trade.token), status: :see_other
     else
       refused(result.failure, trade.friend)
@@ -117,7 +121,8 @@ class TradesController < ApplicationController
     trade = find_trade!
 
     answer(trade, Game::CancelTrade.new.call(player: current_player, trade_id: trade.id)) do
-      toast t("trades.cancelled.title"), t("trades.cancelled.text")
+      text = trade.own_side.empty? ? t("trades.cancelled.open_text", name: helpers.friend_name(trade.friend)) : t("trades.cancelled.text")
+      toast t("trades.cancelled.title"), text
     end
   end
 
@@ -206,6 +211,11 @@ class TradesController < ApplicationController
         refused(result.failure, trade.friend)
       end
       redirect_to trade_path(token: trade.token), status: :see_other
+    end
+
+    def toast_sent(friend, offer)
+      name = helpers.friend_name(friend)
+      toast t("trades.sent.title"), offer.empty? ? t("trades.sent.open_text", name:) : t("trades.sent.text", name:)
     end
 
     def toast(title, text)

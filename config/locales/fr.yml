@@ -1080,6 +1080,7 @@ fr:
       empty_invite: "Invitez-en un avec votre lien ou votre code."
     row:
       what_for_what: "%{theirs} contre %{yours}"
+      to_choose: "À choisir"
       expires:
         one: "expire dans %{count} j"
         other: "expire dans %{count} j"
@@ -1119,12 +1120,17 @@ fr:
       editing: "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez."
       choose: "Choisissez les cartes de chaque côté."
       valid: "Valable 7 jours après l'envoi"
+      send_reason: "Placez au moins une carte du côté de %{name}."
+      open_help: "Laissez ce côté vide : %{name} choisira ce qui lui plaît en retour."
+      open_request: "%{name} vous laisse choisir. Prenez ce que vous voulez dans sa collection, puis renvoyez."
     side:
       friend_gives: "%{name} donne"
       friend_received: "%{name} a reçu"
       friend_offered: "%{name} proposait"
       you_give: "Vous donnez"
       you_received: "Vous avez reçu"
+      for_friend_to_choose: "À choisir par %{name}"
+      yours_to_choose: "À vous de choisir"
       cards:
         zero: "0 carte"
         one: "%{count} carte"
@@ -1221,9 +1227,11 @@ fr:
     cancelled:
       title: "Proposition annulée"
       text: "Vos cartes ne sont plus réservées."
+      open_text: "%{name} n'a plus rien à choisir."
     sent:
       title: "Proposition envoyée"
       text: "%{name} a 7 jours pour répondre. Vos cartes sont réservées d'ici là."
+      open_text: "%{name} a 7 jours pour choisir ce qui lui plaît en retour."
   accounts:
     dialog:
       title: "Supprimer mon compte"
@@ -1528,7 +1536,7 @@ fr:
       not_friends: "Vous ne pouvez échanger qu'avec un ami."
       own_profile_private: "Votre profil est privé : les échanges sont fermés."
       friend_profile_private: "Le profil de %{name} est privé : échanges fermés."
-      invalid_offer: "Proposez une à quatre cartes différentes, avec une quantité d'au moins un chacune."
+      invalid_offer: "Proposez au plus quatre cartes différentes, avec une quantité d'au moins un chacune."
       invalid_request: "Demandez une à quatre cartes différentes, avec une quantité d'au moins un chacune."
       trade_already_open: "Vous avez déjà un échange ouvert avec cet ami. Réglez-le d'abord."
       insufficient_copies: "Vous n'avez pas assez d'exemplaires libres d'une carte proposée : certains sont déjà dans un autre échange."
@@ -1539,6 +1547,7 @@ fr:
       requested_cards_unavailable: "Exemplaires insuffisants : une carte demandée n'est plus disponible. Rien n'a bougé."
       request_exceeds_holdings: "Votre ami ne possède pas autant d'exemplaires d'une carte que vous demandez."
       trade_changed: "Cet échange a changé depuis que vous l'avez ouvert. Relisez ses nouvelles conditions, puis répondez à nouveau."
+      trade_side_empty: "Rien à recevoir pour l'instant : choisissez ce que vous voulez dans la collection de %{name}, puis renvoyez."
       trade_not_expired: "Cet échange n'a pas encore expiré."
       invalid_format: "Format attendu : ABCD-1234."
       own_code: "C'est votre propre code."

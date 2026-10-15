@@ -17,6 +17,7 @@ module Game
         step friends(player, Accounts::Player.find(trade.proposer_id))
         offer = side_of(trade, "offer")
         request = side_of(trade, "request")
+        step no_empty_side(offer, request)
         holdings = lock_holdings(trade, offer, request)
         step enough_copies(request, holdings.fetch(trade.recipient_id), :requested_cards_unavailable)
         move(trade.proposer_id, holdings.fetch(trade.proposer_id), given: offer, gained: request, released: offer, now:)
@@ -31,6 +32,10 @@ module Game
     end
 
     private
+
+    def no_empty_side(offer, request)
+      offer.empty? || request.empty? ? Failure(:trade_side_empty) : Success()
+    end
 
     def lock_holdings(trade, offer, request)
       cards = (offer.keys | request.keys).sort

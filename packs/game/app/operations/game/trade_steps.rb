@@ -2,8 +2,16 @@ module Game
   module TradeSteps
     private
 
-    def normalise(side, code)
-      return Failure(code) unless side.is_a?(Hash) && side.size.between?(1, TradeItem::MAX_CARDS_PER_SIDE)
+    def normalise_offer(offer)
+      normalise(offer, :invalid_offer, fewest: 0)
+    end
+
+    def normalise_request(request)
+      normalise(request, :invalid_request, fewest: 1)
+    end
+
+    def normalise(side, code, fewest:)
+      return Failure(code) unless side.is_a?(Hash) && side.size.between?(fewest, TradeItem::MAX_CARDS_PER_SIDE)
 
       lines = side.to_h { |id, quantity| [ integer(id), integer(quantity) ] }
       return Failure(code) unless lines.size == side.size && lines.all? { |id, quantity| id&.positive? && quantity&.between?(1, TradeItem::MAX_QUANTITY) }

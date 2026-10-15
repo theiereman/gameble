@@ -1,4 +1,5 @@
 import type { Rarity } from "./card_types"
+import type { TradeChangedDetail } from "./events"
 
 export type Line = { key: string; quantity: number }
 
@@ -39,6 +40,14 @@ export function remove(lines: readonly Line[], key: string): Line[] {
 
 export function sideCount(lines: readonly Line[]): SideCount {
   return { cards: lines.length, copies: lines.reduce((sum, line) => sum + line.quantity, 0) }
+}
+
+export function sendable({ take }: TradeChangedDetail): boolean {
+  return take.cards > 0
+}
+
+export function showsOpenHelp(side: "friend" | "own", lines: readonly Line[]): boolean {
+  return side === "own" && lines.length === 0
 }
 
 export function stepperKey(key: string): 1 | -1 | "min" | "max" | null {

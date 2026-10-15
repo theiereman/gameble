@@ -44,6 +44,8 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
   def from_lea = propose(@bob, @alice, offer: { @depths => 1 }, request: { @portal => 2 })
 
+  def open_from_lea = propose(@bob, @alice, offer: {}, request: { @portal => 1 })
+
   test "a visitor is sent home to sign in, and menu 03 and the tab open the sign-in panel" do
     trade = from_lea
 
@@ -379,16 +381,32 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, holding(@bob, @depths).reserved
   end
 
-  test "a counter that empties a side is refused on its form" do
+  test "a counter that empties the friend's side is refused on its form" do
+    trade = from_lea
+    sign_in @alice
+
+    post counter_trade_path(token: trade.token, locale: :fr), params: { **revision(trade), give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "0" } }
+
+    assert_redirected_to counter_trade_path(token: trade.token, locale: :fr)
+    follow_redirect!
+    assert_select ".trade-board__error", I18n.t("errors.game.invalid_request", locale: :fr)
+    assert_equal @bob.id, trade.reload.proposer_id
+  end
+
+  test "a counter that empties the player's own side is sent as an open request, reserving nothing" do
     trade = from_lea
     sign_in @alice
 
     post counter_trade_path(token: trade.token, locale: :fr), params: { **revision(trade), give: { "portal--s1" => "0" }, take: { "blue-depths--s1" => "1" } }
 
-    assert_redirected_to counter_trade_path(token: trade.token, locale: :fr)
+    assert_redirected_to trade_path(token: trade.token, locale: :fr)
     follow_redirect!
-    assert_select ".trade-board__error", I18n.t("errors.game.invalid_offer", locale: :fr)
-    assert_equal @bob.id, trade.reload.proposer_id
+    assert_select ".toast", /Proposition envoyée.*Lea a 7 jours pour choisir ce qui lui plaît en retour\./m
+    assert_select ".trade-side--own .trade-side__open", "À choisir par Lea"
+    assert_equal @alice.id, trade.reload.proposer_id
+    assert_equal [ "request" ], trade.items.map(&:side)
+    assert_equal 0, holding(@alice, @portal).reserved
+    assert_equal 0, holding(@bob, @depths).reserved
   end
 
   def island_props
@@ -407,7 +425,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".trade-board--editing .trade-island input[name='give[portal--s1]'][max='2'][form='trade-counter-form']"
     assert_select ".trade-board__actions form#trade-counter-form[data-controller='trade-send']:not([hidden]) #trade-send-reason[hidden]",
-      "Choisissez les cartes de chaque côté."
+      "Placez au moins une carte du côté de Lea."
     assert_select ".trade-board__actions [data-trade-board-target='readActions'][hidden]"
 
     props = island_props
@@ -417,6 +435,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Choisir dans la collection de Lea", friend.fetch("pickerTitle")
     assert_equal "Cartes de Lea", friend.fetch("pickerTitleShort")
     assert_equal "Placer mes cartes", own.fetch("add")
+    assert_equal [ nil, "Laissez ce côté vide : Lea choisira ce qui lui plaît en retour." ], [ friend.fetch("help"), own.fetch("help") ]
     assert_equal [ { "key" => "blue-depths--s1", "quantity" => 1 } ], friend.fetch("lines")
     assert_equal [ { "key" => "portal--s1", "quantity" => 2 } ], own.fetch("lines")
 
@@ -545,6 +564,9 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".trade-side--own .trade-side__label", "Vous donnez"
       assert_select ".trade-side__count", { count: 2, text: "0 carte" }
       assert_select ".trade-board__message", "Choisissez les cartes de chaque côté."
+      assert_select ".trade-side--own .trade-side__help", "Laissez ce côté vide : Lea choisira ce qui lui plaît en retour."
+      assert_select ".trade-side--friend .trade-side__help", 0
+      assert_select "#trade-send-reason", "Placez au moins une carte du côté de Lea."
       assert_select "form#trade-draft-form[action=?][data-controller='trade-send']", trades_path(locale: :fr) do
         assert_select "input[type=hidden][name=friend][value=?]", @bob.token
         assert_select "button[type=submit]", "Envoyer la proposition"
@@ -559,6 +581,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "#{@alice.token}:#{@bob.token}", props.fetch("draftKey")
     friend, own = props.fetch("sides")
     assert_equal [ [], [] ], [ friend.fetch("lines"), own.fetch("lines") ]
+    assert_equal [ nil, "Laissez ce côté vide : Lea choisira ce qui lui plaît en retour." ], [ friend.fetch("help"), own.fetch("help") ]
     assert_equal [ "blue-depths--s1" ], friend.fetch("cards").map { it.fetch("key") }
     assert_equal [ [ "tin-soldier--s1", 0 ], [ "portal--s1", 3 ] ], own.fetch("cards").map { it.values_at("key", "max") }
   end
@@ -769,14 +792,110 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".trade-side--own .trade-card__reserved", "2 réservées"
   end
 
-  test "a draft refused goes back to the draft with the reason; one to a stranger to the list" do
+  test "sending a draft with only the friend's side proposes an open request: nothing reserved, left for the friend to choose" do
     sign_in @alice
 
     post trades_path(locale: :fr), params: { friend: @bob.token, take: { "blue-depths--s1" => "1" } }
+
+    trade = Game::Trade.sole
+    assert_redirected_to trade_path(token: trade.token, locale: :fr)
+    assert_equal [ "request" ], trade.items.map(&:side)
+    assert_equal [ 0, 0 ], [ holding(@alice, @portal).reserved, holding(@alice, @soldier).reserved ]
+    follow_redirect!
+    assert_select ".toast", /Proposition envoyée.*Lea a 7 jours pour choisir ce qui lui plaît en retour\./m
+    assert_select ".trade-chip--accent", "En attente"
+    assert_select ".trade-side--own" do
+      assert_select ".trade-side__open", "À choisir par Lea"
+      assert_select ".trade-side__count", 0
+      assert_select ".trade-card", 0
+    end
+    assert_select ".trade-card__reserved", 0
+    assert_select ".trade-row__what", "Profondeurs bleues contre À choisir"
+  end
+
+  test "an open request waiting for the player offers no acceptance but invites to choose, then counter or decline" do
+    trade = open_from_lea
+    sign_in @alice
+
+    get trade_path(token: trade.token, locale: :fr)
+
+    assert_select ".trade-row__what", "À choisir contre Portal"
+    assert_select ".trade-board" do
+      assert_select ".trade-side--friend .trade-side__open", "À vous de choisir"
+      assert_select ".trade-side--friend .trade-side__count", 0
+      assert_select ".trade-side--own .trade-side__count", "1 carte"
+      assert_select "form[action=?]", accept_trade_path(token: trade.token, locale: :fr), 0
+      assert_select "[data-trade-board-target='readActions']" do
+        assert_select ".trade-board__open", "Lea vous laisse choisir. Prenez ce que vous voulez dans sa collection, puis renvoyez."
+        assert_select "a[href=?]", counter_trade_path(token: trade.token, locale: :fr), "Contre-proposer"
+        assert_select "form[action=?] button", decline_trade_path(token: trade.token, locale: :fr), "Refuser"
+      end
+    end
+    friend, = island_props.fetch("sides")
+    assert_includes friend.fetch("readHtml"), "À vous de choisir"
+  end
+
+  test "accepting an open request is refused with the reason on the board, and nothing moves" do
+    trade = open_from_lea
+    sign_in @alice
+
+    post accept_trade_path(token: trade.token, locale: :fr), params: revision(trade)
+    follow_redirect!
+
+    message = "Rien à recevoir pour l'instant : choisissez ce que vous voulez dans la collection de Lea, puis renvoyez."
+    assert_select ".trade-board__error[role=alert]", message
+    assert_select ".toast--alert", /#{Regexp.escape(message)}/
+    assert trade.reload.open?
+    assert_equal [ 3, 0 ], [ holding(@alice, @portal).quantity, holding(@alice, @portal).reserved ]
+    assert_not Game::FeedEntry.exists?
+  end
+
+  test "a declined open request is shown closed, without a side left to choose" do
+    trade = open_from_lea
+    sign_in @alice
+
+    post decline_trade_path(token: trade.token, locale: :fr), params: revision(trade)
+    follow_redirect!
+
+    assert_select ".trade-chip--muted", "Clos"
+    assert_select ".trade-side__open", 0
+    assert_select ".trade-side--friend .trade-side__count", "0 carte"
+    assert_no_match(/À vous de choisir|À choisir par/, response.body)
+  end
+
+  test "cancelling an open request says the friend has nothing left to choose" do
+    trade = propose(@alice, @bob, offer: {}, request: { @depths => 1 })
+    sign_in @alice
+
+    post cancel_trade_path(token: trade.token, locale: :fr)
+    follow_redirect!
+
+    assert_select ".toast", /Proposition annulée.*Lea n'a plus rien à choisir\./m
+    assert_select ".trade-side__open", 0
+    assert_no_match(/Vos cartes ne sont plus réservées/, response.body)
+  end
+
+  test "answering an open request with a card of the friend's sends it back, reserving the player's offer" do
+    trade = open_from_lea
+    sign_in @alice
+
+    post counter_trade_path(token: trade.token, locale: :fr), params: { **revision(trade), give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
+
+    assert_redirected_to trade_path(token: trade.token, locale: :fr)
+    follow_redirect!
+    assert_select ".toast", /Proposition envoyée.*Lea a 7 jours pour répondre\./m
+    assert_equal 1, holding(@alice, @portal).reserved
+    assert_equal @alice.id, trade.reload.proposer_id
+  end
+
+  test "a draft refused goes back to the draft with the reason; one to a stranger to the list" do
+    sign_in @alice
+
+    post trades_path(locale: :fr), params: { friend: @bob.token, give: { "portal--s1" => "1" } }
     assert_redirected_to new_trade_path(locale: :fr, friend: @bob.token)
     follow_redirect!
-    assert_select ".trade-board__error[role=alert]", I18n.t("errors.game.invalid_offer", locale: :fr)
-    assert_equal I18n.t("errors.game.invalid_offer", locale: :fr), island_props.fetch("error")
+    assert_select ".trade-board__error[role=alert]", I18n.t("errors.game.invalid_request", locale: :fr)
+    assert_equal I18n.t("errors.game.invalid_request", locale: :fr), island_props.fetch("error")
 
     post trades_path(locale: :fr), params: { friend: @bob.token, give: { "portal--s1" => "9" }, take: { "blue-depths--s1" => "1" } }
     follow_redirect!

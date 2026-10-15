@@ -1,5 +1,18 @@
 import { describe, expect, it } from "vitest"
-import { columnsOf, filterCards, gridMove, initialLines, remove, setQuantity, sideCount, stepperKey, toggle, type Line } from "./trade_board"
+import {
+  columnsOf,
+  filterCards,
+  gridMove,
+  initialLines,
+  remove,
+  sendable,
+  setQuantity,
+  showsOpenHelp,
+  sideCount,
+  stepperKey,
+  toggle,
+  type Line,
+} from "./trade_board"
 
 const lines = (...pairs: [string, number][]): Line[] => pairs.map(([key, quantity]) => ({ key, quantity }))
 
@@ -55,6 +68,24 @@ describe("sideCount", () => {
   it("counts cards and copies", () => {
     expect(sideCount(lines(["a", 2], ["b", 1]))).toEqual({ cards: 2, copies: 3 })
     expect(sideCount([])).toEqual({ cards: 0, copies: 0 })
+  })
+})
+
+describe("sendable", () => {
+  it("waits for a card on the friend's side only", () => {
+    const none = { cards: 0, copies: 0 }
+    const one = { cards: 1, copies: 1 }
+    expect(sendable({ give: none, take: one, changed: true })).toBe(true)
+    expect(sendable({ give: one, take: none, changed: true })).toBe(false)
+    expect(sendable({ give: one, take: one, changed: true })).toBe(true)
+  })
+})
+
+describe("showsOpenHelp", () => {
+  it("helps under the player's own side while it is empty", () => {
+    expect(showsOpenHelp("own", [])).toBe(true)
+    expect(showsOpenHelp("own", lines(["a", 1]))).toBe(false)
+    expect(showsOpenHelp("friend", [])).toBe(false)
   })
 })
 

@@ -26,11 +26,12 @@
   </header>
   <% sides = capture do %>
     <%= render "trades/side", side: :friend, label: friend_label, lines: friend_lines, cards:, editing:, form: form_id,
-          reserved: yours, held: friend_held,
+          reserved: yours, held: friend_held, empty_label: (trade_empty_side_label(:friend, trade.friend) if trade.open?),
           none: (trade_nothing_to_place(trade, :friend, friend_held) if editing) %>
     <%= render "trades/board_middle", message: trade_message(trade, editing:) %>
     <%= render "trades/side", side: :own, label: own_label, lines: own_lines, cards:, editing:, form: form_id,
           reserved: trade.state == :theirs, held: own_held, fresh:,
+          empty_label: (trade_empty_side_label(:own, trade.friend) if trade.open?), help: trade_open_help(trade.friend),
           none: (trade_nothing_to_place(trade, :own, own_held) if editing) %>
   <% end %>
   <% if local_assigns[:island] %>
@@ -41,7 +42,11 @@
   <div class="trade-board__actions">
     <% if yours %>
       <%= tag.div class: "trade-board__action-set", hidden: editing, data: { trade_board_target: "readActions" } do %>
-        <%= render ButtonComponent.new(href: accept_trade_path(token: trade.token), method: :post, params: { revision: trade.revision }) do %><%= t("trades.actions.accept") %><% end %>
+        <% if trade.friend_side.empty? %>
+          <p class="trade-board__open"><%= t("trades.board.open_request", name: friend_name(trade.friend)) %></p>
+        <% else %>
+          <%= render ButtonComponent.new(href: accept_trade_path(token: trade.token), method: :post, params: { revision: trade.revision }) do %><%= t("trades.actions.accept") %><% end %>
+        <% end %>
         <span class="trade-board__action" data-trade-board-target="editButton" data-action="click->trade-board#edit">
           <%= render ButtonComponent.new(variant: :secondary, href: counter_trade_path(token: trade.token)) do %><%= t("trades.actions.counter") %><% end %>
         </span>
@@ -54,7 +59,7 @@
         <span class="trade-board__action" data-action="click->trade-board#undo">
           <%= render ButtonComponent.new(variant: :secondary, href: trade_path(token: trade.token)) do %><%= t("trades.actions.undo") %><% end %>
         </span>
-        <p id="trade-send-reason" class="trade-board__reason" data-trade-send-target="reason" hidden><%= t("trades.board.choose") %></p>
+        <p id="trade-send-reason" class="trade-board__reason" data-trade-send-target="reason" hidden><%= t("trades.board.send_reason", name: friend_name(trade.friend)) %></p>
       <% end %>
     <% elsif trade.state == :theirs %>
       <%= render ButtonComponent.new(variant: :secondary, href: cancel_trade_path(token: trade.token), method: :post) do %><%= t("trades.actions.cancel") %><% end %>

@@ -25,7 +25,17 @@ module TradesHelper
 
   def trade_side_title(lines, cards)
     titles = lines.filter_map { |line| trade_line_title(line, cards) }
+    return t("trades.row.to_choose") if lines.empty?
+
     titles.empty? ? "—" : titles.join(", ")
+  end
+
+  def trade_empty_side_label(side, friend)
+    side == :own ? t("trades.side.for_friend_to_choose", name: friend_name(friend)) : t("trades.side.yours_to_choose")
+  end
+
+  def trade_open_help(friend)
+    t("trades.board.open_help", name: friend_name(friend))
   end
 
   def trade_what_for_what(row, cards)
@@ -124,7 +134,7 @@ module TradesHelper
         trade_island_side(:friend, label: friend_label, name:, held: friend_held, lines: trade.friend_side, picks:,
           read_html: trade_read_side(trade, :friend, label: friend_label, cards:)),
         trade_island_side(:own, label: own_label, name:, held: own_held, lines: trade.own_side, picks:,
-          read_html: trade_read_side(trade, :own, label: own_label, cards:))
+          read_html: trade_read_side(trade, :own, label: own_label, cards:), help: trade_open_help(trade.friend))
       ],
       message: trade_message(trade, editing: true), read_message: trade_message(trade),
       editing:, draft_key: trade_counter_key(current_player, trade), form_id: COUNTER_FORM_ID, error:
@@ -136,7 +146,7 @@ module TradesHelper
     trade_island_props(
       sides: [
         trade_island_side(:friend, label: t("trades.side.friend_gives", name:), name:, held: friend_held, lines: [], picks:),
-        trade_island_side(:own, label: t("trades.side.you_give"), name:, held: own_held, lines: [], picks:)
+        trade_island_side(:own, label: t("trades.side.you_give"), name:, held: own_held, lines: [], picks:, help: trade_open_help(friend))
       ],
       message: t("trades.board.choose"), read_message: nil,
       editing: true, draft_key: trade_draft_key(current_player, friend), form_id: DRAFT_FORM_ID, error:
@@ -155,15 +165,16 @@ module TradesHelper
 
     def trade_read_side(trade, side, label:, cards:)
       lines = side == :own ? trade.own_side : trade.friend_side
-      render("trades/side", side:, label:, lines:, cards:, editing: false, reserved: side == :friend).to_str
+      render("trades/side", side:, label:, lines:, cards:, editing: false, reserved: side == :friend,
+        empty_label: (trade_empty_side_label(side, trade.friend) if trade.open?)).to_str
     end
 
-    def trade_island_side(side, label:, name:, held:, lines:, picks:, read_html: nil)
+    def trade_island_side(side, label:, name:, held:, lines:, picks:, read_html: nil, help: nil)
       own = side == :own
       views = held.keys.filter_map { |id| picks[id] && [ id, picks[id] ] }
       views.sort_by! { |_, view| [ view.season_number, view.number ? 0 : 1, view.number.to_i, view.title ] }
       {
-        side:, field: own ? "give" : "take", label:, readHtml: read_html,
+        side:, field: own ? "give" : "take", label:, readHtml: read_html, help:,
         add: t("trades.island.add.#{side}"),
         pickerTitle: t("trades.island.picker.#{side}", name:),
         pickerTitleShort: t("trades.island.picker_short.#{side}", name:),

@@ -114,15 +114,28 @@ class Game::TradeTest < ActiveSupport::TestCase
     assert clash.save, "a closed trade does not block the pair"
   end
 
-  test "sides need one to four different cards with positive integer quantities" do
+  test "sides need at most four different cards with positive integer quantities, and the request at least one" do
     cards = [ @one, @two, @three, catalog_card_seasons(:uncommon_card_one).id, catalog_card_seasons(:legendary_card_one).id ]
-    [ {}, nil, [], { @one => 0 }, { @one => -1 }, { @one => 1.5 }, { @one => 1000 }, { @one => "0x10" }, { @one => "x" }, { 0 => 1 }, cards.to_h { |id| [ id, 1 ] } ].each do |bad|
+    [ nil, [], { @one => 0 }, { @one => -1 }, { @one => 1.5 }, { @one => 1000 }, { @one => "0x10" }, { @one => "x" }, { 0 => 1 }, cards.to_h { |id| [ id, 1 ] } ].each do |bad|
       assert_equal Dry::Monads::Failure(:invalid_offer), propose(offer: bad), "offer #{bad.inspect}"
       assert_equal Dry::Monads::Failure(:invalid_request), propose(request: bad), "request #{bad.inspect}"
     end
+    assert_equal Dry::Monads::Failure(:invalid_request), propose(request: {})
+    assert_equal Dry::Monads::Failure(:invalid_request), propose(offer: {}, request: {})
     assert_equal Dry::Monads::Failure(:invalid_request), propose(request: { 0 => 1 })
     assert_equal Dry::Monads::Failure(:invalid_request), propose(request: { Catalog::CardSeason.maximum(:id) + 1 => 1 })
     assert_equal 0, Game::Trade.count
+  end
+
+  test "an open request offers nothing, reserves nothing and asks for the friend's cards" do
+    trade = propose(offer: {}, request: { @three => 1 }).value!
+
+    assert trade.open?
+    assert_empty trade.offer_items
+    assert_equal({ @three => 1 }, trade.request_items.to_h { |item| [ item.card_season_id, item.quantity ] })
+    assert_equal [ 0, 0 ], [ reserved(@alice, @one), reserved(@alice, @two) ]
+    assert_equal 0, reserved(@bob, @three)
+    assert_equal trade.id, events(Game::TradeProposed).sole.data.symbolize_keys[:trade_id]
   end
 
   test "four different cards per side are accepted" do

@@ -4,8 +4,8 @@ module Game
 
     def call(player:, trade_id:, revision:, offer:, request:)
       player = step require_player(player)
-      offer = step normalise(offer, :invalid_offer)
-      request = step normalise(request, :invalid_request)
+      offer = step normalise_offer(offer)
+      request = step normalise_request(request)
       step known_cards(request)
       trade = step find_trade(player, trade_id)
       step turn(trade, player, :recipient_id)

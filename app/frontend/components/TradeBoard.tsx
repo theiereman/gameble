@@ -3,7 +3,7 @@ import { flushSync } from "react-dom"
 import { dispatchGameble, onGameble } from "../lib/events"
 import { t, type Template } from "../lib/i18n"
 import type { Rarity } from "../lib/card_types"
-import { MAX_CARDS, initialLines, remove, setQuantity, sideCount, type Line } from "../lib/trade_board"
+import { MAX_CARDS, initialLines, remove, setQuantity, showsOpenHelp, sideCount, type Line } from "../lib/trade_board"
 import { forgetDraft, readDraft, sameLines, saveDraft, type DraftSides } from "../lib/trade_draft"
 import QuantityStepper from "./QuantityStepper"
 import TradePicker from "./TradePicker"
@@ -23,6 +23,7 @@ export type TradeSideData = {
   field: "take" | "give"
   label: string
   readHtml: string | null
+  help: string | null
   add: string
   pickerTitle: string
   pickerTitleShort: string
@@ -220,6 +221,7 @@ export default function TradeBoard(props: TradeBoardProps) {
             </li>
           )}
         </ul>
+        {side.help && showsOpenHelp(side.side, sideLines) && <p className="trade-side__help">{side.help}</p>}
       </div>
     )
   }

@@ -257,13 +257,82 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
 
     assert_equal Dry::Monads::Failure(:insufficient_copies), counter(trade, offer: { @three => 3 })
     assert_equal Dry::Monads::Failure(:insufficient_copies), counter(trade, offer: { @four => 1 })
-    assert_equal Dry::Monads::Failure(:invalid_offer), counter(trade, offer: {})
+    assert_equal Dry::Monads::Failure(:invalid_offer), counter(trade, offer: nil)
+    assert_equal Dry::Monads::Failure(:invalid_request), counter(trade, request: {})
+    assert_equal Dry::Monads::Failure(:invalid_request), counter(trade, offer: {}, request: {})
     assert_equal Dry::Monads::Failure(:invalid_request), counter(trade, request: { @one => 0 })
     assert_equal Dry::Monads::Failure(:invalid_request), counter(trade, request: { Catalog::CardSeason.maximum(:id) + 1 => 1 })
     assert_equal Dry::Monads::Failure(:not_allowed), counter(trade, @alice)
     assert_equal Dry::Monads::Failure(:trade_not_found), counter(trade, @carol)
     assert_equal before, snapshot
     assert_empty events(Game::TradeCountered, @bob)
+  end
+
+  test "an open counter releases the previous offer, reserves nothing, hands the turn over and restarts the 7 days" do
+    trade = propose
+
+    travel 3.days do
+      trade = counter(trade, offer: {}, request: { @one => 1 }).value!
+
+      assert_equal [ @bob.id, @alice.id ], [ trade.proposer_id, trade.recipient_id ]
+      assert_in_delta 7.days.from_now, trade.expires_at, 5
+      assert_equal({ "request" => { @one => 1 } }, sides(trade))
+      assert_equal({ @one => [ 3, 0 ], @two => [ 1, 0 ] }, holdings(@alice))
+      assert_equal({ @three => [ 2, 0 ] }, holdings(@bob))
+      assert_equal 1, events(Game::TradeCountered, @bob).size
+    end
+  end
+
+  test "answering an open request reserves the new offer, and the trade it makes is accepted" do
+    trade = propose(offer: {}, request: { @three => 1 })
+
+    counter(trade, offer: { @three => 1 }, request: { @one => 1 }).value!
+
+    assert_equal({ @one => [ 3, 0 ], @two => [ 1, 0 ] }, holdings(@alice))
+    assert_equal({ @three => [ 2, 1 ] }, holdings(@bob))
+    accept(trade, @alice).value!
+    assert_equal({ @one => [ 2, 0 ], @two => [ 1, 0 ], @three => [ 1, 0 ] }, holdings(@alice))
+    assert_equal({ @one => [ 1, 0 ], @three => [ 1, 0 ] }, holdings(@bob))
+  end
+
+  test "an open request cannot be accepted: nothing moves, the trade stays open, no feed entry and no weekly contribution" do
+    trade = propose(offer: {}, request: { @three => 1 })
+    before = snapshot
+
+    assert_equal Dry::Monads::Failure(:trade_side_empty), accept(trade)
+    assert_equal before, snapshot
+    assert trade.reload.open?
+    assert_empty events(Game::TradeAccepted)
+    assert_not Game::FeedEntry.exists?
+    assert_not Game::WeeklyContribution.exists?
+  end
+
+  test "an open request is declined, cancelled or let expire, releasing nothing and leaving the recipient's holdings as they were" do
+    alice = holdings(@alice)
+    bob = holdings(@bob)
+
+    declined = propose(offer: {}, request: { @three => 1 })
+    assert_equal "declined", decline(declined).value!.status
+    cancelled = propose(offer: {}, request: { @three => 1 })
+    assert_equal "cancelled", Game::CancelTrade.new.call(player: @alice, trade_id: cancelled.id).value!.status
+    expired = propose(offer: {}, request: { @three => 1 })
+    travel 8.days do
+      assert_equal "expired", Game::ExpireTrade.new.call(player: @alice, trade_id: expired.id).value!.status
+    end
+
+    assert_equal alice, holdings(@alice)
+    assert_equal bob, holdings(@bob)
+  end
+
+  test "an open request accepted on terms countered since they were seen is refused as changed first" do
+    trade = propose(offer: {}, request: { @three => 1 })
+    seen = revision_of(trade)
+    travel(1.minute) { counter(trade, offer: {}, request: { @one => 1 }).value! }
+    travel(2.minutes) { counter(trade, @alice, offer: {}, request: { @three => 2 }).value! }
+
+    assert_equal Dry::Monads::Failure(:trade_changed), accept(trade, revision: seen)
+    assert_equal Dry::Monads::Failure(:trade_side_empty), accept(trade)
+    assert trade.reload.open?
   end
 
   test "copies the counterer has reserved elsewhere cannot be offered in the counter" do

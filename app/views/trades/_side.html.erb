@@ -2,41 +2,49 @@
 <% field = side == :own ? "give" : "take" %>
 <% fresh = local_assigns[:fresh] || [] %>
 <% held = local_assigns[:held] || {} %>
+<% blank = lines.empty? && !editing && local_assigns[:empty_label].present? %>
 <div class="<%= class_names("trade-side", "trade-side--#{side}", "trade-side--editing": editing) %>">
   <p class="trade-side__header">
     <span class="trade-side__label"><%= label %></span>
     <% if editing %><span class="trade-side__editing"><%= t("trades.chip.editing") %></span><% end %>
-    <span class="trade-side__count"><%= trade_side_count(lines) %></span>
+    <% unless blank %><span class="trade-side__count"><%= trade_side_count(lines) %></span><% end %>
   </p>
   <% if local_assigns[:none] %>
     <p class="trade-side__none"><b class="trade-side__none-title"><%= t("trades.side.none.title") %></b> <%= none %></p>
   <% end %>
-  <ul class="trade-side__cards">
-    <% lines.each do |line| %>
-      <% view = cards[line.card_season_id] or next %>
-      <li class="<%= class_names("trade-card", "trade-card--stack": line.quantity > 1) %>">
-        <%= render CardComponent.new(card: view, size:) %>
-        <% if line.quantity > 1 %>
-          <span class="trade-card__quantity"><span class="visually-hidden"><%= t("trades.side.copies_label") %></span>×<%= line.quantity %></span>
-        <% end %>
-        <% if reserved && !editing %>
-          <span class="trade-card__reserved"><%= t("trades.side.reserved", count: line.quantity) %></span>
-        <% end %>
-        <% if fresh.include?(line.card_season_id) %>
-          <span class="trade-card__new"><%= t("trades.side.new") %></span>
-        <% end %>
-        <% if editing %>
-          <% key = trade_card_key(view) %>
-          <% limit = trade_card_limit(side, held[line.card_season_id]) %>
-          <span class="trade-card__stepper">
-            <label class="visually-hidden" for="<%= field %>-<%= key %>"><%= t("trades.side.quantity_label", title: view.title) %></label>
-            <input type="number" id="<%= field %>-<%= key %>" name="<%= field %>[<%= key %>]" class="trade-card__field"
-                   value="<%= [ line.quantity, limit ].min %>" min="0" max="<%= limit %>" step="1" inputmode="numeric"
-                   <%= tag.attributes(form: local_assigns[:form]) %>>
-            <span class="trade-card__max"><%= t("trades.side.max", max: limit) %></span>
-          </span>
-        <% end %>
-      </li>
-    <% end %>
-  </ul>
+  <% if blank %>
+    <p class="trade-side__open"><%= local_assigns[:empty_label] %></p>
+  <% else %>
+    <ul class="trade-side__cards">
+      <% lines.each do |line| %>
+        <% view = cards[line.card_season_id] or next %>
+        <li class="<%= class_names("trade-card", "trade-card--stack": line.quantity > 1) %>">
+          <%= render CardComponent.new(card: view, size:) %>
+          <% if line.quantity > 1 %>
+            <span class="trade-card__quantity"><span class="visually-hidden"><%= t("trades.side.copies_label") %></span>×<%= line.quantity %></span>
+          <% end %>
+          <% if reserved && !editing %>
+            <span class="trade-card__reserved"><%= t("trades.side.reserved", count: line.quantity) %></span>
+          <% end %>
+          <% if fresh.include?(line.card_season_id) %>
+            <span class="trade-card__new"><%= t("trades.side.new") %></span>
+          <% end %>
+          <% if editing %>
+            <% key = trade_card_key(view) %>
+            <% limit = trade_card_limit(side, held[line.card_season_id]) %>
+            <span class="trade-card__stepper">
+              <label class="visually-hidden" for="<%= field %>-<%= key %>"><%= t("trades.side.quantity_label", title: view.title) %></label>
+              <input type="number" id="<%= field %>-<%= key %>" name="<%= field %>[<%= key %>]" class="trade-card__field"
+                     value="<%= [ line.quantity, limit ].min %>" min="0" max="<%= limit %>" step="1" inputmode="numeric"
+                     <%= tag.attributes(form: local_assigns[:form]) %>>
+              <span class="trade-card__max"><%= t("trades.side.max", max: limit) %></span>
+            </span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+  <% if editing && lines.empty? && local_assigns[:help] %>
+    <p class="trade-side__help"><%= local_assigns[:help] %></p>
+  <% end %>
 </div>

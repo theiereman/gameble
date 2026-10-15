@@ -14,7 +14,7 @@
     <%= turbo_mount("TradeBoard", props: island, class: "trade-island") do %>
       <%= render "trades/side", side: :friend, label: t("trades.side.friend_gives", name:), reserved: false, **empty %>
       <%= render "trades/board_middle", message: t("trades.board.choose") %>
-      <%= render "trades/side", side: :own, label: t("trades.side.you_give"), reserved: false, **empty %>
+      <%= render "trades/side", side: :own, label: t("trades.side.you_give"), reserved: false, help: trade_open_help(friend), **empty %>
     <% end %>
     <div class="trade-board__actions">
       <%= form_with url: trades_path, method: :post, id: TradesHelper::DRAFT_FORM_ID, class: "trade-board__action-set",
@@ -24,7 +24,7 @@
         <span class="trade-board__action" data-action="click->trade-board#abandon">
           <%= render ButtonComponent.new(variant: :secondary, href: trades_path) do %><%= t("trades.actions.abandon") %><% end %>
         </span>
-        <p id="trade-send-reason" class="trade-board__reason visually-hidden" data-trade-send-target="reason" hidden><%= t("trades.board.choose") %></p>
+        <p id="trade-send-reason" class="trade-board__reason visually-hidden" data-trade-send-target="reason" hidden><%= t("trades.board.send_reason", name:) %></p>
       <% end %>
     </div>
   </div>
