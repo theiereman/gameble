@@ -19,8 +19,23 @@ export function formatLocalTime(instant: string | Date, style: LocalTimeStyle, {
   const date = instant instanceof Date ? instant : new Date(instant)
   if (instant === "" || Number.isNaN(date.getTime())) return null
   try {
+    if (isFrench(locale)) return formatFrench(date, style, timeZone)
     return new Intl.DateTimeFormat(locale || undefined, { ...FORMATS[style], timeZone }).format(date)
   } catch {
     return null
   }
+}
+
+function isFrench(locale: string): boolean {
+  return locale === "fr" || locale.startsWith("fr-")
+}
+
+function formatFrench(date: Date, style: LocalTimeStyle, timeZone?: string): string {
+  const { hour, minute, hourCycle, ...day } = FORMATS[style]
+  const parts = new Intl.DateTimeFormat("fr", { hour, minute, hourCycle, timeZone }).formatToParts(date)
+  const part = (type: Intl.DateTimeFormatPartTypes): string => parts.find((each) => each.type === type)?.value ?? ""
+  const clock = `${part("hour")}h${part("minute")}`
+  if (Object.keys(day).length === 0) return clock
+
+  return `${new Intl.DateTimeFormat("fr", { ...day, timeZone }).format(date)} à ${clock}`
 }

@@ -8,15 +8,15 @@ const nextWeek = "2026-10-19T00:00:00Z"
 
 describe("formatLocalTime", () => {
   it("shows the next booster at the reader's local date and time", () => {
-    expect(formatLocalTime(nextDay, "datetime", paris)).toBe("15 oct., 02:00")
+    expect(formatLocalTime(nextDay, "datetime", paris)).toBe("15 oct. à 02h00")
   })
 
   it("takes the local date when it differs from the UTC one", () => {
-    expect(formatLocalTime("2026-10-14T23:30:00Z", "datetime", paris)).toBe("15 oct., 01:30")
+    expect(formatLocalTime("2026-10-14T23:30:00Z", "datetime", paris)).toBe("15 oct. à 01h30")
   })
 
   it("follows the reader's zone", () => {
-    expect(formatLocalTime(nextDay, "datetime", newYork)).toBe("14 oct., 20:00")
+    expect(formatLocalTime(nextDay, "datetime", newYork)).toBe("14 oct. à 20h00")
   })
 
   it("follows the page's locale", () => {
@@ -24,20 +24,21 @@ describe("formatLocalTime", () => {
   })
 
   it("adds the year for a date kept on the page", () => {
-    expect(formatLocalTime("2026-10-04T07:05:00Z", "date-time-year", paris)).toBe("4 oct. 2026, 09:05")
+    expect(formatLocalTime("2026-10-04T07:05:00Z", "date-time-year", paris)).toBe("4 oct. 2026 à 09h05")
     expect(formatLocalTime(new Date("2026-10-04T07:05:00Z"), "date-time-year", { locale: "en", timeZone: "Europe/Paris" }))
       .toBe("Oct 4, 2026, 09:05")
   })
 
   it("gives the day change as a local time and the week start as a local weekday and time", () => {
-    expect(formatLocalTime(nextDay, "time", paris)).toBe("02:00")
-    expect(formatLocalTime(nextWeek, "weekday-time", paris)).toBe("lundi 02:00")
-    expect(formatLocalTime(nextWeek, "weekday-time", newYork)).toBe("dimanche 20:00")
+    expect(formatLocalTime(nextDay, "time", paris)).toBe("02h00")
+    expect(formatLocalTime(nextWeek, "weekday-time", paris)).toBe("lundi à 02h00")
+    expect(formatLocalTime(nextWeek, "weekday-time", newYork)).toBe("dimanche à 20h00")
     expect(formatLocalTime(nextWeek, "weekday-time", { locale: "en", timeZone: "Europe/Paris" })).toBe("Monday 02:00")
   })
 
-  it("writes midnight as 00:00", () => {
+  it("writes midnight as 00:00, and 00h00 in French", () => {
     expect(formatLocalTime(nextDay, "time", { locale: "en", timeZone: "UTC" })).toBe("00:00")
+    expect(formatLocalTime(nextDay, "datetime", { locale: "fr", timeZone: "UTC" })).toBe("15 oct. à 00h00")
   })
 
   it("gives nothing for an instant or a zone it cannot read", () => {

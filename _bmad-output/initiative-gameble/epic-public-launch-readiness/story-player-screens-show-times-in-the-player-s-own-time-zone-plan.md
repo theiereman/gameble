@@ -82,6 +82,8 @@ context: []
 
 ## Plan Change Log
 
+- 2026-10-15, after the author's staging review: French times read « 16 oct. à 02h00 » (date, « à », hours « h » minutes) instead of « 16 oct., 02:00 »; a time alone reads « 02h00 » and a weekday « lundi à 02h00 ». English is unchanged.
+
 ## Review Triage Log
 
 ### Pass 1 (quick, 2026-10-14) — high 0, medium 2, low 2, false 0, maybe-false 0

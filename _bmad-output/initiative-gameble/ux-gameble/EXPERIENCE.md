@@ -76,7 +76,7 @@ This section covers microcopy only. Brand voice lives in `DESIGN.md` (see Brand 
 
 | Do | Don't |
 |---|---|
-| "Une capsule rejoint votre réserve. La prochaine sera prête le 15 oct., 02:00." | Exclamation marks ("!" is reserved for the Légendaire banner) |
+| "Une capsule rejoint votre réserve. La prochaine sera prête le 15 oct. à 02h00." | Exclamation marks ("!" is reserved for the Légendaire banner) |
 | "Léa a 7 jours pour répondre. Vos cartes sont réservées d'ici là." | Vague errors ("Erreur", "Échec de l'opération") |
 | "Vous n'avez plus assez d'exemplaires de Celeste." | "Tu", "Confrère", "Capitaine" or any title |
 | "Merci. L'équipe de modération examinera ce profil. Léa ne verra pas qui l'a signalé." | Terms, slogans or elements from other games or fictional universes (e.g. Helldivers: "Ordre majeur", "Super Earth") |
@@ -96,7 +96,7 @@ The single source for every message the interface shows. Other sections name the
 | Capsule states | "SCELLÉE" · "ARMEMENT" · "ÉJECTION" · "INVENTAIRE" · "SIGNAL LÉGENDAIRE" · "INVENTAIRE COMPLET" · "EN ATTENTE" · "RÉSERVE VIDE · Prochaine capsule dans …" · "Cartes révélées : n / 5" · "Réserve pleine" |
 | Capsule live region | "Carte 2 : Hades — Supergiant Games, 2020, Roguelite. Épique." · "Signal légendaire" · "Palier argent atteint : Roguelike, 16 cartes sur 62." · "Palier or atteint : Roguelike, 31 cartes sur 62." · "Set complet : Dark Souls, 3 cartes sur 3." · "Set complet : Roguelike, 62 cartes sur 62." · "4 paliers atteints : Roguelike, argent ; Metroidvania, or ; Les Pépites, bronze ; Dark Souls, complet." |
 | Face-down card name | "Carte 2 sur 5, face cachée. Révéler." |
-| Daily capsule | "Une capsule offerte chaque jour. Elle rejoint votre réserve." · "Une capsule rejoint votre réserve. La prochaine sera prête le 15 oct., 02:00." · full reserve: "RÉSERVE PLEINE" · "Ouvrez une capsule pour récupérer celle du jour." |
+| Daily capsule | "Une capsule offerte chaque jour. Elle rejoint votre réserve." · "Une capsule rejoint votre réserve. La prochaine sera prête le 15 oct. à 02h00." · full reserve: "RÉSERVE PLEINE" · "Ouvrez une capsule pour récupérer celle du jour." |
 | Empty showcase | "OUVREZ VOTRE PREMIÈRE CAPSULE" · "Votre plus belle carte s'affichera ici." · "OUVRIR UNE CAPSULE" |
 | Collection | "EN COURS" · "À DÉCOUVRIR" · "Chercher un set" · "TOUTES LES CARTES" · "◀ SETS" · kinds "THÈME", "FRANCHISE", "STUDIO", "PALMARÈS", "OVNI" · tiers "BRONZE", "ARGENT", "OR", "COMPLET" · "Aucune carte de ce genre dans ce set pour l'instant." · "IMAGE INDISPONIBLE" · set search: "Aucun set trouvé pour « … »." · "1 set trouvé" · "n sets trouvés" (zero, one and other forms) · set row name: "{set}, {kind}, {owned} cartes sur {total}[, palier {tier}][, {next} à {threshold}][, complet]" |
 | Set celebration | "PALIER ARGENT · Roguelike 16/62" · "SET COMPLET · Dark Souls" · "n PALIERS ATTEINTS" |
