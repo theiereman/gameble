@@ -702,7 +702,7 @@ risk = "medium"
 notes = ["Split from entry 10 by the author on 2026-10-14, at the start of its build."]
 
 [[entry]]
-id = 58
+id = 59
 type = "story"
 title = "A credits section names gameble's inspirations"
 description = "A credits section, reachable from the app, names every inspiration recorded in the planning documents and the contributors to the lore, each with what it inspired, worded as inspiration and never as affiliation, in French and English."
@@ -722,6 +722,6 @@ title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
 hitl = false
 risk = "low"
