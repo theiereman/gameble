@@ -3,7 +3,7 @@ title: 'The error pages wear the game''s theme'
 type: 'feature'
 ticket: '54'
 created: '2026-10-15'
-status: 'built'
+status: done
 baseline_revision: 'bac8e2dac9ba292460870f3c9a272853e3985529'
 route: 'full'
 route_source: 'auto'

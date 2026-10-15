@@ -81,6 +81,29 @@ risk = "medium"
 unknown = "The celebration banner is drawn with bmad-ux before the build."
 
 [[entry]]
+id = 16
+type = "story"
+title = "Tier celebration banner designed"
+description = "With the author, bmad-ux reviews the set celebration banner shown after the reveal as built (the tier title between its stripe marks, the lone notch, the bar on its left, the set name and count) and redraws its DESIGN.md Set celebration section: bronze, silver, gold and SET COMPLET, the folded \"n PALIERS ATTEINTS\" line, the stacked results on desktop and the caption plate on the phone, with the copy in fr and en."
+verify = "DESIGN.md's Set celebration section describes the banner for every tier, the folded line and both widths, and the author approved it."
+covers = ["R6"]
+after = [5]
+hitl = true
+risk = "low"
+notes = ["Requested by the author on 2026-10-15 on seeing the bronze banner on staging: the banner as built looks bad."]
+
+[[entry]]
+id = 17
+type = "story"
+title = "Tier celebration banner rebuilt to its design"
+description = "The booster's set celebration is rebuilt to its redrawn DESIGN.md section on the phone and the desktop; what it shows, when, its order and its live region announcement keep entry 5's behavior."
+verify = "The celebration tests still pass and cover each tier and the folded line; the author approves the banner on staging on the phone and the desktop."
+covers = ["R6"]
+after = [16]
+hitl = false
+risk = "low"
+
+[[entry]]
 id = 6
 type = "story"
 title = "Tiers and completions in the feed and the LIVE ticker"
@@ -169,6 +192,6 @@ title = "Refactor sweep"
 description = "Cleans up what this epic's build records and deferred review findings name, including the retired set kinds' leftovers; scope set when it starts."
 verify = "The full test suite, system tests for what was touched, packwerk and zeitwerk pass; no reference to tomes, publisher sets or best-of-year sets remains in app and pack code or in the locales (migrations aside)."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17]
 hitl = false
 risk = "low"

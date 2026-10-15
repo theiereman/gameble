@@ -3,7 +3,7 @@ title: 'The desktop back button names the previous different screen, not an earl
 type: 'bugfix'
 ticket: ''
 created: '2026-10-13'
-status: 'built'
+status: 'done'
 baseline_revision: '02d86fc4062986e0cba04ada229b0cdc4bbcb196'
 route: 'oneshot'
 route_source: 'auto'
