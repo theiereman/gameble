@@ -3,7 +3,7 @@ title: "Player screens show times in the player's own time zone"
 type: 'feature'
 ticket: '52'
 created: '2026-10-14'
-status: 'built'
+status: done
 baseline_revision: 'b121dfef6003b002a61fd4d9272b0d8b66d54f24'
 route: 'full'
 route_source: 'auto'

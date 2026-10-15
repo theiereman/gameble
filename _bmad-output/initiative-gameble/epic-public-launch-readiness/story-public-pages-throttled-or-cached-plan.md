@@ -3,7 +3,7 @@ title: 'Public pages throttled'
 type: 'feature'
 ticket: '55'
 created: '2026-10-14'
-status: 'built'
+status: done
 baseline_revision: 'd6fe23cb75c9f88181fc950939bd21a199569b01'
 route: 'oneshot'
 route_source: 'auto'

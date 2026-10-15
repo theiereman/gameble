@@ -3,7 +3,7 @@ title: 'Contract migrations owed by the import rework and the dust tier'
 type: 'chore'
 ticket: '34'
 created: '2026-10-14'
-status: 'built'
+status: done
 baseline_revision: '8c4b180b641af7a2655865b9b5b6a7a91a3e06df'
 route: 'oneshot'
 route_source: 'auto'

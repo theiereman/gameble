@@ -3,7 +3,7 @@ title: 'Steam reviews on the card detail'
 type: 'feature'
 ticket: '33'
 created: '2026-10-14'
-status: built
+status: done
 baseline_revision: '5716e67'
 route: 'oneshot'
 route_source: 'auto'

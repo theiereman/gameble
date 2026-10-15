@@ -3,7 +3,7 @@ title: 'Sentry tells staging from production'
 type: 'chore'
 ticket: '53'
 created: '2026-10-14'
-status: 'built'
+status: done
 baseline_revision: 'e5fd391d51d5150dcf71a04ee8cfd3078c98ed9e'
 route: 'oneshot'
 route_source: 'auto'
