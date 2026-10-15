@@ -18,6 +18,10 @@ class PromoteTest < ActiveSupport::TestCase
     @repo = File.join(@dir, "repo")
     git("init", "--quiet", "--bare", "--initial-branch=main", @origin, chdir: @dir)
     git("init", "--quiet", "--initial-branch=develop", @repo, chdir: @dir)
+    # Git's detached auto maintenance after a push or fetch writes into the repositories while teardown removes them.
+    { "receive.autogc" => "false", "gc.auto" => "0", "maintenance.auto" => "false" }.each do |key, value|
+      [ @origin, @repo ].each { |dir| git("config", key, value, chdir: dir) }
+    end
     git("remote", "add", "origin", @origin)
     git("config", "user.email", "test@example.com")
     git("config", "user.name", "Test")
