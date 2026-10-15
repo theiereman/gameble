@@ -1,6 +1,6 @@
 # Brotherhood tone
 
-Referenced by Constraints, CAP-12, CAP-13, CAP-23, CAP-24. Reference: GitHub issue theiereman/gameble#57, adopted by the author on 2026-10-15; the world is in `lore.md`.
+Referenced by Constraints, CAP-12, CAP-13, CAP-23, CAP-24, CAP-26. Reference: GitHub issue theiereman/gameble#57, adopted by the author on 2026-10-15; the world is in `lore.md`.
 
 - **Community name:** *La Grande Confrérie des Gameblers* (English: *The Great Brotherhood of Gameblers*).
 - **Satire:** an exaggerated satire of capitalism and corporate culture, aimed at large corporations, monopolies, speculation, hidden fees and questionable business practices. It may draw on real situations without naming real companies.
@@ -28,5 +28,5 @@ Referenced by Constraints, CAP-12, CAP-13, CAP-23, CAP-24. Reference: GitHub iss
   - No terms, slogans or elements from other games or fictional universes (for example Helldivers: "Ordre majeur", "Super Earth", "Managed Democracy", stratagem arrow codes).
   - No "players are shareholders" theme.
   - No tax or fee before the market (`later-roadmap.md`); #57's examples are tone samples, not copy.
-- **Example line (weekly goal):** "Toute la Confrérie ouvre 50 000 capsules, ensemble." (the number is the week's target).
+- **Example lines (weekly goal, #61):** "La Confrérie invite ses membres à unir leurs efforts pour ouvrir 50 000 capsules cette semaine." (the number is the week's target); to contributors once it is reached: "La Direction vous remercie pour votre participation."
 - Microcopy rules and the approved French copy: `EXPERIENCE.md`, Voice and Tone.

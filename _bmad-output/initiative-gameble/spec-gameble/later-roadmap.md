@@ -6,7 +6,7 @@ Context for MVP design decisions that must not block these. Nothing here is buil
 
 - **Currency:** a single in-game currency, earned only by destroying cards to the system for a tiny fixed amount per rarity. It is spent bidding on rarer cards at auction.
 - **Sinks:** both are destroyed and shown before listing. They are the only currency sinks.
-  - Listing fee: *Timbre Fiscal du Gambler* / Gambler's Tax Stamp.
+  - Listing fee: *Timbre Fiscal du Gamebler* / Gamebler's Tax Stamp.
   - ~10% sale commission: *Effort de la Confrérie* / Brotherhood Effort.
 - **Market gate:** access is gated by gameble seniority (account age or packs opened). The threshold is TBD.
 - **Money:** no real money; currency is never purchasable or withdrawable.

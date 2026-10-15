@@ -109,6 +109,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - The week starts Monday 00:00 UTC. The target is the previous week's active players (at least one pack opened) × 50, never below 200.
     - A pack opened counts 1; a completed trade counts 1, once for both players.
     - A shared gauge shows progress.
+    - The goal's panel and its reward notice speak as the Brotherhood (`brotherhood-tone.md`); their copy is in `EXPERIENCE.md`.
     - When the goal is reached, every contributing player receives a reward pack of 5 cards with at least one Épique or better, held outside the bank's cap of 10 in its own zone.
 - **CAP-13**
   - **intent:** A live Brotherhood feed shows what other players are doing, so the platform feels inhabited.
@@ -191,6 +192,12 @@ gameble is an open-source passion project, and the game its author wants to play
     - The landing's roadmap shows epics and, under each, a few player-facing stories with their status (done, in progress, to come).
     - Its data derives from the BMad initiative semi-automatically: the author chooses what appears and writes its player-facing wording in both languages; the shown roadmap cannot drift from the initiative unnoticed.
     - A link leads to the full roadmap page, designed later.
+- **CAP-26**
+  - **intent:** A new player is welcomed by the Brotherhood once, when they first join.
+  - **success:**
+    - At a player's first arrival after creating their account, a short welcome message from the Brotherhood shows in their language, on desktop and phone; its copy is in `EXPERIENCE.md`.
+    - It never shows again, at later sign-ins or on another device, and does not stack with the sign-in welcome notice.
+    - Existing players never see it, and it changes no mechanic: the player can start collecting at once.
 
 ## Constraints
 
