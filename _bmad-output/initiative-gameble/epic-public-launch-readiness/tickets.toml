@@ -116,13 +116,33 @@ risk = "medium"
 notes = ["the author checks staging under the enforced CSP before the switch", "Decision (author, 2026-10-14): the throttling half is split off into entry 55, which waits for real client addresses behind Cloudflare."]
 
 [[entry]]
+id = 57
+type = "story"
+title = "Production runs on its own home lab LXC"
+description = "The author brings up the production destination on its own home lab LXC, behind Cloudflare and the home lab's Traefik: Traefik routes gameble.net to the LXC's kamal-proxy, trusts Cloudflare's ranges for forwarded headers and renews its certificate by Cloudflare's DNS challenge; Cloudflare proxies gameble.net in Full (strict) mode; production's own session secret and database password are generated and kept off the deploying machine; the legal page names the host; the LXC's disk is grown for the images and the database; then the first deploy runs from a tagged release. Every step is the author's, on the home lab, Cloudflare and the deploying machine."
+verify = "https://gameble.net answers through Cloudflare with a valid certificate and Steam sign-in returns to it; two clients are counted apart by the rate limits; a session cookie taken from staging is refused on production; the containers log to journald; the two production secrets are kept in the author's password manager; the legal page shows the host lines."
+covers = ["R7"]
+after = []
+hitl = true
+risk = "medium"
+open_question = "What the legal page's host lines publish for a self-hosted site (the author's name and address, or another contact), and how large the LXC's disk grows from its 9.8 GB."
+notes = [
+  "Done on 2026-10-15: the LXC gameble-production (192.168.1.44), cloned from staging, was emptied of staging's containers, volumes, images and database copy, given new SSH host keys and machine-id, and journald keeps 30 days; Kamal reaches it on gameble.dotsncircles.com:2225 through Traefik, since gameble.net is proxied by Cloudflare and carries no SSH.",
+  "Done on 2026-10-15: config/deploy.production.yml, .kamal/secrets.production and config/deploy.yml (ghcr.io shared) describe this destination; production adds SECRET_KEY_BASE so no staging session is valid there.",
+  "To do on the home lab: a Traefik router Host(gameble.net) to http://192.168.1.44:80, forwardedHeaders.trustedIPs set to Cloudflare's ranges on the websecure entrypoint, and the certificate on the Cloudflare DNS-01 challenge (HTTP-01 may fail once proxied).",
+  "To do in Cloudflare: the A record gameble.net proxied, SSL/TLS mode Full (strict).",
+  "To do on the deploying machine: config/master.key, sentry_dsn.key, steam_api.key and registry_password.key as staging has them, plus `bin/rails secret > config/secret_key_base.production.key` and `openssl rand -hex 32 > config/database_password.production.key`, both saved in the password manager; LEGAL_HOST_NAME and LEGAL_HOST_ADDRESS set in config/deploy.production.yml.",
+  "First deploy: `bin/kamal setup -d production` from a tagged release (the pre-deploy hook refuses an untagged commit).",
+]
+
+[[entry]]
 id = 11
 type = "story"
 title = "Backups and a restore drill"
 description = "Adds a periodic backup of the databases kept off the server, a restore into a scratch database, and a runbook; the production destination (server, registry, secrets) is a prerequisite the author sets."
 verify = "A backup is restored into a scratch database and the app boots on it; the runbook says how often it runs and where it is kept."
 covers = ["R7"]
-after = []
+after = [57]
 hitl = true
 risk = "high"
 notes = ["the author chooses the server and the storage, runs the drill and signs it off"]
@@ -669,6 +689,6 @@ title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57]
 hitl = false
 risk = "low"
