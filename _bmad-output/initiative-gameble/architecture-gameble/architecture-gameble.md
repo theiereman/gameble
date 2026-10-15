@@ -7,7 +7,7 @@ paradigm: 'modular monolith with an operations layer'
 scope: 'The gameble MVP as a whole: one Rails application, its four domain packs, its web layer, the Steam import and the deployment.'
 status: final
 created: '2026-10-02'
-updated: '2026-10-14'
+updated: '2026-10-15'
 binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23]
 sources:
   - ../spec-gameble/spec-gameble.md
@@ -116,13 +116,13 @@ graph TD
 ### AD-8 — Trades reserve the offer `[ADOPTED]`
 
 - **Binds:** CAP-10, CAP-11
-- **Prevents:** a card promised twice; partial transfers; deadlocks; a friend freezing a player's cards.
+- **Prevents:** a card promised twice; partial transfers; one-way transfers; deadlocks; a friend freezing a player's cards.
 - **Rule:**
   - A friendship is one row per pair, the lower player id first, unique. It exists once an invitation is accepted. An invitation (by link or by friend code) is pending, accepted or ignored; accepting creates the friendship in the same operation. Each player has a short random friend code in `Game`, never derived from an id.
   - Every trade operation requires the two players to be friends and neither to be private (AD-13's `open_to_friends?`).
-  - Two friends have at most one open trade. A proposal holds an offer and a request, each with at least one card, at most 4 distinct card-seasons per side, each with a quantity.
+  - Two friends have at most one open trade. A proposal holds an offer and a request, at most 4 distinct card-seasons per side, each with a quantity. At every send, proposal or counter-proposal, the request holds at least one card; the sender's offer may be empty, which leaves the other player to choose (the open request). An empty offer reserves nothing.
   - Only the current proposal's offer is reserved: sending it raises `reserved` on the sender's rows, up to `quantity - reserved`. A counter-proposal releases the previous offer and reserves the new one, then hands the turn over. Declining, cancelling and expiry release the offer.
-  - Acceptance is one transaction: it refuses a proposal past its expiry, locks both players in the order of AD-10, checks that the requested cards are still free, moves both sides and closes the trade.
+  - Acceptance is one transaction: it refuses a proposal past its expiry, locks both players in the order of AD-10, refuses, on the locked trade after the current-terms check, a trade with an empty side, checks that the requested cards are still free, moves both sides and closes the trade. No card ever moves one way.
   - A proposal expires 7 days after it was sent; a periodic job closes expired trades, one trade per transaction.
 
 ### AD-9 — No row is written by every player `[ADOPTED]`
