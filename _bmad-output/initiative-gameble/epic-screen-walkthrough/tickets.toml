@@ -1,13 +1,36 @@
 # tickets.toml — the stories of epic 16, in build order. tickets.py reads it.
 
 [[entry]]
+id = 2
+type = "story"
+title = "Public profile designed"
+description = "With the author, bmad-ux reviews the public profile and its set page as they stand and adds a public profile section to DESIGN.md and EXPERIENCE.md: the summary with its showcase, the sets and how a set opens, the report link, the phone and desktop layouts, the signed-out visitor, the player, the friend and the unavailable page, with the copy in fr and en."
+verify = "DESIGN.md and EXPERIENCE.md describe the public profile and its set page for every viewer, every visibility and both widths, and the author approved them."
+covers = ["R3"]
+after = []
+hitl = true
+risk = "low"
+notes = ["Requested by the author on 2026-10-15: review the public profile's display, in UI and UX terms.", "Today the profile shows a summary with no showcase, the sets list on the left and an empty right column asking to pick a set; DESIGN.md describes only the summary inside Profil et paramètres."]
+
+[[entry]]
+id = 3
+type = "story"
+title = "Public profile rebuilt to its design"
+description = "The public profile and its set page are rebuilt to their DESIGN.md section, for a signed-out visitor, a player and a friend, on the phone and on the desktop; visibility, the unavailable page and the report link keep their behavior."
+verify = "Request tests show each viewer's profile per the design, a hidden or banned profile still answering the unavailable page, and the profile GET writing nothing; the author approves the screen on the phone and on the desktop."
+covers = ["R3"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
 id = 1
 type = "story"
 title = "Walk through every screen with the author"
 description = "In one complete session, the author and an agent walk through every screen of the Information Architecture (signed out, as a player, as staff; French and English; phone and desktop), list what works and what does not on each, and turn each finding into a ticket before the release, a deferred-work entry, or a decision to keep it."
 verify = "The session's findings file lists every screen of the Information Architecture as walked through, and every finding carries the author's decision and, when it is to be built before the release, the id of its ticket."
 covers = ["R1", "R2"]
-after = ["7.12", "5.14", "6.12", "11.2", "epic-card-backs", "13.10", "epic-card-catalog", "18.5"]
+after = [3, "7.12", "5.14", "6.12", "11.2", "epic-card-backs", "13.10", "epic-card-catalog", "18.5"]
 hitl = true
 risk = "medium"
 notes = ["walk through every screen to review what works and what does not, in one complete session, before moving on to the final epic (author, 2026-10-14)"]
