@@ -199,7 +199,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability is live at launch. CAP-23 is live before the second season is published in production.
 - **Landing ship conditions:** CAP-24 and CAP-25 go live only once the lore text exists in French and English (`lore.md`), the pioneer (CAP-13) is built, the repository is public with a license file, the roadmap sync exists and the app uses JetBrains Mono.
 - **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports.
-- **Player-facing words:** the interface says "capsule" for pack (French and English), "réserve" for bank and "objectif communautaire" for the weekly goal, and keeps "carte" / "card". The spec, the code, the database, stored events and URLs keep pack, bank and weekly goal.
+- **Player-facing words:** the interface says "capsule" for pack (French and English), "réserve" for bank and "objectif communautaire" for the weekly goal, and keeps "carte" / "card" (in the lore, an archive card: `lore.md`). The spec, the code, the database, stored events and URLs keep pack, bank and weekly goal.
 - **Cards are only pulled or traded.** Owning a game on Steam never grants its card.
 - **Card copies:** a player can own several copies of a card. Copies are counted per card and season, so each keeps the rarity and season it was minted with, and a V2 market needs no migration. The minted season is the copy's edition. Draws give only the published season's cards; earlier editions change hands only by trade.
 - **Forkable engine:** the game engine (packs, rarity tiers, collection, trades, goals, feed) is independent of the catalog source. Steam is one adapter.
@@ -245,7 +245,6 @@ The author plays gameble every day for a month alongside at least 10 active play
 
 ## Assumptions
 
-- The lore's recovered games reach players as cards inside capsules (`lore.md`); the author first asked that games not be named as cards, then kept the term.
 - Per-card draw odds are those in `catalog-and-rarity.md` and are tuned in playtests.
 - Card text translations come from Steam's own localized store text, imported once per UI language.
 - A repost is a past event: it stays in the feed after the card is traded away, and disappears with a hidden or banned profile (CAP-14, CAP-15).
