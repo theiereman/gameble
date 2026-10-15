@@ -55,6 +55,7 @@ Friendships and trades in `Game`, the friends page and the trade board React isl
 ## Notes
 
 - Amended (2026-10-09, change-profile-privacy): a private player cannot trade and a private friend's presence shows "profil privé", outside the online count; R4, R5 and Done when 5 and 6 read with that exception. Built by epic 7 (stories 20 and 21).
+- Amended (2026-10-15, open trade request): the sender's own side may be empty at every send and a trade with an empty side cannot be accepted (spec CAP-11, AD-8); R2, R4 and Done when 2 read with that exception. Built by epic 18 (entry 6).
 - Local commits named story 5.13 (before the 2026-10-09 reconciliation) are entry 5.14.
 - Decision (2026-10-07): how two players become friends is the friend code and the permanent invite link of each player (one link per player, the same acceptance as a code); a signed-out visitor who opens a link signs in first and returns to it.
 - Decision (2026-10-07): the friend code is purely random (for example 7K2Q-F3NX), never derived from a name; the UX examples (HUGO-7K2Q, KAI-8F2D) are replaced.

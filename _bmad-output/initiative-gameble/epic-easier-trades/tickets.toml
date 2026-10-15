@@ -13,13 +13,27 @@ risk = "low"
 unknown = "the chooser as trades#new with no friend, or its own action or a dialog on the Trades screen; the button's wording"
 
 [[entry]]
+id = 6
+type = "story"
+title = "An open trade request"
+description = "TradeSteps' normalisation lets the sender's own side be empty in ProposeTrade and CounterTrade while the friend's side still needs a card, AcceptTrade refuses an empty-sided trade inside its transaction on the locked trade with its own failure code and copy (errors.game.<code> in en and fr by hand), trade_send_controller.ts enables sending once the friend's side holds a card, and the board, states and list summary follow EXPERIENCE.md (the help line under the empty own side, \"À vous de choisir\" and \"À choisir par Léa\", the line replacing ACCEPTER, the send toast without reservation, \"À choisir\"); it shapes the island's empty own side, which entry 2 keeps."
+verify = "Operation tests show a proposal and a counter with an empty own side reserving nothing, an empty friend's side refused, and AcceptTrade refusing an empty-sided trade with nothing moved, the two existing tests expecting invalid_offer for an empty offer updated; on the board a player sends with only the friend's side filled, the friend sees no ACCEPTER and the invitation, counters with a card from the player's collection, the player accepts and the swap plays; the list shows \"À choisir\"."
+covers = ["R5"]
+after = ["5.8"]
+hitl = false
+risk = "high"
+unknown = "the refusal copy and failure code for accepting an empty-sided trade, proposed at build to the author; what the empty side's card counter reads beside \"À choisir par Léa\""
+references = ["_bmad-output/initiative-gameble/forge-open-trade-request/forge-open-trade-request.md", "_bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Trade board, State Patterns (Trade draft to Trade waiting for the friend), Copy deck (Trade list summary, Trade board lines, Trade toasts), Flow 2 variant", "_bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md, AD-8", "test/packs/game/trade_accept_counter_expire_test.rb and trade_test.rb, the empty-offer cases"]
+notes = ["Decision (2026-10-09, epic 5 retrospective): the trade operations are concurrency-sensitive; build with a thorough review."]
+
+[[entry]]
 id = 2
 type = "story"
 title = "Trade filters across both collections"
-description = "Each picker card carries the other player's copy count, keyed by trade_card_key and never a database id, and filterCards gains six chips (their duplicates, missing from mine, both own; my duplicates, missing from theirs, available) that AND together and with rarity and search, comparing cards in the unit the collection shows; it shapes the filter state one per side, which entry 3 lifts to the board, and the per-card counts entry 4 must keep."
+description = "Each picker card carries the other player's copy count, keyed by trade_card_key and never a database id, and filterCards gains six chips (their duplicates, missing from mine, both own; my duplicates, missing from theirs, available) that AND together and with rarity and search, comparing cards in the unit the collection shows; it shapes the filter state one per side, which entry 3 lifts to the board, and the per-card counts entry 4 must keep; it keeps the empty own side entry 6 shaped in the island."
 verify = "Vitest covers every filter and their combinations; on the board, Rare and Epic with their duplicates and missing from mine shows exactly those cards, a placed card filtered out stays placed and is submitted, and a single copy can still be offered; a player holding one edition of a game does not see another edition of it as missing."
 covers = ["R2"]
-after = ["5.7", "13.15"]
+after = ["5.7", "13.15", 6]
 hitl = false
 risk = "medium"
 references = ["_bmad-output/initiative-gameble/plan-trade-picker-filters.md", "packs/game/app/queries/game/collection_states.rb"]
@@ -55,6 +69,6 @@ title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [1, 2, 3, 4]
+after = [1, 2, 3, 4, 6]
 hitl = false
 risk = "low"

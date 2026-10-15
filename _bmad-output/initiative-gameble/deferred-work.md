@@ -212,3 +212,9 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-the-phone-tray-s-thumbnails-in-pixel-art-plan.md`
   summary: Cover the phone tray's filtered thumbnails with a test (a filled slot marked `data-art="drawn"` or `"plain"`, a failed cover leaving the canvas hidden and the frame and rarity icon).
   evidence: Vitest runs in a node environment with no DOM, so no component test can render the tray, and the system tests that would assert it are disabled until they are rebuilt; the quick review found no test of the thumbnail beyond the palette prop.
+
+## Deferred from: slicing of epic-easier-trades (2026-10-15)
+
+- source_plan: none
+  summary: The trade list row sums each side up as "first game +n" in EXPERIENCE.md (Copy deck, Trade list summary), but `TradesHelper#trade_side_title` joins every title.
+  evidence: Found while slicing the open trade request; entry 18.6 adds only "À choisir" for an empty side (author, 2026-10-15).
