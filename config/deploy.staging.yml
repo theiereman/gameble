@@ -31,19 +31,3 @@ env:
 accessories:
   db:
     host: gameble.dotsncircles.com
-
-# Staging deploys from GitHub Actions, on a fresh runner each time. Its image
-# and its build layers live in GitHub's container registry: the Actions cache
-# is scoped to the release tag, so no release could reuse another's layers.
-image: theiereman/gameble
-
-registry:
-  server: ghcr.io
-  username: theiereman
-  password:
-    - KAMAL_REGISTRY_PASSWORD
-
-builder:
-  cache:
-    type: registry
-    options: mode=max,oci-mediatypes=true

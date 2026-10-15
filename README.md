@@ -63,6 +63,8 @@ KAMAL_DESTINATION=staging KAMAL_VERSION=$(git rev-parse HEAD) KAMAL_PERFORMER=$U
 ```
 Another destination gets the same with its own `config/discord_webhook.<destination>.key` and `deployed/<destination>` tag.
 
+Production (https://gameble.net, its own LXC behind Cloudflare and Traefik) is deployed from a machine the same way, `bin/kamal deploy -d production`. Besides the files staging reads (`master.key`, `sentry_dsn.key`, `steam_api.key`, `registry_password.key`), `.kamal/secrets.production` reads two of its own: `config/secret_key_base.production.key` (`bin/rails secret`; production signs its sessions and cookies with it, so no staging session is valid there) and `config/database_password.production.key`. Keep both outside the machine too: losing the database password locks the app out of its data, and changing the secret signs every player out.
+
 Always name the destination (`-d staging`, `-d production`). A Kamal command without one deploys containers named without the destination (`gameble-web-<version>`, `gameble-import-<version>`) that a later `bin/kamal deploy -d staging` neither replaces nor stops. They keep running their old code against the same database and take jobs from the same queues, so an import or a rescore is written by whichever version picks each page up. List what runs on the host with `bin/kamal server exec -d staging 'docker ps'`; stop and remove any `gameble-*` container whose name lacks the destination. `test/lib/post_deploy_hook_test.rb` runs both hooks against a throwaway repository and a local webhook.
 
 ## Production checks
@@ -113,7 +115,7 @@ Every day at 4am `Accounts::ApplyRetentionJob` (`config/recurring.yml`) keeps pe
 - a report is erased one year after it was handled, or one year after the deletion of the account it targets. Once a handled report is erased, a new report from the same reporter brings the player back to the queue;
 - a moderation history row is erased one year after its end: a ban ends at the unban that lifts it (never while in force), or, lifted by hand in the console with no unban, at the player's last update; an unban or a dismissal ends when made; every row of a deleted account at its deletion.
 
-The server logs are kept 30 days. In production every container (app, import worker, database, kamal-proxy) logs to journald, which keeps them as long as the host says. Set it once, on the VPS:
+The server logs are kept 30 days. In production every container (app, import worker, database, kamal-proxy) logs to journald, which keeps them as long as the host says. Set it once, on the production LXC:
 
 ```sh
 sudo mkdir -p /etc/systemd/journald.conf.d
@@ -129,7 +131,7 @@ bin/kamal accessory reboot db -d production
 bin/kamal deploy -d production
 ```
 
-Then, on the VPS, remove the stopped containers Kamal kept, which still hold their json-file logs:
+Then, on the production LXC, remove the stopped containers Kamal kept, which still hold their json-file logs:
 
 ```sh
 docker container prune -f

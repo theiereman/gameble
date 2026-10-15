@@ -1,30 +1,26 @@
 # Name of your application. Used to uniquely configure containers.
 service: gameble
 
-# Name of the container image (use your-user/app-name on external registries).
-image: gameble
+# Every destination pulls its image, and its build layers, from GitHub's
+# container registry. Staging builds on a fresh Actions runner each time and
+# the Actions cache is scoped to the release tag, so the layers live there.
+image: theiereman/gameble
 
 # Environments are Kamal destinations (AD-21): this file holds what they
 # share; config/deploy.<destination>.yml adds their servers, host and
 # PUBLIC_URL, and .kamal/secrets.<destination> their secrets.
 #   bin/kamal deploy -d staging      # gameble.dotsncircles.com, home lab
-#   bin/kamal deploy -d production   # gameble.net, a VPS (not set up yet)
+#   bin/kamal deploy -d production   # gameble.net, home lab
 #
 # Roles, with their hosts in each destination file: web, and the Steam import
 # worker (AD-19, AD-21), the same image as one process with one thread on the
 # import queue only. The web role's Solid Queue serves every other queue.
 
-# Where you keep your container images.
 registry:
-  # Alternatives: hub.docker.com / registry.digitalocean.com / ghcr.io / ...
-  server: localhost:5555
-
-  # Needed for authenticated registries.
-  # username: your-user
-
-  # Always use an access token rather than real password when possible.
-  # password:
-  #   - KAMAL_REGISTRY_PASSWORD
+  server: ghcr.io
+  username: theiereman
+  password:
+    - KAMAL_REGISTRY_PASSWORD
 
 # Inject ENV variables into containers (secrets come from .kamal/secrets).
 env:
@@ -75,6 +71,9 @@ asset_path: /rails/public/assets
 # Configure the image builder.
 builder:
   arch: amd64
+  cache:
+    type: registry
+    options: mode=max,oci-mediatypes=true
 
   # Kamal reads this file through ERB: the version the shell shows is the
   # release tag of the deployed commit, else its short sha, read at build time.

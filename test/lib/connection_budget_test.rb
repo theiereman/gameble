@@ -57,11 +57,13 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
     assert_empty staging.undersized
   end
 
-  test "the production destination, with no host yet, counts one container per role and stays under the limit" do
+  test "the production destination counts one container per role on its host and stays under the limit" do
     production = budget("production")
+    host = "gameble.dotsncircles.com"
 
-    assert_equal [ "web Puma", "web Solid Queue supervisor", "web Solid Queue dispatcher", "web Solid Queue worker (default)",
-      "web Solid Queue scheduler", "import Solid Queue supervisor", "import Solid Queue worker (import)" ], production.processes.map(&:name)
+    assert_equal [ "web (#{host}) Puma", "web (#{host}) Solid Queue supervisor", "web (#{host}) Solid Queue dispatcher",
+      "web (#{host}) Solid Queue worker (default)", "web (#{host}) Solid Queue scheduler",
+      "import (#{host}) Solid Queue supervisor", "import (#{host}) Solid Queue worker (import)" ], production.processes.map(&:name)
     assert_equal 65, production.total
     assert_not production.over_limit?, "production opens #{production.total} connections, over the limit of #{ConnectionBudget::LIMIT}"
     assert_empty production.undersized
