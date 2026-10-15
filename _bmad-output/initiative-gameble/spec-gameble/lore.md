@@ -1,15 +1,28 @@
-# Lore (idea, not yet in the product)
+# Lore
 
-Author's idea, 2026-10-14. Background for the world; nothing here changes the copy or a mechanic yet.
+Reference: GitHub issue theiereman/gameble#57 (lore guidelines), adopted by the author on 2026-10-15 with the corrections below. How the Brotherhood writes is in `brotherhood-tone.md`.
 
-- **The world:** a distant future where video games have disappeared. They were banned because they kept people from working.
-- **The regime:** a capitalist dictatorship. A fictional nation is ruled by a small group of decision-makers at its head. It has no name yet.
-- **Why the ban:** investors could no longer put their profit first. Games had become too good, so too entertaining and no longer profitable enough, and the regime banned them. This carries the satire of `brotherhood-tone.md` (an industry that puts investor profit before game quality) into the world itself.
-- **The capsules:** the banned games were loaded into capsules and launched into deep space.
-- **The Brotherhood:** *La Grande Confrérie des Gamblers* is a community of renegades that appeared several hundred years into that era. It searches space for the lost games and their capsules. It holds ancient records showing that games were once a leading form of entertainment, and it wants to bring them back to life.
-- **In the game:** a booster is one of those capsules, recovered from deep space; opening it brings lost games back. The space-terminal look of the screens is the Brotherhood's own equipment.
+## Background
 
-## Open questions
+- **Earth:** in a distant future, Earth has become a society obsessed with productivity and profitability. It banned video games as useless distractions and scattered their copies across space.
+- **The founding:** passionate gamers left Earth and founded *La Grande Confrérie des Gameblers* (*The Great Brotherhood of Gameblers*) to recover the lost games and bring entertainment back to humanity.
+- **The turn:** noble at first, the Brotherhood recovered the games and built vast archives. It then saw their economic potential, took a monopoly on distributing the recovered games, handed out at random in capsules, and became an ultracapitalist organization that puts profit before entertainment: what it once fought.
+- **Earth today:** the Brotherhood acts independently of Earth's former authorities. Their fate is left undefined on purpose, and they are never named.
 
-- How much of this the interface shows: the landing (CAP-24) is its first place, with the mission premise only (games were lost; the Brotherhood finds them, never said to come back as cards); its lore text is written in a dedicated session, in French and English, and the landing waits for it.
-- The regime's name, and whether its decision-makers are ever named or shown: to settle later.
+## The Brotherhood today
+
+- Between a multinational and a secret society. Every player is a member.
+- Its leadership is mysterious and impersonal.
+- It holds the monopoly on distribution and controls the trading services.
+- It presents itself as fraternal, devoted to collectors' happiness and collective prosperity; it really pursues wealth and protects its own interests.
+- A cult-like corporate culture: loyalty, perseverance, solidarity, merit.
+- It never admits its hypocrisy. Every fee, tax or destruction comes with a rational-sounding reason: economic stability, solidarity, heritage preservation, administrative costs, the environment.
+- Players collect because they enjoy collecting. No narrative mission is imposed on them.
+
+## In the game
+
+- **Capsules:** what a player opens is a capsule recovered and distributed by the Brotherhood. The interface says "capsule" (CAP-4, CAP-5).
+- **Cards:** the recovered games reach players as cards inside capsules, and the interface keeps the word "carte" / "card". [ASSUMPTION: the author first asked that games not be named as cards, then kept the term; to confirm.]
+- **Taxes and fees:** none before the market and the economy (`later-roadmap.md`, V2). #57's examples illustrate the tone; they are neither copy nor mechanics.
+- The space-terminal look of the screens is the Brotherhood's own equipment.
+- The landing (CAP-24) is the lore's first place in the interface; its text is written in a dedicated session, in French and English, and the landing waits for it.

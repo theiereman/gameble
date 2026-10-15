@@ -22,7 +22,7 @@ sources:
 
 The idea is a vision, and it seizes an opportunity. Gamers have no real trading card game (TCG) made of their games: Steam Trading Cards drop only from games you own, are sold for real money, and have no pack-opening moment. "Collect Wikipedia" card games (WikiMasters, Wikigacha) prove the loop is fun (pull a pack, land something prestigious, show it off, trade it), but they are slow under load, flat to open, generic-looking, padded with hollow features, and pushy about money.
 
-gameble is an open-source passion project, and the game its author wants to play: that loop, done properly, where every card is a Steam game. It serves French- and English-speaking gamers who have a Steam account. Its lasting edge is not execution but community: every player belongs to *La Grande Confrérie des Gamblers* (the Brotherhood). The first players are the author's friends who play WikiMasters and love video games.
+gameble is an open-source passion project, and the game its author wants to play: that loop, done properly, where every card is a Steam game. It serves French- and English-speaking gamers who have a Steam account. Its lasting edge is not execution but community: every player belongs to *La Grande Confrérie des Gameblers* (*The Great Brotherhood of Gameblers*, the Brotherhood). The first players are the author's friends who play WikiMasters and love video games.
 
 ## Capabilities
 
@@ -106,10 +106,10 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-12**
   - **intent:** The Brotherhood has a weekly shared goal that every player's pack openings advance, and trades to a lesser degree.
   - **success:**
-    - The week starts Monday 00:00 UTC. The target is the previous week's active players (at least one booster opened) × 50, never below 200.
-    - A booster opened counts 1; a completed trade counts 1, once for both players.
+    - The week starts Monday 00:00 UTC. The target is the previous week's active players (at least one pack opened) × 50, never below 200.
+    - A pack opened counts 1; a completed trade counts 1, once for both players.
     - A shared gauge shows progress.
-    - When the goal is reached, every contributing player receives a reward booster of 5 cards with at least one Épique or better, held outside the bank's cap of 10 in its own zone.
+    - When the goal is reached, every contributing player receives a reward pack of 5 cards with at least one Épique or better, held outside the bank's cap of 10 in its own zone.
 - **CAP-13**
   - **intent:** A live Brotherhood feed shows what other players are doing, so the platform feels inhabited.
   - **success:**
@@ -132,14 +132,14 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-16**
   - **intent:** A player who comes back gets a daily bonus.
   - **success:**
-    - Once a day, a player can collect one small booster of 3 cards with better odds than a normal pack (no Commune; Peu commune 70 %, Rare 24 %, Épique 5 %, Légendaire 1 %). It joins their bank.
+    - Once a day, a player can collect one small pack of 3 cards with better odds than a normal pack (no Commune; Peu commune 70 %, Rare 24 %, Épique 5 %, Légendaire 1 %). It joins their bank.
     - A second collection the same day is refused, whatever the client does. The day changes at midnight UTC.
     - When the bank holds 10 packs, the claim stays disabled until a pack is opened; nothing is lost.
 - **CAP-17**
   - **intent:** A player has simple achievements that mark their progress.
   - **success:**
     - An achievement is granted when its condition is met and shows as earned on the achievements screen.
-    - Ten ship at launch: first booster, first Épique, first Légendaire, first complete set, first trade, 10, 100 and 500 boosters opened, three complete sets, first repost.
+    - Ten ship at launch: first pack, first Épique, first Légendaire, first complete set, first trade, 10, 100 and 500 packs opened, three complete sets, first repost.
 - **CAP-18**
   - **intent:** A visitor without an account can look at everything that needs no account, but cannot act.
   - **success:**
@@ -199,12 +199,12 @@ gameble is an open-source passion project, and the game its author wants to play
 - **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability is live at launch. CAP-23 is live before the second season is published in production.
 - **Landing ship conditions:** CAP-24 and CAP-25 go live only once the lore text exists in French and English (`lore.md`), the pioneer (CAP-13) is built, the repository is public with a license file, the roadmap sync exists and the app uses JetBrains Mono.
 - **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports.
-- **Player-facing words:** the interface says "booster" for pack, "réserve" for bank and "objectif communautaire" for the weekly goal. The spec and the code keep pack, bank and weekly goal.
+- **Player-facing words:** the interface says "capsule" for pack (French and English), "réserve" for bank and "objectif communautaire" for the weekly goal, and keeps "carte" / "card". The spec, the code, the database, stored events and URLs keep pack, bank and weekly goal.
 - **Cards are only pulled or traded.** Owning a game on Steam never grants its card.
 - **Card copies:** a player can own several copies of a card. Copies are counted per card and season, so each keeps the rarity and season it was minted with, and a V2 market needs no migration. The minted season is the copy's edition. Draws give only the published season's cards; earlier editions change hands only by trade.
 - **Forkable engine:** the game engine (packs, rarity tiers, collection, trades, goals, feed) is independent of the catalog source. Steam is one adapter.
 - **Open source.** Infrastructure components (queues, caches, streaming) are added only when measured load justifies them.
-- **Architecture:** the rules of `architecture-gameble.md` bind every build. The stack is Ruby on Rails and PostgreSQL, with React components embedded for the booster and the trade board; versions and deployment are in that file.
+- **Architecture:** the rules of `architecture-gameble.md` bind every build. The stack is Ruby on Rails and PostgreSQL, with React components embedded for the pack opening and the trade board; versions and deployment are in that file.
 - **Stateless services:** several app instances can run in parallel. Pack credit and trades are transactional in PostgreSQL.
 - **Zero-downtime ready:** health checks, graceful shutdown, and backward-compatible (expand/contract) migrations.
 - **CI/CD ready:** one reproducible container image, run as web, jobs and import processes; configuration by environment variables only; automated tests in CI from day one.
@@ -217,7 +217,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **Reduced motion:** an in-app "Animations réduites" setting follows the system preference by default. When on, it also stops the LIVE ticker and every looping or blinking effect. Signed-out visitors get the same switch on the landing (CAP-24).
 - **Bots:** edge bot protection from day one; trades are limited to friends.
 - **Platforms:** responsive desktop and phone web. Phones are portrait only, with no landscape layout and no overlay; the installed web app is locked to portrait by its manifest. On every size the interface is never scaled: pages scroll and reflow by width. Native store apps must remain possible later.
-- **Tone and naming** follow `brotherhood-tone.md`.
+- **Tone and naming** follow `brotherhood-tone.md`; the world follows `lore.md`. Both derive from GitHub issue #57, which is the reference on the lore.
 
 ## Non-goals
 
@@ -233,7 +233,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - Back-office features beyond moderation (set creation is V3).
 - Guilds.
 - Numbered or otherwise unique individual copies of a card.
-- Any currency, auction house, card destruction, listing fee or sale commission (V2, see `later-roadmap.md`).
+- Any currency, auction house, card destruction, tax or fee (listing fee, sale commission, a levy on trades) (V2, see `later-roadmap.md`).
 - Brotherhood Pass, community-voted themed sets (V3).
 - Bonuses from the player's Steam library, playtime or achievements (later).
 - Curation of games delisted from Steam (later).
@@ -245,6 +245,7 @@ The author plays gameble every day for a month alongside at least 10 active play
 
 ## Assumptions
 
+- The lore's recovered games reach players as cards inside capsules (`lore.md`); the author first asked that games not be named as cards, then kept the term.
 - Per-card draw odds are those in `catalog-and-rarity.md` and are tuned in playtests.
 - Card text translations come from Steam's own localized store text, imported once per UI language.
 - A repost is a past event: it stays in the feed after the card is traded away, and disappears with a hidden or banned profile (CAP-14, CAP-15).
