@@ -3,7 +3,7 @@ title: 'Players read capsule, and the Brotherhood is the Gameblers'
 type: 'chore'
 ticket: '18'
 created: '2026-10-15'
-status: 'built'
+status: done
 baseline_revision: '271fd0c56ef20b82730ea32df0b4bfeea4ea71e3'
 route: 'full'
 route_source: 'auto'

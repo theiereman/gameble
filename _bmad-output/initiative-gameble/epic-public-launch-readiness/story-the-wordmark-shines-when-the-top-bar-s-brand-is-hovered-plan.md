@@ -3,7 +3,7 @@ title: "The wordmark shines when the top bar's brand is hovered"
 type: 'feature'
 ticket: '40'
 created: '2026-10-14'
-status: 'built'
+status: done
 baseline_revision: '68da482'
 route: 'full'
 route_source: 'auto'

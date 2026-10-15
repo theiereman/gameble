@@ -3,7 +3,7 @@ title: 'A new player is welcomed by the Brotherhood once'
 type: 'feature'
 ticket: '19'
 created: '2026-10-15'
-status: 'built'
+status: done
 baseline_revision: '758d704e606c265b82ea1dcdafcf744a34cd6ec4'
 route: 'full'
 route_source: 'auto'

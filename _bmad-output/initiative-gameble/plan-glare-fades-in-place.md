@@ -3,7 +3,7 @@ title: 'A card glare fades where it is when the pointer leaves, instead of slidi
 type: 'bugfix'
 ticket: ''
 created: '2026-10-13'
-status: 'built'
+status: 'done'
 baseline_revision: '9dd2e8bcb042fa32c78cce117b0bd4cd6ed10383'
 route: 'oneshot'
 route_source: 'auto'
