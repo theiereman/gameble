@@ -1,0 +1,157 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Promotes an accepted release candidate to a release (RELEASING.md):
+# fast-forwards main to the candidate's commit and publishes the release
+# vX.Y.Z on that same commit, with notes since the previous release. That
+# release starts .github/workflows/deploy-production.yml.
+#
+#   bin/promote v1.0.0-rc.2         # asks before pushing anything
+#   bin/promote --yes v1.0.0-rc.2
+#
+# It refuses, and pushes nothing, unless the tag is a candidate on develop
+# whose commit has a successful `staging` status, the release does not exist
+# yet, and main is an ancestor of the candidate. A run whose push went
+# through but whose release failed is finished by running it again.
+
+require "json"
+require "open3"
+
+module Promotion
+  CANDIDATE = /\A(?<release>v\d+\.\d+\.\d+)-rc\.\d+\z/
+  RELEASE = /\Av\d+\.\d+\.\d+\z/
+  STAGING_CONTEXT = "staging"
+
+  class Refusal < StandardError; end
+
+  class Command
+    def initialize(candidate, yes: false, root: Dir.pwd, gh: "gh", input: $stdin, out: $stdout, err: $stderr)
+      @candidate = candidate.to_s
+      @yes = yes
+      @root = root
+      @gh = gh
+      @input = input
+      @out = out
+      @err = err
+    end
+
+    def run
+      release = release_name
+      fetch_origin
+      sha = candidate_commit
+      refuse("#{@candidate} is not on develop") unless ancestor?(sha, "refs/remotes/origin/develop")
+      refuse("#{release} already exists") if release_exists?(release)
+      refuse("#{@candidate} (#{short(sha)}) has no successful #{STAGING_CONTEXT} status: it never ran on staging") unless ran_on_staging?(sha)
+      refuse("main is not an ancestor of #{@candidate}: a commit reached main outside a promotion") unless ancestor?("refs/remotes/origin/main", sha)
+
+      previous = previous_release(sha)
+      return cancelled unless confirmed?(release, sha, previous)
+
+      push_main(sha)
+      create_release(release, sha, previous)
+      @out.puts "promote: #{release} published on #{short(sha)}; approve its production deploy in GitHub Actions."
+      true
+    rescue Refusal => refusal
+      @err.puts "promote: #{refusal.message}"
+      false
+    end
+
+    private
+      def release_name
+        match = CANDIDATE.match(@candidate)
+        refuse("#{@candidate.inspect} is not a release candidate (vX.Y.Z-rc.N)") unless match
+        match[:release]
+      end
+
+      def fetch_origin
+        output, status = git("fetch", "--quiet", "--force", "--tags", "origin")
+        refuse("origin could not be fetched: #{output.strip}") unless status.success?
+      end
+
+      def candidate_commit
+        sha, status = git("rev-parse", "--verify", "--quiet", "refs/tags/#{@candidate}^{commit}")
+        refuse("there is no tag #{@candidate}") unless status.success?
+        sha.strip
+      end
+
+      def ancestor?(ancestor, descendant)
+        _, status = git("merge-base", "--is-ancestor", ancestor, descendant)
+        status.success?
+      end
+
+      def release_exists?(release)
+        _, tagged = git("rev-parse", "--verify", "--quiet", "refs/tags/#{release}")
+        return true if tagged.success?
+
+        _, published = gh("release", "view", release)
+        published.success?
+      end
+
+      def ran_on_staging?(sha)
+        output, status = gh("api", "repos/{owner}/{repo}/commits/#{sha}/status")
+        refuse("the statuses of #{short(sha)} could not be read: #{output.strip}") unless status.success?
+
+        staging = JSON.parse(output).fetch("statuses", []).find { |entry| entry["context"] == STAGING_CONTEXT }
+        staging&.fetch("state", nil) == "success"
+      rescue JSON::ParserError
+        refuse("the statuses of #{short(sha)} are not JSON")
+      end
+
+      def previous_release(sha)
+        output, = git("tag", "--list", "v*", "--merged", sha, "--sort=-version:refname")
+        output.lines(chomp: true).find { |tag| tag.match?(RELEASE) }
+      end
+
+      def confirmed?(release, sha, previous)
+        @out.puts "Promote #{@candidate} (#{short(sha)}) to #{release}:"
+        @out.puts "  main moves to #{short(sha)}, by fast-forward;"
+        @out.puts "  release #{release} is published on it, notes since #{previous || 'the start'}."
+        return true if @yes
+
+        @out.print "Proceed? [y/N] "
+        @input.gets.to_s.strip.casecmp?("y")
+      end
+
+      def cancelled
+        @out.puts "promote: nothing pushed."
+        false
+      end
+
+      def push_main(sha)
+        output, status = git("push", "origin", "#{sha}:refs/heads/main")
+        refuse("main was not pushed: #{output.strip}") unless status.success?
+      end
+
+      def create_release(release, sha, previous)
+        args = [ "release", "create", release, "--target", sha, "--title", release, "--latest", "--generate-notes" ]
+        args += [ "--notes-start-tag", previous ] if previous
+        output, status = gh(*args)
+        refuse("main is on #{short(sha)}, and the release was not published (run bin/promote again): #{output.strip}") unless status.success?
+      end
+
+      def refuse(reason)
+        raise Refusal, reason
+      end
+
+      def short(sha)
+        sha[0, 7]
+      end
+
+      def git(*args)
+        Open3.capture2e("git", *args, chdir: @root)
+      end
+
+      def gh(*args)
+        Open3.capture2e(@gh, *args, chdir: @root)
+      end
+  end
+end
+
+if $PROGRAM_NAME == __FILE__
+  yes = ARGV.delete("--yes")
+  if ARGV.size != 1
+    warn "usage: bin/promote [--yes] vX.Y.Z-rc.N"
+    exit 2
+  end
+  exit Promotion::Command.new(ARGV.first, yes: !yes.nil?).run ? 0 : 1
+end

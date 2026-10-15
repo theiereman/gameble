@@ -4,11 +4,13 @@ require "socket"
 require "tmpdir"
 
 # The Kamal deploy hooks: pre-deploy refuses a deploy of an untagged commit
-# (a destination is deployed from a published release only), and post-deploy
+# (a destination is deployed from a published release only), and in
+# production of anything but a release on main's head; post-deploy
 # (.kamal/hooks/post-deploy) posts a simplified changelog of the commits since
 # the version last deployed (the tag deployed/<destination>, moved and pushed
 # after each announcement) to the Discord webhook of
-# config/discord_webhook.<destination>.key.
+# config/discord_webhook.<destination>.key. The deploy config names the
+# version the shell shows from the same tags.
 class PostDeployHookTest < ActiveSupport::TestCase
   PRE_DEPLOY = Rails.root.join(".kamal/hooks/pre-deploy")
   POST_DEPLOY = Rails.root.join(".kamal/hooks/post-deploy")
@@ -66,6 +68,48 @@ class PostDeployHookTest < ActiveSupport::TestCase
     output, status = pre_deploy(version: "#{@versions[2]}_uncommitted_abc123", output: true)
     assert_not_predicate status, :success?
     assert_match(/uncommitted changes/, output)
+  end
+
+  test "pre-deploy lets production run a release on origin/main only, and a rollback to anything" do
+    git("remote", "set-url", "origin", @origin)
+    git("push", "--quiet", "origin", "#{@versions[5]}:refs/heads/main")
+    git("tag", "v0.9.0", @versions[4])
+    git("tag", "v1.0.0-rc.1", @versions[5])
+
+    output, status = pre_deploy(version: @versions[5], destination: "production", output: true)
+    assert_not_predicate status, :success?
+    assert_match(/production runs a release only, and #{@versions[5]} carries no release tag/, output)
+    assert_predicate pre_deploy(version: @versions[5]), :success?, "staging takes the candidate"
+
+    git("tag", "v1.0.0", @versions[5])
+    assert_predicate pre_deploy(version: @versions[5], destination: "production"), :success?
+
+    output, status = pre_deploy(version: @versions[4], destination: "production", output: true)
+    assert_not_predicate status, :success?
+    assert_match(/production runs main's head only, and #{@versions[4]} is not origin\/main/, output)
+
+    assert_predicate pre_deploy(version: @versions[3], destination: "production", command: "rollback"), :success?
+  end
+
+  test "pre-deploy compares production to the local origin/main when origin cannot be fetched" do
+    git("tag", "v0.9.0", @versions[4])
+    git("tag", "v1.0.0", @versions[5])
+    git("remote", "set-url", "origin", File.join(@dir, "missing.git"))
+    git("update-ref", "refs/remotes/origin/main", @versions[4])
+
+    assert_predicate pre_deploy(version: @versions[4], destination: "production"), :success?
+    assert_not_predicate pre_deploy(version: @versions[5], destination: "production"), :success?
+  end
+
+  test "the deploy config names the version by the commit's release tag, over its candidate, else its short sha" do
+    assert_equal git("rev-parse", "--short", "HEAD"), deploy_config_version
+
+    git("tag", "v1.0.0-rc.1")
+    assert_equal "v1.0.0-rc.1", deploy_config_version
+
+    git("tag", "v1.0.0")
+    git("tag", "deployed/staging")
+    assert_equal "v1.0.0", deploy_config_version
   end
 
   test "the first announced deploy lists the last commits, with the release link, and records the deployed tag" do
@@ -258,6 +302,11 @@ class PostDeployHookTest < ActiveSupport::TestCase
     def pre_deploy(output: false, **env)
       result = Open3.capture2e(kamal_env(**env), PRE_DEPLOY.to_s, chdir: @repo, unsetenv_others: false)
       output ? result : result.last
+    end
+
+    def deploy_config_version
+      rendered = Dir.chdir(@repo) { ERB.new(Rails.root.join("config/deploy.yml").read).result }
+      YAML.safe_load(rendered).dig("env", "clear", "GAMEBLE_VERSION")
     end
 
     def run_hook(version:, command: "deploy", err: StringIO.new)

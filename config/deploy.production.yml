@@ -1,8 +1,14 @@
 # Production: gameble.net on its own home lab LXC (192.168.1.44), behind
 # Cloudflare and then the author's Traefik, which terminates TLS for
 # gameble.net and forwards plain HTTP to kamal-proxy on 192.168.1.44:80.
-#   bin/kamal deploy -d production
+#   bin/kamal deploy -d production --skip-push
+# run by .github/workflows/deploy-production.yml for each release (RELEASING.md).
 #
+# The image is the one its candidate ran on staging, copied registry-side to a
+# package of its own: the staging cleanup keeps five images of
+# ghcr.io/theiereman/gameble and spares none, while releases are never deleted.
+image: theiereman/gameble-releases
+
 # Cloudflare's SSL/TLS mode is "Full (strict)": Traefik holds a valid
 # certificate. Traefik's entrypoint must trust Cloudflare's ranges
 # (forwardedHeaders.trustedIPs), or it replaces X-Forwarded-For and every

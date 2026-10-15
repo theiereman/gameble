@@ -76,10 +76,6 @@ RUN SECRET_KEY_BASE_DUMMY=1 VITE_RUBY_SKIP_ASSETS_PRECOMPILE_INSTALL=true ./bin/
 # Final stage for app image
 FROM base
 
-# The version the shell shows, passed by Kamal (config/deploy.yml, builder args)
-ARG GAMEBLE_VERSION
-ENV GAMEBLE_VERSION=$GAMEBLE_VERSION
-
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash

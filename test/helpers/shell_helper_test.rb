@@ -111,7 +111,7 @@ class ShellHelperTest < ActionView::TestCase
     assert_queries_count(0) { assert_same @bank, shell_bank }
   end
 
-  test "the version shown is the build's release tag, else the deployed commit, else dev" do
+  test "the version shown is the deploy's release tag, else the deployed commit, else dev" do
     assert_equal "v1.2.0", ShellHelper.app_version({ "GAMEBLE_VERSION" => "v1.2.0", "KAMAL_VERSION" => "0123456789abcdef" })
     assert_equal "0123456", ShellHelper.app_version({ "GAMEBLE_VERSION" => "", "KAMAL_VERSION" => "0123456789abcdef_uncommitted_abc" })
     assert_equal "dev", ShellHelper.app_version({})

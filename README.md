@@ -41,31 +41,33 @@ bin/rails zeitwerk:check
 
 ## Branches and deployment
 
-- `develop` carries the work in progress. Feature branches start from it and come back to it.
-- Staging (https://gameble.dotsncircles.com) changes once per release, never on a push: publishing a GitHub release whose tag is on `develop` deploys that tag (`.github/workflows/deploy-staging.yml`; a release whose tag is not on `develop` deploys nothing). On GitHub, Releases → Draft a new release → a new tag (`v1.2.0`) with target `develop` → Publish release, or `gh release create v1.2.0 --target develop --generate-notes`.
-- `main` is kept for production and is never deployed to staging. Merge `develop` into `main` only when the production deployment is meant to happen; production stays a manual `bin/kamal deploy -d production`.
+[RELEASING.md](RELEASING.md) is the release flow, step by step: versions, cutting a candidate, the acceptance checklist, the promotion, the production approval, rollback and the one-time setup. In short, the image built and tested for a release candidate is the image production runs.
 
-The staging workflow needs these secrets of the `staging` environment: `STAGING_SSH_KEY` (private key allowed on the LXC), `STAGING_SSH_KNOWN_HOSTS` (the host key line for `[gameble.dotsncircles.com]:2224`), `RAILS_MASTER_KEY`, `SENTRY_DSN`, `DATABASE_PASSWORD` and `STEAM_API_KEY` (written to the same `config/*.key` files that `.kamal/secrets.staging` reads), and `DISCORD_WEBHOOK_STAGING` (the webhook URL of the Discord channel: Edit channel → Integrations → Webhooks → New webhook). The image and its build cache are pushed to GitHub's container registry (`ghcr.io/theiereman/gameble` and `gameble-build-cache`) with the job's own `GITHUB_TOKEN`, so no secret is needed for them; the workflow keeps the last five images and drops the build caches replaced.
+- `develop` carries the work in progress. Feature branches start from it and come back to it.
+- Staging (https://gameble.dotsncircles.com) runs release candidates, never a push: publishing a GitHub pre-release `vX.Y.Z-rc.N` whose tag is on `develop` runs the full CI on its commit, deploys it, and sets the commit status `staging` to success (`.github/workflows/deploy-staging.yml`). A release that is not a pre-release, or a pre-release whose tag is not on `develop`, deploys nothing there.
+- `main` is production's (https://gameble.net) and only moves through `bin/promote`, which fast-forwards it to an accepted candidate's commit and publishes the release `vX.Y.Z` on that commit. The release copies the candidate's image to `ghcr.io/theiereman/gameble-releases` and, once the author approves the run in the GitHub environment `production`, deploys it with `bin/kamal deploy -d production --skip-push` (`.github/workflows/deploy-production.yml`). Production never builds an image. Never merge into `main`.
+
+The staging workflow needs these secrets of the `staging` environment: `STAGING_SSH_KEY` (private key allowed on the LXC), `STAGING_SSH_KNOWN_HOSTS` (the host key line for `[gameble.dotsncircles.com]:2224`), `RAILS_MASTER_KEY`, `SENTRY_DSN`, `DATABASE_PASSWORD` and `STEAM_API_KEY` (written to the same `config/*.key` files that `.kamal/secrets.staging` reads), and `DISCORD_WEBHOOK_STAGING` (the webhook URL of the Discord channel: Edit channel → Integrations → Webhooks → New webhook). The image and its build cache are pushed to GitHub's container registry (`ghcr.io/theiereman/gameble` and `gameble-build-cache`) with the job's own `GITHUB_TOKEN`, so no secret is needed for them; the workflow keeps the last five images and drops the build caches replaced. The release images live in their own package, `gameble-releases`, which nothing cleans. The production workflow's secrets, in the `production` environment, are listed in RELEASING.md (Setup, once).
 
 ### Discord announcement
 
-After each staging deploy, `.kamal/hooks/post-deploy` posts one message to the channel: the release, who published it, the staging URL, and a simplified changelog. Commits are read as conventional commits: `feat` lands under "Nouveautés", `fix` under "Corrections", the rest under "Autres changements"; `docs`, `chore`, `ci`, `test`, `style` and `build` commits are counted, not listed.
+After each deploy, `.kamal/hooks/post-deploy` posts one message to the destination's channel: the release, who published it, the destination's URL, and a simplified changelog. Commits are read as conventional commits: `feat` lands under "Nouveautés", `fix` under "Corrections", the rest under "Autres changements"; `docs`, `chore`, `ci`, `test`, `style` and `build` commits are counted, not listed.
 
-The changelog always starts at the version last deployed to staging, not at the previous tag: the hook keeps it as the tag `deployed/staging`, moved to the announced version after each announcement (a rollback too) and pushed to origin (a push that fails is printed, and the next changelog simply starts further back). A release tag never deployed, or a release on another branch, therefore never shortens a changelog. Before the first recorded deploy the nearest release below is used, and before any tag, the last 10 commits. A `redeploy`, or a deploy of the version already deployed, announces nothing; a `rollback` lists the changes taken back.
+The changelog always starts at the version last deployed to the destination, not at the previous tag: the hook keeps it as the tag `deployed/<destination>`, moved to the announced version after each announcement (a rollback too) and pushed to origin (a push that fails is printed, and the next changelog simply starts further back). A release tag never deployed, or a release on another branch, therefore never shortens a changelog. Before the first recorded deploy the nearest release below is used, and before any tag, the last 10 commits. A `redeploy`, or a deploy of the version already deployed, announces nothing; a `rollback` lists the changes taken back.
 
-The deployed version is shown in the bottom-left corner of every page (`ShellHelper.app_version`): the release tag, passed to the image build by `config/deploy.yml` (`builder.args.GAMEBLE_VERSION`, the tag of the deployed commit, else its short sha), `dev` locally.
+The deployed version is shown in the bottom-left corner of every page (`ShellHelper.app_version`). The image carries none: `config/deploy.yml` reads it when Kamal renders the config (`env.clear.GAMEBLE_VERSION`), as the highest tag of the deployed commit, a release above its candidate, else the commit's short sha; `dev` locally. One image therefore shows `v1.0.0-rc.2` on staging and `v1.0.0` in production.
 
-`.kamal/hooks/pre-deploy` refuses a deploy of a commit without a tag, or of a dirty checkout, for every destination (a rollback is let through), so a deploy from a machine follows the same rule. To deploy an untagged commit on purpose, `bin/kamal deploy -d staging --skip-hooks` (no announcement either).
+`.kamal/hooks/pre-deploy` refuses a deploy of a commit without a tag, or of a dirty checkout, for every destination, and in production a commit without a release tag `vX.Y.Z` or other than `origin/main` (fetched first; offline, the local `origin/main`). A rollback is let through. A deploy from a machine follows the same rules. To deploy an untagged commit to staging on purpose, `bin/kamal deploy -d staging --skip-hooks` (no announcement either).
 
-To deploy from a machine instead of the workflow, tag the commit first (`git tag v1.2.0 && git push origin v1.2.0`), put a GitHub token allowed to write packages in `config/registry_password.key` (`gh auth refresh -s write:packages && gh auth token > config/registry_password.key`), put the webhook URL in `config/discord_webhook.staging.key` (git-ignored like `master.key`; without it the hook announces nothing, and a Discord error never fails the deploy), and `bin/kamal deploy -d staging`. The message can be read before deploying:
+To deploy staging from a machine instead of the workflow, tag the commit first (`git tag v1.2.0-rc.1 && git push origin v1.2.0-rc.1`), put a GitHub token allowed to write packages in `config/registry_password.key` (`gh auth refresh -s write:packages && gh auth token > config/registry_password.key`), put the webhook URL in `config/discord_webhook.staging.key` (git-ignored like `master.key`; without it the hook announces nothing, and a Discord error never fails the deploy), and `bin/kamal deploy -d staging`. Such a deploy sets no `staging` status, so its candidate cannot be promoted. The message can be read before deploying:
 ```sh
 KAMAL_DESTINATION=staging KAMAL_VERSION=$(git rev-parse HEAD) KAMAL_PERFORMER=$USER KAMAL_COMMAND=deploy .kamal/hooks/post-deploy --dry-run
 ```
 Another destination gets the same with its own `config/discord_webhook.<destination>.key` and `deployed/<destination>` tag.
 
-Production (https://gameble.net, its own LXC behind Cloudflare and Traefik) is deployed from a machine the same way, `bin/kamal deploy -d production`. Besides the files staging reads (`master.key`, `sentry_dsn.key`, `steam_api.key`, `registry_password.key`), `.kamal/secrets.production` reads two of its own: `config/secret_key_base.production.key` (`bin/rails secret`; production signs its sessions and cookies with it, so no staging session is valid there) and `config/database_password.production.key`. Keep both outside the machine too: losing the database password locks the app out of its data, and changing the secret signs every player out.
+Production (https://gameble.net, its own LXC behind Cloudflare and Traefik) is deployed by its workflow only, except the first `bin/kamal setup -d production --skip-push`, run once by hand (RELEASING.md). Besides the files staging reads (`master.key`, `sentry_dsn.key`, `steam_api.key`, `registry_password.key`), `.kamal/secrets.production` reads two of its own: `config/secret_key_base.production.key` (`bin/rails secret`; production signs its sessions and cookies with it, so no staging session is valid there) and `config/database_password.production.key`. Keep both outside the machine too: losing the database password locks the app out of its data, and changing the secret signs every player out.
 
-Always name the destination (`-d staging`, `-d production`). A Kamal command without one deploys containers named without the destination (`gameble-web-<version>`, `gameble-import-<version>`) that a later `bin/kamal deploy -d staging` neither replaces nor stops. They keep running their old code against the same database and take jobs from the same queues, so an import or a rescore is written by whichever version picks each page up. List what runs on the host with `bin/kamal server exec -d staging 'docker ps'`; stop and remove any `gameble-*` container whose name lacks the destination. `test/lib/post_deploy_hook_test.rb` runs both hooks against a throwaway repository and a local webhook.
+Always name the destination (`-d staging`, `-d production`). A Kamal command without one deploys containers named without the destination (`gameble-web-<version>`, `gameble-import-<version>`) that a later `bin/kamal deploy -d staging` neither replaces nor stops. They keep running their old code against the same database and take jobs from the same queues, so an import or a rescore is written by whichever version picks each page up. List what runs on the host with `bin/kamal server exec -d staging 'docker ps'`; stop and remove any `gameble-*` container whose name lacks the destination. `test/lib/post_deploy_hook_test.rb` runs both hooks against a throwaway repository and a local webhook, and `test/bin/promote_test.rb` runs `bin/promote` against a throwaway repository and a stub `gh`.
 
 ## Production checks
 
@@ -75,7 +77,7 @@ Sentry receives production errors only (no tracing, no profiling, no personal da
 
 1. Create the Sentry project (platform: Rails) and copy its DSN.
 2. Put it in `config/sentry_dsn.key` (git-ignored like `master.key`, kept out of the image); `.kamal/secrets` reads it from there. Never commit it.
-3. Deploy: `bin/kamal deploy`. The release is the deployed `KAMAL_VERSION`.
+3. Deploy a release (RELEASING.md). The release is the deployed `KAMAL_VERSION`.
 4. Send a test event and check it appears in the Sentry project, tagged `production` and the release:
 
    ```sh
@@ -123,12 +125,12 @@ printf '[Journal]\nMaxRetentionSec=30day\nMaxFileSec=1day\n' | sudo tee /etc/sys
 sudo systemctl restart systemd-journald
 ```
 
-A container keeps the log driver it was started with: on a host already running containers, move them all to journald from your machine:
+A container keeps the log driver it was started with: on a host already running containers, move them all to journald from your machine, in a checkout of the release production runs (the deploy pulls its image, it never builds one):
 
 ```sh
 bin/kamal proxy reboot -d production
 bin/kamal accessory reboot db -d production
-bin/kamal deploy -d production
+bin/kamal deploy -d production --skip-push
 ```
 
 Then, on the production LXC, remove the stopped containers Kamal kept, which still hold their json-file logs:

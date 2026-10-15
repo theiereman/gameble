@@ -4,13 +4,15 @@ service: gameble
 # Every destination pulls its image, and its build layers, from GitHub's
 # container registry. Staging builds on a fresh Actions runner each time and
 # the Actions cache is scoped to the release tag, so the layers live there.
+# Production never builds: it runs the staging image of its release, copied
+# to its own package (config/deploy.production.yml).
 image: theiereman/gameble
 
 # Environments are Kamal destinations (AD-21): this file holds what they
 # share; config/deploy.<destination>.yml adds their servers, host and
 # PUBLIC_URL, and .kamal/secrets.<destination> their secrets.
-#   bin/kamal deploy -d staging      # gameble.dotsncircles.com, home lab
-#   bin/kamal deploy -d production   # gameble.net, home lab
+#   bin/kamal deploy -d staging                  # gameble.dotsncircles.com, home lab
+#   bin/kamal deploy -d production --skip-push   # gameble.net, home lab (RELEASING.md)
 #
 # Roles, with their hosts in each destination file: web, and the Steam import
 # worker (AD-19, AD-21), the same image as one process with one thread on the
@@ -43,6 +45,12 @@ env:
     # The PostgreSQL accessory below, reached over Kamal's docker network.
     DB_HOST: gameble-db
 
+    # The version the shell shows, read when Kamal renders this file, so one
+    # image is shown as its candidate on staging and its release in production:
+    # the highest tag of the deployed commit, a release above its candidate
+    # (v1.0.0 over v1.0.0-rc.2), else the commit's short sha.
+    GAMEBLE_VERSION: "<%= tag = `git -c versionsort.suffix=- tag --points-at HEAD --sort=-version:refname 2>/dev/null`.lines(chomp: true).find { |name| !name.start_with?('deployed/') }; tag || `git rev-parse --short HEAD`.strip %>"
+
     # PUBLIC_URL, the public base of shared links (CAP-9), is set per
     # destination: production refuses to boot without a valid one
     # (config/initializers/public_url.rb; test/config/public_url_test.rb).
@@ -71,14 +79,11 @@ asset_path: /rails/public/assets
 # Configure the image builder.
 builder:
   arch: amd64
+  # A provenance attestation adds manifests ghcr counts as versions, which the staging cleanup's last five would include.
+  provenance: false
   cache:
     type: registry
     options: mode=max,oci-mediatypes=true
-
-  # Kamal reads this file through ERB: the version the shell shows is the
-  # release tag of the deployed commit, else its short sha, read at build time.
-  args:
-    GAMEBLE_VERSION: "<%= tag = `git describe --tags --exact-match --exclude 'deployed/*' HEAD 2>/dev/null`.strip; tag.empty? ? `git rev-parse --short HEAD`.strip : tag %>"
 
   # # Build image via remote server (useful for faster amd64 builds on arm64 computers)
   # remote: ssh://docker@docker-builder-server

@@ -1,8 +1,12 @@
 #!/usr/bin/env sh
 # A destination is deployed from a published release only: this refuses a
 # deploy whose version is not a tagged commit, so staging changes once per
-# release (.github/workflows/deploy-staging.yml deploys each one) and the
+# candidate (.github/workflows/deploy-staging.yml deploys each one) and the
 # Discord announcement (post-deploy) is sent once per release, not per push.
+#
+# Production takes a release only (RELEASING.md): the version carries a
+# vX.Y.Z tag and is main's head, which bin/promote moves to a candidate that
+# ran on staging. main is fetched first; offline, the local origin/main is used.
 #
 # A rollback goes back to a version deployed before, tagged or not, and is
 # let through. To deploy a commit without a tag on purpose, skip the hooks:
@@ -33,6 +37,19 @@ esac
 if [ -z "$(git tag --points-at "$KAMAL_VERSION")" ]; then
   echo "pre-deploy: $KAMAL_DESTINATION is deployed from a published release only, and $KAMAL_VERSION carries no tag (publish a GitHub release, or --skip-hooks)" >&2
   exit 1
+fi
+
+if [ "$KAMAL_DESTINATION" = "production" ]; then
+  if ! git tag --points-at "$KAMAL_VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+    echo "pre-deploy: production runs a release only, and $KAMAL_VERSION carries no release tag vX.Y.Z (RELEASING.md)" >&2
+    exit 1
+  fi
+
+  GIT_TERMINAL_PROMPT=0 git fetch --quiet origin main 2>/dev/null
+  if [ "$KAMAL_VERSION" != "$(git rev-parse --verify --quiet refs/remotes/origin/main)" ]; then
+    echo "pre-deploy: production runs main's head only, and $KAMAL_VERSION is not origin/main (bin/promote, RELEASING.md)" >&2
+    exit 1
+  fi
 fi
 
 exit 0

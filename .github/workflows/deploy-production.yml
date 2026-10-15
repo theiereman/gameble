@@ -1,0 +1,237 @@
+name: Deploy to production
+
+# Production runs releases only (RELEASING.md); a pre-release never starts
+# this workflow. Publishing a release vX.Y.Z, which bin/promote does on the
+# commit of an accepted candidate, checks that the commit is main's head and
+# runs on staging, copies the image staging ran to the release package, then
+# waits for the author's approval in the environment `production` before
+# deploying that image to https://gameble.net.
+# Nothing is built here, and the first deploy (`kamal setup`) is run by hand.
+#
+# Run by hand with `rollback to` a release, it starts that release's container
+# again, after the same approval.
+on:
+  release:
+    types: [ released ]
+  workflow_dispatch:
+    inputs:
+      rollback_to:
+        description: The release to roll back to (vX.Y.Z)
+        required: true
+        type: string
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  STAGING_IMAGE: ghcr.io/theiereman/gameble
+  RELEASE_IMAGE: ghcr.io/theiereman/gameble-releases
+
+jobs:
+  # Before the approval, so a rejected run still leaves the image for a
+  # hand-run `kamal setup`.
+  release-image:
+    if: github.event_name == 'release' && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: read
+      packages: write   # the release package is created and written here
+    outputs:
+      sha: ${{ steps.release.outputs.sha }}
+    env:
+      TAG: ${{ github.event.release.tag_name }}
+
+    steps:
+      - name: Checkout the release
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+
+      - name: Check the release is main's head and runs on staging
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! printf '%s\n' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::$TAG is not a release tag (vX.Y.Z): nothing deployed to production."
+            exit 1
+          fi
+          sha=$(git rev-parse "refs/tags/$TAG^{commit}")
+          git fetch --quiet origin main
+          main=$(git rev-parse origin/main)
+          if [ "$sha" != "$main" ]; then
+            echo "::error::$TAG is on $sha, and main's head is $main: promote a candidate with bin/promote."
+            exit 1
+          fi
+          staging=$(gh api "repos/$GITHUB_REPOSITORY/commits/$sha/status" \
+            --jq '[.statuses[] | select(.context == "staging")][0].state // "missing"')
+          if [ "$staging" != "success" ]; then
+            echo "::error::$sha has no successful staging status ($staging): it never ran on staging."
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to the container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Copy the staging image to the release package
+        env:
+          SHA: ${{ steps.release.outputs.sha }}
+        run: docker buildx imagetools create --tag "$RELEASE_IMAGE:$SHA" "$STAGING_IMAGE:$SHA"
+
+  deploy:
+    needs: release-image
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: write   # the hook pushes the deployed/production tag
+      packages: read    # the servers pull the release image
+
+    steps:
+      - name: Checkout the release
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          # The changelog reads the commits since the deployed/production tag.
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Write the SSH access to the production LXC
+        env:
+          PRODUCTION_SSH_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
+          PRODUCTION_SSH_KNOWN_HOSTS: ${{ secrets.PRODUCTION_SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$PRODUCTION_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$PRODUCTION_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Write the secret files read by .kamal/secrets.production and the hook
+        env:
+          RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+          SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
+          DISCORD_WEBHOOK_PRODUCTION: ${{ secrets.DISCORD_WEBHOOK_PRODUCTION }}
+          REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          umask 077
+          printf '%s' "$RAILS_MASTER_KEY" > config/master.key
+          printf '%s' "$SECRET_KEY_BASE" > config/secret_key_base.production.key
+          printf '%s' "$SENTRY_DSN" > config/sentry_dsn.key
+          printf '%s' "$DATABASE_PASSWORD" > config/database_password.production.key
+          printf '%s' "$STEAM_API_KEY" > config/steam_api.key
+          printf '%s' "$DISCORD_WEBHOOK_PRODUCTION" > config/discord_webhook.production.key
+          printf '%s' "$REGISTRY_PASSWORD" > config/registry_password.key
+
+      - name: Deploy the release image
+        run: bin/kamal deploy -d production --skip-push
+
+  rollback-target:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      sha: ${{ steps.target.outputs.sha }}
+    env:
+      TAG: ${{ inputs.rollback_to }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Find the release to roll back to
+        id: target
+        run: |
+          if ! printf '%s\n' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::$TAG is not a release tag (vX.Y.Z)."
+            exit 1
+          fi
+          if ! sha=$(git rev-parse --verify --quiet "refs/tags/$TAG^{commit}"); then
+            echo "::error::There is no tag $TAG."
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+  rollback:
+    needs: rollback-target
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: write   # the hook moves the deployed/production tag back
+      packages: read
+
+    steps:
+      - name: Checkout the release to roll back to
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.rollback_to }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Write the SSH access to the production LXC
+        env:
+          PRODUCTION_SSH_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
+          PRODUCTION_SSH_KNOWN_HOSTS: ${{ secrets.PRODUCTION_SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$PRODUCTION_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$PRODUCTION_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Write the secret files read by .kamal/secrets.production and the hook
+        env:
+          RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+          SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
+          DISCORD_WEBHOOK_PRODUCTION: ${{ secrets.DISCORD_WEBHOOK_PRODUCTION }}
+          REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          umask 077
+          printf '%s' "$RAILS_MASTER_KEY" > config/master.key
+          printf '%s' "$SECRET_KEY_BASE" > config/secret_key_base.production.key
+          printf '%s' "$SENTRY_DSN" > config/sentry_dsn.key
+          printf '%s' "$DATABASE_PASSWORD" > config/database_password.production.key
+          printf '%s' "$STEAM_API_KEY" > config/steam_api.key
+          printf '%s' "$DISCORD_WEBHOOK_PRODUCTION" > config/discord_webhook.production.key
+          printf '%s' "$REGISTRY_PASSWORD" > config/registry_password.key
+
+      - name: Roll back
+        shell: bash
+        env:
+          TAG: ${{ inputs.rollback_to }}
+          SHA: ${{ needs.rollback-target.outputs.sha }}
+        run: |
+          bin/kamal rollback -d production "$SHA" 2>&1 | tee "$RUNNER_TEMP/rollback.log"
+          # Kamal exits 0 when the version has no container left on the server.
+          if grep -q "is not available as a container" "$RUNNER_TEMP/rollback.log"; then
+            echo "::error::$TAG has no container left on the server: bin/kamal app containers -d production lists the versions a rollback reaches."
+            exit 1
+          fi

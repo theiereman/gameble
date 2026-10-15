@@ -1,6 +1,7 @@
 name: Close pull requests to main
 
-# main is the production release: only the author merges into it, from develop.
+# main is the production release: it only moves through bin/promote, never by a
+# pull request (RELEASING.md).
 on:
   pull_request_target:
     types: [opened, reopened, edited]
@@ -18,4 +19,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           NUMBER: ${{ github.event.pull_request.number }}
-        run: gh pr close "$NUMBER" --comment "main is the production release and only takes the author's merges from develop. Please open your pull request against develop."
+        run: gh pr close "$NUMBER" --comment "main is the production release and only moves by promoting a tested release candidate. Please open your pull request against develop."

@@ -42,8 +42,8 @@ module ShellHelper
     ShellHelper.app_version
   end
 
-  # The release tag given to the image build (config/deploy.yml, builder
-  # args), else the deployed commit, else "dev".
+  # The release tag Kamal names at deploy time (config/deploy.yml,
+  # GAMEBLE_VERSION), else the deployed commit, else "dev".
   def self.app_version(env = ENV)
     env["GAMEBLE_VERSION"].presence || env["KAMAL_VERSION"].to_s.sub(/_uncommitted_.*\z/, "")[0, 7].presence || "dev"
   end

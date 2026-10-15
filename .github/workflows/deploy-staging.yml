@@ -1,29 +1,72 @@
 name: Deploy to staging
 
-# Staging changes once per release: publishing a GitHub release whose tag is
-# on develop deploys that tag to https://gameble.dotsncircles.com, and
-# .kamal/hooks/post-deploy announces it on Discord with the commits since the
-# version last deployed (the tag deployed/staging, which the hook moves and
-# pushes). A release whose tag is not on develop, a tag without a release, or
-# a push to develop deploys nothing. main is never deployed here: production
-# stays a manual `bin/kamal deploy -d production`.
+# Staging runs release candidates (RELEASING.md): publishing a GitHub
+# pre-release whose tag is on develop runs the full CI on its commit, then
+# deploys it to https://gameble.dotsncircles.com and sets the commit status
+# `staging` to success, the proof bin/promote and the production deploy
+# require. .kamal/hooks/post-deploy announces it on Discord with the commits
+# since the version last deployed (the tag deployed/staging, which the hook
+# moves and pushes). Only a pre-release starts it; one whose tag is not on
+# develop, a tag without a release, or a push to develop deploys nothing here.
 on:
   release:
-    types: [ published ]
+    types: [ prereleased ]
 
 concurrency:
   group: deploy-staging
   cancel-in-progress: false
 
 jobs:
+  gate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      deploy: ${{ steps.gate.outputs.deploy }}
+    env:
+      STAGING_BRANCH: develop
+      PRERELEASE: ${{ github.event.release.prerelease }}
+      TAG: ${{ github.event.release.tag_name }}
+
+    steps:
+      - name: Checkout the release
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+
+      - name: Check the release is a candidate on the staging branch
+        id: gate
+        run: |
+          if [ "$PRERELEASE" != "true" ]; then
+            echo "Release $TAG is not a pre-release: nothing deployed to staging."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git fetch --quiet origin "$STAGING_BRANCH"
+          if git merge-base --is-ancestor HEAD "origin/$STAGING_BRANCH"; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Pre-release $TAG is not on $STAGING_BRANCH: nothing deployed to staging."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  ci:
+    needs: gate
+    if: needs.gate.outputs.deploy == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/ci.yml
+
   deploy:
+    needs: [ gate, ci ]
+    if: needs.gate.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     environment: staging
     permissions:
       contents: write   # the hook pushes the deployed/staging tag
       packages: write   # the image and its build cache live on ghcr.io
-    env:
-      STAGING_BRANCH: develop
+      statuses: write   # the staging status on the candidate's commit
 
     steps:
       - name: Checkout the release
@@ -34,29 +77,15 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Check the release is on the staging branch
-        id: gate
-        run: |
-          git fetch --quiet origin "$STAGING_BRANCH"
-          if git merge-base --is-ancestor HEAD "origin/$STAGING_BRANCH"; then
-            echo "deploy=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "Release $GITHUB_REF_NAME is not on $STAGING_BRANCH: nothing deployed to staging."
-            echo "deploy=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Set up Ruby
-        if: steps.gate.outputs.deploy == 'true'
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
       - name: Set up Docker Buildx
-        if: steps.gate.outputs.deploy == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Write the SSH access to the staging LXC
-        if: steps.gate.outputs.deploy == 'true'
         env:
           STAGING_SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
           STAGING_SSH_KNOWN_HOSTS: ${{ secrets.STAGING_SSH_KNOWN_HOSTS }}
@@ -67,7 +96,6 @@ jobs:
           printf '%s\n' "$STAGING_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
       - name: Write the secret files read by .kamal/secrets.staging and the hook
-        if: steps.gate.outputs.deploy == 'true'
         env:
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
@@ -85,12 +113,20 @@ jobs:
           printf '%s' "$REGISTRY_PASSWORD" > config/registry_password.key
 
       - name: Deploy
-        if: steps.gate.outputs.deploy == 'true'
         run: bin/kamal deploy -d staging
 
-      # Every release adds an image and leaves the cache it replaced untagged.
+      - name: Mark the commit as running on staging
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh api --method POST "repos/$GITHUB_REPOSITORY/statuses/$(git rev-parse HEAD)" \
+            -f state=success -f context=staging \
+            -f description="$TAG passed CI and runs on staging" -f target_url="$RUN_URL"
+
+      # Every candidate adds an image and leaves the cache it replaced untagged.
       - name: Keep the last five staging images
-        if: steps.gate.outputs.deploy == 'true'
         continue-on-error: true
         uses: actions/delete-package-versions@v5
         with:
@@ -99,7 +135,6 @@ jobs:
           min-versions-to-keep: 5
 
       - name: Drop the replaced build caches
-        if: steps.gate.outputs.deploy == 'true'
         continue-on-error: true
         uses: actions/delete-package-versions@v5
         with:

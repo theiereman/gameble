@@ -2,13 +2,16 @@ name: CI
 
 # A push to develop runs only the quick jobs (lint and the non-system tests),
 # to spare the Actions minutes; the security scans run on main, on pull
-# requests, and on demand (workflow_dispatch, e.g. on develop before a merge
-# into main). The system tests are disabled until they are rebuilt to be stable.
+# requests, on demand (workflow_dispatch), and on every release candidate,
+# whose staging deploy calls this whole workflow first (workflow_call, where
+# github.event_name is the caller's release). The system tests are disabled
+# until they are rebuilt to be stable.
 on:
   pull_request:
   push:
     branches: [ main, develop ]
   workflow_dispatch:
+  workflow_call:
 
 # A newer push to develop cancels the run of the one before it.
 concurrency:
