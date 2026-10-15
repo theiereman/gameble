@@ -205,14 +205,14 @@ notes = ["From lore issues #57, #59 and #61 (author, 2026-10-15).", "Decision (a
 id = 19
 type = "story"
 title = "A new player is welcomed by the Brotherhood once"
-description = "At a new player's first arrival on the hub after creating their account, a panel at the top of the hub shows the Brotherhood's welcome message in their language and closes with one button; it takes the place of the sign-in welcome toast that time and never shows again, on any device. Existing players never see it."
-verify = "A new account's first hub shows the panel and no welcome toast; after closing it, or at any later visit or another device, it is gone; an account created before the release never sees it; the panel reads in French and English and works on phone and desktop."
+description = "At a new player's first arrival on the hub after creating their account, a panel at the top of the hub shows the Brotherhood's welcome message in their language and closes with one button; it takes the place of the sign-in welcome toast that time and never shows again, on any device. Players whose account existed before see it once at their next hub."
+verify = "A new account's first hub shows the panel and no welcome toast; after closing it, or at any later visit or another device, it is gone; an account created before the release sees it once at its next hub; the panel reads in French and English and works on phone and desktop."
 covers = ["R7"]
 after = [18]
 hitl = false
 risk = "low"
 references = ["spec — _bmad-output/initiative-gameble/spec-gameble/spec-gameble.md, CAP-26", "ux — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Hub (Welcome panel) and Copy deck (Welcome message)"]
-notes = ["From lore issue #58 (author, 2026-10-15).", "Assumption: the panel's placement and its closing button (the issue leaves them to development), recorded in EXPERIENCE.md."]
+notes = ["From lore issue #58 (author, 2026-10-15).", "Decision (author, 2026-10-15, after the build): every player sees the welcome once, accounts from before included.", "Assumption: the panel's placement and its closing button (the issue leaves them to development), recorded in EXPERIENCE.md."]
 
 [[entry]]
 id = 12

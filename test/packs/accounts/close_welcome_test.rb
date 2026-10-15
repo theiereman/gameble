@@ -19,7 +19,7 @@ class Accounts::CloseWelcomeTest < ActiveSupport::TestCase
     assert_equal events, Rails.configuration.event_store.read.count
   end
 
-  test "a player created without a sign-up, as every account from before the welcome, has none pending" do
+  test "a player created without a sign-up has none pending" do
     player = Accounts::Player.create!(steam_id: "76561197960287931")
 
     assert_not player.reload.welcome_pending

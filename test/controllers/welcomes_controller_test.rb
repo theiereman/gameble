@@ -90,7 +90,7 @@ class WelcomesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#welcome-panel", 0
   end
 
-  test "a player from before the welcome signs in to the toast and no panel" do
+  test "a player whose welcome is closed signs in to the toast and no panel" do
     sign_in(accounts_players(:player), origin: "/fr")
 
     assert_equal "Bienvenue sur gameble. Vos capsules vous attendent.", flash[:notice]

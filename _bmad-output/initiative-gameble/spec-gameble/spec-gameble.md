@@ -193,11 +193,11 @@ gameble is an open-source passion project, and the game its author wants to play
     - Its data derives from the BMad initiative semi-automatically: the author chooses what appears and writes its player-facing wording in both languages; the shown roadmap cannot drift from the initiative unnoticed.
     - A link leads to the full roadmap page, designed later.
 - **CAP-26**
-  - **intent:** A new player is welcomed by the Brotherhood once, when they first join.
+  - **intent:** Every player is welcomed by the Brotherhood once, with the story of how the games came back.
   - **success:**
-    - At a player's first arrival after creating their account, a short welcome message from the Brotherhood shows in their language, on desktop and phone; its copy is in `EXPERIENCE.md`.
+    - At a new player's first arrival, and at the next visit of a player whose account existed before it shipped, a short welcome message from the Brotherhood shows in their language, on desktop and phone; its copy is in `EXPERIENCE.md`.
     - It never shows again, at later sign-ins or on another device, and does not stack with the sign-in welcome notice.
-    - Existing players never see it, and it changes no mechanic: the player can start collecting at once.
+    - It changes no mechanic: the player can start collecting at once.
 
 ## Constraints
 
