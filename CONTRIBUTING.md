@@ -100,6 +100,10 @@ In Claude Code, the repository brings its own planning tools (the BMad skills in
 
 What they write lands in `_bmad-output/` and comes to the author through the same pull request. Other agents can read those files too.
 
+### Licensing your contribution
+
+By opening a pull request, you agree that your contribution is released under the license of the files it changes (the GNU AGPL v3.0 for code, Creative Commons BY-NC-SA 4.0 for artwork; see the License section of the README), and you grant Thomas Eyermann the right to release it under other license terms as well, so the project can change its license later without asking every contributor.
+
 ### Never
 
 - Push to `develop` or `main`, or merge your own pull request.

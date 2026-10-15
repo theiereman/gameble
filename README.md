@@ -169,3 +169,14 @@ The prestige formula, the tier shares and the tome size are starting values; the
    - `Catalog::SetBuilder::TOME_SIZE` (`packs/catalog/app/models/catalog/set_builder.rb`): the cards per tome volume.
 4. **Rescore after a formula change.** The scores are written into the draft by the import, so a new formula needs them written again: on the latest completed run's page, "Rescore the cards" (`Steam::RescoreCards`) runs its cards step again from the start, without calling Steam, and the run completes again; a card the rescore now refuses leaves the draft. Only the latest run can be rescored, so once a later run is abandoned, the completed run before it no longer can: start a new run instead. The rescore publishes the cards step's `ImportStepFinished` and the run's `ImportRunFinished` a second time and rewrites `finished_at`, so record the step durations of the import before any rescore (the `Steam::CardsRescoreStarted` event marks the boundary). Once the draft is published, its run can no longer be rescored. A change of `SHARES` or `TOME_SIZE` needs no rescore: the preview shows it on the next page load.
 5. **Publish.** Once the preview reads right and the latest run has completed (an abandoned run is skipped: the run before it must have completed, or be abandoned in turn), publish the draft from the same page. A published season never changes again.
+
+## License
+
+gameble is free software with its artwork kept for non-commercial use.
+
+- **Code**: every file not listed below is released under the [GNU Affero General Public License v3.0](LICENSE). Anyone may run, change and sell it, but whoever runs a modified gameble as an online service must publish its full source code to its players under the same license.
+- **Artwork**: the pixel art and its definitions (`app/frontend/images/pixel/`, `script/pixel_art/`), the card preview sample (`app/frontend/images/card_preview/`), the error pages' wordmark and starfield (`public/errors/*.svg`) and the README header (`.github/assets/`) are released under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0](LICENSE-ASSETS): free to reuse with credit, never for a commercial purpose, and only under the same license.
+- **Name and logo**: neither license grants any right to the name "gameble", its wordmark or its logo. A fork must use its own name.
+- **Third parties**: the Space Mono and VT323 fonts are under the SIL Open Font License (`app/frontend/fonts/OFL-*.txt`); the "Sign in through Steam" button (`app/frontend/images/steam/`) belongs to Valve; the reference images under `_bmad-output/**/imports/` belong to their owners. Steam game names and artwork are loaded from Steam and belong to the games' publishers and artists. gameble is not affiliated with Valve or Steam.
+
+Copyright © 2026 Thomas Eyermann.
