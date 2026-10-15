@@ -37,6 +37,18 @@ class Accounts::SignInTest < ActiveSupport::TestCase
     assert_equal 1, registered_events.size
   end
 
+  test "only a sign-up leaves the welcome pending: a player from before, or one who closed it, signs in without it" do
+    player = Accounts::SignIn.new.call(steam_id: STEAM_ID).value!
+    assert_predicate player.reload, :welcome_pending
+
+    Accounts::CloseWelcome.new.call(player_id: player.id).value!
+    assert_not Accounts::SignIn.new.call(steam_id: STEAM_ID).value!.reload.welcome_pending
+
+    existing = accounts_players(:player)
+    assert_not Accounts::SignIn.new.call(steam_id: existing.steam_id).value!.welcome_pending
+    assert_not existing.reload.welcome_pending
+  end
+
   test "a sign-in notes the visit at once" do
     player = Accounts::SignIn.new.call(steam_id: STEAM_ID).value!
     player.update_columns(last_seen_at: 4.years.ago)

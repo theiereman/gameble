@@ -554,6 +554,28 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub[data-hub-menu-focus-first-value=false]"
   end
 
+  test "a pending welcome sits above the menu at no query's cost, and the sign-in still focuses the first menu item" do
+    sign_in(@player, origin: "/fr")
+    get home_path(locale: :en)
+    queries_without_welcome = count_hub_queries
+    assert_operator queries_without_welcome, :>, 0
+
+    @player.update_columns(welcome_pending: true)
+    sign_in(@player, origin: "/fr")
+    follow_redirect!
+
+    assert_select ".hub[data-hub-menu-focus-first-value=true] > header + #welcome-panel + .hub-menu"
+    assert_equal queries_without_welcome, count_hub_queries
+  end
+
+  def count_hub_queries
+    ActiveRecord::Base.connection.clear_query_cache
+    queries = 0
+    counter = ->(*, payload) { queries += 1 unless payload[:name].in?([ "SCHEMA", "TRANSACTION" ]) || payload[:cached] }
+    ActiveSupport::Notifications.subscribed(counter, "sql.active_record") { get home_path(locale: :en) }
+    queries
+  end
+
   test "the sign-in panel is for visitors only, never in the back-office" do
     sign_in(accounts_players(:administrator))
 

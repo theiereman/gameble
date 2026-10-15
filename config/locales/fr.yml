@@ -144,6 +144,13 @@ fr:
       sets:
         title: "Progression des sets"
         see_all: "Tout voir"
+      welcome:
+        title: "Bienvenue sur gameble"
+        founders: "Autrefois bannis de la Terre, les jeux vidéo ont été sauvés grâce aux efforts de nos illustres fondateurs."
+        legacy: "Aujourd'hui, la Grande Confrérie des Gameblers a l'honneur de vous donner accès à cet héritage, sous forme de cartes distribuées aléatoirement dans nos capsules, afin de garantir une parfaite équité entre nos membres."
+        collection: "Il ne vous reste plus qu'à constituer votre collection."
+        wishes: "La Confrérie vous souhaite d'excellents tirages."
+        close: "Fermer"
     more:
       title: "Plus"
       subtitle: "Le reste du vaisseau"

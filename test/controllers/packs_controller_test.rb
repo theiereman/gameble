@@ -146,7 +146,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the flash's notices and alerts still show, and nothing else of it" do
-    sign_in_new_player(NEW_STEAM_ID)
+    sign_in(accounts_players(:player), origin: "/en")
     follow_redirect!
 
     assert_select ".toasts > .toast", 1

@@ -7,7 +7,9 @@
     (the countdown to the next one). The daily claim's Turbo Stream answer
     replaces the panel, the packs chip, menu 01 and the empty showcase's
     action (bonus_arc_controller.ts flies the canister). A contributor's
-    weekly goal reward shows its claim slot in the goal panel.
+    weekly goal reward shows its claim slot in the goal panel. A new
+    player's first hub shows the welcome panel above the other blocks,
+    after the heading in reading order.
     Never served from Turbo's cache; the packs chip's countdown refreshes it
     by morphing, keeping the scroll. The LIVE ticker fills the layout's
     ticker slot, a band along the bottom of the hub, and the public goal
@@ -20,8 +22,10 @@
 <% end %>
 <div class="hub" data-controller="hub-menu" data-hub-menu-focus-first-value="<%= flash[:signed_in].present? %>">
   <header class="hub__kicker">
-    <h1 class="hub__title" tabindex="-1" data-hub-menu-target="heading"><%= t(".kicker.title") %></h1>
+    <h1 id="hub-title" class="hub__title" tabindex="-1" data-hub-menu-target="heading"><%= t(".kicker.title") %></h1>
   </header>
+
+  <%= render "pages/welcome" if @welcome %>
 
   <%= render "pages/menu", bank: @bank, collection: @collection, friends_online: @friends_online, achievements: @achievements %>
 

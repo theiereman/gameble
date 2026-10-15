@@ -138,6 +138,13 @@ en:
       sets:
         title: "Set progress"
         see_all: "See all"
+      welcome:
+        title: "Welcome to gameble"
+        founders: "Once banished from Earth, video games were saved through the efforts of our illustrious founders."
+        legacy: "Today, the Great Brotherhood of Gameblers is honored to grant you access to this legacy through cards randomly distributed in our capsules, ensuring complete fairness among our members."
+        collection: "All that remains is for you to build your collection."
+        wishes: "The Brotherhood wishes you excellent pulls."
+        close: "Close"
     more:
       title: "More"
       subtitle: "The rest of the ship"

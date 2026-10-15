@@ -1,7 +1,7 @@
 module Accounts
   # Signs a player in by their Steam id (CAP-1, AD-14): reuses the player with
-  # that id, or creates one and publishes Accounts::PlayerRegistered. A banned
-  # player is refused.
+  # that id, or creates one, its welcome panel pending, and publishes
+  # Accounts::PlayerRegistered. A banned player is refused.
   #
   # The persona name the web layer read from Steam for this sign-in (CAP-8)
   # becomes the player's display name: cleaned by Accounts::PersonaName
@@ -57,7 +57,7 @@ module Accounts
     # row the other one created. A row found while a deletion held it has
     # released its Steam id: the sign-in then signs up anew.
     def find_or_create_player(steam_id)
-      Success(lock_if_still_owner(Player.find_by(steam_id: steam_id), steam_id) || Player.create_or_find_by!(steam_id: steam_id))
+      Success(lock_if_still_owner(Player.find_by(steam_id: steam_id), steam_id) || Player.create_or_find_by!(steam_id: steam_id) { it.welcome_pending = true })
     end
 
     def lock_if_still_owner(player, steam_id)

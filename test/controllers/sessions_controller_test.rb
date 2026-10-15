@@ -55,11 +55,26 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ { player_id: player.id } ], registered_events.map(&:data)
     assert_equal player.id, signed_in_player_id
     assert_redirected_to home_path(locale: :en)
-    assert_equal "Welcome to gameble. Your capsules are waiting.", flash[:notice]
+    assert_predicate player, :welcome_pending
+    assert_nil flash[:notice], "the welcome panel takes the sign-in toast's place"
     assert flash[:signed_in], "the hub is asked to focus its first menu item"
 
     follow_redirect!
+    assert_select "#welcome-panel"
+    assert_select ".toasts[role=status] > .toast", 0
+  end
+
+  test "a returning player who closed the welcome is greeted by the toast" do
+    sign_in_with_steam
+    Accounts::CloseWelcome.new.call(player_id: new_players.sole.id).value!
+    delete session_path(locale: :en)
+
+    sign_in_with_steam
+
+    assert_equal "Welcome to gameble. Your capsules are waiting.", flash[:notice]
+    follow_redirect!
     assert_select ".toasts[role=status] > .toast.toast--notice .toast__message", flash[:notice]
+    assert_select "#welcome-panel", 0
   end
 
   def bank_of(player)
@@ -152,6 +167,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the welcome follows the locale the sign-in started from" do
+    Accounts::Player.create!(steam_id: STEAM_ID)
     sign_in_with_steam(origin: "/fr")
 
     assert_redirected_to home_path(locale: :fr)
@@ -240,6 +256,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
 
   [ "/fr/some/page", "/fr/library", "/fr/cards/portal", "/fr" ].each do |origin|
     test "a sign-in started on #{origin} lands on the hub in its locale" do
+      Accounts::Player.create!(steam_id: STEAM_ID)
       sign_in_with_steam(origin:)
 
       assert_redirected_to home_path(locale: :fr)
@@ -531,7 +548,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
       assert_equal new_players.sole.id, signed_in_player_id
       assert_equal "Gabe", new_players.sole.persona_name
       assert_redirected_to home_path(locale: :en)
-      assert_equal I18n.t("sessions.create.welcome", locale: :en), flash[:notice]
+      assert_nil flash[:notice], "the welcome panel still waits on the hub"
     end
   end
 

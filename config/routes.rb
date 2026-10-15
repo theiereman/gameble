@@ -61,6 +61,8 @@ Rails.application.routes.draw do
     # Collecting the daily bonus from the hub (CAP-16).
     resource :daily_bonus, path: "daily-bonus", only: :create
     post "goal-rewards/:week" => "goal_rewards#create", as: :goal_reward, constraints: { week: /\d{4}-\d{2}-\d{2}/ }
+    # Closing a new player's welcome panel on the hub.
+    resource :welcome, only: :destroy
 
     # The player's settings (EXPERIENCE.md, Profil et paramètres): language,
     # reduced motion and sign-out. GET reads (AD-11); PATCH writes.

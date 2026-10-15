@@ -27,12 +27,13 @@ class SessionsController < ApplicationController
     return refuse_banned(steam_id) if result.failure == :banned
     return fail_sign_in(Accounts::SignIn.failure_key(result.failure)) if result.failure?
 
+    player = result.value!
     reset_session
-    session[:player_id] = result.value!.id
+    session[:player_id] = player.id
     if (invite = invite_origin)
       redirect_to invite, notice: t(".welcome")
     else
-      redirect_to home_path, notice: t(".welcome"), flash: { signed_in: true }
+      redirect_to home_path, notice: (t(".welcome") unless player.welcome_pending), flash: { signed_in: true }
     end
   end
 
