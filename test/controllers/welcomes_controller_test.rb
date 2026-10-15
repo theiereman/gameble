@@ -21,16 +21,17 @@ class WelcomesControllerTest < ActionDispatch::IntegrationTest
 
     assert_nil flash[:notice]
     assert_select "#toasts > .toast", 0
-    assert_select "section#welcome-panel.panel.hub-welcome[aria-labelledby=welcome-title]" do
-      assert_select "h2#welcome-title", "Bienvenue sur gameble"
-      assert_select "p.hub-welcome__line", 4
-      assert_select "p.hub-welcome__line", "Autrefois bannis de la Terre, les jeux vidéo ont été sauvés grâce aux efforts de nos illustres fondateurs."
-      assert_select "p.hub-welcome__line", "Aujourd'hui, la Grande Confrérie des Gameblers a l'honneur de vous donner accès à cet héritage, " \
+    assert_select "dialog#welcome-panel.modal[aria-labelledby=welcome-title]:not([open])" do
+      assert_select "p#welcome-title", "Bienvenue sur gameble"
+      assert_select "p.welcome-dialog__line", 4
+      assert_select "p.welcome-dialog__line", "Autrefois bannis de la Terre, les jeux vidéo ont été sauvés grâce aux efforts de nos illustres fondateurs."
+      assert_select "p.welcome-dialog__line", "Aujourd'hui, la Grande Confrérie des Gameblers a l'honneur de vous donner accès à cet héritage, " \
         "sous forme de cartes distribuées aléatoirement dans nos capsules, afin de garantir une parfaite équité entre nos membres."
-      assert_select "p.hub-welcome__line", "Il ne vous reste plus qu'à constituer votre collection."
-      assert_select "p.hub-welcome__line", "La Confrérie vous souhaite d'excellents tirages."
+      assert_select "p.welcome-dialog__line", "Il ne vous reste plus qu'à constituer votre collection."
+      assert_select "p.welcome-dialog__line", "La Confrérie vous souhaite d'excellents tirages."
       assert_select "form[action='/fr/welcome'][method=post] input[name=_method][value=delete]"
-      assert_select "form[action='/fr/welcome'] button.button--secondary", "Fermer"
+      assert_select "form[action='/fr/welcome'] button.button--secondary[autofocus]", "Fermer"
+      assert_select "button.modal__close[aria-label=Fermer]"
     end
     assert_select ".hub > header + #welcome-panel", 1, "after the heading in reading order"
     assert_select "#hub-title[tabindex='-1']"
@@ -44,19 +45,19 @@ class WelcomesControllerTest < ActionDispatch::IntegrationTest
 
     get home_path(locale: :fr)
     assert_select "#welcome-panel", 0
-    assert_select ".hub-welcome", 0
+    assert_select ".welcome-dialog", 0
   end
 
   test "the welcome reads in English" do
     sign_up(origin: "/en")
 
     assert_select "#welcome-panel" do
-      assert_select "h2", "Welcome to gameble"
-      assert_select "p.hub-welcome__line", "Once banished from Earth, video games were saved through the efforts of our illustrious founders."
-      assert_select "p.hub-welcome__line", "Today, the Great Brotherhood of Gameblers is honored to grant you access to this legacy through cards " \
+      assert_select "p#welcome-title", "Welcome to gameble"
+      assert_select "p.welcome-dialog__line", "Once banished from Earth, video games were saved through the efforts of our illustrious founders."
+      assert_select "p.welcome-dialog__line", "Today, the Great Brotherhood of Gameblers is honored to grant you access to this legacy through cards " \
         "randomly distributed in our capsules, ensuring complete fairness among our members."
-      assert_select "p.hub-welcome__line", "All that remains is for you to build your collection."
-      assert_select "p.hub-welcome__line", "The Brotherhood wishes you excellent pulls."
+      assert_select "p.welcome-dialog__line", "All that remains is for you to build your collection."
+      assert_select "p.welcome-dialog__line", "The Brotherhood wishes you excellent pulls."
       assert_select "form[action='/en/welcome'] button", "Close"
     end
   end

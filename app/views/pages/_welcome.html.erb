@@ -1,11 +1,21 @@
-<%= render PanelComponent.new(tag: :section, id: "welcome-panel", class: "hub-welcome", aria: { labelledby: "welcome-title" },
-      data: { turbo_permanent: true, controller: "welcome", action: "turbo:submit-end->welcome#closed", welcome_heading_value: "hub-title" }) do %>
-  <h2 id="welcome-title" class="hub-welcome__title"><%= t("pages.home.welcome.title") %></h2>
-  <div class="hub-welcome__message">
-    <p class="hub-welcome__line"><%= t("pages.home.welcome.founders") %></p>
-    <p class="hub-welcome__line"><%= t("pages.home.welcome.legacy") %></p>
-    <p class="hub-welcome__line"><%= t("pages.home.welcome.collection") %></p>
-    <p class="hub-welcome__line"><%= t("pages.home.welcome.wishes") %></p>
-  </div>
-  <%= render ButtonComponent.new(variant: :secondary, size: :small, href: welcome_path, method: :delete) do %><%= t("pages.home.welcome.close") %><% end %>
-<% end %>
+<dialog id="welcome-panel" class="modal welcome-dialog" aria-labelledby="welcome-title" data-turbo-permanent
+        data-controller="welcome" data-welcome-heading-value="hub-title"
+        data-action="click->welcome#closeOnScrim close->welcome#closed turbo:submit-end->welcome#submitted">
+  <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <p id="welcome-title" class="modal__title"><%= t("pages.home.welcome.title") %></p>
+      <button type="button" class="modal__close" aria-label="<%= t("pages.home.welcome.close") %>" data-action="welcome#close">
+        <%= pixel_icon("close", class: "modal__close-icon") %>
+      </button>
+    </div>
+    <div class="modal__body welcome-dialog__body">
+      <p class="welcome-dialog__line"><%= t("pages.home.welcome.founders") %></p>
+      <p class="welcome-dialog__line"><%= t("pages.home.welcome.legacy") %></p>
+      <p class="welcome-dialog__line"><%= t("pages.home.welcome.collection") %></p>
+      <p class="welcome-dialog__line"><%= t("pages.home.welcome.wishes") %></p>
+      <%= button_to t("pages.home.welcome.close"), welcome_path, method: :delete, autofocus: true,
+            class: "button button--secondary", form_class: "welcome-dialog__form" %>
+    </div>
+  <% end %>
+</dialog>

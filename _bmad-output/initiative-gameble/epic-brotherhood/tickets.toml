@@ -212,7 +212,7 @@ after = [18]
 hitl = false
 risk = "low"
 references = ["spec — _bmad-output/initiative-gameble/spec-gameble/spec-gameble.md, CAP-26", "ux — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Hub (Welcome panel) and Copy deck (Welcome message)"]
-notes = ["From lore issue #58 (author, 2026-10-15).", "Decision (author, 2026-10-15, after the build): every player sees the welcome once, accounts from before included.", "Assumption: the panel's placement and its closing button (the issue leaves them to development), recorded in EXPERIENCE.md."]
+notes = ["From lore issue #58 (author, 2026-10-15).", "Decision (author, 2026-10-15, after the build): every player sees the welcome once, accounts from before included.", "Decision (author, 2026-10-15, after the build): the welcome is a modal over the hub, not a panel in it.", "Assumption: the panel's placement and its closing button (the issue leaves them to development), recorded in EXPERIENCE.md."]
 
 [[entry]]
 id = 12

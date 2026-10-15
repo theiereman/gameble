@@ -81,6 +81,8 @@ context: ['{project-root}/AGENTS.md']
 
 ## Plan Change Log
 
+- 2026-10-15, after delivery: the author prefers a popup over the content; the welcome becomes a modal `<dialog>` in the hub's existing Modal pattern, opened on connect, closed by « Fermer », "✕", Esc or the scrim, removed from the page once closed so a restored page never reopens it; the frozen block's 'panel at the top of the hub, no modal' no longer holds.
+
 - 2026-10-15, after delivery: the author wants every player to read the welcome, accounts from before included. A data migration sets the welcome pending on every existing, not deleted account; the frozen block's 'existing players never see it' no longer holds (only the author edits it).
 
 - 2026-10-15, after review pass 1: the frozen assumption that a Turbo prefetch skips the close job let a hovered-then-clicked hub link show the panel without marking it seen (intent gap). The author chose (2026-10-15) to turn link prefetching off on every page while a welcome is pending (`turbo-prefetch` meta in the head), so every hub render that shows the panel is a real visit and enqueues the close job; the prefetch check in `PagesController#home` is gone. The frozen block still states the earlier assumption; only the author edits it.
