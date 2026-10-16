@@ -221,3 +221,6 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-published-season-gets-its-new-sets-once-plan.md`
   summary: `bundle exec i18n-tasks unused` reports `rate_limit.reading_throttled` and `rate_limit.throttled` in en and fr, which `config/initializers/rack_attack.rb` reads dynamically; add them to `ignore_unused` in `config/i18n-tasks.yml`.
   evidence: The quick review of the retired set kinds removal ran the command; a clean worktree at the baseline gives the same four keys, so the check fails independently of that change.
+- source_plan: none
+  summary: Staging moves behind its own Cloudflare Tunnel at staging.gameble.net, web and SSH (Access service token for the staging workflow), as production did, so the home lab's ports 80, 443 and 2224 can close and its address stops being published by gameble.dotsncircles.com.
+  evidence: The author decided on 2026-10-16, while moving production's SSH into its tunnel, to do the same for staging later under staging.gameble.net; PUBLIC_URL, deploy.staging.yml, the staging workflow, CONTRIBUTING.md's test-version link and Steam's return URL follow the new name.
