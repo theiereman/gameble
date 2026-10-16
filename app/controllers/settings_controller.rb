@@ -17,9 +17,11 @@ class SettingsController < ApplicationController
   def visibility
     authorize :settings, :visibility?
 
-    result = Accounts::SetVisibility.new.call(player: current_player, visibility: params[:visibility])
+    visibility = params[:visibility]
+    cancelled_trades = visibility == "private" ? Game::OpenTradeCount.call(current_player) : 0
+    result = Accounts::SetVisibility.new.call(player: current_player, visibility:)
     if result.success?
-      redirect_to settings_path, status: :see_other
+      redirect_to settings_path, notice: visibility_notice(result.value!.visibility, cancelled_trades), status: :see_other
     else
       redirect_to settings_path, alert: Accounts::SetVisibility.failure_message(result.failure), status: :see_other
     end
@@ -35,6 +37,16 @@ class SettingsController < ApplicationController
       redirect_to settings_path, status: :see_other
     else
       redirect_to settings_path, alert: Accounts::UpdateSettings.failure_message(result.failure), status: :see_other
+    end
+  end
+
+  private
+
+  def visibility_notice(visibility, cancelled_trades)
+    case visibility
+    when "private" then t("settings.visibility_feedback.private", count: cancelled_trades)
+    when "friends_only" then t("settings.visibility_feedback.friends_only")
+    else t("settings.visibility_feedback.public")
     end
   end
 end
