@@ -3,7 +3,7 @@ title: 'Backups and a restore drill'
 type: 'feature'
 ticket: '11'
 created: '2026-10-16'
-status: 'built'
+status: done
 baseline_revision: '14d30ca624e5be5d2bf41ffd84a56cff38ff43b2'
 route: 'full'
 route_source: 'auto'
@@ -88,6 +88,7 @@ context: []
 
 - Matrix audit (orchestrator): "Database down" gained its own test (`docker exec` fails with no output: empty stdin, the snapshot forgotten, no retention). "Restore drill" has no automated test (it needs Docker, restic and a release image); the implementer ran it end to end with `v0.0.14-beta` (passed, `/up` 200, 6 players), with a garbage snapshot (failed, step named) and checked every container and network was removed.
 - The legal page's "updated" date moved to 16 October 2026 with the privacy notice change.
+- Done (author, 2026-10-16): the units run on the production LXC, the first backup (snapshot a8b221d5) reached OVH and the retention ran. The author signed the ticket off before the restore drill against the real repository, which waits for the first import; run `script/backup/restore_drill` then.
 
 ## Review Triage Log
 

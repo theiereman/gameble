@@ -3,7 +3,7 @@ title: 'A release candidate tested on staging is the release production runs'
 type: 'feature'
 ticket: '58'
 created: '2026-10-15'
-status: 'built'
+status: done
 baseline_revision: '4582ccb61d892b603f600d403c16bb3b392455e2'
 route: 'full'
 route_source: 'auto'
@@ -94,6 +94,7 @@ context: ['{project-root}/RELEASING.md']
 - Rollback detects Kamal's "is not available as a container" message, because Kamal exits 0 when the version has no container left.
 - RELEASING.md asks the environment `production` to allow the branch `main` too, since a rollback run is dispatched from a branch.
 - The Implementation Notes, Plan Change Log and Review Triage Log sections were missing from the plan as written at planning time and are added here.
+- Done (author, 2026-10-16), shown on real releases: v0.1.0-rc.1 and v0.1.1-rc.1 deployed staging with their tags and the staging status; bin/promote refused v0.1.0-rc.2 because v0.1.0 existed, then moved main by fast-forward and published v0.1.1; the production workflow deployed v0.1.1 after approval without building, through the Cloudflare Tunnel. The first deploy did not run `kamal setup`: the database accessory was booted by hand while the run waited, then the run was approved (RELEASING.md, Setup).
 
 ## Plan Change Log
 
