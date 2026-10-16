@@ -81,7 +81,7 @@ Sentry receives production errors only (no tracing, no profiling, no personal da
 4. Send a test event and check it appears in the Sentry project, tagged `production` and the release:
 
    ```sh
-   bin/kamal app exec --reuse 'bin/rails runner "Sentry.capture_message(%(gameble test event))"'
+   bin/kamal app exec -d production --reuse 'bin/rails runner "Sentry.capture_message(%(gameble test event))"'
    ```
 
 ### Sign-in throttle
@@ -94,7 +94,7 @@ No page assigns roles. A player signs in with Steam once, then the role is set f
 
 ```sh
 bin/rails "accounts:set_role[76561197960287002,moderator]"                          # locally
-bin/kamal app exec --reuse 'bin/rails "accounts:set_role[76561197960287002,moderator]"'  # in production
+bin/kamal app exec -d production --reuse 'bin/rails "accounts:set_role[76561197960287002,moderator]"'  # in production
 ```
 
 The task prints the new role, or aborts with the reason (unknown Steam id, deleted account, unknown role). Setting `player` takes a role away.
