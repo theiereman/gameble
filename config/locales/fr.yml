@@ -828,12 +828,12 @@ fr:
       repost_failed: "Le repost n'a pas abouti. Vérifiez votre connexion, puis réessayez."
   settings:
     visibility_feedback:
-      public: "Votre profil est de nouveau public."
+      public: "Votre profil est désormais public."
       friends_only: "Votre profil est désormais réservé à vos amis."
       private:
-        zero: "Profil privé."
-        one: "Profil privé : %{count} échange annulé."
-        other: "Profil privé : %{count} échanges annulés."
+        zero: "Votre profil est désormais privé."
+        one: "Votre profil est désormais privé ; %{count} échange annulé."
+        other: "Votre profil est désormais privé ; %{count} échanges annulés."
     show:
       title: "Profil et paramètres"
       more: "Plus"

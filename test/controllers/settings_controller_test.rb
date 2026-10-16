@@ -171,12 +171,12 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     patch settings_visibility_path(locale: :fr), params: { visibility: "private" }
 
     assert_redirected_to settings_path(locale: :fr)
-    assert_equal I18n.t("settings.visibility_feedback.private", count: 0, locale: :fr), flash[:notice]
+    assert_equal "Votre profil est désormais privé.", flash[:notice]
     follow_redirect!
-    assert_select ".toast__message", I18n.t("settings.visibility_feedback.private", count: 0, locale: :fr)
+    assert_select ".toast__message", "Votre profil est désormais privé."
   end
 
-  test "going private cancels the trades open when the setting is posted, one proposed after the page load too" do
+  test "going private counts the trades open at the moment the setting is posted" do
     bob = accounts_players(:moderator)
     carol = accounts_players(:administrator)
     [ bob, carol ].each do |partner|
@@ -199,7 +199,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to settings_path(locale: :fr)
     assert_equal "private", @player.reload.visibility
-    assert_equal I18n.t("settings.visibility_feedback.private", count: 2, locale: :fr), flash[:notice]
+    assert_equal "Votre profil est désormais privé ; 2 échanges annulés.", flash[:notice]
     assert_equal [ "cancelled", "cancelled" ], Game::Trade.order(:id).pluck(:status)
     follow_redirect!
     assert_select ".toast__message", I18n.t("settings.visibility_feedback.private", count: 2, locale: :fr)
