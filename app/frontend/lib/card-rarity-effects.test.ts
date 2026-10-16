@@ -29,6 +29,18 @@ describe("the shared card rarity effects", () => {
     expect(rule(boosterLayoutsStylesheet, '.booster-zoom[data-tier="legendary"] .booster-zoom__rays')).toContain("var(--color-rarity-legendaire)")
   })
 
+  it("clips rays at wide outer boundaries, leaving ray margin visible", () => {
+    for (const selector of [".card-detail__stage", ".public-card__stage", ".hub-showcase__stage"]) {
+      const at = cardRarityEffectsStylesheet.indexOf(selector)
+      expect(at).toBeGreaterThan(-1)
+      expect(cardRarityEffectsStylesheet.slice(at, at + 220)).toContain("overflow: clip")
+    }
+    for (const selector of [".card-detail__stage", ".public-card__stage"]) {
+      const at = cardRarityEffectsStylesheet.indexOf(selector)
+      expect(cardRarityEffectsStylesheet.slice(at, at + 220)).toContain("min-width: min(340px, 100%)")
+    }
+  })
+
   it("stops every loop under reduced motion but keeps card rays visible", () => {
     for (const prefix of ['html[data-motion="reduced"]', 'html:not([data-motion="full"])']) {
       expect(rule(cardRarityEffectsStylesheet, `${prefix} .card-rays`)).toContain("animation: none")
