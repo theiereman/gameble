@@ -201,14 +201,13 @@ Before the first production deploy:
    rm /tmp/gameble_production_deploy /tmp/gameble_production_deploy.pub
    ```
 
-4. **The first deploy** boots the database and kamal-proxy before the app, so it runs once from your machine and not from the workflow, which never runs `setup`. Cut and accept `v1.0.0-rc.N`, then promote it **without approving** the production run that `v1.0.0` starts: let its first job copy the image to the release package, then reject it. Then, from a checkout of `v1.0.0`, with the production key files that `.kamal/secrets.production` reads in `config/` (`secret_key_base.production.key` and `database_password.production.key` hold the same values as the environment's secrets):
+4. **The first deploy** needs the database before the app, and the workflow's `kamal deploy` never boots an accessory. Cut, accept and promote the first candidate as usual; while its production run waits for approval, boot the database from your machine, with the production key files that `.kamal/secrets.production` reads in `config/` (`database_password.production.key` holds the same value as the environment's secret):
 
    ```sh
-   git checkout v1.0.0
-   bin/kamal setup -d production --skip-push
+   bin/kamal accessory boot db -d production
    ```
 
-   Every later release goes through the workflow.
+   Then approve the run: the deploy starts kamal-proxy and the app, whose `db:prepare` creates the four databases. Every later release goes through the workflow alone.
 
 5. **The Cloudflare Tunnel** must already route https://gameble.net to the LXC (`cloudflared` running there, its published application `gameble.net` → `http://localhost:80`): see `config/deploy.production.yml`.
 

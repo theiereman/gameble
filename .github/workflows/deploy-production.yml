@@ -6,7 +6,8 @@ name: Deploy to production
 # runs on staging, copies the image staging ran to the release package, then
 # waits for the author's approval in the environment `production` before
 # deploying that image to https://gameble.net.
-# Nothing is built here, and the first deploy (`kamal setup`) is run by hand.
+# Nothing is built here; before the first deploy, the database accessory is
+# booted by hand (RELEASING.md, Setup).
 #
 # Run by hand with `rollback to` a release, it starts that release's container
 # again, after the same approval.
@@ -29,8 +30,7 @@ env:
   RELEASE_IMAGE: ghcr.io/theiereman/gameble-releases
 
 jobs:
-  # Before the approval, so a rejected run still leaves the image for a
-  # hand-run `kamal setup`.
+  # Before the approval, so a rejected run still leaves the release image.
   release-image:
     if: github.event_name == 'release' && !github.event.release.prerelease
     runs-on: ubuntu-latest
