@@ -177,11 +177,11 @@ set -a; . /etc/gameble-backup/env; set +a
 restic init
 ```
 
-Then, from your machine, copy the script and the units, and on the LXC enable the timer and run a first backup:
+Then, from your machine (which reaches the LXC as `ssh.gameble.net` through the tunnel, RELEASING.md, Setup), copy the script and the units, and on the LXC enable the timer and run a first backup:
 
 ```sh
-scp -P 2225 script/backup/gameble-backup root@ssh.gameble.net:/usr/local/bin/gameble-backup
-scp -P 2225 script/backup/gameble-backup.service script/backup/gameble-backup.timer script/backup/gameble-backup-failed.service root@ssh.gameble.net:/etc/systemd/system/
+scp script/backup/gameble-backup ssh.gameble.net:/usr/local/bin/gameble-backup
+scp script/backup/gameble-backup.service script/backup/gameble-backup.timer script/backup/gameble-backup-failed.service ssh.gameble.net:/etc/systemd/system/
 ```
 
 ```sh

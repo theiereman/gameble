@@ -167,7 +167,9 @@ Before the first production deploy:
      | Secret | Value |
      |---|---|
      | `SSH_KEY` | the private key of a key pair made for the deploy (below) |
-     | `SSH_KNOWN_HOSTS` | `ssh-keyscan -p 2225 ssh.gameble.net`, the `ssh-ed25519` line |
+     | `SSH_KNOWN_HOSTS` | `ssh.gameble.net ` followed by the LXC's `/etc/ssh/ssh_host_ed25519_key.pub` (`ssh-keyscan` cannot pass through the tunnel) |
+     | `CLOUDFLARE_ACCESS_CLIENT_ID` | the Client ID of the Access service token `github-actions deploy production` (below) |
+     | `CLOUDFLARE_ACCESS_CLIENT_SECRET` | its Client Secret |
      | `RAILS_MASTER_KEY` | the same as staging's |
      | `SECRET_KEY_BASE` | `bin/rails secret`; production's own |
      | `DATABASE_PASSWORD` | `openssl rand -hex 32`; production's own |
@@ -177,16 +179,29 @@ Before the first production deploy:
 
    Keep `SECRET_KEY_BASE` and `DATABASE_PASSWORD` in your password manager too: GitHub never shows a secret again. If you lose the database password, the app is locked out of its data; if you change the secret, every player is signed out.
 
-2. **The deploy key**, made on your machine and allowed on the production LXC:
+2. **SSH through the tunnel.** Kamal reaches the LXC at `ssh.gameble.net`, the tunnel's SSH route, through `cloudflared access ssh` (`config/deploy.production.yml`); no port of the home lab is open. In Cloudflare Zero Trust:
+   - **Networks → Tunnels →** the production tunnel **→ Public hostnames → Add**: `ssh.gameble.net`, service `SSH`, URL `localhost:22`;
+   - **Access → Service auth → Service tokens → Create**: `github-actions deploy production`; its Client ID and Client Secret are the two `CLOUDFLARE_ACCESS_*` secrets above;
+   - **Access → Applications → Add → Self-hosted**: domain `ssh.gameble.net`, with a policy whose action is **Service Auth** that includes that token, and a policy that **Allows** your own email, for your machine.
+
+   On your machine, install `cloudflared`, sign in once with `cloudflared access login https://ssh.gameble.net`, and add to `~/.ssh/config`, so `ssh`, `scp` and Kamal reach the LXC as `ssh.gameble.net`:
+
+   ```
+   Host ssh.gameble.net
+     User root
+     ProxyCommand cloudflared access ssh --hostname %h
+   ```
+
+3. **The deploy key**, made on your machine and allowed on the production LXC:
 
    ```sh
    ssh-keygen -t ed25519 -N '' -C 'github-actions deploy production' -f /tmp/gameble_production_deploy
-   ssh-copy-id -i /tmp/gameble_production_deploy.pub -p 2225 root@ssh.gameble.net
+   ssh-copy-id -i /tmp/gameble_production_deploy.pub ssh.gameble.net
    gh secret set SSH_KEY --env production < /tmp/gameble_production_deploy
    rm /tmp/gameble_production_deploy /tmp/gameble_production_deploy.pub
    ```
 
-3. **The first deploy** boots the database and kamal-proxy before the app, so it runs once from your machine and not from the workflow, which never runs `setup`. Cut and accept `v1.0.0-rc.N`, then promote it **without approving** the production run that `v1.0.0` starts: let its first job copy the image to the release package, then reject it. Then, from a checkout of `v1.0.0`, with the production key files that `.kamal/secrets.production` reads in `config/` (`secret_key_base.production.key` and `database_password.production.key` hold the same values as the environment's secrets):
+4. **The first deploy** boots the database and kamal-proxy before the app, so it runs once from your machine and not from the workflow, which never runs `setup`. Cut and accept `v1.0.0-rc.N`, then promote it **without approving** the production run that `v1.0.0` starts: let its first job copy the image to the release package, then reject it. Then, from a checkout of `v1.0.0`, with the production key files that `.kamal/secrets.production` reads in `config/` (`secret_key_base.production.key` and `database_password.production.key` hold the same values as the environment's secrets):
 
    ```sh
    git checkout v1.0.0
@@ -195,7 +210,7 @@ Before the first production deploy:
 
    Every later release goes through the workflow.
 
-4. **The Cloudflare Tunnel** must already route https://gameble.net to the LXC (`cloudflared` running there, its published application `gameble.net` → `http://localhost:80`): see `config/deploy.production.yml`.
+5. **The Cloudflare Tunnel** must already route https://gameble.net to the LXC (`cloudflared` running there, its published application `gameble.net` → `http://localhost:80`): see `config/deploy.production.yml`.
 
 ## Never
 

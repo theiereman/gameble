@@ -121,6 +121,15 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
+      - name: Install cloudflared, which carries SSH through the tunnel
+        env:
+          CLOUDFLARED_URL: https://github.com/cloudflare/cloudflared/releases/download/2026.9.3/cloudflared-linux-amd64
+          CLOUDFLARED_SHA256: 77e26d8d900e0b8469f416239d14b5f296525fdf79fee6f511ef55609e3fbac2
+        run: |
+          curl --fail --silent --show-error --location --output "$RUNNER_TEMP/cloudflared" "$CLOUDFLARED_URL"
+          echo "$CLOUDFLARED_SHA256  $RUNNER_TEMP/cloudflared" | sha256sum --check --strict
+          sudo install -m 755 "$RUNNER_TEMP/cloudflared" /usr/local/bin/cloudflared
+
       - name: Write the secret files read by .kamal/secrets.production and the hook
         env:
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
@@ -141,6 +150,9 @@ jobs:
           printf '%s' "$REGISTRY_PASSWORD" > config/registry_password.key
 
       - name: Deploy the release image
+        env:
+          TUNNEL_SERVICE_TOKEN_ID: ${{ secrets.CLOUDFLARE_ACCESS_CLIENT_ID }}
+          TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.CLOUDFLARE_ACCESS_CLIENT_SECRET }}
         run: bin/kamal deploy -d production --skip-push
 
   rollback-target:
@@ -204,6 +216,15 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
+      - name: Install cloudflared, which carries SSH through the tunnel
+        env:
+          CLOUDFLARED_URL: https://github.com/cloudflare/cloudflared/releases/download/2026.9.3/cloudflared-linux-amd64
+          CLOUDFLARED_SHA256: 77e26d8d900e0b8469f416239d14b5f296525fdf79fee6f511ef55609e3fbac2
+        run: |
+          curl --fail --silent --show-error --location --output "$RUNNER_TEMP/cloudflared" "$CLOUDFLARED_URL"
+          echo "$CLOUDFLARED_SHA256  $RUNNER_TEMP/cloudflared" | sha256sum --check --strict
+          sudo install -m 755 "$RUNNER_TEMP/cloudflared" /usr/local/bin/cloudflared
+
       - name: Write the secret files read by .kamal/secrets.production and the hook
         env:
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
@@ -228,6 +249,8 @@ jobs:
         env:
           TAG: ${{ inputs.rollback_to }}
           SHA: ${{ needs.rollback-target.outputs.sha }}
+          TUNNEL_SERVICE_TOKEN_ID: ${{ secrets.CLOUDFLARE_ACCESS_CLIENT_ID }}
+          TUNNEL_SERVICE_TOKEN_SECRET: ${{ secrets.CLOUDFLARE_ACCESS_CLIENT_SECRET }}
         run: |
           bin/kamal rollback -d production "$SHA" 2>&1 | tee "$RUNNER_TEMP/rollback.log"
           # Kamal exits 0 when the version has no container left on the server.

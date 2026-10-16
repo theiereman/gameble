@@ -14,10 +14,10 @@ image: theiereman/gameble-releases
 # request then arrives from cloudflared's private address, which Rails
 # trusts, so each player keeps their own client address in the rate limits.
 #
-# Kamal reaches the LXC over SSH through the home lab's Traefik (entrypoint
-# :2225 -> 192.168.1.44:22). gameble.net is a tunnel, which carries no SSH,
-# so servers use ssh.gameble.net, a DNS-only name for the home lab's public
-# address.
+# Kamal reaches the LXC over SSH through the same tunnel: ssh.gameble.net is
+# its SSH route, guarded by Cloudflare Access, and cloudflared on the deploying
+# machine carries the connection (a service token in the workflow, an Access
+# login on the author's machine). No port of the home lab is open.
 servers:
   web:
     - ssh.gameble.net
@@ -27,7 +27,8 @@ servers:
     cmd: bin/jobs -c config/queue_import.yml --skip-recurring
 
 ssh:
-  port: 2225
+  port: 22
+  proxy_command: cloudflared access ssh --hostname %h
 
 # Every container logs to journald, which the host keeps 30 days (README, Retention).
 logging:
