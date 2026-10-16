@@ -54,6 +54,17 @@
   75% { transform: scaleX(1.08); }
 }
 
+.card-detail__stage,
+.public-card__stage {
+  min-width: min(340px, 100%);
+  overflow: clip;
+}
+
+.hub-showcase__stage {
+  align-self: stretch;
+  overflow: clip;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html:not([data-motion="full"]) .card-rays {
     animation: none;

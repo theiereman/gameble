@@ -797,6 +797,23 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__shadow.card-ground", 0
   end
 
+  test "a faded epic shows the card back with no float, rays or breathing ground" do
+    add_a_theme_set
+    player = accounts_players(:player)
+    hold(player, catalog_card_seasons(:common_card_one).id, 1)
+    sign_in(player)
+
+    get in_theme("portal")
+
+    assert_response :success
+    assert_select ".card-detail__back", 1
+    assert_select ".card-detail__card .card", false
+    assert_select ".card-detail__card .card-float", 0
+    assert_select ".card-detail__card .card-rays", 0
+    assert_select ".card-detail__shadow", 1
+    assert_select ".card-detail__shadow.card-ground", 0
+  end
+
   test "epic public page floats with rays; common public page stays still" do
     get card_path(locale: :en, slug: "portal")
     assert_response :success
