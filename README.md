@@ -81,7 +81,7 @@ Sentry receives production errors only (no tracing, no profiling, no personal da
 4. Send a test event and check it appears in the Sentry project, tagged `production` and the release:
 
    ```sh
-   bin/kamal app exec -d production --reuse 'bin/rails runner "Sentry.capture_message(%(gameble test event))"'
+   bin/kamal app exec -d production --roles web --reuse 'bin/rails runner "Sentry.capture_message(%(gameble test event))"'
    ```
 
 ### Sign-in throttle
@@ -94,7 +94,7 @@ No page assigns roles. A player signs in with Steam once, then the role is set f
 
 ```sh
 bin/rails "accounts:set_role[76561197960287002,moderator]"                          # locally
-bin/kamal app exec -d production --reuse 'bin/rails "accounts:set_role[76561197960287002,moderator]"'  # in production
+bin/kamal app exec -d production --roles web --reuse 'bin/rails "accounts:set_role[76561197960287002,moderator]"'  # in production
 ```
 
 The task prints the new role, or aborts with the reason (unknown Steam id, deleted account, unknown role). Setting `player` takes a role away.
@@ -231,7 +231,7 @@ script/backup/restore_drill v1.2.0          # the release production runs
 It restores the latest snapshot into a scratch `postgres:18`, boots `ghcr.io/theiereman/gameble-releases:<sha>` on it, on a private Docker network with no way out (no job runs, nothing reaches Steam, Sentry or Discord), waits for `/up` to answer 200, prints the snapshot's time and the player count, and removes its containers and network whatever happens; a failed step is named. Compare the count with production's, which differs only by the accounts created or deleted since the snapshot:
 
 ```sh
-bin/kamal app exec -d production --reuse 'bin/rails runner "puts Accounts::Player.where(deleted_at: nil).count"'
+bin/kamal app exec -d production --roles web --reuse 'bin/rails runner "puts Accounts::Player.where(deleted_at: nil).count"'
 ```
 
 Run the drill once a month, after any change to the backup, and before a PostgreSQL major upgrade.
