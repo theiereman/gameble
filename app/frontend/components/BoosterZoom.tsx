@@ -146,7 +146,9 @@ export default function BoosterZoom({
         >
           {stepButton(previous, -1, "previous")}
           <div className="booster-zoom__card">
-            {(tier === "epic" || tier === "legendary") && <span className="booster-zoom__rays" aria-hidden="true" />}
+            {(tier === "epic" || tier === "legendary") && (
+              <span className={`card-rays card-rays--${tier} card-rays--large booster-zoom__rays`} aria-hidden="true" />
+            )}
             <div className="booster-zoom__face" aria-hidden="true" dangerouslySetInnerHTML={faceHtml} />
           </div>
           {stepButton(next, 1, "next")}

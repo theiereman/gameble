@@ -746,32 +746,15 @@
 
 /* Rays (Épique purple, Légendaire gold) and a Légendaire's glow, behind the card once revealed. */
 .booster-card__rays {
-  --booster-ray: color-mix(in srgb, var(--color-rarity-epique) 22%, transparent);
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 420px;
-  height: 420px;
-  margin: -210px 0 0 -210px;
-  border-radius: 50%;
-  background: repeating-conic-gradient(var(--booster-ray) 0deg 8deg, transparent 8deg 16deg);
-  mask-image: radial-gradient(circle, #000 25%, transparent 68%);
   opacity: 0;
-  pointer-events: none;
+  animation: none;
   transition: opacity 500ms var(--ease-out);
-}
-
-.booster-card[data-tier="legendary"] .booster-card__rays {
-  --booster-ray: color-mix(in srgb, var(--color-rarity-legendaire) 36%, transparent);
-  width: 500px;
-  height: 500px;
-  margin: -250px 0 0 -250px;
 }
 
 /* They turn only once shown: no loop behind a face-down card. */
 .booster-card[data-revealed] .booster-card__rays {
   opacity: 1;
-  animation: booster-spin 24s steps(96) infinite;
+  animation: card-rays-spin 24s steps(96) infinite;
 }
 
 .booster-card[data-revealed][data-tier="legendary"] .booster-card__rays {

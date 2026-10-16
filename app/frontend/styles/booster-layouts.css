@@ -570,23 +570,8 @@
   display: block;
 }
 
-.booster-zoom__rays {
-  --booster-ray: color-mix(in srgb, var(--color-rarity-epique) 22%, transparent);
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 520px;
-  height: 520px;
-  margin: -260px 0 0 -260px;
-  border-radius: 50%;
-  background: repeating-conic-gradient(var(--booster-ray) 0deg 8deg, transparent 8deg 16deg);
-  mask-image: radial-gradient(circle, #000 25%, transparent 68%);
-  pointer-events: none;
-  animation: booster-spin 24s steps(96) infinite;
-}
-
 .booster-zoom[data-tier="legendary"] .booster-zoom__rays {
-  --booster-ray: color-mix(in srgb, var(--color-rarity-legendaire) 36%, transparent);
+  --card-ray: color-mix(in srgb, var(--color-rarity-legendaire) 36%, transparent);
   animation-duration: 14s;
 }
 
