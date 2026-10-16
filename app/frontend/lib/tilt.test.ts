@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import cardStylesheet from "../styles/card.css?raw"
+import detailStylesheet from "../styles/card-detail.css?raw"
 import {
   EASE_ENTER,
   EASE_LEAVE,
@@ -356,6 +357,40 @@ describe("attachTilt", () => {
     expect(menu()).toBe(false)
   })
 
+  it("swallows a finger's menu from its card link, and lets the rest through", () => {
+    const card = new FakeCard()
+    const link = new FakeCard()
+    const linkMenu = () => {
+      const event = new Event("contextmenu", { cancelable: true })
+      link.dispatchEvent(event)
+      return event.defaultPrevented
+    }
+    Object.assign(card, { closest: (selector: string) => (selector === "a" ? link : null) })
+    const detach = attachTilt(card as unknown as HTMLElement, { max: 10 })
+    const removeLinkListener = vi.spyOn(link, "removeEventListener")
+
+    card.dispatchEvent(pointer("pointerdown", "touch", 140, 260))
+    vi.advanceTimersByTime(HOLD_MS)
+    expect(card.dataset.tiltingTouch).toBe("")
+    expect(linkMenu()).toBe(true)
+    card.dispatchEvent(pointer("pointerup", "touch", 140, 260))
+    expect(card.dataset.tiltingTouch).toBeUndefined()
+    expect(linkMenu()).toBe(false)
+
+    card.dispatchEvent(pointer("pointerdown", "touch", 140, 260))
+    card.dispatchEvent(pointer("pointerup", "touch", 140, 260))
+    expect(linkMenu()).toBe(false)
+
+    card.dispatchEvent(pointer("pointermove", "mouse", 140, 260))
+    runFrames(1)
+    expect(card.dataset.tilting).toBe("")
+    expect(card.dataset.tiltingTouch).toBeUndefined()
+    expect(linkMenu()).toBe(false)
+
+    detach()
+    expect(removeLinkListener).toHaveBeenCalledWith("contextmenu", expect.any(Function))
+  })
+
   it("does nothing under reduced motion", () => {
     vi.stubGlobal("document", { documentElement: { dataset: { motion: "reduced" } } })
     const { card } = attach()
@@ -381,6 +416,14 @@ describe("attachTilt", () => {
     expect(card).toContain("-webkit-touch-callout: none")
     expect(cardStylesheet.match(/^\s*user-select: none;/gm)).toHaveLength(1)
     expect(cardStylesheet.match(/^\s*-webkit-touch-callout: none;/gm)).toHaveLength(1)
+  })
+
+  it("scopes the card link's touch callout to an active touch tilt", () => {
+    expect(detailStylesheet).toContain(".card-link:has(.card[data-tilting-touch])")
+    const blocks = detailStylesheet.match(/\.card-link[^{]*\{[^}]*\}/g) ?? []
+    const calloutBlocks = blocks.filter((block) => block.includes("-webkit-touch-callout"))
+    expect(calloutBlocks.length).toBeGreaterThan(0)
+    for (const block of calloutBlocks) expect(block).toContain("[data-tilting-touch]")
   })
 
   it("undoes everything when detached, listeners included", () => {
