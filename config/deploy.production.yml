@@ -16,13 +16,14 @@ image: theiereman/gameble-releases
 #
 # Kamal reaches the LXC over SSH through the home lab's Traefik (entrypoint
 # :2225 -> 192.168.1.44:22). gameble.net is a tunnel, which carries no SSH,
-# so servers use a DNS-only name for the home lab's public address.
+# so servers use ssh.gameble.net, a DNS-only name for the home lab's public
+# address.
 servers:
   web:
-    - gameble.dotsncircles.com
+    - ssh.gameble.net
   import:
     hosts:
-      - gameble.dotsncircles.com
+      - ssh.gameble.net
     cmd: bin/jobs -c config/queue_import.yml --skip-recurring
 
 ssh:
@@ -52,4 +53,4 @@ env:
 
 accessories:
   db:
-    host: gameble.dotsncircles.com
+    host: ssh.gameble.net

@@ -180,8 +180,8 @@ restic init
 Then, from your machine, copy the script and the units, and on the LXC enable the timer and run a first backup:
 
 ```sh
-scp -P 2225 script/backup/gameble-backup root@gameble.dotsncircles.com:/usr/local/bin/gameble-backup
-scp -P 2225 script/backup/gameble-backup.service script/backup/gameble-backup.timer script/backup/gameble-backup-failed.service root@gameble.dotsncircles.com:/etc/systemd/system/
+scp -P 2225 script/backup/gameble-backup root@ssh.gameble.net:/usr/local/bin/gameble-backup
+scp -P 2225 script/backup/gameble-backup.service script/backup/gameble-backup.timer script/backup/gameble-backup-failed.service root@ssh.gameble.net:/etc/systemd/system/
 ```
 
 ```sh

@@ -59,7 +59,7 @@ class ConnectionBudgetTest < ActiveSupport::TestCase
 
   test "the production destination counts one container per role on its host and stays under the limit" do
     production = budget("production")
-    host = "gameble.dotsncircles.com"
+    host = "ssh.gameble.net"
 
     assert_equal [ "web (#{host}) Puma", "web (#{host}) Solid Queue supervisor", "web (#{host}) Solid Queue dispatcher",
       "web (#{host}) Solid Queue worker (default)", "web (#{host}) Solid Queue scheduler",
