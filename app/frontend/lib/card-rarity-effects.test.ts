@@ -35,6 +35,9 @@ describe("the shared card rarity effects", () => {
       expect(rule(cardRarityEffectsStylesheet, `${prefix} .card-float`)).toContain("animation: none")
       expect(rule(cardRarityEffectsStylesheet, `${prefix} .card-ground`)).toContain("animation: none")
     }
-    expect(rule(boosterLayoutsStylesheet, 'html[data-motion="reduced"] .booster-card__rays')).toContain("display: none")
+    const reducedAt = boosterLayoutsStylesheet.lastIndexOf('html[data-motion="reduced"] .booster-card__rays')
+    expect(reducedAt).toBeGreaterThan(-1)
+    const reducedHide = boosterLayoutsStylesheet.slice(reducedAt)
+    expect(reducedHide.slice(0, reducedHide.indexOf("}"))).toContain("display: none")
   })
 })
