@@ -1,15 +1,10 @@
 [Unit]
-Description=Back up gameble's production database to its restic repository
-Documentation=https://github.com/theiereman/gameble#backups
-Wants=network-online.target
-After=network-online.target docker.service
-OnFailure=gameble-backup-failed.service
+Description=Back up gameble's production database every night
 
-[Service]
-Type=oneshot
-EnvironmentFile=/etc/gameble-backup/env
-Environment=RESTIC_CACHE_DIR=/var/cache/gameble-backup
-CacheDirectory=gameble-backup
-ExecStart=/usr/local/bin/gameble-backup
-TimeoutStartSec=2h
-Nice=10
+[Timer]
+OnCalendar=*-*-* 03:30:00
+RandomizedDelaySec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
