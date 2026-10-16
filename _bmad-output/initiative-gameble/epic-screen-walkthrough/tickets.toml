@@ -25,13 +25,26 @@ risk = "medium"
 references = ["design — _bmad-output/initiative-gameble/ux-gameble/DESIGN.md, Components: Public profile", "design — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Component Patterns: Public profile; State Patterns", "design — _bmad-output/initiative-gameble/ux-gameble/mockups/key-public-profile.html"]
 
 [[entry]]
+id = 8
+type = "story"
+title = "The automatic showcase shows a card the player holds"
+description = "The hub's automatic showcase (« DERNIÈRE OBTENTION ») becomes the player's most recently gained card of Épique rarity or better that they still hold in the published season, gained from a capsule or a trade; a card traded away leaves it and the previous one held takes its place, and « REPOSTER » always shows beside it. EXPERIENCE.md's Showcase line says so in place of « latest pull »."
+verify = "Query tests show a card traded away replaced by the previous one held, a card received by trade shown, the higher rarity first among cards gained at the same moment, cards with no gain date after dated ones, and nothing for a player holding no such card; a request test shows the hub with « REPOSTER » and the GET writing nothing."
+covers = ["R3"]
+after = []
+hitl = false
+risk = "low"
+references = ["design — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Component Patterns: Showcase"]
+notes = ["Reported by the author on 2026-10-16: a showcased card traded away stayed on the hub after the trade concluded; today the automatic card is read from the opened capsules' history (Game::NotablePull), and holding is checked only for « REPOSTER ».", "Decision (2026-10-16): the automatic card is read from what the player holds, ordered by when it was last gained, so a card received by trade counts as an obtention (author).", "Assumption: a card held but reserved in an open trade still shows, since the player owns it until the trade concludes.", "Out of scope: the card the player chooses for their showcase, built by 16.4."]
+
+[[entry]]
 id = 4
 type = "story"
 title = "A showcase chosen from the card detail"
 description = "A player puts up to five owned cards in their showcase from the card detail with « METTRE EN VITRINE » and takes one out with « RETIRER DE LA VITRINE »; the profile shows the VITRINE section, each card opening its detail, and the hub shows the first chosen card under « VITRINE », or the automatic one under « DERNIÈRE OBTENTION »."
 verify = "Operation tests show adding, removing, a sixth card refused with the showcase-full line, and a card not owned refused; request tests show the profile and the hub with chosen cards and with none."
 covers = ["R3"]
-after = [3]
+after = [3, 8]
 hitl = false
 risk = "medium"
 references = ["design — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Component Patterns: Showcase, Card detail; Copy deck: Profile showcase"]
