@@ -166,8 +166,8 @@ Before the first production deploy:
 
      | Secret | Value |
      |---|---|
-     | `PRODUCTION_SSH_KEY` | the private key of a key pair made for the deploy (below) |
-     | `PRODUCTION_SSH_KNOWN_HOSTS` | `ssh-keyscan -p 2225 gameble.dotsncircles.com`, the `ssh-ed25519` line |
+     | `SSH_KEY` | the private key of a key pair made for the deploy (below) |
+     | `SSH_KNOWN_HOSTS` | `ssh-keyscan -p 2225 gameble.dotsncircles.com`, the `ssh-ed25519` line |
      | `RAILS_MASTER_KEY` | the same as staging's |
      | `SECRET_KEY_BASE` | `bin/rails secret`; production's own |
      | `DATABASE_PASSWORD` | `openssl rand -hex 32`; production's own |
@@ -182,7 +182,7 @@ Before the first production deploy:
    ```sh
    ssh-keygen -t ed25519 -N '' -C 'github-actions deploy production' -f /tmp/gameble_production_deploy
    ssh-copy-id -i /tmp/gameble_production_deploy.pub -p 2225 root@gameble.dotsncircles.com
-   gh secret set PRODUCTION_SSH_KEY --env production < /tmp/gameble_production_deploy
+   gh secret set SSH_KEY --env production < /tmp/gameble_production_deploy
    rm /tmp/gameble_production_deploy /tmp/gameble_production_deploy.pub
    ```
 

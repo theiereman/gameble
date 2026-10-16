@@ -87,13 +87,13 @@ jobs:
 
       - name: Write the SSH access to the staging LXC
         env:
-          STAGING_SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
-          STAGING_SSH_KNOWN_HOSTS: ${{ secrets.STAGING_SSH_KNOWN_HOSTS }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
         run: |
           install -m 700 -d ~/.ssh
-          printf '%s\n' "$STAGING_SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          printf '%s\n' "$STAGING_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
       - name: Write the secret files read by .kamal/secrets.staging and the hook
         env:

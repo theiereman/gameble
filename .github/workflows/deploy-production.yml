@@ -113,13 +113,13 @@ jobs:
 
       - name: Write the SSH access to the production LXC
         env:
-          PRODUCTION_SSH_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
-          PRODUCTION_SSH_KNOWN_HOSTS: ${{ secrets.PRODUCTION_SSH_KNOWN_HOSTS }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
         run: |
           install -m 700 -d ~/.ssh
-          printf '%s\n' "$PRODUCTION_SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          printf '%s\n' "$PRODUCTION_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
       - name: Write the secret files read by .kamal/secrets.production and the hook
         env:
@@ -196,13 +196,13 @@ jobs:
 
       - name: Write the SSH access to the production LXC
         env:
-          PRODUCTION_SSH_KEY: ${{ secrets.PRODUCTION_SSH_KEY }}
-          PRODUCTION_SSH_KNOWN_HOSTS: ${{ secrets.PRODUCTION_SSH_KNOWN_HOSTS }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
         run: |
           install -m 700 -d ~/.ssh
-          printf '%s\n' "$PRODUCTION_SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          printf '%s\n' "$PRODUCTION_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
       - name: Write the secret files read by .kamal/secrets.production and the hook
         env:
