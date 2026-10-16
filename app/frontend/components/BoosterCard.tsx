@@ -138,7 +138,9 @@ function BoosterCard({
             <div className="booster-card__hover">
               <div className="booster-card__lift">
                 {tier === "legendary" && <span className="booster-card__glow" aria-hidden="true" />}
-                {(tier === "epic" || tier === "legendary") && <span className="booster-card__rays" aria-hidden="true" />}
+                {(tier === "epic" || tier === "legendary") && (
+                  <span className={`card-rays card-rays--${tier} booster-card__rays`} aria-hidden="true" />
+                )}
                 <div className={revealed ? "booster-card__flip is-up" : "booster-card__flip"}>
                   <div className={`booster-card__back ${cardBackClass(cardBack)}`} aria-hidden="true" />
                   <div className="booster-card__front" aria-hidden="true" dangerouslySetInnerHTML={faceHtml} />
