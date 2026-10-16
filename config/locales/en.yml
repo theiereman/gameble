@@ -816,6 +816,13 @@ en:
           gold: "gold"
           complete: "complete"
   settings:
+    visibility_feedback:
+      public: "Your profile is now public."
+      friends_only: "Your profile is now visible to friends only."
+      private:
+        zero: "Your profile is now private."
+        one: "Your profile is now private; %{count} open trade was cancelled."
+        other: "Your profile is now private; %{count} open trades were cancelled."
     show:
       title: "Profile and settings"
       more: "More"
