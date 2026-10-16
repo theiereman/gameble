@@ -445,6 +445,11 @@
   vertical-align: top;
 }
 
+/* iOS Safari retargets a card's long-press menu to its link. */
+.card-link:has(.card[data-tilting-touch]) {
+  -webkit-touch-callout: none;
+}
+
 /* ---- For a visitor, below the detail and as wide, centred: the
    invitation to play ---- */
 
