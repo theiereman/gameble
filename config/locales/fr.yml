@@ -881,6 +881,13 @@ fr:
           gold: "or"
           complete: "complet"
   settings:
+    visibility_feedback:
+      public: "Votre profil est de nouveau public."
+      friends_only: "Votre profil est désormais réservé à vos amis."
+      private:
+        zero: "Profil privé."
+        one: "Profil privé : %{count} échange annulé."
+        other: "Profil privé : %{count} échanges annulés."
     show:
       title: "Profil et paramètres"
       more: "Plus"

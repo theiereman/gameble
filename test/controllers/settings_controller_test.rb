@@ -146,7 +146,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   # The profile visibility row
 
-  %w[private friends_only public].each do |choice|
+  { "private" => { count: 0 }, "friends_only" => {}, "public" => {} }.each do |choice, notice_options|
     test "choosing #{choice} stores it at once and marks it" do
       @player.update!(visibility: "private") if choice == "public"
       sign_in(@player)
@@ -156,10 +156,53 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
       assert_redirected_to settings_path(locale: :en)
       assert_response :see_other
       assert_equal choice, @player.reload.visibility
+      notice = I18n.t("settings.visibility_feedback.#{choice}", **notice_options, locale: :en)
+      assert_equal notice, flash[:notice]
       follow_redirect!
+      assert_select ".toast__message", notice
       assert_select "button[name=visibility][value=#{choice}][aria-pressed=true]", 1
       assert_select "button[name=visibility][aria-pressed=true]", 1
     end
+  end
+
+  test "going private with no trade open toasts that the profile is private, with nothing cancelled" do
+    sign_in(@player)
+
+    patch settings_visibility_path(locale: :fr), params: { visibility: "private" }
+
+    assert_redirected_to settings_path(locale: :fr)
+    assert_equal I18n.t("settings.visibility_feedback.private", count: 0, locale: :fr), flash[:notice]
+    follow_redirect!
+    assert_select ".toast__message", I18n.t("settings.visibility_feedback.private", count: 0, locale: :fr)
+  end
+
+  test "going private cancels the trades open when the setting is posted, one proposed after the page load too" do
+    bob = accounts_players(:moderator)
+    carol = accounts_players(:administrator)
+    [ bob, carol ].each do |partner|
+      low, high = [ @player.id, partner.id ].minmax
+      Game::Friendship.create!(low_player_id: low, high_player_id: high)
+    end
+    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2)
+    Game::Holding.create!(player_id: bob.id, card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 1)
+    Game::Holding.create!(player_id: carol.id, card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 1)
+    Game::ProposeTrade.new.call(player: @player, recipient: bob, offer: { catalog_card_seasons(:portal_one).id => 1 },
+      request: { catalog_card_seasons(:rare_card_one).id => 1 }).value!
+    sign_in(@player)
+
+    get settings_path(locale: :fr)
+    assert_select ".private-dialog__text", "Passer en privé annule votre échange en cours."
+
+    Game::ProposeTrade.new.call(player: carol, recipient: @player, offer: { catalog_card_seasons(:rare_card_one).id => 1 },
+      request: { catalog_card_seasons(:portal_one).id => 1 }).value!
+    patch settings_visibility_path(locale: :fr), params: { visibility: "private" }
+
+    assert_redirected_to settings_path(locale: :fr)
+    assert_equal "private", @player.reload.visibility
+    assert_equal I18n.t("settings.visibility_feedback.private", count: 2, locale: :fr), flash[:notice]
+    assert_equal [ "cancelled", "cancelled" ], Game::Trade.order(:id).pluck(:status)
+    follow_redirect!
+    assert_select ".toast__message", I18n.t("settings.visibility_feedback.private", count: 2, locale: :fr)
   end
 
   [ nil, "", "everyone", "Private", [ "private" ] ].each do |choice|
