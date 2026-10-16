@@ -151,7 +151,7 @@ en:
       settings: "Profile and settings"
     legal:
       title: "Legal notice and privacy"
-      updated: "Last updated: 15 October 2026"
+      updated: "Last updated: 16 October 2026"
       contact_fallback: "the publisher"
       publisher:
         title: "Publisher and host"
@@ -203,6 +203,7 @@ en:
           steam: "Steam (Valve) handles sign-in and provides your profile name;"
           sentry: "Sentry (Functional Software, Inc.) receives technical errors: the page's address and the one you came from, the browser used and its language, and your internal player id, never your name or your Steam id. Your browser also sends it the page's security reports directly, with your IP address. Data hosted in the European Union;"
           cloudflare: "Cloudflare, Inc. sits in front of the site to protect and speed it up: it sees its requests, your IP address included, and processes them in the United States among other places. This transfer relies on the European Commission's adequacy decision of 10 July 2023 (Data Privacy Framework), to which Cloudflare adheres;"
+          ovh: "OVH SAS stores the database backups, encrypted before they leave the server, so it cannot read them. Data hosted in France;"
           images: "card images load from Steam's content delivery network, which your browser contacts directly."
         retention:
           intro: "How long your data is kept:"
@@ -212,6 +213,7 @@ en:
           banned_steam_id: "the Steam id of a suspended account: as long as the suspension lasts, to refuse a new sign-up;"
           logs: "the server's logs: 30 days;"
           errors: "technical errors received by Sentry: 90 days at most, depending on the publisher's Sentry plan;"
+          backups: "the database backups, encrypted and kept in France: the last 7 daily backups, that is 7 days in normal times; a deleted account is gone from them after 7 days, a little longer if a backup failed;"
           leftovers: "what a deleted account leaves behind that concerns other players or the community (past trades, first discoveries, contributions to the community goal, the log of game actions): as long as the game exists, without a Steam id or a name."
         deletion: "When you delete your account, your Steam id, your profile name, the time of your last visit, your last data export, your collection, your capsules, your friendships, your invitations, your friend code and your activity feed entries are erased, your open trades are cancelled and your profile disappears. What also concerns other players, the community or moderation (past trades, first discoveries, contributions to the community goal, reports, moderation history, the log of game actions) is kept without your Steam id or your name, for the periods given above."
         rights:

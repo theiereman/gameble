@@ -1,0 +1,7 @@
+[Unit]
+Description=Tell the production Discord channel that gameble's backup failed
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/gameble-backup/env
+ExecStart=/usr/bin/curl --fail --silent --show-error --max-time 30 --header "Content-Type: application/json" --data '{"content":"gameble production: backup failed on %H, see journalctl -u gameble-backup","allowed_mentions":{"parse":[]}}' ${DISCORD_WEBHOOK}

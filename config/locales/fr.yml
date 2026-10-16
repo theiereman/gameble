@@ -157,7 +157,7 @@ fr:
       settings: "Profil et paramètres"
     legal:
       title: "Mentions légales et confidentialité"
-      updated: "Dernière mise à jour : 15 octobre 2026"
+      updated: "Dernière mise à jour : 16 octobre 2026"
       contact_fallback: "l'éditeur"
       publisher:
         title: "Éditeur et hébergeur"
@@ -209,6 +209,7 @@ fr:
           steam: "Steam (Valve) gère la connexion et fournit votre nom de profil ;"
           sentry: "Sentry (Functional Software, Inc.) reçoit les erreurs techniques : l'adresse de la page et celle d'où vous venez, le navigateur utilisé et sa langue, et votre identifiant interne de joueur, jamais votre nom ni votre identifiant Steam. Votre navigateur lui envoie aussi directement les rapports de sécurité de la page, avec votre adresse IP. Données hébergées dans l'Union européenne ;"
           cloudflare: "Cloudflare, Inc. se place devant le site pour le protéger et l'accélérer : il voit passer ses requêtes, dont votre adresse IP, et les traite notamment aux États-Unis. Ce transfert repose sur la décision d'adéquation de la Commission européenne du 10 juillet 2023 (Data Privacy Framework), à laquelle Cloudflare adhère ;"
+          ovh: "OVH SAS conserve les sauvegardes de la base de données, chiffrées avant de quitter le serveur : il ne peut pas les lire. Données hébergées en France ;"
           images: "les images des cartes se chargent depuis le réseau de diffusion de Steam, que votre navigateur contacte directement."
         retention:
           intro: "Combien de temps vos données sont conservées :"
@@ -218,6 +219,7 @@ fr:
           banned_steam_id: "l'identifiant Steam d'un compte suspendu : tant que la suspension dure, pour refuser une nouvelle inscription ;"
           logs: "les journaux du serveur : 30 jours ;"
           errors: "les erreurs techniques reçues par Sentry : 90 jours au plus, selon l'offre Sentry de l'éditeur ;"
+          backups: "les sauvegardes de la base de données, chiffrées et conservées en France : les 7 dernières sauvegardes quotidiennes, soit 7 jours en temps normal ; un compte supprimé en disparaît au bout de 7 jours, un peu plus si une sauvegarde a échoué ;"
           leftovers: "ce qu'un compte supprimé laisse et qui concerne d'autres joueurs ou la communauté (échanges passés, premières découvertes, contributions à l'objectif communautaire, journal des actions du jeu) : tant que le jeu existe, sans identifiant Steam ni nom."
         deletion: "Quand vous supprimez votre compte, votre identifiant Steam, votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, votre collection, vos capsules, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à l'objectif communautaire, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."
         rights:

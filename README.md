@@ -141,6 +141,101 @@ docker container prune -f
 
 Staging keeps Docker's default log driver. Sentry keeps errors for its plan's retention, 90 days at most.
 
+### Backups
+
+Every night at 03:30 (the LXC's time, up to 10 minutes later) the systemd timer `gameble-backup.timer` on the production LXC runs `script/backup/gameble-backup`: `pg_dump` in `gameble-db` streams the primary database, `gameble_production`, straight into a [restic](https://restic.net) repository, so nothing is written to the LXC's disk. restic encrypts the dump before it leaves the server and deduplicates it. A failed or truncated dump fails the run and its snapshot is forgotten; a failed run posts `gameble production: backup failed on <host>, see journalctl -u gameble-backup` to the production Discord channel (`gameble-backup-failed.service`).
+
+- **Kept:** the primary database: accounts, collections, trades, moderation, import runs and their cursors.
+- **Not kept:** the cache, queue and cable databases, which `db:prepare` recreates empty when the app boots. A job in flight at the moment of loss is lost; an import resumes from its run's cursor.
+- **Retention:** 7 daily snapshots (`restic forget --keep-daily 7 --prune --max-unused 0` after each backup, so nothing a forgotten snapshot held stays in the bucket). The privacy notice tells players the backups are the last 7 daily ones, 7 days in normal times, and that a deleted account is gone from them after 7 days, a little longer if a backup failed: change both together.
+- **Where:** OVHcloud Object Storage, bucket `gameble-backups`, Standard class, region `eu-west-par` (3-AZ Paris; else `gra`, Gravelines), without versioning: a kept version would outlive the 7 days. The S3 user is allowed on that bucket only.
+- **Secrets:** the restic password and the S3 user's keys live in `/etc/gameble-backup/env` on the LXC (root only) and in the author's password manager. Without the restic password, the backups cannot be read by anyone.
+
+One-time install. In the OVHcloud console, create the bucket (no versioning) and an S3 user whose policy allows that bucket only. On the production LXC, install restic and create the env file, root only:
+
+```sh
+apt install restic curl
+install -d -m 700 /etc/gameble-backup
+install -m 600 /dev/null /etc/gameble-backup/env
+```
+
+Fill it with an editor. systemd and the shell both read it, so write each value bare, without quotes, spaces or `$`:
+
+```sh
+RESTIC_REPOSITORY=s3:https://s3.eu-west-par.io.cloud.ovh.net/gameble-backups
+RESTIC_PASSWORD=<openssl rand -hex 32, kept in the password manager>
+AWS_ACCESS_KEY_ID=<the S3 user's access key>
+AWS_SECRET_ACCESS_KEY=<the S3 user's secret key>
+AWS_DEFAULT_REGION=eu-west-par
+DISCORD_WEBHOOK=<the production channel's webhook, as in config/discord_webhook.production.key>
+```
+
+Then create the repository:
+
+```sh
+set -a; . /etc/gameble-backup/env; set +a
+restic init
+```
+
+Then, from your machine, copy the script and the units, and on the LXC enable the timer and run a first backup:
+
+```sh
+scp -P 2225 script/backup/gameble-backup root@gameble.dotsncircles.com:/usr/local/bin/gameble-backup
+scp -P 2225 script/backup/gameble-backup.service script/backup/gameble-backup.timer script/backup/gameble-backup-failed.service root@gameble.dotsncircles.com:/etc/systemd/system/
+```
+
+```sh
+chmod 755 /usr/local/bin/gameble-backup
+systemctl daemon-reload
+systemctl enable --now gameble-backup.timer
+systemctl start gameble-backup
+systemctl start gameble-backup-failed   # posts the failure message once, to check the webhook
+```
+
+Copy the script and the units again whenever they change in the repository, then `systemctl daemon-reload`.
+
+Checking, on the LXC:
+
+```sh
+systemctl list-timers gameble-backup.timer      # the next and the last run
+journalctl -u gameble-backup -n 30              # "gameble-backup: snapshot <id> saved", then the retention
+set -a; . /etc/gameble-backup/env; set +a
+restic snapshots --tag gameble_production       # one a day, 7 at most
+restic check                                    # the repository's own consistency
+```
+
+A run killed in the middle can leave a stale lock that refuses the next one: `restic unlock`.
+
+**Restoring production.** Restoring replaces the whole primary database with the snapshot: everything since is lost, and an account deleted since comes back (delete it again). From your machine, stop the app (both roles), then on the LXC pick the snapshot and restore it into an empty `gameble_production`:
+
+```sh
+bin/kamal app stop -d production
+```
+
+```sh
+set -a; . /etc/gameble-backup/env; set +a
+restic snapshots --tag gameble_production
+docker exec gameble-db dropdb --username=gameble gameble_production
+docker exec gameble-db createdb --username=gameble gameble_production
+restic dump <snapshot id> /gameble_production.dump | docker exec -i gameble-db pg_restore --username=gameble --dbname=gameble_production --no-owner --exit-on-error
+```
+
+On a new LXC, run `bin/kamal accessory boot db -d production` first (it creates an empty `gameble_production`), restore, and only then deploy: the app's `db:prepare` would otherwise load an empty schema. Finally `bin/kamal app boot -d production` (or the deploy), and check `/up` and the player count below.
+
+**The restore drill.** `script/backup/restore_drill`, run from your machine, proves a backup restores and that the release production runs boots on it, without touching production. It reads the repository's settings from `config/backup_restic.key` (git-ignored like `master.key`: the same `RESTIC_*` and `AWS_*` lines as the LXC's env file, without `DISCORD_WEBHOOK`) and needs restic, Docker, Ruby, OpenSSL and `config/master.key`. The release images are private: log in once with `docker login ghcr.io -u theiereman --password-stdin < config/registry_password.key`.
+
+```sh
+script/backup/restore_drill v1.2.0          # the release production runs
+```
+
+It restores the latest snapshot into a scratch `postgres:18`, boots `ghcr.io/theiereman/gameble-releases:<sha>` on it, on a private Docker network with no way out (no job runs, nothing reaches Steam, Sentry or Discord), waits for `/up` to answer 200, prints the snapshot's time and the player count, and removes its containers and network whatever happens; a failed step is named. Compare the count with production's, which differs only by the accounts created or deleted since the snapshot:
+
+```sh
+bin/kamal app exec -d production --reuse 'bin/rails runner "puts Accounts::Player.where(deleted_at: nil).count"'
+```
+
+Run the drill once a month, after any change to the backup, and before a PostgreSQL major upgrade.
+
 ### Job queue
 
 Administrators open Mission Control Jobs at `/back-office/jobs` (linked from the back-office). A moderator is refused (403); anyone not staff gets 404.

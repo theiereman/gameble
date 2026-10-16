@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Streams a dump of gameble's primary production database into the restic
+# repository, then applies the retention. Run by gameble-backup.service, whose
+# EnvironmentFile supplies RESTIC_REPOSITORY, RESTIC_PASSWORD and the storage
+# credentials. Nothing is written to the server's disk.
+set -euo pipefail
+
+readonly CONTAINER=gameble-db
+readonly DATABASE=gameble_production
+readonly TAG=gameble_production
+readonly DUMP_NAME=gameble_production.dump
+readonly KEEP_DAILY=7
+
+saved_snapshot() {
+  sed -n 's/^snapshot \([0-9a-f]\{8,\}\) saved$/\1/p' <<<"$1" | tail -n 1
+}
+
+dump_status=0
+backup_output=$(
+  docker exec "$CONTAINER" pg_dump --username=gameble --format=custom "$DATABASE" |
+    restic backup --stdin --stdin-filename "$DUMP_NAME" --tag "$TAG"
+) || dump_status=$?
+printf '%s\n' "$backup_output"
+snapshot=$(saved_snapshot "$backup_output")
+
+if [ "$dump_status" -ne 0 ]; then
+  if [ -n "$snapshot" ]; then
+    echo "gameble-backup: the dump failed, forgetting the incomplete snapshot $snapshot" >&2
+    restic forget "$snapshot" ||
+      echo "gameble-backup: the incomplete snapshot $snapshot is still in the repository; forget it with: restic forget $snapshot" >&2
+  fi
+  echo "gameble-backup: backup failed (status $dump_status), no snapshot kept" >&2
+  exit "$dump_status"
+fi
+
+if [ -z "$snapshot" ]; then
+  echo "gameble-backup: restic reported no saved snapshot" >&2
+  exit 1
+fi
+
+echo "gameble-backup: snapshot $snapshot saved"
+restic forget --tag "$TAG" --keep-daily "$KEEP_DAILY" --prune --max-unused 0

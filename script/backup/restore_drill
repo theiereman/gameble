@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+# Restores the latest backup of gameble's production database into a
+# throwaway PostgreSQL 18 on this machine, boots a release image on it, checks
+# /up and prints the player count. Everything it starts is removed on exit.
+#
+#   script/backup/restore_drill v1.2.0
+#
+# The restic repository's settings come from config/backup_restic.key
+# (git-ignored like master.key), the app's credentials key from config/master.key.
+set -Eeuo pipefail
+
+readonly TAG=gameble_production
+readonly DUMP_PATH=/gameble_production.dump
+readonly RELEASE_IMAGE=ghcr.io/theiereman/gameble-releases
+readonly POSTGRES_IMAGE=postgres:18
+readonly WAIT_SECONDS=180
+
+cd "$(dirname "$0")/../.."
+
+release=${1:-}
+current_step="checking the arguments"
+
+fail() {
+  echo "restore_drill: $*" >&2
+  exit 1
+}
+
+step() {
+  current_step=$1
+  echo "restore_drill: $current_step"
+}
+
+[ -n "$release" ] || fail "usage: script/backup/restore_drill <release tag, e.g. v1.2.0>"
+sha=$(git rev-parse --verify --quiet "${release}^{commit}") || fail "no commit for $release; run git fetch --tags"
+image="$RELEASE_IMAGE:$sha"
+[ -f config/backup_restic.key ] || fail "config/backup_restic.key is missing (README, Backups)"
+[ -f config/master.key ] || fail "config/master.key is missing"
+
+set -a
+# shellcheck source=/dev/null
+. config/backup_restic.key
+set +a
+
+run_id="gameble-drill-$$"
+network="$run_id"
+db="$run_id-db"
+app="$run_id-app"
+
+clean_up() {
+  docker rm --force --volumes "$app" "$db" >/dev/null 2>&1 || true
+  docker network rm "$network" >/dev/null 2>&1 || true
+}
+trap clean_up EXIT
+trap '[ "$BASH_SUBSHELL" -eq 0 ] && echo "restore_drill: failed while $current_step" >&2' ERR
+
+wait_for_postgres() {
+  local deadline=$((SECONDS + WAIT_SECONDS))
+  until docker exec "$db" pg_isready --host=127.0.0.1 --username=gameble --dbname=gameble_production >/dev/null 2>&1; do
+    [ "$SECONDS" -lt "$deadline" ] || fail "PostgreSQL did not accept connections within ${WAIT_SECONDS}s"
+    sleep 2
+  done
+}
+
+wait_for_app() {
+  local deadline=$((SECONDS + WAIT_SECONDS))
+  until docker exec "$app" curl --fail --silent --output /dev/null http://localhost/up 2>/dev/null; do
+    if [ "$(docker inspect --format '{{.State.Running}}' "$app")" != true ]; then
+      docker logs --tail 40 "$app" >&2
+      fail "the app stopped before /up answered"
+    fi
+    if [ "$SECONDS" -ge "$deadline" ]; then
+      docker logs --tail 40 "$app" >&2
+      fail "/up did not answer 200 within ${WAIT_SECONDS}s"
+    fi
+    sleep 2
+  done
+}
+
+step "finding the latest snapshot"
+snapshots=$(restic snapshots --tag "$TAG" --json)
+latest=$(ruby -rjson -e 'latest = JSON.parse(ARGV[0]).max_by { _1["time"] } and puts "#{latest["short_id"]} #{latest["time"]}"' "$snapshots")
+[ -n "$latest" ] || fail "no snapshot tagged $TAG"
+read -r snapshot snapshot_time <<<"$latest"
+
+step "pulling $image"
+docker image inspect "$image" >/dev/null 2>&1 || docker pull --quiet "$image" >/dev/null
+
+POSTGRES_PASSWORD=$(openssl rand -hex 24)
+GAMEBLE_DATABASE_PASSWORD=$POSTGRES_PASSWORD
+SECRET_KEY_BASE=$(openssl rand -hex 64)
+RAILS_MASTER_KEY=$(<config/master.key)
+export POSTGRES_PASSWORD GAMEBLE_DATABASE_PASSWORD SECRET_KEY_BASE RAILS_MASTER_KEY
+
+step "starting a scratch PostgreSQL on the private network $network"
+docker network create --internal "$network" >/dev/null
+docker run --detach --name "$db" --network "$network" \
+  --env POSTGRES_USER=gameble --env POSTGRES_DB=gameble_production --env POSTGRES_PASSWORD \
+  "$POSTGRES_IMAGE" >/dev/null
+wait_for_postgres
+
+step "restoring snapshot $snapshot ($snapshot_time)"
+restic dump "$snapshot" "$DUMP_PATH" |
+  docker exec --interactive "$db" pg_restore --username=gameble --dbname=gameble_production --no-owner --exit-on-error
+
+step "booting $image on the restored data"
+docker run --detach --name "$app" --network "$network" \
+  --env RAILS_MASTER_KEY --env SECRET_KEY_BASE --env GAMEBLE_DATABASE_PASSWORD \
+  --env DB_HOST="$db" --env PUBLIC_URL=http://localhost \
+  "$image" >/dev/null
+wait_for_app
+
+step "counting the players"
+players=$(docker exec "$app" bin/rails runner 'puts Accounts::Player.where(deleted_at: nil).count')
+
+current_step="reporting"
+echo
+echo "restore_drill: passed"
+echo "  snapshot:  $snapshot, taken $snapshot_time"
+echo "  release:   $release ($sha)"
+echo "  /up:       200"
+echo "  players:   $players"
