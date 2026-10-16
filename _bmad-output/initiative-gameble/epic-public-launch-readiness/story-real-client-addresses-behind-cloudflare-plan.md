@@ -3,7 +3,7 @@ title: 'Real client addresses behind Cloudflare'
 type: 'feature'
 ticket: '25'
 created: '2026-10-14'
-status: 'built'
+status: done
 baseline_revision: '236faa0264f9332f70cf222eb77dc00c11ea1f30'
 route: 'oneshot'
 route_source: 'auto'
@@ -46,3 +46,5 @@ Oneshot: about 70 lines across an initializer, the throttle, the production prox
 - `low` patch — the trusted proxies initializer opened with a five-line comment restating the code, against AGENTS.md's one-line rule; cut to the ranges' source and date.
 - `medium` patch — `SignInThrottle.client_ip` read `env["action_dispatch.remote_ip"].to_s`, which would turn into "" and put every client in one bucket if Rack::Attack ever ran before ActionDispatch::RemoteIp; now `ActionDispatch::Request.new(request.env).remote_ip`, which falls back to `ip`.
 - Checked with no issue: the published ranges, the initializer's timing, the production proxy setting; the `IpSpoofAttackError` on a request carrying both Client-IP and X-Forwarded-For predates this change.
+
+- Done (author, 2026-10-16), checked on production behind its Cloudflare Tunnel: Rails logged the client's public IPv6, not a private or Cloudflare address; 121 reads from one address gave 120 x 404 then 429 while the same machine's IPv4 still got 404; a forged X-Forwarded-For stayed throttled under the real address, and Cloudflare itself refused a client-sent CF-Connecting-IP with 403.
