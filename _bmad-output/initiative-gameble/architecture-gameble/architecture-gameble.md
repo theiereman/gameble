@@ -251,7 +251,7 @@ graph TD
   - PostgreSQL has four logical databases: primary, queue, cache, cable. Each can move to its own server.
   - Every schema change is expand/contract; `strong_migrations` refuses a migration that would block the database.
   - Cloudflare sits in front. Sentry receives errors. Backups exist before launch.
-  - Environments are Kamal destinations sharing `config/deploy.yml`: `staging` (gameble.dotsncircles.com, the home lab LXC behind the author's Traefik, which terminates TLS) and `production` (gameble.net, its own home lab LXC behind Cloudflare and the same Traefik, which terminates TLS). Each has its own servers, host, `PUBLIC_URL` and `.kamal/secrets.<destination>`; both run `RAILS_ENV=production` with `assume_ssl` and `force_ssl`.
+  - Environments are Kamal destinations sharing `config/deploy.yml`: `staging` (gameble.dotsncircles.com, the home lab LXC behind the author's Traefik, which terminates TLS) and `production` (gameble.net, its own home lab LXC reached only through a Cloudflare Tunnel: `cloudflared` on the LXC forwards to kamal-proxy, Cloudflare terminates TLS, no inbound web port is open; Kamal's SSH still goes through the home lab's Traefik). Each has its own servers, host, `PUBLIC_URL` and `.kamal/secrets.<destination>`; both run `RAILS_ENV=production` with `assume_ssl` and `force_ssl`.
 
 ### AD-22 — What CI refuses `[ADOPTED]`
 

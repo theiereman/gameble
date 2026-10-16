@@ -24,9 +24,9 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
-  # Every destination is served over HTTPS (AD-21) behind the home lab's
-  # Traefik, which holds the certificates; production is behind Cloudflare
-  # too. Rails treats each request as HTTPS, so cookies are secure and
+  # Every destination is served over HTTPS by a proxy that holds the
+  # certificate: the home lab's Traefik for staging, Cloudflare's tunnel for
+  # production. Rails treats each request as HTTPS, so cookies are secure and
   # generated URLs (the Steam OpenID return URL included) use https.
   config.assume_ssl = true
 

@@ -195,7 +195,7 @@ Before the first production deploy:
 
    Every later release goes through the workflow.
 
-4. **Cloudflare and Traefik** must already route https://gameble.net to the LXC: see `config/deploy.production.yml`.
+4. **The Cloudflare Tunnel** must already route https://gameble.net to the LXC (`cloudflared` running there, its published application `gameble.net` → `http://localhost:80`): see `config/deploy.production.yml`.
 
 ## Never
 

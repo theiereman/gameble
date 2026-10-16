@@ -1,6 +1,7 @@
-# Production: gameble.net on its own home lab LXC (192.168.1.44), behind
-# Cloudflare and then the author's Traefik, which terminates TLS for
-# gameble.net and forwards plain HTTP to kamal-proxy on 192.168.1.44:80.
+# Production: gameble.net on its own home lab LXC (192.168.1.44), reached only
+# through a Cloudflare Tunnel: cloudflared runs on the LXC as a systemd service
+# and forwards plain HTTP to kamal-proxy on localhost:80. No inbound web port
+# is open, so no request reaches the app without passing Cloudflare.
 #   bin/kamal deploy -d production --skip-push
 # run by .github/workflows/deploy-production.yml for each release (RELEASING.md).
 #
@@ -9,14 +10,13 @@
 # ghcr.io/theiereman/gameble and spares none, while releases are never deleted.
 image: theiereman/gameble-releases
 
-# Cloudflare's SSL/TLS mode is "Full (strict)": Traefik holds a valid
-# certificate. Traefik's entrypoint must trust Cloudflare's ranges
-# (forwardedHeaders.trustedIPs), or it replaces X-Forwarded-For and every
-# player shares one client address in the rate limits.
+# Cloudflare terminates TLS at its edge and sets X-Forwarded-For; the
+# request then arrives from cloudflared's private address, which Rails
+# trusts, so each player keeps their own client address in the rate limits.
 #
-# Kamal reaches the LXC over SSH through Traefik (entrypoint :2225 ->
-# 192.168.1.44:22). gameble.net is proxied by Cloudflare, which carries no
-# SSH, so servers use a DNS-only name for the same public address.
+# Kamal reaches the LXC over SSH through the home lab's Traefik (entrypoint
+# :2225 -> 192.168.1.44:22). gameble.net is a tunnel, which carries no SSH,
+# so servers use a DNS-only name for the home lab's public address.
 servers:
   web:
     - gameble.dotsncircles.com
@@ -33,9 +33,9 @@ logging:
   driver: journald
 
 proxy:
-  ssl: false                       # Traefik holds the certificate
+  ssl: false                       # Cloudflare holds the certificate
   host: gameble.net
-  forward_headers: true            # keep Cloudflare's X-Forwarded-For and Traefik's X-Forwarded-Proto
+  forward_headers: true            # keep Cloudflare's X-Forwarded-For and X-Forwarded-Proto
   run:
     log_max_size: ""
     options:
