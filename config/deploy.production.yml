@@ -41,15 +41,7 @@ proxy:
     options:
       log-driver: journald
 
-# A destination's list replaces the shared one: production adds its own
-# SECRET_KEY_BASE, so a session signed on staging is never valid here.
 env:
-  secret:
-    - RAILS_MASTER_KEY
-    - SECRET_KEY_BASE
-    - SENTRY_DSN
-    - GAMEBLE_DATABASE_PASSWORD
-    - STEAM_API_KEY
   clear:
     SENTRY_ENVIRONMENT: production
     PUBLIC_URL: https://gameble.net

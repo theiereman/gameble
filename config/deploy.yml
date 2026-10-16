@@ -24,10 +24,13 @@ registry:
   password:
     - KAMAL_REGISTRY_PASSWORD
 
-# Inject ENV variables into containers (secrets come from .kamal/secrets).
+# Inject ENV variables into containers (secrets come from .kamal/secrets.<destination>).
+# Each destination signs its sessions and cookies with its own SECRET_KEY_BASE,
+# so a session signed on staging is never valid in production.
 env:
   secret:
     - RAILS_MASTER_KEY
+    - SECRET_KEY_BASE
     - SENTRY_DSN
     - GAMEBLE_DATABASE_PASSWORD
     - STEAM_API_KEY
