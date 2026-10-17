@@ -4,7 +4,7 @@ module GameSets
   # A set holding `members` (card-season ids), asking `tiers` ({ tier => required }); its id.
   def insert_set(members, tiers, kind: "theme", key: "roguelike", params: { kind => key }, season: catalog_seasons(:one))
     set_id = Catalog::Set.insert_all!([ { season_id: season.id, kind:, key:, params: } ], returning: :id).rows.flatten.sole
-    Catalog::SetMembership.insert_all!(members.each_with_index.map { |id, index| { set_id:, card_season_id: id, position: index + 1 } })
+    Catalog::SetMembership.insert_all!(members.each_with_index.map { |id, index| { set_id:, card_season_id: id, position: index + 1 } }) if members.any?
     Catalog::SetTier.insert_all!(tiers.map { |tier, required| { set_id:, tier: tier.to_s, required: } }) if tiers.any?
     set_id
   end
@@ -15,5 +15,27 @@ module GameSets
     common = catalog_card_seasons(:common_card_one).id
     %w[roguelike horror cosy].map { insert_set([ common, catalog_card_seasons(:rare_card_one).id ], { bronze: 1, complete: 2 }, key: it) } +
       [ insert_set([ common ], { bronze: 1, silver: 1, gold: 1 }, key: "metroidvania") ]
+  end
+
+  # A new published season (the next number) of `count` common cards,
+  # reviewed `review_counts` times in card order (nil: unreviewed), seeded
+  # with CatalogSeeds; the season and its card-season ids in card order.
+  def published_cards(count, review_counts: Array.new(count))
+    season = seed_card_seasons(Array.new(count) { |index| (count - index).to_f }, review_counts:, prefix: "board")
+    Catalog::CardSeason.where(season_id: season.id).update_all(rarity: Catalog::Rarity::TIERS.keys.first)
+    season.update!(status: :published, published_at: Time.current)
+    [ season, Catalog::CardSeason.where(season_id: season.id).order(:id).ids ]
+  end
+
+  # A theme of `season` holding `members`, tiered as publication tiers a
+  # theme of their number; its id.
+  def insert_theme(members, key:, season:)
+    insert_set(members, Catalog::Themes.tiers(members.size), kind: "theme", key:, params: { "theme" => key }, season:)
+  end
+
+  # Copies of each card-season of `ids` for `player`, last gained at `gained_at`.
+  def hold_all(player, ids, gained_at: nil, quantity: 1)
+    now = Time.current
+    Game::Holding.insert_all!(ids.map { |card_season_id| { player_id: player.id, card_season_id:, quantity:, last_gained_at: gained_at, created_at: now, updated_at: now } })
   end
 end

@@ -62,11 +62,11 @@ class PagesController < ApplicationController
         total: Catalog::CardCount.call(@season) }
     end
 
-    # The set progress rows, named in the current locale; a set is reached by
-    # its kind and key (AD-15).
+    # "Sets in progress": the player's four sets closest to their next tier
+    # (Game::SetBoard.hub), with the sets that name them.
     def set_rows
-      Game::HubSets.call(current_player, season: @season).map do |row|
-        { label: SetLabel.for(row.set), kind: row.set.kind, key: row.set.key, owned: row.owned, total: row.total }
-      end
+      standings = Game::SetBoard.hub(current_player, season: @season)
+      sets = Catalog::SetsById.call(standings.map(&:set_id))
+      standings.filter_map { |standing| SetBoardLoading::SetRow.new(set: sets[standing.set_id], standing:) if sets.key?(standing.set_id) }
     end
 end

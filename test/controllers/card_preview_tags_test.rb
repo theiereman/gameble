@@ -304,6 +304,8 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
       assert_response :success
       get library_path(locale: :en), headers: { "User-Agent" => user_agent }
       assert_response :success
+      get library_cards_path(locale: :en), headers: { "User-Agent" => user_agent }
+      assert_response :success
       head card_page(slug: "portal"), headers: { "User-Agent" => user_agent }
       assert_response :success
     end

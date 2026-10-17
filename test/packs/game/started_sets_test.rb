@@ -1,7 +1,8 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Game::StartedSets: the sets of which a player holds a card.
+# Game::StartedSets: the sets with a member whose game a player holds, in
+# any edition.
 class Game::StartedSetsTest < ActiveSupport::TestCase
   include CatalogSeeds
 
@@ -39,6 +40,15 @@ class Game::StartedSetsTest < ActiveSupport::TestCase
 
     assert_empty started(@player)
     assert_includes started(accounts_players(:moderator)), "pirates"
+  end
+
+  test "a game held only in another edition starts the set" do
+    card = Catalog::CardSeason.find(members("pirates").first)
+    other = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    Catalog::CardSeason.insert_all!([ { card_id: card.card_id, season_id: other.id, prestige_score: 1, rating: 80 } ])
+    hold(@player, Catalog::CardSeason.find_by!(card_id: card.card_id, season_id: other.id).id, 1)
+
+    assert_includes started(@player), "pirates"
   end
 
   test "a player with no card, or a visitor, has started nothing" do

@@ -129,7 +129,7 @@ class CardsController < ApplicationController
     # season's), with its filters and search.
     def grid_page_path(context, page)
       filters = { **context.except(:kind, :key, :seen), page: (page if page > 1) }.compact_blank
-      context[:kind] ? library_set_path(kind: context[:kind], key: context[:key], **filters) : library_path(**filters)
+      context[:kind] ? library_set_path(kind: context[:kind], key: context[:key], **filters) : library_cards_path(**filters)
     end
 
     # The set the query names, when its kind is a library kind and it is one

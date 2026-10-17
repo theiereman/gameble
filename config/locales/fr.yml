@@ -142,7 +142,7 @@ fr:
         collected: "Récupérée"
         full_text: "Ouvrez une capsule pour récupérer votre capsule rare."
       sets:
-        title: "Progression des sets"
+        title: "Sets en cours"
         see_all: "Tout voir"
       welcome:
         title: "Bienvenue sur gameble"
@@ -610,6 +610,37 @@ fr:
       open_booster: "Ouvrir une capsule"
       back_to_hub: "Retour au pont"
   library:
+    entry:
+      in_progress: "En cours"
+      discover: "À découvrir"
+      search: "Chercher un set"
+      all_cards: "Toutes les cartes"
+      results: "Résultats"
+      search_button: "Chercher"
+      found:
+        zero: "Aucun set trouvé"
+        one: "1 set trouvé"
+        other: "%{count} sets trouvés"
+      none: "Aucun set trouvé pour « %{query} »."
+    set_kinds:
+      theme: "Thème"
+      franchise: "Franchise"
+      studio: "Studio"
+      hall_of_fame: "Palmarès"
+      ufo: "OVNI"
+    set_progress:
+      count:
+        zero: "%{owned} carte sur %{total}"
+        one: "%{owned} carte sur %{total}"
+        other: "%{owned} cartes sur %{total}"
+      tier: "palier %{tier}"
+      next: "%{tier} à %{required}"
+      complete: "complet"
+      tiers:
+        bronze: "Bronze"
+        silver: "Argent"
+        gold: "Or"
+        complete: "Complet"
     collection:
       title: "Collection"
     status:
@@ -711,7 +742,6 @@ fr:
         private: "Profil privé : vous seul et la modération le voyez"
         banned: "Joueur banni : visible par la modération seulement"
       counts: "La collection"
-      pick: "Choisissez un set pour voir les cartes qu'il contient."
       complete: "Complet"
       # French keeps the singular for 0, which the plural rule here does not.
       progress:

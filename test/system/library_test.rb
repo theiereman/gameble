@@ -97,7 +97,7 @@ class LibraryTest < ApplicationSystemTestCase
   # on a loaded runner one such attempt outlasts the wait while the frame
   # the filter reloads replaces the nodes under it.
   test "a visitor who unticks the only state chip keeps every slot, as the form without JavaScript" do
-    visit library_path(locale: :en)
+    visit library_cards_path(locale: :en)
     find(".filters__summary").click
     assert_selector ".collection-grid > li", count: 60, visible: :all
     find(".filter-chip__text", text: /\AAll\z/i).click
@@ -138,7 +138,7 @@ class LibraryTest < ApplicationSystemTestCase
 
   test "the FILTRES zone: chips narrow the grid, the zone keeps focus, the count follows, a search narrows as it is typed" do
     sign_in
-    visit library_path(locale: :en)
+    visit library_cards_path(locale: :en)
     assert_selector ".collection-grid > li", count: 3
     assert_no_selector ".filters__zone[open]"
     assert_no_selector ".filters__count", visible: true
@@ -218,7 +218,7 @@ class LibraryTest < ApplicationSystemTestCase
   test "on a 360 × 740 phone a visitor keeps the Steam image, and two cards still fit a row" do
     page.driver.browser.manage.window.resize_to(360, 740)
 
-    visit library_path(locale: :en)
+    visit library_cards_path(locale: :en)
 
     assert_selector ".top-bar .steam-sign-in__button", visible: true
     assert_no_selector ".collection-status", visible: true

@@ -206,7 +206,7 @@ class CardDetailTest < ApplicationSystemTestCase
   test "from the whole season's collection, a missing slot opens its card on the faded back, walking the collection" do
     season = publish_sets_draft
 
-    visit library_path(locale: :en)
+    visit library_cards_path(locale: :en)
     links = all(".collection-grid a.card-link").map { it[:href] }
     find(".collection-grid > li:nth-child(2) .missing-slot").click
 
@@ -349,11 +349,11 @@ class CardDetailTest < ApplicationSystemTestCase
     filters = { state: %w[missing], genre: %w[roguelike], q: "seed" }
     # The 75 cards whose main theme is roguelike: two pages, the 61st on the second.
     shown = (1..2).flat_map do |number|
-      visit library_path(locale: :en, **filters, page: number)
+      visit library_cards_path(locale: :en, **filters, page: number)
       all(".collection-grid a.card-link").map { URI(it[:href]).path[%r{\A/en/cards/([^/]+)/}, 1] }
     end
     assert_equal 75, shown.size
-    grid_path = library_path(locale: :en, **filters)
+    grid_path = library_cards_path(locale: :en, **filters)
 
     visit grid_path
     slot = find(".collection-grid > li:nth-child(60) a.card-link")
@@ -388,11 +388,11 @@ class CardDetailTest < ApplicationSystemTestCase
     season = publish_sets_draft
     page.driver.browser.manage.window.resize_to(*PHONE)
     filters = { state: %w[missing], genre: %w[roguelike], q: "seed" }
-    visit library_path(locale: :en, **filters, page: 2)
+    visit library_cards_path(locale: :en, **filters, page: 2)
     second_page = all(".collection-grid a.card-link").map { URI(it[:href]).path }
     assert_operator second_page.size, :>, 0
 
-    visit library_path(locale: :en, **filters)
+    visit library_cards_path(locale: :en, **filters)
     find(".collection-grid > li:nth-child(60) a.card-link").click
     assert_selector ".card-detail__position", text: "· 60 / 75 ·"
     find(".card-detail__nav--next").click
@@ -410,7 +410,7 @@ class CardDetailTest < ApplicationSystemTestCase
   test "on the desktop, from a filtered collection ◀ ▶ walk it, and Back returns to it with its filters" do
     season = publish_sets_draft
     filters = { state: %w[all], genre: %w[rpg], q: "seed 1" }
-    visit library_path(locale: :en, **filters)
+    visit library_cards_path(locale: :en, **filters)
     shown = all(".collection-grid a.card-link").map { URI(it[:href]).path[%r{\A/en/cards/([^/]+)/}, 1] }
     assert_operator shown.size, :>, 3
 
@@ -426,7 +426,7 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector "button.card-detail__nav--previous[disabled]"
 
     go_back
-    assert_current_path library_path(locale: :en, **filters)
+    assert_current_path library_cards_path(locale: :en, **filters)
     assert_equal "seed 1", find("#collection-search").value
   end
 

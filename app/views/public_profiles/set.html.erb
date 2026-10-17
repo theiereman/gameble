@@ -17,7 +17,7 @@
   <aside class="collection__aside" aria-labelledby="collection-sets-title">
     <%= link_to t(".owner", name: title), brother_path(token, kind: (@kind unless started), page: @shelf_page), class: "profile__owner",
       data: { turbo_prefetch: false } %>
-    <%= render "public_profiles/set_list", kind: @kind, set: @set, spines: @spines, pagy: @pagy, links: profile_shelf_links(token, @kind, @tabs) %>
+    <%= render "public_profiles/set_list", kind: @kind, set: @set, spines: @spines, pagy: @pagy, links: profile_shelf_links(token, @kind, @tabs, @set) %>
   </aside>
   <section class="collection__main" aria-labelledby="profile-set-heading">
     <header class="profile-set__header">

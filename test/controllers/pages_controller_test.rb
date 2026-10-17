@@ -1,5 +1,7 @@
 require "test_helper"
+require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
+require_relative "../support/game_sets"
 require_relative "../support/game_trades"
 require_relative "../support/steam_sign_in"
 
@@ -7,12 +9,14 @@ require_relative "../support/steam_sign_in"
 # Daily booster panel, Set progress row, Signed-out hub, Sign-in panel), as
 # the server renders it for a player and for a visitor.
 class PagesControllerTest < ActionDispatch::IntegrationTest
+  include CatalogSeeds
   include GamePacks
+  include GameSets
   include GameTrades
   include SteamSignIn
 
-  PLAYER_HUB_QUERIES = 20
-  VISITOR_HUB_QUERIES = 6
+  PLAYER_HUB_QUERIES = 19
+  VISITOR_HUB_QUERIES = 7
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
@@ -91,9 +95,12 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-showcase form", false
   end
 
-  test "a player's hub: the menu, the latest notable pull, the daily panel and the set progress" do
+  test "a player's hub: the menu, the latest notable pull, the daily panel and the sets in progress" do
     create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
-    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2)
+    gained = 1.hour.ago.change(usec: 0)
+    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2, last_gained_at: gained)
+    Game::SetTier.insert_all!([ { player_id: @player.id, set_id: catalog_sets(:valve_one).id, tier: "complete", reached_by: "trade",
+      reached_at: gained, created_at: gained, updated_at: gained } ])
     3.times { create_pack(@player) }
     sign_in(@player)
 
@@ -169,13 +176,18 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select "main .button--primary", 1
 
-    # The set progress: the season's one set, owned out of its size.
-    assert_select ".hub-sets h2", "Progression des sets"
-    assert_select ".hub-sets a.set-row[href='/fr/library/studio/valve']" do
-      assert_select ".set-row__name", "Valve"
+    # The sets in progress: the season's one set, completed by the latest
+    # gain, owned out of its size.
+    assert_select ".hub-sets h2", "Sets en cours"
+    assert_select ".hub-sets a.set-row.set-row--progress[href='/fr/library/studio/valve']" do
+      assert_select ".set-row__name[aria-hidden=true]", "Valve"
+      assert_select ".set-row__kind", "Studio"
+      assert_select ".set-tier--complete .set-tier__stamp"
+      assert_select ".set-tier--complete", "Complet"
       assert_select ".set-row__count", "1/1"
-      assert_select ".visually-hidden", "1 carte possédée sur 1"
-      assert_select "progress.set-row__bar[value='1'][max='1'][aria-hidden=true]"
+      assert_select ".visually-hidden", "Valve, studio, 1 carte sur 1, complet"
+      assert_select ".set-row__track[aria-hidden=true] progress.set-row__bar[value='1'][max='1']"
+      assert_select ".set-row__tick", false
     end
     assert_select ".hub-sets a.button--link[href='/fr/library']", "Tout voir"
 
@@ -320,6 +332,34 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, forms.size, "the top bar's and the sign-in panel's"
     assert forms.all? { it.classes.include?("steam-sign-in") && it.at_css("button.steam-sign-in__button img[src*='sits_01']") }
     assert_select "a[href*='/auth/steam']", false
+  end
+
+  test "a player with five sets in progress sees the board's first four, and See all leads to the collection" do
+    season, cards = published_cards(60)
+    [ 3, 2, 5, 9, 4 ].each_with_index do |held, index|
+      members = cards.shift(12)
+      insert_theme(members, key: %w[roguelike rpg horror cosy pirates][index], season:)
+      hold_all(@player, members.first(held))
+    end
+    sign_in(@player)
+
+    get home_path(locale: :en)
+
+    expected = Game::SetBoard.call(@player, season:).in_progress.first(4).map { Catalog::Set.find(it.set_id) }
+    assert_equal 4, expected.size
+    assert_select ".hub-sets h2", "Sets in progress"
+    assert_equal expected.map { "/en/library/#{it.kind}/#{it.key}" }, css_select(".hub-sets a.set-row").map { it["href"] }
+    assert_equal [ "Horror", "RPG", "Pirates", "Cosy" ], css_select(".hub-sets .set-row__name").map(&:text)
+    assert_select ".hub-sets a.button--link[href='/en/library']", "See all"
+  end
+
+  test "a set completed before the latest gain leaves the hub's sets in progress; none left, no panel" do
+    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
+    sign_in(@player)
+
+    get home_path(locale: :en)
+
+    assert_select ".hub-sets", false
   end
 
   test "no published season: no set rows and no collection meta" do
@@ -514,8 +554,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # Player lookup, published season, the weekly goal (one read once the job
     # has created the week's row), bank (count, next pack, daily claim), the
     # goal reward's claim slot,
-    # showcase (pull, the copies held, card view), collection (owned, total), sets (progress,
-    # the started sets, the fill, which finds no other set here, so no sizes),
+    # showcase (pull, the copies held, card view), collection (owned, total), sets (the
+    # player's standings, the popular fill, which finds no other set here, so no figures
+    # and no set to name),
     # the top bar's copies per tier, menu 04's friends online, menu 06's
     # achievements earned, the trades
     # waiting (menu 03 and the tab bar share one count) and the LIVE ticker's
@@ -531,8 +572,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-showcase .card"
 
     delete session_path(locale: :en)
-    # Published season, collection total, sets fill and its totals, the
-    # ticker's entries.
+    # Published season, collection total, the popular sets, their figures
+    # and the sets naming them, the ticker's entries.
     assert_hub_queries(VISITOR_HUB_QUERIES)
   end
 

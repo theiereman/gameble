@@ -136,7 +136,7 @@ en:
         collected: "Collected"
         full_text: "Open a capsule to collect your rare capsule."
       sets:
-        title: "Set progress"
+        title: "Sets in progress"
         see_all: "See all"
       welcome:
         title: "Welcome to gameble"
@@ -582,6 +582,37 @@ en:
       open_booster: "Open a capsule"
       back_to_hub: "Back to the bridge"
   library:
+    entry:
+      in_progress: "In progress"
+      discover: "To discover"
+      search: "Find a set"
+      all_cards: "All cards"
+      results: "Results"
+      search_button: "Search"
+      found:
+        zero: "No set found"
+        one: "1 set found"
+        other: "%{count} sets found"
+      none: "No set found for “%{query}”."
+    set_kinds:
+      theme: "Theme"
+      franchise: "Franchise"
+      studio: "Studio"
+      hall_of_fame: "Hall of fame"
+      ufo: "UFO"
+    set_progress:
+      count:
+        zero: "%{owned} cards out of %{total}"
+        one: "%{owned} card out of %{total}"
+        other: "%{owned} cards out of %{total}"
+      tier: "%{tier} tier"
+      next: "%{tier} at %{required}"
+      complete: "complete"
+      tiers:
+        bronze: "Bronze"
+        silver: "Silver"
+        gold: "Gold"
+        complete: "Complete"
     collection:
       title: "Collection"
     status:
@@ -676,7 +707,6 @@ en:
         private: "Private profile: only you and the moderation team can see it"
         banned: "Banned player: visible to the moderation team only"
       counts: "The collection"
-      pick: "Pick a set to see the cards it holds."
       complete: "Complete"
       progress:
         one: "%{count} card owned out of %{total}"

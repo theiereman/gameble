@@ -1,0 +1,14 @@
+<div class="set-entry">
+  <% [ [ "in_progress", in_progress ], [ "discover", discover ] ].each do |section, rows| %>
+    <% next if rows.empty? %>
+    <section class="set-entry__section" aria-labelledby="set-entry-<%= section.dasherize %>-title">
+      <h2 id="set-entry-<%= section.dasherize %>-title" class="set-entry__title"><%= t("library.entry.#{section}") %></h2>
+      <ul class="set-entry__list">
+        <% rows.each do |row| %>
+          <li><%= render "library/set_progress_row", href: set_url.call(row.set), set: row.set, standing: row.standing %></li>
+        <% end %>
+      </ul>
+    </section>
+  <% end %>
+  <%= render "library/set_search", results:, results_count:, query:, search_url:, all_cards_url:, set_url: %>
+</div>

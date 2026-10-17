@@ -20,16 +20,18 @@ Rails.application.routes.draw do
     resource :booster, only: :show
     resource :packs_chip, path: "packs-chip", only: :show
 
-    # The collection, reached from the hub's menu: the whole season (CAP-6).
+    # The collection, reached from the hub's menu: its entry, the player's
+    # sets; the grid of every card of the season.
     resource :library, controller: :library, only: :show
-    # The collection of one set, by kind and key (AD-15).
+    get "library/cards" => "library#cards", as: :library_cards
+    # The grid of one set, by kind and key, never by id.
     get "library/:kind/:key" => "library#set", as: :library_set, constraints: { kind: /theme|franchise|studio|hall_of_fame|ufo/ }
-    # The collection's watermark (AD-26): the page posts the latest gain it
-    # showed as new.
+    # The collection's watermark: the page posts the latest gain it showed
+    # as new.
     post "library/seen" => "collection_seen#create", as: :library_seen
 
-    # A player's public profile (CAP-8), by their token (AD-15: 24 base58
-    # characters, as has_secure_token makes them): their library, and one of
+    # A player's public profile, by their token (24 base58 characters, as
+    # has_secure_token makes them, never an id): their sets, and one of
     # their sets opened beside its shelf.
     resources :brothers, only: :show, param: :token, controller: :public_profiles,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }

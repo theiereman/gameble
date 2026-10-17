@@ -604,7 +604,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   # library shows them.
   def grid_slugs(params, kind: nil, key: nil)
     (1..).each_with_object([]) do |page, slugs|
-      get kind ? library_set_path(locale: :en, kind:, key:, **params, page:) : library_path(locale: :en, **params, page:)
+      get kind ? library_set_path(locale: :en, kind:, key:, **params, page:) : library_cards_path(locale: :en, **params, page:)
       shown = css_select(".collection-grid a.card-link").map { it["href"][%r{/cards/([^/]+)/}, 1] }
       return slugs if shown.empty?
 
@@ -629,19 +629,19 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal [ [ "a", grid_detail(slugs[58], season.number, context) ], [ "a", grid_detail(slugs[60], season.number, context) ] ], navs
     assert_equal "60 / 150", position[%r{\d+ / \d+}]
-    assert_equal "/en/library?state%5B%5D=all", css_select(".top-bar__phone-back").sole["href"]
+    assert_equal "/en/library/cards?state%5B%5D=all", css_select(".top-bar__phone-back").sole["href"]
     assert_equal "Grid", css_select(".top-bar__phone-back").sole.text.squish
     assert_select ".card-detail__back"
 
     get grid_detail(slugs[60], season.number, context)
     assert_equal "61 / 150", position[%r{\d+ / \d+}]
-    assert_equal "/en/library?page=2&state%5B%5D=all", css_select(".top-bar__phone-back").sole["href"]
+    assert_equal "/en/library/cards?page=2&state%5B%5D=all", css_select(".top-bar__phone-back").sole["href"]
 
     # The newest held card opens the grid; every slot by default.
     get grid_detail(slugs[0], season.number, { q: "" })
     assert_equal [ [ "button", "disabled" ], [ "a", grid_detail(slugs[1], season.number, { q: "" }) ] ], navs
     assert_equal "1 / 150", position[%r{\d+ / \d+}]
-    assert_equal "/en/library", css_select(".top-bar__phone-back").sole["href"]
+    assert_equal "/en/library/cards", css_select(".top-bar__phone-back").sole["href"]
     assert_select ".card-detail__card .card.card--l"
   end
 
@@ -655,7 +655,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get grid_detail(slugs[1], season.number, context)
     assert_equal [ [ "a", grid_detail(slugs[0], season.number, context) ], [ "a", grid_detail(slugs[2], season.number, context) ] ], navs
     assert_equal "2 / #{slugs.size}", position[%r{\d+ / \d+}]
-    assert_equal "/en/library?genre%5B%5D=roguelike&q=Seed+1&state%5B%5D=all&state%5B%5D=missing", css_select(".top-bar__phone-back").sole["href"]
+    assert_equal "/en/library/cards?genre%5B%5D=roguelike&q=Seed+1&state%5B%5D=all&state%5B%5D=missing", css_select(".top-bar__phone-back").sole["href"]
     # A visitor browsing a grid gets the detail, the card as the faded back.
     assert_select ".card-detail__back img[src*='back-standard']"
     assert_select ".public-card", false
@@ -685,7 +685,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     Game::PlayerState.where(player_id: player.id).update_all(collection_seen_up_to: 1.day.ago)
     sign_in(player)
 
-    get library_path(locale: :en, state: %w[new])
+    get library_cards_path(locale: :en, state: %w[new])
     links = css_select(".collection-grid a.card-link").map { it["href"] }
     assert_equal 3, links.size
     # The grid posts the latest gain it showed: none of its cards is new any more.
@@ -694,7 +694,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get links[1]
     assert_equal links.values_at(0, 2), navs.map(&:second)
     assert_equal "2 / 3", position[%r{\d+ / \d+}]
-    assert_equal "/en/library?state%5B%5D=new", css_select(".top-bar__phone-back").sole["href"]
+    assert_equal "/en/library/cards?state%5B%5D=new", css_select(".top-bar__phone-back").sole["href"]
 
     # A watermark that is not a time is the player's current one: no new
     # card, so the card's own page, as without a grid.

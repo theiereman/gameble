@@ -1,12 +1,13 @@
-<%# "Progression des sets" (DESIGN.md, Set progress row): up to four sets
-    (Game::HubSets), each a set progress row (library/set_row) leading to
-    that set in the collection; "Tout voir" opens the collection. %>
+<%# "Sets in progress": the player's four sets closest to their next tier,
+    filled with those to discover (Game::SetBoard.hub), each a set progress
+    row (library/set_progress_row) leading to that set; "See all" opens the
+    collection. Locals: sets, SetBoardLoading::SetRow list. %>
 <section class="hub-sets" aria-labelledby="hub-sets-title">
   <h2 id="hub-sets-title" class="hub-sets__title"><%= t("pages.home.sets.title") %></h2>
   <ul class="hub-sets__list">
-    <% sets.each do |set| %>
+    <% sets.each do |row| %>
       <li>
-        <%= render "library/set_row", href: library_set_path(kind: set[:kind], key: set[:key]), label: set[:label], owned: set[:owned], total: set[:total] %>
+        <%= render "library/set_progress_row", href: library_set_path(kind: row.set.kind, key: row.set.key), set: row.set, standing: row.standing %>
       </li>
     <% end %>
   </ul>

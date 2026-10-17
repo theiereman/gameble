@@ -53,7 +53,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".collection-status__value", "3 / 150"
     assert_equal [ "Horror", "3/16" ], current_row
     assert_select ".collection-kind[aria-current=true]", "Themes"
-    assert_equal [ "/en/library", "/en/library/theme/horror", "/en/library/theme/pirates", "/en/library/theme/roguelike", "/en/library/theme/rpg" ],
+    assert_equal [ "/en/library/cards", "/en/library/theme/horror", "/en/library/theme/pirates", "/en/library/theme/roguelike", "/en/library/theme/rpg" ],
       css_select(".collection-sets .set-row").map { it["href"] }
     expected = members.each_with_index.map do |id, index|
       case index
@@ -126,7 +126,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_equal [ "The UFOs", "0/15" ], current_row
     assert_select ".collection-kind[aria-current=true]", "UFOs"
     assert_equal set_members(season, "ufos").map { title(it) }, slots.map(&:second)
-    assert_equal "/en/library?kind=ufo", css_select(".collection-sets .set-row").first["href"]
+    assert_equal "/en/library/cards?kind=ufo", css_select(".collection-sets .set-row").first["href"]
     assert_select "[data-group=genre]", false
 
     get library_set_path(locale: :fr, kind: "theme", key: "pirates")
@@ -207,7 +207,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal [ "Studio 55", "0/0" ], current_row
     assert_equal 11, css_select(".collection-sets .set-row").size
-    assert_equal "/en/library?kind=studio&shelf=2", css_select(".collection-sets .set-row").first["href"]
+    assert_equal "/en/library/cards?kind=studio&shelf=2", css_select(".collection-sets .set-row").first["href"]
     assert_equal "/en/library/studio/studio-51?shelf=2", css_select(".collection-sets .set-row")[1]["href"]
     assert_select ".collection-grid__empty", "Nothing matches these filters."
 

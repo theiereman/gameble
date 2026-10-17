@@ -1,7 +1,8 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Game::SetProgress: a player's distinct owned cards per set.
+# Game::SetProgress: per set, the members whose game a player holds, in any
+# edition.
 class Game::SetProgressTest < ActiveSupport::TestCase
   include CatalogSeeds
 
@@ -52,6 +53,16 @@ class Game::SetProgressTest < ActiveSupport::TestCase
     assert_equal({ "rpg" => 1 }, progress(accounts_players(:moderator), "rpg"))
     assert_equal({ "rpg" => 1 }, progress(@player, "rpg", "ufos"))
     assert_equal({}, progress(@player, "ufos", "pirates"))
+  end
+
+  test "a game held only in an earlier edition counts in the published season's set, once" do
+    card = Catalog::CardSeason.find(members("pirates").first)
+    later = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    Catalog::CardSeason.insert_all!([ { card_id: card.card_id, season_id: later.id, prestige_score: 1, rating: 80 } ])
+    hold(@player, Catalog::CardSeason.find_by!(card_id: card.card_id, season_id: later.id).id, 1)
+    hold(@player, card.id, 2)
+
+    assert_equal({ "pirates" => 1, "horror" => 1 }, progress(@player, "pirates", "horror"))
   end
 
   test "one query for a player, none for a visitor or no set" do

@@ -38,6 +38,93 @@
   min-width: 0;
 }
 
+.set-entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  width: 100%;
+  max-width: 880px;
+  margin-inline: auto;
+}
+
+.set-entry__section,
+.set-search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.set-entry__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.set-entry__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.set-search__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-6);
+}
+
+.set-search__head .button--link {
+  margin: 0;
+}
+
+.set-search__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.set-search__field {
+  box-sizing: border-box;
+  flex: 1 1 260px;
+  min-width: 0;
+  min-height: var(--space-button-height);
+  padding: var(--space-1) var(--space-5);
+  background: var(--color-input);
+  border: 0;
+  box-shadow: var(--control-border);
+  color: var(--color-text-max);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.set-search__field:focus-visible {
+  outline: 0;
+  box-shadow: var(--focus-ring-gap), inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.set-search__status {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.set-results__none {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
 /* ---- Top bar status: "Cartes uniques : 87 / 16 480" and its bar ---- */
 
 /* The status keeps its width; the screen title gives way (ellipsis). */

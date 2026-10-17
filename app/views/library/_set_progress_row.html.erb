@@ -1,0 +1,14 @@
+<%= link_to href, class: class_names("set-row", "set-row--progress", "set-row--tiered": standing.tiered?, "set-row--complete": standing.complete?),
+  data: { turbo_prefetch: false } do %>
+  <span class="set-row__name" aria-hidden="true"><%= SetLabel.for(set) %></span>
+  <span class="set-row__meta" aria-hidden="true">
+    <span class="set-row__kind"><%= set_kind_name(set.kind) %></span>
+    <%= set_tier_mark(standing) %>
+  </span>
+  <span class="set-row__count" aria-hidden="true"><%= number_with_delimiter(standing.held) %>/<%= number_with_delimiter(standing.total) %></span>
+  <span class="set-row__track" aria-hidden="true">
+    <progress class="set-row__bar" value="<%= [ standing.held, standing.total ].min %>" max="<%= [ standing.total, 1 ].max %>"></progress>
+    <%= set_tier_ticks(standing) %>
+  </span>
+  <span class="visually-hidden"><%= set_progress_sentence(set, standing) %></span>
+<% end %>

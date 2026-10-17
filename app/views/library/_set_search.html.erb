@@ -1,0 +1,35 @@
+<% status = query.present? ? t("library.entry.found", count: results_count) : "" %>
+<section class="set-search" aria-labelledby="set-search-title">
+  <div class="set-search__head">
+    <h2 id="set-search-title" class="set-entry__title"><%= t("library.entry.search") %></h2>
+    <% if all_cards_url %>
+      <%= render ButtonComponent.new(variant: :link, href: all_cards_url) do %><%= t("library.entry.all_cards") %><% end %>
+    <% end %>
+  </div>
+  <%= form_with url: search_url, method: :get, class: "set-search__form", html: { role: "search", aria: { labelledby: "set-search-title" } }, data: {
+    controller: "set-search", set_search_frame_value: "set-search-results", turbo_frame: "set-search-results", turbo_action: "replace",
+    action: "input->set-search#typed compositionend->set-search#typed keydown->set-search#escape submit->set-search#submitted turbo:frame-load@document->set-search#loaded"
+  } do %>
+    <%= search_field_tag "q", query, id: "set-search-field", class: "set-search__field", autocomplete: "off", maxlength: SetSearch::MAX_QUERY,
+      aria: { labelledby: "set-search-title" }, data: { set_search_target: "field" } %>
+    <noscript><%= submit_tag t("library.entry.search_button"), name: nil, class: "button button--secondary button--small set-search__submit" %></noscript>
+    <p class="set-search__status" role="status" data-set-search-target="status"><%= status %></p>
+  <% end %>
+</section>
+<%= turbo_frame_tag "set-search-results", target: "_top" do %>
+  <span hidden data-set-search-summary><%= status %></span>
+  <% if query.present? %>
+    <section class="set-entry__section set-results" aria-labelledby="set-results-title">
+      <h2 id="set-results-title" class="set-entry__title"><%= t("library.entry.results") %></h2>
+      <% if results.any? %>
+        <ul class="set-entry__list">
+          <% results.each do |row| %>
+            <li><%= render "library/set_progress_row", href: set_url.call(row.set), set: row.set, standing: row.standing %></li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="set-results__none"><%= t("library.entry.none", query:) %></p>
+      <% end %>
+    </section>
+  <% end %>
+<% end %>

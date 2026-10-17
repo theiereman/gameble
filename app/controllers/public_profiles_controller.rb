@@ -1,11 +1,10 @@
-# A player's public profile, at a link built on their token: their
-# collection, readable by anyone, signed out included, drawn with the
-# collection's components in read-only mode. The list of sets opens on the
-# ones they have started, beside the kinds the season holds, each with the owner's
-# progress (never the viewer's); a set opens beside the list with the
-# owner's cards. The header counts their distinct cards and complete sets.
-# Accounts answers the owner, Game whether their profile may be shown,
-# Catalog the sets and cards, Game the owner's progress, copies and counts.
+# A player's public profile, at a link built on their token, readable by
+# anyone, signed out included: the summary, then their sets as the
+# collection opens on them (SetBoardLoading), with the owner's progress,
+# never the viewer's, each leading to that set on the profile; a set opens
+# beside a list of the owner's sets with their cards. Accounts answers the
+# owner, Game whether their profile may be shown, Catalog the sets and
+# cards, Game the owner's progress, copies and counts.
 #
 # An unknown token and a profile that may not be shown to this viewer
 # (Game::Visibility: a banned owner, or one whose visibility hides it, for
@@ -17,6 +16,7 @@
 class PublicProfilesController < ApplicationController
   include PublicRead
   include ShelfLoading
+  include SetBoardLoading
 
   # The tab of the sets the owner has started, before the kinds.
   STARTED = "started".freeze
@@ -24,26 +24,24 @@ class PublicProfilesController < ApplicationController
   before_action :authorize_page
   before_action :load_owner
 
-  # GET /:locale/brothers/:token?kind=…&page=n. The Started tab without a
-  # kind or with any kind it does not know.
+  # GET /:locale/brothers/:token?q=…: the summary and the owner's sets, the
+  # set searched for with `q`.
   def show
-    season = Catalog::PublishedSeason.call
-    @tabs = [ STARTED, *shelf_kinds(season) ]
-    @kind = @tabs.include?(params[:kind]) ? params[:kind] : STARTED
-    load_shelf(shelf_relation(season), owner: @owner)
-    @summary = Game::CollectionSummary.call(@owner, season:)
+    @season = Catalog::PublishedSeason.call
+    load_set_board(@season, owner: @owner) if @season
+    @summary = Game::CollectionSummary.call(@owner, season: @season)
   end
 
-  # GET /:locale/brothers/:token/library/:kind/:key?page=n&tab=started: one
-  # of the owner's sets opened, beside page n of its kind's shelf, or of the
-  # Started shelf with `tab=started`. As in the library, a key the published
+  # GET /:locale/brothers/:token/library/:kind/:key?page=n&tab=…: one of
+  # the owner's sets opened, beside page n of its kind's shelf, or of the
+  # shelf of the tab named (the Started shelf, or another kind's). As in the library, a key the published
   # season holds under no set of this kind, or no published season, is not
   # found.
   def set
     season = Catalog::PublishedSeason.call
     load_set(season, owner: @owner)
     @tabs = [ STARTED, *shelf_kinds(season) ]
-    @kind = params[:tab] == STARTED ? STARTED : @set.kind
+    @kind = @tabs.include?(params[:tab]) ? params[:tab] : @set.kind
     @shelf_page = page_param if params[:page].present?
     load_shelf(shelf_relation(season), owner: @owner)
   end

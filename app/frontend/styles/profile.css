@@ -59,17 +59,6 @@
   color: var(--color-lime);
 }
 
-/* ---- The page of the sets, before one is open ---- */
-
-.profile__hint {
-  margin: 0;
-  padding: var(--space-8) 0;
-  color: var(--color-muted);
-  font: var(--font-body-large);
-  letter-spacing: var(--tracking-body-large);
-  text-align: center;
-}
-
 /* ---- An open set: the way back, its name and the owner's progress ---- */
 
 .profile__owner {
