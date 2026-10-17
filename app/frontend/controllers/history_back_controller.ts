@@ -46,12 +46,12 @@ window.addEventListener("pageshow", (event) => {
   record()
 })
 
-// Focuses the card link on this page leading to the page recorded right
-// after the current entry, if there is one.
+// Focuses the card link or set progress row on this page leading to the
+// page recorded right after the current entry, if there is one.
 function focusReturnLink(): void {
   const pathname = entryAfter(currentIndex(), storage)
   if (!pathname) return
-  const link = Array.from(document.querySelectorAll<HTMLAnchorElement>("a.card-link")).find(
+  const link = Array.from(document.querySelectorAll<HTMLAnchorElement>("a.card-link, a.set-row")).find(
     (anchor) => new URL(anchor.href, location.href).pathname === pathname,
   )
   link?.focus({ preventScroll: true })

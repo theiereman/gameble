@@ -44,32 +44,20 @@ class PublicProfileTest < ApplicationSystemTestCase
     assert_selector "h1", text: "Gabe the Brave"
     assert_selector ".profile-summary__avatar"
     assert_selector ".profile-summary__counts li", text: /8 cards collected/i
-    assert_selector ".collection-kind[aria-current=true]", text: /\AStarted\z/i
     assert_selector ".set-row", text: %r{\AHorror\s*8/16}i
-    assert_selector ".set-row .set-row__count--complete", text: "8/8"
     take_screenshot
 
     sign_out
     assert_signed_out
-    visit brother_path(locale: :en, token: @player.token)
+    visit brother_set_path(locale: :en, token: @player.token, kind: "theme", key: "pirates")
 
-    assert_selector "h1", text: "Gabe the Brave"
-    click_on "Themes", match: :first
-    assert_selector ".collection-kind[aria-current=true]", text: /\AThemes\z/i
-    find(".set-row", text: /\APirates\b/i).click
-
-    assert_selector ".profile-set__heading", text: "Pirates"
-    assert_selector ".profile-set__progress", text: "8 / 8"
-    assert_selector ".collection-grid .card.card--m", count: 8
-    assert_selector ".collection-slot__copies", count: 8
+    assert_selector "h1", text: "Pirates · Gabe the Brave"
+    assert_selector ".set-album__count", text: "8/8"
+    assert_selector ".set-album__stamp", text: /\Acomplete\z/i
+    assert_selector ".set-album__grid .card.card--m", count: 8
     assert_selector ".collection-slot__copies", text: "x2", count: 1
-    assert_selector ".collection__aside .set-row[aria-current=page]", text: /\APirates/i
-    assert_no_selector ".shelf, .library"
+    assert_no_selector ".collection-slot__new"
     take_screenshot
-
-    click_on "The collection of Gabe the Brave"
-    assert_current_path brother_path(locale: :en, token: @player.token, kind: "theme", page: 1)
-    assert_no_selector "a.library__profile"
   end
 
   test "a visitor finds no profile behind an unknown link" do

@@ -42,25 +42,4 @@
     <% end %>
   </ol>
 <% end %>
-<% if pagy.count.positive? && (pagy.last > 1 || slots.empty?) %>
-  <nav class="collection-pages" aria-label="<%= t("library.grid.pages.label") %>">
-    <%# Past the last page, "previous" leads to the last. %>
-    <% if pagy.page > 1 %>
-      <%= link_to pixel_icon("arrow-left", class: "collection-pages__arrow"), pagy.page_url([ pagy.page - 1, pagy.last ].min), class: "collection-pages__link",
-        rel: "prev", aria: { label: t("library.grid.pages.previous") }, data: { turbo_prefetch: false } %>
-    <% end %>
-    <% collection_pages(pagy).each do |page| %>
-      <% if page == :gap %>
-        <span class="collection-pages__gap" aria-hidden="true">…</span>
-      <% elsif page == pagy.page %>
-        <span class="collection-pages__link" aria-current="page"><span class="visually-hidden"><%= t("library.grid.pages.page") %></span> <%= page %></span>
-      <% else %>
-        <%= link_to pagy.page_url(page), class: "collection-pages__link", data: { turbo_prefetch: false } do %><span class="visually-hidden"><%= t("library.grid.pages.page") %></span> <%= page %><% end %>
-      <% end %>
-    <% end %>
-    <% if pagy.page < pagy.last %>
-      <%= link_to pixel_icon("arrow-right", class: "collection-pages__arrow"), pagy.page_url(pagy.page + 1), class: "collection-pages__link",
-        rel: "next", aria: { label: t("library.grid.pages.next") }, data: { turbo_prefetch: false } %>
-    <% end %>
-  </nav>
-<% end %>
+<%= render "library/pages", pagy:, empty: slots.empty? %>

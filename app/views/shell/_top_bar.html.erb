@@ -6,7 +6,9 @@
     wordmarks sweeps the shine once (wordmark-shine). Under 720px the
     wordmark link, divider and previous-screen button give way to the back
     button to the bridge, or to a view's contextual back in its place
-    (`content_for :phone_back`, a sub-view's "◀ Grille"). The header
+    (`content_for :phone_back`, a sub-view's "◀ Grille"), or, on a view
+    asking for it (`content_for :phone_previous`, a set's album), to the
+    previous-screen button once it names a screen. The header
     carries the screen's short name, recorded with each history entry for
     the next screen's back button. On the right the player's rarity
     counter, packs chip and player chip, or the official Steam sign-in
@@ -21,7 +23,7 @@
 <% wordmark_shine = { controller: "wordmark-shine", action: "pointerenter->wordmark-shine#sweep animationend->wordmark-shine#end animationcancel->wordmark-shine#end" } %>
 <header class="<%= class_names("top-bar", "top-bar--status": content_for?(:top_bar_status)) %>" <%= tag.attributes(data: { screen_label: shell_screen_label }) %>>
   <div class="top-bar__inner">
-    <div class="top-bar__start<%= " top-bar__start--phone-back" if content_for?(:phone_back) %>" data-controller="navigation-lock">
+    <div class="<%= class_names("top-bar__start", "top-bar__start--phone-back": content_for?(:phone_back), "top-bar__start--phone-previous": content_for?(:phone_previous)) %>" data-controller="navigation-lock">
       <% if content_for?(:back_button) %>
         <%= link_to home_path, class: "top-bar__brand top-bar__home", aria: { label: t("shell.top_bar.home") }, data: wordmark_shine do %>
           <%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %>

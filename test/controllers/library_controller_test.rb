@@ -136,7 +136,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
-  test "a held card's link and a missing one's carry the grid's filters and search; a set's page adds its set" do
+  test "a held card's link and a missing one's carry the grid's filters and search" do
     season = publish_sets_draft
     player = accounts_players(:player)
     held, missing = season_cards(season).first(2)
@@ -157,10 +157,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # Every slot by default, the held card first: only the search, always there.
     get library_cards_path(locale: :en)
     assert_equal [ href.(held, { q: "" }), href.(missing, { q: "" }) ], css_select(".collection-grid a.card-link").first(2).map { it["href"] }
-
-    get library_set_path(locale: :en, kind: "theme", key: "pirates", state: %w[all], genre: %w[horror])
-    assert_equal [ "?#{query.({ genre: %w[horror], key: "pirates", kind: "theme", q: "", state: %w[all] })}" ] * 8,
-      css_select(".collection-grid a.card-link").map { it["href"][/\?.*/] }
   end
 
   test "a grid filtered on new cards: its links carry the watermark it was shown against, at one query more; no other grid's do" do
@@ -714,18 +710,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     sign_in(accounts_players(:player))
     get library_cards_path(locale: :en)
     assert_equal season_cards(season).first(60).map { [ :missing, title(it), year(it) ] }, slots
-  end
-
-  test "the filters apply inside a set page and the list keeps its kind" do
-    season = publish_sets_draft
-    player = accounts_players(:player)
-    members = set_members(season, "roguelike")
-    hold(player, members[3], 1)
-    sign_in(player)
-
-    get library_set_path(locale: :en, kind: "theme", key: "roguelike", rarity: Catalog::Rarity::TIERS.values.map(&:to_s))
-    assert_equal [ title(members[3]) ], owned_slots.map(&:second)
-    assert_select ".filters__clear[href=?]", "/en/library/theme/roguelike"
   end
 
   # ---- The entry ----

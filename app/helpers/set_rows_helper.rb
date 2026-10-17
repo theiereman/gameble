@@ -1,6 +1,8 @@
 module SetRowsHelper
   NOTCHES = { "bronze" => 1, "silver" => 2, "gold" => 3 }.freeze
 
+  AlbumTier = Data.define(:tier, :notches, :required, :reached)
+
   def set_kind_name(kind)
     t("library.set_kinds.#{kind}")
   end
@@ -14,6 +16,28 @@ module SetRowsHelper
       t("library.set_progress.count", count: standing.held, owned: number_with_delimiter(standing.held), total: number_with_delimiter(standing.total)) ]
     parts.concat(standing.complete? ? [ t("library.set_progress.complete") ] : tier_words(standing))
     parts.join(", ")
+  end
+
+  def set_album_value_text(standing)
+    count = t("library.set_progress.count", count: standing.held, owned: number_with_delimiter(standing.held), total: number_with_delimiter(standing.total))
+    tier = if standing.complete?
+      t("library.set_progress.complete")
+    elsif NOTCHES.key?(standing.reached_tier)
+      t("library.set_progress.tier", tier: set_tier_name(standing.reached_tier).downcase)
+    end
+    [ count, tier ].compact.join(", ")
+  end
+
+  def set_album_tiers(standing)
+    thresholds = standing.thresholds.to_h
+    NOTCHES.filter_map do |tier, notches|
+      AlbumTier.new(tier:, notches:, required: thresholds[tier], reached: standing.tier_reached?(tier)) if thresholds.key?(tier)
+    end
+  end
+
+  def set_album_tier_sentence(album_tier)
+    words = { tier: set_tier_name(album_tier.tier), count: album_tier.required, required: number_with_delimiter(album_tier.required) }
+    album_tier.reached ? t("library.album.tier.reached", **words) : t("library.album.tier.not_reached", **words)
   end
 
   def set_tier_mark(standing)
@@ -33,10 +57,11 @@ module SetRowsHelper
     end)
   end
 
+  def set_notches(count)
+    tag.span(class: "set-notches") { safe_join(Array.new(count) { tag.i }) }
+  end
+
   private
-    def set_notches(count)
-      tag.span(class: "set-notches") { safe_join(Array.new(count) { tag.i }) }
-    end
 
     def tier_words(standing)
       reached = standing.reached_tier

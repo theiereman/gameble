@@ -1,4 +1,4 @@
-<div class="set-entry">
+<div class="set-entry" data-controller="last-album" data-action="turbo:frame-load->last-album#mark">
   <% [ [ "in_progress", in_progress ], [ "discover", discover ] ].each do |section, rows| %>
     <% next if rows.empty? %>
     <section class="set-entry__section" aria-labelledby="set-entry-<%= section.dasherize %>-title">

@@ -15,17 +15,8 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     @owner.update_columns(persona_name: "Gabe the Brave")
   end
 
-  # The list of sets as [ name, "owned / total" ] pairs, in order.
-  def spines
-    css_select(".collection-sets__list .set-row").map { |row| [ row.at_css(".set-row__name").text, row.at_css(".set-row__count").text.sub("/", " / ") ] }
-  end
-
-  def set_rows = css_select(".collection-sets__list a.set-row")
-  def open_tab = css_select(".collection-kind[aria-current=true]").sole.text
-  def tabs = css_select(".collection-kind")
   def counts = css_select(".profile-summary__counts li").map(&:text)
-  def heading = css_select(".profile-set__heading").sole.text
-  def progress = css_select(".profile-set__progress [aria-hidden]").sole.text
+  def album_count = css_select(".set-album__count").sole.text.squish
 
   # The rows of an entry section ("in-progress", "discover", "results") as
   # [ name, "owned/total", href ].
@@ -77,28 +68,6 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".set-search__status", "1 set found"
   end
 
-  test "the hall of fame's sets on a profile set's shelf come in their fixed order, in English and French" do
-    season = publish_hall_of_fame_draft
-    hold(@owner, set_members(season, "phenomenes").last, 1)
-
-    get brother_set_path(locale: :fr, token: @owner.token, kind: "hall_of_fame", key: "pepites")
-    assert_equal "Panthéon", open_tab
-    assert_equal [ [ "Les Intouchables", "1 / 2" ], [ "Les Pépites", "0 / 1" ], [ "Les Mal-aimés", "0 / 2" ], [ "Les Phénomènes", "1 / 2" ] ], spines
-
-    get brother_set_path(locale: :en, token: @owner.token, kind: "hall_of_fame", key: "pepites", page: 1)
-    assert_equal "Hidden Gems", heading
-  end
-
-  test "a shelf of more than fifty sets beside a profile set pages, its page links unprefetched" do
-    seed_published_sets((1..60).map { |number| [ "studio", "studio-#{number}", { "studio" => "Studio #{number}" } ] })
-
-    get brother_set_path(locale: :en, token: @owner.token, kind: "studio", key: "studio-1")
-
-    assert_select ".collection-sets__list .set-row", 50
-    assert_select ".series-nav a[href]", minimum: 1
-    assert_select ".series-nav a[href]:not([data-turbo-prefetch=false])", false
-  end
-
   test "the owner's progress, never the viewer's" do
     season = publish_sets_draft
     set_members(season, "horror").first(2).each { |id| hold(@owner, id, 1) }
@@ -114,7 +83,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "2 cards collected", counts.first
 
     get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg")
-    assert_select ".collection-grid .card", (set_members(season, "rpg") & set_members(season, "horror").first(2)).size
+    assert_select ".set-album__grid .card", (set_members(season, "rpg") & set_members(season, "horror").first(2)).size
   end
 
   test "a player with no card: no set in progress, four popular sets to discover, the counts at zero" do
@@ -140,139 +109,65 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "0 cards collected", "0 sets complete" ], counts
   end
 
-  test "a set of the profile shows the owner's cards and copies, the rest as empty slots" do
+  test "a signed-out visitor opens an owner's album: the owner's faces and copies, read-only, under the set and the owner's names" do
     season = publish_sets_draft
     members = set_members(season, "horror")
-    hold(@owner, members[0], 1)
-    hold(@owner, members[3], 2)
+    [ 0, 3, 7, 12, 15 ].each { hold(@owner, members[it], it == 3 ? 2 : 1, gained_at: 1.minute.ago) }
 
-    get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror", page: 1)
+    get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror")
 
     assert_response :success
-    assert_select "title", "Gabe the Brave"
+    assert_select "title", "Horror · Gabe the Brave · gameble"
     assert_select "meta[name=robots][content=noindex]"
-    assert_equal "Horror", heading
-    assert_equal "2 / 16", progress
-    assert_select ".collection-grid .card.card--m", 2
-    # The owner's copies from x1, as in the collection; no NOUVEAU tag.
-    assert_equal [ "x1", "x2" ], css_select(".collection-slot__copies").map(&:text)
+    assert_select "h1", 1
+    assert_select "h1#set-album-heading[tabindex='-1']", "Horror · Gabe the Brave"
+    assert_equal "5/16", album_count
+    assert_equal "5 cards out of 16, silver tier", css_select("progress.set-album__bar").sole["aria-valuetext"]
+    assert_equal [ "Bronze, 2 cards, reached", "Silver, 4 cards, reached", "Gold, 8 cards, not reached yet" ],
+      css_select(".set-album__gauge .visually-hidden").map(&:text)
+    assert_select ".set-album__grid .card.card--m", 5
+    assert_equal [ "x2" ], css_select(".collection-slot__copies").map(&:text)
+    assert_select ".missing-slot .visually-hidden", { count: 11, text: "Missing card" }
     assert_select ".collection-slot__new", false
-    assert_select ".missing-slot .visually-hidden", { count: 14, text: "Missing card" }
-    assert_select ".missing-slot svg.missing-slot__icon"
-    assert_select "a.profile__owner[href=?]", "/en/brothers/#{@owner.token}?kind=theme&page=1", "The collection of Gabe the Brave"
-    assert_select ".collection__aside .collection-kind[aria-current=true]", "Themes"
-    assert_equal [ "Started", "Themes", "UFOs" ], tabs.map(&:text)
-    token = @owner.token
-    set_path = "/en/brothers/#{token}/library/theme/horror"
-    assert_equal [ "#{set_path}?tab=started", set_path, "#{set_path}?tab=ufo" ], tabs.map { it["href"] }
-    assert_select ".collection__aside .set-row[aria-current=page] .set-row__name", "Horror"
-    assert_select ".profile-summary", false
-    assert_select ".library, .slot", false
-    assert_select ".collection-grid > li > a.card-link[data-turbo-prefetch=false]", 16
-    # The owner's faces are named by their label; an empty slot by its
-    # visible text, whoever looks.
-    links = css_select(".collection-grid > li > a.card-link")
-    face, missing = Catalog::CardViews.call(members, locale: :en).values_at(members[3], members[1])
-    assert_equal "#{face.title}, #{face.year}, #{I18n.t("catalog.rarity.#{face.rarity}", locale: :en)}, season #{season.number}", links[3]["aria-label"]
-    assert_equal members.map { |id| id.in?([ members[0], members[3] ]) }, links.map { it["aria-label"].present? }
-    assert_equal "#{missing.title} #{missing.year} Missing card", links[1].text.squish
+    assert_select ".top-bar__end .collection-status, .top-bar__title", false
+    assert_select ".profile-summary, .collection-kind, .collection-sets", false
+    assert_select "[style]", false
+    slugs = Catalog::CardSeason.where(id: members).includes(:card).index_by(&:id).transform_values { it.card.slug }
+    assert_equal members.map { "/en/cards/#{slugs.fetch(it)}/seasons/#{season.number}" }, css_select(".set-album__grid > li > a.card-link").map { it["href"] }
   end
 
-  test "a face of a profile set leads to the card's own page, which an older browser opens, and its sets to the library" do
+  test "an owner's album shows their earlier editions and their copies of every edition" do
     season = publish_sets_draft
     members = set_members(season, "pirates")
-    hold(@owner, members.first, 1)
-    view = Catalog::CardViews.call([ members.first ], locale: :en).fetch(members.first)
-    old = { "User-Agent" => "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1" }
+    older = Catalog::CardSeason.find(members[1])
+    earlier = Catalog::CardSeason.insert_all!([ { card_id: older.card_id, season_id: catalog_seasons(:one).id, prestige_score: 0.5, rating: 80.0,
+      rarity: Catalog::Rarity::TIERS.key(:legendary), number: 900 } ], returning: :id).rows.flatten.sole
+    hold(@owner, earlier, 1)
+    hold(@owner, members[1], 2)
 
-    get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "pirates", page: 1), headers: old
-    assert_response :success
-    href = css_select(".collection-grid > li > a.card-link").first["href"]
-    assert_equal "/en/cards/#{view.id}/seasons/#{season.number}", href
+    get brother_set_path(locale: :fr, token: @owner.token, kind: "theme", key: "pirates")
 
-    get href, headers: old
-    assert_response :success
-    assert_select ".public-card h1", view.title
-    assert_not_includes response.body, "Gabe the Brave"
-    # The public page lists no sets: the library its sets lead to stays open.
-    set_link = library_set_path(locale: :en, kind: "theme", key: "pirates")
-    assert_equal "/en/library/theme/pirates", set_link
-
-    get set_link, headers: old
-    assert_response :success
-    assert_select ".set-row[aria-current=page] .set-row__name", "Pirates"
-
-    get home_path(locale: :en), headers: old
-    assert_response :not_acceptable
+    assert_equal "1/8", album_count
+    slot = css_select(".set-album__grid > li")[1]
+    assert_equal "/fr/cards/#{older.card.slug}/seasons/1", slot.at_css("a.card-link")["href"]
+    assert_equal "x3", slot.at_css(".collection-slot__copies").text
+    assert_select ".set-album__gauge[aria-label=Paliers]"
   end
 
-  test "a profile set of a franchise or a studio offers their tabs and names their sets, in English and French" do
-    season = publish_franchises_and_studios_draft
-    hold(@owner, set_members(season, "capcom").first, 1)
-
-    get brother_set_path(locale: :fr, token: @owner.token, kind: "franchise", key: "tom-clancy")
-    assert_equal [ "Entamées", "Thèmes", "Franchises", "Studios", "OVNI" ], tabs.map(&:text)
-    assert_equal "Franchises", open_tab
-    assert_equal [ [ "Tom Clancy", "0 / 3" ] ], spines
-
-    get brother_set_path(locale: :en, token: @owner.token, kind: "studio", key: "capcom", page: 1)
-    assert_equal [ "Started", "Themes", "Franchises", "Studios", "UFOs" ], tabs.map(&:text)
-    assert_equal "Studios", open_tab
-    assert_equal [ [ "CAPCOM", "1 / 3" ] ], spines
-    assert_equal "CAPCOM", heading
-    assert_equal "1 / 3", progress
-
-    get brother_path(locale: :fr, token: @owner.token, q: "capcom")
-    assert_equal [ [ "CAPCOM", "1/3", "/fr/brothers/#{@owner.token}/library/studio/capcom" ] ], entry_rows("results")
-  end
-
-  test "a set of a season without themes offers that season's kinds as tabs" do
-    seed_published_sets([ [ "studio", "valve", { "studio" => "Valve" } ], [ "franchise", "halo", { "franchise" => "Halo" } ] ])
-
-    get brother_set_path(locale: :en, token: @owner.token, kind: "studio", key: "valve")
-
-    assert_response :success
-    assert_equal "Studios", open_tab
-    assert_equal [ "Started", "Franchises", "Studios" ], tabs.map(&:text)
-  end
-
-  test "a tab of a profile set keeps the set open and lists that tab's shelf beside it, whose sets keep the tab" do
+  test "an owner's album costs seven queries for a visitor, a signed-in viewer's five more" do
     season = publish_sets_draft
-    hold(@owner, set_members(season, "horror").first, 1)
-    token = @owner.token
+    hold(@owner, set_members(season, "rpg").first, 1)
 
-    get brother_set_path(locale: :en, token:, kind: "theme", key: "horror")
-    get tabs.find { it.text == "UFOs" }["href"]
-
+    # Owner by token, published season; the album: its set, members and
+    # tiers, the owner's editions, the page's card views.
+    assert_request_queries(7) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
     assert_response :success
-    assert_equal "Horror", heading
-    assert_equal "UFOs", open_tab
-    assert_equal [ [ "The UFOs", "0 / 15" ] ], spines
-    assert_equal "/en/brothers/#{token}/library/ufo/ufos?page=1", set_rows.sole["href"]
 
-    get tabs.find { it.text == "Started" }["href"]
-    assert_equal "Horror", heading
-    assert_equal "Started", open_tab
-    assert set_rows.all? { it["href"].end_with?("&tab=started") }
-
-    get tabs.find { it.text == "Themes" }["href"]
-    assert_equal "Themes", open_tab
-    assert_equal "/en/brothers/#{token}/library/theme/horror?page=1", set_rows.first["href"]
-  end
-
-  test "a set opened from the Started shelf keeps the Started shelf beside it" do
-    season = publish_sets_draft
-    hold(@owner, set_members(season, "pirates").first, 1)
-
-    href = brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "pirates", page: 1, tab: "started")
-
-    get href
+    sign_in(accounts_players(:moderator))
+    # The same, the viewer's lookup, the top bar's three and the trades
+    # waiting.
+    assert_request_queries(12) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
     assert_response :success
-    assert_equal "Pirates", heading
-    assert_select ".collection__aside .collection-kind[aria-current=true]", "Started"
-    assert_select ".collection__aside .set-row[aria-current=page] .set-row__name", "Pirates"
-    assert_select "a.profile__owner[href=?]", "/en/brothers/#{@owner.token}?page=1"
-    assert css_select(".collection__aside a.set-row").all? { it["href"].end_with?("&tab=started") }
   end
 
   test "a wrong kind, an unknown key or a key of another kind is not found under a profile" do
@@ -374,6 +269,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
       get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg")
       assert_response :not_found
+      assert_equal unknown, css_select("main").to_html, visibility
 
       sign_in(stranger)
       get brother_path(locale: :en, token: @owner.token)
@@ -481,7 +377,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".profile-summary__visibility", "Joueur banni : visible par la modération seulement"
   end
 
-  test "in French: the fallback title, the French tabs and plurals" do
+  test "in French: the fallback title, the French headings and plurals" do
     season = publish_sets_draft
     @owner.update_columns(persona_name: nil)
     hold(@owner, set_members(season, "pirates").first, 1)
@@ -500,15 +396,14 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#set-results-title ~ .set-entry__list .set-row .visually-hidden", "Pirates, thème, 8 cartes sur 8, complet"
 
     get brother_set_path(locale: :fr, token: @owner.token, kind: "theme", key: "pirates")
-    assert_select ".set-row .visually-hidden", /8 cartes possédées sur 8 · Complet/
+    assert_select "h1", "Pirates · Joueur #{code}"
+    assert_select "title", "Pirates · Joueur #{code} · gameble"
+    assert_select ".set-album__stamp", "Complet"
 
     get brother_path(locale: :en, token: @owner.token)
     assert_select "h1", "Player #{code}"
     assert_equal "8 cards collected", counts.first
     assert_match(/\A1 set complete\z|\A\d+ sets complete\z/, counts.last)
-
-    get brother_set_path(locale: :fr, token: @owner.token, kind: "theme", key: "pirates")
-    assert_select "a.profile__owner", "La collection de Joueur #{code}"
   end
 
   [ "\u200B", "\u202E\u2066", "\u3164", "\u3000 \u2800" ].each do |name|
@@ -584,23 +479,6 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # The search's sets; the season's five sets are all started or shown,
     # so their figures are known (another set found would add its figures).
     assert_request_queries(13) { get brother_path(locale: :en, token: @owner.token, q: "o") }
-    assert_response :success
-  end
-
-  test "a visitor's profile set costs ten queries, a signed-in viewer's five more" do
-    season = publish_sets_draft
-    hold(@owner, set_members(season, "rpg").first, 1)
-
-    # Owner by token, published season, set slots, card views, the owner's
-    # quantities, the kinds the season holds, shelf count, shelf page,
-    # totals, the owner's progress.
-    assert_request_queries(10) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
-    assert_response :success
-
-    sign_in(accounts_players(:moderator))
-    # The same, the viewer's lookup, the top bar's three and the trades
-    # waiting.
-    assert_request_queries(15) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg", tab: "started") }
     assert_response :success
   end
 end

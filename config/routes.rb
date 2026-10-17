@@ -24,7 +24,7 @@ Rails.application.routes.draw do
     # sets; the grid of every card of the season.
     resource :library, controller: :library, only: :show
     get "library/cards" => "library#cards", as: :library_cards
-    # The grid of one set, by kind and key, never by id.
+    # One set's album, by kind and key, never by id.
     get "library/:kind/:key" => "library#set", as: :library_set, constraints: { kind: /theme|franchise|studio|hall_of_fame|ufo/ }
     # The collection's watermark: the page posts the latest gain it showed
     # as new.
@@ -32,10 +32,10 @@ Rails.application.routes.draw do
 
     # A player's public profile, by their token (24 base58 characters, as
     # has_secure_token makes them, never an id): their sets, and one of
-    # their sets opened beside its shelf.
+    # their sets' albums.
     resources :brothers, only: :show, param: :token, controller: :public_profiles,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
-    # Reporting a player from their profile (CAP-15), by token.
+    # Reporting a player from their profile, by token.
     post "brothers/:token/report" => "reports#create", as: :brother_report,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     get "brothers/:token/library/:kind/:key" => "public_profiles#set", as: :brother_set,

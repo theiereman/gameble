@@ -55,7 +55,8 @@ module ShellHelper
   end
 
   SCREEN_LABELS = {
-    "library#show" => :collection,
+    "library#show" => :sets,
+    "library#cards" => :collection,
     "library#set" => :set,
     "cards" => :card,
     "boosters" => :booster,

@@ -44,14 +44,14 @@ class Catalog::SetNeighboursTest < ActiveSupport::TestCase
     assert_equal [ 3, 3, slug(ids[2]), nil ], [ last.position, last.total, last.previous, last.next ]
   end
 
-  test "equal positions fall back to the membership's order, as the grid's slots" do
+  test "equal positions fall back to the membership's order, as the album's slots" do
     season = publish_sets_draft
     set = Catalog::Set.find_by!(season_id: season.id, key: "rpg")
     members = Catalog::SetMembership.where(set_id: set.id).order(:position, :id).pluck(:card_season_id)
     Catalog::SetMembership.where(set_id: set.id).update_all(position: 1)
     ordered = Catalog::SetMembership.where(set_id: set.id).order(:id).pluck(:card_season_id)
 
-    assert_equal Catalog::SetSlots.call(season_id: season.id, kind: "theme", key: "rpg").card_season_ids, ordered
+    assert_equal Catalog::SetAlbum.call(season:, kind: "theme", key: "rpg").members.map(&:first), ordered
     result = neighbours(ordered[4], kind: "theme", key: "rpg")
     assert_equal [ 5, members.size, slug(ordered[3]), slug(ordered[5]) ], [ result.position, result.total, result.previous, result.next ]
   end

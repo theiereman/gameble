@@ -1,12 +1,8 @@
-# A shelf of sets for a controller that shows one (CAP-6, CAP-8): the
-# collection's list of sets (LibraryController, through load_shelf) and a
-# player's public profile (PublicProfilesController, through load_shelf and
-# load_set). The caller gives the ordered relation of the sets to shelve and
-# the player whose progress it shows (never the viewer implicitly); the
+# A shelf of sets for the collection's grid (LibraryController, through
+# load_shelf): the caller gives the ordered relation of the sets to shelve
+# and the player whose progress it shows (never the viewer implicitly); the
 # shelf is paged fifty to a page, each set labelled with its owner's owned /
-# total. On the public profile one set can be opened beside it, its slots
-# with that owner's copies (load_set). Sets are addressed by kind and key;
-# no set or card-season id reaches the page (AD-15).
+# total. Sets are addressed by kind and key; no set id reaches the page.
 module ShelfLoading
   extend ActiveSupport::Concern
 
@@ -39,23 +35,6 @@ module ShelfLoading
       @spines = sets.map do |set|
         Spine.new(kind: set.kind, key: set.key, label: SetLabel.for(set), owned: owned.fetch(set.id, 0), total: totals.fetch(set.id, 0))
       end
-    end
-
-    # The set of `season`, the published one, asked for by `params[:kind]`
-    # and `params[:key]`: @set, @slots ({ card_season_id => Catalog::CardView }
-    # in slot order) and @quantities, `owner`'s copies of them (none for a
-    # nil owner). No published season, or a key the season holds under no
-    # set of this kind, is not found.
-    def load_set(season, owner:)
-      raise ActiveRecord::RecordNotFound if season.nil?
-
-      slots = Catalog::SetSlots.call(season_id: season.id, kind: params[:kind], key: params[:key])
-      raise ActiveRecord::RecordNotFound if slots.nil?
-
-      @set = slots.set
-      views = Catalog::CardViews.call(slots.card_season_ids, locale: I18n.locale)
-      @slots = slots.card_season_ids.each_with_object({}) { |id, ordered| ordered[id] = views[id] if views.key?(id) }
-      @quantities = Game::Quantities.call(owner, @slots.keys)
     end
 
     # The KINDS `season` holds sets of, in tab order; none without a season.

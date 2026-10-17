@@ -12,6 +12,7 @@ export default class extends Controller<HTMLAnchorElement> {
 
   sync(): void {
     const screen = this.previousScreen()
+    this.element.parentElement?.classList.toggle("top-bar__start--has-previous", screen !== null)
     if (!screen) {
       this.element.hidden = true
       this.element.removeAttribute("href")

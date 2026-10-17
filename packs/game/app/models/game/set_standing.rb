@@ -4,6 +4,10 @@ module Game
       new(set_id:, held: 0, total:, tiers:, just: false, reached_now: false, gained_at: nil)
     end
 
+    def self.measured(set_id:, held:, total:, tiers:)
+      new(set_id:, held:, total:, tiers:, just: false, reached_now: false, gained_at: nil)
+    end
+
     def thresholds
       Catalog::SetTier::TIERS.filter_map do |tier|
         required = tier == "complete" ? tiers.fetch(tier, total) : tiers[tier]

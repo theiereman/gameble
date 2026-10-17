@@ -206,8 +206,8 @@
   letter-spacing: var(--tracking-body-small);
 }
 
-/* The scope shown (DESIGN.md, Set progress row): a 5px accent bar on its
-   left, on the raised panel, its count in accent. */
+/* The scope shown, or the row of the album last opened: a 5px accent bar
+   on its left, on the raised panel, its count in accent. */
 .set-row[aria-current] {
   background: var(--color-panel-raised);
   box-shadow: inset 5px 0 0 0 var(--color-accent), var(--panel-border);
@@ -217,8 +217,12 @@
   color: var(--color-text-max);
 }
 
-.set-row[aria-current] .set-row__count {
+.set-row[aria-current]:not(.set-row--complete) .set-row__count {
   color: var(--color-accent);
+}
+
+.set-row[aria-current]:hover {
+  box-shadow: inset 5px 0 0 0 var(--color-accent), var(--control-border), inset 0 0 0 var(--space-unit) var(--color-accent);
 }
 
 .set-row[aria-current]:focus-visible {
@@ -694,6 +698,186 @@
   letter-spacing: var(--tracking-body);
 }
 
+/* ---- Set album: the header panel, its gauge and stamp, then the grid ---- */
+
+.set-album {
+  --slot-bleed: var(--space-4);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+.set-album__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.set-album__name {
+  margin: 0;
+  color: var(--color-text-max);
+  font: var(--font-hero);
+  line-height: 1.2;
+  letter-spacing: 1px;
+  overflow-wrap: anywhere;
+  text-transform: uppercase;
+}
+
+.set-album__name:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.set-album__facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  margin: 0;
+}
+
+.set-album__kind {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.set-album__count {
+  margin-left: auto;
+  color: var(--color-muted);
+  font: var(--font-number);
+  white-space: nowrap;
+}
+
+.set-album__count b {
+  color: var(--color-text-max);
+  font: var(--font-count-large);
+}
+
+.set-album__stamp {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  margin: var(--space-2) var(--space-4);
+  padding: 0 var(--space-4);
+  background: var(--color-panel-raised);
+  box-shadow: inset 0 0 0 3px var(--color-lime);
+  color: var(--color-lime);
+  font: 400 1.75rem / 1.75rem var(--font-family-vt323);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  transform: rotate(-6deg);
+  clip-path: polygon(0 3px, 3px 3px, 3px 0, calc(100% - 3px) 0, calc(100% - 3px) 3px, 100% 3px, 100% calc(100% - 3px),
+    calc(100% - 3px) calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 3px calc(100% - 3px), 0 calc(100% - 3px));
+}
+
+.set-album__track {
+  position: relative;
+}
+
+.set-album__header--tiered .set-album__track {
+  padding-bottom: var(--space-4);
+}
+
+.set-album__bar {
+  height: 8px;
+}
+
+.set-album__ticks {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 8px;
+}
+
+.set-album__ticks .set-row__tick {
+  height: 8px;
+}
+
+.set-album__ticks .set-row__tick.is-reached {
+  height: 12px;
+}
+
+.set-album__gauge {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.set-album__tier {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--space-touch-min);
+  padding: var(--space-2) var(--space-5);
+  background: var(--color-panel-sunken);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-deep);
+}
+
+.set-album__tier--bronze { --tier: var(--color-tier-bronze); }
+.set-album__tier--silver { --tier: var(--color-tier-silver); }
+.set-album__tier--gold { --tier: var(--color-gold); }
+
+.set-album__tier.is-reached {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--tier);
+}
+
+.set-album__tier-mark {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  color: var(--tier);
+}
+
+.set-album__check {
+  width: 14px;
+  height: 12px;
+}
+
+.set-album__tier .set-notches i:nth-child(2) {
+  height: 10px;
+}
+
+.set-album__tier .set-notches i:nth-child(3) {
+  height: 12px;
+}
+
+.set-album__tier:not(.is-reached) .set-notches i {
+  width: 6px;
+  background: transparent;
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-deep);
+}
+
+.set-album__tier-name {
+  color: var(--color-muted);
+  font: var(--font-label);
+  line-height: 1.2;
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.set-album__tier.is-reached .set-album__tier-name {
+  color: var(--tier);
+  font-weight: 700;
+}
+
+.set-album__tier-required {
+  color: var(--color-muted);
+  font: var(--font-number);
+}
+
+.set-album__tier.is-reached .set-album__tier-required {
+  color: var(--color-text-bright);
+}
+
+.set-album__grid {
+  max-width: calc(6 * var(--card-m-width) + 5 * var(--space-grid-gap-columns));
+}
+
 /* ---- No season ---- */
 
 .collection-none {
@@ -799,6 +983,43 @@
   .collection-grid {
     grid-template-columns: repeat(2, var(--card-m-width));
     justify-content: center;
+  }
+
+  .set-album__name {
+    font-size: 2.5rem;
+  }
+
+  .set-album__count b {
+    font: var(--font-count-large-phone);
+  }
+
+  .set-album__gauge {
+    flex-wrap: nowrap;
+  }
+
+  .set-album__tier {
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: var(--space-3);
+  }
+
+  .set-album__tier-name {
+    letter-spacing: var(--tracking-label);
+  }
+}
+
+@media (max-width: 359px) {
+  .set-album__gauge {
+    flex-direction: column;
+  }
+
+  .set-album__tier {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-3);
   }
 }
 

@@ -232,7 +232,23 @@
   evidence: The quick review found a set completed partly with earlier-edition copies marked COMPLET in the profile's rows but left out of the header's count.
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-collection-opens-on-sets-in-progress-plan.md`
   summary: The set progress row of the album last opened should carry the 5px accent bar and `aria-current="true"` on the collection entry; left to the set album (entry 8 of epic-recognizable-sets), which decides how the entry knows it.
+  resolved: The set album (2026-10-17) records the album last opened in the tab's session storage; the collection entry, a profile and the hub mark its row.
   evidence: The design asks for it (Collection, Set progress row); this build had no album to return from, so no row is marked.
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-collection-opens-on-sets-in-progress-plan.md`
   summary: System tests that reach the collection through the hub's menu, the tab bar or a profile and then expect the card grid now land on the collection entry (`test/system/library_test.rb`, `shell_test.rb`, `public_profile_test.rb`); update them when the system tests are rebuilt.
   evidence: The collection's entry took `/library` and the grid moved to `/library/cards`; only direct grid visits were renamed, and system tests are disabled (AGENTS.md).
+
+## Deferred from: the set album (2026-10-17)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-set-album-plan.md`
+  summary: The set-scoped grid is gone from the screens but its support stays: `Catalog::CollectionGrid`'s `kind:`/`key:`, `CollectionGridLoading#grid_context`'s set, `CardsController#named_grid` and `grid_page_path`'s set branch, the `set:` locals of `library/_collection`, `_set_list` and `_filters`, and `CollectionHelper#collection_set_path`; entry 9 of epic-recognizable-sets, which reworks the grid and its set filter, should remove them.
+  evidence: Every link to `/library/:kind/:key` now opens the album; only detail links carrying an old `grid[kind]`/`grid[key]` still walk a set's grid, and their back leads to the album.
+- source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-set-album-plan.md`
+  summary: The album's back reads "◀ CAPSULE" through the history trail once the set celebration links its results to the album; the link itself and the capsule shown again with its results on coming back belong to ticket 13.17.
+  evidence: The celebration as built links nowhere; the capsule's screen label is already "Capsule", so no album change is needed for 13.17.
+- source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-set-album-plan.md`
+  summary: The collection grid at `/library/cards` has no arrow keys; EXPERIENCE asks it to be one tab stop with arrow keys inside, as the album's grid now is (`grid_keys_controller.ts`, `data-controller="grid-keys"` on the `<ol>`).
+  evidence: The album's grid got the behaviour; the collection grid was out of this build's scope.
+- source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-set-album-plan.md`
+  summary: System tests written for the set grid with filters (`test/system/library_test.rb` around lines 58–71 and 187–203, expecting filters and a watermark post on a set page; possibly `card_detail_test.rb`) are stale; update them when the system tests are rebuilt.
+  evidence: The set page became the album, which has no filters and posts no watermark; system tests are disabled (AGENTS.md) and were not run.

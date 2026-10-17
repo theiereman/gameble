@@ -2,6 +2,7 @@ require "test_helper"
 require_relative "../support/catalog_seeds"
 require_relative "../support/library_requests"
 require_relative "../support/game_packs"
+require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
 # A card's detail page (CAP-7, story 4.3; "FICHE DE LA CARTE", epic 10 R2,
@@ -19,6 +20,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
   include GamePacks
+  include GameSets
   include SteamSignIn
 
   setup do
@@ -279,6 +281,21 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "button", "disabled" ], [ "button", "disabled" ] ], navs
     assert_equal "S1 · #4 · 1 / 1", position
     assert_equal "/en/library/studio/valve", css_select(".top-bar__phone-back").sole["href"]
+  end
+
+  test "a set's way back leads to the page of its album holding the card" do
+    season, cards = published_cards(70)
+    insert_theme(cards, key: "roguelike", season:)
+    slugs = Catalog::CardSeason.where(id: cards).includes(:card).index_by(&:id).transform_values { it.card.slug }
+    detail = ->(id) { card_season_path(locale: :en, slug: slugs.fetch(id), number: season.number, set_kind: "theme", set_key: "roguelike") }
+
+    get detail.(cards[59])
+    assert_equal "60 / 70", position[%r{\d+ / \d+}]
+    assert_equal "/en/library/theme/roguelike", css_select(".top-bar__phone-back").sole["href"]
+
+    get detail.(cards[60])
+    assert_equal "61 / 70", position[%r{\d+ / \d+}]
+    assert_equal "/en/library/theme/roguelike?page=2", css_select(".top-bar__phone-back").sole["href"]
   end
 
   test "an unnumbered card's position line keeps its season, and its header shows no number" do
@@ -602,9 +619,9 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   # The slugs of the collection grid `params` asks for, every page, as the
   # library shows them.
-  def grid_slugs(params, kind: nil, key: nil)
+  def grid_slugs(params)
     (1..).each_with_object([]) do |page, slugs|
-      get kind ? library_set_path(locale: :en, kind:, key:, **params, page:) : library_cards_path(locale: :en, **params, page:)
+      get library_cards_path(locale: :en, **params, page:)
       shown = css_select(".collection-grid a.card-link").map { it["href"][%r{/cards/([^/]+)/}, 1] }
       return slugs if shown.empty?
 
@@ -660,7 +677,9 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__back img[src*='back-standard']"
     assert_select ".public-card", false
 
-    set_slugs = grid_slugs({ state: %w[all], rarity: %w[common rare] }, kind: "theme", key: "rpg")
+    rpg = set_members(season, "rpg")
+    shown = Catalog::CardSeason.where(id: rpg, rarity: %i[common rare]).includes(:card).index_by(&:id)
+    set_slugs = rpg.filter_map { shown[it]&.card&.slug }
     assert_operator set_slugs.size, :>, 2
     set_context = { key: "rpg", kind: "theme", q: "", rarity: %w[common rare], state: %w[all] }
     get grid_detail(set_slugs.last, season.number, set_context)

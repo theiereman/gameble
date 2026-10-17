@@ -1,41 +1,17 @@
-# The collection, reached from the hub's menu, its set progress rows and
-# the phone's COLLECTION tab.
-#
-# Its entry opens on the viewer's sets: those in progress, closest to their
-# next tier or completion first, those to discover, and a search over every
-# set of the published season (SetBoardLoading), under the top bar's unique
-# cards. "All cards" leads to the grid.
-#
-# The grid: on the side, the published season's sets of one kind as
-# progress rows, under a "whole season" row, fifty to a page, and the
-# RAPPORT of the viewer's copies; beside them, the grid of the scope picked
-# (the whole season, or one set), sixty slots to a page. It opens on every
-# slot, the owned cards first, newest first on the whole season; a folded
-# FILTRES zone narrows it by state, rarity, set and genre (OR within a
-# group, AND across) and a search by title or publisher: the owned cards
-# face up with their copies and, when gained since the player last saw
-# them, "New"; the missing ones naming their game. A visitor, or a banned
-# player, owns nothing, so they see every slot, as does a player who owns
-# nothing yet.
-#
-# Catalog answers the season, its sets, sizes and cards, Game the viewer's
-# progress, copies and what is new; this layer pages, labels and joins them.
-# Sets are addressed by kind and key, cards by slug; no id reaches the page.
-# A GET writes nothing: a page that showed new cards posts the latest gain
-# it showed to CollectionSeenController. A card's sets lead here, so, like
-# the card's page, it is open to any browser (PublicRead).
-#
-# Parameters of the entry: `q`, the set searched. Of the grid: `kind`, the
-# kind of the sets listed (the first kind the season holds for an unknown,
-# blank or repeated one, or one it holds no set of; on a set's page, its own
-# kind); `shelf`, the page of that list; `page`, the page of the grid; the
-# grid's filters and search (CollectionGridLoading). A page past the last
-# shows an empty list or grid; a page that is not a number, the first.
+# The collection: its entry, the viewer's sets in progress, to discover and
+# searched, under the top bar's unique cards; the grid of every card of the
+# published season, with its sets beside it, its filters and its search; and
+# one set's album, the viewer's best edition of each of its games. A visitor,
+# or a banned player, owns nothing and sees every slot missing. Sets are
+# addressed by kind and key, cards by slug; no id reaches the page. A GET
+# writes nothing: a grid that showed new cards posts the latest gain it
+# showed to CollectionSeenController. Open to any browser (PublicRead).
 class LibraryController < ApplicationController
   include PublicRead
   include ShelfLoading
   include CollectionGridLoading
   include SetBoardLoading
+  include SetAlbumLoading
 
   # The page parameter of the list of sets; `page` pages the grid.
   SHELF_KEY = "shelf".freeze
@@ -61,20 +37,12 @@ class LibraryController < ApplicationController
     load_collection(collection_grid(@season, params))
   end
 
-  # GET /:locale/library/:kind/:key: one set. The route admits only the
-  # KINDS; a key the published season holds under no set of this kind, or no
-  # published season, is not found.
+  # GET /:locale/library/:kind/:key: one set's album.
   def set
     authorize :page, :show?
     @season = Catalog::PublishedSeason.call
-    raise ActiveRecord::RecordNotFound if @season.nil?
-
-    grid = collection_grid(@season, params, kind: params[:kind], key: params[:key])
-    raise ActiveRecord::RecordNotFound if grid.nil?
-
-    @kinds = shelf_kinds(@season)
-    @kind = grid.set.kind
-    load_collection(grid)
+    load_set_album(@season, owner: current_player, with_new: true)
+    load_unique_cards
   end
 
   private

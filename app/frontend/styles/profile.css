@@ -54,50 +54,6 @@
   text-transform: uppercase;
 }
 
-/* A set the owner finished reads in lime, beside its words. */
-.set-row__count--complete {
-  color: var(--color-lime);
-}
-
-/* ---- An open set: the way back, its name and the owner's progress ---- */
-
-.profile__owner {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--space-touch-min);
-  color: var(--color-muted);
-  font: var(--font-button-sm);
-  letter-spacing: var(--tracking-button-sm);
-  overflow-wrap: anywhere;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.profile__owner:hover {
-  color: var(--color-accent);
-}
-
-.profile-set__header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3) var(--space-5);
-}
-
-.profile-set__heading {
-  margin: 0;
-}
-
-.profile-set__progress {
-  margin: 0;
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-  font-variant-numeric: tabular-nums;
-}
-
 /* ---- A profile that cannot be shown ---- */
 
 .profile-unavailable {

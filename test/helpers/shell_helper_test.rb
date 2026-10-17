@@ -58,7 +58,7 @@ class ShellHelperTest < ActionView::TestCase
 
   test "each screen's short name, by action or by controller; none for the hub or an unnamed screen" do
     names = {
-      %w[library show] => "Collection", %w[library set] => "Set", %w[cards show] => "Card", %w[boosters show] => "Capsule",
+      %w[library show] => "Sets", %w[library cards] => "Collection", %w[library set] => "Set", %w[cards show] => "Card", %w[boosters show] => "Capsule",
       %w[packs show] => "Capsule", %w[trades show] => "Trades", %w[trades edit] => "Trades", %w[friends show] => "Friends",
       %w[friend_profiles show] => "Profile", %w[public_profiles show] => "Profile", %w[public_profiles set] => "Set",
       %w[settings show] => "Profile", %w[feeds show] => "Feed", %w[pages legal] => "Legal notice", %w[pages how_it_works] => "How it works", %w[pages more] => "More",

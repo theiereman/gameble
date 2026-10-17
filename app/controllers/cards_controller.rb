@@ -18,7 +18,7 @@
 #   the watermark its new cards were judged against, CollectionGridLoading),
 #   in its order across its pages, back to the page of that grid holding
 #   the card ("◀ Grille");
-# - `set_kind` and `set_key`: one of the card's sets, back to its grid.
+# - `set_kind` and `set_key`: one of the card's sets, back to its album.
 #
 # A pack of another player, not opened or not holding the card, a grid or a
 # set that does not hold it, is ignored. Within a context the query names,
@@ -142,8 +142,8 @@ class CardsController < ApplicationController
       set_browse(@detail.sets.find { it.kind == kind && it.key == key })
     end
 
-    # The card's place in `set` (Catalog::SetNeighbours), back to the set's
-    # grid when the library shows it; nil without a set.
+    # The card's place in `set` (Catalog::SetNeighbours), back to the page of
+    # the set's album holding it when the library shows it; nil without a set.
     def set_browse(set)
       return if set.nil?
 
@@ -152,8 +152,13 @@ class CardsController < ApplicationController
 
       context = { set_kind: set.kind, set_key: set.key }
       path = ->(slug) { slug && helpers.card_detail_path(slug, @detail.view.season_number, context) }
-      back = Back.new(label: t("cards.show.grid"), path: library_set_path(kind: set.kind, key: set.key)) if @detail.current_season
+      back = Back.new(label: t("cards.show.grid"), path: album_page_path(set, place.position)) if @detail.current_season
       Browse.new(position: place.position, total: place.total, previous: path.(place.previous), next: path.(place.next), back:)
+    end
+
+    def album_page_path(set, position)
+      page = ((position - 1) / SetAlbumLoading::ALBUM_SIZE) + 1
+      library_set_path(kind: set.kind, key: set.key, page: (page if page > 1))
     end
 
     # The card at `index` among the card-seasons `ids`: the paths of its

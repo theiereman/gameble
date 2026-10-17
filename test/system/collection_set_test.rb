@@ -2,10 +2,10 @@ require "application_system_test_case"
 require_relative "../support/catalog_seeds"
 require_relative "../support/steam_sign_in"
 
-# One set in the collection: its missing slots keep a
-# medium card's size and a long title to three lines; between 720 and
-# 1179px the sets are a strip above the grid; a large set's grid comes sixty
-# cards to a page, and draws its art only near the viewport.
+# One set's album: its missing slots keep a medium card's size and a long
+# title to three lines; a large set's album comes sixty cards to a page, and
+# draws its art only near the viewport. Between 720 and 1179px the grid's
+# sets are a strip above it.
 class CollectionSetTest < ApplicationSystemTestCase
   include CatalogSeeds
   include SteamSignIn
@@ -46,7 +46,7 @@ class CollectionSetTest < ApplicationSystemTestCase
     publish_sets_draft
     page.driver.browser.manage.window.resize_to(900, 900)
 
-    visit library_set_path(locale: :en, kind: "theme", key: "horror")
+    visit library_cards_path(locale: :en)
 
     widths = page.evaluate_script("[...document.querySelectorAll('.collection-sets__list .set-row')].map((row) => Math.round(row.getBoundingClientRect().width))")
     assert_equal [ 184 ] * 5, widths

@@ -15,6 +15,7 @@ fr:
       previous: "Retour :"
     screens:
       collection: "Collection"
+      sets: "Sets"
       set: "Set"
       card: "Fiche"
       booster: "Capsule"
@@ -641,6 +642,20 @@ fr:
         silver: "Argent"
         gold: "Or"
         complete: "Complet"
+    album:
+      title: "%{set} · Collection · gameble"
+      tiers: "Paliers"
+      slots: "Cartes du set"
+      # French keeps the singular for 0, which the plural rule here does not.
+      tier:
+        reached:
+          zero: "%{tier}, %{required} carte, atteint"
+          one: "%{tier}, %{required} carte, atteint"
+          other: "%{tier}, %{required} cartes, atteint"
+        not_reached:
+          zero: "%{tier}, %{required} carte, pas encore atteint"
+          one: "%{tier}, %{required} carte, pas encore atteint"
+          other: "%{tier}, %{required} cartes, pas encore atteint"
     collection:
       title: "Collection"
     status:
@@ -715,10 +730,9 @@ fr:
     seen:
       throttled: "Trop de requêtes en une minute. Réessayez dans un instant."
     # The collection's list of sets (library/set_list) and its no-season
-    # line (library/show); the public profile reads the tab names too.
+    # line (library/show).
     show:
       tabs:
-        started: "Entamées"
         theme: "Thèmes"
         franchise: "Franchises"
         studio: "Studios"
@@ -742,20 +756,6 @@ fr:
         private: "Profil privé : vous seul et la modération le voyez"
         banned: "Joueur banni : visible par la modération seulement"
       counts: "La collection"
-      complete: "Complet"
-      # French keeps the singular for 0, which the plural rule here does not.
-      progress:
-        zero: "%{count} carte possédée sur %{total}"
-        one: "%{count} carte possédée sur %{total}"
-        other: "%{count} cartes possédées sur %{total}"
-      empty:
-        started: "Aucun set entamé pour l'instant : cette collection attend encore sa première carte."
-        theme: "Aucun thème dans cette saison."
-        franchise: "Aucune franchise n'a de set cette saison."
-        studio: "Aucun studio n'a de set cette saison."
-        hall_of_fame: "Aucun set du panthéon cette saison."
-        ufo: "Toutes les cartes de cette saison ont un thème."
-      past_the_end: "Cette liste s'arrête sur une page précédente."
       no_season: "Aucune saison de cartes n'est publiée pour l'instant."
       # French keeps the singular for 0, which the plural rule here does not.
       distinct_cards:
@@ -767,12 +767,8 @@ fr:
         one: "%{count} collection complète"
         other: "%{count} collections complètes"
     set:
-      owner: "La collection de %{name}"
-      slots: "Les cartes du set"
-      missing: "Carte manquante"
-      copies:
-        one: "%{count} exemplaire"
-        other: "%{count} exemplaires"
+      title: "%{set} · %{name} · gameble"
+      heading: "%{set} · %{name}"
     unavailable:
       title: "Profil indisponible"
       body: "Ce profil n'est pas disponible. Le lien ne mène nulle part, ou son propriétaire ne le montre plus."
