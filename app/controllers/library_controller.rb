@@ -1,20 +1,16 @@
 # The collection: its entry, the viewer's sets in progress, to discover and
 # searched, under the top bar's unique cards; the grid of every card of the
-# published season, with its sets beside it, its filters and its search; and
-# one set's album, the viewer's best edition of each of its games. A visitor,
+# published season, with its filters, its search and the RAPPORT; and one
+# set's album, the viewer's best edition of each of its games. A visitor,
 # or a banned player, owns nothing and sees every slot missing. Sets are
 # addressed by kind and key, cards by slug; no id reaches the page. A GET
 # writes nothing: a grid that showed new cards posts the latest gain it
 # showed to CollectionSeenController. Open to any browser (PublicRead).
 class LibraryController < ApplicationController
   include PublicRead
-  include ShelfLoading
   include CollectionGridLoading
   include SetBoardLoading
   include SetAlbumLoading
-
-  # The page parameter of the list of sets; `page` pages the grid.
-  SHELF_KEY = "shelf".freeze
 
   # GET /:locale/library: the entry, the viewer's sets.
   def show
@@ -32,9 +28,10 @@ class LibraryController < ApplicationController
     @season = Catalog::PublishedSeason.call
     return if @season.nil?
 
-    @kinds = shelf_kinds(@season)
-    @kind = @kinds.include?(params[:kind]) ? params[:kind] : (@kinds.first || KINDS.first)
-    load_collection(collection_grid(@season, params))
+    @grid = collection_grid(@season, params)
+    load_summary
+    load_grid(@grid)
+    load_set_filter(@grid)
   end
 
   # GET /:locale/library/:kind/:key: one set's album.
@@ -46,19 +43,9 @@ class LibraryController < ApplicationController
   end
 
   private
-    # The list of sets of @kind and its page, the grid's page with each
-    # slot's card and the viewer's copies, and the figures of the top bar and
-    # the RAPPORT.
-    def load_collection(grid)
-      @grid = grid
-      load_shelf(Catalog::SeasonShelf.relation(kind: @kind, season: @season), owner: current_player, page_key: SHELF_KEY)
-      load_summary
-      load_grid(grid)
-    end
-
     # @grid_pagy and @slots: [ [ Catalog::CardView, Game::CollectionSlots::Slot | nil ], … ]
     # in grid order, nil for a card the viewer does not hold; @grid_context,
-    # the filters, search and set each slot's link carries, so the card's
+    # the filters and search each slot's link carries, so the card's
     # detail walks this grid (CollectionGridLoading#grid_context), with the
     # player's watermark when the grid shows new cards by filter: showing
     # them moves it (collection_seen_controller.ts), and the detail judges
@@ -71,13 +58,25 @@ class LibraryController < ApplicationController
       asked = grid_states_asked(params)
       @states_asked = asked.any?
       @states = @states_asked ? asked : [ Game::CollectionStates::DEFAULT ]
-      @grid_context = grid_context(params, grid.set, seen: (shown_watermark if @states.include?("new")))
+      @grid_context = grid_context(params, seen: (shown_watermark if @states.include?("new")))
       @grid_pagy, page = pagy(:offset, grid_cards(grid, @states), limit: GRID_SIZE, page: page_param)
       ids = page.pluck(:id)
       views = Catalog::CardViews.call(ids, locale: I18n.locale)
       held = Game::CollectionSlots.call(current_player, ids)
       @slots = ids.filter_map { |id| [ views[id], held[id] ] if views.key?(id) }
       @seen_up_to = held.values.select(&:new).map(&:gained_at).max
+    end
+
+    def load_set_filter(grid)
+      @set_kinds = SET_KINDS & Catalog::SeasonShelf.kinds(season: @season)
+      return if @set_kinds.empty?
+
+      @set_kind = @set_kinds.include?(params[:set_kind]) ? params[:set_kind] : @set_kinds.first
+      @set_query = SetSearch.clean(params[:set_q].is_a?(String) ? params[:set_q] : "")
+      found = SetSearch.in_kind(season: @season, kind: @set_kind, query: @set_query, locale: I18n.locale,
+        except: grid.chosen_sets.map { [ it.kind, it.key ] })
+      @set_options = grid.chosen_sets + found.sets
+      @set_found = found.count
     end
 
     # The watermark this grid judges new cards against; for a player who

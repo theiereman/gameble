@@ -14,7 +14,7 @@
 # - `pack` (and `slot`, the card's place in it from 1, as a pack can hold a
 #   card twice): the viewer's own opened pack, in drawn order, back to the
 #   booster showing it ("◀ Booster");
-# - `grid`: the collection grid as shown (its filters, search and set, and
+# - `grid`: the collection grid as shown (its filters and search, and
 #   the watermark its new cards were judged against, CollectionGridLoading),
 #   in its order across its pages, back to the page of that grid holding
 #   the card ("◀ Grille");
@@ -99,37 +99,20 @@ class CardsController < ApplicationController
       source = params[:grid]
       return unless source.is_a?(ActionController::Parameters) && @detail.current_season
 
-      season = Catalog::PublishedSeason.call
-      grid = named_grid(season, source)
-      return if grid.nil?
-
+      grid = collection_grid(Catalog::PublishedSeason.call, source)
       seen = grid_seen(source)
       ids = grid_cards(grid, grid_states_asked(source), seen_up_to: seen).pluck(:id)
       index = ids.index(@detail.card_season_id)
       return if index.nil?
 
-      context = grid_context(source, grid.set, seen:)
+      context = grid_context(source, seen:)
       back = Back.new(label: t("cards.show.grid"), path: grid_page_path(context, (index / GRID_SIZE) + 1))
       neighbours(ids, index, back:) { { grid: context } }
     end
 
-    # The whole season's grid, or the set's when `source` names a library
-    # kind and a key; nil for a set the season does not hold, or a set
-    # named in part.
-    def named_grid(season, source)
-      kind = source[:kind]
-      key = source[:key]
-      return collection_grid(season, source) if kind.nil? && key.nil?
-      return unless kind.is_a?(String) && key.is_a?(String) && ShelfLoading::KINDS.include?(kind)
-
-      collection_grid(season, source, kind:, key:)
-    end
-
-    # The page `page` of the grid of `context` (its set's, or the whole
-    # season's), with its filters and search.
+    # The page `page` of the grid of `context`, with its filters and search.
     def grid_page_path(context, page)
-      filters = { **context.except(:kind, :key, :seen), page: (page if page > 1) }.compact_blank
-      context[:kind] ? library_set_path(kind: context[:kind], key: context[:key], **filters) : library_cards_path(**filters)
+      library_cards_path({ **context.except(:seen), page: (page if page > 1) }.compact_blank)
     end
 
     # The set the query names, when its kind is a library kind and it is one
@@ -137,7 +120,7 @@ class CardsController < ApplicationController
     def named_set_browse
       kind = params[:set_kind]
       key = params[:set_key]
-      return unless kind.is_a?(String) && key.is_a?(String) && ShelfLoading::KINDS.include?(kind)
+      return unless kind.is_a?(String) && key.is_a?(String) && SET_KINDS.include?(kind)
 
       set_browse(@detail.sets.find { it.kind == kind && it.key == key })
     end

@@ -34,6 +34,6 @@ module SetAlbumLoading
     end
 
     def album_page
-      params[:page].to_s.to_i.clamp(1, ShelfLoading::MAX_PAGE)
+      params[:page].to_s.to_i.clamp(1, CollectionGridLoading::MAX_PAGE)
     end
 end

@@ -1,9 +1,8 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Catalog::CollectionGrid: the ordered cards of the whole season or of one
-# set, their genres (main themes), and the filters: genre, rarity, set and
-# text.
+# Catalog::CollectionGrid: the ordered cards of the whole season, their
+# genres (main themes), and the filters: genre, rarity, set and text.
 class Catalog::CollectionGridTest < ActiveSupport::TestCase
   include CatalogSeeds
 
@@ -24,7 +23,6 @@ class Catalog::CollectionGridTest < ActiveSupport::TestCase
     grid = nil
     assert_queries_count(1) { grid = Catalog::CollectionGrid.call(season: @season) }
 
-    assert_nil grid.set
     assert_equal %w[horror roguelike rpg], grid.genres
     assert_empty grid.chosen_genres
     expected = Catalog::CardSeason.where(season_id: @season.id).where.not(rarity: nil).order(:number, :id).ids
@@ -58,27 +56,6 @@ class Catalog::CollectionGridTest < ActiveSupport::TestCase
     end
   end
 
-  test "a set by kind and key: its cards by membership position, their main themes, in two queries" do
-    grid = nil
-    assert_queries_count(2) { grid = Catalog::CollectionGrid.call(season: @season, kind: "theme", key: "roguelike") }
-
-    assert_equal Catalog::SetSlots::SetRef.new(kind: "theme", key: "roguelike", params: { "theme" => "roguelike" }), grid.set
-    assert_equal %w[roguelike rpg], grid.genres
-    assert_equal members("roguelike"), grid.card_seasons.pluck(:id)
-
-    ufos = Catalog::CollectionGrid.call(season: @season, kind: "ufo", key: "ufos")
-    assert_equal [], ufos.genres
-    assert_equal members("ufos"), ufos.card_seasons.pluck(:id)
-  end
-
-  test "a set's genres filter it" do
-    grid = Catalog::CollectionGrid.call(season: @season, kind: :theme, key: "roguelike", genres: [ "rpg" ])
-
-    assert_equal [ "rpg" ], grid.chosen_genres
-    assert_equal members("roguelike").select { main_theme(it) == "rpg" }, grid.card_seasons.pluck(:id)
-    assert_equal 44, grid.card_seasons.count
-  end
-
   test "several genres are an OR; a rarity then narrows them, an AND" do
     both = Catalog::CollectionGrid.call(season: @season, genres: %w[rpg roguelike])
     assert_equal %w[roguelike rpg], both.chosen_genres
@@ -95,15 +72,12 @@ class Catalog::CollectionGridTest < ActiveSupport::TestCase
     assert_equal Catalog::CardSeason.where(season_id: @season.id, rarity: %w[common legendary]).count, two.card_seasons.count
   end
 
-  test "sets asked as kind:key keep the cards of any of them; unknown sets and a set's own page ignore them" do
+  test "sets asked as kind:key keep the cards of any of them, in the order asked; unknown sets are ignored" do
     grid = Catalog::CollectionGrid.call(season: @season, sets: %w[theme:rpg ufo:ufos theme:nope publisher nonsense])
 
     assert_equal %w[rpg ufos], grid.chosen_sets.map(&:key)
     assert_equal (members("rpg") + members("ufos")).sort, grid.card_seasons.pluck(:id).sort
-
-    inside = Catalog::CollectionGrid.call(season: @season, kind: "theme", key: "rpg", sets: [ "ufo:ufos" ])
-    assert_empty inside.chosen_sets
-    assert_equal members("rpg"), inside.card_seasons.pluck(:id)
+    assert_equal [ { "theme" => "rpg" }, {} ], grid.chosen_sets.map(&:params)
   end
 
   test "a text is found in the title in the locale or in the publisher, whatever its case; wildcards are literal" do
@@ -119,12 +93,6 @@ class Catalog::CollectionGridTest < ActiveSupport::TestCase
 
     both = Catalog::CollectionGrid.call(season: @season, query: "seed 12", genres: %w[rpg])
     assert_operator both.card_seasons.count, :<, by_title.card_seasons.count
-  end
-
-  test "a set the season does not hold under that kind and key is nil" do
-    assert_nil Catalog::CollectionGrid.call(season: @season, kind: "theme", key: "action")
-    assert_nil Catalog::CollectionGrid.call(season: @season, kind: "studio", key: "rpg")
-    assert_nil Catalog::CollectionGrid.call(season: catalog_seasons(:one), kind: "theme", key: "rpg")
   end
 
   test "paged in SQL" do

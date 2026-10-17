@@ -1,0 +1,29 @@
+<% chosen_keys = chosen.map { "#{it.kind}:#{it.key}" } %>
+<% status = query.present? && found.zero? ? t("library.entry.none", query:) : t("library.entry.found", count: found) %>
+<fieldset class="filters__group set-filter" data-collection-filters-target="group" data-group="sets">
+  <legend class="filters__legend"><%= t("library.filters.groups.sets") %></legend>
+  <fieldset class="set-filter__kinds">
+    <legend class="visually-hidden"><%= t("library.filters.set_kind") %></legend>
+    <% kinds.each do |each_kind| %>
+      <label class="filter-chip">
+        <%= radio_button_tag "set_kind", each_kind, each_kind == kind, id: nil, class: "filter-chip__box" %>
+        <span class="filter-chip__text"><%= t("library.set_kinds.#{each_kind}") %></span>
+      </label>
+    <% end %>
+  </fieldset>
+  <div class="set-filter__search">
+    <label class="set-filter__label" for="collection-set-search"><%= t("library.filters.set_search.label") %></label>
+    <%= search_field_tag "set_q", query, id: "collection-set-search", class: "filters__search-field", autocomplete: "off", maxlength: SetSearch::MAX_QUERY,
+      data: { collection_filters_target: "setQuery", action: "keydown->collection-filters#setKeydown" } %>
+  </div>
+  <p class="set-filter__status" role="status" data-collection-filters-target="setStatus"><%= status %></p>
+  <%= turbo_frame_tag "collection-set-options", class: "set-filter__options" do %>
+    <span hidden data-set-filter-summary><%= status %></span>
+    <% options.each do |set| %>
+      <label class="filter-chip">
+        <%= check_box_tag "sets[]", "#{set.kind}:#{set.key}", chosen_keys.include?("#{set.kind}:#{set.key}"), id: nil, class: "filter-chip__box" %>
+        <span class="filter-chip__text"><%= SetLabel.for(set) %></span>
+      </label>
+    <% end %>
+  <% end %>
+</fieldset>

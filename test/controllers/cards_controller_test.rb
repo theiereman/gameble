@@ -662,7 +662,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__card .card.card--l"
   end
 
-  test "a filtered, searched grid is walked as shown, a set's grid too; a grid without the card, or an unknown set, is ignored" do
+  test "a filtered, searched grid is walked as shown; a grid naming a set walks the whole season's; a grid without the card is ignored" do
     season = publish_sets_draft
     filters = { state: %w[all missing], genre: %w[roguelike], q: "Seed 1" }
     slugs = grid_slugs(filters)
@@ -677,23 +677,25 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__back img[src*='back-standard']"
     assert_select ".public-card", false
 
-    rpg = set_members(season, "rpg")
-    shown = Catalog::CardSeason.where(id: rpg, rarity: %i[common rare]).includes(:card).index_by(&:id)
-    set_slugs = rpg.filter_map { shown[it]&.card&.slug }
-    assert_operator set_slugs.size, :>, 2
-    set_context = { key: "rpg", kind: "theme", q: "", rarity: %w[common rare], state: %w[all] }
-    get grid_detail(set_slugs.last, season.number, set_context)
-    assert_equal [ [ "a", grid_detail(set_slugs[-2], season.number, set_context) ], [ "button", "disabled" ] ], navs
-    assert_equal "#{set_slugs.size} / #{set_slugs.size}", position[%r{\d+ / \d+}]
-    assert_equal "/en/library/theme/rpg?rarity%5B%5D=common&rarity%5B%5D=rare&state%5B%5D=all", css_select(".top-bar__phone-back").sole["href"]
+    # A link built by the grid of one set, before sets opened as albums:
+    # the whole season's grid with its filters, back to that grid's page.
+    filtered = { q: "", rarity: %w[common rare], state: %w[all] }
+    season_slugs = grid_slugs(filtered)
+    assert_operator season_slugs.size, :>, 2
+    rpg = Catalog::CardSeason.where(id: set_members(season, "rpg")).includes(:card).map { it.card.slug }
+    index = season_slugs[0...-1].index { it.in?(rpg) }
+    rpg_slug = season_slugs[index]
+    get grid_detail(rpg_slug, season.number, filtered.merge(kind: "theme", key: "rpg"))
+    assert_equal "#{index + 1} / #{season_slugs.size}", position[%r{\d+ / \d+}]
+    assert_equal grid_detail(season_slugs[index + 1], season.number, filtered), navs.last.last
+    page = (index / CollectionGridLoading::GRID_SIZE) + 1
+    assert_equal library_cards_path(locale: :en, rarity: %w[common rare], state: %w[all], page: (page if page > 1)), css_select(".top-bar__phone-back").sole["href"]
 
-    # A grid that does not show the card, an unknown set or kind, a set
-    # named in part: no context, so the visitor gets the public card page.
-    [ { q: "nothing like it" }, { kind: "theme", key: "nope", q: "" }, { kind: "shelf", key: "roguelike" }, { kind: "theme", q: "" } ].each do |other|
-      get grid_detail(slugs[1], season.number, other)
-      assert_response :success, other.inspect
-      assert_select ".public-card", 1, other.inspect
-    end
+    # A grid that does not show the card: no context, so the visitor gets
+    # the public card page.
+    get grid_detail(slugs[1], season.number, { q: "nothing like it" })
+    assert_response :success
+    assert_select ".public-card", 1
   end
 
   test "a grid filtered on new cards is walked against the watermark it was shown against, though showing it moved the player's" do

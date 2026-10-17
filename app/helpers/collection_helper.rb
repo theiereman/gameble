@@ -1,7 +1,5 @@
-# The links of the collection's grid: the whole season and its sets by the
-# kind listed and the list's page, the way to clear the filters and the
-# grid's page links. Defaults are left out of the URLs: the first kind, the
-# first page.
+# The figures of the collection's grid: its page links and the count of
+# filters on.
 module CollectionHelper
   # The pages of the grid's links around the current one: the first, the
   # last, the current and its neighbours, :gap where pages are skipped.
@@ -16,16 +14,6 @@ module CollectionHelper
     end
   end
 
-  # The whole season, with the sets of `kind` on page `shelf` beside it.
-  def collection_season_path(kind:, shelf: 1)
-    library_cards_path(collection_list_params(kind:, shelf:))
-  end
-
-  # One set, with the sets of its kind on page `shelf` beside it.
-  def collection_set_path(kind:, key:, shelf: 1)
-    library_set_path(kind:, key:, **collection_list_params(kind:, shelf:).except(:kind))
-  end
-
   # The number of filters on, as the FILTRES zone shows it: every chip
   # chosen in the rarity, set and genre groups, and the states when the
   # player chose others than the default the page opens on, every slot.
@@ -33,20 +21,4 @@ module CollectionHelper
     chosen = grid.chosen_rarities.size + grid.chosen_sets.size + grid.chosen_genres.size
     chosen + (states_asked && states != [ Game::CollectionStates::DEFAULT ] ? states.size : 0)
   end
-
-  # The scope with no filter and no search, the list of sets kept.
-  def collection_clear_path(kind:, shelf:, set:)
-    set ? collection_set_path(kind: set.kind, key: set.key, shelf:) : collection_season_path(kind:, shelf:)
-  end
-
-  # The name of a set's filter chip: the one its spine carries, else the
-  # set's own label, else its key humanised when it has no params to label it.
-  def set_chip_label(ref, spine_labels)
-    spine_labels[[ ref.kind, ref.key ]] || (SetLabel.for(ref) if ref.params) || ref.key.to_s.humanize
-  end
-
-  private
-    def collection_list_params(kind:, shelf:)
-      { kind: (kind unless kind == ShelfLoading::KINDS.first), shelf: (shelf if shelf > 1) }.compact
-    end
 end

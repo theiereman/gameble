@@ -1,29 +1,26 @@
-<%# The collection screen (DESIGN.md: Layout & Spacing, Collection;
-    EXPERIENCE.md, Collection). From 1180px the sets and the RAPPORT in a
-    220px column beside the grid; from 720px the sets in a strip of rows
-    above the grid, the RAPPORT hidden; on the phone one column: the sets as
-    a strip of chips, the RAPPORT folded, the grid two cards wide. Above the
-    grid, the search and the folded FILTRES zone (library/filters), then the
-    grid in a frame the filters reload. When the grid shows new cards to
-    their player, the collection-seen controller posts the latest gain
-    shown, once the page is rendered (AD-26).
-    - heading: the scope's name (the whole season, or the set's);
-    - kind, kinds, set, spines, shelf: the list of sets (library/set_list);
+<%# The grid of every card. From 1180px the RAPPORT in a 220px column beside
+    the grid; from 720px the grid alone; on the phone one column, the
+    RAPPORT folded above the grid, two cards wide. Above the grid, the
+    search and the folded FILTRES zone (library/filters), then the grid in
+    a frame the filters reload. When the grid shows new cards to their
+    player, the collection-seen controller posts the latest gain shown,
+    once the page is rendered.
+    - heading: the page's name;
     - grid: the Catalog::CollectionGrid; slots, pagy: its page, context:
       the filters its links carry (library/grid);
-    - unique, season_cards, tier_counts: the viewer's figures;
+    - unique, tier_counts: the viewer's figures;
     - seen_up_to: the latest gain among the new cards shown, or nil;
     - pagy also gives the count announced by the status line;
-    - states, states_asked, query: the filters on (library/filters). %>
+    - states, states_asked, query, set_filter: the filters on and the set
+      group (library/filters). %>
 <div class="collection">
   <h1 class="visually-hidden"><%= heading %></h1>
-  <aside class="collection__aside" aria-labelledby="collection-sets-title">
-    <%= render "library/set_list", kind:, kinds:, set:, spines:, pagy: shelf, unique:, season_cards: season_cards %>
+  <aside class="collection__aside" aria-labelledby="collection-report-title">
     <%= render "library/report", counts: tier_counts, unique: unique %>
   </aside>
   <section class="collection__main" aria-label="<%= heading %>">
-    <%= render "library/filters", kind:, shelf: shelf.page, set: grid.set, spines:, grid:, states: states, states_asked: states_asked, query: query %>
-    <%= turbo_frame_tag "collection-results", target: "_top" do %>
+    <%= render "library/filters", grid:, states:, states_asked:, query:, set_filter: set_filter %>
+    <%= turbo_frame_tag "collection-results", target: "_top", data: { turbo_action: "replace" } do %>
       <p class="visually-hidden" role="status"><%= t("library.grid.result", count: pagy.count) %></p>
       <%= render "library/grid", context:, slots:, pagy: pagy %>
       <% if seen_up_to %>

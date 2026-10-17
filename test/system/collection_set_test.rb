@@ -42,18 +42,16 @@ class CollectionSetTest < ApplicationSystemTestCase
     assert_selector ".missing-slot svg.missing-slot__icon"
   end
 
-  test "between 720 and 1179px the sets are a strip of 184px rows above the grid, the RAPPORT hidden" do
+  test "between 720 and 1179px the grid stands alone: no set column, the RAPPORT hidden" do
     publish_sets_draft
     page.driver.browser.manage.window.resize_to(900, 900)
 
     visit library_cards_path(locale: :en)
 
-    widths = page.evaluate_script("[...document.querySelectorAll('.collection-sets__list .set-row')].map((row) => Math.round(row.getBoundingClientRect().width))")
-    assert_equal [ 184 ] * 5, widths
-    tops = page.evaluate_script("[...document.querySelectorAll('.collection-sets__list .set-row')].map((row) => Math.round(row.getBoundingClientRect().top))")
-    assert_equal 1, tops.uniq.size
-    assert_operator page.evaluate_script("document.querySelector('.collection-grid').getBoundingClientRect().top"), :>, tops.first
-    assert_no_selector ".report--panel, .report--fold, .collection-sets__kicker", visible: true
+    assert_no_selector ".collection__aside, .report--panel, .report--fold", visible: true
+    assert_selector "[data-group=sets]", visible: :all
+    assert_operator page.evaluate_script("document.querySelector('.filters').getBoundingClientRect().top"), :<,
+      page.evaluate_script("document.querySelector('.collection-grid').getBoundingClientRect().top")
     assert_no_sideways_scroll
     take_screenshot
   end

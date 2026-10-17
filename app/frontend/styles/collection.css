@@ -1,11 +1,9 @@
 /*
- * The collection (DESIGN.md: Layout & Spacing, Top bar, Collection;
- * EXPERIENCE.md, Collection). From 1180px the sets and the RAPPORT in a
- * 220px column beside the grid; from 720px the sets become a strip of 184px
- * progress rows above the grid, the kicker and the RAPPORT hidden; under
- * 720px one column: the sets a strip of 132 × 48 chips, the RAPPORT folded,
- * the grid two cards wide. The grid holds medium cards (card-m) in as many
- * columns as fit, with DESIGN's fixed gaps; extra width adds a column. No
+ * The collection: its entry, the grid of every card and a set's album.
+ * From 1180px the grid has the RAPPORT in a 220px column beside it; from
+ * 720px the grid stands alone; under 720px one column, the RAPPORT folded
+ * above the grid, two cards wide. The grid holds medium cards (card-m) in
+ * as many columns as fit, with fixed gaps; extra width adds a column. No
  * horizontal page scroll at any width.
  */
 
@@ -173,41 +171,10 @@
   background: var(--color-accent);
 }
 
-/* ---- Sets: the kicker, the kind chips, the progress rows ---- */
+/* ---- Set progress rows ---- */
 
-.collection-sets {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  min-width: 0;
-}
-
-.collection-sets__kicker {
-  margin: 0;
-  color: var(--color-accent);
-  font: var(--font-kicker);
-  letter-spacing: var(--tracking-kicker);
-  text-transform: uppercase;
-}
-
-.collection-sets__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.collection-sets__empty {
-  margin: 0;
-  color: var(--color-muted);
-  font: var(--font-body-small);
-  letter-spacing: var(--tracking-body-small);
-}
-
-/* The scope shown, or the row of the album last opened: a 5px accent bar
-   on its left, on the raised panel, its count in accent. */
+/* The row of the album last opened: a 5px accent bar on its left, on the
+   raised panel, its count in accent. */
 .set-row[aria-current] {
   background: var(--color-panel-raised);
   box-shadow: inset 5px 0 0 0 var(--color-accent), var(--panel-border);
@@ -229,14 +196,7 @@
   box-shadow: var(--focus-ring-gap), inset 5px 0 0 0 var(--color-accent), var(--panel-border);
 }
 
-/* Kind chips: control-bordered plates, the current one in accent. */
-.collection-kinds {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.collection-kind,
+/* Filter chips: control-bordered plates, the ones on in accent. */
 .filter-chip__text {
   display: inline-flex;
   align-items: center;
@@ -251,13 +211,11 @@
   text-transform: uppercase;
 }
 
-.collection-kind:hover,
 .filter-chip:hover .filter-chip__text {
   box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
   color: var(--color-text-max);
 }
 
-.collection-kind[aria-current],
 .filter-chip__box:checked + .filter-chip__text {
   background: var(--color-accent);
   box-shadow: inset 0 calc(-2 * var(--space-unit)) 0 0 var(--color-line-deep);
@@ -271,7 +229,6 @@
   font-weight: bold;
 }
 
-.collection-kind:focus-visible,
 .filter-chip__box:focus-visible + .filter-chip__text {
   box-shadow: var(--focus-ring-gap), var(--control-border);
 }
@@ -399,6 +356,44 @@
   opacity: 0;
 }
 
+.set-filter {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: var(--space-3);
+}
+
+.set-filter__kinds,
+.set-filter__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.set-filter__search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: 420px;
+}
+
+.set-filter__label {
+  color: var(--color-text);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.set-filter__status {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
 .filters__clear {
   align-self: flex-start;
   color: var(--color-accent);
@@ -407,9 +402,7 @@
   text-transform: uppercase;
 }
 
-/* Page links (Pagy's for the sets, the grid's own): small panel plates,
-   the current one in accent. */
-.collection-sets .series-nav,
+/* The grid's page links: small panel plates, the current one in accent. */
 .collection-pages {
   display: flex;
   flex-wrap: wrap;
@@ -417,7 +410,6 @@
   gap: var(--space-2);
 }
 
-.collection-sets .series-nav a,
 .collection-pages__link {
   display: inline-flex;
   align-items: center;
@@ -433,15 +425,9 @@
   text-decoration: none;
 }
 
-.collection-sets .series-nav a[aria-current="page"],
 .collection-pages__link[aria-current="page"] {
   background: var(--color-accent);
   color: var(--color-on-accent);
-}
-
-.collection-sets .series-nav a[aria-disabled="true"]:not([aria-current]) {
-  box-shadow: var(--panel-soft-border);
-  color: var(--color-disabled-text);
 }
 
 .collection-pages__arrow {
@@ -885,7 +871,7 @@
   margin: 0 auto;
 }
 
-/* ---- Two columns (720 to 1179px): the sets above the grid ---- */
+/* ---- One column under 1180px: the grid alone, the RAPPORT folded on the phone ---- */
 
 @media (max-width: 1179px) {
   .collection {
@@ -896,24 +882,18 @@
     column-gap: var(--space-column-gap-medium);
   }
 
-  .collection-sets__kicker,
   .report--panel {
     display: none;
   }
+}
 
-  /* Positioned, so the rows' visually hidden sentences (absolute) scroll
-     with the strip instead of widening the page. */
-  .collection-sets__list {
-    position: relative;
-    flex-direction: row;
-    max-width: 100%;
-    overflow-x: auto;
-    padding: var(--space-1);
+@media (min-width: 720px) and (max-width: 1179px) {
+  .collection {
+    grid-template-areas: "main";
   }
 
-  .collection-sets__list > li {
-    flex: none;
-    width: 184px;
+  .collection__aside {
+    display: none;
   }
 }
 
@@ -943,35 +923,23 @@
     width: 48px;
   }
 
-  .collection-sets__list > li {
-    width: 132px;
-  }
-
-  .collection-sets__list .set-row {
-    min-height: 48px;
-    padding: var(--space-2) var(--space-3);
-  }
-
-  .collection-kinds,
-  .filters__group {
+  .filters__group:not(.set-filter),
+  .set-filter__kinds,
+  .set-filter__options {
     gap: var(--space-touch-gap);
   }
 
-  .collection-kind,
   .filter-chip__text,
   .filters__search-field,
   .filters__summary,
-  .collection-sets .series-nav a,
   .collection-pages__link {
     min-height: var(--space-touch-min);
   }
 
-  .collection-sets .series-nav a,
   .collection-pages__link {
     min-width: var(--space-touch-min);
   }
 
-  .collection-sets .series-nav,
   .collection-pages {
     gap: var(--space-touch-gap);
   }

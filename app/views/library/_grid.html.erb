@@ -1,16 +1,15 @@
-<%# The collection grid (DESIGN.md, Collection: Copy badge, NOUVEAU tag,
-    Missing-card slot): one page of the scope's cards in order. An owned
+<%# The collection grid: one page of the grid's cards in order. An owned
     card shows its medium face, its copies ("x3", from x1, in an accent box
     at the top-right) and, when gained since the player last saw their
     collection, "Nouveau" in a lime box at the top-left; a missing one is a
     hatched slot with a padlock, naming its game and year. Each leads to its
     card's detail: a face's link is named by the card's title, rarity and
     season, a missing slot's by its visible text and "Missing card"; each
-    carries the grid's filters, search and set, so the detail walks this
+    carries the grid's filters and search, so the detail walks this
     grid as shown (◀ ▶), leads back to it, and shows a card the viewer does
     not hold as their faded card back. No card: the empty-filter line, or,
-    past the last page of a scope that has cards, the past-the-end line.
-    - context: the grid's filters, search and set, as a detail's `grid`
+    past the last page of a grid that has cards, the past-the-end line.
+    - context: the grid's filters and search, as a detail's `grid`
       parameter carries them (CollectionGridLoading#grid_context);
     - slots: [ [ Catalog::CardView, Game::CollectionSlots::Slot | nil ], … ];
     - pagy: the grid's page. %>

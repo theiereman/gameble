@@ -627,19 +627,14 @@ en:
           other: "%{tier}, %{required} cards, not reached yet"
     collection:
       title: "Collection"
+    cards:
+      title: "All cards · Collection · gameble"
+      heading: "All cards"
     status:
       label: "Unique cards:"
       progress:
         one: "%{owned} unique card out of %{total}"
         other: "%{owned} unique cards out of %{total}"
-    sets:
-      title: "Sets"
-      kinds: "Kinds of sets"
-      whole_season: "Whole season"
-    set_row:
-      progress:
-        one: "%{owned} card owned out of %{total}"
-        other: "%{owned} cards owned out of %{total}"
     report:
       title: "Report"
       copies: "Total cards"
@@ -660,6 +655,9 @@ en:
       search:
         label: "Search by title or publisher"
         placeholder: "Search a title or a publisher"
+      set_kind: "Kind"
+      set_search:
+        label: "Find a set"
       groups:
         state: "State"
         rarity: "Rarity"
@@ -691,22 +689,7 @@ en:
         next: "Next page"
     seen:
       throttled: "Too many requests in a minute. Try again in a moment."
-    # The collection's list of sets (library/set_list) and its no-season
-    # line (library/show).
     show:
-      tabs:
-        theme: "Themes"
-        franchise: "Franchises"
-        studio: "Studios"
-        hall_of_fame: "Hall of fame"
-        ufo: "UFOs"
-      empty:
-        theme: "No theme in this season."
-        franchise: "No franchise has a set this season."
-        studio: "No studio has a set this season."
-        hall_of_fame: "No hall of fame set this season."
-        ufo: "Every card of this season has a theme."
-      past_the_end: "This list ends on an earlier page."
       no_season: "No season of cards is published yet."
   public_profiles:
     title: "%{name}"

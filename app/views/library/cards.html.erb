@@ -1,16 +1,16 @@
 <% content_for :back_button, true %>
 <% content_for :screen_title, t("library.collection.title") %>
-<% content_for :title, t("library.collection.title") %>
-<%# The collection of the whole season (library/collection), or, with no
+<% content_for :title, t("library.cards.title") %>
+<%# Every card of the published season (library/collection), or, with no
     season published, the line saying so. %>
 <% if @season.nil? %>
   <section class="collection-none" aria-labelledby="collection-heading">
-    <h1 id="collection-heading" class="visually-hidden"><%= t("library.collection.title") %></h1>
+    <h1 id="collection-heading" class="visually-hidden"><%= t("library.cards.heading") %></h1>
     <%= render PanelComponent.new(tag: :p) do %><%= t("library.show.no_season") %><% end %>
   </section>
 <% else %>
   <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
-  <%= render "library/collection", heading: t("library.sets.whole_season"), kind: @kind, kinds: @kinds, set: nil, spines: @spines, shelf: @pagy,
-    grid: @grid, slots: @slots, pagy: @grid_pagy, context: @grid_context, unique: @unique, season_cards: @season_cards, tier_counts: @tier_counts,
-    seen_up_to: @seen_up_to, states: @states, states_asked: @states_asked, query: @query %>
+  <%= render "library/collection", heading: t("library.cards.heading"), grid: @grid, slots: @slots, pagy: @grid_pagy, context: @grid_context,
+    unique: @unique, tier_counts: @tier_counts, seen_up_to: @seen_up_to, states: @states, states_asked: @states_asked, query: @query,
+    set_filter: { kinds: @set_kinds, kind: @set_kind, query: @set_query, options: @set_options, found: @set_found } %>
 <% end %>

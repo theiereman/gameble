@@ -658,6 +658,9 @@ fr:
           other: "%{tier}, %{required} cartes, pas encore atteint"
     collection:
       title: "Collection"
+    cards:
+      title: "Toutes les cartes · Collection · gameble"
+      heading: "Toutes les cartes"
     status:
       label: "Cartes uniques :"
       # French keeps the singular for 0, which the plural rule here does not.
@@ -665,16 +668,6 @@ fr:
         zero: "%{owned} carte unique sur %{total}"
         one: "%{owned} carte unique sur %{total}"
         other: "%{owned} cartes uniques sur %{total}"
-    sets:
-      title: "Sets"
-      kinds: "Sortes de sets"
-      whole_season: "Toute la saison"
-    set_row:
-      # French keeps the singular for 0, which the plural rule here does not.
-      progress:
-        zero: "%{owned} carte possédée sur %{total}"
-        one: "%{owned} carte possédée sur %{total}"
-        other: "%{owned} cartes possédées sur %{total}"
     report:
       title: "Rapport"
       copies: "Cartes totales"
@@ -697,6 +690,9 @@ fr:
       search:
         label: "Rechercher par titre ou éditeur"
         placeholder: "Rechercher un titre ou un éditeur"
+      set_kind: "Sorte"
+      set_search:
+        label: "Chercher un set"
       groups:
         state: "État"
         rarity: "Rareté"
@@ -729,22 +725,7 @@ fr:
         next: "Page suivante"
     seen:
       throttled: "Trop de requêtes en une minute. Réessayez dans un instant."
-    # The collection's list of sets (library/set_list) and its no-season
-    # line (library/show).
     show:
-      tabs:
-        theme: "Thèmes"
-        franchise: "Franchises"
-        studio: "Studios"
-        hall_of_fame: "Panthéon"
-        ufo: "OVNI"
-      empty:
-        theme: "Aucun thème dans cette saison."
-        franchise: "Aucune franchise n'a de set cette saison."
-        studio: "Aucun studio n'a de set cette saison."
-        hall_of_fame: "Aucun set du panthéon cette saison."
-        ufo: "Toutes les cartes de cette saison ont un thème."
-      past_the_end: "Cette liste s'arrête sur une page précédente."
       no_season: "Aucune saison de cartes n'est publiée pour l'instant."
   public_profiles:
     title: "%{name}"
