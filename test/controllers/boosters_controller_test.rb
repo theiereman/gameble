@@ -67,6 +67,9 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[previous next], data["arrowIcons"].keys
     data["arrowIcons"].each_value { |svg| assert_equal 1, Nokogiri::HTML5.fragment(svg).css("svg.pixel-icon.booster-zoom__nav-icon[aria-hidden=true]").size }
     assert_nil data.fetch("opened")
+    assert_equal "/en/library", data["inProgressUrl"]
+    assert_equal %w[next check album], data["celebrationIcons"].keys
+    data["celebrationIcons"].each_value { |svg| assert_equal 1, Nokogiri::HTML5.fragment(svg).css("svg.pixel-icon.booster-celebration__icon[aria-hidden=true]").size }
     data["rarityIcons"].each_value { |svg| assert_equal 1, Nokogiri::HTML5.fragment(svg).css("svg.pixel-icon.booster-card__label-icon[aria-hidden=true]").size }
 
     strings = data["strings"]
@@ -77,7 +80,10 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Card %{position} of %{total}, face down. Reveal.", strings["faceDown"]
     assert_equal [ "Previous card", "Next card" ], strings.values_at("zoomPrevious", "zoomNext")
     assert_equal [ "%{tier} TIER", "SET COMPLETE", "Next result" ], strings["celebration"].values_at("tierTitle", "completeTitle", "next")
-    assert_equal({ "bronze" => "BRONZE", "silver" => "SILVER", "gold" => "GOLD" }, strings.dig("celebration", "tiers"))
+    assert_equal({ "bronze" => "BRONZE", "silver" => "SILVER", "gold" => "GOLD", "complete" => "COMPLETE" }, strings.dig("celebration", "tiers"))
+    assert_equal [ "VIEW SET", "IN PROGRESS", "View set.", "View sets in progress.", "incl." ],
+      strings["celebration"].values_at("setHint", "foldedHint", "openSet", "openInProgress", "foldedLead")
+    assert_equal "%{tier} tier reached: %{set}, %{owned} cards out of %{total}.", strings.dig("celebration", "announceTier")
     assert_equal I18n.t("boosters.island", locale: :en).keys.map { it.to_s.camelize(:lower) }.sort, strings.keys.sort
     # No database id (AD-15).
     assert_empty json_keys(data).grep(/\Aid\z|Id\z/)

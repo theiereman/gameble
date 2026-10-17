@@ -44,7 +44,8 @@ module PacksHelper
   # answers the same ones.
   def pack_set_tiers(pack)
     Game::PackSetTiers.call(pack).map do |row|
-      { kind: row.kind, key: row.key, name: SetLabel.for(row), tier: row.tier, required: row.required, total: row.total }
+      { kind: row.kind, key: row.key, name: SetLabel.for(row), tier: row.tier, required: row.required, total: row.total,
+        url: library_set_path(kind: row.kind, key: row.key) }
     end
   end
 

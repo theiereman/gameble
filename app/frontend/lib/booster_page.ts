@@ -14,6 +14,8 @@ export function readLayout(): Layout {
 /** The query parameter naming the opened pack the screen shows, and its card details walk. */
 export const PACK_PARAM = "pack"
 
+export const CELEBRATION_PARAM = "celebration"
+
 /**
  * A card's detail walking its opened pack: `cardUrl` with the card's slug
  * in place of SLUG, the pack's token and the card's place in it (from 1,
@@ -27,23 +29,32 @@ export function cardHref(cardUrl: string, slug: string, token: string, index: nu
 }
 
 /**
- * `href` naming the opened pack `token`, or none when `token` is null; the
- * rest of its query and its hash kept.
+ * `href` naming the opened pack `token` (and its celebration, on demand),
+ * or neither when `token` is null; the rest of its query and its hash kept.
  */
-export function withPack(href: string, token: string | null): string {
+export function withPack(href: string, token: string | null, celebration = false): string {
   const url = new URL(href)
-  if (token === null) url.searchParams.delete(PACK_PARAM)
-  else url.searchParams.set(PACK_PARAM, token)
+  if (token === null) {
+    url.searchParams.delete(PACK_PARAM)
+    url.searchParams.delete(CELEBRATION_PARAM)
+  } else {
+    url.searchParams.set(PACK_PARAM, token)
+    if (celebration) url.searchParams.set(CELEBRATION_PARAM, "1")
+  }
   return url.toString()
 }
+
+export const celebrationMarked = (href: string): boolean => new URL(href).searchParams.has(CELEBRATION_PARAM)
+
+export const celebrationRemembered = (): boolean => typeof location !== "undefined" && celebrationMarked(location.href)
 
 /**
  * Names the opened pack `token` (or none, for null) in the screen's own
  * history entry, keeping Turbo's state in it: Back from a card's detail
  * then fetches the screen showing that pack (it is never cached).
  */
-export function rememberPack(token: string | null): void {
-  const href = withPack(location.href, token)
+export function rememberPack(token: string | null, celebration = false): void {
+  const href = withPack(location.href, token, celebration)
   if (href !== location.href) history.replaceState(history.state, "", href)
 }
 

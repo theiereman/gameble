@@ -41,6 +41,7 @@ export type OpeningSetTier = {
   tier: SetTierName
   required: number
   total: number
+  url: string
 }
 
 export type OpeningAnswer = {
@@ -119,7 +120,8 @@ function isSetTier(value: unknown): value is OpeningSetTier {
     typeof value.name === "string" &&
     SET_TIERS.includes(value.tier as SetTierName) &&
     Number.isInteger(value.required) &&
-    Number.isInteger(value.total)
+    Number.isInteger(value.total) &&
+    typeof value.url === "string"
   )
 }
 

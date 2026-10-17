@@ -20,7 +20,8 @@
 // and the navigation lock during an opening and each reveal.
 // Once the hand is complete and no banner plays, the set tiers the opening
 // reached are celebrated and announced once (BoosterCelebration); they stay
-// until the next capsule opens. A pack shown again celebrates nothing.
+// until the next capsule opens. A pack shown again celebrates nothing,
+// except back from an album its celebration opened: its results, still.
 // The bank is read again from the server (lib/booster_bank.ts) after a
 // refusal, and when the countdown reaches zero: the screen is refreshed
 // with no hand at rest, else the bank is fetched once the hand is put
@@ -59,7 +60,7 @@ import type { Rarity } from "../lib/card_types"
 import { dispatchGameble } from "../lib/events"
 import { t } from "../lib/i18n"
 import { motionReduced } from "../lib/motion"
-import { celebrationAnnouncement, celebrationResults, type CelebrationResult } from "../lib/celebration"
+import { celebrationAnnouncement, celebrationResults, restoredCelebration, type CelebrationResult } from "../lib/celebration"
 import { sendOpening, type OpeningAnswer, type OpeningResult, type OpeningSetTier } from "../lib/opening"
 import { repostHref, sendRepost } from "../lib/repost"
 import {
@@ -158,7 +159,7 @@ import {
   storeKeyframes,
   trembleKeyframes,
 } from "../lib/booster_keyframes"
-import { cardHref, csrfToken, newKey, readLayout, refreshPage, rememberPack, visit } from "../lib/booster_page"
+import { cardHref, celebrationRemembered, csrfToken, newKey, readLayout, refreshPage, rememberPack, visit } from "../lib/booster_page"
 import type { BoosterBank, BoosterPhase as Phase, BoosterProps, BoosterStatus as Status } from "../lib/booster_props"
 
 export type { BoosterBank, BoosterProps, BoosterStrings } from "../lib/booster_props"
@@ -175,7 +176,13 @@ export default function Booster(props: BoosterProps) {
     if (!opened) return null
     const revealedAll = opened.cards.map(() => true)
     const pastGuard = opened.cards.map(() => performance.now() - REVEAL_GUARD)
-    return { answer: opened, revealed: revealedAll, revealedAt: pastGuard, stored: storedAfterRebuild(revealedAll, [], readLayout()) }
+    return {
+      answer: opened,
+      revealed: revealedAll,
+      revealedAt: pastGuard,
+      stored: storedAfterRebuild(revealedAll, [], readLayout()),
+      celebration: restoredCelebration(opened.setTiers, celebrationRemembered(), document.documentElement.lang || undefined),
+    }
   })
 
   // ---- State, mirrored in refs for the choreography's async steps ----
@@ -229,8 +236,9 @@ export default function Booster(props: BoosterProps) {
   // for the hand to complete; then its results, shown once no banner plays
   // and announced once, until the next capsule opens.
   const celebrationPending = useRef<OpeningSetTier[] | null>(null)
-  const [celebration, setCelebration] = useState<CelebrationResult[] | null>(null)
-  const celebrationAnnounced = useRef(false)
+  const [celebration, setCelebration] = useState<CelebrationResult[] | null>(restored?.celebration ?? null)
+  const [celebrationStill, setCelebrationStill] = useState(celebration !== null)
+  const celebrationAnnounced = useRef(celebration !== null)
 
   const revealingNow = revealingOpening(status)
   useEffect(() => dispatchGameble("gameble:opening-revealing", { revealing: revealingNow }), [revealingNow])
@@ -343,7 +351,14 @@ export default function Booster(props: BoosterProps) {
     const results = celebrationResults(reached, document.documentElement.lang || undefined)
     if (results.length === 0) return
     celebrationAnnounced.current = false
+    setCelebrationStill(false)
     setCelebration(results)
+  }
+
+  const leaveForAlbum = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    const current = answerRef.current
+    if (current) rememberPack(current.pack.token, true)
   }
 
   const celebrationShown = celebration !== null && banner === null
@@ -1019,10 +1034,11 @@ export default function Booster(props: BoosterProps) {
         phase, status, bank, answer, revealed, revealedAt, stored, dealt, armed, headShown, canisterAway, dock, reason, legendary, banner,
         revealingAll, storing, locked, layout, stageKey, zoom, announcements,
         celebration: celebrationShown ? celebration : null,
+        celebrationStill,
       }}
       left={left}
       elements={{ section, canister, shake, flash, fx, openButton, backLink, slotRefs, traySlotRef }}
-      handlers={{ open, revealAll, activateCard, storeTop, openZoom, closeZoom, stepZoom, seeZoomed, repost, endBanner, guardBack, gestures: swipe.gestures }}
+      handlers={{ open, revealAll, activateCard, storeTop, openZoom, closeZoom, stepZoom, seeZoomed, repost, endBanner, guardBack, leaveForAlbum, gestures: swipe.gestures }}
     />
   )
 }

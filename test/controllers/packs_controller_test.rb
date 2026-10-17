@@ -427,7 +427,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     open_json
 
     expected = %w[bronze silver].zip([ 1, 1 ]).map do |tier, required|
-      { "kind" => "theme", "key" => "roguelike", "name" => "Roguelike", "tier" => tier, "required" => required, "total" => 3 }
+      { "kind" => "theme", "key" => "roguelike", "name" => "Roguelike", "tier" => tier, "required" => required, "total" => 3,
+        "url" => "/en/library/theme/roguelike" }
     end
     assert_equal expected, first
     assert_equal expected, body["setTiers"]
@@ -461,7 +462,8 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     end
     assert_response :ok
     assert_equal answer.slice("pack", "cards", "tierCountsBefore", "setTiers"), body.slice("pack", "cards", "tierCountsBefore", "setTiers")
-    assert_equal [ { "kind" => "studio", "key" => "valve", "name" => "Valve", "tier" => "complete", "required" => 1, "total" => 1 } ], body["setTiers"]
+    assert_equal [ { "kind" => "studio", "key" => "valve", "name" => "Valve", "tier" => "complete", "required" => 1, "total" => 1,
+                     "url" => "/en/library/studio/valve" } ], body["setTiers"]
     assert_equal first.token, body.dig("pack", "token")
     assert_equal %w[common uncommon rare epic legendary], body["cards"].map { it["tier"] }
 

@@ -10,8 +10,9 @@ module BoostersHelper
   # size), the bank at the time of the page (#booster_bank), the rarity
   # names and icons by tier code name, the size in art pixels a card's
   # palette is computed at (the tray's thumbnails share the faces' colours),
-  # the card zoom's ◀ ▶ icons, every word of `boosters.island` (plural keys
-  # as their hash), and `opened`:
+  # the card zoom's ◀ ▶ icons, the set celebration's link to the sets in
+  # progress and its icons, every word of `boosters.island` (plural keys as
+  # their hash), and `opened`:
   # the opening exchange's answer for an opened pack the island shows dealt
   # and face up (PacksHelper#pack_opening_json), or nil for the canister.
   # No database id. Times are UTC ISO 8601 with milliseconds, as the
@@ -31,6 +32,8 @@ module BoostersHelper
       rarityIcons: Catalog::Rarity::TIERS.to_h { |tier, code| [ code, pixel_icon("rarity-#{tier}", class: "booster-card__label-icon").to_str ] },
       artPalette: CardComponent::PALETTE,
       arrowIcons: { previous: zoom_arrow("left"), next: zoom_arrow("right") },
+      inProgressUrl: library_path,
+      celebrationIcons: { next: celebration_icon("arrow-small-right"), check: celebration_icon("check"), album: celebration_icon("album") },
       strings: booster_strings,
       opened:
     }
@@ -56,6 +59,10 @@ module BoostersHelper
   # The card zoom's ◀ or ▶ pixel icon, as HTML.
   def zoom_arrow(direction)
     pixel_icon("arrow-#{direction}", class: "booster-zoom__nav-icon").to_str
+  end
+
+  def celebration_icon(name)
+    pixel_icon(name, class: "booster-celebration__icon").to_str
   end
 
   # Every key of `boosters.island`, in lower camel case, nested groups and

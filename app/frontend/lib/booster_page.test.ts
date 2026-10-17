@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
-import { cardHref, newKey, readLayout, withPack } from "./booster_page"
+import { cardHref, celebrationMarked, newKey, readLayout, withPack } from "./booster_page"
 
 const V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
 
@@ -63,5 +63,24 @@ describe("withPack", () => {
   it("drops it for none", () => {
     expect(withPack("https://gameble.test/fr/booster?pack=old&x=1", null)).toBe("https://gameble.test/fr/booster?x=1")
     expect(withPack("https://gameble.test/fr/booster", null)).toBe("https://gameble.test/fr/booster")
+  })
+})
+
+describe("the celebration mark", () => {
+  it("is set with the pack on demand", () => {
+    const href = withPack("https://gameble.test/fr/booster", "tok3n", true)
+    expect(href).toBe("https://gameble.test/fr/booster?pack=tok3n&celebration=1")
+    expect(celebrationMarked(href)).toBe(true)
+    expect(celebrationMarked(withPack("https://gameble.test/fr/booster", "tok3n"))).toBe(false)
+  })
+
+  it("is kept while the pack stays named", () => {
+    expect(withPack("https://gameble.test/fr/booster?pack=tok3n&celebration=1", "tok3n")).toBe("https://gameble.test/fr/booster?pack=tok3n&celebration=1")
+  })
+
+  it("is dropped with the pack", () => {
+    const href = withPack("https://gameble.test/fr/booster?pack=tok3n&celebration=1&x=1", null)
+    expect(href).toBe("https://gameble.test/fr/booster?x=1")
+    expect(celebrationMarked(href)).toBe(false)
   })
 })

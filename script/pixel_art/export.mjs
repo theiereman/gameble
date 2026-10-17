@@ -342,6 +342,16 @@ const ICONS = {
       "..c....",
     ],
   },
+  album: {
+    grid: [
+      "cccccc.",
+      "c....cc",
+      "c.cc.cc",
+      "c....cc",
+      "c.cc.cc",
+      "cccccc.",
+    ],
+  },
   // ◆
   diamond: {
     grid: [
@@ -1229,6 +1239,7 @@ const DESCRIPTIONS = {
   "arrow-small-right.svg": "▸ small arrow for links (text colour)",
   "close.svg": "✕ close and remove (text colour)",
   "check.svg": "✓ check mark (text colour)",
+  "album.svg": "A set's album: a closed book, 7 × 6 (text colour)",
   "diamond.svg": "◆ ticker separator (text colour)",
   "swap.svg": "⇄ trade swap (text colour)",
   "external.svg": "↗ external link (text colour)",

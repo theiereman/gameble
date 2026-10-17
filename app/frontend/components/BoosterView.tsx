@@ -57,6 +57,7 @@ export type BoosterViewState = {
   announcements: Announcement[]
   /** The set celebration's results once the hand is complete and no banner plays, else null. */
   celebration: CelebrationResult[] | null
+  celebrationStill: boolean
 }
 
 /** The elements the island animates, measures or focuses. */
@@ -88,6 +89,7 @@ export type BoosterViewHandlers = {
   endBanner: (key: number) => void
   /** The way back does nothing while the navigation is locked. */
   guardBack: (event: MouseEvent<HTMLAnchorElement>) => void
+  leaveForAlbum: (event: MouseEvent<HTMLAnchorElement>) => void
   /** The swipe on the phone's revealed top card. */
   gestures: CardGestures
 }
@@ -102,11 +104,11 @@ export type BoosterViewProps = {
 }
 
 export default function BoosterView({ props, state, left, elements, handlers }: BoosterViewProps) {
-  const { hubUrl, cardUrl, repostUrl, delimiter, season, packSize, rarityNames, rarityIcons, artPalette, arrowIcons, strings } = props
+  const { hubUrl, cardUrl, repostUrl, delimiter, season, packSize, rarityNames, rarityIcons, artPalette, arrowIcons, inProgressUrl, celebrationIcons, strings } = props
   const { phase, status, bank, answer, revealed, revealedAt, stored, dealt, armed, headShown, canisterAway, dock, reason, legendary, banner } = state
-  const { revealingAll, storing, locked, layout, stageKey, zoom, announcements, celebration } = state
+  const { revealingAll, storing, locked, layout, stageKey, zoom, announcements, celebration, celebrationStill } = state
   const { section, canister, shake, flash, fx, openButton, backLink, slotRefs, traySlotRef } = elements
-  const { open, revealAll, activateCard, storeTop, openZoom, closeZoom, stepZoom, seeZoomed, repost, endBanner, guardBack, gestures } = handlers
+  const { open, revealAll, activateCard, storeTop, openZoom, closeZoom, stepZoom, seeZoomed, repost, endBanner, guardBack, leaveForAlbum, gestures } = handlers
   const number = (value: number) => formatNumber(value, delimiter)
   const tierLabel = (tier: Rarity) => (tier === "legendary" ? t(strings.legendaryBanner, { rarity: rarityNames[tier] }) : rarityNames[tier])
 
@@ -232,7 +234,17 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
   const zoomed = zoom !== null && phone ? cards[zoom] : null
 
   const celebrationResults = celebration && (
-    <BoosterCelebration key={answer?.pack.token} results={celebration} strings={strings.celebration} delimiter={delimiter} phone={phone} />
+    <BoosterCelebration
+      key={answer?.pack.token}
+      results={celebration}
+      strings={strings.celebration}
+      delimiter={delimiter}
+      phone={phone}
+      still={celebrationStill}
+      inProgressUrl={inProgressUrl}
+      icons={celebrationIcons}
+      onLeave={leaveForAlbum}
+    />
   )
 
   return (

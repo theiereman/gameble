@@ -5,7 +5,7 @@
 // draws. Types only, so the entrypoint can name them without loading the
 // island.
 import type { Rarity } from "./card_types"
-import type { CelebrationStrings } from "./celebration"
+import type { CelebrationIcons, CelebrationStrings } from "./celebration"
 import type { Template } from "./i18n"
 import type { OpeningAnswer } from "./opening"
 
@@ -114,6 +114,8 @@ export type BoosterProps = {
   artPalette: { width: number; height: number }
   /** The card zoom's ◀ and ▶ pixel icons, as HTML. */
   arrowIcons: { previous: string; next: string }
+  inProgressUrl: string
+  celebrationIcons: CelebrationIcons
   strings: BoosterStrings
   /** An opened pack to show dealt, every card face up (the way back from a card's detail), as the opening exchange answers it; null for the canister. */
   opened: OpeningAnswer | null

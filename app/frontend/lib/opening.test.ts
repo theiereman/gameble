@@ -9,7 +9,7 @@ const answer = {
   bank: { available: 9, reserveFull: false, nextAvailableAt: null, scheduledAt: [], nextPackSize: 5 },
   serverTime: "2026-10-06T14:22:00.000Z",
   tierCountsBefore: { common: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0 },
-  setTiers: [{ kind: "theme", key: "roguelike", name: "Roguelike", tier: "silver", required: 16, total: 62 }],
+  setTiers: [{ kind: "theme", key: "roguelike", name: "Roguelike", tier: "silver", required: 16, total: 62, url: "/fr/library/theme/roguelike" }],
   unlockedCardBacks: [],
 }
 
@@ -62,9 +62,10 @@ describe("sendOpening", () => {
       fake(json(422, { message: "no envelope" })),
       // A card without one of its three faces.
       fake(json(200, { ...answer, cards: [{ ...answer.cards[0], faces: { m: "<span></span>", xl: "<span></span>" } }] })),
-      // No set tiers, or one of another shape.
+      // No set tiers, one of another shape, or one without its album.
       fake(json(200, { ...answer, setTiers: undefined })),
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], tier: "platinum" }] })),
+      fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], url: undefined }] })),
     ]
     for (const { send } of outcomes) expect(await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })).toEqual({ kind: "failed" })
   })
