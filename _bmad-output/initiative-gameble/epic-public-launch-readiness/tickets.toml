@@ -203,32 +203,6 @@ risk = "low"
 notes = ["il faudrait qu'on trouve une solution pour rester en europe en vrai, quitte à auto héberger", "Dropped (author, 2026-10-09): the author's Sentry data is already stored in Sentry's EU region; the privacy notice says so (story 22)."]
 
 [[entry]]
-id = 56
-type = "story"
-title = "A landing page for visitors, designed first"
-description = "A signed-out visitor at /fr or /en meets a landing page that says what gameble is (a free card game where every card is a Steam game), shows it with what is live (the season, the LIVE ticker, recent pulls) and leads to Steam sign-in; a signed-in player still lands on the hub. It starts with a UX session with the author (content, layout, tone, phone and desktop) recorded in EXPERIENCE.md and DESIGN.md, then is built from that design on the same domain as the app."
-verify = "EXPERIENCE.md and DESIGN.md describe the landing and the author approved them before the build; signed out, /fr and /en show the landing in their language and its sign-in action opens the Steam sign-in panel; signed in, the same addresses show the hub; the landing works on phone and desktop under the enforced CSP."
-covers = ["R7"]
-after = [10]
-hitl = true
-risk = "medium"
-refine = true
-unknown = "The landing's content, sections and visuals, settled in the UX session; whether it replaces the signed-out hub everywhere the hub is reached signed out."
-notes = ["Requested by the author on 2026-10-14.", "Decision (author, 2026-10-14): one domain; the landing is served by the app at /fr and /en for signed-out visitors, not a separate site or subdomain.", "Decision (author, 2026-10-14): design first, in a UX session with the author, before any code."]
-
-[[entry]]
-id = 16
-type = "story"
-title = "The landing found by search engines"
-description = "Makes the landing the page search engines find and present well: its title and meta description in both languages, hreflang between /fr and /en, canonical links on PUBLIC_URL, structured data for the game, a sitemap listing the landing and the legal page, and a robots.txt that points to it and disallows the back-office and private screens. Public card pages, public profiles and the library keep their sharing previews and stay indexable, with no further search work."
-verify = "The landing has its own title and description in each language with hreflang and canonical links and valid structured data; /sitemap.xml lists the landing and the legal page in both languages and no private page; robots.txt points to the sitemap and disallows the back-office and private screens; public card pages and profiles are not marked noindex."
-covers = ["R7"]
-after = [3, 56]
-hitl = false
-risk = "low"
-notes = ["il faudra ajouter des tickets pour favoriser le SEO", "Decision (author, 2026-10-14): search work aims at the landing; public card pages, public profiles and the library stay indexable but get no search work, and are not marked noindex."]
-
-[[entry]]
 id = 17
 type = "story"
 title = "Moderation by rank, a hidden back-office and staff reading every profile"
@@ -722,6 +696,6 @@ title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 57, 58, 59]
 hitl = false
 risk = "low"

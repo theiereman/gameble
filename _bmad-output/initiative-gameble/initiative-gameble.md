@@ -3,7 +3,7 @@ key: ""
 type: initiative
 title: "gameble MVP: a Steam card game played every day by the Brotherhood"
 parent: none
-covers: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23]
+covers: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-24, CAP-25, CAP-26]
 after: []
 assignee: ""
 risk: high
@@ -25,12 +25,12 @@ For French- and English-speaking gamers with a Steam account: a card game worth 
 
 ## Requirements
 
-The spec is the requirement source: `spec-gameble/spec-gameble.md`, capabilities CAP-1 to CAP-23. Its companions bind every epic: the architecture spine (AD-1 to AD-28), `DESIGN.md`, `EXPERIENCE.md`, `catalog-and-rarity.md`, `brotherhood-tone.md`.
+The spec is the requirement source: `spec-gameble/spec-gameble.md`, capabilities CAP-1 to CAP-26. Its companions bind every epic: the architecture spine (AD-1 to AD-28), `DESIGN.md`, `EXPERIENCE.md`, `catalog-and-rarity.md`, `brotherhood-tone.md`.
 
 ## Done when
 
 1. The author plays every day for a month alongside at least 10 active players, not all of them friends, and sees their pulls and trades in the feed.
-2. Every capability CAP-1 to CAP-23 except CAP-20, CAP-22 and CAP-23 is live in production, in French and in English; CAP-20 and CAP-22 follow the public launch (epic Cosmetics), and CAP-23 follows it too, live before production's second season (epic-seasons-carry-over).
+2. Every capability CAP-1 to CAP-26 except CAP-20, CAP-22 and CAP-23 is live in production, in French and in English; CAP-20 and CAP-22 follow the public launch (epic Cosmetics), and CAP-23 follows it too, live before production's second season (epic-seasons-carry-over).
 3. Opening a pack answers within 200 ms at the 95th percentile.
 4. No blocking bug stays open for more than a day during the first month.
 
@@ -71,3 +71,4 @@ One Rails application and its Steam import, cut by capability. Not the V2 market
 - Decision (2026-10-08, author): sets players recognize (themes, franchises, studios, hall of fame, the UFOs, with tiers) replace tomes, publisher and best-of-year sets before the launch, in a new epic, epic-recognizable-sets, after epic 6 and before epic 11; source: change-recognizable-sets/change-recognizable-sets.md. Epic 7 does not wait on it.
 - Decision (2026-10-08, author): epic-card-backs becomes "Cosmetics: card backs, titles and menu themes" and also covers the new CAP-22; it stays after the public launch, and Done when 2 excludes CAP-20 and CAP-22.
 - Decision (2026-10-14, author): seasons are reprints: any edition counts for a set, earned tiers keep their season's mark, and a seasonal allocation screen greets returning players at each new season (change-season-carryover/change-season-carryover.md). The holding rule is built before launch in epic-recognizable-sets (R11, entry 15); the allocation and season marks in a new epic, epic-seasons-carry-over (17), after epic 12 and before production's second season. The collection season selector plan is dropped.
+- Decision (2026-10-17, author): the visitor landing (CAP-24), its roadmap (CAP-25) and the pioneer row (CAP-13) are built in a new epic, epic-visitor-landing (20), after epics 6 and 7 and before epics 16 and 12; it also designs and builds the full roadmap page. The initiative now covers CAP-24 to CAP-26, which the spec added on 2026-10-14 and 2026-10-15.

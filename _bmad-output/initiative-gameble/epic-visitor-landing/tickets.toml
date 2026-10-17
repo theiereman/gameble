@@ -1,0 +1,203 @@
+# tickets.toml — the epic's stories, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "The app speaks JetBrains Mono"
+description = "Replaces Space Mono with JetBrains Mono 700 across the app and the static error pages, fonts, preloads and licence file included, keeping VT323 for large text as DESIGN.md says."
+verify = "No Space Mono file or reference is left in the app or public/errors, every screen and error page renders in JetBrains Mono, and the font licence ships beside it."
+covers = ["R8"]
+after = []
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 2
+type = "story"
+title = "The landing's shell for visitors"
+description = "Serves the landing to signed-out visitors at a provisional address with its top bar, the hero without its lamp, the nine modules with their static copy and example tiles, and the footer, in French and English, on phone and desktop, under the enforced CSP; a signed-in player who opens it gets the hub."
+verify = "Signed out, the provisional address shows the nine modules in both languages on phone and desktop with no CSP report and one h1 and one h2 per module; signed in, it redirects to the hub."
+covers = ["R1"]
+after = [1, "7.10"]
+hitl = false
+risk = "medium"
+unknown = "Which cards the hero, module 01 and the moving cards sample."
+
+[[entry]]
+id = 3
+type = "story"
+title = "The roadmap page and the pioneer row designed"
+description = "A bmad-ux session with the author designs the full roadmap page and the card detail's pioneer row (with its « anonyme » form), and rewords the landing's « Découvrez » tile so it promises no name to every viewer; DESIGN.md and EXPERIENCE.md record both."
+verify = "DESIGN.md and EXPERIENCE.md describe the roadmap page and the pioneer row, and the author approved them."
+covers = ["R5", "R6"]
+after = []
+hitl = true
+risk = "low"
+
+[[entry]]
+id = 4
+type = "story"
+title = "The lamp finds the lost games"
+description = "Builds the hero's lamp field: cards under a veil, the lamp following a fine pointer and sweeping on its own on touch, the found-games count, the veil moved by translate3d, its maths in a tested pure module, and its reduced-motion form."
+verify = "With a mouse the lamp follows the pointer and sweeps after it stops, on a phone it sweeps, the count stops once every card is found, and under reduced motion the lamp jumps to the pointer with nothing animating."
+covers = ["R1", "R3"]
+after = [2]
+hitl = false
+risk = "high"
+
+[[entry]]
+id = 5
+type = "story"
+title = "The landing shows the season and the weekly goal"
+description = "Adds the queries the landing reads (the goal's participants, active players this week, capsules opened today, first discoveries this week) and shows the season panel and module 02's goal panel from them, the end time in the visitor's time zone, each block cached per locale."
+verify = "The landing shows the published season with its three facts and the current goal with its count, gauge and participants, a second request inside the cache window runs none of the queries, and an empty game shows the designed empty states."
+covers = ["R2"]
+after = [2, "6.3"]
+hitl = false
+risk = "medium"
+unknown = "What « cette semaine » and « aujourd'hui » mean (calendar week or the goal's week, which time zone)."
+
+[[entry]]
+id = 6
+type = "story"
+title = "Module 04 is live"
+description = "Shows the five latest feed entries in module 04 and inserts a new one at the top as a single node, subscribing only once the module is in view and pausing on hover or focus, without a live region."
+verify = "A pack opened by a player appears at the top of an open landing's module 04 without a reload, and a landing never scrolled to module 04 opens no subscription."
+covers = ["R2"]
+after = [5, "6.4"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 7
+type = "story"
+title = "The landing's modules power on"
+description = "Adds the modules' one-time power-on as their top edge passes 85% of the viewport, the star field's drift with the scroll on the landing only, and the side position gauge from 1440px with its focus-moving markers, their maths in tested pure modules, all still under reduced motion."
+verify = "Scrolling powers each module on once, the gauge's markers move focus to each module's heading with aria-current, content shows without JavaScript, and under reduced motion modules only fade and the stars stay still."
+covers = ["R3"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 8
+type = "story"
+title = "Cards drift over the landing"
+description = "Adds the few cards passing over the content faster than the scroll on desktop with a fine pointer and room in both gutters, draggable aside until reload, faded while focus is in the content, hidden from assistive technology, absent on the phone and under reduced motion."
+verify = "On a wide desktop the cards pass over the content and can be dragged aside, they never show on a phone, a narrow window or under reduced motion, and tabbing through the content fades them."
+covers = ["R3"]
+after = [7]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 9
+type = "story"
+title = "A visitor turns animations down"
+description = "Adds the top bar's « Animations réduites » switch for visitors, written through a POST into the motion cookie the server reads from the first paint on every signed-out page, and sets the account's setting at sign-in when the switch is on."
+verify = "A visitor who switches it on gets the reduced landing on the next load without a flash, and after a Steam sign-in their account's reduced motion setting is on; switched off, sign-in leaves the account as it was."
+covers = ["R4"]
+after = [2]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 10
+type = "story"
+title = "The roadmap derives from the initiative"
+description = "Adds opt-in roadmap fields to the initiative's epics and entries for the author's player-facing wording, a script that generates the app's roadmap data and its en/fr strings from them, a CI check that fails on drift, and the AGENTS.md rule that keeps both in step."
+verify = "Running the script on the initiative produces the roadmap data with each chosen ticket's status, and changing a chosen ticket's status or wording without rerunning it fails CI."
+covers = ["R5", "R8"]
+after = []
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 11
+type = "story"
+title = "Module 06 shows the roadmap"
+description = "Shows the generated roadmap in module 06: epics as milestones, six in a row on desktop and scrolled sideways on the phone as one tab stop, a few stories under each with their status written in text."
+verify = "Module 06 shows the curated epics and stories with Fait, En cours or À venir in both languages, and on the phone the row scrolls with the arrow keys."
+covers = ["R5"]
+after = [2, 10]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 12
+type = "story"
+title = "The full roadmap page"
+description = "Builds the full roadmap page from its design and the generated roadmap data, and links module 06 to it."
+verify = "Module 06's link opens the roadmap page, which shows the whole curated roadmap in both languages on phone and desktop."
+covers = ["R5"]
+after = [3, 11]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 13
+type = "story"
+title = "The card detail names its pioneer"
+description = "Shows each edition's pioneer on the card detail as designed, from the first discoveries, naming the player to viewers `Game::Visibility` allows and « anonyme » to anyone else."
+verify = "A card detail names the player who first discovered that edition to a viewer allowed to see their profile, shows « anonyme » to one who is not, and shows each edition's own pioneer."
+covers = ["R6", "R8"]
+after = [3, "6.7"]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 14
+type = "story"
+title = "The Brotherhood's story on the landing"
+description = "A lore session with the author writes the landing's lore text in French, translated into English, within the length module 02 holds, and fills module 02's lore panel with it."
+verify = "Module 02 shows the author-approved lore text in both languages where the dashed slot was, on phone and desktop."
+covers = ["R8"]
+after = [2]
+hitl = true
+risk = "low"
+
+[[entry]]
+id = 15
+type = "story"
+title = "Visitors land on the landing"
+description = "Gives the signed-out hub its own address and makes the landing the signed-out root: /fr, /en, the wordmark, sign-out and account deletion lead to it, once every ship condition holds."
+verify = "Signed out, /fr, /en and the wordmark show the landing and « Embarquer sur le pont » opens the hub at its own address; signing out and deleting an account land on the landing; signed in, /fr and /en show the hub."
+covers = ["R7", "R8"]
+after = [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+hitl = false
+risk = "medium"
+unknown = "The signed-out hub's own address."
+
+[[entry]]
+id = 16
+type = "story"
+title = "The public card page leads to the landing"
+description = "Adds « Découvrir » (to the landing) and « Embarquer sur le pont » (to the signed-out hub's address from story 15) to the signed-out public card page, as links or secondary buttons, never lime, and makes its wordmark a link to the landing."
+verify = "Signed out, a shared card page shows both links beside « OUVRIR MES PREMIERS BOOSTERS », and each opens the landing or the signed-out hub."
+covers = ["R7"]
+after = [15]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 18
+type = "story"
+title = "The landing found by search engines"
+description = "Makes the landing the page search engines find and present well: its title and meta description in both languages, hreflang between /fr and /en, canonical links on PUBLIC_URL, structured data for the game, a sitemap listing the landing and the legal page, and a robots.txt that points to it and disallows the back-office and private screens. Public card pages, public profiles and the library keep their sharing previews and stay indexable, with no further search work."
+verify = "The landing has its own title and description in each language with hreflang and canonical links and valid structured data; /sitemap.xml lists the landing and the legal page in both languages and no private page; robots.txt points to the sitemap and disallows the back-office and private screens; public card pages and profiles are not marked noindex."
+covers = ["R1"]
+after = ["7.3", 15]
+hitl = false
+risk = "low"
+notes = ["il faudra ajouter des tickets pour favoriser le SEO", "Decision (author, 2026-10-14): search work aims at the landing; public card pages, public profiles and the library stay indexable but get no search work, and are not marked noindex."]
+
+[[entry]]
+id = 17
+type = "story"
+title = "Refactor sweep"
+description = "Cleans up what the epic's build records and deferred review findings name; its scope is set when it starts."
+verify = "The cleanup its plan lists is done and the full suite, packwerk and the linters pass."
+covers = []
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18]
+hitl = false
+risk = "low"

@@ -63,6 +63,13 @@ covers = ["CAP-12", "CAP-13", "CAP-17", "CAP-19"]
 after = [{ epic = 7, needs = "Game::Visibility, bans and the feed's hidden profiles" }, { epic = 3, needs = "the pack-opened event and reward packs" }, { epic = 5, needs = "the trade-accepted event and friendships for the Friends tab" }, { epic = 8, needs = "the new shell, the hub and the ticker slot" }]
 
 [[epic]]
+id = 20
+slug = "epic-visitor-landing"
+title = "Visitors meet gameble"
+covers = ["CAP-1", "CAP-13", "CAP-24", "CAP-25"]
+after = [{ epic = 7, needs = "the enforced CSP and the public pages' throttling and caching" }, { epic = 6, needs = "the feed, the weekly goal, the live broadcasts and the first discoveries" }]
+
+[[epic]]
 id = 13
 slug = "epic-recognizable-sets"
 title = "Sets players recognize"
@@ -102,14 +109,14 @@ id = 16
 slug = "epic-screen-walkthrough"
 title = "Every screen walked through before the release"
 covers = []
-after = [{ epic = 7, needs = "every screen built" }, { epic = 5, needs = "every screen built" }, { epic = 6, needs = "every screen built" }, { epic = 11, needs = "every screen built" }, { epic = 9, needs = "every screen built" }, { epic = 13, needs = "every screen built" }, { epic = 14, needs = "every screen built" }, { epic = 18, needs = "every screen built" }]
+after = [{ epic = 7, needs = "every screen built" }, { epic = 5, needs = "every screen built" }, { epic = 6, needs = "every screen built" }, { epic = 11, needs = "every screen built" }, { epic = 9, needs = "every screen built" }, { epic = 13, needs = "every screen built" }, { epic = 14, needs = "every screen built" }, { epic = 18, needs = "every screen built" }, { epic = 20, needs = "every screen built" }]
 
 [[epic]]
 id = 12
 slug = "epic-human-readable-codebase"
 title = "Readable by humans: the codebase before the public release"
 covers = []
-after = [{ epic = 7, needs = "every feature written" }, { epic = 5, needs = "every feature written" }, { epic = 6, needs = "every feature written" }, { epic = 11, needs = "every feature written" }, { epic = 9, needs = "every feature written" }, { epic = 13, needs = "every feature written" }, { epic = 14, needs = "every feature written" }, { epic = 18, needs = "every feature written" }, { epic = 16, needs = "the screens walked through and the fixes before the release decided" }]
+after = [{ epic = 7, needs = "every feature written" }, { epic = 5, needs = "every feature written" }, { epic = 6, needs = "every feature written" }, { epic = 11, needs = "every feature written" }, { epic = 9, needs = "every feature written" }, { epic = 13, needs = "every feature written" }, { epic = 14, needs = "every feature written" }, { epic = 18, needs = "every feature written" }, { epic = 16, needs = "the screens walked through and the fixes before the release decided" }, { epic = 20, needs = "every feature written" }]
 
 [[epic]]
 id = 17
