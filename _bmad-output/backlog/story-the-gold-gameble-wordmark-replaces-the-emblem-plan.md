@@ -1,7 +1,7 @@
 ---
 title: 'The gold GAMEBLE wordmark replaces the emblem'
 type: 'feature'
-ticket: ''
+ticket: 'story-the-gold-gameble-wordmark-replaces-the-emblem'
 created: '2026-10-12'
 status: 'done'
 baseline_revision: '68a77453e0b1144ce6e9b5f609efd9855f51d85d'

@@ -1,7 +1,7 @@
 ---
 title: 'Collection season selector'
 type: 'feature'
-ticket: ''
+ticket: 'story-collection-season-selector'
 created: '2026-10-08'
 status: 'dropped'
 baseline_revision: ''

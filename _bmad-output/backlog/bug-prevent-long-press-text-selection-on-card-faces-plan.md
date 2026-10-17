@@ -1,7 +1,7 @@
 ---
 title: 'Prevent long-press text selection on card faces'
 type: 'bugfix'
-ticket: ''
+ticket: 'bug-prevent-long-press-text-selection-on-card-faces'
 created: '2026-10-14'
 status: 'done'
 baseline_revision: '47391d33babf9405bb6887cd10a5a6772c89a86d'

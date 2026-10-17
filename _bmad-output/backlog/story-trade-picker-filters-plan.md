@@ -1,7 +1,7 @@
 ---
 title: 'Trade picker filters'
 type: 'feature'
-ticket: ''
+ticket: 'story-trade-picker-filters'
 created: '2026-10-07'
 status: 'done'
 baseline_revision: '0bb5424eb49e66823bb71cf8a03b3c3a0ba9d4cf'

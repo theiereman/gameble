@@ -40,7 +40,7 @@ deferred: []
 
 ## Implementation Notes
 
-Oneshot: one query, one controller line, one view branch and their tests, well under 100 lines. The trades-closed line and the draft link were built by `plan-friend-row-actions.md`; this story adds the open-trade link and the tests the ticket's verify needs.
+Oneshot: one query, one controller line, one view branch and their tests, well under 100 lines. The trades-closed line and the draft link were built by `_bmad-output/backlog/story-a-friend-row-offers-a-trade-and-opens-the-friend-profile-fro-plan.md`; this story adds the open-trade link and the tests the ticket's verify needs.
 
 - `Game::OpenTradesByFriend.call(player, now:)` returns `{ friend id => trade token }` for in-progress trades not yet past `expires_at`, either side; ids stay server-side, the HTML carries only the token.
 - `FriendsController#show` reads it once; the row picks `trade_path(token:)` or `new_trade_path(friend:)`. The trades-closed branch is unchanged, so a private party still gets the line, never a link.

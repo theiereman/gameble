@@ -21,7 +21,7 @@ Problem: publishing a season leaves the player with an empty collection, set pro
 ## Amends beyond this idea
 
 - `brotherhood-tone.md`: the one-line rule is too strict. The Brotherhood speaks at collective moments (weekly goal, seasonal allocation), at most one line per screen.
-- `plan-collection-season-selector.md` (ready-for-dev): hold it; rethink or cancel.
+- `_bmad-output/backlog/story-collection-season-selector-plan.md` (ready-for-dev): hold it; rethink or cancel.
 
 ## Open
 

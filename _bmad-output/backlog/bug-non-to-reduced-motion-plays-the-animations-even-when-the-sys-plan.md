@@ -1,7 +1,7 @@
 ---
 title: '"Non" to reduced motion plays the animations even when the system asks for less'
 type: 'bugfix'
-ticket: ''
+ticket: 'bug-non-to-reduced-motion-plays-the-animations-even-when-the-sys'
 created: '2026-10-10'
 status: 'done'
 baseline_revision: '85033f990513f2320d2ae2bb4d0b101a5ee1728a'

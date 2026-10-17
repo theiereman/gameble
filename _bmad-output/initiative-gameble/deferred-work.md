@@ -38,7 +38,7 @@
   summary: The attic countdown shows mm:ss only; a pack scheduled more than an hour ahead (test-built or odd data) would read like "1440:00".
   evidence: `app/views/pages/home.html.erb` formats `"%02d:%02d", *@next_pack_in.divmod(60)`; packs made by the replacement rule are never more than ten minutes away (story 3.2 plan, Boundaries).
   issue: GitHub #35 (the packs chip's countdown, where the clock now lives), opened 2026-10-12 to be built.
-  resolved: PR #45 (2026-10-13, `plan-packs-chip-hours.md`) shows H:MM:SS from an hour on the server-rendered chip and the client tick, through the shared `formatClock`.
+  resolved: PR #45 (2026-10-13, `_bmad-output/backlog/bug-the-packs-chip-reads-the-countdown-in-total-minutes-1440-00-plan.md`) shows H:MM:SS from an hour on the server-rendered chip and the client tick, through the shared `formatClock`.
 - source_plan: `_bmad-output/initiative-gameble/epic-steam-catalog/story-import-hardening-before-season-1-plan.md`
   summary: Two malformed inputs still fail a page after story 2.11: a store title long enough to break the slug's unique index (about 2.7 kB) still fails the cards page that writes it, and a whole Steam answer that is not valid JSON still fails the page that asked for it (retried, then the run fails, as before).
   evidence: Story 2.11 hardens the values inside a well-formed answer (`Steam::RawValue`, `Steam::ReviewPolicy`, `Steam::DetailsPolicy`, `Steam::WebApi`, `Steam::ImportAppListPage`) and leaves the slug index and the JSON parse error out of its scope.
@@ -123,7 +123,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-space-terminal-screens/bug-the-collection-grid-hides-the-missing-cards-by-default-where-plan.md`
   summary: The disabled system test "the FILTRES zone: chips narrow the grid…" in `test/system/library_test.rb` still pins the old owned default (3 slots on opening, a count of 2 after MISSING, "Back to the owned cards"); rewrite it for the every-slot default when system tests are rebuilt.
   evidence: The collection now opens on every slot, and a state chip switched on from TOUT replaces it; the test was left as it is because system tests are disabled and cannot be run to verify an edit.
-- source_plan: `_bmad-output/initiative-gameble/plan-packs-chip-hours.md`
+- source_plan: `_bmad-output/backlog/bug-the-packs-chip-reads-the-countdown-in-total-minutes-1440-00-plan.md`
   summary: No vitest covers a Stimulus controller, so `countdown_controller.ts`'s tick and refresh logic has no unit test of its own; its clock formats are the tested `formatClock` and `formatDailyClock`.
   evidence: This plan's quick review finding 2, patched by reusing `formatClock`; the repo still has only `app/frontend/lib/*.test.ts` in a node environment, with no Stimulus-controller test harness.
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-db-schema-rb-round-trips-the-steam-checks-plan.md`
@@ -182,7 +182,7 @@
 
 ## Deferred from: build of plan-previous-screen-skips-same-screen (2026-10-13)
 
-- source_plan: `_bmad-output/initiative-gameble/plan-previous-screen-skips-same-screen.md`
+- source_plan: `_bmad-output/backlog/bug-the-desktop-back-button-names-the-previous-different-screen-plan.md`
   summary: Switching language on the settings screen still shows the desktop back button ("◀ PROFILE") leading back to the same settings screen in the other language, since same-screen is judged by the translated label ("Profile" vs "Profil").
   evidence: `shell_screen_label` returns `t("shell.screens.…")`; the LANGUE links in `app/views/settings/show.html.erb` are Turbo visits, so the trail is not reset. Pre-existing (the old button showed it too). A fix records a language-independent screen key on the top bar and in each trail entry and compares that key.
 
@@ -200,7 +200,7 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/story-the-hover-light-becomes-a-studio-reflection-on-the-card-s-va-plan.md`
   summary: The Légendaire's glitter twinkle runs one infinite animation per flake (9 on a card-s, 18 on a card-m, 40 on a card-xl), which breaks the architecture's budget of at most six infinite animations visible at once on a phone view; that line also still names holo and foil. The author needs to decide: amend the budget for this cheap stepped opacity, or twinkle fewer flakes (only the top card, a cap per view, or one animation per card).
   evidence: `architecture-gameble.md` line 308; the author's glitter spec gives each flake its own period (2.4 to 6 s) and a negative delay, so each needs its own animation; `card.css` twinkle rule, `glitter.ts` FLAKES_PER_CARD. The booster's lower phone cards and face-down cards are kept still.
-  resolved: The author chose one animation per group (2026-10-13, `plan-glitter-twinkles-in-three-groups.md`): a face's flakes twinkle in three seeded groups, each a single stepped opacity animation with its own rhythm, so a Légendaire face runs at most three; AD-27 counts the glitter apart from the six-animation phone budget and no longer names holo and foil.
+  resolved: The author chose one animation per group (2026-10-13, `_bmad-output/backlog/story-the-legendaire-glitter-twinkles-in-three-groups-plan.md`): a face's flakes twinkle in three seeded groups, each a single stepped opacity animation with its own rhythm, so a Légendaire face runs at most three; AD-27 counts the glitter apart from the six-animation phone budget and no longer names holo and foil.
 
 ## Deferred from: split of story 7.10 at the start of its build (2026-10-14)
 

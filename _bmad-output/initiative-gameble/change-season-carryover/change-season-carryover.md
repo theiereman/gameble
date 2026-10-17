@@ -22,7 +22,7 @@ approved: 2026-10-14, by the author, after one revision (allocation received and
 **Evidence.**
 - `Game::TierCounts`, `Catalog::CollectionGrid`, `Catalog::SeasonShelf` and the library controller read `Catalog::PublishedSeason` only.
 - `Game::SetCompletion::RECORD_SQL` joins holdings on `card_season_id`: only copies minted in the set's own season count for it.
-- `plan-collection-season-selector.md` (ready-for-dev) treats the symptom by letting players browse earlier seasons; it does not bring progress back.
+- `_bmad-output/backlog/story-collection-season-selector-plan.md` (ready-for-dev) treats the symptom by letting players browse earlier seasons; it does not bring progress back.
 
 ## 2. Impact analysis
 
@@ -223,7 +223,7 @@ NEW: `- The allocation is received and seen separately: game_player_states holds
 
 **Card catalog (14)**: Notes, add `Reads one tile per game, as the collection does (13.15).`
 
-**Cancel** `plan-collection-season-selector.md`: superseded by 13.15.
+**Cancel** `_bmad-output/backlog/story-collection-season-selector-plan.md`: superseded by 13.15.
 
 **Initiative**: covers CAP-23; Notes, add `Decision (2026-10-14, author): seasons are reprints; any edition counts for a set; earned tiers keep their season's mark; a seasonal allocation screen at each new season (change-season-carryover). The holding rule before launch, the allocation after launch and before production's second season.`
 

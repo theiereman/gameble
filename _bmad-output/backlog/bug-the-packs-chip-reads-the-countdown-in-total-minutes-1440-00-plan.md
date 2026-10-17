@@ -1,7 +1,7 @@
 ---
 title: 'The packs chip reads the countdown in total minutes (1440:00) for a pack more than an hour away'
 type: 'bugfix'
-ticket: ''
+ticket: 'bug-the-packs-chip-reads-the-countdown-in-total-minutes-1440-00'
 created: '2026-10-13'
 status: 'done'
 baseline_revision: 'c0473bc78ea7d9844d0be56b9b652d8811a20a84'

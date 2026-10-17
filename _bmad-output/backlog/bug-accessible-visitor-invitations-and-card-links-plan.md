@@ -1,7 +1,7 @@
 ---
 title: 'Accessible visitor invitations and card links'
 type: 'bugfix'
-ticket: ''
+ticket: 'bug-accessible-visitor-invitations-and-card-links'
 created: '2026-10-14'
 status: 'done'
 baseline_revision: '30b630953109893329ff6078aa022dde3991cbc5'

@@ -1,7 +1,7 @@
 ---
 title: 'Any season''s prestige scores can be read in the back-office, published or not'
 type: 'feature'
-ticket: ''
+ticket: 'story-any-season-s-prestige-scores-can-be-read-in-the-back-office'
 created: '2026-10-09'
 status: 'done'
 baseline_revision: '4b05ce7e1f05164758e066752e00fafb17fddd55'

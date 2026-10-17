@@ -1,7 +1,7 @@
 ---
 title: 'A sent invitation names the player, not their friend code'
 type: 'bugfix'
-ticket: ''
+ticket: 'bug-a-sent-invitation-names-the-player-not-their-friend-code'
 created: '2026-10-09'
 status: 'done'
 baseline_revision: 'fe2ecfd221e8c5945d582a2fe0c102324279a977'

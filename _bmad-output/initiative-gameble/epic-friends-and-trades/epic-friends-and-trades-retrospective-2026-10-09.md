@@ -33,7 +33,7 @@ The plans' `baseline_revision` values do not give usable ranges. The stories wer
 | 5.11 | Deleting or banning an account, and the empty states | `9833354` | 28 | +745 / −89 |
 | 5.12 | Refactor sweep | `2d46c6a` | 130 | +361 / −1074 |
 
-The epic's work runs from `69f995a` (the epic incepted) to `ee30ed1` (pending approvals after the sweep). Since then, `2966aaf` (the trade picker filters its cards by title and rarity, plan `plan-trade-picker-filters.md`) has touched the same code.
+The epic's work runs from `69f995a` (the epic incepted) to `ee30ed1` (pending approvals after the sweep). Since then, `2966aaf` (the trade picker filters its cards by title and rarity, plan `_bmad-output/backlog/story-trade-picker-filters-plan.md`) has touched the same code.
 
 ### Evidence inventory
 
@@ -121,13 +121,13 @@ All six Done when criteria are met in code and tests. Done when 6 (presence) has
 | R3 | An ignored invitation can be sent again at once, bounded only by the rate limit. | 5.2 plan Decisions; `ignore_invitation.rb` | ask, with F8 |
 | R4 | Several trade rules were decided in autonomous runs and never queued in `pending-approvals.md`: the same card allowed on both sides, 999 per line, an unban that does not restore ties, deletion and ban closing trades as `cancelled`, trades with a banned partner left out of the list. | 5.4, 5.6 and 5.11 plans | ask |
 | R5 | AD-16's `trade-badge` island event was never built. A server Turbo Stream partial moves the badge instead. | `architecture-gameble.md` AD-16; `app/frontend/lib/events.ts:37-40` | reconcile AD-16 to the as-built |
-| R6 | The picker's title and rarity filters (2966aaf) are author-approved but missing from EXPERIENCE's card picker rules. | `plan-trade-picker-filters.md` | reconcile EXPERIENCE |
+| R6 | The picker's title and rarity filters (2966aaf) are author-approved but missing from EXPERIENCE's card picker rules. | `_bmad-output/backlog/story-trade-picker-filters-plan.md` | reconcile EXPERIENCE |
 | R7 | The concluded board's columns changed meaning between 5.6 and 5.8 (each side as proposed, then crossed: "VOUS AVEZ REÇU"). | 5.8 plan Decisions | accept |
 | R8 | The refactor sweep added presence on the friend profile, which its own frozen Boundaries list under "Never: new features", and logged no Plan Change Log entry. | `story-refactor-sweep-plan.md`, Boundaries vs Implementation Notes | accept the feature; the lesson is under process (L9) |
 | R9 | Two `pending-approvals.md` entries are stale: the 5.10 showcase entry says the trade button is disabled until 5.8, and the 7.8 entry says "revisit with 5.11". | `pending-approvals.md` lines 12, 15 | fix (doc hygiene) |
 | R10 | `TradeAccepted` reaches neither the feed nor the weekly goal. | `config/initializers/event_store.rb` | out of scope: tracked by `epic-brotherhood` ticket 9 "Trades in the feed and the goal" |
 
-Still open from the plans: the island props carry a card face for every card held (5.7/5.8, medium, `deferred-work.md:338-340`); a console ban is not live (5.9); the phone-width check of the picker filters sheet (`plan-trade-picker-filters.md`, no record that it was done).
+Still open from the plans: the island props carry a card face for every card held (5.7/5.8, medium, `deferred-work.md:338-340`); a console ban is not live (5.9); the phone-width check of the picker filters sheet (`_bmad-output/backlog/story-trade-picker-filters-plan.md`, no record that it was done).
 
 ### Process lessons
 
@@ -150,7 +150,7 @@ Sources: the plans, git, and the local transcripts. The build transcripts were n
 | L13 | **Ten of twelve plans carry `warnings: ['oversized']`.** 5.6 (+2074), 5.8 (+1567) and 5.9 (+1159) are the largest, and one cloud session built about 19 stories across five epics that day. | plan frontmatter; commit trailers | split stories like these; bound one orchestrating session's load |
 | L14 | **No ticket was marked `hitl`,** although 5.7 and 5.8 were checked visually by throwaway screenshots, and 5.9's review found that live updates never reached a browser in development (`cable.yml` used `async`). | `tickets.toml`; 5.7, 5.8 and 5.9 plans | flag realtime, animation and phone stories for an author check |
 | L15 | **The orchestration rules lived in local auto-memory, which the cloud build session did not have.** The memory also said "commit on main". That note was replaced by "work on develop" during this retrospective, but the rules are still outside the repo. | `~/.claude/projects/…/memory/`; `MEMORY.md` | move review depth, follow-ups, the epic review and lane rules into the repo (AGENTS.md or the build-auto customize file) |
-| L16 | **Players asked for picker filters right after the epic, and neither the spec nor any review had raised them.** The plan was filed at the initiative root, outside the epic tree. | transcript `2acbfdff` line 49; `plan-trade-picker-filters.md` (`ticket: ''`) | the picker spec states how a large collection is narrowed; file follow-ups under their epic |
+| L16 | **Players asked for picker filters right after the epic, and neither the spec nor any review had raised them.** The plan was filed at the initiative root, outside the epic tree. | transcript `2acbfdff` line 49; `_bmad-output/backlog/story-trade-picker-filters-plan.md` (`ticket: ''`) | the picker spec states how a large collection is narrowed; file follow-ups under their epic |
 
 ## Behavior verification
 
@@ -220,7 +220,7 @@ All of these are proposed and none has been applied. Code fixes go through the n
 9. Amend AD-16 to the as-built badge (a server Turbo Stream, no `trade-badge` island event) (R5). Owner: author.
 10. Add the picker's title and rarity filters to EXPERIENCE's card picker rules (R6). Owner: author.
 11. Remove or update the two stale `pending-approvals.md` entries (R9). Owner: author.
-12. Move `plan-trade-picker-filters.md` under this epic as a ticket, or record why it stays at the root (L16). Owner: author.
+12. Move `_bmad-output/backlog/story-trade-picker-filters-plan.md` under this epic as a ticket, or record why it stays at the root (L16). Owner: author.
 
 **Process (for the build loop, before epic 7 continues):**
 

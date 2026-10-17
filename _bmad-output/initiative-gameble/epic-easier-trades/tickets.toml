@@ -36,7 +36,7 @@ covers = ["R2"]
 after = ["5.7", "13.15", 6]
 hitl = false
 risk = "medium"
-references = ["_bmad-output/initiative-gameble/plan-trade-picker-filters.md", "packs/game/app/queries/game/collection_states.rb"]
+references = ["_bmad-output/backlog/story-trade-picker-filters-plan.md", "packs/game/app/queries/game/collection_states.rb"]
 
 [[entry]]
 id = 3

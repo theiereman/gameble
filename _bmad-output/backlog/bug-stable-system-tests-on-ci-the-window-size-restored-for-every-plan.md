@@ -1,7 +1,7 @@
 ---
 title: 'Stable system tests on CI: the window size restored for every test, chromedriver stale nodes retried'
 type: 'bugfix'
-ticket: ''
+ticket: 'bug-stable-system-tests-on-ci-the-window-size-restored-for-every'
 created: '2026-10-07'
 status: 'done'
 baseline_revision: 'a1ca4cc7f9c8d70e976ba76570e589c2a48c9a0d'

@@ -1,7 +1,7 @@
 ---
 title: 'Phone booster rays stay with the top card'
 type: 'bugfix'
-ticket: ''
+ticket: 'bug-phone-booster-rays-stay-with-the-top-card'
 created: '2026-10-14'
 status: 'done'
 baseline_revision: '47391d33babf9405bb6887cd10a5a6772c89a86d'

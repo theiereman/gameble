@@ -1,7 +1,7 @@
 ---
 title: 'The desktop back button names the previous different screen, not an earlier page of the same one'
 type: 'bugfix'
-ticket: ''
+ticket: 'bug-the-desktop-back-button-names-the-previous-different-screen'
 created: '2026-10-13'
 status: 'done'
 baseline_revision: '02d86fc4062986e0cba04ada229b0cdc4bbcb196'

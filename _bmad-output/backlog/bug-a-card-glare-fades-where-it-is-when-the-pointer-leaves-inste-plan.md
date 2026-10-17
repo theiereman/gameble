@@ -1,7 +1,7 @@
 ---
 title: 'A card glare fades where it is when the pointer leaves, instead of sliding back to the centre'
 type: 'bugfix'
-ticket: ''
+ticket: 'bug-a-card-glare-fades-where-it-is-when-the-pointer-leaves-inste'
 created: '2026-10-13'
 status: 'done'
 baseline_revision: '9dd2e8bcb042fa32c78cce117b0bd4cd6ed10383'
@@ -74,7 +74,7 @@ Oneshot: the fix is a few lines in one module plus its unit tests.
 **Files changed:**
 - `app/frontend/lib/tilt.ts`: release aims the glare at its current offset. With no driver, settling ignores the glare, and `settleAtRest()` keeps the glare properties while detach clears them all.
 - `app/frontend/lib/tilt.test.ts`: a new test covers the fade in place, the tilt reaching rest with its marks cleared, and the next hover placing the glare at once. One assertion that pinned the old clearing was adapted.
-- `_bmad-output/initiative-gameble/plan-glare-fades-in-place.md`: this plan.
+- `_bmad-output/backlog/bug-a-card-glare-fades-where-it-is-when-the-pointer-leaves-inste-plan.md`: this plan.
 
 **Review:** quick lens, 3 findings. Patched 1 low (the test now checks both tilt axes every frame). Deferred none. Rejected 2: the leftover glare offset after a live switch to reduced motion is invisible (`display: none`), and the plan-checkbox finding would edit this plan.
 

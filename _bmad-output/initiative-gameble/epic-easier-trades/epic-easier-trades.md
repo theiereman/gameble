@@ -51,7 +51,7 @@ The Trades screen, the trade board island and its picker, `TradesHelper` and `Tr
 - forge — _bmad-output/initiative-gameble/forge-open-trade-request/forge-open-trade-request.md
 - architecture — _bmad-output/initiative-gameble/architecture-gameble/architecture-gameble.md, AD-8, AD-16
 - design — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Key Flows (Flow 2)
-- prior work — _bmad-output/initiative-gameble/plan-trade-picker-filters.md (title search, rarity chips, match count, clear action, no-match state, selection kept while filtering)
+- prior work — _bmad-output/backlog/story-trade-picker-filters-plan.md (title search, rarity chips, match count, clear action, no-match state, selection kept while filtering)
 - deferred — _bmad-output/initiative-gameble/deferred-work.md, the TradeBoard island page weight item
 
 ## Notes

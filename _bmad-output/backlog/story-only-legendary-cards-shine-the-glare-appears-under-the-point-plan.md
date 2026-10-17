@@ -1,7 +1,7 @@
 ---
 title: 'Only Legendary cards shine, the glare appears under the pointer'
 type: 'feature'
-ticket: ''
+ticket: 'story-only-legendary-cards-shine-the-glare-appears-under-the-point'
 created: '2026-10-08'
 status: 'done'
 baseline_revision: 'ec6e3d71165fb04af7be0ecf22d4adfe78382ec6'

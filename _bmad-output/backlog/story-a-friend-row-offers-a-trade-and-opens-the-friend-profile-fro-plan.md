@@ -1,7 +1,7 @@
 ---
 title: 'A friend row offers a trade and opens the friend profile from one button'
 type: 'feature'
-ticket: ''
+ticket: 'story-a-friend-row-offers-a-trade-and-opens-the-friend-profile-fro'
 created: '2026-10-09'
 status: 'done'
 baseline_revision: 'd480add057b3b7d4fdd21148ebcf5fd582ce887a'

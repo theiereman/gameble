@@ -1,7 +1,7 @@
 ---
 title: 'A season is never published with cards scored by two prestige formulas'
 type: 'bugfix'
-ticket: ''
+ticket: 'bug-a-season-is-never-published-with-cards-scored-by-two-prestig'
 created: '2026-10-09'
 status: 'done'
 baseline_revision: 'a3230dcdfb0565a540d1b9c76abe84b81129ebc7'

@@ -1,7 +1,7 @@
 ---
 title: 'Players stay signed in for 30 days after their last visit'
 type: 'feature'
-ticket: ''
+ticket: 'story-players-stay-signed-in-for-30-days-after-their-last-visit'
 created: '2026-10-10'
 status: 'done'
 baseline_revision: '23662bed5b42a1de7f3e74ec47560dad6c6278ce'

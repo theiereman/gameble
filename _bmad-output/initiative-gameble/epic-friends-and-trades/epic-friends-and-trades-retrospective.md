@@ -33,7 +33,7 @@ A second retrospective of this epic, run on 2026-10-09 on the other line of hist
 
 **Ranges.** The plans' `baseline_revision` values are `fa1676d`, `47cea18` (5.2 and 5.4), `2c2731f` (5.3), `e419296` (5.5), `03a1649` (5.6 and 5.10), `9456caa` (5.7, 5.9, 5.11), `80054de` (5.8) and `b2e3ac3` (5.12). The stories were built in parallel lanes interleaved with epics 6, 7, 8 and 10 (for example 7.6, 6.5, 7.8 and 8.13 landed between baselines). A plan-to-plan range therefore mixes several epics, and 274 commits fall between the first baseline and HEAD. Attribution was done by commit subject instead: 31 commits name a 5.x story, 14 of them merges, and every ticket has exactly one feature commit. `git_evidence.py` was run once over `fa1676d~1..HEAD` with all twelve ids; its `files` list is epic-mixed, so per-file churn was recomputed from the epic's own non-merge commits. 5.4's range is empty (it shares a baseline with 5.2), and 5.2 and 5.1 each have a duplicate commit on a worktree branch that is not on the spine.
 
-Two commits outside any ticket touch the epic's code: `0bb5424` (a live-refresh fix) and `2966aaf` (trade picker filters, its own plan `plan-trade-picker-filters.md`, 2026-10-07 22:30). They are read as part of the cumulative result and flagged where they matter.
+Two commits outside any ticket touch the epic's code: `0bb5424` (a live-refresh fix) and `2966aaf` (trade picker filters, its own plan `_bmad-output/backlog/story-trade-picker-filters-plan.md`, 2026-10-07 22:30). They are read as part of the cumulative result and flagged where they matter.
 
 **Evidence inventory.**
 

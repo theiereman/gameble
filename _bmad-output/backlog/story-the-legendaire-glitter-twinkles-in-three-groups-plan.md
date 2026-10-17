@@ -1,7 +1,7 @@
 ---
 title: 'The Légendaire glitter twinkles in three groups'
 type: 'refactor'
-ticket: ''
+ticket: 'story-the-legendaire-glitter-twinkles-in-three-groups'
 created: '2026-10-13'
 status: 'done'
 baseline_revision: '29819538eeed5a606ac19cffa6ce02cbc978a8d5'

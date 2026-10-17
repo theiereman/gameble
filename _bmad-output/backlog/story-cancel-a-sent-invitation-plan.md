@@ -1,7 +1,7 @@
 ---
 title: 'Cancel a sent invitation'
 type: 'feature'
-ticket: ''
+ticket: 'story-cancel-a-sent-invitation'
 created: '2026-10-09'
 status: 'done'
 baseline_revision: 'c64a6e8f45824ff2a66b0330979c6f83475fab92'
