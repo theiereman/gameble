@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Célébration de set · variations M1</title>
+<style>
+/* =====================================================================
+   gameble — set celebration banner, round 3 (2026-10-17)
+   The author picked M1 (the gauge fills and crosses the tick, then the ribbon wipes in as the payoff).
+   M1 as built in round 2 is the reference; M1b to M1e each change one or two axes of it.
+   Governing sections: DESIGN.md Result banner > Set celebration, Reveal caption plate (phone),
+   Collection > Set progress row (ticks at 10/25/50 %), Tier marks, COMPLET stamp, focus ring;
+   EXPERIENCE.md copy deck, Set celebration, motion, live region.
+   Fonts: the app's own woff2 files, loaded from the repo by relative path (nothing from the network).
+   ===================================================================== */
+@font-face{font-family:'VT323';font-weight:400;font-display:swap;
+  src:local('VT323'),url('../../../../app/frontend/fonts/vt323-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Space Mono';font-weight:400;font-display:swap;
+  src:local('Space Mono'),url('../../../../app/frontend/fonts/space-mono-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Space Mono';font-weight:700;font-display:swap;
+  src:local('Space Mono Bold'),url('../../../../app/frontend/fonts/space-mono-latin-700-normal.woff2') format('woff2')}
+
+:root{
+  --backdrop:#05070a;   /* backdrop */
+  --ground:#0b0f15;     /* ground */
+  --panel:#121a24;      /* panel */
+  --sunken:#0e141b;     /* panel-sunken */
+  --raised:#1b2838;     /* panel-raised */
+  --line:#2a475e;       /* line */
+  --line-soft:#1f3346;  /* line-soft */
+  --line-deep:#2a6f9a;  /* line-deep */
+  --accent:#66c0f4;     /* accent */
+  --on-accent:#0b1520;  /* on-accent */
+  --text:#c7d5e0;       /* text */
+  --text-bright:#e6eef5;/* text-bright */
+  --white:#ffffff;      /* text-max */
+  --muted:#8f98a0;      /* muted */
+  --dim:#5d6b78;        /* dim */
+  --ink:#06090d;        /* outline */
+  --lime:#a4d007;       /* lime */
+  --on-lime:#0f1a03;    /* on-lime */
+  --gold:#f4c542;       /* gold */
+  --on-gold:#120d05;    /* on-gold */
+  --bronze:#c4945e;     /* tier-bronze */
+  --silver:#bcc8d4;     /* tier-silver */
+  --fv:'VT323',monospace;
+  --fs:'Space Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+
+/* Tier palettes. tc = DESIGN token; hi/lo are art shades for sparks and folds only. */
+[data-tier="bronze"]  {--tc:#c4945e;--tc-hi:#ecc896;--tc-lo:#7a5530;--on-tc:#120d05;--tc-a:rgba(196,148,94,.38)}
+[data-tier="silver"]  {--tc:#bcc8d4;--tc-hi:#ffffff;--tc-lo:#6c7a88;--on-tc:#06090d;--tc-a:rgba(188,200,212,.38)}
+[data-tier="gold"]    {--tc:#f4c542;--tc-hi:#fff3c4;--tc-lo:#8f5e0a;--on-tc:#120d05;--tc-a:rgba(244,197,66,.42)}
+[data-tier="complete"]{--tc:#a4d007;--tc-hi:#d8ff9a;--tc-lo:#4e6a00;--on-tc:#0f1a03;--tc-a:rgba(164,208,7,.42)}
+/* The folded line is not a tier: it speaks in accent, its marks carry the tiers. */
+[data-tier="folded"]  {--tc:#66c0f4;--tc-hi:#d2efff;--tc-lo:#2a6f9a;--on-tc:#0b1520;--tc-a:rgba(102,192,244,.38)}
+
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--backdrop);color:var(--text);font-family:var(--fs)}
+button{font:inherit}
+code{font-size:11px;color:var(--text-bright)}
+
+/* ---------- presentation sheet (outside the product) ---------- */
+.sheet{max-width:1280px;margin:0 auto;padding:28px 20px 80px}
+.doc-h h1{margin:0 0 8px;font:400 40px/40px var(--fv);color:var(--white);letter-spacing:2px}
+.doc-h p{max-width:940px;margin:0 0 8px;font-size:12px;line-height:19px;color:var(--muted)}
+.doc-h p b{color:var(--text-bright)}
+.controls{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:16px -20px 24px;padding:10px 20px;background:rgba(5,7,10,.94);box-shadow:0 2px 0 var(--line-soft)}
+.tg{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:12px;color:var(--text-bright);cursor:pointer}
+.tg input{width:18px;height:18px;accent-color:#66c0f4}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 14px;border:0;background:var(--line);color:var(--text-bright);font:700 11px/1 var(--fs);letter-spacing:1px;cursor:pointer;box-shadow:inset 0 -3px 0 rgba(0,0,0,.35),0 0 0 2px var(--ink)}
+.btn:hover{background:var(--accent);color:var(--on-accent)}
+.btn:focus-visible,.tg input:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.controls .note{font-size:11px;color:var(--dim)}
+
+.dir{margin:0 0 56px}
+.dir-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;margin-bottom:6px}
+.dir-h h2{margin:0;font:400 34px/34px var(--fv);color:var(--white);letter-spacing:2px}
+.dir-h .pers{font-size:11px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase}
+.dir-h .btn{margin-left:auto}
+.why{max-width:940px;margin:6px 0;font-size:12px;line-height:19px;color:var(--text)}
+.mot{max-width:940px;margin:4px 0;font-size:11px;line-height:17px;color:var(--muted)}
+.mot b{color:var(--text-bright);font-weight:700}
+.ladder{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 16px;padding:0;list-style:none}
+.ladder li{padding:4px 8px;font-size:10px;line-height:14px;letter-spacing:.5px;color:var(--text);background:var(--sunken);box-shadow:inset 0 0 0 2px var(--line-soft)}
+.ladder li b{color:var(--tc);font-weight:700}
+.row{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.cell .kick{display:block;margin:0 0 8px;font-size:10px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase}
+
+/* starfield column, like the capsule screen */
+.field{background-color:var(--backdrop);
+  background-image:
+    radial-gradient(circle,rgba(199,213,224,.85) 0 1px,transparent 1.5px),
+    radial-gradient(circle,rgba(199,213,224,.5) 0 1px,transparent 1.5px),
+    radial-gradient(circle,rgba(199,213,224,.35) 0 1px,transparent 1.5px);
+  background-size:97px 89px,53px 67px,131px 113px;background-position:7px 11px,31px 40px,70px 5px}
+.desk{width:340px;padding:18px 20px 26px;box-shadow:inset 0 0 0 2px var(--line-soft)}
+.desk .rev{margin:0 0 18px;font-size:14px;color:var(--text)}
+.stack{display:flex;flex-direction:column;gap:12px}
+.stack.tall{gap:22px;padding-top:12px}
+
+.phone{width:392px;padding:14px 16px 16px;box-shadow:inset 0 0 0 2px var(--line-soft)}
+.ph-card{position:relative;width:208px;height:58px;margin:0 auto 12px;padding:8px 10px;background:var(--panel);box-shadow:inset 0 0 0 4px #8f98a0,0 0 0 2px var(--ink);display:flex;flex-direction:column;justify-content:flex-end;gap:2px;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 40%);mask-image:linear-gradient(to bottom,transparent 0,#000 40%)}
+.ph-card b{font-size:10px;color:var(--text)}
+.ph-card small{font-size:9px;color:var(--muted)}
+.tray{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px}
+.tray-n{display:flex;flex-direction:column;align-items:center;margin-right:6px;font:400 22px/20px var(--fv);color:var(--white)}
+.tray-n small{font:700 10px/12px var(--fs);letter-spacing:1px;color:var(--accent)}
+.tslot{width:44px;height:60px;background:var(--sunken);box-shadow:inset 0 0 0 2px var(--line);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
+.tslot i{width:8px;height:8px;background:#8f98a0;box-shadow:0 0 0 2px var(--ink)}
+.tslot.pc i{background:#3fcf8e}
+.under{margin:14px 0 8px}
+
+/* ---------- shared atoms ---------- */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.outl{text-shadow:2px 0 0 var(--ink),-2px 0 0 var(--ink),0 2px 0 var(--ink),0 -2px 0 var(--ink)}
+.notches{display:inline-flex;align-items:flex-end;gap:2px;flex:none}
+.notches i{display:block;width:4px;height:8px;background:var(--tc)}
+.notches i:nth-child(2){height:10px}
+.notches i:nth-child(3){height:12px}
+.px-check{display:block;flex:none}
+.px-check rect{fill:currentColor}
+/* the COMPLET stamp's frame, small, statically tilted; the word stays straight in the ribbon */
+.mini-stamp{display:inline-block;flex:none;width:22px;height:14px;vertical-align:middle;transform:rotate(-6deg);box-shadow:inset 0 0 0 3px #a4d007,0 0 0 2px var(--ink)}
+.marks{display:inline-flex;align-items:center;gap:12px;min-height:20px}
+.marks .mk{position:relative;display:inline-flex;align-items:center;min-height:14px}
+.nm{font:700 14px/18px var(--fs);color:var(--white);text-transform:uppercase;overflow-wrap:anywhere}
+.sub{font:400 12px/17px var(--fs);color:var(--text);overflow-wrap:anywhere}
+.sub b{font-weight:700;color:var(--text-bright)}
+
+/* ---------- the result as a link ---------- */
+.res{position:relative;--rd:calc(var(--i,0) * 180ms);animation:fade 120ms steps(3) both;animation-delay:var(--rd)}
+.pan{position:relative;display:block;min-height:60px;padding:var(--pad,12px 34px 12px 16px);background:var(--panel);color:inherit;text-decoration:none;
+  box-shadow:inset 0 0 0 2px var(--line),0 0 0 2px var(--ink)}
+a.link{color:inherit;text-decoration:none}
+.link{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.link:focus{outline:none}
+.link:focus-visible{outline:3px solid #ffffff;outline-offset:3px} /* focus-ring: text-max ring, outline gap */
+.link:hover,.link:focus-visible{background:var(--raised)}
+.main{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0}
+.go{position:absolute;right:10px;top:50%;margin-top:-12px;font:400 24px/24px var(--fv);color:var(--muted);pointer-events:none}
+.go small{font:700 9px/24px var(--fs);letter-spacing:1px;vertical-align:top;margin-right:4px;opacity:0}
+.link:hover .go,.link:focus-visible .go{color:var(--white);transform:translateX(2px)}
+.link:hover .go small,.link:focus-visible .go small{opacity:1}
+/* phone: the plate holds two targets side by side, the link and the 44 x 44 next button */
+.res.ph{width:360px}
+.ph .pan{display:flex;align-items:stretch;padding:0;min-height:60px}
+.ph .main{position:relative;flex:1;padding:var(--pad-ph,10px 30px 10px 16px)}
+.ph .main.link:focus-visible{outline-offset:-5px}
+.alb{position:absolute;right:8px;top:50%;margin-top:-6px;color:var(--muted)}
+.ph .main:hover .alb,.ph .main:focus-visible .alb{color:var(--white)}
+.alb rect{fill:currentColor}
+/* position stacked over the button: a narrow step column leaves the set name room to wrap less */
+.step{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 8px 0 10px;box-shadow:inset 2px 0 0 0 var(--line-soft)}
+.pos{font:400 11px/14px var(--fs);color:var(--muted);white-space:nowrap}
+.next{width:44px;height:44px;border:0;padding:0;background:var(--line);color:var(--text-bright);font:400 26px/44px var(--fv);cursor:pointer;
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.35),0 0 0 2px var(--ink)}
+.next:hover{background:var(--accent);color:var(--on-accent)}
+.next:focus-visible{outline:3px solid #fff;outline-offset:3px}
+
+/* ---------- motion atoms ---------- */
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes xfade{from{opacity:0}to{opacity:1}}
+@keyframes show{from{opacity:0}to{opacity:1}}
+@keyframes unshow{from{opacity:1}to{opacity:0}}
+@keyframes slide-in{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+@keyframes wipe-x{from{clip-path:inset(-4px 100% -4px -4px)}to{clip-path:inset(-4px -4px -4px -4px)}}
+@keyframes wipe-xr{from{clip-path:inset(-4px -4px -4px 100%)}to{clip-path:inset(-4px -4px -4px -4px)}}
+@keyframes blink-once{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+@keyframes spark{0%{opacity:0;transform:translate(0,0)}1%{opacity:1;transform:translate(0,0)}75%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy))}}
+@keyframes pop-s{0%{opacity:0;transform:scale(.4)}1%{opacity:1}60%{transform:scale(1.3)}100%{opacity:1;transform:scale(1)}}
+@keyframes gloss{0%{opacity:0;transform:translateX(-24px) skewX(-24deg)}1%{opacity:1;transform:translateX(-24px) skewX(-24deg)}99%{opacity:1;transform:translateX(300px) skewX(-24deg)}100%{opacity:0;transform:translateX(300px) skewX(-24deg)}}
+
+.sparks{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none;z-index:5}
+.sparks i{position:absolute;left:-2px;top:-2px;width:4px;height:4px;background:var(--tc-hi);box-shadow:0 0 0 2px var(--tc);opacity:0;
+  animation:spark var(--sdur,320ms) steps(6) both;animation-delay:calc(var(--rd,0ms) + var(--sd,0ms) + var(--k) * 25ms)}
+.sparks i:nth-child(3n+2){left:-1px;top:-1px;width:2px;height:2px;box-shadow:none;background:var(--tc)}
+.print{animation:wipe-x 160ms steps(4) both;animation-delay:calc(var(--rd) + var(--pd,400ms))}
+/* plus-shaped glints, gold and complete only */
+.glints{position:absolute;inset:0;pointer-events:none}
+.glints i{position:absolute;width:2px;height:2px;background:#fff;box-shadow:2px 0 #fff,-2px 0 #fff,0 2px #fff,0 -2px #fff;opacity:0;z-index:6;
+  animation:blink-once 240ms steps(4) both;animation-delay:calc(var(--rd) + var(--tgl,600ms))}
+.glints i:nth-child(1){left:-4px;top:-4px}
+.glints i:nth-child(2){right:4px;top:-5px;animation-delay:calc(var(--rd) + var(--tgl,600ms) + 60ms)}
+.glints i:nth-child(3){left:45%;bottom:-5px;animation-delay:calc(var(--rd) + var(--tgl,600ms) + 120ms)}
+.res[data-j="1"] .glints,.res[data-j="2"] .glints{display:none}
+
+/* ---------- the ribbon (from "Ruban"): solid tier fill, ink text, swallowtail ---------- */
+.rw{display:block;animation:wipe-x 200ms steps(8) both;animation-delay:calc(var(--rd) + var(--tw,0ms))}
+.rw.rev{animation-name:wipe-xr}
+.rib{position:relative;display:flex;align-items:center;gap:8px;height:var(--rh,28px);padding:0 24px 0 12px;overflow:hidden;white-space:nowrap;
+  background:var(--tc);color:var(--on-tc);font:400 var(--rf,24px)/var(--rh,28px) var(--fv);letter-spacing:2px;
+  clip-path:polygon(0 0,100% 0,100% 15%,calc(100% - 4px) 15%,calc(100% - 4px) 30%,calc(100% - 8px) 30%,calc(100% - 8px) 70%,calc(100% - 4px) 70%,calc(100% - 4px) 85%,100% 85%,100% 100%,0 100%)}
+.rib.tail-l{padding:0 12px 0 24px;
+  clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 85%,4px 85%,4px 70%,8px 70%,8px 30%,4px 30%,4px 15%,0 15%)}
+.rib .notches i{background:var(--on-tc)}
+.gl{position:absolute;top:-6px;bottom:-6px;left:0;width:8px;background:rgba(255,255,255,.62);box-shadow:12px 0 0 -2px rgba(255,255,255,.3);opacity:0;
+  animation:gloss var(--gd,200ms) steps(8) both;animation-delay:calc(var(--rd) + var(--tw,0ms) + 170ms)}
+.gl.g2{animation-delay:calc(var(--rd) + var(--tw,0ms) + 230ms)}
+.res[data-j="1"] .gl,.res[data-j="2"] .gl.g2{display:none}
+
+/* ---------- the gauge (from "Jauge"): old count in accent, this capsule's share in the tier colour ---------- */
+.gauge{position:relative;display:block;height:var(--gh,8px);background:var(--sunken);box-shadow:0 0 0 2px var(--line-soft)}
+.g-fill{position:absolute;inset:0;transform-origin:left center}
+.g-new{background:var(--tc);transform:scaleX(var(--to));animation:fill-new var(--tf) steps(6) both;animation-delay:calc(var(--rd) + var(--t0))}
+.g-old{background:var(--accent);transform:scaleX(var(--from));animation:fill-old var(--tf) steps(6) both;animation-delay:calc(var(--rd) + var(--t0))}
+@keyframes fill-old{0%{transform:scaleX(0)}45%{transform:scaleX(var(--from))}100%{transform:scaleX(var(--from))}}
+@keyframes fill-new{0%{transform:scaleX(0)}45%{transform:scaleX(var(--from))}100%{transform:scaleX(var(--to))}}
+.g-all{position:absolute;inset:0;background:#a4d007;animation:show 40ms steps(1,end) both;animation-delay:calc(var(--rd) + var(--tx))}
+.g-glow{position:absolute;inset:-4px;background:var(--tc-hi);opacity:0;animation:blink-once 200ms steps(4) both;animation-delay:calc(var(--rd) + var(--tx))}
+.g-end{position:absolute;right:0;top:50%;width:0;height:0}
+.g-end .sparks{--sd:var(--tx)}
+.g-seg{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 6px,rgba(14,20,27,.92) 6px 8px)}
+.g-clip{position:absolute;inset:0;overflow:hidden}
+.g-sweep{position:absolute;top:-4px;bottom:-4px;left:0;width:8px;background:rgba(255,255,255,.7);opacity:0;animation:gloss 220ms steps(8) both;animation-delay:calc(var(--rd) + var(--tx))}
+.g-tick{position:absolute;top:-4px;left:calc(var(--at) * 100%);width:2px;height:calc(var(--gh,8px) + 8px);margin-left:-1px;
+  background:repeating-linear-gradient(to bottom,var(--line-deep) 0 2px,transparent 2px 4px)}
+.g-tick.on{background:var(--tc);transform:translateY(-4px)}
+.g-tick .notches{position:absolute;top:calc(var(--gh,8px) + 12px);left:50%;transform:translateX(-50%)}
+.g-tick .notches i,.g-tick .notches i:nth-child(n){width:4px;height:6px}
+.g-tick:not(.on) .notches i{width:6px;background:transparent;box-shadow:inset 0 0 0 2px var(--line-deep)}
+.g-tick.now{animation:tick-up 100ms steps(2) both;animation-delay:calc(var(--rd) + var(--tx))}
+@keyframes tick-up{from{transform:translateY(0)}to{transform:translateY(-4px)}}
+.g-tick.now::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,var(--line-deep) 0 2px,var(--panel) 2px 4px);
+  animation:unshow 40ms steps(1,end) both;animation-delay:calc(var(--rd) + var(--tx))}
+.g-tick.now .notches{animation:g-notch 180ms steps(3) both;animation-delay:calc(var(--rd) + var(--tx))}
+@keyframes g-notch{0%{opacity:0;transform:translateX(-50%) scale(.4)}1%{opacity:1}60%{transform:translateX(-50%) scale(1.5)}100%{opacity:1;transform:translateX(-50%) scale(1)}}
+.g-tick .sparks{left:1px;top:2px;--sd:var(--tx)}
+.ph .g-tick .notches{display:none}
+.m-row{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 10px}
+.ph .m-row{justify-content:flex-start}
+.m-name{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 8px;min-width:0}
+.g-ct{font:700 14px/16px var(--fs);color:var(--white);white-space:nowrap}
+.g-ct .total{color:var(--muted);font-weight:400}
+.roll-w{display:inline-block;height:16px;overflow:hidden;vertical-align:bottom}
+.roll{display:flex;flex-direction:column;transform:translateY(-16px);animation:roll 120ms steps(2) both;animation-delay:calc(var(--rd) + var(--tx) - 60ms)}
+.roll b{display:block;height:16px;text-align:right}
+@keyframes roll{from{transform:translateY(0)}to{transform:translateY(-16px)}}
+.mk-pop .mk{animation:pop-s 180ms steps(2,end) both;animation-delay:calc(var(--rd) + var(--tm,0ms))}
+.mk-pop .mk:nth-child(2){animation-delay:calc(var(--rd) + var(--tm,0ms) + 90ms)}
+.mk-pop .mk:nth-child(3){animation-delay:calc(var(--rd) + var(--tm,0ms) + 180ms)}
+.mk-pop .mk:nth-child(4){animation-delay:calc(var(--rd) + var(--tm,0ms) + 270ms)}
+.mk-pop .mk .sparks{--sd:calc(var(--tm,0ms) + 200ms)}
+
+/* =========================== 0 · ACTUEL =========================== */
+.now-res{display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 12px 8px 16px;background:var(--panel);box-shadow:inset 0 0 0 2px var(--line),inset 6px 0 0 0 var(--tc),0 0 0 2px var(--ink)}
+.now-res .mk{width:26px;display:flex;justify-content:center}
+.now-t{display:flex;align-items:center;gap:8px;font:400 26px/24px var(--fv);letter-spacing:2px;color:var(--tc)}
+.now-t i{width:22px;height:8px;background:repeating-linear-gradient(-45deg,var(--tc) 0 8px,var(--sunken) 8px 16px)}
+.now-res .ct{font:400 13px/18px var(--fs);color:var(--muted)}
+
+/* =========================== M1 · gauge first, ribbon as the payoff =========================== */
+.pan.M1{--pad:28px 14px 6px 16px;--pad-ph:32px 30px 8px 14px;--t0:80ms;--tf:380ms;--tx:440ms;--tw:470ms;--tgl:560ms;--pd:680ms}
+.M1 .m1-head{position:absolute;left:-8px;top:-12px;z-index:2}
+.ph .M1 .m1-head{left:0;top:6px;--rh:22px;--rf:22px}
+.M1 .m1-fold{position:absolute;left:0;top:28px;width:8px;height:6px;background:var(--tc-lo);clip-path:polygon(0 0,100% 0,100% 100%,50% 100%,50% 50%,0 50%);
+  animation:show 40ms steps(1,end) both;animation-delay:calc(var(--rd) + var(--tw) + 200ms)}
+.ph .M1 .m1-fold{display:none}
+.M1 .m1-head > .sparks{left:100%;top:14px;--sd:calc(var(--tw) + 150ms)}
+.M1 .gauge{margin:10px 0 18px}
+.ph .M1 .gauge{margin:8px 0 6px}
+.m1-hint{position:absolute;right:10px;top:6px;font:700 9px/14px var(--fs);letter-spacing:1px;color:var(--muted)}
+.res[data-tier="folded"] .m1-hint{top:auto;bottom:8px}
+.link:hover .m1-hint,.link:focus-visible .m1-hint{color:var(--white)}
+.M1 .m1-marks{margin-top:2px}
+.M1.link:hover,.M1.link:focus-visible{box-shadow:inset 0 0 0 2px var(--tc),0 0 0 2px var(--ink)}
+.M1.link:hover .m1-head,.M1.link:focus-visible .m1-head{transform:translateY(-2px)}
+/* folded: the four marks pop first, the accent ribbon lands last */
+.res[data-tier="folded"] .pan.M1{--tm:80ms;--tw:420ms;--tgl:500ms;--pad:28px 14px 12px 16px}
+
+/* =========================== M1b · segmented gauge: pips light one by one, small pixel flag at each tick =========================== */
+.pan.M1b{--pad:28px 14px 6px 16px}
+.b-line{display:flex;align-items:flex-start;gap:12px}
+.pips{position:relative;flex:1;display:grid;grid-template-columns:repeat(20,1fr);gap:2px;height:10px;margin:16px 0 18px}
+.ph .pips{margin:14px 0 6px}
+.pip{position:relative;background:var(--sunken);box-shadow:inset 0 0 0 1px var(--line-soft)}
+.pip.old::after,.pip.new::after{content:"";position:absolute;inset:0}
+.pip.old::after{background:var(--accent);animation:show 40ms steps(1,end) both;animation-delay:calc(var(--rd) + var(--d))}
+.pip.new::after{background:var(--tc);transform-origin:bottom center;animation:pip-pop 80ms steps(2) both;animation-delay:calc(var(--rd) + var(--d))}
+@keyframes pip-pop{0%{opacity:0;transform:scaleY(1.8)}1%{opacity:1;transform:scaleY(1.8)}100%{opacity:1;transform:none}}
+.res[data-tier="complete"] .pip::before{content:"";position:absolute;inset:0;z-index:1;background:#a4d007;animation:show 40ms steps(1,end) both;animation-delay:calc(var(--rd) + var(--tx))}
+.pips-glow{position:absolute;inset:-4px;z-index:2;background:var(--tc-hi);opacity:0;animation:blink-once 200ms steps(4) both;animation-delay:calc(var(--rd) + var(--tx))}
+.pips .g-end{z-index:3}
+/* tick = a small pixel flag on a 2px pole: dashed and hollow until reached, solid in the tier colour once reached */
+.pf{position:absolute;bottom:100%;left:calc(var(--at) * 100%);width:2px;height:10px;margin:0 0 2px -1px;background:repeating-linear-gradient(to bottom,var(--line-deep) 0 2px,transparent 2px 4px)}
+.pf::after{content:"";position:absolute;left:2px;top:0;width:6px;height:4px;box-shadow:inset 0 0 0 1px var(--line-deep)}
+.pf-lit{position:absolute;inset:0;display:none;background:var(--tc);transform-origin:bottom center}
+.pf-lit::after{content:"";position:absolute;left:2px;top:0;width:6px;height:4px;background:var(--tc)}
+.pf.on .pf-lit{display:block}
+.pf.now .pf-lit{animation:pip-pop 100ms steps(2) both;animation-delay:calc(var(--rd) + var(--tt))}
+.pf .notches{position:absolute;top:26px;left:50%;transform:translateX(-50%)}
+.pf .notches i,.pf .notches i:nth-child(n){width:4px;height:6px}
+.pf:not(.on) .notches i{width:6px;background:transparent;box-shadow:inset 0 0 0 2px var(--line-deep)}
+.pf.now .notches{animation:g-notch 180ms steps(3) both;animation-delay:calc(var(--rd) + var(--tt))}
+.pf .sparks{left:1px;top:0;--sd:var(--tt)}
+.ph .pf .notches{display:none}
+.b-ct{flex:none;margin-top:8px;font:400 28px/24px var(--fv);color:var(--white);white-space:nowrap}
+.ph .b-ct{margin-top:6px}
+.b-ct .roll-w{height:24px}
+.b-ct .roll{transform:translateY(-24px);animation-name:roll24}
+.b-ct .roll b{height:24px;font-weight:400}
+.b-ct .total{color:var(--muted)}
+@keyframes roll24{from{transform:translateY(0)}to{transform:translateY(-24px)}}
+
+/* =========================== M1c · full-width header strip =========================== */
+.pan.M1c{--pad:44px 14px 6px 16px;--pad-ph:36px 30px 8px 14px;--sh:30px;--sf:26px}
+.ph .M1c{--sh:26px;--sf:22px}
+.res[data-tier="folded"] .pan.M1c{--pad:44px 14px 12px 16px}
+.c-slot,.c-sw{position:absolute;top:2px;left:2px;right:2px;height:var(--sh)}
+.ph .c-slot,.ph .c-sw{top:0;left:0;right:0}
+.c-slot{background:var(--sunken);box-shadow:inset 0 -2px 0 0 var(--line-soft)}
+.c-strip{position:relative;display:flex;align-items:center;gap:8px;height:var(--sh);padding:0 12px;overflow:hidden;white-space:nowrap;
+  background:var(--tc);color:var(--on-tc);font:400 var(--sf)/var(--sh) var(--fv);letter-spacing:2px}
+.c-strip .notches i{background:var(--on-tc)}
+.res[data-tier="folded"] .c-strip{--sf:22px;letter-spacing:1px}
+.c-go{margin-left:auto;font:700 9px/var(--sh) var(--fs);letter-spacing:1px}
+.link:hover .c-go,.link:focus-visible .c-go{transform:translateX(2px)}
+.c-sp{position:absolute;top:16px;right:24px;width:0;height:0}
+.c-sp .sparks{left:0;top:0;--sd:calc(var(--tw) + 150ms)}
+.ph .M1c .alb{top:auto;bottom:10px;margin-top:0}
+
+/* =========================== M1d · more juice on the same layout =========================== */
+.pan.M1d{--tw:480ms;--tgl:560ms;--pd:700ms}
+.M1d .rw{animation:wipe-x 160ms steps(8) both,rw-settle 120ms steps(1,end) both;
+  animation-delay:calc(var(--rd) + var(--tw)),calc(var(--rd) + var(--tw) + 160ms)}
+/* the wipe lands 8px long, then snaps back in pixel steps: no smooth bounce */
+@keyframes rw-settle{0%{transform:translateX(8px)}40%{transform:translateX(-3px)}70%{transform:translateX(1px)}100%{transform:none}}
+.M1d .m1-head > .sparks{--sd:calc(var(--tw) + 160ms);--sdur:280ms}
+.t-flash{position:absolute;left:-5px;top:-6px;width:12px;height:28px;background:#fff;opacity:0;animation:blink-once 160ms steps(3) both;animation-delay:calc(var(--rd) + var(--tx))}
+.d-glow{position:absolute;inset:0;pointer-events:none;box-shadow:0 0 0 2px var(--tc),0 0 0 4px var(--tc-a),0 0 18px 4px var(--tc-a);opacity:0;
+  animation:blink-once 240ms steps(5) both;animation-delay:calc(var(--rd) + var(--tw) + 160ms)}
+.d-frame{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 2px var(--tc);animation:show 40ms steps(1,end) both;animation-delay:calc(var(--rd) + var(--tw) + 160ms)}
+.res[data-j="1"] .d-glow{display:none}
+.res[data-tier="folded"] .pan.M1d{--tw:420ms}
+
+/* =========================== M1e · sober and fast, for opening capsules in a row =========================== */
+.res-M1e{--rd:calc(var(--i,0) * 100ms);animation-duration:80ms}
+.pan.M1e{--t0:0ms;--tf:300ms;--tx:280ms;--tw:300ms;--gd:140ms;--pd:440ms}
+.M1e .rw{animation-duration:140ms;animation-timing-function:steps(4)}
+.M1e .m1-fold{animation-delay:calc(var(--rd) + var(--tw) + 140ms)}
+.res[data-j="2"] .M1e .gl,.M1e .gl.g2{display:none}
+.M1e .mk-pop .sparks{display:none}
+.M1e .g-tick.now .notches{animation-duration:120ms}
+.res[data-tier="folded"] .pan.M1e{--tm:0ms;--tw:300ms}
+
+/* ---------- reduced motion: every variant becomes one 200 ms crossfade ---------- */
+html.rm .demo *,html.rm .demo *::before,html.rm .demo *::after{animation:none!important}
+html.rm .demo .res{animation:xfade 200ms linear both!important}
+@media (prefers-reduced-motion: reduce){
+  .demo *,.demo *::before,.demo *::after{animation:none!important}
+  .demo .res{animation:xfade 200ms linear both!important}
+}
+
+/* ---------- mock toast (presentation only) ---------- */
+.toast{position:fixed;left:50%;bottom:24px;z-index:50;transform:translateX(-50%);padding:10px 16px;max-width:calc(100% - 32px);background:var(--raised);color:var(--text-bright);
+  font:700 12px/16px var(--fs);box-shadow:inset 0 0 0 2px var(--accent),0 0 0 2px var(--ink);opacity:0;pointer-events:none}
+.toast.on{opacity:1}
+.toast small{display:block;font-weight:400;color:var(--muted)}
+
+@media (max-width:760px){.desk,.phone{width:100%}.res.ph{width:100%}}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header class="doc-h">
+    <h1>Célébration de set · variations M1</h1>
+    <p>Troisième tour (17 oct.). L'auteur retient <b>M1 · Jauge puis ruban</b>. En tête, M1 tel que construit au tour 2, comme référence ; puis quatre variations qui gardent son cœur (<b>la jauge se remplit et franchit le cran d'abord, le ruban arrive en dernier comme récompense</b>) et ne changent qu'un ou deux axes, nommés sous chaque titre.</p>
+    <p>Axes retenus : la forme de la jauge (M1b), la place du ruban (M1c), la quantité de juice vers le haut (M1d) et vers le bas (M1e). La piste « ruban plus grand » proposée est fondue dans M1c, dont le bandeau pleine largeur porte le palier en VT323 26 px.</p>
+    <p>Communs : entrée unique puis immobile ; rien ne boucle. Juice croissant par palier. Le palier se lit sans la couleur : mot, crans 1/2/3 dans le ruban et sous les crans de la jauge, ✓ pour le complet. Le cadre COMPLET reste incliné fixe à −6° et s'imprime. Mouvement réduit : fondu de 200 ms. Chaque résultat ouvre l'album du set ; la ligne repliée ouvre « EN COURS » ; jamais de prise de focus à l'apparition ; sur téléphone, le résultat est le lien et « ▸ » une cible séparée. Ligne repliée : pas de jauge, le ruban « 4 PALIERS ATTEINTS » avec les quatre marques, comme au tour 2.</p>
+  </header>
+  <div class="controls">
+    <label class="tg"><input type="checkbox" id="rm"> Mouvement réduit (fondu 200 ms)</label>
+    <button class="btn" type="button" id="replay-all">TOUT REJOUER</button>
+    <span class="note">Si le système demande déjà le mouvement réduit, le fondu s'applique quelle que soit la case.</span>
+  </div>
+
+  <!-- 0 · ACTUEL -->
+  <section class="dir">
+    <div class="dir-h"><h2>0 · Actuel</h2><span class="pers">référence staging, à remplacer</span></div>
+    <p class="why">Pour comparer : le bandeau tel que construit, barre de 6 px à gauche, crans, titre entre deux hachures. Entrée actuelle : glissement 360 ms avec rebond.</p>
+    <div class="row">
+      <div class="cell"><span class="kick">Bureau · colonne 300 px</span>
+        <div class="desk field"><p class="rev">Cartes révélées : 5 / 5</p>
+          <div class="stack">
+            <div class="now-res" data-tier="bronze"><span class="mk"><span class="notches"><i></i></span></span><span class="main"><span class="now-t outl"><i></i>PALIER BRONZE<i></i></span><span><span class="nm">FPS</span> <span class="ct">76/752</span></span></span></div>
+            <div class="now-res" data-tier="bronze"><span class="mk"><span class="notches"><i></i></span></span><span class="main"><span class="now-t outl"><i></i>PALIER BRONZE<i></i></span><span><span class="nm">Tir à la troisième personne</span> <span class="ct">17/168</span></span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dir" id="dir-M1">
+    <div class="dir-h"><h2>M1 · Référence</h2><span class="pers">tel que construit au tour 2, sans changement</span><button class="btn" type="button" data-replay="dir-M1">REJOUER</button></div>
+    <p class="why">Le bandeau raconte dans l'ordre : le panneau apparaît avec le nom du set, la barre pleine largeur se remplit et franchit le cran, le compte roule, le cran s'allume, et seulement alors le ruban du palier se balaie à cheval sur le bord haut, comme la récompense. La place du ruban est réservée dès le début : rien ne bouge dans la mise en page. « VOIR LE SET ▸ » occupe le coin libre à droite du ruban.</p>
+    <p class="mot"><b>Mouvement :</b> panneau 120 ms → barre 0 → ancien compte → nouveau, 380 ms (fin 460 ms) → compte qui roule 120 ms, cran allumé et monté 100 ms, crans 180 ms → ruban balayé en 8 pas 200 ms (470–670 ms) → reflets 200 ms (640 / 700 ms) → étincelles du ruban 320 ms → cadre COMPLET imprimé 160 ms (680–840 ms) ; fin ≤ 900 ms.</p>
+    <ul class="ladder"><li data-tier="bronze"><b>Bronze</b> barre + cran + ruban</li><li data-tier="silver"><b>Argent</b> + 6 étincelles au cran + 1 reflet</li><li data-tier="gold"><b>Or</b> + 12 étincelles au cran + 2 reflets + éclats + 8 étincelles au ruban</li><li data-tier="complete"><b>Complet</b> barre lime + éclair + 18 étincelles + 2 reflets + éclats + 14 étincelles + cadre</li></ul>
+    <div class="row">
+      <div class="cell"><span class="kick">Bureau · colonne 300 px</span><div class="desk field demo"><p class="rev">Cartes révélées : 5 / 5</p><div class="stack tall" data-mount="M1-desk"></div></div></div>
+      <div class="cell"><span class="kick">Plus de trois résultats · ouvre EN COURS</span><div class="desk field demo"><div class="stack tall" data-mount="M1-fold"></div></div></div>
+      <div class="cell"><span class="kick">Téléphone · plaque de légende</span><div class="phone field demo" data-phone="M1"></div></div>
+          </div>
+  </section>
+
+  <section class="dir" id="dir-M1b">
+    <div class="dir-h"><h2>M1b · Jauge segmentée</h2><span class="pers">change : la jauge en pips, le compte à droite en VT323</span><button class="btn" type="button" data-replay="dir-M1b">REJOUER</button></div>
+    <p class="why">La jauge devient vingt pips, comme la réserve du panneau de capsule : les pips déjà acquis s'allument d'un coup en accent, puis ceux de cette capsule s'allument un par un dans la couleur du palier. Chaque cran est un petit fanion pixel sur un mât de 2 px, creux tant qu'il n'est pas atteint, plein quand il l'est ; celui qu'on franchit se lève au moment où son pip s'allume. Le compte passe à droite de la jauge, en VT323, et roule. Plus « jeu », plus lisible sur les grands sets, où un pip vaut 5 %.</p>
+    <p class="mot"><b>Mouvement :</b> panneau 120 ms → pips acquis en 10 ms chacun → nouveaux pips un par un dès 160 ms (60 ms chacun, plus serrés s'ils sont nombreux) → fanion du cran levé 100 ms, crans 180 ms → compte roule → ruban balayé 200 ms juste après le dernier pip, reflets, étincelles, cadre ; fin ≤ ~900 ms (le plus court : bronze FPS ≈ 600 ms).</p>
+    <ul class="ladder"><li data-tier="bronze"><b>Bronze</b> pips + fanion + ruban</li><li data-tier="silver"><b>Argent</b> + 6 étincelles au fanion + 1 reflet</li><li data-tier="gold"><b>Or</b> + 12 étincelles + 2 reflets + éclats + étincelles au ruban</li><li data-tier="complete"><b>Complet</b> 7 pips puis tous lime + éclair + 18 étincelles + cadre</li></ul>
+    <div class="row">
+      <div class="cell"><span class="kick">Bureau · colonne 300 px</span><div class="desk field demo"><p class="rev">Cartes révélées : 5 / 5</p><div class="stack tall" data-mount="M1b-desk"></div></div></div>
+      <div class="cell"><span class="kick">Plus de trois résultats · ouvre EN COURS</span><div class="desk field demo"><div class="stack tall" data-mount="M1b-fold"></div></div></div>
+      <div class="cell"><span class="kick">Téléphone · plaque de légende</span><div class="phone field demo" data-phone="M1b"></div></div>
+    </div>
+  </section>
+
+  <section class="dir" id="dir-M1c">
+    <div class="dir-h"><h2>M1c · Bandeau pleine largeur</h2><span class="pers">change : le ruban devient l'en-tête de la carte, plus grand, avec le lien dedans</span><button class="btn" type="button" data-replay="dir-M1c">REJOUER</button></div>
+    <p class="why">Le ruban couvre tout le bord haut, comme l'en-tête d'une carte : crans et palier en VT323 26 px à gauche, « VOIR LE SET ▸ » à droite dans l'encre du palier. Tant que la jauge se remplit, l'en-tête attend vide (bande sombre) ; il se balaie d'un bord à l'autre quand le cran est franchi. Plus d'aplat de couleur, donc plus de récompense, sans rien ajouter qui bouge ; la pile se lit comme une suite de cartes.</p>
+    <p class="mot"><b>Mouvement :</b> panneau 120 ms → jauge 80–460 ms → cran allumé, compte roule (440 ms) → en-tête balayé en 8 pas 200 ms (470–670 ms) → reflets 200 ms (640 / 700 ms) → étincelles au bout de l'en-tête (or, complet) → cadre COMPLET imprimé (680–840 ms) ; fin ≤ 900 ms.</p>
+    <ul class="ladder"><li data-tier="bronze"><b>Bronze</b> jauge + cran + en-tête</li><li data-tier="silver"><b>Argent</b> + 6 étincelles + 1 reflet</li><li data-tier="gold"><b>Or</b> + 12 étincelles + 2 reflets + éclats + 8 étincelles</li><li data-tier="complete"><b>Complet</b> barre lime + éclair + 18 + 14 étincelles + cadre</li></ul>
+    <div class="row">
+      <div class="cell"><span class="kick">Bureau · colonne 300 px</span><div class="desk field demo"><p class="rev">Cartes révélées : 5 / 5</p><div class="stack" data-mount="M1c-desk"></div></div></div>
+      <div class="cell"><span class="kick">Plus de trois résultats · ouvre EN COURS</span><div class="desk field demo"><div class="stack" data-mount="M1c-fold"></div></div></div>
+      <div class="cell"><span class="kick">Téléphone · plaque de légende</span><div class="phone field demo" data-phone="M1c"></div></div>
+      <div class="cell"><span class="kick">English copy</span><div class="desk field demo"><p class="rev">Cards revealed: 5 / 5</p><div class="stack" data-mount="M1c-en"></div><div class="stack" data-mount="M1c-enfold" style="margin-top:12px"></div></div></div>
+    </div>
+  </section>
+
+  <section class="dir" id="dir-M1d">
+    <div class="dir-h"><h2>M1d · Plus de juice</h2><span class="pers">change : la récompense, plus forte, même mise en page</span><button class="btn" type="button" data-replay="dir-M1d">REJOUER</button></div>
+    <p class="why">Même mise en page que M1, mais chaque temps fort frappe plus : un éclair blanc sur le cran franchi et des étincelles dès le bronze ; le ruban dépasse de 8 px en fin de balayage puis revient en trois pas pixel (−3, +1, 0), sans rebond lissé ; le cadre du bandeau s'embrase dans la couleur du palier puis se pose en un filet de 2 px qui reste. Une seule fois, puis immobile.</p>
+    <p class="mot"><b>Mouvement :</b> jauge 80–460 ms → éclair du cran 160 ms + étincelles 320 ms (440 ms) → ruban balayé en 8 pas 160 ms (480–640 ms) → retour en 3 pas 120 ms (640–760 ms) → halo du cadre 240 ms puis filet fixe (640–880 ms) → reflets, étincelles du ruban 280 ms, éclats → cadre COMPLET imprimé (700–860 ms) ; fin ≤ ~920 ms.</p>
+    <ul class="ladder"><li data-tier="bronze"><b>Bronze</b> éclair + 6 étincelles + dépassement + filet</li><li data-tier="silver"><b>Argent</b> + 10 étincelles + halo + 1 reflet</li><li data-tier="gold"><b>Or</b> + 14 étincelles + 2 reflets + éclats + 8 étincelles au ruban</li><li data-tier="complete"><b>Complet</b> barre lime + éclair + 18 + 14 étincelles + halo + cadre</li></ul>
+    <div class="row">
+      <div class="cell"><span class="kick">Bureau · colonne 300 px</span><div class="desk field demo"><p class="rev">Cartes révélées : 5 / 5</p><div class="stack tall" data-mount="M1d-desk"></div></div></div>
+      <div class="cell"><span class="kick">Plus de trois résultats · ouvre EN COURS</span><div class="desk field demo"><div class="stack tall" data-mount="M1d-fold"></div></div></div>
+      <div class="cell"><span class="kick">Téléphone · plaque de légende</span><div class="phone field demo" data-phone="M1d"></div></div>
+    </div>
+  </section>
+
+  <section class="dir" id="dir-M1e">
+    <div class="dir-h"><h2>M1e · Sobre et rapide</h2><span class="pers">change : la durée (≤ 600 ms) et le nombre d'effets</span><button class="btn" type="button" data-replay="dir-M1e">REJOUER</button></div>
+    <p class="why">Pour le joueur qui enchaîne les capsules : même ordre (jauge, cran, ruban) en deux fois moins de temps, et presque sans effets. Pas d'étincelles aux crans, pas d'éclats ; un seul reflet à partir de l'or ; le complet garde sa barre lime, un éclair, 8 étincelles et son cadre imprimé. Décalage de 100 ms entre résultats empilés au lieu de 180 : quatre résultats sont posés en moins d'une seconde.</p>
+    <p class="mot"><b>Mouvement :</b> panneau 80 ms → jauge 0–300 ms → cran allumé, compte roule (280 ms) → ruban balayé en 4 pas 140 ms (300–440 ms) → reflet 140 ms (or+) → cadre COMPLET imprimé (440–600 ms) ; fin ≤ 600 ms.</p>
+    <ul class="ladder"><li data-tier="bronze"><b>Bronze</b> jauge + cran + ruban</li><li data-tier="silver"><b>Argent</b> idem</li><li data-tier="gold"><b>Or</b> + 1 reflet</li><li data-tier="complete"><b>Complet</b> barre lime + éclair + 8 étincelles + 1 reflet + cadre</li></ul>
+    <div class="row">
+      <div class="cell"><span class="kick">Bureau · colonne 300 px</span><div class="desk field demo"><p class="rev">Cartes révélées : 5 / 5</p><div class="stack tall" data-mount="M1e-desk"></div></div></div>
+      <div class="cell"><span class="kick">Plus de trois résultats · ouvre EN COURS</span><div class="desk field demo"><div class="stack tall" data-mount="M1e-fold"></div></div></div>
+      <div class="cell"><span class="kick">Téléphone · plaque de légende</span><div class="phone field demo" data-phone="M1e"></div></div>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const FR = {
+  tier: { bronze: "PALIER BRONZE", silver: "PALIER ARGENT", gold: "PALIER OR", complete: "SET COMPLET" },
+  label: { bronze: "PALIER", silver: "PALIER", gold: "PALIER", complete: "SET" },
+  word: { bronze: "BRONZE", silver: "ARGENT", gold: "OR", complete: "COMPLET" },
+  folded: "4 PALIERS ATTEINTS",
+  foldedSub: "dont <b>Metroidvania OR</b> · <b>Dark Souls COMPLET</b>",
+  foldedHint: "EN COURS",
+  setHint: "VOIR LE SET",
+  next: "Résultat suivant",
+  linkTail: ", ouvrir le set",
+  foldTail: ", ouvrir la collection en cours",
+  toastSet: (n) => `→ ouvrirait l'album ${n}`,
+  toastFold: "→ ouvrirait la collection, EN COURS",
+}
+const EN = {
+  tier: { bronze: "BRONZE TIER", silver: "SILVER TIER", gold: "GOLD TIER", complete: "SET COMPLETE" },
+  label: { bronze: "TIER", silver: "TIER", gold: "TIER", complete: "SET" },
+  word: { bronze: "BRONZE", silver: "SILVER", gold: "GOLD", complete: "COMPLETE" },
+  folded: "4 TIERS REACHED",
+  foldedSub: "incl. <b>Metroidvania GOLD</b> · <b>Dark Souls COMPLETE</b>",
+  foldedHint: "IN PROGRESS",
+  setHint: "VIEW SET",
+  next: "Next result",
+  linkTail: ", open the set",
+  foldTail: ", open the collection in progress",
+  toastSet: (n) => `→ would open the ${n} album`,
+  toastFold: "→ would open the collection, IN PROGRESS",
+}
+const NOTCHES = { bronze: 1, silver: 2, gold: 3, complete: 0 }
+const JUICE = { bronze: 1, silver: 2, gold: 3, complete: 4, folded: 4 }
+const TICKS = [["bronze", 0.1], ["silver", 0.25], ["gold", 0.5]]
+
+const SETS = {
+  fps:   { tier: "bronze",   name: "FPS",                         kind: "theme",     owned: 76, prev: 72, total: 752 },
+  rogue: { tier: "silver",   name: "Roguelike",                   kind: "theme",     owned: 16, prev: 13, total: 62 },
+  metro: { tier: "gold",     name: "Metroidvania",                kind: "theme",     owned: 31, prev: 29, total: 62 },
+  souls: { tier: "complete", name: "Dark Souls",                  kind: "franchise", owned: 3,  prev: 2,  total: 3 },
+  tpp:   { tier: "bronze",   name: "Tir à la troisième personne", kind: "theme",     owned: 17, prev: 14, total: 168 },
+}
+const result = (key, L = FR) => ({ ...SETS[key], key, title: L.tier[SETS[key].tier], L })
+const foldedResult = (L = FR) => ({ folded: true, tier: "folded", title: L.folded, sub: L.foldedSub, L })
+
+// ---------- atoms ----------
+function pixelSvg(rows, scale, cls) {
+  const h = rows.length, w = rows[0].length
+  let rects = ""
+  rows.forEach((row, y) => [...row].forEach((ch, x) => {
+    if (ch !== ".") rects += `<rect x="${x}" y="${y}" width="1" height="1"/>`
+  }))
+  return `<svg class="${cls}" width="${w * scale}" height="${h * scale}" viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`
+}
+const check = () => pixelSvg(["......#", ".....##", "#...##.", "##.##..", ".###...", "..#...."], 2, "px-check")
+const album = () => pixelSvg(["######.", "#....##", "#.##.##", "#....##", "#.##.##", "######."], 2, "alb")
+const notches = (n) => `<span class="notches" aria-hidden="true">${"<i></i>".repeat(n)}</span>`
+const stampMini = () => `<span class="mini-stamp print" aria-hidden="true"></span>`
+const mark = (tier) => tier === "complete" ? stampMini() : notches(NOTCHES[tier])
+const sparks = (n, r, mix) => n ? `<span class="sparks" data-n="${n}" data-r="${r}"${mix ? ' data-mix="1"' : ""} aria-hidden="true"></span>` : ""
+const glints = () => `<span class="glints" aria-hidden="true"><i></i><i></i><i></i></span>`
+const popMarks = () => `<span class="marks mk-pop" aria-hidden="true">${["bronze", "silver", "gold", "complete"].map((t) =>
+  `<span class="mk" data-tier="${t}">${t === "complete" ? '<span class="mini-stamp"></span>' : notches(NOTCHES[t])}${t === "gold" ? sparks(6, 18) : t === "complete" ? sparks(10, 22) : ""}</span>`).join("")}</span>`
+
+const lead = (r) => r.folded ? "" : r.tier === "complete" ? check() : notches(NOTCHES[r.tier])
+const ribbon = (r, cls = "") => `<span class="rib ${cls}">${lead(r)}<span>${r.title}</span><i class="gl"></i><i class="gl g2"></i></span>`
+const rollCount = (r) => `<span class="g-ct"><span class="roll-w"><span class="roll"><b>${r.prev}</b><b>${r.owned}</b></span></span><span class="total">/${r.total}</span></span>`
+const nameRow = (r) => `<span class="m-row"><span class="m-name"><span class="nm">${r.name}</span>${r.tier === "complete" ? stampMini() : ""}</span>${rollCount(r)}</span>`
+
+function gauge(r, o = {}) {
+  const tiered = r.tier !== "complete"
+  const tickSparks = (o.tickSparks || { 1: 0, 2: 6, 3: 12 })[r.j] || 0
+  let ticks = ""
+  if (tiered) TICKS.forEach(([t, p]) => {
+    const need = Math.ceil(r.total * p)
+    const on = r.owned >= need, now = on && r.prev < need
+    ticks += `<i class="g-tick${on ? " on" : ""}${now ? " now" : ""}" data-tier="${t}" style="--at:${p}">${notches(NOTCHES[t])}${now ? (o.tickExtra || "") + sparks(tickSparks, 22) : ""}</i>`
+  })
+  const end = tiered ? "" : `<i class="g-all"></i><i class="g-glow"></i><span class="g-end">${sparks(o.endSparks ?? 18, 34)}</span>`
+  return `<span class="gauge" aria-hidden="true"><i class="g-fill g-new"></i><i class="g-fill g-old"></i>${end}${ticks}</span>`
+}
+
+// M1: the gauge fills and crosses the tick first; the ribbon wipes in last, as the payoff
+function m1(r, o = {}) {
+  const hint = r.ph ? "" : `<span class="m1-hint" aria-hidden="true">${r.folded ? r.L.foldedHint : r.L.setHint} ▸</span>`
+  const ribbonSparks = (o.ribbonSparks || { 1: 0, 2: 0, 3: 8, 4: 14 })[r.j]
+  const head = `<span class="m1-head"><span class="rw">${ribbon(r)}</span><i class="m1-fold"></i>${sparks(ribbonSparks, 30, r.folded)}${o.noGlints ? "" : glints()}</span>`
+  const extra = o.extra || ""
+  if (r.folded) return { main: `${head}<span class="m1-marks">${popMarks()}</span><span class="sub">${r.sub}</span>${hint}${extra}`, go: "" }
+  const body = o.body ? o.body(r) : { html: nameRow(r) + gauge(r, o.gauge) }
+  return { main: `${head}${body.html}${hint}${extra}`, go: "", vars: body.vars }
+}
+
+// M1b: twenty pips, like the capsule reserve; one pip is 5 % of the set
+function pipLine(r) {
+  const N = 20
+  const lit = Math.floor((r.owned / r.total) * N), old = Math.floor((r.prev / r.total) * N)
+  const fresh = Math.max(lit - old, 1)
+  const step = Math.min(60, 300 / fresh)
+  const lightAt = (k) => Math.round(160 + (k - old) * step)
+  let pips = ""
+  for (let k = 0; k < N; k++) {
+    const cls = k < old ? "old" : k < lit ? "new" : "off"
+    const d = cls === "old" ? k * 10 : cls === "new" ? lightAt(k) : 0
+    pips += `<i class="pip ${cls}" style="--d:${d}ms"></i>`
+  }
+  const tx = lightAt(lit - 1) + 60
+  let flags = ""
+  if (r.tier !== "complete") TICKS.forEach(([t, p]) => {
+    const b = p * N, on = lit >= b, now = on && old < b
+    const tt = now ? lightAt(b - 1) + 40 : 0
+    flags += `<i class="pf${on ? " on" : ""}${now ? " now" : ""}" data-tier="${t}" style="--at:${p};--tt:${tt}ms"><b class="pf-lit"></b>${notches(NOTCHES[t])}${now ? sparks({ 1: 0, 2: 6, 3: 12 }[r.j], 20) : ""}</i>`
+  })
+  const end = r.tier === "complete" ? `<i class="pips-glow"></i><span class="g-end">${sparks(18, 34)}</span>` : ""
+  const name = `<span class="m-row"><span class="m-name"><span class="nm">${r.name}</span>${r.tier === "complete" ? stampMini() : ""}</span></span>`
+  const count = `<span class="b-ct"><span class="roll-w"><span class="roll"><b>${r.prev}</b><b>${r.owned}</b></span></span><span class="total">/${r.total}</span></span>`
+  return {
+    html: `${name}<span class="b-line"><span class="pips" aria-hidden="true">${pips}${flags}${end}</span>${count}</span>`,
+    vars: `--tx:${tx}ms;--tw:${tx + 40}ms;--tgl:${tx + 130}ms;--pd:${tx + 250}ms;`,
+  }
+}
+
+// M1c: the ribbon is the card's header strip; an empty slot waits for it
+function m1c(r) {
+  const go = r.ph ? "" : `<span class="c-go">${r.folded ? r.L.foldedHint : r.L.setHint} ▸</span>`
+  const n = { 1: 0, 2: 0, 3: 8, 4: 14 }[r.j]
+  const strip = `<span class="c-slot"></span><span class="c-sw rw"><span class="c-strip">${lead(r)}<span>${r.title}</span>${go}<i class="gl"></i><i class="gl g2"></i></span></span><span class="c-sp">${sparks(n, 30, r.folded)}</span>`
+  if (r.folded) return { main: `${strip}<span class="m1-marks">${popMarks()}</span><span class="sub">${r.sub}</span>`, go: "" }
+  return { main: `${strip}${nameRow(r)}${gauge(r)}`, go: "" }
+}
+
+const VARIANTS = {
+  M1: (r) => m1(r),
+  M1b: (r) => m1(r, { body: pipLine }),
+  M1c: (r) => m1c(r),
+  M1d: (r) => m1(r, {
+    gauge: { tickSparks: { 1: 6, 2: 10, 3: 14 }, tickExtra: '<i class="t-flash"></i>' },
+    extra: '<i class="d-glow"></i><i class="d-frame"></i>',
+  }),
+  M1e: (r) => m1(r, {
+    ribbonSparks: { 1: 0, 2: 0, 3: 0, 4: 0 },
+    noGlints: true,
+    gauge: { tickSparks: { 1: 0, 2: 0, 3: 0 }, endSparks: 8 },
+  }),
+}
+
+const slug = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+
+function compose(dir, r, o = {}) {
+  r = { ...r, j: JUICE[r.tier], ph: !!o.ph }
+  const parts = VARIANTS[dir](r)
+  const L = r.L
+  const href = r.folded ? "/fr/library#en-cours" : `/fr/library/sets/${r.kind}/${slug(r.name)}`
+  const toast = r.folded ? L.toastFold : L.toastSet(r.name)
+  let vars = `--i:${o.i || 0};`
+  if (!r.folded) {
+    const from = r.prev / r.total
+    vars += `--from:${from.toFixed(4)};--to:${Math.max(r.owned / r.total, from + 0.015).toFixed(4)};`
+  }
+  const tail = `<span class="sr">${r.folded ? L.foldTail : L.linkTail}</span>`
+  const linkAttrs = `href="#" data-href="${href}" data-toast="${toast}"`
+  const go = parts.go ?? `<span class="go" aria-hidden="true"><small>${parts.hintText}</small>▸</span>`
+  const open = `<div class="res res-${dir}${o.ph ? " ph" : ""}" data-tier="${r.tier}" data-j="${r.j}" style="${vars}">`
+  const cls = dir === "M1" ? "M1" : `M1 ${dir}`
+  const panStyle = parts.vars ? ` style="${parts.vars}"` : ""
+  if (!o.ph) return `${open}<a class="pan ${cls} link"${panStyle} ${linkAttrs}><span class="main">${parts.main}${tail}</span>${go}</a></div>`
+  const step = `<div class="step"><span class="pos">${o.pos}</span><button type="button" class="next" aria-label="${L.next}"><span aria-hidden="true">▸</span></button></div>`
+  return `${open}<div class="pan ${cls}"${panStyle}><a class="main link" ${linkAttrs}>${parts.main}${tail}${album()}</a>${step}</div></div>`
+}
+
+// ---------- mounting ----------
+function fillSparks(root) {
+  root.querySelectorAll(".sparks").forEach((s) => {
+    if (s.childElementCount) return
+    const n = +s.dataset.n, r = +s.dataset.r, mix = s.dataset.mix
+    const tiers = ["bronze", "silver", "gold", "complete"]
+    let html = ""
+    for (let k = 0; k < n; k++) {
+      const a = (k / n) * Math.PI * 2 + (k % 2 ? 0.22 : -0.12)
+      const d = r * [1.2, 0.85, 1.05][k % 3]
+      const dx = Math.round((Math.cos(a) * d) / 2) * 2, dy = Math.round((Math.sin(a) * d * 0.8) / 2) * 2
+      html += `<i${mix ? ` data-tier="${tiers[k % 4]}"` : ""} style="--dx:${dx}px;--dy:${dy}px;--k:${k % 3}"></i>`
+    }
+    s.innerHTML = html
+  })
+}
+function replay(root) {
+  root.getAnimations({ subtree: true }).forEach((a) => { a.cancel(); a.play() })
+}
+
+function mountStack(el, dir, items) {
+  el.innerHTML = items.map((r, i) => compose(dir, r, { i })).join("")
+}
+const DESK = ["fps", "rogue", "metro", "souls"]
+document.querySelectorAll("[data-mount]").forEach((el) => {
+  const [dir, what] = el.dataset.mount.split("-")
+  if (what === "desk") mountStack(el, dir, DESK.map((k) => result(k)))
+  if (what === "fold") mountStack(el, dir, [foldedResult()])
+  if (what === "en") mountStack(el, dir, DESK.map((k) => result(k, EN)))
+  if (what === "enfold") mountStack(el, dir, [foldedResult(EN)])
+})
+
+// phone: the plate shows one result; "▸" moves to the next one, nothing moves on its own
+const PHONE_LIST = ["tpp", "rogue", "souls"]
+const plates = []
+function renderPlate(p, focusNext) {
+  p.el.innerHTML = compose(p.dir, result(PHONE_LIST[p.idx]), { ph: true, pos: `${p.idx + 1} / ${PHONE_LIST.length}` })
+  fillSparks(p.el)
+  if (focusNext) p.el.querySelector(".next").focus()
+}
+document.querySelectorAll("[data-phone]").forEach((ph) => {
+  const dir = ph.dataset.phone
+  ph.innerHTML = `<div class="ph-card"><b>HOOK 2</b><small>RÉFLEXION · 2022 · COMMUNE</small></div><div data-plate></div>
+    <div class="tray" aria-hidden="true"><span class="tray-n"><small>CARTE</small>5 / 5</span><span class="tslot"><i></i></span><span class="tslot pc"><i></i></span><span class="tslot"><i></i></span><span class="tslot"><i></i></span><span class="tslot"><i></i></span></div>
+    <p class="cell under"><span class="kick">Autre état de la même plaque · 3 / 3</span></p><div data-plate2></div>`
+  const a = { el: ph.querySelector("[data-plate]"), dir, idx: 0 }
+  const b = { el: ph.querySelector("[data-plate2]"), dir, idx: 2 }
+  plates.push(a, b); renderPlate(a); renderPlate(b)
+})
+
+fillSparks(document)
+document.fonts && document.fonts.ready.then(() => replay(document))
+
+// ---------- interactions ----------
+const toastEl = document.getElementById("toast")
+let toastTimer
+document.addEventListener("click", (e) => {
+  const next = e.target.closest(".next")
+  if (next) {
+    const p = plates.find((pl) => pl.el.contains(next))
+    p.idx = (p.idx + 1) % PHONE_LIST.length
+    renderPlate(p, true)
+    return
+  }
+  const link = e.target.closest("a.link")
+  if (link) {
+    e.preventDefault()
+    toastEl.innerHTML = `${link.dataset.toast}<small>${link.dataset.href}</small>`
+    toastEl.classList.add("on")
+    clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => toastEl.classList.remove("on"), 2200)
+    return
+  }
+  const rb = e.target.closest("[data-replay]")
+  if (rb) replay(document.getElementById(rb.dataset.replay))
+})
+document.getElementById("replay-all").addEventListener("click", () => replay(document))
+const rm = document.getElementById("rm")
+rm.addEventListener("change", () => {
+  document.documentElement.classList.toggle("rm", rm.checked)
+  requestAnimationFrame(() => replay(document))
+})
+</script>
+</body>
+</html>
