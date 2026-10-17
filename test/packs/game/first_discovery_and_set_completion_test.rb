@@ -114,7 +114,7 @@ class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
     assert_empty Game::FeedEntries.call(nil, kind: "pull")
   end
 
-  test "the opening's budget: three statements more, whatever its cards discover or reach" do
+  test "the opening's budget: three statements more whatever its cards discover, and one per tier they reach" do
     add_to_valve(@common, @rare)
     undiscover(@common, @uncommon, @rare)
     # The schema cache warmed, so a worker's first introspection of the two
@@ -129,7 +129,7 @@ class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
       open_pack(@player, [ @common, @uncommon, @rare, @portal, @legendary ])
     end
 
-    assert_equal 3, statements.size, statements.join("\n")
+    assert_equal 3 + 1, statements.size, statements.join("\n")
     assert_equal [ @valve ], completed(@player)
     assert_equal 3, game_events(@player, Game::CardDiscovered).size
   end

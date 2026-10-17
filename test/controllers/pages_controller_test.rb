@@ -451,7 +451,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     Game::OpenPack.new.call(player:).value!
   end
 
-  test "the hub's LIVE ticker shows pulls of Epic or better, first discoveries and trades, never a repost nor a filler" do
+  test "the hub's LIVE ticker shows pulls of Epic or better, first discoveries, trades and sets, never a repost nor a filler" do
     @player.update!(persona_name: "Hugo")
     quiet = accounts_players(:moderator).tap { it.update!(persona_name: "Quiet") }
     open_pack_of(quiet, catalog_card_seasons(:rare_card_one).id)
@@ -467,12 +467,17 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "body > main#main + #live-ticker.ticker[aria-hidden=true][data-turbo-permanent][data-controller=ticker]" do
       assert_select ".live-marker .live-marker__text", "Live"
-      assert_select ".ticker__run .ticker__item", 7
+      assert_select ".ticker__run .ticker__item", 8
       assert_select ".ticker__item .ticker__separator"
       assert_select ".ticker__item .ticker__first", count: 1, text: "First discovery"
       assert_select ".ticker__rarity--epic", count: 5, text: "Epic"
       assert_select ".ticker__item", count: 1, text: /Hugo and Léa traded Blue Depths for Green Hills/
       assert_select ".ticker__trade", count: 1, text: "Trade"
+      assert_select ".ticker__item", count: 1, text: /Hugo completes the Valve set\./ do
+        assert_select ".ticker__tier.feed__tier--complete .feed__tier-stamp"
+        assert_select ".ticker__tier", "Complete"
+        assert_select ".ticker__rarity, .card", 0
+      end
       assert_select ".ticker__item", text: /reposted/, count: 0
       assert_select ".ticker__item", text: /Quiet/, count: 0
       assert_select "#live-ticker-queue[hidden]"

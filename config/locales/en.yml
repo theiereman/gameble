@@ -888,6 +888,20 @@ en:
       repost_tag: "Repost"
       traded_html: "%{name} and %{partner} traded %{card} for %{partner_card}"
       trade_tag: "Trade"
+      set_reached:
+        bronze_html: "%{name} reaches bronze in the %{set} set."
+        silver_html: "%{name} reaches silver in the %{set} set."
+        gold_html: "%{name} reaches gold in the %{set} set."
+        complete_html: "%{name} completes the %{set} set."
+      sets_reached_html:
+        zero: "%{name} reaches %{count} tiers · %{set} %{tier}"
+        one: "%{name} reaches %{count} tier · %{set} %{tier}"
+        other: "%{name} reaches %{count} tiers · %{set} %{tier}"
+      tiers:
+        bronze: "Bronze"
+        silver: "Silver"
+        gold: "Gold"
+        complete: "Complete"
       announcement:
         zero: "No new entries in the feed."
         one: "1 new entry in the feed."

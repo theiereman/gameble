@@ -93,6 +93,8 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     create_pack(hidden, cards: [ catalog_card_seasons(:portal_one).id ] * 5)
     Game::OpenPack.new.call(player: hidden).value!
     hidden.update!(visibility: :private)
+    # Their completion of the Valve set, older than the pulls.
+    Game::FeedEntry.where(kind: "set").update_all(occurred_at: 1.hour.ago)
 
     get card_page(locale: :fr)
 

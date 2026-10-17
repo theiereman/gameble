@@ -1,14 +1,14 @@
 <% if items.any? %>
   <%= turbo_stream.prepend "feed-entries" do %>
-    <% items.each do |item, card, partner_card| %>
-      <%= render "feeds/entry", item:, card:, partner_card: %>
+    <% items.each do |item, card, partner_card, set| %>
+      <%= render "feeds/entry", item:, card:, partner_card:, set: %>
     <% end %>
   <% end %>
 <% end %>
 <% if ticker.any? %>
   <%= turbo_stream.prepend "live-ticker-queue" do %>
-    <% ticker.each do |item, card, partner_card| %>
-      <%= render "shell/ticker_item", item:, card:, partner_card: %>
+    <% ticker.each do |item, card, partner_card, set| %>
+      <%= render "shell/ticker_item", item:, card:, partner_card:, set: %>
     <% end %>
   <% end %>
 <% end %>

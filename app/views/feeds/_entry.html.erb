@@ -1,9 +1,12 @@
 <% repost = item.entry.kind == "repost" %>
 <% trade = item.entry.kind == "trade" %>
-<li class="<%= class_names("feed__entry", "feed__entry--filler": item.filler) %>">
+<% set_entry = item.entry.kind == "set" %>
+<li class="<%= class_names("feed__entry", "feed__entry--filler": item.filler, "feed__entry--set": set_entry) %>">
   <%= local_time_tag(item.entry.occurred_at, class: "feed__time") %>
-  <p class="feed__sentence"><% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span> <% end %><%= feed_sentence(item, card, partner_card) %></p>
-  <% if trade %>
+  <p class="feed__sentence"><% if item.entry.kind == "discovery" %><span class="feed__chip"><%= t("feeds.show.first_discovery") %></span> <% end %><%= feed_sentence(item, card, partner_card, set) %></p>
+  <% if set_entry %>
+    <%= feed_tier_tag(item.entry.tier, surface_class: "feed__tag") %>
+  <% elsif trade %>
     <span class="feed__thumbs">
       <% [ card, partner_card ].each do |traded| %>
         <%= link_to card_path(slug: traded.id), class: "feed__thumb feed__thumb--framed feed__thumb--#{traded.rarity}",

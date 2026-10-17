@@ -122,7 +122,7 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
     Game::Holding.where(player_id: @bob.id, card_season_id: @three).update_all(quantity: 2)
     accept(trade).value!
 
-    assert_equal [ [ "trade", @alice.id, @bob.id, trade.id ] ], Game::FeedEntry.pluck(:kind, :player_id, :partner_id, :trade_id)
+    assert_equal [ [ "trade", @alice.id, @bob.id, trade.id ] ], Game::FeedEntry.where.not(kind: "set").pluck(:kind, :player_id, :partner_id, :trade_id)
     assert_equal({ @alice.id => 0, @bob.id => 1 }, Game::WeeklyContribution.pluck(:player_id, :trades).to_h)
   end
 

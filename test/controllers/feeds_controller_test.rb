@@ -1,6 +1,7 @@
 require "test_helper"
 require_relative "../support/game_packs"
 require_relative "../support/game_trades"
+require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
 # The activity feed: readable signed out, newest pulls and first discoveries
@@ -9,6 +10,7 @@ require_relative "../support/steam_sign_in"
 class FeedsControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
   include GameTrades
+  include GameSets
   include SteamSignIn
 
   setup do
@@ -44,7 +46,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select "main h1", "Activity feed"
     assert_select ".feed__tab[aria-current]", "All"
     assert_select ".feed__filter[aria-current]", "Everything"
-    assert_select ".feed__entry", 5
+    assert_select ".feed__entry:not(.feed__entry--set)", 5
     assert_select ".feed__entry--filler", 0
     assert_select ".feed__sentence strong", text: "Hugo"
     assert_select ".feed__tag--epic", /Epic/
@@ -94,8 +96,8 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "each kind of entry has its filter" do
-    assert_equal Game::FeedEntry::KINDS, FeedsController::FILTERS.values
+  test "each kind of entry but the sets has its filter" do
+    assert_equal Game::FeedEntry::KINDS - %w[set], FeedsController::FILTERS.values
   end
 
   test "pulls shows the pulls under the chosen filter and keeps the tab" do
@@ -128,7 +130,8 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".feed__filter[aria-current]", "Everything"
-    assert_select ".feed__entry", 5
+    assert_select ".feed__entry", 6
+    assert_select ".feed__entry--set", 1
   end
 
   test "a private or banned player's pulls are gone under a filter" do
@@ -223,7 +226,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__thumb--common", 1
 
     get feed_path(locale: :en)
-    assert_select ".feed__entry", 6
+    assert_select ".feed__entry", 7
     assert_select ".feed__entry:first-child .feed__sentence", "Hugo reposted Tin Soldier."
   end
 
@@ -263,7 +266,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".feed__tab[aria-current]", count: 1, text: "Friends"
-    assert_select ".feed__entry", 5
+    assert_select ".feed__entry", 6
     assert_equal %w[Sam], names
     assert_select ".feed__no-friends", 0
   end
@@ -378,7 +381,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
       assert_equal "1 nouvelle entrée dans le fil.", templates["one"]
       assert templates["zero"]
     end
-    assert_select "ul#feed-entries.feed__list[data-feed-announcer-target=list] > li.feed__entry", 5
+    assert_select "ul#feed-entries.feed__list[data-feed-announcer-target=list] > li.feed__entry", 6
     assert_select ".feed p.visually-hidden[role=status][data-feed-announcer-target=status]", text: ""
   end
 
@@ -394,7 +397,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
   test "a filtered view and the Friends tab are read at render: no stream, no live list, no status line" do
     friends_and_strangers
 
-    { feed_path(locale: :en, filter: "pulls") => 15, feed_path(locale: :en, tab: "friends") => 5 }.each do |path, entries|
+    { feed_path(locale: :en, filter: "pulls") => 15, feed_path(locale: :en, tab: "friends") => 6 }.each do |path, entries|
       get path
       assert_select ".feed__entry", entries
       assert_select "#feed-entries, .feed [role=status], [data-controller=feed-announcer]", 0
@@ -428,7 +431,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__tag--epic", 0
 
     get feed_path(locale: :en)
-    assert_select ".feed__entry", 6
+    assert_select ".feed__entry", 8, "five pulls, the trade, and each player's completion of the Valve set"
     assert_select ".feed__entry:first-child .feed__sentence", "Hugo and Sam traded Portal for Blue Depths"
     assert_select ".feed__entry:first-child .feed__tag--trade", /Trade/
     assert_select "[style]", 0
@@ -454,10 +457,52 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     trade_with(friend)
     sign_in(viewer)
 
-    [ feed_path(locale: :en, tab: "friends"), feed_path(locale: :en, tab: "friends", filter: "trades") ].each do |path|
-      get path
-      assert_select ".feed__entry", 1
-      assert_select ".feed__sentence", "Hugo and Sam traded Portal for Blue Depths"
+    get feed_path(locale: :en, tab: "friends", filter: "trades")
+    assert_select ".feed__entry", 1
+    assert_select ".feed__sentence", "Hugo and Sam traded Portal for Blue Depths"
+
+    get feed_path(locale: :en, tab: "friends")
+    assert_equal [ "Hugo and Sam traded Portal for Blue Depths", "Sam completes the Valve set." ],
+      css_select(".feed__entry .feed__sentence").map(&:text)
+  end
+
+  def reach_roguelike_silver(player = @player)
+    common, uncommon, rare, = fixture_tier_ids
+    insert_set([ common, uncommon, rare ], { bronze: 1, silver: 2, gold: 3 })
+    Game::Holding.create!(player_id: player.id, card_season_id: uncommon, quantity: 1)
+    create_pack(player, cards: [ common ] * 5)
+    Game::OpenPack.new.call(player:).value!
+  end
+
+  test "a signed-out visitor reads a set reached as one line naming the player, the set and the tier, with no thumbnail" do
+    reach_roguelike_silver
+
+    get feed_path(locale: :en)
+
+    assert_select ".feed__entry.feed__entry--set", 1 do
+      assert_select ".feed__sentence", "Hugo reaches silver in the Roguelike set."
+      assert_select ".feed__tag.feed__tier--silver", "Silver"
+      assert_select ".feed__tier-notches i", 2
+      assert_select ".feed__thumb, .card", 0
+    end
+    assert_select "[style]", 0
+
+    get feed_path(locale: :fr)
+    assert_select ".feed__entry--set .feed__sentence", "Hugo atteint l'argent du set Roguelike."
+    assert_select ".feed__entry--set .feed__tag", "Argent"
+  end
+
+  test "a private player's set line is not shown, and no filter is for sets" do
+    reach_roguelike_silver
+    @player.update!(visibility: :private)
+
+    get feed_path(locale: :en)
+    assert_select ".feed__entry", 0
+
+    @player.update!(visibility: :public)
+    %w[pulls discoveries trades reposts].each do |filter|
+      get feed_path(locale: :en, filter:)
+      assert_select ".feed__entry--set", 0
     end
   end
 end

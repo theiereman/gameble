@@ -5,8 +5,8 @@
     <div class="ticker__window" data-ticker-target="window">
       <div class="ticker__track" data-ticker-target="track">
         <ul class="ticker__run" data-ticker-target="run">
-          <% items.each do |item, card, partner_card| %>
-            <%= render "shell/ticker_item", item:, card:, partner_card: %>
+          <% items.each do |item, card, partner_card, set| %>
+            <%= render "shell/ticker_item", item:, card:, partner_card:, set: %>
           <% end %>
         </ul>
       </div>

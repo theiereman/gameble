@@ -670,6 +670,11 @@ body:has(> .ticker) .app-version {
   color: var(--color-accent);
 }
 
+.ticker__tier {
+  flex: none;
+  text-transform: uppercase;
+}
+
 .ticker__queue {
   display: none;
 }

@@ -931,6 +931,20 @@ fr:
       repost_tag: "Repost"
       traded_html: "%{name} et %{partner} ont échangé %{card} contre %{partner_card}"
       trade_tag: "Échange"
+      set_reached:
+        bronze_html: "%{name} atteint le bronze du set %{set}."
+        silver_html: "%{name} atteint l'argent du set %{set}."
+        gold_html: "%{name} atteint l'or du set %{set}."
+        complete_html: "%{name} complète le set %{set}."
+      sets_reached_html:
+        zero: "%{name} atteint %{count} palier · %{set} %{tier}"
+        one: "%{name} atteint %{count} palier · %{set} %{tier}"
+        other: "%{name} atteint %{count} paliers · %{set} %{tier}"
+      tiers:
+        bronze: "Bronze"
+        silver: "Argent"
+        gold: "Or"
+        complete: "Complet"
       announcement:
         zero: "Aucune nouvelle entrée dans le fil."
         one: "1 nouvelle entrée dans le fil."

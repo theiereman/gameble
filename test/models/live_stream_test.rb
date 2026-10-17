@@ -35,11 +35,12 @@ class LiveStreamTest < ActiveSupport::TestCase
     assert_equal "goal:fr", LiveStream.goal_streamables(:fr).join(":")
   end
 
-  test "an opening enqueues one job after its commit, naming its pack" do
+  test "an opening enqueues one job after its commit, naming its pack and the tiers it reached" do
     pack = nil
     assert_enqueued_jobs(1, only: LiveFeedJob) { pack = open_pack }
 
-    assert_equal [ [ { pack_id: pack.id } ] ], live_jobs.map { ActiveJob::Arguments.deserialize(it[:args]).first }
+    valve = { player_id: @hugo.id, set_id: catalog_sets(:valve_one).id, tier: "complete" }
+    assert_equal [ [ { pack_id: pack.id }, valve ] ], live_jobs.map { ActiveJob::Arguments.deserialize(it[:args]).first }
     assert_empty batches
   end
 
@@ -58,7 +59,8 @@ class LiveStreamTest < ActiveSupport::TestCase
     assert_equal 1, performed_jobs.count { it[:job] == LiveFeedJob }
     assert_broadcasts live(:en), 1
     assert_broadcasts live(:fr), 1
-    assert_equal 10, received(:en).css("turbo-stream[action=prepend][target=feed-entries] template").sole.children.count { it.element? }
+    # Ten pulls, and the first opening's completion of the Valve set.
+    assert_equal 11, received(:en).css("turbo-stream[action=prepend][target=feed-entries] template").sole.children.count { it.element? }
     assert_empty batches
   end
 
@@ -112,6 +114,23 @@ class LiveStreamTest < ActiveSupport::TestCase
     assert_equal [ { player_id: @hugo.id, card_season_id: @epic, at: Time.utc(2026, 10, 8, 12) } ], LiveStream.notices(event)
   end
 
+  test "a tier's notice carries its player, set and tier, a completion's tier being complete" do
+    reached = Game::SetTierReached.new(data: { player_id: @hugo.id, set_id: 7, tier: "silver" })
+    completed = Game::SetCompleted.new(data: { player_id: @hugo.id, set_id: 8 })
+
+    assert_equal [ { player_id: @hugo.id, set_id: 7, tier: "silver" } ], LiveStream.notices(reached)
+    assert_equal [ { player_id: @hugo.id, set_id: 8, tier: "complete" } ], LiveStream.notices(completed)
+  end
+
+  test "a public opening's completion reaches the feed, the ticker queue and the strip once" do
+    perform_enqueued_jobs(only: LiveFeedJob) { open_pack }
+
+    english = received(:en)
+    assert_equal [ "Hugo completes the Valve set." ], template(english, "feed-entries").css(".feed__entry--set .feed__sentence").map(&:text)
+    assert_equal [ "Hugo completes the Valve set." ], template(english, "live-ticker-queue").css(".ticker__sentence").map(&:text).grep(/Valve/)
+    assert_equal "Hugo completes the Valve set.", template(english, "live-strip").at_css(".public-card__live-sentence").text
+  end
+
   test "other events tell nothing" do
     assert_empty LiveStream.notices(Game::TradeProposed.new(data: { trade_id: 1, proposer_id: @hugo.id, recipient_id: @hugo.id }))
   end
@@ -122,12 +141,13 @@ class LiveStreamTest < ActiveSupport::TestCase
 
   def template(stream, target) = Nokogiri::HTML5.fragment(stream.css("turbo-stream[target=#{target}] template").sole.inner_html)
 
-  test "a trade enqueues one job after its commit, naming its trade" do
+  test "a trade enqueues one job after its commit, naming its trade and the tiers it reached" do
     @sam = accounts_players(:moderator)
     accepted = nil
     assert_enqueued_jobs(1, only: LiveFeedJob) { accepted = trade }
 
-    assert_equal [ [ { trade_id: accepted.id } ] ], live_jobs.map { ActiveJob::Arguments.deserialize(it[:args]).first }
+    valve = { player_id: @sam.id, set_id: catalog_sets(:valve_one).id, tier: "complete" }
+    assert_equal [ [ { trade_id: accepted.id }, valve ] ], live_jobs.map { ActiveJob::Arguments.deserialize(it[:args]).first }
     assert_empty batches
   end
 

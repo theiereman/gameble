@@ -3,7 +3,8 @@ class LiveFeedJob < ApplicationJob
 
   def perform(notices)
     entries = Game::NewFeedEntries.call(pack_ids: notices.filter_map { it[:pack_id] },
-      reposts: notices.select { it.key?(:card_season_id) }, trade_ids: notices.filter_map { it[:trade_id] })
+      reposts: notices.select { it.key?(:card_season_id) }, trade_ids: notices.filter_map { it[:trade_id] },
+      sets: notices.select { it.key?(:set_id) })
     return if entries.empty?
 
     latest = Game::FeedEntries.call(nil).first(LiveStream::STRIP_SIZE)

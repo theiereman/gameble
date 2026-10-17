@@ -13,7 +13,9 @@
     its gold "First discovery" chip), the card's thumbnail and its
     rarity; a repost's thumbnail framed in its rarity's colour, with a
     Repost tag in place of the rarity; a trade names both players and shows
-    the best card each gave, both framed, with a Trade tag. Fillers of a
+    the best card each gave, both framed, with a Trade tag; a set entry
+    names the set or the count of sets, with no thumbnail, and its tier's
+    tag (notches, or the COMPLET frame). Fillers of a
     quiet feed sit on the sunken panel. Names and the order are already filtered by
     Game::Visibility. A filter with nothing says so in its own line; the
     Friends tab without a friend invites to add some. No Brotherhood line here.
@@ -48,8 +50,8 @@
   <% else %>
     <% if @live || @items.any? %>
       <%= tag.ul class: "feed__list", id: ("feed-entries" if @live), data: ({ feed_announcer_target: "list" } if @live) do %>
-        <% @items.each do |item, card, partner_card| %>
-          <%= render "feeds/entry", item:, card:, partner_card: %>
+        <% @items.each do |item, card, partner_card, set| %>
+          <%= render "feeds/entry", item:, card:, partner_card:, set: %>
         <% end %>
       <% end %>
     <% end %>

@@ -30,7 +30,7 @@ class PlayerExport
         { season: it.season_number, kind: it.kind, key: it.key, tier: it.tier, reachedBy: it.reached_by, reachedAt: time(it.reached_at) }
       end,
       firstDiscoveries: game.discoveries.map { { card: card(it.card_season_id), discoveredAt: time(it.discovered_at) } },
-      feedEntries: game.feed_entries.map { { kind: it.kind, card: card(it.card_season_id), occurredAt: time(it.occurred_at) } },
+      feedEntries: game.feed_entries.map { feed_entry(it) },
       achievements: game.unlocks.map { { achievement: it.achievement, unlockedAt: time(it.unlocked_at) } },
       friends: { count: game.friend_count },
       pendingInvitations: { received: game.invitations.received, sent: game.invitations.sent },
@@ -86,6 +86,15 @@ class PlayerExport
       game.trades.map do |trade|
         { status: trade.status, proposedAt: time(trade.proposed_at), closedAt: time(trade.closed_at),
           offered: trade.offered.filter_map { |line| card(line.card_season_id)&.merge(quantity: line.quantity) } }
+      end
+    end
+
+    def feed_entry(entry)
+      if entry.kind == "set"
+        set = entry.set && { season: entry.set.season_number, kind: entry.set.kind, key: entry.set.key }
+        { kind: entry.kind, set:, tier: entry.tier, count: entry.set_count, occurredAt: time(entry.occurred_at) }
+      else
+        { kind: entry.kind, card: card(entry.card_season_id), occurredAt: time(entry.occurred_at) }
       end
     end
 

@@ -17,6 +17,7 @@ class Game::TradeConcurrencyTest < ActiveSupport::TestCase
 
   teardown do
     Game::FeedEntry.where.not(trade_id: nil).delete_all
+    Game::FeedEntry.where(kind: "set", player_id: (@players + (@created || [])).map(&:id)).delete_all
     Game::WeeklyContribution.where(player_id: (@players + (@created || [])).map(&:id)).delete_all
     Game::TradeItem.delete_all
     Game::Trade.delete_all

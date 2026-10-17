@@ -1,5 +1,9 @@
 module FeedHelper
-  def feed_sentence(item, card, partner_card = nil)
+  TIER_NOTCHES = { "bronze" => 1, "silver" => 2, "gold" => 3 }.freeze
+
+  def feed_sentence(item, card, partner_card = nil, set = nil)
+    return feed_set_sentence(item, set) if item.entry.kind == "set"
+
     words = { name: feed_name(item.player), card: tag.strong(card.title) }
     case item.entry.kind
     when "discovery" then t("feeds.show.discovered_html", **words)
@@ -13,7 +17,32 @@ module FeedHelper
     t("catalog.rarity.#{card.rarity}")
   end
 
+  def feed_tier_tag(tier, surface_class:)
+    mark = if tier == "complete"
+      tag.span(class: "feed__tier-stamp")
+    else
+      tag.span(class: "feed__tier-notches") { safe_join(Array.new(TIER_NOTCHES.fetch(tier)) { tag.i }) }
+    end
+    tag.span(class: [ surface_class, "feed__tier", "feed__tier--#{tier}" ]) do
+      tag.span(mark, class: "feed__tier-mark") + tag.span(feed_tier_name(tier))
+    end
+  end
+
   private
+
+  def feed_set_sentence(item, set)
+    words = { name: feed_name(item.player), set: tag.strong(SetLabel.for(set)) }
+    tier = item.entry.tier
+    if item.entry.set_count > 1
+      t("feeds.show.sets_reached_html", **words, count: item.entry.set_count, tier: feed_tier_name(tier).upcase)
+    else
+      t("feeds.show.set_reached.#{tier}_html", **words)
+    end
+  end
+
+  def feed_tier_name(tier)
+    t("feeds.show.tiers.#{tier}")
+  end
 
   def feed_name(player)
     tag.strong(player.persona_name.presence || t("feeds.show.nameless"))

@@ -1,12 +1,16 @@
 module Game
   module NewFeedEntries
-    def self.call(pack_ids: [], reposts: [], trade_ids: [])
+    def self.call(pack_ids: [], reposts: [], trade_ids: [], sets: [])
       scopes = []
       scopes << FeedEntry.where(pack_id: pack_ids) if pack_ids.any?
       scopes << FeedEntry.where(trade_id: trade_ids) if trade_ids.any?
       reposts.each do |repost|
         scopes << FeedEntry.where(kind: "repost", player_id: repost[:player_id], card_season_id: repost[:card_season_id],
           occurred_at: repost[:at])
+      end
+      sets.each do |reached|
+        reached_at = SetTier.where(player_id: reached[:player_id], set_id: reached[:set_id], tier: reached[:tier]).select(:reached_at)
+        scopes << FeedEntry.where(kind: "set", player_id: reached[:player_id], occurred_at: reached_at)
       end
       return [] if scopes.empty?
 

@@ -84,6 +84,9 @@ class PlayerExportTest < ActiveSupport::TestCase
     assert_equal [ { achievement: "first_booster", unlockedAt: "2026-10-07T00:00:00Z" } ], hash[:achievements]
     trade_entry = hash[:feedEntries].find { it[:kind] == "trade" }
     assert_equal({ slug: "tin-soldier", season: 1 }, trade_entry[:card])
+    set_entry = hash[:feedEntries].find { it[:kind] == "set" }
+    assert_equal({ kind: "set", set: { season: 1, kind: "studio", key: "valve" }, tier: "complete", count: 1 }, set_entry.except(:occurredAt))
+    assert set_entry[:occurredAt]
     assert_equal({ count: 1 }, hash[:friends])
     trade = hash[:trades].sole
     assert_equal [ "accepted", [ { slug: "tin-soldier", season: 1, quantity: 1 } ] ], trade.values_at(:status, :offered)

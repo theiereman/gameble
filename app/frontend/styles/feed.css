@@ -128,6 +128,60 @@
 .feed__thumb--epic { --feed-frame: var(--color-rarity-epique); }
 .feed__thumb--legendary { --feed-frame: var(--color-rarity-legendaire); }
 
+/* A set entry has no thumbnail: its tier's tag keeps the last column. */
+.feed__entry--set > .feed__tier {
+  grid-column: -2 / -1;
+}
+
+/* A reached tier: its name in its colour behind one to three rising
+   notches, or, for a completed set, the COMPLET stamp's small frame. */
+.feed__tier {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--feed-tier);
+}
+
+.feed__tier--bronze { --feed-tier: var(--color-tier-bronze); }
+.feed__tier--silver { --feed-tier: var(--color-tier-silver); }
+.feed__tier--gold { --feed-tier: var(--color-gold); }
+.feed__tier--complete { --feed-tier: var(--color-lime); }
+
+.feed__tier-mark {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+}
+
+.feed__tier-notches {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.feed__tier-notches i {
+  display: block;
+  width: 4px;
+  height: 8px;
+  background: var(--feed-tier);
+}
+
+.feed__tier-notches i:nth-child(2) {
+  height: 10px;
+}
+
+.feed__tier-notches i:nth-child(3) {
+  height: 12px;
+}
+
+.feed__tier-stamp {
+  display: block;
+  width: 22px;
+  height: 14px;
+  box-shadow: inset 0 0 0 3px var(--color-lime), 0 0 0 var(--space-unit) var(--color-outline);
+  transform: rotate(-6deg);
+}
+
 .feed__empty {
   margin: 0;
 }

@@ -112,6 +112,17 @@ class Game::ExportOfTest < ActiveSupport::TestCase
     assert_equal [ [ "trade", @rare ] ], Game::ExportOf.call(@friend).feed_entries.map { [ it.kind, it.card_season_id ] }
   end
 
+  test "a set feed entry gives its set, tier and count instead of a card" do
+    pack = create_pack(@player, cards: [ @portal ] * 5)
+    Game::OpenPack.new.call(player: @player).value!
+
+    entry = Game::ExportOf.call(@player).feed_entries.find { it.kind == "set" }
+
+    assert_equal [ nil, Game::ExportOf::SetRef.new(season_number: 1, kind: "studio", key: "valve"), "complete", 1, pack.reload.opened_at ],
+      [ entry.card_season_id, entry.set, entry.tier, entry.set_count, entry.occurred_at ]
+    assert_not_includes Game::ExportOf.call(@player).card_season_ids, nil
+  end
+
   test "another player's data stays out" do
     create_pack(@friend, opened_at: 1.minute.ago)
     hold(@friend, @rare, 3)
