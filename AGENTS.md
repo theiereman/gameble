@@ -37,7 +37,7 @@ A free web trading card game where every card is a Steam game. Rails 8 with doma
 - System tests are disabled, in CI and as a check of your work, until they are rebuilt to be stable: `bin/rails test` skips them, do not run `bin/rails test:system` to verify a change. A change that breaks a system test is not blocked by it.
 - `bin/ci` skips vitest, `zeitwerk:check` and system tests; run `npm run test:js` and `bin/rails zeitwerk:check` as well.
 - Run packwerk as `bundle exec packwerk check`; there is no binstub.
-- After a migration, regenerate `db/schema.rb` with `RAILS_ENV=test bin/rails db:drop db:create db:migrate` on Postgres 18 and commit the diff; never hand-edit or hand-merge it, CI fails on any drift.
+- After a migration, regenerate `db/schema.rb` from the migrations as CI does, on Postgres 18: `RAILS_ENV=test SCHEMA=tmp/migrated_schema.rb bin/rails db:drop db:create db:migrate && cp tmp/migrated_schema.rb db/schema.rb`, then commit the diff. A plain `db:migrate` on an empty database loads the existing `db/schema.rb` instead of running the migrations. Never hand-edit or hand-merge it; CI fails on any drift.
 
 ## Known pitfalls
 
