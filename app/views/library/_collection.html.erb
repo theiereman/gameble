@@ -8,7 +8,7 @@
     - heading: the page's name;
     - grid: the Catalog::CollectionGrid; slots, pagy: its page, context:
       the filters its links carry (library/grid);
-    - unique, tier_counts: the viewer's figures;
+    - unique, games_by_rarity, tier_counts: the viewer's figures;
     - seen_up_to: the latest gain among the new cards shown, or nil;
     - pagy also gives the count announced by the status line;
     - states, states_asked, query, set_filter: the filters on and the set
@@ -16,7 +16,7 @@
 <div class="collection">
   <h1 class="visually-hidden"><%= heading %></h1>
   <aside class="collection__aside" aria-labelledby="collection-report-title">
-    <%= render "library/report", counts: tier_counts, unique: unique %>
+    <%= render "library/report", counts: tier_counts, games: games_by_rarity, unique: unique %>
   </aside>
   <section class="collection__main" aria-label="<%= heading %>">
     <%= render "library/filters", grid:, states:, states_asked:, query:, set_filter: set_filter %>

@@ -209,13 +209,13 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     sign_in(player)
 
     get card_path(locale: :en, slug: "portal")
-    assert_equal [ "Copies", "2 copies" ], facts.last
+    assert_equal [ [ "Copies", "2 copies" ], [ "Editions", "Epic: S1" ] ], facts.last(2)
 
     get card_path(locale: :en, slug: "golden-crown")
-    assert_equal [ "Copies", "1 copy" ], facts.last
+    assert_equal [ [ "Copies", "1 copy" ], [ "Editions", "Legendary: S1" ] ], facts.last(2)
 
     get card_path(locale: :fr, slug: "golden-crown")
-    assert_equal [ "Exemplaires", "1 exemplaire" ], facts.last
+    assert_equal [ [ "Exemplaires", "1 exemplaire" ], [ "Éditions", "Légendaire : S1" ] ], facts.last(2)
 
     get card_path(locale: :en, slug: "tin-soldier")
     assert_equal [ "Copies", "None" ], facts.last
@@ -511,9 +511,8 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "form[action='/en/cards/portal/seasons/1/repost']"
 
-    # Season 2's portal is not held.
     get card_path(locale: :en, slug: "portal")
-    assert_select ".card-detail__share", false
+    assert_select "#share-sheet input[value=?]", "https://gameble.example/en/cards/portal/seasons/2"
     assert_select "form[action*='/repost']", false
   ensure
     Rails.configuration.x.public_url = @public_url
@@ -751,7 +750,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     # bar's trades waiting.
     assert_request_queries(9) { get card_path(locale: :en, slug: "portal") }
     assert_response :success
-    assert_equal [ "Copies", "2 copies" ], facts.last
+    assert_equal [ "Copies", "2 copies" ], facts.to_h.assoc("Copies")
     assert_select "#share-sheet"
     assert_request_queries(5) { get card_path(locale: :en, slug: "portal"), headers: { "Turbo-Frame" => "card-detail" } }
     assert_select "turbo-frame#card-detail .card-detail h1", "Portal"
@@ -800,5 +799,88 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
       assert_no_match(/\b#{id}\b/, html, "id #{id} on the page")
     end
     assert_no_match(/\b#{catalog_card_seasons(:portal_one).id}\b/, response.body)
+  end
+
+  def portal_edition(number, rarity:)
+    season = Catalog::Season.create!(status: :draft, number:)
+    season.update!(status: :published, published_at: Time.current)
+    Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: season.id, prestige_score: 0.5, rating: 90, rarity: } ],
+      returning: :id).rows.flatten.sole
+  end
+
+  def editions_row = facts.to_h["Editions"] || facts.to_h["Éditions"]
+
+  test "a game held in two editions: its copies over both, and an editions row per rarity, the best first, on either edition's page" do
+    player = accounts_players(:player)
+    hold(player, catalog_card_seasons(:portal_one).id, 1)
+    publish_season_two_with_portal
+    hold(player, Catalog::CardSeason.find_by!(card_id: catalog_cards(:portal).id, season_id: Catalog::Season.find_by!(number: 2).id).id, 1)
+    sign_in(player)
+
+    get card_path(locale: :en, slug: "portal")
+    assert_equal [ [ "Copies", "2 copies" ], [ "Editions", "Legendary: S2 | Epic: S1" ] ], facts.to_h.slice("Copies", "Editions").to_a
+    assert_equal "Copies", facts[facts.index { it.first == "Editions" } - 1].first
+    assert_select ".card-detail__editions-fold", false
+    assert_select "[style]", 0
+
+    get card_season_path(locale: :fr, slug: "portal", number: 1)
+    assert_equal [ [ "Exemplaires", "2 exemplaires" ], [ "Éditions", "Légendaire : S2 | Épique : S1" ] ], facts.to_h.slice("Exemplaires", "Éditions").to_a
+    assert_select ".card-detail__back", false
+  end
+
+  test "the editions of one rarity share a line, seasons ascending; past three lines they fold under how many more" do
+    player = accounts_players(:player)
+    hold(player, catalog_card_seasons(:portal_one).id, 1)
+    hold(player, portal_edition(4, rarity: "rare"), 1)
+    hold(player, portal_edition(2, rarity: "rare"), 2)
+    hold(player, portal_edition(3, rarity: "legendary"), 1)
+    hold(player, portal_edition(5, rarity: "common"), 1)
+    hold(player, portal_edition(6, rarity: "uncommon"), 0)
+    sign_in(player)
+
+    get card_season_path(locale: :en, slug: "portal", number: 1)
+    assert_equal [ "Copies", "6 copies" ], facts.to_h.assoc("Copies")
+    assert_equal [ "Legendary: S3", "Epic: S1", "Rare: S2, S4" ], css_select(".card-detail__fact dd > ul.card-detail__editions li").map(&:text)
+    assert_select "details.card-detail__editions-fold:not([open]) > summary.card-detail__editions-more", "1 more rarity"
+    assert_equal [ "Common: S5" ], css_select("details.card-detail__editions-fold li").map(&:text)
+
+    get card_season_path(locale: :fr, slug: "portal", number: 1)
+    assert_select "details.card-detail__editions-fold > summary", "1 autre rareté"
+  end
+
+  test "no editions row without a copy, nor for a visitor; a holder of another edition sees the card's face" do
+    hold(accounts_players(:moderator), catalog_card_seasons(:rare_card_one).id, 0)
+    sign_in_viewer
+    get card_path(locale: :en, slug: "portal")
+    assert_equal [ "Copies", "None" ], facts.last
+    assert_nil editions_row
+
+    delete session_path(locale: :en)
+    get card_season_path(locale: :en, slug: "portal", number: 1, grid: { q: "" })
+    assert_select ".card-detail"
+    assert_nil facts.to_h["Copies"]
+    assert_nil editions_row
+
+    player = accounts_players(:player)
+    hold(player, catalog_card_seasons(:portal_one).id, 1)
+    publish_season_two_with_portal
+    sign_in(player)
+    get card_path(locale: :en, slug: "portal", set_kind: "theme", set_key: "puzzle")
+    assert_equal "S2 · 1 / 1", position
+    assert_select ".card-detail__back", false
+    assert_select ".card-detail__card .card.card--rarity-legendary"
+  end
+
+  test "the grid walks a tile of an earlier edition, as the grid shows it" do
+    player = accounts_players(:player)
+    hold(player, catalog_card_seasons(:common_card_one).id, 1, gained_at: 2.minutes.ago)
+    hold(player, catalog_card_seasons(:rare_card_one).id, 1, gained_at: 1.minute.ago)
+    publish_season_two_with_portal
+    sign_in(player)
+
+    get card_season_path(locale: :en, slug: "tin-soldier", number: 1, grid: { q: "" })
+    assert_response :success
+    assert_equal "S1 · #1 · 2 / 3 · swipe to browse", position
+    assert_equal [ [ "a", "/en/cards/blue-depths/seasons/1?grid%5Bq%5D=" ], [ "a", "/en/cards/portal/seasons/2?grid%5Bq%5D=" ] ], navs
   end
 end

@@ -1,4 +1,5 @@
 require "test_helper"
+require_relative "../support/catalog_seeds"
 require_relative "../support/counting_rate_limit"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
@@ -7,6 +8,7 @@ require_relative "../support/steam_sign_in"
 # the form the booster screen falls back to without JavaScript, the pack's
 # page face up ("my last booster"), and every refusal.
 class PacksControllerTest < ActionDispatch::IntegrationTest
+  include CatalogSeeds
   include CountingRateLimit
   include GamePacks
   include SteamSignIn
@@ -361,6 +363,21 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
   def assert_json_error(status, code, message)
     assert_response status
     assert_equal({ "error" => { "code" => code, "message" => message } }, body)
+  end
+
+  test "the counts before an opening keep every edition: copies of an earlier season count once a new one is published" do
+    player = accounts_players(:player)
+    Game::Holding.create!(player_id: player.id, card_season_id: catalog_card_seasons(:rare_card_one).id, quantity: 3)
+    publish_sets_draft
+    Game::DrawPool.reset!
+    now = Time.utc(2026, 10, 6, 14, 22)
+    travel_to(now) { Game::FillBank.new.call(player:).value! }
+    sign_in(player)
+
+    travel_to(now) { open_json }
+
+    assert_response :ok
+    assert_equal({ "common" => 0, "uncommon" => 0, "rare" => 3, "epic" => 0, "legendary" => 0 }, body["tierCountsBefore"])
   end
 
   test "a JSON opening answers the pack, its cards with their faces, the bank, the server time and the counts before" do

@@ -1,8 +1,9 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Catalog::CollectionGrid: the ordered cards of the whole season, their
-# genres (main themes), and the filters: genre, rarity, set and text.
+# Catalog::CollectionGrid: the ordered cards of the whole season, or the
+# tiles given, their genres (main themes), and the filters: genre, rarity,
+# set and text.
 class Catalog::CollectionGridTest < ActiveSupport::TestCase
   include CatalogSeeds
 
@@ -99,5 +100,31 @@ class Catalog::CollectionGridTest < ActiveSupport::TestCase
     page = Catalog::CollectionGrid.call(season: @season).card_seasons.offset(60).limit(60)
 
     assert_equal Catalog::CardSeason.where(season_id: @season.id).order(:number, :id).ids[60, 60], page.pluck(:id)
+  end
+
+  def reprint(card_season_id, main_theme: nil, rarity: "legendary")
+    @other ||= Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    card = Catalog::CardSeason.find(card_season_id)
+    Catalog::CardSeason.create!(card_id: card.card_id, season: @other, prestige_score: 0.5, rating: 90, rarity:, main_theme:).id
+  end
+
+  test "tiles given: a genre matches their own main theme or their game's in the season, a set their game's membership, a rarity their own" do
+    rpg = members("rpg").first
+    roguelike = (members("roguelike") - members("rpg")).first
+    shown_rpg = reprint(rpg)
+    shown_roguelike = reprint(roguelike, main_theme: "rpg", rarity: "common")
+    season = Catalog::CardSeason.where(season_id: @season.id).where.not(rarity: nil).ids
+    cards = Catalog::CardSeason.where(id: season - [ rpg, roguelike ] + [ shown_rpg, shown_roguelike ])
+
+    grid = Catalog::CollectionGrid.call(season: @season, cards:, genres: [ "rpg" ])
+    assert_equal %w[horror roguelike rpg], grid.genres
+    assert_equal (members("rpg") - [ rpg ] + [ shown_rpg, shown_roguelike ]).sort, grid.card_seasons.pluck(:id).sort
+
+    by_set = Catalog::CollectionGrid.call(season: @season, cards:, sets: %w[theme:rpg])
+    assert_equal (members("rpg") - [ rpg ] + [ shown_rpg ]).sort, by_set.card_seasons.pluck(:id).sort
+
+    legendary = Catalog::CollectionGrid.call(season: @season, cards:, rarities: %w[legendary]).card_seasons.pluck(:id)
+    assert_includes legendary, shown_rpg
+    assert_not_includes legendary, rpg
   end
 end

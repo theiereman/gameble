@@ -1,5 +1,6 @@
-# The collection's grid of the whole season as its parameters ask for it,
-# for a controller that shows it (LibraryController) or walks it from a
+# The collection's grid as its parameters ask for it: one tile per game, of
+# the whole season and of every game the viewer holds in any edition
+# (Game::CollectionTiles), for a controller that shows it (LibraryController) or walks it from a
 # card's detail (CardsController, from the `grid` parameter the grid's
 # links carry): one source for its filters and its order, so the detail
 # walks the cards the grid showed, in the same order.
@@ -26,9 +27,10 @@ module CollectionGridLoading
   MAX_PAGE = 100_000
 
   private
-    # The Catalog::CollectionGrid of `season`, filtered as `source` asks.
+    # The Catalog::CollectionGrid of the viewer's tiles over `season`,
+    # filtered as `source` asks.
     def collection_grid(season, source)
-      Catalog::CollectionGrid.call(season:, genres: grid_list(source, :genre), rarities: grid_list(source, :rarity),
+      Catalog::CollectionGrid.call(season:, cards: Game::CollectionTiles.call(current_player, season), genres: grid_list(source, :genre), rarities: grid_list(source, :rarity),
         sets: grid_list(source, :sets), query: grid_query(source), locale: I18n.locale)
     end
 

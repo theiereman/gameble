@@ -56,9 +56,9 @@ class PagesController < ApplicationController
       Catalog::CardViews.call([ id ], locale: I18n.locale)[id]
     end
 
-    # Menu 02's meta: distinct cards held in the season, out of its cards.
+    # Menu 02's meta: the games held, in any edition, out of the season's cards.
     def collection
-      { owned: Game::CollectionSummary.distinct_cards(current_player, season: @season),
+      { owned: Game::HeldGames.count(current_player),
         total: Catalog::CardCount.call(@season) }
     end
 

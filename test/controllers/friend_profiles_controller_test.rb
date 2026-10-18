@@ -57,6 +57,21 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, @friend.steam_id
   end
 
+  test "a friend's count is their games in any edition, one held twice counted once" do
+    publish_sets_draft
+    portal = catalog_card_seasons(:portal_one)
+    reprint = Catalog::CardSeason.find_by!(season_id: Catalog::PublishedSeason.call.id, number: 1)
+    hold(@friend, portal.id, 1)
+    hold(@friend, reprint.id, 1)
+    hold(@friend, Catalog::CardSeason.insert_all!([ { card_id: reprint.card_id, season_id: catalog_seasons(:one).id, prestige_score: 0.5,
+      rating: 90, rarity: "rare", number: 900 } ], returning: :id).rows.flatten.sole, 1)
+    sign_in(@player)
+
+    get friend_profile_path(locale: :en, token: @friend.token)
+
+    assert_select ".friend-profile__count", "2 cards collected"
+  end
+
   test "a friend holding nothing shows an empty showcase, in English" do
     publish_sets_draft
     @friend.update_columns(last_seen_at: 1.minute.ago)

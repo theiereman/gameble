@@ -8,20 +8,27 @@
     the actions pinned at the bottom. It names no one but the viewer (a
     shared card shows only the card). Locals:
     - detail: a Catalog::CardDetail::Detail;
-    - copies: how many copies of it the viewer holds, or nil;
+    - copies: how many copies of its game the viewer holds, every edition
+      counted, or nil;
+    - editions: the editions of its game the viewer holds, as
+      Game::HeldEditions answers them (default none);
     - signed_in: whether a player views it (default false): then the
-      copies row reads their copies, or "None";
+      copies row reads their copies, or "None", and, when they hold one,
+      the editions row reads one line per rarity, the best first, with its
+      seasons ("Rare : S1, S4"), the lines past the third folded;
     - set_url: ->(set) { path } leading each set to its grid, or nil for
       the sets' names alone; the sets of a season other than the published
       one (the one the library shows) are never linked;
     - share_url: the absolute link to this card-season's page, to share,
       or nil (the default) for no share or repost button and no share sheet
-      (cards/_share_sheet);
+      (cards/_share_sheet); the repost button shows only when this
+      card-season is among the editions held, the one a repost posts;
     - browse: what it browses (a CardsController::Browse: the position,
       the total, the neighbours' paths, the way back), or nil (the
       default) for no ◀ ▶ and no position line;
     - faded: true to show the viewer's card back, faded, in place of the
-      face, for a card they do not hold within a set (default false);
+      face, for a card of a game no edition of which they hold, within a
+      context (default false);
     - back_key: the viewer's active card back (Game::CardBacks). %>
 <% share_url = local_assigns.fetch(:share_url, nil) %>
 <% set_url = detail.current_season ? local_assigns.fetch(:set_url, nil) : nil %>
@@ -29,6 +36,8 @@
 <% faded = local_assigns.fetch(:faded, false) %>
 <% back_key = local_assigns.fetch(:back_key, Game::CardBacks::STANDARD) %>
 <% signed_in = local_assigns.fetch(:signed_in, false) %>
+<% editions = local_assigns.fetch(:editions, []) %>
+<% repostable = share_url && editions.any? { |_, season_number, _| season_number == detail.view.season_number } %>
 <% view = detail.view %>
 <% strings = CardStrings.new %>
 <% tier = Catalog::Rarity::TIERS.invert.fetch(view.rarity.to_sym) %>
@@ -131,6 +140,30 @@
               <dt><%= t("card_details.facts.copies") %></dt>
               <dd class="card-detail__copies"><%= copies ? t("card_details.copies", count: copies) : t("card_details.no_copies") %></dd>
             </div>
+            <% if editions.any? %>
+              <% lines = card_detail_edition_lines(editions, strings) %>
+              <% shown, folded = lines.first(3), lines.drop(3) %>
+              <div class="card-detail__fact">
+                <dt><%= t("card_details.facts.editions") %></dt>
+                <dd>
+                  <ul class="card-detail__editions">
+                    <% shown.each do |line| %>
+                      <li><%= line %></li>
+                    <% end %>
+                  </ul>
+                  <% if folded.any? %>
+                    <details class="card-detail__editions-fold">
+                      <summary class="card-detail__editions-more"><%= t("card_details.editions_more", count: folded.size) %></summary>
+                      <ul class="card-detail__editions">
+                        <% folded.each do |line| %>
+                          <li><%= line %></li>
+                        <% end %>
+                      </ul>
+                    </details>
+                  <% end %>
+                </dd>
+              </div>
+            <% end %>
           <% end %>
           <% if detail.steam_reviews %>
             <div class="card-detail__fact">
@@ -149,7 +182,9 @@
             <button type="button" class="button button--secondary card-detail__share-button" aria-haspopup="dialog"
               data-controller="dialog-opener" data-dialog-opener-dialog-value="share-sheet"
               data-action="dialog-opener#open share#copy"><%= t("card_details.share.button") %></button>
-            <%= render ButtonComponent.new(variant: :secondary, href: card_repost_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("reposts.button") %><% end %>
+            <% if repostable %>
+              <%= render ButtonComponent.new(variant: :secondary, href: card_repost_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("reposts.button") %><% end %>
+            <% end %>
           <% end %>
         </div>
       </div>

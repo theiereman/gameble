@@ -56,8 +56,9 @@ class Game::HeldGamesTest < ActiveSupport::TestCase
     editions = nil
     assert_queries_count(1) { editions = Game::HeldGames.editions(@player, card_ids: [ rare, portal, common ], season:) }
 
-    assert_equal({ rare => Game::HeldGames::Edition.new(card_season_id: rare_two, copies: 3, new: false),
-      portal => Game::HeldGames::Edition.new(card_season_id: catalog_card_seasons(:portal_one).id, copies: 4, new: false) }, editions)
+    assert_equal({ rare => Game::HeldGames::Edition.new(card_season_id: rare_two, copies: 3, new: false, editions: 2, gained_at: nil),
+      portal => Game::HeldGames::Edition.new(card_season_id: catalog_card_seasons(:portal_one).id, copies: 4, new: false, editions: 2, gained_at: nil) },
+      editions)
     assert_equal portal_two, Game::HeldGames.editions(@player, card_ids: [ portal ], season: @season_two).fetch(portal).card_season_id
   end
 
@@ -72,8 +73,9 @@ class Game::HeldGamesTest < ActiveSupport::TestCase
 
     editions = Game::HeldGames.editions(@player, card_ids: [ portal, rare ], season: catalog_seasons(:one))
 
-    assert_equal [ portal_two, 2, true ], editions.fetch(portal).to_h.values
-    assert_equal [ catalog_card_seasons(:rare_card_one).id, 1, false ], editions.fetch(rare).to_h.values
+    assert_equal [ portal_two, 2, true, 2 ], editions.fetch(portal).to_h.values_at(:card_season_id, :copies, :new, :editions)
+    assert_in_delta 1.minute.ago, editions.fetch(portal).gained_at, 5
+    assert_equal [ catalog_card_seasons(:rare_card_one).id, 1, false, 1 ], editions.fetch(rare).to_h.values_at(:card_season_id, :copies, :new, :editions)
   end
 
   test "a visitor or no card asked costs no query; another player's copies never count" do
@@ -86,5 +88,26 @@ class Game::HeldGamesTest < ActiveSupport::TestCase
       assert_equal({}, Game::HeldGames.editions(@player, card_ids: [], season:))
     end
     assert_equal({}, Game::HeldGames.editions(@player, card_ids: [ portal ], season:))
+  end
+
+  test "the games held, and how many at each best rarity, every tier a key, in one query each" do
+    hold(catalog_card_seasons(:rare_card_one).id, 2)
+    hold(edition(:rare_card_one, rarity: "epic"))
+    hold(catalog_card_seasons(:portal_one).id)
+    hold(catalog_card_seasons(:common_card_one).id, 3)
+    hold(catalog_card_seasons(:legendary_card_one).id, 0)
+    hold(catalog_card_seasons(:uncommon_card_one).id, player: accounts_players(:moderator))
+
+    assert_queries_count(1) { assert_equal 3, Game::HeldGames.count(@player) }
+    by_rarity = nil
+    assert_queries_count(1) { by_rarity = Game::HeldGames.by_rarity(@player) }
+    assert_equal({ 1 => 1, 2 => 0, 3 => 0, 4 => 2, 5 => 0 }, by_rarity)
+  end
+
+  test "a visitor holds no game, without a query" do
+    assert_queries_count(0) do
+      assert_equal 0, Game::HeldGames.count(nil)
+      assert_equal({ 1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0 }, Game::HeldGames.by_rarity(nil))
+    end
   end
 end

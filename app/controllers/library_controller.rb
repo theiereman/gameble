@@ -1,11 +1,12 @@
 # The collection: its entry, the viewer's sets in progress, to discover and
-# searched, under the top bar's unique cards; the grid of every card of the
-# published season, with its filters, its search and the RAPPORT; and one
-# set's album, the viewer's best edition of each of its games. A visitor,
-# or a banned player, owns nothing and sees every slot missing. Sets are
-# addressed by kind and key, cards by slug; no id reaches the page. A GET
-# writes nothing: a grid that showed new cards posts the latest gain it
-# showed to CollectionSeenController. Open to any browser (PublicRead).
+# searched, under the top bar's unique cards; the grid of every game of the
+# published season and every game the viewer holds, in any edition, with
+# its filters, its search and the RAPPORT; and one set's album, the
+# viewer's best edition of each of its games. A visitor, or a banned
+# player, owns nothing and sees every slot missing. Sets are addressed by
+# kind and key, cards by slug; no id reaches the page. A GET writes
+# nothing: a grid that showed new cards posts the latest gain it showed to
+# CollectionSeenController. Open to any browser (PublicRead).
 class LibraryController < ApplicationController
   include PublicRead
   include CollectionGridLoading
@@ -22,7 +23,7 @@ class LibraryController < ApplicationController
     load_set_board(@season, owner: current_player)
   end
 
-  # GET /:locale/library/cards: the grid of the whole season.
+  # GET /:locale/library/cards: the grid of every game.
   def cards
     authorize :page, :show?
     @season = Catalog::PublishedSeason.call
@@ -43,8 +44,8 @@ class LibraryController < ApplicationController
   end
 
   private
-    # @grid_pagy and @slots: [ [ Catalog::CardView, Game::CollectionSlots::Slot | nil ], … ]
-    # in grid order, nil for a card the viewer does not hold; @grid_context,
+    # @grid_pagy and @slots: [ [ Catalog::CardView, Game::HeldGames::Edition | nil ], … ]
+    # in grid order, nil for a game the viewer does not hold; @grid_context,
     # the filters and search each slot's link carries, so the card's
     # detail walks this grid (CollectionGridLoading#grid_context), with the
     # player's watermark when the grid shows new cards by filter: showing
@@ -60,10 +61,10 @@ class LibraryController < ApplicationController
       @states = @states_asked ? asked : [ Game::CollectionStates::DEFAULT ]
       @grid_context = grid_context(params, seen: (shown_watermark if @states.include?("new")))
       @grid_pagy, page = pagy(:offset, grid_cards(grid, @states), limit: GRID_SIZE, page: page_param)
-      ids = page.pluck(:id)
-      views = Catalog::CardViews.call(ids, locale: I18n.locale)
-      held = Game::CollectionSlots.call(current_player, ids)
-      @slots = ids.filter_map { |id| [ views[id], held[id] ] if views.key?(id) }
+      tiles = page.pluck(:id, :card_id)
+      views = Catalog::CardViews.call(tiles.map(&:first), locale: I18n.locale)
+      held = Game::HeldGames.editions(current_player, card_ids: tiles.map(&:last), season: @season)
+      @slots = tiles.filter_map { |id, card_id| [ views[id], held[card_id] ] if views.key?(id) }
       @seen_up_to = held.values.select(&:new).map(&:gained_at).max
     end
 
@@ -85,15 +86,18 @@ class LibraryController < ApplicationController
       Game::CollectionWatermark.call(current_player) || NOTHING_SEEN
     end
 
-    # The distinct cards held in the season (@unique) out of its cards
-    # (@season_cards), and the copies held per rarity tier (@tier_counts).
+    # The games held per best rarity (@games_by_rarity), the games held
+    # (@unique) out of the season's cards (@season_cards), and the copies
+    # held per rarity tier (@tier_counts), every edition counted.
     def load_summary
-      load_unique_cards
+      @games_by_rarity = Game::HeldGames.by_rarity(current_player)
+      @unique = @games_by_rarity.values.sum
+      @season_cards = Catalog::CardCount.call(@season)
       @tier_counts = Game::TierCounts.call(current_player)
     end
 
     def load_unique_cards
-      @unique = Game::CollectionSummary.distinct_cards(current_player, season: @season)
+      @unique = Game::HeldGames.count(current_player)
       @season_cards = Catalog::CardCount.call(@season)
     end
 end

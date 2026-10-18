@@ -100,7 +100,7 @@ module ShellHelper
     turbo_stream_from(*PlayerStream.streamables(current_player), channel: PlayerStreamChannel)
   end
 
-  # Copies held per rarity tier in the published season (Game::TierCounts),
+  # Copies held per rarity tier, every edition counted (Game::TierCounts),
   # for the rarity counter. Read once per request.
   def shell_tier_counts
     @shell_tier_counts ||= Game::TierCounts.call(current_player)

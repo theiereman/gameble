@@ -481,4 +481,18 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_request_queries(13) { get brother_path(locale: :en, token: @owner.token, q: "o") }
     assert_response :success
   end
+
+  test "the summary counts every edition: a game gone from the season, and a set completed through an earlier edition of a member" do
+    season = publish_sets_draft
+    pirates = set_members(season, "pirates")
+    earlier = Catalog::CardSeason.insert_all!([ { card_id: Catalog::CardSeason.find(pirates.first).card_id, season_id: catalog_seasons(:one).id,
+      prestige_score: 0.5, rating: 90, rarity: "rare", number: 900 } ], returning: :id).rows.flatten.sole
+    hold(@owner, earlier, 1)
+    pirates.drop(1).each { hold(@owner, it, 1) }
+    hold(@owner, catalog_card_seasons(:portal_one).id, 2)
+
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_equal [ "#{pirates.size + 1} cards collected", "1 set complete" ], counts
+  end
 end

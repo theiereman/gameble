@@ -195,15 +195,16 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select ".packs-chip [data-controller=countdown]", false
   end
 
-  test "no published season: the rarity counter shows zeros" do
+  test "a new season's publication leaves the rarity counter as it stood: every edition counts" do
     player = accounts_players(:player)
     hold(player, :common_card_one, 3)
-    catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
+    newer = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    newer.update!(status: :published, published_at: Time.current)
     sign_in(player)
 
-    get library_path(locale: :en)
+    get more_path(locale: :en)
 
-    assert_equal %w[0 0 0 0 0], css_select(".rarity-counter__count").map { it.text.strip }
+    assert_equal %w[3 0 0 0 0], css_select(".rarity-counter__count").map { it.text.strip }
   end
 
   test "staff find the back-office in the player menu" do

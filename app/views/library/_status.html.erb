@@ -3,11 +3,13 @@
     phone). Under 900px the label gives way to the value; the sentence read
     out keeps both. The bar is hidden from assistive technology. A visitor's
     (always 0) gives way on the phone to the Steam sign-in image.
-    - unique: the distinct cards held in the season;
+    - unique: the games held, in any edition, a game gone from the season
+      included, so the bar fills at most;
     - total: the season's cards. %>
 <div class="<%= class_names("collection-status", "collection-status--visitor": current_player.nil?) %>">
   <span class="collection-status__label" aria-hidden="true"><%= t("library.status.label") %></span>
   <span class="collection-status__value" aria-hidden="true"><%= number_with_delimiter(unique) %> / <%= number_with_delimiter(total) %></span>
   <span class="visually-hidden"><%= t("library.status.progress", count: unique, owned: number_with_delimiter(unique), total: number_with_delimiter(total)) %></span>
-  <progress class="collection-status__bar" value="<%= unique %>" max="<%= [ total, 1 ].max %>" aria-hidden="true"></progress>
+  <% bar_max = [ total, 1 ].max %>
+  <progress class="collection-status__bar" value="<%= [ unique, bar_max ].min %>" max="<%= bar_max %>" aria-hidden="true"></progress>
 </div>

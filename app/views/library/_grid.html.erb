@@ -1,7 +1,9 @@
-<%# The collection grid: one page of the grid's cards in order. An owned
-    card shows its medium face, its copies ("x3", from x1, in an accent box
-    at the top-right) and, when gained since the player last saw their
-    collection, "Nouveau" in a lime box at the top-left; a missing one is a
+<%# The collection grid: one page of the grid's cards in order, one per
+    game. An owned game shows the medium face of the edition it shows, its
+    copies across editions ("x3", from x1, in an accent box at the
+    top-right), under them the editions held when two or more ("2 éd.", in
+    the same box) and, when an edition was gained since the player last saw
+    their collection, "Nouveau" in a lime box at the top-left; a missing one is a
     hatched slot with a padlock, naming its game and year. Each leads to its
     card's detail: a face's link is named by the card's title, rarity and
     season, a missing slot's by its visible text and "Missing card"; each
@@ -11,7 +13,7 @@
     past the last page of a grid that has cards, the past-the-end line.
     - context: the grid's filters and search, as a detail's `grid`
       parameter carries them (CollectionGridLoading#grid_context);
-    - slots: [ [ Catalog::CardView, Game::CollectionSlots::Slot | nil ], … ];
+    - slots: [ [ Catalog::CardView, Game::HeldGames::Edition | nil ], … ];
     - pagy: the grid's page. %>
 <% strings = CardStrings.new %>
 <% if slots.empty? %>
@@ -24,6 +26,10 @@
           <%= link_to_card_detail(card, strings:, context: { grid: context }) do %><%= render CardComponent.new(card:, size: :m) %><% end %>
           <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(held.copies) %></span>
           <span class="visually-hidden"><%= t("library.grid.copies", count: held.copies, number: number_with_delimiter(held.copies)) %></span>
+          <% if held.editions > 1 %>
+            <span class="collection-slot__editions" aria-hidden="true"><%= t("library.grid.editions.short", count: held.editions) %></span>
+            <span class="visually-hidden"><%= t("library.grid.editions.full", count: held.editions) %></span>
+          <% end %>
           <% if held.new %>
             <span class="collection-slot__new"><%= t("library.grid.new") %></span>
           <% end %>

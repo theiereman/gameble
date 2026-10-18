@@ -86,4 +86,26 @@ class Game::CollectionStatesTest < ActiveSupport::TestCase
     assert_empty ids(%w[owned], player: accounts_players(:moderator))
     assert_equal 150, ids(%w[missing], player: accounts_players(:moderator)).size
   end
+
+  def reprint(card_season_id)
+    season = Catalog::Season.create!(status: :published, number: Catalog::Season.next_number, published_at: Time.current)
+    card = Catalog::CardSeason.find(card_season_id)
+    Catalog::CardSeason.insert_all!([ { card_id: card.card_id, season_id: season.id, prestige_score: 0.5, rating: 90, rarity: "common" } ],
+      returning: :id).rows.flatten.sole
+  end
+
+  test "a state reads the game across its editions: owned, duplicates and new through another edition, newest first by its latest gain" do
+    e = @cards.ids[4]
+    Game::Holding.create!(player_id: @player.id, card_season_id: reprint(e), quantity: 1, last_gained_at: 1.minute.ago)
+    Game::Holding.create!(player_id: @player.id, card_season_id: reprint(@a), quantity: 1, last_gained_at: 4.hours.ago)
+    Game::Holding.create!(player_id: @player.id, card_season_id: reprint(@d), quantity: 0, last_gained_at: 1.minute.ago)
+
+    assert_equal [ @a, @b, @c, e ], ids(%w[owned])
+    assert_equal [ @a, @b ], ids(%w[duplicates])
+    assert_equal [ @b, e ], ids(%w[new])
+    assert_not_includes ids(%w[missing]), e
+    assert_includes ids(%w[missing]), @d
+    assert_equal [ e, @b, @a, @c ], ids(%w[owned], newest_first: true)
+    assert_equal [ e ], Game::CollectionStates.call(@player, @cards, states: %w[new], seen_up_to: 30.minutes.ago).pluck(:id)
+  end
 end

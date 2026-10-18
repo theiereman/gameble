@@ -14,7 +14,7 @@ class FriendProfilesController < ApplicationController
     @trades_closed = :own_profile_private unless Game::Visibility.open_to_friends?(current_player)
     @open_trade_token = Game::OpenTradesByFriend.call(current_player)[@owner.id]
     season = Catalog::PublishedSeason.call
-    @distinct_cards = Game::CollectionSummary.distinct_cards(@owner, season:)
+    @distinct_cards = Game::HeldGames.count(@owner)
     ids = Game::ShowcaseCards.call(@owner, season:)
     views = Catalog::CardViews.call(ids, locale: I18n.locale)
     @showcase = ids.filter_map { |id| views[id] }

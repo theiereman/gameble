@@ -47,6 +47,13 @@ module CardDetailsHelper
       percent: number_to_percentage(reviews.positive_percent.floor, precision: 0))
   end
 
+  def card_detail_edition_lines(editions, strings)
+    editions.group_by(&:first).map do |rarity, held|
+      seasons = held.map { |_, season_number, _| t("card_details.season_short", number: season_number) }
+      t("card_details.editions_line", rarity: strings.rarity_name(rarity), seasons: seasons.join(", "))
+    end
+  end
+
   def card_detail_open_label(view, strings)
     t("card_details.open", title: view.title, year: view.year, rarity: strings.rarity_name(view.rarity), season: view.season_number)
   end

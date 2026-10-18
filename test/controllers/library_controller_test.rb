@@ -95,9 +95,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".set-row, .collection-sets, .collection-kind", false
     assert_select ".collection__aside > .report--panel"
 
-    copies = Hash.new(0)
-    Catalog::CardSeason.where(id: [ first, second, third ]).pluck(:id, :rarity).each { |id, rarity| copies[rarity] += { first => 1, second => 3, third => 1 }.fetch(id) }
-    tiers = Catalog::Rarity::TIERS.values.to_h { [ I18n.t("catalog.rarity.#{it}", locale: :en), copies[it.to_s].to_s ] }
+    games = Catalog::CardSeason.where(id: [ first, second, third ]).pluck(:rarity).tally
+    tiers = Catalog::Rarity::TIERS.values.to_h { [ I18n.t("catalog.rarity.#{it}", locale: :en), games.fetch(it.to_s, 0).to_s ] }
     assert_equal({ "Total cards" => "5", "Duplicates" => "2" }.merge(tiers), report)
     assert_select ".report--fold summary .report__line", "5 cards · 2 duplicates"
     assert_select ".report--fold .report__row dt", "Unique cards"
@@ -585,10 +584,10 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     hold(player, season_cards(season).first, 1, gained_at: 1.minute.ago)
     sign_in(player)
 
-    # Player lookup, published season; the grid: genres, count (the season's
-    # cards, read again from the query cache by the top bar; filtered by
-    # state it is its own query), page, card views, the player's slots; the
-    # figures: unique cards, copies per tier; the set group: the kinds the
+    # Player lookup, published season; the grid: genres, count of the
+    # player's tiles, page, card views, the player's editions of the games
+    # shown; the figures: the season's cards, games per rarity, copies per
+    # tier; the set group: the kinds the
     # season holds, the sets of the kind shown; the tab bar's trades
     # waiting. No set per card: the links carry the grid, which the detail
     # reads itself.
@@ -998,5 +997,142 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     ids.each do |id|
       assert_no_match(/\b#{id}\b/, html.gsub(/\d+\/\d+|\d+ (cards?|sets?) |out of \d+|at \d+|value="\d+"|max="\d+"|maxlength="\d+"/, ""))
     end
+  end
+
+  def earlier_edition(card_season_id, rarity:)
+    card_id = Catalog::CardSeason.find(card_season_id).card_id
+    Catalog::CardSeason.insert_all!([ { card_id:, season_id: catalog_seasons(:one).id, prestige_score: 0.5, rating: 90, rarity:, number: 900 } ],
+      returning: :id).rows.flatten.sole
+  end
+
+  def editions_badges = css_select(".collection-slot__editions").map(&:text)
+
+  def tile_hrefs = css_select(".collection-grid a.card-link").map { it["href"][%r{/seasons/\d+}] }
+
+  def two_editions(season, player)
+    epic = Catalog::CardSeason.where(season_id: season.id, rarity: "epic").order(:number, :id).first.id
+    rare = earlier_edition(epic, rarity: "rare")
+    hold(player, rare, 1, gained_at: 3.hours.ago)
+    hold(player, epic, 1, gained_at: 4.hours.ago)
+    Game::PlayerState.where(player_id: player.id).update_all(collection_seen_up_to: 2.hours.ago)
+    [ epic, rare ]
+  end
+
+  test "a game held in two editions is one tile at its best edition, its copies and editions across both, at the same queries" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    epic, = two_editions(season, player)
+    sign_in(player)
+
+    assert_request_queries(13) { get library_cards_path(locale: :en, state: %w[owned]) }
+
+    assert_equal [ [ :owned, title(epic), "x2", nil ] ], slots
+    assert_equal [ "/seasons/#{season.number}" ], tile_hrefs
+    assert_select ".collection-slot .card.card--rarity-epic"
+    assert_select ".collection-slot__editions[aria-hidden=true]", "2 ed."
+    assert_select ".collection-slot .visually-hidden", "2 editions"
+    assert_select ".collection-status__value", "1 / 150"
+    assert_equal({ "Total cards" => "2", "Duplicates" => "1", "Common" => "0", "Uncommon" => "0", "Rare" => "0", "Epic" => "1", "Legendary" => "0" },
+      report)
+    assert_select ".report--fold summary .report__line", "2 cards · 1 duplicate"
+    assert_select "[style]", 0
+
+    get library_cards_path(locale: :fr, state: %w[owned])
+    assert_equal [ "2 éd." ], editions_badges
+    assert_select ".collection-slot .visually-hidden", "2 éditions"
+  end
+
+  test "a game held in one edition shows no edition count" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    hold(player, season_cards(season).first, 2)
+    sign_in(player)
+
+    get library_cards_path(locale: :en, state: %w[owned])
+    assert_equal [ "x2" ], slots.map(&:third)
+    assert_empty editions_badges
+  end
+
+  test "the filters read the game across its editions: its best rarity, duplicates over both, new through either" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    epic, rare = two_editions(season, player)
+    Game::Holding.where(player_id: player.id, card_season_id: rare).update_all(last_gained_at: 1.minute.ago)
+    sign_in(player)
+
+    get library_cards_path(locale: :en, state: %w[owned], rarity: %w[rare])
+    assert_empty slots
+    get library_cards_path(locale: :en, state: %w[owned], rarity: %w[epic])
+    assert_equal [ title(epic) ], slots.map(&:second)
+
+    get library_cards_path(locale: :en, state: %w[duplicates])
+    assert_equal [ title(epic) ], slots.map(&:second)
+
+    get library_cards_path(locale: :en, state: %w[new])
+    assert_equal [ [ :owned, title(epic), "x2", "New" ] ], slots
+    seen = Game::Holding.find_by!(player_id: player.id, card_season_id: rare).last_gained_at
+    assert_equal seen.utc.iso8601(6), css_select("[data-controller=collection-seen]").sole["data-collection-seen-up-to-value"]
+
+    get library_cards_path(locale: :en, state: %w[missing])
+    assert_not_includes slots.map(&:second), title(epic)
+  end
+
+  test "a game held twice at one rarity shows the published season's edition" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    card = Catalog::CardSeason.where(season_id: season.id, rarity: "rare").order(:number, :id).first.id
+    hold(player, earlier_edition(card, rarity: "rare"), 1)
+    hold(player, card, 1)
+    sign_in(player)
+
+    get library_cards_path(locale: :en, state: %w[owned])
+    assert_equal [ "/seasons/#{season.number}" ], tile_hrefs
+  end
+
+  test "publishing a season keeps every owned tile, the unique cards and the RAPPORT; a game gone from the catalog keeps its tile" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    held = season_cards(season).first(30)
+    held.each { hold(player, it, 1) }
+    sign_in(player)
+    get library_cards_path(locale: :en)
+    before = report
+
+    newer = publish_sets_draft
+    get library_cards_path(locale: :en)
+
+    assert_equal held.map { title(it) }.sort, slots.first(30).map(&:second).sort
+    assert_equal [ :owned ] * 30, slots.first(30).map(&:first)
+    assert_equal [ :missing ] * 30, slots.drop(30).map(&:first)
+    assert_equal [ "/seasons/#{season.number}" ] * 30, tile_hrefs.first(30)
+    assert_equal [ "/seasons/#{newer.number}" ] * 30, tile_hrefs.drop(30)
+    assert_select ".collection-status__value", "30 / 150"
+    assert_select "progress.collection-status__bar[value='30'][max='150']"
+    assert_equal before, report
+
+    get library_cards_path(locale: :en, state: %w[owned])
+    assert_equal 30, slots.size
+    assert_select "turbo-frame#collection-results > p[role=status]", "30 cards shown."
+  end
+
+  test "more games held than the season's cards fill the bar at most" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    season_cards(season).each { hold(player, it, 1) }
+    hold(player, catalog_card_seasons(:portal_one).id, 1)
+    sign_in(player)
+
+    get library_path(locale: :en)
+    assert_select ".collection-status__value", "151 / 150"
+    assert_select "progress.collection-status__bar[value='150'][max='150']"
+  end
+
+  test "a visitor sees the published season's tiles, with no edition count" do
+    season = publish_sets_draft
+    two_editions(season, accounts_players(:player))
+
+    get library_cards_path(locale: :en)
+    assert_equal season_cards(season).first(60).map { [ :missing, title(it), year(it) ] }, slots
+    assert_empty editions_badges
   end
 end

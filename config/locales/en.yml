@@ -682,6 +682,13 @@ en:
       copies:
         one: "%{number} copy"
         other: "%{number} copies"
+      editions:
+        short:
+          one: "%{count} ed."
+          other: "%{count} ed."
+        full:
+          one: "%{count} edition"
+          other: "%{count} editions"
       pages:
         label: "Pages of cards"
         page: "Page"
@@ -1292,8 +1299,14 @@ en:
       season: "Season"
       sets: "Sets"
       copies: "Copies"
+      editions: "Editions"
       steam_reviews: "Steam reviews"
     season_number: "Season %{number}"
+    season_short: "S%{number}"
+    editions_line: "%{rarity}: %{seasons}"
+    editions_more:
+      one: "%{count} more rarity"
+      other: "%{count} more rarities"
     steam_reviews:
       one: "%{percent} positive · %{reviews} review"
       other: "%{percent} positive · %{reviews} reviews"

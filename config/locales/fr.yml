@@ -718,6 +718,15 @@ fr:
         zero: "%{number} exemplaire"
         one: "%{number} exemplaire"
         other: "%{number} exemplaires"
+      editions:
+        short:
+          zero: "%{count} éd."
+          one: "%{count} éd."
+          other: "%{count} éd."
+        full:
+          zero: "%{count} édition"
+          one: "%{count} édition"
+          other: "%{count} éditions"
       pages:
         label: "Pages de cartes"
         page: "Page"
@@ -1338,8 +1347,15 @@ fr:
       season: "Saison"
       sets: "Sets"
       copies: "Exemplaires"
+      editions: "Éditions"
       steam_reviews: "Avis Steam"
     season_number: "Saison %{number}"
+    season_short: "S%{number}"
+    editions_line: "%{rarity} : %{seasons}"
+    editions_more:
+      zero: "%{count} autre rareté"
+      one: "%{count} autre rareté"
+      other: "%{count} autres raretés"
     steam_reviews:
       zero: "%{percent} positifs · %{reviews} avis"
       one: "%{percent} positifs · %{reviews} avis"

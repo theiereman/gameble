@@ -1,11 +1,11 @@
 # A card's detail page (CAP-7, story 4.3; DESIGN.md, Card detail "FICHE DE
 # LA CARTE"; epic 10 R2, R6): the large face and what only the detail
-# tells, its sets and the viewer's copies, in the viewer's language; open
-# to a visitor (CAP-18). The card is addressed by its slug, and by its
-# season's number for a card-season other than the published season's;
-# Catalog answers the card, its sets, its place in one of them and
-# the collection grid, Game the copies, the opened pack, the grid's states
-# and the viewer's card back.
+# tells, its sets and the viewer's copies and editions of its game, in the
+# viewer's language; open to a visitor (CAP-18). The card is addressed by
+# its slug, and by its season's number for a card-season other than the
+# published season's; Catalog answers the card, its sets, its place in one
+# of them and the collection grid, Game the copies and editions, the
+# opened pack, the grid's states and the viewer's card back.
 #
 # The page browses one context, ◀ ▶ stepping through it and the phone's
 # way back leading to it: the first one the query names that holds the
@@ -22,16 +22,17 @@
 #
 # A pack of another player, not opened or not holding the card, a grid or a
 # set that does not hold it, is ignored. Within a context the query names,
-# a card the viewer does not hold shows their active card back, faded; the
-# card's own page, without one (a share link, the showcase), shows the face
-# to everyone. A viewer who holds the card can share it: the link is this
-# card-season's own page, which carries the preview tags; it shows only the
-# card, never who shared or holds it. A visitor who opens that page,
-# without a context in the query, gets the public card page: the card, its
-# facts, the invitation to play and the LIVE strip of the latest public
-# feed entries, with no app chrome. A signed-in viewer,
-# or a visitor browsing a context, gets the detail panel. Read from shared
-# links, it is open to any browser and link-preview crawler (PublicRead).
+# a card of a game no edition of which the viewer holds shows their active
+# card back, faded; the card's own page, without one (a share link, the
+# showcase), shows the face to everyone. A viewer who holds any edition of
+# its game can share it: the link is this card-season's own page, which
+# carries the preview tags; it shows only the card, never who shared or
+# holds it. A visitor who opens that page, without a context in the query,
+# gets the public card page: the card, its facts, the invitation to play
+# and the LIVE strip of the latest public feed entries, with no app chrome.
+# A signed-in viewer, or a visitor browsing a context, gets the detail
+# panel. Read from shared links, it is open to any browser and link-preview
+# crawler (PublicRead).
 class CardsController < ApplicationController
   include PublicRead
   include CardDetailLoading
@@ -52,8 +53,8 @@ class CardsController < ApplicationController
   def show
     authorize :page, :show?
     load_card_detail
-    id = @detail.card_season_id
-    @copies = Game::Quantities.call(current_player, [ id ]).fetch(id, nil)
+    @editions = Game::HeldEditions.call(current_player, card_id: @detail.card_id)
+    @copies = @editions.sum(&:last).nonzero?
     @share_url = share_url if @copies && current_player
     named = pack_browse || grid_browse || named_set_browse
     @public = current_player.nil? && named.nil?
@@ -92,12 +93,11 @@ class CardsController < ApplicationController
       ids.index(@detail.card_season_id)
     end
 
-    # The collection grid the query's `grid` names, as it was shown, when it
-    # holds the card; only for a card of the published season, the one the
-    # library shows.
+    # The collection grid the query's `grid` names, as it was shown, when
+    # one of its tiles is this card-season.
     def grid_browse
       source = params[:grid]
-      return unless source.is_a?(ActionController::Parameters) && @detail.current_season
+      return unless source.is_a?(ActionController::Parameters)
 
       grid = collection_grid(Catalog::PublishedSeason.call, source)
       seen = grid_seen(source)

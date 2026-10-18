@@ -321,6 +321,31 @@
   list-style: none;
 }
 
+.card-detail__editions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card-detail__editions-fold > .card-detail__editions {
+  margin-top: var(--space-1);
+}
+
+.card-detail__editions-more {
+  margin-top: var(--space-1);
+  color: var(--color-accent);
+  cursor: pointer;
+  list-style: none;
+}
+
+.card-detail__editions-more::-webkit-details-marker {
+  display: none;
+}
+
 /* The share sheet, "PARTAGER LA CARTE" (DESIGN.md, Share sheet): a
    modal opened by "Partager" (a holder's), the card's thumbnail with its
    title and rarity line, the link in a read-only field beside "Copier" (to

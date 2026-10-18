@@ -18,11 +18,11 @@ module Catalog
   #   Catalog::CardDetail.call(slug: "portal", locale: "fr")
   #   # => Detail(view: CardView(…), short_description: "…", sets: [ SetRef(…) ], current_season: true, …) | nil
   #
-  # `card_season_id` is for the server's own joins (the viewer's copies); it
-  # never reaches a page. `current_season` is true when the card-season is
+  # `card_season_id` and `card_id` are for the server's own joins (the
+  # viewer's copies and editions); they never reach a page. `current_season` is true when the card-season is
   # the published season's.
   module CardDetail
-    Detail = Data.define(:view, :short_description, :publisher, :store_url, :steam_reviews, :sets, :card_season_id, :current_season)
+    Detail = Data.define(:view, :short_description, :publisher, :store_url, :steam_reviews, :sets, :card_season_id, :card_id, :current_season)
 
     SteamReviews = Data.define(:count, :positive_percent)
 
@@ -33,7 +33,7 @@ module Catalog
       "catalog_cards.publisher", "catalog_cards.store_url", "catalog_cards.release_date",
       "catalog_seasons.number", "catalog_card_seasons.rarity", "catalog_cards.image_url",
       "catalog_seasons.number = #{LATEST}", "catalog_card_seasons.number", CardViews::GENRE,
-      "catalog_card_seasons.review_count", "catalog_card_seasons.rating"
+      "catalog_card_seasons.review_count", "catalog_card_seasons.rating", "catalog_card_seasons.card_id"
     ].freeze
 
     KIND_ORDER = Arel.sql("CASE catalog_sets.kind WHEN 'theme' THEN 0 WHEN 'franchise' THEN 1 WHEN 'studio' THEN 2 " \
@@ -44,12 +44,12 @@ module Catalog
       return if row.nil?
 
       id, slug, title, description, publisher, store_url, release_date, season_number, rarity, image_url, current,
-        number, genre, review_count, rating = row
+        number, genre, review_count, rating, card_id = row
       view = CardView.new(id: slug, title:, publisher:, year: release_date.year, season_number:,
         rarity:, image_url:, number:, genre:)
       steam_reviews = review_count && SteamReviews.new(count: review_count, positive_percent: rating)
       Detail.new(view:, short_description: description.presence, publisher:, store_url:, steam_reviews:,
-        sets: sets(id, main_theme: genre), card_season_id: id, current_season: current)
+        sets: sets(id, main_theme: genre), card_season_id: id, card_id:, current_season: current)
     end
 
     def self.card_season(slug, locale, season_number)

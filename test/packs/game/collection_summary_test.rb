@@ -1,8 +1,8 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Game::CollectionSummary: a player's distinct cards and complete
-# sets in a season.
+# Game::CollectionSummary: a player's games, in any edition, and the
+# season's sets they complete.
 class Game::CollectionSummaryTest < ActiveSupport::TestCase
   include CatalogSeeds
 
@@ -38,10 +38,21 @@ class Game::CollectionSummaryTest < ActiveSupport::TestCase
     assert_equal Game::CollectionSummary::Summary.new(distinct_cards: 9, complete_sets: complete), result
   end
 
-  test "a card of another season is not counted" do
+  test "a game held only in another season's edition counts" do
     hold(@player, catalog_card_seasons(:portal_one).id, 1)
 
-    assert_equal Game::CollectionSummary::Summary.new(distinct_cards: 0, complete_sets: 0), summary
+    assert_equal Game::CollectionSummary::Summary.new(distinct_cards: 1, complete_sets: 0), summary
+  end
+
+  test "a set completes with a member's game held in another edition only" do
+    pirates = members("pirates")
+    reprint = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    old = Catalog::CardSeason.find(pirates.first)
+    other = Catalog::CardSeason.create!(card_id: old.card_id, season: reprint, prestige_score: 0.5, rating: 90, rarity: :rare)
+    hold(@player, other.id, 1)
+    pirates.drop(1).each { hold(@player, it, 1) }
+
+    assert_equal Game::CollectionSummary::Summary.new(distinct_cards: pirates.size, complete_sets: 1), summary
   end
 
   test "a set without members is never complete" do
@@ -67,26 +78,5 @@ class Game::CollectionSummaryTest < ActiveSupport::TestCase
     result = nil
     assert_queries_count(2) { result = Game::CollectionSummary.call(@player) }
     assert_equal 1, result.distinct_cards
-  end
-
-  test "the distinct cards alone, in one query that never reads the sets; 0 without a query for a visitor or no season" do
-    hold(@player, members("pirates").first, 2)
-    hold(@player, members("pirates").second, 0)
-    hold(@player, catalog_card_seasons(:portal_one).id, 1)
-    hold(accounts_players(:moderator), members("pirates").last, 1)
-
-    queries = []
-    callback = ->(*, payload) { queries << payload[:sql] }
-    result = ActiveSupport::Notifications.subscribed(callback, "sql.active_record") do
-      Game::CollectionSummary.distinct_cards(@player, season: @season)
-    end
-    assert_equal 1, result
-    assert_equal 1, queries.size
-    assert_no_match(/catalog_set_memberships/, queries.sole)
-
-    assert_queries_count(0) do
-      assert_equal 0, Game::CollectionSummary.distinct_cards(nil, season: @season)
-      assert_equal 0, Game::CollectionSummary.distinct_cards(@player, season: nil)
-    end
   end
 end

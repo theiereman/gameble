@@ -621,6 +621,26 @@
   pointer-events: none;
 }
 
+.collection-slot__editions {
+  position: absolute;
+  top: calc(var(--slot-bleed) - 3 * var(--space-1) + 20px + 2 * var(--space-unit));
+  right: calc(var(--slot-bleed) - 3 * var(--space-1));
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 20px;
+  padding: 0 var(--space-2);
+  background: var(--color-accent);
+  box-shadow: 0 0 0 var(--space-unit) var(--color-outline);
+  color: var(--color-on-accent);
+  font: var(--font-label);
+  letter-spacing: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 /* "Nouveau": a small lime box at the card's top-left. */
 .collection-slot__new {
   position: absolute;

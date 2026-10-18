@@ -282,6 +282,17 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/en/booster'] .menu-item__badge"
   end
 
+  test "the collection's meta counts the games held in any edition, out of the published season's cards" do
+    player = accounts_players(:player)
+    Game::Holding.create!(player_id: player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
+    publish_sets_draft
+    sign_in(player)
+
+    get home_path(locale: :en)
+
+    assert_select ".hub-menu a.menu-item[href='/en/library'] .menu-item__meta", "1/150"
+  end
+
   test "a visitor's hub: the menu opens the sign-in panel, an invitation replaces the showcase, no daily panel" do
     get home_path(locale: :en)
 
