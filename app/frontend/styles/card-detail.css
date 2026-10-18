@@ -446,7 +446,7 @@
 }
 
 /* iOS Safari retargets a card's long-press menu to its link. */
-.card-link:has(.card[data-tilting-touch]) {
+.card-link:has(> .card) {
   -webkit-touch-callout: none;
 }
 

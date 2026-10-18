@@ -44,7 +44,7 @@ context:
 ## Code Map
 
 - `app/frontend/lib/tilt.ts` -- `attachTilt` tracks the active touch driver and currently handles `contextmenu` on the card element.
-- `app/frontend/lib/tilt.test.ts` -- existing fake-pointer tests cover touch suppression, mouse pass-through, CSS scoping and listener teardown; add a parent-link event target case.
+- `app/frontend/lib/tilt.test.ts` -- fake-pointer tests cover touch suppression, mouse pass-through, card-link CSS scope and listener teardown.
 - `app/components/card_component.html.erb` -- attaches the `tilt` controller to the shared `.card` face.
 - `app/helpers/card_details_helper.rb` -- `link_to_card_detail` wraps card faces in `.card-link`.
 - `app/views/library/_grid.html.erb` and `app/frontend/styles/collection.css` -- collection cards use that wrapper inside `.collection-slot`.
@@ -53,9 +53,9 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `app/frontend/lib/tilt.ts` -- receive the active touch context-menu event from the containing card link and clean up the listener -- the collection link menu cannot cancel the tilt.
-- [ ] `app/frontend/lib/tilt.test.ts` -- cover contextmenu dispatched at the containing link, desktop right-click pass-through, quick-tap state and listener teardown -- retain existing interaction boundaries.
-- [ ] `app/frontend/styles/card.css` -- adjust scoped touch-callout handling only if the link wrapper requires it -- keep page text selectable.
+- [ ] `app/frontend/lib/tilt.ts` -- keep the touch-only context-menu guard on the card and remove the redundant link listener.
+- [ ] `app/frontend/lib/tilt.test.ts` -- remove the synthetic link-target case and assert the card-link callout selector alongside existing touch, mouse and teardown coverage.
+- [ ] `app/frontend/styles/card-detail.css` -- disable the iOS touch callout on links that directly wrap a card, early enough for WebKit.
 
 **Acceptance Criteria:**
 - Given an iPhone Safari long press on a collection card, when tilt begins, then no text is selected or link menu opened and tilt continues.
@@ -65,7 +65,7 @@ context:
 
 ## Implementation Notes
 
-Implementation handoff: add regression coverage, but do not run tests, commit, or push. Leave test verification to CI.
+Implementation handoff: update the existing regression coverage, but do not run tests, commit, or push. Leave test verification to CI.
 
 ## Plan Change Log
 
@@ -73,7 +73,7 @@ Implementation handoff: add regression coverage, but do not run tests, commit, o
 
 ## Design Notes
 
-The shared card is inside a `.card-link` anchor in the collection grid. Existing tests dispatch `contextmenu` directly on the card, which does not cover an event whose target is the enclosing link. Keep event suppression connected to the active touch driver so the same listener remains safe for desktop right-click.
+The shared card is inside a `.card-link` anchor in the collection grid. A touch `contextmenu` targets the card content and bubbles through the card; the additional listener on the enclosing link was redundant. Since WebKit can decide to show its callout at touch start, suppress it on card links from the start. This also removes the native link callout for those links when no tilt is active, including reduced-motion mode.
 
 ## Verification
 
@@ -82,5 +82,6 @@ The shared card is inside a `.card-link` anchor in the collection grid. Existing
 - `bin/rails test` -- expected: Rails suite runs in CI; do not run locally.
 - `git diff --check` -- expected: no whitespace errors.
 
-**Manual checks (if no CLI):**
-- On iPhone Safari, long-press and tilt a collection card, tap it quickly, and right-click it on desktop. Confirm the page's other text remains selectable.
+**Manual checks:**
+- On iPhone Safari, confirm a long press on a collection card keeps tilting without selecting text or opening the link callout. The permanent card-link callout suppression still needs confirmation on a physical iPhone.
+- Confirm a quick tap still opens the card detail, desktop right-click remains available, and ordinary page text remains selectable.

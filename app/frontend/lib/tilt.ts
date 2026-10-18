@@ -277,7 +277,6 @@ export function attachTilt(
     box = null
   }
 
-  const cardLink = element.closest?.("a") ?? null
   const view = element.ownerDocument?.defaultView
   view?.addEventListener("scroll", onScroll, { capture: true, passive: true })
   element.addEventListener("pointerdown", onPointerDown)
@@ -288,7 +287,6 @@ export function attachTilt(
   element.addEventListener("touchmove", onTouchMove, { passive: false })
   element.addEventListener("click", onClick, { capture: true })
   element.addEventListener("contextmenu", onContextMenu)
-  if (cardLink !== null && cardLink !== element) cardLink.addEventListener("contextmenu", onContextMenu)
 
   return () => {
     view?.removeEventListener("scroll", onScroll, { capture: true })
@@ -300,7 +298,6 @@ export function attachTilt(
     element.removeEventListener("touchmove", onTouchMove)
     element.removeEventListener("click", onClick, { capture: true })
     element.removeEventListener("contextmenu", onContextMenu)
-    if (cardLink !== null && cardLink !== element) cardLink.removeEventListener("contextmenu", onContextMenu)
     cancelHold()
     if (frame !== null) cancelAnimationFrame(frame)
     frame = null
