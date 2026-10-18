@@ -384,12 +384,12 @@ describe("attachTilt", () => {
     expect(cardStylesheet.match(/^\s*-webkit-touch-callout: none;/gm)).toHaveLength(1)
   })
 
-  it("disables the touch callout on links while their card tilts", () => {
-    expect(detailStylesheet).toContain(".card-link:has(> .card[data-tilting])")
+  it("disables the touch callout on links that wrap a card", () => {
+    expect(detailStylesheet).toContain(".card-link:has(> .card)")
     const blocks = detailStylesheet.match(/\.card-link[^{]*\{[^}]*\}/g) ?? []
     const calloutBlocks = blocks.filter((block) => block.includes("-webkit-touch-callout"))
     expect(calloutBlocks.length).toBeGreaterThan(0)
-    for (const block of calloutBlocks) expect(block).toContain(":has(> .card[data-tilting])")
+    for (const block of calloutBlocks) expect(block).toContain(":has(> .card)")
   })
 
   it("undoes everything when detached, listeners included", () => {

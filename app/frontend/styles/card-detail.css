@@ -445,8 +445,8 @@
   vertical-align: top;
 }
 
-/* iOS Safari retargets a tilted card's long-press menu to its link. */
-.card-link:has(> .card[data-tilting]) {
+/* iOS Safari decides a card's long-press menu at touch start. */
+.card-link:has(> .card) {
   -webkit-touch-callout: none;
 }
 
