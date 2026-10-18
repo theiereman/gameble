@@ -45,9 +45,11 @@ describe("the shared card rarity effects", () => {
       expect(ruleBody(cardRarityEffectsStylesheet, selector)).toContain("overflow-x: clip")
     }
     for (const selector of [".card-detail__stage", ".public-card__stage"]) {
-      expect(ruleBody(cardDetailStylesheet, selector)).toContain("min-width: min(340px, 100%)")
+      expect(ruleBody(cardDetailStylesheet, selector)).toContain("min-width: min(480px, 100%)")
     }
     expect(ruleBody(hubStylesheet, ".hub-showcase__stage")).toContain("align-self: stretch")
+    expect(cardDetailStylesheet).toContain("@container (min-width: 760px)")
+    expect(ruleBody(cardDetailStylesheet, ".card-detail")).toContain("max-width: 820px")
     expect(ruleBody(cardDetailStylesheet, ".card-detail__nav")).toContain("z-index: 1")
   })
 
