@@ -60,6 +60,11 @@
   overflow-x: clip;
 }
 
+.card-detail__stage .card-rays,
+.public-card__stage .card-rays {
+  mask-image: radial-gradient(circle 170px, #000 40%, transparent 100%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html:not([data-motion="full"]) .card-rays {
     animation: none;
