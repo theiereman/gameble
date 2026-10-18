@@ -1,11 +1,22 @@
 import { describe, expect, it } from "vitest"
 import boosterLayoutsStylesheet from "../styles/booster-layouts.css?raw"
 import boosterStylesheet from "../styles/booster.css?raw"
+import cardDetailStylesheet from "../styles/card-detail.css?raw"
 import cardRarityEffectsStylesheet from "../styles/card-rarity-effects.css?raw"
+import hubStylesheet from "../styles/hub.css?raw"
 
 const rule = (stylesheet: string, selector: string) => {
   const at = stylesheet.indexOf(`${selector} {`)
   return at < 0 ? undefined : stylesheet.slice(at, stylesheet.indexOf("}", at))
+}
+
+const ruleBody = (stylesheet: string, selector: string) => {
+  const at = stylesheet.indexOf(selector)
+  if (at < 0) return undefined
+  const open = stylesheet.indexOf("{", at)
+  if (open < 0) return undefined
+  const close = stylesheet.indexOf("}", open)
+  return close < 0 ? undefined : stylesheet.slice(open + 1, close)
 }
 
 describe("the shared card rarity effects", () => {
@@ -29,16 +40,15 @@ describe("the shared card rarity effects", () => {
     expect(rule(boosterLayoutsStylesheet, '.booster-zoom[data-tier="legendary"] .booster-zoom__rays')).toContain("var(--color-rarity-legendaire)")
   })
 
-  it("clips rays at wide outer boundaries, leaving ray margin visible", () => {
+  it("clips rays horizontally at wide outer boundaries, leaving ray margin visible", () => {
     for (const selector of [".card-detail__stage", ".public-card__stage", ".hub-showcase__stage"]) {
-      const at = cardRarityEffectsStylesheet.indexOf(selector)
-      expect(at).toBeGreaterThan(-1)
-      expect(cardRarityEffectsStylesheet.slice(at, at + 220)).toContain("overflow: clip")
+      expect(ruleBody(cardRarityEffectsStylesheet, selector)).toContain("overflow-x: clip")
     }
     for (const selector of [".card-detail__stage", ".public-card__stage"]) {
-      const at = cardRarityEffectsStylesheet.indexOf(selector)
-      expect(cardRarityEffectsStylesheet.slice(at, at + 220)).toContain("min-width: min(340px, 100%)")
+      expect(ruleBody(cardDetailStylesheet, selector)).toContain("min-width: min(340px, 100%)")
     }
+    expect(ruleBody(hubStylesheet, ".hub-showcase__stage")).toContain("align-self: stretch")
+    expect(ruleBody(cardDetailStylesheet, ".card-detail__nav")).toContain("z-index: 1")
   })
 
   it("stops every loop under reduced motion but keeps card rays visible", () => {

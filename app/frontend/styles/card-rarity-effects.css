@@ -55,14 +55,9 @@
 }
 
 .card-detail__stage,
-.public-card__stage {
-  min-width: min(340px, 100%);
-  overflow: clip;
-}
-
+.public-card__stage,
 .hub-showcase__stage {
-  align-self: stretch;
-  overflow: clip;
+  overflow-x: clip;
 }
 
 @media (prefers-reduced-motion: reduce) {

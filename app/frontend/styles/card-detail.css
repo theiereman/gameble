@@ -88,6 +88,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: min(340px, 100%);
   gap: var(--space-2);
   /* A horizontal swipe steps (sub_view_controller.ts); a vertical drag
      scrolls the page. */
@@ -115,6 +116,8 @@
    card stands). */
 .card-detail__nav {
   display: inline-flex;
+  position: relative;
+  z-index: 1;
   flex: none;
   align-items: center;
   justify-content: center;
@@ -634,6 +637,7 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-width: min(340px, 100%);
   gap: var(--space-7);
   /* The card tilts under the pointer; a vertical drag scrolls the page. */
   touch-action: pan-y;

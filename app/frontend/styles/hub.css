@@ -231,6 +231,7 @@ button.menu-item:focus-visible:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
+  align-self: stretch;
   gap: var(--space-6);
   padding-top: var(--space-3);
 }
