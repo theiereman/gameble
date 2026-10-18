@@ -53,9 +53,9 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `app/frontend/lib/tilt.ts` -- keep the touch-only context-menu guard on the card and remove the redundant link listener.
-- [ ] `app/frontend/lib/tilt.test.ts` -- remove the synthetic link-target case and assert the card-link callout selector alongside existing touch, mouse and teardown coverage.
-- [ ] `app/frontend/styles/card-detail.css` -- disable the iOS touch callout on links that directly wrap a card, before WebKit decides to show it.
+- [x] `app/frontend/lib/tilt.ts` -- keep the touch-only context-menu guard on the card and remove the redundant link listener.
+- [x] `app/frontend/lib/tilt.test.ts` -- remove the synthetic link-target case and assert the card-link callout selector alongside existing touch, mouse and teardown coverage.
+- [x] `app/frontend/styles/card-detail.css` -- disable the iOS touch callout on links that directly wrap a card, before WebKit decides to show it.
 
 **Acceptance Criteria:**
 - Given an iPhone Safari long press on a collection card, when tilt begins, then no text is selected or link menu opened and tilt continues.
@@ -65,7 +65,7 @@ context:
 
 ## Implementation Notes
 
-Implementation handoff: update the existing regression coverage, but do not run tests, commit, or push. Leave test verification to CI.
+Implementation handoff: update the existing regression coverage and leave test verification to CI.
 
 ## Plan Change Log
 
@@ -80,7 +80,7 @@ The shared card is inside a `.card-link` anchor in the collection grid. A touch 
 ## Verification
 
 **Commands:**
-- `npm run test:js` -- expected: Vitest passes, including the collection-link event case.
+- `npm run test:js` -- expected: Vitest passes, including touch-menu handling and card-link CSS scope.
 - `bin/rails test` -- expected: Rails suite runs in CI; do not run locally.
 - `git diff --check` -- expected: no whitespace errors.
 
