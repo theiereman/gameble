@@ -55,7 +55,7 @@ context:
 **Execution:**
 - [ ] `app/frontend/lib/tilt.ts` -- keep the touch-only context-menu guard on the card and remove the redundant link listener.
 - [ ] `app/frontend/lib/tilt.test.ts` -- remove the synthetic link-target case and assert the card-link callout selector alongside existing touch, mouse and teardown coverage.
-- [ ] `app/frontend/styles/card-detail.css` -- disable the iOS touch callout on links that directly wrap a card, early enough for WebKit.
+- [ ] `app/frontend/styles/card-detail.css` -- disable the iOS touch callout on a card link while its card is tilting.
 
 **Acceptance Criteria:**
 - Given an iPhone Safari long press on a collection card, when tilt begins, then no text is selected or link menu opened and tilt continues.
@@ -73,7 +73,7 @@ Implementation handoff: update the existing regression coverage, but do not run 
 
 ## Design Notes
 
-The shared card is inside a `.card-link` anchor in the collection grid. A touch `contextmenu` targets the card content and bubbles through the card; the additional listener on the enclosing link was redundant. Since WebKit can decide to show its callout at touch start, suppress it on card links from the start. This also removes the native link callout for those links when no tilt is active, including reduced-motion mode.
+The shared card is inside a `.card-link` anchor in the collection grid. A touch `contextmenu` targets the card content and bubbles through the card; the additional listener on the enclosing link was redundant. Scope the iOS callout suppression to the card's existing `data-tilting` state so it only applies while a tilt is active. Verify the timing on physical iPhone Safari because WebKit may decide to show the callout before tilt starts.
 
 ## Verification
 
@@ -83,5 +83,5 @@ The shared card is inside a `.card-link` anchor in the collection grid. A touch 
 - `git diff --check` -- expected: no whitespace errors.
 
 **Manual checks:**
-- On iPhone Safari, confirm a long press on a collection card keeps tilting without selecting text or opening the link callout. The permanent card-link callout suppression still needs confirmation on a physical iPhone.
+- On iPhone Safari, confirm a long press on a collection card keeps tilting without selecting text or opening the link callout; the callout suppression starts when the tilt does. This timing still needs confirmation on a physical iPhone.
 - Confirm a quick tap still opens the card detail, desktop right-click remains available, and ordinary page text remains selectable.

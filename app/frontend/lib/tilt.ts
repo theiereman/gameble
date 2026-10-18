@@ -9,7 +9,6 @@
 //   --reflection-hue       the iridescence's offset, in % (background-position-x)
 // and marks the face:
 //   data-tilting           while a pointer drives it
-//   data-tilting-touch     while a finger drives it
 //   data-tilt="moving"     while it eases
 //   data-tilt="held"       once settled on a target other than rest
 // The reflection follows the displayed, eased tilt, never the pointer, so it
@@ -150,7 +149,6 @@ export function attachTilt(
     for (const property of TILT_PROPERTIES) element.style.removeProperty(property)
     delete element.dataset.tilt
     delete element.dataset.tilting
-    delete element.dataset.tiltingTouch
     onTilt?.(0, 0)
   }
 
@@ -200,14 +198,12 @@ export function attachTilt(
   const drive = (id: number, touch: boolean) => {
     driver = { id, touch }
     element.dataset.tilting = ""
-    if (touch) element.dataset.tiltingTouch = ""
   }
 
   const release = () => {
     driver = null
     box = null
     delete element.dataset.tilting
-    delete element.dataset.tiltingTouch
     target = REST
     schedule()
   }

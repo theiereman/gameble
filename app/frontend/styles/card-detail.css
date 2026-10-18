@@ -445,8 +445,8 @@
   vertical-align: top;
 }
 
-/* iOS Safari retargets a card's long-press menu to its link. */
-.card-link:has(> .card) {
+/* iOS Safari retargets a tilted card's long-press menu to its link. */
+.card-link:has(> .card[data-tilting]) {
   -webkit-touch-callout: none;
 }
 

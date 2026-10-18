@@ -54,7 +54,6 @@ export default class extends Controller<HTMLElement> {
     this.element.removeAttribute("data-in-view")
     this.element.removeAttribute("data-tilt")
     this.element.removeAttribute("data-tilting")
-    this.element.removeAttribute("data-tilting-touch")
     // An emptied style attribute goes, so the face is as the server wrote it.
     if (this.element.getAttribute("style") === "") this.element.removeAttribute("style")
   }
