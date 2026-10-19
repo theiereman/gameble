@@ -302,7 +302,7 @@ spacing:
   column-gap-medium: 20px
   grid-gap-columns: 12px
   grid-gap-rows: 16px
-  grid-card-min: 120px
+  grid-card-min: 140px
   grid-card-max: 170px
   deal-gap-max: 14px
   deal-gap-min: 8px
@@ -620,7 +620,7 @@ The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 - **Breathing room (author, 2026-10-07):** the whole interface breathes more. Panels get more padding (`{spacing.panel-padding}`), and the gaps between panels, rows, chips and cards go up by about one step of the scale. The exact gap values are tuned on the built screens; information must stay easy to tell apart at a glance.
 - **Capsule stage:** as wide as its column. The five dealt cards sit in one row with gaps from `{spacing.deal-gap-max}` down to `{spacing.deal-gap-min}`; when even that does not fit, they wrap into a row of 3 and a row of 2 and the stage grows taller.
 - **Trade board:** when the board itself is under 700px wide (container query), its sides stack (the friend's side, the swap icon turned a quarter, the player's side).
-- **Collection grid:** fixed gaps (`{spacing.grid-gap-columns}` between columns, `{spacing.grid-gap-rows}` between rows); the cards resize between `{spacing.grid-card-min}` and `{spacing.grid-card-max}` wide at 2:3 (even pixel sizes) to fill the row, and extra width adds a column rather than spreading cards apart. Under 140px a card uses the small face layout, from 140px the medium one. The pixel filter re-runs at the rendered art size after a resize. Examples: 4 columns of 138px at 1920 and 1366, 4 of 150px at 1024, 5 of 136px at 800.
+- **Collection grid:** fixed gaps (`{spacing.grid-gap-columns}` between columns, `{spacing.grid-gap-rows}` between rows); the cards resize between `{spacing.grid-card-min}` and `{spacing.grid-card-max}` wide at 2:3 (even pixel sizes) to fill the row, and extra width adds a column rather than spreading cards apart, until the cards reach `{spacing.grid-card-max}`: a column wider than that keeps its spare width after its card, so the cards stand further apart (about 33px at 1280, where a fourth column would be under 140px). A column is never under 140px, so a desktop card always takes the medium face; the small face layout is only for a card under 140px. The pixel filter re-runs at the rendered art size after a resize. Examples, with the RAPPORT beside the grid from 1180px and the card detail's column from 900px: 3 columns of 170px at 1440 and 1280 (the content cap), 4 of 148px at 1024 (144px beside a classic 15px scrollbar), 4 of 170px at 800 (the detail under the grid); the phone keeps two `card-m` a row.
 - **Top bar on narrower widths:** under 1180px the capsules chip drops its divider and countdown and the trades note hides; under 900px the "CAPSULES" label, the player's name and the collection label hide (their values stay in accessible names).
 - **Showcase rays** are clipped by the center column between 1180 and 1279px.
 - **Phone composition:** portrait only. A single scrolling column per screen between the top bar and the bottom tab bar (`{spacing.tabbar-height}` plus the safe area). Reference sizes 390 × 844 and 360 × 740. A phone held sideways shows no overlay and no landscape layout: the phone layout stays a portrait-width column (at most `{spacing.phone-column-max}`), centered, scrolling. The installed web app declares portrait orientation in its manifest; a browser tab cannot be locked. Phone sizes: buttons `{spacing.button-height-phone}` (small `{spacing.button-height-sm-phone}`), ticker `{spacing.ticker-height-phone}`, PLUS rows `{spacing.plus-row-height}`, set chips `{components.set-chip-phone.size}`.
@@ -631,7 +631,7 @@ The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 | Size | Pixels | Used for |
 |---|---|---|
 | `card-s` | 112 × 168 | Trade sides with two or more cards, pickers (desktop and phone), dealt cards under 900px |
-| Grid card | 120 to 170 wide | Desktop collection grid (see Collection grid) |
+| Grid card | 140 to 170 wide | Desktop collection grid (see Collection grid) |
 | `card-m` | 160 × 240 | Capsule deal (desktop), phone collection, a trade side with a single card, phone back preview |
 | `card-l` | 208 × 312 | Card detail, desktop back preview, phone hub showcase, desktop public profile VITRINE |
 | `card-xl` | 240 × 360 | Desktop hub showcase, public card page, phone capsule card and zoom |

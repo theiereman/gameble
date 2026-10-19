@@ -79,6 +79,8 @@ const WIDE_GRID =
 
 const MEDIUM_GRID = 1024 - 2 * pageGutter("--space-page-padding-medium") - detailColumn(MEDIUM) - token("--space-column-gap-medium")
 
+const STACKED_GRID = 800 - 2 * pageGutter("--space-page-padding-medium")
+
 describe("the grid card", () => {
   it("takes its slot's width, 1.5 times as tall, its art box even and what the rest leaves", () => {
     expect(gridCard).toContain("--card-width: 100cqi;")
@@ -129,10 +131,11 @@ describe("the grid of every card", () => {
   const filling = ruleBody(collectionStylesheet, ".collection-grid--fill")
   const slot = ruleBody(collectionStylesheet, ".collection-grid--fill > .collection-slot")
 
-  it("fills its row with columns of at least the smallest card", () => {
+  it("fills its row with columns of at least the smallest medium card", () => {
     expect(filling).toContain("grid-template-columns: repeat(auto-fill, minmax(var(--space-grid-card-min), 1fr));")
-    expect(MIN).toBe(120)
+    expect(MIN).toBe(140)
     expect(MAX).toBe(170)
+    expect(layout(MIN).layout).toBe("medium")
   })
 
   it("sizes each slot to its column, even and capped, as a size container", () => {
@@ -161,8 +164,8 @@ describe("the grid of every card", () => {
   })
 
   it.each([
-    { name: "an 800px window", gridWidth: 752, columns: 5, card: 136, cardLayout: "small" },
-    { name: "1280px and up, beside the RAPPORT and the detail", gridWidth: WIDE_GRID, columns: 4, card: 136, cardLayout: "small" },
+    { name: "an 800px window, the detail under the grid", gridWidth: STACKED_GRID, columns: 4, card: 170, cardLayout: "medium" },
+    { name: "1280px and up, beside the RAPPORT and the detail", gridWidth: WIDE_GRID, columns: 3, card: 170, cardLayout: "medium" },
     { name: "a 1024px window, beside the detail", gridWidth: MEDIUM_GRID, columns: 4, card: 148, cardLayout: "medium" },
     { name: "a medium width", gridWidth: 780, columns: 5, card: 142, cardLayout: "medium" },
   ])("$name: $columns columns of $card px, $cardLayout layout", ({ gridWidth, columns, card, cardLayout }) => {
@@ -172,6 +175,15 @@ describe("the grid of every card", () => {
     const used = grid.columns * grid.card + (grid.columns - 1) * GAP
     expect(used).toBeLessThanOrEqual(gridWidth)
     expect(gridWidth - used).toBeLessThan(grid.card + GAP)
+  })
+
+  it("gives every desktop grid width the medium face", () => {
+    const classicScrollbar = 15
+    const narrowest = WIDE_GRID - (1280 - 1180) - classicScrollbar
+    const widest = 1280 - 2 * pageGutter("--space-page-padding-wide")
+    for (let gridWidth = narrowest; gridWidth <= widest; gridWidth++) {
+      expect(layout(fill(gridWidth).card).layout).toBe("medium")
+    }
   })
 })
 
