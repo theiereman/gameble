@@ -207,7 +207,29 @@ class Steam::CardsTest < ActiveSupport::TestCase
   end
 
   test "a game whose five most-voted tags are broad has no genre" do
-    assert_equal [], genres_of([ 7, 8, 1, 9, 10, 6 ])
+    assert_equal [], genres_of([ 7, 1, 9, 10, 4, 6 ])
+  end
+
+  test "an adventure game is in the adventure theme, even behind a broad tag" do
+    assert_equal %w[adventure horror], genres_of([ 7, 8, 1, 5, 9 ])
+  end
+
+  test "a published season gives a game tagged like Dreamfall the adventure theme as main theme, out of the UFOs" do
+    Steam::Tag.insert_all([ { tagid: 21, name: "Adventure" }, { tagid: 7208, name: "Female Protagonist" }, { tagid: 1742, name: "Story Rich" },
+      { tagid: 1684, name: "Fantasy" }, { tagid: 3942, name: "Sci-fi" }, { tagid: 122, name: "RPG" } ])
+    run = run_on("cards")
+    ready(run, 6300, tag_ids: [ 21, 7208, 1742, 1684, 3942 ])
+    (1..20).each { |appid| ready(run, appid, review_count: 30_000 - 1_000 * appid, tag_ids: [ 122 ]) }
+    cards_page(run)
+    season = draft
+
+    assert Catalog::PublishSeason.new.call(number: season.number).success?
+
+    dreamfall = Catalog::CardSeason.find_by!(season:, card: card_of(6300))
+    assert_equal "adventure", dreamfall.main_theme
+    memberships = Catalog::SetMembership.where(card_season: dreamfall).joins(:set).pluck("catalog_sets.kind", "catalog_sets.key")
+    assert_includes memberships, [ "theme", "adventure" ]
+    assert_empty Catalog::Set.where(season:, kind: "ufo")
   end
 
   test "two tags of one theme give it once, at the first one's place" do

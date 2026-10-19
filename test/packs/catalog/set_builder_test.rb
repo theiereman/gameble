@@ -50,7 +50,7 @@ class Catalog::SetBuilderTest < ActiveSupport::TestCase
   end
 
   test "every theme key is a well-formed set key" do
-    assert_equal 42, Catalog::Themes.keys.size
+    assert_equal 43, Catalog::Themes.keys.size
     assert Catalog::Themes.keys.all? { |key| Catalog::Set::KEY_FORMAT.match?(key) }
     assert_match Catalog::Set::KEY_FORMAT, Catalog::SetBuilder::UFOS
   end
@@ -349,7 +349,7 @@ class Catalog::SetBuilderTest < ActiveSupport::TestCase
 
     assert_operator elapsed, :<, 5
     by_kind = sets.group_by { |set| set[:kind] }
-    assert_equal 42, by_kind["theme"].size
+    assert_equal 43, by_kind["theme"].size
     assert_equal 250, by_kind["franchise"].size
     assert_equal 1_000, by_kind["studio"].size
     assert_equal 600, by_kind["ufo"].sole[:members].size

@@ -33,6 +33,7 @@ module Catalog
       "city_builder" => [ "City Builder", "Colony Sim", "Base Building" ],
       "visual_novel" => [ "Visual Novel", "Interactive Fiction", "Dating Sim", "Choose Your Own Adventure" ],
       "point_and_click" => [ "Point & Click", "Hidden Object" ],
+      "adventure" => [ "Adventure" ],
       "fighting" => [ "Fighting", "2D Fighter", "3D Fighter", "Beat 'em up", "Martial Arts" ],
       "stealth" => [ "Stealth" ],
       "rhythm" => [ "Rhythm", "Music" ],
