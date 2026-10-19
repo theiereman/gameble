@@ -1,5 +1,5 @@
-<dialog id="private-dialog" class="modal" aria-labelledby="private-dialog-title" aria-describedby="private-dialog-text"
-        data-controller="dialog" data-action="click->dialog#closeOnScrim">
+<%= tag.dialog id: "private-dialog", class: "modal", open: shown, aria: { labelledby: "private-dialog-title", describedby: "private-dialog-text" },
+      data: { controller: "dialog", action: "click->dialog#closeOnScrim" } do %>
   <%= render PanelComponent.new(brackets: true, class: "modal__panel") do %>
     <span class="modal__handle" aria-hidden="true"></span>
     <div class="modal__head">
@@ -10,6 +10,7 @@
     </div>
     <%= form_with url: settings_visibility_path, method: :patch, class: "private-dialog__form", data: { turbo: false } do %>
       <%= hidden_field_tag "visibility", "private", id: nil %>
+      <%= hidden_field_tag "confirmed_trades", open_trades, id: nil %>
       <p id="private-dialog-text" class="private-dialog__text"><%= t("settings.private_dialog.text", count: open_trades) %></p>
       <div class="private-dialog__actions">
         <%= tag.button t("settings.private_dialog.confirm"), type: :submit, class: "button button--primary" %>
@@ -17,4 +18,4 @@
       </div>
     <% end %>
   <% end %>
-</dialog>
+<% end %>
