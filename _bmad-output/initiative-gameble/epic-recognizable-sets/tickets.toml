@@ -197,12 +197,23 @@ hitl = false
 risk = "low"
 
 [[entry]]
+id = 19
+type = "bug"
+title = "The set album's header simplified and its cards across the full width"
+description = "On the author's staging check of entry 8, the album's cards sat narrower than its header and the header said too much. The album's grid fills the full width of the header panel, aligned on both edges, with entry 13's fill grid; the header drops the set's kind, puts the owned/total count on the title's line (the COMPLET stamp beside it when complete) and the progress bar right below; the BRONZE · ARGENT · OR gauge list is removed, the tiers staying as ticks on the bar, lit when reached, and in the bar's spoken text. EXPERIENCE.md's set album row follows."
+verify = "On staging, desktop and phone, an album's cards span the header's width edge to edge; the header reads the set's name and its count on one line, the bar below with its tier ticks, no kind and no tier list; a screen reader still hears the tiers reached."
+covers = ["R8"]
+after = [8, 14]
+hitl = false
+risk = "low"
+
+[[entry]]
 id = 10
 type = "story"
 title = "Refactor sweep"
 description = "Cleans up what this epic's build records and deferred review findings name, including the retired set kinds' leftovers; scope set when it starts."
 verify = "The full test suite, system tests for what was touched, packwerk and zeitwerk pass; no reference to tomes, publisher sets or best-of-year sets remains in app and pack code or in the locales (migrations aside)."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19]
 hitl = false
 risk = "low"
