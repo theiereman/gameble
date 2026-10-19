@@ -24,7 +24,7 @@ class CardComponentTest < ViewComponent::TestCase
     assert_selector ".card__line--rarity > .card__number", text: "#4 215", exact_text: true
   end
 
-  { s: [ 50, 51 ], m: [ 72, 74 ], l: [ 94, 97 ], xl: [ 109, 112 ] }.each do |size, (width, height)|
+  { s: [ 50, 51 ], m: [ 72, 74 ], l: [ 94, 97 ], xl: [ 109, 112 ], grid: [ 72, 74 ] }.each do |size, (width, height)|
     test "the #{size} face draws its art at #{width} × #{height} art pixels with the xl palette" do
       render_card(size:)
 
@@ -33,6 +33,7 @@ class CardComponentTest < ViewComponent::TestCase
         "[data-card-art-width-value='#{width}'][data-card-art-height-value='#{height}']" \
         "[data-card-art-palette-width-value='109'][data-card-art-palette-height-value='112']"
       assert_selector ".card__art > canvas.card__canvas[width='#{width}'][height='#{height}'][aria-hidden=true][data-card-art-target=canvas]"
+      assert_equal size == :grid, page.has_selector?(".card__art[data-card-art-fluid-value='true']"), "#{size} fluid art"
       assert_selector ".card__art > .card__missing > svg.pixel-icon.card__missing-icon + .card__missing-text", text: "Image unavailable", visible: :all
       assert_selector ".card__title", text: "Blue Depths"
       assert_selector ".card__genre", text: "Puzzle"
@@ -41,26 +42,34 @@ class CardComponentTest < ViewComponent::TestCase
     end
   end
 
-  test "the publisher shows from m up, never on s" do
+  test "a grid face sizes itself from its slot and draws its art at its rendered size" do
+    render_card(size: :grid)
+
+    assert_selector "span.card.card--grid.card--rarity-rare"
+    assert_no_selector ".card--m"
+    assert_selector ".card__art[data-card-art-fluid-value='true'][data-card-art-width-value='72'][data-card-art-height-value='74']"
+  end
+
+  test "the publisher shows from m up and on grid, never on s" do
     render_card(size: :s)
     assert_no_selector ".card__publisher"
 
-    %i[m l xl].each do |size|
+    %i[m l xl grid].each do |size|
       render_card(size:)
       assert_selector ".card__publisher", text: "Deepwater"
     end
   end
 
-  test "the number: alone on s and m, with its season on l and xl" do
+  test "the number: alone on s, m and grid, with its season on l and xl" do
     view = card(season_number: 12, number: 1_000_000)
-    { s: "#1 000 000", m: "#1 000 000", l: "S12 · #1 000 000", xl: "S12 · #1 000 000" }.each do |size, label|
+    { s: "#1 000 000", m: "#1 000 000", grid: "#1 000 000", l: "S12 · #1 000 000", xl: "S12 · #1 000 000" }.each do |size, label|
       render_card(view, size:)
       assert_selector ".card__number", exact_text: label
     end
   end
 
-  test "the compact rarity icon on s and m, the large one on l and xl" do
-    %i[s m].each do |size|
+  test "the compact rarity icon on s, m and grid, the large one on l and xl" do
+    %i[s m grid].each do |size|
       render_card(size:)
       assert_selector ".card__rarity-icon[width='10'][height='10']"
     end

@@ -126,6 +126,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Bronze, 2 cards, reached", "Silver, 4 cards, reached", "Gold, 8 cards, not reached yet" ],
       css_select(".set-album__gauge .visually-hidden").map(&:text)
     assert_select ".set-album__grid .card.card--m", 5
+    assert_select ".collection-grid--fill, .card--grid", false
     assert_equal [ "x2" ], css_select(".collection-slot__copies").map(&:text)
     assert_select ".missing-slot .visually-hidden", { count: 11, text: "Missing card" }
     assert_select ".collection-slot__new", false

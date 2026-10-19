@@ -2,9 +2,11 @@
  * The collection: its entry, the grid of every card and a set's album.
  * From 1180px the grid has the RAPPORT in a 220px column beside it; from
  * 720px the grid stands alone; under 720px one column, the RAPPORT folded
- * above the grid, two cards wide. The grid holds medium cards (card-m) in
- * as many columns as fit, with fixed gaps; extra width adds a column. No
- * horizontal page scroll at any width.
+ * above the grid, two medium cards (card-m) wide. The grid of every card
+ * fills its row: as many columns as fit at the smallest grid card, with
+ * fixed gaps, each card as wide as its column (an even pixel count, at most
+ * the largest grid card); extra width adds a column. A set's album keeps
+ * medium cards, six at most a row. No horizontal page scroll at any width.
  */
 
 .collection {
@@ -561,7 +563,7 @@
   padding-top: var(--space-3);
 }
 
-/* ---- The grid: medium cards, fixed gaps ---- */
+/* ---- The grids: fixed gaps, medium cards, or cards filling the row ---- */
 
 .collection-grid {
   display: grid;
@@ -599,6 +601,24 @@
   display: block;
   width: var(--card-m-width);
   height: var(--card-m-height);
+}
+
+.collection-grid--fill {
+  grid-template-columns: repeat(auto-fill, minmax(var(--space-grid-card-min), 1fr));
+}
+
+.collection-grid--fill > .collection-slot {
+  box-sizing: content-box;
+  width: round(down, min(100%, var(--space-grid-card-max)), 2px);
+  min-height: 0;
+  aspect-ratio: 2 / 3;
+  container-type: inline-size;
+}
+
+.collection-grid--fill > .collection-slot > .card-link,
+.collection-grid--fill .missing-slot {
+  width: 100cqi;
+  height: calc(1.5 * 100cqi);
 }
 
 /* "x3": copies owned, a small accent box at the card's top-right. */

@@ -3,6 +3,11 @@ import { TILT_PROPERTIES, attachTilt } from "../lib/tilt"
 import { attachGlitter, glitterSeed, type Glitter } from "../lib/glitter"
 import { observeInView } from "../lib/in_view"
 
+const pixels = (value: string): number | undefined => {
+  const trimmed = value.trim()
+  return trimmed.endsWith("px") ? Number.parseFloat(trimmed) || 0 : undefined
+}
+
 // A card face's tilt, reflection, glitter and in-view mark (CardComponent;
 // lib/tilt.ts, lib/glitter.ts): a Légendaire's flakes twinkle only while
 // `data-in-view` is set (styles/card.css). A Turbo snapshot keeps the
@@ -38,14 +43,14 @@ export default class extends Controller<HTMLElement> {
     this.reset()
   }
 
-  // The face's size from its custom properties, which hold even while it is hidden.
+  // The face's size from its custom properties, which hold even while it is hidden; a grid face's from its layout.
   private attachGlitter(): Glitter | undefined {
     if (!this.hasGlitterTarget) return undefined
     const style = getComputedStyle(this.element)
     return attachGlitter(this.glitterTarget, {
       seed: glitterSeed(this.glitterTarget.dataset.glitterSeed),
-      width: Number.parseFloat(style.getPropertyValue("--card-width")) || 0,
-      height: Number.parseFloat(style.getPropertyValue("--card-height")) || 0,
+      width: pixels(style.getPropertyValue("--card-width")) ?? this.element.offsetWidth,
+      height: pixels(style.getPropertyValue("--card-height")) ?? this.element.offsetHeight,
     })
   }
 

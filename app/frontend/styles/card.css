@@ -2,9 +2,11 @@
  * The card face, the only one (DESIGN.md: Card face, Card sizes, Rarity
  * icon, Rarity effects; EXPERIENCE.md, Implementation notes; AD-27, AD-28):
  * CardComponent draws it on every page, and the pack reveal receives it as
- * HTML. Four sizes, s, m, l and xl. The frame is the rarity colour inside
- * the pixel outline, with the bevel; inside it the body holds the title
- * band, the art box and the two footer lines.
+ * HTML. Five sizes: s, m, l and xl, fixed, and grid, as wide as its slot
+ * in the collection grid (a size container), in the medium layout from
+ * 140px and the small one below. The frame is the rarity colour inside the
+ * pixel outline, with the bevel; inside it the body holds the title band,
+ * the art box and the two footer lines.
  *
  * The root is the tilt layer (lib/tilt.ts writes --tilt-rx, --tilt-ry and
  * the --reflection-* values of the eased tilt): it never carries overflow,
@@ -127,6 +129,44 @@
   --card-meta-tracking: var(--tracking-card-meta-xl);
 }
 
+.card--grid {
+  --card-width: 100cqi;
+  --card-height: calc(1.5 * var(--card-width));
+  --card-frame: 4px;
+  --card-padding: 4px;
+  --card-gap: 2px;
+  --card-band-height: 40px;
+  --card-line-height: 14px;
+  --card-rarity-line-height: 16px;
+  --card-band-padding: var(--space-2);
+  --card-icon: 10px;
+  --card-title-font: var(--font-card-title-m);
+  --card-publisher-font: var(--font-publisher-m);
+  --card-meta-font: var(--font-card-meta);
+  --card-meta-tracking: var(--tracking-card-meta);
+  --card-inset: calc(2 * (var(--card-frame) + var(--card-padding)));
+  --card-art-width: calc(var(--card-width) - var(--card-inset));
+  --card-art-height: round(down,
+    calc(var(--card-height) - var(--card-inset) - 3 * var(--card-gap) - var(--card-band-height)
+      - var(--card-line-height) - var(--card-rarity-line-height)),
+    2px);
+}
+
+@container (width < 140px) {
+  .card--grid {
+    --card-frame: 3px;
+    --card-padding: 3px;
+    --card-band-height: 22px;
+    --card-line-height: 12px;
+    --card-rarity-line-height: 14px;
+    --card-title-font: var(--font-card-title-s);
+  }
+
+  .card--grid .card__publisher {
+    display: none;
+  }
+}
+
 /* ---- Rarity: the frame, the band's tick, the genre, the rarity name and the varnish's gloss ---- */
 
 .card--rarity-common {
@@ -192,7 +232,7 @@
   overflow-wrap: anywhere;
 }
 
-/* The publisher, from m up. */
+/* The publisher, from m up, and on a grid card from 140px. */
 .card__publisher {
   display: block;
   overflow: hidden;

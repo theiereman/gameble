@@ -111,7 +111,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       end
     end
     assert_equal expected, slots
-    assert_select ".collection-grid .card.card--m", expected.count { it.first == :owned }
+    assert_select "ol.collection-grid.collection-grid--fill", 1
+    assert_select ".collection-grid .card.card--grid", expected.count { it.first == :owned }
+    assert_select ".collection-grid .card.card--m", false
     assert_select ".collection-slot__copies[aria-hidden=true] + .visually-hidden", "3 copies"
     assert_select ".missing-slot svg.pixel-icon.missing-slot__icon"
     assert_select ".missing-slot .visually-hidden", { count: 60 - expected.count { it.first == :owned }, text: "Missing card" }

@@ -1,8 +1,11 @@
 import { Controller } from "@hotwired/stimulus"
 import { drawCardArt } from "../lib/card_art"
+import { type ArtSize, artPixels, sameArtSize, type Settle, settle } from "../lib/card_art/fluid_size"
 
 // How near the viewport a card comes before its art is drawn.
 const NEAR_VIEWPORT = "300px"
+
+const RESIZE_SETTLE_MS = 150
 
 // Draws the art of a server-rendered card face (CardComponent), only once
 // the card nears the viewport, so a page of hundreds of cards (a large set)
@@ -10,9 +13,19 @@ const NEAR_VIEWPORT = "300px"
 // draws again, so a Turbo restore visit, whose cached snapshot keeps no
 // canvas pixels, shows the art again; a disconnect stops the wait and aborts
 // a draw under way. The palette size defaults to the art size (0 or absent).
+// A fluid art box (a grid face, sized by its slot) draws at its rendered
+// size, the width and height values until it has one, and once drawn draws
+// again when a resize settles at another size, aborting the draw before.
 export default class extends Controller<HTMLElement> {
   static targets = ["canvas"]
-  static values = { url: String, width: Number, height: Number, paletteWidth: Number, paletteHeight: Number }
+  static values = {
+    url: String,
+    width: Number,
+    height: Number,
+    paletteWidth: Number,
+    paletteHeight: Number,
+    fluid: Boolean,
+  }
 
   declare readonly canvasTarget: HTMLCanvasElement
   declare readonly urlValue: string
@@ -20,12 +33,18 @@ export default class extends Controller<HTMLElement> {
   declare readonly heightValue: number
   declare readonly paletteWidthValue: number
   declare readonly paletteHeightValue: number
+  declare readonly fluidValue: boolean
 
   private abort?: AbortController
   private observer?: IntersectionObserver
+  private resizeObserver?: ResizeObserver
+  private resize?: Settle
+  private drawn?: ArtSize
 
   connect(): void {
     this.abort = new AbortController()
+    this.drawn = undefined
+    if (this.fluidValue) this.watchResizes()
     if (typeof IntersectionObserver === "undefined") {
       this.draw()
       return
@@ -43,22 +62,59 @@ export default class extends Controller<HTMLElement> {
 
   disconnect(): void {
     this.stopWatching()
+    this.stopWatchingResizes()
     this.abort?.abort()
   }
 
   private draw(): void {
     if (!this.abort) return
+    const size = this.artSize()
+    this.drawn = size
     void drawCardArt(this.element, this.canvasTarget, this.urlValue, {
-      width: this.widthValue,
-      height: this.heightValue,
+      ...size,
       paletteWidth: this.paletteWidthValue || this.widthValue,
       paletteHeight: this.paletteHeightValue || this.heightValue,
       signal: this.abort.signal,
     })
   }
 
+  private redrawAtNewSize(): void {
+    if (!this.drawn || !this.hasLayout()) return
+    if (sameArtSize(this.drawn, this.artSize())) return
+    this.abort?.abort()
+    this.abort = new AbortController()
+    this.draw()
+  }
+
+  private artSize(): ArtSize {
+    const served = { width: this.widthValue, height: this.heightValue }
+    if (!this.fluidValue) return served
+    return artPixels(this.element.clientWidth, this.element.clientHeight, served)
+  }
+
+  private hasLayout(): boolean {
+    return this.element.clientWidth > 0 && this.element.clientHeight > 0
+  }
+
+  private watchResizes(): void {
+    if (typeof ResizeObserver === "undefined") return
+    const resize = settle(() => this.redrawAtNewSize(), RESIZE_SETTLE_MS)
+    this.resize = resize
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.drawn) resize.schedule()
+    })
+    this.resizeObserver.observe(this.element)
+  }
+
   private stopWatching(): void {
     this.observer?.disconnect()
     this.observer = undefined
+  }
+
+  private stopWatchingResizes(): void {
+    this.resizeObserver?.disconnect()
+    this.resizeObserver = undefined
+    this.resize?.cancel()
+    this.resize = undefined
   }
 }

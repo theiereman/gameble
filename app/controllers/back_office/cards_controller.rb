@@ -19,7 +19,7 @@ module BackOffice
       authorize [ :back_office, :cards ], :index?
 
       cards = Catalog::Rarity::TIERS.values.map { |rarity| sample(rarity) }
-      @specimens = cards.flat_map { |card| CardComponent::SIZES.map { |size| specimen(card, size) } } +
+      @specimens = cards.flat_map { |card| CardComponent::FIXED_SIZES.map { |size| specimen(card, size) } } +
         cards.map { |card| specimen(card, :m, booster: true) }
     end
 

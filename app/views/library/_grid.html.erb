@@ -1,11 +1,11 @@
 <%# The collection grid: one page of the grid's cards in order, one per
-    game. An owned game shows the medium face of the edition it shows, its
-    copies across editions ("x3", from x1, in an accent box at the
-    top-right), under them the editions held when two or more ("2 éd.", in
-    the same box) and, when an edition was gained since the player last saw
-    their collection, "Nouveau" in a lime box at the top-left; a missing one is a
-    hatched slot with a padlock, naming its game and year. Each leads to its
-    card's detail: a face's link is named by the card's title, rarity and
+    game, in columns filling the row. An owned game shows the grid face
+    (sized by its slot) of the edition it shows, its copies across editions
+    ("x3", from x1, in an accent box at the top-right), under them the
+    editions held when two or more ("2 éd.", in the same box) and, when an
+    edition was gained since the player last saw their collection, "Nouveau"
+    in a lime box at the top-left; a missing one is a hatched slot with a
+    padlock, naming its game and year. Each leads to its card's detail: a face's link is named by the card's title, rarity and
     season, a missing slot's by its visible text and "Missing card"; each
     carries the grid's filters and search, so the detail walks this
     grid as shown (◀ ▶), leads back to it, and shows a card the viewer does
@@ -19,11 +19,11 @@
 <% if slots.empty? %>
   <p class="collection-grid__empty"><%= pagy.count.positive? ? t("library.grid.past_the_end") : t("library.grid.empty") %></p>
 <% else %>
-  <ol class="collection-grid" aria-label="<%= t("library.grid.label") %>">
+  <ol class="collection-grid collection-grid--fill" aria-label="<%= t("library.grid.label") %>">
     <% slots.each do |card, held| %>
       <li class="collection-slot">
         <% if held %>
-          <%= link_to_card_detail(card, strings:, context: { grid: context }) do %><%= render CardComponent.new(card:, size: :m) %><% end %>
+          <%= link_to_card_detail(card, strings:, context: { grid: context }) do %><%= render CardComponent.new(card:, size: :grid) %><% end %>
           <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(held.copies) %></span>
           <span class="visually-hidden"><%= t("library.grid.copies", count: held.copies, number: number_with_delimiter(held.copies)) %></span>
           <% if held.editions > 1 %>

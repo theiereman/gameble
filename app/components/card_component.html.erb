@@ -6,7 +6,7 @@
         <span class="card__publisher"><%= card.publisher %></span>
       <% end %>
     </span>
-    <span class="card__art" data-controller="card-art" data-card-art-url-value="<%= card.image_url %>" data-card-art-width-value="<%= art[:width] %>" data-card-art-height-value="<%= art[:height] %>" data-card-art-palette-width-value="<%= PALETTE[:width] %>" data-card-art-palette-height-value="<%= PALETTE[:height] %>">
+    <span class="card__art" data-controller="card-art" data-card-art-url-value="<%= card.image_url %>" data-card-art-width-value="<%= art[:width] %>" data-card-art-height-value="<%= art[:height] %>" data-card-art-palette-width-value="<%= PALETTE[:width] %>" data-card-art-palette-height-value="<%= PALETTE[:height] %>"<% if fluid? %> data-card-art-fluid-value="true"<% end %>>
       <canvas class="card__canvas" width="<%= art[:width] %>" height="<%= art[:height] %>" aria-hidden="true" data-card-art-target="canvas"></canvas>
       <span class="card__missing">
         <%= helpers.pixel_icon("picture", class: "card__missing-icon") %>
