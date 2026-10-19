@@ -3,7 +3,7 @@ title: 'Tier celebration banner rebuilt to its design'
 type: 'feature'
 ticket: '17'
 created: '2026-10-17'
-status: 'built'
+status: done
 baseline_revision: 'e4847af41d8814f0b1bcc22d7dd520ca825fcb6c'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'The card grid as the secondary view'
 type: 'feature'
 ticket: '9'
 created: '2026-10-17'
-status: 'built'
+status: done
 baseline_revision: 'e4847af41d8814f0b1bcc22d7dd520ca825fcb6c'
 route: 'full'
 route_source: 'auto'

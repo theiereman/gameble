@@ -197,13 +197,24 @@ hitl = false
 risk = "low"
 
 [[entry]]
+id = 20
+type = "bug"
+title = "Larger cards in the filled grid on desktop"
+description = "Entry 13's fill grid gives a wide desktop seven cards of 124 px in the small face, too small for the author. Its columns now start at 140 px instead of 120, still filling the row and capped at 170 px, so a desktop always shows the medium face; the small face stays for narrower columns only. DESIGN.md's grid examples are corrected to what the rule gives at the 1280 px content cap."
+verify = "On staging at 1440 px and 1024 px, the card grid shows fewer, larger cards between 140 and 170 px in the medium face, filling the row; the phone keeps two 160 px cards."
+covers = ["R9"]
+after = [13]
+hitl = false
+risk = "low"
+
+[[entry]]
 id = 19
 type = "bug"
 title = "The set album's header simplified and its cards across the full width"
 description = "On the author's staging check of entry 8, the album's cards sat narrower than its header and the header said too much. The album's grid fills the full width of the header panel, aligned on both edges, with entry 13's fill grid; the header drops the set's kind, puts the owned/total count on the title's line (the COMPLET stamp beside it when complete) and the progress bar right below; the BRONZE · ARGENT · OR gauge list is removed, the tiers staying as ticks on the bar, lit when reached, and in the bar's spoken text. EXPERIENCE.md's set album row follows."
 verify = "On staging, desktop and phone, an album's cards span the header's width edge to edge; the header reads the set's name and its count on one line, the bar below with its tier ticks, no kind and no tier list; a screen reader still hears the tiers reached."
 covers = ["R8"]
-after = [8, 14]
+after = [8, 14, 20]
 hitl = false
 risk = "low"
 
@@ -214,6 +225,6 @@ title = "Refactor sweep"
 description = "Cleans up what this epic's build records and deferred review findings name, including the retired set kinds' leftovers; scope set when it starts."
 verify = "The full test suite, system tests for what was touched, packwerk and zeitwerk pass; no reference to tomes, publisher sets or best-of-year sets remains in app and pack code or in the locales (migrations aside)."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 hitl = false
 risk = "low"
