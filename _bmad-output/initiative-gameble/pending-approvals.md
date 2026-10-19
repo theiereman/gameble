@@ -31,6 +31,11 @@ Settled by the author in conversation on 2026-10-19.
 - `game_set_completions`, written by nothing since tiers, is dropped, and the feed's member-count fallback for sets without a complete tier is removed (entry 13.26).
 - A signed-out visitor reaches the card catalog from the landing (ticket 14.5).
 
+- Showcase kicker (ticket 16.8): "Latest acquisition" in English, « Dernière obtention » in French.
+- Public profile empty states (ticket 16.3): SUCCÈS reads « 0 / 10 » with an unlit gauge and no « Derniers obtenus »; SETS reads « 0 set entamé » with no rows. Kept. CARTES is capped at the season's total, and staff see a banned player's line again (ticket 16.9).
+- The legal page's date moves to the latest clarification (ticket 13.26, 19 October 2026): kept.
+- Bug #77: Adventure stays a broad tag; the adventure theme becomes a fallback for games no other theme claims, covering Adventure, Action-Adventure, Story Rich and Female Protagonist (backlog bug).
+
 ## Settled on 2026-10-13
 
 Settled by the author through the triage page of 2026-10-13.
