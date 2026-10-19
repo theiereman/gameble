@@ -11,7 +11,7 @@ module BoostersHelper
   # names and icons by tier code name, the size in art pixels a card's
   # palette is computed at (the tray's thumbnails share the faces' colours),
   # the card zoom's ◀ ▶ icons, the set celebration's link to the sets in
-  # progress and its icons, every word of `boosters.island` (plural keys as
+  # progress and its icons (the rank marks by rank), every word of `boosters.island` (plural keys as
   # their hash), and `opened`:
   # the opening exchange's answer for an opened pack the island shows dealt
   # and face up (PacksHelper#pack_opening_json), or nil for the canister.
@@ -33,7 +33,8 @@ module BoostersHelper
       artPalette: CardComponent::PALETTE,
       arrowIcons: { previous: zoom_arrow("left"), next: zoom_arrow("right") },
       inProgressUrl: library_path,
-      celebrationIcons: { next: celebration_icon("arrow-small-right"), check: celebration_icon("check"), album: celebration_icon("album") },
+      celebrationIcons: { next: celebration_icon("arrow-small-right"), arrow: celebration_icon("arrow-right"), check: celebration_icon("check"),
+                         ranks: celebration_rank_marks },
       strings: booster_strings,
       opened:
     }
@@ -63,6 +64,12 @@ module BoostersHelper
 
   def celebration_icon(name)
     pixel_icon(name, class: "booster-celebration__icon").to_str
+  end
+
+  # Each rank's mark, two CSS px per art pixel; under a tick the
+  # celebration's stylesheet draws it at one.
+  def celebration_rank_marks
+    Catalog::TierTable::RANKS.index_with { |rank| rank_mark(rank, fine: false, class: "booster-celebration__icon").to_str }
   end
 
   # Every key of `boosters.island`, in lower camel case, nested groups and

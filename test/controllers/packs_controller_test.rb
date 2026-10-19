@@ -429,7 +429,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
       json_integers(body).map(&:first)
   end
 
-  test "a JSON opening answers the set tiers it reached, by set then tier, named in the locale and with no id" do
+  test "a JSON opening answers the set tiers it reached, by set then tier, named in the locale and with no id; a 3-card metal theme sends no thresholds" do
     player = accounts_players(:player)
     common, uncommon, rare, = fixture_tier_ids
     theme = Catalog::Set.insert_all!([ { season_id: catalog_seasons(:one).id, kind: "theme", key: "roguelike", params: { "theme" => "roguelike" } } ],
@@ -445,12 +445,30 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
     expected = %w[bronze silver].zip([ 1, 1 ]).map do |tier, required|
       { "kind" => "theme", "key" => "roguelike", "name" => "Roguelike", "tier" => tier, "required" => required, "total" => 3,
+        "thresholds" => [],
         "url" => "/en/library/theme/roguelike" }
     end
     assert_equal expected, first
     assert_equal expected, body["setTiers"]
     assert_equal 2, game_events(player, Game::SetTierReached).size
     assert_empty json_keys(body).grep(/\Aid\z|Id\z/)
+  end
+
+  test "a JSON opening answers a ranked set's tier with the set's ranks before completion, the fewest cards first" do
+    player = accounts_players(:player)
+    ids = fixture_tier_ids
+    theme = Catalog::Set.insert_all!([ { season_id: catalog_seasons(:one).id, kind: "theme", key: "roguelike", params: { "theme" => "roguelike" } } ],
+      returning: :id).rows.flatten.sole
+    Catalog::SetMembership.insert_all!(ids.each_with_index.map { |id, index| { set_id: theme, card_season_id: id, position: index + 1 } })
+    Catalog::SetTier.insert_all!({ master: 3, expert: 2, complete: 5 }.map { |tier, required| { set_id: theme, tier:, required: } })
+    Game::Holding.create!(player_id: player.id, card_season_id: ids[1], quantity: 1)
+    create_pack(player, cards: [ ids[0] ] * 5)
+    sign_in(player)
+
+    open_json
+
+    assert_equal [ [ "expert", 2, [ { "tier" => "expert", "required" => 2 }, { "tier" => "master", "required" => 3 } ] ] ],
+      body["setTiers"].map { it.values_at("tier", "required", "thresholds") }
   end
 
   test "a JSON opening that leaves the reserve full and nothing scheduled answers so" do
@@ -480,7 +498,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_response :ok
     assert_equal answer.slice("pack", "cards", "tierCountsBefore", "setTiers"), body.slice("pack", "cards", "tierCountsBefore", "setTiers")
     assert_equal [ { "kind" => "studio", "key" => "valve", "name" => "Valve", "tier" => "complete", "required" => 1, "total" => 1,
-                     "url" => "/en/library/studio/valve" } ], body["setTiers"]
+                     "thresholds" => [], "url" => "/en/library/studio/valve" } ], body["setTiers"]
     assert_equal first.token, body.dig("pack", "token")
     assert_equal %w[common uncommon rare epic legendary], body["cards"].map { it["tier"] }
 

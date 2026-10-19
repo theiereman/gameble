@@ -68,8 +68,13 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     data["arrowIcons"].each_value { |svg| assert_equal 1, Nokogiri::HTML5.fragment(svg).css("svg.pixel-icon.booster-zoom__nav-icon[aria-hidden=true]").size }
     assert_nil data.fetch("opened")
     assert_equal "/en/library", data["inProgressUrl"]
-    assert_equal %w[next check album], data["celebrationIcons"].keys
-    data["celebrationIcons"].each_value { |svg| assert_equal 1, Nokogiri::HTML5.fragment(svg).css("svg.pixel-icon.booster-celebration__icon[aria-hidden=true]").size }
+    icons = data["celebrationIcons"]
+    assert_equal %w[next arrow check ranks], icons.keys
+    assert_equal %w[novice apprentice adept expert master], icons["ranks"].keys
+    icons.values_at("next", "arrow", "check").concat(icons["ranks"].values).each do |svg|
+      assert_equal 1, Nokogiri::HTML5.fragment(svg).css("svg.pixel-icon.booster-celebration__icon[aria-hidden=true]").size
+    end
+    icons["ranks"].each { |rank, svg| assert_equal 1, Nokogiri::HTML5.fragment(svg).css("svg.rank-mark.rank-mark--#{rank}:not(.rank-mark--fine)").size }
     data["rarityIcons"].each_value { |svg| assert_equal 1, Nokogiri::HTML5.fragment(svg).css("svg.pixel-icon.booster-card__label-icon[aria-hidden=true]").size }
 
     strings = data["strings"]
@@ -82,8 +87,8 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "%{tier} TIER", "SET COMPLETE", "Next result" ], strings["celebration"].values_at("tierTitle", "completeTitle", "next")
     assert_equal({ "bronze" => "BRONZE", "silver" => "SILVER", "gold" => "GOLD", "novice" => "NOVICE", "apprentice" => "APPRENTICE",
       "adept" => "ADEPT", "expert" => "EXPERT", "master" => "MASTER", "complete" => "COMPLETE" }, strings.dig("celebration", "tiers"))
-    assert_equal [ "VIEW SET", "IN PROGRESS", "View set.", "View sets in progress.", "incl." ],
-      strings["celebration"].values_at("setHint", "foldedHint", "openSet", "openInProgress", "foldedLead")
+    assert_equal [ "IN PROGRESS", "View set.", "View sets in progress.", "incl." ],
+      strings["celebration"].values_at("foldedHint", "openSet", "openInProgress", "foldedLead")
     assert_equal "%{tier} tier reached: %{set}, %{owned} cards out of %{total}.", strings.dig("celebration", "announceTier")
     assert_equal I18n.t("boosters.island", locale: :en).keys.map { it.to_s.camelize(:lower) }.sort, strings.keys.sort
     # No database id (AD-15).

@@ -22,6 +22,8 @@ module FeedHelper
       tag.span(class: "feed__tier-stamp")
     elsif TIER_NOTCHES.key?(tier)
       tag.span(class: "feed__tier-notches") { safe_join(Array.new(TIER_NOTCHES.fetch(tier)) { tag.i }) }
+    elsif rank_tier?(tier)
+      rank_mark(tier, class: "feed__tier-rank")
     end
     tag.span(class: [ surface_class, "feed__tier", "feed__tier--#{tier}" ]) do
       tag.span(mark, class: "feed__tier-mark") + tag.span(feed_tier_name(tier))

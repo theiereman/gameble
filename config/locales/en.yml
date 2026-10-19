@@ -891,7 +891,6 @@ en:
           one: "%{count} TIER REACHED"
           other: "%{count} TIERS REACHED"
         folded_lead: "incl."
-        set_hint: "VIEW SET"
         folded_hint: "IN PROGRESS"
         open_set: "View set."
         open_in_progress: "View sets in progress."

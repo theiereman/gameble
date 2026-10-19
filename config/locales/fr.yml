@@ -931,7 +931,6 @@ fr:
           one: "%{count} PALIER ATTEINT"
           other: "%{count} PALIERS ATTEINTS"
         folded_lead: "dont"
-        set_hint: "VOIR LE SET"
         folded_hint: "EN COURS"
         open_set: "Voir le set."
         open_in_progress: "Voir les sets en cours."

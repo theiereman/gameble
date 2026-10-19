@@ -34,6 +34,9 @@ export type OpeningBank = {
 export const SET_TIERS = ["bronze", "silver", "gold", "novice", "apprentice", "adept", "expert", "master", "complete"] as const
 export type SetTierName = (typeof SET_TIERS)[number]
 
+/** A tier of a set and the cards it asks for. */
+export type SetThreshold = { tier: SetTierName; required: number }
+
 /** A set tier the opening reached: "Roguelike", silver at 16 of its 62 cards. */
 export type OpeningSetTier = {
   kind: string
@@ -42,6 +45,8 @@ export type OpeningSetTier = {
   tier: SetTierName
   required: number
   total: number
+  /** The set's tiers before completion, the fewest cards first. */
+  thresholds: SetThreshold[]
   url: string
 }
 
@@ -113,6 +118,10 @@ function isCard(value: unknown): value is OpeningCard {
   )
 }
 
+function isThreshold(value: unknown): value is SetThreshold {
+  return isRecord(value) && SET_TIERS.includes(value.tier as SetTierName) && value.tier !== "complete" && Number.isInteger(value.required)
+}
+
 function isSetTier(value: unknown): value is OpeningSetTier {
   return (
     isRecord(value) &&
@@ -122,6 +131,8 @@ function isSetTier(value: unknown): value is OpeningSetTier {
     SET_TIERS.includes(value.tier as SetTierName) &&
     Number.isInteger(value.required) &&
     Number.isInteger(value.total) &&
+    Array.isArray(value.thresholds) &&
+    value.thresholds.every(isThreshold) &&
     typeof value.url === "string"
   )
 }

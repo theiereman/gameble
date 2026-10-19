@@ -133,8 +133,9 @@
   grid-column: -2 / -1;
 }
 
-/* A reached tier: its name in its colour behind one to three rising
-   notches, or, for a completed set, the COMPLET stamp's small frame. */
+/* A reached tier: its name in its colour behind its rank's mark, an
+   earlier season's one to three rising notches, or, for a completed set,
+   the COMPLET stamp's small frame. */
 .feed__tier {
   display: inline-flex;
   align-items: center;
@@ -146,6 +147,11 @@
 .feed__tier--silver { --feed-tier: var(--color-tier-silver); }
 .feed__tier--gold { --feed-tier: var(--color-gold); }
 .feed__tier--complete { --feed-tier: var(--color-lime); }
+.feed__tier--novice,
+.feed__tier--apprentice,
+.feed__tier--adept,
+.feed__tier--expert,
+.feed__tier--master { --feed-tier: var(--color-text-bright); }
 
 .feed__tier-mark {
   display: inline-flex;

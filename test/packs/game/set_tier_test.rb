@@ -69,7 +69,8 @@ class Game::SetTierTest < ActiveSupport::TestCase
     assert_equal [ [ theme, "bronze", "pack", pack.id ] ], tiers(@player)
     assert_equal [ Game::PackOpened, Game::SetTierReached ], game_events(@player).last(2).map(&:class)
     assert_equal({ player_id: @player.id, set_id: theme, tier: "bronze" }, game_events(@player, Game::SetTierReached).sole.data)
-    assert_equal [ [ "theme", "roguelike", { "theme" => "roguelike" }, "bronze", 2, 20 ] ], Game::PackSetTiers.call(pack).map(&:deconstruct)
+    assert_equal [ [ "theme", "roguelike", { "theme" => "roguelike" }, "bronze", 2, 20, [ [ "bronze", 2 ], [ "silver", 5 ], [ "gold", 10 ] ] ] ],
+      Game::PackSetTiers.call(pack).map(&:deconstruct)
   end
 
   test "a tier crossed already is not reached again: no row, no event, nothing answered" do
@@ -104,7 +105,9 @@ class Game::SetTierTest < ActiveSupport::TestCase
     assert_equal %w[adept expert master complete].map { [ theme, it, "pack", pack.id ] }, tiers(@player)
     assert_equal [ Game::SetTierReached, Game::SetTierReached, Game::SetTierReached, Game::SetCompleted ], tier_events(@player).map(&:class)
     assert_equal %w[adept expert master], game_events(@player, Game::SetTierReached).map { it.data[:tier] }
-    assert_equal [ [ "adept", 5 ], [ "expert", 10 ], [ "master", 15 ], [ "complete", 20 ] ], Game::PackSetTiers.call(pack).map { [ it.tier, it.required ] }
+    answered = Game::PackSetTiers.call(pack)
+    assert_equal [ [ "adept", 5 ], [ "expert", 10 ], [ "master", 15 ], [ "complete", 20 ] ], answered.map { [ it.tier, it.required ] }
+    assert_equal [ [ [ "adept", 5 ], [ "expert", 10 ], [ "master", 15 ] ] ], answered.map(&:thresholds).uniq
   end
 
   test "the database takes every tier of both families and refuses an unknown one" do

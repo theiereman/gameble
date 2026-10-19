@@ -20,6 +20,10 @@ module Catalog
       [ 0, [] ]
     ].freeze
 
+    # The fewest cards a set needs for a tier before completion; a smaller
+    # set has completion alone, whatever tiers an earlier season stored.
+    SMALLEST_TIERED = ROWS.reject { |_minimum, shares| shares.empty? }.map(&:first).min
+
     def self.tiers(card_count)
       shares = shares(card_count)
       RANKS.last(shares.size).zip(shares).to_h { |rank, share| [ rank, (share * card_count).ceil ] }.merge(COMPLETE => card_count)

@@ -869,8 +869,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       css_select("#set-entry-in-progress-title ~ .set-entry__list a.set-row").map { it["href"] }
     row = entry_row("Roguelike")
     assert_equal [ "true" ] * 4, [ ".set-row__name", ".set-row__meta", ".set-row__count", ".set-row__track" ].map { row.at_css(it)["aria-hidden"] }
-    assert_equal [ [ "bronze", true, 1 ], [ "silver", true, 2 ], [ "gold", false, 3 ] ], row.css(".set-row__tick").map { |tick|
-      [ tick["class"][/--(\w+)/, 1], tick.classes.include?("is-reached"), tick.css(".set-notches i").size ]
+    assert_equal [ [ "bronze", true, 1, "0.1129" ], [ "silver", true, 2, "0.2581" ], [ "gold", false, 3, "0.5" ] ], row.css(".set-row__tick").map { |tick|
+      [ tick["class"][/--(\w+)/, 1], tick.classes.include?("is-reached"), tick.css(".set-notches i").size, tick["data-tier-at"] ]
     }
     assert_select "progress.set-row__bar[value='29'][max='62']"
     assert_empty entry_row("Halo").css(".set-row__tick")
@@ -880,6 +880,42 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select ".set-search ~ .set-entry__section #set-entry-in-progress-title"
     assert_select ".set-entry__empty", false
+    assert_select "[style]", false
+  end
+
+  test "a ranked set's row carries one tick per rank by its size, each with its mark and its place, and a reached rank beside the count" do
+    entry_season
+    player = accounts_players(:player)
+    sets = { "Tiny" => 3, "Small" => 7, "Roguelike" => 40, "Huge" => 250 }.to_h do |name, size|
+      members = take(size)
+      insert_ranked_theme(members, key: name.downcase, season: @season)
+      [ name, members ]
+    end
+    hold_all(player, sets["Tiny"].first(2) + sets["Small"].first(2) + sets["Roguelike"].first(22) + sets["Huge"].first(30))
+    sign_in(player)
+
+    get library_path(locale: :en)
+
+    ticks = ->(name) { entry_row(name).css(".set-row__tick").map { [ it["class"][/--(\w+)/, 1], it["data-tier-at"], it.classes.include?("is-reached") ] } }
+    assert_empty ticks.("Tiny")
+    assert_equal [ [ "master", "0.5714", false ] ], ticks.("Small")
+    assert_equal [ [ "adept", "0.25", true ], [ "expert", "0.5", true ], [ "master", "0.75", false ] ], ticks.("Roguelike")
+    assert_equal [ [ "novice", "0.1", true ], [ "apprentice", "0.252", false ], [ "adept", "0.5", false ], [ "expert", "0.752", false ], [ "master", "0.9", false ] ],
+      ticks.("Huge")
+    sets.each_key do |name|
+      row = entry_row(name)
+      assert_equal row.css(".set-row__tick").map { it["class"][/--(\w+)/, 1] },
+        row.css(".set-row__tick > .set-row__tick-mark > svg.rank-mark.rank-mark--fine").map { it["class"][/rank-mark--(?!fine)(\w+)/, 1] }
+      assert_equal name != "Tiny", row.classes.include?("set-row--tiered"), name
+      assert_equal "tier-ticks", row.at_css(".set-row__track")["data-controller"]
+    end
+    assert_select ".set-row__figure, .set-album__figure", false
+
+    roguelike = entry_row("Roguelike")
+    assert_equal "Expert", roguelike.at_css(".set-tier.set-tier--expert").text
+    assert roguelike.at_css(".set-tier > svg.set-tier__check + svg.rank-mark.rank-mark--expert.rank-mark--fine + span")
+    assert_equal "Roguelike, theme, 22 cards out of 40, expert tier, master at 30", sentence("Roguelike")
+    assert_nil entry_row("Small").at_css(".set-tier")
     assert_select "[style]", false
   end
 

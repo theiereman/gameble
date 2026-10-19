@@ -379,16 +379,16 @@
   margin: 8px 0 6px;
 }
 
-.booster-celebration__album {
+.booster-celebration__arrow {
   position: absolute;
   top: 50%;
   right: 8px;
-  margin-top: -6px;
+  margin-top: -7px;
   color: var(--color-muted);
 }
 
-.booster-celebration__banner:hover .booster-celebration__album,
-.booster-celebration__banner:focus-visible .booster-celebration__album {
+.booster-celebration__banner:hover .booster-celebration__arrow,
+.booster-celebration__banner:focus-visible .booster-celebration__arrow {
   color: var(--color-text-max);
 }
 

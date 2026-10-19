@@ -41,10 +41,12 @@ module PacksHelper
   end
 
   # The set tiers the opening reached, read back by its pack: a replay
-  # answers the same ones.
+  # answers the same ones. Each carries its set's tiers before completion,
+  # the fewest cards first, where the celebration's gauge draws its ticks.
   def pack_set_tiers(pack)
     Game::PackSetTiers.call(pack).map do |row|
       { kind: row.kind, key: row.key, name: SetLabel.for(row), tier: row.tier, required: row.required, total: row.total,
+        thresholds: row.thresholds.map { |tier, required| { tier:, required: } },
         url: library_set_path(kind: row.kind, key: row.key) }
     end
   end

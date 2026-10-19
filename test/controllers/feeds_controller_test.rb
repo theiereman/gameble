@@ -492,7 +492,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__entry--set .feed__tag", "Argent"
   end
 
-  test "a rank reached reads its name, with an empty mark and no notches" do
+  test "a rank reached reads its name behind its rank's mark, without notches" do
     common, uncommon, rare, legendary = fixture_tier_ids.values_at(0, 1, 2, 4)
     insert_set([ common, uncommon, rare, legendary, fixture_tier_ids[3] ], Catalog::TierTable.tiers(5))
     [ uncommon, rare ].each { Game::Holding.create!(player_id: @player.id, card_season_id: it, quantity: 1) }
@@ -504,7 +504,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__entry.feed__entry--set", 1 do
       assert_select ".feed__sentence", "Hugo reaches the Master tier in the Roguelike set."
       assert_select ".feed__tag.feed__tier--master", "Master"
-      assert_select ".feed__tier-mark", ""
+      assert_select ".feed__tier-mark > svg.pixel-icon.rank-mark.rank-mark--master.rank-mark--fine[aria-hidden=true]", 1
       assert_select ".feed__tier-notches", 0
     end
 

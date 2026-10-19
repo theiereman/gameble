@@ -3,7 +3,7 @@
 // reached, and the one message the live region speaks for them. Pure: no
 // DOM.
 import { formatNumber, t, type Template } from "./i18n"
-import { SET_TIERS, type OpeningSetTier, type SetTierName } from "./opening"
+import { SET_TIERS, type OpeningSetTier, type SetThreshold, type SetTierName } from "./opening"
 
 /** More results than this fold into one line, "n PALIERS ATTEINTS". */
 export const FOLD_ABOVE = 3
@@ -15,7 +15,6 @@ export type CelebrationStrings = {
   tiers: Record<SetTierName, string>
   folded: Template
   foldedLead: string
-  setHint: string
   foldedHint: string
   openSet: string
   openInProgress: string
@@ -29,9 +28,15 @@ export type CelebrationStrings = {
   spokenTiers: Record<SetTierName, string>
 }
 
-export type CelebrationIcons = { next: string; check: string; album: string }
+export const RANKS = ["novice", "apprentice", "adept", "expert", "master"] as const satisfies readonly SetTierName[]
+export type Rank = (typeof RANKS)[number]
 
-/** A set's result: its name, the highest tier the opening reached, its cards at that tier over the set's. */
+export const isRank = (tier: SetTierName): tier is Rank => (RANKS as readonly SetTierName[]).includes(tier)
+
+/** The pixel icons as HTML: the link's arrow, the complete ribbon's check and each rank's mark. */
+export type CelebrationIcons = { next: string; arrow: string; check: string; ranks: Record<Rank, string> }
+
+/** A set's result: its name, the highest tier the opening reached, its cards at that tier over the set's, and the set's tiers before completion. */
 export type CelebrationResult = {
   key: string
   name: string
@@ -41,6 +46,7 @@ export type CelebrationResult = {
   total: number
   before: number
   crossed: SetTierName[]
+  thresholds: SetThreshold[]
 }
 
 const METAL_NOTCHES: Partial<Record<SetTierName, number>> = { bronze: 1, silver: 2, gold: 3 }
@@ -84,6 +90,7 @@ function resultOf(key: string, rows: readonly OpeningSetTier[]): CelebrationResu
     total: highest.total,
     before: Math.max(0, lowestRequired - 1),
     crossed: [...new Set(byRequired.map((row) => row.tier))],
+    thresholds: [...highest.thresholds].sort((a, b) => a.required - b.required || tieBreak(a.tier) - tieBreak(b.tier)),
   }
 }
 
@@ -123,17 +130,11 @@ export function foldedSubline(results: readonly CelebrationResult[], strings: Ce
 export const MARK_START = 80
 export const MARK_GAP = 90
 
-export const TICK_TIERS = ["bronze", "silver", "gold"] as const satisfies readonly SetTierName[]
-
-const FOLDED_MARK_TIERS = [...TICK_TIERS, "complete"] as const satisfies readonly SetTierName[]
-
-export function foldedMarks(results: readonly CelebrationResult[]): { tier: SetTierName; lightAt: number | null }[] {
-  const reached = new Set(results.flatMap((result) => result.crossed))
-  let lit = 0
-  return FOLDED_MARK_TIERS.map((tier) => ({ tier, lightAt: reached.has(tier) ? MARK_START + MARK_GAP * lit++ : null }))
+/** One mark per tier its results reached, ordered by each tier's highest result, lowest first, each lit after the one before. */
+export function foldedMarks(results: readonly CelebrationResult[]): { tier: SetTierName; lightAt: number }[] {
+  const tiers = [...new Set(results.map((result) => result.tier))].reverse()
+  return tiers.map((tier, lit) => ({ tier, lightAt: MARK_START + MARK_GAP * lit }))
 }
-
-export const TICK_AT: Record<(typeof TICK_TIERS)[number], number> = { bronze: 0.1, silver: 0.25, gold: 0.5 }
 
 export const MIN_SHARE = 0.015
 
@@ -158,20 +159,18 @@ export function fillReaches(at: number, { from, to }: { from: number; to: number
 
 export type TickState = "solid" | "crossed" | "pending"
 
-type TickTier = (typeof TICK_TIERS)[number]
+export type GaugeTick = { tier: SetTierName; at: number; state: TickState; lightAt: number | null }
 
-const isTickTier = (tier: SetTierName): tier is TickTier => (TICK_TIERS as readonly SetTierName[]).includes(tier)
-
-/** The metal ticks of an earlier season's result; none for complete or a rank. */
-export function gaugeTicks(result: CelebrationResult): { tier: TickTier; state: TickState; lightAt: number | null }[] {
-  const reachedTier = result.tier
-  if (!isTickTier(reachedTier)) return []
+/** One tick per tier of the set before completion, at its share of the set: crossed by this capsule, reached before it, or still ahead. None for SET COMPLET. */
+export function gaugeTicks(result: CelebrationResult): GaugeTick[] {
+  if (result.tier === "complete" || result.total <= 0) return []
   const fill = gaugeFractions(result)
-  return TICK_TIERS.map((tier) => {
-    if (TICK_AT[tier] > TICK_AT[reachedTier]) return { tier, state: "pending", lightAt: null }
-    if (!result.crossed.includes(tier)) return { tier, state: "solid", lightAt: null }
-    if (tier === result.tier) return { tier, state: "crossed", lightAt: LANDS_AT }
-    return { tier, state: "crossed", lightAt: Math.min(LANDS_AT, fillReaches(TICK_AT[tier], fill)) }
+  return result.thresholds.map(({ tier, required }) => {
+    const at = Math.min(1, required / result.total)
+    if (required > result.owned) return { tier, at, state: "pending", lightAt: null }
+    if (!result.crossed.includes(tier)) return { tier, at, state: "solid", lightAt: null }
+    if (tier === result.tier) return { tier, at, state: "crossed", lightAt: LANDS_AT }
+    return { tier, at, state: "crossed", lightAt: Math.min(LANDS_AT, fillReaches(at, fill)) }
   })
 }
 

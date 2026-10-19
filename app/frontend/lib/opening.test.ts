@@ -9,7 +9,22 @@ const answer = {
   bank: { available: 9, reserveFull: false, nextAvailableAt: null, scheduledAt: [], nextPackSize: 5 },
   serverTime: "2026-10-06T14:22:00.000Z",
   tierCountsBefore: { common: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0 },
-  setTiers: [{ kind: "theme", key: "roguelike", name: "Roguelike", tier: "silver", required: 16, total: 62, url: "/fr/library/theme/roguelike" }],
+  setTiers: [
+    {
+      kind: "theme",
+      key: "roguelike",
+      name: "Roguelike",
+      tier: "silver",
+      required: 16,
+      total: 62,
+      thresholds: [
+        { tier: "bronze", required: 7 },
+        { tier: "silver", required: 16 },
+        { tier: "gold", required: 31 },
+      ],
+      url: "/fr/library/theme/roguelike",
+    },
+  ],
   unlockedCardBacks: [],
 }
 
@@ -41,7 +56,12 @@ describe("sendOpening", () => {
   it("reads the set tiers of both families: earlier seasons' metals and the ranks", async () => {
     const setTiers = [
       { ...answer.setTiers[0], tier: "bronze", required: 7 },
-      ...["novice", "apprentice", "adept", "expert", "master", "complete"].map((tier) => ({ ...answer.setTiers[0], key: "rpg", tier })),
+      ...["novice", "apprentice", "adept", "expert", "master", "complete"].map((tier) => ({
+        ...answer.setTiers[0],
+        key: "rpg",
+        tier,
+        thresholds: ["novice", "apprentice", "adept", "expert", "master"].map((rank, index) => ({ tier: rank, required: [25, 63, 125, 188, 225][index] })),
+      })),
     ]
     const { send } = fake(json(200, { ...answer, setTiers }))
     expect(await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })).toEqual({ kind: "opened", answer: { ...answer, setTiers } })
@@ -75,6 +95,10 @@ describe("sendOpening", () => {
       fake(json(200, { ...answer, setTiers: undefined })),
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], tier: "platinum" }] })),
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], url: undefined }] })),
+      // A set tier without its set's thresholds, or with one of another shape.
+      fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], thresholds: undefined }] })),
+      fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], thresholds: [{ tier: "silver", required: "16" }] }] })),
+      fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], thresholds: [{ tier: "complete", required: 62 }] }] })),
     ]
     for (const { send } of outcomes) expect(await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })).toEqual({ kind: "failed" })
   })

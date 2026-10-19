@@ -109,6 +109,25 @@ class LiveFeedJobTest < ActiveSupport::TestCase
     assert_equal "Argent", template(french, "prepend", "live-ticker-queue").at_css(".ticker__tier").text
   end
 
+  test "a rank reached carries its rank's mark before its name in the feed and the ticker" do
+    common, uncommon, rare, = fixture_tier_ids
+    insert_set([ common, uncommon, rare ], { expert: 2, complete: 3 })
+    Game::Holding.create!(player_id: @hugo.id, card_season_id: uncommon, quantity: 1)
+    open_pack(cards: commons)
+
+    LiveFeedJob.perform_now(notices)
+
+    english = received(:en)
+    tag = template(english, "prepend", "feed-entries").css("li.feed__entry").sole.at_css(".feed__tag.feed__tier.feed__tier--expert")
+    assert_equal "Expert", tag.text
+    assert_equal 1, tag.css(".feed__tier-mark > svg.rank-mark.rank-mark--expert.rank-mark--fine[aria-hidden=true]").size
+    assert_empty tag.css(".feed__tier-notches")
+    ticker = template(english, "prepend", "live-ticker-queue").at_css(".ticker__tier.feed__tier--expert")
+    assert_equal "Expert", ticker.text
+    assert ticker.at_css(".feed__tier-mark > svg.rank-mark--expert")
+    assert_empty english.css("[style]")
+  end
+
   test "an opening reaching four sets' tiers is one item in the feed and the ticker, with the count and the highest" do
     insert_four_themes
     open_pack(cards: commons)

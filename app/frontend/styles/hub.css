@@ -611,34 +611,61 @@ button.menu-item:focus-visible:hover {
   grid-area: auto;
 }
 
-.set-row--tiered .set-row__track {
-  padding-bottom: 12px;
+/* A tiered row keeps room under its bar for the deepest mark. */
+.set-row--tiered {
+  padding-bottom: 28px;
+}
+
+/* A tier's tick, at its share of the set (placed by the tier-ticks
+   controller, hidden until then): dashed while the tier is ahead, solid in
+   its colour and raised 4px once reached, running 2px under the bar; its
+   mark starts 4px under the bar either way. */
+.set-row__track {
+  --bar-height: 6px;
 }
 
 .set-row__tick {
+  --tier: var(--color-text-bright);
   position: absolute;
   top: 0;
+  left: calc(var(--at) * 100%);
   width: 2px;
-  height: 6px;
+  height: calc(var(--bar-height) + 2px);
   margin-left: -1px;
   background: repeating-linear-gradient(to bottom, var(--color-line-deep) 0 2px, transparent 2px 4px);
 }
 
-.set-row__tick--bronze { left: 10%; --tier: var(--color-tier-bronze); }
-.set-row__tick--silver { left: 25%; --tier: var(--color-tier-silver); }
-.set-row__tick--gold { left: 50%; --tier: var(--color-gold); }
+.set-row__tick:not(.is-placed),
+.set-album__figure:not(.is-placed) {
+  visibility: hidden;
+}
+
+.set-row__tick--bronze { --tier: var(--color-tier-bronze); }
+.set-row__tick--silver { --tier: var(--color-tier-silver); }
+.set-row__tick--gold { --tier: var(--color-gold); }
 
 .set-row__tick.is-reached {
   top: -4px;
-  height: 10px;
+  height: calc(var(--bar-height) + 6px);
   background: var(--tier);
 }
 
-.set-row__tick .set-notches {
+.set-row__tick-mark {
   position: absolute;
-  top: calc(100% + 2px);
+  top: calc(var(--bar-height) + 4px);
   left: 50%;
+  display: block;
+  color: var(--color-line-deep);
   transform: translateX(-50%);
+}
+
+.set-row__tick.is-reached .set-row__tick-mark {
+  top: calc(var(--bar-height) + 8px);
+  color: var(--tier);
+}
+
+.set-row__tick-mark > * {
+  display: block;
 }
 
 .set-notches {
@@ -674,6 +701,16 @@ button.menu-item:focus-visible:hover {
 .set-tier--silver { --tier: var(--color-tier-silver); }
 .set-tier--gold { --tier: var(--color-gold); }
 .set-tier--complete { --tier: var(--color-lime); }
+.set-tier--novice,
+.set-tier--apprentice,
+.set-tier--adept,
+.set-tier--expert,
+.set-tier--master { --tier: var(--color-text-bright); }
+
+.set-tier__check {
+  width: 7px;
+  height: 6px;
+}
 
 .set-tier .set-notches i:nth-child(2) {
   height: 10px;

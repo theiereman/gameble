@@ -9,6 +9,7 @@ import {
   foldedTitle,
   gaugeFractions,
   gaugeTicks,
+  isRank,
   juice,
   nextResult,
   notchCount,
@@ -112,7 +113,7 @@ function ResultBanner({ result, position, strings, delimiter, phone, icons, onLe
     >
       <Ribbon
         title={resultTitle(result, strings)}
-        lead={complete ? <Icon html={icons.check} className="booster-celebration__check" /> : <Notches count={notchCount(result.tier)} />}
+        lead={complete ? <Icon html={icons.check} className="booster-celebration__check" /> : <TierMark tier={result.tier} icons={icons} />}
         glosses={glosses}
         glints={glints}
         sparks={ribbonSparks}
@@ -150,14 +151,14 @@ function ResultBanner({ result, position, strings, delimiter, phone, icons, onLe
             className="booster-celebration__tick"
             data-tier={tick.tier}
             data-state={tick.state}
-            style={tick.lightAt === null ? undefined : cssVars({ "--light": ms(tick.lightAt) })}
+            style={cssVars(tick.lightAt === null ? { "--at": tick.at } : { "--at": tick.at, "--light": ms(tick.lightAt) })}
           >
-            {!phone && <Notches count={notchCount(tick.tier)} />}
+            {!phone && <TierMark tier={tick.tier} icons={icons} />}
             {tick.tier === result.tier && <Sparks count={tickSparks} radius={TICK_SPARK_RADIUS} />}
           </i>
         ))}
       </span>
-      <Hint phone={phone} text={strings.setHint} icons={icons} />
+      <Hint phone={phone} text={null} icons={icons} />
     </a>
   )
 }
@@ -186,13 +187,8 @@ function FoldedBanner({ results, strings, phone, url, icons, onLeave }: FoldedBa
       <Ribbon title={foldedTitle(results, strings)} lead={null} glosses={0} glints={false} sparks={0} />
       <span className="booster-celebration__marks" aria-hidden="true">
         {foldedMarks(results).map(({ tier, lightAt }) => (
-          <span key={tier} className="booster-celebration__mark" data-tier={tier}>
-            <MarkShape tier={tier} />
-            {lightAt !== null && (
-              <span className="booster-celebration__mark-lit" style={cssVars({ "--light": ms(lightAt) })}>
-                <MarkShape tier={tier} />
-              </span>
-            )}
+          <span key={tier} className="booster-celebration__mark" data-tier={tier} style={cssVars({ "--light": ms(lightAt) })}>
+            {tier === "complete" ? <span className="booster-celebration__stamp" /> : <TierMark tier={tier} icons={icons} />}
           </span>
         ))}
       </span>
@@ -231,8 +227,10 @@ function Ribbon({ title, lead, glosses, glints, sparks }: RibbonProps) {
   )
 }
 
-function Hint({ phone, text, icons }: { phone: boolean; text: string; icons: CelebrationIcons }) {
-  if (phone) return <Icon html={icons.album} className="booster-celebration__album" />
+/** The link's pixel arrow: alone on a result and on the phone, after its words on the folded line. */
+function Hint({ phone, text, icons }: { phone: boolean; text: string | null; icons: CelebrationIcons }) {
+  if (phone) return <Icon html={icons.arrow} className="booster-celebration__arrow" />
+  if (text === null) return <Icon html={icons.arrow} className="booster-celebration__hint booster-celebration__hint--arrow" />
   return (
     <span className="booster-celebration__hint" aria-hidden="true">
       {text}
@@ -241,8 +239,9 @@ function Hint({ phone, text, icons }: { phone: boolean; text: string; icons: Cel
   )
 }
 
-function MarkShape({ tier }: { tier: SetTierName }) {
-  return tier === "complete" ? <span className="booster-celebration__stamp" /> : <Notches count={notchCount(tier)} />
+/** A tier's mark: a rank's insignia, or an earlier season's notches. */
+function TierMark({ tier, icons }: { tier: SetTierName; icons: CelebrationIcons }) {
+  return isRank(tier) ? <Icon html={icons.ranks[tier]} className="booster-celebration__rank" /> : <Notches count={notchCount(tier)} />
 }
 
 function Notches({ count }: { count: number }) {

@@ -249,8 +249,29 @@ const achievementIcons = () => Object.fromEntries(Object.entries(ACHIEVEMENT_GLY
   [`achievement-${glyph}-locked`, achievementIcon(cells, ACHIEVEMENT_LOCKED)],
 ]))
 
+// The ranks' insignia, told apart by shape alone: one to three chevrons
+// stacked every 3 rows, one 9-pixel star, two 7-pixel stars 2 columns apart.
+const RANK_CHEVRON = ["....c....", "...ccc...", "..cc.cc..", ".cc...cc.", "cc.....cc"]
+const RANK_STAR9 = ["....c....", "...ccc...", "...ccc...", "ccccccccc", ".ccccccc.", "..ccccc..", "..ccccc..", ".ccc.ccc.", ".cc...cc."]
+const RANK_STAR7 = ["...c...", "..ccc..", "ccccccc", ".ccccc.", "..ccc..", ".cc.cc.", ".c...c."]
+
+function stacked(shape, count, stride) {
+  const rows = Array.from({ length: shape.length + stride * (count - 1) }, () => [...".".repeat(shape[0].length)])
+  for (let k = 0; k < count; k++) shape.forEach((row, y) => [...row].forEach((ch, x) => { if (ch === "c") rows[y + stride * k][x] = "c" }))
+  return rows.map((row) => row.join(""))
+}
+
+const RANK_MARKS = {
+  novice: stacked(RANK_CHEVRON, 1, 3),
+  apprentice: stacked(RANK_CHEVRON, 2, 3),
+  adept: stacked(RANK_CHEVRON, 3, 3),
+  expert: RANK_STAR9,
+  master: RANK_STAR7.map((row, y) => `${row}..${RANK_STAR7[y]}`),
+}
+
 const ICONS = {
   wordmark: wordmarkIcon(),
+  ...Object.fromEntries(Object.entries(RANK_MARKS).map(([rank, grid]) => [`rank-${rank}`, { grid }])),
   favicon: faviconIcon(),
   ...Object.fromEntries(Object.entries(RARITY_SHAPES).map(([tier, grid]) => [`rarity-${tier}`, { legend: RARITY[tier], grid }])),
   ...Object.fromEntries(Object.entries(RARITY_COMPACT_SHAPES).map(([tier, grid]) => [`rarity-compact-${tier}`, { legend: RARITY[tier], grid }])),
@@ -340,16 +361,6 @@ const ICONS = {
       "cc.cc..",
       ".ccc...",
       "..c....",
-    ],
-  },
-  album: {
-    grid: [
-      "cccccc.",
-      "c....cc",
-      "c.cc.cc",
-      "c....cc",
-      "c.cc.cc",
-      "cccccc.",
     ],
   },
   // ◆
@@ -1239,7 +1250,11 @@ const DESCRIPTIONS = {
   "arrow-small-right.svg": "▸ small arrow for links (text colour)",
   "close.svg": "✕ close and remove (text colour)",
   "check.svg": "✓ check mark (text colour)",
-  "album.svg": "A set's album: a closed book, 7 × 6 (text colour)",
+  "rank-novice.svg": "Novice rank mark: one chevron, 9 × 5 (text colour)",
+  "rank-apprentice.svg": "Apprentice rank mark: two stacked chevrons, 9 × 8 (text colour)",
+  "rank-adept.svg": "Adept rank mark: three stacked chevrons, 9 × 11 (text colour)",
+  "rank-expert.svg": "Expert rank mark: one five-point star, 9 × 9 (text colour)",
+  "rank-master.svg": "Master rank mark: two five-point stars, 16 × 7 (text colour)",
   "diamond.svg": "◆ ticker separator (text colour)",
   "swap.svg": "⇄ trade swap (text colour)",
   "external.svg": "↗ external link (text colour)",

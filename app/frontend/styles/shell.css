@@ -75,6 +75,19 @@ a {
   image-rendering: pixelated;
 }
 
+/* A rank's insignia, exported at two CSS px per art pixel; `--fine` draws
+   it at one. */
+.rank-mark--novice { --rank-width: 9px; --rank-height: 5px; }
+.rank-mark--apprentice { --rank-width: 9px; --rank-height: 8px; }
+.rank-mark--adept { --rank-width: 9px; --rank-height: 11px; }
+.rank-mark--expert { --rank-width: 9px; --rank-height: 9px; }
+.rank-mark--master { --rank-width: 16px; --rank-height: 7px; }
+
+.rank-mark--fine {
+  width: var(--rank-width);
+  height: var(--rank-height);
+}
+
 .stream-slot {
   display: contents;
 }

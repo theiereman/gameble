@@ -36,10 +36,6 @@ module Game
       total.positive? && held >= total
     end
 
-    def tiered?
-      tiers.keys.any? { |tier| tier != Catalog::SetTier::COMPLETE }
-    end
-
     def started?
       held.positive?
     end

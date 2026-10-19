@@ -1276,7 +1276,7 @@
   position: relative;
   display: block;
   height: 8px;
-  margin: 10px 0 18px;
+  margin: 10px 0 21px;
   background: var(--color-panel-sunken);
   box-shadow: 0 0 0 var(--space-unit) var(--color-line-soft);
 }
@@ -1333,15 +1333,12 @@
 .booster-celebration__tick {
   position: absolute;
   top: -4px;
+  left: calc(var(--at) * 100%);
   width: 2px;
   height: 16px;
   margin-left: -1px;
   background: repeating-linear-gradient(to bottom, var(--color-line-deep) 0 2px, transparent 2px 4px);
 }
-
-.booster-celebration__tick[data-tier="bronze"] { left: 10%; }
-.booster-celebration__tick[data-tier="silver"] { left: 25%; }
-.booster-celebration__tick[data-tier="gold"] { left: 50%; }
 
 .booster-celebration__tick:not([data-state="pending"]) {
   background: var(--celebration-tier);
@@ -1380,7 +1377,28 @@
   box-shadow: inset 0 0 0 2px var(--color-line-deep);
 }
 
-.booster-celebration__tick[data-state="crossed"] .booster-celebration__notches {
+/* A rank's mark under its tick, one CSS px per art pixel, 4px under the
+   gauge: line-deep while ahead, the tier colour once reached. */
+.booster-celebration__tick .booster-celebration__rank {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  color: var(--color-line-deep);
+  transform: translateX(-50%);
+}
+
+.booster-celebration__tick:not([data-state="pending"]) .booster-celebration__rank {
+  top: 20px;
+  color: var(--celebration-tier);
+}
+
+.booster-celebration__tick .rank-mark {
+  width: var(--rank-width);
+  height: var(--rank-height);
+}
+
+.booster-celebration__tick[data-state="crossed"] .booster-celebration__notches,
+.booster-celebration__tick[data-state="crossed"] .booster-celebration__rank {
   animation: booster-celebration-notches 180ms steps(3) both;
   animation-delay: calc(var(--entrance) + var(--light));
 }
@@ -1399,39 +1417,16 @@
   margin-top: 2px;
 }
 
+/* The folded line's marks, one per tier its results reached, each
+   popping in its tier colour after the one before. */
 .booster-celebration__mark {
   position: relative;
   display: inline-flex;
   align-items: center;
   min-height: 14px;
-}
-
-.booster-celebration__mark .booster-celebration__notches i {
-  width: 6px;
-  background: transparent;
-  box-shadow: inset 0 0 0 2px var(--color-line-deep);
-}
-
-.booster-celebration__mark .booster-celebration__stamp {
-  box-shadow: inset 0 0 0 3px var(--color-line-deep), 0 0 0 var(--space-unit) var(--color-outline);
-}
-
-.booster-celebration__mark-lit {
-  position: absolute;
-  inset: 0;
-  display: inline-flex;
-  align-items: center;
+  color: var(--celebration-tier);
   animation: booster-celebration-pop 180ms steps(2, end) both;
   animation-delay: calc(var(--entrance) + var(--light));
-}
-
-.booster-celebration__mark-lit .booster-celebration__notches i {
-  background: var(--celebration-tier);
-  box-shadow: none;
-}
-
-.booster-celebration__mark-lit .booster-celebration__stamp {
-  box-shadow: inset 0 0 0 3px var(--color-lime), 0 0 0 var(--space-unit) var(--color-outline);
 }
 
 .booster-celebration__sub {
@@ -1465,9 +1460,19 @@
   bottom: 8px;
 }
 
+/* A result's hint is the arrow alone, in the free corner beside its ribbon. */
+.booster-celebration__hint--arrow {
+  top: 9px;
+}
+
 .booster-celebration__banner:hover .booster-celebration__hint,
 .booster-celebration__banner:focus-visible .booster-celebration__hint {
   color: var(--color-text-max);
+}
+
+.booster-celebration__banner:hover .booster-celebration__hint--arrow,
+.booster-celebration__banner:focus-visible .booster-celebration__hint--arrow {
+  transform: translateX(2px);
 }
 
 @keyframes booster-celebration-fade {

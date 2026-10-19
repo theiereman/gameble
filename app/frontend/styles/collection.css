@@ -801,26 +801,42 @@
   position: relative;
 }
 
-.set-album__header--tiered .set-album__track {
-  padding-bottom: var(--space-4);
+/* Under the tiers' marks, the count each asks, 19px under the bar. */
+.set-album__header.set-album__header--tiered {
+  padding-bottom: 44px;
 }
 
 .set-album__bar {
   height: 8px;
 }
 
+.set-album__header--complete .set-album__bar::-webkit-progress-value {
+  background: var(--color-lime);
+}
+
+.set-album__header--complete .set-album__bar::-moz-progress-bar {
+  background: var(--color-lime);
+}
+
 .set-album__ticks {
+  --bar-height: 8px;
   position: absolute;
   inset: 0 0 auto;
   height: 8px;
 }
 
-.set-album__ticks .set-row__tick {
-  height: 8px;
+.set-album__figure {
+  position: absolute;
+  top: calc(var(--bar-height) + 19px);
+  left: calc(var(--at) * 100%);
+  color: var(--color-muted);
+  font: var(--font-weight-bold) 0.6875rem / 0.875rem var(--font-family-space-mono);
+  white-space: nowrap;
+  transform: translateX(-50%);
 }
 
-.set-album__ticks .set-row__tick.is-reached {
-  height: 12px;
+.set-album__figure.is-reached {
+  color: var(--color-text-bright);
 }
 
 /* ---- No season ---- */

@@ -13,6 +13,7 @@ import {
   foldedTitle,
   gaugeFractions,
   gaugeTicks,
+  isRank,
   juice,
   nextResult,
   notchCount,
@@ -21,8 +22,9 @@ import {
   restoredCelebration,
   sparkOffsets,
   type CelebrationStrings,
+  type Rank,
 } from "./celebration"
-import type { OpeningSetTier } from "./opening"
+import type { OpeningSetTier, SetThreshold, SetTierName } from "./opening"
 
 // As config/locales/fr.yml words them.
 const fr: CelebrationStrings = {
@@ -42,7 +44,6 @@ const fr: CelebrationStrings = {
   },
   folded: { zero: "%{count} PALIER ATTEINT", one: "%{count} PALIER ATTEINT", other: "%{count} PALIERS ATTEINTS" },
   foldedLead: "dont",
-  setHint: "VOIR LE SET",
   foldedHint: "EN COURS",
   openSet: "Voir le set.",
   openInProgress: "Voir les sets en cours.",
@@ -83,7 +84,6 @@ const en: CelebrationStrings = {
   },
   folded: { one: "%{count} TIER REACHED", other: "%{count} TIERS REACHED" },
   foldedLead: "incl.",
-  setHint: "VIEW SET",
   foldedHint: "IN PROGRESS",
   openSet: "View set.",
   openInProgress: "View sets in progress.",
@@ -109,6 +109,28 @@ const NBSP = " "
 
 const slug = (name: string): string => name.toLowerCase().replace(/\s+/g, "-")
 
+const METAL_SHARES = [
+  ["bronze", 0.1],
+  ["silver", 0.25],
+  ["gold", 0.5],
+] as const
+
+// Catalog::TierTable's rows: ranks counted from the top by the set's size.
+const RANK_ROWS: [number, [Rank, number][]][] = [
+  [200, [["novice", 0.1], ["apprentice", 0.25], ["adept", 0.5], ["expert", 0.75], ["master", 0.9]]],
+  [60, [["apprentice", 0.1], ["adept", 0.25], ["expert", 0.5], ["master", 0.75]]],
+  [20, [["adept", 0.25], ["expert", 0.5], ["master", 0.75]]],
+  [10, [["expert", 1 / 3], ["master", 2 / 3]]],
+  [5, [["master", 0.5]]],
+  [0, []],
+]
+
+/** The thresholds a set of `total` cards was published with: the metals of earlier seasons, or the ranks. */
+function thresholdsOf(tier: SetTierName, total: number): SetThreshold[] {
+  const shares = isRank(tier) ? RANK_ROWS.find(([minimum]) => total >= minimum)![1] : METAL_SHARES
+  return shares.map(([name, share]) => ({ tier: name, required: Math.ceil(share * total) }))
+}
+
 const reached = (name: string, tier: OpeningSetTier["tier"], required: number, total: number, kind = "theme"): OpeningSetTier => ({
   kind,
   key: slug(name),
@@ -116,6 +138,7 @@ const reached = (name: string, tier: OpeningSetTier["tier"], required: number, t
   tier,
   required,
   total,
+  thresholds: thresholdsOf(tier, total),
   url: `/fr/library/${kind}/${slug(name)}`,
 })
 
@@ -273,14 +296,53 @@ describe("the gauge", () => {
     expect(ticks[1].lightAt).toBe(LANDS_AT)
   })
 
+  it("sets an earlier season's metal ticks at the set's own thresholds", () => {
+    const [silver] = celebrationResults([reached("Roguelike", "silver", 16, 62)])
+    expect(gaugeTicks(silver).map(({ tier, at }) => [tier, at])).toEqual([
+      ["bronze", 7 / 62],
+      ["silver", 16 / 62],
+      ["gold", 31 / 62],
+    ])
+  })
+
   it("lights both ticks of a double crossing, the lower as the fill passes it, the result's own last", () => {
-    const [double] = celebrationResults([reached("Cosy", "bronze", 1, 3), reached("Cosy", "silver", 1, 3)])
+    const [double] = celebrationResults([reached("Cosy", "silver", 2, 7), reached("Cosy", "bronze", 1, 7)])
     const [bronze, silver, gold] = gaugeTicks(double)
 
     expect([bronze.state, silver.state, gold.state]).toEqual(["crossed", "crossed", "pending"])
-    expect(bronze.lightAt).toBe(fillReaches(0.1, gaugeFractions(double)))
+    expect(bronze.lightAt).toBe(fillReaches(1 / 7, gaugeFractions(double)))
     expect(silver.lightAt).toBe(LANDS_AT)
     expect(bronze.lightAt!).toBeLessThan(silver.lightAt!)
+  })
+
+  it("draws a ranked set's ticks at its thresholds: adept of 40 cards crossed, expert and master ahead", () => {
+    const [adept] = celebrationResults([reached("Roguelike", "adept", 10, 40)])
+
+    expect(gaugeTicks(adept)).toEqual([
+      { tier: "adept", at: 0.25, state: "crossed", lightAt: LANDS_AT },
+      { tier: "expert", at: 0.5, state: "pending", lightAt: null },
+      { tier: "master", at: 0.75, state: "pending", lightAt: null },
+    ])
+  })
+
+  it("keeps a rank reached before the capsule solid, and lights each rank it crosses", () => {
+    const [master] = celebrationResults([reached("Les OVNI", "expert", 188, 250, "ufo"), reached("Les OVNI", "master", 225, 250, "ufo")])
+
+    expect(gaugeTicks(master).map(({ tier, state }) => [tier, state])).toEqual([
+      ["novice", "solid"],
+      ["apprentice", "solid"],
+      ["adept", "solid"],
+      ["expert", "crossed"],
+      ["master", "crossed"],
+    ])
+  })
+
+  it("draws one tick for a set of seven cards, none for a set too small for ranks", () => {
+    const [master] = celebrationResults([reached("Dark Souls", "master", 4, 7, "franchise")])
+    expect(gaugeTicks(master).map(({ tier, at, state }) => [tier, at, state])).toEqual([["master", 4 / 7, "crossed"]])
+
+    const [small] = celebrationResults([{ ...reached("Hollow Knight", "novice", 1, 3, "franchise"), thresholds: [] }])
+    expect(gaugeTicks(small)).toEqual([])
   })
 
   it("lights a tick as the fill passes it: the count before over the first 45 % of the fill, the capsule's share over the rest", () => {
@@ -296,9 +358,9 @@ describe("the gauge", () => {
     expect(gaugeTicks(complete)).toEqual([])
   })
 
-  it("draws no metal ticks on a rank result", () => {
+  it("draws a rank result's ticks from its own ranks, never the metals", () => {
     const [adept] = celebrationResults([reached("Roguelike", "adept", 16, 62)])
-    expect(gaugeTicks(adept)).toEqual([])
+    expect(gaugeTicks(adept).map(({ tier }) => tier)).toEqual(["apprentice", "adept", "expert", "master"])
   })
 })
 
@@ -340,7 +402,7 @@ describe("the folded line", () => {
       reached("Dark Souls", "complete", 3, 3, "franchise"),
     ])
 
-  it("lights the marks of every tier reached, one after another", () => {
+  it("lights the mark of each result's tier, from the lowest result to the highest", () => {
     expect(foldedMarks(four())).toEqual([
       { tier: "bronze", lightAt: 80 },
       { tier: "silver", lightAt: 170 },
@@ -349,23 +411,42 @@ describe("the folded line", () => {
     ])
   })
 
-  it("leaves hollow the marks of tiers not reached", () => {
-    const bronzes = celebrationResults(["A", "B", "C", "D"].map((name) => reached(name, "bronze", 2, 20)))
-    expect(foldedMarks(bronzes).map(({ tier, lightAt }) => [tier, lightAt])).toEqual([
-      ["bronze", 80],
-      ["silver", null],
-      ["gold", null],
-      ["complete", null],
+  it("lights the ranks of its results in turn: novice, adept, expert, master", () => {
+    const ranks = celebrationResults([
+      reached("Dark Souls", "master", 4, 7, "franchise"),
+      reached("Metroidvania", "expert", 50, 100),
+      reached("Roguelike", "adept", 10, 40),
+      reached("Les OVNI", "novice", 25, 250, "ufo"),
+    ])
+
+    expect(foldedMarks(ranks)).toEqual([
+      { tier: "novice", lightAt: 80 },
+      { tier: "adept", lightAt: 170 },
+      { tier: "expert", lightAt: 260 },
+      { tier: "master", lightAt: 350 },
     ])
   })
 
-  it("keeps the metal marks and complete, a rank lighting none of them", () => {
+  it("places a tier shared by several results by its highest one", () => {
+    const results = celebrationResults([
+      reached("Les OVNI", "adept", 125, 250, "ufo"),
+      reached("Supergiant", "expert", 4, 12, "studio"),
+      reached("Roguelike", "adept", 10, 40),
+      reached("Metroidvania", "apprentice", 10, 100),
+    ])
+
+    expect(results.map(({ tier }) => tier)).toEqual(["adept", "expert", "adept", "apprentice"])
+    expect(foldedMarks(results).map(({ tier }) => tier)).toEqual(["apprentice", "expert", "adept"])
+  })
+
+  it("shows one mark per tier, however many results share it", () => {
+    const bronzes = celebrationResults(["A", "B", "C", "D"].map((name) => reached(name, "bronze", 2, 20)))
+    expect(foldedMarks(bronzes)).toEqual([{ tier: "bronze", lightAt: 80 }])
+
     const ranks = celebrationResults(["A", "B", "C"].map((name) => reached(name, "adept", 5, 20)).concat(reached("D", "complete", 3, 3)))
-    expect(foldedMarks(ranks).map(({ tier, lightAt }) => [tier, lightAt])).toEqual([
-      ["bronze", null],
-      ["silver", null],
-      ["gold", null],
-      ["complete", 80],
+    expect(foldedMarks(ranks)).toEqual([
+      { tier: "adept", lightAt: 80 },
+      { tier: "complete", lightAt: 170 },
     ])
   })
 
