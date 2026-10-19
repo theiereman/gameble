@@ -727,6 +727,7 @@ fr:
           zero: "%{count} édition"
           one: "%{count} édition"
           other: "%{count} éditions"
+      detail_placeholder: "Choisissez une carte pour voir sa fiche."
       pages:
         label: "Pages de cartes"
         page: "Page"

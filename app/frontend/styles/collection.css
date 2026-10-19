@@ -1,12 +1,15 @@
 /*
  * The collection: its entry, the grid of every card and a set's album.
- * From 1180px the grid has the RAPPORT in a 220px column beside it; from
- * 720px the grid stands alone; under 720px one column, the RAPPORT folded
- * above the grid, two medium cards (card-m) wide. The grid of every card
- * fills its row: as many columns as fit at the smallest grid card, with
- * fixed gaps, each card as wide as its column (an even pixel count, at most
- * the largest grid card); extra width adds a column. A set's album keeps
- * medium cards, six at most a row. No horizontal page scroll at any width.
+ * From 1180px the grid has the RAPPORT in a 220px column on its left and
+ * the card detail in a 340px column on its right; from 900px the detail's
+ * column is 300px; from 720px the grid stands alone, the detail under it
+ * once a card is opened; under 720px one column, the RAPPORT folded above
+ * the grid, two medium cards (card-m) wide, and no detail beside it. The
+ * grid of every card fills its row: as many columns as fit at the smallest
+ * grid card, with fixed gaps, each card as wide as its column (an even
+ * pixel count, at most the largest grid card); extra width adds a column.
+ * A set's album keeps medium cards, six at most a row. No horizontal page
+ * scroll at any width.
  */
 
 .collection {
@@ -724,6 +727,123 @@
 .missing-slot__year {
   font: var(--font-body);
   letter-spacing: var(--tracking-body);
+}
+
+/* ---- The card detail beside the grid (collection_detail_controller.ts):
+   its column always reserved from 900px, sticky near the top of the
+   viewport and scrolling inside itself, a quiet placeholder until a card
+   is opened; from 720px under the grid, once a card is opened. ---- */
+
+.collection-results {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.collection-results__grid {
+  min-width: 0;
+}
+
+.collection-detail {
+  --detail-room: var(--space-3);
+
+  display: none;
+  min-width: 0;
+}
+
+.collection-detail__placeholder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.collection-detail__kicker {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.collection-detail__hint {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+/* ◀ 208px card ▶ fits the 340px column, beside a thin scrollbar. */
+.collection-detail > .card-detail {
+  padding-inline: var(--space-4);
+}
+
+@container (width < 304px) {
+  .collection-detail .card-detail__stage {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "card card"
+      "previous next";
+    gap: var(--space-4) var(--space-2);
+  }
+
+  .collection-detail .card-detail__card {
+    grid-area: card;
+  }
+
+  .collection-detail .card-detail__nav--previous {
+    grid-area: previous;
+    justify-self: end;
+  }
+
+  .collection-detail .card-detail__nav--next {
+    grid-area: next;
+    justify-self: start;
+  }
+}
+
+.collection-slot > .card-link[aria-current="true"] {
+  position: relative;
+}
+
+.collection-slot > .card-link[aria-current="true"]::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--space-2) - 3px);
+  box-shadow: inset 0 0 0 3px var(--color-accent);
+  pointer-events: none;
+}
+
+@media (min-width: 720px) and (max-width: 899px) {
+  .collection-detail:has(> .card-detail) {
+    display: block;
+  }
+}
+
+@media (min-width: 900px) {
+  .collection-results {
+    grid-template-columns: minmax(0, 1fr) 300px;
+    column-gap: var(--space-column-gap-medium);
+  }
+
+  .collection-detail {
+    position: sticky;
+    top: var(--space-5);
+    display: block;
+    max-height: calc(100dvh - 2 * var(--space-5));
+    margin: calc(-1 * var(--detail-room));
+    padding: var(--detail-room);
+    overflow: hidden auto;
+    scrollbar-width: thin;
+  }
+}
+
+@media (min-width: 1180px) {
+  .collection-results {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    column-gap: var(--space-column-gap-wide);
+  }
 }
 
 /* ---- Set album: the header panel, its gauge and stamp, then the grid ---- */

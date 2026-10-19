@@ -136,6 +136,37 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
+  test "the grid holds an empty card detail beside it, inside the frame the filters reload, its placeholder in English and French" do
+    publish_sets_draft
+    sign_in(accounts_players(:player))
+
+    get library_cards_path(locale: :en)
+
+    assert_response :success
+    assert_select ".collection[data-controller=collection-detail][data-action=?]",
+      "click->collection-detail#open turbo:frame-load->collection-detail#loaded"
+    assert_select "turbo-frame#collection-results.collection-results" do
+      assert_select ".collection-results__grid ol.collection-grid"
+      assert_select "turbo-frame#card-detail.collection-detail[target=_top]:not([src])", 1 do
+        assert_select ".card-detail", false
+        assert_select ".panel.panel--quiet.collection-detail__placeholder" do
+          assert_select "p.collection-detail__kicker", "Card file"
+          assert_select "p.collection-detail__hint", "Choose a card to see its details."
+        end
+      end
+    end
+    assert_select "a.card-link[aria-current]", false
+    assert_select "[style]", false
+
+    get library_cards_path(locale: :fr)
+
+    assert_select "turbo-frame#collection-results turbo-frame#card-detail .collection-detail__placeholder" do
+      assert_select "p.collection-detail__kicker", "Fiche de la carte"
+      assert_select "p.collection-detail__hint", "Choisissez une carte pour voir sa fiche."
+    end
+    assert_select "[style]", false
+  end
+
   test "a held card's link and a missing one's carry the grid's filters and search" do
     season = publish_sets_draft
     player = accounts_players(:player)
@@ -572,7 +603,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en)
 
     assert_select ".collection [data-id]", false
-    assert_equal %w[collection-report-title collection-search collection-set-search collection-set-options collection-results],
+    assert_equal %w[collection-report-title collection-search collection-set-search collection-set-options collection-results card-detail],
       css_select(".collection [id]").map { it["id"] }
     html = css_select(".collection").sole.to_html
     ids.each do |id|
@@ -1127,7 +1158,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_cards_path(locale: :en, state: %w[owned])
     assert_equal 30, slots.size
-    assert_select "turbo-frame#collection-results > p[role=status]", "30 cards shown."
+    assert_select "turbo-frame#collection-results > .collection-results__grid > p[role=status]", "30 cards shown."
   end
 
   test "more games held than the season's cards fill the bar at most" do

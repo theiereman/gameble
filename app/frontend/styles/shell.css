@@ -1224,9 +1224,9 @@ html[data-screen-change="same"] .main {
   view-transition-name: none;
 }
 
-/* A sub-view's step (the card detail's ◀ ▶; sub_view_controller.ts) is no
-   screen change either: the screen stays, only the sub-view's own named
-   parts move (styles/card-detail.css). */
+/* A step of the card detail (its ◀ ▶, or a card opened from the grid
+   beside it; lib/sub_view_step.ts) is no screen change either: the screen
+   stays, only the detail's own named parts move (styles/card-detail.css). */
 html[data-sub-view-step] .main {
   view-transition-name: none;
 }

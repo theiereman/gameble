@@ -15,6 +15,14 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
 
 - **On staging, after the trade filters across both collections (epic-easier-trades, ticket 18.2, 2026-10-19): the author's check.** Open a draft with a friend, then each side's picker on the desktop and the phone: under the rarities, a "Collections" group offers on the friend's side "Ses doublons", "Absentes de ma collection", "En commun", and on the player's side "Mes doublons", "Absentes de sa collection", "Disponibles". Check Rare + Épique + "Ses doublons" + "Absentes de ma collection" shows exactly those cards, that a placed card hidden by a chip stays placed and is sent, and that a friend's edition of a game the player holds in another season is not "Absente de ma collection". Settle: the build counts duplicates by game too, so a friend's S1 ×1 and S4 ×1 of a game both show under "Ses doublons" while each card reads ×1; the chip labels and the legend; the grid's height on the phone with the second chip row, until entry 18.3 folds the filters.
 
+- **On staging, after the card detail beside the grid (epic-recognizable-sets, ticket 13.14, 2026-10-19): the author's check.**
+  - At 1280px on `/fr/library/cards`, the right-hand column first shows the placeholder « Fiche de la carte · Choisissez une carte pour voir sa fiche. ». That line is new copy, not in the copy deck; approve it or reword it.
+  - Choosing a card shows its detail in that column, with the card framed in accent, and ▶ steps to the next card of the grid. Browser Back then shows the grid where it was.
+  - At 1024px, ◀ ▶ sit under the card in the 300px column.
+  - From 720 to 899px (a tablet held upright), the detail opens under the grid and the page scrolls to it. This is a reading of DESIGN.md's one-column row; the alternative is opening the detail page there, as on the phone.
+  - On the phone, the detail page opens as before.
+  - The grid now shows 4 cards a row at 1280px, against 7 before, as the column is always reserved.
+
 ## Settled on 2026-10-13
 
 Settled by the author through the triage page of 2026-10-13.

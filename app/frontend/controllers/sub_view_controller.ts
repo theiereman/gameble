@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { motionReduced } from "../lib/motion"
+import { beginStep, PHONE_WIDTH, stepping, takeFocusWish, trackStepTransition } from "../lib/sub_view_step"
 import { swipeStep } from "../lib/swipe"
 
 // The phone sub-view of a card's detail (DESIGN.md, Card detail; EXPERIENCE.md:
@@ -9,10 +10,8 @@ import { swipeStep } from "../lib/swipe"
 // the detail's article:
 // - turns a horizontal swipe on the stage into a press of ◀ or ▶ (a
 //   vertical drag scrolls; a finger that tilts the card never swipes);
-// - marks a step on <html> (`data-sub-view-step=previous|next`) from the
-//   press until Turbo's visit has loaded and the card's transition has
-//   ended: the star field does not shift (starfield_controller.ts) and the
-//   screen does not slide (styles/shell.css), as a step is no screen change;
+// - marks the step from the press until its visit has loaded
+//   (lib/sub_view_step.ts);
 // - when motion is allowed, renders the frame in a View Transition: the
 //   card leaves toward the step and the next one comes in with a slight turn
 //   (styles/card-detail.css); under reduced motion it is replaced at once;
@@ -25,68 +24,11 @@ import { swipeStep } from "../lib/swipe"
 //   "Sub-view opened (phone) → Its heading"), without scrolling; after a
 //   step pressed from the keyboard, it puts the focus back on the same
 //   control in the new detail instead (on its heading when that control is
-//   the disabled end). Nothing on a Turbo preview.
-//
-// Turbo's own visit for the new URL renders no body, but would start a
-// View Transition of its own, which would cut the card's short: during a
-// step the page's view-transition meta reads "none", so Turbo starts none
-// (the merged head brings the meta back). The step's
-// state lives at module level, as the article that set it is replaced by
-// the step.
+//   the disabled end); a card opened from the grid beside it
+//   (collection_detail_controller.ts) focuses its heading, without
+//   scrolling. Nothing on a Turbo preview.
 
 type Direction = "previous" | "next"
-
-/** The phone's width, where the detail is a sub-view. */
-const PHONE_WIDTH = "(max-width: 719px)"
-
-/** Ends a step even when its visit never loads (an error, a cancel). */
-const STEP_TIMEOUT_MS = 5000
-
-let focusAfterStep: Direction | null = null
-let stepTransition: { finished: Promise<unknown> } | null = null
-let stepTimer: ReturnType<typeof setTimeout> | undefined
-let pausedMeta: { element: HTMLMetaElement; content: string } | null = null
-
-// Ends the step, and with it a keyboard press's wish to refocus its control:
-// on the normal path the new detail's connect has consumed it already (the
-// frame renders before the promoted visit loads, and a View Transition's
-// update runs before it finishes); after a failed or cancelled visit (the
-// fallback timer) a later detail must focus its heading, not ◀ ▶.
-function endStep(): void {
-  focusAfterStep = null
-  document.removeEventListener("turbo:load", stepLoaded)
-  if (stepTimer !== undefined) clearTimeout(stepTimer)
-  stepTimer = undefined
-  stepTransition = null
-  if (pausedMeta) pausedMeta.element.content = pausedMeta.content
-  pausedMeta = null
-  delete document.documentElement.dataset.subViewStep
-}
-
-// The visit has loaded: the step ends once the card's transition has,
-// unless another step has begun meanwhile (a quick second press).
-function stepLoaded(): void {
-  document.removeEventListener("turbo:load", stepLoaded)
-  const transition = stepTransition
-  const step = currentStep
-  if (transition) void transition.finished.catch(() => undefined).then(() => step === currentStep && endStep())
-  else endStep()
-}
-
-let currentStep = 0
-
-function beginStep(direction: Direction): void {
-  endStep()
-  currentStep++
-  document.documentElement.dataset.subViewStep = direction
-  const meta = document.head.querySelector<HTMLMetaElement>("meta[name=view-transition]")
-  if (meta) {
-    pausedMeta = { element: meta, content: meta.content }
-    meta.content = "none"
-  }
-  document.addEventListener("turbo:load", stepLoaded)
-  stepTimer = setTimeout(endStep, STEP_TIMEOUT_MS)
-}
 
 /** Whether `element` is displayed (not under display: none). */
 function shown(element: HTMLElement): boolean {
@@ -119,9 +61,11 @@ export default class extends Controller<HTMLElement> {
     if (this.backValue) document.querySelector<HTMLAnchorElement>(".top-bar__phone-back")?.setAttribute("href", this.backValue)
     this.frame = this.element.closest("turbo-frame")
     this.frame?.addEventListener("turbo:before-frame-render", this.beforeFrameRender)
-    if (focusAfterStep) {
-      this.focusControl(focusAfterStep)
-      focusAfterStep = null
+    const wish = takeFocusWish()
+    if (wish === "heading") {
+      if (this.hasHeadingTarget) this.headingTarget.focus({ preventScroll: true })
+    } else if (wish) {
+      this.focusControl(wish)
     } else if (!document.documentElement.hasAttribute("data-turbo-preview") && this.hasHeadingTarget && this.subView()) {
       this.headingTarget.focus({ preventScroll: true })
     }
@@ -136,9 +80,7 @@ export default class extends Controller<HTMLElement> {
   // A press of ◀ or ▶ (click, Enter, or a swipe): Turbo follows the link.
   step(event: Event & { params: { direction?: string } }): void {
     const direction: Direction = event.params.direction === "previous" ? "previous" : "next"
-    // After beginStep, which ends any step still running (and clears this).
-    beginStep(direction)
-    focusAfterStep = document.activeElement === event.currentTarget ? direction : null
+    beginStep(direction, document.activeElement === event.currentTarget ? direction : null)
   }
 
   // ---- Swipe on the stage (touch only; touch-action: pan-y in CSS) ----
@@ -178,9 +120,9 @@ export default class extends Controller<HTMLElement> {
     const detail = (event as CustomEvent<{ render?: FrameRender }>).detail
     const render = detail?.render
     const doc = document as ViewTransitionDocument
-    if (!document.documentElement.dataset.subViewStep || !render || motionReduced() || typeof doc.startViewTransition !== "function") return
+    if (!stepping() || !render || motionReduced() || typeof doc.startViewTransition !== "function") return
     detail.render = (currentElement, newElement) => {
-      stepTransition = doc.startViewTransition!(() => render(currentElement, newElement))
+      trackStepTransition(doc.startViewTransition!(() => render(currentElement, newElement)))
     }
   }
 

@@ -689,6 +689,7 @@ en:
         full:
           one: "%{count} edition"
           other: "%{count} editions"
+      detail_placeholder: "Choose a card to see its details."
       pages:
         label: "Pages of cards"
         page: "Page"
