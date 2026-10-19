@@ -9,8 +9,9 @@
 <%# Profil et paramètres (EXPERIENCE.md, Settings row; DESIGN.md, Profile and
     settings): a muted label on the left and a control on the right, one row
     each. LANGUE is two links to this screen in the other locale (a GET,
-    read only); ANIMATIONS RÉDUITES is one form of three buttons (PATCH,
-    a full page load so `html[data-motion]` is re-rendered); SE DÉCONNECTER
+    read only, replacing this history entry); ANIMATIONS RÉDUITES is one
+    form of three buttons (PATCH, a full page load so `html[data-motion]`
+    is re-rendered); SE DÉCONNECTER
     is the sign-out. MES DONNÉES posts the export and, with JavaScript,
     hands the file over in a toast; TÉLÉCHARGER, beside EXPORTER, downloads
     the last export's file kept on the server; its time shows below,
@@ -31,7 +32,7 @@
         <div class="segmented" role="group" aria-labelledby="settings-language">
           <% { fr: "Français", en: "English" }.each do |locale, name| %>
             <%= link_to name, settings_path(locale:), class: "segmented__option", lang: locale, hreflang: locale,
-                  aria: { current: ("true" if locale == I18n.locale) }, data: { turbo_prefetch: false } %>
+                  aria: { current: ("true" if locale == I18n.locale) }, data: { turbo_prefetch: false, turbo_action: "replace" } %>
           <% end %>
         </div>
       </li>

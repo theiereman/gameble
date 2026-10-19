@@ -110,7 +110,7 @@ export function entryAfter(index: number, storage: TrailStorage | null): string 
   return readTrail(storage)[index + 1]?.pathname ?? null
 }
 
-export type PreviousScreen = { label: string; pathname: string; steps: number; localeChanged: boolean }
+export type PreviousScreen = { label: string; pathname: string; steps: number }
 
 /**
  * The nearest entry before the one at `index` showing a screen other than
@@ -123,7 +123,6 @@ export function previousScreen(trail: Trail, index: number, currentLabel: string
     const entry = trail[earlier]
     if (!entry) return null
     const localeChanged = localeOf(entry.pathname) !== locale
-    if (localeChanged && pathWithoutLocale(entry.pathname) === pathWithoutLocale(currentPathname)) continue
     const label = localeChanged ? entry.labels?.[locale] : entry.label
     if (!label) return null
     if (currentLabel && label === currentLabel) continue
@@ -131,7 +130,6 @@ export function previousScreen(trail: Trail, index: number, currentLabel: string
       label,
       pathname: localeChanged ? inLocale(entry.pathname, locale) : entry.pathname,
       steps: index - earlier,
-      localeChanged,
     }
   }
   return null
@@ -181,6 +179,6 @@ function pathWithoutLocale(pathname: string): string {
   return pathname.replace(/^\/[^/]*/, "")
 }
 
-function inLocale(pathname: string, locale: string): string {
+export function inLocale(pathname: string, locale: string): string {
   return `/${locale}${pathWithoutLocale(pathname)}`
 }

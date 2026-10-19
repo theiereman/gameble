@@ -9,11 +9,13 @@ import { createElement, lazy, Suspense, type ComponentType } from "react"
 import BoosterErrorBoundary from "../components/BoosterErrorBoundary"
 import type { BoosterProps } from "../components/Booster"
 import TradeBoard from "../components/TradeBoard"
+import { keepLocaleOnReturn } from "../lib/locale_return"
 import { registerStreamActions } from "../lib/stream_actions"
 import { rememberTimeZone } from "../lib/time_zone_cookie"
 
 registerStreamActions(window.Turbo)
 rememberTimeZone()
+keepLocaleOnReturn()
 
 const application = Application.start()
 registerControllers(application, import.meta.glob("../controllers/**/*_controller.ts", { eager: true }))
