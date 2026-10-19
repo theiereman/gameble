@@ -28,7 +28,7 @@ For every player: the collection shows what they are completing, with names they
 - R2 (CAP-6): a game joins every listed theme among its 5 most-voted Steam tags; a game with none joins the UFOs; the theme list (about forty themes, each grouping one or more tags, French and English names) lives in code; the UFOs hold under about 5 % of the catalog.
 - R3 (CAP-6): franchise and studio sets come from Steam's `franchises` and `developers`, kept on each card by the import, with the minimum sizes and filters of `catalog-and-rarity.md` Sets.
 - R4 (CAP-7): a card's genre is its main theme (the listed theme with the most votes among its top 5 tags); a card in the UFOs shows no genre.
-- R5 (CAP-6; AD-10): theme and hall of fame sets have bronze, silver and gold tiers (10 %, 25 %, 50 % of their distinct cards) and complete at 100 %; franchise, studio and UFO sets are complete or not; each tier or completion reached for the first time on a published-season set writes one row, recording how it was reached, and publishes one event.
+- R5 (CAP-6; AD-10): theme and hall of fame sets have bronze, silver and gold tiers (10 %, 25 %, 50 % of their distinct cards) and complete at 100 %; franchise, studio and UFO sets are complete or not; each tier or completion reached for the first time on a published-season set writes one row, recording how it was reached, and publishes one event. From the next published season, every set of every kind is tiered by its size instead: zero to five ranks (Novice, Apprenti, Adepte, Expert, Maître) then complete, shares rounded up (`catalog-and-rarity.md`, Tiers); published seasons keep bronze, silver and gold.
 - R6 (CAP-13): a tier reached or a set completed at opening shows a celebration after the reveal; the tiers and completions one opening reaches make one line in the feed and one in the LIVE ticker, naming the highest and the count.
 - R7 (CAP-6, CAP-18): the collection opens on "EN COURS" (the player's sets by closeness to their next tier or completion, plus those just progressed in), then "À DÉCOUVRIR", then a search over every set; the hub shows "SETS EN COURS"; public and friends' profiles show the same, signed out included.
 - R8 (CAP-6, CAP-18): a set opens as an album: owned cards, empty slots naming the missing games, its tiers or its "COMPLET" stamp.
@@ -59,6 +59,7 @@ For every player: the collection shows what they are completing, with names they
 - design — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Hub and Collection; DESIGN.md, Collection (after the change's edits)
 - forge — _bmad-output/initiative-gameble/forge-card-series/forge-card-series.md
 - change — _bmad-output/initiative-gameble/change-season-carryover/change-season-carryover.md, sections 4.1, 4.5, 4.6, 4.8
+- change — _bmad-output/initiative-gameble/change-set-tiers-by-size/change-set-tiers-by-size.md, sections 4.1 to 4.6
 
 ## Notes
 
@@ -80,3 +81,4 @@ For every player: the collection shows what they are completing, with names they
 - Decision (2026-10-15, author): no rebuild of season 1. Staging published a themed season 2, so season 1's retired sets show only on its own card pages and earn no tier; entry 4 becomes a migration that deletes the retired kinds' sets and completions, narrows the kind check, and removes the retired-kind code (AD-5, AD-10 amended).
 - Decision (2026-10-15, author): the tier celebration banner as built on staging looks bad; entries 16 (redrawn with bmad-ux, hitl) and 17 (rebuilt to it) follow entry 5.
 - Settled (2026-10-15, author): entry 5 done; staging's POST /packs over 14 openings on seasons 1 to 4: p50 67 ms, max 189 ms (the first, cold, after deploy), 45 to 60 queries each.
+- Decision (2026-10-19, author): set tiers cut by set size for every kind, ranks Novice, Apprenti, Adepte, Expert, Maître then complete, from the next published season (change-set-tiers-by-size); supersedes the 2026-10-09 bronze, silver and gold shares for later seasons. Entries 21 (rank marks designed, hitl), 22 (tiers cut by size) and 23 (marks, album and celebration rebuilt) added; the next season published on staging waits for 22 and 23.

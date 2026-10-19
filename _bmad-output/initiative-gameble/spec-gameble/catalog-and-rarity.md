@@ -60,15 +60,26 @@ Referenced by CAP-2, CAP-3, CAP-4, CAP-6, CAP-7, CAP-23.
 
 Every card belongs to at least one set; a card can belong to several. A set exists only if a player recognizes it from its name. Five kinds:
 
-- **Themes:** a curated list of about forty themes kept in code with French and English names (e.g. Souls-like, Metroidvania, Roguelike, Deckbuilder, Cosy, Horror, Zombies, Pirates, Space, Cyberpunk, Simulation, Open world, Adult); a theme groups one or more Steam tags (Roguelike: Roguelike, Roguelite, Action Roguelike, Traditional Roguelike). A game joins every theme with one of its tags among its 5 most-voted tags. Broad tags (Action, Adventure, Casual, Indie, Singleplayer, Multiplayer, Free to Play) are never themes. Tiered.
+- **Themes:** a curated list of about forty themes kept in code with French and English names (e.g. Souls-like, Metroidvania, Roguelike, Deckbuilder, Cosy, Horror, Zombies, Pirates, Space, Cyberpunk, Simulation, Open world, Adult); a theme groups one or more Steam tags (Roguelike: Roguelike, Roguelite, Action Roguelike, Traditional Roguelike). A game joins every theme with one of its tags among its 5 most-voted tags. Broad tags (Action, Adventure, Casual, Indie, Singleplayer, Multiplayer, Free to Play) are never themes.
 - **Franchises:** one set per Steam franchise with at least 3 games in the catalog. Steam's franchise field also holds publisher pages and cross-promotions, so a franchise named like a developer or publisher of the catalog is dropped, and so is one where no more than half of its games' titles share a whole word of its name. The name is shown without Steam's suffixes ("Franchise", "Series", "- Official").
 - **Studios:** one set per developer with at least 3 games in the catalog, counting each game under its first developer (porting houses come second), names normalized (legal suffixes, platform in brackets and case), and only when the studio's most-reviewed game has at least 20,000 reviews.
-- **Hall of fame:** sets drawn from the review score and count frozen at publication: Les Intouchables (at least 97 % positive and 20,000 reviews), Les Pépites (at least 98 % positive and under 1,000 reviews), Les Mal-aimés (40 to 69 % positive and at least 20,000 reviews), Les Phénomènes (at least 200,000 reviews). About 90 to 100 cards each on season 2's catalog. Tiered.
+- **Hall of fame:** sets drawn from the review score and count frozen at publication: Les Intouchables (at least 97 % positive and 20,000 reviews), Les Pépites (at least 98 % positive and under 1,000 reviews), Les Mal-aimés (40 to 69 % positive and at least 20,000 reviews), Les Phénomènes (at least 200,000 reviews). About 90 to 100 cards each on season 2's catalog.
 - **The UFOs (Les OVNI):** every game with no listed theme among its 5 most-voted tags. Kept under about 5 % of the catalog by tuning the theme list, never by changing the rule.
 
-**Tiers.** Theme and hall of fame sets have bronze (10 %), silver (25 %) and gold (50 %) of their distinct cards; at the published odds, 100 % would need every Légendaire of the set, which packs alone never give. Percentages tuned in playtests. Franchise, studio and UFO sets are complete or not.
+**Tiers.** Every set is tiered by its number of distinct cards when the season is published (author, 2026-10-18; supersedes bronze 10 %, silver 25 %, gold 50 % for themes and hall of fame only):
 
-**Rewards.** Bronze and silver: a celebration at opening and a feed line. Gold: also that set's card back. Complete, for every kind (a theme or hall of fame set completes at 100 %, after gold): a celebration, a "complete" stamp on the album and a feed line. The tiers and completions one opening reaches make one feed line, naming the highest. Profile titles and menu themes: CAP-22 of the spec.
+| Distinct cards | Tiers before completion | Then |
+|---|---|---|
+| 3–4 | none | complete (100 %) |
+| 5–9 | Novice 50 % | complete |
+| 10–19 | Novice ⅓, Apprentice ⅔ | complete |
+| 20–59 | Novice 25 %, Apprentice 50 %, Adept 75 % | complete |
+| 60–199 | Novice 10 %, Apprentice 25 %, Adept 50 %, Expert 75 % | complete |
+| 200 and more | Novice 10 %, Apprentice 25 %, Adept 50 %, Expert 75 %, Master 90 % | complete |
+
+The tiers before completion are named by rank, in order: Novice, Apprentice, Adept, Expert, Master (French: Novice, Apprenti, Adepte, Expert, Maître; author, 2026-10-19). Each tier needs that share of the set's distinct cards, rounded up. A tier's name gives its rank in its set, not a share: Adept is 75 % of a 30-card set and 50 % of a 100-card one. At the published odds, completing a large set needs every Légendaire of it, which packs alone never give. Seasons published before 2026-10-18 keep their bronze, silver, gold and complete tiers.
+
+**Rewards.** Every tier: a celebration at opening and a feed line. A theme or hall of fame set's first tier at or above 50 % of its cards (its back tier: Adept from 60 cards, Apprentice from 20 to 59, Apprentice ⅔ from 10 to 19, Novice from 5 to 9, completion below; gold in earlier seasons) also unlocks that set's card back. Complete: also a "complete" stamp on the album. The tiers and completions one opening reaches make one feed line, naming the highest, ranked by the share of its set the tier stands for. Profile titles and menu themes: CAP-22 of the spec.
 
 Tomes, publisher sets and "best rated of the year" sets are retired.
 

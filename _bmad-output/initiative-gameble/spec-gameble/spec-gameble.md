@@ -67,7 +67,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - A set is the same set from one season to the next (same kind and key). A copy of a game counts for the set whatever season it was minted in. Only the published season's sets earn tiers; a tier earned stays earned, marked with the season it was earned in, and can be earned again in a later season with that season's mark.
     - A set's progress is read against the published season's set and may drop when the set grows; it is shown as new cards to find, never as a loss. A game that leaves a set stops counting for that set only.
     - The collection shows one card per game: its best minted rarity among the copies owned, the copies owned across editions, and a mark when several editions are held. The total counter counts distinct games across editions and never drops when a season is published.
-    - Theme and hall of fame sets have three tiers (bronze, silver, gold); franchise, studio and UFO sets are only complete or not.
+    - Every set has one to five tiers before completion, named by rank in order (Novice, Apprenti, Adepte, Expert, Maître), more for a larger set (table in catalog-and-rarity.md); a set of 3 or 4 cards is only complete or not.
     - The grid of every card, with its filters and search, stays reachable from the collection.
 - **CAP-7**
   - **intent:** A player sees a card's face at a glance and can open its detail view to see the game and its credits.
@@ -159,7 +159,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** A player earns card backs and chooses the one their face-down cards wear.
   - **success:**
     - Every account starts with the "Standard" card back.
-    - More are unlocked by reaching gold on a theme or hall of fame set (one back per such set), contributing to a successful weekly goal, some achievements, and events or seasons. A locked back states its unlock condition. A back earned on a set carries the mark of each season it was earned in; the player picks which season's mark the active back wears.
+    - More are unlocked by reaching a theme or hall of fame set's back tier, its first tier at or above half its cards (one back per such set), contributing to a successful weekly goal, some achievements, and events or seasons. A locked back states its unlock condition. A back earned on a set carries the mark of each season it was earned in; the player picks which season's mark the active back wears.
     - The player picks one active back in the profile; it applies from the next pack opened.
     - Only the player sees it: on their own face-down cards at opening, and faded on the detail of a card they do not own.
     - The back catalogue is in `DESIGN.md`.
@@ -169,9 +169,9 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-22**
   - **intent:** A player shows their collecting through a profile title and dresses their menus with a rare theme.
   - **success:**
-    - Completing a franchise, studio or UFO set, and each tier of a theme or hall of fame set, unlocks a profile title built from one template per kind that needs no grammatical agreement ("Complétiste · Dark Souls"; Apprenti, Adepte, Maître for tiers). A title is earned once per set and tier, whatever the seasons; it shows the latest season it was earned in.
+    - Each tier of a set and its completion unlock a profile title built from a template that needs no grammatical agreement: the tier's rank for a tier ("Adepte · Roguelike"), "Complétiste" for completion ("Complétiste · Dark Souls"). Titles earned on bronze, silver or gold in an earlier season keep Apprenti, Adepte and Maître. A title is earned once per set and tier, whatever the seasons; it shows the latest season it was earned in.
     - The player picks one active title; it shows on their profile, in the feed and in trades.
-    - Reaching gold on 3, 10 and 25 sets unlocks a menu theme each: an accent colour applied to the interface, with contrast checked. Only the player sees it.
+    - Completing 3, 10 and 25 sets, of any kind, unlocks a menu theme each: an accent colour applied to the interface, with contrast checked. Only the player sees it.
 - **CAP-23**
   - **intent:** When a new season is published, a returning player receives the Brotherhood's seasonal allocation: what they unlocked in the season that ended and the sets that follow them into the new one.
   - **success:**
@@ -262,5 +262,5 @@ The author plays gameble every day for a month alongside at least 10 active play
 
 ## Open Questions
 
-- **Card backs (CAP-20):** beyond one back per theme or hall of fame set at gold, which goal, achievement and event backs ship, and does every successful weekly goal grant one?
+- **Card backs (CAP-20):** beyond one back per theme or hall of fame set at its back tier, which goal, achievement and event backs ship, and does every successful weekly goal grant one?
 - **Shared cards and visibility (CAP-8, CAP-9):** `EXPERIENCE.md` assumes a shared card page of a friends-only or private profile shows "not available". Should a share link work for those players? Since 2026-10-03 the shared page shows the card only, with no owner, so it no longer reveals a profile.

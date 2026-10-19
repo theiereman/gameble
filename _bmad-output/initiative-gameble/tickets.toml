@@ -95,7 +95,7 @@ id = 9
 slug = "epic-card-backs"
 title = "Cosmetics: card backs, titles and menu themes"
 covers = ["CAP-20", "CAP-22"]
-after = [{ epic = 13, needs = "the set tier and completion events" }, { epic = 6, needs = "the set-completed, goal reward and achievement events" }, { epic = 8, needs = "the booster island showing the active back" }, { epic = 10, needs = "the profile and settings screen for the back picker" }]
+after = [{ epic = 13, needs = "the set tier and completion events, and the tier table by set size (13.22)" }, { epic = 6, needs = "the set-completed, goal reward and achievement events" }, { epic = 8, needs = "the booster island showing the active back" }, { epic = 10, needs = "the profile and settings screen for the back picker" }]
 
 [[epic]]
 id = 14
