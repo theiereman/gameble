@@ -31,7 +31,9 @@ module LocalTimeHelper
   end
 
   def reader_time_zone
+    return @reader_time_zone if defined?(@reader_time_zone)
+
     name = request&.cookies&.[](TIME_ZONE_COOKIE)
-    ActiveSupport::TimeZone[name] if name.present?
+    @reader_time_zone = (ActiveSupport::TimeZone[name] if name.present?)
   end
 end

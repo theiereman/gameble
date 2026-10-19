@@ -231,6 +231,19 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "dialog#private-dialog", 0
   end
 
+  test "PRIVÉ posted again by a private player with trades open applies at once, without the dialog" do
+    open_trade(proposer: @player, recipient: accounts_players(:moderator))
+    @player.update!(visibility: "private")
+    sign_in(@player)
+
+    patch settings_visibility_path(locale: :fr), params: { visibility: "private" }
+
+    assert_redirected_to settings_path(locale: :fr)
+    assert_equal "private", @player.reload.visibility
+    follow_redirect!
+    assert_select "dialog#private-dialog", 0
+  end
+
   [ nil, "", "two", [ "1" ] ].each do |confirmed|
     test "a confirmed count of #{confirmed.inspect} confirms no trade" do
       open_trade(proposer: @player, recipient: accounts_players(:moderator))
@@ -268,13 +281,14 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "button[name=visibility][value=private][type=submit][aria-haspopup=dialog][data-dialog-opener-dialog-value=private-dialog]", "Privé"
     assert_select "button[name=visibility][value=friends_only]:not([data-dialog-opener-dialog-value])"
-    assert_select "dialog#private-dialog form[action='/fr/settings/visibility'][data-turbo=false]" do
+    assert_select "dialog#private-dialog button.modal__close[type=submit][form=private-dialog-form][formmethod=dialog][data-action='dialog#close']"
+    assert_select "dialog#private-dialog form#private-dialog-form[action='/fr/settings/visibility'][data-turbo=false]" do
       assert_select "input[name=_method][value=patch]"
       assert_select "input[type=hidden][name=visibility][value=private]"
       assert_select "input[type=hidden][name=confirmed_trades][value=1]"
       assert_select ".private-dialog__text", "Passer en privé annule votre échange en cours."
       assert_select "button[type=submit]", "Passer en privé"
-      assert_select "button[type=button][data-action='dialog#close']", "Annuler"
+      assert_select "button[type=submit][formmethod=dialog][data-action='dialog#close']", "Annuler"
     end
 
     patch settings_visibility_path(locale: :fr), params: { visibility: "private", confirmed_trades: "1" }

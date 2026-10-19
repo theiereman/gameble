@@ -4,7 +4,6 @@ export const TIME_ZONE_COOKIE = "time_zone"
 
 const YEAR_IN_SECONDS = 365 * 24 * 60 * 60
 
-// The cookie to write, or null when the zone is unknown or already stored.
 export function timeZoneCookie(zone: string | undefined, cookies: string, secure: boolean): string | null {
   if (!zone) return null
   const pair = `${TIME_ZONE_COOKIE}=${encodeURIComponent(zone)}`

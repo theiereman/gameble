@@ -1434,8 +1434,6 @@ en:
       format:
         delimiter: ""
         format: "%n%"
-  # The server's text of a local time once the browser has sent its zone,
-  # written as the browser's Intl writes it (local_time.ts).
   date:
     abbr_month_names: [~, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
     day_names: [Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]
