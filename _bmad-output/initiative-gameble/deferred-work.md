@@ -226,6 +226,12 @@
   summary: Staging moves behind its own Cloudflare Tunnel at staging.gameble.net, web and SSH (Access service token for the staging workflow), as production did, so the home lab's ports 80, 443 and 2224 can close and its address stops being published by gameble.dotsncircles.com.
   evidence: The author decided on 2026-10-16, while moving production's SSH into its tunnel, to do the same for staging later under staging.gameble.net; PUBLIC_URL, deploy.staging.yml, the staging workflow, CONTRIBUTING.md's test-version link and Steam's return URL follow the new name.
 
+## Deferred from: refactor sweep of epic-easier-trades (2026-10-19)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-easier-trades/story-refactor-sweep-plan.md`
+  summary: The trade picker's worst scroll frame stays close to the 100 ms bound 18.4 set: 78 to 94 ms at 390 px with a 4× CPU slowdown and 3,000 cards a side, the cost being a page of 36 picker cards and then their 36 faces, each with its `card-art` and `tilt` controllers, inserted at once.
+  evidence: 18.4 measured 83 to 107 ms in single runs; the sweep re-measured a median of 89 ms on a re-seeded database. Levers left: smaller pages or face batches, or fewer controllers per picker face; `content-visibility` on the picker cards would clip the picked ring and the focus outline. Worth settling on a real phone on staging before acting.
+
 ## Deferred from: the collection opens on sets in progress (2026-10-17)
 
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-collection-opens-on-sets-in-progress-plan.md`

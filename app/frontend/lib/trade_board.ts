@@ -118,6 +118,12 @@ export type Chip = (typeof CHIPS)[Side][number]
 
 export type ChipLabels = { [S in Side]: Record<(typeof CHIPS)[S][number], string> }
 
+export function labelledChips(side: Side, labels: ChipLabels): { chip: Chip; label: string }[] {
+  return side === "friend"
+    ? CHIPS.friend.map((chip) => ({ chip, label: labels.friend[chip] }))
+    : CHIPS.own.map((chip) => ({ chip, label: labels.own[chip] }))
+}
+
 export type FilterableCard = { title: string; rarity: Rarity; copies: number; otherCopies: number; max: number }
 
 const CHIP_MATCHES: Record<Chip, (card: FilterableCard) => boolean> = {

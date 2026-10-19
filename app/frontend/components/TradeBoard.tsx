@@ -18,7 +18,7 @@ import {
   type Side,
 } from "../lib/trade_board"
 import { forgetDraft, readDraft, sameLines, saveDraft, type DraftSides } from "../lib/trade_draft"
-import { batches, facesFrom, facesUrl, missingFaces, withFaces, type Faces } from "../lib/trade_faces"
+import { batches, facesUrl, fetchFaces, missingFaces, withFaces, type Faces } from "../lib/trade_faces"
 import QuantityStepper from "./QuantityStepper"
 import TradePicker from "./TradePicker"
 
@@ -136,14 +136,11 @@ export default function TradeBoard(props: TradeBoardProps) {
     (keys: readonly string[]) => {
       for (const batch of batches(missingFaces(keys, knownFaces.current, pendingFaces.current), facesBatch)) {
         batch.forEach((key) => pendingFaces.current.add(key))
-        fetch(facesUrl(facesBase, batch), { headers: { Accept: "application/json" }, credentials: "same-origin" })
-          .then((response) => (response.ok ? response.json() : null))
-          .then((body) => {
-            knownFaces.current = withFaces(knownFaces.current, facesFrom(body))
-            setFaces(knownFaces.current)
-          })
-          .catch(() => undefined)
-          .finally(() => batch.forEach((key) => pendingFaces.current.delete(key)))
+        void fetchFaces({ url: facesUrl(facesBase, batch) }).then((arrived) => {
+          batch.forEach((key) => pendingFaces.current.delete(key))
+          knownFaces.current = withFaces(knownFaces.current, arrived)
+          setFaces(knownFaces.current)
+        })
       }
     },
     [facesBase, facesBatch],

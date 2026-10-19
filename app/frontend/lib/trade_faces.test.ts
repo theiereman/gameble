@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { PICKER_PAGE, batches, facesFrom, facesUrl, missingFaces, nextPage, shownFor, withFaces } from "./trade_faces"
+import { PICKER_PAGE, batches, facesFrom, facesUrl, fetchFaces, missingFaces, nextPage, shownFor, withFaces } from "./trade_faces"
 
 describe("shownFor", () => {
   it("holds whole pages up to and including the index", () => {
@@ -83,5 +83,43 @@ describe("withFaces", () => {
   it("keeps the same map when nothing arrived", () => {
     const known = new Map([["a--s1", "A"]])
     expect(withFaces(known, {})).toBe(known)
+  })
+})
+
+const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } })
+
+function answering(answer: Response | Error) {
+  const calls: { url: string; init: RequestInit }[] = []
+  const send = (async (url: string, init: RequestInit) => {
+    calls.push({ url, init })
+    if (answer instanceof Error) throw answer
+    return answer
+  }) as typeof fetch
+  return { calls, send }
+}
+
+const never = ((_url: string, init: RequestInit) =>
+  new Promise<Response>((_resolve, reject) => init.signal?.addEventListener("abort", () => reject(init.signal?.reason)))) as typeof fetch
+
+describe("fetchFaces", () => {
+  it("asks in JSON with the session's cookies and reads the faces", async () => {
+    const { calls, send } = answering(json(200, { faces: { "a--s1": "<div>A</div>" } }))
+
+    expect(await fetchFaces({ url: "/fr/trades/faces?keys%5B%5D=a--s1", fetch: send })).toEqual({ "a--s1": "<div>A</div>" })
+    expect(calls).toHaveLength(1)
+    expect(calls[0].url).toBe("/fr/trades/faces?keys%5B%5D=a--s1")
+    expect(calls[0].init).toMatchObject({ headers: { Accept: "application/json" }, credentials: "same-origin" })
+    expect(calls[0].init.signal).toBeInstanceOf(AbortSignal)
+  })
+
+  it("reads no face without an answer, on a refusal, a server error or an answer that is not JSON", async () => {
+    const page = new Response("<html></html>", { status: 200, headers: { "Content-Type": "text/html" } })
+    for (const answer of [new TypeError("Failed to fetch"), json(401, { error: { code: "sign_in_required" } }), json(500, { faces: { "a--s1": "A" } }), page]) {
+      expect(await fetchFaces({ url: "/fr/trades/faces", fetch: answering(answer).send })).toEqual({})
+    }
+  })
+
+  it("gives up on an answer that never comes", async () => {
+    expect(await fetchFaces({ url: "/fr/trades/faces", fetch: never, timeout: 5 })).toEqual({})
   })
 })

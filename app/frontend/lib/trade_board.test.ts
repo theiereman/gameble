@@ -12,6 +12,7 @@ import {
   freshPickerFilters,
   gridMove,
   initialLines,
+  labelledChips,
   remove,
   replacePickerFilters,
   sendable,
@@ -230,6 +231,26 @@ describe("CHIPS", () => {
   it("offers each side its own three chips", () => {
     expect(CHIPS.friend).toEqual(["duplicates", "missing", "shared"])
     expect(CHIPS.own).toEqual(["duplicates", "missing", "available"])
+  })
+})
+
+describe("labelledChips", () => {
+  const labels = {
+    friend: { duplicates: "Their duplicates", missing: "Missing from mine", shared: "We both own" },
+    own: { duplicates: "My duplicates", missing: "Missing from theirs", available: "Available" },
+  }
+
+  it("pairs each of a side's chips with that side's label, in order", () => {
+    expect(labelledChips("friend", labels)).toEqual([
+      { chip: "duplicates", label: "Their duplicates" },
+      { chip: "missing", label: "Missing from mine" },
+      { chip: "shared", label: "We both own" },
+    ])
+    expect(labelledChips("own", labels)).toEqual([
+      { chip: "duplicates", label: "My duplicates" },
+      { chip: "missing", label: "Missing from theirs" },
+      { chip: "available", label: "Available" },
+    ])
   })
 })
 

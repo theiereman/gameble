@@ -2,20 +2,19 @@ import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useStat
 import { t } from "../lib/i18n"
 import { RARITIES } from "../lib/card_types"
 import {
-  CHIPS,
   activeChips,
   clearedFilters,
   columnsOf,
   filterCards,
   filtering,
   gridMove,
+  labelledChips,
   toggle,
   toggled,
   toggledFold,
   setQuantity,
   sideCount,
   withFilter,
-  type Chip,
   type Line,
   type PickerFilters,
   type SideFilter,
@@ -91,7 +90,6 @@ export default function TradePicker({
   const growTo = (next: number) => setPaging({ filter, shown: Math.max(shown, next) })
   const rendered = useMemo(() => visible.slice(0, shown), [visible, shown])
   const hasMore = rendered.length < visible.length
-  const chipLabels: Partial<Record<Chip, string>> = strings.chips[side.side]
   const found = activeKey === null ? -1 : rendered.findIndex((card) => card.key === activeKey)
   const active = Math.max(0, found)
 
@@ -241,7 +239,7 @@ export default function TradePicker({
               </fieldset>
               <fieldset className="filters__group trade-picker__compare">
                 <legend className="filters__legend">{strings.compareLegend}</legend>
-                {CHIPS[side.side].map((chip) => (
+                {labelledChips(side.side, strings.chips).map(({ chip, label }) => (
                   <label key={chip} className="filter-chip">
                     <input
                       type="checkbox"
@@ -249,7 +247,7 @@ export default function TradePicker({
                       checked={filter.chips.includes(chip)}
                       onChange={() => setFilter({ ...filter, chips: toggled(filter.chips, chip) })}
                     />
-                    <span className="filter-chip__text">{chipLabels[chip]}</span>
+                    <span className="filter-chip__text">{label}</span>
                   </label>
                 ))}
               </fieldset>

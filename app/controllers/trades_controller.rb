@@ -55,14 +55,11 @@ class TradesController < ApplicationController
       return redirect_to(trades_path, status: :see_other)
     end
 
-    sent_offer = nil
-    result = with_sides(friend) do |offer, request|
-      sent_offer = offer
-      Game::ProposeTrade.new.call(player: current_player, recipient: friend, offer:, request:)
-    end
+    sides = sent_sides(friend)
+    result = sides.bind { Game::ProposeTrade.new.call(player: current_player, recipient: friend, **it) }
     if result.success?
       flash[:trade_forget] = helpers.trade_draft_key(current_player, friend)
-      toast_sent(friend, sent_offer)
+      toast_sent(friend, sides.value![:offer])
       redirect_to trade_path(token: result.value!.token), status: :see_other
     else
       refused(result.failure, friend)
@@ -87,14 +84,11 @@ class TradesController < ApplicationController
     authorize :trade, :counter?
     trade = find_trade!
 
-    sent_offer = nil
-    result = with_sides(trade.friend) do |offer, request|
-      sent_offer = offer
-      Game::CounterTrade.new.call(player: current_player, trade_id: trade.id, revision: params[:revision], offer:, request:)
-    end
+    sides = sent_sides(trade.friend)
+    result = sides.bind { Game::CounterTrade.new.call(player: current_player, trade_id: trade.id, revision: params[:revision], **it) }
     if result.success?
       flash[:trade_forget] = helpers.trade_counter_key(current_player, trade)
-      toast_sent(trade.friend, sent_offer)
+      toast_sent(trade.friend, sides.value![:offer])
       redirect_to trade_path(token: trade.token), status: :see_other
     else
       refused(result.failure, trade.friend)
@@ -189,7 +183,7 @@ class TradesController < ApplicationController
       @picks = Catalog::CardViews.call(@own_cards.keys + @friend_cards.keys, locale: I18n.locale)
     end
 
-    def with_sides(friend)
+    def sent_sides(friend)
       own = Game::HeldCopies.call(current_player).keys
       theirs = Game::HeldCopies.call(friend).keys
       cards = Catalog::CardViews.call(own + theirs, locale: I18n.locale)
@@ -198,7 +192,7 @@ class TradesController < ApplicationController
 
       if offer.nil? then Dry::Monads::Failure(:invalid_offer)
       elsif request.nil? then Dry::Monads::Failure(:invalid_request)
-      else yield offer, request
+      else Dry::Monads::Success({ offer:, request: })
       end
     end
 
