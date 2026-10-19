@@ -24,9 +24,7 @@ import { swipeStep } from "../lib/swipe"
 //   "Sub-view opened (phone) → Its heading"), without scrolling; after a
 //   step pressed from the keyboard, it puts the focus back on the same
 //   control in the new detail instead (on its heading when that control is
-//   the disabled end); a card opened from the grid beside it
-//   (collection_detail_controller.ts) focuses its heading, without
-//   scrolling. Nothing on a Turbo preview.
+//   the disabled end). Nothing on a Turbo preview.
 
 type Direction = "previous" | "next"
 
@@ -62,9 +60,7 @@ export default class extends Controller<HTMLElement> {
     this.frame = this.element.closest("turbo-frame")
     this.frame?.addEventListener("turbo:before-frame-render", this.beforeFrameRender)
     const wish = takeFocusWish()
-    if (wish === "heading") {
-      if (this.hasHeadingTarget) this.headingTarget.focus({ preventScroll: true })
-    } else if (wish) {
+    if (wish) {
       this.focusControl(wish)
     } else if (!document.documentElement.hasAttribute("data-turbo-preview") && this.hasHeadingTarget && this.subView()) {
       this.headingTarget.focus({ preventScroll: true })

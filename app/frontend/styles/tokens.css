@@ -156,6 +156,7 @@
   --space-7: 24px;
   --space-8: 32px;
   --space-gutter-desktop: 32px;
+  --space-gutter-medium: 28px;
   --space-gutter-phone: 20px;
   --space-panel-padding: 20px 24px;
   --space-topbar-height: 56px;
@@ -179,14 +180,13 @@
   --space-breakpoint-narrow: 900px;
   --space-phone-column-max: 480px;
   --space-page-padding-wide: 32px 32px 40px;
-  --space-page-padding-medium: 24px 28px 32px;
+  --space-page-padding-medium: 24px var(--space-gutter-medium) 32px;
   --space-page-padding-phone: 20px 20px 28px;
   --space-column-gap-wide: 32px;
   --space-column-gap-medium: 24px;
   --space-grid-gap-columns: 16px;
   --space-grid-gap-rows: 20px;
   --space-grid-card-min: 140px;
-  --space-grid-card-max: 185px;
   --space-deal-gap-max: 14px;
   --space-deal-gap-min: 8px;
   /* Short aliases of the chrome heights, as DESIGN names them. */

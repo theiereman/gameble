@@ -1,11 +1,10 @@
-// A step of the card detail: ◀ ▶ within it, or a card opened from the grid into the detail beside it.
+// A step of the card detail: its ◀ ▶.
 //
 // From the press until Turbo's visit has loaded and the card's transition
-// has ended, <html> carries `data-sub-view-step=previous|next|open`: the
-// star field does not shift (starfield_controller.ts) and the screen does
-// not slide (styles/shell.css), as a step is no screen change. ◀ ▶ slide
-// the card toward the step (styles/card-detail.css); an open over a card
-// shown cross-fades, a first open replaces the waiting detail at once.
+// has ended, <html> carries `data-sub-view-step=previous|next`: the star
+// field does not shift (starfield_controller.ts) and the screen does not
+// slide (styles/shell.css), as a step is no screen change. ◀ ▶ slide the
+// card toward the step (styles/card-detail.css).
 //
 // Turbo's own visit for the new URL renders no body, but would start a
 // View Transition of its own, which would cut the card's short: during a
@@ -13,9 +12,9 @@
 // (the merged head brings the meta back). The step's state lives here, as
 // the detail that began it is replaced by the step.
 
-export type StepDirection = "previous" | "next" | "open"
+export type StepDirection = "previous" | "next"
 
-export type FocusWish = "previous" | "next" | "heading" | null
+export type FocusWish = "previous" | "next" | null
 
 /** The phone's width, where the detail is a sub-view of its own. */
 export const PHONE_WIDTH = "(max-width: 719px)"

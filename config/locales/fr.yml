@@ -1442,9 +1442,6 @@ fr:
     previous: "Carte précédente"
     next: "Carte suivante"
     store: "Voir sur Steam"
-    waiting:
-      title: "Choisissez une carte"
-      value: "—"
     preview:
       title: "%{title} — %{rarity}"
       description: "Une carte de gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix capsules vous attendent."

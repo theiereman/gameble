@@ -1,15 +1,10 @@
-<%# The grid of every card. From 1180px the RAPPORT in a 220px column, the
-    grid, then the card detail in a 340px column; from 900px the grid and
-    the detail in a 300px column; under 900px the grid alone, a slot
-    opening its card's detail page, and on the phone one column, the
+<%# The grid of every card. From 1180px the RAPPORT in a 220px column beside
+    the grid; from 720px the grid alone; on the phone one column, the
     RAPPORT folded above the grid, two cards wide. Above the grid, the
-    search and the folded FILTRES zone (library/filters), then the grid and
-    the detail in a frame the filters reload, which empties the detail.
-    From 900px a slot opens its card's detail in the `card-detail` frame
-    (collection-detail controller); until then the frame holds the
-    detail's layout, empty (cards/detail_waiting). When the grid shows new
-    cards to their player, the collection-seen controller posts the latest
-    gain shown, once the page is rendered.
+    search and the folded FILTRES zone (library/filters), then the grid in
+    a frame the filters reload. A slot opens its card's detail page. When
+    the grid shows new cards to their player, the collection-seen
+    controller posts the latest gain shown, once the page is rendered.
     - heading: the page's name;
     - grid: the Catalog::CollectionGrid; slots, pagy: its page, context:
       the filters its links carry (library/grid);
@@ -18,25 +13,19 @@
     - pagy also gives the count announced by the status line;
     - states, states_asked, query, set_filter: the filters on and the set
       group (library/filters). %>
-<div class="collection" data-controller="collection-detail"
-  data-action="click->collection-detail#open turbo:frame-load->collection-detail#loaded">
+<div class="collection">
   <h1 class="visually-hidden"><%= heading %></h1>
   <aside class="collection__aside" aria-labelledby="collection-report-title">
     <%= render "library/report", counts: tier_counts, games: games_by_rarity, unique: unique %>
   </aside>
   <section class="collection__main" aria-label="<%= heading %>">
     <%= render "library/filters", grid:, states:, states_asked:, query:, set_filter: set_filter %>
-    <%= turbo_frame_tag "collection-results", target: "_top", class: "collection-results", data: { turbo_action: "replace" } do %>
-      <div class="collection-results__grid">
-        <p class="visually-hidden" role="status"><%= t("library.grid.result", count: pagy.count) %></p>
-        <%= render "library/grid", context:, slots:, pagy: pagy %>
-        <% if seen_up_to %>
-          <div hidden data-controller="collection-seen" data-collection-seen-url-value="<%= library_seen_path %>"
-            data-collection-seen-up-to-value="<%= seen_up_to.utc.iso8601(6) %>"></div>
-        <% end %>
-      </div>
-      <%= turbo_frame_tag "card-detail", target: "_top", class: "collection-detail" do %>
-        <%= render "cards/detail_waiting", signed_in: current_player.present? %>
+    <%= turbo_frame_tag "collection-results", target: "_top", data: { turbo_action: "replace" } do %>
+      <p class="visually-hidden" role="status"><%= t("library.grid.result", count: pagy.count) %></p>
+      <%= render "library/grid", context:, slots:, pagy: pagy %>
+      <% if seen_up_to %>
+        <div hidden data-controller="collection-seen" data-collection-seen-url-value="<%= library_seen_path %>"
+          data-collection-seen-up-to-value="<%= seen_up_to.utc.iso8601(6) %>"></div>
       <% end %>
     <% end %>
   </section>

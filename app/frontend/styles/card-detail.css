@@ -17,10 +17,6 @@
  * motion nothing moves (styles/shell.css drops every View Transition
  * animation, and the controller starts none).
  *
- * Beside the collection grid, before a card is chosen, the same layout
- * waits empty: a hatched card-l face, the fact rows with waiting values,
- * ◀ ▶ and "Voir sur Steam" disabled.
- *
  * Also the links leading to a card's detail from a face or an empty slot,
  * and, for a visitor, the invitation to play below the detail.
  */
@@ -232,28 +228,6 @@
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-}
-
-/* ---- Waiting beside the collection grid, before a card is chosen: the
-   detail's layout, empty. The face is a card-l in the missing slot's
-   hatched fill and line-deep border; the title and values are muted. ---- */
-
-.card-detail__empty-face {
-  display: block;
-  width: 208px;
-  height: 312px;
-  background: repeating-linear-gradient(45deg, var(--color-panel) 0 6px, var(--color-panel-sunken) 6px 12px);
-  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-deep);
-}
-
-.card-detail--waiting .card-detail__title {
-  color: var(--color-muted);
-  font: var(--font-screen-title);
-  letter-spacing: var(--tracking-screen-title);
-}
-
-.card-detail--waiting .card-detail__fact dd {
-  color: var(--color-muted);
 }
 
 /* ---- Information ---- */
@@ -538,7 +512,7 @@
 
   /* Scroll padding covers the pinned actions too (DESIGN.md, Focus ring),
      so a focused set link or share field is never hidden behind them. */
-  html:has(.card-detail:not(.card-detail--waiting) .card-detail__actions) {
+  html:has(.card-detail__actions) {
     scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height));
   }
 

@@ -1224,9 +1224,9 @@ html[data-screen-change="same"] .main {
   view-transition-name: none;
 }
 
-/* A step of the card detail (its ◀ ▶, or a card opened from the grid
-   beside it; lib/sub_view_step.ts) is no screen change either: the screen
-   stays, only the detail's own named parts move (styles/card-detail.css). */
+/* A sub-view's step (the card detail's ◀ ▶; sub_view_controller.ts) is no
+   screen change either: the screen stays, only the sub-view's own named
+   parts move (styles/card-detail.css). */
 html[data-sub-view-step] .main {
   view-transition-name: none;
 }
@@ -1274,6 +1274,10 @@ html[data-sub-view-step] .main {
 @media (max-width: 1179px) {
   .main {
     padding: var(--space-page-padding-medium);
+  }
+
+  .top-bar__inner {
+    padding-inline: var(--space-gutter-medium);
   }
 
   /* The packs chip drops its divider and countdown (still in its text). */

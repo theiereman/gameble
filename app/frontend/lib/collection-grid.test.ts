@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import cardStylesheet from "../styles/card.css?raw"
-import cardDetailStylesheet from "../styles/card-detail.css?raw"
 import collectionStylesheet from "../styles/collection.css?raw"
+import shellStylesheet from "../styles/shell.css?raw"
 import tokensStylesheet from "../styles/tokens.css?raw"
 
 const ruleBody = (stylesheet: string, selector: string, from = 0) => {
@@ -23,6 +23,8 @@ const evenFloor = (value: number) => 2 * Math.floor(value / 2)
 
 const CONTAINER_SMALL = "@container (width < 140px)"
 const PHONE = "@media (max-width: 719px)"
+const PHONE_NARROW = "@media (max-width: 371px)"
+const CLASSIC_SCROLLBAR = 15
 
 const gridCard = ruleBody(cardStylesheet, ".card--grid")
 const smallGridCard = ruleBody(cardStylesheet, ".card--grid", cardStylesheet.indexOf(CONTAINER_SMALL))
@@ -45,40 +47,38 @@ const layout = (width: number) => {
 }
 
 const MIN = token("--space-grid-card-min")
-const MAX = token("--space-grid-card-max")
 const GAP = token("--space-grid-gap-columns")
 
-const fill = (gridWidth: number) => {
-  const columns = Math.floor((gridWidth + GAP) / (MIN + GAP))
-  const card = evenFloor(Math.min((gridWidth - (columns - 1) * GAP) / columns, MAX))
-  return { columns, card }
+const share = (gridWidth: number, columns: number, gap: number) => {
+  const column = (gridWidth - (columns - 1) * gap) / columns
+  const card = evenFloor(column)
+  return { columns, card, spare: column - card }
 }
 
-const WIDE = "@media (min-width: 1180px)"
-const MEDIUM = "@media (min-width: 900px)"
+const fill = (gridWidth: number, gap = GAP) => share(gridWidth, Math.floor((gridWidth + gap) / (MIN + gap)), gap)
 
 const pageGutter = (property: string) => {
-  const match = ruleBody(tokensStylesheet, ":root").match(new RegExp(`${property}:\\s*\\d+px (\\d+)px`))
+  const match = ruleBody(tokensStylesheet, ":root").match(new RegExp(`${property}:\\s*\\d+px (?:(\\d+)px|var\\((--[\\w-]+)\\))`))
   if (!match) throw new Error(`${property} has no inline padding`)
-  return Number(match[1])
-}
-
-const detailColumn = (media: string) => {
-  const results = ruleBody(collectionStylesheet, ".collection-results", collectionStylesheet.indexOf(media))
-  const match = results.match(/grid-template-columns: minmax\(0, 1fr\) (\d+)px;/)
-  if (!match) throw new Error(`no detail column under ${media}`)
-  return Number(match[1])
+  return match[2] ? token(match[2]) : Number(match[1])
 }
 
 const REPORT = Number(ruleBody(collectionStylesheet, ".collection").match(/grid-template-columns: (\d+)px minmax\(0, 1fr\);/)?.[1])
 
-const WIDE_GRID =
-  1280 - 2 * pageGutter("--space-page-padding-wide") - REPORT - token("--space-column-gap-wide")
-  - detailColumn(WIDE) - token("--space-column-gap-wide")
+const WIDE_PAGE = 1280 - 2 * pageGutter("--space-page-padding-wide")
+const CARDS_WIDE = WIDE_PAGE - REPORT - token("--space-column-gap-wide")
+const mediumPage = (window: number) => window - 2 * pageGutter("--space-page-padding-medium")
+const phonePage = (window: number) => window - 2 * pageGutter("--space-page-padding-phone")
 
-const MEDIUM_GRID = 1024 - 2 * pageGutter("--space-page-padding-medium") - detailColumn(MEDIUM) - token("--space-column-gap-medium")
+const narrowPhoneGap = () => {
+  const gap = ruleBody(collectionStylesheet, ".collection-grid", collectionStylesheet.indexOf(PHONE_NARROW))
+    .match(/column-gap: var\((--space-\d)\);/)?.[1]
+  if (!gap) throw new Error("the narrow phone grid has no gap of its own")
+  return token(gap)
+}
 
-const ALONE_GRID = 800 - 2 * pageGutter("--space-page-padding-medium")
+const phone = (window: number, scrollbar = 0) =>
+  share(phonePage(window) - scrollbar, 2, window <= 371 ? narrowPhoneGap() : GAP)
 
 describe("the grid card", () => {
   it("takes its slot's width, 1.5 times as tall, its art box even and what the rest leaves", () => {
@@ -130,16 +130,18 @@ describe("the grid of every card", () => {
   const filling = ruleBody(collectionStylesheet, ".collection-grid--fill")
   const slot = ruleBody(collectionStylesheet, ".collection-grid--fill > .collection-slot")
 
-  it("fills its row with columns of at least the smallest medium card", () => {
+  it("fills its row with columns of at least the smallest medium card, with no largest card", () => {
     expect(filling).toContain("grid-template-columns: repeat(auto-fill, minmax(var(--space-grid-card-min), 1fr));")
     expect(MIN).toBe(140)
-    expect(MAX).toBe(185)
     expect(layout(MIN).layout).toBe("medium")
+    expect(tokensStylesheet).not.toContain("--space-grid-card-max")
+    expect(collectionStylesheet).not.toContain("--space-grid-card-max")
   })
 
-  it("sizes each slot to its column, even and capped, as a size container", () => {
+  it("sizes each slot to its column, rounded down to an even pixel and centred in it, as a size container", () => {
     expect(slot).toContain("box-sizing: content-box;")
-    expect(slot).toContain("width: round(down, min(100%, var(--space-grid-card-max)), 2px);")
+    expect(slot).toContain("width: round(down, 100%, 2px);")
+    expect(slot).toContain("justify-self: center;")
     expect(slot).toContain("aspect-ratio: 2 / 3;")
     expect(slot).toContain("min-height: 0;")
     expect(slot).toContain("container-type: inline-size;")
@@ -151,144 +153,85 @@ describe("the grid of every card", () => {
     expect(faces).toContain("height: calc(1.5 * 100cqi);")
   })
 
-  it("keeps two medium cards a row on the phone", () => {
-    const phone = collectionStylesheet.indexOf(PHONE)
-    expect(phone).toBeGreaterThan(collectionStylesheet.indexOf(".collection-grid--fill {"))
-    expect(ruleBody(collectionStylesheet, ".collection-grid", phone)).toContain(
-      "grid-template-columns: repeat(2, var(--card-m-width));",
-    )
-    const phoneCard = evenFloor(Math.min(px(ruleBody(cardStylesheet, ":root"), "--card-m-width"), MAX))
-    expect(phoneCard).toBe(160)
-    expect(layout(phoneCard).layout).toBe("medium")
+  it("shares the phone's width between two columns, the gap 8px on narrow phones", () => {
+    const phoneAt = collectionStylesheet.indexOf(PHONE)
+    expect(phoneAt).toBeGreaterThan(collectionStylesheet.indexOf(".collection-grid--fill {"))
+    const phoneGrid = ruleBody(collectionStylesheet, ".collection-grid", phoneAt)
+    expect(phoneGrid).toContain("grid-template-columns: repeat(2, minmax(0, 1fr));")
+    expect(phoneGrid).not.toContain("justify-content")
+    expect(collectionStylesheet.indexOf(PHONE_NARROW)).toBeGreaterThan(phoneAt)
+    expect(narrowPhoneGap()).toBe(8)
+  })
+
+  it("is 964px wide beside the RAPPORT at 1280px", () => {
+    expect(REPORT).toBe(220)
+    expect(CARDS_WIDE).toBe(964)
   })
 
   it.each([
-    { name: "an 800px window, the grid alone", gridWidth: ALONE_GRID, columns: 4, card: 174, cardLayout: "medium" },
-    { name: "1280px and up, beside the RAPPORT and the detail", gridWidth: WIDE_GRID, columns: 3, card: 184, cardLayout: "medium" },
-    { name: "a 1024px window, beside the detail", gridWidth: MEDIUM_GRID, columns: 4, card: 148, cardLayout: "medium" },
-    { name: "a medium width", gridWidth: 780, columns: 5, card: 142, cardLayout: "medium" },
-  ])("$name: $columns columns of $card px, $cardLayout layout", ({ gridWidth, columns, card, cardLayout }) => {
+    { name: "1280px and up, beside the RAPPORT", gridWidth: CARDS_WIDE, columns: 6, card: 146 },
+    { name: "1280px beside a classic scrollbar", gridWidth: CARDS_WIDE - CLASSIC_SCROLLBAR, columns: 6, card: 144 },
+    { name: "a 1024px window", gridWidth: mediumPage(1024), columns: 6, card: 148 },
+    { name: "a 1024px window beside a classic scrollbar", gridWidth: mediumPage(1024) - CLASSIC_SCROLLBAR, columns: 6, card: 144 },
+    { name: "an 800px window", gridWidth: mediumPage(800), columns: 4, card: 174 },
+    { name: "an 800px window beside a classic scrollbar", gridWidth: mediumPage(800) - CLASSIC_SCROLLBAR, columns: 4, card: 170 },
+  ])("$name: $columns columns of $card px, each under 1px from its column's edges", ({ gridWidth, columns, card }) => {
     const grid = fill(gridWidth)
-    expect(grid).toEqual({ columns, card })
-    expect(layout(grid.card).layout).toBe(cardLayout)
-    const used = grid.columns * grid.card + (grid.columns - 1) * GAP
-    expect(used).toBeLessThanOrEqual(gridWidth)
-    expect(gridWidth - used).toBeLessThan(grid.card + GAP)
+    expect({ columns: grid.columns, card: grid.card }).toEqual({ columns, card })
+    expect(layout(grid.card).layout).toBe("medium")
+    expect(grid.spare).toBeLessThan(2)
   })
 
-  it("gives every desktop grid width the medium face", () => {
-    const classicScrollbar = 15
-    const narrowest = WIDE_GRID - (1280 - 1180) - classicScrollbar
-    const widest = 1280 - 2 * pageGutter("--space-page-padding-wide")
-    for (let gridWidth = narrowest; gridWidth <= widest; gridWidth++) {
-      expect(layout(fill(gridWidth).card).layout).toBe("medium")
+  it.each([
+    { name: "a 390px phone", grid: phone(390), card: 166 },
+    { name: "a 390px phone beside a classic scrollbar", grid: phone(390, CLASSIC_SCROLLBAR), card: 158 },
+    { name: "a 360px phone", grid: phone(360), card: 156 },
+  ])("$name: two cards of $card px filling the page", ({ grid, card }) => {
+    expect(grid.card).toBe(card)
+    expect(layout(grid.card).layout).toBe("medium")
+    expect(grid.spare).toBeLessThan(2)
+  })
+
+  it("gives every tablet and desktop grid width the medium face", () => {
+    const narrowest = mediumPage(720) - CLASSIC_SCROLLBAR
+    expect(narrowest).toBe(649)
+    for (let gridWidth = narrowest; gridWidth <= WIDE_PAGE; gridWidth++) {
+      const grid = fill(gridWidth)
+      expect(grid.card).toBeGreaterThanOrEqual(MIN)
+      expect(layout(grid.card).layout).toBe("medium")
+      expect(grid.spare).toBeLessThan(2)
     }
   })
 })
 
 describe("a set's album grid", () => {
-  it("spans its header's full width, each card centred in its column", () => {
+  it("spans its header's full width under the slot rule of every fill grid", () => {
     expect(collectionStylesheet).not.toContain(".set-album__grid {")
-    expect(ruleBody(collectionStylesheet, ".set-album__grid > .collection-slot")).toContain("justify-self: center;")
-    expect(collectionStylesheet.indexOf(".set-album__grid > .collection-slot {")).toBeGreaterThan(
-      collectionStylesheet.indexOf(".collection-grid--fill > .collection-slot {"),
-    )
+    expect(collectionStylesheet).not.toContain(".set-album__grid > .collection-slot")
   })
 
   it.each([
-    { name: "1280px and up", gridWidth: 1280 - 2 * pageGutter("--space-page-padding-wide"), columns: 7, card: 160 },
-    { name: "1280px beside a classic scrollbar", gridWidth: 1280 - 15 - 2 * pageGutter("--space-page-padding-wide"), columns: 7, card: 156 },
-    { name: "a 1024px window", gridWidth: 1024 - 2 * pageGutter("--space-page-padding-medium"), columns: 6, card: 148 },
-  ])("$name: $columns columns of $card px, medium layout", ({ gridWidth, columns, card }) => {
+    { name: "1280px and up", gridWidth: WIDE_PAGE, columns: 7, card: 160 },
+    { name: "1280px beside a classic scrollbar", gridWidth: WIDE_PAGE - CLASSIC_SCROLLBAR, columns: 7, card: 156 },
+  ])("$name: $columns columns of $card px, each under 1px from its column's edges", ({ gridWidth, columns, card }) => {
     const grid = fill(gridWidth)
-    expect(grid).toEqual({ columns, card })
+    expect({ columns: grid.columns, card: grid.card }).toEqual({ columns, card })
     expect(layout(grid.card).layout).toBe("medium")
-    const spare = (gridWidth - (columns - 1) * GAP) / columns - grid.card
-    expect(spare / 2).toBeLessThan(1)
+    expect(grid.spare).toBeLessThan(2)
   })
 })
 
-describe("the card detail beside the grid", () => {
-  const needed = () => 2 * token("--space-touch-min") + 2 * token("--space-2") + px(ruleBody(cardStylesheet, ".card--l"), "--card-width")
-
-  it("is a 340px column from 1180px and a 300px one from 900px, so the grid is 592px and 644px wide", () => {
-    expect(REPORT).toBe(220)
-    expect(detailColumn(WIDE)).toBe(340)
-    expect(detailColumn(MEDIUM)).toBe(300)
-    expect(WIDE_GRID).toBe(592)
-    expect(MEDIUM_GRID).toBe(644)
-    expect(ruleBody(collectionStylesheet, ".collection-results", collectionStylesheet.indexOf(WIDE))).toContain(
-      "column-gap: var(--space-column-gap-wide);",
-    )
-    expect(ruleBody(collectionStylesheet, ".collection-results", collectionStylesheet.indexOf(MEDIUM))).toContain(
-      "column-gap: var(--space-column-gap-medium);",
-    )
-  })
-
-  it("stays near the top of the viewport beside the grid, scrolling inside itself without clipping its brackets", () => {
-    const detail = ruleBody(collectionStylesheet, ".collection-detail", collectionStylesheet.indexOf(MEDIUM))
-    expect(detail).toContain("position: sticky;")
-    expect(detail).toContain("top: var(--space-5);")
-    expect(detail).toContain("max-height: calc(100dvh - 2 * var(--space-5));")
-    expect(detail).toContain("overflow: hidden auto;")
-    expect(detail).toContain("margin: calc(-1 * var(--detail-room));")
-    expect(detail).toContain("padding: var(--detail-room);")
-    const room = ruleBody(collectionStylesheet, ".collection-detail").match(/--detail-room: var\((--space-\d)\);/)?.[1]
-    const brackets = ruleBody(tokensStylesheet, ":root").match(/--corner-brackets-offset: -(\d+)px;/)?.[1]
-    expect(room).toBeDefined()
-    expect(token(room!)).toBeGreaterThanOrEqual(Number(brackets))
-    expect(ruleBody(collectionStylesheet, ".collection-results")).toContain("align-items: start;")
-  })
-
-  it("shows only beside the grid, from 900px: never under it, nor on the phone", () => {
-    expect(ruleBody(collectionStylesheet, ".collection-detail")).toContain("display: none;")
-    expect(collectionStylesheet).not.toContain("@media (min-width: 720px) and (max-width: 899px)")
-    const shown = [...collectionStylesheet.matchAll(/\.collection-detail[^{,]* \{[^}]*display: block;/g)].map((match) => match.index)
-    expect(shown).toEqual([collectionStylesheet.indexOf(".collection-detail {", collectionStylesheet.indexOf(MEDIUM))])
-  })
-
-  it("waits with an empty face as large as the card it will hold, hatched like a missing slot", () => {
-    const face = ruleBody(cardDetailStylesheet, ".card-detail__empty-face")
-    expect(px(face, "width")).toBe(px(ruleBody(cardStylesheet, ".card--l"), "--card-width"))
-    expect(px(face, "height")).toBe(px(ruleBody(cardStylesheet, ".card--l"), "--card-height"))
-    const slot = ruleBody(collectionStylesheet, "\n.missing-slot")
-    for (const property of ["background", "box-shadow"]) {
-      const declaration = face.match(new RegExp(`\\b${property}: [^;]+;`))?.[0]
-      expect(declaration).toBeDefined()
-      expect(slot).toContain(declaration!)
-    }
-  })
-
-  it("puts ◀ ▶ under the card when the panel is narrower than ◀ card ▶", () => {
-    const nav = ruleBody(cardDetailStylesheet, ".card-detail__nav")
-    expect(ruleBody(cardDetailStylesheet, ".card-detail__stage")).toContain("gap: var(--space-2);")
-    expect(nav).toContain("width: var(--space-touch-min);")
-    expect(nav).toContain("height: 64px;")
-    expect(px(ruleBody(cardDetailStylesheet, ".card-detail__back"), "width")).toBe(px(ruleBody(cardStylesheet, ".card--l"), "--card-width"))
-    expect(needed()).toBe(304)
-    const narrow = collectionStylesheet.indexOf(`@container (width < ${needed()}px)`)
-    expect(narrow).toBeGreaterThan(-1)
-    const stage = ruleBody(collectionStylesheet, ".collection-detail .card-detail__stage", narrow)
-    expect(stage).toContain("display: grid;")
-    expect(stage).toMatch(/grid-template-areas:\s*"card card"\s*"previous next";/)
-  })
-
-  it("fits ◀ card ▶ in the 340px column beside a thin scrollbar, not in the 300px one", () => {
-    const padding = ruleBody(collectionStylesheet, ".collection-detail > .card-detail").match(/padding-inline: var\((--space-\d)\);/)?.[1]
-    expect(padding).toBeDefined()
-    const thinScrollbar = 11
-    expect(detailColumn(WIDE) - thinScrollbar - 2 * token(padding!)).toBeGreaterThanOrEqual(needed())
-    expect(detailColumn(MEDIUM) - 2 * token(padding!)).toBeLessThan(needed())
-    expect(ruleBody(collectionStylesheet, ".collection-detail", collectionStylesheet.indexOf(MEDIUM))).toContain("scrollbar-width: thin;")
-  })
-
-  it("frames the selected card with a steady 3px accent line inside the slot's bleed", () => {
-    const frame = ruleBody(collectionStylesheet, '.collection-slot > .card-link[aria-current="true"]::after')
-    expect(frame).toContain("box-shadow: inset 0 0 0 3px var(--color-accent);")
-    expect(frame).toContain("inset: calc(-1 * var(--space-2) - 3px);")
-    expect(frame).not.toContain("animation")
-    const bleed = ruleBody(collectionStylesheet, ".collection").match(/--slot-bleed: var\((--space-\d)\);/)?.[1]
-    expect(bleed).toBeDefined()
-    expect(token("--space-2") + 3).toBeLessThanOrEqual(token(bleed!))
+describe("the top bar", () => {
+  it("takes the page's inline gutter under 1180px", () => {
+    expect(token("--space-gutter-medium")).toBe(28)
+    expect(ruleBody(tokensStylesheet, ":root")).toContain("--space-page-padding-medium: 24px var(--space-gutter-medium) 32px;")
+    expect(pageGutter("--space-page-padding-medium")).toBe(28)
+    const medium = shellStylesheet.indexOf("@media (max-width: 1179px)")
+    expect(medium).toBeGreaterThan(-1)
+    const nextMedia = shellStylesheet.indexOf("@media", medium + 1)
+    expect(shellStylesheet.indexOf(".main {", medium)).toBeLessThan(nextMedia)
+    expect(ruleBody(shellStylesheet, ".main", medium)).toContain("padding: var(--space-page-padding-medium);")
+    expect(shellStylesheet.indexOf(".top-bar__inner {", medium)).toBeLessThan(nextMedia)
+    expect(ruleBody(shellStylesheet, ".top-bar__inner", medium)).toContain("padding-inline: var(--space-gutter-medium);")
   })
 })

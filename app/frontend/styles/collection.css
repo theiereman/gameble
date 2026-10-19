@@ -1,15 +1,14 @@
 /*
  * The collection: its entry, the grid of every card and a set's album.
- * From 1180px the grid has the RAPPORT in a 220px column on its left and
- * the card detail in a 340px column on its right; from 900px the detail's
- * column is 300px; from 720px the grid stands alone, a slot opening its
- * card's detail page; under 720px one column, the RAPPORT folded above
- * the grid, two medium cards (card-m) wide, and no detail beside it. The
- * grid of every card fills its row: as many columns as fit at the smallest
- * grid card, with fixed gaps, each card as wide as its column (an even
- * pixel count, at most the largest grid card); extra width adds a column.
- * A set's album fills its row the same way across its header's full width,
- * each card centred in its column. No horizontal page scroll at any width.
+ * From 1180px the grid has the RAPPORT in a 220px column on its left; from
+ * 720px the grid stands alone; under 720px one column, the RAPPORT folded
+ * above the grid, two cards a row. A slot opens its card's detail page.
+ * Both grids fill their row: as many columns as fit at the smallest grid
+ * card, with fixed gaps, each card as wide as its column rounded down to
+ * an even pixel count and centred in it, so the first and last cards line
+ * up with the edges of what stands above the grid; extra width adds a
+ * column. On the phone the two columns share the page's width. No
+ * horizontal page scroll at any width.
  */
 
 .collection {
@@ -614,7 +613,8 @@
 
 .collection-grid--fill > .collection-slot {
   box-sizing: content-box;
-  width: round(down, min(100%, var(--space-grid-card-max)), 2px);
+  width: round(down, 100%, 2px);
+  justify-self: center;
   min-height: 0;
   aspect-ratio: 2 / 3;
   container-type: inline-size;
@@ -729,97 +729,6 @@
   letter-spacing: var(--tracking-body);
 }
 
-/* ---- The card detail beside the grid (collection_detail_controller.ts):
-   its column reserved from 900px only, sticky near the top of the
-   viewport and scrolling inside itself, the detail's layout waiting empty
-   until a card is opened (cards/_detail_waiting); under 900px no detail,
-   a slot opens its card's page. ---- */
-
-.collection-results {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-6);
-  align-items: start;
-}
-
-.collection-results__grid {
-  min-width: 0;
-}
-
-.collection-detail {
-  --detail-room: var(--space-3);
-
-  display: none;
-  min-width: 0;
-}
-
-/* ◀ 208px card ▶ fits the 340px column, beside a thin scrollbar. */
-.collection-detail > .card-detail {
-  padding-inline: var(--space-4);
-}
-
-@container (width < 304px) {
-  .collection-detail .card-detail__stage {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "card card"
-      "previous next";
-    gap: var(--space-4) var(--space-2);
-  }
-
-  .collection-detail .card-detail__card {
-    grid-area: card;
-  }
-
-  .collection-detail .card-detail__nav--previous {
-    grid-area: previous;
-    justify-self: end;
-  }
-
-  .collection-detail .card-detail__nav--next {
-    grid-area: next;
-    justify-self: start;
-  }
-}
-
-.collection-slot > .card-link[aria-current="true"] {
-  position: relative;
-}
-
-.collection-slot > .card-link[aria-current="true"]::after {
-  content: "";
-  position: absolute;
-  inset: calc(-1 * var(--space-2) - 3px);
-  box-shadow: inset 0 0 0 3px var(--color-accent);
-  pointer-events: none;
-}
-
-@media (min-width: 900px) {
-  .collection-results {
-    grid-template-columns: minmax(0, 1fr) 300px;
-    column-gap: var(--space-column-gap-medium);
-  }
-
-  .collection-detail {
-    position: sticky;
-    top: var(--space-5);
-    display: block;
-    max-height: calc(100dvh - 2 * var(--space-5));
-    margin: calc(-1 * var(--detail-room));
-    padding: var(--detail-room);
-    overflow: hidden auto;
-    scrollbar-width: thin;
-  }
-}
-
-@media (min-width: 1180px) {
-  .collection-results {
-    grid-template-columns: minmax(0, 1fr) 340px;
-    column-gap: var(--space-column-gap-wide);
-  }
-}
-
 /* ---- Set album: the name and count, the bar and its ticks, then the grid ---- */
 
 .set-album {
@@ -914,10 +823,6 @@
   height: 12px;
 }
 
-.set-album__grid > .collection-slot {
-  justify-self: center;
-}
-
 /* ---- No season ---- */
 
 .collection-none {
@@ -1003,8 +908,7 @@
   }
 
   .collection-grid {
-    grid-template-columns: repeat(2, var(--card-m-width));
-    justify-content: center;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .set-search__row {
@@ -1029,8 +933,8 @@
   }
 }
 
-/* Two medium cards and a 12px gap need 332px: on narrower phones (360px
-   wide) the gap tightens to 8px. */
+/* The two cards share the page's width: on narrow phones (360px wide) the
+   gap tightens to 8px, leaving the cards more of it. */
 @media (max-width: 371px) {
   .collection-grid {
     column-gap: var(--space-3);

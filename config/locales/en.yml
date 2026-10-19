@@ -1395,9 +1395,6 @@ en:
     previous: "Previous card"
     next: "Next card"
     store: "See on Steam"
-    waiting:
-      title: "Choose a card"
-      value: "—"
     preview:
       title: "%{title} — %{rarity}"
       description: "A card of gameble, your Steam games as collectible cards. Sign in through Steam: ten capsules wait for you."
