@@ -27,7 +27,7 @@ class DailyBonusesController < ApplicationController
         @tone = tone
         @collected = result.success?
       end
-      format.html { redirect_to home_path, tone => message(result, time: helpers.local_time_fallback(Game::BankSummary.next_bonus_at)), status: :see_other }
+      format.html { redirect_to home_path, tone => message(result, time: helpers.local_time_text(Game::BankSummary.next_bonus_at)), status: :see_other }
     end
   end
 

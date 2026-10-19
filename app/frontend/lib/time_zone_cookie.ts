@@ -1,0 +1,19 @@
+// The browser's time zone, sent to the server so it writes local times as
+// the browser would (local_time_helper.rb) and the page shows no UTC first.
+export const TIME_ZONE_COOKIE = "time_zone"
+
+const YEAR_IN_SECONDS = 365 * 24 * 60 * 60
+
+// The cookie to write, or null when the zone is unknown or already stored.
+export function timeZoneCookie(zone: string | undefined, cookies: string, secure: boolean): string | null {
+  if (!zone) return null
+  const pair = `${TIME_ZONE_COOKIE}=${encodeURIComponent(zone)}`
+  if (cookies.split("; ").includes(pair)) return null
+
+  return `${pair}; path=/; max-age=${YEAR_IN_SECONDS}; samesite=lax${secure ? "; secure" : ""}`
+}
+
+export function rememberTimeZone(): void {
+  const cookie = timeZoneCookie(Intl.DateTimeFormat().resolvedOptions().timeZone, document.cookie, location.protocol === "https:")
+  if (cookie) document.cookie = cookie
+}

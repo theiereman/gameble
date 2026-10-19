@@ -95,6 +95,18 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "p.settings-row__note time", "2026-10-04 07:05 UTC"
   end
 
+  test "once the browser has sent its zone, the time of the last export is already the local one the browser shows" do
+    Accounts::RecordExport.new.call(player: @player, at: Time.utc(2026, 10, 4, 7, 5), file: "{}").value!
+    sign_in(@player)
+    cookies[LocalTimeHelper::TIME_ZONE_COOKIE] = "Europe/Paris"
+
+    get settings_path(locale: :fr)
+    assert_select "p.settings-row__note time[datetime='2026-10-04T07:05:00Z']", "4 oct. 2026 à 09h05"
+
+    get settings_path(locale: :en)
+    assert_select "p.settings-row__note time[datetime='2026-10-04T07:05:00Z']", "Oct 4, 2026, 09:05"
+  end
+
   test "within five minutes of the last export, EXPORTER is disabled and says when the next export is allowed" do
     sign_in(@player)
 
