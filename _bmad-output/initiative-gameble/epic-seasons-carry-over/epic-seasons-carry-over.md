@@ -26,19 +26,19 @@ For a returning player: a season change reads as a reward, never as a loss; the 
 
 The lines of CAP-23 (spec), with the season rules of `catalog-and-rarity.md`, Seasons, and AD-5, AD-10, AD-25 of the architecture.
 
-- R1 (CAP-23): at a player's first visit after a publication, before the hub and before any opening, a dedicated screen recaps the season that ended: tiers reached with that season's mark, card backs, achievements and weekly goal rewards earned during it.
-- R2 (CAP-23): the same screen lists the tiers the player still meets in the new season's sets, received at once with the new season's mark, and the tiers to win back. A tier is identified by its set and its name; bronze, silver and gold earned in earlier seasons stay as history and are never listed to win back.
+- R1 (CAP-23): at a player's first visit after a publication, before the hub and before any opening, a dedicated screen recaps the season that ended: tiers reached, card backs, achievements and weekly goal rewards earned during it.
+- R2 (CAP-23): the same screen lists the tiers the player still meets in the new season's sets, received at once, and the tiers to win back. A tier is identified by its set and its name; bronze, silver and gold earned in earlier seasons stay as history and are never listed to win back.
 - R3 (CAP-23): tiers carried into the new season are never celebrated at an opening or announced in the feed; an opening or a trade celebrates only the tiers it crosses itself.
 - R4 (CAP-23): one Brotherhood line heads the screen; the rest is plain copy.
 - R5 (CAP-23): a player with no card from an earlier season sees no allocation.
-- R6 (CAP-23): a set shows its latest mark and a count of seasons ("Or · 12 saisons"), the per-season detail on demand; no season chip appears in the collection grid.
+- R6 (CAP-23): a tier shows no season mark and no count of seasons (author, 2026-10-19); no season chip appears in the collection grid.
 - R7 (Card copies constraint; AD-7): draws give only the published season's cards; a pack drawn before a publication and still unopened is redrawn in the published season.
 
 ## Done when
 
 1. After a season is published on staging, a returning player is led to the allocation screen once, before the hub, with the ended season's unlocks and the tiers that follow them.
-2. Tiers met at publication are received once with the new season's mark; none is celebrated or announced in the feed, including when a friend's trade is accepted before the player returns.
-3. A tier shows its latest season mark and its number of seasons, the per-season detail on demand, and "à reconquérir" when it is not met in the current season. A tier is identified by its set and its name; bronze, silver and gold earned in earlier seasons stay as history and are never listed to win back.
+2. Tiers met at publication are received once; none is celebrated or announced in the feed, including when a friend's trade is accepted before the player returns.
+3. A tier is identified by its set and its name; bronze, silver and gold earned in earlier seasons stay as history and are never listed to win back.
 4. A player with no card from an earlier season goes straight to the hub.
 5. Opening a pack answers within 200 ms at the 95th percentile after a publication.
 6. All of it is live in production before production's second season is published.
@@ -46,7 +46,7 @@ The lines of CAP-23 (spec), with the season rules of `catalog-and-rarity.md`, Se
 
 ## Boundaries
 
-The season change for players: receiving carried tiers, the allocation screen, season marks on tiers, and unopened packs redrawn at publication. Not the publication itself (epic-season-preparation), not the holding rule across editions and the collection's tiles (epic-recognizable-sets, entries 5 and 15), not season marks on card backs and titles (epic-card-backs).
+The season change for players: receiving carried tiers, the allocation screen, and unopened packs redrawn at publication. Not the publication itself (epic-season-preparation), not the holding rule across editions and the collection's tiles (epic-recognizable-sets, entries 5 and 15), not season marks on card backs and titles (epic-card-backs).
 
 ## References
 
@@ -69,3 +69,4 @@ The season change for players: receiving carried tiers, the allocation screen, s
 - Waits on epic 9 because: the recap lists the card backs earned in the ended season.
 - Waits on epic 13 because: tiers counted across editions (13.5), tiers in the feed (13.6), the hub panel (13.7), the album (13.8) and the collection across editions (13.15).
 - Decision (2026-10-19, author): set tiers cut by set size (change-set-tiers-by-size): a tier is identified by its set and its name; bronze, silver and gold from earlier seasons stay as history and are never listed to win back (R2, Done when 3).
+- Decision (2026-10-19, author): tiers carry no season mark: no "Or · 12 saisons", no per-season list and no "à reconquérir" on the album, the profile or the hub; entry 3 "Season marks on tiers" is removed. Card backs keep their season marks (epic-card-backs).
