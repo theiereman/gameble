@@ -43,6 +43,12 @@
     </p>
   <% end %>
 
+  <% if policy([ :back_office, :roadmap ]).index? %>
+    <p>
+      <%= render ButtonComponent.new(variant: :secondary, href: back_office_roadmap_milestones_path) do %><%= t(".roadmap") %><% end %>
+    </p>
+  <% end %>
+
   <% if policy([ :back_office, :cards ]).index? %>
     <p>
       <%= render ButtonComponent.new(variant: :secondary, href: back_office_cards_path) do %><%= t(".cards") %><% end %>

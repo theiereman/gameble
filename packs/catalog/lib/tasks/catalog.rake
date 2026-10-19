@@ -15,4 +15,27 @@ namespace :catalog do
       end
     end
   end
+
+  # Run on every boot of a web container (bin/docker-entrypoint), after
+  # db:prepare. It never fails the boot: a missing or broken file, or any
+  # other error, is a warning and leaves the roadmap as it is.
+  desc "Creates a hidden roadmap milestone for each initiative epic that has none (Catalog::CreateRoadmapMilestones); idempotent"
+  task create_roadmap_milestones: :environment do
+    reading = Catalog::InitiativeEpics.read(Rails.root.join("_bmad-output/initiative-gameble/tickets.toml"))
+    if reading.problem
+      warn "catalog:create_roadmap_milestones: the initiative's epics could not be read (#{reading.problem}); no milestone created"
+      next
+    end
+
+    result = Catalog::CreateRoadmapMilestones.new.call(epics: reading.epics)
+    if result.failure?
+      warn "catalog:create_roadmap_milestones: failed: #{result.failure}; no milestone created"
+    elsif result.value!.empty?
+      puts "catalog:create_roadmap_milestones: every epic has its milestone; nothing created"
+    else
+      puts "catalog:create_roadmap_milestones: #{result.value!.size} milestones created: #{result.value!.map(&:epic_slug).join(", ")}"
+    end
+  rescue StandardError => error
+    warn "catalog:create_roadmap_milestones: failed: #{error.class}: #{error.message}; no milestone created"
+  end
 end

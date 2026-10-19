@@ -1,0 +1,9 @@
+<%# locals: (path:, wording:, first:, last:) %>
+<% unless first %>
+  <%= render ButtonComponent.new(variant: :secondary, size: :small, href: path, method: :post, params: { direction: "up" },
+        aria_label: t("back_office.roadmap.move.up_label", wording:)) do %><%= t("back_office.roadmap.move.up") %><% end %>
+<% end %>
+<% unless last %>
+  <%= render ButtonComponent.new(variant: :secondary, size: :small, href: path, method: :post, params: { direction: "down" },
+        aria_label: t("back_office.roadmap.move.down_label", wording:)) do %><%= t("back_office.roadmap.move.down") %><% end %>
+<% end %>

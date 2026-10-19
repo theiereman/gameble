@@ -126,6 +126,19 @@ Rails.application.routes.draw do
         post :publish, on: :collection
       end
 
+      # The landing's roadmap, administrators only: the milestones of the
+      # initiative's epics, and the stories under each, by token.
+      resources :roadmap_milestones, path: "roadmap", param: :token, only: %i[index edit update],
+        constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
+        post :move, on: :member
+        resources :roadmap_stories, path: "stories", only: %i[new create],
+          constraints: { roadmap_milestone_token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+      end
+      resources :roadmap_stories, path: "roadmap/stories", param: :token, only: %i[edit update destroy],
+        constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
+        post :move, on: :member
+      end
+
       # The card preview, both renderers side by side, administrators only.
       resources :cards, only: :index
 

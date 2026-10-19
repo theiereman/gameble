@@ -41,6 +41,7 @@
 # Ignore planning documents and agent tooling.
 /_bmad/
 /_bmad-output/
+!/_bmad-output/initiative-gameble/tickets.toml
 /.agents/
 /.claude/
 

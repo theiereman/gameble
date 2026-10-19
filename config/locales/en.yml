@@ -340,6 +340,7 @@ en:
         jobs: "The job queue"
         import_runs: "The Steam import"
         seasons: "The catalog seasons"
+        roadmap: "The roadmap"
         cards: "The card press"
     reports:
       index:
@@ -573,6 +574,76 @@ en:
       publish:
         published: "Season %{number} is published, officer. Its cards are ready for the draw."
         import_active: "A Steam import has not completed, officer. Let it finish or resume it; abandon it if it halted before writing cards; or start a new run and let it complete, before publishing the season."
+    roadmap:
+      statuses:
+        done: "Done"
+        in_progress: "In progress"
+        to_come: "To come"
+      visibility:
+        shown: "Shown"
+        hidden: "Hidden"
+      columns:
+        position: "Place"
+        wording_fr: "French"
+        wording_en: "English"
+        status: "Status"
+        shown: "Landing"
+        order: "Order"
+        actions: "Actions"
+      fields:
+        wording_fr: "French wording"
+        wording_en: "English wording"
+        status: "Status"
+        shown: "Shown on the landing"
+      move:
+        up: "Up"
+        down: "Down"
+        up_label: "Move “%{wording}” up"
+        down_label: "Move “%{wording}” down"
+      back_to_milestone: "Back to the milestone"
+    roadmap_milestones:
+      index:
+        heading: "The roadmap"
+        intro: "The roadmap the landing shows. Every deploy gives each new epic of the initiative its milestone, hidden and to come, worded with the epic's title: word it in both languages before you show it. Milestones are never created or deleted here; hide the one whose epic is gone."
+        empty: "No milestone yet. The next deploy creates one for each epic of the initiative."
+        caption: "Roadmap milestones, in order"
+        epic: "Epic"
+        stories: "Stories"
+        edit: "Edit"
+        edit_label: "Edit “%{wording}”"
+      edit:
+        heading: "Milestone “%{wording}”"
+        intro: "Created for the epic %{epic}. Its wording, status and visibility are yours; the next deploys leave them as they are."
+        save: "Save the milestone"
+        stories: "Its stories"
+        stories_caption: "Stories of the milestone, in order"
+        no_stories: "No story under this milestone yet."
+        add_story: "Add a story"
+        edit_story: "Edit"
+        edit_story_label: "Edit “%{wording}”"
+        delete: "Delete"
+        delete_label: "Delete “%{wording}”"
+        delete_confirm: "Delete the story “%{wording}”? It cannot be brought back."
+        all_milestones: "The whole roadmap"
+      update:
+        updated: "The milestone is saved, officer."
+      move:
+        moved: "The milestone has moved, officer."
+    roadmap_stories:
+      new:
+        heading: "A new story for “%{milestone}”"
+        save: "Add the story"
+      edit:
+        heading: "A story of “%{milestone}”"
+        save: "Save the story"
+      create:
+        created: "The story is added, officer."
+      update:
+        updated: "The story is saved, officer."
+      move:
+        moved: "The story has moved, officer."
+      destroy:
+        deleted: "The story is deleted, officer."
   packs:
     create:
       throttled: "Too many openings in a minute. Try again in a moment."
@@ -1487,6 +1558,11 @@ en:
       no_published_season: "No published season bears that number, officer."
       already_numbered: "The cards of that season are numbered already, officer."
       unknown_theme: "Some cards of the draft season still carry a genre from before themes, officer, so they would land in the UFOs unseen. Run steam:fill_card_sources, then publish."
+      invalid_wording: "Each wording needs some text, in French and in English, of %{limit} characters at most, officer."
+      invalid_status: "That status is not one of the roadmap's, officer."
+      invalid_direction: "An entry of the roadmap moves only up or down, officer."
+      at_edge: "That entry cannot move any further that way, officer."
+      story_not_found: "That story is no longer on the roadmap, officer."
     game:
       player_required: "Sign in with an active account to do that."
       invalid_time: "The time sent could not be read. Reload the page."

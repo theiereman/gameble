@@ -1,0 +1,53 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <% if @milestones.empty? %>
+    <%= render PanelComponent.new(tag: :p) do %>
+      <%= t(".empty") %>
+    <% end %>
+  <% else %>
+    <table class="ledger">
+      <caption class="visually-hidden"><%= t(".caption") %></caption>
+      <thead>
+        <tr>
+          <th scope="col"><%= t("back_office.roadmap.columns.position") %></th>
+          <th scope="col"><%= t("back_office.roadmap.columns.wording_fr") %></th>
+          <th scope="col"><%= t("back_office.roadmap.columns.wording_en") %></th>
+          <th scope="col"><%= t(".epic") %></th>
+          <th scope="col"><%= t("back_office.roadmap.columns.status") %></th>
+          <th scope="col"><%= t("back_office.roadmap.columns.shown") %></th>
+          <th scope="col"><%= t(".stories") %></th>
+          <th scope="col"><%= t("back_office.roadmap.columns.order") %></th>
+          <th scope="col"><span class="visually-hidden"><%= t("back_office.roadmap.columns.actions") %></span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @milestones.each_with_index do |milestone, index| %>
+          <tr data-roadmap-milestone="<%= milestone.token %>" data-roadmap-status="<%= milestone.status %>" data-roadmap-shown="<%= milestone.shown %>">
+            <td><%= index + 1 %></td>
+            <td lang="fr" data-roadmap-wording="fr"><%= milestone.wording_fr %></td>
+            <td lang="en" data-roadmap-wording="en"><%= milestone.wording_en %></td>
+            <td><code><%= milestone.epic_slug %></code></td>
+            <td><%= t("back_office.roadmap.statuses.#{milestone.status}") %></td>
+            <td><%= t("back_office.roadmap.visibility.#{milestone.shown ? "shown" : "hidden"}") %></td>
+            <td data-roadmap-story-count="<%= milestone.story_count %>"><%= milestone.story_count %></td>
+            <td>
+              <%= render "back_office/roadmap_milestones/move", path: move_back_office_roadmap_milestone_path(milestone),
+                    wording: milestone.wording, first: index.zero?, last: index == @milestones.size - 1 %>
+            </td>
+            <td>
+              <%= link_to t(".edit"), edit_back_office_roadmap_milestone_path(milestone),
+                    aria: { label: t(".edit_label", wording: milestone.wording) } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>

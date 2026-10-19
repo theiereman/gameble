@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_17_090002) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_19_100001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -119,6 +119,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_090002) do
     t.string "franchises", default: [], null: false, array: true
     t.index ["slug"], name: "index_catalog_cards_on_slug", unique: true
     t.index ["source_key"], name: "index_catalog_cards_on_source_key", unique: true
+  end
+
+  create_table "catalog_roadmap_milestones", force: :cascade do |t|
+    t.string "token", null: false
+    t.string "epic_slug", null: false
+    t.string "wording_fr", null: false
+    t.string "wording_en", null: false
+    t.string "status", default: "to_come", null: false
+    t.boolean "shown", default: false, null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["epic_slug"], name: "index_catalog_roadmap_milestones_on_epic_slug", unique: true
+    t.index ["token"], name: "index_catalog_roadmap_milestones_on_token", unique: true
+    t.check_constraint "status::text = 'done'::text OR status::text = 'in_progress'::text OR status::text = 'to_come'::text", name: "catalog_roadmap_milestones_status_check"
+  end
+
+  create_table "catalog_roadmap_stories", force: :cascade do |t|
+    t.string "token", null: false
+    t.bigint "milestone_id", null: false
+    t.string "wording_fr", null: false
+    t.string "wording_en", null: false
+    t.string "status", default: "to_come", null: false
+    t.boolean "shown", default: true, null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["milestone_id"], name: "index_catalog_roadmap_stories_on_milestone_id"
+    t.index ["token"], name: "index_catalog_roadmap_stories_on_token", unique: true
+    t.check_constraint "status::text = 'done'::text OR status::text = 'in_progress'::text OR status::text = 'to_come'::text", name: "catalog_roadmap_stories_status_check"
   end
 
   create_table "catalog_seasons", force: :cascade do |t|
@@ -495,6 +525,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_090002) do
   add_foreign_key "catalog_card_seasons", "catalog_cards", column: "card_id"
   add_foreign_key "catalog_card_seasons", "catalog_seasons", column: "season_id"
   add_foreign_key "catalog_card_texts", "catalog_cards", column: "card_id"
+  add_foreign_key "catalog_roadmap_stories", "catalog_roadmap_milestones", column: "milestone_id"
   add_foreign_key "catalog_set_memberships", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "catalog_set_memberships", "catalog_sets", column: "set_id"
   add_foreign_key "catalog_set_tiers", "catalog_sets", column: "set_id"

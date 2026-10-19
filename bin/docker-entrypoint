@@ -1,8 +1,8 @@
 #!/bin/bash -e
 
-# If running the rails server then create or migrate existing database
+# If running the rails server then create or migrate existing database, then add the roadmap milestones of new epics
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  ./bin/rails db:prepare
+  ./bin/rails db:prepare catalog:create_roadmap_milestones
 fi
 
 exec "${@}"

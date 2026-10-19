@@ -1,0 +1,38 @@
+<%# locals: (url:, method:, entry:, submit:, failure: nil) %>
+<%= form_with url:, method:, class: "stack", data: { roadmap_form: "" } do %>
+  <% if failure %>
+    <ul class="ledger-errors" role="alert">
+      <li data-roadmap-failure><%= failure %></li>
+    </ul>
+  <% end %>
+
+  <dl class="ledger-entry">
+    <dt><label for="roadmap-wording-fr"><%= t("back_office.roadmap.fields.wording_fr") %></label></dt>
+    <dd>
+      <%= text_field_tag :wording_fr, entry.wording_fr, id: "roadmap-wording-fr", class: "ban-form__field", lang: "fr",
+            required: true, maxlength: Catalog::RoadmapWording::LENGTH, autocomplete: "off" %>
+    </dd>
+
+    <dt><label for="roadmap-wording-en"><%= t("back_office.roadmap.fields.wording_en") %></label></dt>
+    <dd>
+      <%= text_field_tag :wording_en, entry.wording_en, id: "roadmap-wording-en", class: "ban-form__field", lang: "en",
+            required: true, maxlength: Catalog::RoadmapWording::LENGTH, autocomplete: "off" %>
+    </dd>
+
+    <dt><label for="roadmap-status"><%= t("back_office.roadmap.fields.status") %></label></dt>
+    <dd>
+      <%= select_tag :status, options_for_select(Catalog::RoadmapMilestone::STATUSES.map { [ t("back_office.roadmap.statuses.#{it}"), it ] }, entry.status),
+            id: "roadmap-status", class: "ban-form__field" %>
+    </dd>
+
+    <dt><label for="roadmap-shown"><%= t("back_office.roadmap.fields.shown") %></label></dt>
+    <dd>
+      <%= hidden_field_tag :shown, "0", id: nil %>
+      <%= check_box_tag :shown, "1", entry.shown, id: "roadmap-shown" %>
+    </dd>
+  </dl>
+
+  <p>
+    <%= render ButtonComponent.new(variant: :primary, type: :submit) do %><%= submit %><% end %>
+  </p>
+<% end %>

@@ -1,0 +1,65 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading", wording: @milestone.wording) %></h1>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro", epic: @milestone.epic_slug) %>
+  <% end %>
+
+  <%= render "back_office/roadmap_stories/form", url: back_office_roadmap_milestone_path(@milestone), method: :patch,
+        entry: @entry, submit: t(".save"), failure: @failure %>
+
+  <section class="stack" aria-labelledby="roadmap-stories">
+    <h2 id="roadmap-stories"><%= t(".stories") %></h2>
+
+    <% if @stories.empty? %>
+      <%= render PanelComponent.new(tag: :p) do %>
+        <%= t(".no_stories") %>
+      <% end %>
+    <% else %>
+      <table class="ledger">
+        <caption class="visually-hidden"><%= t(".stories_caption") %></caption>
+        <thead>
+          <tr>
+            <th scope="col"><%= t("back_office.roadmap.columns.position") %></th>
+            <th scope="col"><%= t("back_office.roadmap.columns.wording_fr") %></th>
+            <th scope="col"><%= t("back_office.roadmap.columns.wording_en") %></th>
+            <th scope="col"><%= t("back_office.roadmap.columns.status") %></th>
+            <th scope="col"><%= t("back_office.roadmap.columns.shown") %></th>
+            <th scope="col"><%= t("back_office.roadmap.columns.order") %></th>
+            <th scope="col"><span class="visually-hidden"><%= t("back_office.roadmap.columns.actions") %></span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @stories.each_with_index do |story, index| %>
+            <tr data-roadmap-story="<%= story.token %>" data-roadmap-status="<%= story.status %>" data-roadmap-shown="<%= story.shown %>">
+              <td><%= index + 1 %></td>
+              <td lang="fr" data-roadmap-wording="fr"><%= story.wording_fr %></td>
+              <td lang="en" data-roadmap-wording="en"><%= story.wording_en %></td>
+              <td><%= t("back_office.roadmap.statuses.#{story.status}") %></td>
+              <td><%= t("back_office.roadmap.visibility.#{story.shown ? "shown" : "hidden"}") %></td>
+              <td>
+                <%= render "back_office/roadmap_milestones/move", path: move_back_office_roadmap_story_path(story),
+                      wording: story.wording, first: index.zero?, last: index == @stories.size - 1 %>
+              </td>
+              <td>
+                <%= link_to t(".edit_story"), edit_back_office_roadmap_story_path(story),
+                      aria: { label: t(".edit_story_label", wording: story.wording) } %>
+                <%= render ButtonComponent.new(variant: :danger, size: :small, href: back_office_roadmap_story_path(story), method: :delete,
+                      confirm: t(".delete_confirm", wording: story.wording),
+                      aria_label: t(".delete_label", wording: story.wording)) do %><%= t(".delete") %><% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
+    <p>
+      <%= render ButtonComponent.new(variant: :secondary, href: new_back_office_roadmap_milestone_roadmap_story_path(@milestone)) do %><%= t(".add_story") %><% end %>
+    </p>
+  </section>
+
+  <p><%= link_to t(".all_milestones"), back_office_roadmap_milestones_path %></p>
+</div>

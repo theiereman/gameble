@@ -366,6 +366,7 @@ fr:
         jobs: "La file des tâches"
         import_runs: "L'import Steam"
         seasons: "Les saisons du catalogue"
+        roadmap: "La feuille de route"
         cards: "La presse à cartes"
     reports:
       index:
@@ -601,6 +602,76 @@ fr:
       publish:
         published: "La saison %{number} est publiée, officier. Ses cartes sont prêtes pour le tirage."
         import_active: "Un import Steam n'est pas terminé, officier. Laisse-le finir ou reprends-le ; abandonne-le s'il s'est interrompu avant d'inscrire des cartes ; ou lance une nouvelle passe et laisse-la aboutir, avant de publier la saison."
+    roadmap:
+      statuses:
+        done: "Fait"
+        in_progress: "En cours"
+        to_come: "À venir"
+      visibility:
+        shown: "Affiché"
+        hidden: "Masqué"
+      columns:
+        position: "Rang"
+        wording_fr: "Français"
+        wording_en: "Anglais"
+        status: "État"
+        shown: "Accueil"
+        order: "Ordre"
+        actions: "Actions"
+      fields:
+        wording_fr: "Libellé français"
+        wording_en: "Libellé anglais"
+        status: "État"
+        shown: "Affiché sur l'accueil"
+      move:
+        up: "Monter"
+        down: "Descendre"
+        up_label: "Monter « %{wording} »"
+        down_label: "Descendre « %{wording} »"
+      back_to_milestone: "Retour à l'étape"
+    roadmap_milestones:
+      index:
+        heading: "La feuille de route"
+        intro: "La feuille de route que montre l'accueil. Chaque déploiement donne à chaque nouvel epic de l'initiative son étape, masquée et à venir, au titre de l'epic : formule-la dans les deux langues avant de l'afficher. Les étapes ne se créent ni ne se suppriment ici ; masque celle dont l'epic n'est plus."
+        empty: "Aucune étape pour l'instant. Le prochain déploiement en crée une pour chaque epic de l'initiative."
+        caption: "Étapes de la feuille de route, dans l'ordre"
+        epic: "Epic"
+        stories: "Histoires"
+        edit: "Modifier"
+        edit_label: "Modifier « %{wording} »"
+      edit:
+        heading: "Étape « %{wording} »"
+        intro: "Créée pour l'epic %{epic}. Son libellé, son état et son affichage t'appartiennent ; les prochains déploiements les laissent tels quels."
+        save: "Enregistrer l'étape"
+        stories: "Ses histoires"
+        stories_caption: "Histoires de l'étape, dans l'ordre"
+        no_stories: "Aucune histoire sous cette étape pour l'instant."
+        add_story: "Ajouter une histoire"
+        edit_story: "Modifier"
+        edit_story_label: "Modifier « %{wording} »"
+        delete: "Supprimer"
+        delete_label: "Supprimer « %{wording} »"
+        delete_confirm: "Supprimer l'histoire « %{wording} » ? Elle ne pourra pas revenir."
+        all_milestones: "Toute la feuille de route"
+      update:
+        updated: "L'étape est enregistrée, officier."
+      move:
+        moved: "L'étape a changé de place, officier."
+    roadmap_stories:
+      new:
+        heading: "Une nouvelle histoire pour « %{milestone} »"
+        save: "Ajouter l'histoire"
+      edit:
+        heading: "Une histoire de « %{milestone} »"
+        save: "Enregistrer l'histoire"
+      create:
+        created: "L'histoire est ajoutée, officier."
+      update:
+        updated: "L'histoire est enregistrée, officier."
+      move:
+        moved: "L'histoire a changé de place, officier."
+      destroy:
+        deleted: "L'histoire est supprimée, officier."
   packs:
     create:
       throttled: "Trop d'ouvertures en une minute. Réessayez dans un instant."
@@ -1536,6 +1607,11 @@ fr:
       no_published_season: "Aucune saison publiée ne porte ce numéro, officier."
       already_numbered: "Les cartes de cette saison sont déjà numérotées, officier."
       unknown_theme: "Des cartes de la saison en brouillon portent encore un genre d'avant les thèmes, officier : elles tomberaient dans les OVNI sans qu'on le voie. Lance steam:fill_card_sources, puis publie."
+      invalid_wording: "Chaque libellé demande du texte, en français et en anglais, de %{limit} caractères au plus, officier."
+      invalid_status: "Cet état n'est pas un de ceux de la feuille de route, officier."
+      invalid_direction: "Une entrée de la feuille de route ne fait que monter ou descendre, officier."
+      at_edge: "Cette entrée ne peut pas aller plus loin dans ce sens, officier."
+      story_not_found: "Cette histoire n'est plus sur la feuille de route, officier."
     game:
       player_required: "Connectez-vous avec un compte actif pour faire cela."
       invalid_time: "L'heure envoyée n'a pas pu être lue. Rechargez la page."

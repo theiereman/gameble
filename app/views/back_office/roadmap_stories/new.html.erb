@@ -1,0 +1,10 @@
+<% content_for :back_button, true %>
+
+<div class="stack">
+  <h1><%= t(".heading", milestone: @milestone.wording) %></h1>
+
+  <%= render "back_office/roadmap_stories/form", url: back_office_roadmap_milestone_roadmap_stories_path(@milestone), method: :post,
+        entry: @entry, submit: t(".save"), failure: @failure %>
+
+  <p><%= link_to t("back_office.roadmap.back_to_milestone"), edit_back_office_roadmap_milestone_path(@milestone) %></p>
+</div>
