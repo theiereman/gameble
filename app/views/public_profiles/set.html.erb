@@ -4,5 +4,5 @@
 <% content_for :phone_previous, true %>
 <% content_for :title, t("public_profiles.set.title", set: set_name, name: owner_name) %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
-<%= render "library/album", set: @set, standing: @standing, heading: t("public_profiles.set.heading", set: set_name, name: owner_name),
+<%= render "library/album", standing: @standing, heading: t("public_profiles.set.heading", set: set_name, name: owner_name),
   slots: @album_slots, pagy: @album_pagy, slot_context: nil %>

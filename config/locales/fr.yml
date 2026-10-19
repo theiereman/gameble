@@ -644,18 +644,7 @@ fr:
         complete: "Complet"
     album:
       title: "%{set} · Collection · gameble"
-      tiers: "Paliers"
       slots: "Cartes du set"
-      # French keeps the singular for 0, which the plural rule here does not.
-      tier:
-        reached:
-          zero: "%{tier}, %{required} carte, atteint"
-          one: "%{tier}, %{required} carte, atteint"
-          other: "%{tier}, %{required} cartes, atteint"
-        not_reached:
-          zero: "%{tier}, %{required} carte, pas encore atteint"
-          one: "%{tier}, %{required} carte, pas encore atteint"
-          other: "%{tier}, %{required} cartes, pas encore atteint"
     collection:
       title: "Collection"
     cards:

@@ -28,9 +28,9 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     end
   end
 
-  def gauge = css_select(".set-album__gauge > li .visually-hidden").map(&:text)
   def value_text = css_select("progress.set-album__bar").sole["aria-valuetext"]
   def count = css_select(".set-album__count").sole.text.squish
+  def title_line = css_select(".set-album__title *").filter_map { it["class"]&.split&.first }
 
   def earlier_edition(card_season_id, rarity:)
     member = Catalog::CardSeason.find(card_season_id)
@@ -38,7 +38,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
       rarity: Catalog::Rarity::TIERS.key(rarity), number: 900 } ], returning: :id).rows.flatten.sole
   end
 
-  test "a theme at silver: its name, count, gauge and value text, its faces in set order and the missing slots naming their games" do
+  test "a theme at silver: its name and count on one line, its ticks and value text, its faces in set order and the missing slots naming their games" do
     season = publish_sets_draft
     player = accounts_players(:player)
     members = set_members(season, "horror")
@@ -56,19 +56,14 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select "p.top-bar__title", "Collection"
     assert_select "header.top-bar[data-screen-label=Set] .top-bar__start.top-bar__start--phone-previous > a.top-bar__previous[data-controller=previous-screen]"
     assert_select ".collection-status__value", "5 / 150"
-    assert_select ".set-album__kind", "Theme"
+    assert_select ".set-album__kind, .set-album__facts, .set-album__gauge", false
+    assert_equal [ "set-album__name", "set-album__count" ], title_line
     assert_equal "5/16", count
     assert_select ".set-album__count[aria-hidden=true]"
     assert_select "progress.set-album__bar[aria-labelledby=set-album-heading][value='5'][max='16']"
     assert_equal "5 cards out of 16, silver tier", value_text
     assert_select ".set-album__ticks[aria-hidden=true] .set-row__tick", 3
     assert_select ".set-album__ticks .set-row__tick.is-reached", 2
-    assert_select "ol.set-album__gauge[aria-label=Tiers] > li", 3
-    assert_equal [ "Bronze, 2 cards, reached", "Silver, 4 cards, reached", "Gold, 8 cards, not reached yet" ], gauge
-    assert_equal [ "Bronze", "Silver", "Gold" ], css_select(".set-album__tier-name[aria-hidden=true]").map(&:text)
-    assert_equal [ "2", "4", "8" ], css_select(".set-album__tier-required[aria-hidden=true]").map(&:text)
-    assert_select ".set-album__tier.is-reached .set-album__check", 2
-    assert_select ".set-album__tier:not(.is-reached) .set-album__check", false
     assert_select ".set-album__stamp", false
     expected = members.each_with_index.map do |id, index|
       if held.include?(index) then [ :owned, title(id), (index == 3 ? "x2" : nil) ] else [ :missing, title(id), year(id) ] end
@@ -77,7 +72,9 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".missing-slot .visually-hidden", { count: 11, text: "Missing card" }
     assert_select ".collection-slot .visually-hidden", "2 copies"
     assert_select ".collection-slot .visually-hidden", "1 copy"
-    assert_select "ol.set-album__grid[aria-label='Cards in the set'][data-controller=grid-keys]"
+    assert_select "ol.set-album__grid.collection-grid--fill[aria-label='Cards in the set'][data-controller=grid-keys]"
+    assert_select ".set-album__grid .card.card--grid", 5
+    assert_select ".card--m", false
     assert_select ".set-album[data-controller=set-album]"
     assert_select ".collection-pages", false
     assert_select "[style]", false
@@ -87,7 +84,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_equal members.each_index.map { held.include?(it) }, links.map { it["aria-label"].present? }
   end
 
-  test "a completed franchise shows the stamp, no gauge and no ticks, in French" do
+  test "a completed franchise shows the stamp after its name and no ticks, in French" do
     season = publish_franchises_and_studios_draft
     player = accounts_players(:player)
     set_members(season, "tom-clancy").each { hold(player, it, 1) }
@@ -98,17 +95,18 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "title", "Tom Clancy · Collection · gameble"
     assert_select "h1", "Tom Clancy"
-    assert_select ".set-album__facts .set-album__stamp", "Complet"
-    assert_select ".set-album__kind", "Franchise"
+    assert_select ".set-album__title .set-album__stamp", "Complet"
+    assert_equal [ "set-album__name", "set-album__stamp", "set-album__count" ], title_line
+    assert_select ".set-album__kind", false
     assert_equal "3/3", count
     assert_equal "3 cartes sur 3, complet", value_text
     assert_select ".set-album__gauge, .set-album__ticks, .set-row__tick", false
-    assert_select ".set-album__grid .card", 3
+    assert_select ".set-album__grid .card.card--grid", 3
     assert_select ".collection-slot__copies", false
     assert_select ".collection-slot .visually-hidden", { count: 3, text: "1 exemplaire" }
   end
 
-  test "in French a theme's gauge and value text read in French" do
+  test "in French a theme's value text names its tier in French" do
     season = publish_sets_draft
     player = accounts_players(:player)
     set_members(season, "horror").first(8).each { hold(player, it, 1) }
@@ -117,15 +115,14 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     get library_set_path(locale: :fr, kind: "theme", key: "horror")
 
     assert_equal "8 cartes sur 16, palier or", value_text
-    assert_equal [ "Bronze, 2 cartes, atteint", "Argent, 4 cartes, atteint", "Or, 8 cartes, atteint" ], gauge
-    assert_select "ol.set-album__gauge[aria-label=Paliers]"
+    assert_select ".set-album__ticks .set-row__tick.is-reached", 3
+    assert_select ".set-album__gauge", false
     assert_select "ol.set-album__grid[aria-label='Cartes du set']"
     assert_select ".missing-slot .visually-hidden", { count: 8, text: "Carte manquante" }
 
     delete session_path(locale: :fr)
     get library_set_path(locale: :fr, kind: "theme", key: "pirates")
     assert_equal "0 carte sur 8", value_text
-    assert_equal "Bronze, 1 carte, pas encore atteint", gauge.first
   end
 
   test "a game held only in an earlier season fills its slot with that edition, leading to its own page" do
@@ -195,7 +192,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "0/16", count
     assert_equal "0 cards out of 16", value_text
-    assert_select ".set-album__tier.is-reached", false
+    assert_select ".set-row__tick.is-reached", false
     assert_equal members.map { [ :missing, title(it), year(it) ] }, slots
     assert_select ".collection-slot__new", false
     assert_select ".top-bar__end form.steam-sign-in"
@@ -251,7 +248,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     season = publish_sets_draft
     get library_set_path(locale: :en, kind: "ufo", key: "ufos")
     assert_select "h1", "The UFOs"
-    assert_select ".set-album__kind", "UFO"
+    assert_select ".set-album__kind", false
     assert_equal set_members(season, "ufos").map { title(it) }, slots.map(&:second)
 
     publish_franchises_and_studios_draft
@@ -296,7 +293,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
 
     get library_set_path(locale: :en, kind: "theme", key: "horror")
 
-    html = css_select("main").sole.to_html.gsub(/\d+\/\d+|value="\d+"|max="\d+"|\b(19|20)\d\d\b|x\d+|\d+ cop(y|ies)|\d+ cards?|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|\/seasons\/\d+|[Ss]eason \d+|<span class="set-album__tier-required" aria-hidden="true">\d+<\/span>|>\d+</, "")
+    html = css_select("main").sole.to_html.gsub(/\d+\/\d+|value="\d+"|max="\d+"|\b(19|20)\d\d\b|x\d+|\d+ cop(y|ies)|\d+ cards?|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|\/seasons\/\d+|[Ss]eason \d+|>\d+</, "")
     ids.each { assert_no_match(/\b#{it}\b/, html) }
     assert_select "[data-id]", false
   end

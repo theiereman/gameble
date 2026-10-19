@@ -187,6 +187,28 @@ describe("the grid of every card", () => {
   })
 })
 
+describe("a set's album grid", () => {
+  it("spans its header's full width, each card centred in its column", () => {
+    expect(collectionStylesheet).not.toContain(".set-album__grid {")
+    expect(ruleBody(collectionStylesheet, ".set-album__grid > .collection-slot")).toContain("justify-self: center;")
+    expect(collectionStylesheet.indexOf(".set-album__grid > .collection-slot {")).toBeGreaterThan(
+      collectionStylesheet.indexOf(".collection-grid--fill > .collection-slot {"),
+    )
+  })
+
+  it.each([
+    { name: "1280px and up", gridWidth: 1280 - 2 * pageGutter("--space-page-padding-wide"), columns: 7, card: 160 },
+    { name: "1280px beside a classic scrollbar", gridWidth: 1280 - 15 - 2 * pageGutter("--space-page-padding-wide"), columns: 7, card: 156 },
+    { name: "a 1024px window", gridWidth: 1024 - 2 * pageGutter("--space-page-padding-medium"), columns: 6, card: 148 },
+  ])("$name: $columns columns of $card px, medium layout", ({ gridWidth, columns, card }) => {
+    const grid = fill(gridWidth)
+    expect(grid).toEqual({ columns, card })
+    expect(layout(grid.card).layout).toBe("medium")
+    const spare = (gridWidth - (columns - 1) * GAP) / columns - grid.card
+    expect(spare / 2).toBeLessThan(1)
+  })
+})
+
 describe("the card detail beside the grid", () => {
   const needed = () => 2 * token("--space-touch-min") + 2 * token("--space-2") + px(ruleBody(cardStylesheet, ".card--l"), "--card-width")
 

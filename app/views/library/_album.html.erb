@@ -1,14 +1,13 @@
 <% strings = CardStrings.new %>
 <div class="set-album" data-controller="set-album">
   <%= render PanelComponent.new(tag: :header, brackets: true, class: class_names("set-album__header", "set-album__header--tiered": standing.tiered?)) do %>
-    <h1 id="set-album-heading" class="set-album__name" tabindex="-1" data-set-album-target="heading"><%= heading %></h1>
-    <p class="set-album__facts">
-      <span class="set-album__kind"><%= set_kind_name(set.kind) %></span>
+    <div class="set-album__title">
+      <h1 id="set-album-heading" class="set-album__name" tabindex="-1" data-set-album-target="heading"><%= heading %></h1>
       <% if standing.complete? %>
         <span class="set-album__stamp"><%= set_tier_name("complete") %></span>
       <% end %>
       <span class="set-album__count" aria-hidden="true"><b><%= number_with_delimiter(standing.held) %></b>/<%= number_with_delimiter(standing.total) %></span>
-    </p>
+    </div>
     <div class="set-album__track">
       <progress class="set-row__bar set-album__bar" value="<%= [ standing.held, standing.total ].min %>" max="<%= [ standing.total, 1 ].max %>"
         aria-labelledby="set-album-heading" aria-valuetext="<%= set_album_value_text(standing) %>"></progress>
@@ -16,30 +15,15 @@
         <span class="set-album__ticks" aria-hidden="true"><%= set_tier_ticks(standing) %></span>
       <% end %>
     </div>
-    <% if standing.tiered? %>
-      <ol class="set-album__gauge" aria-label="<%= t("library.album.tiers") %>">
-        <% set_album_tiers(standing).each do |album_tier| %>
-          <li class="<%= class_names("set-album__tier", "set-album__tier--#{album_tier.tier}", "is-reached": album_tier.reached) %>">
-            <span class="set-album__tier-mark" aria-hidden="true">
-              <%= pixel_icon("check", class: "set-album__check") if album_tier.reached %>
-              <%= set_notches(album_tier.notches) %>
-            </span>
-            <span class="set-album__tier-name" aria-hidden="true"><%= set_tier_name(album_tier.tier) %></span>
-            <span class="set-album__tier-required" aria-hidden="true"><%= number_with_delimiter(album_tier.required) %></span>
-            <span class="visually-hidden"><%= set_album_tier_sentence(album_tier) %></span>
-          </li>
-        <% end %>
-      </ol>
-    <% end %>
   <% end %>
   <% if slots.any? %>
-    <ol class="collection-grid set-album__grid" aria-label="<%= t("library.album.slots") %>"
+    <ol class="collection-grid collection-grid--fill set-album__grid" aria-label="<%= t("library.album.slots") %>"
       data-controller="grid-keys" data-action="keydown->grid-keys#move focusin->grid-keys#remember">
       <% slots.each do |slot| %>
         <% context = slot_context&.call(slot) || {} %>
         <li class="collection-slot">
           <% if slot.copies %>
-            <%= link_to_card_detail(slot.card, strings:, context:) do %><%= render CardComponent.new(card: slot.card, size: :m) %><% end %>
+            <%= link_to_card_detail(slot.card, strings:, context:) do %><%= render CardComponent.new(card: slot.card, size: :grid) %><% end %>
             <% if slot.copies > 1 %>
               <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(slot.copies) %></span>
             <% end %>

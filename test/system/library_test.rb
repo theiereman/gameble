@@ -65,7 +65,7 @@ class LibraryTest < ApplicationSystemTestCase
     find(".filters__summary").click
     find(".filter-chip__text", text: /\AAll\z/i).click
     assert_selector ".collection-grid > li", count: 16
-    assert_selector ".collection-grid .card.card--m", count: 3
+    assert_selector ".collection-grid .card.card--grid", count: 3
     assert_selector ".collection-slot__copies", count: 3
     assert_selector ".collection-slot__copies", text: "x2", count: 1
     assert_selector ".missing-slot", count: 13
@@ -131,7 +131,7 @@ class LibraryTest < ApplicationSystemTestCase
 
     row("Horror").click
     assert_selector ".collection-sets .set-row[aria-current=page]", text: %r{3/16}
-    assert_selector ".collection-grid .card.card--m", count: 3
+    assert_selector ".collection-grid .card.card--grid", count: 3
     assert_no_sideways_scroll
     take_screenshot
   end
@@ -198,7 +198,7 @@ class LibraryTest < ApplicationSystemTestCase
 
     visit library_set_path(locale: :en, kind: "theme", key: "horror")
 
-    assert_selector ".collection-grid .card.card--m", count: 8
+    assert_selector ".collection-grid .card.card--grid", count: 8
     assert_no_selector ".collection-slot__new"
   end
 

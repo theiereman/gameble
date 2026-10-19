@@ -126,10 +126,9 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1#set-album-heading[tabindex='-1']", "Horror · Gabe the Brave"
     assert_equal "5/16", album_count
     assert_equal "5 cards out of 16, silver tier", css_select("progress.set-album__bar").sole["aria-valuetext"]
-    assert_equal [ "Bronze, 2 cards, reached", "Silver, 4 cards, reached", "Gold, 8 cards, not reached yet" ],
-      css_select(".set-album__gauge .visually-hidden").map(&:text)
-    assert_select ".set-album__grid .card.card--m", 5
-    assert_select ".collection-grid--fill, .card--grid", false
+    assert_select ".set-album__gauge, .set-album__kind", false
+    assert_select "ol.set-album__grid.collection-grid--fill .card.card--grid", 5
+    assert_select ".card--m", false
     assert_equal [ "x2" ], css_select(".collection-slot__copies").map(&:text)
     assert_select ".missing-slot .visually-hidden", { count: 11, text: "Missing card" }
     assert_select ".collection-slot__new", false
@@ -155,7 +154,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     slot = css_select(".set-album__grid > li")[1]
     assert_equal "/fr/cards/#{older.card.slug}/seasons/1", slot.at_css("a.card-link")["href"]
     assert_equal "x3", slot.at_css(".collection-slot__copies").text
-    assert_select ".set-album__gauge[aria-label=Paliers]"
+    assert_equal "1 carte sur 8, palier bronze", css_select("progress.set-album__bar").sole["aria-valuetext"]
   end
 
   test "an owner's album costs seven queries for a visitor, a signed-in viewer's five more" do

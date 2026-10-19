@@ -54,7 +54,7 @@ class PublicProfileTest < ApplicationSystemTestCase
     assert_selector "h1", text: "Pirates · Gabe the Brave"
     assert_selector ".set-album__count", text: "8/8"
     assert_selector ".set-album__stamp", text: /\Acomplete\z/i
-    assert_selector ".set-album__grid .card.card--m", count: 8
+    assert_selector ".set-album__grid .card.card--grid", count: 8
     assert_selector ".collection-slot__copies", text: "x2", count: 1
     assert_no_selector ".collection-slot__new"
     take_screenshot

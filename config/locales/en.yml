@@ -616,15 +616,7 @@ en:
         complete: "Complete"
     album:
       title: "%{set} · Collection · gameble"
-      tiers: "Tiers"
       slots: "Cards in the set"
-      tier:
-        reached:
-          one: "%{tier}, %{required} card, reached"
-          other: "%{tier}, %{required} cards, reached"
-        not_reached:
-          one: "%{tier}, %{required} card, not reached yet"
-          other: "%{tier}, %{required} cards, not reached yet"
     collection:
       title: "Collection"
     cards:

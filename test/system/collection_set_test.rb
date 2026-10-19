@@ -66,7 +66,7 @@ class CollectionSetTest < ApplicationSystemTestCase
     visit library_set_path(locale: :en, kind: "theme", key: "rpg")
 
     # Sixty cards counted in one call (see library_test.rb).
-    assert_selector ".collection-grid .card.card--m", count: 60, visible: :all
+    assert_selector ".collection-grid .card.card--grid", count: 60, visible: :all
     # The first cards are drawn (or fail, the test images being unreachable);
     # those far below are not even started.
     assert_selector ".collection-grid > li:first-child .card__art[data-art]", visible: :all, wait: 10
@@ -77,6 +77,6 @@ class CollectionSetTest < ApplicationSystemTestCase
 
     find(".collection-pages a[rel=next]").click
     assert_current_path library_set_path(locale: :en, kind: "theme", key: "rpg", page: 2)
-    assert_selector ".collection-grid .card.card--m", count: 60, visible: :all
+    assert_selector ".collection-grid .card.card--grid", count: 60, visible: :all
   end
 end
