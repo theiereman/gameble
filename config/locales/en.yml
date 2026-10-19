@@ -320,7 +320,7 @@ en:
             mal-aimes: "very well-known games with a mixed reception;"
             phenomenes: "the games with a huge number of reviews."
         ufos: "%{name}: the games that fit no theme."
-        tiers: "Themes and the hall of fame have tiers: bronze at %{bronze} of their cards, silver at %{silver}, gold at %{gold}, then completion. The other sets are only completed."
+        tiers: "Every set has tiers by its size, then completion at 100 %. The last tier before completion is always Master; the larger the set, the more tiers below it: 3 to 4 cards, completion only; 5 to 9, Master at half; 10 to 19, Expert at a third and Master at two thirds; 20 to 59, Adept at 25 %, Expert at 50 % and Master at 75 %; 60 to 199, Apprentice at 10 %, Adept at 25 %, Expert at 50 % and Master at 75 %; from 200, Novice at 10 %, Apprentice at 25 %, Adept at 50 %, Expert at 75 % and Master at 90 %."
       completion:
         title: "Completing a set"
         rule: "A set is complete when you hold all of its cards at the same time. Duplicates count once, and a card counts in every set it belongs to."
@@ -684,6 +684,11 @@ en:
         bronze: "Bronze"
         silver: "Silver"
         gold: "Gold"
+        novice: "Novice"
+        apprentice: "Apprentice"
+        adept: "Adept"
+        expert: "Expert"
+        master: "Master"
         complete: "Complete"
     album:
       title: "%{set} · Collection · gameble"
@@ -876,6 +881,11 @@ en:
           bronze: "BRONZE"
           silver: "SILVER"
           gold: "GOLD"
+          novice: "NOVICE"
+          apprentice: "APPRENTICE"
+          adept: "ADEPT"
+          expert: "EXPERT"
+          master: "MASTER"
           complete: "COMPLETE"
         folded:
           one: "%{count} TIER REACHED"
@@ -898,6 +908,11 @@ en:
           bronze: "bronze"
           silver: "silver"
           gold: "gold"
+          novice: "novice"
+          apprentice: "apprentice"
+          adept: "adept"
+          expert: "expert"
+          master: "master"
           complete: "complete"
   settings:
     show:
@@ -976,6 +991,11 @@ en:
         bronze_html: "%{name} reaches bronze in the %{set} set."
         silver_html: "%{name} reaches silver in the %{set} set."
         gold_html: "%{name} reaches gold in the %{set} set."
+        novice_html: "%{name} reaches the Novice tier in the %{set} set."
+        apprentice_html: "%{name} reaches the Apprentice tier in the %{set} set."
+        adept_html: "%{name} reaches the Adept tier in the %{set} set."
+        expert_html: "%{name} reaches the Expert tier in the %{set} set."
+        master_html: "%{name} reaches the Master tier in the %{set} set."
         complete_html: "%{name} completes the %{set} set."
       sets_reached_html:
         zero: "%{name} reaches %{count} tiers · %{set} %{tier}"
@@ -985,6 +1005,11 @@ en:
         bronze: "Bronze"
         silver: "Silver"
         gold: "Gold"
+        novice: "Novice"
+        apprentice: "Apprentice"
+        adept: "Adept"
+        expert: "Expert"
+        master: "Master"
         complete: "Complete"
       announcement:
         zero: "No new entries in the feed."

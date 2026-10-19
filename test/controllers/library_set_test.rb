@@ -38,11 +38,11 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
       rarity: Catalog::Rarity::TIERS.key(rarity), number: 900 } ], returning: :id).rows.flatten.sole
   end
 
-  test "a theme at silver: its name and count on one line, its ticks and value text, its faces in set order and the missing slots naming their games" do
+  test "a theme at expert: its name and count on one line, its value text without metal ticks, its faces in set order and the missing slots naming their games" do
     season = publish_sets_draft
     player = accounts_players(:player)
     members = set_members(season, "horror")
-    held = [ 0, 3, 7, 12, 15 ]
+    held = [ 0, 3, 7, 12, 14, 15 ]
     held.each { hold(player, members[it], it == 3 ? 2 : 1) }
     sign_in(player)
 
@@ -55,25 +55,25 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select "header.set-album__header.panel--brackets"
     assert_select "p.top-bar__title", "Collection"
     assert_select "header.top-bar[data-screen-label=Set] .top-bar__start.top-bar__start--phone-previous > a.top-bar__previous[data-controller=previous-screen]"
-    assert_select ".collection-status__value", "5 / 150"
+    assert_select ".collection-status__value", "6 / 150"
     assert_select ".set-album__kind, .set-album__facts, .set-album__gauge", false
     assert_equal [ "set-album__name", "set-album__count" ], title_line
-    assert_equal "5/16", count
+    assert_equal "6/16", count
     assert_select ".set-album__count[aria-hidden=true]"
-    assert_select "progress.set-album__bar[aria-labelledby=set-album-heading][value='5'][max='16']"
-    assert_equal "5 cards out of 16, silver tier", value_text
-    assert_select ".set-album__ticks[aria-hidden=true] .set-row__tick", 3
-    assert_select ".set-album__ticks .set-row__tick.is-reached", 2
+    assert_select "progress.set-album__bar[aria-labelledby=set-album-heading][value='6'][max='16']"
+    assert_equal "6 cards out of 16, expert tier", value_text
+    assert_select ".set-album__ticks[aria-hidden=true]"
+    assert_select ".set-row__tick", false
     assert_select ".set-album__stamp", false
     expected = members.each_with_index.map do |id, index|
       if held.include?(index) then [ :owned, title(id), (index == 3 ? "x2" : nil) ] else [ :missing, title(id), year(id) ] end
     end
     assert_equal expected, slots
-    assert_select ".missing-slot .visually-hidden", { count: 11, text: "Missing card" }
+    assert_select ".missing-slot .visually-hidden", { count: 10, text: "Missing card" }
     assert_select ".collection-slot .visually-hidden", "2 copies"
     assert_select ".collection-slot .visually-hidden", "1 copy"
     assert_select "ol.set-album__grid.collection-grid--fill[aria-label='Cards in the set'][data-controller=grid-keys]"
-    assert_select ".set-album__grid .card.card--grid", 5
+    assert_select ".set-album__grid .card.card--grid", 6
     assert_select ".card--m", false
     assert_select ".set-album[data-controller=set-album]"
     assert_select ".collection-pages", false
@@ -114,8 +114,8 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
 
     get library_set_path(locale: :fr, kind: "theme", key: "horror")
 
-    assert_equal "8 cartes sur 16, palier or", value_text
-    assert_select ".set-album__ticks .set-row__tick.is-reached", 3
+    assert_equal "8 cartes sur 16, palier expert", value_text
+    assert_select ".set-row__tick", false
     assert_select ".set-album__gauge", false
     assert_select "ol.set-album__grid[aria-label='Cartes du set']"
     assert_select ".missing-slot .visually-hidden", { count: 8, text: "Carte manquante" }
@@ -196,6 +196,37 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_equal members.map { [ :missing, title(it), year(it) ] }, slots
     assert_select ".collection-slot__new", false
     assert_select ".top-bar__end form.steam-sign-in"
+  end
+
+  test "a ranked theme's value text names its rank: 31 cards out of 62, expert tier" do
+    season, cards = published_cards(62)
+    insert_ranked_theme(cards, key: "roguelike", season:)
+    player = accounts_players(:player)
+    hold_all(player, cards.first(31))
+    sign_in(player)
+
+    get library_set_path(locale: :en, kind: "theme", key: "roguelike")
+
+    assert_equal "31 cards out of 62, expert tier", value_text
+    assert_select ".set-row__tick", false
+
+    get library_set_path(locale: :fr, kind: "theme", key: "roguelike")
+    assert_equal "31 cartes sur 62, palier expert", value_text
+  end
+
+  test "an earlier season's metal theme shows its three ticks, the reached ones raised, and names its metal" do
+    season, cards = published_cards(62)
+    insert_theme(cards, key: "roguelike", season:)
+    player = accounts_players(:player)
+    hold_all(player, cards.first(16))
+    sign_in(player)
+
+    get library_set_path(locale: :en, kind: "theme", key: "roguelike")
+
+    assert_equal "16 cards out of 62, silver tier", value_text
+    assert_select ".set-album__ticks[aria-hidden=true] .set-row__tick", 3
+    assert_select ".set-album__ticks .set-row__tick.is-reached", 2
+    assert_select ".set-album__ticks .set-row__tick--gold.is-reached", false
   end
 
   test "a set of more than sixty cards is paged sixty to a page" do

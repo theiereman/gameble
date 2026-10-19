@@ -80,7 +80,8 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Card %{position} of %{total}, face down. Reveal.", strings["faceDown"]
     assert_equal [ "Previous card", "Next card" ], strings.values_at("zoomPrevious", "zoomNext")
     assert_equal [ "%{tier} TIER", "SET COMPLETE", "Next result" ], strings["celebration"].values_at("tierTitle", "completeTitle", "next")
-    assert_equal({ "bronze" => "BRONZE", "silver" => "SILVER", "gold" => "GOLD", "complete" => "COMPLETE" }, strings.dig("celebration", "tiers"))
+    assert_equal({ "bronze" => "BRONZE", "silver" => "SILVER", "gold" => "GOLD", "novice" => "NOVICE", "apprentice" => "APPRENTICE",
+      "adept" => "ADEPT", "expert" => "EXPERT", "master" => "MASTER", "complete" => "COMPLETE" }, strings.dig("celebration", "tiers"))
     assert_equal [ "VIEW SET", "IN PROGRESS", "View set.", "View sets in progress.", "incl." ],
       strings["celebration"].values_at("setHint", "foldedHint", "openSet", "openInProgress", "foldedLead")
     assert_equal "%{tier} tier reached: %{set}, %{owned} cards out of %{total}.", strings.dig("celebration", "announceTier")

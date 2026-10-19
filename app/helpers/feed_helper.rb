@@ -18,9 +18,9 @@ module FeedHelper
   end
 
   def feed_tier_tag(tier, surface_class:)
-    mark = if tier == "complete"
+    mark = if tier == Catalog::SetTier::COMPLETE
       tag.span(class: "feed__tier-stamp")
-    else
+    elsif TIER_NOTCHES.key?(tier)
       tag.span(class: "feed__tier-notches") { safe_join(Array.new(TIER_NOTCHES.fetch(tier)) { tag.i }) }
     end
     tag.span(class: [ surface_class, "feed__tier", "feed__tier--#{tier}" ]) do

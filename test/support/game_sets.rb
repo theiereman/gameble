@@ -27,10 +27,21 @@ module GameSets
     [ season, Catalog::CardSeason.where(season_id: season.id).order(:id).ids ]
   end
 
-  # A theme of `season` holding `members`, tiered as publication tiers a
-  # theme of their number; its id.
+  # A theme of `season` holding `members`, tiered as an earlier season
+  # tiered a theme of their number (bronze, silver and gold at 10, 25 and
+  # 50 % rounded up); its id.
   def insert_theme(members, key:, season:)
-    insert_set(members, Catalog::Themes.tiers(members.size), kind: "theme", key:, params: { "theme" => key }, season:)
+    insert_set(members, metal_tiers(members.size), kind: "theme", key:, params: { "theme" => key }, season:)
+  end
+
+  # A theme of `season` holding `members`, tiered as publication tiers a set
+  # of their number now (Catalog::TierTable); its id.
+  def insert_ranked_theme(members, key:, season:)
+    insert_set(members, Catalog::TierTable.tiers(members.size), kind: "theme", key:, params: { "theme" => key }, season:)
+  end
+
+  def metal_tiers(count)
+    { "bronze" => 10, "silver" => 25, "gold" => 50 }.transform_values { |percent| (count * percent).ceildiv(100) }.merge("complete" => count)
   end
 
   # Copies of each card-season of `ids` for `player`, last gained at `gained_at`.

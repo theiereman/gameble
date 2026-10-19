@@ -1,5 +1,6 @@
 require "test_helper"
 require Rails.root.join("db/migrate/20261006100000_remove_dust_tier_from_catalog_card_seasons").to_s
+require Rails.root.join("db/migrate/20261019120000_widen_tier_checks_to_ranks").to_s
 
 # The catalog's database constraints and model rules (AD-5): what the
 # database refuses even when a model is bypassed.
@@ -151,6 +152,47 @@ class Catalog::SchemaTest < ActiveSupport::TestCase
     refused(ActiveRecord::CheckViolation) { Catalog::SetTier.insert_all!([ set_tier(required: 0) ]) }
     refused(ActiveRecord::NotNullViolation) { Catalog::SetTier.insert_all!([ set_tier(required: nil) ]) }
     refused(ActiveRecord::InvalidForeignKey) { Catalog::SetTier.insert_all!([ set_tier(set_id: -1) ]) }
+  end
+
+  test "the database and the model take both tier families: earlier seasons' metals and the ranks" do
+    assert_equal %w[bronze silver gold novice apprentice adept expert master complete], Catalog::SetTier::TIERS
+    set_id = Catalog::Set.insert_all!([ { season_id: draft.id, kind: "theme", key: "rpg", params: { "theme" => "rpg" } } ], returning: :id).rows.flatten.sole
+
+    assert_equal 9, Catalog::SetTier.insert_all!(Catalog::SetTier::TIERS.each_with_index.map { |tier, index| { set_id:, tier:, required: index + 1 } }).length
+    assert Catalog::SetTier.new(set_id:, tier: "master", required: 3).valid?
+  end
+
+  # Whether each tier check takes a rank: a set tier, a player's tier and a
+  # feed entry's tier, each written as `adept`.
+  def ranks_taken
+    pack = Game::Pack.create!(player_id: accounts_players(:player).id, kind: :regular, season_id: catalog_seasons(:one).id,
+      card_season_ids: [ card_season.id ] * Game::Pack::SIZE, available_at: 1.minute.ago, opened_at: Time.current)
+    set_id = catalog_sets(:valve_one).id
+    [
+      -> { Catalog::SetTier.insert_all!([ set_tier(tier: "adept") ]) },
+      -> { Game::SetTier.insert_all!([ { player_id: pack.player_id, set_id:, tier: "adept", reached_by: "pack", pack_id: pack.id, reached_at: Time.current } ]) },
+      -> { Game::FeedEntry.insert_all!([ { kind: "set", player_id: pack.player_id, set_id:, tier: "adept", set_count: 1, notable: true, occurred_at: Time.current } ]) }
+    ].map do |write|
+      ActiveRecord::Base.transaction(requires_new: true) do
+        write.call
+        raise ActiveRecord::Rollback
+      end
+      true
+    rescue ActiveRecord::CheckViolation
+      false
+    end
+  end
+
+  # PostgreSQL DDL is transactional: the round trip is rolled back with the test.
+  test "the tier checks refuse a rank before they are widened and take it after, an unknown tier always refused" do
+    migration = WidenTierChecksToRanks.new
+    migration.suppress_messages { migration.migrate(:down) }
+    assert_equal [ false, false, false ], ranks_taken
+
+    migration.suppress_messages { migration.migrate(:up) }
+
+    assert_equal [ true, true, true ], ranks_taken
+    refused(ActiveRecord::CheckViolation) { Catalog::SetTier.insert_all!([ set_tier(tier: "platinum") ]) }
   end
 
   test "the model refuses an unknown tier or a requirement that is not a positive integer" do

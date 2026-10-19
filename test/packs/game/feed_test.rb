@@ -2,11 +2,13 @@ require "test_helper"
 require_relative "../../support/game_packs"
 require_relative "../../support/game_trades"
 require_relative "../../support/game_sets"
+require_relative "../../support/catalog_seeds"
 
 class Game::FeedTest < ActiveSupport::TestCase
   include GamePacks
   include GameTrades
   include GameSets
+  include CatalogSeeds
 
   setup do
     @player = accounts_players(:player)
@@ -375,6 +377,22 @@ class Game::FeedTest < ActiveSupport::TestCase
     open_pack(@player, [ common ] * 5)
 
     assert_equal [ [ first, "bronze", 2 ] ], set_entries.pluck(:set_id, :tier, :set_count)
+  end
+
+  test "across sets the highest result stands for the larger share of its set: Dark Souls expert at 4 of 10 over Roguelike adept at 16 of 62" do
+    common = fixture_tier_ids[0]
+    season = catalog_seasons(:one)
+    seed_card_seasons(Array.new(70) { 0.1 + (it * 0.001) }, season:)
+    extra = Catalog::CardSeason.where(season_id: season.id, rarity: nil).order(:id).ids
+    Catalog::CardSeason.where(id: extra).update_all(rarity: 1)
+    insert_set([ common, *extra.first(61) ], Catalog::TierTable.tiers(62), key: "roguelike")
+    dark_souls = insert_set([ common, *extra.last(9) ], Catalog::TierTable.tiers(10), kind: "franchise", key: "dark-souls",
+      params: { "franchise" => "Dark Souls" })
+    hold_all(@player, extra.first(15) + extra.last(3))
+
+    open_pack(@player, [ common ] * 5)
+
+    assert_equal [ [ dark_souls, "expert", 2 ] ], set_entries.pluck(:set_id, :tier, :set_count)
   end
 
   test "an opening that reaches no tier writes no set entry" do

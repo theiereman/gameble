@@ -32,10 +32,6 @@ module HowItWorksHelper
     (Game::Pack::BANK_SIZE * Game::Pack::INTERVAL).in_minutes.to_i
   end
 
-  def set_tier_percents
-    Catalog::Themes::TIER_PERCENTS.transform_values { |percent| number_to_percentage(percent, precision: 0) }
-  end
-
   private
     def share_percent(part, whole)
       number_to_percentage(BigDecimal(part) * 100 / whole, precision: 2, strip_insignificant_zeros: true)

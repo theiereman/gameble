@@ -55,23 +55,57 @@ class Catalog::SetBuilderTest < ActiveSupport::TestCase
     assert_match Catalog::Set::KEY_FORMAT, Catalog::SetBuilder::UFOS
   end
 
-  test "a theme of 7 cards needs 1, 2 and 4 of them for bronze, silver and gold, and 7 to complete" do
+  test "a theme of 7 cards needs 4 of them for master and 7 to complete" do
     sets = Catalog::SetBuilder.themes((1..7).map { |id| row(id, genres: %w[pirates]) })
 
-    assert_equal({ "bronze" => 1, "silver" => 2, "gold" => 4, "complete" => 7 }, sets.sole[:tiers])
+    assert_equal({ "master" => 4, "complete" => 7 }, sets.sole[:tiers])
+  end
+
+  # The tier table
+
+  {
+    3 => { "complete" => 3 },
+    7 => { "master" => 4, "complete" => 7 },
+    12 => { "expert" => 4, "master" => 8, "complete" => 12 },
+    40 => { "adept" => 10, "expert" => 20, "master" => 30, "complete" => 40 },
+    100 => { "apprentice" => 10, "adept" => 25, "expert" => 50, "master" => 75, "complete" => 100 },
+    250 => { "novice" => 25, "apprentice" => 63, "adept" => 125, "expert" => 188, "master" => 225, "complete" => 250 },
+    2_084 => { "novice" => 209, "apprentice" => 521, "adept" => 1_042, "expert" => 1_563, "master" => 1_876, "complete" => 2_084 }
+  }.each do |count, expected|
+    test "a set of #{count} cards has the tiers #{expected.map { |tier, required| "#{tier} #{required}" }.join(", ")}, rounded up" do
+      assert_equal expected, Catalog::TierTable.tiers(count)
+    end
   end
 
   {
-    1 => [ 1, 1, 1, 1 ], 10 => [ 1, 3, 5, 10 ], 30 => [ 3, 8, 15, 30 ], 2_084 => [ 209, 521, 1_042, 2_084 ]
-  }.each do |count, expected|
-    test "a theme of #{count} cards has the tiers #{expected.join("/")}, rounded up" do
-      assert_equal %w[bronze silver gold complete].zip(expected).to_h, Catalog::Themes.tiers(count)
+    1 => 0, 2 => 0, 4 => 0, 5 => 1, 9 => 1, 10 => 2, 19 => 2, 20 => 3, 59 => 3, 60 => 4, 199 => 4, 200 => 5
+  }.each do |count, ranks|
+    test "a set of #{count} cards has #{ranks} tiers before completion, the last master" do
+      tiers = Catalog::TierTable.tiers(count)
+
+      assert_equal Catalog::TierTable::RANKS.last(ranks) + [ "complete" ], tiers.keys
+      assert_equal count, tiers.fetch("complete")
     end
+  end
+
+  test "a third of 10 cards is 4: shares are exact, rounded up" do
+    assert_equal({ "expert" => 4, "master" => 7, "complete" => 10 }, Catalog::TierTable.tiers(10))
+  end
+
+  test "a franchise, a studio and the UFOs of 7 cards are tiered like a theme of 7" do
+    franchise = franchise_rows("Hades", Array.new(7) { |index| "Hades #{index}" })
+    studio = studio_rows("Supergiant Games", [ 30_000, *Array.new(6) ], first: 11)
+    ufos = (21..27).map { |id| row(id) }
+
+    expected = { "master" => 4, "complete" => 7 }
+    assert_equal expected, Catalog::SetBuilder.franchises(franchise).sole[:tiers]
+    assert_equal expected, Catalog::SetBuilder.studios(studio).sole[:tiers]
+    assert_equal expected, Catalog::SetBuilder.ufos(ufos).sole[:tiers]
   end
 
   # The UFOs
 
-  test "the cards of no theme are the UFOs, in release order, complete only" do
+  test "the cards of no theme are the UFOs, in release order, complete at their size, too few for a rank" do
     rows = [ row(2, release_date: Date.new(2012, 1, 1)), row(1, genres: %w[rpg]), row(3, release_date: Date.new(2011, 1, 1)) ]
 
     assert_equal [ { kind: "ufo", key: "ufos", params: {}, members: ids(3, 2), tiers: { "complete" => 2 } } ],
@@ -91,7 +125,7 @@ class Catalog::SetBuilderTest < ActiveSupport::TestCase
 
   # Franchises
 
-  test "a franchise of 3 games whose titles carry its name is a set, its suffix dropped, complete only" do
+  test "a franchise of 3 games whose titles carry its name is a set, its suffix dropped, complete at its size, too small for a rank" do
     rows = franchise_rows("Tom Clancy Franchise", [ "Tom Clancy's Rainbow Six", "Tom Clancy's The Division", "Tom Clancy's Ghost Recon" ])
     rows[0] = rows[0].with(release_date: Date.new(2010, 1, 1))
 
@@ -202,7 +236,7 @@ class Catalog::SetBuilderTest < ActiveSupport::TestCase
 
   # Studios
 
-  test "a studio's names are one set once normalized, named after the variant most games carry, complete only" do
+  test "a studio's names are one set once normalized, named after the variant most games carry, complete at its size, too small for a rank" do
     rows = studio_rows("CAPCOM Co., Ltd.", [ 100, 25_000 ]) + studio_rows("Capcom", [ nil ], first: 3)
 
     assert_equal [ { kind: "studio", key: "capcom", params: { "studio" => "CAPCOM" }, members: ids(1, 2, 3), tiers: { "complete" => 3 } } ],
@@ -238,7 +272,7 @@ class Catalog::SetBuilderTest < ActiveSupport::TestCase
     end
   end
 
-  test "the hall of fame sets follow their fixed order, members by release date, tiered like a theme" do
+  test "the hall of fame sets follow their fixed order, members by release date, tiered by their size" do
     rows = [
       row(4, rating: 50, review_count: 300_000, release_date: Date.new(2015, 1, 1)),
       row(3, rating: 99, review_count: 500, release_date: Date.new(2010, 1, 1)),
@@ -248,13 +282,13 @@ class Catalog::SetBuilderTest < ActiveSupport::TestCase
 
     assert_equal [
       { kind: "hall_of_fame", key: "intouchables", params: { "hall_of_fame" => "intouchables" }, members: ids(1, 2),
-        tiers: { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 2 } },
+        tiers: { "complete" => 2 } },
       { kind: "hall_of_fame", key: "pepites", params: { "hall_of_fame" => "pepites" }, members: ids(3),
-        tiers: { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 1 } },
+        tiers: { "complete" => 1 } },
       { kind: "hall_of_fame", key: "mal-aimes", params: { "hall_of_fame" => "mal-aimes" }, members: ids(4),
-        tiers: { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 1 } },
+        tiers: { "complete" => 1 } },
       { kind: "hall_of_fame", key: "phenomenes", params: { "hall_of_fame" => "phenomenes" }, members: ids(2, 4),
-        tiers: { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 2 } }
+        tiers: { "complete" => 2 } }
     ], Catalog::SetBuilder.hall_of_fame(rows)
   end
 
@@ -264,10 +298,10 @@ class Catalog::SetBuilderTest < ActiveSupport::TestCase
     assert_equal %w[intouchables pepites mal-aimes], Catalog::SetBuilder.hall_of_fame(rows).map { |set| set[:key] }
   end
 
-  test "a hall of fame set of 30 cards needs 3, 8 and 15 of them for bronze, silver and gold, and 30 to complete" do
+  test "a hall of fame set of 30 cards needs 8, 15 and 23 of them for adept, expert and master, and 30 to complete" do
     rows = (1..30).map { |id| row(id, rating: 60, review_count: 25_000) }
 
-    assert_equal({ "bronze" => 3, "silver" => 8, "gold" => 15, "complete" => 30 }, Catalog::SetBuilder.hall_of_fame(rows).sole[:tiers])
+    assert_equal({ "adept" => 8, "expert" => 15, "master" => 23, "complete" => 30 }, Catalog::SetBuilder.hall_of_fame(rows).sole[:tiers])
   end
 
   test "every hall of fame key is a well-formed set key" do

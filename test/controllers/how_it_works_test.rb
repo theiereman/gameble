@@ -91,8 +91,39 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
     assert_select ".how-it-works__franchises", /\b#{Catalog::SetBuilder::MIN_GAMES}\b/
     assert_select ".how-it-works__studios",
       /#{Regexp.escape(ActiveSupport::NumberHelper.number_to_delimited(Catalog::SetBuilder::STUDIO_REVIEW_FLOOR, locale:))}/
-    Catalog::Themes::TIER_PERCENTS.each_value do |percent|
-      assert_select ".how-it-works__set-tiers", /#{Regexp.escape(expected_percent(percent, 100, locale))}/
+    assert_select ".how-it-works__set-tiers", I18n.t("pages.how_it_works.sets.tiers", locale:)
+  end
+
+  # The tier sentence's rows, by their sizes, with the ranks each names.
+  TIER_ROWS = {
+    3..4 => [], 5..9 => %w[master], 10..19 => %w[expert master], 20..59 => %w[adept expert master],
+    60..199 => %w[apprentice adept expert master], 200.. => %w[novice apprentice adept expert master]
+  }.freeze
+
+  test "each row of the tier sentence agrees with the tiers the game gives a set of its sizes" do
+    english = I18n.t("pages.how_it_works.sets.tiers", locale: :en)
+    french = I18n.t("pages.how_it_works.sets.tiers", locale: :fr)
+
+    TIER_ROWS.each do |sizes, ranks|
+      [ sizes.begin, sizes.end ].compact.each do |size|
+        assert_equal ranks + [ "complete" ], Catalog::TierTable.tiers(size).keys, size
+      end
+      assert_includes english, sizes.end ? "#{sizes.begin} to #{sizes.end}" : "from #{sizes.begin}"
+      assert_includes french, sizes.end ? "de #{sizes.begin} à #{sizes.end}" : "à partir de #{sizes.begin}"
+    end
+    assert_equal [
+      [ 200, [ Rational(1, 10), Rational(1, 4), Rational(1, 2), Rational(3, 4), Rational(9, 10) ] ],
+      [ 60, [ Rational(1, 10), Rational(1, 4), Rational(1, 2), Rational(3, 4) ] ],
+      [ 20, [ Rational(1, 4), Rational(1, 2), Rational(3, 4) ] ],
+      [ 10, [ Rational(1, 3), Rational(2, 3) ] ],
+      [ 5, [ Rational(1, 2) ] ],
+      [ 0, [] ]
+    ], Catalog::TierTable::ROWS, "the sentence states these rows: change its copy with them"
+    assert_equal [ "complete" ], Catalog::TierTable.tiers(4).keys
+    assert_equal %w[master complete], Catalog::TierTable.tiers(5).keys
+    Catalog::TierTable::RANKS.each do |rank|
+      assert_includes english, I18n.t("library.set_progress.tiers.#{rank}", locale: :en)
+      assert_includes french, I18n.t("library.set_progress.tiers.#{rank}", locale: :fr)
     end
   end
 

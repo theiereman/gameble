@@ -38,6 +38,15 @@ describe("sendOpening", () => {
     expect(calls[0].init.headers).toEqual({ Accept: "application/json", "Idempotency-Key": KEY, "X-CSRF-Token": "token" })
   })
 
+  it("reads the set tiers of both families: earlier seasons' metals and the ranks", async () => {
+    const setTiers = [
+      { ...answer.setTiers[0], tier: "bronze", required: 7 },
+      ...["novice", "apprentice", "adept", "expert", "master", "complete"].map((tier) => ({ ...answer.setTiers[0], key: "rpg", tier })),
+    ]
+    const { send } = fake(json(200, { ...answer, setTiers }))
+    expect(await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })).toEqual({ kind: "opened", answer: { ...answer, setTiers } })
+  })
+
   it("sends no CSRF header without a token", async () => {
     const { calls, send } = fake(json(200, answer))
     await sendOpening({ url: "/fr/packs", key: KEY, csrfToken: null, fetch: send })

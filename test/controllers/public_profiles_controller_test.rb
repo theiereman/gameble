@@ -115,7 +115,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
   test "a signed-out visitor opens an owner's album: the owner's faces and copies, read-only, under the set and the owner's names" do
     season = publish_sets_draft
     members = set_members(season, "horror")
-    [ 0, 3, 7, 12, 15 ].each { hold(@owner, members[it], it == 3 ? 2 : 1, gained_at: 1.minute.ago) }
+    [ 0, 3, 7, 12, 14, 15 ].each { hold(@owner, members[it], it == 3 ? 2 : 1, gained_at: 1.minute.ago) }
 
     get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror")
 
@@ -124,13 +124,13 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=robots][content=noindex]"
     assert_select "h1", 1
     assert_select "h1#set-album-heading[tabindex='-1']", "Horror · Gabe the Brave"
-    assert_equal "5/16", album_count
-    assert_equal "5 cards out of 16, silver tier", css_select("progress.set-album__bar").sole["aria-valuetext"]
+    assert_equal "6/16", album_count
+    assert_equal "6 cards out of 16, expert tier", css_select("progress.set-album__bar").sole["aria-valuetext"]
     assert_select ".set-album__gauge, .set-album__kind", false
-    assert_select "ol.set-album__grid.collection-grid--fill .card.card--grid", 5
+    assert_select "ol.set-album__grid.collection-grid--fill .card.card--grid", 6
     assert_select ".card--m", false
     assert_equal [ "x2" ], css_select(".collection-slot__copies").map(&:text)
-    assert_select ".missing-slot .visually-hidden", { count: 11, text: "Missing card" }
+    assert_select ".missing-slot .visually-hidden", { count: 10, text: "Missing card" }
     assert_select ".collection-slot__new", false
     assert_select ".top-bar__end .collection-status, .top-bar__title", false
     assert_select ".profile-summary, .collection-kind, .collection-sets", false
@@ -154,7 +154,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     slot = css_select(".set-album__grid > li")[1]
     assert_equal "/fr/cards/#{older.card.slug}/seasons/1", slot.at_css("a.card-link")["href"]
     assert_equal "x3", slot.at_css(".collection-slot__copies").text
-    assert_equal "1 carte sur 8, palier bronze", css_select("progress.set-album__bar").sole["aria-valuetext"]
+    assert_equal "1 carte sur 8", css_select("progress.set-album__bar").sole["aria-valuetext"]
   end
 
   test "an owner's album costs seven queries for a visitor, a signed-in viewer's five more" do
@@ -383,17 +383,17 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
   test "in French: the fallback title, the French headings and plurals" do
     season = publish_sets_draft
     @owner.update_columns(persona_name: nil)
-    hold(@owner, set_members(season, "pirates").first, 1)
+    set_members(season, "pirates").first(2).each { |id| hold(@owner, id, 1) }
     code = Accounts::PublicProfile.code(@owner.token)
 
     get brother_path(locale: :fr, token: @owner.token)
 
     assert_select "title", "Joueur #{code}"
     assert_select "h1", "Joueur #{code}"
-    assert_equal [ "1 carte collectionnée", "0 collection complète" ], counts
+    assert_equal [ "2 cartes collectionnées", "0 collection complète" ], counts
     assert_equal [ "Chercher un set", "En cours" ], css_select(".set-entry h2").map(&:text)
 
-    set_members(season, "pirates").drop(1).each { |id| hold(@owner, id, 1) }
+    set_members(season, "pirates").drop(2).each { |id| hold(@owner, id, 1) }
     get brother_path(locale: :fr, token: @owner.token, q: "pirates")
     assert_equal "8 cartes collectionnées", counts.first
     assert_select "#set-results-title ~ .set-entry__list .set-row .visually-hidden", "Pirates, thème, 8 cartes sur 8, complet"
@@ -465,7 +465,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
   test "a visitor's profile costs five queries, a signed-in viewer's five more, a search two more" do
     season = publish_sets_draft
-    hold(@owner, set_members(season, "pirates").first, 1)
+    set_members(season, "pirates").first(2).each { |id| hold(@owner, id, 1) }
 
     # Owner by token, published season, the owner's standings, the sets
     # shown, the summary.

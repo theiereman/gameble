@@ -981,6 +981,17 @@
   --celebration-dark: #8f5e0a;
 }
 
+.booster-celebration [data-tier="novice"],
+.booster-celebration [data-tier="apprentice"],
+.booster-celebration [data-tier="adept"],
+.booster-celebration [data-tier="expert"],
+.booster-celebration [data-tier="master"] {
+  --celebration-tier: var(--color-text-bright);
+  --celebration-on: var(--color-outline);
+  --celebration-light: #ffffff;
+  --celebration-dark: #8f98a0;
+}
+
 .booster-celebration [data-tier="complete"] {
   --celebration-tier: var(--color-lime);
   --celebration-on: var(--color-on-lime);

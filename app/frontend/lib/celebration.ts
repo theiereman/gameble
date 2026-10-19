@@ -43,13 +43,23 @@ export type CelebrationResult = {
   crossed: SetTierName[]
 }
 
-const RANK: Record<SetTierName, number> = { bronze: 1, silver: 2, gold: 3, complete: 4 }
-const byRank = (a: SetTierName, b: SetTierName): number => RANK[a] - RANK[b]
+const METAL_NOTCHES: Partial<Record<SetTierName, number>> = { bronze: 1, silver: 2, gold: 3 }
 
-/** The notches a tier mark carries: one to three, none for a completed set. */
-export const notchCount = (tier: SetTierName): number => (tier === "complete" ? 0 : RANK[tier])
+/** The notches a tier mark carries: one to three for a metal, none otherwise. */
+export const notchCount = (tier: SetTierName): number => METAL_NOTCHES[tier] ?? 0
 
-/** One result per set (by kind and key), at its highest tier; the highest tiers first, then by name. */
+const tieBreak = (tier: SetTierName): number => SET_TIERS.indexOf(tier)
+
+/** Above zero when `a` stands higher than `b`: complete first, then the larger share of its set, then the later tier name. */
+function standsAbove(a: { tier: SetTierName; required: number; total: number }, b: { tier: SetTierName; required: number; total: number }): number {
+  const completes = Number(a.tier === "complete") - Number(b.tier === "complete")
+  const share = (row: { required: number; total: number }): number => (row.total > 0 ? row.required / row.total : 1)
+  return completes || share(a) - share(b) || tieBreak(a.tier) - tieBreak(b.tier)
+}
+
+const asRow = (result: CelebrationResult) => ({ tier: result.tier, required: result.owned, total: result.total })
+
+/** One result per set (by kind and key), at its highest tier; the highest results first, then by name. */
 export function celebrationResults(setTiers: readonly OpeningSetTier[], locale?: string): CelebrationResult[] {
   const bySet = new Map<string, OpeningSetTier[]>()
   for (const reached of setTiers) {
@@ -58,12 +68,13 @@ export function celebrationResults(setTiers: readonly OpeningSetTier[], locale?:
   }
   return [...bySet.entries()]
     .map(([key, rows]) => resultOf(key, rows))
-    .sort((a, b) => RANK[b.tier] - RANK[a.tier] || a.name.localeCompare(b.name, locale))
+    .sort((a, b) => standsAbove(asRow(b), asRow(a)) || a.name.localeCompare(b.name, locale))
 }
 
 function resultOf(key: string, rows: readonly OpeningSetTier[]): CelebrationResult {
-  const highest = rows.reduce((kept, row) => (RANK[row.tier] > RANK[kept.tier] ? row : kept))
+  const highest = rows.reduce((kept, row) => (standsAbove(row, kept) > 0 ? row : kept))
   const lowestRequired = Math.min(...rows.map((row) => row.required))
+  const byRequired = [...rows].sort((a, b) => a.required - b.required || tieBreak(a.tier) - tieBreak(b.tier))
   return {
     key,
     name: highest.name,
@@ -72,7 +83,7 @@ function resultOf(key: string, rows: readonly OpeningSetTier[]): CelebrationResu
     owned: highest.required,
     total: highest.total,
     before: Math.max(0, lowestRequired - 1),
-    crossed: [...new Set(rows.map((row) => row.tier))].sort(byRank),
+    crossed: [...new Set(byRequired.map((row) => row.tier))],
   }
 }
 
@@ -112,13 +123,15 @@ export function foldedSubline(results: readonly CelebrationResult[], strings: Ce
 export const MARK_START = 80
 export const MARK_GAP = 90
 
+export const TICK_TIERS = ["bronze", "silver", "gold"] as const satisfies readonly SetTierName[]
+
+const FOLDED_MARK_TIERS = [...TICK_TIERS, "complete"] as const satisfies readonly SetTierName[]
+
 export function foldedMarks(results: readonly CelebrationResult[]): { tier: SetTierName; lightAt: number | null }[] {
   const reached = new Set(results.flatMap((result) => result.crossed))
   let lit = 0
-  return SET_TIERS.map((tier) => ({ tier, lightAt: reached.has(tier) ? MARK_START + MARK_GAP * lit++ : null }))
+  return FOLDED_MARK_TIERS.map((tier) => ({ tier, lightAt: reached.has(tier) ? MARK_START + MARK_GAP * lit++ : null }))
 }
-
-export const TICK_TIERS = ["bronze", "silver", "gold"] as const satisfies readonly SetTierName[]
 
 export const TICK_AT: Record<(typeof TICK_TIERS)[number], number> = { bronze: 0.1, silver: 0.25, gold: 0.5 }
 
@@ -145,11 +158,17 @@ export function fillReaches(at: number, { from, to }: { from: number; to: number
 
 export type TickState = "solid" | "crossed" | "pending"
 
-export function gaugeTicks(result: CelebrationResult): { tier: (typeof TICK_TIERS)[number]; state: TickState; lightAt: number | null }[] {
-  if (result.tier === "complete") return []
+type TickTier = (typeof TICK_TIERS)[number]
+
+const isTickTier = (tier: SetTierName): tier is TickTier => (TICK_TIERS as readonly SetTierName[]).includes(tier)
+
+/** The metal ticks of an earlier season's result; none for complete or a rank. */
+export function gaugeTicks(result: CelebrationResult): { tier: TickTier; state: TickState; lightAt: number | null }[] {
+  const reachedTier = result.tier
+  if (!isTickTier(reachedTier)) return []
   const fill = gaugeFractions(result)
   return TICK_TIERS.map((tier) => {
-    if (RANK[tier] > RANK[result.tier]) return { tier, state: "pending", lightAt: null }
+    if (TICK_AT[tier] > TICK_AT[reachedTier]) return { tier, state: "pending", lightAt: null }
     if (!result.crossed.includes(tier)) return { tier, state: "solid", lightAt: null }
     if (tier === result.tier) return { tier, state: "crossed", lightAt: LANDS_AT }
     return { tier, state: "crossed", lightAt: Math.min(LANDS_AT, fillReaches(TICK_AT[tier], fill)) }
@@ -162,6 +181,11 @@ const JUICE: Record<SetTierName, Juice> = {
   bronze: { tickSparks: 0, endSparks: 0, ribbonSparks: 0, glosses: 0, glints: false },
   silver: { tickSparks: 6, endSparks: 0, ribbonSparks: 0, glosses: 1, glints: false },
   gold: { tickSparks: 12, endSparks: 0, ribbonSparks: 8, glosses: 2, glints: true },
+  novice: { tickSparks: 0, endSparks: 0, ribbonSparks: 0, glosses: 0, glints: false },
+  apprentice: { tickSparks: 6, endSparks: 0, ribbonSparks: 0, glosses: 0, glints: false },
+  adept: { tickSparks: 6, endSparks: 0, ribbonSparks: 0, glosses: 1, glints: false },
+  expert: { tickSparks: 6, endSparks: 0, ribbonSparks: 8, glosses: 1, glints: false },
+  master: { tickSparks: 6, endSparks: 0, ribbonSparks: 8, glosses: 1, glints: true },
   complete: { tickSparks: 0, endSparks: 18, ribbonSparks: 14, glosses: 2, glints: true },
 }
 

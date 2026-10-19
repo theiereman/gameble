@@ -2,7 +2,8 @@ module Catalog
   # Builds a season's sets from its rows (SeasonRows::Row) when it is
   # published. Pure functions, one per kind, each returning
   # `[{ kind:, key:, params:, members: [card_season_id, …], tiers: { tier => required } }]`
-  # with the members in their set's order, by release date then card id.
+  # with the members in their set's order, by release date then card id,
+  # and the tiers TierTable gives the set's size, whatever its kind.
   # `params` holds what a later screen needs to name the set; a key is never
   # parsed back. Names and keys of franchises and studios follow SetNames:
   # names whose merge forms are equal make one set, named after the name most
@@ -30,7 +31,7 @@ module Catalog
         next unless members.key?(theme)
 
         ordered = by_release(members[theme])
-        { kind: "theme", key: theme, params: { "theme" => theme }, members: ordered, tiers: Themes.tiers(ordered.size) }
+        { kind: "theme", key: theme, params: { "theme" => theme }, members: ordered, tiers: TierTable.tiers(ordered.size) }
       end
     end
 
@@ -41,7 +42,7 @@ module Catalog
       companies = rows.flat_map { |row| [ *row.developers, row.publisher ] }.compact.to_set { |name| SetNames.company_form(name) }
       named(rows) { |row| row.franchises.map { |name| SetNames.franchise(name) } }
         .select { |set| set[:rows].size >= MIN_GAMES && companies.exclude?(SetNames.company_form(set[:name])) && named_in_titles?(set) }
-        .map { |set| complete_only("franchise", set) }
+        .map { |set| named_set("franchise", set) }
     end
 
     # One set per studio of at least MIN_GAMES games, by key, a game counting
@@ -50,17 +51,16 @@ module Catalog
     def self.studios(rows)
       named(rows) { |row| row.developers.first(1).map { |name| SetNames.company(name) } }
         .select { |set| set[:rows].size >= MIN_GAMES && set[:rows].map { |row| row.review_count.to_i }.max >= STUDIO_REVIEW_FLOOR }
-        .map { |set| complete_only("studio", set) }
+        .map { |set| named_set("studio", set) }
     end
 
-    # One set per hall of fame rule some card meets, in HallOfFame's order,
-    # tiered like a theme.
+    # One set per hall of fame rule some card meets, in HallOfFame's order.
     def self.hall_of_fame(rows)
       HallOfFame.keys.filter_map do |key|
         ordered = by_release(rows.select { |row| HallOfFame.selects?(key, row) })
         next if ordered.empty?
 
-        { kind: "hall_of_fame", key:, params: { "hall_of_fame" => key }, members: ordered, tiers: Themes.tiers(ordered.size) }
+        { kind: "hall_of_fame", key:, params: { "hall_of_fame" => key }, members: ordered, tiers: TierTable.tiers(ordered.size) }
       end
     end
 
@@ -69,7 +69,7 @@ module Catalog
       ordered = by_release(rows.reject { |row| row.genres.any? { |genre| Themes.key?(genre) } })
       return [] if ordered.empty?
 
-      [ { kind: "ufo", key: UFOS, params: {}, members: ordered, tiers: { Themes::COMPLETE => ordered.size } } ]
+      [ { kind: "ufo", key: UFOS, params: {}, members: ordered, tiers: TierTable.tiers(ordered.size) } ]
     end
 
     def self.by_release(rows)
@@ -104,11 +104,11 @@ module Catalog
       set[:rows].count { |row| SetNames.title_matches?(row.title, set[:name]) } * 2 > set[:rows].size
     end
 
-    def self.complete_only(kind, set)
+    def self.named_set(kind, set)
       ordered = by_release(set[:rows])
-      { kind:, key: set[:key], params: { kind => set[:name] }, members: ordered, tiers: { Themes::COMPLETE => ordered.size } }
+      { kind:, key: set[:key], params: { kind => set[:name] }, members: ordered, tiers: TierTable.tiers(ordered.size) }
     end
 
-    private_class_method :by_release, :named, :most_carried, :named_in_titles?, :complete_only
+    private_class_method :by_release, :named, :most_carried, :named_in_titles?, :named_set
   end
 end

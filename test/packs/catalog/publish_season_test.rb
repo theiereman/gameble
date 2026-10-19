@@ -81,7 +81,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_equal themeless, sets[[ "ufo", "ufos" ]].memberships.map(&:card_season_id).sort
   end
 
-  test "publishing writes each set's tiers: bronze, silver, gold and complete for a theme, complete for the UFOs" do
+  test "publishing writes each set's tiers by its size, the UFOs' as a theme's" do
     season = seed_sets_draft
 
     assert publish(season.number).success?
@@ -89,15 +89,15 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     tiers = Catalog::SetTier.joins(:set).where(catalog_sets: { season_id: season.id }).pluck("catalog_sets.key", :tier, :required)
       .group_by(&:first).transform_values { |rows| rows.to_h { |_, tier, required| [ tier, required ] } }
     assert_equal({
-      "roguelike" => { "bronze" => 12, "silver" => 30, "gold" => 60, "complete" => 119 },
-      "rpg" => { "bronze" => 5, "silver" => 11, "gold" => 22, "complete" => 44 },
-      "horror" => { "bronze" => 2, "silver" => 4, "gold" => 8, "complete" => 16 },
-      "pirates" => { "bronze" => 1, "silver" => 2, "gold" => 4, "complete" => 8 },
-      "ufos" => { "complete" => 15 }
+      "roguelike" => { "apprentice" => 12, "adept" => 30, "expert" => 60, "master" => 90, "complete" => 119 },
+      "rpg" => { "adept" => 11, "expert" => 22, "master" => 33, "complete" => 44 },
+      "horror" => { "expert" => 6, "master" => 11, "complete" => 16 },
+      "pirates" => { "master" => 4, "complete" => 8 },
+      "ufos" => { "expert" => 5, "master" => 10, "complete" => 15 }
     }, tiers)
   end
 
-  test "publishing builds the franchise and studio sets, members in release order, each complete only at its size" do
+  test "publishing builds the franchise and studio sets, members in release order, each tiered by its size" do
     season = seed_franchises_and_studios_draft
 
     assert publish(season.number).success?
@@ -116,7 +116,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_equal [ [ "franchise", "complete", 3 ], [ "studio", "complete", 3 ] ], tiers.sort
   end
 
-  test "publishing builds the hall of fame sets, members in release order, each with bronze, silver, gold and complete" do
+  test "publishing builds the hall of fame sets, members in release order, each tiered by its size" do
     season = seed_hall_of_fame_draft
 
     assert publish(season.number).success?
@@ -130,20 +130,38 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     tiers = Catalog::SetTier.joins(:set).where(catalog_sets: { season_id: season.id, kind: "hall_of_fame" })
       .pluck("catalog_sets.key", :tier, :required).group_by(&:first).transform_values { |rows| rows.to_h { |_, tier, required| [ tier, required ] } }
     assert_equal({
-      "intouchables" => { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 2 },
-      "pepites" => { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 1 },
-      "mal-aimes" => { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 2 },
-      "phenomenes" => { "bronze" => 1, "silver" => 1, "gold" => 1, "complete" => 2 }
+      "intouchables" => { "complete" => 2 },
+      "pepites" => { "complete" => 1 },
+      "mal-aimes" => { "complete" => 2 },
+      "phenomenes" => { "complete" => 2 }
     }, tiers)
   end
 
-  test "a theme of 7 cards gets the tiers 1, 2, 4 and 7" do
+  test "a theme of 7 cards gets master at 4 and complete at 7" do
     season = seed_card_seasons(distinct_scores(21), genres: Array.new(21) { |index| index < 7 ? [ "pirates" ] : [ "rpg" ] })
 
     assert publish(season.number).success?
 
     pirates = Catalog::Set.find_by!(season_id: season.id, kind: "theme", key: "pirates")
-    assert_equal [ [ "bronze", 1 ], [ "silver", 2 ], [ "gold", 4 ], [ "complete", 7 ] ], pirates.tiers.order(:required, :tier).pluck(:tier, :required)
+    assert_equal [ [ "master", 4 ], [ "complete", 7 ] ], pirates.tiers.order(:required, :tier).pluck(:tier, :required)
+  end
+
+  test "sets of 3, 7, 12, 40, 100 and 250 cards get exactly the table's tiers" do
+    sizes = { "pirates" => 3, "zombies" => 7, "space" => 12, "cyberpunk" => 40, "fps" => 100, "rpg" => 250 }
+    season = seed_card_seasons(distinct_scores(sizes.values.sum), genres: sizes.flat_map { |theme, size| Array.new(size) { [ theme ] } })
+
+    assert publish(season.number).success?
+
+    tiers = Catalog::SetTier.joins(:set).where(catalog_sets: { season_id: season.id }).order(:required).pluck("catalog_sets.key", :tier, :required)
+      .group_by(&:first).transform_values { |rows| rows.to_h { |_, tier, required| [ tier, required ] } }
+    assert_equal({
+      "pirates" => { "complete" => 3 },
+      "zombies" => { "master" => 4, "complete" => 7 },
+      "space" => { "expert" => 4, "master" => 8, "complete" => 12 },
+      "cyberpunk" => { "adept" => 10, "expert" => 20, "master" => 30, "complete" => 40 },
+      "fps" => { "apprentice" => 10, "adept" => 25, "expert" => 50, "master" => 75, "complete" => 100 },
+      "rpg" => { "novice" => 25, "apprentice" => 63, "adept" => 125, "expert" => 188, "master" => 225, "complete" => 250 }
+    }, tiers)
   end
 
   test "publishing gives each card-season its first genre as main theme, none without genre" do
@@ -180,7 +198,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_not set.update(key: "rpg-2")
     assert_not set.destroy
     assert_not set.memberships.first.destroy
-    tier = set.tiers.find_by!(tier: "bronze")
+    tier = set.tiers.find_by!(tier: "adept")
     assert_not tier.update(required: 1)
     assert_includes tier.errors.details[:base], { error: :frozen_once_published }
     assert_not tier.destroy

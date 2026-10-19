@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_19_100001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_19_120001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -180,7 +180,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_100001) do
     t.datetime "updated_at", null: false
     t.index ["set_id", "tier"], name: "index_catalog_set_tiers_on_set_id_and_tier", unique: true
     t.check_constraint "required > 0", name: "catalog_set_tiers_required_check"
-    t.check_constraint "tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'complete'::text", name: "catalog_set_tiers_tier_check"
+    t.check_constraint "tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'novice'::text OR tier::text = 'apprentice'::text OR tier::text = 'adept'::text OR tier::text = 'expert'::text OR tier::text = 'master'::text OR tier::text = 'complete'::text", name: "catalog_set_tiers_tier_check"
   end
 
   create_table "catalog_sets", force: :cascade do |t|
@@ -266,7 +266,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_100001) do
     t.check_constraint "(kind::text = 'pull'::text OR kind::text = 'discovery'::text) = (pack_id IS NOT NULL AND \"position\" IS NOT NULL)", name: "game_feed_entries_pack_check"
     t.check_constraint "(kind::text = 'set'::text) = (set_id IS NOT NULL AND tier IS NOT NULL AND set_count IS NOT NULL) AND (kind::text = 'set'::text) = (card_season_id IS NULL) AND (kind::text = 'set'::text) = (rarity IS NULL)", name: "game_feed_entries_set_check"
     t.check_constraint "(kind::text = 'trade'::text) = (trade_id IS NOT NULL AND partner_id IS NOT NULL AND partner_card_season_id IS NOT NULL)", name: "game_feed_entries_trade_check"
-    t.check_constraint "(tier IS NULL OR tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'complete'::text) AND (set_count IS NULL OR set_count > 0)", name: "game_feed_entries_tier_check"
+    t.check_constraint "(tier IS NULL OR tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'novice'::text OR tier::text = 'apprentice'::text OR tier::text = 'adept'::text OR tier::text = 'expert'::text OR tier::text = 'master'::text OR tier::text = 'complete'::text) AND (set_count IS NULL OR set_count > 0)", name: "game_feed_entries_tier_check"
     t.check_constraint "kind::text = 'pull'::text OR kind::text = 'discovery'::text OR kind::text = 'trade'::text OR kind::text = 'repost'::text OR kind::text = 'set'::text", name: "game_feed_entries_kind_check"
     t.check_constraint "rarity >= 1 AND rarity <= 5", name: "game_feed_entries_rarity_check"
   end
@@ -396,7 +396,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_100001) do
     t.index ["player_id", "set_id", "tier"], name: "index_game_set_tiers_on_player_id_and_set_id_and_tier", unique: true
     t.check_constraint "(reached_by::text = 'pack'::text) = (pack_id IS NOT NULL)", name: "game_set_tiers_pack_check"
     t.check_constraint "reached_by::text = 'pack'::text OR reached_by::text = 'trade'::text", name: "game_set_tiers_reached_by_check"
-    t.check_constraint "tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'complete'::text", name: "game_set_tiers_tier_check"
+    t.check_constraint "tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'novice'::text OR tier::text = 'apprentice'::text OR tier::text = 'adept'::text OR tier::text = 'expert'::text OR tier::text = 'master'::text OR tier::text = 'complete'::text", name: "game_set_tiers_tier_check"
   end
 
   create_table "game_trade_items", force: :cascade do |t|

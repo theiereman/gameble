@@ -94,6 +94,29 @@ class Game::SetTierTest < ActiveSupport::TestCase
     assert_equal %w[bronze silver], Game::PackSetTiers.call(pack).map(&:tier)
   end
 
+  test "an opening crossing a ranked set's tiers records them by the count they ask, a SetTierReached for each rank and SetCompleted for complete" do
+    members = [ @common, @uncommon, @rare, @legendary, *more_commons(16) ]
+    theme = insert_set(members, Catalog::TierTable.tiers(members.size))
+    members.first(15).each { hold(@player, it) }
+
+    pack = open_pack(@player, members.last(5))
+
+    assert_equal %w[adept expert master complete].map { [ theme, it, "pack", pack.id ] }, tiers(@player)
+    assert_equal [ Game::SetTierReached, Game::SetTierReached, Game::SetTierReached, Game::SetCompleted ], tier_events(@player).map(&:class)
+    assert_equal %w[adept expert master], game_events(@player, Game::SetTierReached).map { it.data[:tier] }
+    assert_equal [ [ "adept", 5 ], [ "expert", 10 ], [ "master", 15 ], [ "complete", 20 ] ], Game::PackSetTiers.call(pack).map { [ it.tier, it.required ] }
+  end
+
+  test "the database takes every tier of both families and refuses an unknown one" do
+    pack = create_pack(@player, opened_at: Time.current)
+    rows = Game::SetTier::TIERS.map do |tier|
+      { player_id: @player.id, set_id: catalog_sets(:valve_one).id, tier:, reached_by: "pack", pack_id: pack.id, reached_at: Time.current }
+    end
+
+    assert_equal Game::SetTier::TIERS.size, Game::SetTier.insert_all!(rows).length
+    refused(ActiveRecord::CheckViolation) { Game::SetTier.insert_all!([ rows.first.merge(tier: "platinum", player_id: @other.id) ]) }
+  end
+
   test "the last card of a franchise completes it: one complete row and SetCompleted" do
     franchise = insert_set([ @common, @uncommon ], { complete: 2 }, kind: "franchise", key: "dark-souls", params: { "franchise" => "Dark Souls" })
     hold(@player, @common)

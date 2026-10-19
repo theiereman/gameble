@@ -22,9 +22,6 @@ class OpenPackBenchmark
   CARDS = 15_000
   STUDIOS = 900
   THEMES = 40
-  # A theme's bronze, silver and gold, as shares of its cards; its complete
-  # tier asks for every card, as a studio's does.
-  THEME_TIER_SHARES = { "bronze" => 0.10, "silver" => 0.25, "gold" => 0.50 }.freeze
   EARLIER_CARDS = 5_000
   TIMED = 1_000
   WARM_UP = 50
@@ -190,15 +187,15 @@ class OpenPackBenchmark
     season_id
   end
 
-  # One studio set per studio of the cards (about 17 cards each), complete
-  # only, and THEMES theme sets (375 cards each) with their four tiers, so
-  # every opening runs the tier pass over its cards' sets as in play.
+  # One studio set per studio of the cards (about 17 cards each) and THEMES
+  # theme sets (375 cards each), each with the tiers Catalog::TierTable
+  # gives its size, so every opening runs the tier pass over its cards' sets
+  # as in play.
   def seed_sets(season_id, card_season_ids)
     studios = seed_kind(season_id, card_season_ids, "studio", STUDIOS) { |studio| [ "benchmark-studio-#{studio}", { studio: "Studio #{studio}" } ] }
     themes = seed_kind(season_id, card_season_ids, "theme", THEMES) { |theme| [ "benchmark-theme-#{theme}", { theme: "benchmark-theme-#{theme}" } ] }
-    Catalog::SetTier.insert_all!(studios.map { |set_id, size| { set_id:, tier: "complete", required: size } })
-    Catalog::SetTier.insert_all!(themes.flat_map do |set_id, size|
-      THEME_TIER_SHARES.map { |tier, share| { set_id:, tier:, required: (size * share).ceil } } + [ { set_id:, tier: "complete", required: size } ]
+    Catalog::SetTier.insert_all!(studios.merge(themes).flat_map do |set_id, size|
+      Catalog::TierTable.tiers(size).map { |tier, required| { set_id:, tier:, required: } }
     end)
   end
 

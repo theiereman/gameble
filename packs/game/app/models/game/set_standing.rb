@@ -8,11 +8,12 @@ module Game
       new(set_id:, held:, total:, tiers:, just: false, reached_now: false, gained_at: nil)
     end
 
+    # The set's tiers as [tier, required] pairs, the fewest cards first;
+    # the set's size completes it unless its tiers say otherwise.
     def thresholds
-      Catalog::SetTier::TIERS.filter_map do |tier|
-        required = tier == "complete" ? tiers.fetch(tier, total) : tiers[tier]
-        [ tier, required ] if required&.positive?
-      end
+      tiers.reverse_merge(Catalog::SetTier::COMPLETE => total)
+        .select { |_tier, required| required&.positive? }
+        .sort_by { |tier, required| [ required, Catalog::SetTier::TIERS.index(tier) ] }
     end
 
     def reached_tier
@@ -36,7 +37,7 @@ module Game
     end
 
     def tiered?
-      tiers.key?("bronze")
+      tiers.keys.any? { |tier| tier != Catalog::SetTier::COMPLETE }
     end
 
     def started?

@@ -30,7 +30,8 @@ export type OpeningBank = {
   nextPackSize: number | null
 }
 
-export const SET_TIERS = ["bronze", "silver", "gold", "complete"] as const
+/** Every tier name: the metals of earlier seasons, the ranks, complete. The order only breaks a tie between two tiers asking the same count. */
+export const SET_TIERS = ["bronze", "silver", "gold", "novice", "apprentice", "adept", "expert", "master", "complete"] as const
 export type SetTierName = (typeof SET_TIERS)[number]
 
 /** A set tier the opening reached: "Roguelike", silver at 16 of its 62 cards. */

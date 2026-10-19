@@ -85,7 +85,7 @@
       </li>
       <li class="how-it-works__ufos"><%= t(".sets.ufos", name: t("catalog.sets.ufos")) %></li>
     </ul>
-    <p class="how-it-works__set-tiers"><%= t(".sets.tiers", **set_tier_percents.symbolize_keys) %></p>
+    <p class="how-it-works__set-tiers"><%= t(".sets.tiers") %></p>
   <% end %>
 
   <%= render PanelComponent.new(tag: :section, class: "how-it-works__section", aria: { labelledby: "how-it-works-completion" }) do %>

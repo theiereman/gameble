@@ -8,12 +8,6 @@ module Catalog
   #   Catalog::Themes.of([ "Indie", "Roguelite", "Deckbuilding", "Horror" ])
   #   # => ["roguelike", "deckbuilder", "horror"]
   #   Catalog::Themes.key?("rpg") # => true
-  #
-  # A theme's set has a bronze, silver and gold tier, each a share of its
-  # distinct cards rounded up, then complete at all of them; the UFOs are
-  # complete only.
-  #
-  #   Catalog::Themes.tiers(7) # => { "bronze" => 1, "silver" => 2, "gold" => 4, "complete" => 7 }
   module Themes
     TAGS = {
       "souls_like" => [ "Souls-like" ],
@@ -60,9 +54,6 @@ module Catalog
       "adult" => [ "Sexual Content", "Nudity", "Hentai" ]
     }.freeze
 
-    # A theme's tiers, in percent of its distinct cards.
-    TIER_PERCENTS = { "bronze" => 10, "silver" => 25, "gold" => 50 }.freeze
-    COMPLETE = "complete".freeze
     # The share of a season's cards the UFOs should stay under.
     UFO_SHARE_LIMIT = 0.05
 
@@ -81,10 +72,6 @@ module Catalog
     # theme is skipped.
     def self.of(tag_names)
       tag_names.filter_map { |name| THEME_OF_TAG[name] }.uniq
-    end
-
-    def self.tiers(card_count)
-      TIER_PERCENTS.transform_values { |percent| (card_count * percent).ceildiv(100) }.merge(COMPLETE => card_count)
     end
   end
 end

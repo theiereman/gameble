@@ -346,7 +346,7 @@ fr:
             mal-aimes: "les jeux très connus mais à l'accueil mitigé ;"
             phenomenes: "les jeux qui comptent un nombre énorme d'évaluations."
         ufos: "%{name} : les jeux qui n'entrent dans aucun thème."
-        tiers: "Les thèmes et le panthéon ont des paliers : bronze à %{bronze} de leurs cartes, argent à %{silver}, or à %{gold}, puis la complétion. Les autres sets se complètent seulement."
+        tiers: "Chaque set a des paliers selon sa taille, puis la complétion à 100 %. Le dernier palier avant la complétion est toujours Maître ; plus le set est grand, plus il compte de paliers en dessous : de 3 à 4 cartes, la complétion seule ; de 5 à 9, Maître à la moitié ; de 10 à 19, Expert au tiers et Maître aux deux tiers ; de 20 à 59, Adepte à 25 %, Expert à 50 % et Maître à 75 % ; de 60 à 199, Apprenti à 10 %, Adepte à 25 %, Expert à 50 % et Maître à 75 % ; à partir de 200, Novice à 10 %, Apprenti à 25 %, Adepte à 50 %, Expert à 75 % et Maître à 90 %."
       completion:
         title: "Compléter un set"
         rule: "Un set est complet quand vous possédez en même temps toutes ses cartes. Les doubles ne comptent qu'une fois, et une carte compte dans chaque set où elle figure."
@@ -712,6 +712,11 @@ fr:
         bronze: "Bronze"
         silver: "Argent"
         gold: "Or"
+        novice: "Novice"
+        apprentice: "Apprenti"
+        adept: "Adepte"
+        expert: "Expert"
+        master: "Maître"
         complete: "Complet"
     album:
       title: "%{set} · Collection · gameble"
@@ -915,6 +920,11 @@ fr:
           bronze: "BRONZE"
           silver: "ARGENT"
           gold: "OR"
+          novice: "NOVICE"
+          apprentice: "APPRENTI"
+          adept: "ADEPTE"
+          expert: "EXPERT"
+          master: "MAÎTRE"
           complete: "COMPLET"
         folded:
           zero: "%{count} PALIER ATTEINT"
@@ -939,6 +949,11 @@ fr:
           bronze: "bronze"
           silver: "argent"
           gold: "or"
+          novice: "novice"
+          apprentice: "apprenti"
+          adept: "adepte"
+          expert: "expert"
+          master: "maître"
           complete: "complet"
   settings:
     show:
@@ -1017,6 +1032,11 @@ fr:
         bronze_html: "%{name} atteint le bronze du set %{set}."
         silver_html: "%{name} atteint l'argent du set %{set}."
         gold_html: "%{name} atteint l'or du set %{set}."
+        novice_html: "%{name} atteint le palier Novice du set %{set}."
+        apprentice_html: "%{name} atteint le palier Apprenti du set %{set}."
+        adept_html: "%{name} atteint le palier Adepte du set %{set}."
+        expert_html: "%{name} atteint le palier Expert du set %{set}."
+        master_html: "%{name} atteint le palier Maître du set %{set}."
         complete_html: "%{name} complète le set %{set}."
       sets_reached_html:
         zero: "%{name} atteint %{count} palier · %{set} %{tier}"
@@ -1026,6 +1046,11 @@ fr:
         bronze: "Bronze"
         silver: "Argent"
         gold: "Or"
+        novice: "Novice"
+        apprentice: "Apprenti"
+        adept: "Adepte"
+        expert: "Expert"
+        master: "Maître"
         complete: "Complet"
       announcement:
         zero: "Aucune nouvelle entrée dans le fil."

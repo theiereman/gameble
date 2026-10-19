@@ -29,7 +29,17 @@ const fr: CelebrationStrings = {
   tierTitle: "PALIER %{tier}",
   completeTitle: "SET COMPLET",
   count: "%{owned}/%{total}",
-  tiers: { bronze: "BRONZE", silver: "ARGENT", gold: "OR", complete: "COMPLET" },
+  tiers: {
+    bronze: "BRONZE",
+    silver: "ARGENT",
+    gold: "OR",
+    novice: "NOVICE",
+    apprentice: "APPRENTI",
+    adept: "ADEPTE",
+    expert: "EXPERT",
+    master: "MAÎTRE",
+    complete: "COMPLET",
+  },
   folded: { zero: "%{count} PALIER ATTEINT", one: "%{count} PALIER ATTEINT", other: "%{count} PALIERS ATTEINTS" },
   foldedLead: "dont",
   setHint: "VOIR LE SET",
@@ -43,14 +53,34 @@ const fr: CelebrationStrings = {
   announceFolded: { zero: "%{count} palier atteint : %{list}.", one: "%{count} palier atteint : %{list}.", other: "%{count} paliers atteints : %{list}." },
   announceItem: "%{set}, %{tier}",
   announceSeparator: " ; ",
-  spokenTiers: { bronze: "bronze", silver: "argent", gold: "or", complete: "complet" },
+  spokenTiers: {
+    bronze: "bronze",
+    silver: "argent",
+    gold: "or",
+    novice: "novice",
+    apprentice: "apprenti",
+    adept: "adepte",
+    expert: "expert",
+    master: "maître",
+    complete: "complet",
+  },
 }
 
 const en: CelebrationStrings = {
   ...fr,
   tierTitle: "%{tier} TIER",
   completeTitle: "SET COMPLETE",
-  tiers: { bronze: "BRONZE", silver: "SILVER", gold: "GOLD", complete: "COMPLETE" },
+  tiers: {
+    bronze: "BRONZE",
+    silver: "SILVER",
+    gold: "GOLD",
+    novice: "NOVICE",
+    apprentice: "APPRENTICE",
+    adept: "ADEPT",
+    expert: "EXPERT",
+    master: "MASTER",
+    complete: "COMPLETE",
+  },
   folded: { one: "%{count} TIER REACHED", other: "%{count} TIERS REACHED" },
   foldedLead: "incl.",
   setHint: "VIEW SET",
@@ -62,7 +92,17 @@ const en: CelebrationStrings = {
   announceComplete: "Set complete: %{set}, %{owned} cards out of %{total}.",
   announceFolded: { one: "%{count} tier reached: %{list}.", other: "%{count} tiers reached: %{list}." },
   announceSeparator: "; ",
-  spokenTiers: { bronze: "bronze", silver: "silver", gold: "gold", complete: "complete" },
+  spokenTiers: {
+    bronze: "bronze",
+    silver: "silver",
+    gold: "gold",
+    novice: "novice",
+    apprentice: "apprentice",
+    adept: "adept",
+    expert: "expert",
+    master: "master",
+    complete: "complete",
+  },
 }
 
 const NBSP = " "
@@ -99,16 +139,37 @@ describe("celebrationResults", () => {
     expect(results).toHaveLength(2)
   })
 
-  it("puts the highest tiers first, then the sets by name", () => {
+  it("puts a completed set first, then the larger shares of their sets, then the sets by name", () => {
     const results = celebrationResults([
       reached("Roguelike", "bronze", 7, 62),
       reached("Pirates", "gold", 9, 18),
       reached("Cosy", "bronze", 6, 54),
       reached("Dark Souls", "complete", 3, 3, "franchise"),
       reached("Metroidvania", "gold", 39, 77),
+      reached("Horror", "gold", 9, 18),
     ])
 
-    expect(results.map((result) => result.name)).toEqual(["Dark Souls", "Metroidvania", "Pirates", "Cosy", "Roguelike"])
+    expect(results.map((result) => result.name)).toEqual(["Dark Souls", "Metroidvania", "Horror", "Pirates", "Roguelike", "Cosy"])
+  })
+
+  it("ranks results across sets by the share of the set their tier stands for, whatever its name", () => {
+    const results = celebrationResults([
+      reached("Roguelike", "adept", 16, 62),
+      reached("Dark Souls", "expert", 4, 10, "franchise"),
+      reached("Hades", "master", 4, 7, "franchise"),
+    ])
+
+    expect(results.map(({ name, tier }) => [name, tier])).toEqual([
+      ["Hades", "master"],
+      ["Dark Souls", "expert"],
+      ["Roguelike", "adept"],
+    ])
+  })
+
+  it("keeps a ranked set's highest rank and its crossed ranks in the order of the counts they ask", () => {
+    const [result] = celebrationResults([reached("Roguelike", "expert", 31, 62), reached("Roguelike", "adept", 16, 62)])
+
+    expect([result.tier, result.owned, result.before, result.crossed]).toEqual(["expert", 31, 15, ["adept", "expert"]])
   })
 
   it("is empty when the opening reached nothing", () => {
@@ -152,6 +213,14 @@ describe("the results as shown", () => {
     expect(resultTitle(silver, fr)).toBe("PALIER ARGENT")
     expect(resultTitle(complete, fr)).toBe("SET COMPLET")
     expect([notchCount("bronze"), notchCount("silver"), notchCount("gold"), notchCount("complete")]).toEqual([1, 2, 3, 0])
+  })
+
+  it("titles a rank by its name, without notches", () => {
+    const [master] = celebrationResults([reached("Hades", "master", 4, 7, "franchise")])
+
+    expect(resultTitle(master, fr)).toBe("PALIER MAÎTRE")
+    expect(resultTitle(master, en)).toBe("MASTER TIER")
+    expect(notchCount("master")).toBe(0)
   })
 
   it("rolls the count from the figure before the capsule to the new one", () => {
@@ -226,6 +295,11 @@ describe("the gauge", () => {
     const [complete] = celebrationResults([reached("Dark Souls", "complete", 3, 3, "franchise")])
     expect(gaugeTicks(complete)).toEqual([])
   })
+
+  it("draws no metal ticks on a rank result", () => {
+    const [adept] = celebrationResults([reached("Roguelike", "adept", 16, 62)])
+    expect(gaugeTicks(adept)).toEqual([])
+  })
 })
 
 describe("the juice", () => {
@@ -234,6 +308,14 @@ describe("the juice", () => {
     expect(juice("silver")).toEqual({ tickSparks: 6, endSparks: 0, ribbonSparks: 0, glosses: 1, glints: false })
     expect(juice("gold")).toEqual({ tickSparks: 12, endSparks: 0, ribbonSparks: 8, glosses: 2, glints: true })
     expect(juice("complete")).toEqual({ tickSparks: 0, endSparks: 18, ribbonSparks: 14, glosses: 2, glints: true })
+  })
+
+  it("adds one detail per rank to the rank below", () => {
+    expect(juice("novice")).toEqual({ tickSparks: 0, endSparks: 0, ribbonSparks: 0, glosses: 0, glints: false })
+    expect(juice("apprentice")).toEqual({ tickSparks: 6, endSparks: 0, ribbonSparks: 0, glosses: 0, glints: false })
+    expect(juice("adept")).toEqual({ tickSparks: 6, endSparks: 0, ribbonSparks: 0, glosses: 1, glints: false })
+    expect(juice("expert")).toEqual({ tickSparks: 6, endSparks: 0, ribbonSparks: 8, glosses: 1, glints: false })
+    expect(juice("master")).toEqual({ tickSparks: 6, endSparks: 0, ribbonSparks: 8, glosses: 1, glints: true })
   })
 
   it("throws the same sparks every time, on the 2px grid", () => {
@@ -274,6 +356,16 @@ describe("the folded line", () => {
       ["silver", null],
       ["gold", null],
       ["complete", null],
+    ])
+  })
+
+  it("keeps the metal marks and complete, a rank lighting none of them", () => {
+    const ranks = celebrationResults(["A", "B", "C"].map((name) => reached(name, "adept", 5, 20)).concat(reached("D", "complete", 3, 3)))
+    expect(foldedMarks(ranks).map(({ tier, lightAt }) => [tier, lightAt])).toEqual([
+      ["bronze", null],
+      ["silver", null],
+      ["gold", null],
+      ["complete", 80],
     ])
   })
 
