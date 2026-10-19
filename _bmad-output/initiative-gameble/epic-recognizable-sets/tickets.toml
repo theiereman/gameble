@@ -249,7 +249,7 @@ title = "Rank marks, album and celebration rebuilt for ranked tiers"
 description = "Builds entry 21's design on entry 22's tiers: the rank marks in set rows, the album's tier bar with one to five ticks, the set celebration's ribbon, juice by rank and folded line, and the feed and ticker lines naming the rank; earlier seasons' bronze, silver and gold keep their marks."
 verify = "On staging, after a season published with the table, a 7-, a 40- and a 250-card set show one, three and five rank ticks; reaching Novice, the back tier and completion each celebrate at their level; the feed names the rank; a greyscale screenshot tells every mark apart; the author approves on the phone and the desktop."
 covers = ["R6", "R8"]
-after = [21, 22]
+after = [21, 22, 25]
 hitl = false
 risk = "medium"
 notes = ["From change-set-tiers-by-size (author, 2026-10-19)."]
@@ -266,12 +266,23 @@ hitl = false
 risk = "low"
 
 [[entry]]
+id = 25
+type = "bug"
+title = "The card detail back on its own page, and the grids aligned with the screen around them"
+description = "On the author's review of entries 14 and 24, the detail column beside the grid is dropped: at every width a card of Toutes les cartes or of a set album opens its full card detail page, as before entry 14, with Back returning to the grid at its scroll; the reserved column, its waiting detail, the frame loading, the history handling and their styles, strings and tests go. Without the column, Toutes les cartes and the set album fill their grid so that its outer edges line up with the screen's other elements (the top bar, the page header or album header panel, the search and FILTRES zone, the RAPPORT), at every desktop and tablet width and on the phone; the card width rule (entries 13, 20) is adjusted as needed to make the row end flush. DESIGN.md and EXPERIENCE.md drop the beside-the-grid detail and record the alignment rule."
+verify = "On staging at 1440, 1280, 1024, 800 and 390 px, a card in Toutes les cartes or in an album opens its detail page and Back returns to the grid where it was; no detail column remains; the grid's left and right edges line up with the elements above it on both screens."
+covers = ["R9"]
+after = [24]
+hitl = false
+risk = "low"
+
+[[entry]]
 id = 10
 type = "story"
 title = "Refactor sweep"
 description = "Cleans up what this epic's build records and deferred review findings name, including the retired set kinds' leftovers; scope set when it starts."
 verify = "The full test suite, system tests for what was touched, packwerk and zeitwerk pass; no reference to tomes, publisher sets or best-of-year sets remains in app and pack code or in the locales (migrations aside)."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
 hitl = false
 risk = "low"
