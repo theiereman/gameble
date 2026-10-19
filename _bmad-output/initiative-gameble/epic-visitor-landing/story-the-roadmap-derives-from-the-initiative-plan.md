@@ -3,7 +3,7 @@ title: 'The roadmap derives from the initiative'
 type: 'feature'
 ticket: 10
 created: '2026-10-19'
-status: 'built'
+status: dropped
 baseline_revision: '3eded637bd86575368f9addf3e2a00fb3d06d35e'
 route: 'full'
 route_source: 'auto'

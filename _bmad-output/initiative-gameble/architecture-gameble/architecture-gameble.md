@@ -7,8 +7,8 @@ paradigm: 'modular monolith with an operations layer'
 scope: 'The gameble MVP as a whole: one Rails application, its four domain packs, its web layer, the Steam import and the deployment.'
 status: final
 created: '2026-10-02'
-updated: '2026-10-15'
-binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23]
+updated: '2026-10-19'
+binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25]
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../spec-gameble/catalog-and-rarity.md
@@ -29,7 +29,7 @@ A **modular monolith with an operations layer**: one Rails application, four dom
 
 | Layer | Directory | Holds |
 | --- | --- | --- |
-| `Catalog` | `packs/catalog` | Cards, card texts per locale, the theme list, seasons, a card's rarity and number for a season, sets and their tiers |
+| `Catalog` | `packs/catalog` | Cards, card texts per locale, the theme list, seasons, a card's rarity and number for a season, sets and their tiers, the roadmap's milestones and their stories |
 | `Steam` | `packs/steam` | Steam API client, import jobs, raw Steam data, import runs, sign-in verification |
 | `Accounts` | `packs/accounts` | Players, staff roles, last seen, profile visibility, preferences, bans, reports, data controls |
 | `Game` | `packs/game` | Pack bank, owned cards, trades, invitations, friendships, set tiers reached, card backs, profile titles, menu themes, weekly goal, daily bonus, achievements, feed, presence activity, events and their handlers |
@@ -220,7 +220,7 @@ graph TD
 - **Binds:** all
 - **Prevents:** strings translated in two places; a locale shipped incomplete; plurals or numbers formatted per island.
 - **Rule:**
-  - All interface copy lives in Rails locale files, in French and English, and follows `brotherhood-tone.md` (copy says "vous"). The interface says "booster", "réserve" and "objectif communautaire"; code and docs keep pack, bank and weekly goal. The locale is the first segment of the URL. Card text per locale lives in `Catalog`. CI fails on a key missing in either locale.
+  - All interface copy lives in Rails locale files, in French and English, and follows `brotherhood-tone.md` (copy says "vous"). The interface says "booster", "réserve" and "objectif communautaire"; code and docs keep pack, bank and weekly goal. The locale is the first segment of the URL. Card text and the roadmap's wording per locale live in `Catalog`. CI fails on a key missing in either locale.
   - Islands receive a scoped map of templates with `one`/`other` forms and `%{n}` placeholders, read by one shared `t()` that applies Rails' plural rule for each locale and falls back to `other`.
   - Strings are stored in natural case; uppercase is applied by CSS. Numbers are formatted by one helper on each side that groups digits with U+00A0.
   - Relative times are server-rendered `<time>` elements refreshed by a Stimulus controller.
@@ -323,6 +323,15 @@ graph TD
   - One story replaces the shell first: tokens, fonts, layout, top bar, tab bar, toasts and base components. Screens are then reworked one at a time; in between a screen may show old content in the new shell. There is no feature flag and no second stylesheet.
   - Data changes follow expand/contract (AD-21): `dust_tier` leaves the card-season record; card-season numbers are added (AD-5); holdings gain `last_gained_at`; `game_player_states` is created and backfilled; tier code names become `common`, `uncommon`, `rare`, `epic`, `legendary` with integers 1 to 5 unchanged.
   - Built code brought into line: `Card.tsx` and the two-renderer preview give way to AD-16's single face; the daily bonus refuses a full reserve (AD-7); jobs enqueue after commit (AD-13); GETs run on the reading role with writes prevented (AD-11).
+
+### AD-29 — The roadmap is staff data `[ADOPTED]`
+
+- **Binds:** CAP-25
+- **Prevents:** a generated roadmap every contributor must keep in step with the initiative; an automatic pass overwriting what staff wrote.
+- **Rule:**
+  - `Catalog` owns the roadmap: its milestones and the player-facing stories under each, each with its wording in French and English, whether it is shown, its status (done, in progress, to come) and its position. The web layer reads them through `Catalog` queries and changes them only through `Catalog` operations, from administrator back-office pages.
+  - One milestone per epic of the initiative's `tickets.toml` is created automatically on every deploy, by an idempotent operation keyed by the epic's slug, with the epic's title as its wording and to come as its status; it creates only the missing milestones and never edits or deletes one, so renaming an epic duplicates nothing.
+  - A roadmap left stale is accepted: nothing in CI compares it with the initiative.
 
 ## Consistency Conventions
 
@@ -497,6 +506,7 @@ gameble/
 | CAP-21 Presence | `Accounts` (last seen), `Game` (activity) | AD-9, AD-10, AD-24 |
 | CAP-22 Titles and menu themes (after the launch) | `Game`, web layer | AD-10, AD-18, AD-25 |
 | CAP-23 Seasonal allocation (after the launch) | `Game`, web layer | AD-5, AD-9, AD-10, AD-11, AD-18, AD-25 |
+| CAP-25 Roadmap | `Catalog`, back-office | AD-3, AD-18, AD-29 |
 | Legal page | web layer | AD-18 |
 
 ## Deferred

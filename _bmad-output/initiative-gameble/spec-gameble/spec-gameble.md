@@ -192,7 +192,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** A visitor sees where the game is going: what is done, in progress and to come.
   - **success:**
     - The landing's roadmap shows epics and, under each, a few player-facing stories with their status (done, in progress, to come).
-    - Its data derives from the BMad initiative semi-automatically: the author chooses what appears and writes its player-facing wording in both languages; the shown roadmap cannot drift from the initiative unnoticed.
+    - Its milestones are created automatically, one per epic of the BMad initiative; staff curate them in the back-office (player-facing wording in both languages, visibility, status, order, and the stories under each); a roadmap left stale is accepted.
     - A link leads to the full roadmap page, designed later.
 - **CAP-26**
   - **intent:** Every player is welcomed by the Brotherhood once, with the story of how the games came back.
@@ -206,7 +206,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **No real money**, anywhere: no purchases, no ads, no cash-out.
 - **French and English UI**, both complete at launch. Card text is available in every UI language. The English copy is translated by AI from the French. All repo text (code, comments, docs) is in English.
 - **Launch scope:** CAP-20, CAP-22 and CAP-23 are built after the public launch; every other capability is live at launch. CAP-23 is live before the second season is published in production.
-- **Landing ship conditions:** CAP-24 and CAP-25 go live only once the lore text exists in French and English (`lore.md`), the pioneer (CAP-13) is built, the repository is public with a license file, the roadmap sync exists and the app uses JetBrains Mono.
+- **Landing ship conditions:** CAP-24 and CAP-25 go live only once the lore text exists in French and English (`lore.md`), the pioneer (CAP-13) is built, the repository is public with a license file, the roadmap's milestones are created from the initiative's epics and curated by staff in the back-office, and the app uses JetBrains Mono.
 - **Steam profile data:** only the persona name is stored, as personal data covered by export, deletion and reports.
 - **Player-facing words:** the interface says "capsule" for pack (French and English), "réserve" for bank and "objectif communautaire" for the weekly goal, and keeps "carte" / "card" (in the lore, an archive card: `lore.md`). The spec, the code, the database, stored events and URLs keep pack, bank and weekly goal.
 - **Cards are only pulled or traded.** Owning a game on Steam never grants its card.

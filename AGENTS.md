@@ -9,13 +9,12 @@ A free web trading card game where every card is a Steam game. Rails 8 with doma
 
 - Never write planning ids in code, tests, config or migrations: no AD-n, CAP-n, R-n, story n.n, epic n, DESIGN.md or EXPERIENCE.md. A reader of the code does not have those documents.
 - Write code that reads without comments: carry intent in names, extracted methods and objects. Comment only an external constraint the code cannot state (a Steam API limit, a browser bug), in one line.
-- Write all repo text in English, whatever language the conversation is in; French belongs only in `config/locales/fr.yml`, in the generated `config/locales/roadmap/fr.yml`, and in a `roadmap` field's `fr` wording.
+- Write all repo text in English, whatever language the conversation is in; French belongs only in `config/locales/fr.yml`.
 - Work on `develop` or a branch cut from it; never push or merge to `main`, which is the author's production release.
 - Before starting any work, run `git fetch origin` and bring local `develop` level with `origin/develop`. Other sessions, local and cloud, change it, and the ticket you are about to build may already be built. If local `develop` has diverged from `origin/develop`, stop and reconcile before building.
 - Unless the session works for the author (GitHub user `theiereman`), work on a branch cut from `develop` and finish by opening a pull request to `develop`; never push to `develop`. The author reviews and merges.
 - Never commit `config/*.key`.
 - Never hand-edit `app/frontend/images/pixel/`; run `node script/pixel_art/export.mjs` (`--check` verifies).
-- Never hand-edit `config/roadmap.yml` or `config/locales/roadmap/`. After changing a `roadmap` field in a `tickets.toml`, or the status of a ticket or epic the roadmap shows, run `python3 script/roadmap/export.py` and commit its output (`--check` verifies, and `bin/rails test` fails on drift).
 - Never edit a plan's `<frozen-after-approval>` block or settle an entry in `pending-approvals.md`; only the author does.
 
 ## Rules that break other files

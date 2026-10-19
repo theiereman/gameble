@@ -113,13 +113,24 @@ hitl = false
 risk = "medium"
 
 [[entry]]
+id = 19
+type = "story"
+title = "Roadmap milestones created from the initiative and curated in the back-office"
+description = "Keeps the roadmap in the database: milestones, and a few player-facing stories under each, each with its wording in French and English, whether it is shown, its status (done, in progress, to come) and its order. Every deploy creates one milestone for each epic of the initiative's tickets.toml that has none yet, identified by the epic's slug, in that file's order, worded with the epic's title and to come, never editing or deleting an existing milestone. Milestones come only from that creation, so a removed epic leaves a milestone to hide rather than one recreated at the next deploy; administrators manage them and the stories under each in back-office pages that follow the existing ones. Nothing in the repository has to be kept in step and no CI check compares the roadmap with the initiative; a stale roadmap is accepted. No public display: stories 11 and 12 render it."
+verify = "After a deploy (or the task it runs) on a database without milestones, there is one milestone per initiative epic in the file's order with its title and to come; running it again, or after an epic is renamed, creates nothing and leaves staff edits as they were. An administrator can reword in both languages, show or hide, set the status of and reorder each milestone, and add, reword, show or hide, set the status of, reorder and delete the stories under it; a moderator and a player cannot reach those pages."
+covers = ["R5"]
+after = []
+hitl = false
+risk = "medium"
+
+[[entry]]
 id = 11
 type = "story"
 title = "Module 06 shows the roadmap"
-description = "Shows the generated roadmap in module 06: epics as milestones, six in a row on desktop and scrolled sideways on the phone as one tab stop, a few stories under each with their status written in text."
-verify = "Module 06 shows the curated epics and stories with Fait, En cours or À venir in both languages, and on the phone the row scrolls with the arrow keys."
+description = "Shows the roadmap from the database in module 06: the milestones staff chose to show, six in a row on desktop and scrolled sideways on the phone as one tab stop, a few stories under each with their status written in text."
+verify = "Module 06 shows the shown milestones and stories in the wording staff gave them, with Fait, En cours or À venir in both languages, and on the phone the row scrolls with the arrow keys."
 covers = ["R5"]
-after = [2, 10]
+after = [2, 19]
 hitl = false
 risk = "low"
 
@@ -127,8 +138,8 @@ risk = "low"
 id = 12
 type = "story"
 title = "The full roadmap page"
-description = "Builds the full roadmap page from its design and the generated roadmap data, and links module 06 to it."
-verify = "Module 06's link opens the roadmap page, which shows the whole curated roadmap in both languages on phone and desktop."
+description = "Builds the full roadmap page from its design and the roadmap in the database, its shown milestones and stories, and links module 06 to it."
+verify = "Module 06's link opens the roadmap page, which shows every shown milestone and story in both languages on phone and desktop."
 covers = ["R5"]
 after = [3, 11]
 hitl = false
@@ -163,7 +174,7 @@ title = "Visitors land on the landing"
 description = "Gives the signed-out hub its own address and makes the landing the signed-out root: /fr, /en, the wordmark, sign-out and account deletion lead to it, once every ship condition holds."
 verify = "Signed out, /fr, /en and the wordmark show the landing and « Embarquer sur le pont » opens the hub at its own address; signing out and deleting an account land on the landing; signed in, /fr and /en show the hub."
 covers = ["R7", "R8"]
-after = [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+after = [1, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 19]
 hitl = false
 risk = "medium"
 unknown = "The signed-out hub's own address."
@@ -198,6 +209,6 @@ title = "Refactor sweep"
 description = "Cleans up what the epic's build records and deferred review findings name; its scope is set when it starts."
 verify = "The cleanup its plan lists is done and the full suite, packwerk and the linters pass."
 covers = []
-after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18]
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 18, 19]
 hitl = false
 risk = "low"
