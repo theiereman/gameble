@@ -94,7 +94,7 @@ after = [{ epic = 2, needs = "the import runs, the draft season and the publicat
 id = 14
 slug = "epic-card-catalog"
 title = "Every card of the game, browsable and searchable"
-covers = []
+covers = ["CAP-6", "CAP-7", "CAP-18"]
 after = [{ epic = 10, needs = "the collection's card grid, its filters and the card detail screen" }, { epic = 13, needs = "one card per game across editions (13.15)" }]
 
 [[epic]]

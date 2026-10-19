@@ -1,0 +1,72 @@
+# tickets.toml — the stories of the card catalog epic, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "A card not owned and the visitor's catalog designed"
+description = "With the author, bmad-ux settles in DESIGN.md and EXPERIENCE.md how \"Toutes les cartes\" shows a card the viewer does not own (its published-season face set apart, for example faded, never a locked slot) in the grid and in the card detail, which today shows the faded card back; what a signed-out visitor sees instead of the ownership parts (state filter group, copies, edition count, NOUVEAU, RAPPORT, the owned / total count, and the copies and editions fields of the detail and of its empty column) and whether a visitor's faces are set apart at all; and rewrites the rules this changes: Navigation's \"the collection shows every slot empty\", the Missing-card slot kept to set albums, the Card back's \"faded image of a card not owned\" and the \"Toutes les cartes\" row of the Information Architecture."
+verify = "DESIGN.md and EXPERIENCE.md give the not-owned treatment in the grid and in the detail and the visitor's grid and detail, with their copy in French and English; a mock shows a player's grid mixing owned and not-owned cards and a visitor's grid, on the phone and on a desktop with the detail column; the author approved them in the epic's Notes."
+covers = ["R1", "R2", "R4"]
+after = ["13.24", "13.20"]
+hitl = true
+risk = "low"
+unknown = "whether the detail opened from a set album's missing slot also shows the face, whether another player's full collection (read-only on the owner's cards) keeps its missing slots, and whether a visitor loses the top bar's owned count on \"Toutes les cartes\" only or on every library page; all settled with the author here."
+
+[[entry]]
+id = 2
+type = "story"
+title = "A card not owned shows its face in the grid"
+description = "In \"Toutes les cartes\" a game the viewer does not hold renders its published-season face through CardComponent with entry 1's not-owned treatment instead of the locked missing slot, for a player and a visitor, keeping the owned-first order, the copies badge and edition count on owned cards, the state filter's \"missing\" choice and the slot's link to the detail; set albums keep their missing slots; it shapes the not-owned treatment (a CardComponent option or class) that entry 3 reuses in the detail."
+verify = "On a seeded season, a player holding a few cards sees them first with their \"×n\", then every other card's face set apart, never a locked slot; a visitor sees every card's face; a set album still shows its missing slots; a search for a game the player lacks finds its face; the visitor's grid still runs no holdings query and its query count test holds; fr and en, phone and desktop."
+covers = ["R1", "R3"]
+after = [1, "10.7"]
+hitl = false
+risk = "low"
+references = ["app/views/library/_grid.html.erb", "packs/game/app/queries/game/collection_states.rb", "test/controllers/library_controller_test.rb, the visitor cases: every slot missing without a holdings query, a visitor's seven queries, a visitor opening on every slot"]
+
+[[entry]]
+id = 3
+type = "story"
+title = "The card detail shows the face of a card not owned"
+description = "CardsController#show and cards/_detail show a card the viewer does not hold, opened from the grid, with its face and entry 2's not-owned treatment instead of the faded card back, in the detail column on desktop and on the detail page on the phone, with entry 1's choice for a detail opened from a set album's missing slot; share and repost stay absent for a card not owned."
+verify = "From the grid, a card the player does not own opens a detail showing its face set apart, beside the grid at 1280 px and as a page on the phone, with ◀ ▶ walking the grid; an owned card's detail is unchanged; the controller test of a visitor browsing a grid, which expects the faded back, follows the new rule, and the set case follows entry 1's choice; fr and en."
+covers = ["R2"]
+after = [2, "10.2"]
+hitl = false
+risk = "low"
+references = ["app/controllers/cards_controller.rb, @faded", "app/views/cards/_detail.html.erb", "test/controllers/cards_controller_test.rb, the faded back cases"]
+
+[[entry]]
+id = 4
+type = "story"
+title = "A visitor browses every card with no ownership data"
+description = "For a signed-out visitor, \"Toutes les cartes\" and the card detail it opens drop the ownership parts entry 1 lists (state filter group, copies, edition count, RAPPORT, owned count, the copies and editions rows of the detail and of its empty column) while the search and the rarity, set and genre filters keep working; the policy tests cover the visitor; PublicReadThrottle keeps counting both pages, they stay Cache-Control: private, and no database id reaches the page or its links."
+verify = "Signed out on staging, in fr and en, on a phone and a desktop, a visitor searches a game by name, filters by rarity and by a franchise, opens a card's detail and sees no ownership data; an empty search says so; a new case in the rate limit test shows /library/cards throttled and Cache-Control: private; a player's view is unchanged."
+covers = ["R3", "R4"]
+after = [3]
+hitl = false
+risk = "medium"
+references = ["app/views/library/_filters.html.erb", "app/views/library/_status.html.erb", "app/views/library/_collection.html.erb", "app/views/library/_report.html.erb", "config/initializers/rack_attack.rb, PublicReadThrottle", "test/integration/rate_limit_test.rb"]
+
+[[entry]]
+id = 5
+type = "story"
+title = "A visitor's way in to every card"
+description = "Once the author chooses where a signed-out visitor enters the catalog (a landing module, the signed-out hub's menu, the public card page, or several), builds that link to /library/cards with its copy in French and English, beside today's path through the hub's menu 02 COLLECTION and \"TOUTES LES CARTES ▸\"."
+verify = "Signed out, in fr and en, on a phone and a desktop, a visitor reaches \"Toutes les cartes\" in one step from each entry the author chose; a player's screens are unchanged."
+covers = ["R5"]
+after = [4]
+hitl = true
+risk = "low"
+unknown = "the entry point is the author's open question; a landing module would also wait on epic-visitor-landing's landing shell, to be added to this entry and to the epic's `after` once chosen."
+
+[[entry]]
+id = 6
+type = "story"
+title = "Refactor sweep"
+description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
+verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
+covers = []
+after = [1, 2, 3, 4, 5]
+hitl = false
+risk = "low"
