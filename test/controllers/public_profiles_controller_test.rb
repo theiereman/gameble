@@ -18,7 +18,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
   def counts = css_select(".profile-summary__counts li").map(&:text)
   def album_count = css_select(".set-album__count").sole.text.squish
 
-  # The rows of an entry section ("in-progress", "discover", "results") as
+  # The rows of an entry section ("in-progress", "results") as
   # [ name, "owned/total", href ].
   def entry_rows(section)
     css_select("#set-entry-#{section}-title ~ .set-entry__list .set-row, #set-#{section}-title ~ .set-entry__list .set-row").map do |row|
@@ -26,7 +26,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a visitor sees the owner's name, their counts, then their sets in progress, to discover and the search, leading to the owner's sets" do
+  test "a visitor sees the owner's name, their counts, then the search and their sets in progress, leading to the owner's sets" do
     season = publish_sets_draft
     pirates = set_members(season, "pirates")
     pirates.first(3).each { |id| hold(@owner, id, 1) }
@@ -45,10 +45,11 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     in_progress = entry_rows("in-progress")
     assert_equal [ "Pirates", "3/8", "/en/brothers/#{token}/library/theme/pirates" ], in_progress.first
     assert_includes in_progress.map(&:first), "Horror"
-    assert_includes entry_rows("discover"), [ "RPG", "1/44", "/en/brothers/#{token}/library/theme/rpg" ]
-    assert_select ".set-entry h2", "In progress"
+    assert_not_includes in_progress.map(&:first), "RPG"
+    assert_equal [ "Find a set", "In progress" ], css_select(".set-entry h2").map(&:text)
     assert_select "form.set-search__form[role=search][action='/en/brothers/#{token}']"
-    assert_select ".set-search__head a", false
+    assert_select ".set-search a", false
+    assert_select ".set-entry__empty", false
     assert_select ".collection-kind, .collection-sets", false
     assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
     assert_select "[style]", false
@@ -86,15 +87,17 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".set-album__grid .card", (set_members(season, "rpg") & set_members(season, "horror").first(2)).size
   end
 
-  test "a player with no card: no set in progress, four popular sets to discover, the counts at zero" do
+  test "a player with no card: the search, a line pointing to it and no set, the counts at zero" do
     publish_sets_draft
 
     get brother_path(locale: :en, token: @owner.token)
 
     assert_response :success
     assert_select "#set-entry-in-progress-title", false
-    assert_equal 4, entry_rows("discover").size
-    assert entry_rows("discover").all? { it.second.start_with?("0/") }
+    assert_equal [ "Find a set" ], css_select(".set-entry h2").map(&:text)
+    assert_select ".set-search ~ p.set-entry__empty", "No set in progress yet. Find one above."
+    assert_select ".set-search a", false
+    assert_select ".set-entry .set-row", false
     assert_equal [ "0 cards collected", "0 sets complete" ], counts
   end
 
@@ -389,7 +392,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", "Joueur #{code}"
     assert_select "h1", "Joueur #{code}"
     assert_equal [ "1 carte collectionnée", "0 collection complète" ], counts
-    assert_equal [ "En cours", "À découvrir", "Chercher un set" ], css_select(".set-entry h2").map(&:text)
+    assert_equal [ "Chercher un set", "En cours" ], css_select(".set-entry h2").map(&:text)
 
     set_members(season, "pirates").drop(1).each { |id| hold(@owner, id, 1) }
     get brother_path(locale: :fr, token: @owner.token, q: "pirates")
@@ -461,25 +464,24 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a visitor's profile costs seven queries, a signed-in viewer's five more, a search one more" do
+  test "a visitor's profile costs five queries, a signed-in viewer's five more, a search two more" do
     season = publish_sets_draft
     hold(@owner, set_members(season, "pirates").first, 1)
 
-    # Owner by token, published season, the owner's standings, the popular
-    # fill and its figures, the sets shown, the summary.
-    assert_request_queries(7) { get brother_path(locale: :en, token: @owner.token) }
+    # Owner by token, published season, the owner's standings, the sets
+    # shown, the summary.
+    assert_request_queries(5) { get brother_path(locale: :en, token: @owner.token) }
     assert_response :success
     assert_select ".set-entry .set-row", minimum: 1
 
     sign_in(accounts_players(:moderator))
     # The same, the viewer's lookup and the top bar's three (reserve count,
     # next pack, copies per tier), and the tab bar's trades waiting.
-    assert_request_queries(12) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(10) { get brother_path(locale: :en, token: @owner.token) }
     assert_response :success
 
-    # The search's sets; the season's five sets are all started or shown,
-    # so their figures are known (another set found would add its figures).
-    assert_request_queries(13) { get brother_path(locale: :en, token: @owner.token, q: "o") }
+    # The search's sets and the figures of those the owner has not started.
+    assert_request_queries(12) { get brother_path(locale: :en, token: @owner.token, q: "o") }
     assert_response :success
   end
 

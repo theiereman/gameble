@@ -3,5 +3,5 @@
 <% content_for :title, title %>
 <% content_for :head do %><meta name="robots" content="noindex"><% end %>
 <%# A player's public profile: their summary and their sets. %>
-<%= render "public_profiles/profile", owner: @owner, title:, summary: @summary, season: @season, in_progress: @in_progress, discover: @discover,
+<%= render "public_profiles/profile", owner: @owner, title:, summary: @summary, season: @season, in_progress: @in_progress,
   results: @results, results_count: @results_count, query: @query %>

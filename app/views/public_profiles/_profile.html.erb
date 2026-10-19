@@ -6,14 +6,14 @@
     - title: the profile's title (public_profile_title);
     - summary: the owner's Game::CollectionSummary;
     - season: the published season, nil for none;
-    - in_progress, discover, results, results_count, query: the owner's
-      sets (SetBoardLoading). %>
+    - in_progress, results, results_count, query: the owner's sets in
+      progress and searched (SetBoardLoading). %>
 <section class="profile" aria-labelledby="profile-heading">
   <%= render "public_profiles/summary", owner:, title: title, summary: summary %>
   <% if season.nil? %>
     <%= render PanelComponent.new(tag: :p, class: "profile__no-season") do %><%= t("public_profiles.show.no_season") %><% end %>
   <% else %>
-    <%= render "library/entry", in_progress:, discover:, results:, results_count:, query:,
+    <%= render "library/entry", in_progress:, results:, results_count:, query:,
       search_url: brother_path(owner.token), all_cards_url: nil,
       set_url: ->(set) { brother_set_path(owner.token, kind: set.kind, key: set.key) } %>
   <% end %>

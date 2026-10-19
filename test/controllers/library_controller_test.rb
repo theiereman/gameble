@@ -4,8 +4,8 @@ require_relative "../support/game_sets"
 require_relative "../support/library_requests"
 require_relative "../support/steam_sign_in"
 
-# The collection. Its entry: the sets in progress, closest first, those to
-# discover, the search over every set. Its grid of every card of the
+# The collection. Its entry: the search over every set and the way to all
+# the cards, then the sets in progress, closest first. Its grid of every card of the
 # season: the top bar's unique cards, the RAPPORT, the filters (state,
 # rarity, the set group that picks a kind then finds a set by name, genre)
 # and the search, the grid of owned faces and missing slots sixty to a
@@ -782,7 +782,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
   # ---- The entry ----
 
-  # The rows of an entry section ("in-progress", "discover", "results") as
+  # The rows of an entry section ("in-progress", "results") as
   # [ name, kind, tier mark, "owned/total" ].
   def entry_rows(section)
     css_select("#set-entry-#{section}-title ~ .set-entry__list .set-row, #set-#{section}-title ~ .set-entry__list .set-row").map do |row|
@@ -840,7 +840,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1.visually-hidden", "Collection"
     assert_select ".top-bar__title", "Collection"
     assert_select ".top-bar__end .collection-status .collection-status__value", "74 / 300"
-    assert_equal [ "In progress", "To discover", "Find a set" ], css_select(".set-entry h2").map(&:text)
+    assert_equal [ "Find a set", "In progress" ], css_select(".set-entry h2").map(&:text)
     assert_equal [ [ "Halo", "Franchise", nil, "2/3" ], [ "Supergiant", "Studio", nil, "3/5" ], [ "Roguelike", "Theme", "Silver", "29/62" ],
       [ "Metroidvania", "Theme", "Gold", "40/77" ] ], entry_rows("in-progress")
     assert_equal "Halo, franchise, 2 cards out of 3", sentence("Halo")
@@ -855,8 +855,12 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     }
     assert_select "progress.set-row__bar[value='29'][max='62']"
     assert_empty entry_row("Halo").css(".set-row__tick")
-    assert_equal [ [ "Horror", "Theme", nil, "0/20" ] ], entry_rows("discover")
-    assert_select ".set-search__head a.button--link[href='/en/library/cards']", "All cards"
+    assert_nil entry_row("Horror")
+    assert_select ".set-search .set-search__row a.button--primary[href='/en/library/cards']", "All cards" do
+      assert_select "svg.pixel-icon[aria-hidden=true]"
+    end
+    assert_select ".set-search ~ .set-entry__section #set-entry-in-progress-title"
+    assert_select ".set-entry__empty", false
     assert_select "[style]", false
   end
 
@@ -864,23 +868,23 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     entry_season(540)
     player = accounts_players(:player)
     sets = (1..45).map { theme("theme-#{it}", 12) }
-    hold_all(player, sets.first(3).map(&:first))
+    hold_all(player, sets.first(3).flat_map { it.first(2) })
     sign_in(player)
 
     three = count_queries { get library_path(locale: :en, q: "theme") }
-    assert_equal 3, css_select("#set-entry-discover-title ~ .set-entry__list .set-row").count { it.at_css(".set-row__count").text == "1/12" }
+    assert_equal [ "2/12" ] * 3, entry_rows("in-progress").map(&:last)
 
     hold_all(player, sets[3, 37].flat_map { it.first(2) })
     forty = count_queries { get library_path(locale: :en, q: "theme") }
     assert_equal 10, entry_rows("in-progress").size
     assert_equal three, forty
     # Player lookup, season, unique cards and the season's count; the
-    # standings, the popular fill and its figures, the sets named; the search's
-    # sets and the figures of those not started; the tab bar's trades waiting.
-    assert_equal 11, forty
+    # standings, the sets named; the search's sets and the figures of those
+    # not started; the tab bar's trades waiting.
+    assert_equal 9, forty
   end
 
-  test "a player who holds no card discovers four popular sets at 0, with no In progress heading; so does a visitor" do
+  test "a player who holds no card sees the search, the way to all the cards and a line pointing to the search; so does a visitor" do
     entry_season
     %w[horror pirates cosy roguelike rpg].each { theme(it, 20) }
     sign_in(accounts_players(:player))
@@ -888,18 +892,20 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :fr)
 
     assert_select "#set-entry-in-progress-title", false
-    assert_equal [ "À découvrir", "Chercher un set" ], css_select(".set-entry h2").map(&:text)
-    assert_equal [ [ "RPG", "Thème", nil, "0/20" ], [ "Roguelike", "Thème", nil, "0/20" ], [ "Cosy", "Thème", nil, "0/20" ],
-      [ "Pirates", "Thème", nil, "0/20" ] ], entry_rows("discover")
-    assert_equal "RPG, thème, 0 carte sur 20, bronze à 2", sentence("RPG")
+    assert_equal [ "Chercher un set" ], css_select(".set-entry h2").map(&:text)
+    assert_select ".set-search a.button--primary[href='/fr/library/cards']", "Toutes les cartes"
+    assert_select ".set-search ~ p.set-entry__empty", "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
+    assert_select ".set-entry .set-row", false
 
     delete session_path(locale: :fr)
     get library_path(locale: :en)
-    assert_equal [ "RPG", "Roguelike", "Cosy", "Pirates" ], entry_rows("discover").map(&:first)
-    assert_select "#set-entry-in-progress-title", false
+    assert_equal [ "Find a set" ], css_select(".set-entry h2").map(&:text)
+    assert_select ".set-search a.button--primary[href='/en/library/cards']", "All cards"
+    assert_select "p.set-entry__empty", "No set in progress yet. Find one above."
+    assert_select ".set-entry .set-row", false
   end
 
-  test "the latest opening's set leads with its tier; a set touched once is to discover" do
+  test "the latest opening's set leads with its tier; a set touched once is not on the entry" do
     entry_season
     player = accounts_players(:player)
     closest = named("franchise", "Halo", 3)
@@ -917,21 +923,23 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal [ [ "Roguelike", "Thème", "Bronze", "12/62" ], [ "Halo", "Franchise", nil, "2/3" ] ], entry_rows("in-progress")
     assert_equal "Roguelike, thème, 12 cartes sur 62, palier bronze, argent à 16", sentence("Roguelike")
-    assert_equal [ "Pirates", "Thème", nil, "1/18" ], entry_rows("discover").first
+    assert_nil entry_row("Pirates")
   end
 
   test "a game held only in an earlier edition counts in the published season's set" do
     entry_season
     portal = Catalog::CardSeason.insert_all!([ { card_id: catalog_cards(:portal).id, season_id: @season.id, prestige_score: 0.9, rating: 95 } ],
       returning: :id).rows.flatten.sole
-    insert_theme([ portal ] + take(19), key: "puzzle", season: @season)
+    others = take(19)
+    insert_theme([ portal ] + others, key: "puzzle", season: @season)
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 1)
+    hold_all(player, [ others.first ])
     sign_in(player)
 
     get library_path(locale: :en)
 
-    assert_equal [ "Puzzle", "Theme", nil, "1/20" ], entry_rows("discover").first
+    assert_equal [ [ "Puzzle", "Theme", "Bronze", "2/20" ] ], entry_rows("in-progress")
   end
 
   test "the search finds a set by name, accents and case ignored; none says so; blank shows no results" do
@@ -946,11 +954,16 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :fr, q: " souls ")
 
-    assert_select "form.set-search__form[method=get][action='/fr/library'][role=search][aria-labelledby=set-search-title][data-controller=set-search]" do
-      assert_select "input[type=search][name=q][value=souls][maxlength='100'][aria-labelledby=set-search-title]"
-      assert_select "noscript input[type=submit][value=Chercher]"
-      assert_select "p.set-search__status[role=status]", "1 set trouvé"
+    assert_select "section.set-search[data-controller=set-search][data-set-search-frame-value=set-search-results]" do
+      assert_select "form.set-search__form[method=get][action='/fr/library'][role=search][aria-labelledby=set-search-title][data-set-search-target=form]" do
+        assert_select "input[type=search][name=q][value=souls][maxlength='100'][aria-labelledby=set-search-title]#set-search-field"
+        assert_select "noscript input[type=submit][value=Chercher]"
+        assert_select "[role=status]", false
+      end
+      assert_select ".set-search__row ~ p.set-search__status[role=status]", "1 set trouvé"
     end
+    assert_equal [ "Chercher un set", "En cours", "Résultats" ], css_select(".set-entry h2").map(&:text)
+    assert_select ".set-entry > .set-entry__section ~ turbo-frame#set-search-results"
     assert_select "#set-search-title", "Chercher un set"
     assert_select "turbo-frame#set-search-results[target=_top]" do
       assert_select "[data-set-search-summary][hidden]", "1 set trouvé"

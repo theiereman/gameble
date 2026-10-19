@@ -302,8 +302,9 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
   end
 
   test "the screens an album opens from name themselves for its back button and mark the album last opened" do
-    publish_sets_draft
+    season = publish_sets_draft
     player = accounts_players(:player)
+    set_members(season, "horror").first(2).each { hold(player, it, 1) }
     sign_in(player)
 
     get library_path(locale: :en)

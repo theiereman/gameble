@@ -72,20 +72,21 @@
   list-style: none;
 }
 
-.set-search__head {
+.set-search__row {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3) var(--space-6);
+  gap: var(--space-3) var(--space-4);
 }
 
-.set-search__head .button--link {
+.set-search__row > .button {
+  flex: none;
   margin: 0;
 }
 
 .set-search__form {
   display: flex;
+  flex: 1;
+  min-width: 0;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3) var(--space-4);
@@ -111,13 +112,14 @@
 }
 
 .set-search__status {
-  flex-basis: 100%;
+  min-height: 1lh;
   margin: 0;
   color: var(--color-muted);
   font: var(--font-body-small);
   letter-spacing: var(--tracking-body-small);
 }
 
+.set-entry__empty,
 .set-results__none {
   margin: 0;
   color: var(--color-muted);
@@ -991,6 +993,19 @@
   .collection-grid {
     grid-template-columns: repeat(2, var(--card-m-width));
     justify-content: center;
+  }
+
+  .set-search__row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .set-search__row > .button {
+    width: 100%;
+  }
+
+  .set-search__field {
+    min-height: var(--space-button-height-phone);
   }
 
   .set-album__name {

@@ -613,7 +613,7 @@ fr:
   library:
     entry:
       in_progress: "En cours"
-      discover: "À découvrir"
+      no_progress: "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
       search: "Chercher un set"
       all_cards: "Toutes les cartes"
       results: "Résultats"

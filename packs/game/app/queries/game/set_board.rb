@@ -1,17 +1,14 @@
 module Game
   module SetBoard
-    Board = Data.define(:in_progress, :discover, :standings)
-    EMPTY = Board.new(in_progress: [], discover: [], standings: {})
+    Board = Data.define(:in_progress, :standings)
+    EMPTY = Board.new(in_progress: [], standings: {})
     HUB_ROWS = 4
 
-    def self.call(player, season:, in_progress: 10, discover: 4)
+    def self.call(player, season:, in_progress: 10)
       return EMPTY if season.nil?
 
       standings = SetsInProgress.call(player, season:)
-      progressing = ranked_in_progress(standings.values).first(in_progress)
-      touched = ranked_touched(standings.values).first(discover)
-      fill = popular(season, discover - touched.size, exclude: standings.keys)
-      Board.new(in_progress: progressing, discover: touched + fill, standings: standings.merge(fill.index_by(&:set_id)))
+      Board.new(in_progress: ranked_in_progress(standings.values).first(in_progress), standings:)
     end
 
     def self.hub(player, season:)

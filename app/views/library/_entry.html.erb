@@ -1,14 +1,17 @@
+<% status = query.present? ? t("library.entry.found", count: results_count) : "" %>
 <div class="set-entry" data-controller="last-album" data-action="turbo:frame-load->last-album#mark">
-  <% [ [ "in_progress", in_progress ], [ "discover", discover ] ].each do |section, rows| %>
-    <% next if rows.empty? %>
-    <section class="set-entry__section" aria-labelledby="set-entry-<%= section.dasherize %>-title">
-      <h2 id="set-entry-<%= section.dasherize %>-title" class="set-entry__title"><%= t("library.entry.#{section}") %></h2>
+  <%= render "library/set_search", query:, status:, search_url:, all_cards_url: %>
+  <% if in_progress.any? %>
+    <section class="set-entry__section" aria-labelledby="set-entry-in-progress-title">
+      <h2 id="set-entry-in-progress-title" class="set-entry__title"><%= t("library.entry.in_progress") %></h2>
       <ul class="set-entry__list">
-        <% rows.each do |row| %>
+        <% in_progress.each do |row| %>
           <li><%= render "library/set_progress_row", href: set_url.call(row.set), set: row.set, standing: row.standing %></li>
         <% end %>
       </ul>
     </section>
+  <% else %>
+    <p class="set-entry__empty"><%= t("library.entry.no_progress") %></p>
   <% end %>
-  <%= render "library/set_search", results:, results_count:, query:, search_url:, all_cards_url:, set_url: %>
+  <%= render "library/set_results", results:, query:, status:, set_url: %>
 </div>

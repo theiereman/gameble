@@ -2,8 +2,8 @@ require "test_helper"
 require_relative "../../support/catalog_seeds"
 require_relative "../../support/game_sets"
 
-# Game::SetBoard: a player's sets in progress, closest first, then the sets
-# to discover, filled with popular ones; and the hub's four.
+# Game::SetBoard: a player's sets in progress, closest first; and the hub's
+# four, filled with the sets touched, then popular ones.
 class Game::SetBoardTest < ActiveSupport::TestCase
   include CatalogSeeds
   include GameSets
@@ -60,7 +60,7 @@ class Game::SetBoardTest < ActiveSupport::TestCase
     assert_equal [ 12, "bronze" ], [ result.in_progress.first.held, result.in_progress.first.reached_tier ]
   end
 
-  test "one game held touches a set: to discover, not in progress, the latest touched first" do
+  test "one game held touches a set: not in progress; the hub lists it, the latest touched first" do
     earlier, earlier_cards = theme("pirates", 18)
     latest_set, latest_cards = theme("horror", 18)
     never_timed, never_timed_cards = theme("cosy", 18)
@@ -68,32 +68,32 @@ class Game::SetBoardTest < ActiveSupport::TestCase
     hold_all(@player, [ latest_cards.first ], gained_at: 1.hour.ago)
     hold_all(@player, [ never_timed_cards.first ])
 
-    result = board
-    assert_empty result.in_progress
-    assert_equal [ latest_set, earlier, never_timed ], ids(result.discover).first(3)
-    assert_equal [ 1, 1, 1 ], result.discover.map(&:held)
+    assert_empty board.in_progress
+    hub = Game::SetBoard.hub(@player, season: @season)
+    assert_equal [ latest_set, earlier, never_timed ], ids(hub).first(3)
+    assert_equal [ 1, 1, 1 ], hub.first(3).map(&:held)
   end
 
-  test "a player with nothing: no set in progress, four popular sets at 0" do
+  test "a player with nothing: no set in progress; the hub shows four popular sets at 0" do
     sets = (1..6).map { |index| theme("theme-#{index}", 20).first }
 
     result = board
     assert_empty result.in_progress
-    assert_equal sets.last(4).reverse, ids(result.discover)
-    assert result.discover.all? { it.held.zero? && it.total == 20 && it.tiers.key?("bronze") }
-    assert_equal ids(result.discover).sort, result.standings.keys.sort
+    assert_empty result.standings
+    hub = Game::SetBoard.hub(@player, season: @season)
+    assert_equal sets.last(4).reverse, ids(hub)
+    assert hub.all? { it.held.zero? && it.total == 20 && it.tiers.key?("bronze") }
   end
 
-  test "popular sets fill what is left to discover, never a set already started" do
+  test "popular sets fill what is left of the hub, never a set already started" do
     started, started_cards = theme("theme-a", 20)
     popular = (1..5).map { |index| theme("theme-#{index}", 20).first }
     hold_all(@player, [ started_cards.first ], gained_at: 1.hour.ago)
 
-    result = board
-    assert_equal [ started ] + popular.last(3).reverse, ids(result.discover)
+    assert_equal [ started ] + popular.last(3).reverse, ids(Game::SetBoard.hub(@player, season: @season))
   end
 
-  test "a set completed earlier is neither in progress nor to discover; completed at the latest gain, it is in progress" do
+  test "a set completed earlier is neither in progress nor in the hub; completed at the latest gain, it is in progress" do
     done, done_cards = untiered("franchise", "dark-souls", 3)
     fresh, fresh_cards = untiered("franchise", "portal", 2)
     latest = Time.utc(2026, 10, 17, 9)
@@ -104,7 +104,7 @@ class Game::SetBoardTest < ActiveSupport::TestCase
     result = board
     assert_equal [ fresh ], ids(result.in_progress)
     assert result.in_progress.first.complete?
-    assert_not_includes ids(result.discover), done
+    assert_not_includes ids(Game::SetBoard.hub(@player, season: @season)), done
     assert result.standings.fetch(done).complete?
   end
 
@@ -119,22 +119,22 @@ class Game::SetBoardTest < ActiveSupport::TestCase
     sets = (1..45).map { theme("theme-#{it}", 5).last }
     hold_all(@player, sets.first(3).map(&:first))
     three = nil
-    assert_queries_count(3) { three = board }
-    assert_equal 4, three.discover.size
+    assert_queries_count(1) { three = board }
+    assert_equal 3, three.in_progress.size
 
     hold_all(@player, sets[3, 37].flat_map { it.first(2) })
-    assert_queries_count(3) { board }
+    assert_queries_count(1) { board }
   end
 
-  test "a visitor gets popular sets; no season, nothing and no query" do
-    sets = (1..5).map { |index| theme("theme-#{index}", 20).first }
+  test "a visitor or no season: nothing and no query" do
+    (1..5).each { |index| theme("theme-#{index}", 20) }
 
-    assert_queries_count(2) { assert_equal sets.last(4).reverse, ids(board(nil).discover) }
+    assert_queries_count(0) { assert_equal Game::SetBoard::EMPTY, board(nil) }
     assert_queries_count(0) { assert_equal Game::SetBoard::EMPTY, Game::SetBoard.call(@player, season: nil) }
     assert_queries_count(0) { assert_equal [], Game::SetBoard.hub(@player, season: nil) }
   end
 
-  test "the hub: the first four in progress, filled from those to discover, then popular ones" do
+  test "the hub: the first four in progress, filled from the sets touched, then popular ones" do
     in_progress = (1..2).map { |index| theme("progress-#{index}", 10) }
     touched, touched_cards = theme("touched", 20)
     popular = (1..3).map { |index| theme("popular-#{index}", 10).first }

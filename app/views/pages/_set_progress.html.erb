@@ -1,7 +1,7 @@
 <%# "Sets in progress": the player's four sets closest to their next tier,
-    filled with those to discover (Game::SetBoard.hub), each a set progress
-    row (library/set_progress_row) leading to that set; "See all" opens the
-    collection. Locals: sets, SetBoardLoading::SetRow list. %>
+    filled with the sets they touched, then popular ones
+    (Game::SetBoard.hub), each a set progress row (library/set_progress_row)
+    leading to that set; "See all" opens the collection. Locals: sets, SetBoardLoading::SetRow list. %>
 <section class="hub-sets" aria-labelledby="hub-sets-title" data-controller="last-album">
   <h2 id="hub-sets-title" class="hub-sets__title"><%= t("pages.home.sets.title") %></h2>
   <ul class="hub-sets__list">

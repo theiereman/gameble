@@ -1,10 +1,11 @@
 import { Controller } from "@hotwired/stimulus"
 import { clearsOnEscape, Debounce, summaryOf } from "../lib/set_search"
 
-export default class extends Controller<HTMLFormElement> {
-  static targets = ["field", "status"]
+export default class extends Controller<HTMLElement> {
+  static targets = ["form", "field", "status"]
   static values = { frame: String }
 
+  declare readonly formTarget: HTMLFormElement
   declare readonly fieldTarget: HTMLInputElement
   declare readonly statusTarget: HTMLElement
   declare readonly frameValue: string
@@ -19,7 +20,7 @@ export default class extends Controller<HTMLFormElement> {
     if (event.target !== this.fieldTarget) return
     // A composition (IME) is not text yet: wait for compositionend.
     if ((event as InputEvent).isComposing) return
-    this.debounce.call(() => this.element.requestSubmit())
+    this.debounce.call(() => this.formTarget.requestSubmit())
   }
 
   escape(event: KeyboardEvent): void {
@@ -30,7 +31,7 @@ export default class extends Controller<HTMLFormElement> {
     event.stopPropagation()
     this.fieldTarget.value = ""
     this.debounce.cancel()
-    this.element.requestSubmit()
+    this.formTarget.requestSubmit()
   }
 
   submitted(): void {

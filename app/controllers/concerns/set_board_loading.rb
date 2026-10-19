@@ -8,10 +8,8 @@ module SetBoardLoading
       @query = SetSearch.clean(params[:q].is_a?(String) ? params[:q] : "")
       board = Game::SetBoard.call(owner, season:)
       search = SetSearch.call(season:, query: @query, locale: I18n.locale)
-      shown = board.in_progress + board.discover
-      sets = Catalog::SetsById.call(shown.map(&:set_id))
+      sets = Catalog::SetsById.call(board.in_progress.map(&:set_id))
       @in_progress = set_rows(board.in_progress, sets)
-      @discover = set_rows(board.discover, sets)
       @results = search_rows(search.sets, board.standings)
       @results_count = search.count
     end
