@@ -79,3 +79,9 @@ Oneshot: a one-token change, its stylesheet test and three DESIGN.md lines (unde
 - **Verification:** `bin/ci` green (2726 runs, 0 failures), `npm run test:js` (431), `npm run typecheck`, `bin/rails zeitwerk:check`, `bundle exec packwerk check`; headless Chrome as in Implementation Notes.
 - **Residual risks:** at 1280 px and up the three 170 px cards stand about 33 px apart with about 17 px spare after the last; the author may prefer another split of that width.
 
+## Follow-up: card cap raised to 185 px (author, 2026-10-19)
+
+- The author's answer to the residual risk above: the cap goes from 170 to 185 px (`--space-grid-card-max`), so at 1280 px and up the three columns of about 187 px hold cards that nearly fill them. With the even-pixel rule the card is 184 px (2.7 px spare per column, gaps about 18.7 px).
+- Result: 1440 and 1280 px → 3 × 184 (3 × 180 at 1280 beside a classic scrollbar); 1024 px → 4 × 148 (144); 800 px → 4 × 174 (170); phone → 2 × 160. The set album keeps 7 × 160 at 1440, 7 × 156 at 1280 and 6 × 148/144 at 1024: its columns never reach the cap.
+- Files: `app/frontend/styles/tokens.css`, `app/frontend/lib/collection-grid.test.ts` (MAX and matrix rows), DESIGN.md (token, Card sizes row, Collection grid text and examples).
+

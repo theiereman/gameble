@@ -134,7 +134,7 @@ describe("the grid of every card", () => {
   it("fills its row with columns of at least the smallest medium card", () => {
     expect(filling).toContain("grid-template-columns: repeat(auto-fill, minmax(var(--space-grid-card-min), 1fr));")
     expect(MIN).toBe(140)
-    expect(MAX).toBe(170)
+    expect(MAX).toBe(185)
     expect(layout(MIN).layout).toBe("medium")
   })
 
@@ -164,8 +164,8 @@ describe("the grid of every card", () => {
   })
 
   it.each([
-    { name: "an 800px window, the detail under the grid", gridWidth: STACKED_GRID, columns: 4, card: 170, cardLayout: "medium" },
-    { name: "1280px and up, beside the RAPPORT and the detail", gridWidth: WIDE_GRID, columns: 3, card: 170, cardLayout: "medium" },
+    { name: "an 800px window, the detail under the grid", gridWidth: STACKED_GRID, columns: 4, card: 174, cardLayout: "medium" },
+    { name: "1280px and up, beside the RAPPORT and the detail", gridWidth: WIDE_GRID, columns: 3, card: 184, cardLayout: "medium" },
     { name: "a 1024px window, beside the detail", gridWidth: MEDIUM_GRID, columns: 4, card: 148, cardLayout: "medium" },
     { name: "a medium width", gridWidth: 780, columns: 5, card: 142, cardLayout: "medium" },
   ])("$name: $columns columns of $card px, $cardLayout layout", ({ gridWidth, columns, card, cardLayout }) => {
