@@ -186,12 +186,23 @@ risk = "medium"
 notes = ["From the deferred work triage (author, 2026-10-12)."]
 
 [[entry]]
+id = 18
+type = "bug"
+title = "The collection entry leads with the search and all cards, without À DÉCOUVRIR"
+description = "On the author's staging check of entry 7, \"À DÉCOUVRIR\" made little sense and the search and \"TOUTES LES CARTES\" sat too low and too faint. The collection entry drops \"À DÉCOUVRIR\" on the player's own collection and on public and friends' profiles, and opens on the set search with \"TOUTES LES CARTES ▸\" as a filled button on the same row as the field (under it, full width, on the phone), then \"EN COURS\" and the search results. A player with no set in progress sees the search and the button, and one line pointing to the search. The hub's \"SETS EN COURS\" panel keeps its popular-set fill. EXPERIENCE.md's collection opening, set search and copy deck drop À DÉCOUVRIR and place the search first; queries left unused are deleted."
+verify = "On /fr/library, desktop and phone, the search field and a filled \"TOUTES LES CARTES ▸\" button come first, EN COURS follows, and no À DÉCOUVRIR section shows, signed in or on a public profile; a new player sees the search, the button and the pointer line; the hub panel is unchanged."
+covers = ["R7"]
+after = [7]
+hitl = false
+risk = "low"
+
+[[entry]]
 id = 10
 type = "story"
 title = "Refactor sweep"
 description = "Cleans up what this epic's build records and deferred review findings name, including the retired set kinds' leftovers; scope set when it starts."
 verify = "The full test suite, system tests for what was touched, packwerk and zeitwerk pass; no reference to tomes, publisher sets or best-of-year sets remains in app and pack code or in the locales (migrations aside)."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18]
 hitl = false
 risk = "low"
