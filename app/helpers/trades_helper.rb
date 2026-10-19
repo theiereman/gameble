@@ -160,6 +160,7 @@ module TradesHelper
         sides:, message:, readMessage: read_message, editing:, draftKey: draft_key, formId: form_id, error:,
         swapIcon: pixel_icon("swap", class: "trade-board__swap").to_str,
         closeIcon: pixel_icon("close", class: "trade-island__close-icon").to_str,
+        chevronIcon: pixel_icon("arrow-small-right", class: "filters__chevron").to_str,
         strings: trade_island_strings
       }
     end

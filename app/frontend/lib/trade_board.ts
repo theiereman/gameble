@@ -139,6 +139,34 @@ export function toggled<Value>(values: readonly Value[], value: Value): Value[] 
   return values.includes(value) ? values.filter((current) => current !== value) : [...values, value]
 }
 
+export function activeChips({ rarities, chips }: SideFilter): number {
+  return rarities.length + chips.length
+}
+
+export type PickerFilters = { filter: SideFilter; folded: boolean }
+
+export const FRESH_PICKER_FILTERS: PickerFilters = { filter: EMPTY_FILTER, folded: true }
+
+export function freshPickerFilters(sides: number): PickerFilters[] {
+  return Array.from({ length: sides }, () => FRESH_PICKER_FILTERS)
+}
+
+export function replacePickerFilters(all: readonly PickerFilters[], index: number, next: PickerFilters): PickerFilters[] {
+  return all.map((current, at) => (at === index ? next : current))
+}
+
+export function withFilter(state: PickerFilters, filter: SideFilter): PickerFilters {
+  return { ...state, filter }
+}
+
+export function clearedFilters(state: PickerFilters): PickerFilters {
+  return withFilter(state, EMPTY_FILTER)
+}
+
+export function toggledFold(state: PickerFilters): PickerFilters {
+  return { ...state, folded: !state.folded }
+}
+
 export function filterCards<Card extends FilterableCard>(cards: readonly Card[], { query, rarities, chips }: SideFilter): Card[] {
   const needle = fold(query)
   return cards.filter(

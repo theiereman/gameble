@@ -1231,6 +1231,8 @@ en:
             missing: "Missing from theirs"
             available: "Available"
         clear_filters: "Clear filters"
+        filters_title: "Filters"
+        filters_active: "Active filters:"
         no_match: "No card matches these filters. Clear them to see every card again."
         results:
           zero: "No card shown."

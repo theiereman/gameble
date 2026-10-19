@@ -3,12 +3,17 @@ import type { Rarity } from "./card_types"
 import {
   CHIPS,
   EMPTY_FILTER,
+  FRESH_PICKER_FILTERS,
+  activeChips,
+  clearedFilters,
   columnsOf,
   filterCards,
   filtering,
+  freshPickerFilters,
   gridMove,
   initialLines,
   remove,
+  replacePickerFilters,
   sendable,
   setQuantity,
   showsOpenHelp,
@@ -16,7 +21,10 @@ import {
   stepperKey,
   toggle,
   toggled,
+  toggledFold,
+  withFilter,
   type Line,
+  type PickerFilters,
   type SideFilter,
 } from "./trade_board"
 
@@ -229,5 +237,48 @@ describe("toggled", () => {
   it("adds a missing value and removes a present one", () => {
     expect(toggled(["rare"], "epic")).toEqual(["rare", "epic"])
     expect(toggled(["rare", "epic"], "rare")).toEqual(["epic"])
+  })
+})
+
+describe("activeChips", () => {
+  it("counts the rarities and chips on, not the search", () => {
+    expect(activeChips(EMPTY_FILTER)).toBe(0)
+    expect(activeChips({ query: "hades", rarities: [], chips: [] })).toBe(0)
+    expect(activeChips({ query: "", rarities: ["rare"], chips: ["duplicates"] })).toBe(2)
+    expect(activeChips({ query: "", rarities: ["rare", "epic"], chips: ["missing"] })).toBe(3)
+  })
+})
+
+describe("picker filters", () => {
+  const filtered: PickerFilters = { filter: { query: "hades", rarities: ["rare"], chips: ["duplicates"] }, folded: false }
+
+  it("starts every side with no filter, folded", () => {
+    expect(freshPickerFilters(2)).toEqual([
+      { filter: EMPTY_FILTER, folded: true },
+      { filter: EMPTY_FILTER, folded: true },
+    ])
+    expect(FRESH_PICKER_FILTERS).toEqual({ filter: EMPTY_FILTER, folded: true })
+  })
+
+  it("replaces one side and leaves the other untouched", () => {
+    const all = freshPickerFilters(2)
+    const next = replacePickerFilters(all, 0, filtered)
+    expect(next[0]).toEqual(filtered)
+    expect(next[1]).toBe(all[1])
+  })
+
+  it("changes the filter and keeps the fold", () => {
+    const filter = { query: "", rarities: ["epic"] as Rarity[], chips: [] }
+    expect(withFilter(filtered, filter)).toEqual({ filter, folded: false })
+  })
+
+  it("clears the filter and keeps the fold", () => {
+    expect(clearedFilters(filtered)).toEqual({ filter: EMPTY_FILTER, folded: false })
+    expect(clearedFilters({ ...filtered, folded: true })).toEqual({ filter: EMPTY_FILTER, folded: true })
+  })
+
+  it("toggles the fold and keeps the filter", () => {
+    expect(toggledFold(filtered)).toEqual({ ...filtered, folded: true })
+    expect(toggledFold(toggledFold(filtered))).toEqual(filtered)
   })
 })

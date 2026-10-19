@@ -5,13 +5,16 @@ import { t, type Template } from "../lib/i18n"
 import type { Rarity } from "../lib/card_types"
 import {
   MAX_CARDS,
+  freshPickerFilters,
   initialLines,
   remove,
+  replacePickerFilters,
   setQuantity,
   showsOpenHelp,
   sideCount,
   type ChipLabels,
   type Line,
+  type PickerFilters,
   type Side,
 } from "../lib/trade_board"
 import { forgetDraft, readDraft, sameLines, saveDraft, type DraftSides } from "../lib/trade_draft"
@@ -80,6 +83,8 @@ export type TradeBoardStrings = {
   compareLegend: string
   chips: ChipLabels
   clearFilters: string
+  filtersTitle: string
+  filtersActive: string
   noMatch: string
   results: Template
 }
@@ -94,6 +99,7 @@ export type TradeBoardProps = {
   error: string | null
   swapIcon: string
   closeIcon: string
+  chevronIcon: string
   strings: TradeBoardStrings
 }
 
@@ -102,7 +108,7 @@ type FocusTarget = { side: number; key: string | null; preventScroll?: boolean }
 const maximaOf = (side: TradeSideData) => new Map(side.cards.map((card) => [card.key, card.max]))
 
 export default function TradeBoard(props: TradeBoardProps) {
-  const { sides, message, readMessage, draftKey, formId, error, swapIcon, closeIcon, strings } = props
+  const { sides, message, readMessage, draftKey, formId, error, swapIcon, closeIcon, chevronIcon, strings } = props
   const cardsBySide = useMemo(() => sides.map((side) => new Map(side.cards.map((card) => [card.key, card]))), [sides])
   const received = useMemo(() => sides.map((side) => initialLines(side.lines, maximaOf(side))), [sides])
   const [editing, setEditing] = useState(props.editing)
@@ -111,6 +117,7 @@ export default function TradeBoard(props: TradeBoardProps) {
     return kept ? sides.map((side) => initialLines(kept[side.field] ?? [], maximaOf(side))) : received
   })
   const [picking, setPicking] = useState<number | null>(null)
+  const [pickerFilters, setPickerFilters] = useState<PickerFilters[]>(() => freshPickerFilters(sides.length))
   const sideElements = useRef<(HTMLDivElement | null)[]>([])
   const own = sides.findIndex((side) => side.side === "own")
   const friend = sides.findIndex((side) => side.side === "friend")
@@ -261,6 +268,9 @@ export default function TradeBoard(props: TradeBoardProps) {
           lines={lines[picking]}
           strings={strings}
           closeIcon={closeIcon}
+          chevronIcon={chevronIcon}
+          filters={pickerFilters[picking]}
+          onFilters={(next) => setPickerFilters((all) => replacePickerFilters(all, picking, next))}
           onPlace={(next) => update(picking, next)}
           onClose={() => {
             focusAfter.current = { side: picking, key: null }

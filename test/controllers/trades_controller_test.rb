@@ -612,6 +612,8 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal({ "duplicates" => "Mes doublons", "missing" => "Absentes de sa collection", "available" => "Disponibles" },
       props.dig("strings", "chips", "own"))
     assert_equal "Collections", props.dig("strings", "compareLegend")
+    assert_equal [ "Filtres", "Filtres actifs :" ], props.fetch("strings").values_at("filtersTitle", "filtersActive")
+    assert_match(/\A<svg [^>]*class="pixel-icon filters__chevron"/, props.fetch("chevronIcon"))
     assert_no_match(/"id"|card_season_id/, props.to_json)
   end
 

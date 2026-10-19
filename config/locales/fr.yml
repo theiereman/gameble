@@ -1279,6 +1279,8 @@ fr:
             missing: "Absentes de sa collection"
             available: "Disponibles"
         clear_filters: "Effacer les filtres"
+        filters_title: "Filtres"
+        filters_active: "Filtres actifs :"
         no_match: "Aucune carte ne correspond à ces filtres. Effacez-les pour revoir toutes les cartes."
         results:
           zero: "Aucune carte affichée."
