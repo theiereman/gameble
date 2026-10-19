@@ -255,12 +255,23 @@ risk = "medium"
 notes = ["From change-set-tiers-by-size (author, 2026-10-19)."]
 
 [[entry]]
+id = 24
+type = "bug"
+title = "The card detail column waits as an empty detail, and a tablet held upright opens the detail page"
+description = "On the author's review of entry 14, the empty detail column's placeholder sentence was too bare. Until a card is chosen, the column shows the card detail's own layout empty: an empty card face and the detail's fields (title, studio, year, rarity, copies, editions, sets) with blank or waiting values, so choosing a card only fills them in place, without the layout moving. From 720 to 899 px (a tablet held upright), a grid slot opens the card detail page as on the phone instead of showing the detail under the grid. The copy deck records the waiting values in French and English."
+verify = "On staging at 1280 px, /library/cards shows an empty card and the detail's empty fields beside the grid; choosing a card fills them without the column's layout shifting; at 800 px a slot opens the detail page; on the phone nothing changes."
+covers = ["R9"]
+after = [14]
+hitl = false
+risk = "low"
+
+[[entry]]
 id = 10
 type = "story"
 title = "Refactor sweep"
 description = "Cleans up what this epic's build records and deferred review findings name, including the retired set kinds' leftovers; scope set when it starts."
 verify = "The full test suite, system tests for what was touched, packwerk and zeitwerk pass; no reference to tomes, publisher sets or best-of-year sets remains in app and pack code or in the locales (migrations aside)."
 covers = []
-after = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+after = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
 hitl = false
 risk = "low"
