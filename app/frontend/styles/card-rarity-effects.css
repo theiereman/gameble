@@ -1,0 +1,74 @@
+.card-rays {
+  --card-ray: color-mix(in srgb, var(--color-rarity-epique) 22%, transparent);
+  --card-rays-size: 420px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--card-rays-size);
+  height: var(--card-rays-size);
+  margin: calc(-0.5 * var(--card-rays-size)) 0 0 calc(-0.5 * var(--card-rays-size));
+  border-radius: 50%;
+  background: repeating-conic-gradient(var(--card-ray) 0deg 8deg, transparent 8deg 16deg);
+  mask-image: radial-gradient(circle, #000 25%, transparent 68%);
+  pointer-events: none;
+  animation: card-rays-spin 24s steps(96) infinite;
+}
+
+.card-rays--epic {
+  --card-ray: color-mix(in srgb, var(--color-rarity-epique) 22%, transparent);
+}
+
+.card-rays--legendary {
+  --card-ray: color-mix(in srgb, var(--color-rarity-legendaire) 36%, transparent);
+  --card-rays-size: 500px;
+  animation-duration: 14s;
+}
+
+.card-rays--large {
+  --card-rays-size: 520px;
+}
+
+@keyframes card-rays-spin {
+  to { transform: rotate(360deg); }
+}
+
+.card-float {
+  position: relative;
+  display: flex;
+  animation: card-idle-float 14s ease-in-out infinite;
+}
+
+@keyframes card-idle-float {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(calc(-1 * var(--idle-float-max))); }
+  75% { transform: translateY(var(--idle-float-max)); }
+}
+
+.card-detail__stage,
+.public-card__stage,
+.hub-showcase__stage {
+  overflow-x: clip;
+}
+
+.card-detail__stage .card-rays,
+.public-card__stage .card-rays {
+  mask-image: radial-gradient(circle 170px, #000 40%, transparent 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .card-rays {
+    animation: none;
+  }
+
+  html:not([data-motion="full"]) .card-float {
+    animation: none;
+  }
+}
+
+html[data-motion="reduced"] .card-rays {
+  animation: none;
+}
+
+html[data-motion="reduced"] .card-float {
+  animation: none;
+}

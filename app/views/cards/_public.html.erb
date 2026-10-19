@@ -21,7 +21,14 @@
 <article class="public-card" aria-labelledby="public-card-heading">
   <div class="public-card__layout">
     <div class="public-card__stage">
-      <%= render CardComponent.new(card: view, size: :xl) %>
+      <% if card_top_rarity?(view.rarity) %>
+        <div class="card-float">
+          <%= card_rays(view.rarity) %>
+          <%= render CardComponent.new(card: view, size: :xl) %>
+        </div>
+      <% else %>
+        <%= render CardComponent.new(card: view, size: :xl) %>
+      <% end %>
       <span class="public-card__shadow" aria-hidden="true"></span>
     </div>
     <div class="public-card__info">

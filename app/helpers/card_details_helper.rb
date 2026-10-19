@@ -87,4 +87,14 @@ module CardDetailsHelper
 
     image_tag(vite_asset_path("images/pixel/back-#{key}-l.png"), alt: "", width: 208, height: 312, **options)
   end
+
+  def card_top_rarity?(rarity)
+    rarity.to_s.in?(%w[epic legendary])
+  end
+
+  def card_rays(rarity)
+    return unless card_top_rarity?(rarity)
+
+    tag.span(nil, class: [ "card-rays", "card-rays--#{rarity}" ], aria: { hidden: true })
+  end
 end

@@ -12,7 +12,14 @@
   <section class="hub-showcase" aria-labelledby="hub-showcase-name">
     <p class="hub-showcase__kicker"><span class="hub-showcase__light" aria-hidden="true"></span><%= t("pages.home.showcase.kicker") %></p>
     <div class="hub-showcase__stage">
-      <%= render CardComponent.new(card:, size: :xl) %>
+      <% if card_top_rarity?(card.rarity) %>
+        <div class="card-float">
+          <%= card_rays(card.rarity) %>
+          <%= render CardComponent.new(card:, size: :xl) %>
+        </div>
+      <% else %>
+        <%= render CardComponent.new(card:, size: :xl) %>
+      <% end %>
       <span class="hub-showcase__ground" aria-hidden="true"></span>
     </div>
     <h2 id="hub-showcase-name" class="hub-showcase__name"><%= card.title %></h2>
