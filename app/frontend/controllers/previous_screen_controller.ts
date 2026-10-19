@@ -28,6 +28,10 @@ export default class extends Controller<HTMLAnchorElement> {
     const screen = this.previousScreen()
     if (!screen) return
     event.preventDefault()
+    if (screen.localeChanged) {
+      window.Turbo.visit(screen.pathname)
+      return
+    }
     history.go(-screen.steps)
   }
 

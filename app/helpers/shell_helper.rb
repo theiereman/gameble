@@ -75,8 +75,17 @@ module ShellHelper
   }.freeze
 
   def shell_screen_label
-    key = back_office_page? ? :back_office : SCREEN_LABELS["#{controller_path}##{action_name}"] || SCREEN_LABELS[controller_path]
+    key = screen_label_key
     t("shell.screens.#{key}") if key
+  end
+
+  def shell_screen_labels
+    key = screen_label_key
+    I18n.available_locales.to_h { |locale| [ locale.to_s, t("shell.screens.#{key}", locale: locale) ] } if key
+  end
+
+  def screen_label_key
+    back_office_page? ? :back_office : SCREEN_LABELS["#{controller_path}##{action_name}"] || SCREEN_LABELS[controller_path]
   end
 
   # The signed-in player's reserve (Game::BankSummary.reserve), for the
