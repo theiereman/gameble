@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import cardStylesheet from "../styles/card.css?raw"
+import detailStylesheet from "../styles/card-detail.css?raw"
 import {
   EASE_ENTER,
   EASE_LEAVE,
@@ -337,7 +338,7 @@ describe("attachTilt", () => {
     expect(card.dataset.tilt).toBeUndefined()
   })
 
-  it("swallows a finger's link menu while it tilts, and lets the mouse's through", () => {
+  it("swallows a finger's menu while it tilts, and lets the mouse's through", () => {
     const { card } = attach()
     const menu = () => {
       const event = new Event("contextmenu", { cancelable: true })
@@ -381,6 +382,14 @@ describe("attachTilt", () => {
     expect(card).toContain("-webkit-touch-callout: none")
     expect(cardStylesheet.match(/^\s*user-select: none;/gm)).toHaveLength(1)
     expect(cardStylesheet.match(/^\s*-webkit-touch-callout: none;/gm)).toHaveLength(1)
+  })
+
+  it("disables the touch callout on links that wrap a card", () => {
+    expect(detailStylesheet).toContain(".card-link:has(> .card)")
+    const blocks = detailStylesheet.match(/\.card-link[^{]*\{[^}]*\}/g) ?? []
+    const calloutBlocks = blocks.filter((block) => block.includes("-webkit-touch-callout"))
+    expect(calloutBlocks.length).toBeGreaterThan(0)
+    for (const block of calloutBlocks) expect(block).toContain(":has(> .card)")
   })
 
   it("undoes everything when detached, listeners included", () => {

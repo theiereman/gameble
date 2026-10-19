@@ -470,6 +470,11 @@
   vertical-align: top;
 }
 
+/* iOS Safari decides a card's long-press menu at touch start. */
+.card-link:has(> .card) {
+  -webkit-touch-callout: none;
+}
+
 /* ---- For a visitor, below the detail and as wide, centred: the
    invitation to play ---- */
 
