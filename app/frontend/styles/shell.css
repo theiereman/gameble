@@ -591,10 +591,11 @@ body:has(> .ticker) .app-version {
 
 .ticker__inner {
   display: flex;
-  max-width: var(--space-content-max);
   height: var(--space-ticker-height);
-  margin: 0 auto;
-  padding: 0 var(--space-gutter-desktop);
+}
+
+.ticker .live-marker__dot {
+  background: var(--color-live-red);
 }
 
 .ticker .live-marker {
@@ -1352,6 +1353,7 @@ html[data-sub-view-step] .main {
   .ticker__inner {
     max-width: var(--space-phone-column-max);
     height: var(--space-ticker-height-phone);
+    margin: 0 auto;
     padding: 0 var(--space-gutter-phone);
   }
 

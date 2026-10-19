@@ -23,6 +23,7 @@ colors:
   accent-hi: '#b5e2ff'
   accent-press: '#8fd3ff'
   on-accent: '#0b1520'
+  live-red: '#b3001b'
   text: '#c7d5e0'
   text-bright: '#e6eef5'
   text-max: '#ffffff'
@@ -478,6 +479,7 @@ components:
     height: '{spacing.ticker-height}'
     background: '{colors.steam-bar}'
     label: '{colors.accent}'
+    live-square: '{colors.live-red}'
   tab-bar:
     height: '{spacing.tabbar-height}'
     background: '{colors.steam-bar}'
@@ -552,6 +554,7 @@ Dark only. Text reaches a contrast ratio of at least 4.5:1, and interface bounda
 - **Gold (`{colors.gold}`)** belongs to the Légendaire tier, the "PREMIÈRE DÉCOUVERTE" chip, the quantity badge and the "DERNIÈRE OBTENTION" kicker. It is never a general accent. The phone's Légendaire caption plate sits on `{colors.plate-legendaire}`.
 - **Orange (`{colors.alert}`)** is for alerts only: a trade waiting for the player (badge text `{colors.on-alert}`), the armed canister, expiry, "RÉSERVE PLEINE", report and delete, inline errors.
 - **Danger:** `{colors.danger-bg}` with `{colors.danger-text}`, turning orange on hover; only for deleting the account.
+- **Live red (`{colors.live-red}`)** is only the blinking square of the LIVE ticker's marker, on the accent fill (3.5:1) (author, 2026-10-12).
 
 ### Rarity
 
@@ -593,7 +596,7 @@ The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 - **Gutters:** `{spacing.gutter-desktop}` from 1180px, `{spacing.gutter-medium}` from 720 to 1179px (the inline part of `{spacing.page-padding-medium}`), `{spacing.gutter-phone}` on the phone. The top bar's contents take the same gutter as the page at every width, so they line up with the page's edges (author, 2026-10-19). Panels pad `{spacing.panel-padding}`.
 - **Capsule opening at the top (author, 2026-10-07):** the opening starts at the top of the page like every other screen, with more room between its components; its hazard stripe is the first thing on screen, and nothing is resized. This replaces the earlier vertical centring, which made the stripe look misplaced.
 - **No scaling, anywhere.** The page never shrinks or grows to fit the window: every element keeps its size. A short window scrolls the page vertically, and the top bar and LIVE ticker scroll with it (they are not fixed). A narrower window reflows by width breakpoints. The capsule stage is not scaled either.
-- **Width:** content (and the top bar's contents) is capped at `{spacing.content-max}` and centered; the ground, star field, top bar and ticker backgrounds run full width. The exact cap is 1280px; the decision is "below 1440px". Tablets follow the same width rules.
+- **Width:** content (and the top bar's contents) is capped at `{spacing.content-max}` and centered; the ground, star field, top bar and ticker backgrounds run full width. The LIVE ticker's contents do too, from 720px: its marker against the window's left edge, its scrolling line out to the right edge (author, 2026-10-12). The exact cap is 1280px; the decision is "below 1440px". Tablets follow the same width rules.
 - **Breakpoints** (CSS px of the viewport, so browser zoom reaches them):
 
 | Width | Layout | Page padding, column gap |
@@ -674,7 +677,7 @@ Building blocks used on every screen.
 - **Thin progress bar:** 5 or 6px, accent fill on a track with a `{colors.line-deep}` edge (set progress, daily countdown); achievement tiles use a 4px `{colors.line-deep}` fill.
 - **Status light:** an 8px square lit steadily: blue at rest, orange when armed, gold during a Légendaire, lime when done; always with its state word ("SCELLÉE", "ARMEMENT", "ÉJECTION", "INVENTAIRE", "SIGNAL LÉGENDAIRE", "INVENTAIRE COMPLET", "EN ATTENTE").
 - **Kicker:** a small accent JetBrains Mono bold title with letter spacing ("PONT DE COMMANDEMENT") and a JetBrains Mono subtitle.
-- **LIVE marker:** "LIVE" on an accent block with a dark square that blinks once per second, the only blinking element.
+- **LIVE marker:** "LIVE" on an accent block with a square that blinks once per second, the only blinking element. The square is dark (`{colors.on-accent}`), except in the LIVE ticker, where it is `{colors.live-red}` (author, 2026-10-12).
 
 #### Focus ring
 
@@ -952,7 +955,7 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Fil d'activité
 
 - **Feed tabs:** two segmented tabs, "TOUS" and "AMIS", above the filter chips (`{typography.label}`, selected filled accent), the same control as the filter group.
 - **Feed entry:** a row on `{colors.panel}` (at least 68px tall): time in muted JetBrains Mono, one or two avatars, a JetBrains Mono sentence with names and titles in white, one or two pixel thumbnails framed in the rarity color, and a right-aligned tag (rarity icon and name, or "⇄ ÉCHANGE"). A first discovery carries a gold "PREMIÈRE DÉCOUVERTE" chip. A set tier entry names the player, the set and the tier, with the tier's name and mark (a rank mark at 1px per pixel in `{colors.text-bright}`, or an earlier season's notches in its colour) and no thumbnail; a completed set carries the COMPLET stamp. The tiers and completions one opening reaches make one entry, "Léa atteint 4 paliers · Metroidvania ADEPTE", marked with the highest one. A repost entry carries a "REPOST" tag in `{colors.accent}` with the card's thumbnail framed in its rarity color. Lower-tier entries added to fill a quiet feed sit on `{colors.panel-sunken}`, never dimmed by opacity. No Brotherhood line on this screen.
-- **LIVE ticker:** a band on `{colors.steam-bar}` along the bottom of the hub: the LIVE marker on the left, then a JetBrains Mono line scrolling right to left, items separated by a pixel "◆", rarity names in their color.
+- **LIVE ticker:** a band on `{colors.steam-bar}` along the bottom of the hub: the LIVE marker on the left (against the window's edge from 720px, with its red square), then a JetBrains Mono line scrolling right to left, items separated by a pixel "◆", rarity names in their color.
 
 #### Achievements
 

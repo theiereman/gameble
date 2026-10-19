@@ -11,6 +11,7 @@ class HubTest < ApplicationSystemTestCase
   include SteamSignIn
 
   PHONES = { "390" => [ 390, 844 ], "360" => [ 360, 740 ] }.freeze
+  LIVE_RED = "rgb(179, 0, 27)".freeze
 
   setup do
     @player = accounts_players(:player)
@@ -68,6 +69,8 @@ class HubTest < ApplicationSystemTestCase
 
   def page_bottom = page.evaluate_script("document.documentElement.scrollHeight - window.scrollY")
 
+  def live_square_colour = page.evaluate_script("getComputedStyle(document.querySelector('#live-ticker .live-marker__dot')).backgroundColor")
+
   test "on a desktop, the LIVE ticker is a full-width band along the bottom of the hub, under its columns" do
     create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
     sign_in
@@ -80,7 +83,12 @@ class HubTest < ApplicationSystemTestCase
       assert_operator rect(column)[:bottom], :<=, ticker[:top], "#{column} should sit above the ticker"
     end
     assert_equal 0, ticker[:left]
-    assert_in_delta page.evaluate_script("document.documentElement.clientWidth"), ticker[:width], 1
+    window_width = page.evaluate_script("document.documentElement.clientWidth")
+    assert_in_delta window_width, ticker[:width], 1
+    assert_equal 0, rect("#live-ticker .live-marker")[:left], "the LIVE marker should sit on the window's left edge"
+    scroller = rect("#live-ticker .ticker__window")
+    assert_in_delta window_width, scroller[:left] + scroller[:width], 1, "the scrolling line should reach the window's right edge"
+    assert_equal LIVE_RED, live_square_colour
 
     scroll_to_end
     ticker = rect("#live-ticker")
@@ -100,6 +108,8 @@ class HubTest < ApplicationSystemTestCase
     assert_selector ".hub-sets .set-row"
     assert_selector "#live-ticker .ticker__inner"
     assert_operator rect(".hub-sets")[:bottom], :<=, rect("#live-ticker")[:top]
+    assert_equal 20, rect("#live-ticker .live-marker")[:left], "the phone ticker should keep its gutter"
+    assert_equal LIVE_RED, live_square_colour
 
     scroll_to_end
     ticker = rect("#live-ticker")
