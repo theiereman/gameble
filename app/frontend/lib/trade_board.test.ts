@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest"
+import type { Rarity } from "./card_types"
 import {
+  CHIPS,
+  EMPTY_FILTER,
   columnsOf,
   filterCards,
+  filtering,
   gridMove,
   initialLines,
   remove,
@@ -11,7 +15,9 @@ import {
   sideCount,
   stepperKey,
   toggle,
+  toggled,
   type Line,
+  type SideFilter,
 } from "./trade_board"
 
 const lines = (...pairs: [string, number][]): Line[] => pairs.map(([key, quantity]) => ({ key, quantity }))
@@ -120,36 +126,108 @@ describe("columnsOf", () => {
 })
 
 describe("filterCards", () => {
+  const card = (key: string, title: string, rarity: Rarity, copies = 1, otherCopies = 0, max = 1) => ({
+    key,
+    title,
+    rarity,
+    copies,
+    otherCopies,
+    max,
+  })
   const cards = [
-    { key: "a", title: "Café Owner", rarity: "common" as const },
-    { key: "b", title: "Portal", rarity: "rare" as const },
-    { key: "c", title: "Portal 2", rarity: "legendary" as const },
-    { key: "d", title: "Hades", rarity: "rare" as const },
+    card("a", "Café Owner", "common"),
+    card("b", "Portal", "rare"),
+    card("c", "Portal 2", "legendary"),
+    card("d", "Hades", "rare"),
   ]
-  const keys = (list: { key: string }[]) => list.map((card) => card.key)
+  const keys = (list: { key: string }[]) => list.map((each) => each.key)
+  const by = (filter: Partial<SideFilter>) => ({ ...EMPTY_FILTER, ...filter })
 
   it("keeps every card, in order, without a filter", () => {
-    expect(keys(filterCards(cards, "", []))).toEqual(["a", "b", "c", "d"])
-    expect(keys(filterCards(cards, "   ", []))).toEqual(["a", "b", "c", "d"])
+    expect(keys(filterCards(cards, EMPTY_FILTER))).toEqual(["a", "b", "c", "d"])
+    expect(keys(filterCards(cards, by({ query: "   " })))).toEqual(["a", "b", "c", "d"])
   })
 
   it("matches part of a title whatever the case or accent", () => {
-    expect(keys(filterCards(cards, "PORT", []))).toEqual(["b", "c"])
-    expect(keys(filterCards(cards, "cafe", []))).toEqual(["a"])
-    expect(keys(filterCards(cards, "café", []))).toEqual(["a"])
+    expect(keys(filterCards(cards, by({ query: "PORT" })))).toEqual(["b", "c"])
+    expect(keys(filterCards(cards, by({ query: "cafe" })))).toEqual(["a"])
+    expect(keys(filterCards(cards, by({ query: "café" })))).toEqual(["a"])
   })
 
   it("matches any of the chosen rarities", () => {
-    expect(keys(filterCards(cards, "", ["rare"]))).toEqual(["b", "d"])
-    expect(keys(filterCards(cards, "", ["common", "legendary"]))).toEqual(["a", "c"])
+    expect(keys(filterCards(cards, by({ rarities: ["rare"] })))).toEqual(["b", "d"])
+    expect(keys(filterCards(cards, by({ rarities: ["common", "legendary"] })))).toEqual(["a", "c"])
   })
 
   it("requires both the search and a rarity", () => {
-    expect(keys(filterCards(cards, "portal", ["legendary"]))).toEqual(["c"])
+    expect(keys(filterCards(cards, by({ query: "portal", rarities: ["legendary"] })))).toEqual(["c"])
   })
 
   it("returns nothing when no card matches", () => {
-    expect(filterCards(cards, "zelda", [])).toEqual([])
-    expect(filterCards(cards, "hades", ["common"])).toEqual([])
+    expect(filterCards(cards, by({ query: "zelda" }))).toEqual([])
+    expect(filterCards(cards, by({ query: "hades", rarities: ["common"] }))).toEqual([])
+  })
+
+  describe("chips", () => {
+    const friend = [
+      card("one", "Portal", "rare", 1, 0),
+      card("two", "Hades", "epic", 2, 1),
+      card("three", "Celeste", "common", 3, 0),
+      card("hades-s1", "Hades", "rare", 2, 1),
+      card("held-elsewhere", "Inside", "epic", 2, 0),
+      card("legend", "Limbo", "legendary", 4, 0),
+    ]
+
+    it("shows their duplicates: a game held twice or more over every edition", () => {
+      expect(keys(filterCards(friend, by({ chips: ["duplicates"] })))).toEqual(["two", "three", "hades-s1", "held-elsewhere", "legend"])
+    })
+
+    it("shows a game missing from the other collection only when it holds no edition of it", () => {
+      expect(keys(filterCards(friend, by({ chips: ["missing"] })))).toEqual(["one", "three", "held-elsewhere", "legend"])
+    })
+
+    it("shows a game both own when the other collection holds any edition of it", () => {
+      expect(keys(filterCards(friend, by({ chips: ["shared"] })))).toEqual(["two", "hades-s1"])
+    })
+
+    it("shows the available cards, hiding one with every copy reserved", () => {
+      const own = [card("free", "Portal", "rare", 2, 0, 2), card("reserved", "Hades", "rare", 1, 0, 0)]
+      expect(keys(filterCards(own, by({ chips: ["available"] })))).toEqual(["free"])
+    })
+
+    it("requires every chip, any chosen rarity and the search together", () => {
+      const filter = by({ rarities: ["rare", "epic"], chips: ["duplicates", "missing"] })
+      expect(keys(filterCards(friend, filter))).toEqual(["held-elsewhere"])
+      expect(keys(filterCards(friend, { ...filter, query: "hades" }))).toEqual([])
+      expect(keys(filterCards(friend, by({ query: "hades", chips: ["duplicates", "shared"] })))).toEqual(["two", "hades-s1"])
+    })
+
+    it("shows no card for contradicting chips", () => {
+      expect(filterCards(friend, by({ chips: ["missing", "shared"] }))).toEqual([])
+    })
+  })
+})
+
+describe("filtering", () => {
+  it("is on once a search, a rarity or a chip is chosen", () => {
+    expect(filtering(EMPTY_FILTER)).toBe(false)
+    expect(filtering({ ...EMPTY_FILTER, query: "  " })).toBe(false)
+    expect(filtering({ ...EMPTY_FILTER, query: "hades" })).toBe(true)
+    expect(filtering({ ...EMPTY_FILTER, rarities: ["rare"] })).toBe(true)
+    expect(filtering({ ...EMPTY_FILTER, chips: ["available"] })).toBe(true)
+  })
+})
+
+describe("CHIPS", () => {
+  it("offers each side its own three chips", () => {
+    expect(CHIPS.friend).toEqual(["duplicates", "missing", "shared"])
+    expect(CHIPS.own).toEqual(["duplicates", "missing", "available"])
+  })
+})
+
+describe("toggled", () => {
+  it("adds a missing value and removes a present one", () => {
+    expect(toggled(["rare"], "epic")).toEqual(["rare", "epic"])
+    expect(toggled(["rare", "epic"], "rare")).toEqual(["epic"])
   })
 })

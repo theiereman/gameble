@@ -439,10 +439,10 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ { "key" => "blue-depths--s1", "quantity" => 1 } ], friend.fetch("lines")
     assert_equal [ { "key" => "portal--s1", "quantity" => 2 } ], own.fetch("lines")
 
-    assert_equal [ [ "tin-soldier--s1", 1, 0, 1 ], [ "portal--s1", 3, 1, 2 ] ],
-      own.fetch("cards").map { it.values_at("key", "owned", "reserved", "max") }
-    assert_equal [ [ "tin-soldier--s1", 3, 0, 3 ], [ "blue-depths--s1", 2, 0, 2 ] ],
-      friend.fetch("cards").map { it.values_at("key", "owned", "reserved", "max") }
+    assert_equal [ [ "tin-soldier--s1", 1, 0, 1, 1, 3 ], [ "portal--s1", 3, 1, 2, 3, 0 ] ],
+      own.fetch("cards").map { it.values_at("key", "owned", "reserved", "max", "copies", "otherCopies") }
+    assert_equal [ [ "tin-soldier--s1", 3, 0, 3, 3, 1 ], [ "blue-depths--s1", 2, 0, 2, 2, 0 ] ],
+      friend.fetch("cards").map { it.values_at("key", "owned", "reserved", "max", "copies", "otherCopies") }
     face = own.fetch("cards").last.fetch("face")
     assert_includes face, "card--s"
     assert_includes face, "Portal"
@@ -584,6 +584,35 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ nil, "Laissez ce côté vide : Lea choisira ce qui lui plaît en retour." ], [ friend.fetch("help"), own.fetch("help") ]
     assert_equal [ "blue-depths--s1" ], friend.fetch("cards").map { it.fetch("key") }
     assert_equal [ [ "tin-soldier--s1", 0 ], [ "portal--s1", 3 ] ], own.fetch("cards").map { it.values_at("key", "max") }
+  end
+
+  def second_edition(card_season_id)
+    season = Catalog::Season.find_by(number: 2) || Catalog::Season.create!(status: :published, number: 2, published_at: Time.current)
+    one = Catalog::CardSeason.find(card_season_id)
+    Catalog::CardSeason.insert_all!([ { card_id: one.card_id, season_id: season.id, prestige_score: one.prestige_score, rating: one.rating,
+      rarity: one.rarity, number: one.number } ], returning: :id).rows.flatten.sole
+  end
+
+  test "each card of a draft carries both players' copies of its game, over every edition" do
+    hold(@bob, @soldier, 1)
+    hold(@bob, second_edition(@soldier), 1)
+    hold(@bob, second_edition(@portal), 1)
+    sign_in @alice
+
+    get new_trade_path(locale: :fr, friend: @bob.token)
+
+    props = island_props
+    friend, own = props.fetch("sides")
+    assert_equal [ [ "tin-soldier--s1", 1, 2, 1 ], [ "blue-depths--s1", 2, 2, 0 ], [ "tin-soldier--s2", 1, 2, 1 ], [ "portal--s2", 1, 1, 3 ] ],
+      friend.fetch("cards").map { it.values_at("key", "owned", "copies", "otherCopies") }
+    assert_equal [ [ "tin-soldier--s1", 1, 1, 2 ], [ "portal--s1", 3, 3, 1 ] ],
+      own.fetch("cards").map { it.values_at("key", "owned", "copies", "otherCopies") }
+    assert_equal({ "duplicates" => "Ses doublons", "missing" => "Absentes de ma collection", "shared" => "En commun" },
+      props.dig("strings", "chips", "friend"))
+    assert_equal({ "duplicates" => "Mes doublons", "missing" => "Absentes de sa collection", "available" => "Disponibles" },
+      props.dig("strings", "chips", "own"))
+    assert_equal "Collections", props.dig("strings", "compareLegend")
+    assert_no_match(/"id"|card_season_id/, props.to_json)
   end
 
   test "a draft is only for a friend the player may trade with" do

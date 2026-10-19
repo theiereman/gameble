@@ -3,7 +3,17 @@ import { flushSync } from "react-dom"
 import { dispatchGameble, onGameble } from "../lib/events"
 import { t, type Template } from "../lib/i18n"
 import type { Rarity } from "../lib/card_types"
-import { MAX_CARDS, initialLines, remove, setQuantity, showsOpenHelp, sideCount, type Line } from "../lib/trade_board"
+import {
+  MAX_CARDS,
+  initialLines,
+  remove,
+  setQuantity,
+  showsOpenHelp,
+  sideCount,
+  type ChipLabels,
+  type Line,
+  type Side,
+} from "../lib/trade_board"
 import { forgetDraft, readDraft, sameLines, saveDraft, type DraftSides } from "../lib/trade_draft"
 import QuantityStepper from "./QuantityStepper"
 import TradePicker from "./TradePicker"
@@ -15,11 +25,13 @@ export type TradeCard = {
   owned: number
   reserved: number
   max: number
+  copies: number
+  otherCopies: number
   face: string
 }
 
 export type TradeSideData = {
-  side: "friend" | "own"
+  side: Side
   field: "take" | "give"
   label: string
   readHtml: string | null
@@ -65,6 +77,8 @@ export type TradeBoardStrings = {
   searchPlaceholder: string
   raritiesLegend: string
   rarities: Record<Rarity, string>
+  compareLegend: string
+  chips: ChipLabels
   clearFilters: string
   noMatch: string
   results: Template

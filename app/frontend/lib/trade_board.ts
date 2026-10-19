@@ -3,6 +3,8 @@ import type { TradeChangedDetail } from "./events"
 
 export type Line = { key: string; quantity: number }
 
+export type Side = "friend" | "own"
+
 export type SideCount = { cards: number; copies: number }
 
 export const MAX_CARDS = 4
@@ -46,7 +48,7 @@ export function sendable({ take }: TradeChangedDetail): boolean {
   return take.cards > 0
 }
 
-export function showsOpenHelp(side: "friend" | "own", lines: readonly Line[]): boolean {
+export function showsOpenHelp(side: Side, lines: readonly Line[]): boolean {
   return side === "own" && lines.length === 0
 }
 
@@ -107,14 +109,44 @@ function fold(text: string): string {
   return text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().trim()
 }
 
-/** The cards whose title holds the query (any case or accent) and whose rarity is one of `rarities`, when any; server order kept. */
-export function filterCards<Card extends { title: string; rarity: Rarity }>(
-  cards: readonly Card[],
-  query: string,
-  rarities: readonly Rarity[],
-): Card[] {
+export const CHIPS = {
+  friend: ["duplicates", "missing", "shared"],
+  own: ["duplicates", "missing", "available"],
+} as const satisfies Record<Side, readonly string[]>
+
+export type Chip = (typeof CHIPS)[Side][number]
+
+export type ChipLabels = { [S in Side]: Record<(typeof CHIPS)[S][number], string> }
+
+export type FilterableCard = { title: string; rarity: Rarity; copies: number; otherCopies: number; max: number }
+
+const CHIP_MATCHES: Record<Chip, (card: FilterableCard) => boolean> = {
+  duplicates: (card) => card.copies >= 2,
+  missing: (card) => card.otherCopies === 0,
+  shared: (card) => card.otherCopies > 0,
+  available: (card) => card.max >= 1,
+}
+
+export type SideFilter = { query: string; rarities: readonly Rarity[]; chips: readonly Chip[] }
+
+export const EMPTY_FILTER: SideFilter = { query: "", rarities: [], chips: [] }
+
+export function filtering({ query, rarities, chips }: SideFilter): boolean {
+  return query.trim() !== "" || rarities.length > 0 || chips.length > 0
+}
+
+export function toggled<Value>(values: readonly Value[], value: Value): Value[] {
+  return values.includes(value) ? values.filter((current) => current !== value) : [...values, value]
+}
+
+export function filterCards<Card extends FilterableCard>(cards: readonly Card[], { query, rarities, chips }: SideFilter): Card[] {
   const needle = fold(query)
-  return cards.filter((card) => (rarities.length === 0 || rarities.includes(card.rarity)) && fold(card.title).includes(needle))
+  return cards.filter(
+    (card) =>
+      (rarities.length === 0 || rarities.includes(card.rarity)) &&
+      chips.every((chip) => CHIP_MATCHES[chip](card)) &&
+      fold(card.title).includes(needle),
+  )
 }
 
 function clamp(value: number, min: number, max: number): number {

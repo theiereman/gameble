@@ -1,7 +1,21 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import { t } from "../lib/i18n"
-import { RARITIES, type Rarity } from "../lib/card_types"
-import { columnsOf, filterCards, gridMove, toggle, setQuantity, sideCount, type Line } from "../lib/trade_board"
+import { RARITIES } from "../lib/card_types"
+import {
+  CHIPS,
+  EMPTY_FILTER,
+  columnsOf,
+  filterCards,
+  filtering,
+  gridMove,
+  toggle,
+  toggled,
+  setQuantity,
+  sideCount,
+  type Chip,
+  type Line,
+  type SideFilter,
+} from "../lib/trade_board"
 import QuantityStepper from "./QuantityStepper"
 import type { TradeBoardStrings, TradeSideData } from "./TradeBoard"
 
@@ -21,8 +35,7 @@ export default function TradePicker({ side, lines, strings, closeIcon, onPlace, 
   const [selection, setSelection] = useState<Line[]>(lines)
   const [refused, setRefused] = useState(false)
   const search = useRef<HTMLInputElement>(null)
-  const [query, setQuery] = useState("")
-  const [rarities, setRarities] = useState<Rarity[]>([])
+  const [filter, setFilter] = useState<SideFilter>(EMPTY_FILTER)
   const [activeKey, setActiveKey] = useState<string | null>(() => (lines.length > 0 ? lines[0].key : null))
   const closed = useRef(onClose)
   closed.current = onClose
@@ -46,17 +59,13 @@ export default function TradePicker({ side, lines, strings, closeIcon, onPlace, 
     if (dialog.current?.open) dialog.current.close()
   }
 
-  const visible = useMemo(() => filterCards(side.cards, query, rarities), [side.cards, query, rarities])
-  const filtering = query.trim() !== "" || rarities.length > 0
+  const visible = useMemo(() => filterCards(side.cards, filter), [side.cards, filter])
+  const chipLabels: Partial<Record<Chip, string>> = strings.chips[side.side]
   const found = activeKey === null ? -1 : visible.findIndex((card) => card.key === activeKey)
   const active = Math.max(0, found)
 
-  const toggleRarity = (rarity: Rarity) =>
-    setRarities((current) => (current.includes(rarity) ? current.filter((value) => value !== rarity) : [...current, rarity]))
-
   const clearFilters = () => {
-    setQuery("")
-    setRarities([])
+    setFilter(EMPTY_FILTER)
     search.current?.focus()
   }
 
@@ -116,10 +125,13 @@ export default function TradePicker({ side, lines, strings, closeIcon, onPlace, 
               id="trade-picker-search"
               type="search"
               className="filters__search-field"
-              value={query}
+              value={filter.query}
               autoComplete="off"
               placeholder={strings.searchPlaceholder}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => {
+                const query = event.target.value
+                setFilter((current) => ({ ...current, query }))
+              }}
             />
             <fieldset className="filters__group trade-picker__rarities">
               <legend className="filters__legend">{strings.raritiesLegend}</legend>
@@ -128,10 +140,24 @@ export default function TradePicker({ side, lines, strings, closeIcon, onPlace, 
                   <input
                     type="checkbox"
                     className="filter-chip__box"
-                    checked={rarities.includes(rarity)}
-                    onChange={() => toggleRarity(rarity)}
+                    checked={filter.rarities.includes(rarity)}
+                    onChange={() => setFilter((current) => ({ ...current, rarities: toggled(current.rarities, rarity) }))}
                   />
                   <span className="filter-chip__text">{strings.rarities[rarity]}</span>
+                </label>
+              ))}
+            </fieldset>
+            <fieldset className="filters__group trade-picker__compare">
+              <legend className="filters__legend">{strings.compareLegend}</legend>
+              {CHIPS[side.side].map((chip) => (
+                <label key={chip} className="filter-chip">
+                  <input
+                    type="checkbox"
+                    className="filter-chip__box"
+                    checked={filter.chips.includes(chip)}
+                    onChange={() => setFilter((current) => ({ ...current, chips: toggled(current.chips, chip) }))}
+                  />
+                  <span className="filter-chip__text">{chipLabels[chip]}</span>
                 </label>
               ))}
             </fieldset>
@@ -139,7 +165,7 @@ export default function TradePicker({ side, lines, strings, closeIcon, onPlace, 
               <p className="trade-picker__results" aria-live="polite">
                 {t(strings.results, { count: visible.length })}
               </p>
-              {filtering && (
+              {filtering(filter) && (
                 <button type="button" className="filters__clear trade-picker__clear" onClick={clearFilters}>
                   {strings.clearFilters}
                 </button>

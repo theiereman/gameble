@@ -1219,6 +1219,16 @@ en:
         search_label: "Search by title"
         search_placeholder: "Search a title"
         rarities_legend: "Rarity"
+        compare_legend: "Collections"
+        chips:
+          friend:
+            duplicates: "Their duplicates"
+            missing: "Missing from mine"
+            shared: "We both own"
+          own:
+            duplicates: "My duplicates"
+            missing: "Missing from theirs"
+            available: "Available"
         clear_filters: "Clear filters"
         no_match: "No card matches these filters. Clear them to see every card again."
         results:

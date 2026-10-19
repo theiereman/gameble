@@ -1267,6 +1267,16 @@ fr:
         search_label: "Rechercher par titre"
         search_placeholder: "Rechercher un titre"
         rarities_legend: "Rareté"
+        compare_legend: "Collections"
+        chips:
+          friend:
+            duplicates: "Ses doublons"
+            missing: "Absentes de ma collection"
+            shared: "En commun"
+          own:
+            duplicates: "Mes doublons"
+            missing: "Absentes de sa collection"
+            available: "Disponibles"
         clear_filters: "Effacer les filtres"
         no_match: "Aucune carte ne correspond à ces filtres. Effacez-les pour revoir toutes les cartes."
         results:
