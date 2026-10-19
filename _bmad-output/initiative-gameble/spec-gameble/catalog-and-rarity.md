@@ -71,15 +71,15 @@ Every card belongs to at least one set; a card can belong to several. A set exis
 | Distinct cards | Tiers before completion | Then |
 |---|---|---|
 | 3–4 | none | complete (100 %) |
-| 5–9 | Novice 50 % | complete |
-| 10–19 | Novice ⅓, Apprentice ⅔ | complete |
-| 20–59 | Novice 25 %, Apprentice 50 %, Adept 75 % | complete |
-| 60–199 | Novice 10 %, Apprentice 25 %, Adept 50 %, Expert 75 % | complete |
+| 5–9 | Master 50 % | complete |
+| 10–19 | Expert ⅓, Master ⅔ | complete |
+| 20–59 | Adept 25 %, Expert 50 %, Master 75 % | complete |
+| 60–199 | Apprentice 10 %, Adept 25 %, Expert 50 %, Master 75 % | complete |
 | 200 and more | Novice 10 %, Apprentice 25 %, Adept 50 %, Expert 75 %, Master 90 % | complete |
 
-The tiers before completion are named by rank, in order: Novice, Apprentice, Adept, Expert, Master (French: Novice, Apprenti, Adepte, Expert, Maître; author, 2026-10-19). Each tier needs that share of the set's distinct cards, rounded up. A tier's name gives its rank in its set, not a share: Adept is 75 % of a 30-card set and 50 % of a 100-card one. At the published odds, completing a large set needs every Légendaire of it, which packs alone never give. Seasons published before 2026-10-18 keep their bronze, silver, gold and complete tiers.
+The tiers before completion are named by rank, Novice, Apprentice, Adept, Expert, Master (French: Novice, Apprenti, Adepte, Expert, Maître; author, 2026-10-19), counted from the top: the last tier before completion is always Master, and a set with fewer tiers drops ranks from Novice up (author, 2026-10-19). Each tier needs that share of the set's distinct cards, rounded up. A tier's name gives its rank, not a share: Master is 50 % of a 7-card set and 90 % of a 250-card one. At the published odds, completing a large set needs every Légendaire of it, which packs alone never give. Seasons published before 2026-10-18 keep their bronze, silver, gold and complete tiers.
 
-**Rewards.** Every tier: a celebration at opening and a feed line. A theme or hall of fame set's first tier at or above 50 % of its cards (its back tier: Adept from 60 cards, Apprentice from 20 to 59, Apprentice ⅔ from 10 to 19, Novice from 5 to 9, completion below; gold in earlier seasons) also unlocks that set's card back. Complete: also a "complete" stamp on the album. The tiers and completions one opening reaches make one feed line, naming the highest, ranked by the share of its set the tier stands for. Profile titles and menu themes: CAP-22 of the spec.
+**Rewards.** Every tier: a celebration at opening and a feed line. A theme or hall of fame set's first tier at or above 50 % of its cards (its back tier: Adept from 200 cards, Expert from 20 to 199, Master from 5 to 19, completion below; gold in earlier seasons) also unlocks that set's card back. Complete: also a "complete" stamp on the album. The tiers and completions one opening reaches make one feed line, naming the highest, ranked by the share of its set the tier stands for. Profile titles and menu themes: CAP-22 of the spec.
 
 Tomes, publisher sets and "best rated of the year" sets are retired.
 

@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rank marks</title>
+<style>
+/* =====================================================================
+   gameble — set celebration banner, reference mock (approved 2026-10-17: "M1 · Jauge puis ruban").
+   Governing sections: DESIGN.md Screens > Set celebration; EXPERIENCE.md Copy deck, Capsule > Set celebration,
+   Motion, Accessibility Floor. The spines win on conflict.
+   Fonts: the app's own woff2 files, loaded from the repo by relative path (nothing from the network).
+   ===================================================================== */
+@font-face{font-family:'VT323';font-weight:400;font-display:swap;
+  src:local('VT323'),url('../../../../app/frontend/fonts/vt323-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Space Mono';font-weight:400;font-display:swap;
+  src:local('Space Mono'),url('../../../../app/frontend/fonts/space-mono-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Space Mono';font-weight:700;font-display:swap;
+  src:local('Space Mono Bold'),url('../../../../app/frontend/fonts/space-mono-latin-700-normal.woff2') format('woff2')}
+
+:root{
+  --backdrop:#05070a;   /* backdrop */
+  --ground:#0b0f15;     /* ground */
+  --panel:#121a24;      /* panel */
+  --sunken:#0e141b;     /* panel-sunken */
+  --raised:#1b2838;     /* panel-raised */
+  --line:#2a475e;       /* line */
+  --line-soft:#1f3346;  /* line-soft */
+  --line-deep:#2a6f9a;  /* line-deep */
+  --accent:#66c0f4;     /* accent */
+  --on-accent:#0b1520;  /* on-accent */
+  --text:#c7d5e0;       /* text */
+  --text-bright:#e6eef5;/* text-bright */
+  --white:#ffffff;      /* text-max */
+  --muted:#8f98a0;      /* muted */
+  --dim:#5d6b78;        /* dim */
+  --ink:#06090d;        /* outline */
+  --lime:#a4d007;       /* lime */
+  --on-lime:#0f1a03;    /* on-lime */
+  --gold:#f4c542;       /* gold */
+  --on-gold:#120d05;    /* on-gold */
+  --bronze:#c4945e;     /* tier-bronze */
+  --silver:#bcc8d4;     /* tier-silver */
+  --fv:'VT323',monospace;
+  --fs:'Space Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+
+/* Tier palettes. tc = DESIGN token; hi/lo are art shades for sparks and folds only. */
+[data-tier="bronze"]  {--tc:#c4945e;--tc-hi:#ecc896;--tc-lo:#7a5530;--on-tc:#120d05;--tc-a:rgba(196,148,94,.38)}
+[data-tier="silver"]  {--tc:#bcc8d4;--tc-hi:#ffffff;--tc-lo:#6c7a88;--on-tc:#06090d;--tc-a:rgba(188,200,212,.38)}
+[data-tier="gold"]    {--tc:#f4c542;--tc-hi:#fff3c4;--tc-lo:#8f5e0a;--on-tc:#120d05;--tc-a:rgba(244,197,66,.42)}
+[data-tier="complete"]{--tc:#a4d007;--tc-hi:#d8ff9a;--tc-lo:#4e6a00;--on-tc:#0f1a03;--tc-a:rgba(164,208,7,.42)}
+/* The folded line is not a tier: it speaks in accent, its marks carry the tiers. */
+[data-tier="folded"]  {--tc:#66c0f4;--tc-hi:#d2efff;--tc-lo:#2a6f9a;--on-tc:#0b1520;--tc-a:rgba(102,192,244,.38)}
+/* Ranks share one neutral colour (text-bright); the shape carries the rank. hi/lo are art shades. */
+[data-tier="novice"],[data-tier="apprentice"],[data-tier="adept"],[data-tier="expert"],[data-tier="master"]{--tc:#e6eef5;--tc-hi:#ffffff;--tc-lo:#8f98a0;--on-tc:#06090d;--tc-a:rgba(230,238,245,.38)}
+
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--backdrop);color:var(--text);font-family:var(--fs)}
+button{font:inherit}
+code{font-size:11px;color:var(--text-bright)}
+
+/* ---------- presentation sheet (outside the product) ---------- */
+.sheet{max-width:1280px;margin:0 auto;padding:28px 20px 80px}
+.doc-h h1{margin:0 0 8px;font:400 40px/40px var(--fv);color:var(--white);letter-spacing:2px}
+.doc-h p{max-width:940px;margin:0 0 8px;font-size:12px;line-height:19px;color:var(--muted)}
+.doc-h p b{color:var(--text-bright)}
+.controls{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:16px -20px 24px;padding:10px 20px;background:rgba(5,7,10,.94);box-shadow:0 2px 0 var(--line-soft)}
+.tg{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:12px;color:var(--text-bright);cursor:pointer}
+.tg input{width:18px;height:18px;accent-color:#66c0f4}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 14px;border:0;background:var(--line);color:var(--text-bright);font:700 11px/1 var(--fs);letter-spacing:1px;cursor:pointer;box-shadow:inset 0 -3px 0 rgba(0,0,0,.35),0 0 0 2px var(--ink)}
+.btn:hover{background:var(--accent);color:var(--on-accent)}
+.btn:focus-visible,.tg input:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.controls .note{font-size:11px;color:var(--dim)}
+
+.dir{margin:0 0 56px}
+.dir-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;margin-bottom:6px}
+.dir-h h2{margin:0;font:400 34px/34px var(--fv);color:var(--white);letter-spacing:2px}
+.dir-h .pers{font-size:11px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase}
+.dir-h .btn{margin-left:auto}
+.why{max-width:940px;margin:6px 0;font-size:12px;line-height:19px;color:var(--text)}
+.mot{max-width:940px;margin:4px 0;font-size:11px;line-height:17px;color:var(--muted)}
+.mot b{color:var(--text-bright);font-weight:700}
+.ladder{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 16px;padding:0;list-style:none}
+.ladder li{padding:4px 8px;font-size:10px;line-height:14px;letter-spacing:.5px;color:var(--text);background:var(--sunken);box-shadow:inset 0 0 0 2px var(--line-soft)}
+.ladder li b{color:var(--tc);font-weight:700}
+.row{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.cell .kick{display:block;margin:0 0 8px;font-size:10px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase}
+
+/* starfield column, like the capsule screen */
+.field{background-color:var(--backdrop);
+  background-image:
+    radial-gradient(circle,rgba(199,213,224,.85) 0 1px,transparent 1.5px),
+    radial-gradient(circle,rgba(199,213,224,.5) 0 1px,transparent 1.5px),
+    radial-gradient(circle,rgba(199,213,224,.35) 0 1px,transparent 1.5px);
+  background-size:97px 89px,53px 67px,131px 113px;background-position:7px 11px,31px 40px,70px 5px}
+.desk{width:340px;padding:18px 20px 26px;box-shadow:inset 0 0 0 2px var(--line-soft)}
+.desk .rev{margin:0 0 18px;font-size:14px;color:var(--text)}
+.stack{display:flex;flex-direction:column;gap:12px}
+.stack.tall{gap:22px;padding-top:12px}
+
+.phone{width:392px;padding:14px 16px 16px;box-shadow:inset 0 0 0 2px var(--line-soft)}
+.ph-card{position:relative;width:208px;height:58px;margin:0 auto 12px;padding:8px 10px;background:var(--panel);box-shadow:inset 0 0 0 4px #8f98a0,0 0 0 2px var(--ink);display:flex;flex-direction:column;justify-content:flex-end;gap:2px;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 40%);mask-image:linear-gradient(to bottom,transparent 0,#000 40%)}
+.ph-card b{font-size:10px;color:var(--text)}
+.ph-card small{font-size:9px;color:var(--muted)}
+.tray{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px}
+.tray-n{display:flex;flex-direction:column;align-items:center;margin-right:6px;font:400 22px/20px var(--fv);color:var(--white)}
+.tray-n small{font:700 10px/12px var(--fs);letter-spacing:1px;color:var(--accent)}
+.tslot{width:44px;height:60px;background:var(--sunken);box-shadow:inset 0 0 0 2px var(--line);display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px}
+.tslot i{width:8px;height:8px;background:#8f98a0;box-shadow:0 0 0 2px var(--ink)}
+.tslot.pc i{background:#3fcf8e}
+.under{margin:14px 0 8px}
+
+/* ---------- shared atoms ---------- */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.outl{text-shadow:2px 0 0 var(--ink),-2px 0 0 var(--ink),0 2px 0 var(--ink),0 -2px 0 var(--ink)}
+.notches{display:inline-flex;align-items:flex-end;gap:2px;flex:none}
+.notches i{display:block;width:4px;height:8px;background:var(--tc)}
+.notches i:nth-child(2){height:10px}
+.notches i:nth-child(3){height:12px}
+.px-check{display:block;flex:none}
+.px-check rect{fill:currentColor}
+/* the COMPLET stamp's frame, small, statically tilted; the word stays straight in the ribbon */
+.mini-stamp{display:inline-block;flex:none;width:22px;height:14px;vertical-align:middle;transform:rotate(-6deg);box-shadow:inset 0 0 0 3px #a4d007,0 0 0 2px var(--ink)}
+.marks{display:inline-flex;align-items:center;gap:12px;min-height:20px}
+.marks .mk{position:relative;display:inline-flex;align-items:center;min-height:14px}
+.nm{font:700 14px/18px var(--fs);color:var(--white);text-transform:uppercase;overflow-wrap:anywhere}
+.sub{font:400 12px/17px var(--fs);color:var(--text);overflow-wrap:anywhere}
+.sub b{font-weight:700;color:var(--text-bright)}
+
+/* ---------- the result as a link ---------- */
+.res{position:relative;--rd:calc(var(--i,0) * 180ms);animation:fade 120ms steps(3) both;animation-delay:var(--rd)}
+.pan{position:relative;display:block;min-height:60px;padding:var(--pad,12px 34px 12px 16px);background:var(--panel);color:inherit;text-decoration:none;
+  box-shadow:inset 0 0 0 2px var(--line),0 0 0 2px var(--ink)}
+a.link{color:inherit;text-decoration:none}
+.link{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.link:focus{outline:none}
+.link:focus-visible{outline:3px solid #ffffff;outline-offset:3px} /* focus-ring: text-max ring, outline gap */
+.link:hover,.link:focus-visible{background:var(--raised)}
+.main{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0}
+.go{position:absolute;right:10px;top:50%;margin-top:-12px;font:400 24px/24px var(--fv);color:var(--muted);pointer-events:none}
+.go small{font:700 9px/24px var(--fs);letter-spacing:1px;vertical-align:top;margin-right:4px;opacity:0}
+.link:hover .go,.link:focus-visible .go{color:var(--white);transform:translateX(2px)}
+.link:hover .go small,.link:focus-visible .go small{opacity:1}
+/* phone: the plate holds two targets side by side, the link and the 44 x 44 next button */
+.res.ph{width:360px}
+.ph .pan{display:flex;align-items:stretch;padding:0;min-height:60px}
+.ph .main{position:relative;flex:1;padding:var(--pad-ph,10px 30px 10px 16px)}
+.ph .main.link:focus-visible{outline-offset:-5px}
+.alb{position:absolute;right:8px;top:50%;margin-top:-6px;color:var(--muted)}
+.ph .main:hover .alb,.ph .main:focus-visible .alb{color:var(--white)}
+.alb rect{fill:currentColor}
+/* position stacked over the button: a narrow step column leaves the set name room to wrap less */
+.step{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 8px 0 10px;box-shadow:inset 2px 0 0 0 var(--line-soft)}
+.pos{font:400 11px/14px var(--fs);color:var(--muted);white-space:nowrap}
+.next{width:44px;height:44px;border:0;padding:0;background:var(--line);color:var(--text-bright);font:400 26px/44px var(--fv);cursor:pointer;
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.35),0 0 0 2px var(--ink)}
+.next:hover{background:var(--accent);color:var(--on-accent)}
+.next:focus-visible{outline:3px solid #fff;outline-offset:3px}
+
+/* ---------- motion atoms ---------- */
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes xfade{from{opacity:0}to{opacity:1}}
+@keyframes show{from{opacity:0}to{opacity:1}}
+@keyframes unshow{from{opacity:1}to{opacity:0}}
+@keyframes slide-in{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+@keyframes wipe-x{from{clip-path:inset(-4px 100% -4px -4px)}to{clip-path:inset(-4px -4px -4px -4px)}}
+@keyframes wipe-xr{from{clip-path:inset(-4px -4px -4px 100%)}to{clip-path:inset(-4px -4px -4px -4px)}}
+@keyframes blink-once{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+@keyframes spark{0%{opacity:0;transform:translate(0,0)}1%{opacity:1;transform:translate(0,0)}75%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy))}}
+@keyframes pop-s{0%{opacity:0;transform:scale(.4)}1%{opacity:1}60%{transform:scale(1.3)}100%{opacity:1;transform:scale(1)}}
+@keyframes gloss{0%{opacity:0;transform:translateX(-24px) skewX(-24deg)}1%{opacity:1;transform:translateX(-24px) skewX(-24deg)}99%{opacity:1;transform:translateX(300px) skewX(-24deg)}100%{opacity:0;transform:translateX(300px) skewX(-24deg)}}
+
+.sparks{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none;z-index:5}
+.sparks i{position:absolute;left:-2px;top:-2px;width:4px;height:4px;background:var(--tc-hi);box-shadow:0 0 0 2px var(--tc);opacity:0;
+  animation:spark var(--sdur,320ms) steps(6) both;animation-delay:calc(var(--rd,0ms) + var(--sd,0ms) + var(--k) * 25ms)}
+.sparks i:nth-child(3n+2){left:-1px;top:-1px;width:2px;height:2px;box-shadow:none;background:var(--tc)}
+.print{animation:wipe-x 160ms steps(4) both;animation-delay:calc(var(--rd) + var(--pd,400ms))}
+/* plus-shaped glints, gold and complete only */
+.glints{position:absolute;inset:0;pointer-events:none}
+.glints i{position:absolute;width:2px;height:2px;background:#fff;box-shadow:2px 0 #fff,-2px 0 #fff,0 2px #fff,0 -2px #fff;opacity:0;z-index:6;
+  animation:blink-once 240ms steps(4) both;animation-delay:calc(var(--rd) + var(--tgl,600ms))}
+.glints i:nth-child(1){left:-4px;top:-4px}
+.glints i:nth-child(2){right:4px;top:-5px;animation-delay:calc(var(--rd) + var(--tgl,600ms) + 60ms)}
+.glints i:nth-child(3){left:45%;bottom:-5px;animation-delay:calc(var(--rd) + var(--tgl,600ms) + 120ms)}
+.res[data-j="1"] .glints,.res[data-j="2"] .glints{display:none}
+
+/* ---------- the ribbon (from "Ruban"): solid tier fill, ink text, swallowtail ---------- */
+.rw{display:block;animation:wipe-x 200ms steps(8) both;animation-delay:calc(var(--rd) + var(--tw,0ms))}
+.rw.rev{animation-name:wipe-xr}
+.rib{position:relative;display:flex;align-items:center;gap:8px;height:var(--rh,28px);padding:0 24px 0 12px;overflow:hidden;white-space:nowrap;
+  background:var(--tc);color:var(--on-tc);font:400 var(--rf,24px)/var(--rh,28px) var(--fv);letter-spacing:2px;
+  clip-path:polygon(0 0,100% 0,100% 15%,calc(100% - 4px) 15%,calc(100% - 4px) 30%,calc(100% - 8px) 30%,calc(100% - 8px) 70%,calc(100% - 4px) 70%,calc(100% - 4px) 85%,100% 85%,100% 100%,0 100%)}
+.rib.tail-l{padding:0 12px 0 24px;
+  clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 85%,4px 85%,4px 70%,8px 70%,8px 30%,4px 30%,4px 15%,0 15%)}
+.rib .notches i{background:var(--on-tc)}
+.gl{position:absolute;top:-6px;bottom:-6px;left:0;width:8px;background:rgba(255,255,255,.62);box-shadow:12px 0 0 -2px rgba(255,255,255,.3);opacity:0;
+  animation:gloss var(--gd,200ms) steps(8) both;animation-delay:calc(var(--rd) + var(--tw,0ms) + 170ms)}
+.gl.g2{animation-delay:calc(var(--rd) + var(--tw,0ms) + 230ms)}
+.res[data-j="1"] .gl,.res[data-j="2"] .gl.g2{display:none}
+
+/* ---------- the gauge (from "Jauge"): old count in accent, this capsule's share in the tier colour ---------- */
+.gauge{position:relative;display:block;height:var(--gh,8px);background:var(--sunken);box-shadow:0 0 0 2px var(--line-soft)}
+.g-fill{position:absolute;inset:0;transform-origin:left center}
+.g-new{background:var(--tc);transform:scaleX(var(--to));animation:fill-new var(--tf) steps(6) both;animation-delay:calc(var(--rd) + var(--t0))}
+.g-old{background:var(--accent);transform:scaleX(var(--from));animation:fill-old var(--tf) steps(6) both;animation-delay:calc(var(--rd) + var(--t0))}
+@keyframes fill-old{0%{transform:scaleX(0)}45%{transform:scaleX(var(--from))}100%{transform:scaleX(var(--from))}}
+@keyframes fill-new{0%{transform:scaleX(0)}45%{transform:scaleX(var(--from))}100%{transform:scaleX(var(--to))}}
+.g-all{position:absolute;inset:0;background:#a4d007;animation:show 40ms steps(1,end) both;animation-delay:calc(var(--rd) + var(--tx))}
+.g-glow{position:absolute;inset:-4px;background:var(--tc-hi);opacity:0;animation:blink-once 200ms steps(4) both;animation-delay:calc(var(--rd) + var(--tx))}
+.g-end{position:absolute;right:0;top:50%;width:0;height:0}
+.g-end .sparks{--sd:var(--tx)}
+.g-seg{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 6px,rgba(14,20,27,.92) 6px 8px)}
+.g-clip{position:absolute;inset:0;overflow:hidden}
+.g-sweep{position:absolute;top:-4px;bottom:-4px;left:0;width:8px;background:rgba(255,255,255,.7);opacity:0;animation:gloss 220ms steps(8) both;animation-delay:calc(var(--rd) + var(--tx))}
+.g-tick{position:absolute;top:-4px;left:calc(var(--at) * 100%);width:2px;height:calc(var(--gh,8px) + 8px);margin-left:-1px;
+  background:repeating-linear-gradient(to bottom,var(--line-deep) 0 2px,transparent 2px 4px)}
+.g-tick.on{background:var(--tc);transform:translateY(-4px)}
+.g-tick .notches{position:absolute;top:calc(var(--gh,8px) + 12px);left:50%;transform:translateX(-50%)}
+.g-tick .notches i,.g-tick .notches i:nth-child(n){width:4px;height:6px}
+.g-tick:not(.on) .notches i{width:6px;background:transparent;box-shadow:inset 0 0 0 2px var(--line-deep)}
+.g-tick.now{animation:tick-up 100ms steps(2) both;animation-delay:calc(var(--rd) + var(--tx))}
+@keyframes tick-up{from{transform:translateY(0)}to{transform:translateY(-4px)}}
+.g-tick.now::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to bottom,var(--line-deep) 0 2px,var(--panel) 2px 4px);
+  animation:unshow 40ms steps(1,end) both;animation-delay:calc(var(--rd) + var(--tx))}
+.g-tick.now .notches{animation:g-notch 180ms steps(3) both;animation-delay:calc(var(--rd) + var(--tx))}
+@keyframes g-notch{0%{opacity:0;transform:translateX(-50%) scale(.4)}1%{opacity:1}60%{transform:translateX(-50%) scale(1.5)}100%{opacity:1;transform:translateX(-50%) scale(1)}}
+.g-tick .sparks{left:1px;top:2px;--sd:var(--tx)}
+.ph .g-tick .notches{display:none}
+.m-row{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 10px}
+.ph .m-row{justify-content:flex-start}
+.m-name{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 8px;min-width:0}
+.g-ct{font:700 14px/16px var(--fs);color:var(--white);white-space:nowrap}
+.g-ct .total{color:var(--muted);font-weight:400}
+.roll-w{display:inline-block;height:16px;overflow:hidden;vertical-align:bottom}
+.roll{display:flex;flex-direction:column;transform:translateY(-16px);animation:roll 120ms steps(2) both;animation-delay:calc(var(--rd) + var(--tx) - 60ms)}
+.roll b{display:block;height:16px;text-align:right}
+@keyframes roll{from{transform:translateY(0)}to{transform:translateY(-16px)}}
+.mk-pop .mk{animation:pop-s 180ms steps(2,end) both;animation-delay:calc(var(--rd) + var(--tm,0ms))}
+.mk-pop .mk:nth-child(2){animation-delay:calc(var(--rd) + var(--tm,0ms) + 90ms)}
+.mk-pop .mk:nth-child(3){animation-delay:calc(var(--rd) + var(--tm,0ms) + 180ms)}
+.mk-pop .mk:nth-child(4){animation-delay:calc(var(--rd) + var(--tm,0ms) + 270ms)}
+.mk-pop .mk .sparks{--sd:calc(var(--tm,0ms) + 200ms)}
+
+/* =========================== M1 · gauge first, ribbon as the payoff =========================== */
+.pan.M1{--pad:28px 14px 6px 16px;--pad-ph:32px 30px 8px 14px;--t0:80ms;--tf:380ms;--tx:440ms;--tw:470ms;--tgl:560ms;--pd:680ms}
+.M1 .m1-head{position:absolute;left:-8px;top:-12px;z-index:2}
+.ph .M1 .m1-head{left:0;top:6px;--rh:22px;--rf:22px}
+.M1 .m1-fold{position:absolute;left:0;top:28px;width:8px;height:6px;background:var(--tc-lo);clip-path:polygon(0 0,100% 0,100% 100%,50% 100%,50% 50%,0 50%);
+  animation:show 40ms steps(1,end) both;animation-delay:calc(var(--rd) + var(--tw) + 200ms)}
+.ph .M1 .m1-fold{display:none}
+.M1 .m1-head > .sparks{left:100%;top:14px;--sd:calc(var(--tw) + 150ms)}
+.M1 .gauge{margin:10px 0 18px}
+.ph .M1 .gauge{margin:8px 0 6px}
+.m1-hint{position:absolute;right:10px;top:6px;font:700 9px/14px var(--fs);letter-spacing:1px;color:var(--muted)}
+.res[data-tier="folded"] .m1-hint{top:auto;bottom:8px}
+.link:hover .m1-hint,.link:focus-visible .m1-hint{color:var(--white)}
+.M1 .m1-marks{margin-top:2px}
+.M1.link:hover,.M1.link:focus-visible{box-shadow:inset 0 0 0 2px var(--tc),0 0 0 2px var(--ink)}
+.M1.link:hover .m1-head,.M1.link:focus-visible .m1-head{transform:translateY(-2px)}
+/* folded: the four marks pop first, the accent ribbon lands last */
+.res[data-tier="folded"] .pan.M1{--tm:80ms;--tw:420ms;--tgl:500ms;--pad:28px 14px 12px 16px}
+
+/* ---------- reduced motion: the result becomes one 200 ms crossfade ---------- */
+html.rm .demo *,html.rm .demo *::before,html.rm .demo *::after{animation:none!important}
+html.rm .demo .res{animation:xfade 200ms linear both!important}
+@media (prefers-reduced-motion: reduce){
+  .demo *,.demo *::before,.demo *::after{animation:none!important}
+  .demo .res{animation:xfade 200ms linear both!important}
+}
+.stack + .stack{margin-top:12px}
+/* ---------- mock toast (presentation only) ---------- */
+.toast{position:fixed;left:50%;bottom:24px;z-index:50;transform:translateX(-50%);padding:10px 16px;max-width:calc(100% - 32px);background:var(--raised);color:var(--text-bright);
+  font:700 12px/16px var(--fs);box-shadow:inset 0 0 0 2px var(--accent),0 0 0 2px var(--ink);opacity:0;pointer-events:none}
+.toast.on{opacity:1}
+.toast small{display:block;font-weight:400;color:var(--muted)}
+
+@media (max-width:760px){.desk,.phone{width:100%}.res.ph{width:100%}}
+
+/* =========================== rank marks (G1a, 1px grid) =========================== */
+.rmk{display:block;flex:none}
+.rmk rect{fill:currentColor}
+.rib .rmk{color:var(--on-tc)}
+.g-tick .rmk{position:absolute;top:calc(var(--gh,8px) + 8px);left:50%;transform:translateX(-50%);color:var(--line-deep)}
+.g-tick.on .rmk{color:var(--tc);top:calc(var(--gh,8px) + 12px)}
+.g-tick.now .rmk{animation:g-notch 180ms steps(3) both;animation-delay:calc(var(--rd) + var(--tx))}
+.ph .g-tick .rmk{display:none}
+.M1 .gauge{margin:10px 0 21px}
+.r-glow{position:absolute;left:-4px;top:-4px;width:calc(100% + 8px);height:36px;background:var(--tc-hi);opacity:0;z-index:-1;pointer-events:none;
+  animation:blink-once 240ms steps(4) both;animation-delay:calc(var(--rd) + var(--tw) + 200ms)}
+.marks .mk{color:var(--tc)}
+.juice{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 16px;padding:0;list-style:none}
+.juice li{padding:4px 8px;font-size:10px;line-height:14px;color:var(--text);background:var(--sunken);box-shadow:inset 0 0 0 2px var(--line-soft)}
+.juice li b{color:var(--text-bright)}
+.m1-hint.ic{top:9px;right:10px;color:var(--muted)}
+.m1-hint.ic svg rect,.alb rect{fill:currentColor}
+.link:hover .m1-hint.ic,.link:focus-visible .m1-hint.ic{color:var(--white);transform:translateX(2px)}
+/* juice by rank: each step adds one detail to the one below */
+.res[data-j="1"] .gl,.res[data-j="2"] .gl{display:none}
+.res:not([data-j="6"]) .gl.g2{display:none}
+.res[data-j="3"] .glints,.res[data-j="4"] .glints{display:none}
+.m1-hint.ic svg{display:block;position:static;margin:0}
+.cap{display:block;margin:6px 0 0;font-size:10px;line-height:14px;color:var(--dim)}
+
+/* set rows and the simplified album header */
+.rows{display:flex;flex-direction:column;gap:8px;width:560px;max-width:100%}
+.rows.narrow{width:360px}
+.set-row{display:flex;flex-direction:column;gap:10px;padding:12px 16px 28px;background:var(--panel);box-shadow:inset 0 0 0 2px var(--line);text-decoration:none;color:inherit}
+.top{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px;min-width:0}
+.top .nm2{font-weight:700;font-size:14px;color:var(--text-bright)}
+.top .kd{font-size:10px;letter-spacing:1px;color:var(--muted)}
+.top .spc{flex:1}
+.tmark{display:inline-flex;align-items:center;gap:6px;font:700 11px/14px var(--fs);letter-spacing:1px;color:var(--text-bright);align-self:center}
+.top .ct{font:400 24px/20px var(--fv);color:var(--white);white-space:nowrap}
+.top .ct small,.ah .ct small{font-size:.75em;color:var(--muted)}
+.pbar{--bh:6px;position:relative;height:var(--bh)}
+.track{position:absolute;inset:0;background:var(--sunken);box-shadow:0 0 0 2px var(--line-deep)}
+.track i{position:absolute;left:0;top:0;bottom:0;background:var(--accent)}
+.tick{position:absolute;top:-4px;width:2px;height:calc(var(--bh) + 6px);margin-left:-1px;border-left:2px dashed var(--line-deep)}
+.tick.on{top:-6px;height:calc(var(--bh) + 8px);border-left:2px solid var(--text-bright);box-shadow:0 0 0 1px var(--ink)}
+.tick .tk-mark{position:absolute;top:calc(var(--bh) + 8px);left:0;transform:translateX(-50%);color:var(--line-deep)}
+.tick.on .tk-mark{top:calc(var(--bh) + 10px);color:var(--text-bright)}
+.album{width:560px;max-width:100%;padding:16px 18px 30px;background:var(--panel);box-shadow:inset 0 0 0 2px var(--line),0 0 0 2px var(--ink);position:relative}
+.album.narrow{width:360px;padding:14px 14px 30px}
+.album::before,.album::after{content:"";position:absolute;width:10px;height:10px;border:2px solid var(--accent)}
+.album::before{left:6px;top:6px;border-right:0;border-bottom:0}
+.album::after{right:6px;bottom:6px;border-left:0;border-top:0}
+.ah{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px;margin-bottom:14px}
+.ah .t{font:400 30px/32px var(--fv);color:var(--white);letter-spacing:1px}
+.album.narrow .ah .t{font-size:26px;line-height:28px}
+.ah .spc{flex:1}
+.ah .ct{font:400 26px/24px var(--fv);color:var(--white)}
+.album .pbar{--bh:8px}
+.album:not(.done){padding-bottom:44px}
+.tk-fig{position:absolute;top:calc(var(--bh) + 19px);transform:translateX(-50%);font:700 11px/14px var(--fs);color:var(--muted);white-space:nowrap}
+.tk-fig.on{color:var(--text-bright)}
+.stamp{display:inline-block;padding:0 6px;font:400 20px/22px var(--fv);color:var(--lime);box-shadow:inset 0 0 0 3px var(--lime),0 0 0 2px var(--ink);transform:rotate(-6deg);letter-spacing:1px;align-self:center}
+.album.done .pbar .track i{background:var(--lime)}
+.grid2{display:flex;flex-wrap:wrap;gap:20px 28px;align-items:flex-start}
+.ladder2{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 16px}
+.lad{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:110px;padding:12px 10px 10px;background:var(--panel);box-shadow:inset 0 0 0 2px var(--line-soft)}
+.lad .big{display:flex;align-items:flex-end;justify-content:center;height:36px;color:var(--text-bright)}
+.lad .small{display:flex;gap:10px;align-items:flex-end;height:24px}
+.lad .on{color:var(--text-bright)}.lad .off{color:var(--line-deep)}
+.lad b{font:700 11px/14px var(--fs);letter-spacing:1px;color:var(--text-bright)}
+.lad small{font-size:10px;color:var(--muted)}
+body.grey{filter:grayscale(1)}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header class="doc-h">
+    <h1>Rank marks</h1>
+    <p>Reference for ranked set tiers: the rank marks, the set row, the album's tier bar on the simplified header, and the set celebration at every rank. Chosen marks: <b>G1a</b> (author, 2026-10-19) on a 1px grid: Novice, Apprenti, Adepte are 1 to 3 chevrons (9px wide, 2px stroke, stacked every 3px), Expert one 9px star, Maître two 7px stars. One neutral colour (text-bright) for every rank; only COMPLET keeps lime. A mark not yet reached is drawn solid in line-deep.</p>
+    <p>Ranks count <b>from the top</b>: the last tier before completion is always Maître. 5–9 cards: Maître 50 %. 10–19: Expert ⅓, Maître ⅔. 20–59: Adepte 25, Expert 50, Maître 75. 60–199: Apprenti 10, Adepte 25, Expert 50, Maître 75. 200+: Novice 10, Apprenti 25, Adepte 50, Expert 75, Maître 90. The back tier (first at or above half) is Maître, Expert or Adepte, so it always celebrates at gold's level or above. <b>DESIGN.md and EXPERIENCE.md win on conflict.</b></p>
+  </header>
+  <div class="controls">
+    <label class="tg"><input type="checkbox" id="grey"> Greyscale</label>
+    <label class="tg"><input type="checkbox" id="rm"> Reduced motion</label>
+    <button class="btn" type="button" id="replay-all">REJOUER</button>
+  </div>
+
+  <section class="dir">
+    <div class="dir-h"><h2>Marks</h2><span class="pers">×3 · ×2 ribbon · ×1 row, reached then not reached</span></div>
+    <div class="ladder2" data-mount-ladder></div>
+  </section>
+
+  <section class="dir">
+    <div class="dir-h"><h2>Album bar · 1, 3, 5 ticks</h2><span class="pers">simplified header: name and count on one line, the bar below</span></div>
+    <div class="grid2" data-mount-albums="fr"></div>
+    <span class="kick" style="display:block;margin:22px 0 8px">Phone width · English</span>
+    <div class="grid2" data-mount-albums="en"></div>
+  </section>
+
+  <section class="dir">
+    <div class="dir-h"><h2>Set rows</h2><span class="pers">3, 7, 12, 40, 100, 250 cards</span></div>
+    <div class="grid2"><div class="rows" data-mount-rows="fr"></div><div class="rows narrow" data-mount-rows="en"></div></div>
+  </section>
+
+  <section class="dir" id="dir-M1">
+    <div class="dir-h"><h2>Set celebration</h2><span class="pers">juice follows the rank's name</span></div>
+    <ul class="juice">
+      <li><b>1 Novice</b> the gauge fills, the tick lights, the ribbon wipes on</li>
+      <li><b>2 Apprenti</b> + 6 sparks at the tick</li>
+      <li><b>3 Adepte</b> + a gloss sweeps the ribbon</li>
+      <li><b>4 Expert</b> + 8 sparks from the ribbon's end</li>
+      <li><b>5 Maître</b> + three glints at the ribbon's corners</li>
+      <li><b>6 SET COMPLET</b> + lime bar with its glow, a second gloss, the stamp frame, 18 and 14 sparks</li>
+    </ul>
+    <div class="row">
+      <div class="cell"><span class="kick">Novice · back tier (Expert, 40 cards) · complete</span><div class="desk field demo"><p class="rev">Cartes révélées : 5 / 5</p><div class="stack tall" data-mount="A"></div></div></div>
+      <div class="cell"><span class="kick">Apprenti · Adepte · Maître (back tier, 7 cards)</span><div class="desk field demo"><p class="rev">Cartes révélées : 5 / 5</p><div class="stack tall" data-mount="B"></div></div></div>
+      <div class="cell"><span class="kick">More than three results</span><div class="desk field demo"><div class="stack tall" data-mount="F"></div></div></div>
+      <div class="cell"><span class="kick">Phone · result plate</span><div class="phone field demo" data-phone="M1"></div></div>
+      <div class="cell"><span class="kick">English copy</span><div class="desk field demo"><p class="rev">Cards revealed: 5 / 5</p><div class="stack tall" data-mount="AEN"></div><div class="stack tall" data-mount="FEN"></div></div></div>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const SH = {
+  chev: ["....X....","...XXX...","..XX.XX..",".XX...XX.","XX.....XX"],
+  star9: ["....X....","...XXX...","...XXX...","XXXXXXXXX",".XXXXXXX.","..XXXXX..","..XXXXX..",".XXX.XXX.",".XX...XX."],
+  star7: ["...X...","..XXX..","XXXXXXX",".XXXXX.","..XXX..",".XX.XX.",".X...X."],
+}
+function stack(shape, n, stride) {
+  const w = shape[0].length, h = shape.length + stride * (n - 1)
+  const g = Array.from({ length: h }, () => Array(w).fill("."))
+  for (let k = 0; k < n; k++) shape.forEach((r, y) => [...r].forEach((c, x) => { if (c === "X") g[y + stride * k][x] = "X" }))
+  return g.map((r) => r.join(""))
+}
+const beside = (a, b, gap) => a.map((r, i) => r + ".".repeat(gap) + b[i])
+const MARK = {
+  novice: stack(SH.chev, 1, 3), apprentice: stack(SH.chev, 2, 3), adept: stack(SH.chev, 3, 3),
+  expert: SH.star9, master: beside(SH.star7, SH.star7, 2),
+}
+const RANKS = ["novice", "apprentice", "adept", "expert", "master"]
+const BANDS = [[5, ["master"], [.5]], [10, ["expert", "master"], [1 / 3, 2 / 3]], [20, ["adept", "expert", "master"], [.25, .5, .75]],
+  [60, ["apprentice", "adept", "expert", "master"], [.1, .25, .5, .75]], [200, RANKS, [.1, .25, .5, .75, .9]]]
+function tiersOf(n) {
+  if (n < 5) return []
+  let b; BANDS.forEach((x) => { if (n >= x[0]) b = x })
+  return b[1].map((rank, i) => ({ rank, need: Math.ceil(b[2][i] * n) }))
+}
+
+const FR = {
+  rank: { novice: "NOVICE", apprentice: "APPRENTI", adept: "ADEPTE", expert: "EXPERT", master: "MAÎTRE", complete: "COMPLET" },
+  ribbon: (t) => t === "complete" ? "SET COMPLET" : "PALIER " + FR.rank[t],
+  kind: { theme: "THÈME", franchise: "FRANCHISE", studio: "STUDIO", ufo: "OVNI" },
+  folded: "4 PALIERS ATTEINTS", foldedSub: "dont <b>Dark Souls MAÎTRE</b>", foldedHint: "EN COURS", setHint: "VOIR LE SET", next: "Résultat suivant",
+  linkTail: ". Voir le set.", foldTail: ". Voir les sets en cours.",
+  toastSet: (n) => `→ ouvrirait l'album ${n}`, toastFold: "→ ouvrirait la collection, EN COURS",
+}
+const EN = {
+  rank: { novice: "NOVICE", apprentice: "APPRENTICE", adept: "ADEPT", expert: "EXPERT", master: "MASTER", complete: "COMPLETE" },
+  ribbon: (t) => t === "complete" ? "SET COMPLETE" : EN.rank[t] + " TIER",
+  kind: { theme: "THEME", franchise: "FRANCHISE", studio: "STUDIO", ufo: "UFO" },
+  folded: "4 TIERS REACHED", foldedSub: "incl. <b>Dark Souls MASTER</b>", foldedHint: "IN PROGRESS", setHint: "VIEW SET", next: "Next result",
+  linkTail: ". View set.", foldTail: ". View sets in progress.",
+  toastSet: (n) => `→ would open the ${n} album`, toastFold: "→ would open the collection, IN PROGRESS",
+}
+const JUICE = { novice: 1, apprentice: 2, adept: 3, expert: 4, master: 5, complete: 6, folded: 6 }
+const TICK_SPARKS = { 1: 0, 2: 6, 3: 6, 4: 6, 5: 6 }
+const RIBBON_SPARKS = { 1: 0, 2: 0, 3: 0, 4: 8, 5: 8, 6: 14 }
+
+const SETS = {
+  ovni:    { name: "Les OVNI",     kind: "ufo",       prev: 22, owned: 25, total: 250 },
+  pirates: { name: "Pirates",      kind: "theme",     prev: 8,  owned: 11, total: 100 },
+  metro:   { name: "Metroidvania", kind: "theme",     prev: 23, owned: 26, total: 100 },
+  rogue:   { name: "Roguelike",    kind: "theme",     prev: 18, owned: 21, total: 40 },
+  souls:   { name: "Dark Souls",   kind: "franchise", prev: 3,  owned: 4,  total: 7 },
+  hk:      { name: "Hollow Knight", kind: "franchise", prev: 2, owned: 3,  total: 3 },
+}
+function reachedTier(s) {
+  if (s.owned >= s.total) return "complete"
+  return tiersOf(s.total).filter((t) => s.prev < t.need && s.owned >= t.need).pop().rank
+}
+const result = (key, L = FR) => { const s = SETS[key], tier = reachedTier(s); return { ...s, key, tier, title: L.ribbon(tier), L } }
+const foldedResult = (L = FR) => ({ folded: true, tier: "folded", title: L.folded, sub: L.foldedSub, L, reached: ["novice", "adept", "expert", "master"] })
+
+// ---------- atoms ----------
+function pixelSvg(rows, scale, cls) {
+  const h = rows.length, w = rows[0].length
+  let rects = ""
+  rows.forEach((row, y) => [...row].forEach((ch, x) => { if (ch !== ".") rects += `<rect x="${x}" y="${y}" width="1" height="1"/>` }))
+  return `<svg class="${cls}" width="${w * scale}" height="${h * scale}" viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`
+}
+const rankMark = (rank, scale) => pixelSvg(MARK[rank], scale, "rmk")
+const check = (s = 2) => pixelSvg(["......#", ".....##", "#...##.", "##.##..", ".###...", "..#...."], s, "px-check")
+const arrow = () => pixelSvg(["#...", "##..", "###.", "####", "###.", "##..", "#..."], 2, "arw")
+const stampMini = () => `<span class="mini-stamp print" aria-hidden="true"></span>`
+const sparks = (n, r) => n ? `<span class="sparks" data-n="${n}" data-r="${r}" aria-hidden="true"></span>` : ""
+const glints = () => `<span class="glints" aria-hidden="true"><i></i><i></i><i></i></span>`
+const popMarks = (ranks) => `<span class="marks mk-pop" aria-hidden="true">${ranks.map((t) =>
+  `<span class="mk" data-tier="${t}">${t === "complete" ? '<span class="mini-stamp"></span>' : rankMark(t, 2)}</span>`).join("")}</span>`
+
+const lead = (r) => r.folded ? "" : r.tier === "complete" ? check() : rankMark(r.tier, 2)
+const ribbon = (r) => `<span class="rib">${lead(r)}<span>${r.title}</span><i class="gl"></i><i class="gl g2"></i></span>`
+const rollCount = (r) => `<span class="g-ct"><span class="roll-w"><span class="roll"><b>${r.prev}</b><b>${r.owned}</b></span></span><span class="total">/${r.total}</span></span>`
+const nameRow = (r) => `<span class="m-row"><span class="m-name"><span class="nm">${r.name}</span>${r.tier === "complete" ? stampMini() : ""}</span>${rollCount(r)}</span>`
+
+function gauge(r) {
+  const tiered = r.tier !== "complete"
+  let ticks = ""
+  if (tiered) tiersOf(r.total).forEach((t) => {
+    const on = r.owned >= t.need, now = on && r.prev < t.need
+    ticks += `<i class="g-tick${on ? " on" : ""}${now ? " now" : ""}" data-tier="${t.rank}" style="--at:${(t.need / r.total).toFixed(4)}">${rankMark(t.rank, 1)}${now ? sparks(TICK_SPARKS[r.j], 22) : ""}</i>`
+  })
+  const end = tiered ? "" : `<i class="g-all"></i><i class="g-glow"></i><span class="g-end">${sparks(18, 34)}</span>`
+  const sweep = ""
+  return `<span class="gauge" aria-hidden="true"><i class="g-fill g-new"></i><i class="g-fill g-old"></i>${end}${sweep}${ticks}</span>`
+}
+
+function banner(r) {
+  const hint = r.ph ? "" : r.folded ? `<span class="m1-hint" aria-hidden="true">${r.L.foldedHint} ▸</span>`
+    : `<span class="m1-hint ic" aria-hidden="true">${arrow()}</span>`
+  const glow = ""
+  const head = `<span class="m1-head">${glow}<span class="rw">${ribbon(r)}</span><i class="m1-fold"></i>${sparks(RIBBON_SPARKS[r.j], 30)}${glints()}</span>`
+  if (r.folded) return `${head}<span class="m1-marks">${popMarks(r.reached)}</span><span class="sub">${r.sub}</span>${hint}`
+  return `${head}${nameRow(r)}${gauge(r)}${hint}`
+}
+
+const liveName = (r) => r.folded ? r.title : r.tier === "complete"
+  ? `${r.L === FR ? "Set complet" : "Set complete"} : ${r.name}, ${r.owned}/${r.total}`
+  : `${r.title} : ${r.name}, ${r.owned}/${r.total}`
+
+function compose(r, o = {}) {
+  r = { ...r, j: JUICE[r.tier], ph: !!o.ph }
+  const L = r.L
+  const toast = r.folded ? L.toastFold : L.toastSet(r.name)
+  let vars = `--i:${o.i || 0};`
+  if (!r.folded) {
+    const from = r.prev / r.total
+    vars += `--from:${from.toFixed(4)};--to:${Math.max(r.owned / r.total, from + 0.015).toFixed(4)};`
+  }
+  const tail = `<span class="sr">${liveName(r)}${r.folded ? L.foldTail : L.linkTail}</span>`
+  const linkAttrs = `href="#" data-toast="${toast}"`
+  const open = `<div class="res${o.ph ? " ph" : ""}" data-tier="${r.tier}" data-j="${r.j}" style="${vars}">`
+  if (!o.ph) return `${open}<a class="pan M1 link" ${linkAttrs}><span class="main">${banner(r)}${tail}</span></a></div>`
+  const step = o.single ? "" : `<div class="step"><span class="pos">${o.pos}</span><button type="button" class="next" aria-label="${L.next}"><span aria-hidden="true">▸</span></button></div>`
+  return `${open}<div class="pan M1"><a class="main link" ${linkAttrs}>${banner(r)}${tail}<span class="alb">${arrow()}</span></a>${step}</div></div>`
+}
+
+// ---------- static pieces: ladder, album bars, set rows ----------
+function bar(s, figures) {
+  let h = `<div class="pbar"><div class="track"><i style="width:${(s.owned / s.total * 100).toFixed(1)}%"></i></div>`
+  tiersOf(s.total).forEach((t) => {
+    const on = s.owned >= t.need, at = (t.need / s.total * 100).toFixed(2)
+    h += `<span class="tick${on ? " on" : ""}" style="left:${at}%"><span class="tk-mark">${rankMark(t.rank, 1)}</span></span>`
+    if (figures) h += `<span class="tk-fig${on ? " on" : ""}" style="left:${at}%">${t.need}</span>`
+  })
+  return h + "</div>"
+}
+const current = (s) => s.owned >= s.total ? "complete" : (tiersOf(s.total).filter((t) => s.owned >= t.need).pop() || {}).rank
+function albumHead(s, L, narrow) {
+  const done = s.owned >= s.total
+  return `<div class="album${narrow ? " narrow" : ""}${done ? " done" : ""}"><div class="ah"><span class="t">${s.name}</span>${done ? `<span class="stamp">${L.rank.complete}</span>` : ""}<span class="spc"></span><span class="ct">${s.owned}<small>/${s.total}</small></span></div>${bar(s, true)}</div>`
+}
+function setRow(s, L) {
+  const t = current(s)
+  const tm = !t ? "" : t === "complete" ? `<span class="tmark" style="color:var(--lime)">${check(1)}${L.rank.complete}</span>`
+    : `<span class="tmark">${check(1)}${rankMark(t, 1)}${L.rank[t]}</span>`
+  return `<a class="set-row" href="#"><span class="top"><span class="nm2">${s.name}</span><span class="kd">${L.kind[s.kind]}</span><span class="spc"></span>${tm}<span class="ct">${s.owned}<small>/${s.total}</small></span></span>${bar(s)}</a>`
+}
+const STATIC = [
+  { name: "Hollow Knight", kind: "franchise", owned: 2, total: 3 },
+  { name: "Dark Souls", kind: "franchise", owned: 4, total: 7 },
+  { name: "Supergiant Games", kind: "studio", owned: 5, total: 12 },
+  { name: "Roguelike", kind: "theme", owned: 22, total: 40 },
+  { name: "Metroidvania", kind: "theme", owned: 31, total: 100 },
+  { name: "Les OVNI", kind: "ufo", owned: 70, total: 250 },
+]
+document.querySelector("[data-mount-ladder]").innerHTML = RANKS.map((r) =>
+  `<div class="lad"><div class="big">${rankMark(r, 3)}</div><div class="small"><span class="on">${rankMark(r, 2)}</span><span class="on">${rankMark(r, 1)}</span><span class="off">${rankMark(r, 1)}</span></div><b>${FR.rank[r]}</b><small>${EN.rank[r]} · juice ${JUICE[r]}</small></div>`).join("")
+document.querySelectorAll("[data-mount-albums]").forEach((el) => {
+  const en = el.dataset.mountAlbums === "en", L = en ? EN : FR
+  const list = [STATIC[1], STATIC[3], STATIC[5], { name: "Hollow Knight", owned: 3, total: 3 }]
+  el.innerHTML = list.map((s) => albumHead(s, L, en)).join("")
+})
+document.querySelectorAll("[data-mount-rows]").forEach((el) => {
+  const L = el.dataset.mountRows === "en" ? EN : FR
+  el.innerHTML = STATIC.map((s) => setRow(s, L)).join("")
+})
+
+// ---------- celebration mounting ----------
+function fillSparks(root) {
+  root.querySelectorAll(".sparks").forEach((s) => {
+    if (s.childElementCount) return
+    const n = +s.dataset.n, r = +s.dataset.r
+    let html = ""
+    for (let k = 0; k < n; k++) {
+      const a = (k / n) * Math.PI * 2 + (k % 2 ? 0.22 : -0.12)
+      const d = r * [1.2, 0.85, 1.05][k % 3]
+      const dx = Math.round((Math.cos(a) * d) / 2) * 2, dy = Math.round((Math.sin(a) * d * 0.8) / 2) * 2
+      html += `<i style="--dx:${dx}px;--dy:${dy}px;--k:${k % 3}"></i>`
+    }
+    s.innerHTML = html
+  })
+}
+const replay = (root) => root.getAnimations({ subtree: true }).forEach((a) => { a.cancel(); a.play() })
+const MOUNTS = {
+  A: () => ["ovni", "rogue", "hk"].map((k) => result(k)),
+  B: () => ["pirates", "metro", "souls"].map((k) => result(k)),
+  F: () => [foldedResult()],
+  AEN: () => ["ovni", "rogue", "hk"].map((k) => result(k, EN)),
+  FEN: () => [foldedResult(EN)],
+}
+document.querySelectorAll("[data-mount]").forEach((el) => {
+  el.innerHTML = MOUNTS[el.dataset.mount]().map((r, i) => compose(r, { i })).join("")
+})
+const PHONE_LIST = ["ovni", "rogue", "hk"]
+const plates = []
+function renderPlate(p, focusNext) {
+  p.el.innerHTML = p.single ? compose(result(p.single), { ph: true, single: true })
+    : compose(result(PHONE_LIST[p.idx]), { ph: true, pos: `${p.idx + 1} / ${PHONE_LIST.length}` })
+  fillSparks(p.el)
+  if (focusNext) p.el.querySelector(".next").focus()
+}
+document.querySelectorAll("[data-phone]").forEach((ph) => {
+  ph.innerHTML = `<div class="ph-card"><b>HOOK 2</b><small>RÉFLEXION · 2022 · COMMUNE</small></div><div data-plate></div>
+    <div class="tray" aria-hidden="true"><span class="tray-n"><small>CARTE</small>5 / 5</span><span class="tslot"><i></i></span><span class="tslot pc"><i></i></span><span class="tslot"><i></i></span><span class="tslot"><i></i></span><span class="tslot"><i></i></span></div>
+    <p class="cell under"><span class="kick">Single result · Maître</span></p><div data-plate2></div>`
+  const a = { el: ph.querySelector("[data-plate]"), idx: 0 }
+  const b = { el: ph.querySelector("[data-plate2]"), single: "souls" }
+  plates.push(a, b); renderPlate(a); renderPlate(b)
+})
+fillSparks(document)
+document.fonts && document.fonts.ready.then(() => replay(document))
+
+const toastEl = document.getElementById("toast")
+let toastTimer
+document.addEventListener("click", (e) => {
+  const next = e.target.closest(".next")
+  if (next) {
+    const p = plates.find((pl) => pl.el.contains(next))
+    p.idx = (p.idx + 1) % PHONE_LIST.length
+    renderPlate(p, true)
+    return
+  }
+  const link = e.target.closest("a.link, a.set-row")
+  if (link) {
+    e.preventDefault()
+    if (!link.dataset.toast) return
+    toastEl.textContent = link.dataset.toast
+    toastEl.classList.add("on")
+    clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => toastEl.classList.remove("on"), 2200)
+  }
+})
+document.getElementById("replay-all").addEventListener("click", () => replay(document))
+document.getElementById("grey").addEventListener("change", (e) => document.body.classList.toggle("grey", e.target.checked))
+const rm = document.getElementById("rm")
+if (location.hash === "#still") { rm.checked = true; document.documentElement.classList.add("rm") }
+rm.addEventListener("change", () => { document.documentElement.classList.toggle("rm", rm.checked); requestAnimationFrame(() => replay(document)) })
+</script>
+</body>
+</html>

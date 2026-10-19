@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rank marks</title>
+<style>
+@font-face{font-family:'VT323';font-weight:400;src:local('VT323'),url('../../../../app/frontend/fonts/vt323-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Space Mono';font-weight:400;src:local('Space Mono'),url('../../../../app/frontend/fonts/space-mono-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Space Mono';font-weight:700;src:local('Space Mono Bold'),url('../../../../app/frontend/fonts/space-mono-latin-700-normal.woff2') format('woff2')}
+:root{
+  --backdrop:#05070a;--panel:#121a24;--sunken:#0e141b;--raised:#1b2838;
+  --line:#2a475e;--line-soft:#1f3346;--line-deep:#2a6f9a;--accent:#66c0f4;
+  --text:#c7d5e0;--text-bright:#e6eef5;--white:#fff;--muted:#8f98a0;--dim:#5d6b78;--ink:#06090d;
+  --lime:#a4d007;--on-lime:#0f1a03;--gold:#f4c542;--bronze:#c4945e;
+  --rank:#e6eef5;            /* the one neutral rank colour (text-bright) */
+  --fv:'VT323',monospace;--fs:'Space Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--backdrop);color:var(--text);font-family:var(--fs)}
+body.grey{filter:grayscale(1)}
+.sheet{max-width:1240px;margin:0 auto;padding:28px 20px 80px}
+h1{margin:0 0 8px;font:400 40px/40px var(--fv);color:var(--white);letter-spacing:2px}
+h2{margin:0;font:400 32px/34px var(--fv);color:var(--white);letter-spacing:2px}
+h3{margin:22px 0 8px;font:700 10px/14px var(--fs);letter-spacing:1.5px;color:var(--accent);text-transform:uppercase}
+p{max-width:940px;margin:0 0 8px;font-size:12px;line-height:19px;color:var(--muted)}
+p b{color:var(--text-bright)}
+.controls{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;gap:18px;align-items:center;margin:14px -20px 24px;padding:10px 20px;background:rgba(5,7,10,.95);box-shadow:0 2px 0 var(--line-soft)}
+.tg{display:inline-flex;align-items:center;gap:8px;min-height:40px;font-size:12px;color:var(--text-bright);cursor:pointer}
+.tg input{width:18px;height:18px;accent-color:#66c0f4}
+
+table.rule{border-collapse:collapse;margin:10px 0 6px;font-size:11px}
+.rule th,.rule td{padding:6px 12px;text-align:left;box-shadow:inset 0 -1px 0 var(--line-soft)}
+.rule th{color:var(--muted);font-weight:400;letter-spacing:1px}
+.rule td{color:var(--text-bright)}
+.rule td.dim{color:var(--dim)}
+.rule td.back{color:var(--gold)}
+
+.dir{margin:0 0 64px;padding-top:12px;box-shadow:0 -2px 0 var(--line-soft)}
+.dir-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;margin:12px 0 6px}
+.dir-h .pers{font-size:11px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase}
+
+/* ladder */
+.ladder{display:flex;flex-wrap:wrap;gap:10px}
+.lad{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:104px;padding:12px 10px 10px;background:var(--panel);box-shadow:inset 0 0 0 2px var(--line-soft)}
+.lad .big{display:flex;align-items:flex-end;justify-content:center;height:44px}
+.lad .small{display:flex;gap:10px;align-items:flex-end;height:20px}
+.lad .nm{font:700 11px/14px var(--fs);letter-spacing:1px;color:var(--text-bright)}
+.lad .jc{font-size:10px;color:var(--muted)}
+.mk{display:block;flex:none;shape-rendering:crispEdges}
+.mk.on rect{fill:var(--rank)}
+.mk.off rect{fill:var(--line-deep)}
+.mk.ink rect{fill:var(--ink)}
+
+/* set rows */
+.cols{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.rows{display:flex;flex-direction:column;gap:8px;width:560px;max-width:100%}
+.rows.ph{width:360px}
+.set-row{display:flex;flex-direction:column;gap:10px;padding:12px 16px 30px;background:var(--panel);box-shadow:inset 0 0 0 2px var(--line);text-decoration:none;color:inherit}
+.top{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px;min-width:0}
+.top .nm{font-weight:700;font-size:14px;color:var(--text-bright)}
+.top .kd{font-size:10px;letter-spacing:1px;color:var(--muted)}
+.top .sp{flex:1}
+.tmark{display:inline-flex;align-items:center;gap:6px;font:700 11px/14px var(--fs);letter-spacing:1px;color:var(--rank);align-self:center}
+.tmark .ck{display:block}
+.top .ct{font:400 24px/20px var(--fv);color:var(--white);white-space:nowrap}
+.top .ct small{font-size:.75em;color:var(--muted)}
+.rows.ph .top .line2{flex-basis:100%;display:flex;gap:10px;align-items:center}
+.pbar{position:relative;height:6px}
+.track{position:absolute;inset:0;background:var(--sunken);box-shadow:0 0 0 2px var(--line-deep)}
+.track i{position:absolute;left:0;top:0;bottom:0;background:var(--accent)}
+.tick{position:absolute;top:-4px;width:2px;height:14px;margin-left:-1px;background:none;border-left:2px dashed var(--line-deep)}
+.tick.on{top:-8px;height:18px;border-left:2px solid var(--rank);box-shadow:0 0 0 1px var(--ink)}
+.tick .under{position:absolute;top:20px;left:0;transform:translateX(-50%)}
+.tick.on .under{top:24px}
+.stamp{display:inline-block;padding:0 6px;font:400 18px/20px var(--fv);color:var(--lime);box-shadow:inset 0 0 0 3px var(--lime);transform:rotate(-6deg);letter-spacing:1px}
+
+/* album header (simplified, entry 13.19) */
+.album{width:560px;max-width:100%;padding:16px 18px 36px;background:var(--panel);box-shadow:inset 0 0 0 2px var(--line),0 0 0 2px var(--ink);position:relative}
+.album::before,.album::after{content:"";position:absolute;width:10px;height:10px;border:2px solid var(--accent)}
+.album::before{left:6px;top:6px;border-right:0;border-bottom:0}
+.album::after{right:6px;bottom:6px;border-left:0;border-top:0}
+.ah{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+.ah .t{font:400 30px/30px var(--fv);color:var(--white);letter-spacing:1px}
+.ah .sp{flex:1}
+.ah .ct{font:400 26px/24px var(--fv);color:var(--white)}
+.ah .ct small{font-size:.75em;color:var(--muted)}
+.album .pbar{height:8px}
+
+/* ribbon */
+.ribs{display:flex;flex-wrap:wrap;gap:28px 24px;padding-top:6px}
+.ban{position:relative;width:300px;min-height:60px;padding:28px 14px 18px 16px;background:var(--panel);box-shadow:inset 0 0 0 2px var(--line),0 0 0 2px var(--ink)}
+.rib{position:absolute;left:-8px;top:-12px;display:flex;align-items:center;gap:8px;height:28px;padding:0 24px 0 10px;white-space:nowrap;
+  background:var(--rank);color:var(--ink);font:400 24px/28px var(--fv);letter-spacing:2px;
+  clip-path:polygon(0 0,100% 0,100% 15%,calc(100% - 4px) 15%,calc(100% - 4px) 30%,calc(100% - 8px) 30%,calc(100% - 8px) 70%,calc(100% - 4px) 70%,calc(100% - 4px) 85%,100% 85%,100% 100%,0 100%)}
+.rib.done{background:var(--lime);color:var(--on-lime)}
+.ban .nmr{display:flex;align-items:baseline;gap:8px;font:700 14px/18px var(--fs);color:var(--white);text-transform:uppercase}
+.ban .nmr .sp{flex:1}
+.ban .nmr small{font-weight:400;color:var(--muted)}
+.ban .pbar{margin-top:10px;height:8px}
+.ban .tick .under{display:none}
+.jl{margin-top:8px;font-size:10px;line-height:14px;color:var(--muted)}
+.jl b{color:var(--text-bright)}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1>Marques de rang · galons</h1>
+  <p>Rangs comptés <b>depuis le haut</b> : le dernier palier avant COMPLET est toujours <b>Maître</b>. Un petit set n'a que le haut de l'échelle.</p>
+  <table class="rule">
+    <tr><th>CARTES</th><th>NOVICE</th><th>APPRENTI</th><th>ADEPTE</th><th>EXPERT</th><th>MAÎTRE</th><th>PUIS</th></tr>
+    <tr><td>3–4</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>COMPLET</td></tr>
+    <tr><td>5–9</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td class="back">50 %</td><td>COMPLET</td></tr>
+    <tr><td>10–19</td><td class="dim">—</td><td class="dim">—</td><td class="dim">—</td><td>⅓</td><td class="back">⅔</td><td>COMPLET</td></tr>
+    <tr><td>20–59</td><td class="dim">—</td><td class="dim">—</td><td>25 %</td><td class="back">50 %</td><td>75 %</td><td>COMPLET</td></tr>
+    <tr><td>60–199</td><td class="dim">—</td><td>10 %</td><td>25 %</td><td class="back">50 %</td><td>75 %</td><td>COMPLET</td></tr>
+    <tr><td>200+</td><td>10 %</td><td>25 %</td><td class="back">50 %</td><td>75 %</td><td>90 %</td><td>COMPLET</td></tr>
+  </table>
+  <p>En or : le palier du dos (premier ≥ 50 %). Juice par nom : Novice 1 · Apprenti 2 · Adepte 3 (niveau or) · Expert 4 · Maître 5 · COMPLET 6 — le dos tombe toujours sur Adepte ou plus.</p>
+
+  <div class="controls">
+    <label class="tg"><input type="checkbox" id="grey"> Niveaux de gris</label>
+    <label class="tg"><input type="checkbox" id="dither"> Non atteint tramé (sinon plein sombre)</label>
+    <label class="tg"><input type="checkbox" id="phone"> Lignes en largeur téléphone</label>
+  </div>
+
+  <div id="dirs"></div>
+</div>
+
+<script>
+const S = {
+  chevThin: ["..X..",".X.X.","X...X"],
+  chevThick: ["..XXX..",".XX.XX.","XX...XX"],
+  star7: ["...X...","...X...","XXXXXXX",".XXXXX.","..XXX..",".XX.XX.","XX...XX"],
+  star5: ["..X..",".XXX.","XXXXX",".XXX.",".X.X."],
+  crown: ["X..X..X","X.XXX.X","XXXXXXX","XXXXXXX",".XXXXX."],
+  diamond: ["...X...","..XXX..",".XXXXX.","XXXXXXX",".XXXXX.","..XXX..","...X..."],
+  check: ["....X","...XX","X.XX.","XXX..",".X..."],
+};
+function stack(shape, n, stride){
+  const w = shape[0].length, h = shape.length + stride*(n-1);
+  const g = Array.from({length:h},()=>Array(w).fill("."));
+  for(let k=0;k<n;k++) shape.forEach((r,y)=>[...r].forEach((c,x)=>{ if(c==="X") g[y+stride*k][x]="X"; }));
+  return g.map(r=>r.join(""));
+}
+function beside(a,b,gap){
+  const h=Math.max(a.length,b.length), pad=(s,n)=>Array(h-s.length).fill(".".repeat(n)).concat(s);
+  const A=pad(a,a[0].length), B=pad(b,b[0].length);
+  return A.map((r,i)=>r+".".repeat(gap)+B[i]);
+}
+const DIRS = [
+  { id:"G1", name:"Chevrons fins + étoiles", pers:"discret, militaire léger",
+    why:"Novice à Adepte : 1 à 3 chevrons fins. Expert : une étoile. Maître : deux étoiles. L'étoile marque le passage aux deux derniers rangs, ceux que voient tous les petits sets.",
+    marks:{ novice:stack(S.chevThin,1,2), apprentice:stack(S.chevThin,2,2), adept:stack(S.chevThin,3,2), expert:S.star5, master:beside(S.star5,S.star5,1) } },
+  { id:"G2", name:"Chevrons pleins + étoile + couronne", pers:"lisible, héraldique",
+    why:"Novice à Adepte : 1 à 3 chevrons épais. Expert : une étoile. Maître : une couronne, la seule forme fermée et la plus massive de l'échelle.",
+    marks:{ novice:stack(S.chevThick,1,4), apprentice:stack(S.chevThick,2,4), adept:stack(S.chevThick,3,4), expert:S.star7, master:S.crown } },
+  { id:"G3", name:"Chevrons + losange + étoile", pers:"grade de sous-officier",
+    why:"Novice à Adepte : 1 à 3 chevrons épais. Expert : un losange (l'insigne de premier sergent). Maître : une grande étoile. Trois silhouettes nettes en haut d'échelle.",
+    marks:{ novice:stack(S.chevThick,1,4), apprentice:stack(S.chevThick,2,4), adept:stack(S.chevThick,3,4), expert:S.diamond, master:S.star7 } },
+];
+const RANKS = ["novice","apprentice","adept","expert","master"];
+const FR = {novice:"NOVICE",apprentice:"APPRENTI",adept:"ADEPTE",expert:"EXPERT",master:"MAÎTRE"};
+const JUICE = {novice:1,apprentice:2,adept:3,expert:4,master:5};
+const BANDS = [[5,["master"],[.5]],[10,["expert","master"],[1/3,2/3]],[20,["adept","expert","master"],[.25,.5,.75]],[60,["apprentice","adept","expert","master"],[.1,.25,.5,.75]],[200,RANKS,[.1,.25,.5,.75,.9]]];
+function tiersOf(n){ let b=null; BANDS.forEach(x=>{ if(n>=x[0]) b=x; }); if(n<5) return [];
+  return b[1].map((r,i)=>({rank:r, need:Math.ceil(b[2][i]*n)})); }
+function backTier(t,n){ return t.find(x=>x.need>=n/2); }
+
+let dither=false;
+function svg(grid, unit, cls){
+  const h=grid.length, w=grid[0].length;
+  let r=""; grid.forEach((row,y)=>[...row].forEach((c,x)=>{
+    if(c!=="X") return;
+    if(dither && cls==="off" && (x+y)%2) return;
+    r+=`<rect x="${x*unit}" y="${y*unit}" width="${unit}" height="${unit}"/>`;}));
+  return `<svg class="mk ${cls}" width="${w*unit}" height="${h*unit}" viewBox="0 0 ${w*unit} ${h*unit}" aria-hidden="true">${r}</svg>`;
+}
+const SETS = [
+  {name:"Hollow Knight",kind:"FRANCHISE",n:3,own:2},
+  {name:"Dark Souls",kind:"FRANCHISE",n:7,own:4},
+  {name:"Supergiant Games",kind:"STUDIO",n:12,own:5},
+  {name:"Roguelike",kind:"THÈME",n:40,own:22},
+  {name:"Metroidvania",kind:"THÈME",n:100,own:31},
+  {name:"Les OVNI",kind:"OVNI",n:250,own:70},
+];
+function bar(d,set,unit){
+  const t=tiersOf(set.n);
+  let h=`<div class="pbar"><div class="track"><i style="width:${(set.own/set.n*100).toFixed(1)}%"></i></div>`;
+  t.forEach(x=>{ const on=set.own>=x.need;
+    h+=`<span class="tick ${on?"on":""}" style="left:${(x.need/set.n*100).toFixed(2)}%"><span class="under">${svg(d.marks[x.rank],unit,on?"on":"off")}</span></span>`; });
+  return h+`</div>`;
+}
+function reached(set){ return tiersOf(set.n).filter(x=>set.own>=x.need).pop(); }
+function row(d,set){
+  const r=reached(set);
+  const tm = r ? `<span class="tmark">${svg(S.check,2,"on")}${svg(d.marks[r.rank],2,"on")}${FR[r.rank]}</span>` : "";
+  return `<a class="set-row" href="#"><span class="top"><span class="nm">${set.name}</span><span class="kd">${set.kind}</span><span class="sp"></span>${tm}<span class="ct">${set.own}<small>/${set.n}</small></span></span>${bar(d,set,2)}</a>`;
+}
+function album(d,set){
+  return `<div class="album"><div class="ah"><span class="t">${set.name}</span><span class="sp"></span><span class="ct">${set.own}<small>/${set.n}</small></span></div>${bar(d,set,2)}</div>`;
+}
+function ribbon(d,set,rank){
+  const done=rank==="complete";
+  const own= done?set.n:tiersOf(set.n).find(x=>x.rank===rank).need;
+  const lbl= done?"SET COMPLET":"PALIER "+FR[rank];
+  const lead= done?svg(S.check,2,"ink"):svg(d.marks[rank],2,"ink");
+  const bk=backTier(tiersOf(set.n),set.n);
+  const j= done?"6 · COMPLET":JUICE[rank]+(JUICE[rank]>=3?" · niveau or ou plus":"")+(bk&&bk.rank===rank?" · débloque le dos":"");
+  return `<div><div class="ban"><span class="rib ${done?"done":""}">${lead}${lbl}</span><div class="nmr"><span>${set.name}</span><span class="sp"></span><span>${own}<small>/${set.n}</small></span></div>${bar(d,{...set,own},2)}</div><div class="jl">Juice <b>${j}</b></div></div>`;
+}
+function render(){
+  const phone=document.getElementById("phone").checked;
+  document.getElementById("dirs").innerHTML = DIRS.map(d=>`
+  <section class="dir">
+    <div class="dir-h"><h2>${d.id} · ${d.name}</h2><span class="pers">${d.pers}</span></div>
+    <p>${d.why}</p>
+    <h3>Échelle · taille ligne (×2) et grande (×4) · atteint / non atteint</h3>
+    <div class="ladder">${RANKS.map(r=>`<div class="lad"><div class="big">${svg(d.marks[r],4,"on")}</div><div class="small">${svg(d.marks[r],2,"on")}${svg(d.marks[r],2,"off")}</div><span class="nm">${FR[r]}</span><span class="jc">juice ${JUICE[r]}</span></div>`).join("")}</div>
+    <h3>Lignes de set · 3, 7, 12, 40, 100, 250 cartes</h3>
+    <div class="cols"><div class="rows ${phone?"ph":""}">${SETS.map(s=>row(d,s)).join("")}</div></div>
+    <h3>Barre d'album (en-tête simplifié) · 1, 3 et 5 ticks</h3>
+    <div class="cols">${album(d,SETS[1])}${album(d,SETS[3])}${album(d,SETS[5])}</div>
+    <h3>Ruban · Novice (250), Expert = dos (40), Maître (7), COMPLET</h3>
+    <div class="ribs">${ribbon(d,SETS[5],"novice")}${ribbon(d,SETS[3],"expert")}${ribbon(d,SETS[1],"master")}${ribbon(d,SETS[1],"complete")}</div>
+  </section>`).join("");
+}
+document.getElementById("grey").onchange=e=>document.body.classList.toggle("grey",e.target.checked);
+document.getElementById("dither").onchange=e=>{dither=e.target.checked;render();};
+document.getElementById("phone").onchange=render;
+render();
+</script>
+</body>
+</html>

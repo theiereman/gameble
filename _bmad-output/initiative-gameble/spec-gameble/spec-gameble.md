@@ -67,7 +67,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - A set is the same set from one season to the next (same kind and key). A copy of a game counts for the set whatever season it was minted in. Only the published season's sets earn tiers; a tier earned stays earned, marked with the season it was earned in, and can be earned again in a later season with that season's mark.
     - A set's progress is read against the published season's set and may drop when the set grows; it is shown as new cards to find, never as a loss. A game that leaves a set stops counting for that set only.
     - The collection shows one card per game: its best minted rarity among the copies owned, the copies owned across editions, and a mark when several editions are held. The total counter counts distinct games across editions and never drops when a season is published.
-    - Every set has one to five tiers before completion, named by rank in order (Novice, Apprenti, Adepte, Expert, Maître), more for a larger set (table in catalog-and-rarity.md); a set of 3 or 4 cards is only complete or not.
+    - Every set has one to five tiers before completion, named by rank (Novice, Apprenti, Adepte, Expert, Maître) counted from the top, so the last before completion is always Maître and a larger set adds lower ranks (table in catalog-and-rarity.md); a set of 3 or 4 cards is only complete or not.
     - The grid of every card, with its filters and search, stays reachable from the collection.
 - **CAP-7**
   - **intent:** A player sees a card's face at a glance and can open its detail view to see the game and its credits.
