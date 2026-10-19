@@ -1,6 +1,8 @@
 module TradesHelper
   COUNTER_FORM_ID = "trade-counter-form"
   DRAFT_FORM_ID = "trade-draft-form"
+  FACES_PER_REQUEST = 60
+  CARD_KEY = /\A(.+)--s(\d{1,9})\z/
 
   def trades_refusal(friend)
     if !Game::Visibility.open_to_friends?(current_player) then :own_profile_private
@@ -114,6 +116,15 @@ module TradesHelper
     "#{view.id}--s#{view.season_number}"
   end
 
+  def trade_card_key_parts(key)
+    match = CARD_KEY.match(key) or return
+    [ match[1], match[2].to_i ]
+  end
+
+  def trade_card_faces(views)
+    views.to_h { |view| [ trade_card_key(view), render(CardComponent.new(card: view, size: :s)).to_str ] }
+  end
+
   def trade_draft_key(player, friend) = "#{player.token}:#{friend.token}"
   def trade_counter_key(player, row) = "#{player.token}:#{row.token}:#{row.expires_at.to_i}"
 
@@ -136,6 +147,7 @@ module TradesHelper
         trade_island_side(:own, label: own_label, name:, held: own_held, other_held: friend_held, lines: trade.own_side, picks:,
           read_html: trade_read_side(trade, :own, label: own_label, cards:), help: trade_open_help(trade.friend))
       ],
+      faces: trade_card_faces((trade.friend_side + trade.own_side).filter_map { picks[it.card_season_id] }),
       message: trade_message(trade, editing: true), read_message: trade_message(trade),
       editing:, draft_key: trade_counter_key(current_player, trade), form_id: COUNTER_FORM_ID, error:
     )
@@ -149,15 +161,16 @@ module TradesHelper
         trade_island_side(:own, label: t("trades.side.you_give"), name:, held: own_held, other_held: friend_held, lines: [], picks:,
           help: trade_open_help(friend))
       ],
-      message: t("trades.board.choose"), read_message: nil,
+      faces: {}, message: t("trades.board.choose"), read_message: nil,
       editing: true, draft_key: trade_draft_key(current_player, friend), form_id: DRAFT_FORM_ID, error:
     )
   end
 
   private
-    def trade_island_props(sides:, message:, read_message:, editing:, draft_key:, form_id:, error:)
+    def trade_island_props(sides:, faces:, message:, read_message:, editing:, draft_key:, form_id:, error:)
       {
         sides:, message:, readMessage: read_message, editing:, draftKey: draft_key, formId: form_id, error:,
+        faces:, facesUrl: faces_trades_path, facesBatch: FACES_PER_REQUEST,
         swapIcon: pixel_icon("swap", class: "trade-board__swap").to_str,
         closeIcon: pixel_icon("close", class: "trade-island__close-icon").to_str,
         chevronIcon: pixel_icon("arrow-small-right", class: "filters__chevron").to_str,
@@ -187,8 +200,7 @@ module TradesHelper
         cards: views.map do |id, view|
           row = held.fetch(id)
           { key: trade_card_key(view), title: view.title, rarity: view.rarity.to_s, owned: row.quantity, reserved: own ? row.reserved : 0,
-            max: trade_card_limit(side, row), copies: copies[view.id], otherCopies: other_copies[view.id],
-            face: render(CardComponent.new(card: view, size: :s)).to_str }
+            max: trade_card_limit(side, row), copies: copies[view.id], otherCopies: other_copies[view.id] }
         end,
         lines: lines.filter_map { |line| (view = picks[line.card_season_id]) && { key: trade_card_key(view), quantity: line.quantity } }
       }

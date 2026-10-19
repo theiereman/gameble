@@ -1,6 +1,7 @@
 class TradePolicy < ApplicationPolicy
   def index? = player?
   def show? = player?
+  def faces? = player?
   def new? = player?
   def create? = player?
   def counter? = player?

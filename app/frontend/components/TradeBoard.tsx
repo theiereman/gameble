@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { flushSync } from "react-dom"
 import { dispatchGameble, onGameble } from "../lib/events"
 import { t, type Template } from "../lib/i18n"
@@ -18,6 +18,7 @@ import {
   type Side,
 } from "../lib/trade_board"
 import { forgetDraft, readDraft, sameLines, saveDraft, type DraftSides } from "../lib/trade_draft"
+import { batches, facesFrom, facesUrl, missingFaces, withFaces, type Faces } from "../lib/trade_faces"
 import QuantityStepper from "./QuantityStepper"
 import TradePicker from "./TradePicker"
 
@@ -30,7 +31,6 @@ export type TradeCard = {
   max: number
   copies: number
   otherCopies: number
-  face: string
 }
 
 export type TradeSideData = {
@@ -97,6 +97,9 @@ export type TradeBoardProps = {
   draftKey: string
   formId: string
   error: string | null
+  faces: Record<string, string>
+  facesUrl: string
+  facesBatch: number
   swapIcon: string
   closeIcon: string
   chevronIcon: string
@@ -124,6 +127,29 @@ export default function TradeBoard(props: TradeBoardProps) {
   const focusAfter = useRef<FocusTarget | null>(props.editing && readMessage !== null ? { side: own, key: null, preventScroll: true } : null)
   const swapHtml = useMemo(() => ({ __html: swapIcon }), [swapIcon])
   const closeHtml = useMemo(() => ({ __html: closeIcon }), [closeIcon])
+  const [faces, setFaces] = useState<Faces>(() => new Map(Object.entries(props.faces)))
+  const knownFaces = useRef(faces)
+  const pendingFaces = useRef(new Set<string>())
+  const { facesUrl: facesBase, facesBatch } = props
+
+  const requestFaces = useCallback(
+    (keys: readonly string[]) => {
+      for (const batch of batches(missingFaces(keys, knownFaces.current, pendingFaces.current), facesBatch)) {
+        batch.forEach((key) => pendingFaces.current.add(key))
+        fetch(facesUrl(facesBase, batch), { headers: { Accept: "application/json" }, credentials: "same-origin" })
+          .then((response) => (response.ok ? response.json() : null))
+          .then((body) => {
+            knownFaces.current = withFaces(knownFaces.current, facesFrom(body))
+            setFaces(knownFaces.current)
+          })
+          .catch(() => undefined)
+          .finally(() => batch.forEach((key) => pendingFaces.current.delete(key)))
+      }
+    },
+    [facesBase, facesBatch],
+  )
+
+  useEffect(() => requestFaces(lines.flatMap((side) => side.map((line) => line.key))), [lines, requestFaces])
 
   useEffect(() => {
     const changed = lines.some((side, index) => !sameLines(side, received[index] ?? []))
@@ -205,7 +231,10 @@ export default function TradeBoard(props: TradeBoardProps) {
             if (!card) return null
             return (
               <li key={line.key} className={["trade-card", "trade-card--editing", line.quantity > 1 ? "trade-card--stack" : null].filter(Boolean).join(" ")}>
-                <div className="trade-card__face" dangerouslySetInnerHTML={{ __html: card.face }} />
+                <div
+                  className={faces.has(line.key) ? "trade-card__face" : "trade-card__face trade-card__face--pending"}
+                  dangerouslySetInnerHTML={{ __html: faces.get(line.key) ?? "" }}
+                />
                 {card.max > 1 ? (
                   <QuantityStepper
                     value={line.quantity}
@@ -269,6 +298,8 @@ export default function TradeBoard(props: TradeBoardProps) {
           strings={strings}
           closeIcon={closeIcon}
           chevronIcon={chevronIcon}
+          faces={faces}
+          onFacesNeeded={requestFaces}
           filters={pickerFilters[picking]}
           onFilters={(next) => setPickerFilters((all) => replacePickerFilters(all, picking, next))}
           onPlace={(next) => update(picking, next)}

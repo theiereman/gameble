@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import { t } from "../lib/i18n"
 import { RARITIES } from "../lib/card_types"
 import {
@@ -20,8 +20,9 @@ import {
   type PickerFilters,
   type SideFilter,
 } from "../lib/trade_board"
+import { PICKER_PAGE, nextPage, shownFor, type Faces } from "../lib/trade_faces"
 import QuantityStepper from "./QuantityStepper"
-import type { TradeBoardStrings, TradeSideData } from "./TradeBoard"
+import type { TradeBoardStrings, TradeCard, TradeSideData } from "./TradeBoard"
 
 export type TradePickerProps = {
   side: TradeSideData
@@ -29,15 +30,32 @@ export type TradePickerProps = {
   strings: TradeBoardStrings
   closeIcon: string
   chevronIcon: string
+  faces: Faces
+  onFacesNeeded: (keys: readonly string[]) => void
   filters: PickerFilters
   onFilters: (next: PickerFilters) => void
   onPlace: (lines: Line[]) => void
   onClose: () => void
 }
 
-export default function TradePicker({ side, lines, strings, closeIcon, chevronIcon, filters, onFilters, onPlace, onClose }: TradePickerProps) {
+export default function TradePicker({
+  side,
+  lines,
+  strings,
+  closeIcon,
+  chevronIcon,
+  faces,
+  onFacesNeeded,
+  filters,
+  onFilters,
+  onPlace,
+  onClose,
+}: TradePickerProps) {
   const dialog = useRef<HTMLDialogElement>(null)
   const grid = useRef<HTMLUListElement>(null)
+  const body = useRef<HTMLDivElement>(null)
+  const more = useRef<HTMLDivElement>(null)
+  const focusAfter = useRef<number | null>(null)
   const placeButton = useRef<HTMLButtonElement>(null)
   const [selection, setSelection] = useState<Line[]>(lines)
   const [refused, setRefused] = useState(false)
@@ -68,9 +86,45 @@ export default function TradePicker({ side, lines, strings, closeIcon, chevronIc
   }
 
   const visible = useMemo(() => filterCards(side.cards, filter), [side.cards, filter])
+  const [paging, setPaging] = useState({ filter, shown: PICKER_PAGE })
+  const shown = paging.filter === filter ? paging.shown : PICKER_PAGE
+  const growTo = (next: number) => setPaging({ filter, shown: Math.max(shown, next) })
+  const rendered = useMemo(() => visible.slice(0, shown), [visible, shown])
+  const hasMore = rendered.length < visible.length
   const chipLabels: Partial<Record<Chip, string>> = strings.chips[side.side]
-  const found = activeKey === null ? -1 : visible.findIndex((card) => card.key === activeKey)
+  const found = activeKey === null ? -1 : rendered.findIndex((card) => card.key === activeKey)
   const active = Math.max(0, found)
+
+  useEffect(() => onFacesNeeded(rendered.map((card) => card.key)), [rendered, onFacesNeeded])
+
+  useEffect(() => {
+    if (found < 0 && rendered.length > 0) setActiveKey(rendered[0].key)
+  }, [found, rendered])
+
+  useLayoutEffect(() => {
+    if (body.current) body.current.scrollTop = 0
+  }, [filter])
+
+  useEffect(() => {
+    const root = body.current
+    const target = more.current
+    if (!hasMore || !root || !target) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) setPaging({ filter, shown: nextPage(shown) })
+      },
+      { root, rootMargin: "0px 0px 100% 0px" },
+    )
+    observer.observe(target)
+    return () => observer.disconnect()
+  }, [hasMore, filter, shown])
+
+  useLayoutEffect(() => {
+    const index = focusAfter.current
+    if (index === null || index >= rendered.length) return
+    focusAfter.current = null
+    grid.current?.querySelectorAll<HTMLElement>(":scope > .trade-pick")[index]?.querySelector<HTMLButtonElement>(".trade-pick__toggle")?.focus()
+  })
 
   const chipsOn = activeChips(filter)
   const setFilter = (next: SideFilter) => onFilters(withFilter(filters, next))
@@ -80,14 +134,20 @@ export default function TradePicker({ side, lines, strings, closeIcon, chevronIc
     search.current?.focus()
   }
 
-  const pick = (key: string) => {
-    const card = side.cards.find((candidate) => candidate.key === key)
-    if (!card) return
-    setActiveKey(key)
-    const next = toggle(selection, card.key, card.max)
+  const selected = useRef(selection)
+  selected.current = selection
+
+  const pick = useCallback((card: TradeCard) => {
+    setActiveKey(card.key)
+    const next = toggle(selected.current, card.key, card.max)
     setRefused(next.refused)
     setSelection(next.lines)
-  }
+  }, [])
+
+  const changeQuantity = useCallback(
+    (card: TradeCard, value: number) => setSelection((current) => setQuantity(current, card.key, value, card.max)),
+    [],
+  )
 
   const onGridKeyDown = (event: KeyboardEvent<HTMLUListElement>) => {
     const target = event.target as HTMLElement
@@ -98,7 +158,12 @@ export default function TradePicker({ side, lines, strings, closeIcon, chevronIc
     if (next === null) return
     event.preventDefault()
     setActiveKey(visible[next]?.key ?? null)
-    items[next]?.querySelector<HTMLButtonElement>(".trade-pick__toggle")?.focus()
+    if (next < items.length) {
+      items[next].querySelector<HTMLButtonElement>(".trade-pick__toggle")?.focus()
+    } else {
+      focusAfter.current = next
+      growTo(shownFor(next))
+    }
   }
 
   const count = sideCount(selection)
@@ -201,7 +266,7 @@ export default function TradePicker({ side, lines, strings, closeIcon, chevronIc
             </div>
           </div>
         )}
-        <div className="trade-picker__body">
+        <div ref={body} className="trade-picker__body">
           {nothingToPlace && (
             <p className="trade-picker__empty">
               <b className="trade-picker__empty-title">{strings.noneTitle}</b> {nothingToPlace}
@@ -210,74 +275,21 @@ export default function TradePicker({ side, lines, strings, closeIcon, chevronIc
           {side.cards.length > 0 && !nothingToPlace && visible.length === 0 && <p className="trade-picker__empty">{strings.noMatch}</p>}
           {visible.length > 0 && (
             <ul ref={grid} className="trade-picker__grid" aria-labelledby="trade-picker-title" onKeyDown={onGridKeyDown}>
-              {visible.map((card, index) => {
-                const quantity = picked.get(card.key)
-                const isPicked = quantity !== undefined
-                const unavailable = card.max < 1
-                const label = [
-                  t(strings.cardLabel, { title: card.title, owned: t(strings.owned, { count: card.owned }) }),
-                  card.reserved > 0 ? t(strings.reservedElsewhere, { count: card.reserved }) : null,
-                  unavailable ? strings.unavailable : null,
-                ]
-                  .filter(Boolean)
-                  .join(", ")
-                return (
-                  <li key={card.key} className="trade-pick">
-                    <div
-                      className={[
-                        "trade-pick__card",
-                        isPicked ? "trade-pick__card--picked" : null,
-                        unavailable ? "trade-pick__card--unavailable" : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
-                    >
-                      <div className="trade-pick__face" aria-hidden="true" dangerouslySetInnerHTML={{ __html: card.face }} />
-                      <span className="trade-pick__owned" aria-hidden="true">
-                        ×{card.owned}
-                      </span>
-                      {card.reserved > 0 && (
-                        <span className="trade-card__reserved trade-pick__reserved" aria-hidden="true">
-                          {t(strings.reserved, { count: unavailable ? 1 : card.reserved })}
-                        </span>
-                      )}
-                      {isPicked && (
-                        <span className="trade-pick__check" aria-hidden="true">
-                          ✓
-                        </span>
-                      )}
-                      <button
-                        type="button"
-                        className="trade-pick__toggle"
-                        tabIndex={index === active ? 0 : -1}
-                        aria-pressed={isPicked}
-                        aria-disabled={unavailable && !isPicked ? true : undefined}
-                        aria-label={label}
-                        onClick={() => pick(card.key)}
-                      />
-                    </div>
-                    <div className="trade-pick__foot">
-                      {isPicked && card.max > 1 ? (
-                        <QuantityStepper
-                          value={quantity}
-                          max={card.max}
-                          label={t(strings.quantity, { title: card.title })}
-                          valueText={t(strings.valueText, { count: quantity, max: card.max })}
-                          maxText={t(strings.max, { max: card.max })}
-                          maxPhoneText={t(strings.maxPhone, { max: card.max })}
-                          more={strings.more}
-                          fewer={strings.fewer}
-                          onChange={(value) => setSelection((current) => setQuantity(current, card.key, value, card.max))}
-                        />
-                      ) : (
-                        <span className="trade-pick__available">{t(strings.available, { count: Math.max(0, card.max) })}</span>
-                      )}
-                    </div>
-                  </li>
-                )
-              })}
+              {rendered.map((card, index) => (
+                <TradePick
+                  key={card.key}
+                  card={card}
+                  face={faces.get(card.key)}
+                  quantity={picked.get(card.key)}
+                  focusable={index === active}
+                  strings={strings}
+                  onPick={pick}
+                  onQuantity={changeQuantity}
+                />
+              ))}
             </ul>
           )}
+          {hasMore && <div ref={more} className="trade-picker__more" aria-hidden="true" />}
         </div>
         <p className="trade-picker__refusal" role="alert">
           {refused && (
@@ -312,3 +324,83 @@ export default function TradePicker({ side, lines, strings, closeIcon, chevronIc
     </dialog>
   )
 }
+
+type TradePickProps = {
+  card: TradeCard
+  face: string | undefined
+  quantity: number | undefined
+  focusable: boolean
+  strings: TradeBoardStrings
+  onPick: (card: TradeCard) => void
+  onQuantity: (card: TradeCard, value: number) => void
+}
+
+const TradePick = memo(function TradePick({ card, face, quantity, focusable, strings, onPick, onQuantity }: TradePickProps) {
+  const isPicked = quantity !== undefined
+  const unavailable = card.max < 1
+  const label = [
+    t(strings.cardLabel, { title: card.title, owned: t(strings.owned, { count: card.owned }) }),
+    card.reserved > 0 ? t(strings.reservedElsewhere, { count: card.reserved }) : null,
+    unavailable ? strings.unavailable : null,
+  ]
+    .filter(Boolean)
+    .join(", ")
+  return (
+    <li className="trade-pick">
+      <div
+        className={[
+          "trade-pick__card",
+          isPicked ? "trade-pick__card--picked" : null,
+          unavailable ? "trade-pick__card--unavailable" : null,
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        <div
+          className={face === undefined ? "trade-pick__face trade-pick__face--pending" : "trade-pick__face"}
+          aria-hidden="true"
+          dangerouslySetInnerHTML={{ __html: face ?? "" }}
+        />
+        <span className="trade-pick__owned" aria-hidden="true">
+          ×{card.owned}
+        </span>
+        {card.reserved > 0 && (
+          <span className="trade-card__reserved trade-pick__reserved" aria-hidden="true">
+            {t(strings.reserved, { count: unavailable ? 1 : card.reserved })}
+          </span>
+        )}
+        {isPicked && (
+          <span className="trade-pick__check" aria-hidden="true">
+            ✓
+          </span>
+        )}
+        <button
+          type="button"
+          className="trade-pick__toggle"
+          tabIndex={focusable ? 0 : -1}
+          aria-pressed={isPicked}
+          aria-disabled={unavailable && !isPicked ? true : undefined}
+          aria-label={label}
+          onClick={() => onPick(card)}
+        />
+      </div>
+      <div className="trade-pick__foot">
+        {isPicked && card.max > 1 ? (
+          <QuantityStepper
+            value={quantity}
+            max={card.max}
+            label={t(strings.quantity, { title: card.title })}
+            valueText={t(strings.valueText, { count: quantity, max: card.max })}
+            maxText={t(strings.max, { max: card.max })}
+            maxPhoneText={t(strings.maxPhone, { max: card.max })}
+            more={strings.more}
+            fewer={strings.fewer}
+            onChange={(value) => onQuantity(card, value)}
+          />
+        ) : (
+          <span className="trade-pick__available">{t(strings.available, { count: Math.max(0, card.max) })}</span>
+        )}
+      </div>
+    </li>
+  )
+})

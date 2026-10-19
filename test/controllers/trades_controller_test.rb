@@ -443,10 +443,14 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
       own.fetch("cards").map { it.values_at("key", "owned", "reserved", "max", "copies", "otherCopies") }
     assert_equal [ [ "tin-soldier--s1", 3, 0, 3, 3, 1 ], [ "blue-depths--s1", 2, 0, 2, 2, 0 ] ],
       friend.fetch("cards").map { it.values_at("key", "owned", "reserved", "max", "copies", "otherCopies") }
-    face = own.fetch("cards").last.fetch("face")
-    assert_includes face, "card--s"
-    assert_includes face, "Portal"
-    assert_no_match(/style=/, face)
+    assert(props.fetch("sides").flat_map { it.fetch("cards") }.none? { it.key?("face") }, "no card carries its face")
+    faces = props.fetch("faces")
+    assert_equal %w[blue-depths--s1 portal--s1], faces.keys.sort, "the faces of the lines' cards only"
+    assert_includes faces.fetch("portal--s1"), "card--s"
+    assert_includes faces.fetch("portal--s1"), "Portal"
+    assert_no_match(/style=/, faces.values.join)
+    assert_equal "/fr/trades/faces", props.fetch("facesUrl")
+    assert_equal TradesHelper::FACES_PER_REQUEST, props.fetch("facesBatch")
     assert_no_match(/"id"|card_season_id/, props.to_json)
     assert_equal "Modifiez ce que vous donnez et ce que vous demandez, puis renvoyez.", props.fetch("message")
     assert_equal "Lea vous propose cet échange.", props.fetch("readMessage")
@@ -458,6 +462,64 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("trades.side.none.friend_none_owned", name: "Lea", locale: :fr), friend.fetch("none")
     assert_equal I18n.t("trades.side.none.none_owned", locale: :fr), own.fetch("none")
     assert_equal I18n.t("trades.side.none.all_reserved", locale: :fr), props.dig("strings", "noneAllReserved")
+  end
+
+  def get_faces(keys)
+    get "#{faces_trades_path(locale: :fr)}?#{keys.map { "keys%5B%5D=#{CGI.escape(it)}" }.join("&")}", headers: { "Accept" => "application/json" }
+  end
+
+  def faces_of(keys)
+    get_faces(keys)
+    assert_response :success
+    response.parsed_body.fetch("faces")
+  end
+
+  test "the faces of published cards by key, a small card face for each, in the URL's locale" do
+    sign_in @alice
+
+    faces = faces_of(%w[portal--s1 golden-crown--s1])
+
+    assert_equal %w[golden-crown--s1 portal--s1], faces.keys.sort
+    assert_includes faces.fetch("portal--s1"), "card--s"
+    assert_includes faces.fetch("golden-crown--s1"), "Couronne d&#39;or"
+    assert_no_match(/style=/, faces.values.join)
+    assert_no_match(/"id"|card_season_id/, response.body)
+  end
+
+  test "unknown, malformed and draft-season keys get no face" do
+    draft_season = Catalog::Season.create!(number: 2)
+    Catalog::CardSeason.create!(card: catalog_cards(:portal), season: draft_season, prestige_score: 0.5, rating: 90)
+    sign_in @alice
+
+    faces = faces_of([ "portal--s1", "portal--s2", "no-such-card--s1", "portal", "portal--sx", "--s1", "portal--s1\n" ])
+
+    assert_equal [ "portal--s1" ], faces.keys
+  end
+
+  test "keys past the per-request limit are ignored" do
+    sign_in @alice
+    padding = Array.new(TradesHelper::FACES_PER_REQUEST) { "no-such-card-#{it}--s1" }
+
+    assert_equal({}, faces_of(padding + [ "portal--s1" ]))
+    assert_equal [ "portal--s1" ], faces_of(padding.drop(1) + [ "portal--s1" ]).keys
+  end
+
+  test "no keys, or keys that are not a list, get no faces" do
+    sign_in @alice
+
+    get faces_trades_path(locale: :fr)
+    assert_equal({ "faces" => {} }, response.parsed_body)
+    get faces_trades_path(locale: :fr), params: { keys: { portal: "portal--s1" } }
+    assert_equal({ "faces" => {} }, response.parsed_body)
+  end
+
+  test "a visitor asking for faces is refused as signed out" do
+    get_faces([ "portal--s1" ])
+
+    assert_response :unauthorized
+    assert_equal "sign_in_required", response.parsed_body.dig("error", "code")
+    get faces_trades_path(locale: :fr), params: { keys: [ "portal--s1" ] }
+    assert_redirected_to home_path(locale: :fr)
   end
 
   test "a counter places cards the side's holder holds that were not on it" do

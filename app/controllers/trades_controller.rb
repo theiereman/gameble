@@ -39,6 +39,13 @@ class TradesController < ApplicationController
     load_holdings(@friend)
   end
 
+  def faces
+    authorize :trade, :faces?
+    pairs = requested_face_keys.filter_map { helpers.trade_card_key_parts(it) }
+    views = Catalog::CardViews.call(Catalog::PublishedCardSeasonIds.call(pairs).values, locale: I18n.locale)
+    render json: { faces: helpers.trade_card_faces(views.values) }
+  end
+
   def create
     authorize :trade, :create?
     friend = befriended(params[:friend])
@@ -127,6 +134,11 @@ class TradesController < ApplicationController
   end
 
   private
+    def requested_face_keys
+      keys = params[:keys]
+      keys.is_a?(Array) ? keys.grep(String).first(TradesHelper::FACES_PER_REQUEST) : []
+    end
+
     def choose_friend
       @trades = Game::TradesOf.call(current_player)
       @cards = card_views(@trades, nil)

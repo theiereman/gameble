@@ -96,6 +96,9 @@ Rails.application.routes.draw do
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     resources :trades, only: %i[index show new create], param: :token,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
+      collection do
+        get :faces
+      end
       member do
         get :counter, action: :edit
         post :counter

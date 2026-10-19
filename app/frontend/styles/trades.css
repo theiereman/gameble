@@ -785,6 +785,18 @@
   opacity: 0.45;
 }
 
+.trade-pick__face--pending,
+.trade-card__face--pending {
+  width: var(--card-s-width);
+  height: var(--card-s-height);
+  background: var(--color-panel-sunken);
+  box-shadow: var(--control-border);
+}
+
+.trade-picker__more {
+  height: 1px;
+}
+
 .trade-pick__owned {
   position: absolute;
   top: -8px;
