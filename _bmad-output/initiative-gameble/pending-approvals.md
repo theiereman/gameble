@@ -13,15 +13,23 @@ Operations and decisions waiting for the author's go-ahead, kept since 2026-10-0
 
 - **On staging, after every edition counts in the collection (epic-recognizable-sets, ticket 13.15, 2026-10-18): the author's check.** With seasons 1 to 4 published, a player holding Hades in S1 Rare and S4 Épique should see one Hades tile at Épique with "x2" and "2 éd.". Its card detail should show COPIES 2 and ÉDITIONS "Épique : S4" then "Rare : S1". Publish a new season and check that "Cartes uniques", the RAPPORT and the top bar's rarity counter keep their values. Look also at `/library/cards` signed in on the desktop and the phone (the "2 éd." box under "x2", which the build did not view in a browser). Time the page too: the tiles' query reads every rated card-season of every season, at about 16,000 per season.
 
-- **On staging, after the trade filters across both collections (epic-easier-trades, ticket 18.2, 2026-10-19): the author's check.** Open a draft with a friend, then each side's picker on the desktop and the phone: under the rarities, a "Collections" group offers on the friend's side "Ses doublons", "Absentes de ma collection", "En commun", and on the player's side "Mes doublons", "Absentes de sa collection", "Disponibles". Check Rare + Épique + "Ses doublons" + "Absentes de ma collection" shows exactly those cards, that a placed card hidden by a chip stays placed and is sent, and that a friend's edition of a game the player holds in another season is not "Absente de ma collection". Settle: the build counts duplicates by game too, so a friend's S1 ×1 and S4 ×1 of a game both show under "Ses doublons" while each card reads ×1; the chip labels and the legend; the grid's height on the phone with the second chip row, until entry 18.3 folds the filters.
+- **On staging, after the trade filters across both collections (epic-easier-trades, ticket 18.2, 2026-10-19): the author's check.** Open a draft with a friend, then each side's picker on the desktop and the phone: under the rarities, a "Collections" group offers on the friend's side "Ses doublons", "Absentes de ma collection", "En commun", and on the player's side "Mes doublons", "Absentes de sa collection", "Disponibles". Check Rare + Épique + "Ses doublons" + "Absentes de ma collection" shows exactly those cards, that a placed card hidden by a chip stays placed and is sent, and that a friend's edition of a game the player holds in another season is not "Absente de ma collection". Settled by the author on 2026-10-19: duplicates count by game across editions, and the chip labels and the "Collections" legend stay as built; entry 18.3 has since folded the filters on the phone.
 
-- **On staging, after the card detail beside the grid (epic-recognizable-sets, ticket 13.14, 2026-10-19): the author's check.**
-  - At 1280px on `/fr/library/cards`, the right-hand column first shows the placeholder « Fiche de la carte · Choisissez une carte pour voir sa fiche. ». That line is new copy, not in the copy deck; approve it or reword it.
-  - Choosing a card shows its detail in that column, with the card framed in accent, and ▶ steps to the next card of the grid. Browser Back then shows the grid where it was.
-  - At 1024px, ◀ ▶ sit under the card in the 300px column.
-  - From 720 to 899px (a tablet held upright), the detail opens under the grid and the page scrolls to it. This is a reading of DESIGN.md's one-column row; the alternative is opening the detail page there, as on the phone.
-  - On the phone, the detail page opens as before.
-  - The grid now shows 4 cards a row at 1280px, against 7 before, as the column is always reserved.
+
+## Settled on 2026-10-19
+
+Settled by the author in conversation on 2026-10-19.
+
+- The card detail beside the grid (ticket 13.14) and its waiting detail (13.24): superseded; entry 13.25 brought back the card detail page and aligned the grids.
+- Trade filters (ticket 18.2): duplicates count by game across editions; the chip labels and the "Collections" legend stay as built.
+- Results of one opening at the same earlier-season metal rank by the share of their set (ticket 13.22): kept.
+- The fill grid's 185 px card cap is gone (ticket 13.25): kept, cards grow to fill the phone's width.
+- Roadmap milestones created automatically start hidden (ticket 20.19): kept.
+- The LIVE ticker always reaches the window's horizontal edges, at every width from 720 px (ticket 6.15): kept as built.
+- Bug #77 (no category on Dreamfall): the card is a UFO; a theme for adventure games is added for the seasons to come, and cards without a theme keep showing no genre.
+- Bug #52 (language back): back after a language change must keep the previous screen's scroll position, and only a language chosen in the settings carries over to the history; a follow-up bug in the backlog.
+- `game_set_completions`, written by nothing since tiers, is dropped, and the feed's member-count fallback for sets without a complete tier is removed (entry 13.26).
+- A signed-out visitor reaches the card catalog from the landing (ticket 14.5).
 
 ## Settled on 2026-10-13
 

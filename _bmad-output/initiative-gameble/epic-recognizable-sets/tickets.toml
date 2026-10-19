@@ -277,6 +277,17 @@ hitl = false
 risk = "low"
 
 [[entry]]
+id = 26
+type = "story"
+title = "The dead set completions table dropped and the feed's share fallback removed"
+description = "From the refactor sweep's open points (entry 10, author 2026-10-19): `game_set_completions` and `Game::SetCompletion` have had no writes since tiers replaced completions; stop every read and delete of it (Game::ReleasePlayer), drop the table in its own migration per strong_migrations, and correct the account deletion copy and the legal page wherever they name completed sets as stored data. Remove the feed's member-count COALESCE fallback for a set without a complete tier row in Game::FeedEntry, giving the test fixtures their complete tier rows."
+verify = "No code names SetCompletion or game_set_completions; the table is gone from db/schema.rb, regenerated from the migrations; account deletion still erases a player's tiers and the copy matches what it erases in both languages; the feed ranks results by share with no fallback and the suite passes."
+covers = []
+after = [10]
+hitl = false
+risk = "low"
+
+[[entry]]
 id = 10
 type = "story"
 title = "Refactor sweep"
