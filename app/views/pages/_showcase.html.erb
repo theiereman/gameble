@@ -17,11 +17,10 @@
           <%= card_rays(card.rarity) %>
           <%= render CardComponent.new(card:, size: :xl) %>
         </div>
-        <span class="hub-showcase__ground card-ground" aria-hidden="true"></span>
       <% else %>
         <%= render CardComponent.new(card:, size: :xl) %>
-        <span class="hub-showcase__ground" aria-hidden="true"></span>
       <% end %>
+      <span class="hub-showcase__ground" aria-hidden="true"></span>
     </div>
     <h2 id="hub-showcase-name" class="hub-showcase__name"><%= card.title %></h2>
     <p class="hub-showcase__rarity hub-showcase__rarity--<%= tier %>">

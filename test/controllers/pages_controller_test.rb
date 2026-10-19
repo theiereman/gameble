@@ -876,7 +876,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".legal__ownership"
   end
-  test "the showcase floats an epic card over a breathing shadow with purple rays" do
+
+  test "the showcase floats an epic card with purple rays" do
     create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
     sign_in(@player)
 
@@ -884,6 +885,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".hub-showcase:not(.hub-showcase--empty) .hub-showcase__stage .card-float .card-rays.card-rays--epic", 1
     assert_select ".hub-showcase__stage .card-float .card.card--xl", 1
-    assert_select ".hub-showcase__ground.card-ground", 1
+    assert_select ".hub-showcase__ground", 1
   end
 end

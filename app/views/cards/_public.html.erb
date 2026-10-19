@@ -26,11 +26,10 @@
           <%= card_rays(view.rarity) %>
           <%= render CardComponent.new(card: view, size: :xl) %>
         </div>
-        <span class="public-card__shadow card-ground" aria-hidden="true"></span>
       <% else %>
         <%= render CardComponent.new(card: view, size: :xl) %>
-        <span class="public-card__shadow" aria-hidden="true"></span>
       <% end %>
+      <span class="public-card__shadow" aria-hidden="true"></span>
     </div>
     <div class="public-card__info">
       <h1 id="public-card-heading" class="public-card__title"><%= view.title %></h1>

@@ -39,19 +39,9 @@
 }
 
 @keyframes card-idle-float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(calc(-1 * var(--idle-float-max))) rotate(-0.5deg); }
-  75% { transform: translateY(var(--idle-float-max)) rotate(0.5deg); }
-}
-
-.card-ground {
-  animation: card-ground-breathe 14s ease-in-out infinite;
-}
-
-@keyframes card-ground-breathe {
-  0%, 100% { transform: scaleX(1); }
-  25% { transform: scaleX(0.86); }
-  75% { transform: scaleX(1.08); }
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(calc(-1 * var(--idle-float-max))); }
+  75% { transform: translateY(var(--idle-float-max)); }
 }
 
 .card-detail__stage,
@@ -73,10 +63,6 @@
   html:not([data-motion="full"]) .card-float {
     animation: none;
   }
-
-  html:not([data-motion="full"]) .card-ground {
-    animation: none;
-  }
 }
 
 html[data-motion="reduced"] .card-rays {
@@ -84,9 +70,5 @@ html[data-motion="reduced"] .card-rays {
 }
 
 html[data-motion="reduced"] .card-float {
-  animation: none;
-}
-
-html[data-motion="reduced"] .card-ground {
   animation: none;
 }

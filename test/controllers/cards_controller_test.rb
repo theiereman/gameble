@@ -884,24 +884,22 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "a", "/en/cards/blue-depths/seasons/1?grid%5Bq%5D=" ], [ "a", "/en/cards/portal/seasons/2?grid%5Bq%5D=" ] ], navs
   end
 
-  test "epic detail floats with purple rays over a breathing shadow; common detail stays still with no rays" do
+  test "epic detail floats with purple rays; common detail stays still with no rays" do
     sign_in_viewer
 
     get card_path(locale: :en, slug: "portal")
     assert_response :success
     assert_select ".card-detail__card .card-float .card-rays.card-rays--epic", 1
     assert_select ".card-detail__card .card-float .card.card--l", 1
-    assert_select ".card-detail__shadow.card-ground", 1
 
     get card_path(locale: :en, slug: "tin-soldier")
     assert_response :success
     assert_select ".card-detail__card .card-float", 0
     assert_select ".card-detail__card .card-rays", 0
     assert_select ".card-detail__shadow", 1
-    assert_select ".card-detail__shadow.card-ground", 0
   end
 
-  test "a faded epic shows the card back with no float, rays or breathing ground" do
+  test "a faded epic shows the card back with no float or rays" do
     add_a_theme_set
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:common_card_one).id, 1)
@@ -915,7 +913,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__card .card-float", 0
     assert_select ".card-detail__card .card-rays", 0
     assert_select ".card-detail__shadow", 1
-    assert_select ".card-detail__shadow.card-ground", 0
   end
 
   test "epic public page floats with rays; common public page stays still" do
@@ -923,13 +920,12 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".public-card__stage .card-float .card-rays.card-rays--epic", 1
     assert_select ".public-card__stage .card-float .card.card--xl", 1
-    assert_select ".public-card__shadow.card-ground", 1
+    assert_select ".public-card__shadow", 1
 
     get card_path(locale: :en, slug: "tin-soldier")
     assert_response :success
     assert_select ".public-card__stage .card-float", 0
     assert_select ".public-card__stage .card-rays", 0
     assert_select ".public-card__shadow", 1
-    assert_select ".public-card__shadow.card-ground", 0
   end
 end

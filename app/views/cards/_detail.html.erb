@@ -84,7 +84,7 @@
               <%= render CardComponent.new(card: view, size: :l) %>
             <% end %>
           <% end %>
-          <span class="<%= class_names("card-detail__shadow", "card-ground": !faded && card_top_rarity?(view.rarity)) %>" aria-hidden="true"></span>
+          <span class="card-detail__shadow" aria-hidden="true"></span>
         </div>
         <% if browse %>
           <%= render "cards/detail_nav", path: browse.next, side: :next %>

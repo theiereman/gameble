@@ -27,10 +27,9 @@ describe("the shared card rarity effects", () => {
     expect(rule(cardRarityEffectsStylesheet, ".card-rays--large")).toContain("--card-rays-size: 520px")
   })
 
-  it("floats the wrapper while the card keeps its own transform, over a breathing shadow", () => {
+  it("floats the wrapper while the card keeps its own transform", () => {
     expect(rule(cardRarityEffectsStylesheet, ".card-float")).toContain("animation: card-idle-float 14s ease-in-out infinite")
-    expect(cardRarityEffectsStylesheet).toContain("--idle-float-max")
-    expect(rule(cardRarityEffectsStylesheet, ".card-ground")).toContain("animation: card-ground-breathe 14s ease-in-out infinite")
+    expect(cardRarityEffectsStylesheet).toContain("translateY(calc(-1 * var(--idle-float-max)))")
   })
 
   it("keeps booster reveal, zoom size and phone pile visually unchanged", () => {
@@ -40,7 +39,7 @@ describe("the shared card rarity effects", () => {
     expect(rule(boosterLayoutsStylesheet, '.booster-zoom[data-tier="legendary"] .booster-zoom__rays')).toContain("var(--color-rarity-legendaire)")
   })
 
-  it("clips rays horizontally at wide outer boundaries, leaving ray margin visible", () => {
+  it("clips the rays sideways at each stage and fades them within the narrow ones", () => {
     for (const selector of [".card-detail__stage", ".public-card__stage", ".hub-showcase__stage"]) {
       expect(ruleBody(cardRarityEffectsStylesheet, selector)).toContain("overflow-x: clip")
     }
@@ -61,7 +60,6 @@ describe("the shared card rarity effects", () => {
     for (const prefix of ['html[data-motion="reduced"]', 'html:not([data-motion="full"])']) {
       expect(rule(cardRarityEffectsStylesheet, `${prefix} .card-rays`)).toContain("animation: none")
       expect(rule(cardRarityEffectsStylesheet, `${prefix} .card-float`)).toContain("animation: none")
-      expect(rule(cardRarityEffectsStylesheet, `${prefix} .card-ground`)).toContain("animation: none")
     }
     const reducedAt = boosterLayoutsStylesheet.lastIndexOf('html[data-motion="reduced"] .booster-card__rays')
     expect(reducedAt).toBeGreaterThan(-1)
