@@ -84,7 +84,7 @@ class LiveFeedJobTest < ActiveSupport::TestCase
 
   test "a public opening that reaches silver on a theme is one set line in the feed and the ticker, with no thumbnail" do
     common, uncommon, rare, = fixture_tier_ids
-    theme = insert_set([ common, uncommon, rare ], { bronze: 1, silver: 2, gold: 3 })
+    theme = insert_set([ common, uncommon, rare ], { bronze: 1, silver: 2, gold: 3, complete: 3 })
     Game::SetTier.insert_all!([ { player_id: @hugo.id, set_id: theme, tier: "bronze", reached_by: "trade", reached_at: 1.day.ago } ])
     Game::Holding.create!(player_id: @hugo.id, card_season_id: uncommon, quantity: 1)
     open_pack(cards: commons)

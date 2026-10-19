@@ -371,8 +371,9 @@ class Game::FeedTest < ActiveSupport::TestCase
 
   test "two sets at the same tier: the lowest set id is the highest result" do
     common = fixture_tier_ids[0]
-    first = insert_set([ common ], { bronze: 1 }, key: "roguelike")
-    insert_set([ common ], { bronze: 1 }, key: "horror")
+    rare = fixture_tier_ids[2]
+    first = insert_set([ common, rare ], { bronze: 1, complete: 2 }, key: "roguelike")
+    insert_set([ common, rare ], { bronze: 1, complete: 2 }, key: "horror")
 
     open_pack(@player, [ common ] * 5)
 
@@ -424,7 +425,7 @@ class Game::FeedTest < ActiveSupport::TestCase
 
   test "an accepted trade that crosses tiers for both players is one set entry per player, with that player's results" do
     common, uncommon, rare, = fixture_tier_ids
-    roguelike = insert_set([ common ], { bronze: 1 }, key: "roguelike")
+    roguelike = insert_set([ common, rare ], { bronze: 1, complete: 2 }, key: "roguelike")
     horror = insert_set([ uncommon, rare ], { bronze: 1, silver: 1, complete: 2 }, key: "horror")
 
     conclude_trade(@player, @other, offer: { common => 1 }, request: { uncommon => 1 })

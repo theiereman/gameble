@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/game_packs"
 
-class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
+class Game::FirstDiscoveryAndCompleteSetTest < ActiveSupport::TestCase
   include GamePacks
 
   setup do
@@ -134,7 +134,7 @@ class Game::FirstDiscoveryAndSetCompletionTest < ActiveSupport::TestCase
     assert_equal 3, game_events(@player, Game::CardDiscovered).size
   end
 
-  # Set completions
+  # Complete sets
 
   test "an opening that completes a set records it and publishes SetCompleted once, after the opening" do
     open_pack(@player, [ @portal ] * 5)

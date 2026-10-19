@@ -468,7 +468,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
   def reach_roguelike_silver(player = @player)
     common, uncommon, rare, = fixture_tier_ids
-    insert_set([ common, uncommon, rare ], { bronze: 1, silver: 2, gold: 3 })
+    insert_set([ common, uncommon, rare ], { bronze: 1, silver: 2, gold: 3, complete: 3 })
     Game::Holding.create!(player_id: player.id, card_season_id: uncommon, quantity: 1)
     create_pack(player, cards: [ common ] * 5)
     Game::OpenPack.new.call(player:).value!

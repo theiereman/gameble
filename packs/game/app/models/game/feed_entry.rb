@@ -27,10 +27,10 @@ module Game
     # The tier rows the operation wrote beside the reached one (same player,
     # way, time and pack), summed up in one entry naming the highest: a
     # complete set first, then the tier standing for the largest share of
-    # its set (a set without a complete tier counts its members), then the
-    # later tier in SetTier::TIERS, then the lowest set id. Rewritten whole on
-    # every event of the operation, so the last one leaves it complete and a
-    # replay changes nothing.
+    # its set (its required count over the complete tier's), then the later
+    # tier in SetTier::TIERS, then the lowest set id. Rewritten whole on every
+    # event of the operation, so the last one leaves it complete and a replay
+    # changes nothing.
     RECORD_SETS_SQL = <<~SQL.squish.freeze
       WITH reached AS (
         SELECT player_id, reached_by, reached_at, pack_id
@@ -39,14 +39,13 @@ module Game
       ),
       results AS (
         SELECT tiers.set_id, tiers.tier, tiers.reached_at, tiers.tier = 'complete' AS completes,
-               asked.required::numeric / COALESCE(complete.required,
-                 (SELECT COUNT(*) FROM catalog_set_memberships AS members WHERE members.set_id = tiers.set_id)) AS share,
+               asked.required::numeric / complete.required AS share,
                tier_order.position
           FROM game_set_tiers AS tiers
           JOIN reached ON tiers.player_id = reached.player_id AND tiers.reached_by = reached.reached_by
            AND tiers.reached_at = reached.reached_at AND tiers.pack_id IS NOT DISTINCT FROM reached.pack_id
           JOIN catalog_set_tiers AS asked ON asked.set_id = tiers.set_id AND asked.tier = tiers.tier
-          LEFT JOIN catalog_set_tiers AS complete ON complete.set_id = tiers.set_id AND complete.tier = 'complete'
+          JOIN catalog_set_tiers AS complete ON complete.set_id = tiers.set_id AND complete.tier = 'complete'
           JOIN #{SetTier::TIER_ORDER_SQL} ON tier_order.tier = tiers.tier
       ),
       highest AS (

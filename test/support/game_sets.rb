@@ -14,7 +14,7 @@ module GameSets
   def insert_four_themes
     common = catalog_card_seasons(:common_card_one).id
     %w[roguelike horror cosy].map { insert_set([ common, catalog_card_seasons(:rare_card_one).id ], { bronze: 1, complete: 2 }, key: it) } +
-      [ insert_set([ common ], { bronze: 1, silver: 1, gold: 1 }, key: "metroidvania") ]
+      [ insert_set([ common, catalog_card_seasons(:rare_card_one).id ], { bronze: 1, silver: 1, gold: 1, complete: 2 }, key: "metroidvania") ]
   end
 
   # A new published season (the next number) of `count` common cards,
