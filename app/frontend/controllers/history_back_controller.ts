@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { currentIndex, currentScreenLabel, entryAfter, recordEntry, resetTrail, sessionTrailStorage, stepsBackTo } from "../lib/history_trail"
+import { currentIndex, currentScreenLabel, currentScreenLabels, entryAfter, recordEntry, resetTrail, sessionTrailStorage, stepsBackTo } from "../lib/history_trail"
 
 // A contextual back link (the phone's "◀ GRILLE" or "◀ BOOSTER" in the
 // top bar): when the page it leads to is an earlier entry of this tab's
@@ -29,7 +29,7 @@ import { currentIndex, currentScreenLabel, entryAfter, recordEntry, resetTrail, 
 // opened it"), without scrolling, so the scroll Turbo restores is kept.
 const storage = sessionTrailStorage()
 resetTrail(storage)
-const record = (): void => recordEntry(currentIndex(), location.pathname, storage, currentScreenLabel())
+const record = (): void => recordEntry(currentIndex(), location.pathname, storage, currentScreenLabel(), currentScreenLabels())
 let restoring = false
 document.addEventListener("turbo:visit", (event) => {
   restoring = (event as CustomEvent<{ action?: string }>).detail?.action === "restore"

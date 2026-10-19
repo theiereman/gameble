@@ -26,7 +26,7 @@ export const TRAIL_KEY = "gameble:history-trail"
 export const TRAIL_SPAN = 100
 
 export type TrailStorage = Pick<Storage, "getItem" | "setItem">
-export type TrailEntry = { pathname: string; label?: string }
+export type TrailEntry = { pathname: string; label?: string; labels?: Record<string, string> }
 export type Trail = Record<string, TrailEntry>
 
 export function readTrail(storage: TrailStorage | null): Trail {
@@ -46,8 +46,11 @@ export function readTrail(storage: TrailStorage | null): Trail {
 
 function isTrailEntry(entry: unknown): entry is TrailEntry {
   if (!entry || typeof entry !== "object") return false
-  const { pathname, label } = entry as Record<string, unknown>
-  return typeof pathname === "string" && (label === undefined || typeof label === "string")
+  const { pathname, label, labels } = entry as Record<string, unknown>
+  if (typeof pathname !== "string" || (label !== undefined && typeof label !== "string")) return false
+  if (labels === undefined) return true
+  return !!labels && typeof labels === "object" && !Array.isArray(labels) &&
+    Object.values(labels as Record<string, unknown>).every((value) => typeof value === "string")
 }
 
 /**
@@ -64,14 +67,19 @@ export function resetTrail(storage: TrailStorage | null): void {
   }
 }
 
-/**
- * Records that the entry at `index` shows `pathname`, named `label` when the
- * screen has a short name, dropping entries far from it.
- */
-export function recordEntry(index: number, pathname: string, storage: TrailStorage | null, label?: string | null): void {
+export function recordEntry(
+  index: number,
+  pathname: string,
+  storage: TrailStorage | null,
+  label?: string | null,
+  labels?: Record<string, string> | null,
+): void {
   if (!storage) return
   const trail = readTrail(storage)
-  trail[index] = label ? { pathname, label } : { pathname }
+  const entry: TrailEntry = { pathname }
+  if (label) entry.label = label
+  if (labels && Object.keys(labels).length > 0) entry.labels = labels
+  trail[index] = entry
   for (const key of Object.keys(trail)) {
     if (Math.abs(Number(key) - index) > TRAIL_SPAN) delete trail[key]
   }
@@ -102,22 +110,29 @@ export function entryAfter(index: number, storage: TrailStorage | null): string 
   return readTrail(storage)[index + 1]?.pathname ?? null
 }
 
-export type PreviousScreen = { label: string; pathname: string; steps: number }
+export type PreviousScreen = { label: string; pathname: string; steps: number; localeChanged: boolean }
 
 /**
  * The nearest entry before the one at `index` showing a screen other than
  * `currentLabel`, skipping the entries of the current screen; null when that
- * entry is unknown, its screen has no label (the hub), or it was read in
- * another language than `currentPathname`'s.
+ * entry is unknown or its screen has no label (the hub).
  */
 export function previousScreen(trail: Trail, index: number, currentLabel: string | null, currentPathname: string): PreviousScreen | null {
+  const locale = localeOf(currentPathname)
   for (let earlier = index - 1; earlier >= Math.max(0, index - TRAIL_SPAN); earlier--) {
     const entry = trail[earlier]
     if (!entry) return null
-    if (localeOf(entry.pathname) !== localeOf(currentPathname)) return null
-    if (currentLabel && entry.label === currentLabel) continue
-    if (!entry.label) return null
-    return { label: entry.label, pathname: entry.pathname, steps: index - earlier }
+    const localeChanged = localeOf(entry.pathname) !== locale
+    if (localeChanged && pathWithoutLocale(entry.pathname) === pathWithoutLocale(currentPathname)) continue
+    const label = localeChanged ? entry.labels?.[locale] : entry.label
+    if (!label) return null
+    if (currentLabel && label === currentLabel) continue
+    return {
+      label,
+      pathname: localeChanged ? inLocale(entry.pathname, locale) : entry.pathname,
+      steps: index - earlier,
+      localeChanged,
+    }
   }
   return null
 }
@@ -142,6 +157,30 @@ export function currentScreenLabel(): string | null {
   return document.querySelector<HTMLElement>(".top-bar")?.dataset.screenLabel || null
 }
 
+export function currentScreenLabels(): Record<string, string> | null {
+  const raw = document.querySelector<HTMLElement>(".top-bar")?.dataset.screenLabels
+  if (!raw) return null
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null
+    const labels: Record<string, string> = {}
+    for (const [locale, label] of Object.entries(parsed as Record<string, unknown>)) {
+      if (typeof label === "string") labels[locale] = label
+    }
+    return Object.keys(labels).length > 0 ? labels : null
+  } catch {
+    return null
+  }
+}
+
 function localeOf(pathname: string): string {
   return pathname.split("/")[1] ?? ""
+}
+
+function pathWithoutLocale(pathname: string): string {
+  return pathname.replace(/^\/[^/]*/, "")
+}
+
+function inLocale(pathname: string, locale: string): string {
+  return `/${locale}${pathWithoutLocale(pathname)}`
 }
