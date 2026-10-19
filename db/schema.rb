@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_19_120001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_19_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -374,15 +374,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_120001) do
     t.index ["player_id"], name: "index_game_player_states_on_player_id", unique: true
   end
 
-  create_table "game_set_completions", force: :cascade do |t|
-    t.bigint "player_id", null: false
-    t.bigint "set_id", null: false
-    t.datetime "completed_at", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["player_id", "set_id"], name: "index_game_set_completions_on_player_id_and_set_id", unique: true
-  end
-
   create_table "game_set_tiers", force: :cascade do |t|
     t.bigint "player_id", null: false
     t.bigint "set_id", null: false
@@ -553,7 +544,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_19_120001) do
   add_foreign_key "game_packs", "accounts_players", column: "player_id"
   add_foreign_key "game_packs", "catalog_seasons", column: "season_id"
   add_foreign_key "game_player_states", "accounts_players", column: "player_id"
-  add_foreign_key "game_set_completions", "accounts_players", column: "player_id"
   add_foreign_key "game_set_tiers", "accounts_players", column: "player_id"
   add_foreign_key "game_set_tiers", "game_packs", column: "pack_id", on_delete: :cascade
   add_foreign_key "game_trade_items", "catalog_card_seasons", column: "card_season_id"

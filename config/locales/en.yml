@@ -152,7 +152,7 @@ en:
       settings: "Profile and settings"
     legal:
       title: "Legal notice and privacy"
-      updated: "Last updated: 16 October 2026"
+      updated: "Last updated: 19 October 2026"
       contact_fallback: "the publisher"
       publisher:
         title: "Publisher and host"
@@ -216,7 +216,7 @@ en:
           errors: "technical errors received by Sentry: 90 days at most, depending on the publisher's Sentry plan;"
           backups: "the database backups, encrypted and kept in France: the last 7 daily backups, that is 7 days in normal times; a deleted account is gone from them after 7 days, a little longer if a backup failed;"
           leftovers: "what a deleted account leaves behind that concerns other players or the community (past trades, first discoveries, contributions to the community goal, the log of game actions): as long as the game exists, without a Steam id or a name."
-        deletion: "When you delete your account, your Steam id, your profile name, the time of your last visit, your last data export, your collection, your capsules, your friendships, your invitations, your friend code and your activity feed entries are erased, your open trades are cancelled and your profile disappears. What also concerns other players, the community or moderation (past trades, first discoveries, contributions to the community goal, reports, moderation history, the log of game actions) is kept without your Steam id or your name, for the periods given above."
+        deletion: "When you delete your account, your Steam id, your profile name, the time of your last visit, your last data export, your latest activity, your collection, your set tiers, your achievements, your capsules, your daily bonuses, your community goal rewards, your friendships, your invitations, your friend code and your activity feed entries are erased, your open trades are cancelled and your profile disappears. What also concerns other players, the community or moderation (past trades, first discoveries, contributions to the community goal, reports, moderation history, the log of game actions) is kept without your Steam id or your name, for the periods given above."
         rights:
           intro: "You can access your data, have it rectified or erased, restrict its processing, object to processing based on legitimate interest and receive a reusable copy of it. You can also say what becomes of your data after your death. We reply within one month."
           access: "access: from the settings, with \"Export\" under \"My data\", which downloads a copy of your data in a reusable file;"
@@ -1355,7 +1355,7 @@ en:
     dialog:
       title: "Delete my account"
       close: "Close"
-      note: "Erased for good: your Steam id, your name, your profile and its link, the time of your last visit, your last data export and your latest activity, your collection, your set tiers, your completed sets and your achievements, your capsules, opened or not, your daily bonuses and your community goal rewards, your friends, your invitations and your friend code, and your activity feed entries: pulls, discoveries, reposts and every trade that names you. Your open trades will be cancelled."
+      note: "Erased for good: your Steam id, your name, your profile and its link, the time of your last visit, your last data export and your latest activity, your collection, your set tiers and your achievements, your capsules, opened or not, your daily bonuses and your community goal rewards, your friends, your invitations and your friend code, and your activity feed entries: pulls, discoveries, reposts and every trade that names you. Your open trades will be cancelled."
       kept: "Kept, without your Steam id or your name: your past trades, your first discoveries, your contributions to the community goal, reports, the moderation history and the log of game actions. This cannot be undone."
       word: "DELETE"
       label: "Type %{word} to confirm"

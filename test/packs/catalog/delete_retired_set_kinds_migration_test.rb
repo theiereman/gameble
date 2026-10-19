@@ -2,6 +2,7 @@ require "test_helper"
 require_relative "../../support/catalog_seeds"
 require Rails.root.join("db/migrate/20261015130000_delete_retired_set_kinds").to_s
 require Rails.root.join("db/migrate/20261015130001_narrow_catalog_sets_kind_check").to_s
+require Rails.root.join("db/migrate/20261019150000_drop_game_set_completions").to_s
 
 # The tomes, publisher sets and best-of-year sets go, in every season, with
 # their memberships, tiers and completions; the kind check then refuses them.
@@ -10,8 +11,14 @@ class Catalog::DeleteRetiredSetKindsMigrationTest < ActiveSupport::TestCase
 
   RETIRED_KINDS = %w[tome publisher best_of_year].freeze
 
+  setup { restore_completions_table }
+
   def run_migration(migration, direction = :up)
     ActiveRecord::Migration.suppress_messages { migration.new.migrate(direction) }
+  end
+
+  def restore_completions_table
+    run_migration(DropGameSetCompletions, :down)
   end
 
   # strong_migrations refuses a validation inside the test's transaction, so the check is validated directly.

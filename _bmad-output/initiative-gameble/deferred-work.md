@@ -268,6 +268,8 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-refactor-sweep-plan.md`
   summary: `Game::SetCompletion` and its table `game_set_completions` are no longer written since tiers replaced completions; only `Game::ReleasePlayer` still deletes a player's rows, and the account deletion copy still names completed sets. Dropping them needs a migration and changes that copy and one delete query.
   evidence: `packs/game/app/models/game/set_completion.rb`, `packs/game/app/operations/game/release_player.rb:16`, `test/controllers/accounts_controller_test.rb:42`. The author decides whether the table goes before the public launch.
+  resolved: Entry 13.26 (2026-10-19, `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-dead-set-completions-table-dropped-and-the-feed-s-share-plan.md`) removes `Game::SetCompletion`, drops `game_set_completions` in its own migration and stops the account deletion copy naming completed sets.
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-refactor-sweep-plan.md`
   summary: The feed's tier share falls back to counting a set's members when the set has no complete tier row, a case only test fixtures create (`COALESCE(complete.required, (SELECT COUNT(*) …))`); giving those fixtures their complete rows would let the fallback go.
   evidence: `packs/game/app/models/game/feed_entry.rb:42-43`; every set published by `Catalog::SetBuilder` has a complete row (entry 22's Implementation Notes).
+  resolved: Entry 13.26 (2026-10-19, `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-dead-set-completions-table-dropped-and-the-feed-s-share-plan.md`) divides by the complete tier row only and gives the test sets their complete rows.

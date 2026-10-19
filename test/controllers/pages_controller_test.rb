@@ -775,7 +775,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_response :success
-    assert_select ".legal__updated", "Dernière mise à jour : 16 octobre 2026"
+    assert_select ".legal__updated", "Dernière mise à jour : 19 octobre 2026"
     %w[.legal__moderation .legal__notice .legal__rectification .legal__objection .legal__death .legal__banned].each do |line|
       assert_select "#{line} a.legal__link[href=?]", "mailto:contact@example.test", "contact@example.test"
     end
@@ -790,7 +790,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :en)
 
     assert_response :success
-    assert_select ".legal__updated", "Last updated: 16 October 2026"
+    assert_select ".legal__updated", "Last updated: 19 October 2026"
     assert_select ".legal__moderation", /by writing to the publisher\.\z/
     assert_select ".legal__notice", /write to the publisher with the page's address/
     assert_select ".legal__rectification", /write to the publisher;\z/
@@ -819,6 +819,24 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     [ "three years", "one year", "30 days", "90 days at most", "as long as the suspension lasts" ].each { assert_includes retention, it }
     assert_select ".legal__retention li", "the database backups, encrypted and kept in France: the last 7 daily backups, that is 7 days in normal times; a deleted account is gone from them after 7 days, a little longer if a backup failed;"
     assert_select ".legal__retention + p", /for the periods given above\.\z/
+  end
+
+  test "the deletion paragraph names the game data an account deletion erases, completions as set tiers" do
+    configure_legal
+    erased = {
+      fr: [ "votre dernière activité", "votre collection", "vos paliers de sets", "vos succès", "vos capsules", "vos bonus du jour",
+            "vos récompenses de l'objectif communautaire", "vos amitiés", "vos invitations", "votre code ami", "vos entrées du fil d'activité" ],
+      en: [ "your latest activity", "your collection", "your set tiers", "your achievements", "your capsules", "your daily bonuses",
+            "your community goal rewards", "your friendships", "your invitations", "your friend code", "your activity feed entries" ]
+    }
+
+    erased.each do |locale, phrases|
+      get legal_path(locale:)
+
+      deletion = css_select(".legal__retention + p").text
+      phrases.each { assert_includes deletion, it }
+      assert_no_match(/complétés|completed sets/, deletion)
+    end
   end
 
   test "the outside services name OVH, which keeps the encrypted backups in France" do
