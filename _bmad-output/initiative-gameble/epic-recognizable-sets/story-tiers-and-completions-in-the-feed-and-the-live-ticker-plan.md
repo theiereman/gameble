@@ -3,7 +3,7 @@ title: 'Tiers and completions in the feed and the LIVE ticker'
 type: 'feature'
 ticket: '6'
 created: '2026-10-17'
-status: 'built'
+status: done
 baseline_revision: 'be756f9c1ef96ef4046a38c31fa9cd064188ae59'
 route: 'full'
 route_source: 'auto'
