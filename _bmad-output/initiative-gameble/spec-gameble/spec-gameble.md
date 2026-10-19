@@ -169,7 +169,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-22**
   - **intent:** A player shows their collecting through a profile title and dresses their menus with a rare theme.
   - **success:**
-    - Each tier of a set and its completion unlock a profile title built from a template that needs no grammatical agreement: the tier's rank for a tier ("Adepte · Roguelike"), "Complétiste" for completion ("Complétiste · Dark Souls"). Titles earned on bronze, silver or gold in an earlier season keep Apprenti, Adepte and Maître. A title is earned once per set and tier, whatever the seasons; it shows the latest season it was earned in.
+    - Each tier of a set and its completion unlock a profile title built from a template that needs no grammatical agreement: the tier's rank for a tier ("Adepte · Roguelike"), "Complétiste" for completion ("Complétiste · Dark Souls"). Bronze, silver and gold reached in an earlier season give the titles Apprenti, Adepte and Maître, the same titles as the Apprenti, Adepte and Maître tiers: a set has one title per rank, earned by either (author, 2026-10-19). A title is earned once per set and rank, whatever the seasons; it shows the latest season it was earned in.
     - The player picks one active title; it shows on their profile, in the feed and in trades.
     - Completing 3, 10 and 25 sets, of any kind, unlocks a menu theme each: an accent colour applied to the interface, with contrast checked. Only the player sees it.
 - **CAP-23**
