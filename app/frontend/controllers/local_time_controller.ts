@@ -8,7 +8,7 @@ export default class extends Controller<HTMLTimeElement> {
   declare readonly suffixValue: string
 
   connect(): void {
-    // A morph refresh writes the server's UTC text back without reconnecting the controller.
+    // A morph refresh writes the server's text back without reconnecting the controller.
     this.element.addEventListener("turbo:morph-element", this.render)
     this.render()
   }

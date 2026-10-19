@@ -20,6 +20,7 @@ export default class extends Controller<HTMLDialogElement> {
   connect(): void {
     this.element.addEventListener("close", this.closed)
     document.addEventListener("turbo:before-cache", this.beforeCache)
+    this.showSentOpenAsModal()
   }
 
   disconnect(): void {
@@ -27,6 +28,13 @@ export default class extends Controller<HTMLDialogElement> {
     document.removeEventListener("turbo:before-cache", this.beforeCache)
     if (this.element.open) this.element.close()
     takeOpener(this.element)
+  }
+
+  // The `open` attribute shows a dialog non-modal: no scrim, no focus trap.
+  private showSentOpenAsModal(): void {
+    if (!this.element.open || this.element.matches(":modal")) return
+    this.element.close()
+    this.element.showModal()
   }
 
   close(): void {

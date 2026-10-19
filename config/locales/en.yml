@@ -1434,6 +1434,15 @@ en:
       format:
         delimiter: ""
         format: "%n%"
+  date:
+    abbr_month_names: [~, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
+    day_names: [Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]
+  time:
+    formats:
+      local_datetime: "%b %-d, %H:%M"
+      local_date_time_year: "%b %-d, %Y, %H:%M"
+      local_time: "%H:%M"
+      local_weekday_time: "%A %H:%M"
   activerecord:
     errors:
       messages:

@@ -15,6 +15,16 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   def forced_motion = css_select("html").first["data-motion"]
   def transition_meta? = css_select("meta[name=view-transition]").any?
 
+  def open_trade(proposer:, recipient:)
+    low, high = [ proposer.id, recipient.id ].minmax
+    Game::Friendship.find_or_create_by!(low_player_id: low, high_player_id: high)
+    offered = catalog_card_seasons(:portal_one).id
+    requested = catalog_card_seasons(:rare_card_one).id
+    Game::Holding.find_or_create_by!(player_id: proposer.id, card_season_id: offered).increment!(:quantity)
+    Game::Holding.find_or_create_by!(player_id: recipient.id, card_season_id: requested).increment!(:quantity)
+    Game::ProposeTrade.new.call(player: proposer, recipient:, offer: { offered => 1 }, request: { requested => 1 }).value!
+  end
+
   # The settings screen
 
   test "a player's settings screen: language, visibility, reduced motion, sign-out, the account, support and the legal link, the system chosen by default" do
@@ -83,6 +93,18 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     get settings_path(locale: :en)
     assert_select "p.settings-row__note time", "2026-10-04 07:05 UTC"
+  end
+
+  test "once the browser has sent its zone, the time of the last export is already the local one the browser shows" do
+    Accounts::RecordExport.new.call(player: @player, at: Time.utc(2026, 10, 4, 7, 5), file: "{}").value!
+    sign_in(@player)
+    cookies[LocalTimeHelper::TIME_ZONE_COOKIE] = "Europe/Paris"
+
+    get settings_path(locale: :fr)
+    assert_select "p.settings-row__note time[datetime='2026-10-04T07:05:00Z']", "4 oct. 2026 à 09h05"
+
+    get settings_path(locale: :en)
+    assert_select "p.settings-row__note time[datetime='2026-10-04T07:05:00Z']", "Oct 4, 2026, 09:05"
   end
 
   test "within five minutes of the last export, EXPORTER is disabled and says when the next export is allowed" do
@@ -162,6 +184,78 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "PRIVÉ posted with trades open but unconfirmed changes nothing and comes back with the dialog open" do
+    open_trade(proposer: @player, recipient: accounts_players(:moderator))
+    sign_in(@player)
+
+    patch settings_visibility_path(locale: :fr), params: { visibility: "private" }
+
+    assert_redirected_to settings_path(locale: :fr)
+    assert_equal "public", @player.reload.visibility
+    assert_equal "open", Game::Trade.sole.status
+    follow_redirect!
+    assert_select "dialog#private-dialog[open]" do
+      assert_select ".private-dialog__text", "Passer en privé annule votre échange en cours."
+      assert_select "input[type=hidden][name=confirmed_trades][value=1]"
+    end
+    assert_nil flash[:notice]
+
+    get settings_path(locale: :fr)
+    assert_select "dialog#private-dialog:not([open])"
+  end
+
+  test "a trade opened since the page loaded brings the dialog back with the new count, and confirming it cancels both" do
+    open_trade(proposer: @player, recipient: accounts_players(:moderator))
+    sign_in(@player)
+
+    get settings_path(locale: :fr)
+    assert_select "dialog#private-dialog:not([open]) input[name=confirmed_trades][value=1]"
+
+    open_trade(proposer: accounts_players(:administrator), recipient: @player)
+    patch settings_visibility_path(locale: :fr), params: { visibility: "private", confirmed_trades: "1" }
+
+    assert_equal "public", @player.reload.visibility
+    follow_redirect!
+    assert_select "dialog#private-dialog[open]" do
+      assert_select ".private-dialog__text", "Passer en privé annule vos 2 échanges en cours."
+      assert_select "input[type=hidden][name=confirmed_trades][value=2]"
+    end
+
+    patch settings_visibility_path(locale: :fr), params: { visibility: "private", confirmed_trades: "2" }
+
+    assert_redirected_to settings_path(locale: :fr)
+    assert_equal "private", @player.reload.visibility
+    assert_equal [ "cancelled", "cancelled" ], Game::Trade.order(:created_at).pluck(:status)
+    assert_nil flash[:notice]
+    follow_redirect!
+    assert_select "dialog#private-dialog", 0
+  end
+
+  test "PRIVÉ posted again by a private player with trades open applies at once, without the dialog" do
+    open_trade(proposer: @player, recipient: accounts_players(:moderator))
+    @player.update!(visibility: "private")
+    sign_in(@player)
+
+    patch settings_visibility_path(locale: :fr), params: { visibility: "private" }
+
+    assert_redirected_to settings_path(locale: :fr)
+    assert_equal "private", @player.reload.visibility
+    follow_redirect!
+    assert_select "dialog#private-dialog", 0
+  end
+
+  [ nil, "", "two", [ "1" ] ].each do |confirmed|
+    test "a confirmed count of #{confirmed.inspect} confirms no trade" do
+      open_trade(proposer: @player, recipient: accounts_players(:moderator))
+      sign_in(@player)
+
+      patch settings_visibility_path(locale: :en), params: { visibility: "private", confirmed_trades: confirmed }
+
+      assert_equal "public", @player.reload.visibility
+      assert_equal "open", Game::Trade.sole.status
+    end
+  end
+
   [ nil, "", "everyone", "Private", [ "private" ] ].each do |choice|
     test "#{choice.inspect} is no visibility: refused with its message, nothing changes" do
       sign_in(@player)
@@ -187,15 +281,17 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "button[name=visibility][value=private][type=submit][aria-haspopup=dialog][data-dialog-opener-dialog-value=private-dialog]", "Privé"
     assert_select "button[name=visibility][value=friends_only]:not([data-dialog-opener-dialog-value])"
-    assert_select "dialog#private-dialog form[action='/fr/settings/visibility'][data-turbo=false]" do
+    assert_select "dialog#private-dialog button.modal__close[type=submit][form=private-dialog-form][formmethod=dialog][data-action='dialog#close']"
+    assert_select "dialog#private-dialog form#private-dialog-form[action='/fr/settings/visibility'][data-turbo=false]" do
       assert_select "input[name=_method][value=patch]"
       assert_select "input[type=hidden][name=visibility][value=private]"
+      assert_select "input[type=hidden][name=confirmed_trades][value=1]"
       assert_select ".private-dialog__text", "Passer en privé annule votre échange en cours."
       assert_select "button[type=submit]", "Passer en privé"
-      assert_select "button[type=button][data-action='dialog#close']", "Annuler"
+      assert_select "button[type=submit][formmethod=dialog][data-action='dialog#close']", "Annuler"
     end
 
-    patch settings_visibility_path(locale: :fr), params: { visibility: "private" }
+    patch settings_visibility_path(locale: :fr), params: { visibility: "private", confirmed_trades: "1" }
     assert_equal "cancelled", Game::Trade.sole.status
     follow_redirect!
     assert_select "dialog#private-dialog", 0

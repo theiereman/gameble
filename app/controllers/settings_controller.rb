@@ -11,11 +11,14 @@ class SettingsController < ApplicationController
     @last_export = Accounts::LastExportOf.call(current_player)
     @next_export_at = current_player.next_export_at
     @open_trades = Game::OpenTradeCount.call(current_player)
+    @asks_to_go_private = flash[:confirm_private].present?
   end
 
   # PATCH /:locale/settings/visibility
   def visibility
     authorize :settings, :visibility?
+
+    return redirect_to(settings_path, flash: { confirm_private: true }, status: :see_other) if cancels_unconfirmed_trades?
 
     result = Accounts::SetVisibility.new.call(player: current_player, visibility: params[:visibility])
     if result.success?
@@ -36,5 +39,12 @@ class SettingsController < ApplicationController
     else
       redirect_to settings_path, alert: Accounts::UpdateSettings.failure_message(result.failure), status: :see_other
     end
+  end
+
+  private
+
+  def cancels_unconfirmed_trades?
+    params[:visibility] == "private" && !current_player.visibility_private? &&
+      Game::OpenTradeCount.call(current_player) > params[:confirmed_trades].to_s.to_i
   end
 end
