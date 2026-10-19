@@ -1,25 +1,22 @@
-<%# A public profile's summary (DESIGN.md, Profile and settings: Public
-    profile summary, without the showcase, which waits for its story): the
-    avatar, the owner's name, what their collection counts and who may see
-    it. Locals:
-    - owner: the profile's player;
-    - title: the profile's title (public_profile_title);
-    - summary: the owner's Game::CollectionSummary.
-    The report dialog (reports/_dialog) is rendered by the profile. %>
-<%= render PanelComponent.new(tag: :header, brackets: true, class: "profile-summary") do %>
-  <%= pixel_icon("avatar-default", class: "profile-summary__avatar") %>
-  <div class="profile-summary__text">
-    <%= content_tag :h1, title, id: "profile-heading", class: "profile-summary__name" %>
-    <ul class="profile-summary__counts" aria-label="<%= t("public_profiles.show.counts") %>">
-      <li><%= t("public_profiles.show.distinct_cards", count: summary.distinct_cards) %></li>
-      <li><%= t("public_profiles.show.complete_sets", count: summary.complete_sets) %></li>
-    </ul>
-    <p class="profile-summary__visibility"><%= public_profile_visibility(owner) %></p>
-    <%# SIGNALER (CAP-15): a visitor is led to the sign-in panel, a player to the report dialog; the owner reports no one. %>
-    <% if current_player.nil? %>
-      <%= render ButtonComponent.new(variant: :link, size: :small, opens: "sign-in-panel") do %><%= t("reports.open") %><% end %>
-    <% elsif current_player != owner %>
-      <%= render ButtonComponent.new(variant: :link, size: :small, opens: "report-dialog") do %><%= t("reports.open") %><% end %>
-    <% end %>
+<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:) %>
+<%= render PanelComponent.new(tag: :header, brackets: true, class: "profile-band") do %>
+  <div class="profile-band__who">
+    <%= pixel_icon("avatar-default", class: "profile-band__avatar") %>
+    <div class="profile-band__identity">
+      <%= content_tag :h1, title, id: "profile-heading", class: "profile-band__name" %>
+      <p class="profile-band__meta">
+        <span class="profile-band__since"><%= t("public_profiles.show.member_since", date: l(owner.created_at.to_date, format: :month_year)) %></span>
+        <% if current_player.nil? %>
+          <%= render ButtonComponent.new(variant: :link, size: :small, opens: "sign-in-panel") do %><%= t("reports.open") %><% end %>
+        <% elsif current_player != owner %>
+          <%= render ButtonComponent.new(variant: :link, size: :small, opens: "report-dialog") do %><%= t("reports.open") %><% end %>
+        <% end %>
+      </p>
+    </div>
   </div>
+  <dl class="profile-band__keys">
+    <%= render "public_profiles/figure", label: t("public_profiles.show.keys.cards"), value: summary.distinct_cards, total: (card_total if season) %>
+    <%= render "public_profiles/figure", label: t("public_profiles.show.keys.complete_sets"), value: summary.complete_sets %>
+    <%= render "public_profiles/figure", label: t("public_profiles.show.keys.achievements"), value: achievements.count, total: achievements.total %>
+  </dl>
 <% end %>

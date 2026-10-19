@@ -1,100 +1,357 @@
 /*
- * A player's public profile (public_profiles/*; DESIGN.md: Profile and
- * settings, Collection; story 10.3): the summary panel, then the sets and
- * the open set drawn with the collection's own components (collection.css),
- * read-only. Hard edges and pixel outlines on the 2px grid.
+ * A player's public profile (public_profiles/*): the identity band with its
+ * key numbers, the stats, the latest achievements and the started sets, one
+ * column; and the quiet panel of a profile that cannot be shown. Hard edges
+ * and pixel outlines on the 2px grid.
  */
 
 .profile {
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
+  gap: 40px;
+  min-width: 0;
 }
 
-/* ---- The summary: the avatar, the name and the counts ---- */
+/* ---- A figure: a small muted label over a big number ---- */
 
-.profile-summary {
+.profile-figure {
+  min-width: 0;
+}
+
+.profile-figure__label {
   display: flex;
   align-items: center;
-  gap: var(--space-7);
-  padding: var(--space-panel-padding);
+  gap: 6px;
+  min-height: 16px;
+  margin: 0 0 var(--space-2);
+  color: var(--figure-color, var(--color-muted));
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
 }
 
-.profile-summary__avatar {
+.profile-figure__icon {
+  display: block;
+  flex: none;
+}
+
+.profile-figure__value {
+  margin: 0;
+  color: var(--figure-color, var(--color-text-max));
+  font: var(--font-count-large);
+  letter-spacing: var(--tracking-count-large);
+  white-space: nowrap;
+}
+
+.profile-figure__total {
+  display: inline-block;
+  margin-left: var(--space-1);
+  color: var(--color-muted);
+  font: var(--font-number);
+  letter-spacing: var(--tracking-number);
+}
+
+.profile-figure--rarity-1 { --figure-color: var(--color-rarity-commune); }
+.profile-figure--rarity-2 { --figure-color: var(--color-rarity-peu-commune); }
+.profile-figure--rarity-3 { --figure-color: var(--color-rarity-rare); }
+.profile-figure--rarity-4 { --figure-color: var(--color-rarity-epique); }
+.profile-figure--rarity-5 { --figure-color: var(--color-rarity-legendaire); }
+
+/* ---- The identity band: who, then the three key numbers on its right ---- */
+
+.profile-band {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-7) var(--space-gutter-medium);
+}
+
+.profile-band__who {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.profile-band__avatar {
   flex: none;
   width: 64px;
   height: 64px;
   box-shadow: var(--pixel-outline-3);
 }
 
-.profile-summary__text {
+.profile-band__identity {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
   min-width: 0;
 }
 
-.profile-summary__name {
+.profile-band__name {
   margin: 0;
+  color: var(--color-text-max);
   font: var(--font-public-title);
   letter-spacing: var(--tracking-public-title);
   overflow-wrap: anywhere;
 }
 
-.profile-summary__counts {
+.profile-band__meta {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3) var(--space-6);
+  align-items: center;
+  gap: var(--space-2) var(--space-6);
+  margin: var(--space-3) 0 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.profile-band__meta .button--link {
+  min-height: 24px;
+  color: var(--color-alert);
+}
+
+.profile-band__keys {
+  display: flex;
+  flex: none;
   margin: 0;
-  padding: 0;
-  list-style: none;
+}
+
+.profile-band__keys .profile-figure {
+  margin-left: var(--space-gutter-medium);
+  padding-left: var(--space-gutter-medium);
+  box-shadow: calc(-1 * var(--space-unit)) 0 0 0 var(--color-line-soft);
+}
+
+/* ---- The stats: RARETÉS and ACTIVITÉ, two bands under a rule ---- */
+
+.profile-stats {
+  padding: var(--space-2) var(--space-7);
+}
+
+.profile-stats__band {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  gap: var(--space-5);
+  margin: 0;
+  padding: var(--space-6) 0;
+}
+
+.profile-stats__band + .profile-stats__band {
+  box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line-soft);
+}
+
+.profile-stats__kicker {
+  padding-top: var(--space-2);
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.profile-stats__figures {
+  min-width: 0;
+  margin: 0;
+}
+
+.profile-stats__grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin: 0;
+}
+
+/* ---- SUCCÈS and SETS: a kicker over their content ---- */
+
+.profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.profile-section__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+}
+
+.profile-section__title {
+  margin: 0;
+  color: var(--color-accent);
+  font: var(--font-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+}
+
+.profile-section__aside {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.profile-section__label {
+  margin: var(--space-3) 0 0;
   color: var(--color-muted);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
 }
 
-/* ---- A profile that cannot be shown ---- */
+.achievements__grid.profile-achievements {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.profile-sets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.profile-sets .set-row {
+  height: 100%;
+}
+
+/* ---- A profile that cannot be shown: one quiet panel, centred ---- */
 
 .profile-unavailable {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--space-4);
-  max-width: 640px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 520px;
+  margin: 80px auto 0;
+  padding: 36px var(--space-gutter-medium) var(--space-8);
+  text-align: center;
 }
 
-.profile-unavailable > h1 {
+.profile-unavailable__avatar {
+  width: 64px;
+  height: 64px;
+  box-shadow: var(--pixel-outline-3);
+  opacity: 0.6;
+}
+
+.profile-unavailable__title {
+  margin: 6px 0 0;
+  color: var(--color-text-max);
+  font: var(--font-showcase-name);
+  letter-spacing: var(--tracking-showcase-name);
+  text-transform: uppercase;
+}
+
+.profile-unavailable__body {
+  max-width: 40ch;
   margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+  letter-spacing: var(--tracking-body);
 }
 
 @media (max-width: 719px) {
-  .profile-summary {
-    gap: var(--space-6);
+  .profile {
+    gap: var(--space-8);
   }
 
-  .profile-summary__name {
+  .profile-band {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-5);
+    padding: var(--space-5);
+  }
+
+  .profile-band__who {
+    gap: var(--space-5);
+  }
+
+  .profile-band__avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .profile-band__name {
     font: var(--font-public-title-phone);
     letter-spacing: var(--tracking-public-title-phone);
   }
+
+  .profile-band__meta .button--link {
+    min-height: var(--space-touch-min);
+  }
+
+  .profile-band__keys {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding-top: 14px;
+    box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line-soft);
+  }
+
+  .profile-band__keys .profile-figure {
+    margin: 0;
+    padding-left: var(--space-4);
+  }
+
+  .profile-band__keys .profile-figure:first-child {
+    padding-left: 0;
+    box-shadow: none;
+  }
+
+  .profile-figure__value {
+    font: var(--font-count-large-phone);
+    letter-spacing: var(--tracking-count-large-phone);
+    white-space: normal;
+  }
+
+  .profile-figure__total {
+    font-size: 1rem;
+  }
+
+  .profile-stats {
+    padding: 0 var(--space-5);
+  }
+
+  .profile-stats__band {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    padding: var(--space-5) 0;
+  }
+
+  .profile-stats__kicker {
+    padding-top: 0;
+  }
+
+  .profile-stats__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5) var(--space-4);
+  }
+
+  .profile-stats__grid--rarities {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .achievements__grid.profile-achievements,
+  .profile-sets {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .profile-unavailable {
+    margin-top: var(--space-8);
+    padding: var(--space-8) var(--space-5) var(--space-7);
+  }
+
+  .profile-unavailable__title {
+    font: var(--font-showcase-name-phone);
+    letter-spacing: var(--tracking-showcase-name-phone);
+  }
 }
 
-/* Who may see the profile (CAP-14), under the counts. */
-.profile-summary__visibility {
-  margin: 0;
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-}
-
-/* SIGNALER (CAP-15): an orange link under the profile's visibility line
-   (DESIGN.md, Link). */
-.profile-summary__text .button--link {
-  align-self: flex-start;
-  color: var(--color-alert);
-}
-
-/* The report dialog (DESIGN.md, Report dialog): the title row in alert
+/* The report dialog: the title row in alert
    orange, a radio list of reasons, the note and the danger button. */
 .modal__title--alert {
   color: var(--color-alert);

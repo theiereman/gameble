@@ -16,13 +16,18 @@ module Game
        WHERE game_set_tiers.player_id = :player_id AND game_set_tiers.tier = 'complete'
     SQL
 
+    PACKS_OPENED_SQL = "SELECT COUNT(*) FROM game_packs WHERE player_id = :player_id AND opened_at IS NOT NULL".freeze
+    TRADES_ACCEPTED_SQL = <<~SQL.squish.freeze
+      SELECT COUNT(*) FROM game_trades WHERE status = 'accepted' AND (proposer_id = :player_id OR recipient_id = :player_id)
+    SQL
+
     SQL = <<~SQL.squish.freeze
       SELECT
-        (SELECT COUNT(*) FROM game_packs WHERE player_id = :player_id AND opened_at IS NOT NULL),
+        (#{PACKS_OPENED_SQL}),
         (#{format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:epic))}),
         (#{format(OBTAINED_SQL, Catalog::Rarity::TIERS.key(:legendary))}),
         (#{SETS_COMPLETED_SQL}),
-        (SELECT COUNT(*) FROM game_trades WHERE status = 'accepted' AND (proposer_id = :player_id OR recipient_id = :player_id)),
+        (#{TRADES_ACCEPTED_SQL}),
         (SELECT COUNT(*) FROM game_feed_entries WHERE player_id = :player_id AND kind = 'repost')
     SQL
 

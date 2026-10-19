@@ -1,0 +1,24 @@
+<%# locals: (rarities:, activity:) %>
+<%= render PanelComponent.new(tag: :section, class: "profile-stats", aria: { label: t("public_profiles.show.stats.title") }) do %>
+  <dl class="profile-stats__band">
+    <dt class="profile-stats__kicker"><%= t("public_profiles.show.stats.rarities") %></dt>
+    <dd class="profile-stats__figures">
+      <dl class="profile-stats__grid profile-stats__grid--rarities">
+        <% rarities.sort.each do |tier, count| %>
+          <%= render "public_profiles/figure", label: t("catalog.rarity.#{Catalog::Rarity::TIERS.fetch(tier)}"), value: count,
+            modifier: "rarity-#{tier}", icon: pixel_icon("rarity-#{tier}", class: "profile-figure__icon") %>
+        <% end %>
+      </dl>
+    </dd>
+  </dl>
+  <dl class="profile-stats__band">
+    <dt class="profile-stats__kicker"><%= t("public_profiles.show.stats.activity") %></dt>
+    <dd class="profile-stats__figures">
+      <dl class="profile-stats__grid">
+        <%= render "public_profiles/figure", label: t("public_profiles.show.stats.packs_opened"), value: activity.packs_opened %>
+        <%= render "public_profiles/figure", label: t("public_profiles.show.stats.first_discoveries"), value: activity.first_discoveries %>
+        <%= render "public_profiles/figure", label: t("public_profiles.show.stats.trades_concluded"), value: activity.trades_concluded %>
+      </dl>
+    </dd>
+  </dl>
+<% end %>

@@ -1,0 +1,11 @@
+<%# locals: (achievements:) %>
+<section class="profile-section" aria-labelledby="profile-achievements-heading">
+  <h2 id="profile-achievements-heading" class="profile-section__title"><%= t("public_profiles.show.achievements.title") %></h2>
+  <%= render "achievements/header", earned: achievements.count, total: achievements.total %>
+  <% if achievements.latest.any? %>
+    <p class="profile-section__label"><%= t("public_profiles.show.achievements.latest") %></p>
+    <ul class="achievements__grid profile-achievements">
+      <%= render partial: "achievements/tile", collection: achievements.latest, as: :tile %>
+    </ul>
+  <% end %>
+</section>

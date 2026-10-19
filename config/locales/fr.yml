@@ -805,22 +805,33 @@ fr:
     title: "%{name}"
     fallback_title: "Joueur %{code}"
     show:
-      visibility:
-        public: "Visible par tous, même sans compte"
-        friends_only: "Visible par vos amis et la modération seulement"
-        private: "Profil privé : vous seul et la modération le voyez"
-        banned: "Joueur banni : visible par la modération seulement"
-      counts: "La collection"
       no_season: "Aucune saison de cartes n'est publiée pour l'instant."
       # French keeps the singular for 0, which the plural rule here does not.
       distinct_cards:
         zero: "%{count} carte collectionnée"
         one: "%{count} carte collectionnée"
         other: "%{count} cartes collectionnées"
-      complete_sets:
-        zero: "%{count} collection complète"
-        one: "%{count} collection complète"
-        other: "%{count} collections complètes"
+      member_since: "Membre depuis %{date}"
+      keys:
+        cards: "Cartes"
+        complete_sets: "Sets complets"
+        achievements: "Succès"
+      stats:
+        title: "Statistiques"
+        rarities: "Raretés"
+        activity: "Activité"
+        packs_opened: "Capsules ouvertes"
+        first_discoveries: "Premières découvertes"
+        trades_concluded: "Échanges conclus"
+      achievements:
+        title: "Succès"
+        latest: "Derniers obtenus"
+      sets:
+        title: "Sets"
+        started:
+          zero: "%{count} set entamé"
+          one: "%{count} set entamé"
+          other: "%{count} sets entamés"
     set:
       title: "%{set} · %{name} · gameble"
       heading: "%{set} · %{name}"
@@ -1583,6 +1594,9 @@ fr:
         delimiter: ""
         format: "%n\u00A0%"
   date:
+    formats:
+      month_year: "%B %Y"
+    month_names: [~, janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre]
     abbr_month_names: [~, janv., févr., mars, avr., mai, juin, juil., août, sept., oct., nov., déc.]
     day_names: [dimanche, lundi, mardi, mercredi, jeudi, vendredi, samedi]
   time:

@@ -1,0 +1,5 @@
+<%# locals: (label:, value:, total: nil, modifier: nil, icon: nil) %>
+<div class="<%= class_names("profile-figure", "profile-figure--#{modifier}" => modifier) %>">
+  <dt class="profile-figure__label"><%= icon %><%= label %></dt>
+  <dd class="profile-figure__value"><%= number_with_delimiter(value) %><% if total %><span class="profile-figure__total">/<%= number_with_delimiter(total) %></span><% end %></dd>
+</div>

@@ -1,0 +1,11 @@
+<%# locals: (earned:, total:) %>
+<div class="achievements__head">
+  <p class="achievements__count" aria-hidden="true"><%= earned %><span class="achievements__total"> / <%= total %></span></p>
+  <p class="visually-hidden"><%= t("achievements.show.summary", count: earned, earned:, total:) %></p>
+  <div class="achievements__gauge-block">
+    <p class="achievements__label"><%= t("achievements.show.earned_label") %></p>
+    <div class="achievements__gauge" aria-hidden="true">
+      <% total.times do |index| %><span class="achievements__segment<%= " achievements__segment--lit" if index < earned %>"></span><% end %>
+    </div>
+  </div>
+</div>

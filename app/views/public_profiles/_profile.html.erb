@@ -1,21 +1,12 @@
-<%# A player's public profile: their summary, then their sets as the
-    collection opens on them (library/entry), with the owner's progress,
-    each leading to that set on the profile; no way to all the cards here.
-    Locals:
-    - owner: the profile's player;
-    - title: the profile's title (public_profile_title);
-    - summary: the owner's Game::CollectionSummary;
-    - season: the published season, nil for none;
-    - in_progress, results, results_count, query: the owner's sets in
-      progress and searched (SetBoardLoading). %>
+<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, rarities:, activity:, started_sets:) %>
 <section class="profile" aria-labelledby="profile-heading">
-  <%= render "public_profiles/summary", owner:, title: title, summary: summary %>
+  <%= render "public_profiles/summary", owner:, title:, season:, summary:, card_total:, achievements: achievements %>
   <% if season.nil? %>
     <%= render PanelComponent.new(tag: :p, class: "profile__no-season") do %><%= t("public_profiles.show.no_season") %><% end %>
   <% else %>
-    <%= render "library/entry", in_progress:, results:, results_count:, query:,
-      search_url: brother_path(owner.token), all_cards_url: nil,
-      set_url: ->(set) { brother_set_path(owner.token, kind: set.kind, key: set.key) } %>
+    <%= render "public_profiles/stats", rarities:, activity: activity %>
+    <%= render "public_profiles/achievements", achievements: achievements %>
+    <%= render "public_profiles/sets", owner:, started_sets: started_sets %>
   <% end %>
 </section>
 <%= render "reports/dialog", owner: owner if current_player && current_player != owner %>

@@ -770,19 +770,30 @@ en:
     title: "%{name}"
     fallback_title: "Player %{code}"
     show:
-      visibility:
-        public: "Visible to everyone, even without an account"
-        friends_only: "Visible to your friends and the moderation team only"
-        private: "Private profile: only you and the moderation team can see it"
-        banned: "Banned player: visible to the moderation team only"
-      counts: "The collection"
       no_season: "No season of cards is published yet."
       distinct_cards:
         one: "%{count} card collected"
         other: "%{count} cards collected"
-      complete_sets:
-        one: "%{count} set complete"
-        other: "%{count} sets complete"
+      member_since: "Member since %{date}"
+      keys:
+        cards: "Cards"
+        complete_sets: "Complete sets"
+        achievements: "Achievements"
+      stats:
+        title: "Statistics"
+        rarities: "Rarities"
+        activity: "Activity"
+        packs_opened: "Capsules opened"
+        first_discoveries: "First discoveries"
+        trades_concluded: "Trades concluded"
+      achievements:
+        title: "Achievements"
+        latest: "Latest earned"
+      sets:
+        title: "Sets"
+        started:
+          one: "%{count} set started"
+          other: "%{count} sets started"
     set:
       title: "%{set} · %{name} · gameble"
       heading: "%{set} · %{name}"
@@ -1534,6 +1545,9 @@ en:
         delimiter: ""
         format: "%n%"
   date:
+    formats:
+      month_year: "%B %Y"
+    month_names: [~, January, February, March, April, May, June, July, August, September, October, November, December]
     abbr_month_names: [~, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
     day_names: [Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]
   time:

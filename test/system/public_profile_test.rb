@@ -6,7 +6,7 @@ require_relative "../support/steam_sign_in"
 # A player's public profile: a player signs in, their
 # Steam persona name is stored, and they find the link to their profile in
 # the library; a visitor opens that link and sees the owner's avatar and name,
-# counts, started sets and, in a set, the owner's cards (the collection's
+# key numbers, started sets and, in a set, the owner's cards (the collection's
 # components, read-only).
 class PublicProfileTest < ApplicationSystemTestCase
   include CatalogSeeds
@@ -42,9 +42,9 @@ class PublicProfileTest < ApplicationSystemTestCase
     assert_current_path brother_path(locale: :en, token: @player.token)
     assert_title "Gabe the Brave"
     assert_selector "h1", text: "Gabe the Brave"
-    assert_selector ".profile-summary__avatar"
-    assert_selector ".profile-summary__counts li", text: /8 cards collected/i
-    assert_selector ".set-row", text: %r{\AHorror\s*8/16}i
+    assert_selector ".profile-band__avatar"
+    assert_selector ".profile-band__keys .profile-figure", text: /\Acards\s*8\//i
+    assert_selector ".profile-sets .set-row", text: %r{\AHorror\s*8/16}i
     take_screenshot
 
     sign_out

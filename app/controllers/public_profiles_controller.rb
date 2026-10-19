@@ -1,8 +1,7 @@
 # A player's public profile, at a link built on their token, readable by
-# anyone, signed out included: the summary, then their sets as the
-# collection opens on them (SetBoardLoading), with the owner's progress,
-# never the viewer's; and one of their sets' albums, read-only, with the
-# owner's cards.
+# anyone, signed out included: the owner's identity and key numbers, their
+# stats, latest achievements and started sets, never the viewer's; and one
+# of their sets' albums, read-only, with the owner's cards.
 #
 # An unknown token and a profile that may not be shown to this viewer
 # (Game::Visibility: a banned owner, or one whose visibility hides it, for
@@ -18,12 +17,13 @@ class PublicProfilesController < ApplicationController
   before_action :authorize_page
   before_action :load_owner
 
-  # GET /:locale/brothers/:token?q=…: the summary and the owner's sets, the
-  # set searched for with `q`.
+  # GET /:locale/brothers/:token
   def show
     @season = Catalog::PublishedSeason.call
-    load_set_board(@season, owner: @owner) if @season
     @summary = Game::CollectionSummary.call(@owner, season: @season)
+    @card_total = Catalog::CardCount.call(@season)
+    @achievements = Game::EarnedAchievements.call(@owner)
+    load_stats_and_sets if @season
   end
 
   # GET /:locale/brothers/:token/library/:kind/:key: the album of one of the
@@ -44,5 +44,17 @@ class PublicProfilesController < ApplicationController
       return if Game::Visibility.visible?(current_player, @owner)
 
       render "public_profiles/unavailable", status: :not_found
+    end
+
+    def load_stats_and_sets
+      @rarities = Game::HeldGames.by_rarity(@owner)
+      @activity = Game::ProfileActivity.call(@owner)
+      @started_sets = started_set_rows
+    end
+
+    def started_set_rows
+      standings = Game::SetsInProgress.call(@owner, season: @season).values
+        .sort_by { |standing| [ standing.complete? ? 0 : 1, -standing.share, standing.set_id ] }
+      set_rows(standings, Catalog::SetsById.call(standings.map(&:set_id)))
     end
 end

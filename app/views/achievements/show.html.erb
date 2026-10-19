@@ -9,35 +9,13 @@
 <% earned, to_earn = @tiles.partition(&:earned) %>
 <section class="achievements" aria-labelledby="achievements-heading">
   <h1 id="achievements-heading" class="achievements__title"><%= t(".title") %></h1>
-  <div class="achievements__head">
-    <p class="achievements__count" aria-hidden="true"><%= earned.size %><span class="achievements__total"> / <%= @tiles.size %></span></p>
-    <p class="visually-hidden"><%= t(".summary", count: earned.size, earned: earned.size, total: @tiles.size) %></p>
-    <div class="achievements__gauge-block">
-      <p class="achievements__label"><%= t(".earned_label") %></p>
-      <div class="achievements__gauge" aria-hidden="true">
-        <% @tiles.size.times do |index| %><span class="achievements__segment<%= " achievements__segment--lit" if index < earned.size %>"></span><% end %>
-      </div>
-    </div>
-  </div>
+  <%= render "achievements/header", earned: earned.size, total: @tiles.size %>
   <% [ [ :earned, earned ], [ :to_earn, to_earn ] ].each do |group, tiles| %>
     <% next if tiles.empty? %>
     <section class="achievements__group" aria-labelledby="achievements-<%= group %>">
       <h2 id="achievements-<%= group %>" class="achievements__heading"><%= t(".groups.#{group}", count: tiles.size) %></h2>
       <ul class="achievements__grid">
-        <% tiles.each do |tile| %>
-          <li class="<%= class_names("achievement", "achievement--locked": !tile.earned) %>">
-            <span class="achievement__icon"><%= achievement_icon(tile) %></span>
-            <div class="achievement__text">
-              <h3 class="achievement__name"><%= t("achievements.names.#{tile.key}") %></h3>
-              <p class="achievement__condition"><%= t("achievements.conditions.#{tile.key}") %></p>
-              <% if !tile.earned && tile.countable? %>
-                <progress class="achievement__bar" value="<%= tile.progress %>" max="<%= tile.threshold %>" aria-hidden="true"></progress>
-                <p class="achievement__progress" aria-hidden="true"><%= number_with_delimiter(tile.progress) %> / <%= number_with_delimiter(tile.threshold) %></p>
-                <p class="visually-hidden"><%= t(".progress", progress: number_with_delimiter(tile.progress), threshold: number_with_delimiter(tile.threshold)) %></p>
-              <% end %>
-            </div>
-          </li>
-        <% end %>
+        <%= render partial: "achievements/tile", collection: tiles, as: :tile %>
       </ul>
     </section>
   <% end %>

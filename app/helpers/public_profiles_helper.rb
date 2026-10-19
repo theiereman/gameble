@@ -1,4 +1,4 @@
-# The words of a player's public profile (CAP-8, story 4.4).
+# The words of a player's public profile.
 module PublicProfilesHelper
   # The profile's title: the owner's Steam persona name (user content,
   # escaped wherever it is written), or "Player <code>" for an owner Steam
@@ -13,12 +13,5 @@ module PublicProfilesHelper
     else
       t("public_profiles.fallback_title", code: Accounts::PublicProfile.code(player.token))
     end
-  end
-
-  # Who may see the profile. A banned owner's profile reaches staff only, so
-  # it says so in place of the visibility the owner chose.
-  def public_profile_visibility(owner)
-    key = owner.banned? ? "banned" : owner.visibility
-    t("public_profiles.show.visibility.#{key}")
   end
 end

@@ -19,7 +19,7 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :fr, token: @owner.token)
 
     assert_response :success
-    assert_select ".profile-summary button[aria-haspopup=dialog][data-dialog-opener-dialog-value=report-dialog]", "SIGNALER"
+    assert_select ".profile-band button[aria-haspopup=dialog][data-dialog-opener-dialog-value=report-dialog]", "SIGNALER"
     assert_select "dialog#report-dialog form[action=?][method=post]", report_path_of(@owner, locale: :fr)
     assert_equal [ "Pseudo inapproprié", "Triche ou abus", "Harcèlement", "Autre" ],
       css_select("#report-dialog .report-dialog__reason span").map(&:text)
@@ -35,14 +35,14 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "#report-dialog", false
-    assert_select ".profile-summary button", false
+    assert_select ".profile-band button", false
   end
 
   test "a signed-out visitor's SIGNALER opens the sign-in panel and no report dialog is sent" do
     get brother_path(locale: :en, token: @owner.token)
 
     assert_response :success
-    assert_select ".profile-summary button[data-dialog-opener-dialog-value=sign-in-panel]", "REPORT"
+    assert_select ".profile-band button[data-dialog-opener-dialog-value=sign-in-panel]", "REPORT"
     assert_select "#report-dialog", false
   end
 
