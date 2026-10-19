@@ -14,7 +14,7 @@
 
 export type StepDirection = "previous" | "next"
 
-export type FocusWish = "previous" | "next" | null
+export type FocusWish = StepDirection | null
 
 /** The phone's width, where the detail is a sub-view of its own. */
 export const PHONE_WIDTH = "(max-width: 719px)"

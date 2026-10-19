@@ -60,7 +60,7 @@ module Catalog
 
       held = Set.where(season_id: season.id, kind: pairs.map(&:first), key: pairs.map(&:last)).pluck(:kind, :key, :params)
         .to_h { |kind, key, params| [ [ kind, key ], params ] }
-      pairs.filter_map { |kind, key| SetSlots::SetRef.new(kind:, key:, params: held[[ kind, key ]]) if held.key?([ kind, key ]) }
+      pairs.filter_map { |kind, key| SetRef.new(kind:, key:, params: held[[ kind, key ]]) if held.key?([ kind, key ]) }
     end
     private_class_method :chosen_sets_of
 

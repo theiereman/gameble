@@ -1,7 +1,6 @@
-# A card's detail page (CAP-7, story 4.3; DESIGN.md, Card detail "FICHE DE
-# LA CARTE"; epic 10 R2, R6): the large face and what only the detail
-# tells, its sets and the viewer's copies and editions of its game, in the
-# viewer's language; open to a visitor (CAP-18). The card is addressed by
+# A card's detail page: the large face and what only the detail tells,
+# its sets and the viewer's copies and editions of its game, in the
+# viewer's language; open to a visitor. The card is addressed by
 # its slug, and by its season's number for a card-season other than the
 # published season's; Catalog answers the card, its sets, its place in one
 # of them and the collection grid, Game the copies and editions, the
@@ -120,7 +119,7 @@ class CardsController < ApplicationController
     def named_set_browse
       kind = params[:set_kind]
       key = params[:set_key]
-      return unless kind.is_a?(String) && key.is_a?(String) && SET_KINDS.include?(kind)
+      return unless kind.is_a?(String) && key.is_a?(String) && Catalog::SetKind::ALL.include?(kind)
 
       set_browse(@detail.sets.find { it.kind == kind && it.key == key })
     end

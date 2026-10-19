@@ -36,9 +36,6 @@ module Catalog
       "catalog_card_seasons.review_count", "catalog_card_seasons.rating", "catalog_card_seasons.card_id"
     ].freeze
 
-    KIND_ORDER = Arel.sql("CASE catalog_sets.kind WHEN 'theme' THEN 0 WHEN 'franchise' THEN 1 WHEN 'studio' THEN 2 " \
-      "WHEN 'hall_of_fame' THEN 3 WHEN 'ufo' THEN 4 ELSE 5 END")
-
     def self.call(slug:, locale:, season_number: nil)
       row = card_season(slug.to_s, locale.to_s, season_number)
       return if row.nil?
@@ -62,12 +59,12 @@ module Catalog
     end
     private_class_method :card_season
 
-    # The set of the main theme first, then the others in KIND_ORDER.
+    # The set of the main theme first, then the others in SetKind's order.
     def self.sets(card_season_id, main_theme:)
       Set.joins(:memberships).where(catalog_set_memberships: { card_season_id: })
-        .order(KIND_ORDER, SeasonShelf::HALL_OF_FAME_ORDER, :key)
+        .order(SetKind::ORDER, SeasonSets::HALL_OF_FAME_ORDER, :key)
         .pluck(:kind, :key, :params)
-        .map { |kind, key, params| SetSlots::SetRef.new(kind:, key:, params:) }
+        .map { |kind, key, params| SetRef.new(kind:, key:, params:) }
         .partition { |set| set.kind == "theme" && set.key == main_theme }.flatten
     end
     private_class_method :sets

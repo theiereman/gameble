@@ -11,7 +11,7 @@ module SetSearch
     return NONE if season.nil? || needle.empty?
 
     I18n.with_locale(locale) do
-      found = ranked(Catalog::SeasonShelf.every_kind(season:), needle) { |set, name| name.include?(needle) || kind_name(set.kind).include?(needle) }
+      found = ranked(Catalog::SeasonSets.every_kind(season:), needle) { |set, name| name.include?(needle) || kind_name(set.kind).include?(needle) }
       Result.new(sets: found.first(LIMIT), count: found.size)
     end
   end
@@ -21,7 +21,7 @@ module SetSearch
 
     needle = normalize(clean(query))
     I18n.with_locale(locale) do
-      found = ranked(Catalog::SeasonShelf.every_kind(season:).where(kind: kind.to_s), needle) { |_set, name| name.include?(needle) }
+      found = ranked(Catalog::SeasonSets.every_kind(season:).where(kind: kind.to_s), needle) { |_set, name| name.include?(needle) }
       Result.new(sets: found.reject { [ it.kind, it.key ].in?(except) }.first(limit), count: found.size)
     end
   end

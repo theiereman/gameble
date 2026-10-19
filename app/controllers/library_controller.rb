@@ -69,7 +69,7 @@ class LibraryController < ApplicationController
     end
 
     def load_set_filter(grid)
-      @set_kinds = SET_KINDS & Catalog::SeasonShelf.kinds(season: @season)
+      @set_kinds = Catalog::SetKind::ALL & Catalog::SeasonSets.kinds(season: @season)
       return if @set_kinds.empty?
 
       @set_kind = @set_kinds.include?(params[:set_kind]) ? params[:set_kind] : @set_kinds.first

@@ -47,10 +47,5 @@ module Game
     def share
       total.positive? ? held.fdiv(total) : 0.0
     end
-
-    def tier_reached?(tier)
-      required = thresholds.to_h[tier]
-      !required.nil? && required <= held
-    end
   end
 end

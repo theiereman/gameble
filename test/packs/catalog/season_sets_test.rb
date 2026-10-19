@@ -1,17 +1,17 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Catalog::SeasonShelf: a season's sets of every kind in shelf order, and
+# Catalog::SeasonSets: a season's sets of every kind in tab order, and
 # the kinds it holds.
-class Catalog::SeasonShelfTest < ActiveSupport::TestCase
+class Catalog::SeasonSetsTest < ActiveSupport::TestCase
   include CatalogSeeds
 
   test "the kinds the published season holds sets of, none without a season" do
     season = seed_published_sets([ [ "theme", "rpg", { "theme" => "rpg" } ], [ "theme", "horror", { "theme" => "horror" } ], [ "ufo", "ufos", {} ] ])
 
-    assert_equal %w[theme ufo], Catalog::SeasonShelf.kinds(season:).sort
-    assert_equal %w[studio], Catalog::SeasonShelf.kinds(season: catalog_seasons(:one))
-    assert_queries_count(0) { assert_equal [], Catalog::SeasonShelf.kinds(season: nil) }
+    assert_equal %w[theme ufo], Catalog::SeasonSets.kinds(season:).sort
+    assert_equal %w[studio], Catalog::SeasonSets.kinds(season: catalog_seasons(:one))
+    assert_queries_count(0) { assert_equal [], Catalog::SeasonSets.kinds(season: nil) }
   end
 
   test "every kind: themes, franchises, studios, hall of fame, then the UFOs, each in its own order, lazily" do
@@ -28,12 +28,12 @@ class Catalog::SeasonShelfTest < ActiveSupport::TestCase
     ])
 
     relation = nil
-    assert_queries_count(0) { relation = Catalog::SeasonShelf.every_kind(season:) }
+    assert_queries_count(0) { relation = Catalog::SeasonSets.every_kind(season:) }
     assert_equal %w[horror rpg doom halo activision capcom intouchables pepites ufos], relation.map(&:key)
     assert_empty relation.group_values
   end
 
   test "every kind answers nothing without a season" do
-    assert_queries_count(0) { assert_nil Catalog::SeasonShelf.every_kind(season: nil) }
+    assert_queries_count(0) { assert_nil Catalog::SeasonSets.every_kind(season: nil) }
   end
 end

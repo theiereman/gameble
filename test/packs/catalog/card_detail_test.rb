@@ -26,7 +26,7 @@ class Catalog::CardDetailTest < ActiveSupport::TestCase
     assert_equal "A puzzle game of portals.", detail.short_description
     assert_equal "Valve", detail.publisher
     assert_equal "https://store.example.test/400", detail.store_url
-    assert_equal [ Catalog::SetSlots::SetRef.new(kind: "studio", key: "valve", params: { "studio" => "Valve" }) ], detail.sets
+    assert_equal [ Catalog::SetRef.new(kind: "studio", key: "valve", params: { "studio" => "Valve" }) ], detail.sets
     assert_equal portal.id, detail.card_season_id
     assert detail.current_season
     assert_nil detail.steam_reviews

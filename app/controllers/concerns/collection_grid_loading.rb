@@ -22,7 +22,6 @@ module CollectionGridLoading
   NOTHING_SEEN = Time.utc(1970)
   # The filters' list parameters, as the grid's links carry them.
   LIST_FILTERS = %i[state rarity sets genre].freeze
-  SET_KINDS = %w[theme franchise studio hall_of_fame ufo].freeze
   # No list of the library goes this far; a larger page would overflow the OFFSET.
   MAX_PAGE = 100_000
 

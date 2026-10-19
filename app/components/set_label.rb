@@ -5,7 +5,7 @@
 # theme missing from the locales is its key humanised, in English whatever
 # the locale. A malformed set (a kind without a name, a theme or hall of
 # fame set without its param) raises ArgumentError. `set` is anything with
-# `kind` and `params` (a Catalog::Set, a SetSlots::SetRef).
+# `kind` and `params` (a Catalog::Set, a Catalog::SetRef).
 #
 #   SetLabel.for(set) # => "Roguelike"
 #

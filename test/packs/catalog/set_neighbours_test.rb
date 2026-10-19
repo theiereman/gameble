@@ -1,7 +1,7 @@
 require "test_helper"
 require_relative "../../support/catalog_seeds"
 
-# Catalog::SetNeighbours (epic 10 R2, the card detail's ◀ ▶): a card-season's
+# Catalog::SetNeighbours (the card detail's ◀ ▶): a card-season's
 # position in one set of its season, the set's size and the cards on either
 # side, in slot order, in one query.
 class Catalog::SetNeighboursTest < ActiveSupport::TestCase
@@ -31,7 +31,7 @@ class Catalog::SetNeighboursTest < ActiveSupport::TestCase
 
     assert_queries_count(1) { result = neighbours(ids[2]) }
 
-    assert_equal Catalog::SetSlots::SetRef.new(kind: "studio", key: "valve", params: { "studio" => "Valve" }), result.set
+    assert_equal Catalog::SetRef.new(kind: "studio", key: "valve", params: { "studio" => "Valve" }), result.set
     assert_equal [ 2, 3, slug(ids[1]), slug(ids[0]) ], [ result.position, result.total, result.previous, result.next ]
   end
 

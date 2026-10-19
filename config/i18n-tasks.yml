@@ -1,4 +1,4 @@
-# i18n-tasks finds translation keys used in code but missing from the locale files (AD-18).
+# i18n-tasks finds translation keys used in code but missing from the locale files.
 # https://github.com/glebm/i18n-tasks
 
 base_locale: en
@@ -37,3 +37,10 @@ ignore_unused:
   - "achievements.names.*"
   # Achievement conditions, read by catalogue key on the achievements screen.
   - "achievements.conditions.*"
+  # The throttled request's 429 message, picked by the matched throttle (rack_attack.rb).
+  - "rate_limit.*"
+  # Month and day names, read by I18n.l for %b and %A in the local time formats.
+  - "date.abbr_month_names"
+  - "date.day_names"
+  # The local time formats, read by I18n.l from a style (LocalTimeHelper#local_time_text).
+  - "time.formats.local_*"

@@ -4,7 +4,7 @@ require_relative "../../support/catalog_seeds"
 require_relative "../../support/steam_sign_in"
 
 module BackOffice
-  # The catalog seasons page of the back-office (AD-5), administrators only.
+  # The catalog seasons page of the back-office, administrators only.
   class SeasonsControllerTest < ActionDispatch::IntegrationTest
     include HiddenBackOffice
     include CatalogSeeds
@@ -151,6 +151,15 @@ module BackOffice
       assert_equal message, flash[:alert]
       assert_predicate draft.reload, :draft?
       assert_empty Catalog::Set.where(season_id: draft.id)
+    end
+
+    test "a draft whose every card has a theme shows no card in the UFOs, in the singular in French" do
+      sign_in(accounts_players(:administrator))
+      seed_card_seasons(distinct_scores(150), genres: Array.new(150) { [ "rpg" ] })
+
+      get back_office_seasons_path(locale: :fr)
+
+      assert_select "p[data-preview-ufo-count='0']:not([data-preview-ufo-over-limit])", /\A\s*0 carte dans les OVNI, /
     end
 
     test "a season published before themes says its cards have no theme" do

@@ -262,3 +262,12 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-visitor-landing/story-the-app-speaks-jetbrains-mono-plan.md`
   summary: Figures set in a running-text style rather than a figure token are not bold, for example the community goal's `.hub-goal__figures` ("31 420 / 50 000") on `--font-body`; audit the app's counts, odds and quantities and put them on JetBrains Mono bold as the typography rules ask.
   evidence: The JetBrains Mono build moved only the figures that were set in VT323 onto the bold figure tokens; `.hub-goal__figures` was regular Space Mono before and is regular JetBrains Mono now.
+
+## Deferred from: the refactor sweep of epic-recognizable-sets (2026-10-19)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-refactor-sweep-plan.md`
+  summary: `Game::SetCompletion` and its table `game_set_completions` are no longer written since tiers replaced completions; only `Game::ReleasePlayer` still deletes a player's rows, and the account deletion copy still names completed sets. Dropping them needs a migration and changes that copy and one delete query.
+  evidence: `packs/game/app/models/game/set_completion.rb`, `packs/game/app/operations/game/release_player.rb:16`, `test/controllers/accounts_controller_test.rb:42`. The author decides whether the table goes before the public launch.
+- source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-refactor-sweep-plan.md`
+  summary: The feed's tier share falls back to counting a set's members when the set has no complete tier row, a case only test fixtures create (`COALESCE(complete.required, (SELECT COUNT(*) …))`); giving those fixtures their complete rows would let the fallback go.
+  evidence: `packs/game/app/models/game/feed_entry.rb:42-43`; every set published by `Catalog::SetBuilder` has a complete row (entry 22's Implementation Notes).
