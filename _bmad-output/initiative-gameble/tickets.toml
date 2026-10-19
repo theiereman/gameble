@@ -91,13 +91,6 @@ covers = ["CAP-2", "CAP-3", "CAP-6"]
 after = [{ epic = 2, needs = "the import runs, the draft season and the publication" }, { epic = 13, needs = "the theme list in code and the new set kinds" }]
 
 [[epic]]
-id = 9
-slug = "epic-card-backs"
-title = "Cosmetics: card backs, titles and menu themes"
-covers = ["CAP-20", "CAP-22"]
-after = [{ epic = 13, needs = "the set tier and completion events, and the tier table by set size (13.22)" }, { epic = 6, needs = "the set-completed, goal reward and achievement events" }, { epic = 8, needs = "the booster island showing the active back" }, { epic = 10, needs = "the profile and settings screen for the back picker" }]
-
-[[epic]]
 id = 14
 slug = "epic-card-catalog"
 title = "Every card of the game, browsable and searchable"
@@ -109,14 +102,21 @@ id = 16
 slug = "epic-screen-walkthrough"
 title = "Every screen walked through before the release"
 covers = []
-after = [{ epic = 7, needs = "every screen built" }, { epic = 5, needs = "every screen built" }, { epic = 6, needs = "every screen built" }, { epic = 11, needs = "every screen built" }, { epic = 9, needs = "every screen built" }, { epic = 13, needs = "every screen built" }, { epic = 14, needs = "every screen built" }, { epic = 18, needs = "every screen built" }, { epic = 20, needs = "every screen built" }]
+after = [{ epic = 7, needs = "every screen built" }, { epic = 5, needs = "every screen built" }, { epic = 6, needs = "every screen built" }, { epic = 11, needs = "every screen built" }, { epic = 13, needs = "every screen built" }, { epic = 14, needs = "every screen built" }, { epic = 18, needs = "every screen built" }, { epic = 20, needs = "every screen built" }]
 
 [[epic]]
 id = 12
 slug = "epic-human-readable-codebase"
 title = "Readable by humans: the codebase before the public release"
 covers = []
-after = [{ epic = 7, needs = "every feature written" }, { epic = 5, needs = "every feature written" }, { epic = 6, needs = "every feature written" }, { epic = 11, needs = "every feature written" }, { epic = 9, needs = "every feature written" }, { epic = 13, needs = "every feature written" }, { epic = 14, needs = "every feature written" }, { epic = 18, needs = "every feature written" }, { epic = 16, needs = "the screens walked through and the fixes before the release decided" }, { epic = 20, needs = "every feature written" }]
+after = [{ epic = 7, needs = "every feature written" }, { epic = 5, needs = "every feature written" }, { epic = 6, needs = "every feature written" }, { epic = 11, needs = "every feature written" }, { epic = 13, needs = "every feature written" }, { epic = 14, needs = "every feature written" }, { epic = 18, needs = "every feature written" }, { epic = 16, needs = "the screens walked through and the fixes before the release decided" }, { epic = 20, needs = "every feature written" }]
+
+[[epic]]
+id = 9
+slug = "epic-card-backs"
+title = "Cosmetics: card backs, titles and menu themes"
+covers = ["CAP-20", "CAP-22"]
+after = [{ epic = 12, needs = "the public release" }, { epic = 13, needs = "the set tier and completion events, and the tier table by set size (13.22)" }, { epic = 6, needs = "the set-completed, goal reward and achievement events" }, { epic = 8, needs = "the booster island showing the active back" }, { epic = 10, needs = "the profile and settings screen for the back picker" }]
 
 [[epic]]
 id = 17
