@@ -37,7 +37,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "main h1", "Profil et paramètres"
     assert_select ".settings-row", 8
     assert_equal [ "Langue", "Visibilité du profil", "Animations réduites", "Session", "Mes données", "Compte", "Soutenir" ], css_select(".settings-row__label").map(&:text)
-    assert_select "[role=group][aria-labelledby=settings-language] a.segmented__option", 2
+    assert_select "[role=group][aria-labelledby=settings-language] a.segmented__option[data-locale-choice][data-turbo-action=replace]", 2
     assert_select "a.segmented__option[href='/fr/settings'][aria-current=true][lang=fr]", "Français"
     assert_select "a.segmented__option[href='/en/settings'][lang=en]:not([aria-current])", "English"
     assert_select "form[action='/fr/settings'][data-turbo=false] input[name=_method][value=patch]"

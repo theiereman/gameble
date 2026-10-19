@@ -21,6 +21,16 @@ describe("history trail", () => {
     expect(stepsBackTo("/en", 2, storage)).toBe(2)
   })
 
+  it("finds an earlier entry showing the path in the other language, for a return after a language change", () => {
+    const storage = memory()
+    recordEntry(0, "/fr/library/cards", storage)
+    recordEntry(1, "/en/cards/portal/seasons/1", storage)
+
+    expect(stepsBackTo("/en/library/cards", 1, storage)).toBe(1)
+    expect(stepsBackTo("/en/library", 1, storage)).toBeNull()
+    expect(stepsBackTo("/library/cards", 1, storage)).toBeNull()
+  })
+
   it("takes the nearest of several", () => {
     const storage = memory()
     for (const [index, path] of ["/grid", "/card", "/grid", "/other", "/card"].entries()) recordEntry(index, path, storage)

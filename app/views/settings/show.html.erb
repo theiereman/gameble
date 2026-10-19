@@ -32,7 +32,7 @@
         <div class="segmented" role="group" aria-labelledby="settings-language">
           <% { fr: "Français", en: "English" }.each do |locale, name| %>
             <%= link_to name, settings_path(locale:), class: "segmented__option", lang: locale, hreflang: locale,
-                  aria: { current: ("true" if locale == I18n.locale) }, data: { turbo_prefetch: false, turbo_action: "replace" } %>
+                  aria: { current: ("true" if locale == I18n.locale) }, data: { turbo_prefetch: false, turbo_action: "replace", locale_choice: true } %>
           <% end %>
         </div>
       </li>

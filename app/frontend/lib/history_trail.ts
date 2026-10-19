@@ -24,6 +24,7 @@
 export const TRAIL_KEY = "gameble:history-trail"
 /** How many entries are kept around the current one, either way. */
 export const TRAIL_SPAN = 100
+export const ROUTED_LOCALES = ["en", "fr"]
 
 export type TrailStorage = Pick<Storage, "getItem" | "setItem">
 export type TrailEntry = { pathname: string; label?: string; labels?: Record<string, string> }
@@ -91,15 +92,23 @@ export function recordEntry(
 }
 
 /**
- * How many entries back the nearest earlier entry showing `pathname` is,
- * from the entry at `index`; null when no earlier entry shows it.
+ * How many entries back the nearest earlier entry showing `pathname`, in
+ * either language, is from the entry at `index`; null when no earlier entry
+ * shows it.
  */
 export function stepsBackTo(pathname: string, index: number, storage: TrailStorage | null): number | null {
   const trail = readTrail(storage)
   for (let earlier = index - 1; earlier >= Math.max(0, index - TRAIL_SPAN); earlier--) {
-    if (trail[earlier]?.pathname === pathname) return index - earlier
+    const recorded = trail[earlier]?.pathname
+    if (recorded !== undefined && samePage(recorded, pathname)) return index - earlier
   }
   return null
+}
+
+function samePage(recorded: string, pathname: string): boolean {
+  if (recorded === pathname) return true
+  const locale = routedLocaleOf(pathname)
+  return locale !== null && routedLocaleOf(recorded) !== null && inLocale(recorded, locale) === pathname
 }
 
 /**
@@ -169,6 +178,11 @@ export function currentScreenLabels(): Record<string, string> | null {
   } catch {
     return null
   }
+}
+
+export function routedLocaleOf(pathname: string): string | null {
+  const segment = pathname.split("/")[1] ?? ""
+  return ROUTED_LOCALES.includes(segment) ? segment : null
 }
 
 function localeOf(pathname: string): string {
