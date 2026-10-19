@@ -41,7 +41,10 @@ class HubTest < ApplicationSystemTestCase
   end
 
   test "on a desktop, a player sees the menu, the showcase, the daily panel and the sets in three columns" do
-    create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
+    gained = 1.hour.ago.change(usec: 0)
+    Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1, last_gained_at: gained)
+    Game::SetTier.insert_all!([ { player_id: @player.id, set_id: catalog_sets(:valve_one).id, tier: "complete", reached_by: "trade",
+      reached_at: gained, created_at: gained, updated_at: gained } ])
     2.times { create_pack(@player) }
     sign_in
 

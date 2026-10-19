@@ -15,7 +15,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   include GameTrades
   include SteamSignIn
 
-  PLAYER_HUB_QUERIES = 19
+  PLAYER_HUB_QUERIES = 18
   VISITOR_HUB_QUERIES = 7
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
@@ -36,6 +36,22 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
   def epic_name(locale)
     I18n.t("catalog.rarity.#{Catalog::Rarity::TIERS.fetch(4)}", locale:)
+  end
+
+  def hold(card_season_id, gained_at:)
+    Game::Holding.create!(player_id: @player.id, card_season_id:, quantity: 1, last_gained_at: gained_at)
+  end
+
+  def trade_away_only_copy(card_season_id)
+    Game::Holding.where(player_id: @player.id, card_season_id:).update_all(quantity: 0)
+    conclude_trade(@player, accounts_players(:moderator), offer: { card_season_id => 1 }, request: { fixture_tier_ids.first => 1 })
+  end
+
+  def written_statements(&request)
+    statements = []
+    recorder = ->(*, payload) { statements << payload[:sql] if payload[:sql].match?(/\A\s*(INSERT|UPDATE|DELETE)\b/i) }
+    ActiveSupport::Notifications.subscribed(recorder, "sql.active_record", &request)
+    statements
   end
 
   def menu_items
@@ -69,7 +85,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the showcase's line names the card's main theme as its genre, and leaves out a missing number" do
-    create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
+    hold(catalog_card_seasons(:portal_one).id, gained_at: 1.hour.ago)
     Catalog::CardSeason.where(id: catalog_card_seasons(:portal_one).id).update_all(main_theme: "puzzle")
     sign_in(@player)
 
@@ -81,22 +97,25 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-showcase__rarity span", "#{epic_name(:en)} · Puzzle"
   end
 
-  test "the showcase offers no repost once its card is traded away" do
-    create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
-    holding = Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1)
+  test "a showcased card traded away gives way to the previous one held, still with Repost, and the hub writes nothing" do
+    hold(catalog_card_seasons(:portal_one).id, gained_at: 2.hours.ago)
+    legendary = catalog_card_seasons(:legendary_card_one).id
+    hold(legendary, gained_at: 1.hour.ago)
     sign_in(@player)
 
     get home_path(locale: :en)
-    assert_select ".hub-showcase form[action='/en/cards/portal/seasons/1/repost'] button", "Repost"
+    assert_select ".hub-showcase h2", "Golden Crown"
+    assert_select ".hub-showcase form button", "Repost"
 
-    holding.update!(quantity: 0)
-    get home_path(locale: :en)
+    trade_away_only_copy(legendary)
+    assert_empty written_statements { get home_path(locale: :en) }
+
+    assert_response :success
     assert_select ".hub-showcase h2", "Portal"
-    assert_select ".hub-showcase form", false
+    assert_select ".hub-showcase form[action='/en/cards/portal/seasons/1/repost'] button", "Repost"
   end
 
-  test "a player's hub: the menu, the latest notable pull, the daily panel and the sets in progress" do
-    create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
+  test "a player's hub: the menu, the latest notable card held, the daily panel and the sets in progress" do
     gained = 1.hour.ago.change(usec: 0)
     Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2, last_gained_at: gained)
     Game::SetTier.insert_all!([ { player_id: @player.id, set_id: catalog_sets(:valve_one).id, tier: "complete", reached_by: "trade",
@@ -155,7 +174,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_select ".hub-menu [aria-disabled]", false
 
-    # The showcase: the tier 4 card of the pack, its line (rarity and
+    # The showcase: the tier 4 card held, its line (rarity and
     # number; no main theme, so no genre) and its page.
     assert_select ".hub-showcase:not(.hub-showcase--empty)" do
       assert_select ".hub-showcase__kicker", "Dernière obtention"
@@ -196,8 +215,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
-  test "a player whose packs hold no tier 4 card sees the empty showcase, its primary opening a booster" do
-    create_pack(@player, cards: Array.new(5, fixture_tier_ids.first), opened_at: 1.hour.ago)
+  test "a player holding no tier 4 card sees the empty showcase, its primary opening a booster" do
+    hold(fixture_tier_ids.first, gained_at: 1.hour.ago)
     create_pack(@player)
     sign_in(@player)
 
@@ -556,7 +575,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a hub load costs a fixed number of queries, however long the player's history" do
-    create_pack(@player, cards: fixture_tier_ids, opened_at: 2.hours.ago)
     Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 2)
     sign_in(@player)
     earn_goal_reward
@@ -565,7 +583,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # Player lookup, published season, the weekly goal (one read once the job
     # has created the week's row), bank (count, next pack, daily claim), the
     # goal reward's claim slot,
-    # showcase (pull, the copies held, card view), collection (owned, total), sets (the
+    # showcase (card held, card view), collection (owned, total), sets (the
     # player's standings, the popular fill, which finds no other set here, so no figures
     # and no set to name),
     # the top bar's copies per tier, menu 04's friends online, menu 06's
@@ -575,11 +593,10 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"
 
-    # Many more opened packs, the pull now behind the RECENT latest: only the
-    # showcase's second query is added.
+    # Many more opened packs add no query.
     common = Array.new(Game::Pack::SIZE, catalog_card_seasons(:common_card_one).id)
-    (Game::NotablePull::RECENT + 10).times { |index| create_pack(@player, cards: common, opened_at: (index + 1).minutes.ago) }
-    assert_hub_queries(PLAYER_HUB_QUERIES + 1)
+    60.times { |index| create_pack(@player, cards: common, opened_at: (index + 1).minutes.ago) }
+    assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"
 
     delete session_path(locale: :en)
@@ -878,7 +895,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the showcase floats an epic card with purple rays" do
-    create_pack(@player, cards: fixture_tier_ids.first(4) + fixture_tier_ids.first(1), opened_at: 1.hour.ago)
+    hold(catalog_card_seasons(:portal_one).id, gained_at: 1.hour.ago)
     sign_in(@player)
 
     get home_path(locale: :en)

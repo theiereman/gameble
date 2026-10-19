@@ -1,12 +1,12 @@
 # The hub, "Pont de commandement": the numbered menu, the showcase of the
-# player's latest notable pull (or the invitation to sign in), the daily
-# booster panel, the community goal panel with a contributor's reward claim
-# slot, the set progress rows and, once, a new player's welcome panel. A
-# read only page: Catalog answers the season, its size and the showcased
-# card, Game the goal, the player's reserve, goal reward, pull, collection,
-# sets, how many of their friends are online (menu 04) and the achievements
-# they earned (menu 06); the LIVE ticker its first items, the latest public
-# entries it shows.
+# latest Epic-or-better card the player holds (or the invitation to sign
+# in), the daily booster panel, the community goal panel with a
+# contributor's reward claim slot, the set progress rows and, once, a new
+# player's welcome panel. A read only page: Catalog answers the season, its
+# size and the showcased card, Game the goal, the player's reserve, goal
+# reward, showcased card, collection, sets, how many of their friends are
+# online (menu 04) and the achievements they earned (menu 06); the LIVE
+# ticker its first items, the latest public entries it shows.
 class PagesController < ApplicationController
   def home
     authorize :page, :show?
@@ -46,14 +46,11 @@ class PagesController < ApplicationController
       action_name == "legal" && (request.get? || request.head?)
     end
 
-    # The card of the player's latest notable pull, as a Catalog::CardView,
-    # or nil (the empty showcase); @showcase_repostable while they hold it.
+    # The latest Epic-or-better card the player holds, as a
+    # Catalog::CardView, or nil (the empty showcase).
     def showcase
-      id = Game::NotablePull.call(current_player, season: @season)
-      return if id.nil?
-
-      @showcase_repostable = Game::Quantities.call(current_player, [ id ]).key?(id)
-      Catalog::CardViews.call([ id ], locale: I18n.locale)[id]
+      id = Game::LatestNotableCard.call(current_player, season: @season)
+      Catalog::CardViews.call([ id ], locale: I18n.locale)[id] if id
     end
 
     # Menu 02's meta: the games held, in any edition, out of the season's cards.
