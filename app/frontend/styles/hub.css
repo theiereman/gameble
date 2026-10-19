@@ -378,7 +378,7 @@ button.menu-item:focus-visible:hover {
   color: var(--color-alert);
 }
 
-/* Collected: "Prochain dans", the clock in VT323 and a thin bar
+/* Collected: "Prochain dans", the clock and a thin bar
    filling toward 00:00 UTC (the countdown controller). */
 .daily-booster__next {
   display: grid;
@@ -397,8 +397,8 @@ button.menu-item:focus-visible:hover {
 .daily-booster__clock {
   margin: 0;
   color: var(--color-text-max);
-  font: var(--font-screen-title);
-  letter-spacing: var(--tracking-screen-title);
+  font: var(--font-clock);
+  letter-spacing: var(--tracking-clock);
   font-variant-numeric: tabular-nums;
 }
 

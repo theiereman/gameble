@@ -830,7 +830,7 @@
   top: calc(var(--bar-height) + 19px);
   left: calc(var(--at) * 100%);
   color: var(--color-muted);
-  font: var(--font-weight-bold) 0.6875rem / 0.875rem var(--font-family-space-mono);
+  font: var(--font-weight-bold) 0.6875rem / 0.875rem var(--font-family-jetbrains-mono);
   white-space: nowrap;
   transform: translateX(-50%);
 }

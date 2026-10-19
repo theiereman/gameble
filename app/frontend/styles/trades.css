@@ -578,7 +578,7 @@
 }
 
 .trade-add__plus {
-  font: var(--font-count-large);
+  font: var(--font-weight-regular) 2.875rem / 2.625rem var(--font-family-vt323);
 }
 
 .stepper {

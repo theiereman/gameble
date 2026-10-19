@@ -440,8 +440,11 @@
 .how-it-works__odds tbody td {
   padding: var(--space-2) var(--space-4);
   background: var(--color-panel-sunken);
-  font-weight: normal;
   text-align: left;
+}
+
+.how-it-works__odds tbody th {
+  font-weight: normal;
 }
 
 .how-it-works__odds .how-it-works__chance {

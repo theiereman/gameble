@@ -1,5 +1,5 @@
 # A button of DESIGN.md (Buttons): primary (lime, one per view), secondary
-# (blue-grey), danger (deleting the account) or link (muted Space Mono text).
+# (blue-grey), danger (deleting the account) or link (muted JetBrains Mono text).
 # Renders a link when given an href, a one-button form when given an href and
 # a method (POST, DELETE…, with the CSRF token and any extra params), else a
 # <button>. `disabled: true` always renders a plain disabled <button>: a

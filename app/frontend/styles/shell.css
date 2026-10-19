@@ -52,8 +52,8 @@ h1 {
 h2 {
   margin: 0 0 var(--space-3);
   color: var(--color-text-bright);
-  font: var(--font-number);
-  letter-spacing: var(--tracking-number);
+  font: var(--font-screen-title-phone);
+  letter-spacing: var(--tracking-screen-title-phone);
 }
 
 a {
@@ -986,7 +986,7 @@ button.tab-bar__tab {
   color: var(--color-on-alert);
 }
 
-/* A link: muted Space Mono, accent with a pixel arrow on hover. */
+/* A link: muted JetBrains Mono, accent with a pixel arrow on hover. */
 .button--link {
   min-height: var(--space-touch-min);
   padding: 0;

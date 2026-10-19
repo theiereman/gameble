@@ -17,10 +17,10 @@ import { fileURLToPath } from "node:url"
 
 const SOURCES = [
   "app/frontend/fonts/vt323-latin-400-normal.woff2",
-  "app/frontend/fonts/space-mono-latin-400-normal.woff2",
-  "app/frontend/fonts/space-mono-latin-700-normal.woff2",
+  "app/frontend/fonts/jetbrains-mono-latin-400-normal.woff2",
+  "app/frontend/fonts/jetbrains-mono-latin-700-normal.woff2",
   "app/frontend/fonts/OFL-VT323.txt",
-  "app/frontend/fonts/OFL-SpaceMono.txt",
+  "app/frontend/fonts/OFL-JetBrainsMono.txt",
   "app/frontend/images/pixel/wordmark.svg",
   "app/frontend/images/pixel/starfield.svg",
 ]

@@ -428,7 +428,7 @@
   margin: 0;
 }
 
-/* "Link copied", or how to copy it by hand: a sentence, in Space Mono. */
+/* "Link copied", or how to copy it by hand: a sentence, in JetBrains Mono. */
 .share-sheet__status {
   min-height: 1.25rem;
   margin: 0;
@@ -732,8 +732,8 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
 .public-card__pitch-title {
   margin: 0;
   color: var(--color-text-bright);
-  font: var(--font-number);
-  letter-spacing: var(--tracking-number);
+  font: var(--font-screen-title-phone);
+  letter-spacing: var(--tracking-screen-title-phone);
 }
 
 .public-card__pitch-text {

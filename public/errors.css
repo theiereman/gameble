@@ -9,19 +9,19 @@
 }
 
 @font-face {
-  font-family: "Space Mono";
+  font-family: "JetBrains Mono";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("/errors/space-mono-latin-400-normal.woff2?v=fb4a81a2") format("woff2");
+  src: url("/errors/jetbrains-mono-latin-400-normal.woff2?v=14425ba9") format("woff2");
 }
 
 @font-face {
-  font-family: "Space Mono";
+  font-family: "JetBrains Mono";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("/errors/space-mono-latin-700-normal.woff2?v=2d46bd15") format("woff2");
+  src: url("/errors/jetbrains-mono-latin-700-normal.woff2?v=d0d4e818") format("woff2");
 }
 
 /* ---- Base ---- */
@@ -48,7 +48,7 @@ body {
   margin: 0;
   background: #05070a url("/errors/starfield.svg?v=e8a2b7e5") repeat;
   color: #c7d5e0;
-  font: 400 1rem/1.5rem "Space Mono", monospace;
+  font: 400 1rem/1.5rem "JetBrains Mono", monospace;
   overflow-wrap: break-word;
   word-wrap: break-word;
 }
@@ -151,7 +151,7 @@ a:focus {
 .error__label {
   margin: 12px 0 0;
   color: #e6eef5;
-  font: 700 1rem/1.5rem "Space Mono", monospace;
+  font: 700 1rem/1.5rem "JetBrains Mono", monospace;
   letter-spacing: 1.5px;
   text-transform: uppercase;
 }
@@ -169,7 +169,7 @@ a:focus {
   background: #7aa60a;
   box-shadow: 0 -3px 0 0 #06090d, 0 3px 0 0 #06090d, -3px 0 0 0 #06090d, 3px 0 0 0 #06090d, inset 0 -4px 0 0 rgba(0, 0, 0, 0.35);
   color: #0f1a03;
-  font: 700 0.8125rem/1.125rem "Space Mono", monospace;
+  font: 700 0.8125rem/1.125rem "JetBrains Mono", monospace;
   letter-spacing: 1px;
   text-decoration: none;
   text-transform: uppercase;

@@ -32,7 +32,7 @@
 <link rel="apple-touch-icon" href="<%= vite_asset_path("images/pixel/favicon.png") %>">
 
 <%# The two fonts' latin files, before the stylesheet asks for them. %>
-<% %w[space-mono-latin-400 space-mono-latin-700 vt323-latin-400].each do |font| %>
+<% %w[jetbrains-mono-latin-400 jetbrains-mono-latin-700 vt323-latin-400].each do |font| %>
   <%= tag.link rel: "preload", href: vite_asset_path("fonts/#{font}-normal.woff2"), as: "font", type: "font/woff2", crossorigin: "anonymous" %>
 <% end %>
 

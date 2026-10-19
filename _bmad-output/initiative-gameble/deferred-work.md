@@ -253,3 +253,6 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-set-album-plan.md`
   summary: System tests written for the set grid with filters (`test/system/library_test.rb` around lines 58–71 and 187–203, expecting filters and a watermark post on a set page; possibly `card_detail_test.rb`) are stale; update them when the system tests are rebuilt.
   evidence: The set page became the album, which has no filters and posts no watermark; system tests are disabled (AGENTS.md) and were not run.
+- source_plan: `_bmad-output/initiative-gameble/epic-visitor-landing/story-the-app-speaks-jetbrains-mono-plan.md`
+  summary: Figures set in a running-text style rather than a figure token are not bold, for example the community goal's `.hub-goal__figures` ("31 420 / 50 000") on `--font-body`; audit the app's counts, odds and quantities and put them on JetBrains Mono bold as the typography rules ask.
+  evidence: The JetBrains Mono build moved only the figures that were set in VT323 onto the bold figure tokens; `.hub-goal__figures` was regular Space Mono before and is regular JetBrains Mono now.

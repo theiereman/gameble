@@ -69,12 +69,12 @@
   --color-iridescence-7: #ffc49a;
 
   /* ---- Typography ---- */
-  --font-family-space-mono: "Space Mono", monospace;
+  --font-family-jetbrains-mono: "JetBrains Mono", monospace;
   --font-family-vt323: "VT323", monospace;
   --font-weight-regular: 400;
   --font-weight-bold: 700;
 
-  /* VT323: the large text only, never under 20px (1.25rem). */
+  /* VT323: the titles and the friend code, never under 20px (1.25rem). */
   --font-screen-title: 400 1.625rem / normal var(--font-family-vt323);
   --tracking-screen-title: normal;
   --font-screen-title-phone: 400 1.5rem / normal var(--font-family-vt323);
@@ -93,53 +93,59 @@
   --tracking-showcase-name: normal;
   --font-showcase-name-phone: 400 1.75rem / normal var(--font-family-vt323);
   --tracking-showcase-name-phone: normal;
-  --font-count-large: 400 2.875rem / 2.625rem var(--font-family-vt323);
-  --tracking-count-large: normal;
-  --font-count-large-phone: 400 2.5rem / 2.25rem var(--font-family-vt323);
-  --tracking-count-large-phone: normal;
-  --font-number: 400 1.5rem / normal var(--font-family-vt323);
-  --tracking-number: normal;
   --font-card-title-xl: 400 1.375rem / 1.25rem var(--font-family-vt323);
   --tracking-card-title-xl: normal;
 
-  /* Space Mono: every small text, never under 10px (0.625rem). */
-  --font-card-title-s: 700 0.625rem / 0.6875rem var(--font-family-space-mono);
+  /* JetBrains Mono bold: every figure, at 0.75 of the VT323 size it replaces,
+     so its digits stand as tall; the large counts keep their line heights. */
+  --font-count-large: 700 2.15625rem / 2.625rem var(--font-family-jetbrains-mono);
+  --tracking-count-large: normal;
+  --font-count-large-phone: 700 1.875rem / 2.25rem var(--font-family-jetbrains-mono);
+  --tracking-count-large-phone: normal;
+  --font-number: 700 1.125rem / normal var(--font-family-jetbrains-mono);
+  --tracking-number: normal;
+  --font-clock: 700 1.21875rem / normal var(--font-family-jetbrains-mono);
+  --tracking-clock: normal;
+
+  /* JetBrains Mono: every other text, never under 10px (0.625rem), bold at
+     12px (0.75rem) and below. */
+  --font-card-title-s: 700 0.625rem / 0.6875rem var(--font-family-jetbrains-mono);
   --tracking-card-title-s: normal;
-  --font-card-title-m: 700 0.75rem / 0.875rem var(--font-family-space-mono);
+  --font-card-title-m: 700 0.75rem / 0.875rem var(--font-family-jetbrains-mono);
   --tracking-card-title-m: normal;
-  --font-card-title-l: 700 0.875rem / 1rem var(--font-family-space-mono);
+  --font-card-title-l: 700 0.875rem / 1rem var(--font-family-jetbrains-mono);
   --tracking-card-title-l: normal;
-  --font-card-meta: 400 0.625rem / normal var(--font-family-space-mono);
+  --font-card-meta: 700 0.625rem / normal var(--font-family-jetbrains-mono);
   --tracking-card-meta: 0.5px;
-  --font-card-meta-xl: 400 0.6875rem / normal var(--font-family-space-mono);
+  --font-card-meta-xl: 700 0.6875rem / normal var(--font-family-jetbrains-mono);
   --tracking-card-meta-xl: 0.5px;
-  --font-publisher-m: 400 0.625rem / 0.75rem var(--font-family-space-mono);
+  --font-publisher-m: 700 0.625rem / 0.75rem var(--font-family-jetbrains-mono);
   --tracking-publisher-m: normal;
-  --font-publisher-l: 400 0.6875rem / normal var(--font-family-space-mono);
+  --font-publisher-l: 700 0.6875rem / normal var(--font-family-jetbrains-mono);
   --tracking-publisher-l: normal;
-  --font-publisher-xl: 400 0.75rem / normal var(--font-family-space-mono);
+  --font-publisher-xl: 700 0.75rem / normal var(--font-family-jetbrains-mono);
   --tracking-publisher-xl: normal;
-  --font-menu: 400 0.8125rem / normal var(--font-family-space-mono);
+  --font-menu: 400 0.8125rem / normal var(--font-family-jetbrains-mono);
   --tracking-menu: 0.65px;
-  --font-button: 700 0.8125rem / normal var(--font-family-space-mono);
+  --font-button: 700 0.8125rem / normal var(--font-family-jetbrains-mono);
   --tracking-button: 1px;
-  --font-button-sm: 700 0.6875rem / normal var(--font-family-space-mono);
+  --font-button-sm: 700 0.6875rem / normal var(--font-family-jetbrains-mono);
   --tracking-button-sm: 1px;
-  --font-kicker: 400 0.6875rem / normal var(--font-family-space-mono);
+  --font-kicker: 700 0.6875rem / normal var(--font-family-jetbrains-mono);
   --tracking-kicker: 1.5px;
-  --font-kicker-phone: 400 0.625rem / normal var(--font-family-space-mono);
+  --font-kicker-phone: 700 0.625rem / normal var(--font-family-jetbrains-mono);
   --tracking-kicker-phone: 1.25px;
-  --font-label: 400 0.6875rem / normal var(--font-family-space-mono);
+  --font-label: 700 0.6875rem / normal var(--font-family-jetbrains-mono);
   --tracking-label: 0.5px;
-  --font-decorative-small: 400 0.5rem / normal var(--font-family-space-mono);
+  --font-decorative-small: 400 0.5rem / normal var(--font-family-jetbrains-mono);
   --tracking-decorative-small: 0.5px;
-  --font-body: 400 0.875rem / 1.3125rem var(--font-family-space-mono);
+  --font-body: 400 0.875rem / 1.3125rem var(--font-family-jetbrains-mono);
   --tracking-body: normal;
-  --font-body-large: 400 1rem / 1.5rem var(--font-family-space-mono);
+  --font-body-large: 400 1rem / 1.5rem var(--font-family-jetbrains-mono);
   --tracking-body-large: normal;
-  --font-body-large-phone: 400 0.9375rem / 1.4375rem var(--font-family-space-mono);
+  --font-body-large-phone: 400 0.9375rem / 1.4375rem var(--font-family-jetbrains-mono);
   --tracking-body-large-phone: normal;
-  --font-body-small: 400 0.75rem / 1.125rem var(--font-family-space-mono);
+  --font-body-small: 700 0.75rem / 1.125rem var(--font-family-jetbrains-mono);
   --tracking-body-small: normal;
 
   /* ---- Shape ---- */

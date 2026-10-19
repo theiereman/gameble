@@ -11,10 +11,10 @@ class ErrorPagesTest < ActionDispatch::IntegrationTest
   PAGES = %w[400 404 406-unsupported-browser 422 500].product(%w[en fr]).map { |name, locale| "#{name}.#{locale}.html" }.freeze
   COPIES = {
     "vt323-latin-400-normal.woff2" => "app/frontend/fonts",
-    "space-mono-latin-400-normal.woff2" => "app/frontend/fonts",
-    "space-mono-latin-700-normal.woff2" => "app/frontend/fonts",
+    "jetbrains-mono-latin-400-normal.woff2" => "app/frontend/fonts",
+    "jetbrains-mono-latin-700-normal.woff2" => "app/frontend/fonts",
     "OFL-VT323.txt" => "app/frontend/fonts",
-    "OFL-SpaceMono.txt" => "app/frontend/fonts",
+    "OFL-JetBrainsMono.txt" => "app/frontend/fonts",
     "wordmark.svg" => "app/frontend/images/pixel",
     "starfield.svg" => "app/frontend/images/pixel"
   }.freeze

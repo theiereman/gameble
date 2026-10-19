@@ -32,7 +32,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=view-transition][content=same-origin]"
     preloads = css_select("link[rel=preload][as=font][type='font/woff2'][crossorigin]").map { it["href"] }
     assert_equal 3, preloads.size
-    %w[space-mono-latin-400 space-mono-latin-700 vt323-latin-400].each do |font|
+    %w[jetbrains-mono-latin-400 jetbrains-mono-latin-700 vt323-latin-400].each do |font|
       assert(preloads.any? { it.include?("/#{font}-normal") }, "#{font} should be preloaded")
     end
     assert_no_match(/fonts\.googleapis|fonts\.gstatic/, response.body)

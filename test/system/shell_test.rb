@@ -5,8 +5,8 @@ require_relative "../support/steam_sign_in"
 
 # The shell in a real browser (story 8.1): the top bar, the phone tab bar
 # under 720px only, no sideways scroll, toasts that close, the two fonts
-# loaded (Space Mono for every small text, VT323 for the large text only,
-# never under 20px, nothing under 10px), on a desktop and on the two
+# loaded (JetBrains Mono for every text and figure, VT323 for the titles
+# only, never under 20px, nothing under 10px), on a desktop and on the two
 # reference phones; screenshots of the hub, the library, a card, a pack and
 # the back-office.
 class ShellTest < ApplicationSystemTestCase
@@ -15,8 +15,8 @@ class ShellTest < ApplicationSystemTestCase
   include SteamSignIn
 
   PHONES = { "390" => [ 390, 844 ], "360" => [ 360, 740 ] }.freeze
-  FONTS = [ '16px "Space Mono"', '700 16px "Space Mono"', '16px "VT323"' ].freeze
-  FAMILIES = [ "Space Mono", "VT323" ].freeze
+  FONTS = [ '16px "JetBrains Mono"', '700 16px "JetBrains Mono"', '16px "VT323"' ].freeze
+  FAMILIES = [ "JetBrains Mono", "VT323" ].freeze
 
   def sign_in(player, locale: :en)
     mock_steam_sign_in(player.steam_id)
@@ -34,7 +34,7 @@ class ShellTest < ApplicationSystemTestCase
       const [fonts, done] = arguments
       Promise.all(fonts.map((font) => document.fonts.load(font))).then(() => done(fonts.map((font) => document.fonts.check(font))))
     JS
-    assert_equal [ true ] * FONTS.size, loaded, "Space Mono and VT323 should be loaded"
+    assert_equal [ true ] * FONTS.size, loaded, "JetBrains Mono and VT323 should be loaded"
   end
 
   # The faces the page declares: the two families, none of the old pixel fonts.
@@ -42,7 +42,7 @@ class ShellTest < ApplicationSystemTestCase
     families = page.evaluate_script(<<~JS)
       Array.from(new Set(Array.from(document.fonts, (face) => face.family.replace(/^"|"$/g, "")))).sort()
     JS
-    assert_equal FAMILIES, families, "document.fonts should hold Space Mono and VT323 only"
+    assert_equal FAMILIES, families, "document.fonts should hold JetBrains Mono and VT323 only"
   end
 
   # Every element with text of its own sits at 10px or more, and at 20px or
@@ -78,7 +78,7 @@ class ShellTest < ApplicationSystemTestCase
     assert_selector ".packs-chip__next", text: /\+1 in \d\d:\d\d/i, visible: true
     assert_no_selector ".tab-bar", visible: true
     assert_equal "rgb(11, 15, 21)", computed("body", "backgroundColor")
-    assert_match(/Space Mono/, computed("body", "fontFamily"))
+    assert_match(/JetBrains Mono/, computed("body", "fontFamily"))
     assert_fonts_loaded
     assert_font_set
     assert_text_sizes
