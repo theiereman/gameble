@@ -2,8 +2,11 @@
 
 export type SlotClick = Pick<MouseEvent, "defaultPrevented" | "button" | "metaKey" | "ctrlKey" | "shiftKey" | "altKey">
 
-export function opensBeside(click: SlotClick, phone: boolean): boolean {
-  if (phone || click.defaultPrevented || click.button !== 0) return false
+/** The widths where the detail's column stands beside the grid; narrower, a slot opens its card's page. */
+export const DETAIL_BESIDE = "(min-width: 900px)"
+
+export function opensBeside(click: SlotClick, besideShown: boolean): boolean {
+  if (!besideShown || click.defaultPrevented || click.button !== 0) return false
   return !(click.metaKey || click.ctrlKey || click.shiftKey || click.altKey)
 }
 

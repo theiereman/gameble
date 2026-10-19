@@ -1,15 +1,15 @@
 <%# The grid of every card. From 1180px the RAPPORT in a 220px column, the
     grid, then the card detail in a 340px column; from 900px the grid and
-    the detail in a 300px column; from 720px the grid, the detail under it
-    once a card is opened; on the phone one column, the RAPPORT folded
-    above the grid, two cards wide, a slot opening the detail's page. Above
-    the grid, the search and the folded FILTRES zone (library/filters),
-    then the grid and the detail in a frame the filters reload, which
-    empties the detail. From 720px a slot opens its card's detail in the
-    `card-detail` frame (collection-detail controller); until then a
-    placeholder holds its column. When the grid shows new cards to their
-    player, the collection-seen controller posts the latest gain shown,
-    once the page is rendered.
+    the detail in a 300px column; under 900px the grid alone, a slot
+    opening its card's detail page, and on the phone one column, the
+    RAPPORT folded above the grid, two cards wide. Above the grid, the
+    search and the folded FILTRES zone (library/filters), then the grid and
+    the detail in a frame the filters reload, which empties the detail.
+    From 900px a slot opens its card's detail in the `card-detail` frame
+    (collection-detail controller); until then the frame holds the
+    detail's layout, empty (cards/detail_waiting). When the grid shows new
+    cards to their player, the collection-seen controller posts the latest
+    gain shown, once the page is rendered.
     - heading: the page's name;
     - grid: the Catalog::CollectionGrid; slots, pagy: its page, context:
       the filters its links carry (library/grid);
@@ -36,10 +36,7 @@
         <% end %>
       </div>
       <%= turbo_frame_tag "card-detail", target: "_top", class: "collection-detail" do %>
-        <%= render PanelComponent.new(quiet: true, class: "collection-detail__placeholder") do %>
-          <p class="collection-detail__kicker"><%= t("card_details.kicker") %></p>
-          <p class="collection-detail__hint"><%= t("library.grid.detail_placeholder") %></p>
-        <% end %>
+        <%= render "cards/detail_waiting", signed_in: current_player.present? %>
       <% end %>
     <% end %>
   </section>

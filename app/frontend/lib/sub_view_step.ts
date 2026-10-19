@@ -5,7 +5,7 @@
 // star field does not shift (starfield_controller.ts) and the screen does
 // not slide (styles/shell.css), as a step is no screen change. ◀ ▶ slide
 // the card toward the step (styles/card-detail.css); an open over a card
-// shown cross-fades, a first open replaces the placeholder at once.
+// shown cross-fades, a first open replaces the waiting detail at once.
 //
 // Turbo's own visit for the new URL renders no body, but would start a
 // View Transition of its own, which would cut the card's short: during a
@@ -71,10 +71,6 @@ export function beginStep(direction: StepDirection, focus: FocusWish): void {
 
 export function stepping(): boolean {
   return document.documentElement.dataset.subViewStep !== undefined
-}
-
-export function steppingInto(direction: StepDirection): boolean {
-  return document.documentElement.dataset.subViewStep === direction
 }
 
 export function takeFocusWish(): FocusWish {

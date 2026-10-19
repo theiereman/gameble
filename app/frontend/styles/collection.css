@@ -2,8 +2,8 @@
  * The collection: its entry, the grid of every card and a set's album.
  * From 1180px the grid has the RAPPORT in a 220px column on its left and
  * the card detail in a 340px column on its right; from 900px the detail's
- * column is 300px; from 720px the grid stands alone, the detail under it
- * once a card is opened; under 720px one column, the RAPPORT folded above
+ * column is 300px; from 720px the grid stands alone, a slot opening its
+ * card's detail page; under 720px one column, the RAPPORT folded above
  * the grid, two medium cards (card-m) wide, and no detail beside it. The
  * grid of every card fills its row: as many columns as fit at the smallest
  * grid card, with fixed gaps, each card as wide as its column (an even
@@ -730,9 +730,10 @@
 }
 
 /* ---- The card detail beside the grid (collection_detail_controller.ts):
-   its column always reserved from 900px, sticky near the top of the
-   viewport and scrolling inside itself, a quiet placeholder until a card
-   is opened; from 720px under the grid, once a card is opened. ---- */
+   its column reserved from 900px only, sticky near the top of the
+   viewport and scrolling inside itself, the detail's layout waiting empty
+   until a card is opened (cards/_detail_waiting); under 900px no detail,
+   a slot opens its card's page. ---- */
 
 .collection-results {
   display: grid;
@@ -750,27 +751,6 @@
 
   display: none;
   min-width: 0;
-}
-
-.collection-detail__placeholder {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.collection-detail__kicker {
-  margin: 0;
-  color: var(--color-accent);
-  font: var(--font-kicker);
-  letter-spacing: var(--tracking-kicker);
-  text-transform: uppercase;
-}
-
-.collection-detail__hint {
-  margin: 0;
-  color: var(--color-muted);
-  font: var(--font-body-small);
-  letter-spacing: var(--tracking-body-small);
 }
 
 /* ◀ 208px card ▶ fits the 340px column, beside a thin scrollbar. */
@@ -813,12 +793,6 @@
   inset: calc(-1 * var(--space-2) - 3px);
   box-shadow: inset 0 0 0 3px var(--color-accent);
   pointer-events: none;
-}
-
-@media (min-width: 720px) and (max-width: 899px) {
-  .collection-detail:has(> .card-detail) {
-    display: block;
-  }
 }
 
 @media (min-width: 900px) {

@@ -56,7 +56,6 @@ const fill = (gridWidth: number) => {
 
 const WIDE = "@media (min-width: 1180px)"
 const MEDIUM = "@media (min-width: 900px)"
-const STACKED = "@media (min-width: 720px) and (max-width: 899px)"
 
 const pageGutter = (property: string) => {
   const match = ruleBody(tokensStylesheet, ":root").match(new RegExp(`${property}:\\s*\\d+px (\\d+)px`))
@@ -79,7 +78,7 @@ const WIDE_GRID =
 
 const MEDIUM_GRID = 1024 - 2 * pageGutter("--space-page-padding-medium") - detailColumn(MEDIUM) - token("--space-column-gap-medium")
 
-const STACKED_GRID = 800 - 2 * pageGutter("--space-page-padding-medium")
+const ALONE_GRID = 800 - 2 * pageGutter("--space-page-padding-medium")
 
 describe("the grid card", () => {
   it("takes its slot's width, 1.5 times as tall, its art box even and what the rest leaves", () => {
@@ -164,7 +163,7 @@ describe("the grid of every card", () => {
   })
 
   it.each([
-    { name: "an 800px window, the detail under the grid", gridWidth: STACKED_GRID, columns: 4, card: 174, cardLayout: "medium" },
+    { name: "an 800px window, the grid alone", gridWidth: ALONE_GRID, columns: 4, card: 174, cardLayout: "medium" },
     { name: "1280px and up, beside the RAPPORT and the detail", gridWidth: WIDE_GRID, columns: 3, card: 184, cardLayout: "medium" },
     { name: "a 1024px window, beside the detail", gridWidth: MEDIUM_GRID, columns: 4, card: 148, cardLayout: "medium" },
     { name: "a medium width", gridWidth: 780, columns: 5, card: 142, cardLayout: "medium" },
@@ -241,11 +240,23 @@ describe("the card detail beside the grid", () => {
     expect(ruleBody(collectionStylesheet, ".collection-results")).toContain("align-items: start;")
   })
 
-  it("shows under the grid from 720px only once a card is opened, and never on the phone", () => {
+  it("shows only beside the grid, from 900px: never under it, nor on the phone", () => {
     expect(ruleBody(collectionStylesheet, ".collection-detail")).toContain("display: none;")
-    expect(ruleBody(collectionStylesheet, ".collection-detail:has(> .card-detail)", collectionStylesheet.indexOf(STACKED))).toContain(
-      "display: block;",
-    )
+    expect(collectionStylesheet).not.toContain("@media (min-width: 720px) and (max-width: 899px)")
+    const shown = [...collectionStylesheet.matchAll(/\.collection-detail[^{,]* \{[^}]*display: block;/g)].map((match) => match.index)
+    expect(shown).toEqual([collectionStylesheet.indexOf(".collection-detail {", collectionStylesheet.indexOf(MEDIUM))])
+  })
+
+  it("waits with an empty face as large as the card it will hold, hatched like a missing slot", () => {
+    const face = ruleBody(cardDetailStylesheet, ".card-detail__empty-face")
+    expect(px(face, "width")).toBe(px(ruleBody(cardStylesheet, ".card--l"), "--card-width"))
+    expect(px(face, "height")).toBe(px(ruleBody(cardStylesheet, ".card--l"), "--card-height"))
+    const slot = ruleBody(collectionStylesheet, "\n.missing-slot")
+    for (const property of ["background", "box-shadow"]) {
+      const declaration = face.match(new RegExp(`\\b${property}: [^;]+;`))?.[0]
+      expect(declaration).toBeDefined()
+      expect(slot).toContain(declaration!)
+    }
   })
 
   it("puts ◀ ▶ under the card when the panel is narrower than ◀ card ▶", () => {

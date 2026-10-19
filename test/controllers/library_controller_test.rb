@@ -64,6 +64,29 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     css_select(".report--panel .report__row").to_h { [ it.at_css("dt").text.strip, it.at_css("dd").text ] }
   end
 
+  # The card detail's layout, empty: the kicker, the disabled ◀ ▶ around an
+  # empty face, the waiting title, each fact waiting, the store disabled;
+  # only the kicker and the title are read, and no card's heading nor controller.
+  def assert_waiting_detail(kicker:, title:, facts:, store:)
+    assert_select "article.panel.panel--brackets.card-detail.card-detail--waiting", 1 do |article|
+      assert_nil article.first["data-controller"]
+      assert_select "h1, #card-detail-heading, a", false
+      assert_select ".card-detail__header p.card-detail__kicker", kicker
+      assert_select ".card-detail__number", false
+      assert_select ".card-detail__stage[aria-hidden=true]" do
+        assert_select "button.card-detail__nav[disabled]", 2
+        assert_select ".card-detail__card .card-detail__empty-face[aria-hidden=true]:empty", 1
+        assert_select ".card-detail__card .card-detail__shadow", 1
+      end
+      assert_select ".card-detail__info p.card-detail__title:not([id])", title
+      assert_select "dl.card-detail__facts[aria-hidden=true]" do
+        assert_equal facts, css_select(".card-detail__fact dt").map { it.text.strip }
+        assert_equal [ "—" ] * facts.size, css_select(".card-detail__fact dd").map { it.text.strip }
+      end
+      assert_select ".card-detail__actions button.button.button--primary.card-detail__store[disabled][aria-hidden=true]", store
+    end
+  end
+
   test "a player sees their unique cards, the themes' progress, the RAPPORT and the first sixty cards of the season" do
     season = publish_sets_draft
     player = accounts_players(:player)
@@ -136,7 +159,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
-  test "the grid holds an empty card detail beside it, inside the frame the filters reload, its placeholder in English and French" do
+  test "the grid holds the card detail's layout waiting empty beside it, inside the frame the filters reload, in English and French" do
     publish_sets_draft
     sign_in(accounts_players(:player))
 
@@ -148,11 +171,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame#collection-results.collection-results" do
       assert_select ".collection-results__grid ol.collection-grid"
       assert_select "turbo-frame#card-detail.collection-detail[target=_top]:not([src])", 1 do
-        assert_select ".card-detail", false
-        assert_select ".panel.panel--quiet.collection-detail__placeholder" do
-          assert_select "p.collection-detail__kicker", "Card file"
-          assert_select "p.collection-detail__hint", "Choose a card to see its details."
-        end
+        assert_waiting_detail(kicker: "Card file", title: "Choose a card",
+          facts: [ "Publisher", "Rarity", "Genre", "Year", "Season", "Sets", "Copies", "Editions" ], store: "See on Steam")
       end
     end
     assert_select "a.card-link[aria-current]", false
@@ -160,9 +180,21 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_cards_path(locale: :fr)
 
-    assert_select "turbo-frame#collection-results turbo-frame#card-detail .collection-detail__placeholder" do
-      assert_select "p.collection-detail__kicker", "Fiche de la carte"
-      assert_select "p.collection-detail__hint", "Choisissez une carte pour voir sa fiche."
+    assert_select "turbo-frame#collection-results turbo-frame#card-detail" do
+      assert_waiting_detail(kicker: "Fiche de la carte", title: "Choisissez une carte",
+        facts: [ "Éditeur", "Rareté", "Genre", "Année", "Saison", "Sets", "Exemplaires", "Éditions" ], store: "Voir sur Steam")
+    end
+    assert_select "[style]", false
+  end
+
+  test "a visitor's waiting detail has no copies nor editions row" do
+    publish_sets_draft
+
+    get library_cards_path(locale: :en)
+
+    assert_response :success
+    assert_select "turbo-frame#card-detail" do
+      assert_waiting_detail(kicker: "Card file", title: "Choose a card", facts: [ "Publisher", "Rarity", "Genre", "Year", "Season", "Sets" ], store: "See on Steam")
     end
     assert_select "[style]", false
   end

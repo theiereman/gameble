@@ -787,7 +787,6 @@ fr:
           zero: "%{count} édition"
           one: "%{count} édition"
           other: "%{count} éditions"
-      detail_placeholder: "Choisissez une carte pour voir sa fiche."
       pages:
         label: "Pages de cartes"
         page: "Page"
@@ -1443,6 +1442,9 @@ fr:
     previous: "Carte précédente"
     next: "Carte suivante"
     store: "Voir sur Steam"
+    waiting:
+      title: "Choisissez une carte"
+      value: "—"
     preview:
       title: "%{title} — %{rarity}"
       description: "Une carte de gameble, vos jeux Steam en cartes à collectionner. Connectez-vous avec Steam : dix capsules vous attendent."

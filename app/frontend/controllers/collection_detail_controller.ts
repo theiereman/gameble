@@ -1,27 +1,26 @@
 import { Controller } from "@hotwired/stimulus"
-import { openAction, opensBeside, selectedLink } from "../lib/collection_detail"
-import { motionReduced } from "../lib/motion"
-import { beginStep, PHONE_WIDTH, steppingInto } from "../lib/sub_view_step"
+import { DETAIL_BESIDE, openAction, opensBeside, selectedLink } from "../lib/collection_detail"
+import { beginStep } from "../lib/sub_view_step"
 
-// From 720px, a grid slot opens its card in the `card-detail` frame beside the grid, and its link stays marked while that card shows.
+// From 900px, a grid slot opens its card in the `card-detail` frame beside the grid, in place of the waiting detail, and its link stays marked while that card shows; narrower, the slot's link opens the card's page.
 
 type DetailFrame = HTMLElement & { src: string | null }
 
 const SLOT_LINKS = ".collection-grid a.card-link"
+const CARD_SHOWN = ".card-detail:not(.card-detail--waiting)"
 
 export default class extends Controller<HTMLElement> {
   open(event: MouseEvent): void {
     const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>(SLOT_LINKS) : null
     const frame = this.frame()
-    if (!link || !frame || !opensBeside(event, window.matchMedia(PHONE_WIDTH).matches)) return
+    if (!link || !frame || !opensBeside(event, window.matchMedia(DETAIL_BESIDE).matches)) return
     event.preventDefault()
     if (frame.src && new URL(frame.src, location.href).href === link.href) {
-      this.reveal(frame)
       frame.querySelector<HTMLElement>("[data-sub-view-target=heading]")?.focus({ preventScroll: true })
       return
     }
     beginStep("open", "heading")
-    window.Turbo.visit(link.href, { frame: frame.id, action: openAction(frame.querySelector(".card-detail") !== null) })
+    window.Turbo.visit(link.href, { frame: frame.id, action: openAction(frame.querySelector(CARD_SHOWN) !== null) })
   }
 
   loaded(event: Event): void {
@@ -31,7 +30,6 @@ export default class extends Controller<HTMLElement> {
       this.mark(null)
     } else if (frame === this.frame()) {
       this.mark(frame.getAttribute("src"))
-      if (steppingInto("open")) this.reveal(frame)
     }
   }
 
@@ -46,11 +44,5 @@ export default class extends Controller<HTMLElement> {
       if (link === selected) link.setAttribute("aria-current", "true")
       else link.removeAttribute("aria-current")
     }
-  }
-
-  private reveal(frame: HTMLElement): void {
-    const top = frame.getBoundingClientRect().top
-    if (top >= 0 && top <= window.innerHeight / 2) return
-    frame.scrollIntoView({ block: "start", behavior: motionReduced() ? "auto" : "smooth" })
   }
 }
