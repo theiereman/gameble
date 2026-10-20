@@ -8,8 +8,8 @@ require_relative "../support/steam_sign_in"
 # the cards, then the sets in progress, closest first. Its grid of every card of the
 # season: the top bar's unique cards, the RAPPORT, the filters (state,
 # rarity, the set group that picks a kind then finds a set by name, genre)
-# and the search, the grid of owned faces and missing slots sixty to a
-# page, the NOUVEAU tag and its watermark post; for a player, a visitor and
+# and the search, the grid of every card's face sixty to a page, a
+# player's cards not held set apart, the NOUVEAU tag and its watermark post; for a player, a visitor and
 # a banned player; the queries of a request.
 class LibraryControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
@@ -45,13 +45,17 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
   def set_status = css_select("[data-group=sets] p.set-filter__status[role=status]").sole.text
 
-  # The grid's slots: [ :owned, title, "xn", "New" | nil ] or [ :missing, title, year ].
+  # The grid's slots: [ :owned, title, "xn", "New" | nil ], [ :not_owned,
+  # title, year ] (a player's card not held) or [ :plain, title, year ] (a
+  # visitor's).
   def slots
     css_select(".collection-grid > li.collection-slot").map do |slot|
-      if (card = slot.at_css(".card"))
-        [ :owned, card.at_css(".card__title").text, slot.at_css(".collection-slot__copies").text, slot.at_css(".collection-slot__new")&.text ]
+      card = slot.at_css(".card")
+      title = card.at_css(".card__title").text
+      if slot.at_css(".collection-slot__copies")
+        [ :owned, title, slot.at_css(".collection-slot__copies").text, slot.at_css(".collection-slot__new")&.text ]
       else
-        [ :missing, slot.at_css(".missing-slot__title").text, slot.at_css(".missing-slot__year").text.to_i ]
+        [ card.classes.include?("card--not-owned") ? :not_owned : :plain, title, card.at_css(".card__year").text.to_i ]
       end
     end
   end
@@ -107,17 +111,20 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       case id
       when first, third then [ :owned, title(id), "x1", nil ]
       when second then [ :owned, title(id), "x3", nil ]
-      else [ :missing, title(id), year(id) ]
+      else [ :not_owned, title(id), year(id) ]
       end
     end
     assert_equal expected, slots
+    not_owned = 60 - expected.count { it.first == :owned }
     assert_select "ol.collection-grid.collection-grid--fill", 1
-    assert_select ".collection-grid .card.card--grid", expected.count { it.first == :owned }
+    assert_select ".collection-grid .card.card--grid", 60
     assert_select ".collection-grid .card.card--m", false
+    assert_select ".collection-grid .missing-slot", false
     assert_select ".collection-slot__copies[aria-hidden=true] + .visually-hidden", "3 copies"
-    assert_select ".missing-slot svg.pixel-icon.missing-slot__icon"
-    assert_select ".missing-slot .visually-hidden", { count: 60 - expected.count { it.first == :owned }, text: "Missing card" }
-    # Every face and missing slot leads to its card's detail in this season,
+    assert_select ".collection-grid .card.card--not-owned > .card__lock > svg.pixel-icon[aria-hidden=true]", not_owned
+    assert_select ".collection-grid .card.card--not-owned[data-controller], .collection-grid .card--not-owned .card__effects", false
+    assert_select ".collection-grid .card:not(.card--not-owned)[data-controller=tilt]", 60 - not_owned
+    # Every face leads to its card's detail in this season,
     # carrying the grid's filters and search, so the detail walks this grid.
     slugs = Catalog::CardSeason.where(id: cards.first(60)).includes(:card).index_by(&:id).transform_values { it.card.slug }
     links = css_select(".collection-grid > li > a.card-link")
@@ -155,7 +162,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
-  test "a held card's link and a missing one's carry the grid's filters and search" do
+  test "a held card's link and a not-owned one's carry the grid's filters and search, the not-owned one named so" do
     season = publish_sets_draft
     player = accounts_players(:player)
     held, missing = season_cards(season).first(2)
@@ -171,7 +178,10 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     view = Catalog::CardViews.call([ held ], locale: :en).fetch(held)
     label = "#{view.title}, #{view.year}, #{I18n.t("catalog.rarity.#{view.rarity}", locale: :en)}, season #{season.number}"
     assert_select ".collection-grid a.card-link[href=?][aria-label=?]", href.(held, context), label
-    assert_select ".collection-grid a.card-link[href=?] .missing-slot", href.(missing, context)
+    missing_view = Catalog::CardViews.call([ missing ], locale: :en).fetch(missing)
+    missing_label = "#{missing_view.title}, #{missing_view.year}, #{I18n.t("catalog.rarity.#{missing_view.rarity}", locale: :en)}, " \
+      "season #{season.number}, not owned"
+    assert_select ".collection-grid a.card-link[href=?][aria-label=?] .card.card--not-owned", href.(missing, context), missing_label
 
     # Every slot by default, the held card first: only the search, always there.
     get library_cards_path(locale: :en)
@@ -232,14 +242,19 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal 60, slots.size
   end
 
-  test "a visitor sees every slot missing, no NOUVEAU and the Steam sign-in image, without a holdings query" do
+  test "a visitor sees every card's plain face, no NOUVEAU and the Steam sign-in image, without a holdings query" do
     season = publish_sets_draft
     hold(accounts_players(:player), season_cards(season).first, 1, gained_at: 1.minute.ago)
 
     assert_no_queries_match(/game_holdings|game_player_states/) { get library_cards_path(locale: :en) }
 
     assert_response :success
-    assert_equal season_cards(season).first(60).map { [ :missing, title(it), year(it) ] }, slots
+    assert_equal season_cards(season).first(60).map { [ :plain, title(it), year(it) ] }, slots
+    assert_select ".collection-grid .card--not-owned, .collection-grid .card__lock, .collection-grid .missing-slot", false
+    assert_select ".collection-grid .card[data-controller=tilt]", 60
+    labels = css_select(".collection-grid a.card-link").map { it["aria-label"] }
+    assert_equal 60, labels.size
+    assert labels.none? { it.nil? || it.end_with?("not owned") }
     assert_select ".collection-slot__new, [data-controller=collection-seen]", false
     assert_select ".collection-status__value", "0 / 150"
     assert_select ".top-bar__end form.steam-sign-in input[name=origin][value='/en/library/cards']"
@@ -260,7 +275,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :success
-    assert_equal :missing, slots.first.first
+    assert_equal :plain, slots.first.first
+    assert_select ".collection-grid .card--not-owned", false
     assert_select ".collection-slot__new", false
     assert_nil session[:player_id]
   end
@@ -281,10 +297,10 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :fr)
 
     # Owned cards first, newest gained first, the one never gained last,
-    # then the missing ones.
+    # then the ones not owned.
     assert_equal [ [ :owned, title(second, "fr"), "x1", "Nouveau" ], [ :owned, title(first, "fr"), "x2", "Nouveau" ],
       [ :owned, title(fourth, "fr"), "x1", nil ], [ :owned, title(third, "fr"), "x1", nil ] ], slots.first(4)
-    assert_equal :missing, slots[4].first
+    assert_equal :not_owned, slots[4].first
     assert_select "div[hidden][data-controller=collection-seen][data-collection-seen-url-value='/fr/library/seen']" do |element|
       assert_equal latest.utc.iso8601(6), element.first["data-collection-seen-up-to-value"]
     end
@@ -552,7 +568,11 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Cartes totales", "Doublons" ], css_select(".report--panel .report__row dt").first(2).map { it.text.strip }
     assert_select ".collection-slot__new", "Nouveau"
     assert_select ".collection-slot__copies + .visually-hidden", "1 exemplaire"
-    assert_select ".missing-slot .visually-hidden", { minimum: 1, text: "Carte manquante" }
+    assert_select ".collection-grid .missing-slot", false
+    not_owned = Catalog::CardViews.call([ season_cards(season).second ], locale: :fr).fetch(season_cards(season).second)
+    label = "#{not_owned.title}, #{not_owned.year}, #{I18n.t("catalog.rarity.#{not_owned.rarity}", locale: :fr)}, " \
+      "saison #{season.number}, non possédée"
+    assert_select ".collection-grid a.card-link[aria-label=?] .card--not-owned", label
     assert_select ".collection-pages[aria-label=?] a[rel=next][aria-label=?]", "Pages de cartes", "Page suivante"
   end
 
@@ -633,7 +653,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en)
 
     assert_equal [ second, first, third ].map { [ :owned, title(it), nil ] }, slots.first(3).map { [ it[0], it[1], nil ] }
-    assert_equal [ :missing ] * 57, slots.drop(3).map(&:first)
+    assert_equal [ :not_owned ] * 57, slots.drop(3).map(&:first)
     assert_select "form.filters[method=get][data-controller=collection-filters][data-turbo-frame=collection-results]"
     assert_select "details.filters__zone:not([open]) summary", /Filters/
     assert_select ".filters__count[hidden]"
@@ -660,7 +680,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".filters__count:not([hidden])", /1/
   end
 
-  test "the missing state shows the empty slots naming the game; owned plus missing is every slot" do
+  test "the missing state shows the faces not owned; owned plus missing is every slot" do
     season = publish_sets_draft
     player = accounts_players(:player)
     cards = season_cards(season)
@@ -668,7 +688,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     sign_in(player)
 
     get library_cards_path(locale: :en, state: %w[missing])
-    assert_equal cards.drop(1).first(60).map { [ :missing, title(it), year(it) ] }, slots
+    assert_equal cards.drop(1).first(60).map { [ :not_owned, title(it), year(it) ] }, slots
     assert_select ".filters__count:not([hidden])", /1/
     assert_select "details.filters__zone[open]"
     assert_select ".filters__clear:not([hidden])[href=?]", "/en/library/cards"
@@ -761,7 +781,12 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_cards_path(locale: :en, q: "seed 5", state: %w[missing])
     assert slots.any?
-    assert slots.all? { it.first == :missing && it.second.start_with?("Seed 5") && it.second != "Seed 5" }
+    assert slots.all? { it.first == :not_owned && it.second.start_with?("Seed 5") && it.second != "Seed 5" }
+
+    not_held = Catalog::CardSeason.where(season_id: season.id).joins(card: :texts)
+      .where(catalog_card_texts: { locale: "en", title: "Seed 50" }).pick(:id)
+    get library_cards_path(locale: :en, q: "seed 50")
+    assert_equal [ [ :not_owned, "Seed 50", year(not_held) ] ], slots
 
     get library_cards_path(locale: :en, q: "zzzz")
     assert_empty slots
@@ -794,9 +819,11 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en, state: %w[missing])
     assert_equal 60, slots.size
 
+    assert_equal [ :plain ] * 60, slots.map(&:first)
+
     sign_in(accounts_players(:player))
     get library_cards_path(locale: :en)
-    assert_equal season_cards(season).first(60).map { [ :missing, title(it), year(it) ] }, slots
+    assert_equal season_cards(season).first(60).map { [ :not_owned, title(it), year(it) ] }, slots
   end
 
   # ---- The entry ----
@@ -1176,7 +1203,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal held.map { title(it) }.sort, slots.first(30).map(&:second).sort
     assert_equal [ :owned ] * 30, slots.first(30).map(&:first)
-    assert_equal [ :missing ] * 30, slots.drop(30).map(&:first)
+    assert_equal [ :not_owned ] * 30, slots.drop(30).map(&:first)
     assert_equal [ "/seasons/#{season.number}" ] * 30, tile_hrefs.first(30)
     assert_equal [ "/seasons/#{newer.number}" ] * 30, tile_hrefs.drop(30)
     assert_select ".collection-status__value", "30 / 150"
@@ -1205,7 +1232,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     two_editions(season, accounts_players(:player))
 
     get library_cards_path(locale: :en)
-    assert_equal season_cards(season).first(60).map { [ :missing, title(it), year(it) ] }, slots
+    assert_equal season_cards(season).first(60).map { [ :plain, title(it), year(it) ] }, slots
     assert_empty editions_badges
   end
 end

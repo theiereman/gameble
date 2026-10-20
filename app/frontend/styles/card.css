@@ -17,6 +17,10 @@
  * each of its three flake groups, run only while the face is in the viewport
  * ([data-in-view], tilt_controller.ts). Under reduced motion there is no
  * tilt and no twinkle; the reflection stays, still, at its rest position.
+ *
+ * A card not owned does not tilt and has no rarity effects: its frame and
+ * its body fade and turn grey on their own, so the root still carries no
+ * opacity or filter and the lock over the art stays bright.
  */
 
 :root {
@@ -354,6 +358,50 @@
   display: block;
   width: var(--card-icon);
   height: var(--card-icon);
+}
+
+/* ---- A card not owned: the frame and body faded and grey, the lock bright on the art ---- */
+
+.card--not-owned {
+  background: none;
+  box-shadow: none;
+}
+
+.card--not-owned::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: var(--pixel-outline-4), var(--card-face-bevel), inset 0 0 0 var(--card-frame) var(--card-rarity);
+  pointer-events: none;
+}
+
+.card--not-owned::before,
+.card--not-owned > .card__body {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.card--not-owned > .card__body {
+  position: relative;
+}
+
+.card__lock {
+  --card-lock-width: round(down, calc(var(--card-art-width) / 3), 10px);
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--card-frame) + var(--card-padding) + var(--card-rarity-line-height) + 2 * var(--card-gap)
+    + var(--card-line-height) + var(--card-art-height) / 2);
+  transform: translate(-50%, 50%);
+  color: var(--color-text-bright);
+  filter: drop-shadow(1px 0 0 var(--color-backdrop)) drop-shadow(-1px 0 0 var(--color-backdrop))
+    drop-shadow(0 1px 0 var(--color-backdrop)) drop-shadow(0 -1px 0 var(--color-backdrop));
+  pointer-events: none;
+}
+
+.card__lock svg {
+  display: block;
+  width: var(--card-lock-width);
+  height: calc(1.2 * var(--card-lock-width));
 }
 
 /* ---- Tilt ---- */

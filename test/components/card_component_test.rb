@@ -166,6 +166,29 @@ class CardComponentTest < ViewComponent::TestCase
     end
   end
 
+  test "a card not owned: its whole face, set apart, a lock over it, without tilt or rarity effects" do
+    Catalog::Rarity::TIERS.each_value do |rarity|
+      render_card(card(rarity: rarity.to_s), size: :grid, owned: false)
+
+      assert_selector "span.card.card--grid.card--rarity-#{rarity}.card--not-owned"
+      assert_no_selector ".card[data-controller], .card[data-tilt-max-value]", visible: :all
+      assert_no_selector ".card__effects, .card__reflection, .card__glitter", visible: :all
+      assert_selector ".card > .card__body > .card__band > .card__title", text: "Blue Depths"
+      assert_selector ".card__art[data-controller=card-art]"
+      assert_selector ".card > .card__body + .card__lock:last-child > svg.pixel-icon[aria-hidden=true]", visible: :all
+      paths = ShellHelper.pixel_source("lock").scan(/ d="([^"]+)"/).flatten
+      assert_equal paths, page.all(".card__lock path", visible: :all).map { it["d"] }
+      assert_no_selector "[style], [id], [tabindex]", visible: :all
+    end
+  end
+
+  test "a card owned by default: no lock, its tilt and rarity effects" do
+    render_card(size: :grid)
+
+    assert_no_selector ".card--not-owned, .card__lock", visible: :all
+    assert_selector ".card.card--grid[data-controller=tilt] > .card__effects"
+  end
+
   test "an unknown size is refused" do
     assert_raises(ArgumentError) { CardComponent.new(card:, size: :huge) }
     assert_raises(ArgumentError) { CardComponent.new(card:, size: :small) }

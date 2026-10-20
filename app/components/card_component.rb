@@ -12,7 +12,9 @@
 # the browser by the card-art Stimulus controller (pixelcrush), the tilt,
 # the reflection on the varnish and a Légendaire's glitter run by the tilt
 # controller. `booster: true` gives a face the booster opening's
-# effects (Rarity effects) and a stronger tilt.
+# effects (Rarity effects) and a stronger tilt. `owned: false` draws a card
+# its viewer does not hold: faded and grey, without its rarity effects or
+# tilt, a lock bare over its art.
 class CardComponent < ViewComponent::Base
   FIXED_SIZES = %i[s m l xl].freeze
   SIZES = [ *FIXED_SIZES, :grid ].freeze
@@ -45,19 +47,21 @@ class CardComponent < ViewComponent::Base
   # Room for every card number in a season, so no two cards share a glitter.
   GLITTER_SEED_SEASON_STRIDE = 1_000_000
 
-  def initialize(card:, size: :m, booster: false)
+  def initialize(card:, size: :m, booster: false, owned: true)
     raise ArgumentError, "unknown card size: #{size.inspect}" unless SIZES.include?(size)
 
     @card = card
     @size = size
     @booster = booster
+    @owned = owned
   end
 
   private
-    attr_reader :card, :size, :booster
+    attr_reader :card, :size, :booster, :owned
 
     def classes
-      [ "card", "card--#{size}", "card--rarity-#{card.rarity}", ("card--booster" if booster) ].compact.join(" ")
+      [ "card", "card--#{size}", "card--rarity-#{card.rarity}", ("card--booster" if booster), ("card--not-owned" unless owned) ]
+        .compact.join(" ")
     end
 
     def tilt_max = booster ? TILT_MAX_BOOSTER : TILT_MAX

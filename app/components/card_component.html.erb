@@ -1,4 +1,4 @@
-<span class="<%= classes %>" data-controller="tilt" data-tilt-max-value="<%= tilt_max %>">
+<span class="<%= classes %>"<% if owned %> data-controller="tilt" data-tilt-max-value="<%= tilt_max %>"<% end %>>
   <span class="card__body">
     <span class="card__band">
       <span class="card__title"><%= card.title %></span>
@@ -27,14 +27,18 @@
       <% end %>
     </span>
   </span>
-  <span class="card__effects" aria-hidden="true">
-    <span class="card__reflection card__reflection--ceiling"></span>
-    <% if iridescent? %>
-      <span class="card__reflection card__reflection--iridescence"></span>
-    <% end %>
-    <span class="card__reflection card__reflection--strips"></span>
-    <% if iridescent? %>
-      <span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="<%= glitter_seed %>"></span>
-    <% end %>
-  </span>
+  <% if owned %>
+    <span class="card__effects" aria-hidden="true">
+      <span class="card__reflection card__reflection--ceiling"></span>
+      <% if iridescent? %>
+        <span class="card__reflection card__reflection--iridescence"></span>
+      <% end %>
+      <span class="card__reflection card__reflection--strips"></span>
+      <% if iridescent? %>
+        <span class="card__glitter" data-tilt-target="glitter" data-glitter-seed="<%= glitter_seed %>"></span>
+      <% end %>
+    </span>
+  <% else %>
+    <span class="card__lock"><%= helpers.pixel_icon("lock") %></span>
+  <% end %>
 </span>

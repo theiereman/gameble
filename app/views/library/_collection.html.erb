@@ -8,6 +8,8 @@
     - heading: the page's name;
     - grid: the Catalog::CollectionGrid; slots, pagy: its page, context:
       the filters its links carry (library/grid);
+    - set_apart: true for a signed-in player, whose grid sets the cards
+      they do not hold apart from theirs (library/grid);
     - unique, games_by_rarity, tier_counts: the viewer's figures;
     - seen_up_to: the latest gain among the new cards shown, or nil;
     - pagy also gives the count announced by the status line;
@@ -22,7 +24,7 @@
     <%= render "library/filters", grid:, states:, states_asked:, query:, set_filter: set_filter %>
     <%= turbo_frame_tag "collection-results", target: "_top", data: { turbo_action: "replace" } do %>
       <p class="visually-hidden" role="status"><%= t("library.grid.result", count: pagy.count) %></p>
-      <%= render "library/grid", context:, slots:, pagy: pagy %>
+      <%= render "library/grid", context:, slots:, set_apart:, pagy: pagy %>
       <% if seen_up_to %>
         <div hidden data-controller="collection-seen" data-collection-seen-url-value="<%= library_seen_path %>"
           data-collection-seen-up-to-value="<%= seen_up_to.utc.iso8601(6) %>"></div>

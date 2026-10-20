@@ -1630,6 +1630,7 @@ fr:
     new_tab: "(nouvel onglet)"
   card_details:
     open: "%{title}, %{year}, %{rarity}, saison %{season}"
+    open_not_owned: "%{title}, %{year}, %{rarity}, saison %{season}, non possédée"
     kicker: "Fiche de la carte"
     facts:
       publisher: "Éditeur"

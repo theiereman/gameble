@@ -1585,6 +1585,7 @@ en:
     new_tab: "(new tab)"
   card_details:
     open: "%{title}, %{year}, %{rarity}, season %{season}"
+    open_not_owned: "%{title}, %{year}, %{rarity}, season %{season}, not owned"
     kicker: "Card file"
     facts:
       publisher: "Publisher"

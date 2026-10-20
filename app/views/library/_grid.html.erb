@@ -1,19 +1,22 @@
 <%# The collection grid: one page of the grid's cards in order, one per
-    game, in columns filling the row. An owned game shows the grid face
-    (sized by its slot) of the edition it shows, its copies across editions
-    ("x3", from x1, in an accent box at the top-right), under them the
-    editions held when two or more ("2 éd.", in the same box) and, when an
-    edition was gained since the player last saw their collection, "Nouveau"
-    in a lime box at the top-left; a missing one is a hatched slot with a
-    padlock, naming its game and year. Each leads to its card's detail: a face's link is named by the card's title, rarity and
-    season, a missing slot's by its visible text and "Missing card"; each
-    carries the grid's filters and search, so the detail walks this
+    game, in columns filling the row, each drawn as its grid face (sized by
+    its slot). An owned game shows the edition it shows, its copies across
+    editions ("x3", from x1, in an accent box at the top-right), under them
+    the editions held when two or more ("2 éd.", in the same box) and, when
+    an edition was gained since the player last saw their collection,
+    "Nouveau" in a lime box at the top-left. With `set_apart`, a game the
+    player does not hold shows its face faded, grey and locked, its link
+    named "not owned" after the card's title, rarity and season; without, it
+    shows its plain face, named as an owned one. Each leads to its card's
+    detail, carrying the grid's filters and search, so the detail walks this
     grid as shown (◀ ▶), leads back to it, and shows a card the viewer does
     not hold as their faded card back. No card: the empty-filter line, or,
     past the last page of a grid that has cards, the past-the-end line.
     - context: the grid's filters and search, as a detail's `grid`
       parameter carries them (CollectionGridLoading#grid_context);
     - slots: [ [ Catalog::CardView, Game::HeldGames::Edition | nil ], … ];
+    - set_apart: true for a signed-in player, whose cards not held are set
+      apart from theirs;
     - pagy: the grid's page. %>
 <% strings = CardStrings.new %>
 <% if slots.empty? %>
@@ -34,14 +37,7 @@
             <span class="collection-slot__new"><%= t("library.grid.new") %></span>
           <% end %>
         <% else %>
-          <%= link_to_card_detail(card, context: { grid: context }) do %>
-            <span class="missing-slot">
-              <%= pixel_icon("lock", class: "missing-slot__icon") %>
-              <span class="missing-slot__title"><%= card.title %></span>
-              <span class="missing-slot__year"><%= card.year %></span>
-              <span class="visually-hidden"><%= t("library.grid.missing") %></span>
-            </span>
-          <% end %>
+          <%= link_to_card_detail(card, strings:, context: { grid: context }, owned: !set_apart) do %><%= render CardComponent.new(card:, size: :grid, owned: !set_apart) %><% end %>
         <% end %>
       </li>
     <% end %>
