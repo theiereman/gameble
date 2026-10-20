@@ -195,7 +195,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select "[data-controller=collection-seen]", false
   end
 
-  test "a visitor sees every slot missing, no tier reached, no New tag" do
+  test "a visitor sees every slot missing, no tier reached, no New tag and no unique cards in the top bar" do
     season = publish_sets_draft
     members = set_members(season, "horror")
     hold(accounts_players(:player), members.first, 1, gained_at: 1.minute.ago)
@@ -208,6 +208,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".set-row__tick.is-reached", false
     assert_equal members.map { [ :missing, title(it), year(it) ] }, slots
     assert_select ".collection-slot__new", false
+    assert_select ".collection-status, .top-bar--status", false
     assert_select ".top-bar__end form.steam-sign-in"
   end
 

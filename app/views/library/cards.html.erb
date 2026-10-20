@@ -10,7 +10,9 @@
     <%= render PanelComponent.new(tag: :p) do %><%= t("library.show.no_season") %><% end %>
   </section>
 <% else %>
-  <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
+  <% if current_player %>
+    <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
+  <% end %>
   <%= render "library/collection", heading: t("library.cards.heading"), grid: @grid, slots: @slots, pagy: @grid_pagy, context: @grid_context, set_apart: current_player.present?,
     unique: @unique, games_by_rarity: @games_by_rarity, tier_counts: @tier_counts, seen_up_to: @seen_up_to, states: @states, states_asked: @states_asked, query: @query,
     set_filter: { kinds: @set_kinds, kind: @set_kind, query: @set_query, options: @set_options, found: @set_found } %>

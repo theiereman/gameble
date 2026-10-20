@@ -5,7 +5,8 @@
 # viewer's best edition of each of its games. A player's grid sets the
 # cards they do not hold apart, faded and locked; a visitor, or a banned
 # player, owns nothing and sees every card's plain face in the grid and
-# every album slot missing. Sets are addressed by
+# every album slot missing, and no ownership data: no state filters, no
+# RAPPORT, no unique cards in the top bar. Sets are addressed by
 # kind and key, cards by slug; no id reaches the page. A GET writes
 # nothing: a grid that showed new cards posts the latest gain it showed to
 # CollectionSeenController. Open to any browser (PublicRead).
@@ -62,12 +63,17 @@ class LibraryController < ApplicationController
       @states_asked = asked.any?
       @states = @states_asked ? asked : [ Game::CollectionStates::DEFAULT ]
       @grid_context = grid_context(params, seen: (shown_watermark if @states.include?("new")))
-      @grid_pagy, page = pagy(:offset, grid_cards(grid, @states), limit: GRID_SIZE, page: page_param)
+      @grid_pagy, page = pagy(:offset, grid_cards(grid, @states), limit: GRID_SIZE, page: page_param, querify: pages_query)
       tiles = page.pluck(:id, :card_id)
       views = Catalog::CardViews.call(tiles.map(&:first), locale: I18n.locale)
       held = Game::HeldGames.editions(current_player, card_ids: tiles.map(&:last), season: @season)
       @slots = tiles.filter_map { |id, card_id| [ views[id], held[card_id] ] if views.key?(id) }
       @seen_up_to = held.values.select(&:new).map(&:gained_at).max
+    end
+
+    # A visitor's grid pages name no state: their grid ignores it.
+    def pages_query
+      ->(query) { query.delete("state") } if current_player.nil?
     end
 
     def load_set_filter(grid)

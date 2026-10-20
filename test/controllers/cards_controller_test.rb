@@ -693,17 +693,19 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__card .card.card--l"
   end
 
-  test "a filtered, searched grid is walked as shown; a grid naming a set walks the whole season's; a grid without the card is ignored" do
+  test "a filtered, searched grid is walked as shown, a visitor's state ignored; a grid naming a set walks the whole season's; a grid without the card is ignored" do
     season = publish_sets_draft
-    filters = { state: %w[all missing], genre: %w[roguelike], q: "Seed 1" }
-    slugs = grid_slugs(filters)
+    context = { genre: %w[roguelike], q: "Seed 1" }
+    slugs = grid_slugs(context)
     assert_operator slugs.size, :>, 2
-    context = { genre: %w[roguelike], q: "Seed 1", state: %w[all missing] }
 
-    get grid_detail(slugs[1], season.number, context)
+    # A visitor owns nothing: a state the grid's context names, even one
+    # no card of theirs is in, is ignored, the detail walking every card
+    # the filters and search show, and its links naming no state.
+    get grid_detail(slugs[1], season.number, context.merge(state: %w[owned]))
     assert_equal [ [ "a", grid_detail(slugs[0], season.number, context) ], [ "a", grid_detail(slugs[2], season.number, context) ] ], navs
     assert_equal "2 / #{slugs.size}", position[%r{\d+ / \d+}]
-    assert_equal "/en/library/cards?genre%5B%5D=roguelike&q=Seed+1&state%5B%5D=all&state%5B%5D=missing", css_select(".top-bar__phone-back").sole["href"]
+    assert_equal "/en/library/cards?genre%5B%5D=roguelike&q=Seed+1", css_select(".top-bar__phone-back").sole["href"]
     # A visitor browsing a grid gets the detail: the card's face and its
     # share block, without copies, editions, repost or showcase.
     assert_select ".card-detail__card .card.card--l", 1
@@ -718,7 +720,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     # A link built by the grid of one set, before sets opened as albums:
     # the whole season's grid with its filters, back to that grid's page.
-    filtered = { q: "", rarity: %w[common rare], state: %w[all] }
+    filtered = { q: "", rarity: %w[common rare] }
     season_slugs = grid_slugs(filtered)
     assert_operator season_slugs.size, :>, 2
     rpg = Catalog::CardSeason.where(id: set_members(season, "rpg")).includes(:card).map { it.card.slug }
@@ -728,7 +730,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "#{index + 1} / #{season_slugs.size}", position[%r{\d+ / \d+}]
     assert_equal grid_detail(season_slugs[index + 1], season.number, filtered), navs.last.last
     page = (index / CollectionGridLoading::GRID_SIZE) + 1
-    assert_equal library_cards_path(locale: :en, rarity: %w[common rare], state: %w[all], page: (page if page > 1)), css_select(".top-bar__phone-back").sole["href"]
+    assert_equal library_cards_path(locale: :en, rarity: %w[common rare], page: (page if page > 1)), css_select(".top-bar__phone-back").sole["href"]
 
     # A grid that does not show the card: no context, so the visitor gets
     # the public card page.

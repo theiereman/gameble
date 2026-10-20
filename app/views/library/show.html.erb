@@ -7,7 +7,9 @@
     <%= render PanelComponent.new(tag: :p) do %><%= t("library.show.no_season") %><% end %>
   </section>
 <% else %>
-  <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
+  <% if current_player %>
+    <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
+  <% end %>
   <div class="set-entry-page">
     <h1 class="visually-hidden"><%= t("library.collection.title") %></h1>
     <%= render "library/entry", in_progress: @in_progress, results: @results, results_count: @results_count, query: @query,

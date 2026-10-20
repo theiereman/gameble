@@ -174,6 +174,19 @@ class RateLimitTest < ActionDispatch::IntegrationTest
     assert response.headers["retry-after"].to_i.between?(1, 60)
   end
 
+  test "every card's grid is a shared page: the 121st read from one address within a minute gets 429, and no read is cached for other visitors" do
+    PublicReadThrottle::LIMIT.times do |index|
+      get "/fr/library/cards", env: { "REMOTE_ADDR" => IP }
+
+      assert_not_equal 429, response.status, "read #{index + 1}"
+      assert_includes response.headers["cache-control"], "private" if index.zero?
+    end
+
+    get "/fr/library/cards", env: { "REMOTE_ADDR" => IP }
+
+    assert_response :too_many_requests
+  end
+
   test "another address reads the shared pages meanwhile" do
     exhaust_public_reads(IP)
     get "/en/library", env: { "REMOTE_ADDR" => IP }

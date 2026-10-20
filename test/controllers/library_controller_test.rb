@@ -10,7 +10,8 @@ require_relative "../support/steam_sign_in"
 # rarity, the set group that picks a kind then finds a set by name, genre)
 # and the search, the grid of every card's face sixty to a page, a
 # player's cards not held set apart, the NOUVEAU tag and its watermark post; for a player, a visitor and
-# a banned player; the queries of a request.
+# a banned player, who see no ownership data (no state filters, no RAPPORT, no
+# unique cards); the queries of a request.
 class LibraryControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include GameSets
@@ -242,7 +243,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal 60, slots.size
   end
 
-  test "a visitor sees every card's plain face, no NOUVEAU and the Steam sign-in image, without a holdings query" do
+  test "a visitor sees every card's plain face, no NOUVEAU, no ownership data and the Steam sign-in image, without a holdings query" do
     season = publish_sets_draft
     hold(accounts_players(:player), season_cards(season).first, 1, gained_at: 1.minute.ago)
 
@@ -256,10 +257,16 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal 60, labels.size
     assert labels.none? { it.nil? || it.end_with?("not owned") }
     assert_select ".collection-slot__new, [data-controller=collection-seen]", false
-    assert_select ".collection-status__value", "0 / 150"
+    assert_select ".collection-status, .top-bar--status", false
     assert_select ".top-bar__end form.steam-sign-in input[name=origin][value='/en/library/cards']"
+    assert_select ".report, .collection__aside, #collection-report-title", false
+    assert_select ".collection.collection--visitor > .collection__main"
+    assert_select "[data-group=state], input[name='state[]']", false
+    assert_select "input[type=search][name=q]#collection-search"
+    assert_select "[data-group=rarity]"
+    assert_select "[data-group=genre]"
     assert_equal [ "Horror", "Pirates", "Roguelike", "RPG" ], set_chips.map(&:first)
-    assert_equal({ "Total cards" => "0", "Duplicates" => "0" }, report.first(2).to_h)
+    assert_select "[style]", false
   end
 
   test "a player banned since signing in sees the collection as a visitor, with no ownership query" do
@@ -278,6 +285,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal :plain, slots.first.first
     assert_select ".collection-grid .card--not-owned", false
     assert_select ".collection-slot__new", false
+    assert_select "[data-group=state], .report, .collection__aside, .collection-status", false
+    assert_select ".top-bar__end form.steam-sign-in"
     assert_nil session[:player_id]
   end
 
@@ -797,15 +806,30 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_empty slots
   end
 
-  test "a visitor, and a player owning nothing, open on every slot; owned shows none" do
+  test "a visitor opens on every slot and a state asked is ignored; a player owning nothing opens on every slot, owned showing none" do
     season = publish_sets_draft
     get library_cards_path(locale: :en)
     assert_equal 60, slots.size
-    assert_equal [ "All" ], css_select("[data-group=state] .filter-chip__box[checked]").map { it.parent.text.strip }
+    assert_select "[data-group=state]", false
     assert_select ".filters__count[hidden]"
-    assert_select "[data-group=state][data-default=all]"
     assert_select "form.filters[role=search]"
     assert_select "turbo-frame#collection-results p[role=status]", "150 cards shown."
+
+    %w[owned missing new duplicates].each do |state|
+      get library_cards_path(locale: :en, state: [ state ])
+      assert_equal season_cards(season).first(60).map { [ :plain, title(it), year(it) ] }, slots
+      assert_select "turbo-frame#collection-results p[role=status]", "150 cards shown."
+      assert_select ".filters__count[hidden]"
+      assert_select ".filters__clear[hidden]"
+      assert css_select(".collection-grid a.card-link").none? { it["href"].include?("state") }
+      assert css_select(".collection-pages a").none? { it["href"].include?("state") }
+    end
+
+    sign_in(accounts_players(:player))
+    get library_cards_path(locale: :en)
+    assert_equal season_cards(season).first(60).map { [ :not_owned, title(it), year(it) ] }, slots
+    assert_equal [ "All" ], css_select("[data-group=state] .filter-chip__box[checked]").map { it.parent.text.strip }
+    assert_select "[data-group=state][data-default=all]"
 
     # Asking "all" explicitly is the default of this viewer: no filter on.
     get library_cards_path(locale: :en, state: %w[all])
@@ -815,15 +839,29 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en, state: %w[owned])
     assert_empty slots
     assert_select "turbo-frame#collection-results p[role=status]", "No card shown."
+  end
 
-    get library_cards_path(locale: :en, state: %w[missing])
-    assert_equal 60, slots.size
+  test "a visitor's search, rarity and set filters narrow the grid as a player's do; an empty result shows the empty-filter line" do
+    season = publish_sets_draft
+    rare = Catalog::CardSeason.where(season_id: season.id, rarity: "rare").ids
+    epic_roguelike = Catalog::CardSeason.where(id: set_members(season, "roguelike"), rarity: "epic").ids
+    assert rare.any? && epic_roguelike.any?
 
-    assert_equal [ :plain ] * 60, slots.map(&:first)
+    get library_cards_path(locale: :en, q: "seed 50", state: %w[owned])
+    assert_equal [ "Seed 50" ], slots.map(&:second)
+    assert_equal :plain, slots.sole.first
 
-    sign_in(accounts_players(:player))
-    get library_cards_path(locale: :en)
-    assert_equal season_cards(season).first(60).map { [ :not_owned, title(it), year(it) ] }, slots
+    get library_cards_path(locale: :en, rarity: %w[rare])
+    assert_equal season_cards(season).select { it.in?(rare) }.first(60).map { title(it) }, slots.map(&:second)
+    assert_select ".filters__count:not([hidden])", /1/
+
+    get library_cards_path(locale: :en, sets: %w[theme:roguelike], rarity: %w[epic])
+    assert_equal epic_roguelike.map { title(it) }.sort, slots.map(&:second).sort
+    assert_equal [ "Roguelike", "theme:roguelike", true ], set_chips.first
+
+    get library_cards_path(locale: :en, q: "zzzz")
+    assert_empty slots
+    assert_select ".collection-grid__empty", "Nothing matches these filters."
   end
 
   # ---- The entry ----
@@ -984,6 +1022,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     delete session_path(locale: :fr)
     get library_path(locale: :en)
+    assert_select ".collection-status, .top-bar--status", false
+    assert_select ".top-bar__end form.steam-sign-in input[name=origin][value='/en/library']"
     assert_equal [ "Find a set" ], css_select(".set-entry h2").map(&:text)
     assert_select ".set-search a.button--primary[href='/en/library/cards']", "All cards"
     assert_select "p.set-entry__empty", "No set in progress yet. Find one above."
@@ -1227,12 +1267,13 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "progress.collection-status__bar[value='150'][max='150']"
   end
 
-  test "a visitor sees the published season's tiles, with no edition count" do
+  test "a visitor sees the published season's tiles, with no edition count and no unique cards" do
     season = publish_sets_draft
     two_editions(season, accounts_players(:player))
 
     get library_cards_path(locale: :en)
     assert_equal season_cards(season).first(60).map { [ :plain, title(it), year(it) ] }, slots
     assert_empty editions_badges
+    assert_select ".collection-status", false
   end
 end

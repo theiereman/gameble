@@ -1,12 +1,12 @@
 <%# The collection's status in the top bar (DESIGN.md, Top bar):
     "Cartes uniques : 87 / 16 480" and a progress bar (180px; 48px on the
     phone). Under 900px the label gives way to the value; the sentence read
-    out keeps both. The bar is hidden from assistive technology. A visitor's
-    (always 0) gives way on the phone to the Steam sign-in image.
+    out keeps both. The bar is hidden from assistive technology. A player's
+    only: a visitor owns nothing.
     - unique: the games held, in any edition, a game gone from the season
       included, so the bar fills at most;
     - total: the season's cards. %>
-<div class="<%= class_names("collection-status", "collection-status--visitor": current_player.nil?) %>">
+<div class="collection-status">
   <span class="collection-status__label" aria-hidden="true"><%= t("library.status.label") %></span>
   <span class="collection-status__value" aria-hidden="true"><%= number_with_delimiter(unique) %> / <%= number_with_delimiter(total) %></span>
   <span class="visually-hidden"><%= t("library.status.progress", count: unique, owned: number_with_delimiter(unique), total: number_with_delimiter(total)) %></span>

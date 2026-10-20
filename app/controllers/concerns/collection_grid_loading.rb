@@ -12,7 +12,8 @@
 # `sets[]` ("kind:key"), `genre[]`; `q`, the text
 # searched; `seen`, on the detail's `grid` only, the watermark the grid was
 # shown against (ISO 8601), so the new cards it showed stay new while the
-# detail walks them, though showing them moved the player's watermark.
+# detail walks them, though showing them moved the player's watermark. A
+# visitor owns nothing: the states are a player's, ignored for a visitor.
 module CollectionGridLoading
   extend ActiveSupport::Concern
 
@@ -48,8 +49,11 @@ module CollectionGridLoading
       nil
     end
 
-    # The states `source` asks for, in Game::CollectionStates order.
+    # The states `source` asks for, in Game::CollectionStates order; none
+    # for a visitor.
     def grid_states_asked(source)
+      return [] if current_player.nil?
+
       Game::CollectionStates.sanitize(grid_list(source, :state))
     end
 
@@ -66,12 +70,18 @@ module CollectionGridLoading
     # The grid's filters and search as a card's detail carries them, so it
     # walks the grid shown and leads back to it: the lists asked, the text
     # searched (always, even blank: the context is never empty), and the
-    # watermark `seen` it was shown against, when given.
+    # watermark `seen` it was shown against, when given. A visitor's names
+    # no state.
     def grid_context(source, seen: nil)
-      lists = LIST_FILTERS.to_h { [ it, grid_list(source, it) ] }.compact_blank
+      lists = grid_list_filters.to_h { [ it, grid_list(source, it) ] }.compact_blank
       context = { **lists, q: grid_query(source) }
       context.merge!(seen: seen.utc.iso8601(6)) if seen
       context
+    end
+
+    # The list filters the viewer's grid reads: a visitor's, all but the states.
+    def grid_list_filters
+      current_player ? LIST_FILTERS : LIST_FILTERS - %i[state]
     end
 
     # The page asked for: a number from 1 to MAX_PAGE, 1 for anything that

@@ -2,11 +2,13 @@
     frame that holds the grid so the field and the chips keep focus while
     the grid is replaced. The search is applied as the player types; the
     zone is a folded panel (open when a filter is on) with the count of
-    active filters and, in it, groups of chips switched on or off: state,
-    rarity, set (library/set_filter), genre; OR within a group, AND across.
+    active filters and, in it, groups of chips switched on or off: state
+    (a player's only: a visitor owns nothing), rarity, set
+    (library/set_filter), genre; OR within a group, AND across.
     The chips are checkboxes, so the form works without JavaScript; the
     collection-filters controller submits on change and keeps the count.
     - grid: the Catalog::CollectionGrid (chosen values, genres);
+    - ownership: true for a signed-in player, who gets the state group;
     - states, states_asked: the states shown, and whether the player chose
       them (none chosen shows every slot);
     - query: the text searched;
@@ -29,15 +31,17 @@
       <span class="filters__count" data-collection-filters-target="count" <%= "hidden" if count.zero? %>><span class="visually-hidden"><%= t("library.filters.active") %></span> <span data-collection-filters-target="number"><%= count %></span></span>
     </summary>
     <div class="filters__groups">
-      <fieldset class="filters__group" data-collection-filters-target="group" data-group="state" data-default="<%= Game::CollectionStates::DEFAULT %>">
-        <legend class="filters__legend"><%= t("library.filters.groups.state") %></legend>
-        <% Game::CollectionStates::STATES.each do |state| %>
-          <label class="filter-chip">
-            <%= check_box_tag "state[]", state, states.include?(state), id: nil, class: "filter-chip__box" %>
-            <span class="filter-chip__text"><%= t("library.filters.states.#{state}") %></span>
-          </label>
-        <% end %>
-      </fieldset>
+      <% if ownership %>
+        <fieldset class="filters__group" data-collection-filters-target="group" data-group="state" data-default="<%= Game::CollectionStates::DEFAULT %>">
+          <legend class="filters__legend"><%= t("library.filters.groups.state") %></legend>
+          <% Game::CollectionStates::STATES.each do |state| %>
+            <label class="filter-chip">
+              <%= check_box_tag "state[]", state, states.include?(state), id: nil, class: "filter-chip__box" %>
+              <span class="filter-chip__text"><%= t("library.filters.states.#{state}") %></span>
+            </label>
+          <% end %>
+        </fieldset>
+      <% end %>
       <fieldset class="filters__group" data-collection-filters-target="group" data-group="rarity">
         <legend class="filters__legend"><%= t("library.filters.groups.rarity") %></legend>
         <% Catalog::Rarity::TIERS.each_value do |rarity| %>

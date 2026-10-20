@@ -2,7 +2,8 @@
  * The collection: its entry, the grid of every card and a set's album.
  * From 1180px the grid has the RAPPORT in a 220px column on its left; from
  * 720px the grid stands alone; under 720px one column, the RAPPORT folded
- * above the grid, two cards a row. A slot opens its card's detail page.
+ * above the grid, two cards a row. A visitor's grid has no RAPPORT and
+ * stands alone at every width. A slot opens its card's detail page.
  * Both grids fill their row: as many columns as fit at the smallest grid
  * card, with fixed gaps, each card as wide as its column rounded down to
  * an even pixel count and centred in it, so the first and last cards line
@@ -22,6 +23,12 @@
   grid-template-areas: "aside main";
   gap: var(--space-6) var(--space-column-gap-wide);
   align-items: start;
+}
+
+/* A visitor's grid: no RAPPORT, the grid alone at every width. */
+.collection.collection--visitor {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "main";
 }
 
 .collection__aside {
@@ -887,10 +894,8 @@
 
 @media (max-width: 719px) {
   /* The phone's top bar: the back button, the title and the status, as
-     mocked; a visitor keeps the Steam sign-in image instead of a status
-     that is always 0. */
-  .top-bar--status .player-chip,
-  .collection-status--visitor {
+     mocked. */
+  .top-bar--status .player-chip {
     display: none;
   }
 
