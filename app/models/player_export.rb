@@ -22,6 +22,7 @@ class PlayerExport
       exportedAt: time(@now),
       profile:,
       collection:,
+      showcase:,
       packs:,
       dailyBonusDays: game.daily_bonus_days.map(&:iso8601),
       goalRewardWeeks: game.goal_reward_weeks.map(&:iso8601),
@@ -72,6 +73,10 @@ class PlayerExport
         { slug: view.id, season: view.season_number, title: view.title, quantity: held.quantity,
           lastGainedAt: time(held.last_gained_at) }
       end
+    end
+
+    def showcase
+      game.showcase.filter_map { |entry| card(entry.card_season_id)&.merge(position: entry.position) }
     end
 
     def packs

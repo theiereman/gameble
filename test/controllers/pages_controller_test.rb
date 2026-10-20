@@ -846,9 +846,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   test "the deletion paragraph names the game data an account deletion erases, completions as set tiers" do
     configure_legal
     erased = {
-      fr: [ "votre dernière activité", "votre collection", "vos paliers de sets", "vos succès", "vos capsules", "vos bonus du jour",
+      fr: [ "votre dernière activité", "votre collection", "votre vitrine", "vos paliers de sets", "vos succès", "vos capsules", "vos bonus du jour",
             "vos récompenses de l'objectif communautaire", "vos amitiés", "vos invitations", "votre code ami", "vos entrées du fil d'activité" ],
-      en: [ "your latest activity", "your collection", "your set tiers", "your achievements", "your capsules", "your daily bonuses",
+      en: [ "your latest activity", "your collection", "your showcase", "your set tiers", "your achievements", "your capsules", "your daily bonuses",
             "your community goal rewards", "your friendships", "your invitations", "your friend code", "your activity feed entries" ]
     }
 

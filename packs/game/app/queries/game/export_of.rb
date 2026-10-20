@@ -1,6 +1,7 @@
 module Game
   module ExportOf
     HeldCard = Data.define(:card_season_id, :quantity, :last_gained_at)
+    ShowcaseCard = Data.define(:card_season_id, :position)
     PackRow = Data.define(:token, :kind, :season_number, :card_back, :available_at, :opened_at, :card_season_ids)
     Contribution = Data.define(:week_start, :openings)
     ReachedTier = Data.define(:season_number, :kind, :key, :tier, :reached_by, :reached_at)
@@ -14,10 +15,10 @@ module Game
     TradeRow = Data.define(:status, :proposed_at, :closed_at, :offered)
     Invitations = Data.define(:received, :sent)
 
-    Result = Data.define(:friend_code, :held_cards, :packs, :daily_bonus_days, :goal_reward_weeks, :contributions,
+    Result = Data.define(:friend_code, :held_cards, :showcase, :packs, :daily_bonus_days, :goal_reward_weeks, :contributions,
       :set_tiers, :discoveries, :feed_entries, :unlocks, :friend_count, :invitations, :trades) do
       def card_season_ids
-        (held_cards.map(&:card_season_id) + packs.flat_map(&:card_season_ids) + discoveries.map(&:card_season_id) +
+        (held_cards.map(&:card_season_id) + showcase.map(&:card_season_id) + packs.flat_map(&:card_season_ids) + discoveries.map(&:card_season_id) +
           feed_entries.filter_map(&:card_season_id) + trades.flat_map { |trade| trade.offered.map(&:card_season_id) }).uniq
       end
     end
@@ -27,6 +28,7 @@ module Game
       Result.new(
         friend_code: FriendCodeOf.call(player),
         held_cards: held_cards(player),
+        showcase: showcase(player),
         packs: packs(player),
         daily_bonus_days: DailyBonusClaim.where(player_id: player.id).order(:day).pluck(:day),
         goal_reward_weeks: GoalReward.where(player_id: player.id).order(:week_start).pluck(:week_start),
@@ -48,6 +50,11 @@ module Game
       Holding.where(player_id: player.id).where(Holding.arel_table[:quantity].gt(0)).order(:card_season_id)
         .pluck(:card_season_id, :quantity, :last_gained_at)
         .map { |id, quantity, last_gained_at| HeldCard.new(card_season_id: id, quantity:, last_gained_at:) }
+    end
+
+    def self.showcase(player)
+      ShowcaseEntry.where(player_id: player.id).order(:position, :id).pluck(:card_season_id, :position)
+        .map { |id, position| ShowcaseCard.new(card_season_id: id, position:) }
     end
 
     def self.packs(player)
@@ -103,6 +110,6 @@ module Game
       end
     end
 
-    private_class_method :held_cards, :packs, :set_tiers, :feed_entries, :set_refs, :trades
+    private_class_method :held_cards, :showcase, :packs, :set_tiers, :feed_entries, :set_refs, :trades
   end
 end

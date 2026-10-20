@@ -6,10 +6,10 @@ class PlayerExportTest < ActiveSupport::TestCase
   include GamePacks
   include GameTrades
 
-  SECTIONS = %i[exportedAt profile collection packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers
+  SECTIONS = %i[exportedAt profile collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers
     firstDiscoveries feedEntries achievements friends pendingInvitations trades reportsFiled reportsReceived
     moderationDecisions].freeze
-  COUNTING_KEYS = %i[season quantity openings count received sent].freeze
+  COUNTING_KEYS = %i[season quantity position openings count received sent].freeze
 
   setup do
     @player = accounts_players(:player)
@@ -65,10 +65,13 @@ class PlayerExportTest < ActiveSupport::TestCase
     Game::OpenPack.new.call(player: @player).value!
     conclude_trade(@friend, @player, offer: { @rare => 1 }, request: { @common => 1 })
     Game::AchievementUnlock.record(@player.id, :first_booster, Time.utc(2026, 10, 7))
+    Game::ShowcaseEntry.create!(player_id: @player.id, card_season_id: @portal, position: 1)
+    Game::ShowcaseEntry.create!(player_id: @player.id, card_season_id: @rare, position: 0)
 
     hash = export.to_h
 
     assert_equal SECTIONS, hash.keys
+    assert_equal [ { slug: "blue-depths", season: 1, position: 0 }, { slug: "portal", season: 1, position: 1 } ], hash[:showcase]
     assert_equal "2026-10-14T09:30:00Z", hash[:exportedAt]
     assert_equal({ steamId: "76561197960287001", personaName: "Léa", visibility: "public", reducedMotion: nil,
       friendCode: "7K2Q-F3NX", createdAt: @player.created_at.utc.iso8601, lastSeenAt: nil, lastExportedAt: nil }, hash[:profile])
@@ -99,7 +102,7 @@ class PlayerExportTest < ActiveSupport::TestCase
     hash = export.to_h
 
     assert_equal SECTIONS, hash.keys
-    %i[collection packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers firstDiscoveries feedEntries
+    %i[collection showcase packs dailyBonusDays goalRewardWeeks weeklyContributions setTiers firstDiscoveries feedEntries
        achievements trades reportsFiled reportsReceived moderationDecisions].each { assert_equal [], hash[it], it }
     assert_equal({ count: 0 }, hash[:friends])
     assert_equal({ received: 0, sent: 0 }, hash[:pendingInvitations])

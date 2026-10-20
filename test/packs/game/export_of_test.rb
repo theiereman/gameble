@@ -20,7 +20,7 @@ class Game::ExportOfTest < ActiveSupport::TestCase
     export = Game::ExportOf.call(@player)
 
     assert_equal "7K2Q-F3NX", export.friend_code
-    %i[held_cards packs daily_bonus_days goal_reward_weeks contributions set_tiers discoveries feed_entries unlocks trades].each do
+    %i[held_cards showcase packs daily_bonus_days goal_reward_weeks contributions set_tiers discoveries feed_entries unlocks trades].each do
       assert_empty export.public_send(it), it
     end
     assert_equal 0, export.friend_count
@@ -48,6 +48,19 @@ class Game::ExportOfTest < ActiveSupport::TestCase
     assert_equal [ 1 ], export.contributions.map(&:openings)
     assert_includes export.feed_entries.map(&:kind), "discovery"
     assert_not_includes export.card_season_ids, nil
+  end
+
+  test "the showcase lists the chosen cards in their order, and only the player's" do
+    Game::ShowcaseEntry.create!(player_id: @player.id, card_season_id: @portal, position: 1)
+    Game::ShowcaseEntry.create!(player_id: @player.id, card_season_id: @legendary, position: 0)
+    Game::ShowcaseEntry.create!(player_id: @friend.id, card_season_id: @rare, position: 0)
+
+    export = Game::ExportOf.call(@player)
+
+    assert_equal [ [ @legendary, 0 ], [ @portal, 1 ] ], export.showcase.map { [ it.card_season_id, it.position ] }
+    assert_includes export.card_season_ids, @legendary
+    assert_includes export.card_season_ids, @portal
+    assert_not_includes export.card_season_ids, @rare
   end
 
   test "bonuses, rewards, set tiers and achievements are listed by date" do
