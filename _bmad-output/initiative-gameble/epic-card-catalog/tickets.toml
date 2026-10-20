@@ -62,7 +62,7 @@ after = [4, "20.2"]
 hitl = true
 risk = "low"
 unknown = "the entry point is the author's open question; a landing module would also wait on epic-visitor-landing's landing shell, to be added to this entry and to the epic's `after` once chosen."
-notes = ["Author, 2026-10-20: this entry also adds the menu entry \"03 TOUTES LES CARTES\" right after 02 COLLECTION on the hub (signed in and signed out; the entries after it renumber 04 to 09) and a TOUTES LES CARTES row first in the phone's PLUS rows. The landing link stays, now that the landing's shell (20.2) is built."]
+notes = ["Author, 2026-10-20: this entry also adds the menu entry \"03 TOUTES LES CARTES\" right after 02 COLLECTION on the hub (signed in and signed out; the entries after it renumber 04 to 09) and a TOUTES LES CARTES row first in the phone's PLUS rows. The landing link stays, now that the landing's shell (20.2) is built.", "Author, 2026-10-20: this entry also removes set progress for a signed-out visitor: no owned / total count, progress bar, tier ticks or tier mark in a set album's header, and no progress (count, bar, tier) in the set search rows of the collection entry; the album keeps its cards (missing slots included) and its name. EXPERIENCE.md Navigation already says a visitor's sets show no progress."]
 
 [[entry]]
 id = 6
