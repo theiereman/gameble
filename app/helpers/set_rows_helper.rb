@@ -36,10 +36,9 @@ module SetRowsHelper
     end
   end
 
-  # Whether the set's bar carries ticks: a set large enough for tiers, with a
-  # tier before completion, not yet complete.
+  # Whether the set's bar carries ticks: a tier before completion, not yet complete.
   def set_tier_ticks?(standing)
-    !standing.complete? && standing.total >= Catalog::TierTable::SMALLEST_TIERED && tick_thresholds(standing).any?
+    !standing.complete? && tick_thresholds(standing).any?
   end
 
   # One tick per tier before completion, at its share of the set, its mark

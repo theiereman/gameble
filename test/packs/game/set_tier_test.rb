@@ -69,12 +69,12 @@ class Game::SetTierTest < ActiveSupport::TestCase
     assert_equal [ [ theme, "bronze", "pack", pack.id ] ], tiers(@player)
     assert_equal [ Game::PackOpened, Game::SetTierReached ], game_events(@player).last(2).map(&:class)
     assert_equal({ player_id: @player.id, set_id: theme, tier: "bronze" }, game_events(@player, Game::SetTierReached).sole.data)
-    assert_equal [ [ "theme", "roguelike", { "theme" => "roguelike" }, "bronze", 2, 20, [ [ "bronze", 2 ], [ "silver", 5 ], [ "gold", 10 ] ] ] ],
+    assert_equal [ [ "theme", "roguelike", { "theme" => "roguelike" }, "bronze", 2, 2, 20, [ [ "bronze", 2 ], [ "silver", 5 ], [ "gold", 10 ] ] ] ],
       Game::PackSetTiers.call(pack).map(&:deconstruct)
   end
 
   test "a tier crossed already is not reached again: no row, no event, nothing answered" do
-    insert_set([ @common, @uncommon, @rare, @legendary ], { bronze: 2, silver: 4, gold: 4, complete: 4 })
+    insert_set([ @common, @uncommon, @rare, @legendary, *more_commons(1) ], { bronze: 2, silver: 4, gold: 4, complete: 5 })
     hold(@player, @rare)
     open_pack(@player, [ @common ] * 5)
 
@@ -86,7 +86,7 @@ class Game::SetTierTest < ActiveSupport::TestCase
   end
 
   test "several tiers reached at once are each recorded and published, bronze before silver" do
-    theme = insert_set([ @common, @uncommon, @rare ], { bronze: 1, silver: 1, gold: 2, complete: 3 })
+    theme = insert_set([ @common, @uncommon, @rare, *more_commons(2) ], { bronze: 1, silver: 1, gold: 2, complete: 5 })
 
     pack = open_pack(@player, [ @common ] * 5)
 
@@ -132,12 +132,13 @@ class Game::SetTierTest < ActiveSupport::TestCase
   end
 
   test "a theme's last card after its gold completes it alone" do
-    theme = insert_set([ @common, @uncommon, @rare ], { bronze: 1, silver: 1, gold: 2, complete: 3 })
+    unheld = more_commons(2)
+    theme = insert_set([ @common, @uncommon, @rare, *unheld ], { bronze: 1, silver: 1, gold: 2, complete: 5 })
     open_pack(@player, [ @common ] * 5)
     open_pack(@player, [ @uncommon ] * 5)
     assert_equal %w[bronze silver gold], tiers(@player).map(&:second)
 
-    pack = open_pack(@player, [ @rare ] * 5)
+    pack = open_pack(@player, [ @rare, *unheld, @rare, @rare ])
 
     assert_equal [ [ theme, "complete" ] ], Game::SetTier.where(pack_id: pack.id).pluck(:set_id, :tier)
     assert_equal [ Game::SetCompleted ], tier_events(@player).last(1).map(&:class)
@@ -148,7 +149,7 @@ class Game::SetTierTest < ActiveSupport::TestCase
     insert_set([ @common, @rare ], { bronze: 1, complete: 2 }, key: "rpg", params: { "theme" => "rpg" })
     hold(@player, @rare)
     season_two, (common_two, uncommon_two, rare_two, *) = publish_season_two
-    theme = insert_set([ common_two, uncommon_two, rare_two ], { bronze: 2, complete: 3 }, season: season_two)
+    theme = insert_set([ common_two, uncommon_two, rare_two, *more_commons(2) ], { bronze: 2, complete: 5 }, season: season_two)
 
     pack = open_pack(@player, [ common_two ] * 5, season: season_two)
 
@@ -157,7 +158,7 @@ class Game::SetTierTest < ActiveSupport::TestCase
 
   test "an accepted trade that brings an earlier edition across a published theme's bronze records it for the player who gains it" do
     season_two, (common_two, uncommon_two, rare_two, _portal_two, legendary_two) = publish_season_two
-    theme = insert_set([ common_two, uncommon_two, rare_two ], { bronze: 2, complete: 3 }, season: season_two)
+    theme = insert_set([ common_two, uncommon_two, rare_two, *more_commons(2) ], { bronze: 2, complete: 5 }, season: season_two)
     befriend(@player, @other)
     hold(@player, common_two)
     hold(@player, legendary_two)
@@ -173,7 +174,7 @@ class Game::SetTierTest < ActiveSupport::TestCase
   end
 
   test "a replayed opening publishes nothing and answers the same tiers" do
-    insert_set([ @common, @uncommon, @rare ], { bronze: 1, silver: 1, gold: 2, complete: 3 })
+    insert_set([ @common, @uncommon, @rare, *more_commons(2) ], { bronze: 1, silver: 1, gold: 2, complete: 5 })
     key = SecureRandom.uuid
     pack = open_pack(@player, [ @common ] * 5, idempotency_key: key)
     answered = Game::PackSetTiers.call(pack)
@@ -182,6 +183,27 @@ class Game::SetTierTest < ActiveSupport::TestCase
       Game::OpenPack.new.call(player: @player, idempotency_key: key).value!
     end
     assert_equal answered, Game::PackSetTiers.call(pack)
+  end
+
+  test "a set too small for tiers reaches completion alone, whatever tiers an earlier season stored" do
+    theme = insert_set([ @common, @uncommon, @rare ], { bronze: 1, silver: 1, gold: 2, complete: 3 })
+    open_pack(@player, [ @common ] * 5)
+    assert_empty tiers(@player)
+
+    pack = open_pack(@player, [ @uncommon, @rare, @rare, @rare, @rare ])
+
+    assert_equal [ [ theme, "complete", "pack", pack.id ] ], tiers(@player)
+    assert_equal [ [ "complete", 3, 3, [] ] ], Game::PackSetTiers.call(pack).map { [ it.tier, it.required, it.held, it.thresholds ] }
+  end
+
+  test "an opening answers the cards held in the set, beyond the count its tier asks" do
+    members = [ @common, @uncommon, @rare, @legendary, *more_commons(16) ]
+    insert_set(members, Catalog::TierTable.tiers(members.size))
+    members.first(4).each { hold(@player, it) }
+
+    pack = open_pack(@player, members.last(3) + [ members.last ] * 2)
+
+    assert_equal [ [ "adept", 5, 7 ] ], Game::PackSetTiers.call(pack).map { [ it.tier, it.required, it.held ] }
   end
 
   test "a set with no tier rows earns nothing" do
@@ -203,7 +225,7 @@ class Game::SetTierTest < ActiveSupport::TestCase
   end
 
   test "a reached tier stays reached when its cards leave" do
-    theme = insert_set([ @common, @uncommon ], { bronze: 1, complete: 2 })
+    theme = insert_set([ @common, @uncommon, *more_commons(3) ], { bronze: 1, complete: 5 })
     open_pack(@player, [ @common ] * 5)
     Game::Holding.where(player_id: @player.id).update_all(quantity: 0)
 

@@ -20,7 +20,7 @@ class Game::SetStandingTest < ActiveSupport::TestCase
   end
 
   test "equal counts of an earlier season's metals keep their metal order" do
-    standing = Game::SetStanding.measured(set_id: 1, held: 1, total: 3, tiers: { "silver" => 1, "gold" => 2, "bronze" => 1, "complete" => 3 })
+    standing = Game::SetStanding.measured(set_id: 1, held: 1, total: 7, tiers: { "silver" => 1, "gold" => 2, "bronze" => 1, "complete" => 7 })
 
     assert_equal %w[bronze silver gold complete], standing.thresholds.map(&:first)
     assert_equal "silver", standing.reached_tier
@@ -32,5 +32,12 @@ class Game::SetStandingTest < ActiveSupport::TestCase
 
     assert_equal [ "master", 4 ], [ seven.next_tier, seven.next_required ]
     assert_equal [ [ "complete", 3 ] ], three.thresholds
+  end
+
+  test "a set of 3 an earlier season tiered in metals has completion alone" do
+    standing = Game::SetStanding.measured(set_id: 1, held: 2, total: 3, tiers: { "bronze" => 1, "silver" => 1, "gold" => 2, "complete" => 3 })
+
+    assert_equal [ [ "complete", 3 ] ], standing.thresholds
+    assert_nil standing.reached_tier
   end
 end

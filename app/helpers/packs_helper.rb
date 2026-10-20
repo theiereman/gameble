@@ -45,7 +45,7 @@ module PacksHelper
   # the fewest cards first, where the celebration's gauge draws its ticks.
   def pack_set_tiers(pack)
     Game::PackSetTiers.call(pack).map do |row|
-      { kind: row.kind, key: row.key, name: SetLabel.for(row), tier: row.tier, required: row.required, total: row.total,
+      { kind: row.kind, key: row.key, name: SetLabel.for(row), tier: row.tier, required: row.required, held: row.held, total: row.total,
         thresholds: row.thresholds.map { |tier, required| { tier:, required: } },
         url: library_set_path(kind: row.kind, key: row.key) }
     end

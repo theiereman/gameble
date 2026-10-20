@@ -16,7 +16,8 @@ module Game
     # The published season's sets holding a game of the credited cards, in
     # any edition; a member counts when the player holds its game in any
     # season (Game::HeldGames). Every tier whose `required` the count meets
-    # is inserted, and the rows inserted are answered, by set, then by the
+    # is inserted with that count, a set too small for tiers reaching only
+    # completion, and the rows inserted are answered, by set, then by the
     # count their tier asks. One statement, whatever the sets.
     RECORD_SQL = <<~SQL.squish.freeze
       WITH held AS (#{HeldGames::SQL}),
@@ -37,11 +38,13 @@ module Game
          GROUP BY members.set_id
       ),
       inserted AS (
-        INSERT INTO game_set_tiers (player_id, set_id, tier, reached_by, pack_id, reached_at, created_at, updated_at)
-        SELECT :player_id, progress.set_id, tiers.tier, :reached_by, :pack_id, :now, :now, :now
+        INSERT INTO game_set_tiers (player_id, set_id, tier, held, reached_by, pack_id, reached_at, created_at, updated_at)
+        SELECT :player_id, progress.set_id, tiers.tier, progress.held, :reached_by, :pack_id, :now, :now, :now
           FROM progress
           JOIN catalog_set_tiers AS tiers ON tiers.set_id = progress.set_id AND progress.held >= tiers.required
+          JOIN catalog_set_tiers AS complete ON complete.set_id = progress.set_id AND complete.tier = 'complete'
           JOIN #{TIER_ORDER_SQL} ON tier_order.tier = tiers.tier
+         WHERE tiers.tier = 'complete' OR complete.required >= :smallest_tiered
          ORDER BY progress.set_id, tiers.required, tier_order.position
             ON CONFLICT (player_id, set_id, tier) DO NOTHING
         RETURNING set_id, tier
@@ -60,7 +63,8 @@ module Game
     def self.record(player_id:, card_season_ids:, season_id:, reached_by:, pack_id:, now:)
       return [] if card_season_ids.empty?
 
-      binds = { player_id:, card_season_ids: card_season_ids.uniq, season_id:, reached_by:, pack_id:, now:, tiers: TIERS }
+      binds = { player_id:, card_season_ids: card_season_ids.uniq, season_id:, reached_by:, pack_id:, now:, tiers: TIERS,
+                smallest_tiered: Catalog::TierTable::SMALLEST_TIERED }
       rows = connection.select_rows(sanitize_sql_array([ RECORD_SQL, binds ]), "Game::SetTier Record")
       rows.map { |set_id, tier| [ set_id.to_i, tier ] }
     end

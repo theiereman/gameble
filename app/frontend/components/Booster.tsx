@@ -181,7 +181,7 @@ export default function Booster(props: BoosterProps) {
       revealed: revealedAll,
       revealedAt: pastGuard,
       stored: storedAfterRebuild(revealedAll, [], readLayout()),
-      celebration: restoredCelebration(opened.setTiers, celebrationRemembered(), document.documentElement.lang || undefined),
+      celebration: restoredCelebration(opened.setTiers, celebrationRemembered()),
     }
   })
 
@@ -348,7 +348,7 @@ export default function Booster(props: BoosterProps) {
     const reached = celebrationPending.current
     celebrationPending.current = null
     if (!reached) return
-    const results = celebrationResults(reached, document.documentElement.lang || undefined)
+    const results = celebrationResults(reached)
     if (results.length === 0) return
     celebrationAnnounced.current = false
     setCelebrationStill(false)

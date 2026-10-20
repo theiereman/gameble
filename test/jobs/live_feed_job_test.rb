@@ -84,7 +84,7 @@ class LiveFeedJobTest < ActiveSupport::TestCase
 
   test "a public opening that reaches silver on a theme is one set line in the feed and the ticker, with no thumbnail" do
     common, uncommon, rare, = fixture_tier_ids
-    theme = insert_set([ common, uncommon, rare ], { bronze: 1, silver: 2, gold: 3, complete: 3 })
+    theme = insert_set([ common, uncommon, rare, *unheld_cards(2) ], { bronze: 1, silver: 2, gold: 3, complete: 5 })
     Game::SetTier.insert_all!([ { player_id: @hugo.id, set_id: theme, tier: "bronze", reached_by: "trade", reached_at: 1.day.ago } ])
     Game::Holding.create!(player_id: @hugo.id, card_season_id: uncommon, quantity: 1)
     open_pack(cards: commons)
@@ -111,7 +111,7 @@ class LiveFeedJobTest < ActiveSupport::TestCase
 
   test "a rank reached carries its rank's mark before its name in the feed and the ticker" do
     common, uncommon, rare, = fixture_tier_ids
-    insert_set([ common, uncommon, rare ], { expert: 2, complete: 3 })
+    insert_set([ common, uncommon, rare, *unheld_cards(2) ], { expert: 2, complete: 5 })
     Game::Holding.create!(player_id: @hugo.id, card_season_id: uncommon, quantity: 1)
     open_pack(cards: commons)
 
@@ -137,11 +137,11 @@ class LiveFeedJobTest < ActiveSupport::TestCase
 
     english = received(:en)
     feed = template(english, "prepend", "feed-entries").css("li.feed__entry").sole
-    assert_equal "Hugo reaches 4 tiers · Metroidvania GOLD", feed.at_css(".feed__sentence").text
+    assert_equal "Hugo reaches 6 tiers · Metroidvania GOLD", feed.at_css(".feed__sentence").text
     assert_equal 3, feed.css(".feed__tier--gold .feed__tier-notches i").size
     ticker = template(english, "prepend", "live-ticker-queue").css("li.ticker__item").sole
-    assert_equal "Hugo reaches 4 tiers · Metroidvania GOLD", ticker.at_css(".ticker__sentence").text
-    assert_equal "Hugo atteint 4 paliers · Metroidvania OR",
+    assert_equal "Hugo reaches 6 tiers · Metroidvania GOLD", ticker.at_css(".ticker__sentence").text
+    assert_equal "Hugo atteint 6 paliers · Metroidvania OR",
       template(received(:fr), "prepend", "live-ticker-queue").at_css(".ticker__sentence").text
   end
 

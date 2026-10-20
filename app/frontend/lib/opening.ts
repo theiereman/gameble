@@ -44,6 +44,8 @@ export type OpeningSetTier = {
   name: string
   tier: SetTierName
   required: number
+  /** The cards the player held in the set when reaching the tier. */
+  held: number
   total: number
   /** The set's tiers before completion, the fewest cards first. */
   thresholds: SetThreshold[]
@@ -130,6 +132,7 @@ function isSetTier(value: unknown): value is OpeningSetTier {
     typeof value.name === "string" &&
     SET_TIERS.includes(value.tier as SetTierName) &&
     Number.isInteger(value.required) &&
+    Number.isInteger(value.held) &&
     Number.isInteger(value.total) &&
     Array.isArray(value.thresholds) &&
     value.thresholds.every(isThreshold) &&

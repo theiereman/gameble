@@ -52,7 +52,7 @@ module Game
         SELECT set_id, tier, reached_at FROM results ORDER BY completes DESC, share DESC, position DESC, set_id LIMIT 1
       )
       INSERT INTO game_feed_entries (kind, player_id, set_id, tier, set_count, notable, occurred_at, created_at, updated_at)
-      SELECT 'set', :player_id, highest.set_id, highest.tier, (SELECT COUNT(DISTINCT set_id) FROM results), TRUE,
+      SELECT 'set', :player_id, highest.set_id, highest.tier, (SELECT COUNT(*) FROM results), TRUE,
              highest.reached_at, :now, :now
         FROM highest
           ON CONFLICT (player_id, occurred_at) WHERE kind = 'set' DO UPDATE

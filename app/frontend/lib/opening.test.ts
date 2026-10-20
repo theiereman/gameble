@@ -16,6 +16,7 @@ const answer = {
       name: "Roguelike",
       tier: "silver",
       required: 16,
+      held: 18,
       total: 62,
       thresholds: [
         { tier: "bronze", required: 7 },
@@ -95,6 +96,7 @@ describe("sendOpening", () => {
       fake(json(200, { ...answer, setTiers: undefined })),
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], tier: "platinum" }] })),
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], url: undefined }] })),
+      fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], held: undefined }] })),
       // A set tier without its set's thresholds, or with one of another shape.
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], thresholds: undefined }] })),
       fake(json(200, { ...answer, setTiers: [{ ...answer.setTiers[0], thresholds: [{ tier: "silver", required: "16" }] }] })),

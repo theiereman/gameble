@@ -131,12 +131,13 @@ function thresholdsOf(tier: SetTierName, total: number): SetThreshold[] {
   return shares.map(([name, share]) => ({ tier: name, required: Math.ceil(share * total) }))
 }
 
-const reached = (name: string, tier: OpeningSetTier["tier"], required: number, total: number, kind = "theme"): OpeningSetTier => ({
+const reached = (name: string, tier: OpeningSetTier["tier"], required: number, total: number, kind = "theme", held = required): OpeningSetTier => ({
   kind,
   key: slug(name),
   name,
   tier,
   required,
+  held,
   total,
   thresholds: thresholdsOf(tier, total),
   url: `/fr/library/${kind}/${slug(name)}`,
@@ -162,7 +163,7 @@ describe("celebrationResults", () => {
     expect(results).toHaveLength(2)
   })
 
-  it("puts a completed set first, then the larger shares of their sets, then the sets by name", () => {
+  it("puts a completed set first, then the larger shares of their sets, then the sets in the order they came", () => {
     const results = celebrationResults([
       reached("Roguelike", "bronze", 7, 62),
       reached("Pirates", "gold", 9, 18),
@@ -172,7 +173,7 @@ describe("celebrationResults", () => {
       reached("Horror", "gold", 9, 18),
     ])
 
-    expect(results.map((result) => result.name)).toEqual(["Dark Souls", "Metroidvania", "Horror", "Pirates", "Roguelike", "Cosy"])
+    expect(results.map((result) => result.name)).toEqual(["Dark Souls", "Metroidvania", "Pirates", "Horror", "Roguelike", "Cosy"])
   })
 
   it("ranks results across sets by the share of the set their tier stands for, whatever its name", () => {
@@ -193,6 +194,13 @@ describe("celebrationResults", () => {
     const [result] = celebrationResults([reached("Roguelike", "expert", 31, 62), reached("Roguelike", "adept", 16, 62)])
 
     expect([result.tier, result.owned, result.before, result.crossed]).toEqual(["expert", 31, 15, ["adept", "expert"]])
+  })
+
+  it("counts the cards held, beyond the count the tier asks", () => {
+    const [result] = celebrationResults([reached("Roguelike", "apprentice", 16, 62, "theme", 18)])
+
+    expect([result.tier, result.owned, result.before]).toEqual(["apprentice", 18, 15])
+    expect(gaugeTicks(result).find(({ tier }) => tier === "apprentice")?.state).toBe("crossed")
   })
 
   it("is empty when the opening reached nothing", () => {
@@ -258,6 +266,17 @@ describe("the results as shown", () => {
     expect(folded(three)).toBe(false)
     expect(folded(four)).toBe(true)
     expect(foldedTitle(four, fr)).toBe("4 PALIERS ATTEINTS")
+  })
+
+  it("counts every tier crossed in the folded line, two in one set counting two", () => {
+    const results = celebrationResults([
+      ...["A", "B", "C"].map((name) => reached(name, "bronze", 2, 20)),
+      reached("D", "silver", 10, 20),
+      reached("D", "bronze", 2, 20),
+    ])
+
+    expect(foldedTitle(results, fr)).toBe("5 PALIERS ATTEINTS")
+    expect(celebrationAnnouncement(results, fr, NBSP)).toMatch(/^5 paliers atteints : /)
   })
 
   it("steps the phone's results in order, back to the first after the last", () => {

@@ -29,6 +29,10 @@ module Catalog
       RANKS.last(shares.size).zip(shares).to_h { |rank, share| [ rank, (share * card_count).ceil ] }.merge(COMPLETE => card_count)
     end
 
+    def self.tiered?(card_count)
+      card_count >= SMALLEST_TIERED
+    end
+
     def self.shares(card_count)
       ROWS.find { |minimum, _| card_count >= minimum }.last
     end

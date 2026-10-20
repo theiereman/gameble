@@ -1,6 +1,10 @@
+require_relative "catalog_seeds"
+
 # Builds sets of the fixture season straight into the catalog, with their
 # members and the tiers they ask, for tests of what a player's tiers show.
 module GameSets
+  include CatalogSeeds
+
   # A set holding `members` (card-season ids), asking `tiers` ({ tier => required }); its id.
   def insert_set(members, tiers, kind: "theme", key: "roguelike", params: { kind => key }, season: catalog_seasons(:one))
     set_id = Catalog::Set.insert_all!([ { season_id: season.id, kind:, key:, params: } ], returning: :id).rows.flatten.sole
@@ -9,12 +13,22 @@ module GameSets
     set_id
   end
 
-  # Four themes the fixture season's common card reaches at once, the
-  # Metroidvania highest (gold); their ids, Metroidvania last.
+  # Four themes of five cards the fixture season's common card reaches at
+  # once, the Metroidvania highest (gold); their ids, Metroidvania last.
   def insert_four_themes
-    common = catalog_card_seasons(:common_card_one).id
-    %w[roguelike horror cosy].map { insert_set([ common, catalog_card_seasons(:rare_card_one).id ], { bronze: 1, complete: 2 }, key: it) } +
-      [ insert_set([ common, catalog_card_seasons(:rare_card_one).id ], { bronze: 1, silver: 1, gold: 1, complete: 2 }, key: "metroidvania") ]
+    members = [ catalog_card_seasons(:common_card_one).id, catalog_card_seasons(:rare_card_one).id, *unheld_cards(3) ]
+    %w[roguelike horror cosy].map { insert_set(members, { bronze: 1, complete: 5 }, key: it) } +
+      [ insert_set(members, { bronze: 1, silver: 1, gold: 1, complete: 5 }, key: "metroidvania") ]
+  end
+
+  # `count` new cards of the fixture season no player holds, to bring a set
+  # up to a size with tiers; their card-season ids.
+  def unheld_cards(count)
+    prefix = "unheld-#{SecureRandom.hex(4)}"
+    season = seed_card_seasons(Array.new(count) { 0.1 + (it * 0.001) }, season: catalog_seasons(:one), prefix:)
+    cards = Catalog::CardSeason.where(season_id: season.id, card_id: Catalog::Card.where("slug LIKE ?", "#{prefix}-%").select(:id))
+    cards.update_all(rarity: Catalog::Rarity::TIERS.keys.first)
+    cards.order(:id).ids
   end
 
   # A new published season (the next number) of `count` common cards,

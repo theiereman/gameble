@@ -252,23 +252,23 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".set-album__ticks, .set-row__tick, .set-album__figure", false
   end
 
-  test "an earlier season's metal theme of 3 cards has no ticks on its row or its album, and still names its metal" do
+  test "an earlier season's metal theme of 3 cards has completion alone: no ticks and no metal on its row or its album" do
     season, cards = published_cards(3)
     insert_theme(cards, key: "roguelike", season:)
     player = accounts_players(:player)
-    hold_all(player, cards.first(1))
+    hold_all(player, cards.first(2))
     sign_in(player)
 
     get library_path(locale: :en)
 
     row = css_select(".set-entry .set-row").sole
-    assert_equal "Silver", row.at_css(".set-tier.set-tier--silver").text
+    assert_empty row.css(".set-tier")
     assert_not row.classes.include?("set-row--tiered")
     assert_empty row.css(".set-row__tick")
 
     get library_set_path(locale: :en, kind: "theme", key: "roguelike")
 
-    assert_equal "1 card out of 3, silver tier", value_text
+    assert_equal "2 cards out of 3", value_text
     assert_select "header.set-album__header--tiered", false
     assert_select ".set-album__ticks, .set-row__tick, .set-album__figure", false
   end

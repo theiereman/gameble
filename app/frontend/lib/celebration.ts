@@ -36,12 +36,13 @@ export const isRank = (tier: SetTierName): tier is Rank => (RANKS as readonly Se
 /** The pixel icons as HTML: the link's arrow, the complete ribbon's check and each rank's mark. */
 export type CelebrationIcons = { next: string; arrow: string; check: string; ranks: Record<Rank, string> }
 
-/** A set's result: its name, the highest tier the opening reached, its cards at that tier over the set's, and the set's tiers before completion. */
+/** A set's result: its name, the highest tier the opening reached and the cards it asks, the cards held over the set's, and the set's tiers before completion. */
 export type CelebrationResult = {
   key: string
   name: string
   url: string
   tier: SetTierName
+  required: number
   owned: number
   total: number
   before: number
@@ -63,10 +64,8 @@ function standsAbove(a: { tier: SetTierName; required: number; total: number }, 
   return completes || share(a) - share(b) || tieBreak(a.tier) - tieBreak(b.tier)
 }
 
-const asRow = (result: CelebrationResult) => ({ tier: result.tier, required: result.owned, total: result.total })
-
-/** One result per set (by kind and key), at its highest tier; the highest results first, then by name. */
-export function celebrationResults(setTiers: readonly OpeningSetTier[], locale?: string): CelebrationResult[] {
+/** One result per set (by kind and key), at its highest tier; the highest results first, then in the server's order of sets, as the feed breaks a tie. */
+export function celebrationResults(setTiers: readonly OpeningSetTier[]): CelebrationResult[] {
   const bySet = new Map<string, OpeningSetTier[]>()
   for (const reached of setTiers) {
     const key = `${reached.kind}:${reached.key}`
@@ -74,7 +73,7 @@ export function celebrationResults(setTiers: readonly OpeningSetTier[], locale?:
   }
   return [...bySet.entries()]
     .map(([key, rows]) => resultOf(key, rows))
-    .sort((a, b) => standsAbove(asRow(b), asRow(a)) || a.name.localeCompare(b.name, locale))
+    .sort((a, b) => standsAbove(b, a))
 }
 
 function resultOf(key: string, rows: readonly OpeningSetTier[]): CelebrationResult {
@@ -86,7 +85,8 @@ function resultOf(key: string, rows: readonly OpeningSetTier[]): CelebrationResu
     name: highest.name,
     url: highest.url,
     tier: highest.tier,
-    owned: highest.required,
+    required: highest.required,
+    owned: Math.max(...rows.map((row) => row.held)),
     total: highest.total,
     before: Math.max(0, lowestRequired - 1),
     crossed: [...new Set(byRequired.map((row) => row.tier))],
@@ -94,9 +94,9 @@ function resultOf(key: string, rows: readonly OpeningSetTier[]): CelebrationResu
   }
 }
 
-export function restoredCelebration(setTiers: readonly OpeningSetTier[], marked: boolean, locale?: string): CelebrationResult[] | null {
+export function restoredCelebration(setTiers: readonly OpeningSetTier[], marked: boolean): CelebrationResult[] | null {
   if (!marked) return null
-  const results = celebrationResults(setTiers, locale)
+  const results = celebrationResults(setTiers)
   return results.length > 0 ? results : null
 }
 
@@ -118,9 +118,12 @@ export function countParts(result: CelebrationResult, strings: CelebrationString
   }
 }
 
+/** Every tier the results crossed, several in one set counting each. */
+export const tiersReached = (results: readonly CelebrationResult[]): number => results.reduce((count, result) => count + result.crossed.length, 0)
+
 /** "4 PALIERS ATTEINTS". */
 export const foldedTitle = (results: readonly CelebrationResult[], strings: CelebrationStrings): string =>
-  t(strings.folded, { count: results.length })
+  t(strings.folded, { count: tiersReached(results) })
 
 export function foldedSubline(results: readonly CelebrationResult[], strings: CelebrationStrings): { lead: string; set: string; tier: string } {
   const [highest] = results
@@ -213,7 +216,7 @@ export function resultMessage(result: CelebrationResult, strings: CelebrationStr
 
 export function foldedMessage(results: readonly CelebrationResult[], strings: CelebrationStrings): string {
   const list = results.map((result) => t(strings.announceItem, { set: result.name, tier: strings.spokenTiers[result.tier] })).join(strings.announceSeparator)
-  return sentence(t(strings.announceFolded, { count: results.length, list }))
+  return sentence(t(strings.announceFolded, { count: tiersReached(results), list }))
 }
 
 /** The live region's one message for the results. */
