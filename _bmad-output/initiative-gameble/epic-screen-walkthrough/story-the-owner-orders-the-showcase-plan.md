@@ -12,7 +12,7 @@ review_source: 'pinned'
 lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
-commit: '98448c50081b0dd4c2816b72445e82d0d209d791'
+commit: 'cceddb14732923c8e8d5dfff8548b051c4e1f629'
 context: ['{project-root}/AGENTS.md']
 warnings: ['oversized']
 deferred: []
@@ -30,7 +30,7 @@ deferred: []
 
 **Always:** Write only through `Game::MoveShowcaseCard` (bank lock, one `Game::ShowcaseCardMoved` event in the transaction). Controller reads through Game queries. Pundit: `ShowcasePolicy#update?` = `player?`. No database id in URL, HTML, DOM ids or flash (cards addressed by slug + season number). Every string in en.yml and fr.yml, `errors.game.<code>` by hand; French plurals need `zero`. No `style` attribute. GETs write nothing (flash is fine). Pixel icons for ◀ ▶ (`pixel_icon("arrow-left"|"arrow-right")`), never typed glyphs. Accessible names from the copy deck: « Déplacer Portal 2 vers la gauche » / « Déplacer Portal 2 vers la droite », « Move Portal 2 left » / « Move Portal 2 right ». No migration.
 
-**Never:** Drag and drop or any drag-only interaction. Do not touch what signed-out visitors can reach, the sign-in panel, or the greying of actions that need an account (another story builds that in parallel): leave `public_profiles/_summary.html.erb`, `_profile.html.erb`'s report dialog line, the shell and the landing alone. No change to `Game::ShowcaseCards` (friend profile), the relation action, `Game::LatestNotableCard`, add/remove behaviour. No reorder controls for anyone but the owner (not staff, not friends, not visitors). No back picker in settings.
+**Never:** A drag-only interaction: drag and drop always has the ◀ ▶ buttons beside it (superseded by the author's review, 2026-10-20, which asked for drag and drop; see Plan Change Log). Do not touch what signed-out visitors can reach, the sign-in panel, or the greying of actions that need an account (another story builds that in parallel): leave `public_profiles/_summary.html.erb`, `_profile.html.erb`'s report dialog line, the shell and the landing alone. No change to `Game::ShowcaseCards` (friend profile), the relation action, `Game::LatestNotableCard`, add/remove behaviour. No reorder controls for anyone but the owner (not staff, not friends, not visitors). No back picker in settings.
 
 ## I/O & Edge-Case Matrix
 
@@ -98,6 +98,13 @@ deferred: []
 
 ## Plan Change Log
 
+### 2026-10-20 — Rework: drag and drop, and the info mark (author's review)
+- Why: the author, reviewing v0.1.5-rc.1, asked for the showcase to be reordered by drag and drop on the owner's profile, with an "i" info mark beside the VITRINE heading saying the cards can be dragged; the ◀ ▶ buttons stay as the keyboard and non-drag way (WCAG 2.5.7). This supersedes the plan's "no drag and drop".
+- Server: `Game::PlaceShowcaseCard` (`call(player:, card_season_id:, position:)`) puts a showcased card at a place 0..n-1, the cards between shifting one place; same bank lock and locked rows as `MoveShowcaseCard`, one `Game::ShowcaseCardMoved` (position = the new place); refuses `:position_out_of_range` (outside the showcase or not an Integer) and `:card_not_showcased`. What both operations share (locked read in (position, id) order, renumbering, the event) moved into `Game::ShowcaseSteps`. `PATCH cards/:slug/seasons/:number/showcase` with `position` reaches it (no flash), without it the one-place move as before. `errors.game.position_out_of_range` in en and fr.
+- Client: `showcase_order_controller.ts` with the pure parts in `lib/showcase_order.ts` (threshold, nearest place, move, edge buttons, `sendPlacement`, vitest). Pointer events: a mouse or pen lifts the card after 6px, so a click still opens the card; a finger after holding still 400ms, so a swipe scrolls (the card's touch tilt starts at 150ms and is flattened while dragging). The others slide aside with the Web Animations API (none under reduced motion); release PATCHes JSON; success updates the ◀ ▶ edges and announces "%{title} is now in place %{position} of %{count}." in a polite status region; failure restores the order and toasts the server's message (or "The new order could not be saved."). Esc or a cancelled pointer puts the card back; the click after a drag is swallowed; the browser's own link drag and the long-press menu are prevented.
+- View: the edge ◀ / ▶ are now rendered as `hidden` forms (with `data-direction`) instead of empty placeholders, so the controller can show them as the order changes; `[hidden]` keeps its column through `visibility: hidden`. The info mark is a `<details>`/`<summary>` (keyboard and screen readers natively, accessible name "How to change the order" / "Comment changer l'ordre") with a pixel `info` icon added to `script/pixel_art/export.mjs`. Only the owner, on their own profile, with two cards or more, gets the controller, the info mark and the buttons.
+- Spines: `EXPERIENCE.md` (Public profile; Copy deck, Profile showcase) and `DESIGN.md` (Public profile, VITRINE) carry the drag and the info mark, marked (author, 2026-10-20).
+
 ## Review Triage Log
 
 ### 2026-10-20 — Review pass
@@ -108,11 +115,20 @@ deferred: []
   - `[low]` `[patch]` The settings view's edited header comment still named EXPERIENCE.md / DESIGN.md, forbidden by AGENTS.md — parenthetical dropped.
   - `[low]` `[patch]` `SettingsController#show` passed the published season that `Game::CollectionSummary` already defaults to — now `Game::CollectionSummary.call(current_player)`.
 
+### 2026-10-20 — Self-review of the drag-and-drop rework
+- verdicts: 3 findings — high 0, medium 1, low 2, false 0, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` While the other cards slid to their new places, the nearest-place check measured them mid-animation and could send the dragged card back and forth — the order is measured again only once the slide (160ms) has settled.
+  - `[low]` `[patch]` A grid card tilts under a hovering mouse and under a held finger, so a carried card tilted toward the pointer — `.profile-showcase__slot[data-dragging] .card[data-tilt]` stays flat.
+  - `[low]` `[defer]` The info note closes only by its mark (a `<details>`), not by Esc or a click outside; acceptable for a short note, to revisit if the author wants a popover.
+
 ## Design Notes
 
 Focus after a move: Turbo's morph refresh skips `autofocus`, so the profile keeps its normal (replace) rendering; Turbo Drive and a plain page load both focus the first `[autofocus]` element, which also scrolls it into view. The flash carries only slug, season number and direction, never an id.
 
 Moving swaps with the neighbour in the (position, id) order and renumbers 0..n-1, so a gap or shared place left by a trade's removal heals on the next move.
+
+Drag and drop (rework): the server is told only the dropped card and its new place, so a stale page fails safely: a card no longer showcased is refused and the order put back; a place past the end is refused. The ◀ ▶ forms stay in the page for every card, the edge one hidden, so after a drag they follow the new order without a reload.
 
 ## Verification
 
@@ -128,3 +144,9 @@ Moving swaps with the neighbour in the (position, id) order and renumbers 0..n-1
 - **Verification:** `bin/rails test` 2938 runs, 0 failures (PARALLEL_WORKERS=4: the default run hit Postgres "too many clients" from other sessions); `npm run test:js` 492 passed; typecheck, zeitwerk, packwerk, rubocop (857 files), i18n-tasks missing and unused, brakeman: clean. System tests not run.
 - **Residual risks:** focus restoration relies on Turbo focusing the first `[autofocus]` element after a normal (non-morph) render, checked only through the rendered attribute; the new CSS (move row, settings summary) has not been seen in a browser. The summary's heading « Profil public » / « Public profile » and the name as the link to the profile are not in the copy deck.
 
+### Rework, 2026-10-20 (drag and drop, info mark)
+
+- **Summary:** the owner drags VITRINE cards to reorder them on their own profile (mouse after a 6px move, touch after a 400ms hold), the others making room, saved on release through `Game::PlaceShowcaseCard` (PATCH with `position`), announced politely, restored with a toast on failure; an "i" info mark beside the heading opens a note saying the cards can be dragged; ◀ ▶ remain and follow the order.
+- **Commit:** `cceddb14732923c8e8d5dfff8548b051c4e1f629`.
+- **Verification:** `bin/rails test` 2953 runs, 0 failures (PARALLEL_WORKERS=4); `npm run test:js` 504 passed; typecheck, zeitwerk, packwerk, rubocop (860 files), i18n-tasks missing and unused, brakeman: clean; `node script/pixel_art/export.mjs --check` up to date. System tests not run.
+- **Residual risks:** the drag has been checked through its pure logic and the rendered HTML only, never in a browser or on a touch screen; the hold delay (400ms) and the info note's wording are not in the copy deck before this rework and await the author's eye.
