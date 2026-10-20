@@ -80,7 +80,7 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** Each player has a profile reachable by link that shows off their collection, visible to whom they choose.
   - **success:**
     - Visibility is public (the default), friends only, or private.
-    - Public: a logged-out visitor opening the profile link sees that player's showcase, stats, latest achievements and started sets, and can open their full collection, read-only.
+    - Public: a logged-out visitor opening the profile link sees that player's showcase, stats, latest achievements and started sets, and can open the albums of their sets, read-only (author, 2026-10-20: a visitor reaches public profiles with their albums).
     - The player puts up to five owned cards in their showcase and orders them; with none chosen the profile shows no showcase.
     - Friends only: only the player's friends see it, and they trade as usual.
     - Private: nobody else sees it, friends included. The player keeps their friends and can still add new ones, but a friend sees nothing beyond the friendship: no presence or activity, no collection, no profile, and no trade either way. A private player still sees what their friends show them.
