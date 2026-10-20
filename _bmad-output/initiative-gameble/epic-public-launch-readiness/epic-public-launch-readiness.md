@@ -1,5 +1,6 @@
 ---
-tracker_id: ""
+remote: https://github.com/theiereman/gameble/issues/102
+tracker_id: 102
 key: ""
 type: epic
 title: "Ready for the public"

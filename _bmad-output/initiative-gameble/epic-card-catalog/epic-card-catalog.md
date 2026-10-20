@@ -1,5 +1,6 @@
 ---
-tracker_id: ""
+remote: https://github.com/theiereman/gameble/issues/105
+tracker_id: 105
 key: ""
 type: epic
 title: "Every card of the game, browsable and searchable"

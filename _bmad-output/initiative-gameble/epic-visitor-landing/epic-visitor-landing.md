@@ -1,5 +1,6 @@
 ---
-tracker_id: ""
+remote: https://github.com/theiereman/gameble/issues/103
+tracker_id: 103
 key: ""
 type: epic
 title: "Visitors meet gameble"

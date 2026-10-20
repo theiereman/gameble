@@ -46,3 +46,12 @@ A free web trading card game where every card is a Steam game. Rails 8 with doma
 - Never name a model in a test class body (a constant such as `TABLES = [ Game::Pack ]`): it loads `ApplicationRecord` before the parallel workers fork, a worker's GET then writes unprevented, and `ReadOnlyRequestsTest` fails only in the full parallel run. Name models inside methods.
 
 <!-- /bmad:context -->
+
+## Tickets live on GitHub
+
+Tickets and their state live on GitHub: one issue per epic and ticket, one milestone per release, and the board https://github.com/users/theiereman/projects/1, whose Status column decides a ticket's state. The files under `_bmad-output/initiative-gameble/` are the agents' working copy, kept in step by `script/github_board/sync.py` (gh CLI, main checkout only; without `--apply` it is a dry run).
+
+- Run `python3 script/github_board/sync.py --apply` before choosing a ticket, and again after every build, ticket change, or commit of a plan; then pick from `tickets.py next --synced`.
+- Change a ticket's state with `python3 script/github_board/sync.py set <ref> <state> --apply` (backlog, in-progress, review, done, dropped); `tickets.py mark` is refused on this store.
+- Give a new epic a `release` (its milestone, e.g. `0.3.0`) in `tickets.toml` before the sync; the sync stops without one.
+- Commit the files the sync lists as `local <path>`, by exact path, with the work that changed them.

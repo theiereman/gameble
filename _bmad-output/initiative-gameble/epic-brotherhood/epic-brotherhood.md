@@ -1,5 +1,6 @@
 ---
-tracker_id: ""
+remote: https://github.com/theiereman/gameble/issues/82
+tracker_id: 82
 key: ""
 type: epic
 title: "The Brotherhood"
