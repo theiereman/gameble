@@ -4,7 +4,7 @@
 # its slug, and by its season's number for a card-season other than the
 # published season's; Catalog answers the card, its sets, its place in one
 # of them and the collection grid, Game the copies and editions, the
-# opened pack, the grid's states and the viewer's card back.
+# opened pack and the grid's states.
 #
 # The page browses one context, ◀ ▶ stepping through it and the phone's
 # way back leading to it: the first one the query names that holds the
@@ -19,8 +19,7 @@
 #   the card ("◀ Grille");
 # - `set_kind` and `set_key`: one of the card's sets, back to its album;
 #   with `brother`, a player's token, back to that player's album of it
-#   when their profile may be shown, its cards faded as that player holds
-#   them;
+#   when their profile may be shown;
 # - `brother` alone: that player's profile showcase, when their profile
 #   may be shown, browsing the card's first set as that player's album
 #   does, back to their profile ("◀ Profil"), the card showing its face.
@@ -29,15 +28,12 @@
 # profile showcase, or take it out when it is there (`@showcase`).
 #
 # A pack of another player, not opened or not holding the card, a grid or a
-# set that does not hold it, is ignored. Within a context the query names,
-# a card of a game no edition of which the viewer holds shows their active
-# card back, faded; the card's own page, without one (a share link, the
-# hub showcase), shows the face to everyone. A viewer who holds any edition of
-# its game can share it: the link is this card-season's own page, which
-# carries the preview tags; it shows only the card, never who shared or
-# holds it. A visitor who opens that page, without a context in the query,
-# gets the public card page: the card, its facts, the invitation to play
-# and the LIVE strip of the latest public feed entries, with no app chrome.
+# set that does not hold it, is ignored. The detail always shows the card's
+# face, held or not. Anyone can share it: the link is this card-season's own
+# page, which carries the preview tags; it shows only the card, never who
+# shared or holds it. A visitor who opens that page, without a context in
+# the query, gets the public card page: the card, its facts, the
+# invitation to play and the LIVE strip of the latest public feed entries, with no app chrome.
 # A signed-in viewer, or a visitor browsing a context, gets the detail
 # panel. Read from shared links, it is open to any browser and link-preview
 # crawler (PublicRead).
@@ -63,15 +59,13 @@ class CardsController < ApplicationController
     load_card_detail
     @editions = Game::HeldEditions.call(current_player, card_id: @detail.card_id)
     @copies = @editions.sum(&:last).nonzero?
-    @share_url = share_url if @copies && current_player
+    @share_url = share_url
     named = pack_browse || grid_browse || named_set_browse
     profile = profile_browse unless named
     @public = current_player.nil? && named.nil? && profile.nil?
     @live_strip = LiveStream.strip_items if @public
     @browse = named || profile || set_browse(@detail.sets.first) unless @public
-    @faded = !named.nil? && !(album_owner ? owner_holds? : @copies)
     @showcase = showcase_state
-    @back_key = Game::CardBacks.active_key(current_player)
   end
 
   private
@@ -166,10 +160,6 @@ class CardsController < ApplicationController
       elsif Game::ChosenShowcase.full?(chosen) then :full
       else :add
       end
-    end
-
-    def owner_holds?
-      Game::HeldEditions.call(album_owner, card_id: @detail.card_id).any?
     end
 
     # The card's place in `set` (Catalog::SetNeighbours), back to the page of

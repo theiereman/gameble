@@ -1,6 +1,6 @@
 # The words and links of a card's detail and of the links leading to it
-# (with what it browses: a grid, an opened pack, a set), its faded card
-# back, and its link previews.
+# (with what it browses: a grid, an opened pack, a set), and its link
+# previews.
 module CardDetailsHelper
   # Open Graph's name of each locale of the URL.
   OG_LOCALES = { "en" => "en_US", "fr" => "fr_FR" }.freeze
@@ -66,9 +66,7 @@ module CardDetailsHelper
   # named by card_detail_open_label, as not owned when `owned` is false; an empty
   # slot, without, by its visible text (title, year, "Missing card"), so a
   # screen reader tells it from an owned face. The `context` it carries
-  # (card_detail_path) is what the detail walks with ◀ ▶ and leads back to,
-  # and within it a card the viewer does not hold shows as their faded card
-  # back.
+  # (card_detail_path) is what the detail walks with ◀ ▶ and leads back to.
   def link_to_card_detail(view, strings: nil, context: {}, number: view.season_number, owned: true, &)
     aria = strings ? { label: card_detail_open_label(view, strings, owned:) } : {}
     link_to(card_detail_path(view.id, number, context), class: "card-link", aria:,
@@ -83,15 +81,6 @@ module CardDetailsHelper
   # showcase); none for the card's own page.
   def card_detail_path(slug, number, context = {})
     card_season_path(slug:, number:, **context)
-  end
-
-  # The player's active card back, at card-l size, decorative: the
-  # exported pixel-art PNG of that size, 104 × 156 art
-  # pixels drawn at 2 CSS px each. An unknown key raises ArgumentError.
-  def card_back_image(key, **options)
-    raise ArgumentError, "unknown card back: #{key.inspect}" unless Game::CardBacks::KEYS.include?(key.to_s)
-
-    image_tag(vite_asset_path("images/pixel/back-#{key}-l.png"), alt: "", width: 208, height: 312, **options)
   end
 
   def card_top_rarity?(rarity)

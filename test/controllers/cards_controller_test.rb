@@ -5,16 +5,15 @@ require_relative "../support/game_packs"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
-# A card's detail page (CAP-7, story 4.3; "FICHE DE LA CARTE", epic 10 R2,
-# R6): every fact in the viewer's language, the viewer's copies, the sets
-# leading to their grids, the Steam link; open to a visitor; a holder's
-# share link, the page's own address; what it browses (an opened
-# pack, the collection grid as shown, a set), its ◀ ▶ and position line,
-# the faded card back of a card not held within one, the phone's way back
-# to it; the cards that are not found; the
+# A card's detail page ("FICHE DE LA CARTE"): every fact in the viewer's
+# language, the viewer's copies, the sets leading to their grids, the Steam
+# link; open to a visitor; the share link, the page's own address, for
+# every card; what it browses (an opened pack, the collection grid as
+# shown, a set), its ◀ ▶ and position line, the card's face whether held
+# or not, the phone's way back to it; the cards that are not found; the
 # queries of a request; no database id on the page. Most tests read the
 # detail as a signed-in viewer: a visitor on the card's own page gets the
-# public card page instead (story 10.3), which, with the preview tags, is
+# public card page instead, which, with the preview tags, is
 # covered in card_preview_tags_test.rb.
 class CardsControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
@@ -96,11 +95,10 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__number", "S1 · #4"
     assert_select ".card-detail h1#card-detail-heading", "Portal"
     assert_select ".card-detail__card .card.card--l.card--rarity-epic .card__title", "Portal"
-    assert_select ".card-detail__back", false
     assert_select "[style]", 0
     assert_select ".card-detail__description", "A puzzle game of portals."
     assert_equal [ [ "Publisher", "Valve" ], [ "Rarity", "Epic" ], [ "Genre", "Puzzle" ], [ "Year", "2007" ], [ "Season", "Season 1" ],
-      [ "Sets", "Puzzle | Valve" ], [ "Copies", "None" ] ], facts
+      [ "Sets", "Puzzle | Valve" ], [ "Copies", "None" ], [ "Editions", "None" ] ], facts
     assert_select ".card-detail__rarity.card-detail__rarity--epic svg.card-detail__rarity-icon[aria-hidden=true]"
     assert_equal [ [ "Puzzle", "/en/library/theme/puzzle" ], [ "Valve", "/en/library/studio/valve" ] ],
       css_select(".card-detail__sets a").map { [ it.text, it["href"] ] }
@@ -154,7 +152,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail h1", "Soldat de plomb"
     assert_select "title", "Soldat de plomb — Commune"
     assert_select ".card-detail__kicker", "Fiche de la carte"
-    assert_equal [ [ "Rareté", "Commune" ], [ "Genre", "Horreur" ], [ "Année", "2024" ], [ "Saison", "Saison 1" ], [ "Sets", "Réflexion" ], [ "Exemplaires", "Aucun" ] ], facts
+    assert_equal [ [ "Rareté", "Commune" ], [ "Genre", "Horreur" ], [ "Année", "2024" ], [ "Saison", "Saison 1" ], [ "Sets", "Réflexion" ], [ "Exemplaires", "Aucun" ], [ "Éditions", "Aucune" ] ], facts
     assert_equal [ "Voir sur Steam (nouvel onglet)", "https://store.steampowered.com/app/401/Tin_Soldier/?snr=1_7&l=french" ],
       store_link.then { [ it.text.squish, it["href"] ] }
     assert_equal [ "Carte précédente", "Carte suivante" ], css_select(".card-detail__nav").map { it["aria-label"] }
@@ -163,7 +161,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_path(locale: :fr, slug: "portal")
     assert_select ".card-detail__description", "Un jeu de casse-tête à portails."
     assert_equal "https://store.example.test/400?l=french", store_link["href"]
-    assert_equal [ "Éditeur", "Rareté", "Genre", "Année", "Saison", "Sets", "Exemplaires" ], facts.map(&:first)
+    assert_equal [ "Éditeur", "Rareté", "Genre", "Année", "Saison", "Sets", "Exemplaires", "Éditions" ], facts.map(&:first)
   end
 
   test "a card without publisher, description, genre or set leaves those rows out, without ◀ ▶ or position line" do
@@ -171,7 +169,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_path(locale: :en, slug: "tin-soldier")
 
     assert_response :success
-    assert_equal [ "Rarity", "Year", "Season", "Copies" ], facts.map(&:first)
+    assert_equal [ "Rarity", "Year", "Season", "Copies", "Editions" ], facts.map(&:first)
     assert_select ".card-detail__description", false
     assert_select ".card-detail__sets", false
     assert_select ".card-detail__nav", false
@@ -218,10 +216,10 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "Exemplaires", "1 exemplaire" ], [ "Éditions", "Légendaire : S1" ] ], facts.last(2)
 
     get card_path(locale: :en, slug: "tin-soldier")
-    assert_equal [ "Copies", "None" ], facts.last
+    assert_equal [ [ "Copies", "None" ], [ "Editions", "None" ] ], facts.last(2)
 
     get card_path(locale: :fr, slug: "green-hills")
-    assert_equal [ "Exemplaires", "Aucun" ], facts.last
+    assert_equal [ [ "Exemplaires", "Aucun" ], [ "Éditions", "Aucune" ] ], facts.last(2)
   end
 
   test "a visitor on the card's own page gets the public card page: the card at card-xl, no copies, no panel, no way back to the bridge" do
@@ -298,7 +296,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "/en/library/theme/roguelike?page=2", css_select(".top-bar__phone-back").sole["href"]
   end
 
-  test "a card opened from a player's album browses it, leads back to that album and fades the cards that player does not hold" do
+  test "a card opened from a player's album browses it, leads back to that album and shows the face of a card that player does not hold" do
     season, cards = published_cards(70)
     insert_theme(cards, key: "roguelike", season:)
     owner = accounts_players(:player)
@@ -310,11 +308,12 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "/en/brothers/#{owner.token}/library/theme/roguelike?page=2", css_select(".top-bar__phone-back").sole["href"]
     assert_equal [ [ "a", detail.(cards[59]) ], [ "a", detail.(cards[61]) ] ], navs
-    assert_select ".card-detail__back", false
+    assert_select ".card-detail__card .card.card--l", 1
 
     get detail.(cards[59])
 
-    assert_select ".card-detail__back", 1
+    assert_select ".card-detail__card .card.card--l", 1
+    assert_select ".card-detail__share-button", "Share"
   end
 
   test "a card opened from the album of a player whose profile may not be shown browses the viewer's own album" do
@@ -352,11 +351,10 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
       assert_response :success, query.inspect
       assert_equal "S1 · #4 · 2 / 3 · swipe to browse", position, query.inspect
       assert_select ".card-detail__card .card.card--l", 1, query.inspect
-      assert_select ".card-detail__back", false
     end
   end
 
-  test "within a set, a card the viewer does not hold is their card back, faded, with its title, year and rarity" do
+  test "within a set, a card the viewer does not hold shows its face, None for copies and editions, and the share block without repost or showcase" do
     add_a_theme_set
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 1)
@@ -365,53 +363,50 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     get in_theme("tin-soldier")
 
-    assert_select ".card-detail__card .card", false
-    back = css_select(".card-detail__back img.card-detail__back-image").sole
-    assert_match %r{/back-standard-l[^/]*\.png\z}, back["src"]
-    assert_equal [ "", "208", "312" ], [ back["alt"], back["width"], back["height"] ]
-    assert_select ".card-detail__back-title[aria-hidden=true]", "Tin Soldier"
-    assert_select ".card-detail__back-year[aria-hidden=true]", "2024"
-    assert_select ".card-detail__not-owned", "Not owned"
+    assert_select ".card-detail__card .card.card--l.card--rarity-common .card__title", "Tin Soldier"
+    assert_select ".card-detail__card .card--not-owned", false
     assert_select ".card-detail h1", "Tin Soldier"
     # A card-season without a main theme shows no genre.
-    assert_equal [ [ "Rarity", "Common" ], [ "Year", "2024" ], [ "Season", "Season 1" ], [ "Sets", "Puzzle" ], [ "Copies", "None" ] ], facts
-    assert_select "[data-controller~=share]", false
-    assert_select ".card-detail__share-button", false
+    assert_equal [ [ "Rarity", "Common" ], [ "Year", "2024" ], [ "Season", "Season 1" ], [ "Sets", "Puzzle" ], [ "Copies", "None" ],
+      [ "Editions", "None" ] ], facts
+    assert_select ".card-detail[data-controller~=share]"
+    assert_select ".card-detail__share-button", "Share"
+    assert_select "#share-sheet input[value=?]", "http://www.example.com/en/cards/tin-soldier/seasons/1"
     assert_select "form[action*='/repost']", false
+    assert_select ".card-detail__showcase", false
 
     # A card held shows its face, and its share block, within the set too.
     get in_theme("portal")
     assert_select ".card-detail__card .card.card--l.card--rarity-epic"
-    assert_select ".card-detail__back", false
     assert_select ".card-detail__share-button", "Share"
     assert_select "form[action='/en/cards/portal/seasons/1/repost'] button", "Repost"
 
     get in_theme("tin-soldier", locale: :fr)
-    assert_select ".card-detail__not-owned", "Non possédée"
+    assert_equal [ [ "Exemplaires", "Aucun" ], [ "Éditions", "Aucune" ] ], facts.last(2)
+    assert_select ".card-detail__share-button", "Partager"
   end
 
-  test "a visitor within a set sees every card as the Standard back, without a copies row; the card's own page shows the face" do
+  test "a visitor within a set sees the card's face and its share block, without copies, editions, repost or showcase; the card's own page is the public one" do
     add_a_theme_set
 
     get in_theme("portal")
-    assert_select ".card-detail__back img[src*='back-standard']"
-    assert_select ".card-detail__card .card", false
+    assert_select ".card-detail__card .card-float .card-rays.card-rays--epic", 1
+    assert_select ".card-detail__card .card.card--l.card--rarity-epic", 1
+    assert_select ".card-detail__share-button", "Share"
+    assert_select "#share-sheet input[value=?]", "http://www.example.com/en/cards/portal/seasons/1"
+    assert_select "form[action*='/repost']", false
+    assert_select ".card-detail__showcase", false
     assert_select "section.card-invitation[aria-labelledby=card-invitation-text]:not([aria-label])" do
       assert_select "p#card-invitation-text", I18n.t("cards.show.invitation")
       assert_select "[aria-label]", false
     end
     assert_not_includes facts.map(&:first), "Copies"
+    assert_not_includes facts.map(&:first), "Editions"
     assert_includes facts, [ "Rarity", "Epic" ]
 
     get card_season_path(locale: :en, slug: "portal", number: 1)
     assert_select ".public-card .card.card--xl"
-    assert_select ".card-detail__back", false
-  end
-
-  test "the card back helper knows only the exported backs" do
-    helper = ApplicationController.new.view_context
-    assert_raises(ArgumentError) { helper.card_back_image("aurore") }
-    assert_match(/back-standard/, helper.card_back_image("standard"))
+    assert_select ".card-detail", false
   end
 
   test "an older season by its number: its rarity, its sets without links, browsing its own set, no way back to a grid" do
@@ -442,7 +437,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_season_path(locale: :en, slug: "tin-soldier", number: 1)
 
     assert_response :success
-    assert_equal [ "Rarity", "Year", "Season", "Copies" ], facts.map(&:first)
+    assert_equal [ "Rarity", "Year", "Season", "Copies", "Editions" ], facts.map(&:first)
     assert_equal "Season 1", facts.to_h["Season"]
     assert_select ".card-detail__sets", false
     assert_select ".card-detail__nav", false
@@ -513,7 +508,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#share-sheet .share-sheet__note", "The link's preview shows the card's title and rarity, without the game's image."
     assert_select "#share-sheet a.share-sheet__public[href=?][target=_blank][rel~=noopener]", "/en/cards/portal/seasons/1"
     assert_select "#share-sheet a.share-sheet__public .visually-hidden", "(new tab)"
-    assert_select ".card-detail__share", false
     # Only the player's own menu, in the top bar, links their profile.
     assert_not_includes css_select("head, main").to_s, player.token
     # The share link is the page's own og:url.
@@ -550,15 +544,15 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     Rails.configuration.x.public_url = @public_url
   end
 
-  test "no share block for a player without copies, nor for a visitor" do
+  test "a player without copies gets the share block without repost; a visitor on the card's own page gets none" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 0)
     hold(accounts_players(:moderator), catalog_card_seasons(:portal_one).id, 1)
     sign_in(player)
 
     get card_path(locale: :en, slug: "portal")
-    assert_select "#share-sheet", false
-    assert_select ".card-detail__share-button", false
+    assert_select "#share-sheet input[value=?]", "http://www.example.com/en/cards/portal/seasons/1"
+    assert_select ".card-detail__share-button", "Share"
     assert_select "form[action*='/repost']", false
 
     delete session_path(locale: :en)
@@ -601,7 +595,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "/fr/booster?pack=#{pack.token}", css_select(".top-bar__phone-back").sole["href"]
   end
 
-  test "a card drawn twice is placed by its slot, else at its first place; a card of the pack not held is the faded back" do
+  test "a card drawn twice is placed by its slot, else at its first place; a card of the pack not held shows its face" do
     player = accounts_players(:player)
     cards = %i[portal_one common_card_one portal_one rare_card_one legendary_card_one].map { catalog_card_seasons(it).id }
     pack = create_pack(player, cards:, opened_at: 1.minute.ago)
@@ -610,7 +604,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get pack_detail("portal", pack, slot: 3)
     assert_equal [ [ "a", pack_detail("tin-soldier", pack, slot: 2) ], [ "a", pack_detail("blue-depths", pack, slot: 4) ] ], navs
     assert_equal "S1 · #4 · 3 / 5 · swipe to browse", position
-    assert_select ".card-detail__back"
+    assert_select ".card-detail__card .card-float .card.card--l.card--rarity-epic", 1
 
     [ nil, 2, 9, "x" ].each do |slot|
       get pack_detail("portal", pack, slot:)
@@ -635,7 +629,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
       assert_equal first_set, navs, token
       assert_equal "S1 · #4 · 2 / 3 · swipe to browse", position, token
       assert_equal "/en/library/theme/puzzle", css_select(".top-bar__phone-back").sole["href"], token
-      assert_select ".card-detail__back", false
+      assert_select ".card-detail__card .card.card--l", 1, token
     end
 
     get card_season_path(locale: :en, slug: "portal", number: 1, pack: { token: foreign.token })
@@ -679,7 +673,13 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "60 / 150", position[%r{\d+ / \d+}]
     assert_equal "/en/library/cards?state%5B%5D=all", css_select(".top-bar__phone-back").sole["href"]
     assert_equal "Grid", css_select(".top-bar__phone-back").sole.text.squish
-    assert_select ".card-detail__back"
+    assert_select ".card-detail__card .card.card--l", 1
+    assert_select ".card-detail__card .card--not-owned", false
+    assert_equal [ [ "Copies", "None" ], [ "Editions", "None" ] ], facts.to_h.slice("Copies", "Editions").to_a
+    assert_select ".card-detail__share-button", "Share"
+    assert_select "#share-sheet"
+    assert_select "form[action*='/repost']", false
+    assert_select ".card-detail__showcase", false
 
     get grid_detail(slugs[60], season.number, context)
     assert_equal "61 / 150", position[%r{\d+ / \d+}]
@@ -704,8 +704,16 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "a", grid_detail(slugs[0], season.number, context) ], [ "a", grid_detail(slugs[2], season.number, context) ] ], navs
     assert_equal "2 / #{slugs.size}", position[%r{\d+ / \d+}]
     assert_equal "/en/library/cards?genre%5B%5D=roguelike&q=Seed+1&state%5B%5D=all&state%5B%5D=missing", css_select(".top-bar__phone-back").sole["href"]
-    # A visitor browsing a grid gets the detail, the card as the faded back.
-    assert_select ".card-detail__back img[src*='back-standard']"
+    # A visitor browsing a grid gets the detail: the card's face and its
+    # share block, without copies, editions, repost or showcase.
+    assert_select ".card-detail__card .card.card--l", 1
+    assert_select ".card-detail__share-button", "Share"
+    assert_select "#share-sheet"
+    assert_nil facts.to_h["Copies"]
+    assert_nil facts.to_h["Editions"]
+    assert_select "form[action*='/repost']", false
+    assert_select ".card-detail__showcase", false
+    assert_select "section.card-invitation"
     assert_select ".public-card", false
 
     # A link built by the grid of one set, before sets opened as albums:
@@ -857,7 +865,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     get card_season_path(locale: :fr, slug: "portal", number: 1)
     assert_equal [ [ "Exemplaires", "2 exemplaires" ], [ "Éditions", "Légendaire : S2 | Épique : S1" ] ], facts.to_h.slice("Exemplaires", "Éditions").to_a
-    assert_select ".card-detail__back", false
   end
 
   test "the editions of one rarity share a line, seasons ascending; past three lines they fold under how many more" do
@@ -880,12 +887,14 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "details.card-detail__editions-fold > summary", "1 autre rareté"
   end
 
-  test "no editions row without a copy, nor for a visitor; a holder of another edition sees the card's face" do
+  test "editions read None without a copy; no editions row for a visitor; a holder of another edition sees the card's face" do
     hold(accounts_players(:moderator), catalog_card_seasons(:rare_card_one).id, 0)
     sign_in_viewer
     get card_path(locale: :en, slug: "portal")
-    assert_equal [ "Copies", "None" ], facts.last
-    assert_nil editions_row
+    assert_equal [ [ "Copies", "None" ], [ "Editions", "None" ] ], facts.last(2)
+
+    get card_path(locale: :fr, slug: "portal")
+    assert_equal [ [ "Exemplaires", "Aucun" ], [ "Éditions", "Aucune" ] ], facts.last(2)
 
     delete session_path(locale: :en)
     get card_season_path(locale: :en, slug: "portal", number: 1, grid: { q: "" })
@@ -899,7 +908,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     sign_in(player)
     get card_path(locale: :en, slug: "portal", set_kind: "theme", set_key: "puzzle")
     assert_equal "S2 · 1 / 1", position
-    assert_select ".card-detail__back", false
     assert_select ".card-detail__card .card.card--rarity-legendary"
   end
 
@@ -931,7 +939,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__shadow", 1
   end
 
-  test "a faded epic shows the card back with no float or rays" do
+  test "an epic not held, within a set, floats with its rays, never greyed" do
     add_a_theme_set
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:common_card_one).id, 1)
@@ -940,10 +948,9 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get in_theme("portal")
 
     assert_response :success
-    assert_select ".card-detail__back", 1
-    assert_select ".card-detail__card .card", false
-    assert_select ".card-detail__card .card-float", 0
-    assert_select ".card-detail__card .card-rays", 0
+    assert_select ".card-detail__card .card-float .card-rays.card-rays--epic", 1
+    assert_select ".card-detail__card .card-float .card.card--l.card--rarity-epic", 1
+    assert_select ".card-detail__card .card--not-owned", false
     assert_select ".card-detail__shadow", 1
   end
 
@@ -1020,7 +1027,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     back = css_select(".top-bar__phone-back").sole
     assert_equal [ "/fr/brothers/#{owner.token}", "Profil" ], [ back["href"], back.text.squish ]
     assert_select ".card-detail__card .card.card--l"
-    assert_select ".card-detail__back", false
     assert_equal "S1 · #4 · 1 / 1", position
 
     delete session_path(locale: :en)

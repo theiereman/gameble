@@ -193,7 +193,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "evil.example"
   end
 
-  test "a signed-in viewer, holder or not: the card, no invitation; a holder keeps their copies and the share block" do
+  test "a signed-in viewer, holder or not: the card, no invitation, the share sheet; a holder keeps their copies" do
     hold(@sharer, catalog_card_seasons(:rare_card_one).id, 2)
     viewer = accounts_players(:moderator)
 
@@ -202,7 +202,8 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".card-invitation", false
     assert_select ".card-detail__copies", "None"
-    assert_select ".card-detail__share", false
+    assert_select ".card-detail__share-button", "Share"
+    assert_select "#share-sheet input[value=?]", season_url
     # The card's own page shows the face to a viewer who does not hold it.
     assert_select ".card-detail__card .card.card--l"
     assert_equal "Blue Depths — Rare", og("title")

@@ -1610,7 +1610,7 @@ en:
       one: "%{count} copy"
       other: "%{count} copies"
     no_copies: "None"
-    not_owned: "Not owned"
+    no_editions: "None"
     position: "%{position} / %{total}"
     swipe: "swipe to browse"
     previous: "Previous card"

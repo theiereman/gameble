@@ -1,10 +1,10 @@
-<%# A card's detail, "FICHE DE LA CARTE" (CAP-7; DESIGN.md, Card detail;
-    epic 10 R2, R6): a bracketed panel with the number at top right, the
-    card at card-l over a ground shadow, its title, the facts the card does
-    not carry and the actions ("Voir sur Steam", the
-    one primary, and "Partager", "Reposter" and the showcase choice for a
-    holder). ◀ ▶ beside the card step
-    through what it browses (an opened pack, a grid, a set), and on a phone
+<%# A card's detail, "FICHE DE LA CARTE" (DESIGN.md, Card detail): a
+    bracketed panel with the number at top right, the card at card-l over a
+    ground shadow, its title, the facts the card does not carry and the
+    actions ("Voir sur Steam", the one primary, "Partager" for every card,
+    and "Reposter" and the showcase choice for a holder). The card always
+    shows its face, held or not. ◀ ▶ beside the card step through what it
+    browses (an opened pack, a grid, a set), and on a phone
     (sub_view controller) a swipe on it too, under a position line, with
     the actions pinned at the bottom. It names no one but the viewer (a
     shared card shows only the card). Locals:
@@ -14,9 +14,9 @@
     - editions: the editions of its game the viewer holds, as
       Game::HeldEditions answers them (default none);
     - signed_in: whether a player views it (default false): then the
-      copies row reads their copies, or "None", and, when they hold one,
-      the editions row reads one line per rarity, the best first, with its
-      seasons ("Rare : S1, S4"), the lines past the third folded;
+      copies row reads their copies, or "None", and the editions row one
+      line per rarity held, the best first, with its seasons ("Rare : S1,
+      S4"), the lines past the third folded, or "None";
     - set_url: ->(set) { path } leading each set to its grid, or nil for
       the sets' names alone; the sets of a season other than the published
       one (the one the library shows) are never linked;
@@ -27,18 +27,12 @@
     - browse: what it browses (a CardsController::Browse: the position,
       the total, the neighbours' paths, the way back), or nil (the
       default) for no ◀ ▶ and no position line;
-    - faded: true to show the viewer's card back, faded, in place of the
-      face, for a card of a game no edition of which they hold, within a
-      context (default false);
-    - back_key: the viewer's active card back (Game::CardBacks);
     - showcase: the viewer's profile showcase action on this card-season:
       :add, :remove, :full (the add button disabled, the showcase-full line
       beside it) or nil (the default) for none. %>
 <% share_url = local_assigns.fetch(:share_url, nil) %>
 <% set_url = detail.current_season ? local_assigns.fetch(:set_url, nil) : nil %>
 <% browse = local_assigns.fetch(:browse, nil) %>
-<% faded = local_assigns.fetch(:faded, false) %>
-<% back_key = local_assigns.fetch(:back_key, Game::CardBacks::STANDARD) %>
 <% signed_in = local_assigns.fetch(:signed_in, false) %>
 <% editions = local_assigns.fetch(:editions, []) %>
 <% showcase = local_assigns.fetch(:showcase, nil) %>
@@ -68,26 +62,13 @@
           <%= render "cards/detail_nav", path: browse.previous, side: :previous %>
         <% end %>
         <div class="card-detail__card">
-          <% if faded %>
-            <span class="card-detail__back">
-              <%= card_back_image(back_key, class: "card-detail__back-image") %>
-              <span class="card-detail__back-plate">
-                <span class="card-detail__back-title" aria-hidden="true"><%= view.title %></span>
-                <span class="card-detail__back-line">
-                  <span class="card-detail__back-year" aria-hidden="true"><%= view.year %></span>
-                  <span class="card-detail__not-owned"><%= t("card_details.not_owned") %></span>
-                </span>
-              </span>
-            </span>
-          <% else %>
-            <% if card_top_rarity?(view.rarity) %>
-              <div class="card-float">
-                <%= card_rays(view.rarity) %>
-                <%= render CardComponent.new(card: view, size: :l) %>
-              </div>
-            <% else %>
+          <% if card_top_rarity?(view.rarity) %>
+            <div class="card-float">
+              <%= card_rays(view.rarity) %>
               <%= render CardComponent.new(card: view, size: :l) %>
-            <% end %>
+            </div>
+          <% else %>
+            <%= render CardComponent.new(card: view, size: :l) %>
           <% end %>
           <span class="card-detail__shadow" aria-hidden="true"></span>
         </div>
@@ -152,11 +133,11 @@
               <dt><%= t("card_details.facts.copies") %></dt>
               <dd class="card-detail__copies"><%= copies ? t("card_details.copies", count: copies) : t("card_details.no_copies") %></dd>
             </div>
-            <% if editions.any? %>
-              <% lines = card_detail_edition_lines(editions, strings) %>
-              <% shown, folded = lines.first(3), lines.drop(3) %>
-              <div class="card-detail__fact">
-                <dt><%= t("card_details.facts.editions") %></dt>
+            <div class="card-detail__fact">
+              <dt><%= t("card_details.facts.editions") %></dt>
+              <% if editions.any? %>
+                <% lines = card_detail_edition_lines(editions, strings) %>
+                <% shown, folded = lines.first(3), lines.drop(3) %>
                 <dd>
                   <ul class="card-detail__editions">
                     <% shown.each do |line| %>
@@ -174,8 +155,10 @@
                     </details>
                   <% end %>
                 </dd>
-              </div>
-            <% end %>
+              <% else %>
+                <dd><%= t("card_details.no_editions") %></dd>
+              <% end %>
+            </div>
           <% end %>
           <% if detail.steam_reviews %>
             <div class="card-detail__fact">

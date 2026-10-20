@@ -1657,7 +1657,7 @@ fr:
       one: "%{count} exemplaire"
       other: "%{count} exemplaires"
     no_copies: "Aucun"
-    not_owned: "Non possédée"
+    no_editions: "Aucune"
     position: "%{position} / %{total}"
     swipe: "glissez pour parcourir"
     previous: "Carte précédente"
