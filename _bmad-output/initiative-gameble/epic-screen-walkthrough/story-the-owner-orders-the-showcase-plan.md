@@ -12,6 +12,7 @@ review_source: 'pinned'
 lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
+commit: '98448c50081b0dd4c2816b72445e82d0d209d791'
 context: ['{project-root}/AGENTS.md']
 warnings: ['oversized']
 deferred: []
