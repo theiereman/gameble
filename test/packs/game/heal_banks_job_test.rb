@@ -12,8 +12,6 @@ class Game::HealBanksJobTest < ActiveSupport::TestCase
   include CatalogSeeds
   include GamePacks
 
-  setup { Game::DrawPool.reset! }
-
   test "publishing a season enqueues the job once the publication commits" do
     season = seed_card_seasons(distinct_scores(150))
 

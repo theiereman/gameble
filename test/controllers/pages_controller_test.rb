@@ -21,7 +21,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
   setup do
-    Game::DrawPool.reset!
     @player = accounts_players(:player)
     @legal = Rails.configuration.x.legal
   end

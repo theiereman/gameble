@@ -25,6 +25,9 @@ module ActiveSupport
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
 
+    # The draw pool is held per process and outlives the transaction each test rolls back.
+    setup { Game::DrawPool.reset! }
+
     # Add more helper methods to be used by all tests here...
   end
 end

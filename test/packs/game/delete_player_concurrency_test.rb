@@ -20,7 +20,6 @@ class Game::DeletePlayerConcurrencyTest < ActiveSupport::TestCase
   STEAM_ID = "76561197960299878".freeze
 
   setup do
-    Game::DrawPool.reset!
     @player = Accounts::Player.create!(steam_id: STEAM_ID, persona_name: "Dana")
     Game::FillBank.new.call(player: @player).value!
   end

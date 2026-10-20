@@ -24,7 +24,6 @@ class Game::BankLockOrderRacesTest < ActiveSupport::TestCase
   POOL_DELAY = 0.15
 
   setup do
-    Game::DrawPool.reset!
     @first, @second, @third = %w[76561197960310001 76561197960310002 76561197960310003].each_with_index.map do |steam_id, index|
       Accounts::Player.create!(steam_id:, persona_name: "Racer #{index + 1}")
     end

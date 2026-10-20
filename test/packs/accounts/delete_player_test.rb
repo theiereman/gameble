@@ -11,7 +11,6 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
   include GameTrades
 
   setup do
-    Game::DrawPool.reset!
     @player = accounts_players(:player)
     @other = accounts_players(:moderator)
   end

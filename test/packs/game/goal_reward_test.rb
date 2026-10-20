@@ -17,7 +17,6 @@ class Game::GoalRewardTest < ActiveSupport::TestCase
   WEEK = MONDAY.to_date
 
   setup do
-    Game::DrawPool.reset!
     @player = accounts_players(:player)
     @other = accounts_players(:moderator)
   end

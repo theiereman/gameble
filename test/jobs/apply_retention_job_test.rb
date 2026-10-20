@@ -2,7 +2,6 @@ require "test_helper"
 
 class ApplyRetentionJobTest < ActiveSupport::TestCase
   setup do
-    Game::DrawPool.reset!
     @now = Time.current.change(usec: 0)
     @moderator = accounts_players(:moderator)
     @player = accounts_players(:player)

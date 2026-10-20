@@ -11,7 +11,6 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
   include SteamSignIn
 
   setup do
-    Game::DrawPool.reset!
     @player = accounts_players(:player)
   end
 

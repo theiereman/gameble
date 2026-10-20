@@ -7,7 +7,6 @@ class Game::FirstSessionGuaranteeTest < ActiveSupport::TestCase
   include GamePacks
 
   setup do
-    Game::DrawPool.reset!
     @pool = Game::DrawPool.current
     @common, @uncommon, @rare, @epic, @legendary = fixture_tier_ids
   end

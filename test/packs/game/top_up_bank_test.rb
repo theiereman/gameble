@@ -13,7 +13,6 @@ class Game::TopUpBankTest < ActiveSupport::TestCase
   include RakeTasks
 
   setup do
-    Game::DrawPool.reset!
     @player = accounts_players(:player)
     @now = Time.current.change(usec: 0)
   end

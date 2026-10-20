@@ -10,7 +10,6 @@ class Game::CollectDailyBonusConcurrencyTest < ActiveSupport::TestCase
   self.use_transactional_tests = false
 
   setup do
-    Game::DrawPool.reset!
     @player = accounts_players(:player)
   end
 

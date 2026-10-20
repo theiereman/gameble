@@ -4,7 +4,6 @@ class Accounts::DeleteInactivePlayerTest < ActiveSupport::TestCase
   NO_LONGER_IDLE = Dry::Monads::Failure(:no_longer_idle)
 
   setup do
-    Game::DrawPool.reset!
     @now = Time.current.change(usec: 0)
     @player = accounts_players(:player)
   end

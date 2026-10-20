@@ -24,7 +24,6 @@ class Game::BankRacesTest < ActiveSupport::TestCase
   POOL_DELAY = 0.15
 
   setup do
-    Game::DrawPool.reset!
     @player = accounts_players(:player)
     @created = []
     @current = Game::DrawPool.method(:current)

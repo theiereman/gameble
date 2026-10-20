@@ -9,7 +9,6 @@ class Game::CollectDailyBonusTest < ActiveSupport::TestCase
   include GamePacks
 
   setup do
-    Game::DrawPool.reset!
     @player = accounts_players(:player)
     @now = Time.utc(2026, 10, 2, 15, 0)
   end

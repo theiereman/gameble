@@ -12,8 +12,6 @@ class Game::DrawTest < ActiveSupport::TestCase
     def random_number(_limit) = @numbers.shift
   end
 
-  setup { Game::DrawPool.reset! }
-
   test "each odds table covers the five tiers and sums to ten thousand" do
     assert_equal Catalog::Rarity::TIERS.keys, Game::DrawOdds::REGULAR.keys.sort
     assert_equal Game::DrawOdds::TOTAL, Game::DrawOdds::REGULAR.values.sum

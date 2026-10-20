@@ -2,7 +2,6 @@ require "test_helper"
 
 class Game::PlayerActivityTest < ActiveSupport::TestCase
   setup do
-    Game::DrawPool.reset!
     @alice = accounts_players(:player)
     @bob = accounts_players(:moderator)
     @now = Time.utc(2026, 10, 7, 15, 0)

@@ -8,7 +8,6 @@ class Game::AchievementsTest < ActiveSupport::TestCase
   include GamePacks
 
   setup do
-    Game::DrawPool.reset!
     @player = accounts_players(:player)
     @other = accounts_players(:moderator)
     @common, @uncommon, @rare, @epic, @legendary = fixture_tier_ids

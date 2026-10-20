@@ -6,8 +6,6 @@ require_relative "../../support/catalog_seeds"
 class Game::DrawPoolTest < ActiveSupport::TestCase
   include CatalogSeeds
 
-  setup { Game::DrawPool.reset! }
-
   def tier_ids(*names)
     names.map { |name| catalog_card_seasons(name).id }
   end
@@ -22,6 +20,14 @@ class Game::DrawPoolTest < ActiveSupport::TestCase
       4 => tier_ids(:portal_one), 5 => tier_ids(:legendary_card_one) }, pool.tiers)
     assert_predicate pool.tiers, :frozen?
     assert pool.tiers.values.all?(&:frozen?)
+  end
+
+  test "every test builds its own pool, so a card an earlier test added to the published season and rolled back is never drawn" do
+    seed_card_seasons([ 0.5 ], season: catalog_seasons(:one), prefix: "rolled-back")
+    added = Catalog::CardSeason.where(season_id: catalog_seasons(:one).id).maximum(:id)
+    Catalog::CardSeason.where(id: added).update_all(rarity: Catalog::Rarity::TIERS.keys.first)
+
+    assert_includes Game::DrawPool.current.tier_by_id.keys, added
   end
 
   test "the same snapshot serves while the published season is unchanged" do

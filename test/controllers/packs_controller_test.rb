@@ -15,10 +15,6 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
 
   NEW_STEAM_ID = "76561197960287930".freeze
 
-  setup do
-    Game::DrawPool.reset!
-  end
-
   # Menu 01 of the hub: the link to the booster screen.
   def open_item
     css_select(".hub-menu .menu-item[aria-keyshortcuts='1']").sole

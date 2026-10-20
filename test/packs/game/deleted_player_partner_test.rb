@@ -6,7 +6,6 @@ class Game::DeletedPlayerPartnerTest < ActiveSupport::TestCase
   include GamePacks
 
   setup do
-    Game::DrawPool.reset!
     @alice = accounts_players(:player)
     @bob = accounts_players(:moderator)
     @one = catalog_card_seasons(:portal_one).id

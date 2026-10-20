@@ -6,7 +6,6 @@ class Game::PlayerStateTest < ActiveSupport::TestCase
   include GamePacks
 
   setup do
-    Game::DrawPool.reset!
     @player = accounts_players(:player)
   end
 

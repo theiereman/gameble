@@ -7,7 +7,6 @@ class Game::SetTierTest < ActiveSupport::TestCase
   include GamePacks
 
   setup do
-    Game::DrawPool.reset!
     @player = accounts_players(:player)
     @other = accounts_players(:moderator)
     @common, @uncommon, @rare, @portal, @legendary = fixture_tier_ids

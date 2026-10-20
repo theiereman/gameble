@@ -11,7 +11,6 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
   include SteamSignIn
 
   setup do
-    Game::DrawPool.reset!
     @player = accounts_players(:player)
     @week = Game::WeeklyGoal.week_start(Time.current) - 7
     Game::WeeklyGoal.create!(week_start: @week, total: 200, target: 200)
