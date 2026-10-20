@@ -1,7 +1,7 @@
 name: Bug report
 description: Something in the game broke or did not do what you expected.
 title: "[Bug] "
-labels: ["bug"]
+labels: ["bug", "triage"]
 body:
   - type: markdown
     attributes:

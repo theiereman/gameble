@@ -8,6 +8,11 @@ moved since the last sync, and writes the board's word back into each file's `tr
 
   sync.py [--apply]                       sync everything (dry run without --apply)
   sync.py set <ref> <state> [--apply]     move one ticket: backlog, in-progress, review, done, dropped
+  sync.py import <issue> <epic> [--apply] turn an issue opened on GitHub into a ticket of that epic
+
+An issue opened on GitHub carries the `triage` label until the author gives it a milestone or closes it.
+An imported request stays the requester's issue: the ticket is a new issue that links to it, and the
+request is closed when its ticket is done.
 """
 
 from __future__ import annotations
@@ -58,6 +63,7 @@ STATE_OF_BUILD = {
 STATES = ("backlog", "in-progress", "review", "done", "dropped")
 STATE_LABELS = ("backlog", "in-progress", "review")
 FINISHED = ("done", "dropped")
+TRIAGE_LABEL = "triage"
 TRACKER_KEYS = ("tracker_id", "remote", "tracker_status", "status", "assignee")
 # GitHub throttles bursts of content creation with secondary rate limits.
 CREATE_PAUSE_SECONDS = 3
@@ -85,6 +91,7 @@ query($owner: String!, $name: String!, $after: String) {
       pageInfo { hasNextPage endCursor }
       nodes {
         number state stateReason body
+        milestone { title }
         labels(first: 30) { nodes { name } }
         parent { number }
         blockedBy(first: 100) { nodes { number } }
@@ -135,6 +142,7 @@ class Published(NamedTuple):
     blocked_by: set[int]
     item_id: str | None
     status_option: str | None
+    milestone: str | None
 
     @property
     def state(self) -> str:
@@ -150,7 +158,7 @@ class Published(NamedTuple):
         return json.loads(found.group(1)) if found else {}
 
 
-ABSENT = Published(False, "", "", set(), None, set(), None, None)
+ABSENT = Published(False, "", "", set(), None, set(), None, None, None)
 
 
 def snapshot(gh: Gh) -> dict[int, Published]:
@@ -171,6 +179,7 @@ def snapshot(gh: Gh) -> dict[int, Published]:
                 blocked_by={b["number"] for b in node["blockedBy"]["nodes"]},
                 item_id=item and item["id"],
                 status_option=item and (item["fieldValueByName"] or {}).get("optionId"),
+                milestone=(node["milestone"] or {}).get("title"),
             )
         if not page["pageInfo"]["hasNextPage"]:
             return published
@@ -317,6 +326,7 @@ class Sync:
         if missing:
             sys.exit(f"no ticket {', '.join(missing)} in a synced epic")
 
+        self.requests = self.requested_in(scope)
         self.published = snapshot(self.gh)
         targets = {r["ref"]: self.target(r, overrides.get(r["ref"])) for r in rows}
         for row in rows:
@@ -335,6 +345,8 @@ class Sync:
         for row in rows:
             self.move(row["ref"], targets[row["ref"]], ready)
         self.write_epic_ids(scope)
+        self.close_requests(rows, targets, releases)
+        self.untriage()
 
         for path in sorted(self.changed_files):
             print(f"local {path.relative_to(tree.root)}")
@@ -377,6 +389,33 @@ class Sync:
             if self.args.apply:
                 path.write_text(updated)
 
+    def requested_in(self, scope: list[str]) -> dict[str, list[int]]:
+        requests = {}
+        for epic in tomllib.loads((self.tree.folder / "tickets.toml").read_text())["epic"]:
+            if epic["slug"] not in scope:
+                continue
+            breakdown = self.tree.folder / epic["slug"] / "tickets.toml"
+            for entry in tomllib.loads(breakdown.read_text()).get("entry", []) if breakdown.exists() else []:
+                if entry.get("requested_in"):
+                    requests[f"{epic['id']}.{entry['id']}"] = entry["requested_in"]
+        return requests
+
+    def close_requests(self, rows: list[dict], targets: dict[str, str], releases: dict[str, str]) -> None:
+        for row in rows:
+            if targets[row["ref"]] != "done":
+                continue
+            for number in self.requests.get(row["ref"], []):
+                if not self.published.get(number, ABSENT).closed:
+                    print(f"close request #{number} of {row['ref']}")
+                    self.gh.write("issue", "close", str(number), "-R", REPO, "--comment",
+                                  f"Done in #{self.mapping[row['ref']]}; it ships with {releases[row['epic']]}.")
+
+    def untriage(self) -> None:
+        for number, issue in sorted(self.published.items()):
+            if TRIAGE_LABEL in issue.labels and (issue.milestone or issue.closed):
+                print(f"triaged #{number}")
+                self.gh.write("issue", "edit", str(number), "-R", REPO, "--remove-label", TRIAGE_LABEL)
+
     def write_epic_ids(self, scope: list[str]) -> None:
         for slug in scope:
             number = self.mapping.get(slug, 0)
@@ -401,6 +440,8 @@ class Sync:
                 {k: found[k] for k in ENTRY_FIELDS if found.get(k)}, ensure_ascii=False, indent=2)
             meta = {k: row[k] for k in TICKET_FIELDS if row.get(k) not in (None, "", [])}
             meta["build_status"] = row["status"]
+            if self.requests.get(row["ref"]):
+                meta["requested_in"] = self.requests[row["ref"]]
             labels = [row["type"]] + (["hitl"] if row["hitl"] else [])
             issues.append(Issue(row["ref"], row["title"], entry_body(found), source, labels,
                                 releases[row["epic"]], meta, raw))
@@ -477,17 +518,55 @@ class Sync:
                           "--field-id", STATUS_FIELD, "--single-select-option-id", wanted)
 
 
+def import_request(args: argparse.Namespace) -> None:
+    tree = Tree(args.project_root.resolve())
+    breakdown = tree.folder / args.epic / "tickets.toml"
+    if not breakdown.exists():
+        sys.exit(f"no epic {args.epic} in the ticket tree")
+    already = [
+        f"{path.parent.name}" for path in tree.folder.glob("epic-*/tickets.toml")
+        if any(int(args.issue) in e.get("requested_in", []) for e in tomllib.loads(path.read_text()).get("entry", []))
+    ]
+    if already:
+        sys.exit(f"issue #{args.issue} is already a ticket in {already[0]}")
+    issue = json.loads(Gh(args.apply).read("issue", "view", args.issue, "-R", REPO, "--json", "title,labels,author"))
+    labels = {label["name"] for label in issue["labels"]}
+    entries = tomllib.loads(breakdown.read_text()).get("entry", [])
+    entry_id = max((e["id"] for e in entries), default=0) + 1
+    title = re.sub(r"^\[[^\]]*\]\s*", "", issue["title"]).strip()
+    kind = args.type or ("bug" if "bug" in labels else "story")
+    description = f"Requested in #{args.issue} by @{issue['author']['login']}: read the request before refining."
+    entry = (
+        f"\n[[entry]]\nid = {entry_id}\ntype = {json.dumps(kind)}\ntitle = {json.dumps(title, ensure_ascii=False)}\n"
+        f"description = {json.dumps(description, ensure_ascii=False)}\n"
+        "covers = []\nafter = []\nhitl = false\nrefine = true\n"
+        f"requested_in = [{args.issue}]\n"
+    )
+    print(f"entry {args.epic} {entry_id}: {title}")
+    print(entry)
+    if args.apply:
+        breakdown.write_text(breakdown.read_text().rstrip("\n") + "\n" + entry)
+    Sync(args).run({})
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("command", nargs="?", choices=["sync", "set"], default="sync")
-    parser.add_argument("ref", nargs="?")
-    parser.add_argument("state", nargs="?", choices=STATES)
+    parser.add_argument("command", nargs="?", choices=["sync", "set", "import"], default="sync")
+    parser.add_argument("ref", nargs="?", help="set: the ticket ref; import: the issue number")
+    parser.add_argument("state", nargs="?", help="set: the state; import: the epic slug")
+    parser.add_argument("--type", choices=["story", "bug", "spike"], help="import: the ticket type")
     parser.add_argument("--project-root", type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument("--apply", action="store_true")
     args = parser.parse_args()
-    if args.command == "set" and not (args.ref and args.state):
-        parser.error("set needs a ticket ref and a state")
-    Sync(args).run({args.ref: args.state} if args.command == "set" else {})
+    if args.command in ("set", "import") and not (args.ref and args.state):
+        parser.error(f"{args.command} needs two arguments")
+    if args.command == "set" and args.state not in STATES:
+        parser.error(f"state must be one of {', '.join(STATES)}")
+    if args.command == "import":
+        args.issue, args.epic = args.ref, args.state
+        import_request(args)
+    else:
+        Sync(args).run({args.ref: args.state} if args.command == "set" else {})
 
 
 if __name__ == "__main__":

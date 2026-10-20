@@ -1,7 +1,7 @@
 name: Lore idea
 description: Suggest a piece of the game's world, the Great Brotherhood of Gameblers and its space terminal.
 title: "[Lore] "
-labels: ["lore"]
+labels: ["lore", "triage"]
 body:
   - type: markdown
     attributes:

@@ -54,4 +54,5 @@ Tickets and their state live on GitHub: one issue per epic and ticket, one miles
 - Run `python3 script/github_board/sync.py --apply` before choosing a ticket, and again after every build, ticket change, or commit of a plan; then pick from `tickets.py next --synced`.
 - Change a ticket's state with `python3 script/github_board/sync.py set <ref> <state> --apply` (backlog, in-progress, review, done, dropped); `tickets.py mark` is refused on this store.
 - Give a new epic a `release` (its milestone, e.g. `0.3.0`) in `tickets.toml` before the sync; the sync stops without one.
+- Issues opened on GitHub arrive with the `triage` label; only the author triages them (a milestone to accept, a close to refuse), and the sync drops the label. Turn an accepted one into a ticket with `python3 script/github_board/sync.py import <issue> <epic-slug> --apply` when the author names its epic; the request stays the requester's issue and closes when its ticket is done.
 - Commit the files the sync lists as `local <path>`, by exact path, with the work that changed them.

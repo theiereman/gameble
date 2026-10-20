@@ -1,7 +1,7 @@
 name: Feature idea
 description: Suggest something new for the game, or a way to make an existing part better.
 title: "[Idea] "
-labels: ["enhancement"]
+labels: ["enhancement", "triage"]
 body:
   - type: markdown
     attributes:

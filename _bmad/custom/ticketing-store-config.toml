@@ -48,6 +48,10 @@ A status change is `python3 script/github_board/sync.py set <ref> <state> --appl
 in-progress, review, done, dropped (dropped closes the issue as not planned). Never `tickets.py mark`: the
 tracker store refuses it. The build's own `status` in the plan is the build's; sync carries its progress to the
 board on its next run.
+An issue opened on GitHub (a player's request, with the `triage` label) becomes a ticket only when the author
+has accepted it and named its epic: `python3 script/github_board/sync.py import <issue> <epic-slug> --apply` adds a
+refine-first entry with `requested_in` to that epic and files the ticket as a new issue linking to the request,
+which sync closes when the ticket is done.
 Commit the files sync changed (it lists them as `local <path>`) on the current branch, by exact path; never push.
 """
 
