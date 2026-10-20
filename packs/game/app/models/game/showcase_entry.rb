@@ -1,10 +1,10 @@
 module Game
   # One card a player chose to show on their profile, at its place among
   # the others (0 first). Written only through the operations of this pack:
-  # adding and removing under the player's bank lock (Game::BankLock), and
-  # a trade's removal of a card given away to the last copy under the
-  # holdings' locks only, so places are renumbered from the rows as they
-  # stand rather than shifted.
+  # adding, removing and moving one place under the player's bank lock
+  # (Game::BankLock), and a trade's removal of a card given away to the last
+  # copy under the holdings' locks only, so places are renumbered from the
+  # rows as they stand rather than shifted.
   class ShowcaseEntry < ApplicationRecord
     self.table_name = "game_showcase_entries"
 

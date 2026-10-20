@@ -534,3 +534,90 @@
   color: var(--color-text-bright);
   overflow-wrap: anywhere;
 }
+
+/* ---- The public profile in brief, above the settings: the avatar and
+   the name leading to the profile, the card count, the chosen cards in
+   100px slots, and who may see the profile ---- */
+
+.settings-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.settings-summary__title,
+.settings-summary__label {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.settings-summary__who {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.settings-summary__avatar {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  box-shadow: var(--pixel-outline-3);
+}
+
+.settings-summary__identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.settings-summary__name {
+  color: var(--color-text-max);
+  font: var(--font-public-title-phone);
+  letter-spacing: var(--tracking-public-title-phone);
+  overflow-wrap: anywhere;
+}
+
+.settings-summary__cards,
+.settings-summary__visibility {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.settings-summary__showcase {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.settings-summary__slot {
+  width: 100px;
+  container-type: inline-size;
+}
+
+.settings-summary__slot > .card-link {
+  display: block;
+  width: 100cqi;
+  height: calc(1.5 * 100cqi);
+}
+
+.settings-summary__visibility-short {
+  display: none;
+}
+
+@media (max-width: 719px) {
+  .settings-summary__visibility-long {
+    display: none;
+  }
+
+  .settings-summary__visibility-short {
+    display: inline;
+  }
+}

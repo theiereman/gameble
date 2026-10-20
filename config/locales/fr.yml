@@ -821,6 +821,8 @@ fr:
         achievements: "Succès"
       showcase:
         title: "Vitrine"
+        move_left: "Déplacer %{title} vers la gauche"
+        move_right: "Déplacer %{title} vers la droite"
       stats:
         title: "Statistiques"
         rarities: "Raretés"
@@ -1007,6 +1009,18 @@ fr:
         label: "Soutenir"
         link: "Soutenir"
       legal: "Mentions légales"
+      summary:
+        title: "Profil public"
+        cards:
+          zero: "%{count} carte"
+          one: "%{count} carte"
+          other: "%{count} cartes"
+        showcase: "Vitrine"
+        visibility:
+          public: "Visible par tous les joueurs"
+          friends_only: "Visible par vos amis seulement"
+          private: "Profil privé : vous seul le voyez"
+          private_short: "Vous seul le voyez"
     private_dialog:
       title: "Passer en privé ?"
       text:
@@ -1881,6 +1895,8 @@ fr:
       card_already_showcased: "Cette carte est déjà dans votre vitrine."
       card_not_showcased: "Cette carte n'est pas dans votre vitrine."
       showcase_full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
+      showcase_edge: "Cette carte ne peut pas aller plus loin."
+      unknown_direction: "Direction inconnue."
     steam:
       invalid_claimed_id: "La réponse de Steam n'a pas été reconnue. Connectez-vous à nouveau."
       sign_in_failed: "La connexion avec Steam n'a pas abouti. Réessayez."

@@ -237,6 +237,19 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h2.hub-showcase__name", "Portal"
   end
 
+  test "a card the player moves to the front of their showcase becomes the hub's VITRINE card" do
+    common, rare = catalog_card_seasons(:common_card_one, :rare_card_one).map(&:id)
+    [ common, rare ].each { Game::Holding.create!(player_id: @player.id, card_season_id: it, quantity: 1) }
+    [ rare, common ].each { Game::AddToShowcase.new.call(player: @player, card_season_id: it).value! }
+    sign_in(@player, origin: "/fr")
+
+    patch card_showcase_path(locale: :fr, slug: "tin-soldier", number: 1), params: { direction: "earlier" }
+    get home_path(locale: :fr)
+
+    assert_select ".hub-showcase__kicker", "Vitrine"
+    assert_select "h2.hub-showcase__name", "Soldat de plomb"
+  end
+
   test "a player holding no tier 4 card sees the empty showcase, its primary opening a booster" do
     hold(fixture_tier_ids.first, gained_at: 1.hour.ago)
     create_pack(@player)

@@ -6,9 +6,9 @@
     <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
   <% end %>
 <% end %>
-<%# Profil et paramètres (EXPERIENCE.md, Settings row; DESIGN.md, Profile and
-    settings): a muted label on the left and a control on the right, one row
-    each. LANGUE is two links to this screen in the other locale (a GET,
+<%# Profil et paramètres: first the public profile in brief
+    (settings/_profile_summary), then the settings, a muted label on the
+    left and a control on the right, one row each. LANGUE is two links to this screen in the other locale (a GET,
     read only, replacing this history entry); ANIMATIONS RÉDUITES is one
     form of three buttons (PATCH, a full page load so `html[data-motion]`
     is re-rendered); SE DÉCONNECTER
@@ -25,6 +25,7 @@
     in a new tab, and the muted "Mentions légales" link closes the list. %>
 <section class="settings" aria-labelledby="settings-heading">
   <h1 id="settings-heading" class="settings__title"><%= t(".title") %></h1>
+  <%= render "settings/profile_summary", player: current_player, card_count: @card_count, showcase: @showcase, visibility: @visibility %>
   <%= render PanelComponent.new(brackets: true, class: "settings__panel") do %>
     <ul class="settings__list">
       <li class="settings-row">

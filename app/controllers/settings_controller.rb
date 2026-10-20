@@ -1,4 +1,6 @@
 class SettingsController < ApplicationController
+  include ChosenCards
+
   # The motion choices the form posts: SYSTÈME (nil, follow the system),
   # OUI (reduced) and NON (an explicit no). Anything else is refused.
   MOTION_CHOICES = { "system" => nil, "on" => true, "off" => false }.freeze
@@ -12,6 +14,8 @@ class SettingsController < ApplicationController
     @next_export_at = current_player.next_export_at
     @open_trades = Game::OpenTradeCount.call(current_player)
     @asks_to_go_private = flash[:confirm_private].present?
+    @card_count = Game::CollectionSummary.call(current_player).distinct_cards
+    @showcase = chosen_cards(current_player)
   end
 
   # PATCH /:locale/settings/visibility

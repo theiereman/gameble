@@ -1,0 +1,36 @@
+<%# The player's public profile in brief, above the settings: the avatar,
+    the name leading to the public profile, how many games they hold, the
+    cards they chose for their showcase in their order (no VITRINE part
+    with none), and who may see the profile. %>
+<%# locals: (player:, card_count:, showcase:, visibility:) %>
+<% strings = CardStrings.new %>
+<%= render PanelComponent.new(tag: :section, class: "settings-summary", aria: { labelledby: "settings-summary-heading" }) do %>
+  <h2 id="settings-summary-heading" class="settings-summary__title"><%= t("settings.show.summary.title") %></h2>
+  <div class="settings-summary__who">
+    <%= pixel_icon("avatar-default", class: "settings-summary__avatar") %>
+    <div class="settings-summary__identity">
+      <%= link_to Accounts::PersonaName.clean(player.persona_name) || t("shell.player.fallback_name"), brother_path(token: player.token), class: "settings-summary__name" %>
+      <p class="settings-summary__cards"><%= t("settings.show.summary.cards", count: card_count) %></p>
+    </div>
+  </div>
+  <% if showcase.any? %>
+    <p id="settings-summary-showcase" class="settings-summary__label"><%= t("settings.show.summary.showcase") %></p>
+    <ul class="settings-summary__showcase" aria-labelledby="settings-summary-showcase">
+      <% showcase.each do |card| %>
+        <li class="settings-summary__slot">
+          <%= link_to_card_detail(card, strings:) do %>
+            <%= render CardComponent.new(card:, size: :grid) %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+  <p class="settings-summary__visibility">
+    <% if visibility == "private" %>
+      <span class="settings-summary__visibility-long"><%= t("settings.show.summary.visibility.private") %></span>
+      <span class="settings-summary__visibility-short"><%= t("settings.show.summary.visibility.private_short") %></span>
+    <% else %>
+      <%= t("settings.show.summary.visibility.#{visibility}") %>
+    <% end %>
+  </p>
+<% end %>

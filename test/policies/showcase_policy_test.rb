@@ -7,12 +7,14 @@ class ShowcasePolicyTest < ActiveSupport::TestCase
 
   test "a visitor may not change a showcase" do
     assert_not policy_for(:visitor).create?
+    assert_not policy_for(:visitor).update?
     assert_not policy_for(:visitor).destroy?
   end
 
   [ :player, :moderator, :administrator ].each do |role|
-    test "a #{role} may add to and remove from their showcase" do
+    test "a #{role} may add to, reorder and remove from their showcase" do
       assert policy_for(role).create?
+      assert policy_for(role).update?
       assert policy_for(role).destroy?
     end
   end

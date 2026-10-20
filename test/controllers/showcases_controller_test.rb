@@ -128,4 +128,89 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
   test "the route takes the slug and the season's number, never an id" do
     assert_equal "/fr/cards/portal/seasons/1/showcase", card_showcase_path(locale: :fr, slug: "portal", number: 1)
   end
+
+  def choose(*fixtures)
+    fixtures.map { catalog_card_seasons(it).id }.each do |id|
+      hold(id)
+      Game::AddToShowcase.new.call(player: @player, card_season_id: id).value!
+    end
+  end
+
+  def profile_path(locale: :en) = brother_path(locale:, token: @player.token)
+
+  test "a move leads back to the profile, names the card and the direction in the flash, and reorders the showcase" do
+    choose(:portal_one, :common_card_one, :uncommon_card_one)
+    sign_in(@player)
+
+    patch showcase_path, params: { direction: "later" }, headers: { "HTTP_REFERER" => profile_path }
+
+    assert_redirected_to profile_path
+    assert_response :see_other
+    assert_nil flash[:alert]
+    assert_equal({ "slug" => "portal", "number" => "1", "direction" => "later" }, flash[:moved_showcase_card])
+    assert_equal catalog_card_seasons(:common_card_one, :portal_one, :uncommon_card_one).map(&:id), chosen
+  end
+
+  test "without a referrer a move leads to the owner's profile; from Turbo too; in JSON it answers no content" do
+    choose(:portal_one, :common_card_one)
+    sign_in(@player)
+
+    patch showcase_path, params: { direction: "later" }
+    assert_redirected_to profile_path
+
+    patch showcase_path, params: { direction: "earlier" }, as: :turbo_stream
+    assert_redirected_to profile_path
+    assert_equal catalog_card_seasons(:portal_one, :common_card_one).map(&:id), chosen
+
+    patch showcase_path, params: { direction: "later" }, as: :json
+    assert_response :no_content
+    assert_equal catalog_card_seasons(:common_card_one, :portal_one).map(&:id), chosen
+  end
+
+  test "a move past the edge, of a card not in the showcase or in no direction is refused with its message and writes nothing" do
+    choose(:portal_one, :common_card_one)
+    sign_in(@player)
+
+    assert_no_changes -> { Game::ShowcaseEntry.order(:id).pluck(:position, :updated_at) + [ Rails.configuration.event_store.read.count ] } do
+      patch showcase_path, params: { direction: "earlier" }, as: :json
+      assert_json_error :unprocessable_content, "showcase_edge", "This card cannot move any further."
+
+      patch showcase_path(slug: "golden-crown"), params: { direction: "later" }, as: :json
+      assert_json_error :unprocessable_content, "card_not_showcased", "This card is not in your showcase."
+
+      patch showcase_path, params: { direction: "up" }, as: :json
+      assert_json_error :unprocessable_content, "unknown_direction", "Unknown direction."
+
+      patch showcase_path(locale: :fr), params: { direction: "earlier" }, as: :turbo_stream
+      assert_response :unprocessable_content
+      assert_toast "Cette carte ne peut pas aller plus loin."
+
+      patch showcase_path, params: { direction: "earlier" }, headers: { "HTTP_REFERER" => profile_path }
+      assert_redirected_to profile_path
+      assert_equal "This card cannot move any further.", flash[:alert]
+      assert_nil flash[:moved_showcase_card]
+    end
+  end
+
+  test "a move of an unknown card is not found" do
+    sign_in(@player)
+
+    patch showcase_path(slug: "no-such-game"), params: { direction: "later" }, as: :json
+    assert_json_error :not_found, "not_found", "This card does not exist."
+
+    patch showcase_path(slug: "no-such-game"), params: { direction: "later" }
+    assert_response :not_found
+  end
+
+  test "a visitor's move is refused like an addition; nothing written" do
+    choose(:portal_one, :common_card_one)
+
+    assert_no_changes -> { chosen } do
+      patch showcase_path, params: { direction: "later" }
+      assert_redirected_to home_path(locale: :en)
+
+      patch showcase_path, params: { direction: "later" }, as: :json
+      assert_json_error :unauthorized, "sign_in_required", I18n.t("authorization.sign_in_required", locale: :en)
+    end
+  end
 end

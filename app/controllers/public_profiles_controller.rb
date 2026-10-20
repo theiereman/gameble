@@ -14,6 +14,7 @@ class PublicProfilesController < ApplicationController
   include PublicRead
   include SetBoardLoading
   include SetAlbumLoading
+  include ChosenCards
 
   before_action :authorize_page
   before_action :load_owner
@@ -24,7 +25,7 @@ class PublicProfilesController < ApplicationController
     @summary = Game::CollectionSummary.call(@owner, season: @season)
     @card_total = Catalog::CardCount.call(@season)
     @achievements = Game::EarnedAchievements.call(@owner)
-    @showcase = chosen_cards
+    @showcase = chosen_cards(@owner)
     load_stats_and_sets if @season
   end
 
@@ -46,15 +47,6 @@ class PublicProfilesController < ApplicationController
       return if Game::Visibility.visible?(current_player, @owner)
 
       render "public_profiles/unavailable", status: :not_found
-    end
-
-    # The cards the owner chose for their showcase, in their order.
-    def chosen_cards
-      ids = Game::ChosenShowcase.call(@owner)
-      return [] if ids.empty?
-
-      views = Catalog::CardViews.call(ids, locale: I18n.locale)
-      ids.filter_map { views[it] }
     end
 
     def load_stats_and_sets

@@ -220,7 +220,7 @@
   container-type: inline-size;
 }
 
-.profile-showcase__slot::after {
+.profile-showcase__slot > .card-link::after {
   content: "";
   position: absolute;
   right: 14px;
@@ -232,9 +232,33 @@
 }
 
 .profile-showcase__slot > .card-link {
+  position: relative;
   display: block;
   width: 100cqi;
   height: calc(1.5 * 100cqi);
+}
+
+/* The owner's ◀ ▶ under each card, below its ground shadow, each column
+   kept when one of them is absent; a touch-sized square at any width. */
+.profile-showcase__moves {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.profile-showcase__move {
+  display: block;
+  width: var(--space-touch-min);
+  margin: 0;
+}
+
+.profile-showcase__move-button {
+  width: var(--space-touch-min);
+  min-width: var(--space-touch-min);
+  min-height: var(--space-touch-min);
+  margin: 0;
+  padding-inline: 0;
 }
 
 @media (max-width: 719px) {
@@ -246,7 +270,7 @@
     width: 100px;
   }
 
-  .profile-showcase__slot::after {
+  .profile-showcase__slot > .card-link::after {
     right: 8px;
     left: 8px;
   }

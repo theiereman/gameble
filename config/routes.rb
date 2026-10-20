@@ -61,8 +61,10 @@ Rails.application.routes.draw do
     get "cards/:slug" => "cards#show", as: :card
     get "cards/:slug/seasons/:number" => "cards#show", as: :card_season, constraints: { number: /\d+/ }
     post "cards/:slug/seasons/:number/repost" => "reposts#create", as: :card_repost
-    # Adding a held card to the player's profile showcase, or taking it out.
+    # Adding a held card to the player's profile showcase, taking it out, or
+    # moving it one place earlier or later.
     post "cards/:slug/seasons/:number/showcase" => "showcases#create", as: :card_showcase
+    patch "cards/:slug/seasons/:number/showcase" => "showcases#update"
     delete "cards/:slug/seasons/:number/showcase" => "showcases#destroy"
 
     # Collecting the daily bonus from the hub.

@@ -784,6 +784,8 @@ en:
         achievements: "Achievements"
       showcase:
         title: "Showcase"
+        move_left: "Move %{title} left"
+        move_right: "Move %{title} right"
       stats:
         title: "Statistics"
         rarities: "Rarities"
@@ -966,6 +968,18 @@ en:
         label: "Support"
         link: "Support"
       legal: "Legal notice"
+      summary:
+        title: "Public profile"
+        cards:
+          zero: "%{count} cards"
+          one: "%{count} card"
+          other: "%{count} cards"
+        showcase: "Showcase"
+        visibility:
+          public: "Visible to every player"
+          friends_only: "Visible to your friends only"
+          private: "Private profile: only you can see it"
+          private_short: "Only you can see it"
     private_dialog:
       title: "Go private?"
       text:
@@ -1832,6 +1846,8 @@ en:
       card_already_showcased: "This card is already in your showcase."
       card_not_showcased: "This card is not in your showcase."
       showcase_full: "Showcase full: remove a card to add another."
+      showcase_edge: "This card cannot move any further."
+      unknown_direction: "Unknown direction."
     steam:
       invalid_claimed_id: "Steam's answer was not recognised. Sign in again."
       sign_in_failed: "The sign-in through Steam did not go through. Try again."

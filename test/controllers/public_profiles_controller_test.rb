@@ -552,6 +552,11 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_request_queries(16) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase .card", held.size
     assert_response :success
+
+    # The owner's move buttons cost nothing more.
+    sign_in(@owner)
+    assert_request_queries(16) { get brother_path(locale: :en, token: @owner.token) }
+    assert_select ".profile-showcase__moves", held.size
   end
 
   test "the summary counts every edition: a game gone from the season, and a set completed through an earlier edition of a member" do
@@ -597,5 +602,109 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "#profile-showcase-heading, .profile-showcase", false
+  end
+
+  def choose_three
+    season = publish_sets_draft
+    cards = set_members(season, "pirates").first(3)
+    cards.each { hold(@owner, it, 1) }
+    cards.each { Game::AddToShowcase.new.call(player: @owner, card_season_id: it).value! }
+    views = Catalog::CardViews.call(cards, locale: :en)
+    cards.map { views.fetch(it) }
+  end
+
+  # Each slot's move buttons as [ accessible name, direction ].
+  def move_buttons
+    css_select(".profile-showcase__slot").map do |slot|
+      slot.css(".profile-showcase__moves form").map { [ it.at_css("button")["aria-label"], it.at_css("input[name=direction]")["value"] ] }
+    end
+  end
+
+  def showcase_slugs = css_select(".profile-showcase__slot > a.card-link").map { it["href"][%r{/cards/([^/]+)/}, 1] }
+
+  def focused = css_select(".profile-showcase [autofocus]").map { it["aria-label"] }
+
+  test "on their own profile the owner moves each card left or right, but not past either end, and the GET writes nothing" do
+    a, b, c = choose_three
+    sign_in(@owner)
+
+    written = written_statements { get brother_path(locale: :en, token: @owner.token) }
+
+    assert_response :success
+    assert_empty written
+    assert_equal [
+      [ [ "Move #{a.title} right", "later" ] ],
+      [ [ "Move #{b.title} left", "earlier" ], [ "Move #{b.title} right", "later" ] ],
+      [ [ "Move #{c.title} left", "earlier" ] ]
+    ], move_buttons
+    assert_equal "/en/cards/#{a.id}/seasons/#{a.season_number}/showcase", css_select(".profile-showcase__moves form").first["action"]
+    assert_select ".profile-showcase__moves form input[name=_method][value=patch]", 4
+    assert_select ".profile-showcase__moves button svg.pixel-icon", 4
+    assert_select ".profile-showcase__moves .profile-showcase__move--none", 2
+    assert_select ".profile-showcase [autofocus]", false
+    assert_select "[style]", false
+  end
+
+  test "the move buttons speak French in French" do
+    choose_three
+    sign_in(@owner)
+
+    get brother_path(locale: :fr, token: @owner.token)
+
+    ids = Game::ChosenShowcase.call(@owner)
+    views = Catalog::CardViews.call(ids, locale: :fr)
+    titles = ids.map { views.fetch(it).title }
+    assert_select "button[aria-label=?]", "Déplacer #{titles.first} vers la gauche", false
+    assert_select "button[aria-label=?]", "Déplacer #{titles.first} vers la droite"
+    assert_select "button[aria-label=?]", "Déplacer #{titles.last} vers la gauche"
+  end
+
+  test "a single chosen card has no move button" do
+    choose_three
+    Game::ChosenShowcase.call(@owner).drop(1).each { Game::RemoveFromShowcase.new.call(player: @owner, card_season_id: it).value! }
+    sign_in(@owner)
+
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_select ".profile-showcase .card", 1
+    assert_select ".profile-showcase__moves", false
+  end
+
+  test "no one but the owner sees a move button: not another player, not staff, not a visitor" do
+    choose_three
+    stranger = Accounts::Player.create!(steam_id: "76561197960390188")
+
+    get brother_path(locale: :en, token: @owner.token)
+    assert_select ".profile-showcase .card", 3
+    assert_select ".profile-showcase__moves, .profile-showcase__move", false
+
+    [ stranger, accounts_players(:moderator), accounts_players(:administrator) ].each do |viewer|
+      sign_in(viewer)
+      get brother_path(locale: :en, token: @owner.token)
+      assert_select ".profile-showcase .card", 3
+      assert_select ".profile-showcase__moves, .profile-showcase__move", false
+    end
+  end
+
+  test "after a move the profile comes back in the new order with the focus on the button pressed, or the card's other one at the edge" do
+    a, b, c = choose_three
+    sign_in(@owner)
+    profile = brother_path(locale: :en, token: @owner.token)
+
+    patch card_showcase_path(locale: :en, slug: a.id, number: a.season_number), params: { direction: "later" }, headers: { "HTTP_REFERER" => profile }
+    assert_redirected_to profile
+    follow_redirect!
+
+    assert_equal [ b, a, c ].map(&:id), showcase_slugs
+    assert_equal [ "Move #{a.title} right" ], focused
+
+    patch card_showcase_path(locale: :en, slug: a.id, number: a.season_number), params: { direction: "earlier" }, headers: { "HTTP_REFERER" => profile }
+    follow_redirect!
+
+    assert_equal [ a, b, c ].map(&:id), showcase_slugs
+    assert_equal [ "Move #{a.title} right" ], focused
+
+    get profile
+    assert_empty focused
   end
 end

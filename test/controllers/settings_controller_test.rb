@@ -563,4 +563,67 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "a.tab-bar__tab[href='/en'][aria-current]", false
   end
+
+  # The public profile in brief
+
+  def summary = css_select("section.settings-summary").sole
+
+  test "above the settings, the public profile in brief: the avatar, the name leading to the profile, the card count, the chosen cards in their order and who may see it" do
+    @player.update_columns(persona_name: "Gabe the Brave")
+    common, rare, portal = catalog_card_seasons(:common_card_one, :rare_card_one, :portal_one).map(&:id)
+    [ common, rare, portal ].each { Game::Holding.create!(player_id: @player.id, card_season_id: it, quantity: 1) }
+    [ rare, common ].each { Game::AddToShowcase.new.call(player: @player, card_season_id: it).value! }
+    sign_in(@player)
+
+    get settings_path(locale: :fr)
+
+    assert_select ".settings > h1 + section.settings-summary + .settings__panel"
+    assert_select summary, "h2#settings-summary-heading", "Profil public"
+    assert_select summary, "svg.pixel-icon.settings-summary__avatar"
+    assert_select summary, "a.settings-summary__name[href=?]", "/fr/brothers/#{@player.token}", text: "Gabe the Brave"
+    assert_select summary, ".settings-summary__cards", "3 cartes"
+    assert_select summary, ".settings-summary__label", "Vitrine"
+    assert_equal [ "/fr/cards/blue-depths/seasons/1", "/fr/cards/tin-soldier/seasons/1" ],
+      css_select(".settings-summary__showcase .settings-summary__slot > a.card-link").map { it["href"] }
+    assert_select summary, ".card.card--grid", 2
+    assert_select summary, ".settings-summary__visibility", "Visible par tous les joueurs"
+    assert_select "[style]", false
+    html = summary.to_html.gsub(/data-card-art-(width|height)-value="\d+"|\/seasons\/\d+|\b(19|20)\d\d\b|\d+ cartes?/, "")
+    [ @player.id, common, rare, portal ].each { assert_no_match(/\b#{it}\b/, html) }
+  end
+
+  test "with no card chosen the summary has no VITRINE part, and a nameless player is named as in the top bar" do
+    sign_in(@player)
+
+    get settings_path(locale: :en)
+
+    assert_select summary, ".settings-summary__name", I18n.t("shell.player.fallback_name", locale: :en)
+    assert_select summary, ".settings-summary__cards", "0 cards"
+    assert_select summary, ".settings-summary__label, .settings-summary__showcase", false
+  end
+
+  {
+    "public" => [ "Visible to every player" ],
+    "friends_only" => [ "Visible to your friends only" ],
+    "private" => [ "Private profile: only you can see it", "Only you can see it" ]
+  }.each do |visibility, lines|
+    test "a #{visibility} profile says who may see it" do
+      @player.update_columns(visibility:)
+      sign_in(@player)
+
+      get settings_path(locale: :en)
+
+      assert_equal lines, css_select(".settings-summary__visibility").sole.then { |line| line.css("span").any? ? line.css("span").map { it.text.squish } : [ line.text.squish ] }
+    end
+  end
+
+  test "the private lines in French, the short one for the phone" do
+    @player.update_columns(visibility: "private")
+    sign_in(@player)
+
+    get settings_path(locale: :fr)
+
+    assert_select ".settings-summary__visibility-long", "Profil privé : vous seul le voyez"
+    assert_select ".settings-summary__visibility-short", "Vous seul le voyez"
+  end
 end
