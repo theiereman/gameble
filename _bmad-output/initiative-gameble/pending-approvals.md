@@ -3,18 +3,18 @@
 Operations and decisions waiting for the author's go-ahead, kept since 2026-10-02. Open items first; settled ones are listed by date at the end.
 
 - **Cloudflare and link previews (epic 4; author 2026-10-08: when production is set up).** When Cloudflare is set up: Bot Fight Mode off, or a WAF skip rule for Discordbot, Twitterbot and WhatsApp on `/*/cards/*` (the share link since story 4.7) and `/*/brothers/*` (public profiles, and the old share links that redirect to the card), or previews fail.
-- **On production, after its next deploy: `bin/rails game:drop_friends_and_trades` (story 5.11, 2026-10-07; run on staging by the author on 2026-10-20).** Closes the trades, friendships and invitations of accounts deleted before 5.11 and of bans set from the console; run once after deploying, and again after any console ban until story 7.5's ban action publishes `Accounts::PlayerBanned`.
-- **On production, after its next deploy: `bin/rails game:backfill_achievements` (2026-10-12; run on staging by the author on 2026-10-20).** Grants, silently, the achievements players met before the achievements engine shipped. Run it right after deploying: until then a veteran's first opening, trade or repost grants their past milestones live, each with a toast and not marked retroactive. A rerun grants nothing twice.
 
 ## Settled on 2026-10-20
 
-Checked by the author on staging on 2026-10-20.
+Settled by the author on 2026-10-20: the staging checks, then the production setup.
 
 - Rescore of the draft with the prestige formula that follows the review count: done, the tiers and the hall of fame sets' rarity mix as expected.
 - The collection on sets in progress (ticket 13.7): progress kept across a new season's publication; the collection entry and `/library/cards` fine on the desktop and the phone.
 - The set album (ticket 13.8): header, set order, missing games, COMPLET stamp, signed-out album, back button labels, return focus and arrow keys confirmed; the best edition per slot, New on the player's own album only and tiers from the cards held now are kept.
 - Every edition counts in the collection (ticket 13.15): one tile per game at its best edition with its copies and editions, counters unchanged by a new season, page time acceptable.
 - Trade filters across both collections (ticket 18.2): checked on the desktop and the phone, placed cards hidden by a chip stay placed, another season's edition is not "Absente de ma collection".
+- Production set up, deployed and its log retention in place (journald drop-in, db accessory rebooted, json-file containers pruned): done by the author.
+- `bin/rails game:drop_friends_and_trades` and `bin/rails game:backfill_achievements`: run by the author on staging and on production. The cleanup is still rerun after any console ban.
 
 ## Settled on 2026-10-19
 
@@ -82,8 +82,6 @@ Settled by the author through the triage page of 2026-10-13.
 
 ## Staging and production (2026-10-06)
 
-- **Production later (after the author validates the MVP on staging).** Fill `config/deploy.production.yml` (VPS address, registry such as ghcr.io), create `.kamal/secrets.production` with its own keys, point gameble.com at the VPS (Cloudflare in Full mode if used), then `bin/kamal deploy -d production`.
-- **Log retention before production (story 7.14, 2026-10-09; author 2026-10-12: with the production setup).** On the production VPS: install the journald drop-in the README gives (30-day retention, `MaxFileSec=1day`), then `bin/kamal accessory reboot db -d production` and `docker container prune -f` after the first deploy, so no container keeps json-file logs. Still to decide then: whether staging's size-rotated json-file logs get an age limit too, and which Sentry plan production uses, so the legal page's "90 days at most, depending on the plan" names the plan's real retention (Developer 30 days, Team 90 days).
 - Staging deployed and the first full real import run there (2026-10-06, 55 min, 12,307 cards); season 1 published on staging with the starting calibration (epic 2 Notes).
 
 ## Settled on 2026-10-06
