@@ -1,7 +1,7 @@
 ---
 epic: epic-easier-trades
 date: 2026-10-20
-verdict: rejected
+verdict: accepted
 criteria: declared
 headless: false
 ---
@@ -75,25 +75,30 @@ The previous epic in build order, `epic-recognizable-sets`, has no retrospective
 
 ## Action items
 
-Proposed, not applied; the author decides what runs.
+Proposed by the retro; the author's decisions of 2026-10-20 are marked on each. Items 1–4 were applied directly, without tickets: the list hides "À choisir" on a closed trade; face batches load two at a time, the latest first, are retried twice with a growing delay and become requestable again after; the faces endpoint is limited to 120 requests a minute on its own counter and asks for 36 keys at most; a draft for someone no longer a friend gets the not-friends refusal instead of a 404.
 
-1. **Fix A + V6**: gate "À choisir" on `row.open?` in `TradesHelper#trade_side_title`, show "—" otherwise, and widen the test. Owner: next `bmad-build` (bug ticket in this epic).
-2. **Fix B + D (+ H)**: cap concurrent face batches in `TradeBoard`, never render or request beyond the page the keyboard jump needs, rate-limit `faces`, and lower the batch size enough to bound the URL. Owner: next `bmad-build` (bug ticket).
-3. **Fix C**: a failed batch's keys become requestable again (retry on next render, or a bounded retry), and a stale session's HTML answer is treated as failure. Owner: same build as 2.
-4. **Fix E**: `new` with a friend no longer befriended returns the `:not_friends` refusal as `create` does. Owner: next `bmad-build` (bug ticket).
-5. **Record S4**: add the 18.6 approval items (empty-side failure code and copy, send reason, open-request cancel toast, neutral wording) to `pending-approvals.md` for the author. Owner: orchestrator, with the author's go-ahead.
-6. **Track S2 on a real phone**: add the 18.4 timings check on staging to `pending-approvals.md`. Owner: author.
-7. **Ship S1**: 18.2–18.5 reach production with the next release (`v0.1.3`). Owner: author.
+1. **Done — Fix A + V6**: gate "À choisir" on `row.open?` in `TradesHelper#trade_side_title`, show "—" otherwise, and widen the test. Owner: next `bmad-build` (bug ticket in this epic).
+2. **Done — Fix B + D (+ H)**: cap concurrent face batches in `TradeBoard`, never render or request beyond the page the keyboard jump needs, rate-limit `faces`, and lower the batch size enough to bound the URL. Owner: next `bmad-build` (bug ticket).
+3. **Done — Fix C**: a failed batch's keys become requestable again (retry on next render, or a bounded retry), and a stale session's HTML answer is treated as failure. Owner: same build as 2.
+4. **Done — Fix E**: `new` with a friend no longer befriended returns the `:not_friends` refusal as `create` does. Owner: next `bmad-build` (bug ticket).
+5. **Dropped by the author — Record S4**: add the 18.6 approval items (empty-side failure code and copy, send reason, open-request cancel toast, neutral wording) to `pending-approvals.md` for the author. Owner: orchestrator, with the author's go-ahead.
+6. **Dropped by the author — Track S2 on a real phone**: add the 18.4 timings check on staging to `pending-approvals.md`. Owner: author.
+7. **Waived by the author — Ship S1**: 18.2–18.5 reach production with the next release (`v0.1.3`). Owner: author.
 8. **Name V1–V4 in 7.39** so the rebuilt system tests cover the open-request send, filters across reopenings, the phone fold and face paging. Owner: `bmad-ticket` refine of 7.39.
 9. **Process lesson**: a refactor sweep must not drop a ticket's "for the author to approve" items as done; it moves them to `pending-approvals.md`. Owner: orchestration process.
 10. **Process lesson**: ticket 18.4 changed a fetching model and got a quick review; the two defects that cross 18.4 and 18.5 (B, C) are the kind a thorough review's edge-case lens finds. Pin thorough review for tickets that change how the client loads data. Owner: orchestration process.
 
 ## Acceptance verdict
 
-**Machine verdict: rejected.** Every ticket is finished, and Done when 1–5 are met in the evidence (S2, S3 with recorded caveats), but Done when 6 ("Shipped to production") fails for 18.2–18.5, which are only in the pre-release `v0.1.3-rc.1` (S1). Fix-now findings A–E stand open. Criteria declared in the epic file. No human decision recorded yet; until then the epic is not accepted.
+**Accepted**, by the author's decision on 2026-10-20, overriding the machine verdict.
+
+- Machine verdict: rejected. Every ticket is finished and Done when 1–5 are met in the evidence (S2, S3 with their caveats), but Done when 6 ("Shipped to production") fails for 18.2–18.5, which are only in the pre-release `v0.1.3-rc.1` (S1).
+- Author: a production release is not needed for this epic; Done when 6 is waived.
+- Fix-now findings A–E were fixed the same day in one follow-up commit (see Action items). Criteria declared in the epic file.
 
 ## Open questions
 
-- Does the author accept the epic as **accepted-with-open-items** now, with S1 closed by the next release and A–E as follow-up bugs, or hold it until `v0.1.3` ships?
-- I: should a counter that leaves the sender's own side empty reset the trade's expiry, or should repeated empty counters be bounded?
-- F: is a reload after a refused send "the same trade" for keeping picker filters?
+Answered by the author on 2026-10-20:
+
+- I: no; a counter that leaves the sender's side empty keeps resetting the expiry, unbounded.
+- F: no; a reload after a refused send is not the same trade, and the picker filters reset.
