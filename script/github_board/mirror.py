@@ -74,11 +74,62 @@ def _shell(arg: str) -> str:
     return arg if re.fullmatch(r"[\w.,:/=@#-]+", arg) else json.dumps(arg)
 
 
-def relations(gh: Gh, number: str) -> dict:
+SNAPSHOT_QUERY = """
+query($owner: String!, $name: String!, $after: String) {
+  repository(owner: $owner, name: $name) {
+    issues(first: 50, after: $after) {
+      pageInfo { hasNextPage endCursor }
+      nodes {
+        number state stateReason body
+        labels(first: 30) { nodes { name } }
+        parent { number }
+        blockedBy(first: 100) { nodes { number } }
+        projectItems(first: 10) {
+          nodes {
+            id project { id }
+            fieldValueByName(name: "Status") { ... on ProjectV2ItemFieldSingleSelectValue { optionId } }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
+
+class Published(NamedTuple):
+    closed: bool
+    reason: str
+    body: str
+    labels: set[str]
+    parent: int | None
+    blocked_by: set[int]
+    item_id: str | None
+    status_option: str | None
+
+
+def snapshot(gh: Gh) -> dict[int, Published]:
     owner, name = REPO.split("/")
-    query = (f'{{repository(owner:"{owner}",name:"{name}"){{issue(number:{number})'
-             '{parent{number} blockedBy(first:100){nodes{number}}}}}')
-    return json.loads(gh.read("api", "graphql", "-f", f"query={query}"))["data"]["repository"]["issue"]
+    published: dict[int, Published] = {}
+    after: list[str] = []
+    while True:
+        page = json.loads(gh.read("api", "graphql", "-f", f"query={SNAPSHOT_QUERY}", "-F", f"owner={owner}",
+                                  "-F", f"name={name}", *after))["data"]["repository"]["issues"]
+        for node in page["nodes"]:
+            item = next((i for i in node["projectItems"]["nodes"] if i["project"]["id"] == PROJECT_ID), None)
+            published[node["number"]] = Published(
+                closed=node["state"] == "CLOSED",
+                reason=node["stateReason"] or "",
+                body=node["body"],
+                labels={label["name"] for label in node["labels"]["nodes"]},
+                parent=(node["parent"] or {}).get("number"),
+                blocked_by={b["number"] for b in node["blockedBy"]["nodes"]},
+                item_id=item and item["id"],
+                status_option=item and (item["fieldValueByName"] or {}).get("optionId"),
+            )
+        if not page["pageInfo"]["hasNextPage"]:
+            return published
+        after = ["-f", f"after={page['pageInfo']['endCursor']}"]
 
 
 def tickets(project_root: Path, folder: Path, *args: str) -> dict:
@@ -236,14 +287,16 @@ def main() -> None:
         if args.apply:
             args.map.write_text(json.dumps(mapping, indent=2, sort_keys=True) + "\n")
 
-    published = {}
-    if args.apply:
-        listed = gh.read("issue", "list", "-R", REPO, "--state", "all", "--limit", "1000", "--json", "number,body")
-        published = {i["number"]: i["body"] for i in json.loads(listed)}
+    published = snapshot(gh)
+    absent = Published(False, "", "", set(), None, set(), None, None)
+
+    def on_github(ref: str) -> Published:
+        return published.get(mapping[ref], absent)
+
     for issue in issues:
         number = mapping[issue.ref]
         wanted = rendered(issue)
-        if published.get(number, "").strip() != wanted.strip():
+        if on_github(issue.ref).body.strip() != wanted.strip():
             print(f"body {issue.ref}")
             gh.write("issue", "edit", str(number), "-R", REPO, "--body", wanted)
 
@@ -251,13 +304,12 @@ def main() -> None:
         number = str(mapping[row["ref"]])
         same_epic = row["ref"].split(".")[0]
         refs = [a if isinstance(a, str) and "." in a else f"{same_epic}.{a}" for a in row["after"]]
-        blockers = [str(mapping[r]) for r in refs if r in mapping]
-        current = relations(gh, number) if args.apply else {"parent": None, "blockedBy": {}}
+        blockers = [mapping[r] for r in refs if r in mapping]
+        current = on_github(row["ref"])
         edit = []
-        if not current.get("parent"):
+        if current.parent is None:
             edit += ["--parent", str(mapping[row["epic"]])]
-        known = {str(b["number"]) for b in (current.get("blockedBy") or {}).get("nodes", [])}
-        missing = [b for b in blockers if b not in known]
+        missing = [str(b) for b in blockers if b not in current.blocked_by]
         if missing:
             edit += ["--add-blocked-by", ",".join(missing)]
         if edit:
@@ -266,18 +318,32 @@ def main() -> None:
 
     def sync_state(ref: str, state: str) -> None:
         number = str(mapping[ref])
-        print(f"state {ref} -> {board_status(state, ref, ready)}")
+        current = on_github(ref)
+        column = board_status(state, ref, ready)
         if state in FINISHED:
-            reason = ["--reason", "not planned"] if state == "dropped" else []
-            gh.write("issue", "close", number, "-R", REPO, *reason)
+            reason = "NOT_PLANNED" if state == "dropped" else "COMPLETED"
+            if not current.closed or current.reason != reason:
+                print(f"close {ref}")
+                gh.write("issue", "close", number, "-R", REPO, *(["--reason", "not planned"] if state == "dropped" else []))
         else:
+            if current.closed:
+                print(f"reopen {ref}")
+                gh.write("issue", "reopen", number, "-R", REPO)
             label = "backlog" if state == "planned" else state
-            others = ",".join(l for l in STATE_LABELS if l != label)
-            gh.write("issue", "edit", number, "-R", REPO, "--add-label", label, "--remove-label", others)
-        item = gh.write("project", "item-add", PROJECT_NUMBER, "--owner", OWNER,
-                        "--url", f"https://github.com/{REPO}/issues/{number}", "--format", "json", "-q", ".id").strip()
-        gh.write("project", "item-edit", "--project-id", PROJECT_ID, "--id", item or "<item id>",
-                 "--field-id", STATUS_FIELD, "--single-select-option-id", STATUS_OPTION[board_status(state, ref, ready)])
+            stale = sorted(current.labels & set(STATE_LABELS) - {label})
+            if label not in current.labels or stale:
+                print(f"label {ref} -> {label}")
+                gh.write("issue", "edit", number, "-R", REPO, "--add-label", label,
+                         *(["--remove-label", ",".join(stale)] if stale else []))
+        item = current.item_id
+        if item is None:
+            print(f"board add {ref}")
+            item = gh.write("project", "item-add", PROJECT_NUMBER, "--owner", OWNER, "--url",
+                            f"https://github.com/{REPO}/issues/{number}", "--format", "json", "-q", ".id").strip()
+        if current.status_option != STATUS_OPTION[column]:
+            print(f"board {ref} -> {column}")
+            gh.write("project", "item-edit", "--project-id", PROJECT_ID, "--id", item or "<item id>",
+                     "--field-id", STATUS_FIELD, "--single-select-option-id", STATUS_OPTION[column])
 
     for slug in scope:
         sync_state(slug, "done" if epics[slug].get("status") == "done" else "in-progress")
