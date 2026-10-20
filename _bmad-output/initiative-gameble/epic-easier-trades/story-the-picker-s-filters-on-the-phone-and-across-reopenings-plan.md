@@ -3,7 +3,7 @@ title: "The picker's filters on the phone and across reopenings"
 type: 'feature'
 ticket: '3'
 created: '2026-10-19'
-status: 'built'
+status: done
 baseline_revision: 'ebeaea4045b3e8df40f59b104c0bae3bf91340fe'
 route: 'full'
 route_source: 'auto'

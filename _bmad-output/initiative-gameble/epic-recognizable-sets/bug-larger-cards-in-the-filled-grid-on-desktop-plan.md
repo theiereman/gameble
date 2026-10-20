@@ -3,7 +3,7 @@ title: 'Larger cards in the filled grid on desktop'
 type: 'bugfix'
 ticket: '20'
 created: '2026-10-19'
-status: 'built'
+status: done
 baseline_revision: '64970ee9ba7d5c2b50cdc3491c2578316da3932a'
 route: 'oneshot'
 route_source: 'auto'

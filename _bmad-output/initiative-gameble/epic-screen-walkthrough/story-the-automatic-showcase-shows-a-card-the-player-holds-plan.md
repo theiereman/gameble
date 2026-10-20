@@ -3,7 +3,7 @@ title: 'The automatic showcase shows a card the player holds'
 type: 'bugfix'
 ticket: 8
 created: '2026-10-19'
-status: 'built'
+status: done
 baseline_revision: '32fee1d122754f42610d4e35418a8912af0ef370'
 route: 'full'
 route_source: 'auto'

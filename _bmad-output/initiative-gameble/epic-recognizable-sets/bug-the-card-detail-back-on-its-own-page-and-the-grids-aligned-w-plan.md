@@ -3,7 +3,7 @@ title: 'The card detail back on its own page, and the grids aligned with the scr
 type: 'bugfix'
 ticket: '25'
 created: '2026-10-19'
-status: 'built'
+status: done
 baseline_revision: 'df8eca55ef6eb1e24c377ae1645c4ebdee8f2514'
 route: 'full'
 route_source: 'auto'

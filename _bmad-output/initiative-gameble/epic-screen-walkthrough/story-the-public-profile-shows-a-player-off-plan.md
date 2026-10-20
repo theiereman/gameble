@@ -3,7 +3,7 @@ title: 'The public profile shows a player off'
 type: 'feature'
 ticket: 3
 created: '2026-10-19'
-status: 'built'
+status: done
 baseline_revision: '6b7a9557bf63f8321002e314a1cdb98c7ee46bfe'
 route: 'full'
 route_source: 'auto'

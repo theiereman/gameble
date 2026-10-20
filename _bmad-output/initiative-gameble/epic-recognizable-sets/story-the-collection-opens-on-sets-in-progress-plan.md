@@ -3,7 +3,7 @@ title: 'The collection opens on sets in progress'
 type: 'feature'
 ticket: '7'
 created: '2026-10-17'
-status: 'built'
+status: done
 baseline_revision: 'f0769610adc54b9e9568edd7264c031c9db2623b'
 route: 'full'
 route_source: 'auto'

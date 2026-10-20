@@ -3,7 +3,7 @@ title: 'Every edition counts in the collection'
 type: 'feature'
 ticket: '15'
 created: '2026-10-18'
-status: 'built'
+status: done
 baseline_revision: '4057fc00e053cb26e23aea280e5a8c6f74942dd8'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'The card detail beside the grid on tablet and desktop'
 type: 'feature'
 ticket: '14'
 created: '2026-10-19'
-status: 'built'
+status: dropped
 baseline_revision: 'dc48b5b24e2afc02ed43ea44047680fd3c896fab'
 route: 'full'
 route_source: 'auto'

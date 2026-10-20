@@ -3,7 +3,7 @@ title: "The set album's header simplified and its cards across the full width"
 type: 'bugfix'
 ticket: '19'
 created: '2026-10-19'
-status: 'built'
+status: done
 baseline_revision: 'ebeaea4045b3e8df40f59b104c0bae3bf91340fe'
 route: 'full'
 route_source: 'auto'

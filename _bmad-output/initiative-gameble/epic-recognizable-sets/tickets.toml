@@ -195,6 +195,7 @@ covers = ["R7"]
 after = [7]
 hitl = false
 risk = "low"
+notes = ["Review (author, 2026-10-20): the set search results must show before EN COURS, not after it; everything else accepted."]
 
 [[entry]]
 id = 20

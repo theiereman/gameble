@@ -3,7 +3,7 @@ title: 'A light trade board with thousands of cards'
 type: 'feature'
 ticket: '4'
 created: '2026-10-19'
-status: 'built'
+status: done
 baseline_revision: '5bf2a4dd210bc08c216361b0a04656461ebe44ef'
 route: 'full'
 route_source: 'auto'

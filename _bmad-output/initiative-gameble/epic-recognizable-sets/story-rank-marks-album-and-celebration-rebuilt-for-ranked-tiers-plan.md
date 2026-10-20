@@ -3,7 +3,7 @@ title: 'Rank marks, album and celebration rebuilt for ranked tiers'
 type: 'feature'
 ticket: '23'
 created: '2026-10-19'
-status: 'built'
+status: done
 baseline_revision: '47dfa417570a430382b24a089feea3cf59e660ba'
 route: 'full'
 route_source: 'auto'

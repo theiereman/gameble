@@ -3,7 +3,7 @@ title: 'The card grid fills its row'
 type: 'feature'
 ticket: '13'
 created: '2026-10-19'
-status: 'built'
+status: done
 baseline_revision: '60d659efe2063e36f303b152f7c34349c39f75bc'
 route: 'full'
 route_source: 'auto'

@@ -3,7 +3,7 @@ title: 'The set album'
 type: 'feature'
 ticket: '8'
 created: '2026-10-17'
-status: 'built'
+status: done
 baseline_revision: 'b1dcf6e5f91e81f2dd031179a2df4b031dbdddff'
 route: 'full'
 route_source: 'auto'

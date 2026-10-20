@@ -3,7 +3,7 @@ title: 'The card detail column waits as an empty detail, and a tablet held uprig
 type: 'bugfix'
 ticket: '24'
 created: '2026-10-19'
-status: 'built'
+status: dropped
 baseline_revision: '273ecdd51d160c6c3c60984649574fe556f7565a'
 route: 'full'
 route_source: 'auto'
