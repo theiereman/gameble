@@ -1,7 +1,7 @@
 ---
 epic: epic-recognizable-sets
 date: 2026-10-20
-verdict: rejected
+verdict: accepted
 criteria: declared
 headless: false
 ---
@@ -70,15 +70,15 @@ These come from `bmad-review` (adversarial, edge-case, verification-gap); T1, T2
   - The album and the sets in progress derive the tier from current holdings (`set_standing.rb:19-21`, `set_album_loading.rb:19`).
   - The feed, the celebration, the export and the achievements read `game_set_tiers`.
   - `SetTier`'s own comment says "a tier stays reached when cards leave". After a trade, the album mark drops while the feed still says ADEPT.
-  - Disposition: open question.
+  - Disposition: answered by the author (2026-10-20): the album keeps following current holdings; the tier rows stay a record of what was reached.
 - **T4. "Completion only below `SMALLEST_TIERED`" is applied in two places and missing in three.**
   - Applied: `pack_set_tiers.rb:25` and `set_rows_helper.rb:42`.
   - Missing: `set_tier.rb:43`, `set_standing.rb:13-21` and `set_rows_helper.rb:30-36`.
   - It only bites on a season published before 47dfa417. No test covers a set under 5 cards in `PackSetTiers`.
   - Disposition: fix now, one rule.
 - **T5. "Reaches N tiers" counts sets, not tiers.** The feed uses `COUNT(DISTINCT set_id)` (`feed_entry.rb:55`) and the folded banner uses `results.length` (`celebration.ts:122-123`). Two tiers in one set are under-counted. Disposition: fix now.
-- **T6. The feed and the celebration break a tie between sets differently.** The feed orders by set id (`feed_entry.rb:52`), the celebration by name in the locale (`celebration.ts:77`). Disposition: defer, low.
-- **T7. A tier reached by a trade is never celebrated** (`pack_set_tiers.rb:16`, `where(pack_id:)`). Disposition: accept as intended unless the author says otherwise.
+- **T6. The feed and the celebration break a tie between sets differently.** The feed orders by set id (`feed_entry.rb:52`), the celebration by name in the locale (`celebration.ts:77`). Disposition: fixed with T2 (the celebration keeps the server's order of sets).
+- **T7. A tier reached by a trade is never celebrated** (`pack_set_tiers.rb:16`, `where(pack_id:)`). Disposition: accepted as intended by the author (2026-10-20).
 - **T8. The decision to celebrate in `Booster.tsx` is untested** (`:347-356`, `:514`, `:544`, `:364-369`). Disposition: defer to 7.39.
 
 ### Diff-scope review: set domain
@@ -108,7 +108,7 @@ These come from `bmad-review` (adversarial, edge-case, verification-gap); T1, T2
   - Disposition: defer; measure once a season adds a second large edition.
 - **C7. Smaller issues** (the remembered album on friends' albums, `aria-current` on a row that is not the page, the "◀ Grille" label for an album, the status line overstating the listed results, EN COURS capped at 10 without saying so). Disposition: defer, low.
 - **C8. Dead code and banned ids.**
-  - `Game::Quantities` has no caller left.
+  - `Game::Quantities` has no caller left. Corrected while fixing: `Game::RepostCard` still calls it, so it stays.
   - `collection_summary.rb:2` reads "(CAP-8)", added in 90f898cf.
   - `card_details_helper.rb:75` describes a set context that no longer exists.
   - Disposition: fix now.
@@ -184,7 +184,7 @@ Proposed; the author decides what runs.
 
 ## Acceptance verdict
 
-**Machine verdict: rejected.** No human decision has been recorded yet.
+**Verdict: accepted, by the author (2026-10-20).** The machine verdict was rejected for the reasons below; the author accepted the epic as it stands and asked for the fixes to run at once.
 
 - Every ticket is finished, and Done when 3, 5 and 6 are met in the evidence.
 - Done when 2 is superseded by the author (S1).
@@ -195,6 +195,18 @@ Proposed; the author decides what runs.
 
 ## Open questions
 
-- Does the author accept the epic now (**accepted-with-open-items**), with S2 and S3 left to the next staging publication and the fix-now items run as follow-ups, or hold it until then?
-- T3: once reached, does a tier stay shown in the album when cards leave (as `SetTier` says), or does the album follow current holdings (as it does today)?
-- T7: should a tier reached through a trade be celebrated somewhere for the player who reached it?
+Answered by the author on 2026-10-20:
+
+- Acceptance: everything is accepted now.
+- T3: no; the album keeps following current holdings.
+- T7: no; a tier reached through a trade stays uncelebrated.
+- Fixes: run them directly.
+
+## Follow-up applied
+
+- Actions 1–3 (T2, T4, T5, with T6): 06101a04. Tier rows keep the cards held (`game_set_tiers.held`, nullable, older rows fall back to the threshold). The celebration and its announcement show that count. The feed and the folded banner count tiers. One rule, `Catalog::TierTable.tiered?`, gives a set under five cards completion alone in recording, standing, ticks and the answer.
+- Action 4 (D1): 359d9fe4. `Catalog::UnfilledSources` refuses publishing and flags the preview for a card with no review count or a genre that is no theme (code `unfilled_sources`, replacing `unknown_theme`).
+- Action 5 (C1, C2): 3b22f2dd. Every album slot opens the set's own card-season with the set as context. A player's album passes their token (`brother`), so ◀ ▶, the way back and the faded backs follow that player.
+- Action 6 (C8): 3b22f2dd drops "(CAP-8)", the stale grid comment and the helper's AD ids. About 500 more planning ids remain in 320 files outside this epic, left to `epic-human-readable-codebase`.
+- Actions 7–8: notes added to 17.1 (T1) and 7.39 (T8, C9).
+- Still open, as the author waived them: S2 and S3 (staging evidence), action 10 (reconcile Done when 2 and R7), and the low deferrals T6 aside (D2, C3–C7).

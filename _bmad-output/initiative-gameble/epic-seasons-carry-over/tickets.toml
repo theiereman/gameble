@@ -10,6 +10,7 @@ covers = ["R2", "R3", "R5"]
 after = ["13.5", "13.6", "epic-human-readable-codebase"]
 hitl = false
 risk = "medium"
+notes = ["From the sets epic retrospective (2026-10-20): today the first credit in a new season records, through Game::SetTier.record, every tier the player already meets, as tier events with a feed line and a celebration crossing every tick (a player at 45/62 opening one member card gets novice to expert at once); a set already complete through earlier editions has no complete row until a member is credited again. This story's receipt must run before that recording so the burst never happens."]
 
 [[entry]]
 id = 2
