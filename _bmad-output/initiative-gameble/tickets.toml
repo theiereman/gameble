@@ -43,6 +43,7 @@ after = [{ epic = 4, needs = "the collection, card detail, profile and share scr
 
 [[epic]]
 id = 7
+release = "0.2.0"
 slug = "epic-public-launch-readiness"
 title = "Ready for the public"
 covers = ["CAP-14", "CAP-15"]
@@ -57,6 +58,7 @@ after = [{ epic = 7, needs = "Game::Visibility and the visibility setting" }, { 
 
 [[epic]]
 id = 6
+release = "0.2.0"
 slug = "epic-brotherhood"
 title = "The Brotherhood"
 covers = ["CAP-12", "CAP-13", "CAP-17", "CAP-19"]
@@ -64,6 +66,7 @@ after = [{ epic = 7, needs = "Game::Visibility, bans and the feed's hidden profi
 
 [[epic]]
 id = 20
+release = "0.3.0"
 slug = "epic-visitor-landing"
 title = "Visitors meet gameble"
 covers = ["CAP-1", "CAP-13", "CAP-24", "CAP-25"]
@@ -85,6 +88,7 @@ after = [{ epic = 5, needs = "the trades screen, the trade board island and its 
 
 [[epic]]
 id = 11
+release = "0.4.0"
 slug = "epic-season-preparation"
 title = "Season preparation"
 covers = ["CAP-2", "CAP-3", "CAP-6"]
@@ -92,6 +96,7 @@ after = [{ epic = 2, needs = "the import runs, the draft season and the publicat
 
 [[epic]]
 id = 14
+release = "0.4.0"
 slug = "epic-card-catalog"
 title = "Every card of the game, browsable and searchable"
 covers = ["CAP-6", "CAP-7", "CAP-18"]
@@ -99,6 +104,7 @@ after = [{ epic = 20, needs = "the landing's shell (20.2), for the visitor's way
 
 [[epic]]
 id = 16
+release = "0.4.0"
 slug = "epic-screen-walkthrough"
 title = "Every screen walked through before the release"
 covers = []
@@ -120,6 +126,7 @@ after = [{ epic = 12, needs = "the public release" }, { epic = 13, needs = "the 
 
 [[epic]]
 id = 17
+release = "0.5.0"
 slug = "epic-seasons-carry-over"
 title = "Seasons carry over"
 covers = ["CAP-23"]
@@ -134,6 +141,7 @@ after = [{ epic = 12, needs = "the public release, with every back-office page w
 
 [[epic]]
 id = 19
+release = "0.5.0"
 slug = "epic-special-packs"
 title = "Special packs stand apart"
 covers = ["CAP-4", "CAP-5", "CAP-12", "CAP-16"]
