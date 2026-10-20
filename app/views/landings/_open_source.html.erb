@@ -1,0 +1,24 @@
+<section class="landing-module landing-open-source">
+  <%= landing_module_heading(:open_source, id: "landing-open-source") %>
+  <p class="landing-module__subtitle"><%= t("landings.show.open_source.subtitle") %></p>
+  <h3 class="landing-open-source__recruiting"><%= t("landings.show.open_source.recruiting") %></h3>
+  <ul class="landing-roles">
+    <% %w[artists narrators developers].each do |role| %>
+      <li class="landing-role">
+        <%= render PanelComponent.new(class: "landing-role__panel") do %>
+          <p class="landing-kicker">
+            <span class="landing-light" aria-hidden="true"></span>
+            <span><%= t("landings.show.open_source.open_role") %></span>
+          </p>
+          <h4 class="landing-role__title"><%= t("landings.show.open_source.roles.#{role}.title") %></h4>
+          <p class="landing-small"><%= t("landings.show.open_source.roles.#{role}.text") %></p>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+  <div class="landing-open-source__foot">
+    <%= external_link_to t("landings.show.open_source.project"), ExternalLinksHelper::SOURCE_CODE_URL, button: true,
+      hint: t("landings.show.open_source.project_hint"), class: "button button--secondary landing-open-source__project" %>
+    <p class="landing-small"><%= t("landings.show.open_source.license") %></p>
+  </div>
+</section>

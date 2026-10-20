@@ -149,6 +149,20 @@
   --font-body-small: 700 0.75rem / 1.125rem var(--font-family-jetbrains-mono);
   --tracking-body-small: normal;
 
+  /* The landing's own styles. */
+  --font-landing-hook-medium: 400 2.625rem / 2.625rem var(--font-family-vt323);
+  --tracking-landing-hook-medium: 2px;
+  --font-landing-module-title: 400 2.75rem / 3rem var(--font-family-vt323);
+  --tracking-landing-module-title: 2px;
+  --font-landing-module-title-phone: 400 2rem / 2.25rem var(--font-family-vt323);
+  --tracking-landing-module-title-phone: 2px;
+  --font-landing-tile-title: 700 0.8125rem / normal var(--font-family-jetbrains-mono);
+  --tracking-landing-tile-title: 1px;
+  --font-landing-figure: 700 1rem / normal var(--font-family-jetbrains-mono);
+  --tracking-landing-figure: normal;
+  --font-landing-figure-small: 700 0.875rem / normal var(--font-family-jetbrains-mono);
+  --tracking-landing-figure-small: normal;
+
   /* ---- Shape ---- */
   --rounded: 0px;
 
@@ -176,6 +190,7 @@
   --space-button-height-sm: 34px;
   --space-button-height-phone: 48px;
   --space-button-height-sm-phone: 44px;
+  --space-button-height-lg: 52px;
   --space-chip-height: 34px;
   --space-chip-height-touch: 44px;
   --space-touch-min: 44px;
@@ -196,6 +211,14 @@
   --space-grid-card-min: 140px;
   --space-deal-gap-max: 14px;
   --space-deal-gap-min: 8px;
+  --space-landing-content-max: 1120px;
+  --space-landing-module-gap: 112px;
+  --space-landing-module-gap-phone: 64px;
+  --space-landing-hero-height: 500px;
+  --space-landing-illustration-height: 224px;
+  --space-landing-illustration-height-phone: 184px;
+  --space-landing-example-min-height: 176px;
+  --space-landing-step-marker: 46px;
   /* Short aliases of the chrome heights, as DESIGN names them. */
   --topbar-height: var(--space-topbar-height);
   --tabbar-height: var(--space-tabbar-height);

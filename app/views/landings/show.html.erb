@@ -1,0 +1,18 @@
+<% content_for :public_page, true %>
+<% content_for :title, t("landings.show.title") %>
+<% content_for :page_footer do %>
+  <%= render "landings/footer" %>
+<% end %>
+<% covers = landing_covers(@samples) %>
+<div class="landing">
+  <%= render "landings/hero" %>
+  <%= render "landings/concept", samples: @samples %>
+  <%= render "landings/brotherhood", covers: covers %>
+  <%= render "landings/how", samples: @samples, covers: covers %>
+  <%= render "landings/live" %>
+  <%= render "landings/unlock", covers: covers %>
+  <%= render "landings/roadmap" %>
+  <%= render "landings/open_source" %>
+  <%= render "landings/free" %>
+  <%= render "landings/boarding" %>
+</div>

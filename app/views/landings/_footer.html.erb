@@ -1,0 +1,13 @@
+<footer class="landing-footer">
+  <div class="landing-footer__inner">
+    <%= pixel_icon("wordmark", class: "landing-footer__wordmark") %>
+    <ul class="landing-footer__links">
+      <li><%= link_to t("landings.show.footer.legal"), legal_path, class: "landing-footer__link" %></li>
+      <li><%= external_link_to t("landings.show.footer.support"), ExternalLinksHelper::DONATION_URL,
+        hint: t("landings.show.free.support.hint"), class: "landing-footer__link" %></li>
+      <li><%= external_link_to t("landings.show.footer.source"), ExternalLinksHelper::SOURCE_CODE_URL,
+        hint: t("landings.show.footer.source_hint"), class: "landing-footer__link" %></li>
+    </ul>
+    <p class="landing-footer__notice"><%= t("landings.show.footer.notice") %></p>
+  </div>
+</footer>

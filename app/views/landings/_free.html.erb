@@ -1,0 +1,16 @@
+<section class="landing-module landing-free">
+  <%= landing_module_heading(:free, id: "landing-free") %>
+  <div class="landing-free__columns">
+    <p class="landing-free__text"><%= t("landings.show.free.open") %></p>
+    <p class="landing-free__text"><%= t("landings.show.free.respect") %></p>
+  </div>
+  <%= render PanelComponent.new(brackets: true, class: "landing-support landing-hazard") do %>
+    <div class="landing-support__copy">
+      <p class="landing-kicker"><%= t("landings.show.free.support.kicker") %></p>
+      <h3 class="landing-support__line"><%= t("landings.show.free.support.line") %></h3>
+      <p class="landing-body"><%= t("landings.show.free.support.text") %></p>
+    </div>
+    <%= external_link_to t("landings.show.free.support.button"), ExternalLinksHelper::DONATION_URL, button: true,
+      hint: t("landings.show.free.support.hint"), class: "button button--primary landing-support__button" %>
+  <% end %>
+</section>

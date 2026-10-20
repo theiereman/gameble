@@ -1404,6 +1404,183 @@ en:
       title: "Goal reached"
       collected: "Management thanks you for your contribution. A rare capsule has been added to your reserve."
       throttled: "Too many attempts in a minute. Try again in a moment."
+  landings:
+    show:
+      title: "gameble"
+      unknown: "—"
+      hero:
+        kicker: "Mission in progress"
+        hook: "Games have been lost. The Brotherhood sets out to find them. Join it."
+        line: "gameble is a collectible card game built on the public library of Steam games."
+        embark: "Board the bridge"
+        embark_label: "Board the bridge, visit the game without an account"
+      concept:
+        label: "01 · Concept"
+        title: "Every card is a Steam game."
+        subtitle: "Games are hand-picked and imported on one simple principle: the more popular a game, the rarer its card."
+        cards_label: "The five rarities, from the most common to the rarest"
+        per_card: "%{percent} per card"
+        notes:
+          rarities:
+            title: "Five rarities"
+            text: "From the most common to the legendary."
+          alive:
+            title: "Rarer, livelier"
+            text: "The rarer the card, the more it comes alive."
+          seasons:
+            title: "One rarity per season"
+            text: "Every season, rarities are calculated anew."
+      brotherhood:
+        label: "02 · The Brotherhood"
+        title: "The Great Brotherhood of Gameblers"
+        subtitle: "Your presence is more than necessary. The Brotherhood moves forward together, week after week, and its story is written with its members."
+        lore:
+          kicker: "Archive 001"
+          title: "The Brotherhood's chronicle"
+          call: "The rest is written with you. The Brotherhood is looking for narrators and scribes to bring its story to life."
+          link: "Take part in the writing"
+        goal:
+          kicker: "This week"
+          title: "One goal for all"
+          text: "Every capsule opened and every trade concluded moves the same gauge. Goal reached: every participant is rewarded."
+        tiles:
+          discover:
+            title: "Discover"
+            text: "The first player to draw a game engraves their name on it, for the whole Brotherhood."
+            chip: "First discovery"
+          trade:
+            title: "Trade"
+            text: "Your duplicates make a friend happy. Propose, counter, conclude."
+          share:
+            title: "Share"
+            text: "A fine card deserves to be seen. Repost it in the feed and show off your finds."
+            tag: "Repost"
+          contribute:
+            title: "Contribute"
+            text: "Notable pulls, discoveries, trades, completed sets: everything shows there, live."
+            completed: "Inès completes the Dark Souls set."
+            reposted: "Nina reposted Hades."
+      how:
+        label: "03 · How it works"
+        title: "Long work awaits you."
+        subtitle: "Open, reveal, collect, trade. These four gestures are all you need to advance the Brotherhood's mission."
+        join:
+          title: "Join it"
+          text: "Sign in and your account is created automatically with Steam."
+          badge: "New member"
+        accumulate:
+          title: "Gather capsules"
+          text: "Capsules arrive in your reserve over time, even while you are away."
+          next: "Next capsule in"
+        discover:
+          title: "Discover new cards"
+          text: "A capsule holds five face-down cards. Turn them over to discover them."
+          reveal: "Reveal"
+          restart: "Start over"
+          announcement: "Card revealed: %{title} — %{details}. %{rarity}."
+        grow:
+          title: "Grow your collection"
+          text: "Every card joins your collection. Complete sets, trade your duplicates with your friends."
+          set: "Roguelike set · in progress"
+      live:
+        label: "04 · Live"
+        title: "The Brotherhood is playing right now."
+        subtitle: "The latest entries of the activity feed, and the current season."
+        feed: "Activity feed"
+        empty: "No activity yet."
+        open_feed: "Open the activity feed"
+        season: "Current season"
+        facts:
+          players: "Active players this week"
+          packs: "Capsules opened today"
+          discoveries: "First discoveries this week"
+      unlock:
+        label: "05 · To do and to unlock"
+        title: "Enough to fill the hold."
+        subtitle: "Sets to complete, friends to trade with, a shared goal every week."
+        soon: "Soon"
+        tiles:
+          sets:
+            title: "Sets and tiers"
+            text: "Themes, franchises, studios, hall of fame and UFOs. Collect them all and advance set tiers to unlock rewards."
+            in_progress: "Roguelike"
+            complete: "Dark Souls"
+            stamp: "Complete"
+          trades:
+            title: "Trades between friends"
+            text: "Trade the cards you do not care about for the ones that will give you the collection of your dreams."
+            gives: "Léa gives"
+            you_give: "You give"
+          goal:
+            title: "Community goal"
+            text: "Every Monday, a new goal for the whole Brotherhood. Every capsule opened and every trade counts."
+            week: "Week 41"
+            reached: "Reached"
+            reward: "Every participant received a capsule with at least one Epic."
+          achievements:
+            title: "Achievements"
+            text: "First capsule, first Epic, first Legendary, first complete set, first trade…"
+            first_pack: "First capsule"
+            first_trade: "First trade"
+            first_legendary: "First Legendary"
+            first_set: "First complete set"
+            to_earn: "To earn"
+          backs:
+            title: "Card backs"
+            text: "Your face-down cards wear the back of your choice. Meet goals to unlock new ones."
+          collection:
+            title: "Collection"
+            text: "See at a glance the cards you are missing to complete your collection."
+            unique: "Unique cards"
+      roadmap:
+        label: "06 · Roadmap"
+        title: "A look at what comes next."
+        subtitle: "The collection is built with the community, and so is the game."
+        statuses:
+          done: "Done"
+          in_progress: "In progress"
+          to_come: "To come"
+      open_source:
+        label: "07 · Open source and contributions"
+        title: "Open source and built with AI."
+        subtitle: "The code is entirely free and anyone can contribute to the project. Tedious tasks are done by AI; the rest is built by humans, for humans."
+        recruiting: "We are recruiting people devoted to the Brotherhood."
+        open_role: "Open position"
+        roles:
+          artists:
+            title: "Artists"
+            text: "Music, sounds, card backs, illustrations… The list is long. It awaits talented people."
+          narrators:
+            title: "Narrators and scribes"
+            text: "A voice, characters, a story that moves forward week after week. We need you to chronicle the Brotherhood's landmark events."
+          developers:
+            title: "Developers"
+            text: "The code is open. Anyone can propose a fix or an idea, whatever it may be."
+        project: "See the project"
+        project_hint: "(GitHub, new tab)"
+        license: "Free license. Every contribution is reviewed by the author."
+      free:
+        label: "08 · A free game"
+        title: "A free game that respects you."
+        open: "gameble is free and open. Everyone plays on equal terms, and anyone can see how it works."
+        respect: "Your data is neither sold nor exploited. No advertising comes between you and your cards."
+        support:
+          kicker: "Support gameble"
+          line: "To keep running, the project needs support."
+          text: "If you enjoy gameble, you can help it."
+          button: "Support"
+          hint: "(donation site, new tab)"
+      boarding:
+        label: "09 · Boarding"
+        title: "Ten capsules await you."
+        line: "They are in your reserve from your first sign-in."
+        reserve: "Reserve: 10 / 10"
+      footer:
+        legal: "Legal notice"
+        support: "Support"
+        source: "Source code"
+        source_hint: "(GitHub, new tab)"
+        notice: "gameble is affiliated with neither Steam nor Valve. The illustrations belong to the games' publishers and their artists."
   external_links:
     new_tab: "(new tab)"
   card_details:

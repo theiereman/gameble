@@ -12,6 +12,8 @@ Rails.application.routes.draw do
   # Every page lives under its locale, the first segment of the URL.
   scope ":locale", locale: /en|fr/ do
     root "pages#home", as: :home
+    # The visitor's landing; a signed-in player is sent to the hub.
+    get "landing" => "landings#show", as: :landing
 
     # Opening a pack from the hub, and the list of its cards, by token.
     resources :packs, only: %i[create show], param: :token

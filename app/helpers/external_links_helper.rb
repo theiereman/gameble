@@ -3,10 +3,12 @@ module ExternalLinksHelper
   SOURCE_CODE_URL = "https://github.com/theiereman/gameble".freeze
   NEW_TAB = { rel: "noopener noreferrer external", target: "_blank" }.freeze
 
-  def external_link_to(name, url, button: false, **options)
+  # `hint` replaces the hidden "(new tab)" that ends the link's name, for
+  # one that also says where it leads ("(GitHub, new tab)").
+  def external_link_to(name, url, button: false, hint: nil, **options)
     content = safe_join([
       tag.span(name, class: ("button__label" if button)),
-      new_tab_hint,
+      new_tab_hint(hint),
       (pixel_icon("external", class: "button__icon") if button)
     ].compact)
     link_to content, url, **NEW_TAB, **options
@@ -28,7 +30,7 @@ module ExternalLinksHelper
 
   private
 
-  def new_tab_hint
-    tag.span(" #{t("external_links.new_tab")}", class: "visually-hidden")
+  def new_tab_hint(hint = nil)
+    tag.span(" #{hint || t("external_links.new_tab")}", class: "visually-hidden")
   end
 end

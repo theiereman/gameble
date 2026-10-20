@@ -1,0 +1,73 @@
+<% faces = samples.values.compact %>
+<section class="landing-module landing-how">
+  <%= landing_module_heading(:how, id: "landing-how") %>
+  <p class="landing-module__subtitle"><%= t("landings.show.how.subtitle") %></p>
+  <ol class="landing-steps">
+    <li class="landing-step">
+      <span class="landing-step__marker" aria-hidden="true">01</span>
+      <div class="landing-step__panel">
+        <div class="landing-step__illustration landing-step__illustration--join" aria-hidden="true">
+          <%= image_tag vite_asset_path("images/pixel/avatar-jade.png"), alt: "", width: 64, height: 64, class: "landing-avatar landing-avatar--large" %>
+          <span class="landing-chip landing-chip--lime"><%= t("landings.show.how.join.badge") %></span>
+        </div>
+        <p class="landing-step__title"><%= t("landings.show.how.join.title") %></p>
+        <p class="landing-small"><%= t("landings.show.how.join.text") %></p>
+      </div>
+    </li>
+    <li class="landing-step">
+      <span class="landing-step__marker" aria-hidden="true">02</span>
+      <div class="landing-step__panel">
+        <div class="landing-step__illustration landing-step__illustration--reserve" aria-hidden="true">
+          <%= landing_pips(7, class: "landing-pips--large") %>
+          <span class="landing-step__next"><%= t("landings.show.how.accumulate.next") %></span>
+          <span class="landing-step__clock">02:14:37</span>
+        </div>
+        <p class="landing-step__title"><%= t("landings.show.how.accumulate.title") %></p>
+        <p class="landing-small"><%= t("landings.show.how.accumulate.text") %></p>
+      </div>
+    </li>
+    <li class="landing-step">
+      <span class="landing-step__marker" aria-hidden="true">03</span>
+      <div class="landing-step__panel">
+        <div class="landing-step__illustration landing-reveal" data-controller="reveal-demo"
+          data-reveal-demo-reveal-label-value="<%= t("landings.show.how.discover.reveal") %>"
+          data-reveal-demo-restart-label-value="<%= t("landings.show.how.discover.restart") %>">
+          <div class="landing-reveal__stage" data-reveal-demo-target="stage">
+            <div class="landing-reveal__flip">
+              <span class="landing-reveal__back"><%= landing_card_back(:s) %></span>
+              <% faces.each do |view| %>
+                <span class="landing-reveal__face" data-reveal-demo-target="face" data-announcement="<%= landing_reveal_announcement(view) %>" hidden>
+                  <%= render CardComponent.new(card: view, size: :s) %>
+                </span>
+              <% end %>
+            </div>
+          </div>
+          <% if faces.any? %>
+            <button type="button" class="button button--secondary button--small landing-reveal__button" hidden
+              data-reveal-demo-target="button" data-action="reveal-demo#toggle"><%= t("landings.show.how.discover.reveal") %></button>
+            <p class="visually-hidden" role="status" data-reveal-demo-target="status"></p>
+          <% end %>
+        </div>
+        <p class="landing-step__title"><%= t("landings.show.how.discover.title") %></p>
+        <p class="landing-small"><%= t("landings.show.how.discover.text") %></p>
+      </div>
+    </li>
+    <li class="landing-step">
+      <span class="landing-step__marker" aria-hidden="true">04</span>
+      <div class="landing-step__panel">
+        <div class="landing-step__illustration landing-step__illustration--set" aria-hidden="true">
+          <span class="landing-thumbs">
+            <% 3.times do |index| %>
+              <%= landing_thumb(covers, index) %>
+            <% end %>
+            <span class="landing-thumb landing-thumb--small landing-thumb--empty"></span>
+            <span class="landing-thumb landing-thumb--small landing-thumb--empty"></span>
+          </span>
+          <span class="landing-step__set"><%= t("landings.show.how.grow.set") %></span>
+        </div>
+        <p class="landing-step__title"><%= t("landings.show.how.grow.title") %></p>
+        <p class="landing-small"><%= t("landings.show.how.grow.text") %></p>
+      </div>
+    </li>
+  </ol>
+</section>

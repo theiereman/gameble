@@ -1,0 +1,104 @@
+<% tiles = "landings.show.unlock.tiles" %>
+<section class="landing-module landing-unlock">
+  <%= landing_module_heading(:unlock, id: "landing-unlock") %>
+  <p class="landing-module__subtitle"><%= t("landings.show.unlock.subtitle") %></p>
+  <ul class="landing-tiles landing-tiles--six">
+    <li class="landing-tile">
+      <p class="landing-tile-title">
+        <%= t("#{tiles}.sets.title") %>
+        <span class="landing-soon"><%= t("landings.show.unlock.soon") %></span>
+      </p>
+      <p class="landing-small"><%= t("#{tiles}.sets.text") %></p>
+      <div class="landing-example landing-example--sets" aria-hidden="true">
+        <div class="landing-set-row">
+          <span class="landing-set-row__name"><%= t("#{tiles}.sets.in_progress") %></span>
+          <span class="landing-set-row__count">16/62</span>
+          <span class="landing-bar landing-bar--quarter"><span class="landing-bar__ticks"></span></span>
+        </div>
+        <div class="landing-set-row">
+          <span class="landing-set-row__name"><%= t("#{tiles}.sets.complete") %></span>
+          <span class="landing-set-row__count">3/3</span>
+          <span class="landing-bar landing-bar--full"></span>
+          <span class="landing-stamp"><%= t("#{tiles}.sets.stamp") %></span>
+        </div>
+      </div>
+    </li>
+    <li class="landing-tile">
+      <p class="landing-tile-title"><%= t("#{tiles}.trades.title") %></p>
+      <p class="landing-small"><%= t("#{tiles}.trades.text") %></p>
+      <div class="landing-example landing-example--trade-strip" aria-hidden="true">
+        <span class="landing-trade-side">
+          <span class="landing-trade-side__label"><%= t("#{tiles}.trades.gives") %></span>
+          <%= landing_thumb(covers, 4, size: :large) %>
+        </span>
+        <%= pixel_icon("swap", class: "landing-example__swap") %>
+        <span class="landing-trade-side">
+          <span class="landing-trade-side__label"><%= t("#{tiles}.trades.you_give") %></span>
+          <%= landing_thumb(covers, 1, size: :large) %>
+        </span>
+      </div>
+    </li>
+    <li class="landing-tile">
+      <p class="landing-tile-title"><%= t("#{tiles}.goal.title") %></p>
+      <p class="landing-small"><%= t("#{tiles}.goal.text") %></p>
+      <div class="landing-example landing-example--goal" aria-hidden="true">
+        <span class="landing-example__head">
+          <span class="landing-kicker"><%= t("#{tiles}.goal.week") %></span>
+          <span class="landing-chip landing-chip--lime"><%= t("#{tiles}.goal.reached") %></span>
+        </span>
+        <%= landing_gauge(LandingsHelper::GAUGE_SEGMENTS) %>
+        <span class="landing-small"><%= t("#{tiles}.goal.reward") %></span>
+      </div>
+    </li>
+    <li class="landing-tile">
+      <p class="landing-tile-title"><%= t("#{tiles}.achievements.title") %></p>
+      <p class="landing-small"><%= t("#{tiles}.achievements.text") %></p>
+      <ul class="landing-example landing-example--achievements" aria-hidden="true">
+        <% { first_pack: true, first_trade: true, first_legendary: false, first_set: false }.each do |name, earned| %>
+          <li class="<%= class_names("landing-achievement", "is-earned" => earned) %>">
+            <%= pixel_icon(earned ? "check" : "lock", class: "landing-achievement__icon") %>
+            <span><%= t("#{tiles}.achievements.#{name}") %></span>
+            <% unless earned %>
+              <span class="landing-achievement__state"><%= t("#{tiles}.achievements.to_earn") %></span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </li>
+    <li class="landing-tile">
+      <p class="landing-tile-title">
+        <%= t("#{tiles}.backs.title") %>
+        <span class="landing-soon"><%= t("landings.show.unlock.soon") %></span>
+      </p>
+      <p class="landing-small"><%= t("#{tiles}.backs.text") %></p>
+      <div class="landing-example landing-example--backs" aria-hidden="true">
+        <% { "standard" => false, "aurore" => false, "etoile-dor" => true, "centurion" => true }.each do |back, locked| %>
+          <span class="<%= class_names("landing-fan__back", "is-locked" => locked) %>">
+            <%= image_tag vite_asset_path("images/pixel/back-#{back}-xs.png"), alt: "", width: 100, height: 150 %>
+            <% if locked %>
+              <%= pixel_icon("lock", class: "landing-fan__lock") %>
+            <% end %>
+          </span>
+        <% end %>
+      </div>
+    </li>
+    <li class="landing-tile">
+      <p class="landing-tile-title"><%= t("#{tiles}.collection.title") %></p>
+      <p class="landing-small"><%= t("#{tiles}.collection.text") %></p>
+      <div class="landing-example landing-example--collection" aria-hidden="true">
+        <span class="landing-thumbs">
+          <% 4.times do |index| %>
+            <%= landing_thumb(covers, index) %>
+          <% end %>
+          <span class="landing-thumb landing-thumb--small landing-thumb--empty"></span>
+          <span class="landing-thumb landing-thumb--small landing-thumb--empty"></span>
+        </span>
+        <span class="landing-example__head">
+          <span class="landing-kicker"><%= t("#{tiles}.collection.unique") %></span>
+          <span class="landing-figure-small">4 / 6</span>
+        </span>
+        <span class="landing-bar landing-bar--two-thirds"></span>
+      </div>
+    </li>
+  </ul>
+</section>

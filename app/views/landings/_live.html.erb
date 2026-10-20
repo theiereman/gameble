@@ -1,0 +1,27 @@
+<% unknown = t("landings.show.unknown") %>
+<section class="landing-module landing-live">
+  <%= landing_module_heading(:live, id: "landing-live") %>
+  <p class="landing-module__subtitle"><%= t("landings.show.live.subtitle") %></p>
+  <div class="landing-live__columns">
+    <%= render PanelComponent.new(class: "landing-live__feed") do %>
+      <p class="landing-kicker landing-live__kicker">
+        <span><%= t("landings.show.live.feed") %></span>
+        <%= render "shell/live_marker" %>
+      </p>
+      <p class="landing-live__empty"><%= t("landings.show.live.empty") %></p>
+      <%= link_to t("landings.show.live.open_feed"), feed_path, class: "button button--link landing-live__open" %>
+    <% end %>
+    <%= render PanelComponent.new(brackets: true, class: "landing-season") do %>
+      <p class="landing-kicker"><%= t("landings.show.live.season") %></p>
+      <p class="landing-season__name"><%= unknown %></p>
+      <dl class="landing-season__facts">
+        <% %w[players packs discoveries].each do |fact| %>
+          <div class="landing-season__fact">
+            <dt><%= t("landings.show.live.facts.#{fact}") %></dt>
+            <dd class="landing-figure-small"><%= unknown %></dd>
+          </div>
+        <% end %>
+      </dl>
+    <% end %>
+  </div>
+</section>

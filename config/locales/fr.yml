@@ -1449,6 +1449,183 @@ fr:
       title: "Objectif atteint"
       collected: "La Direction vous remercie pour votre participation. Une capsule rare a rejoint votre réserve."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
+  landings:
+    show:
+      title: "gameble"
+      unknown: "—"
+      hero:
+        kicker: "Mission en cours"
+        hook: "Des jeux ont été perdus. La Confrérie part les retrouver. Rejoignez-la."
+        line: "gameble est un jeu de cartes à collectionner basé sur la bibliothèque publique de jeux Steam."
+        embark: "Embarquer sur le pont"
+        embark_label: "Embarquer sur le pont, visiter le jeu sans compte"
+      concept:
+        label: "01 · Concept"
+        title: "Chaque carte est un jeu Steam."
+        subtitle: "Les jeux sont triés sur le volet et importés selon un principe simple : plus un jeu est populaire, plus sa carte sera rare."
+        cards_label: "Les cinq raretés, de la plus commune à la plus rare"
+        per_card: "%{percent} par carte"
+        notes:
+          rarities:
+            title: "Cinq raretés"
+            text: "De la plus commune à la légendaire."
+          alive:
+            title: "Plus rare, plus vivante"
+            text: "Plus la carte est rare, plus elle prend vie."
+          seasons:
+            title: "Une rareté par saison"
+            text: "À chaque saison, les raretés sont recalculées."
+      brotherhood:
+        label: "02 · La Confrérie"
+        title: "La Grande Confrérie des Gameblers"
+        subtitle: "Votre présence est plus que nécessaire. La Confrérie avance ensemble, semaine après semaine, et son histoire s'écrit avec ses membres."
+        lore:
+          kicker: "Archive 001"
+          title: "Le récit de la Confrérie"
+          call: "La suite s'écrit avec vous. La Confrérie cherche des narrateurs et des scribes pour faire vivre son histoire."
+          link: "Participer à l'écriture"
+        goal:
+          kicker: "Cette semaine"
+          title: "Un objectif pour tous"
+          text: "Chaque capsule ouverte et chaque échange conclu font avancer la même jauge. Objectif atteint : tous les participants sont récompensés."
+        tiles:
+          discover:
+            title: "Découvrez"
+            text: "Le premier joueur à tirer un jeu y grave son nom, pour toute la Confrérie."
+            chip: "Première découverte"
+          trade:
+            title: "Échangez"
+            text: "Vos doubles font le bonheur d'un ami. Proposez, contre-proposez, concluez."
+          share:
+            title: "Partagez"
+            text: "Une belle carte se montre. Repostez-la dans le fil et exposez vos trouvailles."
+            tag: "Repost"
+          contribute:
+            title: "Contribuez"
+            text: "Tirages notables, découvertes, échanges, sets complétés : tout s'y affiche, en direct."
+            completed: "Inès complète le set Dark Souls."
+            reposted: "Nina a reposté Hades."
+      how:
+        label: "03 · Comment ça marche"
+        title: "Un travail de longue haleine vous attend."
+        subtitle: "Ouvrir, révéler, collectionner, échanger. Ces quatre gestes vous suffiront à faire progresser la mission de la Confrérie."
+        join:
+          title: "Rejoignez-la"
+          text: "Connectez-vous et créez votre compte automatiquement avec Steam."
+          badge: "Nouveau membre"
+        accumulate:
+          title: "Accumulez des capsules"
+          text: "Des capsules arrivent dans votre réserve au fil du temps, même quand vous n'êtes pas là."
+          next: "Prochaine capsule dans"
+        discover:
+          title: "Découvrez de nouvelles cartes"
+          text: "Une capsule contient cinq cartes face cachée. Retournez-les pour les découvrir."
+          reveal: "Révéler"
+          restart: "Recommencer"
+          announcement: "Carte révélée : %{title} — %{details}. %{rarity}."
+        grow:
+          title: "Agrandissez votre collection"
+          text: "Chaque carte rejoint votre collection. Complétez des sets, échangez vos doubles avec vos amis."
+          set: "Set Roguelike · en cours"
+      live:
+        label: "04 · En direct"
+        title: "La Confrérie joue en ce moment."
+        subtitle: "Les dernières entrées du fil d'activité, et la saison en cours."
+        feed: "Fil d'activité"
+        empty: "Aucune activité pour l'instant."
+        open_feed: "Ouvrir le fil d'activité"
+        season: "Saison en cours"
+        facts:
+          players: "Joueurs actifs cette semaine"
+          packs: "Capsules ouvertes aujourd'hui"
+          discoveries: "Premières découvertes cette semaine"
+      unlock:
+        label: "05 · À faire et à débloquer"
+        title: "De quoi remplir la soute."
+        subtitle: "Des sets à compléter, des amis avec qui échanger, un objectif commun chaque semaine."
+        soon: "Bientôt"
+        tiles:
+          sets:
+            title: "Sets et paliers"
+            text: "Thèmes, franchises, studios, palmarès et OVNI. Collectionnez-les tous et faites progresser les paliers de sets pour débloquer des récompenses."
+            in_progress: "Roguelike"
+            complete: "Dark Souls"
+            stamp: "Complet"
+          trades:
+            title: "Échanges entre amis"
+            text: "Échangez les cartes qui ne vous intéressent pas contre celles qui vous permettront d'avoir la collection de vos rêves."
+            gives: "Léa donne"
+            you_give: "Vous donnez"
+          goal:
+            title: "Objectif communautaire"
+            text: "Chaque lundi, un nouvel objectif pour toute la Confrérie. Chaque capsule ouverte et chaque échange comptent."
+            week: "Semaine 41"
+            reached: "Atteint"
+            reward: "Chaque participant a reçu une capsule avec au moins une Épique."
+          achievements:
+            title: "Succès"
+            text: "Première capsule, première Épique, première Légendaire, premier set complet, premier échange…"
+            first_pack: "Première capsule"
+            first_trade: "Premier échange"
+            first_legendary: "Première Légendaire"
+            first_set: "Premier set complet"
+            to_earn: "À obtenir"
+          backs:
+            title: "Dos de cartes"
+            text: "Vos cartes face cachée portent le dos de votre choix. Remplissez des objectifs pour en débloquer de nouveaux."
+          collection:
+            title: "Collection"
+            text: "Voyez en un coup d'œil les cartes qui vous manquent pour compléter votre collection."
+            unique: "Cartes uniques"
+      roadmap:
+        label: "06 · Feuille de route"
+        title: "Un aperçu des prochaines évolutions."
+        subtitle: "La collection se construit avec la communauté, le jeu aussi."
+        statuses:
+          done: "Fait"
+          in_progress: "En cours"
+          to_come: "À venir"
+      open_source:
+        label: "07 · Open source et contributions"
+        title: "Open source et développé avec l'IA."
+        subtitle: "Le code est entièrement libre et tout le monde peut contribuer au projet. Les tâches fastidieuses sont faites par l'IA, le reste est construit par des humains, pour des humains."
+        recruiting: "Nous recrutons des personnes dévouées à la Confrérie."
+        open_role: "Poste ouvert"
+        roles:
+          artists:
+            title: "Artistes"
+            text: "Musique, sons, dos de cartes, illustrations… La liste est longue. Elle attend des personnes de talent."
+          narrators:
+            title: "Narrateurs et scribes"
+            text: "Une voix, des personnages, une histoire qui avance semaine après semaine. Nous avons besoin de vous pour relater les faits marquants de la Confrérie."
+          developers:
+            title: "Développeurs"
+            text: "Le code est ouvert. Chacun peut proposer une correction ou une idée, quelle qu'elle soit."
+        project: "Voir le projet"
+        project_hint: "(GitHub, nouvel onglet)"
+        license: "Licence libre. Chaque contribution est relue par l'auteur."
+      free:
+        label: "08 · Un jeu libre"
+        title: "Un jeu libre, qui vous respecte."
+        open: "gameble est gratuit et ouvert. Tout le monde y joue à égalité, et chacun peut voir comment il fonctionne."
+        respect: "Vos données ne sont ni revendues ni exploitées. Aucune publicité ne s'intercale entre vous et vos cartes."
+        support:
+          kicker: "Soutenir gameble"
+          line: "Pour continuer de tourner, le projet a besoin de soutien."
+          text: "Si gameble vous plaît, vous pouvez l'aider."
+          button: "Soutenir"
+          hint: "(site de dons, nouvel onglet)"
+      boarding:
+        label: "09 · Embarquement"
+        title: "Dix capsules vous attendent."
+        line: "Elles sont dans votre réserve dès votre première connexion."
+        reserve: "Réserve : 10 / 10"
+      footer:
+        legal: "Mentions légales"
+        support: "Soutenir"
+        source: "Code source"
+        source_hint: "(GitHub, nouvel onglet)"
+        notice: "gameble n'est affilié ni à Steam ni à Valve. Les illustrations appartiennent aux éditeurs des jeux et à leurs artistes."
   external_links:
     new_tab: "(nouvel onglet)"
   card_details:

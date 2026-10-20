@@ -12,7 +12,9 @@
       toasts, the deployed version in the bottom-left corner and, for a
       visitor, the sign-in panel. The back-office keeps the tokens and the
       top bar only. The public card page (`content_for :public_page`) has
-      the slim top bar and no tab bar. %>
+      the slim top bar and no tab bar. A page's own footer
+      (`content_for :page_footer`, the landing's) follows the main
+      landmark. %>
   <body class="<%= class_names("is-back-office": back_office_page?, "is-public-page": content_for?(:public_page)) %>">
     <%= render "shell/atmosphere" unless back_office_page? %>
     <%= render "shell/top_bar" %>
@@ -20,6 +22,7 @@
     <main id="main" class="main">
       <%= yield %>
     </main>
+    <%= yield :page_footer if content_for?(:page_footer) %>
     <%= yield :ticker if content_for?(:ticker) %>
 
     <%= render "shell/tab_bar" unless back_office_page? || content_for?(:public_page) %>

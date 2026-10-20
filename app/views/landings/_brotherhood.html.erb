@@ -1,0 +1,61 @@
+<% unknown = t("landings.show.unknown") %>
+<section class="landing-module landing-brotherhood">
+  <%= landing_module_heading(:brotherhood, id: "landing-brotherhood") %>
+  <p class="landing-module__subtitle"><%= t("landings.show.brotherhood.subtitle") %></p>
+  <div class="landing-brotherhood__panels">
+    <%= render PanelComponent.new(brackets: true, class: "landing-lore") do %>
+      <p class="landing-kicker"><%= t("landings.show.brotherhood.lore.kicker") %></p>
+      <p class="landing-panel-title"><%= t("landings.show.brotherhood.lore.title") %></p>
+      <div class="landing-lore__slot" aria-hidden="true"></div>
+      <div class="landing-lore__call">
+        <p class="landing-body"><%= t("landings.show.brotherhood.lore.call") %></p>
+        <%= link_to t("landings.show.brotherhood.lore.link"), "#landing-open-source", class: "button button--secondary button--small landing-lore__link" %>
+      </div>
+    <% end %>
+    <%= render PanelComponent.new(class: "landing-goal") do %>
+      <p class="landing-kicker"><%= t("landings.show.brotherhood.goal.kicker") %></p>
+      <p class="landing-panel-title"><%= t("landings.show.brotherhood.goal.title") %></p>
+      <p class="landing-small"><%= t("landings.show.brotherhood.goal.text") %></p>
+      <p class="landing-goal__line"><%= unknown %></p>
+      <p class="landing-goal__count landing-figure"><%= unknown %></p>
+      <%= landing_gauge(0, class: "landing-goal__gauge") %>
+    <% end %>
+  </div>
+  <ul class="landing-tiles landing-tiles--four">
+    <li class="landing-tile">
+      <p class="landing-tile__verb"><%= t("landings.show.brotherhood.tiles.discover.title") %></p>
+      <p class="landing-small"><%= t("landings.show.brotherhood.tiles.discover.text") %></p>
+      <div class="landing-example landing-example--discover" aria-hidden="true">
+        <%= landing_thumb(covers, 4, size: :large) %>
+        <span class="landing-chip landing-chip--gold"><%= t("landings.show.brotherhood.tiles.discover.chip") %></span>
+      </div>
+    </li>
+    <li class="landing-tile">
+      <p class="landing-tile__verb"><%= t("landings.show.brotherhood.tiles.trade.title") %></p>
+      <p class="landing-small"><%= t("landings.show.brotherhood.tiles.trade.text") %></p>
+      <div class="landing-example landing-example--trade" aria-hidden="true">
+        <%= image_tag vite_asset_path("images/pixel/avatar-blue.png"), alt: "", width: 32, height: 32, class: "landing-avatar" %>
+        <%= landing_thumb(covers, 2) %>
+        <%= pixel_icon("swap", class: "landing-example__swap") %>
+        <%= landing_thumb(covers, 3) %>
+        <%= image_tag vite_asset_path("images/pixel/avatar-gold.png"), alt: "", width: 32, height: 32, class: "landing-avatar" %>
+      </div>
+    </li>
+    <li class="landing-tile">
+      <p class="landing-tile__verb"><%= t("landings.show.brotherhood.tiles.share.title") %></p>
+      <p class="landing-small"><%= t("landings.show.brotherhood.tiles.share.text") %></p>
+      <div class="landing-example landing-example--share" aria-hidden="true">
+        <%= landing_thumb(covers, 3, size: :large) %>
+        <span class="landing-chip"><%= t("landings.show.brotherhood.tiles.share.tag") %></span>
+      </div>
+    </li>
+    <li class="landing-tile">
+      <p class="landing-tile__verb"><%= t("landings.show.brotherhood.tiles.contribute.title") %></p>
+      <p class="landing-small"><%= t("landings.show.brotherhood.tiles.contribute.text") %></p>
+      <div class="landing-example landing-example--rows" aria-hidden="true">
+        <p class="landing-example__row"><%= t("landings.show.brotherhood.tiles.contribute.completed") %></p>
+        <p class="landing-example__row"><%= t("landings.show.brotherhood.tiles.contribute.reposted") %></p>
+      </div>
+    </li>
+  </ul>
+</section>

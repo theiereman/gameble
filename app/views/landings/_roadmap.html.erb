@@ -1,0 +1,12 @@
+<section class="landing-module landing-roadmap">
+  <%= landing_module_heading(:roadmap, id: "landing-roadmap") %>
+  <p class="landing-module__subtitle"><%= t("landings.show.roadmap.subtitle") %></p>
+  <ul class="landing-legend">
+    <% %w[done in_progress to_come].each do |status| %>
+      <li class="landing-legend__item landing-legend__item--<%= status.dasherize %>">
+        <span class="landing-legend__marker" aria-hidden="true"></span>
+        <span><%= t("landings.show.roadmap.statuses.#{status}") %></span>
+      </li>
+    <% end %>
+  </ul>
+</section>

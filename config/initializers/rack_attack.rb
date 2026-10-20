@@ -23,7 +23,7 @@ end
 module PublicReadThrottle
   LIMIT = 120
   PERIOD = 1.minute
-  PAGES = %w[cards brothers library].freeze
+  PAGES = %w[cards brothers library landing].freeze
 
   def self.public_read?(request)
     return false unless request.get? || request.head?

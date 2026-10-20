@@ -1,0 +1,17 @@
+<section class="landing-module landing-boarding">
+  <%= render PanelComponent.new(brackets: true, class: "landing-boarding__panel landing-hazard") do %>
+    <div class="landing-boarding__copy">
+      <%= landing_module_heading(:boarding, id: "landing-boarding", modifier: :banner) %>
+      <p class="landing-body"><%= t("landings.show.boarding.line") %></p>
+      <p class="landing-boarding__reserve">
+        <%= landing_pips(LandingsHelper::RESERVE_CELLS) %>
+        <span><%= t("landings.show.boarding.reserve") %></span>
+      </p>
+    </div>
+    <div class="landing-boarding__actions">
+      <%= render SteamSignInComponent.new(origin: request.path) %>
+      <%= link_to t("landings.show.hero.embark"), home_path, class: "button button--link landing-boarding__embark",
+        aria: { label: t("landings.show.hero.embark_label") } %>
+    </div>
+  <% end %>
+</section>

@@ -1,0 +1,33 @@
+<section class="landing-module landing-concept">
+  <%= landing_module_heading(:concept, id: "landing-concept") %>
+  <p class="landing-module__subtitle"><%= t("landings.show.concept.subtitle") %></p>
+  <%= render PanelComponent.new(brackets: true, class: "landing-concept__panel") do %>
+    <ul class="landing-rarities" aria-label="<%= t("landings.show.concept.cards_label") %>">
+      <% odds_rows(Game::DrawOdds::REGULAR).each do |row| %>
+        <% view = samples[row.key] %>
+        <li class="landing-rarity landing-rarity--<%= row.key %>" data-tier="<%= row.key %>">
+          <span class="landing-rarity__slot">
+            <% if view %>
+              <%= render CardComponent.new(card: view, size: :grid) %>
+            <% else %>
+              <%= landing_card_back(:m, class: "landing-rarity__back", data: { face_down: true }) %>
+            <% end %>
+          </span>
+          <span class="landing-rarity__name">
+            <%= pixel_icon("rarity-#{row.tier}", class: "landing-rarity__icon") %>
+            <span><%= t("catalog.rarity.#{row.key}") %></span>
+          </span>
+          <span class="landing-rarity__odds"><%= t("landings.show.concept.per_card", percent: row.percent) %></span>
+        </li>
+      <% end %>
+    </ul>
+    <ul class="landing-notes">
+      <% %w[rarities alive seasons].each do |note| %>
+        <li class="landing-notes__note">
+          <p class="landing-tile-title"><%= t("landings.show.concept.notes.#{note}.title") %></p>
+          <p class="landing-small"><%= t("landings.show.concept.notes.#{note}.text") %></p>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</section>
