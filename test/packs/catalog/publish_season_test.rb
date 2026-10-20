@@ -182,12 +182,19 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_equal [ [ "theme", "rpg" ] ], sets_of(season).map { |set| [ set.kind, set.key ] }
   end
 
-  test "a draft holding a card whose genre is no theme is unknown_theme and writes nothing" do
+  test "a draft holding a card whose genre is no theme is unfilled_sources and writes nothing" do
     season = seed_card_seasons(distinct_scores(21), genres: Array.new(21) { |index| index.zero? ? [ "rpg", "action" ] : [ "rpg" ] })
 
-    assert_nothing_written(season) { assert_equal :unknown_theme, publish(season.number).failure }
+    assert_nothing_written(season) { assert_equal :unfilled_sources, publish(season.number).failure }
     assert_predicate season.reload, :draft?
     assert_empty Catalog::Set.where(season_id: season.id)
+  end
+
+  test "a draft holding a card with no review count, imported before review counts were stored, is unfilled_sources and writes nothing" do
+    season = seed_card_seasons(distinct_scores(21), genres: Array.new(21) { [ "rpg" ] }, review_counts: [ nil ] + Array.new(20, 5_000))
+
+    assert_nothing_written(season) { assert_equal :unfilled_sources, publish(season.number).failure }
+    assert_predicate season.reload, :draft?
   end
 
   test "the sets, tiers and main themes of a published season are frozen" do
@@ -359,7 +366,8 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
       Catalog::UpsertDraftCard.new.call(
         source_key: card.source_key, release_date: card.release_date, image_url: card.image_url, store_url: card.store_url,
         texts: card.texts.to_h { |text| [ text.locale, { title: text.title } ] },
-        prestige_score: card_season.prestige_score, prestige_score_version: 2, rating: card_season.rating.to_f
+        prestige_score: card_season.prestige_score, prestige_score_version: 2, rating: card_season.rating.to_f,
+        review_count: card_season.review_count
       ).value!
     end
 
@@ -369,7 +377,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
   test "every failure code of the publication has a message in both locales" do
     %i[en fr].each do |locale|
       I18n.with_locale(locale) do
-        %i[no_draft stale_draft empty_season mixed_score_versions unknown_theme empty_tier].each do |code|
+        %i[no_draft stale_draft empty_season mixed_score_versions unfilled_sources empty_tier].each do |code|
           assert_not_includes Catalog::PublishSeason.failure_message(code), "Translation missing", "#{code} #{locale}"
         end
       end

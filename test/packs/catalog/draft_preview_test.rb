@@ -37,7 +37,7 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
     assert_equal 15, result.ufo_count
     assert_in_delta 0.1, result.ufo_share
     assert_predicate result, :ufo_share_over_limit?
-    assert_nil result.theme_verdict
+    assert_nil result.sources_verdict
     assert_equal({ "theme" => 4, "franchise" => 0, "studio" => 0, "hall_of_fame" => 0, "ufo" => 1 }, result.set_counts)
   end
 
@@ -50,13 +50,19 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
     assert_not result.ufo_share_over_limit?
   end
 
-  test "a draft holding a genre from before themes shows the unknown_theme verdict, the card counted in the UFOs" do
+  test "a draft holding a genre from before themes shows the unfilled_sources verdict, the card counted in the UFOs" do
     seed_card_seasons(distinct_scores(21), genres: Array.new(21) { |index| index.zero? ? [ "action" ] : [ "rpg" ] })
 
     result = preview
 
-    assert_equal :unknown_theme, result.theme_verdict
+    assert_equal :unfilled_sources, result.sources_verdict
     assert_equal 1, result.ufo_count
+  end
+
+  test "a draft holding a card with no review count shows the unfilled_sources verdict" do
+    seed_card_seasons(distinct_scores(21), genres: Array.new(21) { [ "rpg" ] }, review_counts: [ nil ] + Array.new(20, 5_000))
+
+    assert_equal :unfilled_sources, preview.sources_verdict
   end
 
   test "a draft too small for five tiers shows the empty_tier verdict in place of the tiers, and the rest" do

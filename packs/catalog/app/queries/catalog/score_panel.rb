@@ -10,8 +10,8 @@ module Catalog
     # `tiers` nil) when a tier would hold no card. `score_version_verdict` is
     # :mixed_score_versions when a draft's scores come from two formulas
     # (ScoreVersions), the rest still shown so the skew can be seen.
-    # `theme_verdict` is :unknown_theme when a draft holds a card whose
-    # genre is no theme (PublishSeason refuses it).
+    # `sources_verdict` is :unfilled_sources when a draft holds a card
+    # imported before its sources were stored (PublishSeason refuses it).
     #
     # - `percentiles`: { 10 => score, 50 => …, 90 => …, 99 => … }
     # - `tiers`: [ Tier(tier, card_count, threshold) ], legendary first; common's
@@ -22,7 +22,7 @@ module Catalog
     # - `ufo_count`: the cards in the UFOs; nil for a season published
     #   before themes
     # - `set_counts`: { kind => n }
-    Panel = Data.define(:verdict, :card_count, :percentiles, :min, :max, :score_version_verdict, :theme_verdict, :tier_verdict,
+    Panel = Data.define(:verdict, :card_count, :percentiles, :min, :max, :score_version_verdict, :sources_verdict, :tier_verdict,
       :tiers, :top, :bottom, :themes, :ufo_count, :set_counts) do
       def empty_season? = verdict == :empty_season
 
@@ -40,7 +40,7 @@ module Catalog
     end
 
     # `theme_counts` is { theme => card count }.
-    def self.build(rows, tiers:, theme_counts:, ufo_count:, set_counts:, score_version_verdict: nil, theme_verdict: nil)
+    def self.build(rows, tiers:, theme_counts:, ufo_count:, set_counts:, score_version_verdict: nil, sources_verdict: nil)
       ranked_asc = rows.map(&:prestige_score).sort
       top = rows.sort_by { |row| [ -row.prestige_score, row.card_id ] }.first(EXTREMES)
       bottom = rows.sort_by { |row| [ row.prestige_score, row.card_id ] }.first(EXTREMES)
@@ -53,7 +53,7 @@ module Catalog
         min: ranked_asc.first,
         max: ranked_asc.last,
         score_version_verdict:,
-        theme_verdict:,
+        sources_verdict:,
         tier_verdict: tiers ? nil : :empty_tier,
         tiers:,
         top: entries(top, titles),

@@ -36,7 +36,7 @@ module Catalog
         set_counts: { "theme" => themes.size, "franchise" => franchises.size, "studio" => studios.size,
           "hall_of_fame" => hall_of_fame.size, "ufo" => ufos.size },
         score_version_verdict: ScoreVersions.mixed?(rows) ? :mixed_score_versions : nil,
-        theme_verdict: unknown_theme?(rows) ? :unknown_theme : nil)
+        sources_verdict: UnfilledSources.any?(rows) ? :unfilled_sources : nil)
     end
 
     # Each tier's card count and threshold, legendary first, as PublishSeason
@@ -50,10 +50,6 @@ module Catalog
       Rarity::TIERS.keys.reverse.map { |tier| ScorePanel::Tier.new(tier:, card_count: counts.fetch(tier), threshold: thresholds[tier]) }
     end
 
-    def self.unknown_theme?(rows)
-      rows.any? { |row| row.genres.any? { |genre| !Themes.key?(genre) } }
-    end
-
-    private_class_method :tiers_of, :unknown_theme?
+    private_class_method :tiers_of
   end
 end

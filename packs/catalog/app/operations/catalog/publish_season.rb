@@ -14,9 +14,8 @@ module Catalog
   # caller sends the number of the draft it saw: another draft is refused.
   # A draft whose prestige scores come from two formulas (ScoreVersions) is
   # refused until its cards are scored again by one. A draft holding a card
-  # whose genre is no theme (written before themes) is refused until its
-  # cards' genres are filled again, so those cards never land in the UFOs
-  # unseen.
+  # imported before its sources were stored (UnfilledSources) is refused
+  # until they are filled, so its sets never come out short unseen.
   # Every guard runs before any write. Season data is written in bulk while
   # the season is still a draft; once published, it is frozen (CardSeason).
   # The next upsert opens a new draft.
@@ -25,7 +24,7 @@ module Catalog
   #
   #   Catalog::PublishSeason.new.call(number: 2)
   #   # => Success(season) | Failure(:no_draft) | Failure(:stale_draft)
-  #   #    | Failure(:empty_season) | Failure(:mixed_score_versions) | Failure(:unknown_theme)
+  #   #    | Failure(:empty_season) | Failure(:mixed_score_versions) | Failure(:unfilled_sources)
   #   #    | Failure(:empty_tier)
   #
   # `number_published` numbers, once, a season published before card numbers
@@ -47,7 +46,7 @@ module Catalog
         season = step lock_draft(number)
         rows = step rows_of(season)
         step require_one_score_version(rows)
-        step require_known_themes(rows)
+        step require_filled_sources(rows)
         tiers = step cut(rows)
         now = Time.current
         step write_season_data(rows, tiers, now)
@@ -102,8 +101,8 @@ module Catalog
       ScoreVersions.mixed?(rows) ? Failure(:mixed_score_versions) : Success()
     end
 
-    def require_known_themes(rows)
-      rows.all? { |row| row.genres.all? { |genre| Themes.key?(genre) } } ? Success() : Failure(:unknown_theme)
+    def require_filled_sources(rows)
+      UnfilledSources.any?(rows) ? Failure(:unfilled_sources) : Success()
     end
 
     def cut(card_seasons)

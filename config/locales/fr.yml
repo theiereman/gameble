@@ -1644,7 +1644,7 @@ fr:
       mixed_score_versions: "Les cartes de la saison en brouillon ont été notées par plusieurs formules de prestige, officier : les raretés seraient taillées sur des échelles différentes. Ouvre le dernier import et appuie sur « Recalculer les cartes », puis publie une fois sa passe terminée."
       no_published_season: "Aucune saison publiée ne porte ce numéro, officier."
       already_numbered: "Les cartes de cette saison sont déjà numérotées, officier."
-      unknown_theme: "Des cartes de la saison en brouillon portent encore un genre d'avant les thèmes, officier : elles tomberaient dans les OVNI sans qu'on le voie. Lance steam:fill_card_sources, puis publie."
+      unfilled_sources: "Des cartes de la saison en brouillon ont été importées avant que leurs sources soient enregistrées, officier : un genre d'avant les thèmes ou aucun nombre d'avis. Publiées, elles tomberaient dans les OVNI et laisseraient les sets franchise, studio et panthéon incomplets sans qu'on le voie. Lance steam:fill_card_sources, puis publie."
       invalid_wording: "Chaque libellé demande du texte, en français et en anglais, de %{limit} caractères au plus, officier."
       invalid_status: "Cet état n'est pas un de ceux de la feuille de route, officier."
       invalid_direction: "Une entrée de la feuille de route ne fait que monter ou descendre, officier."

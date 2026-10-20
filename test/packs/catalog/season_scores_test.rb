@@ -32,7 +32,7 @@ class Catalog::SeasonScoresTest < ActiveSupport::TestCase
     assert_equal "Seed 149", panel.bottom.first.title
     assert_equal [ [ "roguelike", 119 ], [ "rpg", 44 ], [ "horror", 16 ], [ "pirates", 8 ] ], panel.themes.map { |theme| [ theme.theme, theme.card_count ] }
     assert_equal 15, panel.ufo_count
-    assert_nil panel.theme_verdict
+    assert_nil panel.sources_verdict
     assert_equal({ "theme" => 4, "franchise" => 0, "studio" => 0, "hall_of_fame" => 0, "ufo" => 1 }, panel.set_counts)
   end
 

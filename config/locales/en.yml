@@ -1595,7 +1595,7 @@ en:
       mixed_score_versions: "The draft season's cards were scored by more than one prestige formula, officer, so the rarities would be cut on mismatched scales. Open the latest import and press \"Rescore the cards\", then publish once its pass completes."
       no_published_season: "No published season bears that number, officer."
       already_numbered: "The cards of that season are numbered already, officer."
-      unknown_theme: "Some cards of the draft season still carry a genre from before themes, officer, so they would land in the UFOs unseen. Run steam:fill_card_sources, then publish."
+      unfilled_sources: "Some cards of the draft season were imported before their sources were stored, officer: a genre from before themes or no review count. Published, they would land in the UFOs and leave the franchise, studio and hall of fame sets short, unseen. Run steam:fill_card_sources, then publish."
       invalid_wording: "Each wording needs some text, in French and in English, of %{limit} characters at most, officer."
       invalid_status: "That status is not one of the roadmap's, officer."
       invalid_direction: "An entry of the roadmap moves only up or down, officer."

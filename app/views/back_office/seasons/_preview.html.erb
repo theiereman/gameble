@@ -97,9 +97,9 @@
     <% end %>
 
     <h3><%= t(".themes") %></h3>
-    <% if panel.theme_verdict %>
+    <% if panel.sources_verdict %>
       <%= render PanelComponent.new(tag: :p) do %>
-        <span data-preview-verdict="<%= panel.theme_verdict %>"><%= Catalog::PublishSeason.failure_message(panel.theme_verdict) %></span>
+        <span data-preview-verdict="<%= panel.sources_verdict %>"><%= Catalog::PublishSeason.failure_message(panel.sources_verdict) %></span>
       <% end %>
     <% end %>
     <% if panel.ufo_count.nil? %>

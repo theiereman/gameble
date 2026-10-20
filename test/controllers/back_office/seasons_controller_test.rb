@@ -138,11 +138,11 @@ module BackOffice
     test "a draft holding a genre from before themes shows the verdict in the preview, and publishing it is refused with the same message" do
       sign_in(accounts_players(:administrator))
       draft = seed_card_seasons(distinct_scores(150), genres: Array.new(150) { |index| index.zero? ? [ "action" ] : [ "rpg" ] })
-      message = I18n.t("errors.catalog.unknown_theme", locale: :fr)
+      message = I18n.t("errors.catalog.unfilled_sources", locale: :fr)
 
       get back_office_seasons_path(locale: :fr)
 
-      assert_select "[data-preview-verdict=unknown_theme]", message
+      assert_select "[data-preview-verdict=unfilled_sources]", message
       assert_select "p[data-preview-ufo-count='1']:not([data-preview-ufo-over-limit])", /1 carte dans les OVNI/
 
       post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number }
