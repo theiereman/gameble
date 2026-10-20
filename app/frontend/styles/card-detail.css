@@ -1,11 +1,9 @@
 /*
- * A card's detail, "FICHE DE LA CARTE" (CAP-7; DESIGN.md: Card detail,
- * Panels and terminal details, Card sizes; EXPERIENCE.md: Collection, Motion;
- * epic 10 R2, R6): a bracketed panel up to 720px wide, centred, its header
- * (kicker, number at top right), then the stage (the card at card-l over a
- * ground shadow, or the viewer's card back at 55% for a card not held) and
- * the information (title, position line, description, fact rows, share
- * link, actions). Two columns, stage and information, when the panel
+ * A card's detail, "FICHE DE LA CARTE": a bracketed panel up to 720px
+ * wide, centred, its header (kicker, number at top right), then the stage
+ * (the card at card-l over a ground shadow, held or not) and the
+ * information (title, position line, description, fact rows, share link,
+ * actions). Two columns, stage and information, when the panel
  * is wide enough (a container query, so a narrow right-hand panel stacks
  * them too); one column otherwise.
  *
@@ -102,7 +100,7 @@
   gap: var(--space-6);
 }
 
-/* A flat dark bar under the card (DESIGN.md, Ground shadows). */
+/* A flat dark bar under the card. */
 .card-detail__shadow {
   display: block;
   width: 168px;
@@ -277,8 +275,8 @@
   display: none;
 }
 
-/* The share sheet, "PARTAGER LA CARTE" (DESIGN.md, Share sheet): a
-   modal opened by "Partager" (a holder's), the card's thumbnail with its
+/* The share sheet, "PARTAGER LA CARTE": a modal opened by "Partager",
+   on every card, the card's thumbnail with its
    title and rarity line, the link in a read-only field beside "Copier" (to
    copy by hand where the clipboard cannot be written), the feedback, the
    note on the preview and the way to the public page. */
@@ -459,8 +457,8 @@
     display: block;
   }
 
-  /* Scroll padding covers the pinned actions too (DESIGN.md, Focus ring),
-     so a focused set link or share field is never hidden behind them. */
+  /* Scroll padding covers the pinned actions too, so a focused set link
+     or share field is never hidden behind them. */
   html:has(.card-detail__actions) {
     scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height));
   }
@@ -582,10 +580,10 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   view-transition-name: none;
 }
 
-/* ---- The public card page (DESIGN.md, Public card page; story 10.3): no
-   app chrome. The card at card-xl and its information side by side, both
-   capped at 1180px and centred; one column under 720px. Below, the LIVE
-   strip, an inert placeholder, and the footer's link to the legal page. ---- */
+/* ---- The public card page: no app chrome. The card at card-xl and its
+   information side by side, both capped at 1180px and centred; one column
+   under 720px. Below, the LIVE strip, an inert placeholder, and the
+   footer's link to the legal page. ---- */
 
 .public-card {
   display: flex;
@@ -612,7 +610,7 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   touch-action: pan-y;
 }
 
-/* A flat dark bar under the card (DESIGN.md, Ground shadows). */
+/* A flat dark bar under the card. */
 .public-card__shadow {
   display: block;
   width: 200px;

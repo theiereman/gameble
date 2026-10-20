@@ -47,3 +47,5 @@ ignore_unused:
   - "date.day_names"
   # The local time formats, read by I18n.l from a style (LocalTimeHelper#local_time_text).
   - "time.formats.local_*"
+  # The landing's unlock tiles, named under a prefix held in a variable (landings/_unlock).
+  - "landings.show.unlock.tiles.*"

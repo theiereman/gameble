@@ -26,7 +26,7 @@ class PagesController < ApplicationController
     @sets = @season ? set_rows : []
   end
 
-  # GET /:locale/more: the phone's PLUS tab (EXPERIENCE.md, PLUS rows), the
+  # GET /:locale/more: the phone's PLUS tab, the
   # rows of the screens that are not tabs. Nothing is read.
   def more
     authorize :page, :show?

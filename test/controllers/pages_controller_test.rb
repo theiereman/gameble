@@ -5,9 +5,8 @@ require_relative "../support/game_sets"
 require_relative "../support/game_trades"
 require_relative "../support/steam_sign_in"
 
-# The hub, "Pont de commandement" (story 8.2; DESIGN.md: Menu item, Showcase,
-# Daily booster panel, Set progress row, Signed-out hub, Sign-in panel), as
-# the server renders it for a player and for a visitor.
+# The hub, "Pont de commandement", as the server renders it for a player
+# and for a visitor.
 class PagesControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include GamePacks

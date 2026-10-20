@@ -1,7 +1,5 @@
 /*
- * The hub, "Pont de commandement" (DESIGN.md: Layout & Spacing, Kicker,
- * Menu item, Showcase, Daily booster panel, Community goal panel, Set
- * progress row, Signed-out hub). From 1180px three columns: kicker, menu
+ * The hub, "Pont de commandement". From 1180px three columns: kicker, menu
  * and daily booster panel on the left (340px), the showcase in the centre,
  * the community goal and the set progress on the right (340px). From 720px
  * two: the left column (260 to 300px) holds the kicker, menu, daily
@@ -369,7 +367,7 @@ button.menu-item:focus-visible:hover {
 .daily-booster__state--full { color: var(--color-alert); }
 
 /* The full reserve is an alert: the panel's line and the line saying why
-   turn orange (DESIGN.md, Colors: orange for "RÉSERVE PLEINE"). */
+   turn orange, as "RÉSERVE PLEINE" does. */
 .panel.daily-booster--full {
   box-shadow: inset 0 0 0 var(--space-unit) var(--color-alert);
 }
@@ -836,7 +834,7 @@ html[data-motion="reduced"] button.menu-item:hover {
 }
 
 /* ---- Community goal panel: the key panel, in progress, reached, and the
-   previous week's result after the rollover (DESIGN.md, EXPERIENCE.md) ---- */
+   previous week's result after the rollover ---- */
 
 .hub-goal {
   grid-area: goal;

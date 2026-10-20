@@ -1,6 +1,5 @@
-# The card face, the only one (DESIGN.md: Card face, Card sizes, Rarity
-# icon, Rarity effects; AD-16, AD-27, AD-28): every page draws it here, and
-# the pack reveal receives it as HTML rendered here. Styled by
+# The card face, the only one: every page draws it here, and the pack
+# reveal receives it as HTML rendered here. Styled by
 # app/frontend/styles/card.css.
 #
 #   render CardComponent.new(card: view, size: :l)
@@ -12,7 +11,7 @@
 # the browser by the card-art Stimulus controller (pixelcrush), the tilt,
 # the reflection on the varnish and a Légendaire's glitter run by the tilt
 # controller. `booster: true` gives a face the booster opening's
-# effects (Rarity effects) and a stronger tilt. `owned: false` draws a card
+# rarity effects and a stronger tilt. `owned: false` draws a card
 # its viewer does not hold: faded and grey, without its rarity effects or
 # tilt, a lock bare over its art.
 class CardComponent < ViewComponent::Base
@@ -20,7 +19,7 @@ class CardComponent < ViewComponent::Base
   SIZES = [ *FIXED_SIZES, :grid ].freeze
 
   # The art box, in art pixels (one art pixel is 2 CSS pixels): half the
-  # art box of each size in DESIGN.md.
+  # art box of each size in CSS pixels.
   ART = {
     s: { width: 50, height: 51 },
     m: { width: 72, height: 74 },

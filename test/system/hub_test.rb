@@ -2,7 +2,7 @@ require "application_system_test_case"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# The hub, "Pont de commandement" (story 8.2): its layout on a desktop and
+# The hub, "Pont de commandement": its layout on a desktop and
 # two phones, signed in and out; the sign-in panel and its focus; the menu's
 # number keys and the item focused on the way back; landing on the hub after
 # signing in and out.

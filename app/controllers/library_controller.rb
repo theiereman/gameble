@@ -23,7 +23,7 @@ class LibraryController < ApplicationController
     @season = Catalog::PublishedSeason.call
     return if @season.nil?
 
-    load_unique_cards
+    load_unique_cards if current_player
     load_set_board(@season, owner: current_player)
     load_discover(@season) if current_player.nil?
   end
@@ -35,7 +35,7 @@ class LibraryController < ApplicationController
     return if @season.nil?
 
     @grid = collection_grid(@season, params)
-    load_summary
+    load_summary if current_player
     load_grid(@grid)
     load_set_filter(@grid)
   end
@@ -45,7 +45,7 @@ class LibraryController < ApplicationController
     authorize :page, :show?
     @season = Catalog::PublishedSeason.call
     load_set_album(@season, owner: current_player, with_new: true)
-    load_unique_cards
+    load_unique_cards if current_player
   end
 
   private
@@ -96,7 +96,7 @@ class LibraryController < ApplicationController
       Game::CollectionWatermark.call(current_player) || NOTHING_SEEN
     end
 
-    # The games held per best rarity (@games_by_rarity), the games held
+    # A player's games held per best rarity (@games_by_rarity), the games held
     # (@unique) out of the season's cards (@season_cards), and the copies
     # held per rarity tier (@tier_counts), every edition counted.
     def load_summary

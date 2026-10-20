@@ -4,14 +4,13 @@ require_relative "../support/library_requests"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# A card's page as a share link opens it (CAP-9, story 4.5, reworked by the
-# epic 4 retrospective fixes, redrawn by story 10.3): only the card, never
-# who shared or holds it; the preview tags (title and rarity, never an
+# A card's page as a share link opens it: only the card, never who shared
+# or holds it; the preview tags (title and rarity, never an
 # image) in the URL's language, on the configured public base; for a
 # visitor, the public card page with the invitation to play and, for an
 # older browser, the line asking to update; open to link-preview crawlers
-# and older browsers, with the library its sets lead to; the share links of
-# story 4.5 redirected; no database id.
+# and older browsers, with the library its sets lead to; the old share
+# links, which named the sharer, redirected; no database id.
 class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include LibraryRequests
@@ -232,7 +231,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_equal newcomer.id, session[:player_id]
   end
 
-  test "a share link of story 4.5 redirects to the card's page, whatever the token, without a query" do
+  test "an old share link redirects to the card's page, whatever the token, without a query" do
     banned = accounts_players(:banned)
 
     [ @sharer.token, banned.token, "A" * 24 ].each do |token|
@@ -286,7 +285,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the share links of story 4.5 have no route helper any more" do
+  test "the old share links have no route helper" do
     assert respond_to?(:card_season_path)
     assert_not respond_to?(:brother_card_path)
     assert_not respond_to?(:brother_card_season_path)

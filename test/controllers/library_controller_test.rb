@@ -644,9 +644,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_request_queries(13) { get library_cards_path(locale: :en) }
 
     delete session_path(locale: :en)
-    # The same without the lookup, the slots, the unique cards, the copies
-    # per tier and the trades waiting, the grid's count, unfiltered by
-    # state, read from the query cache.
+    # The same without the lookup, the player's editions, the figures and
+    # the trades waiting; the grid's count is the whole season's.
     assert_request_queries(7) { get library_cards_path(locale: :en) }
   end
 

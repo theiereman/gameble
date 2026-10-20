@@ -322,7 +322,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".collection-pages a[rel=prev][href=?]", "/fr/library/theme/roguelike?page=3"
   end
 
-  test "an album of 752 cards costs the same queries as one of three: ten for a player, six for a visitor" do
+  test "an album of 752 cards costs the same queries as one of three: ten for a player, five for a visitor" do
     season, cards = published_cards(755)
     insert_theme(cards.first(752), key: "roguelike", season:)
     insert_theme(cards.last(3), key: "horror", season:)
@@ -343,10 +343,10 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_equal "1/3", count
 
     delete session_path(locale: :en)
-    # The same without the lookup, the editions, the unique cards and the
-    # trades waiting.
-    assert_request_queries(6) { get library_set_path(locale: :en, kind: "theme", key: "roguelike") }
-    assert_request_queries(6) { get library_set_path(locale: :en, kind: "theme", key: "horror") }
+    # The same without the lookup, the editions, the unique cards, the
+    # season's cards and the trades waiting.
+    assert_request_queries(5) { get library_set_path(locale: :en, kind: "theme", key: "roguelike") }
+    assert_request_queries(5) { get library_set_path(locale: :en, kind: "theme", key: "horror") }
   end
 
   test "every kind opens its album under its name" do

@@ -4,9 +4,9 @@ require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
 # A card's detail, "FICHE DE LA CARTE": opened from a theme's owned face,
-# from an empty slot (the faded card back, from a set's grid and from the
-# whole season's), from an opened pack's faces, walking the card's theme on
-# the desktop too; from a filtered, searched grid, ◀ ▶ walk that grid as
+# from an album's missing slot and from the whole season's grid (the
+# card's face, held or not), from an opened pack's faces, walking the
+# card's theme on the desktop too; from a filtered, searched grid, ◀ ▶ walk that grid as
 # shown and the way back returns to it with its filters; on a phone the
 # sub-view: its heading takes the focus as it opens, ◀ ▶ and a swipe step
 # through the grid, replacing the URL, "◀ Grille" and browser Back return
@@ -167,7 +167,7 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_no_button "Repost"
   end
 
-  test "a visitor clicks an empty slot: the Standard back, faded, with the card's facts" do
+  test "a visitor clicks an album's missing slot: the card's face, its facts and PARTAGER, no copies" do
     season = publish_sets_draft
     id = members(season, "pirates").first
     card = Catalog::CardSeason.find(id).card
@@ -177,44 +177,26 @@ class CardDetailTest < ApplicationSystemTestCase
 
     assert_current_path "/fr/cards/#{card.slug}/seasons/#{season.number}?#{{ grid: { key: "pirates", kind: "theme", q: "" } }.to_query}"
     assert_selector ".card-detail h1", text: card.texts.find_by!(locale: "fr").title
-    assert_selector ".card-detail__back img[src*='back-standard']"
-    assert_equal 0.55, find(".card-detail__back-image").evaluate_script("Number(getComputedStyle(this).opacity)")
-    assert_selector ".card-detail__not-owned", text: "NON POSSÉDÉE"
-    assert_no_selector ".card-detail__card .card"
+    assert_selector ".card-detail__card .card"
+    assert_no_selector ".card-detail__card .card--not-owned"
     assert_selector ".card-detail__fact dt", text: "RARETÉ"
     assert_no_selector ".card-detail__copies"
-    assert_no_selector ".card-detail__share-button"
+    assert_selector ".card-detail__share-button"
     assert_selector ".card-detail__store[href$='l=french']"
     take_screenshot
-
-    # A long title stays on the back's bottom plate, two lines at most,
-    # clear of the back's ring (which ends 214px down).
-    card.texts.find_by!(locale: "fr").update!(title: "Un titre de jeu vraiment très long qui ne tiendrait jamais sur deux lignes")
-    visit current_url
-    plate_top, title_lines = evaluate_script(<<~JS)
-      (() => {
-        const back = document.querySelector(".card-detail__back").getBoundingClientRect()
-        const title = document.querySelector(".card-detail__back-title")
-        const plate = document.querySelector(".card-detail__back-plate").getBoundingClientRect()
-        return [ plate.top - back.top, Math.round(title.getBoundingClientRect().height / parseFloat(getComputedStyle(title).lineHeight)) ]
-      })()
-    JS
-    assert_operator plate_top, :>=, 216
-    assert_operator title_lines, :<=, 2
   end
 
-  test "from the whole season's collection, a missing slot opens its card on the faded back, walking the collection" do
+  test "from the whole season's collection, a card opens on its face, walking the collection" do
     season = publish_sets_draft
 
     visit library_cards_path(locale: :en)
     links = all(".collection-grid a.card-link").map { it[:href] }
-    find(".collection-grid > li:nth-child(2) .missing-slot").click
+    find(".collection-grid > li:nth-child(2) a.card-link").click
 
     assert_current_path URI(links[1]).request_uri
     assert_match(/\?grid%5Bq%5D=\z/, current_url_path)
-    assert_selector ".card-detail__back img[src*='back-standard']"
-    assert_selector ".card-detail__not-owned", text: "NOT OWNED"
-    assert_no_selector ".card-detail__card .card"
+    assert_selector ".card-detail__card .card"
+    assert_no_selector ".card-detail__card .card--not-owned"
     assert_equal season.number.to_s, current_url_path[%r{/seasons/(\d+)}, 1]
     # ◀ ▶ lead to the collection's first and third cards, on the desktop too.
     assert_equal [ links[0], links[2] ].map { URI(it).request_uri }, all("a.card-detail__nav").map { URI(it[:href]).request_uri }

@@ -3,7 +3,7 @@ require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# The shell in a real browser (story 8.1): the top bar, the phone tab bar
+# The shell in a real browser: the top bar, the phone tab bar
 # under 720px only, no sideways scroll, toasts that close, the two fonts
 # loaded (JetBrains Mono for every text and figure, VT323 for the titles
 # only, never under 20px, nothing under 10px), on a desktop and on the two

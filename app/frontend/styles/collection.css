@@ -250,7 +250,7 @@
   box-shadow: var(--focus-ring-gap), var(--control-border);
 }
 
-/* The search and the FILTRES zone (DESIGN.md, Filter zone): a search field
+/* The search and the FILTRES zone: a search field
    over a folded panel; inside, a group of chips per criterion. A chip is a
    checkbox, hidden but focusable, whose plate shows its state. */
 .filters {
@@ -696,7 +696,7 @@
   pointer-events: none;
 }
 
-/* A missing card (DESIGN.md, Missing-card slot): the card's shape, a dark
+/* A missing card in a set album: the card's shape, a dark
    hatched fill in a line-deep border, a padlock, the game's name and year. */
 .missing-slot {
   display: flex;

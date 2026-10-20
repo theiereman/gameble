@@ -1,9 +1,8 @@
 /*
- * The card face, the only one (DESIGN.md: Card face, Card sizes, Rarity
- * icon, Rarity effects; EXPERIENCE.md, Implementation notes; AD-27, AD-28):
- * CardComponent draws it on every page, and the pack reveal receives it as
- * HTML. Five sizes: s, m, l and xl, fixed, and grid, as wide as its slot
- * in the collection grid (a size container), in the medium layout from
+ * The card face, the only one: CardComponent draws it on every page, and
+ * the pack reveal receives it as HTML. Five sizes: s, m, l and xl,
+ * fixed, and grid, as wide as its slot in the collection grid (a size
+ * container), in the medium layout from
  * 140px and the small one below. The frame is the rarity colour inside the
  * pixel outline, with the bevel; inside it the body holds the title band,
  * the art box and the two footer lines.
