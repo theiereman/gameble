@@ -30,8 +30,8 @@ gameble is an open-source passion project, and the game its author wants to play
   - **intent:** A visitor can sign in with their Steam account, and only that way, to get a player account.
   - **success:**
     - Steam sign-in creates the account or reuses the one tied to that Steam account. No other sign-in method exists, and gameble stores no password.
-    - The only link to Steam's sign-in is Valve's official "Sign in through Steam" image, unmodified. A game-styled call to action that needs an account opens a sign-in panel holding one title line and that image.
-    - Signing in lands on the hub. Signed out, the root (/fr, /en), signing out and deleting the account land on the visitor landing (CAP-24); a signed-in player never sees it. The signed-out hub stays reachable from the landing and the public card page.
+    - The only Steam-branded sign-in is Valve's official "Sign in through Steam" image, unmodified. The game-styled sign-in buttons (the landing's « Embarquer sur le pont » and its boarding module, the public card page's « Ouvrir mes premières capsules ») sign in through Steam directly; beside each of them, a line says that signing in accepts the terms of use and acknowledges the privacy notice. There is no sign-in panel (author, 2026-10-20).
+    - Signing in lands on the hub. Signed out, the root (/fr, /en), signing out and deleting the account land on the visitor landing (CAP-24); a signed-in player never sees it. A visitor reaches only the pages CAP-18 lists; there is no signed-out hub (author, 2026-10-20).
 - **CAP-2**
   - **intent:** The system builds a card catalog from the Steam catalog, keeping established games only.
   - **success:** An import run produces cards that match the inclusion and exclusion rules in `catalog-and-rarity.md`, each with its title, short description, release date, genre, store tags, sets and Steam image address, all stored in gameble's own database. An administrator starts an import by hand and can watch its progress.
@@ -144,10 +144,11 @@ gameble is an open-source passion project, and the game its author wants to play
     - An achievement is granted when its condition is met and shows as earned on the achievements screen.
     - Ten ship at launch: first pack, first Épique, first Légendaire, first complete set, first trade, 10, 100 and 500 packs opened, three complete sets, first repost.
 - **CAP-18**
-  - **intent:** A visitor without an account can look at everything that needs no account, but cannot act.
+  - **intent:** A visitor without an account can look at the game's public pages, but cannot act.
   - **success:**
-    - Signed out, a visitor can open the hub, the feed, public profiles, card details and the sets with their empty slots.
-    - Opening a pack, trading and collecting the bonus are refused without an account and lead to Steam sign-in.
+    - Signed out, a visitor reaches only the landing, Toutes les cartes and its card detail (every card's face, with no ownership data), the public card page, public profiles with their albums, the activity feed read-only, Comment ça marche, the legal page and invitation links. Every other page, the hub and the collection included, leads to the landing (author, 2026-10-20).
+    - An action that needs an account shows greyed and disabled. Opening a pack, trading and collecting the bonus are refused without an account, whatever the client does (author, 2026-10-20).
+    - A visitor signs in only through Steam (CAP-1), with the line that signing in accepts the terms of use and the privacy notice (author, 2026-10-20).
 - **CAP-19**
   - **intent:** A player can repost a card they own to the Brotherhood feed to show it off, so flexing a collection happens in gameble rather than on Discord.
   - **success:**
@@ -184,7 +185,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **CAP-24**
   - **intent:** A signed-out visitor meets a landing that gives the Brotherhood's mission, says what gameble is and makes them want to play.
   - **success:**
-    - Signed out, /fr and /en show the landing in their language; its sign-in actions open the Steam sign-in panel (CAP-1) and « Embarquer sur le pont » opens the signed-out hub.
+    - Signed out, /fr and /en show the landing in their language; its sign-in actions, « Embarquer sur le pont » included, sign in through Steam directly (CAP-1), and it links Toutes les cartes and Comment ça marche, the visitor's way to the pages CAP-18 lists (author, 2026-10-20).
     - It shows live activity from the game (the feed's latest entries, the season, the weekly goal) and sets out how the game works, what there is to unlock, the open-source project with its call for artists, narrators and developers through the repository, and the free, ad-free, data-respecting model kept alive by support.
     - It works on phone and desktop under the enforced CSP, with its own « Animations réduites » switch for visitors, remembered and carried into the account at sign-in.
     - Look, copy and behaviour follow `DESIGN.md` and `EXPERIENCE.md` (Landing).
@@ -221,7 +222,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **Pack opening:** p95 latency < 200 ms.
 - **Catalog source:** the Steam Web API (keyed, batched), read only by offline import scripts that copy the data into gameble's database; the keyless store API is not used. Play never depends on a live Steam API call, and a card keeps its data if Steam changes or removes the game.
 - **Images:** loaded from Steam's CDN, never copied. In the browser, at display time, the vertical cover is cropped to the card's art box, pixelated at 2 CSS px per image pixel and reduced to about 32 colours, with no dithering. The publisher is shown on the card; the ownership notice is on the legal page. There is no fallback art.
-- **Legal:** the notice that gameble has no affiliation with Steam or Valve, the ownership notice (in substance: « Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons. »), the terms of use and the privacy notice live on a legal page reached from "Mentions légales" (profile and public page footer).
+- **Legal:** the notice that gameble has no affiliation with Steam or Valve, the ownership notice (in substance: « Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons. »), the terms of use and the privacy notice live on a legal page reached from "Mentions légales" (profile, public page footer and landing footer; author, 2026-10-20).
 - **Look and behaviour** follow `DESIGN.md` and `EXPERIENCE.md`. The back-office is outside them: plain functional style, behaviour unchanged, designed later.
 - **Reduced motion:** an in-app "Animations réduites" setting follows the system preference by default. When on, it also stops the LIVE ticker and every looping or blinking effect. Signed-out visitors get the same switch on the landing (CAP-24).
 - **Bots:** edge bot protection from day one; trades are limited to friends.

@@ -1,7 +1,7 @@
 ---
 epic: epic-card-catalog
 date: 2026-10-20
-verdict: accepted-with-open-items
+verdict: accepted
 criteria: declared
 headless: true
 ---
@@ -108,7 +108,7 @@ All items are proposed, not applied; the author decides what runs.
 
 ## Acceptance verdict
 
-**Machine verdict: accepted-with-open-items** (criteria declared in the epic file's Done when).
+**Verdict: accepted** (author, 2026-10-20). The machine verdict was accepted-with-open-items (criteria declared in the epic file's Done when); the author accepted the epic and settled the open items below.
 
 1. Every card shows its face, not-owned set apart for a player, copies shown, albums keep missing slots: afe6d9b3, `library_controller_test.rb`, author-validated on v0.1.4-rc.1. Met.
 2. Search, rarity and set filters for a player and a visitor; empty result: unchanged grid filters, 7a8b899e tests. Met.
@@ -120,10 +120,10 @@ All tickets are finished. Open items: F-S1 (the spec contradicts the as-built), 
 
 ## Open questions
 
-- Should the feed join the public-read throttle now that it is a visitor page (F-A1)?
-- Comment ça marche is open to visitors, but nothing links them to it. Should the landing link it, or should it close to visitors like the hub (F-R1)?
-- Should CAP-18 in the spec now read as the visitor surface as built (F-S1)?
-- 14.5's open question (`story-a-visitor-s-way-in-to-every-card-plan.md:111`) on the landing link's place and words ("Voir toutes les cartes", module 01 · Concept): the author's staging review accepted the ticket; is the wording final?
+- Should the feed join the public-read throttle now that it is a visitor page (F-A1)? **Answer (author, 2026-10-20): yes.**
+- Comment ça marche is open to visitors, but nothing links them to it. Should the landing link it, or should it close to visitors like the hub (F-R1)? **Answer (author, 2026-10-20): a link from the landing.**
+- Should CAP-18 in the spec now read as the visitor surface as built (F-S1)? **Answer (author, 2026-10-20): yes, the spec and the epic file are reconciled, done in the follow-up below.**
+- 14.5's open question (`story-a-visitor-s-way-in-to-every-card-plan.md:111`) on the landing link's place and words ("Voir toutes les cartes", module 01 · Concept): the author's staging review accepted the ticket; is the wording final? **Answer: already approved by the author on 2026-10-20.**
 
 ## Assumptions
 
@@ -134,3 +134,12 @@ All tickets are finished. Open items: F-S1 (the spec contradicts the as-built), 
 - No end-to-end browser check was run; the author's staging reviews stand in for it.
 - The machine verdict **accepted-with-open-items** was rendered without a human decision on the epic.
 - Each action item above is a proposal made without the author.
+
+## Follow-up applied
+
+Applied on 2026-10-20 from the author's answers above, in two commits:
+
+- **Code, 0b31db9c** (feat(visitor)): `feed` joins `PublicReadThrottle::PAGES` (`config/initializers/rack_attack.rb`), with a rate-limit test that the 121st read of /fr/feed from one address within a minute gets 429 and the feed paths counted as shared pages (F-A1, action item 3). The landing footer links "Comment ça marche" / "How it works", before "Mentions légales", with a request test that a visitor follows it (F-R1). EXPERIENCE.md's Information Architecture row for Comment ça marche, its landing footer copy and behaviour rows, and DESIGN.md's landing footer name the link.
+- **Docs, the commit that records this section** (docs(card-catalog)): the spec's CAP-1, CAP-18, CAP-24 and the legal line now describe the visitor surface as built, marked "(author, 2026-10-20)" (F-S1, action item 1); the epic file's R2, Done when 3, Boundaries and Notes record the real card on the detail and the 14.7, 14.8 and 14.9 decisions (F-S2, F-S3, action item 2); each plan's `commit` names its develop commit (afe6d9b3, 7649120e, 7a8b899e, 3feb5033, 82fabc5b, 3278d2c3, f87b3f56, b67cd2eb) instead of the worktree one (F-P1, for this epic); this file's verdict and answers.
+
+Not applied here: the process items 4 to 6 (orchestrator) and item 7 (epic-human-readable-codebase).

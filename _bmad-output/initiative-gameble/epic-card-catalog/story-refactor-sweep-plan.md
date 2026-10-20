@@ -5,6 +5,7 @@ ticket: 6
 created: '2026-10-20'
 status: 'built'
 baseline_revision: '39df98bf7484d804a208e6445450985e5dc31238'
+commit: '82fabc5b060dd28314f3dcf9a88020184664e3c2'
 route: 'oneshot'
 route_source: 'auto'
 review: 'quick'

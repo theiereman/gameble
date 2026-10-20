@@ -26,7 +26,7 @@ For a player or a visitor: they can find out whether a game is a card, and see w
 ## Requirements
 
 - R1 (CAP-6): "Toutes les cartes" lists every card of the published season, one card per game across editions, owned first; a card the viewer does not own shows its published-season face, set apart from owned cards, never a locked missing slot; an owned card keeps its copies badge ("×n") and edition count. Set albums keep their missing slots.
-- R2 (CAP-7): each card of the grid opens its card detail (beside the grid on desktop, its page on the phone), which shows the card's face, owned or not, a card not owned set apart as in the grid instead of the faded card back.
+- R2 (CAP-7): each card of the grid opens its card detail (beside the grid on desktop, its page on the phone), which shows the real card's face, owned or not, the same for every viewer, instead of the faded card back (author, 2026-10-20).
 - R3 (CAP-6, CAP-18): the grid's existing search and filters (game name, rarity, set kind and set name, genre) narrow every card, for a player and for a visitor; an empty result says so. Nothing is added to them.
 - R4 (CAP-18): a signed-out visitor opens the grid and the card detail and sees no ownership data (no state filter, copies, edition count, RAPPORT or owned count), under the public pages' throttling, never cached for another visitor, with no database id in the page or its links.
 - R5 (CAP-18): a signed-out visitor reaches the grid from an entry the author chooses (see the open question in Notes).
@@ -35,13 +35,13 @@ For a player or a visitor: they can find out whether a game is a card, and see w
 
 1. "Toutes les cartes" lists every card of the published season with its face, owned or not; a card not owned is set apart and an owned card shows its copies; a set album still shows its missing slots.
 2. A search by game name narrows the list as it is typed, the rarity and set filters combine with it, and an empty result says so, for a player and for a signed-out visitor.
-3. Each card in the list opens its card detail, which shows the card's face, owned or not.
+3. Each card in the list opens its card detail, which shows the real card's face, owned or not, the same for every viewer.
 4. A signed-out visitor sees the grid and the detail with no ownership data, throttled like the other public pages, never cached for another visitor, with no database id, and reaches the grid from the entry the author chose.
 5. The screen and its search work in French and in English, on a phone and on a desktop.
 
 ## Boundaries
 
-The "Toutes les cartes" grid (`LibraryController#cards`, `library/_grid`, `_filters`, `_status`), the card detail it opens (`CardsController#show`, `cards/_detail`) and the visitor's way in to it. Not a new screen, a new filter or a new spec capability; not past seasons (the grid reads one card per game across editions, as the collection does); not the set albums' missing slots; not trading or selling cards; not the player's sets (epic-space-terminal-screens, epic-recognizable-sets).
+The "Toutes les cartes" grid (`LibraryController#cards`, `library/_grid`, `_filters`, `_status`), the card detail it opens (`CardsController#show`, `cards/_detail`) and the visitor's way in to it; and, since 14.8 and 14.9 (author, 2026-10-20), the pages a signed-out visitor reaches: the landing, Toutes les cartes and its card detail, the public card page, public profiles with their albums, the activity feed read-only, Comment ça marche, the legal page and invitation links, every other page leading a visitor to the landing, and the visitor's phone tab bar. Not a new screen, a new filter or a new spec capability; not past seasons (the grid reads one card per game across editions, as the collection does); not the set albums' missing slots; not trading or selling cards; not the player's sets (epic-space-terminal-screens, epic-recognizable-sets).
 
 ## References
 
@@ -75,3 +75,7 @@ The "Toutes les cartes" grid (`LibraryController#cards`, `library/_grid`, `_filt
 - Decision (2026-10-19): entry 1 waits on 13.20 and 13.24, still being built on the same grid and detail column; entries 2 and 3 name 10.7 and 10.2, the grid with its filters and the card detail they change, as the epic's wait on epic 10.
 - Decision (2026-10-19, author): a signed-out visitor enters the catalog from the landing; story 5 waits on the landing's shell (20.2).
 - Decision (author, 2026-10-20, entry 1): a signed-in player's card not owned shows its face faded and grey with a pixel lock, in the grid only; the card detail always shows the real card, for everyone, so a shared link and every viewer see the same card; PARTAGER on every card; a visitor sees every face plain with no ownership data and no owned count on any collection page; another player's full collection fades the cards that player lacks; a menu entry "03 TOUTES LES CARTES" (hub and PLUS, visitors included) opens the catalog, added by entry 5. Approved on the mock mockups/catalog-not-owned.html.
+- Decision (author, 2026-10-20, on reviewing v0.1.4-rc.1 on staging): 14.7 (a visitor's collection entry suggests sets to discover) was built (3278d2c3) and then dropped: a signed-out visitor has no reason to be on the hub or the collection. 14.8 removed its À DÉCOUVRIR with the collection entry.
+- Decision (author, 2026-10-20, 14.8): a signed-out visitor reaches only the landing, Toutes les cartes and its card detail, the public card page, public profiles with their albums and Comment ça marche; the hub, the collection entry, a set album outside a profile and every other page lead a visitor to the landing; « Embarquer sur le pont » signs in through Steam; every action that needs an account shows greyed and disabled; the sign-in panel is removed. Built in f87b3f56 (with the test fix 42c9d71c).
+- Decision (author, 2026-10-20, 14.9): the activity feed opens again to a visitor, read-only, and a visitor's phone tab bar holds ACCUEIL and TOUTES LES CARTES; the legal page and invitation links stay open to visitors; the terms and privacy line stands beside each game-styled Steam sign-in. Built in b67cd2eb.
+- Decision (author, 2026-10-20, retrospective): the feed is read under the public pages' throttle, and the landing footer links Comment ça marche, so a visitor reaches it; R2 and Done when 3 now say the detail shows the real card to everyone, as entry 1 decided.

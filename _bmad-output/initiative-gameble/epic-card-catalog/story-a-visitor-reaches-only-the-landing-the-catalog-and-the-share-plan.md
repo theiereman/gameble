@@ -15,7 +15,7 @@ followup_review_recommended: true
 context: []
 warnings: ['oversized']
 deferred: []
-commit: 'b175b411d9c848cffdcff20c828e60ee4ab723e4'
+commit: 'f87b3f56baa7369d723d1c13cc3146f6e70e0f9a'
 ---
 
 <intent-contract>
