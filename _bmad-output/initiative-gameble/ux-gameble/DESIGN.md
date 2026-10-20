@@ -3,7 +3,7 @@ name: gameble
 description: Pixel-art trading card game of Steam games, presented as an elegant space terminal in Steam's colors. Real Steam covers under a fine pixel filter, sober panels, small effects that tick in steps.
 status: final
 created: 2026-10-01
-updated: '2026-10-19'
+updated: '2026-10-20'
 sources:
   - ../spec-gameble/spec-gameble.md
   - ../brief-gameble/brief-gameble.md
@@ -827,7 +827,7 @@ In the top bar: the five icons, each followed by the number of copies owned at t
 
 #### Menu item
 
-The hub's numbered menu: rows of `{spacing.menu-item-height}` on `{colors.panel}` with `{components.control-border.css}`; the number (01 to 08) in small accent JetBrains Mono, the label in `{typography.menu}`, and on the right a count badge or a JetBrains Mono meta ("87/16 480", "2 en ligne", "En direct", "12/40"); SOUTENIR, which leaves for another site, shows the pixel external icon on the right at rest instead. Hover: fills with `{colors.accent}`, text `{colors.on-accent}`, slides 10px right, a pixel arrow appears (SOUTENIR keeps its external icon and gets no arrow). Pressed: `{colors.accent-press}`. The current item keeps a 6px accent bar on its left. Numbers belong to this desktop menu only; the phone's PLUS rows carry none.
+The hub's numbered menu: rows of `{spacing.menu-item-height}` on `{colors.panel}` with `{components.control-border.css}`; the number (01 to 09; 03 TOUTES LES CARTES since 2026-10-20, author) in small accent JetBrains Mono, the label in `{typography.menu}`, and on the right a count badge or a JetBrains Mono meta ("87/16 480", "2 en ligne", "En direct", "12/40"); SOUTENIR, which leaves for another site, shows the pixel external icon on the right at rest instead. Hover: fills with `{colors.accent}`, text `{colors.on-accent}`, slides 10px right, a pixel arrow appears (SOUTENIR keeps its external icon and gets no arrow). Pressed: `{colors.accent-press}`. The current item keeps a 6px accent bar on its left. Numbers belong to this desktop menu only; the phone's PLUS rows carry none.
 
 - **Count badge:** `{colors.lime}` with `{colors.on-lime}`; orange with `{colors.on-alert}` when the player must act (a trade waiting); grayed at zero. Steady, no pulse.
 
@@ -837,7 +837,7 @@ The hub's numbered menu: rows of `{spacing.menu-item-height}` on `{colors.panel}
 
 #### PLUS rows (phone)
 
-Menu-item rows of `{spacing.plus-row-height}` without numbers: AMIS, FIL D'ACTIVITÉ, SUCCÈS, COMMENT ÇA MARCHE, PROFIL ET PARAMÈTRES, SOUTENIR (with the external icon), under the kicker "PONT DE COMMANDEMENT" and the subtitle "Le reste du vaisseau".
+Menu-item rows of `{spacing.plus-row-height}` without numbers: TOUTES LES CARTES, AMIS, FIL D'ACTIVITÉ, SUCCÈS, COMMENT ÇA MARCHE, PROFIL ET PARAMÈTRES, SOUTENIR (with the external icon), under the kicker "PONT DE COMMANDEMENT" and the subtitle "Le reste du vaisseau".
 
 ### Screens
 
@@ -923,8 +923,9 @@ Reference: [mockups/key-collection-sets.html](mockups/key-collection-sets.html),
 - **RAPPORT panel:** distinct games, duplicates, games per best owned rarity and copies across editions, with icon, name and count in the rarity color. On the phone it folds to one line, "n cartes · n doublons", and adds a "CARTES UNIQUES" row when open.
 - **Copy badge:** "x3" in a small accent box at a card's top-right, from x2 (a single copy shows no badge; author, 2026-10-07), counting every edition; a card held in several editions adds "3 éd." in the same box style below it. **NOUVEAU tag:** a small lime box at the top-left.
 - **Selected card:** a steady 3px accent frame around it.
-- **Missing-card slot:** the card shape with a dark hatched fill and a `{colors.line-deep}` border, a small pixel icon, the missing game's name (JetBrains Mono, muted) and its year. Nothing else.
-- **Card detail ("FICHE DE LA CARTE"):** a bracketed panel with the number at top right, the card at `card-l` with its effects, a ground shadow, rows of facts (label in muted JetBrains Mono left, value right, on `{colors.panel-sunken}`): title, publisher, rarity, genre, year, description, minted season, sets, copies owned, then an "ÉDITIONS" row listing the editions owned grouped by rarity, folded beyond three lines. Buttons at the bottom: "VOIR SUR STEAM" (primary), "PARTAGER" and, for a card owned, "REPOSTER" and "METTRE EN VITRINE" or "RETIRER DE LA VITRINE" (secondary; author, 2026-10-15). A card not owned shows the active card back at 55% opacity with its name and year. Phone: a sub-view with 44 × 64 CSS px ◀ ▶ buttons beside the card, a position line ("S1 · #4 215 · 3 / 13 · glissez pour parcourir") and actions pinned at the bottom.
+- **Missing-card slot (set albums only; author, 2026-10-20):** the card shape with a dark hatched fill and a `{colors.line-deep}` border, a small pixel icon, the missing game's name (JetBrains Mono, muted) and its year. Nothing else.
+- **Card not owned (Toutes les cartes, signed-in player only; author, 2026-10-20):** the card's own face at 45% opacity, fully grey (`filter: grayscale(1)`), its rarity effects off (no rays, glitter, varnish or iridescence), and the pixel lock bare at the centre of the art, in `{colors.text-bright}` with a 1px `{colors.backdrop}` outline, about a third of the art's width. The copy badge, edition count and NOUVEAU never appear on it. A signed-out visitor's grid shows every face plain. Mock: [mockups/catalog-not-owned.html](mockups/catalog-not-owned.html) (variant A's face with variant E's lock; spines win on conflict).
+- **Card detail ("FICHE DE LA CARTE"):** a bracketed panel with the number at top right, the card at `card-l` with its effects, a ground shadow, rows of facts (label in muted JetBrains Mono left, value right, on `{colors.panel-sunken}`): title, publisher, rarity, genre, year, description, minted season, sets, copies owned, then an "ÉDITIONS" row listing the editions owned grouped by rarity, folded beyond three lines. Buttons at the bottom: "VOIR SUR STEAM" (primary), "PARTAGER" (every card, every viewer; author, 2026-10-20) and, for a card owned, "REPOSTER" and "METTRE EN VITRINE" or "RETIRER DE LA VITRINE" (secondary; author, 2026-10-15). A card not owned shows its own face, with its effects, never greyed or locked (author, 2026-10-20); a signed-out visitor's detail has no copies or ÉDITIONS row. Phone: a sub-view with 44 × 64 CSS px ◀ ▶ buttons beside the card, a position line ("S1 · #4 215 · 3 / 13 · glissez pour parcourir") and actions pinned at the bottom.
 
 #### Trade board
 

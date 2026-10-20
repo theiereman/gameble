@@ -11,6 +11,7 @@ after = ["13.25"]
 hitl = true
 risk = "low"
 unknown = "whether the detail opened from a set album's missing slot also shows the face, whether another player's full collection (read-only on the owner's cards) keeps its missing slots, and whether a visitor loses the top bar's owned count on \"Toutes les cartes\" only or on every library page; all settled with the author here."
+notes = ["Designed with the author on 2026-10-20: DESIGN.md (Card not owned, Card detail, Missing-card slot, Menu item, PLUS rows) and EXPERIENCE.md (Information Architecture, Navigation, Card detail, Card not owned, Filter zone, RAPPORT, Card back, accessibility); mock mockups/catalog-not-owned.html. The unknowns are settled: the detail always shows the real card, so a missing slot of an album opens it too; another player's full collection shows their cards not owned faded and locked; a visitor loses the owned count on every collection page."]
 
 [[entry]]
 id = 2
@@ -23,6 +24,7 @@ after = [1, "10.7"]
 hitl = false
 risk = "low"
 references = ["app/views/library/_grid.html.erb", "packs/game/app/queries/game/collection_states.rb", "test/controllers/library_controller_test.rb, the visitor cases: every slot missing without a holdings query, a visitor's seven queries, a visitor opening on every slot"]
+notes = ["Author, 2026-10-20: the not-owned treatment is variant A's face (45 % opacity, grey, rarity effects off) with variant E's bare pixel lock centred over the art, for a signed-in player only; a visitor's faces are plain; another player's full collection uses it by that player's holdings. A card not owned adds \"non possédée\" / \"not owned\" to its accessible name."]
 
 [[entry]]
 id = 3
@@ -35,6 +37,7 @@ after = [2, "10.2"]
 hitl = false
 risk = "low"
 references = ["app/controllers/cards_controller.rb, @faded", "app/views/cards/_detail.html.erb", "test/controllers/cards_controller_test.rb, the faded back cases"]
+notes = ["Author, 2026-10-20, supersedes this entry's description: the detail shows the real card, never greyed or locked, owned or not, signed in or not (no faded back); PARTAGER is on every card for every viewer; repost and the showcase buttons stay for owned cards; a player's copies and ÉDITIONS rows read \"Aucun\" / \"Aucune\" for a card not owned, a visitor has neither row."]
 
 [[entry]]
 id = 4
@@ -59,6 +62,7 @@ after = [4, "20.2"]
 hitl = true
 risk = "low"
 unknown = "the entry point is the author's open question; a landing module would also wait on epic-visitor-landing's landing shell, to be added to this entry and to the epic's `after` once chosen."
+notes = ["Author, 2026-10-20: this entry also adds the menu entry \"03 TOUTES LES CARTES\" right after 02 COLLECTION on the hub (signed in and signed out; the entries after it renumber 04 to 09) and a TOUTES LES CARTES row first in the phone's PLUS rows. The landing link stays, now that the landing's shell (20.2) is built."]
 
 [[entry]]
 id = 6
