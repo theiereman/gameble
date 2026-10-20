@@ -3,8 +3,8 @@
 Operations and decisions waiting for the author's go-ahead, kept since 2026-10-02. Open items first; settled ones are listed by date at the end.
 
 - **Cloudflare and link previews (epic 4; author 2026-10-08: when production is set up).** When Cloudflare is set up: Bot Fight Mode off, or a WAF skip rule for Discordbot, Twitterbot and WhatsApp on `/*/cards/*` (the share link since story 4.7) and `/*/brothers/*` (public profiles, and the old share links that redirect to the card), or previews fail.
-- **After the next deploy: `bin/rails game:drop_friends_and_trades` (story 5.11, 2026-10-07).** Closes the trades, friendships and invitations of accounts deleted before 5.11 and of bans set from the console; run once after deploying, and again after any console ban until story 7.5's ban action publishes `Accounts::PlayerBanned`.
-- **After the next deploy: `bin/rails game:backfill_achievements` (2026-10-12).** Grants, silently, the achievements players met before the achievements engine shipped. Run it right after deploying: until then a veteran's first opening, trade or repost grants their past milestones live, each with a toast and not marked retroactive. A rerun grants nothing twice.
+- **On production, after its next deploy: `bin/rails game:drop_friends_and_trades` (story 5.11, 2026-10-07; run on staging by the author on 2026-10-20).** Closes the trades, friendships and invitations of accounts deleted before 5.11 and of bans set from the console; run once after deploying, and again after any console ban until story 7.5's ban action publishes `Accounts::PlayerBanned`.
+- **On production, after its next deploy: `bin/rails game:backfill_achievements` (2026-10-12; run on staging by the author on 2026-10-20).** Grants, silently, the achievements players met before the achievements engine shipped. Run it right after deploying: until then a veteran's first opening, trade or repost grants their past milestones live, each with a toast and not marked retroactive. A rerun grants nothing twice.
 
 ## Settled on 2026-10-20
 
