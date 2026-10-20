@@ -683,7 +683,7 @@ Non-blockers, left open.
 - **Landing copy in English:** written at the build, under the same rules as the French, and approved by the author in the pull request, or written first in a copy ticket.
 - **Landing top bar:** the mock's "Terminal en ligne" status beside the Steam image, kept or dropped.
 - **Motion switch beyond the landing:** whether the signed-out hub and the public card page also carry the switch (its cookie already applies there).
-- **Landing sample cards:** who picks the cards shown in the lamp, 01, the moving cards and the reveal demo, from which pool, and how they follow a season change (the feasibility review suggests a curated list of real games, one per slot, falling back to the published season's top card of that rarity).
+- **Landing sample cards:** settled (author, 2026-10-20): each sample slot shows the published season's top card of its rarity, no curated list.
 - **Landing live figures:** what "cette semaine" (calendar goal week or the last seven days) and "aujourd'hui" (the game's UTC day or the visitor's) count for the 04 facts.
 - **Signed-out entry points:** the signed-out hub's own address; where a signed-out deep link that needs an account, a failed Steam return and Esc lead (landing or signed-out hub); the phone tab bar and back button on the signed-out hub.
 - **Landing language and meta:** whether the landing offers a FR/EN switch or only the URL segment; its page title, meta description and link-preview image.

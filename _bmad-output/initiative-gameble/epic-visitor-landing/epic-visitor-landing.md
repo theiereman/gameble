@@ -66,7 +66,8 @@ The visitor landing, the full roadmap page, the roadmap's data with its automati
 - Decision (2026-10-17): tracer bullet is story 2, the landing's shell with static copy at a provisional address; the root switch (story 15) closes the feature work, after every ship condition holds; the lamp hero, the least certain piece, follows the tracer.
 - Decision (2026-10-17): stories 1, 3 and 10 can start at once; after story 2, stories 4, 5, 7 and 9 touch separate code.
 - Assumption: the licence ship condition already holds (the GitHub repository is public with an AGPL-3.0 `LICENSE`, checked 2026-10-17); story 15 checks it again.
-- Unknown: which cards the landing samples, and what « cette semaine » and « aujourd'hui » mean for the season facts; stories 2 and 5 wait on them.
+- Unknown: what « cette semaine » and « aujourd'hui » mean for the season facts; story 5 waits on it.
+- Decision (author, 2026-10-20): the landing's sample cards are the published season's top card of each rarity, no curated list.
 - Unknown: the signed-out hub's own address; story 15 settles it.
 - Source conflict: architecture-gameble.md, the pioneer — it still cites `later-roadmap.md` as the pioneer's home vs the spec, where the pioneer moved into CAP-13 on 2026-10-14.
 - Waits on epic 7 because: the enforced CSP (7.10) and the public pages' throttling and caching (7.55).

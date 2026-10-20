@@ -163,6 +163,8 @@ deferred:
 
 Status: built
 
+Commit: 459b9ba22bd38dad3adf4e8b231742e8da2688fa
+
 - **Change:** the landing at `/:locale/landing` for signed-out visitors (a player is redirected to the hub): slim top bar, hero without its lamp, the nine modules with their copy, examples and the sample cards (the published season's top card of each rarity, face-down Standard backs without a season), the reveal demo, the footer, in French and English, throttled like the public pages.
 - **Files:** `LandingsController`, `LandingPolicy`, the route, `Catalog::LandingSampleCards`, `LandingsHelper`, `app/views/landings/*`, `reveal_demo` controller and pure module, `landing.css` and tokens, locale keys, the layout's `page_footer` slot, `external_link_to`'s `hint:`, the throttle's pages, tests.
 - **Review:** patches 3 entries (cache shape version and season-key test, medium; comments and unused tokens, low); deferred 1 (reveal demo DOM test); rejected the rest with reasons in the triage log.
