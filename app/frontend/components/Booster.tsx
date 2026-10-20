@@ -709,7 +709,7 @@ export default function Booster(props: BoosterProps) {
     celebrate()
   }
 
-  const reveal = async (index: number, fromAll: boolean): Promise<void> => {
+  const reveal = async (index: number, fromAll: boolean, { awaitArt = true } = {}): Promise<void> => {
     const card = answerRef.current?.cards[index]
     if (!card || phaseRef.current !== "dealt" || revealedRef.current[index] || revealing.current.has(index)) return
     if (!fromAll && (revealingAllRef.current || legendaryRunning.current)) return
@@ -718,7 +718,7 @@ export default function Booster(props: BoosterProps) {
     // Légendaire holds every other activation from then on.
     lock()
     if (card.tier === "legendary") legendaryRunning.current = true
-    await artReady(index)
+    if (awaitArt) await artReady(index)
     if (disposed.current) return
     if (motionReduced()) await revealStill(index, card.tier, fromAll)
     else if (card.tier === "legendary") await revealLegendary(index, fromAll)
@@ -744,7 +744,7 @@ export default function Booster(props: BoosterProps) {
     setRevealingAll(true)
     const running: Promise<void>[] = []
     for (const { index, wait: hold } of plan) {
-      const done = reveal(index, true)
+      const done = reveal(index, true, { awaitArt: false })
       running.push(done)
       if (hold === "full") await done
       else await wait(REVEAL_ALL_GAP)
