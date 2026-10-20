@@ -60,6 +60,7 @@ after = [4]
 hitl = false
 risk = "low"
 references = ["design — _bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md, Component Patterns: Public profile"]
+notes = ["Author, 2026-10-20, on reviewing v0.1.5-rc.1: the owner reorders the showcase by drag and drop on their profile, with an \"i\" info mark beside the VITRINE heading saying the cards can be dragged to change their order; the ◀ ▶ buttons stay as the keyboard and non-drag way (accessibility)."]
 
 [[entry]]
 id = 6
