@@ -1596,6 +1596,7 @@ en:
         line: "They are in your reserve from your first sign-in."
         reserve: "Reserve: 10 / 10"
       footer:
+        how_it_works: "How it works"
         legal: "Legal notice"
         support: "Support"
         source: "Source code"

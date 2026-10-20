@@ -1641,6 +1641,7 @@ fr:
         line: "Elles sont dans votre réserve dès votre première connexion."
         reserve: "Réserve : 10 / 10"
       footer:
+        how_it_works: "Comment ça marche"
         legal: "Mentions légales"
         support: "Soutenir"
         source: "Code source"

@@ -187,6 +187,19 @@ class RateLimitTest < ActionDispatch::IntegrationTest
     assert_response :too_many_requests
   end
 
+  test "the activity feed is a shared page: the 121st read from one address within a minute gets 429" do
+    PublicReadThrottle::LIMIT.times do |index|
+      get "/fr/feed", env: { "REMOTE_ADDR" => IP }
+
+      assert_not_equal 429, response.status, "read #{index + 1}"
+    end
+
+    get "/fr/feed", env: { "REMOTE_ADDR" => IP }
+
+    assert_response :too_many_requests
+    assert_equal I18n.t("rate_limit.reading_throttled", locale: :fr), response.body
+  end
+
   test "another address reads the shared pages meanwhile" do
     exhaust_public_reads(IP)
     get "/en/library/cards", env: { "REMOTE_ADDR" => IP }
@@ -227,12 +240,12 @@ class RateLimitTest < ActionDispatch::IntegrationTest
   test "the shared pages are counted on GET and HEAD, with or without a format, and nothing else is" do
     read = ->(method, path) { PublicReadThrottle.public_read?(Rack::Request.new(Rack::MockRequest.env_for(path, method:))) }
 
-    %w[/fr/cards/hades /en/brothers/abc /en/brothers/abc/library/theme/roguelike /fr/library /fr/library/ /fr/library.html /fr/library/theme/roguelike /en/landing /fr/landing].each do |path|
+    %w[/fr/cards/hades /en/brothers/abc /en/brothers/abc/library/theme/roguelike /fr/library /fr/library/ /fr/library.html /fr/library/theme/roguelike /en/landing /fr/landing /fr/feed /en/feed.html].each do |path|
       assert read.("GET", path), path
     end
     assert read.("HEAD", "/fr/cards/hades")
     assert_not read.("POST", "/fr/library/seen")
     assert_not read.("POST", "/fr/cards/hades/seasons/1/repost")
-    %w[/fr /fr/feed /fr/friends /de/cards/hades /fr/cardsx /fr/landingx].each { |path| assert_not read.("GET", path), path }
+    %w[/fr /fr/friends /de/cards/hades /fr/cardsx /fr/landingx /fr/feedx].each { |path| assert_not read.("GET", path), path }
   end
 end

@@ -161,16 +161,26 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "main button.landing-live__open", false
   end
 
-  test "the footer follows the main landmark with the legal page, the donation page and the code" do
+  test "the footer follows the main landmark with how it works, the legal page, the donation page and the code" do
     get landing_path(locale: :fr)
 
     assert_select "body > footer.landing-footer" do
+      assert_select "a[href='/fr/how-it-works']", "Comment ça marche"
       assert_select "a[href='/fr/legal']", "Mentions légales"
       assert_select "a[href='#{ExternalLinksHelper::DONATION_URL}'][target=_blank]", text: "Soutenir (site de dons, nouvel onglet)"
       assert_select "a[href='#{ExternalLinksHelper::SOURCE_CODE_URL}'][target=_blank]", text: "Code source (GitHub, nouvel onglet)"
     end
     assert_select "main footer", 0
     assert_select "nav.tab-bar", 0
+  end
+
+  test "a visitor follows the landing footer to how it works" do
+    get landing_path(locale: :en)
+    assert_select "footer.landing-footer a[href='/en/how-it-works']", "How it works"
+
+    get how_it_works_path(locale: :en)
+
+    assert_response :success
   end
 
   test "an older browser still reads the landing" do
