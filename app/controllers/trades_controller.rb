@@ -2,6 +2,9 @@ class TradesController < ApplicationController
   rate_limit to: 20, within: 1.minute, only: %i[create counter accept decline cancel],
     by: -> { current_player&.id || request.remote_ip },
     with: -> { redirect_to trades_path, alert: t("trades.throttled"), status: :see_other }
+  rate_limit to: 120, within: 1.minute, only: :faces, name: "faces",
+    by: -> { current_player&.id || request.remote_ip },
+    with: -> { head :too_many_requests }
 
   INSUFFICIENT = %i[requested_cards_unavailable insufficient_copies request_exceeds_holdings].freeze
 
@@ -23,8 +26,8 @@ class TradesController < ApplicationController
     authorize :trade, :new?
     return choose_friend unless params.key?(:friend)
 
-    @friend = befriended(params[:friend]) or raise(ActiveRecord::RecordNotFound)
-    if (refusal = helpers.trades_refusal(@friend))
+    @friend = befriended(params[:friend])
+    if (refusal = @friend ? helpers.trades_refusal(@friend) : :not_friends)
       refused(refusal, @friend)
       return redirect_to(trades_path)
     end

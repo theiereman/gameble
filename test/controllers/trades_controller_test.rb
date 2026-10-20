@@ -679,21 +679,16 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/"id"|card_season_id/, props.to_json)
   end
 
-  test "a draft is only for a friend the player may trade with" do
+  test "a draft for someone who is not a friend is refused and leads back to the trades" do
     sign_in @alice
-
-    get new_trade_path(locale: :fr, friend: @alice.token)
-    assert_response :not_found
-    get new_trade_path(locale: :fr, friend: "1" * 24)
-    assert_response :not_found
-    get new_trade_path(locale: :fr, friend: "")
-    assert_response :not_found
     befriend(@alice, accounts_players(:banned))
-    get new_trade_path(locale: :fr, friend: accounts_players(:banned).token)
-    assert_response :not_found
     Game::Friendship.where(low_player_id: [ @alice.id, @carol.id ].min).delete_all
-    get new_trade_path(locale: :fr, friend: @carol.token)
-    assert_response :not_found
+
+    [ @alice.token, "1" * 24, "", accounts_players(:banned).token, @carol.token ].each do |token|
+      get new_trade_path(locale: :fr, friend: token)
+      assert_redirected_to trades_path(locale: :fr)
+      assert_equal I18n.t("errors.game.not_friends", locale: :fr), flash[:alert]
+    end
   end
 
   test "a new trade without a friend opens the chooser beside the list, one row per friend leading to the draft" do
@@ -954,6 +949,8 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".trade-side__open", 0
     assert_select ".trade-side--friend .trade-side__count", "0 carte"
     assert_no_match(/À vous de choisir|À choisir par/, response.body)
+    assert_select ".trade-row__what", text: /À choisir/, count: 0
+    assert_select ".trade-row__what", /—/
   end
 
   test "cancelling an open request says the friend has nothing left to choose" do
@@ -1116,5 +1113,19 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to trades_path(locale: :fr)
     assert_equal I18n.t("trades.throttled", locale: :fr), flash[:alert]
+  end
+
+  test "card faces are limited to 120 requests a minute, apart from the answers" do
+    sign_in @alice
+
+    with_counting_rate_limit(TradesController) do
+      120.times { get faces_trades_path(locale: :fr, keys: [ "portal--s1" ]) }
+      assert_response :success
+      get faces_trades_path(locale: :fr, keys: [ "portal--s1" ])
+      assert_response :too_many_requests
+
+      post trades_path(locale: :fr), params: { friend: @bob.token }
+      assert_not_equal I18n.t("trades.throttled", locale: :fr), flash[:alert]
+    end
   end
 end

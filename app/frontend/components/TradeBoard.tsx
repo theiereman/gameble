@@ -18,7 +18,7 @@ import {
   type Side,
 } from "../lib/trade_board"
 import { forgetDraft, readDraft, sameLines, saveDraft, type DraftSides } from "../lib/trade_draft"
-import { batches, facesUrl, fetchFaces, missingFaces, withFaces, type Faces } from "../lib/trade_faces"
+import { faceLoader, facesUrl, fetchFaces, type Faces } from "../lib/trade_faces"
 import QuantityStepper from "./QuantityStepper"
 import TradePicker from "./TradePicker"
 
@@ -128,23 +128,11 @@ export default function TradeBoard(props: TradeBoardProps) {
   const swapHtml = useMemo(() => ({ __html: swapIcon }), [swapIcon])
   const closeHtml = useMemo(() => ({ __html: closeIcon }), [closeIcon])
   const [faces, setFaces] = useState<Faces>(() => new Map(Object.entries(props.faces)))
-  const knownFaces = useRef(faces)
-  const pendingFaces = useRef(new Set<string>())
   const { facesUrl: facesBase, facesBatch } = props
-
-  const requestFaces = useCallback(
-    (keys: readonly string[]) => {
-      for (const batch of batches(missingFaces(keys, knownFaces.current, pendingFaces.current), facesBatch)) {
-        batch.forEach((key) => pendingFaces.current.add(key))
-        void fetchFaces({ url: facesUrl(facesBase, batch) }).then((arrived) => {
-          batch.forEach((key) => pendingFaces.current.delete(key))
-          knownFaces.current = withFaces(knownFaces.current, arrived)
-          setFaces(knownFaces.current)
-        })
-      }
-    },
-    [facesBase, facesBatch],
+  const [loader] = useState(() =>
+    faceLoader({ known: faces, batch: facesBatch, load: (keys) => fetchFaces({ url: facesUrl(facesBase, keys) }), onFaces: setFaces }),
   )
+  const requestFaces = useCallback((keys: readonly string[]) => loader.request(keys), [loader])
 
   useEffect(() => requestFaces(lines.flatMap((side) => side.map((line) => line.key))), [lines, requestFaces])
 

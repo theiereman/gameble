@@ -1,7 +1,7 @@
 module TradesHelper
   COUNTER_FORM_ID = "trade-counter-form"
   DRAFT_FORM_ID = "trade-draft-form"
-  FACES_PER_REQUEST = 60
+  FACES_PER_REQUEST = 36
   CARD_KEY = /\A(.+)--s(\d{1,9})\z/
 
   def trades_refusal(friend)
@@ -25,9 +25,9 @@ module TradesHelper
     line.quantity > 1 ? "#{view.title} ×#{line.quantity}" : view.title
   end
 
-  def trade_side_title(lines, cards)
+  def trade_side_title(lines, cards, open:)
     titles = lines.filter_map { |line| trade_line_title(line, cards) }
-    return t("trades.row.to_choose") if lines.empty?
+    return t("trades.row.to_choose") if lines.empty? && open
 
     titles.empty? ? "—" : titles.join(", ")
   end
@@ -41,7 +41,8 @@ module TradesHelper
   end
 
   def trade_what_for_what(row, cards)
-    t("trades.row.what_for_what", theirs: trade_side_title(row.friend_side, cards), yours: trade_side_title(row.own_side, cards))
+    t("trades.row.what_for_what", theirs: trade_side_title(row.friend_side, cards, open: row.open?),
+      yours: trade_side_title(row.own_side, cards, open: row.open?))
   end
 
   def trade_chip(row)

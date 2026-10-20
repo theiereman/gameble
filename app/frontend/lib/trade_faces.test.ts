@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { PICKER_PAGE, batches, facesFrom, facesUrl, fetchFaces, missingFaces, nextPage, shownFor, withFaces } from "./trade_faces"
+import { PICKER_PAGE, batches, faceLoader, facesFrom, facesUrl, fetchFaces, missingFaces, nextPage, shownFor, withFaces, type Faces } from "./trade_faces"
 
 describe("shownFor", () => {
   it("holds whole pages up to and including the index", () => {
@@ -112,14 +112,92 @@ describe("fetchFaces", () => {
     expect(calls[0].init.signal).toBeInstanceOf(AbortSignal)
   })
 
-  it("reads no face without an answer, on a refusal, a server error or an answer that is not JSON", async () => {
+  it("fails without an answer, on a refusal, a server error or an answer that is not JSON", async () => {
     const page = new Response("<html></html>", { status: 200, headers: { "Content-Type": "text/html" } })
     for (const answer of [new TypeError("Failed to fetch"), json(401, { error: { code: "sign_in_required" } }), json(500, { faces: { "a--s1": "A" } }), page]) {
-      expect(await fetchFaces({ url: "/fr/trades/faces", fetch: answering(answer).send })).toEqual({})
+      expect(await fetchFaces({ url: "/fr/trades/faces", fetch: answering(answer).send })).toBeNull()
     }
   })
 
   it("gives up on an answer that never comes", async () => {
-    expect(await fetchFaces({ url: "/fr/trades/faces", fetch: never, timeout: 5 })).toEqual({})
+    expect(await fetchFaces({ url: "/fr/trades/faces", fetch: never, timeout: 5 })).toBeNull()
+  })
+})
+
+function deferred<Value>() {
+  let resolve!: (value: Value) => void
+  const promise = new Promise<Value>((done) => (resolve = done))
+  return { promise, resolve }
+}
+
+const settled = () => new Promise((done) => setTimeout(done, 0))
+
+function loading({ known = new Map(), concurrency = 2, attempts = 3 }: { known?: Faces; concurrency?: number; attempts?: number } = {}) {
+  const calls: { keys: readonly string[]; answer: ReturnType<typeof deferred<Record<string, string> | null>> }[] = []
+  const retries: (() => void)[] = []
+  const seen: Faces[] = []
+  const loader = faceLoader({
+    known,
+    batch: 2,
+    concurrency,
+    attempts,
+    load: (keys) => {
+      const answer = deferred<Record<string, string> | null>()
+      calls.push({ keys, answer })
+      return answer.promise
+    },
+    onFaces: (faces) => seen.push(faces),
+    later: (run) => retries.push(run),
+  })
+  return { loader, calls, retries, seen }
+}
+
+describe("faceLoader", () => {
+  it("loads at most the concurrency at once, the latest batch first", async () => {
+    const { loader, calls } = loading()
+
+    loader.request(["a", "b", "c", "d", "e", "f"])
+    expect(calls.map((call) => call.keys)).toEqual([["e", "f"], ["c", "d"]])
+
+    calls[0].answer.resolve({ e: "E", f: "F" })
+    await settled()
+    expect(calls.map((call) => call.keys)).toEqual([["e", "f"], ["c", "d"], ["a", "b"]])
+  })
+
+  it("asks only for faces neither known nor already asked for", () => {
+    const { loader, calls } = loading({ known: new Map([["a", "A"]]) })
+
+    loader.request(["a", "b"])
+    loader.request(["a", "b"])
+    expect(calls.map((call) => call.keys)).toEqual([["b"]])
+  })
+
+  it("hands every arrival to the board", async () => {
+    const { loader, calls, seen } = loading()
+
+    loader.request(["a"])
+    calls[0].answer.resolve({ a: "A" })
+    await settled()
+    expect([...seen.at(-1)!]).toEqual([["a", "A"]])
+  })
+
+  it("tries a failed batch again later, then lets a later request ask for it", async () => {
+    const { loader, calls, retries } = loading({ attempts: 2 })
+
+    loader.request(["a"])
+    calls[0].answer.resolve(null)
+    await settled()
+    expect(retries).toHaveLength(1)
+    loader.request(["a"])
+    expect(calls).toHaveLength(1)
+
+    retries[0]()
+    expect(calls.map((call) => call.keys)).toEqual([["a"], ["a"]])
+    calls[1].answer.resolve(null)
+    await settled()
+    expect(retries).toHaveLength(1)
+
+    loader.request(["a"])
+    expect(calls).toHaveLength(3)
   })
 })
