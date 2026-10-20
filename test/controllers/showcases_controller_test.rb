@@ -207,7 +207,7 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
 
     assert_no_changes -> { chosen } do
       patch showcase_path, params: { direction: "later" }
-      assert_redirected_to home_path(locale: :en)
+      assert_redirected_to landing_path(locale: :en)
 
       patch showcase_path, params: { direction: "later" }, as: :json
       assert_json_error :unauthorized, "sign_in_required", I18n.t("authorization.sign_in_required", locale: :en)
