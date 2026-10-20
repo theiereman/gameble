@@ -659,6 +659,7 @@ en:
     entry:
       in_progress: "In progress"
       no_progress: "No set in progress yet. Find one above."
+      discover: "To discover"
       search: "Find a set"
       all_cards: "All cards"
       results: "Results"

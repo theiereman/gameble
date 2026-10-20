@@ -1004,7 +1004,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal 9, forty
   end
 
-  test "a player who holds no card sees the search, the way to all the cards and a line pointing to the search; so does a visitor" do
+  test "a player who holds no card sees the search, the way to all the cards and a line pointing to the search; a visitor sees sets to discover instead" do
     entry_season
     %w[horror pirates cosy roguelike rpg].each { theme(it, 20) }
     sign_in(accounts_players(:player))
@@ -1024,10 +1024,10 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en)
     assert_select ".collection-status, .top-bar--status", false
     assert_select ".top-bar__end form.steam-sign-in input[name=origin][value='/en/library']"
-    assert_equal [ "Find a set" ], css_select(".set-entry h2").map(&:text)
+    assert_equal [ "Find a set", "To discover" ], css_select(".set-entry h2").map(&:text)
     assert_select ".set-search a.button--primary[href='/en/library/cards']", "All cards"
-    assert_select "p.set-entry__empty", "No set in progress yet. Find one above."
-    assert_select ".set-entry .set-row", false
+    assert_select "p.set-entry__empty", false
+    assert_select "#set-entry-in-progress-title", false
   end
 
   test "the latest opening's set leads with its tier; a set touched once is not on the entry" do
@@ -1118,6 +1118,34 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "#set-results-title", false
     assert_select ".set-search__status", ""
     assert_select "turbo-frame#set-search-results [data-set-search-summary]", ""
+  end
+
+  test "a visitor sees popular sets of the published season to discover, by name and kind, each opening its album, in fr and en" do
+    entry_season
+    %w[horror pirates cosy roguelike rpg].each { theme(it, 20) }
+
+    get library_path(locale: :fr)
+
+    assert_equal [ "Chercher un set", "À découvrir" ], css_select(".set-entry h2").map(&:text)
+    assert_select ".set-entry > turbo-frame#set-search-results + section.set-entry__section > h2#set-entry-discover-title"
+    rows = css_select("#set-entry-discover-title ~ .set-entry__list a.set-row")
+    assert_equal %w[/fr/library/theme/rpg /fr/library/theme/roguelike /fr/library/theme/cosy /fr/library/theme/pirates], rows.map { it["href"] }
+    assert_equal [ "RPG", "Thème" ], [ rows.first.at_css(".set-row__name").text, rows.first.at_css(".set-row__kind").text ]
+    rows.each do |row|
+      assert_equal [ "set-row", "set-row--visitor" ], row.classes
+      assert_empty row.css(".set-row__count, progress, .set-row__track, .set-row__tick, .set-tier")
+    end
+    assert_select "#set-entry-in-progress-title, p.set-entry__empty", false
+    assert_no_match(/\b(#{Catalog::Set.where(season_id: @season.id).ids.join("|")})\b/, css_select("#set-entry-discover-title ~ .set-entry__list").sole.to_html)
+
+    get library_path(locale: :en)
+    assert_select "#set-entry-discover-title", "To discover"
+    assert_equal 4, css_select("#set-entry-discover-title ~ .set-entry__list a.set-row--visitor[href^='/en/library/theme/']").size
+
+    sign_in(accounts_players(:player))
+    get library_path(locale: :en)
+    assert_select "#set-entry-discover-title", false
+    assert_select ".set-entry > p.set-entry__empty", "No set in progress yet. Find one above."
   end
 
   test "a visitor's search rows name the set and its kind, with no progress, in the page and in its frame" do

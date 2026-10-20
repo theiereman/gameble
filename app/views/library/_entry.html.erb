@@ -2,16 +2,27 @@
 <div class="set-entry" data-controller="last-album" data-action="turbo:frame-load->last-album#mark">
   <%= render "library/set_search", query:, status:, search_url:, all_cards_url: %>
   <%= render("library/set_results", results:, query:, status:, set_url:, progress:) %>
-  <% if in_progress.any? %>
-    <section class="set-entry__section" aria-labelledby="set-entry-in-progress-title">
-      <h2 id="set-entry-in-progress-title" class="set-entry__title"><%= t("library.entry.in_progress") %></h2>
+  <% if progress %>
+    <% if in_progress.any? %>
+      <section class="set-entry__section" aria-labelledby="set-entry-in-progress-title">
+        <h2 id="set-entry-in-progress-title" class="set-entry__title"><%= t("library.entry.in_progress") %></h2>
+        <ul class="set-entry__list">
+          <% in_progress.each do |row| %>
+            <li><%= render "library/set_progress_row", href: set_url.call(row.set), set: row.set, standing: row.standing %></li>
+          <% end %>
+        </ul>
+      </section>
+    <% else %>
+      <p class="set-entry__empty"><%= t("library.entry.no_progress") %></p>
+    <% end %>
+  <% elsif discover.any? %>
+    <section class="set-entry__section" aria-labelledby="set-entry-discover-title">
+      <h2 id="set-entry-discover-title" class="set-entry__title"><%= t("library.entry.discover") %></h2>
       <ul class="set-entry__list">
-        <% in_progress.each do |row| %>
-          <li><%= render "library/set_progress_row", href: set_url.call(row.set), set: row.set, standing: row.standing %></li>
+        <% discover.each do |set| %>
+          <li><%= render "library/set_progress_row", href: set_url.call(set), set:, standing: nil, progress: false %></li>
         <% end %>
       </ul>
     </section>
-  <% else %>
-    <p class="set-entry__empty"><%= t("library.entry.no_progress") %></p>
   <% end %>
 </div>

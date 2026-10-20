@@ -1,6 +1,7 @@
 # The collection: its entry, the search over every set and the viewer's sets
-# in progress, under the top bar's unique cards; the grid of every game of the
-# published season and every game the viewer holds, in any edition, with
+# in progress, or popular sets to discover for a visitor, under the top
+# bar's unique cards; the grid of every game of the published season and
+# every game the viewer holds, in any edition, with
 # its filters, its search and the RAPPORT; and one set's album, the
 # viewer's best edition of each of its games. A player's grid sets the
 # cards they do not hold apart, faded and locked; a visitor, or a banned
@@ -16,7 +17,7 @@ class LibraryController < ApplicationController
   include SetBoardLoading
   include SetAlbumLoading
 
-  # GET /:locale/library: the entry, the viewer's sets.
+  # GET /:locale/library: the entry, the viewer's sets, or popular ones for a visitor.
   def show
     authorize :page, :show?
     @season = Catalog::PublishedSeason.call
@@ -24,6 +25,7 @@ class LibraryController < ApplicationController
 
     load_unique_cards
     load_set_board(@season, owner: current_player)
+    load_discover(@season) if current_player.nil?
   end
 
   # GET /:locale/library/cards: the grid of every game.

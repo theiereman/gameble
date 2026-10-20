@@ -2,6 +2,7 @@ module SetBoardLoading
   extend ActiveSupport::Concern
 
   SetRow = Data.define(:set, :standing)
+  DISCOVER_ROWS = 4
 
   private
     def load_set_board(season, owner:)
@@ -12,6 +13,11 @@ module SetBoardLoading
       @in_progress = set_rows(board.in_progress, sets)
       @results = search_rows(search.sets, board.standings)
       @results_count = search.count
+    end
+
+    def load_discover(season)
+      ids = Catalog::PopularSets.call(season:, limit: DISCOVER_ROWS)
+      @discover = Catalog::SetsById.call(ids).values_at(*ids).compact
     end
 
     def set_rows(standings, sets)

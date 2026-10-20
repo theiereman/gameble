@@ -687,6 +687,7 @@ fr:
     entry:
       in_progress: "En cours"
       no_progress: "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
+      discover: "À découvrir"
       search: "Chercher un set"
       all_cards: "Toutes les cartes"
       results: "Résultats"
