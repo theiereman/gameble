@@ -46,7 +46,7 @@ In this document, "capsule" is the player-facing word for the spec's "pack", and
 | Public card page | A shared link, without an account | Show the shared card and invite the visitor to play; "Découvrir" leads to the landing, "Embarquer sur le pont" to the signed-out hub |
 | Public profile | A player's link; "VOIR LE PROFIL" in a friend profile | Show off a player: identity, showcase, stats, achievements and started sets, and reach their full collection; shown per their visibility (spec CAP-8), a private profile never (author, 2026-10-15) |
 | Full collection (another player's) | "VOIR LA COLLECTION COMPLÈTE" on a public profile; "VOIR LA COLLECTION" in a friend profile | That player's collection as the viewer's own collection screen shows it (sets and all cards, search and filters), read-only, on the owner's cards; it takes the place of the set index the public profile used to open on (author, 2026-10-15) Cards that player does not own show as Card not owned, judged by their holdings (author, 2026-10-20). |
-| Sign-in panel | Any game-styled action that needs an account | One title line and Valve's official Steam sign-in button |
+| Sign-in panel | Retired (author, 2026-10-20): an action that needs an account shows greyed for a visitor | — |
 | Steam sign-in | The official image, wherever it appears | Create or reuse the account (Steam's own page) |
 | Legal page | "Mentions légales" in Profil et paramètres, the public page footer and the landing footer | No-affiliation notice, ownership notice ("Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."), terms of use, privacy notice |
 | Soutenir | Menu 09; PLUS on the phone; "Soutenir" in the landing's module 08 and footer; open without an account | The donation page, on another site, in a new tab (the same link as the legal page and Profil et paramètres); optional, it gives no advantage in the game |
@@ -61,7 +61,7 @@ In this document, "capsule" is the player-facing word for the spec's "pack", and
 
 **Hub content.** Top bar: the wordmark, rarity counter, capsules chip, player chip. Left: kicker "PONT DE COMMANDEMENT" alone (no subtitle: the "Vaisseau-bibliothèque « Archiviste »" line was cut, author 2026-10-07), the menu, the daily capsule panel. Center: the showcase. Right: the community goal panel and "SETS EN COURS" (the player's four sets closest to their next tier, "TOUT VOIR ▸" opening the collection). Bottom: the LIVE ticker. On the phone the same blocks stack in one scrolling column without the menu.
 
-**Signed-out visitors** meet the landing at the root (author, 2026-10-14): /fr, /en, the GAMEBLE link, after sign-out and after account deletion. From the landing ("Embarquer sur le pont") or the public card page's play link they can still browse the signed-out hub and everything that needs no account, and cannot act: any such action opens the sign-in panel. In Toutes les cartes and the card detail they see every card's face, plain, with no ownership data (author, 2026-10-20); the collection's sets show no progress. The landing and the signed-out hub are described in `DESIGN.md` (see Landing and Signed-out hub).
+**Signed-out visitors** meet the landing at the root (author, 2026-10-14): /fr, /en, the GAMEBLE link from every page, after sign-out and after account deletion. They reach only the landing, Toutes les cartes and its card detail, the public card page, public profiles with their albums, and Comment ça marche (author, 2026-10-20, supersedes the signed-out hub); the hub, the collection entry and every other screen lead a visitor to the landing. In Toutes les cartes and the card detail they see every card's face, plain, with no ownership data. An action that needs an account shows greyed and disabled, with nothing else; they sign in only through the Steam button (the landing's "Embarquer sur le pont", the top bar). The landing is described in `DESIGN.md` (see Landing).
 
 ## Voice and Tone
 
@@ -297,7 +297,7 @@ The landing is interactive but a little frustrating on purpose: the visitor scro
 |---|---|
 | Module | Powers on once, when its top edge passes 85% of the viewport height, whatever the module's height (a fixed position, never a share of its area), and at once when it holds keyboard focus, is the target of a jump (side gauge, in-page link, URL fragment) or is above the viewport on load. Power-on (brackets, contents, gauges and pips; see Motion) never keeps content invisible longer than its own duration, and a module never powers off. The content is in the page from the start; without JavaScript every module is on. |
 | Motion switch | "Animations réduites" in the landing's top bar, for every visitor: a toggle button (`aria-pressed`), first in the tab order after the wordmark. On: the whole Reduced motion profile applies at once, the landing's form included. Its state is kept in a first-party cookie, so the server renders the reduced form from the first paint of the next visit and on every signed-out page. Off: the system preference applies, read in CSS so it holds from the first frame. At sign-in an "on" switch becomes the account's "ANIMATIONS RÉDUITES" setting, OUI; off, the account's setting is unchanged. |
-| Hero | "Embarquer sur le pont" opens the signed-out hub. |
+| Hero | "Embarquer sur le pont" opens Steam's sign-in (author, 2026-10-20); on return the player lands on the hub. |
 | Lamp field | With a pointer that hovers and is fine: the lamp follows the pointer while it moves over the field; 2.5s after the pointer stops or leaves, it sweeps on its own. Phone and touch: it always sweeps on its own. On its own it heads for the next card not yet found and holds about 1.6s on a find. A card is found when the lamp's center passes over it: it gets its corner marks and "Trouvé", and the counter "Jeux retrouvés n / n" goes up. Once every card is found, the lamp settles on the last one and stops; it also runs only while the hero is in view and the tab visible. The sweep mode word shows the current mode: auto, manual or still. Everything resets on reload. The field is decoration: hidden from assistive technology, nothing in it focusable, and it never catches a click. |
 | 01 · Concept, rarity cards | Each card tilts toward the pointer like any card face (see Card face). The row is a list named by the copy deck; each card's accessible name gives the title, studio, year, genre, rarity and number. On the phone the row scrolls sideways: there the cards do not tilt and accept sideways and vertical panning (`touch-action: pan-x pan-y`). The row is one tab stop only while it overflows (see Interaction Primitives, Keyboard). The chance under each card is the normal capsule's, read from what the game applies. |
 | 02 · La Confrérie, lore panel | Holds the Brotherhood's story, in French and English. Its text waits for the dedicated lore session, with a length bound so the 8-column panel balances the goal panel; the landing ships only with its text (see Implementation notes, Landing ship conditions). "Participer à l'écriture" scrolls to 07 and moves focus to its h2. |
@@ -337,7 +337,7 @@ The landing is interactive but a little frustrating on purpose: the visitor scro
 | Friends | "ÉCHANGE" | Yes |
 | Friends, the viewer's profile private | The Trades closed line (Copy deck) in place of "ÉCHANGE" | Yes |
 | The player themself | None | No |
-| Signed-out visitor | None | Yes, it opens the sign-in panel |
+| Signed-out visitor | "ÉCHANGE" greyed and disabled (author, 2026-10-20) | Yes |
 
 ## Opening protocol
 
@@ -354,7 +354,7 @@ Messages quoted by key are in the Copy deck.
 
 | State | Surface | Treatment |
 |---|---|---|
-| Signed out | Everywhere | The root is the landing (see Information Architecture). Everything else visible. An action that needs an account opens the sign-in panel; closing it returns to the same page, still signed out. |
+| Signed out | Everywhere | The root is the landing (see Information Architecture). Only the landing, Toutes les cartes and the card detail, the public card page, public profiles and Comment ça marche open; anything else leads to the landing. An action that needs an account shows greyed and disabled (author, 2026-10-20); there is no sign-in panel. |
 | Signed in at the root | /fr, /en | The hub. A signed-in player never sees the landing (author, 2026-10-14, triage). |
 | First session | Hub, capsule | The reserve holds 10 capsules. A Rare or better is guaranteed by the 10th capsule, without any visible sign. No capsule ever promises a rarity. |
 | Reserve full | Hub, capsule | 10 pips lit; the countdown is replaced by "Réserve pleine" (capsules chip, capsule panel). The daily capsule claim is disabled until a capsule is opened (Copy deck, Daily capsule). |
