@@ -71,6 +71,18 @@ title = "Refactor sweep"
 description = "Cleanup only, scoped when it starts from the epic's build records and the review findings deferred during it."
 verify = "The full test suite, lint, packwerk and typecheck pass, and every deferred finding is fixed, recorded or dropped with a reason."
 covers = []
-after = [1, 2, 3, 4, 5]
+after = [1, 2, 3, 4, 5, 7]
 hitl = false
 risk = "low"
+
+[[entry]]
+id = 7
+type = "story"
+title = "A visitor's collection entry suggests sets to discover"
+description = "On the collection entry (/library), a signed-out visitor sees a section \"À DÉCOUVRIR\" (\"TO DISCOVER\") in place of EN COURS and its empty line \"Aucun set en cours pour l'instant…\": a few popular sets of the published season (Catalog::PopularSets or its equivalent), as set rows with their name and kind only, no count, bar or tier (as 14.5 shows a visitor's search rows), each opening its album. A signed-in player keeps EN COURS and its empty line; a public profile is unchanged. Copy in French and English."
+verify = "Signed out, in fr and en, /library shows À DÉCOUVRIR with popular sets and no progress, each leading to its album, and no EN COURS; signed in, EN COURS and its empty line are unchanged; no database id; the full suite, vitest, packwerk, rubocop and typecheck pass."
+covers = ["R4"]
+after = [5]
+hitl = false
+risk = "low"
+notes = ["Decision (author, 2026-10-20): replace the visitor's empty EN COURS line with a list of sets to discover. À DÉCOUVRIR existed for every player until 13.18 removed it (epic-recognizable-sets); its earlier build is in git history."]
