@@ -98,6 +98,17 @@ class Game::TradeAcceptCounterExpireTest < ActiveSupport::TestCase
     assert_in_delta Time.current, holding(@bob, @one).last_gained_at, 5
   end
 
+  test "a showcased card given away to the last copy leaves the showcase, the later ones moving up" do
+    hold(@alice, @four, 1)
+    [ @two, @one, @four ].each { Game::AddToShowcase.new.call(player: @alice, card_season_id: it).value! }
+    Game::AddToShowcase.new.call(player: @bob, card_season_id: @three).value!
+
+    accept(propose).value!
+
+    assert_equal [ [ @one, 0 ], [ @four, 1 ] ], Game::ShowcaseEntry.where(player_id: @alice.id).order(:position).pluck(:card_season_id, :position)
+    assert_empty Game::ChosenShowcase.call(@bob)
+  end
+
   test "a requested card no longer free refuses the acceptance and nothing moves" do
     trade = propose
     befriend(@bob, @carol)

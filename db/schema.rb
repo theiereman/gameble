@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_20_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_20_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -391,6 +391,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_120000) do
     t.check_constraint "tier::text = 'bronze'::text OR tier::text = 'silver'::text OR tier::text = 'gold'::text OR tier::text = 'novice'::text OR tier::text = 'apprentice'::text OR tier::text = 'adept'::text OR tier::text = 'expert'::text OR tier::text = 'master'::text OR tier::text = 'complete'::text", name: "game_set_tiers_tier_check"
   end
 
+  create_table "game_showcase_entries", force: :cascade do |t|
+    t.bigint "player_id", null: false
+    t.bigint "card_season_id", null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["card_season_id"], name: "index_game_showcase_entries_on_card_season_id"
+    t.index ["player_id", "card_season_id"], name: "index_game_showcase_entries_on_player_id_and_card_season_id", unique: true
+    t.check_constraint "\"position\" >= 0", name: "game_showcase_entries_position_check"
+  end
+
   create_table "game_trade_items", force: :cascade do |t|
     t.bigint "trade_id", null: false
     t.string "side", null: false
@@ -547,6 +558,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_120000) do
   add_foreign_key "game_player_states", "accounts_players", column: "player_id"
   add_foreign_key "game_set_tiers", "accounts_players", column: "player_id"
   add_foreign_key "game_set_tiers", "game_packs", column: "pack_id", on_delete: :cascade
+  add_foreign_key "game_showcase_entries", "accounts_players", column: "player_id"
+  add_foreign_key "game_showcase_entries", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_trade_items", "catalog_card_seasons", column: "card_season_id"
   add_foreign_key "game_trade_items", "game_trades", column: "trade_id"
   add_foreign_key "game_trades", "accounts_players", column: "high_player_id"

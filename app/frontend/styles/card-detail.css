@@ -447,7 +447,8 @@
   margin: 0;
 }
 
-/* "Voir sur Steam" (the one primary), "Partager" and "Reposter". */
+/* "Voir sur Steam" (the one primary), "Partager", "Reposter" and the
+   showcase choice. */
 .card-detail__actions {
   display: flex;
   flex-wrap: wrap;
@@ -457,6 +458,26 @@
 .card-detail__actions .button,
 .card-detail__actions .button-form {
   margin: 0;
+}
+
+/* The showcase button, and beside it, disabled, the showcase-full line. */
+.card-detail__showcase {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.card-detail__showcase .button,
+.card-detail__showcase .button-form {
+  margin: 0;
+}
+
+.card-detail__showcase-full {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
 }
 
 .card-detail__store .button__icon {
@@ -521,6 +542,16 @@
       + var(--space-button-height-phone) + var(--space-4));
   }
 
+  html:has(.card-detail__showcase) {
+    scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height)
+      + 2 * (var(--space-button-height-phone) + var(--space-4)));
+  }
+
+  html:has(.card-detail__showcase-full) {
+    scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height)
+      + 2 * (var(--space-button-height-phone) + var(--space-4)) + 2 * 1.125rem + var(--space-3));
+  }
+
   /* Pinned above the tab bar while the information scrolls under them. */
   .card-detail__actions {
     position: sticky;
@@ -540,6 +571,16 @@
 
   .card-detail__actions .button-form .button {
     width: 100%;
+  }
+
+  /* On its own row under the others. */
+  .card-detail__actions .card-detail__showcase {
+    flex: 1 1 100%;
+  }
+
+  .card-detail__showcase .button,
+  .card-detail__showcase .button-form {
+    flex: 1 1 100%;
   }
 }
 

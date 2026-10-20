@@ -1,7 +1,8 @@
 # A player's public profile, at a link built on their token, readable by
 # anyone, signed out included: the owner's identity and key numbers, their
-# stats, latest achievements and started sets, never the viewer's; and one
-# of their sets' albums, read-only, with the owner's cards.
+# showcase, stats, latest achievements and started sets, never the
+# viewer's; and one of their sets' albums, read-only, with the owner's
+# cards.
 #
 # An unknown token and a profile that may not be shown to this viewer
 # (Game::Visibility: a banned owner, or one whose visibility hides it, for
@@ -23,6 +24,7 @@ class PublicProfilesController < ApplicationController
     @summary = Game::CollectionSummary.call(@owner, season: @season)
     @card_total = Catalog::CardCount.call(@season)
     @achievements = Game::EarnedAchievements.call(@owner)
+    @showcase = chosen_cards
     load_stats_and_sets if @season
   end
 
@@ -44,6 +46,15 @@ class PublicProfilesController < ApplicationController
       return if Game::Visibility.visible?(current_player, @owner)
 
       render "public_profiles/unavailable", status: :not_found
+    end
+
+    # The cards the owner chose for their showcase, in their order.
+    def chosen_cards
+      ids = Game::ChosenShowcase.call(@owner)
+      return [] if ids.empty?
+
+      views = Catalog::CardViews.call(ids, locale: I18n.locale)
+      ids.filter_map { views[it] }
     end
 
     def load_stats_and_sets

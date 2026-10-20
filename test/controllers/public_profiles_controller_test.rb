@@ -522,29 +522,35 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a visitor's profile costs nine queries whatever the owner's history, a signed-in viewer's five more" do
+  test "a visitor's profile costs ten queries whatever the owner's history, a signed-in viewer's five more, a showcase one more" do
     season = publish_sets_draft
     set_members(season, "horror").last(2).each { |id| hold(@owner, id, 1) }
     unlock("first_booster", 1.day.ago)
 
     # Owner by token, published season; the summary, the season's card
-    # count, the achievements earned, the rarities, the activity, the
-    # owner's started sets and those sets.
-    assert_request_queries(9) { get brother_path(locale: :en, token: @owner.token) }
+    # count, the achievements earned, the showcase, the rarities, the
+    # activity, the owner's started sets and those sets.
+    assert_request_queries(10) { get brother_path(locale: :en, token: @owner.token) }
     assert_response :success
     assert_select ".profile-sets .set-row", minimum: 1
 
     hold_started_sets(season)
     open_packs(season, 3)
     %w[first_epic first_trade boosters_10 first_repost].each { unlock(it, 1.hour.ago) }
-    assert_request_queries(9) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(10) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-sets .set-row", 5
     assert_select ".profile-achievements .achievement", 4
 
     sign_in(accounts_players(:moderator))
     # The same, the viewer's lookup and the top bar's three (reserve count,
     # next pack, copies per tier), and the tab bar's trades waiting.
-    assert_request_queries(14) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(15) { get brother_path(locale: :en, token: @owner.token) }
+
+    # The chosen cards' views, however many.
+    held = Game::Holding.where(player_id: @owner.id).limit(Game::ChosenShowcase::SIZE).pluck(:card_season_id)
+    held.each { Game::AddToShowcase.new.call(player: @owner, card_season_id: it).value! }
+    assert_request_queries(16) { get brother_path(locale: :en, token: @owner.token) }
+    assert_select ".profile-showcase .card", held.size
     assert_response :success
   end
 
@@ -560,5 +566,36 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :en, token: @owner.token)
 
     assert_equal [ "#{pirates.size + 1}/#{card_total(season)}", "1" ], [ key("Cards"), key("Complete sets") ]
+  end
+
+  test "the chosen cards show under VITRINE after the identity band, in their order, each leading to its detail with the owner's token, and the GET writes nothing" do
+    season = publish_sets_draft
+    cards = set_members(season, "pirates").first(3)
+    cards.each { hold(@owner, it, 1) }
+    [ cards[2], cards[0], cards[1] ].each { Game::AddToShowcase.new.call(player: @owner, card_season_id: it).value! }
+    slugs = Catalog::CardSeason.where(id: cards).includes(:card).to_h { [ it.id, it.card.slug ] }
+
+    written = written_statements { get brother_path(locale: :fr, token: @owner.token) }
+
+    assert_response :success
+    assert_empty written
+    assert_equal [ "Vitrine", "Succès", "Sets" ], css_select("h2").map(&:text)
+    assert_select "header.profile-band + section.profile-section h2#profile-showcase-heading", "Vitrine"
+    links = css_select(".profile-showcase .profile-showcase__slot > a.card-link")
+    expected = [ cards[2], cards[0], cards[1] ].map { "/fr/cards/#{slugs.fetch(it)}/seasons/#{season.number}?brother=#{@owner.token}" }
+    assert_equal expected, links.map { it["href"] }
+    assert_select ".profile-showcase .card.card--grid", 3
+    assert_select ".profile-showcase .card-rays, .profile-showcase .card-float", false
+    assert_select "[style]", false
+    cards.each { assert_no_match(/\b#{it}\b/, links.map(&:to_html).join.gsub(/\/seasons\/\d+|data-card-art-(width|height)-value="\d+"|\b(19|20)\d\d\b/, "")) }
+  end
+
+  test "no card chosen, no VITRINE section" do
+    hold(@owner, catalog_card_seasons(:portal_one).id, 1)
+
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_response :success
+    assert_select "#profile-showcase-heading, .profile-showcase", false
   end
 end

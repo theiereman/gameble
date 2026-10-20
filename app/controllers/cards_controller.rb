@@ -20,13 +20,19 @@
 # - `set_kind` and `set_key`: one of the card's sets, back to its album;
 #   with `brother`, a player's token, back to that player's album of it
 #   when their profile may be shown, its cards faded as that player holds
-#   them.
+#   them;
+# - `brother` alone: that player's profile showcase, when their profile
+#   may be shown, browsing the card's first set as that player's album
+#   does, back to their profile ("◀ Profil"), the card showing its face.
+#
+# A signed-in viewer who holds this card-season can put it in their
+# profile showcase, or take it out when it is there (`@showcase`).
 #
 # A pack of another player, not opened or not holding the card, a grid or a
 # set that does not hold it, is ignored. Within a context the query names,
 # a card of a game no edition of which the viewer holds shows their active
 # card back, faded; the card's own page, without one (a share link, the
-# showcase), shows the face to everyone. A viewer who holds any edition of
+# hub showcase), shows the face to everyone. A viewer who holds any edition of
 # its game can share it: the link is this card-season's own page, which
 # carries the preview tags; it shows only the card, never who shared or
 # holds it. A visitor who opens that page, without a context in the query,
@@ -59,10 +65,12 @@ class CardsController < ApplicationController
     @copies = @editions.sum(&:last).nonzero?
     @share_url = share_url if @copies && current_player
     named = pack_browse || grid_browse || named_set_browse
-    @public = current_player.nil? && named.nil?
+    profile = profile_browse unless named
+    @public = current_player.nil? && named.nil? && profile.nil?
     @live_strip = LiveStream.strip_items if @public
-    @browse = named || set_browse(@detail.sets.first) unless @public
+    @browse = named || profile || set_browse(@detail.sets.first) unless @public
     @faded = !named.nil? && !(album_owner ? owner_holds? : @copies)
+    @showcase = showcase_state
     @back_key = Game::CardBacks.active_key(current_player)
   end
 
@@ -134,6 +142,30 @@ class CardsController < ApplicationController
 
       owner = Accounts::PlayerByToken.call(params[:brother]) if params[:brother].is_a?(String)
       @album_owner = owner if owner && Game::Visibility.visible?(current_player, owner)
+    end
+
+    # The profile showcase of the player the query's `brother` names, with
+    # no set named: the card's first set, as their album browses it, back
+    # to their profile.
+    def profile_browse
+      return if params.key?(:set_kind) || album_owner.nil?
+
+      back = Back.new(label: t("cards.show.profile"), path: brother_path(album_owner.token))
+      browse = set_browse(@detail.sets.first, owner: album_owner)
+      browse ? browse.with(back:) : Browse.new(position: 1, total: 1, previous: nil, next: nil, back:)
+    end
+
+    # What the viewer may do with this card-season and their profile
+    # showcase: :remove when it is there, else, when they hold it, :add, or
+    # :full when the showcase has no room left; nil otherwise.
+    def showcase_state
+      return unless @editions.any? { |_, season_number, _| season_number == @detail.view.season_number }
+
+      chosen = Game::ChosenShowcase.call(current_player)
+      if chosen.include?(@detail.card_season_id) then :remove
+      elsif Game::ChosenShowcase.full?(chosen) then :full
+      else :add
+      end
     end
 
     def owner_holds?

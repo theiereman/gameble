@@ -490,8 +490,8 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     url = "http://www.example.com/en/cards/portal/seasons/1"
     detail = css_select(".card-detail[data-controller~=share]").sole
     assert_equal [ "Link copied", "Press Ctrl+C to copy" ], [ detail["data-share-copied-value"], detail["data-share-manual-value"] ]
-    assert_equal [ "card-detail__store", "card-detail__share-button", "button-form" ],
-      css_select(".card-detail__actions > *").map { (it["class"].split & %w[card-detail__store card-detail__share-button button-form]).sole }
+    assert_equal [ "card-detail__store", "card-detail__share-button", "button-form", "card-detail__showcase" ],
+      css_select(".card-detail__actions > *").map { (it["class"].split & %w[card-detail__store card-detail__share-button button-form card-detail__showcase]).sole }
     # "Repost" posts to this card-season's repost, in Turbo Stream, and stays.
     assert_select ".card-detail__actions form.button-form[method=post][action='/en/cards/portal/seasons/1/repost'] button.button--secondary", "Repost"
     # "Share" opens the sheet and copies the link in the same click.
@@ -772,19 +772,19 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__phone-back", false
   end
 
-  test "a player's request costs nine queries, a visitor's four; a frame visit (◀ ▶) skips the top bar's" do
+  test "a player's request costs ten queries, a visitor's four; a frame visit (◀ ▶) skips the top bar's" do
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 2)
     sign_in(player)
 
-    # Player lookup, card detail, sets, neighbours, quantities, and the top
-    # bar's three (reserve count, next pack, copies per tier), and the tab
-    # bar's trades waiting.
-    assert_request_queries(9) { get card_path(locale: :en, slug: "portal") }
+    # Player lookup, card detail, sets, neighbours, quantities, the
+    # holder's showcase, and the top bar's three (reserve count, next pack,
+    # copies per tier), and the tab bar's trades waiting.
+    assert_request_queries(10) { get card_path(locale: :en, slug: "portal") }
     assert_response :success
     assert_equal [ "Copies", "2 copies" ], facts.to_h.assoc("Copies")
     assert_select "#share-sheet"
-    assert_request_queries(5) { get card_path(locale: :en, slug: "portal"), headers: { "Turbo-Frame" => "card-detail" } }
+    assert_request_queries(6) { get card_path(locale: :en, slug: "portal"), headers: { "Turbo-Frame" => "card-detail" } }
     assert_select "turbo-frame#card-detail .card-detail h1", "Portal"
 
     delete session_path(locale: :en)
@@ -959,5 +959,77 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".public-card__stage .card-float", 0
     assert_select ".public-card__stage .card-rays", 0
     assert_select ".public-card__shadow", 1
+  end
+
+  # The showcase buttons as [ label, the verb their form sends or "disabled" ].
+  def showcase_buttons
+    css_select(".card-detail__showcase button").map do |button|
+      form = button.ancestors("form").first
+      verb = form && (form.at_css("input[name=_method]")&.[]("value") || form["method"])
+      [ button.text.squish, button["disabled"] ? "disabled" : verb ]
+    end
+  end
+
+  test "a holder puts the card in their showcase, takes it out once there, and sees the add disabled with the showcase-full line at five" do
+    player = accounts_players(:player)
+    fixture_tier_ids.each { hold(player, it, 1) }
+    sign_in(player)
+
+    get card_season_path(locale: :fr, slug: "portal", number: 1)
+    assert_equal [ [ "Mettre en vitrine", "post" ] ], showcase_buttons
+    assert_select ".card-detail__actions .card-detail__showcase form[action='/fr/cards/portal/seasons/1/showcase']"
+    assert_select ".card-detail__showcase-full", false
+
+    Game::AddToShowcase.new.call(player:, card_season_id: catalog_card_seasons(:portal_one).id).value!
+    get card_season_path(locale: :fr, slug: "portal", number: 1)
+    assert_equal [ [ "Retirer de la vitrine", "delete" ] ], showcase_buttons
+
+    fixture_tier_ids.excluding(catalog_card_seasons(:portal_one).id).each { Game::AddToShowcase.new.call(player:, card_season_id: it).value! }
+    season = Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    extra = Catalog::CardSeason.create!(card: catalog_cards(:portal), season:, prestige_score: 0.5, rating: 80.0)
+    Game::RemoveFromShowcase.new.call(player:, card_season_id: catalog_card_seasons(:portal_one).id).value!
+    hold(player, extra.id, 1)
+    Game::AddToShowcase.new.call(player:, card_season_id: extra.id).value!
+
+    get card_season_path(locale: :en, slug: "portal", number: 1)
+    assert_equal [ [ "Add to showcase", "disabled" ] ], showcase_buttons
+    assert_select ".card-detail__showcase form", false
+    assert_select ".card-detail__showcase .card-detail__showcase-full", "Showcase full: remove a card to add another."
+  end
+
+  test "no showcase button for a card not held, nor for a visitor" do
+    player = accounts_players(:player)
+    hold(player, catalog_card_seasons(:portal_one).id, 0)
+    sign_in(player)
+
+    get card_season_path(locale: :en, slug: "portal", number: 1)
+    assert_select ".card-detail__showcase", false
+
+    delete session_path(locale: :en)
+    get card_season_path(locale: :en, slug: "portal", number: 1, set_kind: "studio", set_key: "valve")
+    assert_select ".card-detail"
+    assert_select ".card-detail__showcase", false
+  end
+
+  test "a card opened from a player's showcase browses its first set as that player's album does, leads back to their profile and shows its face" do
+    owner = accounts_players(:player)
+    sign_in_viewer
+
+    get card_season_path(locale: :fr, slug: "portal", number: 1, brother: owner.token)
+
+    back = css_select(".top-bar__phone-back").sole
+    assert_equal [ "/fr/brothers/#{owner.token}", "Profil" ], [ back["href"], back.text.squish ]
+    assert_select ".card-detail__card .card.card--l"
+    assert_select ".card-detail__back", false
+    assert_equal "S1 · #4 · 1 / 1", position
+
+    delete session_path(locale: :en)
+    get card_season_path(locale: :en, slug: "portal", number: 1, brother: owner.token)
+    assert_select ".public-card", false
+    assert_equal "/en/brothers/#{owner.token}", css_select(".top-bar__phone-back").sole["href"]
+
+    owner.update!(visibility: :private)
+    get card_season_path(locale: :en, slug: "portal", number: 1, brother: owner.token)
+    assert_select ".public-card"
   end
 end

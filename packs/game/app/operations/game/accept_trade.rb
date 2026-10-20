@@ -23,6 +23,8 @@ module Game
         step enough_copies(request, holdings.fetch(trade.recipient_id), :requested_cards_unavailable)
         move(trade.proposer_id, holdings.fetch(trade.proposer_id), given: offer, gained: request, released: offer, now:)
         move(trade.recipient_id, holdings.fetch(trade.recipient_id), given: request, gained: offer, released: {}, now:)
+        ShowcaseEntry.remove_unheld(trade.proposer_id, offer.keys)
+        ShowcaseEntry.remove_unheld(trade.recipient_id, request.keys)
         reached = tiers_reached(trade, offer, request, season, now)
         trade.update!(status: "accepted", closed_at: now)
         step publish(TradeAccepted.new(data: { trade_id: trade.id, proposer_id: trade.proposer_id, recipient_id: trade.recipient_id }),

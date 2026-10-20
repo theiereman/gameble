@@ -1,0 +1,16 @@
+<%# The cards the owner chose for their showcase, in their order, each over
+    a ground shadow and leading to its detail, back to this profile. %>
+<%# locals: (owner:, cards:) %>
+<% strings = CardStrings.new %>
+<section class="profile-section" aria-labelledby="profile-showcase-heading">
+  <h2 id="profile-showcase-heading" class="profile-section__title"><%= t("public_profiles.show.showcase.title") %></h2>
+  <ul class="profile-showcase">
+    <% cards.each do |card| %>
+      <li class="profile-showcase__slot">
+        <%= link_to_card_detail(card, strings:, context: { brother: owner.token }) do %>
+          <%= render CardComponent.new(card:, size: :grid) %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</section>

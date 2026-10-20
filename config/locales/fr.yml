@@ -108,6 +108,7 @@ fr:
         support: "Soutenir"
       showcase:
         kicker: "Dernière obtention"
+        chosen_kicker: "Vitrine"
         see_card: "Voir la fiche"
         empty:
           title: "Ouvrez votre première capsule"
@@ -816,6 +817,8 @@ fr:
         cards: "Cartes"
         complete_sets: "Sets complets"
         achievements: "Succès"
+      showcase:
+        title: "Vitrine"
       stats:
         title: "Statistiques"
         rarities: "Raretés"
@@ -1400,7 +1403,7 @@ fr:
     dialog:
       title: "Supprimer mon compte"
       close: "Fermer"
-      note: "Seront effacés définitivement : votre identifiant Steam, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données et votre dernière activité, votre collection, vos paliers de sets et vos succès, vos capsules, ouvertes ou non, vos bonus du jour et vos récompenses de l'objectif communautaire, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
+      note: "Seront effacés définitivement : votre identifiant Steam, votre nom, votre profil et son lien, l'heure de votre dernière visite, votre dernier export de données et votre dernière activité, votre collection, votre vitrine, vos paliers de sets et vos succès, vos capsules, ouvertes ou non, vos bonus du jour et vos récompenses de l'objectif communautaire, vos amis, vos invitations et votre code ami, et vos entrées du fil d'activité : tirages, découvertes, reposts et tous les échanges qui vous nomment. Vos échanges en cours seront annulés."
       kept: "Restent, sans votre identifiant Steam ni votre nom : vos échanges passés, vos premières découvertes, vos contributions à l'objectif communautaire, les signalements, l'historique de modération et le journal des actions du jeu. Cette action est irréversible."
       word: "SUPPRIMER"
       label: "Tapez %{word} pour confirmer"
@@ -1426,6 +1429,11 @@ fr:
     create:
       sent: "Merci. L'équipe de modération examinera ce profil. Le joueur ne verra pas qui l'a signalé."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
+  showcases:
+    add: "Mettre en vitrine"
+    remove: "Retirer de la vitrine"
+    full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
+    not_found: "Cette carte n'existe pas."
   reposts:
     button: "Reposter"
     create:
@@ -1500,6 +1508,7 @@ fr:
       update_browser: "Votre navigateur est trop ancien pour se connecter à gameble. Mettez-le à jour pour jouer."
       grid: "Grille"
       booster: "Capsule"
+      profile: "Profil"
       live:
         title: "En ce moment sur gameble"
       legal: "Mentions légales"
@@ -1688,6 +1697,9 @@ fr:
       already_sent: "Invitation déjà envoyée."
       not_found: "Cette invitation n'existe plus."
       card_not_owned: "Vous ne possédez pas cette carte."
+      card_already_showcased: "Cette carte est déjà dans votre vitrine."
+      card_not_showcased: "Cette carte n'est pas dans votre vitrine."
+      showcase_full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
     steam:
       invalid_claimed_id: "La réponse de Steam n'a pas été reconnue. Connectez-vous à nouveau."
       sign_in_failed: "La connexion avec Steam n'a pas abouti. Réessayez."

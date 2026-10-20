@@ -1,5 +1,6 @@
-<%# The showcase: the latest card of tier 4 or above the player holds
-    (Game::LatestNotableCard), its title, its line (rarity, genre and
+<%# The showcase: the first card the player chose for their profile
+    showcase (`chosen`, under the kicker "Vitrine"), else the latest card of
+    tier 4 or above they hold (Game::LatestNotableCard), its title, its line (rarity, genre and
     number, each left out when the card has none), "Voir la fiche" and
     "Reposter". Without one, the empty showcase: a hatched
     frame holding a dashed card outline and the dimmed wordmark, its copy and
@@ -9,7 +10,7 @@
   <% tier = Catalog::Rarity::TIERS.key(card.rarity.to_sym) %>
   <% line = [ t("catalog.rarity.#{card.rarity}"), (SetLabel.genre(card.genre) if card.genre), card.number_label ].compact %>
   <section class="hub-showcase" aria-labelledby="hub-showcase-name">
-    <p class="hub-showcase__kicker"><span class="hub-showcase__light" aria-hidden="true"></span><%= t("pages.home.showcase.kicker") %></p>
+    <p class="hub-showcase__kicker"><span class="hub-showcase__light" aria-hidden="true"></span><%= chosen ? t("pages.home.showcase.chosen_kicker") : t("pages.home.showcase.kicker") %></p>
     <div class="hub-showcase__stage">
       <% if card_top_rarity?(card.rarity) %>
         <div class="card-float">
@@ -27,7 +28,7 @@
       <span><%= line.join(" · ") %></span>
     </p>
     <div class="hub-showcase__actions">
-      <%= render ButtonComponent.new(variant: :secondary, href: card_path(slug: card.id)) do %><%= t("pages.home.showcase.see_card") %><% end %>
+      <%= render ButtonComponent.new(variant: :secondary, href: card_detail_path(card.id, card.season_number)) do %><%= t("pages.home.showcase.see_card") %><% end %>
       <%= render ButtonComponent.new(variant: :secondary, href: card_repost_path(slug: card.id, number: card.season_number), method: :post) do %><%= t("reposts.button") %><% end %>
     </div>
   </section>

@@ -35,7 +35,8 @@
 <% else %>
   <%= turbo_frame_tag "card-detail", target: "_top" do %>
     <%= render "cards/detail", detail: @detail, copies: @copies, editions: @editions, signed_in: current_player.present?, share_url: @share_url,
-      set_url: ->(set) { library_set_path(kind: set.kind, key: set.key) }, browse: @browse, faded: @faded, back_key: @back_key %>
+      set_url: ->(set) { library_set_path(kind: set.kind, key: set.key) }, browse: @browse, faded: @faded, back_key: @back_key,
+      showcase: @showcase %>
   <% end %>
   <% unless current_player %>
     <section class="card-invitation" aria-labelledby="card-invitation-text">

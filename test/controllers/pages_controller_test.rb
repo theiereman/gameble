@@ -15,7 +15,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   include GameTrades
   include SteamSignIn
 
-  PLAYER_HUB_QUERIES = 18
+  PLAYER_HUB_QUERIES = 19
   VISITOR_HUB_QUERIES = 7
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
@@ -182,7 +182,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
       assert_select "h2.hub-showcase__name", "Portal"
       assert_select ".hub-showcase__rarity.hub-showcase__rarity--4 svg.pixel-icon"
       assert_select ".hub-showcase__rarity span", "#{epic_name(:fr)} · S1 · #4"
-      assert_select "a.button.button--secondary[href='/fr/cards/portal']", "Voir la fiche"
+      assert_select "a.button.button--secondary[href='/fr/cards/portal/seasons/1']", "Voir la fiche"
       assert_select "form.button-form[method=post][action='/fr/cards/portal/seasons/1/repost'] button.button--secondary", "Reposter"
     end
 
@@ -213,6 +213,26 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # A player has no sign-in panel; the page carries no inline style.
     assert_select "#sign-in-panel", false
     assert_select "[style]", false
+  end
+
+  test "the first card the player chose shows under VITRINE, any rarity; with none left, the automatic card under DERNIÈRE OBTENTION" do
+    common, rare, portal = catalog_card_seasons(:common_card_one, :rare_card_one, :portal_one).map(&:id)
+    [ common, rare, portal ].each { Game::Holding.create!(player_id: @player.id, card_season_id: it, quantity: 1) }
+    [ rare, common ].each { Game::AddToShowcase.new.call(player: @player, card_season_id: it).value! }
+    sign_in(@player, origin: "/fr")
+
+    get home_path(locale: :fr)
+    assert_select ".hub-showcase:not(.hub-showcase--empty)" do
+      assert_select ".hub-showcase__kicker", "Vitrine"
+      assert_select "h2.hub-showcase__name", "Profondeurs bleues"
+      assert_select "a.button.button--secondary[href='/fr/cards/blue-depths/seasons/1']", "Voir la fiche"
+      assert_select "form.button-form[action='/fr/cards/blue-depths/seasons/1/repost'] button", "Reposter"
+    end
+
+    [ rare, common ].each { Game::RemoveFromShowcase.new.call(player: @player, card_season_id: it).value! }
+    get home_path(locale: :fr)
+    assert_select ".hub-showcase__kicker", "Dernière obtention"
+    assert_select "h2.hub-showcase__name", "Portal"
   end
 
   test "a player holding no tier 4 card sees the empty showcase, its primary opening a booster" do
@@ -583,7 +603,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     # Player lookup, published season, the weekly goal (one read once the job
     # has created the week's row), bank (count, next pack, daily claim), the
     # goal reward's claim slot,
-    # showcase (card held, card view), collection (owned, total), sets (the
+    # showcase (cards chosen, card held, card view), collection (owned, total), sets (the
     # player's standings, the popular fill, which finds no other set here, so no figures
     # and no set to name),
     # the top bar's copies per tier, menu 04's friends online, menu 06's

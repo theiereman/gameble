@@ -12,6 +12,7 @@ module Game
         FirstDiscovery.where(player_id: player.id).update_all(pack_id: nil, updated_at: Time.current)
         SetTier.where(player_id: player.id).delete_all
         Pack.where(player_id: player.id).delete_all
+        ShowcaseEntry.where(player_id: player.id).delete_all
         Holding.where(player_id: player.id).delete_all
         AchievementUnlock.where(player_id: player.id).delete_all
         FriendCode.where(player_id: player.id).delete_all

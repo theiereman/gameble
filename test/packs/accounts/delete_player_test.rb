@@ -23,10 +23,12 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
   end
 
   # A player with a bank, an opened pack (holdings, feed entries, a weekly
-  # contribution), a daily bonus claim and a friend code.
+  # contribution), a card of it in their showcase, a daily bonus claim and
+  # a friend code.
   def play(player)
     Game::FillBank.new.call(player:).value!
     Game::OpenPack.new.call(player:).value!
+    Game::AddToShowcase.new.call(player:, card_season_id: Game::Holding.where(player_id: player.id).pick(:card_season_id)).value!
     Game::CollectDailyBonus.new.call(player:)
     Game::CreateFriendCode.new.call(player:).value!
   end
@@ -34,6 +36,7 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
   def game_rows(player)
     { packs: Game::Pack.where(player_id: player.id).count,
       holdings: Game::Holding.where(player_id: player.id).count,
+      showcase: Game::ShowcaseEntry.where(player_id: player.id).count,
       feed: Game::FeedEntry.where(player_id: player.id).count,
       claims: Game::DailyBonusClaim.where(player_id: player.id).count,
       codes: Game::FriendCode.where(player_id: player.id).count,
@@ -77,7 +80,7 @@ class Accounts::DeletePlayerTest < ActiveSupport::TestCase
 
     assert delete.success?
 
-    assert_equal({ packs: 0, holdings: 0, feed: 0, claims: 0, codes: 0, rewards: 0, achievements: 0, states: 0 }, game_rows(@player))
+    assert_equal({ packs: 0, holdings: 0, showcase: 0, feed: 0, claims: 0, codes: 0, rewards: 0, achievements: 0, states: 0 }, game_rows(@player))
     assert Game::WeeklyContribution.exists?(player_id: @player.id)
     assert_equal before, game_rows(@other)
   end

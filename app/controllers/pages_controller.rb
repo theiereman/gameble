@@ -1,6 +1,6 @@
 # The hub, "Pont de commandement": the numbered menu, the showcase of the
-# latest Epic-or-better card the player holds (or the invitation to sign
-# in), the daily booster panel, the community goal panel with a
+# first card the player chose, else the latest Epic-or-better card they
+# hold (or the invitation to sign in), the daily booster panel, the community goal panel with a
 # contributor's reward claim slot, the set progress rows and, once, a new
 # player's welcome panel. A read only page: Catalog answers the season, its
 # size and the showcased card, Game the goal, the player's reserve, goal
@@ -18,7 +18,7 @@ class PagesController < ApplicationController
       @goal_reward = Game::GoalRewardStatus.call(current_player)
       @friends_online = Game::FriendsPresence.online_count(current_player)
       @achievements = Game::AchievementBoard.summary(current_player)
-      @showcase = showcase if @season
+      load_showcase if @season
       @welcome = current_player.welcome_pending
       Accounts::CloseWelcomeJob.perform_later(current_player.id) if @welcome
     end
@@ -46,11 +46,14 @@ class PagesController < ApplicationController
       action_name == "legal" && (request.get? || request.head?)
     end
 
-    # The latest Epic-or-better card the player holds, as a
-    # Catalog::CardView, or nil (the empty showcase).
-    def showcase
-      id = Game::LatestNotableCard.call(current_player, season: @season)
-      Catalog::CardViews.call([ id ], locale: I18n.locale)[id] if id
+    # The first card the player chose for their profile showcase, else the
+    # latest Epic-or-better card they hold, as a Catalog::CardView, or nil
+    # (the empty showcase); `@showcase_chosen` tells which.
+    def load_showcase
+      chosen = Game::ChosenShowcase.call(current_player).first
+      @showcase_chosen = !chosen.nil?
+      id = chosen || Game::LatestNotableCard.call(current_player, season: @season)
+      @showcase = Catalog::CardViews.call([ id ], locale: I18n.locale)[id] if id
     end
 
     # Menu 02's meta: the games held, in any edition, out of the season's cards.

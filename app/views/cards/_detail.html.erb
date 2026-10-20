@@ -2,7 +2,8 @@
     epic 10 R2, R6): a bracketed panel with the number at top right, the
     card at card-l over a ground shadow, its title, the facts the card does
     not carry and the actions ("Voir sur Steam", the
-    one primary, and "Partager" and "Reposter" for a holder). ◀ ▶ beside the card step
+    one primary, and "Partager", "Reposter" and the showcase choice for a
+    holder). ◀ ▶ beside the card step
     through what it browses (an opened pack, a grid, a set), and on a phone
     (sub_view controller) a swipe on it too, under a position line, with
     the actions pinned at the bottom. It names no one but the viewer (a
@@ -29,7 +30,10 @@
     - faded: true to show the viewer's card back, faded, in place of the
       face, for a card of a game no edition of which they hold, within a
       context (default false);
-    - back_key: the viewer's active card back (Game::CardBacks). %>
+    - back_key: the viewer's active card back (Game::CardBacks);
+    - showcase: the viewer's profile showcase action on this card-season:
+      :add, :remove, :full (the add button disabled, the showcase-full line
+      beside it) or nil (the default) for none. %>
 <% share_url = local_assigns.fetch(:share_url, nil) %>
 <% set_url = detail.current_season ? local_assigns.fetch(:set_url, nil) : nil %>
 <% browse = local_assigns.fetch(:browse, nil) %>
@@ -37,6 +41,7 @@
 <% back_key = local_assigns.fetch(:back_key, Game::CardBacks::STANDARD) %>
 <% signed_in = local_assigns.fetch(:signed_in, false) %>
 <% editions = local_assigns.fetch(:editions, []) %>
+<% showcase = local_assigns.fetch(:showcase, nil) %>
 <% repostable = share_url && editions.any? { |_, season_number, _| season_number == detail.view.season_number } %>
 <% view = detail.view %>
 <% strings = CardStrings.new %>
@@ -192,6 +197,19 @@
             <% if repostable %>
               <%= render ButtonComponent.new(variant: :secondary, href: card_repost_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("reposts.button") %><% end %>
             <% end %>
+          <% end %>
+          <% if showcase %>
+            <div class="card-detail__showcase">
+              <% case showcase %>
+              <% when :add %>
+                <%= render ButtonComponent.new(variant: :secondary, href: card_showcase_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("showcases.add") %><% end %>
+              <% when :remove %>
+                <%= render ButtonComponent.new(variant: :secondary, href: card_showcase_path(slug: view.id, number: view.season_number), method: :delete) do %><%= t("showcases.remove") %><% end %>
+              <% when :full %>
+                <%= render ButtonComponent.new(variant: :secondary, disabled: true) do %><%= t("showcases.add") %><% end %>
+                <p class="card-detail__showcase-full"><%= t("showcases.full") %></p>
+              <% end %>
+            </div>
           <% end %>
         </div>
       </div>

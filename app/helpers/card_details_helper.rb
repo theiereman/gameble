@@ -75,8 +75,9 @@ module CardDetailsHelper
   # The detail of the card `slug` of season `number`, carrying its browse
   # context in the query: `grid:` (the collection grid's filters and
   # search), `pack:` and `slot:` (an opened pack's token and the card's
-  # place in it), or `set_kind:` and `set_key:` (a set, with `brother:` a
-  # player's album of it); none for the card's own page.
+  # place in it), `set_kind:` and `set_key:` (a set, with `brother:` a
+  # player's album of it), or `brother:` alone (that player's profile
+  # showcase); none for the card's own page.
   def card_detail_path(slug, number, context = {})
     card_season_path(slug:, number:, **context)
   end
