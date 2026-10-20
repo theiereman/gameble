@@ -5,4 +5,4 @@
 <% content_for :title, t("library.album.title", set: heading) %>
 <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
 <%= render "library/album", standing: @standing, heading:, slots: @album_slots, pagy: @album_pagy,
-  slot_context: ->(slot) { { set_kind: @set.kind, set_key: @set.key } if slot.member } %>
+  context: { set_kind: @set.kind, set_key: @set.key } %>

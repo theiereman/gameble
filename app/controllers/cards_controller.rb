@@ -17,7 +17,10 @@
 #   the watermark its new cards were judged against, CollectionGridLoading),
 #   in its order across its pages, back to the page of that grid holding
 #   the card ("◀ Grille");
-# - `set_kind` and `set_key`: one of the card's sets, back to its album.
+# - `set_kind` and `set_key`: one of the card's sets, back to its album;
+#   with `brother`, a player's token, back to that player's album of it
+#   when their profile may be shown, its cards faded as that player holds
+#   them.
 #
 # A pack of another player, not opened or not holding the card, a grid or a
 # set that does not hold it, is ignored. Within a context the query names,
@@ -59,7 +62,7 @@ class CardsController < ApplicationController
     @public = current_player.nil? && named.nil?
     @live_strip = LiveStream.strip_items if @public
     @browse = named || set_browse(@detail.sets.first) unless @public
-    @faded = !named.nil? && @copies.nil?
+    @faded = !named.nil? && !(album_owner ? owner_holds? : @copies)
     @back_key = Game::CardBacks.active_key(current_player)
   end
 
@@ -121,25 +124,41 @@ class CardsController < ApplicationController
       key = params[:set_key]
       return unless kind.is_a?(String) && key.is_a?(String) && Catalog::SetKind::ALL.include?(kind)
 
-      set_browse(@detail.sets.find { it.kind == kind && it.key == key })
+      set_browse(@detail.sets.find { it.kind == kind && it.key == key }, owner: album_owner)
+    end
+
+    # The player whose album the query's `brother` names, when their profile
+    # may be shown to the viewer.
+    def album_owner
+      return @album_owner if defined?(@album_owner)
+
+      owner = Accounts::PlayerByToken.call(params[:brother]) if params[:brother].is_a?(String)
+      @album_owner = owner if owner && Game::Visibility.visible?(current_player, owner)
+    end
+
+    def owner_holds?
+      Game::HeldEditions.call(album_owner, card_id: @detail.card_id).any?
     end
 
     # The card's place in `set` (Catalog::SetNeighbours), back to the page of
-    # the set's album holding it when the library shows it; nil without a set.
-    def set_browse(set)
+    # the set's album holding it, `owner`'s when given, when the library
+    # shows it; nil without a set.
+    def set_browse(set, owner: nil)
       return if set.nil?
 
       place = Catalog::SetNeighbours.call(card_season_id: @detail.card_season_id, kind: set.kind, key: set.key, locale: I18n.locale)
       return if place.nil?
 
-      context = { set_kind: set.kind, set_key: set.key }
+      context = { set_kind: set.kind, set_key: set.key, brother: owner&.token }.compact
       path = ->(slug) { slug && helpers.card_detail_path(slug, @detail.view.season_number, context) }
-      back = Back.new(label: t("cards.show.grid"), path: album_page_path(set, place.position)) if @detail.current_season
+      back = Back.new(label: t("cards.show.grid"), path: album_page_path(set, place.position, owner:)) if @detail.current_season
       Browse.new(position: place.position, total: place.total, previous: path.(place.previous), next: path.(place.next), back:)
     end
 
-    def album_page_path(set, position)
+    def album_page_path(set, position, owner:)
       page = ((position - 1) / SetAlbumLoading::ALBUM_SIZE) + 1
+      return brother_set_path(owner.token, kind: set.kind, key: set.key, page: (page if page > 1)) if owner
+
       library_set_path(kind: set.kind, key: set.key, page: (page if page > 1))
     end
 

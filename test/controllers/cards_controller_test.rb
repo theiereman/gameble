@@ -298,6 +298,38 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "/en/library/theme/roguelike?page=2", css_select(".top-bar__phone-back").sole["href"]
   end
 
+  test "a card opened from a player's album browses it, leads back to that album and fades the cards that player does not hold" do
+    season, cards = published_cards(70)
+    insert_theme(cards, key: "roguelike", season:)
+    owner = accounts_players(:player)
+    hold_all(owner, [ cards[60] ])
+    slugs = Catalog::CardSeason.where(id: cards).includes(:card).index_by(&:id).transform_values { it.card.slug }
+    detail = ->(id) { card_season_path(locale: :en, slug: slugs.fetch(id), number: season.number, set_kind: "theme", set_key: "roguelike", brother: owner.token) }
+
+    get detail.(cards[60])
+
+    assert_equal "/en/brothers/#{owner.token}/library/theme/roguelike?page=2", css_select(".top-bar__phone-back").sole["href"]
+    assert_equal [ [ "a", detail.(cards[59]) ], [ "a", detail.(cards[61]) ] ], navs
+    assert_select ".card-detail__back", false
+
+    get detail.(cards[59])
+
+    assert_select ".card-detail__back", 1
+  end
+
+  test "a card opened from the album of a player whose profile may not be shown browses the viewer's own album" do
+    season, cards = published_cards(5)
+    insert_theme(cards, key: "roguelike", season:)
+    owner = accounts_players(:player)
+    owner.update!(visibility: :private)
+    slug = Catalog::CardSeason.find(cards[0]).card.slug
+
+    get card_season_path(locale: :en, slug:, number: season.number, set_kind: "theme", set_key: "roguelike", brother: owner.token)
+
+    assert_equal "/en/library/theme/roguelike", css_select(".top-bar__phone-back").sole["href"]
+    assert_select "a.card-detail__nav[href*=brother]", false
+  end
+
   test "an unnumbered card's position line keeps its season, and its header shows no number" do
     add_a_theme_set
     Catalog::CardSeason.where(id: catalog_card_seasons(:portal_one).id).update_all(number: nil)

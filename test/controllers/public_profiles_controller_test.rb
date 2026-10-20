@@ -198,7 +198,8 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".profile-band, .collection-kind, .collection-sets", false
     assert_select "[style]", false
     slugs = Catalog::CardSeason.where(id: members).includes(:card).index_by(&:id).transform_values { it.card.slug }
-    assert_equal members.map { "/en/cards/#{slugs.fetch(it)}/seasons/#{season.number}" }, css_select(".set-album__grid > li > a.card-link").map { it["href"] }
+    assert_equal members.map { "/en/cards/#{slugs.fetch(it)}/seasons/#{season.number}?brother=#{@owner.token}&set_key=horror&set_kind=theme" },
+      css_select(".set-album__grid > li > a.card-link").map { it["href"] }
   end
 
   test "an owner's album shows their earlier editions and their copies of every edition" do
@@ -214,7 +215,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "1/8", album_count
     slot = css_select(".set-album__grid > li")[1]
-    assert_equal "/fr/cards/#{older.card.slug}/seasons/1", slot.at_css("a.card-link")["href"]
+    assert_equal "/fr/cards/#{older.card.slug}/seasons/#{season.number}?brother=#{@owner.token}&set_key=pirates&set_kind=theme", slot.at_css("a.card-link")["href"]
     assert_equal "x3", slot.at_css(".collection-slot__copies").text
     assert_equal "1 carte sur 8", css_select("progress.set-album__bar").sole["aria-valuetext"]
   end

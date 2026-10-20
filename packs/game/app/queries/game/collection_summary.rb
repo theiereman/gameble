@@ -1,5 +1,5 @@
 module Game
-  # The header of a player's public profile (CAP-8): how many games they
+  # The header of a player's public profile: how many games they
   # hold, in any edition (Game::HeldGames), and how many of the season's
   # sets they have completed (a set with members, every member's game held
   # in any edition). One query when the season is given; without it the

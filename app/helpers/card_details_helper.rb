@@ -58,29 +58,31 @@ module CardDetailsHelper
     t("card_details.open", title: view.title, year: view.year, rarity: strings.rarity_name(view.rarity), season: view.season_number)
   end
 
-  # A card's face or empty slot, leading to its detail in its own season. A
-  # face, given its `strings`, is named by card_detail_open_label; an empty
+  # A card's face or empty slot, leading to its detail in its own season,
+  # or in season `number` when given. A face, given its `strings`, is
+  # named by card_detail_open_label; an empty
   # slot, without, by its visible text (title, year, "Missing card"), so a
   # screen reader tells it from an owned face. The `context` it carries
   # (card_detail_path) is what the detail walks with ◀ ▶ and leads back to,
   # and within it a card the viewer does not hold shows as their faded card
   # back.
-  def link_to_card_detail(view, strings: nil, context: {}, &)
+  def link_to_card_detail(view, strings: nil, context: {}, number: view.season_number, &)
     aria = strings ? { label: card_detail_open_label(view, strings) } : {}
-    link_to(card_detail_path(view.id, view.season_number, context), class: "card-link", aria:,
+    link_to(card_detail_path(view.id, number, context), class: "card-link", aria:,
       data: { turbo_prefetch: false }, &)
   end
 
   # The detail of the card `slug` of season `number`, carrying its browse
-  # context in the query: `grid:` (the collection grid's filters, search and
-  # set), `pack:` and `slot:` (an opened pack's token and the card's place in
-  # it), or `set_kind:` and `set_key:` (a set); none for the card's own page.
+  # context in the query: `grid:` (the collection grid's filters and
+  # search), `pack:` and `slot:` (an opened pack's token and the card's
+  # place in it), or `set_kind:` and `set_key:` (a set, with `brother:` a
+  # player's album of it); none for the card's own page.
   def card_detail_path(slug, number, context = {})
     card_season_path(slug:, number:, **context)
   end
 
-  # The player's active card back (AD-25), at card-l size, decorative: the
-  # exported pixel-art PNG of that size (AD-27, story 8.8), 104 × 156 art
+  # The player's active card back, at card-l size, decorative: the
+  # exported pixel-art PNG of that size, 104 × 156 art
   # pixels drawn at 2 CSS px each. An unknown key raises ArgumentError.
   def card_back_image(key, **options)
     raise ArgumentError, "unknown card back: #{key.inspect}" unless Game::CardBacks::KEYS.include?(key.to_s)

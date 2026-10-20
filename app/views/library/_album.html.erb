@@ -20,10 +20,9 @@
     <ol class="collection-grid collection-grid--fill set-album__grid" aria-label="<%= t("library.album.slots") %>"
       data-controller="grid-keys" data-action="keydown->grid-keys#move focusin->grid-keys#remember">
       <% slots.each do |slot| %>
-        <% context = slot_context&.call(slot) || {} %>
         <li class="collection-slot">
           <% if slot.copies %>
-            <%= link_to_card_detail(slot.card, strings:, context:) do %><%= render CardComponent.new(card: slot.card, size: :grid) %><% end %>
+            <%= link_to_card_detail(slot.card, strings:, context:, number: slot.number) do %><%= render CardComponent.new(card: slot.card, size: :grid) %><% end %>
             <% if slot.copies > 1 %>
               <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(slot.copies) %></span>
             <% end %>
@@ -32,7 +31,7 @@
               <span class="collection-slot__new"><%= t("library.grid.new") %></span>
             <% end %>
           <% else %>
-            <%= link_to_card_detail(slot.card, context:) do %>
+            <%= link_to_card_detail(slot.card, context:, number: slot.number) do %>
               <span class="missing-slot">
                 <%= pixel_icon("lock", class: "missing-slot__icon") %>
                 <span class="missing-slot__title"><%= slot.card.title %></span>

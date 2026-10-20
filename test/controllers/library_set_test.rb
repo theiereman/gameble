@@ -138,7 +138,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_equal "0 carte sur 8", value_text
   end
 
-  test "a game held only in an earlier season fills its slot with that edition, leading to its own page" do
+  test "a game held only in an earlier season fills its slot with that edition, leading to the set's card within the set" do
     season = publish_sets_draft
     player = accounts_players(:player)
     members = set_members(season, "horror")
@@ -151,7 +151,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_equal "1/16", count
     slot = css_select(".set-album__grid > li")[2]
     link = slot.at_css("a.card-link")
-    assert_equal "/en/cards/#{slug(members[2])}/seasons/1", link["href"]
+    assert_equal "/en/cards/#{slug(members[2])}/seasons/#{season.number}?set_key=horror&set_kind=theme", link["href"]
     assert_equal "#{title(members[2])}, #{year(members[2])}, Rare, season 1", link["aria-label"]
     assert_nil slot.at_css(".collection-slot__copies")
     assert_equal "1 copy", slot.css(".visually-hidden").map(&:text).find { it.include?("cop") }
