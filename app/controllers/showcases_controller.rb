@@ -1,8 +1,9 @@
 # Adding a card the player holds to their profile showcase or taking it
-# out, from its detail, and moving it one place earlier or later, from the
-# owner's profile; the card is addressed by its slug and season number.
-# After a move, the flash names the card and the direction, so the profile
-# puts the focus back on the button pressed.
+# out, from its detail, and, from the owner's profile, moving it one place
+# earlier or later (`direction`) or dropping it at the place it was dragged
+# to (`position`, 0 first); the card is addressed by its slug and season
+# number. After a move, the flash names the card and the direction, so the
+# profile puts the focus back on the button pressed.
 class ShowcasesController < ApplicationController
   def create
     authorize :showcase, :create?
@@ -11,10 +12,7 @@ class ShowcasesController < ApplicationController
 
   def update
     authorize :showcase, :update?
-    change(Game::MoveShowcaseCard, direction: params[:direction].to_s) do
-      flash[:moved_showcase_card] = { "slug" => params[:slug], "number" => params[:number].to_s, "direction" => params[:direction].to_s } unless request.format.json?
-      changed(fallback: brother_path(token: current_player.token))
-    end
+    params.key?(:position) ? place : move
   end
 
   def destroy
@@ -23,6 +21,19 @@ class ShowcasesController < ApplicationController
   end
 
   private
+    def place
+      change(Game::PlaceShowcaseCard, position: Integer(params[:position].to_s, 10, exception: false)) do
+        changed(fallback: brother_path(token: current_player.token))
+      end
+    end
+
+    def move
+      change(Game::MoveShowcaseCard, direction: params[:direction].to_s) do
+        flash[:moved_showcase_card] = { "slug" => params[:slug], "number" => params[:number].to_s, "direction" => params[:direction].to_s } unless request.format.json?
+        changed(fallback: brother_path(token: current_player.token))
+      end
+    end
+
     def change(operation, **options)
       card_season_id = Catalog::PublishedCardSeasonId.call(slug: params[:slug], season_number: Integer(params[:number], 10, exception: false))
       return not_found if card_season_id.nil?

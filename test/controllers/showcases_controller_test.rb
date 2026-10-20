@@ -213,4 +213,46 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
       assert_json_error :unauthorized, "sign_in_required", I18n.t("authorization.sign_in_required", locale: :en)
     end
   end
+
+  test "a card dropped at a place in JSON answers no content and the showcase takes the new order, no flash" do
+    choose(:portal_one, :common_card_one, :uncommon_card_one)
+    sign_in(@player)
+
+    patch showcase_path, params: { position: 2 }, as: :json
+
+    assert_response :no_content
+    assert_nil flash[:moved_showcase_card]
+    assert_equal catalog_card_seasons(:common_card_one, :uncommon_card_one, :portal_one).map(&:id), chosen
+
+    patch showcase_path, params: { position: "0" }, headers: { "HTTP_REFERER" => profile_path }
+    assert_redirected_to profile_path
+    assert_equal catalog_card_seasons(:portal_one, :common_card_one, :uncommon_card_one).map(&:id), chosen
+  end
+
+  test "a drop outside the showcase, at no whole place or of a card not in the showcase is refused with its message and writes nothing" do
+    choose(:portal_one, :common_card_one)
+    sign_in(@player)
+
+    assert_no_changes -> { Game::ShowcaseEntry.order(:id).pluck(:position, :updated_at) + [ Rails.configuration.event_store.read.count ] } do
+      [ 2, -1, "first", "" ].each do |position|
+        patch showcase_path, params: { position: }, as: :json
+        assert_json_error :unprocessable_content, "position_out_of_range", "The showcase has no such place."
+      end
+
+      patch showcase_path(slug: "golden-crown"), params: { position: 0 }, as: :json
+      assert_json_error :unprocessable_content, "card_not_showcased", "This card is not in your showcase."
+
+      patch showcase_path(locale: :fr), params: { position: 5 }, as: :json
+      assert_json_error :unprocessable_content, "position_out_of_range", "La vitrine n'a pas cette place."
+    end
+  end
+
+  test "a visitor's drop is refused; nothing written" do
+    choose(:portal_one, :common_card_one)
+
+    assert_no_changes -> { chosen } do
+      patch showcase_path, params: { position: 1 }, as: :json
+      assert_json_error :unauthorized, "sign_in_required", I18n.t("authorization.sign_in_required", locale: :en)
+    end
+  end
 end

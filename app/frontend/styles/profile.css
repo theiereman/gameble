@@ -271,6 +271,114 @@
   padding-inline: 0;
 }
 
+/* The edge card's absent button keeps its column; the showcase-order
+   controller shows it again once the card is dragged off the edge. */
+.profile-showcase__move[hidden] {
+  display: block;
+  visibility: hidden;
+}
+
+/* The heading and, for the owner, the "i" mark that opens a short note
+   saying the cards can be dragged. */
+.profile-showcase__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.profile-showcase__info {
+  position: relative;
+}
+
+.profile-showcase__info-mark {
+  display: grid;
+  place-items: center;
+  width: var(--space-touch-min);
+  height: var(--space-touch-min);
+  margin-block: calc((var(--space-touch-min) - 18px) / -2);
+  color: var(--color-muted);
+  cursor: pointer;
+  list-style: none;
+}
+
+.profile-showcase__info-mark::-webkit-details-marker {
+  display: none;
+}
+
+.profile-showcase__info-mark:hover,
+.profile-showcase__info[open] .profile-showcase__info-mark {
+  color: var(--color-accent);
+}
+
+.profile-showcase__info-mark:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: calc(-1 * var(--focus-ring-offset));
+}
+
+.profile-showcase__info-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.profile-showcase__info-text {
+  position: absolute;
+  z-index: 3;
+  top: calc(100% + var(--space-2));
+  left: calc(var(--space-touch-min) / -2);
+  width: max-content;
+  max-width: min(280px, calc(100vw - 2 * var(--space-gutter-phone)));
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-panel-raised);
+  box-shadow: var(--panel-border), var(--overlay-shadow);
+  color: var(--color-text);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+/* Dragging: the card is grabbed, lifted above the others and kept flat;
+   the others slide aside (lib/showcase_order.ts, the controller). */
+.profile-showcase--sortable .profile-showcase__slot > .card-link {
+  cursor: grab;
+  -webkit-touch-callout: none;
+  transition: scale 120ms ease-out;
+}
+
+.profile-showcase--sortable[data-sorting],
+.profile-showcase--sortable[data-sorting] .profile-showcase__slot > .card-link {
+  cursor: grabbing;
+}
+
+.profile-showcase--sortable[aria-busy="true"] .profile-showcase__slot > .card-link {
+  cursor: progress;
+}
+
+.profile-showcase__slot[data-dragging] {
+  z-index: 2;
+}
+
+.profile-showcase__slot[data-dragging] > .card-link {
+  scale: 1.05;
+}
+
+.profile-showcase__slot[data-dragging] > .card-link::after {
+  opacity: 0.35;
+}
+
+.profile-showcase__slot[data-dragging] .card[data-tilt] {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .profile-showcase--sortable .profile-showcase__slot > .card-link {
+    transition: none;
+  }
+}
+
+html[data-motion="reduced"] .profile-showcase--sortable .profile-showcase__slot > .card-link {
+  transition: none;
+}
+
 @media (max-width: 719px) {
   .profile-showcase {
     gap: 28px 16px;

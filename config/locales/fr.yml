@@ -822,6 +822,10 @@ fr:
         title: "Vitrine"
         move_left: "Déplacer %{title} vers la gauche"
         move_right: "Déplacer %{title} vers la droite"
+        info_label: "Comment changer l'ordre"
+        info: "Faites glisser les cartes pour changer leur ordre, ou déplacez une carte d'une place avec les flèches sous elle."
+        moved: "%{title} est maintenant à la place %{position} sur %{count}."
+        move_failed: "Le nouvel ordre n'a pas pu être enregistré."
       stats:
         title: "Statistiques"
         rarities: "Raretés"
@@ -1896,6 +1900,7 @@ fr:
       showcase_full: "Vitrine pleine : retirez une carte pour en ajouter une autre."
       showcase_edge: "Cette carte ne peut pas aller plus loin."
       unknown_direction: "Direction inconnue."
+      position_out_of_range: "La vitrine n'a pas cette place."
     steam:
       invalid_claimed_id: "La réponse de Steam n'a pas été reconnue. Connectez-vous à nouveau."
       sign_in_failed: "La connexion avec Steam n'a pas abouti. Réessayez."

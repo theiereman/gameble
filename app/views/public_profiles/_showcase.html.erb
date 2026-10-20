@@ -1,17 +1,34 @@
 <%# The cards the owner chose for their showcase, in their order, each over
     a ground shadow and leading to its detail, back to this profile. On
-    their own profile, with two cards or more, the owner moves a card one
-    place left or right with the buttons under it (a plain form, PATCH);
-    after a move the button pressed, or the moved card's other one once it
+    their own profile, with two cards or more, the owner drags a card to
+    another place (the showcase-order controller), an info mark beside the
+    heading saying so; the buttons under each card move it one place left
+    or right without dragging (a plain form, PATCH), the edge one hidden so
+    the controller can show it once the card leaves the edge. After a move
+    by button, the button pressed, or the moved card's other one once it
     reaches the edge, takes the focus back. %>
 <%# locals: (owner:, cards:, movable: false, moved: nil) %>
 <% strings = CardStrings.new %>
 <% movable &&= cards.size > 1 %>
-<section class="profile-section" aria-labelledby="profile-showcase-heading">
-  <h2 id="profile-showcase-heading" class="profile-section__title"><%= t("public_profiles.show.showcase.title") %></h2>
-  <ul class="profile-showcase">
+<% order = { controller: "showcase-order", showcase_order_announcement_value: t("public_profiles.show.showcase.moved"), showcase_order_failed_value: t("public_profiles.show.showcase.move_failed") } if movable %>
+<%= tag.section class: "profile-section", aria: { labelledby: "profile-showcase-heading" }, data: order do %>
+  <div class="profile-showcase__head">
+    <h2 id="profile-showcase-heading" class="profile-section__title"><%= t("public_profiles.show.showcase.title") %></h2>
+    <% if movable %>
+      <details class="profile-showcase__info">
+        <summary class="profile-showcase__info-mark">
+          <%= pixel_icon("info", class: "profile-showcase__info-icon") %>
+          <span class="visually-hidden"><%= t("public_profiles.show.showcase.info_label") %></span>
+        </summary>
+        <p class="profile-showcase__info-text"><%= t("public_profiles.show.showcase.info") %></p>
+      </details>
+    <% end %>
+  </div>
+  <%= tag.ul class: [ "profile-showcase", ("profile-showcase--sortable" if movable) ], data: ({ showcase_order_target: "list" } if movable) do %>
     <% cards.each_with_index do |card, index| %>
-      <li class="profile-showcase__slot">
+      <% place = card_showcase_path(slug: card.id, number: card.season_number) %>
+      <% slot = { showcase_order_target: "slot", url: place, title: card.title, action: "pointerdown->showcase-order#press dragstart->showcase-order#stopNativeDrag contextmenu->showcase-order#stopMenu" } if movable %>
+      <%= tag.li class: "profile-showcase__slot", data: slot do %>
         <%= link_to_card_detail(card, strings:, context: { brother: owner.token }) do %>
           <%= render CardComponent.new(card:, size: :grid) %>
         <% end %>
@@ -21,19 +38,19 @@
           <% focused = (directions.include?(moved["direction"]) ? moved["direction"] : directions.first) if was_moved %>
           <div class="profile-showcase__moves">
             <% { "earlier" => [ "arrow-left", "move_left" ], "later" => [ "arrow-right", "move_right" ] }.each do |direction, (icon, label)| %>
-              <% if directions.include?(direction) %>
-                <%= button_to card_showcase_path(slug: card.id, number: card.season_number), method: :patch, params: { direction: },
-                      class: "button button--secondary button--small profile-showcase__move-button", form: { class: "profile-showcase__move" },
-                      aria: { label: t("public_profiles.show.showcase.#{label}", title: card.title) }, autofocus: focused == direction do %>
-                  <%= pixel_icon(icon, class: "button__icon") %>
-                <% end %>
-              <% else %>
-                <span class="profile-showcase__move profile-showcase__move--none"></span>
+              <%= button_to place, method: :patch, params: { direction: },
+                    class: "button button--secondary button--small profile-showcase__move-button",
+                    form: { class: "profile-showcase__move", hidden: !directions.include?(direction), data: { direction: } },
+                    aria: { label: t("public_profiles.show.showcase.#{label}", title: card.title) }, autofocus: focused == direction do %>
+                <%= pixel_icon(icon, class: "button__icon") %>
               <% end %>
             <% end %>
           </div>
         <% end %>
-      </li>
+      <% end %>
     <% end %>
-  </ul>
-</section>
+  <% end %>
+  <% if movable %>
+    <p class="visually-hidden" role="status" data-showcase-order-target="status"></p>
+  <% end %>
+<% end %>

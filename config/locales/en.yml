@@ -785,6 +785,10 @@ en:
         title: "Showcase"
         move_left: "Move %{title} left"
         move_right: "Move %{title} right"
+        info_label: "How to change the order"
+        info: "Drag the cards to change their order, or move a card one place with the arrows under it."
+        moved: "%{title} is now in place %{position} of %{count}."
+        move_failed: "The new order could not be saved."
       stats:
         title: "Statistics"
         rarities: "Rarities"
@@ -1847,6 +1851,7 @@ en:
       showcase_full: "Showcase full: remove a card to add another."
       showcase_edge: "This card cannot move any further."
       unknown_direction: "Unknown direction."
+      position_out_of_range: "The showcase has no such place."
     steam:
       invalid_claimed_id: "Steam's answer was not recognised. Sign in again."
       sign_in_failed: "The sign-in through Steam did not go through. Try again."

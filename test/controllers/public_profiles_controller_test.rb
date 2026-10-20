@@ -619,7 +619,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
   # Each slot's move buttons as [ accessible name, direction ].
   def move_buttons
     css_select(".profile-showcase__slot").map do |slot|
-      slot.css(".profile-showcase__moves form").map { [ it.at_css("button")["aria-label"], it.at_css("input[name=direction]")["value"] ] }
+      slot.css(".profile-showcase__moves form:not([hidden])").map { [ it.at_css("button")["aria-label"], it.at_css("input[name=direction]")["value"] ] }
     end
   end
 
@@ -641,11 +641,46 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
       [ [ "Move #{c.title} left", "earlier" ] ]
     ], move_buttons
     assert_equal "/en/cards/#{a.id}/seasons/#{a.season_number}/showcase", css_select(".profile-showcase__moves form").first["action"]
-    assert_select ".profile-showcase__moves form input[name=_method][value=patch]", 4
-    assert_select ".profile-showcase__moves button svg.pixel-icon", 4
-    assert_select ".profile-showcase__moves .profile-showcase__move--none", 2
+    assert_select ".profile-showcase__moves form input[name=_method][value=patch]", 6
+    assert_select ".profile-showcase__moves button svg.pixel-icon", 6
+    assert_equal [ [ "earlier", true ], [ "later", false ], [ "earlier", false ], [ "later", false ], [ "earlier", false ], [ "later", true ] ],
+      css_select(".profile-showcase__moves form").map { [ it["data-direction"], it.has_attribute?("hidden") ] }
     assert_select ".profile-showcase [autofocus]", false
     assert_select "[style]", false
+  end
+
+  test "on their own profile the owner can drag the cards: each slot names its card and where to send its place, an info mark says so, and a polite region announces the move" do
+    a, b, c = choose_three
+    sign_in(@owner)
+
+    get brother_path(locale: :en, token: @owner.token)
+
+    section = css_select("section[data-controller=showcase-order]").sole
+    assert_equal "%{title} is now in place %{position} of %{count}.", section["data-showcase-order-announcement-value"]
+    assert_equal "The new order could not be saved.", section["data-showcase-order-failed-value"]
+    assert_select section, "ul.profile-showcase--sortable[data-showcase-order-target=list]"
+    slots = css_select(".profile-showcase__slot[data-showcase-order-target=slot]")
+    assert_equal [ a, b, c ].map(&:title), slots.map { it["data-title"] }
+    assert_equal [ a, b, c ].map { "/en/cards/#{it.id}/seasons/#{it.season_number}/showcase" }, slots.map { it["data-url"] }
+    assert slots.all? { it["data-action"].include?("pointerdown->showcase-order#press") }
+    assert_select ".profile-showcase__head h2#profile-showcase-heading + details.profile-showcase__info summary" do
+      assert_select "svg.pixel-icon"
+      assert_select ".visually-hidden", "How to change the order"
+    end
+    assert_select ".profile-showcase__info-text", "Drag the cards to change their order, or move a card one place with the arrows under it."
+    assert_select "p.visually-hidden[role=status][data-showcase-order-target=status]", ""
+    assert_select "[style]", false
+  end
+
+  test "the info mark speaks French in French" do
+    choose_three
+    sign_in(@owner)
+
+    get brother_path(locale: :fr, token: @owner.token)
+
+    assert_select ".profile-showcase__info summary .visually-hidden", "Comment changer l'ordre"
+    assert_select ".profile-showcase__info-text", /\AFaites glisser les cartes/
+    assert_equal "%{title} est maintenant à la place %{position} sur %{count}.", css_select("[data-controller=showcase-order]").sole["data-showcase-order-announcement-value"]
   end
 
   test "the move buttons speak French in French" do
@@ -657,7 +692,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     ids = Game::ChosenShowcase.call(@owner)
     views = Catalog::CardViews.call(ids, locale: :fr)
     titles = ids.map { views.fetch(it).title }
-    assert_select "button[aria-label=?]", "Déplacer #{titles.first} vers la gauche", false
+    assert_select "form[hidden] button[aria-label=?]", "Déplacer #{titles.first} vers la gauche"
     assert_select "button[aria-label=?]", "Déplacer #{titles.first} vers la droite"
     assert_select "button[aria-label=?]", "Déplacer #{titles.last} vers la gauche"
   end
@@ -671,6 +706,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".profile-showcase .card", 1
     assert_select ".profile-showcase__moves", false
+    assert_select "[data-controller=showcase-order], [data-showcase-order-target], .profile-showcase__info", false
   end
 
   test "no one but the owner sees a move button: not another player, not staff, not a visitor" do
@@ -679,13 +715,13 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     get brother_path(locale: :en, token: @owner.token)
     assert_select ".profile-showcase .card", 3
-    assert_select ".profile-showcase__moves, .profile-showcase__move", false
+    assert_select ".profile-showcase__moves, .profile-showcase__move, .profile-showcase__info, [data-controller=showcase-order], [data-showcase-order-target]", false
 
     [ stranger, accounts_players(:moderator), accounts_players(:administrator) ].each do |viewer|
       sign_in(viewer)
       get brother_path(locale: :en, token: @owner.token)
       assert_select ".profile-showcase .card", 3
-      assert_select ".profile-showcase__moves, .profile-showcase__move", false
+      assert_select ".profile-showcase__moves, .profile-showcase__move, .profile-showcase__info, [data-controller=showcase-order], [data-showcase-order-target]", false
     end
   end
 
