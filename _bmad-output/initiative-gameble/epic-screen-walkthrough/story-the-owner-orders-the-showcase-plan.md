@@ -12,7 +12,7 @@ review_source: 'pinned'
 lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
-commit: 'cceddb14732923c8e8d5dfff8548b051c4e1f629'
+commit: '0ec6852e'
 context: ['{project-root}/AGENTS.md']
 warnings: ['oversized']
 deferred: []
@@ -147,6 +147,6 @@ Drag and drop (rework): the server is told only the dropped card and its new pla
 ### Rework, 2026-10-20 (drag and drop, info mark)
 
 - **Summary:** the owner drags VITRINE cards to reorder them on their own profile (mouse after a 6px move, touch after a 400ms hold), the others making room, saved on release through `Game::PlaceShowcaseCard` (PATCH with `position`), announced politely, restored with a toast on failure; an "i" info mark beside the heading opens a note saying the cards can be dragged; ◀ ▶ remain and follow the order.
-- **Commit:** `cceddb14732923c8e8d5dfff8548b051c4e1f629`.
+- **Commit:** `0ec6852e`.
 - **Verification:** `bin/rails test` 2953 runs, 0 failures (PARALLEL_WORKERS=4); `npm run test:js` 504 passed; typecheck, zeitwerk, packwerk, rubocop (860 files), i18n-tasks missing and unused, brakeman: clean; `node script/pixel_art/export.mjs --check` up to date. System tests not run.
 - **Residual risks:** the drag has been checked through its pure logic and the rendered HTML only, never in a browser or on a touch screen; the hold delay (400ms) and the info note's wording are not in the copy deck before this rework and await the author's eye.
