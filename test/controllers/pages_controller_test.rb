@@ -775,7 +775,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :fr)
 
     assert_response :success
-    assert_select ".legal__updated", "Dernière mise à jour : 19 octobre 2026"
+    assert_select ".legal__updated", "Dernière mise à jour : 20 octobre 2026"
     %w[.legal__moderation .legal__notice .legal__rectification .legal__objection .legal__death .legal__banned].each do |line|
       assert_select "#{line} a.legal__link[href=?]", "mailto:contact@example.test", "contact@example.test"
     end
@@ -790,7 +790,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get legal_path(locale: :en)
 
     assert_response :success
-    assert_select ".legal__updated", "Last updated: 19 October 2026"
+    assert_select ".legal__updated", "Last updated: 20 October 2026"
     assert_select ".legal__moderation", /by writing to the publisher\.\z/
     assert_select ".legal__notice", /write to the publisher with the page's address/
     assert_select ".legal__rectification", /write to the publisher;\z/
@@ -808,7 +808,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".legal__retention li", 8
     retention = css_select(".legal__retention").text
-    [ "trois ans", "un an", "30 jours", "90 jours au plus", "tant que la suspension dure" ].each { assert_includes retention, it }
+    [ "trois ans", "un an", "30 jours", "tant que la suspension dure" ].each { assert_includes retention, it }
+    assert_select ".legal__retention li", "les erreurs techniques reçues par Sentry : 30 jours ;"
     assert_select ".legal__retention li", "les sauvegardes de la base de données, chiffrées et conservées en France : les 7 dernières sauvegardes quotidiennes, soit 7 jours en temps normal ; un compte supprimé en disparaît au bout de 7 jours, un peu plus si une sauvegarde a échoué ;"
     assert_select ".legal__retention + p", /pendant les durées indiquées plus haut\.\z/
 
@@ -816,7 +817,8 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".legal__retention li", 8
     retention = css_select(".legal__retention").text
-    [ "three years", "one year", "30 days", "90 days at most", "as long as the suspension lasts" ].each { assert_includes retention, it }
+    [ "three years", "one year", "30 days", "as long as the suspension lasts" ].each { assert_includes retention, it }
+    assert_select ".legal__retention li", "technical errors received by Sentry: 30 days;"
     assert_select ".legal__retention li", "the database backups, encrypted and kept in France: the last 7 daily backups, that is 7 days in normal times; a deleted account is gone from them after 7 days, a little longer if a backup failed;"
     assert_select ".legal__retention + p", /for the periods given above\.\z/
   end

@@ -158,7 +158,7 @@ fr:
       settings: "Profil et paramètres"
     legal:
       title: "Mentions légales et confidentialité"
-      updated: "Dernière mise à jour : 19 octobre 2026"
+      updated: "Dernière mise à jour : 20 octobre 2026"
       contact_fallback: "l'éditeur"
       publisher:
         title: "Éditeur et hébergeur"
@@ -219,7 +219,7 @@ fr:
           moderation: "l'historique de modération, motifs compris : une suspension tant qu'elle dure, puis un an après sa levée ; un classement de signalements, un an ; l'historique d'un compte supprimé, jusqu'à un an après la suppression ; le journal des actions du jeu garde la date de chaque décision et les comptes concernés, sans le motif ;"
           banned_steam_id: "l'identifiant Steam d'un compte suspendu : tant que la suspension dure, pour refuser une nouvelle inscription ;"
           logs: "les journaux du serveur : 30 jours ;"
-          errors: "les erreurs techniques reçues par Sentry : 90 jours au plus, selon l'offre Sentry de l'éditeur ;"
+          errors: "les erreurs techniques reçues par Sentry : 30 jours ;"
           backups: "les sauvegardes de la base de données, chiffrées et conservées en France : les 7 dernières sauvegardes quotidiennes, soit 7 jours en temps normal ; un compte supprimé en disparaît au bout de 7 jours, un peu plus si une sauvegarde a échoué ;"
           leftovers: "ce qu'un compte supprimé laisse et qui concerne d'autres joueurs ou la communauté (échanges passés, premières découvertes, contributions à l'objectif communautaire, journal des actions du jeu) : tant que le jeu existe, sans identifiant Steam ni nom."
         deletion: "Quand vous supprimez votre compte, votre identifiant Steam, votre nom de profil, l'heure de votre dernière visite, votre dernier export de données, votre dernière activité, votre collection, vos paliers de sets, vos succès, vos capsules, vos bonus du jour, vos récompenses de l'objectif communautaire, vos amitiés, vos invitations, votre code ami et vos entrées du fil d'activité sont effacés, vos échanges en cours sont annulés et votre profil disparaît. Ce qui concerne aussi d'autres joueurs, la communauté ou la modération (échanges passés, premières découvertes, contributions à l'objectif communautaire, signalements, historique de modération, journal des actions du jeu) est conservé sans votre identifiant Steam ni votre nom, pendant les durées indiquées plus haut."

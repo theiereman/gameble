@@ -139,7 +139,7 @@ Then, on the production LXC, remove the stopped containers Kamal kept, which sti
 docker container prune -f
 ```
 
-Staging keeps Docker's default log driver. Sentry keeps errors for its plan's retention, 90 days at most.
+Staging keeps Docker's default log driver. Sentry keeps errors 30 days, the retention of its Developer plan.
 
 ### Backups
 
