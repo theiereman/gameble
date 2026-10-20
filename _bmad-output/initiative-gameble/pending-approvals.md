@@ -15,6 +15,7 @@ Settled by the author on 2026-10-20: the staging checks, then the production set
 - Trade filters across both collections (ticket 18.2): checked on the desktop and the phone, placed cards hidden by a chip stay placed, another season's edition is not "Absente de ma collection".
 - Production set up, deployed and its log retention in place (journald drop-in, db accessory rebooted, json-file containers pruned): done by the author.
 - `bin/rails game:drop_friends_and_trades` and `bin/rails game:backfill_achievements`: run by the author on staging and on production. The cleanup is still rerun after any console ban.
+- Sentry's retention: 30 days (the Developer plan); the legal page and the README say so, the legal page dated 20 October 2026.
 
 ## Settled on 2026-10-19
 
