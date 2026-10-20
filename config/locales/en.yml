@@ -76,6 +76,7 @@ en:
         title: "Command bridge"
       menu:
         label: "Bridge menu"
+        all_cards: "All cards"
         open_booster: "Open a capsule"
         reserve:
           one: "%{number} capsule in reserve"
@@ -1420,6 +1421,7 @@ en:
         subtitle: "Games are hand-picked and imported on one simple principle: the more popular a game, the rarer its card."
         cards_label: "The five rarities, from the most common to the rarest"
         per_card: "%{percent} per card"
+        all_cards: "See every card"
         notes:
           rarities:
             title: "Five rarities"

@@ -422,7 +422,7 @@ class ShellTest < ApplicationSystemTestCase
 
   test "on a desktop, no back button after the hub, from a direct link or after a reload" do
     sign_in_with_three_cards
-    find(".hub-menu .menu-item[aria-keyshortcuts='4']").click
+    find(".hub-menu .menu-item[aria-keyshortcuts='5']").click
     assert_current_path friends_path(locale: :en)
     assert_no_selector PREVIOUS
     find(".top-bar__home").click

@@ -45,7 +45,7 @@ class TradesTest < ApplicationSystemTestCase
     sign_in @hugo
 
     assert_selector ".hub-menu a.menu-item .menu-item__badge--alert", text: "2"
-    find(".hub-menu a.menu-item[aria-keyshortcuts='3']").click
+    find(".hub-menu a.menu-item[aria-keyshortcuts='4']").click
 
     assert_selector ".trades__group", text: /WAITING FOR YOU/i
     assert_selector ".trade-row", count: 2
@@ -527,10 +527,10 @@ class TradesTest < ApplicationSystemTestCase
     assert_no_selector ".trade-card__remove"
   end
 
-  test "a visitor is led to the sign-in panel from menu 03" do
+  test "a visitor is led to the sign-in panel from menu 04" do
     visit home_path(locale: :en)
 
-    find(".hub-menu button.menu-item[aria-keyshortcuts='3']").click
+    find(".hub-menu button.menu-item[aria-keyshortcuts='4']").click
 
     assert_selector "#sign-in-panel", visible: true
   end

@@ -1,7 +1,8 @@
 <% content_for :title, t(".title") %>
 <%# The phone's PLUS tab: menu-item rows, without numbers, for the screens
-    that are not tabs, under the kicker and "Le reste du vaisseau". Amis and
-    Succès open their screens (a visitor gets the sign-in panel);
+    that are not tabs, under the kicker and "Le reste du vaisseau".
+    Toutes les cartes, first, opens the catalog of every card, for a
+    visitor too; Amis and Succès open their screens (a visitor gets the sign-in panel);
     Fil d'activité opens the public feed;
     Comment ça marche opens the rules of the game, for a visitor too;
     Soutenir, last, opens the donation page in a new tab; the tab bar
@@ -14,6 +15,12 @@
     <p class="hub__subtitle"><%= t(".subtitle") %></p>
   </header>
   <ul class="plus__list">
+    <li>
+      <%= link_to library_cards_path, class: "menu-item menu-item--plus", data: { turbo_prefetch: false } do %>
+        <span class="menu-item__label"><%= t("pages.home.menu.all_cards") %></span>
+        <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
+      <% end %>
+    </li>
     <li>
       <% if current_player %>
         <%= link_to friends_path, class: "menu-item menu-item--plus", data: { turbo_prefetch: false } do %>

@@ -1,20 +1,25 @@
 <% strings = CardStrings.new %>
 <div class="set-album" data-controller="set-album">
-  <%= render PanelComponent.new(tag: :header, brackets: true, class: class_names("set-album__header", "set-album__header--tiered": set_tier_ticks?(standing), "set-album__header--complete": standing.complete?)) do %>
+  <% progress = local_assigns.fetch(:progress, true) %>
+  <%= render PanelComponent.new(tag: :header, brackets: true, class: class_names("set-album__header", "set-album__header--tiered": progress && set_tier_ticks?(standing), "set-album__header--complete": progress && standing.complete?)) do %>
     <div class="set-album__title">
       <h1 id="set-album-heading" class="set-album__name" tabindex="-1" data-set-album-target="heading"><%= heading %></h1>
-      <% if standing.complete? %>
-        <span class="set-album__stamp"><%= set_tier_name("complete") %></span>
-      <% end %>
-      <span class="set-album__count" aria-hidden="true"><b><%= number_with_delimiter(standing.held) %></b>/<%= number_with_delimiter(standing.total) %></span>
-    </div>
-    <div class="set-album__track" data-controller="tier-ticks">
-      <progress class="set-row__bar set-album__bar" value="<%= [ standing.held, standing.total ].min %>" max="<%= [ standing.total, 1 ].max %>"
-        aria-labelledby="set-album-heading" aria-valuetext="<%= set_album_value_text(standing) %>"></progress>
-      <% if set_tier_ticks?(standing) %>
-        <span class="set-album__ticks" aria-hidden="true"><%= set_tier_ticks(standing, figures: true) %></span>
+      <% if progress %>
+        <% if standing.complete? %>
+          <span class="set-album__stamp"><%= set_tier_name("complete") %></span>
+        <% end %>
+        <span class="set-album__count" aria-hidden="true"><b><%= number_with_delimiter(standing.held) %></b>/<%= number_with_delimiter(standing.total) %></span>
       <% end %>
     </div>
+    <% if progress %>
+      <div class="set-album__track" data-controller="tier-ticks">
+        <progress class="set-row__bar set-album__bar" value="<%= [ standing.held, standing.total ].min %>" max="<%= [ standing.total, 1 ].max %>"
+          aria-labelledby="set-album-heading" aria-valuetext="<%= set_album_value_text(standing) %>"></progress>
+        <% if set_tier_ticks?(standing) %>
+          <span class="set-album__ticks" aria-hidden="true"><%= set_tier_ticks(standing, figures: true) %></span>
+        <% end %>
+      </div>
+    <% end %>
   <% end %>
   <% if slots.any? %>
     <ol class="collection-grid collection-grid--fill set-album__grid" aria-label="<%= t("library.album.slots") %>"

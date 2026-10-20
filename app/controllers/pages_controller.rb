@@ -5,7 +5,7 @@
 # player's welcome panel. A read only page: Catalog answers the season, its
 # size and the showcased card, Game the goal, the player's reserve, goal
 # reward, showcased card, collection, sets, how many of their friends are
-# online (menu 04) and the achievements they earned (menu 06); the LIVE
+# online (menu 05) and the achievements they earned (menu 07); the LIVE
 # ticker its first items, the latest public entries it shows.
 class PagesController < ApplicationController
   def home

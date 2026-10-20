@@ -134,6 +134,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".missing-slot .visually-hidden", { count: 8, text: "Carte manquante" }
 
     delete session_path(locale: :fr)
+    sign_in(accounts_players(:moderator))
     get library_set_path(locale: :fr, kind: "theme", key: "pirates")
     assert_equal "0 carte sur 8", value_text
   end
@@ -195,7 +196,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select "[data-controller=collection-seen]", false
   end
 
-  test "a visitor sees every slot missing, no tier reached, no New tag and no unique cards in the top bar" do
+  test "a visitor sees the set's name and every slot missing, no set progress, no New tag and no unique cards in the top bar" do
     season = publish_sets_draft
     members = set_members(season, "horror")
     hold(accounts_players(:player), members.first, 1, gained_at: 1.minute.ago)
@@ -203,13 +204,23 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     get library_set_path(locale: :en, kind: "theme", key: "horror")
 
     assert_response :success
-    assert_equal "0/16", count
-    assert_equal "0 cards out of 16", value_text
-    assert_select ".set-row__tick.is-reached", false
+    assert_select ".set-album__header h1#set-album-heading", "Horror"
+    assert_select ".set-album__count, .set-album__header progress, .set-album__track, .set-album__ticks, .set-album__stamp", false
     assert_equal members.map { [ :missing, title(it), year(it) ] }, slots
     assert_select ".collection-slot__new", false
     assert_select ".collection-status, .top-bar--status", false
     assert_select ".top-bar__end form.steam-sign-in"
+  end
+
+  test "a visitor's ranked theme carries no tier ticks" do
+    season, cards = published_cards(62)
+    insert_ranked_theme(cards, key: "roguelike", season:)
+
+    get library_set_path(locale: :en, kind: "theme", key: "roguelike")
+
+    assert_response :success
+    assert_select ".set-album__header--tiered, .set-album__header--complete, .set-album__ticks, .set-row__tick", false
+    assert_select ".set-album__grid > li", 60
   end
 
   test "a ranked theme's value text names its rank: 31 cards out of 62, expert tier" do
@@ -300,7 +311,6 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     get library_set_path(locale: :en, kind: "theme", key: "roguelike")
     assert_equal cards.first(60).map { title(it) }, slots.map(&:second)
     assert_select ".collection-pages a[rel=next][href=?]", "/en/library/theme/roguelike?page=2"
-    assert_equal "0/130", count
 
     get library_set_path(locale: :en, kind: "theme", key: "roguelike", page: 3)
     assert_equal cards.last(10).map { title(it) }, slots.map(&:second)

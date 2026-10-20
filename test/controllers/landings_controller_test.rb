@@ -45,6 +45,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".landing-rarities li .landing-rarity__odds", text: "76 % par carte"
     assert_select ".landing-rarities li .landing-rarity__odds", text: "0,05 % par carte"
     assert_select ".landing-rarity__name", text: "Légendaire"
+    assert_select "section.landing-concept > a.button.button--link.landing-concept__all-cards[href='/fr/library/cards']", "Voir toutes les cartes"
   end
 
   test "a visitor reads the landing in English" do
@@ -55,6 +56,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     assert_headings(:en)
     assert_equal [ "Tin Soldier", "Green Hills", "Blue Depths", "Portal", "Golden Crown" ], concept_faces
     assert_select ".landing-rarities li .landing-rarity__odds", text: "4.3% per card"
+    assert_select "section.landing-concept > a.button.button--link.landing-concept__all-cards[href='/en/library/cards']", "See every card"
   end
 
   test "the reveal demo holds every sample face, hidden, with its announcement, and a hidden button" do

@@ -13,6 +13,6 @@
   <div class="set-entry-page">
     <h1 class="visually-hidden"><%= t("library.collection.title") %></h1>
     <%= render "library/entry", in_progress: @in_progress, results: @results, results_count: @results_count, query: @query,
-      search_url: library_path, all_cards_url: library_cards_path, set_url: ->(set) { library_set_path(kind: set.kind, key: set.key) } %>
+      progress: current_player.present?, search_url: library_path, all_cards_url: library_cards_path, set_url: ->(set) { library_set_path(kind: set.kind, key: set.key) } %>
   </div>
 <% end %>

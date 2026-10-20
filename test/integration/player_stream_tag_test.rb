@@ -46,7 +46,7 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
     assert_select "turbo-cable-stream-source", 0
   end
 
-  test "menu 03 and the tab hold the badge slots the stream fills" do
+  test "menu 04 and the tab hold the badge slots the stream fills" do
     sign_in @player
 
     get home_path(locale: :en)

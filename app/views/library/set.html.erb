@@ -6,5 +6,5 @@
 <% if current_player %>
   <% content_for :top_bar_status do %><%= render "library/status", unique: @unique, total: @season_cards %><% end %>
 <% end %>
-<%= render "library/album", standing: @standing, heading:, slots: @album_slots, pagy: @album_pagy,
+<%= render "library/album", standing: @standing, heading:, slots: @album_slots, pagy: @album_pagy, progress: current_player.present?,
   context: { set_kind: @set.kind, set_key: @set.key } %>

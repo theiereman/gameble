@@ -135,12 +135,12 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar a.top-bar__phone-back[href='/fr/more']", /Plus/
   end
 
-  test "menu 06 and the PLUS row lead a player to the achievements, with the count earned" do
+  test "menu 07 and the PLUS row lead a player to the achievements, with the count earned" do
     unlock("first_booster", "first_trade", "first_repost")
     sign_in(@player)
 
     get home_path(locale: :fr)
-    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='6']" do
+    assert_select ".hub-menu a.menu-item[href='/fr/achievements'][aria-keyshortcuts='7']" do
       assert_select ".menu-item__label", "Succès"
       assert_select ".menu-item__meta[aria-hidden=true]", "3/10"
       assert_select ".visually-hidden", "3 succès obtenus sur 10"
@@ -151,10 +151,10 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".plus__list a.menu-item[href='/fr/achievements']", /Succès/
   end
 
-  test "menu 06 and the PLUS row open the sign-in panel for a visitor" do
+  test "menu 07 and the PLUS row open the sign-in panel for a visitor" do
     get home_path(locale: :fr)
-    assert_select ".hub-menu button.menu-item[aria-keyshortcuts='6'][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]", /Succès/
-    assert_select ".hub-menu [aria-keyshortcuts='6'] .menu-item__meta", false
+    assert_select ".hub-menu button.menu-item[aria-keyshortcuts='7'][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]", /Succès/
+    assert_select ".hub-menu [aria-keyshortcuts='7'] .menu-item__meta", false
     get more_path(locale: :en)
     assert_select ".plus__list button.menu-item[aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]", /Achievements/
     assert_select ".plus__list a[href='/en/achievements']", false

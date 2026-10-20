@@ -1120,6 +1120,22 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame#set-search-results [data-set-search-summary]", ""
   end
 
+  test "a visitor's search rows name the set and its kind, with no progress, in the page and in its frame" do
+    entry_season
+    hold_all(accounts_players(:player), theme("roguelike", 62).first(20))
+
+    [ {}, { "Turbo-Frame" => "set-search-results" } ].each do |headers|
+      get library_path(locale: :en, q: "rogue"), headers: headers
+
+      row = css_select("#set-results-title ~ .set-entry__list a.set-row").sole
+      assert_equal [ "set-row", "set-row--visitor" ], row.classes, headers
+      assert_equal "/en/library/theme/roguelike", row["href"]
+      assert_equal [ "Roguelike", "Theme" ], [ row.at_css(".set-row__name").text, row.at_css(".set-row__kind").text ]
+      assert_equal "Roguelike, theme", row.at_css(".visually-hidden").text
+      assert_empty row.css(".set-row__count, progress, .set-row__track, .set-row__tick, .set-tier"), headers
+    end
+  end
+
   test "no set or card-season id reaches the entry, and its GET writes nothing" do
     entry_season
     player = accounts_players(:player)

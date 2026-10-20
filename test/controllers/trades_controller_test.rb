@@ -46,7 +46,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
   def open_from_lea = propose(@bob, @alice, offer: {}, request: { @portal => 1 })
 
-  test "a visitor is sent home to sign in, and menu 03 and the tab open the sign-in panel" do
+  test "a visitor is sent home to sign in, and menu 04 and the tab open the sign-in panel" do
     trade = from_lea
 
     get trades_path(locale: :fr)
@@ -56,7 +56,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert trade.reload.open?
 
     get home_path(locale: :fr)
-    assert_select ".hub-menu button.menu-item[aria-keyshortcuts='3'][aria-haspopup=dialog]", /Échanges/
+    assert_select ".hub-menu button.menu-item[aria-keyshortcuts='4'][aria-haspopup=dialog]", /Échanges/
     assert_select ".tab-bar button.tab-bar__tab[aria-haspopup=dialog]", /Échanges/
   end
 

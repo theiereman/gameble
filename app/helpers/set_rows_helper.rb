@@ -10,8 +10,12 @@ module SetRowsHelper
     t("library.set_progress.tiers.#{tier}")
   end
 
+  def set_label_sentence(set)
+    [ SetLabel.for(set), set_kind_name(set.kind).downcase ].join(", ")
+  end
+
   def set_progress_sentence(set, standing)
-    parts = [ SetLabel.for(set), set_kind_name(set.kind).downcase,
+    parts = [ set_label_sentence(set),
       t("library.set_progress.count", count: standing.held, owned: number_with_delimiter(standing.held), total: number_with_delimiter(standing.total)) ]
     parts.concat(standing.complete? ? [ t("library.set_progress.complete") ] : tier_words(standing))
     parts.join(", ")

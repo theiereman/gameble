@@ -1,8 +1,8 @@
 <li class="hub-menu__entry">
-  <% head = capture do %><span class="menu-item__number" aria-hidden="true">06</span><span class="menu-item__label"><%= t("pages.home.menu.achievements") %></span><% end %>
+  <% head = capture do %><span class="menu-item__number" aria-hidden="true">07</span><span class="menu-item__label"><%= t("pages.home.menu.achievements") %></span><% end %>
   <% arrow = pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
   <% if achievements %>
-    <%= link_to achievements_path, class: "menu-item", aria: { keyshortcuts: "6" },
+    <%= link_to achievements_path, class: "menu-item", aria: { keyshortcuts: "7" },
           data: { hub_menu_target: "item", action: "hub-menu#remember", turbo_prefetch: false } do %>
       <%= head %>
       <span class="menu-item__meta" aria-hidden="true"><%= achievements[:earned] %>/<%= achievements[:total] %></span>
@@ -10,7 +10,7 @@
       <%= arrow %>
     <% end %>
   <% else %>
-    <%= tag.button type: :button, class: "menu-item", aria: { haspopup: "dialog", keyshortcuts: "6" },
+    <%= tag.button type: :button, class: "menu-item", aria: { haspopup: "dialog", keyshortcuts: "7" },
           data: { hub_menu_target: "item", controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: "sign-in-panel" } do %>
       <%= head %><%= arrow %>
     <% end %>

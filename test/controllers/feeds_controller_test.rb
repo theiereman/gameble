@@ -239,7 +239,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__entry", 0
   end
 
-  test "menu 05 and the PLUS row link to the feed" do
+  test "menu 06 and the PLUS row link to the feed" do
     get home_path(locale: :en)
     assert_select "a.menu-item[href=?]", feed_path(locale: :en), /Activity feed/
 

@@ -98,7 +98,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friends__friend a[href=?]", new_trade_path(locale: :en, friend: lea.token), 0
   end
 
-  test "each friend shows their presence, and menu 04 counts those online" do
+  test "each friend shows their presence, and menu 05 counts those online" do
     now = Time.utc(2026, 10, 7, 15, 0)
     friends = { moderator: "Ada", administrator: "Bob" }.map do |key, name|
       friend = accounts_players(key)
@@ -135,7 +135,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a private friend reads Profil privé and is left out of menu 04's count" do
+  test "a private friend reads Profil privé and is left out of menu 05's count" do
     ada = accounts_players(:moderator)
     ada.update_columns(persona_name: "Ada", last_seen_at: Time.current, visibility: "private")
     low, high = [ @player.id, ada.id ].minmax
@@ -154,7 +154,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/fr/friends'] .menu-item__meta", "1 en ligne"
   end
 
-  test "menu 04 shows zero online for a player without friends, nothing for a visitor" do
+  test "menu 05 shows zero online for a player without friends, nothing for a visitor" do
     get home_path(locale: :fr)
     assert_select ".hub-menu .menu-item__meta", { text: /en ligne/, count: 0 }
 
@@ -345,18 +345,18 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to home_path(locale: :fr)
   end
 
-  test "menu 04 and the PLUS row lead a player to Amis" do
+  test "menu 05 and the PLUS row lead a player to Amis" do
     sign_in(@player)
 
     get home_path(locale: :fr)
-    assert_select ".hub-menu a.menu-item[href='/fr/friends'][aria-keyshortcuts='4']"
+    assert_select ".hub-menu a.menu-item[href='/fr/friends'][aria-keyshortcuts='5']"
     get more_path(locale: :fr)
     assert_select ".plus__list a.menu-item[href='/fr/friends']", /Amis/
   end
 
-  test "menu 04 and the PLUS row open the sign-in panel for a visitor" do
+  test "menu 05 and the PLUS row open the sign-in panel for a visitor" do
     get home_path(locale: :fr)
-    assert_select ".hub-menu button.menu-item[aria-keyshortcuts='4'][aria-haspopup=dialog]", /Amis/
+    assert_select ".hub-menu button.menu-item[aria-keyshortcuts='5'][aria-haspopup=dialog]", /Amis/
     get more_path(locale: :fr)
     assert_select ".plus__list button.menu-item[aria-haspopup=dialog]", /Amis/
   end

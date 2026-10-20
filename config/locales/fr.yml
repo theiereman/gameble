@@ -77,6 +77,7 @@ fr:
         title: "Pont de commandement"
       menu:
         label: "Menu du pont"
+        all_cards: "Toutes les cartes"
         open_booster: "Ouvrir une capsule"
         reserve:
           one: "%{number} capsule en réserve"
@@ -1465,6 +1466,7 @@ fr:
         subtitle: "Les jeux sont triés sur le volet et importés selon un principe simple : plus un jeu est populaire, plus sa carte sera rare."
         cards_label: "Les cinq raretés, de la plus commune à la plus rare"
         per_card: "%{percent} par carte"
+        all_cards: "Voir toutes les cartes"
         notes:
           rarities:
             title: "Cinq raretés"

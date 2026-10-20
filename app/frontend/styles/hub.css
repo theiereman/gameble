@@ -573,7 +573,14 @@ button.menu-item:focus-visible:hover {
   align-items: baseline;
 }
 
-.set-row--progress .set-row__name {
+.set-row--visitor {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "name meta";
+  align-items: baseline;
+}
+
+.set-row--progress .set-row__name,
+.set-row--visitor .set-row__name {
   overflow: visible;
   overflow-wrap: anywhere;
   text-overflow: clip;
