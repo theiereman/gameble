@@ -196,31 +196,16 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select "[data-controller=collection-seen]", false
   end
 
-  test "a visitor sees the set's name and every slot missing, no set progress, no New tag and no unique cards in the top bar" do
-    season = publish_sets_draft
-    members = set_members(season, "horror")
-    hold(accounts_players(:player), members.first, 1, gained_at: 1.minute.ago)
+  test "a visitor is sent to the landing, an unknown set too" do
+    publish_sets_draft
 
-    get library_set_path(locale: :en, kind: "theme", key: "horror")
+    get library_set_path(locale: :fr, kind: "theme", key: "horror")
+    assert_redirected_to landing_path(locale: :fr)
+    assert_response :see_other
+    assert_nil flash[:alert]
 
-    assert_response :success
-    assert_select ".set-album__header h1#set-album-heading", "Horror"
-    assert_select ".set-album__count, .set-album__header progress, .set-album__track, .set-album__ticks, .set-album__stamp", false
-    assert_equal members.map { [ :missing, title(it), year(it) ] }, slots
-    assert_select ".collection-slot__new", false
-    assert_select ".collection-status, .top-bar--status", false
-    assert_select ".top-bar__end form.steam-sign-in"
-  end
-
-  test "a visitor's ranked theme carries no tier ticks" do
-    season, cards = published_cards(62)
-    insert_ranked_theme(cards, key: "roguelike", season:)
-
-    get library_set_path(locale: :en, kind: "theme", key: "roguelike")
-
-    assert_response :success
-    assert_select ".set-album__header--tiered, .set-album__header--complete, .set-album__ticks, .set-row__tick", false
-    assert_select ".set-album__grid > li", 60
+    get library_set_path(locale: :en, kind: "theme", key: "nope")
+    assert_redirected_to landing_path(locale: :en)
   end
 
   test "a ranked theme's value text names its rank: 31 cards out of 62, expert tier" do
@@ -307,6 +292,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
   test "a set of more than sixty cards is paged sixty to a page" do
     season, cards = published_cards(130)
     insert_theme(cards, key: "roguelike", season:)
+    sign_in(accounts_players(:player))
 
     get library_set_path(locale: :en, kind: "theme", key: "roguelike")
     assert_equal cards.first(60).map { title(it) }, slots.map(&:second)
@@ -322,7 +308,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".collection-pages a[rel=prev][href=?]", "/fr/library/theme/roguelike?page=3"
   end
 
-  test "an album of 752 cards costs the same queries as one of three: ten for a player, five for a visitor" do
+  test "an album of 752 cards costs the same queries as one of three: ten for a player" do
     season, cards = published_cards(755)
     insert_theme(cards.first(752), key: "roguelike", season:)
     insert_theme(cards.last(3), key: "horror", season:)
@@ -341,16 +327,11 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
 
     assert_request_queries(10) { get library_set_path(locale: :en, kind: "theme", key: "horror") }
     assert_equal "1/3", count
-
-    delete session_path(locale: :en)
-    # The same without the lookup, the editions, the unique cards, the
-    # season's cards and the trades waiting.
-    assert_request_queries(5) { get library_set_path(locale: :en, kind: "theme", key: "roguelike") }
-    assert_request_queries(5) { get library_set_path(locale: :en, kind: "theme", key: "horror") }
   end
 
   test "every kind opens its album under its name" do
     season = publish_sets_draft
+    sign_in(accounts_players(:player))
     get library_set_path(locale: :en, kind: "ufo", key: "ufos")
     assert_select "h1", "The UFOs"
     assert_select ".set-album__kind", false
@@ -368,6 +349,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
 
   test "an unknown kind, an unknown key or a key of another kind is not found" do
     publish_sets_draft
+    sign_in(accounts_players(:player))
 
     get "/en/library/nope/rpg"
     assert_response :not_found
@@ -384,6 +366,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
 
   test "with no season published no album is found" do
     catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
+    sign_in(accounts_players(:player))
 
     get library_set_path(locale: :en, kind: "theme", key: "rpg")
     assert_response :not_found

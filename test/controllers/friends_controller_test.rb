@@ -323,8 +323,8 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
 
     post remove_friend_path(locale: :fr, token: sam.token)
 
-    assert_redirected_to home_path(locale: :fr)
-    assert_equal I18n.t("authorization.sign_in_required", locale: :fr), flash[:alert]
+    assert_redirected_to landing_path(locale: :fr)
+    assert_nil flash[:alert]
     assert Game::FriendshipBetween.call(@player, sam)
   end
 
@@ -339,10 +339,10 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_equal I18n.t("friends.throttled", locale: :fr), flash[:alert]
   end
 
-  test "a visitor is sent home to sign in" do
+  test "a visitor is sent to the landing" do
     get friends_path(locale: :fr)
 
-    assert_redirected_to home_path(locale: :fr)
+    assert_redirected_to landing_path(locale: :fr)
   end
 
   test "menu 05 and the PLUS row lead a player to Amis" do
@@ -352,12 +352,5 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/fr/friends'][aria-keyshortcuts='5']"
     get more_path(locale: :fr)
     assert_select ".plus__list a.menu-item[href='/fr/friends']", /Amis/
-  end
-
-  test "menu 05 and the PLUS row open the sign-in panel for a visitor" do
-    get home_path(locale: :fr)
-    assert_select ".hub-menu button.menu-item[aria-keyshortcuts='5'][aria-haspopup=dialog]", /Amis/
-    get more_path(locale: :fr)
-    assert_select ".plus__list button.menu-item[aria-haspopup=dialog]", /Amis/
   end
 end

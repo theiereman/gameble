@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { takeOpener } from "../lib/dialog"
 
-// A modal <dialog> (EXPERIENCE.md, Modal; the sign-in panel): its "✕"
+// A modal <dialog> (EXPERIENCE.md, Modal): its "✕"
 // closes it, as do Esc (the browser's own cancel) and a click on the scrim
 // (a click whose target is the dialog itself, outside its panel). Once
 // closed, the focus goes back to the button that opened it. It closes

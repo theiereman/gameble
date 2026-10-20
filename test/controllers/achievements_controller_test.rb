@@ -119,11 +119,11 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "10 / 10", ten.at_css(".achievement__progress").text
   end
 
-  test "a visitor is sent home to sign in" do
+  test "a visitor is sent to the landing" do
     get achievements_path(locale: :fr)
 
-    assert_redirected_to home_path(locale: :fr)
-    assert_equal I18n.t("authorization.sign_in_required", locale: :fr), flash[:alert]
+    assert_redirected_to landing_path(locale: :fr)
+    assert_nil flash[:alert]
   end
 
   test "on the phone the screen sits under the PLUS tab, with a way back to it" do
@@ -149,14 +149,5 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/en/achievements'] .visually-hidden", "3 achievements earned out of 10"
     get more_path(locale: :fr)
     assert_select ".plus__list a.menu-item[href='/fr/achievements']", /Succès/
-  end
-
-  test "menu 07 and the PLUS row open the sign-in panel for a visitor" do
-    get home_path(locale: :fr)
-    assert_select ".hub-menu button.menu-item[aria-keyshortcuts='7'][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]", /Succès/
-    assert_select ".hub-menu [aria-keyshortcuts='7'] .menu-item__meta", false
-    get more_path(locale: :en)
-    assert_select ".plus__list button.menu-item[aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]", /Achievements/
-    assert_select ".plus__list a[href='/en/achievements']", false
   end
 end

@@ -11,7 +11,9 @@ en:
     top_bar:
       brand: "gameble"
       back: "Bridge"
+      back_landing: "Home"
       home: "gameble, command bridge"
+      landing: "gameble, home page"
       previous: "Back:"
     screens:
       collection: "Collection"
@@ -61,9 +63,7 @@ en:
       close: "Close"
     steam_sign_in:
       alt: "Sign in through Steam (opens Steam)"
-    sign_in_panel:
-      title: "Sign in to play"
-      close: "Close"
+    sign_in:
       acceptance_html: "By signing in you accept the %{terms} and acknowledge the %{privacy}."
       terms: "terms of use"
       privacy: "privacy notice"
@@ -110,10 +110,6 @@ en:
           text: "Your finest card will show here."
           open: "Open a capsule"
           reserve_empty: "Reserve empty"
-      invitation:
-        title: "Your Steam games, as collectible cards."
-        text: "Open capsules, complete sets, trade with your friends."
-        open: "Open my first capsules"
       daily:
         title: "Daily capsule"
         ready: "Ready"
@@ -659,7 +655,6 @@ en:
     entry:
       in_progress: "In progress"
       no_progress: "No set in progress yet. Find one above."
-      discover: "To discover"
       search: "Find a set"
       all_cards: "All cards"
       results: "Results"
@@ -778,6 +773,8 @@ en:
         one: "%{count} card collected"
         other: "%{count} cards collected"
       member_since: "Member since %{date}"
+      trade: "TRADE"
+      trade_label: "Trade with %{name}"
       keys:
         cards: "Cards"
         complete_sets: "Complete sets"
@@ -1429,7 +1426,7 @@ en:
         hook: "Games have been lost. The Brotherhood sets out to find them. Join it."
         line: "gameble is a collectible card game built on the public library of Steam games."
         embark: "Board the bridge"
-        embark_label: "Board the bridge, visit the game without an account"
+        embark_label: "Board the bridge, sign in through Steam"
       concept:
         label: "01 · Concept"
         title: "Every card is a Steam game."

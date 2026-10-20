@@ -164,7 +164,8 @@ class CardsController < ApplicationController
 
     # The card's place in `set` (Catalog::SetNeighbours), back to the page of
     # the set's album holding it, `owner`'s when given, when the library
-    # shows it; nil without a set.
+    # shows it (a visitor's own albums are closed: no way back without an
+    # owner); nil without a set.
     def set_browse(set, owner: nil)
       return if set.nil?
 
@@ -173,8 +174,12 @@ class CardsController < ApplicationController
 
       context = { set_kind: set.kind, set_key: set.key, brother: owner&.token }.compact
       path = ->(slug) { slug && helpers.card_detail_path(slug, @detail.view.season_number, context) }
-      back = Back.new(label: t("cards.show.grid"), path: album_page_path(set, place.position, owner:)) if @detail.current_season
+      back = Back.new(label: t("cards.show.grid"), path: album_page_path(set, place.position, owner:)) if album_back?(owner)
       Browse.new(position: place.position, total: place.total, previous: path.(place.previous), next: path.(place.next), back:)
+    end
+
+    def album_back?(owner)
+      @detail.current_season && (owner || current_player)
     end
 
     def album_page_path(set, position, owner:)

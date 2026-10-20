@@ -1,6 +1,9 @@
-# Headless policy for the public pages: everyone may read them (CAP-18).
+# Headless policy for pages: an open page anyone may read, a page of the
+# game itself only a signed-in player may.
 #
 #   authorize :page, :show?
+#   authorize :page, :play?
 class PagePolicy < ApplicationPolicy
   def show? = true
+  def play? = player?
 end

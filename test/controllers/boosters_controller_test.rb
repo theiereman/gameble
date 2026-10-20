@@ -28,11 +28,11 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a visitor is sent to the hub and asked to sign in" do
+  test "a visitor is sent to the landing" do
     get booster_path(locale: :en)
 
-    assert_redirected_to home_path(locale: :en)
-    assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
+    assert_redirected_to landing_path(locale: :en)
+    assert_nil flash[:alert]
   end
 
   test "a player gets the island with the bank, the season and every word, and the booster top bar" do

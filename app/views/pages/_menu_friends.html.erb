@@ -1,19 +1,11 @@
 <li class="hub-menu__entry">
-  <% head = capture do %><span class="menu-item__number" aria-hidden="true">05</span><span class="menu-item__label"><%= t("pages.home.menu.friends") %></span><% end %>
-  <% arrow = pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
-  <% if signed_in %>
-    <%= link_to friends_path, class: "menu-item", aria: { keyshortcuts: "5" },
-          data: { hub_menu_target: "item", action: "hub-menu#remember", turbo_prefetch: false } do %>
-      <%= head %>
-      <% if online %>
-        <span class="menu-item__meta"><%= t("pages.home.menu.friends_online", count: online, number: number_with_delimiter(online)) %></span>
-      <% end %>
-      <%= arrow %>
+  <%= link_to friends_path, class: "menu-item", aria: { keyshortcuts: "5" },
+        data: { hub_menu_target: "item", action: "hub-menu#remember", turbo_prefetch: false } do %>
+    <span class="menu-item__number" aria-hidden="true">05</span>
+    <span class="menu-item__label"><%= t("pages.home.menu.friends") %></span>
+    <% if online %>
+      <span class="menu-item__meta"><%= t("pages.home.menu.friends_online", count: online, number: number_with_delimiter(online)) %></span>
     <% end %>
-  <% else %>
-    <%= tag.button type: :button, class: "menu-item", aria: { haspopup: "dialog", keyshortcuts: "5" },
-          data: { hub_menu_target: "item", controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: "sign-in-panel" } do %>
-      <%= head %><%= arrow %>
-    <% end %>
+    <%= pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
   <% end %>
 </li>

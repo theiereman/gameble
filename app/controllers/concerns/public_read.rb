@@ -1,5 +1,5 @@
 # Pages read from a shared link (CAP-9, CAP-18): a public profile, a card's
-# page (the form a share link takes) and the library a card's sets lead to.
+# page (the form a share link takes) and the grid of every card.
 # Any browser and link-preview crawler (Discordbot, Twitterbot, WhatsApp, an
 # older Safari or Firefox) may read them, so ApplicationController's
 # modern-browser check (allow_browser) skips their GET and HEAD requests;

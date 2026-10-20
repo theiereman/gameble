@@ -140,11 +140,11 @@ class GoalRewardsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference -> { Game::Pack.count } do
       post claim_path
     end
-    assert_redirected_to home_path(locale: :en)
-    assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
+    assert_redirected_to landing_path(locale: :en)
+    assert_nil flash[:alert]
 
     post claim_path, as: :turbo_stream
-    assert_redirected_to home_path(locale: :en)
+    assert_redirected_to landing_path(locale: :en)
     assert_equal 0, reward_pack_count
   end
 

@@ -24,25 +24,17 @@
 <% end %>
 <%# A card's detail, also the page a share link opens: only the card,
     never who shared or holds it. A visitor on the card's own page gets
-    the public card page (cards/_public); anyone else, the detail: its sets lead to their grids
-    only in the published season, the one the library shows, anyone can
-    share it, and a visitor browsing a set is invited to play. ◀ ▶ replace
-    this frame and the URL (sub_view_controller.ts); every other link in it
-    leaves the page. %>
+    the public card page (cards/_public); anyone else, the detail: for a
+    player its sets lead to their albums only in the published season, the
+    one the library shows (a visitor reads their names only), and anyone
+    can share it. ◀ ▶ replace this frame and the URL
+    (sub_view_controller.ts); every other link in it leaves the page. %>
 <% if @public %>
   <%= render "cards/public", detail: @detail, live: @live_strip %>
 <% else %>
   <%= turbo_frame_tag "card-detail", target: "_top" do %>
     <%= render "cards/detail", detail: @detail, copies: @copies, editions: @editions, signed_in: current_player.present?, share_url: @share_url,
-      set_url: ->(set) { library_set_path(kind: set.kind, key: set.key) }, browse: @browse,
+      set_url: (->(set) { library_set_path(kind: set.kind, key: set.key) } if current_player), browse: @browse,
       showcase: @showcase %>
-  <% end %>
-  <% unless current_player %>
-    <section class="card-invitation" aria-labelledby="card-invitation-text">
-      <%= render PanelComponent.new(tag: :p, id: "card-invitation-text") do %><%= t(".invitation") %><% end %>
-      <%# Opens the sign-in panel; signing in lands on the hub, where the
-          boosters wait. Secondary: "Voir sur Steam" is the page's one primary. %>
-      <%= render ButtonComponent.new(variant: :secondary, opens: "sign-in-panel") do %><%= t(".sign_in") %><% end %>
-    </section>
   <% end %>
 <% end %>

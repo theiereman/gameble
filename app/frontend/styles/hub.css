@@ -240,8 +240,7 @@ button.menu-item:focus-visible:hover {
   background: var(--color-outline);
 }
 
-.hub-showcase__name,
-.hub-invitation__title {
+.hub-showcase__name {
   max-width: 100%;
   margin: 0;
   color: var(--color-text-max);
@@ -571,14 +570,7 @@ button.menu-item:focus-visible:hover {
   align-items: baseline;
 }
 
-.set-row--visitor {
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas: "name meta";
-  align-items: baseline;
-}
-
-.set-row--progress .set-row__name,
-.set-row--visitor .set-row__name {
+.set-row--progress .set-row__name {
   overflow: visible;
   overflow-wrap: anywhere;
   text-overflow: clip;
@@ -795,8 +787,7 @@ button.menu-item:focus-visible:hover {
     letter-spacing: var(--tracking-kicker-phone);
   }
 
-  .hub-showcase__name,
-  .hub-invitation__title {
+  .hub-showcase__name {
     font: var(--font-showcase-name-phone);
     letter-spacing: var(--tracking-showcase-name-phone);
   }

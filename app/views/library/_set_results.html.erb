@@ -6,7 +6,7 @@
       <% if results.any? %>
         <ul class="set-entry__list">
           <% results.each do |row| %>
-            <li><%= render "library/set_progress_row", href: set_url.call(row.set), set: row.set, standing: row.standing, progress: %></li>
+            <li><%= render "library/set_progress_row", href: set_url.call(row.set), set: row.set, standing: row.standing %></li>
           <% end %>
         </ul>
       <% else %>

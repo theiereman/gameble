@@ -15,7 +15,7 @@ class AccountsController < ApplicationController
     if result.success?
       write_motion_cookie(reduced_motion)
       reset_session
-      redirect_to home_path, notice: t(".deleted"), status: :see_other
+      redirect_to landing_path, notice: t(".deleted"), status: :see_other
     else
       redirect_to settings_path, alert: Accounts::DeletePlayer.failure_message(result.failure), status: :see_other
     end

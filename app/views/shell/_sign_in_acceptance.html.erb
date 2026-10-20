@@ -1,0 +1,7 @@
+<%# The line beside a Steam sign-in button saying that signing in accepts
+    the terms of use and acknowledges the privacy notice, with a link to each. %>
+<p class="sign-in-acceptance">
+  <%= t("shell.sign_in.acceptance_html",
+        terms: link_to(t("shell.sign_in.terms"), legal_path(anchor: "legal-terms")),
+        privacy: link_to(t("shell.sign_in.privacy"), legal_path(anchor: "legal-privacy"))) %>
+</p>

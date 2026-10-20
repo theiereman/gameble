@@ -124,10 +124,10 @@ class ButtonComponentTest < ViewComponent::TestCase
   end
 
   test "a dialog opener is a plain button that opens the dialog it names" do
-    render_inline(ButtonComponent.new(opens: "sign-in-panel")) { "Open my first capsules" }
+    render_inline(ButtonComponent.new(opens: "report-dialog")) { "Report" }
 
-    assert_selector "button.button.button--primary[type=button][aria-haspopup=dialog]", text: "Open my first capsules"
-    assert_selector "button[data-controller=dialog-opener][data-action='dialog-opener#open'][data-dialog-opener-dialog-value=sign-in-panel]"
+    assert_selector "button.button.button--primary[type=button][aria-haspopup=dialog]", text: "Report"
+    assert_selector "button[data-controller=dialog-opener][data-action='dialog-opener#open'][data-dialog-opener-dialog-value=report-dialog]"
     assert_no_selector "form"
     assert_no_selector "a"
   end
@@ -150,7 +150,7 @@ class ButtonComponentTest < ViewComponent::TestCase
   end
 
   test "a dialog opener is neither a link nor disabled" do
-    assert_raises(ArgumentError) { ButtonComponent.new(opens: "sign-in-panel", href: "/en") }
-    assert_raises(ArgumentError) { ButtonComponent.new(opens: "sign-in-panel", disabled: true) }
+    assert_raises(ArgumentError) { ButtonComponent.new(opens: "report-dialog", href: "/en") }
+    assert_raises(ArgumentError) { ButtonComponent.new(opens: "report-dialog", disabled: true) }
   end
 end

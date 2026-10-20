@@ -23,11 +23,8 @@ class SteamSignInComponentTest < ViewComponent::TestCase
       Rails.root.join("app/frontend/images/steam/sits_01.png").binread
   end
 
-  test "the button takes the focus first only when asked" do
+  test "the button never takes the focus by itself" do
     render_inline(SteamSignInComponent.new(origin: "/en"))
     assert_no_selector "button[autofocus]"
-
-    render_inline(SteamSignInComponent.new(origin: "/en", autofocus: true))
-    assert_selector "form.steam-sign-in button.steam-sign-in__button[autofocus]"
   end
 end

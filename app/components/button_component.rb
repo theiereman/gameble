@@ -10,9 +10,7 @@
 # (Steam sign-in) or the app's pages (the job queue). `confirm:` asks the
 # browser to confirm a form button before it is sent (Turbo's
 # data-turbo-confirm). `opens:` names a dialog by its id: the button opens it
-# (dialog_opener_controller.ts), for a game-styled action that needs an
-# account and opens the sign-in panel instead (DESIGN.md, Sign-in panel);
-# without JavaScript it does nothing.
+# (dialog_opener_controller.ts); without JavaScript it does nothing.
 class ButtonComponent < ViewComponent::Base
   VARIANTS = %i[primary secondary danger link].freeze
   SIZES = %i[default small].freeze

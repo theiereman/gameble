@@ -27,13 +27,11 @@ class PlayerStreamTagTest < ActionDispatch::IntegrationTest
     assert_no_match @player.stream_key, response.body.remove(stream_source["signed-stream-name"]), "the key shows only signed"
   end
 
-  test "a visitor's page subscribes to no player's stream, the hub only to the public ones" do
-    get home_path(locale: :en)
-
+  test "a visitor's page subscribes to no player's stream" do
+    get library_cards_path(locale: :en)
     assert_select "turbo-cable-stream-source[channel=PlayerStreamChannel]", 0
-    assert_equal %w[goal:en live:en], public_stream_names
 
-    get more_path(locale: :en)
+    get how_it_works_path(locale: :en)
     assert_select "turbo-cable-stream-source", 0
   end
 

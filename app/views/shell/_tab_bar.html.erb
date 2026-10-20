@@ -3,22 +3,23 @@
     (settings among its rows) and stays current on the screens of its
     rows. ÉCHANGES carries the trades waiting for the player as an orange
     badge at the icon's top right, hidden at zero, its
-    number in the tab's accessible name; for a visitor it is a button
-    opening the sign-in panel. Its links are locked while the booster
-    island opens or reveals (navigation-lock). Hidden from 720px up. %>
+    number in the tab's accessible name. A visitor sees every tab greyed
+    and disabled, as each leads to a player's page. Its links are locked
+    while the booster island opens or reveals (navigation-lock). Hidden
+    from 720px up. %>
 <% waiting = shell_trades_waiting %>
 <% tabs = [
      [ :hub, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
      [ :booster, "tab-booster", booster_path, controller_path == "boosters" ],
      [ :collection, "tab-collection", library_path, %w[library cards].include?(controller_path) ],
-     [ :trades, "tab-trades", (trades_path if current_player), controller_path == "trades" ],
+     [ :trades, "tab-trades", trades_path, controller_path == "trades" ],
      [ :more, "tab-more", more_path, (controller_path == "pages" && %w[more how_it_works].include?(action_name)) || %w[settings friends feeds achievements].include?(controller_path) ]
    ] %>
 <nav class="tab-bar" aria-label="<%= t("shell.tabs.label") %>" data-controller="navigation-lock">
   <ul class="tab-bar__list">
     <% tabs.each do |key, icon, path, current| %>
       <li class="tab-bar__item">
-        <% if path %>
+        <% if current_player %>
           <%= link_to path, class: "tab-bar__tab", aria: { current: ("page" if current) }, data: { turbo_prefetch: false } do %>
             <%= pixel_icon(icon, class: "tab-bar__icon") %>
             <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
@@ -27,8 +28,7 @@
             <% end %>
           <% end %>
         <% else %>
-          <%= tag.button type: :button, class: "tab-bar__tab", aria: { haspopup: "dialog" },
-                data: { controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: "sign-in-panel" } do %>
+          <%= tag.button type: :button, class: "tab-bar__tab", disabled: true do %>
             <%= pixel_icon(icon, class: "tab-bar__icon") %>
             <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
           <% end %>

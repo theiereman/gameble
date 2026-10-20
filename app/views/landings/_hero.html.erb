@@ -7,9 +7,9 @@
     <h1 class="landing-hero__hook" tabindex="-1"><%= t("landings.show.hero.hook") %></h1>
     <p class="landing-hero__line"><%= t("landings.show.hero.line") %></p>
     <div class="landing-hero__action">
-      <%= link_to home_path, class: "button button--primary landing-hero__embark", aria: { label: t("landings.show.hero.embark_label") } do %>
-        <%= t("landings.show.hero.embark") %>
-      <% end %>
+      <%= steam_sign_in_button t("landings.show.hero.embark"), origin: request.path,
+            class: "button button--primary landing-hero__embark", aria_label: t("landings.show.hero.embark_label") %>
+      <%= render "shell/sign_in_acceptance" %>
     </div>
   </div>
   <div class="landing-hero__field" aria-hidden="true"></div>

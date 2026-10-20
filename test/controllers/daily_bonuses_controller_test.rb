@@ -173,8 +173,8 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       post daily_bonus_path(locale: :en), as: :turbo_stream
     end
 
-    assert_redirected_to home_path(locale: :en)
-    assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
+    assert_redirected_to landing_path(locale: :en)
+    assert_nil flash[:alert]
   end
 
   test "with a full reserve, the panel says so and disables its button, and a collection is refused; nothing written" do
@@ -221,8 +221,8 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       end
     end
 
-    assert_redirected_to home_path(locale: :en)
-    assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
+    assert_redirected_to landing_path(locale: :en)
+    assert_nil flash[:alert]
   end
 
   test "with no season published, no panel, and a collection is refused with its message" do
@@ -270,14 +270,5 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
     get pack_path(bonus.token, locale: :fr)
     assert_select "h1", "Votre capsule du jour"
     assert_select ".pack-result__card .card.card--m", 3
-  end
-
-  test "a visitor sees no panel when no season is published, and menu 01 opens the sign-in panel" do
-    catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
-
-    get home_path(locale: :en)
-
-    assert_empty panel
-    assert_select ".hub-menu button.menu-item[data-dialog-opener-dialog-value=sign-in-panel] .menu-item__label", "Open a capsule"
   end
 end

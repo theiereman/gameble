@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { openDialog } from "../lib/dialog"
 
 // A button that opens a modal dialog of the page, named by its id
-// (ButtonComponent's `opens:`; the sign-in panel). The dialog is shown as a
+// (ButtonComponent's `opens:`). The dialog is shown as a
 // modal and remembers this button, which gets the focus back when it closes
 // (dialog_controller.ts). An unknown id does nothing.
 export default class extends Controller<HTMLElement> {

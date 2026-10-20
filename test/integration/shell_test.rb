@@ -21,6 +21,7 @@ class ShellTest < ActionDispatch::IntegrationTest
   end
 
   test "the head: title, the gold G favicon, viewport for the notch, theme colour, view transitions, the three latin fonts preloaded" do
+    sign_in(accounts_players(:player))
     get home_path(locale: :fr)
 
     assert_select "title", "gameble"
@@ -48,37 +49,56 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "[style]", false
   end
 
-  test "a visitor on the hub: the wordmark and the official Steam image as a POST form back to this page" do
-    get home_path(locale: :fr)
+  test "a visitor on the landing: the wordmark and the official Steam image as a POST form back to this page" do
+    get landing_path(locale: :fr)
 
     assert_select "body > header.top-bar:not([data-screen-label])" do
       assert_select ".top-bar__start p.top-bar__brand svg.pixel-icon.top-bar__wordmark"
       assert_select ".top-bar__start .top-bar__brand .top-bar__name", "gameble"
       assert_select ".top-bar__start a", false
       assert_select ".top-bar__end form.steam-sign-in[action='/auth/steam'][method=post][data-turbo=false]" do
-        assert_select "input[type=hidden][name=origin][value='/fr']"
+        assert_select "input[type=hidden][name=origin][value='/fr/landing']"
         assert_select "button.steam-sign-in__button img[alt=?]", "Se connecter via Steam (ouvre Steam)"
       end
       assert_select ".rarity-counter, .packs-chip, .player-chip", false
     end
   end
 
-  test "a visitor's sign-in panel says that signing in accepts the terms and the privacy notice, with a link to each" do
-    get home_path(locale: :fr)
+  test "no open page carries a sign-in panel or a button opening one" do
+    profile = brother_path(locale: :fr, token: accounts_players(:player).token)
+    [ landing_path(locale: :fr), library_cards_path(locale: :fr), how_it_works_path(locale: :fr), legal_path(locale: :fr), profile ].each do |path|
+      get path
 
-    assert_select "dialog#sign-in-panel .sign-in-panel__acceptance",
-      "En vous connectant, vous acceptez les conditions d'utilisation et prenez connaissance de la politique de confidentialité." do
-      assert_select "a[href=?]", "/fr/legal#legal-terms", "conditions d'utilisation"
-      assert_select "a[href=?]", "/fr/legal#legal-privacy", "politique de confidentialité"
+      assert_response :success, path
+      assert_select "dialog#sign-in-panel, [data-dialog-opener-dialog-value=sign-in-panel], .sign-in-panel__acceptance", false, path
     end
+  end
 
-    get home_path(locale: :en)
+  test "a visitor's wordmark, phone brand and phone back lead to the landing; a player's to the hub" do
+    get library_cards_path(locale: :fr)
 
-    assert_select "dialog#sign-in-panel .sign-in-panel__acceptance",
-      "By signing in you accept the terms of use and acknowledge the privacy notice." do
-      assert_select "a[href=?]", "/en/legal#legal-terms", "terms of use"
-      assert_select "a[href=?]", "/en/legal#legal-privacy", "privacy notice"
-    end
+    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home[href='/fr/landing'][aria-label=?]", "gameble, page d'accueil"
+    assert_select ".top-bar__start > a.button.top-bar__bridge[href='/fr/landing'] .button__label", "Accueil"
+    invite = invite_link_path(locale: :en, token: accounts_players(:moderator).token)
+    get invite
+    assert_select ".top-bar__start > a.top-bar__home[href='/en/landing'][aria-label=?]", "gameble, home page"
+    assert_select ".top-bar__start > a.top-bar__brand.top-bar__phone-brand[href='/en/landing'][aria-label=?]", "gameble, home page"
+    assert_select ".top-bar__start a[href='/en']", false
+
+    sign_in(accounts_players(:player))
+    get invite
+    assert_select ".top-bar__start > a.top-bar__home[href='/en'][aria-label=?]", "gameble, command bridge"
+    assert_select ".top-bar__start > p.top-bar__brand.top-bar__phone-brand"
+    assert_select ".top-bar__start a[href='/en/landing']", false
+  end
+
+  test "a visitor's tab bar shows its five tabs greyed and disabled" do
+    get library_cards_path(locale: :fr)
+
+    assert_select "nav.tab-bar ul.tab-bar__list > li.tab-bar__item > button.tab-bar__tab[type=button][disabled]", 5
+    assert_equal [ "Pont", "Capsule", "Collection", "Échanges", "Plus" ], css_select(".tab-bar__label").map(&:text)
+    assert_select ".tab-bar__tab svg.pixel-icon.tab-bar__icon", 5
+    assert_select ".tab-bar a, .tab-bar [aria-haspopup], .tab-bar [data-controller=dialog-opener]", false
   end
 
   test "a signed-in player has no sign-in panel" do
@@ -92,9 +112,9 @@ class ShellTest < ActionDispatch::IntegrationTest
   end
 
   test "a visitor elsewhere signs in back to that page" do
-    get library_path(locale: :en)
+    get library_cards_path(locale: :en)
 
-    assert_select ".top-bar__end form.steam-sign-in input[name=origin][value='/en/library']"
+    assert_select ".top-bar__end form.steam-sign-in input[name=origin][value='/en/library/cards']"
   end
 
   test "a player elsewhere: the back button to the bridge, the rarity counter, the packs chip and the player chip" do
@@ -215,7 +235,8 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "#player-menu a.player-menu__item[href='/fr/back-office']", "Back-office"
   end
 
-  test "the phone tab bar: five tabs, the screens as links, trades a sign-in for a visitor, locked during an opening" do
+  test "the phone tab bar: five tabs, the screens as links, locked during an opening" do
+    sign_in(accounts_players(:player))
     get library_path(locale: :fr)
 
     assert_select "nav.tab-bar[aria-label=?] ul.tab-bar__list > li.tab-bar__item", "Navigation principale", 5
@@ -224,8 +245,8 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "a.tab-bar__tab[href='/fr/booster']:not([aria-current])", /Capsule/
     assert_select "a.tab-bar__tab[href='/fr/library'][aria-current=page]", /Collection/
     assert_select "a.tab-bar__tab[href='/fr/more']:not([aria-current])", /Plus/
-    assert_select "span.tab-bar__tab[aria-disabled=true]", 0
-    assert_select "button.tab-bar__tab[aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]", /Échanges/
+    assert_select "a.tab-bar__tab[href='/fr/trades']:not([aria-current])", /Échanges/
+    assert_select "span.tab-bar__tab[aria-disabled=true], button.tab-bar__tab", 0
     assert_select "nav.tab-bar[data-controller=navigation-lock]"
     assert_select ".top-bar__start[data-controller=navigation-lock]"
     assert_select ".tab-bar__tab svg.pixel-icon.tab-bar__icon", 5
@@ -235,6 +256,7 @@ class ShellTest < ActionDispatch::IntegrationTest
   end
 
   test "the atmosphere: permanent, hidden, under the page" do
+    sign_in(accounts_players(:player))
     get home_path(locale: :en)
 
     assert_select "body > #atmosphere.atmosphere[data-turbo-permanent][aria-hidden=true]:first-child" do
@@ -248,10 +270,7 @@ class ShellTest < ActionDispatch::IntegrationTest
   end
 
   test "the LIVE ticker runs along the bottom of the hub and of no other screen" do
-    get home_path(locale: :en)
-    assert_select "body > main#main + #live-ticker.ticker", 1
-
-    get feed_path(locale: :en)
+    get library_cards_path(locale: :en)
     assert_select ".ticker", 0
 
     sign_in(accounts_players(:player))
@@ -281,10 +300,10 @@ class ShellTest < ActionDispatch::IntegrationTest
   end
 
   test "an alert is an alert toast" do
-    get settings_path(locale: :en)
+    get auth_failure_path(message: "invalid_credentials", origin: "/en/landing")
     follow_redirect!
 
-    assert_select ".toasts > .toast.toast--alert .toast__message", I18n.t("authorization.sign_in_required", locale: :en)
+    assert_select ".toasts > .toast.toast--alert .toast__message", I18n.t("errors.steam.sign_in_failed", locale: :en)
   end
 
   test "the back-office: the tokens and the top bar's way back, no atmosphere and no tab bar" do

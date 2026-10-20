@@ -80,7 +80,10 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "meta[name=robots][content=noindex]"
     assert_select "header.profile-band.panel--brackets svg.profile-band__avatar[aria-hidden=true]"
     assert_select ".profile-band__since", "Member since March 2026"
-    assert_select ".profile-band button[data-dialog-opener-dialog-value=sign-in-panel]", "REPORT"
+    assert_select ".profile-band__meta button.button--link.button--small[type=button][disabled]", "REPORT"
+    assert_select ".profile-band__identity > button.button--secondary.button--small[type=button][disabled][aria-label=?]", "Trade with Gabe the Brave",
+      text: "TRADE"
+    assert_select ".profile-band [aria-haspopup], .profile-band a", false
     assert_equal [ [ "Cards", "11/#{card_total(season)}" ], [ "Complete sets", "1" ], [ "Achievements", "5/10" ] ], keys
 
     assert_select "section.profile-stats[aria-label=Statistics]"

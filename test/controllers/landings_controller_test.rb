@@ -128,15 +128,26 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     Catalog::CardSeason.pluck(:id).each { |id| assert_no_match(/\b(card[-_]?season|id)[^>]*\b#{id}\b/, response.body) }
   end
 
-  test "the Steam image twice, the hub links with their full name, the external links naming where they lead" do
+  test "the Steam image twice, the two boardings signing in with their full name, the external links naming where they lead" do
     get landing_path(locale: :fr)
 
     assert_select "header form.steam-sign-in[action='/auth/steam'] input[name=origin][value='/fr/landing']"
     assert_select "main form.steam-sign-in[action='/auth/steam'] input[name=origin][value='/fr/landing']"
-    hub = css_select("main a[href='/fr']")
-    assert_equal 2, hub.size
-    assert hub.all? { it["aria-label"] == "Embarquer sur le pont, visiter le jeu sans compte" }
-    assert_equal 1, hub.count { it["class"].include?("button--primary") }
+    boardings = css_select("main form.button-form[action='/auth/steam'][method=post][data-turbo=false]")
+    assert_equal 2, boardings.size
+    assert(boardings.all? { it.at_css("input[name=origin]")["value"] == "/fr/landing" })
+    buttons = boardings.map { it.at_css("button[type=submit]") }
+    assert(buttons.all? { it.text.squish == "Embarquer sur le pont" && it["aria-label"] == "Embarquer sur le pont, se connecter avec Steam" })
+    assert_equal [ "landing-hero__embark", "landing-boarding__embark" ], buttons.map { it["class"].split.last }
+    assert_equal 1, buttons.count { it["class"].include?("button--primary") }
+    assert_select "main a[href='/fr']", false
+    [ ".landing-hero__action", ".landing-boarding__actions" ].each do |actions|
+      assert_select "#{actions} p.sign-in-acceptance",
+        "En vous connectant, vous acceptez les conditions d'utilisation et prenez connaissance de la politique de confidentialité." do
+        assert_select "a[href=?]", "/fr/legal#legal-terms", "conditions d'utilisation"
+        assert_select "a[href=?]", "/fr/legal#legal-privacy", "politique de confidentialité"
+      end
+    end
 
     project = css_select("main a[href='#{ExternalLinksHelper::SOURCE_CODE_URL}']").sole
     assert_equal "Voir le projet (GitHub, nouvel onglet)", project.text.squish
@@ -146,7 +157,8 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "main a[href='#landing-open-source']", "Participer à l'écriture"
     assert_select "h2#landing-open-source[tabindex='-1']"
-    assert_select "main a[href='/fr/feed']", "Ouvrir le fil d'activité"
+    assert_select "main button.landing-live__open[type=button][disabled]", "Ouvrir le fil d'activité"
+    assert_select "main a[href='/fr/feed']", false
   end
 
   test "the footer follows the main landmark with the legal page, the donation page and the code" do

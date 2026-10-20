@@ -189,16 +189,16 @@ class RateLimitTest < ActionDispatch::IntegrationTest
 
   test "another address reads the shared pages meanwhile" do
     exhaust_public_reads(IP)
-    get "/en/library", env: { "REMOTE_ADDR" => IP }
+    get "/en/library/cards", env: { "REMOTE_ADDR" => IP }
     assert_response :too_many_requests
 
-    get "/en/library", env: { "REMOTE_ADDR" => OTHER_IP }
+    get "/en/library/cards", env: { "REMOTE_ADDR" => OTHER_IP }
 
     assert_response :success
   end
 
   test "a shared page is never cached for other visitors" do
-    get "/en/library", env: { "REMOTE_ADDR" => IP }
+    get "/en/library/cards", env: { "REMOTE_ADDR" => IP }
 
     assert_response :success
     assert_includes response.headers["cache-control"], "private"
@@ -219,7 +219,7 @@ class RateLimitTest < ActionDispatch::IntegrationTest
     get "/en/library", env: { "REMOTE_ADDR" => IP }
     assert_response :too_many_requests
 
-    get "/en", env: { "REMOTE_ADDR" => IP }
+    get "/en/how-it-works", env: { "REMOTE_ADDR" => IP }
 
     assert_response :success
   end

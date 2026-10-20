@@ -15,8 +15,7 @@
  * motion nothing moves (styles/shell.css drops every View Transition
  * animation, and the controller starts none).
  *
- * Also the links leading to a card's detail from a face or an empty slot,
- * and, for a visitor, the invitation to play below the detail.
+ * Also the links leading to a card's detail from a face or an empty slot.
  */
 
 :root {
@@ -425,23 +424,6 @@
   -webkit-touch-callout: none;
 }
 
-/* ---- For a visitor, below the detail and as wide, centred: the
-   invitation to play ---- */
-
-.card-invitation {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: var(--space-4);
-  max-width: var(--space-breakpoint-two-columns);
-  margin: var(--space-7) auto 0;
-}
-
-.card-invitation .button {
-  margin: 0;
-}
-
 /* ---- The phone sub-view ---- */
 
 @media (max-width: 719px) {
@@ -680,7 +662,7 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
   height: 14px;
 }
 
-/* The invitation: hidden, with the sign-in button of the top bar, until
+/* The pitch: hidden, with the sign-in button of the top bar, until
    the browser supports :has() (below), which Steam's sign-in needs; the
    update line shows instead. A browser that does not know @supports
    selector() ignores the whole block. */

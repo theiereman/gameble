@@ -9,8 +9,7 @@
 
   <%# The shell: atmosphere under everything, the top bar, the page, the
       LIVE ticker along its bottom (the hub only), the phone tab bar, the
-      toasts, the deployed version in the bottom-left corner and, for a
-      visitor, the sign-in panel. The back-office keeps the tokens and the
+      toasts and the deployed version in the bottom-left corner. The back-office keeps the tokens and the
       top bar only. The public card page (`content_for :public_page`) has
       the slim top bar and no tab bar. A page's own footer
       (`content_for :page_footer`, the landing's) follows the main
@@ -28,7 +27,6 @@
     <%= render "shell/tab_bar" unless back_office_page? || content_for?(:public_page) %>
     <%= render "shell/toasts" %>
     <%= render "shell/version" %>
-    <%= render "shell/sign_in_panel" unless current_player || back_office_page? %>
     <%= player_stream_tag %>
   </body>
 </html>

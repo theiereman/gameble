@@ -729,13 +729,12 @@ body:has(> .ticker) .app-version {
   text-transform: uppercase;
 }
 
-/* A visitor's ÉCHANGES tab is a button opening the sign-in panel. */
+/* A visitor's tabs are disabled buttons. */
 button.tab-bar__tab {
   margin: 0;
   padding: 0;
   border: 0;
   background: none;
-  cursor: pointer;
 }
 
 .tab-bar__badge {
@@ -775,7 +774,8 @@ button.tab-bar__tab {
   box-shadow: inset 0 3px 0 0 var(--color-accent);
 }
 
-.tab-bar__tab[aria-disabled="true"] {
+.tab-bar__tab[aria-disabled="true"],
+.tab-bar__tab:disabled {
   opacity: 0.4;
 }
 
@@ -1088,7 +1088,24 @@ button.tab-bar__tab {
   border-bottom-width: var(--corner-brackets-stroke);
 }
 
-/* ---- Modal (DESIGN.md, Dialogs; the sign-in panel): a scrim, a bracketed
+/* The line beside a Steam sign-in button: what signing in accepts. */
+.sign-in-acceptance {
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+}
+
+.sign-in-acceptance a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sign-in-acceptance a:hover {
+  color: var(--color-accent-hi);
+}
+
+/* ---- Modal (DESIGN.md, Dialogs): a scrim, a bracketed
    panel with an accent title row and a square close button. The panel
    fills the dialog, so a click on the dialog itself is on the scrim. On the
    phone, a bottom sheet with a grab handle and a line on its top edge. ---- */
@@ -1187,29 +1204,6 @@ button.tab-bar__tab {
 .modal__body {
   display: flex;
   justify-content: center;
-}
-
-.sign-in-panel__body {
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-.sign-in-panel__acceptance {
-  margin: 0;
-  color: var(--color-muted);
-  font: var(--font-body-small);
-  text-align: center;
-}
-
-.sign-in-panel__acceptance a {
-  color: var(--color-accent);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.sign-in-panel__acceptance a:hover {
-  color: var(--color-accent-hi);
 }
 
 /* ---- Screen changes (EXPERIENCE.md, Motion): the old screen slides 32px

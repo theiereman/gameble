@@ -63,19 +63,24 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail, .card-detail__copies, #share-sheet, .card-detail__share", false
     assert_select ".public-card__pitch-title", "Your Steam games, as collectible cards."
     assert_select ".public-card__pitch-text", "Open capsules, complete sets, trade with your friends."
-    assert_select ".public-card__pitch button.button--primary[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]",
+    assert_select ".public-card__pitch form.button-form[action='/auth/steam'][method=post][data-turbo=false] button.button--primary[type=submit]",
       "Open my first capsules"
+    assert_select ".public-card__pitch [aria-haspopup]", false
+    assert_select ".public-card__pitch p.sign-in-acceptance a[href='/en/legal#legal-privacy']", "privacy notice"
     # The page's one primary action; "See on Steam" is a link.
     assert_select "main .button--primary", 1
     link = css_select("main a.public-card__store.button--link").sole
     assert_equal [ "See on Steam (new tab)", "noopener noreferrer external", "_blank" ], [ link.text.squish, link["rel"], link["target"] ]
-    # The slim top bar: the wordmark and the Steam sign-in image, no way back to
-    # the bridge, no tab bar.
-    assert_select ".top-bar__brand svg.pixel-icon.top-bar__wordmark"
-    assert_select ".top-bar__start > a", false
+    # The slim top bar: the wordmark leading to the landing (one for the
+    # desktop, one for the phone) and the Steam sign-in image, no way back,
+    # no tab bar.
+    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home[href='/en/landing'] svg.pixel-icon.top-bar__wordmark"
+    assert_select ".top-bar__start > a.top-bar__brand.top-bar__phone-brand[href='/en/landing']"
+    assert_select ".top-bar__start > a", 2
+    assert_select ".top-bar__start p.top-bar__brand", false
     assert_select ".top-bar__end form[action='/auth/steam'] img.steam-sign-in__image"
     assert_select "nav.tab-bar", false
-    assert_select "main form[action='/auth/steam']", false
+    assert_select "main form[action='/auth/steam']", 1
     assert_select ".public-card__live-title", /Live\s+·\s+Right now on gameble/
     assert_select "#live-strip .public-card__live-empty", "Nothing here yet."
     assert_select ".public-card__footer a.public-card__legal[href=?]", "/en/legal", "Legal notice"
@@ -160,7 +165,6 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select ".public-card__update", "Votre navigateur est trop ancien pour se connecter à gameble. Mettez-le à jour pour jouer."
     assert_select ".public-card__live-title", /En ce moment sur gameble/
     assert_select ".public-card__legal", "Mentions légales"
-    assert_select "dialog#sign-in-panel .modal__title", "Connectez-vous pour jouer"
   end
 
   test "the season-less page shows the published season, its canonical the season form, without query" do
@@ -215,10 +219,9 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_select "#share-sheet input[value=?]", season_url
   end
 
-  test "a visitor signing in from the invitation's sign-in panel lands on the hub" do
+  test "a visitor signing in from the pitch lands on the hub" do
     get card_page
-    assert_select ".public-card__pitch button[data-dialog-opener-dialog-value=sign-in-panel]"
-    form = css_select("dialog#sign-in-panel form.steam-sign-in").sole
+    form = css_select(".public-card__pitch form[action='/auth/steam']").sole
     origin = form.at_css("input[name=origin]")["value"]
     assert_equal URI(card_page).path, origin
 
@@ -292,17 +295,17 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
   end
 
   USER_AGENTS.each do |name, user_agent|
-    test "#{name} gets the card's page with its tags, and the library its sets lead to" do
+    test "#{name} gets the card's page with its tags and the grid of every card; the albums lead it to the landing" do
       get card_page(slug: "portal"), headers: { "User-Agent" => user_agent }
 
       assert_response :success
       assert_equal "Portal — Epic", og("title")
-      # The public page shows no sets: portal's studio set is in the library.
-      set_link = library_set_path(locale: :en, kind: "studio", key: "valve")
 
-      get set_link, headers: { "User-Agent" => user_agent }
-      assert_response :success
+      get library_set_path(locale: :en, kind: "studio", key: "valve"), headers: { "User-Agent" => user_agent }
+      assert_redirected_to landing_path(locale: :en)
       get library_path(locale: :en), headers: { "User-Agent" => user_agent }
+      assert_redirected_to landing_path(locale: :en)
+      get landing_path(locale: :en), headers: { "User-Agent" => user_agent }
       assert_response :success
       get library_cards_path(locale: :en), headers: { "User-Agent" => user_agent }
       assert_response :success

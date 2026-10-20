@@ -1,5 +1,5 @@
-# The activity feed: the notable entries, newest first, readable without an
-# account, under the All and Friends tabs and the type filters Everything,
+# The activity feed, a player's page: the notable entries, newest first,
+# under the All and Friends tabs and the type filters Everything,
 # Pulls, Discoveries, Trades and Reposts; a tab and a filter combine. A read
 # only page: Game answers the entries each already filtered by
 # Game::Visibility for the viewer, Catalog the cards. All without a filter
@@ -13,9 +13,9 @@ class FeedsController < ApplicationController
 
   # GET /:locale/feed(?tab=friends)(&filter=pulls)
   def show
-    authorize :page, :show?
+    authorize :page, :play?
     @filter = params[:filter].presence_in(FILTERS.keys)
-    @tab = params[:tab].presence_in(TABS) if current_player
+    @tab = params[:tab].presence_in(TABS)
     friend_ids = Game::FriendsOf.call(current_player).map(&:id) if @tab
     @no_friends = friend_ids&.empty?
     @live = @tab.nil? && @filter.nil?

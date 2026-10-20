@@ -203,14 +203,14 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "the failure endpoint without an origin answers in the default locale" do
     get auth_failure_path(message: "invalid_credentials")
 
-    assert_redirected_to home_path(locale: I18n.default_locale)
+    assert_redirected_to landing_path(locale: I18n.default_locale)
     assert_equal I18n.t("errors.steam.sign_in_failed", locale: I18n.default_locale), flash[:alert]
   end
 
   test "the failure endpoint ignores a foreign origin" do
     get auth_failure_path(message: "invalid_credentials", origin: "https://evil.example/fr")
 
-    assert_redirected_to home_path(locale: I18n.default_locale)
+    assert_redirected_to landing_path(locale: I18n.default_locale)
   end
 
   test "a callback this browser did not start is refused" do
@@ -219,7 +219,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, new_players.count
     assert_empty registered_events
     assert_nil signed_in_player_id
-    assert_redirected_to home_path(locale: I18n.default_locale)
+    assert_redirected_to landing_path(locale: I18n.default_locale)
     assert_equal I18n.t("errors.steam.sign_in_failed", locale: I18n.default_locale), flash[:alert]
   end
 
@@ -301,7 +301,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, new_players.count
   end
 
-  test "signing out resets the session, lands on the signed-out hub and shows the sign-in button again" do
+  test "signing out resets the session, lands on the landing with the farewell and shows the sign-in button again" do
     sign_in_with_steam
     follow_redirect!
     assert_select "#player-menu form[action=?][data-turbo=false] input[name=_method][value=delete]", "/session?locale=en"
@@ -309,10 +309,11 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     delete session_path(locale: :en)
 
     assert_nil signed_in_player_id
-    assert_redirected_to home_path(locale: :en)
+    assert_redirected_to landing_path(locale: :en)
     assert_equal I18n.t("sessions.destroy.farewell", locale: :en), flash[:notice]
     follow_redirect!
-    assert_select ".hub-invitation"
+    assert_select ".landing-hero"
+    assert_select ".toast", /#{Regexp.escape(I18n.t("sessions.destroy.farewell", locale: :en))}/
     assert_select ".top-bar__end form[action='/auth/steam'][method=post] button img[alt=?]", "Sign in through Steam (opens Steam)"
     assert_select ".top-bar form[action^='/session']", false
   end
@@ -361,7 +362,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :en)
 
     assert_nil signed_in_player_id
-    assert_select ".hub-invitation"
+    assert_redirected_to landing_path(locale: :en)
   end
 
   test "a session cookie replayed after its 30 days signs nobody in" do
@@ -385,14 +386,14 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     travel 1.day
     get home_path(locale: :en)
     assert_nil signed_in_player_id
-    assert_select ".hub-invitation"
+    assert_redirected_to landing_path(locale: :en)
   end
 
   test "a signed-out visitor sees the Steam sign-in button as a POST form" do
-    get home_path(locale: :fr)
+    get how_it_works_path(locale: :fr)
 
     assert_select ".top-bar__end form.steam-sign-in[action='/auth/steam'][method=post][data-turbo=false]" do
-      assert_select "input[name=origin][value='/fr']"
+      assert_select "input[name=origin][value='/fr/how-it-works']"
       assert_select "button.steam-sign-in__button img[src*='sits_01'][width='180'][height='35'][alt=?]", "Se connecter via Steam (ouvre Steam)"
     end
   end

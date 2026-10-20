@@ -1,5 +1,4 @@
-<%# Menu 06, "Fil d'activité" (see pages/_menu): a link to the public feed
-    for a player and for a visitor alike, as the feed is readable signed out. %>
+<%# Menu 06, "Fil d'activité" (see pages/_menu): a link to the feed. %>
 <li class="hub-menu__entry">
   <%= link_to feed_path, class: "menu-item", aria: { keyshortcuts: "6" },
         data: { hub_menu_target: "item", action: "hub-menu#remember", turbo_prefetch: false } do %>

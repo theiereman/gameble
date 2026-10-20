@@ -20,7 +20,7 @@ class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
   end
 
   test "a page carries the policy enforced, never report-only" do
-    get home_path(locale: :en)
+    get how_it_works_path(locale: :en)
 
     assert_response :success
     assert_predicate policy, :present?
@@ -54,7 +54,7 @@ class ContentSecurityPolicyTest < ActionDispatch::IntegrationTest
   end
 
   test "the style nonce is the one the page's meta tag gives Turbo" do
-    get home_path(locale: :en)
+    get how_it_works_path(locale: :en)
 
     nonce = directive("style-src").second[/\A'nonce-(.+)'\z/, 1]
     assert_equal nonce, css_select("meta[name=csp-nonce]").sole["content"]

@@ -46,12 +46,13 @@
       <%= external_link_to t("card_details.store"), card_detail_store_url(detail.store_url), button: true,
         class: "button button--link public-card__store" %>
 
-      <%# Opens the sign-in panel; signing in lands on the hub, where the
+      <%# Signs in through Steam; signing in lands on the hub, where the
           boosters wait. The page's one primary action. %>
       <%= render PanelComponent.new(tag: :section, class: "public-card__pitch", aria: { labelledby: "public-card-pitch" }) do %>
         <p id="public-card-pitch" class="public-card__pitch-title"><%= t("cards.show.pitch_title") %></p>
         <p class="public-card__pitch-text"><%= t("cards.show.invitation") %></p>
-        <%= render ButtonComponent.new(variant: :primary, opens: "sign-in-panel") do %><%= t("cards.show.sign_in") %><% end %>
+        <%= steam_sign_in_button t("cards.show.sign_in"), origin: request.path, class: "button button--primary" %>
+        <%= render "shell/sign_in_acceptance" %>
       <% end %>
       <p class="public-card__update"><%= t("cards.show.update_browser") %></p>
     </div>

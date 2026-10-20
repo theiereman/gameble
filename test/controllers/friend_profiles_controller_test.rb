@@ -177,9 +177,9 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "a visitor is sent home to sign in" do
+  test "a visitor is sent to the landing" do
     get friend_profile_path(locale: :fr, token: @friend.token)
 
-    assert_redirected_to home_path(locale: :fr)
+    assert_redirected_to landing_path(locale: :fr)
   end
 end

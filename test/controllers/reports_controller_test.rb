@@ -20,6 +20,7 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".profile-band button[aria-haspopup=dialog][data-dialog-opener-dialog-value=report-dialog]", "SIGNALER"
+    assert_select ".profile-band button", 1
     assert_select "dialog#report-dialog form[action=?][method=post]", report_path_of(@owner, locale: :fr)
     assert_equal [ "Pseudo inapproprié", "Triche ou abus", "Harcèlement", "Autre" ],
       css_select("#report-dialog .report-dialog__reason span").map(&:text)
@@ -38,11 +39,13 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".profile-band button", false
   end
 
-  test "a signed-out visitor's SIGNALER opens the sign-in panel and no report dialog is sent" do
-    get brother_path(locale: :en, token: @owner.token)
+  test "a signed-out visitor's SIGNALER and ÉCHANGE show greyed and disabled, and no report dialog is sent" do
+    get brother_path(locale: :fr, token: @owner.token)
 
     assert_response :success
-    assert_select ".profile-band button[data-dialog-opener-dialog-value=sign-in-panel]", "REPORT"
+    assert_select ".profile-band button[disabled]:not([aria-haspopup])", 2
+    assert_select ".profile-band__meta button[disabled]", "SIGNALER"
+    assert_select ".profile-band__identity > button[disabled][aria-label^='Échange avec ']", "ÉCHANGE"
     assert_select "#report-dialog", false
   end
 
@@ -91,13 +94,13 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a visitor is refused and sent to sign in; nothing is stored" do
+  test "a visitor is refused and sent to the landing; nothing is stored" do
     assert_no_difference "Accounts::Report.count" do
       post report_path_of(@owner), params: { reason: "cheating" }
     end
 
-    assert_redirected_to home_path(locale: :en)
-    assert_equal "Sign in through Steam to do that.", flash[:alert]
+    assert_redirected_to landing_path(locale: :en)
+    assert_nil flash[:alert]
   end
 
   test "reporting oneself is refused" do

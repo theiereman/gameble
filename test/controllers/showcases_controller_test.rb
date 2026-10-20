@@ -114,11 +114,11 @@ class ShowcasesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "a visitor is sent to sign in, or answered 401 in JSON; nothing written" do
+  test "a visitor is sent to the landing, or answered 401 in JSON; nothing written" do
     assert_no_difference -> { Game::ShowcaseEntry.count } do
       post showcase_path
-      assert_redirected_to home_path(locale: :en)
-      assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
+      assert_redirected_to landing_path(locale: :en)
+      assert_nil flash[:alert]
 
       delete showcase_path, as: :json
       assert_json_error :unauthorized, "sign_in_required", I18n.t("authorization.sign_in_required", locale: :en)

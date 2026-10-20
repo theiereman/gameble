@@ -1,6 +1,6 @@
-# The hub, "Pont de commandement": the numbered menu, the showcase of the
-# first card the player chose, else the latest Epic-or-better card they
-# hold (or the invitation to sign in), the daily booster panel, the community goal panel with a
+# The hub, "Pont de commandement", a player's page: the numbered menu, the
+# showcase of the first card the player chose, else the latest
+# Epic-or-better card they hold, the daily booster panel, the community goal panel with a
 # contributor's reward claim slot, the set progress rows and, once, a new
 # player's welcome panel. A read only page: Catalog answers the season, its
 # size and the showcased card, Game the goal, the player's reserve, goal
@@ -9,19 +9,17 @@
 # ticker its first items, the latest public entries it shows.
 class PagesController < ApplicationController
   def home
-    authorize :page, :show?
+    authorize :page, :play?
     @season = Catalog::PublishedSeason.call
     @goal = Game::CurrentGoal.call
     @ticker = LiveStream.ticker_items
-    if current_player
-      @bank = Game::BankSummary.call(current_player)
-      @goal_reward = Game::GoalRewardStatus.call(current_player)
-      @friends_online = Game::FriendsPresence.online_count(current_player)
-      @achievements = Game::AchievementBoard.summary(current_player)
-      load_showcase if @season
-      @welcome = current_player.welcome_pending
-      Accounts::CloseWelcomeJob.perform_later(current_player.id) if @welcome
-    end
+    @bank = Game::BankSummary.call(current_player)
+    @goal_reward = Game::GoalRewardStatus.call(current_player)
+    @friends_online = Game::FriendsPresence.online_count(current_player)
+    @achievements = Game::AchievementBoard.summary(current_player)
+    load_showcase if @season
+    @welcome = current_player.welcome_pending
+    Accounts::CloseWelcomeJob.perform_later(current_player.id) if @welcome
     @collection = collection if @season
     @sets = @season ? set_rows : []
   end
@@ -29,7 +27,7 @@ class PagesController < ApplicationController
   # GET /:locale/more: the phone's PLUS tab, the
   # rows of the screens that are not tabs. Nothing is read.
   def more
-    authorize :page, :show?
+    authorize :page, :play?
   end
 
   def legal

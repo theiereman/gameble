@@ -4,10 +4,14 @@
     <%= pixel_icon("avatar-default", class: "profile-band__avatar") %>
     <div class="profile-band__identity">
       <%= content_tag :h1, title, id: "profile-heading", class: "profile-band__name" %>
+      <% if current_player.nil? %>
+        <%= render ButtonComponent.new(variant: :secondary, size: :small, disabled: true,
+              aria_label: t("public_profiles.show.trade_label", name: title)) do %><%= t("public_profiles.show.trade") %><% end %>
+      <% end %>
       <p class="profile-band__meta">
         <span class="profile-band__since"><%= t("public_profiles.show.member_since", date: l(owner.created_at.to_date, format: :month_year)) %></span>
         <% if current_player.nil? %>
-          <%= render ButtonComponent.new(variant: :link, size: :small, opens: "sign-in-panel") do %><%= t("reports.open") %><% end %>
+          <%= render ButtonComponent.new(variant: :link, size: :small, disabled: true) do %><%= t("reports.open") %><% end %>
         <% elsif current_player != owner %>
           <%= render ButtonComponent.new(variant: :link, size: :small, opens: "report-dialog") do %><%= t("reports.open") %><% end %>
         <% end %>

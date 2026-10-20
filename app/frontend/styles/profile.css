@@ -111,6 +111,16 @@
   color: var(--color-alert);
 }
 
+.profile-band__meta .button--link:disabled {
+  color: var(--color-disabled-text);
+}
+
+/* A visitor's ÉCHANGE: greyed, under the name. */
+.profile-band__identity > .button {
+  align-self: flex-start;
+  margin: var(--space-3) 0 0;
+}
+
 .profile-band__keys {
   display: flex;
   flex: none;

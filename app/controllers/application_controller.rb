@@ -138,8 +138,8 @@ class ApplicationController < ActionController::Base
       current_player
     end
 
-    # A refused visitor is sent home and asked to sign in (401 outside HTML);
-    # a refused player is forbidden (403). Nothing the action would have done
+    # A refused visitor is sent to the landing (401 outside HTML); a refused
+    # player is forbidden (403). Nothing the action would have done
     # happens. A rescue runs outside the around_action, hence its own locale.
     def refuse
       I18n.with_locale(current_locale) { refuse_in_locale }
@@ -148,7 +148,7 @@ class ApplicationController < ActionController::Base
     def refuse_in_locale
       if current_player.nil?
         message = t("authorization.sign_in_required")
-        refuse_with(:unauthorized, "sign_in_required", message) { redirect_to home_path, alert: message }
+        refuse_with(:unauthorized, "sign_in_required", message) { redirect_to landing_path, status: :see_other }
       else
         message = t("authorization.forbidden")
         refuse_with(:forbidden, "forbidden", message) do

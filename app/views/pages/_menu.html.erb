@@ -1,14 +1,12 @@
 <%# The hub's numbered menu: keys 1 to 9 open an item while focus is
-    inside the menu (hub_menu_controller.ts). 01 opens the booster screen (for a player, a
-    link with the reserve as a lime badge, greyed at zero; for a visitor,
-    the sign-in panel); 02 opens the collection, with the games owned
-    in any edition out of the season's cards; 03 opens the catalog of every
-    card, for a visitor too; 04 opens the trades screen, with the
-    trades waiting for the player as an orange badge, and 05 the Friends
-    screen, with how many friends are online, and 07 the achievements
-    screen, with the achievements earned (for a visitor, each the sign-in
-    panel); 06 opens the public feed; 08 opens the rules of the game, for
-    a visitor too; 09 opens the donation page in a new tab.
+    inside the menu (hub_menu_controller.ts). 01 opens the booster screen,
+    with the reserve as a lime badge, greyed at zero; 02 opens the
+    collection, with the games owned in any edition out of the season's
+    cards; 03 opens the catalog of every card; 04 opens the trades screen,
+    with the trades waiting for the player as an orange badge, and 05 the
+    Friends screen, with how many friends are online, and 07 the
+    achievements screen, with the achievements earned; 06 opens the feed;
+    08 opens the rules of the game; 09 opens the donation page in a new tab.
     Hidden on the phone, where the tab bar navigates. %>
 <nav class="hub-menu" aria-label="<%= t("pages.home.menu.label") %>" data-hub-menu-target="menu" data-action="keydown->hub-menu#press">
   <% arrow = pixel_icon("arrow-small-right", class: "menu-item__arrow") %>
@@ -29,13 +27,13 @@
     <%= render "pages/menu_all_cards" %>
     <% [ [ :trades, 4 ], [ :friends, 5 ], [ :feed, 6 ], [ :achievements, 7 ] ].each do |item, position| %>
       <% if item == :trades %>
-        <%= render "pages/menu_trades", waiting: (shell_trades_waiting unless bank.nil?) %>
+        <%= render "pages/menu_trades", waiting: shell_trades_waiting %>
       <% elsif item == :friends %>
-        <%= render "pages/menu_friends", signed_in: !bank.nil?, online: local_assigns[:friends_online] %>
+        <%= render "pages/menu_friends", online: friends_online %>
       <% elsif item == :feed %>
         <%= render "pages/menu_feed" %>
       <% else %>
-        <%= render "pages/menu_achievements", achievements: local_assigns[:achievements] %>
+        <%= render "pages/menu_achievements", achievements: %>
       <% end %>
     <% end %>
     <%= render "pages/menu_how_it_works" %>

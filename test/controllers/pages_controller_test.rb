@@ -5,8 +5,8 @@ require_relative "../support/game_sets"
 require_relative "../support/game_trades"
 require_relative "../support/steam_sign_in"
 
-# The hub, "Pont de commandement", as the server renders it for a player
-# and for a visitor.
+# The hub, "Pont de commandement", a player's page, as the server renders
+# it; a visitor is sent to the landing.
 class PagesControllerTest < ActionDispatch::IntegrationTest
   include CatalogSeeds
   include GamePacks
@@ -15,7 +15,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   include SteamSignIn
 
   PLAYER_HUB_QUERIES = 19
-  VISITOR_HUB_QUERIES = 7
 
   OWNERSHIP_NOTICE = "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
 
@@ -57,6 +56,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the French hub renders in French with the top bar above the main region" do
+    sign_in(@player)
     get home_path(locale: :fr)
 
     assert_response :success
@@ -73,6 +73,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the English hub renders in English and loads its Vite assets" do
+    sign_in(@player)
     get home_path(locale: :en)
 
     assert_response :success
@@ -347,56 +348,31 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/en/library'] .menu-item__meta", "1/150"
   end
 
-  test "a visitor's hub: the menu opens the sign-in panel, an invitation replaces the showcase, no daily panel" do
-    get home_path(locale: :en)
+  test "a visitor is sent from the hub and the PLUS screen to the landing, in its locale, without an alert" do
+    { home_path(locale: :fr) => landing_path(locale: :fr), more_path(locale: :en) => landing_path(locale: :en) }.each do |page, landing|
+      get page
 
-    assert_response :success
-    assert_select "main h1", "Command bridge"
-    assert_select ".hub-menu button.menu-item[type=button][aria-haspopup=dialog][aria-keyshortcuts='1']" do |items|
-      item = items.sole
-      assert_equal "dialog-opener", item["data-controller"]
-      assert_equal "dialog-opener#open", item["data-action"]
-      assert_equal "sign-in-panel", item["data-dialog-opener-dialog-value"]
-      assert_select item, ".menu-item__label", "Open a capsule"
-      assert_select item, ".menu-item__badge", false
-    end
-    assert_select ".hub-menu a.menu-item[href='/en/library'] .menu-item__meta", "0/5"
-    assert_select ".hub-menu a.menu-item[href='/en/library/cards'][aria-keyshortcuts='3'] .menu-item__label", "All cards"
-    assert_select ".hub-menu a.menu-item[href='/en/how-it-works'][aria-keyshortcuts='8']", /How it works/
-    assert_select ".hub-menu a.menu-item[href='https://buymeacoffee.com/theiereman'][target=_blank][aria-keyshortcuts='9'] .menu-item__label", "Support"
-
-    assert_select ".hub-invitation" do
-      assert_select "h2.hub-invitation__title", "Your Steam games, as collectible cards."
-      assert_select ".hub-showcase__line", "Open capsules, complete sets, trade with your friends."
-      assert_select "button.button.button--primary[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]", "Open my first capsules"
-    end
-    assert_select ".hub-showcase:not(.hub-invitation)", false
-    assert_select ".daily-booster", false
-    assert_select ".hub-sets a.set-row .set-row__count", "0/1"
-    assert_select "main form[action='/auth/steam']", false
-    assert_select "a[href='/en/back-office']", false
-    assert_select ".top-bar__start a.button", false
-  end
-
-  test "a visitor gets the sign-in panel: its title, the official image focused first, the links to the terms and the privacy notice, and the close button" do
-    get home_path(locale: :fr)
-
-    assert_select "body > dialog#sign-in-panel.modal[aria-labelledby=sign-in-panel-title][data-controller=dialog]" do
-      assert_select ".panel.panel--brackets"
-      assert_select "p#sign-in-panel-title", "Connectez-vous pour jouer"
-      assert_select "button.modal__close[type=button][aria-label=Fermer][data-action='dialog#close'] svg.pixel-icon"
-      assert_select "form.steam-sign-in[action='/auth/steam'] input[name=origin][value='/fr']"
-      assert_select "button.steam-sign-in__button[autofocus] img[src*='sits_01']"
-      assert_equal [ "/fr/legal#legal-terms", "/fr/legal#legal-privacy" ], css_select("dialog#sign-in-panel a").map { it["href"] }
+      assert_redirected_to landing
+      assert_response :see_other
+      assert_nil flash[:alert]
     end
   end
 
-  test "every form posting to /auth/steam is the official Steam image" do
-    get home_path(locale: :en)
+  test "a visitor's JSON request for the hub answers 401 sign_in_required" do
+    get home_path(locale: :en), headers: { "Accept" => "application/json" }
+
+    assert_response :unauthorized
+    assert_equal "sign_in_required", response.parsed_body.dig("error", "code")
+  end
+
+
+  test "every form posting to /auth/steam is a full-page POST back to its page, and no link leads there" do
+    get landing_path(locale: :en)
 
     forms = css_select("form[action='/auth/steam']")
-    assert_equal 2, forms.size, "the top bar's and the sign-in panel's"
-    assert forms.all? { it.classes.include?("steam-sign-in") && it.at_css("button.steam-sign-in__button img[src*='sits_01']") }
+    assert_equal 4, forms.size, "the top bar's and the boarding's official images, the hero's and the boarding's Embark"
+    assert(forms.all? { it["method"] == "post" && it["data-turbo"] == "false" && it.at_css("input[name=origin]")["value"] == "/en/landing" })
+    assert_equal 2, forms.count { it.classes.include?("steam-sign-in") && it.at_css("button.steam-sign-in__button img[src*='sits_01']") }
     assert_select "a[href*='/auth/steam']", false
   end
 
@@ -431,10 +407,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
   test "no published season: no set rows and no collection meta" do
     catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
 
-    get home_path(locale: :en)
-    assert_select ".hub-sets", false
-    assert_select ".hub-menu .menu-item__meta", false
-
     sign_in(@player)
     get home_path(locale: :en)
     assert_select ".hub-sets", false
@@ -443,10 +415,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-showcase--empty"
   end
 
-  test "the hub shows the goal panel with the Brotherhood line and the real target, in both languages, to a visitor too" do
+  test "the hub shows the goal panel with the Brotherhood line and the real target, in both languages" do
     Game::WeeklyContribution.create!(player_id: @player.id, week_start: Game::WeeklyGoal.week_start(Time.current) - 7, openings: 1)
     Game::SumWeeklyGoalJob.new.perform
     Game::WeeklyGoal.where(week_start: Game::WeeklyGoal.week_start(Time.current)).update_all(total: 100, target: 50_000)
+    sign_in(accounts_players(:moderator))
 
     get home_path(locale: :en)
     assert_select "#community-goal .hub-goal__line", text: "The Brotherhood invites its members to join forces and open 50,000 capsules this week."
@@ -458,9 +431,10 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#community-goal .hub-goal__line", text: /\ALa Confrérie invite ses membres à unir leurs efforts pour ouvrir 50[\s\u00a0\u202f]000 capsules cette semaine\.\z/
   end
 
-  test "a reached goal reads Objectif atteint with a full gauge, for a visitor and a player, in both languages" do
+  test "a reached goal reads Objectif atteint with a full gauge, in both languages" do
     week = Game::WeeklyGoal.week_start(Time.current)
     Game::WeeklyGoal.create!(week_start: week, total: 210, target: 200)
+    sign_in(accounts_players(:moderator))
 
     get home_path(locale: :en)
     assert_select "#community-goal .hub-goal__status", text: "Goal reached"
@@ -478,6 +452,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     week = Game::WeeklyGoal.week_start(Time.current)
     Game::WeeklyGoal.create!(week_start: week - 7, total: 180, target: 200)
     Game::WeeklyGoal.create!(week_start: week, total: 0, target: 250)
+    sign_in(accounts_players(:moderator))
 
     get home_path(locale: :fr)
     assert_select "#community-goal .hub-goal__status", false
@@ -548,8 +523,9 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "#goal-reward .hub-goal__claim-state", "Collected"
   end
 
+  # The page's public streams, without the signed-in player's own.
   def stream_names
-    css_select("turbo-cable-stream-source").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
+    css_select("turbo-cable-stream-source:not([channel=PlayerStreamChannel])").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
   end
 
   def open_pack_of(player, card_season_id)
@@ -568,6 +544,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     conclude_trade(@player, partner, offer: { fixture_tier_ids[2] => 1 }, request: { fixture_tier_ids[1] => 1 })
     Game::Holding.create!(player_id: @player.id, card_season_id: fixture_tier_ids[4], quantity: 1)
     Game::RepostCard.new.call(player: @player, card_season_id: fixture_tier_ids[4]).value!
+    sign_in(@player)
 
     get home_path(locale: :en)
 
@@ -593,14 +570,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[goal:en live:en], stream_names
   end
 
-  test "the hub listens to the French streams in French, for a visitor and a player" do
+  test "the hub listens to the French streams in French" do
+    sign_in(@player, origin: "/fr")
     get home_path(locale: :fr)
     assert_equal %w[goal:fr live:fr], stream_names
     assert_select "#live-ticker .live-marker__text", "Live"
-
-    sign_in(@player, origin: "/fr")
-    get home_path(locale: :fr)
-    assert_includes stream_names, "goal:fr"
     assert_select "#community-goal"
   end
 
@@ -634,11 +608,6 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     60.times { |index| create_pack(@player, cards: common, opened_at: (index + 1).minutes.ago) }
     assert_hub_queries(PLAYER_HUB_QUERIES)
     assert_select ".hub-showcase .card"
-
-    delete session_path(locale: :en)
-    # Published season, collection total, the popular sets, their figures
-    # and the sets naming them, the ticker's entries.
-    assert_hub_queries(VISITOR_HUB_QUERIES)
   end
 
   test "sets and cards are addressed by kind, key and slug, never by database id" do
@@ -686,7 +655,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     queries
   end
 
-  test "the sign-in panel is for visitors only, never in the back-office" do
+  test "neither the back-office nor the hub carries a sign-in panel" do
     sign_in(accounts_players(:administrator))
 
     get back_office_path(locale: :en)

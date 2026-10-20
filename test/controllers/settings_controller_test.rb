@@ -146,13 +146,13 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[name=reduced_motion][aria-pressed=true]", 1
   end
 
-  test "a visitor is sent home and asked to sign in; nothing is written" do
+  test "a visitor is sent to the landing; nothing is written" do
     get settings_path(locale: :en)
-    assert_redirected_to home_path(locale: :en)
-    assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
+    assert_redirected_to landing_path(locale: :en)
+    assert_nil flash[:alert]
 
     patch settings_path(locale: :en), params: { reduced_motion: "on" }
-    assert_redirected_to home_path(locale: :en)
+    assert_redirected_to landing_path(locale: :en)
     assert_nil cookies[:motion]
     assert_nil @player.reload.reduced_motion
   end
@@ -309,8 +309,8 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   test "a visitor cannot set a visibility, and a GET writes nothing" do
     patch settings_visibility_path(locale: :en), params: { visibility: "private" }
-    assert_redirected_to home_path(locale: :en)
-    assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
+    assert_redirected_to landing_path(locale: :en)
+    assert_nil flash[:alert]
     assert_equal "public", @player.reload.visibility
 
     sign_in(@player)
@@ -407,7 +407,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   test "a visitor follows the cookie: reduced, no meta" do
     cookies[:motion] = "reduced"
 
-    get home_path(locale: :en)
+    get landing_path(locale: :en)
 
     assert_equal "reduced", forced_motion
     assert_not transition_meta?
@@ -416,7 +416,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   test "a visitor with an explicit-no cookie is forced full motion" do
     cookies[:motion] = "full"
 
-    get home_path(locale: :en)
+    get landing_path(locale: :en)
 
     assert_equal "full", forced_motion
     assert transition_meta?
@@ -425,7 +425,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   test "a visitor with no cookie, or a junk one, is forced nothing" do
     [ nil, "", "reduced ", "1", "Full" ].each do |value|
       cookies[:motion] = value
-      get home_path(locale: :en)
+      get landing_path(locale: :en)
 
       assert_nil forced_motion, value.inspect
       assert transition_meta?, value.inspect
@@ -460,19 +460,6 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a visitor does not see the settings row on the PLUS screen" do
-    get more_path(locale: :en)
-
-    assert_response :success
-    assert_select ".plus__list > li", 6
-    assert_select ".plus__list a[href='/en/settings']", false
-    assert_select ".plus__list > li:first-child a.menu-item.menu-item--plus[href='/en/library/cards']", "All cards"
-    assert_select ".plus__list a.menu-item[href='/en/how-it-works']", /How it works/
-    assert_select ".plus__list > li:last-child a.menu-item.menu-item--plus[href='https://buymeacoffee.com/theiereman'][target=_blank]", "Support (new tab)" do
-      assert_select "svg.menu-item__external"
-    end
-  end
-
   test "the public pages and the signed-out card page follow the cookie too" do
     cookies[:motion] = "reduced"
 
@@ -484,7 +471,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   # Sign-out keeps the preference
 
-  test "signing out writes the player's setting to the cookie, and the signed-out hub follows it" do
+  test "signing out writes the player's setting to the cookie, and the landing follows it" do
     @player.update!(reduced_motion: true)
     sign_in(@player)
 
@@ -492,7 +479,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "reduced", cookies[:motion]
     follow_redirect!
-    assert_select ".hub-invitation"
+    assert_select ".landing-hero"
     assert reduced?
     assert_not transition_meta?
   end

@@ -6,8 +6,7 @@
     <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
   <% end %>
 <% end %>
-<%# The activity feed: the All and Friends tabs (a visitor's Friends tab
-    opens the sign-in panel), then the type filters (links, the chosen one current,
+<%# The activity feed: the All and Friends tabs, then the type filters (links, the chosen one current,
     each keeping the other row's choice), then one row per entry, newest
     first: time, a sentence naming the player (a first discovery's behind
     its gold "First discovery" chip), the card's thumbnail and its
@@ -28,13 +27,8 @@
   <h1 id="feed-heading" class="feed__title"><%= t(".title") %></h1>
   <nav class="feed__tabs segmented" aria-label="<%= t(".tabs_label") %>">
     <%= link_to t(".tabs.all"), feed_path(filter: @filter), class: "feed__tab segmented__option", aria: { current: ("true" unless @tab) } %>
-    <% if current_player %>
-      <%= link_to t(".tabs.friends"), feed_path(tab: "friends", filter: @filter), class: "feed__tab segmented__option",
-            aria: { current: ("true" if @tab == "friends") } %>
-    <% else %>
-      <%= tag.button t(".tabs.friends"), type: :button, class: "feed__tab segmented__option", aria: { haspopup: "dialog" },
-            data: { controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: "sign-in-panel" } %>
-    <% end %>
+    <%= link_to t(".tabs.friends"), feed_path(tab: "friends", filter: @filter), class: "feed__tab segmented__option",
+          aria: { current: ("true" if @tab == "friends") } %>
   </nav>
   <nav class="feed__filters segmented" aria-label="<%= t(".filters_label") %>">
     <% [ nil, *FeedsController::FILTERS.keys ].each do |filter| %>

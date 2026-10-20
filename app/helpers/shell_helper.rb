@@ -74,6 +74,29 @@ module ShellHelper
     "pages#more" => :more
   }.freeze
 
+  # Where the wordmark and the phone's back to the bridge lead: the hub for
+  # a player, the landing for a visitor.
+  def shell_home_path
+    current_player ? home_path : landing_path
+  end
+
+  def shell_home_label
+    current_player ? t("shell.top_bar.home") : t("shell.top_bar.landing")
+  end
+
+  def shell_back_label
+    current_player ? t("shell.top_bar.back") : t("shell.top_bar.back_landing")
+  end
+
+  # A game-styled button that signs in through Steam: the one-button POST
+  # form of SteamSignInComponent under the page's own label, a full-page
+  # load as Steam is another site. `origin` is where a failed sign-in, or
+  # an invite link's, comes back to.
+  def steam_sign_in_button(label, origin:, class:, aria_label: nil)
+    button_to label, "/auth/steam", params: { origin: }, class:, form_class: "button-form",
+      form: { data: { turbo: false } }, aria: { label: aria_label }.compact
+  end
+
   def shell_screen_label
     key = screen_label_key
     t("shell.screens.#{key}") if key

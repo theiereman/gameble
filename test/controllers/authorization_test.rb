@@ -35,17 +35,32 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a visitor may read a page" do
-    get home_path(locale: :fr)
+  test "a visitor may read an open page" do
+    get how_it_works_path(locale: :fr)
 
     assert_response :success
   end
 
-  test "a visitor's sign-out is refused and sent home with the sign-in alert" do
+  test "a visitor's HTML request for a player's page is sent to the landing, without an alert" do
+    get home_path(locale: :fr)
+
+    assert_redirected_to landing_path(locale: :fr)
+    assert_response :see_other
+    assert_nil flash[:alert]
+  end
+
+  test "a visitor's JSON request for a player's page answers 401 sign_in_required" do
+    get feed_path(locale: :en), headers: { "Accept" => "application/json" }
+
+    assert_response :unauthorized
+    assert_equal "sign_in_required", response.parsed_body.dig("error", "code")
+  end
+
+  test "a visitor's sign-out is refused and sent to the landing" do
     delete session_path(locale: :fr)
 
-    assert_redirected_to home_path(locale: :fr)
-    assert_equal I18n.t("authorization.sign_in_required", locale: :fr), flash[:alert]
+    assert_redirected_to landing_path(locale: :fr)
+    assert_nil flash[:alert]
     assert_nil flash[:notice]
   end
 
@@ -65,7 +80,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     delete session_path(locale: :en)
 
     assert_nil session[:player_id]
-    assert_redirected_to home_path(locale: :en)
+    assert_redirected_to landing_path(locale: :en)
     assert_equal I18n.t("sessions.destroy.farewell", locale: :en), flash[:notice]
   end
 
@@ -74,7 +89,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     sign_in(player)
 
     player.update_columns(banned_at: Time.current)
-    get home_path(locale: :fr)
+    get how_it_works_path(locale: :fr)
 
     assert_response :success
     assert_nil session[:player_id]
@@ -90,7 +105,8 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     delete session_path(locale: :en)
 
     assert_nil session[:player_id]
-    assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
+    assert_redirected_to landing_path(locale: :en)
+    assert_nil flash[:alert]
   end
 
   test "from a banned player's session, another player signs in" do

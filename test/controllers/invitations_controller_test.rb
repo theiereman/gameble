@@ -133,11 +133,11 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
 
   test "a visitor cannot send, answer or cancel" do
     post invitations_path(locale: :fr), params: { code: "8F2D-K9XM" }
-    assert_redirected_to home_path(locale: :fr)
+    assert_redirected_to landing_path(locale: :fr)
     post accept_invitation_path(token: "a" * 24, locale: :fr)
-    assert_redirected_to home_path(locale: :fr)
+    assert_redirected_to landing_path(locale: :fr)
     post cancel_invitation_path(token: "a" * 24, locale: :fr)
-    assert_redirected_to home_path(locale: :fr)
+    assert_redirected_to landing_path(locale: :fr)
     assert_equal 0, Game::Invitation.count
   end
 
@@ -156,8 +156,11 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
     get link
     assert_response :success
     assert_select ".invite-link__line", /Sam vous invite/
-    assert_select "button[aria-haspopup=dialog]", /Se connecter/
-    assert_select "dialog#sign-in-panel input[name=origin][value=?]", link
+    assert_select "main form.button-form[action='/auth/steam'][method=post][data-turbo=false]" do
+      assert_select "input[name=origin][value=?]", link
+      assert_select "button.button--primary[type=submit]", /Se connecter/
+    end
+    assert_select "[aria-haspopup=dialog]", false
 
     sign_in @alice, origin: link
     follow_redirect!

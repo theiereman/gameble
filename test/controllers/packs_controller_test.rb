@@ -192,18 +192,13 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, Game::Holding.where(player_id: player.id).count
   end
 
-  test "a visitor's menu 01 opens the sign-in panel, and a visitor's opening is refused; nothing changes" do
-    get home_path(locale: :en)
-    assert_equal "sign-in-panel", open_item["data-dialog-opener-dialog-value"]
-    assert_select ".hub-menu form", false
-    assert_select "[data-controller=countdown]", count: 0
-
+  test "a visitor's opening is refused; nothing changes" do
     assert_no_difference [ -> { Game::Pack.count }, -> { Game::Pack.where.not(opened_at: nil).count }, -> { Game::Holding.count } ] do
       post packs_path(locale: :en)
     end
 
-    assert_redirected_to home_path(locale: :en)
-    assert_equal I18n.t("authorization.sign_in_required", locale: :en), flash[:alert]
+    assert_redirected_to landing_path(locale: :en)
+    assert_nil flash[:alert]
   end
 
   test "more than 30 openings a minute by one player are sent back to the hub with an alert" do

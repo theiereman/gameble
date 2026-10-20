@@ -4,9 +4,10 @@ require_relative "../support/game_trades"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
-# The activity feed: readable signed out, newest pulls and first discoveries
+# The activity feed, a player's page: newest pulls and first discoveries
 # first, under the All and Friends tabs and the type filters; a GET writes
-# nothing.
+# nothing. Each test reads it as a stranger to every player it shows,
+# unless it signs one of them in.
 class FeedsControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
   include GameTrades
@@ -16,6 +17,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @player = accounts_players(:player)
     @player.update!(persona_name: "Hugo")
+    sign_in_new_player("76561197960287990")
   end
 
   def open_epic(player = @player)
@@ -27,17 +29,17 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     Game::Friendship.create!(low_player_id: [ first.id, second.id ].min, high_player_id: [ first.id, second.id ].max)
   end
 
-  def friends_and_strangers(signed_in: true)
+  def friends_and_strangers
     @friend = accounts_players(:moderator).tap { it.update!(persona_name: "Sam") }
     @stranger = accounts_players(:administrator).tap { it.update!(persona_name: "Léa") }
     befriend(@player, @friend)
     [ @player, @friend, @stranger ].each { open_epic(it) }
-    sign_in(@player) if signed_in
+    sign_in(@player)
   end
 
   def names = css_select(".feed__sentence strong:first-child").map(&:text).uniq.sort
 
-  test "a signed-out visitor reads the pulls of Epic or better" do
+  test "a stranger reads the pulls of Epic or better" do
     open_epic
 
     get feed_path(locale: :en)
@@ -333,18 +335,14 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__empty", "Nothing here yet."
   end
 
-  test "signed out, Friends opens the sign-in panel and ?tab=friends reads All" do
-    friends_and_strangers(signed_in: false)
+  test "a visitor is sent to the landing, whatever the tab or the filter" do
+    reset!
 
-    get feed_path(locale: :en, tab: "friends", filter: "pulls")
+    get feed_path(locale: :fr, tab: "friends", filter: "pulls")
 
-    assert_response :success
-    assert_select ".feed__tab[aria-current]", count: 1, text: "All"
-    assert_select "a.feed__tab[href=?]", feed_path(locale: :en, filter: "pulls"), text: "All"
-    assert_select "button.feed__tab[type=button][aria-haspopup=dialog][data-dialog-opener-dialog-value=sign-in-panel]", "Friends"
-    assert_select "a.feed__tab", 1
-    assert_select "a.feed__filter[href=?]", feed_path(locale: :en)
-    assert_equal %w[Hugo Léa Sam], names
+    assert_redirected_to landing_path(locale: :fr)
+    assert_response :see_other
+    assert_nil flash[:alert]
   end
 
   test "an unknown tab is All" do
@@ -364,8 +362,9 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # The page's public streams, without the signed-in player's own.
   def stream_names
-    css_select("turbo-cable-stream-source").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
+    css_select("turbo-cable-stream-source:not([channel=PlayerStreamChannel])").map { Turbo::StreamsChannel.verified_stream_name(it["signed-stream-name"]) }
   end
 
   test "All without a filter listens to the public stream, its list named for new entries, with a polite status line" do
@@ -401,7 +400,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
       get path
       assert_select ".feed__entry", entries
       assert_select "#feed-entries, .feed [role=status], [data-controller=feed-announcer]", 0
-      assert_equal [], stream_names - [ PlayerStream.name(@player, :en) ], path
+      assert_equal [], stream_names, path
     end
   end
 
@@ -437,7 +436,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", 0
   end
 
-  test "a trade with a hidden player is not shown to a visitor" do
+  test "a trade with a hidden player is not shown to a stranger" do
     sam = accounts_players(:moderator)
     trade_with(sam)
     sam.update!(visibility: :friends_only)
@@ -474,7 +473,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     Game::OpenPack.new.call(player:).value!
   end
 
-  test "a signed-out visitor reads a set reached as one line naming the player, the set and the tier, with no thumbnail" do
+  test "a stranger reads a set reached as one line naming the player, the set and the tier, with no thumbnail" do
     reach_roguelike_silver
 
     get feed_path(locale: :en)

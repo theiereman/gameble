@@ -266,6 +266,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   test "a set named in the query is browsed; its ends are disabled buttons; a card alone in its set has no swipe hint" do
     add_a_theme_set
+    sign_in_viewer
 
     get in_theme("tin-soldier")
     assert_equal [ [ "button", "disabled" ], [ "a", in_theme("portal") ] ], navs
@@ -281,11 +282,22 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "/en/library/studio/valve", css_select(".top-bar__phone-back").sole["href"]
   end
 
+  test "a visitor browsing a set has no way back to its album, closed to visitors" do
+    add_a_theme_set
+
+    get in_theme("portal")
+
+    assert_equal [ [ "a", in_theme("tin-soldier") ], [ "a", in_theme("blue-depths") ] ], navs
+    assert_select ".top-bar__phone-back[href^='/en/library/theme/puzzle']", false
+    assert_nil css_select(".card-detail").sole["data-sub-view-back-value"]
+  end
+
   test "a set's way back leads to the page of its album holding the card" do
     season, cards = published_cards(70)
     insert_theme(cards, key: "roguelike", season:)
     slugs = Catalog::CardSeason.where(id: cards).includes(:card).index_by(&:id).transform_values { it.card.slug }
     detail = ->(id) { card_season_path(locale: :en, slug: slugs.fetch(id), number: season.number, set_kind: "theme", set_key: "roguelike") }
+    sign_in_viewer
 
     get detail.(cards[59])
     assert_equal "60 / 70", position[%r{\d+ / \d+}]
@@ -322,6 +334,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     owner = accounts_players(:player)
     owner.update!(visibility: :private)
     slug = Catalog::CardSeason.find(cards[0]).card.slug
+    sign_in(Accounts::Player.create!(steam_id: "76561197960287991"))
 
     get card_season_path(locale: :en, slug:, number: season.number, set_kind: "theme", set_key: "roguelike", brother: owner.token)
 
@@ -386,7 +399,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__share-button", "Partager"
   end
 
-  test "a visitor within a set sees the card's face and its share block, without copies, editions, repost or showcase; the card's own page is the public one" do
+  test "a visitor within a set sees the card's face, its share block and its sets by name, without copies, editions, repost, showcase or set links; the card's own page is the public one" do
     add_a_theme_set
 
     get in_theme("portal")
@@ -396,10 +409,9 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#share-sheet input[value=?]", "http://www.example.com/en/cards/portal/seasons/1"
     assert_select "form[action*='/repost']", false
     assert_select ".card-detail__showcase", false
-    assert_select "section.card-invitation[aria-labelledby=card-invitation-text]:not([aria-label])" do
-      assert_select "p#card-invitation-text", I18n.t("cards.show.invitation")
-      assert_select "[aria-label]", false
-    end
+    assert_select ".card-detail__sets li", /Puzzle/
+    assert_select ".card-detail__sets a", false
+    assert_select "section.card-invitation", false
     assert_not_includes facts.map(&:first), "Copies"
     assert_not_includes facts.map(&:first), "Editions"
     assert_includes facts, [ "Rarity", "Epic" ]
@@ -715,7 +727,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_nil facts.to_h["Editions"]
     assert_select "form[action*='/repost']", false
     assert_select ".card-detail__showcase", false
-    assert_select "section.card-invitation"
+    assert_select "section.card-invitation", false
     assert_select ".public-card", false
 
     # A link built by the grid of one set, before sets opened as albums:

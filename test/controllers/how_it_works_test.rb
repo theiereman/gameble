@@ -178,6 +178,7 @@ class HowItWorksTest < ActionDispatch::IntegrationTest
   end
 
   test "the screen sits under the PLUS tab, its phone back to PLUS" do
+    sign_in(accounts_players(:player))
     get how_it_works_path(locale: :fr)
 
     assert_select "a.tab-bar__tab[href='/fr/more'][aria-current=page]", /Plus/

@@ -11,7 +11,9 @@ fr:
     top_bar:
       brand: "gameble"
       back: "Pont"
+      back_landing: "Accueil"
       home: "gameble, pont de commandement"
+      landing: "gameble, page d'accueil"
       previous: "Retour :"
     screens:
       collection: "Collection"
@@ -62,9 +64,7 @@ fr:
       close: "Fermer"
     steam_sign_in:
       alt: "Se connecter via Steam (ouvre Steam)"
-    sign_in_panel:
-      title: "Connectez-vous pour jouer"
-      close: "Fermer"
+    sign_in:
       acceptance_html: "En vous connectant, vous acceptez les %{terms} et prenez connaissance de la %{privacy}."
       terms: "conditions d'utilisation"
       privacy: "politique de confidentialité"
@@ -116,10 +116,6 @@ fr:
           text: "Votre plus belle carte s'affichera ici."
           open: "Ouvrir une capsule"
           reserve_empty: "Réserve vide"
-      invitation:
-        title: "Vos jeux Steam, en cartes à collectionner."
-        text: "Ouvrez des capsules, complétez des sets, échangez avec vos amis."
-        open: "Ouvrir mes premières capsules"
       daily:
         title: "Capsule quotidienne"
         ready: "Prête"
@@ -687,7 +683,6 @@ fr:
     entry:
       in_progress: "En cours"
       no_progress: "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
-      discover: "À découvrir"
       search: "Chercher un set"
       all_cards: "Toutes les cartes"
       results: "Résultats"
@@ -815,6 +810,8 @@ fr:
         one: "%{count} carte collectionnée"
         other: "%{count} cartes collectionnées"
       member_since: "Membre depuis %{date}"
+      trade: "ÉCHANGE"
+      trade_label: "Échange avec %{name}"
       keys:
         cards: "Cartes"
         complete_sets: "Sets complets"
@@ -1474,7 +1471,7 @@ fr:
         hook: "Des jeux ont été perdus. La Confrérie part les retrouver. Rejoignez-la."
         line: "gameble est un jeu de cartes à collectionner basé sur la bibliothèque publique de jeux Steam."
         embark: "Embarquer sur le pont"
-        embark_label: "Embarquer sur le pont, visiter le jeu sans compte"
+        embark_label: "Embarquer sur le pont, se connecter avec Steam"
       concept:
         label: "01 · Concept"
         title: "Chaque carte est un jeu Steam."
