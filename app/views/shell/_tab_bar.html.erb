@@ -1,39 +1,39 @@
-<%# The phone tab bar (DESIGN.md, Tab bar): five roots, each a pixel icon
-    over its label; the current one marked. PLUS opens the rest of the ship
-    (settings among its rows) and stays current on the screens of its
-    rows. ÉCHANGES carries the trades waiting for the player as an orange
-    badge at the icon's top right, hidden at zero, its
-    number in the tab's accessible name. A visitor sees every tab greyed
-    and disabled, as each leads to a player's page. Its links are locked
-    while the booster island opens or reveals (navigation-lock). Hidden
-    from 720px up. %>
+<%# The phone tab bar (DESIGN.md, Tab bar): each root a pixel icon over its
+    label, the current one marked. A player has five: PLUS opens the rest of
+    the ship (settings among its rows) and stays current on the screens of
+    its rows; ÉCHANGES carries the trades waiting for the player as an
+    orange badge at the icon's top right, hidden at zero, its number in the
+    tab's accessible name. A visitor has two, the landing and every card,
+    the latter current on a card's page too. Its links are locked while the
+    booster island opens or reveals (navigation-lock). Hidden from 720px
+    up. %>
 <% waiting = shell_trades_waiting %>
-<% tabs = [
-     [ :hub, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
-     [ :booster, "tab-booster", booster_path, controller_path == "boosters" ],
-     [ :collection, "tab-collection", library_path, %w[library cards].include?(controller_path) ],
-     [ :trades, "tab-trades", trades_path, controller_path == "trades" ],
-     [ :more, "tab-more", more_path, (controller_path == "pages" && %w[more how_it_works].include?(action_name)) || %w[settings friends feeds achievements].include?(controller_path) ]
-   ] %>
+<% tabs = if current_player
+     [
+       [ :hub, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
+       [ :booster, "tab-booster", booster_path, controller_path == "boosters" ],
+       [ :collection, "tab-collection", library_path, %w[library cards].include?(controller_path) ],
+       [ :trades, "tab-trades", trades_path, controller_path == "trades" ],
+       [ :more, "tab-more", more_path, (controller_path == "pages" && %w[more how_it_works].include?(action_name)) || %w[settings friends feeds achievements].include?(controller_path) ]
+     ]
+   else
+     [
+       [ :landing, "tab-hub", landing_path, controller_path == "landings" ],
+       [ :all_cards, "tab-collection", library_cards_path, (controller_path == "library" && action_name == "cards") || controller_path == "cards" ]
+     ]
+   end %>
 <nav class="tab-bar" aria-label="<%= t("shell.tabs.label") %>" data-controller="navigation-lock">
-  <ul class="tab-bar__list">
+  <%= tag.ul class: [ "tab-bar__list", ("tab-bar__list--visitor" unless current_player) ] do %>
     <% tabs.each do |key, icon, path, current| %>
       <li class="tab-bar__item">
-        <% if current_player %>
-          <%= link_to path, class: "tab-bar__tab", aria: { current: ("page" if current) }, data: { turbo_prefetch: false } do %>
-            <%= pixel_icon(icon, class: "tab-bar__icon") %>
-            <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
-            <% if key == :trades %>
-              <span id="tab-trades-badge" class="stream-slot"><%= render "shell/tab_trades_badge", waiting: %></span>
-            <% end %>
-          <% end %>
-        <% else %>
-          <%= tag.button type: :button, class: "tab-bar__tab", disabled: true do %>
-            <%= pixel_icon(icon, class: "tab-bar__icon") %>
-            <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
+        <%= link_to path, class: "tab-bar__tab", aria: { current: ("page" if current) }, data: { turbo_prefetch: false } do %>
+          <%= pixel_icon(icon, class: "tab-bar__icon") %>
+          <span class="tab-bar__label"><%= t("shell.tabs.#{key}") %></span>
+          <% if key == :trades %>
+            <span id="tab-trades-badge" class="stream-slot"><%= render "shell/tab_trades_badge", waiting: %></span>
           <% end %>
         <% end %>
       </li>
     <% end %>
-  </ul>
+  <% end %>
 </nav>

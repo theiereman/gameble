@@ -50,7 +50,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
   end
 
   test "a visitor's JSON request for a player's page answers 401 sign_in_required" do
-    get feed_path(locale: :en), headers: { "Accept" => "application/json" }
+    get home_path(locale: :en), headers: { "Accept" => "application/json" }
 
     assert_response :unauthorized
     assert_equal "sign_in_required", response.parsed_body.dig("error", "code")

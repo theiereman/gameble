@@ -92,13 +92,34 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select ".top-bar__start a[href='/en/landing']", false
   end
 
-  test "a visitor's tab bar shows its five tabs greyed and disabled" do
+  test "a visitor's tab bar has two links, the landing and every card, none disabled" do
     get library_cards_path(locale: :fr)
 
-    assert_select "nav.tab-bar ul.tab-bar__list > li.tab-bar__item > button.tab-bar__tab[type=button][disabled]", 5
-    assert_equal [ "Pont", "Capsule", "Collection", "Échanges", "Plus" ], css_select(".tab-bar__label").map(&:text)
-    assert_select ".tab-bar__tab svg.pixel-icon.tab-bar__icon", 5
-    assert_select ".tab-bar a, .tab-bar [aria-haspopup], .tab-bar [data-controller=dialog-opener]", false
+    assert_select "nav.tab-bar ul.tab-bar__list.tab-bar__list--visitor > li.tab-bar__item > a.tab-bar__tab", 2
+    assert_equal [ "Accueil", "Toutes les cartes" ], css_select(".tab-bar__label").map(&:text)
+    assert_select "a.tab-bar__tab[href='/fr/landing']:not([aria-current])", /Accueil/
+    assert_select "a.tab-bar__tab[href='/fr/library/cards'][aria-current=page]", /Toutes les cartes/
+    assert_select ".tab-bar__tab svg.pixel-icon.tab-bar__icon", 2
+    assert_select ".tab-bar button, .tab-bar [disabled], .tab-bar [aria-disabled]", false
+    assert_select "#tab-trades-badge", false
+  end
+
+  test "a visitor's every cards tab stays current on a card's detail; no tab is current on a profile or the feed" do
+    get library_cards_path(locale: :fr)
+    get css_select("main a[href*='/fr/cards/']").first["href"]
+    assert_response :success
+    assert_select "a.tab-bar__tab[href='/fr/library/cards'][aria-current=page]"
+
+    get card_season_path(locale: :fr, slug: "portal", number: 1, set_kind: "studio", set_key: "valve")
+    assert_select "a.tab-bar__tab[href='/fr/library/cards'][aria-current=page]"
+
+    get brother_path(locale: :fr, token: accounts_players(:player).token)
+    assert_select "a.tab-bar__tab", 2
+    assert_select "a.tab-bar__tab[aria-current]", false
+
+    get feed_path(locale: :fr)
+    assert_select "a.tab-bar__tab", 2
+    assert_select "a.tab-bar__tab[aria-current]", false
   end
 
   test "a signed-in player has no sign-in panel" do
@@ -246,7 +267,7 @@ class ShellTest < ActionDispatch::IntegrationTest
     assert_select "a.tab-bar__tab[href='/fr/library'][aria-current=page]", /Collection/
     assert_select "a.tab-bar__tab[href='/fr/more']:not([aria-current])", /Plus/
     assert_select "a.tab-bar__tab[href='/fr/trades']:not([aria-current])", /Échanges/
-    assert_select "span.tab-bar__tab[aria-disabled=true], button.tab-bar__tab", 0
+    assert_select "span.tab-bar__tab[aria-disabled=true], button.tab-bar__tab, .tab-bar__list--visitor", 0
     assert_select "nav.tab-bar[data-controller=navigation-lock]"
     assert_select ".top-bar__start[data-controller=navigation-lock]"
     assert_select ".tab-bar__tab svg.pixel-icon.tab-bar__icon", 5

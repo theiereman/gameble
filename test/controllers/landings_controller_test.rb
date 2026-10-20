@@ -157,8 +157,8 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "main a[href='#landing-open-source']", "Participer à l'écriture"
     assert_select "h2#landing-open-source[tabindex='-1']"
-    assert_select "main button.landing-live__open[type=button][disabled]", "Ouvrir le fil d'activité"
-    assert_select "main a[href='/fr/feed']", false
+    assert_select "main a.landing-live__open[href='/fr/feed']", "Ouvrir le fil d'activité"
+    assert_select "main button.landing-live__open", false
   end
 
   test "the footer follows the main landmark with the legal page, the donation page and the code" do

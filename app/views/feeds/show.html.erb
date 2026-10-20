@@ -1,12 +1,16 @@
 <% content_for :back_button, true %>
 <% content_for :title, t(".title") %>
 <% content_for :screen_title, t(".title") %>
-<% content_for :phone_back do %>
-  <%= link_to more_path, class: "button button--secondary button--small top-bar__phone-back" do %>
-    <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
+<% if current_player %>
+  <% content_for :phone_back do %>
+    <%= link_to more_path, class: "button button--secondary button--small top-bar__phone-back" do %>
+      <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= t(".more") %></span>
+    <% end %>
   <% end %>
 <% end %>
-<%# The activity feed: the All and Friends tabs, then the type filters (links, the chosen one current,
+<%# The activity feed, open to visitors: the All and Friends tabs (Friends
+    greyed and disabled for a visitor, who reads All and whose phone back
+    leads to the landing), then the type filters (links, the chosen one current,
     each keeping the other row's choice), then one row per entry, newest
     first: time, a sentence naming the player (a first discovery's behind
     its gold "First discovery" chip), the card's thumbnail and its
@@ -27,8 +31,12 @@
   <h1 id="feed-heading" class="feed__title"><%= t(".title") %></h1>
   <nav class="feed__tabs segmented" aria-label="<%= t(".tabs_label") %>">
     <%= link_to t(".tabs.all"), feed_path(filter: @filter), class: "feed__tab segmented__option", aria: { current: ("true" unless @tab) } %>
-    <%= link_to t(".tabs.friends"), feed_path(tab: "friends", filter: @filter), class: "feed__tab segmented__option",
-          aria: { current: ("true" if @tab == "friends") } %>
+    <% if current_player %>
+      <%= link_to t(".tabs.friends"), feed_path(tab: "friends", filter: @filter), class: "feed__tab segmented__option",
+            aria: { current: ("true" if @tab == "friends") } %>
+    <% else %>
+      <%= tag.button t(".tabs.friends"), type: :button, class: "feed__tab segmented__option", disabled: true %>
+    <% end %>
   </nav>
   <nav class="feed__filters segmented" aria-label="<%= t(".filters_label") %>">
     <% [ nil, *FeedsController::FILTERS.keys ].each do |filter| %>

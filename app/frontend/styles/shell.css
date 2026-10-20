@@ -709,6 +709,11 @@ body:has(> .ticker) .app-version {
   list-style: none;
 }
 
+/* A visitor's two tabs: the landing and every card. */
+.tab-bar__list--visitor {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .tab-bar__item {
   display: flex;
 }
@@ -727,14 +732,6 @@ body:has(> .ticker) .app-version {
   letter-spacing: var(--tracking-label);
   text-decoration: none;
   text-transform: uppercase;
-}
-
-/* A visitor's tabs are disabled buttons. */
-button.tab-bar__tab {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: none;
 }
 
 .tab-bar__badge {
@@ -772,11 +769,6 @@ button.tab-bar__tab {
   background: var(--color-panel-raised);
   color: var(--color-accent);
   box-shadow: inset 0 3px 0 0 var(--color-accent);
-}
-
-.tab-bar__tab[aria-disabled="true"],
-.tab-bar__tab:disabled {
-  opacity: 0.4;
 }
 
 .tab-bar__tab:focus-visible {

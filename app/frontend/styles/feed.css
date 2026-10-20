@@ -19,6 +19,15 @@
   text-transform: uppercase;
 }
 
+/* A visitor's Friends tab: greyed, as it needs an account. */
+.feed__tab:disabled,
+.feed__tab:disabled:hover {
+  background: var(--color-disabled-bg);
+  box-shadow: var(--control-border);
+  color: var(--color-disabled-text);
+  cursor: not-allowed;
+}
+
 /* The five filters wrap on a narrow phone, spaced rather than joined. */
 .feed__filters {
   flex-wrap: wrap;

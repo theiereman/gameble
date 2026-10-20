@@ -9,7 +9,7 @@
         <%= render "shell/live_marker" %>
       </p>
       <p class="landing-live__empty"><%= t("landings.show.live.empty") %></p>
-      <%= tag.button t("landings.show.live.open_feed"), type: :button, class: "button button--link landing-live__open", disabled: true %>
+      <%= link_to t("landings.show.live.open_feed"), feed_path, class: "button button--link landing-live__open" %>
     <% end %>
     <%= render PanelComponent.new(brackets: true, class: "landing-season") do %>
       <p class="landing-kicker"><%= t("landings.show.live.season") %></p>

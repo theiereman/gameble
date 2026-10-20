@@ -55,6 +55,8 @@ fr:
       collection: "Collection"
       trades: "Échanges"
       more: "Plus"
+      landing: "Accueil"
+      all_cards: "Toutes les cartes"
       trades_waiting:
         zero: "%{number} échange en attente de vous"
         one: "%{number} échange en attente de vous"

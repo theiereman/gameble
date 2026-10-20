@@ -55,6 +55,8 @@ en:
       collection: "Collection"
       trades: "Trades"
       more: "More"
+      landing: "Home"
+      all_cards: "All cards"
       trades_waiting:
         one: "%{number} trade waiting for you"
         other: "%{number} trades waiting for you"

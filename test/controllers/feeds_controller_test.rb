@@ -4,10 +4,10 @@ require_relative "../support/game_trades"
 require_relative "../support/game_sets"
 require_relative "../support/steam_sign_in"
 
-# The activity feed, a player's page: newest pulls and first discoveries
-# first, under the All and Friends tabs and the type filters; a GET writes
-# nothing. Each test reads it as a stranger to every player it shows,
-# unless it signs one of them in.
+# The activity feed, readable without an account: newest pulls and first
+# discoveries first, under the All and Friends tabs (Friends a player's)
+# and the type filters; a GET writes nothing. Each test reads it as a
+# stranger to every player it shows, unless it signs one of them in.
 class FeedsControllerTest < ActionDispatch::IntegrationTest
   include GamePacks
   include GameTrades
@@ -335,14 +335,61 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".feed__empty", "Nothing here yet."
   end
 
-  test "a visitor is sent to the landing, whatever the tab or the filter" do
+  test "a visitor reads All with its filters and its live stream, filtered by visibility as anyone's" do
+    open_epic
+    hidden = accounts_players(:administrator).tap { it.update!(persona_name: "Léa", visibility: :private) }
+    open_epic(hidden)
+    reset!
+
+    get feed_path(locale: :fr)
+
+    assert_response :success
+    assert_select "main h1", "Fil d'activité"
+    assert_equal %w[Hugo], names
+    assert_select ".feed__tab[aria-current]", "Tous"
+    assert_equal %w[live:fr], stream_names
+    assert_select "ul#feed-entries"
+
+    get feed_path(locale: :en, filter: "pulls")
+
+    assert_response :success
+    assert_select ".feed__filter[aria-current]", "Pulls"
+    assert_select ".feed__entry", 5
+    assert_equal %w[Hugo], names
+  end
+
+  test "a visitor's Friends tab is greyed and disabled; a friends query reads All" do
+    open_epic
     reset!
 
     get feed_path(locale: :fr, tab: "friends", filter: "pulls")
 
-    assert_redirected_to landing_path(locale: :fr)
-    assert_response :see_other
-    assert_nil flash[:alert]
+    assert_response :success
+    assert_select ".feed__tab[aria-current]", count: 1, text: "Tous"
+    assert_select "button.feed__tab.segmented__option[type=button][disabled]", "Amis"
+    assert_select "a.feed__tab", count: 1
+    assert_select "a[href*='tab=friends']", false
+    assert_select "a[href$='/friends']", false
+    assert_select ".feed__no-friends", false
+    assert_select ".feed__entry", 5
+    assert_select ".feed__filter[href=?]", feed_path(locale: :fr, filter: "trades")
+  end
+
+  test "a visitor's back leads to the landing, not to PLUS; a player's leads to PLUS" do
+    reset!
+
+    get feed_path(locale: :fr)
+
+    assert_select ".top-bar__phone-back", false
+    assert_select ".top-bar__start > a.top-bar__bridge[href='/fr/landing']"
+    assert_select "a[href='/fr/more']", false
+
+    sign_in(@player)
+    get feed_path(locale: :fr)
+
+    assert_select "a.top-bar__phone-back[href='/fr/more']"
+    assert_select "a.feed__tab[href=?]", feed_path(locale: :fr, tab: "friends"), text: "Amis"
+    assert_select "button.feed__tab", false
   end
 
   test "an unknown tab is All" do
