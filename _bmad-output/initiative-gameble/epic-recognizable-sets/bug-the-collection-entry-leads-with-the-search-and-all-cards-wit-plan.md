@@ -3,7 +3,7 @@ title: 'The collection entry leads with the search and all cards, without À DÉ
 type: 'bugfix'
 ticket: '18'
 created: '2026-10-20'
-status: 'built'
+status: done
 baseline_revision: 'f6183872d091ffd58b61ba16a6d2a6b564e769af'
 route: 'oneshot'
 route_source: 'auto'
