@@ -1,6 +1,7 @@
 <% status = query.present? ? t("library.entry.found", count: results_count) : "" %>
 <div class="set-entry" data-controller="last-album" data-action="turbo:frame-load->last-album#mark">
   <%= render "library/set_search", query:, status:, search_url:, all_cards_url: %>
+  <%= render "library/set_results", results:, query:, status:, set_url: %>
   <% if in_progress.any? %>
     <section class="set-entry__section" aria-labelledby="set-entry-in-progress-title">
       <h2 id="set-entry-in-progress-title" class="set-entry__title"><%= t("library.entry.in_progress") %></h2>
@@ -13,5 +14,4 @@
   <% else %>
     <p class="set-entry__empty"><%= t("library.entry.no_progress") %></p>
   <% end %>
-  <%= render "library/set_results", results:, query:, status:, set_url: %>
 </div>

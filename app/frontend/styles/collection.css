@@ -49,6 +49,10 @@
   margin-inline: auto;
 }
 
+.set-entry > turbo-frame {
+  display: contents;
+}
+
 .set-entry__section,
 .set-search {
   display: flex;

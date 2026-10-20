@@ -952,6 +952,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select ".set-search ~ p.set-entry__empty", "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
     assert_select ".set-entry .set-row", false
 
+    get library_path(locale: :fr, q: "souls")
+    assert_select ".set-search + turbo-frame#set-search-results + p.set-entry__empty"
+
     delete session_path(locale: :fr)
     get library_path(locale: :en)
     assert_equal [ "Find a set" ], css_select(".set-entry h2").map(&:text)
@@ -1017,8 +1020,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       end
       assert_select ".set-search__row ~ p.set-search__status[role=status]", "1 set trouvé"
     end
-    assert_equal [ "Chercher un set", "En cours", "Résultats" ], css_select(".set-entry h2").map(&:text)
-    assert_select ".set-entry > .set-entry__section ~ turbo-frame#set-search-results"
+    assert_equal [ "Chercher un set", "Résultats", "En cours" ], css_select(".set-entry h2").map(&:text)
+    assert_select ".set-entry > .set-search + turbo-frame#set-search-results + .set-entry__section"
     assert_select "#set-search-title", "Chercher un set"
     assert_select "turbo-frame#set-search-results[target=_top]" do
       assert_select "[data-set-search-summary][hidden]", "1 set trouvé"
