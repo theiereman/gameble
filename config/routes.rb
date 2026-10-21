@@ -119,6 +119,7 @@ Rails.application.routes.draw do
     # The phone's PLUS tab: the rest of the ship.
     get "more" => "pages#more", as: :more
     get "legal" => "pages#legal", as: :legal
+    get "credits" => "pages#credits", as: :credits
     # The rules of the game, readable signed out.
     get "how-it-works" => "pages#how_it_works", as: :how_it_works
 

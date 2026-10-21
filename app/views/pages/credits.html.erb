@@ -1,0 +1,18 @@
+<% content_for :back_button, true %>
+<% content_for :title, t(".title") %>
+<% content_for :screen_title, t(".title") %>
+<article class="legal credits" aria-labelledby="credits-heading">
+  <h1 id="credits-heading" class="legal__title"><%= t(".title") %></h1>
+
+  <%= render PanelComponent.new(tag: :section, class: "legal__section", aria: { label: t(".list_label") }) do %>
+    <p class="credits__intro"><%= t(".intro") %></p>
+    <ul class="legal__list credits__list">
+      <% %w[wikimasters helldivers balatro_dead_cells hearthstone].each do |work| %>
+        <li class="credits__work">
+          <strong class="credits__name"><%= t(".#{work}.name") %></strong>
+          <span class="credits__inspired"><%= t(".#{work}.inspired") %></span>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</article>

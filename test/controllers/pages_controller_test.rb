@@ -726,6 +726,32 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select "[style]", 0
   end
 
+  test "a visitor reads the French credits page: the four inspirations, the no-affiliation line, linked from the legal page" do
+    configure_legal
+
+    get credits_path(locale: :fr)
+
+    assert_response :success
+    assert_select "html[lang=fr]"
+    assert_select "main h1#credits-heading", "Crédits"
+    assert_select ".credits__intro", /jamais des affiliations/
+    assert_equal [ "WikiMasters", "Helldivers 2", "Balatro et Dead Cells", "Hearthstone" ], css_select(".credits__name").map(&:text)
+    assert_select "[style]", 0
+
+    get legal_path(locale: :fr)
+
+    assert_select "a.legal__link[href=?]", "/fr/credits", "Crédits"
+  end
+
+  test "the English credits page names Helldivers 2 and not Steam" do
+    get credits_path(locale: :en)
+
+    assert_response :success
+    assert_select "main h1#credits-heading", "Credits"
+    assert_select ".credits__work", text: /Helldivers 2/
+    assert_select ".credits__work", text: /Steam|Valve/, count: 0
+  end
+
   test "a signed-in player reads the English legal page" do
     configure_legal
     sign_in(@player)

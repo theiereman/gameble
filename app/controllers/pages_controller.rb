@@ -39,9 +39,13 @@ class PagesController < ApplicationController
     authorize :page, :show?
   end
 
+  def credits
+    authorize :page, :show?
+  end
+
   private
     def public_read?
-      action_name == "legal" && (request.get? || request.head?)
+      %w[legal credits].include?(action_name) && (request.get? || request.head?)
     end
 
     # The first card the player chose for their profile showcase, else the

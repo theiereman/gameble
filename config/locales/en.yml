@@ -150,6 +150,22 @@ en:
       title: "More"
       subtitle: "The rest of the ship"
       settings: "Profile and settings"
+    credits:
+      title: "Credits"
+      intro: "gameble draws on the works below. They are inspirations, never affiliations: none of them has anything to do with gameble or endorses it."
+      list_label: "Inspirations"
+      wikimasters:
+        name: "WikiMasters"
+        inspired: "The loop of collecting cards and showing them off."
+      helldivers:
+        name: "Helldivers 2"
+        inspired: "The panels, the readouts and the mock-solemn tone."
+      balatro_dead_cells:
+        name: "Balatro and Dead Cells"
+        inspired: "Fine pixel art laid over detailed material."
+      hearthstone:
+        name: "Hearthstone"
+        inspired: "The structure of ornamental card backs: frame, medallion and corners."
     legal:
       title: "Legal notice and privacy"
       updated: "Last updated: 20 October 2026"
@@ -231,6 +247,7 @@ en:
         title: "Source code"
         text: "gameble's code is free software under the GNU AGPL v3.0 license. Its pixel art is under the Creative Commons BY-NC-SA 4.0 license: reusable with credit, never for a commercial purpose. The gameble name and logo remain reserved."
         link: "Source code"
+      credits_link: "Credits"
       support:
         title: "Support gameble"
         text: "gameble is free and will stay free. If you enjoy the game, you can help pay for its hosting. Donations are optional and give no advantage in the game. They go through Buy Me a Coffee, under its own terms. The publisher receives whatever you choose to enter there (name, message)."
@@ -1603,6 +1620,7 @@ en:
       footer:
         how_it_works: "How it works"
         legal: "Legal notice"
+        credits: "Credits"
         support: "Support"
         source: "Source code"
         source_hint: "(GitHub, new tab)"

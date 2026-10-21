@@ -124,4 +124,6 @@
     <p><%= t(".support.text") %></p>
     <%= donation_link_to t(".support.link"), class: "button button--secondary button--small legal__donation" %>
   <% end %>
+
+  <p class="legal__credits"><%= link_to t(".credits_link"), credits_path, class: "legal__link" %></p>
 </article>
