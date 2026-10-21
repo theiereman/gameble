@@ -5,10 +5,16 @@ module Steam
   # allows one pending or running run at a time. Addressed in URLs by a random
   # token, never by its id (AD-15).
   #
-  # A failed run is resumed (Steam::ResumeImport) or, while it is the latest
-  # and has written no card in its current pass, abandoned
-  # (Steam::AbandonImport): an abandoned run is finished for good and blocks
-  # no new run; Steam::UnfinishedImportRun skips it.
+  # A run that ends its cards pass is `ready`: its cards wait, staged beside
+  # the draft season (Catalog::StagedCardSeason, keyed by the run's token),
+  # for the administrator to promote them (Steam::PromoteImport, status
+  # `promoted`) or discard them (Steam::DiscardImport). One run waits at a
+  # time; while it does, no run starts and no season is published.
+  #
+  # A failed run is resumed (Steam::ResumeImport) or, while it is the latest,
+  # abandoned (Steam::AbandonImport), which deletes its staged cards: an
+  # abandoned run is finished for good and blocks no new run;
+  # Steam::UnfinishedImportRun skips it.
   #
   # Written only through the operations of this pack (AD-3).
   class ImportRun < ApplicationRecord
@@ -26,7 +32,8 @@ module Steam
 
     has_secure_token :token
 
-    enum :status, { pending: "pending", running: "running", completed: "completed", failed: "failed", abandoned: "abandoned" },
+    enum :status, { pending: "pending", running: "running", completed: "completed", failed: "failed", abandoned: "abandoned",
+      ready: "ready", promoted: "promoted" },
       default: :pending, validate: true
 
     has_many :apps, class_name: "Steam::App", inverse_of: :import_run, dependent: nil
@@ -104,19 +111,19 @@ module Steam
       count_of("apps_excluded_details")
     end
 
-    # Cards the cards step wrote into the draft season, and those it refused.
+    # The number of the draft season the run began on (Catalog::DraftSeasonNumber):
+    # its staged cards are promoted into that season only.
+    def season_number
+      count_of("season_number")
+    end
+
+    # Cards the cards step staged for the draft season, and those it refused.
     def cards_written
       count_of("cards_written")
     end
 
     def cards_refused
       count_of("cards_refused")
-    end
-
-    # Cards the end of the cards pass removed from the draft season: those
-    # an earlier pass wrote and this one did not.
-    def cards_removed
-      count_of("cards_removed")
     end
 
     def count_of(name)

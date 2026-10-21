@@ -1,25 +1,24 @@
 module Steam
-  # Reopens the latest completed import run on its cards step, cursor 0, and
-  # enqueues its first page (AD-19; story 2.8): the cards step writes every
-  # game the run carried through again, so a change of Steam::PrestigeScore
-  # or of the theme list (Catalog::Themes) rewrites the draft's scores and
-  # genres without calling Steam. The run's card counts start again from 0
-  # and its card marks (Steam::App.carded_by) are cleared, so the end of the
-  # pass keeps in the draft only the cards this pass writes: a card it now
-  # refuses leaves the draft. Its errors are kept. Once the last page is
-  # written, the run completes again.
+  # Reopens the latest completed or promoted import run on its cards step,
+  # cursor 0, and enqueues its first page: the cards step stages
+  # every game the run carried through again, so a change of
+  # Steam::PrestigeScore or of the theme list (Catalog::Themes) gives a new
+  # batch to review and promote like an import, without calling Steam and
+  # without editing the draft. The run's card counts start again from 0 and
+  # it begins on the current draft season (season_number). Its errors are
+  # kept. Once the last page is staged, the run is ready again.
   #
-  # Refused unless the run is the latest and completed, once its cards are
-  # published (no draft season, or a season published since the run
-  # finished: a run never spans two seasons), and while another run is
-  # active, or once the run is abandoned (not_completed). While the run is on
-  # its cards step again, the seasons page refuses to publish
-  # (Steam::UnfinishedImportRun).
+  # Refused unless the run is the latest and completed or promoted, once its
+  # cards are published (no draft season, or a season published since the
+  # run finished: a run never spans two seasons), while a run waits for
+  # promotion (run_awaiting_promotion) or another run is active, and once
+  # the run is abandoned (not_completed). While the run is on its cards step
+  # again, the seasons page refuses to publish (Steam::UnfinishedImportRun).
   #
   #   Steam::RescoreCards.new.call(import_run_id: run.id)
   #   # => Success(run) | Failure(:not_found) | Failure(:not_latest)
   #   #    | Failure(:not_completed) | Failure(:already_published)
-  #   #    | Failure(:run_in_progress)
+  #   #    | Failure(:run_in_progress) | Failure(:run_awaiting_promotion)
   class RescoreCards < ApplicationOperation
     STEP = "cards".freeze
 
@@ -27,6 +26,7 @@ module Steam
       run = transaction do
         run = step lock_run(import_run_id)
         step require_rescorable(run)
+        step refuse_awaiting_run
         step refuse_active_run
         step reopen(run)
         step publish(CardsRescoreStarted.new(data: { import_run_id: run.id }), stream_name: ImportRun.stream_name(run.id))
@@ -41,7 +41,8 @@ module Steam
     # only when nil. Leaves out the active-run check, made under the lock.
     def self.refusal(run)
       return :not_latest unless LatestImportRun.call == run
-      return :not_completed unless run.completed?
+      return :run_awaiting_promotion if run.ready?
+      return :not_completed unless run.completed? || run.promoted?
 
       published = Catalog::PublishedSeason.call
       :already_published if Catalog::DraftSeason.call.nil? ||
@@ -60,6 +61,10 @@ module Steam
       code ? Failure(code) : Success(run)
     end
 
+    def refuse_awaiting_run
+      ImportRun.ready.exists? ? Failure(:run_awaiting_promotion) : Success()
+    end
+
     def refuse_active_run
       ImportRun.active.exists? ? Failure(:run_in_progress) : Success()
     end
@@ -69,8 +74,7 @@ module Steam
     def reopen(run)
       ImportRun.transaction(requires_new: true) do
         run.update!(status: :running, step: STEP, cursor: ImportRun.cursor_for(STEP), finished_at: nil,
-          counts: run.counts.merge("cards_written" => 0, "cards_refused" => 0, "cards_removed" => 0))
-        App.carded_by(run).update_all(carded_run_id: nil, updated_at: Time.current)
+          counts: run.counts.merge("rescored_from" => run.status, "cards_written" => 0, "cards_refused" => 0, "season_number" => Catalog::DraftSeasonNumber.call))
       end
       Success(run)
     rescue ActiveRecord::RecordNotUnique

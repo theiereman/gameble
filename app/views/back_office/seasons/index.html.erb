@@ -61,9 +61,9 @@
       <%= render "preview", panel: @preview, heading: t("back_office.seasons.preview.heading", number: draft.number), intro: t("back_office.seasons.preview.intro") %>
     <% end %>
 
-    <% if @import_unfinished %>
+    <% if @unfinished_import %>
       <%= render PanelComponent.new(tag: :p) do %>
-        <%= t("back_office.seasons.publish.import_active") %>
+        <%= @unfinished_import.ready? ? t("back_office.seasons.publish.import_awaiting_promotion") : t("back_office.seasons.publish.import_active") %>
       <% end %>
     <% end %>
     <p>

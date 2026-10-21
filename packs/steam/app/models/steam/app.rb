@@ -11,17 +11,14 @@ module Steam
   # details in English and French, the run that detailed them
   # (details_run_id) and its verdict, details_exclusion (one of
   # Steam::DetailsPolicy::EXCLUSIONS, NULL when the game can become a card).
-  # Steam::ImportCardsPage writes the apps ready by the run into the draft
-  # season as cards (Steam::CardMapping), their genres derived from their
-  # tags (Catalog::Themes), and marks each app whose card it wrote with the
-  # run (carded_run_id); the end of the cards pass keeps only those cards in
-  # the draft. A rescore (Steam::RescoreCards) clears the run's marks first.
+  # Steam::ImportCardsPage writes the apps ready by the run as cards
+  # (Steam::CardMapping), their genres derived from their tags
+  # (Catalog::Themes), and stages their season scores beside the draft.
   class App < ApplicationRecord
     self.table_name = "steam_apps"
 
     belongs_to :import_run, class_name: "Steam::ImportRun", inverse_of: :apps
     belongs_to :reviewed_run, class_name: "Steam::ImportRun", optional: true
-    belongs_to :carded_run, class_name: "Steam::ImportRun", optional: true
 
     STORE_URL_BASE = "https://store.steampowered.com/".freeze
 
@@ -36,9 +33,6 @@ module Steam
     # exclusion): each holds what a draft card needs (English title, release
     # date, image and store URL).
     scope :ready_by, ->(run) { kept_by(run).where(details_run_id: run.id, details_exclusion: nil) }
-
-    # The apps whose card the run's current cards pass wrote into the draft.
-    scope :carded_by, ->(run) { where(carded_run_id: run.id) }
 
     # The app's page on the Steam store: its store path, or app/<appid>/
     # when it has none.

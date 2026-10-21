@@ -3,12 +3,14 @@ module BackOffice
   # runs, starting one, watching one, resuming a failed one from its cursor
   # or abandoning the latest failed one, and rescoring the latest completed
   # one (its cards step again, after a change of the prestige formula). A
+  # finished run waits for the administrator to review its staged cards on its
+  # page and promote them into the draft season, or discard them. A
   # run's page reloads its frame every few seconds while the run is active
   # (poller_controller.ts). Runs are addressed by their token (AD-15).
   class ImportRunsController < BaseController
-    rate_limit to: 10, within: 1.minute, only: %i[create resume rescore abandon]
+    rate_limit to: 10, within: 1.minute, only: %i[create resume rescore abandon promote discard]
 
-    before_action :set_import_run, only: %i[show resume rescore abandon]
+    before_action :set_import_run, only: %i[show resume rescore abandon promote discard]
 
     def index
       authorize [ :back_office, :import_runs ], :index?
@@ -20,6 +22,7 @@ module BackOffice
       @resumable = Steam::ResumeImport.refusal(@import_run).nil?
       @rescorable = Steam::RescoreCards.refusal(@import_run).nil?
       @abandon_refusal = Steam::AbandonImport.refusal(@import_run)
+      @review = Catalog::StagedBatchReview.call(@import_run.token) if @import_run.ready?
     end
 
     def create
@@ -64,6 +67,28 @@ module BackOffice
         redirect_to back_office_import_run_path(@import_run), notice: t(".abandoned")
       else
         redirect_to back_office_import_run_path(@import_run), alert: Steam::AbandonImport.failure_message(result.failure)
+      end
+    end
+
+    def promote
+      authorize [ :back_office, :import_runs ], :promote?
+
+      result = Steam::PromoteImport.new.call(import_run_id: @import_run.id)
+      if result.success?
+        redirect_to back_office_import_run_path(@import_run), notice: t(".promoted")
+      else
+        redirect_to back_office_import_run_path(@import_run), alert: Steam::PromoteImport.failure_message(result.failure)
+      end
+    end
+
+    def discard
+      authorize [ :back_office, :import_runs ], :discard?
+
+      result = Steam::DiscardImport.new.call(import_run_id: @import_run.id)
+      if result.success?
+        redirect_to back_office_import_run_path(@import_run), notice: t(".discarded")
+      else
+        redirect_to back_office_import_run_path(@import_run), alert: Steam::DiscardImport.failure_message(result.failure)
       end
     end
 

@@ -29,6 +29,7 @@ class Steam::FillCardSourcesTaskTest < ActiveSupport::TestCase
         details: details("Studio &amp; #{appid}", "Series #{appid}") }
     end)
     Steam::ImportCardsPage.new.call(import_run_id: run.id, cursor: run.reload.cursor)
+    Catalog::PromoteStagedBatch.new.call(batch_token: run.token, season_number: Catalog::DraftSeasonNumber.call).value!
     Catalog::Card.where("source_key LIKE 'steam:%'").update_all(developers: [], franchises: [])
     Catalog::CardSeason.update_all(review_count: nil)
   end

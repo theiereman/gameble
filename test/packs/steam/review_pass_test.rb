@@ -54,19 +54,19 @@ class Steam::ReviewPassTest < ActiveSupport::TestCase
     assert_equal "tags", run.step
   end
 
-  test "finishing the last step completes the run" do
+  test "finishing the last step readies the run for promotion" do
     run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 70 }, started_at: 1.minute.ago)
 
     result = Steam::FinishImportStep.new.call(import_run: run)
 
     assert_same run, result.value!
     run.reload
-    assert_predicate run, :completed?
+    assert_predicate run, :ready?
     assert_predicate run.finished_at, :present?
     assert_equal "cards", run.step
     assert_equal [ Steam::ImportStepFinished, Steam::ImportRunFinished ], events_of(run).map(&:class)
     assert_equal({ import_run_id: run.id, step: "cards" }, events_of(run).first.data)
-    assert_equal({ import_run_id: run.id, status: "completed" }, events_of(run).last.data)
+    assert_equal({ import_run_id: run.id, status: "ready" }, events_of(run).last.data)
   end
 
   test "finishing a step of a run that is not running fails with not_running" do

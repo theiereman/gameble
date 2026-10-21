@@ -39,7 +39,7 @@ class Steam::GenresStepMigrationTest < ActiveSupport::TestCase
     assert_equal [ "cards", { "step" => "cards", "last_appid" => 30 } ], [ other.reload.step, other.cursor ]
   end
 
-  test "a resumed legacy run writes its cards and completes" do
+  test "a resumed legacy run stages its cards and is ready" do
     run = legacy_run
     ready(run, 10, 20)
     Steam::Tag.insert_all([ { tagid: 1664, name: "Puzzle" } ])
@@ -48,7 +48,7 @@ class Steam::GenresStepMigrationTest < ActiveSupport::TestCase
     perform_enqueued_jobs { assert Steam::ResumeImport.new.call(import_run_id: run.id).success? }
 
     run.reload
-    assert_predicate run, :completed?
+    assert_predicate run, :ready?
     assert_equal 2, run.cards_written
     assert_equal [ %w[puzzle] ] * 2, Catalog::Card.where(source_key: %w[steam:10 steam:20]).pluck(:genres)
   end

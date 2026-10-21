@@ -28,11 +28,22 @@ module Catalog
     ].freeze
 
     def self.call(season_id)
-      CardSeason.where(season_id:).joins(:card).joins(ENGLISH_TEXT).order(:id).pluck(*COLUMNS)
+      of(CardSeason.where(season_id:))
+    end
+
+    # The rows of a staged batch, in the same shape as a season's: `id` is
+    # the staged row's.
+    def self.staged(batch_token)
+      of(StagedCardSeason.where(batch_token:))
+    end
+
+    def self.of(card_seasons)
+      card_seasons.joins(:card).joins(ENGLISH_TEXT).order(:id).pluck(*COLUMNS)
         .map do |id, card_id, prestige_score, prestige_score_version, rating, release_date, genres, title, developers, franchises, publisher, review_count|
           Row.new(id:, card_id:, prestige_score:, prestige_score_version:, rating:, release_date:, genres:,
             title:, developers:, franchises:, publisher:, review_count:)
         end
     end
+    private_class_method :of
   end
 end

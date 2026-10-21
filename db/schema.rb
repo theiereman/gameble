@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_20_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_21_100003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -192,6 +192,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_130000) do
     t.jsonb "params", default: {}, null: false
     t.index ["season_id", "kind", "key"], name: "index_catalog_sets_on_season_id_and_kind_and_key", unique: true
     t.check_constraint "kind::text = 'theme'::text OR kind::text = 'franchise'::text OR kind::text = 'studio'::text OR kind::text = 'hall_of_fame'::text OR kind::text = 'ufo'::text", name: "catalog_sets_kind_check"
+  end
+
+  create_table "catalog_staged_card_seasons", force: :cascade do |t|
+    t.string "batch_token", null: false
+    t.bigint "card_id", null: false
+    t.float "prestige_score", null: false
+    t.integer "prestige_score_version", limit: 2
+    t.decimal "rating", precision: 5, scale: 2, null: false
+    t.integer "review_count"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["batch_token", "card_id"], name: "index_catalog_staged_card_seasons_on_batch_token_and_card_id", unique: true
+    t.index ["card_id"], name: "index_catalog_staged_card_seasons_on_card_id"
+    t.check_constraint "rating >= 0::numeric AND rating <= 100::numeric", name: "catalog_staged_card_seasons_rating_check"
+    t.check_constraint "review_count IS NULL OR review_count >= 1", name: "catalog_staged_card_seasons_review_count_check"
   end
 
   create_table "event_store_events", force: :cascade do |t|
@@ -507,9 +522,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_130000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index "(true)", name: "index_steam_import_runs_one_active", unique: true, where: "(((status)::text = 'pending'::text) OR ((status)::text = 'running'::text))"
+    t.index "(true)", name: "index_steam_import_runs_one_ready", unique: true, where: "((status)::text = 'ready'::text)"
     t.index ["created_at"], name: "index_steam_import_runs_on_created_at"
     t.index ["token"], name: "index_steam_import_runs_on_token", unique: true
-    t.check_constraint "status::text = 'pending'::text OR status::text = 'running'::text OR status::text = 'completed'::text OR status::text = 'failed'::text OR status::text = 'abandoned'::text", name: "steam_import_runs_status_check"
+    t.check_constraint "status::text = 'pending'::text OR status::text = 'running'::text OR status::text = 'completed'::text OR status::text = 'failed'::text OR status::text = 'abandoned'::text OR status::text = 'ready'::text OR status::text = 'promoted'::text", name: "steam_import_runs_status_check"
   end
 
   create_table "steam_tags", force: :cascade do |t|
@@ -533,6 +549,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_20_130000) do
   add_foreign_key "catalog_set_memberships", "catalog_sets", column: "set_id"
   add_foreign_key "catalog_set_tiers", "catalog_sets", column: "set_id"
   add_foreign_key "catalog_sets", "catalog_seasons", column: "season_id"
+  add_foreign_key "catalog_staged_card_seasons", "catalog_cards", column: "card_id"
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
   add_foreign_key "game_achievement_unlocks", "accounts_players", column: "player_id"
   add_foreign_key "game_daily_bonus_claims", "accounts_players", column: "player_id"

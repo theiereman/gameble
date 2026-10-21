@@ -49,7 +49,7 @@ class SteamRecoverStalledImportsJobTest < ActiveJob::TestCase
     perform_enqueued_jobs { Steam::RecoverStalledImportsJob.perform_now }
 
     run.reload
-    assert_predicate run, :completed?
+    assert_predicate run, :ready?
     assert_equal 3, run.apps_listed
     assert_equal 3, run.apps_kept
     assert_equal [ 10, 20, 30 ], Steam::App.order(:appid).pluck(:appid)
@@ -64,7 +64,7 @@ class SteamRecoverStalledImportsJobTest < ActiveJob::TestCase
     lost_cursor = run.cursor
 
     perform_enqueued_jobs { Steam::RecoverStalledImportsJob.perform_now }
-    assert_predicate run.reload, :completed?
+    assert_predicate run.reload, :ready?
 
     assert_no_enqueued_jobs { Steam::ImportStepJob.perform_now(run.id, lost_cursor) }
     assert_equal 2 + 2, run.reload.apps_listed

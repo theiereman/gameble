@@ -37,11 +37,6 @@
           <dd data-import-run-cards-written="<%= @import_run.cards_written %>"><%= number_with_delimiter(@import_run.cards_written) %></dd>
           <dt><%= t(".cards_refused") %></dt>
           <dd data-import-run-cards-refused="<%= @import_run.cards_refused %>"><%= number_with_delimiter(@import_run.cards_refused) %></dd>
-          <% if @import_run.completed? %>
-            <%# Counted when the pass ends, so only once the run completed. %>
-            <dt><%= t(".cards_removed") %></dt>
-            <dd data-import-run-cards-removed="<%= @import_run.cards_removed %>"><%= number_with_delimiter(@import_run.cards_removed) %></dd>
-          <% end %>
         <% end %>
         <dt><%= t(".cursor") %></dt>
         <dd><%= @import_run.last_appid %></dd>
@@ -50,6 +45,52 @@
         <dt><%= t(".finished_at") %></dt>
         <dd><%= render "back_office/import_runs/time", time: @import_run.finished_at %></dd>
       </dl>
+
+      <% if @review %>
+        <section class="stack" aria-labelledby="import-run-review" data-import-run-review>
+          <h2 id="import-run-review"><%= t(".review_heading") %></h2>
+          <%= render PanelComponent.new(tag: :p) do %><%= t(".review_intro") %><% end %>
+          <table class="ledger">
+            <caption class="visually-hidden"><%= t(".review_gap_caption") %></caption>
+            <tbody>
+              <% { staged: @review.staged_count, draft: @review.draft_count, added: @review.added, removed: @review.removed, rescored: @review.rescored }.each do |name, count| %>
+                <tr>
+                  <th scope="row"><%= t(".#{name}_cards") %></th>
+                  <td data-import-run-review-<%= name %>="<%= count %>"><%= number_with_delimiter(count) %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+          <% if @review.draft_panel&.tiers %>
+            <h3><%= t(".draft_spread") %></h3>
+            <table class="ledger">
+              <caption class="visually-hidden"><%= t(".draft_spread_caption") %></caption>
+              <thead>
+                <tr>
+                  <th scope="col"><%= t(".tier") %></th>
+                  <th scope="col"><%= t(".cards") %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @review.draft_panel.tiers.each do |tier| %>
+                  <% name = Catalog::Rarity::TIERS.fetch(tier.tier) %>
+                  <tr>
+                    <th scope="row"><%= t("catalog.rarity.#{name}") %></th>
+                    <td data-import-run-review-draft-tier="<%= name %>"><%= number_with_delimiter(tier.card_count) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          <% end %>
+          <%= render "back_office/seasons/preview", panel: @review.panel, heading: t(".preview_heading"), intro: t(".preview_intro") %>
+          <p>
+            <%= render ButtonComponent.new(variant: :primary, href: promote_back_office_import_run_path(@import_run), method: :post,
+                  confirm: t(".promote_confirm")) do %><%= t(".promote") %><% end %>
+            <%= render ButtonComponent.new(variant: :secondary, href: discard_back_office_import_run_path(@import_run), method: :post,
+                  confirm: t(".discard_confirm")) do %><%= t(".discard") %><% end %>
+          </p>
+        </section>
+      <% end %>
 
       <% if @resumable %>
         <p>
@@ -80,10 +121,6 @@
           <%= render ButtonComponent.new(variant: :secondary, href: abandon_back_office_import_run_path(@import_run), method: :post,
                 confirm: t(".abandon_confirm")) do %><%= t(".abandon") %><% end %>
         </p>
-      <% elsif @abandon_refusal == :cards_written %>
-        <%= render PanelComponent.new(tag: :p) do %>
-          <%= t(".cards_written_note") %>
-        <% end %>
       <% end %>
     </div>
   <% end %>

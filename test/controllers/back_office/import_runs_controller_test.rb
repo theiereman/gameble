@@ -135,7 +135,7 @@ module BackOffice
       perform_enqueued_jobs { post back_office_import_runs_path(locale: :fr) }
 
       run = Steam::ImportRun.sole
-      assert_predicate run, :completed?
+      assert_predicate run, :ready?
       assert_equal [ 10, 30, 60 ], Steam::App.kept_by(run).order(:appid).pluck(:appid)
       assert_equal({ 20 => "too_few_reviews", 40 => "too_few_reviews", 50 => "unavailable" },
         Steam::App.where.not(review_exclusion: nil).order(:appid).pluck(:appid, :review_exclusion).to_h)
@@ -156,7 +156,7 @@ module BackOffice
 
       get back_office_import_run_path(run, locale: :fr)
 
-      assert_select "[data-import-run-status=completed]", "Terminé"
+      assert_select "[data-import-run-status=ready]", "En attente de promotion"
       assert_select "[data-import-run-step=cards]", /Inscription des cartes/
       assert_select "[data-import-run-apps-listed='6']", "6"
       assert_select "[data-import-run-apps-reviewed='6']", "6"
@@ -171,7 +171,7 @@ module BackOffice
       assert_select "dt", "Étiquettes nommées"
     end
 
-    test "a full run writes the three ready games as cards into the draft season, a second identical run leaves three, and the page shows them" do
+    test "a full run stages the three ready games beside the draft, the page shows the review, and promoting it fills the draft" do
       sign_in(accounts_players(:administrator))
       stub_app_list_page(after: 0, appids: [ 10, 20, 30, 40, 50 ], more: false)
       stub_get_tag_list(19 => "Action", 492 => "Indie", 1664 => "Puzzle", 1663 => "FPS")
@@ -189,13 +189,14 @@ module BackOffice
       perform_enqueued_jobs { post back_office_import_runs_path(locale: :en) }
 
       run = Steam::ImportRun.sole
-      assert_predicate run, :completed?
+      assert_predicate run, :ready?
       assert_equal "cards", run.step
       assert_equal [ 3, 0 ], [ run.cards_written, run.cards_refused ]
-      draft = Catalog::DraftSeason.call
+      assert_nil Catalog::DraftSeason.call
+      staged = Catalog::StagedCardSeason.where(batch_token: run.token)
       cards = Catalog::Card.where(source_key: %w[steam:10 steam:40 steam:50]).index_by(&:source_key)
       assert_equal 3, cards.size
-      assert_equal cards.values.map(&:id).sort, draft.card_seasons.pluck(:card_id).sort
+      assert_equal cards.values.map(&:id).sort, staged.pluck(:card_id).sort
       portal = cards.fetch("steam:10")
       assert_equal "portal-2", portal.slug
       assert_equal [ Date.new(2011, 4, 19), "Publisher 10", %w[puzzle fps], %w[indie action puzzle fps] ],
@@ -206,47 +207,124 @@ module BackOffice
       assert_equal({ "en" => [ "Portal 2", "The best game 10." ], "fr" => [ "Portal 2", "Le meilleur jeu 10." ] },
         portal.texts.to_h { |text| [ text.locale, [ text.title, text.short_description ] ] })
       assert_nil cards.fetch("steam:50").publisher
-      draft.card_seasons.each do |card_season|
-        assert_operator card_season.prestige_score, :>, 0
-        assert_equal BigDecimal("90"), card_season.rating
+      staged.each do |row|
+        assert_operator row.prestige_score, :>, 0
+        assert_equal BigDecimal("90"), row.rating
       end
-      assert_operator cards.fetch("steam:50").card_seasons.sole.prestige_score, :>, cards.fetch("steam:40").card_seasons.sole.prestige_score
+      assert_operator staged.find_by!(card: cards.fetch("steam:50")).prestige_score, :>, staged.find_by!(card: cards.fetch("steam:40")).prestige_score
+
+      get back_office_import_run_path(run, locale: :en)
+
+      assert_select "[data-import-run-status=ready]", "Awaiting promotion"
+      assert_select "[data-import-run-step=cards]", /Writing the cards/
+      assert_select "[data-import-run-cards-written='3']", "3"
+      assert_select "[data-import-run-cards-refused='0']", "0"
+      assert_select "dt", "Cards staged"
+      assert_select "[data-import-run-review] [data-import-run-review-staged='3']", "3"
+      assert_select "[data-import-run-review-draft='0']", "0"
+      assert_select "[data-import-run-review-added='3']", "3"
+      assert_select "[data-import-run-review-removed='0']", "0"
+      assert_select "[data-import-run-review] [data-preview-card-count='3']"
+      assert_select "form[action='/en/back-office/import-runs/#{run.token}/promote'][data-turbo-confirm] button", "PROMOTE"
+      assert_select "form[action='/en/back-office/import-runs/#{run.token}/discard'][data-turbo-confirm] button", "DISCARD"
+
+      post promote_back_office_import_run_path(run, locale: :en)
+
+      assert_redirected_to back_office_import_run_path(run, locale: :en)
+      assert_equal I18n.t("back_office.import_runs.promote.promoted", locale: :en), flash[:notice]
+      assert_predicate run.reload, :promoted?
+      assert_equal cards.values.map(&:id).sort, Catalog::DraftSeason.call.card_seasons.pluck(:card_id).sort
+      assert_empty Catalog::StagedCardSeason.where(batch_token: run.token)
+
+      get back_office_import_run_path(run, locale: :en)
+
+      assert_select "[data-import-run-status=promoted]", "Promoted"
+      assert_select "[data-import-run-review]", false
+      assert_select "form[action$='/promote']", false
 
       perform_enqueued_jobs { post back_office_import_runs_path(locale: :en) }
 
       second = Steam::ImportRun.latest_first.first
       assert_not_equal run, second
-      assert_predicate second, :completed?
+      assert_predicate second, :ready?
       assert_equal 3, second.cards_written
       assert_equal 3, Catalog::Card.where("source_key LIKE 'steam:%'").count
       assert_equal 3, Catalog::DraftSeason.call.card_seasons.count
 
       get back_office_import_run_path(second, locale: :en)
 
-      assert_select "[data-import-run-step=cards]", /Writing the cards/
-      assert_select "[data-import-run-cards-written='3']", "3"
-      assert_select "[data-import-run-cards-refused='0']", "0"
-      assert_select "[data-import-run-cards-removed='0']", "0"
-      assert_select "dt", "Cards written"
-      assert_select "dt", "Cards struck from the draft"
+      assert_select "[data-import-run-review-staged='3']", "3"
+      assert_select "[data-import-run-review-draft='3']", "3"
+      assert_select "[data-import-run-review-added='0']", "0"
+      assert_select "[data-import-run-review-removed='0']", "0"
+      assert_select "[data-import-run-review-rescored='0']", "0"
+      assert_select "[data-import-run-review] [data-preview-verdict=empty_tier]"
     end
 
-    test "a completed run shows the cards struck from the draft; a run before its cards, or still in its cards pass, does not" do
+    test "a ready run waits: no import starts, the season is not published, and discarding it leaves the draft as it was" do
       sign_in(accounts_players(:administrator))
-      run = Steam::ImportRun.create!(status: :completed, step: "cards", counts: { "cards_written" => 2, "cards_removed" => 1 }, finished_at: 1.minute.ago)
+      draft = seed_card_seasons(distinct_scores(21))
+      before = draft.card_seasons.order(:id).pluck(:id, :prestige_score)
+      run = Steam::ImportRun.create!(status: :ready, step: "cards", counts: { "cards_written" => 1, "season_number" => draft.number },
+        started_at: 1.hour.ago, finished_at: 1.minute.ago)
+      card = draft.card_seasons.first.card
+      Catalog::StageCardSeason.new.call(batch_token: run.token, card_id: card.id, prestige_score: 0.5, prestige_score_version: 1, rating: 80.0)
 
-      get back_office_import_run_path(run, locale: :fr)
-      assert_select "[data-import-run-cards-removed='1']", "1"
-      assert_select "dt", "Cartes rayées du brouillon"
+      get back_office_import_run_path(run, locale: :en)
+      assert_select "[data-import-run-review-draft='21']", "21"
+      assert_select "[data-import-run-review-removed='20']", "20"
+      assert_select "[data-import-run-review-draft-tier]", 5
 
-      run.update!(status: :failed)
-      get back_office_import_run_path(run, locale: :fr)
-      assert_select "[data-import-run-cards-written='2']"
-      assert_select "[data-import-run-cards-removed]", false
+      assert_no_import_jobs { post back_office_import_runs_path(locale: :en) }
+      assert_equal I18n.t("errors.steam.run_awaiting_promotion", locale: :en), flash[:alert]
+      assert_equal 1, Steam::ImportRun.count
 
-      run.update!(status: :completed, step: "details")
-      get back_office_import_run_path(run, locale: :fr)
-      assert_select "[data-import-run-cards-removed]", false
+      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
+      assert_equal I18n.t("back_office.seasons.publish.import_awaiting_promotion", locale: :en), flash[:alert]
+      assert_predicate draft.reload, :draft?
+
+      post discard_back_office_import_run_path(run, locale: :en)
+
+      assert_redirected_to back_office_import_run_path(run, locale: :en)
+      assert_equal I18n.t("back_office.import_runs.discard.discarded", locale: :en), flash[:notice]
+      assert_predicate run.reload, :abandoned?
+      assert_empty Catalog::StagedCardSeason.where(batch_token: run.token)
+      assert_equal before, draft.card_seasons.order(:id).pluck(:id, :prestige_score)
+
+      post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
+      assert_equal I18n.t("back_office.seasons.publish.published", number: draft.number, locale: :en), flash[:notice]
+    end
+
+    test "promoting a run whose season was published since refuses it as stale and throws its batch away" do
+      sign_in(accounts_players(:administrator))
+      season = seed_card_seasons(distinct_scores(21))
+      run = Steam::ImportRun.create!(status: :ready, step: "cards", counts: { "cards_written" => 1, "season_number" => season.number },
+        started_at: 1.hour.ago, finished_at: 1.minute.ago)
+      Catalog::StageCardSeason.new.call(batch_token: run.token, card_id: Catalog::Card.first.id, prestige_score: 0.5, prestige_score_version: 1, rating: 80.0)
+      assert Catalog::PublishSeason.new.call(number: season.number).failure == :staged_batch_waiting
+      Catalog::StagedCardSeason.delete_all
+      assert Catalog::PublishSeason.new.call(number: season.number).success?
+      Catalog::StageCardSeason.new.call(batch_token: run.token, card_id: Catalog::Card.first.id, prestige_score: 0.5, prestige_score_version: 1, rating: 80.0)
+
+      post promote_back_office_import_run_path(run, locale: :en)
+
+      assert_redirected_to back_office_import_run_path(run, locale: :en)
+      assert_equal I18n.t("errors.steam.stale_batch", locale: :en), flash[:alert]
+      assert_predicate run.reload, :abandoned?
+      assert_empty Catalog::StagedCardSeason.where(batch_token: run.token)
+      assert_equal 21, season.card_seasons.count
+    end
+
+    test "promoting or discarding a run that is not ready is refused" do
+      sign_in(accounts_players(:administrator))
+      run = failed_run
+
+      post promote_back_office_import_run_path(run, locale: :en)
+      assert_equal I18n.t("errors.steam.not_ready", locale: :en), flash[:alert]
+
+      post discard_back_office_import_run_path(run, locale: :en)
+      assert_equal I18n.t("errors.steam.not_ready", locale: :en), flash[:alert]
+      assert_predicate run.reload, :failed?
     end
 
     test "a run on the review pass does not show the counts of the later steps" do
@@ -474,23 +552,25 @@ module BackOffice
       assert_predicate Steam::ImportRun.latest_first.first, :running?
     end
 
-    test "a latest run that failed after writing cards offers to resume and explains why it cannot be abandoned" do
+    test "a latest run that failed after staging cards offers to resume or abandon; abandoning throws its batch away" do
       sign_in(accounts_players(:administrator))
+      draft = seed_card_seasons([ 0.5 ])
       run = Steam::ImportRun.create!(status: :failed, step: "cards", cursor: { "step" => "cards", "last_appid" => 620 },
-        counts: { "cards_written" => 100, "cards_removed" => 0 }, started_at: 1.hour.ago, finished_at: 1.minute.ago)
+        counts: { "cards_written" => 100 }, started_at: 1.hour.ago, finished_at: 1.minute.ago)
+      Catalog::StageCardSeason.new.call(batch_token: run.token, card_id: Catalog::Card.first.id, prestige_score: 0.9, prestige_score_version: 1, rating: 80.0)
 
       get back_office_import_run_path(run, locale: :en)
 
       assert_select "form[action$='/resume'] button", "Resume from where it stopped"
-      assert_select "form[action$='/abandon']", false
-      assert_select "main .panel", I18n.t("back_office.import_runs.show.cards_written_note", locale: :en)
-      assert_select "[data-import-run-cards-removed]", false, "counted only once the pass ends"
+      assert_select "form[action$='/abandon']"
 
       post abandon_back_office_import_run_path(run, locale: :en)
 
       assert_redirected_to back_office_import_run_path(run, locale: :en)
-      assert_equal I18n.t("errors.steam.cards_written", locale: :en), flash[:alert]
-      assert_predicate run.reload, :failed?
+      assert_equal I18n.t("back_office.import_runs.abandon.abandoned", locale: :en), flash[:notice]
+      assert_predicate run.reload, :abandoned?
+      assert_empty Catalog::StagedCardSeason.where(batch_token: run.token)
+      assert_equal [ 0.5 ], draft.card_seasons.pluck(:prestige_score)
     end
 
     test "a run that is running, completed or not the latest offers no abandon, and abandoning it is refused" do
@@ -501,7 +581,6 @@ module BackOffice
       { older => "not_latest", completed => "not_abandonable" }.each do |run, code|
         get back_office_import_run_path(run, locale: :en)
         assert_select "form[action$='/abandon']", false
-        assert_select "main .panel", { text: I18n.t("back_office.import_runs.show.cards_written_note", locale: :en), count: 0 }
 
         post abandon_back_office_import_run_path(run, locale: :en)
 
@@ -560,6 +639,8 @@ module BackOffice
       yield :post, resume_back_office_import_run_path(run, locale: :fr)
       yield :post, rescore_back_office_import_run_path(run, locale: :fr)
       yield :post, abandon_back_office_import_run_path(run, locale: :fr)
+      yield :post, promote_back_office_import_run_path(run, locale: :fr)
+      yield :post, discard_back_office_import_run_path(run, locale: :fr)
     end
 
     test "a moderator is refused every import action with 403" do

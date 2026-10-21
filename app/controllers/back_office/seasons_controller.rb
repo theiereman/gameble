@@ -6,7 +6,7 @@ module BackOffice
       authorize [ :back_office, :seasons ], :index?
       @seasons = Catalog::SeasonSummaries.call
       @preview = Catalog::DraftPreview.call
-      @import_unfinished = Steam::UnfinishedImportRun.call.present?
+      @unfinished_import = Steam::UnfinishedImportRun.call
     end
 
     def show
@@ -17,8 +17,8 @@ module BackOffice
     def publish
       authorize [ :back_office, :seasons ], :publish?
 
-      if Steam::UnfinishedImportRun.call
-        return redirect_to back_office_seasons_path, alert: t(".import_active")
+      if (unfinished = Steam::UnfinishedImportRun.call)
+        return redirect_to back_office_seasons_path, alert: unfinished.ready? ? t(".import_awaiting_promotion") : t(".import_active")
       end
 
       result = Catalog::PublishSeason.new.call(number: Integer(params[:number].to_s, 10, exception: false))

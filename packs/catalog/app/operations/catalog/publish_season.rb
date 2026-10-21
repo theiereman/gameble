@@ -16,6 +16,8 @@ module Catalog
   # refused until its cards are scored again by one. A draft holding a card
   # imported before its sources were stored (UnfilledSources) is refused
   # until they are filled, so its sets never come out short unseen.
+  # A staged batch (StagedCardSeason) waiting to be promoted or discarded
+  # refuses the publication until it is gone.
   # Every guard runs before any write. Season data is written in bulk while
   # the season is still a draft; once published, it is frozen (CardSeason).
   # The next upsert opens a new draft.
@@ -24,7 +26,7 @@ module Catalog
   #
   #   Catalog::PublishSeason.new.call(number: 2)
   #   # => Success(season) | Failure(:no_draft) | Failure(:stale_draft)
-  #   #    | Failure(:empty_season) | Failure(:mixed_score_versions) | Failure(:unfilled_sources)
+  #   #    | Failure(:staged_batch_waiting) | Failure(:empty_season) | Failure(:mixed_score_versions) | Failure(:unfilled_sources)
   #   #    | Failure(:empty_tier)
   #
   # `number_published` numbers, once, a season published before card numbers
@@ -44,6 +46,7 @@ module Catalog
     def call(number:)
       transaction do
         season = step lock_draft(number)
+        step require_no_staged_batch
         rows = step rows_of(season)
         step require_one_score_version(rows)
         step require_filled_sources(rows)
@@ -77,6 +80,10 @@ module Catalog
       return Failure(:stale_draft) unless season.number == number
 
       Success(season)
+    end
+
+    def require_no_staged_batch
+      StagedCardSeason.exists? ? Failure(:staged_batch_waiting) : Success()
     end
 
     def lock_published(number)

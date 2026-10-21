@@ -133,6 +133,8 @@ Rails.application.routes.draw do
         post :resume, on: :member
         post :rescore, on: :member
         post :abandon, on: :member
+        post :promote, on: :member
+        post :discard, on: :member
       end
 
       resources :seasons, only: %i[index show], param: :number, constraints: { number: /\d+/ } do

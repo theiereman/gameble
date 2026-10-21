@@ -1,9 +1,9 @@
 require "test_helper"
 require_relative "../../support/steam_api_stubs"
 
-# Steam::RescoreCards (story 2.8): the latest completed run writes its cards
-# again, so a change of the prestige formula reaches the draft without
-# calling Steam.
+# Steam::RescoreCards: the latest completed or promoted run stages its cards
+# again, so a change of the prestige formula reaches the draft, once the
+# result is promoted, without calling Steam.
 class Steam::RescoreCardsTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include SteamApiStubs
@@ -35,6 +35,14 @@ class Steam::RescoreCardsTest < ActiveSupport::TestCase
     end)
   end
 
+  # Runs the pages of `run`, which ends ready, then promotes its batch.
+  def run_pages_and_promote(run)
+    clear_enqueued_jobs
+    perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.reload.cursor) }
+    assert_predicate run.reload, :ready?
+    assert Steam::PromoteImport.new.call(import_run_id: run.id).success?
+  end
+
   def draft_scores
     Catalog::DraftSeason.call.card_seasons.joins(:card).order("catalog_cards.source_key").pluck("catalog_cards.source_key", :prestige_score).to_h
   end
@@ -48,11 +56,12 @@ class Steam::RescoreCardsTest < ActiveSupport::TestCase
     Steam::PrestigeScore.define_singleton_method(:call, original)
   end
 
-  test "the latest completed run goes back on its cards step, rewrites the draft's scores with the new formula and completes again, without calling Steam" do
-    run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 0 }, counts: { "apps_listed" => 3 }, started_at: 1.hour.ago)
+  test "the latest promoted run goes back on its cards step, stages the new formula's scores and is ready again, the draft changing only when promoted, without calling Steam" do
+    run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 0 },
+      counts: { "apps_listed" => 3, "season_number" => Catalog::DraftSeasonNumber.call }, started_at: 1.hour.ago)
     ready(run, 10, 20, 30)
-    perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
-    assert_predicate run.reload, :completed?
+    run_pages_and_promote(run)
+    assert_predicate run.reload, :promoted?
     before = draft_scores
     assert_equal 3, before.size
 
@@ -76,52 +85,71 @@ class Steam::RescoreCardsTest < ActiveSupport::TestCase
     end
 
     run.reload
-    assert_predicate run, :completed?
+    assert_predicate run, :ready?
     assert_equal [ 3, 0 ], [ run.cards_written, run.cards_refused ]
     assert_empty run.error_messages
+    assert_equal before, draft_scores, "the draft is untouched until the batch is promoted"
+    assert_equal 3, Catalog::StagedCardSeason.where(batch_token: run.token).count
+
+    assert Steam::PromoteImport.new.call(import_run_id: run.id).success?
     assert_equal({ "steam:10" => 0.01, "steam:20" => 0.02, "steam:30" => 0.03 }, draft_scores)
-    assert_not_equal before, draft_scores
+    assert_empty Catalog::StagedCardSeason.where(batch_token: run.token)
   end
 
   test "a draft scored partly by an earlier formula is stamped with the current version by the rescore, and then publishes" do
-    run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 0 }, counts: { "apps_listed" => 3 }, started_at: 1.hour.ago)
+    run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 0 },
+      counts: { "apps_listed" => 3, "season_number" => Catalog::DraftSeasonNumber.call }, started_at: 1.hour.ago)
     ready(run, *1..21)
-    perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
+    run_pages_and_promote(run)
     draft = Catalog::DraftSeason.call
     assert_equal 21, draft.card_seasons.count
     draft.card_seasons.joins(:card).where(catalog_cards: { source_key: "steam:10" }).update_all(prestige_score_version: Steam::PrestigeScore::VERSION - 1)
     assert_equal :mixed_score_versions, Catalog::PublishSeason.new.call(number: draft.number).failure
 
     rescore(run)
-    perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
+    run_pages_and_promote(run)
 
-    assert_predicate run.reload, :completed?
     assert_equal [ Steam::PrestigeScore::VERSION ], draft.card_seasons.distinct.pluck(:prestige_score_version)
     assert Catalog::PublishSeason.new.call(number: draft.number).success?
   end
 
-  test "reopening clears the run's card marks and its removed count; a card the rescore now refuses leaves the draft" do
-    run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 0 }, counts: { "apps_listed" => 3 }, started_at: 1.hour.ago)
+  test "a card the rescore now refuses leaves the draft once the batch is promoted, not before" do
+    run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 0 },
+      counts: { "apps_listed" => 3, "season_number" => Catalog::DraftSeasonNumber.call }, started_at: 1.hour.ago)
     ready(run, 10, 20, 30)
-    perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
-    run.update_columns(counts: run.reload.counts.merge("cards_removed" => 4))
+    run_pages_and_promote(run)
     Steam::App.where(appid: 10).update_all(review_percent_positive: 150)
 
     rescore(run)
 
-    run.reload
-    assert_empty Steam::App.carded_by(run)
-    assert_equal 0, run.cards_removed
-    assert_equal %w[steam:10 steam:20 steam:30], draft_scores.keys, "the draft is untouched until the pass ends"
-
-    perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
+    assert_equal %w[steam:10 steam:20 steam:30], draft_scores.keys
+    clear_enqueued_jobs
+    perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.reload.cursor) }
 
     run.reload
-    assert_predicate run, :completed?
-    assert_equal [ 2, 1, 1 ], [ run.cards_written, run.cards_refused, run.cards_removed ]
+    assert_predicate run, :ready?
+    assert_equal [ 2, 1 ], [ run.cards_written, run.cards_refused ]
     assert_equal [ "appid 10: invalid_reviews" ], run.latest_errors.map(&:message)
+    assert_equal %w[steam:10 steam:20 steam:30], draft_scores.keys, "the draft is untouched until the pass is promoted"
+
+    assert Steam::PromoteImport.new.call(import_run_id: run.id).success?
     assert_equal %w[steam:20 steam:30], draft_scores.keys
-    assert_equal [ 20, 30 ], Steam::App.carded_by(run).order(:appid).pluck(:appid)
+  end
+
+  test "a completed run, from before staging, can be rescored too" do
+    Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    run = completed_run
+
+    assert_enqueued_with(job: Steam::ImportStepJob) { assert rescore(run).success? }
+    assert_equal Catalog::DraftSeasonNumber.call, run.reload.season_number
+  end
+
+  test "a ready run is refused with run_awaiting_promotion" do
+    Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
+    run = completed_run(status: :ready)
+
+    assert_no_enqueued_jobs { assert_equal :run_awaiting_promotion, rescore(run).failure }
+    assert_predicate run.reload, :ready?
   end
 
   test "an abandoned run is refused with not_completed" do
@@ -158,9 +186,9 @@ class Steam::RescoreCardsTest < ActiveSupport::TestCase
   end
 
   test "once the run's draft is published the rescore is refused with already_published and writes nothing" do
-    run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 0 }, counts: { "apps_listed" => 2 }, started_at: 1.hour.ago)
+    run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 0 }, counts: { "apps_listed" => 2, "season_number" => Catalog::DraftSeasonNumber.call }, started_at: 1.hour.ago)
     ready(run, 10, 20)
-    perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
+    run_pages_and_promote(run)
     season = Catalog::DraftSeason.call
     Catalog::CardSeason.where(season:).update_all(rarity: 1)
     season.update_columns(status: "published", published_at: Time.current)
@@ -172,6 +200,29 @@ class Steam::RescoreCardsTest < ActiveSupport::TestCase
     # A draft opened since (by another writer) does not make the run's cards unpublished.
     Catalog::Season.create!(status: :draft, number: Catalog::Season.next_number)
     assert_equal :already_published, rescore(run).failure
+  end
+
+  test "a discarded rescore batch restores the run, which can be rescored again" do
+    run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 0 },
+      counts: { "apps_listed" => 3, "season_number" => Catalog::DraftSeasonNumber.call }, started_at: 1.hour.ago)
+    ready(run, 10, 20, 30)
+    run_pages_and_promote(run)
+    before = draft_scores
+
+    assert rescore(run).success?
+    run_pages_and_promote_unpromoted = ->(r) do
+      clear_enqueued_jobs
+      perform_enqueued_jobs { Steam::ImportStepJob.perform_later(r.id, r.reload.cursor) }
+    end
+    run_pages_and_promote_unpromoted.(run)
+    assert_predicate run.reload, :ready?
+
+    assert Steam::DiscardImport.new.call(import_run_id: run.id).success?
+
+    assert_predicate run.reload, :promoted?
+    assert_empty Catalog::StagedCardSeason.where(batch_token: run.token)
+    assert_equal before, draft_scores
+    assert rescore(run).success?
   end
 
   test "an unknown run is refused with not_found" do

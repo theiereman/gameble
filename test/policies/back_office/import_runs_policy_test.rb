@@ -2,7 +2,7 @@ require "test_helper"
 
 module BackOffice
   class ImportRunsPolicyTest < ActiveSupport::TestCase
-    ACTIONS = %i[index? show? create? resume? rescore? abandon?].freeze
+    ACTIONS = %i[index? show? create? resume? rescore? abandon? promote? discard?].freeze
 
     def policy_for(role)
       ImportRunsPolicy.new(role == :visitor ? nil : accounts_players(role), :import_runs)

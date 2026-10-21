@@ -273,3 +273,15 @@
   summary: The feed's tier share falls back to counting a set's members when the set has no complete tier row, a case only test fixtures create (`COALESCE(complete.required, (SELECT COUNT(*) …))`); giving those fixtures their complete rows would let the fallback go.
   evidence: `packs/game/app/models/game/feed_entry.rb:42-43`; every set published by `Catalog::SetBuilder` has a complete row (entry 22's Implementation Notes).
   resolved: Entry 13.26 (2026-10-19, `_bmad-output/initiative-gameble/epic-recognizable-sets/story-the-dead-set-completions-table-dropped-and-the-feed-s-share-plan.md`) divides by the complete tier row only and gives the test sets their complete rows.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-season-preparation/story-an-import-builds-beside-the-draft-and-replaces-it-only-once-plan.md`
+  summary: Drop the unused steam_apps.carded_run_id column with its foreign key and index in a contract migration.
+  evidence: The staged import stopped writing the card marks (11.1); nothing reads the column any more, and expand/contract leaves its removal to a later migration.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-season-preparation/story-an-import-builds-beside-the-draft-and-replaces-it-only-once-plan.md`
+  summary: Remove Catalog::UpsertDraftCard, or move db/seeds.rb and the tests to the staged operations.
+  evidence: The import no longer calls it (11.1); only the seeds and tests do, and it still writes card-seasons straight into the draft.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-season-preparation/story-an-import-builds-beside-the-draft-and-replaces-it-only-once-plan.md`
+  summary: Deploy the staged import only when no import run is active.
+  evidence: A run in flight at deploy has no season_number and ends ready with 0, so promoting it is refused as stale and the run is abandoned; its earlier pages also wrote straight to the draft. Unverified in production, harmful only at deploy time.

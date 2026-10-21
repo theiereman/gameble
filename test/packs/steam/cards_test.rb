@@ -1,8 +1,8 @@
 require "test_helper"
 
 # The cards step of an import run (epic 2, R4, R5): the prestige score, the
-# mapping of a ready game onto Catalog::UpsertDraftCard, and the pages that
-# write the cards into the draft season.
+# mapping of a ready game onto the card keywords, and the pages that stage
+# the cards beside the draft season.
 class Steam::CardsTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include Dry::Monads[:result]
@@ -13,7 +13,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
 
   def run_on(step, last_appid: 0, counts: {})
     Steam::ImportRun.create!(status: :running, step: step, cursor: { "step" => step, "last_appid" => last_appid },
-      counts: { "apps_listed" => 0 }.merge(counts), started_at: 1.minute.ago)
+      counts: { "apps_listed" => 0, "season_number" => Catalog::DraftSeasonNumber.call }.merge(counts), started_at: 1.minute.ago)
   end
 
   # Apps carried by `run` through every step, each with every card field.
@@ -29,10 +29,10 @@ class Steam::CardsTest < ActiveSupport::TestCase
     end)
   end
 
-  # A new run on the cards step, the previous one completed, carrying the
+  # A new run on the cards step, the previous one promoted, carrying the
   # apps already listed through every step.
   def rerun(appids)
-    Steam::ImportRun.active.update_all(status: "completed", finished_at: Time.current)
+    Steam::ImportRun.active.update_all(status: "promoted", finished_at: Time.current)
     run = run_on("cards")
     Steam::App.where(appid: appids).update_all(import_run_id: run.id, reviewed_run_id: run.id, details_run_id: run.id)
     run
@@ -52,6 +52,19 @@ class Steam::CardsTest < ActiveSupport::TestCase
 
   def draft
     Catalog::DraftSeason.call
+  end
+
+  # The run's staged batch replaces the draft's cards.
+  def promote_batch(run)
+    Catalog::PromoteStagedBatch.new.call(batch_token: run.token, season_number: run.season_number).value!
+  end
+
+  def staged(run)
+    Catalog::StagedCardSeason.where(batch_token: run.token)
+  end
+
+  def staged_scores(run)
+    staged(run).joins(:card).order("catalog_cards.source_key").pluck("catalog_cards.source_key", :prestige_score).to_h
   end
 
   # The cards this step wrote, not the fixtures'.
@@ -104,7 +117,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     (6..20).each { |appid| ready(run, appid, review_count: 30_000 - 1_000 * appid) }
     ready(run, 21, review_count: 5_000, review_percent_positive: 99)
     cards_page(run)
-    season = draft
+    season = promote_batch(run)
 
     result = Catalog::PublishSeason.new.call(number: season.number)
     assert result.success?, result.inspect
@@ -221,7 +234,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     ready(run, 6300, tag_ids: [ 21, 7208, 1742, 1684, 3942 ])
     (1..20).each { |appid| ready(run, appid, review_count: 30_000 - 1_000 * appid, tag_ids: [ 122 ]) }
     cards_page(run)
-    season = draft
+    season = promote_batch(run)
 
     assert Catalog::PublishSeason.new.call(number: season.number).success?
 
@@ -260,7 +273,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
 
   # ImportCardsPage
 
-  test "a cards page writes each ready game into the draft season with every field, its prestige score and its rating" do
+  test "a cards page stages each ready game's scores beside the draft and writes its identity, leaving the draft alone" do
     run = run_on("cards", counts: { "cards_written" => 4, "cards_refused" => 1 })
     ready(run, 10, 20, 30)
     name_tags
@@ -268,7 +281,8 @@ class Steam::CardsTest < ActiveSupport::TestCase
     result = cards_page(run)
 
     assert result.success?
-    assert_equal 3, draft.card_seasons.count
+    assert_nil draft
+    assert_equal 3, staged(run).count
     card = card_of(20)
     assert_equal [ Date.new(2011, 4, 19), "https://example.test/20.jpg", "https://store.steampowered.com/app/20/Game_20/" ],
       [ card.release_date, card.image_url, card.store_url ]
@@ -276,12 +290,12 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_equal [ [ "Studio 20" ], [ "Series 20" ] ], [ card.developers, card.franchises ]
     assert_equal({ "en" => [ "Game 20", "The game 20." ], "fr" => [ "Jeu 20", "Le jeu 20." ] },
       card.texts.to_h { |text| [ text.locale, [ text.title, text.short_description ] ] })
-    card_season = card.card_seasons.sole
-    assert_equal draft, card_season.season
-    assert_in_delta Steam::PrestigeScore.call(percent_positive: 90, review_count: 1_020), card_season.prestige_score
-    assert_equal Steam::PrestigeScore::VERSION, card_season.prestige_score_version
-    assert_equal BigDecimal("90"), card_season.rating
-    assert_equal 1_020, card_season.review_count
+    assert_empty card.card_seasons
+    row = staged(run).find_by!(card:)
+    assert_in_delta Steam::PrestigeScore.call(percent_positive: 90, review_count: 1_020), row.prestige_score
+    assert_equal Steam::PrestigeScore::VERSION, row.prestige_score_version
+    assert_equal BigDecimal("90"), row.rating
+    assert_equal 1_020, row.review_count
 
     run.reload
     assert_predicate run, :running?
@@ -289,7 +303,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_equal [ 7, 1 ], [ run.cards_written, run.cards_refused ]
     assert_equal [ Steam::CardsPageImported ], events_of(run).map(&:class)
     assert_equal({ import_run_id: run.id, last_appid: 30 }, events_of(run).first.data)
-    assert_equal 3, Rails.configuration.event_store.read.stream(Catalog::Season.stream_name(draft.id)).of_type(Catalog::DraftCardUpserted).count
+    assert_equal 3, Rails.configuration.event_store.read.stream(Catalog::StagedCardSeason.stream_name(run.token)).of_type(Catalog::CardSeasonStaged).count
   end
 
   test "a cards page takes the next ready games after the cursor, never one the run did not carry through" do
@@ -303,31 +317,37 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_equal 6, run.reload.last_appid
   end
 
-  test "a second run with changed scores updates the same cards and their draft card-seasons in place" do
+  test "a second run with changed scores stages new scores for the same cards; the draft changes only when it is promoted" do
     first = run_on("cards")
     ready(first, 10, 20, 30)
     cards_page(first)
-    ids = draft.card_seasons.order(:id).pluck(:id)
-    counts = [ Catalog::Card.count, Catalog::CardText.count, Catalog::CardSeason.count ]
+    promote_batch(first)
+    ids = draft.card_seasons.order(:card_id).pluck(:card_id)
+    counts = [ Catalog::Card.count, Catalog::CardText.count ]
+    before = draft.card_seasons.order(:card_id).pluck(:card_id, :prestige_score, :rating)
 
     Steam::App.update_all(review_percent_positive: 70, review_count: 50_000)
     Steam::App.where(appid: 20).update_all(name_en: "Renamed")
     second = rerun([ 10, 20, 30 ])
     cards_page(second)
 
-    assert_equal counts, [ Catalog::Card.count, Catalog::CardText.count, Catalog::CardSeason.count ]
-    assert_equal ids, draft.card_seasons.order(:id).pluck(:id)
-    assert_equal [ BigDecimal("70") ] * 3, draft.card_seasons.pluck(:rating)
-    assert_in_delta Steam::PrestigeScore.call(percent_positive: 70, review_count: 50_000), card_of(10).card_seasons.sole.prestige_score
+    assert_equal counts, [ Catalog::Card.count, Catalog::CardText.count ]
+    assert_equal before, draft.card_seasons.order(:card_id).pluck(:card_id, :prestige_score, :rating)
     assert_equal "Renamed", card_of(20).texts.find_by!(locale: "en").title
     assert_equal "game-20", card_of(20).slug
+
+    promote_batch(second)
+
+    assert_equal ids, draft.card_seasons.order(:card_id).pluck(:card_id)
+    assert_equal [ BigDecimal("70") ] * 3, draft.card_seasons.pluck(:rating)
+    assert_in_delta Steam::PrestigeScore.call(percent_positive: 70, review_count: 50_000), card_of(10).card_seasons.sole.prestige_score
   end
 
-  test "once a season is published with these cards, a new run updates the cards and gives the new draft its card-seasons" do
+  test "once a season is published with these cards, a new run updates the cards and gives the new draft its card-seasons when promoted" do
     first = run_on("cards")
     ready(first, 10, 20)
     cards_page(first)
-    published = draft
+    published = promote_batch(first)
     Catalog::CardSeason.where(season: published).update_all(rarity: 1)
     published.update_columns(status: "published", published_at: Time.current)
     frozen = Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rating, :review_count, :updated_at)
@@ -336,6 +356,9 @@ class Steam::CardsTest < ActiveSupport::TestCase
       details: { "basic_info" => { "developers" => [ { "name" => "New Studio" } ], "franchises" => [] } })
     second = rerun([ 10, 20 ])
     cards_page(second)
+
+    assert_nil draft
+    promote_batch(second)
 
     assert_not_equal published, draft
     assert_equal frozen, Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rating, :review_count, :updated_at)
@@ -348,22 +371,23 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_equal [ "Nouveau" ] * 2, Catalog::CardText.where(locale: "fr", card: steam_cards).pluck(:title)
   end
 
-  test "a card the upsert refuses after writing is rolled back with its event; the others are written and the refusal recorded" do
+  test "a card the staging refuses after its identity is written is rolled back with its event; the others are staged and the refusal recorded" do
     run = run_on("cards")
     ready(run, 10, 20, 30)
-    real = Catalog::UpsertDraftCard.new
+    real = Catalog::StageCardSeason.new
     refused = Failure(:invalid_card)
-    upsert = Object.new
-    upsert.define_singleton_method(:call) do |**attributes|
+    stage = Object.new
+    stage.define_singleton_method(:call) do |**attributes|
       result = real.call(**attributes)
-      attributes[:source_key] == "steam:20" ? refused : result
+      Catalog::Card.find(attributes[:card_id]).source_key == "steam:20" ? refused : result
     end
 
-    assert cards_page(run, upsert: upsert).success?
+    assert cards_page(run, stage: stage).success?
 
     assert_equal %w[steam:10 steam:30], steam_cards.order(:source_key).pluck(:source_key)
-    assert_equal 2, Catalog::CardSeason.where(season: draft).count
-    assert_equal 2, Rails.configuration.event_store.read.of_type(Catalog::DraftCardUpserted).count
+    assert_equal %w[steam:10 steam:30], staged_scores(run).keys
+    assert_equal 2, Rails.configuration.event_store.read.of_type(Catalog::CardIdentityUpserted).count
+    assert_equal 2, Rails.configuration.event_store.read.of_type(Catalog::CardSeasonStaged).count
     run.reload
     assert_equal [ 2, 1 ], [ run.cards_written, run.cards_refused ]
     assert_equal [ "appid 20: invalid_card" ], run.latest_errors.map(&:message)
@@ -376,7 +400,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     ready(run, 10, 20)
     Steam::App.where(appid: 10).update_all(review_percent_positive: nil)
     called = []
-    real = Catalog::UpsertDraftCard.new
+    real = Catalog::UpsertCardIdentity.new
     upsert = Object.new
     upsert.define_singleton_method(:call) do |**attributes|
       called << attributes[:source_key]
@@ -406,7 +430,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
   test "an exception in a card rolls the whole page back" do
     run = run_on("cards")
     ready(run, 10, 20)
-    real = Catalog::UpsertDraftCard.new
+    real = Catalog::UpsertCardIdentity.new
     upsert = Object.new
     upsert.define_singleton_method(:call) do |**attributes|
       raise "boom" if attributes[:source_key] == "steam:20"
@@ -417,7 +441,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_raises(RuntimeError) { cards_page(run, upsert: upsert) }
 
     assert_empty steam_cards
-    assert_nil draft
+    assert_empty staged(run)
     run.reload
     assert_equal [ 0, 0, 0 ], [ run.last_appid, run.cards_written, run.cards_refused ]
     assert_empty events_of(run)
@@ -435,84 +459,84 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_equal (6..25).map { |appid| "appid #{appid}: no_reviews" }, run.error_messages.map { |error| error["message"] }
   end
 
-  test "a cards page marks the apps whose card it wrote with the run, not the refused ones" do
+  test "a refused game is not staged, and the others are" do
     run = run_on("cards")
     ready(run, 10, 20, 30)
     Steam::App.where(appid: 20).update_all(review_percent_positive: 150)
 
     cards_page(run)
 
-    assert_equal [ 10, 30 ], Steam::App.carded_by(run).order(:appid).pluck(:appid)
+    assert_equal %w[steam:10 steam:30], staged_scores(run).keys
     assert_equal [ "appid 20: invalid_reviews" ], run.reload.latest_errors.map(&:message)
     assert_equal [ 2, 1 ], [ run.cards_written, run.cards_refused ]
   end
 
-  def card_scores
-    Catalog::CardSeason.where(season: draft).joins(:card).order("catalog_cards.source_key").pluck("catalog_cards.source_key", :prestige_score).to_h
-  end
-
-  test "the database refuses a card mark for a run that does not exist" do
-    run = run_on("cards")
-    ready(run, 10)
-
-    assert_raises(ActiveRecord::InvalidForeignKey) { Steam::App.where(appid: 10).update_all(carded_run_id: -1) }
-  end
-
-  test "the end of a pass keeps in the draft only the cards it wrote: an earlier run's other cards leave it, their card rows stay" do
+  test "the end of a pass leaves the draft as it was and readies the run: its batch waits for promotion" do
     first = run_on("cards")
     ready(first, 10, 20)
     cards_page(first)
-    cards_page(first)
-    assert_predicate first.reload, :completed?
-    assert_equal 0, first.cards_removed
+    promote_batch(first)
+    first.update!(status: :promoted)
+    before = draft.card_seasons.order(:card_id).pluck(:card_id, :prestige_score)
 
     Steam::App.update_all(review_percent_positive: 70)
     ready(first, 30)
     second = rerun([ 20, 30 ])
     cards_page(second)
-    assert_equal %w[steam:10 steam:20 steam:30], card_scores.keys, "nothing is pruned in the middle of a pass"
+    assert_equal before, draft.card_seasons.order(:card_id).pluck(:card_id, :prestige_score)
 
     assert cards_page(second).success?
 
     second.reload
-    assert_predicate second, :completed?
-    assert_equal [ 2, 0, 1 ], [ second.cards_written, second.cards_refused, second.cards_removed ]
-    assert_equal %w[steam:20 steam:30], card_scores.keys
-    assert_in_delta Steam::PrestigeScore.call(percent_positive: 70, review_count: 1_020), card_scores["steam:20"]
-    assert_predicate card_of(10), :present?
-    pruned = Rails.configuration.event_store.read.stream(Catalog::Season.stream_name(draft.id)).of_type(Catalog::DraftPruned).to_a
-    assert_equal [ { season_id: draft.id, removed: 0 }, { season_id: draft.id, removed: 1 } ], pruned.map(&:data)
+    assert_predicate second, :ready?
+    assert_equal [ 2, 0 ], [ second.cards_written, second.cards_refused ]
+    assert_equal before, draft.card_seasons.order(:card_id).pluck(:card_id, :prestige_score)
+    assert_equal %w[steam:20 steam:30], staged_scores(second).keys
+    assert_in_delta Steam::PrestigeScore.call(percent_positive: 70, review_count: 1_020), staged_scores(second)["steam:20"]
     assert_equal [ Steam::CardsPageImported, Steam::ImportStepFinished, Steam::ImportRunFinished ], events_of(second).map(&:class)
   end
 
-  test "a pass over several pages, failed then resumed, keeps every card it wrote and removes only an earlier run's other card" do
-    other = run_on("cards")
-    ready(other, 40)
-    cards_page(other)
-    other.update!(status: :completed, finished_at: Time.current)
+  test "a pass over several pages, failed then resumed, keeps every card it staged" do
     run = run_on("cards")
     ready(run, 10, 20, 30)
 
     cards_page(run, page_size: 2)
     assert Steam::FailImport.new.call(import_run_id: run.id, error: "Steam::WebApi::Error: boom").success?
+    assert_equal %w[steam:10 steam:20], staged_scores(run).keys
     assert Steam::ResumeImport.new.call(import_run_id: run.id).success?
-    3.times { cards_page(run, page_size: 2) unless run.reload.completed? }
+    3.times { cards_page(run, page_size: 2) unless run.reload.ready? }
 
     run.reload
-    assert_predicate run, :completed?
-    assert_equal %w[steam:10 steam:20 steam:30], card_scores.keys
-    assert_equal [ 3, 1 ], [ run.cards_written, run.cards_removed ]
-    assert_predicate card_of(40), :present?
+    assert_predicate run, :ready?
+    assert_equal %w[steam:10 steam:20 steam:30], staged_scores(run).keys
+    assert_equal 3, run.cards_written
+    assert_nil draft
+  end
+
+  test "a failed pass leaves the draft exactly as it was" do
+    first = run_on("cards")
+    ready(first, 10, 20)
+    cards_page(first)
+    promote_batch(first)
+    first.update!(status: :promoted)
+    before = draft.card_seasons.order(:card_id).pluck(:card_id, :prestige_score, :rating)
+
+    Steam::App.update_all(review_percent_positive: 70)
+    second = rerun([ 10, 20 ])
+    cards_page(second)
+    assert Steam::FailImport.new.call(import_run_id: second.id, error: "Steam::WebApi::Error: boom").success?
+
+    assert_equal before, draft.card_seasons.order(:card_id).pluck(:card_id, :prestige_score, :rating)
   end
 
   test "the end of a pass never touches a published season" do
     first = run_on("cards")
     ready(first, 10, 20)
     cards_page(first)
-    published = draft
+    published = promote_batch(first)
     Catalog::CardSeason.where(season: published).update_all(rarity: 1)
     published.update_columns(status: "published", published_at: Time.current)
-    first.update!(status: :completed, finished_at: Time.current)
+    first.update!(status: :promoted, finished_at: Time.current)
     frozen = Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rarity)
 
     second = rerun([ 20 ])
@@ -520,15 +544,16 @@ class Steam::CardsTest < ActiveSupport::TestCase
     cards_page(second)
 
     assert_equal frozen, Catalog::CardSeason.where(season: published).order(:id).pluck(:id, :prestige_score, :rarity)
-    assert_equal %w[steam:20], card_scores.keys
-    assert_equal 0, second.reload.cards_removed
+    assert_equal %w[steam:20], staged_scores(second).keys
+    assert_nil draft
   end
 
-  test "a pass that wrote no card empties the draft" do
+  test "a pass that staged no card cannot be promoted, and the draft is left alone" do
     first = run_on("cards")
     ready(first, 10, 20)
     cards_page(first)
-    cards_page(first)
+    promote_batch(first)
+    first.update!(status: :promoted)
     Steam::App.update_all(review_count: nil)
     second = rerun([ 10, 20 ])
 
@@ -536,33 +561,21 @@ class Steam::CardsTest < ActiveSupport::TestCase
     cards_page(second)
 
     second.reload
-    assert_predicate second, :completed?
-    assert_equal [ 0, 2, 2 ], [ second.cards_written, second.cards_refused, second.cards_removed ]
-    assert_empty card_scores
-    assert_equal :empty_season, Catalog::PublishSeason.new.call(number: draft.number).failure
+    assert_predicate second, :ready?
+    assert_equal [ 0, 2 ], [ second.cards_written, second.cards_refused ]
+    assert_empty staged(second)
+    assert_equal :empty_batch, Steam::PromoteImport.new.call(import_run_id: second.id).failure
+    assert_equal 2, draft.card_seasons.count
   end
 
-  test "an exception in the prune rolls the end of the pass back" do
-    run = run_on("cards", last_appid: 10)
-    prune = Object.new
-    prune.define_singleton_method(:call) { |**| raise "boom" }
-
-    assert_raises(RuntimeError) { cards_page(run, prune: prune) }
-
-    run.reload
-    assert_predicate run, :running?
-    assert_equal [ "cards", 10 ], [ run.step, run.last_appid ]
-    assert_empty events_of(run)
-  end
-
-  test "with no ready game after the cursor, the cards step completes the run" do
+  test "with no ready game after the cursor, the cards step readies the run" do
     run = run_on("cards", last_appid: 10)
     ready(run, 10)
 
     assert cards_page(run).success?
 
     run.reload
-    assert_predicate run, :completed?
+    assert_predicate run, :ready?
     assert_equal "cards", run.step
     assert_equal [ Steam::ImportStepFinished, Steam::ImportRunFinished ], events_of(run).map(&:class)
   end
@@ -603,16 +616,16 @@ class Steam::CardsTest < ActiveSupport::TestCase
     run = run_on("cards")
     ready(run, 10)
     # Not `call`: dry-operation wraps every method named `call` it sees defined.
-    Catalog::UpsertDraftCard.class_eval do
-      alias_method :draft_season_without_boom, :draft_season
-      define_method(:draft_season) { raise "boom" }
+    Catalog::UpsertCardIdentity.class_eval do
+      alias_method :upsert_card_without_boom, :upsert_card
+      define_method(:upsert_card) { |*| raise "boom" }
     end
     begin
       perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
     ensure
-      Catalog::UpsertDraftCard.class_eval do
-        alias_method :draft_season, :draft_season_without_boom
-        remove_method :draft_season_without_boom
+      Catalog::UpsertCardIdentity.class_eval do
+        alias_method :upsert_card, :upsert_card_without_boom
+        remove_method :upsert_card_without_boom
       end
     end
 
@@ -623,14 +636,14 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_empty steam_cards
   end
 
-  test "the details step hands over to the cards, whose last page completes the run" do
+  test "the details step hands over to the cards, whose last page readies the run" do
     run = run_on("details", last_appid: 10)
     ready(run, 10)
 
     perform_enqueued_jobs { Steam::ImportStepJob.perform_later(run.id, run.cursor) }
 
     run.reload
-    assert_predicate run, :completed?
+    assert_predicate run, :ready?
     assert_equal "cards", run.step
     assert_equal 1, run.cards_written
     assert_predicate card_of(10), :present?

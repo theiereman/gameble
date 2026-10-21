@@ -10,21 +10,22 @@ module Steam
   # latest run is abandoned, a failed run before it, which now decides
   # whether a season can be published, can be abandoned in turn.
   #
+  # The run's staged cards (Catalog::DiscardStagedBatch) are deleted with
+  # it; the draft season was never touched by the run, so it is left as it
+  # stood.
+  #
   # Refused unless the run failed (not_abandonable) and is the latest
-  # (not_latest), and once it wrote at least one card in its current pass,
-  # on the cards step (cards_written): those cards replaced the previous
-  # pass's in the draft and cannot be restored, so the run is resumed, or a
-  # new run is started, whose completion prunes the draft. A pass whose
-  # every card was refused never touched the draft and can be abandoned.
+  # (not_latest).
   #
   #   Steam::AbandonImport.new.call(import_run_id: run.id)
   #   # => Success(run) | Failure(:not_found) | Failure(:not_abandonable)
-  #   #    | Failure(:not_latest) | Failure(:cards_written)
+  #   #    | Failure(:not_latest)
   class AbandonImport < ApplicationOperation
     def call(import_run_id:)
       transaction do
         run = step lock_run(import_run_id)
         step require_abandonable(run)
+        step Catalog::DiscardStagedBatch.new.call(batch_token: run.token)
         run.update!(status: :abandoned)
         step publish(ImportRunAbandoned.new(data: { import_run_id: run.id }), stream_name: ImportRun.stream_name(run.id))
         run
@@ -35,9 +36,8 @@ module Steam
     # only when nil.
     def self.refusal(run)
       return :not_abandonable unless run.failed?
-      return :not_latest unless ImportRun.where.not(status: :abandoned).latest_first.first == run
 
-      :cards_written if run.step == ImportCardsPage::STEP && run.cards_written.positive?
+      :not_latest unless ImportRun.where.not(status: :abandoned).latest_first.first == run
     end
 
     private

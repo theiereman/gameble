@@ -4,13 +4,16 @@ module Steam
   # the step name lets the job's cursor guard drop a stale job of another
   # step), then enqueues its first page on the import queue
   # once the run is committed. One active run at a time: the database refuses
-  # a second, so two administrators starting at once get one run.
+  # a second, so two administrators starting at once get one run. The run
+  # records the number of the draft season it begins on (season_number). No
+  # run starts while a finished one waits for promotion.
   #
   #   Steam::StartImport.new.call
-  #   # => Success(run) | Failure(:run_in_progress)
+  #   # => Success(run) | Failure(:run_in_progress) | Failure(:run_awaiting_promotion)
   class StartImport < ApplicationOperation
     def call
       run = transaction do
+        step refuse_awaiting_run
         step refuse_active_run
         run = step create_run
         step publish(ImportRunStarted.new(data: { import_run_id: run.id }), stream_name: ImportRun.stream_name(run.id))
@@ -22,6 +25,10 @@ module Steam
     end
 
     private
+
+    def refuse_awaiting_run
+      ImportRun.ready.exists? ? Failure(:run_awaiting_promotion) : Success()
+    end
 
     def refuse_active_run
       ImportRun.active.exists? ? Failure(:run_in_progress) : Success()
@@ -35,7 +42,7 @@ module Steam
           status: :running,
           step: ImportRun::STEPS.first,
           cursor: ImportRun.cursor_for(ImportRun::STEPS.first),
-          counts: { "apps_listed" => 0 },
+          counts: { "apps_listed" => 0, "season_number" => Catalog::DraftSeasonNumber.call },
           started_at: Time.current
         )
       end

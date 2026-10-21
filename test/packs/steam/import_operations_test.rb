@@ -1,11 +1,13 @@
 require "test_helper"
 require_relative "../../support/steam_api_stubs"
+require_relative "../../support/catalog_seeds"
 
 # The operations of an import run (AD-3, AD-19): each one's success and every
 # failure, and the event each publishes.
 class Steam::ImportOperationsTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
   include SteamApiStubs
+  include CatalogSeeds
 
   setup { stub_steam_api }
   teardown { unstub_steam_api }
@@ -409,13 +411,17 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
     assert_predicate run.reload, :abandoned?
   end
 
-  test "a run that wrote cards in its pass is refused with cards_written" do
+  test "a run that staged cards in its pass can be abandoned: its staged cards go and the draft is left alone" do
     run = failed_run
     run.update!(step: "cards", cursor: { "step" => "cards", "last_appid" => 40 }, counts: { "cards_written" => 2 })
+    draft = seed_card_seasons([ 0.5, 0.6 ])
+    card = Catalog::Card.first
+    Catalog::StageCardSeason.new.call(batch_token: run.token, card_id: card.id, prestige_score: 0.9, prestige_score_version: 1, rating: 90.0)
 
-    assert_equal :cards_written, abandon(run).failure
-    assert_predicate run.reload, :failed?
-    assert_empty events_of(run)
+    assert abandon(run).success?
+    assert_predicate run.reload, :abandoned?
+    assert_empty Catalog::StagedCardSeason.where(batch_token: run.token)
+    assert_equal 2, Catalog::CardSeason.where(season: draft).count
   end
 
   [ :running, :completed, :pending, :abandoned ].each do |status|
@@ -446,7 +452,7 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
     assert_nil Steam::AbandonImport.refusal(run)
 
     run.update!(step: "cards", cursor: { "step" => "cards", "last_appid" => 1 }, counts: { "cards_written" => 1 })
-    assert_equal :cards_written, Steam::AbandonImport.refusal(run)
+    assert_nil Steam::AbandonImport.refusal(run)
 
     latest = Steam::ImportRun.create!(status: :completed, step: "cards", finished_at: 1.minute.ago)
     assert_equal :not_latest, Steam::AbandonImport.refusal(run)
@@ -455,23 +461,23 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
 
   # UnfinishedImportRun
 
-  test "the unfinished run is the latest one unless it completed or was abandoned" do
+  test "the unfinished run is the latest one unless it completed, was promoted or was abandoned" do
     assert_nil Steam::UnfinishedImportRun.call
 
     run = failed_run
     assert_equal run, Steam::UnfinishedImportRun.call
 
-    %w[running pending].each do |status|
+    %w[running pending ready].each do |status|
       run.update_columns(status:)
       assert_equal run, Steam::UnfinishedImportRun.call, status
     end
-    %w[completed abandoned].each do |status|
+    %w[completed promoted abandoned].each do |status|
       run.update_columns(status:)
       assert_nil Steam::UnfinishedImportRun.call, status
     end
   end
 
-  test "an abandoned latest run is skipped: a run before it that failed after writing cards is still unfinished" do
+  test "an abandoned latest run is skipped: a run before it that failed after staging cards is still unfinished" do
     Steam::ImportRun.create!(status: :completed, step: "cards", created_at: 3.days.ago, finished_at: 3.days.ago)
     partial = Steam::ImportRun.create!(status: :failed, step: "cards", cursor: { "step" => "cards", "last_appid" => 40 },
       counts: { "cards_written" => 2 }, created_at: 2.days.ago, finished_at: 2.days.ago)
@@ -500,13 +506,14 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
     assert_nil Steam::UnfinishedImportRun.call
   end
 
-  test "once the latest run is abandoned, a run before it that wrote cards in its pass still cannot be abandoned" do
+  test "once the latest run is abandoned, a run before it that staged cards in its pass can be abandoned too" do
     partial = Steam::ImportRun.create!(status: :failed, step: "cards", cursor: { "step" => "cards", "last_appid" => 40 },
       counts: { "cards_written" => 2 }, created_at: 2.days.ago, finished_at: 2.days.ago)
     abandon(failed_run)
 
-    assert_equal :cards_written, abandon(partial).failure
     assert_equal partial, Steam::UnfinishedImportRun.call
+    assert abandon(partial).success?
+    assert_nil Steam::UnfinishedImportRun.call
   end
 
   test "the database accepts every run status and refuses an unknown one" do
@@ -520,7 +527,7 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
 
   test "every failure code has a message in both locales" do
     codes = {
-      Steam::StartImport => %i[run_in_progress],
+      Steam::StartImport => %i[run_in_progress run_awaiting_promotion],
       Steam::ImportAppListPage => %i[not_found not_running cursor_moved],
       Steam::ImportReviewsPage => %i[not_found not_running cursor_moved],
       Steam::ImportTagsPage => %i[not_found not_running cursor_moved],
@@ -530,8 +537,10 @@ class Steam::ImportOperationsTest < ActiveSupport::TestCase
       Steam::CompleteImport => %i[not_running],
       Steam::FailImport => %i[not_found not_running],
       Steam::ResumeImport => %i[not_found not_resumable run_in_progress not_latest],
-      Steam::AbandonImport => %i[not_found not_abandonable not_latest cards_written],
-      Steam::RescoreCards => %i[not_found not_latest not_completed already_published run_in_progress]
+      Steam::AbandonImport => %i[not_found not_abandonable not_latest],
+      Steam::PromoteImport => %i[not_found not_ready empty_batch stale_batch],
+      Steam::DiscardImport => %i[not_found not_ready],
+      Steam::RescoreCards => %i[not_found not_latest not_completed already_published run_in_progress run_awaiting_promotion]
     }
     %i[en fr].each do |locale|
       I18n.with_locale(locale) do

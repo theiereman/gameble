@@ -11,5 +11,7 @@ module BackOffice
     def resume? = administrator?
     def rescore? = administrator?
     def abandon? = administrator?
+    def promote? = administrator?
+    def discard? = administrator?
   end
 end

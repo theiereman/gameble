@@ -43,7 +43,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     run = perform_enqueued_jobs { start_run }
 
     run.reload
-    assert_predicate run, :completed?
+    assert_predicate run, :ready?
     assert_equal "cards", run.step
     assert_equal 5, run.apps_listed
     assert_equal 5, run.apps_reviewed
@@ -179,7 +179,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     perform_enqueued_jobs { Steam::ResumeImport.new.call(import_run_id: run.id) }
 
     run.reload
-    assert_predicate run, :completed?
+    assert_predicate run, :ready?
     assert_equal 5, run.apps_listed
     assert_equal [ 10, 20, 30, 40, 50 ], Steam::App.order(:appid).pluck(:appid)
     assert_equal Steam::App.count, Steam::App.distinct.count(:appid)
@@ -255,7 +255,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     perform_enqueued_jobs { Steam::ResumeImport.new.call(import_run_id: run.id) }
 
     run.reload
-    assert_predicate run, :completed?
+    assert_predicate run, :ready?
     assert_equal [ 10 ], Steam::App.kept_by(run).pluck(:appid)
   end
 
@@ -293,7 +293,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     run = perform_enqueued_jobs { start_run }
 
     run.reload
-    assert_predicate run, :completed?
+    assert_predicate run, :ready?
     assert_equal [ 4, 3, 2 ], [ run.tags_named, run.apps_detailed, run.apps_excluded_details ]
     app = Steam::App.ready_by(run).sole
     assert_equal 10, app.appid
@@ -301,7 +301,8 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     assert_equal [ [ "Publisher 10" ], [ 492, 1664, 1663 ] ], [ app.publishers, app.tag_ids ]
     assert [ app.name_en, app.name_fr, app.release_on, app.store_url, app.image_url ].all?(&:present?)
     assert_equal [ 1, 0 ], [ run.cards_written, run.cards_refused ]
-    card = Catalog::DraftSeason.call.card_seasons.sole.card
+    assert_nil Catalog::DraftSeason.call
+    card = Catalog::StagedCardSeason.where(batch_token: run.token).sole.card
     assert_equal [ "steam:10", %w[puzzle fps] ], [ card.source_key, card.genres ]
   end
 
@@ -322,34 +323,41 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     stub_get_items_by_language("english" => appids.index_with { |appid| detailed_item(appid, reviews: reviews.fetch(appid)) }, "french" => {})
   end
 
+  def promote(run)
+    assert Steam::PromoteImport.new.call(import_run_id: run.id).success?
+  end
+
   def draft_scores
     Catalog::DraftSeason.call.card_seasons.joins(:card).order("catalog_cards.source_key").pluck("catalog_cards.source_key", :prestige_score).to_h
   end
 
-  test "a second import over other games leaves the draft with exactly its cards, scored with its formula" do
+  test "a second import over other games leaves the draft as it was until promoted, then with exactly its cards, scored with its formula" do
     reviews = { 10 => 1_000, 20 => 5_000, 30 => 50_000 }
     record_run([ 10, 20 ], reviews:)
     first = perform_enqueued_jobs { start_run }
-    assert_predicate first.reload, :completed?
+    assert_predicate first.reload, :ready?
+    assert_nil Catalog::DraftSeason.call
+    promote(first)
     assert_equal %w[steam:10 steam:20], draft_scores.keys
 
     record_run([ 20, 30 ], reviews:)
     second = with_formula(->(percent_positive:, review_count:) { review_count.fdiv(1_000_000) }) do
       run = perform_enqueued_jobs { start_run }
-      expected = [ 20, 30 ].to_h { |appid| [ "steam:#{appid}", Steam::PrestigeScore.call(percent_positive: 90, review_count: reviews.fetch(appid)) ] }
-      assert_equal expected.keys, draft_scores.keys
-      expected.each { |key, score| assert_in_delta score, draft_scores.fetch(key), 1e-9, key }
+      assert_equal %w[steam:10 steam:20], draft_scores.keys
       run
     end
 
     second.reload
-    assert_predicate second, :completed?
-    assert_equal [ 2, 0, 1 ], [ second.cards_written, second.cards_refused, second.cards_removed ]
-    assert_equal 0, first.reload.cards_removed
-    assert_predicate Catalog::Card.find_by(source_key: "steam:10"), :present?, "a pruned card keeps its row"
+    assert_predicate second, :ready?
+    assert_equal [ 2, 0 ], [ second.cards_written, second.cards_refused ]
+    promote(second)
+    expected = [ 20, 30 ].to_h { |appid| [ "steam:#{appid}", reviews.fetch(appid).fdiv(1_000_000) ] }
+    assert_equal expected.keys, draft_scores.keys
+    expected.each { |key, score| assert_in_delta score, draft_scores.fetch(key), 1e-9, key }
+    assert_predicate Catalog::Card.find_by(source_key: "steam:10"), :present?, "a card the draft lost keeps its row"
   end
 
-  test "a full stubbed run with a repeated appid and a malformed review percent completes, the malformed app without a card" do
+  test "a full stubbed run with a repeated appid and a malformed review percent is ready, the malformed app without a card" do
     stub_get_tag_list
     apps = [ 10, 10, 20, 30 ].map { |appid| { "appid" => appid, "name" => "Game #{appid}" } }
     steam_stubs.get("#{APP_LIST_PATH}?last_appid=0") do
@@ -362,7 +370,8 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     run = perform_enqueued_jobs { start_run }
 
     run.reload
-    assert_predicate run, :completed?
+    assert_predicate run, :ready?
+    promote(run)
     assert_equal [ 10, 20, 30 ], Steam::App.order(:appid).pluck(:appid)
     assert_equal 1, Steam::App.where(appid: 10).count
     assert_equal [ 3, 3, 2, 1 ], [ run.apps_listed, run.apps_reviewed, run.apps_kept, run.apps_excluded ]
@@ -394,7 +403,8 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     run = perform_enqueued_jobs { start_run }
 
     run.reload
-    assert_predicate run, :completed?
+    assert_predicate run, :ready?
+    promote(run)
     assert_equal 3, calls.size, "one review page, then one details page in English and in French"
     finished = Rails.configuration.event_store.read.stream(Steam::ImportRun.stream_name(run.id)).of_type(Steam::ImportStepFinished).map { |event| event.data[:step] }
     assert_equal %w[app_list reviews tags details cards], finished
