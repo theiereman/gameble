@@ -3,13 +3,12 @@ require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# The collection: a player reaches it from the hub's
-# menu 02 or the phone's COLLECTION tab, picks a set and sees its progress,
-# their faces with their copies and the missing cards named, on a desktop
-# and a 390 × 844 phone without sideways scroll; the cards of a pack just
-# opened are new, and no longer once seen; a visitor sees every slot
-# missing. It opens on the owned cards, and the FILTRES zone and
-# the search narrow the grid without losing focus.
+# The collection: a player reaches its entry from the hub's menu 02 or the
+# phone's COLLECTION tab, picks a set and sees its progress, their faces with
+# their copies and the missing cards named, on a desktop and a 390 × 844 phone
+# without sideways scroll; the grid of every card, with its FILTRES zone and
+# search, narrows without losing focus; the cards of a pack just opened are
+# new until a grid has shown them; a visitor reads the grid in plain faces.
 class LibraryTest < ApplicationSystemTestCase
   include CatalogSeeds
   include GamePacks
@@ -40,7 +39,7 @@ class LibraryTest < ApplicationSystemTestCase
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
   end
 
-  def row(name) = find(".collection-sets .set-row", text: /\A#{Regexp.escape(name)}\b/i)
+  def row(name) = find(".set-entry__list .set-row", text: /\A#{Regexp.escape(name)}\b/i)
 
   test "a player goes from menu 02 to a theme: its progress, their faces with their copies, the missing cards named" do
     sign_in
@@ -50,23 +49,17 @@ class LibraryTest < ApplicationSystemTestCase
     assert_current_path library_path(locale: :en)
     assert_selector ".top-bar__title", text: /\ACOLLECTION\z/
     assert_selector ".collection-status", text: %r{\AUnique cards:\s*3 / 150}
-    assert_selector ".collection-sets .set-row[aria-current=page]", text: /WHOLE SEASON/
-    assert_selector ".report--panel", visible: true
-    assert_selector ".collection-grid > li", count: 3
+    assert_selector ".set-entry__list .set-row", text: %r{HORROR\s+THEME\s+3/16}
+    assert_selector ".set-entry__list .set-row", text: %r{PIRATES\s+THEME\s+3/8}
+    assert_no_selector ".collection-grid"
     take_screenshot
 
     row("Horror").click
 
     assert_current_path library_set_path(locale: :en, kind: "theme", key: "horror")
-    assert_selector ".collection-sets .set-row[aria-current=page]", text: %r{HORROR\s*3/16}
-    assert_selector ".collection-sets .set-row", text: %r{PIRATES\s*3/8}
-    assert_selector ".collection-sets .set-row", text: %r{RPG\s*0/44}
-    assert_selector ".collection-grid > li", count: 3
-    find(".filters__summary").click
-    find(".filter-chip__text", text: /\AAll\z/i).click
+    assert_selector ".set-album__count", text: "3/16"
     assert_selector ".collection-grid > li", count: 16
     assert_selector ".collection-grid .card.card--grid", count: 3
-    assert_selector ".collection-slot__copies", count: 3
     assert_selector ".collection-slot__copies", text: "x2", count: 1
     assert_selector ".missing-slot", count: 13
     missing = Catalog::CardSeason.find(@theme[3])
@@ -92,11 +85,13 @@ class LibraryTest < ApplicationSystemTestCase
     assert_current_path home_path(locale: :en)
   end
 
+
   # The grid's sixty slots are counted with `visible: :all`, in one call:
   # checking each one's visibility is sixty round trips to the browser, and
   # on a loaded runner one such attempt outlasts the wait while the frame
   # the filter reloads replaces the nodes under it.
-  test "a visitor who unticks the only state chip keeps every slot, as the form without JavaScript" do
+  test "a player who unticks the only state chip keeps every slot, as the form without JavaScript" do
+    sign_in
     visit library_cards_path(locale: :en)
     find(".filters__summary").click
     assert_selector ".collection-grid > li", count: 60, visible: :all
@@ -107,19 +102,24 @@ class LibraryTest < ApplicationSystemTestCase
     assert_selector "[role=status]", text: "150 cards shown.", visible: :all
   end
 
-  test "on a 390 × 844 phone the tab leads here: the sets a strip of chips, the RAPPORT folded, two cards a row" do
+  test "on a 390 × 844 phone the tab leads here: the sets a list of rows, then the grid with the RAPPORT folded, two cards a row" do
     page.driver.browser.manage.window.resize_to(390, 844)
     sign_in
 
     find(".tab-bar a.tab-bar__tab", text: /COLLECTION/i).click
 
     assert_current_path library_path(locale: :en)
-    assert_selector ".collection-grid > li", count: 3
+    assert_selector ".collection-status__value", text: "3 / 150"
+    assert_selector ".set-entry__list .set-row", text: %r{HORROR\s+THEME\s+3/16}
+    assert_no_sideways_scroll
+
+    click_on "All cards"
+
+    assert_current_path library_cards_path(locale: :en)
+    assert_selector ".collection-grid > li", count: 60, visible: :all
     assert_no_selector ".report--panel", visible: true
     assert_no_selector ".collection-status__label", visible: true
     assert_selector ".collection-status__value", text: "3 / 150"
-    chip = page.evaluate_script("(() => { const r = document.querySelector('.collection-sets__list .set-row').getBoundingClientRect(); return [ r.width, r.height >= 48 ] })()")
-    assert_equal [ 132, true ], chip
     tops = page.evaluate_script("[...document.querySelectorAll('.collection-grid > li')].slice(0, 3).map((slot) => Math.round(slot.getBoundingClientRect().top))")
     assert_equal tops[0], tops[1]
     assert_operator tops[2], :>, tops[0]
@@ -129,8 +129,8 @@ class LibraryTest < ApplicationSystemTestCase
     assert_selector ".report--fold[open] .report__row", text: /UNIQUE CARDS\s*3/
     take_screenshot
 
-    row("Horror").click
-    assert_selector ".collection-sets .set-row[aria-current=page]", text: %r{3/16}
+    visit library_set_path(locale: :en, kind: "theme", key: "horror")
+    assert_selector ".set-album__count", text: "3/16"
     assert_selector ".collection-grid .card.card--grid", count: 3
     assert_no_sideways_scroll
     take_screenshot
@@ -139,36 +139,40 @@ class LibraryTest < ApplicationSystemTestCase
   test "the FILTRES zone: chips narrow the grid, the zone keeps focus, the count follows, a search narrows as it is typed" do
     sign_in
     visit library_cards_path(locale: :en)
-    assert_selector ".collection-grid > li", count: 3
+    assert_selector ".collection-grid > li", count: 60, visible: :all
     assert_no_selector ".filters__zone[open]"
     assert_no_selector ".filters__count", visible: true
 
     find(".filters__summary").click
-    find(".filter-chip__text", text: /\AMissing\z/i).click
-    assert_selector ".collection-grid > li", count: 60, visible: :all
-    assert_selector ".collection-slot .card", count: 3
-    assert_selector ".filters__count", text: "2"
     find(".filter-chip__text", text: /\AOwned\z/i).click
-    assert_selector ".collection-grid .missing-slot", count: 60, visible: :all
-    assert_no_selector ".collection-slot .card"
+    assert_selector ".collection-grid > li", count: 3
     assert_selector ".filters__count", text: "1"
     assert_selector ".filters__clear", visible: true
+    find(".filter-chip__text", text: /\AMissing\z/i).click
+    assert_selector ".collection-grid > li", count: 60, visible: :all
+    assert_selector ".collection-slot__copies", count: 3
+    assert_selector ".filters__count", text: "2"
+    find(".filter-chip__text", text: /\AOwned\z/i).click
+    assert_selector ".collection-grid .card--not-owned", count: 57, visible: :all
+    assert_no_selector ".collection-slot__copies"
+    assert_selector ".filters__count", text: "1"
 
     # Back to the owned cards, then a genre none of them has.
     find(".filter-chip__text", text: /\AOwned\z/i).click
     find(".filter-chip__text", text: /\AMissing\z/i).click
     assert_selector ".collection-grid > li", count: 3
-    assert_no_selector ".filters__count", visible: true
+    assert_selector ".filters__count", text: "1"
     within("[data-group=genre]") do
       find(".filter-chip__text", text: /\ARPG\z/i).click
     end
     assert_selector ".collection-grid__empty", text: "Nothing matches these filters."
     assert_equal "RPG", page.evaluate_script("document.activeElement.parentElement.textContent.trim()")
-    assert_selector ".filters__count", text: "1"
+    assert_selector ".filters__count", text: "2"
 
     # The search narrows as it is typed, and keeps the focus in the field.
     find(".filters__clear").click
-    assert_selector ".collection-grid > li", count: 3
+    assert_selector ".collection-grid > li", count: 60, visible: :all
+    assert_no_selector ".filters__count", visible: true
     title = Catalog::CardSeason.find(@theme.first).card.texts.find_by!(locale: "en").title
     field = find("#collection-search")
     field.click
@@ -182,7 +186,7 @@ class LibraryTest < ApplicationSystemTestCase
     take_screenshot
   end
 
-  test "the cards of a pack just opened are new; once seen, the next visit shows them no longer" do
+  test "the cards of a pack just opened are new; once the grid has shown them, the next visit shows them no longer" do
     create_pack(@player, cards: @theme[3, 5], available_at: 1.year.ago, season: @season)
     sign_in
     assert Game::OpenPack.new.call(player: @player).success?
@@ -193,6 +197,10 @@ class LibraryTest < ApplicationSystemTestCase
     assert_equal @theme[3, 5].map { Catalog::CardSeason.find(it).card.texts.find_by!(locale: "en").title.upcase },
       all(".collection-slot:has(.collection-slot__new) .card__title").map(&:text)
     take_screenshot
+
+    visit library_cards_path(locale: :en, state: [ "new" ])
+
+    assert_selector ".collection-slot__new", count: 5, text: "NEW"
     gained = Game::Holding.where(player_id: @player.id, card_season_id: @theme[3, 5]).maximum(:last_gained_at)
     assert_equal gained, wait_for_watermark
 
@@ -202,15 +210,13 @@ class LibraryTest < ApplicationSystemTestCase
     assert_no_selector ".collection-slot__new"
   end
 
-  test "a visitor reaches the collection from the hub's menu by keyboard and sees every slot missing" do
-    visit home_path(locale: :fr)
+  test "a visitor reads the grid of every card in plain faces, with no ownership data" do
+    visit library_cards_path(locale: :fr)
 
-    find(".hub-menu a.menu-item[aria-keyshortcuts='2']").send_keys(:enter)
-
-    assert_current_path library_path(locale: :fr)
-    assert_selector ".collection-status", text: "0 / 150"
-    assert_selector ".missing-slot", count: 60, visible: :all
-    assert_no_selector ".collection-grid .card, .collection-slot__new"
+    assert_selector ".collection-grid > li", count: 60, visible: :all
+    assert_no_selector ".collection-status"
+    assert_no_selector ".missing-slot, .collection-slot__new, .card--not-owned", visible: :all
+    assert_no_selector ".report--panel", visible: :all
     assert_selector ".top-bar .steam-sign-in__button"
     assert_no_sideways_scroll
   end
@@ -232,12 +238,8 @@ class LibraryTest < ApplicationSystemTestCase
     # The watermark the page posted, waited for (the POST runs after the
     # page has rendered).
     def wait_for_watermark
-      deadline = Time.current + Capybara.default_max_wait_time
-      loop do
-        seen = Game::PlayerState.find_by!(player_id: @player.id).collection_seen_up_to
-        return seen if seen || Time.current > deadline
-
-        sleep 0.1
+      page.document.synchronize do
+        Game::PlayerState.find_by!(player_id: @player.id).collection_seen_up_to || raise(Capybara::ElementNotFound, "the watermark is not posted yet")
       end
     end
 end

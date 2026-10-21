@@ -44,14 +44,14 @@ class PublicProfileTest < ApplicationSystemTestCase
     assert_selector "h1", text: "Gabe the Brave"
     assert_selector ".profile-band__avatar"
     assert_selector ".profile-band__keys .profile-figure", text: /\Acards\s*8\//i
-    assert_selector ".profile-sets .set-row", text: %r{\AHorror\s*8/16}i
+    assert_selector ".profile-sets .set-row", text: %r{\AHorror\s+Theme\s+.*8/16}im
     take_screenshot
 
     sign_out
     assert_signed_out
     visit brother_set_path(locale: :en, token: @player.token, kind: "theme", key: "pirates")
 
-    assert_selector "h1", text: "Pirates · Gabe the Brave"
+    assert_selector "h1", text: /\APirates · Gabe the Brave\z/i
     assert_selector ".set-album__count", text: "8/8"
     assert_selector ".set-album__stamp", text: /\Acomplete\z/i
     assert_selector ".set-album__grid .card.card--grid", count: 8
@@ -63,7 +63,7 @@ class PublicProfileTest < ApplicationSystemTestCase
   test "a visitor finds no profile behind an unknown link" do
     visit brother_path(locale: :fr, token: "A" * 24)
 
-    assert_selector "h1", text: "Profil indisponible"
+    assert_selector "h1", text: /\AProfil indisponible\z/i
     assert_no_selector ".collection-sets"
   end
 end

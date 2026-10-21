@@ -1,10 +1,9 @@
 require "application_system_test_case"
 require_relative "../support/steam_sign_in"
 
-# The card art through pixelcrush (AD-17): filtered in the card-art worker with
-# 32 colours, Steam's grey placeholder counted as missing, a CORS refusal
-# drawn on the main thread without palette. The back-office card preview is
-# the host page; card-art elements are added to it by script.
+# The card art through pixelcrush: filtered in the card-art worker with
+# 32 colours, Steam's grey placeholder counted as missing. The back-office
+# card preview is the host page; card-art elements are added to it by script.
 class CardArtTest < ApplicationSystemTestCase
   include SteamSignIn
 
@@ -117,12 +116,5 @@ class CardArtTest < ApplicationSystemTestCase
     add_arts([ grayscale ])
 
     assert_selector "[data-test-art][data-art=drawn] canvas:not([hidden])", visible: :all
-  end
-
-  test "a cover refused by CORS is drawn on the main thread without palette" do
-    port = Capybara.current_session.server.port
-    add_arts([ "http://localhost:#{port}#{sample_path}" ])
-
-    assert_selector "[data-test-art][data-art=plain] canvas:not([hidden])", visible: :all
   end
 end

@@ -60,7 +60,7 @@ class ModerationTest < ApplicationSystemTestCase
       assert_signed_out
 
       visit brother_path(locale: :fr, token: @reported.token)
-      assert_selector "h1", text: "Profil indisponible"
+      assert_selector "h1", text: /\AProfil indisponible\z/i
     end
 
     click_on "Les bannis"
@@ -133,7 +133,7 @@ class ModerationTest < ApplicationSystemTestCase
 
     using_session("visitor") do
       visit brother_path(locale: :fr, token: @reported.token)
-      assert_selector "h1", text: "Profil indisponible"
+      assert_selector "h1", text: /\AProfil indisponible\z/i
     end
   end
 
