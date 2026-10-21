@@ -1,6 +1,6 @@
 ---
 id: 38
-tracker_status: review
+tracker_status: done
 tracker_id: 146
 remote: https://github.com/theiereman/gameble/issues/146
 type: bug
