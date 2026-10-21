@@ -22,7 +22,7 @@ covers = ["CAP-2", "CAP-3"]
 after = ["2.12"]
 hitl = true
 risk = "high"
-notes = ["il faut pouvoir rollback et donc faire un import à côté en attendant de le valider ou qqch dans le genre", "vérifier que l'import utilise bien la nouvelle formule (2026-10-08 ; voir deferred-work.md)"]
+notes = ["il faut pouvoir rollback et donc faire un import à côté en attendant de le valider ou qqch dans le genre", "vérifier que l'import utilise bien la nouvelle formule (2026-10-08 ; voir deferred-work.md)", "Decision (author, 2026-10-21): only the season's card-seasons (score, rarity, review count) are staged; the games' identity (texts, publisher, image) keeps refreshing in place, as it follows Steam and is shared with published seasons.", "Decision (author, 2026-10-21): the administrator reviews a finished run through a preview of its cards plus its gap with the current draft (games added, removed, unchanged; the rarity spread), then promotes or discards it.", "Decision (author, 2026-10-21): one finished run waits for its promotion at a time; a new import cannot start until it is promoted or discarded.", "Decision (author, 2026-10-21): promoting replaces the draft entirely, in one step; the tag classification and the theme names do not live in the cards and stay."]
 
 [[entry]]
 id = 2
