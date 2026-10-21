@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche de la carte, pionnier</title>
+<style>
+/*
+  Card detail with the pioneer row — rendered 2026-10-21.
+  Governing spine sections: EXPERIENCE.md Card detail (row order: title, publisher, rarity, genre, year,
+  description, minted season, sets, copies owned, then ÉDITIONS), Public profile (who may see a profile),
+  Copy deck (dates: "Membre depuis mars 2026"), Voice and Tone; DESIGN.md Collection (card detail, facts
+  block), Card face, Colors, Typography, focus-ring.
+  Facts block styling is copied from mockups/catalog-not-owned.html (.facts, .fact, dt small caps label on
+  the left, dd bold on the right, panel-sunken rows, 4px gap).
+  Decisions 2026-10-21 (author): the pioneer row shows in the card detail only, one line for the card (not per
+  edition), a link to the pioneer's profile plus the discovery date; an anonyme form for viewers who may not see
+  that profile (visitors, banned or deleted accounts).
+  Placement (mine, to confirm): right after SAISON, since both say where the card began.
+  The card face here is a simplified CSS stand-in, not the pixel-art face.
+  Fonts are not embedded; ui-monospace fallback.
+*/
+:root{
+  --backdrop:#05070a;--ground:#0b0f15;--bar:#171a21;--pn:#121a24;--pn2:#0e141b;--pn3:#1b2838;
+  --line:#2a475e;--line2:#1f3346;--line-deep:#2a6f9a;--acc:#66c0f4;--acc-hi:#b5e2ff;--on-acc:#0b1520;
+  --txt:#c7d5e0;--txt-b:#e6eef5;--wht:#fff;--mut:#8f98a0;--dim:#5d6b78;--ink:#06090d;
+  --primary:#7aa60a;--on-lime:#0f1a03;--gold:#f4c542;--r5:#f4c542;
+  --fv:'VT323',ui-monospace,monospace;--fs:'JetBrains Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#101215;color:var(--txt);font-family:var(--fs)}
+body{padding:24px}
+h1,h2,p,dl,dd{margin:0}
+h1,h2{font-weight:400}
+a{color:inherit}
+a:focus-visible{outline:3px solid var(--wht);outline-offset:3px;box-shadow:0 0 0 3px var(--ink)}
+
+.sheet{max-width:1500px;margin:0 auto}
+.doc{font-family:var(--fv);font-size:32px;color:#fff;letter-spacing:1px}
+.note{max-width:100ch;margin:6px 0 0;font-size:12px;line-height:18px;color:var(--mut)}
+.cap{margin:30px 0 10px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc)}
+.cap span{font-weight:400;letter-spacing:.5px;text-transform:none;color:var(--mut)}
+.pair{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.col{display:flex;flex-direction:column;gap:12px}
+.col>.cap{margin:0}
+
+.desk{width:720px;background:var(--ground);box-shadow:0 0 0 1px #2c3036}
+.phone{width:390px;background:var(--ground);box-shadow:0 0 0 1px #2c3036}
+.bar{display:flex;align-items:center;height:48px;padding:0 20px;background:var(--bar);box-shadow:0 2px 0 0 var(--line);color:var(--gold);font-family:var(--fv);font-size:26px;letter-spacing:2px}
+.bar .back{margin-left:auto;color:var(--txt);font:700 11px/1 var(--fs);letter-spacing:1px}
+
+/* panel + corner brackets */
+.detail{position:relative;margin:20px;padding:16px 18px 20px;display:flex;flex-direction:column;gap:12px;background:var(--pn);box-shadow:inset 0 0 0 2px var(--line)}
+.phone .detail{margin:12px;padding:14px 14px 18px}
+.detail::before,.detail::after{content:"";position:absolute;width:14px;height:14px;pointer-events:none}
+.detail::before{top:-5px;left:-5px;border-top:3px solid var(--acc);border-left:3px solid var(--acc)}
+.detail::after{right:-5px;bottom:-5px;border-right:3px solid var(--acc);border-bottom:3px solid var(--acc)}
+.dh{display:flex;align-items:center;justify-content:space-between}
+.kicker{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc)}
+.dnum{font-size:11px;font-weight:700;color:var(--mut)}
+.stage{display:flex;align-items:center;justify-content:center;gap:14px;padding:14px 0 16px}
+.navb{display:inline-flex;align-items:center;justify-content:center;width:44px;height:64px;background:var(--pn2);box-shadow:inset 0 0 0 2px var(--line-deep);color:var(--txt-b);font-size:14px}
+
+/* simplified Légendaire face */
+.card{position:relative;width:176px;height:264px;padding:8px;background:#2a2108;box-shadow:inset 0 0 0 4px var(--r5),0 0 0 4px var(--ink);display:flex;flex-direction:column;gap:6px}
+.card .t{padding:2px 4px 0}
+.card .tn{display:block;font:700 12px/14px var(--fs);color:var(--wht);text-transform:uppercase}
+.card .pb{display:block;font-size:9px;line-height:12px;color:var(--mut)}
+.card .art{flex:1;background:
+  linear-gradient(180deg,#0b1a2e 0 38%,#13293f 38% 62%,#1c3a52 62%);position:relative;overflow:hidden;box-shadow:inset 0 0 0 2px var(--ink)}
+.card .art i{position:absolute;display:block;background:#05070a}
+.card .art .moon{left:58%;top:12%;width:28px;height:28px;background:#dfe9f2}
+.card .m{display:flex;justify-content:space-between;font-size:9px;font-weight:700;color:var(--txt)}
+.card .r{display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:700;color:var(--r5)}
+.card .r b{width:10px;height:10px;background:var(--r5);display:inline-block;margin-right:6px}
+.phone .card{width:160px;height:240px}
+
+.dtitle{font-family:var(--fv);font-size:32px;line-height:32px;color:var(--wht);text-transform:uppercase}
+.dpos{font-size:11px;font-weight:700;color:var(--mut)}
+.ddesc{font-size:13px;line-height:20px;color:var(--txt)}
+
+/* facts block: copied from catalog-not-owned */
+.facts{margin:0;display:flex;flex-direction:column;gap:4px}
+.fact{display:flex;justify-content:space-between;align-items:baseline;gap:14px;min-height:30px;padding:6px 10px;background:var(--pn2)}
+.fact dt{flex:none;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--mut);text-transform:uppercase}
+.fact dd{margin:0;text-align:right;font-size:12px;font-weight:700;color:var(--txt-b)}
+.rv{display:inline-flex;align-items:center;gap:6px;color:var(--r5)}
+.rv b{width:10px;height:10px;background:var(--r5)}
+.lnks{display:inline-flex;flex-wrap:wrap;justify-content:flex-end;gap:4px 10px}
+.lnks a,.pio a{color:var(--acc);text-decoration:underline;text-underline-offset:3px}
+.lnks a:hover,.pio a:hover{color:var(--acc-hi)}
+
+/* the pioneer row: same row, the dd carries a link and the date, the date in plain text colour */
+.pio{display:inline-flex;flex-wrap:wrap;justify-content:flex-end;align-items:baseline;gap:2px 8px}
+.pio .when{font-weight:400;color:var(--txt)}
+.pio .anon{color:var(--txt-b)}
+
+.dacts{display:flex;gap:12px;margin-top:6px}
+.btn{flex:1;display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 18px;background:var(--primary);color:var(--on-lime);font:700 13px/1 var(--fs);letter-spacing:1px;text-transform:uppercase;text-decoration:none}
+.btn.alt{background:var(--line);color:var(--txt-b)}
+.btn:hover{filter:brightness(1.12)}
+.focusdemo{outline:3px solid var(--wht);outline-offset:3px;box-shadow:0 0 0 3px var(--ink)}
+</style>
+</head>
+<body>
+<div class="sheet">
+<h1 class="doc">Fiche de la carte, ligne du pionnier</h1>
+<p class="note">The facts block of the card detail with the new PIONNIER row. Left: the pioneer's profile is visible to the viewer (link and date). Right: the anonyme form (visitor, banned or deleted pioneer). Both states are shown for a signed-in player who owns the card, so the rows around PIONNIER stay the same; a visitor additionally loses EXEMPLAIRES and ÉDITIONS, as in the spec. The first link in the left state is shown with its focus ring in the desktop frame.</p>
+
+<p class="cap">Bureau 720 <span>· le détail ouvert sur sa page</span></p>
+<div class="pair">
+
+<div class="col"><p class="cap">A · Pionnier visible</p>
+<div class="desk"><div class="bar">GAMEBLE<span class="back">◀ GRILLE</span></div>
+<article class="detail">
+  <header class="dh"><span class="kicker">Fiche de la carte</span><span class="dnum">S1 · #4 215</span></header>
+  <div class="stage"><span class="navb">◀</span>
+    <div class="card"><div class="t"><span class="tn">Hollow Knight</span><span class="pb">Team Cherry</span></div><div class="art"><i class="moon"></i><i style="left:0;right:0;bottom:0;height:34%"></i><i style="left:30%;bottom:34%;width:22px;height:40px"></i></div><div class="m"><span>METROIDVANIA</span><span>2017</span></div><div class="r"><span><b></b>LÉGENDAIRE</span><span>S1</span></div></div>
+    <span class="navb">▶</span></div>
+  <h1 class="dtitle">Hollow Knight</h1>
+  <p class="dpos">S1 · #4 215 · 12 / 1 648</p>
+  <p class="ddesc">Descendez dans Hallownest, un royaume d'insectes en ruine, et affrontez ses habitants au fil d'une exploration sans carte.</p>
+  <dl class="facts">
+    <div class="fact"><dt>Éditeur</dt><dd>Team Cherry</dd></div>
+    <div class="fact"><dt>Rareté</dt><dd><span class="rv"><b></b>LÉGENDAIRE</span></dd></div>
+    <div class="fact"><dt>Genre</dt><dd>Metroidvania</dd></div>
+    <div class="fact"><dt>Année</dt><dd>2017</dd></div>
+    <div class="fact"><dt>Saison</dt><dd>Saison 1</dd></div>
+    <div class="fact"><dt>Pionnier</dt><dd><span class="pio"><a class="focusdemo" href="#profil-lea">Léa</a><span class="when">le 14 mars 2026</span></span></dd></div>
+    <div class="fact"><dt>Sets</dt><dd><span class="lnks"><a href="#s1">Metroidvania</a><a href="#s2">Team Cherry</a></span></dd></div>
+    <div class="fact"><dt>Exemplaires</dt><dd>1</dd></div>
+    <div class="fact"><dt>Éditions</dt><dd>Légendaire : S1</dd></div>
+    <div class="fact"><dt>Avis Steam</dt><dd>97 % positifs · 312 460 avis</dd></div>
+  </dl>
+  <div class="dacts"><a class="btn" href="#steam">Voir sur Steam</a><a class="btn alt" href="#partager">Partager</a></div>
+</article></div></div>
+
+<div class="col"><p class="cap">B · Pionnier anonyme</p>
+<div class="desk"><div class="bar">GAMEBLE<span class="back">◀ GRILLE</span></div>
+<article class="detail">
+  <header class="dh"><span class="kicker">Fiche de la carte</span><span class="dnum">S1 · #4 215</span></header>
+  <div class="stage"><span class="navb">◀</span>
+    <div class="card"><div class="t"><span class="tn">Hollow Knight</span><span class="pb">Team Cherry</span></div><div class="art"><i class="moon"></i><i style="left:0;right:0;bottom:0;height:34%"></i><i style="left:30%;bottom:34%;width:22px;height:40px"></i></div><div class="m"><span>METROIDVANIA</span><span>2017</span></div><div class="r"><span><b></b>LÉGENDAIRE</span><span>S1</span></div></div>
+    <span class="navb">▶</span></div>
+  <h1 class="dtitle">Hollow Knight</h1>
+  <p class="dpos">S1 · #4 215 · 12 / 1 648</p>
+  <p class="ddesc">Descendez dans Hallownest, un royaume d'insectes en ruine, et affrontez ses habitants au fil d'une exploration sans carte.</p>
+  <dl class="facts">
+    <div class="fact"><dt>Éditeur</dt><dd>Team Cherry</dd></div>
+    <div class="fact"><dt>Rareté</dt><dd><span class="rv"><b></b>LÉGENDAIRE</span></dd></div>
+    <div class="fact"><dt>Genre</dt><dd>Metroidvania</dd></div>
+    <div class="fact"><dt>Année</dt><dd>2017</dd></div>
+    <div class="fact"><dt>Saison</dt><dd>Saison 1</dd></div>
+    <div class="fact"><dt>Pionnier</dt><dd><span class="pio"><span class="anon">Un joueur anonyme</span><span class="when">le 14 mars 2026</span></span></dd></div>
+    <div class="fact"><dt>Sets</dt><dd><span class="lnks"><a href="#s1">Metroidvania</a><a href="#s2">Team Cherry</a></span></dd></div>
+    <div class="fact"><dt>Exemplaires</dt><dd>1</dd></div>
+    <div class="fact"><dt>Éditions</dt><dd>Légendaire : S1</dd></div>
+    <div class="fact"><dt>Avis Steam</dt><dd>97 % positifs · 312 460 avis</dd></div>
+  </dl>
+  <div class="dacts"><a class="btn" href="#steam">Voir sur Steam</a><a class="btn alt" href="#partager">Partager</a></div>
+</article></div></div>
+</div>
+
+<p class="cap">Téléphone 390 <span>· les mêmes lignes, la date passe sous le nom quand la ligne est trop étroite</span></p>
+<div class="pair">
+<div class="col"><p class="cap">A · Pionnier visible</p>
+<div class="phone"><div class="bar">GAMEBLE<span class="back">◀ GRILLE</span></div>
+<article class="detail">
+  <header class="dh"><span class="kicker">Fiche de la carte</span><span class="dnum">S1 · #4 215</span></header>
+  <div class="stage"><span class="navb">◀</span>
+    <div class="card"><div class="t"><span class="tn">Hollow Knight</span><span class="pb">Team Cherry</span></div><div class="art"><i class="moon"></i><i style="left:0;right:0;bottom:0;height:34%"></i><i style="left:30%;bottom:34%;width:22px;height:40px"></i></div><div class="m"><span>METROIDVANIA</span><span>2017</span></div><div class="r"><span><b></b>LÉGENDAIRE</span><span>S1</span></div></div>
+    <span class="navb">▶</span></div>
+  <h1 class="dtitle">Hollow Knight</h1>
+  <p class="dpos">S1 · #4 215 · 12 / 1 648</p>
+  <p class="ddesc">Descendez dans Hallownest, un royaume d'insectes en ruine, et affrontez ses habitants au fil d'une exploration sans carte.</p>
+  <dl class="facts">
+    <div class="fact"><dt>Éditeur</dt><dd>Team Cherry</dd></div>
+    <div class="fact"><dt>Rareté</dt><dd><span class="rv"><b></b>LÉGENDAIRE</span></dd></div>
+    <div class="fact"><dt>Genre</dt><dd>Metroidvania</dd></div>
+    <div class="fact"><dt>Année</dt><dd>2017</dd></div>
+    <div class="fact"><dt>Saison</dt><dd>Saison 1</dd></div>
+    <div class="fact"><dt>Pionnier</dt><dd><span class="pio"><a href="#profil-lea">Léa</a><span class="when">le 14 mars 2026</span></span></dd></div>
+    <div class="fact"><dt>Sets</dt><dd><span class="lnks"><a href="#s1">Metroidvania</a><a href="#s2">Team Cherry</a></span></dd></div>
+    <div class="fact"><dt>Exemplaires</dt><dd>1</dd></div>
+    <div class="fact"><dt>Éditions</dt><dd>Légendaire : S1</dd></div>
+    <div class="fact"><dt>Avis Steam</dt><dd>97 % positifs · 312 460 avis</dd></div>
+  </dl>
+  <div class="dacts"><a class="btn" href="#steam">Voir sur Steam</a><a class="btn alt" href="#partager">Partager</a></div>
+</article></div></div>
+
+<div class="col"><p class="cap">B · Pionnier anonyme</p>
+<div class="phone"><div class="bar">GAMEBLE<span class="back">◀ GRILLE</span></div>
+<article class="detail">
+  <header class="dh"><span class="kicker">Fiche de la carte</span><span class="dnum">S1 · #4 215</span></header>
+  <div class="stage"><span class="navb">◀</span>
+    <div class="card"><div class="t"><span class="tn">Hollow Knight</span><span class="pb">Team Cherry</span></div><div class="art"><i class="moon"></i><i style="left:0;right:0;bottom:0;height:34%"></i><i style="left:30%;bottom:34%;width:22px;height:40px"></i></div><div class="m"><span>METROIDVANIA</span><span>2017</span></div><div class="r"><span><b></b>LÉGENDAIRE</span><span>S1</span></div></div>
+    <span class="navb">▶</span></div>
+  <h1 class="dtitle">Hollow Knight</h1>
+  <p class="dpos">S1 · #4 215 · 12 / 1 648</p>
+  <p class="ddesc">Descendez dans Hallownest, un royaume d'insectes en ruine, et affrontez ses habitants au fil d'une exploration sans carte.</p>
+  <dl class="facts">
+    <div class="fact"><dt>Éditeur</dt><dd>Team Cherry</dd></div>
+    <div class="fact"><dt>Rareté</dt><dd><span class="rv"><b></b>LÉGENDAIRE</span></dd></div>
+    <div class="fact"><dt>Genre</dt><dd>Metroidvania</dd></div>
+    <div class="fact"><dt>Année</dt><dd>2017</dd></div>
+    <div class="fact"><dt>Saison</dt><dd>Saison 1</dd></div>
+    <div class="fact"><dt>Pionnier</dt><dd><span class="pio"><span class="anon">Un joueur anonyme</span><span class="when">le 14 mars 2026</span></span></dd></div>
+    <div class="fact"><dt>Sets</dt><dd><span class="lnks"><a href="#s1">Metroidvania</a><a href="#s2">Team Cherry</a></span></dd></div>
+    <div class="fact"><dt>Exemplaires</dt><dd>1</dd></div>
+    <div class="fact"><dt>Éditions</dt><dd>Légendaire : S1</dd></div>
+    <div class="fact"><dt>Avis Steam</dt><dd>97 % positifs · 312 460 avis</dd></div>
+  </dl>
+  <div class="dacts"><a class="btn" href="#steam">Voir sur Steam</a><a class="btn alt" href="#partager">Partager</a></div>
+</article></div></div>
+</div>
+</div>
+</body>
+</html>

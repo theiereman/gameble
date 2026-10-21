@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page feuille de route</title>
+<style>
+/*
+  Roadmap page (public, outside the app, landing family) — rendered 2026-10-21.
+  Governing spine sections: DESIGN.md Landing (top bar, module 06 roadmap block, footer, tokens),
+  Colors, Typography (banner-small, body, kicker, label), Components (panel, corner-brackets, focus-ring);
+  EXPERIENCE.md Landing (module 06, footer), Landing footer row, Legal page, Comment ça marche,
+  Voice and Tone, Copy deck (Landing).
+  Author decisions 2026-10-21: public, indexable, landing top bar and footer, no app navigation; one
+  vertical timeline, past at the top and future at the bottom; rail of milestones (date, status, title,
+  supporting copy) after the 21st.dev timeline-1 reference; statuses in the app's words
+  (Fait / En cours / À venir) always in text; each milestone is an epic with a few player-facing stories.
+  ILLUSTRATIVE: every milestone, date and story wording below is a placeholder drawn from real epics,
+  not published copy; staff choose what the real page shows.
+  Tokens are the landing's (mockups/landing.html), same names and values. Fonts: VT323 and JetBrains Mono
+  are not embedded here; the fallback is ui-monospace, so line breaks may differ slightly from the app.
+  Layout is container-driven: a frame under 640px wide switches to the phone layout.
+*/
+:root {
+  --backdrop:#05070a; --ground:#0b0f15; --steam-bar:#171a21;
+  --panel:#121a24; --panel-sunken:#0e141b; --panel-raised:#1b2838;
+  --line:#2a475e; --line-soft:#1f3346; --line-deep:#2a6f9a;
+  --accent:#66c0f4; --accent-hi:#b5e2ff; --on-accent:#0b1520;
+  --text:#c7d5e0; --text-bright:#e6eef5; --text-max:#ffffff;
+  --muted:#8f98a0; --dim:#5d6b78; --outline:#06090d;
+  --gold:#f4c542; --star:#c7d5e0;
+  --jb:"JetBrains Mono", ui-monospace, monospace;
+  --vt:"VT323", "JetBrains Mono", ui-monospace, monospace;
+  --gutter:32px;
+}
+*, *::before, *::after { box-sizing:border-box; }
+html { color-scheme:dark; background:var(--backdrop); }
+body { margin:0; padding:24px; background:#101215; color:var(--text); font:400 0.875rem/1.3125rem var(--jb); -webkit-font-smoothing:antialiased; }
+p, h1, h2, h3, ul, ol { margin:0; padding:0; }
+h1, h2, h3 { font-weight:400; }
+ul, ol { list-style:none; }
+a { color:inherit; }
+a:focus-visible { outline:3px solid var(--text-max); outline-offset:3px; box-shadow:0 0 0 3px var(--outline); }
+
+/* ---- presentation sheet (outside the design) ---- */
+.sheet { max-width:1330px; margin:0 auto; }
+.sheet > h1.doc { font:400 2rem/2.25rem var(--vt); color:#fff; letter-spacing:1px; margin:8px 0 6px; }
+.sheet > p.doc { max-width:90ch; color:var(--muted); font-size:12px; line-height:18px; }
+.cap { margin:32px 0 10px; color:var(--accent); font:700 11px/16px var(--jb); letter-spacing:1.5px; text-transform:uppercase; }
+.cap span { color:var(--muted); letter-spacing:.5px; text-transform:none; font-weight:400; }
+.frames { display:flex; flex-wrap:wrap; gap:28px; align-items:flex-start; }
+.desk { width:1280px; flex:none; box-shadow:0 0 0 1px #2c3036; }
+.phone { width:390px; flex:none; box-shadow:0 0 0 1px #2c3036; }
+.frame { container-type:inline-size; position:relative; background:var(--ground); overflow:hidden; }
+
+/* ---- page chrome: the landing's ---- */
+.scan { position:absolute; inset:0; z-index:0; pointer-events:none; background:repeating-linear-gradient(0deg, rgba(0,0,0,.11) 0 1px, transparent 1px 3px); }
+.page { position:relative; z-index:1; }
+.topbar { background:var(--steam-bar); box-shadow:0 2px 0 0 var(--line); }
+.topbar__in { display:flex; align-items:center; gap:16px; max-width:1280px; min-height:56px; margin:0 auto; padding:0 var(--gutter); }
+.wordmark { color:var(--gold); font:400 1.75rem/1 var(--vt); letter-spacing:2px; text-decoration:none; text-shadow:0 2px 0 var(--outline); }
+.topbar__sp { flex:1; }
+.topbar__status { display:flex; align-items:center; gap:8px; color:var(--muted); font:700 0.6875rem/1 var(--jb); letter-spacing:1.5px; text-transform:uppercase; }
+.light { flex:none; width:8px; height:8px; background:var(--accent); box-shadow:0 0 0 2px var(--outline); }
+.steam { display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 14px; background:#2a475e; color:var(--text-bright); font:700 0.75rem/1 var(--jb); letter-spacing:1px; text-transform:uppercase; text-decoration:none; }
+.steam:hover { background:var(--accent); color:var(--on-accent); }
+
+.kicker { color:var(--accent); font:700 0.6875rem/1rem var(--jb); letter-spacing:1.5px; text-transform:uppercase; }
+.px { display:inline-block; flex:none; fill:currentColor; shape-rendering:crispEdges; }
+.link { display:inline-flex; align-items:center; gap:8px; min-height:24px; color:var(--accent); font:700 0.75rem/1.125rem var(--jb); text-decoration:underline; text-underline-offset:3px; }
+.link:hover { color:var(--accent-hi); }
+
+/* ---- head ---- */
+.road { padding:96px var(--gutter) 112px; }
+.road__in { max-width:1120px; margin:0 auto; }
+.head { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+.head__rule { flex:1; min-width:40px; height:2px; background:var(--line-soft); }
+.road h1 { max-width:22em; color:var(--text-max); font:400 3.375rem/3.5rem var(--vt); letter-spacing:2px; text-wrap:balance; }
+.road .lead { max-width:60ch; margin:16px 0 56px; color:var(--text); font:400 1rem/1.5rem var(--jb); }
+
+/* ---- the rail ---- */
+.rail { --date-w:168px; --rail-w:28px; }
+.m { position:relative; display:grid; grid-template-columns:var(--date-w) var(--rail-w) minmax(0,1fr); grid-template-areas:"date node body"; column-gap:24px; padding-bottom:48px; }
+.m:last-child { padding-bottom:0; }
+.m__date { grid-area:date; padding-top:4px; text-align:right; color:var(--text-bright); font:700 0.75rem/1.125rem var(--jb); letter-spacing:.5px; }
+.m__date small { display:block; color:var(--muted); font:700 0.6875rem/1rem var(--jb); letter-spacing:.5px; text-transform:uppercase; }
+.m__node { grid-area:node; position:relative; z-index:1; display:grid; place-items:center; width:28px; height:28px; margin-top:0; background:var(--ground); box-shadow:inset 0 0 0 2px var(--line-deep); color:var(--on-accent); }
+.m::before { content:""; position:absolute; top:28px; bottom:0; left:calc(var(--date-w) + 24px + 13px); width:2px; background:repeating-linear-gradient(180deg, var(--line-deep) 0 4px, transparent 4px 8px); }
+.m:last-child::before { bottom:auto; height:96px; -webkit-mask:linear-gradient(180deg,#000,transparent); mask:linear-gradient(180deg,#000,transparent); }
+.m--done::before { background:var(--accent); }
+.m--wip::before { background:repeating-linear-gradient(180deg, var(--accent) 0 4px, transparent 4px 8px); }
+.m--done .m__node { background:var(--accent); box-shadow:none; }
+.m--wip .m__node { box-shadow:inset 0 0 0 2px var(--accent); }
+.m--wip .m__node::after { content:""; width:12px; height:12px; background:var(--accent); }
+.m__body { grid-area:body; min-width:0; }
+.panel { position:relative; padding:20px 24px 22px; background:var(--panel); box-shadow:inset 0 0 0 2px var(--line); }
+.m--todo .panel { background:var(--panel-sunken); box-shadow:inset 0 0 0 2px var(--line-soft); }
+.brk::before, .brk::after { content:""; position:absolute; width:14px; height:14px; pointer-events:none; }
+.brk::before { top:-5px; left:-5px; border-top:3px solid var(--accent); border-left:3px solid var(--accent); }
+.brk::after { right:-5px; bottom:-5px; border-right:3px solid var(--accent); border-bottom:3px solid var(--accent); }
+.badge { display:inline-flex; align-items:center; gap:8px; margin-bottom:10px; padding:4px 8px 4px 6px; font:700 0.625rem/1 var(--jb); letter-spacing:1.25px; text-transform:uppercase; box-shadow:inset 0 0 0 2px var(--line-deep); color:var(--muted); }
+.badge i { width:8px; height:8px; box-shadow:inset 0 0 0 2px currentColor; }
+.m--done .badge { background:var(--accent); box-shadow:none; color:var(--on-accent); }
+.m--done .badge i { background:var(--on-accent); box-shadow:none; }
+.m--wip .badge { color:var(--accent); box-shadow:inset 0 0 0 2px var(--accent); }
+.m--wip .badge i { background:linear-gradient(90deg,currentColor 50%,transparent 50%); }
+.m h2 { color:var(--text-max); font:400 2rem/2.25rem var(--vt); letter-spacing:1px; text-wrap:balance; }
+.m--todo h2 { color:var(--text-bright); }
+.m__sum { max-width:62ch; margin-top:8px; color:var(--text); }
+.stories { display:grid; gap:0; margin-top:16px; box-shadow:0 -2px 0 0 var(--line-soft); }
+.stories li { display:grid; grid-template-columns:10px minmax(0,1fr) auto; gap:12px; align-items:baseline; padding:9px 0; box-shadow:0 2px 0 0 var(--line-soft); color:var(--text); font:700 0.75rem/1.125rem var(--jb); }
+.stories .mk { width:10px; height:10px; transform:translateY(1px); }
+.mk--done { background:var(--accent); }
+.mk--wip { background:linear-gradient(90deg,var(--accent) 0 50%,transparent 50%); box-shadow:inset 0 0 0 2px var(--accent); }
+.mk--todo { box-shadow:inset 0 0 0 2px var(--line-deep); }
+.st { font:700 0.625rem/1 var(--jb); letter-spacing:1.25px; text-transform:uppercase; white-space:nowrap; }
+.st--done { color:var(--text-bright); } .st--wip { color:var(--accent); } .st--todo { color:var(--muted); }
+.road__note { max-width:62ch; margin:48px 0 0 calc(var(--date-w) + var(--rail-w) + 48px); padding-top:16px; box-shadow:0 -2px 0 0 var(--line-soft); color:var(--muted); font:700 0.6875rem/1rem var(--jb); letter-spacing:.5px; }
+
+/* ---- shared landing footer: copied from the landing, plus the rules link its spec lists ---- */
+.foot { background:var(--steam-bar); box-shadow:0 -2px 0 0 var(--line); }
+.foot__in { display:flex; flex-wrap:wrap; align-items:center; gap:4px 24px; max-width:1280px; margin:0 auto; padding:16px var(--gutter) 20px; }
+.foot__note { flex-basis:100%; color:var(--muted); font:700 0.6875rem/1rem var(--jb); letter-spacing:.5px; }
+.foot .wordmark { font-size:1.5rem; margin-right:8px; }
+
+/* ---- phone layout: a frame narrower than 640px ---- */
+@container (max-width: 640px) {
+  .topbar__in { padding:0 16px; }
+  .topbar__status { display:none; }
+  .steam { padding:0 10px; font-size:.6875rem; }
+  .road { padding:56px 16px 64px; }
+  .road h1 { font-size:2.5rem; line-height:2.75rem; }
+  .road .lead { margin-bottom:40px; }
+  .rail { --date-w:0px; }
+  .m { grid-template-columns:var(--rail-w) minmax(0,1fr); grid-template-areas:"node date" "node body"; column-gap:14px; padding-bottom:36px; }
+  .m__date { text-align:left; padding:0 0 10px; }
+  .m__date small { display:inline; margin-left:8px; }
+  .m::before { left:13px; }
+  .panel { padding:16px 14px 18px; }
+  .m h2 { font-size:1.75rem; line-height:2rem; }
+  .stories li { grid-template-columns:10px minmax(0,1fr); }
+  .stories li .st { grid-column:2; }
+  .road__note { margin-left:0; }
+  .foot__in { padding:16px 16px 24px; }
+}
+@media (prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="sheet">
+<h1 class="doc">Page feuille de route</h1>
+<p class="doc">Public page of the landing family. Milestone wording, dates and stories are illustrative. Top: desktop 1280 and phone 390. Below: the two load-bearing alternate states (a milestone with no visible stories; a page with a single milestone).</p>
+
+<!-- ======================= DESKTOP + PHONE ======================= -->
+<p class="cap">Écran 1 <span>· Feuille de route, bureau 1280 et téléphone 390, de haut en bas : fait, en cours, à venir</span></p>
+<div class="frames">
+
+<!-- ---------- DESKTOP ---------- -->
+<div class="desk frame"><div class="scan"></div><div class="page">
+  <header class="topbar"><div class="topbar__in">
+    <a class="wordmark" href="#accueil" aria-label="gameble, retour à l'accueil">GAMEBLE</a>
+    <span class="topbar__sp"></span>
+    <span class="topbar__status"><span class="light"></span>Terminal en ligne</span>
+    <a class="steam" href="#steam" aria-label="Se connecter avec Steam (ouvre Steam)">Se connecter avec Steam</a>
+  </div></header>
+
+  <main class="road"><div class="road__in">
+    <div class="head"><span class="kicker">Feuille de route</span><span class="head__rule"></span></div>
+    <h1>Les changements à venir</h1>
+    <p class="lead">Ce qui est fait, ce qui avance, ce qui vient. La collection se construit avec la communauté, le jeu aussi.</p>
+
+    <ol class="rail" aria-label="Étapes de la feuille de route, des plus anciennes aux plus lointaines">
+      <li class="m m--done">
+        <p class="m__date">Mars 2026<small>Livré</small></p>
+        <span class="m__node"><svg class="px" width="12" height="10" viewBox="0 0 5 4" aria-hidden="true"><path d="M0 2h1v1h1v1h1V3h1V2h1V1H4v1H3v1H2V2H0z"/></svg></span>
+        <div class="m__body"><div class="panel">
+          <p class="badge"><i></i>Fait</p>
+          <h2>Boosters et révélation</h2>
+          <p class="m__sum">Ouvrir une capsule, découvrir ses cartes une à une, les retrouver dans sa collection.</p>
+          <ul class="stories">
+            <li><i class="mk mk--done"></i><span>Une réserve qui se remplit seule</span><span class="st st--done">Fait</span></li>
+            <li><i class="mk mk--done"></i><span>Le booster quotidien</span><span class="st st--done">Fait</span></li>
+            <li><i class="mk mk--done"></i><span>La révélation, carte par carte</span><span class="st st--done">Fait</span></li>
+          </ul>
+        </div></div>
+      </li>
+
+      <li class="m m--wip">
+        <p class="m__date">Depuis septembre 2026<small>En cours</small></p>
+        <span class="m__node"></span>
+        <div class="m__body"><div class="panel brk">
+          <p class="badge"><i></i>En cours</p>
+          <h2>La Confrérie</h2>
+          <p class="m__sum">Voir ce que font les autres joueurs, avancer ensemble vers un objectif de la semaine.</p>
+          <ul class="stories">
+            <li><i class="mk mk--done"></i><span>Le fil d'activité</span><span class="st st--done">Fait</span></li>
+            <li><i class="mk mk--wip"></i><span>L'objectif de la semaine</span><span class="st st--wip">En cours</span></li>
+            <li><i class="mk mk--todo"></i><span>L'écran des succès</span><span class="st st--todo">À venir</span></li>
+          </ul>
+        </div></div>
+      </li>
+
+      <li class="m m--wip">
+        <p class="m__date">Depuis octobre 2026<small>En cours</small></p>
+        <span class="m__node"></span>
+        <div class="m__body"><div class="panel brk">
+          <p class="badge"><i></i>En cours</p>
+          <h2>Des échanges plus simples</h2>
+          <p class="m__sum">Proposer un échange en moins de gestes, et retrouver où il en est.</p>
+          <ul class="stories">
+            <li><i class="mk mk--done"></i><span>Proposer un échange depuis une carte en double</span><span class="st st--done">Fait</span></li>
+            <li><i class="mk mk--wip"></i><span>Suivre ses échanges en un coup d'œil</span><span class="st st--wip">En cours</span></li>
+          </ul>
+        </div></div>
+      </li>
+
+      <li class="m m--todo">
+        <p class="m__date">Prévu début 2027<small>À venir</small></p>
+        <span class="m__node"></span>
+        <div class="m__body"><div class="panel">
+          <p class="badge"><i></i>À venir</p>
+          <h2>Dos de cartes</h2>
+          <p class="m__sum">Donner à ses cartes le dos de son choix.</p>
+          <ul class="stories">
+            <li><i class="mk mk--todo"></i><span>Choisir le dos de ses cartes</span><span class="st st--todo">À venir</span></li>
+            <li><i class="mk mk--todo"></i><span>Débloquer de nouveaux dos en jouant</span><span class="st st--todo">À venir</span></li>
+          </ul>
+        </div></div>
+      </li>
+
+      <li class="m m--todo">
+        <p class="m__date">Prévu début 2027<small>À venir</small></p>
+        <span class="m__node"></span>
+        <div class="m__body"><div class="panel">
+          <p class="badge"><i></i>À venir</p>
+          <h2>Les saisons se prolongent</h2>
+          <p class="m__sum">Une nouvelle saison ne repart pas de zéro : votre collection la traverse.</p>
+          <ul class="stories">
+            <li><i class="mk mk--todo"></i><span>Retrouver ses cartes d'une saison à l'autre</span><span class="st st--todo">À venir</span></li>
+            <li><i class="mk mk--todo"></i><span>Reconquérir un palier de set</span><span class="st st--todo">À venir</span></li>
+          </ul>
+        </div></div>
+      </li>
+
+      <li class="m m--todo">
+        <p class="m__date">Prévu plus tard en 2027<small>À venir</small></p>
+        <span class="m__node"></span>
+        <div class="m__body"><div class="panel">
+          <p class="badge"><i></i>À venir</p>
+          <h2>Des capsules spéciales</h2>
+          <p class="m__sum">Des capsules à thème, pour une occasion ou un set précis.</p>
+          <ul class="stories">
+            <li><i class="mk mk--todo"></i><span>Une capsule autour d'un set</span><span class="st st--todo">À venir</span></li>
+            <li><i class="mk mk--todo"></i><span>Des capsules d'événement</span><span class="st st--todo">À venir</span></li>
+          </ul>
+        </div></div>
+      </li>
+    </ol>
+  </div></main>
+
+  <footer class="foot"><div class="foot__in">
+    <span class="wordmark" aria-hidden="true">GAMEBLE</span>
+    <a class="link" href="#regles">Comment ça marche</a>
+    <a class="link" href="#legal">Mentions légales</a>
+    <a class="link" href="#soutenir">Soutenir <svg class="px" width="10" height="10" viewBox="0 0 6 6" aria-hidden="true"><path d="M0 1h2v1H1v3h3V4h1v2H0zM3 0h3v3H5V2L3 4 2 3l2-2H3z"/></svg><span class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">(nouvel onglet)</span></a>
+    <a class="link" href="#repo">Code source <svg class="px" width="10" height="10" viewBox="0 0 6 6" aria-hidden="true"><path d="M0 1h2v1H1v3h3V4h1v2H0zM3 0h3v3H5V2L3 4 2 3l2-2H3z"/></svg><span class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">(nouvel onglet)</span></a>
+    <p class="foot__note">gameble n'est pas affilié à Steam ni à Valve. Les illustrations appartiennent aux éditeurs des jeux et à leurs artistes.</p>
+  </div></footer>
+</div></div>
+
+<!-- ---------- PHONE ---------- -->
+<div class="phone frame"><div class="scan"></div><div class="page">
+  <header class="topbar"><div class="topbar__in">
+    <a class="wordmark" href="#accueil" aria-label="gameble, retour à l'accueil">GAMEBLE</a>
+    <span class="topbar__sp"></span>
+    <a class="steam" href="#steam" aria-label="Se connecter avec Steam (ouvre Steam)">Connexion Steam</a>
+  </div></header>
+
+  <main class="road"><div class="road__in">
+    <div class="head"><span class="kicker">Feuille de route</span><span class="head__rule"></span></div>
+    <h1>Les changements à venir</h1>
+    <p class="lead">Ce qui est fait, ce qui avance, ce qui vient. La collection se construit avec la communauté, le jeu aussi.</p>
+
+    <ol class="rail" aria-label="Étapes de la feuille de route, des plus anciennes aux plus lointaines">
+      <li class="m m--done">
+        <p class="m__date">Mars 2026<small>Livré</small></p>
+        <span class="m__node"><svg class="px" width="12" height="10" viewBox="0 0 5 4" aria-hidden="true"><path d="M0 2h1v1h1v1h1V3h1V2h1V1H4v1H3v1H2V2H0z"/></svg></span>
+        <div class="m__body"><div class="panel">
+          <p class="badge"><i></i>Fait</p>
+          <h2>Boosters et révélation</h2>
+          <p class="m__sum">Ouvrir une capsule, découvrir ses cartes une à une, les retrouver dans sa collection.</p>
+          <ul class="stories">
+            <li><i class="mk mk--done"></i><span>Une réserve qui se remplit seule</span><span class="st st--done">Fait</span></li>
+            <li><i class="mk mk--done"></i><span>Le booster quotidien</span><span class="st st--done">Fait</span></li>
+            <li><i class="mk mk--done"></i><span>La révélation, carte par carte</span><span class="st st--done">Fait</span></li>
+          </ul>
+        </div></div>
+      </li>
+      <li class="m m--wip">
+        <p class="m__date">Depuis septembre 2026<small>En cours</small></p>
+        <span class="m__node"></span>
+        <div class="m__body"><div class="panel brk">
+          <p class="badge"><i></i>En cours</p>
+          <h2>La Confrérie</h2>
+          <p class="m__sum">Voir ce que font les autres joueurs, avancer ensemble vers un objectif de la semaine.</p>
+          <ul class="stories">
+            <li><i class="mk mk--done"></i><span>Le fil d'activité</span><span class="st st--done">Fait</span></li>
+            <li><i class="mk mk--wip"></i><span>L'objectif de la semaine</span><span class="st st--wip">En cours</span></li>
+            <li><i class="mk mk--todo"></i><span>L'écran des succès</span><span class="st st--todo">À venir</span></li>
+          </ul>
+        </div></div>
+      </li>
+      <li class="m m--wip">
+        <p class="m__date">Depuis octobre 2026<small>En cours</small></p>
+        <span class="m__node"></span>
+        <div class="m__body"><div class="panel brk">
+          <p class="badge"><i></i>En cours</p>
+          <h2>Des échanges plus simples</h2>
+          <p class="m__sum">Proposer un échange en moins de gestes, et retrouver où il en est.</p>
+          <ul class="stories">
+            <li><i class="mk mk--done"></i><span>Proposer un échange depuis une carte en double</span><span class="st st--done">Fait</span></li>
+            <li><i class="mk mk--wip"></i><span>Suivre ses échanges en un coup d'œil</span><span class="st st--wip">En cours</span></li>
+          </ul>
+        </div></div>
+      </li>
+      <li class="m m--todo">
+        <p class="m__date">Prévu début 2027<small>À venir</small></p>
+        <span class="m__node"></span>
+        <div class="m__body"><div class="panel">
+          <p class="badge"><i></i>À venir</p>
+          <h2>Dos de cartes</h2>
+          <p class="m__sum">Donner à ses cartes le dos de son choix.</p>
+          <ul class="stories">
+            <li><i class="mk mk--todo"></i><span>Choisir le dos de ses cartes</span><span class="st st--todo">À venir</span></li>
+            <li><i class="mk mk--todo"></i><span>Débloquer de nouveaux dos en jouant</span><span class="st st--todo">À venir</span></li>
+          </ul>
+        </div></div>
+      </li>
+      <li class="m m--todo">
+        <p class="m__date">Prévu début 2027<small>À venir</small></p>
+        <span class="m__node"></span>
+        <div class="m__body"><div class="panel">
+          <p class="badge"><i></i>À venir</p>
+          <h2>Les saisons se prolongent</h2>
+          <p class="m__sum">Une nouvelle saison ne repart pas de zéro : votre collection la traverse.</p>
+          <ul class="stories">
+            <li><i class="mk mk--todo"></i><span>Retrouver ses cartes d'une saison à l'autre</span><span class="st st--todo">À venir</span></li>
+            <li><i class="mk mk--todo"></i><span>Reconquérir un palier de set</span><span class="st st--todo">À venir</span></li>
+          </ul>
+        </div></div>
+      </li>
+      <li class="m m--todo">
+        <p class="m__date">Prévu plus tard en 2027<small>À venir</small></p>
+        <span class="m__node"></span>
+        <div class="m__body"><div class="panel">
+          <p class="badge"><i></i>À venir</p>
+          <h2>Des capsules spéciales</h2>
+          <p class="m__sum">Des capsules à thème, pour une occasion ou un set précis.</p>
+          <ul class="stories">
+            <li><i class="mk mk--todo"></i><span>Une capsule autour d'un set</span><span class="st st--todo">À venir</span></li>
+            <li><i class="mk mk--todo"></i><span>Des capsules d'événement</span><span class="st st--todo">À venir</span></li>
+          </ul>
+        </div></div>
+      </li>
+    </ol>
+  </div></main>
+
+  <footer class="foot"><div class="foot__in">
+    <span class="wordmark" aria-hidden="true">GAMEBLE</span>
+    <a class="link" href="#regles">Comment ça marche</a>
+    <a class="link" href="#legal">Mentions légales</a>
+    <a class="link" href="#soutenir">Soutenir <svg class="px" width="10" height="10" viewBox="0 0 6 6" aria-hidden="true"><path d="M0 1h2v1H1v3h3V4h1v2H0zM3 0h3v3H5V2L3 4 2 3l2-2H3z"/></svg><span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">(nouvel onglet)</span></a>
+    <a class="link" href="#repo">Code source <svg class="px" width="10" height="10" viewBox="0 0 6 6" aria-hidden="true"><path d="M0 1h2v1H1v3h3V4h1v2H0zM3 0h3v3H5V2L3 4 2 3l2-2H3z"/></svg><span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">(nouvel onglet)</span></a>
+    <p class="foot__note">gameble n'est pas affilié à Steam ni à Valve. Les illustrations appartiennent aux éditeurs des jeux et à leurs artistes.</p>
+  </div></footer>
+</div></div>
+</div>
+
+<!-- ======================= ÉTATS ======================= -->
+<p class="cap">États <span>· a) une étape sans histoire visible (l'équipe n'en montre aucune), bureau et téléphone</span></p>
+<div class="frames">
+<div class="desk frame" style="width:1280px"><div class="scan"></div><div class="page"><main class="road" style="padding-top:56px;padding-bottom:56px"><div class="road__in">
+  <ol class="rail">
+    <li class="m m--wip">
+      <p class="m__date">Depuis octobre 2026<small>En cours</small></p>
+      <span class="m__node"></span>
+      <div class="m__body"><div class="panel brk">
+        <p class="badge"><i></i>En cours</p>
+        <h2>Des échanges plus simples</h2>
+        <p class="m__sum">Proposer un échange en moins de gestes, et retrouver où il en est.</p>
+      </div></div>
+    </li>
+    <li class="m m--todo">
+      <p class="m__date">Prévu début 2027<small>À venir</small></p>
+      <span class="m__node"></span>
+      <div class="m__body"><div class="panel">
+        <p class="badge"><i></i>À venir</p>
+        <h2>Dos de cartes</h2>
+        <p class="m__sum">Donner à ses cartes le dos de son choix.</p>
+      </div></div>
+    </li>
+  </ol>
+</div></main></div></div>
+<div class="phone frame"><div class="scan"></div><div class="page"><main class="road" style="padding-top:40px;padding-bottom:40px"><div class="road__in">
+  <ol class="rail">
+    <li class="m m--wip">
+      <p class="m__date">Depuis octobre 2026<small>En cours</small></p>
+      <span class="m__node"></span>
+      <div class="m__body"><div class="panel brk">
+        <p class="badge"><i></i>En cours</p>
+        <h2>Des échanges plus simples</h2>
+        <p class="m__sum">Proposer un échange en moins de gestes, et retrouver où il en est.</p>
+      </div></div>
+    </li>
+    <li class="m m--todo">
+      <p class="m__date">Prévu début 2027<small>À venir</small></p>
+      <span class="m__node"></span>
+      <div class="m__body"><div class="panel">
+        <p class="badge"><i></i>À venir</p>
+        <h2>Dos de cartes</h2>
+        <p class="m__sum">Donner à ses cartes le dos de son choix.</p>
+      </div></div>
+    </li>
+  </ol>
+</div></main></div></div>
+</div>
+
+<p class="cap">États <span>· b) un seul jalon visible (premiers jours), page complète avec son pied de page, bureau et téléphone</span></p>
+<div class="frames">
+<div class="desk frame"><div class="scan"></div><div class="page">
+  <header class="topbar"><div class="topbar__in">
+    <a class="wordmark" href="#accueil" aria-label="gameble, retour à l'accueil">GAMEBLE</a><span class="topbar__sp"></span>
+    <span class="topbar__status"><span class="light"></span>Terminal en ligne</span>
+    <a class="steam" href="#steam" aria-label="Se connecter avec Steam (ouvre Steam)">Se connecter avec Steam</a>
+  </div></header>
+  <main class="road" style="padding-bottom:72px"><div class="road__in">
+    <div class="head"><span class="kicker">Feuille de route</span><span class="head__rule"></span></div>
+    <h1>Les changements à venir</h1>
+    <p class="lead">Ce qui est fait, ce qui avance, ce qui vient. La collection se construit avec la communauté, le jeu aussi.</p>
+    <ol class="rail">
+      <li class="m m--wip">
+        <p class="m__date">Depuis septembre 2026<small>En cours</small></p>
+        <span class="m__node"></span>
+        <div class="m__body"><div class="panel brk">
+          <p class="badge"><i></i>En cours</p>
+          <h2>La Confrérie</h2>
+          <p class="m__sum">Voir ce que font les autres joueurs, avancer ensemble vers un objectif de la semaine.</p>
+          <ul class="stories">
+            <li><i class="mk mk--done"></i><span>Le fil d'activité</span><span class="st st--done">Fait</span></li>
+            <li><i class="mk mk--wip"></i><span>L'objectif de la semaine</span><span class="st st--wip">En cours</span></li>
+          </ul>
+        </div></div>
+      </li>
+    </ol>
+  </div></main>
+  <footer class="foot"><div class="foot__in">
+    <span class="wordmark" aria-hidden="true">GAMEBLE</span>
+    <a class="link" href="#regles">Comment ça marche</a><a class="link" href="#legal">Mentions légales</a>
+    <a class="link" href="#soutenir">Soutenir <svg class="px" width="10" height="10" viewBox="0 0 6 6" aria-hidden="true"><path d="M0 1h2v1H1v3h3V4h1v2H0zM3 0h3v3H5V2L3 4 2 3l2-2H3z"/></svg></a>
+    <a class="link" href="#repo">Code source <svg class="px" width="10" height="10" viewBox="0 0 6 6" aria-hidden="true"><path d="M0 1h2v1H1v3h3V4h1v2H0zM3 0h3v3H5V2L3 4 2 3l2-2H3z"/></svg></a>
+    <p class="foot__note">gameble n'est pas affilié à Steam ni à Valve. Les illustrations appartiennent aux éditeurs des jeux et à leurs artistes.</p>
+  </div></footer>
+</div></div>
+<div class="phone frame"><div class="scan"></div><div class="page">
+  <header class="topbar"><div class="topbar__in">
+    <a class="wordmark" href="#accueil" aria-label="gameble, retour à l'accueil">GAMEBLE</a><span class="topbar__sp"></span>
+    <a class="steam" href="#steam" aria-label="Se connecter avec Steam (ouvre Steam)">Connexion Steam</a>
+  </div></header>
+  <main class="road"><div class="road__in">
+    <div class="head"><span class="kicker">Feuille de route</span><span class="head__rule"></span></div>
+    <h1>Les changements à venir</h1>
+    <p class="lead">Ce qui est fait, ce qui avance, ce qui vient. La collection se construit avec la communauté, le jeu aussi.</p>
+    <ol class="rail">
+      <li class="m m--wip">
+        <p class="m__date">Depuis septembre 2026<small>En cours</small></p>
+        <span class="m__node"></span>
+        <div class="m__body"><div class="panel brk">
+          <p class="badge"><i></i>En cours</p>
+          <h2>La Confrérie</h2>
+          <p class="m__sum">Voir ce que font les autres joueurs, avancer ensemble vers un objectif de la semaine.</p>
+          <ul class="stories">
+            <li><i class="mk mk--done"></i><span>Le fil d'activité</span><span class="st st--done">Fait</span></li>
+            <li><i class="mk mk--wip"></i><span>L'objectif de la semaine</span><span class="st st--wip">En cours</span></li>
+          </ul>
+        </div></div>
+      </li>
+    </ol>
+  </div></main>
+  <footer class="foot"><div class="foot__in">
+    <span class="wordmark" aria-hidden="true">GAMEBLE</span>
+    <a class="link" href="#regles">Comment ça marche</a><a class="link" href="#legal">Mentions légales</a>
+    <a class="link" href="#soutenir">Soutenir <svg class="px" width="10" height="10" viewBox="0 0 6 6" aria-hidden="true"><path d="M0 1h2v1H1v3h3V4h1v2H0zM3 0h3v3H5V2L3 4 2 3l2-2H3z"/></svg></a>
+    <a class="link" href="#repo">Code source <svg class="px" width="10" height="10" viewBox="0 0 6 6" aria-hidden="true"><path d="M0 1h2v1H1v3h3V4h1v2H0zM3 0h3v3H5V2L3 4 2 3l2-2H3z"/></svg></a>
+    <p class="foot__note">gameble n'est pas affilié à Steam ni à Valve. Les illustrations appartiennent aux éditeurs des jeux et à leurs artistes.</p>
+  </div></footer>
+</div></div>
+</div>
+</div>
+</body>
+</html>
