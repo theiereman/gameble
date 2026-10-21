@@ -61,7 +61,7 @@ describe("reflection", () => {
     expect(corner.strip).toBeCloseTo(30 - 68.75 - 37.5)
     expect(corner.fresnel).toBeCloseTo(1.4)
     expect(corner.horizon).toBeCloseTo(-0.32 - 1.25 - 0.25 * (2 / 3))
-    expect(corner.hue).toBeCloseTo(50 + 0.45 * 250)
+    expect(corner.hue).toBeCloseTo(50 + 0.45 * 300)
     expect(reflection(0.5, -0.5, 2 / 3).fresnel).toBeCloseTo(1.4)
     expect(reflection(0.25, 0, 2 / 3).fresnel).toBeCloseTo(0.875)
   })
@@ -72,8 +72,8 @@ describe("reflection", () => {
   })
 
   it("shifts the hues with the tilt, whatever the tilt's strength", () => {
-    expect(reflectionOf({ rx: -10, ry: 10 }, 10, 2 / 3).hue).toBeCloseTo(162.5)
-    expect(reflectionOf({ rx: 5, ry: -5 }, 10, 2 / 3).hue).toBeCloseTo(-6.25)
+    expect(reflectionOf({ rx: -10, ry: 10 }, 10, 2 / 3).hue).toBeCloseTo(185)
+    expect(reflectionOf({ rx: 5, ry: -5 }, 10, 2 / 3).hue).toBeCloseTo(-17.5)
     expect(reflectionOf({ rx: -16, ry: 16 }, 16, 2 / 3)).toEqual(reflectionOf({ rx: -10, ry: 10 }, 10, 2 / 3))
   })
 

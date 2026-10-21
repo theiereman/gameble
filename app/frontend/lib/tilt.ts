@@ -78,7 +78,7 @@ export function reflection(dx: number, dy: number, aspect: number): Reflection {
     strip: withoutNegativeZero(30 - dx * TRAVEL * 55 - dy * TRAVEL * 30),
     fresnel: withoutNegativeZero(0.8 + 0.6 * tilt2),
     horizon: withoutNegativeZero(-0.32 - dy * TRAVEL - 0.2 * dx * TRAVEL * aspect),
-    hue: withoutNegativeZero(50 + (dx * 0.6 + dy * 0.3) * TRAVEL * 100),
+    hue: withoutNegativeZero(50 + (dx * 0.6 + dy * 0.3) * TRAVEL * 120),
   }
 }
 

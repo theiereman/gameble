@@ -516,7 +516,7 @@
 /* A Légendaire's iridescence: pastel hues showing through a wider main
    band, sliding with the tilt. */
 .card__reflection--iridescence {
-  --band-half: calc(1.15 * var(--reflection-half));
+  --band-half: calc(0.8 * var(--reflection-half));
   --band-peak: 1;
   background: linear-gradient(118deg,
     var(--color-iridescence-1) 0 calc(100% * 1 / 21),
@@ -544,7 +544,7 @@
   background-size: 300% 100%;
   mask-image: var(--band);
   mix-blend-mode: screen;
-  opacity: calc(0.07 * var(--reflection-fresnel));
+  opacity: calc(0.5 * var(--reflection-fresnel));
 }
 
 /* A Légendaire's glitter (lib/glitter.ts draws the flakes): each flake a
