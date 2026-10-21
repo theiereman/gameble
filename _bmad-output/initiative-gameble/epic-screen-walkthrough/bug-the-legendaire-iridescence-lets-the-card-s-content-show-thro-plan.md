@@ -26,7 +26,7 @@ context: []
 
 ## Implementation Notes
 
-A one-value CSS change fits the oneshot route: layer opacity 0.21 → 0.12 (times the fresnel) in `app/frontend/styles/card.css`, about 43% weaker at the peak; DESIGN.md's reflection paragraph records it. The first try also cut the band peak to 0.6, which the review showed compounds to a 66% cut and risks losing the Légendaire mark, so the band peak stays 1. The author judges the strength on staging and may tune the number.
+A one-value CSS change fits the oneshot route: layer opacity 0.21 → 0.07 (times the fresnel; the author asked for less than a first 0.12) in `app/frontend/styles/card.css`, about 67% weaker at the peak; DESIGN.md's reflection paragraph records it. The first try also cut the band peak to 0.6, which the review showed compounds to a 66% cut and risks losing the Légendaire mark, so the band peak stays 1. The author judges the strength on staging and may tune the number.
 
 ## Review Triage Log
 
