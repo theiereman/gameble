@@ -1,0 +1,22 @@
+<%# locals: (owner:, title:, relation:, open_trade_token:) %>
+<% case relation %>
+<% when :visitor %>
+  <%= render ButtonComponent.new(variant: :secondary, size: :small, disabled: true,
+        aria_label: t("public_profiles.show.trade_label", name: title)) do %><%= t("public_profiles.show.trade") %><% end %>
+<% when :none %>
+  <%= render ButtonComponent.new(variant: :secondary, size: :small, href: brother_invitation_path(token: owner.token), method: :post,
+        aria_label: t("public_profiles.show.add_friend_label", name: title)) do %><%= t("public_profiles.show.add_friend") %><% end %>
+<% when :invited %>
+  <%= render ButtonComponent.new(variant: :secondary, size: :small, disabled: true) do %><%= t("public_profiles.show.pending") %><% end %>
+<% when :invited_by %>
+  <%= render ButtonComponent.new(variant: :secondary, size: :small, href: brother_invitation_path(token: owner.token), method: :post,
+        aria_label: t("public_profiles.show.accept_label", name: title)) do %><%= t("public_profiles.show.accept") %><% end %>
+<% when :friends %>
+  <% if (refusal = trades_refusal(owner)) %>
+    <%= trades_closed_line(refusal, owner) %>
+  <% else %>
+    <%= render ButtonComponent.new(variant: :secondary, size: :small,
+          href: open_trade_token ? trade_path(token: open_trade_token) : new_trade_path(friend: owner.token),
+          aria_label: t("public_profiles.show.trade_label", name: title)) do %><%= t("public_profiles.show.trade") %><% end %>
+  <% end %>
+<% end %>

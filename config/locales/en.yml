@@ -777,6 +777,11 @@ en:
       member_since: "Member since %{date}"
       trade: "TRADE"
       trade_label: "Trade with %{name}"
+      add_friend: "ADD FRIEND"
+      add_friend_label: "Add %{name} as a friend"
+      pending: "PENDING"
+      accept: "ACCEPT"
+      accept_label: "Accept the invitation from %{name}"
       keys:
         cards: "Cards"
         complete_sets: "Complete sets"

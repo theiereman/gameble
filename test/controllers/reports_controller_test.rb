@@ -20,7 +20,8 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".profile-band button[aria-haspopup=dialog][data-dialog-opener-dialog-value=report-dialog]", "SIGNALER"
-    assert_select ".profile-band button", 1
+    assert_select ".profile-band__meta button", 1
+    assert_select ".profile-band button", 2
     assert_select "dialog#report-dialog form[action=?][method=post]", report_path_of(@owner, locale: :fr)
     assert_equal [ "Pseudo inapproprié", "Triche ou abus", "Harcèlement", "Autre" ],
       css_select("#report-dialog .report-dialog__reason span").map(&:text)

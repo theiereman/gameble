@@ -546,13 +546,14 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     sign_in(accounts_players(:moderator))
     # The same, the viewer's lookup and the top bar's three (reserve count,
-    # next pack, copies per tier), and the tab bar's trades waiting.
-    assert_request_queries(15) { get brother_path(locale: :en, token: @owner.token) }
+    # next pack, copies per tier), the tab bar's trades waiting, and the
+    # viewer's friendship and invitations with the owner.
+    assert_request_queries(17) { get brother_path(locale: :en, token: @owner.token) }
 
     # The chosen cards' views, however many.
     held = Game::Holding.where(player_id: @owner.id).limit(Game::ChosenShowcase::SIZE).pluck(:card_season_id)
     held.each { Game::AddToShowcase.new.call(player: @owner, card_season_id: it).value! }
-    assert_request_queries(16) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(18) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase .card", held.size
     assert_response :success
 

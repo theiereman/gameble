@@ -27,6 +27,7 @@ class PublicProfilesController < ApplicationController
     @achievements = Game::EarnedAchievements.call(@owner)
     @showcase = chosen_cards(@owner)
     load_stats_and_sets if @season
+    load_relation
   end
 
   # GET /:locale/brothers/:token/library/:kind/:key: the album of one of the
@@ -47,6 +48,13 @@ class PublicProfilesController < ApplicationController
       return if Game::Visibility.visible?(current_player, @owner)
 
       render "public_profiles/unavailable", status: :not_found
+    end
+
+    def load_relation
+      return unless Game::Visibility.visible?(current_player, @owner, staff_sees_all: false)
+
+      @relation = Game::ProfileRelation.call(current_player, @owner)
+      @open_trade_token = Game::OpenTradesByFriend.call(current_player)[@owner.id] if @relation == :friends
     end
 
     def load_stats_and_sets

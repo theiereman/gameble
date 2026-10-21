@@ -40,6 +40,9 @@ Rails.application.routes.draw do
     # Reporting a player from their profile, by token.
     post "brothers/:token/report" => "reports#create", as: :brother_report,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
+    # Inviting a player from their profile, or accepting their invitation.
+    post "brothers/:token/invitation" => "brother_invitations#create", as: :brother_invitation,
+      constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ }
     get "brothers/:token/library/:kind/:key" => "public_profiles#set", as: :brother_set,
       constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/, kind: Catalog::SetKind::PATTERN }
     # The old share links, which named the sharer's token, lead to the

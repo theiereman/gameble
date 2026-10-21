@@ -814,6 +814,11 @@ fr:
       member_since: "Membre depuis %{date}"
       trade: "ÉCHANGE"
       trade_label: "Échange avec %{name}"
+      add_friend: "AJOUTER EN AMI"
+      add_friend_label: "Ajouter %{name} en ami"
+      pending: "EN ATTENTE"
+      accept: "ACCEPTER"
+      accept_label: "Accepter l'invitation de %{name}"
       keys:
         cards: "Cartes"
         complete_sets: "Sets complets"
