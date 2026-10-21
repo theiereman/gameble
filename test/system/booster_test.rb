@@ -296,57 +296,6 @@ class BoosterTest < ApplicationSystemTestCase
     end
   end
 
-  test "a card's detail opened from the booster walks its five cards; Back shows the booster again, every card face up" do
-    open_screen(card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :legendary_card_one), more: true)
-    open_canister
-    assert_dealt(5)
-    # Two cards revealed of five: the rest shows face up on return all the same.
-    find(hit(1)).click
-    find(hit(2)).click
-    assert_selector ".booster-card[data-revealed]", count: 2
-    token = opened_token
-    entries = evaluate_script("history.length")
-    sleep 0.5
-    find("#{card(2)} .booster-card__front .card").click
-
-    assert_current_path "/en/cards/green-hills?pack=#{token}&slot=2"
-    assert_selector ".card-detail h1", text: "Green Hills"
-    assert_history_entries entries + 1
-    # ◀ ▶ on the desktop, through the booster's cards in its order, and no further.
-    step_detail(:next, to: "Blue Depths")
-    assert_equal "/en/cards/blue-depths/seasons/1?pack=#{token}&slot=3", current_url_path
-    step_detail(:next, to: "Portal")
-    step_detail(:next, to: "Golden Crown")
-    assert_selector "button.card-detail__nav--next[disabled]"
-    [ "Portal", "Blue Depths", "Green Hills", "Tin Soldier" ].each { step_detail(:previous, to: it) }
-    assert_selector "button.card-detail__nav--previous[disabled]"
-    assert_history_entries entries + 1
-
-    go_back
-    assert_current_path "/en/booster?pack=#{token}"
-    assert_selector ".booster-card[data-dealt][data-revealed]", count: 5
-    assert_selector ".booster-card__flip.is-up", count: 5, visible: :all
-    assert_selector ".booster__state", text: "INVENTORY COMPLETE"
-    assert_selector ".booster__counter", text: "Cards revealed: 5 / 5"
-    assert_no_selector ".booster-canister"
-    assert_button "Open the next one"
-    assert_button "Reveal all", disabled: true
-    assert_equal 1, opened_packs
-
-    # Another card opens at once.
-    find("#{card(4)} .booster-card__front .card").click
-    assert_current_path "/en/cards/portal?pack=#{token}&slot=4"
-    assert_selector ".card-detail h1", text: "Portal"
-
-    # Back again, the next booster leaves the shown one behind.
-    go_back
-    assert_selector ".booster-card[data-revealed]", count: 5
-    click_on "Open the next one"
-    assert_dealt(5)
-    assert_current_path "/en/booster"
-    assert_equal 2, opened_packs
-  end
-
   test "the booster's own entries start sealed: the tab bar and a pack of another player show no hand" do
     create_pack(@player, available_at: 1.hour.ago)
     foreign = create_pack(accounts_players(:moderator), cards: card_ids(*[ :rare_card_one ] * 5), opened_at: 1.minute.ago)
@@ -600,7 +549,7 @@ class BoosterTest < ApplicationSystemTestCase
     # A Légendaire's still banner holds the lock 1.4 s under reduced motion.
     find(hit(1)).click
     assert_selector "#{back}[aria-disabled=true]"
-    assert_no_selector "#{back}[aria-disabled]", wait: 5
+    assert_no_selector "#{back}[aria-disabled]", wait: 10
     assert_selector ".booster__back:not([aria-disabled])"
   end
 

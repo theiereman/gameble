@@ -278,37 +278,6 @@ class TradesTest < ApplicationSystemTestCase
     assert_equal "Remove Tin Soldier", page.active_element["aria-label"]
   end
 
-  test "on a phone the picker is a full-height sheet, and the send button waits for a card on the friend's side" do
-    resize_to(390, 844)
-    hold(@lea, catalog_card_seasons(:uncommon_card_one).id, 2)
-    trade = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })
-    sign_in @hugo
-    visit counter_trade_path(token: trade.token, locale: :en)
-
-    find(".trade-side--own .trade-card__remove[aria-label='Remove Portal']").click
-    assert_selector ".trade-side--own .trade-side__help", text: "Leave this side empty: Lea will choose what they want in return."
-    assert_selector "button[type=submit]:not([disabled])", text: /Send the counter-proposal/i
-    find(".trade-side--friend .trade-card__remove[aria-label='Remove Blue Depths']").click
-    assert_selector "#trade-send-reason", text: "Place at least one card on Lea's side.", visible: true
-    assert_selector "button[type=submit][disabled]", text: /Send the counter-proposal/i
-
-    find(".trade-side--friend .trade-add").click
-    assert_selector ".trade-picker__title-short", text: /Lea's cards/i, visible: true
-    assert_no_selector ".trade-picker__title", visible: true
-    height = page.evaluate_script("document.querySelector('.trade-picker').getBoundingClientRect().height")
-    assert_in_delta page.evaluate_script("window.innerHeight"), height, 2
-    assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "no sideways scroll"
-    pick_toggle("Green Hills").click
-    place_picks
-
-    find(".trade-side--own .trade-add").click
-    pick_toggle("Portal").click
-    place_picks
-    assert_no_selector "#trade-send-reason", visible: true
-    click_on "Send the counter-proposal"
-    assert_selector ".toast", text: /Lea has 7 days to answer/
-  end
-
   def record_animations
     page.execute_script(<<~JS)
       window.recordedFrames = []

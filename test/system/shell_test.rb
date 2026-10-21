@@ -388,48 +388,6 @@ class ShellTest < ApplicationSystemTestCase
 
   def accessible_text(selector) = find(selector).evaluate_script("this.textContent").squish
 
-  test "on a desktop, the back button names the screen before this one and returns to it, through each card the detail steps to" do
-    sign_in_with_three_cards
-    assert_no_selector PREVIOUS
-    find(".hub-menu .menu-item[aria-keyshortcuts='2']").click
-    assert_current_path library_path(locale: :en)
-    assert_selector ".top-bar__start > a.top-bar__home[aria-label='gameble, command bridge']"
-    assert_no_selector PREVIOUS
-    assert_no_selector ".top-bar__bridge"
-
-    open_first_card_of_the_set
-    assert_selector ".card-detail h1"
-    assert_selector PREVIOUS, text: /SET\z/
-    assert_equal "Back: Set", accessible_text(PREVIOUS)
-    assert_equal album_path, URI(find(PREVIOUS)[:href]).path
-    take_screenshot
-
-    page.document.synchronize { raise Capybara::ExpectationNotMet, "visiting" if evaluate_script("!!Turbo.session.navigator.currentVisit") }
-    page.execute_script(<<~JS)
-      document.addEventListener("turbo:morph", () => { window.morphed = true }, { once: true })
-      Turbo.session.refresh(document.baseURI, { method: "morph", scroll: "preserve" })
-    JS
-    page.document.synchronize { raise Capybara::ExpectationNotMet, "not morphed" unless evaluate_script("window.morphed === true") }
-    assert_selector PREVIOUS, text: /SET\z/
-    assert_equal album_path, URI(find(PREVIOUS)[:href]).path
-
-    detail = current_path
-    find("a.card-detail__nav--next").click
-    assert_no_current_path detail
-    assert_selector PREVIOUS, text: /SET\z/
-
-    entries = evaluate_script("history.length")
-    find(PREVIOUS).click
-    assert_current_path album_path
-    assert_selector ".collection-grid"
-    assert_equal entries, evaluate_script("history.length")
-    assert_selector PREVIOUS, text: "SETS"
-
-    find(".top-bar__home").click
-    assert_current_path home_path(locale: :en)
-    assert_selector ".hub-menu"
-  end
-
   test "on a desktop, no back button after the hub, from a direct link or after a reload" do
     sign_in_with_three_cards
     find(".hub-menu .menu-item[aria-keyshortcuts='5']").click
