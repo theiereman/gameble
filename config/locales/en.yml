@@ -1479,6 +1479,10 @@ en:
         lore:
           kicker: "Archive 001"
           title: "The Brotherhood's chronicle"
+          story:
+            recovery: "Recovering a lost game takes years of patience and archives to match. The Great Brotherhood of Gameblers has both, and places them at the disposal of all its members."
+            archive: "To guarantee their safety, the Brotherhood copies every recovered game onto an archive card, in a format it alone can read. You receive them in capsules, sealed, in accordance with the procedure in force."
+            thanks: "The Brotherhood thanks you in advance for your diligence. It will, as always, be rewarded."
           call: "The rest is written with you. The Brotherhood is looking for narrators and scribes to bring its story to life."
           link: "Take part in the writing"
         goal:

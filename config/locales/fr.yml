@@ -1524,6 +1524,10 @@ fr:
         lore:
           kicker: "Archive 001"
           title: "Le récit de la Confrérie"
+          story:
+            recovery: "Retrouver un jeu perdu demande des années de patience et des archives à la hauteur. La Grande Confrérie des Gameblers a les deux, et les met à la disposition de tous ses membres."
+            archive: "Pour garantir leur sécurité, la Confrérie copie chaque jeu recueilli sur une carte d'archive, dans un format qu'elle est la seule à pouvoir lire. Vous les recevez en capsules, scellées, conformément à la procédure en vigueur."
+            thanks: "La Confrérie vous remercie d'avance de votre assiduité. Elle sera, comme toujours, récompensée."
           call: "La suite s'écrit avec vous. La Confrérie cherche des narrateurs et des scribes pour faire vivre son histoire."
           link: "Participer à l'écriture"
         goal:

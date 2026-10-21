@@ -6,7 +6,11 @@
     <%= render PanelComponent.new(brackets: true, class: "landing-lore") do %>
       <p class="landing-kicker"><%= t("landings.show.brotherhood.lore.kicker") %></p>
       <p class="landing-panel-title"><%= t("landings.show.brotherhood.lore.title") %></p>
-      <div class="landing-lore__slot" aria-hidden="true"></div>
+      <div class="landing-lore__story">
+        <p class="landing-body"><%= t("landings.show.brotherhood.lore.story.recovery") %></p>
+        <p class="landing-body"><%= t("landings.show.brotherhood.lore.story.archive") %></p>
+        <p class="landing-body"><%= t("landings.show.brotherhood.lore.story.thanks") %></p>
+      </div>
       <div class="landing-lore__call">
         <p class="landing-body"><%= t("landings.show.brotherhood.lore.call") %></p>
         <%= link_to t("landings.show.brotherhood.lore.link"), "#landing-open-source", class: "button button--secondary button--small landing-lore__link" %>

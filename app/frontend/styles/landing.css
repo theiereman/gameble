@@ -472,10 +472,11 @@ html[data-motion="reduced"] .landing-hero__copy > * {
   gap: var(--space-4);
 }
 
-.landing-lore__slot {
+.landing-lore__story {
+  display: flex;
   flex: 1;
-  min-height: var(--space-landing-example-min-height);
-  border: var(--space-unit) dashed var(--color-line-deep);
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
 .landing-lore__call {

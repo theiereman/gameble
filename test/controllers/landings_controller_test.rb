@@ -59,6 +59,15 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "section.landing-concept > a.button.button--link.landing-concept__all-cards[href='/en/library/cards']", "See every card"
   end
 
+  test "the Brotherhood's panel tells its story in the visitor's language" do
+    %i[fr en].each do |locale|
+      get landing_path(locale:)
+
+      story = %w[recovery archive thanks].map { I18n.t("landings.show.brotherhood.lore.story.#{it}", locale:) }
+      assert_equal story, css_select(".landing-lore__story p").map { it.text.squish }
+    end
+  end
+
   test "the reveal demo holds every sample face, hidden, with its announcement, and a hidden button" do
     get landing_path(locale: :fr)
 

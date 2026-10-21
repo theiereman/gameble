@@ -174,7 +174,7 @@ title = "Visitors land on the landing"
 description = "Gives the signed-out hub its own address and makes the landing the signed-out root: /fr, /en, the wordmark, sign-out and account deletion lead to it, once every ship condition holds."
 verify = "Signed out, /fr, /en and the wordmark show the landing and « Embarquer sur le pont » opens the hub at its own address; signing out and deleting an account land on the landing; signed in, /fr and /en show the hub."
 covers = ["R7", "R8"]
-after = [1, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 19]
+after = [1, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 19, 20]
 hitl = false
 risk = "medium"
 unknown = "The signed-out hub's own address."
@@ -203,12 +203,24 @@ risk = "low"
 notes = ["il faudra ajouter des tickets pour favoriser le SEO", "Decision (author, 2026-10-14): search work aims at the landing; public card pages, public profiles and the library stay indexable but get no search work, and are not marked noindex."]
 
 [[entry]]
+id = 20
+type = "story"
+title = "The Découvrez tile promises no name"
+description = "Rewords module 02's « Découvrez » tile to « Tirez un jeu avant tout le monde : la Confrérie s'en souviendra. » and its English counterpart, so the tile promises no name to a viewer who will read « anonyme » on the card detail."
+verify = "Module 02's « Découvrez » tile shows the author-approved wording in French and English, and no landing string promises that a player's name is shown."
+covers = ["R6"]
+after = [2]
+hitl = false
+risk = "low"
+notes = ["Decision (author, 2026-10-21): the wording is in EXPERIENCE.md, Copy deck, Landing, 02 · tiles; the English is to be approved at the build."]
+
+[[entry]]
 id = 17
 type = "story"
 title = "Refactor sweep"
 description = "Cleans up what the epic's build records and deferred review findings name; its scope is set when it starts."
 verify = "The cleanup its plan lists is done and the full suite, packwerk and the linters pass."
 covers = []
-after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 18, 19]
+after = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 18, 19, 20]
 hitl = false
 risk = "low"
