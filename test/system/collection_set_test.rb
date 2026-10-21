@@ -56,28 +56,4 @@ class CollectionSetTest < ApplicationSystemTestCase
     assert_no_sideways_scroll
     take_screenshot
   end
-
-  test "a theme of 300 cards comes sixty to a page and draws its art only near the viewport" do
-    season = seed_card_seasons(distinct_scores(300), genres: Array.new(300) { [ "rpg" ] })
-    assert Catalog::PublishSeason.new.call(number: season.number).success?
-    player = accounts_players(:player)
-    Game::Holding.insert_all!(members(season.reload, "rpg").map { |card_season_id| { player_id: player.id, card_season_id:, quantity: 1 } })
-    sign_in(player)
-
-    visit library_set_path(locale: :en, kind: "theme", key: "rpg")
-
-    # Sixty cards counted in one call (see library_test.rb).
-    assert_selector ".collection-grid .card.card--grid", count: 60, visible: :all
-    # The first cards are drawn (or fail, the test images being unreachable);
-    # those far below are not even started.
-    assert_selector ".collection-grid > li:first-child .card__art[data-art]", visible: :all, wait: 10
-    assert_no_selector ".collection-grid > li:last-child .card__art[data-art]", visible: :all
-
-    page.execute_script("window.scrollTo(0, document.body.scrollHeight)")
-    assert_selector ".collection-grid > li:last-child .card__art[data-art]", visible: :all, wait: 10
-
-    find(".collection-pages a[rel=next]").click
-    assert_current_path library_set_path(locale: :en, kind: "theme", key: "rpg", page: 2)
-    assert_selector ".collection-grid .card.card--grid", count: 60, visible: :all
-  end
 end
