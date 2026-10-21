@@ -1,5 +1,5 @@
 module Accounts
-  # A Steam persona name made fit to show (CAP-8): the label that titles a
+  # A Steam persona name made fit to show: the label that titles a
   # player's public profile. Steam lets a name hold characters that show
   # nothing or reorder the text around them; they are dropped, so a name
   # cannot look blank, nor run a right-to-left override into the page:

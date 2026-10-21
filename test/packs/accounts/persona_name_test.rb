@@ -1,6 +1,6 @@
 require "test_helper"
 
-# A Steam persona name made fit to show (CAP-8; epic 4 retrospective B4):
+# A Steam persona name made fit to show:
 # invisible characters dropped, spaces made plain and squished, cut to 64
 # graphemes, and nil when nothing visible remains. Every character other
 # than ASCII is written as a \u escape.

@@ -30,7 +30,7 @@ Set `PORT` to use another port for Rails. The Steam import reads its API key fro
 
 ## Writing an operation
 
-Every state change is an operation (AD-3). Inherit `ApplicationOperation`, name it `Pack::VerbNoun`, and wrap its writes and its `publish(event, stream_name:)` call in `transaction do ... end`, so the rows and the event (identifiers only) commit or roll back together. Call another operation of the pack only through `step`: the inner `transaction` joins the outer one, so an inner `Failure` handled without `step` would keep the inner rows and event, while `step` halts the outer flow and rolls back the whole transaction. Return `Success(value)`, or `Failure(:code)` with a message under the locale key `errors.<pack>.<code>` (`Game::OpenPack.failure_message(:no_pack_available)` reads `errors.game.no_pack_available`). `test/lib/application_operation_test.rb` shows a complete example.
+Every state change is an operation. Inherit `ApplicationOperation`, name it `Pack::VerbNoun`, and wrap its writes and its `publish(event, stream_name:)` call in `transaction do ... end`, so the rows and the event (identifiers only) commit or roll back together. Call another operation of the pack only through `step`: the inner `transaction` joins the outer one, so an inner `Failure` handled without `step` would keep the inner rows and event, while `step` halts the outer flow and rolls back the whole transaction. Return `Success(value)`, or `Failure(:code)` with a message under the locale key `errors.<pack>.<code>` (`Game::OpenPack.failure_message(:no_pack_available)` reads `errors.game.no_pack_available`). `test/lib/application_operation_test.rb` shows a complete example.
 
 ## Test
 
@@ -71,7 +71,7 @@ Always name the destination (`-d staging`, `-d production`). A Kamal command wit
 
 ## Production checks
 
-### Sentry (AD-21)
+### Sentry
 
 Sentry receives production errors only (no tracing, no profiling, no personal data; the player id is the only thing attached about a player). It starts only when `SENTRY_DSN` is set, so development and test send nothing.
 
@@ -240,7 +240,7 @@ Run the drill once a month, after any change to the backup, and before a Postgre
 
 Administrators open Mission Control Jobs at `/back-office/jobs` (linked from the back-office). A moderator is refused (403); anyone not staff gets 404.
 
-### Steam import (AD-19)
+### Steam import
 
 Administrators start and watch import runs at `/<locale>/back-office/import-runs`. The `import` queue has its own process, one thread (`bin/jobs -c config/queue_import.yml --skip-recurring`, the `import` role of `config/deploy.yml`); the key comes from `config/steam_api.key` through `.kamal/secrets`. A run that fails after its retries can be resumed from its cursor on its page, or, while it is the latest run that was not abandoned, abandoned ("Abandon this run", `Steam::AbandonImport`): an abandoned run is finished for good, blocks no new run, and is skipped when deciding whether a season can be published (the latest run that was not abandoned decides, and a failed one can be abandoned in turn). A run that failed on its cards step after writing at least one card cannot be abandoned, as those cards replaced the previous run's in the draft: resume it, or start a new run.
 

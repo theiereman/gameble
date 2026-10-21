@@ -1,7 +1,7 @@
 module Accounts
-  # A player (CAP-1). Known by a Steam id; addressed in public by a random
-  # token, never by its database id (AD-15). The token is a public,
-  # non-secret handle: it is the link to the player's public profile (CAP-8).
+  # A player. Known by a Steam id; addressed in public by a random
+  # token, never by its database id. The token is a public,
+  # non-secret handle: it is the link to the player's public profile.
   # No avatar or password.
   #
   # Its display name is the Steam persona name read at the last sign-in
@@ -40,7 +40,7 @@ module Accounts
 
     enum :role, RANKS.index_by(&:to_sym), default: :player, validate: true
 
-    # Who may see the player's profile (CAP-14): everyone, their friends only
+    # Who may see the player's profile: everyone, their friends only
     # (decided by Game::Visibility, the friendships being Game's) or only
     # them. The prefix keeps `private` from clashing with Ruby's own.
     enum :visibility, { public: "public", friends_only: "friends_only", private: "private" },

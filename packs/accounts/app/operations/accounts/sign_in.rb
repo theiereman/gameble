@@ -1,9 +1,9 @@
 module Accounts
-  # Signs a player in by their Steam id (CAP-1, AD-14): reuses the player with
+  # Signs a player in by their Steam id: reuses the player with
   # that id, or creates one, its welcome panel pending, and publishes
   # Accounts::PlayerRegistered. A banned player is refused.
   #
-  # The persona name the web layer read from Steam for this sign-in (CAP-8)
+  # The persona name the web layer read from Steam for this sign-in
   # becomes the player's display name: cleaned by Accounts::PersonaName
   # (invisible characters dropped, spaces squished, cut to
   # Accounts::PersonaName::LENGTH graphemes), it replaces a different
