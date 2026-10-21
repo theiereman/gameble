@@ -1,6 +1,6 @@
 ---
 id: 13
-tracker_status: in-progress
+tracker_status: done
 tracker_id: 179
 remote: https://github.com/theiereman/gameble/issues/179
 type: story
