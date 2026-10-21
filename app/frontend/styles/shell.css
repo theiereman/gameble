@@ -625,8 +625,7 @@ body:has(> .ticker) .app-version {
   animation: ticker-scroll var(--ticker-duration, 60s) linear infinite;
 }
 
-.ticker:hover .ticker__track,
-.ticker:focus-within .ticker__track {
+.ticker:hover .ticker__track {
   animation-play-state: paused;
 }
 
