@@ -233,11 +233,13 @@ class LiveUpdatesTest < ApplicationSystemTestCase
       document.addEventListener("turbo:before-render", () => {
         window.renders.push(document.querySelector(".trade-board--swapping") ? "during the swap" : "outside the swap")
       })
-      document.addEventListener("turbo:load", () => {
+      const signalDuringSwap = () => {
         if (!document.querySelector(".trade-board[data-live-refresh-hold]")) return
+        document.removeEventListener("turbo:load", signalDuringSwap)
         window.signalDuringSwap = true
         dispatchEvent(new CustomEvent("gameble:trades-updated"))
-      }, { once: true })
+      }
+      document.addEventListener("turbo:load", signalDuringSwap)
     JS
 
     within(".trade-board") { click_on "Accept" }
@@ -256,7 +258,7 @@ class LiveUpdatesTest < ApplicationSystemTestCase
 
   test "a public player's opening moves the other browsers' gauge at the next tick and tops their feed, without a reload" do
     Game::SumWeeklyGoalJob.new.perform
-    visit home_path(locale: :en)
+    sign_in @max
     assert_selector "#community-goal .hub-goal__figures", text: goal_figures
     listening_to_all
     using_session("feed") do
@@ -275,8 +277,8 @@ class LiveUpdatesTest < ApplicationSystemTestCase
     assert_selector "#live-ticker [data-ticker-target=run] > .ticker__item", text: "Hugo pulled Portal", count: 5, visible: :all
     assert not_reloaded?
     using_session("feed") do
-      assert_selector "#feed-entries > li.feed__entry", count: 5
-      assert_selector "#feed-entries > li:first-child .feed__sentence", text: "Hugo pulled Portal"
+      assert_selector "#feed-entries > li.feed__entry", count: 6
+      assert_selector "#feed-entries > li:first-child .feed__sentence", text: "Hugo completes the Valve set."
       assert_no_selector ".feed__empty"
       assert not_reloaded?
     end
@@ -284,6 +286,7 @@ class LiveUpdatesTest < ApplicationSystemTestCase
 
   test "the live feed keeps its newest entries up to the feed's limit" do
     (Game::FeedEntries::LIMIT / 5).times { open_epic(@hugo) }
+    perform_enqueued_jobs(only: LiveFeedJob)
     visit feed_path(locale: :en)
     assert_selector "#feed-entries > li.feed__entry", count: Game::FeedEntries::LIMIT
     listening_to_all
@@ -299,9 +302,9 @@ class LiveUpdatesTest < ApplicationSystemTestCase
 
   test "the hub's ticker scrolls, joins new items at the loop boundary, pauses under the pointer and stands still under reduced motion" do
     open_epic(@hugo)
-    visit home_path(locale: :en)
+    sign_in @max
 
-    assert_selector "#live-ticker[data-ticker-state=scrolling] [data-ticker-target=run] > .ticker__item", count: 5, visible: :all
+    assert_selector "#live-ticker[data-ticker-state=scrolling] [data-ticker-target=run] > .ticker__item", count: 6, visible: :all
     assert_ticker_states([ "running" ])
 
     in_view = page.evaluate_script(<<~JS)
@@ -336,7 +339,7 @@ class LiveUpdatesTest < ApplicationSystemTestCase
       Array.from(document.querySelectorAll("#live-ticker [data-ticker-target=run] > .ticker__item"), (item) => item.dataset.place ?? `new${item.dataset.arrived}`)
     JS
     joining = [ 10, 12 - in_view ].min
-    assert_equal [ *(0...in_view).map(&:to_s), *(0...joining).map { "new#{it}" }, *(in_view...5).map(&:to_s) ].first(12), order
+    assert_equal [ *(0...in_view).map(&:to_s), *(0...joining).map { "new#{it}" }, *(in_view...6).map(&:to_s) ].first(12), order
 
     find("#live-ticker").hover
     assert_ticker_states([ "paused" ])
