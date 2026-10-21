@@ -149,12 +149,13 @@ risk = "low"
 id = 13
 type = "story"
 title = "The card detail names its pioneer"
-description = "Shows each edition's pioneer on the card detail as designed, from the first discoveries, naming the player to viewers `Game::Visibility` allows and « anonyme » to anyone else."
-verify = "A card detail names the player who first discovered that edition to a viewer allowed to see their profile, shows « anonyme » to one who is not, and shows each edition's own pioneer."
+description = "Shows one PIONNIER line on the card detail as designed, for the edition of the published season, from the first discoveries, naming the player to viewers `Game::Visibility` allows and « anonyme » to anyone else."
+verify = "A card detail names the player who first discovered the published season's edition, with the date, as a link to their profile, to a viewer allowed to see that profile; it shows « Un joueur anonyme » with the date to one who is not; each season's edition has its own pioneer."
 covers = ["R6", "R8"]
 after = [3, "6.7"]
 hitl = false
 risk = "medium"
+notes = ["Decision (author, 2026-10-21): the single PIONNIER line is the pioneer of the edition of the published season; the design is in EXPERIENCE.md and DESIGN.md (Pioneer row), reference mockups/key-card-detail-pioneer.html."]
 
 [[entry]]
 id = 14
