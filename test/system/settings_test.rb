@@ -53,7 +53,7 @@ class SettingsTest < ApplicationSystemTestCase
 
     using_session("visitor") do
       visit brother_path(locale: :en, token: @player.token)
-      assert_text "Profile not available"
+      assert_text(/profile not available/i)
     end
   end
 
@@ -117,12 +117,12 @@ class SettingsTest < ApplicationSystemTestCase
     end
 
     assert_signed_out
-    assert_selector ".hub-invitation"
+    assert_selector ".landing-hero"
     assert_text "Votre compte a été supprimé"
     assert_predicate @player.reload, :deleted?
 
     visit brother_path(locale: :en, token:)
-    assert_text "Profile not available"
+    assert_text(/profile not available/i)
   end
 
   test "a player picks reduced motion on the settings screen, and the switch follows on every page, signed in and out" do
@@ -191,13 +191,13 @@ class SettingsTest < ApplicationSystemTestCase
     assert_selector ".legal__ownership", text: "Toutes les illustrations appartiennent aux éditeurs des jeux et à leurs artistes, que nous respectons."
   end
 
-  test "sign-out from the settings screen lands on the signed-out hub" do
+  test "sign-out from the settings screen lands on the landing" do
     sign_in(settings_path(locale: :en))
 
     click_on "Sign out"
 
     assert_signed_out
-    assert_selector ".hub-invitation"
+    assert_selector ".landing-hero"
   end
 
   test "with the setting on, nothing loops on the hub, the booster screen and a public card page, and the switch is live" do

@@ -48,7 +48,7 @@ class HubTest < ApplicationSystemTestCase
     2.times { create_pack(@player) }
     sign_in
 
-    assert_selector ".hub-menu .menu-item", count: 8
+    assert_selector ".hub-menu .menu-item", count: 9
     assert_selector ".hub-showcase .card--xl"
     assert_selector ".daily-booster"
     assert_selector ".hub-sets .set-row"
@@ -137,11 +137,12 @@ class HubTest < ApplicationSystemTestCase
     assert_equal [ catalog_card_seasons(:portal_one).id ], Game::FeedEntry.where(kind: "repost").pluck(:card_season_id)
   end
 
-  test "on a desktop, a visitor sees the menu and the invitation" do
+  test "on a desktop, a visitor sees the landing instead of the hub" do
     visit home_path(locale: :fr)
 
-    assert_selector ".hub-menu .menu-item", count: 8
-    assert_selector ".hub-invitation", text: "Vos jeux Steam, en cartes à collectionner."
+    assert_current_path landing_path(locale: :fr)
+    assert_selector ".landing-hero__hook", text: "Des jeux ont été perdus. La Confrérie part les retrouver. Rejoignez-la."
+    assert_no_selector ".hub-menu"
     assert_no_selector ".daily-booster"
     assert_selector ".top-bar .steam-sign-in__button"
     assert_no_sideways_scroll
@@ -149,26 +150,15 @@ class HubTest < ApplicationSystemTestCase
   end
 
   PHONES.each do |name, size|
-    test "on a #{name}px phone, one column without the menu, signed out then in, and the sign-in panel as a bottom sheet" do
+    test "on a #{name}px phone, one column without the menu, signed out then in" do
       resize_to(*size)
       visit home_path(locale: :en)
 
+      assert_current_path landing_path(locale: :en)
       assert_no_selector ".hub-menu"
-      assert_selector ".tab-bar"
-      assert_selector ".hub-invitation"
+      assert_selector ".landing-hero"
       assert_no_sideways_scroll
       take_screenshot
-
-      click_on "Open my first capsules"
-      assert_selector "dialog#sign-in-panel[open]"
-      assert_selector "#sign-in-panel .modal__handle"
-      # The sheet rises from below, then rests on the bottom edge.
-      height = page.evaluate_script("window.innerHeight")
-      bottom = -> { page.evaluate_script("Math.round(document.querySelector('#sign-in-panel').getBoundingClientRect().bottom)") }
-      Timeout.timeout(3) { sleep 0.05 until (bottom.call - height).abs <= 1 }
-      take_screenshot
-      find("#sign-in-panel .modal__close").click
-      assert_no_selector "dialog#sign-in-panel[open]"
 
       create_pack(@player)
       click_steam_sign_in
@@ -184,37 +174,10 @@ class HubTest < ApplicationSystemTestCase
     end
   end
 
-  test "the sign-in panel opens from menu 01 and closes by its close button, Esc and the scrim, focus back on the opener" do
+  test "a visitor follows the terms link beside the sign-in button to the legal page's terms" do
     visit home_path(locale: :en)
 
-    item("1").click
-    assert_selector "dialog#sign-in-panel[open]", text: "SIGN IN TO PLAY"
-    assert focused?("#sign-in-panel .steam-sign-in__button"), "the official image should take the focus first"
-    take_screenshot
-    find("#sign-in-panel .modal__close").click
-    assert_no_selector "dialog#sign-in-panel[open]"
-    assert focused?(".hub-menu .menu-item[aria-keyshortcuts='1']"), "the focus should return to menu 01"
-
-    item("1").send_keys(:enter)
-    assert_selector "dialog#sign-in-panel[open]"
-    find("#sign-in-panel .steam-sign-in__button").send_keys(:escape)
-    assert_no_selector "dialog#sign-in-panel[open]"
-    assert focused?(".hub-menu .menu-item[aria-keyshortcuts='1']"), "the focus should return to menu 01"
-
-    within(".hub-invitation") { click_on "Open my first capsules" }
-    assert_selector "dialog#sign-in-panel[open]"
-    # A click at the top left corner of the window lands on the scrim.
-    page.driver.browser.action.move_to_location(5, 5).click.perform
-    assert_no_selector "dialog#sign-in-panel[open]"
-    assert focused?(".hub-invitation .button--primary"), "the focus should return to the invitation's button"
-    assert_selector ".top-bar .steam-sign-in__button"
-  end
-
-  test "a visitor follows the terms link from the sign-in panel to the legal page's terms" do
-    visit home_path(locale: :en)
-
-    item("1").click
-    within("dialog#sign-in-panel[open]") do
+    within(".landing-hero__action") do
       assert_text "By signing in you accept the terms of use and acknowledge the privacy notice."
       click_on "terms of use"
     end
@@ -244,17 +207,11 @@ class HubTest < ApplicationSystemTestCase
     assert_selector "h1#legal-heading", text: /LEGAL NOTICE AND PRIVACY/i
   end
 
-  test "the sign-in panel opens from a card page's pitch, and signing in from it lands on the hub" do
+  test "signing in from a card page's pitch lands on the hub" do
     create_pack(@player)
     visit card_path(locale: :en, slug: "portal")
 
     within(".public-card__pitch") { click_on "Open my first capsules" }
-    find("#sign-in-panel .modal__close").send_keys(:escape)
-    assert_no_selector "dialog#sign-in-panel[open]"
-    assert focused?(".public-card__pitch .button"), "the focus should return to the invitation's button"
-
-    within(".public-card__pitch") { click_on "Open my first capsules" }
-    within("dialog#sign-in-panel[open]") { find(".steam-sign-in__button").click }
 
     assert_signed_in
     assert_current_path home_path(locale: :en)
@@ -304,10 +261,12 @@ class HubTest < ApplicationSystemTestCase
 
   test "a sign-in focuses menu 01 even when another item was used before it" do
     create_pack(@player)
-    visit home_path(locale: :en)
+    sign_in
     item("2").click
     assert_current_path library_path(locale: :en)
     assert_equal "2", page.evaluate_script("sessionStorage.getItem('gameble:hub-menu-item')")
+    sign_out
+    assert_signed_out
 
     click_steam_sign_in
     assert_signed_in
@@ -316,15 +275,15 @@ class HubTest < ApplicationSystemTestCase
     assert_nil page.evaluate_script("sessionStorage.getItem('gameble:hub-menu-item')"), "the stored item is consumed"
   end
 
-  test "signing out is a full page load that lands on the signed-out hub" do
+  test "signing out is a full page load that lands on the landing" do
     sign_in
     page.execute_script("window.sameDocument = true")
 
     sign_out
 
     assert_signed_out
-    assert_current_path home_path(locale: :en)
-    assert_selector ".hub-invitation"
+    assert_current_path landing_path(locale: :en)
+    assert_selector ".landing-hero"
     assert_text I18n.t("sessions.destroy.farewell", locale: :en)
     assert_nil page.evaluate_script("window.sameDocument"), "signing out should load a new page"
   end

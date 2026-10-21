@@ -2,11 +2,11 @@ require "application_system_test_case"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# The activity feed's frame: as wide as the hub on a desktop, signed in and
-# out, the All and Friends tabs above one "all" filter; on a phone, its
+# The activity feed's frame: as wide as the hub on a desktop, signed in, the
+# All and Friends tabs above one "all" filter; on a phone, its
 # column with no sideways scroll. Friends shows only a player's friends'
 # entries, combines with the filters, invites a player without friends to
-# add some, and opens the sign-in panel for a visitor.
+# add some, and is disabled for a visitor.
 class FeedTest < ApplicationSystemTestCase
   include GamePacks
   include SteamSignIn
@@ -19,9 +19,12 @@ class FeedTest < ApplicationSystemTestCase
     open_epic(@player)
   end
 
-  test "signed out, the feed's list spans the hub's width under one choice of everything" do
-    assert_feed_as_wide_as_the_hub
+  test "signed out, the feed's list shows under one choice of everything, and Friends is disabled" do
+    visit feed_path(locale: :en)
+
+    assert_pull_entries 5
     assert_one_everything
+    assert_selector ".feed__tab[disabled]", text: /\AFriends\z/i
   end
 
   test "signed in, the feed's list spans the hub's width under one choice of everything" do
@@ -34,7 +37,7 @@ class FeedTest < ApplicationSystemTestCase
   test "in French, the tabs and the filters each show their own word for all, once" do
     visit feed_path(locale: :fr)
 
-    assert_selector ".feed__entry", count: 5
+    assert_pull_entries 5, "a tiré"
     within(".feed__tabs") do
       assert_selector ".feed__tab", text: /\ATous\z/i, count: 1
       assert_selector ".feed__tab", text: /\AAmis\z/i, count: 1
@@ -48,7 +51,7 @@ class FeedTest < ApplicationSystemTestCase
     resize_to(*PHONE)
     visit feed_path(locale: :en)
 
-    assert_selector ".feed__entry", count: 5
+    assert_pull_entries 5
     assert_one_everything
     assert page.evaluate_script("document.documentElement.scrollWidth <= document.documentElement.clientWidth"), "the feed should not scroll sideways"
   end
@@ -62,24 +65,24 @@ class FeedTest < ApplicationSystemTestCase
     sign_in
 
     visit feed_path(locale: :en)
-    assert_selector ".feed__entry", count: 15
+    assert_pull_entries 15
     find(".feed__tab", text: /\AFriends\z/i).click
 
     assert_selector ".feed__tab[aria-current]", text: /\AFriends\z/i
-    assert_selector ".feed__entry", count: 5
-    assert_selector ".feed__sentence", text: "Sam", count: 5
+    assert_pull_entries 5
+    assert_selector ".feed__sentence", text: "Sam pulled", count: 5
     assert_no_selector ".feed__sentence", text: "Léa"
 
     find(".feed__filter", text: /\APulls\z/i).click
     assert_selector ".feed__filter[aria-current]", text: /\APulls\z/i
     assert_selector ".feed__tab[aria-current]", text: /\AFriends\z/i
-    assert_selector ".feed__entry", count: 5
+    assert_pull_entries 5
     assert_no_selector ".feed__sentence", text: "Léa"
 
     find(".feed__tab", text: /\AAll\z/i).click
     assert_selector ".feed__tab[aria-current]", text: /\AAll\z/i
     assert_selector ".feed__filter[aria-current]", text: /\APulls\z/i
-    assert_selector ".feed__entry", count: 15
+    assert_pull_entries 15
   end
 
   test "signed in without friends, Friends invites to add some and its button leads to the Friends screen" do
@@ -94,17 +97,6 @@ class FeedTest < ApplicationSystemTestCase
 
     assert_current_path friends_path(locale: :fr)
     assert_selector "main h1", text: /\AAmis\z/i
-  end
-
-  test "signed out, Friends opens the sign-in panel" do
-    visit feed_path(locale: :fr)
-
-    find(".feed__tab", text: /\AAmis\z/i).click
-
-    assert_selector "dialog#sign-in-panel[open]"
-    assert_selector ".feed__tab[aria-current]", text: /\ATous\z/i
-    find("#sign-in-panel .modal__close").click
-    assert_no_selector "dialog#sign-in-panel[open]"
   end
 
   private
@@ -125,8 +117,12 @@ class FeedTest < ApplicationSystemTestCase
       hub = width_of(".hub")
 
       visit feed_path(locale: :en)
-      assert_selector ".feed__entry", count: 5
+      assert_pull_entries 5
       assert_in_delta hub, width_of(".feed__list"), 1, "the feed's list should span the hub's content width"
+    end
+
+    def assert_pull_entries(count, verb = "pulled")
+      assert_selector ".feed__entry", text: verb, count:
     end
 
     def assert_one_everything

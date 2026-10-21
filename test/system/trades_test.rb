@@ -526,12 +526,4 @@ class TradesTest < ApplicationSystemTestCase
     assert_selector ".trade-side--own .trade-add"
     assert_no_selector ".trade-card__remove"
   end
-
-  test "a visitor is led to the sign-in panel from menu 04" do
-    visit home_path(locale: :en)
-
-    find(".hub-menu button.menu-item[aria-keyshortcuts='4']").click
-
-    assert_selector "#sign-in-panel", visible: true
-  end
 end
