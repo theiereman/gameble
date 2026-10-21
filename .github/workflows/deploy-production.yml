@@ -30,8 +30,15 @@ env:
   RELEASE_IMAGE: ghcr.io/theiereman/gameble-releases
 
 jobs:
+  # The browser tests of the release's commit, before anything is copied or
+  # approved: a failure stops the release here.
+  system-tests:
+    if: github.event_name == 'release' && !github.event.release.prerelease
+    uses: ./.github/workflows/system-tests.yml
+
   # Before the approval, so a rejected run still leaves the release image.
   release-image:
+    needs: system-tests
     if: github.event_name == 'release' && !github.event.release.prerelease
     runs-on: ubuntu-latest
     permissions:
