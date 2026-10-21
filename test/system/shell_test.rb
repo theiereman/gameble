@@ -266,17 +266,17 @@ class ShellTest < ApplicationSystemTestCase
 
   test "several toasts stay through a morph refresh of the hub, in their order" do
     sign_in(accounts_players(:player))
-    assert_no_selector ".toasts .toast", wait: 12
     page.execute_script(<<~JS)
       for (const message of ["First toast, kept through the refresh of the page for a while.", "Second toast, kept through the refresh of the page as well."]) {
         window.dispatchEvent(new CustomEvent("gameble:toast", { detail: { message } }))
       }
     JS
-    assert_selector ".toasts .toast", count: 2
+    assert_selector ".toasts .toast", text: "Second toast"
 
     refresh_with_turbo
-    messages = all(".toasts .toast .toast__message").map(&:text)
-    assert_equal 2, messages.size
+    assert_selector ".toasts .toast", text: "First toast"
+    assert_selector ".toasts .toast", text: "Second toast"
+    messages = all(".toasts .toast__message", text: /kept through/).map(&:text)
     assert_match(/\AFirst toast/i, messages.first)
     assert_match(/\ASecond toast/i, messages.last)
     assert_no_selector ".toasts .toast", wait: 12

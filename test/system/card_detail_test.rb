@@ -404,6 +404,7 @@ class CardDetailTest < ApplicationSystemTestCase
 
     go_back
     assert_current_path library_cards_path(locale: :en, **filters)
+    assert_selector ".collection-grid"
     assert_equal "seed 1", find("#collection-search").value
   end
 
