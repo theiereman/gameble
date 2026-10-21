@@ -19,3 +19,12 @@ Session: 02bc1656-501f-49ee-bfd0-141f1af54ab5 · Timestamp: 2026-10-21T10:50:29+
 - Result: block 1 checked as accepted, no findings; block 2 is the current block.
 - Evidence: [walkthrough-friendship-action-and-iridescence.md](walkthrough-friendship-action-and-iridescence.md)
 - Open: blocks 2 to 10 unchecked.
+
+## 3 — walkthrough — blocks 2 to 10 accepted
+
+Session: 02bc1656-501f-49ee-bfd0-141f1af54ab5 · Timestamp: 2026-10-21T10:53:22+02:00
+
+- Action: user accepted blocks 2 to 10 as written. Blocks 3 to 10 were accepted without a detailed pass, on the user's instruction to validate the whole walkthrough.
+- Result: blocks 2 to 10 checked as accepted, no findings; no block is current.
+- Evidence: [walkthrough-friendship-action-and-iridescence.md](walkthrough-friendship-action-and-iridescence.md)
+- Open: none.
