@@ -1,6 +1,6 @@
 ---
 id: 59
-tracker_status: review
+tracker_status: done
 tracker_id: 164
 remote: https://github.com/theiereman/gameble/issues/164
 type: story
