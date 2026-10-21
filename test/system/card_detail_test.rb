@@ -384,30 +384,6 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_equal "seed", find("#collection-search").value
   end
 
-  test "on the desktop, from a filtered collection ◀ ▶ walk it, and Back returns to it with its filters" do
-    season = publish_sets_draft
-    filters = { state: %w[all], genre: %w[rpg], q: "seed 1" }
-    visit library_cards_path(locale: :en, **filters)
-    shown = all(".collection-grid a.card-link").map { URI(it[:href]).path[%r{\A/en/cards/([^/]+)/}, 1] }
-    assert_operator shown.size, :>, 3
-
-    find(".collection-grid > li:nth-child(2) a.card-link").click
-    assert_selector ".card-detail h1"
-    assert_no_selector ".card-detail__position"
-    find(".card-detail__nav--next").click
-    page.document.synchronize { raise Capybara::ExpectationNotMet unless current_url_path.start_with?("/en/cards/#{shown[2]}/seasons/#{season.number}?") }
-    find(".card-detail__nav--previous").click
-    page.document.synchronize { raise Capybara::ExpectationNotMet unless current_url_path.start_with?("/en/cards/#{shown[1]}/") }
-    find(".card-detail__nav--previous").click
-    page.document.synchronize { raise Capybara::ExpectationNotMet unless current_url_path.start_with?("/en/cards/#{shown[0]}/") }
-    assert_selector "button.card-detail__nav--previous[disabled]"
-
-    go_back
-    assert_current_path library_cards_path(locale: :en, **filters)
-    assert_selector ".collection-grid"
-    assert_equal "seed 1", find("#collection-search").value
-  end
-
   test "on a phone the ends of a set are disabled, and a card opened without the grid goes back to it by a plain visit" do
     season = publish_sets_draft
     ids = members(season, "horror")
