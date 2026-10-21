@@ -140,10 +140,10 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster-canister[aria-label='Open the capsule Season 1, grand catalogue, 5 cards']"
     assert_selector ".booster__canister-hint", text: "CLICK TO OPEN"
     within(".booster__info") do
-      assert_selector ".booster__kicker", text: "BOOSTER · SEASON 1"
+      assert_selector ".booster__kicker", text: "CAPSULE · SEASON 1"
       assert_selector ".booster__title", text: "GRAND CATALOGUE"
-      assert_selector ".booster__row", text: /CARDS PER BOOSTER\s+5/
-      assert_selector ".booster__row", text: /IN RESERVE\s+3 BOOSTERS/
+      assert_selector ".booster__row", text: /CARDS PER CAPSULE\s+5/
+      assert_selector ".booster__row", text: /IN RESERVE\s+3 CAPSULES/
       assert_selector ".booster__state", text: "SEALED"
       assert_selector ".booster__pip[data-lit]", count: 3
       assert_selector ".booster__pip", count: 10
@@ -362,7 +362,7 @@ class BoosterTest < ApplicationSystemTestCase
     visit booster_path(locale: :en, pack: own.token)
     assert_selector ".booster-tray__slot--filled", count: 5
     visit home_path(locale: :en)
-    find(".tab-bar a.tab-bar__tab", text: /BOOSTER/).click
+    find(".tab-bar a.tab-bar__tab", text: /CAPSULE/).click
     assert_current_path "/en/booster"
     assert_selector ".booster-canister"
     assert_selector ".booster__state", text: "SEALED"
@@ -708,10 +708,10 @@ class BoosterTest < ApplicationSystemTestCase
     create_pack(@player, available_at: 1.hour.ago)
     create_pack(@player, available_at: 3.seconds.from_now)
     visit booster_path(locale: :en)
-    assert_selector ".booster__row", text: /IN RESERVE\s+1 BOOSTER\z/
+    assert_selector ".booster__row", text: /IN RESERVE\s+1 CAPSULE\z/
     page.execute_script("document.querySelector('.booster').dataset.marker = 'before'")
 
-    assert_selector ".booster__row", text: /IN RESERVE\s+2 BOOSTERS/, wait: 10
+    assert_selector ".booster__row", text: /IN RESERVE\s+2 CAPSULES/, wait: 10
     assert_no_selector ".booster[data-marker]"
     assert_selector ".booster__state", text: "SEALED"
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "2"
@@ -741,7 +741,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".booster--failed[role=alert]", text: I18n.t("boosters.island.island_failed", locale: :en)
     assert_no_selector ".booster-canister"
     # The form without JavaScript stays, a way to open the booster all the same.
-    assert_selector ".booster__fallback", text: /OPEN THE BOOSTER/
+    assert_selector ".booster__fallback", text: /OPEN THE CAPSULE/
     reload = find_link(I18n.t("boosters.island.reload", locale: :en), href: "/en/booster")
     assert_equal "false", reload["data-turbo"]
 
@@ -892,7 +892,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_equal 5, filled_slots
     assert_no_selector ".booster__pile .booster-card"
     assert_selector ".booster__state", text: "INVENTORY COMPLETE"
-    assert_selector ".booster-plate-band__hint", text: "Capsule inventoried · +5 cards in the collection"
+    assert_selector ".booster-plate-band .booster-celebration", text: /SET COMPLETE\s+VALVE/
     assert_focus ".booster__open"
     assert_button "Open the next one"
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
@@ -1025,7 +1025,7 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".card-detail__position", text: "· 2 / 5 · SWIPE TO BROWSE"
     step_detail(:next, to: "Blue Depths")
     assert_selector ".card-detail__position", text: "· 3 / 5 ·"
-    back = find(".top-bar__phone-back", text: "BOOSTER")
+    back = find(".top-bar__phone-back", text: "CAPSULE")
     assert_equal "/en/booster?pack=#{token}", URI(back[:href]).request_uri
 
     back.click
@@ -1192,7 +1192,7 @@ class BoosterTest < ApplicationSystemTestCase
     open_screen(card_ids(:rare_card_one, :portal_one, :legendary_card_one), kind: :bonus)
 
     assert_selector ".booster-canister[aria-label='Open the capsule Season 1, grand catalogue, 3 cards']"
-    assert_selector ".booster__row", text: /CARDS PER BOOSTER\s+3/
+    assert_selector ".booster__row", text: /CARDS PER CAPSULE\s+3/
     assert_selector ".booster__counter", text: "Cards revealed: — / 3"
 
     on_phone
@@ -1220,10 +1220,10 @@ class BoosterTest < ApplicationSystemTestCase
     on_phone
     create_pack(@player, cards: card_ids(:common_card_one, :uncommon_card_one, :rare_card_one, :portal_one, :legendary_card_one))
     visit home_path(locale: :en)
-    find(".tab-bar a.tab-bar__tab", text: /BOOSTER/).click
+    find(".tab-bar a.tab-bar__tab", text: /CAPSULE/).click
 
     assert_current_path "/en/booster"
-    assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: /BOOSTER/
+    assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: /CAPSULE/
     record_requests
     open_canister
     assert_pile(5)

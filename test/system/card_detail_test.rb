@@ -38,12 +38,6 @@ class CardDetailTest < ApplicationSystemTestCase
 
   def in_set_path(id, season) = "/en/cards/#{slug(id)}/seasons/#{season.number}?set_key=horror&set_kind=theme"
 
-  # A card's detail walking the collection grid of `context` (its filters,
-  # search and set), as the grid's links write it.
-  def in_grid_path(id, season, context) = "/en/cards/#{slug(id)}/seasons/#{season.number}?#{{ grid: context }.to_query}"
-
-  def set_grid = { key: "horror", kind: "theme", q: "", state: %w[all] }
-
   def current_url_path = evaluate_script("location.pathname + location.search")
 
   def scroll_y = evaluate_script("window.scrollY")
@@ -100,7 +94,7 @@ class CardDetailTest < ApplicationSystemTestCase
     visit library_set_path(locale: :en, kind: "theme", key: "horror")
     find(".collection-grid a.card-link", match: :first).click
 
-    assert_current_path in_grid_path(id, season, set_grid.except(:state))
+    assert_current_path in_set_path(id, season)
     assert_selector ".card-detail h1", text: title(id)
     assert_selector ".card-detail__fact", text: /GENRE\s+Horror/i
     assert_equal [ "Horror", "Pirates" ], all(".card-detail__sets a").map { it.text.strip }
@@ -112,10 +106,10 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_equal [ card.store_url, "_blank" ], [ link[:href], link[:target] ]
     assert_equal "See on Steam (new tab)", link.evaluate_script("this.textContent").squish
     assert_selector ".card-detail__actions button", text: "SHARE"
-    # The desktop shows ◀ ▶ (the grid of owned cards holds this one only),
-    # no position line; the number is in the header.
+    # The desktop shows ◀ ▶ walking the theme's album, this card first in
+    # it, no position line; the number is in the header.
     assert_selector "button.card-detail__nav--previous[disabled]"
-    assert_selector "button.card-detail__nav--next[disabled]"
+    assert_selector "a.card-detail__nav--next:not([disabled])"
     assert_no_selector ".card-detail__position"
     assert_no_selector ".top-bar__phone-back"
     assert_selector ".top-bar__start > a.top-bar__home[href='/en'][aria-label='gameble, command bridge']"
@@ -124,7 +118,7 @@ class CardDetailTest < ApplicationSystemTestCase
     take_screenshot
 
     click_on "Horror"
-    assert_selector ".set-row[aria-current=page] .set-row__name", text: /\AHorror\z/i
+    assert_selector ".set-album__name", text: /Horror/i
   end
 
   test "a holder reposts a card from its detail: a toast, the button stays, and the feed opens on the repost" do
@@ -167,20 +161,21 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_no_button "Repost"
   end
 
-  test "a visitor clicks an album's missing slot: the card's face, its facts and PARTAGER, no copies" do
+  test "a player clicks an album's missing slot: the card's face, its facts and PARTAGER, no copies" do
     season = publish_sets_draft
     id = members(season, "pirates").first
     card = Catalog::CardSeason.find(id).card
+    sign_in(accounts_players(:player))
 
     visit library_set_path(locale: :fr, kind: "theme", key: "pirates")
     find(".collection-grid a.card-link .missing-slot", match: :first).click
 
-    assert_current_path "/fr/cards/#{card.slug}/seasons/#{season.number}?#{{ grid: { key: "pirates", kind: "theme", q: "" } }.to_query}"
+    assert_current_path "/fr/cards/#{card.slug}/seasons/#{season.number}?set_key=pirates&set_kind=theme"
     assert_selector ".card-detail h1", text: card.texts.find_by!(locale: "fr").title
     assert_selector ".card-detail__card .card"
     assert_no_selector ".card-detail__card .card--not-owned"
     assert_selector ".card-detail__fact dt", text: "RARETÉ"
-    assert_no_selector ".card-detail__copies"
+    assert_selector ".card-detail__copies", text: "Aucun"
     assert_selector ".card-detail__share-button"
     assert_selector ".card-detail__store[href$='l=french']"
     take_screenshot
@@ -252,7 +247,7 @@ class CardDetailTest < ApplicationSystemTestCase
     entries = evaluate_script("history.length")
     slot.click
 
-    assert_current_path in_grid_path(ids[3], season, set_grid)
+    assert_current_path in_set_path(ids[3], season)
     assert_selector ".card-detail h1", text: title(ids[3])
     # The sub-view opened: its heading has the focus.
     assert_focused ".card-detail h1"
@@ -274,7 +269,7 @@ class CardDetailTest < ApplicationSystemTestCase
 
     find(".card-detail__nav--next").click
     assert_selector ".card-detail__position", text: "· 5 / 16 ·"
-    assert_equal in_grid_path(ids[4], season, set_grid), current_url_path
+    assert_equal in_set_path(ids[4], season), current_url_path
     assert_history_length entries + 1
     # The page's title follows the card.
     assert_selector ".card-detail h1", text: title(ids[4])
@@ -289,7 +284,7 @@ class CardDetailTest < ApplicationSystemTestCase
 
     swipe(-120)
     assert_selector ".card-detail__position", text: "· 6 / 16 ·"
-    assert_equal in_grid_path(ids[5], season, set_grid), current_url_path
+    assert_equal in_set_path(ids[5], season), current_url_path
     swipe(120)
     assert_selector ".card-detail__position", text: "· 5 / 16 ·"
     # A vertical drag is no swipe.
@@ -383,7 +378,7 @@ class CardDetailTest < ApplicationSystemTestCase
 
     find(".top-bar__phone-back").click
     page.document.synchronize do
-      raise Capybara::ExpectationNotMet, current_url_path unless URI(current_url_path).path == "/en/library" && Rack::Utils.parse_query(URI(current_url_path).query)["page"] == "2"
+      raise Capybara::ExpectationNotMet, current_url_path unless URI(current_url_path).path == library_cards_path(locale: :en) && Rack::Utils.parse_query(URI(current_url_path).query)["page"] == "2"
     end
     assert_selector ".collection-grid a.card-link[href^='#{second_page.first}']"
     assert_equal "seed", find("#collection-search").value
@@ -415,6 +410,7 @@ class CardDetailTest < ApplicationSystemTestCase
   test "on a phone the ends of a set are disabled, and a card opened without the grid goes back to it by a plain visit" do
     season = publish_sets_draft
     ids = members(season, "horror")
+    sign_in(accounts_players(:player))
     page.driver.browser.manage.window.resize_to(*PHONE)
 
     visit in_set_path(ids.first, season)

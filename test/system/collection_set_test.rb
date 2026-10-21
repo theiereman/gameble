@@ -30,6 +30,7 @@ class CollectionSetTest < ApplicationSystemTestCase
     season = publish_sets_draft
     long = "The Long Chronicles of the Amethyst Archive and the Keys Its Keepers Lost at Sea"
     Catalog::CardText.where(card_id: Catalog::CardSeason.find(members(season, "horror").first).card_id, locale: "en").update_all(title: long)
+    sign_in(accounts_players(:player))
 
     visit library_set_path(locale: :en, kind: "theme", key: "horror")
 

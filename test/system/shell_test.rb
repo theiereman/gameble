@@ -74,7 +74,7 @@ class ShellTest < ApplicationSystemTestCase
     sign_in(player)
 
     assert_selector ".top-bar .rarity-counter__button", visible: true
-    assert_selector ".top-bar a.packs-chip[href='/en/booster']", text: /3\s+BOOSTERS/i
+    assert_selector ".top-bar a.packs-chip[href='/en/booster']", text: /3\s+CAPSULES/i
     assert_selector ".packs-chip__next", text: /\+1 in \d\d:\d\d/i, visible: true
     assert_no_selector ".tab-bar", visible: true
     assert_equal "rgb(11, 15, 21)", computed("body", "backgroundColor")
@@ -102,7 +102,7 @@ class ShellTest < ApplicationSystemTestCase
 
       assert_selector ".tab-bar", visible: true
       assert_selector ".tab-bar a.tab-bar__tab[aria-current=page]", text: /PONT/i
-      assert_selector ".tab-bar a.tab-bar__tab[href='/fr/booster']", text: /BOOSTER/i
+      assert_selector ".tab-bar a.tab-bar__tab[href='/fr/booster']", text: /CAPSULE/i
       assert_selector ".tab-bar a.tab-bar__tab[href='/fr/more']", text: /PLUS/i
       assert_selector ".tab-bar a.tab-bar__tab[href='/fr/trades']", text: /ÉCHANGES/i
       assert_no_selector ".rarity-counter__button", visible: true
@@ -123,9 +123,7 @@ class ShellTest < ApplicationSystemTestCase
 
   test "a toast closes with its button, and a gameble:toast event adds one" do
     visit settings_path(locale: :en)
-
-    assert_selector ".toasts .toast.toast--alert", text: I18n.t("authorization.sign_in_required", locale: :en)
-    find(".toast .toast__close").click
+    assert_current_path landing_path(locale: :en)
     assert_no_selector ".toasts .toast"
 
     page.execute_script(<<~JS)
@@ -183,7 +181,7 @@ class ShellTest < ApplicationSystemTestCase
   end
 
   test "a refresh of the same page is no screen change; a visit to another one is" do
-    visit home_path(locale: :en)
+    sign_in(accounts_players(:player))
 
     refresh_with_turbo
     assert_selector "html[data-screen-change=same]", visible: :all
@@ -201,7 +199,7 @@ class ShellTest < ApplicationSystemTestCase
   end
 
   test "Back and Forward are screen changes: the screen slides and the stars stay" do
-    visit home_path(locale: :en)
+    sign_in(accounts_players(:player))
     within(".hub-menu") { click_on "Collection" }
     assert_current_path library_path(locale: :en)
     assert_stars_still
@@ -248,6 +246,7 @@ class ShellTest < ApplicationSystemTestCase
   end
 
   test "the tab bar and the toasts are captured apart from the sliding screen" do
+    sign_in(accounts_players(:player))
     resize_to(*PHONES["390"])
     visit home_path(locale: :en)
     assert_equal "tab-bar", computed(".tab-bar", "viewTransitionName")
@@ -255,7 +254,7 @@ class ShellTest < ApplicationSystemTestCase
   end
 
   test "a toast stays through a morph refresh of the hub" do
-    visit home_path(locale: :en)
+    sign_in(accounts_players(:player))
     page.execute_script(<<~JS)
       window.dispatchEvent(new CustomEvent("gameble:toast", { detail: { message: "Still here after the refresh of the page, as long as its time is not up yet, which takes a while." } }))
     JS
@@ -266,7 +265,8 @@ class ShellTest < ApplicationSystemTestCase
   end
 
   test "several toasts stay through a morph refresh of the hub, in their order" do
-    visit home_path(locale: :en)
+    sign_in(accounts_players(:player))
+    assert_no_selector ".toasts .toast", wait: 12
     page.execute_script(<<~JS)
       for (const message of ["First toast, kept through the refresh of the page for a while.", "Second toast, kept through the refresh of the page as well."]) {
         window.dispatchEvent(new CustomEvent("gameble:toast", { detail: { message } }))
@@ -333,7 +333,10 @@ class ShellTest < ApplicationSystemTestCase
 
   test "on a phone the toasts sit at the top" do
     resize_to(*PHONES["390"])
-    visit settings_path(locale: :en)
+    visit landing_path(locale: :en)
+    page.execute_script(<<~JS)
+      window.dispatchEvent(new CustomEvent("gameble:toast", { detail: { message: "Up there." } }))
+    JS
 
     assert_selector ".toasts .toast"
     assert_operator page.evaluate_script("document.querySelector('.toasts').getBoundingClientRect().top"), :<, 40
@@ -376,6 +379,13 @@ class ShellTest < ApplicationSystemTestCase
     sign_in(player)
   end
 
+  def album_path = library_set_path(locale: :en, kind: "theme", key: "horror")
+
+  def open_first_card_of_the_set
+    find(".set-entry__list a[href='#{album_path}']").click
+    find(".collection-grid a.card-link", match: :first).click
+  end
+
   def accessible_text(selector) = find(selector).evaluate_script("this.textContent").squish
 
   test "on a desktop, the back button names the screen before this one and returns to it, through each card the detail steps to" do
@@ -387,11 +397,11 @@ class ShellTest < ApplicationSystemTestCase
     assert_no_selector PREVIOUS
     assert_no_selector ".top-bar__bridge"
 
-    find(".collection-grid a.card-link", match: :first).click
+    open_first_card_of_the_set
     assert_selector ".card-detail h1"
-    assert_selector PREVIOUS, text: "COLLECTION"
-    assert_equal "Back: Collection", accessible_text(PREVIOUS)
-    assert_equal "/en/library", URI(find(PREVIOUS)[:href]).path
+    assert_selector PREVIOUS, text: /SET\z/
+    assert_equal "Back: Set", accessible_text(PREVIOUS)
+    assert_equal album_path, URI(find(PREVIOUS)[:href]).path
     take_screenshot
 
     page.document.synchronize { raise Capybara::ExpectationNotMet, "visiting" if evaluate_script("!!Turbo.session.navigator.currentVisit") }
@@ -400,20 +410,20 @@ class ShellTest < ApplicationSystemTestCase
       Turbo.session.refresh(document.baseURI, { method: "morph", scroll: "preserve" })
     JS
     page.document.synchronize { raise Capybara::ExpectationNotMet, "not morphed" unless evaluate_script("window.morphed === true") }
-    assert_selector PREVIOUS, text: "COLLECTION"
-    assert_equal "/en/library", URI(find(PREVIOUS)[:href]).path
+    assert_selector PREVIOUS, text: /SET\z/
+    assert_equal album_path, URI(find(PREVIOUS)[:href]).path
 
     detail = current_path
     find("a.card-detail__nav--next").click
     assert_no_current_path detail
-    assert_selector PREVIOUS, text: "COLLECTION"
+    assert_selector PREVIOUS, text: /SET\z/
 
     entries = evaluate_script("history.length")
     find(PREVIOUS).click
-    assert_current_path library_path(locale: :en)
+    assert_current_path album_path
     assert_selector ".collection-grid"
     assert_equal entries, evaluate_script("history.length")
-    assert_no_selector PREVIOUS
+    assert_selector PREVIOUS, text: "SETS"
 
     find(".top-bar__home").click
     assert_current_path home_path(locale: :en)
@@ -429,8 +439,9 @@ class ShellTest < ApplicationSystemTestCase
     assert_current_path home_path(locale: :en)
 
     find(".hub-menu .menu-item[aria-keyshortcuts='2']").click
-    find(".collection-grid a.card-link", match: :first).click
-    assert_selector PREVIOUS, text: "COLLECTION"
+    open_first_card_of_the_set
+    assert_selector ".card-detail h1"
+    assert_selector PREVIOUS, text: /SET\z/
     detail = current_url
 
     refresh
@@ -448,7 +459,7 @@ class ShellTest < ApplicationSystemTestCase
       Object.defineProperty(window, "sessionStorage", { get() { throw new Error("denied") } })
     JS
     find(".hub-menu .menu-item[aria-keyshortcuts='2']").click
-    find(".collection-grid a.card-link", match: :first).click
+    open_first_card_of_the_set
     assert_selector ".card-detail h1"
     assert_no_selector PREVIOUS
   end
@@ -463,7 +474,7 @@ class ShellTest < ApplicationSystemTestCase
     assert_selector ".top-bar__start > a.top-bar__bridge", text: "BRIDGE"
     assert_no_selector ".top-bar__home, .top-bar__divider", visible: true
 
-    find(".collection-grid a.card-link", match: :first).click
+    open_first_card_of_the_set
     assert_selector ".top-bar__phone-back", text: "GRID"
     assert_no_selector ".top-bar__bridge, .top-bar__home, .top-bar__divider", visible: true
     assert_no_selector PREVIOUS, visible: true
