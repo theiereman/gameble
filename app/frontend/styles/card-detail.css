@@ -249,6 +249,19 @@
   list-style: none;
 }
 
+.card-detail__pioneer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+}
+
+.card-detail__pioneer-date {
+  color: var(--color-text);
+  font-weight: 400;
+}
+
 .card-detail__editions {
   display: flex;
   flex-direction: column;
@@ -643,6 +656,27 @@ html[data-motion="reduced"][data-sub-view-step] .card-detail__card {
 .public-card__line--rare { color: var(--color-rarity-rare); }
 .public-card__line--epic { color: var(--color-rarity-epique); }
 .public-card__line--legendary { color: var(--color-rarity-legendaire); }
+
+.public-card__pioneer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  color: var(--color-text-bright);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.public-card__pioneer-label {
+  color: var(--color-muted);
+  text-transform: uppercase;
+}
+
+.public-card__pioneer-date {
+  color: var(--color-text);
+  font-weight: 400;
+}
 
 .public-card__description {
   margin: 0;

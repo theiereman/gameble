@@ -30,11 +30,11 @@
     can share it. ◀ ▶ replace this frame and the URL
     (sub_view_controller.ts); every other link in it leaves the page. %>
 <% if @public %>
-  <%= render "cards/public", detail: @detail, live: @live_strip %>
+  <%= render "cards/public", detail: @detail, live: @live_strip, pioneer: @pioneer %>
 <% else %>
   <%= turbo_frame_tag "card-detail", target: "_top" do %>
     <%= render "cards/detail", detail: @detail, copies: @copies, editions: @editions, signed_in: current_player.present?, share_url: @share_url,
       set_url: (->(set) { library_set_path(kind: set.kind, key: set.key) } if current_player), browse: @browse,
-      showcase: @showcase %>
+      showcase: @showcase, pioneer: @pioneer %>
   <% end %>
 <% end %>

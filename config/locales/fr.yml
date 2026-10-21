@@ -1709,11 +1709,15 @@ fr:
       genre: "Genre"
       year: "Année"
       season: "Saison"
+      pioneer: "Pionnier"
       sets: "Sets"
       copies: "Exemplaires"
       editions: "Éditions"
       steam_reviews: "Avis Steam"
     season_number: "Saison %{number}"
+    pioneer:
+      anonymous: "Un joueur anonyme"
+      dated: "le %{date}"
     season_short: "S%{number}"
     editions_line: "%{rarity} : %{seasons}"
     editions_more:
@@ -1855,6 +1859,8 @@ fr:
   date:
     formats:
       month_year: "%B %Y"
+      long_day: "%-d %B %Y"
+      long_day_first: "1er %B %Y"
     month_names: [~, janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre]
     abbr_month_names: [~, janv., févr., mars, avr., mai, juin, juil., août, sept., oct., nov., déc.]
     day_names: [dimanche, lundi, mardi, mercredi, jeudi, vendredi, samedi]

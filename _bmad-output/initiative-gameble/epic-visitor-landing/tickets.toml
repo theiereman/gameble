@@ -155,7 +155,7 @@ covers = ["R6", "R8"]
 after = [3, "6.7"]
 hitl = false
 risk = "medium"
-notes = ["Decision (author, 2026-10-21): the single PIONNIER line is the pioneer of the edition of the published season; the design is in EXPERIENCE.md and DESIGN.md (Pioneer row), reference mockups/key-card-detail-pioneer.html."]
+notes = ["Decision (author, 2026-10-21): a visitor reads the pioneer's name when that profile is public (Game::Visibility with no viewer), « anonyme » otherwise; the single PIONNIER line is the pioneer of the edition of the published season; the design is in EXPERIENCE.md and DESIGN.md (Pioneer row), reference mockups/key-card-detail-pioneer.html."]
 
 [[entry]]
 id = 14

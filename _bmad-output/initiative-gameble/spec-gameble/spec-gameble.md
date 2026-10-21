@@ -122,7 +122,7 @@ gameble is an open-source passion project, and the game its author wants to play
     - A signed-in player has a Friends tab showing only their friends' pulls, trades and reposts; a private friend's never show (CAP-8).
     - The LIVE ticker shows pulls of Épique or better, first discoveries, trades, set completions and set tiers reached, never reposts.
     - The set tiers and completions one opening reaches make one feed entry and one ticker item, naming the highest and the count.
-    - The first player to discover a card of a season is its pioneer, shown in the card's details to every later viewer allowed to see that player's profile (CAP-8); anyone else, a signed-out visitor included, sees « anonyme », as for a banned or deleted account. Each edition has its own pioneer.
+    - The first player to discover a card of a season is its pioneer, shown in the card's details to every later viewer allowed to see that player's profile (CAP-8), a signed-out visitor included when that profile is public (author, 2026-10-21); anyone else sees « anonyme », as for a banned or deleted account. Each edition has its own pioneer.
 - **CAP-14**
   - **intent:** A player can manage their personal data from their profile.
   - **success:** From the profile, a player can delete their account, export their data, and set their profile's visibility (public, friends only, private); going private cancels their open trades (CAP-11) and says so before applying. Each action works end to end.

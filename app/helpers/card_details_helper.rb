@@ -47,6 +47,13 @@ module CardDetailsHelper
       percent: number_to_percentage(reviews.positive_percent.floor, precision: 0))
   end
 
+  # "on March 1, 2026" / "le 1er mars 2026": the first of a month is
+  # an ordinal in French.
+  def card_detail_pioneer_date(day)
+    format = day.day == 1 ? :long_day_first : :long_day
+    t("card_details.pioneer.dated", date: l(day, format:))
+  end
+
   def card_detail_edition_lines(editions, strings)
     editions.group_by(&:first).map do |rarity, held|
       seasons = held.map { |_, season_number, _| t("card_details.season_short", number: season_number) }

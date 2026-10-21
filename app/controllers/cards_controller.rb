@@ -49,6 +49,9 @@ class CardsController < ApplicationController
   Browse = Data.define(:position, :total, :previous, :next, :back)
   # A way back: its words and its path.
   Back = Data.define(:label, :path)
+  # The pioneer row: the day of the first discovery, and the player's
+  # profile `token` and `name`, both nil when the viewer may not see them.
+  PioneerLine = Data.define(:discovered_on, :token, :name)
 
   # GET /:locale/cards/:slug and /:locale/cards/:slug/seasons/:number. An
   # unknown slug, or a card the season asked (the published one by default)
@@ -66,9 +69,25 @@ class CardsController < ApplicationController
     @live_strip = LiveStream.strip_items if @public
     @browse = named || profile || set_browse(@detail.sets.first) unless @public
     @showcase = showcase_state
+    @pioneer = pioneer_line
   end
 
   private
+    # Who first discovered this card's published edition, named when the
+    # viewer may see their profile, whatever the season shown; nil without a
+    # recorded discovery.
+    def pioneer_line
+      pioneer = Game::PioneerOf.call(@detail.card_id)
+      return if pioneer.nil?
+
+      day = pioneer.discovered_at.in_time_zone.to_date
+      player = pioneer.player
+      return PioneerLine.new(discovered_on: day, token: nil, name: nil) unless Game::Visibility.visible?(current_player, player, staff_sees_all: false)
+
+      name = Accounts::PersonaName.clean(player.persona_name) || t("shell.player.fallback_name")
+      PioneerLine.new(discovered_on: day, token: player.token, name:)
+    end
+
     # The absolute link to this card-season's page, always season-qualified,
     # on the configured public base; nothing in it names the viewer.
     def share_url

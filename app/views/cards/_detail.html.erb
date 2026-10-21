@@ -6,8 +6,8 @@
     shows its face, held or not. ◀ ▶ beside the card step through what it
     browses (an opened pack, a grid, a set), and on a phone
     (sub_view controller) a swipe on it too, under a position line, with
-    the actions pinned at the bottom. It names no one but the viewer (a
-    shared card shows only the card). Locals:
+    the actions pinned at the bottom. It names no one but the viewer and
+    the card's pioneer (a shared card shows only the card). Locals:
     - detail: a Catalog::CardDetail::Detail;
     - copies: how many copies of its game the viewer holds, every edition
       counted, or nil;
@@ -29,13 +29,16 @@
       default) for no ◀ ▶ and no position line;
     - showcase: the viewer's profile showcase action on this card-season:
       :add, :remove, :full (the add button disabled, the showcase-full line
-      beside it) or nil (the default) for none. %>
+      beside it) or nil (the default) for none;
+    - pioneer: the card's first discoverer (a CardsController::PioneerLine,
+      anonymous when it has no token) or nil (the default) for no row. %>
 <% share_url = local_assigns.fetch(:share_url, nil) %>
 <% set_url = detail.current_season ? local_assigns.fetch(:set_url, nil) : nil %>
 <% browse = local_assigns.fetch(:browse, nil) %>
 <% signed_in = local_assigns.fetch(:signed_in, false) %>
 <% editions = local_assigns.fetch(:editions, []) %>
 <% showcase = local_assigns.fetch(:showcase, nil) %>
+<% pioneer = local_assigns.fetch(:pioneer, nil) %>
 <% repostable = share_url && editions.any? { |_, season_number, _| season_number == detail.view.season_number } %>
 <% view = detail.view %>
 <% strings = CardStrings.new %>
@@ -116,6 +119,19 @@
             <dt><%= t("card_details.facts.season") %></dt>
             <dd><%= t("card_details.season_number", number: view.season_number) %></dd>
           </div>
+          <% if pioneer %>
+            <div class="card-detail__fact">
+              <dt><%= t("card_details.facts.pioneer") %></dt>
+              <dd class="card-detail__pioneer">
+                <% if pioneer.token %>
+                  <%= link_to pioneer.name, brother_path(token: pioneer.token) %>
+                <% else %>
+                  <span class="card-detail__pioneer-anon"><%= t("card_details.pioneer.anonymous") %></span>
+                <% end %>
+                <span class="card-detail__pioneer-date"><%= card_detail_pioneer_date(pioneer.discovered_on) %></span>
+              </dd>
+            </div>
+          <% end %>
           <% if detail.sets.any? %>
             <div class="card-detail__fact">
               <dt><%= t("card_details.facts.sets") %></dt>

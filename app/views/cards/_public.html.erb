@@ -5,7 +5,7 @@
     description, "Voir sur Steam", and the invitation to play. Below, the
     LIVE strip of the three latest public feed entries, kept current by the
     public live stream, and the footer's link to the legal page. It never
-    names who shared or holds the card (the strip names only the feed's
+    names who shared or holds the card, only its pioneer (the strip names only the feed's
     public players) and shows no app chrome (the layout's top bar is the
     slim one).
     The invitation needs an account, which Steam's sign-in gives only to a
@@ -13,6 +13,8 @@
     the browser supports :has() (styles/card-detail.css), so no script sniffs
     the browser. Locals:
     - detail: a Catalog::CardDetail::Detail;
+    - pioneer: the card's first discoverer (a CardsController::PioneerLine,
+      anonymous when it has no token) or nil for no line;
     - live: the strip's entries ([ entry, card, partner card, set ], FeedItems). %>
 <% view = detail.view %>
 <% strings = CardStrings.new %>
@@ -40,6 +42,17 @@
         <%= pixel_icon("rarity-#{tier}", class: "public-card__rarity-icon") %>
         <span><%= line.join(" · ") %></span>
       </p>
+      <% if pioneer %>
+        <p class="public-card__pioneer">
+          <span class="public-card__pioneer-label"><%= t("card_details.facts.pioneer") %></span>
+          <% if pioneer.token %>
+            <%= link_to pioneer.name, brother_path(token: pioneer.token) %>
+          <% else %>
+            <span><%= t("card_details.pioneer.anonymous") %></span>
+          <% end %>
+          <span class="public-card__pioneer-date"><%= card_detail_pioneer_date(pioneer.discovered_on) %></span>
+        </p>
+      <% end %>
       <% if detail.short_description %>
         <p class="public-card__description"><%= detail.short_description %></p>
       <% end %>
