@@ -18,6 +18,15 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     options.binary = ENV["CHROME_BIN"] if ENV["CHROME_BIN"].present?
   end
 
+  # The fixtures' cover and store hosts do not exist: the browser fails their
+  # requests at once instead of waiting on name resolution, which a reveal
+  # would otherwise wait out as long as the card's art.
+  setup do
+    browser = page.driver.browser
+    browser.execute_cdp("Network.enable")
+    browser.execute_cdp("Network.setBlockedURLs", urls: [ "*://*.example.test/*" ])
+  end
+
   teardown do
     resize_to(*SCREEN_SIZE)
   end
