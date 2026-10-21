@@ -121,3 +121,14 @@ after = []
 hitl = true
 risk = "low"
 notes = ["Reported by the author on 2026-10-20: the iridescent effect on Légendaire cards almost hides their content."]
+
+[[entry]]
+id = 11
+type = "bug"
+title = "Switch through collections menu before going back to the bridge"
+description = "Requested in #222 by @Felzpath: read the request before refining."
+covers = []
+after = []
+hitl = false
+refine = true
+requested_in = [222]
