@@ -1560,7 +1560,7 @@ fr:
         tiles:
           discover:
             title: "Découvrez"
-            text: "Le premier joueur à tirer un jeu y grave son nom, pour toute la Confrérie."
+            text: "Tirez un jeu avant tout le monde : la Confrérie s'en souviendra."
             chip: "Première découverte"
           trade:
             title: "Échangez"

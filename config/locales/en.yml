@@ -1515,7 +1515,7 @@ en:
         tiles:
           discover:
             title: "Discover"
-            text: "The first player to draw a game engraves their name on it, for the whole Brotherhood."
+            text: "Draw a game before anyone else: the Brotherhood will remember it."
             chip: "First discovery"
           trade:
             title: "Trade"

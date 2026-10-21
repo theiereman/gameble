@@ -68,6 +68,15 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "the Découvrez tile promises no name to anyone" do
+    %i[fr en].each do |locale|
+      get landing_path(locale:)
+
+      assert_select ".landing-tile", text: /#{Regexp.escape(I18n.t("landings.show.brotherhood.tiles.discover.text", locale:))}/
+      refute_match(/engrave|grave son nom/, response.body)
+    end
+  end
+
   test "the reveal demo holds every sample face, hidden, with its announcement, and a hidden button" do
     get landing_path(locale: :fr)
 
