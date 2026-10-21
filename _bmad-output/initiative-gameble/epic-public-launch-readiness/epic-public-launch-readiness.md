@@ -8,6 +8,7 @@ parent: initiative-gameble
 covers: [CAP-14, CAP-15]
 after: []
 assignee: ""
+status: done
 risk: medium
 estimate: ""
 estimate_basis: ""

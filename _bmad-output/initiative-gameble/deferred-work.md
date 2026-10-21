@@ -285,3 +285,59 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-season-preparation/story-an-import-builds-beside-the-draft-and-replaces-it-only-once-plan.md`
   summary: Deploy the staged import only when no import run is active.
   evidence: A run in flight at deploy has no season_number and ends ready with 0, so promoting it is refused as stale and the run is abandoned; its earlier pages also wrote straight to the draft. Unverified in production, harmful only at deploy time.
+
+## Deferred from: the retrospective of epic-brotherhood (2026-10-21)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-brotherhood/epic-brotherhood-retrospective.md`
+  summary: Reconcile the epic file's R2, R3 and Done when 1 with the claim model of ticket 6.17: the reward is earned as a waiting reward, claimed by a button and refused while the reserve holds ten packs; tell `epic-card-backs.md` that the pack-bearing event is `Game::GoalRewardClaimed`.
+  evidence: Action item 1 (finding F4): the epic still says the reward pack lives outside the cap of ten and that every contributor receives it; the author decided otherwise in 6.17 (`claim_goal_reward.rb:39,65`, `reserve.rb:17`).
+
+- source_plan: `_bmad-output/initiative-gameble/epic-brotherhood/epic-brotherhood-retrospective.md`
+  summary: Settle the product calls the epic 6 sweep left open: the public feed window's 900-row bound; the goal's 10 s broadcast without change detection; the goal's figures on a bold figure token (resizes them; the typography audit entry covers it); friends-only entries not broadcast live; the ticker's placement wording in the design document; a held achievement toast lost when leaving the booster mid-reveal; achievements granted live after an unban; one grant job per opening, trade, repost and set completion; the toast region under a modal; `game:benchmark_open_pack` still to run; a trade credited to its recipient's row; the friends tab's empty line with friends but no entries; the filter chips' `aria-current` against the design document's `aria-pressed`.
+  evidence: Action item 2 (finding F19): these lived only in the Implementation Notes of `epic-brotherhood/story-refactor-sweep-plan.md`; each is a product or design call for the author.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-brotherhood/epic-brotherhood-retrospective.md`
+  summary: Fold the epic 6 leftovers into `epic-human-readable-codebase`: the planning ids still in `weekly_goal.rb`, `sum_weekly_goal_job.rb`, `grant_goal_rewards_job.rb`, `pack_opened_feed.rb`, `event_store.rb`, and the five friends-and-trades migrations; optionally read the rarity tier through `Catalog::CardSeasonTiers` in `pack_opened_feed.rb` and `trade_accepted.rb`, and share the feed visibility rule between `FeedEntries` and `NewFeedEntries`.
+  evidence: Action item 3 (findings F1, F2, F3; previous-retro item 9): `pack_opened_feed.rb:15-16`, `trade_accepted.rb:15-16`, `feed_entry.rb:93` against `card_season_tiers.rb:10-13`; `feed_entries.rb:55-60` against `new_feed_entries.rb:22-23`.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-brotherhood/epic-brotherhood-retrospective.md`
+  summary: Process rules for the next epics: a plan's Verification records the results of the commands it lists; a plan's `baseline_revision` is a full hash of a commit that stays reachable and a ticket's commits name its ref; planning ids and new comments are checked mechanically before review.
+  evidence: Action item 4 (findings F20, F21, F22): the baseline of 6.19 does not exist in the repository, and commit subjects after 6.10 stop naming the ticket, so the retrospective pre-pass cannot attribute them.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-brotherhood/epic-brotherhood-retrospective.md`
+  summary: Cover the live paths in the rebuilt system tests: the hub gauge refresh, the ticker (placement, window width, red square, loop join), the achievement toast during a reveal, the repost toast in the phone zoom; and check the three layout items the sweep did not verify.
+  evidence: Action item 5 (finding F14): the live paths rest on model and vitest tests and on the author's staging walk; the system tests run only before a production release now.
+
+## Deferred from: the retrospective of epic-public-launch-readiness (2026-10-21)
+
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
+  summary: Reconcile ticket 7.39 with what was built: amend its Verify and description (the suite runs once before a production release, agents run targeted tests), record the deviation in the epic notes, record the first real run of the gate after the first production release past e1cf6b75, and decide whether the release checks in `deploy-production.yml` run before the suite.
+  evidence: Action item AI-2: the closed Verify asked for ten local and five CI runs; only one manual run of `system-tests.yml` exists and the path called by the production deploy has never run on a real release.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
+  summary: Finish the record of the epic 7 sweep: put the results of the full suite, lint, packwerk and typecheck in its plan so it can leave `built`, and add `resolved:` lines to the two entries above that are already fixed (the backfills' bank lock, d7341c3e and 15fda010; the stale card-face baselines, ad0c5f89).
+  evidence: Action item AI-3: the plan's three stale open items are already corrected; its verification results and the two entries' state are not.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
+  summary: Give a banned account an erasure path: document the console steps in the README (unban, then `Accounts::DeletePlayer`, noting the history row) or allow the operation for a banned player when staff run it.
+  evidence: Action item AI-4 (legal and product call): the legal page promises erasure on request (`config/locales/en.yml:243`) while `DeletePlayer` refuses a banned player (`delete_player.rb:43`).
+
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
+  summary: Review the three pieces no lens saw twice: the self-dismiss refusal and the `ReportQueue.rows` skip (7.5), the idleness rule `GREATEST(last_seen_at, updated_at)` and the synchronous `last_seen_at` write in `SignIn` (7.14), and the legal page copy (7.3).
+  evidence: Action item AI-5: tickets 7.3, 7.5 and 7.14 closed with `followup_review_recommended: true` and no second pass.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
+  summary: Make builds traceable: the plan template records `built_revision`, a closing step refuses `done` when the baseline is not an ancestor of HEAD, and a `done` plan carries a review block or an explicit `review: none` reason.
+  evidence: Action item AI-6: carried a fifth time; no plan of 52 has `built_revision`, four baselines are absent from the repository and four are not ancestors.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
+  summary: A `hitl` sign-off records what was seen, where and when (drill output, CSP report count on staging, release run id).
+  evidence: Action item AI-7: Done-when criteria 4 and 8 rest on the author's declaration for lack of it.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
+  summary: Give the copy-pasted `hold` test helper an owner or a guard: a ticket that shares it, or a check that fails on a new `def hold` in a test file.
+  evidence: Action item AI-8: the helper grew from about 20 to 34 test files while it was registered as deferred.
+
+- source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
+  summary: Optional: give the Rack::Attack 429 response a themed body (`rack_attack.rb:61`) and decide whether `legal`, `credits` and `how-it-works` join `PublicReadThrottle::PAGES`.
+  evidence: Action item AI-10 (low): the 429 answers in plain text and the three public pages are neither throttled nor cached.
