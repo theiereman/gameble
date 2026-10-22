@@ -7,7 +7,7 @@ paradigm: 'modular monolith with an operations layer'
 scope: 'The gameble MVP as a whole: one Rails application, its four domain packs, its web layer, the Steam import and the deployment.'
 status: final
 created: '2026-10-02'
-updated: '2026-10-19'
+updated: '2026-10-22'
 binds: [CAP-1, CAP-2, CAP-3, CAP-4, CAP-5, CAP-6, CAP-7, CAP-8, CAP-9, CAP-10, CAP-11, CAP-12, CAP-13, CAP-14, CAP-15, CAP-16, CAP-17, CAP-18, CAP-19, CAP-20, CAP-21, CAP-22, CAP-23, CAP-25]
 sources:
   - ../spec-gameble/spec-gameble.md
@@ -33,7 +33,7 @@ A **modular monolith with an operations layer**: one Rails application, four dom
 | `Steam` | `packs/steam` | Steam API client, import jobs, raw Steam data, import runs, sign-in verification |
 | `Accounts` | `packs/accounts` | Players, staff roles, last seen, profile visibility, preferences, bans, reports, data controls |
 | `Game` | `packs/game` | Pack bank, owned cards, trades, invitations, friendships, set tiers reached, card backs, profile titles, menu themes, weekly goal, daily bonus, achievements, feed, presence activity, events and their handlers |
-| Web layer | `app/` | Controllers, policies, view components, Stimulus controllers, React islands, back-office, legal page |
+| Web layer | `app/` | Controllers, policies, view components, Stimulus controllers and the screen modules behind them, back-office, legal page |
 | Image filter | `app/frontend/lib/card_art` | The card-art worker and renderer, on the `pixelcrush` npm package |
 
 ## Invariants & Rules
@@ -190,19 +190,20 @@ graph TD
 - **Prevents:** counting or enumerating players; a share link exposing its sharer.
 - **Rule:** Players are addressed by a random token, cards by a slug, packs and invitations by a token, sets by season number, kind and key. Database ids never appear in URLs, HTML, JSON, DOM ids or stream names. The share link addresses a card-season and never a player; its page shows the card only, and its preview carries the title and rarity and no image.
 
-### AD-16 — Server-rendered pages, three React islands `[ADOPTED]`
+### AD-16 — Server-rendered pages, Hotwire only `[ADOPTED]`
 
-- **Binds:** CAP-5, CAP-11, and every screen
-- **Prevents:** a second application growing in the browser; a card face drawn two ways; islands reaching into the page chrome.
+- **Binds:** CAP-4, CAP-5, CAP-11, CAP-20, and every screen
+- **Prevents:** a second view layer in the browser; a card face drawn two ways; markup built by script; game state held only in the browser; a screen reaching into the page chrome.
 - **Rule:**
-  - Pages are rendered by Rails with ViewComponent and Hotwire. Behaviour on server-rendered pages lives in named Stimulus controllers (`card-art`, `tilt`, `starfield`, `countdown`, `ticker`, `hotkeys`, `dialog`, `toast`, …).
-  - React is used for three islands, mounted with Turbo Mount and written in TypeScript: the booster (desktop and phone modes), the trade board, and the back-office card preview. A new island needs an amendment here.
-  - A card face has one renderer: the card ViewComponent. An island receives faces as server-rendered HTML and draws only the back, the flip and its choreography. Server HTML carries no `style` attribute; dynamic values are set as custom properties by a controller.
-  - Islands talk to the chrome only through typed `gameble:*` DOM events (for example `tier-revealed`, `bank-changed`, `toast`, `trade-badge`, `back-unlocked`), all declared in one TypeScript file.
-  - The filter client, tilt, reduced motion and `t()` are shared modules in `app/frontend/lib`, used by both Stimulus and React.
-  - A component receives its initial data and its strings as props. Each player action calls a server endpoint that runs an operation.
+  - Pages are rendered by Rails with ViewComponent and Hotwire, with no client-side view library. The server renders all markup. Markup that appears later arrives by Turbo Frame, by Turbo Stream, by a server-rendered `<template>` cloned by a controller, or as server-rendered HTML inside a JSON answer. Only the opening exchange (AD-23) and the trade faces batch carry HTML in JSON, and one shared helper in `app/frontend/lib` places it unchanged as a `<template>`'s content, cloned like any other. Script builds no other markup, except decorative `aria-hidden` nodes (glitter, effect layers) and canvases.
+  - A card face has one renderer: the card ViewComponent. The booster receives faces as server-rendered HTML and draws only the back, the flip and its choreography. Server HTML carries no `style` attribute; dynamic values are set as custom properties by a controller.
+  - What the game must remember changes only through a server endpoint that runs an operation. Only the state of an interaction in progress (an opening charging, a card turning, a banner showing, a zoom, a navigation lock) lives in the browser, in a TypeScript module in `app/frontend/lib` that touches no DOM and is tested by Vitest; browser storage (the trade draft) is read and written only by such a module.
+  - Behaviour lives in named Stimulus controllers written in TypeScript (`card-art`, `tilt`, `starfield`, `countdown`, `ticker`, `dialog`, `toast`, …). A controller is thin: it turns a DOM event into a transition of its module and reflects the result in the DOM; CSS and the Web Animations API draw. A rich screen is built as AD-30 says.
+  - A screen talks to the page chrome (top bar, tab bar, toasts) only through typed `gameble:*` DOM events (for example `tier-revealed`, `bank-changed`, `navigation-locked`, `trades-updated`), all declared in one TypeScript file. No `gameble:*` event carries a screen's own traffic.
+  - The filter client, tilt, reduced motion and `t()` are shared modules in `app/frontend/lib`.
   - There is no client-side router and no global client store.
   - Styles are plain CSS; the tokens of `DESIGN.md` are CSS custom properties.
+  - The booster and the trade board, first built as React islands, leave React as AD-31 says.
 
 ### AD-17 — The image filter is a standalone package `[ADOPTED]`
 
@@ -218,10 +219,10 @@ graph TD
 ### AD-18 — One place for copy `[ADOPTED]`
 
 - **Binds:** all
-- **Prevents:** strings translated in two places; a locale shipped incomplete; plurals or numbers formatted per island.
+- **Prevents:** strings translated in two places; a locale shipped incomplete; plurals or numbers formatted per screen.
 - **Rule:**
   - All interface copy lives in Rails locale files, in French and English, and follows `brotherhood-tone.md` (copy says "vous"). The interface says "booster", "réserve" and "objectif communautaire"; code and docs keep pack, bank and weekly goal. The locale is the first segment of the URL. Card text and the roadmap's wording per locale live in `Catalog`. CI fails on a key missing in either locale.
-  - Islands receive a scoped map of templates with `one`/`other` forms and `%{n}` placeholders, read by one shared `t()` that applies Rails' plural rule for each locale and falls back to `other`.
+  - Copy is rendered by the server. A fixed string a screen switches between is rendered in each of its variants and shown by CSS from the screen's `data-*`. Only a string that takes a count or a value at run time is composed in the browser: its templates, with `zero`/`one`/`other` forms and named `%{…}` placeholders, reach the controller that composes it as a Stimulus value, read by one shared `t()` that applies Rails' plural rule and falls back to `other`. A rich screen's templates live under one scope, `<screen>.strings`, and reach its root alone.
   - Strings are stored in natural case; uppercase is applied by CSS. Numbers are formatted by one helper on each side that groups digits with U+00A0.
   - Relative times are server-rendered `<time>` elements refreshed by a Stimulus controller.
 
@@ -266,8 +267,8 @@ graph TD
 - **Binds:** CAP-4, CAP-5, CAP-6, CAP-20
 - **Prevents:** each session inventing its own opening request; a lost response costing a reveal; a double activation opening two packs.
 - **Rule:**
-  - The booster island sends `POST /:locale/packs` as JSON with an idempotency key generated per activation, and locks its trigger until the answer.
-  - Success returns the pack's kind and its 3 or 5 cards in drawn order (each as its server-rendered face plus slug, tier and cover URL), the bank count and availability times, the server time, the pack's card back, the per-tier counts before the opening, the set tiers reached and sets completed by it (each with the set's kind, key, name and tier), and any card back unlocked by it.
+  - The booster sends `POST /:locale/packs` as JSON with an idempotency key generated per activation, and locks its trigger until the answer.
+  - Success returns the pack's kind and its 3 or 5 cards in drawn order (each as its `CardComponent` faces, one per size the booster's layouts show, plus slug, tier and cover URL), the bank count and availability times, the server time, the pack's card back, the per-tier counts before the opening, the set tiers reached and sets completed by it (each with the set's kind, key, name and tier), and any card back unlocked by it.
   - Failure uses the JSON error convention with the codes `no_pack_available`, `throttled`, `sign_in_required`.
   - The key and the active card back, with the season mark it wears, are stored on the opened pack; the key is unique per player. A repeated key returns that pack as it was opened, before any throttle or availability check, and opens nothing more.
   - The opened pack's page (`/:locale/packs/:token`) stays as "mon dernier booster": cards face up, no reveal.
@@ -307,9 +308,9 @@ graph TD
 - **Binds:** every screen
 - **Prevents:** layouts guessed from the mocks; navigation motion fighting Turbo; unbounded animation cost; procedural art at runtime; a CSP that blocks the app.
 - **Rule:**
-  - Nothing is scaled. The document scrolls, with the top bar and the ticker; the phone tab bar is fixed with safe-area padding. Breakpoints are 720 and 1180 px, content is capped at 1280 px, the phone is a portrait column of at most 480 px with `viewport-fit=cover`; the manifest asks for portrait, and no landscape layout exists where it is ignored.
+  - Nothing is scaled. The document scrolls, with the top bar and the ticker; the phone tab bar is fixed with safe-area padding. Breakpoints are 720, 900 (the booster's narrow row) and 1180 px, content is capped at 1280 px, the phone is a portrait column of at most 480 px with `viewport-fit=cover`; the manifest asks for portrait, and no landscape layout exists where it is ignored.
   - Screen changes use View Transitions through Turbo's `view-transition` meta tag, rendered only when motion is allowed. Phone sub-views are Turbo Frames that advance the URL, wrapped in a View Transition by one Stimulus controller. The star field, scanlines and vignette are `data-turbo-permanent` and absent from the back-office. Lock-in animations are skipped on Turbo previews. Booster and trade pages are never cached by Turbo. Browser Back is always allowed.
-  - "Animations réduites" is stored on the player in `Accounts`, mirrored in a cookie for signed-out visitors, follows the system by default, and is read through one shared switch by CSS, Stimulus and the islands; when on it stops the LIVE ticker and every looping or blinking effect.
+  - "Animations réduites" is stored on the player in `Accounts`, mirrored in a cookie for signed-out visitors, follows the system by default, and is read through one shared switch by CSS and Stimulus; when on it stops the LIVE ticker and every looping or blinking effect.
   - Infinite animations animate only `transform` or `opacity`; animation loops stop when nothing moves or the page is hidden; at most six infinite animations show at once on a phone view, not counting a Légendaire's glitter, which twinkles in three stepped opacity animations per face and only on faces in the viewport; offscreen grid cards use `content-visibility: auto`. Listeners and timers are removed on disconnect or cleanup. Mocks are a reference, never source.
   - Pixel-art assets (backs, canister, icons, avatars, planet, logo) are exported once by a script to static files under `app/frontend/images/pixel/`.
   - Fonts are self-hosted subsetted woff2 files.
@@ -334,6 +335,29 @@ graph TD
   - One milestone per epic of the initiative's `tickets.toml` is created automatically on every deploy, by an idempotent operation keyed by the epic's slug, with the epic's title as its wording and to come as its status; it creates only the missing milestones and never edits or deletes one, so renaming an epic duplicates nothing.
   - A roadmap left stale is accepted: nothing in CI compares it with the initiative.
 
+### AD-30 — Anatomy of a rich screen `[ADOPTED]`
+
+- **Binds:** CAP-4, CAP-5, CAP-11, CAP-20: the booster, the trade board, and any screen whose behaviour spans several regions
+- **Prevents:** two rich screens wired in incompatible Stimulus styles; one attribute written by two controllers; React's props rebuilt as one JSON value; a screen's layouts tripled in the DOM; interaction state erased by a morph.
+- **Rule:**
+  - A rich screen has one root controller named after the screen (`booster`, `trade-board`) on its root element, and child controllers named `<screen>-<part>`, one per region of markup. The root alone holds the instance of the screen's module, `app/frontend/lib/<screen>.ts` (state and pure transitions; helpers in `lib/<screen>_*.ts`): it applies every transition, runs every multi-step sequence and writes the screen's state on its own element.
+  - A child reports an intent with `this.dispatch`, handled by a `data-action` on the root, and is driven only by the root through the root's outlets. Outlet selectors stay inside the screen's root and never reach the chrome; children never reference each other; a peer that may be absent is checked with `has…Outlet`; no outlet is kept past a disconnect. A `<template>` is a target of the controller that clones it.
+  - State shows as `data-*` attributes, and as `hidden`, `aria-*`, focus and live-region text where accessibility needs them. Each attribute has one writer.
+  - Initial state comes from the markup: scalar Stimulus values and `data-*` on targets. An `Object` value carries only string templates (AD-18).
+  - A screen whose layouts differ in structure renders one tree holding every layout's elements. The root writes `data-layout` from AD-27's breakpoints through `matchMedia`, and changes it only when its module says the screen is idle; CSS draws each layout from it. A card shown at a different size per layout has one face per size as a `<template>`, and the root clones the one the layout needs.
+  - A screen a live refresh can morph holds the refresh while an interaction is in progress (`data-live-refresh-hold`), and its root reapplies its state after a morph.
+
+### AD-31 — The port off React `[ADOPTED]`
+
+- **Binds:** CAP-4, CAP-5, CAP-11, CAP-20, the front-end toolchain
+- **Prevents:** a feature built on a screen being ported; React and Stimulus side by side on one screen; system tests bent to fit a port; React leftovers in the toolchain.
+- **Rule:**
+  - The booster and the trade board, built as React islands mounted with Turbo Mount, are ported to AD-16 and AD-30. The trade board's port lands before the booster's starts, and the booster follows the conventions it set.
+  - Until the last port lands, both screens take bug fixes only: no feature, in React or Stimulus, lands on either. A bug fixed in an island while its port is open is fixed in the port too, with a test.
+  - Each screen is ported in one change that removes its island whole. No screen runs React and Stimulus side by side, and no `gameble:*` event bridges them; `trade-changed` and `trade-editing` leave with the trade board's port.
+  - A port keeps its screen's system tests as they stand, selectors and wording included. It may only replace the island's code-loading failure test with the promise that remains (the form working without JavaScript) and rename locale scopes per AD-18.
+  - The last port removes React, react-dom, `@types/react` and `@types/react-dom`, Turbo Mount (gem and npm), `@vitejs/plugin-react` and its `react()` plugin, `vite_react_refresh_tag`, the `react-jsx` compiler option, and the development policy's `'unsafe-inline' 'unsafe-eval'` scripts unless something else still needs them.
+
 ## Consistency Conventions
 
 | Concern | Convention |
@@ -355,21 +379,21 @@ graph TD
 | Pagination | Pagy. |
 | Abuse | Rails `rate_limit` on mutating endpoints; edge protection at Cloudflare. |
 | Locales | `fr` and `en`. The first visit follows the browser language. |
-| Accessibility | The accessibility floor of `EXPERIENCE.md` applies to every view and React component. |
+| Accessibility | The accessibility floor of `EXPERIENCE.md` applies to every view and controller. |
 
 ## Stack
 
-Verified against the RubyGems and npm registries on 2026-10-02; browser APIs (View Transitions in Turbo 8, `OffscreenCanvas` in workers) checked on 2026-10-05. If a gem lags behind Ruby 4.0 at scaffold time, fall back to Ruby 3.4.11.
+Verified against the RubyGems and npm registries on 2026-10-02, and against the lockfiles on 2026-10-22; browser APIs (View Transitions in Turbo 8, `OffscreenCanvas` in workers) checked on 2026-10-05. If a gem lags behind Ruby 4.0 at scaffold time, fall back to Ruby 3.4.11.
 
 | Name | Version |
 | --- | --- |
 | Ruby | 4.0.7 |
 | Rails | 8.1.4 |
 | PostgreSQL | 18 |
-| pg | 1.6.3 |
+| pg | 1.7.0 |
 | Node.js | 24.15.0 |
 | Puma | 8.0.2 |
-| Thruster | 0.1.26 |
+| Thruster | 0.1.27 |
 | Kamal | 2.12.0 |
 | Solid Queue | 1.7.0 |
 | Solid Cache | 1.0.10 |
@@ -380,18 +404,18 @@ Verified against the RubyGems and npm registries on 2026-10-02; browser APIs (Vi
 | ViewComponent | 4.15.0 |
 | Vite Rails | 3.11.1 |
 | vite-plugin-ruby | 5.2.5 |
-| Vite | 8.3.2 |
-| React | 19.3.0 |
+| Vite | 8.3.4 |
+| React | 19.3.0, until the last port (AD-31) |
 | TypeScript | 7.0.2 |
-| Vitest | 5.0.3 |
-| Turbo Mount | 0.4.4 |
+| Vitest | 5.0.4 |
+| Turbo Mount | 0.4.4, until the last port (AD-31) |
 | @hotwired/turbo-rails (npm) | 8.0.23 |
 | @hotwired/stimulus (npm) | 3.2.2 |
-| turbo-mount (npm) | 0.4.4 |
-| Capybara, selenium-webdriver (system tests) | 3.40.0, 4.50.0 |
-| react-dom | 19.3.0 |
-| @types/react, @types/react-dom | 19.3.0 |
-| @vitejs/plugin-react | 6.1.1 |
+| turbo-mount (npm) | 0.4.4, until the last port (AD-31) |
+| Capybara, selenium-webdriver (system tests) | 3.40.0, 4.51.0 |
+| react-dom | 19.3.0, until the last port (AD-31) |
+| @types/react, @types/react-dom | 19.3.0, until the last port (AD-31) |
+| @vitejs/plugin-react | 6.1.2, until the last port (AD-31) |
 | stimulus-vite-helpers | 3.1.0 |
 | dry-operation | 1.1.0 |
 | Rails Event Store | 3.2.0 |
@@ -466,9 +490,8 @@ gameble/
     policies/         # Pundit
     components/       # ViewComponent: card face, panel, buttons, chrome
     frontend/
-      components/     # React islands (TypeScript)
-      controllers/    # Stimulus controllers
-      lib/            # shared modules: filter client, tilt, motion, t(), DOM events
+      controllers/    # Stimulus controllers (TypeScript)
+      lib/            # screen modules and shared modules: filter client, tilt, motion, t(), DOM events
       images/pixel/   # exported pixel-art assets
     views/
   packs/
@@ -487,14 +510,14 @@ gameble/
 | CAP-1 Steam sign-in | `Steam`, `Accounts`, web layer | AD-4, AD-14 |
 | CAP-2 Catalog import | `Steam`, `Catalog` | AD-4, AD-5, AD-19 |
 | CAP-3 Rarity | `Steam` (score), `Catalog` (tiers) | AD-4, AD-5 |
-| CAP-4 Packs | `Game`, booster island | AD-3, AD-6, AD-7, AD-23 |
-| CAP-5 Reveal | booster island, image filter | AD-7, AD-16, AD-17, AD-23, AD-27 |
+| CAP-4 Packs | `Game`, booster screen | AD-3, AD-6, AD-7, AD-16, AD-23, AD-30, AD-31 |
+| CAP-5 Reveal | booster screen, image filter | AD-7, AD-16, AD-17, AD-23, AD-27, AD-30, AD-31 |
 | CAP-6 Collection and sets | `Game` (holdings, set tiers), `Catalog` (sets, theme list) | AD-5, AD-6, AD-10, AD-11, AD-26 |
 | CAP-7 Card face and detail | web layer, `Catalog`, `Game` (editions owned) | AD-5, AD-11, AD-15, AD-16, AD-18 |
 | CAP-8 Profile and visibility | web layer, `Accounts`, `Game` | AD-8, AD-11, AD-13, AD-14, AD-15, AD-24 |
 | CAP-9 Share link | web layer, `Catalog` | AD-15 |
 | CAP-10 Friends and invitations | `Game` | AD-3, AD-8, AD-13, AD-15 |
-| CAP-11 Trades | `Game`, trade board island | AD-6, AD-8, AD-13, AD-16 |
+| CAP-11 Trades | `Game`, trade board screen | AD-6, AD-8, AD-13, AD-16, AD-30, AD-31 |
 | CAP-12 Weekly goal | `Game` | AD-7, AD-9, AD-10, AD-13 |
 | CAP-13 Feed and Friends tab | `Game` | AD-10, AD-11, AD-13, AD-14 |
 | CAP-14 Data controls | `Accounts`, `Game` (by event), web layer (export) | AD-10, AD-13, AD-14 |
@@ -503,7 +526,7 @@ gameble/
 | CAP-17 Achievements | `Game` | AD-9, AD-10 |
 | CAP-18 Signed-out visit | web layer, `Game` | AD-11, AD-14 |
 | CAP-19 Repost | `Game` | AD-3, AD-10, AD-13 |
-| CAP-20 Card backs | `Game`, booster island | AD-9, AD-10, AD-25 |
+| CAP-20 Card backs | `Game`, booster screen | AD-9, AD-10, AD-16, AD-25, AD-30 |
 | CAP-21 Presence | `Accounts` (last seen), `Game` (activity) | AD-9, AD-10, AD-24 |
 | CAP-22 Titles and menu themes (after the launch) | `Game`, web layer | AD-10, AD-18, AD-25 |
 | CAP-23 Seasonal allocation (after the launch) | `Game`, web layer | AD-5, AD-9, AD-10, AD-11, AD-18, AD-25 |

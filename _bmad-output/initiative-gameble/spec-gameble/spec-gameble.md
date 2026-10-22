@@ -214,7 +214,7 @@ gameble is an open-source passion project, and the game its author wants to play
 - **Card copies:** a player can own several copies of a card. Copies are counted per card and season, so each keeps the rarity and season it was minted with, and a V2 market needs no migration. The minted season is the copy's edition. Draws give only the published season's cards; earlier editions change hands only by trade.
 - **Forkable engine:** the game engine (packs, rarity tiers, collection, trades, goals, feed) is independent of the catalog source. Steam is one adapter.
 - **Open source.** Infrastructure components (queues, caches, streaming) are added only when measured load justifies them.
-- **Architecture:** the rules of `architecture-gameble.md` bind every build. The stack is Ruby on Rails and PostgreSQL, with React components embedded for the pack opening and the trade board; versions and deployment are in that file.
+- **Architecture:** the rules of `architecture-gameble.md` bind every build. The stack is Ruby on Rails and PostgreSQL, with server-rendered pages and Hotwire, Stimulus included, for every screen; versions and deployment are in that file.
 - **Stateless services:** several app instances can run in parallel. Pack credit and trades are transactional in PostgreSQL.
 - **Zero-downtime ready:** health checks, graceful shutdown, and backward-compatible (expand/contract) migrations.
 - **CI/CD ready:** one reproducible container image, run as web, jobs and import processes; configuration by environment variables only; automated tests in CI from day one.

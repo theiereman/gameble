@@ -3,7 +3,7 @@
 
 ## gameble
 
-A free web trading card game where every card is a Steam game. Rails 8 with domain code in packwerk packs (`packs/accounts`, `catalog`, `game`, `steam`), Hotwire with TypeScript Stimulus controllers and one React island, Postgres 18. Planning lives in `_bmad-output/initiative-gameble/`: the spec, the architecture (`architecture-gameble/architecture-gameble.md`, which holds the reasons behind the rules below) and the UX (`ux-gameble/`).
+A free web trading card game where every card is a Steam game. Rails 8 with domain code in packwerk packs (`packs/accounts`, `catalog`, `game`, `steam`), Hotwire with TypeScript Stimulus controllers, Postgres 18. The booster and trade board are still React islands being ported to Stimulus; they take bug fixes only until both ports land. Planning lives in `_bmad-output/initiative-gameble/`: the spec, the architecture (`architecture-gameble/architecture-gameble.md`, which holds the reasons behind the rules below) and the UX (`ux-gameble/`).
 
 ## Policy
 
@@ -27,7 +27,8 @@ A free web trading card game where every card is a Steam game. Rails 8 with doma
 - Give every controller action a Pundit policy.
 - Put every string in both `en.yml` and `fr.yml`; the locale is the first URL segment. `i18n-tasks` cannot see dynamic `errors.<pack>.<code>` keys, so add both by hand.
 - Pack dependencies follow the architecture diagram (Game → Catalog, Accounts; Steam → Catalog; no pack → web layer); `bundle exec packwerk check` fails otherwise.
-- Islands talk only through the `gameble:*` events declared in `app/frontend/lib/events.ts`; server HTML carries no `style` attribute.
+- Never add React or build markup in script: the server renders HTML, and controllers clone server-rendered `<template>`s. A rich screen has one root controller holding its state module from `app/frontend/lib/<screen>.ts`, children talk to it by `dispatch`, and it drives them through outlets.
+- A screen talks to the page chrome only through the `gameble:*` events declared in `app/frontend/lib/events.ts`; server HTML carries no `style` attribute.
 - Make schema changes expand/contract (strong_migrations): a concurrent index in its own migration, a check added then validated in a second one.
 
 ## Running and verifying
