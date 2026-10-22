@@ -3,5 +3,6 @@
 <% content_for :back_button, true %>
 <% content_for :phone_previous, true %>
 <% content_for :title, t("public_profiles.set.title", set: set_name, name: owner_name) %>
+<% content_for :head do %><meta name="robots" content="noindex"><% end %>
 <%= render "library/album", standing: @standing, heading: t("public_profiles.set.heading", set: set_name, name: owner_name),
   slots: @album_slots, pagy: @album_pagy, context: { set_kind: @set.kind, set_key: @set.key, brother: @owner.token } %>

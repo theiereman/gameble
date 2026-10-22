@@ -2,6 +2,7 @@
 <% content_for :back_button, true %>
 <% content_for :screen_title, t("library.collection.title") %>
 <% content_for :title, t("public_profiles.collection.title", name:) %>
+<% content_for :head do %><meta name="robots" content="noindex"><% end %>
 <%# The owner's whole collection, read-only: every game of the published season,
     faded and locked when the owner does not hold it, or the no-season line. %>
 <% if @season.nil? %>

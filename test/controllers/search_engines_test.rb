@@ -105,6 +105,19 @@ class SearchEnginesTest < ActionDispatch::IntegrationTest
     assert_nil response.headers["X-Robots-Tag"]
   end
 
+  test "indexing on: a public profile, its collection and an album still ask search engines to stay out, and robots.txt lets them read the tag" do
+    owner = accounts_players(:player)
+
+    get brother_path(locale: :en, token: owner.token)
+    assert_select "meta[name=robots][content=noindex]"
+
+    get brother_collection_path(locale: :en, token: owner.token)
+    assert_select "meta[name=robots][content=noindex]"
+
+    get "/robots.txt"
+    assert_not_includes response.body.lines.map(&:chomp), "Disallow: /*/brothers"
+  end
+
   test "indexing off: robots.txt refuses everything and names no sitemap, the sitemap is not found" do
     Rails.configuration.x.search_indexing = false
 

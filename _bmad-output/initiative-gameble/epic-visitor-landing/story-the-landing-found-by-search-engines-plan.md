@@ -42,6 +42,8 @@ The verification of the ticket (public card pages and profiles are not marked no
 
 Author's follow-up: staging must not be indexed, and production runs the image staging ran, so the switch is the runtime variable SEARCH_INDEXING (`config/initializers/search_indexing.rb`), on only in `config/deploy.production.yml`. Off, the default: robots.txt is `Disallow: /` with no sitemap, /sitemap.xml is 404, every response carries `X-Robots-Tag: noindex, nofollow` (`ApplicationController`), and the landing and legal page omit their search tags. On: the behaviour above.
 
+Author's decision (2026-10-22, after the epic retrospective): player pages stay out of search engines. The `<meta name="robots" content="noindex">` this ticket lifted is back on the public profile, its collection and its set album (`app/views/public_profiles/{show,collection,set}.html.erb`) and their tests; the public card page stays indexable as built. The sitemap lists only the landing and the legal page and `robots.txt` does not disallow `/*/brothers`, so a crawler can read the tag. The Verify line "public card pages and profiles are not marked noindex" now holds for the card page only.
+
 ## Verification
 
 **Commands:**
