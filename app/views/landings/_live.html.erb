@@ -1,5 +1,6 @@
 <% unknown = t("landings.show.unknown") %>
-<section class="landing-module landing-live">
+<section class="landing-module landing-live" data-controller="landing-feed"
+         data-landing-feed-limit-value="<%= LiveStream::LANDING_SIZE %>">
   <%= landing_module_heading(:live, id: "landing-live") %>
   <p class="landing-module__subtitle"><%= t("landings.show.live.subtitle") %></p>
   <div class="landing-live__columns">
@@ -8,8 +9,16 @@
         <span><%= t("landings.show.live.feed") %></span>
         <%= render "shell/live_marker" %>
       </p>
+      <ul id="feed-entries" class="feed__list landing-live__list">
+        <% cache [ "landing-live-feed", I18n.locale ], expires_in: 30.seconds do %>
+          <% landing_feed_items.each do |item, card, partner_card, set| %>
+            <%= render "feeds/entry", item:, card:, partner_card:, set: %>
+          <% end %>
+        <% end %>
+      </ul>
       <p class="landing-live__empty"><%= t("landings.show.live.empty") %></p>
       <%= link_to t("landings.show.live.open_feed"), feed_path, class: "button button--link landing-live__open" %>
+      <template data-landing-feed-target="source"><%= turbo_stream_from(*LiveStream.feed_streamables) %></template>
     <% end %>
     <%= render PanelComponent.new(brackets: true, class: "landing-season") do %>
       <p class="landing-kicker"><%= t("landings.show.live.season") %></p>

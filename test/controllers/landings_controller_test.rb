@@ -1,10 +1,12 @@
 require "test_helper"
 require_relative "../support/steam_sign_in"
 require_relative "../support/catalog_seeds"
+require_relative "../support/game_packs"
 
 class LandingsControllerTest < ActionDispatch::IntegrationTest
   include SteamSignIn
   include CatalogSeeds
+  include GamePacks
 
   MODULES = %w[concept brotherhood how live unlock roadmap open_source free boarding].freeze
 
@@ -376,5 +378,41 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".landing-goal__participants", 0
   ensure
     unreadable.each { |query, original| query.define_singleton_method(:call, original) }
+  end
+
+  test "the live module lists the five latest feed entries and keeps the subscription in a template" do
+    hugo = accounts_players(:player)
+    hugo.update!(persona_name: "Hugo")
+    2.times do
+      create_pack(hugo, cards: [ catalog_card_seasons(:portal_one).id ] * 5)
+      Game::OpenPack.new.call(player: hugo).value!
+    end
+    get landing_path(locale: :en)
+
+    assert_select "ul#feed-entries.landing-live__list > li.feed__entry", count: LiveStream::LANDING_SIZE
+    assert_select "#feed-entries .feed__sentence", text: "Hugo pulled Portal", minimum: 1
+    assert_select "ul#feed-entries[aria-live], ul#feed-entries [role=status]", 0
+    assert_select "section.landing-live[data-controller=landing-feed][data-landing-feed-limit-value='#{LiveStream::LANDING_SIZE}']"
+    assert_select "template[data-landing-feed-target=source]", 1
+    assert_equal 1, response.body.scan("<turbo-cable-stream-source").size
+    assert_match(/<template data-landing-feed-target="source"><turbo-cable-stream-source/, response.body)
+  end
+
+  test "the live module without any activity keeps the no-activity line and an empty list" do
+    get landing_path(locale: :fr)
+
+    assert_select "#feed-entries > li", 0
+    assert_select ".landing-live__empty", I18n.t("landings.show.live.empty", locale: :fr)
+  end
+
+  test "an unreadable feed leaves the live module empty and the page renders" do
+    original = LiveStream.method(:landing_items)
+    LiveStream.define_singleton_method(:landing_items) { |**| raise ActiveRecord::StatementInvalid, "down" }
+    get landing_path(locale: :en)
+
+    assert_response :success
+    assert_select "#feed-entries > li", 0
+  ensure
+    LiveStream.define_singleton_method(:landing_items, original)
   end
 end

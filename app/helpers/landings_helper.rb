@@ -22,6 +22,13 @@ module LandingsHelper
   GAUGE_SEGMENTS = 24
   RESERVE_CELLS = 10
 
+  def landing_feed_items
+    LiveStream.landing_items
+  rescue ActiveRecord::ActiveRecordError => error
+    Rails.logger.error("landing feed unreadable: #{error.class}")
+    []
+  end
+
   def landing_module_heading(key, id:, modifier: nil)
     tag.h2(id:, tabindex: -1, class: class_names("landing-module__heading", "landing-module__heading--#{modifier}" => modifier)) do
       safe_join([

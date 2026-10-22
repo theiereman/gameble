@@ -980,6 +980,14 @@ html[data-motion="reduced"] .landing-reveal__stage[data-revealed] .landing-revea
   gap: var(--space-5);
 }
 
+.landing-live__list {
+  flex: 1;
+}
+
+.landing-live__list:has(> li) ~ .landing-live__empty {
+  display: none;
+}
+
 .landing-live__empty {
   flex: 1;
   color: var(--color-muted);

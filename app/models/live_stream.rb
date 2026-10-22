@@ -6,6 +6,8 @@ module LiveStream
 
   STRIP_SIZE = 3
 
+  LANDING_SIZE = 5
+
   BATCHES = :live_stream_batches
   BATCH = AfterCommitBatch.new(BATCHES) { |notices| LiveFeedJob.perform_later(notices) }
 
@@ -42,6 +44,10 @@ module LiveStream
 
     def ticker_items(locale: I18n.locale)
       FeedItems.call(Game::FeedEntries.call(nil, kind: TICKER_KINDS).first(TICKER_SIZE), locale:)
+    end
+
+    def landing_items(locale: I18n.locale)
+      FeedItems.call(Game::FeedEntries.call(nil).first(LANDING_SIZE), locale:)
     end
 
     def strip_items(locale: I18n.locale)
