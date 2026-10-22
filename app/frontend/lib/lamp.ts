@@ -111,16 +111,6 @@ export class Lamp {
     }
   }
 
-  progress(): boolean[] {
-    return [...this.found]
-  }
-
-  keepFound(found: readonly boolean[]): void {
-    if (found.length !== this.cards.length) return
-    this.found = [...found]
-    this.lastFound = this.found.lastIndexOf(true)
-  }
-
   advance(input: LampInput): LampFrame {
     const power = powerAt(input.now - this.startedAt)
     const mode = lampMode({ pointerHeld: input.pointerHeld })

@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { frameScheduler } from "../lib/frame_scheduler"
 import { motionReduced, onMotionChange } from "../lib/motion"
 import { CARD_DIMENSIONS, hasGutterRoom, laneBounds, placeCard, type CardSize, type Placement } from "../lib/moving_cards"
 
@@ -11,7 +12,7 @@ export default class extends Controller<HTMLElement> {
   private movers: Mover[] = []
   private offsets = new Map<string, { x: number; y: number }>()
   private drag?: Drag
-  private frame = 0
+  private readonly frames = frameScheduler(() => this.refresh())
   private pointerQuery?: MediaQueryList
   private stopMotionWatch?: () => void
   private pageResize?: ResizeObserver
@@ -20,15 +21,15 @@ export default class extends Controller<HTMLElement> {
     this.pointerQuery = window.matchMedia(FINE_POINTER_QUERY)
     this.pointerQuery.addEventListener("change", this.refresh)
     this.stopMotionWatch = onMotionChange(this.refresh)
-    window.addEventListener("scroll", this.schedule, { passive: true })
-    window.addEventListener("resize", this.schedule)
+    window.addEventListener("scroll", this.frames.schedule, { passive: true })
+    window.addEventListener("resize", this.frames.schedule)
     document.addEventListener("focusin", this.focusMoved)
     document.addEventListener("focusout", this.focusLeft)
     this.element.addEventListener("pointerdown", this.pointerDown)
     this.element.addEventListener("pointermove", this.pointerMove)
     this.element.addEventListener("pointerup", this.pointerEnd)
     this.element.addEventListener("pointercancel", this.pointerEnd)
-    this.pageResize = new ResizeObserver(this.schedule)
+    this.pageResize = new ResizeObserver(this.frames.schedule)
     this.pageResize.observe(document.body)
     this.refresh()
   }
@@ -37,16 +38,15 @@ export default class extends Controller<HTMLElement> {
     this.pointerQuery?.removeEventListener("change", this.refresh)
     this.stopMotionWatch?.()
     this.pageResize?.disconnect()
-    window.removeEventListener("scroll", this.schedule)
-    window.removeEventListener("resize", this.schedule)
+    window.removeEventListener("scroll", this.frames.schedule)
+    window.removeEventListener("resize", this.frames.schedule)
     document.removeEventListener("focusin", this.focusMoved)
     document.removeEventListener("focusout", this.focusLeft)
     this.element.removeEventListener("pointerdown", this.pointerDown)
     this.element.removeEventListener("pointermove", this.pointerMove)
     this.element.removeEventListener("pointerup", this.pointerEnd)
     this.element.removeEventListener("pointercancel", this.pointerEnd)
-    cancelAnimationFrame(this.frame)
-    this.frame = 0
+    this.frames.cancel()
     this.deactivate()
   }
 
@@ -57,25 +57,15 @@ export default class extends Controller<HTMLElement> {
     this.place()
   }
 
-  private readonly schedule = (): void => {
-    if (this.frame) return
-    this.frame = requestAnimationFrame(() => {
-      this.frame = 0
-      this.refresh()
-    })
-  }
-
   private mayShow(): boolean {
     if (!this.pointerQuery?.matches || motionReduced()) return false
-    const gutters = this.gutters()
-    return gutters !== null && hasGutterRoom(gutters.left, gutters.right, this.widestCard())
+    const content = this.content()
+    return content !== null && hasGutterRoom(content.left, document.documentElement.clientWidth - content.right, this.widestCard())
   }
 
-  private gutters(): { left: number; right: number; contentLeft: number; contentRight: number } | null {
-    const content = document.querySelector(".landing")
-    if (!content) return null
-    const rect = content.getBoundingClientRect()
-    return { left: rect.left, right: document.documentElement.clientWidth - rect.right, contentLeft: rect.left, contentRight: rect.right }
+  private content(): { left: number; right: number } | null {
+    const rect = document.querySelector(".landing")?.getBoundingClientRect()
+    return rect ? { left: rect.left, right: rect.right } : null
   }
 
   private widestCard(): number {
@@ -112,8 +102,8 @@ export default class extends Controller<HTMLElement> {
   }
 
   private place(): void {
-    const gutters = this.gutters()
-    if (this.movers.length === 0 || !gutters) return
+    const content = this.content()
+    if (this.movers.length === 0 || !content) return
     const frame = {
       scrollY: window.scrollY,
       scrollable: document.documentElement.scrollHeight - window.innerHeight,
@@ -124,7 +114,7 @@ export default class extends Controller<HTMLElement> {
     const viewportWidth = document.documentElement.clientWidth
     this.movers.forEach((mover) => {
       const offset = this.offsets.get(mover.key)
-      const lane = laneBounds(mover.side, gutters.contentLeft, gutters.contentRight, viewportWidth)
+      const lane = laneBounds(mover.side, content.left, content.right, viewportWidth)
       const at = placeCard({ ...mover.spec, ...CARD_DIMENSIONS[mover.size], lane }, { ...frame, dragX: offset?.x ?? 0, dragY: offset?.y ?? 0 })
       mover.element.hidden = !at.visible
       if (!at.visible) return
@@ -149,7 +139,7 @@ export default class extends Controller<HTMLElement> {
     const drag = this.drag
     if (!drag || event.pointerId !== drag.pointerId) return
     this.offsets.set(drag.mover.key, { x: drag.originX + event.clientX - drag.startX, y: drag.originY + event.clientY - drag.startY })
-    this.schedule()
+    this.frames.schedule()
   }
 
   private readonly pointerEnd = (event: PointerEvent): void => {

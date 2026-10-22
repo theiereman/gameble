@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { frameScheduler } from "../lib/frame_scheduler"
 import { crossedPowerLine, driftOffsets, staggerDelayMs } from "../lib/landing_scroll"
 import { motionReduced, onMotionChange } from "../lib/motion"
 
@@ -7,25 +8,27 @@ const CELL_STEP_MS = 42
 
 export default class extends Controller<HTMLElement> {
   private armed = new Set<HTMLElement>()
-  private frame = 0
+  private readonly frames = frameScheduler(() => {
+    this.powerOnCrossed()
+    this.drift()
+  })
   private stopMotionWatch?: () => void
 
   connect(): void {
     this.stopMotionWatch = onMotionChange(() => this.drift())
     this.armBelowTheLine()
     this.drift()
-    window.addEventListener("scroll", this.schedule, { passive: true })
-    window.addEventListener("resize", this.schedule)
+    window.addEventListener("scroll", this.frames.schedule, { passive: true })
+    window.addEventListener("resize", this.frames.schedule)
     this.element.addEventListener("focusin", this.focused)
   }
 
   disconnect(): void {
-    window.removeEventListener("scroll", this.schedule)
-    window.removeEventListener("resize", this.schedule)
+    window.removeEventListener("scroll", this.frames.schedule)
+    window.removeEventListener("resize", this.frames.schedule)
     this.element.removeEventListener("focusin", this.focused)
     this.stopMotionWatch?.()
-    cancelAnimationFrame(this.frame)
-    this.frame = 0
+    this.frames.cancel()
     this.armed.clear()
     this.writeDrift(0, 0)
   }
@@ -55,15 +58,6 @@ export default class extends Controller<HTMLElement> {
   private delays(elements: Element[], stepMs: number): void {
     elements.forEach((element, index) => {
       if (element instanceof HTMLElement) element.style.setProperty("--power-delay", `${staggerDelayMs(index, stepMs)}ms`)
-    })
-  }
-
-  private readonly schedule = (): void => {
-    if (this.frame) return
-    this.frame = requestAnimationFrame(() => {
-      this.frame = 0
-      this.powerOnCrossed()
-      this.drift()
     })
   }
 

@@ -58,9 +58,10 @@
 }
 
 .roadmap-rail {
+  --roadmap-rail-gap: 48px;
   display: flex;
   flex-direction: column;
-  gap: 48px;
+  gap: var(--roadmap-rail-gap);
 }
 
 .roadmap-milestone {
@@ -130,14 +131,13 @@
 .roadmap-milestone__line {
   position: absolute;
   top: var(--space-roadmap-page-rail-node);
-  bottom: -48px;
+  bottom: calc(-1 * var(--roadmap-rail-gap));
   left: calc(50% - var(--space-unit) / 2);
   width: var(--space-unit);
   background: var(--color-accent);
 }
 
-.roadmap-milestone--in-progress .roadmap-milestone__line,
-.roadmap-milestone--to-come .roadmap-milestone__line {
+.roadmap-milestone--in-progress .roadmap-milestone__line {
   background: repeating-linear-gradient(to bottom, var(--color-accent) 0 4px, transparent 4px 8px);
 }
 
@@ -328,7 +328,7 @@
 
 @media (max-width: 639px) {
   .roadmap-rail {
-    gap: 36px;
+    --roadmap-rail-gap: 36px;
   }
 
   .roadmap-milestone {
@@ -353,10 +353,6 @@
   .roadmap-milestone__panel {
     grid-area: panel;
     padding: 16px 14px 18px;
-  }
-
-  .roadmap-milestone__line {
-    bottom: -36px;
   }
 
   .roadmap-milestone__title {

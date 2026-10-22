@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { frameScheduler } from "../lib/frame_scheduler"
 import { currentModuleIndex, scrollFill } from "../lib/landing_scroll"
 import { motionReduced } from "../lib/motion"
 
@@ -8,19 +9,18 @@ export default class extends Controller<HTMLElement> {
   declare readonly markerTargets: HTMLAnchorElement[]
   declare readonly segmentTargets: HTMLElement[]
 
-  private frame = 0
+  private readonly frames = frameScheduler(() => this.update())
 
   connect(): void {
-    window.addEventListener("scroll", this.schedule, { passive: true })
-    window.addEventListener("resize", this.schedule)
+    window.addEventListener("scroll", this.frames.schedule, { passive: true })
+    window.addEventListener("resize", this.frames.schedule)
     this.update()
   }
 
   disconnect(): void {
-    window.removeEventListener("scroll", this.schedule)
-    window.removeEventListener("resize", this.schedule)
-    cancelAnimationFrame(this.frame)
-    this.frame = 0
+    window.removeEventListener("scroll", this.frames.schedule)
+    window.removeEventListener("resize", this.frames.schedule)
+    this.frames.cancel()
   }
 
   go(event: Event): void {
@@ -31,14 +31,6 @@ export default class extends Controller<HTMLElement> {
     heading.scrollIntoView({ behavior: motionReduced() ? "auto" : "smooth", block: "start" })
     heading.focus({ preventScroll: true })
     this.update()
-  }
-
-  private readonly schedule = (): void => {
-    if (this.frame) return
-    this.frame = requestAnimationFrame(() => {
-      this.frame = 0
-      this.update()
-    })
   }
 
   private update(): void {

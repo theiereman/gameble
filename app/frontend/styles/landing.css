@@ -45,13 +45,16 @@
   letter-spacing: var(--tracking-body-small);
 }
 
-.landing-body {
+.landing-body,
+.landing-hero__line {
   color: var(--color-text-bright);
   font: var(--font-body-large);
   letter-spacing: var(--tracking-body-large);
 }
 
-.landing-panel-title {
+.landing-panel-title,
+.landing-step__title,
+.landing-role__title {
   color: var(--color-text-max);
   font: var(--font-screen-title);
   letter-spacing: var(--tracking-screen-title);
@@ -333,12 +336,6 @@
 
 .landing-hero__hook:focus {
   outline: 0;
-}
-
-.landing-hero__line {
-  color: var(--color-text-bright);
-  font: var(--font-body-large);
-  letter-spacing: var(--tracking-body-large);
 }
 
 .landing-hero__embark {
@@ -646,7 +643,10 @@ html[data-motion="reduced"] .landing-lamp__card.is-found .landing-lamp__marks {
 .landing-rarity--epic { --landing-rarity-colour: var(--color-rarity-epique); }
 .landing-rarity--legendary { --landing-rarity-colour: var(--color-rarity-legendaire); }
 
-.landing-rarity__odds {
+.landing-rarity__odds,
+.landing-season__fact dt,
+.landing-set-row__count,
+.landing-trade-side__label {
   color: var(--color-muted);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
@@ -756,7 +756,8 @@ html[data-motion="reduced"] .landing-lamp__card.is-found .landing-lamp__marks {
   box-shadow: var(--panel-soft-border);
 }
 
-.landing-tile__verb {
+.landing-tile__verb,
+.landing-roadmap__name {
   color: var(--color-text-max);
   font: var(--font-card-title-xl);
   letter-spacing: var(--tracking-card-title-xl);
@@ -857,12 +858,6 @@ html[data-motion="reduced"] .landing-lamp__card.is-found .landing-lamp__marks {
   margin-bottom: var(--space-3);
   padding: var(--space-4);
   background: var(--color-panel-sunken);
-}
-
-.landing-step__title {
-  color: var(--color-text-max);
-  font: var(--font-screen-title);
-  letter-spacing: var(--tracking-screen-title);
 }
 
 .landing-step__next,
@@ -982,9 +977,6 @@ html[data-motion="reduced"] .landing-reveal__stage[data-revealed] .landing-revea
 
 .landing-live__list {
   flex: 1;
-}
-
-.landing-live__list {
   gap: var(--space-2);
 }
 
@@ -1028,7 +1020,8 @@ html[data-motion="reduced"] .landing-reveal__stage[data-revealed] .landing-revea
   gap: var(--space-4);
 }
 
-.landing-season__name {
+.landing-season__name,
+.landing-support__line {
   color: var(--color-text-max);
   font: var(--font-banner-small);
   letter-spacing: var(--tracking-banner-small);
@@ -1047,12 +1040,6 @@ html[data-motion="reduced"] .landing-reveal__stage[data-revealed] .landing-revea
   gap: var(--space-4);
   padding: var(--space-3) var(--space-4);
   background: var(--color-panel-sunken);
-}
-
-.landing-season__fact dt {
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
 }
 
 /* ---- .landing-unlock ---- */
@@ -1074,12 +1061,6 @@ html[data-motion="reduced"] .landing-reveal__stage[data-revealed] .landing-revea
 
 .landing-set-row__name {
   color: var(--color-text-bright);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
-}
-
-.landing-set-row__count {
-  color: var(--color-muted);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
 }
@@ -1110,12 +1091,6 @@ html[data-motion="reduced"] .landing-reveal__stage[data-revealed] .landing-revea
   flex-direction: column;
   align-items: center;
   gap: var(--space-3);
-}
-
-.landing-trade-side__label {
-  color: var(--color-muted);
-  font: var(--font-label);
-  letter-spacing: var(--tracking-label);
 }
 
 .landing-example__head {
@@ -1277,12 +1252,6 @@ html[data-motion="reduced"] .landing-reveal__stage[data-revealed] .landing-revea
   color: var(--color-accent);
 }
 
-.landing-roadmap__name {
-  color: var(--color-text-max);
-  font: var(--font-card-title-xl);
-  letter-spacing: var(--tracking-card-title-xl);
-}
-
 .landing-roadmap__stories {
   display: flex;
   flex-direction: column;
@@ -1414,12 +1383,6 @@ html[data-motion="reduced"] .landing-reveal__stage[data-revealed] .landing-revea
   gap: var(--space-3);
 }
 
-.landing-role__title {
-  color: var(--color-text-max);
-  font: var(--font-screen-title);
-  letter-spacing: var(--tracking-screen-title);
-}
-
 .landing-open-source__foot {
   display: flex;
   flex-wrap: wrap;
@@ -1474,12 +1437,6 @@ html[data-motion="reduced"] .landing-reveal__stage[data-revealed] .landing-revea
   flex: 1 1 40ch;
   flex-direction: column;
   gap: var(--space-3);
-}
-
-.landing-support__line {
-  color: var(--color-text-max);
-  font: var(--font-banner-small);
-  letter-spacing: var(--tracking-banner-small);
 }
 
 .landing-support__button {
@@ -1738,7 +1695,8 @@ html[data-motion="reduced"] .landing-reveal__stage[data-revealed] .landing-revea
     padding-inline: 0;
   }
 
-  .landing-notes__note + .landing-notes__note {
+  .landing-notes__note + .landing-notes__note,
+  .landing-free__text + .landing-free__text {
     padding-top: var(--space-5);
     border-top: var(--space-unit) solid var(--color-line-soft);
     border-left: 0;
@@ -1770,12 +1728,6 @@ html[data-motion="reduced"] .landing-reveal__stage[data-revealed] .landing-revea
 
   .landing-free__text {
     padding-inline: 0;
-  }
-
-  .landing-free__text + .landing-free__text {
-    padding-top: var(--space-5);
-    border-top: var(--space-unit) solid var(--color-line-soft);
-    border-left: 0;
   }
 
   .landing-support__line {
@@ -1917,11 +1869,8 @@ html[data-motion="reduced"] .landing-module[data-power] :is(.landing-gauge__segm
   }
 
   .landing-side-gauge__marker:hover,
+  .landing-side-gauge__marker:focus-visible,
   .landing-side-gauge__marker[aria-current="location"] {
-    color: var(--color-accent);
-  }
-
-  .landing-side-gauge__marker:focus-visible {
     color: var(--color-accent);
   }
 

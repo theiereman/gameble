@@ -120,14 +120,6 @@ describe("Lamp", () => {
     expect(Math.hypot(held.x - 400, held.y - 100)).toBeLessThan(RADII_DESKTOP[0])
   })
 
-  it("keeps the found cards it is given, when the counts match", () => {
-    const lamp = new Lamp(cards, area, RADII_DESKTOP, 0)
-    lamp.keepFound([true, false, true])
-    expect(lamp.advance(idle(0)).found).toEqual([true, false, true])
-    lamp.keepFound([true])
-    expect(lamp.advance(idle(16)).found).toEqual([true, false, true])
-  })
-
   it("follows a held pointer quickly and finds the card under it", () => {
     const lamp = new Lamp(cards, area, RADII_DESKTOP, 0)
     const frame = run(lamp, 0, 1500, (now) => ({ now, dt: 0.016, pointer: { x: 400, y: 100 }, pointerHeld: true }))

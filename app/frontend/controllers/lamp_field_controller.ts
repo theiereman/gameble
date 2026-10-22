@@ -6,6 +6,10 @@ const PHONE_QUERY = "(max-width: 719px)"
 const CARD_RADIUS_SHARE = 0.42
 const LONGEST_FRAME_SECONDS = 0.1
 
+type Shown = { power: number; mode: string; found: boolean[]; lit: boolean[]; count: string }
+
+const nothingShown = (): Shown => ({ power: -1, mode: "", found: [], lit: [], count: "" })
+
 export default class extends Controller<HTMLElement> {
   static targets = ["stage", "card", "veil", "reticle", "count"]
 
@@ -25,7 +29,7 @@ export default class extends Controller<HTMLElement> {
   private pointerInside: Point | null = null
   private pointerLastInside: Point | null = null
   private pointerMovedAt = -Infinity
-  private shown = { power: -1, mode: "", found: [] as boolean[], lit: [] as boolean[], count: "" }
+  private shown = nothingShown()
   private stopMotionWatch?: () => void
   private resizeObserver?: ResizeObserver
   private intersectionObserver?: IntersectionObserver
@@ -88,7 +92,7 @@ export default class extends Controller<HTMLElement> {
   private restart(): void {
     this.stop()
     this.reduced = motionReduced()
-    this.shown = { power: -1, mode: "", found: [], lit: [], count: "" }
+    this.shown = nothingShown()
     if (this.reduced) {
       this.lamp = undefined
       this.revealAll()
