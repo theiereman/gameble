@@ -104,7 +104,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select ".profile-section__aside", "5 sets started"
     rows = set_rows
-    assert_equal [ "8/8", "8/16", "1/15", "2/44", "2/119" ], rows.map(&:second)
+    assert_equal [ "8/8", "8/16", "1/7", "2/44", "2/127" ], rows.map(&:second)
     assert_equal [ "Pirates", "8/8", "/en/brothers/#{@owner.token}/library/theme/pirates" ], rows.first
     assert_equal [ "Horror", "8/16", "/en/brothers/#{@owner.token}/library/theme/horror" ], rows.second
     assert_select ".profile-sets .set-row--complete .set-tier--complete", 1
@@ -223,19 +223,19 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "1 carte sur 8", css_select("progress.set-album__bar").sole["aria-valuetext"]
   end
 
-  test "an owner's album costs seven queries for a visitor, a signed-in viewer's five more" do
+  test "an owner's album costs eight queries for a visitor, a signed-in viewer's five more" do
     season = publish_sets_draft
     hold(@owner, set_members(season, "rpg").first, 1)
 
     # Owner by token, published season; the album: its set, members and
-    # tiers, the owner's editions, the page's card views.
-    assert_request_queries(7) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
+    # tiers, the owner's editions, the page's card views; the themes' names.
+    assert_request_queries(8) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
     assert_response :success
 
     sign_in(accounts_players(:moderator))
     # The same, the viewer's lookup, the top bar's three and the trades
     # waiting.
-    assert_request_queries(12) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
+    assert_request_queries(13) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
     assert_response :success
   end
 
@@ -664,22 +664,22 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a visitor's profile costs ten queries whatever the owner's history, a signed-in viewer's five more, a showcase one more" do
+  test "a visitor's profile costs eleven queries whatever the owner's history, a signed-in viewer's five more, a showcase one more" do
     season = publish_sets_draft
     set_members(season, "horror").last(2).each { |id| hold(@owner, id, 1) }
     unlock("first_booster", 1.day.ago)
 
     # Owner by token, published season; the summary, the season's card
     # count, the achievements earned, the showcase, the rarities, the
-    # activity, the owner's started sets and those sets.
-    assert_request_queries(10) { get brother_path(locale: :en, token: @owner.token) }
+    # activity, the owner's started sets and those sets; the themes' names.
+    assert_request_queries(11) { get brother_path(locale: :en, token: @owner.token) }
     assert_response :success
     assert_select ".profile-sets .set-row", minimum: 1
 
     hold_started_sets(season)
     open_packs(season, 3)
     %w[first_epic first_trade boosters_10 first_repost].each { unlock(it, 1.hour.ago) }
-    assert_request_queries(10) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(11) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-sets .set-row", 5
     assert_select ".profile-achievements .achievement", 4
 
@@ -687,18 +687,18 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     # The same, the viewer's lookup and the top bar's three (reserve count,
     # next pack, copies per tier), the tab bar's trades waiting, and the
     # viewer's friendship and invitations with the owner.
-    assert_request_queries(17) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(18) { get brother_path(locale: :en, token: @owner.token) }
 
     # The chosen cards' views, however many.
     held = Game::Holding.where(player_id: @owner.id).limit(Game::ChosenShowcase::SIZE).pluck(:card_season_id)
     held.each { Game::AddToShowcase.new.call(player: @owner, card_season_id: it).value! }
-    assert_request_queries(18) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(19) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase .card", held.size
     assert_response :success
 
     # The owner's move buttons cost nothing more.
     sign_in(@owner)
-    assert_request_queries(16) { get brother_path(locale: :en, token: @owner.token) }
+    assert_request_queries(17) { get brother_path(locale: :en, token: @owner.token) }
     assert_select ".profile-showcase__moves", held.size
   end
 

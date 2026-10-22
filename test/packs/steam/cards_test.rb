@@ -108,6 +108,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
   end
 
   test "a published season gives the higher rarity to the more reviewed game, and to the better liked of two equal counts" do
+    name_tags
     run = run_on("cards")
     ready(run, 1, review_count: 1_500_000, review_percent_positive: 40)
     ready(run, 2, review_count: 1_000_000)
@@ -148,7 +149,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
       publisher: "Publisher 620",
       developers: [ "Studio 620" ],
       franchises: [ "Series 620" ],
-      genres: %w[puzzle],
+      genres: %w[puzzle rpg],
       tags: %w[indie puzzle co_op action rpg],
       prestige_score: Steam::PrestigeScore.call(percent_positive: 95, review_count: 1_000),
       prestige_score_version: Steam::PrestigeScore::VERSION,
@@ -215,8 +216,20 @@ class Steam::CardsTest < ActiveSupport::TestCase
     assert_equal %w[roguelike deckbuilder horror], genres_of([ 1, 2, 3, 4, 5, 6 ])
   end
 
-  test "a tag missing from the tag names keeps its place among the five, and the sixth is not promoted" do
-    assert_equal %w[roguelike deckbuilder], genres_of([ 1, 404, 2, 3, 4, 5 ])
+  test "a tag missing from the tag names takes no place among the five" do
+    assert_equal %w[roguelike deckbuilder horror], genres_of([ 1, 404, 2, 3, 4, 5 ])
+  end
+
+  test "an unknown tagid and a key seen twice take no place among the five, as in the stored tags" do
+    run = run_on("cards")
+    ready(run, 99, tag_ids: [ 404, 2, 12, 4, 11, 1, 5 ])
+    app = Steam::App.find_by!(appid: 99)
+    tag_names = THEME_TAGS.merge(11 => "Puzzle", 12 => "Roguelite")
+
+    mapping = Steam::CardMapping.call(app, tag_names:).value!
+
+    assert_equal %w[roguelite pixel_graphics puzzle indie horror], mapping[:tags].first(5)
+    assert_equal %w[roguelike puzzle horror], mapping[:genres]
   end
 
   test "a game whose five most-voted tags are broad has no genre" do
@@ -230,6 +243,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
   test "a published season gives a game tagged like Dreamfall the adventure theme as main theme, out of the UFOs" do
     Steam::Tag.insert_all([ { tagid: 21, name: "Adventure" }, { tagid: 7208, name: "Female Protagonist" }, { tagid: 1742, name: "Story Rich" },
       { tagid: 1684, name: "Fantasy" }, { tagid: 3942, name: "Sci-fi" }, { tagid: 122, name: "RPG" } ])
+    assert Catalog::DismissTags.new.call(tag_keys: %w[female_protagonist story_rich fantasy sci_fi]).success?
     run = run_on("cards")
     ready(run, 6300, tag_ids: [ 21, 7208, 1742, 1684, 3942 ])
     (1..20).each { |appid| ready(run, appid, review_count: 30_000 - 1_000 * appid, tag_ids: [ 122 ]) }
@@ -246,7 +260,7 @@ class Steam::CardsTest < ActiveSupport::TestCase
   end
 
   test "two tags of one theme give it once, at the first one's place" do
-    assert_equal %w[rpg roguelike], Catalog::Themes.of([ "JRPG", "Roguelite", "Action RPG", "Roguelike" ])
+    assert_equal %w[rpg roguelike], Catalog::Themes.of(%w[jrpg roguelite action_rpg roguelike])
   end
 
   test "a game without a review score or count is refused" do

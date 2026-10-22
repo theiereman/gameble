@@ -7,7 +7,8 @@ module Catalog
   # scores are staged apart (Catalog::StageCardSeason).
   #
   # `genres` are theme keys (Catalog::Themes), most-voted first; a genre
-  # outside the list is refused.
+  # outside the list is refused. `theme_keys`, the keys of Catalog::Themes
+  # (read once by a caller that writes many cards), spares one query per card.
   #
   # Publishes Catalog::CardIdentityUpserted on every call.
   #
@@ -22,9 +23,9 @@ module Catalog
     include CardWriting
 
     def call(source_key:, release_date:, image_url:, store_url:, texts:, publisher: nil, genres: [], tags: [], developers: [],
-             franchises: [])
+             franchises: [], theme_keys: nil)
       card_attributes = step validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, genres:, tags:,
-        developers:, franchises:)
+        developers:, franchises:, theme_keys:)
       texts = step validate_texts(texts)
 
       transaction do

@@ -11,12 +11,12 @@ module Catalog
 
     private
 
-    def validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, genres:, tags:, developers:, franchises:)
+    def validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, genres:, tags:, developers:, franchises:, theme_keys:)
       valid = [ source_key, image_url, store_url ].all? { |value| present_string?(value) } &&
         release_date.is_a?(Date) &&
         (publisher.nil? || publisher.is_a?(String)) &&
         [ genres, tags, developers, franchises ].all? { |list| list.is_a?(Array) && list.all? { |item| present_string?(item) } } &&
-        genres.all? { |genre| Themes.key?(genre) }
+        (genres.empty? || genres.all?(&(theme_keys || Themes.keys).method(:include?)))
       return Failure(:invalid_card) unless valid
 
       Success(source_key:, release_date:, image_url:, store_url:, publisher: publisher.presence, genres:, tags:, developers:, franchises:)

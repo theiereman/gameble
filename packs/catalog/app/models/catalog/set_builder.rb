@@ -20,14 +20,17 @@ module Catalog
       themes(rows) + franchises(rows) + studios(rows) + hall_of_fame(rows) + ufos(rows)
     end
 
-    # One set per theme among the cards' genres, in the order of the theme
-    # list, holding every card that has it; a genre outside the list is
-    # ignored.
-    def self.themes(rows)
+    # One set per theme among the cards' genres, in the order of the
+    # theme list, holding every card that has it; a genre outside the list is
+    # ignored. `theme_keys` is Themes.keys, which a caller building several
+    # kinds reads once.
+    def self.themes(rows, theme_keys: Themes.keys)
+      keys = theme_keys
+      listed = keys.to_set
       members = rows.each_with_object(Hash.new { |hash, theme| hash[theme] = [] }) do |row, by_theme|
-        row.genres.uniq.each { |genre| by_theme[genre] << row if Themes.key?(genre) }
+        row.genres.uniq.each { |genre| by_theme[genre] << row if listed.include?(genre) }
       end
-      Themes.keys.filter_map do |theme|
+      keys.filter_map do |theme|
         next unless members.key?(theme)
 
         ordered = by_release(members[theme])
@@ -65,8 +68,9 @@ module Catalog
     end
 
     # The cards of no theme, in one set; none when every card has a theme.
-    def self.ufos(rows)
-      ordered = by_release(rows.reject { |row| row.genres.any? { |genre| Themes.key?(genre) } })
+    def self.ufos(rows, theme_keys: Themes.keys)
+      listed = theme_keys.to_set
+      ordered = by_release(rows.reject { |row| row.genres.any? { |genre| listed.include?(genre) } })
       return [] if ordered.empty?
 
       [ { kind: "ufo", key: UFOS, params: {}, members: ordered, tiers: TierTable.tiers(ordered.size) } ]

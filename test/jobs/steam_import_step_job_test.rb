@@ -385,7 +385,8 @@ class SteamImportStepJobTest < ActiveJob::TestCase
   GENRE_TAGS = {
     1 => [ [ 492, 1200 ], [ 1664, 900 ], [ 1663, 800 ] ],
     2 => [ [ 1663, 500 ], [ 122, 900 ], [ 19, 950 ] ],
-    3 => [ [ 999_999, 2000 ], [ 122, 10 ] ]
+    3 => [ [ 999_999, 2000 ], [ 122, 10 ] ],
+    4 => [ [ 19, 900 ], [ 492, 1200 ] ]
   }.freeze
 
   test "a full stubbed run goes through every step without the store API, and each card's main theme after publish is its most-voted theme" do
@@ -393,7 +394,7 @@ class SteamImportStepJobTest < ActiveJob::TestCase
     stub_app_list_page(after: 0, appids:, more: false)
     stub_get_tag_list(19 => "Action", 492 => "Indie", 1664 => "Puzzle", 1663 => "FPS", 122 => "RPG")
     english = appids.index_with do |appid|
-      tags = GENRE_TAGS.fetch(appid, [ [ 19, 900 ], [ 492, 1200 ] ]).map { |tagid, weight| { "tagid" => tagid, "weight" => weight } }
+      tags = GENRE_TAGS.fetch(appid, [ [ 19, 900 ], [ 492, 1200 ], [ 122, 100 ] ]).map { |tagid, weight| { "tagid" => tagid, "weight" => weight } }
       detailed_item(appid, tags:, reviews: 500 + (appid * 1_000))
     end
     calls = stub_get_items_by_language("english" => english, "french" => {})
@@ -415,10 +416,10 @@ class SteamImportStepJobTest < ActiveJob::TestCase
 
     main_themes = Catalog::CardSeason.where(season_id: draft.id).where.not(main_theme: nil).joins(:card)
       .pluck(:main_theme, "catalog_cards.source_key").group_by(&:first).transform_values { |pairs| pairs.map(&:last).sort }
-    assert_equal({ "puzzle" => [ "steam:1" ], "rpg" => [ "steam:2", "steam:3" ] }, main_themes)
+    assert_equal({ "puzzle" => [ "steam:1" ], "rpg" => ([ 2, 3 ] + (5..21).to_a).map { |appid| "steam:#{appid}" }.sort }, main_themes)
     sets = Catalog::Set.where(season_id: draft.id).includes(memberships: { card_season: :card })
       .to_h { |set| [ set.key, set.memberships.map { |membership| membership.card_season.card.source_key }.sort ] }
-    assert_equal({ "puzzle" => [ "steam:1" ], "fps" => [ "steam:1", "steam:2" ], "rpg" => [ "steam:2", "steam:3" ],
-      "ufos" => (4..21).map { |appid| "steam:#{appid}" }.sort }, sets)
+    assert_equal({ "puzzle" => [ "steam:1" ], "fps" => [ "steam:1", "steam:2" ], "rpg" => ([ 2, 3 ] + (5..21).to_a).map { |appid| "steam:#{appid}" }.sort,
+      "ufos" => [ "steam:4" ] }, sets)
   end
 end

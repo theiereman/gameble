@@ -1,0 +1,8 @@
+# The broad Steam tags that are no theme, which a fresh database starts with
+# as dismissed, by tag key.
+- action
+- casual
+- indie
+- singleplayer
+- multiplayer
+- free_to_play

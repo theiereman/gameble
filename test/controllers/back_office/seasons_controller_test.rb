@@ -89,10 +89,9 @@ module BackOffice
       assert_select "tr[data-preview-top='10'] td", "Seed 9"
       assert_select "tr[data-preview-bottom='1'] td", "Seed 149"
       assert_select "th", "Rating"
-      assert_equal [ %w[roguelike Roguelike 119], %w[rpg RPG 44], %w[horror Horror 16], %w[pirates Pirates 8] ],
+      assert_equal [ %w[roguelike Roguelike 127], %w[rpg RPG 44], %w[horror Horror 16], %w[pirates Pirates 8] ],
         css_select("tr[data-preview-theme]").map { |row| [ row["data-preview-theme"], row.at_css("th").text, *row.css("td").map(&:text) ] }
-      assert_select "p[data-preview-ufo-count='15'][data-preview-ufo-over-limit]",
-        /15 cards in the UFOs, 10.0% of the season\. More than the 5% aimed for/
+      assert_select "p[data-preview-ufo-count='7']:not([data-preview-ufo-over-limit])", /7 cards in the UFOs, 4\.7% of the season\./
       assert_equal %w[4 0 0 0 1], %w[theme franchise studio hall-of-fame ufo].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
 
       post publish_back_office_seasons_path(locale: :en), params: { number: draft.number }
@@ -151,6 +150,52 @@ module BackOffice
       assert_equal message, flash[:alert]
       assert_predicate draft.reload, :draft?
       assert_empty Catalog::Set.where(season_id: draft.id)
+    end
+
+    test "a draft whose cards carry unclassified tags shows the verdict with their count in the preview, and publishing it is refused with the same message" do
+      sign_in(accounts_players(:administrator))
+      draft = seed_card_seasons(distinct_scores(150))
+      Catalog::Card.joins(:card_seasons).where(catalog_card_seasons: { season_id: draft.id }).update_all(tags: %w[rpg pixel_graphics 2d])
+      message = I18n.t("errors.catalog.unclassified_tags", count: 2, locale: :fr)
+
+      get back_office_seasons_path(locale: :fr)
+
+      assert_select "[data-preview-verdict=unclassified_tags]", message
+
+      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number }
+
+      assert_redirected_to back_office_seasons_path(locale: :fr)
+      assert_equal message, flash[:alert]
+      assert_predicate draft.reload, :draft?
+    end
+
+    test "a draft whose UFOs exceed the limit shows the verdict with the share in the preview, and publishing it is refused with the same message" do
+      sign_in(accounts_players(:administrator))
+      draft = seed_card_seasons(distinct_scores(100), genres: Array.new(100) { |index| index < 6 ? [] : [ "rpg" ] })
+      helper = ActiveSupport::NumberHelper
+      message = I18n.t("errors.catalog.ufo_share_over_limit", locale: :fr,
+        share: helper.number_to_percentage(6.0, precision: 1, locale: :fr), limit: helper.number_to_percentage(5, precision: 0, locale: :fr))
+
+      get back_office_seasons_path(locale: :fr)
+
+      assert_select "p[data-preview-ufo-count='6'][data-preview-ufo-over-limit]"
+      assert_select "[data-preview-verdict=ufo_share_over_limit]", message
+
+      post publish_back_office_seasons_path(locale: :fr), params: { number: draft.number }
+
+      assert_redirected_to back_office_seasons_path(locale: :fr)
+      assert_equal message, flash[:alert]
+      assert_predicate draft.reload, :draft?
+    end
+
+    test "a draft whose genres differ from what its tags give now says a rescore is needed" do
+      sign_in(accounts_players(:administrator))
+      draft = seed_card_seasons(distinct_scores(150))
+      Catalog::Card.joins(:card_seasons).where(catalog_card_seasons: { season_id: draft.id }).update_all(tags: %w[roguelite])
+
+      get back_office_seasons_path(locale: :en)
+
+      assert_select "[data-preview-verdict=rescore_needed]", I18n.t("back_office.seasons.preview.rescore_needed", locale: :en)
     end
 
     test "a draft whose every card has a theme shows no card in the UFOs, in the singular in French" do
@@ -346,9 +391,9 @@ module BackOffice
       assert_equal %w[1.000 15.000 75.000 135.000 149.000 150.000], %w[min p10 p50 p90 p99 max].map { |p| css_select("[data-preview-percentile=#{p}]").sole.text }
       assert_select "tr[data-preview-top='1'] td", "Seed 0"
       assert_select "tr[data-preview-bottom='1'] td", "Seed 149"
-      assert_equal [ %w[roguelike 119], %w[rpg 44], %w[horror 16], %w[pirates 8] ],
+      assert_equal [ %w[roguelike 127], %w[rpg 44], %w[horror 16], %w[pirates 8] ],
         css_select("tr[data-preview-theme]").map { |row| [ row["data-preview-theme"], *row.css("td").map(&:text) ] }
-      assert_select "[data-preview-ufo-count='15']"
+      assert_select "[data-preview-ufo-count='7']"
       assert_equal %w[4 0 0 0 1], %w[theme franchise studio hall-of-fame ufo].map { |kind| css_select("[data-preview-set-kind=#{kind}]").sole.text }
       assert_select "[data-preview-verdict]", false
       assert_select "form[action$='/seasons/publish']", false

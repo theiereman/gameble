@@ -2,7 +2,8 @@ module Steam
   # Reopens the latest completed or promoted import run on its cards step,
   # cursor 0, and enqueues its first page: the cards step stages
   # every game the run carried through again, so a change of
-  # Steam::PrestigeScore or of the theme list (Catalog::Themes) gives a new
+  # Steam::PrestigeScore or of the classification of tags into themes
+  # (Catalog::Themes) gives a new
   # batch to review and promote like an import, without calling Steam and
   # without editing the draft. The run's card counts start again from 0 and
   # it begins on the current draft season (season_number). Its errors are

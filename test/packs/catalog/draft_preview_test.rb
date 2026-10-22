@@ -2,7 +2,7 @@ require "test_helper"
 require_relative "../../support/catalog_seeds"
 
 # Catalog::DraftPreview: what publishing the draft now would produce, read
-# without writing, in two queries.
+# without writing, in four queries.
 class Catalog::DraftPreviewTest < ActiveSupport::TestCase
   include CatalogSeeds
 
@@ -33,12 +33,56 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
     assert_equal [ 150.0, BigDecimal(50) ], [ result.top.first.prestige_score, result.top.first.rating ]
     assert_equal ids.last(10).reverse, result.bottom.map(&:card_id)
     assert_equal "Seed 149", result.bottom.first.title
-    assert_equal [ [ "roguelike", 119 ], [ "rpg", 44 ], [ "horror", 16 ], [ "pirates", 8 ] ], result.themes.map { |theme| [ theme.theme, theme.card_count ] }
-    assert_equal 15, result.ufo_count
-    assert_in_delta 0.1, result.ufo_share
-    assert_predicate result, :ufo_share_over_limit?
+    assert_equal [ [ "roguelike", 127 ], [ "rpg", 44 ], [ "horror", 16 ], [ "pirates", 8 ] ], result.themes.map { |theme| [ theme.theme, theme.card_count ] }
+    assert_equal 7, result.ufo_count
+    assert_in_delta 7.0 / 150, result.ufo_share
+    assert_not result.ufo_share_over_limit?
+    assert_nil result.ufo_verdict
     assert_nil result.sources_verdict
     assert_equal({ "theme" => 4, "franchise" => 0, "studio" => 0, "hall_of_fame" => 0, "ufo" => 1 }, result.set_counts)
+  end
+
+  test "a draft whose UFOs exceed the limit shows the ufo_share_over_limit verdict" do
+    seed_card_seasons(distinct_scores(100), genres: Array.new(100) { |index| index < 6 ? [] : [ "rpg" ] })
+
+    result = preview
+
+    assert_equal [ 6, 0.06 ], [ result.ufo_count, result.ufo_share ]
+    assert_predicate result, :ufo_share_over_limit?
+    assert_equal :ufo_share_over_limit, result.ufo_verdict
+  end
+
+  test "a draft whose cards carry unclassified tags among their most-voted shows the unclassified_tags verdict and their count" do
+    tags = [ %w[indie roguelite pixel_graphics 2d], %w[action pixel_graphics] ] + Array.new(18) { %w[rpg] }
+    draft = seed_card_seasons(distinct_scores(20), genres: Array.new(20) { [ "rpg" ] })
+    Catalog::Card.joins(:card_seasons).where(catalog_card_seasons: { season_id: draft.id }).order(:id).each_with_index do |card, index|
+      card.update_columns(tags: tags.fetch(index))
+    end
+
+    result = preview
+
+    assert_equal :unclassified_tags, result.classification_verdict
+    assert_equal 2, result.unclassified_count
+  end
+
+  test "a tag past the five most-voted, a classified tag and a dismissed one do not count as unclassified" do
+    draft = seed_card_seasons(distinct_scores(20), genres: Array.new(20) { [ "rpg" ] })
+    Catalog::Card.joins(:card_seasons).where(catalog_card_seasons: { season_id: draft.id }).update_all(tags: %w[rpg indie action_rpg puzzle roguelite sixth_unknown])
+
+    result = preview
+
+    assert_nil result.classification_verdict
+    assert_equal 0, result.unclassified_count
+  end
+
+  test "a draft whose genres differ from what its tags give now shows the rescore_needed verdict" do
+    draft = seed_card_seasons(distinct_scores(20), genres: Array.new(20) { [ "rpg" ] })
+    cards = Catalog::Card.joins(:card_seasons).where(catalog_card_seasons: { season_id: draft.id })
+    cards.update_all(tags: %w[rpg])
+    assert_nil preview.rescore_verdict
+
+    cards.update_all(tags: %w[roguelite])
+    assert_equal :rescore_needed, preview.rescore_verdict
   end
 
   test "a draft whose UFOs stay under the limit says so" do
@@ -75,7 +119,7 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
     assert_equal 20, result.card_count
     assert_equal({ 10 => 2.0, 50 => 10.0, 90 => 18.0, 99 => 20.0 }, result.percentiles)
     assert_equal 10, result.top.size
-    assert_equal({ "theme" => 0, "franchise" => 0, "studio" => 0, "hall_of_fame" => 0, "ufo" => 1 }, result.set_counts)
+    assert_equal({ "theme" => 1, "franchise" => 0, "studio" => 0, "hall_of_fame" => 0, "ufo" => 0 }, result.set_counts)
   end
 
   test "a draft with franchises and studios counts their sets as publishing would build them" do
@@ -140,12 +184,12 @@ class Catalog::DraftPreviewTest < ActiveSupport::TestCase
     assert_equal card_ids(draft).sort.first(10), preview.bottom.map(&:card_id)
   end
 
-  test "the preview takes two queries at any size" do
+  test "the preview takes four queries at any size: the rows, the themes, the classification, the titles" do
     seed_card_seasons(Array.new(15_000) { |index| (index * 7919 % 15_000).to_f },
       genres: Array.new(15_000) { |index| [ [ "roguelike" ], %w[rpg horror], [] ][index % 3] })
 
     result = nil
-    assert_queries_count(2) { result = preview }
+    assert_queries_count(4) { result = preview }
 
     assert_equal 15_000, result.card_count
     assert_equal 10, result.top.count { |entry| entry.title.present? }

@@ -64,8 +64,8 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert publish(season.number).success?
 
     sets = sets_of(season).index_by { |set| [ set.kind, set.key ] }
-    expected = { [ "theme", "roguelike" ] => 119, [ "theme", "rpg" ] => 44, [ "theme", "horror" ] => 16, [ "theme", "pirates" ] => 8,
-      [ "ufo", "ufos" ] => 15 }
+    expected = { [ "theme", "roguelike" ] => 127, [ "theme", "rpg" ] => 44, [ "theme", "horror" ] => 16, [ "theme", "pirates" ] => 8,
+      [ "ufo", "ufos" ] => 7 }
     assert_equal expected, sets.transform_values { |set| set.memberships.size }
     assert_equal({ "theme" => "roguelike" }, sets[[ "theme", "roguelike" ]].params)
     assert_equal({}, sets[[ "ufo", "ufos" ]].params)
@@ -89,11 +89,11 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     tiers = Catalog::SetTier.joins(:set).where(catalog_sets: { season_id: season.id }).pluck("catalog_sets.key", :tier, :required)
       .group_by(&:first).transform_values { |rows| rows.to_h { |_, tier, required| [ tier, required ] } }
     assert_equal({
-      "roguelike" => { "apprentice" => 12, "adept" => 30, "expert" => 60, "master" => 90, "complete" => 119 },
+      "roguelike" => { "apprentice" => 13, "adept" => 32, "expert" => 64, "master" => 96, "complete" => 127 },
       "rpg" => { "adept" => 11, "expert" => 22, "master" => 33, "complete" => 44 },
       "horror" => { "expert" => 6, "master" => 11, "complete" => 16 },
       "pirates" => { "master" => 4, "complete" => 8 },
-      "ufos" => { "expert" => 5, "master" => 10, "complete" => 15 }
+      "ufos" => { "master" => 4, "complete" => 7 }
     }, tiers)
   end
 
@@ -171,7 +171,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
 
     main_themes = Catalog::CardSeason.where(season_id: season.id).joins(:card).pluck(:main_theme, "catalog_cards.genres")
     assert main_themes.all? { |main_theme, genres| main_theme == genres.first }
-    assert_equal({ "roguelike" => 75, "rpg" => 44, "horror" => 16, nil => 15 }, main_themes.map(&:first).tally)
+    assert_equal({ "roguelike" => 83, "rpg" => 44, "horror" => 16, nil => 7 }, main_themes.map(&:first).tally)
   end
 
   test "a draft whose every card has a theme publishes without UFOs" do
@@ -335,6 +335,37 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
     assert_nothing_written(season) { assert_equal :empty_tier, publish(season.number).failure }
   end
 
+  test "a draft whose cards carry an unclassified tag among their five most-voted is unclassified_tags, until it is classified" do
+    season = seed_card_seasons(distinct_scores(21))
+    Catalog::Card.joins(:card_seasons).where(catalog_card_seasons: { season_id: season.id }).update_all(tags: %w[rpg indie pixel_graphics])
+
+    assert_nothing_written(season) { assert_equal :unclassified_tags, publish(season.number).failure }
+
+    assert Catalog::DismissTags.new.call(tag_keys: %w[pixel_graphics]).success?
+    assert publish(season.number).success?
+  end
+
+  test "a tag past the five most-voted never blocks the publication" do
+    season = seed_card_seasons(distinct_scores(21))
+    Catalog::Card.joins(:card_seasons).where(catalog_card_seasons: { season_id: season.id }).update_all(tags: %w[rpg indie action puzzle roguelite pixel_graphics])
+
+    assert publish(season.number).success?
+  end
+
+  test "UFOs above 5 % of the draft are ufo_share_over_limit, and exactly 5 % publishes" do
+    over = seed_card_seasons(distinct_scores(100), genres: Array.new(100) { |index| index < 6 ? [] : [ "rpg" ] })
+    assert_nothing_written(over) { assert_equal :ufo_share_over_limit, publish(over.number).failure }
+
+    Catalog::Card.joins(:card_seasons).where(catalog_card_seasons: { season_id: over.id }).order(:id).first.update_columns(genres: [ "rpg" ])
+    assert publish(over.number).success?
+  end
+
+  test "a draft with no tag past the limit of UFOs publishes" do
+    season = seed_card_seasons(distinct_scores(100), genres: Array.new(100) { |index| index < 5 ? [] : [ "rpg" ] })
+
+    assert publish(season.number).success?
+  end
+
   test "a draft scored by one formula publishes, and so does one scored before versions existed" do
     versioned = seed_card_seasons(distinct_scores(21), score_versions: Array.new(21, 2))
     assert publish(versioned.number).success?
@@ -367,7 +398,7 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
         source_key: card.source_key, release_date: card.release_date, image_url: card.image_url, store_url: card.store_url,
         texts: card.texts.to_h { |text| [ text.locale, { title: text.title } ] },
         prestige_score: card_season.prestige_score, prestige_score_version: 2, rating: card_season.rating.to_f,
-        review_count: card_season.review_count
+        review_count: card_season.review_count, genres: card.genres, tags: card.tags
       ).value!
     end
 
@@ -380,6 +411,8 @@ class Catalog::PublishSeasonTest < ActiveSupport::TestCase
         %i[no_draft stale_draft empty_season mixed_score_versions unfilled_sources empty_tier].each do |code|
           assert_not_includes Catalog::PublishSeason.failure_message(code), "Translation missing", "#{code} #{locale}"
         end
+        assert_not_includes Catalog::PublishSeason.failure_message(:unclassified_tags, count: 3), "Translation missing", locale.to_s
+        assert_not_includes Catalog::PublishSeason.failure_message(:ufo_share_over_limit, share: "6 %", limit: "5 %"), "Translation missing", locale.to_s
       end
     end
   end

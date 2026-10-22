@@ -341,3 +341,6 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-public-launch-readiness/epic-public-launch-readiness-retrospective.md`
   summary: Optional: give the Rack::Attack 429 response a themed body (`rack_attack.rb:61`) and decide whether `legal`, `credits` and `how-it-works` join `PublicReadThrottle::PAGES`.
   evidence: Action item AI-10 (low): the 429 answers in plain text and the three public pages are neither throttled nor cached.
+- source_plan: `_bmad-output/initiative-gameble/epic-season-preparation/story-an-administrator-curates-the-theme-list-in-the-back-office-b-plan.md`
+  summary: French theme names live in db/default_themes.yml, the seed migration and the theme fixtures, outside config/locales/fr.yml.
+  evidence: AGENTS.md keeps French in fr.yml, but the stored names of the 43 seeded themes are data and the locale lookup they came from was removed; the author should confirm the exception or choose another home.

@@ -6,8 +6,9 @@ module Catalog
   # SetBuilder), so publishing a draft unchanged since gives the tier sizes
   # and set counts shown here.
   #
-  # Two queries at any size: the draft's rows (SeasonRows, the draft read in
-  # the same query) and the English titles of the highest and lowest cards.
+  # Four queries at any size: the draft's rows (SeasonRows, the draft read in
+  # the same query), the theme keys, the tags' classification and the English
+  # titles of the highest and lowest cards.
   # A draft with no card-season costs a second query to tell it from no
   # draft at all.
   #
@@ -24,19 +25,27 @@ module Catalog
     def self.of(rows)
       return ScorePanel.empty_season if rows.empty?
 
-      themes = SetBuilder.themes(rows)
+      theme_keys = Themes.keys
+      themes = SetBuilder.themes(rows, theme_keys:)
       franchises = SetBuilder.franchises(rows)
       studios = SetBuilder.studios(rows)
       hall_of_fame = SetBuilder.hall_of_fame(rows)
-      ufos = SetBuilder.ufos(rows)
+      ufos = SetBuilder.ufos(rows, theme_keys:)
+      classification = Themes.classification
+      unclassified = classification.unclassified_in(rows)
+      ufo_count = ufos.sum { |set| set[:members].size }
       ScorePanel.build(rows,
         tiers: tiers_of(rows.map(&:prestige_score)),
         theme_counts: themes.to_h { |set| [ set[:key], set[:members].size ] },
-        ufo_count: ufos.sum { |set| set[:members].size },
+        ufo_count:,
         set_counts: { "theme" => themes.size, "franchise" => franchises.size, "studio" => studios.size,
           "hall_of_fame" => hall_of_fame.size, "ufo" => ufos.size },
         score_version_verdict: ScoreVersions.mixed?(rows) ? :mixed_score_versions : nil,
-        sources_verdict: UnfilledSources.any?(rows) ? :unfilled_sources : nil)
+        sources_verdict: UnfilledSources.any?(rows, theme_keys:) ? :unfilled_sources : nil,
+        classification_verdict: unclassified.empty? ? nil : :unclassified_tags,
+        unclassified_count: unclassified.size,
+        ufo_verdict: Themes.ufo_share_over_limit?(ufo_count, rows.size) ? :ufo_share_over_limit : nil,
+        rescore_verdict: classification.stale?(rows) ? :rescore_needed : nil)
     end
 
     # Each tier's card count and threshold, legendary first, as PublishSeason

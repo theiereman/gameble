@@ -11,13 +11,14 @@ namespace :steam do
     apps = Steam::App.where.not(details: nil).select(:id, :appid, :details, :review_count, :tag_ids).order(:appid)
     filled = { cards: 0, card_seasons: 0 }
     last_appid = 0
+    classification = Catalog::Themes.classification
 
     loop do
       batch = apps.where("appid > ?", last_appid).limit(batch_size).to_a
       break if batch.empty?
 
       tag_names = Steam::Tag.where(tagid: batch.flat_map { |app| Array(app.tag_ids) }.uniq).pluck(:tagid, :name).to_h
-      result = Catalog::FillCardSources.new.call(rows: batch.map { |app| Steam::CardMapping.sources(app, tag_names:) })
+      result = Catalog::FillCardSources.new.call(rows: batch.map { |app| Steam::CardMapping.sources(app, tag_names:, classification:) })
       abort "steam:fill_card_sources: the apps after appid #{last_appid} failed: #{result.failure}" if result.failure?
 
       filled.merge!(result.value!) { |_key, total, count| total + count }

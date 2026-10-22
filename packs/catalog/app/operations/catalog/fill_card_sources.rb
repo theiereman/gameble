@@ -27,7 +27,7 @@ module Catalog
       "genres varchar[], review_count integer)".freeze
 
     def call(rows:)
-      rows = step validate_rows(rows)
+      rows = step validate_rows(rows, Themes.keys.to_set)
 
       transaction do
         now = Time.current
@@ -40,17 +40,17 @@ module Catalog
     private
 
     # The rows as given, one per source key (the last one wins).
-    def validate_rows(rows)
-      return Failure(:invalid_card) unless rows.is_a?(Array) && rows.all? { |row| valid_row?(row) }
+    def validate_rows(rows, theme_keys)
+      return Failure(:invalid_card) unless rows.is_a?(Array) && rows.all? { |row| valid_row?(row, theme_keys) }
 
       Success(rows.map { |row| row.slice(*ROW_KEYS) }.index_by { |row| row[:source_key] }.values)
     end
 
-    def valid_row?(row)
+    def valid_row?(row, theme_keys)
       row.is_a?(Hash) && row.keys.to_set == ROW_KEYS.to_set &&
         present_string?(row[:source_key]) &&
         row.values_at(:developers, :franchises).all? { |list| list.is_a?(Array) && list.all? { |name| present_string?(name) } } &&
-        row[:genres].is_a?(Array) && row[:genres].all? { |genre| Themes.key?(genre) } &&
+        row[:genres].is_a?(Array) && row[:genres].all? { |genre| theme_keys.include?(genre) } &&
         (row[:review_count].nil? || (row[:review_count].is_a?(Integer) && CardSeason::REVIEW_COUNTS.cover?(row[:review_count])))
     end
 

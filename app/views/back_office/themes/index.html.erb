@@ -1,0 +1,147 @@
+<% content_for :back_button, true %>
+<% return_params = { show: @shown, page: @page } %>
+
+<div class="stack">
+  <h1><%= t(".heading") %></h1>
+
+  <%= render PanelComponent.new(tag: :p) do %>
+    <%= t(".intro") %>
+  <% end %>
+
+  <% if @rescore_needed %>
+    <%= render PanelComponent.new(tag: :p, data: { themes_rescore_needed: "" }) do %>
+      <%= t(".rescore_needed") %>
+      <%= link_to t(".import_runs"), back_office_import_runs_path %>
+    <% end %>
+  <% end %>
+
+  <section class="stack" aria-labelledby="themes-tags">
+    <h2 id="themes-tags"><%= t(".tags_heading") %></h2>
+
+    <p data-themes-unclassified-count="<%= @unclassified_count %>"><%= t(".unclassified_count", count: @unclassified_count) %></p>
+
+    <p>
+      <% BackOffice::ThemesController::SHOWN.each do |shown| %>
+        <%= link_to t(".show.#{shown}"), back_office_themes_path(show: shown), aria: { current: (shown == @shown ? "true" : nil) } %>
+      <% end %>
+    </p>
+
+    <% if @tags.empty? %>
+      <%= render PanelComponent.new(tag: :p) do %>
+        <%= t(".no_tags") %>
+      <% end %>
+    <% else %>
+      <% rest = @tags.select(&:unclassified?) %>
+      <% if rest.any? %>
+        <%= form_with url: dismiss_back_office_themes_path, method: :post do %>
+          <% return_params.each do |name, value| %><%= hidden_field_tag name, value, id: nil %><% end %>
+          <% rest.each do |tag| %><%= hidden_field_tag "tag_keys[]", tag.key, id: nil %><% end %>
+          <%= render ButtonComponent.new(variant: :secondary, type: :submit) do %><%= t(".dismiss_rest", count: rest.size) %><% end %>
+        <% end %>
+      <% end %>
+
+      <table class="ledger">
+        <caption class="visually-hidden"><%= t(".tags_caption") %></caption>
+        <thead>
+          <tr>
+            <th scope="col"><%= t(".tag") %></th>
+            <th scope="col"><%= t(".games") %></th>
+            <th scope="col"><%= t(".state") %></th>
+            <th scope="col"><%= t(".attach") %></th>
+            <th scope="col"><%= t(".create") %></th>
+            <th scope="col"><span class="visually-hidden"><%= t(".actions") %></span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @tags.each do |tag| %>
+            <% state = tag.theme_key ? :theme : (tag.dismissed ? :dismissed : :unclassified) %>
+            <tr data-theme-tag="<%= tag.key %>" data-theme-tag-state="<%= state %>">
+              <th scope="row"><%= tag.name %> <code><%= tag.key %></code></th>
+              <td><%= number_with_delimiter(tag.game_count) %></td>
+              <td>
+                <% if state == :theme %>
+                  <%= t(".states.theme", theme: SetLabel.genre(tag.theme_key)) %>
+                <% else %>
+                  <%= t(".states.#{state}") %>
+                <% end %>
+              </td>
+              <td>
+                <%= form_with url: attach_back_office_themes_path, method: :post do %>
+                  <% return_params.each do |name, value| %><%= hidden_field_tag name, value, id: nil %><% end %>
+                  <%= hidden_field_tag :tag_key, tag.key, id: nil %>
+                  <%= select_tag :theme, options_for_select(@themes.map { |entry| [ entry.theme.name, entry.theme.token ] }),
+                        prompt: t(".attach_prompt"), required: true, id: "attach-#{tag.key}", class: "ban-form__field", aria: { label: t(".attach_label", tag: tag.name) } %>
+                  <%= render ButtonComponent.new(variant: :secondary, size: :small, type: :submit) do %><%= t(".attach_submit") %><% end %>
+                <% end %>
+              </td>
+              <td>
+                <%= form_with url: back_office_themes_path, method: :post do %>
+                  <% return_params.each do |name, value| %><%= hidden_field_tag name, value, id: nil %><% end %>
+                  <%= hidden_field_tag :tag_key, tag.key, id: nil %>
+                  <%= text_field_tag :name_en, tag.name, id: "create-en-#{tag.key}", class: "ban-form__field", lang: "en", required: true,
+                        maxlength: Catalog::Theme::NAME_LENGTH, autocomplete: "off", aria: { label: t(".name_en_label", tag: tag.name) } %>
+                  <%= text_field_tag :name_fr, nil, id: "create-fr-#{tag.key}", class: "ban-form__field", lang: "fr", required: true,
+                        maxlength: Catalog::Theme::NAME_LENGTH, autocomplete: "off", aria: { label: t(".name_fr_label", tag: tag.name) } %>
+                  <%= render ButtonComponent.new(variant: :secondary, size: :small, type: :submit) do %><%= t(".create_submit") %><% end %>
+                <% end %>
+              </td>
+              <td>
+                <% unless state == :dismissed %>
+                  <%= form_with url: dismiss_back_office_themes_path, method: :post do %>
+                    <% return_params.each do |name, value| %><%= hidden_field_tag name, value, id: nil %><% end %>
+                    <%= hidden_field_tag "tag_keys[]", tag.key, id: nil %>
+                    <%= render ButtonComponent.new(variant: :secondary, size: :small, type: :submit, aria_label: t(".dismiss_label", tag: tag.name)) do %><%= t(".dismiss") %><% end %>
+                  <% end %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+
+      <% if @pages > 1 %>
+        <nav aria-label="<%= t(".pages") %>">
+          <p>
+            <% (1..@pages).each do |number| %>
+              <%= link_to number, back_office_themes_path(show: @shown, page: number), aria: { current: (number == @page ? "page" : nil) } %>
+            <% end %>
+          </p>
+        </nav>
+      <% end %>
+    <% end %>
+  </section>
+
+  <section class="stack" aria-labelledby="themes-list">
+    <h2 id="themes-list"><%= t(".themes_heading") %></h2>
+
+    <table class="ledger">
+      <caption class="visually-hidden"><%= t(".themes_caption") %></caption>
+      <thead>
+        <tr>
+          <th scope="col"><%= t(".theme_key") %></th>
+          <th scope="col"><%= t(".tags") %></th>
+          <th scope="col"><%= t(".names") %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @themes.each do |entry| %>
+          <% theme = entry.theme %>
+          <tr data-theme="<%= theme.key %>">
+            <th scope="row"><code><%= theme.key %></code></th>
+            <td><%= entry.tag_count %></td>
+            <td>
+              <%= form_with url: back_office_theme_path(theme), method: :patch do %>
+                <% return_params.each do |name, value| %><%= hidden_field_tag name, value, id: nil %><% end %>
+                <%= text_field_tag :name_en, theme.name_en, id: "theme-en-#{theme.key}", class: "ban-form__field", lang: "en", required: true,
+                      maxlength: Catalog::Theme::NAME_LENGTH, autocomplete: "off", aria: { label: t(".rename_en_label", theme: theme.name_en) } %>
+                <%= text_field_tag :name_fr, theme.name_fr, id: "theme-fr-#{theme.key}", class: "ban-form__field", lang: "fr", required: true,
+                      maxlength: Catalog::Theme::NAME_LENGTH, autocomplete: "off", aria: { label: t(".rename_fr_label", theme: theme.name_en) } %>
+                <%= render ButtonComponent.new(variant: :secondary, size: :small, type: :submit) do %><%= t(".rename") %><% end %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </section>
+</div>

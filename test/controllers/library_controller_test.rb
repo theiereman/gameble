@@ -199,9 +199,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     Game::PlayerState.where(player_id: player.id).update_all(collection_seen_up_to: watermark)
     sign_in(player)
 
-    # The thirteen of a player's grid, the state asked sparing the count
+    # The fourteen of a player's grid, the state asked sparing the count
     # read again from the query cache and adding the watermark.
-    assert_request_queries(14) { get library_cards_path(locale: :en, state: %w[new duplicates]) }
+    assert_request_queries(15) { get library_cards_path(locale: :en, state: %w[new duplicates]) }
     seen = css_select(".collection-grid a.card-link").map { Rack::Utils.parse_nested_query(URI(it["href"]).query).dig("grid", "seen") }
     assert_equal [ "2026-10-08T09:30:15.123456Z" ] * 2, seen
 
@@ -277,8 +277,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     player.update_columns(banned_at: Time.current)
 
     assert_no_queries_match(/game_holdings|game_player_states/) do
-      # The visitor's seven, after the lookup that finds the ban.
-      assert_request_queries(1 + 7) { get library_cards_path(locale: :en) }
+      # The visitor's eight (seven and the themes' names), after the lookup that finds the ban.
+      assert_request_queries(1 + 8) { get library_cards_path(locale: :en) }
     end
 
     assert_response :success
@@ -628,7 +628,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "a player's request costs thirteen queries, a visitor's seven" do
+  test "a player's request costs fourteen queries, a visitor's eight" do
     season = publish_sets_draft
     player = accounts_players(:player)
     hold(player, season_cards(season).first, 1, gained_at: 1.minute.ago)
@@ -639,14 +639,14 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     # shown; the figures: the season's cards, games per rarity, copies per
     # tier; the set group: the kinds the
     # season holds, the sets of the kind shown; the tab bar's trades
-    # waiting. No set per card: the links carry the grid, which the detail
-    # reads itself.
-    assert_request_queries(13) { get library_cards_path(locale: :en) }
+    # waiting; the themes' names. No set per card: the links carry the grid,
+    # which the detail reads itself.
+    assert_request_queries(14) { get library_cards_path(locale: :en) }
 
     delete session_path(locale: :en)
     # The same without the lookup, the player's editions, the figures and
     # the trades waiting; the grid's count is the whole season's.
-    assert_request_queries(7) { get library_cards_path(locale: :en) }
+    assert_request_queries(8) { get library_cards_path(locale: :en) }
   end
 
   test "the collection opens on every slot, the owned cards first, newest gained first, FILTRES folded with no count" do
@@ -999,8 +999,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal three, forty
     # Player lookup, season, unique cards and the season's count; the
     # standings, the sets named; the search's sets and the figures of those
-    # not started; the tab bar's trades waiting.
-    assert_equal 9, forty
+    # not started; the tab bar's trades waiting; the themes' names.
+    assert_equal 10, forty
   end
 
   test "a player who holds no card sees the search, the way to all the cards and a line pointing to the search; a visitor is sent to the landing" do
@@ -1177,7 +1177,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     epic, = two_editions(season, player)
     sign_in(player)
 
-    assert_request_queries(13) { get library_cards_path(locale: :en, state: %w[owned]) }
+    assert_request_queries(14) { get library_cards_path(locale: :en, state: %w[owned]) }
 
     assert_equal [ [ :owned, title(epic), "x2", nil ] ], slots
     assert_equal [ "/seasons/#{season.number}" ], tile_hrefs

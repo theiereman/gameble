@@ -13,9 +13,10 @@ module Catalog
     # gave the score, nil for a card-season scored before versions existed.
     # `title` is the card's English title, nil without one; `developers` and
     # `franchises` the card's names, in the source's order; `review_count`
-    # the source's number of reviews, nil when it gave none.
+    # the source's number of reviews, nil when it gave none; `tags` the
+    # card's tag keys, the most-voted first.
     Row = Data.define(:id, :card_id, :prestige_score, :prestige_score_version, :rating, :release_date, :genres,
-      :title, :developers, :franchises, :publisher, :review_count)
+      :title, :developers, :franchises, :publisher, :review_count, :tags)
 
     ENGLISH_TEXT = <<~SQL.squish.freeze
       LEFT JOIN catalog_card_texts ON catalog_card_texts.card_id = catalog_cards.id AND catalog_card_texts.locale = 'en'
@@ -24,7 +25,7 @@ module Catalog
     COLUMNS = [
       :id, :card_id, :prestige_score, :prestige_score_version, :rating,
       "catalog_cards.release_date", "catalog_cards.genres", "catalog_card_texts.title", "catalog_cards.developers",
-      "catalog_cards.franchises", "catalog_cards.publisher", :review_count
+      "catalog_cards.franchises", "catalog_cards.publisher", :review_count, "catalog_cards.tags"
     ].freeze
 
     def self.call(season_id)
@@ -39,9 +40,9 @@ module Catalog
 
     def self.of(card_seasons)
       card_seasons.joins(:card).joins(ENGLISH_TEXT).order(:id).pluck(*COLUMNS)
-        .map do |id, card_id, prestige_score, prestige_score_version, rating, release_date, genres, title, developers, franchises, publisher, review_count|
+        .map do |id, card_id, prestige_score, prestige_score_version, rating, release_date, genres, title, developers, franchises, publisher, review_count, tags|
           Row.new(id:, card_id:, prestige_score:, prestige_score_version:, rating:, release_date:, genres:,
-            title:, developers:, franchises:, publisher:, review_count:)
+            title:, developers:, franchises:, publisher:, review_count:, tags:)
         end
     end
     private_class_method :of

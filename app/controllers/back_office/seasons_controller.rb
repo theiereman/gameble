@@ -25,7 +25,7 @@ module BackOffice
       if result.success?
         redirect_to back_office_seasons_path, notice: t(".published", number: result.value!.number)
       else
-        redirect_to back_office_seasons_path, alert: Catalog::PublishSeason.failure_message(result.failure)
+        redirect_to back_office_seasons_path, alert: Catalog::PublishSeason.refusal_message(result.failure, Catalog::DraftPreview.call)
       end
     end
   end

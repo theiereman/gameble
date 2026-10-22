@@ -27,7 +27,7 @@ module Catalog
   #   Catalog::PublishSeason.new.call(number: 2)
   #   # => Success(season) | Failure(:no_draft) | Failure(:stale_draft)
   #   #    | Failure(:staged_batch_waiting) | Failure(:empty_season) | Failure(:mixed_score_versions) | Failure(:unfilled_sources)
-  #   #    | Failure(:empty_tier)
+  #   #    | Failure(:empty_tier) | Failure(:unclassified_tags) | Failure(:ufo_share_over_limit)
   #
   # `number_published` numbers, once, a season published before card numbers
   # existed (the expand step run by `catalog:number_seasons`), by the same
@@ -37,6 +37,21 @@ module Catalog
   #   # => Success(season) | Failure(:no_published_season) | Failure(:already_numbered)
   class PublishSeason < ApplicationOperation
     operate_on :call, :number_published
+
+    # The message of a refusal, with the figures of the draft `panel`
+    # (a ScorePanel) that the unclassified tags and the UFOs' share name.
+    def self.refusal_message(code, panel)
+      case code
+      when :unclassified_tags
+        failure_message(code, count: panel.unclassified_count)
+      when :ufo_share_over_limit
+        helper = ActiveSupport::NumberHelper
+        failure_message(code, share: helper.number_to_percentage(panel.ufo_share * 100, precision: 1),
+          limit: helper.number_to_percentage(Themes::UFO_SHARE_LIMIT * 100, precision: 0))
+      else
+        failure_message(code)
+      end
+    end
 
     def initialize(random: SecureRandom)
       super()
@@ -50,6 +65,8 @@ module Catalog
         rows = step rows_of(season)
         step require_one_score_version(rows)
         step require_filled_sources(rows)
+        step require_classified_tags(rows)
+        step require_ufos_under_limit(rows)
         tiers = step cut(rows)
         now = Time.current
         step write_season_data(rows, tiers, now)
@@ -110,6 +127,15 @@ module Catalog
 
     def require_filled_sources(rows)
       UnfilledSources.any?(rows) ? Failure(:unfilled_sources) : Success()
+    end
+
+    def require_classified_tags(rows)
+      Themes.classification.unclassified_in(rows).empty? ? Success() : Failure(:unclassified_tags)
+    end
+
+    def require_ufos_under_limit(rows)
+      ufo_count = SetBuilder.ufos(rows).sum { |set| set[:members].size }
+      Themes.ufo_share_over_limit?(ufo_count, rows.size) ? Failure(:ufo_share_over_limit) : Success()
     end
 
     def cut(card_seasons)

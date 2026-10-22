@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_22_100001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_22_110001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -207,6 +207,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_22_100001) do
     t.index ["card_id"], name: "index_catalog_staged_card_seasons_on_card_id"
     t.check_constraint "rating >= 0::numeric AND rating <= 100::numeric", name: "catalog_staged_card_seasons_rating_check"
     t.check_constraint "review_count IS NULL OR review_count >= 1", name: "catalog_staged_card_seasons_review_count_check"
+  end
+
+  create_table "catalog_tag_classifications", force: :cascade do |t|
+    t.string "tag_key", null: false
+    t.bigint "theme_id"
+    t.boolean "not_a_theme", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tag_key"], name: "index_catalog_tag_classifications_on_tag_key", unique: true
+    t.index ["theme_id"], name: "index_catalog_tag_classifications_on_theme_id"
+    t.check_constraint "(theme_id IS NULL) = not_a_theme", name: "catalog_tag_classifications_one_state_check"
+  end
+
+  create_table "catalog_themes", force: :cascade do |t|
+    t.string "token", null: false
+    t.string "key", null: false
+    t.string "name_en", null: false
+    t.string "name_fr", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_catalog_themes_on_key", unique: true
+    t.index ["token"], name: "index_catalog_themes_on_token", unique: true
   end
 
   create_table "event_store_events", force: :cascade do |t|
@@ -551,6 +573,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_22_100001) do
   add_foreign_key "catalog_set_tiers", "catalog_sets", column: "set_id"
   add_foreign_key "catalog_sets", "catalog_seasons", column: "season_id"
   add_foreign_key "catalog_staged_card_seasons", "catalog_cards", column: "card_id"
+  add_foreign_key "catalog_tag_classifications", "catalog_themes", column: "theme_id"
   add_foreign_key "event_store_events_in_streams", "event_store_events", column: "event_id", primary_key: "event_id"
   add_foreign_key "game_achievement_unlocks", "accounts_players", column: "player_id"
   add_foreign_key "game_daily_bonus_claims", "accounts_players", column: "player_id"

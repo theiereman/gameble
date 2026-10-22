@@ -7,7 +7,7 @@ module Steam
   # Catalog::StageCardSeason. The draft season is not touched. No Steam call.
   #
   # The page is the next PAGE_SIZE apps ready by this run after the cursor,
-  # in appid order (Steam::App.ready_by), their tag names loaded once. In
+  # in appid order (Steam::App.ready_by), their tag names and the themes' classification loaded once. In
   # one transaction, each card is written in its own savepoint; then the
   # refusals are appended to the run's errors as "appid <id>: <code>", and
   # the counts (cards_written, cards_refused) and the cursor move past the
@@ -80,21 +80,22 @@ module Steam
     # Stages each app's card; returns the refusals, "appid <id>: <code>".
     def write_cards(run, apps)
       tag_names = Tag.where(tagid: apps.flat_map { |app| Array(app.tag_ids) }.uniq).pluck(:tagid, :name).to_h
+      classification = Catalog::Themes.classification
       apps.filter_map do |app|
-        code = write_card(run, app, tag_names)
+        code = write_card(run, app, tag_names, classification)
         "appid #{app.appid}: #{code}" if code
       end
     end
 
     # The refusal code of the app's card, or nil when it is staged.
-    def write_card(run, app, tag_names)
-      mapping = CardMapping.call(app, tag_names: tag_names)
+    def write_card(run, app, tag_names, classification)
+      mapping = CardMapping.call(app, tag_names:, classification:)
       return mapping.failure if mapping.failure?
 
       attributes = mapping.value!
       result = nil
       ActiveRecord::Base.transaction(requires_new: true) do
-        result = @upsert.call(**attributes.except(*SCORE_KEYS))
+        result = @upsert.call(**attributes.except(*SCORE_KEYS), theme_keys: classification.theme_keys)
         result = @stage.call(batch_token: run.token, card_id: result.value!.id, **attributes.slice(*SCORE_KEYS)) if result.success?
         raise ActiveRecord::Rollback if result.failure?
       end

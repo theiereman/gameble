@@ -324,12 +324,12 @@ class CardDetailTest < ApplicationSystemTestCase
     season = publish_sets_draft
     page.driver.browser.manage.window.resize_to(*PHONE)
     filters = { state: %w[missing], genre: %w[roguelike], q: "seed" }
-    # The 75 cards whose main theme is roguelike: two pages, the 61st on the second.
+    # The 83 cards whose main theme is roguelike: two pages, the 61st on the second.
     shown = (1..2).flat_map do |number|
       visit library_cards_path(locale: :en, **filters, page: number)
       all(".collection-grid a.card-link").map { URI(it[:href]).path[%r{\A/en/cards/([^/]+)/}, 1] }
     end
-    assert_equal 75, shown.size
+    assert_equal 83, shown.size
     grid_path = library_cards_path(locale: :en, **filters)
 
     visit grid_path
@@ -340,16 +340,16 @@ class CardDetailTest < ApplicationSystemTestCase
 
     assert_selector ".card-detail h1"
     assert_match %r{\A/en/cards/#{shown[59]}/seasons/#{season.number}\?grid}, current_url_path
-    assert_selector ".card-detail__position", text: "· 60 / 75 ·"
+    assert_selector ".card-detail__position", text: "· 60 / 83 ·"
     assert_selector ".top-bar__phone-back", text: "GRID"
     find(".card-detail__nav--next").click
-    assert_selector ".card-detail__position", text: "· 61 / 75 ·"
+    assert_selector ".card-detail__position", text: "· 61 / 83 ·"
     page.document.synchronize { raise Capybara::ExpectationNotMet unless current_url_path.start_with?("/en/cards/#{shown[60]}/") }
     assert_no_selector "html[data-sub-view-step]", visible: :all
     # The way back follows the card to the grid's second page.
     assert_selector ".top-bar__phone-back[href*='page=2']"
     swipe(120)
-    assert_selector ".card-detail__position", text: "· 60 / 75 ·"
+    assert_selector ".card-detail__position", text: "· 60 / 83 ·"
     assert_no_selector "html[data-sub-view-step]", visible: :all
 
     # The grid, an earlier entry, is restored at its scroll with its filters.
@@ -371,9 +371,9 @@ class CardDetailTest < ApplicationSystemTestCase
 
     visit library_cards_path(locale: :en, **filters)
     find(".collection-grid > li:nth-child(60) a.card-link").click
-    assert_selector ".card-detail__position", text: "· 60 / 75 ·"
+    assert_selector ".card-detail__position", text: "· 60 / 83 ·"
     find(".card-detail__nav--next").click
-    assert_selector ".card-detail__position", text: "· 61 / 75 ·"
+    assert_selector ".card-detail__position", text: "· 61 / 83 ·"
     assert_no_selector "html[data-sub-view-step]", visible: :all
 
     find(".top-bar__phone-back").click

@@ -26,8 +26,6 @@ ignore_unused:
   # Date and time formats and names, read by I18n.l.
   - "date.*"
   - "time.*"
-  # Theme names, looked up by a theme set's key and a card's main theme (SetLabel).
-  - "catalog.themes.*"
   # Hall of fame set names, looked up by a hall of fame set's key (SetLabel).
   - "catalog.hall_of_fame.*"
   # Pagy's dictionary, read by Pagy::I18n, not by the I18n gem.

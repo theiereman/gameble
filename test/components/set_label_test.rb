@@ -48,10 +48,12 @@ class SetLabelTest < ActiveSupport::TestCase
     assert_equal "Board game", I18n.with_locale(:fr) { SetLabel.genre("board_game") }
   end
 
-  test "every theme has its name in both locales, and no other key is there" do
-    %i[en fr].each do |locale|
-      assert_equal Catalog::Themes.keys.sort, I18n.t("catalog.themes", locale:).keys.map(&:to_s).sort, locale
-    end
+  test "a theme's stored name follows a rename at once, in each locale" do
+    Catalog::RenameTheme.new.call(theme: catalog_themes(:horror), name_en: "Scary", name_fr: "Effrayant")
+
+    assert_equal "Effrayant", I18n.with_locale(:fr) { SetLabel.genre("horror") }
+    assert_equal "Scary", I18n.with_locale(:en) { SetLabel.genre("horror") }
+    assert_equal "Scary", label("theme", { "theme" => "horror" }, :en)
   end
 
   test "a theme set without theme is refused" do

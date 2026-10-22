@@ -30,8 +30,8 @@ class Catalog::SeasonScoresTest < ActiveSupport::TestCase
     assert_equal [ [ 5, 2, 149.0 ], [ 4, 6, 143.0 ], [ 3, 15, 128.0 ], [ 2, 37, 91.0 ], [ 1, 90, nil ] ], tiers_of(scores)
     assert_equal (0..9).map { |i| "Seed #{i}" }, panel.top.map(&:title)
     assert_equal "Seed 149", panel.bottom.first.title
-    assert_equal [ [ "roguelike", 119 ], [ "rpg", 44 ], [ "horror", 16 ], [ "pirates", 8 ] ], panel.themes.map { |theme| [ theme.theme, theme.card_count ] }
-    assert_equal 15, panel.ufo_count
+    assert_equal [ [ "roguelike", 127 ], [ "rpg", 44 ], [ "horror", 16 ], [ "pirates", 8 ] ], panel.themes.map { |theme| [ theme.theme, theme.card_count ] }
+    assert_equal 7, panel.ufo_count
     assert_nil panel.sources_verdict
     assert_equal({ "theme" => 4, "franchise" => 0, "studio" => 0, "hall_of_fame" => 0, "ufo" => 1 }, panel.set_counts)
   end
@@ -47,7 +47,7 @@ class Catalog::SeasonScoresTest < ActiveSupport::TestCase
     scores = Catalog::SeasonScores.call(season.number)
 
     assert_equal [ [ 5, 3, 1.0 ], [ 4, 6, 143.0 ], [ 3, 15, 128.0 ], [ 2, 37, 91.0 ], [ 1, 89, nil ] ], tiers_of(scores)
-    assert_equal [ [ "roguelike", 119 ], [ "rpg", 44 ], [ "horror", 16 ], [ "pirates", 8 ], [ "zombies", 1 ] ],
+    assert_equal [ [ "roguelike", 127 ], [ "rpg", 44 ], [ "horror", 16 ], [ "pirates", 8 ], [ "zombies", 1 ] ],
       scores.panel.themes.map { |theme| [ theme.theme, theme.card_count ] }
     assert_equal 5, scores.panel.set_counts.fetch("theme")
   end

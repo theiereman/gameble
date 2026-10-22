@@ -2,6 +2,19 @@
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
 
+# The themes and the classification of their tags a fresh database starts
+# with, in every environment; once a theme exists, the administrators own
+# the list and this leaves it alone.
+if Catalog::Theme.none?
+  YAML.load_file(Rails.root.join("db/default_themes.yml")).each do |key, default|
+    theme = Catalog::Theme.create!(key:, name_en: default["en"], name_fr: default["fr"])
+    Catalog::TagClassification.insert_all!(default["tags"].map { |tag_key| { tag_key:, theme_id: theme.id, not_a_theme: false } })
+  end
+  Catalog::TagClassification.insert_all!(YAML.load_file(Rails.root.join("db/default_dismissed_tags.yml")).map do |tag_key|
+    { tag_key:, theme_id: nil, not_a_theme: true }
+  end)
+end
+
 # Development only: a small published season of generic cards, so packs can
 # be opened without running a Steam import. Only while no season is
 # published; a run that stopped midway is resumed: the upserts are idempotent
@@ -35,7 +48,7 @@ if Rails.env.development? && Catalog::PublishedSeason.call.nil?
       publisher: "Seed Publisher #{(index % 6) + 1}",
       developers: [ "Seed Studio #{(index % 4) + 1} Ltd." ],
       franchises: [ ("Seed Chronicles" if number % 7 == 0), ("Seed Legends Series" if number % 11 == 0) ].compact,
-      genres: number % 10 == 0 ? [] : [ %w[fps rpg strategy].fetch(index % 3) ]
+      genres: number % 30 == 0 ? [] : [ %w[fps rpg strategy].fetch(index % 3) ]
     ).value!
   end
 

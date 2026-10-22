@@ -49,6 +49,12 @@
     </p>
   <% end %>
 
+  <% if policy([ :back_office, :themes ]).index? %>
+    <p>
+      <%= render ButtonComponent.new(variant: :secondary, href: back_office_themes_path) do %><%= t(".themes") %><% end %>
+    </p>
+  <% end %>
+
   <% if policy([ :back_office, :cards ]).index? %>
     <p>
       <%= render ButtonComponent.new(variant: :secondary, href: back_office_cards_path) do %><%= t(".cards") %><% end %>

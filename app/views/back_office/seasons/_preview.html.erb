@@ -108,10 +108,18 @@
       <p data-preview-ufo-count="<%= panel.ufo_count %>" <%= "data-preview-ufo-over-limit" if panel.ufo_share_over_limit? %>>
         <%= t(".ufos", count: panel.ufo_count, formatted: number_with_delimiter(panel.ufo_count),
           share: number_to_percentage(panel.ufo_share * 100, precision: 1)) %>
-        <% if panel.ufo_share_over_limit? %>
-          <%= t(".ufos_over_limit", limit: number_to_percentage(Catalog::Themes::UFO_SHARE_LIMIT * 100, precision: 0)) %>
-        <% end %>
       </p>
+    <% end %>
+    <% { classification_verdict: panel.classification_verdict, ufo_verdict: panel.ufo_verdict }.each_value do |verdict| %>
+      <% next unless verdict %>
+      <%= render PanelComponent.new(tag: :p) do %>
+        <span data-preview-verdict="<%= verdict %>"><%= Catalog::PublishSeason.refusal_message(verdict, panel) %></span>
+      <% end %>
+    <% end %>
+    <% if panel.rescore_verdict %>
+      <%= render PanelComponent.new(tag: :p) do %>
+        <span data-preview-verdict="<%= panel.rescore_verdict %>"><%= t(".rescore_needed") %></span>
+      <% end %>
     <% end %>
     <% if panel.themes.any? %>
       <table class="ledger">

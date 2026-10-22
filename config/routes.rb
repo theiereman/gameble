@@ -160,6 +160,15 @@ Rails.application.routes.draw do
         post :move, on: :member
       end
 
+      # The themes of the catalog and the Steam tags the draft's cards carry,
+      # administrators only: each tag is attached to a theme, made a theme or
+      # dismissed; a theme is renamed by its token.
+      resources :themes, param: :token, only: %i[index create update],
+        constraints: { token: /[1-9A-HJ-NP-Za-km-z]{24}/ } do
+        post :attach, on: :collection
+        post :dismiss, on: :collection
+      end
+
       # The card preview, both renderers side by side, administrators only.
       resources :cards, only: :index
 

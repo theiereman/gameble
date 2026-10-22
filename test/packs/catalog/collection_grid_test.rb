@@ -47,7 +47,7 @@ class Catalog::CollectionGridTest < ActiveSupport::TestCase
     assert_equal members("rpg").sort, grid.card_seasons.pluck(:id).sort
 
     roguelike = Catalog::CollectionGrid.call(season: @season, genres: [ "roguelike" ])
-    assert_equal 75, roguelike.card_seasons.count
+    assert_equal 83, roguelike.card_seasons.count
     assert roguelike.card_seasons.pluck(:id).all? { main_theme(it) == "roguelike" }
 
     %w[strategy Roguelike].push(nil, "").each do |genre|

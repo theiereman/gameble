@@ -2,7 +2,7 @@
 # and `params`, never from its key: a theme set is its theme's name, a
 # franchise or studio set the franchise's or studio's own name, a hall of
 # fame set its name from `catalog.hall_of_fame`, the UFOs "The UFOs". A
-# theme missing from the locales is its key humanised, in English whatever
+# theme without a stored name is its key humanised, in English whatever
 # the locale. A malformed set (a kind without a name, a theme or hall of
 # fame set without its param) raises ArgumentError. `set` is anything with
 # `kind` and `params` (a Catalog::Set, a Catalog::SetRef).
@@ -30,6 +30,6 @@ module SetLabel
   end
 
   def self.genre(key)
-    I18n.t(key, scope: "catalog.themes", default: key.to_s.humanize)
+    Catalog::ThemeNames.of(key) || key.to_s.humanize
   end
 end

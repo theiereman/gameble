@@ -16,8 +16,9 @@ module Catalog
   # PublishSeason refuses a draft whose scores come from two formulas.
   #
   # `genres` are theme keys (Catalog::Themes), most-voted first; a genre
-  # outside the list is refused. `developers` and `franchises` are lists of
-  # names, part of the card's identity; `review_count`, the source's number of reviews, is season data
+  # outside the list is refused. `theme_keys`, the keys of Catalog::Themes
+  # (read once by a caller that writes many cards), spares one query per card.
+  # `developers` and `franchises` are lists of names, part of the card's identity; `review_count`, the source's number of reviews, is season data
   # like the scores (nil when the source has none to give).
   #
   # Publishes Catalog::DraftCardUpserted on every call, even when nothing
@@ -36,9 +37,9 @@ module Catalog
     include CardWriting
 
     def call(source_key:, release_date:, image_url:, store_url:, texts:, prestige_score:, prestige_score_version:, rating:,
-             publisher: nil, genres: [], tags: [], developers: [], franchises: [], review_count: nil)
+             publisher: nil, genres: [], tags: [], developers: [], franchises: [], review_count: nil, theme_keys: nil)
       card_attributes = step validate_card(source_key:, release_date:, image_url:, store_url:, publisher:, genres:, tags:,
-        developers:, franchises:)
+        developers:, franchises:, theme_keys:)
       scores = step validate_scores(prestige_score:, prestige_score_version:, rating:, review_count:)
       texts = step validate_texts(texts)
 

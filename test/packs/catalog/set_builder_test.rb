@@ -1,14 +1,14 @@
 require "test_helper"
 
 # Catalog::SetBuilder: the theme, franchise, studio and hall of fame sets
-# and the UFOs of a season, built from its rows without the database, with
+# and the UFOs of a season, built from its rows (the themes are the stored ones), with
 # their tiers.
 class Catalog::SetBuilderTest < ActiveSupport::TestCase
   # Card-season ids start at 1_000 so they never equal a card id.
   def row(card_id, release_date: Date.new(2000, 1, 1), genres: [], rating: 80, prestige_score: 1.0, title: "Game #{card_id}",
-          developers: [], franchises: [], publisher: nil, review_count: nil)
+          developers: [], franchises: [], publisher: nil, review_count: nil, tags: [])
     Catalog::SeasonRows::Row.new(id: 1_000 + card_id, card_id:, prestige_score:, prestige_score_version: 2, rating: BigDecimal(rating.to_s),
-      release_date:, genres:, title:, developers:, franchises:, publisher:, review_count:)
+      release_date:, genres:, title:, developers:, franchises:, publisher:, review_count:, tags:)
   end
 
   # Rows of the franchise `name`, one per title, card ids from `first`.

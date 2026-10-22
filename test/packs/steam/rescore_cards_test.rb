@@ -97,6 +97,7 @@ class Steam::RescoreCardsTest < ActiveSupport::TestCase
   end
 
   test "a draft scored partly by an earlier formula is stamped with the current version by the rescore, and then publishes" do
+    Steam::Tag.insert_all([ { tagid: 122, name: "RPG" } ])
     run = Steam::ImportRun.create!(status: :running, step: "cards", cursor: { "step" => "cards", "last_appid" => 0 },
       counts: { "apps_listed" => 3, "season_number" => Catalog::DraftSeasonNumber.call }, started_at: 1.hour.ago)
     ready(run, *1..21)

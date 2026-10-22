@@ -1,0 +1,11 @@
+_fixture:
+  model_class: Catalog::Theme
+
+<% YAML.load_file(Rails.root.join("db/default_themes.yml")).each.with_index(1) do |(key, theme), id| %>
+<%= key %>:
+  id: <%= id %>
+  token: <%= Digest::SHA256.hexdigest(key).to_i(16).digits(58).first(24).map { "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"[it] }.join %>
+  key: <%= key %>
+  name_en: <%= theme["en"].to_json %>
+  name_fr: <%= theme["fr"].to_json %>
+<% end %>

@@ -63,8 +63,9 @@ class Steam::FillCardSourcesTaskTest < ActiveSupport::TestCase
 
   test "a card imported with a genre from before themes gets the themes of its five most-voted tags" do
     imported_before(10, 20)
-    Steam::Tag.insert_all([ { tagid: 1664, name: "Puzzle" }, { tagid: 492, name: "Indie" }, { tagid: 122, name: "RPG" } ])
-    Steam::App.where(appid: 10).update_all(tag_ids: [ 492, 1664, 1, 2, 3, 122 ])
+    Steam::Tag.insert_all([ { tagid: 1664, name: "Puzzle" }, { tagid: 492, name: "Indie" }, { tagid: 122, name: "RPG" },
+      { tagid: 1, name: "Action" }, { tagid: 2, name: "Casual" }, { tagid: 3, name: "Singleplayer" }, { tagid: 4, name: "Multiplayer" } ])
+    Steam::App.where(appid: 10).update_all(tag_ids: [ 492, 1664, 1, 2, 3, 4, 122 ])
     Catalog::Card.where(source_key: %w[steam:10 steam:20]).update_all(genres: [ "action" ])
 
     fill_card_sources

@@ -1,0 +1,17 @@
+_fixture:
+  model_class: Catalog::TagClassification
+
+<% YAML.load_file(Rails.root.join("db/default_themes.yml")).each.with_index(1) do |(key, theme), id| %>
+<% theme["tags"].each do |tag_key| %>
+<%= tag_key %>:
+  tag_key: <%= tag_key %>
+  theme_id: <%= id %>
+  not_a_theme: false
+<% end %>
+<% end %>
+
+<% YAML.load_file(Rails.root.join("db/default_dismissed_tags.yml")).each do |tag_key| %>
+<%= tag_key %>:
+  tag_key: <%= tag_key %>
+  not_a_theme: true
+<% end %>
