@@ -1,0 +1,16 @@
+<div class="moving-cards" aria-hidden="true" data-controller="moving-cards">
+  <template>
+    <% landing_movers(samples).each do |mover| %>
+      <%= tag.span(class: [ "moving-card", "moving-card--#{mover[:size]}" ], data: landing_mover_data(mover)) do %>
+        <%= card_rays(mover[:rarity]) %>
+        <span class="moving-card__body">
+          <% if mover[:view] %>
+            <%= render CardComponent.new(card: mover[:view], size: mover[:size]) %>
+          <% else %>
+            <%= landing_card_back(mover[:size], draggable: false) %>
+          <% end %>
+        </span>
+      <% end %>
+    <% end %>
+  </template>
+</div>

@@ -10,6 +10,14 @@ module LandingsHelper
     { rarity: :legendary, size: :s }
   ].freeze
 
+  MOVERS = [
+    { rarity: :epic, size: :m, lane: :left, anchor: 0.06, speed: 1.7, sway: 36, offset: -0.3, rotation: -8 },
+    { rarity: :legendary, size: :s, lane: :right, anchor: 0.22, speed: 1.9, sway: 28, offset: 0.2, rotation: 7 },
+    { rarity: :uncommon, size: :s, lane: :left, anchor: 0.4, speed: 1.5, sway: 32, offset: 0.25, rotation: 10 },
+    { rarity: :rare, size: :m, lane: :right, anchor: 0.58, speed: 1.8, sway: 40, offset: -0.15, rotation: -6 },
+    { rarity: nil, size: :m, lane: :left, anchor: 0.78, speed: 1.6, sway: 30, offset: 0.1, rotation: 11 }
+  ].freeze
+
   MODULE_KEYS = %i[concept brotherhood how live unlock roadmap open_source free boarding].freeze
   GAUGE_SEGMENTS = 24
   RESERVE_CELLS = 10
@@ -33,6 +41,20 @@ module LandingsHelper
 
   def landing_lamp_slots(samples)
     LAMP_SLOTS.map { |slot| slot.merge(view: slot[:rarity] && samples[slot[:rarity]]) }
+  end
+
+  def landing_movers(samples)
+    MOVERS.filter_map do |mover|
+      view = mover[:rarity] && samples[mover[:rarity]]
+      next if mover[:rarity] && view.nil?
+
+      mover.merge(key: (mover[:rarity] || :back).to_s, view:)
+    end
+  end
+
+  def landing_mover_data(mover)
+    { key: mover[:key], size: mover[:size], lane: mover[:lane], anchor: mover[:anchor], speed: mover[:speed],
+      sway: mover[:sway], offset: mover[:offset], rotation: mover[:rotation] }
   end
 
   def landing_covers(samples)

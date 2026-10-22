@@ -156,6 +156,36 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".landing-lamp__readout", text: /Games found\s+0 \/ 6/
   end
 
+  test "the moving cards wait in an inert template of an aria-hidden layer outside main: four samples and a card back" do
+    get landing_path(locale: :en)
+
+    assert_response :success
+    assert_select "main .moving-cards", 0
+    assert_select "body > .moving-cards[aria-hidden=true][data-controller=moving-cards]", 1
+    layer = Nokogiri::HTML5.fragment(css_select(".moving-cards template").first.inner_html)
+    assert_equal %w[epic legendary uncommon rare back], layer.css(".moving-card").map { it["data-key"] }
+    assert_equal %w[left right left right left], layer.css(".moving-card").map { it["data-lane"] }
+    assert_equal 4, layer.css(".moving-card .card").size
+    assert_equal 1, layer.css(".moving-card img.landing-card-back[alt='']").size
+    assert_equal %w[epic legendary], layer.css(".card-rays").map { it["class"][/card-rays--(\w+)/, 1] }
+    layer.css(".moving-card").each do |mover|
+      assert_includes 1.5..1.9, mover["data-speed"].to_f
+      assert_operator mover["data-rotation"].to_f.abs, :<=, 11
+      assert_nil mover["style"]
+    end
+    assert_select ".moving-cards > :not(template)", 0
+  end
+
+  test "the moving cards skip a rarity without a sample and keep the card back" do
+    Catalog::Season.update_all(status: "draft", published_at: nil)
+
+    get landing_path(locale: :en)
+
+    layer = Nokogiri::HTML5.fragment(css_select(".moving-cards template").first.inner_html)
+    assert_equal %w[back], layer.css(".moving-card").map { it["data-key"] }
+    assert_equal 0, layer.css(".card").size
+  end
+
   test "a signed-in player is sent to the hub" do
     sign_in(accounts_players(:player))
 
@@ -283,7 +313,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     { en: "Position on the page", fr: "Position sur la page" }.each do |locale, name|
       get landing_path(locale:)
 
-      assert_select "main + nav[aria-label=?][data-controller=side-gauge]", name
+      assert_select "main ~ nav[aria-label=?][data-controller=side-gauge]", name
       links = css_select("nav[data-controller=side-gauge] a")
       assert_equal 10, links.size
       links.each { |link| assert_select "##{link['href'].delete_prefix('#')}", 1 }

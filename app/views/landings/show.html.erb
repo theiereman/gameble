@@ -4,6 +4,7 @@
   <%= render "landings/footer" %>
 <% end %>
 <% content_for :page_aside do %>
+  <%= render "landings/moving_cards", samples: @samples %>
   <%= render "landings/side_gauge" %>
 <% end %>
 <% covers = landing_covers(@samples) %>
