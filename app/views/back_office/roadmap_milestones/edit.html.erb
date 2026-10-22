@@ -7,7 +7,7 @@
     <%= t(".intro", epic: @milestone.epic_slug) %>
   <% end %>
 
-  <%= render "back_office/roadmap_stories/form", url: back_office_roadmap_milestone_path(@milestone), method: :patch,
+  <%= render "back_office/roadmap/form", url: back_office_roadmap_milestone_path(@milestone), method: :patch,
         entry: @entry, submit: t(".save"), failure: @failure %>
 
   <section class="stack" aria-labelledby="roadmap-stories">
@@ -40,7 +40,7 @@
               <td><%= t("back_office.roadmap.statuses.#{story.status}") %></td>
               <td><%= t("back_office.roadmap.visibility.#{story.shown ? "shown" : "hidden"}") %></td>
               <td>
-                <%= render "back_office/roadmap_milestones/move", path: move_back_office_roadmap_story_path(story),
+                <%= render "back_office/roadmap/move", path: move_back_office_roadmap_story_path(story),
                       wording: story.wording, first: index.zero?, last: index == @stories.size - 1 %>
               </td>
               <td>

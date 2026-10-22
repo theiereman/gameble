@@ -25,10 +25,6 @@ class LandingMovingCardsTest < ApplicationSystemTestCase
     page.driver.browser.execute_cdp("Page.removeScriptToEvaluateOnNewDocument", identifier: @fine_pointer)
   end
 
-  def eventually(message, &condition)
-    page.document.synchronize { raise Capybara::ExpectationNotMet, message unless condition.call }
-  end
-
   def scroll_to(y) = page.execute_script("window.scrollTo(0, #{y})")
 
   def card_box(key) = page.evaluate_script("(() => { const r = document.querySelector('.moving-card[data-key=#{key}]').getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top } })()")

@@ -1,9 +1,11 @@
 require "test_helper"
+require_relative "../support/roadmap_seeds"
 require_relative "../support/steam_sign_in"
 require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
 
 class LandingPageTest < ActionDispatch::IntegrationTest
+  include RoadmapSeeds
   include SteamSignIn
   include CatalogSeeds
   include GamePacks
@@ -271,16 +273,7 @@ class LandingPageTest < ActionDispatch::IntegrationTest
   end
 
   def seed_roadmap
-    epics = %w[alpha beta gamma delta].map { Catalog::InitiativeEpics::Epic.new(slug: it, title: it.titleize) }
-    milestones = Catalog::CreateRoadmapMilestones.new.call(epics:).value!
-    shown = milestones.first(3)
-    shown.zip(%w[done in_progress to_come]).each do |milestone, status|
-      Catalog::UpdateRoadmapMilestone.new.call(milestone:, wording_fr: "Étape #{milestone.epic_slug}", wording_en: "Step #{milestone.epic_slug}", status:, shown: true).value!
-    end
-    [ [ "a", "done", true ], [ "b", "in_progress", true ], [ "c", "to_come", true ], [ "hidden", "done", false ] ].each do |name, status, visible|
-      Catalog::CreateRoadmapStory.new.call(milestone: shown.first, wording_fr: "Récit #{name}", wording_en: "Story #{name}", status:, shown: visible).value!
-    end
-    shown
+    super(stories: [ [ "a", "done", true ], [ "b", "in_progress", true ], [ "c", "to_come", true ], [ "hidden", "done", false ] ])
   end
 
   test "module 06 shows the shown milestones and their first two shown stories with their status in text" do

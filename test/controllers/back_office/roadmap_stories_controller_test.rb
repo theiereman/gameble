@@ -1,5 +1,6 @@
 require "test_helper"
 require_relative "../../support/hidden_back_office"
+require_relative "../../support/roadmap_seeds"
 require_relative "../../support/steam_sign_in"
 
 module BackOffice
@@ -7,13 +8,13 @@ module BackOffice
   # edited, reordered and deleted from the milestone's page.
   class RoadmapStoriesControllerTest < ActionDispatch::IntegrationTest
     include HiddenBackOffice
+    include RoadmapSeeds
     include SteamSignIn
 
     def sign_in_origin = "/fr"
 
     setup do
-      epics = %w[epic-one epic-two].map { Catalog::InitiativeEpics::Epic.new(slug: it, title: it.titleize) }
-      @milestone, @other = Catalog::CreateRoadmapMilestones.new.call(epics:).value!
+      @milestone, @other = create_roadmap_milestones("epic-one", "epic-two")
     end
 
     def fields(**changes) = { wording_fr: "Une histoire", wording_en: "A story", status: "to_come", shown: "1" }.merge(changes)

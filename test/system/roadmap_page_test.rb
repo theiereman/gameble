@@ -1,17 +1,18 @@
 require "application_system_test_case"
+require_relative "../support/roadmap_seeds"
 
 # The roadmap page: a vertical rail on a desktop, the rail down the left edge
 # on a phone, reached from module 06 of the landing.
 class RoadmapPageTest < ApplicationSystemTestCase
+  include RoadmapSeeds
+
   PHONE = [ 390, 844 ].freeze
 
   setup do
     Rails.cache.clear
-    epics = %w[alpha beta gamma].map { Catalog::InitiativeEpics::Epic.new(slug: it, title: it.titleize) }
-    milestones = Catalog::CreateRoadmapMilestones.new.call(epics:).value!
-    milestones.zip(%w[done in_progress to_come]).each do |milestone, status|
-      Catalog::UpdateRoadmapMilestone.new.call(milestone:, wording_fr: "Étape #{milestone.epic_slug}", wording_en: "Step #{milestone.epic_slug}", status:, shown: true).value!
-      Catalog::CreateRoadmapStory.new.call(milestone:, wording_fr: "Récit #{milestone.epic_slug}", wording_en: "Story #{milestone.epic_slug}", status:, shown: true).value!
+    create_roadmap_milestones("alpha", "beta", "gamma").zip(%w[done in_progress to_come]).each do |milestone, status|
+      show_roadmap_milestone(milestone, status:)
+      add_roadmap_story(milestone, milestone.epic_slug, status:)
     end
   end
 
@@ -35,9 +36,9 @@ class RoadmapPageTest < ApplicationSystemTestCase
     visit roadmap_path(locale: :fr)
 
     assert_selector ".roadmap-milestone", count: 3
-    page.document.synchronize do
+    eventually("the columns are not side by side") do
       when_left, track_left, panel_left = %w[when track panel].map { left_of(".roadmap-milestone__#{it}") }
-      raise Capybara::ExpectationNotMet, "the columns are not side by side" unless when_left < track_left && track_left < panel_left
+      when_left < track_left && track_left < panel_left
     end
   end
 

@@ -38,7 +38,7 @@
             <td><%= t("back_office.roadmap.visibility.#{milestone.shown ? "shown" : "hidden"}") %></td>
             <td data-roadmap-story-count="<%= milestone.story_count %>"><%= milestone.story_count %></td>
             <td>
-              <%= render "back_office/roadmap_milestones/move", path: move_back_office_roadmap_milestone_path(milestone),
+              <%= render "back_office/roadmap/move", path: move_back_office_roadmap_milestone_path(milestone),
                     wording: milestone.wording, first: index.zero?, last: index == @milestones.size - 1 %>
             </td>
             <td>

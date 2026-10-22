@@ -7,10 +7,6 @@ class LandingPowerOnTest < ApplicationSystemTestCase
 
   def power_of(id) = page.evaluate_script("document.getElementById('#{id}').closest('.landing-module').dataset.power")
 
-  def eventually(message, &condition)
-    page.document.synchronize { raise Capybara::ExpectationNotMet, message unless condition.call }
-  end
-
   def name_opacity(label) = page.evaluate_script("getComputedStyle(document.querySelector(\"nav a[aria-label='#{label}'] .landing-side-gauge__name\")).opacity")
 
   def drift(layer) = page.evaluate_script("document.getElementById('atmosphere').style.getPropertyValue('--landing-drift-#{layer}')")

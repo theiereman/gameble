@@ -1,6 +1,7 @@
 require "test_helper"
 require_relative "../../support/hidden_back_office"
 require_relative "../../support/rake_tasks"
+require_relative "../../support/roadmap_seeds"
 require_relative "../../support/steam_sign_in"
 
 module BackOffice
@@ -10,13 +11,13 @@ module BackOffice
   class RoadmapMilestonesControllerTest < ActionDispatch::IntegrationTest
     include HiddenBackOffice
     include RakeTasks
+    include RoadmapSeeds
     include SteamSignIn
 
     def sign_in_origin = "/fr"
 
     setup do
-      epics = %w[epic-one epic-two epic-three].map { Catalog::InitiativeEpics::Epic.new(slug: it, title: it.titleize) }
-      @one, @two, @three = Catalog::CreateRoadmapMilestones.new.call(epics:).value!
+      @one, @two, @three = create_roadmap_milestones("epic-one", "epic-two", "epic-three")
     end
 
     def listed = css_select("tr[data-roadmap-milestone]").map { it["data-roadmap-milestone"] }

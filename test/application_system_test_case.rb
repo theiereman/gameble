@@ -35,6 +35,10 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     page.driver.browser.manage.window.resize_to(width, height)
   end
 
+  def eventually(message, &condition)
+    page.document.synchronize { raise Capybara::ExpectationNotMet, message unless condition.call }
+  end
+
   # Each test starts without cookies. Capybara's reset clears them, then
   # waits for the requests still running, and every answer re-sends the
   # session cookie: a request the last page left in flight (the collection's

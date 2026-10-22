@@ -1,12 +1,14 @@
 require "test_helper"
+require_relative "../../support/roadmap_seeds"
 
 # Catalog::UpdateRoadmapMilestone and Catalog::MoveRoadmapMilestone: staff
 # word, show, give a status to and reorder the milestones; every refusal
 # writes nothing and publishes nothing.
 class Catalog::RoadmapMilestoneEditsTest < ActiveSupport::TestCase
+  include RoadmapSeeds
+
   setup do
-    epics = %w[epic-one epic-two epic-three].map { Catalog::InitiativeEpics::Epic.new(slug: it, title: it.titleize) }
-    @one, @two, @three = Catalog::CreateRoadmapMilestones.new.call(epics:).value!
+    @one, @two, @three = create_roadmap_milestones("epic-one", "epic-two", "epic-three")
   end
 
   def roadmap_events = Rails.configuration.event_store.read.stream(Catalog::RoadmapMilestone.stream_name).to_a

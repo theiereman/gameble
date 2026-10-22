@@ -1,12 +1,14 @@
 require "test_helper"
+require_relative "../../support/roadmap_seeds"
 
 # Catalog::CreateRoadmapStory, UpdateRoadmapStory, MoveRoadmapStory and
 # DeleteRoadmapStory: staff add, edit, reorder and delete the stories under
 # a milestone; every refusal writes nothing and publishes nothing.
 class Catalog::RoadmapStoryEditsTest < ActiveSupport::TestCase
+  include RoadmapSeeds
+
   setup do
-    epics = %w[epic-one epic-two].map { Catalog::InitiativeEpics::Epic.new(slug: it, title: it.titleize) }
-    @milestone, @other = Catalog::CreateRoadmapMilestones.new.call(epics:).value!
+    @milestone, @other = create_roadmap_milestones("epic-one", "epic-two")
   end
 
   def roadmap_events = Rails.configuration.event_store.read.stream(Catalog::RoadmapMilestone.stream_name).to_a
