@@ -344,3 +344,15 @@
 - source_plan: `_bmad-output/initiative-gameble/epic-season-preparation/story-an-administrator-curates-the-theme-list-in-the-back-office-b-plan.md`
   summary: French theme names live in db/default_themes.yml, the seed migration and the theme fixtures, outside config/locales/fr.yml.
   evidence: AGENTS.md keeps French in fr.yml, but the stored names of the 43 seeded themes are data and the locale lookup they came from was removed; the author should confirm the exception or choose another home.
+- source_plan: `_bmad-output/initiative-gameble/epic-visitor-landing/epic-visitor-landing-retrospective.md`
+  summary: The `deferred` entries of the epic's fourteen plans that stay at `built` never reached this file.
+  evidence: Retrospective F17: only one entry for the epic is recorded here; the plans' `deferred` frontmatter (the motion switch's pixel icon, the roadmap page's date and sentence, the reveal demo's DOM test, the typography figures of the hub goal) is the rest.
+- source_plan: `_bmad-output/initiative-gameble/epic-visitor-landing/epic-visitor-landing-retrospective.md`
+  summary: Process rules for the next epics: a full plan baseline, the ticket named in each feature commit, the verification results recorded in the plan, a comment check before the review.
+  evidence: Retrospective F18: the 20.2 baseline is not found, 20.9 has none, 20.18's has 8 characters, no feature commit names its ticket, 20.11 has no review or results recorded.
+- source_plan: `_bmad-output/initiative-gameble/epic-visitor-landing/epic-visitor-landing-retrospective.md`
+  summary: Verification gaps left open: the reveal demo has no DOM test, the caches are not seen at the request level (the cache is null in tests), and `readable` swallows `ReadOnlyError`.
+  evidence: Retrospective F8, F14, F15 and F9.
+- source_plan: `_bmad-output/initiative-gameble/epic-visitor-landing/epic-visitor-landing-retrospective.md`
+  summary: The privacy text does not say that the public card page, indexable by search engines, names a pioneer whose profile is visible; the architecture file still cites the pioneer's old home (line 534).
+  evidence: Retrospective F4 and F13: `config/locales/en.yml:216` and `architecture-gameble.md:534`.

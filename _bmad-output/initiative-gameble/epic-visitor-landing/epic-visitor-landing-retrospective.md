@@ -193,6 +193,16 @@ Total: 9 action items.
 - No finding blocks the acceptance of the epic as a delivery of its criteria. The open items are: the root's format handling (F1, F2: fix before the production release), the throttle on the hub (F3), the indexing of player pages (F4), the oversized stylesheet (F16), the deferred items recorded only in plans (F17), and the spec reconciliations (F13, F13b).
 - The verdict rests on a narrowed review: the code lenses ran on four boundaries only, not on the whole diff; each ticket's own review pass is the evidence for the rest, and 20.11 had none.
 
+**Human decisions (2026-10-22):**
+
+- F1 and F2 (the root's request formats) are fixed in 067077b3, with a test file that fails on the old code.
+- F3 (the hub's throttle): the risk is accepted, nothing is done.
+- F4 (indexing of player pages): public profiles, collections and albums are not indexed, `noindex` is back in 617763e1; the public card page stays indexable and still names the pioneer when the profile is visible.
+- F13 (the pioneer): a card shows the player who first found that card during the card's own season, whichever season is published (b0414d1e); R6 stands as written.
+- F13b: the 20.15 and 20.16 entries of `tickets.toml` and the epic's Requirements no longer describe a signed-out hub.
+- F16 (the landing stylesheet's size): accepted for this epic.
+- The epic is closed as accepted-with-open-items; the remaining items are recorded in `deferred-work.md`.
+
 ## Open questions
 
 - Do the crawlers and link-preview bots that matter send `Accept: */*`? The repo cannot say; production access logs can. The answer changes how urgent F1 is, not whether to fix it.
