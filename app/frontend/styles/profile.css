@@ -106,6 +106,10 @@
   letter-spacing: var(--tracking-body-small);
 }
 
+.profile-band__banned {
+  color: var(--color-alert);
+}
+
 .profile-band__meta .button--link {
   min-height: 24px;
   color: var(--color-alert);

@@ -546,10 +546,8 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", "Profile not available"
   end
 
-  test "the profile carries no visibility line, for its owner, a visitor or staff on a banned player's" do
+  test "the profile carries no visibility line, for its owner or a visitor" do
     publish_sets_draft
-    banned = accounts_players(:banned)
-    banned.update_columns(persona_name: "Banned Brother")
 
     get brother_path(locale: :en, token: @owner.token)
     assert_no_match(/Visible to|moderation team/, response.body)
@@ -559,13 +557,6 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :fr, token: @owner.token)
     assert_response :success
     assert_no_match(/Profil privé|modération le voyez/, response.body)
-    delete session_path(locale: :en)
-
-    sign_in(accounts_players(:moderator))
-    get brother_path(locale: :fr, token: banned.token)
-    assert_response :success
-    assert_select "h1", "Banned Brother"
-    assert_no_match(/Joueur banni/, response.body)
   end
 
   test "a banned member of staff reads a hidden profile as the visitor they become" do
@@ -723,6 +714,45 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     get brother_path(locale: :en, token: @owner.token)
 
     assert_equal [ "#{pirates.size + 1}/#{card_total(season)}", "1" ], [ key("Cards"), key("Complete sets") ]
+  end
+
+  test "the card count stops at the season's total when older editions add games" do
+    season = publish_sets_draft
+    Catalog::CardSeason.where(season_id: season.id).where.not(rarity: nil).pluck(:id).each { hold(@owner, it, 1) }
+    hold(@owner, catalog_card_seasons(:portal_one).id, 1)
+
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_equal "#{card_total(season)}/#{card_total(season)}", key("Cards")
+  end
+
+  test "staff see the banned line on a banned player's profile, no one else does" do
+    publish_sets_draft
+    banned = accounts_players(:banned)
+
+    sign_in(accounts_players(:moderator))
+    get brother_path(locale: :en, token: banned.token)
+    assert_select ".profile-band__banned", "Banned player: only staff can see this profile"
+    get brother_path(locale: :en, token: @owner.token)
+    assert_select ".profile-band__banned", false
+    delete session_path(locale: :en)
+
+    get brother_path(locale: :en, token: banned.token)
+    assert_response :not_found
+    assert_select ".profile-band__banned", false
+    sign_in(@owner)
+    get brother_path(locale: :fr, token: banned.token)
+    assert_response :not_found
+    assert_select ".profile-band__banned", false
+  end
+
+  test "the banned line is in French for staff" do
+    publish_sets_draft
+    sign_in(accounts_players(:administrator))
+
+    get brother_path(locale: :fr, token: accounts_players(:banned).token)
+
+    assert_select ".profile-band__banned", "Joueur banni : visible par les officiers de la Confrérie seulement"
   end
 
   test "the chosen cards show under VITRINE after the identity band, in their order, each leading to its detail with the owner's token, and the GET writes nothing" do

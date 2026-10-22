@@ -7,6 +7,9 @@
       <%= render "public_profiles/action", owner:, title:, relation:, open_trade_token: %>
       <p class="profile-band__meta">
         <span class="profile-band__since"><%= t("public_profiles.show.member_since", date: l(owner.created_at.to_date, format: :month_year)) %></span>
+        <% if owner.banned? %>
+          <span class="profile-band__banned"><%= t("public_profiles.show.banned") %></span>
+        <% end %>
         <% if current_player.nil? %>
           <%= render ButtonComponent.new(variant: :link, size: :small, disabled: true) do %><%= t("reports.open") %><% end %>
         <% elsif current_player != owner %>

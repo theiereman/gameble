@@ -816,6 +816,7 @@ en:
         one: "%{count} card collected"
         other: "%{count} cards collected"
       member_since: "Member since %{date}"
+      banned: "Banned player: only staff can see this profile"
       trade: "TRADE"
       trade_label: "Trade with %{name}"
       add_friend: "ADD FRIEND"

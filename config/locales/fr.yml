@@ -853,6 +853,7 @@ fr:
         one: "%{count} carte collectionnée"
         other: "%{count} cartes collectionnées"
       member_since: "Membre depuis %{date}"
+      banned: "Joueur banni : visible par les officiers de la Confrérie seulement"
       trade: "ÉCHANGE"
       trade_label: "Échange avec %{name}"
       add_friend: "AJOUTER EN AMI"

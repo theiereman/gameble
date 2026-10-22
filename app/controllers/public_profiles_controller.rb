@@ -23,8 +23,8 @@ class PublicProfilesController < ApplicationController
   # GET /:locale/brothers/:token
   def show
     @season = Catalog::PublishedSeason.call
-    @summary = Game::CollectionSummary.call(@owner, season: @season)
     @card_total = Catalog::CardCount.call(@season)
+    @summary = capped_at_card_total(Game::CollectionSummary.call(@owner, season: @season))
     @achievements = Game::EarnedAchievements.call(@owner)
     @showcase = chosen_cards(@owner)
     load_stats_and_sets if @season
@@ -50,6 +50,12 @@ class PublicProfilesController < ApplicationController
   end
 
   private
+    # Games held in an earlier edition count in the summary but not in the
+    # season's total.
+    def capped_at_card_total(summary)
+      summary.with(distinct_cards: [ summary.distinct_cards, @card_total ].min)
+    end
+
     def grid_owner
       @owner
     end
