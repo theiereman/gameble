@@ -1657,6 +1657,7 @@ fr:
         label: "06 · Feuille de route"
         title: "Un aperçu des prochaines évolutions."
         subtitle: "La collection se construit avec la communauté, le jeu aussi."
+        line_label: "Étapes de la feuille de route, des plus anciennes aux plus lointaines"
         statuses:
           done: "Fait"
           in_progress: "En cours"

@@ -1612,6 +1612,7 @@ en:
         label: "06 · Roadmap"
         title: "A look at what comes next."
         subtitle: "The collection is built with the community, and so is the game."
+        line_label: "Roadmap milestones, from the oldest to the most distant"
         statuses:
           done: "Done"
           in_progress: "In progress"

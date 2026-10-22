@@ -1,6 +1,32 @@
 <section class="landing-module landing-roadmap">
   <%= landing_module_heading(:roadmap, id: "landing-roadmap") %>
   <p class="landing-module__subtitle"><%= t("landings.show.roadmap.subtitle") %></p>
+  <% if milestones.any? %>
+    <ol class="landing-roadmap__line" aria-label="<%= t("landings.show.roadmap.line_label") %>" data-controller="overflow-focus">
+      <% milestones.each do |milestone| %>
+        <li class="landing-roadmap__milestone landing-roadmap__milestone--<%= milestone.status.dasherize %>">
+          <div class="landing-roadmap__track" aria-hidden="true">
+            <span class="landing-roadmap__node">
+              <%= pixel_icon("check", class: "landing-roadmap__check") if milestone.status == "done" %>
+            </span>
+            <span class="landing-roadmap__segment"></span>
+          </div>
+          <p class="landing-roadmap__status"><%= t("landings.show.roadmap.statuses.#{milestone.status}") %></p>
+          <p class="landing-roadmap__name"><%= milestone.wording %></p>
+          <% if milestone.stories.any? %>
+            <ul class="landing-roadmap__stories">
+              <% milestone.stories.each do |story| %>
+                <li class="landing-roadmap__story landing-roadmap__story--<%= story.status.dasherize %>">
+                  <span class="landing-roadmap__marker" aria-hidden="true"></span>
+                  <span><%= story.wording %><span class="visually-hidden">, <%= t("landings.show.roadmap.statuses.#{story.status}") %></span></span>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </li>
+      <% end %>
+    </ol>
+  <% end %>
   <ul class="landing-legend">
     <% %w[done in_progress to_come].each do |status| %>
       <li class="landing-legend__item landing-legend__item--<%= status.dasherize %>">

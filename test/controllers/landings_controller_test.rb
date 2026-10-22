@@ -229,6 +229,50 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def seed_roadmap
+    epics = %w[alpha beta gamma delta].map { Catalog::InitiativeEpics::Epic.new(slug: it, title: it.titleize) }
+    milestones = Catalog::CreateRoadmapMilestones.new.call(epics:).value!
+    shown = milestones.first(3)
+    shown.zip(%w[done in_progress to_come]).each do |milestone, status|
+      Catalog::UpdateRoadmapMilestone.new.call(milestone:, wording_fr: "Étape #{milestone.epic_slug}", wording_en: "Step #{milestone.epic_slug}", status:, shown: true).value!
+    end
+    [ [ "a", "done", true ], [ "b", "in_progress", true ], [ "c", "to_come", true ], [ "hidden", "done", false ] ].each do |name, status, visible|
+      Catalog::CreateRoadmapStory.new.call(milestone: shown.first, wording_fr: "Récit #{name}", wording_en: "Story #{name}", status:, shown: visible).value!
+    end
+    shown
+  end
+
+  test "module 06 shows the shown milestones and their first two shown stories with their status in text" do
+    seed_roadmap
+
+    get landing_path(locale: :fr)
+
+    items = css_select("ol.landing-roadmap__line > li")
+    assert_equal [ "Fait", "En cours", "À venir" ], items.map { it.at_css(".landing-roadmap__status").text }
+    assert_equal [ "Étape alpha", "Étape beta", "Étape gamma" ], items.map { it.at_css(".landing-roadmap__name").text }
+    assert_equal [ "Récit a, Fait", "Récit b, En cours" ], items.first.css(".landing-roadmap__story").map { it.text.squish }
+    assert_select ".landing-roadmap__stories", 1
+    assert_select "ol.landing-roadmap__line[aria-label=?][data-controller=overflow-focus]", I18n.t("landings.show.roadmap.line_label", locale: :fr)
+    assert_select ".landing-legend__item", 3
+  end
+
+  test "module 06 reads in English" do
+    seed_roadmap
+
+    get landing_path(locale: :en)
+
+    assert_select ".landing-roadmap__milestone--done .landing-roadmap__name", "Step alpha"
+    assert_select ".landing-roadmap__story", text: /Story a, Done/
+    assert_select ".landing-roadmap__status", text: "To come"
+  end
+
+  test "module 06 keeps the legend and no line while no milestone is shown" do
+    get landing_path(locale: :fr)
+
+    assert_select "ol.landing-roadmap__line", 0
+    assert_select ".landing-legend__item", 3
+  end
+
   test "an older browser still reads the landing" do
     get landing_path(locale: :en), headers: { "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:60.0) Gecko/20100101 Firefox/60.0" }
 
