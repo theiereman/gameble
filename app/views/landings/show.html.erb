@@ -5,7 +5,7 @@
 <% end %>
 <% covers = landing_covers(@samples) %>
 <div class="landing">
-  <%= render "landings/hero" %>
+  <%= render "landings/hero", samples: @samples %>
   <%= render "landings/concept", samples: @samples %>
   <%= render "landings/brotherhood", covers: covers %>
   <%= render "landings/how", samples: @samples, covers: covers %>

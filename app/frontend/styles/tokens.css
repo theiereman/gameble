@@ -215,6 +215,7 @@
   --space-landing-module-gap: 112px;
   --space-landing-module-gap-phone: 64px;
   --space-landing-hero-height: 500px;
+  --space-landing-lamp-band-phone: 260px;
   --space-landing-illustration-height: 224px;
   --space-landing-illustration-height-phone: 184px;
   --space-landing-example-min-height: 176px;
@@ -253,6 +254,9 @@
   --modal-scrim: rgba(4, 7, 10, 0.72);
   --modal-width: 520px;
   --modal-width-wide: 760px;
+  --lamp-veil: rgba(5, 7, 10, 0.9);
+  --lamp-found-opacity: 0.42;
+  --lamp-reticle: 56px;
   --scanlines: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.11) 0 1px, transparent 1px 3px);
   --vignette-desktop: inset 0 0 180px 30px rgba(0, 0, 0, 0.7);
   --vignette-phone: inset 0 0 110px 16px rgba(0, 0, 0, 0.62);

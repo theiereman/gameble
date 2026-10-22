@@ -1478,6 +1478,13 @@ en:
         line: "gameble is a collectible card game built on the public library of Steam games."
         embark: "Board the bridge"
         embark_label: "Board the bridge, sign in through Steam"
+        lamp:
+          found: "Found"
+          readout: "Games found"
+          mode:
+            auto: "· Auto sweep"
+            manual: "· Manual sweep"
+            still: "· Fixed sweep"
       concept:
         label: "01 · Concept"
         title: "Every card is a Steam game."

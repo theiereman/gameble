@@ -1,0 +1,28 @@
+<% slots = landing_lamp_slots(samples) %>
+<div class="landing-hero__field landing-lamp" aria-hidden="true" data-controller="lamp-field">
+  <div class="landing-lamp__stage" data-lamp-field-target="stage">
+    <% slots.each_with_index do |slot, index| %>
+      <span class="landing-lamp__card landing-lamp__card--<%= index + 1 %> landing-lamp__card--<%= slot[:size] %>" data-lamp-field-target="card">
+        <% if slot[:view] %>
+          <%= render CardComponent.new(card: slot[:view], size: slot[:size]) %>
+        <% else %>
+          <%= landing_card_back(slot[:size] == :l ? :m : :s, class: "landing-lamp__back") %>
+        <% end %>
+        <span class="landing-lamp__marks"></span>
+        <span class="landing-lamp__tag"><%= t("landings.show.hero.lamp.found") %></span>
+      </span>
+    <% end %>
+    <span class="landing-lamp__veil" data-lamp-field-target="veil"></span>
+    <span class="landing-lamp__reticle" data-lamp-field-target="reticle"></span>
+  </div>
+  <p class="landing-lamp__readout">
+    <span class="landing-light"></span>
+    <span class="landing-lamp__label"><%= t("landings.show.hero.lamp.readout") %></span>
+    <b class="landing-lamp__count" data-lamp-field-target="count">0 / <%= slots.size %></b>
+    <span class="landing-lamp__modes">
+      <% %w[auto manual still].each do |mode| %>
+        <span class="landing-lamp__mode landing-lamp__mode--<%= mode %>"><%= t("landings.show.hero.lamp.mode.#{mode}") %></span>
+      <% end %>
+    </span>
+  </p>
+</div>

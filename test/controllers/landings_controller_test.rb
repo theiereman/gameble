@@ -128,6 +128,34 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".landing-thumb--empty"
   end
 
+  test "the hero's lamp field is hidden from assistive technology: six slots over the samples, one a back, a veil, a reticle and the readout" do
+    get landing_path(locale: :fr)
+
+    assert_response :success
+    assert_select ".landing-hero [data-controller=lamp-field][aria-hidden=true]", 1
+    assert_select "[data-controller=lamp-field] a, [data-controller=lamp-field] button, [data-controller=lamp-field] [tabindex]", 0
+    assert_select "[data-lamp-field-target=card]", 6
+    assert_select "[data-lamp-field-target=card] .card", 5
+    assert_select "[data-lamp-field-target=card] img.landing-lamp__back[alt='']", 1
+    assert_select "[data-lamp-field-target=veil]", 1
+    assert_select "[data-lamp-field-target=reticle]", 1
+    assert_select ".landing-lamp__readout", text: /Jeux retrouvés\s+0 \/ 6/
+    assert_select ".landing-lamp__tag", text: "Trouvé", count: 6
+    assert_select ".landing-lamp__mode", text: "· Balayage auto"
+    assert_select ".landing-lamp__mode", text: "· Balayage manuel"
+    assert_select ".landing-lamp__mode", text: "· Balayage fixe"
+  end
+
+  test "the hero's lamp field shows only card backs without a published season" do
+    Catalog::Season.update_all(status: "draft", published_at: nil)
+
+    get landing_path(locale: :en)
+
+    assert_select "[data-lamp-field-target=card] .card", 0
+    assert_select "[data-lamp-field-target=card] img.landing-lamp__back", 6
+    assert_select ".landing-lamp__readout", text: /Games found\s+0 \/ 6/
+  end
+
   test "a signed-in player is sent to the hub" do
     sign_in(accounts_players(:player))
 

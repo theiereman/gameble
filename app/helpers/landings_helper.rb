@@ -1,6 +1,15 @@
 module LandingsHelper
   THUMB_ART = { small: 18, large: 32 }.freeze
 
+  LAMP_SLOTS = [
+    { rarity: :rare, size: :l },
+    { rarity: :common, size: :m },
+    { rarity: :epic, size: :m },
+    { rarity: :uncommon, size: :s },
+    { rarity: nil, size: :s },
+    { rarity: :legendary, size: :s }
+  ].freeze
+
   GAUGE_SEGMENTS = 24
   RESERVE_CELLS = 10
 
@@ -12,6 +21,10 @@ module LandingsHelper
         tag.span(t("landings.show.#{key}.title"), class: "landing-module__title")
       ])
     end
+  end
+
+  def landing_lamp_slots(samples)
+    LAMP_SLOTS.map { |slot| slot.merge(view: slot[:rarity] && samples[slot[:rarity]]) }
   end
 
   def landing_covers(samples)

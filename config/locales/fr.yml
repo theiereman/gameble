@@ -1523,6 +1523,13 @@ fr:
         line: "gameble est un jeu de cartes à collectionner basé sur la bibliothèque publique de jeux Steam."
         embark: "Embarquer sur le pont"
         embark_label: "Embarquer sur le pont, se connecter avec Steam"
+        lamp:
+          found: "Trouvé"
+          readout: "Jeux retrouvés"
+          mode:
+            auto: "· Balayage auto"
+            manual: "· Balayage manuel"
+            still: "· Balayage fixe"
       concept:
         label: "01 · Concept"
         title: "Chaque carte est un jeu Steam."
