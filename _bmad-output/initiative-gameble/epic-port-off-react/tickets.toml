@@ -1,0 +1,58 @@
+# tickets.toml — the epic's agreed children, in build order. tickets.py reads it.
+
+[[entry]]
+id = 1
+type = "story"
+title = "The trade board in Stimulus"
+description = "Ports the trade board to a `trade-board` root controller and its child controllers over a module in `app/frontend/lib`, folds the existing `trade-board`, `trade-send` and `trade-swap` controllers into that anatomy, renders its copy per AD-18 under `trade_board.strings`, adds the shared helper that places server HTML from a JSON answer into a `<template>` (used here by the faces batch, then by the booster), tested in Vitest under happy-dom set for that test file alone (a devDependency and a Stack row), with the CI step, in `config/ci.rb` and `.github/workflows/ci.yml`, that fails on markup-building APIs outside it, moves the draft's storage behind a module, and removes `TradeBoard`, `TradePicker`, `QuantityStepper` and the `trade-changed` and `trade-editing` events; its module, controllers, outlets and strings scope set the conventions the booster follows."
+verify = "`test/system/trades_test.rb` passes unchanged but for renamed locale scopes, Vitest covers every transition of the trade board's module and the helper, and the CI step fails on a planted `innerHTML`."
+covers = ["R1", "R4", "R5", "R6"]
+after = ["16.1"]
+hitl = false
+risk = "medium"
+unknown = "Whether the board and its picker fit one session; if not, it is split on a branch merged once, never React and Stimulus side by side on develop."
+
+[[entry]]
+id = 2
+type = "story"
+title = "The booster's state leaves React"
+description = "Moves the booster's state and transitions (opening, reveal, store, layout, celebration, bank refresh, navigation lock) out of `Booster.tsx` into the DOM-free `app/frontend/lib/booster.ts`, shaped like the trade board's module from entry 1, leaving React a thin view that drives it so that the next entry replaces only the view, and adds the system tests the swap needs as its net (the desktop celebration) while React still draws."
+verify = "`test/system/booster_test.rb` passes unchanged with the added tests, and Vitest covers every transition of `lib/booster.ts`."
+covers = ["R2", "R6"]
+after = [1]
+hitl = false
+risk = "medium"
+
+[[entry]]
+id = 3
+type = "story"
+title = "The booster in Stimulus"
+description = "Replaces the booster island in one change with a server-rendered tree holding its three layouts and each card's faces per size as `<template>`s, its copy per AD-18 under `booster.strings`, a `booster` root controller driving `lib/booster.ts` and child controllers per region, using the trade board's conventions and the shared HTML helper from entry 1, then deletes the island's components."
+verify = "`test/system/booster_test.rb` passes unchanged except renamed locale scopes and its code-loading failure test, replaced by the no-JavaScript form test, and Vitest still covers every transition of `lib/booster.ts`."
+covers = ["R3", "R4", "R5", "R6"]
+after = [1, 2]
+hitl = false
+risk = "high"
+unknown = "Whether the whole view swap fits one session; if not, it is split on a branch merged once, never React and Stimulus side by side on develop."
+
+[[entry]]
+id = 4
+type = "story"
+title = "React leaves the toolchain"
+description = "Removes every React and Turbo Mount package, plugin, tag, compiler option and Stack row that AD-31 lists, and tightens the development script policy if nothing else needs it."
+verify = "`bin/ci`, `npm run test:js` and `bin/rails zeitwerk:check` pass, and no lockfile names react, react-dom, `@types/react`, turbo-mount or `@vitejs/plugin-react`."
+covers = ["R7"]
+after = [3]
+hitl = false
+risk = "low"
+
+[[entry]]
+id = 5
+type = "story"
+title = "Refactor sweep"
+description = "Cleans up what the epic's build records and deferred review findings name, scoped when it starts; cleanup only."
+verify = "The full suite, `npm run test:js` and the two screens' system tests pass."
+covers = []
+after = [1, 2, 3, 4]
+hitl = false
+risk = "low"

@@ -67,3 +67,4 @@ The pack reserve in `packs/game`, the hub's pack counters and the top bar's pack
 - Waits on epic 12 because: built after the public release.
 - Waits on epic 13 because: 13.5 and 13.15 change the booster island and the counts it reads.
 - Waits on epic 17 because: 17.1 changes the opening operation entry 3 changes too.
+- Waits on epic 21 because: 21.3 replaces the booster island that entries 3 to 5 change; until it lands the booster takes bug fixes only (architecture AD-31).
