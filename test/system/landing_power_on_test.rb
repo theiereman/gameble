@@ -64,7 +64,10 @@ class LandingPowerOnTest < ApplicationSystemTestCase
     %w[fontFamily fontWeight textTransform letterSpacing].each do |property|
       assert_equal style.call("span:first-child", property), style.call(".landing-side-gauge__name", property)
     end
-    assert_match(/radial-gradient/, style.call(".landing-side-gauge__name", "backgroundImage"))
+    assert_match(/blur\(/, style.call(".landing-side-gauge__name", "backdropFilter"))
+    assert_match(/linear-gradient/, style.call(".landing-side-gauge__name", "maskImage"))
+    assert_equal "rgb(102, 192, 244)", style.call(".landing-side-gauge__name", "color")
+    assert_equal "none", style.call(".landing-side-gauge__name", "textShadow")
     assert_equal "none", style.call(".landing-side-gauge__name", "borderStyle")
 
     find("nav a[aria-label='03 · How it works']").hover
