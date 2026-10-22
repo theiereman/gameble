@@ -1518,8 +1518,11 @@ fr:
     show:
       title: "gameble"
       unknown: "—"
+      gauge:
+        label: "Position sur la page"
       hero:
         kicker: "Mission en cours"
+        marker: "00 · Mission"
         hook: "Des jeux ont été perdus. La Confrérie part les retrouver. Rejoignez-la."
         line: "gameble est un jeu de cartes à collectionner basé sur la bibliothèque publique de jeux Steam."
         embark: "Embarquer sur le pont"

@@ -1473,8 +1473,11 @@ en:
     show:
       title: "gameble"
       unknown: "—"
+      gauge:
+        label: "Position on the page"
       hero:
         kicker: "Mission in progress"
+        marker: "00 · Mission"
         hook: "Games have been lost. The Brotherhood sets out to find them. Join it."
         line: "gameble is a collectible card game built on the public library of Steam games."
         embark: "Board the bridge"

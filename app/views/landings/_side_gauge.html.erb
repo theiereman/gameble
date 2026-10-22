@@ -1,0 +1,15 @@
+<nav class="landing-side-gauge" aria-label="<%= t("landings.show.gauge.label") %>" data-controller="side-gauge">
+  <ol class="landing-side-gauge__markers">
+    <% landing_gauge_markers.each do |marker| %>
+      <li>
+        <%= link_to "##{marker[:target]}", class: "landing-side-gauge__marker", aria: { label: marker[:label] },
+              data: { side_gauge_target: "marker", action: "side-gauge#go" } do %>
+          <span aria-hidden="true"><%= marker[:number] %></span>
+        <% end %>
+      </li>
+    <% end %>
+  </ol>
+  <span class="landing-side-gauge__track" aria-hidden="true">
+    <% LandingsHelper::GAUGE_SEGMENTS.times do %><i class="landing-side-gauge__segment" data-side-gauge-target="segment"></i><% end %>
+  </span>
+</nav>

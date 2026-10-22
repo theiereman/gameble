@@ -10,6 +10,7 @@ module LandingsHelper
     { rarity: :legendary, size: :s }
   ].freeze
 
+  MODULE_KEYS = %i[concept brotherhood how live unlock roadmap open_source free boarding].freeze
   GAUGE_SEGMENTS = 24
   RESERVE_CELLS = 10
 
@@ -20,6 +21,13 @@ module LandingsHelper
         tag.span(", ", class: "visually-hidden"),
         tag.span(t("landings.show.#{key}.title"), class: "landing-module__title")
       ])
+    end
+  end
+
+  def landing_gauge_markers
+    markers = [ { number: "00", target: "landing-hero", label: t("landings.show.hero.marker") } ]
+    markers + MODULE_KEYS.each_with_index.map do |key, index|
+      { number: format("%02d", index + 1), target: "landing-#{key.to_s.dasherize}", label: t("landings.show.#{key}.label") }
     end
   end
 

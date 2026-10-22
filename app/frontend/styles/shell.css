@@ -128,7 +128,12 @@ turbo-cable-stream-source {
 
 /* A still field: it does not move at a screen change (EXPERIENCE.md). */
 .atmosphere__stars {
+  bottom: calc(-1 * var(--starfield-tile));
   background: url("../images/pixel/starfield.svg") repeat;
+}
+
+body:has(.landing) .atmosphere__stars {
+  transform: translate3d(0, calc(-1 * mod(var(--landing-drift-near, 0px), var(--starfield-tile))), 0);
 }
 
 /* A dozen stars twinkle softly: a slow stepped fade, periods of 3 s or more
@@ -136,6 +141,10 @@ turbo-cable-stream-source {
 .atmosphere__twinkle {
   position: absolute;
   inset: 0;
+}
+
+body:has(.landing) .atmosphere__twinkle {
+  transform: translate3d(0, calc(-1 * mod(var(--landing-drift-far, 0px), var(--starfield-tile))), 0);
 }
 
 .atmosphere__twinkle > i {

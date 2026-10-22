@@ -21,6 +21,7 @@
     <main id="main" class="main">
       <%= yield %>
     </main>
+    <%= yield :page_aside if content_for?(:page_aside) %>
     <%= yield :page_footer if content_for?(:page_footer) %>
     <%= yield :ticker if content_for?(:ticker) %>
 

@@ -278,4 +278,28 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
   end
+
+  test "the side gauge is a named nav after main with ten links to existing headings" do
+    { en: "Position on the page", fr: "Position sur la page" }.each do |locale, name|
+      get landing_path(locale:)
+
+      assert_select "main + nav[aria-label=?][data-controller=side-gauge]", name
+      links = css_select("nav[data-controller=side-gauge] a")
+      assert_equal 10, links.size
+      links.each { |link| assert_select "##{link['href'].delete_prefix('#')}", 1 }
+      assert_equal "00 · Mission", links.first["aria-label"]
+      assert_equal I18n.t("landings.show.concept.label", locale:), links[1]["aria-label"]
+      assert_select "nav[data-controller=side-gauge] .landing-side-gauge__track[aria-hidden=true] i", LandingsHelper::GAUGE_SEGMENTS
+      assert_select "[aria-current]", 0
+    end
+  end
+
+  test "the hero heading is the gauge's first target and the landing powers its modules on" do
+    get landing_path(locale: :en)
+
+    assert_select "h1#landing-hero[tabindex='-1']", 1
+    assert_select ".landing[data-controller=power-on]", 1
+    assert_select ".landing-module[data-power]", 0
+    assert_select "[style]", 0
+  end
 end

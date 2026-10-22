@@ -200,6 +200,7 @@
   --space-breakpoint-three-columns: 1180px;
   --space-breakpoint-booster-stacked: 1260px;
   --space-breakpoint-narrow: 900px;
+  --space-breakpoint-landing-gauge: 1440px;
   --space-phone-column-max: 480px;
   --space-page-padding-wide: 32px 32px 40px;
   --space-page-padding-medium: 24px var(--space-gutter-medium) 32px;
@@ -248,6 +249,7 @@
   --hazard-stripe-band: 8px;
   --gauge-segment-height: 12px;
   --gauge-gap: 2px;
+  --starfield-tile: 480px;
   --reserve-pips-count: 10;
   --reserve-pips-height: 10px;
   --button-inset: inset 0 -4px 0 0 rgba(0, 0, 0, 0.35);

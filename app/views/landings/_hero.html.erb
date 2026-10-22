@@ -4,7 +4,7 @@
       <span class="landing-light" aria-hidden="true"></span>
       <span><%= t("landings.show.hero.kicker") %></span>
     </p>
-    <h1 class="landing-hero__hook" tabindex="-1"><%= t("landings.show.hero.hook") %></h1>
+    <h1 id="landing-hero" class="landing-hero__hook" tabindex="-1"><%= t("landings.show.hero.hook") %></h1>
     <p class="landing-hero__line"><%= t("landings.show.hero.line") %></p>
     <div class="landing-hero__action">
       <%= steam_sign_in_button t("landings.show.hero.embark"), origin: request.path,

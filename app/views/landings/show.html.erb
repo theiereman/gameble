@@ -3,8 +3,11 @@
 <% content_for :page_footer do %>
   <%= render "landings/footer" %>
 <% end %>
+<% content_for :page_aside do %>
+  <%= render "landings/side_gauge" %>
+<% end %>
 <% covers = landing_covers(@samples) %>
-<div class="landing">
+<div class="landing" data-controller="power-on">
   <%= render "landings/hero", samples: @samples %>
   <%= render "landings/concept", samples: @samples %>
   <%= render "landings/brotherhood", covers: covers %>

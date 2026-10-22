@@ -13,20 +13,27 @@ class LandingRoadmapTest < ApplicationSystemTestCase
     end
   end
 
+  def visit_roadmap(locale)
+    visit landing_path(locale:)
+    page.execute_script("document.getElementById('landing-roadmap').scrollIntoView()")
+  end
+
   def row_scroll_left = find(".landing-roadmap__line").evaluate_script("this.scrollLeft")
 
   test "on a desktop, the six milestones sit in one row and the row is no tab stop" do
-    visit landing_path(locale: :en)
+    visit_roadmap(:en)
 
     assert_selector ".landing-roadmap__milestone", count: 6
-    tops = all(".landing-roadmap__milestone").map { it.evaluate_script("this.getBoundingClientRect().top") }
-    assert_equal 1, tops.uniq.size
+    page.document.synchronize do
+      tops = all(".landing-roadmap__milestone").map { it.evaluate_script("this.getBoundingClientRect().top") }
+      raise Capybara::ExpectationNotMet, "the milestones are not in one row" unless tops.uniq.size == 1
+    end
     assert_no_selector ".landing-roadmap__line[tabindex]"
   end
 
   test "on a phone, the row is one tab stop that scrolls with the arrow keys" do
     resize_to(*PHONE)
-    visit landing_path(locale: :fr)
+    visit_roadmap(:fr)
 
     assert_selector ".landing-roadmap__line[tabindex='0']"
     assert_equal 0, row_scroll_left
