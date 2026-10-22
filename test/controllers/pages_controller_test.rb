@@ -370,7 +370,7 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     get landing_path(locale: :en)
 
     forms = css_select("form[action='/auth/steam']")
-    assert_equal 4, forms.size, "the top bar's and the boarding's official images, the hero's and the boarding's Embark"
+    assert_equal 3, forms.size, "the top bar's and the boarding's official images, the hero's Embark"
     assert(forms.all? { it["method"] == "post" && it["data-turbo"] == "false" && it.at_css("input[name=origin]")["value"] == "/en/landing" })
     assert_equal 2, forms.count { it.classes.include?("steam-sign-in") && it.at_css("button.steam-sign-in__button img[src*='sits_01']") }
     assert_select "a[href*='/auth/steam']", false

@@ -10,8 +10,6 @@
     </div>
     <div class="landing-boarding__actions">
       <%= render SteamSignInComponent.new(origin: request.path) %>
-      <%= steam_sign_in_button t("landings.show.hero.embark"), origin: request.path,
-            class: "button button--link landing-boarding__embark", aria_label: t("landings.show.hero.embark_label") %>
       <%= render "shell/sign_in_acceptance" %>
     </div>
   <% end %>

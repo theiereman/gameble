@@ -206,18 +206,19 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     Catalog::CardSeason.pluck(:id).each { |id| assert_no_match(/\b(card[-_]?season|id)[^>]*\b#{id}\b/, response.body) }
   end
 
-  test "the Steam image twice, the two boardings signing in with their full name, the external links naming where they lead" do
+  test "the Steam image twice, the hero boarding signing in with its full name, the external links naming where they lead" do
     get landing_path(locale: :fr)
 
     assert_select "header form.steam-sign-in[action='/auth/steam'] input[name=origin][value='/fr/landing']"
     assert_select "main form.steam-sign-in[action='/auth/steam'] input[name=origin][value='/fr/landing']"
     boardings = css_select("main form.button-form[action='/auth/steam'][method=post][data-turbo=false]")
-    assert_equal 2, boardings.size
+    assert_equal 1, boardings.size
     assert(boardings.all? { it.at_css("input[name=origin]")["value"] == "/fr/landing" })
     buttons = boardings.map { it.at_css("button[type=submit]") }
     assert(buttons.all? { it.text.squish == "Embarquer sur le pont" && it["aria-label"] == "Embarquer sur le pont, se connecter avec Steam" })
-    assert_equal [ "landing-hero__embark", "landing-boarding__embark" ], buttons.map { it["class"].split.last }
+    assert_equal [ "landing-hero__embark" ], buttons.map { it["class"].split.last }
     assert_equal 1, buttons.count { it["class"].include?("button--primary") }
+    assert_select ".landing-boarding__actions form.button-form", false
     assert_select "main a[href='/fr']", false
     [ ".landing-hero__action", ".landing-boarding__actions" ].each do |actions|
       assert_select "#{actions} p.sign-in-acceptance",
