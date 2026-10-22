@@ -260,7 +260,6 @@
   --modal-scrim: rgba(4, 7, 10, 0.72);
   --modal-width: 520px;
   --modal-width-wide: 760px;
-  --lamp-veil: rgba(5, 7, 10, 0.9);
   --lamp-found-opacity: 0.42;
   --lamp-reticle: 56px;
   --scanlines: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.11) 0 1px, transparent 1px 3px);

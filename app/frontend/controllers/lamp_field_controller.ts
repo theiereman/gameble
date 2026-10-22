@@ -158,16 +158,15 @@ export default class extends Controller<HTMLElement> {
 
   private draw(now: number, dt: number): LampFrame | undefined {
     if (!this.lamp) return undefined
-    const stage = this.stageTarget.getBoundingClientRect()
     const held = pointerHeld({ inside: this.pointerLastInside !== null, movedAt: this.pointerMovedAt, now })
     const pointer = this.pointerLastInside
     const frame = this.lamp.advance({ now, dt, pointer, pointerHeld: held })
-    this.render(frame, stage)
+    this.render(frame)
     return frame
   }
 
-  private render(frame: LampFrame, stage: DOMRect): void {
-    this.veilTarget.style.transform = `translate3d(${frame.x - stage.width / 2}px, ${frame.y - stage.height / 2}px, 0)`
+  private render(frame: LampFrame): void {
+    this.veilTarget.style.transform = `translate3d(${frame.x}px, ${frame.y}px, 0)`
     this.reticleTarget.style.transform = `translate3d(${frame.x}px, ${frame.y}px, 0)`
     this.renderChanges(frame)
   }

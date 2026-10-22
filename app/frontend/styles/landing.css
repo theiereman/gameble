@@ -383,12 +383,10 @@ html[data-motion="reduced"] .landing-hero__copy > * {
   --lamp-radius-2: 0px;
   --lamp-radius-3: 0px;
   --lamp-fit: 1;
-  --lamp-bleed: var(--space-6);
   --lamp-glow-near: color-mix(in srgb, var(--color-accent) 7%, transparent);
   --lamp-glow-mid: color-mix(in srgb, var(--color-accent) 4.5%, transparent);
   --lamp-glow-far: color-mix(in srgb, var(--color-accent) 2%, transparent);
-  --lamp-veil-mid: color-mix(in srgb, var(--lamp-veil) 42%, transparent);
-  --lamp-veil-far: color-mix(in srgb, var(--lamp-veil) 74%, transparent);
+  --lamp-unfound-opacity: 0.1;
   display: flex;
   flex-direction: column;
   pointer-events: none;
@@ -398,26 +396,7 @@ html[data-motion="reduced"] .landing-hero__copy > * {
   position: relative;
   flex: 1;
   min-height: 0;
-  overflow: clip;
-  overflow-clip-margin: var(--lamp-bleed);
   isolation: isolate;
-  mask-image:
-    linear-gradient(to right, transparent, #000 calc(var(--lamp-bleed) * 2), #000 calc(100% - var(--lamp-bleed) * 2), transparent),
-    linear-gradient(to bottom, transparent, #000 calc(var(--lamp-bleed) * 2), #000 calc(100% - var(--lamp-bleed) * 2), transparent);
-  mask-composite: intersect;
-  mask-repeat: no-repeat;
-  mask-position: center;
-  mask-size: calc(100% + var(--lamp-bleed) * 2) calc(100% + var(--lamp-bleed) * 2);
-  mask-clip: no-clip;
-}
-
-.landing-lamp__stage::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  z-index: 5;
-  height: 18%;
-  background: linear-gradient(to bottom, transparent, var(--color-ground));
 }
 
 .landing-lamp__card {
@@ -427,6 +406,7 @@ html[data-motion="reduced"] .landing-hero__copy > * {
   translate: -50% -50%;
   rotate: var(--lamp-tilt, 0deg);
   scale: calc(var(--lamp-fit) * var(--lamp-size, 1));
+  opacity: var(--lamp-unfound-opacity);
   transition: opacity 240ms steps(3);
 }
 
@@ -522,15 +502,14 @@ html[data-motion="reduced"] .landing-hero__copy > * {
 
 .landing-lamp__veil {
   position: absolute;
-  top: -100%;
-  left: -100%;
+  top: 0;
+  left: 0;
   z-index: 2;
-  width: 300%;
-  height: 300%;
+  width: calc(var(--lamp-radius-3) * 2);
+  height: calc(var(--lamp-radius-3) * 2);
+  margin: calc(var(--lamp-radius-3) * -1) 0 0 calc(var(--lamp-radius-3) * -1);
   will-change: transform;
-  background:
-    radial-gradient(circle at 50% 50%, var(--lamp-glow-near) 0 var(--lamp-radius-1), var(--lamp-glow-mid) var(--lamp-radius-1) var(--lamp-radius-2), var(--lamp-glow-far) var(--lamp-radius-2) var(--lamp-radius-3), transparent var(--lamp-radius-3)),
-    radial-gradient(circle at 50% 50%, transparent 0 var(--lamp-radius-1), var(--lamp-veil-mid) var(--lamp-radius-1) var(--lamp-radius-2), var(--lamp-veil-far) var(--lamp-radius-2) var(--lamp-radius-3), var(--lamp-veil) var(--lamp-radius-3));
+  background: radial-gradient(circle at 50% 50%, var(--lamp-glow-near) 0 var(--lamp-radius-1), var(--lamp-glow-mid) var(--lamp-radius-1) var(--lamp-radius-2), var(--lamp-glow-far) var(--lamp-radius-2) var(--lamp-radius-3), transparent var(--lamp-radius-3));
 }
 
 .landing-lamp__reticle {
