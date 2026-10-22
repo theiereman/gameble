@@ -1,6 +1,6 @@
 ---
 id: 9
-tracker_status: review
+tracker_status: done
 tracker_id: 201
 remote: https://github.com/theiereman/gameble/issues/201
 type: bug
