@@ -1,6 +1,6 @@
 ---
 id: 11
-tracker_status: backlog
+tracker_status: review
 tracker_id: 223
 remote: https://github.com/theiereman/gameble/issues/223
 type: bug
