@@ -237,10 +237,17 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail", false
     assert_select ".card-detail__copies", false
     assert_select ".top-bar__start > a.button--secondary", false
-    assert_select ".top-bar__brand[data-controller=wordmark-shine] svg.top-bar__wordmark g.wordmark-sweep__frames"
+    assert_select "a.top-bar__brand[href=?][data-controller=wordmark-shine] svg.top-bar__wordmark g.wordmark-sweep__frames", "/en"
     assert_select "nav.tab-bar", false
     assert_select "body.is-public-page"
     assert_select ".top-bar__end form.steam-sign-in"
+  end
+
+  test "the public card page's only way into the game is the Steam sign-in: its only link to the landing is the wordmark" do
+    get card_path(locale: :en, slug: "portal")
+
+    assert_select ".public-card a[href=?]", "/en", false
+    assert_select ".public-card__pitch form"
   end
 
   test "the card's own page browses its first set, themes first: ◀ ▶ carry that set, the position line, the phone's way back to its grid" do

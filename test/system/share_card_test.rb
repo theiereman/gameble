@@ -124,6 +124,15 @@ class ShareCardTest < ApplicationSystemTestCase
     assert_selector ".hub__title", text: "COMMAND BRIDGE"
   end
 
+  test "a visitor follows the public card page's wordmark to the landing" do
+    visit card_path(locale: :en, slug: "portal")
+
+    find("a.top-bar__brand").click
+
+    assert_current_path "/en"
+    assert_selector ".landing"
+  end
+
   test "a visitor follows the public card page's footer link to the legal page" do
     visit card_path(locale: :en, slug: "portal")
 
