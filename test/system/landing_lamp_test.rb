@@ -5,10 +5,6 @@ class LandingLampTest < ApplicationSystemTestCase
   FOUND = ".landing-lamp__card.is-found".freeze
   COUNT = ".landing-lamp__count".freeze
 
-  def veil_transform
-    page.evaluate_script("document.querySelector('.landing-lamp__veil').style.transform")
-  end
-
   def move_mouse_to(element, x = nil, y = nil)
     action = page.driver.browser.action
     x ? action.move_to(element.native, x, y).perform : action.move_to(element.native).perform
@@ -44,19 +40,17 @@ class LandingLampTest < ApplicationSystemTestCase
     assert_selector "[data-lamp-mode=auto]", wait: 6
   end
 
-  test "under reduced motion the lamp rests on the first card with two found and jumps to the mouse" do
+  test "under reduced motion every card shows face up, with no lamp and no veil" do
     visit landing_path(locale: :en)
     page.execute_script("document.documentElement.dataset.motion = 'reduced'")
 
     assert_selector "[data-lamp-mode=still]"
-    assert_selector FOUND, count: 2
-    assert_selector COUNT, text: "2 / 6"
-    resting = veil_transform
-
-    move_mouse_to(find(".landing-lamp__card--3"))
-    assert_selector ".landing-lamp__card--3.is-found.is-lit"
-    assert_selector COUNT, text: "3 / 6"
-    assert_not_equal resting, veil_transform
+    assert_selector FOUND, count: 6
+    assert_selector COUNT, text: "6 / 6"
+    assert_selector ".landing-lamp__mode--still", text: "All revealed"
+    assert_no_selector ".landing-lamp__veil", visible: :visible
+    assert_no_selector ".landing-lamp__reticle", visible: :visible
+    assert_no_selector "[data-lamp-lit]"
   end
 
   test "on a phone the lamp sweeps in its own band with five cards" do

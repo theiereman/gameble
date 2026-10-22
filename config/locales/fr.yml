@@ -1550,7 +1550,7 @@ fr:
           mode:
             auto: "· Balayage auto"
             manual: "· Balayage manuel"
-            still: "· Balayage fixe"
+            still: "· Toutes révélées"
       concept:
         label: "01 · Concept"
         title: "Chaque carte est un jeu Steam."

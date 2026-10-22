@@ -13,7 +13,7 @@ export interface LampCard extends Point {
 }
 
 export type Radii = readonly [number, number, number]
-export type LampMode = "auto" | "manual" | "still"
+export type LampMode = "auto" | "manual"
 
 export const RADII_DESKTOP: Radii = [70, 96, 124]
 export const RADII_PHONE: Radii = [50, 70, 90]
@@ -27,7 +27,6 @@ export const FOLLOW_RATE = 12
 export const SWEEP_RATE = 1.6
 export const FOUND_REACH = 0.4
 export const SETTLED_DISTANCE = 0.5
-export const REDUCED_START_FOUND = 2
 
 const clamp = (value: number, low: number, high: number): number => Math.max(low, Math.min(high, value))
 
@@ -52,8 +51,7 @@ export function wanderPoint(area: Size, seconds: number): Point {
   }
 }
 
-export function lampMode(input: { reduced: boolean; pointerHeld: boolean }): LampMode {
-  if (input.reduced) return "still"
+export function lampMode(input: { pointerHeld: boolean }): LampMode {
   return input.pointerHeld ? "manual" : "auto"
 }
 
@@ -64,7 +62,6 @@ export function pointerHeld(input: { inside: boolean; movedAt: number; now: numb
 export interface LampInput {
   now: number
   dt: number
-  reduced: boolean
   pointer: Point | null
   pointerHeld: boolean
 }
@@ -91,8 +88,8 @@ export class Lamp {
   private lastFound = -1
 
   constructor(
-    private readonly cards: readonly LampCard[],
-    private readonly area: Size,
+    private cards: readonly LampCard[],
+    private area: Size,
     private readonly radii: Radii,
     private readonly startedAt: number
   ) {
@@ -100,10 +97,18 @@ export class Lamp {
     this.rest()
   }
 
-  startReduced(): void {
-    this.found = this.cards.map((_, index) => index < REDUCED_START_FOUND)
-    this.lastFound = Math.min(REDUCED_START_FOUND, this.cards.length) - 1
-    this.rest()
+  remeasure(cards: readonly LampCard[], area: Size): void {
+    const sameCards = cards.length === this.cards.length
+    this.x = this.area.width > 0 ? (this.x * area.width) / this.area.width : area.width / 2
+    this.y = this.area.height > 0 ? (this.y * area.height) / this.area.height : area.height / 2
+    this.cards = cards
+    this.area = area
+    if (!sameCards) {
+      this.found = cards.map(() => false)
+      this.aim = -1
+      this.lastFound = -1
+      this.rest()
+    }
   }
 
   progress(): boolean[] {
@@ -117,12 +122,11 @@ export class Lamp {
   }
 
   advance(input: LampInput): LampFrame {
-    const power = input.reduced ? 1 : powerAt(input.now - this.startedAt)
-    const mode = lampMode({ reduced: input.reduced, pointerHeld: input.pointerHeld })
+    const power = powerAt(input.now - this.startedAt)
+    const mode = lampMode({ pointerHeld: input.pointerHeld })
     const radii = scaleRadii(this.radii, power)
 
-    if (mode === "still") this.placeStill(input.pointer)
-    else this.travel(input, mode, power)
+    this.travel(input, mode, power)
 
     const here = { x: this.x, y: this.y }
     const lit = this.cards.map((card) => power > 0 && distance(here, card) < radii[1] + card.radius)
@@ -148,15 +152,6 @@ export class Lamp {
     const first = this.cards[0]
     this.x = first ? first.x : this.area.width / 2
     this.y = first ? first.y : this.area.height / 2
-  }
-
-  private placeStill(pointer: Point | null): void {
-    if (pointer) {
-      this.x = pointer.x
-      this.y = pointer.y
-    } else {
-      this.rest()
-    }
   }
 
   private travel(input: LampInput, mode: LampMode, power: number): void {

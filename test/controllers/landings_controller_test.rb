@@ -145,7 +145,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".landing-lamp__tag", text: "Trouvé", count: 6
     assert_select ".landing-lamp__mode", text: "· Balayage auto"
     assert_select ".landing-lamp__mode", text: "· Balayage manuel"
-    assert_select ".landing-lamp__mode", text: "· Balayage fixe"
+    assert_select ".landing-lamp__mode", text: "· Toutes révélées"
   end
 
   test "the hero's lamp field shows only card backs without a published season" do

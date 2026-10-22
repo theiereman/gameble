@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { Lamp, type LampCard, type LampFrame, type Point, pointerHeld, RADII_DESKTOP, RADII_PHONE } from "../lib/lamp"
+import { Lamp, type LampCard, type LampFrame, type Point, pointerHeld, RADII_DESKTOP, RADII_PHONE, type Size } from "../lib/lamp"
 import { motionReduced, onMotionChange } from "../lib/motion"
 
 const PHONE_QUERY = "(max-width: 719px)"
@@ -21,9 +21,9 @@ export default class extends Controller<HTMLElement> {
   private lastTime = 0
   private inView = false
   private reduced = false
+  private phone = false
   private pointerInside: Point | null = null
   private pointerLastInside: Point | null = null
-  private startedAt = 0
   private pointerMovedAt = -Infinity
   private shown = { power: -1, mode: "", found: [] as boolean[], lit: [] as boolean[], count: "" }
   private stopMotionWatch?: () => void
@@ -32,7 +32,7 @@ export default class extends Controller<HTMLElement> {
 
   connect(): void {
     this.stopMotionWatch = onMotionChange(() => this.restart())
-    this.resizeObserver = new ResizeObserver(() => this.restart(true))
+    this.resizeObserver = new ResizeObserver(() => this.remeasure())
     this.resizeObserver.observe(this.stageTarget)
     this.intersectionObserver = new IntersectionObserver((entries) => {
       this.inView = entries.some((entry) => entry.isIntersecting)
@@ -60,7 +60,7 @@ export default class extends Controller<HTMLElement> {
   }
 
   private readonly pointerMoved = (event: PointerEvent): void => {
-    if (event.pointerType === "touch" || !this.lamp) return
+    if (event.pointerType === "touch" || this.reduced || !this.lamp) return
     const stage = this.stageTarget.getBoundingClientRect()
     const x = event.clientX - stage.left
     const y = event.clientY - stage.top
@@ -82,29 +82,43 @@ export default class extends Controller<HTMLElement> {
 
   private wake(): void {
     if (!this.inView || document.hidden) return
-    if (this.reduced) this.draw(performance.now(), 0)
-    else this.start()
+    if (!this.reduced) this.start()
   }
 
-  private restart(keepProgress = false): void {
+  private restart(): void {
     this.stop()
-    const found = keepProgress && this.reduced === motionReduced() ? this.lamp?.progress() : undefined
     this.reduced = motionReduced()
-    this.lamp = this.buildLamp(found ? this.startedAt : performance.now())
-    if (found) this.lamp.keepFound(found)
     this.shown = { power: -1, mode: "", found: [], lit: [], count: "" }
     if (this.reduced) {
-      this.lamp.startReduced()
-      this.draw(performance.now(), 0)
+      this.lamp = undefined
+      this.revealAll()
+      return
     }
+    this.lamp = this.buildLamp(performance.now())
     this.sync()
   }
 
-  private buildLamp(startedAt: number): Lamp {
+  private remeasure(): void {
+    if (!this.lamp || this.reduced || this.phone !== window.matchMedia(PHONE_QUERY).matches) {
+      this.restart()
+      return
+    }
+    const { cards, area } = this.measure()
+    this.lamp.remeasure(cards, area)
+  }
+
+  private revealAll(): void {
+    this.element.removeAttribute("data-lamp-lit")
+    this.element.dataset.lampMode = "still"
+    this.cardTargets.forEach((slot) => this.markCard(slot, true, false))
+    const visible = this.cardTargets.filter((slot) => slot.getBoundingClientRect().width > 0).length
+    this.countTarget.textContent = `${visible} / ${visible}`
+  }
+
+  private measure(): { cards: LampCard[]; area: Size } {
     const stage = this.stageTarget.getBoundingClientRect()
     this.slots = this.cardTargets.filter((slot) => slot.getBoundingClientRect().width > 0)
-    this.cardTargets.forEach((slot) => this.markCard(slot, false, false))
-    const cards: LampCard[] = this.slots.map((slot) => {
+    const cards = this.slots.map((slot) => {
       const rect = slot.getBoundingClientRect()
       return {
         x: rect.left - stage.left + rect.width / 2,
@@ -112,9 +126,15 @@ export default class extends Controller<HTMLElement> {
         radius: Math.min(rect.width, rect.height) * CARD_RADIUS_SHARE
       }
     })
-    const radii = window.matchMedia(PHONE_QUERY).matches ? RADII_PHONE : RADII_DESKTOP
-    this.startedAt = startedAt
-    return new Lamp(cards, { width: stage.width, height: stage.height }, radii, startedAt)
+    return { cards, area: { width: stage.width, height: stage.height } }
+  }
+
+  private buildLamp(startedAt: number): Lamp {
+    this.cardTargets.forEach((slot) => this.markCard(slot, false, false))
+    const { cards, area } = this.measure()
+    this.phone = window.matchMedia(PHONE_QUERY).matches
+    const radii = this.phone ? RADII_PHONE : RADII_DESKTOP
+    return new Lamp(cards, area, radii, startedAt)
   }
 
   private start(): void {
@@ -140,8 +160,8 @@ export default class extends Controller<HTMLElement> {
     if (!this.lamp) return undefined
     const stage = this.stageTarget.getBoundingClientRect()
     const held = pointerHeld({ inside: this.pointerLastInside !== null, movedAt: this.pointerMovedAt, now })
-    const pointer = this.reduced ? this.pointerInside : this.pointerLastInside
-    const frame = this.lamp.advance({ now, dt, reduced: this.reduced, pointer, pointerHeld: held })
+    const pointer = this.pointerLastInside
+    const frame = this.lamp.advance({ now, dt, pointer, pointerHeld: held })
     this.render(frame, stage)
     return frame
   }

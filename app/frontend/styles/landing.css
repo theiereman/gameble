@@ -383,6 +383,7 @@ html[data-motion="reduced"] .landing-hero__copy > * {
   --lamp-radius-2: 0px;
   --lamp-radius-3: 0px;
   --lamp-fit: 1;
+  --lamp-bleed: var(--space-6);
   --lamp-glow-near: color-mix(in srgb, var(--color-accent) 7%, transparent);
   --lamp-glow-mid: color-mix(in srgb, var(--color-accent) 4.5%, transparent);
   --lamp-glow-far: color-mix(in srgb, var(--color-accent) 2%, transparent);
@@ -397,8 +398,17 @@ html[data-motion="reduced"] .landing-hero__copy > * {
   position: relative;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: var(--lamp-bleed);
   isolation: isolate;
+  mask-image:
+    linear-gradient(to right, transparent, #000 calc(var(--lamp-bleed) * 2), #000 calc(100% - var(--lamp-bleed) * 2), transparent),
+    linear-gradient(to bottom, transparent, #000 calc(var(--lamp-bleed) * 2), #000 calc(100% - var(--lamp-bleed) * 2), transparent);
+  mask-composite: intersect;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: calc(100% + var(--lamp-bleed) * 2) calc(100% + var(--lamp-bleed) * 2);
+  mask-clip: no-clip;
 }
 
 .landing-lamp__stage::after {
@@ -497,6 +507,17 @@ html[data-motion="reduced"] .landing-hero__copy > * {
 
 .landing-lamp__card.is-found.is-lit .landing-lamp__tag {
   display: block;
+}
+
+.landing-lamp[data-lamp-mode="still"] .landing-lamp__card {
+  opacity: 1;
+}
+
+.landing-lamp[data-lamp-mode="still"] .landing-lamp__veil,
+.landing-lamp[data-lamp-mode="still"] .landing-lamp__reticle,
+.landing-lamp[data-lamp-mode="still"] .landing-lamp__marks,
+.landing-lamp[data-lamp-mode="still"] .landing-lamp__tag {
+  display: none;
 }
 
 .landing-lamp__veil {

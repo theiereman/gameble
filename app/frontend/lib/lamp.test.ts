@@ -21,7 +21,7 @@ const cards: LampCard[] = [
   { x: 250, y: 320, radius: 40 }
 ]
 
-const idle = (now: number, dt = 0.016): LampInput => ({ now, dt, reduced: false, pointer: null, pointerHeld: false })
+const idle = (now: number, dt = 0.016): LampInput => ({ now, dt, pointer: null, pointerHeld: false })
 
 function run(lamp: Lamp, from: number, until: number, input: (now: number) => LampInput = idle) {
   let frame = lamp.advance(input(from))
@@ -76,10 +76,9 @@ describe("pointerHeld and lampMode", () => {
     expect(pointerHeld({ ...base, inside: false })).toBe(false)
   })
 
-  it("names the mode: still under reduced motion, else manual or auto", () => {
-    expect(lampMode({ reduced: true, pointerHeld: true })).toBe("still")
-    expect(lampMode({ reduced: false, pointerHeld: true })).toBe("manual")
-    expect(lampMode({ reduced: false, pointerHeld: false })).toBe("auto")
+  it("names the mode: manual while the pointer holds the lamp, else auto", () => {
+    expect(lampMode({ pointerHeld: true })).toBe("manual")
+    expect(lampMode({ pointerHeld: false })).toBe("auto")
   })
 })
 
@@ -116,7 +115,7 @@ describe("Lamp", () => {
   it("holds on a card found while heading elsewhere", () => {
     const lamp = new Lamp(cards, area, RADII_DESKTOP, 0)
     let now = 0
-    while (!lamp.advance({ now, dt: 0.016, reduced: false, pointer: { x: 400, y: 100 }, pointerHeld: true }).found[1]) now += 16
+    while (!lamp.advance({ now, dt: 0.016, pointer: { x: 400, y: 100 }, pointerHeld: true }).found[1]) now += 16
     const held = run(lamp, now, now + FOUND_HOLD_MS - 200)
     expect(Math.hypot(held.x - 400, held.y - 100)).toBeLessThan(RADII_DESKTOP[0])
   })
@@ -131,7 +130,7 @@ describe("Lamp", () => {
 
   it("follows a held pointer quickly and finds the card under it", () => {
     const lamp = new Lamp(cards, area, RADII_DESKTOP, 0)
-    const frame = run(lamp, 0, 1500, (now) => ({ now, dt: 0.016, reduced: false, pointer: { x: 400, y: 100 }, pointerHeld: true }))
+    const frame = run(lamp, 0, 1500, (now) => ({ now, dt: 0.016, pointer: { x: 400, y: 100 }, pointerHeld: true }))
     expect(frame.mode).toBe("manual")
     expect(frame.found).toEqual([false, true, false])
     expect(frame.lit[1]).toBe(true)
@@ -152,21 +151,39 @@ describe("Lamp", () => {
     const lamp = new Lamp(cards, area, RADII_DESKTOP, 0)
     expect(run(lamp, 0, 500).settled).toBe(false)
     run(lamp, 500, 60000)
-    const held = lamp.advance({ now: 60100, dt: 0.016, reduced: false, pointer: { x: 10, y: 10 }, pointerHeld: true })
+    const held = lamp.advance({ now: 60100, dt: 0.016, pointer: { x: 10, y: 10 }, pointerHeld: true })
     expect(held.settled).toBe(false)
   })
 
-  it("rests on the first card with two found under reduced motion, and jumps to the pointer", () => {
+  it("keeps its place and its next card when the field is measured again", () => {
     const lamp = new Lamp(cards, area, RADII_DESKTOP, 0)
-    lamp.startReduced()
-    const rest = lamp.advance({ now: 0, dt: 0, reduced: true, pointer: null, pointerHeld: false })
-    expect(rest).toMatchObject({ x: 100, y: 100, power: 1, mode: "still", found: [true, true, false], foundCount: 2 })
+    let now = 0
+    while (!lamp.advance(idle(now)).found[1]) now += 16
+    const before = run(lamp, now, now + FOUND_HOLD_MS + 600)
+    lamp.remeasure(cards, area)
+    const after = lamp.advance(idle(now + FOUND_HOLD_MS + 616))
+    expect(Math.hypot(after.x - before.x, after.y - before.y)).toBeLessThan(10)
+    expect(Math.hypot(after.x - cards[0].x, after.y - cards[0].y)).toBeGreaterThan(50)
+    expect(after.found).toEqual(before.found)
+  })
 
-    const jumped = lamp.advance({ now: 10, dt: 0, reduced: true, pointer: { x: 250, y: 320 }, pointerHeld: false })
-    expect(jumped).toMatchObject({ x: 250, y: 320, found: [true, true, true], foundCount: 3 })
+  it("keeps sweeping to every card although the field is measured again each second", () => {
+    const lamp = new Lamp(cards, area, RADII_DESKTOP, 0)
+    let frame = lamp.advance(idle(0))
+    for (let now = 16; now <= 60000; now += 16) {
+      if (now % 1000 < 16) lamp.remeasure(cards.map((card) => ({ ...card, x: card.x + 1 })), { width: area.width + 2, height: area.height })
+      frame = lamp.advance(idle(now))
+    }
+    expect(frame.foundCount).toBe(3)
+  })
 
-    const left = lamp.advance({ now: 20, dt: 0, reduced: true, pointer: null, pointerHeld: false })
-    expect(left).toMatchObject({ x: 100, y: 100, foundCount: 3 })
+  it("scales its place with the field and forgets the finds when the cards change in number", () => {
+    const lamp = new Lamp(cards, area, RADII_DESKTOP, 0)
+    run(lamp, 0, 1200)
+    lamp.remeasure(cards.slice(0, 2), { width: area.width / 2, height: area.height / 2 })
+    const frame = lamp.advance(idle(1216))
+    expect(frame.found).toHaveLength(2)
+    expect(frame.found[1]).toBe(false)
   })
 
   it("wanders when there is no card at all", () => {
