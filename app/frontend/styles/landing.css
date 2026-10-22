@@ -1935,7 +1935,7 @@ html[data-motion="reduced"] .landing-module[data-power] :is(.landing-gauge__segm
     -webkit-mask-composite: source-in;
     mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent), linear-gradient(180deg, transparent, #000 35%, #000 65%, transparent);
     mask-composite: intersect;
-    color: var(--color-accent);
+    color: inherit;
     font: var(--font-number);
     font-size: 0.875rem;
     white-space: nowrap;

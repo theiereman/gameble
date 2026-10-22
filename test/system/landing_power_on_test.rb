@@ -66,13 +66,19 @@ class LandingPowerOnTest < ApplicationSystemTestCase
     end
     assert_match(/blur\(/, style.call(".landing-side-gauge__name", "backdropFilter"))
     assert_match(/linear-gradient/, style.call(".landing-side-gauge__name", "maskImage"))
-    assert_equal "rgb(102, 192, 244)", style.call(".landing-side-gauge__name", "color")
     assert_equal "none", style.call(".landing-side-gauge__name", "textShadow")
     assert_equal "none", style.call(".landing-side-gauge__name", "borderStyle")
+    far_name = page.evaluate_script("getComputedStyle(document.querySelector(\"nav a[aria-label='06 · Roadmap'] .landing-side-gauge__name\")).color")
+    far_number = page.evaluate_script("getComputedStyle(document.querySelector(\"nav a[aria-label='06 · Roadmap'] span:first-child\")).color")
+    assert_equal far_number, far_name
+    assert_not_equal "rgb(102, 192, 244)", far_name
 
     find("nav a[aria-label='03 · How it works']").hover
     eventually("the name scales with the number") do
       style.call(".landing-side-gauge__name", "transform").start_with?("matrix(1.5,")
+    end
+    eventually("the name takes the accent with its number") do
+      style.call(".landing-side-gauge__name", "color") == "rgb(102, 192, 244)"
     end
   end
 
