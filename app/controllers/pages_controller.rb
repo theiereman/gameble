@@ -52,10 +52,11 @@ class PagesController < ApplicationController
       %w[legal credits].include?(action_name) || (action_name == "home" && visitor_landing?)
     end
 
-    # Only a visitor's HTML request meets the landing; any other request for
-    # the root is the hub's, refused to a visitor.
+    # Only a visitor's request that accepts HTML (or anything) meets the
+    # landing; any other request for the root is the hub's, refused to a
+    # visitor. Not `Mime::Type#html?`: false for `*/*`, true for turbo-stream.
     def visitor_landing?
-      current_player.nil? && request.format.html?
+      current_player.nil? && request.formats.any? { it == Mime[:html] || it == Mime::ALL }
     end
 
     # A visitor's root: the landing, whose data blocks each fall back to a
@@ -66,7 +67,7 @@ class PagesController < ApplicationController
       @roadmap = Catalog::LandingRoadmap.call(locale: I18n.locale)
       @season_facts = readable { Game::LandingSeasonFacts.call(locale: I18n.locale) }
       @goal = readable { Game::LandingGoal.call(locale: I18n.locale) }
-      render "landings/show"
+      render "landings/show", formats: :html
     end
 
     def readable
