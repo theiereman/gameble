@@ -78,6 +78,13 @@
         <% end %>
         <%= render "shell/player_chip", player: current_player %>
       <% else %>
+        <% if controller_path == "landings" %>
+          <%= button_to motion_path, params: { reduced: motion_reduced? ? "off" : "on" }, class: "motion-switch", form_class: "motion-switch__form", form: { data: { turbo: false } },
+                aria: { pressed: motion_reduced?.to_s } do %>
+            <span class="motion-switch__label"><%= t("shell.top_bar.motion_switch") %></span>
+            <span class="motion-switch__box" aria-hidden="true"></span>
+          <% end %>
+        <% end %>
         <%= render SteamSignInComponent.new(origin: request.path) %>
       <% end %>
     </div>

@@ -15,6 +15,7 @@ fr:
       home: "gameble, pont de commandement"
       landing: "gameble, page d'accueil"
       previous: "Retour :"
+      motion_switch: "Animations réduites"
     screens:
       collection: "Collection"
       sets: "Sets"

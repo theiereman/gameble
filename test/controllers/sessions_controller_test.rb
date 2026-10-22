@@ -77,6 +77,43 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_select "#welcome-panel", 0
   end
 
+  test "a sign-in with the visitor's motion switch on sets the account's reduced motion" do
+    cookies[:motion] = "reduced"
+
+    sign_in_with_steam
+
+    assert_equal true, new_players.sole.reduced_motion
+    assert_equal "reduced", cookies[:motion]
+  end
+
+  test "a sign-in with the switch on overrides an explicit no on a returning account" do
+    sign_in_with_steam
+    new_players.sole.update!(reduced_motion: false)
+    delete session_path(locale: :en)
+    cookies[:motion] = "reduced"
+
+    sign_in_with_steam
+
+    assert_equal true, new_players.sole.reduced_motion
+  end
+
+  test "a sign-in with the switch off leaves the account's setting as it was" do
+    sign_in_with_steam
+    new_players.sole.update!(reduced_motion: false)
+    delete session_path(locale: :en)
+    cookies.delete(:motion)
+
+    sign_in_with_steam
+
+    assert_equal false, new_players.sole.reduced_motion
+  end
+
+  test "a first sign-in without the switch leaves reduced motion on the system" do
+    sign_in_with_steam
+
+    assert_nil new_players.sole.reduced_motion
+  end
+
   def bank_of(player)
     Game::Pack.where(player_id: player.id)
   end

@@ -15,6 +15,7 @@ en:
       home: "gameble, command bridge"
       landing: "gameble, home page"
       previous: "Back:"
+      motion_switch: "Reduced motion"
     screens:
       collection: "Collection"
       sets: "Sets"

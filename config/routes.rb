@@ -14,6 +14,8 @@ Rails.application.routes.draw do
     root "pages#home", as: :home
     # The visitor's landing; a signed-in player is sent to the hub.
     get "landing" => "landings#show", as: :landing
+    # The visitor's motion switch, written into the motion cookie.
+    post "motion" => "motions#create", as: :motion
 
     # Opening a pack from the hub, and the list of its cards, by token.
     resources :packs, only: %i[create show], param: :token

@@ -27,7 +27,7 @@ class SessionsController < ApplicationController
     return refuse_banned(steam_id) if result.failure == :banned
     return fail_sign_in(Accounts::SignIn.failure_key(result.failure)) if result.failure?
 
-    player = result.value!
+    player = carry_visitor_motion_switch(result.value!)
     reset_session
     session[:player_id] = player.id
     if (invite = invite_origin)
@@ -55,6 +55,14 @@ class SessionsController < ApplicationController
   end
 
   private
+    # A visitor's reduced-motion switch that is on becomes the account's
+    # setting; off, the account keeps its own.
+    def carry_visitor_motion_switch(player)
+      return player unless cookies[MOTION_COOKIE] == FORCED_MOTIONS.key(true)
+
+      Accounts::UpdateSettings.new.call(player:, reduced_motion: true).value_or(player)
+    end
+
     # The result of Accounts::SignIn, or nil when it raised: a handler of the
     # sign-up (the bank fill, Game::Handlers::PlayerRegistered) that raises
     # rolls the new player back. The error is reported.

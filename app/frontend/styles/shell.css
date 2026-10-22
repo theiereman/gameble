@@ -244,6 +244,41 @@ a.top-bar__home {
   text-decoration: none;
 }
 
+/* The visitor's motion switch: the label and a square that fills accent
+   when on. */
+.motion-switch__form {
+  display: contents;
+}
+
+.motion-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--space-touch-min);
+  padding: 0 var(--space-2);
+  background: none;
+  border: 0;
+  color: var(--color-muted);
+  font: var(--font-label);
+  cursor: pointer;
+}
+
+.motion-switch__box {
+  flex: none;
+  width: var(--space-chip-height);
+  height: var(--space-chip-height);
+  box-shadow: var(--control-border);
+}
+
+.motion-switch[aria-pressed="true"] .motion-switch__box {
+  background: var(--color-accent);
+}
+
+.motion-switch:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
 .top-bar__divider {
   flex: none;
   align-self: center;

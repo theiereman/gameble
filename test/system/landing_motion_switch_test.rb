@@ -1,0 +1,39 @@
+require "application_system_test_case"
+require_relative "../support/steam_sign_in"
+
+class LandingMotionSwitchTest < ApplicationSystemTestCase
+  include SteamSignIn
+
+  setup do
+    @player = accounts_players(:player)
+    mock_steam_sign_in(@player.steam_id)
+  end
+
+  def motion = page.evaluate_script("document.documentElement.dataset.motion")
+
+  test "a visitor turns animations down, keeps it on the next load, and signs in with the account's setting on" do
+    visit landing_path(locale: :en)
+    assert_selector ".motion-switch[aria-pressed=false]"
+    click_on "Reduced motion"
+
+    assert_selector ".motion-switch[aria-pressed=true]"
+    assert_equal "reduced", motion
+    visit landing_path(locale: :en)
+    assert_selector ".motion-switch[aria-pressed=true]"
+    assert_equal "reduced", motion
+
+    click_steam_sign_in
+    assert_signed_in
+    assert_equal true, @player.reload.reduced_motion
+  end
+
+  test "switching it back off hands the page back to the system" do
+    visit landing_path(locale: :en)
+    click_on "Reduced motion"
+    assert_selector ".motion-switch[aria-pressed=true]"
+    click_on "Reduced motion"
+
+    assert_selector ".motion-switch[aria-pressed=false]"
+    assert_nil motion
+  end
+end
