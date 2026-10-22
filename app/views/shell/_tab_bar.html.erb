@@ -18,7 +18,7 @@
      ]
    else
      [
-       [ :landing, "tab-hub", landing_path, controller_path == "landings" ],
+       [ :landing, "tab-hub", home_path, controller_path == "pages" && action_name == "home" ],
        [ :all_cards, "tab-collection", library_cards_path, (controller_path == "library" && action_name == "cards") || controller_path == "cards" ]
      ]
    end %>

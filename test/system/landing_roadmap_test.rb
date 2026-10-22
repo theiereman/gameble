@@ -14,7 +14,7 @@ class LandingRoadmapTest < ApplicationSystemTestCase
   end
 
   def visit_roadmap(locale)
-    visit landing_path(locale:)
+    visit home_path(locale:)
     page.execute_script("document.getElementById('landing-roadmap').scrollIntoView()")
   end
 

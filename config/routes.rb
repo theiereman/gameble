@@ -12,8 +12,8 @@ Rails.application.routes.draw do
   # Every page lives under its locale, the first segment of the URL.
   scope ":locale", locale: /en|fr/ do
     root "pages#home", as: :home
-    # The visitor's landing; a signed-in player is sent to the hub.
-    get "landing" => "landings#show", as: :landing
+    # The landing once lived here; its links lead to the root.
+    get "landing", to: redirect("/%{locale}", status: 301)
     # The public roadmap, every milestone and story staff chose to show.
     get "roadmap" => "roadmaps#show", as: :roadmap
     # The visitor's motion switch, written into the motion cookie.

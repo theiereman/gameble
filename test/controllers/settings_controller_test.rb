@@ -148,11 +148,11 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   test "a visitor is sent to the landing; nothing is written" do
     get settings_path(locale: :en)
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
     assert_nil flash[:alert]
 
     patch settings_path(locale: :en), params: { reduced_motion: "on" }
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
     assert_nil cookies[:motion]
     assert_nil @player.reload.reduced_motion
   end
@@ -309,7 +309,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   test "a visitor cannot set a visibility, and a GET writes nothing" do
     patch settings_visibility_path(locale: :en), params: { visibility: "private" }
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
     assert_nil flash[:alert]
     assert_equal "public", @player.reload.visibility
 
@@ -407,7 +407,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   test "a visitor follows the cookie: reduced, no meta" do
     cookies[:motion] = "reduced"
 
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     assert_equal "reduced", forced_motion
     assert_not transition_meta?
@@ -416,7 +416,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   test "a visitor with an explicit-no cookie is forced full motion" do
     cookies[:motion] = "full"
 
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     assert_equal "full", forced_motion
     assert transition_meta?
@@ -425,7 +425,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
   test "a visitor with no cookie, or a junk one, is forced nothing" do
     [ nil, "", "reduced ", "1", "Full" ].each do |value|
       cookies[:motion] = value
-      get landing_path(locale: :en)
+      get home_path(locale: :en)
 
       assert_nil forced_motion, value.inspect
       assert transition_meta?, value.inspect

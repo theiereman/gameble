@@ -44,7 +44,7 @@ class LandingMovingCardsTest < ApplicationSystemTestCase
 
   test "a wide desktop shows the cards in the gutters, never over the content, moving faster than the scroll" do
     resize_to(1800, 1000)
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     assert_selector CARDS, count: 5, visible: :all
 
     scroll_to_card("epic")
@@ -60,7 +60,7 @@ class LandingMovingCardsTest < ApplicationSystemTestCase
 
   test "a dragged card keeps its offset while the page scrolls" do
     resize_to(1800, 1000)
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     scroll_to_card("epic")
     eventually("the epic card shows") { !page.evaluate_script("document.querySelector('.moving-card[data-key=epic]').hidden") }
 
@@ -76,7 +76,7 @@ class LandingMovingCardsTest < ApplicationSystemTestCase
 
   test "a click beside the cards reaches the content" do
     resize_to(1800, 1000)
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     assert_selector CARDS, count: 5, visible: :all
 
     assert_equal "none", page.evaluate_script("getComputedStyle(document.querySelector('.moving-cards')).pointerEvents")
@@ -85,7 +85,7 @@ class LandingMovingCardsTest < ApplicationSystemTestCase
 
   test "a narrow window has no moving card in the DOM, and widening adds them" do
     resize_to(1200, 900)
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     assert_selector ".moving-cards", visible: :all
     assert_no_selector CARDS, visible: :all
 
@@ -95,7 +95,7 @@ class LandingMovingCardsTest < ApplicationSystemTestCase
 
   test "reduced motion shows none and switching it live adds or removes them" do
     resize_to(1800, 1000)
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     assert_selector CARDS, count: 5, visible: :all
 
     page.execute_script("document.documentElement.dataset.motion = 'reduced'")
@@ -107,7 +107,7 @@ class LandingMovingCardsTest < ApplicationSystemTestCase
 
   test "tabbing into the content fades the layer and it returns when focus leaves" do
     resize_to(1800, 1000)
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     assert_selector CARDS, count: 5, visible: :all
 
     20.times do
@@ -123,7 +123,7 @@ class LandingMovingCardsTest < ApplicationSystemTestCase
 
   test "the layer is hidden from assistive technology and holds nothing focusable" do
     resize_to(1800, 1000)
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     assert_selector CARDS, count: 5, visible: :all
 
     assert_selector ".moving-cards[aria-hidden=true]", visible: :all

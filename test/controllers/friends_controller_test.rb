@@ -323,7 +323,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
 
     post remove_friend_path(locale: :fr, token: sam.token)
 
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     assert_nil flash[:alert]
     assert Game::FriendshipBetween.call(@player, sam)
   end
@@ -342,7 +342,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
   test "a visitor is sent to the landing" do
     get friends_path(locale: :fr)
 
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
   end
 
   test "menu 05 and the PLUS row lead a player to Amis" do

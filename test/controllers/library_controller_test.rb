@@ -1021,11 +1021,11 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     delete session_path(locale: :fr)
     get library_path(locale: :en)
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
     assert_response :see_other
     assert_nil flash[:alert]
     get library_path(locale: :en, q: "rogue"), headers: { "Turbo-Frame" => "set-search-results" }
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
   end
 
   test "a visitor is sent from a set's album to the landing, and reads the grid of every card" do
@@ -1033,13 +1033,13 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     theme("roguelike", 20)
 
     get library_set_path(locale: :fr, kind: "theme", key: "roguelike")
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     assert_response :see_other
 
     get library_cards_path(locale: :en)
     assert_response :success
-    assert_select ".top-bar a.top-bar__home[href='/en/landing']"
-    assert_select ".top-bar a.top-bar__bridge[href='/en/landing']"
+    assert_select ".top-bar a.top-bar__home[href='/en']"
+    assert_select ".top-bar a.top-bar__bridge[href='/en']"
     assert_select "a[href='/en/library'], a[href^='/en/library/theme/']", false
   end
 

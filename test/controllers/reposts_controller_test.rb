@@ -112,7 +112,7 @@ class RepostsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference -> { Game::FeedEntry.count } do
       post repost_path
 
-      assert_redirected_to landing_path(locale: :en)
+      assert_redirected_to home_path(locale: :en)
       assert_nil flash[:alert]
 
       post repost_path, as: :json

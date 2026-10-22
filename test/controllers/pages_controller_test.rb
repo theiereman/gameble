@@ -348,14 +348,21 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".hub-menu a.menu-item[href='/en/library'] .menu-item__meta", "1/150"
   end
 
-  test "a visitor is sent from the hub and the PLUS screen to the landing, in its locale, without an alert" do
-    { home_path(locale: :fr) => landing_path(locale: :fr), more_path(locale: :en) => landing_path(locale: :en) }.each do |page, landing|
-      get page
+  test "a visitor meets the landing at the root, in its locale" do
+    get home_path(locale: :fr)
 
-      assert_redirected_to landing
-      assert_response :see_other
-      assert_nil flash[:alert]
-    end
+    assert_response :success
+    assert_select "html[lang=fr]"
+    assert_select ".landing"
+    assert_select ".hub-menu", false
+  end
+
+  test "a visitor is sent from the PLUS screen to the landing, in its locale, without an alert" do
+    get more_path(locale: :en)
+
+    assert_redirected_to home_path(locale: :en)
+    assert_response :see_other
+    assert_nil flash[:alert]
   end
 
   test "a visitor's JSON request for the hub answers 401 sign_in_required" do
@@ -367,11 +374,11 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
 
   test "every form posting to /auth/steam is a full-page POST back to its page, and no link leads there" do
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     forms = css_select("form[action='/auth/steam']")
     assert_equal 3, forms.size, "the top bar's and the boarding's official images, the hero's Embark"
-    assert(forms.all? { it["method"] == "post" && it["data-turbo"] == "false" && it.at_css("input[name=origin]")["value"] == "/en/landing" })
+    assert(forms.all? { it["method"] == "post" && it["data-turbo"] == "false" && it.at_css("input[name=origin]")["value"] == "/en" })
     assert_equal 2, forms.count { it.classes.include?("steam-sign-in") && it.at_css("button.steam-sign-in__button img[src*='sits_01']") }
     assert_select "a[href*='/auth/steam']", false
   end

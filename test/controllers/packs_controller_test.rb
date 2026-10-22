@@ -197,7 +197,7 @@ class PacksControllerTest < ActionDispatch::IntegrationTest
       post packs_path(locale: :en)
     end
 
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
     assert_nil flash[:alert]
   end
 

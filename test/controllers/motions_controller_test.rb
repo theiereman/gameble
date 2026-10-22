@@ -7,7 +7,7 @@ class MotionsControllerTest < ActionDispatch::IntegrationTest
   test "a visitor switching animations down gets the reduced form from the next load, in a cookie that lasts a year" do
     post motion_path(locale: :fr), params: { reduced: "on" }
 
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     assert_response :see_other
     assert_equal "reduced", cookies[:motion]
     assert_match(/motion=reduced.*HttpOnly.*SameSite=Lax/im, Array(response.headers["Set-Cookie"]).join("\n"))
@@ -47,7 +47,7 @@ class MotionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the landing's switch is a form posting to the motion route" do
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     assert_select "form[action='#{motion_path(locale: :en)}'][method=post] button.motion-switch"
   end

@@ -381,7 +381,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     get feed_path(locale: :fr)
 
     assert_select ".top-bar__phone-back", false
-    assert_select ".top-bar__start > a.top-bar__bridge[href='/fr/landing']"
+    assert_select ".top-bar__start > a.top-bar__bridge[href='/fr']"
     assert_select "a[href='/fr/more']", false
 
     sign_in(@player)

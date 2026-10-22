@@ -133,11 +133,11 @@ class InvitationsControllerTest < ActionDispatch::IntegrationTest
 
   test "a visitor cannot send, answer or cancel" do
     post invitations_path(locale: :fr), params: { code: "8F2D-K9XM" }
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     post accept_invitation_path(token: "a" * 24, locale: :fr)
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     post cancel_invitation_path(token: "a" * 24, locale: :fr)
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     assert_equal 0, Game::Invitation.count
   end
 

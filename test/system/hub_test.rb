@@ -140,7 +140,7 @@ class HubTest < ApplicationSystemTestCase
   test "on a desktop, a visitor sees the landing instead of the hub" do
     visit home_path(locale: :fr)
 
-    assert_current_path landing_path(locale: :fr)
+    assert_current_path home_path(locale: :fr)
     assert_selector ".landing-hero__hook", text: "Des jeux ont été perdus. La Confrérie part les retrouver. Rejoignez-la."
     assert_no_selector ".hub-menu"
     assert_no_selector ".daily-booster"
@@ -154,7 +154,7 @@ class HubTest < ApplicationSystemTestCase
       resize_to(*size)
       visit home_path(locale: :en)
 
-      assert_current_path landing_path(locale: :en)
+      assert_current_path home_path(locale: :en)
       assert_no_selector ".hub-menu"
       assert_selector ".landing-hero"
       assert_no_sideways_scroll
@@ -282,7 +282,7 @@ class HubTest < ApplicationSystemTestCase
     sign_out
 
     assert_signed_out
-    assert_current_path landing_path(locale: :en)
+    assert_current_path home_path(locale: :en)
     assert_selector ".landing-hero"
     assert_text I18n.t("sessions.destroy.farewell", locale: :en)
     assert_nil page.evaluate_script("window.sameDocument"), "signing out should load a new page"

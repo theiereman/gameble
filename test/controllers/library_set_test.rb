@@ -200,12 +200,12 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     publish_sets_draft
 
     get library_set_path(locale: :fr, kind: "theme", key: "horror")
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     assert_response :see_other
     assert_nil flash[:alert]
 
     get library_set_path(locale: :en, kind: "theme", key: "nope")
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
   end
 
   test "a ranked theme's value text names its rank: 31 cards out of 62, expert tier" do

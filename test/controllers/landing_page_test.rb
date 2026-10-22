@@ -3,7 +3,7 @@ require_relative "../support/steam_sign_in"
 require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
 
-class LandingsControllerTest < ActionDispatch::IntegrationTest
+class LandingPageTest < ActionDispatch::IntegrationTest
   include SteamSignIn
   include CatalogSeeds
   include GamePacks
@@ -36,7 +36,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a visitor reads the landing in French: one h1, the nine modules, the five rarities with their odds" do
-    get landing_path(locale: :fr)
+    get home_path(locale: :fr)
 
     assert_response :success
     assert_select "html[lang=fr]"
@@ -51,7 +51,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a visitor reads the landing in English" do
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     assert_response :success
     assert_select "html[lang=en]"
@@ -63,7 +63,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
 
   test "the Brotherhood's panel tells its story in the visitor's language" do
     %i[fr en].each do |locale|
-      get landing_path(locale:)
+      get home_path(locale:)
 
       story = %w[recovery archive thanks].map { I18n.t("landings.show.brotherhood.lore.story.#{it}", locale:) }
       assert_equal story, css_select(".landing-lore__story p").map { it.text.squish }
@@ -72,7 +72,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
 
   test "the Découvrez tile promises no name to anyone" do
     %i[fr en].each do |locale|
-      get landing_path(locale:)
+      get home_path(locale:)
 
       assert_select ".landing-tile", text: /#{Regexp.escape(I18n.t("landings.show.brotherhood.tiles.discover.text", locale:))}/
       refute_match(/engrave|grave son nom/, response.body)
@@ -80,7 +80,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the reveal demo holds every sample face, hidden, with its announcement, and a hidden button" do
-    get landing_path(locale: :fr)
+    get home_path(locale: :fr)
 
     faces = css_select("[data-controller=reveal-demo] [data-reveal-demo-target=face]")
     assert_equal 5, faces.size
@@ -95,7 +95,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     seed_card_seasons([ 0.95 ], season: catalog_seasons(:one), prefix: "bright", titles: [ "Bright Star" ])
     Catalog::CardSeason.joins(:card).where(catalog_cards: { slug: "bright-1-0" }).update_all(rarity: 4)
 
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     assert_equal [ "Tin Soldier", "Green Hills", "Blue Depths", "Bright Star", "Golden Crown" ], concept_faces
   end
@@ -103,7 +103,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   test "a rarity without a card shows the card back face down, its name and odds still" do
     Catalog::CardSeason.where(id: catalog_card_seasons(:legendary_card_one).id).delete_all
 
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     assert_response :success
     assert_equal [ "Tin Soldier", "Green Hills", "Blue Depths", "Portal", nil ], concept_faces
@@ -116,7 +116,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   test "without a published season every slot is face down, the odds stay, and there is no demo button" do
     Catalog::Season.update_all(status: "draft", published_at: nil)
 
-    get landing_path(locale: :fr)
+    get home_path(locale: :fr)
 
     assert_response :success
     assert_headings(:fr)
@@ -131,7 +131,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the hero's lamp field is hidden from assistive technology: six slots over the samples, one a back, a veil, a reticle and the readout" do
-    get landing_path(locale: :fr)
+    get home_path(locale: :fr)
 
     assert_response :success
     assert_select ".landing-hero [data-controller=lamp-field][aria-hidden=true]", 1
@@ -151,7 +151,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   test "the hero's lamp field shows only card backs without a published season" do
     Catalog::Season.update_all(status: "draft", published_at: nil)
 
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     assert_select "[data-lamp-field-target=card] .card", 0
     assert_select "[data-lamp-field-target=card] img.landing-lamp__back", 6
@@ -159,7 +159,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the moving cards wait in an inert template of an aria-hidden layer outside main: four samples and a card back" do
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     assert_response :success
     assert_select "main .moving-cards", 0
@@ -181,24 +181,32 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   test "the moving cards skip a rarity without a sample and keep the card back" do
     Catalog::Season.update_all(status: "draft", published_at: nil)
 
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     layer = Nokogiri::HTML5.fragment(css_select(".moving-cards template").first.inner_html)
     assert_equal %w[back], layer.css(".moving-card").map { it["data-key"] }
     assert_equal 0, layer.css(".card").size
   end
 
-  test "a signed-in player is sent to the hub" do
+  test "a signed-in player meets the hub at the same address" do
     sign_in(accounts_players(:player))
 
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
-    assert_redirected_to home_path(locale: :en)
-    assert_response :see_other
+    assert_response :success
+    assert_select ".landing", false
+    assert_select ".hub-menu"
+  end
+
+  test "the provisional landing address redirects permanently to the root" do
+    get "/fr/landing"
+
+    assert_redirected_to "/fr"
+    assert_response :moved_permanently
   end
 
   test "no inline style, no script without a nonce, no database id" do
-    get landing_path(locale: :fr)
+    get home_path(locale: :fr)
 
     assert_select "[style]", 0
     css_select("script").each { |script| assert script["src"].present? || script["nonce"].present?, script.to_html }
@@ -207,13 +215,13 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the Steam image twice, the hero boarding signing in with its full name, the external links naming where they lead" do
-    get landing_path(locale: :fr)
+    get home_path(locale: :fr)
 
-    assert_select "header form.steam-sign-in[action='/auth/steam'] input[name=origin][value='/fr/landing']"
-    assert_select "main form.steam-sign-in[action='/auth/steam'] input[name=origin][value='/fr/landing']"
+    assert_select "header form.steam-sign-in[action='/auth/steam'] input[name=origin][value='/fr']"
+    assert_select "main form.steam-sign-in[action='/auth/steam'] input[name=origin][value='/fr']"
     boardings = css_select("main form.button-form[action='/auth/steam'][method=post][data-turbo=false]")
     assert_equal 1, boardings.size
-    assert(boardings.all? { it.at_css("input[name=origin]")["value"] == "/fr/landing" })
+    assert(boardings.all? { it.at_css("input[name=origin]")["value"] == "/fr" })
     buttons = boardings.map { it.at_css("button[type=submit]") }
     assert(buttons.all? { it.text.squish == "Embarquer sur le pont" && it["aria-label"] == "Embarquer sur le pont, se connecter avec Steam" })
     assert_equal [ "landing-hero__embark" ], buttons.map { it["class"].split.last }
@@ -241,7 +249,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the footer follows the main landmark with how it works, the legal page, the donation page and the code" do
-    get landing_path(locale: :fr)
+    get home_path(locale: :fr)
 
     assert_select "body > footer.landing-footer" do
       assert_select "a[href='/fr/how-it-works']", "Comment ça marche"
@@ -254,7 +262,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "a visitor follows the landing footer to how it works" do
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
     assert_select "footer.landing-footer a[href='/en/how-it-works']", "How it works"
 
     get how_it_works_path(locale: :en)
@@ -278,7 +286,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   test "module 06 shows the shown milestones and their first two shown stories with their status in text" do
     seed_roadmap
 
-    get landing_path(locale: :fr)
+    get home_path(locale: :fr)
 
     items = css_select("ol.landing-roadmap__line > li")
     assert_equal [ "Fait", "En cours", "À venir" ], items.map { it.at_css(".landing-roadmap__status").text }
@@ -292,7 +300,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   test "module 06 reads in English" do
     seed_roadmap
 
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     assert_select ".landing-roadmap__milestone--done .landing-roadmap__name", "Step alpha"
     assert_select ".landing-roadmap__story", text: /Story a, Done/
@@ -300,21 +308,21 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "module 06 keeps the legend and no line while no milestone is shown" do
-    get landing_path(locale: :fr)
+    get home_path(locale: :fr)
 
     assert_select "ol.landing-roadmap__line", 0
     assert_select ".landing-legend__item", 3
   end
 
   test "an older browser still reads the landing" do
-    get landing_path(locale: :en), headers: { "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:60.0) Gecko/20100101 Firefox/60.0" }
+    get home_path(locale: :en), headers: { "User-Agent" => "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:60.0) Gecko/20100101 Firefox/60.0" }
 
     assert_response :success
   end
 
   test "the side gauge is a named nav after main with ten links to existing headings" do
     { en: "Position on the page", fr: "Position sur la page" }.each do |locale, name|
-      get landing_path(locale:)
+      get home_path(locale:)
 
       assert_select "main ~ nav[aria-label=?][data-controller=side-gauge]", name
       links = css_select("nav[data-controller=side-gauge] a")
@@ -330,7 +338,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the hero heading is the gauge's first target and the landing powers its modules on" do
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     assert_select "h1#landing-hero[tabindex='-1']", 1
     assert_select ".landing[data-controller=power-on]", 1
@@ -343,7 +351,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     Game::WeeklyContribution.insert!({ player_id: accounts_players(:player).id, week_start: Game::WeeklyGoal.week_start(Time.current), openings: 1 })
     Game::WeeklyContribution.insert!({ player_id: accounts_players(:moderator).id, week_start: Game::WeeklyGoal.week_start(Time.current), openings: 1 })
 
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     assert_select ".landing-season__name", "Season 1 · Grand catalogue"
     assert_equal %w[2 0 0], css_select(".landing-season__fact dd").map { it.text.squish }
@@ -353,14 +361,14 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".landing-goal__end time"
     assert_select "[style]", 0
 
-    get landing_path(locale: :fr)
+    get home_path(locale: :fr)
 
     assert_select ".landing-season__name", "Saison 1 · Grand catalogue"
     assert_select ".landing-goal__participants", "2 participants"
   end
 
   test "an empty game shows zero figures and an empty gauge" do
-    get landing_path(locale: :fr)
+    get home_path(locale: :fr)
 
     assert_equal %w[0 0 0], css_select(".landing-season__fact dd").map { it.text.squish }
     assert_select ".landing-goal__count", /\A0 \/ \d+\z/
@@ -371,7 +379,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   test "a block that cannot be read shows a dash and the page renders" do
     unreadable = [ Game::LandingSeasonFacts, Game::LandingGoal ].to_h { [ it, it.method(:call) ] }
     unreadable.each_key { |query| query.define_singleton_method(:call) { |**| raise ActiveRecord::StatementInvalid, "down" } }
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     assert_response :success
     assert_headings(:en)
@@ -390,7 +398,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
       create_pack(hugo, cards: [ catalog_card_seasons(:portal_one).id ] * 5)
       Game::OpenPack.new.call(player: hugo).value!
     end
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     assert_select "ul#feed-entries.landing-live__list > li.feed__entry", count: LiveStream::LANDING_SIZE
     assert_select "#feed-entries .feed__sentence", text: "Hugo pulled Portal", minimum: 1
@@ -402,7 +410,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "the live module without any activity keeps the no-activity line and an empty list" do
-    get landing_path(locale: :fr)
+    get home_path(locale: :fr)
 
     assert_select "#feed-entries > li", 0
     assert_select ".landing-live__empty", I18n.t("landings.show.live.empty", locale: :fr)
@@ -411,7 +419,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
   test "an unreadable feed leaves the live module empty and the page renders" do
     original = LiveStream.method(:landing_items)
     LiveStream.define_singleton_method(:landing_items) { |**| raise ActiveRecord::StatementInvalid, "down" }
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
 
     assert_response :success
     assert_select "#feed-entries > li", 0

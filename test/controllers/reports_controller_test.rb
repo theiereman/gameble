@@ -100,7 +100,7 @@ class ReportsControllerTest < ActionDispatch::IntegrationTest
       post report_path_of(@owner), params: { reason: "cheating" }
     end
 
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
     assert_nil flash[:alert]
   end
 

@@ -25,12 +25,12 @@
   <div class="top-bar__inner">
     <div class="<%= class_names("top-bar__start", "top-bar__start--phone-back": content_for?(:phone_back), "top-bar__start--phone-previous": content_for?(:phone_previous)) %>" data-controller="navigation-lock">
       <% if content_for?(:back_button) %>
-        <%= link_to shell_home_path, class: "top-bar__brand top-bar__home", aria: { label: shell_home_label }, data: wordmark_shine do %>
+        <%= link_to home_path, class: "top-bar__brand top-bar__home", aria: { label: shell_home_label }, data: wordmark_shine do %>
           <%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %>
           <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
         <% end %>
         <span class="top-bar__divider" aria-hidden="true"></span>
-        <%= link_to shell_home_path, class: "button button--secondary button--small top-bar__bridge" do %>
+        <%= link_to home_path, class: "button button--secondary button--small top-bar__bridge" do %>
           <%= pixel_icon("arrow-left", class: "button__icon") %><span class="button__label"><%= shell_back_label %></span>
         <% end %>
         <%= yield :phone_back %>
@@ -41,18 +41,18 @@
         <% if content_for?(:screen_title) %>
           <p class="top-bar__title"><%= yield :screen_title %></p>
         <% end %>
-      <% elsif (controller_path == "pages" && action_name == "home") || controller_path == "landings" %>
+      <% elsif controller_path == "pages" && action_name == "home" %>
         <%= tag.p class: "top-bar__brand", data: wordmark_shine do %>
           <%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %>
           <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
         <% end %>
       <% elsif controller_path == "roadmaps" %>
-        <%= link_to shell_home_path, class: "top-bar__brand", aria: { label: shell_home_label }, data: wordmark_shine do %>
+        <%= link_to home_path, class: "top-bar__brand", aria: { label: shell_home_label }, data: wordmark_shine do %>
           <%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %>
           <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
         <% end %>
       <% else %>
-        <%= link_to shell_home_path, class: "top-bar__brand top-bar__home", aria: { label: shell_home_label }, data: wordmark_shine do %>
+        <%= link_to home_path, class: "top-bar__brand top-bar__home", aria: { label: shell_home_label }, data: wordmark_shine do %>
           <%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %>
           <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
         <% end %>
@@ -62,7 +62,7 @@
             <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
           <% end %>
         <% else %>
-          <%= link_to shell_home_path, class: "top-bar__brand top-bar__phone-brand", aria: { label: shell_home_label }, data: wordmark_shine do %>
+          <%= link_to home_path, class: "top-bar__brand top-bar__phone-brand", aria: { label: shell_home_label }, data: wordmark_shine do %>
             <%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %>
             <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
           <% end %>
@@ -83,7 +83,7 @@
         <% end %>
         <%= render "shell/player_chip", player: current_player %>
       <% else %>
-        <% if controller_path == "landings" %>
+        <% if controller_path == "pages" && action_name == "home" %>
           <%= button_to motion_path, params: { reduced: motion_reduced? ? "off" : "on" }, class: "motion-switch", form_class: "motion-switch__form", form: { data: { turbo: false } },
                 aria: { pressed: motion_reduced?.to_s } do %>
             <span class="motion-switch__label"><%= t("shell.top_bar.motion_switch") %></span>

@@ -122,7 +122,7 @@ class AchievementsControllerTest < ActionDispatch::IntegrationTest
   test "a visitor is sent to the landing" do
     get achievements_path(locale: :fr)
 
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     assert_nil flash[:alert]
   end
 

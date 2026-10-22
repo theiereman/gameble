@@ -148,7 +148,7 @@ class ApplicationController < ActionController::Base
     def refuse_in_locale
       if current_player.nil?
         message = t("authorization.sign_in_required")
-        refuse_with(:unauthorized, "sign_in_required", message) { redirect_to landing_path, status: :see_other }
+        refuse_with(:unauthorized, "sign_in_required", message) { redirect_to home_path, status: :see_other }
       else
         message = t("authorization.forbidden")
         refuse_with(:forbidden, "forbidden", message) do

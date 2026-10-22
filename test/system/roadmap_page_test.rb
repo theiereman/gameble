@@ -22,7 +22,7 @@ class RoadmapPageTest < ApplicationSystemTestCase
   def top_of(selector, index = 0) = all(selector)[index].evaluate_script("this.getBoundingClientRect().top")
 
   test "module 06 leads to the page, which lists every milestone" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     page.execute_script("document.getElementById('landing-roadmap').scrollIntoView()")
     click_link "See the whole roadmap"
 

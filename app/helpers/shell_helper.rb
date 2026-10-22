@@ -74,12 +74,6 @@ module ShellHelper
     "pages#more" => :more
   }.freeze
 
-  # Where the wordmark and the phone's back to the bridge lead: the hub for
-  # a player, the landing for a visitor.
-  def shell_home_path
-    current_player ? home_path : landing_path
-  end
-
   def shell_home_label
     current_player ? t("shell.top_bar.home") : t("shell.top_bar.landing")
   end

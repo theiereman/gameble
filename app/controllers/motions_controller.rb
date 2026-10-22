@@ -5,6 +5,6 @@ class MotionsController < ApplicationController
   def create
     authorize :motion
     write_motion_cookie(CHOICES.fetch(params[:reduced].to_s, nil))
-    redirect_to landing_path, status: :see_other
+    redirect_to home_path, status: :see_other
   end
 end

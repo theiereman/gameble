@@ -23,13 +23,15 @@ end
 module PublicReadThrottle
   LIMIT = 120
   PERIOD = 1.minute
-  PAGES = %w[cards brothers library landing roadmap feed].freeze
+  PAGES = %w[cards brothers library roadmap feed].freeze
 
   def self.public_read?(request)
     return false unless request.get? || request.head?
 
     locale, page = request.path.split("/", 4)[1, 2]
-    I18n.available_locales.map(&:to_s).include?(locale) && PAGES.include?(page.to_s.split(".").first)
+    return false unless I18n.available_locales.map(&:to_s).include?(locale)
+
+    page.blank? || PAGES.include?(page.split(".").first)
   end
 end
 

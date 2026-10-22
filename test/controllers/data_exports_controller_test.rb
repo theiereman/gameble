@@ -101,7 +101,7 @@ class DataExportsControllerTest < ActionDispatch::IntegrationTest
 
   test "a visitor is refused like any player-only action" do
     post settings_export_path(locale: :fr)
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     assert_nil flash[:alert]
 
     post settings_export_path(locale: :en), headers: json_headers
@@ -111,6 +111,6 @@ class DataExportsControllerTest < ActionDispatch::IntegrationTest
 
   test "a visitor cannot download an export" do
     get settings_export_path(locale: :fr)
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
   end
 end

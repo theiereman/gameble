@@ -240,14 +240,14 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   test "the failure endpoint without an origin answers in the default locale" do
     get auth_failure_path(message: "invalid_credentials")
 
-    assert_redirected_to landing_path(locale: I18n.default_locale)
+    assert_redirected_to home_path(locale: I18n.default_locale)
     assert_equal I18n.t("errors.steam.sign_in_failed", locale: I18n.default_locale), flash[:alert]
   end
 
   test "the failure endpoint ignores a foreign origin" do
     get auth_failure_path(message: "invalid_credentials", origin: "https://evil.example/fr")
 
-    assert_redirected_to landing_path(locale: I18n.default_locale)
+    assert_redirected_to home_path(locale: I18n.default_locale)
   end
 
   test "a callback this browser did not start is refused" do
@@ -256,7 +256,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, new_players.count
     assert_empty registered_events
     assert_nil signed_in_player_id
-    assert_redirected_to landing_path(locale: I18n.default_locale)
+    assert_redirected_to home_path(locale: I18n.default_locale)
     assert_equal I18n.t("errors.steam.sign_in_failed", locale: I18n.default_locale), flash[:alert]
   end
 
@@ -346,7 +346,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     delete session_path(locale: :en)
 
     assert_nil signed_in_player_id
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
     assert_equal I18n.t("sessions.destroy.farewell", locale: :en), flash[:notice]
     follow_redirect!
     assert_select ".landing-hero"
@@ -399,7 +399,8 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     get home_path(locale: :en)
 
     assert_nil signed_in_player_id
-    assert_redirected_to landing_path(locale: :en)
+    assert_response :success
+    assert_select ".landing"
   end
 
   test "a session cookie replayed after its 30 days signs nobody in" do
@@ -423,7 +424,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     travel 1.day
     get home_path(locale: :en)
     assert_nil signed_in_player_id
-    assert_redirected_to landing_path(locale: :en)
+    assert_select ".landing"
   end
 
   test "a signed-out visitor sees the Steam sign-in button as a POST form" do

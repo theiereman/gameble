@@ -173,7 +173,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       post daily_bonus_path(locale: :en), as: :turbo_stream
     end
 
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
     assert_nil flash[:alert]
   end
 
@@ -221,7 +221,7 @@ class DailyBonusesControllerTest < ActionDispatch::IntegrationTest
       end
     end
 
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
     assert_nil flash[:alert]
   end
 

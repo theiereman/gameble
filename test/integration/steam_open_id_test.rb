@@ -76,7 +76,7 @@ class SteamOpenIdTest < ActionDispatch::IntegrationTest
   end
 
   def start_sign_in
-    get "/en/landing"
+    get "/en"
     token = css_select("form[action='/auth/steam'] input[name=authenticity_token]").first["value"]
     post "/auth/steam", params: { origin: "/en", authenticity_token: token }
     assert_response :redirect

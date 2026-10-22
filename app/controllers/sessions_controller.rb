@@ -51,7 +51,7 @@ class SessionsController < ApplicationController
     # The landing keeps the player's motion preference (the cookie).
     write_motion_cookie(current_player.reduced_motion)
     reset_session
-    redirect_to landing_path, notice: t(".farewell")
+    redirect_to home_path, notice: t(".farewell")
   end
 
   private
@@ -111,7 +111,7 @@ class SessionsController < ApplicationController
     end
 
     def return_path
-      origin_path || landing_path
+      origin_path || home_path
     end
 
     # The origin, only when it is a local path (one leading "/", no host)

@@ -30,14 +30,14 @@ class LandingLiveFeedTest < ApplicationSystemTestCase
   def first_entry_sentence = find("#feed-entries > li:first-child .feed__sentence").text
 
   test "a landing never scrolled to the live module opens no subscription" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
 
     assert_selector "#landing-live", visible: :all
     assert_no_selector "turbo-cable-stream-source", visible: :all
   end
 
   test "an opening tops the list as one node per entry and the list keeps four" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     scroll_to_module
     listening
     assert_no_selector "#feed-entries > li"
@@ -60,7 +60,7 @@ class LandingLiveFeedTest < ApplicationSystemTestCase
   end
 
   test "entries wait while the pointer is over the list and arrive together afterwards" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     scroll_to_module
     listening
 
@@ -74,7 +74,7 @@ class LandingLiveFeedTest < ApplicationSystemTestCase
   end
 
   test "entries wait while focus is inside the module" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     scroll_to_module
     listening
 

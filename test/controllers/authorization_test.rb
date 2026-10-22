@@ -42,15 +42,15 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
   end
 
   test "a visitor's HTML request for a player's page is sent to the landing, without an alert" do
-    get home_path(locale: :fr)
+    get more_path(locale: :fr)
 
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     assert_response :see_other
     assert_nil flash[:alert]
   end
 
   test "a visitor's JSON request for a player's page answers 401 sign_in_required" do
-    get home_path(locale: :en), headers: { "Accept" => "application/json" }
+    get more_path(locale: :en), headers: { "Accept" => "application/json" }
 
     assert_response :unauthorized
     assert_equal "sign_in_required", response.parsed_body.dig("error", "code")
@@ -59,7 +59,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
   test "a visitor's sign-out is refused and sent to the landing" do
     delete session_path(locale: :fr)
 
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     assert_nil flash[:alert]
     assert_nil flash[:notice]
   end
@@ -80,7 +80,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     delete session_path(locale: :en)
 
     assert_nil session[:player_id]
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
     assert_equal I18n.t("sessions.destroy.farewell", locale: :en), flash[:notice]
   end
 
@@ -105,7 +105,7 @@ class AuthorizationTest < ActionDispatch::IntegrationTest
     delete session_path(locale: :en)
 
     assert_nil session[:player_id]
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
     assert_nil flash[:alert]
   end
 

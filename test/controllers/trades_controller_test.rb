@@ -50,9 +50,9 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     trade = from_lea
 
     get trades_path(locale: :fr)
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     post accept_trade_path(token: trade.token, locale: :fr)
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     assert trade.reload.open?
   end
 
@@ -515,7 +515,7 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
     assert_equal "sign_in_required", response.parsed_body.dig("error", "code")
     get faces_trades_path(locale: :fr), params: { keys: [ "portal--s1" ] }
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
   end
 
   test "a counter places cards the side's holder holds that were not on it" do
@@ -838,11 +838,11 @@ class TradesControllerTest < ActionDispatch::IntegrationTest
 
   test "a visitor asking for a draft is sent to the landing" do
     get new_trade_path(locale: :fr)
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     get new_trade_path(locale: :fr, friend: @bob.token)
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     post trades_path(locale: :fr), params: { friend: @bob.token, give: { "portal--s1" => "1" }, take: { "blue-depths--s1" => "1" } }
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     assert_equal 0, Game::Trade.count
   end
 

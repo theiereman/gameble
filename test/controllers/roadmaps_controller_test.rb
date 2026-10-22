@@ -111,12 +111,12 @@ class RoadmapsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "module 06 links to it with or without milestones" do
-    get landing_path(locale: :fr)
+    get home_path(locale: :fr)
     assert_select "a.landing-roadmap__all[href=?]", roadmap_path(locale: :fr), text: "Voir toute la feuille de route"
 
     seed_roadmap
     Rails.cache.clear
-    get landing_path(locale: :en)
+    get home_path(locale: :en)
     assert_select "a.landing-roadmap__all[href=?]", roadmap_path(locale: :en), text: "See the whole roadmap"
   end
 end

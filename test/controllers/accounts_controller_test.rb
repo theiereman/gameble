@@ -96,7 +96,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
 
       delete account_path(locale: :fr), params: { confirmation: word }
 
-      assert_redirected_to landing_path(locale: :fr)
+      assert_redirected_to home_path(locale: :fr)
       assert_response :see_other
       assert_nil session[:player_id]
       assert_predicate @player.reload, :deleted?
@@ -116,7 +116,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
 
     delete account_path(locale: :en), params: { confirmation: "delete" }
 
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
     assert_predicate @player.reload, :deleted?
     assert_equal "reduced", cookies[:motion]
     assert_equal "Your account has been deleted. Thank you for playing.", flash[:notice]
@@ -140,7 +140,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
   test "a visitor is sent to the landing; nothing is deleted" do
     delete account_path(locale: :en), params: { confirmation: "DELETE" }
 
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
     assert_nil flash[:alert]
     assert_not @player.reload.deleted?
   end
@@ -155,10 +155,10 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     delete account_path(locale: :en), params: { confirmation: "DELETE" }
 
     other_browser.get settings_path(locale: :en)
-    other_browser.assert_redirected_to landing_path(locale: :en)
+    other_browser.assert_redirected_to home_path(locale: :en)
     assert_nil other_browser.session[:player_id]
     other_browser.delete account_path(locale: :en), params: { confirmation: "DELETE" }
-    other_browser.assert_redirected_to landing_path(locale: :en)
+    other_browser.assert_redirected_to home_path(locale: :en)
   end
 
   test "the Steam id signs in again as a new player" do

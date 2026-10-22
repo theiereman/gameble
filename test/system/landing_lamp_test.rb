@@ -11,7 +11,7 @@ class LandingLampTest < ApplicationSystemTestCase
   end
 
   test "the lamp sweeps on its own and finds the games, the count rising" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
 
     assert_selector "[data-controller=lamp-field][data-lamp-mode=auto]"
     assert_selector FOUND, minimum: 1, wait: 15
@@ -20,7 +20,7 @@ class LandingLampTest < ApplicationSystemTestCase
   end
 
   test "a mouse over the field takes the lamp, which finds the card under it" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     assert_selector "[data-lamp-lit]", wait: 5
 
     card = find(".landing-lamp__card--2")
@@ -32,7 +32,7 @@ class LandingLampTest < ApplicationSystemTestCase
   end
 
   test "the lamp sweeps again once the mouse has rested" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     assert_selector "[data-lamp-lit]", wait: 5
     move_mouse_to(find(STAGE), 30, 30)
     assert_selector "[data-lamp-mode=manual]"
@@ -41,7 +41,7 @@ class LandingLampTest < ApplicationSystemTestCase
   end
 
   test "under reduced motion every card shows face up, with no lamp and no veil" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     page.execute_script("document.documentElement.dataset.motion = 'reduced'")
 
     assert_selector "[data-lamp-mode=still]"
@@ -55,7 +55,7 @@ class LandingLampTest < ApplicationSystemTestCase
 
   test "on a phone the lamp sweeps in its own band with five cards" do
     resize_to(390, 844)
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
 
     assert_selector ".landing-lamp__card", count: 5
     assert_selector COUNT, text: %r{\A[0-5] / 5\z}

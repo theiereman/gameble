@@ -6,7 +6,7 @@ class LandingBoardingTest < ApplicationSystemTestCase
   def rect(selector) = page.evaluate_script("document.querySelector(\"#{selector}\").getBoundingClientRect().toJSON()")
 
   test "the Steam sign-in sits at the top right of the way aboard, beside its copy" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     panel = rect(".landing-boarding__panel")
     copy = rect(".landing-boarding__copy")
     button = rect(".landing-boarding .steam-sign-in")
@@ -18,7 +18,7 @@ class LandingBoardingTest < ApplicationSystemTestCase
 
   test "under a phone width the Steam sign-in stacks below the copy" do
     resize_to(390, 900)
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     copy = rect(".landing-boarding__copy")
     button = rect(".landing-boarding .steam-sign-in")
 

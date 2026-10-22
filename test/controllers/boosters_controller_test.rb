@@ -31,7 +31,7 @@ class BoostersControllerTest < ActionDispatch::IntegrationTest
   test "a visitor is sent to the landing" do
     get booster_path(locale: :en)
 
-    assert_redirected_to landing_path(locale: :en)
+    assert_redirected_to home_path(locale: :en)
     assert_nil flash[:alert]
   end
 

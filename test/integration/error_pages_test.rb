@@ -138,7 +138,7 @@ class ErrorPagesTest < ActionDispatch::IntegrationTest
   end
 
   test "an old browser on a page not meant to be shared gets the 406 page in its locale under the enforced policy" do
-    get home_path(locale: :fr), headers: { "User-Agent" => OLD_BROWSER }
+    get more_path(locale: :fr), headers: { "User-Agent" => OLD_BROWSER }
 
     assert_response :not_acceptable
     assert_predicate response.headers["Content-Security-Policy"], :present?

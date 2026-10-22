@@ -12,13 +12,13 @@ class LandingMotionSwitchTest < ApplicationSystemTestCase
   def motion = page.evaluate_script("document.documentElement.dataset.motion")
 
   test "a visitor turns animations down, keeps it on the next load, and signs in with the account's setting on" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     assert_selector ".motion-switch[aria-pressed=false]"
     click_on "Reduced motion"
 
     assert_selector ".motion-switch[aria-pressed=true]"
     assert_equal "reduced", motion
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     assert_selector ".motion-switch[aria-pressed=true]"
     assert_equal "reduced", motion
 
@@ -28,7 +28,7 @@ class LandingMotionSwitchTest < ApplicationSystemTestCase
   end
 
   test "switching it back off hands the page back to the system" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     click_on "Reduced motion"
     assert_selector ".motion-switch[aria-pressed=true]"
     click_on "Reduced motion"

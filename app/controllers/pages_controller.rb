@@ -1,5 +1,5 @@
-# The hub, "Pont de commandement", a player's page: the numbered menu, the
-# showcase of the first card the player chose, else the latest
+# The root of every locale: the landing for a visitor, the hub for a player.
+# The hub, "Pont de commandement", is the numbered menu, the showcase of the first card the player chose, else the latest
 # Epic-or-better card they hold, the daily booster panel, the community goal panel with a
 # contributor's reward claim slot, the set progress rows and, once, a new
 # player's welcome panel. A read only page: Catalog answers the season, its
@@ -9,6 +9,8 @@
 # ticker its first items, the latest public entries it shows.
 class PagesController < ApplicationController
   def home
+    return show_landing if visitor_landing?
+
     authorize :page, :play?
     @season = Catalog::PublishedSeason.call
     @goal = Game::CurrentGoal.call
@@ -45,7 +47,33 @@ class PagesController < ApplicationController
 
   private
     def public_read?
-      %w[legal credits].include?(action_name) && (request.get? || request.head?)
+      return false unless request.get? || request.head?
+
+      %w[legal credits].include?(action_name) || (action_name == "home" && visitor_landing?)
+    end
+
+    # Only a visitor's HTML request meets the landing; any other request for
+    # the root is the hub's, refused to a visitor.
+    def visitor_landing?
+      current_player.nil? && request.format.html?
+    end
+
+    # A visitor's root: the landing, whose data blocks each fall back to a
+    # placeholder when unreadable.
+    def show_landing
+      authorize :landing, :show?
+      @samples = Catalog::LandingSampleCards.call(locale: I18n.locale)
+      @roadmap = Catalog::LandingRoadmap.call(locale: I18n.locale)
+      @season_facts = readable { Game::LandingSeasonFacts.call(locale: I18n.locale) }
+      @goal = readable { Game::LandingGoal.call(locale: I18n.locale) }
+      render "landings/show"
+    end
+
+    def readable
+      yield
+    rescue ActiveRecord::ActiveRecordError => error
+      Rails.logger.error("landing block unreadable: #{error.class}")
+      nil
     end
 
     # The first card the player chose for their profile showcase, else the

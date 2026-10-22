@@ -20,7 +20,7 @@ class LandingPowerOnTest < ApplicationSystemTestCase
   end
 
   test "scrolling powers a module on once and it stays on" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     assert_selector ".landing-module[data-power=armed]", minimum: 1, visible: :all
     assert_equal "armed", power_of("landing-roadmap")
 
@@ -33,7 +33,7 @@ class LandingPowerOnTest < ApplicationSystemTestCase
   end
 
   test "a gauge marker moves focus to its heading and is the only current one" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     find("nav a[aria-label='03 · How it works']").click
 
     assert_equal "landing-how", page.evaluate_script("document.activeElement.id")
@@ -42,7 +42,7 @@ class LandingPowerOnTest < ApplicationSystemTestCase
   end
 
   test "the gauge sits on the left, names a hovered marker and every marker when hovered as a whole" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     box = page.evaluate_script("document.querySelector('nav[aria-label=\"Position on the page\"]').getBoundingClientRect().toJSON()")
     assert_operator box["right"], :<, VIEWPORT.first / 2
 
@@ -57,7 +57,7 @@ class LandingPowerOnTest < ApplicationSystemTestCase
   end
 
   test "a marker name shares the number's typeface and swells with it, over a feathered backdrop" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     style = lambda do |selector, property|
       page.evaluate_script("getComputedStyle(document.querySelector(\"nav a[aria-label='03 · How it works'] #{selector}\")).#{property}")
     end
@@ -83,7 +83,7 @@ class LandingPowerOnTest < ApplicationSystemTestCase
   end
 
   test "a marker is hoverable well beyond its number" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     zone = page.evaluate_script("(() => { const r = document.querySelector(\"nav a[aria-label='03 · How it works']\").getBoundingClientRect(); return { width: r.width, height: r.height } })()")
     assert_operator zone["height"], :>=, 40
     assert_operator zone["width"], :>=, 30
@@ -91,13 +91,13 @@ class LandingPowerOnTest < ApplicationSystemTestCase
 
   test "under a narrow window the gauge is not displayed" do
     resize_to(1200, 1000)
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
 
     assert_no_selector "nav[aria-label='Position on the page']"
   end
 
   test "under reduced motion the star layers stay still while scrolling" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     page.execute_script("document.documentElement.dataset.motion = 'reduced'")
     page.execute_script("window.scrollTo(0, 1500)")
 
@@ -106,7 +106,7 @@ class LandingPowerOnTest < ApplicationSystemTestCase
   end
 
   test "scrolling moves the star layers by a share of the scroll" do
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     page.execute_script("window.scrollTo(0, 1000)")
 
     assert_no_selector "nav a[aria-current=location][aria-label='00 · Mission']"

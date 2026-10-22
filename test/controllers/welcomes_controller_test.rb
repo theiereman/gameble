@@ -103,7 +103,7 @@ class WelcomesControllerTest < ActionDispatch::IntegrationTest
   test "a visitor cannot close a welcome" do
     delete welcome_path(locale: :fr)
 
-    assert_redirected_to landing_path(locale: :fr)
+    assert_redirected_to home_path(locale: :fr)
     assert_nil flash[:alert]
   end
 end

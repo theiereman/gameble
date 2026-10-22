@@ -74,8 +74,8 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     # The slim top bar: the wordmark leading to the landing (one for the
     # desktop, one for the phone) and the Steam sign-in image, no way back,
     # no tab bar.
-    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home[href='/en/landing'] svg.pixel-icon.top-bar__wordmark"
-    assert_select ".top-bar__start > a.top-bar__brand.top-bar__phone-brand[href='/en/landing']"
+    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home[href='/en'] svg.pixel-icon.top-bar__wordmark"
+    assert_select ".top-bar__start > a.top-bar__brand.top-bar__phone-brand[href='/en']"
     assert_select ".top-bar__start > a", 2
     assert_select ".top-bar__start p.top-bar__brand", false
     assert_select ".top-bar__end form[action='/auth/steam'] img.steam-sign-in__image"
@@ -302,10 +302,10 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
       assert_equal "Portal — Epic", og("title")
 
       get library_set_path(locale: :en, kind: "studio", key: "valve"), headers: { "User-Agent" => user_agent }
-      assert_redirected_to landing_path(locale: :en)
+      assert_redirected_to home_path(locale: :en)
       get library_path(locale: :en), headers: { "User-Agent" => user_agent }
-      assert_redirected_to landing_path(locale: :en)
-      get landing_path(locale: :en), headers: { "User-Agent" => user_agent }
+      assert_redirected_to home_path(locale: :en)
+      get home_path(locale: :en), headers: { "User-Agent" => user_agent }
       assert_response :success
       get library_cards_path(locale: :en), headers: { "User-Agent" => user_agent }
       assert_response :success
@@ -314,11 +314,14 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the hub and the sessions still turn an old browser away" do
+  test "the player's screens and the sessions still turn an old browser away, the landing does not" do
     old = { "User-Agent" => USER_AGENTS[:ios_16_safari] }
 
-    get home_path(locale: :en), headers: old
+    get more_path(locale: :en), headers: old
     assert_response :not_acceptable
+
+    get home_path(locale: :en), headers: old
+    assert_response :success
 
     get steam_callback_path, headers: old
     assert_response :not_acceptable

@@ -50,14 +50,14 @@ class ShellTest < ActionDispatch::IntegrationTest
   end
 
   test "a visitor on the landing: the wordmark and the official Steam image as a POST form back to this page" do
-    get landing_path(locale: :fr)
+    get home_path(locale: :fr)
 
     assert_select "body > header.top-bar:not([data-screen-label])" do
       assert_select ".top-bar__start p.top-bar__brand svg.pixel-icon.top-bar__wordmark"
       assert_select ".top-bar__start .top-bar__brand .top-bar__name", "gameble"
       assert_select ".top-bar__start a", false
       assert_select ".top-bar__end form.steam-sign-in[action='/auth/steam'][method=post][data-turbo=false]" do
-        assert_select "input[type=hidden][name=origin][value='/fr/landing']"
+        assert_select "input[type=hidden][name=origin][value='/fr']"
         assert_select "button.steam-sign-in__button img[alt=?]", "Se connecter via Steam (ouvre Steam)"
       end
       assert_select ".rarity-counter, .packs-chip, .player-chip", false
@@ -66,7 +66,7 @@ class ShellTest < ActionDispatch::IntegrationTest
 
   test "no open page carries a sign-in panel or a button opening one" do
     profile = brother_path(locale: :fr, token: accounts_players(:player).token)
-    [ landing_path(locale: :fr), library_cards_path(locale: :fr), how_it_works_path(locale: :fr), legal_path(locale: :fr), profile ].each do |path|
+    [ home_path(locale: :fr), library_cards_path(locale: :fr), how_it_works_path(locale: :fr), legal_path(locale: :fr), profile ].each do |path|
       get path
 
       assert_response :success, path
@@ -77,19 +77,17 @@ class ShellTest < ActionDispatch::IntegrationTest
   test "a visitor's wordmark, phone brand and phone back lead to the landing; a player's to the hub" do
     get library_cards_path(locale: :fr)
 
-    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home[href='/fr/landing'][aria-label=?]", "gameble, page d'accueil"
-    assert_select ".top-bar__start > a.button.top-bar__bridge[href='/fr/landing'] .button__label", "Accueil"
+    assert_select ".top-bar__start > a.top-bar__brand.top-bar__home[href='/fr'][aria-label=?]", "gameble, page d'accueil"
+    assert_select ".top-bar__start > a.button.top-bar__bridge[href='/fr'] .button__label", "Accueil"
     invite = invite_link_path(locale: :en, token: accounts_players(:moderator).token)
     get invite
-    assert_select ".top-bar__start > a.top-bar__home[href='/en/landing'][aria-label=?]", "gameble, home page"
-    assert_select ".top-bar__start > a.top-bar__brand.top-bar__phone-brand[href='/en/landing'][aria-label=?]", "gameble, home page"
-    assert_select ".top-bar__start a[href='/en']", false
+    assert_select ".top-bar__start > a.top-bar__home[href='/en'][aria-label=?]", "gameble, home page"
+    assert_select ".top-bar__start > a.top-bar__brand.top-bar__phone-brand[href='/en'][aria-label=?]", "gameble, home page"
 
     sign_in(accounts_players(:player))
     get invite
     assert_select ".top-bar__start > a.top-bar__home[href='/en'][aria-label=?]", "gameble, command bridge"
     assert_select ".top-bar__start > p.top-bar__brand.top-bar__phone-brand"
-    assert_select ".top-bar__start a[href='/en/landing']", false
   end
 
   test "a visitor's tab bar has two links, the landing and every card, none disabled" do
@@ -97,7 +95,7 @@ class ShellTest < ActionDispatch::IntegrationTest
 
     assert_select "nav.tab-bar ul.tab-bar__list.tab-bar__list--visitor > li.tab-bar__item > a.tab-bar__tab", 2
     assert_equal [ "Accueil", "Toutes les cartes" ], css_select(".tab-bar__label").map(&:text)
-    assert_select "a.tab-bar__tab[href='/fr/landing']:not([aria-current])", /Accueil/
+    assert_select "a.tab-bar__tab[href='/fr']:not([aria-current])", /Accueil/
     assert_select "a.tab-bar__tab[href='/fr/library/cards'][aria-current=page]", /Toutes les cartes/
     assert_select ".tab-bar__tab svg.pixel-icon.tab-bar__icon", 2
     assert_select ".tab-bar button, .tab-bar [disabled], .tab-bar [aria-disabled]", false
@@ -321,7 +319,7 @@ class ShellTest < ActionDispatch::IntegrationTest
   end
 
   test "an alert is an alert toast" do
-    get auth_failure_path(message: "invalid_credentials", origin: "/en/landing")
+    get auth_failure_path(message: "invalid_credentials", origin: "/en")
     follow_redirect!
 
     assert_select ".toasts > .toast.toast--alert .toast__message", I18n.t("errors.steam.sign_in_failed", locale: :en)

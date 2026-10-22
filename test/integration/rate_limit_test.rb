@@ -240,12 +240,12 @@ class RateLimitTest < ActionDispatch::IntegrationTest
   test "the shared pages are counted on GET and HEAD, with or without a format, and nothing else is" do
     read = ->(method, path) { PublicReadThrottle.public_read?(Rack::Request.new(Rack::MockRequest.env_for(path, method:))) }
 
-    %w[/fr/cards/hades /en/brothers/abc /en/brothers/abc/library/theme/roguelike /fr/library /fr/library/ /fr/library.html /fr/library/theme/roguelike /en/landing /fr/landing /fr/feed /en/feed.html].each do |path|
+    %w[/fr/cards/hades /en/brothers/abc /en/brothers/abc/library/theme/roguelike /fr/library /fr/library/ /fr/library.html /fr/library/theme/roguelike /en /fr /fr/feed /en/feed.html].each do |path|
       assert read.("GET", path), path
     end
     assert read.("HEAD", "/fr/cards/hades")
     assert_not read.("POST", "/fr/library/seen")
     assert_not read.("POST", "/fr/cards/hades/seasons/1/repost")
-    %w[/fr /fr/friends /de/cards/hades /fr/cardsx /fr/landingx /fr/feedx].each { |path| assert_not read.("GET", path), path }
+    %w[/fr/friends /de/cards/hades /de /fr/cardsx /fr/landing /fr/feedx].each { |path| assert_not read.("GET", path), path }
   end
 end

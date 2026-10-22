@@ -123,7 +123,7 @@ class ShellTest < ApplicationSystemTestCase
 
   test "a toast closes with its button, and a gameble:toast event adds one" do
     visit settings_path(locale: :en)
-    assert_current_path landing_path(locale: :en)
+    assert_current_path home_path(locale: :en)
     assert_no_selector ".toasts .toast"
 
     page.execute_script(<<~JS)
@@ -333,7 +333,7 @@ class ShellTest < ApplicationSystemTestCase
 
   test "on a phone the toasts sit at the top" do
     resize_to(*PHONES["390"])
-    visit landing_path(locale: :en)
+    visit home_path(locale: :en)
     page.execute_script(<<~JS)
       window.dispatchEvent(new CustomEvent("gameble:toast", { detail: { message: "Up there." } }))
     JS
