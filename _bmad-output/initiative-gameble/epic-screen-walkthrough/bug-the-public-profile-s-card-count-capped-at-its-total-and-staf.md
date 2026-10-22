@@ -1,5 +1,8 @@
 ---
 id: 9
+tracker_status: review
+tracker_id: 201
+remote: https://github.com/theiereman/gameble/issues/201
 type: bug
 title: "The public profile's card count capped at its total, and staff see a banned player's line again"
 parent: epic-screen-walkthrough
