@@ -14,6 +14,8 @@ Rails.application.routes.draw do
     root "pages#home", as: :home
     # The visitor's landing; a signed-in player is sent to the hub.
     get "landing" => "landings#show", as: :landing
+    # The public roadmap, every milestone and story staff chose to show.
+    get "roadmap" => "roadmaps#show", as: :roadmap
     # The visitor's motion switch, written into the motion cookie.
     post "motion" => "motions#create", as: :motion
 

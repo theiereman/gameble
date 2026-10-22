@@ -46,6 +46,11 @@
           <%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %>
           <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
         <% end %>
+      <% elsif controller_path == "roadmaps" %>
+        <%= link_to shell_home_path, class: "top-bar__brand", aria: { label: shell_home_label }, data: wordmark_shine do %>
+          <%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %>
+          <span class="top-bar__name visually-hidden"><%= t("shell.top_bar.brand") %></span>
+        <% end %>
       <% else %>
         <%= link_to shell_home_path, class: "top-bar__brand top-bar__home", aria: { label: shell_home_label }, data: wordmark_shine do %>
           <%= pixel_icon("wordmark-sweep", class: "top-bar__wordmark") %>

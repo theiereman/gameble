@@ -1474,6 +1474,18 @@ en:
       title: "Goal reached"
       collected: "Management thanks you for your contribution. A rare capsule has been added to your reserve."
       throttled: "Too many attempts in a minute. Try again in a moment."
+  roadmaps:
+    show:
+      title: "Roadmap · gameble"
+      description: "What is done, what is moving and what is next in gameble, the free trading card game where every card is a Steam game."
+      kicker: "Roadmap"
+      heading: "What's coming"
+      intro: "What is done, what is moving, what is next. The collection is built with the community, and so is the game."
+      rail_label: "Roadmap milestones, from the oldest to the most distant"
+      statuses:
+        done: "Done"
+        in_progress: "In progress"
+        to_come: "Upcoming"
   landings:
     show:
       title: "gameble"
@@ -1626,6 +1638,7 @@ en:
           done: "Done"
           in_progress: "In progress"
           to_come: "To come"
+        all: "See the whole roadmap"
       open_source:
         label: "07 · Open source and contributions"
         title: "Open source and built with AI."

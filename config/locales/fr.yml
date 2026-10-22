@@ -1519,6 +1519,18 @@ fr:
       title: "Objectif atteint"
       collected: "La Direction vous remercie pour votre participation. Une capsule rare a rejoint votre réserve."
       throttled: "Trop de tentatives en une minute. Réessayez dans un instant."
+  roadmaps:
+    show:
+      title: "Feuille de route · gameble"
+      description: "Ce qui est fait, ce qui avance et ce qui vient dans gameble, le jeu de cartes à collectionner gratuit où chaque carte est un jeu Steam."
+      kicker: "Feuille de route"
+      heading: "Les changements à venir"
+      intro: "Ce qui est fait, ce qui avance, ce qui vient. La collection se construit avec la communauté, le jeu aussi."
+      rail_label: "Étapes de la feuille de route, des plus anciennes aux plus lointaines"
+      statuses:
+        done: "Fait"
+        in_progress: "En cours"
+        to_come: "À venir"
   landings:
     show:
       title: "gameble"
@@ -1671,6 +1683,7 @@ fr:
           done: "Fait"
           in_progress: "En cours"
           to_come: "À venir"
+        all: "Voir toute la feuille de route"
       open_source:
         label: "07 · Open source et contributions"
         title: "Open source et développé avec l'IA."

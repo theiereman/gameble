@@ -223,6 +223,8 @@
   --space-landing-step-marker: 46px;
   --space-landing-roadmap-node: 24px;
   --space-landing-roadmap-column-phone: 216px;
+  --space-roadmap-page-date-column: 168px;
+  --space-roadmap-page-rail-node: 28px;
   /* Short aliases of the chrome heights, as DESIGN names them. */
   --topbar-height: var(--space-topbar-height);
   --tabbar-height: var(--space-tabbar-height);

@@ -1,0 +1,18 @@
+<% content_for :public_page, true %>
+<% content_for :title, t("roadmaps.show.title") %>
+<% content_for :head do %>
+  <%= tag.meta name: "description", content: t("roadmaps.show.description") %>
+<% end %>
+<% content_for :page_footer do %>
+  <%= render "landings/footer" %>
+<% end %>
+<div class="roadmap-page">
+  <header class="roadmap-page__header">
+    <p class="roadmap-page__kicker"><%= t("roadmaps.show.kicker") %></p>
+    <h1 class="roadmap-page__title"><%= t("roadmaps.show.heading") %></h1>
+    <p class="roadmap-page__intro"><%= t("roadmaps.show.intro") %></p>
+  </header>
+  <ol class="roadmap-rail" aria-label="<%= t("roadmaps.show.rail_label") %>">
+    <%= render partial: "roadmaps/milestone", collection: @milestones, as: :milestone %>
+  </ol>
+</div>

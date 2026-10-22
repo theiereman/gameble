@@ -1312,6 +1312,11 @@ html[data-motion="reduced"] .landing-reveal__stage[data-revealed] .landing-revea
   }
 }
 
+.landing-roadmap__all {
+  align-self: flex-start;
+  margin: 0;
+}
+
 .landing-legend {
   display: flex;
   flex-wrap: wrap;

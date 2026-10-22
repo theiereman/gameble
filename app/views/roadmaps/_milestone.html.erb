@@ -1,0 +1,27 @@
+<% status = milestone.status %>
+<li class="roadmap-milestone roadmap-milestone--<%= status.dasherize %>">
+  <p class="roadmap-milestone__when" aria-hidden="true"><%= t("roadmaps.show.statuses.#{status}") %></p>
+  <div class="roadmap-milestone__track" aria-hidden="true">
+    <span class="roadmap-milestone__node">
+      <%= pixel_icon("check", class: "roadmap-milestone__check") if status == "done" %>
+    </span>
+    <span class="roadmap-milestone__line"></span>
+  </div>
+  <div class="roadmap-milestone__panel">
+    <span class="roadmap-milestone__corner roadmap-milestone__corner--top" aria-hidden="true"></span>
+    <span class="roadmap-milestone__corner roadmap-milestone__corner--bottom" aria-hidden="true"></span>
+    <p class="roadmap-badge"><span class="roadmap-badge__mark" aria-hidden="true"></span><%= t("roadmaps.show.statuses.#{status}") %></p>
+    <h2 class="roadmap-milestone__title"><%= milestone.wording %></h2>
+    <% if milestone.stories.any? %>
+      <ul class="roadmap-stories">
+        <% milestone.stories.each do |story| %>
+          <li class="roadmap-story roadmap-story--<%= story.status.dasherize %>">
+            <span class="roadmap-story__marker" aria-hidden="true"></span>
+            <span class="roadmap-story__wording"><%= story.wording %></span>
+            <span class="roadmap-story__status"><%= t("roadmaps.show.statuses.#{story.status}") %></span>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+</li>
