@@ -1,0 +1,15 @@
+<% description = t("landings.show.description") %>
+<% url = language_alternates(:home_path).fetch(I18n.locale.to_s) %>
+<%= tag.meta name: "description", content: description %>
+<%= render "layouts/language_links", route: :home_path %>
+<%= tag.meta property: "og:type", content: "website" %>
+<%= tag.meta property: "og:site_name", content: t("layouts.application.application_name") %>
+<%= tag.meta property: "og:title", content: t("landings.show.title") %>
+<%= tag.meta property: "og:description", content: description %>
+<%= tag.meta property: "og:url", content: url %>
+<%= tag.meta property: "og:locale", content: og_locale %>
+<% I18n.available_locales.map(&:to_s).excluding(I18n.locale.to_s).each do |locale| %>
+  <%= tag.meta property: "og:locale:alternate", content: og_locale_for(locale) %>
+<% end %>
+<%= tag.meta name: "twitter:card", content: "summary" %>
+<%= tag.script landing_structured_data.html_safe, type: "application/ld+json" %>

@@ -1,0 +1,6 @@
+<% alternates = language_alternates(route) %>
+<%= tag.link rel: "canonical", href: alternates.fetch(I18n.locale.to_s) %>
+<% alternates.each do |locale, href| %>
+  <%= tag.link rel: "alternate", hreflang: locale, href: %>
+<% end %>
+<%= tag.link rel: "alternate", hreflang: "x-default", href: default_language_url %>

@@ -1592,7 +1592,10 @@ fr:
         to_come: "À venir"
   landings:
     show:
-      title: "gameble"
+      title: "gameble, un jeu de cartes gratuit de jeux Steam"
+      description: "Chaque carte est un jeu Steam. Ouvrez des capsules, complétez des sets, échangez avec vos amis et rejoignez la Confrérie à la recherche des jeux perdus. Gratuit."
+      structured_data:
+        genre: "Jeu de cartes à collectionner"
       unknown: "—"
       gauge:
         label: "Position sur la page"

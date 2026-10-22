@@ -77,7 +77,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", 1
     assert_select "h1#profile-heading", "Gabe the Brave"
     assert_select ".top-bar__title", "Gabe the Brave"
-    assert_select "meta[name=robots][content=noindex]"
+    assert_select "meta[name=robots]", false
     assert_select "header.profile-band.panel--brackets svg.profile-band__avatar[aria-hidden=true]"
     assert_select ".profile-band__since", "Member since March 2026"
     assert_select ".profile-band__meta button.button--link.button--small[type=button][disabled]", "REPORT"
@@ -186,7 +186,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "title", "Horror · Gabe the Brave · gameble"
-    assert_select "meta[name=robots][content=noindex]"
+    assert_select "meta[name=robots]", false
     assert_select "h1", 1
     assert_select "h1#set-album-heading[tabindex='-1']", "Horror · Gabe the Brave"
     assert_equal "6/16", album_count
@@ -296,7 +296,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_empty statements
-    assert_select "meta[name=robots][content=noindex]"
+    assert_select "meta[name=robots]", false
     assert_select "title", "Collection · Gabe the Brave · gameble"
     assert_select "h1", "Collection · Gabe the Brave"
     assert_select ".collection:not(.collection--visitor) .collection__aside"

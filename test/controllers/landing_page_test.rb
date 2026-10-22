@@ -209,7 +209,7 @@ class LandingPageTest < ActionDispatch::IntegrationTest
     get home_path(locale: :fr)
 
     assert_select "[style]", 0
-    css_select("script").each { |script| assert script["src"].present? || script["nonce"].present?, script.to_html }
+    css_select("script:not([type='application/ld+json'])").each { |script| assert script["src"].present? || script["nonce"].present?, script.to_html }
     assert_no_match(/data:/, css_select("main, footer").map(&:to_html).join)
     Catalog::CardSeason.pluck(:id).each { |id| assert_no_match(/\b(card[-_]?season|id)[^>]*\b#{id}\b/, response.body) }
   end

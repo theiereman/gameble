@@ -2,11 +2,10 @@
     form a share link takes (CAP-9): its title and rarity, a fixed
     invitation line, in the URL's language, and never an image (no
     og:image, twitter:image or image_src: the game's art is not ours to
-    show), nor who shared or holds it. The page stays out of search engines.
+    show), nor who shared or holds it. The page stays open to search engines.
     - title: the card's title and rarity (card_preview_title);
     - url: the page's absolute, season-qualified URL, without query. %>
 <% description = t("card_details.preview.description") %>
-<meta name="robots" content="noindex">
 <%= tag.meta name: "description", content: description %>
 <%= tag.link rel: "canonical", href: url %>
 <%= tag.meta property: "og:type", content: "website" %>

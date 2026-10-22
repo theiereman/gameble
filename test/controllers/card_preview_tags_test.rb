@@ -144,7 +144,7 @@ class CardPreviewTagsTest < ActionDispatch::IntegrationTest
     assert_equal season_url, canonical
     assert_equal "en_US", og("locale")
     assert_equal "summary", meta("name", "twitter:card")
-    assert_equal "noindex", meta("name", "robots")
+    assert_select "head meta[name=robots]", false
     # Never an image in the preview.
     assert_select "head meta[property^='og:image'], head meta[name^='twitter:image'], head meta[property^='twitter:image']", false
     assert_select "head link[rel=image_src], head meta[name=image_src]", false

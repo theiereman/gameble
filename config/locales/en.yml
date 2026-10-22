@@ -1547,7 +1547,10 @@ en:
         to_come: "Upcoming"
   landings:
     show:
-      title: "gameble"
+      title: "gameble, a free trading card game of Steam games"
+      description: "Every card is a Steam game. Open capsules, complete sets, trade with friends and join the Brotherhood in its search for lost games. Free to play."
+      structured_data:
+        genre: "Trading card game"
       unknown: "—"
       gauge:
         label: "Position on the page"

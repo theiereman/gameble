@@ -197,6 +197,9 @@ Rails.application.routes.draw do
   get "auth/failure" => "sessions#failure", as: :auth_failure
   resource :session, only: :destroy
 
+  get "robots.txt" => "robots#show", format: false
+  get "sitemap.xml" => "sitemaps#show", defaults: { format: :xml }, format: false
+
   # "/" sends a first visit to the locale its browser prefers.
   root "locales#redirect"
 end
