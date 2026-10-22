@@ -1,4 +1,6 @@
 // Application entrypoint, served by Vite (AD-16): Turbo, Stimulus, and the React islands mounted with Turbo Mount.
+// Imported before Turbo so its popstate listener runs before Turbo's own.
+import "../lib/bridge_cache_guard"
 import "@hotwired/turbo-rails"
 import { Application } from "@hotwired/stimulus"
 import { registerControllers } from "stimulus-vite-helpers"

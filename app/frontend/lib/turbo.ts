@@ -9,6 +9,7 @@ export interface TurboGlobal {
     refresh(url: string, options?: { method?: "morph" | "replace"; scroll?: "preserve" | "reset" }): void
   }
   navigator: { currentVisit?: unknown }
+  cache: { clear(): void }
   StreamActions: Record<string, StreamAction>
 }
 
