@@ -60,6 +60,24 @@ class PublicProfileTest < ApplicationSystemTestCase
     take_screenshot
   end
 
+  test "a visitor reaches an owner's whole collection from the profile, opens a card and comes back to it" do
+    resize_to(390, 844)
+    visit brother_path(locale: :en, token: @player.token)
+    click_on "See the full collection"
+
+    assert_current_path brother_collection_path(locale: :en, token: @player.token)
+    assert_selector ".collection-slot", count: 60
+    assert_selector ".collection-slot__copies", text: "x2"
+    assert_no_selector ".collection-slot__new"
+    assert_selector ".collection-slot .card--not-owned"
+    find(".collection-slot", match: :first).find("a.card-link").click
+
+    assert_selector ".card-detail__card"
+    find(".top-bar__phone-back").click
+    assert_current_path brother_collection_path(locale: :en, token: @player.token)
+    take_screenshot
+  end
+
   test "a visitor finds no profile behind an unknown link" do
     visit brother_path(locale: :fr, token: "A" * 24)
 

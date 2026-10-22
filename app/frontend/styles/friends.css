@@ -196,22 +196,12 @@
   margin: 0;
 }
 
-.friend-profile__count,
-.friend-profile__heading {
+.friend-profile__count {
   margin: 0;
   color: var(--color-muted);
   font: var(--font-label);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-}
-
-.friend-profile__showcase {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
 }
 
 .friend-profile__empty,

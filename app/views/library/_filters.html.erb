@@ -12,7 +12,8 @@
     - states, states_asked: the states shown, and whether the player chose
       them (none chosen shows every slot);
     - query: the text searched;
-    - set_filter: the set group's kinds, kind, query, options and found. %>
+    - set_filter: the set group's kinds, kind, query, options and found;
+    - clear_path: the grid's page without any filter. %>
 <% count = collection_filter_count(grid:, states:, states_asked:) %>
 <%= form_with url: request.path, method: :get, class: "filters", html: { role: "search" }, data: {
   controller: "collection-filters", turbo_frame: "collection-results",
@@ -34,7 +35,7 @@
       <% if ownership %>
         <fieldset class="filters__group" data-collection-filters-target="group" data-group="state" data-default="<%= Game::CollectionStates::DEFAULT %>">
           <legend class="filters__legend"><%= t("library.filters.groups.state") %></legend>
-          <% Game::CollectionStates::STATES.each do |state| %>
+          <% (Game::CollectionStates::STATES - (local_assigns.fetch(:with_new, true) ? [] : [ "new" ])).each do |state| %>
             <label class="filter-chip">
               <%= check_box_tag "state[]", state, states.include?(state), id: nil, class: "filter-chip__box" %>
               <span class="filter-chip__text"><%= t("library.filters.states.#{state}") %></span>
@@ -67,6 +68,6 @@
       <% end %>
     </div>
   </details>
-  <%= link_to t("library.filters.clear"), library_cards_path, class: "filters__clear", data: { turbo_frame: "_top", collection_filters_target: "clear" }, hidden: (count.zero? && query.blank?) %>
+  <%= link_to t("library.filters.clear"), clear_path, class: "filters__clear", data: { turbo_frame: "_top", collection_filters_target: "clear" }, hidden: (count.zero? && query.blank?) %>
   <noscript><%= submit_tag t("library.filters.apply"), name: nil, class: "filters__apply" %></noscript>
 <% end %>

@@ -1,0 +1,19 @@
+<% name = public_profile_title(@owner) %>
+<% content_for :back_button, true %>
+<% content_for :screen_title, t("library.collection.title") %>
+<% content_for :title, t("public_profiles.collection.title", name:) %>
+<% content_for :head do %><meta name="robots" content="noindex"><% end %>
+<%# The owner's whole collection, read-only: every game of the published season,
+    faded and locked when the owner does not hold it, or the no-season line. %>
+<% if @season.nil? %>
+  <section class="collection-none" aria-labelledby="collection-heading">
+    <h1 id="collection-heading" class="visually-hidden"><%= t("public_profiles.collection.heading", name:) %></h1>
+    <%= render PanelComponent.new(tag: :p) do %><%= t("library.show.no_season") %><% end %>
+  </section>
+<% else %>
+  <%= render "library/collection", heading: t("public_profiles.collection.heading", name:), grid: @grid, slots: @slots, pagy: @grid_pagy, context: @grid_context, set_apart: true,
+    unique: @unique, games_by_rarity: @games_by_rarity, tier_counts: @tier_counts, seen_up_to: nil, states: @states, states_asked: @states_asked, query: @query,
+    clear_path: brother_collection_path(@owner.token),
+    with_new: false,
+    set_filter: { kinds: @set_kinds, kind: @set_kind, query: @set_query, options: @set_options, found: @set_found } %>
+<% end %>

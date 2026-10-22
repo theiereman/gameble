@@ -11,4 +11,7 @@
       <% end %>
     </ul>
   <% end %>
+  <div class="profile-section__action">
+    <%= render ButtonComponent.new(variant: :secondary, href: brother_collection_path(owner.token)) do %><%= t("public_profiles.show.sets.full_collection") %><% end %>
+  </div>
 </section>

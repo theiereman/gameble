@@ -888,9 +888,13 @@ fr:
           zero: "%{count} set entamé"
           one: "%{count} set entamé"
           other: "%{count} sets entamés"
+        full_collection: "Voir la collection complète"
     set:
       title: "%{set} · %{name} · gameble"
       heading: "%{set} · %{name}"
+    collection:
+      title: "Collection · %{name} · gameble"
+      heading: "Collection · %{name}"
     unavailable:
       title: "Profil indisponible"
       body: "Ce profil n'est pas disponible. Le lien ne mène nulle part, ou son propriétaire ne le montre plus."
@@ -1136,6 +1140,9 @@ fr:
         other: "%{count} nouvelles entrées dans le fil."
   friends:
     public_profile:
+      label: "Voir le profil"
+      named: "Voir le profil de %{name}"
+    collection_link:
       label: "Voir la collection"
       named: "Voir la collection de %{name}"
     show:
@@ -1203,8 +1210,6 @@ fr:
     throttled: "Trop de retraits en une minute. Réessayez dans un instant."
   friend_profiles:
     show:
-      showcase: "Vitrine"
-      no_showcase: "Aucune carte en vitrine."
       trade: "Échange"
     unavailable:
       body: "Ce profil n'est pas disponible."

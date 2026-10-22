@@ -20,11 +20,11 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
   def unavailable_frame(token)
     assert_response :not_found
     assert_select "turbo-frame#friend-profile-#{token}[target=_top] .friend-profile--unavailable", 1
-    assert_select ".friend-profile__showcase, .friend-profile__actions", false
+    assert_select ".friend-profile__showcase, .friend-profile__actions, .friends__collection-link", false
     css_select("turbo-frame").to_html.gsub(token, "TOKEN")
   end
 
-  test "a friend sees the name, the count, three cards highest tier first, the trade action and SIGNALER" do
+  test "a friend sees the name, the count, no showcase, the trade action, the profile and the collection links and SIGNALER" do
     season = publish_sets_draft
     tiers = Catalog::CardSeason.where(season_id: season.id).order(:id).pluck(:rarity, :id)
       .group_by(&:first).transform_values { |rows| rows.map(&:last) }
@@ -42,11 +42,9 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
       assert_select "svg.friend-profile__avatar"
       assert_select ".friend-profile__presence .friends__presence--offline", "Hors ligne"
       assert_select ".friend-profile__count", "4 cartes collectionnées"
-      assert_select ".friend-profile__heading", "Vitrine"
-      assert_select ".friend-profile__showcase li .card", 3
-      assert_select ".friend-profile__showcase li:nth-child(1) .card--s.card--rarity-legendary"
-      assert_select ".friend-profile__showcase li:nth-child(2) .card--rarity-epic"
-      assert_select ".friend-profile__showcase li:nth-child(3) .card--rarity-rare"
+      assert_select ".friend-profile__heading, .friend-profile__showcase", false
+      assert_select ".friend-profile__actions a.friends__profile-link[href=?]", brother_path(locale: :fr, token: @friend.token), "Voir le profil"
+      assert_select ".friend-profile__actions a.friends__collection-link[href=?]", brother_collection_path(locale: :fr, token: @friend.token), "Voir la collection"
       assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @friend.token), "Échange"
       assert_select ".friend-profile__actions button.button--link[aria-haspopup=dialog][data-dialog-opener-dialog-value=?]",
         "report-dialog-#{@friend.token}", "SIGNALER"
@@ -72,7 +70,7 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friend-profile__count", "2 cards collected"
   end
 
-  test "a friend holding nothing shows an empty showcase, in English" do
+  test "a friend holding nothing shows no showcase, in English" do
     publish_sets_draft
     @friend.update_columns(last_seen_at: 1.minute.ago)
     sign_in(@player)
@@ -82,8 +80,7 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".friend-profile__count", "0 cards collected"
     assert_select ".friend-profile__presence .friends__presence--online", "Online"
-    assert_select ".friend-profile__showcase", false
-    assert_select ".friend-profile__empty", "No card in the showcase."
+    assert_select ".friend-profile__showcase, .friend-profile__empty", false
     assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :en, friend: @friend.token), "Trade"
   end
 
@@ -94,11 +91,13 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     get friend_profile_path(locale: :en, token: @friend.token)
     assert_response :success
     assert_select ".friend-profile__name", "Léa"
-    assert_select ".friend-profile__actions a.friends__profile-link[href='#{brother_path(locale: :en, token: @friend.token)}'][aria-label=\"See Léa's collection\"]", "See the collection"
+    assert_select ".friend-profile__actions a.friends__profile-link[href='#{brother_path(locale: :en, token: @friend.token)}'][aria-label=\"See Léa's profile\"]", "See the profile"
+    assert_select ".friend-profile__actions a.friends__collection-link[href='#{brother_collection_path(locale: :en, token: @friend.token)}'][aria-label=\"See Léa's collection\"]", "See the collection"
 
     @friend.update!(visibility: "private")
     get friend_profile_path(locale: :en, token: @friend.token)
     unavailable_frame(@friend.token)
+    assert_select "a.friends__profile-link, a.friends__collection-link", false
     assert_select ".friend-profile__empty", "This profile is not available."
     assert_not_includes response.body, "Léa"
   end
@@ -131,14 +130,14 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @friend.token), "Échange"
   end
 
-  test "a private player still sees a friend's showcase, with the trades-closed line instead of the trade action" do
+  test "a private player still sees a friend's profile, with the trades-closed line instead of the trade action" do
     @player.update!(visibility: "private")
     sign_in(@player)
 
     get friend_profile_path(locale: :fr, token: @friend.token)
 
     assert_response :success
-    assert_select ".friend-profile__heading", "Vitrine"
+    assert_select ".friend-profile__actions a.friends__collection-link", "Voir la collection"
     assert_select ".friend-profile__actions a.button--primary", 0
     assert_select ".friend-profile__actions .trades-closed", /Votre profil est privé : les échanges sont fermés\./
     assert_select ".friend-profile__actions .trades-closed a[href=?]", settings_path(locale: :fr), "RÉGLAGES"

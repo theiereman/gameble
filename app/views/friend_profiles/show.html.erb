@@ -11,16 +11,6 @@
         <p class="friend-profile__count"><%= t("public_profiles.show.distinct_cards", count: @distinct_cards) %></p>
       </div>
     </div>
-    <h3 class="friend-profile__heading"><%= t(".showcase") %></h3>
-    <% if @showcase.any? %>
-      <ul class="friend-profile__showcase">
-        <% @showcase.each do |card| %>
-          <li><%= render CardComponent.new(card:, size: :s) %></li>
-        <% end %>
-      </ul>
-    <% else %>
-      <p class="friend-profile__empty"><%= t(".no_showcase") %></p>
-    <% end %>
     <div class="friend-profile__actions">
       <% if @trades_closed %>
         <%= trades_closed_line(@trades_closed, @owner) %>
@@ -28,6 +18,7 @@
         <%= render ButtonComponent.new(href: @open_trade_token ? trade_path(token: @open_trade_token) : new_trade_path(friend: @owner.token)) do %><%= t(".trade") %><% end %>
       <% end %>
       <%= render "friends/public_profile_link", friend: @owner %>
+      <%= render "friends/collection_link", friend: @owner %>
       <%= render ButtonComponent.new(variant: :link, size: :small, opens: "report-dialog-#{@owner.token}") do %><%= t("reports.open") %><% end %>
     </div>
     <%= render "reports/dialog", owner: @owner, id: "report-dialog-#{@owner.token}", from: "friends" %>

@@ -286,6 +286,154 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "a visitor opens an owner's whole collection: the owner's holdings, the cards they lack faded, read-only" do
+    season = publish_sets_draft
+    held = Catalog::CardSeason.where(season_id: season.id).order(:number, :id).first(3).map(&:id)
+    hold(@owner, held[0], 2, gained_at: 1.minute.ago)
+    hold(@owner, held[1], 1, gained_at: 1.minute.ago)
+
+    statements = written_statements { get brother_collection_path(locale: :en, token: @owner.token) }
+
+    assert_response :success
+    assert_empty statements
+    assert_select "meta[name=robots][content=noindex]"
+    assert_select "title", "Collection · Gabe the Brave · gameble"
+    assert_select "h1", "Collection · Gabe the Brave"
+    assert_select ".collection:not(.collection--visitor) .collection__aside"
+    assert_select ".collection-slot .card--not-owned", 58
+    assert_equal [ "x1", "x2" ], css_select(".collection-slot__copies").map(&:text).sort
+    assert_select ".collection-slot__new", false
+    assert_select "[data-controller~=collection-seen]", false
+    assert_select ".top-bar__end .collection-status", false
+    assert_select "main form:not([method=get])", false
+    assert_select "form[role=search][action=?]", brother_collection_path(locale: :en, token: @owner.token)
+    assert_select "a.filters__clear[href=?]", brother_collection_path(locale: :en, token: @owner.token)
+    assert_select "[style]", false
+    assert_select "input[name='state[]'][value=new]", 0
+    assert_select "input[name='state[]'][value=owned]", 1
+  end
+
+  test "the grid follows the owner's holdings, never the signed-in viewer's" do
+    season = publish_sets_draft
+    cards = Catalog::CardSeason.where(season_id: season.id).order(:number, :id).first(2).map(&:id)
+    viewer = accounts_players(:moderator)
+    hold(viewer, cards[0], 3)
+    hold(@owner, cards[1], 1)
+    sign_in(viewer)
+
+    get brother_collection_path(locale: :en, token: @owner.token, state: %w[owned])
+
+    assert_equal 1, css_select(".collection-slot").size
+    assert_equal [ "x1" ], css_select(".collection-slot__copies").map(&:text)
+  end
+
+  test "the states owned, missing and duplicates narrow the owner's grid; new is ignored" do
+    season = publish_sets_draft
+    cards = Catalog::CardSeason.where(season_id: season.id).order(:number, :id).first(3).map(&:id)
+    hold(@owner, cards[0], 2, gained_at: 1.minute.ago)
+    hold(@owner, cards[1], 1, gained_at: 1.minute.ago)
+
+    get brother_collection_path(locale: :en, token: @owner.token, state: %w[duplicates])
+    assert_equal 1, css_select(".collection-slot").size
+
+    get brother_collection_path(locale: :en, token: @owner.token, state: %w[owned])
+    assert_equal 2, css_select(".collection-slot").size
+
+    get brother_collection_path(locale: :en, token: @owner.token, state: %w[missing])
+    assert_select ".collection-slot .card--not-owned", 60
+
+    get brother_collection_path(locale: :en, token: @owner.token, state: %w[new])
+    assert_response :success
+    assert_select ".collection-slot", 60
+    assert_select ".collection-slot__new", false
+    assert_select "[data-controller~=collection-seen]", false
+  end
+
+  test "the search and the pages work as in the player's own grid" do
+    publish_sets_draft
+
+    get brother_collection_path(locale: :en, token: @owner.token, q: "Seed 1", genre: %w[roguelike])
+    assert_response :success
+
+    get brother_collection_path(locale: :en, token: @owner.token, q: "Seed 1")
+    assert_response :success
+    assert_operator css_select(".collection-slot").size, :>, 0
+    assert_select "a.filters__clear:not([hidden])"
+
+    get brother_collection_path(locale: :en, token: @owner.token, page: 2)
+    assert_select ".collection-pages [aria-current=page]", /2/
+    assert_select ".collection-pages a[href*='/brothers/#{@owner.token}/library']"
+  end
+
+  test "a card opened from the owner's grid carries the grid and the owner's token" do
+    publish_sets_draft
+
+    get brother_collection_path(locale: :en, token: @owner.token, state: %w[all new])
+
+    link = css_select(".collection-grid a.card-link").first["href"]
+    assert_includes link, "grid%5Bbrother%5D=#{@owner.token}"
+    assert_not_includes link, "new"
+    assert_not_includes link, "seen"
+  end
+
+  test "with no season published the owner's collection is the no-season line" do
+    catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
+    get brother_collection_path(locale: :en, token: @owner.token)
+
+    assert_response :success
+    assert_select ".collection-none", /No season of cards is published yet/
+  end
+
+  test "a hidden owner's collection is the same unavailable page as the profile, with a 404" do
+    publish_sets_draft
+    get brother_path(locale: :en, token: "A" * 24)
+    unknown = css_select("main").to_html
+
+    get brother_collection_path(locale: :en, token: "A" * 24)
+    assert_response :not_found
+    assert_equal unknown, css_select("main").to_html
+
+    banned = accounts_players(:banned)
+    get brother_collection_path(locale: :en, token: banned.token)
+    assert_response :not_found
+    assert_equal unknown, css_select("main").to_html
+
+    @owner.update!(visibility: "private")
+    get brother_collection_path(locale: :en, token: @owner.token)
+    assert_response :not_found
+    assert_equal unknown, css_select("main").to_html
+
+    sign_in(@owner)
+    get brother_collection_path(locale: :en, token: @owner.token)
+    assert_response :success
+  end
+
+  test "the page offers no write route" do
+    publish_sets_draft
+    path = brother_collection_path(locale: :en, token: @owner.token)
+
+    post path
+    assert_response :not_found
+    patch path
+    assert_response :not_found
+  end
+
+  test "the profile offers no full collection without a season" do
+    catalog_seasons(:one).update_columns(status: "draft", published_at: nil)
+
+    get brother_path(locale: :fr, token: @owner.token)
+
+    assert_select "a[href=?]", brother_collection_path(locale: :fr, token: @owner.token), false
+  end
+
+  test "the profile offers the full collection after its sets" do
+    publish_sets_draft
+    get brother_path(locale: :fr, token: @owner.token)
+    assert_select ".profile-section__action a.button[href=?]", brother_collection_path(locale: :fr, token: @owner.token), "Voir la collection complète"
+    get brother_path(locale: :en, token: @owner.token)
+    assert_select ".profile-section__action a.button", "See the full collection"
+  end
+
   test "a banned owner's profile is the same unavailable page as an unknown token" do
     publish_sets_draft
     banned = accounts_players(:banned)

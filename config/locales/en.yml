@@ -850,9 +850,13 @@ en:
         started:
           one: "%{count} set started"
           other: "%{count} sets started"
+        full_collection: "See the full collection"
     set:
       title: "%{set} · %{name} · gameble"
       heading: "%{set} · %{name}"
+    collection:
+      title: "Collection · %{name} · gameble"
+      heading: "Collection · %{name}"
     unavailable:
       title: "Profile not available"
       body: "This profile is not available. The link leads nowhere, or its owner no longer shows it."
@@ -1095,6 +1099,9 @@ en:
         other: "%{count} new entries in the feed."
   friends:
     public_profile:
+      label: "See the profile"
+      named: "See %{name}'s profile"
+    collection_link:
       label: "See the collection"
       named: "See %{name}'s collection"
     show:
@@ -1162,8 +1169,6 @@ en:
     throttled: "Too many removals in a minute. Try again in a moment."
   friend_profiles:
     show:
-      showcase: "Showcase"
-      no_showcase: "No card in the showcase."
       trade: "Trade"
     unavailable:
       body: "This profile is not available."

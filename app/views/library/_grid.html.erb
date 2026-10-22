@@ -17,7 +17,9 @@
     - slots: [ [ Catalog::CardView, Game::HeldGames::Edition | nil ], … ];
     - set_apart: true for a signed-in player, whose cards not held are set
       apart from theirs;
-    - pagy: the grid's page. %>
+    - pagy: the grid's page;
+    - new_badge: whether an edition gained since the viewer last saw their
+      collection is marked (the viewer's own grid only). %>
 <% strings = CardStrings.new %>
 <% if slots.empty? %>
   <p class="collection-grid__empty"><%= pagy.count.positive? ? t("library.grid.past_the_end") : t("library.grid.empty") %></p>
@@ -33,7 +35,7 @@
             <span class="collection-slot__editions" aria-hidden="true"><%= t("library.grid.editions.short", count: held.editions) %></span>
             <span class="visually-hidden"><%= t("library.grid.editions.full", count: held.editions) %></span>
           <% end %>
-          <% if held.new %>
+          <% if held.new && new_badge %>
             <span class="collection-slot__new"><%= t("library.grid.new") %></span>
           <% end %>
         <% else %>

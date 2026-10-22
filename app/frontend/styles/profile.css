@@ -195,6 +195,10 @@
   text-transform: uppercase;
 }
 
+.profile-section__action {
+  display: flex;
+}
+
 .profile-section__aside {
   margin: 0;
   color: var(--color-muted);

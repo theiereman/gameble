@@ -1,8 +1,8 @@
 # A player's public profile, at a link built on their token, readable by
 # anyone, signed out included: the owner's identity and key numbers, their
 # showcase, stats, latest achievements and started sets, never the
-# viewer's; and one of their sets' albums, read-only, with the owner's
-# cards.
+# viewer's; one of their sets' albums, read-only, with the owner's
+# cards; and their whole collection, read-only.
 #
 # An unknown token and a profile that may not be shown to this viewer
 # (Game::Visibility: a banned owner, or one whose visibility hides it, for
@@ -12,6 +12,7 @@
 # crawler (PublicRead).
 class PublicProfilesController < ApplicationController
   include PublicRead
+  include CollectionGridLoading
   include SetBoardLoading
   include SetAlbumLoading
   include ChosenCards
@@ -36,7 +37,27 @@ class PublicProfilesController < ApplicationController
     load_set_album(Catalog::PublishedSeason.call, owner: @owner, with_new: false)
   end
 
+  # GET /:locale/brothers/:token/library: the owner's whole collection, the
+  # grid of the player's own library over the owner's holdings, read-only.
+  def collection
+    @season = Catalog::PublishedSeason.call
+    return if @season.nil?
+
+    @grid = collection_grid(@season, params)
+    load_summary
+    load_grid(@grid)
+    load_set_filter(@grid)
+  end
+
   private
+    def grid_owner
+      @owner
+    end
+
+    def grid_another?
+      true
+    end
+
     def authorize_page
       authorize :page, :show?
     end

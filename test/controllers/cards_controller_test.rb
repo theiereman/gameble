@@ -705,6 +705,51 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__card .card.card--l"
   end
 
+  test "opened from an owner's collection grid: ◀ ▶ walk that grid, the way back is that owner's page holding the card" do
+    season = publish_sets_draft
+    owner = accounts_players(:moderator)
+    viewer = accounts_players(:player)
+    cards = Catalog::CardSeason.where(season_id: season.id).order(:number, :id).ids
+    hold(owner, cards.first, 1, gained_at: 1.hour.ago)
+    sign_in(viewer)
+    get brother_collection_path(locale: :en, token: owner.token)
+    slugs = css_select(".collection-grid a.card-link").map { it["href"][%r{/cards/([^/]+)/}, 1] }
+    context = { q: "", brother: owner.token }
+
+    get grid_detail(slugs[1], season.number, context)
+
+    assert_equal [ [ "a", grid_detail(slugs[0], season.number, context) ], [ "a", grid_detail(slugs[2], season.number, context) ] ], navs
+    assert_equal "/en/brothers/#{owner.token}/library", css_select(".top-bar__phone-back").sole["href"]
+    assert_equal "Grid", css_select(".top-bar__phone-back").sole.text.squish
+
+    get brother_collection_path(locale: :en, token: owner.token, page: 2)
+    second = css_select(".collection-grid a.card-link").first["href"][%r{/cards/([^/]+)/}, 1]
+    get grid_detail(second, season.number, context)
+    assert_equal "/en/brothers/#{owner.token}/library?page=2", css_select(".top-bar__phone-back").sole["href"]
+
+    get grid_detail(slugs[0], season.number, context.merge(state: %w[owned new]))
+    assert_equal "1 / 1", position[%r{\d+ / \d+}]
+    assert_equal "/en/brothers/#{owner.token}/library?state%5B%5D=owned", css_select(".top-bar__phone-back").sole["href"]
+  end
+
+  test "an owner's grid in a card's context is ignored when the owner is hidden or unknown" do
+    season = publish_sets_draft
+    owner = accounts_players(:moderator)
+    owner.update!(visibility: "private")
+    sign_in(accounts_players(:player))
+    slug = Catalog::CardSeason.where(season_id: season.id).order(:number, :id).first.card.slug
+
+    get card_season_path(locale: :en, slug:, number: season.number, grid: { q: "", brother: owner.token })
+    assert_select ".card-detail__nav" do |navs|
+      assert_not navs.any? { it["href"].to_s.include?(owner.token) }
+    end
+    assert_not_includes css_select(".top-bar__phone-back").map { it["href"] }.join, owner.token
+
+    get card_season_path(locale: :en, slug:, number: season.number, grid: { q: "", brother: "A" * 24 })
+    assert_response :success
+    assert_not_includes response.body, "A" * 24
+  end
+
   test "a filtered, searched grid is walked as shown, a visitor's state ignored; a grid naming a set walks the whole season's; a grid without the card is ignored" do
     season = publish_sets_draft
     context = { genre: %w[roguelike], q: "Seed 1" }

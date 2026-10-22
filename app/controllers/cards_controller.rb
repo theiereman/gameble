@@ -16,7 +16,9 @@
 # - `grid`: the collection grid as shown (its filters and search, and
 #   the watermark its new cards were judged against, CollectionGridLoading),
 #   in its order across its pages, back to the page of that grid holding
-#   the card ("◀ Grille");
+#   the card ("◀ Grille"); with `brother` in it, a player's token, the grid
+#   of that player's holdings, back to their collection page, ignored when
+#   their profile may not be shown;
 # - `set_kind` and `set_key`: one of the card's sets, back to its album;
 #   with `brother`, a player's token, back to that player's album of it
 #   when their profile may be shown;
@@ -122,8 +124,13 @@ class CardsController < ApplicationController
       source = params[:grid]
       return unless source.is_a?(ActionController::Parameters)
 
+      if source[:brother].present?
+        @grid_owner = visible_player(source[:brother])
+        return if @grid_owner.nil?
+      end
+
       grid = collection_grid(Catalog::PublishedSeason.call, source)
-      seen = grid_seen(source)
+      seen = grid_seen(source) unless grid_another?
       ids = grid_cards(grid, grid_states_asked(source), seen_up_to: seen).pluck(:id)
       index = ids.index(@detail.card_season_id)
       return if index.nil?
@@ -135,7 +142,18 @@ class CardsController < ApplicationController
 
     # The page `page` of the grid of `context`, with its filters and search.
     def grid_page_path(context, page)
-      library_cards_path({ **context.except(:seen), page: (page if page > 1) }.compact_blank)
+      query = { **context.except(:seen, :brother), page: (page if page > 1) }.compact_blank
+      grid_another? ? brother_collection_path(grid_owner.token, query) : library_cards_path(query)
+    end
+
+    # The owner of the grid walked: the player a `grid` names by `brother`,
+    # else the viewer.
+    def grid_owner
+      @grid_owner || current_player
+    end
+
+    def grid_another?
+      @grid_owner.present?
     end
 
     # The set the query names, when its kind is a library kind and it is one
@@ -153,8 +171,15 @@ class CardsController < ApplicationController
     def album_owner
       return @album_owner if defined?(@album_owner)
 
-      owner = Accounts::PlayerByToken.call(params[:brother]) if params[:brother].is_a?(String)
-      @album_owner = owner if owner && Game::Visibility.visible?(current_player, owner)
+      @album_owner = visible_player(params[:brother])
+    end
+
+    # The player `token` names, when their profile may be shown to the viewer.
+    def visible_player(token)
+      return unless token.is_a?(String)
+
+      player = Accounts::PlayerByToken.call(token)
+      player if player && Game::Visibility.visible?(current_player, player)
     end
 
     # The profile showcase of the player the query's `brother` names, with

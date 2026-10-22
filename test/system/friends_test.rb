@@ -29,14 +29,14 @@ class FriendsTest < ApplicationSystemTestCase
     page.evaluate_script("document.documentElement.scrollWidth <= document.documentElement.clientWidth")
   end
 
-  test "a player opens a friend's profile, sees the showcase and reports it from there" do
+  test "a player opens a friend's profile, sees no showcase and reports it from there" do
     sign_in
 
     within(".friends__friend", text: "Lea") { click_on "See the profile" }
 
     within("dialog#friend-#{@friend.token}[open]") do
       assert_selector ".friend-profile__name", text: "Lea"
-      assert_selector ".friend-profile__showcase .card", count: 3
+      assert_no_selector ".friend-profile__showcase"
       assert_selector "a.button--primary[href='#{new_trade_path(locale: :en, friend: @friend.token)}']", text: /\Atrade\z/i
       take_screenshot
       click_on "REPORT"
@@ -51,7 +51,7 @@ class FriendsTest < ApplicationSystemTestCase
     assert_equal 1, Accounts::Report.where(reporter_id: @player.id, reported_id: @friend.id).count
   end
 
-  test "a player proposes a trade from a friend's row, and reaches the friend's collection from the friend profile" do
+  test "a player proposes a trade from a friend's row, and reaches the friend's profile and collection from the friend profile" do
     sign_in
 
     within(".friends__friend", text: "Lea") do
@@ -64,10 +64,13 @@ class FriendsTest < ApplicationSystemTestCase
     visit friends_path(locale: :en)
     within(".friends__friend", text: "Lea") { click_on "See the profile" }
     within("dialog#friend-#{@friend.token}[open]") do
-      assert_selector "a.friends__profile-link[aria-label=\"See Lea's collection\"]", text: /see the collection/i
-      find("a.friends__profile-link").click
+      assert_selector "a.friends__profile-link[aria-label=\"See Lea's profile\"]", text: /see the profile/i
+      assert_selector "a.friends__collection-link[aria-label=\"See Lea's collection\"]", text: /see the collection/i
+      find("a.friends__collection-link").click
     end
-    assert_current_path brother_path(locale: :en, token: @friend.token)
+    assert_current_path brother_collection_path(locale: :en, token: @friend.token)
+    assert_selector ".collection-grid .collection-slot"
+    assert_selector ".collection-slot .card--not-owned"
   end
 
   test "a player opens the trade in progress with a friend from their row" do
@@ -101,7 +104,7 @@ class FriendsTest < ApplicationSystemTestCase
 
     within(".friends__friend", text: "Lea") { click_on "See the profile" }
     within("dialog#friend-#{@friend.token}[open]") do
-      assert_selector ".friend-profile__showcase .card", count: 3
+      assert_selector ".friend-profile__name", text: "Lea"
       take_screenshot
       find(".modal__close").click
     end
