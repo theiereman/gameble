@@ -13,12 +13,14 @@
     <% end %>
     <%= render PanelComponent.new(brackets: true, class: "landing-season") do %>
       <p class="landing-kicker"><%= t("landings.show.live.season") %></p>
-      <p class="landing-season__name"><%= unknown %></p>
+      <% number = @season_facts&.dig(:season_number) %>
+      <p class="landing-season__name"><%= number ? t("landings.show.live.season_name", number:) : unknown %></p>
       <dl class="landing-season__facts">
         <% %w[players packs discoveries].each do |fact| %>
           <div class="landing-season__fact">
             <dt><%= t("landings.show.live.facts.#{fact}") %></dt>
-            <dd class="landing-figure-small"><%= unknown %></dd>
+            <% count = @season_facts&.dig(fact.to_sym) %>
+            <dd class="landing-figure-small"><%= count ? number_with_delimiter(count) : unknown %></dd>
           </div>
         <% end %>
       </dl>

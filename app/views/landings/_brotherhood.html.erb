@@ -20,9 +20,17 @@
       <p class="landing-kicker"><%= t("landings.show.brotherhood.goal.kicker") %></p>
       <p class="landing-panel-title"><%= t("landings.show.brotherhood.goal.title") %></p>
       <p class="landing-small"><%= t("landings.show.brotherhood.goal.text") %></p>
-      <p class="landing-goal__line"><%= unknown %></p>
-      <p class="landing-goal__count landing-figure"><%= unknown %></p>
-      <%= landing_gauge(0, class: "landing-goal__gauge") %>
+      <% if @goal %>
+        <p class="landing-goal__line"><%= t("pages.home.goal.line", target: number_with_delimiter(@goal[:target])) %></p>
+        <p class="landing-goal__count landing-figure"><%= number_with_delimiter(@goal[:total]) %> / <%= number_with_delimiter(@goal[:target]) %></p>
+        <%= landing_gauge(goal_lit_segments(@goal), class: "landing-goal__gauge") %>
+        <p class="landing-small landing-goal__participants"><%= t("landings.show.brotherhood.goal.participants", count: @goal[:participants]) %></p>
+        <p class="landing-small landing-goal__end"><%= local_time_sentence(Game::CurrentGoal.next_week_start, :weekday_time, suffix: t("landings.show.brotherhood.goal.local_time")) { t("landings.show.brotherhood.goal.ends", time: it) } %></p>
+      <% else %>
+        <p class="landing-goal__line"><%= unknown %></p>
+        <p class="landing-goal__count landing-figure"><%= unknown %></p>
+        <%= landing_gauge(0, class: "landing-goal__gauge") %>
+      <% end %>
     <% end %>
   </div>
   <ul class="landing-tiles landing-tiles--four">

@@ -7,5 +7,16 @@ class LandingsController < ApplicationController
 
     @samples = Catalog::LandingSampleCards.call(locale: I18n.locale)
     @roadmap = Catalog::LandingRoadmap.call(locale: I18n.locale)
+    @season_facts = readable { Game::LandingSeasonFacts.call(locale: I18n.locale) }
+    @goal = readable { Game::LandingGoal.call(locale: I18n.locale) }
+  end
+
+  private
+
+  def readable
+    yield
+  rescue ActiveRecord::ActiveRecordError => error
+    Rails.logger.error("landing block unreadable: #{error.class}")
+    nil
   end
 end

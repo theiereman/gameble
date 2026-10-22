@@ -693,7 +693,7 @@ Non-blockers, left open.
 - **Landing top bar:** the mock's "Terminal en ligne" status beside the Steam image, kept or dropped.
 - **Motion switch beyond the landing:** whether the public card page also carries the switch (its cookie already applies there); the signed-out hub is gone (2026-10-20).
 - **Landing sample cards:** settled (author, 2026-10-20): each sample slot shows the published season's top card of its rarity, no curated list.
-- **Landing live figures:** what "cette semaine" (calendar goal week or the last seven days) and "aujourd'hui" (the game's UTC day or the visitor's) count for the 04 facts.
+- ~~**Landing live figures**~~ Closed (author, 2026-10-22): "cette semaine" is the weekly goal's calendar week (Monday 00:00 UTC) and "aujourd'hui" is the game's UTC day.
 - ~~**Signed-out entry points**~~ Closed (author, 2026-10-20): there is no signed-out hub; a signed-out deep link that needs an account leads to the landing, a failed Steam return to the page it started from, and a visitor's phone tab bar holds ACCUEIL and TOUTES LES CARTES.
 - **Landing language and meta:** whether the landing offers a FR/EN switch or only the URL segment; its page title, meta description and link-preview image.
 - **Landing license line:** which license the repository takes, and whether 07's "Licence libre." names it.

@@ -332,4 +332,49 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".landing-module[data-power]", 0
     assert_select "[style]", 0
   end
+
+  test "module 04 and the goal panel show the season, its figures and the goal in both languages" do
+    Game::WeeklyGoal.insert!({ week_start: Game::WeeklyGoal.week_start(Time.current), total: 30, target: 200 })
+    Game::WeeklyContribution.insert!({ player_id: accounts_players(:player).id, week_start: Game::WeeklyGoal.week_start(Time.current), openings: 1 })
+    Game::WeeklyContribution.insert!({ player_id: accounts_players(:moderator).id, week_start: Game::WeeklyGoal.week_start(Time.current), openings: 1 })
+
+    get landing_path(locale: :en)
+
+    assert_select ".landing-season__name", "Season 1 · Grand catalogue"
+    assert_equal %w[2 0 0], css_select(".landing-season__fact dd").map { it.text.squish }
+    assert_select ".landing-goal__count", "30 / 200"
+    assert_select ".landing-goal__gauge .is-lit", 3
+    assert_select ".landing-goal__participants", "2 participants"
+    assert_select ".landing-goal__end time"
+    assert_select "[style]", 0
+
+    get landing_path(locale: :fr)
+
+    assert_select ".landing-season__name", "Saison 1 · Grand catalogue"
+    assert_select ".landing-goal__participants", "2 participants"
+  end
+
+  test "an empty game shows zero figures and an empty gauge" do
+    get landing_path(locale: :fr)
+
+    assert_equal %w[0 0 0], css_select(".landing-season__fact dd").map { it.text.squish }
+    assert_select ".landing-goal__count", /\A0 \/ \d+\z/
+    assert_select ".landing-goal__gauge .is-lit", 0
+    assert_select ".landing-goal__participants", "0 participant"
+  end
+
+  test "a block that cannot be read shows a dash and the page renders" do
+    unreadable = [ Game::LandingSeasonFacts, Game::LandingGoal ].to_h { [ it, it.method(:call) ] }
+    unreadable.each_key { |query| query.define_singleton_method(:call) { |**| raise ActiveRecord::StatementInvalid, "down" } }
+    get landing_path(locale: :en)
+
+    assert_response :success
+    assert_headings(:en)
+    assert_select ".landing-season__name", "—"
+    assert_select ".landing-season__fact dd", text: "—", count: 3
+    assert_select ".landing-goal__count", "—"
+    assert_select ".landing-goal__participants", 0
+  ensure
+    unreadable.each { |query, original| query.define_singleton_method(:call, original) }
+  end
 end

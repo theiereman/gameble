@@ -1585,6 +1585,12 @@ fr:
           kicker: "Cette semaine"
           title: "Un objectif pour tous"
           text: "Chaque capsule ouverte et chaque échange conclu font avancer la même jauge. Objectif atteint : tous les participants sont récompensés."
+          ends: "Fin %{time}. Le prochain objectif s'ouvre aussitôt."
+          local_time: ", heure locale"
+          participants:
+            zero: "%{count} participant"
+            one: "%{count} participant"
+            other: "%{count} participants"
         tiles:
           discover:
             title: "Découvrez"
@@ -1632,6 +1638,7 @@ fr:
         empty: "Aucune activité pour l'instant."
         open_feed: "Ouvrir le fil d'activité"
         season: "Saison en cours"
+        season_name: "Saison %{number} · Grand catalogue"
         facts:
           players: "Joueurs actifs cette semaine"
           packs: "Capsules ouvertes aujourd'hui"

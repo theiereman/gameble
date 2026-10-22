@@ -1540,6 +1540,12 @@ en:
           kicker: "This week"
           title: "One goal for all"
           text: "Every capsule opened and every trade concluded moves the same gauge. Goal reached: every participant is rewarded."
+          ends: "Ends %{time}. The next goal opens right away."
+          local_time: ", local time"
+          participants:
+            zero: "%{count} participants"
+            one: "%{count} participant"
+            other: "%{count} participants"
         tiles:
           discover:
             title: "Discover"
@@ -1587,6 +1593,7 @@ en:
         empty: "No activity yet."
         open_feed: "Open the activity feed"
         season: "Current season"
+        season_name: "Season %{number} · Grand catalogue"
         facts:
           players: "Active players this week"
           packs: "Capsules opened today"
