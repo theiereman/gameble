@@ -75,11 +75,10 @@ class CardsController < ApplicationController
   end
 
   private
-    # Who first discovered this card's published edition, named when the
-    # viewer may see their profile, whatever the season shown; nil without a
-    # recorded discovery.
+    # Who first discovered this card in the season shown, named when the
+    # viewer may see their profile; nil without a recorded discovery.
     def pioneer_line
-      pioneer = Game::PioneerOf.call(@detail.card_id)
+      pioneer = Game::PioneerOf.call(@detail.card_season_id)
       return if pioneer.nil?
 
       day = pioneer.discovered_at.in_time_zone.to_date

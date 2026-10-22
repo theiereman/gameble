@@ -456,7 +456,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get card_season_path(locale: :en, slug: "tin-soldier", number: 1)
 
     assert_response :success
-    assert_equal [ "Rarity", "Year", "Season", "Copies", "Editions" ], facts.map(&:first)
+    assert_equal [ "Rarity", "Year", "Season", "Pioneer", "Copies", "Editions" ], facts.map(&:first)
     assert_equal "Season 1", facts.to_h["Season"]
     assert_select ".card-detail__sets", false
     assert_select ".card-detail__nav", false
@@ -953,16 +953,40 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__pioneer-anon"
   end
 
-  test "the pioneer is the published season's, whichever season the detail shows" do
-    pioneer = accounts_players(:moderator)
+  test "each edition of a card names its own pioneer, whichever season is published" do
+    first = accounts_players(:moderator)
+    first.update!(persona_name: "Léa")
+    pioneered_by(first, day: Time.utc(2026, 3, 14, 12))
     season_two = publish_season_two_with_portal
     portal_two = Catalog::CardSeason.find_by!(card_id: catalog_cards(:portal).id, season_id: season_two.id)
-    Game::FirstDiscovery.create!(card_season_id: portal_two.id, player_id: pioneer.id, discovered_at: Time.utc(2026, 5, 2))
+    second = accounts_players(:player)
+    second.update!(persona_name: "Max")
+    Game::FirstDiscovery.create!(card_season_id: portal_two.id, player_id: second.id, discovered_at: Time.utc(2026, 5, 2, 12))
+    sign_in(accounts_players(:administrator))
+
+    get card_season_path(locale: :en, slug: "portal", number: 1)
+    assert_equal "Léa on March 14, 2026", facts.assoc("Pioneer").last
+    assert_select ".card-detail__pioneer a[href=?]", brother_path(locale: :en, token: first.token)
+
+    get card_season_path(locale: :en, slug: "portal", number: 2)
+    assert_equal "Max on May 2, 2026", facts.assoc("Pioneer").last
+
+    get card_path(locale: :en, slug: "portal")
+    assert_equal "Max on May 2, 2026", facts.assoc("Pioneer").last
+  end
+
+  test "an edition with no recorded discovery shows no pioneer while another edition of the card has one" do
+    season_two = publish_season_two_with_portal
+    portal_two = Catalog::CardSeason.find_by!(card_id: catalog_cards(:portal).id, season_id: season_two.id)
+    Game::FirstDiscovery.create!(card_season_id: portal_two.id, player_id: accounts_players(:moderator).id, discovered_at: Time.utc(2026, 5, 2))
+    Game::FirstDiscovery.where(card_season_id: catalog_card_seasons(:portal_one).id).delete_all
     sign_in(accounts_players(:player))
 
     get card_season_path(locale: :en, slug: "portal", number: 1)
+    assert_nil facts.assoc("Pioneer")
 
-    assert_equal "May 2, 2026", facts.assoc("Pioneer").last.sub(/\A.* on /, "")
+    get card_season_path(locale: :en, slug: "portal", number: 2)
+    assert_not_nil facts.assoc("Pioneer")
   end
 
   test "a card without a recorded discovery shows no pioneer row" do
