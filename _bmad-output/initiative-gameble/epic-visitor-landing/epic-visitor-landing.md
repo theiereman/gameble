@@ -31,7 +31,7 @@ For a visitor who knows nothing of gameble: a first page that makes them want to
 - R4 (CAP-24): a visitor's « Animations réduites » switch is remembered in a cookie the server reads from the first paint, and an "on" switch sets the account's setting at sign-in.
 - R5 (CAP-25): the roadmap module shows milestones and a few player-facing stories with their status, from the database: one milestone per initiative epic is created automatically on deploy (the epic's title, to come) without ever editing or deleting one, and staff curate each milestone's and story's wording in both languages, visibility, status and order in the back-office; a stale roadmap is accepted; a link leads to the full roadmap page.
 - R6 (CAP-13): the card detail names a card's pioneer to every viewer allowed to see that player's profile, and « anonyme » to anyone else; each edition has its own pioneer.
-- R7 (CAP-1): signed out, the root (/fr, /en), the wordmark, signing out and deleting the account land on the landing; the signed-out hub keeps an address of its own, reached from the landing and the public card page.
+- R7 (CAP-1): signed out, the root (/fr, /en), the wordmark, signing out and deleting the account land on the landing; there is no signed-out hub: the landing is the root's only signed-out page, and the public card page's wordmark leads to it.
 - R8 (Constraints, Landing ship conditions): the lore text exists in French and English and fills module 02, the app uses JetBrains Mono, the roadmap's milestones are created from the initiative and curated in the back-office, the pioneer is built and the repository is public with a licence file, before the root switches to the landing.
 
 ## Done when
@@ -41,7 +41,7 @@ For a visitor who knows nothing of gameble: a first page that makes them want to
 3. With « Animations réduites » on, nothing on the landing moves on its own; switched on as a visitor, the setting is on in the account after sign-in.
 4. The roadmap module and the full roadmap page show the milestones and stories staff chose to show, with the wording and status staff gave them in the back-office, and a deploy adds a milestone for a new epic of the initiative without touching the others.
 5. A card detail names its pioneer, or « anonyme » to a viewer not allowed to see that profile.
-6. Signing out and deleting an account land on the landing in production, and the signed-out hub is reached from the landing and the public card page.
+6. Signing out and deleting an account land on the landing in production, and the public card page's wordmark opens it.
 
 ## Boundaries
 
@@ -69,7 +69,7 @@ The visitor landing, the full roadmap page, the roadmap's data with its automati
 - Assumption: the licence ship condition already holds (the GitHub repository is public with an AGPL-3.0 `LICENSE`, checked 2026-10-17); story 15 checks it again.
 - Unknown: what « cette semaine » and « aujourd'hui » mean for the season facts; story 5 waits on it.
 - Decision (author, 2026-10-20): the landing's sample cards are the published season's top card of each rarity, no curated list.
-- Unknown: the signed-out hub's own address; story 15 settles it.
+- Decision (2026-10-20 and 2026-10-21, author, in EXPERIENCE.md; recorded 2026-10-22): there is no signed-out hub and no `/landing` address; the root is the landing's only address. The earlier unknown on the signed-out hub's address and the card page's second link are superseded.
 - Source conflict: architecture-gameble.md, the pioneer — it still cites `later-roadmap.md` as the pioneer's home vs the spec, where the pioneer moved into CAP-13 on 2026-10-14.
 - Waits on epic 7 because: the enforced CSP (7.10) and the public pages' throttling and caching (7.55).
 - Waits on epic 6 because: the feed (6.1), the weekly goal (6.3), the live broadcasts (6.4) and the first discoveries (6.7).
