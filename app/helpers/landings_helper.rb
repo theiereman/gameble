@@ -40,9 +40,9 @@ module LandingsHelper
   end
 
   def landing_gauge_markers
-    markers = [ { number: "00", target: "landing-hero", label: t("landings.show.hero.marker") } ]
+    markers = [ { number: "00", target: "landing-hero", label: t("landings.show.hero.marker"), name: t("landings.show.hero.marker").sub(/\A\d+ · /, "") } ]
     markers + MODULE_KEYS.each_with_index.map do |key, index|
-      { number: format("%02d", index + 1), target: "landing-#{key.to_s.dasherize}", label: t("landings.show.#{key}.label") }
+      { number: format("%02d", index + 1), target: "landing-#{key.to_s.dasherize}", label: t("landings.show.#{key}.label"), name: t("landings.show.#{key}.label").sub(/\A\d+ · /, "") }
     end
   end
 

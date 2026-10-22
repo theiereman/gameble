@@ -321,6 +321,8 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
       links.each { |link| assert_select "##{link['href'].delete_prefix('#')}", 1 }
       assert_equal "00 · Mission", links.first["aria-label"]
       assert_equal I18n.t("landings.show.concept.label", locale:), links[1]["aria-label"]
+      assert_select "nav[data-controller=side-gauge] .landing-side-gauge__name[aria-hidden=true]", 10
+      assert_equal I18n.t("landings.show.concept.label", locale:).sub(/\A\d+ · /, ""), css_select("nav[data-controller=side-gauge] .landing-side-gauge__name")[1].text
       assert_select "nav[data-controller=side-gauge] .landing-side-gauge__track[aria-hidden=true] i", LandingsHelper::GAUGE_SEGMENTS
       assert_select "[aria-current]", 0
     end

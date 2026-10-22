@@ -11,6 +11,8 @@ class LandingPowerOnTest < ApplicationSystemTestCase
     page.document.synchronize { raise Capybara::ExpectationNotMet, message unless condition.call }
   end
 
+  def name_opacity(label) = page.evaluate_script("getComputedStyle(document.querySelector(\"nav a[aria-label='#{label}'] .landing-side-gauge__name\")).opacity")
+
   def drift(layer) = page.evaluate_script("document.getElementById('atmosphere').style.getPropertyValue('--landing-drift-#{layer}')")
 
   def scroll_to_module(id)
@@ -37,6 +39,28 @@ class LandingPowerOnTest < ApplicationSystemTestCase
     assert_equal "landing-how", page.evaluate_script("document.activeElement.id")
     assert_selector "nav[aria-label='Position on the page'] a[aria-current=location]", count: 1
     assert_selector "a[aria-current=location][aria-label='03 · How it works']"
+  end
+
+  test "the gauge sits on the left, names a hovered marker and every marker when hovered as a whole" do
+    visit landing_path(locale: :en)
+    box = page.evaluate_script("document.querySelector('nav[aria-label=\"Position on the page\"]').getBoundingClientRect().toJSON()")
+    assert_operator box["right"], :<, VIEWPORT.first / 2
+
+    assert_selector ".landing-side-gauge__name", count: 10, visible: :all
+    marker = find("nav a[aria-label='03 · How it works']")
+    marker.hover
+    eventually("the hovered marker shows its name") { name_opacity("03 · How it works") == "1" }
+    eventually("the other markers show theirs while the component is hovered") { name_opacity("06 · Roadmap") == "1" }
+
+    page.driver.browser.action.move_to_location(VIEWPORT.first / 2, 10).perform
+    eventually("the names hide again") { name_opacity("03 · How it works") == "0" }
+  end
+
+  test "a marker is hoverable well beyond its number" do
+    visit landing_path(locale: :en)
+    zone = page.evaluate_script("(() => { const r = document.querySelector(\"nav a[aria-label='03 · How it works']\").getBoundingClientRect(); return { width: r.width, height: r.height } })()")
+    assert_operator zone["height"], :>=, 40
+    assert_operator zone["width"], :>=, 30
   end
 
   test "under a narrow window the gauge is not displayed" do

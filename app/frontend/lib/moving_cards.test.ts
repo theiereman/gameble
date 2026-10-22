@@ -6,23 +6,23 @@ const card: Placement = { anchor: 0.5, speed: 1.6, sway: 40, offset: 0, rotation
 const frame: Frame = { scrollY: 2000, scrollable: 4000, viewportHeight: 1000, dragX: 0, dragY: 0 }
 
 describe("hasGutterRoom", () => {
-  it("needs the card and 16px on the left", () => {
-    expect(hasGutterRoom(176, 264, 160)).toBe(true)
-    expect(hasGutterRoom(175, 264, 160)).toBe(false)
+  it("needs the card, 16px and the side gauge's 96px on the left", () => {
+    expect(hasGutterRoom(272, 168, 160)).toBe(true)
+    expect(hasGutterRoom(271, 168, 160)).toBe(false)
   })
 
-  it("needs the card, 8px and the side gauge's 96px on the right", () => {
-    expect(hasGutterRoom(176, 263, 160)).toBe(false)
+  it("needs the card and 8px on the right", () => {
+    expect(hasGutterRoom(272, 167, 160)).toBe(false)
   })
 })
 
 describe("laneBounds", () => {
-  it("keeps the left lane clear of the content", () => {
-    expect(laneBounds("left", 340, 1460, 1800)).toEqual({ start: 0, end: 324 })
+  it("keeps the left lane clear of the content and the side gauge", () => {
+    expect(laneBounds("left", 340, 1460, 1800)).toEqual({ start: 96, end: 324 })
   })
 
-  it("keeps the right lane clear of the content and the side gauge", () => {
-    expect(laneBounds("right", 340, 1460, 1800)).toEqual({ start: 1468, end: 1704 })
+  it("keeps the right lane clear of the content", () => {
+    expect(laneBounds("right", 340, 1460, 1800)).toEqual({ start: 1468, end: 1800 })
   })
 })
 

@@ -5,6 +5,7 @@
         <%= link_to "##{marker[:target]}", class: "landing-side-gauge__marker", aria: { label: marker[:label] },
               data: { side_gauge_target: "marker", action: "side-gauge#go" } do %>
           <span aria-hidden="true"><%= marker[:number] %></span>
+          <span class="landing-side-gauge__name" aria-hidden="true"><%= marker[:name] %></span>
         <% end %>
       </li>
     <% end %>

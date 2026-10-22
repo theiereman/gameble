@@ -1866,9 +1866,10 @@ html[data-motion="reduced"] .landing-module[data-power] :is(.landing-gauge__segm
   .landing-side-gauge {
     position: fixed;
     top: 50%;
-    right: var(--space-5);
-    z-index: 1;
+    left: var(--space-5);
+    z-index: 2;
     display: flex;
+    flex-direction: row-reverse;
     gap: var(--space-3);
     height: 60vh;
     transform: translateY(-50%);
@@ -1877,19 +1878,30 @@ html[data-motion="reduced"] .landing-module[data-power] :is(.landing-gauge__segm
   .landing-side-gauge__markers {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-end;
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
+  .landing-side-gauge__markers > li {
+    flex: 1;
+  }
+
   .landing-side-gauge__marker {
-    display: block;
-    padding: var(--space-1) var(--space-2);
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 var(--space-3);
     color: var(--color-muted);
     font: var(--font-number);
     text-decoration: none;
+  }
+
+  .landing-side-gauge__marker::before {
+    content: "";
+    position: absolute;
+    inset: 0 calc(-1 * var(--space-8)) 0 calc(-1 * var(--space-3));
   }
 
   .landing-side-gauge__marker:hover,
@@ -1901,11 +1913,34 @@ html[data-motion="reduced"] .landing-module[data-power] :is(.landing-gauge__segm
     color: var(--color-accent);
   }
 
-  .landing-side-gauge__marker > span {
+  .landing-side-gauge__marker > span:first-child {
     display: block;
     transform: scale(var(--swell, 1));
-    transform-origin: right center;
+    transform-origin: left center;
     transition: transform 140ms ease-out;
+  }
+
+  .landing-side-gauge__name {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 100%;
+    height: fit-content;
+    margin-block: auto;
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-panel);
+    border: 1px solid var(--color-line);
+    color: var(--color-text);
+    font: var(--font-label);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 140ms ease-out;
+  }
+
+  .landing-side-gauge:is(:hover, :focus-within) .landing-side-gauge__name,
+  .landing-side-gauge__marker:is(:hover, :focus-visible) .landing-side-gauge__name {
+    opacity: 1;
   }
 
   .landing-side-gauge__marker:is(:hover, :focus-visible) { --swell: 1.5; }
@@ -1924,7 +1959,7 @@ html[data-motion="reduced"] .landing-module[data-power] :is(.landing-gauge__segm
     flex: 1;
     background: var(--color-panel-raised);
     transform: scaleX(var(--swell, 1));
-    transform-origin: left center;
+    transform-origin: right center;
     transition: transform 140ms ease-out;
   }
 
@@ -1941,13 +1976,13 @@ html[data-motion="reduced"] .landing-module[data-power] :is(.landing-gauge__segm
   }
 }
 
-html[data-motion="reduced"] .landing-side-gauge :is(.landing-side-gauge__marker > span, .landing-side-gauge__segment) {
+html[data-motion="reduced"] .landing-side-gauge :is(.landing-side-gauge__marker > span:first-child, .landing-side-gauge__segment, .landing-side-gauge__name) {
   transform: none;
   transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-motion="full"]) .landing-side-gauge :is(.landing-side-gauge__marker > span, .landing-side-gauge__segment) {
+  html:not([data-motion="full"]) .landing-side-gauge :is(.landing-side-gauge__marker > span:first-child, .landing-side-gauge__segment, .landing-side-gauge__name) {
     transform: none;
     transition: none;
   }
