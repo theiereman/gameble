@@ -1,4 +1,3 @@
-<% faces = samples.values.compact %>
 <section class="landing-module landing-how">
   <%= landing_module_heading(:how, id: "landing-how") %>
   <p class="landing-module__subtitle"><%= t("landings.show.how.subtitle") %></p>
@@ -35,14 +34,14 @@
           <div class="landing-reveal__stage" data-reveal-demo-target="stage">
             <div class="landing-reveal__flip">
               <span class="landing-reveal__back"><%= landing_card_back(:s) %></span>
-              <% faces.each do |view| %>
+              <% covers.each do |view| %>
                 <span class="landing-reveal__face" data-reveal-demo-target="face" data-announcement="<%= landing_reveal_announcement(view) %>" hidden>
                   <%= render CardComponent.new(card: view, size: :s) %>
                 </span>
               <% end %>
             </div>
           </div>
-          <% if faces.any? %>
+          <% if covers.any? %>
             <button type="button" class="button button--secondary button--small landing-reveal__button" hidden
               data-reveal-demo-target="button" data-action="reveal-demo#toggle"><%= t("landings.show.how.discover.reveal") %></button>
             <p class="visually-hidden" role="status" data-reveal-demo-target="status"></p>

@@ -1,5 +1,5 @@
 <% description = t("landings.show.description") %>
-<% url = language_alternates(:home_path).fetch(I18n.locale.to_s) %>
+<% url = current_language_url(:home_path) %>
 <%= tag.meta name: "description", content: description %>
 <%= render "layouts/language_links", route: :home_path %>
 <%= tag.meta property: "og:type", content: "website" %>

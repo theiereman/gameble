@@ -40,10 +40,10 @@ module LandingsHelper
   end
 
   def landing_gauge_markers
-    markers = [ { number: "00", target: "landing-hero", label: t("landings.show.hero.marker"), name: t("landings.show.hero.marker").sub(/\A\d+ · /, "") } ]
-    markers + MODULE_KEYS.each_with_index.map do |key, index|
-      { number: format("%02d", index + 1), target: "landing-#{key.to_s.dasherize}", label: t("landings.show.#{key}.label"), name: t("landings.show.#{key}.label").sub(/\A\d+ · /, "") }
+    modules = MODULE_KEYS.each_with_index.map do |key, index|
+      gauge_marker(format("%02d", index + 1), "landing-#{key.to_s.dasherize}", t("landings.show.#{key}.label"))
     end
+    [ gauge_marker("00", "landing-hero", t("landings.show.hero.marker")), *modules ]
   end
 
   def landing_lamp_slots(samples)
@@ -102,4 +102,9 @@ module LandingsHelper
       safe_join(Array.new(RESERVE_CELLS) { |index| tag.span(class: class_names("landing-pips__cell", "is-lit" => index < lit)) })
     end
   end
+
+  private
+    def gauge_marker(number, target, label)
+      { number:, target:, label:, name: label.sub(/\A\d+ · /, "") }
+    end
 end

@@ -2,9 +2,6 @@
 # (with what it browses: a grid, an opened pack, a set), and its link
 # previews.
 module CardDetailsHelper
-  # Open Graph's name of each locale of the URL.
-  OG_LOCALES = { "en" => "en_US", "fr" => "fr_FR" }.freeze
-
   # A card's title in its page's and its previews' language: "Portal —
   # Epic".
   def card_preview_title(view)
@@ -15,16 +12,6 @@ module CardDetailsHelper
   # public base: its share link, og:url and canonical link alike.
   def card_public_url(view)
     public_url_for(card_season_path(slug: view.id, number: view.season_number))
-  end
-
-  # The page's locale as Open Graph names it: "en_US", "fr_FR".
-  def og_locale
-    og_locale_for(I18n.locale.to_s)
-  end
-
-  # The name `locale` carries in Open Graph, its own code when it has none.
-  def og_locale_for(locale)
-    OG_LOCALES.fetch(locale, locale)
   end
 
   # The game's Steam store page, in French on a French page (Steam reads

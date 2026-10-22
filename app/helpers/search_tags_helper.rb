@@ -1,6 +1,23 @@
 module SearchTagsHelper
+  # Open Graph's name of each locale of the URL.
+  OG_LOCALES = { "en" => "en_US", "fr" => "fr_FR" }.freeze
+
   def language_alternates(route)
     I18n.available_locales.to_h { |locale| [ locale.to_s, public_url_for(public_send(route, locale:)) ] }
+  end
+
+  def current_language_url(route)
+    language_alternates(route).fetch(I18n.locale.to_s)
+  end
+
+  # The page's locale as Open Graph names it: "en_US", "fr_FR".
+  def og_locale
+    og_locale_for(I18n.locale.to_s)
+  end
+
+  # The name `locale` carries in Open Graph, its own code when it has none.
+  def og_locale_for(locale)
+    OG_LOCALES.fetch(locale, locale)
   end
 
   def default_language_url
@@ -8,7 +25,7 @@ module SearchTagsHelper
   end
 
   def landing_structured_data
-    url = language_alternates(:home_path).fetch(I18n.locale.to_s)
+    url = current_language_url(:home_path)
     graph = [
       { "@type" => "WebSite", "@id" => "#{url}#website", "name" => t("layouts.application.application_name"),
         "url" => url, "inLanguage" => I18n.locale.to_s },
