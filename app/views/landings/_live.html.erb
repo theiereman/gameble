@@ -10,7 +10,7 @@
         <%= render "shell/live_marker" %>
       </p>
       <ul id="feed-entries" class="feed__list landing-live__list">
-        <% cache [ "landing-live-feed", I18n.locale ], expires_in: 30.seconds do %>
+        <% cache [ "landing-live-feed", I18n.locale, LiveStream::LANDING_SIZE ], expires_in: 30.seconds do %>
           <% landing_feed_items.each do |item, card, partner_card, set| %>
             <%= render "feeds/entry", item:, card:, partner_card:, set: %>
           <% end %>

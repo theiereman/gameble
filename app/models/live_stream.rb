@@ -6,7 +6,7 @@ module LiveStream
 
   STRIP_SIZE = 3
 
-  LANDING_SIZE = 5
+  LANDING_SIZE = 4
 
   BATCHES = :live_stream_batches
   BATCH = AfterCommitBatch.new(BATCHES) { |notices| LiveFeedJob.perform_later(notices) }

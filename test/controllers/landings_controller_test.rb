@@ -380,7 +380,7 @@ class LandingsControllerTest < ActionDispatch::IntegrationTest
     unreadable.each { |query, original| query.define_singleton_method(:call, original) }
   end
 
-  test "the live module lists the five latest feed entries and keeps the subscription in a template" do
+  test "the live module lists the four latest feed entries and keeps the subscription in a template" do
     hugo = accounts_players(:player)
     hugo.update!(persona_name: "Hugo")
     2.times do

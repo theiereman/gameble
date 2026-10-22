@@ -36,7 +36,7 @@ class LandingLiveFeedTest < ApplicationSystemTestCase
     assert_no_selector "turbo-cable-stream-source", visible: :all
   end
 
-  test "an opening tops the list as one node per entry and the list keeps five" do
+  test "an opening tops the list as one node per entry and the list keeps four" do
     visit landing_path(locale: :en)
     scroll_to_module
     listening

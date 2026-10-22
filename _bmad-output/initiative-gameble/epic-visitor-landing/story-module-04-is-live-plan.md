@@ -29,7 +29,7 @@ deferred:
 
 **Problem:** Module 04 of the landing lists no feed entries; the visitor sees only the no-activity line.
 
-**Approach:** The module lists the five latest feed entries (cached per locale, short lifetime) and a Stimulus controller subscribes to the public live stream only once the module is in view. A new entry is inserted at the top as one node and the last removed, held back while the pointer or focus is inside the module and while it is out of view, and handed over together afterwards. No live region.
+**Approach:** The module lists the four latest feed entries (cached per locale, short lifetime) and a Stimulus controller subscribes to the public live stream only once the module is in view. A new entry is inserted at the top as one node and the last removed, held back while the pointer or focus is inside the module and while it is out of view, and handed over together afterwards. No live region.
 
 Verify: A pack opened by a player appears at the top of an open landing's module 04 without a reload, and a landing never scrolled to module 04 opens no subscription.
 
@@ -61,7 +61,7 @@ Oneshot: the existing public stream already prepends to `#feed-entries`, so the 
 
 ## Auto Run Result
 
-Summary: module 04 lists the five latest feed entries (30 s fragment cache per locale) and a Stimulus controller subscribes to the public live stream on first view, inserts entries at the top, trims to five, and holds them while the mouse pointer or focus is inside or the module is out of view.
+Summary: module 04 lists the four latest feed entries (30 s fragment cache per locale) and a Stimulus controller subscribes to the public live stream on first view, inserts entries at the top, trims to five, and holds them while the mouse pointer or focus is inside or the module is out of view.
 
 Files: LiveStream.landing_items, LandingsHelper#landing_feed_items, landings/_live view, landing.css, landing_feed_controller.ts, lib/stream_hold.ts (+ test), controller and system tests.
 

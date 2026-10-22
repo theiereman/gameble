@@ -26,7 +26,7 @@ For a visitor who knows nothing of gameble: a first page that makes them want to
 ## Requirements
 
 - R1 (CAP-24): signed out, the landing shows its top bar, the lamp hero, the nine modules and the footer as `EXPERIENCE.md` and `DESIGN.md` (Landing) describe them, in French and English, on phone and desktop, under the enforced CSP; a signed-in player never sees it.
-- R2 (CAP-24): the landing shows live activity: the five latest feed entries in module 04, inserted one at a time, the season and its three facts, and the weekly goal with its participants in module 02; each data block is cached per locale.
+- R2 (CAP-24): the landing shows live activity: the four latest feed entries in module 04, inserted one at a time, the season and its three facts, and the weekly goal with its participants in module 02; each data block is cached per locale.
 - R3 (CAP-24): the landing moves as designed (the lamp, module power-on, the star field drift, the side position gauge, the draggable cards passing over the content on desktop) and every motion gives way to reduced motion.
 - R4 (CAP-24): a visitor's « Animations réduites » switch is remembered in a cookie the server reads from the first paint, and an "on" switch sets the account's setting at sign-in.
 - R5 (CAP-25): the roadmap module shows milestones and a few player-facing stories with their status, from the database: one milestone per initiative epic is created automatically on deploy (the epic's title, to come) without ever editing or deleting one, and staff curate each milestone's and story's wording in both languages, visibility, status and order in the back-office; a stale roadmap is accepted; a link leads to the full roadmap page.
