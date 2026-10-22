@@ -1854,54 +1854,33 @@ html[data-motion="reduced"] .landing-module[data-power] :is(.landing-gauge__segm
   }
 
   .landing-side-gauge__marker {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-1) 0;
+    display: block;
+    padding: var(--space-1) var(--space-2);
     color: var(--color-muted);
-    font: var(--font-label);
-    letter-spacing: var(--tracking-label);
+    font: var(--font-number);
     text-decoration: none;
   }
 
-  .landing-side-gauge__name {
-    display: none;
-    white-space: nowrap;
-  }
-
-  .landing-side-gauge__tick {
-    display: block;
-    width: var(--space-3);
-    height: 2px;
-    background: currentColor;
-    transition: width 140ms var(--ease-lock), background-color 140ms var(--ease-lock);
-  }
-
-  .landing-side-gauge__marker:is(:hover, :focus-visible) .landing-side-gauge__name {
-    display: block;
-    padding: var(--space-1) var(--space-2);
-    background: var(--color-panel-sunken);
-  }
-
   .landing-side-gauge__marker:hover,
-  .landing-side-gauge__marker:focus-visible,
   .landing-side-gauge__marker[aria-current="location"] {
     color: var(--color-accent);
   }
 
-  .landing-side-gauge__marker[aria-current="location"] .landing-side-gauge__tick {
-    width: var(--space-5);
+  .landing-side-gauge__marker:focus-visible {
+    color: var(--color-accent);
   }
 
-  .landing-side-gauge__marker:hover .landing-side-gauge__tick,
-  .landing-side-gauge__marker:focus-visible .landing-side-gauge__tick {
-    width: var(--space-7);
+  .landing-side-gauge__marker > span {
+    display: block;
+    transform: scale(var(--swell, 1));
+    transform-origin: right center;
+    transition: transform 140ms ease-out;
   }
 
-  .landing-side-gauge li:has(+ li > :is(:hover, :focus-visible)) .landing-side-gauge__tick,
-  .landing-side-gauge li:has(> :is(:hover, :focus-visible)) + li .landing-side-gauge__tick {
-    width: var(--space-5);
-  }
+  .landing-side-gauge__marker:is(:hover, :focus-visible) { --swell: 1.5; }
+
+  .landing-side-gauge li:has(+ li > :is(:hover, :focus-visible)) > .landing-side-gauge__marker,
+  .landing-side-gauge li:has(> :is(:hover, :focus-visible)) + li > .landing-side-gauge__marker { --swell: 1.25; }
 
   .landing-side-gauge__track {
     display: flex;
@@ -1913,29 +1892,32 @@ html[data-motion="reduced"] .landing-module[data-power] :is(.landing-gauge__segm
   .landing-side-gauge__segment {
     flex: 1;
     background: var(--color-panel-raised);
+    transform: scaleX(var(--swell, 1));
+    transform-origin: left center;
+    transition: transform 140ms ease-out;
   }
+
+  .landing-side-gauge__segment:hover { --swell: 2.6; }
+
+  .landing-side-gauge__segment:has(+ .landing-side-gauge__segment:hover),
+  .landing-side-gauge__segment:hover + .landing-side-gauge__segment { --swell: 2; }
+
+  .landing-side-gauge__segment:has(+ .landing-side-gauge__segment + .landing-side-gauge__segment:hover),
+  .landing-side-gauge__segment:hover + .landing-side-gauge__segment + .landing-side-gauge__segment { --swell: 1.5; }
 
   .landing-side-gauge__segment.is-lit {
     background: var(--color-accent);
   }
 }
 
-@media (min-width: 1680px) and (min-height: 760px) {
-  .landing-side-gauge__name {
-    display: block;
-  }
-
-  .landing-side-gauge__marker:not(:hover, :focus-visible, [aria-current="location"]) .landing-side-gauge__name {
-    color: var(--color-dim);
-  }
-}
-
-html[data-motion="reduced"] .landing-side-gauge__tick {
+html[data-motion="reduced"] .landing-side-gauge :is(.landing-side-gauge__marker > span, .landing-side-gauge__segment) {
+  transform: none;
   transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html:not([data-motion="full"]) .landing-side-gauge__tick {
+  html:not([data-motion="full"]) .landing-side-gauge :is(.landing-side-gauge__marker > span, .landing-side-gauge__segment) {
+    transform: none;
     transition: none;
   }
 }
