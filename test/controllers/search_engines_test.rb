@@ -8,11 +8,14 @@ class SearchEnginesTest < ActionDispatch::IntegrationTest
 
   setup do
     @public_url = Rails.configuration.x.public_url
+    @search_indexing = Rails.configuration.x.search_indexing
     Rails.configuration.x.public_url = BASE
+    Rails.configuration.x.search_indexing = true
   end
 
   teardown do
     Rails.configuration.x.public_url = @public_url
+    Rails.configuration.x.search_indexing = @search_indexing
   end
 
   test "the landing has its own title and description in each language" do
@@ -94,5 +97,34 @@ class SearchEnginesTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/sitemap.xml", headers: { "User-Agent" => "Googlebot/2.1" }
     assert_response :success
+  end
+
+  test "indexing on: no page asks search engines to stay out" do
+    get home_path(locale: :en)
+
+    assert_nil response.headers["X-Robots-Tag"]
+  end
+
+  test "indexing off: robots.txt refuses everything and names no sitemap, the sitemap is not found" do
+    Rails.configuration.x.search_indexing = false
+
+    get "/robots.txt"
+    assert_equal "User-agent: *\nDisallow: /\n", response.body
+
+    get "/sitemap.xml"
+    assert_response :not_found
+  end
+
+  test "indexing off: every page says noindex, and the landing and legal page drop their search tags" do
+    Rails.configuration.x.search_indexing = false
+
+    [ home_path(locale: :fr), legal_path(locale: :fr), "/robots.txt" ].each do |path|
+      get path
+      assert_equal "noindex, nofollow", response.headers["X-Robots-Tag"], path
+    end
+    get home_path(locale: :fr)
+    assert_select "link[rel=canonical], link[rel=alternate], meta[property^='og:'], meta[name=description], script[type='application/ld+json']", 0
+    get legal_path(locale: :fr)
+    assert_select "link[rel=canonical], link[rel=alternate]", 0
   end
 end

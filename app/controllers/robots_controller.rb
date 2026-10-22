@@ -9,7 +9,7 @@ class RobotsController < ApplicationController
   def show
     authorize :page, :show?
     expires_in 1.hour, public: true
-    render plain: robots
+    render plain: Rails.configuration.x.search_indexing ? robots : "User-agent: *\nDisallow: /\n"
   end
 
   private

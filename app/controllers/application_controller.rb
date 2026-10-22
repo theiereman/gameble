@@ -17,6 +17,7 @@ class ApplicationController < ActionController::Base
   # Every action takes a policy decision (AD-14); one that skipped `authorize`
   # raises Pundit::AuthorizationNotPerformedError.
   after_action :verify_authorized
+  after_action :keep_out_of_search_engines, unless: -> { Rails.configuration.x.search_indexing }
 
   rescue_from Pundit::NotAuthorizedError, with: :refuse
 
@@ -38,6 +39,10 @@ class ApplicationController < ActionController::Base
     # PublicRead concern opens a controller's GET and HEAD requests.
     def public_read?
       false
+    end
+
+    def keep_out_of_search_engines
+      response.headers["X-Robots-Tag"] = "noindex, nofollow"
     end
 
     def refuse_unsupported_browser

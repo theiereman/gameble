@@ -1,6 +1,6 @@
 <% content_for :public_page, true %>
 <% content_for :title, t("landings.show.title") %>
-<% content_for :head, render("landings/search_tags") %>
+<% content_for :head, render("landings/search_tags") if Rails.configuration.x.search_indexing %>
 <% content_for :page_footer do %>
   <%= render "landings/footer" %>
 <% end %>

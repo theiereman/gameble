@@ -1,6 +1,6 @@
 <% content_for :back_button, true %>
 <% content_for :title, t(".title") %>
-<% content_for :head, render("layouts/language_links", route: :legal_path) %>
+<% content_for :head, render("layouts/language_links", route: :legal_path) if Rails.configuration.x.search_indexing %>
 <% content_for :screen_title, t(".title") %>
 <% contact = legal_contact %>
 <article class="legal" aria-labelledby="legal-heading">

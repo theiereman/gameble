@@ -54,6 +54,9 @@ env:
     # (v1.0.0 over v1.0.0-rc.2), else the commit's short sha.
     GAMEBLE_VERSION: "<%= tag = `git -c versionsort.suffix=- tag --points-at HEAD --sort=-version:refname 2>/dev/null`.lines(chomp: true).find { |name| !name.start_with?('deployed/') }; tag || `git rev-parse --short HEAD`.strip %>"
 
+    # SEARCH_INDEXING=on lets search engines in; unset, as on staging, the
+    # app asks them to stay out. Set it on the production destination only.
+
     # PUBLIC_URL, the public base of shared links (CAP-9), is set per
     # destination: production refuses to boot without a valid one
     # (config/initializers/public_url.rb; test/config/public_url_test.rb).

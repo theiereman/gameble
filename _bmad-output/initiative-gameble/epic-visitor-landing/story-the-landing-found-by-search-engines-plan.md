@@ -40,6 +40,8 @@ Oneshot: a head partial, two small controllers and their locale copy. The canoni
 
 The verification of the ticket (public card pages and profiles are not marked noindex) required lifting the `noindex` the public card page and the public profile pages (profile, collection, album) carried; the unavailable-profile, friend-profile and banned pages keep theirs. The static `public/robots.txt` is removed so the generated one is served. Files: `app/controllers/robots_controller.rb`, `app/controllers/sitemaps_controller.rb`, `app/helpers/search_tags_helper.rb`, `app/views/landings/_search_tags.html.erb`, `app/views/layouts/_language_links.html.erb`, `app/views/sitemaps/show.xml.builder`, routes, locales, `test/controllers/search_engines_test.rb`.
 
+Author's follow-up: staging must not be indexed, and production runs the image staging ran, so the switch is the runtime variable SEARCH_INDEXING (`config/initializers/search_indexing.rb`), on only in `config/deploy.production.yml`. Off, the default: robots.txt is `Disallow: /` with no sitemap, /sitemap.xml is 404, every response carries `X-Robots-Tag: noindex, nofollow` (`ApplicationController`), and the landing and legal page omit their search tags. On: the behaviour above.
+
 ## Verification
 
 **Commands:**
