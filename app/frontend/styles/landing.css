@@ -1927,15 +1927,17 @@ html[data-motion="reduced"] .landing-module[data-power] :is(.landing-gauge__segm
     left: 100%;
     height: fit-content;
     margin-block: auto;
-    padding: var(--space-2) var(--space-3);
-    background: var(--color-panel);
-    border: 1px solid var(--color-line);
+    padding: var(--space-3) var(--space-6);
+    background: radial-gradient(ellipse closest-side, var(--color-panel) 55%, transparent);
     color: var(--color-text);
-    font: var(--font-label);
+    font: var(--font-number);
+    font-size: 0.875rem;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 140ms ease-out;
+    transform: translateX(calc((var(--swell, 1) - 1) * 1.35rem)) scale(var(--swell, 1));
+    transform-origin: left center;
+    transition: opacity 140ms ease-out, transform 140ms ease-out;
   }
 
   .landing-side-gauge:is(:hover, :focus-within) .landing-side-gauge__name,

@@ -56,6 +56,23 @@ class LandingPowerOnTest < ApplicationSystemTestCase
     eventually("the names hide again") { name_opacity("03 · How it works") == "0" }
   end
 
+  test "a marker name shares the number's typeface and swells with it, over a feathered backdrop" do
+    visit landing_path(locale: :en)
+    style = lambda do |selector, property|
+      page.evaluate_script("getComputedStyle(document.querySelector(\"nav a[aria-label='03 · How it works'] #{selector}\")).#{property}")
+    end
+    %w[fontFamily fontWeight textTransform letterSpacing].each do |property|
+      assert_equal style.call("span:first-child", property), style.call(".landing-side-gauge__name", property)
+    end
+    assert_match(/radial-gradient/, style.call(".landing-side-gauge__name", "backgroundImage"))
+    assert_equal "none", style.call(".landing-side-gauge__name", "borderStyle")
+
+    find("nav a[aria-label='03 · How it works']").hover
+    eventually("the name scales with the number") do
+      style.call(".landing-side-gauge__name", "transform").start_with?("matrix(1.5,")
+    end
+  end
+
   test "a marker is hoverable well beyond its number" do
     visit landing_path(locale: :en)
     zone = page.evaluate_script("(() => { const r = document.querySelector(\"nav a[aria-label='03 · How it works']\").getBoundingClientRect(); return { width: r.width, height: r.height } })()")
