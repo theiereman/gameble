@@ -11,7 +11,7 @@ Mark a screen `walked` when every applicable combination was seen.
 | Screen | Walked | Notes |
 |---|---|---|
 | Landing | partial: visitor, FR, EN, phone and desktop | footer credits page not in the Information Architecture (16.14) |
-| Pont de commandement (hub) | | |
+| Pont de commandement (hub) | partial: desktop right and left columns seen by the author | top bar, menu, showcase, LIVE ticker, phone to see |
 | Ouverture de capsule | | |
 | Collection | | |
 | Set album | | |
@@ -50,3 +50,4 @@ Mark a screen `walked` when every applicable combination was seen.
 | 6 | Landing | On a phone the "Animations réduites" switch covers the gameble wordmark; remove it there. | ticket | 16.16 |
 | 7 | Card detail (public page) | The Steam and share buttons sit on the card information's background; the background should wrap the information only. | ticket | 16.17 |
 | 8 | Public profile | The started sets list is too long; show only the 20 most complete sets. | ticket | 16.18 |
+| 9 | Hub | A wide gap separates the community goal and "SETS EN COURS"; the daily capsule should sit under the goal and the sets take its place in the left column. | ticket | 16.19 |
