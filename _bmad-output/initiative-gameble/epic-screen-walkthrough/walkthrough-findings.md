@@ -36,7 +36,7 @@ Mark a screen `walked` when every applicable combination was seen.
 | Soutenir | external link, checked | |
 | Roadmap page | walked as a visitor, FR and EN, author ok | |
 | Plus (phone) | | |
-| Back-office | | |
+| Back-office | not walked: author defers it to the back-office UX epic, after the release | |
 
 ## Findings
 
@@ -64,3 +64,4 @@ Mark a screen `walked` when every applicable combination was seen.
 | 20 | Amis | On a large screen the single narrow column wastes the width; the friend list should lead, on the right, structured and aligned, and outweigh the invitations; the action buttons are just piled on one line. The friend profile opens with a click on the pseudo, so the "VOIR LE PROFIL" button goes. | ticket | 16.28 |
 | 21 | Friend profile | The profile dialog looks plain and could be better arranged: stacked buttons of unequal widths and a lone orange report link. | ticket | 16.29 |
 | 22 | Profil et paramètres | Like the friends screen, it does not use the width available on a large screen; otherwise ok. | ticket | 16.30 |
+| 23 | Back-office (staff view) | Needs a rework but is not important before 1.0. | deferred | epic-back-office-ux (already planned after the release) |
