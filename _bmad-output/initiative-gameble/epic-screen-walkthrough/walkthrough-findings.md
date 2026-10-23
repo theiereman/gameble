@@ -24,9 +24,9 @@ Mark a screen `walked` when every applicable combination was seen.
 | Amis | | |
 | Friend profile | | |
 | Report dialog | | |
-| Fil d'activité | | |
+| Fil d'activité | partial: visitor, FR and EN, author ok | player view (AMIS tab) to see |
 | Succès | | |
-| Comment ça marche | | |
+| Comment ça marche | partial: visitor, FR and EN, author ok | player and staff views to see |
 | Profil et paramètres | | |
 | Public card page | | |
 | Public profile | | |
