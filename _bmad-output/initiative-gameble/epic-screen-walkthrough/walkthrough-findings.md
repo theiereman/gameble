@@ -14,7 +14,7 @@ Mark a screen `walked` when every applicable combination was seen.
 | Pont de commandement (hub) | desktop and phone, player, author ok apart from findings 9 and 10 | staff and the other language to see |
 | Ouverture de capsule | desktop, player, author ok apart from findings 12 and 13 | phone, staff, FR/EN to see |
 | Collection | desktop, player, author ok apart from finding 14 (design study) | phone, staff, FR/EN to see |
-| Set album | | |
+| Set album | desktop, player, author: not bad, see finding 15 | phone, public profile album, staff, FR/EN to see |
 | Toutes les cartes | partial: visitor, FR and EN | signed-in view and phone to see |
 | Card detail | partial: public page as a visitor, FR and EN | signed-in detail to see |
 | Seasonal allocation | | |
@@ -56,3 +56,4 @@ Mark a screen `walked` when every applicable combination was seen.
 | 12 | Ouverture de capsule | REVEAL ALL is briefly active while the next capsule deals its cards, then greys out again. | ticket | 16.21 |
 | 13 | Ouverture de capsule | The revealed-cards counter is useless and should go; the booster is frozen to bug fixes, so it is dropped in the Stimulus port. | ticket | 21.3 (note) |
 | 14 | Collection | The screen feels average and the "EN COURS" sets display is sad; look for a livelier idea. | ticket (design study) | 16.22 |
+| 15 | Set album | A large set can lose the player; add filters (owned or missing, rarity), the author is not sure. | ticket (to confirm) | 16.23 |
