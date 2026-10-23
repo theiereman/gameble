@@ -27,7 +27,7 @@ Mark a screen `walked` when every applicable combination was seen.
 | Fil d'activité | partial: visitor, FR and EN, author ok | player view (AMIS tab) to see |
 | Succès | desktop, player, author ok | phone, FR/EN to see |
 | Comment ça marche | partial: visitor, FR and EN, author ok | player and staff views to see |
-| Profil et paramètres | | |
+| Profil et paramètres | desktop, player, author ok apart from finding 22 | phone, FR/EN to see |
 | Public card page | | |
 | Public profile | | |
 | Full collection (another player's) | | |
@@ -63,3 +63,4 @@ Mark a screen `walked` when every applicable combination was seen.
 | 19 | Échanges | View transitions play between steps where almost the same screen stays on display, which makes no sense; keep them only where the screen really changes. | ticket | 16.27 |
 | 20 | Amis | On a large screen the single narrow column wastes the width; the friend list should lead, on the right, structured and aligned, and outweigh the invitations; the action buttons are just piled on one line. The friend profile opens with a click on the pseudo, so the "VOIR LE PROFIL" button goes. | ticket | 16.28 |
 | 21 | Friend profile | The profile dialog looks plain and could be better arranged: stacked buttons of unequal widths and a lone orange report link. | ticket | 16.29 |
+| 22 | Profil et paramètres | Like the friends screen, it does not use the width available on a large screen; otherwise ok. | ticket | 16.30 |
