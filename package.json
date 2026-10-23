@@ -11,7 +11,7 @@
     "@hotwired/turbo-rails": "8.0.23",
     "pixelcrush": "0.2.1",
     "react": "19.3.0",
-    "react-dom": "19.3.0",
+    "react-dom": "19.3.1",
     "stimulus-vite-helpers": "3.1.0",
     "turbo-mount": "0.4.4"
   },
