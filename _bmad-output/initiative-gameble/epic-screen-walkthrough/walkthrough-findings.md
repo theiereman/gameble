@@ -53,3 +53,5 @@ Mark a screen `walked` when every applicable combination was seen.
 | 9 | Hub | A wide gap separates the community goal and "SETS EN COURS"; the daily capsule should sit under the goal and the sets take its place in the left column. | ticket | 16.19 |
 | 10 | Hub top bar | The player chip is not as tall as the rarity counter and the capsules chip. | ticket | 16.20 |
 | 11 | Ouverture de capsule | The "back to the bridge" button duplicates the gameble wordmark in the top bar, which already leads to the hub. | existing request | issue #67 |
+| 12 | Ouverture de capsule | REVEAL ALL is briefly active while the next capsule deals its cards, then greys out again. | ticket | 16.21 |
+| 13 | Ouverture de capsule | The revealed-cards counter is useless and should go; the booster is frozen to bug fixes, so it is dropped in the Stimulus port. | ticket | 21.3 (note) |
