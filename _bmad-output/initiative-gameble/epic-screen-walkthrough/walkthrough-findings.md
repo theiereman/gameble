@@ -11,7 +11,7 @@ Mark a screen `walked` when every applicable combination was seen.
 | Screen | Walked | Notes |
 |---|---|---|
 | Landing | partial: visitor, FR, EN, phone and desktop | footer credits page not in the Information Architecture (16.14) |
-| Pont de commandement (hub) | partial: desktop right and left columns seen by the author | top bar, menu, showcase, LIVE ticker, phone to see |
+| Pont de commandement (hub) | partial: desktop, player, author ok apart from findings 9 and 10 | phone, staff, FR/EN to see |
 | Ouverture de capsule | | |
 | Collection | | |
 | Set album | | |
