@@ -15,7 +15,7 @@ Mark a screen `walked` when every applicable combination was seen.
 | Ouverture de capsule | | |
 | Collection | | |
 | Set album | | |
-| Toutes les cartes | | |
+| Toutes les cartes | partial: visitor, FR and EN | signed-in view and phone to see |
 | Card detail | | |
 | Seasonal allocation | | |
 | Share sheet | | |
@@ -42,6 +42,8 @@ Mark a screen `walked` when every applicable combination was seen.
 
 | # | Screen | Finding | Decision | Ticket |
 |---|---|---|---|---|
-| 1 | Landing | The credits page (`/credits`, linked from the landing footer) lists only inspirations and is missing from the Information Architecture. It should also credit the repository's current contributors and, in future, each contributor for their own contribution. | ticket (scoped together: contributors pulled from PRs and issues, text written with the author) | to create |
+| 1 | Landing | The credits page (`/credits`, linked from the landing footer) lists only inspirations and is missing from the Information Architecture. It should also credit the repository's current contributors and, in future, each contributor for their own contribution. | ticket | 16.14 |
 | 2 | Landing | Module 09 (Soutenir) sits in a striped frame like "Soutenir gameble", which repeats it and differs from the plain look of modules 07 and 08. It should lose the striped frame. | ticket | 16.12 |
 | 3 | Landing | The demo cards show "Image indisponible" in the fetched HTML; the author sees the cards fine in the browser. | keep | |
+| 4 | Toutes les cartes | The page title reads "Toutes les cartes · Collection · gameble"; it should be "Toutes les cartes · gameble". | ticket | 16.13 |
+| 5 | Toutes les cartes | The grid would gain infinite scroll. | pending | |

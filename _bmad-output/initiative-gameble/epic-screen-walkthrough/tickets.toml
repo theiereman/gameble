@@ -144,3 +144,27 @@ after = []
 hitl = true
 risk = "low"
 notes = ["Found in the screen walkthrough (ticket 16.1, finding 2), author, 2026-10-23."]
+
+[[entry]]
+id = 13
+type = "bug"
+title = "The all cards page title names the collection"
+description = "The browser title of the catalog (`library/cards`, `config/locales/fr.yml` line 826 and its `en.yml` twin) reads \"Toutes les cartes · Collection · gameble\" / \"All cards · Collection · gameble\", which a visitor without a collection reads as another screen (author, 2026-10-23, on staging). Make it \"Toutes les cartes · gameble\" and \"All cards · gameble\"."
+verify = "The title of `/fr/library/cards` and `/en/library/cards` reads \"Toutes les cartes · gameble\" and \"All cards · gameble\", signed out and signed in; the page's request test and `i18n-tasks` pass."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 4), author, 2026-10-23."]
+
+[[entry]]
+id = 14
+type = "story"
+title = "The credits thank the contributors and the beta testers"
+description = "The credits page (`/credits`, `app/views/pages/credits.html.erb`) names only inspirations and is missing from EXPERIENCE.md's Information Architecture. Add a section crediting the repository's contributors by GitHub handle, each with one broad contribution (writing, code contribution, idea proposals) drawn from their merged pull requests and issues, a rule for crediting future contributors the same way, and a section thanking the people who tested the beta. The author and the agent settle the list and the wording together before the build; the page, both locales and EXPERIENCE.md follow (author, 2026-10-23)."
+verify = "`/fr/credits` and `/en/credits` list the agreed contributors by handle with their contribution and the beta testers, the page is in the Information Architecture, and the credits request test and `i18n-tasks` pass."
+covers = []
+after = []
+hitl = true
+risk = "low"
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 1), author, 2026-10-23. Candidates from the repository: micilico (code), skyoraa (writing, ideas), Felzpath (ideas, bug reports); the beta testers' names come from the author."]
