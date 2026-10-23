@@ -13,7 +13,7 @@ Mark a screen `walked` when every applicable combination was seen.
 | Landing | partial: visitor, FR, EN, phone and desktop | footer credits page not in the Information Architecture (16.14) |
 | Pont de commandement (hub) | desktop and phone, player, author ok apart from findings 9 and 10 | staff and the other language to see |
 | Ouverture de capsule | desktop, player, author ok apart from findings 12 and 13 | phone, staff, FR/EN to see |
-| Collection | desktop, player, author: average, see finding 14 | rest of the screen, phone, staff to see |
+| Collection | desktop, player, author ok apart from finding 14 (design study) | phone, staff, FR/EN to see |
 | Set album | | |
 | Toutes les cartes | partial: visitor, FR and EN | signed-in view and phone to see |
 | Card detail | partial: public page as a visitor, FR and EN | signed-in detail to see |
