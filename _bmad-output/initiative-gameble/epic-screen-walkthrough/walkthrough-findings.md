@@ -21,9 +21,9 @@ Mark a screen `walked` when every applicable combination was seen.
 | Share sheet | desktop, player, author ok | phone to see |
 | Échanges (list and board) | desktop, player, author: all good apart from finding 19 | phone, staff, FR/EN to see |
 | Card picker | | |
-| Amis | desktop, player, seen by the author, see finding 20 | friend profile, report dialog, phone, FR/EN to see |
+| Amis | desktop, player, empty states ok, see finding 20 | phone, FR/EN to see |
 | Friend profile | desktop dialog, player, seen by the author, see finding 21 | phone, FR/EN to see |
-| Report dialog | | |
+| Report dialog | desktop, player, author ok | phone, FR/EN to see |
 | Fil d'activité | partial: visitor, FR and EN, author ok | player view (AMIS tab) to see |
 | Succès | | |
 | Comment ça marche | partial: visitor, FR and EN, author ok | player and staff views to see |
