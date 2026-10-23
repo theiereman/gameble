@@ -57,3 +57,4 @@ Mark a screen `walked` when every applicable combination was seen.
 | 13 | Ouverture de capsule | The revealed-cards counter is useless and should go; the booster is frozen to bug fixes, so it is dropped in the Stimulus port. | ticket | 21.3 (note) |
 | 14 | Collection | The screen feels average and the "EN COURS" sets display is sad; look for a livelier idea. | ticket (design study) | 16.22 |
 | 15 | Set album | A large set can lose the player; add filters (owned or missing, rarity), the author is not sure. | ticket (to confirm) | 16.23 |
+| 16 | Set album | Missing cards should look like the not-owned cards of Toutes les cartes (faded, locked) for consistency, not name-and-year slots. | ticket | 16.24 |
