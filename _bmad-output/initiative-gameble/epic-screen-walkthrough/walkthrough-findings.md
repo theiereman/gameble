@@ -10,13 +10,13 @@ Mark a screen `walked` when every applicable combination was seen.
 
 | Screen | Walked | Notes |
 |---|---|---|
-| Landing | partial: visitor, FR and EN read as HTML; phone and desktop seen by the author | credits page linked from the footer is not in the Information Architecture |
+| Landing | partial: visitor, FR, EN, phone and desktop | footer credits page not in the Information Architecture (16.14) |
 | Pont de commandement (hub) | | |
 | Ouverture de capsule | | |
 | Collection | | |
 | Set album | | |
 | Toutes les cartes | partial: visitor, FR and EN | signed-in view and phone to see |
-| Card detail | | |
+| Card detail | partial: public page as a visitor, FR and EN | signed-in detail to see |
 | Seasonal allocation | | |
 | Share sheet | | |
 | Échanges (list and board) | | |
@@ -47,3 +47,5 @@ Mark a screen `walked` when every applicable combination was seen.
 | 3 | Landing | The demo cards show "Image indisponible" in the fetched HTML; the author sees the cards fine in the browser. | keep | |
 | 4 | Toutes les cartes | The page title reads "Toutes les cartes · Collection · gameble"; it should be "Toutes les cartes · gameble". | ticket | 16.13 |
 | 5 | Toutes les cartes | The grid would gain infinite scroll. | ticket | 16.15 |
+| 6 | Landing | On a phone the "Animations réduites" switch covers the gameble wordmark; remove it there. | ticket | 16.16 |
+| 7 | Card detail (public page) | The Steam and share buttons sit on the card information's background; the background should wrap the information only. | ticket | 16.17 |

@@ -180,3 +180,27 @@ after = []
 hitl = false
 risk = "medium"
 notes = ["Found in the screen walkthrough (ticket 16.1, finding 5), author, 2026-10-23: infinite scroll on Toutes les cartes, expected to be simple on top of Pagy."]
+
+[[entry]]
+id = 16
+type = "bug"
+title = "The reduced-animations switch covers the wordmark on the phone landing"
+description = "On the signed-out landing the top bar shows the \"Animations réduites\" switch (`app/views/shell/_top_bar.html.erb`, class `motion-switch`) and on a phone it sits over the gameble wordmark (author, 2026-10-23, on staging). Remove the switch from the phone's landing top bar so the wordmark is clear; the desktop keeps it, the visitor's reduced-motion preference still follows their system setting, and EXPERIENCE.md and DESIGN.md record where a phone visitor sets it, if anywhere."
+verify = "On a phone width the landing's top bar shows the wordmark and the sign-in button with no motion switch over them, in French and in English; the desktop landing still shows the switch and it still toggles; the landing's system test and the full suite pass."
+covers = []
+after = []
+hitl = true
+risk = "low"
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 6), author, 2026-10-23."]
+
+[[entry]]
+id = 17
+type = "bug"
+title = "The card detail's Steam and share buttons sit on the card information's background"
+description = "On the card page (`app/views/cards/_detail.html.erb`, \"Voir sur Steam\" and \"Partager\", class `card-detail__share-button`) the buttons are drawn on the same background as the card's information, which reads oddly (author, 2026-10-23, on staging). Take the buttons out of that background so it holds the card's information only, on the public card page and the signed-in detail, desktop and phone; DESIGN.md's card detail section follows."
+verify = "On the public card page and the signed-in card detail, desktop and phone, the information background wraps the card's information only and the Steam and share buttons stand outside it, checked by the author on staging; the card detail system tests and the full suite pass."
+covers = []
+after = []
+hitl = true
+risk = "low"
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 7), author, 2026-10-23."]
