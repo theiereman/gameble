@@ -12,8 +12,8 @@ Mark a screen `walked` when every applicable combination was seen.
 |---|---|---|
 | Landing | partial: visitor, FR, EN, phone and desktop | footer credits page not in the Information Architecture (16.14) |
 | Pont de commandement (hub) | desktop and phone, player, author ok apart from findings 9 and 10 | staff and the other language to see |
-| Ouverture de capsule | desktop, player, author ok | phone, staff, FR/EN, no-capsule state and reduced motion to see |
-| Collection | | |
+| Ouverture de capsule | desktop, player, author ok apart from findings 12 and 13 | phone, staff, FR/EN to see |
+| Collection | desktop, player, author: average, see finding 14 | rest of the screen, phone, staff to see |
 | Set album | | |
 | Toutes les cartes | partial: visitor, FR and EN | signed-in view and phone to see |
 | Card detail | partial: public page as a visitor, FR and EN | signed-in detail to see |
@@ -55,3 +55,4 @@ Mark a screen `walked` when every applicable combination was seen.
 | 11 | Ouverture de capsule | The "back to the bridge" button duplicates the gameble wordmark in the top bar, which already leads to the hub. | existing request | issue #67 |
 | 12 | Ouverture de capsule | REVEAL ALL is briefly active while the next capsule deals its cards, then greys out again. | ticket | 16.21 |
 | 13 | Ouverture de capsule | The revealed-cards counter is useless and should go; the booster is frozen to bug fixes, so it is dropped in the Stimulus port. | ticket | 21.3 (note) |
+| 14 | Collection | The screen feels average and the "EN COURS" sets display is sad; look for a livelier idea. | ticket (design study) | 16.22 |
