@@ -360,3 +360,27 @@ after = [28]
 hitl = true
 risk = "low"
 notes = ["Found in the screen walkthrough (ticket 16.1, finding 22), author, 2026-10-23: the same wide-screen gap as the friends screen; check the other single-column screens (Comment ça marche, the legal page, Succès, the feed) for it as they are walked."]
+
+[[entry]]
+id = 31
+type = "story"
+title = "The feed's tabs and filters are designed as one control"
+description = "On the activity feed (`app/views/feeds/show.html.erb`) the TOUS and AMIS tabs and the filter row (Tout, Tirages, Découvertes, Échanges, Reposts) look dropped on the page at random, with no visible hierarchy between the tabs and the filters (author, 2026-10-23, on staging). Design them as one controlled zone: with the author, settle what the tabs and the filters are (a scope, then a kind), how they align with the list below them and with the page's other filter zones (the catalog's FILTRES chips), how the selected state reads, and how a visitor's greyed AMIS tab looks; the phone keeps them reachable without a wall of chips; EXPERIENCE.md's Fil d'activité row and DESIGN.md follow."
+verify = "The feed's tabs and filters read as one zone with a clear selected state, aligned with the list, on the desktop and the phone, in French and in English, for a player and for a visitor with the AMIS tab greyed and disabled; keyboard order and accessible names unchanged or improved; checked by the author on staging; the feed system tests (retrying matchers) and the full suite pass."
+covers = []
+after = []
+hitl = true
+risk = "low"
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 24), author, 2026-10-23."]
+
+[[entry]]
+id = 32
+type = "story"
+title = "A feed entry is rebuilt for balance and legible parts"
+description = "A line of the activity feed (`app/views/feeds/_entry.html.erb`, also rendered by the landing's LIVE module and the hub's ticker) is badly balanced: the player, the game, the sentence, the date and the rarity are not told apart, and the card it shows is too large for the line (author, 2026-10-23, on staging). Redesign the entry from the design rules: with the author, set a clear hierarchy (who, what, which game, when), give the player's name and the game's name their own treatments distinct from the plain text, a timestamp in a quiet place, and size the card so it supports the line without taking it over; the same entry serves the feed, the landing and the hub, so each context's size is checked; reduced motion, the visitor's read-only view and the entries' kinds (draws, discoveries, trades, reposts, tiers and completions) all keep working; EXPERIENCE.md's Fil d'activité row and DESIGN.md follow."
+verify = "Every kind of feed entry on the desktop and the phone, in French and in English, tells the player, the game, the text and the date apart with a card sized to the line, in the feed, in the landing's LIVE module and in the hub's ticker, as the author approves on staging; the feed and landing system tests (retrying matchers) and the full suite pass."
+covers = []
+after = [31]
+hitl = true
+risk = "medium"
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 25), author, 2026-10-23: a rework within the design rules, not a restyle of colours only."]

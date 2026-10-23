@@ -24,7 +24,7 @@ Mark a screen `walked` when every applicable combination was seen.
 | Amis | desktop, player, empty states ok, see finding 20 | phone, FR/EN to see |
 | Friend profile | desktop dialog, player, seen by the author, see finding 21 | phone, FR/EN to see |
 | Report dialog | desktop, player, author ok | phone, FR/EN to see |
-| Fil d'activité | partial: visitor, FR and EN, author ok | player view (AMIS tab) to see |
+| Fil d'activité | visitor FR and EN, player desktop, author: see findings 24 and 25 | phone to see |
 | Succès | desktop, player, author ok | phone, FR/EN to see |
 | Comment ça marche | partial: visitor, FR and EN, author ok | player and staff views to see |
 | Profil et paramètres | desktop, player, author ok apart from finding 22 | phone, FR/EN to see |
@@ -65,3 +65,5 @@ Mark a screen `walked` when every applicable combination was seen.
 | 21 | Friend profile | The profile dialog looks plain and could be better arranged: stacked buttons of unequal widths and a lone orange report link. | ticket | 16.29 |
 | 22 | Profil et paramètres | Like the friends screen, it does not use the width available on a large screen; otherwise ok. | ticket | 16.30 |
 | 23 | Back-office (staff view) | Needs a rework but is not important before 1.0. | deferred | epic-back-office-ux (already planned after the release) |
+| 24 | Fil d'activité | The tabs and filters look put down at random; design them as one zone. | ticket | 16.31 |
+| 25 | Fil d'activité | A feed entry is badly balanced: player, game and text are not told apart and the card is too large; rework it from the design rules. | ticket | 16.32 |
