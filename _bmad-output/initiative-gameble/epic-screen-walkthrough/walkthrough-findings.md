@@ -22,7 +22,7 @@ Mark a screen `walked` when every applicable combination was seen.
 | Échanges (list and board) | desktop, player, author: all good apart from finding 19 | phone, staff, FR/EN to see |
 | Card picker | | |
 | Amis | desktop, player, seen by the author, see finding 20 | friend profile, report dialog, phone, FR/EN to see |
-| Friend profile | | |
+| Friend profile | desktop dialog, player, seen by the author, see finding 21 | phone, FR/EN to see |
 | Report dialog | | |
 | Fil d'activité | partial: visitor, FR and EN, author ok | player view (AMIS tab) to see |
 | Succès | | |
@@ -62,3 +62,4 @@ Mark a screen `walked` when every applicable combination was seen.
 | 18 | Card detail (player) | A card not owned should be greyed with the lock, as in the grids, for consistency; reverses the 2026-10-20 call. Share sheet ok. | ticket | 16.26 |
 | 19 | Échanges | View transitions play between steps where almost the same screen stays on display, which makes no sense; keep them only where the screen really changes. | ticket | 16.27 |
 | 20 | Amis | On a large screen the single narrow column wastes the width; the friend list should lead, on the right, structured and aligned, and outweigh the invitations; the action buttons are just piled on one line. | ticket | 16.28 |
+| 21 | Friend profile | The profile dialog looks plain and could be better arranged: stacked buttons of unequal widths and a lone orange report link. | ticket | 16.29 |

@@ -336,3 +336,15 @@ after = []
 hitl = true
 risk = "low"
 notes = ["Found in the screen walkthrough (ticket 16.1, finding 20), author, 2026-10-23, with a screenshot of the desktop screen."]
+
+[[entry]]
+id = 29
+type = "story"
+title = "The friend profile dialog is arranged, not stacked"
+description = "The friend profile dialog (`app/views/friends/_profile_dialog.html.erb`, opened from a friend row) puts the identity (avatar, name, presence, cards collected) above three buttons stacked one under the other at their own widths, \"ÉCHANGE\", \"VOIR LE PROFIL\" and \"VOIR LA COLLECTION\", then \"SIGNALER\" as a lone orange word, all left-aligned in a wide empty panel (author, 2026-10-23, on staging, with a screenshot). Arrange it: with the author, group the actions by weight (the trade as the main one, the two views of the friend together, the report kept apart), align them on a common width or grid inside the panel, and use the panel's width; the dialog keeps its focus rules, close button and Esc, and follows the action grouping chosen for the friends screen in 16.28 so the two read alike; EXPERIENCE.md's Friend profile row and DESIGN.md follow."
+verify = "The friend profile dialog on the desktop and the phone, in French and in English, shows the identity and the actions in the agreed arrangement with aligned buttons and the report apart; focus moves into the dialog and returns to its opener on close, Esc closes it; checked by the author on staging; the friends system tests (retrying matchers) and the full suite pass."
+covers = []
+after = [28]
+hitl = true
+risk = "low"
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 21), author, 2026-10-23, with a screenshot of the dialog."]
