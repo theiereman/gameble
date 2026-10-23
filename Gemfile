@@ -93,7 +93,7 @@ gem "faraday", "~> 2.14.4"
 gem "faraday-retry", "~> 2.4.0"
 
 # Read the initiative's epics from its TOML ticket file to create the roadmap milestones [https://github.com/fbernier/tomlrb]
-gem "tomlrb", "~> 2.0.5"
+gem "tomlrb", "~> 3.0.0"
 
 # Throttle the sign-in endpoints per client IP, before the OmniAuth middleware [https://github.com/rack/rack-attack]
 gem "rack-attack", "~> 6.8.0"
