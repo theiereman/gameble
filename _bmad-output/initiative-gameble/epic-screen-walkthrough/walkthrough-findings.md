@@ -19,7 +19,7 @@ Mark a screen `walked` when every applicable combination was seen.
 | Card detail | public page as a visitor (FR, EN) and signed-in detail, desktop, author ok apart from findings 7 and 17 | phone, staff, EN to see |
 | Seasonal allocation | | |
 | Share sheet | desktop, player, author ok | phone to see |
-| Échanges (list and board) | | |
+| Échanges (list and board) | desktop, player, author: all good apart from finding 19 | phone, staff, FR/EN to see |
 | Card picker | | |
 | Amis | | |
 | Friend profile | | |
@@ -60,3 +60,4 @@ Mark a screen `walked` when every applicable combination was seen.
 | 16 | Set album | Missing cards should look like the not-owned cards of Toutes les cartes (faded, locked) for consistency, not name-and-year slots. | ticket | 16.24 |
 | 17 | Card detail (player) | The accumulation of buttons (Steam, share, repost, showcase) at the foot of the detail looks messy. | ticket | 16.25 |
 | 18 | Card detail (player) | A card not owned should be greyed with the lock, as in the grids, for consistency; reverses the 2026-10-20 call. Share sheet ok. | ticket | 16.26 |
+| 19 | Échanges | View transitions play between steps where almost the same screen stays on display, which makes no sense; keep them only where the screen really changes. | ticket | 16.27 |
