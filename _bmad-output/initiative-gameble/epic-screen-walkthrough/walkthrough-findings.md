@@ -12,7 +12,7 @@ Mark a screen `walked` when every applicable combination was seen.
 |---|---|---|
 | Landing | partial: visitor, FR, EN, phone and desktop | footer credits page not in the Information Architecture (16.14) |
 | Pont de commandement (hub) | desktop and phone, player, author ok apart from findings 9 and 10 | staff and the other language to see |
-| Ouverture de capsule | | |
+| Ouverture de capsule | desktop, player, author ok | phone, staff, FR/EN, no-capsule state and reduced motion to see |
 | Collection | | |
 | Set album | | |
 | Toutes les cartes | partial: visitor, FR and EN | signed-in view and phone to see |
@@ -52,3 +52,4 @@ Mark a screen `walked` when every applicable combination was seen.
 | 8 | Public profile | The started sets list is too long; show only the 20 most complete sets. | ticket | 16.18 |
 | 9 | Hub | A wide gap separates the community goal and "SETS EN COURS"; the daily capsule should sit under the goal and the sets take its place in the left column. | ticket | 16.19 |
 | 10 | Hub top bar | The player chip is not as tall as the rarity counter and the capsules chip. | ticket | 16.20 |
+| 11 | Ouverture de capsule | The "back to the bridge" button duplicates the gameble wordmark in the top bar, which already leads to the hub. | existing request | issue #67 |
