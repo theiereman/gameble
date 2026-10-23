@@ -51,3 +51,4 @@ Mark a screen `walked` when every applicable combination was seen.
 | 7 | Card detail (public page) | The Steam and share buttons sit on the card information's background; the background should wrap the information only. | ticket | 16.17 |
 | 8 | Public profile | The started sets list is too long; show only the 20 most complete sets. | ticket | 16.18 |
 | 9 | Hub | A wide gap separates the community goal and "SETS EN COURS"; the daily capsule should sit under the goal and the sets take its place in the left column. | ticket | 16.19 |
+| 10 | Hub top bar | The player chip is not as tall as the rarity counter and the capsules chip. | ticket | 16.20 |

@@ -228,3 +228,15 @@ after = []
 hitl = true
 risk = "low"
 notes = ["Found in the screen walkthrough (ticket 16.1, finding 9), author, 2026-10-23."]
+
+[[entry]]
+id = 20
+type = "bug"
+title = "The top bar's player chip is not as tall as the rarity counter and the capsules chip"
+description = "In the signed-in top bar (`app/views/shell/_top_bar.html.erb`; chips in `app/frontend/styles/shell.css`, `.player-chip__button`, `.rarity-counter__button`, `.packs-chip`) the player chip does not have the same height as the rarity counter and the capsules chip beside it (author, 2026-10-23, on staging). Give the three chips one height at every width, where the bar shows them, without changing their content or their tap targets."
+verify = "On the hub, the collection and a card page, at desktop and phone widths, the three chips measure the same height, checked by the author on staging and by a system test that compares their heights; the full suite passes."
+covers = []
+after = []
+hitl = false
+risk = "low"
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 10), author, 2026-10-23."]
