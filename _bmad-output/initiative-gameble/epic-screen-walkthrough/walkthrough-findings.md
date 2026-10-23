@@ -46,4 +46,4 @@ Mark a screen `walked` when every applicable combination was seen.
 | 2 | Landing | Module 09 (Soutenir) sits in a striped frame like "Soutenir gameble", which repeats it and differs from the plain look of modules 07 and 08. It should lose the striped frame. | ticket | 16.12 |
 | 3 | Landing | The demo cards show "Image indisponible" in the fetched HTML; the author sees the cards fine in the browser. | keep | |
 | 4 | Toutes les cartes | The page title reads "Toutes les cartes · Collection · gameble"; it should be "Toutes les cartes · gameble". | ticket | 16.13 |
-| 5 | Toutes les cartes | The grid would gain infinite scroll. | pending | |
+| 5 | Toutes les cartes | The grid would gain infinite scroll. | ticket | 16.15 |
