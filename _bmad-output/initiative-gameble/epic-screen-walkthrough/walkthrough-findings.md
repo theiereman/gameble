@@ -25,7 +25,7 @@ Mark a screen `walked` when every applicable combination was seen.
 | Friend profile | desktop dialog, player, seen by the author, see finding 21 | phone, FR/EN to see |
 | Report dialog | desktop, player, author ok | phone, FR/EN to see |
 | Fil d'activité | partial: visitor, FR and EN, author ok | player view (AMIS tab) to see |
-| Succès | | |
+| Succès | desktop, player, author ok | phone, FR/EN to see |
 | Comment ça marche | partial: visitor, FR and EN, author ok | player and staff views to see |
 | Profil et paramètres | | |
 | Public card page | | |
