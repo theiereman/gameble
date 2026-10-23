@@ -16,7 +16,7 @@ Mark a screen `walked` when every applicable combination was seen.
 | Collection | desktop, player, author ok apart from finding 14 (design study) | phone, staff, FR/EN to see |
 | Set album | desktop, player, author: not bad, see finding 15 | phone, public profile album, staff, FR/EN to see |
 | Toutes les cartes | partial: visitor, FR and EN | signed-in view and phone to see |
-| Card detail | partial: public page as a visitor, FR and EN | signed-in detail to see |
+| Card detail | public page as a visitor (FR, EN) and signed-in detail, desktop, author ok apart from findings 7 and 17 | phone, staff, EN to see |
 | Seasonal allocation | | |
 | Share sheet | | |
 | Échanges (list and board) | | |
@@ -58,3 +58,4 @@ Mark a screen `walked` when every applicable combination was seen.
 | 14 | Collection | The screen feels average and the "EN COURS" sets display is sad; look for a livelier idea. | ticket (design study) | 16.22 |
 | 15 | Set album | A large set can lose the player; add filters (owned or missing, rarity), the author is not sure. | ticket (to confirm) | 16.23 |
 | 16 | Set album | Missing cards should look like the not-owned cards of Toutes les cartes (faded, locked) for consistency, not name-and-year slots. | ticket | 16.24 |
+| 17 | Card detail (player) | The accumulation of buttons (Steam, share, repost, showcase) at the foot of the detail looks messy. | ticket | 16.25 |
