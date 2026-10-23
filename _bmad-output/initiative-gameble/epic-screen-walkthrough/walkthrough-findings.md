@@ -67,3 +67,9 @@ Mark a screen `walked` when every applicable combination was seen.
 | 23 | Back-office (staff view) | Needs a rework but is not important before 1.0. | deferred | epic-back-office-ux (already planned after the release) |
 | 24 | Fil d'activité | The tabs and filters look put down at random; design them as one zone. | ticket | 16.31 |
 | 25 | Fil d'activité | A feed entry is badly balanced: player, game and text are not told apart and the card is too large; rework it from the design rules. | ticket | 16.32 |
+
+## Session close (2026-10-23)
+
+The author ends the session here: the phone, the other language and the signed-out views not walked above are left aside, since the findings already raised cover what matters before the release. Screens marked partial were seen on the desktop as a player or as a visitor only.
+
+Decisions: 21 tickets (16.12 to 16.32), one note on 21.3, one existing request (issue 67), one entry kept as it is, one entry deferred to the back-office epic.
