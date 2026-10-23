@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EN COURS: the neon keepsake</title>
+<style>
+:root{
+  --bg:#05070d;--panel:#0b1020;--panel2:#10172b;--ink:#d6e4ff;--dim:#7f8fb3;--line:#1e2a48;
+  --cyan:#3df5ff;--mag:#ff3dcb;--amb:#ffb347;--grn:#6dff9a;--red:#ff4d5e;
+  --mono:ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--mono);
+  background-image:radial-gradient(1200px 600px at 50% -10%,#10204a55,transparent),
+  repeating-linear-gradient(0deg,#ffffff05 0 1px,transparent 1px 3px);}
+main{max-width:980px;margin:0 auto;padding:0 16px 80px}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:.04em}
+section{padding:72px 0 24px;border-top:1px dashed var(--line);margin-top:48px}
+.tag{display:inline-block;font-size:12px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase}
+.tag b{color:var(--cyan)}
+h2{font-size:clamp(24px,5vw,38px);margin:6px 0 8px}
+.lede{color:var(--dim);max-width:62ch;margin:0 0 28px}
+.mono-note{color:var(--dim);font-size:13px}
+button{font:inherit;color:var(--cyan);background:#0a1426;border:1px solid var(--cyan);padding:8px 14px;border-radius:6px;cursor:pointer;letter-spacing:.06em}
+button:hover{box-shadow:0 0 14px #3df5ff66}
+button:disabled{opacity:.35;cursor:default;box-shadow:none}
+.chip{display:inline-block;margin:3px 4px 3px 0;padding:4px 10px;border:1px solid var(--line);border-radius:99px;font-size:13px;background:var(--panel)}
+.chip.c{border-color:#3df5ff66;color:var(--cyan)}
+.chip.m{border-color:#ff3dcb66;color:var(--mag)}
+.chip.a{border-color:#ffb34766;color:var(--amb)}
+.chip.g{border-color:#6dff9a66;color:var(--grn)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.insight{border-left:3px solid var(--amb);padding:8px 14px;margin:22px 0;background:#ffb3470d;color:#ffe2b8}
+.insight small{display:block;color:var(--amb);letter-spacing:.2em;text-transform:uppercase;font-size:11px}
+
+/* neon text and tubes */
+.neon-c{color:#e8ffff;text-shadow:0 0 4px #fff,0 0 12px var(--cyan),0 0 30px var(--cyan),0 0 60px #3df5ff88}
+.neon-m{color:#ffe8fa;text-shadow:0 0 4px #fff,0 0 12px var(--mag),0 0 30px var(--mag)}
+@keyframes flick{0%,18%,22%,25%,53%,57%,100%{opacity:1}20%,24%,55%{opacity:.25}}
+@keyframes flick2{0%,100%{opacity:.85}30%{opacity:.4}34%{opacity:.95}60%{opacity:.5}}
+@keyframes breathe{0%,100%{opacity:.55;filter:brightness(.8)}50%{opacity:1;filter:brightness(1.25)}}
+.flick{animation:flick 4s infinite}
+.tube{position:relative;height:18px;border-radius:99px;background:#0c1220;border:2px solid #243053;overflow:hidden}
+.tube>i{position:absolute;inset:0 auto 0 0;width:var(--w,0%);border-radius:99px;background:linear-gradient(90deg,var(--cl,var(--cyan)),#fff);box-shadow:0 0 14px var(--cl,var(--cyan)),0 0 34px var(--cl,var(--cyan));transition:width 1.4s cubic-bezier(.2,.9,.2,1)}
+.tube.off>i{opacity:.0}
+.tube.flk>i{animation:flick2 1.3s infinite}
+.tube.lit>i{width:100%}
+.tube.br>i{animation:breathe var(--bt,3s) ease-in-out infinite}
+
+/* hero */
+.hero{padding:70px 0 30px;text-align:center}
+.hero .sign{font-size:clamp(46px,14vw,128px);line-height:1;font-weight:800;letter-spacing:.08em;margin:18px 0}
+.hero .sign span:nth-child(3){animation:flick 5s infinite}
+.hero .sign span:nth-child(5){animation:flick 7s 1s infinite}
+.hero p{max-width:56ch;margin:8px auto;color:var(--dim)}
+.meta{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px}
+.hero .tubes{display:flex;gap:10px;justify-content:center;margin-top:26px}
+.hero .tubes .tube{width:min(120px,26vw)}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:28px}
+nav.toc a{color:var(--dim);text-decoration:none;font-size:12px;border:1px solid var(--line);padding:3px 9px;border-radius:99px}
+nav.toc a:hover{color:var(--cyan);border-color:var(--cyan)}
+
+/* reverse */
+.mock{background:#070b16;border:1px solid var(--line);border-radius:10px;padding:14px}
+.mock .bar{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.mock .search{flex:1;min-width:120px;border:1px solid var(--line);padding:4px 8px;color:var(--dim);border-radius:4px;font-size:13px}
+.mock .row{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:8px;margin:8px 0;background:var(--panel2);transition:all .4s}
+.mock .ico{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--c1),var(--c2));box-shadow:0 0 10px var(--c1)}
+.mock .nm{font-weight:700}
+.mock .ct{color:var(--dim);font-size:13px}
+.mock .rk{font-size:11px;color:var(--amb);border:1px solid var(--amb);padding:0 6px;border-radius:4px}
+.mock.s-gauge .tube{display:none}
+.mock.s-btn .allbtn{display:none}
+.mock.s-search .search{display:none}
+.mock.s-bare .ico,.mock.s-bare .tube,.mock.s-bare .rk{display:none}
+.mock.s-bare .row{grid-template-columns:1fr auto}
+.mock.s-rank .rk,.mock.s-rank .ico{display:none}
+.mock.s-rank .row{grid-template-columns:1fr auto}
+.mock.s-line .row{padding:3px 10px;margin:0;border-radius:0;border-width:0 0 1px}
+.mock.s-line .tube{display:none}
+.mock.s-still *{animation:none!important;transition:none!important}
+.mock.s-flat .row{background:transparent}
+.mock.s-flat .nm{font-weight:400;color:#aaa}
+.mock.s-flat .tone{display:block}
+.tone{display:none;font-size:12px;color:#8a8a8a}
+.sadlog{margin:12px 0 0;min-height:44px;color:var(--red)}
+.cols{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-top:18px}
+.cols h3{font-size:14px;color:var(--cyan);margin-bottom:6px}
+
+/* kanban etc */
+.kan{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.kan>div{background:#070b16;border:1px solid var(--line);border-radius:8px;padding:8px;min-height:110px}
+.kan h4{margin:0 0 6px;font-size:11px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
+.kan .t{font-size:12px;padding:4px 6px;margin:4px 0;border-radius:4px;border:1px solid var(--line);background:var(--panel2)}
+.kan .t.hot{border-color:var(--mag)}
+.rail{display:flex;gap:8px;overflow:hidden;position:relative;padding:8px 0}
+.rail .tk{flex:0 0 74px;height:90px;background:#f3ecd7;color:#222;font-size:10px;padding:6px;border-radius:2px 2px 8px 8px;transform:rotate(var(--r,0));box-shadow:0 4px 0 #0006}
+.rail .tk b{display:block;border-bottom:1px dashed #888;margin-bottom:4px}
+.rail .tk.done{opacity:.35;transform:translateY(30px) rotate(3deg)}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-82px)}}
+.rail .inner{display:flex;gap:8px;animation:slide 3s steps(1) infinite alternate}
+.slots{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:8px}
+.slots i{aspect-ratio:3/4;border-radius:5px;border:1px solid var(--cyan);background:linear-gradient(160deg,#3df5ff44,#ff3dcb33)}
+.slots i.e{border:1px dashed #3a4770;background:transparent}
+.slots i.e:hover{border-color:var(--mag);box-shadow:0 0 10px var(--mag)}
+svg text{font-family:var(--mono)}
+
+/* sensory */
+.tubes3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.sensor{text-align:center}
+.glass{height:150px;margin:6px auto 14px;width:44px;border-radius:99px;border:3px solid #2a3558;background:#0a0f1d;position:relative;overflow:hidden}
+.glass::after{content:"";position:absolute;inset:6px;border-radius:99px;background:var(--cl);opacity:var(--o,0);box-shadow:0 0 30px var(--cl)}
+.glass.off{--o:0}
+.glass.fl{--o:.7;--cl:var(--mag)}.glass.fl::after{animation:flick2 1.1s infinite}
+.glass.on{--o:1;--cl:var(--cyan);box-shadow:0 0 40px #3df5ff88}
+.glass.off{--cl:#444}
+.feel{font-size:13px;color:var(--dim)}
+.pushbtn{margin-top:10px;width:110px;height:40px;border-radius:8px;border:2px solid #333;background:#171b27;color:#999;cursor:pointer}
+.pushbtn.dead:active{transform:translateY(4px)}
+.pushbtn.dead{transition:none;transform:translateY(4px)}
+.pushbtn.soft:active{animation:boing .5s}
+@keyframes boing{30%{transform:scaleY(.7)}60%{transform:scaleY(1.1)}}
+.pushbtn.hard{border-color:var(--cyan);color:var(--cyan);cursor:not-allowed}
+
+/* dream */
+.lab{position:relative;background:#070b16;border:1px solid var(--line);border-radius:12px;padding:16px;overflow:hidden;min-height:340px}
+.lab .sets{display:grid;gap:10px;position:relative;z-index:1}
+.lab .set{padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
+.lab .set .hd{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.lab .set.bump{animation:bump .35s}
+@keyframes bump{40%{transform:scale(1.03)}}
+.lab .set.locked{border-color:var(--cyan);box-shadow:0 0 20px #3df5ff55;background:#08202b}
+.lab .set.locked .hd::after{content:"LOCKED";color:var(--cyan);letter-spacing:.2em;font-size:11px}
+.fly{position:absolute;width:26px;height:36px;border-radius:4px;background:linear-gradient(160deg,var(--cyan),var(--mag));box-shadow:0 0 12px var(--mag);z-index:2;transition:all 1s cubic-bezier(.3,.7,.2,1)}
+.cut{display:inline-block;transform:rotate(-4deg);border:2px solid var(--red);color:var(--red);padding:0 8px;font-size:12px;letter-spacing:.2em}
+.keep{display:inline-block;border:2px solid var(--grn);color:var(--grn);padding:0 8px;font-size:12px;letter-spacing:.2em;transform:rotate(2deg)}
+
+/* morph */
+.morph{display:grid;gap:12px}
+.axis{display:grid;grid-template-columns:140px 1fr;gap:12px;align-items:start;padding:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.axis>h3{font-size:12px;color:var(--mag);text-transform:uppercase;letter-spacing:.14em}
+@media(max-width:620px){.axis{grid-template-columns:1fr}.kan{grid-template-columns:repeat(2,1fr)}}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:1px solid var(--line);padding:6px 10px;border-radius:6px;background:var(--panel2);font-size:13px;color:var(--ink);cursor:pointer}
+.opt.on{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 10px #3df5ff44}
+.prev{margin-top:10px;width:100%}
+.frames{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px}
+.frame{height:84px;border-radius:8px;padding:8px;font-size:12px;display:flex;align-items:flex-end;border:3px solid;position:relative;overflow:hidden}
+.frame.z{border-color:#5b6b2f;border-style:dashed;background:radial-gradient(circle at 20% 30%,#33401a,transparent 40%),radial-gradient(circle at 70% 70%,#2c3a15,transparent 45%),#141a0a;border-radius:8px 18px 6px 14px}
+.frame.w{border-color:#4a5a35;background:radial-gradient(circle at 30% 30%,#55633a 0 14%,transparent 15%),radial-gradient(circle at 70% 60%,#2d3820 0 18%,transparent 19%),radial-gradient(circle at 50% 90%,#6b6a45 0 12%,transparent 13%),#3b4529}
+.frame.cty{border-color:#8a96b5;background:linear-gradient(transparent 55%,#1c2540 55%),#0b1226}
+.frame.cty::before{content:"";position:absolute;left:12px;bottom:36%;width:46px;height:3px;background:var(--amb);box-shadow:0 0 6px var(--amb)}
+.frame.cty::after{content:"";position:absolute;left:40px;bottom:15%;width:3px;height:40px;background:var(--amb)}
+.frame.st{border:3px dotted #3a4770;color:var(--dim)}
+.gantt{margin-top:8px}
+.gantt .gr{display:grid;grid-template-columns:90px 1fr;gap:8px;align-items:center;margin:6px 0;font-size:12px}
+.gantt .gb{height:14px;border-radius:99px;background:#0c1220;position:relative}
+.gantt .gb i{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.gantt .gb u{position:absolute;top:0;bottom:0;border-radius:99px;border:1px dashed var(--mag);border-left:0}
+.quote{padding:10px 14px;border-left:3px solid var(--mag);background:#ff3dcb0d;font-style:italic;min-height:64px}
+.seq{display:flex;gap:6px;align-items:stretch;margin-top:8px}
+.seq div{flex:1;padding:8px;font-size:12px;border:1px solid var(--line);border-radius:6px;background:var(--panel2)}
+.seq div:last-child{border-color:var(--mag);color:var(--mag)}
+.edge{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+.edge div{border:1px dashed #3a4770;border-radius:8px;padding:8px;font-size:13px}
+input[type=range]{width:100%;accent-color:var(--cyan)}
+
+/* questions */
+.qs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.q{position:relative;padding:18px 14px 14px;border:1px solid #ffb34755;border-radius:14px 14px 14px 2px;background:#ffb3470a;color:#ffe2b8}
+.q::before{content:"?";position:absolute;top:-14px;right:10px;font-size:36px;color:var(--amb);text-shadow:0 0 12px var(--amb);animation:flick2 3s infinite}
+.q:nth-child(2n){transform:translateY(8px)}.q:nth-child(3n){transform:translateY(-4px)}
+
+/* converge */
+.fam{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.fam .f{padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);display:flex;gap:10px;align-items:center;font-size:13px}
+.fam .f b{font-size:30px;line-height:1}
+.moscow{display:grid;grid-template-columns:2fr 1.4fr 1.4fr;gap:12px;margin-top:20px}
+@media(max-width:700px){.moscow{grid-template-columns:1fr}}
+.moscow>div{border-radius:12px;padding:12px;border:1px solid var(--line);background:var(--panel)}
+.moscow h3{font-size:13px;letter-spacing:.3em;margin-bottom:8px}
+.mu{border-color:var(--cyan)!important}.mu h3{color:var(--cyan)}
+.ms{border-color:var(--mag)!important}.ms h3{color:var(--mag)}
+.mc{border-color:#44527e!important}.mc h3{color:var(--dim)}
+.tl{display:flex;align-items:center;gap:10px;padding:8px;margin:6px 0;border-radius:8px;background:#070b16}
+.tl b{font-size:22px;width:26px}
+.tens{margin-top:16px;padding:12px;border:1px dashed var(--red);border-radius:10px;color:#ffb8bf}
+
+/* synth */
+.finale{position:relative;text-align:center;padding:36px 12px;margin-top:20px;border:1px solid var(--cyan);border-radius:16px;background:radial-gradient(600px 300px at 50% 0,#3df5ff22,transparent),var(--panel);box-shadow:0 0 50px #3df5ff22}
+.hubwrap{position:relative;max-width:640px;margin:18px auto}
+.hub{width:100%;height:auto;display:block}
+.hub .node{fill:#0b1020;stroke:var(--mag);stroke-width:1.5}
+.hub .core{fill:#06222b;stroke:var(--cyan);stroke-width:2.5;filter:drop-shadow(0 0 10px var(--cyan))}
+.hub .wire{stroke:var(--cyan);stroke-width:1.5;fill:none;stroke-dasharray:6 6;opacity:.5}
+.hub.go .wire{animation:dash 1s linear infinite;opacity:1}
+@keyframes dash{to{stroke-dashoffset:-24}}
+.hub text{fill:var(--ink);font-size:12px;text-anchor:middle}
+.hub .core-t{fill:var(--cyan);font-size:13px;font-weight:700}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;text-align:left;margin-top:22px}
+.rules div{padding:12px;border:1px solid var(--line);border-radius:10px;background:#070b16;font-size:14px}
+.rules div b{display:block;color:var(--amb);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+.ret{margin:18px auto 0;max-width:560px;text-align:left}
+.ret .rowx{padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);margin:8px 0}
+.ret .rowx .hd{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.delta{color:var(--grn);opacity:0;transition:opacity .6s}
+.delta.show{opacity:1}
+.bro{margin-top:10px;padding:10px 12px;border-left:3px solid var(--mag);color:#ffd2f3;font-style:italic;opacity:0;transition:opacity .8s;min-height:44px}
+.bro.show{opacity:1}
+footer{text-align:center;color:var(--dim);font-size:12px;margin-top:60px}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .tube.flk>i{opacity:.7}
+  .tube.br>i{opacity:.85}
+}
+</style>
+</head>
+<body>
+<main>
+
+<header class="hero">
+  <span class="tag">Brainstorming keepsake &middot; <b>ticket 16.22</b> &middot; 2026-10-23</span>
+  <div class="sign neon-c" aria-label="EN COURS"><span>EN</span> <span>C</span><span>O</span><span>U</span><span>R</span><span>S</span></div>
+  <p>A livelier screen for the sets in progress, on the collection entry, the hub panel and the public profile. The goal: find why the screen feels flat, and a more engaging way to show a set on its way to completion.</p>
+  <div class="tubes" aria-hidden="true">
+    <div class="tube off"><i></i></div><div class="tube flk" style="--cl:var(--mag)"><i style="--w:55%"></i></div><div class="tube lit"><i></i></div>
+  </div>
+  <div class="meta">
+    <span class="chip c">facilitator mode</span><span class="chip m">6 techniques</span><span class="chip a">9 families</span><span class="chip g">status: complete</span>
+  </div>
+  <nav class="toc">
+    <a href="#t1">Reverse</a><a href="#t2">Cross-Pollination</a><a href="#t3">Sensory</a><a href="#t4">Dream Fusion</a><a href="#t5">Morphological</a><a href="#t6">Question Storming</a><a href="#t7">Convergence</a><a href="#t8">Synthesis</a>
+  </nav>
+</header>
+
+<!-- 1 -->
+<section id="t1">
+  <span class="tag">Technique 1 &middot; <b>Reverse Brainstorming</b></span>
+  <h2>How do we make it sadder?</h2>
+  <p class="lede">The session began by asking for the worst version. Press the button and strip the mock row one idea at a time, in the order the author gave them.</p>
+  <div class="mock" id="mock">
+    <div class="bar"><b class="neon-c">EN COURS</b><span class="search">search...</span><span class="chip allbtn">TOUTES LES CARTES</span></div>
+    <div class="row" style="--c1:#ff3dcb;--c2:#3df5ff"><span class="ico"></span><div><span class="nm">Set Alpha</span> <span class="rk">TIER 2</span><div class="tube flk" style="margin-top:6px"><i style="--w:62%"></i></div><span class="tone">Progress recorded.</span></div><span class="ct">31 / 50</span></div>
+    <div class="row" style="--c1:#ffb347;--c2:#ff4d5e"><span class="ico"></span><div><span class="nm">Set Beta</span> <span class="rk">TIER 1</span><div class="tube flk" style="margin-top:6px"><i style="--w:28%"></i></div><span class="tone">Progress recorded.</span></div><span class="ct">14 / 50</span></div>
+    <div class="row" style="--c1:#6dff9a;--c2:#3df5ff"><span class="ico"></span><div><span class="nm">Set Gamma</span> <span class="rk">TIER 3</span><div class="tube flk" style="margin-top:6px"><i style="--w:84%"></i></div><span class="tone">Progress recorded.</span></div><span class="ct">42 / 50</span></div>
+  </div>
+  <p class="sadlog" id="sadlog">Step 0 of 8. The screen is happy. Placeholder names, not real data.</p>
+  <button id="sadbtn">Make it sadder</button> <button id="sadreset" disabled>Reset</button>
+
+  <div class="insight"><small>Insight</small>The sad version is dense identical rows, static, impersonal. Flat means no visual identity per set, no motion, no voice. The author noticed that only the set name tells one set from another, in the sad version and in the current one alike. <b>Root cause confirmed: the current rows are as undifferentiated as the deliberately sad version.</b></div>
+
+  <div class="cols">
+    <div class="card"><h3>Identity</h3>
+      <span class="chip c">an icon for the set</span><span class="chip c">a publisher or studio logo</span><span class="chip c">a dedicated colour per set</span><span class="chip c">a quick description</span><span class="chip c">a card contained in the set shown</span></div>
+    <div class="card"><h3>Motion</h3>
+      <span class="chip m">progress animates from the last visit to now</span><span class="chip m">celebration when a tier was passed</span><span class="chip m">hover grows the row to reveal the latest cards</span><span class="chip m">phone: a button unfolds the row</span><span class="chip m">reduced motion: a static "+10 cards"</span></div>
+    <div class="card"><h3>Voice</h3>
+      <span class="chip a">the Brotherhood praises a big advance: "your labour never ceases to impress us"</span><span class="chip a">reproach for small progress: "the Brotherhood finds you lax"</span><span class="chip a">favourite sets, with reasons: "delighted you found cards of this forgotten collection"</span></div>
+  </div>
+  <div class="insight"><small>Direction</small>The screen remembers the last visit and shows what changed since.</div>
+</section>
+
+<!-- 2 -->
+<section id="t2">
+  <span class="tag">Technique 2 &middot; <b>Cross-Pollination</b></span>
+  <h2>Steal from other worlds</h2>
+  <p class="lede">Four borrowed worlds. Each one brought a different way to feel progress.</p>
+  <div class="grid g2">
+    <div class="card"><h3 class="neon-c" style="font-size:16px">Kanban</h3>
+      <p class="mono-note">Columns by state. Sets sorted into started, close to a tier, complete.</p>
+      <div class="kan">
+        <div><h4>To do</h4><div class="t">empty set</div></div>
+        <div><h4>Started</h4><div class="t">Set Alpha</div><div class="t">Set Beta</div></div>
+        <div><h4>Close to a tier</h4><div class="t hot">Set Gamma</div></div>
+        <div><h4>Complete</h4><div class="t">Set Delta</div></div>
+      </div>
+      <p class="mono-note">The player's own states ended up simpler: to do, in progress, complete. No useful intermediate state found.</p></div>
+    <div class="card"><h3 class="neon-m" style="font-size:16px">Kitchen</h3>
+      <p class="mono-note">Tickets advance as the service goes and are archived when finished. A set ticket moves forward, finished sets are filed away.</p>
+      <div class="rail" aria-hidden="true"><div class="inner">
+        <div class="tk done" style="--r:-2deg"><b>SET A</b>done</div><div class="tk" style="--r:1deg"><b>SET B</b>cooking</div><div class="tk" style="--r:-1deg"><b>SET C</b>cooking</div><div class="tk" style="--r:2deg"><b>SET D</b>new</div><div class="tk" style="--r:0"><b>SET E</b>new</div><div class="tk" style="--r:0"><b>SET F</b>new</div></div></div></div>
+    <div class="card"><h3 style="color:var(--amb);font-size:16px">Building site</h3>
+      <p class="mono-note">A progress report (compte rendu) plus the visual sense of everything moving. A weekly or monthly review of what advanced. A bilan shown only once a set is complete. A burn-up chart of the set's progress over time.</p>
+      <svg viewBox="0 0 300 130" width="100%" role="img" aria-label="Burn-up chart sketch">
+        <line x1="20" y1="10" x2="20" y2="110" stroke="#3a4770"/><line x1="20" y1="110" x2="290" y2="110" stroke="#3a4770"/>
+        <line x1="20" y1="20" x2="290" y2="20" stroke="#ffb347" stroke-dasharray="4 4"/><text x="290" y="14" fill="#ffb347" font-size="9" text-anchor="end">complete</text>
+        <polyline points="20,110 70,100 110,92 150,70 190,64 230,40 270,30" fill="none" stroke="#3df5ff" stroke-width="3" style="filter:drop-shadow(0 0 5px #3df5ff)"/>
+        <text x="150" y="126" fill="#7f8fb3" font-size="9" text-anchor="middle">time</text></svg></div>
+    <div class="card"><h3 style="color:var(--grn);font-size:16px">Physical album</h3>
+      <p class="mono-note">Reopening it to admire the fine pieces already added. And the pull of filling the gaps between pieces of the same species or type: the empty slot as a visible lack. Hover a gap.</p>
+      <div class="slots"><i></i><i></i><i class="e"></i><i></i><i class="e"></i><i class="e"></i><i></i><i class="e"></i><i></i><i></i><i class="e"></i><i></i></div></div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="t3">
+  <span class="tag">Technique 3 &middot; <b>Sensory Exploration</b></span>
+  <h2>A set is a tube of light</h2>
+  <p class="lede">State is expressed by light and feel: off when empty, flickering and soft when in progress, fully lit and hard when complete. Try the push buttons.</p>
+  <div class="tubes3">
+    <div class="card sensor"><div class="glass off"></div><h3>Empty</h3>
+      <div class="feel">Fully switched off. A dead object moved without effort, like a broken push button that does not spring back.</div>
+      <button class="pushbtn dead" aria-label="Dead button">push</button>
+      <svg viewBox="0 0 200 50" width="100%"><polyline fill="none" stroke="#ff4d5e" stroke-width="2" points="0,25 30,25 34,8 38,42 42,25 70,25 72,25 80,10 84,40 88,25 130,25 134,12 138,38 142,25 200,25"/></svg>
+      <div class="feel">Sound: the buzz and stutter of a faulty, not quite dead neon.</div></div>
+    <div class="card sensor"><div class="glass fl"></div><h3>In progress</h3>
+      <div class="feel">A flickering, changing light and a soft, bouncy feedback.</div>
+      <button class="pushbtn soft" aria-label="Soft button">push</button>
+      <svg viewBox="0 0 200 50" width="100%"><path fill="none" stroke="#ff3dcb" stroke-width="2" d="M0 25 C10 5 20 45 30 25 S45 5 55 25 S65 45 73 25 S83 8 90 25 S98 42 104 25 S110 10 115 25 S120 40 125 25 S130 12 134 25 S138 38 142 25 S146 14 149 25 S152 36 155 25 S158 16 160 25 S163 34 166 25 S169 18 172 25 S175 32 178 25 S181 20 184 25 S187 30 190 25 S193 22 196 25 S199 27 200 25"/></svg>
+      <div class="feel">Sound: an electrical grid gaining power as it advances.</div></div>
+    <div class="card sensor"><div class="glass on"></div><h3>Complete</h3>
+      <div class="feel">Fully lit, hard to the touch, still.</div>
+      <button class="pushbtn hard" aria-label="Hard button">push</button>
+      <svg viewBox="0 0 200 50" width="100%"><path fill="none" stroke="#3df5ff" stroke-width="2" d="M0 25 Q12.5 5 25 25 T50 25 T75 25 T100 25 T125 25 T150 25 T175 25 T200 25"/></svg>
+      <div class="feel">Sound: a very steady neon hum.</div></div>
+  </div>
+  <div class="insight"><small>Insight</small>Off (empty), flickering and soft (in progress), fully lit and hard (complete). One thread runs through light, touch and sound.</div>
+</section>
+
+<!-- 4 -->
+<section id="t4">
+  <span class="tag">Technique 4 &middot; <b>Dream Fusion Laboratory</b></span>
+  <h2>The dream, and what survives it</h2>
+  <p class="lede">On arrival, the cards obtained since the last visit fly in from all over and file themselves into their sets, sporadic yet steady. Run the dream, then see what was kept and what was cut.</p>
+  <div class="lab" id="lab">
+    <div class="sets">
+      <div class="set" data-n="0"><div class="hd"><span>Set Alpha</span><span class="cnt">0</span></div><div class="tube br" style="--bt:2s"><i style="--w:40%"></i></div></div>
+      <div class="set" data-n="1"><div class="hd"><span>Set Beta</span><span class="cnt">0</span></div><div class="tube br" style="--bt:2s;--cl:var(--mag)"><i style="--w:70%;--cl:var(--mag)"></i></div></div>
+    </div>
+  </div>
+  <p><button id="dreambtn">Dream it</button></p>
+  <div class="grid g2">
+    <div class="card"><h3>Dreamed</h3>
+      <p>Each card that lands makes its set section bounce slightly. <span class="cut">CUT FOR NOW</span></p>
+      <p>Cards flying in and filing themselves. <span class="cut">CUT FOR NOW</span></p>
+      <p>The progress bar advances with an electric effect and neon luminescence. <span class="keep">FIRST STEP</span></p>
+      <p>A set that completes locks, feels accomplished, and can no longer be opened. <span class="keep">FIRST STEP</span></p></div>
+    <div class="card"><h3>Smallest first step</h3><p>The neon progress bar that advances and the locked feel of a completed set.</p>
+      <div class="insight" style="margin:0"><small>Direction</small>Neon as the thread: a set is a tube that is off, flickering or fully lit. A complete set locks.</div></div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="t5">
+  <span class="tag">Technique 5 &middot; <b>Morphological Analysis</b></span>
+  <h2>Axes and their options</h2>
+  <p class="lede">Second batch, chosen by the author. The screen was split into axes, each with its options. Click to try them.</p>
+  <div class="morph">
+    <div class="axis"><h3>Organisation</h3><div>
+      <div class="opts" data-axis="org"><span class="opt on" data-k="grid">grid like the cards</span><span class="opt" data-k="list">a list</span><span class="opt" data-k="kanban">a kanban by progress</span><span class="opt" data-k="gantt">gantt with estimated time to completion from the odds</span></div>
+      <div class="prev" id="orgprev"></div></div></div>
+
+    <div class="axis"><h3>Identity</h3><div>
+      <div class="mono-note">Each set gets its own frame and colours with a themed decor instead of a plain frame.</div>
+      <div class="frames">
+        <div class="frame z">zombie: a mouldy, gnawed frame</div>
+        <div class="frame w">war: a camouflage-fabric background</div>
+        <div class="frame cty">city: a construction crane and buildings under construction</div>
+        <div class="frame st">studio sets: open question, no decor idea yet</div></div>
+      <p class="mono-note" style="margin-bottom:0">Sourcing: AI-generated set decors first; later, contributing artists replace them with more personalised ones, which fits the open-source call for artists. The author is candid: AI-generated art is not ideal either, but with no talent or time to draw, it is the only option for now.</p></div></div>
+
+    <div class="axis"><h3>Voice</h3><div>
+      <div class="mono-note">The voice depends on how long the player has been away from the screen.</div>
+      <div class="opts" data-axis="voice" style="margin:8px 0"><span class="opt on" data-k="c">complete set</span><span class="opt" data-k="p">set in progress</span><span class="opt" data-k="e">set still empty</span></div>
+      <div class="quote" id="voiceq"></div></div></div>
+
+    <div class="axis"><h3>Sequence on return</h3><div>
+      <div class="seq"><div>cards file in</div><div>the bar progresses, at the same time</div><div>the Brotherhood's comment appears last</div></div></div></div>
+
+    <div class="axis"><h3>Edge cases</h3><div class="edge">
+      <div>Nothing happened since the last visit: no commentary and no animation.</div>
+      <div>Many sets completed since the last visit: a very laudatory comment.</div>
+      <div>Old phone: the comment without the ceremony of animations.</div></div></div>
+
+    <div class="axis"><h3>Idle state</h3><div>
+      <div class="mono-note">A discreet neon glow that breathes slowly; the breathing speeds up with electric effects as progress grows.</div>
+      <div class="tube br" id="idle" style="margin:14px 0 6px;--bt:4s"><i style="--w:100%"></i></div>
+      <input type="range" id="prog" min="0" max="100" value="10" aria-label="Set progress">
+      <div class="mono-note" id="idletxt">Low progress: slow breath.</div></div></div>
+  </div>
+  <div class="insight"><small>Insight</small>The idle glow's pace reads as progress: slow breath when low, faster and electric when high. It must be static under reduced motion.</div>
+</section>
+
+<!-- 6 -->
+<section id="t6">
+  <span class="tag">Technique 6 &middot; <b>Question Storming</b></span>
+  <h2>Only questions allowed</h2>
+  <p class="lede">Nine questions, none answered yet. They fall into back end, craft, layout, and tone.</p>
+  <div class="qs">
+    <div class="q">How to keep the screen responsive without overloading the back end?</div>
+    <div class="q">How to make the sounds when the author lacks the skills to produce them?</div>
+    <div class="q">How to lay the screen out properly?</div>
+    <div class="q">What would it look like on mobile?</div>
+    <div class="q">Would a different layout be better, and which one?</div>
+    <div class="q">Should a player with many cards be complimented more than a newcomer?</div>
+    <div class="q">Should the Brotherhood really comment every single time?</div>
+    <div class="q">Can the tone become too overbearing with this method?</div>
+    <div class="q">How to make completion more interesting for a player who plays little?</div>
+  </div>
+  <p class="mono-note" style="margin-top:28px">A third batch (Assumption Reversal) was opened, and the author moved on to convergence.</p>
+</section>
+
+<!-- 7 -->
+<section id="t7">
+  <span class="tag">Convergence &middot; <b>Nine families, one verdict</b></span>
+  <h2>A to I, then MoSCoW</h2>
+  <p class="lede">The ideas were gathered into nine families, then sorted by the author.</p>
+  <div class="fam">
+    <div class="f"><b class="neon-c">A</b>neon thread</div>
+    <div class="f"><b class="neon-c">B</b>locking of a complete set</div>
+    <div class="f"><b class="neon-c">C</b>memory of the last visit</div>
+    <div class="f"><b class="neon-m">D</b>identity of each set</div>
+    <div class="f"><b class="neon-m">E</b>Brotherhood voice</div>
+    <div class="f"><b class="neon-c">F</b>reveal the latest cards</div>
+    <div class="f"><b style="color:var(--dim)">G</b>organisation of the screen</div>
+    <div class="f"><b style="color:var(--dim)">H</b>sound</div>
+    <div class="f"><b style="color:var(--dim)">I</b>album and empty slots</div>
+  </div>
+  <div class="moscow">
+    <div class="mu"><h3>MUST</h3>
+      <div class="tl"><b class="neon-c">A</b>A neon thread</div>
+      <div class="tl"><b class="neon-c">B</b>Locking of a complete set (already the agreed first step)</div>
+      <div class="tl"><b class="neon-c">C</b>Memory of the last visit</div>
+      <div class="tl"><b class="neon-c">F</b>Reveal the latest cards: hover growth on desktop, unfold button on phone</div></div>
+    <div class="ms"><h3>SHOULD</h3>
+      <div class="tl"><b class="neon-m">D</b>Identity of each set: AI decors first, artists later</div>
+      <div class="tl"><b class="neon-m">E</b>Brotherhood voice</div></div>
+    <div class="mc"><h3>COULD</h3>
+      <div class="tl"><b>G</b>Organisation</div><div class="tl"><b>H</b>Sound</div><div class="tl"><b>I</b>Album and empty slots</div></div>
+  </div>
+  <div class="tens"><b>Tension settled.</b> F is Must, yet cards flying in and the per-card bounce were cut earlier. Resolution: the first version of F is hover growth on desktop and the unfold button on phone; the flying cards and the per-card bounce wait.</div>
+  <div class="insight"><small>The author's reading</small>The screen must remember the last visit and react, so the collection feels like it grows and completes.</div>
+</section>
+
+<!-- 8 -->
+<section id="t8">
+  <span class="tag">Synthesis &middot; <b>The climax</b></span>
+  <h2 class="neon-c">One marker to light them all</h2>
+  <div class="finale">
+    <p class="lede" style="margin:0 auto">One last-seen marker per set drives everything the player sees on return. Light the wires.</p>
+    <div class="hubwrap">
+      <svg class="hub" id="hub" viewBox="0 0 640 360" role="img" aria-label="Last-seen marker feeding five behaviours">
+        <path class="wire" d="M320 180 L110 60"/><path class="wire" d="M320 180 L530 60"/><path class="wire" d="M320 180 L70 220"/><path class="wire" d="M320 180 L570 220"/><path class="wire" d="M320 180 L320 320"/>
+        <circle class="core" cx="320" cy="180" r="62"/>
+        <text class="core-t" x="320" y="176">LAST-SEEN</text><text class="core-t" x="320" y="194">MARKER</text>
+        <rect class="node" x="30" y="38" width="160" height="44" rx="10"/><text x="110" y="64">progress animation</text>
+        <rect class="node" x="450" y="38" width="160" height="44" rx="10"/><text x="530" y="64">+N indicator</text>
+        <rect class="node" x="0" y="198" width="140" height="44" rx="10"/><text x="70" y="224">comment tone</text>
+        <rect class="node" x="500" y="198" width="140" height="44" rx="10"/><text x="570" y="224">cards revealed</text>
+        <rect class="node" x="240" y="298" width="160" height="44" rx="10"/><text x="320" y="324">breathing pace</text>
+      </svg>
+    </div>
+    <button id="hubbtn">Simulate a return</button>
+
+    <div class="ret" id="ret" aria-live="polite">
+      <div class="rowx"><div class="hd"><span>Set Alpha</span><span><span class="delta" id="d1">+10 cards</span> <span id="c1">12</span></span></div><div class="tube br" id="tb1" style="--bt:3s"><i style="--w:24%"></i></div></div>
+      <div class="rowx"><div class="hd"><span>Set Beta</span><span id="c2">50 / 50</span></div><div class="tube lit" style="--cl:var(--cyan)"><i></i></div><div class="mono-note">Locked.</div></div>
+      <div class="bro" id="bro">The Brotherhood is silent until something has changed.</div>
+    </div>
+
+    <div class="rules">
+      <div><b>Rule</b>Speak only when something changed.</div>
+      <div><b>Order</b>A static delta state first, animation as garnish.</div>
+      <div><b>Replaces</b>Neon states replace the kanban.</div>
+      <div><b>Constraint</b>Last-seen must be written by a POST, because a GET never writes.</div>
+    </div>
+    <div style="margin-top:22px" class="seq">
+      <div>1. Cards file in</div><div>2. The bar progresses</div><div>3. The Brotherhood speaks last</div></div>
+  </div>
+  <footer>Must: A neon, B lock, C last-visit memory, F hover growth and phone unfold. Should: D identity, E voice. Could: G, H, I.</footer>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $=function(s,r){return (r||document).querySelector(s)};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+
+  /* 1 sadder */
+  var steps=[
+    ['s-gauge','Idea 1: remove the progress gauges.'],
+    ['s-btn','Idea 2: hide the TOUTES LES CARTES button.'],
+    ['s-search','Idea 3: remove the search.'],
+    ['s-bare','Idea 4: show only the set name and the card count.'],
+    ['s-rank','Idea 5: strip everything engaging, such as tier rank.'],
+    ['s-line','Idea 6: everything on a single line per set.'],
+    ['s-still','Idea 7: no animation at all.'],
+    ['s-flat','Idea 8: a totally neutral factual tone.']];
+  var i=0,mock=$('#mock'),log=$('#sadlog'),sb=$('#sadbtn'),sr=$('#sadreset');
+  sb.onclick=function(){
+    if(i>=steps.length)return;
+    mock.classList.add(steps[i][0]);
+    log.textContent='Step '+(i+1)+' of 8. '+steps[i][1];
+    i++;sr.disabled=false;sb.disabled=i>=steps.length;
+    if(i===steps.length)log.textContent+=' Now it is as flat as the current screen.';
+  };
+  sr.onclick=function(){steps.forEach(function(s){mock.classList.remove(s[0])});i=0;sb.disabled=false;sr.disabled=true;log.textContent='Step 0 of 8. The screen is happy. Placeholder names, not real data.'};
+
+  /* 4 dream */
+  var lab=$('#lab'),dreaming=false;
+  $('#dreambtn').onclick=function(){
+    if(dreaming)return;dreaming=true;
+    var sets=$$('.set',lab);
+    sets.forEach(function(s){s.classList.remove('locked');$('.tube i',s).style.setProperty('--w',s.dataset.n==='0'?'40%':'70%');$('.cnt',s).textContent='0'});
+    if(reduce){
+      sets[0].querySelector('.tube i').style.setProperty('--w','60%');$('.cnt',sets[0]).textContent='+3';
+      sets[1].classList.add('locked');$('.tube i',sets[1]).style.setProperty('--w','100%');$('.cnt',sets[1]).textContent='+2';
+      dreaming=false;return;}
+    var n=0,total=5,r=lab.getBoundingClientRect();
+    var t=setInterval(function(){
+      if(n>=total){clearInterval(t);setTimeout(function(){dreaming=false},800);return}
+      var target=sets[n<3?0:1],tr=target.getBoundingClientRect();
+      var f=document.createElement('div');f.className='fly';
+      f.style.left=(Math.random()*(r.width-30))+'px';f.style.top='-40px';lab.appendChild(f);
+      requestAnimationFrame(function(){requestAnimationFrame(function(){
+        f.style.left=(tr.left-r.left+tr.width/2)+'px';f.style.top=(tr.top-r.top+10)+'px';f.style.opacity='.2';f.style.transform='scale(.5)';});});
+      var k=n;
+      setTimeout(function(){
+        f.remove();target.classList.add('bump');setTimeout(function(){target.classList.remove('bump')},400);
+        var c=$('.cnt',target);c.textContent='+'+((parseInt(c.textContent)||0)+1);
+        var w=$('.tube i',target);
+        if(target.dataset.n==='0')w.style.setProperty('--w',(40+((k+1)*7))+'%');
+        else{w.style.setProperty('--w',(k===4?100:85)+'%');if(k===4)target.classList.add('locked')}
+      },1000);
+      n++;
+    },700);
+  };
+
+  /* 5 morph */
+  var orgs={
+    grid:'<div class="slots" style="grid-template-columns:repeat(4,1fr)"><i></i><i></i><i></i><i></i></div>',
+    list:'<div class="mock" style="padding:6px"><div class="row" style="grid-template-columns:1fr auto;margin:4px 0"><span class="nm">Set Alpha</span><span class="ct">31 / 50</span></div><div class="row" style="grid-template-columns:1fr auto;margin:4px 0"><span class="nm">Set Beta</span><span class="ct">14 / 50</span></div></div>',
+    kanban:'<div class="kan" style="grid-template-columns:repeat(3,1fr)"><div><h4>Started</h4><div class="t">Alpha</div></div><div><h4>Close to a tier</h4><div class="t hot">Gamma</div></div><div><h4>Complete</h4><div class="t">Delta</div></div></div>',
+    gantt:'<div class="gantt"><div class="gr"><span>Set Alpha</span><div class="gb"><i style="width:60%"></i><u style="left:60%;width:22%"></u></div></div><div class="gr"><span>Set Beta</span><div class="gb"><i style="width:25%"></i><u style="left:25%;width:60%"></u></div></div><div class="gr"><span>Set Gamma</span><div class="gb"><i style="width:80%"></i><u style="left:80%;width:8%"></u></div></div><div class="mono-note">Solid: done. Dashed: estimated time left. Illustrative lengths only.</div></div>'};
+  function pick(box,cb){$$('.opt',box).forEach(function(o){o.onclick=function(){$$('.opt',box).forEach(function(x){x.classList.remove('on')});o.classList.add('on');cb(o.dataset.k)}})}
+  var op=$('#orgprev');op.innerHTML=orgs.grid;
+  pick($('[data-axis=org]'),function(k){op.innerHTML=orgs[k]});
+  var vq={c:'"We thought we had lost you, but your efforts finally bore fruit."',p:'"Your prolonged absence hardly reassures us about your investment in the Brotherhood."',e:'"Get to work or you risk appearing before the disciplinary council."'};
+  var vb=$('#voiceq');vb.textContent=vq.c;
+  pick($('[data-axis=voice]'),function(k){vb.textContent=vq[k]});
+  var pr=$('#prog'),idle=$('#idle'),it=$('#idletxt');
+  function idleUpd(){
+    var v=+pr.value;idle.style.setProperty('--bt',(4-v*0.034).toFixed(2)+'s');
+    idle.style.setProperty('--cl',v>66?'var(--mag)':'var(--cyan)');
+    it.textContent=v<34?'Low progress: slow breath.':v<67?'Mid progress: the breath quickens.':'High progress: fast and electric.';
+  }
+  pr.oninput=idleUpd;idleUpd();
+
+  /* 8 synthesis */
+  var hub=$('#hub'),hb=$('#hubbtn'),busy=false;
+  hb.onclick=function(){
+    if(busy)return;busy=true;
+    var d=$('#d1'),c=$('#c1'),bar=$('#tb1 i'),bro=$('#bro');
+    d.classList.remove('show');bro.classList.remove('show');bar.style.setProperty('--w','24%');c.textContent='12';
+    hub.classList.add('go');
+    var run=function(){
+      d.classList.add('show');c.textContent='22';bar.style.setProperty('--w','44%');
+      setTimeout(function(){
+        bro.textContent='"Your labour never ceases to impress us."';bro.classList.add('show');
+        setTimeout(function(){hub.classList.remove('go');busy=false},reduce?0:1500);
+      },reduce?0:1600);
+    };
+    reduce?run():setTimeout(run,500);
+  };
+})();
+</script>
+</body>
+</html>
