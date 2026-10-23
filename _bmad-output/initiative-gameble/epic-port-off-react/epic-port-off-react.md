@@ -1,5 +1,6 @@
 ---
-tracker_id: ""
+remote: https://github.com/theiereman/gameble/issues/226
+tracker_id: 226
 key: ""
 type: epic
 title: "The booster and the trade board leave React for Stimulus"
