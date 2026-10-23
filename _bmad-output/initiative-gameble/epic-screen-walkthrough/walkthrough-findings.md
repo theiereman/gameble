@@ -32,9 +32,9 @@ Mark a screen `walked` when every applicable combination was seen.
 | Public profile | | |
 | Full collection (another player's) | | |
 | Steam sign-in | | |
-| Legal page | | |
-| Soutenir | | |
-| Roadmap page | | |
+| Legal page | walked as a visitor, FR, author ok | |
+| Soutenir | external link, checked | |
+| Roadmap page | walked as a visitor, FR and EN, author ok | |
 | Plus (phone) | | |
 | Back-office | | |
 
@@ -49,3 +49,4 @@ Mark a screen `walked` when every applicable combination was seen.
 | 5 | Toutes les cartes | The grid would gain infinite scroll. | ticket | 16.15 |
 | 6 | Landing | On a phone the "Animations réduites" switch covers the gameble wordmark; remove it there. | ticket | 16.16 |
 | 7 | Card detail (public page) | The Steam and share buttons sit on the card information's background; the background should wrap the information only. | ticket | 16.17 |
+| 8 | Public profile | The started sets list is too long; show only the 20 most complete sets. | ticket | 16.18 |
