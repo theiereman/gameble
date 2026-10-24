@@ -273,17 +273,17 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     publish_sets_draft
     titles = { fr: "Toutes les cartes · gameble", en: "All cards · gameble" }
 
-    titles.each do |locale, title|
+    titles.each do |locale, page_title|
       get library_cards_path(locale:)
-      assert_select "title", title
+      assert_select "title", page_title
       assert_select ".top-bar .player-chip", false
     end
 
     sign_in(accounts_players(:player))
 
-    titles.each do |locale, title|
+    titles.each do |locale, page_title|
       get library_cards_path(locale:)
-      assert_select "title", title
+      assert_select "title", page_title
       assert_select ".top-bar .player-chip"
     end
   end

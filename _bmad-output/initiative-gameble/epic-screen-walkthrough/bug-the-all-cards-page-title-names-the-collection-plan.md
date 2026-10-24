@@ -3,15 +3,13 @@ title: 'The all cards page title names the collection'
 type: 'bugfix'
 ticket: 13
 created: '2026-10-24'
-status: 'blocked'
-blocked_at: '2026-10-24'
-blocked_reason: 'no subagents'
+status: 'built'
 baseline_revision: '8dcacbf74d26517c0b7a5f4eb95dbb3ea42e003f'
 route: 'oneshot'
 route_source: 'auto'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context: []
@@ -52,6 +50,11 @@ Oneshot: two locale strings and their request-test assertions, under twenty line
 
 ## Review Triage Log
 
+### 2026-10-24 — Review pass
+- verdicts: 1 findings — high 0, medium 0, low 1, false 0, maybe-false 0
+- findings:
+  - `[low]` `patch` The block variable `title` in the new title test shadows the file's `title(card_season_id, locale)` helper — renamed to `page_title` in both loops.
+
 ## Verification
 
 **Commands:**
@@ -61,9 +64,11 @@ Oneshot: two locale strings and their request-test assertions, under twenty line
 
 ## Auto Run Result
 
-Status: blocked
-Blocking condition: no subagents. This build session had no tool to launch the Quick review lens's subagent, so the review did not run: no lens was launched and the Review Triage Log is empty.
+Status: built
 
-- Change: `library.cards.title` reads "Toutes les cartes · gameble" (`config/locales/fr.yml`) and "All cards · gameble" (`config/locales/en.yml`). The request test's signed-in assertion follows, and a new test reads the title of `/fr/library/cards` and `/en/library/cards` signed out and signed in (`test/controllers/library_controller_test.rb`).
-- Verification, on Postgres 16 and this build's own database: `bin/rails test test/controllers/library_controller_test.rb` 56 runs, 0 failures; `bin/ci` green except the gem audit (crass 1.0.7, GHSA-pq4g-8rxf-4g29, which this change did not introduce), with Rails tests at 3170 runs, 0 failures, and packwerk, rubocop, `i18n-tasks missing`, typecheck and brakeman passing; `npm run test:js` 561 passed; `bin/rails zeitwerk:check` all good; `i18n-tasks unused` clean; `test/system/library_test.rb` 7 runs, 0 failures with a local Chromium.
-- To finish: run the Quick review on the diff since the baseline, then mark the plan `built`.
+- Summary: `library.cards.title` reads "Toutes les cartes · gameble" / "All cards · gameble"; the set album's title and the top bar's "Collection" are unchanged.
+- Files: `config/locales/fr.yml`, `config/locales/en.yml` (the title); `test/controllers/library_controller_test.rb` (the title in both locales, signed out and signed in).
+- Review: the Quick lens ran from the coordinating session after the unattended run halted on `no subagents`. 1 finding, patched (low); nothing deferred or rejected.
+- Follow-up review recommended: false (no high or medium patched).
+- Verification: the unattended run's `bin/ci` (3170 runs, 0 failures; gem audit flags crass 1.0.7, pre-existing), `npm run test:js` 561 passed, `zeitwerk:check`, `test/system/library_test.rb` 7 runs green; after the patch, `bin/rails test test/controllers/library_controller_test.rb` 56 runs, 0 failures. Postgres 16, no migration.
+- Residual risks: none known.
