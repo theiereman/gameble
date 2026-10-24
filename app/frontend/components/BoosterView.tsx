@@ -118,6 +118,7 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
   const revealedCount = revealed.filter(Boolean).length
   const storedCount = stored.filter(Boolean).length
   const everyRevealed = total > 0 && revealedCount === total
+  const handOnTable = phase === "dealt" && total > 0
   const remaining = total - revealedCount
   const busy = phase === "opening" || revealingAll || locked || storing
   const empty = phase === "empty"
@@ -132,19 +133,19 @@ export default function BoosterView({ props, state, left, elements, handlers }: 
 
   const openLabel = bank.available <= 0 && phase !== "opening" ? strings.reserveEmpty : phase === "dealt" ? strings.openNext : strings.open
   const openDisabled = (bank.available <= 0 && phase !== "opening") || (phase === "dealt" && !everyRevealed)
-  const revealAllDisabled = phase !== "dealt" || everyRevealed || revealingAll || storing || legendary !== null
+  const revealAllDisabled = !handOnTable || everyRevealed || revealingAll || storing || legendary !== null
 
   const statusTone = status === "arming" || status === "ejecting" ? "alert" : status === "legendarySignal" ? "gold" : status === "complete" ? "done" : "rest"
   const clock = left === null ? null : formatClock(left)
   const nextLine = !bank.reserveFull && clock !== null && bank.nextAvailableAt ? { clock, spoken: t(strings.nextAt, { time: localTime(bank.nextAvailableAt) }) } : null
 
   // The phone's pile: the cards not stored, the first on top.
-  const top = phase === "dealt" && total > 0 ? topOfPile(revealed, stored) : null
+  const top = handOnTable ? topOfPile(revealed, stored) : null
   const face = faceSize(layout)
   const cardBack = answer?.pack.cardBack ?? "standard"
 
   const hint =
-    phase === "dealt" && total > 0
+    handOnTable
       ? phone
         ? top === null
           ? t(strings.hintDone, { count: total, n: number(total) })
