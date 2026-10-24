@@ -3,15 +3,13 @@ title: "A set album's missing cards look like the not-owned cards of the catalog
 type: 'feature'
 ticket: 24
 created: '2026-10-24'
-status: 'blocked'
-blocked_at: '2026-10-24'
-blocked_reason: 'no subagents'
+status: 'built'
 baseline_revision: '8dcacbf74d26517c0b7a5f4eb95dbb3ea42e003f'
 route: 'oneshot'
 route_source: 'auto'
-review: ''
-review_source: ''
-lenses_ran: []
+review: 'quick'
+review_source: 'pinned'
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context: ['{project-root}/AGENTS.md']
@@ -42,6 +40,15 @@ Oneshot: a view swap to an existing component and helper option, plus deletions 
 
 ## Review Triage Log
 
+### 2026-10-24 — Review pass
+- verdicts: 5 findings — high 1, medium 1, low 3, false 0, maybe-false 0
+- findings:
+  - `[high]` `patch` `test/system/library_test.rb` "the cards of a pack just opened are new…" still counted 8 `.card.card--grid` on the album, which now holds 16 faces with the not-owned ones — counts `.card.card--grid:not(.card--not-owned)` as 8.
+  - `[medium]` `patch` DESIGN.md's Card not owned entry and EXPERIENCE.md's Card not owned (grid) row ended on an unqualified visitor rule that contradicts a public profile's album marking the owner's missing cards — the rule now names Toutes les cartes.
+  - `[low]` `reject` The `Slot` comment in `set_album_loading.rb` gains a clause — it keeps an existing comment accurate about the new not-owned slot; dropping the clause would leave it wrong.
+  - `[low]` `patch` The test comment "Two cards a row, the owned and the not-owned faces the same size." restates its assertion — removed.
+  - `[low]` `reject` The rewritten `link_to_card_detail` comment — the diff shortens a pre-existing comment to match the narrowed signature; deleting it is outside this ticket.
+
 ## Verification
 
 **Commands:**
@@ -52,16 +59,11 @@ Oneshot: a view swap to an existing component and helper option, plus deletions 
 
 ## Auto Run Result
 
-Status: blocked
-Blocking condition: no subagents. Step 4 (review) requires launching a context-free reviewer subagent; this session had no subagent tool, so per the workflow the run halted before review. Implementation and verification are complete and committed on the branch; to finish, set `status` to `in-review` and re-run `bmad-build-auto` on this plan in a session that can launch subagents (it resumes at step 4).
+Status: built
 
-**Summary:** a set album's missing card (own album and a public profile's album, judged by the album owner's holdings) is now the catalog's Card not owned face (`CardComponent owned: false`: faded, grey, pixel lock, no tilt or rarity effects), in set order beside the owned faces, its link named like the catalog's ("…, season N, not owned" / "…, saison N, non possédée") and leading to the same card detail. The missing-card slot (markup, CSS, the `library.grid.missing` strings, the helper's strings-less branch) is gone; EXPERIENCE.md and DESIGN.md follow.
-
-**Verification (DATABASE_URL on gameble_test_w1324, Postgres 16):**
-- `PARALLEL_WORKERS=2 bin/rails test`: 3169 runs, 0 failures, 0 errors, 0 skips.
-- `npm run test:js`: 53 files, 561 tests passed. `bin/rails zeitwerk:check`: all good. `bundle exec packwerk validate` and `check`: no offenses.
-- `bin/ci` steps run one by one (its schema steps need Postgres 18 and no migration changed): `bin/rubocop` no offenses; `i18n-tasks missing` and `unused` clean; `npm run typecheck` clean; `brakeman` no warnings; `db:seed:replant` passes; `bin/bundler-audit` reports crass 1.0.7 (fix >= 1.0.8), pre-existing and unrelated to this change.
-- System tests (`test/system/library_test.rb`, `collection_set_test.rb`, `card_detail_test.rb`, `public_profile_test.rb`) could not run: no Chrome in the container and selenium-manager's download of Chrome for Testing is refused by the egress proxy (403). They were updated but are unverified.
-- `rg "missing-slot|library.grid.missing" app config test`: no match.
-
-**Residual risks:** the four system test files are unrun; the new phone same-row geometry check and the 160 × 240 link size check in `collection_set_test.rb` are the most likely to need adjustment. A missing card now draws its cover art (as the catalog's faces do), so an album page loads up to sixty covers instead of the owned ones only.
+- Summary: a set album's missing card (the player's own album and a public profile's, judged by the album owner's holdings) is the catalog's Card not owned face (`CardComponent owned: false`), in set order beside the owned faces, named like the catalog's and leading to the same card detail; the missing-card slot, its CSS and the `library.grid.missing` strings are gone; EXPERIENCE.md and DESIGN.md follow.
+- Files: 16 files, among them `app/views/library/_album.html.erb`, `app/controllers/concerns/set_album_loading.rb`, `app/helpers/card_details_helper.rb`, the collection CSS, both locales, the library, collection set, card detail and public profile tests, DESIGN.md and EXPERIENCE.md.
+- Review: the Quick lens ran from the coordinating session after the unattended run halted on `no subagents`. 5 findings: 3 patched (1 high, 1 medium, 1 low), 2 rejected (low) with their reasons above; nothing deferred.
+- Follow-up review recommended: false — the high was a stale test count, now run and green, so no unverified risk remains to name.
+- Verification: after the patches, `test/system/library_test.rb`, `collection_set_test.rb`, `card_detail_test.rb` and `public_profile_test.rb` 25 runs, 0 failures on Chromium 141 (unrun before); the unattended run's `PARALLEL_WORKERS=2 bin/rails test` 3169 runs, vitest 561, zeitwerk, packwerk, rubocop, i18n-tasks, typecheck, brakeman clean.
+- Residual risks: an album page now draws up to sixty covers instead of the owned ones only.

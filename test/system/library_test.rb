@@ -135,7 +135,6 @@ class LibraryTest < ApplicationSystemTestCase
     assert_selector ".set-album__count", text: "3/16"
     assert_selector ".collection-grid .card.card--grid", count: 16
     assert_selector ".collection-grid .card.card--grid.card--not-owned", count: 13
-    # Two cards a row, the owned and the not-owned faces the same size.
     faces = page.evaluate_script(<<~JS)
       [ ...document.querySelectorAll(".collection-grid .card") ].slice(2, 4).map((card) => {
         const box = card.getBoundingClientRect()
@@ -218,7 +217,7 @@ class LibraryTest < ApplicationSystemTestCase
 
     visit library_set_path(locale: :en, kind: "theme", key: "horror")
 
-    assert_selector ".collection-grid .card.card--grid", count: 8
+    assert_selector ".collection-grid .card.card--grid:not(.card--not-owned)", count: 8
     assert_no_selector ".collection-slot__new"
   end
 
