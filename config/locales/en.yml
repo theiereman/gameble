@@ -845,7 +845,6 @@ en:
         other: "%{count} cards shown."
       past_the_end: "No more cards here: the grid ends on an earlier page. Go back to the last page."
       new: "New"
-      missing: "Missing card"
       copies:
         one: "%{number} copy"
         other: "%{number} copies"

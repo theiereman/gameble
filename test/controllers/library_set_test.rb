@@ -20,10 +20,11 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
 
   def slots
     css_select(".set-album__grid > li").map do |slot|
-      if (card = slot.at_css(".card"))
-        [ :owned, card.at_css(".card__title").text, slot.at_css(".collection-slot__copies")&.text ]
+      card = slot.at_css(".card")
+      if card.classes.include?("card--not-owned")
+        [ :missing, card.at_css(".card__title").text, card.at_css(".card__year").text.to_i ]
       else
-        [ :missing, slot.at_css(".missing-slot__title").text, slot.at_css(".missing-slot__year").text.to_i ]
+        [ :owned, card.at_css(".card__title").text, slot.at_css(".collection-slot__copies")&.text ]
       end
     end
   end
@@ -50,7 +51,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
       rarity: Catalog::Rarity::TIERS.key(rarity), number: 900 } ], returning: :id).rows.flatten.sole
   end
 
-  test "a theme at expert: its name and count on one line, its value text, its rank ticks, its faces in set order and the missing slots naming their games" do
+  test "a theme at expert: its name and count on one line, its value text, its rank ticks, its faces in set order and the missing cards set apart as not owned" do
     season = publish_sets_draft
     player = accounts_players(:player)
     members = set_members(season, "horror")
@@ -82,11 +83,14 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
       if held.include?(index) then [ :owned, title(id), (index == 3 ? "x2" : nil) ] else [ :missing, title(id), year(id) ] end
     end
     assert_equal expected, slots
-    assert_select ".missing-slot .visually-hidden", { count: 10, text: "Missing card" }
+    assert_select ".set-album__grid .card.card--grid.card--not-owned > .card__lock > svg.pixel-icon[aria-hidden=true]", 10
+    assert_select ".set-album__grid .card--not-owned[data-controller], .set-album__grid .card--not-owned .card__effects", false
+    assert_select ".set-album__grid > li > .visually-hidden", 6
     assert_select ".collection-slot .visually-hidden", "2 copies"
     assert_select ".collection-slot .visually-hidden", "1 copy"
     assert_select "ol.set-album__grid.collection-grid--fill[aria-label='Cards in the set'][data-controller=grid-keys]"
-    assert_select ".set-album__grid .card.card--grid", 6
+    assert_select ".set-album__grid .card.card--grid", 16
+    assert_select ".set-album__grid .card:not(.card--not-owned)[data-controller=tilt]", 6
     assert_select ".card--m", false
     assert_select ".set-album[data-controller=set-album]"
     assert_select ".collection-pages", false
@@ -94,7 +98,10 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     links = css_select(".set-album__grid > li > a.card-link")
     context = { set_key: "horror", set_kind: "theme" }.to_query
     assert_equal members.map { "/en/cards/#{slug(it)}/seasons/#{season.number}?#{context}" }, links.map { it["href"] }
-    assert_equal members.each_index.map { held.include?(it) }, links.map { it["aria-label"].present? }
+    assert_equal members.each_index.map { held.include?(it) ? :owned : :not_owned }, links.map { it["aria-label"].end_with?(", not owned") ? :not_owned : :owned }
+    missing = Catalog::CardViews.call([ members[1] ], locale: :en).fetch(members[1])
+    assert_equal "#{missing.title}, #{missing.year}, #{I18n.t("catalog.rarity.#{missing.rarity}", locale: :en)}, season #{season.number}, not owned",
+      links[1]["aria-label"]
   end
 
   test "a completed franchise shows the stamp after its name and no ticks, in French" do
@@ -131,7 +138,7 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_equal [ "6", "11" ], css_select(".set-album__figure").map(&:text)
     assert_select ".set-album__gauge", false
     assert_select "ol.set-album__grid[aria-label='Cartes du set']"
-    assert_select ".missing-slot .visually-hidden", { count: 8, text: "Carte manquante" }
+    assert_select ".set-album__grid a.card-link[aria-label$=', non possédée'] .card.card--not-owned", 8
 
     delete session_path(locale: :fr)
     sign_in(accounts_players(:moderator))

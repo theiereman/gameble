@@ -55,15 +55,12 @@ module CardDetailsHelper
       title: view.title, year: view.year, rarity: strings.rarity_name(view.rarity), season: view.season_number)
   end
 
-  # A card's face or empty slot, leading to its detail in its own season,
-  # or in season `number` when given. A face, given its `strings`, is
-  # named by card_detail_open_label, as not owned when `owned` is false; an empty
-  # slot, without, by its visible text (title, year, "Missing card"), so a
-  # screen reader tells it from an owned face. The `context` it carries
-  # (card_detail_path) is what the detail walks with ◀ ▶ and leads back to.
-  def link_to_card_detail(view, strings: nil, context: {}, number: view.season_number, owned: true, &)
-    aria = strings ? { label: card_detail_open_label(view, strings, owned:) } : {}
-    link_to(card_detail_path(view.id, number, context), class: "card-link", aria:,
+  # A card's face, leading to its detail in its own season, or in season
+  # `number` when given, named by card_detail_open_label, as not owned when
+  # `owned` is false. The `context` it carries (card_detail_path) is what
+  # the detail walks with ◀ ▶ and leads back to.
+  def link_to_card_detail(view, strings:, context: {}, number: view.season_number, owned: true, &)
+    link_to(card_detail_path(view.id, number, context), class: "card-link", aria: { label: card_detail_open_label(view, strings, owned:) },
       data: { turbo_prefetch: false }, &)
   end
 

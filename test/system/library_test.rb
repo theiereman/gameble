@@ -5,7 +5,7 @@ require_relative "../support/steam_sign_in"
 
 # The collection: a player reaches its entry from the hub's menu 02 or the
 # phone's COLLECTION tab, picks a set and sees its progress, their faces with
-# their copies and the missing cards named, on a desktop and a 390 × 844 phone
+# their copies and the missing cards not owned, on a desktop and a 390 × 844 phone
 # without sideways scroll; the grid of every card, with its FILTRES zone and
 # search, narrows without losing focus; the cards of a pack just opened are
 # new until a grid has shown them; a visitor reads the grid in plain faces.
@@ -41,7 +41,7 @@ class LibraryTest < ApplicationSystemTestCase
 
   def row(name) = find(".set-entry__list .set-row", text: /\A#{Regexp.escape(name)}\b/i)
 
-  test "a player goes from menu 02 to a theme: its progress, their faces with their copies, the missing cards named" do
+  test "a player goes from menu 02 to a theme: its progress, their faces with their copies, the missing cards not owned" do
     sign_in
 
     within(".hub-menu") { click_on "Collection" }
@@ -59,13 +59,15 @@ class LibraryTest < ApplicationSystemTestCase
     assert_current_path library_set_path(locale: :en, kind: "theme", key: "horror")
     assert_selector ".set-album__count", text: "3/16"
     assert_selector ".collection-grid > li", count: 16
-    assert_selector ".collection-grid .card.card--grid", count: 3
+    assert_selector ".collection-grid .card.card--grid", count: 16
+    assert_selector ".collection-grid .card.card--grid:not(.card--not-owned)", count: 3
     assert_selector ".collection-slot__copies", text: "x2", count: 1
-    assert_selector ".missing-slot", count: 13
+    assert_selector ".collection-grid a.card-link[aria-label$=', not owned'] .card.card--not-owned .card__lock", count: 13
     missing = Catalog::CardSeason.find(@theme[3])
     within(all(".collection-grid > li")[3]) do
-      assert_selector ".missing-slot__title", text: missing.card.texts.find_by!(locale: "en").title.upcase
-      assert_selector ".missing-slot__year", text: missing.card.release_date.year.to_s
+      assert_selector ".card--not-owned .card__title", text: missing.card.texts.find_by!(locale: "en").title.upcase
+      assert_selector ".card--not-owned .card__year", text: missing.card.release_date.year.to_s
+      assert_no_selector ".collection-slot__copies, .collection-slot__new"
     end
     # The badges sit at the card's corners, inside the slot's painted box.
     corner = page.evaluate_script(<<~JS)
@@ -131,7 +133,16 @@ class LibraryTest < ApplicationSystemTestCase
 
     visit library_set_path(locale: :en, kind: "theme", key: "horror")
     assert_selector ".set-album__count", text: "3/16"
-    assert_selector ".collection-grid .card.card--grid", count: 3
+    assert_selector ".collection-grid .card.card--grid", count: 16
+    assert_selector ".collection-grid .card.card--grid.card--not-owned", count: 13
+    faces = page.evaluate_script(<<~JS)
+      [ ...document.querySelectorAll(".collection-grid .card") ].slice(2, 4).map((card) => {
+        const box = card.getBoundingClientRect()
+        return [ Math.round(box.top), Math.round(box.width), Math.round(box.height), card.classList.contains("card--not-owned") ]
+      })
+    JS
+    assert_equal [ false, true ], faces.map(&:last)
+    assert_equal faces[0].first(3), faces[1].first(3)
     assert_no_sideways_scroll
     take_screenshot
   end
@@ -206,7 +217,7 @@ class LibraryTest < ApplicationSystemTestCase
 
     visit library_set_path(locale: :en, kind: "theme", key: "horror")
 
-    assert_selector ".collection-grid .card.card--grid", count: 8
+    assert_selector ".collection-grid .card.card--grid:not(.card--not-owned)", count: 8
     assert_no_selector ".collection-slot__new"
   end
 
@@ -215,7 +226,7 @@ class LibraryTest < ApplicationSystemTestCase
 
     assert_selector ".collection-grid > li", count: 60, visible: :all
     assert_no_selector ".collection-status"
-    assert_no_selector ".missing-slot, .collection-slot__new, .card--not-owned", visible: :all
+    assert_no_selector ".collection-slot__new, .card--not-owned", visible: :all
     assert_no_selector ".report--panel", visible: :all
     assert_selector ".top-bar .steam-sign-in__button"
     assert_no_sideways_scroll
