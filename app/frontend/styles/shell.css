@@ -441,11 +441,10 @@ a.packs-chip:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 
-/* The player chip: the avatar outlined, the name, a steady lime dot. Its
-   32px avatar fits the chips' one height without their vertical padding. */
+/* The player chip: the avatar outlined, the name, a steady lime dot. */
 .player-chip__avatar {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   box-shadow: var(--pixel-outline-3);
 }
 
