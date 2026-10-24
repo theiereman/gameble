@@ -1,8 +1,8 @@
 # A player's public profile, at a link built on their token, readable by
 # anyone, signed out included: the owner's identity and key numbers, their
-# showcase, stats, latest achievements and started sets, never the
-# viewer's; one of their sets' albums, read-only, with the owner's
-# cards; and their whole collection, read-only.
+# showcase, stats, latest achievements and most complete started sets,
+# never the viewer's; one of their sets' albums, read-only, with the
+# owner's cards; and their whole collection, read-only.
 #
 # An unknown token and a profile that may not be shown to this viewer
 # (Game::Visibility: a banned owner, or one whose visibility hides it, for
@@ -16,6 +16,8 @@ class PublicProfilesController < ApplicationController
   include SetBoardLoading
   include SetAlbumLoading
   include ChosenCards
+
+  MOST_COMPLETE_SETS_SHOWN = 20
 
   before_action :authorize_page
   before_action :load_owner
@@ -87,12 +89,18 @@ class PublicProfilesController < ApplicationController
     def load_stats_and_sets
       @rarities = Game::HeldGames.by_rarity(@owner)
       @activity = Game::ProfileActivity.call(@owner)
-      @started_sets = started_set_rows
+      standings = started_standings
+      @started_set_count = standings.size
+      @started_sets = most_complete_set_rows(standings)
     end
 
-    def started_set_rows
-      standings = Game::SetsInProgress.call(@owner, season: @season).values
+    def started_standings
+      Game::SetsInProgress.call(@owner, season: @season).values
         .sort_by { |standing| [ standing.complete? ? 0 : 1, -standing.share, standing.set_id ] }
-      set_rows(standings, Catalog::SetsById.call(standings.map(&:set_id)))
+    end
+
+    def most_complete_set_rows(standings)
+      shown = standings.first(MOST_COMPLETE_SETS_SHOWN)
+      set_rows(shown, Catalog::SetsById.call(shown.map(&:set_id)))
     end
 end

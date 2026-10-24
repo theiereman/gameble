@@ -1,4 +1,4 @@
-<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, rarities:, activity:, started_sets:, showcase:, relation:, open_trade_token: nil) %>
+<%# locals: (owner:, title:, season:, summary:, card_total:, achievements:, rarities:, activity:, started_sets:, started_set_count:, showcase:, relation:, open_trade_token: nil) %>
 <section class="profile" aria-labelledby="profile-heading">
   <%= render "public_profiles/summary", owner:, title:, season:, summary:, card_total:, achievements: achievements, relation: relation, open_trade_token: open_trade_token %>
   <%= render "public_profiles/showcase", owner:, cards: showcase, movable: current_player.present? && current_player == owner, moved: flash[:moved_showcase_card] if showcase.any? %>
@@ -7,7 +7,7 @@
   <% else %>
     <%= render "public_profiles/stats", rarities:, activity: activity %>
     <%= render "public_profiles/achievements", achievements: achievements %>
-    <%= render "public_profiles/sets", owner:, started_sets: started_sets %>
+    <%= render "public_profiles/sets", owner:, started_sets:, started_set_count: %>
   <% end %>
 </section>
 <%= render "reports/dialog", owner: owner if current_player && current_player != owner %>
