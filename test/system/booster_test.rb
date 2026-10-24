@@ -393,6 +393,38 @@ class BoosterTest < ApplicationSystemTestCase
     assert_selector ".top-bar .packs-chip--static .packs-chip__count", text: "0"
   end
 
+  def record_face_down_cards_whenever_reveal_all_enables
+    page.execute_script(<<~JS)
+      window.faceDownCardsWhenRevealAllEnabled = []
+      const booster = document.querySelector(".booster")
+      const enabled = () => !booster.querySelector(".booster__reveal-all").disabled
+      let wasEnabled = enabled()
+      new MutationObserver(() => {
+        const isEnabled = enabled()
+        if (isEnabled && !wasEnabled) window.faceDownCardsWhenRevealAllEnabled.push(booster.querySelectorAll(".booster-card[data-dealt]:not([data-revealed])").length)
+        wasEnabled = isEnabled
+      }).observe(booster, { subtree: true, childList: true, attributes: true })
+    JS
+  end
+
+  test "with motion: Reveal all stays disabled from the next capsule's request until its cards are dealt face down" do
+    reduce_motion(false)
+    open_screen(card_ids(*[ :common_card_one ] * 5), card_ids(*[ :uncommon_card_one ] * 5))
+    open_canister
+    assert_dealt(5)
+    click_on "Reveal all"
+    assert_selector ".booster-card[data-revealed]", count: 5, wait: 10
+    assert_selector ".booster__open:not([disabled]):not([aria-disabled])", wait: 10
+    assert_button "Reveal all", disabled: true
+
+    record_face_down_cards_whenever_reveal_all_enables
+    click_on "Open the next one"
+    assert_dealt(5)
+    assert_selector ".booster-card[data-tier=uncommon][data-dealt]:not([data-revealed])", count: 5
+    assert_button "Reveal all", disabled: false
+    assert_equal [ 5 ], page.evaluate_script("window.faceDownCardsWhenRevealAllEnabled")
+  end
+
   test "a daily bonus pack deals and counts three cards" do
     open_screen(card_ids(:rare_card_one, :portal_one, :legendary_card_one), kind: :bonus)
     open_canister
