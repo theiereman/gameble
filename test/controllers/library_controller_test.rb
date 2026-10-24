@@ -85,7 +85,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en, state: %w[all])
 
     assert_response :success
-    assert_select "title", "All cards · Collection · gameble"
+    assert_select "title", "All cards · gameble"
     assert_select ".top-bar__start > a.button--secondary[href='/en']", "Bridge"
     assert_select ".top-bar__title", "Collection"
     assert_select ".top-bar__end .collection-status" do
@@ -267,6 +267,25 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "[data-group=genre]"
     assert_equal [ "Horror", "Pirates", "Roguelike", "RPG" ], set_chips.map(&:first)
     assert_select "[style]", false
+  end
+
+  test "the page title names all the cards and the game, not the collection, for a visitor and a player in both locales" do
+    publish_sets_draft
+    titles = { fr: "Toutes les cartes · gameble", en: "All cards · gameble" }
+
+    titles.each do |locale, title|
+      get library_cards_path(locale:)
+      assert_select "title", title
+      assert_select ".top-bar .player-chip", false
+    end
+
+    sign_in(accounts_players(:player))
+
+    titles.each do |locale, title|
+      get library_cards_path(locale:)
+      assert_select "title", title
+      assert_select ".top-bar .player-chip"
+    end
   end
 
   test "a player banned since signing in sees the collection as a visitor, with no ownership query" do

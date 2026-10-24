@@ -823,7 +823,7 @@ fr:
     collection:
       title: "Collection"
     cards:
-      title: "Toutes les cartes · Collection · gameble"
+      title: "Toutes les cartes · gameble"
       heading: "Toutes les cartes"
     status:
       label: "Cartes uniques :"

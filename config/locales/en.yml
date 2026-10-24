@@ -795,7 +795,7 @@ en:
     collection:
       title: "Collection"
     cards:
-      title: "All cards · Collection · gameble"
+      title: "All cards · gameble"
       heading: "All cards"
     status:
       label: "Unique cards:"
