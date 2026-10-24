@@ -4,7 +4,7 @@ require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
 # A card's detail, "FICHE DE LA CARTE": opened from a theme's owned face,
-# from an album's missing slot and from the whole season's grid (the
+# from an album's missing card and from the whole season's grid (the
 # card's face, held or not), from an opened pack's faces, walking the
 # card's theme on the desktop too; from a filtered, searched grid, ◀ ▶ walk that grid as
 # shown and the way back returns to it with its filters; on a phone the
@@ -161,14 +161,14 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_no_button "Repost"
   end
 
-  test "a player clicks an album's missing slot: the card's face, its facts and PARTAGER, no copies" do
+  test "a player clicks an album's missing card: the card's face, its facts and PARTAGER, no copies" do
     season = publish_sets_draft
     id = members(season, "pirates").first
     card = Catalog::CardSeason.find(id).card
     sign_in(accounts_players(:player))
 
     visit library_set_path(locale: :fr, kind: "theme", key: "pirates")
-    find(".collection-grid a.card-link .missing-slot", match: :first).click
+    find(".collection-grid a.card-link .card--not-owned", match: :first).click
 
     assert_current_path "/fr/cards/#{card.slug}/seasons/#{season.number}?set_key=pirates&set_kind=theme"
     assert_selector ".card-detail h1", text: card.texts.find_by!(locale: "fr").title

@@ -877,7 +877,6 @@ fr:
         other: "%{count} cartes affichées."
       past_the_end: "Plus aucune carte ici : la grille s'arrête sur une page précédente. Revenez à la dernière page."
       new: "Nouveau"
-      missing: "Carte manquante"
       copies:
         zero: "%{number} exemplaire"
         one: "%{number} exemplaire"

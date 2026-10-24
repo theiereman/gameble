@@ -5,7 +5,8 @@ module SetAlbumLoading
 
   ALBUM_SIZE = CollectionGridLoading::GRID_SIZE
 
-  # A slot shows the owner's best edition of its game (`card`) and leads to
+  # A slot shows the owner's best edition of its game (`card`), or the
+  # set's own card-season, not owned, when it has no `copies`, and leads to
   # the set's own card-season, of season `number`, where the set is browsed.
   Slot = Data.define(:card, :copies, :new, :number)
 

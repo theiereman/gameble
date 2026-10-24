@@ -145,10 +145,7 @@ describe("the grid of every card", () => {
     expect(slot).toContain("aspect-ratio: 2 / 3;")
     expect(slot).toContain("min-height: 0;")
     expect(slot).toContain("container-type: inline-size;")
-    const faces = ruleBody(
-      collectionStylesheet,
-      ".collection-grid--fill > .collection-slot > .card-link,\n.collection-grid--fill .missing-slot",
-    )
+    const faces = ruleBody(collectionStylesheet, ".collection-grid--fill > .collection-slot > .card-link")
     expect(faces).toContain("width: 100cqi;")
     expect(faces).toContain("height: calc(1.5 * 100cqi);")
   })

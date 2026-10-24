@@ -148,7 +148,9 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_includes set_rows, [ "Horror", "2/16", "/en/brothers/#{@owner.token}/library/theme/horror" ]
 
     get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg")
-    assert_select ".set-album__grid .card", (set_members(season, "rpg") & set_members(season, "horror").first(2)).size
+    owned = (set_members(season, "rpg") & set_members(season, "horror").first(2)).size
+    assert_select ".set-album__grid .card:not(.card--not-owned)", owned
+    assert_select ".set-album__grid .card.card--not-owned", set_members(season, "rpg").size - owned
   end
 
   test "a new owner: zeros, an unlit gauge with no latest tiles, the zero sets line and no rows" do
@@ -177,7 +179,7 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".profile-stats, .profile-section", false
   end
 
-  test "a signed-out visitor opens an owner's album: the owner's faces and copies, read-only, under the set and the owner's names" do
+  test "a signed-out visitor opens an owner's album: the owner's faces and copies, the cards they lack not owned, read-only, under the set and the owner's names" do
     season = publish_sets_draft
     members = set_members(season, "horror")
     [ 0, 3, 7, 12, 14, 15 ].each { hold(@owner, members[it], it == 3 ? 2 : 1, gained_at: 1.minute.ago) }
@@ -192,10 +194,12 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "6/16", album_count
     assert_equal "6 cards out of 16, expert tier", css_select("progress.set-album__bar").sole["aria-valuetext"]
     assert_select ".set-album__gauge, .set-album__kind", false
-    assert_select "ol.set-album__grid.collection-grid--fill .card.card--grid", 6
+    assert_select "ol.set-album__grid.collection-grid--fill .card.card--grid", 16
     assert_select ".card--m", false
     assert_equal [ "x2" ], css_select(".collection-slot__copies").map(&:text)
-    assert_select ".missing-slot .visually-hidden", { count: 10, text: "Missing card" }
+    assert_equal members.each_index.map { [ 0, 3, 7, 12, 14, 15 ].exclude?(it) },
+      css_select(".set-album__grid > li").map { it.at_css(".card--not-owned").present? }
+    assert_select ".set-album__grid a.card-link[aria-label$=', not owned'] .card--not-owned > .card__lock", 10
     assert_select ".collection-slot__new", false
     assert_select ".top-bar__end .collection-status, .top-bar__title", false
     assert_select ".profile-band, .collection-kind, .collection-sets", false

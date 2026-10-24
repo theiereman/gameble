@@ -31,14 +31,7 @@
               <span class="collection-slot__new"><%= t("library.grid.new") %></span>
             <% end %>
           <% else %>
-            <%= link_to_card_detail(slot.card, context:, number: slot.number) do %>
-              <span class="missing-slot">
-                <%= pixel_icon("lock", class: "missing-slot__icon") %>
-                <span class="missing-slot__title"><%= slot.card.title %></span>
-                <span class="missing-slot__year"><%= slot.card.year %></span>
-                <span class="visually-hidden"><%= t("library.grid.missing") %></span>
-              </span>
-            <% end %>
+            <%= link_to_card_detail(slot.card, strings:, context:, number: slot.number, owned: false) do %><%= render CardComponent.new(card: slot.card, size: :grid, owned: false) %><% end %>
           <% end %>
         </li>
       <% end %>

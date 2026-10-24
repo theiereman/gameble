@@ -120,7 +120,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "ol.collection-grid.collection-grid--fill", 1
     assert_select ".collection-grid .card.card--grid", 60
     assert_select ".collection-grid .card.card--m", false
-    assert_select ".collection-grid .missing-slot", false
     assert_select ".collection-slot__copies[aria-hidden=true] + .visually-hidden", "3 copies"
     assert_select ".collection-grid .card.card--not-owned > .card__lock > svg.pixel-icon[aria-hidden=true]", not_owned
     assert_select ".collection-grid .card.card--not-owned[data-controller], .collection-grid .card--not-owned .card__effects", false
@@ -251,7 +250,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal season_cards(season).first(60).map { [ :plain, title(it), year(it) ] }, slots
-    assert_select ".collection-grid .card--not-owned, .collection-grid .card__lock, .collection-grid .missing-slot", false
+    assert_select ".collection-grid .card--not-owned, .collection-grid .card__lock", false
     assert_select ".collection-grid .card[data-controller=tilt]", 60
     labels = css_select(".collection-grid a.card-link").map { it["aria-label"] }
     assert_equal 60, labels.size
@@ -577,7 +576,6 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Cartes totales", "Doublons" ], css_select(".report--panel .report__row dt").first(2).map { it.text.strip }
     assert_select ".collection-slot__new", "Nouveau"
     assert_select ".collection-slot__copies + .visually-hidden", "1 exemplaire"
-    assert_select ".collection-grid .missing-slot", false
     not_owned = Catalog::CardViews.call([ season_cards(season).second ], locale: :fr).fetch(season_cards(season).second)
     label = "#{not_owned.title}, #{not_owned.year}, #{I18n.t("catalog.rarity.#{not_owned.rarity}", locale: :fr)}, " \
       "saison #{season.number}, non possédée"

@@ -631,8 +631,7 @@
   container-type: inline-size;
 }
 
-.collection-grid--fill > .collection-slot > .card-link,
-.collection-grid--fill .missing-slot {
+.collection-grid--fill > .collection-slot > .card-link {
   width: 100cqi;
   height: calc(1.5 * 100cqi);
 }
@@ -694,50 +693,6 @@
   letter-spacing: var(--tracking-card-meta);
   text-transform: uppercase;
   pointer-events: none;
-}
-
-/* A missing card in a set album: the card's shape, a dark
-   hatched fill in a line-deep border, a padlock, the game's name and year. */
-.missing-slot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-  width: var(--card-m-width);
-  height: var(--card-m-height);
-  padding: var(--space-4) var(--space-3);
-  background: repeating-linear-gradient(45deg, var(--color-panel) 0 6px, var(--color-panel-sunken) 6px 12px);
-  box-shadow: inset 0 0 0 var(--space-unit) var(--color-line-deep);
-  color: var(--color-muted);
-  text-align: center;
-}
-
-.card-link:hover .missing-slot {
-  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
-}
-
-.missing-slot__icon {
-  width: 20px;
-  height: 24px;
-}
-
-.missing-slot__title {
-  display: -webkit-box;
-  max-width: 100%;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  overflow-wrap: anywhere;
-  font: var(--font-card-title-m);
-  letter-spacing: var(--tracking-card-title-m);
-  text-transform: uppercase;
-}
-
-.missing-slot__year {
-  font: var(--font-body);
-  letter-spacing: var(--tracking-body);
 }
 
 /* ---- Set album: the name and count, the bar and its ticks, then the grid ---- */
