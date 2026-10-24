@@ -121,6 +121,47 @@ class ShellTest < ApplicationSystemTestCase
     end
   end
 
+  CHIP_WIDTHS = { "1400" => SCREEN_SIZE, "1000" => [ 1000, 900 ], "800" => [ 800, 900 ] }.merge(PHONES).freeze
+  ALL_CHIPS = %w[rarity-counter__button packs-chip player-chip__button].freeze
+  PHONE_CHIPS = %w[packs-chip player-chip__button].freeze
+
+  def visible_chip_heights
+    page.evaluate_script(<<~JS)
+      Array.from(document.querySelectorAll(".top-bar .rarity-counter__button, .top-bar .packs-chip, .top-bar .player-chip__button"))
+        .filter((chip) => chip.checkVisibility())
+        .map((chip) => [chip.classList[0], chip.getBoundingClientRect().height])
+    JS
+  end
+
+  def assert_chip_heights(expected, where)
+    page.document.synchronize do
+      heights = visible_chip_heights
+      raise Capybara::ExpectationNotMet, "#{where}: the visible chips and their heights should be #{expected.inspect}, were #{heights.inspect}" unless heights == expected
+    end
+  end
+
+  def length_token(name)
+    page.evaluate_script("parseFloat(getComputedStyle(document.documentElement).getPropertyValue(#{name.to_json}))")
+  end
+
+  test "the rarity counter, the capsules chip and the player chip stand at one height, at every width" do
+    player = accounts_players(:player)
+    create_pack(player, available_at: 5.minutes.from_now)
+    sign_in(player)
+
+    CHIP_WIDTHS.each do |width, size|
+      resize_to(*size)
+      phone = size.first < 720
+      chip_height = length_token(phone ? "--space-chip-height-touch" : "--space-chip-height")
+      shown = phone ? PHONE_CHIPS : ALL_CHIPS
+      { hub: [ home_path(locale: :en), shown ], library: [ library_path(locale: :en), phone ? [] : %w[player-chip__button] ],
+        card: [ card_path(locale: :en, slug: "portal"), shown ], booster: [ booster_path(locale: :en), shown ] }.each do |name, (path, chips)|
+        visit path
+        assert_chip_heights chips.map { [ it, chip_height ] }, "the #{name} at #{width}px"
+      end
+    end
+  end
+
   test "a toast closes with its button, and a gameble:toast event adds one" do
     visit settings_path(locale: :en)
     assert_current_path home_path(locale: :en)
