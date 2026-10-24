@@ -151,6 +151,20 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".set-album__grid .card", (set_members(season, "rpg") & set_members(season, "horror").first(2)).size
   end
 
+  test "an owner with more started sets than the profile shows: the most complete ones, under a count of them all" do
+    season = publish_sets_draft
+    hold_started_sets(season)
+    held = Game::Holding.where(player_id: @owner.id).pluck(:card_season_id)
+    unheld = Catalog::CardSeason.where(season_id: season.id).where.not(id: held).order(:id).ids
+    17.times { insert_set([ held.first, *unheld.first(2) ], {}, kind: "franchise", key: "third-#{it}", params: { "franchise" => "Third #{it}" }, season:) }
+
+    get brother_path(locale: :en, token: @owner.token)
+
+    assert_response :success
+    assert_select ".profile-section__aside", "22 sets started"
+    assert_equal [ "8/8", "8/16", *[ "1/3" ] * 17, "1/7" ], set_rows.map(&:second)
+  end
+
   test "a new owner: zeros, an unlit gauge with no latest tiles, the zero sets line and no rows" do
     season = publish_sets_draft
 

@@ -1,8 +1,8 @@
-<%# locals: (owner:, started_sets:) %>
+<%# locals: (owner:, started_sets:, started_set_count:) %>
 <section class="profile-section" aria-labelledby="profile-sets-heading">
   <div class="profile-section__head">
     <h2 id="profile-sets-heading" class="profile-section__title"><%= t("public_profiles.show.sets.title") %></h2>
-    <p class="profile-section__aside"><%= t("public_profiles.show.sets.started", count: started_sets.size) %></p>
+    <p class="profile-section__aside"><%= t("public_profiles.show.sets.started", count: started_set_count) %></p>
   </div>
   <% if started_sets.any? %>
     <ul class="profile-sets">
