@@ -167,7 +167,7 @@ covers = []
 after = []
 hitl = true
 risk = "low"
-notes = ["Found in the screen walkthrough (ticket 16.1, finding 1), author, 2026-10-23. Candidates from the repository: micilico (code), skyoraa (writing, ideas), Felzpath (ideas, bug reports); the beta testers' names come from the author."]
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 1), author, 2026-10-23. Candidates from the repository: micilico (code), skyoraa (writing, ideas), Felzpath (ideas, bug reports); the beta testers' names come from the author.", "Settled by the author, 2026-10-24: the contributors are micilico (code), skyoraa (writing, ideas) and Felzpath (ideas, bug reports); the beta testers' names still come from the author before the build."]
 
 [[entry]]
 id = 15
@@ -191,7 +191,7 @@ covers = []
 after = []
 hitl = true
 risk = "low"
-notes = ["Found in the screen walkthrough (ticket 16.1, finding 6), author, 2026-10-23."]
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 6), author, 2026-10-23.", "Settled by the author, 2026-10-24: a phone visitor sets reduced motion nowhere on the landing; it follows the system setting, and a signed-in player finds the switch in Profile and settings."]
 
 [[entry]]
 id = 17
@@ -227,7 +227,7 @@ covers = []
 after = []
 hitl = true
 risk = "low"
-notes = ["Found in the screen walkthrough (ticket 16.1, finding 9), author, 2026-10-23."]
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 9), author, 2026-10-23.", "Settled by the author, 2026-10-24: the two-column (720px) and phone layouts stack the community goal, then the daily capsule, then SETS EN COURS, the same order as the desktop's right column."]
 
 [[entry]]
 id = 20
@@ -275,7 +275,7 @@ covers = []
 after = []
 hitl = true
 risk = "low"
-notes = ["Found in the screen walkthrough (ticket 16.1, finding 15), author, 2026-10-23: to confirm that filters are wanted; the author said \"peut-être\"."]
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 15), author, 2026-10-23: to confirm that filters are wanted; the author said \"peut-être\".", "Settled by the author, 2026-10-24: filters are wanted; owned or missing and rarity, taken from the catalog's folded FILTRES zone, plus a search by game name in the album."]
 
 [[entry]]
 id = 24
@@ -299,7 +299,7 @@ covers = []
 after = [17]
 hitl = true
 risk = "low"
-notes = ["Found in the screen walkthrough (ticket 16.1, finding 17), author, 2026-10-23, with a screenshot of the actions at the foot of the detail."]
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 17), author, 2026-10-23, with a screenshot of the actions at the foot of the detail.", "Settled by the author, 2026-10-24: REPOSTER is the card's main action, the one filled button; the showcase, share and Steam actions are secondary."]
 
 [[entry]]
 id = 26
@@ -311,7 +311,7 @@ covers = []
 after = []
 hitl = true
 risk = "low"
-notes = ["Found in the screen walkthrough (ticket 16.1, finding 18), author, 2026-10-23: consistency with the grids; it reverses the 2026-10-20 call that the detail never shows a card greyed or locked."]
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 18), author, 2026-10-23: consistency with the grids; it reverses the 2026-10-20 call that the detail never shows a card greyed or locked.", "Settled by the author, 2026-10-24: the lock covers the signed-in detail and its zoom; the share preview image keeps the card's plain public face."]
 
 [[entry]]
 id = 27
@@ -323,7 +323,7 @@ covers = []
 after = []
 hitl = true
 risk = "low"
-notes = ["Found in the screen walkthrough (ticket 16.1, finding 19), author, 2026-10-23."]
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 19), author, 2026-10-23.", "Settled by the author, 2026-10-24: keep the transition only where the screen changes (hub to a screen, a grid to a card detail); the Échanges steps and the sub-views that keep the same frame lose it."]
 
 [[entry]]
 id = 28
@@ -335,7 +335,7 @@ covers = []
 after = []
 hitl = true
 risk = "low"
-notes = ["Found in the screen walkthrough (ticket 16.1, finding 20), author, 2026-10-23, with a screenshot of the desktop screen."]
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 20), author, 2026-10-23, with a screenshot of the desktop screen.", "Settled by the author, 2026-10-24: the pseudo opens the profile dialog, ÉCHANGE is the only filled button, and RETIRER moves into a more-actions (⋯) menu with a confirmation."]
 
 [[entry]]
 id = 29
@@ -347,7 +347,7 @@ covers = []
 after = [28]
 hitl = true
 risk = "low"
-notes = ["Found in the screen walkthrough (ticket 16.1, finding 21), author, 2026-10-23, with a screenshot of the dialog."]
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 21), author, 2026-10-23, with a screenshot of the dialog.", "Settled by the author, 2026-10-24: as on the friends screen, ÉCHANGE is the only filled button; SIGNALER and the removal sit in a more-actions (⋯) menu, the two views of the friend side by side."]
 
 [[entry]]
 id = 30
