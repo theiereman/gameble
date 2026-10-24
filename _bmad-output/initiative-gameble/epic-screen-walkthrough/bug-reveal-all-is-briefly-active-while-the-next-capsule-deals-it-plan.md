@@ -3,18 +3,25 @@ title: 'REVEAL ALL is briefly active while the next capsule deals its cards'
 type: 'bugfix'
 ticket: 21
 created: '2026-10-24'
-status: 'blocked'
+status: 'built'
 baseline_revision: '8dcacbf74d26517c0b7a5f4eb95dbb3ea42e003f'
 route: 'oneshot'
 route_source: 'auto'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context: []
 warnings: []
-deferred: []
+deferred:
+  - summary: >-
+      "Open the next one" is disabled for the dock's 260 ms before the opening marks it busy, on the button that holds focus.
+    evidence: |-
+      `openDisabled = ... || (phase === "dealt" && !everyRevealed)` with `total === 0` while the new canister docks after retract().
+    location: >-
+      app/frontend/components/BoosterView.tsx
+    severity: medium
 ---
 
 <intent-contract>
@@ -40,6 +47,12 @@ Oneshot: one condition in the view (a few lines) and one system test, under 100 
 
 ## Review Triage Log
 
+### 2026-10-24 — Review pass
+- verdicts: 2 findings — high 0, medium 1, low 0, false 1, maybe-false 0
+- findings:
+  - `[medium]` `defer` In the same dock window "Open the next one" turns `disabled` before the opening marks it busy, on the button that holds focus (`openDisabled` in `BoosterView.tsx`, with `total === 0`) — not this ticket's REVEAL ALL defect; recorded in `deferred` so it is not lost when the plan closes.
+  - `[false]` `reject` The plan's status contradicts its Auto Run Result — a bookkeeping state between the halted run and this review; finalization rewrites both.
+
 ## Verification
 
 **Commands:**
@@ -49,11 +62,11 @@ Oneshot: one condition in the view (a few lines) and one system test, under 100 
 
 ## Auto Run Result
 
-Status: blocked
-Blocking condition: no subagents. This session has no tool that launches a subagent, so the Quick review lens could not run; the change is implemented and verified but not reviewed.
+Status: built
 
-- Change: REVEAL ALL is enabled only with a hand on the table (`handOnTable`: the phase `dealt` and at least one card), so it stays disabled while "Open the next one" sinks the old cards and docks the new canister.
-- Files: `app/frontend/components/BoosterView.tsx` (the condition, shared with the hint and the phone's pile top); `test/system/booster_test.rb` (a "with motion" test logging every moment REVEAL ALL turns enabled after the request: `[0, 5]` before the fix, `[5]` after).
-- Verification: `bin/rails test test/system/booster_test.rb` 40 runs, 0 failures (the new test red before the fix, green three times after); `npm run test:js` 561 passed; `npm run typecheck` clean; `bin/rails test` (2 workers) 3169 runs, 0 failures; rubocop, `packwerk validate` and `check`, `i18n-tasks missing`, `zeitwerk:check`, brakeman and `db:seed:replant` clean; `bin/bundler-audit` reports GHSA-pq4g-8rxf-4g29 on `crass` 1.0.7, a dependency this change does not touch. No migration, so the schema steps did not apply.
-- Residual risk: in the same dock window "Open the next one" is disabled for the dock's 260 ms before the opening marks it busy; outside this ticket, not changed.
-- To finish: run the review (`bmad-build-auto` on this plan once it is set back to `in-review`, in a session that can launch subagents).
+- Summary: REVEAL ALL is enabled only with a hand on the table (`handOnTable`: the phase `dealt` and at least one card), so it stays disabled while "Open the next one" sinks the old cards and docks the new canister.
+- Files: `app/frontend/components/BoosterView.tsx` (the condition, shared with the hint and the phone's pile top); `test/system/booster_test.rb` (a with-motion test logging every moment REVEAL ALL turns enabled).
+- Review: the Quick lens ran from the coordinating session after the unattended run halted on `no subagents`. 2 findings: 1 deferred (medium, "Open the next one" disabled in the dock window), 1 rejected (false); no patch.
+- Follow-up review recommended: false.
+- Verification (unattended run): `bin/rails test test/system/booster_test.rb` 40 runs, 0 failures, the new test red before the fix and green three times after; vitest 561, typecheck, `bin/rails test` 3169 runs, rubocop, packwerk, i18n-tasks, zeitwerk, brakeman clean.
+- Residual risks: the deferred dock-window disable of "Open the next one".
