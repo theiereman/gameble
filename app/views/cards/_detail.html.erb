@@ -1,11 +1,12 @@
 <%# A card's detail, "FICHE DE LA CARTE": a
     bracketed panel with the number at top right, the card at card-l over a
     ground shadow, its title and the facts the card does not carry; under
-    the panel, outside its background, the actions ("Voir sur Steam", the
-    one primary, "Partager" for every card, and "Reposter" and the showcase
-    choice for a holder). A signed-in player who holds no copy of its game
-    sees the card faded, grey and locked, as the grids set it apart; a
-    visitor sees its plain face. ◀ ▶ beside the card step through what it
+    the panel, outside its background, the actions: a holder's first,
+    "Reposter" (the card's main action, the one primary) and the showcase
+    choice, then the card's links, "Partager" and "Voir sur Steam". A
+    signed-in player who holds no copy of its game sees the card faded,
+    grey and locked, as the grids set it apart; a visitor sees its plain
+    face. ◀ ▶ beside the card step through what it
     browses (an opened pack, a grid, a set), and on a phone
     (sub_view controller) a swipe on it too, under a position line, with
     the actions pinned at the bottom. It names no one but the viewer and
@@ -32,7 +33,7 @@
       default) for no ◀ ▶ and no position line;
     - showcase: the viewer's profile showcase action on this card-season:
       :add, :remove, :full (the add button disabled, the showcase-full line
-      beside it) or nil (the default) for none;
+      under the holder's buttons) or nil (the default) for none;
     - pioneer: the card's first discoverer (a CardsController::PioneerLine,
       anonymous when it has no token) or nil (the default) for no row. %>
 <% share_url = local_assigns.fetch(:share_url, nil) %>
@@ -193,32 +194,40 @@
     </div>
   <% end %>
   <div class="card-detail__actions">
-    <%= external_link_to t("card_details.store"), card_detail_store_url(detail.store_url), button: true,
-      class: "button button--primary card-detail__store" %>
-    <% if share_url %>
-      <%# Opens the share sheet and copies the link in the same click,
-          where the browser still allows the clipboard
-          (share_controller.ts). %>
-      <button type="button" class="button button--secondary card-detail__share-button" aria-haspopup="dialog"
-        data-controller="dialog-opener" data-dialog-opener-dialog-value="share-sheet"
-        data-action="dialog-opener#open share#copy"><%= t("card_details.share.button") %></button>
-      <% if repostable %>
-        <%= render ButtonComponent.new(variant: :secondary, href: card_repost_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("reposts.button") %><% end %>
-      <% end %>
-    <% end %>
-    <% if showcase %>
-      <div class="card-detail__showcase">
-        <% case showcase %>
-        <% when :add %>
-          <%= render ButtonComponent.new(variant: :secondary, href: card_showcase_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("showcases.add") %><% end %>
-        <% when :remove %>
-          <%= render ButtonComponent.new(variant: :secondary, href: card_showcase_path(slug: view.id, number: view.season_number), method: :delete) do %><%= t("showcases.remove") %><% end %>
-        <% when :full %>
-          <%= render ButtonComponent.new(variant: :secondary, disabled: true) do %><%= t("showcases.add") %><% end %>
-          <p class="card-detail__showcase-full"><%= t("showcases.full") %></p>
+    <% if repostable || showcase %>
+      <div class="card-detail__holder-actions">
+        <% if repostable %>
+          <%= render ButtonComponent.new(href: card_repost_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("reposts.button") %><% end %>
+        <% end %>
+        <% if showcase %>
+          <div class="card-detail__showcase">
+            <% case showcase %>
+            <% when :add %>
+              <%= render ButtonComponent.new(variant: :secondary, href: card_showcase_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("showcases.add") %><% end %>
+            <% when :remove %>
+              <%= render ButtonComponent.new(variant: :secondary, href: card_showcase_path(slug: view.id, number: view.season_number), method: :delete) do %><%= t("showcases.remove") %><% end %>
+            <% when :full %>
+              <%= render ButtonComponent.new(variant: :secondary, disabled: true) do %><%= t("showcases.add") %><% end %>
+            <% end %>
+          </div>
+          <% if showcase == :full %>
+            <p class="card-detail__showcase-full"><%= t("showcases.full") %></p>
+          <% end %>
         <% end %>
       </div>
     <% end %>
+    <div class="card-detail__card-links">
+      <% if share_url %>
+        <%# Opens the share sheet and copies the link in the same click,
+            where the browser still allows the clipboard
+            (share_controller.ts). %>
+        <button type="button" class="button button--secondary card-detail__share-button" aria-haspopup="dialog"
+          data-controller="dialog-opener" data-dialog-opener-dialog-value="share-sheet"
+          data-action="dialog-opener#open share#copy"><%= t("card_details.share.button") %></button>
+      <% end %>
+      <%= external_link_to t("card_details.store"), card_detail_store_url(detail.store_url), button: true,
+        class: "button button--secondary card-detail__store" %>
+    </div>
   </div>
   <% if share_url %>
     <%= render "cards/share_sheet", view:, share_url:, strings: %>
