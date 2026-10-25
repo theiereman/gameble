@@ -3,7 +3,8 @@ title: "The card detail's Steam and share buttons sit on the card information's 
 type: 'bugfix'
 ticket: '17'
 created: '2026-10-25'
-status: 'in-review'
+status: 'blocked'
+blocked_reason: 'no subagents'
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144'
 route: 'oneshot'
 route_source: 'pinned'
@@ -59,3 +60,12 @@ Oneshot: one partial, its stylesheet, DESIGN.md's card detail line and the reque
 - `PARALLEL_WORKERS=2 bin/rails test`: 3171 runs, 2 failures, both timing budgets unrelated to the change, on a machine shared by nine builds (`pioneer_of_test.rb:14`, 68.8 s against 60; `set_builder_test.rb:350`, 5.88 s against 5); both files pass alone (69 runs, 0 failures).
 - `npm run test:js` (561 tests), `npm run typecheck`, `bin/rubocop`, `bundle exec packwerk validate` and `check`, `bundle exec i18n-tasks missing`, `bin/rails zeitwerk:check`, `bin/brakeman`: pass. No ERB linter is installed.
 - Screenshots (desktop 1400 wide, phone 390 × 844): on the desktop the panel's background ends above SEE ON STEAM, SHARE, REPOST and ADD TO SHOWCASE; on the phone the pinned bar stands on the page's ground over the scrolling panel.
+
+## Auto Run Result
+
+Status: blocked
+Blocking condition: no subagents (the quick review lens needs a reviewer subagent, which this session cannot launch; the coordinator runs the review).
+
+- Implemented and verified in cf05ed71 on `build/16.17-card-detail-buttons-outside`, from baseline 9ec8aeb2f7bf1a6c773285d98ede884bb63f0144: the bracketed panel holds the card and its information only, and the actions stand under it, outside its background, on the desktop and the phone.
+- Review: not run; no lens launched, no findings triaged.
+- Residual risks: the panel's content is re-indented, so a branch editing the same partial (the not-owned card's look on the stage, the detail's buttons) meets a whitespace conflict, which a whitespace-ignoring merge resolves; the phone's pinned bar now hides the page's starfield behind it, as the panel colour did before; the author still checks the result on staging.
