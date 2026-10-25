@@ -234,20 +234,29 @@ class LibraryTest < ApplicationSystemTestCase
     take_screenshot
   end
 
-  test "the filtered, searched grid appends its next page as its links come near, the status naming the cards shown" do
+  test "a player's filtered, searched grid appends its next page as its links come near, the status naming the cards shown" do
+    held = Catalog::CardSeason.where(season_id: @season.id, main_theme: "roguelike").order(:number, :id).last(2)
+    held.each { Game::Holding.create!(player_id: @player.id, card_season_id: it.id, quantity: 1) }
+    held_paths = held.map { "/en/cards/#{it.card.slug}/" }
+    sign_in
     filters = { state: %w[missing], genre: %w[roguelike], q: "seed" }
     visit library_cards_path(locale: :en, **filters, page: 2)
     second_page = all(".collection-grid a.card-link", minimum: 1).map { it[:href] }
-    assert_equal 23, second_page.size
+    assert_equal 21, second_page.size
 
     visit library_cards_path(locale: :en, **filters)
     assert_selector ".collection-grid > li", count: 60, visible: :all
     scroll_to_pages
 
-    assert_selector ".collection-grid > li", count: 83, visible: :all
-    assert_equal second_page, all(".collection-grid > li:nth-child(n+61) a.card-link", visible: :all).map { it[:href] }
-    assert_selector "#collection-results-status", text: "Cards 61 to 83 of 83 shown.", visible: :all
+    assert_selector ".collection-grid > li", count: 81, visible: :all
+    appended = all(".collection-grid > li:nth-child(n+61) a.card-link", visible: :all).map { it[:href] }
+    assert_equal second_page, appended
+    assert_selector ".collection-grid > li:nth-child(n+61) .card.card--not-owned", count: 21, visible: :all
+    assert_no_selector ".collection-grid .collection-slot__copies", visible: :all
+    assert appended.none? { |href| held_paths.any? { URI(href).path.start_with?(it) } }
+    assert_selector "#collection-results-status", text: "Cards 61 to 81 of 81 shown.", visible: :all
     assert_no_selector "#collection-pages a[rel=next]", visible: :all
+    assert_selector "#collection-pages a[rel=prev][href*='state%5B%5D=missing']", visible: :all
     assert_selector "#collection-pages [aria-current=page]", text: "2", visible: :all
     assert_current_path library_cards_path(locale: :en, **filters)
   end

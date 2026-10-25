@@ -3,13 +3,13 @@ title: 'The all cards grid loads its next page on scroll'
 type: 'feature'
 ticket: 15
 created: '2026-10-24'
-status: 'in-review'
+status: 'built'
 baseline_revision: '8dcacbf74d26517c0b7a5f4eb95dbb3ea42e003f'
 route: 'full'
 route_source: 'auto'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context: ['{project-root}/AGENTS.md']
@@ -85,6 +85,14 @@ deferred: []
 
 ## Review Triage Log
 
+### 2026-10-24 — Review pass
+- verdicts: 4 findings — high 0, medium 1, low 3, false 0, maybe-false 0
+- findings:
+  - `[medium]` `patch` A page answer arriving between a filter reload's response and its render passed the call-time `links.isConnected` check, since Turbo renders stream actions and frame loads a repaint later, and then appended the old filter's page to the reloaded grid through the static target ids — the drop is now decided at render time: `perform` wraps each of its own streams' `detail.render` (`turbo:before-stream-render`, listened to only during its `renderStreamMessage`) with `renderingWhile`, which drops the action and the rest once the page links the request started from are gone; two vitest cases cover render and drop.
+  - `[low]` `patch` The filtered browser test ran as a visitor, so `state[]` was ignored — it now signs in a player holding two of the 83 roguelike cards and checks the 81-card missing grid's appended page, its not-owned faces, the status line and the state kept in the links.
+  - `[low]` `reject` Back through ◀ Grille from an appended page has no test of its own — the button goes back through the same history entry as the browser's Back (`history_back_controller.ts`), which the Back test covers.
+  - `[low]` `reject` The controller's abort, hold-while-focused and release have no DOM test — the state steps are covered in `next_page.test.ts`, the render-time drop now too; a DOM harness for focus timing would cost more than the remaining wiring it guards.
+
 ## Design Notes
 
 Why a Turbo Stream answer and not lazy frames: a frame per page would nest frames inside the `<ol>`; the architecture allows later markup by Turbo Stream, and a GET may answer one (it writes nothing). `respond_to` makes Rails add `Vary: Accept`, so the browser never serves one format for the other.
@@ -103,6 +111,11 @@ Known and out of scope (pre-existing with the numbered links too): under the `ne
 
 ## Auto Run Result
 
-Status: blocked
-Blocking condition: no subagents. The plan is ready for development (full route, more than 100 lines across about fifteen files), but the session that ran it had no tool for launching a subagent, and step 3's full route requires an implementing subagent (as does step 4's review). No code was changed. To resume, run the build again from a session that can launch subagents, after setting `status` back to `ready-for-dev`; the plan above needs no change.
-Environment notes for the next run, in a container without Docker: system tests need a chromedriver whose version matches the Chrome under `CHROME_BIN`, and a Chrome run as root needs `--no-sandbox`.
+Status: built
+
+- Summary: on Toutes les cartes the grid loads its next page as the player nears its end: a Stimulus controller fetches the next page link as a Turbo Stream that appends the slots, updates the status line, appends the seen watermark and replaces the page links; the answer waits while focus is in the links and is dropped if the filters reloaded the grid meanwhile; the page links stay as the no-script fallback; the set album and the public collection keep plain paging.
+- Files: `app/frontend/lib/next_page.ts` and its tests, `app/frontend/controllers/next_page_controller.ts`, `app/controllers/library_controller.rb` (`respond_to` with a stream answer), `app/views/library/cards.turbo_stream.erb`, `_slots.html.erb`, `_seen.html.erb`, `_grid.html.erb`, `_pages.html.erb`, `_collection.html.erb`, `cards.html.erb`, both locales (`library.grid.pages.shown`), the library and public profile controller tests, `test/system/library_test.rb`.
+- Review: the Quick lens ran from the coordinating session; the run had halted on `no subagents` before implementing, and the implementation came from a subagent the coordinator launched. 4 findings: 2 patched (1 medium, 1 low), 2 rejected (low) with their reasons above; nothing deferred.
+- Follow-up review recommended: false (one medium patched).
+- Verification: `test/system/library_test.rb` 10 runs, 0 failures, three times in a row at load 1 to 15 (a French two-scroll test had timed out a few times at load about 20 while the patches were in progress, never alone); `card_detail_test.rb` and `public_profile_test.rb` green; `next_page.test.ts` 14 passed; full suite 3174 runs, 0 failures before the patches; typecheck, rubocop, packwerk, i18n-tasks, brakeman and zeitwerk clean.
+- Residual risks: the French two-scroll test leans on Capybara's 5-second wait under heavy load; the set album's page links carry the inert `next-page` target.

@@ -55,3 +55,11 @@ export class NextPage {
     this.current = "spent"
   }
 }
+
+export type StreamRender<T> = (stream: T) => Promise<void> | void
+
+export function renderingWhile<T>(render: StreamRender<T>, current: () => boolean): StreamRender<T> {
+  return async (stream) => {
+    if (current()) await render(stream)
+  }
+}

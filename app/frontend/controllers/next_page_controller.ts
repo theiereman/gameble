@@ -1,8 +1,10 @@
 import { Controller } from "@hotwired/stimulus"
 import "../lib/turbo"
-import { isTurboStream, NEAR_END_MARGIN, NextPage, TURBO_STREAM, type Step } from "../lib/next_page"
+import { isTurboStream, NEAR_END_MARGIN, NextPage, renderingWhile, TURBO_STREAM, type Step, type StreamRender } from "../lib/next_page"
 
 type Request = { links: Element; abort: AbortController }
+
+type StreamRenderDetail = { render: StreamRender<Element> }
 
 async function fetchStream(url: string, signal: AbortSignal): Promise<string | null> {
   try {
@@ -80,7 +82,19 @@ export default class extends Controller<HTMLElement> {
   }
 
   private perform(links: Element, step: Step): void {
-    if (step.kind === "render" && links.isConnected) window.Turbo.renderStreamMessage(step.answer)
+    if (step.kind !== "render" || !links.isConnected) return
+
+    // Turbo renders each stream action a repaint later, when a filter reload may have replaced the grid.
+    const guard = (event: Event): void => {
+      const detail = (event as CustomEvent<StreamRenderDetail>).detail
+      detail.render = renderingWhile(detail.render, () => links.isConnected)
+    }
+    document.addEventListener("turbo:before-stream-render", guard)
+    try {
+      window.Turbo.renderStreamMessage(step.answer)
+    } finally {
+      document.removeEventListener("turbo:before-stream-render", guard)
+    }
   }
 
   private focusIn(links: Element): boolean {

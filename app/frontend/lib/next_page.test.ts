@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { isTurboStream, NEAR_END_MARGIN, NextPage, TURBO_STREAM } from "./next_page"
+import { isTurboStream, NEAR_END_MARGIN, NextPage, renderingWhile, TURBO_STREAM } from "./next_page"
 
 const URL = "/en/library/cards?q=seed&page=2"
 const ANSWER = "<turbo-stream></turbo-stream>"
@@ -108,5 +108,29 @@ describe("isTurboStream", () => {
 describe("NEAR_END_MARGIN", () => {
   it("reaches half a viewport below its bottom edge", () => {
     expect(NEAR_END_MARGIN).toBe("0px 0px 50% 0px")
+  })
+})
+
+describe("renderingWhile", () => {
+  it("renders a stream while its grid is current", async () => {
+    const rendered: string[] = []
+    const render = renderingWhile((stream: string) => void rendered.push(stream), () => true)
+
+    await render("append")
+
+    expect(rendered).toEqual(["append"])
+  })
+
+  it("drops a stream whose grid was reloaded before its turn to render", async () => {
+    const rendered: string[] = []
+    let current = true
+    const render = renderingWhile((stream: string) => void rendered.push(stream), () => current)
+
+    await render("append")
+    current = false
+    await render("update")
+    await render("replace")
+
+    expect(rendered).toEqual(["append"])
   })
 })
