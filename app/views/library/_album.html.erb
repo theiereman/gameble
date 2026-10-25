@@ -16,28 +16,33 @@
       <% end %>
     </div>
   <% end %>
-  <% if slots.any? %>
-    <ol class="collection-grid collection-grid--fill set-album__grid" aria-label="<%= t("library.album.slots") %>"
-      data-controller="grid-keys" data-action="keydown->grid-keys#move focusin->grid-keys#remember">
-      <% slots.each do |slot| %>
-        <li class="collection-slot">
-          <% if slot.copies %>
-            <%= link_to_card_detail(slot.card, strings:, context:, number: slot.number) do %><%= render CardComponent.new(card: slot.card, size: :grid) %><% end %>
-            <% if slot.copies > 1 %>
-              <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(slot.copies) %></span>
+  <%= render "library/filters", filters:, state_choices: SetAlbumFilters::STATES, states: filters.states, states_asked: filters.states_asked,
+    query: filters.query, clear_path: request.path, clear_action: "replace", search_label: t("library.album.search.label"), search_placeholder: t("library.album.search.placeholder") %>
+  <%= turbo_frame_tag "collection-results", target: "_top", data: { turbo_action: "replace" } do %>
+    <p class="visually-hidden" role="status"><%= t("library.grid.result", count: pagy.count) %></p>
+    <% if slots.any? %>
+      <ol class="collection-grid collection-grid--fill set-album__grid" aria-label="<%= t("library.album.slots") %>"
+        data-controller="grid-keys" data-action="keydown->grid-keys#move focusin->grid-keys#remember">
+        <% slots.each do |slot| %>
+          <li class="collection-slot">
+            <% if slot.copies %>
+              <%= link_to_card_detail(slot.card, strings:, context:, number: slot.number) do %><%= render CardComponent.new(card: slot.card, size: :grid) %><% end %>
+              <% if slot.copies > 1 %>
+                <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(slot.copies) %></span>
+              <% end %>
+              <span class="visually-hidden"><%= t("library.grid.copies", count: slot.copies, number: number_with_delimiter(slot.copies)) %></span>
+              <% if slot.new %>
+                <span class="collection-slot__new"><%= t("library.grid.new") %></span>
+              <% end %>
+            <% else %>
+              <%= link_to_card_detail(slot.card, strings:, context:, number: slot.number, owned: false) do %><%= render CardComponent.new(card: slot.card, size: :grid, owned: false) %><% end %>
             <% end %>
-            <span class="visually-hidden"><%= t("library.grid.copies", count: slot.copies, number: number_with_delimiter(slot.copies)) %></span>
-            <% if slot.new %>
-              <span class="collection-slot__new"><%= t("library.grid.new") %></span>
-            <% end %>
-          <% else %>
-            <%= link_to_card_detail(slot.card, strings:, context:, number: slot.number, owned: false) do %><%= render CardComponent.new(card: slot.card, size: :grid, owned: false) %><% end %>
-          <% end %>
-        </li>
-      <% end %>
-    </ol>
-  <% elsif pagy.count.positive? %>
-    <p class="collection-grid__empty"><%= t("library.grid.past_the_end") %></p>
+          </li>
+        <% end %>
+      </ol>
+    <% else %>
+      <p class="collection-grid__empty"><%= pagy.count.positive? ? t("library.grid.past_the_end") : t("library.grid.empty") %></p>
+    <% end %>
+    <%= render "library/pages", pagy:, empty: slots.empty? %>
   <% end %>
-  <%= render "library/pages", pagy:, empty: slots.empty? %>
 </div>

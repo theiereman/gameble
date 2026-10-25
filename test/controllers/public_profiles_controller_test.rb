@@ -223,6 +223,53 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
       css_select(".set-album__grid > li > a.card-link").map { it["href"] }
   end
 
+  test "a visitor filters an owner's album by the owner's holdings, never the viewer's, under the same header" do
+    season = publish_sets_draft
+    members = set_members(season, "horror")
+    held = [ 0, 3, 7, 12, 14, 15 ]
+    held.each { hold(@owner, members[it], 1) }
+    viewer = accounts_players(:moderator)
+    members.first(10).each { hold(viewer, it, 1) }
+    path = brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror")
+
+    get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror", state: [ "missing" ])
+
+    assert_response :success
+    assert_select "form.filters[action=?] [data-group=state] .filter-chip__box[value=missing][checked]", path
+    assert_select ".filters__clear[href=?]", path
+    assert_equal members.each_index.reject { held.include?(it) }.size, css_select(".set-album__grid .card--not-owned").size
+    assert_select ".set-album__grid .card:not(.card--not-owned)", false
+    assert_equal "6/16", album_count
+
+    sign_in(viewer)
+    get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror", state: [ "owned" ])
+    assert_select ".set-album__grid .card:not(.card--not-owned)", 6
+    assert_select ".set-album__grid .card--not-owned", false
+    assert_equal "6/16", album_count
+  end
+
+  test "a visitor narrows an owner's album by rarity and finds a game of it by its name, under the same header" do
+    season = publish_sets_draft
+    members = set_members(season, "horror")
+    Catalog::CardSeason.where(id: members).update_all(rarity: Catalog::Rarity::TIERS.key(:common))
+    Catalog::CardSeason.where(id: members.values_at(2, 5)).update_all(rarity: Catalog::Rarity::TIERS.key(:rare))
+    hold(@owner, members[5], 1)
+    Catalog::CardText.where(card_id: Catalog::CardSeason.find(members[7]).card_id, locale: "en").update_all(title: "Élan Vital")
+
+    get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror", rarity: [ "rare" ])
+
+    assert_response :success
+    assert_select "[data-group=rarity] .filter-chip__box[value=rare][checked]"
+    assert_equal [ true, false ], css_select(".set-album__grid > li").map { it.at_css(".card--not-owned").present? }
+    assert_equal "1/16", album_count
+
+    get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror", q: "ELAN")
+
+    assert_select "#collection-search[value=ELAN]"
+    assert_equal [ "Élan Vital" ], css_select(".set-album__grid .card__title").map { it.text.squish }
+    assert_equal "1/16", album_count
+  end
+
   test "an owner's album shows their earlier editions and their copies of every edition" do
     season = publish_sets_draft
     members = set_members(season, "pirates")
@@ -241,13 +288,15 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "1 carte sur 8", css_select("progress.set-album__bar").sole["aria-valuetext"]
   end
 
-  test "an owner's album costs eight queries for a visitor, a signed-in viewer's five more" do
+  test "an owner's album costs eight queries for a visitor, filtered or not, a signed-in viewer's five more" do
     season = publish_sets_draft
     hold(@owner, set_members(season, "rpg").first, 1)
 
     # Owner by token, published season; the album: its set, members and
     # tiers, the owner's editions, the page's card views; the themes' names.
     assert_request_queries(8) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg") }
+    assert_response :success
+    assert_request_queries(8) { get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "rpg", rarity: [ "common" ], q: "seed") }
     assert_response :success
 
     sign_in(accounts_players(:moderator))

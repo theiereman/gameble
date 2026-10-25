@@ -1,29 +1,34 @@
-<%# The search and the FILTRES zone of the grid: one GET form, outside the
+<%# The search and the FILTRES zone of a grid: one GET form, outside the
     frame that holds the grid so the field and the chips keep focus while
     the grid is replaced. The search is applied as the player types; the
     zone is a folded panel (open when a filter is on) with the count of
     active filters and, in it, groups of chips switched on or off: state
-    (a player's only: a visitor owns nothing), rarity, set
-    (library/set_filter), genre; OR within a group, AND across.
+    (of the grid owner's holdings: a visitor's catalog has none), rarity,
+    set (library/set_filter), genre; OR within a group, AND across.
     The chips are checkboxes, so the form works without JavaScript; the
     collection-filters controller submits on change and keeps the count.
-    - grid: the Catalog::CollectionGrid (chosen values, genres);
-    - ownership: true for a signed-in player, who gets the state group;
+    - filters: the Catalog::CollectionGrid (chosen values, genres), or a
+      set album's SetAlbumFilters;
+    - state_choices: the states offered, none for no state group;
     - states, states_asked: the states shown, and whether the player chose
       them (none chosen shows every slot);
-    - query: the text searched;
+    - query: the text searched; search_label, search_placeholder: the
+      field's, the catalog's by default;
     - set_filter: the set group's kinds, kind, query, options and found;
-    - clear_path: the grid's page without any filter. %>
-<% count = collection_filter_count(grid:, states:, states_asked:) %>
+      none for no set group;
+    - clear_path: the grid's page without any filter; clear_action: the
+      Turbo action of its link, an advance visit by default. %>
+<% set_filter = local_assigns[:set_filter] %>
+<% count = collection_filter_count(filters:, states:, states_asked:) %>
 <%= form_with url: request.path, method: :get, class: "filters", html: { role: "search" }, data: {
   controller: "collection-filters", turbo_frame: "collection-results",
   action: "input->collection-filters#typed compositionend->collection-filters#typed change->collection-filters#changed " \
     "submit->collection-filters#submitted turbo:frame-load->collection-filters#setsLoaded"
 } do %>
   <div class="filters__search">
-    <label class="visually-hidden" for="collection-search"><%= t("library.filters.search.label") %></label>
+    <label class="visually-hidden" for="collection-search"><%= local_assigns.fetch(:search_label) { t("library.filters.search.label") } %></label>
     <%= search_field_tag "q", query, id: "collection-search", class: "filters__search-field", autocomplete: "off", maxlength: Catalog::CollectionGrid::MAX_QUERY,
-      placeholder: t("library.filters.search.placeholder"), data: { collection_filters_target: "search" } %>
+      placeholder: local_assigns.fetch(:search_placeholder) { t("library.filters.search.placeholder") }, data: { collection_filters_target: "search" } %>
   </div>
   <details class="filters__zone" <%= "open" if count.positive? %>>
     <summary class="filters__summary">
@@ -32,10 +37,10 @@
       <span class="filters__count" data-collection-filters-target="count" <%= "hidden" if count.zero? %>><span class="visually-hidden"><%= t("library.filters.active") %></span> <span data-collection-filters-target="number"><%= count %></span></span>
     </summary>
     <div class="filters__groups">
-      <% if ownership %>
+      <% if state_choices.any? %>
         <fieldset class="filters__group" data-collection-filters-target="group" data-group="state" data-default="<%= Game::CollectionStates::DEFAULT %>">
           <legend class="filters__legend"><%= t("library.filters.groups.state") %></legend>
-          <% (Game::CollectionStates::STATES - (local_assigns.fetch(:with_new, true) ? [] : [ "new" ])).each do |state| %>
+          <% state_choices.each do |state| %>
             <label class="filter-chip">
               <%= check_box_tag "state[]", state, states.include?(state), id: nil, class: "filter-chip__box" %>
               <span class="filter-chip__text"><%= t("library.filters.states.#{state}") %></span>
@@ -47,20 +52,20 @@
         <legend class="filters__legend"><%= t("library.filters.groups.rarity") %></legend>
         <% Catalog::Rarity::TIERS.each_value do |rarity| %>
           <label class="filter-chip">
-            <%= check_box_tag "rarity[]", rarity, grid.chosen_rarities.include?(rarity.to_s), id: nil, class: "filter-chip__box" %>
+            <%= check_box_tag "rarity[]", rarity, filters.chosen_rarities.include?(rarity.to_s), id: nil, class: "filter-chip__box" %>
             <span class="filter-chip__text"><%= t("catalog.rarity.#{rarity}") %></span>
           </label>
         <% end %>
       </fieldset>
-      <% if set_filter[:kinds].any? %>
-        <%= render "library/set_filter", **set_filter, chosen: grid.chosen_sets %>
+      <% if set_filter && set_filter[:kinds].any? %>
+        <%= render "library/set_filter", **set_filter, chosen: filters.chosen_sets %>
       <% end %>
-      <% if grid.genres.any? %>
+      <% if filters.genres.any? %>
         <fieldset class="filters__group" data-collection-filters-target="group" data-group="genre">
           <legend class="filters__legend"><%= t("library.filters.groups.genre") %></legend>
-          <% grid.genres.each do |genre| %>
+          <% filters.genres.each do |genre| %>
             <label class="filter-chip">
-              <%= check_box_tag "genre[]", genre, grid.chosen_genres.include?(genre), id: nil, class: "filter-chip__box" %>
+              <%= check_box_tag "genre[]", genre, filters.chosen_genres.include?(genre), id: nil, class: "filter-chip__box" %>
               <span class="filter-chip__text"><%= SetLabel.genre(genre) %></span>
             </label>
           <% end %>
@@ -68,6 +73,6 @@
       <% end %>
     </div>
   </details>
-  <%= link_to t("library.filters.clear"), clear_path, class: "filters__clear", data: { turbo_frame: "_top", collection_filters_target: "clear" }, hidden: (count.zero? && query.blank?) %>
+  <%= link_to t("library.filters.clear"), clear_path, class: "filters__clear", data: { turbo_frame: "_top", turbo_action: local_assigns[:clear_action], collection_filters_target: "clear" }, hidden: (count.zero? && query.blank?) %>
   <noscript><%= submit_tag t("library.filters.apply"), name: nil, class: "filters__apply" %></noscript>
 <% end %>

@@ -732,6 +732,10 @@ button.filter-chip {
   gap: var(--space-7);
 }
 
+.set-album > turbo-frame {
+  display: contents;
+}
+
 .set-album__header {
   display: flex;
   flex-direction: column;

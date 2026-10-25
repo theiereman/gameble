@@ -820,6 +820,9 @@ fr:
     album:
       title: "%{set} · Collection · gameble"
       slots: "Cartes du set"
+      search:
+        label: "Rechercher un jeu du set par son nom"
+        placeholder: "Rechercher un jeu"
     collection:
       title: "Collection"
     cards:

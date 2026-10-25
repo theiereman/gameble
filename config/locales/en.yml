@@ -792,6 +792,9 @@ en:
     album:
       title: "%{set} · Collection · gameble"
       slots: "Cards in the set"
+      search:
+        label: "Search a game of this set by name"
+        placeholder: "Search a game"
     collection:
       title: "Collection"
     cards:
