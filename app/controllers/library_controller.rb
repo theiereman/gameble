@@ -2,8 +2,9 @@
 # sets in progress, under the top bar's unique cards; the grid of every
 # game of the published season and every game the viewer holds, in any
 # edition, with its filters, its search and the RAPPORT; and one set's
-# album, the player's best edition of each of its games. The entry and the
-# albums are a player's pages; a visitor reaches only the grid. A player's
+# album, the player's best edition of each of its games, with its filters
+# and its search. The entry and the albums are a player's pages; a visitor
+# reaches only the grid. A player's
 # grid sets the cards they do not hold apart, faded and locked; a visitor
 # owns nothing and sees every card's plain face, and no ownership data: no
 # state filters, no RAPPORT, no unique cards in the top bar. Sets are addressed by

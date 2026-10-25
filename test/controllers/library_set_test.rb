@@ -335,6 +335,11 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
 
     assert_request_queries(11) { get library_set_path(locale: :en, kind: "theme", key: "horror") }
     assert_equal "1/3", count
+
+    assert_request_queries(11) { get library_set_path(locale: :en, kind: "theme", key: "roguelike", state: [ "missing" ], rarity: [ "common" ], q: "seed") }
+    assert_response :success
+    assert_select ".set-album__grid > li", 60
+    assert_equal "400/752", count
   end
 
   test "every kind opens its album under its name" do
@@ -392,6 +397,124 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     html = css_select("main").sole.to_html.gsub(/\d+\/\d+|value="\d+"|max="\d+"|\b(19|20)\d\d\b|x\d+|\d+ cop(y|ies)|\d+ cards?|seed-\d+-\d+|data-card-art-(width|height)-value="\d+"|width="\d+"|height="\d+"|\/seasons\/\d+|[Ss]eason \d+|>\d+</, "")
     ids.each { assert_no_match(/\b#{it}\b/, html) }
     assert_select "[data-id]", false
+  end
+
+  def chips(group) = css_select("[data-group=#{group}] .filter-chip__box").map { [ it["value"], it["checked"].present? ] }
+
+  # A theme of 40 cards, the first ten rare, the others common; the player
+  # holds five of them, the first one in an earlier legendary edition.
+  def forty_card_theme(player)
+    season, cards = published_cards(40)
+    insert_theme(cards, key: "roguelike", season:)
+    Catalog::CardSeason.where(id: cards.first(10)).update_all(rarity: Catalog::Rarity::TIERS.key(:rare))
+    hold(player, earlier_edition(cards[0], rarity: :legendary), 1)
+    [ 5, 12, 20, 33 ].each { hold(player, cards[it], 1) }
+    [ season, cards ]
+  end
+
+  def roguelike(**filters) = library_set_path(locale: :en, kind: "theme", key: "roguelike", **filters)
+
+  test "a set album of more than 30 cards: the catalog's FILTRES zone, without the set and genre groups, folded and empty" do
+    player = accounts_players(:player)
+    forty_card_theme(player)
+    sign_in(player)
+
+    get roguelike
+
+    assert_select "form.filters[role=search][action='/en/library/theme/roguelike'][data-controller=collection-filters][data-turbo-frame=collection-results]"
+    assert_select "label[for=collection-search]", "Search a game of this set by name"
+    assert_select "#collection-search[name=q][placeholder='Search a game']"
+    assert_select "details.filters__zone:not([open])"
+    assert_select ".filters__count[hidden]"
+    assert_select ".filters__clear[hidden][href='/en/library/theme/roguelike']"
+    assert_equal [ [ "owned", false ], [ "all", true ], [ "missing", false ] ], chips(:state)
+    assert_equal Catalog::Rarity::TIERS.values.map { [ it.to_s, false ] }, chips(:rarity)
+    assert_select "[data-group=sets], [data-group=genre]", false
+    assert_select ".set-album > turbo-frame#collection-results[target=_top][data-turbo-action=replace] > ol.set-album__grid > li", 40
+    assert_select "#collection-results [role=status]", "40 cards shown."
+    assert_select "[style]", false
+  end
+
+  test "filtering by missing shows only the missing faces, in set order; the header's count and bar do not change" do
+    player = accounts_players(:player)
+    _season, cards = forty_card_theme(player)
+    sign_in(player)
+    get roguelike
+    header = [ count, value_text, album_ticks ]
+
+    get roguelike(state: [ "missing" ])
+
+    missing = cards.each_index.reject { it.in?([ 0, 5, 12, 20, 33 ]) }
+    assert_equal missing.map { [ :missing, title(cards[it]), year(cards[it]) ] }, slots
+    assert_equal [ "5/40", value_text, album_ticks ], header
+    assert_equal header, [ count, value_text, album_ticks ]
+    assert_select "progress.set-album__bar[value='5'][max='40']"
+    assert_select "details.filters__zone[open] .filters__count:not([hidden])", "Active filters: 1"
+    assert_equal [ [ "owned", false ], [ "all", false ], [ "missing", true ] ], chips(:state)
+    assert_select ".filters__clear:not([hidden])"
+    assert_select "#collection-results [role=status]", "35 cards shown."
+
+    get roguelike(state: [ "owned", "missing" ])
+    assert_equal 40, slots.size
+
+    get roguelike(state: [ "new" ])
+    assert_equal 40, slots.size
+    assert_equal [ [ "owned", false ], [ "all", true ], [ "missing", false ] ], chips(:state)
+  end
+
+  test "filtering by a rarity reads the face shown, the owner's edition for a card they hold; with owned, both narrow" do
+    player = accounts_players(:player)
+    _season, cards = forty_card_theme(player)
+    sign_in(player)
+
+    get roguelike(rarity: [ "rare" ])
+    assert_equal cards[1, 9].map { title(it) }, slots.map(&:second)
+    assert_equal "5/40", count
+
+    get roguelike(rarity: [ "legendary", "rare" ], state: [ "owned" ])
+    assert_equal [ [ :owned, title(cards[0]), nil ], [ :owned, title(cards[5]), nil ] ], slots
+    assert_equal [ "legendary", "rare" ], chips(:rarity).select(&:last).map(&:first).sort
+    assert_select ".filters__count", "Active filters: 3"
+
+    get roguelike(rarity: [ "epic" ])
+    assert_empty slots
+    assert_select ".collection-grid__empty", "Nothing matches these filters."
+    assert_select "#collection-results [role=status]", "No card shown."
+    assert_select ".collection-pages", false
+  end
+
+  test "the search finds a game of the set by its name, case and accents ignored, never by its publisher" do
+    player = accounts_players(:player)
+    _season, cards = forty_card_theme(player)
+    Catalog::CardText.where(card_id: Catalog::CardSeason.find(cards[7]).card_id, locale: "fr").update_all(title: "Élan Vital")
+    Catalog::Card.where(id: Catalog::CardSeason.find(cards[8]).card_id).update_all(publisher: "Vital Works")
+    sign_in(player)
+
+    get library_set_path(locale: :fr, kind: "theme", key: "roguelike", q: " ELAN vit ")
+
+    assert_equal [ [ :missing, "Élan Vital", year(cards[7]) ] ], slots
+    assert_select "#collection-search[value='ELAN vit'][placeholder='Rechercher un jeu']"
+    assert_select "label[for=collection-search]", "Rechercher un jeu du set par son nom"
+    assert_select ".filters__count[hidden]"
+    assert_select ".filters__clear:not([hidden])", "Tout effacer"
+    assert_equal "5/40", count
+
+    get library_set_path(locale: :fr, kind: "theme", key: "roguelike", q: "vital works")
+    assert_empty slots
+    assert_select ".collection-grid__empty", "Aucune carte ne correspond à ces filtres."
+  end
+
+  test "a filtered album of more than sixty cards pages its matches, its page links carrying the filters" do
+    season, cards = published_cards(130)
+    insert_theme(cards, key: "roguelike", season:)
+    player = accounts_players(:player)
+    hold(player, cards.first, 1)
+    sign_in(player)
+
+    get roguelike(state: [ "missing" ], page: 3)
+
+    assert_equal cards.last(9).map { title(it) }, slots.map(&:second)
+    assert_select ".collection-pages a[rel=prev][href=?]", "/en/library/theme/roguelike?page=2&state%5B%5D=missing"
   end
 
   test "the screens an album opens from name themselves for its back button and mark the album last opened" do

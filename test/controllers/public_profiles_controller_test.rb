@@ -223,6 +223,31 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
       css_select(".set-album__grid > li > a.card-link").map { it["href"] }
   end
 
+  test "a visitor filters an owner's album by the owner's holdings, never the viewer's, under the same header" do
+    season = publish_sets_draft
+    members = set_members(season, "horror")
+    held = [ 0, 3, 7, 12, 14, 15 ]
+    held.each { hold(@owner, members[it], 1) }
+    viewer = accounts_players(:moderator)
+    members.first(10).each { hold(viewer, it, 1) }
+    path = brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror")
+
+    get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror", state: [ "missing" ])
+
+    assert_response :success
+    assert_select "form.filters[action=?] [data-group=state] .filter-chip__box[value=missing][checked]", path
+    assert_select ".filters__clear[href=?]", path
+    assert_equal members.each_index.reject { held.include?(it) }.size, css_select(".set-album__grid .card--not-owned").size
+    assert_select ".set-album__grid .card:not(.card--not-owned)", false
+    assert_equal "6/16", album_count
+
+    sign_in(viewer)
+    get brother_set_path(locale: :en, token: @owner.token, kind: "theme", key: "horror", state: [ "owned" ])
+    assert_select ".set-album__grid .card:not(.card--not-owned)", 6
+    assert_select ".set-album__grid .card--not-owned", false
+    assert_equal "6/16", album_count
+  end
+
   test "an owner's album shows their earlier editions and their copies of every edition" do
     season = publish_sets_draft
     members = set_members(season, "pirates")

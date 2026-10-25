@@ -13,8 +13,8 @@ class CollectionHelperTest < ActionView::TestCase
   test "the filter count adds the chosen chips, and the states only when they are not the default" do
     grid = Grid.new(chosen_rarities: %w[rare], chosen_sets: [ :roguelike, :halo ], chosen_genres: [])
 
-    assert_equal 3, collection_filter_count(grid:, states: [ Game::CollectionStates::DEFAULT ], states_asked: true)
-    assert_equal 5, collection_filter_count(grid:, states: %w[owned new], states_asked: true)
-    assert_equal 3, collection_filter_count(grid:, states: %w[owned], states_asked: false)
+    assert_equal 3, collection_filter_count(filters: grid, states: [ Game::CollectionStates::DEFAULT ], states_asked: true)
+    assert_equal 5, collection_filter_count(filters: grid, states: %w[owned new], states_asked: true)
+    assert_equal 3, collection_filter_count(filters: grid, states: %w[owned], states_asked: false)
   end
 end
