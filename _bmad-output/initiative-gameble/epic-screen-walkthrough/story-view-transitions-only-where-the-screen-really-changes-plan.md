@@ -3,12 +3,12 @@ title: 'View transitions only where the screen really changes'
 type: 'feature'
 ticket: '27'
 created: '2026-10-25'
-status: 'in-progress'
+status: 'blocked'
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144'
 route: 'oneshot'
 route_source: 'pinned'
-review: ''
-review_source: ''
+review: 'quick'
+review_source: 'pinned'
 lenses_ran: []
 review_loop_iteration: 0
 followup_review_recommended: false
@@ -57,3 +57,10 @@ Oneshot: one pure rule, a small change to the screen-change mark and to the step
 - On staging, the author moves between the Échanges steps and sees no slide, while hub to collection and a grid to a card detail still slide.
 
 ## Auto Run Result
+
+Status: blocked
+Blocking condition: no subagents
+
+- Implemented, verified and committed on `build/16.27-view-transitions-where-screen-changes` (`b70eef22a21a8cc4d726b90231f1ab782aa7476e`): a visit between two pages of Trades keeps the frame (no screen slide), except the list to a board and back under 720px; Back and Forward are judged from the path last shown. See Implementation Notes for the files, the deviation from the Approach (the same-frame CSS mark, no meta hold, because Turbo would cache a held meta) and the verification.
+- The review step needs a reviewer subagent, which this session cannot launch: no lens ran, the Review Triage Log is empty. `tickets.py mark` was not run (this store refuses it, and the dispatch forbade it), so the status is written here by hand.
+- Residual risks: Turbo still calls `startViewTransition` on a frame-keeping visit, with nothing moving (as on a same-page visit today); the trades URL pattern lives in `lib/screen_change.ts`, so a new trades route under another path would slide; the author checks the result on staging, phone and desktop.
