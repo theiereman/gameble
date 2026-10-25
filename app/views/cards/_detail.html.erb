@@ -2,8 +2,10 @@
     bracketed panel with the number at top right, the card at card-l over a
     ground shadow, its title, the facts the card does not carry and the
     actions ("Voir sur Steam", the one primary, "Partager" for every card,
-    and "Reposter" and the showcase choice for a holder). The card always
-    shows its face, held or not. ◀ ▶ beside the card step through what it
+    and "Reposter" and the showcase choice for a holder). A signed-in
+    player who holds no copy of its game sees the card faded, grey and
+    locked, as the grids set it apart; a visitor sees its plain face. ◀ ▶
+    beside the card step through what it
     browses (an opened pack, a grid, a set), and on a phone
     (sub_view controller) a swipe on it too, under a position line, with
     the actions pinned at the bottom. It names no one but the viewer and
@@ -16,7 +18,8 @@
     - signed_in: whether a player views it (default false): then the
       copies row reads their copies, or "None", and the editions row one
       line per rarity held, the best first, with its seasons ("Rare : S1,
-      S4"), the lines past the third folded, or "None";
+      S4"), the lines past the third folded, or "None", and the card
+      shows as not owned without a copy;
     - set_url: ->(set) { path } leading each set to its grid, or nil for
       the sets' names alone; the sets of a season other than the published
       one (the one the library shows) are never linked;
@@ -41,6 +44,7 @@
 <% pioneer = local_assigns.fetch(:pioneer, nil) %>
 <% repostable = share_url && editions.any? { |_, season_number, _| season_number == detail.view.season_number } %>
 <% view = detail.view %>
+<% owned = !signed_in || copies.present? %>
 <% strings = CardStrings.new %>
 <% tier = Catalog::Rarity::TIERS.invert.fetch(view.rarity.to_sym) %>
 <% controllers = [ "sub-view", ("share" if share_url) ].compact.join(" ") %>
@@ -65,13 +69,13 @@
           <%= render "cards/detail_nav", path: browse.previous, side: :previous %>
         <% end %>
         <div class="card-detail__card">
-          <% if card_top_rarity?(view.rarity) %>
+          <% if owned && card_top_rarity?(view.rarity) %>
             <div class="card-float">
               <%= card_rays(view.rarity) %>
               <%= render CardComponent.new(card: view, size: :l) %>
             </div>
           <% else %>
-            <%= render CardComponent.new(card: view, size: :l) %>
+            <%= render CardComponent.new(card: view, size: :l, owned:) %>
           <% end %>
           <span class="card-detail__shadow" aria-hidden="true"></span>
         </div>

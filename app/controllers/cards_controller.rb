@@ -30,9 +30,10 @@
 # profile showcase, or take it out when it is there (`@showcase`).
 #
 # A pack of another player, not opened or not holding the card, a grid or a
-# set that does not hold it, is ignored. The detail always shows the card's
-# face, held or not. Anyone can share it: the link is this card-season's own
-# page, which carries the preview tags; it shows only the card, never who
+# set that does not hold it, is ignored. The detail shows the card's face,
+# set apart as not owned for a signed-in viewer holding no copy of its game,
+# whatever the context. Anyone can share it: the link is this card-season's
+# own page, which carries the preview tags; it shows only the card, never who
 # shared or holds it. A visitor who opens that page, without a context in
 # the query, gets the public card page: the card, its facts, the
 # invitation to play and the LIVE strip of the latest public feed entries, with no app chrome.
