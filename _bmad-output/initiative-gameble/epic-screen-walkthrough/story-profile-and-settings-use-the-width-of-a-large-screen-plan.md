@@ -3,13 +3,13 @@ title: 'Profile and settings use the width of a large screen'
 type: 'feature'
 ticket: 30
 created: '2026-10-25'
-status: 'blocked'
+status: 'built'
 baseline_revision: '27b677d308e8106cc52d312bb30f36340222094b'
 route: 'oneshot'
 route_source: 'pinned'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context: ['{project-root}/AGENTS.md']
@@ -46,6 +46,12 @@ Oneshot (pinned): one screen's wrapper markup and stylesheet, one system test an
 
 ## Review Triage Log
 
+### 2026-10-24 — Review pass
+- verdicts: 2 findings — high 0, medium 0, low 2, false 0, maybe-false 0
+- findings:
+  - `[low]` `patch` `_profile_summary.html.erb` and `settings.css` still said the summary sits above the settings, and the `show.html.erb` comment was half rewrapped — both say beside on a wide screen, above on a narrow one; the comment is reflowed.
+  - `[low]` `reject` The layout tests never show showcase cards in the 300px side area — a full showcase wraps to more rows there by design, no sideways scroll can come from wrapped cards, and the plan leaves the look with a full showcase to the author's staging check; a showcase fixture for it is more setup than the risk.
+
 ## Verification
 
 **Commands:**
@@ -58,12 +64,11 @@ Oneshot (pinned): one screen's wrapper markup and stylesheet, one system test an
 
 ## Auto Run Result
 
-Status: blocked
-Blocking condition: no subagents (the review step's Quick lens needs a subagent this session cannot launch; the coordinating session runs the review)
+Status: built
 
-- Summary: on a desktop the Profil et paramètres screen takes the friends screen's arrangement: the public profile summary in a side area on the left (380px from 1180px, 300 to 360px from 900px) and the settings panel in the larger area on the right; one column under 900px, the summary first. The settings, the language links and the back button are unchanged.
-- Implementation commit: 787298805324389951a9cbcd25249a2d05bb978a, on `build/16.30-settings-wide` from 27b677d308e8106cc52d312bb30f36340222094b.
-- Files: `app/views/settings/show.html.erb` (side and main wrappers), `app/frontend/styles/settings.css` (the layout, the 520px cap dropped), `test/controllers/settings_controller_test.rb` (structure assertion), `test/system/settings_test.rb` (desktop and phone layout tests, the back button), DESIGN.md (layout row) and EXPERIENCE.md (Information Architecture row).
-- Review: not run (`no subagents`).
-- Verification: see Implementation Notes, Verification run: settings controller tests, settings and shell system tests, vitest, typecheck, zeitwerk, packwerk, i18n-tasks, rubocop, brakeman and the full suite (3188 runs) pass.
-- Residual risks: the card-back picker is not built, so the ticket's "card-back picker reachable" has nothing to check; the author checks the layout on staging in French and in English, including a long name and a full showcase in the 300px side area.
+- Summary: the Profil et paramètres screen uses the friends screen's arrangement: from 1180px the public profile summary in a 380px side area and the settings in the larger main area, 300 to 360px from 900px, one column (summary first) under 900px; the 520px cap is gone; the settings rows, the language links, the back button and the dialogs behave as before. No card-back picker exists yet; it would join the settings in the main area.
+- Files: `app/views/settings/show.html.erb` (the layout wrappers), `app/views/settings/_profile_summary.html.erb` (comment), `app/frontend/styles/settings.css`, `test/controllers/settings_controller_test.rb`, `test/system/settings_test.rb` (desktop at 1400 and 1000px, phone at 390px), DESIGN.md and EXPERIENCE.md.
+- Review: the Quick lens ran from the coordinating session after the unattended run halted on `no subagents`. 2 findings, both low: 1 patched, 1 rejected with its reason above; nothing deferred.
+- Follow-up review recommended: false.
+- Verification: after the comment patch, `settings_controller_test.rb` 58 runs, 0 failures; the unattended run's settings and accounts controller tests (73 runs), `settings_test.rb` (13 runs, the two new tests three times in a row) and `shell_test.rb` (23 runs) on Chromium 141, vitest 580, typecheck, zeitwerk, packwerk, i18n-tasks, rubocop, brakeman and the full suite (3188 runs, 0 failures) passed.
+- Residual risks: DESIGN.md's old layout row (settings in the side area, the picker in the main) was replaced, for the author to confirm on staging; a long name or a full showcase in the 300px side area is unseen; between 720 and 899px the column now spans the full width, as on the friends screen.
