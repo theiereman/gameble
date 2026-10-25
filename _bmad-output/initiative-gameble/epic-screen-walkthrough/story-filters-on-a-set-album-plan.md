@@ -3,12 +3,12 @@ title: 'Filters on a set album'
 type: 'feature'
 ticket: 23
 created: '2026-10-25'
-status: 'in-progress'
+status: 'blocked'
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144'
 route: 'oneshot'
 route_source: 'pinned'
-review: ''
-review_source: ''
+review: 'quick'
+review_source: 'pinned'
 lenses_ran: []
 review_loop_iteration: 0
 followup_review_recommended: false
@@ -52,3 +52,11 @@ Oneshot: the album reuses the catalog's zone, form, Stimulus controller and fram
 - System: `library_test.rb`, `collection_set_test.rb`, `public_profile_test.rb`, `card_detail_test.rb`, `shell_test.rb`: 48 runs, 0 failures.
 - `npm run test:js` 561 passed; `npm run typecheck`, `bin/rails zeitwerk:check`, `bundle exec packwerk validate` and `check`, `bin/rubocop`, `bundle exec i18n-tasks missing` and `unused`, `bin/brakeman`: clean.
 - `PARALLEL_WORKERS=2 bin/rails test`: 3181 runs, 1 failure, `Game::PioneerOfTest#test_the_first_discoverer_and_the_date,_in_one_query` (fixture time `2.weeks.ago` drifted 110 s past its 60 s delta on a machine shared by nine builds; untouched by this change), which passes alone.
+
+## Auto Run Result
+
+Status: blocked
+Blocking condition: no subagents — the Quick review lens needs a subagent this unattended session does not have; the implementation is committed (d0b1e1baa850ff87feed5f4f6d3c0e3aa3a51806) and verified above, and the coordinating session runs the review. `tickets.py mark` was not run: the coordinator's instructions forbid it on this store, so the frontmatter status is written by hand.
+
+- Summary: a set album (the player's own and a public profile's) carries the catalog's search and folded FILTRES zone between its header and its cards: POSSÉDÉES / TOUT / MANQUANTES judged by the album owner's holdings, the rarity of the face shown, and a search by the game's name (accents and case ignored); the grid keeps set order and pages only the cards kept, the header's count, bar and ticks measure the whole set, TOUT EFFACER reopens the album unfiltered.
+- Residual risks: a rarity or name filter reads the card views of every member of the set in one query (up to the largest set's size, about 750) before paging; the card detail opened from a filtered album still walks the whole set; the full suite's one failure is a time-sensitive fixture assertion in `Game::PioneerOfTest`, not touched here.
