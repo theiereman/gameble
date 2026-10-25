@@ -13,6 +13,6 @@ export function keepsFrame(fromPath: string, toPath: string, { phone }: { phone:
   const from = tradesView(fromPath)
   const to = tradesView(toPath)
   if (!from || !to) return false
-  // Under 720px the list and a board are each a view of their own (styles/trades.css).
-  return !phone || (from === "board" && to === "board")
+  const listBesideBoard = !phone
+  return listBesideBoard || (from === "board" && to === "board")
 }

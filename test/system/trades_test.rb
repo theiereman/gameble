@@ -49,29 +49,48 @@ class TradesTest < ApplicationSystemTestCase
     assert_equal "none", page.evaluate_script("getComputedStyle(document.querySelector('.main')).viewTransitionName")
   end
 
+  def assert_visit_keeps_frame
+    page.execute_script("delete document.documentElement.dataset.screenChange")
+    yield
+    assert_same_frame
+  end
+
   test "on a desktop the screen slides into and out of Trades, never between its steps" do
     from_lea = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })
-    from_max = propose(@max, @hugo, offer: { @depths => 1 }, request: { @portal => 1 })
     sign_in @hugo
 
     find(".hub-menu a.menu-item[aria-keyshortcuts='4']").click
     assert_current_path trades_path(locale: :en)
     assert_screen_change
 
-    find(".trade-row", text: /LEA/i).click
-    assert_current_path trade_path(token: from_lea.token, locale: :en)
-    assert_same_frame
+    assert_visit_keeps_frame do
+      find(".trade-row", text: /LEA/i).click
+      assert_current_path trade_path(token: from_lea.token, locale: :en)
+    end
 
-    find(".trade-row", text: /MAX/i).click
-    assert_current_path trade_path(token: from_max.token, locale: :en)
-    within(".trade-board") { click_on "Counter" }
-    assert_selector ".trade-side--editing", count: 2
-    assert_same_frame
+    assert_visit_keeps_frame do
+      within(".trades__list") { click_on "New trade" }
+      assert_current_path new_trade_path(locale: :en)
+      assert_selector ".trade-chooser"
+    end
 
-    page.go_back
-    assert_current_path trade_path(token: from_lea.token, locale: :en)
-    assert_selector ".trade-board__title", text: "Trade with Lea"
-    assert_same_frame
+    assert_visit_keeps_frame do
+      find(".trade-chooser a[aria-label='Trade with Max']").click
+      assert_current_path new_trade_path(locale: :en, friend: @max.token)
+      assert_selector ".trade-board .trade-chip--accent", text: /DRAFT/i
+    end
+
+    assert_visit_keeps_frame do
+      find(".trade-row", text: /LEA/i).click
+      assert_current_path trade_path(token: from_lea.token, locale: :en)
+      assert_selector ".trade-board__title", text: "Trade with Lea"
+    end
+
+    assert_visit_keeps_frame do
+      page.go_back
+      assert_current_path new_trade_path(locale: :en, friend: @max.token)
+      assert_selector ".trade-board .trade-chip--accent", text: /DRAFT/i
+    end
 
     find(".top-bar__home").click
     assert_current_path home_path(locale: :en)

@@ -3,13 +3,13 @@ title: 'View transitions only where the screen really changes'
 type: 'feature'
 ticket: '27'
 created: '2026-10-25'
-status: 'blocked'
+status: 'built'
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144'
 route: 'oneshot'
 route_source: 'pinned'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context: []
@@ -46,6 +46,13 @@ Oneshot: one pure rule, a small change to the screen-change mark and to the step
 
 ## Review Triage Log
 
+### 2026-10-24 — Review pass
+- verdicts: 3 findings — high 0, medium 0, low 3, false 0, maybe-false 0
+- findings:
+  - `[low]` `reject` The Approach's held `view-transition` meta was dropped, so Turbo still calls `startViewTransition` on a Trades step — what the player sees is the outcome the intent asks: the step moves nothing, exactly as a same-page visit today; the deviation and its reason are recorded in the Implementation Notes, and holding the meta only on Trades' no-cache pages would add a second mechanism for no visible change.
+  - `[low]` `patch` An intent comment in `screen_change.ts` ("Under 720px the list and a board are each a view of their own") — removed, a `listBesideBoard` name carries it; the shared `PHONE_WIDTH` is kept, the app's one phone breakpoint.
+  - `[low]` `patch` The desktop test's "in-place counter" step made no Turbo visit and re-read a stale mark; the chooser, a draft and the counter were never visited for real — an `assert_visit_keeps_frame` helper clears the mark before each step, and the test now visits list to board, list to the chooser, chooser to a draft, draft to a board and Back, each asserting the frame is kept; the helper fails on a step that makes no visit.
+
 ## Verification
 
 **Commands:**
@@ -58,9 +65,11 @@ Oneshot: one pure rule, a small change to the screen-change mark and to the step
 
 ## Auto Run Result
 
-Status: blocked
-Blocking condition: no subagents
+Status: built
 
-- Implemented, verified and committed on `build/16.27-view-transitions-where-screen-changes` (`b70eef22a21a8cc4d726b90231f1ab782aa7476e`): a visit between two pages of Trades keeps the frame (no screen slide), except the list to a board and back under 720px; Back and Forward are judged from the path last shown. See Implementation Notes for the files, the deviation from the Approach (the same-frame CSS mark, no meta hold, because Turbo would cache a held meta) and the verification.
-- The review step needs a reviewer subagent, which this session cannot launch: no lens ran, the Review Triage Log is empty. `tickets.py mark` was not run (this store refuses it, and the dispatch forbade it), so the status is written here by hand.
-- Residual risks: Turbo still calls `startViewTransition` on a frame-keeping visit, with nothing moving (as on a same-page visit today); the trades URL pattern lives in `lib/screen_change.ts`, so a new trades route under another path would slide; the author checks the result on staging, phone and desktop.
+- Summary: moving between Trades' pages (the list, a board, the friend chooser, a draft, a counter) no longer slides the screen; on a phone the list and a board stay views of their own and slide; Back and Forward are judged against the page last shown; the hub to a screen and a grid to a card detail keep their slide; reduced motion, browsers without view transitions and the React island are untouched.
+- Files: `app/frontend/lib/screen_change.ts` and its tests (the `keepsFrame` rule), `app/frontend/controllers/starfield_controller.ts` (the rule and the last shown path), `app/frontend/styles/shell.css` (comment), `test/system/trades_test.rb`, `test/system/shell_test.rb`.
+- Review: the Quick lens ran from the coordinating session after the unattended run halted on `no subagents`. 3 findings, all low: 2 patched, 1 rejected with its reason above; nothing deferred.
+- Follow-up review recommended: false.
+- Verification: after the patches, `trades_test.rb` and `shell_test.rb` 36 runs, 0 failures on Chromium 141; `screen_change.test.ts` 5 passed; typecheck and rubocop clean; the unattended run's vitest 566, full suite 3171 runs 0 failures, zeitwerk, packwerk, brakeman, i18n-tasks clean.
+- Residual risks: the trades path pattern lives in `screen_change.ts`; two trade picker tests each failed once at load about 26, green alone and on reruns; the author confirms on staging that the phone's list-to-board move should still slide.
