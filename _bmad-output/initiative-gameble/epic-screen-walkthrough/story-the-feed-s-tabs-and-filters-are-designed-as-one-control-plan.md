@@ -3,7 +3,7 @@ title: "The feed's tabs and filters are designed as one control"
 type: 'feature'
 ticket: 31
 created: '2026-10-25'
-status: 'in-review'
+status: 'blocked'
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144'
 route: 'oneshot'
 route_source: 'pinned'
@@ -58,3 +58,13 @@ Oneshot (pinned): one view, one stylesheet, the shared chip rules and their test
 
 **Manual checks (if no CLI):**
 - The author checks the zone on staging: desktop and phone, French and English, player and visitor.
+
+## Auto Run Result
+
+Status: blocked
+Blocking condition: no subagents
+
+- Implemented, verified and committed on `build/16.31-feed-filters-one-control` (e5aeb1b717c2736a4e59b5c3288e7aa3e5a736cd), from baseline 9ec8aeb2f7bf1a6c773285d98ede884bb63f0144.
+- Halted at step 4: the Quick review lens needs a subagent and this session has no subagent tool; no lens ran (`lenses_ran` empty). The coordinator runs the review on the diff since the baseline.
+- `tickets.py mark` was not run (refused on this store; `gh` unauthenticated); the status is set in this frontmatter instead.
+- hitl: the author checks the zone on staging, in particular the phone's sideways-scrolling line.
