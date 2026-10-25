@@ -391,12 +391,26 @@
   margin: 0;
 }
 
-/* "Voir sur Steam" (the one primary), "Partager", "Reposter" and the
-   showcase choice, on the page's ground, not the panel's. */
+/* On the page's ground, not the panel's: a holder's actions at the left,
+   "Reposter" (the one primary) then the showcase choice, and the card's
+   links at the right, "Partager" then "Voir sur Steam". */
 .card-detail__actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: var(--space-4);
+}
+
+.card-detail__holder-actions,
+.card-detail__card-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.card-detail__holder-actions + .card-detail__card-links {
+  margin-left: auto;
 }
 
 .card-detail__actions .button,
@@ -404,20 +418,15 @@
   margin: 0;
 }
 
-/* The showcase button, and beside it, disabled, the showcase-full line. */
 .card-detail__showcase {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
 }
 
-.card-detail__showcase .button,
-.card-detail__showcase .button-form {
-  margin: 0;
-}
-
+/* The disabled add's reason, under the holder's buttons and no wider
+   than them. */
 .card-detail__showcase-full {
+  flex: 1 0 100%;
+  contain: inline-size;
   margin: 0;
   color: var(--color-muted);
   font: var(--font-body-small);
@@ -464,49 +473,56 @@
     scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height));
   }
 
-  html:has(.card-detail__actions .button-form) {
+  html:has(.card-detail__holder-actions) {
     scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height)
       + var(--space-button-height-phone) + var(--space-4));
   }
 
-  html:has(.card-detail__showcase) {
-    scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height)
-      + 2 * (var(--space-button-height-phone) + var(--space-4)));
-  }
-
   html:has(.card-detail__showcase-full) {
     scroll-padding-bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--card-detail-actions-height)
-      + 2 * (var(--space-button-height-phone) + var(--space-4)) + 2 * 1.125rem + var(--space-3));
+      + var(--space-button-height-phone) + var(--space-4) + 2 * 1.125rem + var(--space-3));
   }
 
-  /* Pinned above the tab bar while the panel scrolls under them. */
+  /* Pinned above the tab bar while the panel scrolls under them: one row
+     for a holder's actions, one for the card's links. */
   .card-detail__actions {
     position: sticky;
     bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
     z-index: 2;
+    flex-direction: column;
+    align-items: stretch;
     min-height: var(--card-detail-actions-height);
     padding: var(--space-4) 0;
     background: var(--color-ground);
     box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line);
   }
 
-  .card-detail__actions .button,
-  .card-detail__actions .button-form {
-    flex: 1 1 0;
+  .card-detail__holder-actions + .card-detail__card-links {
+    margin-left: 0;
+  }
+
+  /* "Reposter" at its width, the showcase choice taking the rest of the
+     row, so a long label wraps inside its button rather than to a row of
+     its own. */
+  .card-detail__holder-actions {
+    display: grid;
+    grid-template-columns: auto 1fr;
+  }
+
+  .card-detail__showcase-full {
+    grid-column: 1 / -1;
+  }
+
+  .card-detail__card-links > .button {
+    flex: 1 1 auto;
+  }
+
+  .card-detail__showcase > * {
+    flex: 1 1 auto;
   }
 
   .card-detail__actions .button-form .button {
     width: 100%;
-  }
-
-  /* On its own row under the others. */
-  .card-detail__actions .card-detail__showcase {
-    flex: 1 1 100%;
-  }
-
-  .card-detail__showcase .button,
-  .card-detail__showcase .button-form {
-    flex: 1 1 100%;
   }
 }
 

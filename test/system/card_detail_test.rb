@@ -3,7 +3,9 @@ require_relative "../support/catalog_seeds"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# A card's detail, "FICHE DE LA CARTE": opened from a theme's owned face,
+# A card's detail, "FICHE DE LA CARTE": its actions sorted, a holder's
+# "Reposter" (the one filled button) and showcase choice before the card's
+# links, the showcase-full line under them; opened from a theme's owned face,
 # from an album's missing card (faded, grey and locked as in the album, on
 # the phone too) and from a visitor's whole season grid (the plain face),
 # from an opened pack's faces, walking the
@@ -40,6 +42,14 @@ class CardDetailTest < ApplicationSystemTestCase
   def in_set_path(id, season) = "/en/cards/#{slug(id)}/seasons/#{season.number}?set_key=horror&set_kind=theme"
 
   def current_url_path = evaluate_script("location.pathname + location.search")
+
+  # The detail's action buttons in order, as [ accessible text, filled ].
+  def action_buttons
+    evaluate_script(<<~JS)
+      [ ...document.querySelectorAll(".card-detail__actions .button") ]
+        .map((button) => [ button.textContent.replace(/\\s+/g, " ").trim(), button.classList.contains("button--primary") ])
+    JS
+  end
 
   def scroll_y = evaluate_script("window.scrollY")
 
@@ -114,6 +124,15 @@ class CardDetailTest < ApplicationSystemTestCase
         return actions.top >= panel.bottom
       })()
     JS
+    assert_equal [ [ "Repost", true ], [ "Add to showcase", false ], [ "Share", false ], [ "See on Steam (new tab)", false ] ], action_buttons
+    assert evaluate_script(<<~JS), "the holder's actions should start the row and the card's links end it, at the panel's right"
+      (() => {
+        const panel = document.querySelector(".card-detail__panel").getBoundingClientRect()
+        const holder = document.querySelector(".card-detail__holder-actions").getBoundingClientRect()
+        const links = document.querySelector(".card-detail__card-links").getBoundingClientRect()
+        return Math.abs(holder.left - panel.left) <= 1 && Math.abs(links.right - panel.right) <= 1 && Math.abs(links.top - holder.top) <= 1
+      })()
+    JS
     # The desktop shows ◀ ▶ walking the theme's album, this card first in
     # it, no position line; the number is in the header.
     assert_selector "button.card-detail__nav--previous[disabled]"
@@ -161,12 +180,41 @@ class CardDetailTest < ApplicationSystemTestCase
     visit card_path(locale: :en, slug: "portal")
     assert_selector ".card-detail h1", text: "Portal"
     assert_no_button "Repost"
+    assert_equal [ [ "Share", false ], [ "See on Steam (new tab)", false ] ], action_buttons
 
     sign_out
     assert_signed_out
     visit card_path(locale: :en, slug: "portal", set_kind: "studio", set_key: "valve")
     assert_selector ".card-detail h1", text: "Portal"
     assert_no_button "Repost"
+    assert_equal [ [ "Share", false ], [ "See on Steam (new tab)", false ] ], action_buttons
+  end
+
+  test "with a full showcase, the disabled add's reason stands under the holder's buttons, on the desktop and the pinned phone bar" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    ids = members(season, "horror").first(6)
+    ids.each { Game::Holding.create!(player_id: player.id, card_season_id: it, quantity: 1) }
+    ids.first(5).each { Game::AddToShowcase.new.call(player:, card_season_id: it).value! }
+    sign_in(player)
+
+    [ nil, PHONE ].each do |size|
+      resize_to(*size) if size
+      visit card_season_path(locale: :fr, slug: slug(ids.last), number: season.number)
+      assert_selector ".card-detail__showcase button[disabled]", text: "METTRE EN VITRINE"
+      assert_equal [ [ "Reposter", true ], [ "Mettre en vitrine", false ], [ "Partager", false ], [ "Voir sur Steam (nouvel onglet)", false ] ], action_buttons
+      assert evaluate_script(<<~JS), "the showcase-full line should stand under the holder's buttons, above the card's links on the phone"
+        (() => {
+          const line = document.querySelector(".card-detail__showcase-full").getBoundingClientRect()
+          const showcase = document.querySelector(".card-detail__showcase").getBoundingClientRect()
+          const links = document.querySelector(".card-detail__card-links").getBoundingClientRect()
+          const phone = window.innerWidth < 720
+          return line.top >= showcase.bottom && (!phone || links.top >= line.bottom)
+        })()
+      JS
+      assert_selector ".card-detail__showcase-full", text: "Vitrine pleine : retirez une carte pour en ajouter une autre."
+    end
+    take_screenshot
   end
 
   def not_owned_look(selector)
@@ -290,6 +338,14 @@ class CardDetailTest < ApplicationSystemTestCase
       })()
     JS
     assert in_view, "the actions should be in view above the tab bar"
+    assert_equal [ [ "Repost", true ], [ "Add to showcase", false ], [ "Share", false ], [ "See on Steam (new tab)", false ] ], action_buttons
+    assert evaluate_script(<<~JS), "the pinned actions should be two rows, the holder's over the card's links"
+      (() => {
+        const tops = (selector) => [ ...document.querySelectorAll(`${selector} .button`) ].map((button) => Math.round(button.getBoundingClientRect().top))
+        const holder = tops(".card-detail__holder-actions"), links = tops(".card-detail__card-links")
+        return new Set(holder).size === 1 && new Set(links).size === 1 && links[0] > holder[0]
+      })()
+    JS
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
     take_screenshot
 
