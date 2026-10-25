@@ -87,18 +87,13 @@ class LibraryTest < ApplicationSystemTestCase
     assert_current_path home_path(locale: :en)
   end
 
-
-  # The grid's sixty slots are counted with `visible: :all`, in one call:
-  # checking each one's visibility is sixty round trips to the browser, and
-  # on a loaded runner one such attempt outlasts the wait while the frame
-  # the filter reloads replaces the nodes under it.
   test "a player who unticks the only state chip keeps every slot, as the form without JavaScript" do
     sign_in
     visit library_cards_path(locale: :en)
     find(".filters__summary").click
-    assert_selector ".collection-grid > li", count: 60, visible: :all
+    assert_slots 60
     find(".filter-chip__text", text: /\AAll\z/i).click
-    assert_selector ".collection-grid > li", count: 60, visible: :all
+    assert_slots 60
     assert_equal [ "ALL" ], all("[data-group=state] .filter-chip__box:checked", visible: :all).map { it.find(:xpath, "..").text.strip }
     assert_selector ".filters__count", visible: :hidden
     assert_selector "[role=status]", text: "150 cards shown.", visible: :all
@@ -118,7 +113,7 @@ class LibraryTest < ApplicationSystemTestCase
     click_on "All cards"
 
     assert_current_path library_cards_path(locale: :en)
-    assert_selector ".collection-grid > li", count: 60, visible: :all
+    assert_slots 60
     assert_no_selector ".report--panel", visible: true
     assert_no_selector ".collection-status__label", visible: true
     assert_selector ".collection-status__value", text: "3 / 150"
@@ -150,17 +145,17 @@ class LibraryTest < ApplicationSystemTestCase
   test "the FILTRES zone: chips narrow the grid, the zone keeps focus, the count follows, a search narrows as it is typed" do
     sign_in
     visit library_cards_path(locale: :en)
-    assert_selector ".collection-grid > li", count: 60, visible: :all
+    assert_slots 60
     assert_no_selector ".filters__zone[open]"
     assert_no_selector ".filters__count", visible: true
 
     find(".filters__summary").click
     find(".filter-chip__text", text: /\AOwned\z/i).click
-    assert_selector ".collection-grid > li", count: 3
+    assert_slots 3
     assert_selector ".filters__count", text: "1"
     assert_selector ".filters__clear", visible: true
     find(".filter-chip__text", text: /\AMissing\z/i).click
-    assert_selector ".collection-grid > li", count: 60, visible: :all
+    assert_slots 60
     assert_selector ".collection-slot__copies", count: 3
     assert_selector ".filters__count", text: "2"
     find(".filter-chip__text", text: /\AOwned\z/i).click
@@ -171,7 +166,7 @@ class LibraryTest < ApplicationSystemTestCase
     # Back to the owned cards, then a genre none of them has.
     find(".filter-chip__text", text: /\AOwned\z/i).click
     find(".filter-chip__text", text: /\AMissing\z/i).click
-    assert_selector ".collection-grid > li", count: 3
+    assert_slots 3
     assert_selector ".filters__count", text: "1"
     within("[data-group=genre]") do
       find(".filter-chip__text", text: /\ARPG\z/i).click
@@ -182,7 +177,7 @@ class LibraryTest < ApplicationSystemTestCase
 
     # The search narrows as it is typed, and keeps the focus in the field.
     find(".filters__clear").click
-    assert_selector ".collection-grid > li", count: 60, visible: :all
+    assert_slots 60
     assert_no_selector ".filters__count", visible: true
     title = Catalog::CardSeason.find(@theme.first).card.texts.find_by!(locale: "en").title
     field = find("#collection-search")
@@ -224,7 +219,7 @@ class LibraryTest < ApplicationSystemTestCase
   test "a visitor reads the grid of every card in plain faces, with no ownership data" do
     visit library_cards_path(locale: :fr)
 
-    assert_selector ".collection-grid > li", count: 60, visible: :all
+    assert_slots 60
     assert_no_selector ".collection-status"
     assert_no_selector ".collection-slot__new, .card--not-owned", visible: :all
     assert_no_selector ".report--panel", visible: :all
@@ -256,10 +251,10 @@ class LibraryTest < ApplicationSystemTestCase
     assert_equal 21, second_page.size
 
     visit library_cards_path(locale: :en, **filters)
-    assert_selector ".collection-grid > li", count: 60, visible: :all
+    assert_slots 60
     scroll_to_pages
 
-    assert_selector ".collection-grid > li", count: 81, visible: :all
+    assert_slots 81
     appended = all(".collection-grid > li:nth-child(n+61) a.card-link", visible: :all).map { it[:href] }
     assert_equal second_page, appended
     assert_selector ".collection-grid > li:nth-child(n+61) .card.card--not-owned", count: 21, visible: :all
@@ -274,14 +269,14 @@ class LibraryTest < ApplicationSystemTestCase
 
   test "the whole grid in French appends its pages one after the other, to its last card" do
     visit library_cards_path(locale: :fr)
-    assert_selector ".collection-grid > li", count: 60, visible: :all
+    assert_slots 60
 
     scroll_to_pages
-    assert_selector ".collection-grid > li", count: 120, visible: :all
+    assert_slots 120
     assert_selector "#collection-results-status", text: "Cartes 61 à 120 sur 150 affichées.", visible: :all
 
     scroll_to_pages
-    assert_selector ".collection-grid > li", count: 150, visible: :all
+    assert_slots 150
     assert_selector "#collection-results-status", text: "Cartes 121 à 150 sur 150 affichées.", visible: :all
     assert_selector "#collection-pages [aria-current=page]", text: "3", visible: :all
     assert_no_selector "#collection-pages a[rel=next]", visible: :all
@@ -290,7 +285,7 @@ class LibraryTest < ApplicationSystemTestCase
   test "back from a card of an appended page, the grid shows its appended cards at its scroll, the focus on that card's link" do
     visit library_cards_path(locale: :en)
     scroll_to_pages
-    assert_selector ".collection-grid > li", count: 120, visible: :all
+    assert_slots 120
 
     slot = find(".collection-grid > li:nth-child(61) a.card-link")
     slot.execute_script("this.scrollIntoView({ block: 'center' })")
@@ -302,12 +297,22 @@ class LibraryTest < ApplicationSystemTestCase
     go_back
 
     assert_current_path library_cards_path(locale: :en)
-    assert_selector ".collection-grid > li", minimum: 120, visible: :all
+    assert_selector ".collection-grid > li:nth-child(120)", visible: :all
     assert_scrolled_to grid_scroll
     assert_focused ".collection-grid > li:nth-child(61) a.card-link"
   end
 
   private
+    # A count assertion over the grid reads every slot it found, one round
+    # trip each, to check its visibility or to word a failed attempt's
+    # message: over a hundred slots one attempt outlasts the wait, before
+    # the page appended or the frame reloaded lands. The last slot and the
+    # absence of the next one each read one node at most.
+    def assert_slots(count)
+      assert_selector ".collection-grid > li:nth-child(#{count})", visible: :all
+      assert_no_selector ".collection-grid > li:nth-child(#{count + 1})", visible: :all
+    end
+
     def scroll_to_pages
       find("#collection-pages").execute_script("this.scrollIntoView({ block: 'end' })")
     end
