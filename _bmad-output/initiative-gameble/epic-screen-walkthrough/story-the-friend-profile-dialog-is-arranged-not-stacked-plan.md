@@ -3,12 +3,12 @@ title: 'The friend profile dialog is arranged, not stacked'
 type: 'feature'
 ticket: 29
 created: '2026-10-25'
-status: 'in-progress'
+status: 'blocked'
 baseline_revision: '27b677d308e8106cc52d312bb30f36340222094b'
 route: 'oneshot'
 route_source: 'pinned'
-review: ''
-review_source: ''
+review: 'quick'
+review_source: 'pinned'
 lenses_ran: []
 review_loop_iteration: 0
 followup_review_recommended: false
@@ -55,3 +55,15 @@ Oneshot (pinned): one dialog's markup and stylesheet, a partial shared with the 
 
 **Manual checks (if no CLI):**
 - Screenshots from the friends system tests of the dialog at 1400px and 390px: ÉCHANGE and ⋯ on one line, the two views side by side (stacked on the phone) on the same edges, the menu open under ⋯ with SIGNALER and RETIRER.
+
+## Auto Run Result
+
+Status: blocked
+Blocking condition: no subagents
+
+- Summary: the friend profile dialog's actions share one grid across the panel: ÉCHANGE (primary, the dialog's only filled button) over two columns with the friend row's ⋯ beside it, its menu holding SIGNALER and RETIRER; VOIR LE PROFIL and VOIR LA COLLECTION side by side under ÉCHANGE, unfilled, on its edges; stacked under 420px (the phone sheet). Focus returns to ⋯ from the report and removal dialogs, and to the friend's name when the profile dialog closes (✕ or Esc).
+- Implementation commit: `f54e7e502dcc8499f0b105167a290b79bc0524cc` on `build/16.29-friend-profile-dialog-arranged`, from `27b677d308e8106cc52d312bb30f36340222094b`.
+- Files: `app/views/friend_profiles/show.html.erb` (the arranged actions, a remove dialog of its own), new `app/views/friends/_more_actions.html.erb` (⋯ and its menu, shared with the friend row), `app/views/friends/_friend_row.html.erb` (renders the partial), `app/views/friends/_remove_dialog.html.erb` (optional `id:`), `_public_profile_link` / `_collection_link` (unfilled `friend-profile__view`), `app/helpers/friends_helper.rb` (three id helpers), `app/frontend/styles/friends.css` (the grid, the unfilled views, the menu rows' gap), both locales (`friends.more_actions`), the friend profile controller test, the friends system test, EXPERIENCE.md and DESIGN.md.
+- Review: not run. The Quick lens needs a context-free subagent and this unattended session has no subagent tool; the coordinating session runs the review on the diff from the baseline revision.
+- Verification: see Implementation Notes, Verification run (controller tests 50 runs, friends system tests 10 runs, related system tests, linters and checks, vitest 580, full suite 3188 runs: all pass).
+- Residual risks: the ⋯ menu inside a modal relies on the top layer and anchor positioning, worth a look in Safari and Firefox on staging; the author checks the arrangement in French and English on staging (hitl).
