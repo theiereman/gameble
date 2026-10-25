@@ -4,12 +4,21 @@ require_relative "../support/steam_sign_in"
 class LandingMotionSwitchTest < ApplicationSystemTestCase
   include SteamSignIn
 
+  PHONE = [ 390, 844 ].freeze
+
   setup do
     @player = accounts_players(:player)
     mock_steam_sign_in(@player.steam_id)
   end
 
   def motion = page.evaluate_script("document.documentElement.dataset.motion")
+
+  def box(selector) = find(selector).evaluate_script("this.getBoundingClientRect().toJSON()")
+
+  def overlap?(first, second)
+    first["left"] < second["right"] && second["left"] < first["right"] &&
+      first["top"] < second["bottom"] && second["top"] < first["bottom"]
+  end
 
   test "a visitor turns animations down, keeps it on the next load, and signs in with the account's setting on" do
     visit home_path(locale: :en)
@@ -35,5 +44,18 @@ class LandingMotionSwitchTest < ApplicationSystemTestCase
 
     assert_selector ".motion-switch[aria-pressed=false]"
     assert_nil motion
+  end
+
+  { fr: "Animations réduites", en: "Reduced motion" }.each do |locale, label|
+    test "on a phone in #{locale}, the top bar shows the wordmark and the sign-in image, and no motion switch" do
+      resize_to(*PHONE)
+      visit home_path(locale:)
+
+      assert_selector ".top-bar .top-bar__wordmark", visible: true
+      assert_selector ".top-bar .steam-sign-in__button", visible: true
+      assert_no_selector ".motion-switch", visible: true
+      assert_no_button label
+      assert_not overlap?(box(".top-bar .top-bar__wordmark"), box(".top-bar .steam-sign-in__button")), "the sign-in image sits over the wordmark"
+    end
   end
 end
