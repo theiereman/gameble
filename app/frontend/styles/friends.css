@@ -276,6 +276,10 @@
   cursor: pointer;
 }
 
+.friends__menu-item + .friends__menu-item {
+  margin-top: var(--space-2);
+}
+
 .friends__menu-item:hover {
   background: var(--color-alert);
   color: var(--color-on-accent);
@@ -317,7 +321,8 @@
 .friend-profile {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
+  container: friend-profile / inline-size;
 }
 
 .friend-profile__head {
@@ -366,14 +371,53 @@
 }
 
 .friend-profile__actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  align-items: center;
   gap: var(--space-3);
 }
 
-.friend-profile__actions .button--link {
-  color: var(--color-alert);
+.friend-profile__trade {
+  grid-column: 1 / 3;
+  min-width: 0;
+}
+
+.friend-profile__trade .button {
+  width: 100%;
+}
+
+.friend-profile__actions .button {
+  margin: 0;
+}
+
+.friend-profile__actions > .friends__more {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.friend-profile__view {
+  grid-row: 2;
+  background: none;
+  box-shadow: var(--control-border);
+}
+
+@container friend-profile (width < 420px) {
+  .friend-profile__actions {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .friend-profile__trade,
+  .friend-profile__view {
+    grid-column: 1;
+  }
+
+  .friend-profile__actions > .friends__more {
+    grid-column: 2;
+  }
+
+  .friend-profile__view {
+    grid-row: auto;
+  }
 }
 
 .remove-friend-dialog__form {

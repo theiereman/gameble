@@ -1256,7 +1256,10 @@ fr:
       see_profile_of: "Voir le profil de %{name}"
       trade: "Échange"
       trade_with: "Échange avec %{name}"
-      more_actions_for: "Plus d'actions pour %{name}"
+    more_actions:
+      menu: "Plus d'actions pour %{name}"
+      report: "Signaler"
+      report_player: "Signaler %{name}"
       remove: "Retirer"
       remove_friend: "Retirer %{name} de vos amis"
     profile_dialog:

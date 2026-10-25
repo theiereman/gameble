@@ -1,0 +1,14 @@
+<% name = friend_name(player) %>
+<div class="friends__more">
+  <button type="button" class="friends__more-button" popovertarget="<%= menu_id %>" aria-label="<%= t(".menu", name:) %>">
+    <%= pixel_icon("more", class: "friends__more-icon") %>
+  </button>
+  <div id="<%= menu_id %>" class="friends__menu" popover role="group" aria-label="<%= t(".menu", name:) %>">
+    <% if local_assigns[:report_dialog_id] %>
+      <%= tag.button t(".report"), type: :button, class: "friends__menu-item",
+            **dialog_opener_attributes(report_dialog_id, label: t(".report_player", name:)) %>
+    <% end %>
+    <%= tag.button t(".remove"), type: :button, class: "friends__menu-item",
+          **dialog_opener_attributes(remove_dialog_id, label: t(".remove_friend", name:)) %>
+  </div>
+</div>
