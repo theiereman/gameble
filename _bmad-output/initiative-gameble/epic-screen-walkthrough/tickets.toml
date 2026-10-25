@@ -371,7 +371,7 @@ covers = []
 after = []
 hitl = true
 risk = "low"
-notes = ["Found in the screen walkthrough (ticket 16.1, finding 24), author, 2026-10-23."]
+notes = ["Found in the screen walkthrough (ticket 16.1, finding 24), author, 2026-10-23.", "Settled by the author, 2026-10-24: TOUS and AMIS become two chips on the same line as the kind chips (Tout, Tirages, Découvertes, Échanges, Reposts), set apart from them by a divider, drawn like the catalog's FILTRES chips."]
 
 [[entry]]
 id = 32
