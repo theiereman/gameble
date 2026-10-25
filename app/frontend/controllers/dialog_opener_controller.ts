@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { openDialog } from "../lib/dialog"
 
 // A button that opens a modal dialog of the page, named by its id
-// (ButtonComponent's `opens:`). The dialog is shown as a
+// (ButtonComponent's `opens:`, FriendsHelper#dialog_opener_attributes). The dialog is shown as a
 // modal and remembers this button, which gets the focus back when it closes
 // (dialog_controller.ts); a button inside a popover menu hands that focus to
 // the button that opens the menu, since the modal closes the menu. An unknown

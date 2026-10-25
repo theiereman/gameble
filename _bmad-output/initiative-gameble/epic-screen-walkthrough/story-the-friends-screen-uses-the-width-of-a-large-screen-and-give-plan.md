@@ -3,18 +3,25 @@ title: 'The friends screen uses the width of a large screen and gives the friend
 type: 'feature'
 ticket: 28
 created: '2026-10-25'
-status: 'blocked'
+status: 'built'
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144'
 route: 'oneshot'
 route_source: 'pinned'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context: ['{project-root}/AGENTS.md']
 warnings: []
-deferred: []
+deferred:
+  - summary: >-
+      DESIGN.md's Friend row lists a 48px avatar and a card count that the friends screen does not render.
+    evidence: |-
+      The row renders name, presence, trade and the more-actions menu (`app/views/friends/_friend_row.html.erb`); neither the old nor the new row had an avatar or a count.
+    location: >-
+      _bmad-output/initiative-gameble/ux-gameble/DESIGN.md, Friend row
+    severity: low
 ---
 
 <intent-contract>
@@ -47,6 +54,14 @@ Oneshot (pinned): one screen's markup, stylesheet and strings, a one-line focus-
 
 ## Review Triage Log
 
+### 2026-10-24 — Review pass
+- verdicts: 4 findings — high 0, medium 1, low 3, false 0, maybe-false 0
+- findings:
+  - `[medium]` `patch` The ⋯ menu's `aria-label` sat on a `div` popover with no role, where ARIA ignores it, so the menu's name "More actions for <name>" was never announced — the menu is `role="group"`, which takes the label.
+  - `[low]` `patch` `.friends__roster`'s `column-gap` never applied, each subgrid row's own gap replacing it — the dead declaration is removed; the columns keep the spacing the rows set and the screenshots showed.
+  - `[low]` `defer` DESIGN.md's Friend row still lists a 48px avatar and a card count the screen never had, beside the new columns — a pre-existing spec drift; adding or dropping them is the author's call.
+  - `[low]` `patch` `FriendsHelper#dialog_opener_attributes` repeats `ButtonComponent#opener_options`, and the opener controller's header named only the component — the header now names both sources; sharing one builder would widen the component's public surface for two attributes, so the copy stays.
+
 ## Verification
 
 **Commands:**
@@ -59,5 +74,11 @@ Oneshot (pinned): one screen's markup, stylesheet and strings, a one-line focus-
 
 ## Auto Run Result
 
-Status: blocked
-Blocking condition: no subagents. This session cannot launch the quick review lens; the implementation is committed (0300dc9c6757a667fca08778fa6053c7ff08612a on `build/16.28-friends-screen-wide`) and verified (see Implementation Notes), and the review is left to the coordinator. `tickets.py mark` refused the halt (the store is GitHub), so this plan's status was set by hand.
+Status: built
+
+- Summary: on a desktop the Amis screen puts the invite panel and the invitations in a side area on the left and the friend list in the larger area; from 560px of list width every row aligns name, presence, ÉCHANGE and a ⋯ menu in shared columns; the name opens the friend's profile dialog ("VOIR LE PROFIL" leaves the row); ÉCHANGE is the row's only filled button; RETIRER sits in the ⋯ menu and opens the existing confirmation, focus returning to ⋯; the phone keeps one column.
+- Files: `app/views/friends/show.html.erb`, the new `_friend_row.html.erb`, `app/helpers/friends_helper.rb`, `app/frontend/controllers/dialog_opener_controller.ts` (an opener inside a popover hands focus back to its menu button), `app/frontend/styles/friends.css`, the generated `more` pixel icon, both locales, the friends controller and system tests, EXPERIENCE.md and DESIGN.md.
+- Review: the Quick lens ran from the coordinating session after the unattended run halted on `no subagents`. 4 findings: 3 patched (1 medium, 2 low), 1 deferred (low, DESIGN.md's avatar and count).
+- Follow-up review recommended: false (one medium patched).
+- Verification: after the patches, `friends_controller_test.rb` and `friends_test.rb` 26 runs, 0 failures on Chromium 141; the unattended run's friends, invitations, profiles and trades controller tests (109 runs), the live updates, trades and feed system tests touching the screen, the pixel art check, typecheck, vitest 561, zeitwerk, packwerk, i18n-tasks, rubocop and brakeman passed; the full suite's only failure was the load-bound `pioneer_of_test.rb:14`, green alone.
+- Residual risks: the ⋯ menu's anchor positioning wants a look in Safari and Firefox on staging; the author checks the layout in French and English.

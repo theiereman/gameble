@@ -177,7 +177,6 @@
   .friends__roster {
     display: grid;
     grid-template-columns: minmax(12ch, 1fr) fit-content(14rem) fit-content(20rem) auto;
-    column-gap: var(--space-6);
   }
 
   .friends__friend {

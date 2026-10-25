@@ -17,7 +17,7 @@
     <button type="button" class="friends__more-button" popovertarget="<%= menu_id %>" aria-label="<%= t(".more_actions_for", name:) %>">
       <%= pixel_icon("more", class: "friends__more-icon") %>
     </button>
-    <div id="<%= menu_id %>" class="friends__menu" popover aria-label="<%= t(".more_actions_for", name:) %>">
+    <div id="<%= menu_id %>" class="friends__menu" popover role="group" aria-label="<%= t(".more_actions_for", name:) %>">
       <%= tag.button t(".remove"), type: :button, class: "friends__menu-item",
             **dialog_opener_attributes(remove_friend_dialog_id(player.token), label: t(".remove_friend", name:)) %>
     </div>
