@@ -336,7 +336,16 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get detail.(cards[59])
 
     assert_select ".card-detail__card .card.card--l", 1
+    assert_select ".card-detail__card .card--not-owned", false
     assert_select ".card-detail__share-button", "Share"
+
+    viewer = accounts_players(:moderator)
+    hold_all(viewer, [ cards[59] ])
+    sign_in(viewer)
+    get detail.(cards[59])
+    assert_select ".card-detail__card .card.card--l:not(.card--not-owned)", 1
+    get detail.(cards[60])
+    assert_select ".card-detail__card .card.card--l.card--not-owned", 1
   end
 
   test "a card opened from the album of a player whose profile may not be shown browses the viewer's own album" do
@@ -378,7 +387,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "within a set, a card the viewer does not hold shows its face, None for copies and editions, and the share block without repost or showcase" do
+  test "within a set, a card the viewer does not hold shows its face faded and locked, None for copies and editions, and the share block without repost or showcase" do
     add_a_theme_set
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:portal_one).id, 1)
@@ -387,8 +396,10 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     get in_theme("tin-soldier")
 
-    assert_select ".card-detail__card .card.card--l.card--rarity-common .card__title", "Tin Soldier"
-    assert_select ".card-detail__card .card--not-owned", false
+    assert_select ".card-detail__card .card.card--l.card--rarity-common.card--not-owned .card__title", "Tin Soldier"
+    assert_select ".card-detail__card .card--not-owned > .card__lock > svg.pixel-icon[aria-hidden=true]", 1
+    assert_select ".card-detail__card .card--not-owned[data-controller], .card-detail__card .card--not-owned .card__effects", false
+    assert_select "#share-sheet .share-sheet__thumb .card.card--s:not(.card--not-owned)", 1
     assert_select ".card-detail h1", "Tin Soldier"
     # A card-season without a main theme shows no genre.
     assert_equal [ [ "Rarity", "Common" ], [ "Year", "2024" ], [ "Season", "Season 1" ], fixture_pioneer, [ "Sets", "Puzzle" ], [ "Copies", "None" ],
@@ -399,9 +410,9 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action*='/repost']", false
     assert_select ".card-detail__showcase", false
 
-    # A card held shows its face, and its share block, within the set too.
+    # A card held shows its plain face, and its share block, within the set too.
     get in_theme("portal")
-    assert_select ".card-detail__card .card.card--l.card--rarity-epic"
+    assert_select ".card-detail__card .card.card--l.card--rarity-epic:not(.card--not-owned)[data-controller=tilt]"
     assert_select ".card-detail__share-button", "Share"
     assert_select "form[action='/en/cards/portal/seasons/1/repost'] button", "Repost"
 
@@ -416,6 +427,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get in_theme("portal")
     assert_select ".card-detail__card .card-float .card-rays.card-rays--epic", 1
     assert_select ".card-detail__card .card.card--l.card--rarity-epic", 1
+    assert_select ".card-detail__card .card--not-owned", false
     assert_select ".card-detail__share-button", "Share"
     assert_select "#share-sheet input[value=?]", "http://www.example.com/en/cards/portal/seasons/1"
     assert_select "form[action*='/repost']", false
@@ -429,6 +441,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     get card_season_path(locale: :en, slug: "portal", number: 1)
     assert_select ".public-card .card.card--xl"
+    assert_select ".public-card .card--not-owned", false
     assert_select ".card-detail", false
   end
 
@@ -618,7 +631,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "/fr/booster?pack=#{pack.token}", css_select(".top-bar__phone-back").sole["href"]
   end
 
-  test "a card drawn twice is placed by its slot, else at its first place; a card of the pack not held shows its face" do
+  test "a card drawn twice is placed by its slot, else at its first place; a card of the pack not held shows as not owned" do
     player = accounts_players(:player)
     cards = %i[portal_one common_card_one portal_one rare_card_one legendary_card_one].map { catalog_card_seasons(it).id }
     pack = create_pack(player, cards:, opened_at: 1.minute.ago)
@@ -627,7 +640,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get pack_detail("portal", pack, slot: 3)
     assert_equal [ [ "a", pack_detail("tin-soldier", pack, slot: 2) ], [ "a", pack_detail("blue-depths", pack, slot: 4) ] ], navs
     assert_equal "S1 · #4 · 3 / 5 · swipe to browse", position
-    assert_select ".card-detail__card .card-float .card.card--l.card--rarity-epic", 1
+    assert_select ".card-detail__card .card.card--l.card--rarity-epic.card--not-owned", 1
 
     [ nil, 2, 9, "x" ].each do |slot|
       get pack_detail("portal", pack, slot:)
@@ -696,8 +709,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "60 / 150", position[%r{\d+ / \d+}]
     assert_equal "/en/library/cards?state%5B%5D=all", css_select(".top-bar__phone-back").sole["href"]
     assert_equal "Grid", css_select(".top-bar__phone-back").sole.text.squish
-    assert_select ".card-detail__card .card.card--l", 1
-    assert_select ".card-detail__card .card--not-owned", false
+    assert_select ".card-detail__card .card.card--l.card--not-owned", 1
     assert_equal [ [ "Copies", "None" ], [ "Editions", "None" ] ], facts.to_h.slice("Copies", "Editions").to_a
     assert_select ".card-detail__share-button", "Share"
     assert_select "#share-sheet"
@@ -1122,7 +1134,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     sign_in(player)
     get card_path(locale: :en, slug: "portal", set_kind: "theme", set_key: "puzzle")
     assert_equal "S2 · 1 / 1", position
-    assert_select ".card-detail__card .card.card--rarity-legendary"
+    assert_select ".card-detail__card .card.card--rarity-legendary:not(.card--not-owned)"
   end
 
   test "the grid walks a tile of an earlier edition, as the grid shows it" do
@@ -1139,7 +1151,10 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "epic detail floats with purple rays; common detail stays still with no rays" do
-    sign_in_viewer
+    viewer = accounts_players(:moderator)
+    hold(viewer, catalog_card_seasons(:portal_one).id, 1)
+    hold(viewer, catalog_card_seasons(:common_card_one).id, 1)
+    sign_in(viewer)
 
     get card_path(locale: :en, slug: "portal")
     assert_response :success
@@ -1153,7 +1168,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__shadow", 1
   end
 
-  test "an epic not held, within a set, floats with its rays, never greyed" do
+  test "an epic not held, within a set, is faded and locked, without float or rays" do
     add_a_theme_set
     player = accounts_players(:player)
     hold(player, catalog_card_seasons(:common_card_one).id, 1)
@@ -1162,9 +1177,9 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     get in_theme("portal")
 
     assert_response :success
-    assert_select ".card-detail__card .card-float .card-rays.card-rays--epic", 1
-    assert_select ".card-detail__card .card-float .card.card--l.card--rarity-epic", 1
-    assert_select ".card-detail__card .card--not-owned", false
+    assert_select ".card-detail__card .card-float", 0
+    assert_select ".card-detail__card .card-rays", 0
+    assert_select ".card-detail__card .card.card--l.card--rarity-epic.card--not-owned > .card__lock", 1
     assert_select ".card-detail__shadow", 1
   end
 
@@ -1232,7 +1247,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__showcase", false
   end
 
-  test "a card opened from a player's showcase browses its first set as that player's album does, leads back to their profile and shows its face" do
+  test "a card opened from a player's showcase browses its first set as that player's album does, leads back to their profile and shows as not owned to a viewer without it" do
     owner = accounts_players(:player)
     sign_in_viewer
 
@@ -1240,7 +1255,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     back = css_select(".top-bar__phone-back").sole
     assert_equal [ "/fr/brothers/#{owner.token}", "Profil" ], [ back["href"], back.text.squish ]
-    assert_select ".card-detail__card .card.card--l"
+    assert_select ".card-detail__card .card.card--l.card--not-owned", 1
     assert_equal "S1 · #4 · 1 / 1", position
 
     delete session_path(locale: :en)
