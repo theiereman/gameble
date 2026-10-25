@@ -3,14 +3,13 @@ title: "The card detail's Steam and share buttons sit on the card information's 
 type: 'bugfix'
 ticket: '17'
 created: '2026-10-25'
-status: 'blocked'
-blocked_reason: 'no subagents'
+status: 'built'
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144'
 route: 'oneshot'
 route_source: 'pinned'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context: []
@@ -43,6 +42,13 @@ Oneshot: one partial, its stylesheet, DESIGN.md's card detail line and the reque
 
 ## Review Triage Log
 
+### 2026-10-24 — Review pass
+- verdicts: 3 findings — high 0, medium 1, low 2, false 0, maybe-false 0
+- findings:
+  - `[medium]` `patch` The `.card-detail` flex gap now spaces the article's children, so the header sat flush against the card and its information inside the new panel — `.card-detail__panel` is a flex column with the same `--space-6` gap.
+  - `[low]` `patch` The desktop system check's background comparison always passed (the actions have no desktop background) — the check keeps only the geometry: the actions start at or below the panel's bottom.
+  - `[low]` `patch` Two new test comments restated their assertions, against the comment rule — removed.
+
 ## Verification
 
 **Commands:**
@@ -63,9 +69,11 @@ Oneshot: one partial, its stylesheet, DESIGN.md's card detail line and the reque
 
 ## Auto Run Result
 
-Status: blocked
-Blocking condition: no subagents (the quick review lens needs a reviewer subagent, which this session cannot launch; the coordinator runs the review).
+Status: built
 
-- Implemented and verified in cf05ed71 on `build/16.17-card-detail-buttons-outside`, from baseline 9ec8aeb2f7bf1a6c773285d98ede884bb63f0144: the bracketed panel holds the card and its information only, and the actions stand under it, outside its background, on the desktop and the phone.
-- Review: not run; no lens launched, no findings triaged.
-- Residual risks: the panel's content is re-indented, so a branch editing the same partial (the not-owned card's look on the stage, the detail's buttons) meets a whitespace conflict, which a whitespace-ignoring merge resolves; the phone's pinned bar now hides the page's starfield behind it, as the panel colour did before; the author still checks the result on staging.
+- Summary: on the signed-in card detail the information background is an inner panel holding the header, the card and its information; the Steam and share buttons and the share sheet stand after it, outside its background, on the desktop under the panel and on the phone pinned above the tab bar on the page's ground.
+- Files: `app/views/cards/_detail.html.erb` (the inner `card-detail__panel`), `app/frontend/styles/card-detail.css` (the panel's column and gap, the phone's pinned actions), `test/controllers/cards_controller_test.rb` and `test/system/card_detail_test.rb` (the actions outside the panel), `ux-gameble/DESIGN.md` (card detail). The visitor's public card page has no information background and is unchanged.
+- Review: the Quick lens ran from the coordinating session after the unattended run halted on `no subagents`. 3 findings, all patched (1 medium, 2 low); nothing deferred or rejected.
+- Follow-up review recommended: false (one medium patched).
+- Verification: after the patches, `cards_controller_test.rb`, `card_detail_test.rb` and `share_card_test.rb` 77 runs, 0 failures on Chromium 141; the unattended run's full suite 3171 runs with two load-bound timing failures unrelated to this change (`pioneer_of_test.rb:14`, `set_builder_test.rb:350`, both green alone), vitest 561, typecheck, rubocop, packwerk, i18n-tasks, zeitwerk, brakeman clean.
+- Residual risks: the template was re-indented, so 16.25 and 16.26 may conflict on whitespace; the phone's pinned bar hides the starfield behind it, for the author's look on staging.

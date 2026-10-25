@@ -92,7 +92,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "title", "Portal — Epic"
     assert_select "main > turbo-frame#card-detail[target=_top] > article.card-detail[aria-labelledby=card-detail-heading] > .card-detail__panel.panel.panel--brackets"
     assert_select "article.card-detail.panel", false
-    # The panel's background holds the card and its information; the actions stand outside it.
     assert_select "article.card-detail > .card-detail__panel + .card-detail__actions"
     assert_select ".card-detail__panel .card-detail__actions", false
     assert_select ".card-detail__panel .button", false
