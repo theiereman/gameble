@@ -3,13 +3,13 @@ title: "The signed-in card detail's actions are sorted instead of stacked"
 type: 'feature'
 ticket: 25
 created: '2026-10-25'
-status: 'blocked'
+status: 'built'
 baseline_revision: '27b677d308e8106cc52d312bb30f36340222094b'
 route: 'oneshot'
 route_source: 'pinned'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context: ['{project-root}/AGENTS.md']
@@ -42,6 +42,12 @@ Oneshot: one partial's action block regrouped, its stylesheet's action rules, th
 
 ## Review Triage Log
 
+### 2026-10-24 — Review pass
+- verdicts: 2 findings — high 0, medium 0, low 2, false 0, maybe-false 0
+- findings:
+  - `[low]` `patch` The new desktop, full-showcase and phone layout checks read `getBoundingClientRect()` once, while the layout can still move when the web font swaps in — each is an `eventually` check with the same condition and message.
+  - `[low]` `patch` Comments added or expanded in `card-detail.css`, `card_detail_test.rb` and `cards_controller_test.rb` restated the code — removed or cut back to their original line; `_detail.html.erb`'s header comment, an existing one kept accurate, stays.
+
 ## Verification
 
 **Commands:**
@@ -63,11 +69,11 @@ Oneshot: one partial's action block regrouped, its stylesheet's action rules, th
 
 ## Auto Run Result
 
-Status: blocked
-Blocking condition: no subagents
+Status: built
 
-- Summary: the signed-in card detail's actions are sorted into two groups in reading and keyboard order: a holder's "REPOSTER", the card's main action and the one filled button, then the showcase choice (with, when full, the disabled add and the showcase-full line under the pair); then the card's links, "PARTAGER" and "VOIR SUR STEAM", both secondary. On a desktop the two groups share one row, the links at the panel's right; on the phone the pinned bar is one row per group. A card not held, a visitor and a not-owned card show the links alone, with no filled button.
-- Files: `app/views/cards/_detail.html.erb` (the two action groups), `app/frontend/styles/card-detail.css` (desktop row, phone pinned rows, scroll padding), `test/controllers/cards_controller_test.rb` and `test/system/card_detail_test.rb` (order, weight and placement, a new full-showcase test), `ux-gameble/DESIGN.md` (Primary button, Card detail), `ux-gameble/EXPERIENCE.md` (Card detail, Repost action).
-- Implemented, verified and committed; the run halted at step 4 because this session has no subagent tool to launch the Quick lens (`review: quick`, pinned). `tickets.py mark` was not run, as the coordinator directed (gh is not authenticated here); the plan's frontmatter carries the status. The coordinating session runs the review.
-- Verification: see `## Verification` results: targeted controller (103) and system (20 + 66) runs, the full suite (3188 runs, 0 failures), vitest, typecheck, rubocop, packwerk, i18n-tasks, zeitwerk and brakeman all clean.
-- Residual risks: the layout is this build's reading of the author's call (no folding, holder's pair left and links right on a desktop, two pinned rows on the phone), for the author's check on staging; with no repost, a card not held has no filled button at all; at 360 px the French "RETIRER DE LA VITRINE" wraps to two lines inside its button.
+- Summary: the signed-in card detail's actions are two groups in DOM, keyboard and visual order: the holder's, REPOSTER (the only filled button) then the showcase choice, with the disabled add and "Vitrine pleine" under them when the showcase is full; then the card's links, PARTAGER and VOIR SUR STEAM, secondary. On the desktop both groups share one row, the links at the right; the phone's pinned bar has one row per group. A card not held, a visitor and a not-owned card show the links only. 16.17's placement and 16.26's not-owned face are kept; accessible names unchanged.
+- Files: `app/views/cards/_detail.html.erb`, `app/frontend/styles/card-detail.css`, `test/controllers/cards_controller_test.rb`, `test/system/card_detail_test.rb`, DESIGN.md (Primary button, Card detail) and EXPERIENCE.md (Card detail, Repost action).
+- Review: the Quick lens ran from the coordinating session after the unattended run halted on `no subagents`. 2 findings, both low, both patched; nothing deferred or rejected.
+- Follow-up review recommended: false.
+- Verification: after the patches, `cards_controller_test.rb`, `card_detail_test.rb` and `share_card_test.rb` 78 runs, 0 failures, twice, on Chromium 141; rubocop clean; the unattended run's cards, preview tags, showcases and reposts controller tests (103 runs), the public profile, shell and booster system tests (66 runs), the full suite (3188 runs, 0 failures), vitest 580, typecheck, packwerk, i18n-tasks, zeitwerk and brakeman passed.
+- Residual risks: the layout is a reading of the author's call (nothing folded behind a more-actions control), for a look on staging; a card not held has no filled button; at 360px "RETIRER DE LA VITRINE" wraps inside its button.

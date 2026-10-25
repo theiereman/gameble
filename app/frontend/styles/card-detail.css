@@ -391,9 +391,7 @@
   margin: 0;
 }
 
-/* On the page's ground, not the panel's: a holder's actions at the left,
-   "Reposter" (the one primary) then the showcase choice, and the card's
-   links at the right, "Partager" then "Voir sur Steam". */
+/* On the page's ground, not the panel's. */
 .card-detail__actions {
   display: flex;
   flex-wrap: wrap;
@@ -422,8 +420,6 @@
   display: flex;
 }
 
-/* The disabled add's reason, under the holder's buttons and no wider
-   than them. */
 .card-detail__showcase-full {
   flex: 1 0 100%;
   contain: inline-size;
@@ -483,8 +479,7 @@
       + var(--space-button-height-phone) + var(--space-4) + 2 * 1.125rem + var(--space-3));
   }
 
-  /* Pinned above the tab bar while the panel scrolls under them: one row
-     for a holder's actions, one for the card's links. */
+  /* Pinned above the tab bar while the panel scrolls under them. */
   .card-detail__actions {
     position: sticky;
     bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
@@ -501,9 +496,6 @@
     margin-left: 0;
   }
 
-  /* "Reposter" at its width, the showcase choice taking the rest of the
-     row, so a long label wraps inside its button rather than to a row of
-     its own. */
   .card-detail__holder-actions {
     display: grid;
     grid-template-columns: auto 1fr;

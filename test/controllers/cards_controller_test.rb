@@ -525,7 +525,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ [ "card-detail__holder-actions", [ "button-form", "card-detail__showcase" ] ],
       [ "card-detail__card-links", [ "card-detail__share-button", "card-detail__store" ] ] ],
       css_select(".card-detail__actions > *").map { |group| [ group["class"], group.element_children.map { (it["class"].split & %w[button-form card-detail__showcase card-detail__share-button card-detail__store]).sole } ] }
-    # "Repost", the card's main action and the one primary, posts to this card-season's repost, in Turbo Stream, and stays.
+    # "Repost" posts to this card-season's repost, in Turbo Stream, and stays.
     assert_select ".card-detail__holder-actions > form.button-form:first-child[method=post][action='/en/cards/portal/seasons/1/repost'] button.button--primary", "Repost"
     assert_select ".card-detail .button--primary", 1
     assert_select ".card-detail__showcase .button--secondary", "Add to showcase"
