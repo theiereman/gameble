@@ -1,11 +1,11 @@
 /*
- * A card's detail, "FICHE DE LA CARTE": a bracketed panel up to 720px
- * wide, centred, its header (kicker, number at top right), then the stage
- * (the card at card-l over a ground shadow) and the
- * information (title, position line, description, fact rows, share link,
- * actions). Two columns, stage and information, when the panel
- * is wide enough (a container query, so a narrow right-hand panel stacks
- * them too); one column otherwise.
+ * A card's detail, "FICHE DE LA CARTE", up to 720px wide, centred: a
+ * bracketed panel holding its header (kicker, number at top right), then
+ * the stage (the card at card-l over a ground shadow) and the information
+ * (title, position line, description, fact rows); under the panel,
+ * outside its background, the actions. Two columns, stage and
+ * information, when the panel is wide enough (a container query, so a
+ * narrow right-hand panel stacks them too); one column otherwise.
  *
  * ◀ ▶ beside the card, 44 × 64, at every width. Under 720px (the phone
  * sub-view): the position line shown and the header's number hidden (the
@@ -30,6 +30,12 @@
   gap: var(--space-6);
   max-width: var(--space-breakpoint-two-columns);
   margin: 0 auto;
+}
+
+.card-detail__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
 }
 
 /* ---- Header: the kicker, the number at top right ---- */
@@ -386,7 +392,7 @@
 }
 
 /* "Voir sur Steam" (the one primary), "Partager", "Reposter" and the
-   showcase choice. */
+   showcase choice, on the page's ground, not the panel's. */
 .card-detail__actions {
   display: flex;
   flex-wrap: wrap;
@@ -440,7 +446,7 @@
 /* ---- The phone sub-view ---- */
 
 @media (max-width: 719px) {
-  .card-detail {
+  .card-detail__panel {
     padding: var(--space-5) var(--space-4);
   }
 
@@ -473,15 +479,14 @@
       + 2 * (var(--space-button-height-phone) + var(--space-4)) + 2 * 1.125rem + var(--space-3));
   }
 
-  /* Pinned above the tab bar while the information scrolls under them. */
+  /* Pinned above the tab bar while the panel scrolls under them. */
   .card-detail__actions {
     position: sticky;
     bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px));
     z-index: 2;
-    margin: 0 calc(-1 * var(--space-4));
     min-height: var(--card-detail-actions-height);
-    padding: var(--space-4);
-    background: var(--color-panel);
+    padding: var(--space-4) 0;
+    background: var(--color-ground);
     box-shadow: 0 calc(-1 * var(--space-unit)) 0 0 var(--color-line);
   }
 

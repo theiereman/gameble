@@ -1,12 +1,13 @@
 /*
  * The hub, "Pont de commandement". From 1180px three columns: kicker, menu
- * and daily booster panel on the left (340px), the showcase in the centre,
- * the community goal and the set progress on the right (340px). From 720px
- * two: the left column (260 to 300px) holds the kicker, menu, daily
- * booster panel, community goal and set progress; the showcase stands
- * alone in the centre. Under 720px one column, without the menu: kicker,
- * showcase (or invitation), community goal, daily booster panel, set
- * progress.
+ * and set progress on the left (340px), the showcase in the centre, the
+ * community goal and the daily booster panel on the right (340px), stacked
+ * in a column of their own so neither side column waits on the other's
+ * rows. From 720px two: the left column (260 to 300px) holds the kicker,
+ * menu, community goal, daily booster panel and set progress; the showcase
+ * stands alone in the centre. Under 720px one column, without the menu:
+ * kicker, showcase (or invitation), community goal, daily booster panel,
+ * set progress.
  */
 
 .hub {
@@ -14,10 +15,10 @@
   grid-template-columns: 340px minmax(0, 1fr) 340px;
   grid-template-rows: auto auto auto 1fr;
   grid-template-areas:
-    "kicker showcase goal"
-    "menu showcase goal"
-    "daily showcase sets"
-    ". showcase sets";
+    "kicker showcase aside"
+    "menu showcase aside"
+    "sets showcase aside"
+    ". showcase aside";
   gap: var(--space-6) var(--space-column-gap-wide);
   align-items: start;
 }
@@ -25,8 +26,14 @@
 .hub__kicker { grid-area: kicker; }
 .hub-menu { grid-area: menu; }
 .hub-showcase { grid-area: showcase; }
-.daily-booster { grid-area: daily; }
 .hub-sets { grid-area: sets; }
+
+.hub__aside {
+  grid-area: aside;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
 
 .welcome-dialog__body {
   display: flex;
@@ -743,17 +750,15 @@ button.menu-item:focus-visible:hover {
 @media (max-width: 1179px) {
   .hub {
     grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
-    grid-template-rows: auto auto auto auto auto 1fr;
+    grid-template-rows: auto auto auto auto 1fr;
     grid-template-areas:
       "kicker showcase"
       "menu showcase"
-      "daily showcase"
-      "goal showcase"
+      "aside showcase"
       "sets showcase"
       ". showcase";
     column-gap: var(--space-column-gap-medium);
   }
-
 }
 
 /* ---- Phone: one column, the tab bar navigates ---- */
@@ -776,6 +781,10 @@ button.menu-item:focus-visible:hover {
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-7);
+  }
+
+  .hub__aside {
+    display: contents;
   }
 
   .hub-menu {
@@ -828,7 +837,6 @@ html[data-motion="reduced"] button.menu-item:hover {
    previous week's result after the rollover ---- */
 
 .hub-goal {
-  grid-area: goal;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);

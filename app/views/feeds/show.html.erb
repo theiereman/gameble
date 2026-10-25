@@ -8,10 +8,11 @@
     <% end %>
   <% end %>
 <% end %>
-<%# The activity feed, open to visitors: the All and Friends tabs (Friends
-    greyed and disabled for a visitor, who reads All and whose phone back
-    leads to the landing), then the type filters (links, the chosen one current,
-    each keeping the other row's choice), then one row per entry, newest
+<%# The activity feed, open to visitors: one line of filter chips, the All
+    and Friends tabs (Friends greyed and disabled for a visitor, who reads
+    All and whose phone back leads to the landing), then, past a divider,
+    the type filters (links, the chosen one current, each keeping the
+    other group's choice), then one row per entry, newest
     first: time, a sentence naming the player (a first discovery's behind
     its gold "First discovery" chip), the card's thumbnail and its
     rarity; a repost's thumbnail framed in its rarity's colour, with a
@@ -29,21 +30,23 @@
       data: ({ controller: "feed-announcer", feed_announcer_templates_value: t(".announcement").to_json,
                feed_announcer_limit_value: Game::FeedEntries::LIMIT } if @live) do %>
   <h1 id="feed-heading" class="feed__title"><%= t(".title") %></h1>
-  <nav class="feed__tabs segmented" aria-label="<%= t(".tabs_label") %>">
-    <%= link_to t(".tabs.all"), feed_path(filter: @filter), class: "feed__tab segmented__option", aria: { current: ("true" unless @tab) } %>
-    <% if current_player %>
-      <%= link_to t(".tabs.friends"), feed_path(tab: "friends", filter: @filter), class: "feed__tab segmented__option",
-            aria: { current: ("true" if @tab == "friends") } %>
-    <% else %>
-      <%= tag.button t(".tabs.friends"), type: :button, class: "feed__tab segmented__option", disabled: true %>
-    <% end %>
-  </nav>
-  <nav class="feed__filters segmented" aria-label="<%= t(".filters_label") %>">
-    <% [ nil, *FeedsController::FILTERS.keys ].each do |filter| %>
-      <%= link_to t(".filters.#{filter || "all"}"), feed_path(tab: @tab, filter:), class: "feed__filter segmented__option",
-            aria: { current: ("true" if filter == @filter) } %>
-    <% end %>
-  </nav>
+  <div class="feed__controls" data-controller="current-chips">
+    <nav class="feed__tabs" aria-label="<%= t(".tabs_label") %>">
+      <%= feed_chip_link t(".tabs.all"), feed_path(filter: @filter), current: @tab.nil?, classes: "feed__tab" %>
+      <% if current_player %>
+        <%= feed_chip_link t(".tabs.friends"), feed_path(tab: "friends", filter: @filter), current: @tab == "friends", classes: "feed__tab" %>
+      <% else %>
+        <%= tag.button type: :button, class: "feed__tab filter-chip", disabled: true do %>
+          <%= tag.span t(".tabs.friends"), class: "filter-chip__text" %>
+        <% end %>
+      <% end %>
+    </nav>
+    <nav class="feed__filters" aria-label="<%= t(".filters_label") %>">
+      <% [ nil, *FeedsController::FILTERS.keys ].each do |filter| %>
+        <%= feed_chip_link t(".filters.#{filter || "all"}"), feed_path(tab: @tab, filter:), current: filter == @filter, classes: "feed__filter" %>
+      <% end %>
+    </nav>
+  </div>
   <% if @no_friends %>
     <%= render PanelComponent.new(class: "feed__no-friends") do %>
       <p class="feed__no-friends-text"><%= t(".no_friends") %></p>

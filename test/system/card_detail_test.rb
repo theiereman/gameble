@@ -107,6 +107,13 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_equal [ card.store_url, "_blank" ], [ link[:href], link[:target] ]
     assert_equal "See on Steam (new tab)", link.evaluate_script("this.textContent").squish
     assert_selector ".card-detail__actions button", text: "SHARE"
+    assert evaluate_script(<<~JS), "the actions should stand under the panel, outside its background"
+      (() => {
+        const panel = document.querySelector(".card-detail__panel").getBoundingClientRect()
+        const actions = document.querySelector(".card-detail__actions").getBoundingClientRect()
+        return actions.top >= panel.bottom
+      })()
+    JS
     # The desktop shows ◀ ▶ walking the theme's album, this card first in
     # it, no position line; the number is in the header.
     assert_selector "button.card-detail__nav--previous[disabled]"

@@ -19,6 +19,7 @@
       group (library/filters);
     - clear_path: the grid's page without any filter. A grid of another
       player's (the context names a `brother`) marks no new card. %>
+<% next_page_data = local_assigns.fetch(:scroll_pages, false) ? { controller: "next-page", action: "focusout->next-page#focusLeft" } : {} %>
 <div class="<%= class_names("collection", "collection--visitor": !set_apart) %>">
   <h1 class="visually-hidden"><%= heading %></h1>
   <% if set_apart %>
@@ -28,12 +29,11 @@
   <% end %>
   <section class="collection__main" aria-label="<%= heading %>">
     <%= render "library/filters", grid:, ownership: set_apart, states:, states_asked:, query:, set_filter: set_filter, clear_path: clear_path, with_new: local_assigns.fetch(:with_new, true) %>
-    <%= turbo_frame_tag "collection-results", target: "_top", data: { turbo_action: "replace" } do %>
-      <p class="visually-hidden" role="status"><%= t("library.grid.result", count: pagy.count) %></p>
+    <%= turbo_frame_tag "collection-results", target: "_top", data: { turbo_action: "replace", **next_page_data } do %>
+      <p id="collection-results-status" class="visually-hidden" role="status"><%= t("library.grid.result", count: pagy.count) %></p>
       <%= render "library/grid", context:, slots:, set_apart:, pagy: pagy, new_badge: !context.key?(:brother) %>
       <% if seen_up_to %>
-        <div hidden data-controller="collection-seen" data-collection-seen-url-value="<%= library_seen_path %>"
-          data-collection-seen-up-to-value="<%= seen_up_to.utc.iso8601(6) %>"></div>
+        <%= render "library/seen", seen_up_to: %>
       <% end %>
     <% end %>
   </section>

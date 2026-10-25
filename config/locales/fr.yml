@@ -895,6 +895,10 @@ fr:
         page: "Page"
         previous: "Page précédente"
         next: "Page suivante"
+        shown:
+          zero: "Plus aucune carte affichée."
+          one: "Carte %{from} sur %{total} affichée."
+          other: "Cartes %{from} à %{to} sur %{total} affichées."
     seen:
       throttled: "Trop de requêtes en une minute. Réessayez dans un instant."
     show:
@@ -1227,12 +1231,6 @@ fr:
       ignore: "Ignorer"
       cancel: "Annuler"
       cancel_invitation_to: "Annuler l'invitation à %{name}"
-      see_profile: "Voir le profil"
-      see_profile_of: "Voir le profil de %{name}"
-      trade: "Échange"
-      trade_with: "Échange avec %{name}"
-      remove: "Retirer"
-      remove_friend: "Retirer %{name} de vos amis"
       presence:
         online: "En ligne"
         offline: "Hors ligne"
@@ -1251,6 +1249,13 @@ fr:
           collecting_daily: "Récupère sa capsule du jour"
           trading: "Négocie un échange"
           making_friends: "Se fait des amis"
+    friend_row:
+      see_profile_of: "Voir le profil de %{name}"
+      trade: "Échange"
+      trade_with: "Échange avec %{name}"
+      more_actions_for: "Plus d'actions pour %{name}"
+      remove: "Retirer"
+      remove_friend: "Retirer %{name} de vos amis"
     profile_dialog:
       title: "Profil"
       close: "Fermer"
