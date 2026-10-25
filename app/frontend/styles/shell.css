@@ -254,7 +254,7 @@ a.top-bar__home {
 }
 
 /* The visitor's motion switch: the label and a square that fills accent
-   when on, on a desktop only. */
+   when on. */
 .motion-switch__form {
   display: contents;
 }

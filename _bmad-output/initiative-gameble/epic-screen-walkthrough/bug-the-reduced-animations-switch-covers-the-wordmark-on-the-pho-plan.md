@@ -3,15 +3,13 @@ title: 'The reduced-animations switch covers the wordmark on the phone landing'
 type: 'bugfix'
 ticket: '16'
 created: '2026-10-25'
-status: 'blocked'
-blocked_at: '2026-10-25'
-blocked_reason: 'no subagents'
+status: 'built'
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144'
 route: 'oneshot'
 route_source: 'pinned'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context: ['{project-root}/AGENTS.md']
@@ -50,15 +48,11 @@ Oneshot: one CSS rule in the existing phone media query, one phone system test, 
 
 ## Auto Run Result
 
-Status: blocked
-Blocking condition: no subagents. The implementation is verified and committed; the review step needs a context-free reviewer subagent, which this session cannot launch, so the quick review has not run and `lenses_ran` stays empty.
+Status: built
 
-- **Change:** under 720 px the landing's top bar no longer shows the « Animations réduites » switch, so the wordmark and the Steam sign-in image stand alone; the desktop keeps the switch and its toggle. DESIGN.md and EXPERIENCE.md now say a phone visitor sets reduced motion nowhere on the landing: it follows the system setting, and a signed-in player sets it in Profil et paramètres.
-- **Files changed:**
-  - `app/frontend/styles/shell.css` -- `.motion-switch` hidden in the phone media query, beside `.rarity-counter`.
-  - `test/system/landing_motion_switch_test.rb` -- a phone test per locale: wordmark and sign-in image visible, no switch, no overlap.
-  - `_bmad-output/initiative-gameble/ux-gameble/DESIGN.md` -- top bar rows: the switch is desktop only.
-  - `_bmad-output/initiative-gameble/ux-gameble/EXPERIENCE.md` -- top bar copy, motion switch, reduced motion, moving content and landing-on-the-phone rows.
-- **Review findings:** none yet (review not run).
-- **Verification:** see Implementation Notes, Verification results.
-- **Residual risks:** the Steam image can still overlap the wordmark's end below about 352 px of client width (320 px phones, or 360 px with a classic scrollbar), the same on every signed-out page and pre-existing; the `ShellTest` toast test and the `SetBuilderTest` timing test failed under the shared machine's load and passed alone.
+- Summary: under 720px the top bar hides the reduced-motion switch (as it hides the rarity counter), so the phone landing shows the wordmark and the Steam sign-in clear; the desktop keeps the switch and it still toggles; a phone visitor's motion follows the system setting, or a cookie set earlier on a desktop.
+- Files: `app/frontend/styles/shell.css` (`.motion-switch` hidden in the phone block); `test/system/landing_motion_switch_test.rb` (a phone test per locale: wordmark and Steam image visible, no switch, no overlap); `ux-gameble/DESIGN.md` and `EXPERIENCE.md`.
+- Review: the Quick lens ran from the coordinating session after the unattended run halted on `no subagents`. 2 findings, both patched (low); nothing deferred or rejected.
+- Follow-up review recommended: false.
+- Verification (unattended run, Postgres 16, Chromium 141): the phone tests fail on the old CSS and pass with the fix; `landing_motion_switch_test.rb` 4 runs, 0 failures; the full suite 3171 runs twice, its only failure the load-bound `set_builder_test.rb` timing test, green alone; rubocop, packwerk, i18n-tasks, typecheck, vitest 561, zeitwerk, brakeman clean. The patches touch a comment and a document only.
+- Residual risks: under about 352px of width the 180px Steam image still overlaps the wordmark's end on every signed-out top bar, as before this change; whether to shrink Valve's image is the author's call.
