@@ -697,7 +697,7 @@ One style for every focusable element: `{components.focus-ring.css}`, a 3px `{co
 
 #### Tabs and filters
 
-Rows of buttons (`{spacing.chip-height}`, `{typography.label}`) on `{colors.panel}` with `{components.control-border.css}`; the selected one is filled with accent and carries `aria-pressed`. Used for genre and feed filters, and on the phone as chip rows for sets (`{components.set-chip-phone.size}`, a 4px progress bar, a 4px accent base when selected) and genres. Phone hit area `{spacing.chip-height-touch}`.
+Rows of buttons (`{spacing.chip-height}`, `{typography.label}`) on `{colors.panel}` with `{components.control-border.css}`; the selected one is filled with accent and carries `aria-pressed`. Used for genre filters, and on the phone as chip rows for sets (`{components.set-chip-phone.size}`, a 4px progress bar, a 4px accent base when selected) and genres. Phone hit area `{spacing.chip-height-touch}`. The activity feed's tabs and filters are not such rows: its zone uses the catalog's FILTRES chips on one line (see Activity feed).
 
 #### Dialogs, toasts, inputs
 
@@ -955,7 +955,7 @@ Reference: [mockups/key-screens.html](mockups/key-screens.html), Amis.
 
 Reference: [mockups/key-screens.html](mockups/key-screens.html), Fil d'activité.
 
-- **Feed tabs:** two segmented tabs, "TOUS" and "AMIS", above the filter chips (`{typography.label}`, selected filled accent), the same control as the filter group.
+- **Feed tabs and filters:** one zone on one line, aligned on the list: the scope chips "TOUS" and "AMIS", a 2px `{colors.line-deep}` divider, then the kind chips "TOUT", "TIRAGES", "DÉCOUVERTES", "ÉCHANGES", "REPOSTS", all drawn as the catalog's FILTRES chips (control-bordered plates spaced 4px apart, the chosen one of each group filled with accent on a deep base and led by a "✓"). A visitor's "AMIS" is the same chip on `{colors.disabled-bg}` in `{colors.disabled-text}`. The line never wraps: where it does not fit (the phone), it scrolls sideways inside its zone, chips at `{spacing.chip-height-touch}` 8px apart, and the page never scrolls sideways (author, 2026-10-24; supersedes the two segmented rows).
 - **Feed entry:** a row on `{colors.panel}` (at least 68px tall): time in muted JetBrains Mono, one or two avatars, a JetBrains Mono sentence with names and titles in white, one or two pixel thumbnails framed in the rarity color, and a right-aligned tag (rarity icon and name, or "⇄ ÉCHANGE"). A first discovery carries a gold "PREMIÈRE DÉCOUVERTE" chip. A set tier entry names the player, the set and the tier, with the tier's name and mark (a rank mark at 1px per pixel in `{colors.text-bright}`, or an earlier season's notches in its colour) and no thumbnail; a completed set carries the COMPLET stamp. The tiers and completions one opening reaches make one entry, "Léa atteint 4 paliers · Metroidvania ADEPTE", marked with the highest one. A repost entry carries a "REPOST" tag in `{colors.accent}` with the card's thumbnail framed in its rarity color. Lower-tier entries added to fill a quiet feed sit on `{colors.panel-sunken}`, never dimmed by opacity. No Brotherhood line on this screen.
 - **LIVE ticker:** a band on `{colors.steam-bar}` along the bottom of the hub: the LIVE marker on the left (against the window's edge from 720px, with its red square), then a JetBrains Mono line scrolling right to left, items separated by a pixel "◆", rarity names in their color.
 
