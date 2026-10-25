@@ -162,8 +162,6 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_no_button "Repost"
   end
 
-  # The not-owned look of the face `selector` matches: its body's opacity
-  # and filter, and whether its lock shows.
   def not_owned_look(selector)
     evaluate_script(<<~JS, selector)
       ((card) => {
@@ -181,6 +179,7 @@ class CardDetailTest < ApplicationSystemTestCase
     sign_in(accounts_players(:player))
 
     visit library_set_path(locale: :fr, kind: "theme", key: "pirates")
+    assert_selector ".collection-grid a.card-link .card--not-owned"
     album_look = not_owned_look(".collection-grid a.card-link .card--not-owned")
     assert_equal [ "0.45", "grayscale(1)", true ], album_look
     find(".collection-grid a.card-link .card--not-owned", match: :first).click
@@ -195,7 +194,6 @@ class CardDetailTest < ApplicationSystemTestCase
     assert_selector ".card-detail__store[href$='l=french']"
     take_screenshot
 
-    # On the phone's sub-view too.
     resize_to(*PHONE)
     visit current_url
     assert_selector ".card-detail__card .card.card--not-owned"

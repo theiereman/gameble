@@ -24,7 +24,7 @@
 #   when their profile may be shown;
 # - `brother` alone: that player's profile showcase, when their profile
 #   may be shown, browsing the card's first set as that player's album
-#   does, back to their profile ("◀ Profil"), the card showing its face.
+#   does, back to their profile ("◀ Profil").
 #
 # A signed-in viewer who holds this card-season can put it in their
 # profile showcase, or take it out when it is there (`@showcase`).

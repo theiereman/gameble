@@ -335,7 +335,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__card .card--not-owned", false
     assert_select ".card-detail__share-button", "Share"
 
-    # A signed-in viewer is judged by their own holdings, not the album's owner's.
     viewer = accounts_players(:moderator)
     hold_all(viewer, [ cards[59] ])
     sign_in(viewer)
@@ -396,7 +395,6 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__card .card.card--l.card--rarity-common.card--not-owned .card__title", "Tin Soldier"
     assert_select ".card-detail__card .card--not-owned > .card__lock > svg.pixel-icon[aria-hidden=true]", 1
     assert_select ".card-detail__card .card--not-owned[data-controller], .card-detail__card .card--not-owned .card__effects", false
-    # The share sheet's thumbnail keeps the card's plain face.
     assert_select "#share-sheet .share-sheet__thumb .card.card--s:not(.card--not-owned)", 1
     assert_select ".card-detail h1", "Tin Soldier"
     # A card-season without a main theme shows no genre.
@@ -1245,7 +1243,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-detail__showcase", false
   end
 
-  test "a card opened from a player's showcase browses its first set as that player's album does, leads back to their profile and shows its face" do
+  test "a card opened from a player's showcase browses its first set as that player's album does, leads back to their profile and shows as not owned to a viewer without it" do
     owner = accounts_players(:player)
     sign_in_viewer
 
@@ -1253,7 +1251,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     back = css_select(".top-bar__phone-back").sole
     assert_equal [ "/fr/brothers/#{owner.token}", "Profil" ], [ back["href"], back.text.squish ]
-    assert_select ".card-detail__card .card.card--l"
+    assert_select ".card-detail__card .card.card--l.card--not-owned", 1
     assert_equal "S1 · #4 · 1 / 1", position
 
     delete session_path(locale: :en)

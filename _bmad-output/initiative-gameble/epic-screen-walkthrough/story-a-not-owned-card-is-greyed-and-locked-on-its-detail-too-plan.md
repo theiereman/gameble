@@ -3,15 +3,13 @@ title: 'A not-owned card is greyed and locked on its detail too'
 type: 'feature'
 ticket: 26
 created: '2026-10-25'
-status: 'blocked'
-blocked_at: '2026-10-25'
-blocked_reason: 'no subagents'
+status: 'built'
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144'
 route: 'oneshot'
 route_source: 'pinned'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context: ['{project-root}/AGENTS.md']
@@ -43,6 +41,15 @@ Oneshot: one flag and the existing not-owned face; the rest is test and document
 
 ## Review Triage Log
 
+### 2026-10-24 — Review pass
+- verdicts: 5 findings — high 0, medium 0, low 5, false 0, maybe-false 0
+- findings:
+  - `[low]` `patch` `cards_controller.rb`'s header and `card-detail.css`'s still said the detail shows the card's face held or not — the stale clauses are dropped.
+  - `[low]` `patch` The showcase test's name said it shows the face, while its `moderator` viewer holds nothing and now sees it locked — renamed, and it asserts the not-owned face in the `brother` context.
+  - `[low]` `patch` DESIGN.md's Card detail bullet opened with the card's effects, then contradicted it; EXPERIENCE.md's Card not owned (grid) row ended oddly — both now say the effects belong to a held card or a visitor's, and the grid's face opens a detail showing the same face.
+  - `[low]` `patch` New test comments restated their tests — removed.
+  - `[low]` `patch` The album's computed-style read ran right after `visit` — a retrying `assert_selector` for the not-owned face now precedes it.
+
 ## Verification
 
 **Commands:**
@@ -59,9 +66,11 @@ Oneshot: one flag and the existing not-owned face; the rest is test and document
 
 ## Auto Run Result
 
-Status: blocked
-Blocking condition: no subagents
+Status: built
 
-- Summary: a signed-in player who holds the card's game in no edition sees the card detail's `card-l` face as the grids' Card not owned face (faded, grey, pixel lock, no tilt, no effects, no float or rays), at every width and on each card ◀ ▶ reach, judged by the viewer's own holdings in every context; an owned card, a visitor's detail and the public card page stay plain, and the share sheet's thumbnail keeps the plain face. EXPERIENCE.md and DESIGN.md follow.
-- Implemented, verified and committed; the review step (Quick lens, pinned) needs a subagent this session does not have, so the coordinator runs it. `tickets.py mark` was not run (refused on this store, and `gh` is unauthenticated here), so this plan's status was set by hand.
-- Residual risks: "its zoom" in the author's 2026-10-24 call is read as the detail's own card (the detail has no separate zoom); if it meant the booster's card zoom, that React island is frozen to fixes and is untouched. A card of an opened pack the player has since traded away now opens locked from the booster's walk.
+- Summary: a signed-in player who holds a card's game in no edition sees its detail card faded, grey and locked, the same Card not owned face as in the grids, at every width and on every card ◀ ▶ steps to, judged by the viewer's own holdings; an owned card, a visitor and the public card page keep the plain face, and the share sheet's thumbnail stays plain.
+- Files: `app/views/cards/_detail.html.erb` (the owned flag and the not-owned face), `app/controllers/cards_controller.rb` and `app/views/library/_grid.html.erb` (comments), `app/frontend/styles/card-detail.css` (comment), `test/controllers/cards_controller_test.rb`, `test/system/card_detail_test.rb`, EXPERIENCE.md and DESIGN.md.
+- Review: the Quick lens ran from the coordinating session after the unattended run halted on `no subagents`. 5 findings, all low, all patched; nothing deferred or rejected.
+- Follow-up review recommended: false.
+- Verification: after the patches, `cards_controller_test.rb` and `card_detail_test.rb` 71 runs, 0 failures on Chromium 141, rubocop clean; the unattended run's cards, preview tags and component tests (148 runs), the share, library, shell, booster and public profile system tests (each file alone), the full suite (one load-bound `pioneer_of_test.rb` failure, green alone), vitest 561, typecheck, zeitwerk, packwerk, i18n-tasks and brakeman passed.
+- Residual risks: "the lock covers its zoom" was read as the detail's own card, the detail having no separate zoom; a pack card traded away since now shows locked when walking that pack from the booster.

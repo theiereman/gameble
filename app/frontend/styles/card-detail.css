@@ -1,7 +1,7 @@
 /*
  * A card's detail, "FICHE DE LA CARTE": a bracketed panel up to 720px
  * wide, centred, its header (kicker, number at top right), then the stage
- * (the card at card-l over a ground shadow, held or not) and the
+ * (the card at card-l over a ground shadow) and the
  * information (title, position line, description, fact rows, share link,
  * actions). Two columns, stage and information, when the panel
  * is wide enough (a container query, so a narrow right-hand panel stacks
