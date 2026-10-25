@@ -860,6 +860,10 @@ en:
         page: "Page"
         previous: "Previous page"
         next: "Next page"
+        shown:
+          zero: "No more cards shown."
+          one: "Card %{from} of %{total} shown."
+          other: "Cards %{from} to %{to} of %{total} shown."
     seen:
       throttled: "Too many requests in a minute. Try again in a moment."
     show:

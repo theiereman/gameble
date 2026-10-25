@@ -33,9 +33,14 @@ class LibraryController < ApplicationController
     return if @season.nil?
 
     @grid = collection_grid(@season, params)
-    load_summary if current_player
     load_grid(@grid)
-    load_set_filter(@grid)
+    respond_to do |format|
+      format.html do
+        load_summary if current_player
+        load_set_filter(@grid)
+      end
+      format.turbo_stream
+    end
   end
 
   # GET /:locale/library/:kind/:key: one set's album.
