@@ -3,12 +3,12 @@ title: 'The hub puts the daily capsule under the community goal'
 type: 'feature'
 ticket: '19'
 created: '2026-10-25'
-status: 'in-progress'
+status: 'blocked'
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144'
 route: 'oneshot'
 route_source: 'pinned'
-review: ''
-review_source: ''
+review: 'quick'
+review_source: 'pinned'
 lenses_ran: []
 review_loop_iteration: 0
 followup_review_recommended: false
@@ -47,3 +47,13 @@ Oneshot: one stylesheet's grid areas, one wrapper in the hub view, and the docs 
 **Commands:**
 - `bin/rails test test/system/hub_test.rb test/system/daily_bonus_test.rb test/system/live_updates_test.rb test/system/countdown_test.rb test/system/shell_test.rb` -- expected: all pass
 - `PARALLEL_WORKERS=2 bin/rails test`, `npm run test:js`, `bin/rubocop`, `bin/rails zeitwerk:check`, `bundle exec packwerk check`, `bin/i18n-tasks health` -- expected: all pass
+
+## Auto Run Result
+
+Status: blocked
+Blocking condition: no subagents
+
+- Implemented and committed on `build/16.19-hub-daily-under-goal` (7c8ab2be1f6da1083da79ad110164a65fc62b6a8): from 1180px the community goal and the daily capsule stack in a right column of their own (`div.hub__aside`), the set progress sits under the menu; from 720px and on the phone the blocks stack community goal, daily capsule, then the sets. EXPERIENCE.md, DESIGN.md and the hub comments follow. Files and verification: see Implementation Notes.
+- Review: the quick lens needs a context-free subagent and this session has none, so the run halted at step 4 before any review; `lenses_ran` stays empty and the Review Triage Log has no pass. The coordinator runs the review.
+- Ticket state: `tickets.py mark` is refused on this store and the GitHub sync is not available in this session, so the state was written here only.
+- Residual risks: `display: contents` on the wrapper under 1180px (a plain div holding two sections, so no known accessibility loss); the 720px and phone orders and the look in French, with and without a daily capsule, are for the author to check on staging, as the ticket asks.
