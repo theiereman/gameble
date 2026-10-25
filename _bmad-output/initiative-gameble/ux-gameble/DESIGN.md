@@ -611,7 +611,7 @@ The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 
 | Screen | From 1180px | 900 to 1179px | 720 to 899px (still desktop chrome) |
 |---|---|---|---|
-| Hub | Left 340px (menu, daily capsule) · center fluid (showcase) · right 340px (community goal, set progress) | Left 260 to 300px holds menu, daily capsule, community goal, then set progress; the showcase stands alone in the center | Same as 900 to 1179px |
+| Hub | Left 340px (menu, set progress) · center fluid (showcase) · right 340px (community goal, then the daily capsule right under it; author, 2026-10-23) | Left 260 to 300px holds menu, community goal, daily capsule, then set progress (author, 2026-10-24); the showcase stands alone in the center | Same as 900 to 1179px |
 | Capsule | Info column 300px · stage fluid; under `{spacing.breakpoint-booster-stacked}` the info panels move above the stage in one wrapping row and the title drops to 26px | Info above the stage | Info above the stage; dealt cards step from `card-m` to `card-s` |
 | Collection | Sets and RAPPORT 220px · grid fluid | Sets become a horizontally scrolling strip of 184px set progress rows above the grid (kicker, hazard stripe and RAPPORT hidden) · grid fluid | One column: sets strip, grid. At every width a card opens its own detail page, and Back returns to the grid at its scroll (author, 2026-10-19) |
 | Échanges | Trade list 316px · trade board fluid | List 250px · board fluid | List above the board |
@@ -857,7 +857,7 @@ The hub's key panel, with corner brackets: a steady accent light and "OBJECTIF C
 
 #### Daily capsule panel
 
-A quiet panel under the hub menu: "CAPSULE QUOTIDIENNE" with a state word on the right ("PRÊTE" lime, "RÉCUPÉRÉE" muted, "RÉSERVE PLEINE" orange), a JetBrains Mono line and the small primary button "RÉCUPÉRER". Reserve full: the button is disabled and the line changes (copy: see `EXPERIENCE.md`, Copy deck). Once collected: "PROCHAINE DANS", the countdown in `{typography.clock}` and a thin bar filling toward the day change.
+A quiet panel under the community goal panel (author, 2026-10-23): "CAPSULE QUOTIDIENNE" with a state word on the right ("PRÊTE" lime, "RÉCUPÉRÉE" muted, "RÉSERVE PLEINE" orange), a JetBrains Mono line and the small primary button "RÉCUPÉRER". Reserve full: the button is disabled and the line changes (copy: see `EXPERIENCE.md`, Copy deck). Once collected: "PROCHAINE DANS", the countdown in `{typography.clock}` and a thin bar filling toward the day change.
 
 #### Signed-out hub
 
