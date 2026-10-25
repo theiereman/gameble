@@ -43,7 +43,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friends__empty", 1, "only the no-invitation line"
   end
 
-  test "each friend's row opens their profile and proposes a trade, both named for them" do
+  test "each friend's name opens their profile and their row proposes a trade, both named for them" do
     sam = accounts_players(:moderator)
     sam.update!(persona_name: "Sam", visibility: "public")
     Game::Friendship.create!(low_player_id: [ @player.id, sam.id ].min, high_player_id: [ @player.id, sam.id ].max)
@@ -52,9 +52,10 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     get friends_path(locale: :fr)
 
     assert_select ".friends__friend" do
-      assert_select "span.friends__name", "Sam"
-      assert_select "button.button[aria-haspopup=dialog][aria-label='Voir le profil de Sam'][data-dialog-opener-dialog-value=?]", "friend-#{sam.token}", "Voir le profil"
-      assert_select "a.button[href=?][aria-label='Échange avec Sam']", new_trade_path(locale: :fr, friend: sam.token), "Échange"
+      assert_select "button.friends__name[type=button][aria-haspopup=dialog][aria-label='Voir le profil de Sam'][data-dialog-opener-dialog-value=?]", "friend-#{sam.token}", "Sam"
+      assert_select ".friends__trade a.button.button--secondary[href=?][aria-label='Échange avec Sam']", new_trade_path(locale: :fr, friend: sam.token), "Échange"
+      assert_select ".button", 1, "the trade is the row's only filled button"
+      assert_select "button", text: "Voir le profil", count: 0
       assert_select "a[href=?]", brother_path(locale: :fr, token: sam.token), 0
     end
   end
@@ -171,7 +172,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
 
     get friends_path(locale: :fr)
 
-    assert_select ".friends__row button[aria-haspopup=dialog][data-dialog-opener-dialog-value=?]", "friend-#{other.token}", "Voir le profil"
+    assert_select ".friends__friend button.friends__name[aria-haspopup=dialog][data-dialog-opener-dialog-value=?]", "friend-#{other.token}", "Sam"
     assert_select "dialog#friend-#{other.token}.modal[aria-label=Sam]" do
       assert_select ".modal__title", "Profil"
       assert_select "turbo-frame#friend-profile-#{other.token}[loading=lazy][target=_top][src=?]",
@@ -196,14 +197,19 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     [ trade, Game::Holding.find_by(player_id: @player.id, card_season_id: portal) ]
   end
 
-  test "each friend's row offers to remove them, through a dialog that posts to their token and warns of a trade in progress only when there is one" do
+  test "each friend's more-actions menu offers to remove them, through a dialog that posts to their token and warns of a trade in progress only when there is one" do
     sam = befriend_sam
     sign_in(@player)
 
     get friends_path(locale: :fr)
 
-    assert_select ".friends__friend .friends__actions button.button--secondary[aria-haspopup=dialog][aria-label='Retirer Sam de vos amis'][data-dialog-opener-dialog-value=?]",
-      "remove-friend-#{sam.token}", "Retirer"
+    assert_select ".friends__friend .friends__more" do
+      assert_select "button.friends__more-button[type=button][popovertarget=?][aria-label=?]", "friend-actions-#{sam.token}", "Plus d'actions pour Sam"
+      assert_select "#friend-actions-#{sam.token}.friends__menu[popover][aria-label=?]", "Plus d'actions pour Sam" do
+        assert_select "button.friends__menu-item[type=button][aria-haspopup=dialog][aria-label='Retirer Sam de vos amis'][data-dialog-opener-dialog-value=?]",
+          "remove-friend-#{sam.token}", "Retirer"
+      end
+    end
     assert_select "dialog#remove-friend-#{sam.token}.modal[aria-labelledby=?][aria-describedby=?]", "remove-friend-#{sam.token}-title", "remove-friend-#{sam.token}-text" do
       assert_select "#remove-friend-#{sam.token}-title.modal__title", "Retirer Sam ?"
       assert_select "button.modal__close[aria-label=Fermer][data-action='dialog#close']"
@@ -221,20 +227,20 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     assert Game::FriendshipBetween.call(@player, sam), "the GET removes nothing"
   end
 
-  test "a private friend's row still offers the removal after the trades-closed line" do
+  test "a private friend's row still offers the removal in its more-actions menu beside the trades-closed line" do
     sam = befriend_sam
     sam.update!(visibility: "private")
     sign_in(@player)
 
     get friends_path(locale: :fr)
 
-    assert_select ".friends__friend .friends__actions .trades-closed + button[data-dialog-opener-dialog-value=?]", "remove-friend-#{sam.token}", "Retirer"
+    assert_select ".friends__friend .friends__trade + .friends__more button[data-dialog-opener-dialog-value=?]", "remove-friend-#{sam.token}", "Retirer"
 
     sam.update!(visibility: "public")
     @player.update!(visibility: "private")
     get friends_path(locale: :fr)
-    assert_select ".friends__friend .friends__actions .trades-closed", /Votre profil est privé/
-    assert_select ".friends__friend .friends__actions .trades-closed + button[data-dialog-opener-dialog-value=?]", "remove-friend-#{sam.token}", "Retirer"
+    assert_select ".friends__friend .friends__trade .trades-closed", /Votre profil est privé/
+    assert_select ".friends__friend .friends__trade + .friends__more button[data-dialog-opener-dialog-value=?]", "remove-friend-#{sam.token}", "Retirer"
   end
 
   test "confirming the removal ends the friendship for both, cancels the trade in progress and frees its copies, silently for the former friend" do
@@ -304,6 +310,7 @@ class FriendsControllerTest < ActionDispatch::IntegrationTest
     sign_in(@player)
 
     get friends_path(locale: :en)
+    assert_select ".friends__friend button.friends__more-button[aria-label='More actions for Sam']"
     assert_select ".friends__friend button[aria-label='Remove Sam from your friends']", "Remove"
     assert_select "dialog#remove-friend-#{sam.token}" do
       assert_select ".modal__title", "Remove Sam?"

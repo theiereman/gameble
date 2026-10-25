@@ -1,0 +1,25 @@
+<% player = friend.player %>
+<% name = friend_name(player) %>
+<% menu_id = friend_actions_menu_id(player.token) %>
+<li class="friends__row friends__friend">
+  <%= tag.button name, type: :button, class: "friends__name", **dialog_opener_attributes(friend_dialog_id(player.token), label: t(".see_profile_of", name:)) %>
+  <%= render "friends/presence", presence: friend %>
+  <div class="friends__trade">
+    <% if (refusal = trades_refusal(player)) %>
+      <%= trades_closed_line(refusal, player) %>
+    <% else %>
+      <%= render ButtonComponent.new(variant: :secondary, size: :small,
+            href: open_trade_token ? trade_path(token: open_trade_token) : new_trade_path(friend: player.token),
+            aria_label: t(".trade_with", name:)) do %><%= t(".trade") %><% end %>
+    <% end %>
+  </div>
+  <div class="friends__more">
+    <button type="button" class="friends__more-button" popovertarget="<%= menu_id %>" aria-label="<%= t(".more_actions_for", name:) %>">
+      <%= pixel_icon("more", class: "friends__more-icon") %>
+    </button>
+    <div id="<%= menu_id %>" class="friends__menu" popover role="group" aria-label="<%= t(".more_actions_for", name:) %>">
+      <%= tag.button t(".remove"), type: :button, class: "friends__menu-item",
+            **dialog_opener_attributes(remove_friend_dialog_id(player.token), label: t(".remove_friend", name:)) %>
+    </div>
+  </div>
+</li>

@@ -10,89 +10,77 @@
 <% invite_url = public_url_for(invite_link_path(token: current_player.token)) %>
 <section class="friends" aria-labelledby="friends-heading" data-controller="live-refresh" data-live-refresh-signal-value="friends-updated">
   <h1 id="friends-heading" class="friends__title"><%= t(".title") %></h1>
-  <%= render PanelComponent.new(brackets: true, class: "friends__panel", id: "friends-invite") do %>
-    <h2 class="friends__heading"><%= t(".invite") %></h2>
-    <div class="friends__field" data-controller="share" data-share-copied-value="<%= t(".copied") %>" data-share-manual-value="<%= t(".manual") %>">
-      <label class="friends__label" for="invite-link"><%= t(".by_link") %></label>
-      <div class="friends__row-field">
-        <input type="text" id="invite-link" class="friends__input" value="<%= invite_url %>" readonly data-share-target="url">
-        <button type="button" class="button button--secondary button--small" data-action="share#copy"><%= t(".copy") %></button>
-      </div>
-      <p class="friends__status" role="status" data-share-target="status"></p>
-    </div>
-    <% if @friend_code %>
-      <p class="friends__label" id="friend-code-label"><%= t(".code_label") %></p>
-      <p class="friends__code" aria-labelledby="friend-code-label"><%= @friend_code %></p>
-    <% end %>
-    <%= form_with url: invitations_path, class: "friends__field", data: { turbo: false } do |form| %>
-      <%= form.label :code, t(".add_by_code"), class: "friends__label" %>
-      <div class="friends__row-field">
-        <%= form.text_field :code, class: "friends__input", maxlength: 9, autocomplete: "off", autocapitalize: "characters",
-              spellcheck: false, placeholder: "ABCD-1234", "aria-describedby": "invite-message" %>
-        <%= form.button t(".add"), type: :submit, class: "button button--primary button--small" %>
-      </div>
-    <% end %>
-    <p id="invite-message" role="status" class="<%= class_names("friends__message", "friends__message--error": flash[:invite_error], "friends__message--sent": flash[:invite_done]) %>"><%= flash[:invite_error] || flash[:invite_done] %></p>
-  <% end %>
-
-  <h2 class="friends__heading"><%= t(".invitations") %></h2>
-  <% if @invitations.received.empty? && @invitations.sent.empty? %>
-    <%= render PanelComponent.new(tag: :p, class: "friends__empty") do %><%= t(".no_invitations") %><% end %>
-  <% else %>
-    <ul class="friends__list">
-      <% @invitations.received.each do |invitation| %>
-        <li class="friends__row friends__invitation">
-          <span class="friends__who"><%= t(".invites_you", name: friend_name(invitation.player)) %></span>
-          <span class="friends__actions">
-            <%= render ButtonComponent.new(href: accept_invitation_path(token: invitation.token), method: :post, size: :small) do %><%= t(".accept") %><% end %>
-            <%= render ButtonComponent.new(variant: :secondary, href: ignore_invitation_path(token: invitation.token), method: :post, size: :small) do %><%= t(".ignore") %><% end %>
-          </span>
-        </li>
-      <% end %>
-      <% @invitations.sent.each do |invitation| %>
-        <li class="friends__row friends__invitation">
-          <% invited = invited_name(invitation.player, invitation.code) %>
-          <span class="friends__who"><%= t(".sent_to", name: invited) %></span>
-          <span class="friends__actions">
-            <span class="friends__chip"><%= t(".pending") %></span>
-            <%= render ButtonComponent.new(variant: :secondary, href: cancel_invitation_path(token: invitation.token), method: :post, size: :small,
-                  aria_label: t(".cancel_invitation_to", name: invited)) do %><%= t(".cancel") %><% end %>
-          </span>
-        </li>
-      <% end %>
-    </ul>
-  <% end %>
-
-  <h2 class="friends__heading"><%= t(".friends") %></h2>
-  <% if @friends.empty? %>
-    <%= render PanelComponent.new(tag: :p, class: "friends__empty") do %><%= t(".empty") %> <%= link_to t(".empty_invite"), "#friends-invite" %><% end %>
-  <% else %>
-    <ul class="friends__list">
-      <% @friends.each do |friend| %>
-        <li class="friends__row friends__friend">
-          <% name = friend_name(friend.player) %>
-          <span class="friends__name"><%= name %></span>
-          <div class="friends__actions">
-            <%= render "friends/presence", presence: friend %>
-            <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: friend_dialog_id(friend.player.token),
-                  aria_label: t(".see_profile_of", name:)) do %><%= t(".see_profile") %><% end %>
-            <% if (refusal = trades_refusal(friend.player)) %>
-              <%= trades_closed_line(refusal, friend.player) %>
-            <% else %>
-              <% open_trade_token = @open_trade_tokens[friend.player.id] %>
-              <%= render ButtonComponent.new(variant: :secondary, size: :small,
-                    href: open_trade_token ? trade_path(token: open_trade_token) : new_trade_path(friend: friend.player.token),
-                    aria_label: t(".trade_with", name:)) do %><%= t(".trade") %><% end %>
-            <% end %>
-            <%= render ButtonComponent.new(variant: :secondary, size: :small, opens: remove_friend_dialog_id(friend.player.token),
-                  aria_label: t(".remove_friend", name:)) do %><%= t(".remove") %><% end %>
+  <div class="friends__layout">
+    <div class="friends__side">
+      <%= render PanelComponent.new(brackets: true, class: "friends__panel", id: "friends-invite") do %>
+        <h2 class="friends__heading"><%= t(".invite") %></h2>
+        <div class="friends__field" data-controller="share" data-share-copied-value="<%= t(".copied") %>" data-share-manual-value="<%= t(".manual") %>">
+          <label class="friends__label" for="invite-link"><%= t(".by_link") %></label>
+          <div class="friends__row-field">
+            <input type="text" id="invite-link" class="friends__input" value="<%= invite_url %>" readonly data-share-target="url">
+            <button type="button" class="button button--secondary button--small" data-action="share#copy"><%= t(".copy") %></button>
           </div>
-        </li>
+          <p class="friends__status" role="status" data-share-target="status"></p>
+        </div>
+        <% if @friend_code %>
+          <p class="friends__label" id="friend-code-label"><%= t(".code_label") %></p>
+          <p class="friends__code" aria-labelledby="friend-code-label"><%= @friend_code %></p>
+        <% end %>
+        <%= form_with url: invitations_path, class: "friends__field", data: { turbo: false } do |form| %>
+          <%= form.label :code, t(".add_by_code"), class: "friends__label" %>
+          <div class="friends__row-field">
+            <%= form.text_field :code, class: "friends__input", maxlength: 9, autocomplete: "off", autocapitalize: "characters",
+                  spellcheck: false, placeholder: "ABCD-1234", "aria-describedby": "invite-message" %>
+            <%= form.button t(".add"), type: :submit, class: "button button--primary button--small" %>
+          </div>
+        <% end %>
+        <p id="invite-message" role="status" class="<%= class_names("friends__message", "friends__message--error": flash[:invite_error], "friends__message--sent": flash[:invite_done]) %>"><%= flash[:invite_error] || flash[:invite_done] %></p>
       <% end %>
-    </ul>
-    <% @friends.each do |friend| %>
-      <%= render "friends/profile_dialog", friend: friend.player %>
-      <%= render "friends/remove_dialog", friend: friend.player, open_trade: @open_trade_tokens.key?(friend.player.id) %>
-    <% end %>
+
+      <h2 class="friends__heading"><%= t(".invitations") %></h2>
+      <% if @invitations.received.empty? && @invitations.sent.empty? %>
+        <%= render PanelComponent.new(tag: :p, class: "friends__empty") do %><%= t(".no_invitations") %><% end %>
+      <% else %>
+        <ul class="friends__list">
+          <% @invitations.received.each do |invitation| %>
+            <li class="friends__row friends__invitation">
+              <span class="friends__who"><%= t(".invites_you", name: friend_name(invitation.player)) %></span>
+              <span class="friends__actions">
+                <%= render ButtonComponent.new(href: accept_invitation_path(token: invitation.token), method: :post, size: :small) do %><%= t(".accept") %><% end %>
+                <%= render ButtonComponent.new(variant: :secondary, href: ignore_invitation_path(token: invitation.token), method: :post, size: :small) do %><%= t(".ignore") %><% end %>
+              </span>
+            </li>
+          <% end %>
+          <% @invitations.sent.each do |invitation| %>
+            <li class="friends__row friends__invitation">
+              <% invited = invited_name(invitation.player, invitation.code) %>
+              <span class="friends__who"><%= t(".sent_to", name: invited) %></span>
+              <span class="friends__actions">
+                <span class="friends__chip"><%= t(".pending") %></span>
+                <%= render ButtonComponent.new(variant: :secondary, href: cancel_invitation_path(token: invitation.token), method: :post, size: :small,
+                      aria_label: t(".cancel_invitation_to", name: invited)) do %><%= t(".cancel") %><% end %>
+              </span>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
+
+    <div class="friends__main">
+      <h2 class="friends__heading"><%= t(".friends") %></h2>
+      <% if @friends.empty? %>
+        <%= render PanelComponent.new(tag: :p, class: "friends__empty") do %><%= t(".empty") %> <%= link_to t(".empty_invite"), "#friends-invite" %><% end %>
+      <% else %>
+        <ul class="friends__list friends__roster">
+          <% @friends.each do |friend| %>
+            <%= render "friends/friend_row", friend:, open_trade_token: @open_trade_tokens[friend.player.id] %>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
+  </div>
+  <% @friends.each do |friend| %>
+    <%= render "friends/profile_dialog", friend: friend.player %>
+    <%= render "friends/remove_dialog", friend: friend.player, open_trade: @open_trade_tokens.key?(friend.player.id) %>
   <% end %>
 </section>
