@@ -11,7 +11,7 @@ class Game::PioneerOfTest < ActiveSupport::TestCase
     pioneer = nil
     assert_queries_count(1) { pioneer = Game::PioneerOf.call(@portal_one.id) }
     assert_equal accounts_players(:banned), pioneer.player
-    assert_in_delta 2.weeks.ago, pioneer.discovered_at, 1.minute
+    assert_equal game_first_discoveries(:portal_one).discovered_at, pioneer.discovered_at
   end
 
   test "each edition of a card has its own pioneer, whichever season is published" do
