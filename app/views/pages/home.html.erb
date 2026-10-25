@@ -1,8 +1,9 @@
-<%# The hub, "Pont de commandement". Desktop: the kicker, menu and daily
-    booster panel on the left, the showcase in the centre, the set progress
-    on the right (from 1180px; under it in the left column). Phone: one
-    column without the menu, the tab bar navigating. The daily booster
-    panel stays once the day's booster is collected (the countdown to the
+<%# The hub, "Pont de commandement". Desktop: the kicker, menu and set
+    progress on the left, the showcase in the centre, the community goal
+    and the daily booster panel under it on the right (from 1180px; from
+    720px they join the left column between the menu and the set progress).
+    Phone: one column without the menu, the tab bar navigating. The daily
+    booster panel stays once the day's booster is collected (the countdown to the
     next one). The daily claim's Turbo Stream answer
     replaces the panel, the packs chip, menu 01 and the empty showcase's
     action (bonus_arc_controller.ts flies the canister). A contributor's
@@ -31,8 +32,10 @@
   <span hidden data-controller="bonus-arc" data-action="turbo:before-stream-render@document->bonus-arc#render"></span>
 
   <%= render "pages/showcase", card: @showcase, chosen: @showcase_chosen, bank: @bank %>
-  <%= render "pages/goal", goal: @goal, reward: @goal_reward, bank: @bank %>
-  <%= render "pages/daily_booster", bank: @bank, primary: @showcase.present? if @bank[:bonus_collectable] || @bank[:bonus_collected] %>
+  <div class="hub__aside">
+    <%= render "pages/goal", goal: @goal, reward: @goal_reward, bank: @bank %>
+    <%= render "pages/daily_booster", bank: @bank, primary: @showcase.present? if @bank[:bonus_collectable] || @bank[:bonus_collected] %>
+  </div>
 
   <%= render "pages/set_progress", sets: @sets if @sets.any? %>
 </div>

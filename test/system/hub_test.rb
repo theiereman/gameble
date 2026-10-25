@@ -2,10 +2,10 @@ require "application_system_test_case"
 require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
-# The hub, "Pont de commandement": its layout on a desktop and
-# two phones, signed in and out; the sign-in panel and its focus; the menu's
-# number keys and the item focused on the way back; landing on the hub after
-# signing in and out.
+# The hub, "Pont de commandement": its layout on a desktop, on two columns
+# and on two phones, signed in and out; the sign-in panel and its focus; the
+# menu's number keys and the item focused on the way back; landing on the hub
+# after signing in and out.
 class HubTest < ApplicationSystemTestCase
   include GamePacks
   include SteamSignIn
@@ -40,25 +40,51 @@ class HubTest < ApplicationSystemTestCase
     find(".hub-menu .menu-item[aria-keyshortcuts='#{key}']")
   end
 
-  test "on a desktop, a player sees the menu, the showcase, the daily panel and the sets in three columns" do
+  def sign_in_with_showcase_and_sets
     gained = 1.hour.ago.change(usec: 0)
     Game::Holding.create!(player_id: @player.id, card_season_id: catalog_card_seasons(:portal_one).id, quantity: 1, last_gained_at: gained)
     Game::SetTier.insert_all!([ { player_id: @player.id, set_id: catalog_sets(:valve_one).id, tier: "complete", reached_by: "trade",
       reached_at: gained, created_at: gained, updated_at: gained } ])
     2.times { create_pack(@player) }
     sign_in
-
-    assert_selector ".hub-menu .menu-item", count: 9
     assert_selector ".hub-showcase .card--xl"
     assert_selector ".daily-booster"
     assert_selector ".hub-sets .set-row"
-    menu, showcase, sets = %w[.hub-menu .hub-showcase .hub-sets].map do |selector|
-      page.evaluate_script("document.querySelector(#{selector.to_json}).getBoundingClientRect().left")
-    end
-    assert_operator menu, :<, showcase
-    assert_operator showcase, :<, sets
+  end
+
+  def hub_row_gap = page.evaluate_script("parseFloat(getComputedStyle(document.querySelector('.hub')).rowGap)")
+
+  def assert_stacked(upper, lower)
+    assert_in_delta rect(upper)[:left], rect(lower)[:left], 1, "#{lower} should share #{upper}'s column"
+    assert_in_delta hub_row_gap, rect(lower)[:top] - rect(upper)[:bottom], 1, "#{lower} should sit right under #{upper}"
+  end
+
+  test "on a desktop, the menu then the sets on the left, the showcase, the community goal then the daily panel on the right" do
+    sign_in_with_showcase_and_sets
+
+    assert_selector ".hub-menu .menu-item", count: 9
+    assert_operator rect(".hub-menu")[:left], :<, rect(".hub-showcase")[:left]
+    assert_operator rect(".hub-showcase")[:left], :<, rect("#community-goal")[:left]
+    assert_stacked(".hub-menu", ".hub-sets")
+    assert_stacked("#community-goal", ".daily-booster")
+    assert_in_delta rect(".hub__kicker")[:top], rect("#community-goal")[:top], 1, "the community goal should top the right column"
     assert_no_sideways_scroll
     take_screenshot
+  end
+
+  test "on two columns, the left one stacks the menu, the community goal, the daily panel then the sets" do
+    resize_to(1000, 1400)
+    sign_in_with_showcase_and_sets
+
+    assert_operator rect(".hub-menu")[:left], :<, rect(".hub-showcase")[:left]
+    assert_stacked(".hub-menu", "#community-goal")
+    assert_stacked("#community-goal", ".daily-booster")
+    assert_stacked(".daily-booster", ".hub-sets")
+    assert_no_sideways_scroll
+    take_screenshot
+
+    page.execute_script("document.querySelector('.daily-booster').remove()")
+    assert_stacked("#community-goal", ".hub-sets")
   end
 
   def rect(selector)
@@ -165,10 +191,10 @@ class HubTest < ApplicationSystemTestCase
       assert_signed_in
       # The menu is hidden: the heading takes the focus a sign-in asks for.
       assert focused?("h1.hub__title"), "the heading should hold the focus"
-      order = %w[.hub__kicker .hub-showcase .daily-booster .hub-sets].map do |selector|
+      order = %w[.hub__kicker .hub-showcase #community-goal .daily-booster .hub-sets].map do |selector|
         page.evaluate_script("document.querySelector(#{selector.to_json}).getBoundingClientRect().top")
       end
-      assert_equal order.sort, order, "kicker, showcase, daily panel, sets, top to bottom"
+      assert_equal order.sort, order, "kicker, showcase, community goal, daily panel, sets, top to bottom"
       assert_no_sideways_scroll
       take_screenshot
     end
