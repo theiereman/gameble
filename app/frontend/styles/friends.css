@@ -322,7 +322,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
-  container: friend-profile / inline-size;
 }
 
 .friend-profile__head {
@@ -401,7 +400,15 @@
   box-shadow: var(--control-border);
 }
 
-@container friend-profile (width < 420px) {
+.button.friend-profile__view:active {
+  box-shadow: var(--control-border);
+}
+
+.button.friend-profile__view:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+@media (max-width: 719px) {
   .friend-profile__actions {
     grid-template-columns: minmax(0, 1fr) auto;
   }
