@@ -248,7 +248,7 @@
   font-weight: bold;
 }
 
-/* A link chip's mark stays out of its accessible name. */
+/* Kept apart from the plain `content` above, the fallback where `content` alt text is unsupported. */
 .filter-chip[aria-current="true"] .filter-chip__text::before {
   content: "\2713" / "";
 }
@@ -380,7 +380,6 @@
   cursor: pointer;
 }
 
-/* A chip can also be a link or a button: the plate is its text. */
 a.filter-chip,
 button.filter-chip {
   display: inline-flex;

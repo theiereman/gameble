@@ -19,10 +19,6 @@
   text-transform: uppercase;
 }
 
-/* The scope and the kind of entry: one line of filter chips, the scope
-   first, a divider before the kinds, aligned on the list. A line too long
-   for the screen scrolls sideways inside the zone, never the page; the
-   zone's padding keeps a chip's focus ring unclipped. */
 .feed__controls {
   --feed-controls-ring: calc(var(--focus-ring-width) + var(--focus-ring-offset));
   display: flex;

@@ -67,6 +67,8 @@ class FeedTest < ApplicationSystemTestCase
       layout["tops"].uniq.size == 1 && layout["tabsRight"] < layout["filtersLeft"] &&
         (layout["firstChipLeft"] - layout["listLeft"]).abs <= 1 && !layout["scrolls"]
     end
+    assert_not_equal "none", page.evaluate_script("getComputedStyle(document.querySelector('.feed__filters')).boxShadow"),
+      "a divider should set the filters apart from the tabs"
     assert_match(/\ATous\z/i, find(".feed__tab[aria-current]").native.accessible_name)
     assert_match(/\AAmis\z/i, find(".feed__tab[disabled]").native.accessible_name)
   end
@@ -84,6 +86,7 @@ class FeedTest < ApplicationSystemTestCase
 
     find(".feed__filter", text: /\AReposts\z/i).click
     assert_selector ".feed__filter[aria-current]", text: /\AReposts\z/i
+    eventually("the current Reposts chip should be scrolled into the zone's view") { current_filter_in_view? }
   end
 
   test "signed in, Friends shows a friend's pull and not a stranger's, and Friends · Pulls keeps both choices" do
@@ -177,6 +180,16 @@ class FeedTest < ApplicationSystemTestCase
             listLeft: document.querySelector(".feed__list").getBoundingClientRect().left,
             scrolls: zone.scrollWidth > zone.clientWidth
           };
+        })()
+      JS
+    end
+
+    def current_filter_in_view?
+      page.evaluate_script(<<~JS)
+        (() => {
+          const zone = document.querySelector(".feed__controls").getBoundingClientRect();
+          const chip = document.querySelector(".feed__filter[aria-current]").getBoundingClientRect();
+          return chip.left >= zone.left && chip.right <= zone.right;
         })()
       JS
     end

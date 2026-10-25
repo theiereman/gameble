@@ -697,7 +697,7 @@ One style for every focusable element: `{components.focus-ring.css}`, a 3px `{co
 
 #### Tabs and filters
 
-Rows of buttons (`{spacing.chip-height}`, `{typography.label}`) on `{colors.panel}` with `{components.control-border.css}`; the selected one is filled with accent and carries `aria-pressed` (`aria-current` for a link). Used for genre filters, the feed's tabs and filters (see Activity feed), and on the phone as chip rows for sets (`{components.set-chip-phone.size}`, a 4px progress bar, a 4px accent base when selected) and genres. Phone hit area `{spacing.chip-height-touch}`.
+Rows of buttons (`{spacing.chip-height}`, `{typography.label}`) on `{colors.panel}` with `{components.control-border.css}`; the selected one is filled with accent and carries `aria-pressed`. Used for genre filters, and on the phone as chip rows for sets (`{components.set-chip-phone.size}`, a 4px progress bar, a 4px accent base when selected) and genres. Phone hit area `{spacing.chip-height-touch}`. The activity feed's tabs and filters are not such rows: its zone uses the catalog's FILTRES chips on one line (see Activity feed).
 
 #### Dialogs, toasts, inputs
 

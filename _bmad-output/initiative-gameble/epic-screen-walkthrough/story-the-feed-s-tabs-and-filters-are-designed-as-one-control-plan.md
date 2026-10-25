@@ -3,13 +3,13 @@ title: "The feed's tabs and filters are designed as one control"
 type: 'feature'
 ticket: 31
 created: '2026-10-25'
-status: 'blocked'
+status: 'built'
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144'
 route: 'oneshot'
 route_source: 'pinned'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context: []
@@ -61,10 +61,11 @@ Oneshot (pinned): one view, one stylesheet, the shared chip rules and their test
 
 ## Auto Run Result
 
-Status: blocked
-Blocking condition: no subagents
+Status: built
 
-- Implemented, verified and committed on `build/16.31-feed-filters-one-control` (e5aeb1b717c2736a4e59b5c3288e7aa3e5a736cd), from baseline 9ec8aeb2f7bf1a6c773285d98ede884bb63f0144.
-- Halted at step 4: the Quick review lens needs a subagent and this session has no subagent tool; no lens ran (`lenses_ran` empty). The coordinator runs the review on the diff since the baseline.
-- `tickets.py mark` was not run (refused on this store; `gh` unauthenticated); the status is set in this frontmatter instead.
-- hitl: the author checks the zone on staging, in particular the phone's sideways-scrolling line.
+- Summary: the activity feed's TOUS and AMIS and its kind filters are one zone of the catalog's FILTRES chips on one line, the tabs then a divider then the kinds, the current chips filled with a check mark, a visitor's AMIS greyed and disabled; on the phone the line scrolls inside its zone, which brings the current chip into view.
+- Files: `app/views/feeds/show.html.erb`, `app/helpers/feed_helper.rb` (`feed_chip_link`), `app/frontend/controllers/current_chips_controller.ts`, `app/frontend/styles/collection.css` (link, button, current and disabled chips), `app/frontend/styles/feed.css`, `test/controllers/feeds_controller_test.rb`, `test/system/feed_test.rb`, DESIGN.md and EXPERIENCE.md.
+- Review: the Quick lens ran from the coordinating session after the unattended run halted on `no subagents`. 4 findings, all patched (1 medium, 3 low); nothing deferred or rejected.
+- Follow-up review recommended: false (one medium patched).
+- Verification: after the patches, `feeds_controller_test.rb`, `feed_test.rb` and `landing_live_feed_test.rb` 52 runs, 0 failures on Chromium 141; vitest 561; typecheck and rubocop clean; the unattended run's library and collection set system tests (the shared chips), full suite 3172 runs 0 failures on rerun, zeitwerk, packwerk, brakeman and i18n-tasks clean.
+- Residual risks: the phone keeps one scrolling line rather than wrapping, the author's look on staging settles it; a first full run had one unidentified failure that did not come back.

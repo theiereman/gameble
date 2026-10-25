@@ -30,7 +30,7 @@
       data: ({ controller: "feed-announcer", feed_announcer_templates_value: t(".announcement").to_json,
                feed_announcer_limit_value: Game::FeedEntries::LIMIT } if @live) do %>
   <h1 id="feed-heading" class="feed__title"><%= t(".title") %></h1>
-  <div class="feed__controls">
+  <div class="feed__controls" data-controller="current-chips">
     <nav class="feed__tabs" aria-label="<%= t(".tabs_label") %>">
       <%= feed_chip_link t(".tabs.all"), feed_path(filter: @filter), current: @tab.nil?, classes: "feed__tab" %>
       <% if current_player %>
