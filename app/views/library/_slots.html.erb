@@ -1,0 +1,19 @@
+<% strings = CardStrings.new %>
+<% slots.each do |card, held| %>
+  <li class="collection-slot">
+    <% if held %>
+      <%= link_to_card_detail(card, strings:, context: { grid: context }) do %><%= render CardComponent.new(card:, size: :grid) %><% end %>
+      <span class="collection-slot__copies" aria-hidden="true">x<%= number_with_delimiter(held.copies) %></span>
+      <span class="visually-hidden"><%= t("library.grid.copies", count: held.copies, number: number_with_delimiter(held.copies)) %></span>
+      <% if held.editions > 1 %>
+        <span class="collection-slot__editions" aria-hidden="true"><%= t("library.grid.editions.short", count: held.editions) %></span>
+        <span class="visually-hidden"><%= t("library.grid.editions.full", count: held.editions) %></span>
+      <% end %>
+      <% if held.new && new_badge %>
+        <span class="collection-slot__new"><%= t("library.grid.new") %></span>
+      <% end %>
+    <% else %>
+      <%= link_to_card_detail(card, strings:, context: { grid: context }, owned: !set_apart) do %><%= render CardComponent.new(card:, size: :grid, owned: !set_apart) %><% end %>
+    <% end %>
+  </li>
+<% end %>

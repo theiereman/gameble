@@ -1,0 +1,10 @@
+<% if @season %>
+  <% if @slots.any? %>
+    <%= turbo_stream.append "collection-slots", partial: "library/slots", locals: { slots: @slots, context: @grid_context, set_apart: current_player.present?, new_badge: !@grid_context.key?(:brother) } %>
+  <% end %>
+  <%= turbo_stream.update "collection-results-status", t("library.grid.pages.shown", count: @slots.size, from: @grid_pagy.from, to: @grid_pagy.to, total: @grid_pagy.count) %>
+  <% if @seen_up_to %>
+    <%= turbo_stream.append "collection-results", partial: "library/seen", locals: { seen_up_to: @seen_up_to } %>
+  <% end %>
+  <%= turbo_stream.replace "collection-pages", partial: "library/pages", locals: { pagy: @grid_pagy, empty: @slots.empty? } %>
+<% end %>

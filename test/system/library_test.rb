@@ -245,7 +245,83 @@ class LibraryTest < ApplicationSystemTestCase
     take_screenshot
   end
 
+  test "a player's filtered, searched grid appends its next page as its links come near, the status naming the cards shown" do
+    held = Catalog::CardSeason.where(season_id: @season.id, main_theme: "roguelike").order(:number, :id).last(2)
+    held.each { Game::Holding.create!(player_id: @player.id, card_season_id: it.id, quantity: 1) }
+    held_paths = held.map { "/en/cards/#{it.card.slug}/" }
+    sign_in
+    filters = { state: %w[missing], genre: %w[roguelike], q: "seed" }
+    visit library_cards_path(locale: :en, **filters, page: 2)
+    second_page = all(".collection-grid a.card-link", minimum: 1).map { it[:href] }
+    assert_equal 21, second_page.size
+
+    visit library_cards_path(locale: :en, **filters)
+    assert_selector ".collection-grid > li", count: 60, visible: :all
+    scroll_to_pages
+
+    assert_selector ".collection-grid > li", count: 81, visible: :all
+    appended = all(".collection-grid > li:nth-child(n+61) a.card-link", visible: :all).map { it[:href] }
+    assert_equal second_page, appended
+    assert_selector ".collection-grid > li:nth-child(n+61) .card.card--not-owned", count: 21, visible: :all
+    assert_no_selector ".collection-grid .collection-slot__copies", visible: :all
+    assert appended.none? { |href| held_paths.any? { URI(href).path.start_with?(it) } }
+    assert_selector "#collection-results-status", text: "Cards 61 to 81 of 81 shown.", visible: :all
+    assert_no_selector "#collection-pages a[rel=next]", visible: :all
+    assert_selector "#collection-pages a[rel=prev][href*='state%5B%5D=missing']", visible: :all
+    assert_selector "#collection-pages [aria-current=page]", text: "2", visible: :all
+    assert_current_path library_cards_path(locale: :en, **filters)
+  end
+
+  test "the whole grid in French appends its pages one after the other, to its last card" do
+    visit library_cards_path(locale: :fr)
+    assert_selector ".collection-grid > li", count: 60, visible: :all
+
+    scroll_to_pages
+    assert_selector ".collection-grid > li", count: 120, visible: :all
+    assert_selector "#collection-results-status", text: "Cartes 61 à 120 sur 150 affichées.", visible: :all
+
+    scroll_to_pages
+    assert_selector ".collection-grid > li", count: 150, visible: :all
+    assert_selector "#collection-results-status", text: "Cartes 121 à 150 sur 150 affichées.", visible: :all
+    assert_selector "#collection-pages [aria-current=page]", text: "3", visible: :all
+    assert_no_selector "#collection-pages a[rel=next]", visible: :all
+  end
+
+  test "back from a card of an appended page, the grid shows its appended cards at its scroll, the focus on that card's link" do
+    visit library_cards_path(locale: :en)
+    scroll_to_pages
+    assert_selector ".collection-grid > li", count: 120, visible: :all
+
+    slot = find(".collection-grid > li:nth-child(61) a.card-link")
+    slot.execute_script("this.scrollIntoView({ block: 'center' })")
+    grid_scroll = scroll_y
+    slot.click
+    assert_selector ".card-detail h1"
+    assert_no_selector "html[aria-busy]", visible: :all
+
+    go_back
+
+    assert_current_path library_cards_path(locale: :en)
+    assert_selector ".collection-grid > li", minimum: 120, visible: :all
+    assert_scrolled_to grid_scroll
+    assert_focused ".collection-grid > li:nth-child(61) a.card-link"
+  end
+
   private
+    def scroll_to_pages
+      find("#collection-pages").execute_script("this.scrollIntoView({ block: 'end' })")
+    end
+
+    def scroll_y = evaluate_script("window.scrollY")
+
+    def assert_scrolled_to(y)
+      eventually("scrolled to #{scroll_y}, not #{y}") { (scroll_y - y).abs <= 2 }
+    end
+
+    def assert_focused(selector)
+      eventually("the focus is not on #{selector}") { evaluate_script("document.activeElement?.matches(#{selector.to_json})") }
+    end
+
     # The watermark the page posted, waited for (the POST runs after the
     # page has rendered).
     def wait_for_watermark

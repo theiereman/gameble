@@ -1,8 +1,9 @@
 <%# A card's detail, "FICHE DE LA CARTE": a
     bracketed panel with the number at top right, the card at card-l over a
-    ground shadow, its title, the facts the card does not carry and the
-    actions ("Voir sur Steam", the one primary, "Partager" for every card,
-    and "Reposter" and the showcase choice for a holder). The card always
+    ground shadow, its title and the facts the card does not carry; under
+    the panel, outside its background, the actions ("Voir sur Steam", the
+    one primary, "Partager" for every card, and "Reposter" and the showcase
+    choice for a holder). The card always
     shows its face, held or not. ◀ ▶ beside the card step through what it
     browses (an opened pack, a grid, a set), and on a phone
     (sub_view controller) a swipe on it too, under a position line, with
@@ -47,172 +48,174 @@
 <% data = { controller: controllers, sub_view_title_value: card_preview_title(view) } %>
 <% data[:sub_view_back_value] = browse.back.path if browse&.back %>
 <% data.merge!(share_copied_value: t("card_details.share.copied"), share_manual_value: t("card_details.share.manual")) if share_url %>
-<%= render PanelComponent.new(tag: :article, brackets: true, class: "card-detail", aria: { labelledby: "card-detail-heading" }, data:) do %>
-  <header class="card-detail__header">
-    <p class="card-detail__kicker"><%= t("card_details.kicker") %></p>
-    <% if view.number %>
-      <p class="card-detail__number"><%= view.number_label %></p>
-    <% end %>
-  </header>
-  <div class="card-detail__layout">
-    <div class="card-detail__columns">
-      <%# The stage: the card between ◀ and ▶ (links replacing the frame and
-          the URL; a disabled button at an end). A horizontal swipe on it
-          presses them; a vertical drag scrolls the page. %>
-      <div class="card-detail__stage" data-sub-view-target="stage"
-        data-action="pointerdown->sub-view#press pointermove->sub-view#drag pointerup->sub-view#release pointercancel->sub-view#cancel">
-        <% if browse %>
-          <%= render "cards/detail_nav", path: browse.previous, side: :previous %>
-        <% end %>
-        <div class="card-detail__card">
-          <% if card_top_rarity?(view.rarity) %>
-            <div class="card-float">
-              <%= card_rays(view.rarity) %>
+<%= tag.article class: "card-detail", aria: { labelledby: "card-detail-heading" }, data: do %>
+  <%= render PanelComponent.new(brackets: true, class: "card-detail__panel") do %>
+    <header class="card-detail__header">
+      <p class="card-detail__kicker"><%= t("card_details.kicker") %></p>
+      <% if view.number %>
+        <p class="card-detail__number"><%= view.number_label %></p>
+      <% end %>
+    </header>
+    <div class="card-detail__layout">
+      <div class="card-detail__columns">
+        <%# The stage: the card between ◀ and ▶ (links replacing the frame and
+            the URL; a disabled button at an end). A horizontal swipe on it
+            presses them; a vertical drag scrolls the page. %>
+        <div class="card-detail__stage" data-sub-view-target="stage"
+          data-action="pointerdown->sub-view#press pointermove->sub-view#drag pointerup->sub-view#release pointercancel->sub-view#cancel">
+          <% if browse %>
+            <%= render "cards/detail_nav", path: browse.previous, side: :previous %>
+          <% end %>
+          <div class="card-detail__card">
+            <% if card_top_rarity?(view.rarity) %>
+              <div class="card-float">
+                <%= card_rays(view.rarity) %>
+                <%= render CardComponent.new(card: view, size: :l) %>
+              </div>
+            <% else %>
               <%= render CardComponent.new(card: view, size: :l) %>
-            </div>
-          <% else %>
-            <%= render CardComponent.new(card: view, size: :l) %>
+            <% end %>
+            <span class="card-detail__shadow" aria-hidden="true"></span>
+          </div>
+          <% if browse %>
+            <%= render "cards/detail_nav", path: browse.next, side: :next %>
           <% end %>
-          <span class="card-detail__shadow" aria-hidden="true"></span>
         </div>
-        <% if browse %>
-          <%= render "cards/detail_nav", path: browse.next, side: :next %>
-        <% end %>
-      </div>
 
-      <div class="card-detail__info">
-        <h1 id="card-detail-heading" class="card-detail__title" tabindex="-1" data-sub-view-target="heading"><%= view.title %></h1>
-        <% if browse %>
-          <%# "S1 · #4 215 · 3 / 13", or "S1 · 3 / 13" for an unnumbered card. %>
-          <% position = [ view.number_label || "S#{view.season_number}", t("card_details.position", position: browse.position, total: browse.total) ] %>
-          <% position << t("card_details.swipe") if browse.total > 1 %>
-          <p class="card-detail__position"><%= position.join(" · ") %></p>
-        <% end %>
-        <% if detail.short_description %>
-          <p class="card-detail__description"><%= detail.short_description %></p>
-        <% end %>
-        <dl class="card-detail__facts">
-          <% if detail.publisher %>
-            <div class="card-detail__fact">
-              <dt><%= t("card_details.facts.publisher") %></dt>
-              <dd><%= detail.publisher %></dd>
-            </div>
+        <div class="card-detail__info">
+          <h1 id="card-detail-heading" class="card-detail__title" tabindex="-1" data-sub-view-target="heading"><%= view.title %></h1>
+          <% if browse %>
+            <%# "S1 · #4 215 · 3 / 13", or "S1 · 3 / 13" for an unnumbered card. %>
+            <% position = [ view.number_label || "S#{view.season_number}", t("card_details.position", position: browse.position, total: browse.total) ] %>
+            <% position << t("card_details.swipe") if browse.total > 1 %>
+            <p class="card-detail__position"><%= position.join(" · ") %></p>
           <% end %>
-          <div class="card-detail__fact">
-            <dt><%= t("card_details.facts.rarity") %></dt>
-            <dd class="card-detail__rarity card-detail__rarity--<%= view.rarity %>">
-              <%= pixel_icon("rarity-#{tier}", class: "card-detail__rarity-icon") %>
-              <%= strings.rarity_name(view.rarity) %>
-            </dd>
-          </div>
-          <% if view.genre %>
-            <div class="card-detail__fact">
-              <dt><%= t("card_details.facts.genre") %></dt>
-              <dd><%= SetLabel.genre(view.genre) %></dd>
-            </div>
+          <% if detail.short_description %>
+            <p class="card-detail__description"><%= detail.short_description %></p>
           <% end %>
-          <div class="card-detail__fact">
-            <dt><%= t("card_details.facts.year") %></dt>
-            <dd><%= view.year %></dd>
-          </div>
-          <div class="card-detail__fact">
-            <dt><%= t("card_details.facts.season") %></dt>
-            <dd><%= t("card_details.season_number", number: view.season_number) %></dd>
-          </div>
-          <% if pioneer %>
+          <dl class="card-detail__facts">
+            <% if detail.publisher %>
+              <div class="card-detail__fact">
+                <dt><%= t("card_details.facts.publisher") %></dt>
+                <dd><%= detail.publisher %></dd>
+              </div>
+            <% end %>
             <div class="card-detail__fact">
-              <dt><%= t("card_details.facts.pioneer") %></dt>
-              <dd class="card-detail__pioneer">
-                <% if pioneer.token %>
-                  <%= link_to pioneer.name, brother_path(token: pioneer.token) %>
-                <% else %>
-                  <span class="card-detail__pioneer-anon"><%= t("card_details.pioneer.anonymous") %></span>
-                <% end %>
-                <span class="card-detail__pioneer-date"><%= card_detail_pioneer_date(pioneer.discovered_on) %></span>
+              <dt><%= t("card_details.facts.rarity") %></dt>
+              <dd class="card-detail__rarity card-detail__rarity--<%= view.rarity %>">
+                <%= pixel_icon("rarity-#{tier}", class: "card-detail__rarity-icon") %>
+                <%= strings.rarity_name(view.rarity) %>
               </dd>
             </div>
-          <% end %>
-          <% if detail.sets.any? %>
+            <% if view.genre %>
+              <div class="card-detail__fact">
+                <dt><%= t("card_details.facts.genre") %></dt>
+                <dd><%= SetLabel.genre(view.genre) %></dd>
+              </div>
+            <% end %>
             <div class="card-detail__fact">
-              <dt><%= t("card_details.facts.sets") %></dt>
-              <dd>
-                <ul class="card-detail__sets">
-                  <% detail.sets.each do |set| %>
-                    <li><%= set_url ? link_to(SetLabel.for(set), set_url.call(set)) : SetLabel.for(set) %></li>
+              <dt><%= t("card_details.facts.year") %></dt>
+              <dd><%= view.year %></dd>
+            </div>
+            <div class="card-detail__fact">
+              <dt><%= t("card_details.facts.season") %></dt>
+              <dd><%= t("card_details.season_number", number: view.season_number) %></dd>
+            </div>
+            <% if pioneer %>
+              <div class="card-detail__fact">
+                <dt><%= t("card_details.facts.pioneer") %></dt>
+                <dd class="card-detail__pioneer">
+                  <% if pioneer.token %>
+                    <%= link_to pioneer.name, brother_path(token: pioneer.token) %>
+                  <% else %>
+                    <span class="card-detail__pioneer-anon"><%= t("card_details.pioneer.anonymous") %></span>
                   <% end %>
-                </ul>
-              </dd>
-            </div>
-          <% end %>
-          <% if signed_in %>
-            <div class="card-detail__fact">
-              <dt><%= t("card_details.facts.copies") %></dt>
-              <dd class="card-detail__copies"><%= copies ? t("card_details.copies", count: copies) : t("card_details.no_copies") %></dd>
-            </div>
-            <div class="card-detail__fact">
-              <dt><%= t("card_details.facts.editions") %></dt>
-              <% if editions.any? %>
-                <% lines = card_detail_edition_lines(editions, strings) %>
-                <% shown, folded = lines.first(3), lines.drop(3) %>
+                  <span class="card-detail__pioneer-date"><%= card_detail_pioneer_date(pioneer.discovered_on) %></span>
+                </dd>
+              </div>
+            <% end %>
+            <% if detail.sets.any? %>
+              <div class="card-detail__fact">
+                <dt><%= t("card_details.facts.sets") %></dt>
                 <dd>
-                  <ul class="card-detail__editions">
-                    <% shown.each do |line| %>
-                      <li><%= line %></li>
+                  <ul class="card-detail__sets">
+                    <% detail.sets.each do |set| %>
+                      <li><%= set_url ? link_to(SetLabel.for(set), set_url.call(set)) : SetLabel.for(set) %></li>
                     <% end %>
                   </ul>
-                  <% if folded.any? %>
-                    <details class="card-detail__editions-fold">
-                      <summary class="card-detail__editions-more"><%= t("card_details.editions_more", count: folded.size) %></summary>
-                      <ul class="card-detail__editions">
-                        <% folded.each do |line| %>
-                          <li><%= line %></li>
-                        <% end %>
-                      </ul>
-                    </details>
-                  <% end %>
                 </dd>
-              <% else %>
-                <dd><%= t("card_details.no_editions") %></dd>
-              <% end %>
-            </div>
-          <% end %>
-          <% if detail.steam_reviews %>
-            <div class="card-detail__fact">
-              <dt><%= t("card_details.facts.steam_reviews") %></dt>
-              <dd><%= card_detail_steam_reviews(detail.steam_reviews) %></dd>
-            </div>
-          <% end %>
-        </dl>
-        <div class="card-detail__actions">
-          <%= external_link_to t("card_details.store"), card_detail_store_url(detail.store_url), button: true,
-            class: "button button--primary card-detail__store" %>
-          <% if share_url %>
-            <%# Opens the share sheet and copies the link in the same click,
-                where the browser still allows the clipboard
-                (share_controller.ts). %>
-            <button type="button" class="button button--secondary card-detail__share-button" aria-haspopup="dialog"
-              data-controller="dialog-opener" data-dialog-opener-dialog-value="share-sheet"
-              data-action="dialog-opener#open share#copy"><%= t("card_details.share.button") %></button>
-            <% if repostable %>
-              <%= render ButtonComponent.new(variant: :secondary, href: card_repost_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("reposts.button") %><% end %>
+              </div>
             <% end %>
-          <% end %>
-          <% if showcase %>
-            <div class="card-detail__showcase">
-              <% case showcase %>
-              <% when :add %>
-                <%= render ButtonComponent.new(variant: :secondary, href: card_showcase_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("showcases.add") %><% end %>
-              <% when :remove %>
-                <%= render ButtonComponent.new(variant: :secondary, href: card_showcase_path(slug: view.id, number: view.season_number), method: :delete) do %><%= t("showcases.remove") %><% end %>
-              <% when :full %>
-                <%= render ButtonComponent.new(variant: :secondary, disabled: true) do %><%= t("showcases.add") %><% end %>
-                <p class="card-detail__showcase-full"><%= t("showcases.full") %></p>
-              <% end %>
-            </div>
-          <% end %>
+            <% if signed_in %>
+              <div class="card-detail__fact">
+                <dt><%= t("card_details.facts.copies") %></dt>
+                <dd class="card-detail__copies"><%= copies ? t("card_details.copies", count: copies) : t("card_details.no_copies") %></dd>
+              </div>
+              <div class="card-detail__fact">
+                <dt><%= t("card_details.facts.editions") %></dt>
+                <% if editions.any? %>
+                  <% lines = card_detail_edition_lines(editions, strings) %>
+                  <% shown, folded = lines.first(3), lines.drop(3) %>
+                  <dd>
+                    <ul class="card-detail__editions">
+                      <% shown.each do |line| %>
+                        <li><%= line %></li>
+                      <% end %>
+                    </ul>
+                    <% if folded.any? %>
+                      <details class="card-detail__editions-fold">
+                        <summary class="card-detail__editions-more"><%= t("card_details.editions_more", count: folded.size) %></summary>
+                        <ul class="card-detail__editions">
+                          <% folded.each do |line| %>
+                            <li><%= line %></li>
+                          <% end %>
+                        </ul>
+                      </details>
+                    <% end %>
+                  </dd>
+                <% else %>
+                  <dd><%= t("card_details.no_editions") %></dd>
+                <% end %>
+              </div>
+            <% end %>
+            <% if detail.steam_reviews %>
+              <div class="card-detail__fact">
+                <dt><%= t("card_details.facts.steam_reviews") %></dt>
+                <dd><%= card_detail_steam_reviews(detail.steam_reviews) %></dd>
+              </div>
+            <% end %>
+          </dl>
         </div>
       </div>
     </div>
+  <% end %>
+  <div class="card-detail__actions">
+    <%= external_link_to t("card_details.store"), card_detail_store_url(detail.store_url), button: true,
+      class: "button button--primary card-detail__store" %>
+    <% if share_url %>
+      <%# Opens the share sheet and copies the link in the same click,
+          where the browser still allows the clipboard
+          (share_controller.ts). %>
+      <button type="button" class="button button--secondary card-detail__share-button" aria-haspopup="dialog"
+        data-controller="dialog-opener" data-dialog-opener-dialog-value="share-sheet"
+        data-action="dialog-opener#open share#copy"><%= t("card_details.share.button") %></button>
+      <% if repostable %>
+        <%= render ButtonComponent.new(variant: :secondary, href: card_repost_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("reposts.button") %><% end %>
+      <% end %>
+    <% end %>
+    <% if showcase %>
+      <div class="card-detail__showcase">
+        <% case showcase %>
+        <% when :add %>
+          <%= render ButtonComponent.new(variant: :secondary, href: card_showcase_path(slug: view.id, number: view.season_number), method: :post) do %><%= t("showcases.add") %><% end %>
+        <% when :remove %>
+          <%= render ButtonComponent.new(variant: :secondary, href: card_showcase_path(slug: view.id, number: view.season_number), method: :delete) do %><%= t("showcases.remove") %><% end %>
+        <% when :full %>
+          <%= render ButtonComponent.new(variant: :secondary, disabled: true) do %><%= t("showcases.add") %><% end %>
+          <p class="card-detail__showcase-full"><%= t("showcases.full") %></p>
+        <% end %>
+      </div>
+    <% end %>
   </div>
   <% if share_url %>
     <%= render "cards/share_sheet", view:, share_url:, strings: %>

@@ -261,6 +261,20 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[Hugo Léa Sam], names
   end
 
+  test "the tabs, then the type filters, are one zone of filter chips, the current one of each marked" do
+    get feed_path(locale: :en, filter: "trades")
+
+    assert_select ".feed__controls", 1
+    assert_select ".feed__controls > nav", 2
+    assert_select ".feed__controls > nav:first-child.feed__tabs"
+    assert_select ".feed__controls > nav:last-child.feed__filters[aria-label=?]", "Filter by type"
+    assert_select ".feed__controls a.filter-chip > .filter-chip__text", 7
+    assert_select ".feed__controls .filter-chip[aria-current=true]", 2
+    assert_select ".feed__tab.filter-chip[aria-current=true]", "All"
+    assert_select ".feed__filter.filter-chip[aria-current=true]", "Trades"
+    assert_select ".feed__controls .segmented, .feed__controls .segmented__option", false
+  end
+
   test "Friends shows only the friends' entries, not the player's own nor a stranger's" do
     friends_and_strangers
 
@@ -366,7 +380,7 @@ class FeedsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".feed__tab[aria-current]", count: 1, text: "Tous"
-    assert_select "button.feed__tab.segmented__option[type=button][disabled]", "Amis"
+    assert_select ".feed__controls .feed__tabs button.feed__tab.filter-chip[type=button][disabled]", "Amis"
     assert_select "a.feed__tab", count: 1
     assert_select "a[href*='tab=friends']", false
     assert_select "a[href$='/friends']", false

@@ -12,4 +12,10 @@ module FriendsHelper
   def friend_dialog_id(token) = "friend-#{token}"
 
   def remove_friend_dialog_id(token) = "remove-friend-#{token}"
+
+  def friend_actions_menu_id(token) = "friend-actions-#{token}"
+
+  def dialog_opener_attributes(dialog_id, label:)
+    { aria: { haspopup: "dialog", label: }, data: { controller: "dialog-opener", action: "dialog-opener#open", dialog_opener_dialog_value: dialog_id } }
+  end
 end

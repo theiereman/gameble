@@ -863,6 +863,10 @@ en:
         page: "Page"
         previous: "Previous page"
         next: "Next page"
+        shown:
+          zero: "No more cards shown."
+          one: "Card %{from} of %{total} shown."
+          other: "Cards %{from} to %{to} of %{total} shown."
     seen:
       throttled: "Too many requests in a minute. Try again in a moment."
     show:
@@ -1189,12 +1193,6 @@ en:
       ignore: "Ignore"
       cancel: "Cancel"
       cancel_invitation_to: "Cancel the invitation to %{name}"
-      see_profile: "See the profile"
-      see_profile_of: "See the profile of %{name}"
-      trade: "Trade"
-      trade_with: "Trade with %{name}"
-      remove: "Remove"
-      remove_friend: "Remove %{name} from your friends"
       presence:
         online: "Online"
         offline: "Offline"
@@ -1213,6 +1211,13 @@ en:
           collecting_daily: "Collecting the daily capsule"
           trading: "Negotiating a trade"
           making_friends: "Making friends"
+    friend_row:
+      see_profile_of: "See the profile of %{name}"
+      trade: "Trade"
+      trade_with: "Trade with %{name}"
+      more_actions_for: "More actions for %{name}"
+      remove: "Remove"
+      remove_friend: "Remove %{name} from your friends"
     profile_dialog:
       title: "Profile"
       close: "Close"

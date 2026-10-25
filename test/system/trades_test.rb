@@ -39,6 +39,64 @@ class TradesTest < ApplicationSystemTestCase
     assert_signed_in
   end
 
+  def assert_screen_change
+    assert_no_selector "html[data-screen-change]", visible: :all
+    assert_equal "screen", page.evaluate_script("getComputedStyle(document.querySelector('.main')).viewTransitionName")
+  end
+
+  def assert_same_frame
+    assert_selector "html[data-screen-change=same]", visible: :all
+    assert_equal "none", page.evaluate_script("getComputedStyle(document.querySelector('.main')).viewTransitionName")
+  end
+
+  def assert_visit_keeps_frame
+    page.execute_script("delete document.documentElement.dataset.screenChange")
+    yield
+    assert_same_frame
+  end
+
+  test "on a desktop the screen slides into and out of Trades, never between its steps" do
+    from_lea = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })
+    sign_in @hugo
+
+    find(".hub-menu a.menu-item[aria-keyshortcuts='4']").click
+    assert_current_path trades_path(locale: :en)
+    assert_screen_change
+
+    assert_visit_keeps_frame do
+      find(".trade-row", text: /LEA/i).click
+      assert_current_path trade_path(token: from_lea.token, locale: :en)
+    end
+
+    assert_visit_keeps_frame do
+      within(".trades__list") { click_on "New trade" }
+      assert_current_path new_trade_path(locale: :en)
+      assert_selector ".trade-chooser"
+    end
+
+    assert_visit_keeps_frame do
+      find(".trade-chooser a[aria-label='Trade with Max']").click
+      assert_current_path new_trade_path(locale: :en, friend: @max.token)
+      assert_selector ".trade-board .trade-chip--accent", text: /DRAFT/i
+    end
+
+    assert_visit_keeps_frame do
+      find(".trade-row", text: /LEA/i).click
+      assert_current_path trade_path(token: from_lea.token, locale: :en)
+      assert_selector ".trade-board__title", text: "Trade with Lea"
+    end
+
+    assert_visit_keeps_frame do
+      page.go_back
+      assert_current_path new_trade_path(locale: :en, friend: @max.token)
+      assert_selector ".trade-board .trade-chip--accent", text: /DRAFT/i
+    end
+
+    find(".top-bar__home").click
+    assert_current_path home_path(locale: :en)
+    assert_screen_change
+  end
+
   test "on a desktop a player answers two trades and the badge falls" do
     from_lea = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })
     propose(@max, @hugo, offer: { @depths => 1 }, request: { @portal => 1 })
@@ -110,6 +168,7 @@ class TradesTest < ApplicationSystemTestCase
     assert_current_path trade_path(token: trade.token, locale: :en)
     assert_selector ".trade-board", visible: true
     assert_no_selector ".trades__list", visible: true
+    assert_screen_change
     assert_selector ".trade-board__actions", visible: true
     within(".trade-board") { click_on "Decline" }
     assert_selector ".toast", text: /Your answer was sent to Lea/
@@ -120,6 +179,7 @@ class TradesTest < ApplicationSystemTestCase
     find(".top-bar__phone-back", text: /LIST/i).click
     assert_current_path trades_path(locale: :en)
     assert_selector ".trade-row", text: /declined/, visible: true
+    assert_screen_change
   end
 
   def pick_toggle(title) = find(".trade-picker .trade-pick__toggle[aria-label^='#{title},']")

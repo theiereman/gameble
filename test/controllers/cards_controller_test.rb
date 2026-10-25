@@ -81,7 +81,7 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
   def position = css_select(".card-detail__position").sole.text
 
-  test "a card of the published season: the bracketed panel, its face, every fact, the sets leading to their grids, no ownership notice, the Steam link" do
+  test "a card of the published season: the bracketed panel, its face, every fact, the sets leading to their grids, no ownership notice, the Steam link under the panel" do
     add_a_theme_set
     with_main_theme(:portal_one, "puzzle")
     sign_in_viewer
@@ -90,7 +90,11 @@ class CardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "title", "Portal — Epic"
-    assert_select "main > turbo-frame#card-detail[target=_top] > article.card-detail.panel.panel--brackets[aria-labelledby=card-detail-heading]"
+    assert_select "main > turbo-frame#card-detail[target=_top] > article.card-detail[aria-labelledby=card-detail-heading] > .card-detail__panel.panel.panel--brackets"
+    assert_select "article.card-detail.panel", false
+    assert_select "article.card-detail > .card-detail__panel + .card-detail__actions"
+    assert_select ".card-detail__panel .card-detail__actions", false
+    assert_select ".card-detail__panel .button", false
     assert_select ".card-detail__kicker", "Card file"
     assert_select ".card-detail__number", "S1 · #4"
     assert_select ".card-detail h1#card-detail-heading", "Portal"
