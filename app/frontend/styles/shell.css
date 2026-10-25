@@ -1259,7 +1259,8 @@ body:has(> .ticker) .app-version {
   animation: screen-in 260ms var(--ease-out) 40ms both;
 }
 
-/* A visit to the page already shown is no screen change: the screen is not
+/* A visit that keeps the frame of the page shown (the same page, a step of
+   Trades; lib/screen_change.ts) is no screen change: the screen is not
    captured apart, so the page's new picture replaces the old one at once
    (with the screen captured and its animations removed, the old and new
    pictures would show on top of each other until the group's own 250ms

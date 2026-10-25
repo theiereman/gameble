@@ -39,6 +39,45 @@ class TradesTest < ApplicationSystemTestCase
     assert_signed_in
   end
 
+  def assert_screen_change
+    assert_no_selector "html[data-screen-change]", visible: :all
+    assert_equal "screen", page.evaluate_script("getComputedStyle(document.querySelector('.main')).viewTransitionName")
+  end
+
+  def assert_same_frame
+    assert_selector "html[data-screen-change=same]", visible: :all
+    assert_equal "none", page.evaluate_script("getComputedStyle(document.querySelector('.main')).viewTransitionName")
+  end
+
+  test "on a desktop the screen slides into and out of Trades, never between its steps" do
+    from_lea = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })
+    from_max = propose(@max, @hugo, offer: { @depths => 1 }, request: { @portal => 1 })
+    sign_in @hugo
+
+    find(".hub-menu a.menu-item[aria-keyshortcuts='4']").click
+    assert_current_path trades_path(locale: :en)
+    assert_screen_change
+
+    find(".trade-row", text: /LEA/i).click
+    assert_current_path trade_path(token: from_lea.token, locale: :en)
+    assert_same_frame
+
+    find(".trade-row", text: /MAX/i).click
+    assert_current_path trade_path(token: from_max.token, locale: :en)
+    within(".trade-board") { click_on "Counter" }
+    assert_selector ".trade-side--editing", count: 2
+    assert_same_frame
+
+    page.go_back
+    assert_current_path trade_path(token: from_lea.token, locale: :en)
+    assert_selector ".trade-board__title", text: "Trade with Lea"
+    assert_same_frame
+
+    find(".top-bar__home").click
+    assert_current_path home_path(locale: :en)
+    assert_screen_change
+  end
+
   test "on a desktop a player answers two trades and the badge falls" do
     from_lea = propose(@lea, @hugo, offer: { @depths => 1 }, request: { @portal => 2 })
     propose(@max, @hugo, offer: { @depths => 1 }, request: { @portal => 1 })
@@ -110,6 +149,7 @@ class TradesTest < ApplicationSystemTestCase
     assert_current_path trade_path(token: trade.token, locale: :en)
     assert_selector ".trade-board", visible: true
     assert_no_selector ".trades__list", visible: true
+    assert_screen_change
     assert_selector ".trade-board__actions", visible: true
     within(".trade-board") { click_on "Decline" }
     assert_selector ".toast", text: /Your answer was sent to Lea/
@@ -120,6 +160,7 @@ class TradesTest < ApplicationSystemTestCase
     find(".top-bar__phone-back", text: /LIST/i).click
     assert_current_path trades_path(locale: :en)
     assert_selector ".trade-row", text: /declined/, visible: true
+    assert_screen_change
   end
 
   def pick_toggle(title) = find(".trade-picker .trade-pick__toggle[aria-label^='#{title},']")
