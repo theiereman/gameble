@@ -40,11 +40,19 @@ class FriendsTest < ApplicationSystemTestCase
     page.evaluate_script("(() => { const r = document.querySelector(#{selector.to_json}).getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, width: r.width } })()").transform_keys(&:to_sym)
   end
 
+  def profile_actions_box(part)
+    box("dialog[open] .friend-profile__actions #{part}")
+  end
+
+  def press_escape
+    page.driver.browser.action.send_keys(:escape).perform
+  end
+
   def lefts(selector)
     page.evaluate_script("[...document.querySelectorAll(#{selector.to_json})].map((e) => Math.round(e.getBoundingClientRect().left))")
   end
 
-  test "a player opens a friend's profile, sees no showcase and reports it from there" do
+  test "a player opens a friend's profile, sees no showcase and reports it from its more-actions menu" do
     sign_in
 
     within(".friends__friend", text: "Lea") { click_on "Lea" }
@@ -53,8 +61,19 @@ class FriendsTest < ApplicationSystemTestCase
       assert_selector ".friend-profile__name", text: "Lea"
       assert_no_selector ".friend-profile__showcase"
       assert_selector "a.button--primary[href='#{new_trade_path(locale: :en, friend: @friend.token)}']", text: /\Atrade\z/i
+      assert_no_button "Report"
+      find("button.friends__more-button[aria-label='More actions for Lea']").click
+      assert_selector ".friends__menu:popover-open", text: /report.*remove/im
       take_screenshot
-      click_on "REPORT"
+      click_on "Report"
+    end
+    within("dialog#report-dialog-#{@friend.token}[open]") { find(".modal__close").click }
+    assert_no_selector "dialog#report-dialog-#{@friend.token}[open]"
+    assert_selector "dialog#friend-#{@friend.token}[open] button.friends__more-button[aria-label='More actions for Lea']:focus"
+
+    within("dialog#friend-#{@friend.token}[open]") do
+      find("button.friends__more-button").click
+      click_on "Report"
     end
     within("dialog#report-dialog-#{@friend.token}[open]") do
       choose "Harassment"
@@ -86,6 +105,55 @@ class FriendsTest < ApplicationSystemTestCase
     assert_current_path brother_collection_path(locale: :en, token: @friend.token)
     assert_selector ".collection-grid .collection-slot"
     assert_selector ".collection-slot .card--not-owned"
+  end
+
+  test "on a desktop the friend profile sets the trade beside its more-actions button and the two views side by side under it, unfilled" do
+    sign_in
+
+    within(".friends__friend", text: "Lea") { click_on "Lea" }
+    within("dialog#friend-#{@friend.token}[open]") { assert_selector ".friends__collection-link" }
+
+    trade, more = profile_actions_box(".friend-profile__trade .button"), profile_actions_box(".friends__more-button")
+    profile, collection = profile_actions_box(".friends__profile-link"), profile_actions_box(".friends__collection-link")
+    assert_operator more[:left], :>, trade[:right], "⋯ beside the trade"
+    assert_in_delta profile[:top], collection[:top], 1, "the two views on one line"
+    assert_operator profile[:top], :>, trade[:top], "the views under the trade"
+    assert_in_delta profile[:width], collection[:width], 1
+    assert_in_delta trade[:left], profile[:left], 1
+    assert_in_delta trade[:right], collection[:right], 1
+    fills = page.evaluate_script("[...document.querySelectorAll('dialog[open] .friend-profile__view')].map((e) => getComputedStyle(e).backgroundColor)")
+    assert_equal [ "rgba(0, 0, 0, 0)" ] * 2, fills
+    take_screenshot
+
+    press_escape
+    assert_no_selector "dialog[open]"
+    assert_selector ".friends__friend button[aria-label='See the profile of Lea']:focus"
+  end
+
+  test "a player removes a friend from the friend profile's more-actions menu" do
+    sign_in
+
+    within(".friends__friend", text: "Lea") { click_on "Lea" }
+    within("dialog#friend-#{@friend.token}[open]") do
+      find("button.friends__more-button[aria-label='More actions for Lea']").click
+      click_on "Remove"
+    end
+    within("dialog#friend-profile-remove-#{@friend.token}[open]") do
+      assert_selector ".modal__title", text: /\Aremove lea\?\z/i
+      click_on "Cancel"
+    end
+    assert_no_selector "dialog#friend-profile-remove-#{@friend.token}[open]"
+    assert_selector "dialog#friend-#{@friend.token}[open] button.friends__more-button:focus"
+
+    within("dialog#friend-#{@friend.token}[open]") do
+      find("button.friends__more-button").click
+      click_on "Remove"
+    end
+    within("dialog#friend-profile-remove-#{@friend.token}[open]") { click_on "Remove" }
+
+    assert_selector ".toast", text: "Lea is no longer one of your friends."
+    assert_no_selector ".friends__friend"
+    assert_not Game::FriendshipBetween.call(@player, @friend)
   end
 
   test "a player opens the trade in progress with a friend from their row" do
@@ -126,6 +194,17 @@ class FriendsTest < ApplicationSystemTestCase
     within(".friends__friend", text: "Lea") { click_on "Lea" }
     within("dialog#friend-#{@friend.token}[open]") do
       assert_selector ".friend-profile__name", text: "Lea"
+      assert_selector ".friends__collection-link"
+    end
+    trade, more = profile_actions_box(".friend-profile__trade .button"), profile_actions_box(".friends__more-button")
+    profile, collection = profile_actions_box(".friends__profile-link"), profile_actions_box(".friends__collection-link")
+    assert_operator more[:left], :>, trade[:right], "⋯ beside the trade"
+    assert_operator collection[:top], :>, profile[:top], "the two views stacked"
+    [ profile, collection ].each do |view|
+      assert_in_delta trade[:left], view[:left], 1
+      assert_in_delta trade[:width], view[:width], 1
+    end
+    within("dialog#friend-#{@friend.token}[open]") do
       take_screenshot
       find(".modal__close").click
     end

@@ -24,7 +24,7 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     css_select("turbo-frame").to_html.gsub(token, "TOKEN")
   end
 
-  test "a friend sees the name, the count, no showcase, the trade action, the profile and the collection links and SIGNALER" do
+  test "a friend sees the name, the count, no showcase, the trade action, the profile and the collection links, and SIGNALER and RETIRER in the more-actions menu" do
     season = publish_sets_draft
     tiers = Catalog::CardSeason.where(season_id: season.id).order(:id).pluck(:rarity, :id)
       .group_by(&:first).transform_values { |rows| rows.map(&:last) }
@@ -43,13 +43,29 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
       assert_select ".friend-profile__presence .friends__presence--offline", "Hors ligne"
       assert_select ".friend-profile__count", "4 cartes collectionnées"
       assert_select ".friend-profile__heading, .friend-profile__showcase", false
-      assert_select ".friend-profile__actions a.friends__profile-link[href=?]", brother_path(locale: :fr, token: @friend.token), "Voir le profil"
-      assert_select ".friend-profile__actions a.friends__collection-link[href=?]", brother_collection_path(locale: :fr, token: @friend.token), "Voir la collection"
-      assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @friend.token), "Échange"
-      assert_select ".friend-profile__actions button.button--link[aria-haspopup=dialog][data-dialog-opener-dialog-value=?]",
-        "report-dialog-#{@friend.token}", "SIGNALER"
+      assert_select ".friend-profile__actions" do
+        assert_select ".friend-profile__trade a.button--primary[href=?]", new_trade_path(locale: :fr, friend: @friend.token), "Échange"
+        assert_select ".friend-profile__trade + .friends__more" do
+          assert_select "button.friends__more-button[type=button][popovertarget=?][aria-label=?]", "friend-profile-actions-#{@friend.token}", "Plus d'actions pour Léa"
+          assert_select "#friend-profile-actions-#{@friend.token}.friends__menu[popover][role=group][aria-label=?]", "Plus d'actions pour Léa" do
+            assert_select "button.friends__menu-item", 2
+            assert_select "button.friends__menu-item:first-child[aria-haspopup=dialog][aria-label='Signaler Léa'][data-dialog-opener-dialog-value=?]",
+              "report-dialog-#{@friend.token}", "Signaler"
+            assert_select "button.friends__menu-item:last-child[aria-haspopup=dialog][aria-label='Retirer Léa de vos amis'][data-dialog-opener-dialog-value=?]",
+              "friend-profile-remove-#{@friend.token}", "Retirer"
+          end
+        end
+        assert_select "a.friend-profile__view.friends__profile-link[href=?]", brother_path(locale: :fr, token: @friend.token), "Voir le profil"
+        assert_select "a.friend-profile__view.friends__collection-link[href=?]", brother_collection_path(locale: :fr, token: @friend.token), "Voir la collection"
+        assert_select ".button--link, .button--secondary", false
+      end
       assert_select "dialog#report-dialog-#{@friend.token} form[action=?]", brother_report_path(locale: :fr, token: @friend.token) do
         assert_select "input[type=hidden][name=from][value=friends]"
+      end
+      assert_select "dialog#friend-profile-remove-#{@friend.token}.modal[aria-labelledby=?]", "friend-profile-remove-#{@friend.token}-title" do
+        assert_select ".modal__title", "Retirer Léa ?"
+        assert_select "form[method=post][action=?][data-turbo=false]", remove_friend_path(locale: :fr, token: @friend.token)
+        assert_select ".remove-friend-dialog__trade", 0
       end
     end
     assert_not_includes response.body, @friend.steam_id
@@ -82,6 +98,9 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friend-profile__presence .friends__presence--online", "Online"
     assert_select ".friend-profile__showcase, .friend-profile__empty", false
     assert_select ".friend-profile__actions a.button--primary[href=?]", new_trade_path(locale: :en, friend: @friend.token), "Trade"
+    assert_select ".friends__more-button[aria-label=?]", "More actions for Léa"
+    assert_select ".friends__menu-item[aria-label=?]", "Report Léa", "Report"
+    assert_select ".friends__menu-item[aria-label=?]", "Remove Léa from your friends", "Remove"
   end
 
   test "a friends-only friend is shown; a private one is the not-available frame" do
@@ -124,6 +143,7 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     get friend_profile_path(locale: :fr, token: @friend.token)
     assert_select ".friend-profile__actions a.button--primary[href=?]", trade_path(locale: :fr, token: trade.token), "Échange"
     assert_select ".friend-profile__actions a[href=?]", new_trade_path(locale: :fr, friend: @friend.token), 0
+    assert_select "dialog#friend-profile-remove-#{@friend.token} .remove-friend-dialog__trade", "Votre échange en cours avec Léa est annulé et ses cartes sont libérées."
 
     Game::CancelTrade.new.call(player: @friend, trade_id: trade.id).value!
     get friend_profile_path(locale: :fr, token: @friend.token)
@@ -140,8 +160,8 @@ class FriendProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".friend-profile__actions a.friends__collection-link", "Voir la collection"
     assert_select ".friend-profile__actions a.button--primary", 0
     assert_select ".friend-profile__actions .trades-closed", /Votre profil est privé : les échanges sont fermés\./
-    assert_select ".friend-profile__actions .trades-closed a[href=?]", settings_path(locale: :fr), "RÉGLAGES"
-    assert_select ".friend-profile__actions button.button--link", "SIGNALER"
+    assert_select ".friend-profile__actions .friend-profile__trade .trades-closed a[href=?]", settings_path(locale: :fr), "RÉGLAGES"
+    assert_equal %w[Signaler Retirer], css_select(".friend-profile__trade + .friends__more button.friends__menu-item").map { it.text.strip }
   end
 
   test "a public player who is not a friend, a banned friend and an unknown token answer the same" do

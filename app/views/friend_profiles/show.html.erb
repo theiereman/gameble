@@ -12,15 +12,19 @@
       </div>
     </div>
     <div class="friend-profile__actions">
-      <% if @trades_closed %>
-        <%= trades_closed_line(@trades_closed, @owner) %>
-      <% else %>
-        <%= render ButtonComponent.new(href: @open_trade_token ? trade_path(token: @open_trade_token) : new_trade_path(friend: @owner.token)) do %><%= t(".trade") %><% end %>
-      <% end %>
+      <div class="friend-profile__trade">
+        <% if @trades_closed %>
+          <%= trades_closed_line(@trades_closed, @owner) %>
+        <% else %>
+          <%= render ButtonComponent.new(href: @open_trade_token ? trade_path(token: @open_trade_token) : new_trade_path(friend: @owner.token)) do %><%= t(".trade") %><% end %>
+        <% end %>
+      </div>
+      <%= render "friends/more_actions", player: @owner, menu_id: friend_profile_actions_menu_id(@owner.token),
+            report_dialog_id: friend_report_dialog_id(@owner.token), remove_dialog_id: friend_profile_remove_dialog_id(@owner.token) %>
       <%= render "friends/public_profile_link", friend: @owner %>
       <%= render "friends/collection_link", friend: @owner %>
-      <%= render ButtonComponent.new(variant: :link, size: :small, opens: "report-dialog-#{@owner.token}") do %><%= t("reports.open") %><% end %>
     </div>
-    <%= render "reports/dialog", owner: @owner, id: "report-dialog-#{@owner.token}", from: "friends" %>
+    <%= render "reports/dialog", owner: @owner, id: friend_report_dialog_id(@owner.token), from: "friends" %>
+    <%= render "friends/remove_dialog", friend: @owner, open_trade: @open_trade_token.present?, id: friend_profile_remove_dialog_id(@owner.token) %>
   </section>
 <% end %>

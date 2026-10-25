@@ -1,4 +1,4 @@
-<% dialog_id = remove_friend_dialog_id(friend.token) %>
+<% dialog_id = local_assigns.fetch(:id) { remove_friend_dialog_id(friend.token) } %>
 <% name = friend_name(friend) %>
 <dialog id="<%= dialog_id %>" class="modal" aria-labelledby="<%= dialog_id %>-title" aria-describedby="<%= dialog_id %>-text"
         data-controller="dialog" data-action="click->dialog#closeOnScrim">
