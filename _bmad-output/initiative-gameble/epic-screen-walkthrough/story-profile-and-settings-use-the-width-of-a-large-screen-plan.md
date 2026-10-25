@@ -3,7 +3,7 @@ title: 'Profile and settings use the width of a large screen'
 type: 'feature'
 ticket: 30
 created: '2026-10-25'
-status: 'in-review'
+status: 'blocked'
 baseline_revision: '27b677d308e8106cc52d312bb30f36340222094b'
 route: 'oneshot'
 route_source: 'pinned'
@@ -55,3 +55,15 @@ Oneshot (pinned): one screen's wrapper markup and stylesheet, one system test an
 
 **Manual checks (if no CLI):**
 - Screenshots from the settings system tests at 1400px (summary on the left, settings panel on the right and wider) and 390px (one column, summary then settings).
+
+## Auto Run Result
+
+Status: blocked
+Blocking condition: no subagents (the review step's Quick lens needs a subagent this session cannot launch; the coordinating session runs the review)
+
+- Summary: on a desktop the Profil et paramètres screen takes the friends screen's arrangement: the public profile summary in a side area on the left (380px from 1180px, 300 to 360px from 900px) and the settings panel in the larger area on the right; one column under 900px, the summary first. The settings, the language links and the back button are unchanged.
+- Implementation commit: 787298805324389951a9cbcd25249a2d05bb978a, on `build/16.30-settings-wide` from 27b677d308e8106cc52d312bb30f36340222094b.
+- Files: `app/views/settings/show.html.erb` (side and main wrappers), `app/frontend/styles/settings.css` (the layout, the 520px cap dropped), `test/controllers/settings_controller_test.rb` (structure assertion), `test/system/settings_test.rb` (desktop and phone layout tests, the back button), DESIGN.md (layout row) and EXPERIENCE.md (Information Architecture row).
+- Review: not run (`no subagents`).
+- Verification: see Implementation Notes, Verification run: settings controller tests, settings and shell system tests, vitest, typecheck, zeitwerk, packwerk, i18n-tasks, rubocop, brakeman and the full suite (3188 runs) pass.
+- Residual risks: the card-back picker is not built, so the ticket's "card-back picker reachable" has nothing to check; the author checks the layout on staging in French and in English, including a long name and a full showcase in the 300px side area.
