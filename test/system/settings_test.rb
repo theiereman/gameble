@@ -257,6 +257,58 @@ class SettingsTest < ApplicationSystemTestCase
     page.driver.browser.execute_cdp("Emulation.setEmulatedMedia", features: [ { name: "prefers-reduced-motion", value: "" } ])
   end
 
+  def box(selector)
+    page.evaluate_script("(() => { const r = document.querySelector(#{selector.to_json}).getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width } })()").transform_keys(&:to_sym)
+  end
+
+  def no_horizontal_scroll?
+    page.evaluate_script("document.documentElement.scrollWidth <= document.documentElement.clientWidth")
+  end
+
+  def assert_every_setting_shown
+    assert_selector ".settings__main .settings-row", count: 8
+    assert_selector ".settings__main .segmented[aria-labelledby=settings-language]"
+    assert_selector ".settings__main .segmented[aria-labelledby=settings-visibility]"
+    assert_selector ".settings__main .segmented[aria-labelledby=settings-motion]"
+    assert_selector ".settings__main .settings-row a.button--link", text: /legal notice/i
+  end
+
+  test "on a desktop the profile summary stands on the left and the settings take the larger area, and the back button still leads back" do
+    sign_in friends_path(locale: :en)
+    find(".player-chip__button").click
+    find(".player-menu__item", text: /\Asettings\z/i).click
+    assert_selector "h1", text: "PROFILE AND SETTINGS"
+
+    { 1400 => 380, 1000 => 300 }.each do |width, side_width|
+      resize_to(width, width)
+      eventually("the summary stands in a #{side_width}px side area left of the settings at #{width}px") do
+        side, main = box(".settings__side"), box(".settings__main")
+        (side[:width] - side_width).abs <= 1 && main[:left] > side[:right]
+      end
+      side, main = box(".settings__side"), box(".settings__main")
+      assert_in_delta side[:top], main[:top], 1, "both areas start at the same height at #{width}px"
+      assert_operator main[:width], :>, side[:width] * 1.3, "the settings take the larger area at #{width}px"
+      within(".settings__side") { assert_selector "section.settings-summary" }
+      assert_every_setting_shown
+      assert no_horizontal_scroll?, "no sideways scroll at #{width}px"
+      take_screenshot
+    end
+
+    find(".top-bar__start > a.top-bar__previous", text: /friends/i).click
+    assert_current_path friends_path(locale: :en)
+  end
+
+  test "on a phone the summary and the settings stay one column, the summary first" do
+    resize_to(390, 844)
+    sign_in settings_path(locale: :en)
+
+    eventually("the settings sit under the summary") { box(".settings__main")[:top] >= box(".settings__side")[:bottom] }
+    assert_in_delta box(".settings__side")[:left], box(".settings__main")[:left], 1
+    assert_every_setting_shown
+    assert no_horizontal_scroll?
+    take_screenshot
+  end
+
   test "on a phone, PLUS leads to the settings screen and its contextual back leads to PLUS" do
     page.driver.browser.manage.window.resize_to(390, 844)
     sign_in

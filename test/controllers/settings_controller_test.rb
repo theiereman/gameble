@@ -555,7 +555,7 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
   def summary = css_select("section.settings-summary").sole
 
-  test "above the settings, the public profile in brief: the avatar, the name leading to the profile, the card count, the chosen cards in their order and who may see it" do
+  test "before the settings, beside them on a wide screen, the public profile in brief: the avatar, the name leading to the profile, the card count, the chosen cards in their order and who may see it" do
     @player.update_columns(persona_name: "Gabe the Brave")
     common, rare, portal = catalog_card_seasons(:common_card_one, :rare_card_one, :portal_one).map(&:id)
     [ common, rare, portal ].each { Game::Holding.create!(player_id: @player.id, card_season_id: it, quantity: 1) }
@@ -564,7 +564,8 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
 
     get settings_path(locale: :fr)
 
-    assert_select ".settings > h1 + section.settings-summary + .settings__panel"
+    assert_select ".settings > h1 + .settings__layout > .settings__side:first-child > section.settings-summary"
+    assert_select ".settings__layout > .settings__side + .settings__main > .settings__panel .settings__list"
     assert_select summary, "h2#settings-summary-heading", "Profil public"
     assert_select summary, "svg.pixel-icon.settings-summary__avatar"
     assert_select summary, "a.settings-summary__name[href=?]", "/fr/brothers/#{@player.token}", text: "Gabe the Brave"

@@ -616,7 +616,7 @@ The spacing scale is built on the 2px unit: 2, 4, 8, 12, 16, 20, 24, 32.
 | Collection | Sets and RAPPORT 220px · grid fluid | Sets become a horizontally scrolling strip of 184px set progress rows above the grid (kicker, hazard stripe and RAPPORT hidden) · grid fluid | One column: sets strip, grid. At every width a card opens its own detail page, and Back returns to the grid at its scroll (author, 2026-10-19) |
 | Échanges | Trade list 316px · trade board fluid | List 250px · board fluid | List above the board |
 | Amis | Invite panel and invitations 380px on the left · friend list fluid on the right, the larger area whether or not there are friends and invitations (author, 2026-10-23) | Left 300 to 360px | One column: invite panel, invitations, friends |
-| Profil et paramètres | Summary and settings 360px · back picker fluid | Left 300 to 340px | One column |
+| Profil et paramètres | As Amis, so the wide screens read alike: the public profile summary 380px on the left · the settings fluid on the right, the larger area, where the back picker joins them when it is built (author, 2026-10-23) | Left 300 to 360px | One column: summary, settings |
 | Succès | Tiles fill columns of at least 260px | Same | Same |
 | Public card page | Card · info (capped at 1180px), LIVE strip and footer below | Same | One column: card, info, LIVE, footer |
 | Public profile | One column: identity band (key numbers on its right), VITRINE in one centred row of `card-l`, stats, SUCCÈS in four columns, SETS in two columns (author, 2026-10-15) | Same; the VITRINE row wraps, centred | Same |
