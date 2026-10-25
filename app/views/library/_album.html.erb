@@ -17,7 +17,7 @@
     </div>
   <% end %>
   <%= render "library/filters", filters:, state_choices: SetAlbumFilters::STATES, states: filters.states, states_asked: filters.states_asked,
-    query: filters.query, clear_path: request.path, search_label: t("library.album.search.label"), search_placeholder: t("library.album.search.placeholder") %>
+    query: filters.query, clear_path: request.path, clear_action: "replace", search_label: t("library.album.search.label"), search_placeholder: t("library.album.search.placeholder") %>
   <%= turbo_frame_tag "collection-results", target: "_top", data: { turbo_action: "replace" } do %>
     <p class="visually-hidden" role="status"><%= t("library.grid.result", count: pagy.count) %></p>
     <% if slots.any? %>

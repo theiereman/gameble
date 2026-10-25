@@ -17,6 +17,11 @@ class SetAlbumFilters < Data.define(:states, :states_asked, :chosen_rarities, :q
   def self.list(params, key) = Array.wrap(params[key]).grep(String)
   private_class_method :list
 
+  def initialize(query:, **)
+    @needle = SetSearch.normalize(query)
+    super
+  end
+
   def chosen_sets = []
   def chosen_genres = []
   def genres = []
@@ -28,9 +33,6 @@ class SetAlbumFilters < Data.define(:states, :states_asked, :chosen_rarities, :q
   end
 
   def shows_card?(card)
-    (chosen_rarities.empty? || chosen_rarities.include?(card.rarity)) && (query.empty? || folded(card.title).include?(folded(query)))
+    (chosen_rarities.empty? || chosen_rarities.include?(card.rarity)) && (@needle.empty? || SetSearch.normalize(card.title).include?(@needle))
   end
-
-  private
-    def folded(text) = text.unicode_normalize(:nfkd).gsub(/\p{Mn}/, "").downcase
 end

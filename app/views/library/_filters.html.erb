@@ -16,7 +16,8 @@
       field's, the catalog's by default;
     - set_filter: the set group's kinds, kind, query, options and found;
       none for no set group;
-    - clear_path: the grid's page without any filter. %>
+    - clear_path: the grid's page without any filter; clear_action: the
+      Turbo action of its link, an advance visit by default. %>
 <% set_filter = local_assigns[:set_filter] %>
 <% count = collection_filter_count(filters:, states:, states_asked:) %>
 <%= form_with url: request.path, method: :get, class: "filters", html: { role: "search" }, data: {
@@ -72,6 +73,6 @@
       <% end %>
     </div>
   </details>
-  <%= link_to t("library.filters.clear"), clear_path, class: "filters__clear", data: { turbo_frame: "_top", collection_filters_target: "clear" }, hidden: (count.zero? && query.blank?) %>
+  <%= link_to t("library.filters.clear"), clear_path, class: "filters__clear", data: { turbo_frame: "_top", turbo_action: local_assigns[:clear_action], collection_filters_target: "clear" }, hidden: (count.zero? && query.blank?) %>
   <noscript><%= submit_tag t("library.filters.apply"), name: nil, class: "filters__apply" %></noscript>
 <% end %>

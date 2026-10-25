@@ -45,5 +45,5 @@ module SetSearch
     normalize(I18n.t("library.set_kinds.#{kind}"))
   end
 
-  private_class_method :ranked, :normalize, :kind_name
+  private_class_method :ranked, :kind_name
 end

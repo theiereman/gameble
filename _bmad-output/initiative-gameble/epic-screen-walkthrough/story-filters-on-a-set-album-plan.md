@@ -3,18 +3,25 @@ title: 'Filters on a set album'
 type: 'feature'
 ticket: 23
 created: '2026-10-25'
-status: 'blocked'
+status: 'built'
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144'
 route: 'oneshot'
 route_source: 'pinned'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
-followup_review_recommended: false
+followup_review_recommended: true
 context: ['{project-root}/AGENTS.md']
 warnings: []
-deferred: []
+deferred:
+  - summary: >-
+      Back then Forward within milliseconds after TOUT EFFACER restored a stale cached album with the MANQUANTES chip still checked.
+    evidence: |-
+      Seen once in the system test when go_back and go_forward followed the clear immediately; with short pauses it passed. Unverified whether a person can hit it; settle by reproducing in a browser with fast Back/Forward after clearing.
+    location: >-
+      app/views/library/_album.html.erb, the filtered frame and Turbo's snapshot cache
+    severity: medium (unverified)
 ---
 
 <intent-contract>
@@ -40,6 +47,18 @@ Oneshot: the album reuses the catalog's zone, form, Stimulus controller and fram
 
 ## Review Triage Log
 
+### 2026-10-24 — Review pass
+- verdicts: 8 findings — high 0, medium 2, low 6, false 0, maybe-false 0
+- findings:
+  - `[low]` `patch` Focus after TOUT EFFACER and the frame reloads was read with one-shot `document.activeElement` reads — retrying `:focus` matchers now.
+  - `[medium]` `patch` TOUT EFFACER pushed a history entry, so Back after clearing landed on the filtered album instead of where the album was opened — the album's clear link replaces the entry (`clear_action: "replace"`, the catalog unchanged), and the system test goes back to the collection after clearing.
+  - `[low]` `patch` The visitor's filtered album query count was claimed but unmeasured — `assert_request_queries(8)` with a rarity and a search on an owner's album.
+  - `[low]` `patch` The rarity filter and the name search on an owner's public album were untested — a signed-out visitor's rare-only and "ELAN" cases, the header unchanged.
+  - `[low]` `reject` New comments in `set_album_loading.rb` and `set_album_filters.rb` describe intent and `filtered_faces`' return shape — replacing the tuple with a named object is a refactor beyond this ticket's fix; the comments keep the shape readable meanwhile.
+  - `[medium]` `patch` `SetAlbumFilters#folded` copied `SetSearch.normalize`, so the album search and the set search could drift, and refolded the query per card — `SetSearch.normalize` is public and used once for the query.
+  - `[low]` `patch` A stray line break in `library_controller.rb`'s header comment — reflowed.
+  - `[low]` `patch` EXPERIENCE.md's Filter zone row denied a visitor the state group while giving it to every album — it now says a visitor on a public profile's album gets it.
+
 ## Verification
 
 **Commands:**
@@ -55,8 +74,11 @@ Oneshot: the album reuses the catalog's zone, form, Stimulus controller and fram
 
 ## Auto Run Result
 
-Status: blocked
-Blocking condition: no subagents — the Quick review lens needs a subagent this unattended session does not have; the implementation is committed (d0b1e1baa850ff87feed5f4f6d3c0e3aa3a51806) and verified above, and the coordinating session runs the review. `tickets.py mark` was not run: the coordinator's instructions forbid it on this store, so the frontmatter status is written by hand.
+Status: built
 
-- Summary: a set album (the player's own and a public profile's) carries the catalog's search and folded FILTRES zone between its header and its cards: POSSÉDÉES / TOUT / MANQUANTES judged by the album owner's holdings, the rarity of the face shown, and a search by the game's name (accents and case ignored); the grid keeps set order and pages only the cards kept, the header's count, bar and ticks measure the whole set, TOUT EFFACER reopens the album unfiltered.
-- Residual risks: a rarity or name filter reads the card views of every member of the set in one query (up to the largest set's size, about 750) before paging; the card detail opened from a filtered album still walks the whole set; the full suite's one failure is a time-sensitive fixture assertion in `Game::PioneerOfTest`, not touched here.
+- Summary: a set album (the player's own and a public profile's, signed out included) offers the catalog's search field and folded FILTRES zone: state POSSÉDÉES / TOUT / MANQUANTES by the album owner's holdings, rarity of the face shown, and a search by game name ignoring case and accents; the grid keeps set order and pages only the matches, with an empty line and TOUT EFFACER when nothing matches; the header's count, bar and ticks keep measuring the whole set; filtering and clearing replace the history entry, so Back still returns where the album was opened.
+- Files: `app/models/set_album_filters.rb` and its tests, `app/models/set_search.rb` (`normalize` public), `app/controllers/concerns/set_album_loading.rb`, `app/controllers/library_controller.rb` (comment), `app/helpers/collection_helper.rb`, `app/views/library/_filters.html.erb`, `_album.html.erb`, `_collection.html.erb`, `set.html.erb`, `app/views/public_profiles/set.html.erb`, `app/frontend/styles/collection.css`, both locales, the library set, public profile and helper tests, `test/system/collection_set_test.rb`, EXPERIENCE.md and DESIGN.md.
+- Review: the Quick lens ran from the coordinating session after the unattended run halted on `no subagents`. 8 findings: 7 patched (2 medium, 5 low), 1 rejected (low); one unverified observation from the fixes deferred.
+- Follow-up review recommended: true — two mediums were patched; the unverified risk is the stale cached album after a fast Back and Forward following TOUT EFFACER.
+- Verification: after the patches, the set album filters, set search, library set, public profile and helper tests and the collection set and library system tests 103 runs, 0 failures; the new Back check fails without the replace and passed 5 runs in a row with it; rubocop clean; the unattended run's full suite (one load-bound `pioneer_of_test.rb` failure, green alone), vitest 561, typecheck, zeitwerk, packwerk, i18n-tasks, brakeman clean.
+- Residual risks: a rarity or name filter loads every member's card view before paging (about 750 for the largest set); a card detail opened from a filtered album still steps through the whole set.

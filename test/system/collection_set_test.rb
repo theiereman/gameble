@@ -68,7 +68,7 @@ class CollectionSetTest < ApplicationSystemTestCase
     find(".filter-chip__text", text: /\AMissing\z/i).click
     assert_selector ".set-album__grid > li", count: 35, visible: :all
     assert_no_selector ".set-album__grid .card:not(.card--not-owned)", visible: :all
-    assert_equal "Missing", page.evaluate_script("document.activeElement.parentElement.textContent.trim()")
+    assert_selector "[data-group=state] .filter-chip__box[value=missing]:focus", visible: :all
     assert_selector ".filters__count", text: "1"
     assert_equal header, find(".set-album__header").text
     assert_equal "5", find("progress.set-album__bar")["value"]
@@ -83,13 +83,18 @@ class CollectionSetTest < ApplicationSystemTestCase
     assert_selector ".set-album__grid > li", count: 40, visible: :all
     assert_no_selector ".filters__count", visible: true
     assert_equal titles, album_titles
-    assert_equal "set-album-heading", page.evaluate_script("document.activeElement.id")
+    assert_selector "#set-album-heading:focus"
+    go_back
+    assert_current_path library_path(locale: :en)
+    find(".set-entry__list .set-row", text: /\AROGUELIKE\b/).click
+    assert_selector "#set-album-heading:focus"
+    assert_selector ".set-album__grid > li", count: 40, visible: :all
 
     field = find("#collection-search")
     field.click
     field.send_keys("seed 3")
     assert_selector ".set-album__grid > li", count: 11, visible: :all
-    assert_equal "collection-search", page.evaluate_script("document.activeElement.id")
+    assert_selector "#collection-search:focus"
     assert_equal header, find(".set-album__header").text
     assert_no_sideways_scroll
 
