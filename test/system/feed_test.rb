@@ -3,10 +3,11 @@ require_relative "../support/game_packs"
 require_relative "../support/steam_sign_in"
 
 # The activity feed's frame: as wide as the hub on a desktop, signed in, the
-# All and Friends tabs above one "all" filter; on a phone, its
-# column with no sideways scroll. Friends shows only a player's friends'
-# entries, combines with the filters, invites a player without friends to
-# add some, and is disabled for a visitor.
+# All and Friends tabs then one "all" filter on one line of chips; on a
+# phone, that line scrolls inside its zone and the column never sideways.
+# Friends shows only a player's friends' entries, combines with the
+# filters, invites a player without friends to add some, and is disabled
+# for a visitor.
 class FeedTest < ApplicationSystemTestCase
   include GamePacks
   include SteamSignIn
@@ -54,6 +55,35 @@ class FeedTest < ApplicationSystemTestCase
     assert_pull_entries 5
     assert_one_everything
     assert page.evaluate_script("document.documentElement.scrollWidth <= document.documentElement.clientWidth"), "the feed should not scroll sideways"
+  end
+
+  test "on a desktop, the tabs then the filters sit on one line of chips, past a divider, aligned on the list" do
+    visit feed_path(locale: :fr)
+
+    assert_pull_entries 5, "a tiré"
+    assert_selector ".feed__controls .filter-chip", count: 7
+    eventually("the seven chips should share one line, the tabs before the filters, the zone on the list's left edge") do
+      layout = controls_layout
+      layout["tops"].uniq.size == 1 && layout["tabsRight"] < layout["filtersLeft"] &&
+        (layout["firstChipLeft"] - layout["listLeft"]).abs <= 1 && !layout["scrolls"]
+    end
+    assert_match(/\ATous\z/i, find(".feed__tab[aria-current]").native.accessible_name)
+    assert_match(/\AAmis\z/i, find(".feed__tab[disabled]").native.accessible_name)
+  end
+
+  test "on a phone, the chips keep one line that scrolls inside its zone, and the last one is reachable" do
+    resize_to(*PHONE)
+    visit feed_path(locale: :en)
+
+    assert_pull_entries 5
+    eventually("the chips should keep one line and scroll inside their zone") do
+      layout = controls_layout
+      layout["tops"].uniq.size == 1 && layout["scrolls"]
+    end
+    assert page.evaluate_script("document.documentElement.scrollWidth <= document.documentElement.clientWidth"), "the page should not scroll sideways"
+
+    find(".feed__filter", text: /\AReposts\z/i).click
+    assert_selector ".feed__filter[aria-current]", text: /\AReposts\z/i
   end
 
   test "signed in, Friends shows a friend's pull and not a stranger's, and Friends · Pulls keeps both choices" do
@@ -132,6 +162,23 @@ class FeedTest < ApplicationSystemTestCase
       assert_selector ".feed__tab[aria-current]", text: /\AAll\z/i
       assert_selector ".feed__filter", text: /\AEverything\z/i, count: 1
       assert_selector ".feed__filter[aria-current]", text: /\AEverything\z/i
+    end
+
+    def controls_layout
+      page.evaluate_script(<<~JS)
+        (() => {
+          const zone = document.querySelector(".feed__controls");
+          const chips = [...zone.querySelectorAll(".filter-chip")];
+          return {
+            tops: chips.map((chip) => Math.round(chip.getBoundingClientRect().top)),
+            tabsRight: zone.querySelector(".feed__tabs").getBoundingClientRect().right,
+            filtersLeft: zone.querySelector(".feed__filters .filter-chip").getBoundingClientRect().left,
+            firstChipLeft: chips[0].getBoundingClientRect().left,
+            listLeft: document.querySelector(".feed__list").getBoundingClientRect().left,
+            scrolls: zone.scrollWidth > zone.clientWidth
+          };
+        })()
+      JS
     end
 
     def width_of(selector)

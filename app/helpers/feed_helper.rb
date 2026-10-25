@@ -13,6 +13,12 @@ module FeedHelper
     end
   end
 
+  def feed_chip_link(label, path, current:, classes:)
+    link_to path, class: [ classes, "filter-chip" ], aria: { current: ("true" if current) } do
+      tag.span(label, class: "filter-chip__text")
+    end
+  end
+
   def feed_rarity_name(card)
     t("catalog.rarity.#{card.rarity}")
   end

@@ -1,6 +1,6 @@
 /*
- * The activity feed: the All and Friends tabs, joined, and the type filters
- * (the segmented control of settings.css), then one row per entry across
+ * The activity feed: the All and Friends tabs and the type filters on one
+ * line of the catalog's filter chips, then one row per entry across
  * the shell's content width, at least 68px tall, a first discovery behind
  * its gold chip. Hard edges, no animation, no opacity to dim a filler.
  */
@@ -19,23 +19,31 @@
   text-transform: uppercase;
 }
 
-/* A visitor's Friends tab: greyed, as it needs an account. */
-.feed__tab:disabled,
-.feed__tab:disabled:hover {
-  background: var(--color-disabled-bg);
-  box-shadow: var(--control-border);
-  color: var(--color-disabled-text);
-  cursor: not-allowed;
+/* The scope and the kind of entry: one line of filter chips, the scope
+   first, a divider before the kinds, aligned on the list. A line too long
+   for the screen scrolls sideways inside the zone, never the page; the
+   zone's padding keeps a chip's focus ring unclipped. */
+.feed__controls {
+  --feed-controls-ring: calc(var(--focus-ring-width) + var(--focus-ring-offset));
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: calc(-1 * var(--feed-controls-ring));
+  padding: var(--feed-controls-ring);
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 
-/* The five filters wrap on a narrow phone, spaced rather than joined. */
+.feed__tabs,
 .feed__filters {
-  flex-wrap: wrap;
+  display: flex;
+  flex: none;
   gap: var(--space-2);
 }
 
-.feed__filters .segmented__option + .segmented__option {
-  margin-left: 0;
+.feed__filters {
+  padding-left: var(--space-4);
+  box-shadow: inset var(--space-unit) 0 0 0 var(--color-line-deep);
 }
 
 .feed__list {
@@ -213,6 +221,11 @@
 }
 
 @media (max-width: 719px) {
+  .feed__tabs,
+  .feed__filters {
+    gap: var(--space-touch-gap);
+  }
+
   .feed__entry {
     grid-template-columns: 1fr auto;
   }

@@ -233,21 +233,38 @@
   color: var(--color-text-max);
 }
 
-.filter-chip__box:checked + .filter-chip__text {
+.filter-chip__box:checked + .filter-chip__text,
+.filter-chip[aria-current="true"] .filter-chip__text {
   background: var(--color-accent);
   box-shadow: inset 0 calc(-2 * var(--space-unit)) 0 0 var(--color-line-deep);
   color: var(--color-on-accent);
 }
 
 /* A chip on is not told by its colour alone: a check mark precedes it. */
-.filter-chip__box:checked + .filter-chip__text::before {
+.filter-chip__box:checked + .filter-chip__text::before,
+.filter-chip[aria-current="true"] .filter-chip__text::before {
   content: "\2713";
   margin-right: var(--space-2);
   font-weight: bold;
 }
 
+/* A link chip's mark stays out of its accessible name. */
+.filter-chip[aria-current="true"] .filter-chip__text::before {
+  content: "\2713" / "";
+}
+
 .filter-chip__box:focus-visible + .filter-chip__text {
   box-shadow: var(--focus-ring-gap), var(--control-border);
+}
+
+.filter-chip:disabled {
+  cursor: not-allowed;
+}
+
+.filter-chip:disabled .filter-chip__text {
+  background: var(--color-disabled-bg);
+  box-shadow: var(--control-border);
+  color: var(--color-disabled-text);
 }
 
 /* The search and the FILTRES zone: a search field
@@ -361,6 +378,17 @@
 .filter-chip {
   position: relative;
   cursor: pointer;
+}
+
+/* A chip can also be a link or a button: the plate is its text. */
+a.filter-chip,
+button.filter-chip {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-decoration: none;
 }
 
 .filter-chip__box {
