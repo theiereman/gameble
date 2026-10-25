@@ -254,7 +254,7 @@ a.top-bar__home {
 }
 
 /* The visitor's motion switch: the label and a square that fills accent
-   when on. */
+   when on, on a desktop only. */
 .motion-switch__form {
   display: contents;
 }
@@ -1392,7 +1392,8 @@ html[data-sub-view-step] .main {
     letter-spacing: var(--tracking-screen-title-phone);
   }
 
-  .rarity-counter {
+  .rarity-counter,
+  .motion-switch {
     display: none;
   }
 
