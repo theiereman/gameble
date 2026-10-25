@@ -268,6 +268,19 @@ class ShellTest < ApplicationSystemTestCase
     assert_equal 0, evaluate_script("#{twinkles}.length")
   end
 
+  test "a grid to a card detail is a screen change" do
+    publish_sets_draft
+    sign_in(accounts_players(:player))
+    visit library_cards_path(locale: :en)
+    refresh_with_turbo
+    assert_selector "html[data-screen-change=same]", visible: :all
+
+    find(".collection-grid > li:nth-child(2) a.card-link").click
+    assert_selector ".card-detail__card .card"
+    assert_no_selector "html[data-screen-change]", visible: :all
+    assert_equal "screen", computed(".main", "viewTransitionName")
+  end
+
   test "the back-office, without stars, leaves no same-page mark behind" do
     sign_in(accounts_players(:administrator))
     refresh_with_turbo
