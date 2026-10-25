@@ -3,12 +3,12 @@ title: "The landing's boarding module keeps its hazard stripe"
 type: 'bugfix' # feature | bugfix | refactor | chore
 ticket: '12' # the entry id from the ticket tree, or the story file's stem when the entry has no id; empty outside it
 created: '2026-10-25'
-status: 'in-progress' # draft | ready-for-dev | in-progress | in-review | built | done | blocked
+status: 'blocked' # draft | ready-for-dev | in-progress | in-review | built | done | blocked
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144' # the commit the work starts from, set before any code change
 route: 'oneshot' # oneshot | full — set by step-02
 route_source: 'pinned' # pinned | auto — set with route by step-02
-review: '' # none | quick | thorough — set by step-04
-review_source: '' # pinned | auto — set with review by step-04
+review: 'quick' # none | quick | thorough — set by step-04
+review_source: 'pinned' # pinned | auto — set with review by step-04
 lenses_ran: [] # ids of the lenses launched, set by step-04
 review_loop_iteration: 0 # incremented by step-04 before each review loopback
 followup_review_recommended: false # set by step-04 at Finalize — true if the LLM decided another review pass is worthwhile
@@ -57,5 +57,18 @@ Oneshot: a one-class removal in one partial, one system test and one line of DES
 - `test/system/landing_boarding_test.rb`: 3 runs, 15 assertions, 0 failures; the new test fails with `landing-hazard` restored.
 - Every landing system test (boarding, lamp, live feed, motion switch, moving cards, power-on, roadmap) with `test/controllers/landing_page_test.rb`: 61 runs, 488 assertions, 0 failures.
 - `PARALLEL_WORKERS=2 bin/rails test`: 3171 runs, 33358 assertions, 0 failures, 0 errors, 0 skips.
-- `bin/rubocop` no offenses; packwerk validate and check clean; `i18n-tasks missing` none; `npm run typecheck` clean; `npm run test:js` 53 files, 561 tests passed; `zeitwerk:check` all good.
+- `bin/brakeman` no warnings; `bin/rubocop` no offenses; packwerk validate and check clean; `i18n-tasks missing` none; `npm run typecheck` clean; `npm run test:js` 53 files, 561 tests passed; `zeitwerk:check` all good.
 - Not run: the staging check by the author, and `bin/ci`'s schema steps (no migration).
+
+## Auto Run Result
+
+Status: blocked
+Blocking condition: no subagents. The review step's Quick lens needs a context-free reviewer subagent; this unattended run had no tool to launch one, so no review pass ran and `## Review Triage Log` is empty. `tickets.py mark` was not run to completion: the store is GitHub (it refuses `mark`) and `gh` is not authenticated in this container, so `status` was written here by hand.
+
+- Summary: the landing's final call (module 09) loses the `landing-hazard` class on its panel, so it shows no hazard stripe at any width and in either locale; its corner brackets, copy, reserve pips, Steam sign-in and terms line are unchanged, and the support panel of module 08 keeps the landing's only stripe.
+- Files changed:
+  - `app/views/landings/_boarding.html.erb` -- the panel drops `landing-hazard`.
+  - `test/system/landing_boarding_test.rb` -- a test that the boarding panel has no background image while the support panel keeps its stripe, at 1500 and 390px.
+  - `_bmad-output/initiative-gameble/ux-gameble/DESIGN.md` -- Landing, final call: no hazard stripe (author, 2026-10-23).
+- Verification: see `## Verification` results; the new test fails with the class restored and passes with the fix; the landing's system and controller tests, the full `bin/rails test`, vitest, typecheck, zeitwerk, packwerk, i18n-tasks, rubocop and brakeman pass.
+- Residual risks: no independent review ran. The panel's top padding shrinks from the stripe's `--space-6` plus the stripe height to the plain panel padding; the author's look on staging settles how the module reads. The code is implemented and verified, waiting on its review pass: rerun `bmad-build-auto` on this plan where subagents are available (a `blocked` plan halts at once, so set its `status` back to `in-review` first).
