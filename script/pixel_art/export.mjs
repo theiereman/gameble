@@ -352,6 +352,13 @@ const ICONS = {
       "c.....c",
     ],
   },
+  // ⋯ more actions
+  more: {
+    grid: [
+      "cc..cc..cc",
+      "cc..cc..cc",
+    ],
+  },
   // ✓
   check: {
     grid: [
@@ -1264,6 +1271,7 @@ const DESCRIPTIONS = {
   "arrow-small-right.svg": "▸ small arrow for links (text colour)",
   "close.svg": "✕ close and remove (text colour)",
   "check.svg": "✓ check mark (text colour)",
+  "more.svg": "⋯ more actions, the menu of a row's rarer actions (text colour)",
   "info.svg": "An \"i\" in a rounded frame, the info mark beside a heading, 9 × 9 (text colour)",
   "rank-novice.svg": "Novice rank mark: one chevron, 9 × 5 (text colour)",
   "rank-apprentice.svg": "Apprentice rank mark: two stacked chevrons, 9 × 8 (text colour)",

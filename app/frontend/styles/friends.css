@@ -2,7 +2,38 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
-  max-width: 520px;
+}
+
+.friends__layout {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  gap: var(--space-column-gap-wide);
+  align-items: start;
+}
+
+.friends__side,
+.friends__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.friends__main {
+  container: friends-main / inline-size;
+}
+
+@media (max-width: 1179px) {
+  .friends__layout {
+    grid-template-columns: clamp(300px, 30vw, 360px) minmax(0, 1fr);
+    gap: var(--space-column-gap-medium);
+  }
+}
+
+@media (max-width: 899px) {
+  .friends__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .friends__title {
@@ -119,11 +150,140 @@
 }
 
 .friends__friend {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-panel);
+  box-shadow: var(--panel-border);
+}
+
+@container friends-main (width < 560px) {
+  .friends__friend {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "name more"
+      "presence more"
+      "trade trade";
+  }
+
+  .friends__friend > .friends__name { grid-area: name; }
+  .friends__friend > .friends__presence { grid-area: presence; }
+  .friends__friend > .friends__trade { grid-area: trade; }
+  .friends__friend > .friends__more { grid-area: more; }
+}
+
+@container friends-main (width >= 560px) {
+  .friends__roster {
+    display: grid;
+    grid-template-columns: minmax(12ch, 1fr) fit-content(14rem) fit-content(20rem) auto;
+    column-gap: var(--space-6);
+  }
+
+  .friends__friend {
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
+}
+
+.friends__name {
+  justify-self: start;
+  max-width: 100%;
+  min-height: var(--space-touch-min);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-max);
+  font: var(--font-menu);
+  letter-spacing: var(--tracking-menu);
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.friends__name:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.friends__trade {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.friends__trade .button {
+  margin: 0;
+}
+
+.friends__more-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-touch-min);
+  height: var(--space-touch-min);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.friends__more-button:hover,
+.friends__more:has(.friends__menu:popover-open) .friends__more-button {
+  color: var(--color-accent);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--color-accent);
+}
+
+.friends__more-icon {
+  width: 20px;
+  height: 4px;
+}
+
+.friends__menu {
+  inset: auto;
+  min-width: 200px;
+  margin: var(--space-2) 0 0;
+  padding: var(--space-3);
+  border: 0;
+  background: var(--color-panel);
+  box-shadow: var(--panel-border), var(--overlay-shadow);
+  color: var(--color-text);
+  position-area: block-end span-inline-start;
+  position-try-fallbacks: flip-block;
+}
+
+@supports not (position-area: block-end) {
+  .friends__menu {
+    inset: auto var(--space-gutter-phone) var(--space-gutter-phone);
+  }
+}
+
+.friends__menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--space-touch-min);
+  padding: 0 var(--space-4);
+  border: 0;
+  background: var(--color-panel);
+  box-shadow: var(--control-border);
+  color: var(--color-alert);
+  font: var(--font-menu);
+  letter-spacing: var(--tracking-menu);
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.friends__menu-item:hover {
+  background: var(--color-alert);
+  color: var(--color-on-accent);
+}
+
+.friends__menu-item:focus-visible {
+  box-shadow: var(--focus-ring-gap), var(--control-border);
 }
 
 .friends__presence {
@@ -153,10 +313,6 @@
 
 .friends__presence--private .friends__dot {
   display: none;
-}
-
-.friends__name {
-  overflow-wrap: anywhere;
 }
 
 .friend-profile {
