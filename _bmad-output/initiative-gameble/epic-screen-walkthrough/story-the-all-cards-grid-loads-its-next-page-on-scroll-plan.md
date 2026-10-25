@@ -3,14 +3,12 @@ title: 'The all cards grid loads its next page on scroll'
 type: 'feature'
 ticket: 15
 created: '2026-10-24'
-status: 'blocked'
-blocked_at: '2026-10-24'
-blocked_reason: 'no subagents'
+status: 'in-review'
 baseline_revision: '8dcacbf74d26517c0b7a5f4eb95dbb3ea42e003f'
 route: 'full'
 route_source: 'auto'
-review: ''
-review_source: ''
+review: 'quick'
+review_source: 'pinned'
 lenses_ran: []
 review_loop_iteration: 0
 followup_review_recommended: false

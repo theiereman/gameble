@@ -49,8 +49,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
   # The grid's slots: [ :owned, title, "xn", "New" | nil ], [ :not_owned,
   # title, year ] (a player's card not held) or [ :plain, title, year ] (a
   # visitor's).
-  def slots
-    css_select(".collection-grid > li.collection-slot").map do |slot|
+  def slots(selector = ".collection-grid > li.collection-slot")
+    css_select(selector).map do |slot|
       card = slot.at_css(".card")
       title = card.at_css(".card__title").text
       if slot.at_css(".collection-slot__copies")
@@ -60,6 +60,15 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       end
     end
   end
+
+  STREAM = { "Accept" => "text/vnd.turbo-stream.html" }.freeze
+
+  # The slots a stream answer appends to the grid, read as `slots`.
+  def appended_slots = slots("turbo-stream[action=append][target=collection-slots] template > li.collection-slot")
+
+  def stream_status = css_select("turbo-stream[action=update][target=collection-results-status] template").sole.text
+
+  def stream_pages = "turbo-stream[action=replace][target=collection-pages] template > nav#collection-pages[data-next-page-target=pages]"
 
   def owned_slots
     slots.select { it.first == :owned }
@@ -241,6 +250,97 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     end
     get library_cards_path(locale: :en, page: "abc")
     assert_equal 60, slots.size
+  end
+
+  test "the first page's grid loads the next ones on scroll, its numbered links kept" do
+    publish_sets_draft
+
+    get library_cards_path(locale: :en)
+
+    assert_equal 60, slots.size
+    assert_select "turbo-frame#collection-results[data-controller=next-page][data-action='focusout->next-page#focusLeft']"
+    assert_select "turbo-frame#collection-results > p#collection-results-status[role=status]", "150 cards shown."
+    assert_select "turbo-frame#collection-results > ol#collection-slots.collection-grid > li.collection-slot", 60
+    assert_select "nav#collection-pages.collection-pages[data-next-page-target=pages] a[rel=next][href='/en/library/cards?page=2']"
+    assert_select "[style]", false
+  end
+
+  test "a visitor's next page answers as a Turbo Stream: its slots appended in grid order, the status line, that page's links" do
+    season = publish_sets_draft
+    cards = season_cards(season)
+
+    get library_cards_path(locale: :en, page: 2), headers: STREAM
+
+    assert_response :success
+    assert_equal Mime[:turbo_stream], response.media_type
+    assert_includes response.headers["Vary"].to_s.split(/,\s*/), "Accept"
+    assert_equal cards[60, 60].map { [ :plain, title(it), year(it) ] }, appended_slots
+    assert_equal "Cards 61 to 120 of 150 shown.", stream_status
+    assert_select "#{stream_pages} a[rel=next][href='/en/library/cards?page=3']"
+    assert_select "#{stream_pages} [aria-current=page]", /2/
+    assert_equal %w[append update replace], css_select("turbo-stream").map { it["action"] }
+    assert_select "turbo-stream [data-controller=collection-seen], turbo-stream .report--panel, turbo-stream form", false
+
+    get library_cards_path(locale: :fr, page: 3), headers: STREAM
+
+    assert_equal 30, appended_slots.size
+    assert_equal "Cartes 121 à 150 sur 150 affichées.", stream_status
+    assert_select "#{stream_pages} a[rel=prev][href='/fr/library/cards?page=2']"
+    assert_select "#{stream_pages} a[rel=next]", false
+  end
+
+  test "a player's next page as a stream is the filtered grid's next page, in order, its links keeping the search and filters" do
+    publish_sets_draft
+    sign_in(accounts_players(:player))
+    filters = { state: %w[missing], genre: %w[roguelike], q: "seed" }
+
+    get library_cards_path(locale: :en, state: %w[missing], page: 2)
+    expected = slots
+    get library_cards_path(locale: :en, state: %w[missing], page: 2), headers: STREAM
+
+    assert_equal 60, appended_slots.size
+    assert_equal expected, appended_slots
+    assert_select "#{stream_pages} a[rel=next][href='/en/library/cards?page=3&state%5B%5D=missing']"
+
+    get library_cards_path(locale: :en, **filters, page: 2)
+    expected = slots
+    get library_cards_path(locale: :en, **filters, page: 2), headers: STREAM
+
+    assert_equal 23, appended_slots.size
+    assert_equal expected, appended_slots
+    assert appended_slots.all? { it.first == :not_owned }
+    assert_equal "Cards 61 to 83 of 83 shown.", stream_status
+    assert_select "#{stream_pages} a[rel=prev][href='/en/library/cards?genre%5B%5D=roguelike&page=1&q=seed&state%5B%5D=missing']"
+    assert_select "#{stream_pages} a[rel=next]", false
+  end
+
+  test "a next page showing new cards appends the watermark post of the latest gain it shows" do
+    season = publish_sets_draft
+    player = accounts_players(:player)
+    held = season_cards(season).first(61)
+    held.each_with_index { |id, index| hold(player, id, 1, gained_at: (index + 1).minutes.ago) }
+    sign_in(player)
+
+    get library_cards_path(locale: :en, page: 2), headers: STREAM
+
+    oldest = Game::Holding.find_by!(player_id: player.id, card_season_id: held.last).last_gained_at
+    assert_equal [ :owned, title(held.last), "x1", "New" ], appended_slots.first
+    assert_select "turbo-stream[action=append][target=collection-results] template > [data-controller=collection-seen][data-collection-seen-up-to-value=?]",
+      oldest.utc.iso8601(6)
+  end
+
+  test "a stream past the last page appends nothing and replaces the links with the way back" do
+    publish_sets_draft
+
+    get library_cards_path(locale: :en, page: 9), headers: STREAM
+
+    assert_response :success
+    assert_select "turbo-stream[action=append]", false
+    assert_equal "No more cards shown.", stream_status
+    assert_select "#{stream_pages} a[rel=prev][href='/en/library/cards?page=3']"
+
+    get library_cards_path(locale: :fr, page: 9), headers: STREAM
+    assert_equal "Plus aucune carte affichée.", stream_status
   end
 
   test "a visitor sees every card's plain face, no NOUVEAU, no ownership data and the Steam sign-in image, without a holdings query" do
@@ -597,6 +697,10 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :fr)
 
     assert_select ".collection-none p.panel", "Aucune saison de cartes n'est publiée pour l'instant."
+
+    get library_cards_path(locale: :en, page: 2), headers: STREAM
+    assert_response :success
+    assert_select "turbo-stream", false
   end
 
   test "with no season published the entry says so, with no set and no search" do
@@ -620,7 +724,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_cards_path(locale: :en)
 
     assert_select ".collection [data-id]", false
-    assert_equal %w[collection-report-title collection-search collection-set-search collection-set-options collection-results],
+    assert_equal %w[collection-report-title collection-search collection-set-search collection-set-options collection-results collection-results-status
+      collection-slots collection-pages],
       css_select(".collection [id]").map { it["id"] }
     html = css_select(".collection").sole.to_html
     ids.each do |id|

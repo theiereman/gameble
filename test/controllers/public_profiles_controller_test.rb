@@ -304,6 +304,8 @@ class PublicProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "x1", "x2" ], css_select(".collection-slot__copies").map(&:text).sort
     assert_select ".collection-slot__new", false
     assert_select "[data-controller~=collection-seen]", false
+    assert_select "[data-controller~=next-page]", false
+    assert_select "turbo-frame#collection-results[data-action]", false
     assert_select ".top-bar__end .collection-status", false
     assert_select "main form:not([method=get])", false
     assert_select "form[role=search][action=?]", brother_collection_path(locale: :en, token: @owner.token)

@@ -896,6 +896,10 @@ fr:
         page: "Page"
         previous: "Page précédente"
         next: "Page suivante"
+        shown:
+          zero: "Plus aucune carte affichée."
+          one: "Carte %{from} sur %{total} affichée."
+          other: "Cartes %{from} à %{to} sur %{total} affichées."
     seen:
       throttled: "Trop de requêtes en une minute. Réessayez dans un instant."
     show:
