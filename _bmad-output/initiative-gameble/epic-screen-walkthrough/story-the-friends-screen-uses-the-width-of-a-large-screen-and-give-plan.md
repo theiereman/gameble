@@ -3,12 +3,12 @@ title: 'The friends screen uses the width of a large screen and gives the friend
 type: 'feature'
 ticket: 28
 created: '2026-10-25'
-status: 'in-progress'
+status: 'blocked'
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144'
 route: 'oneshot'
 route_source: 'pinned'
-review: ''
-review_source: ''
+review: 'quick'
+review_source: 'pinned'
 lenses_ran: []
 review_loop_iteration: 0
 followup_review_recommended: false
@@ -58,3 +58,6 @@ Oneshot (pinned): one screen's markup, stylesheet and strings, a one-line focus-
 - Screenshots from the friends system tests at desktop and phone widths: friend list on the right and larger, rows aligned, side area on the left; one column on the phone.
 
 ## Auto Run Result
+
+Status: blocked
+Blocking condition: no subagents. This session cannot launch the quick review lens; the implementation is committed (0300dc9c6757a667fca08778fa6053c7ff08612a on `build/16.28-friends-screen-wide`) and verified (see Implementation Notes), and the review is left to the coordinator. `tickets.py mark` refused the halt (the store is GitHub), so this plan's status was set by hand.
