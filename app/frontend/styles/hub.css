@@ -26,7 +26,6 @@
 .hub__kicker { grid-area: kicker; }
 .hub-menu { grid-area: menu; }
 .hub-showcase { grid-area: showcase; }
-.daily-booster { grid-area: daily; }
 .hub-sets { grid-area: sets; }
 
 .hub__aside {
@@ -751,19 +750,14 @@ button.menu-item:focus-visible:hover {
 @media (max-width: 1179px) {
   .hub {
     grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
-    grid-template-rows: auto auto auto auto auto 1fr;
+    grid-template-rows: auto auto auto auto 1fr;
     grid-template-areas:
       "kicker showcase"
       "menu showcase"
-      "goal showcase"
-      "daily showcase"
+      "aside showcase"
       "sets showcase"
       ". showcase";
     column-gap: var(--space-column-gap-medium);
-  }
-
-  .hub__aside {
-    display: contents;
   }
 }
 
@@ -787,6 +781,10 @@ button.menu-item:focus-visible:hover {
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-7);
+  }
+
+  .hub__aside {
+    display: contents;
   }
 
   .hub-menu {
@@ -839,7 +837,6 @@ html[data-motion="reduced"] button.menu-item:hover {
    previous week's result after the rollover ---- */
 
 .hub-goal {
-  grid-area: goal;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);

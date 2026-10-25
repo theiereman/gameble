@@ -3,13 +3,13 @@ title: 'The hub puts the daily capsule under the community goal'
 type: 'feature'
 ticket: '19'
 created: '2026-10-25'
-status: 'blocked'
+status: 'built'
 baseline_revision: '9ec8aeb2f7bf1a6c773285d98ede884bb63f0144'
 route: 'oneshot'
 route_source: 'pinned'
 review: 'quick'
 review_source: 'pinned'
-lenses_ran: []
+lenses_ran: ['quick']
 review_loop_iteration: 0
 followup_review_recommended: false
 context: []
@@ -50,10 +50,11 @@ Oneshot: one stylesheet's grid areas, one wrapper in the hub view, and the docs 
 
 ## Auto Run Result
 
-Status: blocked
-Blocking condition: no subagents
+Status: built
 
-- Implemented and committed on `build/16.19-hub-daily-under-goal` (7c8ab2be1f6da1083da79ad110164a65fc62b6a8): from 1180px the community goal and the daily capsule stack in a right column of their own (`div.hub__aside`), the set progress sits under the menu; from 720px and on the phone the blocks stack community goal, daily capsule, then the sets. EXPERIENCE.md, DESIGN.md and the hub comments follow. Files and verification: see Implementation Notes.
-- Review: the quick lens needs a context-free subagent and this session has none, so the run halted at step 4 before any review; `lenses_ran` stays empty and the Review Triage Log has no pass. The coordinator runs the review.
-- Ticket state: `tickets.py mark` is refused on this store and the GitHub sync is not available in this session, so the state was written here only.
-- Residual risks: `display: contents` on the wrapper under 1180px (a plain div holding two sections, so no known accessibility loss); the 720px and phone orders and the look in French, with and without a daily capsule, are for the author to check on staging, as the ticket asks.
+- Summary: on the desktop hub the community goal and the daily capsule stack in a right-hand column of their own and SETS EN COURS sits directly under the menu, so no column opens a gap; from 720px the left column stacks kicker, menu, community goal, daily capsule, sets, and the phone stacks kicker, showcase, community goal, daily capsule, sets, as the author settled.
+- Files: `app/frontend/styles/hub.css` (the grid areas, `.hub__aside`, the 720px and phone rules, the header comment), `app/views/pages/home.html.erb` (the aside wrapper), `app/views/pages/_daily_booster.html.erb` (comment), `test/system/hub_test.rb` (each column stacks with the plain gap, two columns at 1000px with and without a daily panel, the phone order), `ux-gameble/EXPERIENCE.md` and `DESIGN.md`.
+- Review: the Quick lens ran from the coordinating session after the unattended run halted on `no subagents`. 4 findings: 3 patched (1 medium, 2 low), 1 rejected (low); nothing deferred.
+- Follow-up review recommended: false (one medium patched).
+- Verification: after the patches, `hub_test.rb`, `daily_bonus_test.rb` and `live_updates_test.rb` 32 runs, 0 failures on Chromium 141; the unattended run's full suite 3171 runs with one load-bound timing failure unrelated to this change (`set_builder_test.rb`, green alone), vitest 561, typecheck, rubocop, packwerk, i18n-tasks, zeitwerk, brakeman clean.
+- Residual risks: the 720 to 899px band has no automated check; the author approves the orders on staging.

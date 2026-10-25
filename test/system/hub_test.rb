@@ -82,6 +82,9 @@ class HubTest < ApplicationSystemTestCase
     assert_stacked(".daily-booster", ".hub-sets")
     assert_no_sideways_scroll
     take_screenshot
+
+    page.execute_script("document.querySelector('.daily-booster').remove()")
+    assert_stacked("#community-goal", ".hub-sets")
   end
 
   def rect(selector)
