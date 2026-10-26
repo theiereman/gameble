@@ -1,0 +1,94 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><title>Gameble · Collection, EN COURS</title>
+<style>
+:root{--bg:#070b10;--panel:#121a24;--sunk:#0e141b;--line:#1f3346;--accent:#66c0f4;--text:#c7d5e0;--max:#fff;--muted:#8f98a0;--gold:#f4c542;--bronze:#e08a3c;--silver:#cfd8e0;
+--com:#8f98a0;--unc:#3fcf8e;--rare:#66c0f4;--epic:#b47cff;--leg:#f4c542}
+*{box-sizing:border-box}body{margin:0;padding:24px;background:var(--bg);color:var(--text);font:13px/1.5 "JetBrains Mono",ui-monospace,monospace}
+h1{font-size:18px;color:var(--max);margin:0 0 4px}.lede{color:var(--muted);max-width:920px;margin:0 0 24px}
+.opt{margin:0 0 44px}.opt>h2{display:inline-block;background:var(--accent);color:#04121c;font-size:12px;padding:2px 8px;margin:0 0 6px}
+.opt>p{margin:0 0 12px;max-width:900px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,400px);gap:14px 20px}
+.lab{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.tile{width:400px;height:268px;background:var(--panel);border:2px solid var(--line);padding:16px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.tile.near{border-color:var(--gold)}.tile.back{border-color:var(--accent)}
+.head{display:flex;justify-content:space-between;align-items:flex-start}
+.name{color:var(--max);font-weight:700;font-size:15px;line-height:1.2}.kind{display:block;margin-top:2px;color:var(--muted);font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+.count{font-size:24px;line-height:1;color:var(--max)}.count small{color:var(--muted);font-size:13px}
+.body{flex:1;display:flex;align-items:center;min-height:0}
+.foot{margin-top:auto}
+.seg{display:flex;gap:2px}.seg i{flex:1;height:8px;background:var(--sunk);border:1px solid #234e72}.seg i.on{background:var(--accent);border-color:var(--accent)}
+.line{margin-top:8px;display:flex;justify-content:space-between;align-items:center}
+.tier{font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:1px 6px;border:1px solid currentColor}
+.t-br{color:var(--bronze)}.t-ag{color:var(--silver)}.t-or{color:var(--gold)}.t-ma{color:var(--epic)}.t-co{color:var(--max)}
+.next b{color:var(--max)}
+.cta{display:block;text-align:center;background:var(--accent);color:#04121c;font-weight:700;padding:6px 10px;font-size:12px;letter-spacing:.12em}
+.c{width:56px;height:84px;border:2px solid var(--r);background:linear-gradient(160deg,#27405a,#101a26);position:relative;flex:none}
+.c::after{content:"";position:absolute;inset:5px 5px 28px;background:repeating-linear-gradient(45deg,#3a5a78 0 4px,#2d4860 4px 8px)}
+.c::before{content:"";position:absolute;left:5px;right:5px;bottom:6px;height:4px;background:var(--r)}
+.c.l{width:64px;height:96px}.c.l::after{inset:5px 5px 32px}
+.c.s{width:40px;height:60px}.c.s::after{inset:4px 4px 20px}.c.s::before{height:3px;bottom:5px}
+.c.com{--r:var(--com)}.c.unc{--r:var(--unc)}.c.rare{--r:var(--rare)}.c.epic{--r:var(--epic)}.c.leg{--r:var(--leg)}
+.c.miss{background:color-mix(in srgb,var(--r) 8%,var(--sunk));border:2px dashed color-mix(in srgb,var(--r) 45%,transparent)}.c.miss::after,.c.miss::before{display:none}
+.c.miss i{position:absolute;inset:0;display:grid;place-items:center;color:color-mix(in srgb,var(--r) 60%,transparent);font-style:normal;font-size:16px}
+.more{width:64px;height:96px;display:grid;place-items:center;border:2px solid #234e72;color:var(--accent);font-weight:700;font-size:15px;flex:none}
+/* 1 vitrine */
+.vit{display:flex;gap:12px;align-items:flex-end;width:100%}
+/* path */
+.path{display:flex;align-items:flex-start;width:100%;position:relative;margin-top:4px}
+.path::before{content:"";position:absolute;left:14px;right:14px;top:13px;height:2px;background:#234e72}
+.path .n{flex:1;display:grid;justify-items:center;gap:2px;font-size:10px;text-align:center;position:relative}
+.path .dot{width:28px;height:28px;border:2px solid currentColor;background:var(--panel);display:grid;place-items:center;font-size:11px;font-weight:700}
+.path .n{--k:currentColor}.path .ok .dot{background:var(--k);border-color:var(--k)}.path .ok .dot b{color:var(--panel)}
+.path .nx .dot{box-shadow:0 0 0 3px color-mix(in srgb,currentColor 30%,transparent)}
+.path .off{color:#35506b}.path small{color:var(--muted)}
+.last{display:flex;gap:10px;align-items:center;font-size:11px;color:var(--muted)}.last b{color:var(--max)}
+/* 2 hero goal */
+.goal{display:flex;align-items:center;gap:16px;width:100%}
+.big{font-size:56px;line-height:1;color:var(--max);font-weight:700}
+.goal .t small{display:block;color:var(--muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.goal .mark{margin-left:auto;width:72px;height:72px;border:3px solid var(--r);display:grid;place-items:center;color:var(--r);font-size:26px;box-shadow:0 0 18px color-mix(in srgb,var(--r) 35%,transparent)}
+.ticks{position:relative;height:16px;font-size:9px;color:var(--muted)}.ticks span{position:absolute;transform:translateX(-50%)}
+.strip{display:flex;gap:8px;align-items:flex-end;width:100%}
+/* 3 cover */
+.cover{position:absolute;inset:0;background:radial-gradient(circle at 80% 30%,color-mix(in srgb,var(--r) 55%,#101a26),transparent 60%),linear-gradient(120deg,color-mix(in srgb,var(--r) 30%,#101a26),#101a26 75%)}
+.cover::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,#ffffff0b 0 6px,transparent 6px 12px),repeating-linear-gradient(-45deg,#0000001a 0 6px,transparent 6px 12px)}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,var(--panel) 92%)}
+.tile.cv>*{position:relative;z-index:1}.tile.cv>.cover{position:absolute;z-index:0}
+.cv .hero,.cv .sub{display:block}.cv .hero{font-size:22px;color:var(--max);font-weight:700;line-height:1.15;text-shadow:0 2px 0 #000}
+.cv .sub{color:var(--text);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.trio{display:flex;gap:10px}
+</style>
+<h1>Collection · EN COURS : la tuile vitrine et chemin</h1>
+<p class="lede">Choix de l'auteur, 2026-10-26, après les pistes A (vedette), B (étagère) et C (tuiles) : des tuiles en deux colonnes, chacune à deux faces de même format. Le recto donne envie (la vitrine des cartes), le verso dit quoi faire (le chemin des paliers, la dernière carte obtenue) et mène toujours à l'album. Les cartes sont des silhouettes de remplacement.</p>
+<section class="opt"><h2>Bureau · recto et verso, grand et petit set</h2>
+<p><b>Recto</b> : les cartes à taille de lecture, jamais empilées. Un set de 5 cartes ou moins les montre toutes, les manquantes en silhouette à la couleur estompée de leur rareté : le petit set se lit naturellement. Un grand set montre ses trois meilleures cartes et « +37 ». <b>Verso</b> : le chemin des paliers, de nœud en nœud, le prochain entouré ; la dernière carte obtenue dans ce set ; le CTA.</p>
+<div class="grid">
+<div><p class="lab">Grand set · recto</p><div class="tile near"><div class="head"><span><span class="name">Metroidvania</span><span class="kind">Thème</span></span><span class="count">40<small>/77</small></span></div>
+<div class="body"><div class="vit"><div class="c l leg"></div><div class="c l epic"></div><div class="c l epic"></div><div class="more">+37</div></div></div>
+<div class="foot"><div class="seg"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><div class="line"><span class="next">Plus que <b>4</b> pour <span class="tier t-ma">Maître</span></span></div></div></div></div>
+<div><p class="lab">Grand set · verso</p><div class="tile back"><div class="head"><span><span class="name">Metroidvania</span><span class="kind">Thème</span></span><span class="count">40<small>/77</small></span></div>
+<div class="body" style="flex-direction:column;align-items:stretch;justify-content:center;gap:14px"><div class="path"><div class="n ok t-br" style="--k:var(--bronze)"><span class="dot"><b>✓</b></span>Bronze<small>20</small></div><div class="n ok t-ag" style="--k:var(--silver)"><span class="dot"><b>✓</b></span>Argent<small>30</small></div><div class="n ok t-or" style="--k:var(--gold)"><span class="dot"><b>✓</b></span>Or<small>40</small></div><div class="n nx t-ma"><span class="dot">4</span>Maître<small>44</small></div><div class="n off"><span class="dot">37</span>Complet<small>77</small></div></div>
+<div class="last"><div class="c s rare"></div><span>Dernière obtenue<br><b>Celeste</b> · il y a 2 jours</span></div></div>
+<div class="foot"><span class="cta">VOIR L'ALBUM ▸</span></div></div></div>
+<div><p class="lab">Petit set · recto</p><div class="tile"><div class="head"><span><span class="name">Supergiant Games</span><span class="kind">Studio</span></span><span class="count">3<small>/5</small></span></div>
+<div class="body"><div class="vit"><div class="c l epic"></div><div class="c l rare"></div><div class="c l rare"></div><div class="c l miss" style="--r:var(--leg)"><i>?</i></div><div class="c l miss" style="--r:var(--unc)"><i>?</i></div></div></div>
+<div class="foot"><div class="seg"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div><div class="line"><span class="next">Plus que <b>2</b> pour <span class="tier t-co">Complet</span></span></div></div></div></div>
+<div><p class="lab">Petit set · verso</p><div class="tile back"><div class="head"><span><span class="name">Supergiant Games</span><span class="kind">Studio</span></span><span class="count">3<small>/5</small></span></div>
+<div class="body" style="flex-direction:column;align-items:stretch;justify-content:center;gap:14px"><div class="path"><div class="n nx t-co"><span class="dot">2</span>Complet<small>5</small></div></div>
+<div class="last"><div class="c s rare"></div><span>Dernière obtenue<br><b>Hades</b> · hier</span></div></div>
+<div class="foot"><span class="cta">VOIR L'ALBUM ▸</span></div></div></div>
+</div></section>
+<section class="opt"><h2>Téléphone · une colonne, le recto seul</h2>
+<p>Pas de survol au toucher, donc pas de retournement : la tuile garde son recto, à la largeur de l'écran, et la toucher ouvre l'album.</p>
+<div class="tile near" style="width:328px"><div class="head"><span><span class="name">Metroidvania</span><span class="kind">Thème</span></span><span class="count">40<small>/77</small></span></div>
+<div class="body"><div class="vit"><div class="c l leg"></div><div class="c l epic"></div><div class="c l epic"></div><div class="more">+37</div></div></div>
+<div class="foot"><div class="seg"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><div class="line"><span class="next">Plus que <b>4</b> pour <span class="tier t-ma">Maître</span></span></div></div></div></section>
+
+<section class="opt"><h2>Règles</h2>
+<p>
+· Recto : en-tête (nom du set, genre, cartes possédées / total) ; corps : un set de 5 cartes ou moins montre toutes ses cartes, possédées face visible à leur meilleure édition, manquantes en silhouette à la couleur estompée de leur rareté ; un set plus grand montre ses trois meilleures cartes possédées et une case « +N » pour les autres possédées ; pied : la jauge à repères de paliers et « Plus que X pour Y », Y le prochain palier ou COMPLET.<br>
+· Verso, même taille et même en-tête : le chemin des paliers du set (atteints cochés à leur couleur, le prochain entouré avec le nombre de cartes qui manquent, les suivants éteints avec le leur ; un set sans palier n'a que le nœud COMPLET), la dernière carte obtenue dans ce set et depuis quand, et « VOIR L'ALBUM ▸ » en pleine largeur, toujours présent.<br>
+· Le survol ou le focus clavier retourne la tuile ; sous « animations réduites », un fondu remplace la rotation ; au toucher, aucun retournement. La tuile entière est un lien vers l'album ; son nom accessible reste la phrase de progression.<br>
+· Le set le plus proche de son prochain palier porte le cadre doré, un seul à la fois.<br>
+· Deux colonnes sur le bureau, une sur le téléphone ; une tuile retournée ne change ni de taille ni de place.
+</p></section>
+</html>
