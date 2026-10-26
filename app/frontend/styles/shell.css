@@ -334,6 +334,11 @@ a.top-bar__home {
   white-space: nowrap;
 }
 
+.rarity-counter,
+.player-chip {
+  display: flex;
+}
+
 /* The rarity counter: a sunken box of five icons and counts. */
 .rarity-counter__button,
 .packs-chip,

@@ -125,18 +125,19 @@ class ShellTest < ApplicationSystemTestCase
   ALL_CHIPS = %w[rarity-counter__button packs-chip player-chip__button].freeze
   PHONE_CHIPS = %w[packs-chip player-chip__button].freeze
 
-  def visible_chip_heights
+  def visible_chip_boxes
     page.evaluate_script(<<~JS)
       Array.from(document.querySelectorAll(".top-bar .rarity-counter__button, .top-bar .packs-chip, .top-bar .player-chip__button"))
         .filter((chip) => chip.checkVisibility())
-        .map((chip) => [chip.classList[0], chip.getBoundingClientRect().height])
+        .map((chip) => [chip.classList[0], chip.getBoundingClientRect().height, chip.getBoundingClientRect().top])
     JS
   end
 
-  def assert_chip_heights(expected, where)
+  def assert_chip_boxes(expected, where)
     page.document.synchronize do
-      heights = visible_chip_heights
-      raise Capybara::ExpectationNotMet, "#{where}: the visible chips and their heights should be #{expected.inspect}, were #{heights.inspect}" unless heights == expected
+      boxes = visible_chip_boxes
+      aligned = boxes.map(&:last).uniq.size <= 1
+      raise Capybara::ExpectationNotMet, "#{where}: the visible chips should be #{expected.inspect} on one top edge, were #{boxes.inspect}" unless boxes.map { it.first(2) } == expected && aligned
     end
   end
 
@@ -144,7 +145,7 @@ class ShellTest < ApplicationSystemTestCase
     page.evaluate_script("parseFloat(getComputedStyle(document.documentElement).getPropertyValue(#{name.to_json}))")
   end
 
-  test "the rarity counter, the capsules chip and the player chip stand at one height, at every width" do
+  test "the rarity counter, the capsules chip and the player chip stand at one height and on one top edge, at every width" do
     player = accounts_players(:player)
     create_pack(player, available_at: 5.minutes.from_now)
     sign_in(player)
@@ -157,7 +158,7 @@ class ShellTest < ApplicationSystemTestCase
       { hub: [ home_path(locale: :en), shown ], library: [ library_path(locale: :en), phone ? [] : %w[player-chip__button] ],
         card: [ card_path(locale: :en, slug: "portal"), shown ], booster: [ booster_path(locale: :en), shown ] }.each do |name, (path, chips)|
         visit path
-        assert_chip_heights chips.map { [ it, chip_height ] }, "the #{name} at #{width}px"
+        assert_chip_boxes chips.map { [ it, chip_height ] }, "the #{name} at #{width}px"
       end
     end
   end
