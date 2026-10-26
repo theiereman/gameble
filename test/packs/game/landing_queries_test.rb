@@ -32,6 +32,7 @@ class Game::LandingQueriesTest < ActiveSupport::TestCase
   end
 
   test "an empty game counts zero and keeps the published season" do
+    Game::FirstDiscovery.delete_all
     facts = Game::LandingSeasonFacts.call(locale: :en, now: NOW)
 
     assert_equal({ season_number: catalog_seasons(:one).number, players: 0, packs: 0, discoveries: 0 }, facts)
