@@ -9,7 +9,7 @@
 <% end %>
 <% invite_url = public_url_for(invite_link_path(token: current_player.token)) %>
 <section class="friends" aria-labelledby="friends-heading" data-controller="live-refresh" data-live-refresh-signal-value="friends-updated">
-  <h1 id="friends-heading" class="friends__title"><%= t(".title") %></h1>
+  <h1 id="friends-heading" class="visually-hidden"><%= t(".title") %></h1>
   <div class="friends__layout">
     <div class="friends__side">
       <%= render PanelComponent.new(brackets: true, class: "friends__panel", id: "friends-invite") do %>
@@ -67,7 +67,7 @@
     </div>
 
     <div class="friends__main">
-      <h2 class="friends__heading"><%= t(".friends") %></h2>
+      <h2 class="visually-hidden"><%= t(".friends") %></h2>
       <% if @friends.empty? %>
         <%= render PanelComponent.new(tag: :p, class: "friends__empty") do %><%= t(".empty") %> <%= link_to t(".empty_invite"), "#friends-invite" %><% end %>
       <% else %>
