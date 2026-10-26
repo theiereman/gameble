@@ -1,6 +1,6 @@
 ---
 id: 22
-tracker_status: review
+tracker_status: done
 tracker_id: 250
 remote: https://github.com/theiereman/gameble/issues/250
 type: spike

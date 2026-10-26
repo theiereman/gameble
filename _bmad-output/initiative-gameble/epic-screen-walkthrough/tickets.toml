@@ -410,3 +410,15 @@ hitl = true
 risk = "medium"
 notes = ["Chosen by the author on 2026-10-26 after the pistes A (vedette), B (étagère) and C (tuiles) and several recto and verso studies: the \"vitrine et chemin\" pair.", "Settled by the author, 2026-10-26: (1) the public profile's SETS take the tile and show the six most complete started sets instead of twenty; the hub's SETS EN COURS and the search results keep the rows; (2) EN COURS shows every set in progress, with no cap, loaded asynchronously after the page so the search is always usable; (3) on another player's public profile the tile is the same, without the card last gained."]
 
+
+[[entry]]
+id = 35
+type = "story"
+title = "The collection entry shows the completed sets"
+description = "The collection entry gains a section for the sets the player has completed, below EN COURS, asked by the author on 2026-10-26 while reviewing the set tiles: without it a complete set leaves the entry and is only found again by a search. The section takes the same two-faced set progress tile as EN COURS (`library/_set_progress_tile`), loaded in the same lazy frame. A complete set's tile: the rank chip reads COMPLET in its colour, the recto shows its cards as for a set in progress (all of a set of five or fewer, else the three best and \"+N\"), the gauge is full and the line under it reads that the set is complete in place of \"Plus que X pour Y\"; the verso shows the tier path with every node reached, the card last gained and \"VOIR L'ALBUM\". The gold frame stays on EN COURS only. DESIGN.md (Collection entry, Set progress tile) and EXPERIENCE.md (Collection opening) record the section."
+verify = "On the desktop and the phone, in French and in English, a player with complete sets sees them as tiles in their section under EN COURS, every one of them, most recently completed first; a player without one sees no empty section; the tiles turn and link to their album like EN COURS's; the library request test, the system test for the entry (retrying matchers) and the full suite pass."
+covers = []
+after = [34]
+hitl = true
+risk = "low"
+notes = ["Assumed by the agent on 2026-10-26, to confirm with the author on staging: the section is titled COMPLÉTÉS / COMPLETED; it is ordered by the latest card gained in the set (the moment it was completed, as no completion date is stored), most recent first; it shows every complete set with no cap; it is hidden when empty."]
