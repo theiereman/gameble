@@ -5,29 +5,47 @@ import {
   EMPTY_FILTER,
   FRESH_PICKER_FILTERS,
   activeChips,
+  cardOf,
+  changed,
+  clearFilters,
   clearedFilters,
+  closePicker,
   columnsOf,
+  draftSides,
+  edit,
   filterCards,
   filtering,
-  freshPickerFilters,
   gridMove,
   initialLines,
-  labelledChips,
+  moveActive,
+  openPicker,
+  pickerView,
+  place,
   remove,
-  replacePickerFilters,
+  removeLine,
+  restore,
   sendable,
+  setFilter,
+  setLineQuantity,
+  setPickQuantity,
   setQuantity,
+  showMore,
   showsOpenHelp,
   sideCount,
+  start,
   stepperKey,
   toggle,
-  toggled,
+  toggleFold,
+  togglePick,
   toggledFold,
   withFilter,
+  type BoardState,
   type Line,
   type PickerFilters,
   type SideFilter,
+  type TradeCard,
 } from "./trade_board"
+import { PICKER_PAGE } from "./trade_board_faces"
 
 const lines = (...pairs: [string, number][]): Line[] => pairs.map(([key, quantity]) => ({ key, quantity }))
 
@@ -83,16 +101,6 @@ describe("sideCount", () => {
   it("counts cards and copies", () => {
     expect(sideCount(lines(["a", 2], ["b", 1]))).toEqual({ cards: 2, copies: 3 })
     expect(sideCount([])).toEqual({ cards: 0, copies: 0 })
-  })
-})
-
-describe("sendable", () => {
-  it("waits for a card on the friend's side only", () => {
-    const none = { cards: 0, copies: 0 }
-    const one = { cards: 1, copies: 1 }
-    expect(sendable({ give: none, take: one, changed: true })).toBe(true)
-    expect(sendable({ give: one, take: none, changed: true })).toBe(false)
-    expect(sendable({ give: one, take: one, changed: true })).toBe(true)
   })
 })
 
@@ -234,33 +242,6 @@ describe("CHIPS", () => {
   })
 })
 
-describe("labelledChips", () => {
-  const labels = {
-    friend: { duplicates: "Their duplicates", missing: "Missing from mine", shared: "We both own" },
-    own: { duplicates: "My duplicates", missing: "Missing from theirs", available: "Available" },
-  }
-
-  it("pairs each of a side's chips with that side's label, in order", () => {
-    expect(labelledChips("friend", labels)).toEqual([
-      { chip: "duplicates", label: "Their duplicates" },
-      { chip: "missing", label: "Missing from mine" },
-      { chip: "shared", label: "We both own" },
-    ])
-    expect(labelledChips("own", labels)).toEqual([
-      { chip: "duplicates", label: "My duplicates" },
-      { chip: "missing", label: "Missing from theirs" },
-      { chip: "available", label: "Available" },
-    ])
-  })
-})
-
-describe("toggled", () => {
-  it("adds a missing value and removes a present one", () => {
-    expect(toggled(["rare"], "epic")).toEqual(["rare", "epic"])
-    expect(toggled(["rare", "epic"], "rare")).toEqual(["epic"])
-  })
-})
-
 describe("activeChips", () => {
   it("counts the rarities and chips on, not the search", () => {
     expect(activeChips(EMPTY_FILTER)).toBe(0)
@@ -273,19 +254,8 @@ describe("activeChips", () => {
 describe("picker filters", () => {
   const filtered: PickerFilters = { filter: { query: "hades", rarities: ["rare"], chips: ["duplicates"] }, folded: false }
 
-  it("starts every side with no filter, folded", () => {
-    expect(freshPickerFilters(2)).toEqual([
-      { filter: EMPTY_FILTER, folded: true },
-      { filter: EMPTY_FILTER, folded: true },
-    ])
+  it("starts with no filter, folded", () => {
     expect(FRESH_PICKER_FILTERS).toEqual({ filter: EMPTY_FILTER, folded: true })
-  })
-
-  it("replaces one side and leaves the other untouched", () => {
-    const all = freshPickerFilters(2)
-    const next = replacePickerFilters(all, 0, filtered)
-    expect(next[0]).toEqual(filtered)
-    expect(next[1]).toBe(all[1])
   })
 
   it("changes the filter and keeps the fold", () => {
@@ -301,5 +271,210 @@ describe("picker filters", () => {
   it("toggles the fold and keeps the filter", () => {
     expect(toggledFold(filtered)).toEqual({ ...filtered, folded: true })
     expect(toggledFold(toggledFold(filtered))).toEqual(filtered)
+  })
+})
+
+describe("the board", () => {
+  const card = (key: string, max: number, extra: Partial<TradeCard> = {}): TradeCard => ({
+    key,
+    title: key,
+    rarity: "common",
+    owned: Math.max(1, max),
+    reserved: 0,
+    max,
+    copies: 1,
+    otherCopies: 0,
+    ...extra,
+  })
+  const catalogue = {
+    friend: [card("depths", 2), card("hills", 3, { rarity: "uncommon" }), card("soldier", 1)],
+    own: [card("portal", 3), card("crown", 0, { rarity: "legendary" }), card("tin", 1)],
+  }
+  const received = { friend: lines(["depths", 1]), own: lines(["portal", 2]) }
+  const board = (overrides: Partial<Parameters<typeof start>[0]> = {}): BoardState =>
+    start({ catalogue, received, editing: false, draft: null, ...overrides })
+  const picking = (side: "friend" | "own" = "own") => openPicker(edit(board()), side)
+
+  describe("start", () => {
+    it("shows the received lines, kept within each card's copies", () => {
+      const state = board({ received: { friend: lines(["depths", 5], ["gone", 1]), own: lines(["crown", 1], ["portal", 2]) } })
+      expect(state.received).toEqual({ friend: lines(["depths", 2]), own: lines(["portal", 2]) })
+      expect(state.lines).toEqual(state.received)
+      expect(state.picker).toBeNull()
+      expect(state.filters).toEqual({ friend: FRESH_PICKER_FILTERS, own: FRESH_PICKER_FILTERS })
+    })
+
+    it("starts from a kept draft, held to the maxima, a missing side empty", () => {
+      const state = board({ draft: { take: lines(["hills", 9], ["crown", 1]) } })
+      expect(state.lines).toEqual({ friend: lines(["hills", 3]), own: [] })
+      expect(state.received).toEqual({ friend: lines(["depths", 1]), own: lines(["portal", 2]) })
+    })
+
+    it("keeps the given filters, for a board rebuilt after a refresh", () => {
+      const filters = { friend: { filter: { ...EMPTY_FILTER, query: "hills" }, folded: false }, own: FRESH_PICKER_FILTERS }
+      expect(board({ filters }).filters).toBe(filters)
+    })
+  })
+
+  it("finds a side's card by key", () => {
+    expect(cardOf(board(), "own", "portal")?.max).toBe(3)
+    expect(cardOf(board(), "friend", "portal")).toBeUndefined()
+  })
+
+  describe("editing", () => {
+    it("opens the edition and restores the received lines", () => {
+      const changedBoard = removeLine(edit(board()), "own", "portal")
+      expect(changedBoard.editing).toBe(true)
+      const restored = restore(openPicker(changedBoard, "own"))
+      expect(restored.editing).toBe(false)
+      expect(restored.lines).toEqual(restored.received)
+      expect(restored.picker).toBeNull()
+    })
+
+    it("removes a line, and leaves the board as it is for a key it does not hold", () => {
+      const state = edit(board())
+      expect(removeLine(state, "own", "portal").lines.own).toEqual([])
+      expect(removeLine(state, "own", "tin")).toBe(state)
+    })
+
+    it("sets a line's quantity within its card's copies, unchanged when it stays", () => {
+      const state = edit(board())
+      expect(setLineQuantity(state, "own", "portal", 9).lines.own).toEqual(lines(["portal", 3]))
+      expect(setLineQuantity(state, "own", "portal", 2)).toBe(state)
+      expect(setLineQuantity(state, "own", "unknown", 2)).toBe(state)
+    })
+  })
+
+  describe("derived", () => {
+    it("is changed once a side differs from what was received", () => {
+      expect(changed(board())).toBe(false)
+      expect(changed(setLineQuantity(board(), "own", "portal", 1))).toBe(true)
+      expect(changed(setLineQuantity(setLineQuantity(board(), "own", "portal", 1), "own", "portal", 2))).toBe(false)
+    })
+
+    it("is sendable with a card on the friend's side, whatever the player gives", () => {
+      expect(sendable(board())).toBe(true)
+      expect(sendable(removeLine(board(), "own", "portal"))).toBe(true)
+      expect(sendable(removeLine(board(), "friend", "depths"))).toBe(false)
+    })
+
+    it("keeps the friend's side as taken and the player's as given", () => {
+      expect(draftSides(board())).toEqual({ take: lines(["depths", 1]), give: lines(["portal", 2]) })
+    })
+  })
+
+  describe("the picker", () => {
+    it("opens on a side with its lines picked and the first line active", () => {
+      const view = pickerView(picking())!
+      expect(view.side).toBe("own")
+      expect(view.selection).toEqual(lines(["portal", 2]))
+      expect(view.activeKey).toBe("portal")
+      expect(view.shownKeys).toEqual(["portal", "crown", "tin"])
+      expect(view.count).toEqual({ cards: 1, copies: 2 })
+      expect(view).toMatchObject({ hasMore: false, matches: 3, hasCards: true, empty: null, refused: false, folded: true, filtering: false })
+    })
+
+    it("has no view while closed", () => {
+      expect(pickerView(board())).toBeNull()
+    })
+
+    it("makes the first shown card active when no line is", () => {
+      expect(pickerView(openPicker(removeLine(board(), "own", "portal"), "own"))!.activeKey).toBe("portal")
+      expect(pickerView(openPicker(start({ catalogue: { friend: [], own: [] }, received, editing: true, draft: null }), "own"))!.activeKey).toBeNull()
+    })
+
+    it("picks and unpicks a card, making it active", () => {
+      const picked = togglePick(picking(), "tin")
+      expect(picked.picker).toMatchObject({ activeKey: "tin", selection: lines(["portal", 2], ["tin", 1]), refused: false })
+      expect(togglePick(picked, "portal").picker!.selection).toEqual(lines(["tin", 1]))
+      expect(togglePick(picked, "unknown")).toBe(picked)
+      expect(togglePick(board(), "tin")).toEqual(board())
+    })
+
+    it("refuses a fifth card and keeps the selection", () => {
+      const many = { ...catalogue, own: ["a", "b", "c", "d", "e"].map((key) => card(key, 1)) }
+      let state = openPicker(start({ catalogue: many, received: { friend: [], own: [] }, editing: true, draft: null }), "own")
+      for (const key of ["a", "b", "c", "d"]) state = togglePick(state, key)
+      const refused = togglePick(state, "e")
+      expect(refused.picker).toMatchObject({ refused: true, selection: state.picker!.selection })
+      expect(togglePick(refused, "a").picker!.refused).toBe(false)
+    })
+
+    it("does not pick a card without a free copy", () => {
+      expect(togglePick(picking(), "crown").picker).toMatchObject({ activeKey: "crown", selection: lines(["portal", 2]), refused: false })
+    })
+
+    it("sets a pick's quantity within the card's copies", () => {
+      expect(setPickQuantity(picking(), "portal", 7).picker!.selection).toEqual(lines(["portal", 3]))
+      const state = picking()
+      expect(setPickQuantity(state, "portal", 2)).toBe(state)
+      expect(setPickQuantity(board(), "portal", 1)).toEqual(board())
+    })
+
+    it("places the selection on its side, or closes leaving the side as it was", () => {
+      const picked = togglePick(picking(), "tin")
+      expect(place(picked).lines.own).toEqual(lines(["portal", 2], ["tin", 1]))
+      expect(place(picked).picker).toBeNull()
+      expect(closePicker(picked).lines.own).toEqual(lines(["portal", 2]))
+      expect(closePicker(picked).picker).toBeNull()
+      const closed = board()
+      expect(closePicker(closed)).toBe(closed)
+      expect(place(closed)).toBe(closed)
+    })
+
+    it("filters the side's cards, back to the first page, the active card the first shown when filtered out", () => {
+      const state = setFilter(picking(), { ...EMPTY_FILTER, rarities: ["legendary"] })
+      const view = pickerView(state)!
+      expect(view.shownKeys).toEqual(["crown"])
+      expect(view.activeKey).toBe("crown")
+      expect(view.matches).toBe(1)
+      expect(view.chipsOn).toBe(1)
+      expect(view.filtering).toBe(true)
+      expect(view.selection).toEqual(lines(["portal", 2]))
+      expect(state.filters.friend).toBe(FRESH_PICKER_FILTERS)
+    })
+
+    it("says why nothing shows: no card, every copy reserved, or no match", () => {
+      expect(pickerView(setFilter(picking(), { ...EMPTY_FILTER, query: "zelda" }))!.empty).toBe("unmatched")
+      const none = start({ catalogue: { friend: [], own: [card("x", 0)] }, received: { friend: [], own: [] }, editing: true, draft: null })
+      expect(pickerView(openPicker(none, "friend"))).toMatchObject({ empty: "none", hasCards: false })
+      expect(pickerView(openPicker(none, "own"))).toMatchObject({ empty: "reserved", hasCards: true })
+    })
+
+    it("clears the filters and keeps them per side between openings", () => {
+      const filtered = setFilter(picking(), { ...EMPTY_FILTER, query: "tin" })
+      const reopened = openPicker(closePicker(filtered), "own")
+      expect(pickerView(reopened)!.filter.query).toBe("tin")
+      expect(pickerView(openPicker(closePicker(filtered), "friend"))!.filter).toBe(EMPTY_FILTER)
+      expect(pickerView(clearFilters(reopened))!.filter).toBe(EMPTY_FILTER)
+    })
+
+    it("folds and unfolds the filters", () => {
+      expect(pickerView(toggleFold(picking()))!.folded).toBe(false)
+      expect(toggleFold(board())).toEqual(board())
+    })
+
+    it("shows the cards a page at a time", () => {
+      const many = { ...catalogue, own: Array.from({ length: PICKER_PAGE + 2 }, (_, at) => card(`c${at}`, 1)) }
+      const state = openPicker(start({ catalogue: many, received: { friend: [], own: [] }, editing: true, draft: null }), "own")
+      expect(pickerView(state)).toMatchObject({ hasMore: true, matches: PICKER_PAGE + 2 })
+      expect(pickerView(state)!.shownKeys).toHaveLength(PICKER_PAGE)
+      const more = showMore(state)
+      expect(pickerView(more)).toMatchObject({ hasMore: false })
+      expect(pickerView(more)!.shownKeys).toHaveLength(PICKER_PAGE + 2)
+      expect(showMore(more)).toBe(more)
+    })
+
+    it("moves the active card through the grid, showing the page it lands on", () => {
+      const state = picking()
+      expect(moveActive(state, "ArrowRight", 3).picker!.activeKey).toBe("crown")
+      expect(moveActive(state, "End", 3).picker!.activeKey).toBe("tin")
+      expect(moveActive(state, "ArrowLeft", 3).picker!.activeKey).toBe("portal")
+      expect(moveActive(state, "Tab", 3)).toBe(state)
+      const many = { ...catalogue, own: Array.from({ length: PICKER_PAGE + 2 }, (_, at) => card(`c${at}`, 1)) }
+      const long = openPicker(start({ catalogue: many, received: { friend: [], own: [] }, editing: true, draft: null }), "own")
+      const end = moveActive(long, "End", 4)
+      expect(end.picker).toMatchObject({ activeKey: `c${PICKER_PAGE + 1}`, shown: 2 * PICKER_PAGE })
+    })
   })
 })

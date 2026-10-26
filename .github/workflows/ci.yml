@@ -116,6 +116,9 @@ jobs:
       - name: Run JavaScript tests
         run: npm run test:js
 
+      - name: Check no script builds markup from a string
+        run: script/check_markup_apis
+
       - name: Check the migrations build db/schema.rb
         env:
           RAILS_ENV: test

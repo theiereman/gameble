@@ -1,0 +1,86 @@
+<% name = friend_name(friend) %>
+<dialog id="trade-picker" class="modal modal--wide trade-picker" aria-labelledby="trade-picker-title"
+        data-controller="trade-board-picker" data-action="click->trade-board-picker#backdrop close->trade-board-picker#closed">
+  <div class="panel panel--brackets modal__panel trade-picker__panel">
+    <span class="modal__handle" aria-hidden="true"></span>
+    <div class="modal__head">
+      <h2 id="trade-picker-title" class="modal__title">
+        <span class="trade-picker__title" data-for="friend"><%= t("trade_board.picker.friend", name:) %></span>
+        <span class="trade-picker__title" data-for="own"><%= t("trade_board.picker.own") %></span>
+        <span class="trade-picker__title-short" data-for="friend"><%= t("trade_board.picker_short.friend", name:) %></span>
+        <span class="trade-picker__title-short" data-for="own"><%= t("trade_board.picker_short.own") %></span>
+      </h2>
+      <button type="button" class="modal__close" aria-label="<%= t("trade_board.close") %>" data-action="trade-board-picker#cancel">
+        <%= pixel_icon("close", class: "trade-board__close-icon") %>
+      </button>
+    </div>
+    <p class="trade-picker__note" data-for="friend"><%= t("trade_board.note.friend", name:) %></p>
+    <p class="trade-picker__note" data-for="own"><%= t("trade_board.note.own") %></p>
+    <div class="trade-picker__filters" role="search" data-trade-board-picker-target="filters">
+      <label class="visually-hidden" for="trade-picker-search"><%= t("trade_board.search_label") %></label>
+      <input id="trade-picker-search" type="search" class="filters__search-field" autocomplete="off"
+             placeholder="<%= t("trade_board.search_placeholder") %>"
+             data-trade-board-picker-target="search" data-action="input->trade-board-picker#filter">
+      <button type="button" class="trade-picker__fold" aria-expanded="false" aria-controls="trade-picker-groups"
+              data-trade-board-picker-target="fold" data-action="trade-board-picker#fold">
+        <span class="trade-picker__chevron" aria-hidden="true"><%= pixel_icon("arrow-small-right", class: "filters__chevron") %></span>
+        <span class="filters__title"><%= t("trade_board.filters_title") %></span>
+        <span class="filters__count" data-trade-board-picker-target="filterCount" hidden><span class="visually-hidden"><%= t("trade_board.filters_active") %></span> <span data-trade-board-picker-target="chipCount">0</span></span>
+      </button>
+      <div id="trade-picker-groups" class="trade-picker__groups trade-picker__groups--folded" data-trade-board-picker-target="groups">
+        <fieldset class="filters__group trade-picker__rarities">
+          <legend class="filters__legend"><%= t("trade_board.rarities_legend") %></legend>
+          <% Catalog::Rarity::TIERS.each_value do |rarity| %>
+            <label class="filter-chip">
+              <input type="checkbox" class="filter-chip__box" value="<%= rarity %>"
+                     data-trade-board-picker-target="rarity" data-action="change->trade-board-picker#filter">
+              <span class="filter-chip__text"><%= t("catalog.rarity.#{rarity}") %></span>
+            </label>
+          <% end %>
+        </fieldset>
+        <fieldset class="filters__group trade-picker__compare">
+          <legend class="filters__legend"><%= t("trade_board.compare_legend") %></legend>
+          <% TradesHelper::PICKER_CHIPS.each do |side, keys| %>
+            <% keys.each do |chip| %>
+              <label class="filter-chip" data-for="<%= side %>">
+                <input type="checkbox" class="filter-chip__box" value="<%= chip %>" data-for="<%= side %>"
+                       data-trade-board-picker-target="chip" data-action="change->trade-board-picker#filter">
+                <span class="filter-chip__text"><%= t("trade_board.chips.#{side}.#{chip}") %></span>
+              </label>
+            <% end %>
+          <% end %>
+        </fieldset>
+      </div>
+      <div class="trade-picker__filter-foot">
+        <p class="trade-picker__results" aria-live="polite" data-trade-board-picker-target="results"></p>
+        <button type="button" class="filters__clear trade-picker__clear" data-trade-board-picker-target="clear"
+                data-action="trade-board-picker#clear" hidden><%= t("trade_board.clear_filters") %></button>
+      </div>
+    </div>
+    <div class="trade-picker__body" data-trade-board-picker-target="body">
+      <p class="trade-picker__empty" data-trade-board-picker-target="empty" data-reason="none" hidden>
+        <b class="trade-picker__empty-title"><%= t("trades.side.none.title") %></b>
+        <span data-for="friend"><%= trade_picker_none(:friend, friend) %></span><span data-for="own"><%= trade_picker_none(:own, friend) %></span>
+      </p>
+      <p class="trade-picker__empty" data-trade-board-picker-target="empty" data-reason="reserved" hidden>
+        <b class="trade-picker__empty-title"><%= t("trades.side.none.title") %></b> <%= t("trades.side.none.all_reserved") %>
+      </p>
+      <p class="trade-picker__empty" data-trade-board-picker-target="empty" data-reason="unmatched" hidden><%= t("trade_board.no_match") %></p>
+      <ul class="trade-picker__grid" aria-labelledby="trade-picker-title" data-trade-board-picker-target="grid"
+          data-action="keydown->trade-board-picker#keydown" hidden></ul>
+      <div class="trade-picker__more" aria-hidden="true" data-trade-board-picker-target="more" hidden></div>
+      <ul class="trade-picker__stash" data-trade-board-picker-target="stash" hidden>
+        <% editor.slice(:friend, :own).each do |side, board_side| %>
+          <%= render partial: "trades/pick", collection: board_side[:picks], as: :pick, locals: { side: } %>
+        <% end %>
+      </ul>
+    </div>
+    <p class="trade-picker__refusal" role="alert"><span data-trade-board-picker-target="refusal" hidden><b><%= t("trade_board.limit_title") %></b> · <%= t("trade_board.limit_text") %></span></p>
+    <div class="trade-picker__actions">
+      <p class="trade-picker__count" aria-live="polite" data-trade-board-picker-target="count"></p>
+      <button type="button" class="button button--primary" data-trade-board-picker-target="place" data-action="trade-board-picker#place"><%= t("trade_board.place") %></button>
+      <button type="button" class="button button--secondary" data-action="trade-board-picker#cancel"><%= t("trade_board.cancel") %></button>
+    </div>
+  </div>
+  <template data-trade-board-picker-target="stepperTemplate"><%= render "trades/stepper", controller: "trade-board-picker" %></template>
+</dialog>

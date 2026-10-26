@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { PICKER_PAGE, batches, faceLoader, facesFrom, facesUrl, fetchFaces, missingFaces, nextPage, shownFor, withFaces, type Faces } from "./trade_faces"
+import { PICKER_PAGE, batches, faceLoader, facesFrom, facesUrl, fetchFaces, missingFaces, nextPage, shownFor, type KnownFaces } from "./trade_board_faces"
 
 describe("shownFor", () => {
   it("holds whole pages up to and including the index", () => {
@@ -69,23 +69,6 @@ describe("facesFrom", () => {
   })
 })
 
-describe("withFaces", () => {
-  it("adds the arrived faces to the known ones, leaving the known map untouched", () => {
-    const known = new Map([["a--s1", "A"]])
-    const next = withFaces(known, { "b--s1": "B" })
-    expect([...next]).toEqual([
-      ["a--s1", "A"],
-      ["b--s1", "B"],
-    ])
-    expect(known.size).toBe(1)
-  })
-
-  it("keeps the same map when nothing arrived", () => {
-    const known = new Map([["a--s1", "A"]])
-    expect(withFaces(known, {})).toBe(known)
-  })
-})
-
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } })
 
 function answering(answer: Response | Error) {
@@ -132,10 +115,10 @@ function deferred<Value>() {
 
 const settled = () => new Promise((done) => setTimeout(done, 0))
 
-function loading({ known = new Map(), concurrency = 2, attempts = 3 }: { known?: Faces; concurrency?: number; attempts?: number } = {}) {
+function loading({ known = new Set<string>(), concurrency = 2, attempts = 3 }: { known?: KnownFaces; concurrency?: number; attempts?: number } = {}) {
   const calls: { keys: readonly string[]; answer: ReturnType<typeof deferred<Record<string, string> | null>> }[] = []
   const retries: (() => void)[] = []
-  const seen: Faces[] = []
+  const seen: Readonly<Record<string, string>>[] = []
   const loader = faceLoader({
     known,
     batch: 2,
@@ -146,7 +129,7 @@ function loading({ known = new Map(), concurrency = 2, attempts = 3 }: { known?:
       calls.push({ keys, answer })
       return answer.promise
     },
-    onFaces: (faces) => seen.push(faces),
+    onFaces: (arrived) => seen.push(arrived),
     later: (run) => retries.push(run),
   })
   return { loader, calls, retries, seen }
@@ -165,7 +148,7 @@ describe("faceLoader", () => {
   })
 
   it("asks only for faces neither known nor already asked for", () => {
-    const { loader, calls } = loading({ known: new Map([["a", "A"]]) })
+    const { loader, calls } = loading({ known: new Set(["a"]) })
 
     loader.request(["a", "b"])
     loader.request(["a", "b"])
@@ -178,7 +161,7 @@ describe("faceLoader", () => {
     loader.request(["a"])
     calls[0].answer.resolve({ a: "A" })
     await settled()
-    expect([...seen.at(-1)!]).toEqual([["a", "A"]])
+    expect(seen).toEqual([{ a: "A" }])
   })
 
   it("tries a failed batch again later, then lets a later request ask for it", async () => {
@@ -199,5 +182,28 @@ describe("faceLoader", () => {
 
     loader.request(["a"])
     expect(calls).toHaveLength(3)
+  })
+
+  it("never asks again for a face the answer left out", async () => {
+    const { loader, calls, seen } = loading()
+
+    loader.request(["a", "b"])
+    calls[0].answer.resolve({ a: "A" })
+    await settled()
+    loader.request(["a", "b"])
+    expect(calls).toHaveLength(1)
+    expect(seen).toEqual([{ a: "A" }])
+  })
+
+  it("never asks again for a face that arrived and the board recorded", async () => {
+    const known = new Set<string>()
+    const { loader, calls } = loading({ known })
+
+    loader.request(["a"])
+    calls[0].answer.resolve({ a: "A" })
+    await settled()
+    known.add("a")
+    loader.request(["a"])
+    expect(calls).toHaveLength(1)
   })
 })

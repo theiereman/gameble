@@ -2,7 +2,6 @@
 // `gameble:<noun-verb>`, declared here only). Each name maps to its detail;
 // dispatchGameble and onGameble keep both ends typed.
 import type { Rarity } from "./card_types"
-import type { SideCount } from "./trade_board"
 
 export type ToastAction = { label: string; href: string; download?: string }
 
@@ -30,9 +29,6 @@ export type NavigationLockedDetail = { locked: boolean }
 export type OpeningRevealingDetail = { revealing: boolean }
 
 export type StreamUpdatedDetail = Record<string, never>
-export type TradeChangedDetail = { give: SideCount; take: SideCount; changed: boolean }
-
-export type TradeEditingDetail = { editing: boolean }
 
 export interface GamebleEventMap {
   "gameble:toast": ToastDetail
@@ -42,8 +38,6 @@ export interface GamebleEventMap {
   "gameble:opening-revealing": OpeningRevealingDetail
   "gameble:trades-updated": StreamUpdatedDetail
   "gameble:friends-updated": StreamUpdatedDetail
-  "gameble:trade-changed": TradeChangedDetail
-  "gameble:trade-editing": TradeEditingDetail
 }
 
 export type GamebleEventName = keyof GamebleEventMap

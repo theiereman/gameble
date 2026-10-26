@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { SWAP_LANDING, SWAP_LIFT, confettiDirections, swapKeyframes, swapPath } from "./trade_swap"
+import { SWAP_LANDING, SWAP_LIFT, confettiDirections, swapKeyframes, swapPath } from "./trade_board_swap"
 
 describe("swapPath", () => {
   it("starts at the offset and ends at the resting place", () => {

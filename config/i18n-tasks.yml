@@ -32,8 +32,8 @@ ignore_unused:
   - "pagy.*"
   # The Booster island's words, passed whole to its props (BoostersHelper#booster_props).
   - "boosters.island.*"
-  # The TradeBoard island's words, by side and passed whole to its props (TradesHelper#trade_board_props).
-  - "trades.island.*"
+  # The trade board's run-time templates, passed whole to its root controller (TradesHelper#trade_board_strings).
+  - "trade_board.strings.*"
   # Achievement names, looked up by the key an unlock carries (the player stream's toast).
   - "achievements.names.*"
   # Achievement conditions, read by catalogue key on the achievements screen.

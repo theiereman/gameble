@@ -1,4 +1,4 @@
-// Application entrypoint, served by Vite (AD-16): Turbo, Stimulus, and the React islands mounted with Turbo Mount.
+// Application entrypoint, served by Vite: Turbo, Stimulus, and the booster's React island mounted with Turbo Mount.
 // Imported before Turbo so its popstate listener runs before Turbo's own.
 import "../lib/bridge_cache_guard"
 import "@hotwired/turbo-rails"
@@ -10,7 +10,6 @@ import { createElement, lazy, Suspense, type ComponentType } from "react"
 
 import BoosterErrorBoundary from "../components/BoosterErrorBoundary"
 import type { BoosterProps } from "../components/Booster"
-import TradeBoard from "../components/TradeBoard"
 import { keepLocaleOnReturn } from "../lib/locale_return"
 import { registerStreamActions } from "../lib/stream_actions"
 import { rememberTimeZone } from "../lib/time_zone_cookie"
@@ -33,6 +32,3 @@ const Booster = lazy(() => import("../components/Booster"))
 const LazyBooster = (props: BoosterProps) =>
   createElement(BoosterErrorBoundary, { strings: props.strings }, createElement(Suspense, { fallback: null }, createElement(Booster, props)))
 registerComponent(turboMount, "Booster", island(LazyBooster))
-
-// Loaded eagerly: it replaces the server's fallback fields without an empty frame.
-registerComponent(turboMount, "TradeBoard", island(TradeBoard))

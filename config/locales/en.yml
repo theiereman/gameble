@@ -2167,6 +2167,79 @@ en:
       local_datetime: "%b %-d, %H:%M"
       local_time: "%H:%M"
       local_weekday_time: "%A %H:%M"
+  trade_board:
+    add:
+      friend: Choose their cards
+      own: Place my cards
+    available:
+      one: 1 available
+      other: "%{count} available"
+      zero: none available
+    cancel: Cancel
+    card_label: "%{title}, %{owned}"
+    chips:
+      friend:
+        duplicates: Their duplicates
+        missing: Missing from mine
+        shared: We both own
+      own:
+        available: Available
+        duplicates: My duplicates
+        missing: Missing from theirs
+    clear_filters: Clear filters
+    close: Close
+    compare_legend: Collections
+    fewer: One copy fewer
+    filters_active: 'Active filters:'
+    filters_title: Filters
+    limit_text: Remove a card before placing another.
+    limit_title: 4 cards at most
+    more: One more copy
+    no_match: No card matches these filters. Clear them to see every card again.
+    note:
+      friend: Choose the cards, then how many copies to ask %{name} for.
+      own: Choose the cards, then the number of copies. A copy you place stays reserved
+        until the answer.
+    owned:
+      one: 1 copy
+      other: "%{count} copies"
+    picker:
+      friend: Choose from %{name}'s collection
+      own: Place my cards
+    picker_short:
+      friend: "%{name}'s cards"
+      own: My cards
+    place: Place
+    rarities_legend: Rarity
+    reserved_elsewhere:
+      one: 1 reserved in another trade
+      other: "%{count} reserved in other trades"
+    search_label: Search by title
+    search_placeholder: Search a title
+    strings:
+      cards:
+        one: "%{count} card"
+        other: "%{count} cards"
+      cards_copies:
+        one: "%{cards} · %{copies} copies"
+        other: "%{cards} · %{copies} copies"
+      max: "/%{max}"
+      max_phone: of %{max}
+      picked: "%{cards} · %{copies} (4 cards at most)"
+      picked_cards:
+        one: "%{count} card"
+        other: "%{count} cards"
+      picked_copies:
+        one: "%{count} copy"
+        other: "%{count} copies"
+      quantity_label: Copies of %{title}
+      remove: Remove %{title}
+      results:
+        one: 1 card shown.
+        other: "%{count} cards shown."
+        zero: No card shown.
+      value_text: "%{count} of %{max}"
+    unavailable: none available
   trades:
     accepted:
       text:
@@ -2236,71 +2309,6 @@ en:
       text: Your answer was sent to %{name}.
       title: Trade declined
     insufficient: Not enough copies
-    island:
-      add:
-        friend: Choose their cards
-        own: Place my cards
-      note:
-        friend: Choose the cards, then how many copies to ask %{name} for.
-        own: Choose the cards, then the number of copies. A copy you place stays reserved
-          until the answer.
-      picker:
-        friend: Choose from %{name}'s collection
-        own: Place my cards
-      picker_short:
-        friend: "%{name}'s cards"
-        own: My cards
-      strings:
-        available:
-          one: 1 available
-          other: "%{count} available"
-          zero: none available
-        cancel: Cancel
-        card_label: "%{title}, %{owned}"
-        chips:
-          friend:
-            duplicates: Their duplicates
-            missing: Missing from mine
-            shared: We both own
-          own:
-            available: Available
-            duplicates: My duplicates
-            missing: Missing from theirs
-        clear_filters: Clear filters
-        close: Close
-        compare_legend: Collections
-        fewer: One copy fewer
-        filters_active: 'Active filters:'
-        filters_title: Filters
-        limit_text: Remove a card before placing another.
-        limit_title: 4 cards at most
-        max_phone: of %{max}
-        more: One more copy
-        no_match: No card matches these filters. Clear them to see every card again.
-        owned:
-          one: 1 copy
-          other: "%{count} copies"
-        picked: "%{cards} · %{copies} (4 cards at most)"
-        picked_cards:
-          one: "%{count} card"
-          other: "%{count} cards"
-        picked_copies:
-          one: "%{count} copy"
-          other: "%{count} copies"
-        place: Place
-        rarities_legend: Rarity
-        remove: Remove %{title}
-        reserved_elsewhere:
-          one: 1 reserved in another trade
-          other: "%{count} reserved in other trades"
-        results:
-          one: 1 card shown.
-          other: "%{count} cards shown."
-          zero: No card shown.
-        search_label: Search by title
-        search_placeholder: Search a title
-        unavailable: none available
-        value_text: "%{count} of %{max}"
     list:
       back: List
       empty: No trades yet.
@@ -2329,25 +2337,17 @@ en:
       text: "%{name} has 7 days to answer. Your cards are reserved until then."
       title: Proposal sent
     side:
-      cards:
-        one: "%{count} card"
-        other: "%{count} cards"
-      cards_copies:
-        one: "%{cards} · %{copies} copies"
-        other: "%{cards} · %{copies} copies"
       copies_label: 'Copies:'
       for_friend_to_choose: For %{name} to choose
       friend_gives: "%{name} gives"
       friend_offered: "%{name} offered"
       friend_received: "%{name} received"
-      max: "/%{max}"
       new: New
       none:
         all_reserved: Your copies are all reserved in other trades.
         friend_none_owned: "%{name} no longer holds any of these cards."
         none_owned: You no longer hold any of these cards.
         title: No card available.
-      quantity_label: Copies of %{title}
       reserved:
         one: Reserved
         other: "%{count} reserved"

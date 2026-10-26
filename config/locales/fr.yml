@@ -1380,6 +1380,84 @@ fr:
     unknown:
       title: "Invitation"
       text: "Ce lien d'invitation n'est pas valide."
+  trade_board:
+    add:
+      friend: "Choisir ses cartes"
+      own: "Placer mes cartes"
+    picker:
+      friend: "Choisir dans la collection de %{name}"
+      own: "Placer mes cartes"
+    picker_short:
+      friend: "Cartes de %{name}"
+      own: "Mes cartes"
+    note:
+      friend: "Choisissez les cartes, puis combien d'exemplaires demander à %{name}."
+      own: "Choisissez les cartes, puis le nombre d'exemplaires. Un exemplaire placé reste réservé jusqu'à la réponse."
+    close: "Fermer"
+    place: "Placer"
+    cancel: "Annuler"
+    more: "Un exemplaire de plus"
+    fewer: "Un exemplaire de moins"
+    available:
+      zero: "aucun disponible"
+      one: "1 disponible"
+      other: "%{count} disponibles"
+    limit_title: "4 cartes au plus"
+    limit_text: "Retirez une carte avant d'en placer une autre."
+    card_label: "%{title}, %{owned}"
+    owned:
+      zero: "0 exemplaire"
+      one: "1 exemplaire"
+      other: "%{count} exemplaires"
+    reserved_elsewhere:
+      zero: "aucun réservé ailleurs"
+      one: "1 réservé ailleurs"
+      other: "%{count} réservés ailleurs"
+    unavailable: "aucun disponible"
+    search_label: "Rechercher par titre"
+    search_placeholder: "Rechercher un titre"
+    rarities_legend: "Rareté"
+    compare_legend: "Collections"
+    chips:
+      friend:
+        duplicates: "Ses doublons"
+        missing: "Absentes de ma collection"
+        shared: "En commun"
+      own:
+        duplicates: "Mes doublons"
+        missing: "Absentes de sa collection"
+        available: "Disponibles"
+    clear_filters: "Effacer les filtres"
+    filters_title: "Filtres"
+    filters_active: "Filtres actifs :"
+    no_match: "Aucune carte ne correspond à ces filtres. Effacez-les pour revoir toutes les cartes."
+    strings:
+      cards:
+        zero: "0 carte"
+        one: "%{count} carte"
+        other: "%{count} cartes"
+      cards_copies:
+        zero: "%{cards} · %{copies} ex."
+        one: "%{cards} · %{copies} ex."
+        other: "%{cards} · %{copies} ex."
+      quantity_label: "Exemplaires de %{title}"
+      max: "/%{max}"
+      max_phone: "sur %{max}"
+      value_text: "%{count} sur %{max}"
+      remove: "Retirer %{title}"
+      picked: "%{cards} · %{copies} (4 cartes au plus)"
+      picked_cards:
+        zero: "0 carte"
+        one: "%{count} carte"
+        other: "%{count} cartes"
+      picked_copies:
+        zero: "0 exemplaire"
+        one: "%{count} exemplaire"
+        other: "%{count} exemplaires"
+      results:
+        zero: "Aucune carte affichée."
+        one: "1 carte affichée."
+        other: "%{count} cartes affichées."
   trades:
     title: "Échanges"
     throttled: "Trop d'actions en une minute. Réessayez dans un instant."
@@ -1463,19 +1541,10 @@ fr:
       you_received: "Vous avez reçu"
       for_friend_to_choose: "À choisir par %{name}"
       yours_to_choose: "À vous de choisir"
-      cards:
-        zero: "0 carte"
-        one: "%{count} carte"
-        other: "%{count} cartes"
-      cards_copies:
-        one: "%{cards} · %{copies} ex."
-        other: "%{cards} · %{copies} ex."
       copies_label: "Exemplaires :"
       reserved:
         one: "Réservée"
         other: "%{count} réservées"
-      quantity_label: "Exemplaires de %{title}"
-      max: "/%{max}"
       new: "Nouveau"
       none:
         title: "Aucune carte disponible."
@@ -1494,72 +1563,6 @@ fr:
       again: "Nouvel échange avec %{name}"
     closed:
       settings: "RÉGLAGES"
-    island:
-      add:
-        friend: "Choisir ses cartes"
-        own: "Placer mes cartes"
-      picker:
-        friend: "Choisir dans la collection de %{name}"
-        own: "Placer mes cartes"
-      picker_short:
-        friend: "Cartes de %{name}"
-        own: "Mes cartes"
-      note:
-        friend: "Choisissez les cartes, puis combien d'exemplaires demander à %{name}."
-        own: "Choisissez les cartes, puis le nombre d'exemplaires. Un exemplaire placé reste réservé jusqu'à la réponse."
-      strings:
-        close: "Fermer"
-        place: "Placer"
-        cancel: "Annuler"
-        remove: "Retirer %{title}"
-        more: "Un exemplaire de plus"
-        fewer: "Un exemplaire de moins"
-        value_text: "%{count} sur %{max}"
-        max_phone: "sur %{max}"
-        available:
-          zero: "aucun disponible"
-          one: "1 disponible"
-          other: "%{count} disponibles"
-        picked: "%{cards} · %{copies} (4 cartes au plus)"
-        picked_cards:
-          zero: "0 carte"
-          one: "%{count} carte"
-          other: "%{count} cartes"
-        picked_copies:
-          zero: "0 exemplaire"
-          one: "%{count} exemplaire"
-          other: "%{count} exemplaires"
-        limit_title: "4 cartes au plus"
-        limit_text: "Retirez une carte avant d'en placer une autre."
-        card_label: "%{title}, %{owned}"
-        owned:
-          one: "1 exemplaire"
-          other: "%{count} exemplaires"
-        reserved_elsewhere:
-          one: "1 réservé ailleurs"
-          other: "%{count} réservés ailleurs"
-        unavailable: "aucun disponible"
-        search_label: "Rechercher par titre"
-        search_placeholder: "Rechercher un titre"
-        rarities_legend: "Rareté"
-        compare_legend: "Collections"
-        chips:
-          friend:
-            duplicates: "Ses doublons"
-            missing: "Absentes de ma collection"
-            shared: "En commun"
-          own:
-            duplicates: "Mes doublons"
-            missing: "Absentes de sa collection"
-            available: "Disponibles"
-        clear_filters: "Effacer les filtres"
-        filters_title: "Filtres"
-        filters_active: "Filtres actifs :"
-        no_match: "Aucune carte ne correspond à ces filtres. Effacez-les pour revoir toutes les cartes."
-        results:
-          zero: "Aucune carte affichée."
-          one: "1 carte affichée."
-          other: "%{count} cartes affichées."
     accepted:
       title: "Échange conclu"
       text:

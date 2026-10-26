@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { DRAFT_PREFIX, forgetDraft, parseDraft, readDraft, sameLines, saveDraft } from "./trade_draft"
+import { DRAFT_PREFIX, forgetDraft, parseDraft, readDraft, sameLines, saveDraft } from "./trade_board_draft"
 import type { Line } from "./trade_board"
 
 const lines = (...pairs: [string, number][]): Line[] => pairs.map(([key, quantity]) => ({ key, quantity }))

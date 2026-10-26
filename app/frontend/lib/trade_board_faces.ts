@@ -5,14 +5,14 @@ const FACES_CONCURRENCY = 2
 const FACES_ATTEMPTS = 3
 const FACES_RETRY_DELAY_MS = 2_000
 
-export type Faces = ReadonlyMap<string, string>
+export type KnownFaces = { has(key: string): boolean }
 
 export const shownFor = (index: number) => Math.ceil((Math.max(0, index) + 1) / PICKER_PAGE) * PICKER_PAGE
 
 export const nextPage = (shown: number) => shown + PICKER_PAGE
 
-export function missingFaces(keys: readonly string[], known: Faces, pending: ReadonlySet<string>): string[] {
-  return [...new Set(keys)].filter((key) => !known.has(key) && !pending.has(key))
+export function missingFaces(keys: readonly string[], known: KnownFaces, asked: ReadonlySet<string>): string[] {
+  return [...new Set(keys)].filter((key) => !known.has(key) && !asked.has(key))
 }
 
 export function batches<Item>(items: readonly Item[], size: number): Item[][] {
@@ -43,17 +43,11 @@ export async function fetchFaces({ url, fetch: send = globalThis.fetch, timeout 
   }
 }
 
-export function withFaces(known: Faces, arrived: Readonly<Record<string, string>>): Faces {
-  const entries = Object.entries(arrived)
-  if (entries.length === 0) return known
-  return new Map([...known, ...entries])
-}
-
 type FaceLoaderOptions = {
-  known: Faces
+  known: KnownFaces
   batch: number
   load: (keys: readonly string[]) => Promise<Record<string, string> | null>
-  onFaces: (faces: Faces) => void
+  onFaces: (arrived: Readonly<Record<string, string>>) => void
   concurrency?: number
   attempts?: number
   retryDelay?: number
@@ -63,7 +57,7 @@ type FaceLoaderOptions = {
 export type FaceLoader = { request: (keys: readonly string[]) => void }
 
 export function faceLoader({
-  known: initial,
+  known,
   batch,
   load,
   onFaces,
@@ -72,12 +66,9 @@ export function faceLoader({
   retryDelay = FACES_RETRY_DELAY_MS,
   later = (run, delay) => void setTimeout(run, delay),
 }: FaceLoaderOptions): FaceLoader {
-  let known = initial
-  const pending = new Set<string>()
+  const asked = new Set<string>()
   const waiting: { keys: string[]; tried: number }[] = []
   let loading = 0
-
-  const settle = (keys: readonly string[]) => keys.forEach((key) => pending.delete(key))
 
   const pump = () => {
     while (loading < concurrency && waiting.length > 0) {
@@ -86,16 +77,14 @@ export function faceLoader({
       void load(next.keys).then((arrived) => {
         loading -= 1
         if (arrived) {
-          settle(next.keys)
-          known = withFaces(known, arrived)
-          onFaces(known)
+          onFaces(arrived)
         } else if (next.tried + 1 < attempts) {
           later(() => {
             waiting.push({ keys: next.keys, tried: next.tried + 1 })
             pump()
           }, retryDelay * (next.tried + 1))
         } else {
-          settle(next.keys)
+          next.keys.forEach((key) => asked.delete(key))
         }
         pump()
       })
@@ -104,8 +93,8 @@ export function faceLoader({
 
   return {
     request(keys) {
-      const missing = missingFaces(keys, known, pending)
-      missing.forEach((key) => pending.add(key))
+      const missing = missingFaces(keys, known, asked)
+      missing.forEach((key) => asked.add(key))
       batches(missing, batch).forEach((keys) => waiting.push({ keys, tried: 0 }))
       pump()
     },
