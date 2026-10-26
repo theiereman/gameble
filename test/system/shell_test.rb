@@ -436,7 +436,7 @@ class ShellTest < ApplicationSystemTestCase
   def album_path = library_set_path(locale: :en, kind: "theme", key: "horror")
 
   def open_first_card_of_the_set
-    find(".set-entry__list a[href='#{album_path}']").click
+    find(".set-tiles a.set-tile[href='#{album_path}']").click
     find(".collection-grid a.card-link", match: :first).click
   end
 

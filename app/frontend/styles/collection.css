@@ -213,6 +213,419 @@
   box-shadow: var(--focus-ring-gap), inset 5px 0 0 0 var(--color-accent), var(--panel-border);
 }
 
+/* ---- Set progress tiles ---- */
+
+.set-entry > .set-entry__in-progress {
+  display: block;
+}
+
+.set-entry__loading {
+  min-height: 1lh;
+  margin: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.set-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4) var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.set-tile {
+  --turned: 0;
+  --tile-card-scale: 0.6;
+  position: relative;
+  display: grid;
+  height: 280px;
+  color: var(--color-text);
+  text-decoration: none;
+  perspective: 1200px;
+}
+
+.set-tile:focus-visible {
+  --turned: 1;
+}
+
+.set-tile:focus-visible .set-tile__face--recto {
+  visibility: hidden;
+}
+
+.set-tile:focus-visible .set-tile__face--verso {
+  visibility: visible;
+}
+
+@media (hover: hover) {
+  .set-tile:hover {
+    --turned: 1;
+  }
+
+  .set-tile:hover .set-tile__face--recto {
+    visibility: hidden;
+  }
+
+  .set-tile:hover .set-tile__face--verso {
+    visibility: visible;
+  }
+}
+
+.set-tile__face {
+  --tile-frame: var(--color-line);
+  --tile-mark: 0 0 0 0 transparent;
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding: var(--space-5);
+  background: var(--color-panel);
+  box-shadow: var(--tile-mark), inset 0 0 0 var(--space-unit) var(--tile-frame);
+  backface-visibility: hidden;
+  /* A card's own 3D layers show through a turned face's back: hide it halfway. */
+  transition: transform 360ms var(--ease-out), opacity 200ms linear, visibility 0s linear 180ms;
+}
+
+.set-tile__face--recto {
+  transform: rotateY(calc(var(--turned) * -180deg));
+}
+
+.set-tile__face--verso {
+  --tile-frame: var(--color-accent);
+  visibility: hidden;
+  transform: rotateY(calc(180deg - var(--turned) * 180deg));
+}
+
+.set-tile--closest .set-tile__face--recto {
+  --tile-frame: var(--color-gold);
+}
+
+.set-tile[aria-current] .set-tile__face {
+  --tile-mark: inset 5px 0 0 0 var(--color-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:not([data-motion="full"]) .set-tile .set-tile__face {
+    visibility: visible;
+    transform: none;
+  }
+
+  html:not([data-motion="full"]) .set-tile__face--recto {
+    opacity: calc(1 - var(--turned));
+  }
+
+  html:not([data-motion="full"]) .set-tile__face--verso {
+    opacity: var(--turned);
+  }
+}
+
+html[data-motion="reduced"] .set-tile .set-tile__face {
+  visibility: visible;
+  transform: none;
+}
+
+html[data-motion="reduced"] .set-tile__face--recto {
+  opacity: calc(1 - var(--turned));
+}
+
+html[data-motion="reduced"] .set-tile__face--verso {
+  opacity: var(--turned);
+}
+
+.set-tile__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.set-tile__title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.set-tile__name {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--color-text-max);
+  font: var(--font-body);
+  font-weight: 700;
+  letter-spacing: var(--tracking-body);
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.set-tile__kind {
+  color: var(--color-muted);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.set-tile__count {
+  flex: none;
+  color: var(--color-text-max);
+  font: var(--font-count-large);
+  letter-spacing: var(--tracking-count-large);
+  font-variant-numeric: tabular-nums;
+}
+
+.set-tile__total {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.set-chip {
+  display: inline-block;
+  padding: 0 var(--space-2);
+  box-shadow: inset 0 0 0 1px var(--tier);
+  color: var(--tier);
+  font: var(--font-card-meta);
+  letter-spacing: var(--tracking-card-meta);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.set-chip--rank {
+  flex: none;
+  padding: var(--space-1) var(--space-3);
+  box-shadow: inset 0 0 0 var(--space-unit) var(--tier);
+  font: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+.set-chip--none {
+  --tier: var(--color-line-deep);
+  box-shadow: none;
+  outline: var(--space-unit) dashed var(--tier);
+  outline-offset: calc(-1 * var(--space-unit));
+}
+
+.tier-tone--bronze { --tier: var(--color-tier-bronze); }
+.tier-tone--silver { --tier: var(--color-tier-silver); }
+.tier-tone--gold { --tier: var(--color-gold); }
+.tier-tone--complete { --tier: var(--color-lime); }
+.tier-tone--novice,
+.tier-tone--apprentice,
+.tier-tone--adept,
+.tier-tone--expert,
+.tier-tone--master { --tier: var(--color-text-bright); }
+
+.rarity-tone--common { --rarity: var(--color-rarity-commune); }
+.rarity-tone--uncommon { --rarity: var(--color-rarity-peu-commune); }
+.rarity-tone--rare { --rarity: var(--color-rarity-rare); }
+.rarity-tone--epic { --rarity: var(--color-rarity-epique); }
+.rarity-tone--legendary { --rarity: var(--color-rarity-legendaire); }
+
+.set-tile__cards {
+  container-type: inline-size;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 0;
+}
+
+.set-tile__card,
+.set-tile__missing,
+.set-tile__more {
+  box-sizing: border-box;
+  flex: none;
+  width: calc(var(--card-s-width) * var(--tile-card-scale));
+  height: calc(var(--card-s-height) * var(--tile-card-scale));
+}
+
+@container (max-width: 367px) {
+  .set-tile__card,
+  .set-tile__missing,
+  .set-tile__more {
+    --tile-card-scale: 0.5;
+  }
+}
+
+@container (max-width: 311px) {
+  .set-tile__card,
+  .set-tile__missing,
+  .set-tile__more {
+    --tile-card-scale: 0.42;
+  }
+}
+
+@container (max-width: 266px) {
+  .set-tile__card,
+  .set-tile__missing,
+  .set-tile__more {
+    --tile-card-scale: 0.38;
+  }
+}
+
+html .set-tile__card > .card.card--s,
+html .set-tile__card > .card.card--s[data-tilt],
+html .set-tile__last-card > .card.card--s,
+html .set-tile__last-card > .card.card--s[data-tilt] {
+  transform: scale(var(--tile-card-scale));
+  transform-origin: top left;
+}
+
+.set-tile__missing {
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--rarity) 8%, var(--color-panel-sunken));
+  border: var(--space-unit) dashed color-mix(in srgb, var(--rarity) 45%, transparent);
+  color: color-mix(in srgb, var(--rarity) 60%, transparent);
+  font: var(--font-button);
+}
+
+.set-tile__more {
+  display: grid;
+  place-items: center;
+  box-shadow: var(--control-border);
+  color: var(--color-accent);
+  font: var(--font-button);
+  letter-spacing: var(--tracking-button);
+}
+
+.set-tile__foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.set-tile__track {
+  align-self: stretch;
+}
+
+.set-tile__track--tiered {
+  margin-bottom: 20px;
+}
+
+.set-tile__next {
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.set-tile__next b {
+  color: var(--color-text-max);
+}
+
+.set-tile__path {
+  container-type: inline-size;
+  display: flex;
+  align-items: flex-start;
+  margin-top: auto;
+}
+
+.set-tile__node {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  color: var(--tier);
+  font: var(--font-card-meta);
+  letter-spacing: var(--tracking-card-meta);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.set-tile__node + .set-tile__node::before {
+  content: "";
+  position: absolute;
+  top: 13px;
+  right: 50%;
+  width: 100%;
+  height: var(--space-unit);
+  background: var(--color-line-soft);
+}
+
+.set-tile__dot {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  background: var(--color-panel);
+  box-shadow: inset 0 0 0 var(--space-unit) currentColor;
+  font: var(--font-label);
+}
+
+.set-tile__node--reached .set-tile__dot {
+  background: var(--tier);
+  color: var(--color-outline);
+  box-shadow: none;
+}
+
+.set-tile__node--next .set-tile__dot {
+  box-shadow: inset 0 0 0 var(--space-unit) var(--tier), 0 0 0 3px color-mix(in srgb, var(--tier) 30%, transparent);
+}
+
+.set-tile__node--later {
+  color: var(--color-line-deep);
+}
+
+.set-tile__node-name {
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+@container (max-width: 290px) {
+  .set-tile__node-name {
+    font-size: 9px;
+  }
+}
+
+.set-tile__node-required {
+  color: var(--color-muted);
+}
+
+.set-tile__last {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  color: var(--color-muted);
+  font: var(--font-body-small);
+  letter-spacing: var(--tracking-body-small);
+}
+
+.set-tile__last-card {
+  --tile-card-scale: 0.375;
+  flex: none;
+  width: calc(var(--card-s-width) * var(--tile-card-scale));
+  height: calc(var(--card-s-height) * var(--tile-card-scale));
+}
+
+.set-tile__last-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.set-tile__last-title {
+  color: var(--color-text-max);
+}
+
+.set-tile__cta.button {
+  width: 100%;
+  margin: 0;
+  margin-top: auto;
+}
+
 /* Filter chips: control-bordered plates, the ones on in accent. */
 .filter-chip__text {
   display: inline-flex;
@@ -879,6 +1292,10 @@ button.filter-chip {
 /* ---- Phone: one column, chips, the RAPPORT folded, two cards a row ---- */
 
 @media (max-width: 719px) {
+  .set-tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   /* The phone's top bar: the back button, the title and the status, as
      mocked. */
   .top-bar--status .player-chip {

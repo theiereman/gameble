@@ -2,6 +2,8 @@ module SetRowsHelper
   # The notches of an earlier season's metal tier; a rank has its own mark.
   NOTCHES = { "bronze" => 1, "silver" => 2, "gold" => 3 }.freeze
 
+  PathNode = Data.define(:tier, :required, :state, :missing)
+
   def set_kind_name(kind)
     t("library.set_kinds.#{kind}")
   end
@@ -73,6 +75,42 @@ module SetRowsHelper
 
   def rank_tier?(tier)
     Catalog::TierTable::RANKS.include?(tier)
+  end
+
+  def set_rank_chip(standing)
+    tier = standing.reached_tier
+    return tag.span(t("library.set_tile.no_tier"), class: "set-chip set-chip--rank set-chip--none") if tier.nil?
+
+    set_tier_chip(tier, class: "set-chip--rank")
+  end
+
+  def set_tier_chip(tier, **attrs)
+    tag.span(set_tier_name(tier), class: [ "set-chip", "tier-tone--#{tier}", attrs[:class] ])
+  end
+
+  def set_next_tier_line(standing)
+    return if standing.missing.nil?
+
+    t("library.set_tile.next_html", count: standing.missing, missing: number_with_delimiter(standing.missing), tier: set_tier_chip(standing.next_tier))
+  end
+
+  def set_tier_path(standing)
+    upcoming = standing.next_tier
+    standing.thresholds.map do |tier, required|
+      state = if required <= standing.held then :reached elsif tier == upcoming then :next else :later end
+      PathNode.new(tier:, required:, state:, missing: required - standing.held)
+    end
+  end
+
+  def set_gained_ago(time, now: Time.current)
+    minutes = [ ((now - time) / 60).floor, 1 ].max
+    if minutes < 60
+      t("library.set_tile.gained.minutes", count: minutes)
+    elsif minutes < 24 * 60
+      t("library.set_tile.gained.hours", count: minutes / 60)
+    else
+      t("library.set_tile.gained.days", count: minutes / (24 * 60))
+    end
   end
 
   private

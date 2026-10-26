@@ -5,7 +5,8 @@ require_relative "../support/library_requests"
 require_relative "../support/steam_sign_in"
 
 # The collection. Its entry: the search over every set and the way to all
-# the cards, then the sets in progress, closest first. Its grid of every card of the
+# the cards, then the sets in progress as tiles, closest first, a frame
+# loaded after the page. Its grid of every card of the
 # season: the top bar's unique cards, the RAPPORT, the filters (state,
 # rarity, the set group that picks a kind then finds a set by name, genre)
 # and the search, the grid of every card's face sixty to a page, a
@@ -997,7 +998,19 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
   def entry_row(name) = css_select(".set-entry .set-row").find { it.at_css(".set-row__name").text == name }
 
-  def sentence(name) = entry_row(name).at_css(".visually-hidden").text
+  # EN COURS, the frame the entry loads after the page.
+  def get_in_progress(locale: :en) = get library_in_progress_path(locale:), headers: { "Turbo-Frame" => "set-entry-in-progress" }
+
+  def tiles = css_select("turbo-frame#set-entry-in-progress #set-entry-in-progress-title ~ ul.set-tiles > li > a.set-tile")
+
+  # The tiles as [ name, kind, rank, "owned/total" ].
+  def tile_rows
+    tiles.map { [ it.at_css(".set-tile__name").text, it.at_css(".set-tile__kind").text, it.at_css(".set-chip--rank").text, it.at_css(".set-tile__count").text ] }
+  end
+
+  def tile(name) = tiles.find { it.at_css(".set-tile__name").text == name }
+
+  def sentence(name) = (entry_row(name) || tile(name)).at_css("> .visually-hidden").text
 
   # A season of `count` cards, reviewed more the later they come, so a set
   # of later cards is more popular; its card-season ids are taken in order.
@@ -1027,7 +1040,7 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     queries
   end
 
-  test "the entry opens on the sets closest to their next tier or completion, each row read as one sentence" do
+  test "the entry loads EN COURS after the page, every set in progress a tile, closest to its next tier first, each read as one sentence" do
     entry_season
     player = accounts_players(:player)
     halo = named("franchise", "Halo", 3)
@@ -1045,31 +1058,138 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1.visually-hidden", "Collection"
     assert_select ".top-bar__title", "Collection"
     assert_select ".top-bar__end .collection-status .collection-status__value", "74 / 300"
-    assert_equal [ "Find a set", "In progress" ], css_select(".set-entry h2").map(&:text)
-    assert_equal [ [ "Halo", "Franchise", nil, "2/3" ], [ "Supergiant", "Studio", nil, "3/5" ], [ "Roguelike", "Theme", "Silver", "29/62" ],
-      [ "Metroidvania", "Theme", "Gold", "40/77" ] ], entry_rows("in-progress")
+    assert_equal [ "Find a set" ], css_select(".set-entry h2").map(&:text)
+    assert_select ".set-search .set-search__row a.button--primary[href='/en/library/cards']", "All cards" do
+      assert_select "svg.pixel-icon[aria-hidden=true]"
+    end
+    assert_select ".set-entry > .set-search + turbo-frame#set-search-results + " \
+      "turbo-frame#set-entry-in-progress.set-entry__in-progress[src='/en/library/in-progress'][loading=lazy][target=_top]" do
+      assert_select "p.set-entry__loading", "Loading the sets in progress…"
+    end
+    assert_select ".set-tile, .set-row, .set-entry__empty", false
+    assert_select "[style]", false
+
+    get_in_progress
+
+    assert_response :success
+    assert_select "turbo-frame#set-entry-in-progress[target=_top] > section.set-entry__section[aria-labelledby=set-entry-in-progress-title] > h2", "In progress"
+    assert_equal [ [ "Halo", "Franchise", "No tier", "2/3" ], [ "Supergiant", "Studio", "No tier", "3/5" ], [ "Roguelike", "Theme", "Silver", "29/62" ],
+      [ "Metroidvania", "Theme", "Gold", "40/77" ] ], tile_rows
     assert_equal "Halo, franchise, 2 cards out of 3", sentence("Halo")
     assert_equal "Roguelike, theme, 29 cards out of 62, silver tier, gold at 31", sentence("Roguelike")
     assert_equal "Metroidvania, theme, 40 cards out of 77, gold tier", sentence("Metroidvania")
     assert_equal [ "/en/library/franchise/halo", "/en/library/studio/supergiant", "/en/library/theme/roguelike", "/en/library/theme/metroidvania" ],
-      css_select("#set-entry-in-progress-title ~ .set-entry__list a.set-row").map { it["href"] }
-    row = entry_row("Roguelike")
-    assert_equal [ "true" ] * 4, [ ".set-row__name", ".set-row__meta", ".set-row__count", ".set-row__track" ].map { row.at_css(it)["aria-hidden"] }
-    assert_equal [ [ "bronze", true, 1, "0.1129" ], [ "silver", true, 2, "0.2581" ], [ "gold", false, 3, "0.5" ] ], row.css(".set-row__tick").map { |tick|
+      tiles.map { it["href"] }
+    tile = tile("Roguelike")
+    assert_equal [ "true", "true" ], tile.css("> .set-tile__face").map { it["aria-hidden"] }
+    assert_equal [ [ "bronze", true, 1, "0.1129" ], [ "silver", true, 2, "0.2581" ], [ "gold", false, 3, "0.5" ] ], tile.css(".set-row__tick").map { |tick|
       [ tick["class"][/--(\w+)/, 1], tick.classes.include?("is-reached"), tick.css(".set-notches i").size, tick["data-tier-at"] ]
     }
+    assert_equal "tier-ticks", tile.at_css(".set-tile__track.set-tile__track--tiered")["data-controller"]
     assert_select "progress.set-row__bar[value='29'][max='62']"
-    assert_empty entry_row("Halo").css(".set-row__tick")
-    assert_nil entry_row("Horror")
-    assert_select ".set-search .set-search__row a.button--primary[href='/en/library/cards']", "All cards" do
-      assert_select "svg.pixel-icon[aria-hidden=true]"
-    end
-    assert_select ".set-search ~ .set-entry__section #set-entry-in-progress-title"
+    assert_empty tile("Halo").css(".set-row__tick")
+    assert_nil tile("Horror")
+    assert_select "a.set-tile a, a.set-tile button", false
     assert_select ".set-entry__empty", false
     assert_select "[style]", false
   end
 
-  test "a ranked set's row carries one tick per rank by its size, each with its mark and its place, and a reached rank beside the count" do
+  test "a tile's recto: its rank, its cards and what the next tier asks; its verso: the tier path, the game gained last and the way to the album" do
+    entry_season
+    player = accounts_players(:player)
+    halo = named("franchise", "Halo", 3)
+    roguelike = theme("roguelike", 62)
+    Catalog::CardSeason.where(id: halo[2]).update_all(rarity: Catalog::Rarity::TIERS.key(:epic))
+    Catalog::CardSeason.where(id: roguelike[20]).update_all(rarity: Catalog::Rarity::TIERS.key(:legendary))
+    hold_all(player, halo.first(2), gained_at: 2.days.ago)
+    hold_all(player, roguelike.first(29), gained_at: 3.hours.ago)
+    sign_in(player)
+
+    get_in_progress(locale: :fr)
+
+    small = tile("Halo")
+    assert_equal [ [ "card", nil ], [ "card", nil ], [ "missing", "rarity-tone--epic" ] ],
+      small.css(".set-tile__cards > *").map { it.classes.include?("set-tile__missing") ? [ "missing", it.classes.grep(/rarity-tone/).sole ] : [ "card", nil ] }
+    assert_equal [ title(halo[0], "fr").upcase, title(halo[1], "fr").upcase ], small.css(".set-tile__card .card.card--s .card__title").map(&:text).map(&:upcase)
+    assert_equal "?", small.at_css(".set-tile__missing").text
+    assert_select small, ".set-chip--rank.set-chip--none", "Aucun palier"
+    assert_equal "Plus que 1 pour Complet", small.at_css(".set-tile__next").text.squish
+    assert_select small, ".set-tile__next .set-chip.tier-tone--complete", "Complet"
+    assert_equal [ [ "complete", "next", "1", "Complet", "3" ] ], path(small)
+    assert_equal "Halo, franchise, 2 cartes sur 3", sentence("Halo")
+
+    large = tile("Roguelike")
+    assert_equal 3, large.css(".set-tile__card .card.card--s").size
+    assert_equal title(roguelike[20], "fr"), large.at_css(".set-tile__card .card__title").text
+    assert_equal "+26", large.at_css(".set-tile__more").text
+    assert_select large, ".set-tile__missing", false
+    assert_select large, ".set-chip--rank.tier-tone--silver", "Argent"
+    assert_equal "Plus que 2 pour Or", large.at_css(".set-tile__next").text.squish
+    assert_equal [ [ "bronze", "reached", "", "Bronze", "7" ], [ "silver", "reached", "", "Argent", "16" ], [ "gold", "next", "2", "Or", "31" ],
+      [ "complete", "later", "33", "Complet", "62" ] ], path(large)
+    assert_select large, ".set-tile__node--reached .set-tile__dot svg.set-tile__check", 2
+    assert_equal "29/62", large.at_css(".set-tile__face--verso .set-tile__count").text
+
+    assert_equal [ "Dernière obtenue", "il y a 2 jours" ], [ small.at_css(".set-tile__last-label").text, small.at_css(".set-tile__last-text").text.squish[/il y a .*\z/] ]
+    assert_equal "il y a 3 h", large.at_css(".set-tile__last-text").text.squish[/il y a .*\z/]
+    assert_select large, ".set-tile__last .set-tile__last-card .card.card--s", 1
+    tiles.each { |tile| assert_select tile, ".set-tile__face--verso > span.button.button--primary.set-tile__cta:last-child", "Voir l'album" }
+  end
+
+  # The verso's tier path as [ tier, state, figure in its dot, name, threshold ].
+  def path(tile)
+    tile.css(".set-tile__node").map do |node|
+      [ node["class"][/tier-tone--(\w+)/, 1], node["class"][/set-tile__node--(\w+)/, 1], node.at_css(".set-tile__dot").text.strip,
+        node.at_css(".set-tile__node-name").text, node.at_css(".set-tile__node-required").text ]
+    end
+  end
+
+  test "the set closest to its next tier, the first of a tie, wears the gold frame, one per list" do
+    entry_season
+    player = accounts_players(:player)
+    far = theme("roguelike", 62)
+    near = named("franchise", "Halo", 5)
+    tied = named("studio", "Supergiant", 5)
+    latest = Time.utc(2026, 10, 17, 9)
+    hold_all(player, far.first(10), gained_at: latest - 1.day)
+    hold_all(player, near.first(3) + tied.first(3), gained_at: latest - 1.day)
+    hold_all(player, [ far[10] ], gained_at: latest)
+    sign_in(player)
+
+    get_in_progress
+
+    assert_equal [ "Roguelike", "Halo", "Supergiant" ], tile_rows.map(&:first)
+    assert_equal [ "Halo" ], tiles.select { it.classes.include?("set-tile--closest") }.map { it.at_css(".set-tile__name").text }
+  end
+
+  test "EN COURS shows every set in progress, for the same queries with three sets or forty" do
+    entry_season(540)
+    player = accounts_players(:player)
+    sets = (1..45).map { theme("theme-#{it}", 12) }
+    hold_all(player, sets.first(3).flat_map { it.first(2) })
+    sign_in(player)
+
+    three = count_queries { get_in_progress }
+    assert_equal [ "2/12" ] * 3, tile_rows.map(&:last)
+
+    hold_all(player, sets[3, 37].flat_map { it.first(2) })
+    forty = count_queries { get_in_progress }
+    assert_equal 40, tiles.size
+    assert_equal three, forty
+    # Player lookup, season; the standings, the sets named, their cards and
+    # the faces of those shown; the themes' names.
+    assert_equal 7, forty
+  end
+
+  test "EN COURS opened as a page leads to the entry" do
+    sign_in(accounts_players(:player))
+
+    get library_in_progress_path(locale: :en)
+
+    assert_redirected_to library_path(locale: :en)
+  end
+
+  test "a ranked set's tile carries one tick per rank by its size, each with its mark and its place, and its reached rank in its head" do
     entry_season
     player = accounts_players(:player)
     sets = { "Tiny" => 3, "Small" => 7, "Roguelike" => 40, "Huge" => 250 }.to_h do |name, size|
@@ -1080,32 +1200,34 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     hold_all(player, sets["Tiny"].first(2) + sets["Small"].first(2) + sets["Roguelike"].first(22) + sets["Huge"].first(30))
     sign_in(player)
 
-    get library_path(locale: :en)
+    get_in_progress
 
-    ticks = ->(name) { entry_row(name).css(".set-row__tick").map { [ it["class"][/--(\w+)/, 1], it["data-tier-at"], it.classes.include?("is-reached") ] } }
+    ticks = ->(name) { tile(name).css(".set-row__tick").map { [ it["class"][/--(\w+)/, 1], it["data-tier-at"], it.classes.include?("is-reached") ] } }
     assert_empty ticks.("Tiny")
     assert_equal [ [ "master", "0.5714", false ] ], ticks.("Small")
     assert_equal [ [ "adept", "0.25", true ], [ "expert", "0.5", true ], [ "master", "0.75", false ] ], ticks.("Roguelike")
     assert_equal [ [ "novice", "0.1", true ], [ "apprentice", "0.252", false ], [ "adept", "0.5", false ], [ "expert", "0.752", false ], [ "master", "0.9", false ] ],
       ticks.("Huge")
     sets.each_key do |name|
-      row = entry_row(name)
-      assert_equal row.css(".set-row__tick").map { it["class"][/--(\w+)/, 1] },
-        row.css(".set-row__tick > .set-row__tick-mark > svg.rank-mark.rank-mark--fine").map { it["class"][/rank-mark--(?!fine)(\w+)/, 1] }
-      assert_equal name != "Tiny", row.classes.include?("set-row--tiered"), name
-      assert_equal "tier-ticks", row.at_css(".set-row__track")["data-controller"]
+      tile = tile(name)
+      assert_equal tile.css(".set-row__tick").map { it["class"][/--(\w+)/, 1] },
+        tile.css(".set-row__tick > .set-row__tick-mark > svg.rank-mark.rank-mark--fine").map { it["class"][/rank-mark--(?!fine)(\w+)/, 1] }
+      assert_equal name != "Tiny", tile.at_css(".set-tile__track").classes.include?("set-tile__track--tiered"), name
+      assert_equal "tier-ticks", tile.at_css(".set-tile__track")["data-controller"]
     end
     assert_select ".set-row__figure, .set-album__figure", false
 
-    roguelike = entry_row("Roguelike")
-    assert_equal "Expert", roguelike.at_css(".set-tier.set-tier--expert").text
-    assert roguelike.at_css(".set-tier > svg.set-tier__check + svg.rank-mark.rank-mark--expert.rank-mark--fine + span")
+    roguelike = tile("Roguelike")
+    assert_equal "Expert", roguelike.at_css(".set-chip--rank.tier-tone--expert").text
+    assert_equal "Only 8 more for Master", roguelike.at_css(".set-tile__next").text.squish
+    assert_equal [ %w[adept reached], %w[expert reached], %w[master next], %w[complete later] ],
+      roguelike.css(".set-tile__node").map { [ it["class"][/tier-tone--(\w+)/, 1], it["class"][/set-tile__node--(\w+)/, 1] ] }
     assert_equal "Roguelike, theme, 22 cards out of 40, expert tier, master at 30", sentence("Roguelike")
-    assert_nil entry_row("Small").at_css(".set-tier")
+    assert_equal "No tier", tile("Small").at_css(".set-chip--rank").text
     assert_select "[style]", false
   end
 
-  test "the entry costs the same queries with three sets started or forty" do
+  test "the entry costs the same queries with three sets started or forty, its search included" do
     entry_season(540)
     player = accounts_players(:player)
     sets = (1..45).map { theme("theme-#{it}", 12) }
@@ -1113,16 +1235,17 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     sign_in(player)
 
     three = count_queries { get library_path(locale: :en, q: "theme") }
-    assert_equal [ "2/12" ] * 3, entry_rows("in-progress").map(&:last)
+    assert_equal 3, entry_rows("results").count { it.last == "2/12" }
 
     hold_all(player, sets[3, 37].flat_map { it.first(2) })
     forty = count_queries { get library_path(locale: :en, q: "theme") }
-    assert_equal 10, entry_rows("in-progress").size
     assert_equal three, forty
     # Player lookup, season, unique cards and the season's count; the
-    # standings, the sets named; the search's sets and the figures of those
-    # not started; the tab bar's trades waiting; the themes' names.
-    assert_equal 10, forty
+    # search's sets, the standings and the figures of those not started; the
+    # tab bar's trades waiting; the themes' names.
+    assert_equal 9, forty
+    # No search: neither the sets nor the standings.
+    assert_equal 5, count_queries { get library_path(locale: :en) }
   end
 
   test "a player who holds no card sees the search, the way to all the cards and a line pointing to the search; a visitor is sent to the landing" do
@@ -1132,14 +1255,13 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
 
     get library_path(locale: :fr)
 
-    assert_select "#set-entry-in-progress-title", false
     assert_equal [ "Chercher un set" ], css_select(".set-entry h2").map(&:text)
     assert_select ".set-search a.button--primary[href='/fr/library/cards']", "Toutes les cartes"
-    assert_select ".set-search ~ p.set-entry__empty", "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
-    assert_select ".set-entry .set-row", false
+    assert_select ".set-search + turbo-frame#set-search-results + turbo-frame#set-entry-in-progress[src='/fr/library/in-progress']"
 
-    get library_path(locale: :fr, q: "souls")
-    assert_select ".set-search + turbo-frame#set-search-results + p.set-entry__empty"
+    get_in_progress(locale: :fr)
+    assert_select "#set-entry-in-progress-title, .set-tile", false
+    assert_select "turbo-frame#set-entry-in-progress > p.set-entry__empty", "Aucun set en cours pour l'instant. Cherchez-en un ci-dessus."
 
     delete session_path(locale: :fr)
     get library_path(locale: :en)
@@ -1147,6 +1269,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_response :see_other
     assert_nil flash[:alert]
     get library_path(locale: :en, q: "rogue"), headers: { "Turbo-Frame" => "set-search-results" }
+    assert_redirected_to home_path(locale: :en)
+    get_in_progress
     assert_redirected_to home_path(locale: :en)
   end
 
@@ -1179,11 +1303,11 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     Game::SetTier.insert_all!([ { player_id: player.id, set_id:, tier: "bronze", reached_by: "trade", reached_at: latest, created_at: latest, updated_at: latest } ])
     sign_in(player)
 
-    get library_path(locale: :fr)
+    get_in_progress(locale: :fr)
 
-    assert_equal [ [ "Roguelike", "Thème", "Bronze", "12/62" ], [ "Halo", "Franchise", nil, "2/3" ] ], entry_rows("in-progress")
+    assert_equal [ [ "Roguelike", "Thème", "Bronze", "12/62" ], [ "Halo", "Franchise", "Aucun palier", "2/3" ] ], tile_rows
     assert_equal "Roguelike, thème, 12 cartes sur 62, palier bronze, argent à 16", sentence("Roguelike")
-    assert_nil entry_row("Pirates")
+    assert_nil tile("Pirates")
   end
 
   test "a game held only in an earlier edition counts in the published season's set" do
@@ -1197,9 +1321,9 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     hold_all(player, [ others.first ])
     sign_in(player)
 
-    get library_path(locale: :en)
+    get_in_progress
 
-    assert_equal [ [ "Puzzle", "Theme", "Bronze", "2/20" ] ], entry_rows("in-progress")
+    assert_equal [ [ "Puzzle", "Theme", "Bronze", "2/20" ] ], tile_rows
   end
 
   test "the search finds a set by name, accents and case ignored; none says so; blank shows no results" do
@@ -1222,8 +1346,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
       end
       assert_select ".set-search__row ~ p.set-search__status[role=status]", "1 set trouvé"
     end
-    assert_equal [ "Chercher un set", "Résultats", "En cours" ], css_select(".set-entry h2").map(&:text)
-    assert_select ".set-entry > .set-search + turbo-frame#set-search-results + .set-entry__section"
+    assert_equal [ "Chercher un set", "Résultats" ], css_select(".set-entry h2").map(&:text)
+    assert_select ".set-entry > .set-search + turbo-frame#set-search-results + turbo-frame#set-entry-in-progress"
     assert_select "#set-search-title", "Chercher un set"
     assert_select "turbo-frame#set-search-results[target=_top]" do
       assert_select "[data-set-search-summary][hidden]", "1 set trouvé"
@@ -1239,7 +1363,8 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     get library_path(locale: :fr, q: "HÂLO")
     assert_equal [ [ "Halo", "Franchise", "Complet", "3/3" ] ], entry_rows("results")
     assert_equal "Halo, franchise, 3 cartes sur 3, complet", sentence("Halo")
-    assert_select "#set-entry-in-progress-title ~ .set-entry__list .set-row__name", { text: "Halo", count: 0 }
+    get_in_progress(locale: :fr)
+    assert_equal [ "Souls-like" ], tile_rows.map(&:first)
 
     get library_path(locale: :en, q: "r")
     # "Halo" is found by its kind, "Franchise".
@@ -1271,6 +1396,17 @@ class LibraryControllerTest < ActionDispatch::IntegrationTest
     assert_select "main [data-id]", false
     ids.each do |id|
       assert_no_match(/\b#{id}\b/, html.gsub(/\d+\/\d+|\d+ (cards?|sets?) |out of \d+|at \d+|value="\d+"|max="\d+"|maxlength="\d+"/, ""))
+    end
+
+    assert_no_changes -> { [ Game::SetTier.count, Game::PlayerState.find_by!(player_id: player.id).attributes ] } do
+      get_in_progress
+    end
+
+    assert_equal [ "5/30" ], tile_rows.map(&:last)
+    html = css_select("turbo-frame").sole.to_html
+    assert_select "[data-id]", false
+    ids.each do |id|
+      assert_no_match(/\b#{id}\b/, html.gsub(/\d+\/\d+|\d+ (cards?|sets?) |out of \d+|at \d+|\+\d+|value="\d+"|max="\d+"|seed-\d+-\d+|board-\d+-\d+|data-card-art-[a-z-]+-value="\d+"|data-tilt-max-value="\d+"|data-tier-at="[\d.]+"|width="\d+"|height="\d+"|viewbox="[\d ]+"|\b(19|20)\d\d\b|[MmHhVvZz][\d.-]+|<b>\d+<\/b>|"set-tile__dot">\d+|"set-tile__node-required">\d+|il y a \d+|\d+ (minutes?|hours?|days?) ago/, ""))
     end
   end
 

@@ -17,7 +17,7 @@ class PublicProfilesController < ApplicationController
   include SetAlbumLoading
   include ChosenCards
 
-  MOST_COMPLETE_SETS_SHOWN = 20
+  MOST_COMPLETE_SETS_SHOWN = 6
 
   before_action :authorize_page
   before_action :load_owner
@@ -91,7 +91,7 @@ class PublicProfilesController < ApplicationController
       @activity = Game::ProfileActivity.call(@owner)
       standings = started_standings
       @started_set_count = standings.size
-      @started_sets = most_complete_set_rows(standings)
+      @started_sets = most_complete_set_tiles(standings)
     end
 
     def started_standings
@@ -99,8 +99,8 @@ class PublicProfilesController < ApplicationController
         .sort_by { |standing| [ standing.complete? ? 0 : 1, -standing.share, standing.set_id ] }
     end
 
-    def most_complete_set_rows(standings)
+    def most_complete_set_tiles(standings)
       shown = standings.first(MOST_COMPLETE_SETS_SHOWN)
-      set_rows(shown, Catalog::SetsById.call(shown.map(&:set_id)))
+      set_tiles(set_rows(shown, Catalog::SetsById.call(shown.map(&:set_id))), owner: @owner, season: @season)
     end
 end

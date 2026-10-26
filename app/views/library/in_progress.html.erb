@@ -1,0 +1,14 @@
+<%= turbo_frame_tag "set-entry-in-progress", class: "set-entry__in-progress", target: "_top" do %>
+  <% if @tiles.any? %>
+    <section class="set-entry__section" aria-labelledby="set-entry-in-progress-title">
+      <h2 id="set-entry-in-progress-title" class="set-entry__title"><%= t("library.entry.in_progress") %></h2>
+      <ul class="set-tiles">
+        <% @tiles.each do |tile| %>
+          <li><%= render "library/set_progress_tile", href: library_set_path(kind: tile.set.kind, key: tile.set.key), tile: %></li>
+        <% end %>
+      </ul>
+    </section>
+  <% else %>
+    <p class="set-entry__empty"><%= t("library.entry.no_progress") %></p>
+  <% end %>
+<% end %>

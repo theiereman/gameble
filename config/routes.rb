@@ -29,6 +29,7 @@ Rails.application.routes.draw do
     # The collection, reached from the hub's menu: its entry, the player's
     # sets; the grid of every card of the season.
     resource :library, controller: :library, only: :show
+    get "library/in-progress" => "library#in_progress", as: :library_in_progress
     get "library/cards" => "library#cards", as: :library_cards
     # One set's album, by kind and key, never by id.
     get "library/:kind/:key" => "library#set", as: :library_set, constraints: { kind: Catalog::SetKind::PATTERN }

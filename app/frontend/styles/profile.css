@@ -407,19 +407,6 @@ html[data-motion="reduced"] .profile-showcase--sortable .profile-showcase__slot 
   gap: var(--space-3);
 }
 
-.profile-sets {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3) var(--space-4);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.profile-sets .set-row {
-  height: 100%;
-}
-
 /* ---- A profile that cannot be shown: one quiet panel, centred ---- */
 
 .profile-unavailable {
@@ -537,8 +524,7 @@ html[data-motion="reduced"] .profile-showcase--sortable .profile-showcase__slot 
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .achievements__grid.profile-achievements,
-  .profile-sets {
+  .achievements__grid.profile-achievements {
     grid-template-columns: minmax(0, 1fr);
   }
 

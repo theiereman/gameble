@@ -44,7 +44,8 @@ class PublicProfileTest < ApplicationSystemTestCase
     assert_selector "h1", text: "Gabe the Brave"
     assert_selector ".profile-band__avatar"
     assert_selector ".profile-band__keys .profile-figure", text: /\Acards\s*8\//i
-    assert_selector ".profile-sets .set-row", text: %r{\AHorror\s+Theme\s+.*8/16}im
+    assert_selector ".profile-sets a.set-tile > .visually-hidden", text: /\AHorror, theme, 8 cards out of 16\b/, visible: :all
+    assert_no_selector ".profile-sets .set-tile__last", visible: :all
     take_screenshot
 
     sign_out

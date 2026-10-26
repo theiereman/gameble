@@ -256,19 +256,20 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     assert_select ".set-album__ticks, .set-row__tick, .set-album__figure", false
   end
 
-  test "an earlier season's metal theme of 3 cards has completion alone: no ticks and no metal on its row or its album" do
+  test "an earlier season's metal theme of 3 cards has completion alone: no ticks and no metal on its tile or its album" do
     season, cards = published_cards(3)
     insert_theme(cards, key: "roguelike", season:)
     player = accounts_players(:player)
     hold_all(player, cards.first(2))
     sign_in(player)
 
-    get library_path(locale: :en)
+    get library_in_progress_path(locale: :en), headers: { "Turbo-Frame" => "set-entry-in-progress" }
 
-    row = css_select(".set-entry .set-row").sole
-    assert_empty row.css(".set-tier")
-    assert_not row.classes.include?("set-row--tiered")
-    assert_empty row.css(".set-row__tick")
+    tile = css_select("a.set-tile").sole
+    assert_equal "No tier", tile.at_css(".set-chip--rank").text
+    assert_not tile.at_css(".set-tile__track").classes.include?("set-tile__track--tiered")
+    assert_empty tile.css(".set-row__tick")
+    assert_equal [ "set-tile__node set-tile__node--next tier-tone--complete" ], tile.css(".set-tile__node").map { it["class"] }
 
     get library_set_path(locale: :en, kind: "theme", key: "roguelike")
 
@@ -526,7 +527,9 @@ class LibrarySetTest < ActionDispatch::IntegrationTest
     get library_path(locale: :en)
     assert_select "header.top-bar[data-screen-label=Sets]"
     assert_select ".top-bar__start--phone-previous", false
-    assert_select ".set-entry[data-controller=last-album][data-action='turbo:frame-load->last-album#mark'] a.set-row"
+    assert_select ".set-entry[data-controller=last-album][data-action='turbo:frame-load->last-album#mark'] turbo-frame#set-entry-in-progress"
+    get library_in_progress_path(locale: :en), headers: { "Turbo-Frame" => "set-entry-in-progress" }
+    assert_select "a.set-tile[href='/en/library/theme/horror']"
 
     get library_cards_path(locale: :en)
     assert_select "header.top-bar[data-screen-label=Collection]"

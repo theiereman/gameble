@@ -24,7 +24,14 @@ class LibraryController < ApplicationController
     return if @season.nil?
 
     load_unique_cards
-    load_set_board(@season, owner: current_player)
+    load_set_search(@season, owner: current_player)
+  end
+
+  def in_progress
+    authorize :page, :play?
+    return redirect_to library_path unless turbo_frame_request?
+
+    load_set_tiles(Catalog::PublishedSeason.call, owner: current_player)
   end
 
   # GET /:locale/library/cards: the grid of every game.

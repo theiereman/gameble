@@ -5,9 +5,9 @@
     <p class="profile-section__aside"><%= t("public_profiles.show.sets.started", count: started_set_count) %></p>
   </div>
   <% if started_sets.any? %>
-    <ul class="profile-sets">
-      <% started_sets.each do |row| %>
-        <li><%= render "library/set_progress_row", href: brother_set_path(owner.token, kind: row.set.kind, key: row.set.key), set: row.set, standing: row.standing %></li>
+    <ul class="profile-sets set-tiles">
+      <% started_sets.each do |tile| %>
+        <li><%= render "library/set_progress_tile", href: brother_set_path(owner.token, kind: tile.set.kind, key: tile.set.key), tile:, last_gained: false %></li>
       <% end %>
     </ul>
   <% end %>

@@ -1349,6 +1349,7 @@ en:
         other: "%{count} sets found"
         zero: No set found
       in_progress: In progress
+      loading: Loading the sets in progress…
       no_progress: No set in progress yet. Find one above.
       none: No set found for “%{query}”.
       results: Results
@@ -1443,6 +1444,26 @@ en:
         master: Master
         novice: Novice
         silver: Silver
+    set_tile:
+      gained:
+        days:
+          one: yesterday
+          other: "%{count} days ago"
+        hours:
+          one: "%{count} hour ago"
+          other: "%{count} hours ago"
+        minutes:
+          one: "%{count} minute ago"
+          other: "%{count} minutes ago"
+      last_gained: Last gained
+      more:
+        one: "+%{others}"
+        other: "+%{others}"
+      next_html:
+        one: Only <b>%{missing}</b> more for %{tier}
+        other: Only <b>%{missing}</b> more for %{tier}
+      no_tier: No tier
+      open_album: View the album
     show:
       no_season: No season of cards is published yet.
     status:

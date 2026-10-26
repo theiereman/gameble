@@ -8,7 +8,7 @@ export default class extends Controller<HTMLElement> {
 
   mark(): void {
     const pathname = lastAlbum(albumStorage())
-    for (const row of this.element.querySelectorAll<HTMLAnchorElement>("a.set-row")) {
+    for (const row of this.element.querySelectorAll<HTMLAnchorElement>("a.set-row, a.set-tile")) {
       if (leadsTo(row.href, location.href, pathname)) {
         row.setAttribute("aria-current", "true")
       } else if (row.getAttribute("aria-current") === "true") {

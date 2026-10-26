@@ -39,7 +39,18 @@ class LibraryTest < ApplicationSystemTestCase
     assert page.evaluate_script("document.documentElement.scrollWidth <= window.innerWidth"), "the page should not scroll sideways"
   end
 
-  def row(name) = find(".set-entry__list .set-row", text: /\A#{Regexp.escape(name)}\b/i)
+  def tile(key) = find(".set-tiles a.set-tile[href='#{library_set_path(locale: :en, kind: "theme", key:)}']")
+
+  # The tile's sentence, its accessible name, read from its hidden span.
+  def assert_tile(sentence) = assert_selector(".set-tiles a.set-tile > .visually-hidden", text: sentence, visible: :all)
+
+  def turned?(tile) = tile.evaluate_script("getComputedStyle(this).getPropertyValue('--turned').trim()") == "1"
+
+  def face_style(tile, face, property) = tile.evaluate_script("getComputedStyle(this.querySelector('.set-tile__face--#{face}')).#{property}")
+
+  def unturned?(tile) = face_style(tile, "verso", "transform").in?([ "none", "matrix(1, 0, 0, 1, 0, 0)" ])
+
+  def box(element) = element.evaluate_script("(() => { const r = this.getBoundingClientRect(); return [ r.x, r.y, r.width, r.height ].map(Math.round) })()")
 
   test "a player goes from menu 02 to a theme: its progress, their faces with their copies, the missing cards not owned" do
     sign_in
@@ -49,12 +60,12 @@ class LibraryTest < ApplicationSystemTestCase
     assert_current_path library_path(locale: :en)
     assert_selector ".top-bar__title", text: /\ACOLLECTION\z/
     assert_selector ".collection-status", text: %r{\AUnique cards:\s*3 / 150}
-    assert_selector ".set-entry__list .set-row", text: %r{HORROR\s+THEME\s+3/16}
-    assert_selector ".set-entry__list .set-row", text: %r{PIRATES\s+THEME\s+3/8}
+    assert_tile(/\AHorror, theme, 3 cards out of 16\b/)
+    assert_tile(/\APirates, theme, 3 cards out of 8\b/)
     assert_no_selector ".collection-grid"
     take_screenshot
 
-    row("Horror").click
+    tile("horror").click
 
     assert_current_path library_set_path(locale: :en, kind: "theme", key: "horror")
     assert_selector ".set-album__count", text: "3/16"
@@ -87,6 +98,36 @@ class LibraryTest < ApplicationSystemTestCase
     assert_current_path home_path(locale: :en)
   end
 
+  test "EN COURS arrives after the page as tiles; keyboard focus turns a tile in place, reduced motion fades it instead" do
+    sign_in
+    visit library_path(locale: :en)
+
+    assert_selector "#set-search-field"
+    assert_tile(/\APirates, theme, 3 cards out of 8\b/)
+    assert_selector ".set-tiles a.set-tile .set-tile__card .card.card--s", minimum: 2
+    assert_equal 2, page.evaluate_script("new Set([ ...document.querySelectorAll('.set-tiles > li') ].map((li) => Math.round(li.getBoundingClientRect().left))).size")
+    first = find(".set-tiles a.set-tile", match: :first)
+    at_rest = [ box(first), box(first.find(:xpath, "..")) ]
+    assert_not unturned?(first), "the verso should start turned away"
+
+    find(".set-search__row a.button--primary").send_keys(:tab)
+    assert_selector ".set-tiles > li:first-child > a.set-tile:focus"
+    eventually("the focused tile should turn to its verso") { turned?(first) && unturned?(first) }
+    assert_equal at_rest, [ box(first), box(first.find(:xpath, "..")) ]
+    assert_selector ".set-tiles a.set-tile:focus .set-tile__face--verso .set-tile__cta", text: /VIEW THE ALBUM/i
+    take_screenshot
+
+    page.execute_script("document.documentElement.dataset.motion = 'reduced'")
+    eventually("under reduced motion the verso should fade in, unturned") do
+      face_style(first, "verso", "transform") == "none" && face_style(first, "verso", "opacity") == "1" && face_style(first, "recto", "opacity") == "0"
+    end
+    assert_equal at_rest, [ box(first), box(first.find(:xpath, "..")) ]
+    page.execute_script("delete document.documentElement.dataset.motion")
+
+    first.send_keys(:enter)
+    assert_current_path library_set_path(locale: :en, kind: "theme", key: "pirates")
+  end
+
   test "a player who unticks the only state chip keeps every slot, as the form without JavaScript" do
     sign_in
     visit library_cards_path(locale: :en)
@@ -99,7 +140,7 @@ class LibraryTest < ApplicationSystemTestCase
     assert_selector "[role=status]", text: "150 cards shown.", visible: :all
   end
 
-  test "on a 390 × 844 phone the tab leads here: the sets a list of rows, then the grid with the RAPPORT folded, two cards a row" do
+  test "on a 390 × 844 phone the tab leads here: the sets a column of tiles, then the grid with the RAPPORT folded, two cards a row" do
     page.driver.browser.manage.window.resize_to(390, 844)
     sign_in
 
@@ -107,7 +148,8 @@ class LibraryTest < ApplicationSystemTestCase
 
     assert_current_path library_path(locale: :en)
     assert_selector ".collection-status__value", text: "3 / 150"
-    assert_selector ".set-entry__list .set-row", text: %r{HORROR\s+THEME\s+3/16}
+    assert_tile(/\AHorror, theme, 3 cards out of 16\b/)
+    assert_equal 1, page.evaluate_script("new Set([ ...document.querySelectorAll('.set-tiles > li') ].map((li) => Math.round(li.getBoundingClientRect().left))).size")
     assert_no_sideways_scroll
 
     click_on "All cards"

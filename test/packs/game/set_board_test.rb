@@ -27,7 +27,7 @@ class Game::SetBoardTest < ActiveSupport::TestCase
     [ insert_set(members, { complete: size }, kind:, key:, params: { kind => key }, season: @season), members ]
   end
 
-  def board(player = @player, **options) = Game::SetBoard.call(player, season: @season, **options)
+  def board(player = @player) = Game::SetBoard.call(player, season: @season)
 
   def ids(standings) = standings.map(&:set_id)
 
@@ -79,7 +79,6 @@ class Game::SetBoardTest < ActiveSupport::TestCase
 
     result = board
     assert_empty result.in_progress
-    assert_empty result.standings
     hub = Game::SetBoard.hub(@player, season: @season)
     assert_equal sets.last(4).reverse, ids(hub)
     assert hub.all? { it.held.zero? && it.total == 20 && it.tiers.key?("bronze") }
@@ -105,14 +104,13 @@ class Game::SetBoardTest < ActiveSupport::TestCase
     assert_equal [ fresh ], ids(result.in_progress)
     assert result.in_progress.first.complete?
     assert_not_includes ids(Game::SetBoard.hub(@player, season: @season)), done
-    assert result.standings.fetch(done).complete?
   end
 
-  test "in progress shows ten at most" do
+  test "in progress shows every set in progress, while the hub keeps four" do
     12.times { |index| hold_all(@player, theme("theme-#{index}", 10).last.first(2)) }
 
-    assert_equal 10, board.in_progress.size
-    assert_equal 3, board(in_progress: 3).in_progress.size
+    assert_equal 12, board.in_progress.size
+    assert_equal 4, Game::SetBoard.hub(@player, season: @season).size
   end
 
   test "the same number of queries with three sets started or forty" do

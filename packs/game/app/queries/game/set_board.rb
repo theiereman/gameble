@@ -1,14 +1,13 @@
 module Game
   module SetBoard
-    Board = Data.define(:in_progress, :standings)
-    EMPTY = Board.new(in_progress: [], standings: {})
+    Board = Data.define(:in_progress)
+    EMPTY = Board.new(in_progress: [])
     HUB_ROWS = 4
 
-    def self.call(player, season:, in_progress: 10)
+    def self.call(player, season:)
       return EMPTY if season.nil?
 
-      standings = SetsInProgress.call(player, season:)
-      Board.new(in_progress: ranked_in_progress(standings.values).first(in_progress), standings:)
+      Board.new(in_progress: ranked_in_progress(SetsInProgress.call(player, season:).values))
     end
 
     def self.hub(player, season:)

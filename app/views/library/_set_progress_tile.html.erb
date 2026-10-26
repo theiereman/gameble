@@ -1,0 +1,61 @@
+<%# locals: (href:, tile:, last_gained: true) %>
+<% standing = tile.standing %>
+<% showcase = tile.showcase %>
+<% title = capture do %>
+  <span class="set-tile__title">
+    <span class="set-tile__name"><%= SetLabel.for(tile.set) %></span>
+    <span class="set-tile__kind"><%= set_kind_name(tile.set.kind) %></span>
+  </span>
+<% end %>
+<%= link_to href, class: class_names("set-tile", "set-tile--closest": tile.closest), data: { turbo_prefetch: false } do %>
+  <span class="set-tile__face set-tile__face--recto" aria-hidden="true">
+    <span class="set-tile__head"><%= title %><%= set_rank_chip(standing) %></span>
+    <span class="set-tile__cards">
+      <% showcase.slots.each do |slot| %>
+        <% if slot.owned? %>
+          <span class="set-tile__card"><%= render CardComponent.new(card: slot.card, size: :s) %></span>
+        <% else %>
+          <span class="set-tile__missing rarity-tone--<%= slot.rarity %>">?</span>
+        <% end %>
+      <% end %>
+      <% if showcase.others.positive? %>
+        <span class="set-tile__more"><%= t("library.set_tile.more", count: showcase.others, others: number_with_delimiter(showcase.others)) %></span>
+      <% end %>
+    </span>
+    <span class="set-tile__foot">
+      <span class="<%= class_names("set-row__track", "set-tile__track", "set-tile__track--tiered": set_tier_ticks?(standing)) %>" data-controller="tier-ticks">
+        <progress class="set-row__bar" value="<%= [ standing.held, standing.total ].min %>" max="<%= [ standing.total, 1 ].max %>"></progress>
+        <%= set_tier_ticks(standing) %>
+      </span>
+      <% if (next_tier = set_next_tier_line(standing)) %>
+        <span class="set-tile__next"><%= next_tier %></span>
+      <% end %>
+    </span>
+  </span>
+  <span class="set-tile__face set-tile__face--verso" aria-hidden="true">
+    <span class="set-tile__head">
+      <%= title %>
+      <span class="set-tile__count"><%= number_with_delimiter(standing.held) %><span class="set-tile__total">/<%= number_with_delimiter(standing.total) %></span></span>
+    </span>
+    <span class="set-tile__path">
+      <% set_tier_path(standing).each do |node| %>
+        <span class="set-tile__node set-tile__node--<%= node.state %> tier-tone--<%= node.tier %>">
+          <span class="set-tile__dot"><%= node.state == :reached ? pixel_icon("check", class: "set-tile__check") : number_with_delimiter(node.missing) %></span>
+          <span class="set-tile__node-name"><%= set_tier_name(node.tier) %></span>
+          <span class="set-tile__node-required"><%= number_with_delimiter(node.required) %></span>
+        </span>
+      <% end %>
+    </span>
+    <% if last_gained && showcase.last_gained %>
+      <span class="set-tile__last">
+        <span class="set-tile__last-card"><%= render CardComponent.new(card: showcase.last_gained.card, size: :s) %></span>
+        <span class="set-tile__last-text">
+          <span class="set-tile__last-label"><%= t("library.set_tile.last_gained") %></span>
+          <span><span class="set-tile__last-title"><%= showcase.last_gained.card.title %></span> · <%= set_gained_ago(showcase.last_gained.gained_at) %></span>
+        </span>
+      </span>
+    <% end %>
+    <span class="button button--primary button--small set-tile__cta"><%= t("library.set_tile.open_album") %><%= pixel_icon("arrow-small-right") %></span>
+  </span>
+  <span class="visually-hidden"><%= set_progress_sentence(tile.set, standing) %></span>
+<% end %>

@@ -798,6 +798,7 @@ fr:
       all_cards: "Toutes les cartes"
       results: "Résultats"
       search_button: "Chercher"
+      loading: "Chargement des sets en cours…"
       found:
         zero: "Aucun set trouvé"
         one: "1 set trouvé"
@@ -827,6 +828,31 @@ fr:
         expert: "Expert"
         master: "Maître"
         complete: "Complet"
+    set_tile:
+      no_tier: "Aucun palier"
+      next_html:
+        zero: "Plus que <b>%{missing}</b> pour %{tier}"
+        one: "Plus que <b>%{missing}</b> pour %{tier}"
+        other: "Plus que <b>%{missing}</b> pour %{tier}"
+      more:
+        zero: "+%{others}"
+        one: "+%{others}"
+        other: "+%{others}"
+      last_gained: "Dernière obtenue"
+      open_album: "Voir l'album"
+      gained:
+        minutes:
+          zero: "il y a %{count} min"
+          one: "il y a %{count} min"
+          other: "il y a %{count} min"
+        hours:
+          zero: "il y a %{count} h"
+          one: "il y a %{count} h"
+          other: "il y a %{count} h"
+        days:
+          zero: "aujourd'hui"
+          one: "hier"
+          other: "il y a %{count} jours"
     album:
       title: "%{set} · Collection · Gameble"
       slots: "Cartes du set"

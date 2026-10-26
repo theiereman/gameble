@@ -59,7 +59,7 @@ class CollectionSetTest < ApplicationSystemTestCase
     sign_in(player)
 
     visit library_path(locale: :en)
-    find(".set-entry__list .set-row", text: /\AROGUELIKE\b/).click
+    find(".set-tiles a.set-tile[href='#{library_set_path(locale: :en, kind: "theme", key: "roguelike")}']").click
     assert_selector ".set-album__grid > li", count: 40, visible: :all
     assert_equal titles, album_titles
     header = find(".set-album__header").text
@@ -86,7 +86,7 @@ class CollectionSetTest < ApplicationSystemTestCase
     assert_selector "#set-album-heading:focus"
     go_back
     assert_current_path library_path(locale: :en)
-    find(".set-entry__list .set-row", text: /\AROGUELIKE\b/).click
+    find(".set-tiles a.set-tile[aria-current=true][href='#{library_set_path(locale: :en, kind: "theme", key: "roguelike")}']").click
     assert_selector "#set-album-heading:focus"
     assert_selector ".set-album__grid > li", count: 40, visible: :all
 
